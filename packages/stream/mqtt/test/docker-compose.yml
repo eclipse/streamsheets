@@ -1,0 +1,12 @@
+version: '3.1'
+
+services:
+  mosquitto5:
+    image: ralight/mosquitto:mqtt5-test2
+    container_name: mosquitto5
+    ports:
+    - 1883:1883
+    expose:
+    - 1883
+    logging:
+      driver: "none"

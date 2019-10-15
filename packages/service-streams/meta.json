@@ -1,0 +1,7 @@
+{
+	"type": "streams",
+	"name": "Streams Service",
+	"description": "Service that provides streams.",
+	"provider": "cedalo AG",
+	"buildNumber": "unknown"
+}

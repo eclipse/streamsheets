@@ -1,0 +1,19 @@
+{
+  "Top": "Oben",
+  "Left": "Links",
+  "Right": "Rechts",
+  "Bottom": "Unten",
+  "Inbox": "Eingang",
+  "Outbox": "Ausgang",
+  "Step": "Schritt",
+  "None": "Ohne",
+  "DataObject": "Payload",
+  "AddContainer": "Diesem Objekt zufügen",
+  "Inbox Settings": "<p style='font-weight: bold;'>Einstellungen Inbox</p>Festlegen des Consumers und der Optionen,<br /> wie und wann Nachrichten verarbeitet werden.",
+  "Delete StreamSheet": "Streamsheet löschen",
+  "Maximize StreamSheet": "Streamsheet maximieren",
+  "Minimize StreamSheet": "Streamsheet minimieren",
+  "Sheet Settings": "<p style='font-weight: bold;'>Einstellungen Tabelle</p>Festlegen von Tabellennamen und -größe und Anzeigeoptionen<br /> für das Gitternetz oder die Spalten-/Zeilenköpfe.",
+  "Summary": "Zusammenfassung",
+  "More Info": "Weitere Infos"
+}

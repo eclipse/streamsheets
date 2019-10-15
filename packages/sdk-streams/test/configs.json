@@ -1,0 +1,125 @@
+[
+  {
+    "_id": "REST_PROVIDER",
+    "id": "REST_PROVIDER",
+    "name": "RESTful API",
+    "owner": "user",
+    "className": "ProviderConfiguration",
+    "definition": {
+      "connector": [
+        {
+          "id": "baseUrl",
+          "label": "Base URL"
+        },
+        {
+          "id": "userName",
+          "label": "User Name"
+        },
+        {
+          "id": "password",
+          "label": "Password"
+        },
+        {
+          "id": "qos",
+          "label": "QoS"
+        }
+      ],
+      "consumer": [
+        {
+          "id": "subscribedTopics",
+          "label": "Topic URL"
+        }
+      ],
+      "producer": [
+        {
+          "id": "publishTopic",
+          "label": "Topic URL"
+        },
+        {
+          "id": "expectResponse",
+          "label": "Expect Response"
+        },
+        {
+          "id": "responseTimeout",
+          "label": "Response Timeout"
+        }
+      ]
+    }
+  },
+  {
+    "_id": "REST_CONNECTOR",
+    "id": "REST_CONNECTOR",
+    "owner": "user",
+    "name": "REST connector",
+    "className": "ConnectorConfiguration",
+    "disabled": null,
+    "lastAccessed": "2019-07-12T09:21:15.902Z",
+    "lastModified": "2019-07-12T09:21:15.902Z",
+    "provider": {
+      "_id": "REST_PROVIDER",
+      "id": "REST_PROVIDER",
+      "className": "ProviderConfiguration",
+      "isRef": true,
+      "owner": "user"
+    },
+    "baseUrl": "localhost",
+    "userName": "",
+    "qos": ""
+  },
+  {
+    "_id": "REST_CONSUMER",
+    "id": "REST_CONSUMER",
+    "name": "REST consumer",
+    "className": "ConsumerConfiguration",
+    "connector": {
+      "_id": "REST_CONNECTOR",
+      "className": "ConnectorConfiguration",
+      "isRef": true
+    },
+    "subscribedTopics": [
+      "cedalo/example"
+    ]
+  },
+  {
+    "_id": "REST_PRODUCER",
+    "id": "REST_PRODUCER",
+    "name": "REST producer",
+    "className": "ProducerConfiguration",
+    "connector": {
+      "_id": "REST_CONNECTOR",
+      "className": "ConnectorConfiguration",
+      "isRef": true
+    },
+    "publishTopic": "cedalo/example"
+  },
+  {
+    "_id": "REST_CONSUMER2",
+    "id": "REST_CONSUMER2",
+    "name": "REST consumer 2",
+    "className": "ConsumerConfiguration",
+    "connector": {
+      "_id": "REST_CONNECTOR",
+      "name": "REST connector",
+      "className": "ConnectorConfiguration",
+      "isRef": true
+    },
+    "subscribedTopics": [
+      "oxid/example"
+    ]
+  },
+  {
+    "_id": "REST_CONSUMER3",
+    "id": "REST_CONSUMER3",
+    "name": "Oxid REST consumer",
+    "className": "ConsumerConfiguration",
+    "connector": {
+      "_id": "REST_CONNECTOR",
+      "name": "REST connector",
+      "className": "ConnectorConfiguration",
+      "isRef": true
+    },
+    "subscribedTopics": [
+      "oxid/example"
+    ]
+  }
+]

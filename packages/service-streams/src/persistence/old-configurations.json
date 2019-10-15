@@ -1,0 +1,412 @@
+[
+	{
+		"_id": "MQTT JS",
+		"id": "MQTT JS",
+		"name": "MQTT JS",
+		"className": "ProviderConfiguration",
+		"protocol": "mqtt",
+		"hasConnector": true,
+		"fields": [
+			"provider",
+			"host",
+			"port",
+			"clientId",
+			"userName",
+			"password",
+			"CACertificate",
+			"clientCertificate",
+			"privateKey",
+			"qos"
+		],
+		"definition": {
+			"consumer": [
+				{
+					"id": "subscribedTopics",
+					"label": "Topic URL"
+				},
+				{
+					"id": "responseTimeout",
+					"label": "Response Timeout"
+				}
+			],
+			"connector": [
+				{
+					"id": "host",
+					"label": "URL"
+				},
+				{
+					"id": "port",
+					"label": "Port"
+				},
+				{
+					"id": "clientId",
+					"label": "Client Id"
+				},
+				{
+					"id": "userName",
+					"label": "User Name"
+				},
+				{
+					"id": "password",
+					"label": "Password"
+				},
+				{
+					"id": "CACertificate",
+					"label": "CA Certificate"
+				},
+				{
+					"id": "clientCertificate",
+					"label": "Client Certificate"
+				},
+				{
+					"id": "privateKey",
+					"label": "Private Key"
+				},
+				{
+					"id": "qos",
+					"label": "QoS"
+				}
+			]
+		}
+	},
+	{
+		"_id": "AWSIOT",
+		"id": "AWSIOT",
+		"name": "AWS IoT (MQTT)",
+		"className": "ProviderConfiguration",
+		"protocol": "mqtt",
+		"hasConnector": true,
+		"fields": [
+			"provider",
+			"host",
+			"port",
+			"clientId",
+			"CACertificate",
+			"clientCertificate",
+			"privateKey",
+			"qos"
+		],
+		"definition": {
+			"consumer": [
+				{
+					"id": "subscribedTopics",
+					"label": "Topic URL"
+				},
+				{
+					"id": "responseTimeout",
+					"label": "Response Timeout"
+				}
+			],
+			"connector": [
+				{
+					"id": "host",
+					"label": "URL"
+				},
+				{
+					"id": "port",
+					"label": "Port"
+				},
+				{
+					"id": "clientId",
+					"label": "Client Id"
+				},
+				{
+					"id": "userName",
+					"label": "User Name"
+				},
+				{
+					"id": "password",
+					"label": "Password"
+				},
+				{
+					"id": "CACertificate",
+					"label": "CA Certificate"
+				},
+				{
+					"id": "clientCertificate",
+					"label": "Client Certificate"
+				},
+				{
+					"id": "privateKey",
+					"label": "Private Key"
+				},
+				{
+					"id": "qos",
+					"label": "QoS"
+				}
+			]
+		}
+	},
+	{
+		"_id": "REST",
+		"id": "REST",
+		"name": "RESTful API",
+		"protocol": "rest",
+		"className": "ProviderConfiguration",
+		"hasConnector": false,
+		"fields": [
+			"baseUrl",
+			"userName",
+			"password",
+			"expectResponse",
+			"subscribedTopics",
+			"qos",
+			"responseTimeout"
+		],
+		"definition": {
+			"consumer": [
+				{
+					"id": "subscribedTopics",
+					"label": "Topic URL"
+				},
+				{
+					"id": "expectResponse",
+					"label": "Expect Response"
+				},
+				{
+					"id": "responseTimeout",
+					"label": "Response Timeout"
+				}
+			],
+			"connector": [
+				{
+					"id": "baseUrl",
+					"label": "Base URL"
+				},
+				{
+					"id": "userName",
+					"label": "User Name"
+				},
+				{
+					"id": "password",
+					"label": "Password"
+				},
+				{
+					"id": "qos",
+					"label": "QoS"
+				}
+			]
+		}
+	},
+	{
+		"_id": "MONGODB",
+		"id": "MONGODB",
+		"name": "Mongo DB",
+		"protocol": "mongo",
+		"className": "ProviderConfiguration",
+		"hasConnector": false,
+		"fields": [
+			"host",
+			"clusterName",
+			"authType",
+			"userName",
+			"subscribedTopics",
+			"clientId",
+			"samplePayloads"
+		],
+		"definition": {
+			"connector": [
+				{
+					"id": "host",
+					"label": "Host(s)"
+				},
+				{
+					"id": "clusterName",
+					"label": "ReplicaSet"
+				},
+				{
+					"id": "authType",
+					"label": "Authentication Mechanism"
+				},
+				{
+					"id": "userName",
+					"label": "User name"
+				},
+				{
+					"id": "password",
+					"label": "Password"
+				}
+			],
+			"consumer": [
+				{
+					"id": "subscribedTopics",
+					"label": "Collection(s)"
+				},
+				{
+					"id": "dbName",
+					"label": "Database Name"
+				},
+				{
+					"id": "samplePayloads",
+					"label": "Sample Payloads"
+				}
+			]
+		}
+	},
+	{
+		"_id": "KAFKA",
+		"id": "KAFKA",
+		"name": "Kafka",
+		"protocol": "kafka",
+		"className": "ProviderConfiguration",
+		"hasConnector": false,
+		"fields": ["host", "port", "userName", "password", "qos"]
+	},
+	{
+		"_id": "MONGODB_ADAPTER",
+		"id": "MONGODB_ADAPTER",
+		"name": "MONGODB connector",
+		"className": "ConnectorConfiguration",
+		"provider": {
+			"_id": "MONGODB",
+			"name": "Mongo DB",
+			"className": "ProviderConfiguration",
+			"isRef": true,
+			"protocol": "mongo",
+			"hasConnector": false
+		},
+		"host": "ec2-18-196-95-188.eu-central-1.compute.amazonaws.com:27017,ec2-18-196-95-188.eu-central-1.compute.amazonaws.com:27018,ec2-18-196-95-188.eu-central-1.compute.amazonaws.com:27019",
+		"clusterName": "aws-mongo-repl",
+		"userName": "cedalo",
+		"password": "secret",
+		"authType": "SCRAM-SHA-1"
+	},
+	{
+		"_id": "MOSQUITTO_ADAPTER",
+		"id": "MOSQUITTO_ADAPTER",
+		"name": "MOSQUITTO connector",
+		"className": "ConnectorConfiguration",
+		"provider": {
+			"_id": "MQTT JS",
+			"name": "MQTT JS",
+			"className": "ProviderConfiguration",
+			"isRef": true,
+			"protocol": "mqtt",
+			"hasConnector": true,
+			"fields": ["host", "port", "userName", "password"]
+		},
+		"host": "test.mosquitto.org"
+	},
+	{
+		"_id": "KAFKA_ADAPTER",
+		"id": "KAFKA_ADAPTER",
+		"name": "Kafka connector",
+		"className": "ConnectorConfiguration",
+		"provider": {
+			"_id": "KAFKA",
+			"name": "Kafka",
+			"className": "ProviderConfiguration",
+			"isRef": true,
+			"protocol": "kafka",
+			"hasConnector": false,
+			"fields": ["host", "port", "userName", "password"]
+		},
+		"host": "localhost"
+	},
+	{
+		"_id": "MOSQUITTO_CONSUMER",
+		"id": "MOSQUITTO_CONSUMER",
+		"name": "MOSQUITTO consumer",
+		"className": "ConsumerConfiguration",
+		"connector": {
+			"_id": "MOSQUITTO_ADAPTER",
+			"name": "MOSQUITTO connector",
+			"className": "ConnectorConfiguration",
+			"isRef": true
+		},
+		"subscribedTopics": ["cedalo/test"],
+		"samplePayloads": []
+	},
+	{
+		"_id": "KAFKA_CONSUMER",
+		"id": "KAFKA_CONSUMER",
+		"name": "Kafka consumer",
+		"className": "ConsumerConfiguration",
+		"connector": {
+			"_id": "KAFKA_ADAPTER",
+			"name": "Kafka connector",
+			"className": "ConnectorConfiguration",
+			"isRef": true
+		},
+		"subscribedTopics": ["test"],
+		"samplePayloads": []
+	},
+	{
+		"_id": "MONGODB_CONSUMER",
+		"id": "MONGODB_CONSUMER",
+		"name": "MONGODB consumer",
+		"className": "ConsumerConfiguration",
+		"connector": {
+			"_id": "MONGODB_ADAPTER",
+			"name": "MONGODB connector",
+			"className": "ConnectorConfiguration",
+			"isRef": true,
+			"provider": {
+				"_id": "MONGODB",
+				"name": "Mongo DB",
+				"className": "ProviderConfiguration",
+				"isRef": true,
+				"protocol": "mongo",
+				"hasConnector": false
+			}
+		},
+		"subscribedTopics": ["test1"],
+		"samplePayloads": [],
+		"expectResponse": false,
+		"qos": 0,
+		"dbName": "testdb1"
+	},
+	{
+		"_id": "REST_ADAPTER",
+		"id": "REST_ADAPTER",
+		"name": "REST connector",
+		"className": "ConnectorConfiguration",
+		"provider": {
+			"_id": "REST1",
+			"name": "RESTful API",
+			"className": "ProviderConfiguration",
+			"isRef": true,
+			"protocol": "rest",
+			"fields": ["host", "port", "userName", "password"]
+		}
+	},
+	{
+		"_id": "REST_CONSUMER",
+		"id": "REST_CONSUMER",
+		"name": "REST consumer",
+		"className": "ConsumerConfiguration",
+		"connector": {
+			"_id": "REST_ADAPTER",
+			"name": "REST connector",
+			"className": "ConnectorConfiguration",
+			"isRef": true
+		},
+		"subscribedTopics": ["cedalo/example"]
+	},
+	{
+		"_id": "REST_CONSUMER2",
+		"id": "REST_CONSUMER2",
+		"name": "REST consumer 2",
+		"className": "ConsumerConfiguration",
+		"connector": {
+			"_id": "REST_ADAPTER",
+			"name": "REST connector",
+			"className": "ConnectorConfiguration",
+			"isRef": true
+		},
+		"subscribedTopics": ["oxid/example"]
+	},
+	{
+		"_id": "REST_CONSUMER3",
+		"id": "REST_CONSUMER3",
+		"name": "Oxid REST consumer",
+		"className": "ConsumerConfiguration",
+		"connector": {
+			"_id": "REST_ADAPTER",
+			"name": "REST connector",
+			"className": "ConnectorConfiguration",
+			"isRef": true
+		},
+		"subscribedTopics": ["oxid/example"]
+	}
+]

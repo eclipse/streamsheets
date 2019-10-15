@@ -1,0 +1,7 @@
+{
+	"type": "graphs",
+	"name": "Graph Service",
+	"description": "Service that provides synchronisation of graph instances.",
+	"provider": "cedalo AG",
+	"buildNumber": "unknown"
+}

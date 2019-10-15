@@ -1,0 +1,114 @@
+<!-- use instead of Converter.js in editable-web-component: -->
+<!DOCTYPE html>
+<html style="width: 100%; height: 100%;overflow: hidden" lang="en>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cedalo Machine Component Demo</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+</head>
+<body style="width: calc(100% - 20px); height: calc(100% - 20px); margin: 10px">
+<p style="font-family: Roboto;font-size: 20pt">StreamSheet Widget Demo</p>
+    <div style="width: 100%; height: 100%; background-color: #9b9b9b">
+        <div style="width: calc(100% - 10px);height: 25px;padding: 5px; background-color: cornflowerblue">
+            <button onClick="onCreate()" type="button" style="margin-right: 10px">
+                Create
+            </button>
+            <input id="cellEdit"/>
+            <button onClick="onEditOK()" type="button" style="margin-right: 10px">
+                OK
+            </button>
+            <button style="font-weight: bold" onclick="onBold()" type="button">
+                B
+            </button>
+            <button style="font-style: italic" onclick="onItalic()" type="button" style="margin-right: 10px">
+                I
+            </button>
+            <input id="fillColor" type="color" onchange="onFillColor()" style="height: 18px" />
+        </div>
+        <div
+            style="width: calc(100% - 30px); display: grid; grid-gap: 50px; grid-template-columns: calc(50% - 25px) calc(50% - 25px); grid-template-rows: calc(50% - 25px) calc(50% - 25px); height: calc(100% - 120px);padding: 25px; background-color: white">
+            <stream-machine id="machine1" name="Windrad Neu" style="visibility: hidden"></stream-machine>
+            <stream-machine id="machine2" name="Smart Quality Check" viewmode="sheet" viewport="S1" style="visibility: hidden"></stream-machine>
+            <stream-machine id="machine3" name="Windrad Neu" viewmode="sheet" viewport="S1" header="hidden" grid="hidden" style="visibility: hidden"></stream-machine>
+            <div style="display: grid; background: #223D51; grid-row-gap: 10px; grid-template-rows: 30px 90px 90px 1fr; grid-template-columns: 1fr; align-items: center">
+                <div style="grid-row: 1; padding-left: 5px; color: white; font-size: 16pt; font-weight: bold; font-family: Roboto, sans-serif;">Machines Dashboard</div>
+                <machine-monitor id="monitor1" name="Windrad Neu"></machine-monitor>
+                <machine-monitor id="monitor2" name="Smart Quality Check"></machine-monitor>
+            </div>
+        </div>
+        <streamsheet-connection id="conn1" resturl="http://localhost:8080/api/v1.0" socketurl="ws://localhost:8088/machineserver-proxy">
+            <streamsheet-subscribe machines="machine1, machine2, machine3" syncsteps="true"></streamsheet-subscribe>
+        </streamsheet-connection>
+        <streamsheet-connection id="conn2" resturl="http://localhost:8080/api/v1.0" socketurl="ws://localhost:8088/machineserver-proxy">
+            <streamsheet-subscribe machines="monitor1, monitor2" syncsteps="true"></streamsheet-subscribe>
+        </streamsheet-connection>
+    </div>
+    <script>
+        function login(connId) {
+            const conn = document.getElementById(connId);
+            if (conn) conn.login('admin', '1234').catch(err => console.log('LOGIN ERROR: ', err));
+        }
+        window.onload = () => {
+            login("conn1");
+            login("conn2");
+        };
+        function onEditOK() {
+			const machine = document.getElementById("machine1");
+			const edit = document.getElementById("cellEdit");
+			const sheet = machine.streamsheets('S1');
+			const activeCell = sheet.activeCell;
+			if (activeCell) {
+				activeCell.value = edit.value;
+			} else {
+				alert('Please select a cell first!');
+            }
+		}
+		function getSheetSelection() {
+			const machine = document.getElementById("machine1");
+			const sheet = machine.streamsheets('S1');
+			return sheet.selection;
+        }
+        function onBold() {
+            const selection = this.getSheetSelection();
+            if (selection) {
+            	selection.bold = true;
+			} else {
+				alert('Please select a cell first!');
+            }
+        }
+		function onItalic() {
+			const selection = this.getSheetSelection();
+			if (selection) {
+				selection.italic = true;
+			} else {
+				alert('Please select a cell first!');
+			}
+		}
+		function onFillColor() {
+			const selection = this.getSheetSelection();
+			if (selection) {
+				selection.fillColor = document.getElementById("fillColor").value;
+			} else {
+				alert('Please select a cell first!');
+			}
+		}
+		function onCreate() {
+			const machine = document.getElementById("machine2");
+			const sheet = machine.streamsheets('S1');
+			const title = sheet.range('B2');
+            title.value = 'WindMill MQTT Source';
+            title.bold = true;
+            title.fillColor = '#DDDDDD';
+            title.fontSize = 12;
+			sheet.range('B4').value = 'JSON Payloads';
+			sheet.range('B6').value = 'Machine Data';
+			sheet.range('B7').value = 'Speed';
+			sheet.range('C7').value = '=ROUND(MIN(25,ROUND(MAX(1,B7+B20/100),2)),2)';
+			sheet.range('B8').value = 'Degrees';
+			sheet.range('B6:C8').key = true;
+			sheet.range('B7:B8').level = 1;
+		}
+    </script>
+</body>
+</html>

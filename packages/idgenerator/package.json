@@ -1,0 +1,38 @@
+{
+  "name": "@cedalo/id-generator",
+  "version": "1.4.0",
+  "description": "Generator for different types of ids",
+  "main": "index.js",
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedalo/streamsheets.git"
+  },
+  "author": "Cedalo AG",
+  "bugs": {
+    "url": "https://github.com/cedalo/streamsheets/issues"
+  },
+  "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/idgenerator",
+  "dependencies": {
+    "shortid": "2.2.8",
+    "uuid": "3.3.2"
+  },
+  "eslintConfig": {
+    "extends": [
+      "cedalo",
+      "prettier"
+    ],
+    "env": {
+      "browser": true,
+      "node": true
+    },
+    "rules": {
+      "global-require": 1,
+      "no-undef": 1,
+      "no-unused-vars": 1
+    }
+  },
+  "license": "EPL-2.0"
+}

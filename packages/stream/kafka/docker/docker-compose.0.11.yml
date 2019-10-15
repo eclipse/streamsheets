@@ -1,0 +1,8 @@
+version: '2'
+services:
+    kafka:
+      image: wurstmeister/kafka:0.11.0.0
+      environment:
+        KAFKA_LOG_MESSAGE_FORMAT_VERSION: "0.10.2"
+      volumes:
+        - ./docker/start-kafka.sh:/usr/bin/start-kafka.sh

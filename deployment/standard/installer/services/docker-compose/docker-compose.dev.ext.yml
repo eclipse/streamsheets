@@ -1,0 +1,82 @@
+version: '3.7'
+
+services:
+  reverseproxy:
+    image: nginx:latest
+    container_name: reverseproxy
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+        - 8081:8081
+    restart: always
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+  streamsheets-internal-broker:
+    image: eclipse-mosquitto:1.5
+    container_name: streamsheets-internal-broker
+    ports:
+      - 1884:1883
+    expose:
+      - 1884
+    volumes:
+      - ./mosquitto-internal/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto-internal/pw.txt:/mosquitto/config/pw.txt
+    logging:
+      driver: "none"
+    networks:
+      - streamsheets
+  streamsheets-internal-redis:
+    image: redis:4.0.11-alpine
+    container_name: streamsheets-internal-redis
+    command: >
+      --bind 0.0.0.0
+      --notify-keyspace-events Kls$$
+    ports:
+      - 6379:6379
+    expose:
+      - 6379
+    logging:
+      driver: "none"
+    networks:
+      - streamsheets
+  streamsheets-internal-mongodb:
+    # image: cedalo/mongodb-internal
+    image: mongo:3.6
+    container_name: streamsheets-internal-database
+    # environment:
+    #   - MONGO_INITDB_ROOT_USERNAME=admin
+    #   - MONGO_INITDB_ROOT_PASSWORD=P@$$w0rd123
+    # command: mongod
+    ports:
+      - 27018:27017
+    expose:
+      - 27018
+    volumes:
+      - streamsheets-data:/data/db
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+    deploy:
+      restart_policy:
+        condition: any
+  # internal-mongodb-seed:
+  #   image: cedalo/database-seed
+  #   container_name: database-seed
+  #   links:
+  #     - internal-mongodb
+  #   depends_on:
+  #     - internal-mongodb
+  #   networks:
+  #     - streamsheets
+volumes:
+  oklog:
+  streamsheets-data:
+    external: true
+
+networks:
+  streamsheets:
+    external:
+      name: streamsheets

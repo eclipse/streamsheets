@@ -1,0 +1,211 @@
+version: '3.5'
+
+services:
+  streamsheets-reverseproxy:
+    image: cedalo/reverseproxy:1.2-rpi
+    container_name: streamsheets-reverseproxy
+    ports:
+        - 8081:8081
+    restart: always
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+  streamsheets-webui:
+    image: cedalo/streamsheets-webui-personal:1.3-rpi
+    container_name: streamsheets-webui
+    ports:
+      - 9000:9000/tcp
+    links:
+      - streamsheets-gateway
+      - streamsheets-reverseproxy
+    expose:
+      - 9000
+    depends_on:
+      - streamsheets-reverseproxy
+    networks:
+      - streamsheets
+    # logging:
+    #   driver: "none"
+  streamsheets-gateway:
+    image: cedalo/streamsheets-gateway-personal:1.3-rpi
+    container_name: streamsheets-gateway
+    ports:
+      - 8080:8080/tcp
+      - 8088:8088/tcp
+    expose:
+      - 8080
+      - 8088
+    environment:
+      MESSAGE_BROKER_URL: mqtt://streamsheets-internal-broker:1883
+      MESSAGE_BROKER_USERNAME: cedalo
+      MESSAGE_BROKER_PASSWORD: r35aJkR!&dz
+      MESSAGE_BROKER_KEEP_ALIVE: 20
+      WS_PORT: 8088
+      HTTP_PORT: 8080
+      HTTP_HOST: "0.0.0.0"
+      GATEWAY_HTTP_PORT: 8080
+      GATEWAY_HTTP_HOST: "0.0.0.0"
+      MONGO_DATABASE: migration
+      MONGO_HOST: streamsheets-internal-mongodb
+      MONGO_PORT: 27017
+      REDIS_HOST: streamsheets-internal-redis
+      REDIS_PORT: 6379
+      GATEWAY_SERVICE_LOG_LEVEL: info
+      NODE_ENV: production
+    links:
+      - streamsheets-internal-mongodb
+    depends_on:
+      - streamsheets-internal-mongodb
+      - streamsheets-internal-broker
+      - streamsheets-internal-redis
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+  streamsheets-service-machines:
+    image: cedalo/streamsheets-service-machines-personal:1.3-rpi
+    container_name: streamsheets-service-machines
+    environment:
+      WEBPAGE_BASE: /var/tmp/
+      MESSAGE_BROKER_URL: mqtt://streamsheets-internal-broker:1883
+      MESSAGE_BROKER_USERNAME: cedalo
+      MESSAGE_BROKER_PASSWORD: r35aJkR!&dz
+      MESSAGE_BROKER_KEEP_ALIVE: 20
+      GATEWAY_SOCKET_ENDPOINT: ws://streamsheets-gateway:8088/machineserver-proxy
+      GATEWAY_HTTP_PORT: 8080
+      GATEWAY_HOST: streamsheets-gateway
+      MACHINE_SERVICE_LOG_LEVEL: info
+      MONGO_DATABASE: migration
+      MONGO_HOST: streamsheets-internal-mongodb
+      MONGO_PORT: 27017
+      REDIS_HOST: streamsheets-internal-redis
+      REDIS_PORT: 6379
+      NODE_ENV: production
+    links:
+      - streamsheets-gateway
+      - streamsheets-internal-broker
+      - streamsheets-internal-mongodb
+    depends_on:
+      - streamsheets-gateway
+      - streamsheets-internal-broker
+      - streamsheets-internal-mongodb
+      - streamsheets-internal-redis
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+  streamsheets-service-graphs:
+    image: cedalo/streamsheets-service-graphs-personal:1.3-rpi
+    container_name: streamsheets-service-graphs
+    environment:
+      MESSAGE_BROKER_URL: mqtt://streamsheets-internal-broker:1883
+      MESSAGE_BROKER_USERNAME: cedalo
+      MESSAGE_BROKER_PASSWORD: r35aJkR!&dz
+      MESSAGE_BROKER_KEEP_ALIVE: 20
+      GATEWAY_SOCKET_ENDPOINT: ws://streamsheets-gateway:8088/machineserver-proxy
+      GATEWAY_HTTP_PORT: 8080
+      GATEWAY_HOST: streamsheets-gateway
+      GRAPH_SERVICE_LOG_LEVEL: info
+      REDIS_HOST: streamsheets-internal-redis
+      REDIS_PORT: 6379
+      NODE_ENV: production
+    depends_on:
+      - streamsheets-internal-broker
+      - streamsheets-internal-redis
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+  streamsheets-service-streams:
+    image: cedalo/streamsheets-service-streams-personal:1.3-rpi
+    container_name: streamsheets-service-streams
+    environment:
+      MESSAGE_BROKER_URL: mqtt://streamsheets-internal-broker:1883
+      MESSAGE_BROKER_USERNAME: cedalo
+      MESSAGE_BROKER_PASSWORD: r35aJkR!&dz
+      MESSAGE_BROKER_KEEP_ALIVE: 20
+      MONGO_DATABASE: migration
+      MONGO_HOST: streamsheets-internal-mongodb
+      MONGO_PORT: 27017
+      RESTSERVER_PORT: 8083
+      STREAMSHEETS_LOG_LEVEL: debug
+      REDIS_HOST: streamsheets-internal-redis
+      REDIS_PORT: 6379
+      NODE_ENV: production
+    ports:
+      - 8083:8083/tcp
+    expose:
+      - 8083
+    links:
+      - streamsheets-internal-mongodb
+    depends_on:
+      - streamsheets-service-machines
+      - streamsheets-internal-broker
+      - streamsheets-internal-mongodb
+      - streamsheets-internal-redis
+      - broker
+    volumes:
+      - /tmp/examples/filefeeder:/filefeeder
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+  streamsheets-internal-broker:
+    image: eclipse-mosquitto:1.5
+    container_name: streamsheets-internal-broker
+    logging:
+      driver: "none"
+    volumes:
+      - ./mosquitto-internal/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto-internal/pw.txt:/mosquitto/config/pw.txt
+    networks:
+      - streamsheets
+  streamsheets-internal-redis:
+    image: arm32v7/redis
+    container_name: streamsheets-internal-redis
+    command: >
+      --bind 0.0.0.0
+      --notify-keyspace-events Kls$$
+    ports:
+      - 6379:6379
+    expose:
+      - 6379
+    logging:
+      driver: "none"
+    networks:
+      - streamsheets
+  streamsheets-internal-mongodb:
+    image: andresvidal/rpi3-mongodb3
+    #image: dhermanns/rpi-mongo
+    container_name: streamsheets-internal-database
+    #environment:
+      #MONGO_INITDB_ROOT_USERNAME: cedalo
+      #MONGO_INITDB_ROOT_PASSWORD: secret
+    #command: rm /var/lib/mongodb/mongod.lock
+    volumes:
+      - "/internal-mongo/data/db:/data/db"
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+  broker:
+    image: eclipse-mosquitto:1.5
+    container_name: broker
+    ports:
+      - 1883:1883
+      - 8082:8080
+    expose:
+      - 1883
+      - 8082
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/pw.txt:/mosquitto/config/pw.txt
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+networks:
+  streamsheets:
+    name: streamsheets
+    driver: bridge

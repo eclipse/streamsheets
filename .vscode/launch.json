@@ -1,0 +1,205 @@
+{
+	// Use IntelliSense to learn about possible Node.js debug attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "chrome",
+			"request": "attach",
+			"name": "Attach to Chrome",
+			"port": 9222,
+			"webRoot": "${workspaceFolder}/packages/webui"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Gateway",
+			"program": "${workspaceRoot}/streamsheets/packages/gateway/start.js",
+			"env": {
+				"HTTP_PORT": "8080",
+				"MONGO_DATABASE": "migration",
+				"MONGO_HOST": "localhost",
+				"MONGO_PORT": "27018",
+				"WS_PORT": "8088",
+				"SWAGGER_SPEC_PATH": "${workspaceRoot}/streamsheets/packages/gateway/src/public/swagger-spec/v1.0/gateway.yaml"
+            }
+		},
+		{
+            "name": "Tests gateway-client",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/streamsheets/packages/gateway-client/node_modules/jest-cli/bin/jest.js",
+            "stopOnEntry": false,
+            "args": ["--runInBand"],
+            "cwd": "${workspaceRoot}/streamsheets/packages/gateway-client/test/client/node/",
+            "preLaunchTask": null,
+            "runtimeExecutable": null,
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "externalConsole": false,
+            "sourceMaps": false,
+            "outDir": null
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Gateway Service",
+			"program": "${workspaceRoot}/streamsheets/packages/gateway/start.js",
+			"env": {
+				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
+				"MESSAGE_BROKER_USERNAME": "cedalo",
+				"MESSAGE_BROKER_PASSWORD": "r35aJkR!&dz",
+				"WS_PORT": "8088",
+      			"HTTP_PORT": "8080",
+      			"HTTP_HOST": "0.0.0.0",
+      			"GATEWAY_HTTP_PORT": "8080",
+      			"GATEWAY_HTTP_HOST": "0.0.0.0",
+				"MONGO_DATABASE": "streamsheets-development",
+				"MONGO_HOST": "localhost",
+				"MONGO_PORT": "27018",
+				"REDIS_HOST": "localhost",
+				"REDIS_PORT": "6379",
+				"SWAGGER_SPEC_PATH": "${workspaceRoot}/streamsheets/packages/gateway/src/public/swagger-spec/v1.0/gateway.yaml"
+            }
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Machine Service",
+			"program": "${workspaceRoot}/streamsheets/packages/service-machines/start.js",
+			"runtimeArgs": [
+				"--preserve-symlinks"
+			],
+			"autoAttachChildProcesses": true,
+			"env": {
+				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
+				"MESSAGE_BROKER_USERNAME": "cedalo",
+				"MESSAGE_BROKER_PASSWORD": "r35aJkR!&dz",
+				"MESSAGE_BROKER_KEEP_ALIVE": "20",
+				"MONGO_DATABASE": "streamsheets-development",
+				"MONGO_HOST": "localhost",
+				"MONGO_PORT": "27018",
+				"REDIS_HOST": "localhost",
+				"REDIS_PORT": "6379"
+			}
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Graph Service",
+			"program": "${workspaceRoot}/streamsheets/packages/service-graphs/start.js",
+			"env": {
+				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
+				"MESSAGE_BROKER_USERNAME": "cedalo",
+				"MESSAGE_BROKER_PASSWORD": "r35aJkR!&dz",
+				"REDIS_HOST": "localhost",
+				"REDIS_PORT": "6379",
+				"GATEWAY_JWT_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJzZXJ2aWNlLWdyYXBocyIsImlhdCI6MTU0ODI1MzI1NSwiZXhwIjoxNTc5Nzg5MjU1fQ.JRX_4F1FsDPPcQxg58n8WLh5rcbK7jYpBGCA6v-9qyQ",
+      			"GATEWAY_HTTP_PORT": "8080",
+      			"GATEWAY_HOST": "localhost",
+				"MONGO_DATABASE": "streamsheets-development",
+				"MONGO_HOST": "localhost",
+				"MONGO_PORT": "27018"
+            }
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Streams Service",
+			"program": "${workspaceRoot}/streamsheets/packages/service-streams/start.js",
+			"env": {
+				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
+				"MESSAGE_BROKER_USERNAME": "cedalo",
+				"MESSAGE_BROKER_PASSWORD": "r35aJkR!&dz",
+				"MONGO_DATABASE": "streamsheets-development",
+				"MONGO_HOST": "localhost",
+				"MONGO_PORT": "27018",
+				"REDIS_HOST": "localhost",
+				"REDIS_PORT": "6379",
+				// See https://github.com/ashtuchkin/iconv-lite/wiki/Supported-Encodings for all supported encodings
+				"FILE_FEEDER_ENCODINGS": "win1252,ascii",
+				"FILE_FEEDER_DEFAULT_ROOT": "/filefeeder",
+      			"STREAMSHEET_MAX_MESSAGE_SIZE": "100000",
+				"RESTSERVER_PORT": "8083"
+			},
+			"outputCapture": "std"
+		},
+		{
+		  "type": "node",
+		  "request": "launch",
+		  "name": "Jest Current File",
+		  "program": "${workspaceRoot}/streamsheets/packages/rest-server-core/node_modules/jest/bin/jest",
+		  "args": ["${file}"],
+		  "console": "integratedTerminal",
+		  "internalConsoleOptions": "neverOpen"
+		},
+		{
+			"type": "node",
+			"request": "attach",
+			"name": "Gateway Service Docker",
+			"address": "localhost",
+			"port": "9229",
+			"localRoot": "${workspaceRoot}/streamsheets/packages/gateway",
+			"remoteRoot": "app"
+		},
+		{
+			"type": "node",
+			"request": "attach",
+			"name": "Machine Service Docker",
+			"address": "localhost",
+			"port": "9230",
+			"localRoot": "${workspaceRoot}/streamsheets/packages/service-machines",
+			"remoteRoot": "app"
+		},
+		{
+			"type": "node",
+			"request": "attach",
+			"name": "Graph Service Docker",
+			"address": "localhost",
+			"port": "9231",
+			"localRoot": "${workspaceRoot}/streamsheets/packages/service-graphs",
+			"remoteRoot": "app"
+		},
+		{
+			"type": "node",
+			"request": "attach",
+			"name": "Streams Service Docker",
+			"address": "localhost",
+			"port": "9233",
+			"localRoot": "${workspaceRoot}/streamsheets/packages/service-streams",
+			"remoteRoot": "app"
+		},
+		{
+            "name": "Chrome",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceRoot}/streamsheets/webui/src"
+        }
+	],
+    "compounds": [
+        {
+            "name": "Streamsheets v1.3",
+            "configurations": [
+				"Gateway Service",
+				"Machine Service",
+				"Graph Service",
+				"Streams Service"
+			]
+		},
+        {
+            "name": "Streamsheets v1.3 Docker",
+            "configurations": [
+				"Gateway Service Docker",
+				"Machine Service Docker",
+				"Graph Service Docker",
+				"Streams Service Docker"
+			]
+		}
+    ]
+}

@@ -1,0 +1,18 @@
+version: '3.7'
+
+services:
+  nodered:
+    image: nodered/node-red-docker
+    container_name: nodered
+    ports:
+      - '1880:1880'
+    expose:
+      - 1880
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+networks:
+  streamsheets:
+    external:
+      name: streamsheets

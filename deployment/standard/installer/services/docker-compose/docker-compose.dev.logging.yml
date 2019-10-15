@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+  streamsheets-gateway:
+    logging:
+      driver: "json-file"
+  streamsheets-service-machines:
+    logging:
+      driver: "json-file"
+  streamsheets-service-graphs:
+    logging:
+      driver: "json-file"
+  streamsheets-service-streams:
+    logging:
+      driver: "json-file"
+  streamsheets-service-auth:
+    logging:
+      driver: "json-file"
+networks:
+  streamsheets:
+    external:
+      name: streamsheets

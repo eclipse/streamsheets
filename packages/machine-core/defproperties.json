@@ -1,0 +1,62 @@
+{
+	"attributes": {
+		"cell": {
+			"level": 0,
+			"protected": true,
+			"visible": true,
+			"key": false
+		},
+		"sheet": {
+			"defaultsectionsize": 2000,
+			"initialsection": 0
+		}
+	},
+	"formats": {
+		"styles": {
+			"brightness": 0,
+			"fillstyle": 0,
+			"fillcolor": "#FFFFFF",
+			"gradientcolor": "#CCCCCC",
+			"gradientcolorstops": "",
+			"gradientangle": 0,
+			"gradienttype": 0,
+			"gradientoffset_x": 0,
+			"gradientoffset_y": 0,
+			"linecolor": "#000000",
+			"linewidth": -1,
+			"linestyle": 1,
+			"lineshape": 0,
+			"linetransparency": 100,
+			"pattern": "",
+			"patternstyle": 0,
+			"transparency": 100,
+			"leftbordercolor": "#000000",
+			"leftborderstyle": 0,
+			"leftborderwidth": 1,
+			"topbordercolor": "#000000",
+			"topborderstyle": 0,
+			"topborderwidth": 1,
+			"rightbordercolor": "#000000",
+			"rightborderstyle": 0,
+			"rightborderwidth": 1,
+			"bottombordercolor": "#000000",
+			"bottomborderstyle": 0,
+			"bottomborderwidth": 1
+		},
+		"text": {
+			"baseline": "alphabetic",
+			"valign": 2,
+			"halign": 3,
+			"fontsize": 9,
+			"fontname": "Verdana",
+			"fontcolor": "#000000",
+			"fontstyle": 0,
+			"vposition": 3,
+			"hpostion": 3,
+			"richtext": true,
+			"lineheight": 1.2,
+			"numberformat": "General",
+			"localculture": "general"
+		}
+	}
+}

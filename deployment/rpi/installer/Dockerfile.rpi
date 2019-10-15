@@ -1,0 +1,12 @@
+FROM alpine:latest
+LABEL maintainer="philip.ackermann@cedalo.com"
+
+RUN apk --no-cache add curl gnupg unzip
+
+COPY ./scripts /scripts
+COPY install.sh /install
+RUN chmod +x /install
+
+RUN mkdir -p /streamsheets
+
+ENTRYPOINT ["/install"]

@@ -1,0 +1,7 @@
+{
+	"type": "machines",
+	"name": "Machine Service",
+	"description": "Service that provides a machine server.",
+	"provider": "cedalo AG",
+	"buildNumber": "unknown"
+}

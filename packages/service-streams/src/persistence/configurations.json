@@ -1,0 +1,124 @@
+[
+	{
+		"_id": "CONNECTOR_MQTT",
+		"id": "CONNECTOR_MQTT",
+		"name": "MQTT_Connector",
+		"className": "ConnectorConfiguration",
+		"provider": {
+			"_id": "@cedalo/stream-mqtt",
+			"id": "@cedalo/stream-mqtt",
+			"className": "ProviderConfiguration",
+			"isRef": true
+		},
+		"host": "broker",
+		"baseTopic": "",
+		"userName": "cedalo",
+		"password": "fc3fd1db-274e-4eec-b952-7ff4e1270e12"
+	},
+	{
+		"_id": "CONNECTOR_MONGODB",
+		"id": "CONNECTOR_MONGODB",
+		"name": "MongoDB_Connector",
+		"className": "ConnectorConfiguration",
+		"provider": {
+			"_id": "@cedalo/stream-mongodb",
+			"id": "@cedalo/stream-mongodb",
+			"className": "ProviderConfiguration",
+			"isRef": true
+		},
+		"externalHost": true,
+		"host": "mymongodb",
+		"dbName": "",
+		"clusterName": "",
+		"userName": "",
+		"password": "",
+		"authType": ""
+	},
+	{
+		"_id": "CONNECTOR_REST",
+		"id": "CONNECTOR_REST",
+		"name": "REST_Connector",
+		"className": "ConnectorConfiguration",
+		"provider": {
+			"_id": "@cedalo/rest-server",
+			"id": "@cedalo/rest-server",
+			"className": "ProviderConfiguration",
+			"isRef": true
+		},
+		"baseUrl": "cedalo",
+		"userName": "",
+		"password": ""
+	},
+	{
+		"_id": "CONSUMER_MQTT",
+		"id": "CONSUMER_MQTT",
+		"name": "MQTT_Consumer",
+		"className": "ConsumerConfiguration",
+		"connector": {
+			"_id": "CONNECTOR_MQTT",
+			"id": "CONNECTOR_MQTT",
+			"className": "ConnectorConfiguration",
+			"isRef": true
+		},
+		"topics": ["test", "test1"]
+	},
+	{
+		"_id": "PRODUCER_MQTT",
+		"id": "PRODUCER_MQTT",
+		"name": "MQTT_Producer",
+		"className": "ProducerConfiguration",
+		"connector": {
+			"_id": "CONNECTOR_MQTT",
+			"id": "CONNECTOR_MQTT",
+			"className": "ConnectorConfiguration",
+			"isRef": true
+		},
+		"topic": ""
+	},
+	{
+		"_id": "CONNECTOR_FILE_LOCAL",
+		"id": "CONNECTOR_FILE_LOCAL",
+		"name": "File_Connector",
+		"className": "ConnectorConfiguration",
+		"provider": {
+			"_id": "@cedalo/stream-file",
+			"id": "@cedalo/stream-file",
+			"className": "ProviderConfiguration",
+			"isRef": true
+		},
+		"protocol": "local",
+		"rootDir": ""
+	},
+	{
+		"_id": "CONNECTOR_KAFKA",
+		"id": "CONNECTOR_KAFKA",
+		"name": "Kafka_Connector",
+		"className": "ConnectorConfiguration",
+		"provider": {
+			"_id": "@cedalo/stream-kafka",
+			"id": "@cedalo/stream-kafka",
+			"className": "ProviderConfiguration",
+			"isRef": true
+		},
+		"auth": "none",
+		"connectionString": "",
+		"ksqlRESTUrl": "",
+		"registryUrl": "schema-registry:8081",
+		"schema": "{\n \"name\":\"test1\",\n  \"type\":\"record\",\n   \"fields\":[\n        {\"name\":\"random\",\"type\": \"int\"},\n        {\"name\":\"type\",\"type\":\"int\"}\n   ]\n}",
+		"ksqlCommand": "show topics;",
+		"ksqlCommandRun": true,
+		"connectTimeout": 10000
+	},
+	{
+		"_id": "CONNECTOR_EMAIL",
+		"id": "CONNECTOR_EMAIL",
+		"name": "Email_Connector",
+		"className": "ConnectorConfiguration",
+		"provider": {
+			"_id": "@cedalo/stream-mail-pop3",
+			"id": "@cedalo/stream-mail-pop3",
+			"className": "ProviderConfiguration",
+			"isRef": true
+		}
+	}
+]

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html style="width: 100%; height: 100%;overflow: hidden" lang="en>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cedalo Machine Component Demo</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+</head>
+<body style="width: calc(100% - 20px); height: calc(100% - 20px); margin: 10px">
+<p style="font-family: Roboto;font-size: 20pt">StreamSheet Widget Demo</p>
+    <div style="width: 100%; height: 100%; background-color: #9b9b9b">
+        <div style="width: calc(100% - 10px);height: 25px;padding: 5px; background-color: cornflowerblue">
+            <button id="btnLogout" onClick="onLogout()" type="button" disabled="true" style="margin-right: 10px">
+                Logout
+            </button>
+        </div>
+        <div
+            style="width: calc(100% - 30px); display: grid; grid-gap: 50px; grid-template-columns: calc(50% - 25px) calc(50% - 25px); grid-template-rows: calc(50% - 25px) calc(50% - 25px); height: calc(100% - 120px);padding: 25px; background-color: white">
+            <stream-machine id="machine1" name="Windrad Neu" style="visibility: hidden"></stream-machine>
+            <stream-machine id="machine2" name="Smart Quality Check" viewmode="sheet" viewport="S1" style="visibility: hidden"></stream-machine>
+            <stream-machine id="machine3" name="Windrad Neu" viewmode="sheet" viewport="S1" header="hidden" grid="hidden" style="visibility: hidden"></stream-machine>
+            <div style="display: grid; background: #223D51; grid-row-gap: 10px; grid-template-rows: 30px 90px 90px 1fr; grid-template-columns: 1fr; align-items: center">
+                <div style="grid-row: 1; padding-left: 5px; color: white; font-size: 16pt; font-weight: bold; font-family: Roboto, sans-serif;">Machines Dashboard</div>
+                <machine-monitor id="monitor1" name="Windrad Neu"></machine-monitor>
+                <machine-monitor id="monitor2" name="Smart Quality Check"></machine-monitor>
+            </div>
+        </div>
+        <login-panel id="login">
+            <streamsheet-connection id="conn1" resturl="http://localhost:8080/api/v1.0" socketurl="ws://localhost:8088/machineserver-proxy">
+                <streamsheet-subscribe machines="machine1, machine2, machine3" syncsteps="true"></streamsheet-subscribe>
+            </streamsheet-connection>
+            <streamsheet-connection id="conn2" resturl="http://localhost:8080/api/v1.0" socketurl="ws://localhost:8088/machineserver-proxy">
+                <streamsheet-subscribe machines="monitor1, monitor2" syncsteps="true"></streamsheet-subscribe>
+            </streamsheet-connection>
+        </login-panel>
+    </div>
+    <script>
+        function setEnableButton(btnId, doIt = true) {
+            const btn = document.getElementById(btnId);
+            btn.disabled = !doIt;
+        } 
+        function toggleLogin() {
+        }
+        function onLogout() {
+            const loginpanel = document.getElementById("login");
+            loginpanel.logout();
+            this.setEnableButton("btnLogout", false);
+        }
+        window.onload = () => {
+            const loginpanel = document.getElementById("login");
+            loginpanel
+                .whenReady()
+                .then(() => {
+                    this.setEnableButton("btnLogout", true);
+                })
+                .catch(err => console.log('LOGIN ERROR: ', err));
+        };
+    </script>
+</body>
+</html>

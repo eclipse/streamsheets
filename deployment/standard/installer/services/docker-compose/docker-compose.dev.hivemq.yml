@@ -1,0 +1,31 @@
+version: '3.7'
+
+services:
+  streamsheets-service-streams:
+    depends_on:
+      - hivemq3
+      - hivemq4
+  hivemq3:
+    image: hivemq/hivemq3
+    container_name: hivemq3
+    ports:
+    - "8086:8080"
+    - "1885:1883"
+    expose:
+      - 1885
+    networks:
+    - streamsheets
+  hivemq4:
+    image: hivemq/hivemq4
+    container_name: hivemq4
+    ports:
+    - "8087:8080"
+    - "1886:1883"
+    expose:
+      - 1886
+    networks:
+    - streamsheets
+networks:
+  streamsheets:
+    external:
+      name: streamsheets

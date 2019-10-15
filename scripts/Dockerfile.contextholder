@@ -1,0 +1,8 @@
+ARG BASE_IMAGE=node:12.4.0-alpine
+FROM $BASE_IMAGE
+
+COPY .yarnrc package.json yarn.lock ./scripts/workspace-util.js /build/
+COPY ./npm-packages-offline-cache  /build/npm-packages-offline-cache
+COPY ./packages  ./packages-with-source
+
+COPY ./packagejsons /build

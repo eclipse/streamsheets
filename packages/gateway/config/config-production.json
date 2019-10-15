@@ -1,0 +1,53 @@
+{
+	"app": {
+		"authProviders": "",
+		"appUrl": "http://localhost:8081"
+	},
+	"auth": {
+		"strategies": {
+			"github": {
+				"callbackURL": "http://localhost:8080/api/v1.0/auth/github/callback",
+				"clientID": "5a4444d35051b3764217",
+				"clientSecret": "cdf18521521ea5b258064e3b3ce6821d2c8da63b"
+			},
+			"openid": {
+				"issuerHost": "https://splicex.ibm-garage.com/oidc/endpoint/I4P",
+				"redirect_uri": "http://localhost:8080/api/v1.0/auth/openid/callback",
+				"client_id": "ac79392c49a746f2bd42a8361c4dc6f4",
+				"client_secret": "SSaE1XgvJHwhfcRdRAxJD7cVyAunTeStqmDPQrJ8bTHsiO8PLVG6r1u1kjpu",
+				"scope": "openid splicexuser splicexuserpicture"
+			},
+			"google": {
+				"passReqToCallback": true,
+				"callbackURL": "http://localhost:8080/api/v1.0/auth/google/callback",
+				"clientID": "447904582198-h668saj7eh5adr1uf79093c1ikaag8r6.apps.googleusercontent.com",
+				"clientSecret": "neclp82mQzOqQn7NIDxndqp2",
+				"scope": [
+					"https://www.googleapis.com/auth/userinfo.email",
+					"https://www.googleapis.com/auth/userinfo.profile"
+				]
+			},
+			"oauth2": {
+				"authorizationURL": "https://splicex.ibm-garage.com/oidc/endpoint/I4P/jwk",
+				"tokenURL": "https://splicex.ibm-garage.com/oidc/endpoint/I4P/jwk",
+				"callbackURL": "http://localhost:8080/api/v1.0/auth/ibm/callback",
+				"clientID": "ac79392c49a746f2bd42a8361c4dc6f4",
+				"clientSecret": "SSaE1XgvJHwhfcRdRAxJD7cVyAunTeStqmDPQrJ8bTHsiO8PLVG6r1u1kjpu"
+			},
+			"ldap": {
+				"passReqToCallback": true,
+				"callbackURL": "http://localhost:8080/api/v1.0/auth/ldap/callback",
+				"clientID": "447904582198-h668saj7eh5adr1uf79093c1ikaag8r6.apps.googleusercontent.com",
+				"clientSecret": "neclp82mQzOqQn7NIDxndqp2",
+				"url": "ldap://127.0.0.1:389",
+				"bindDN": "dc=example,dc=org",
+				"bindCredentials": "secret",
+				"searchBase": "dc=example,dc=org",
+				"searchFilter": "(uid={{cn}})"
+			}
+		},
+		"redirectSuccessUrl": "http://localhost:8081/login",
+		"redirectLogoutUrl": "http://localhost:8081/logout",
+		"redirectFailUrl": "http://localhost:8081/login"
+	}
+}

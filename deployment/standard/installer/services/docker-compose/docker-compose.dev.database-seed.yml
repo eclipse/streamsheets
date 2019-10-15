@@ -1,0 +1,16 @@
+version: '3.7'
+
+services:
+  internal-mongodb-seed:
+    build: ../docker/database-seed
+    container_name: database-seed
+    links:
+      - internal-mongodb
+    depends_on:
+      - internal-mongodb
+    networks:
+      - streamsheets
+networks:
+  streamsheets:
+    external:
+      name: streamsheets

@@ -1,0 +1,7 @@
+{
+	"type": "gateway",
+	"name": "Gateway Service",
+	"description": "Service that provides a gateway API for accessing several services.",
+	"provider": "cedalo AG",
+	"buildNumber": "unknown"
+}

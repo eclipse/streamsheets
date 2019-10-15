@@ -1,0 +1,20 @@
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+
+# Dependency directories
+node_modules
+
+# build dir
+dist/
+
+# lib dir
+lib/
+example-websocket/index.js
+.idea/
+
+.DS_Store
+lint.txt

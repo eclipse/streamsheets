@@ -1,0 +1,17 @@
+{
+	"providers": [
+		"@cedalo/stream-mqtt",
+		"@cedalo/stream-aws-mqtt",
+		"@cedalo/stream-rest-client",
+		"@cedalo/rest-server",
+		"@cedalo/stream-mongodb",
+		"@cedalo/stream-file",
+		"@cedalo/stream-kafka",
+		"@cedalo/stream-mail-pop3",
+		"@cedalo/stream-mail-smtp"
+	],
+	"queueStrategies": [],
+	"database": {
+		"collection": "streams"
+	}
+}
