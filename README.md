@@ -186,4 +186,4 @@ Give a ⭐️ if this project helped you!
 
 Copyright (c) 2017-2019 Cedalo AG.
 
-[EPL 2.0](LICENSE)
+Streamsheets is licensed under the Eclipse Public License - v 2.0. Please see the LICENSE file for details.
