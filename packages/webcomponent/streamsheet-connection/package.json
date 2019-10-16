@@ -1,0 +1,33 @@
+{
+  "name": "@cedalo/streamsheet-connection",
+  "version": "0.0.1",
+  "description": "WebComponent to connect to Gateway services",
+  "author": "Cedalo AG",
+  "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/webcomponent/streamsheet-connection",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedalo/streamsheets.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cedalo/streamsheets/issues"
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc",
+    "lint": "eslint .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@cedalo/gateway-client": "*",
+    "@cedalo/gateway-client-proxy": "*"
+  },
+  "devDependencies": {
+    "eslint": "5.16.0",
+    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
+    "eslint-config-prettier": "4.2.0",
+    "eslint-plugin-prettier": "3.0.1",
+    "prettier": "1.17.0"
+  },
+  "license": "EPL-2.0"
+}

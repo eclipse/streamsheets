@@ -1,0 +1,7 @@
+{
+	"url": "http://localhost:3003/api/v1.0/rest/cedalo/examples",
+	"method": "GET",
+	"headers": {
+		"Accept": "application/json"
+	}
+}

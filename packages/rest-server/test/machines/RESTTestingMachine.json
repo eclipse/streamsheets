@@ -1,0 +1,485 @@
+{
+  "isFetching": true,
+  "data": {
+    "machine": {
+      "id": "rkR6UM9K7",
+      "name": "RestDemo",
+      "owner": "admin",
+      "state": "running",
+      "locale": "en",
+      "stats": {
+        "steps": 0
+      },
+      "cycletime": 51,
+      "metadata": {
+        "updatedAt": 1538564818720,
+        "updatedBy": "unknown"
+      },
+      "streamsheets": [
+        {
+          "id": "r1WCTLfqKX",
+          "name": "P1",
+          "loop": {
+            "path": "",
+            "enabled": false
+          },
+          "inbox": {
+            "max": 100,
+            "type": "Inbox",
+            "id": "ryfCpUG5tX",
+            "stream": {
+              "name": "REST Server Feeder",
+              "id": "STREAM_REST_SERVER"
+            },
+            "replace": {}
+          },
+          "sheet": {
+            "cells": {
+              "D5": {
+                "value": "Content-Type",
+                "type": "string"
+              },
+              "E5": {
+                "formula": null,
+                "value": "application/json",
+                "type": "string"
+              },
+              "D6": {
+                "formula": null,
+                "value": "a-custom-header",
+                "type": "string",
+                "level": 0
+              },
+              "E6": {
+                "formula": null,
+                "value": "testValue",
+                "type": "string",
+                "level": 0
+              },
+              "F6": {
+                "value": "",
+                "type": "string"
+              },
+              "K6": {
+                "value": "",
+                "type": "string"
+              },
+              "K7": {
+                "value": "",
+                "type": "string"
+              },
+              "D10": {
+                "value": "topic",
+                "type": "undefined",
+                "formula": "READ(INBOXMETADATA(,,\"topic\"),E10,\"String\")"
+              },
+              "E10": {
+                "value": "test",
+                "type": "string"
+              },
+              "D11": {
+                "value": "requestId",
+                "type": "undefined",
+                "formula": "READ(INBOXMETADATA(,,\"requestId\"),E11,\"String\")"
+              },
+              "E11": {
+                "value": "Sk0urm9FX",
+                "type": "string"
+              },
+              "D12": {
+                "value": "feeder",
+                "type": "undefined",
+                "formula": "READ(INBOXMETADATA(,,\"feeder\"),E12,\"String\")"
+              },
+              "E12": {
+                "value": "RestServer",
+                "type": "string"
+              },
+              "D13": {
+                "formula": "RESTRESPOND(E12,E11,JSON(B5:C6))",
+                "value": true,
+                "type": "undefined"
+              },
+              "H1": {
+                "formula": null,
+                "value": "",
+                "type": "string"
+              },
+              "B5": {
+                "formula": null,
+                "value": "a",
+                "type": "string"
+              },
+              "C5": {
+                "formula": null,
+                "value": "c",
+                "type": "string",
+                "level": 0
+              },
+              "B6": {
+                "formula": null,
+                "value": "c",
+                "type": "string"
+              },
+              "C6": {
+                "formula": null,
+                "value": "d",
+                "type": "string",
+                "level": 0
+              }
+            },
+            "namedCells": {},
+            "settings": {
+              "minrow": 0,
+              "maxrow": 100,
+              "mincol": -2,
+              "maxcol": 50,
+              "protected": false,
+              "showGrid": true,
+              "showHeader": true
+            },
+            "drawings": {}
+          },
+          "trigger": {
+            "type": "arrival",
+            "repeat": "once"
+          },
+          "preferences": {
+            "showGrid": true,
+            "showHeader": true,
+            "sheetColumns": 50,
+            "sheetRows": 100,
+            "sheetProtect": false,
+            "hideMessages": false,
+            "showInbox": true,
+            "showFormulas": false
+          }
+        },
+        {
+          "id": "SJxdoqst7",
+          "name": "P2",
+          "loop": {
+            "path": "",
+            "enabled": false
+          },
+          "inbox": {
+            "max": 100,
+            "type": "Inbox",
+            "id": "Sylldj9oYX",
+            "stream": {},
+            "replace": {}
+          },
+          "sheet": {
+            "cells": {
+              "B4": {
+                "formula": "RESTREQUEST(\"REST Client Producer\",\"/cedalo/test\",,,,INBOX(\"P2\"))",
+                "value": true,
+                "type": "undefined",
+                "level": 0
+              }
+            },
+            "namedCells": {},
+            "settings": {
+              "minrow": 0,
+              "maxrow": 100,
+              "mincol": -2,
+              "maxcol": 50,
+              "protected": false,
+              "showGrid": true,
+              "showHeader": true
+            }
+          },
+          "trigger": {
+            "type": "start",
+            "repeat": "once"
+          },
+          "preferences": {
+            "showGrid": true,
+            "showHeader": true,
+            "sheetColumns": 50,
+            "sheetRows": 100,
+            "sheetProtect": false,
+            "hideMessages": false,
+            "showInbox": true,
+            "showFormulas": false
+          }
+        }
+      ],
+      "settings": {},
+      "className": "Machine",
+      "previewImage": null
+    },
+    "graph": {
+      "id": "By1CLMcYm",
+      "graphdef": {
+        "type": "machinegraph",
+        "version": "1",
+        "uniqueid": "1",
+        "o-outbox": {
+          "split": "5000",
+          "width": "4894"
+        },
+        "a-graphitem": [
+          {
+            "o-attributes": {
+              "o-sheetid": {
+                "v": "r1WCTLfqKX",
+                "t": "s"
+              }
+            },
+            "o-pin": {
+              "o-p": {
+                "o-x": {
+                  "v": "20934"
+                },
+                "o-y": {
+                  "v": "10165"
+                }
+              },
+              "o-lp": {
+                "o-x": {
+                  "f": "WIDTH%20*%200.5",
+                  "v": "11246"
+                },
+                "o-y": {
+                  "f": "HEIGHT%20*%200.5",
+                  "v": "11875"
+                }
+              }
+            },
+            "o-size": {
+              "o-w": {
+                "v": "22491"
+              },
+              "o-h": {
+                "v": "23750"
+              }
+            },
+            "o-inbox": {
+              "split": "5000",
+              "width": "10318"
+            },
+            "o-processsheet": {
+              "o-attributes": {
+                "o-calcondemand": {
+                  "v": "true",
+                  "t": "b"
+                }
+              },
+              "o-name": {
+                "v": "P1",
+                "t": "s"
+              },
+              "o-rows": {},
+              "o-columns": {
+                "a-section": [
+                  {
+                    "index": "0",
+                    "title": "COMMENT",
+                    "size": "0",
+                    "visible": "1"
+                  },
+                  {
+                    "index": "1",
+                    "title": "IF",
+                    "size": "700",
+                    "visible": "1"
+                  },
+                  {
+                    "index": "5",
+                    "size": "4196",
+                    "visible": "1"
+                  },
+                  {
+                    "index": "9",
+                    "size": "3429",
+                    "visible": "1"
+                  }
+                ]
+              },
+              "o-drawings": {},
+              "o-defaultcell": {
+                "o-cell": {}
+              },
+              "o-data": {
+                "a-r": [
+                  {
+                    "n": "18",
+                    "a-c": [
+                      {
+                        "n": "13",
+                        "o-cell": {
+                          "o-a": {
+                            "o-key": {
+                              "v": "true",
+                              "t": "b"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "n": "14",
+                        "o-cell": {
+                          "o-a": {
+                            "o-key": {
+                              "v": "true",
+                              "t": "b"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "n": "19",
+                    "a-c": [
+                      {
+                        "n": "13",
+                        "o-cell": {
+                          "o-a": {
+                            "o-key": {
+                              "v": "true",
+                              "t": "b"
+                            },
+                            "o-level": {
+                              "v": "1"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "n": "14",
+                        "o-cell": {
+                          "o-a": {
+                            "o-key": {
+                              "v": "true",
+                              "t": "b"
+                            },
+                            "o-level": {
+                              "v": "1"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "n": "20",
+                    "a-c": [
+                      {
+                        "n": "13",
+                        "o-cell": {
+                          "o-a": {
+                            "o-key": {
+                              "v": "true",
+                              "t": "b"
+                            },
+                            "o-level": {
+                              "v": "2"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "n": "14",
+                        "o-cell": {
+                          "o-a": {
+                            "o-key": {
+                              "v": "true",
+                              "t": "b"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "o-attributes": {
+              "o-sheetid": {
+                "v": "SJxdoqst7",
+                "t": "s"
+              }
+            },
+            "o-pin": {
+              "o-p": {
+                "o-x": {
+                  "v": "33875"
+                },
+                "o-y": {
+                  "v": "10328"
+                }
+              },
+              "o-lp": {
+                "o-x": {
+                  "f": "WIDTH%20*%200.5",
+                  "v": "11375"
+                },
+                "o-y": {
+                  "f": "HEIGHT%20*%200.5",
+                  "v": "11377"
+                }
+              }
+            },
+            "o-size": {
+              "o-w": {
+                "v": "22750"
+              },
+              "o-h": {
+                "v": "22754"
+              }
+            },
+            "o-inbox": {
+              "split": "5000",
+              "width": "8836"
+            },
+            "o-processsheet": {
+              "o-attributes": {
+                "o-calcondemand": {
+                  "v": "true",
+                  "t": "b"
+                }
+              },
+              "o-name": {
+                "v": "P2",
+                "t": "s"
+              },
+              "o-rows": {},
+              "o-columns": {
+                "a-section": [
+                  {
+                    "index": "0",
+                    "title": "COMMENT",
+                    "size": "0",
+                    "visible": "1"
+                  },
+                  {
+                    "index": "1",
+                    "title": "IF",
+                    "size": "700",
+                    "visible": "1"
+                  },
+                  {
+                    "index": "3",
+                    "size": "4223",
+                    "visible": "1"
+                  }
+                ]
+              },
+              "o-drawings": {},
+              "o-defaultcell": {
+                "o-cell": {}
+              },
+              "o-data": {}
+            }
+          }
+        ],
+        "o-images": {}
+      },
+      "machineId": "rkR6UM9K7"
+    }
+  }
+}

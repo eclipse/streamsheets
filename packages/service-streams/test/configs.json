@@ -1,0 +1,242 @@
+{
+  "providers": [
+    {
+      "_id": "@cedalo/stream-mqtt",
+      "id": "@cedalo/stream-mqtt",
+      "name": "MQTT Provider",
+      "className": "ProviderConfiguration",
+      "definition": {
+        "connector": [
+          {
+            "id": "host",
+            "type": null,
+            "label": "URL",
+            "defaultValue": "broker",
+            "options": null,
+            "dependsOnPath": null,
+            "dependsOnValue": null,
+            "required": null,
+            "onUpdate": null,
+            "value": "broker",
+            "help": null
+          },
+          {
+            "id": "port",
+            "type": null,
+            "label": "Port",
+            "defaultValue": 1883,
+            "options": null,
+            "dependsOnPath": null,
+            "dependsOnValue": null,
+            "required": null,
+            "onUpdate": null,
+            "value": 1883,
+            "help": null
+          },
+          {
+            "id": "userName",
+            "type": null,
+            "label": {
+              "en": "User Name",
+              "de": "Benutzername"
+            },
+            "defaultValue": "",
+            "options": null,
+            "dependsOnPath": null,
+            "dependsOnValue": null,
+            "required": null,
+            "onUpdate": null,
+            "value": "",
+            "help": null
+          },
+          {
+            "id": "password",
+            "type": "PASSWORD",
+            "label": {
+              "en": "Password",
+              "de": "Kennwort"
+            },
+            "defaultValue": "",
+            "options": null,
+            "dependsOnPath": null,
+            "dependsOnValue": null,
+            "required": null,
+            "onUpdate": null,
+            "value": "",
+            "help": null
+          },
+          {
+            "id": "baseTopic",
+            "type": null,
+            "label": {
+              "en": "Base Topic",
+              "de": "Basistopic"
+            },
+            "defaultValue": "cedalo/",
+            "options": null,
+            "dependsOnPath": null,
+            "dependsOnValue": null,
+            "required": null,
+            "onUpdate": null,
+            "value": "cedalo/",
+            "help": null
+          },
+          {
+            "id": "retain",
+            "type": "CHECKBOX",
+            "label": {
+              "en": "Retain Message",
+              "de": "Nachricht behalten"
+            },
+            "defaultValue": false,
+            "options": null,
+            "dependsOnPath": null,
+            "dependsOnValue": null,
+            "required": null,
+            "onUpdate": null,
+            "value": false,
+            "help": null
+          },
+          {
+            "id": "qos",
+            "type": "SELECT_NUM",
+            "label": "QoS",
+            "defaultValue": 0,
+            "options": [
+              {
+                "label": {
+                  "en": "At most once (0)",
+                  "de": "Höchstens einmal (0)"
+                },
+                "value": 0
+              },
+              {
+                "label": {
+                  "en": "At least once (1)",
+                  "de": "Mindestens einmal (0)"
+                },
+                "value": 1
+              },
+              {
+                "label": {
+                  "en": "Exactly once (2)",
+                  "de": "Genau einmal (2)"
+                },
+                "value": 2
+              }
+            ],
+            "dependsOnPath": null,
+            "dependsOnValue": null,
+            "required": null,
+            "onUpdate": null,
+            "value": 0,
+            "help": null
+          }
+        ],
+        "consumer": [
+          {
+            "id": "clientId",
+            "type": null,
+            "label": {
+              "en": "Client Id",
+              "de": "Benutzer Id"
+            },
+            "defaultValue": "",
+            "options": null,
+            "dependsOnPath": null,
+            "dependsOnValue": null,
+            "required": null,
+            "onUpdate": null,
+            "value": "",
+            "help": null
+          },
+          {
+            "id": "topics",
+            "type": "TEXTLIST",
+            "label": {
+              "en": "Topics (extending base topic)",
+              "de": "Topics (erweitert das Basistopic)"
+            },
+            "defaultValue": [],
+            "options": null,
+            "dependsOnPath": null,
+            "dependsOnValue": null,
+            "required": null,
+            "onUpdate": null,
+            "value": [],
+            "help": null
+          }
+        ],
+        "producer": []
+      }
+    }
+  ],
+  "connectors": [
+    {
+      "_id": "CONNECTOR_MQTT",
+      "id": "CONNECTOR_MQTT",
+      "name": "MQTT Connector ",
+      "owner": null,
+      "className": "ConnectorConfiguration",
+      "provider": {
+        "_id": "@cedalo/stream-mqtt",
+        "id": "@cedalo/stream-mqtt",
+        "name": "MQTT Provider",
+        "className": "ProviderConfiguration",
+        "isRef": true
+      },
+      "host": "localhost",
+      "port": 1883,
+      "userName": "",
+      "password": "",
+      "baseTopic": "",
+      "retain": false,
+      "qos": 0
+    }
+  ],
+  "consumers": [
+    {
+      "_id": "STREAM_MQTT",
+      "id": "STREAM_MQTT",
+      "name": "MQTT Consumer",
+      "owner": null,
+      "className": "ConsumerConfiguration",
+      "disabled": false,
+      "connector": {
+        "_id": "CONNECTOR_MQTT",
+        "id": "CONNECTOR_MQTT",
+        "className": "ConnectorConfiguration",
+        "owner": null,
+        "isRef": true
+      },
+      "filter": null,
+      "labelAttribute": null,
+      "idAttribute": null,
+      "samplePayloads": null,
+      "mimeType": "application/json",
+      "clientId": "",
+      "topics": [
+        "test"
+      ]
+    }
+  ],
+  "producers": [
+    {
+      "_id": "PRODUCER_MQTT",
+      "id": "PRODUCER_MQTT",
+      "name": "MQTT Producer",
+      "owner": null,
+      "className": "ProducerConfiguration",
+      "disabled": false,
+      "connector": {
+        "_id": "CONNECTOR_MQTT",
+        "id": "CONNECTOR_MQTT",
+        "className": "ConnectorConfiguration",
+        "owner": null,
+        "isRef": true
+      },
+      "mimeType": "application/json",
+      "topic": "test"
+    }
+  ]
+}

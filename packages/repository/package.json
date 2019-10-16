@@ -1,0 +1,60 @@
+{
+  "name": "@cedalo/repository",
+  "version": "1.4.0",
+  "description": "Digital landscape repository",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --runInBand --forceExit",
+    "lint": "./node_modules/.bin/eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedalo/streamsheets.git"
+  },
+  "author": "Cedalo AG",
+  "bugs": {
+    "url": "https://github.com/cedalo/streamsheets/issues"
+  },
+  "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/repository",
+  "dependencies": {
+    "@cedalo/error-codes": "*",
+    "@cedalo/logger": "*",
+    "@cedalo/id-generator": "*",
+    "@cedalo/machine-core": "*",
+    "fs-extra": "2.0.0",
+    "lowdb": "0.14.0",
+    "mixwith": "0.1.1",
+    "mongodb": "3.0.11"
+  },
+  "devDependencies": {
+    "eslint": "3.19.0",
+    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
+    "eslint-config-prettier": "3.3.0",
+    "jest": "21.2.1",
+    "jest-cli": "21.2.1",
+    "sinon": "1.17.7"
+  },
+  "eslintConfig": {
+    "extends": [
+      "cedalo",
+      "prettier"
+    ],
+    "env": {
+      "node": true
+    }
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "moduleDirectories": [
+      "node_modules"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/test/"
+    ]
+  },
+  "license": "EPL-2.0"
+}

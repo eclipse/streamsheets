@@ -1,0 +1,512 @@
+{
+  "isFetching": true,
+  "data": {
+    "machine": {
+      "id": "rksMB-coX",
+      "name": "test-kafka-ksql",
+      "owner": "admin",
+      "state": "stopped",
+      "locale": "en",
+      "stats": {
+        "steps": 0
+      },
+      "isOPCUA": false,
+      "cycletime": 1000,
+      "metadata": {
+        "machineservice": {
+          "id": "machines-B1gRerW9j7"
+        },
+        "updatedAt": 1540190341185,
+        "updatedBy": "unknown"
+      },
+      "streamsheets": [
+        {
+          "id": "SkgsMS-5j7",
+          "name": "P1",
+          "loop": {
+            "path": "",
+            "enabled": false
+          },
+          "inbox": {
+            "max": 100,
+            "type": "Inbox",
+            "id": "ryZofHW9sX",
+            "stream": {
+              "name": "Kafka Consumer",
+              "id": "STREAM_KAFKA"
+            },
+            "replace": {}
+          },
+          "sheet": {
+            "cells": {
+              "B3": {
+                "value": "random",
+                "type": "string",
+                "level": 0
+              },
+              "C3": {
+                "formula": "RANDBETWEEN(1,111111)",
+                "value": 382,
+                "type": "undefined",
+                "level": 1
+              },
+              "B4": {
+                "formula": null,
+                "value": "type",
+                "type": "string",
+                "level": 0
+              },
+              "C4": {
+                "formula": null,
+                "value": 1,
+                "type": "number",
+                "level": 0
+              },
+              "B6": {
+                "formula": null,
+                "value": "topic",
+                "type": "string",
+                "level": 0
+              },
+              "C6": {
+                "formula": null,
+                "value": "cedalo",
+                "type": "string",
+                "level": 0
+              },
+              "B7": {
+                "formula": null,
+                "value": "message",
+                "type": "string",
+                "level": 0
+              },
+              "C7": {
+                "formula": "JSON(B3:C4)",
+                "value": "[object Object]",
+                "type": "undefined",
+                "level": 0
+              },
+              "B9": {
+                "formula": "PRODUCE(\"Kafka Connector\",JSON(B6:C7))",
+                "value": true,
+                "type": "undefined",
+                "level": 0
+              }
+            },
+            "namedCells": {},
+            "graphCells": {},
+            "settings": {
+              "minrow": 0,
+              "maxrow": 100,
+              "mincol": -2,
+              "maxcol": 50,
+              "protected": false,
+              "showGrid": true,
+              "showHeader": true
+            },
+            "drawings": {},
+            "graphItems": {}
+          },
+          "trigger": {
+            "type": "start",
+            "repeat": "endless"
+          },
+          "preferences": {
+            "showGrid": true,
+            "showHeader": true,
+            "sheetColumns": 50,
+            "sheetRows": 100,
+            "sheetProtect": false,
+            "hideMessages": false,
+            "showInbox": true,
+            "showFormulas": false
+          }
+        },
+        {
+          "id": "B1wVKZqoX",
+          "name": "P2",
+          "loop": {
+            "path": "",
+            "enabled": false
+          },
+          "inbox": {
+            "max": 100,
+            "type": "Inbox",
+            "id": "BkeDVFWqjm",
+            "stream": {},
+            "replace": {}
+          },
+          "sheet": {
+            "cells": {
+              "A3": {
+                "formula": "KAFKAQUERY(\"Kafka Connector\",B2,INBOX(\"P2\"))",
+                "value": true,
+                "type": "undefined",
+                "level": 0
+              },
+              "A2": {
+                "formula": null,
+                "value": "query",
+                "type": "string",
+                "level": 0
+              },
+              "B2": {
+                "formula": null,
+                "value": "select * from ksqltable200;",
+                "type": "string",
+                "level": 0
+              },
+              "C2": {
+                "formula": null,
+                "value": "",
+                "type": "string",
+                "level": 0
+              },
+              "B22": {
+                "formula": "READ(INBOXMETADATA(,,\"error\",\"row\",\"columns\",\"2\"),C22,\"String\")",
+                "value": 2,
+                "type": "undefined",
+                "level": 0
+              },
+              "A5": {
+                "formula": null,
+                "value": "commard",
+                "type": "string",
+                "level": 0
+              },
+              "B5": {
+                "formula": null,
+                "value": "CREATE TABLE ksqltable201 (random BIGINT, type VARCHAR) WITH (kafka_topic='cedalo', value_format='JSON', key = 'random');",
+                "type": "string",
+                "level": 0
+              },
+              "A6": {
+                "formula": null,
+                "value": "KAFKACOMMAND(\"Kafka Connector\",B5,OUTBOX())",
+                "type": "string",
+                "level": 0
+              },
+              "C5": {
+                "formula": null,
+                "value": "",
+                "type": "string",
+                "level": 0
+              }
+            },
+            "namedCells": {},
+            "graphCells": {},
+            "settings": {
+              "minrow": 0,
+              "maxrow": 100,
+              "mincol": -2,
+              "maxcol": 50,
+              "protected": false,
+              "showGrid": true,
+              "showHeader": true
+            }
+          },
+          "trigger": {
+            "type": "start",
+            "repeat": "endless"
+          },
+          "preferences": {
+            "showGrid": true,
+            "showHeader": true,
+            "sheetColumns": 50,
+            "sheetRows": 100,
+            "sheetProtect": false,
+            "hideMessages": false,
+            "showInbox": true,
+            "showFormulas": false
+          }
+        },
+        {
+          "id": "B11XDfcjQ",
+          "name": "P3",
+          "loop": {
+            "path": "",
+            "enabled": false
+          },
+          "inbox": {
+            "max": 100,
+            "type": "Inbox",
+            "id": "SJly7PGcjQ",
+            "stream": {
+              "name": "ksql",
+              "id": "H1-qbvG5jm"
+            },
+            "replace": {}
+          },
+          "sheet": {
+            "cells": {},
+            "namedCells": {},
+            "graphCells": {},
+            "settings": {
+              "minrow": 0,
+              "maxrow": 100,
+              "mincol": -2,
+              "maxcol": 50,
+              "protected": false,
+              "showGrid": true,
+              "showHeader": true
+            }
+          },
+          "trigger": {
+            "type": "start",
+            "repeat": "endless"
+          },
+          "preferences": {
+            "showGrid": true,
+            "showHeader": true,
+            "sheetColumns": 50,
+            "sheetRows": 100,
+            "sheetProtect": false,
+            "hideMessages": false,
+            "showInbox": true,
+            "showFormulas": false
+          }
+        }
+      ],
+      "settings": {},
+      "className": "Machine",
+      "namedCells": {}
+    },
+    "graph": {
+      "id": "HkhfrW5im",
+      "graphdef": {
+        "type": "machinegraph",
+        "version": "1",
+        "uniqueid": "1",
+        "o-outbox": {
+          "split": "5000",
+          "width": "5000"
+        },
+        "a-graphitem": [
+          {
+            "o-attributes": {
+              "o-sheetid": {
+                "v": "SkgsMS-5j7",
+                "t": "s"
+              }
+            },
+            "o-pin": {
+              "o-p": {
+                "o-x": {
+                  "v": "14000"
+                },
+                "o-y": {
+                  "v": "8500"
+                }
+              },
+              "o-lp": {
+                "o-x": {
+                  "f": "WIDTH%20*%200.5",
+                  "v": "12500"
+                },
+                "o-y": {
+                  "f": "HEIGHT%20*%200.5",
+                  "v": "7500"
+                }
+              }
+            },
+            "o-size": {
+              "o-w": {
+                "v": "25000"
+              },
+              "o-h": {
+                "v": "15000"
+              }
+            },
+            "o-inbox": {
+              "split": "5000",
+              "width": "5000"
+            },
+            "o-processsheet": {
+              "o-attributes": {
+                "o-calcondemand": {
+                  "v": "true",
+                  "t": "b"
+                }
+              },
+              "o-name": {
+                "v": "P1",
+                "t": "s"
+              },
+              "o-rows": {},
+              "o-columns": {
+                "a-section": [
+                  {
+                    "index": "0",
+                    "title": "COMMENT",
+                    "size": "0",
+                    "visible": "1"
+                  },
+                  {
+                    "index": "1",
+                    "title": "IF",
+                    "size": "700",
+                    "visible": "1"
+                  }
+                ]
+              },
+              "o-drawings": {},
+              "o-defaultcell": {
+                "o-cell": {}
+              },
+              "o-data": {}
+            }
+          },
+          {
+            "o-attributes": {
+              "o-sheetid": {
+                "v": "B1wVKZqoX",
+                "t": "s"
+              }
+            },
+            "o-pin": {
+              "o-p": {
+                "o-x": {
+                  "v": "29875"
+                },
+                "o-y": {
+                  "v": "10950"
+                }
+              },
+              "o-lp": {
+                "o-x": {
+                  "f": "WIDTH%20*%200.5",
+                  "v": "11625"
+                },
+                "o-y": {
+                  "f": "HEIGHT%20*%200.5",
+                  "v": "9800"
+                }
+              }
+            },
+            "o-size": {
+              "o-w": {
+                "v": "23250"
+              },
+              "o-h": {
+                "v": "19600"
+              }
+            },
+            "o-inbox": {
+              "split": "5000",
+              "width": "9419"
+            },
+            "o-processsheet": {
+              "o-attributes": {
+                "o-calcondemand": {
+                  "v": "true",
+                  "t": "b"
+                }
+              },
+              "o-name": {
+                "v": "P2",
+                "t": "s"
+              },
+              "o-rows": {},
+              "o-columns": {
+                "a-section": [
+                  {
+                    "index": "0",
+                    "title": "COMMENT",
+                    "size": "0",
+                    "visible": "1"
+                  },
+                  {
+                    "index": "1",
+                    "title": "IF",
+                    "size": "700",
+                    "visible": "1"
+                  }
+                ]
+              },
+              "o-drawings": {},
+              "o-defaultcell": {
+                "o-cell": {}
+              },
+              "o-data": {}
+            }
+          },
+          {
+            "o-attributes": {
+              "o-sheetid": {
+                "v": "B11XDfcjQ",
+                "t": "s"
+              }
+            },
+            "o-pin": {
+              "o-p": {
+                "o-x": {
+                  "v": "9500"
+                },
+                "o-y": {
+                  "v": "15908"
+                }
+              },
+              "o-lp": {
+                "o-x": {
+                  "f": "WIDTH%20*%200.5",
+                  "v": "8000"
+                },
+                "o-y": {
+                  "f": "HEIGHT%20*%200.5",
+                  "v": "6000"
+                }
+              }
+            },
+            "o-size": {
+              "o-w": {
+                "v": "16000"
+              },
+              "o-h": {
+                "v": "12000"
+              }
+            },
+            "o-inbox": {
+              "split": "5000",
+              "width": "5000"
+            },
+            "o-processsheet": {
+              "o-attributes": {
+                "o-calcondemand": {
+                  "v": "true",
+                  "t": "b"
+                }
+              },
+              "o-name": {
+                "v": "P3",
+                "t": "s"
+              },
+              "o-rows": {},
+              "o-columns": {
+                "a-section": [
+                  {
+                    "index": "0",
+                    "title": "COMMENT",
+                    "size": "0",
+                    "visible": "1"
+                  },
+                  {
+                    "index": "1",
+                    "title": "IF",
+                    "size": "700",
+                    "visible": "1"
+                  }
+                ]
+              },
+              "o-drawings": {},
+              "o-defaultcell": {
+                "o-cell": {}
+              },
+              "o-data": {}
+            }
+          }
+        ]
+      },
+      "machineId": "rksMB-coX"
+    }
+  }
+}

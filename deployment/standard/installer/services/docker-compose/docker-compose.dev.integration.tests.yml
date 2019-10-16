@@ -1,0 +1,19 @@
+version: '3.7'
+
+services:
+  streamsheets-gateway:
+    environment:
+      MONGO_DATABASE: integration-tests
+  streamsheets-service-machines:
+    environment:
+      MONGO_DATABASE: integration-tests
+  streamsheets-service-streams:
+    environment:
+      MONGO_DATABASE: integration-tests
+  streamsheets-service-auth:
+    environment:
+      MONGO_DATABASE: integration-tests
+networks:
+  streamsheets:
+    name: streamsheets
+    driver: bridge

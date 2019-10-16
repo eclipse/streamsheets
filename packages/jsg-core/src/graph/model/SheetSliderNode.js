@@ -1,0 +1,97 @@
+const Node = require('./Node');
+const ItemAttributes = require('../attr/ItemAttributes');
+const CellRange = require('./CellRange');
+const StringAttribute = require('../attr/StringAttribute');
+const Attribute = require('../attr/Attribute');
+const Expression = require('../expr/Expression');
+
+module.exports = class SheetSliderNode extends Node {
+	constructor() {
+		super();
+
+		this.getFormat().setLineColor('#AAAAAA');
+		this.getFormat().setFillColor('#DDDDDD');
+		// this.getFormat().setFillColor('#428e22');
+		this.getTextFormat().setFontSize(9);
+
+		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
+		this.getItemAttributes().setContainer(false);
+		this.addAttribute(new StringAttribute('title', 'Slider'));
+		this.addAttribute(new Attribute('value', new Expression(50)));
+		this.addAttribute(new Attribute('min', new Expression(0)));
+		this.addAttribute(new Attribute('max', new Expression(100)));
+		this.addAttribute(new Attribute('step', new Expression(5)));
+		this.addAttribute(new StringAttribute('marker', ''));
+		this.addAttribute(new StringAttribute('scalefont', ''));
+		this.addAttribute(new StringAttribute('formatrange', ''));
+	}
+
+	newInstance() {
+		return new SheetSliderNode();
+	}
+
+	_copy(copiednodes, deep, ids) {
+		const copy = super._copy(copiednodes, deep, ids);
+
+		return copy;
+	}
+
+	saveContent(file, absolute) {
+		super.saveContent(file, absolute);
+
+		file.writeAttributeString('type', 'sheetslidernode');
+	}
+
+	_assignName(id) {
+		const name = this.getGraph().getUniqueName('Slider');
+		this.setName(name);
+	}
+
+	getSheet() {
+		let sheet = this;
+
+		while (sheet && !sheet.getCellDescriptors) {
+			sheet = sheet.getParent();
+		}
+
+		return sheet;
+	}
+
+	getValue() {
+		const value = this.getAttributeValueAtPath('value');
+		if (value === undefined) {
+			return 0;
+		}
+
+		const sheet = this.getSheet();
+		if (sheet && typeof value === 'string') {
+			const range = CellRange.parse(value, sheet);
+			if (range) {
+				range.shiftFromSheet();
+				const cell = sheet.getDataProvider().getRC(range.getX1(), range.getY1());
+				if (cell) {
+					return cell.getValue();
+				}
+			}
+		}
+
+		return value;
+	}
+
+	isMoveable() {
+		if (
+			this.getGraph()
+				.getMachineContainer()
+				.getMachineState()
+				.getValue() === 0
+		) {
+			return false;
+		}
+
+		return super.isMoveable();
+	}
+
+	isAddLabelAllowed() {
+		return false;
+	}
+};

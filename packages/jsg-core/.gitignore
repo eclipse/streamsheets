@@ -1,0 +1,20 @@
+
+# Logs
+logs
+*.log
+npm-debug.log*
+lint.txt
+
+
+# Dependency directories
+node_modules
+
+#build dir
+dist/
+
+# Code Coverage
+coverage
+.idea/
+
+# Statistics
+stats.json

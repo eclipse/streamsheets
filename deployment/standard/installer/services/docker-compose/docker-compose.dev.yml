@@ -1,0 +1,165 @@
+version: '3.7'
+
+services:
+  streamsheets-webui:
+    image: cedalo/streamsheets-webui-dev:${VERSION_DEV}
+    container_name: streamsheets-webui
+    init: true
+    user: node
+    ports:
+      - 9000:9000/tcp
+    links:
+      - streamsheets-gateway
+    expose:
+      - 9000
+    depends_on:
+      - reverseproxy
+    networks:
+      - streamsheets
+    restart: always
+    logging:
+      driver: "none"
+  streamsheets-gateway:
+    image: cedalo/streamsheets-gateway-dev:${VERSION_DEV}
+    container_name: streamsheets-gateway
+    init: true
+    user: node
+    ports:
+      - 8080:8080/tcp
+      - 8088:8088/tcp
+    expose:
+      - 8080
+      - 8088
+    environment:
+      MESSAGE_BROKER_URL: mqtt://streamsheets-internal-broker:1883
+      MESSAGE_BROKER_USERNAME: cedalo
+      MESSAGE_BROKER_PASSWORD: r35aJkR!&dz
+      MESSAGE_BROKER_KEEP_ALIVE: 20
+      WS_PORT: 8088
+      HTTP_PORT: 8080
+      HTTP_HOST: "0.0.0.0"
+      GATEWAY_HTTP_PORT: 8080
+      GATEWAY_HTTP_HOST: "0.0.0.0"
+      GATEWAY_SERVICE_LOG_LEVEL: info
+      MONGO_DATABASE: streamsheets-development
+      MONGO_HOST: streamsheets-internal-mongodb
+      MONGO_PORT: 27017
+      REDIS_HOST: streamsheets-internal-redis
+      REDIS_PORT: 6379
+      NODE_ENV: development
+      STREAMSHEETS_GATEWAY_CONFIGURATION_PATH: config/config-development.json
+    volumes:
+      - ./config:/config
+    links:
+      - streamsheets-internal-mongodb
+    depends_on:
+      - streamsheets-internal-mongodb
+      - streamsheets-internal-broker
+      - streamsheets-internal-redis
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+  streamsheets-service-machines:
+    image: cedalo/streamsheets-service-machines-dev:${VERSION_DEV}
+    container_name: streamsheets-service-machines
+    init: true
+    user: node
+    environment:
+      WEBPAGE_BASE: /var/tmp/
+      MESSAGE_BROKER_URL: mqtt://streamsheets-internal-broker:1883
+      MESSAGE_BROKER_USERNAME: cedalo
+      MESSAGE_BROKER_PASSWORD: r35aJkR!&dz
+      MESSAGE_BROKER_KEEP_ALIVE: 20
+      MACHINE_SERVICE_LOG_LEVEL: info
+      MONGO_DATABASE: streamsheets-development
+      MONGO_HOST: streamsheets-internal-mongodb
+      MONGO_PORT: 27017
+      # MONGO_USERNAME: cedalo
+      # MONGO_PASSWORD: 9fae7f6d-3e35-4af1-a733-c3cda8ca0454
+      REDIS_HOST: streamsheets-internal-redis
+      REDIS_PORT: 6379
+      NODE_ENV: development
+    links:
+      - streamsheets-internal-broker
+      - streamsheets-internal-mongodb
+    depends_on:
+      - streamsheets-internal-broker
+      - streamsheets-internal-mongodb
+      - streamsheets-internal-redis
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+  streamsheets-service-graphs:
+    image: cedalo/streamsheets-service-graphs-dev:${VERSION_DEV}
+    container_name: streamsheets-service-graphs
+    init: true
+    user: node
+    environment:
+      MESSAGE_BROKER_URL: mqtt://streamsheets-internal-broker:1883
+      MESSAGE_BROKER_USERNAME: cedalo
+      MESSAGE_BROKER_PASSWORD: r35aJkR!&dz
+      MESSAGE_BROKER_KEEP_ALIVE: 20
+      MONGO_DATABASE: streamsheets-development
+      MONGO_HOST: streamsheets-internal-mongodb
+      MONGO_PORT: 27017
+      GATEWAY_SOCKET_ENDPOINT: ws://streamsheets-gateway:8088/machineserver-proxy
+      GATEWAY_HTTP_PORT: 8080
+      GATEWAY_HOST: streamsheets-gateway
+      GRAPH_SERVICE_LOG_LEVEL: info
+      REDIS_HOST: streamsheets-internal-redis
+      REDIS_PORT: 6379
+      NODE_ENV: development
+    depends_on:
+      - streamsheets-internal-broker
+      - streamsheets-internal-redis
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+  streamsheets-service-streams:
+    image: cedalo/streamsheets-service-streams-dev:${VERSION_DEV}
+    container_name: streamsheets-service-streams
+    init: true
+    environment:
+      MESSAGE_BROKER_URL: mqtt://streamsheets-internal-broker:1883
+      MESSAGE_BROKER_USERNAME: cedalo
+      MESSAGE_BROKER_PASSWORD: r35aJkR!&dz
+      MESSAGE_BROKER_KEEP_ALIVE: 20
+      MONGO_DATABASE: streamsheets-development
+      MONGO_HOST: streamsheets-internal-mongodb
+      MONGO_PORT: 27017
+      FILE_FEEDER_DEFAULT_ROOT: /filefeeder
+      # MONGO_USERNAME: cedalo
+      # MONGO_PASSWORD: 9fae7f6d-3e35-4af1-a733-c3cda8ca0454
+      RESTSERVER_PORT: 8083
+      STREAMSHEETS_LOG_LEVEL: debug
+      # See https://github.com/ashtuchkin/iconv-lite/wiki/Supported-Encodings for all supported encodings
+      FILE_FEEDER_ENCODINGS: win1252,ascii
+      STREAMSHEET_MAX_MESSAGE_SIZE: 100000
+      REDIS_HOST: streamsheets-internal-redis
+      REDIS_PORT: 6379
+      NODE_ENV: development
+    ports:
+      - 8083:8083/tcp
+    expose:
+      - 8083
+    links:
+      - streamsheets-internal-mongodb
+    depends_on:
+      - streamsheets-service-machines
+      - streamsheets-internal-broker
+      - streamsheets-internal-mongodb
+      - streamsheets-internal-redis
+    volumes:
+      - /tmp/examples/filefeeder:/filefeeder
+      - ./service-streams/config.json:/app/config.json
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+networks:
+  streamsheets:
+    name: streamsheets
+    driver: bridge

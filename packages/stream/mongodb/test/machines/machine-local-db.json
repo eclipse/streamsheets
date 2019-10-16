@@ -1,0 +1,698 @@
+{
+    "isFetching": true,
+    "data": {
+        "machine": {
+            "id": "Skd5_fccX",
+            "name": "feeder-mongo-local-async",
+            "owner": "admin",
+            "state": "running",
+            "locale": "en",
+            "stats": {
+                "steps": 0
+            },
+            "cycletime": 1000,
+            "metadata": {
+                "updatedAt": 1539087607777,
+                "updatedBy": "unknown"
+            },
+            "streamsheets": [
+                {
+                    "id": "Byg_m7NQcm",
+                    "name": "P1",
+                    "loop": {
+                        "path": "",
+                        "enabled": false
+                    },
+                    "inbox": {
+                        "max": 100,
+                        "type": "Inbox",
+                        "id": "ryW_m7Vm5X",
+                        "stream": {},
+                        "replace": {}
+                    },
+                    "sheet": {
+                        "cells": {
+                            "A3": {
+                                "value": "STORE:",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "B3": {
+                                "formula": "MONGOSTORE(\"MongoDB Local Connector\",D3,\"testDb\")",
+                                "value": true,
+                                "type": "undefined",
+                                "level": 0
+                            },
+                            "C3": {
+                                "value": "data",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "D3": {
+                                "formula": "JSON(E3:F4)",
+                                "value": "[object Object]",
+                                "type": "undefined",
+                                "level": 0
+                            },
+                            "E3": {
+                                "value": "key1",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "F3": {
+                                "formula": null,
+                                "value": 2,
+                                "type": "number",
+                                "level": 0
+                            },
+                            "E4": {
+                                "value": "key2",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "F4": {
+                                "value": 31,
+                                "type": "undefined",
+                                "formula": "RANDBETWEEN(1,200)",
+                                "level": 0
+                            },
+                            "A8": {
+                                "value": "QUERY",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "C8": {
+                                "value": "query",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "D8": {
+                                "formula": null,
+                                "value": "key1",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "E8": {
+                                "formula": null,
+                                "value": 2,
+                                "type": "number",
+                                "level": 0
+                            },
+                            "C9": {
+                                "value": "resultKeys",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "D9": {
+                                "formula": "E3:E4",
+                                "value": "E3:E4",
+                                "type": "reference",
+                                "level": 0
+                            },
+                            "C11": {
+                                "value": "pageSelector",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "D11": {
+                                "formula": "1+E11",
+                                "value": 140,
+                                "type": "undefined",
+                                "level": 0
+                            },
+                            "E11": {
+                                "value": 0,
+                                "type": "undefined",
+                                "formula": "GETCYCLE()",
+                                "level": 0
+                            },
+                            "B14": {
+                                "formula": "MONGOQUERY(\"MongoDB Local Connector\",\"testDb\",JSON(D8:E8),INBOX(\"P2\"),D9,D12,D11)",
+                                "value": true,
+                                "type": "undefined",
+                                "level": 0
+                            },
+                            "D13": {
+                                "formula": null,
+                                "value": "",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "C12": {
+                                "formula": null,
+                                "value": "pageSize",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "D12": {
+                                "formula": null,
+                                "value": 1,
+                                "type": "number",
+                                "level": 0
+                            },
+                            "M19": {
+                                "formula": "WRITE(OUTBOXDATA(\"Message\",\"DATA\",\"1\",\"key1\"),L19,\"Number\")",
+                                "value": "key1",
+                                "type": "undefined",
+                                "level": 0
+                            },
+                            "L19": {
+                                "formula": null,
+                                "value": 2,
+                                "type": "number",
+                                "level": 0
+                            },
+                            "A6": {
+                                "formula": null,
+                                "value": "Simple Query",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "B6": {
+                                "formula": "MONGOQUERY(\"MongoDB Local Connector\",D1,D6,INBOX(\"P1\"))",
+                                "value": true,
+                                "type": "undefined",
+                                "level": 0
+                            },
+                            "C1": {
+                                "formula": null,
+                                "value": "Collection",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "D1": {
+                                "formula": null,
+                                "value": "testDb",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "C6": {
+                                "formula": null,
+                                "value": "query",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "D6": {
+                                "formula": "JSON(E3:F4)",
+                                "value": "[object Object]",
+                                "type": "undefined",
+                                "level": 0
+                            },
+                            "A14": {
+                                "formula": null,
+                                "value": "Another Q for del",
+                                "type": "string",
+                                "level": 0
+                            }
+                        },
+                        "namedCells": {},
+                        "settings": {
+                            "minrow": 0,
+                            "maxrow": 200,
+                            "mincol": -2,
+                            "maxcol": 50,
+                            "protected": false,
+                            "showGrid": true,
+                            "showHeader": true
+                        },
+                        "drawings": {}
+                    },
+                    "trigger": {
+                        "type": "start",
+                        "repeat": "endless"
+                    },
+                    "preferences": {
+                        "showGrid": true,
+                        "showHeader": true,
+                        "sheetColumns": 50,
+                        "sheetRows": 200,
+                        "sheetProtect": false,
+                        "hideMessages": false,
+                        "showInbox": true,
+                        "showFormulas": false
+                    }
+                },
+                {
+                    "id": "HyF-Mzq9Q",
+                    "name": "P2",
+                    "loop": {
+                        "path": "",
+                        "enabled": false
+                    },
+                    "inbox": {
+                        "max": 100,
+                        "type": "Inbox",
+                        "id": "rJltbzM59X"
+                    },
+                    "sheet": {
+                        "cells": {
+                            "A3": {
+                                "value": 1,
+                                "type": "undefined",
+                                "formula": "READ(INBOXDATA(,,\"DATA\",\"1\"),,\"Dictionary\")",
+                                "level": 0
+                            },
+                            "A4": {
+                                "value": "_id",
+                                "type": "undefined",
+                                "formula": "READ(INBOXDATA(,,\"DATA\",\"1\",\"_id\"),B4,\"String\")",
+                                "level": 0
+                            },
+                            "B4": {
+                                "value": "5bb688f04d8224179fc2b637",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "A5": {
+                                "value": "key1",
+                                "type": "undefined",
+                                "formula": "READ(INBOXDATA(,,\"DATA\",\"1\",\"key1\"),B5,\"Number\")",
+                                "level": 0
+                            },
+                            "B5": {
+                                "value": 2,
+                                "type": "number",
+                                "level": 0
+                            },
+                            "A6": {
+                                "value": "key2",
+                                "type": "undefined",
+                                "formula": "READ(INBOXDATA(,,\"DATA\",\"1\",\"key2\"),B6,\"Number\")",
+                                "level": 0
+                            },
+                            "B6": {
+                                "value": 152,
+                                "type": "number",
+                                "level": 0
+                            },
+                            "A9": {
+                                "formula": "MONGODELETE(\"MongoDB Local Connector\",\"testDb\",JSON(A4:B6))",
+                                "value": true,
+                                "type": "undefined",
+                                "level": 0
+                            },
+                            "A11": {
+                                "formula": "MONGOQUERY(\"MongoDB Local Connector\",\"testDb\",JSON(A4:B4),INBOX(\"P3\"))",
+                                "value": true,
+                                "type": "undefined",
+                                "level": 0
+                            },
+                            "B11": {
+                                "formula": null,
+                                "value": "Check if deleted and send to P3",
+                                "type": "string",
+                                "level": 0
+                            },
+                            "B9": {
+                                "formula": null,
+                                "value": "Delete obj above by _id",
+                                "type": "string",
+                                "level": 0
+                            }
+                        },
+                        "namedCells": {},
+                        "settings": {
+                            "minrow": 0,
+                            "maxrow": 100,
+                            "mincol": -2,
+                            "maxcol": 50,
+                            "protected": false,
+                            "showGrid": true,
+                            "showHeader": true
+                        }
+                    },
+                    "trigger": {
+                        "type": "start",
+                        "repeat": "endless"
+                    },
+                    "preferences": {
+                        "showGrid": true,
+                        "showHeader": true,
+                        "sheetColumns": 50,
+                        "sheetRows": 100,
+                        "sheetProtect": false
+                    }
+                },
+                {
+                    "id": "B1-vPzqqm",
+                    "name": "P3",
+                    "loop": {
+                        "path": "",
+                        "enabled": false
+                    },
+                    "inbox": {
+                        "max": 100,
+                        "type": "Inbox",
+                        "id": "Bkl-wwf59Q"
+                    },
+                    "sheet": {
+                        "cells": {
+                            "A2": {
+                                "formula": null,
+                                "value": "Should return no data after delete",
+                                "type": "string",
+                                "level": 0
+                            }
+                        },
+                        "namedCells": {},
+                        "settings": {
+                            "minrow": 0,
+                            "maxrow": 100,
+                            "mincol": -2,
+                            "maxcol": 50,
+                            "protected": false,
+                            "showGrid": true,
+                            "showHeader": true
+                        }
+                    },
+                    "trigger": {
+                        "type": "start",
+                        "repeat": "endless"
+                    },
+                    "preferences": {
+                        "showGrid": true,
+                        "showHeader": true,
+                        "sheetColumns": 50,
+                        "sheetRows": 100,
+                        "sheetProtect": false
+                    }
+                }
+            ],
+            "settings": {},
+            "className": "Machine",
+            "previewImage": null
+        },
+        "graph": {
+            "id": "SJg_qOz5cQ",
+            "graphdef": {
+                "type": "machinegraph",
+                "version": "1",
+                "uniqueid": "1",
+                "o-outbox": {
+                    "split": "2751",
+                    "width": "7725"
+                },
+                "a-graphitem": [
+                    {
+                        "o-attributes": {
+                            "o-sheetid": {
+                                "v": "Byg_m7NQcm",
+                                "t": "s"
+                            }
+                        },
+                        "o-pin": {
+                            "o-p": {
+                                "o-x": {
+                                    "v": "14000"
+                                },
+                                "o-y": {
+                                    "v": "8500"
+                                }
+                            },
+                            "o-lp": {
+                                "o-x": {
+                                    "f": "WIDTH%20*%200.5",
+                                    "v": "12500"
+                                },
+                                "o-y": {
+                                    "f": "HEIGHT%20*%200.5",
+                                    "v": "7500"
+                                }
+                            }
+                        },
+                        "o-size": {
+                            "o-w": {
+                                "v": "25000"
+                            },
+                            "o-h": {
+                                "v": "15000"
+                            }
+                        },
+                        "o-inbox": {
+                            "split": "3962",
+                            "width": "16960"
+                        },
+                        "o-processsheet": {
+                            "o-attributes": {
+                                "o-calcondemand": {
+                                    "v": "true",
+                                    "t": "b"
+                                }
+                            },
+                            "o-name": {
+                                "v": "P1",
+                                "t": "s"
+                            },
+                            "o-rows": {
+                                "a-section": [
+                                    {
+                                        "index": "6",
+                                        "size": "632",
+                                        "visible": "1"
+                                    }
+                                ]
+                            },
+                            "o-columns": {
+                                "a-section": [
+                                    {
+                                        "index": "0",
+                                        "title": "COMMENT",
+                                        "size": "0",
+                                        "visible": "1"
+                                    },
+                                    {
+                                        "index": "1",
+                                        "title": "IF",
+                                        "size": "700",
+                                        "visible": "1"
+                                    }
+                                ]
+                            },
+                            "o-drawings": {},
+                            "o-defaultcell": {
+                                "o-cell": {}
+                            },
+                            "o-data": {
+                                "a-r": [
+                                    {
+                                        "n": "2",
+                                        "a-c": [
+                                            {
+                                                "n": "6",
+                                                "o-cell": {
+                                                    "o-a": {
+                                                        "o-key": {
+                                                            "v": "true",
+                                                            "t": "b"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "n": "7",
+                                                "o-cell": {
+                                                    "o-a": {
+                                                        "o-key": {
+                                                            "v": "true",
+                                                            "t": "b"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "n": "3",
+                                        "a-c": [
+                                            {
+                                                "n": "6",
+                                                "o-cell": {
+                                                    "o-a": {
+                                                        "o-key": {
+                                                            "v": "true",
+                                                            "t": "b"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "n": "7",
+                                                "o-cell": {
+                                                    "o-a": {
+                                                        "o-key": {
+                                                            "v": "true",
+                                                            "t": "b"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "n": "9",
+                                                "o-cell": {
+                                                    "o-a": {
+                                                        "o-level": {
+                                                            "v": "1"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "o-attributes": {
+                            "o-sheetid": {
+                                "v": "HyF-Mzq9Q",
+                                "t": "s"
+                            }
+                        },
+                        "o-pin": {
+                            "o-p": {
+                                "o-x": {
+                                    "v": "28911"
+                                },
+                                "o-y": {
+                                    "v": "10771"
+                                }
+                            },
+                            "o-lp": {
+                                "o-x": {
+                                    "f": "WIDTH%20*%200.5",
+                                    "v": "9161"
+                                },
+                                "o-y": {
+                                    "f": "HEIGHT%20*%200.5",
+                                    "v": "8271"
+                                }
+                            }
+                        },
+                        "o-size": {
+                            "o-w": {
+                                "v": "18321"
+                            },
+                            "o-h": {
+                                "v": "16541"
+                            }
+                        },
+                        "o-inbox": {
+                            "split": "5000",
+                            "width": "7249"
+                        },
+                        "o-processsheet": {
+                            "o-attributes": {
+                                "o-calcondemand": {
+                                    "v": "true",
+                                    "t": "b"
+                                }
+                            },
+                            "o-name": {
+                                "v": "P2",
+                                "t": "s"
+                            },
+                            "o-rows": {},
+                            "o-columns": {
+                                "a-section": [
+                                    {
+                                        "index": "0",
+                                        "title": "COMMENT",
+                                        "size": "0",
+                                        "visible": "1"
+                                    },
+                                    {
+                                        "index": "1",
+                                        "title": "IF",
+                                        "size": "700",
+                                        "visible": "1"
+                                    }
+                                ]
+                            },
+                            "o-drawings": {},
+                            "o-defaultcell": {
+                                "o-cell": {}
+                            },
+                            "o-data": {}
+                        }
+                    },
+                    {
+                        "o-attributes": {
+                            "o-sheetid": {
+                                "v": "B1-vPzqqm",
+                                "t": "s"
+                            }
+                        },
+                        "o-pin": {
+                            "o-p": {
+                                "o-x": {
+                                    "v": "18804"
+                                },
+                                "o-y": {
+                                    "v": "15500"
+                                }
+                            },
+                            "o-lp": {
+                                "o-x": {
+                                    "f": "WIDTH%20*%200.5",
+                                    "v": "8000"
+                                },
+                                "o-y": {
+                                    "f": "HEIGHT%20*%200.5",
+                                    "v": "6000"
+                                }
+                            }
+                        },
+                        "o-size": {
+                            "o-w": {
+                                "v": "16000"
+                            },
+                            "o-h": {
+                                "v": "12000"
+                            }
+                        },
+                        "o-inbox": {
+                            "split": "5000",
+                            "width": "5000"
+                        },
+                        "o-processsheet": {
+                            "o-attributes": {
+                                "o-calcondemand": {
+                                    "v": "true",
+                                    "t": "b"
+                                }
+                            },
+                            "o-name": {
+                                "v": "P3",
+                                "t": "s"
+                            },
+                            "o-rows": {},
+                            "o-columns": {
+                                "a-section": [
+                                    {
+                                        "index": "0",
+                                        "title": "COMMENT",
+                                        "size": "0",
+                                        "visible": "1"
+                                    },
+                                    {
+                                        "index": "1",
+                                        "title": "IF",
+                                        "size": "700",
+                                        "visible": "1"
+                                    }
+                                ]
+                            },
+                            "o-drawings": {},
+                            "o-defaultcell": {
+                                "o-cell": {}
+                            },
+                            "o-data": {}
+                        }
+                    }
+                ]
+            },
+            "machineId": "Skd5_fccX"
+        }
+    }
+}

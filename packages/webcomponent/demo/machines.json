@@ -1,0 +1,5650 @@
+{
+  "machines": [
+    {
+      "machine": {
+        "id": "rJx6Rva6rE",
+        "name": "Windrad Neu",
+        "lastModified": "2019-05-29T11:00:19.628Z",
+        "state": "stopped",
+        "settings": {},
+        "className": "Machine",
+        "namedCells": {
+          "|REST_Client": {
+            "value": {
+              "id": "H1eKAnCWBE",
+              "name": "REST_Client",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MES_Consumer": {
+            "value": {
+              "id": "rkZU6gRer4",
+              "name": "MES_Consumer",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|ERP_Consumer": {
+            "value": {
+              "id": "r1b1vkJWS4",
+              "name": "ERP_Consumer",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|REST_Call": {
+            "value": {
+              "id": "HJZSG6CWBE",
+              "name": "REST_Call",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Wago_TestConnector": {
+            "value": {
+              "id": "SkglRme9M4",
+              "name": "Wago_TestConnector",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Mosquitto_Public": {
+            "value": {
+              "id": "B1gNzhzvBE",
+              "name": "Mosquitto_Public",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AWS_IOT": {
+            "value": {
+              "id": "SkejQD-Htm",
+              "name": "AWS_IOT",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AWS_Amazon_MQ": {
+            "value": {
+              "id": "HyeWaiB_HV",
+              "name": "AWS_Amazon_MQ",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MQTT_Producer": {
+            "value": {
+              "id": "r1Wzj0wz9m",
+              "name": "MQTT_Producer",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Storage_Control": {
+            "value": {
+              "id": "storage-control-feeder",
+              "name": "Storage_Control",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Energy_Control": {
+            "value": {
+              "id": "energy-control-feeder",
+              "name": "Energy_Control",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Array": {
+            "value": {
+              "id": "SJ-TDF0UyV",
+              "name": "Array",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Sim_Maschine": {
+            "value": {
+              "id": "BJ-7xcQBgN",
+              "name": "Sim_Maschine",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Producer_M3": {
+            "value": {
+              "id": "rkZDwqyVYX",
+              "name": "Producer_M3",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Dispatcher_M2": {
+            "value": {
+              "id": "rybsZ2hmYQ",
+              "name": "Dispatcher_M2",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Wetterdaten": {
+            "value": {
+              "id": "H1Zyuuidz4",
+              "name": "Wetterdaten",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|FactoryIO": {
+            "value": {
+              "id": "HyZA7ibfYm",
+              "name": "FactoryIO",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Producer_Data": {
+            "value": {
+              "id": "HJZk55sck4",
+              "name": "Producer_Data",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Dispatcher_M1": {
+            "value": {
+              "id": "S1-noC5eDQ",
+              "name": "Dispatcher_M1",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Producer_M2": {
+            "value": {
+              "id": "SJWY733Qt7",
+              "name": "Producer_M2",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|iPhone": {
+            "value": {
+              "id": "B1Zv0AwPcm",
+              "name": "iPhone",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|PiInput": {
+            "value": {
+              "id": "rk--H7RIaX",
+              "name": "PiInput",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Dispatcher_M3": {
+            "value": {
+              "id": "SJbRHqJEY7",
+              "name": "Dispatcher_M3",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Zigbee_Bridge": {
+            "value": {
+              "id": "rybVS5PhV4",
+              "name": "Zigbee_Bridge",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MQTT_Stream": {
+            "value": {
+              "id": "S1b0qfZZ67",
+              "name": "MQTT_Stream",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Umgebungsdaten": {
+            "value": {
+              "id": "BJb0ldFJ3Q",
+              "name": "Umgebungsdaten",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Broker_A": {
+            "value": {
+              "id": "H1-bL5e4_Q",
+              "name": "Broker_A",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MQTT_Apps": {
+            "value": {
+              "id": "BJb3QFWbM4",
+              "name": "MQTT_Apps",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Decision_Service": {
+            "value": {
+              "id": "BJWvnSSi9Q",
+              "name": "Decision_Service",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Siemens_b": {
+            "value": {
+              "id": "HJZF-LzlCQ",
+              "name": "Siemens_b",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Producer_M1": {
+            "value": {
+              "id": "HkWwbXx4dX",
+              "name": "Producer_M1",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|windmill": {
+            "value": {
+              "id": "H1bwmsCKw7",
+              "name": "windmill",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Mosquitto_Org": {
+            "value": {
+              "id": "SyZOI2zvBN",
+              "name": "Mosquitto_Org",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MongoDB_Local_Consumer": {
+            "value": {
+              "id": "STREAM_MONGODB_LOCAL",
+              "name": "MongoDB_Local_Consumer",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Mosquitto": {
+            "value": {
+              "id": "Sy-ohafPH4",
+              "name": "Mosquitto",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AWS_Producer": {
+            "value": {
+              "id": "BJ-nNnG_HN",
+              "name": "AWS_Producer",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|OPCUA_Cloud": {
+            "value": {
+              "id": "HyWvBNX57N",
+              "name": "OPCUA_Cloud",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AWS_MQ_Producer": {
+            "value": {
+              "id": "r1bG7kInSN",
+              "name": "AWS_MQ_Producer",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AWS_AmazonMQ": {
+            "value": {
+              "id": "BybiRG9FrN",
+              "name": "AWS_AmazonMQ",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AMQPCONNECTOR": {
+            "value": {
+              "id": "HylFXNSarN",
+              "name": "AMQPCONNECTOR",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AMQP_CONSUMER": {
+            "value": {
+              "id": "rJZUdErpSE",
+              "name": "AMQP_CONSUMER",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AMQP_PRODUCER": {
+            "value": {
+              "id": "H1-HFFBTSV",
+              "name": "AMQP_PRODUCER",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AMQP_Consumer2": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|OPC_UA_Client_Connector": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|Windrad_Twin": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|s": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|RFID_Reader": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|UDP_Consumer": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|iot": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|UDP_Connector": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|Offenburg_Wetter": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|Offenburg_Licht": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|Fujitsu_Connector": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|Fujitsu_Producer": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|MQTT_Feeder": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|MQTTReceiver": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|Test_Sensors": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|db": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|Sender_1": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|REST_ClientProducer": {
+            "value": "{ JSON Object }",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|REST_Feeder": {
+            "value": {
+              "id": "STREAM_REST",
+              "name": "REST_Feeder",
+              "type": "feeder",
+              "state": "connected"
+            },
+            "type": "string",
+            "info": {},
+            "level": 0
+          }
+        },
+        "streamsheets": [
+          {
+            "id": "r1zTAD66BE",
+            "name": "S1",
+            "loop": {
+              "path": "",
+              "enabled": false
+            },
+            "inbox": {
+              "max": 20,
+              "type": "Inbox",
+              "id": "B1XTCwTTSN",
+              "stream": null
+            },
+            "sheet": {
+              "cells": {
+                "A2": {
+                  "value": "Windmill MQTT Source",
+                  "type": "string",
+                  "level": 0
+                },
+                "A4": {
+                  "value": "JSON Payload",
+                  "type": "string",
+                  "level": 0
+                },
+                "A6": {
+                  "value": "Machine Data",
+                  "type": "string",
+                  "level": 0
+                },
+                "A7": {
+                  "value": "Speed",
+                  "type": "string",
+                  "level": 1
+                },
+                "B7": {
+                  "formula": "ROUND(MIN(25,ROUND(MAX(1,B7+B20/100),2)),2)",
+                  "value": 17.15,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "A8": {
+                  "value": "Deg",
+                  "type": "string",
+                  "level": 1
+                },
+                "B8": {
+                  "formula": "ROUND(IF(B8>359,1,IF(B8<1,359,ROUND(B8+RANDBETWEEN(-10,11)/100,2))),2)",
+                  "value": 335.68,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "A9": {
+                  "value": "Power",
+                  "type": "string",
+                  "level": 1
+                },
+                "B9": {
+                  "formula": "ROUND(B7*80*RANDBETWEEN(990,1010)/1000,2)",
+                  "value": 1384.35,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "A10": {
+                  "value": "Angle Deg",
+                  "type": "string",
+                  "level": 1
+                },
+                "B10": {
+                  "formula": "MOD(B10+ROUND(B7/2,0),360)",
+                  "value": 55,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "A11": {
+                  "value": "Angle Rad",
+                  "type": "string",
+                  "level": 1
+                },
+                "B11": {
+                  "formula": "RADIANS(B10)",
+                  "value": 0.959931088596881,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "A12": {
+                  "value": "Wind Trend",
+                  "type": "string",
+                  "level": 0
+                },
+                "B12": {
+                  "formula": "IF(B20=0,\"Constant\",IF(B20>0,\"Increasing\",\"Decreasing\"))",
+                  "value": "Decreasing",
+                  "type": "undefined",
+                  "level": 0
+                },
+                "A13": {
+                  "value": "Location",
+                  "type": "string",
+                  "level": 0
+                },
+                "B13": {
+                  "value": "Schauinsland",
+                  "type": "string",
+                  "level": 0
+                },
+                "A16": {
+                  "value": "Publish",
+                  "type": "string",
+                  "level": 0
+                },
+                "B16": {
+                  "formula": "MQTT.PUBLISH(|MQTT_Producer,JSON(A6:B13),\"powerplant/plants/windmill\")",
+                  "value": true,
+                  "type": "undefined",
+                  "level": 0,
+                  "references": [
+                    "|MQTT_Producer"
+                  ]
+                },
+                "A18": {
+                  "value": "X-Position",
+                  "type": "string",
+                  "level": 0
+                },
+                "B18": {
+                  "value": 11000,
+                  "type": "number",
+                  "level": 0
+                },
+                "A19": {
+                  "value": "Y-Position",
+                  "type": "string",
+                  "level": 0
+                },
+                "B19": {
+                  "value": 4000,
+                  "type": "number",
+                  "level": 0
+                },
+                "A20": {
+                  "value": "Wind Change",
+                  "type": "string",
+                  "level": 0
+                },
+                "B20": {
+                  "formula": "IF(GETSTEP()/100=ROUND(GETSTEP()/100,0),RANDBETWEEN(-10,11),B20)",
+                  "value": -9,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "P2": {
+                  "value": "Tset",
+                  "type": "string",
+                  "level": 0
+                },
+                "P1": {
+                  "value": "Test",
+                  "type": "string",
+                  "level": 0
+                },
+                "N31": {
+                  "value": "sdf sadf sda fsdf sdf asfds",
+                  "type": "string",
+                  "level": 0
+                },
+                "D35": {
+                  "value": "sdf sdf sdf asdf sdaf sdf sdaf ds",
+                  "type": "string",
+                  "level": 0
+                }
+              },
+              "namedCells": {},
+              "graphCells": {
+                "I4": {
+                  "formula": "DRAW.POLYGON(\"I4\",,\"Polygon4\",B18,B19,300,3500,LINEFORMAT(\"#000000\"),,,,B11+2*PI()/3,1)",
+                  "value": true,
+                  "type": "undefined",
+                  "info": {},
+                  "level": 0
+                },
+                "I5": {
+                  "formula": "DRAW.POLYGON(\"I5\",,\"Polygon5\",B18,B19,300,3500,LINEFORMAT(\"#000000\"),,,,B11,1)",
+                  "value": true,
+                  "type": "undefined",
+                  "info": {},
+                  "level": 0
+                },
+                "I6": {
+                  "formula": "DRAW.ELLIPSE(\"I6\",,\"Ellipse1\",B18,B19,700,700)",
+                  "value": true,
+                  "type": "undefined",
+                  "info": {},
+                  "level": 0
+                },
+                "I1": {
+                  "formula": "DRAW.POLYGON(\"I1\",,\"Polygon1\",B18,B19,552,6200,LINEFORMAT(\"#000000\"),\"#FFFFFF\",,,-3.14,7)",
+                  "value": true,
+                  "type": "undefined",
+                  "info": {},
+                  "level": 0
+                },
+                "I3": {
+                  "formula": "DRAW.POLYGON(\"I3\",,\"Polygon3\",B18,B19,300,3500,LINEFORMAT(\"#000000\"),,,,B11+4*PI()/3,1)",
+                  "value": true,
+                  "type": "undefined",
+                  "info": {},
+                  "level": 0
+                }
+              },
+              "settings": {
+                "minrow": 0,
+                "maxrow": 100,
+                "mincol": -2,
+                "maxcol": 50,
+                "protected": false,
+                "showGrid": true,
+                "showHeader": true
+              }
+            },
+            "trigger": {
+              "type": "start",
+              "repeat": "endless"
+            }
+          }
+        ],
+        "metadata": {
+          "lastModified": "2019-05-29T11:00:19.628Z"
+        }
+      },
+      "graph": {
+        "id": "By00Pp6BV",
+        "graphdef": {
+          "type": "machinegraph",
+          "version": "2",
+          "uniqueid": "1",
+          "o-outbox": {
+            "split": "5000",
+            "width": "5000"
+          },
+          "a-graphitem": [
+            {
+              "id": "1000",
+              "o-attributes": {
+                "o-sheetid": {
+                  "v": "r1zTAD66BE",
+                  "t": "s"
+                },
+                "o-inboxvisible": {
+                  "v": "false",
+                  "t": "b"
+                },
+                "o-hidemessages": {
+                  "v": "false",
+                  "t": "b"
+                }
+              },
+              "o-pin": {
+                "o-p": {
+                  "o-x": {
+                    "v": "15465"
+                  },
+                  "o-y": {
+                    "v": "9251"
+                  }
+                },
+                "o-lp": {
+                  "o-x": {
+                    "f": "WIDTH%20*%200.5",
+                    "v": "10438"
+                  },
+                  "o-y": {
+                    "f": "HEIGHT%20*%200.5",
+                    "v": "6943"
+                  }
+                }
+              },
+              "o-size": {
+                "o-w": {
+                  "v": "20876"
+                },
+                "o-h": {
+                  "v": "13885"
+                }
+              },
+              "o-inbox": {
+                "split": "5000",
+                "width": "1825"
+              },
+              "o-processsheet": {
+                "o-attributes": {
+                  "o-calcondemand": {
+                    "v": "true",
+                    "t": "b"
+                  },
+                  "o-showgrid": {
+                    "v": "true",
+                    "t": "b"
+                  },
+                  "o-showheader": {
+                    "v": "true",
+                    "t": "b"
+                  },
+                  "o-showformulas": {
+                    "v": "false",
+                    "t": "b"
+                  },
+                  "o-protected": {
+                    "v": "false",
+                    "t": "b"
+                  },
+                  "o-greyifrows": {
+                    "v": "true",
+                    "t": "b"
+                  },
+                  "o-rows": {
+                    "v": "100"
+                  },
+                  "o-columns": {
+                    "v": "52"
+                  }
+                },
+                "o-name": {
+                  "v": "S1",
+                  "t": "s"
+                },
+                "o-rows": {
+                  "a-section": [
+                    {
+                      "index": "1",
+                      "size": "765",
+                      "visible": "1"
+                    }
+                  ]
+                },
+                "o-columns": {
+                  "a-section": [
+                    {
+                      "index": "0",
+                      "title": "COMMENT",
+                      "size": "0",
+                      "visible": "0"
+                    },
+                    {
+                      "index": "1",
+                      "title": "IF",
+                      "size": "700",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "2",
+                      "size": "2503",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "3",
+                      "size": "2952",
+                      "visible": "1"
+                    }
+                  ]
+                },
+                "o-drawings": {
+                  "a-graphitem": [
+                    {
+                      "id": "610129512551",
+                      "parentid": "1028",
+                      "o-al": {
+                        "n": "model.attributes",
+                        "a-al": [
+                          {
+                            "n": "graphitem",
+                            "cl": "JSG.graph.attr.ItemAttributes",
+                            "a-al": [
+                              {
+                                "n": "sheetname",
+                                "cl": "JSG.graph.attr.StringAttribute",
+                                "o-vl": {
+                                  "v": "I2",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "scaletype",
+                                "o-vl": {
+                                  "v": "top",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "container",
+                                "o-vl": {
+                                  "v": "false",
+                                  "t": "b"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "o-angle": {
+                        "v": "3.2288591162"
+                      },
+                      "o-name": {
+                        "v": "Polygon2",
+                        "t": "s"
+                      },
+                      "o-pin": {
+                        "o-p": {
+                          "o-x": {
+                            "v": "12000"
+                          },
+                          "o-y": {
+                            "v": "5881"
+                          }
+                        },
+                        "o-lp": {
+                          "o-x": {
+                            "f": "WIDTH%20*%200.5",
+                            "v": "320"
+                          },
+                          "o-y": {
+                            "v": "0"
+                          }
+                        }
+                      },
+                      "o-size": {
+                        "o-w": {
+                          "v": "639"
+                        },
+                        "o-h": {
+                          "v": "5425"
+                        }
+                      },
+                      "o-shape": {
+                        "type": "polygon",
+                        "o-cs": {}
+                      },
+                      "type": "node"
+                    },
+                    {
+                      "id": "189991459411",
+                      "parentid": "1028",
+                      "o-al": {
+                        "n": "model.attributes",
+                        "a-al": [
+                          {
+                            "n": "format",
+                            "cl": "JSG.graph.attr.FormatAttributes",
+                            "a-al": [
+                              {
+                                "n": "fillcolor",
+                                "o-vl": {
+                                  "v": "%23FFFFFF",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "linecolor",
+                                "o-vl": {
+                                  "v": "%23000000",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "linewidth",
+                                "o-vl": {
+                                  "v": "1"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "n": "graphitem",
+                            "cl": "JSG.graph.attr.ItemAttributes",
+                            "a-al": [
+                              {
+                                "n": "sheetname",
+                                "cl": "JSG.graph.attr.StringAttribute",
+                                "o-vl": {
+                                  "v": "I1",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "scaletype",
+                                "o-vl": {
+                                  "v": "top",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "container",
+                                "o-vl": {
+                                  "v": "true",
+                                  "t": "b"
+                                }
+                              },
+                              {
+                                "n": "sheetformula",
+                                "o-vl": {
+                                  "f": "DRAW.POLYGON(~22I1~22%2C%2C~22Polygon1~22%2CB18%2CB19%2C552%2C6200%2CLINEFORMAT(~22%23000000~22)%2C~22%23FFFFFF~22%2C%2C%2C-3.14%2C7)",
+                                  "v": "0"
+                                }
+                              },
+                              {
+                                "n": "sheetsource",
+                                "cl": "JSG.graph.attr.StringAttribute",
+                                "o-vl": {
+                                  "v": "name",
+                                  "t": "s"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "o-angle": {
+                        "v": "-3.1400000000"
+                      },
+                      "o-type": {
+                        "v": "trapezoidalBottom",
+                        "t": "s"
+                      },
+                      "o-name": {
+                        "v": "Polygon1",
+                        "t": "s"
+                      },
+                      "o-pin": {
+                        "o-p": {
+                          "o-x": {
+                            "v": "11000"
+                          },
+                          "o-y": {
+                            "v": "4000"
+                          }
+                        },
+                        "o-lp": {
+                          "o-x": {
+                            "f": "WIDTH%20*%200.5",
+                            "v": "276"
+                          },
+                          "o-y": {
+                            "f": "HEIGHT",
+                            "v": "6200"
+                          }
+                        }
+                      },
+                      "o-size": {
+                        "o-w": {
+                          "v": "552"
+                        },
+                        "o-h": {
+                          "v": "6200"
+                        }
+                      },
+                      "o-rscoordinates": {
+                        "a-c": [
+                          {
+                            "name": "BOTTOM",
+                            "xtype": "13",
+                            "ytype": "-1",
+                            "xMax": "0.5",
+                            "yMin": "1",
+                            "yMax": "1",
+                            "o-x": {
+                              "v": "0.20"
+                            },
+                            "o-y": {
+                              "v": "0.00"
+                            }
+                          }
+                        ]
+                      },
+                      "o-shape": {
+                        "type": "polygon",
+                        "o-cs": {
+                          "a-c": [
+                            {
+                              "o-x": {
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "WIDTH",
+                                "v": "552"
+                              },
+                              "o-y": {
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "WIDTH%20-%20MIN(WIDTH%2C%20HEIGHT)%20*%20BOTTOM",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT",
+                                "v": "6200"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "MIN(WIDTH%2C%20HEIGHT)%20*%20BOTTOM",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT",
+                                "v": "6200"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "type": "node"
+                    },
+                    {
+                      "id": "51110115102",
+                      "parentid": "1028",
+                      "o-al": {
+                        "n": "model.attributes",
+                        "a-al": [
+                          {
+                            "n": "format",
+                            "cl": "JSG.graph.attr.FormatAttributes",
+                            "a-al": [
+                              {
+                                "n": "linecolor",
+                                "o-vl": {
+                                  "v": "%23000000",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "linewidth",
+                                "o-vl": {
+                                  "v": "1"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "n": "graphitem",
+                            "cl": "JSG.graph.attr.ItemAttributes",
+                            "a-al": [
+                              {
+                                "n": "sheetname",
+                                "cl": "JSG.graph.attr.StringAttribute",
+                                "o-vl": {
+                                  "v": "I3",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "scaletype",
+                                "o-vl": {
+                                  "v": "top",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "container",
+                                "o-vl": {
+                                  "v": "true",
+                                  "t": "b"
+                                }
+                              },
+                              {
+                                "n": "sheetformula",
+                                "o-vl": {
+                                  "f": "DRAW.POLYGON(~22I3~22%2C%2C~22Polygon3~22%2CB18%2CB19%2C300%2C3500%2CLINEFORMAT(~22%23000000~22)%2C%2C%2C%2CB11%2B4*PI()%2F3%2C1)",
+                                  "v": "0"
+                                }
+                              },
+                              {
+                                "n": "sheetsource",
+                                "cl": "JSG.graph.attr.StringAttribute",
+                                "o-vl": {
+                                  "v": "name",
+                                  "t": "s"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "o-angle": {
+                        "v": "6.9638637155"
+                      },
+                      "o-type": {
+                        "v": "trapezoidalBottom",
+                        "t": "s"
+                      },
+                      "o-name": {
+                        "v": "Polygon3",
+                        "t": "s"
+                      },
+                      "o-pin": {
+                        "o-p": {
+                          "o-x": {
+                            "v": "11000"
+                          },
+                          "o-y": {
+                            "v": "4000"
+                          }
+                        },
+                        "o-lp": {
+                          "o-x": {
+                            "f": "WIDTH%20*%200.5",
+                            "v": "150"
+                          },
+                          "o-y": {
+                            "v": "0"
+                          }
+                        }
+                      },
+                      "o-size": {
+                        "o-w": {
+                          "v": "300"
+                        },
+                        "o-h": {
+                          "v": "3500"
+                        }
+                      },
+                      "o-rscoordinates": {
+                        "a-c": [
+                          {
+                            "name": "BOTTOM",
+                            "xtype": "13",
+                            "ytype": "-1",
+                            "xMax": "0.5",
+                            "yMin": "1",
+                            "yMax": "1",
+                            "o-x": {
+                              "v": "0.20"
+                            },
+                            "o-y": {
+                              "v": "0.00"
+                            }
+                          }
+                        ]
+                      },
+                      "o-shape": {
+                        "type": "polygon",
+                        "o-cs": {
+                          "a-c": [
+                            {
+                              "o-x": {
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "WIDTH",
+                                "v": "300"
+                              },
+                              "o-y": {
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "WIDTH%20-%20MIN(WIDTH%2C%20HEIGHT)%20*%20BOTTOM",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT",
+                                "v": "3500"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "MIN(WIDTH%2C%20HEIGHT)%20*%20BOTTOM",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT",
+                                "v": "3500"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "type": "node"
+                    },
+                    {
+                      "id": "112915711131",
+                      "parentid": "1028",
+                      "o-al": {
+                        "n": "model.attributes",
+                        "a-al": [
+                          {
+                            "n": "format",
+                            "cl": "JSG.graph.attr.FormatAttributes",
+                            "a-al": [
+                              {
+                                "n": "linecolor",
+                                "o-vl": {
+                                  "v": "%23000000",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "linewidth",
+                                "o-vl": {
+                                  "v": "1"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "n": "graphitem",
+                            "cl": "JSG.graph.attr.ItemAttributes",
+                            "a-al": [
+                              {
+                                "n": "sheetname",
+                                "cl": "JSG.graph.attr.StringAttribute",
+                                "o-vl": {
+                                  "v": "I4",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "scaletype",
+                                "o-vl": {
+                                  "v": "top",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "container",
+                                "o-vl": {
+                                  "v": "true",
+                                  "t": "b"
+                                }
+                              },
+                              {
+                                "n": "sheetformula",
+                                "o-vl": {
+                                  "f": "DRAW.POLYGON(~22I4~22%2C%2C~22Polygon4~22%2CB18%2CB19%2C300%2C3500%2CLINEFORMAT(~22%23000000~22)%2C%2C%2C%2CB11%2B2*PI()%2F3%2C1)",
+                                  "v": "0"
+                                }
+                              },
+                              {
+                                "n": "sheetsource",
+                                "cl": "JSG.graph.attr.StringAttribute",
+                                "o-vl": {
+                                  "v": "name",
+                                  "t": "s"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "o-angle": {
+                        "v": "4.8694686131"
+                      },
+                      "o-type": {
+                        "v": "trapezoidalBottom",
+                        "t": "s"
+                      },
+                      "o-name": {
+                        "v": "Polygon4",
+                        "t": "s"
+                      },
+                      "o-pin": {
+                        "o-p": {
+                          "o-x": {
+                            "v": "11000"
+                          },
+                          "o-y": {
+                            "v": "4000"
+                          }
+                        },
+                        "o-lp": {
+                          "o-x": {
+                            "f": "WIDTH%20*%200.5",
+                            "v": "150"
+                          },
+                          "o-y": {
+                            "v": "0"
+                          }
+                        }
+                      },
+                      "o-size": {
+                        "o-w": {
+                          "v": "300"
+                        },
+                        "o-h": {
+                          "v": "3500"
+                        }
+                      },
+                      "o-rscoordinates": {
+                        "a-c": [
+                          {
+                            "name": "BOTTOM",
+                            "xtype": "13",
+                            "ytype": "-1",
+                            "xMax": "0.5",
+                            "yMin": "1",
+                            "yMax": "1",
+                            "o-x": {
+                              "v": "0.20"
+                            },
+                            "o-y": {
+                              "v": "0.00"
+                            }
+                          }
+                        ]
+                      },
+                      "o-shape": {
+                        "type": "polygon",
+                        "o-cs": {
+                          "a-c": [
+                            {
+                              "o-x": {
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "WIDTH",
+                                "v": "300"
+                              },
+                              "o-y": {
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "WIDTH%20-%20MIN(WIDTH%2C%20HEIGHT)%20*%20BOTTOM",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT",
+                                "v": "3500"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "MIN(WIDTH%2C%20HEIGHT)%20*%20BOTTOM",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT",
+                                "v": "3500"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "type": "node"
+                    },
+                    {
+                      "id": "591211752712",
+                      "parentid": "1028",
+                      "o-al": {
+                        "n": "model.attributes",
+                        "a-al": [
+                          {
+                            "n": "format",
+                            "cl": "JSG.graph.attr.FormatAttributes",
+                            "a-al": [
+                              {
+                                "n": "linecolor",
+                                "o-vl": {
+                                  "v": "%23000000",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "linewidth",
+                                "o-vl": {
+                                  "v": "1"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "n": "graphitem",
+                            "cl": "JSG.graph.attr.ItemAttributes",
+                            "a-al": [
+                              {
+                                "n": "sheetname",
+                                "cl": "JSG.graph.attr.StringAttribute",
+                                "o-vl": {
+                                  "v": "I5",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "scaletype",
+                                "o-vl": {
+                                  "v": "top",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "container",
+                                "o-vl": {
+                                  "v": "true",
+                                  "t": "b"
+                                }
+                              },
+                              {
+                                "n": "sheetformula",
+                                "o-vl": {
+                                  "f": "DRAW.POLYGON(~22I5~22%2C%2C~22Polygon5~22%2CB18%2CB19%2C300%2C3500%2CLINEFORMAT(~22%23000000~22)%2C%2C%2C%2CB11%2C1)",
+                                  "v": "0"
+                                }
+                              },
+                              {
+                                "n": "sheetsource",
+                                "cl": "JSG.graph.attr.StringAttribute",
+                                "o-vl": {
+                                  "v": "name",
+                                  "t": "s"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "o-angle": {
+                        "v": "2.7750735107"
+                      },
+                      "o-type": {
+                        "v": "trapezoidalBottom",
+                        "t": "s"
+                      },
+                      "o-name": {
+                        "v": "Polygon5",
+                        "t": "s"
+                      },
+                      "o-pin": {
+                        "o-p": {
+                          "o-x": {
+                            "v": "11000"
+                          },
+                          "o-y": {
+                            "v": "4000"
+                          }
+                        },
+                        "o-lp": {
+                          "o-x": {
+                            "f": "WIDTH%20*%200.5",
+                            "v": "150"
+                          },
+                          "o-y": {
+                            "v": "0"
+                          }
+                        }
+                      },
+                      "o-size": {
+                        "o-w": {
+                          "v": "300"
+                        },
+                        "o-h": {
+                          "v": "3500"
+                        }
+                      },
+                      "o-rscoordinates": {
+                        "a-c": [
+                          {
+                            "name": "BOTTOM",
+                            "xtype": "13",
+                            "ytype": "-1",
+                            "xMax": "0.5",
+                            "yMin": "1",
+                            "yMax": "1",
+                            "o-x": {
+                              "v": "0.20"
+                            },
+                            "o-y": {
+                              "v": "0.00"
+                            }
+                          }
+                        ]
+                      },
+                      "o-shape": {
+                        "type": "polygon",
+                        "o-cs": {
+                          "a-c": [
+                            {
+                              "o-x": {
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "WIDTH",
+                                "v": "300"
+                              },
+                              "o-y": {
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "WIDTH%20-%20MIN(WIDTH%2C%20HEIGHT)%20*%20BOTTOM",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT",
+                                "v": "3500"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "MIN(WIDTH%2C%20HEIGHT)%20*%20BOTTOM",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT",
+                                "v": "3500"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "type": "node"
+                    },
+                    {
+                      "id": "885518851750",
+                      "parentid": "1028",
+                      "o-al": {
+                        "n": "model.attributes",
+                        "a-al": [
+                          {
+                            "n": "graphitem",
+                            "cl": "JSG.graph.attr.ItemAttributes",
+                            "a-al": [
+                              {
+                                "n": "sheetname",
+                                "cl": "JSG.graph.attr.StringAttribute",
+                                "o-vl": {
+                                  "v": "I6",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "scaletype",
+                                "o-vl": {
+                                  "v": "top",
+                                  "t": "s"
+                                }
+                              },
+                              {
+                                "n": "container",
+                                "o-vl": {
+                                  "v": "true",
+                                  "t": "b"
+                                }
+                              },
+                              {
+                                "n": "sheetformula",
+                                "o-vl": {
+                                  "f": "DRAW.ELLIPSE(~22I6~22%2C%2C~22Ellipse1~22%2CB18%2CB19%2C700%2C700)",
+                                  "v": "0"
+                                }
+                              },
+                              {
+                                "n": "sheetsource",
+                                "cl": "JSG.graph.attr.StringAttribute",
+                                "o-vl": {
+                                  "v": "name",
+                                  "t": "s"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "o-name": {
+                        "v": "Ellipse1",
+                        "t": "s"
+                      },
+                      "o-pin": {
+                        "o-p": {
+                          "o-x": {
+                            "v": "11000"
+                          },
+                          "o-y": {
+                            "v": "4000"
+                          }
+                        },
+                        "o-lp": {
+                          "o-x": {
+                            "f": "WIDTH%20*%200.5",
+                            "v": "350"
+                          },
+                          "o-y": {
+                            "f": "HEIGHT%20*%200.5",
+                            "v": "350"
+                          }
+                        }
+                      },
+                      "o-size": {
+                        "o-w": {
+                          "v": "700"
+                        },
+                        "o-h": {
+                          "v": "700"
+                        }
+                      },
+                      "o-shape": {
+                        "type": "ellipse",
+                        "o-cs": {
+                          "a-c": [
+                            {
+                              "o-x": {
+                                "f": "WIDTH%20*%200.5",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "WIDTH",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT%20*%200.5",
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "WIDTH%20*%200.5",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT",
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT%20*%200.5",
+                                "v": "0"
+                              }
+                            }
+                          ]
+                        },
+                        "o-cpfrom": {
+                          "a-c": [
+                            {
+                              "o-x": {
+                                "f": "WIDTH%20*%200.225",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "WIDTH",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT%20*%200.225",
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "WIDTH%20*%200.775",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT",
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT%20*%200.775",
+                                "v": "0"
+                              }
+                            }
+                          ]
+                        },
+                        "o-cpto": {
+                          "a-c": [
+                            {
+                              "o-x": {
+                                "f": "WIDTH%20*%200.775",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "WIDTH",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT%20*%200.775",
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "f": "WIDTH%20*%200.225",
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT",
+                                "v": "0"
+                              }
+                            },
+                            {
+                              "o-x": {
+                                "v": "0"
+                              },
+                              "o-y": {
+                                "f": "HEIGHT%20*%200.225",
+                                "v": "0"
+                              }
+                            }
+                          ],
+                          "pie": "false"
+                        }
+                      },
+                      "type": "node"
+                    }
+                  ]
+                },
+                "o-defaultcell": {
+                  "o-cell": {}
+                },
+                "o-data": {
+                  "a-r": [
+                    {
+                      "n": "1",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-t": {
+                              "o-fontsize": {
+                                "v": "14"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "2",
+                      "a-c": [
+                        {
+                          "n": "4",
+                          "o-cell": {
+                            "o-t": {
+                              "o-fontsize": {
+                                "v": "14"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "3",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-t": {
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "4",
+                          "o-cell": {
+                            "o-t": {
+                              "o-fontsize": {
+                                "v": "14"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "4",
+                      "a-c": [
+                        {
+                          "n": "4",
+                          "o-cell": {
+                            "o-t": {
+                              "o-fontsize": {
+                                "v": "14"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "5",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "6",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "%23%2C%23%230.00",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "number%3B2%3Btrue",
+                                "t": "s"
+                              }
+                            },
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              },
+                              "o-level": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "7",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "%23%2C%23%230.00",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "number%3B2%3Btrue",
+                                "t": "s"
+                              }
+                            },
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              },
+                              "o-level": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "8",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "%23%2C%23%230.00",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "number%3B2%3Btrue",
+                                "t": "s"
+                              }
+                            },
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              },
+                              "o-level": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "9",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "%23%2C%23%230.00",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "number%3B2%3Btrue",
+                                "t": "s"
+                              }
+                            },
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              },
+                              "o-level": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "10",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "%23%2C%23%230.00",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "number%3B2%3Btrue",
+                                "t": "s"
+                              }
+                            },
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              },
+                              "o-level": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "0.0000",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "number%3B4%3Bfalse",
+                                "t": "s"
+                              }
+                            },
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "11",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "12",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "0.0000",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "number%3B4%3Bfalse",
+                                "t": "s"
+                              }
+                            },
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "15",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "17",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "18",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "19",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "30",
+                      "a-c": [
+                        {
+                          "n": "15",
+                          "o-cell": {
+                            "o-t": {
+                              "o-halign": {
+                                "v": "2"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "o-images": {}
+        },
+        "machineId": "rJx6Rva6rE"
+      }
+    },
+    {
+      "machine": {
+        "id": "Sy5fR-rON",
+        "name": "Smart Quality Check",
+        "lastModified": "2019-05-29T10:04:30.310Z",
+        "state": "stopped",
+        "settings": {},
+        "className": "Machine",
+        "namedCells": {
+          "|Wago_TestConnector": {
+            "value": {
+              "id": "SkglRme9M4",
+              "name": "Wago_TestConnector",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MQTT_Producer": {
+            "value": {
+              "id": "r1Wzj0wz9m",
+              "name": "MQTT_Producer",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Storage_Control": {
+            "value": {
+              "id": "storage-control-feeder",
+              "name": "Storage_Control",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Umgebungsdaten": {
+            "value": {
+              "id": "BJb0ldFJ3Q",
+              "name": "Umgebungsdaten",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Dispatcher_M1": {
+            "value": {
+              "id": "S1-noC5eDQ",
+              "name": "Dispatcher_M1",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Producer_M2": {
+            "value": {
+              "id": "SJWY733Qt7",
+              "name": "Producer_M2",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Producer_M1": {
+            "value": {
+              "id": "HkWwbXx4dX",
+              "name": "Producer_M1",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|windmill": {
+            "value": {
+              "id": "H1bwmsCKw7",
+              "name": "windmill",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Zigbee_Bridge": {
+            "value": {
+              "id": "rybVS5PhV4",
+              "name": "Zigbee_Bridge",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|iPhone": {
+            "value": {
+              "id": "B1Zv0AwPcm",
+              "name": "iPhone",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MQTT_Stream": {
+            "value": {
+              "id": "S1b0qfZZ67",
+              "name": "MQTT_Stream",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Producer_Data": {
+            "value": {
+              "id": "HJZk55sck4",
+              "name": "Producer_Data",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|PiInput": {
+            "value": {
+              "id": "rk--H7RIaX",
+              "name": "PiInput",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Energy_Control": {
+            "value": {
+              "id": "energy-control-feeder",
+              "name": "Energy_Control",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|FactoryIO": {
+            "value": {
+              "id": "HyZA7ibfYm",
+              "name": "FactoryIO",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Array": {
+            "value": {
+              "id": "SJ-TDF0UyV",
+              "name": "Array",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Decision_Service": {
+            "value": {
+              "id": "BJWvnSSi9Q",
+              "name": "Decision_Service",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Dispatcher_M2": {
+            "value": {
+              "id": "rybsZ2hmYQ",
+              "name": "Dispatcher_M2",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Dispatcher_M3": {
+            "value": {
+              "id": "SJbRHqJEY7",
+              "name": "Dispatcher_M3",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Sim_Maschine": {
+            "value": {
+              "id": "BJ-7xcQBgN",
+              "name": "Sim_Maschine",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Producer_M3": {
+            "value": {
+              "id": "rkZDwqyVYX",
+              "name": "Producer_M3",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MQTT_Apps": {
+            "value": {
+              "id": "BJb3QFWbM4",
+              "name": "MQTT_Apps",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Broker_A": {
+            "value": {
+              "id": "H1-bL5e4_Q",
+              "name": "Broker_A",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Siemens_b": {
+            "value": {
+              "id": "HJZF-LzlCQ",
+              "name": "Siemens_b",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MongoDB_Local_Consumer": {
+            "value": {
+              "id": "STREAM_MONGODB_LOCAL",
+              "name": "MongoDB_Local_Consumer",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MES_Consumer": {
+            "value": {
+              "id": "rkZU6gRer4",
+              "name": "MES_Consumer",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|ERP_Consumer": {
+            "value": {
+              "id": "r1b1vkJWS4",
+              "name": "ERP_Consumer",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|REST_Client": {
+            "value": {
+              "id": "H1eKAnCWBE",
+              "name": "REST_Client",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|REST_Call": {
+            "value": {
+              "id": "HJZSG6CWBE",
+              "name": "REST_Call",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Wetterdaten": {
+            "value": {
+              "id": "H1Zyuuidz4",
+              "name": "Wetterdaten",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|OPCUA_Cloud": {
+            "value": {
+              "id": "HyWvBNX57N",
+              "name": "OPCUA_Cloud",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AWS_IOT": {
+            "value": {
+              "id": "SkejQD-Htm",
+              "name": "AWS_IOT",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AWS_Producer": {
+            "value": {
+              "id": "BJ-nNnG_HN",
+              "name": "AWS_Producer",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Mosquitto_Public": {
+            "value": {
+              "id": "B1gNzhzvBE",
+              "name": "Mosquitto_Public",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Mosquitto": {
+            "value": {
+              "id": "Sy-ohafPH4",
+              "name": "Mosquitto",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AWS_Amazon_MQ": {
+            "value": {
+              "id": "HyeWaiB_HV",
+              "name": "AWS_Amazon_MQ",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AWS_AmazonMQ": {
+            "value": {
+              "id": "BybiRG9FrN",
+              "name": "AWS_AmazonMQ",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|OPCUA_Connector_1": {
+            "value": {
+              "id": "CONNECTOR_OPCUA",
+              "name": "OPCUA_Connector_1",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Mosquitto_Org": {
+            "value": {
+              "id": "SyZOI2zvBN",
+              "name": "Mosquitto_Org",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AWS_MQ_Producer": {
+            "value": {
+              "id": "r1bG7kInSN",
+              "name": "AWS_MQ_Producer",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Windrad_Twin": {
+            "value": {
+              "id": "HkbQHzyXUV",
+              "name": "Windrad_Twin",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AMQPCONNECTOR": {
+            "value": {
+              "id": "HylFXNSarN",
+              "name": "AMQPCONNECTOR",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AMQP_CONSUMER": {
+            "value": {
+              "id": "rJZUdErpSE",
+              "name": "AMQP_CONSUMER",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AMQP_PRODUCER": {
+            "value": {
+              "id": "H1-HFFBTSV",
+              "name": "AMQP_PRODUCER",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|RFID_Reader": {
+            "value": {
+              "id": "rk-JdBQEUV",
+              "name": "RFID_Reader",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|s": {
+            "value": {
+              "id": "H1WdFNLVLV",
+              "name": "s",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|UDP_Consumer": {
+            "value": {
+              "id": "O3uprb2GgZ",
+              "name": "UDP_Consumer",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Offenburg_Wetter": {
+            "value": {
+              "id": "HJ-zisghPE",
+              "name": "Offenburg_Wetter",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Offenburg_Licht": {
+            "value": {
+              "id": "SJ-irPynPN",
+              "name": "Offenburg_Licht",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|iot": {
+            "value": {
+              "id": "SkWUXFvBUE",
+              "name": "iot",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|UDP_Connector": {
+            "value": {
+              "id": "NewY8Lf6D2",
+              "name": "UDP_Connector",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Fujitsu_Connector": {
+            "value": {
+              "id": "S1grd9CldN",
+              "name": "Fujitsu_Connector",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Fujitsu_Producer": {
+            "value": {
+              "id": "rk-4uiAl_V",
+              "name": "Fujitsu_Producer",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Sender_1": {
+            "value": {
+              "id": "H1ZtUca47N",
+              "name": "Sender_1",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Test_Sensors": {
+            "value": {
+              "id": "ByWRT41SzV",
+              "name": "Test_Sensors",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MQTT_Feeder": {
+            "value": {
+              "id": "STREAM_MQTT",
+              "name": "MQTT_Feeder",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MQTTReceiver": {
+            "value": {
+              "id": "rJ-W4JkldN",
+              "name": "MQTTReceiver",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|db": {
+            "value": {
+              "id": "Bk-GUMqGUE",
+              "name": "db",
+              "type": "feeder"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|REST_ClientProducer": {
+            "value": "{ JSON Object }",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|REST_Feeder": {
+            "value": {
+              "id": "STREAM_REST",
+              "name": "REST_Feeder",
+              "type": "feeder",
+              "state": "connected"
+            },
+            "type": "string",
+            "info": {},
+            "level": 0
+          }
+        },
+        "previewImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPUAAABkCAYAAABei3aDAAAVxUlEQVR4Xu1dB3RWxbb+8qcHAoQSQDBAqJEiRZCASPFKF4Encr0+UZ5cFBXbEmxgAxH0iYo+RAXLAxY8LiwFG4KhSBMIzUuCdEjoAUJISELqW9/ozwoh5Zz/nH9O8N+zVhYhZ2bvmb33N3ufmTN7/OLi4grPnTsHKSIBkcBfQwJ+ixYtKhw2bJih0Wzbtg0dOnQwVFcqiQTKkoBTtuQLfAXUgj1HJOAL4CoqWJ3jFVA7YtLCVKeROwUup/gKqAVfjkhAQO09sf9lQZ2Tk4P09HSEhYUhNDTUexIsQpn8EhIS0LJlS4SHh2vhWZRJSfwvX76MHTt2oEmTJqhZs+ZVfSrrmbc7L6D2noRNg/qmm27CM888gy1btqheNWzYENOmTUPTpk1L7OX8+fNx6NAhTJw40XujKEb5l19+wbPPPouIiAgcP34cn3/+OTp37myJf1ZWlhr3Aw88gK5du5ZIa+/evXjyyScxY8YMNG/e3BI/TxqXxD8jIwPz5s3DHXfccY2OuOtx//33K92UNiZP+mGkjYDaiJQ8q+MxqLt164bhw4dj6tSpOH/+vPr3+++/VwDPzMxUxj148GA89thj+O2338AV9tGjR2PKlCn4/fffceuttypj+vnnn7FkyRKkpaXh0qVLmDVrlvIq7kLlP/7444omaTz33HNYsWJFqW1yc3Px8ssvgyB85ZVXULlyZRQWFmLlypXKuGnkVapUQZcuXTB37lxF+6GHHsL27dtL5MMxsX6bNm0Uvbp16+KFF15Q3XPTCwgIwAcffADyfuSRR1C/fn3Ex8dj8uTJGDJkCBYuXIhJkyYhMjISb7/9tppgPvzwQ8UzOTlZ0Zw+fbqiSR5F5VOpUiX1d3rVzz77DIsXL0ZISIiiw3aszz5ysqE+KPei/Anm8ePH49FHH8XNN9+MOXPm4L333lMyfv3115WsXnzxReXNKRvKd/ny5fj4448V3wkTJqBVq1aKRlBQEOLi4jBmzBg88cQT8Pf398zqAAioPRZduQ0tgZqzPL0igUqPHBgYqAxy3bp1CkT8Gw3E7alpTElJSejbt68yGoLj4MGDWLVqlQIADah3797KON0lOzsbe/bswc6dO/Hpp5/iyy+/VIApq82vv/6qjJD9oAeiIbvbvPrqq3j66acxduxYkPbSpUuVkfv5+ZXIhyB64403UKtWLbz22mtXPDXHtmbNGgUu/p1bfZyoaOwEKI1269atalIjUN5//32cPn1agXn27NnKm/MVgc9HjBihQL9p06Zr5OOOMA4cOKAmn/vuuw89evRQoJw5cyZOnTqFN998U01inCCeeuqpq/i/9NJLePjhh9UEysmAMv/iiy/UeFJSUjBq1CgFWuqIOqFMOAb2ibSpTzeN559/Xqnl3XffVRMiIyFPi4DaU8mV384SqO+55x5l1PRQnO056zdq1AgNGjRQBlcc1G+99RZOnjyJoUOHoqCgADExMQqcBB8Nk+0ZAXCycBcC7syZM+jTp4+q89FHHymAltaGQDl69CgaN26sjJYh84ABAxS5om3o2VhonOTBCKE0PnzOUjT85thI75133gHH1aJFCwVqd/jt7iMBQiAR1CdOnFDyIk+Og4WgdofAnCCLy4femCUvL0950x9//BGLFi1S7TkJ5OfnK7nxOSdIgpoThps/J0oCl6CmZ+XkyYmRgGT4TfDyVYHgJU1ObvTEbFO7dm21JkF9Pvjgg1deoTgBcfw1atQo38JKqSGg9lh05Tb0GNSffPIJqlevjnvvvVd5Mv5OD7VgwQIVZrJQ8TQWGsmgQYNUXXpQAo/hNI1v//79ZYKaoSvp07BohAREWaCmp6HnXLZsGapWrYqoqCjlWdauXVsmqOmxS+NDUDP0dI+P3p6hqjukptcjaN2vHUVBRdBzwiD9ixcvKq/HSITgKg5qLmQRlEXl06lTJ1WPnprRBcHLQq9KQLM+Q/O2bdti5MiRGDduXKmgZh2G65s3b1YLeRwvwc4fynTfvn0q6mJkw4mDgG7Xrp1an3B7e/IWUJeLq2sq6JzETIO6rC/K+O5KA2OYV1ah8bOOy+UyJB0CNTg4WHkRbxYzfNyemoA3srrO8JiekpNDeaU0+ZQmXzP9Jm9GVpQl1wJKK5w8+FOeLssbS2nPdRp50T74Al8F6ujoaE9147PtGCbT8/Ld1sqCkc8KUAbuNQnY6qm91styCDs1+9o1Xif77xRv4WuX9VxLR0DtPdkapuyUgbODTvEWvobNw3RFAbVpkdnfwCkDF1Dbr8uKsIYgoNan11I5Caj1KcEpWevkK6DWZ08C6iIS0GnkPrn6fb0nSXDKQOyaD5zsv1O8ha9d1iMLZd6TpAXKThm4vFNbUJrJpjp1LPvUJpUj1UUCFV0Cpt+pa827pcKNKeU/49GsWbMK1y+jHeLnmU7lftPpQXzt3dap8ZoG9Q0rR6DawClwVY7E5cMb4OcfhEvx85CTvFWNIfSmAQiO7obsfXEIbtgZaSsmqb9X7joGrqDKyM84g+DGt8PPz4VzC0Yatfsy6wmoPRejgNpz2ZlpqVPOpkHd5MwyBNZugbQVk+FftR6qD52By8e2w8/lD/+IKBTmZiEgIgqXj26GX2CoAq8rLAJ+AcHq/7kp++EXEILC3EwU5uUgJ2kr0tfNMCOfa+oKqD0Xn05jc8pz+Rpf06CO/FdPVI79J0Kb3akADP8AXNq5GGExfRFQIxoFWRdQkJmKrD0/IKztcPgFBgOFhci/eBIFWakoyL6I4KhOCKjVDJm/LcGFZeM8t8g/WwqoPRehgNpz2ZlpqVPOpkEdfeRLhMT0BQoLUJCVBldoVQVuV/AfObkKC/LhCqqE3LMHEBDRAPnpp+CqVAMoyFOhOkHtCq2GgpxLcIVUReauxcjYOMuMfMRTW5LW1Y11GpuveUynxmsa1LJQZiOi/iQlC2X2y7Q0ir4wiZne0qqooNZnFsJJJFCxJWDaU7u3jqr87x/ZTSpCie+8Xra0PFSEL3gup8Jgp/haAnV4YGW8d9s76Fo3FhtObsLu8wkIdAUiLScNkaGRmBw/1UNTM9eMoGaiB2YZZbI85gpj1g7mQCsr0wgTGjKzB/OqFS1MVcQkfmyvo0j4rUPKf/DwhUnMEqjHt3sWzao1xajVYzD3b3NQM6QmMvIyEOwfjBc2TkBi6u9atEVQM/sIgXjbbbepHF9M2RsbG6sSHB45cgS33HILdu/erXKL9e/fX2VBZWLCnj17qiyiTJfUsWNHlcuMudD4w7xcN954o9fHIKD2uoivMBBQF5M1BVI0/H6j00RUCaqCp9ePw4e3T0fr6i0RHhSOfRf2Y/Tqx5Gem6FFWwQ1LxNg4n6m5WXCPHrq7t27X0moR6/LzJzMJ8Z6TPJHgKempirgMokfU/jWqVNHJVFkSuJevXpp6b+AWouYxVOXJObioO5Vrzte6zQBp7POoFpQNSRlJCM9Jx2VAyur5vTgOgpBzeyYBDQ9NpPvM38Ys5oeO3ZMJdljOls3qM+ePauynDJJIlP7EuT07sy2yfZs98MPP+DOO++0lAbX6NgF1EYlZb2eeOpyPLV1EdtDQRbKPJejLxi5UwtWTvE1/U7tPnjg9z96Lp0zYq4EtVMHIoz0r7w6TgHLVxaOnAKXU3xN71OXZ6DyXCQgEnBWAqY9texT268weae2X6alUXQqKtLJ1zKox7Yeg/aR7TAybrQ+zRTjxPD7hhtuKHFvmYtiXPTiCje3rLiYxgUy3gbJC/1KK7yRsn379uoxt7zYnjdoeqMIqL0h1ZJp6gSXo+G3mRxlxT31//WZixohNfB54lfoUrcz1p/ciGFNhsIFFyJCIpCSdRZ1w2rjaHoS7l9pz/np4uoiqLlF5d6G4u0ZLIcPH8aFCxfUSjcLr3glgAhu/p2F+9fcAmNdrnpz/5or5bwmh1terVu3VhfTceWc+9tlTQSemqaA2lPJmW8noC4ms+JbWv2ieuP1WyfiUm4mEs4nIsQ/BGtPrMPwJv+BYP8QFKIQyRnH0KZGK6w+vhbjN75sXgsGWhQHNbeoWHgJO7e6+GEJPTa3rHhTJK/KYR0+4xdl3JdmXYKbHrlevXrgdbi8z5kX+Lnbsp43ioDaG1IVT21IqsVBPS12MnIKcrD62Fo8dfMTcPm51GeioQEhOHLxqPLgBShATn4O/OCHi7np+ClpJRbu/5chfkYruUH99ddfq49jqlWrpm6J5MckXBUnqNPT09V+Nb8UI7g3btyormqlhydwWZd3QfMaXN5iyS/R2JbP3G35t5YtW1q6l7mkMQmojWraej3x1OV4ausitoeC7FN7LkdfMHKn3m2d4mt6oUz2qT0HUGktnQIW++MUb+Frvx25KZrep5YtLfuVwfBbikjALgmY9tRFQT2gQV/8s+V/Yeq2/8Z9ze7FvL0LsPXMtqv69vemwxBdpRGmbHsbRX+3awCkw/Cb327Hx8eDF7NzdbtVq1aWWfA9m3S9fVJL3qktq8owAV+IECyB+oHm/8DYNmOw5XQ8osJvRH5BPupWqoNNpzYjwBWAjpEd1Mp4kH+gWkD797ndaBHRXB3N5BbYrITZhpVRVkX3OzUXtbgVxUMZGzZsUODmgQ6uXhOcXDDr1q0bNm/erBa/+vXrp1bDWdq1a4f169er7SweBuFiGw+GcJuM57ObN2+utra4Qs5/Bw4caBvYBdS2mIEhIgLqchbKCOqBDfshyBWk9qTTLqehZmgNJKcfU9tZk7a+hQ6R7dGkajQuXE5Tvx9MO6hWwt1HNg1popxKxUFNIHNbiscvc3Nz1Yo4wUmPyyQK3HOmRz906JDady66tcUJYdWqVaotgc56LNzj5gRAGjzmySOcdhUBtV2SLJ+OgNoAqPs36IMdKbswMmYEUi+nqo9NMvMyUVBYoPat6aF3nN15BdRVgsIVoBPP70H14Aj8fcWI8jVhEtTnz59Hdna22q4iOIuDmmG1OzMKP0zh1ha3seid09LS1HYYPT6/KEtISFCg54cofMbtMAG1ZZXJAp11EZZKwVL47cV+mSJtZkuLgOcPP0CpKEU8tT5NiKcuwVPLlpb9BuiUoXEkTvEWvvbbkZui6S0t73VFKIsERAJ2SMDj8Hv4tM/s4G8LjUlDukuKYA8lKR7TQ8GZbKZTzpZAHVWrOh7s3Q3VKoUiMekE5iz/xeRQ7al+vYGai3RMZ8xtNuZB4+ESpzK36DS2otoWvvbYfklULIH6Hz07o36t6li4+lckpZzHmIG9kHD0ODo0bYgqYaEIDwuBv8uF/PwCHDl9FvVrRSAkMBAFhYXIyMrGjoNJiI1pgqycHMz5ca2i4Um53kB98OBBtRfO89lcpef+uYDaE82bb+MLk4klUIcGBaJvxzZo16QBcnLzkJ6VjX8fTkbHZtHIzs298vvxc6loXr8O9h47ibDgYGRezkG9GhEICwlCemY2cvLysCnxALbuO2xeSwCuN1C7P5LhXje3znj8U0DtkepNNxJQl7D67f5MlO/Ud3Vuq7wyP9C4lJ0DgjwoMAC5eflIy8wqF9R+fkB4WChS0y9h1c5EbD9w1LSS2OB6AzW99HfffafGyssH6K0F1B6p3nQjAXU5oDYtUS81uN5AXVwMsk/tJcMogayAugRQuz1K/wnT9WmiHE4EtVOezg4hOGVo7LtTvIWvHZZTMg3Zp/aebIWySMARCZheKKuIHtGpWd8ujTnZf6d4C1+7rOdaOgJq78nWMGWnDFzCb8MqslxRp44F1JbVZZ2AToUX761TvIWvdbspjYKA2nuyNUzZKQMXT21YRZYr6tSxgNqyuqwT0Klw8dTbHNkp0aljAbV1TFqmoFPhAmofAXV0dLQhw2QqIPeVNoYaaKrEtENSRAIigT8kYMpTz55tT6JAu4U/atQou0lqpSeeWp+4nZK1Tr6mQc0L4xo2bKiuqeFNk7zKhkcHebkcE/4xwZ/uUhKoGVHwG+uoqCisW7dOpQzmkUeXy4Vdu3aBt1oOHTpUXaPjLoxEli9fru7W4niYn4zPO3XqpJIOrly5Uh2VZGTz008/qYMYvXv3VtFLgwYNVJokJjLk1T3MOMrv5Hm8knQbN26sDm+wLrOcFuWrU+ESfvtI+G301kt6aho0gc1bIyMiIq4YNI2FBs3DCUy/y0R+NOKUlBSViZNgorHzZBKfEXC8YZL/Wi3FQZ2UlISvvvpK8bzrrruwe/duBAQEqL4TVJyUCPJvv/0WPXv2VIkFWXhJHvucn5+vgD9o0CCVajgmJkaNo2vXrlizZo1KQcw2pMFrckmbaYSTk5MVsHmUknV599aSJUvQpUsXVK1aFXFxcervvMeLtN1FQG3VAoy3d0rWOvma9tRM2MeMmsylTS9Iwz1y5IjK3EnvTY9Fo2eWTj5nil4afWpqqqrDvNlswx/eLMkrZK2W4qAmIEmbE8iQIUNUyl96Xh6cILgIUubxZqICek1OTm5QL1u2TI2Pkw2PSPbo0UM9J9j5dyqHl+yRHm/F/Oabb9RkFhsbq0BNr1ynTh1Vl2Xx4sXqGfnOnz9f0b377ruvytSiU+HiqcVTX2UD9NRFQc2UujRqlsGDByuDplcmYOmtWAj+SpUqKSAQHAzX+YwefcuWLaqN1VIc1PTGjArc19IuXboUt99+O2bOnIlevXohMTFRpQVmP+nJ2aeinpqAZKjNBTh6+UaNGikvy9cNemL3ndWMBDg5cNIioDlx0fPTezPc5nNOWpzc2BdOKnxOT81LBSgXFgG1VQsw3t4pWevka9pTGxefvppWFsr4CsCk/izM892mTRt9Hf+Tk06Fi6cWT32Np9Zu8QYYWgG1AfJeryKg9rqIrzBwStY6+crRS332JJxEAlokYCr81jnbmBl9Re2X0TE42X+neAtfo9Zhvp6A2rzMbG/hlIE7uUjn1Jh9ga+A2naImifolKEJqM3rytMWOnUsoPZUSza206lwWf2W1e+rbMBJ4ysLQxW1X0Zx72T/neItfI1ah/l64qnNy8z2Fk4ZuITftquyVII6dSxbWvr0KpxEAlokIJ5ai5jLZqJzFpd3anmnlndqDaAXUGsQ8p8snJK1Tr7iqfXZU4V43xJPLZ5aPLUG0OucxQXUAmoBtYDaKxJwaiLzBb4SfnvFZM0RdcrQZEvLnJ6s1NapYwG1FU3Z1FanwiX89pHw22iKYJtsWMiIBEQCXpSAeGovCtcoafHURiVlvZ5TstbJV0Bt3U4sU9CpcAm/fST8Npoi2EnjKws5FbVfRtHuZP+d4i18jVqH+Xriqc3LzPYWThm4rH7brspSCerUsYBan14rhMIl/Jbw+yob0DnbmMFaRe2X0TE42X+neAtfo9Zhvp54avMys72FUwYu4bftqqwQ0Zicp9anV+EkEtAiAfHUWsRcNhPx1PqU4JSsdfIVUOuzpwoRmslCmSyUyUKZBtDrnMUF1H99UP8/zSlvmodhGpoAAAAASUVORK5CYII=",
+        "streamsheets": [
+          {
+            "id": "Sym-GRQ1mV",
+            "name": "S1",
+            "loop": {
+              "path": "",
+              "enabled": false
+            },
+            "inbox": {
+              "max": 20,
+              "type": "Inbox",
+              "id": "H1N-GRXkQN",
+              "stream": {
+                "name": "FactoryIO",
+                "id": "HyZA7ibfYm"
+              }
+            },
+            "sheet": {
+              "cells": {
+                "B1": {
+                  "value": "Abfrage der Sensorwerte",
+                  "type": "string",
+                  "level": 0
+                },
+                "E1": {
+                  "value": 123,
+                  "type": "number",
+                  "level": 0
+                },
+                "K1": {
+                  "formula": "GETSTEP()",
+                  "value": 4303,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "L1": {
+                  "formula": "IF(K1=1,DELETECELLS(\"#REF!\"),FALSE)",
+                  "value": false,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "M1": {
+                  "formula": "IF(K1=1,DELETECELLS(\"#REF!\"),FALSE)",
+                  "value": false,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "C3": {
+                  "formula": "READ(INBOXDATA(,,\"Factory I/O Sensors\",\"QR Reader 1\"),C4,\"Number\")",
+                  "value": "QR Reader 1",
+                  "type": "undefined",
+                  "level": 0
+                },
+                "F3": {
+                  "formula": "READ(INBOXDATA(,,\"Factory I/O Sensors\",\"QR Reader 2\"),F4,\"Number\")",
+                  "value": "QR Reader 2",
+                  "type": "undefined",
+                  "level": 0
+                },
+                "G3": {
+                  "formula": "READ(INBOXDATA(,,\"Factory I/O Sensors\",\"QR Reader 3\"),G4,\"Number\")",
+                  "value": "QR Reader 3",
+                  "type": "undefined",
+                  "level": 0
+                },
+                "H3": {
+                  "formula": "READ(INBOXDATA(,,\"Factory I/O Sensors\",\"QR Reader 4\"),H4,\"Number\")",
+                  "value": "QR Reader 4",
+                  "type": "undefined",
+                  "level": 0
+                },
+                "B4": {
+                  "value": "Teile ID",
+                  "type": "string",
+                  "level": 0
+                },
+                "C4": {
+                  "value": 216,
+                  "type": "number",
+                  "level": 0
+                },
+                "E4": {
+                  "value": "Teile ID",
+                  "type": "string",
+                  "level": 0
+                },
+                "F4": {
+                  "value": 0,
+                  "type": "number",
+                  "level": 0
+                },
+                "G4": {
+                  "value": 0,
+                  "type": "number",
+                  "level": 0
+                },
+                "H4": {
+                  "value": 0,
+                  "type": "number",
+                  "level": 0
+                },
+                "B5": {
+                  "value": "Pause",
+                  "type": "string",
+                  "level": 0
+                },
+                "C5": {
+                  "formula": "DETECTCHANGE(C4<>0,900,K5,L5,200)",
+                  "value": true,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "E5": {
+                  "value": "Signal",
+                  "type": "string",
+                  "level": 0
+                },
+                "F5": {
+                  "formula": "F4<>0",
+                  "value": false,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "G5": {
+                  "formula": "G4<>0",
+                  "value": false,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "H5": {
+                  "formula": "H4<>0",
+                  "value": false,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "K5": {
+                  "value": true,
+                  "type": "bool",
+                  "level": 0
+                },
+                "L5": {
+                  "value": 43546.77575877315,
+                  "type": "number",
+                  "level": 0
+                },
+                "B6": {
+                  "value": "Messung",
+                  "type": "string",
+                  "level": 0
+                },
+                "C6": {
+                  "formula": "DETECTCHANGE(C5,0,K6,L6,500)",
+                  "value": true,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "E6": {
+                  "value": "Messung",
+                  "type": "string",
+                  "level": 0
+                },
+                "F6": {
+                  "formula": "DETECTCHANGE(F5,0,M6,N6)",
+                  "value": false,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "G6": {
+                  "formula": "DETECTCHANGE(G5,0,O6,P6)",
+                  "value": false,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "H6": {
+                  "formula": "DETECTCHANGE(H5,0,Q6,R6)",
+                  "value": false,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "K6": {
+                  "value": true,
+                  "type": "bool",
+                  "level": 0
+                },
+                "L6": {
+                  "value": -1,
+                  "type": "number",
+                  "level": 0
+                },
+                "M6": {
+                  "value": false,
+                  "type": "bool",
+                  "level": 0
+                },
+                "N6": {
+                  "value": -1,
+                  "type": "number",
+                  "level": 0
+                },
+                "O6": {
+                  "value": false,
+                  "type": "bool",
+                  "level": 0
+                },
+                "P6": {
+                  "value": -1,
+                  "type": "number",
+                  "level": 0
+                },
+                "Q6": {
+                  "value": false,
+                  "type": "bool",
+                  "level": 0
+                },
+                "R6": {
+                  "value": -1,
+                  "type": "number",
+                  "level": 0
+                },
+                "IF8": {
+                  "formula": "C6",
+                  "value": true,
+                  "type": "reference",
+                  "level": 0
+                },
+                "B8": {
+                  "value": "Teile ID",
+                  "type": "string",
+                  "level": 0
+                },
+                "C8": {
+                  "formula": "C4",
+                  "value": 216,
+                  "type": "reference",
+                  "level": 0
+                },
+                "E8": {
+                  "value": "Base64",
+                  "type": "string",
+                  "level": 0
+                },
+                "G8": {
+                  "value": "Standort",
+                  "type": "string",
+                  "level": 0
+                },
+                "H8": {
+                  "value": "Werk München",
+                  "type": "string",
+                  "level": 0
+                },
+                "K8": {
+                  "formula": "RANDBETWEEN(-250,250)/100",
+                  "value": 1.68,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "L8": {
+                  "formula": "IF(K1=1,0,L8+1)",
+                  "value": 4620,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "IF9": {
+                  "formula": "IF8",
+                  "value": true,
+                  "type": "reference",
+                  "level": 0
+                },
+                "B9": {
+                  "formula": "READ(INBOXDATA(,,\"Factory I/O Sensors\",\"Scale Weight\"),C9,\"Number\")",
+                  "value": "Scale Weight",
+                  "type": "undefined",
+                  "level": 0
+                },
+                "C9": {
+                  "value": 3.99977255,
+                  "type": "number",
+                  "level": 0
+                },
+                "E9": {
+                  "value": "Breite",
+                  "type": "string",
+                  "level": 0
+                },
+                "F9": {
+                  "formula": "300+K8",
+                  "value": 301.68,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "G9": {
+                  "value": "Luftfeucht.",
+                  "type": "string",
+                  "level": 0
+                },
+                "H9": {
+                  "formula": "S2!C3",
+                  "value": 17.15039,
+                  "type": "reference",
+                  "level": 0
+                },
+                "K9": {
+                  "formula": "K8*RANDBETWEEN(9,11)/10",
+                  "value": 1.512,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "IF10": {
+                  "value": false,
+                  "type": "bool",
+                  "level": 0
+                },
+                "B10": {
+                  "formula": "READ(INBOXDATA(,,\"Factory I/O Sensors\",\"HD Camera\"),C10,\"Number\")",
+                  "value": "HD Camera",
+                  "type": "undefined",
+                  "level": 0
+                },
+                "C10": {
+                  "value": 4,
+                  "type": "number",
+                  "level": 0
+                },
+                "E10": {
+                  "value": "Länge",
+                  "type": "string",
+                  "level": 0
+                },
+                "F10": {
+                  "formula": "300+K9",
+                  "value": 301.512,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "G10": {
+                  "value": "Temperatur",
+                  "type": "string",
+                  "level": 0
+                },
+                "H10": {
+                  "value": 20,
+                  "type": "number",
+                  "level": 0
+                },
+                "B12": {
+                  "value": "Steuerung",
+                  "type": "string",
+                  "level": 0
+                },
+                "F12": {
+                  "value": "Statistik",
+                  "type": "string",
+                  "level": 0
+                },
+                "G12": {
+                  "value": "Gesamt",
+                  "type": "string",
+                  "level": 0
+                },
+                "H12": {
+                  "formula": "IF(K1=1,0,IF(F6,H12+1,H12))",
+                  "value": 72,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "B14": {
+                  "value": "Factory I/O Actuators",
+                  "type": "string",
+                  "level": 0
+                },
+                "G14": {
+                  "value": "Smart",
+                  "type": "string",
+                  "level": 0
+                },
+                "H14": {
+                  "value": "Klassisch",
+                  "type": "string",
+                  "level": 0
+                },
+                "B15": {
+                  "value": "Scale Move",
+                  "type": "string",
+                  "level": 1
+                },
+                "C15": {
+                  "formula": "NOT(C5)",
+                  "value": false,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "F15": {
+                  "value": "OK",
+                  "type": "string",
+                  "level": 0
+                },
+                "B16": {
+                  "value": "Pusher",
+                  "type": "string",
+                  "level": 1
+                },
+                "C16": {
+                  "formula": "DETECTCHANGE(B1,1500,K16,L16,900)",
+                  "value": true,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "F16": {
+                  "value": "Auss.",
+                  "type": "string",
+                  "level": 0
+                },
+                "K16": {
+                  "value": false,
+                  "type": "bool",
+                  "level": 0
+                },
+                "L16": {
+                  "value": 43546.775731875,
+                  "type": "number",
+                  "level": 0
+                },
+                "B17": {
+                  "value": "Pivot",
+                  "type": "string",
+                  "level": 1
+                },
+                "C17": {
+                  "formula": "DETECTCHANGE(B1,1500,K17,L17,900)",
+                  "value": true,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "F17": {
+                  "value": "Nachb.",
+                  "type": "string",
+                  "level": 0
+                },
+                "K17": {
+                  "value": false,
+                  "type": "bool",
+                  "level": 0
+                },
+                "L17": {
+                  "value": 43546.77541778935,
+                  "type": "number",
+                  "level": 0
+                },
+                "F18": {
+                  "value": "Summe",
+                  "type": "string",
+                  "level": 0
+                },
+                "B19": {
+                  "value": "Steuerbefehl senden",
+                  "type": "string",
+                  "level": 0
+                },
+                "C19": {
+                  "formula": "MQTT.PUBLISH(|MQTT_Producer,JSON(B14:C17),\"devices/FactoryIO/in\")",
+                  "value": true,
+                  "type": "undefined",
+                  "level": 0,
+                  "references": [
+                    "|MQTT_Producer"
+                  ]
+                },
+                "D23": {
+                  "value": 12,
+                  "type": "number",
+                  "level": 0
+                },
+                "G22": {
+                  "value": "asdasd",
+                  "type": "string",
+                  "level": 0
+                }
+              },
+              "namedCells": {},
+              "graphCells": {},
+              "properties": {
+                "sheet": {},
+                "cols": [],
+                "rows": [],
+                "cells": []
+              },
+              "settings": {
+                "minrow": 0,
+                "maxrow": 100,
+                "mincol": -2,
+                "maxcol": 50,
+                "protected": false,
+                "showGrid": true,
+                "showHeader": true
+              }
+            },
+            "trigger": {
+              "type": "arrival",
+              "repeat": "once"
+            }
+          },
+          {
+            "id": "S1w-uiyzDr4",
+            "name": "S2",
+            "loop": {
+              "path": "",
+              "enabled": false
+            },
+            "inbox": {
+              "max": 20,
+              "type": "Inbox",
+              "id": "BJub_s1fvHV",
+              "stream": {
+                "name": "WeatherStation",
+                "id": "H1Zyuuidz4"
+              }
+            },
+            "sheet": {
+              "cells": {
+                "B1": {
+                  "value": "Wettersensoren",
+                  "type": "string",
+                  "level": 0
+                },
+                "B3": {
+                  "formula": "READ(INBOXDATA(,,\"Data\",\"humidity\"),C3,\"Number\")",
+                  "value": "humidity",
+                  "type": "undefined",
+                  "level": 0
+                },
+                "C3": {
+                  "value": 17.15039,
+                  "type": "number",
+                  "level": 0
+                },
+                "B5": {
+                  "formula": "READ(INBOXDATA(,,\"Data\",\"TempC\"),C5,\"Number\")",
+                  "value": "TempC",
+                  "type": "undefined",
+                  "level": 0
+                },
+                "C5": {
+                  "value": 34.21,
+                  "type": "number",
+                  "level": 0
+                }
+              },
+              "namedCells": {},
+              "graphCells": {},
+              "properties": {
+                "sheet": {},
+                "cols": [],
+                "rows": [],
+                "cells": []
+              },
+              "settings": {
+                "minrow": 0,
+                "maxrow": 100,
+                "mincol": -2,
+                "maxcol": 50,
+                "protected": false,
+                "showGrid": true,
+                "showHeader": true
+              }
+            },
+            "trigger": {
+              "type": "arrival",
+              "repeat": "once"
+            }
+          },
+          {
+            "id": "Bk-48MWGvH4",
+            "name": "S3",
+            "loop": {
+              "path": "",
+              "enabled": false
+            },
+            "inbox": {
+              "max": 20,
+              "type": "Inbox",
+              "id": "ByGNIzWGvSN",
+              "stream": null
+            },
+            "sheet": {
+              "cells": {
+                "A1": {
+                  "value": "Daten an Smartphone schicken ",
+                  "type": "string",
+                  "level": 0
+                },
+                "A3": {
+                  "value": "Statistik",
+                  "type": "string",
+                  "level": 0
+                },
+                "A4": {
+                  "value": "OK",
+                  "type": "string",
+                  "level": 1
+                },
+                "B4": {
+                  "formula": "S1!G8",
+                  "value": "Standort",
+                  "type": "reference",
+                  "level": 0
+                },
+                "A5": {
+                  "value": "Auss.",
+                  "type": "string",
+                  "level": 1
+                },
+                "B5": {
+                  "formula": "S1!G9",
+                  "value": "Luftfeucht.",
+                  "type": "reference",
+                  "level": 0
+                },
+                "A6": {
+                  "value": "Nachb.",
+                  "type": "string",
+                  "level": 1
+                },
+                "B6": {
+                  "formula": "S1!G10",
+                  "value": "Temperatur",
+                  "type": "reference",
+                  "level": 0
+                },
+                "A7": {
+                  "value": "Summe",
+                  "type": "string",
+                  "level": 1
+                },
+                "B7": {
+                  "formula": "S1!G11",
+                  "value": 0,
+                  "type": "reference",
+                  "level": 0
+                },
+                "A9": {
+                  "value": "iPhone",
+                  "type": "string",
+                  "level": 0
+                },
+                "B9": {
+                  "formula": "MQTT.PUBLISH(|MQTT_Producer,JSON(A3:B3),\"iphone/daten\")",
+                  "value": "#NO_PRODUCER",
+                  "type": "undefined",
+                  "level": 0,
+                  "references": [
+                    "|MQTT_Producer"
+                  ]
+                }
+              },
+              "namedCells": {},
+              "graphCells": {},
+              "properties": {
+                "sheet": {},
+                "cols": [],
+                "rows": [],
+                "cells": []
+              },
+              "settings": {
+                "minrow": 0,
+                "maxrow": 100,
+                "mincol": -2,
+                "maxcol": 50,
+                "protected": false,
+                "showGrid": true,
+                "showHeader": true
+              }
+            },
+            "trigger": {
+              "interval": "1",
+              "intervalUnit": "s",
+              "type": "time",
+              "repeat": "endless"
+            }
+          }
+        ],
+        "metadata": {
+          "lastModified": "2019-05-29T10:04:30.310Z"
+        }
+      },
+      "graph": {
+        "id": "BJe5fCZHu4",
+        "graphdef": {
+          "type": "machinegraph",
+          "version": "2",
+          "uniqueid": "1",
+          "o-attributes": {
+            "o-hidetoolbarthreshold": {
+              "v": "1300"
+            }
+          },
+          "o-outbox": {
+            "split": "5000",
+            "width": "5000"
+          },
+          "a-graphitem": [
+            {
+              "id": "3000",
+              "o-attributes": {
+                "o-sheetid": {
+                  "v": "Bk-48MWGvH4",
+                  "t": "s"
+                },
+                "o-inboxvisible": {
+                  "v": "false",
+                  "t": "b"
+                }
+              },
+              "o-pin": {
+                "o-p": {
+                  "o-x": {
+                    "v": "30612"
+                  },
+                  "o-y": {
+                    "v": "17986"
+                  }
+                },
+                "o-lp": {
+                  "o-x": {
+                    "f": "WIDTH%20*%200.5",
+                    "v": "5725"
+                  },
+                  "o-y": {
+                    "f": "HEIGHT%20*%200.5",
+                    "v": "5324"
+                  }
+                }
+              },
+              "o-size": {
+                "o-w": {
+                  "v": "11449"
+                },
+                "o-h": {
+                  "v": "10647"
+                }
+              },
+              "o-inbox": {
+                "split": "1640",
+                "width": "5000"
+              },
+              "o-processsheet": {
+                "o-attributes": {
+                  "o-calcondemand": {
+                    "v": "true",
+                    "t": "b"
+                  }
+                },
+                "o-name": {
+                  "v": "S3",
+                  "t": "s"
+                },
+                "o-rows": {
+                  "a-section": [
+                    {
+                      "index": "0",
+                      "size": "818",
+                      "visible": "1"
+                    }
+                  ]
+                },
+                "o-columns": {
+                  "a-section": [
+                    {
+                      "index": "0",
+                      "title": "COMMENT",
+                      "size": "0",
+                      "visible": "0"
+                    },
+                    {
+                      "index": "1",
+                      "title": "IF",
+                      "size": "700",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "2",
+                      "size": "2529",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "3",
+                      "size": "3217",
+                      "visible": "1"
+                    }
+                  ]
+                },
+                "o-drawings": {},
+                "o-defaultcell": {
+                  "o-cell": {}
+                },
+                "o-data": {
+                  "a-r": [
+                    {
+                      "n": "0",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-t": {
+                              "o-fontsize": {
+                                "v": "14"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "2",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "3",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              },
+                              "o-level": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "4",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              },
+                              "o-level": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "5",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              },
+                              "o-level": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "6",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              },
+                              "o-level": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "8",
+                      "a-c": [
+                        {
+                          "n": "2",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "2000",
+              "o-attributes": {
+                "o-sheetid": {
+                  "v": "S1w-uiyzDr4",
+                  "t": "s"
+                }
+              },
+              "o-pin": {
+                "o-p": {
+                  "o-x": {
+                    "v": "30612"
+                  },
+                  "o-y": {
+                    "v": "6377"
+                  }
+                },
+                "o-lp": {
+                  "o-x": {
+                    "f": "WIDTH%20*%200.5",
+                    "v": "5725"
+                  },
+                  "o-y": {
+                    "f": "HEIGHT%20*%200.5",
+                    "v": "5664"
+                  }
+                }
+              },
+              "o-size": {
+                "o-w": {
+                  "v": "11449"
+                },
+                "o-h": {
+                  "v": "11327"
+                }
+              },
+              "o-inbox": {
+                "split": "1746",
+                "width": "4603"
+              },
+              "o-processsheet": {
+                "o-attributes": {
+                  "o-calcondemand": {
+                    "v": "true",
+                    "t": "b"
+                  }
+                },
+                "o-name": {
+                  "v": "S2",
+                  "t": "s"
+                },
+                "o-rows": {
+                  "a-section": [
+                    {
+                      "index": "0",
+                      "size": "818",
+                      "visible": "1"
+                    }
+                  ]
+                },
+                "o-columns": {
+                  "a-section": [
+                    {
+                      "index": "0",
+                      "title": "COMMENT",
+                      "size": "0",
+                      "visible": "0"
+                    },
+                    {
+                      "index": "1",
+                      "title": "IF",
+                      "size": "0",
+                      "visible": "0"
+                    },
+                    {
+                      "index": "2",
+                      "size": "518",
+                      "visible": "1"
+                    }
+                  ]
+                },
+                "o-drawings": {},
+                "o-defaultcell": {
+                  "o-cell": {}
+                },
+                "o-data": {
+                  "a-r": [
+                    {
+                      "n": "0",
+                      "a-c": [
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-t": {
+                              "o-fontstyle": {
+                                "v": "1"
+                              },
+                              "o-fontsize": {
+                                "v": "14"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "1000",
+              "o-attributes": {
+                "o-sheetid": {
+                  "v": "Sym-GRQ1mV",
+                  "t": "s"
+                },
+                "o-inboxvisible": {
+                  "v": "true",
+                  "t": "b"
+                },
+                "o-hidemessages": {
+                  "v": "false",
+                  "t": "b"
+                }
+              },
+              "o-pin": {
+                "o-p": {
+                  "o-x": {
+                    "v": "8725"
+                  },
+                  "o-y": {
+                    "v": "14221"
+                  }
+                },
+                "o-lp": {
+                  "o-x": {
+                    "f": "WIDTH%20*%200.5",
+                    "v": "15547"
+                  },
+                  "o-y": {
+                    "f": "HEIGHT%20*%200.5",
+                    "v": "13507"
+                  }
+                }
+              },
+              "o-size": {
+                "o-w": {
+                  "v": "31093"
+                },
+                "o-h": {
+                  "v": "27014"
+                }
+              },
+              "o-inbox": {
+                "split": "3401",
+                "width": "3968"
+              },
+              "o-processsheet": {
+                "o-attributes": {
+                  "o-calcondemand": {
+                    "v": "true",
+                    "t": "b"
+                  },
+                  "o-showgrid": {
+                    "v": "true",
+                    "t": "b"
+                  },
+                  "o-showheader": {
+                    "v": "true",
+                    "t": "b"
+                  },
+                  "o-greyifrows": {
+                    "v": "true",
+                    "t": "b"
+                  },
+                  "o-showformulas": {
+                    "v": "false",
+                    "t": "b"
+                  },
+                  "o-protected": {
+                    "v": "false",
+                    "t": "b"
+                  },
+                  "o-rows": {
+                    "v": "100"
+                  },
+                  "o-columns": {
+                    "v": "52"
+                  }
+                },
+                "o-name": {
+                  "v": "S1",
+                  "t": "s"
+                },
+                "o-rows": {
+                  "a-section": [
+                    {
+                      "index": "0",
+                      "size": "818",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "1",
+                      "size": "262",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "6",
+                      "size": "209",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "11",
+                      "size": "709",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "12",
+                      "size": "209",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "17",
+                      "size": "791",
+                      "visible": "1"
+                    }
+                  ]
+                },
+                "o-columns": {
+                  "a-section": [
+                    {
+                      "index": "0",
+                      "title": "COMMENT",
+                      "size": "0",
+                      "visible": "0"
+                    },
+                    {
+                      "index": "1",
+                      "title": "IF",
+                      "size": "423",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "2",
+                      "size": "492",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "3",
+                      "size": "3958",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "4",
+                      "size": "3650",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "5",
+                      "size": "2343",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "6",
+                      "size": "2405",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "7",
+                      "size": "4460",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "8",
+                      "size": "3031",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "9",
+                      "size": "3031",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "10",
+                      "size": "2344",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "14",
+                      "size": "2238",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "15",
+                      "size": "2370",
+                      "visible": "1"
+                    }
+                  ]
+                },
+                "o-drawings": {},
+                "o-defaultcell": {
+                  "o-cell": {}
+                },
+                "o-data": {
+                  "a-r": [
+                    {
+                      "n": "0",
+                      "a-c": [
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-t": {
+                              "o-fontstyle": {
+                                "v": "1"
+                              },
+                              "o-fontsize": {
+                                "v": "14"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "6",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "0~25",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "percent%3B0",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "2",
+                      "a-c": [
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23497b8d",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontstyle": {
+                                "v": "1"
+                              },
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "4",
+                          "o-cell": {
+                            "o-t": {
+                              "o-halign": {
+                                "v": "1"
+                              },
+                              "o-numberformat": {
+                                "v": "h%3Amm",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "time%3Ben",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "5",
+                          "o-cell": {
+                            "o-t": {
+                              "o-halign": {
+                                "v": "1"
+                              },
+                              "o-numberformat": {
+                                "v": "h%3Amm",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "time%3Ben",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "6",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23497b8d",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontstyle": {
+                                "v": "1"
+                              },
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-halign": {
+                                "v": "1"
+                              },
+                              "o-numberformat": {
+                                "v": "h%3Amm",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "time%3Ben",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "7",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "h%3Amm",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "time%3Ben",
+                                "t": "s"
+                              },
+                              "o-halign": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "8",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "h%3Amm",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "time%3Ben",
+                                "t": "s"
+                              },
+                              "o-halign": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "9",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "h%3Amm",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "time%3Ben",
+                                "t": "s"
+                              },
+                              "o-halign": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "3",
+                      "a-c": [
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "6",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "4",
+                      "a-c": [
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "6",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "5",
+                      "a-c": [
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "6",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "7",
+                      "a-c": [
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "6",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23497b8d",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontstyle": {
+                                "v": "1"
+                              },
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "7",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "h%3Amm%3Ass",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "time%3Ben",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "8",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23497b8d",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontstyle": {
+                                "v": "1"
+                              },
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "8",
+                      "a-c": [
+                        {
+                          "n": "4",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "0.0000",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "number%3B4%3Bfalse",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "6",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "7",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "0.00",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "number%3B2%3Bfalse",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "8",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontstyle": {
+                                "v": "1"
+                              },
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "9",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "0.00",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "number%3B2%3Bfalse",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "9",
+                      "a-c": [
+                        {
+                          "n": "6",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "7",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "0.00",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "number%3B2%3Bfalse",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "8",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontstyle": {
+                                "v": "1"
+                              },
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "9",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "0.00",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "number%3B2%3Bfalse",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "10",
+                      "a-c": [
+                        {
+                          "n": "7",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "0.00",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "number%3B2%3Bfalse",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "8",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontstyle": {
+                                "v": "1"
+                              },
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "9",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "0.00",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "number%3B2%3Bfalse",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "11",
+                      "a-c": [
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-t": {
+                              "o-fontstyle": {
+                                "v": "1"
+                              },
+                              "o-fontsize": {
+                                "v": "14"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "7",
+                          "o-cell": {
+                            "o-t": {
+                              "o-fontstyle": {
+                                "v": "1"
+                              },
+                              "o-fontsize": {
+                                "v": "14"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "13",
+                      "a-c": [
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "4",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23417505",
+                                "t": "s"
+                              }
+                            },
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "8",
+                          "o-cell": {
+                            "o-a": {
+                              "o-topborderstyle": {
+                                "v": "1"
+                              },
+                              "o-rightborderstyle": {
+                                "v": "1"
+                              },
+                              "o-bottomborderstyle": {
+                                "v": "1"
+                              },
+                              "o-leftborderstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "9",
+                          "o-cell": {
+                            "o-a": {
+                              "o-leftborderstyle": {
+                                "v": "1"
+                              },
+                              "o-topborderstyle": {
+                                "v": "1"
+                              },
+                              "o-rightborderstyle": {
+                                "v": "1"
+                              },
+                              "o-bottomborderstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "14",
+                      "a-c": [
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              },
+                              "o-level": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "4",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23417505",
+                                "t": "s"
+                              }
+                            },
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "7",
+                          "o-cell": {
+                            "o-a": {
+                              "o-leftborderstyle": {
+                                "v": "1"
+                              },
+                              "o-rightborderstyle": {
+                                "v": "1"
+                              },
+                              "o-bottomborderstyle": {
+                                "v": "1"
+                              },
+                              "o-topborderstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "8",
+                          "o-cell": {
+                            "o-a": {
+                              "o-leftborderstyle": {
+                                "v": "1"
+                              },
+                              "o-topborderstyle": {
+                                "v": "1"
+                              },
+                              "o-rightborderstyle": {
+                                "v": "1"
+                              },
+                              "o-bottomborderstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "9",
+                          "o-cell": {
+                            "o-a": {
+                              "o-leftborderstyle": {
+                                "v": "1"
+                              },
+                              "o-topborderstyle": {
+                                "v": "1"
+                              },
+                              "o-rightborderstyle": {
+                                "v": "1"
+                              },
+                              "o-bottomborderstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "15",
+                      "a-c": [
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-a": {
+                              "o-level": {
+                                "v": "1"
+                              },
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "4",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23417505",
+                                "t": "s"
+                              }
+                            },
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "7",
+                          "o-cell": {
+                            "o-a": {
+                              "o-leftborderstyle": {
+                                "v": "1"
+                              },
+                              "o-topborderstyle": {
+                                "v": "1"
+                              },
+                              "o-rightborderstyle": {
+                                "v": "1"
+                              },
+                              "o-bottomborderstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "8",
+                          "o-cell": {
+                            "o-a": {
+                              "o-leftborderstyle": {
+                                "v": "1"
+                              },
+                              "o-topborderstyle": {
+                                "v": "1"
+                              },
+                              "o-rightborderstyle": {
+                                "v": "1"
+                              },
+                              "o-bottomborderstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "9",
+                          "o-cell": {
+                            "o-a": {
+                              "o-leftborderstyle": {
+                                "v": "1"
+                              },
+                              "o-topborderstyle": {
+                                "v": "1"
+                              },
+                              "o-rightborderstyle": {
+                                "v": "1"
+                              },
+                              "o-bottomborderstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "16",
+                      "a-c": [
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23417505",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              },
+                              "o-level": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "4",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23417505",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "7",
+                          "o-cell": {
+                            "o-a": {
+                              "o-leftborderstyle": {
+                                "v": "1"
+                              },
+                              "o-topborderstyle": {
+                                "v": "1"
+                              },
+                              "o-rightborderstyle": {
+                                "v": "1"
+                              },
+                              "o-bottomborderstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "8",
+                          "o-cell": {
+                            "o-a": {
+                              "o-leftborderstyle": {
+                                "v": "1"
+                              },
+                              "o-topborderstyle": {
+                                "v": "1"
+                              },
+                              "o-rightborderstyle": {
+                                "v": "1"
+                              },
+                              "o-bottomborderstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "9",
+                          "o-cell": {
+                            "o-a": {
+                              "o-leftborderstyle": {
+                                "v": "1"
+                              },
+                              "o-topborderstyle": {
+                                "v": "1"
+                              },
+                              "o-rightborderstyle": {
+                                "v": "1"
+                              },
+                              "o-bottomborderstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "17",
+                      "a-c": [
+                        {
+                          "n": "7",
+                          "o-cell": {
+                            "o-a": {
+                              "o-leftborderstyle": {
+                                "v": "1"
+                              },
+                              "o-topborderstyle": {
+                                "v": "1"
+                              },
+                              "o-rightborderstyle": {
+                                "v": "1"
+                              },
+                              "o-bottomborderstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "8",
+                          "o-cell": {
+                            "o-a": {
+                              "o-leftborderstyle": {
+                                "v": "1"
+                              },
+                              "o-topborderstyle": {
+                                "v": "1"
+                              },
+                              "o-rightborderstyle": {
+                                "v": "1"
+                              },
+                              "o-bottomborderstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "9",
+                          "o-cell": {
+                            "o-a": {
+                              "o-leftborderstyle": {
+                                "v": "1"
+                              },
+                              "o-topborderstyle": {
+                                "v": "1"
+                              },
+                              "o-rightborderstyle": {
+                                "v": "1"
+                              },
+                              "o-bottomborderstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "18",
+                      "a-c": [
+                        {
+                          "n": "3",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%239b9b9b",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            },
+                            "o-t": {
+                              "o-fontcolor": {
+                                "v": "%23ffffff",
+                                "t": "s"
+                              },
+                              "o-fontstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "20",
+                      "a-c": [
+                        {
+                          "n": "7",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23417505",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "8",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23417505",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "9",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23417505",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "21",
+                      "a-c": [
+                        {
+                          "n": "7",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23417505",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "8",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23417505",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "9",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23417505",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "n": "22",
+                      "a-c": [
+                        {
+                          "n": "5",
+                          "o-cell": {
+                            "o-t": {
+                              "o-numberformat": {
+                                "v": "0~25",
+                                "t": "s"
+                              },
+                              "o-localculture": {
+                                "v": "percent%3B0",
+                                "t": "s"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "7",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23417505",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "8",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23417505",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "9",
+                          "o-cell": {
+                            "o-f": {
+                              "o-fillcolor": {
+                                "v": "%23417505",
+                                "t": "s"
+                              },
+                              "o-fillstyle": {
+                                "v": "1"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "o-images": {}
+        },
+        "machineId": "Sy5fR-rON"
+      }
+    }
+  ],
+  "streams": []
+}

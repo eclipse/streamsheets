@@ -1,0 +1,16 @@
+.jsg-item-menu {
+    background-color: rgba(0, 0, 0, 0);
+    box-sizing: border-box;
+    display: table;
+    min-height: 24px;
+    min-width: 24px;
+    overflow: hidden;
+    position: absolute;
+}
+
+.jsg-item-menu-row {
+    background-color: rgba(0, 0, 0, 0);
+    display: table-row;
+    /*position: absolute;*/
+    /*box-sizing: border-box;*/
+}

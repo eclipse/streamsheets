@@ -1,0 +1,1606 @@
+swagger: '2.0'
+info:
+  title: Repository API
+  description: An API for managing persistence
+  version: "1.0.0"
+schemes:
+  - http
+  - https
+
+basePath: /api/v1.0
+produces:
+  - application/json
+consumes:
+  - application/json
+
+securityDefinitions:
+  JWT:
+    type: apiKey
+    name: Authorization
+    in: header
+
+paths:
+  /:
+    get:
+      summary: get something
+      description: |
+        bla bla
+      responses:
+        200:
+          description: something
+
+    head:
+      responses:
+        200:
+          description: test
+  /healthcheck:
+    get:
+      summary: healthcheck
+      tags:
+        - healthcheck
+      responses:
+        200:
+          description: healthcheck
+  /meta:
+    get:
+      security:
+        - JWT: []
+      summary: Returns meta information about the Gateway, the Machine Server and the Graph Server.
+      tags:
+        - meta
+      responses:
+        200:
+          description: Contains meta information about the Gateway, the Machine Server and the Graph Server.
+
+  /machineserver/hello:
+    get:
+      summary: route called be machineserver to signal that it's ready for connections
+      tags:
+        - machineserver
+        - internalonly
+      responses:
+        200:
+          description: success
+
+  /graphserver/hello:
+    get:
+      summary: route called be graphserver to signal that it's ready for connections
+      tags:
+        - graphserver
+        - internalonly
+      responses:
+        200:
+          description: success
+
+  /graphs:
+    get:
+      security:
+        - JWT: []
+      summary: Get all graphs.
+      description: |
+        The graph endpoint returns information about the graphs that are
+        available at a given location.
+      tags:
+        - graphs
+      responses:
+        200:
+          description: An array of graphs.
+          schema:
+            $ref: '#/definitions/Graphs'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      security:
+        - JWT: []
+      summary: Create a new graph.
+      description: Create a new graph.
+      tags:
+        - graphs
+      parameters:
+        - $ref: "#/parameters/newGraph"
+      responses:
+        "200":
+          description: Graph response.
+          schema:
+            $ref: '#/definitions/Graph'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+  /graphs/{graphId}:
+    get:
+      security:
+        - JWT: []
+      summary: Get a single graph.
+      description: Returns a graph based on a single ID.
+      parameters:
+        - $ref: "#/parameters/graphId"
+      tags:
+        - graphs
+      responses:
+        "200":
+          description: Graph response.
+          schema:
+            $ref: '#/definitions/Graph'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      security:
+        - JWT: []
+      summary: Update a graph.
+      description: Update a graph.
+      parameters:
+        - $ref: "#/parameters/graphId"
+        - $ref: "#/parameters/updateGraph"
+      tags:
+        - graphs
+      responses:
+        "204":
+          description: Graph updated.
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      security:
+        - JWT: []
+      summary: Delete a graph.
+      description: Delete a graph.
+      parameters:
+        - $ref: "#/parameters/graphId"
+      tags:
+        - graphs
+      responses:
+        204:
+          description: Successfully deleted graph.
+  /users:
+    get:
+      security:
+        - JWT: []
+      tags:
+        - landscape
+        - user
+      responses:
+        200:
+          description: returns users
+    post:
+      tags:
+        - landscape
+        - user
+      responses:
+        201:
+          description: user created
+          schema:
+            $ref: '#/definitions/NewUserOrLogin'
+      parameters:
+        - $ref: "#/parameters/newUserOrLogin"
+
+    options:
+      summary: CORS
+      tags:
+        - landscape
+      responses:
+        200:
+          description: empty
+
+  /users/me:
+    get:
+      security:
+        - JWT: []
+      tags:
+        - landscape
+      responses:
+        200:
+          description: returns the current logged in user
+        401:
+          description: Not logged in. 
+
+  /login:
+    post:
+      responses:
+        200:
+          description: user logged in
+          schema:
+            $ref: '#/definitions/NewUserOrLogin'
+        401:
+          description: Invalid creds.
+      parameters:
+        - $ref: "#/parameters/newUserOrLogin"
+    options:
+      summary: CORS
+      tags:
+        - landscape
+      responses:
+        200:
+          description: empty
+
+  /logout:
+    post:
+      security:
+        - JWT: []
+      responses:
+        200:
+          description: user logged out
+    options:
+      summary: CORS
+      tags:
+        - landscape
+      responses:
+        200:
+          description: empty
+
+  /domains:
+    get:
+      security:
+        - JWT: []
+      summary: get domains
+      tags:
+        - domains
+        - landscape
+      responses:
+        200:
+          description: returns array with available domains
+          schema:
+            $ref: '#/definitions/Domains'
+
+    post:
+      security:
+        - JWT: []
+      consumes:
+        - application/json
+      summary: create new domain
+      tags:
+        - domains
+        - landscape
+      responses:
+        201:
+          description: domain has been successfully created
+          schema:
+            $ref: '#/definitions/DomainObject'
+      parameters:
+        - $ref: "#/parameters/newDomain"
+
+    options:
+      summary: CORS
+      tags:
+        - domains
+        - landscape
+      responses:
+        200:
+          description: empty
+
+
+  /domains/{domainId}:
+    parameters:
+      - $ref: '#/parameters/domainId'
+    get:
+      security:
+        - JWT: []
+      summary: get domain by id
+      tags:
+        - domains
+        - landscape
+      responses:
+        200:
+          description: returns array with available domains
+          schema:
+            $ref: '#/definitions/DomainObject'
+        404:
+          description: not found
+    delete:
+      security:
+        - JWT: []
+      summary: remove domain
+      tags:
+        - domains
+        - landscape
+      responses:
+        200:
+          description: successfully deleted
+    options:
+      summary: CORS
+      tags:
+        - domains
+        - landscape
+      responses:
+        200:
+          description: empty
+
+  /domains/{domainId}/locks:
+    parameters:
+      - $ref: '#/parameters/domainId'
+    get:
+      security:
+        - JWT: []
+      summary: get all locks
+      tags:
+        - landscape
+        - locks
+      responses:
+        200:
+          description: returns array of currently acquired locks
+
+  /domains/{domainId}/scenarios:
+    parameters:
+      - $ref: '#/parameters/domainId'
+    get:
+      security:
+        - JWT: []
+      summary: get scenarios by domain
+      tags:
+        - scenarios
+        - landscape
+      responses:
+        200:
+          description: returns scenarios by domain
+          schema:
+            $ref: '#/definitions/Scenarios'
+    post:
+      security:
+        - JWT: []
+      summary: create new scenario
+      tags:
+        - scenarios
+        - landscape
+      parameters:
+        - $ref: '#/parameters/newScenario'
+      responses:
+        201:
+          description: returns the newly created scenarioId
+          schema:
+            $ref: '#/definitions/Scenario'
+    options:
+      summary: CORS
+      tags:
+        - scenarios
+        - landscape
+      responses:
+        200:
+          description: empty
+
+
+  /domains/{domainId}/scenarios/{scenarioId}:
+    parameters:
+      - $ref: '#/parameters/domainId'
+      - $ref: '#/parameters/scenarioId'
+    delete:
+      security:
+        - JWT: []
+      summary: removes scenario
+      tags:
+        - scenarios
+        - landscape
+      responses:
+        200:
+          description: removes scenario
+    options:
+      summary: CORS
+      tags:
+        - scenarios
+        - landscape
+      responses:
+        200:
+          description: empty
+
+
+  /domains/{domainId}/nodes:
+    parameters:
+      - $ref: '#/parameters/domainId'
+    get:
+      security:
+        - JWT: []
+      summary: returns nodes by domainId
+      tags:
+        - landscape
+        - nodes
+        - tree
+      responses:
+        200:
+          description: return nodes by domainId
+          schema:
+            $ref: '#/definitions/Nodes'
+    post:
+      security:
+        - JWT: []
+      parameters:
+        - $ref: '#/parameters/newNode'
+      summary: creates new child-node
+      tags:
+        - landscape
+        - nodes
+        - tree
+      responses:
+        201:
+          description: creates new child-node with domainId as its parent
+          schema:
+            $ref: '#/definitions/Node'
+    options:
+      summary: CORS
+      tags:
+        - nodes
+        - landscape
+      responses:
+        200:
+          description: empty
+
+
+  /domains/{domainId}/nodes/{nodeId}:
+    parameters:
+      - $ref: '#/parameters/domainId'
+      - $ref: '#/parameters/nodeId'
+    get:
+      security:
+        - JWT: []
+      summary: TODO
+      tags:
+        - landscape
+        - nodes
+        - tree
+      responses:
+        200:
+          description: returns node by nodeId with nodeId as root node
+          schema:
+            $ref: '#/definitions/Nodes'
+
+    put:
+      security:
+        - JWT: []
+      parameters:
+        - $ref: '#/parameters/updateNode'
+      summary: updates node
+      tags:
+        - landscape
+        - nodes
+      responses:
+        200:
+          description: updates node with nodeId
+          schema:
+            $ref: '#/definitions/Node'
+
+    delete:
+      security:
+        - JWT: []
+      summary: deletes node
+      tags:
+        - landscape
+        - nodes
+        - tree
+      responses:
+        200:
+          description: deletes node
+
+    options:
+      summary: CORS
+      tags:
+        - nodes
+        - landscape
+      responses:
+        200:
+          description: empty
+
+
+  /domains/{domainId}/nodes/{nodeId}/locks:
+    parameters:
+      - $ref: '#/parameters/domainId'
+      - $ref: '#/parameters/nodeId'
+    post:
+      security:
+        - JWT: []
+      summary: try to acquire new lock for nodeId
+      tags:
+        - locks
+        - nodes
+        - landscape
+      responses:
+        201:
+          description: lock successfully acquired
+        409:
+          description: acquiring lock failed. eg. already locked
+
+    delete:
+      security:
+        - JWT: []
+      summary: try to release lock for nodeId
+      tags:
+        - locks
+        - nodes
+        - landscape
+      responses:
+        200:
+          description: lock successfully released
+        400:
+          description: releasing lock failed. eg. not locked
+
+  /domains/{domainId}/nodes/{nodeId}/nodes:
+    parameters:
+      - $ref: '#/parameters/domainId'
+      - $ref: '#/parameters/nodeId'
+    get:
+      security:
+        - JWT: []
+      summary: returns nodes by domainId and nodeId as root node
+      tags:
+        - landscape
+        - nodes
+        - tree
+      responses:
+        200:
+          description: returns nodes by domainId and nodeId as root node
+          schema:
+            $ref: '#/definitions/Nodes'
+    post:
+      security:
+        - JWT: []
+      parameters:
+        - $ref: '#/parameters/newNode'
+      summary: creates new child-node
+      tags:
+        - landscape
+        - nodes
+        - tree
+      responses:
+        201:
+          description: creates new child-node with nodeId as its parent
+          schema:
+            $ref: '#/definitions/Node'
+    options:
+      summary: CORS
+      tags:
+        - nodes
+        - landscape
+      responses:
+        200:
+          description: empty
+
+  /i18n/dl/{languageKey}:
+    get:
+      summary: retrieve translation for languageKey.
+      parameters:
+        - $ref: "#/parameters/languageKey"
+      tags:
+        - landscape
+        - translation
+      responses:
+        200:
+          description: The requested translation file
+        404:
+          description: The requested translation file is not available
+
+  /machines:
+    get:
+      security:
+        - JWT: []
+      summary: Get all machines.
+      description: |
+        The machines endpoint returns information about the machines that are
+        available at a given location.
+      tags:
+        - machines
+      responses:
+        200:
+          description: An array of machines.
+          schema:
+            $ref: '#/definitions/Machines'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      security:
+        - JWT: []
+      summary: Create a new machine.
+      description: Create a new machine.
+      tags:
+        - machines
+      parameters:
+        - $ref: "#/parameters/machine"
+      responses:
+        "200":
+          description: Machine response.
+          schema:
+            $ref: '#/definitions/Machine'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+  /machines/{machineId}:
+    get:
+      security:
+        - JWT: []
+      summary: Get a single machine.
+      description: Returns a machine based on a single ID.
+      parameters:
+        - $ref: "#/parameters/machineId"
+      tags:
+        - machines
+      responses:
+        "200":
+          description: Machine response.
+          schema:
+            $ref: '#/definitions/Machine'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      security:
+        - JWT: []
+      summary: Update a machine.
+      description: Update a machine.
+      parameters:
+        - $ref: "#/parameters/machineId"
+        - $ref: "#/parameters/machine"
+      tags:
+        - machines
+      responses:
+        "204":
+          description: Machine updated.
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+
+  /machines/{machineId}/processsheets:
+    parameters:
+      - $ref: '#/parameters/machineId'
+    get:
+      security:
+        - JWT: []
+      summary: Get list of processsheets by machineId
+      description: Returns a list of processsheets by machineId.
+      tags:
+        - machines
+        - processsheets
+      responses:
+        200:
+          description: List of processsheets by machineId.
+    post:
+      parameters:
+        - $ref: '#/parameters/processsheet'
+      security:
+        - JWT: []
+      summary: Create new processsheet
+      tags:
+        - machines
+        - processsheets
+      responses:
+        201:
+          description: Processsheet successfully created.
+
+  /machines/{machineId}/process-settings:
+      parameters:
+        - $ref: '#/parameters/machineId'
+      get:
+        security:
+          - JWT: []
+        summary: Get process settings by machineId
+        description: Returns process settings by machineId.
+        tags:
+          - machines
+          - process settings
+        responses:
+          200:
+            description: Settings by machineId.
+      put:
+        consumes:
+          - application/json
+        parameters:
+          - in: body
+            description: The settings to save.
+            schema:
+              type: object
+              required:
+                - machineId
+              properties:
+                _id:
+                  type: string
+                machineId:
+                  type: string
+        security:
+          - JWT: []
+        summary: Save new process settings
+        tags:
+          - machines
+          - process settings
+        responses:
+          201:
+            description: Process settings successfully saved.
+
+  /machines/{machineId}/settings:
+    parameters:
+      - $ref: '#/parameters/machineId'
+    get:
+      security:
+        - JWT: []
+      summary: Get settings by machineId
+      description: Returns settings by machineId.
+      tags:
+        - machines
+        - settings
+      responses:
+        200:
+          description: Settings by machineId.
+    put:
+      parameters:
+        - $ref: '#/parameters/machineSetting'
+      security:
+        - JWT: []
+      summary: Upsert settings by machineId
+      description: Returns settings by machineId.
+      tags:
+        - machines
+        - settings
+      responses:
+        200:
+          description: Settings by machineId.
+    options:
+      summary: CORS
+      tags:
+        - settings
+        - machines
+      responses:
+        200:
+          description: empty
+
+  /processsheets:
+    get:
+      security:
+        - JWT: []
+      summary: Get list of all processsheets
+      description: Returns a list of all processsheets.
+      tags:
+        - machines
+        - processsheets
+      responses:
+        200:
+          description: List of processsheets.
+
+  /graphql:
+    get:
+      security:
+        - JWT: []
+      summary: GraphQL.
+      description: |
+        GraphQL API
+      tags:
+        - graphql
+    post:
+      security:
+        - JWT: []
+      summary: GraphQL.
+      description: |
+        GraphQL API
+      tags:
+        - graphql
+      consumes:
+        - application/json
+      parameters:
+        - $ref: "#/parameters/graphQLQuery"
+
+  /templates:
+    get:
+      security:
+        - JWT: []
+      summary: Get all templates.
+      description: |
+        The templates endpoint returns information about the machines that are
+        marked as templates.
+      tags:
+        - machines
+      responses:
+        200:
+          description: An array of machine templates.
+          schema:
+            $ref: '#/definitions/Machines'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+          
+  /templates/{templateId}:
+    get:
+      security:
+        - JWT: []
+      summary: Get a single template.
+      description: Returns a template based on a single ID.
+      parameters:
+        - $ref: "#/parameters/templateId"
+      tags:
+        - machines
+      responses:
+        "200":
+          description: Template response.
+          schema:
+            $ref: '#/definitions/Machine'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      security:
+        - JWT: []
+      summary: Update a template.
+      description: Update a template.
+      parameters:
+        - $ref: "#/parameters/templateId"
+        - $ref: "#/parameters/template"
+      tags:
+        - machines
+      responses:
+        "204":
+          description: Template updated.
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+
+  /system/setup:
+    get:
+      summary: Get the setup.
+      description: Returns the setup.
+      responses:
+        200:
+          description: Template response.
+          schema:
+            $ref: '#/definitions/SetupData'
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      summary: Set the setup.
+      description: This endpoint sets the setup.
+      parameters:
+        - $ref: "#/parameters/setupData"
+      responses:
+        201:
+          description: Setup data.
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+
+  /export:
+    post:
+      security:
+        - JWT: []
+      summary: Get the export data for a machine.
+      description: This endpoint returns the export data for machines.
+      parameters:
+        - $ref: "#/parameters/exportData"
+      tags:
+        - machines
+      responses:
+        200:
+          description: Export data for a machine.
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+
+  /import:
+    post:
+      security:
+        - JWT: []
+      summary: Imports a machine and the corresponding graph.
+      description: This endpoint imports a machine and the corresponding graph.
+      consumes:
+        - application/json
+      parameters:
+        - $ref: "#/parameters/importData"
+      responses:
+        201:
+          description: Created
+        400:
+          description: Failed
+
+  /backup:
+    get:
+      security:
+        - JWT: []
+      summary: Get a backup of the database.
+      description: This endpoint returns a backup of the database.
+      responses:
+        200:
+          description: Backup data.
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+
+  /restore:
+    post:
+      security:
+        - JWT: []
+      summary: Restores the database.
+      description: This endpoint restores the database.
+      consumes:
+        - multipart/form-data
+      parameters:
+        - $ref: "#/parameters/restoreData"
+      responses:
+        201:
+          description: Created
+        400:
+          description: Failed
+
+  /exportall:
+    get:
+      security:
+        - JWT: []
+      summary: Get the export data for all machines.
+      description: This endpoint returns the export data for all machines.
+      tags:
+        - machines
+      responses:
+        200:
+          description: Export data for all machines.
+        default:
+          description: Unexpected error.
+          schema:
+            $ref: '#/definitions/Error'
+
+  /processsheets/{processsheetId}:
+    parameters:
+      - $ref: '#/parameters/processsheetId'
+    get:
+      security:
+        - JWT: []
+      summary: Get processsheet
+      description: Returns a processsheet.
+      tags:
+        - machines
+        - processsheets
+      responses:
+        200:
+          description: Processsheet.
+
+  /processsheettemplates:
+    get:
+      security:
+        - JWT: []
+      summary: Get processsheet templates
+      description: Returns a list of processsheet templates.
+      tags:
+        - machines
+        - processsheets
+        - processsheettemplates
+      responses:
+        200:
+          description: Processsheet templates.
+
+  /machinesettings:
+    get:
+      security:
+        - JWT: []
+      summary: Get all settings
+      description: Returns a list of settings.
+      tags:
+        - machines
+        - settings
+      responses:
+        200:
+          description: Settings.
+          schema: 
+            $ref: '#/definitions/MachineSetting'
+# List of reusable definitions
+definitions:
+  DomainObject:
+    type: object
+    additionalProperties: false
+    properties:
+      _id:
+        type: string
+        example: ByGbnqatl
+      dateCreated:
+        type: integer
+        description: milliseconds since unix epoche
+        example: 1488465059375
+      dateUpdated:
+        type: integer
+        description: milliseconds since unix epoche
+        example: 1488465059375
+      path:
+        type: string
+      index:
+        type: integer
+        minimum: 0
+      title:
+        type: string
+        description: Domain title.
+        example: Example Domain
+  NewDomain:
+    type: object
+    additionalProperties: false
+    properties:
+      index:
+        type: integer
+        minimum: 0
+        description: Index position of domain
+      title:
+        type: string
+        minimum: 1
+        description: Domain title
+        example: Example Domain
+    required:
+      - title
+
+  Domains:
+    type: array
+    items:
+      $ref: '#/definitions/DomainObject'
+
+  Node:
+    type: object
+    additionalProperties: false
+    properties:
+      _id:
+        type: string
+        minimum: 9
+        example: HkFlzbh56Yx
+      path:
+        type: string
+        example: ',domainId,parentId,'
+      index:
+        type: integer
+      type:
+        type: string
+        example: node
+        enum:
+          - node
+          - machine
+          - master_machine
+          - device
+      children:
+        type: array
+        items:
+          $ref: '#/definitions/Nodes'
+
+
+      title:
+        type: string
+
+  NewNode:
+    type: object
+    additionalProperties: false
+    properties:
+      title:
+        type: string
+        example: Temperature A1
+        default: ''
+      type:
+        type: string
+        example: device
+        default: node
+        enum:
+          - node
+          - machine
+          - master_machine
+          - device
+      style:
+        type: string
+        enum:
+          - Device
+          - Machine
+          - Site
+          - Factory
+          - Root
+      index:
+        type: integer
+        example: 1
+    required:
+      - title
+      - type
+
+  UpdateNode:
+    type: object
+    additionalProperties: false
+    properties:
+      title:
+        type: string
+      type:
+        type: string
+        enum:
+          - node
+          - machine
+          - master_machine
+          - device
+      style:
+        type: string
+        enum:
+          - Device
+          - Machine
+          - Site
+          - Factory
+          - Root
+      index:
+        type: integer
+        example: 1
+      path:
+        type: string
+        minimum: 3
+  Nodes:
+    type: array
+    items:
+      $ref: '#/definitions/Node'
+
+  Scenario:
+    type: object
+    properties:
+      _id:
+        type: string
+        minimum: 9
+        example: HkFlzbh56Yx
+      domain:
+        type: string
+        example: HkFlzbh56Yx
+        description: id of the domain the scenario belongs to
+      title:
+        type: string
+      dateCreated:
+        type: integer
+        description: milliseconds since unix epoche
+        example: 1488465059375
+      dateUpdated:
+        type: integer
+        description: milliseconds since unix epoche
+        example: 1488465059375
+      index:
+        type: integer
+        minimum: 0
+
+  NewScenario:
+    type: object
+    additionalProperties: false
+    properties:
+      title:
+        type: string
+    required:
+      - title
+
+  Scenarios:
+    type: array
+    items:
+      $ref: '#/definitions/Scenario'
+
+
+  User:
+    type: object
+    properties:
+      mail:
+        type: string
+        description: the users mail address
+      name:
+        type: string
+        description: the users name
+      dateCreated:
+        type: integer
+        description: milliseconds since unix epoche
+        example: 1488465059375
+      dateUpdated:
+        type: integer
+        description: milliseconds since unix epoche
+        example: 1488465059375
+
+  NewUserOrLogin:
+    type: object
+    properties:
+      _id:
+        type: string
+        minimum: 9
+        example: HkFlzbh56Yx
+      mail:
+        type: string
+        description: the users mail address
+      name:
+        type: string
+        description: the users name
+      password:
+        type: string
+        format: password
+        minLength: 6
+    required:
+      - mail
+      - password
+
+  Graph:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Unique identifier representing a specific graph.
+      graph:
+        type: object
+        description: The actual graph.
+  Graphs:
+    type: array
+    items:
+      $ref: '#/definitions/Graph'
+  NewGraph:
+      properties:
+        id:
+          type: string
+        machineId:
+          type: string
+        graph:
+          type: object
+  UpdateGraph:
+      properties:
+        id:
+          type: string
+        machineId:
+          type: string
+        graph:
+          type: object
+
+  Machine:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Unique identifier representing a specific machine.
+      name:
+        type: string
+        description: Name of the machine.
+      state:
+        type: string
+        description: Last persisted state of the machine
+        example: running
+  MachineState:
+    type: object
+    properties:
+      state:
+        type: string
+        description: State of a machine.
+  Machines:
+    type: array
+    items:
+      $ref: '#/definitions/Machine'
+  NewMachine:
+      properties:
+        name:
+          type: string
+        state:
+          type: string
+          enum:
+            - running
+            - stopped
+            - paused
+
+  NewTemplate:
+      properties:
+        name:
+          type: string
+
+  ImportData:
+    type: object
+
+  ExportData:
+    type: object
+
+  RestoreData:
+    type: object
+
+  GraphQLQuery:
+    type: object
+
+  SetupData:
+    type: object
+
+  MachineSetting:
+    additionalProperties: false
+    type: object
+    properties:
+      _id:
+        type: string
+        example: ByGbnqatl
+      # TODO: does id belong here?
+      id:
+        type: string
+        example: cedalo/devices/transactors/(unknown)
+      # TODO: does topics belong here?
+      topics:
+        type: array
+        items:
+          type: string
+      machineId:
+        type: string
+      processingOrder:
+        type: array
+        items:
+          type: integer
+          minimum: 1
+          maximum: 8
+      triggerMode:
+        ## TODO: more precisely, max, default?
+        type: string
+      triggerInterval:
+        ## TODO: more precisely, max, default?
+        type: integer
+        minimum: 0
+      triggerCount:
+        ## TODO: more precisely, max, default?
+        type: integer
+        minimum: 0
+      triggerDisplayTime:
+        ## TODO: more precisely, max, default?
+        type: integer
+        minimum: 0
+      alignExecute:
+        type: boolean
+      maximizeSheet:
+        type: boolean
+      animate:
+        type: boolean
+      animateMessageDocking:
+        type: boolean
+      machineSpeed:
+        ## TODO: more precisely, max, default?
+        type: number
+        minimum: 1
+
+  NewOrUpdateMachineSetting:
+    additionalProperties: false
+    type: object
+    properties:
+      # TODO: does id belong here?
+      id:
+        type: string
+        example: cedalo/devices/transactors/(unknown)
+      # TODO: does topics belong here?
+      topics:
+        type: array
+        items:
+          type: string
+      machineId:
+        type: string
+      processingOrder:
+        type: array
+        items:
+          type: integer
+          minimum: 1
+          maximum: 8
+      triggerMode:
+        ## TODO: more precisely, max, default?
+        type: string
+      triggerInterval:
+        ## TODO: more precisely, max, default?
+        type: integer
+        minimum: 0
+      triggerCount:
+        ## TODO: more precisely, max, default?
+        type: integer
+        minimum: 0
+      triggerDisplayTime:
+        ## TODO: more precisely, max, default?
+        type: integer
+        minimum: 0
+      alignExecute:
+        type: boolean
+      maximizeSheet:
+        type: boolean
+      animate:
+        type: boolean
+      animateMessageDocking:
+        type: boolean
+      machineSpeed:
+        ## TODO: more precisely, max, default?
+        type: number
+        minimum: 1
+
+  Processsheet:
+    type: object
+    properties:
+      machineId:
+        $ref: '#/parameters/machineId'
+      sheetdef:
+        type: object
+        properties:
+          rows:
+            type: array
+            items:
+              type: array
+              items:
+                type: string
+        
+
+  AnyValue: {}
+
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      fields:
+        type: string
+
+# List of reusable parameters
+parameters:
+  graphId:
+    name: graphId
+    in: path
+    description: The ID of a graph.
+    required: true
+    type: string
+  updateGraph:
+    name: graph
+    in: body
+    description: New graph to update
+    required: true
+    schema:
+      $ref: '#/definitions/UpdateGraph'
+  newGraph:
+    name: graph
+    in: body
+    description: New graph to create
+    required: true
+    schema:
+      $ref: '#/definitions/NewGraph'
+
+  newUserOrLogin:
+    name: User
+    in: body
+    description: New user to create
+    required: true
+    schema:
+      $ref: '#/definitions/NewUserOrLogin'
+
+  domainId:
+    name: domainId
+    in: path
+    description: The ID of a Domain.
+    required: true
+    type: string
+    
+  languageKey:
+    name: languageKey
+    in: path
+    description: The ID of a Domain.
+    required: true
+    type: string
+
+  newDomain:
+    name: Domain
+    in: body
+    description: New domain to create
+    required: true
+    schema:
+      $ref: '#/definitions/NewDomain'
+  newScenario:
+    name: Scenario
+    in: body
+    description: New scenario to create
+    required: true
+    schema:
+      $ref: '#/definitions/NewScenario'
+  newNode:
+    name: Node
+    in: body
+    description: New node to create
+    required: true
+    schema:
+      $ref: '#/definitions/NewNode'
+
+  updateNode:
+    name: Node
+    in: body
+    description: Updated fields of node to apply
+    required: true
+    schema:
+      $ref: '#/definitions/UpdateNode'
+
+  scenarioId:
+    name: scenarioId
+    in: path
+    description: The ID of a scenario
+    required: true
+    type: string
+  nodeId:
+    name: nodeId
+    in: path
+    description: The ID of a node
+    required: true
+    type: string
+  machineId:
+    name: machineId
+    in: path
+    description: The ID of a machine.
+    required: true
+    type: string
+  processsheetId:
+    name: processsheetId
+    in: path
+    description: The ID of a processsheet.
+    required: true
+    type: string
+  machine:
+    name: machine
+    in: body
+    description: Machine to add.
+    required: true
+    schema:
+      $ref: '#/definitions/NewMachine'
+  machineState:
+    name: machineState
+    in: body
+    description: Machine state.
+    required: true
+    schema:
+      $ref: '#/definitions/MachineState'
+  machineSetting:
+    name: machineSetting
+    in: body
+    description: Machine setting to add or update
+    required: Temperature
+    schema:
+      $ref: '#/definitions/NewOrUpdateMachineSetting'
+
+  templateId:
+    name: templateId
+    in: path
+    description: The ID of a template.
+    required: true
+    type: string
+  template:
+    name: template
+    in: body
+    description: Template to add.
+    required: true
+    schema:
+      $ref: '#/definitions/NewTemplate'
+
+  importData:
+    name: importData
+    in: body
+    description: The machine and graph to import.
+    required: true
+    schema:
+      $ref: '#/definitions/ImportData'
+  
+  exportData:
+    name: exportData
+    in: body
+    description: The export
+    required: true
+    schema:
+      $ref: '#/definitions/ExportData'
+
+  setupData:
+    name: setupData
+    in: body
+    description: The setup
+    required: true
+    schema:
+      $ref: '#/definitions/SetupData'
+
+  restoreData:
+    name: restoreData
+    in: body
+    description: The database data to restore.
+    required: false
+    type: file
+    schema:
+      $ref: '#/definitions/RestoreData'
+
+  graphQLQuery:
+    name: graphQLQuery
+    in: body
+    description: The GraphQL query.
+    required: true
+    schema:
+      $ref: '#/definitions/GraphQLQuery'
+
+  processsheet:
+    name: processheet
+    in: body
+    description: Processsheet
+    required: true
+    schema:
+      $ref: '#/definitions/Processsheet'

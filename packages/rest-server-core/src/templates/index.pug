@@ -1,0 +1,15 @@
+html
+    head
+        meta(http-equiv="refresh" content="5")
+    body
+        table
+            thead
+                tr
+                    each header in content[0]
+                        th= header
+            tbody
+                each row, index in content
+                    if index>0
+                        tr
+                            each column in row
+                                td= column

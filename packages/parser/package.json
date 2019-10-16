@@ -1,0 +1,48 @@
+{
+  "name": "@cedalo/parser",
+  "version": "1.0.211",
+  "description": "Cedalo formula parser",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --runInBand --forceExit",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --forceExit --coverage",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedalo/streamsheets.git"
+  },
+  "author": "Cedalo AG",
+  "bugs": {
+    "url": "https://github.com/cedalo/streamsheets/issues"
+  },
+  "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/parser",
+  "devDependencies": {
+    "babel-core": "6.24.1",
+    "babel-loader": "6.4.1",
+    "babel-preset-env": "1.6.1",
+    "eslint": "3.19.0",
+    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
+    "eslint-config-prettier": "3.3.0",
+    "jest": "20.0.4"
+  },
+  "eslintConfig": {
+    "extends": [
+      "cedalo",
+      "prettier"
+    ]
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageThreshold": {
+      "global": {
+        "branches": 50,
+        "functions": 40,
+        "lines": 50,
+        "statements": 50
+      }
+    }
+  },
+  "license": "EPL-2.0"
+}

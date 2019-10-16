@@ -1,0 +1,17 @@
+{
+  "Top": "Top",
+  "Left": "Left",
+  "Right": "Right",
+  "Bottom": "Bottom",
+  "Inbox": "Inbox",
+  "Outbox": "Outbox",
+  "Step": "Step",
+  "None": "None",
+  "DataObject": "Payload",
+  "AddContainer": "Add to this container",
+  "Inbox Settings": "<p style='font-weight: bold;'>Inbox Settings</p>Define consumer which provides messages and<br /> the processing options for the Inbox.",
+  "Delete StreamSheet": "Delete StreamSheet",
+  "Maximize StreamSheet": "Maximize StreamSheet",
+  "Minimize StreamSheet": "Minimize StreamSheet",
+  "Sheet Settings": "<p style='font-weight: bold;'>Sheet Settings</p>Define Sheet name and size and visual options<br /> like grid oder header visibility."
+}

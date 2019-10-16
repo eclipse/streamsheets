@@ -1,0 +1,7 @@
+{
+	"url": "http://samples.openweathermap.org/data/2.5/weather?id=2172797&appid=df90123518f2e71455b31e063d96a52d",
+	"method": "GET",
+	"headers": {
+		"Accept": "application/json"
+	}
+}

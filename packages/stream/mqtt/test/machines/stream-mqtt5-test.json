@@ -1,0 +1,544 @@
+{
+  "machines": [
+    {
+      "machine": {
+        "id": "BkNEiGnTQ",
+        "name": "consumer-mqtt5-test",
+        "lastModified": "2019-05-08T12:30:10.480Z",
+        "state": "stopped",
+        "settings": {},
+        "className": "Machine",
+        "namedCells": {
+          "|asure_mqtt": {
+            "value": {
+              "id": "S1exLXToU4",
+              "name": "asure_mqtt",
+              "type": "consumer"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|File_Connector": {
+            "value": {
+              "id": "CONNECTOR_FILE_LOCALEE",
+              "name": "File_Connector",
+              "type": "consumer"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|REST_Consumer": {
+            "value": {
+              "id": "CONSUMER_REST",
+              "name": "REST_Consumer",
+              "type": "consumer"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MongoDB_Connector": {
+            "value": {
+              "id": "CONNECTOR_MONGODB",
+              "name": "MongoDB_Connector",
+              "type": "consumer"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MongoDB_Local_Consumer": {
+            "value": {
+              "id": "CONSUMER_MONGODB_LOCAL",
+              "name": "MongoDB_Local_Consumer",
+              "type": "consumer"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AMQPCONNECTOR": {
+            "value": {
+              "id": "HylFXNSarN",
+              "name": "AMQPCONNECTOR",
+              "type": "consumer"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AZURE_AMQP": {
+            "value": {
+              "id": "rJlFJotM8E",
+              "name": "AZURE_AMQP",
+              "type": "consumer"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AMQP_CONSUMER": {
+            "value": {
+              "id": "rJZUdErpSE",
+              "name": "AMQP_CONSUMER",
+              "type": "consumer"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AMQP_PRODUCER": {
+            "value": {
+              "id": "H1-HFFBTSV",
+              "name": "AMQP_PRODUCER",
+              "type": "consumer"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AZURE_AMQP_PRODUCER": {
+            "value": {
+              "id": "HkWi3qoMUV",
+              "name": "AZURE_AMQP_PRODUCER",
+              "type": "consumer"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|AZURE_AMQP_CONSUMER": {
+            "value": {
+              "id": "rJZ379ozLV",
+              "name": "AZURE_AMQP_CONSUMER",
+              "type": "consumer"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MQTT_Connector": {
+            "value": {
+              "id": "CONNECTOR_MQTT",
+              "name": "MQTT_Connector",
+              "type": "consumer"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|MQTT_Consumer": {
+            "value": {
+              "id": "CONSUMER_MQTT",
+              "name": "MQTT_Consumer",
+              "type": "consumer"
+            },
+            "type": "object",
+            "info": {},
+            "level": 0
+          },
+          "|Email_Connector": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|Kafka_Connector": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|OPCUA_Connector": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|REST_Connector": {
+            "value": "[object Object]",
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|mqtt5_connector": {
+            "value": {
+              "id": "B1xTFjCdvE",
+              "name": "mqtt5_connector",
+              "type": "consumer"
+            },
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|mqtt5_consumer": {
+            "value": {
+              "id": "rybuQpCdwN",
+              "name": "mqtt5_consumer",
+              "type": "consumer"
+            },
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|MQTT_Producer": {
+            "value": {
+              "id": "r1Wzj0wz9m",
+              "name": "MQTT_Producer",
+              "type": "consumer"
+            },
+            "type": "string",
+            "info": {},
+            "level": 0
+          },
+          "|mqtt5_producer": {
+            "value": {
+              "id": "S1WosvpOtV",
+              "name": "mqtt5_producer",
+              "type": "consumer"
+            },
+            "type": "string",
+            "info": {},
+            "level": 0
+          }
+        },
+        "streamsheets": [
+          {
+            "id": "By-u4M87dM",
+            "name": "P1",
+            "loop": {
+              "path": "",
+              "enabled": false
+            },
+            "inbox": {
+              "max": 20,
+              "type": "Inbox",
+              "id": {
+                "id": "BkG_VML7df"
+              },
+              "stream": {
+                "name": "mqtt5_consumer",
+                "id": "rybuQpCdwN"
+              }
+            },
+            "sheet": {
+              "cells": {
+                "B3": {
+                  "value": "User properties",
+                  "type": "string",
+                  "level": 0
+                },
+                "B4": {
+                  "value": "prop1",
+                  "type": "string",
+                  "level": 0
+                },
+                "C4": {
+                  "value": "userprop1",
+                  "type": "string",
+                  "level": 0
+                },
+                "B5": {
+                  "value": "prop2",
+                  "type": "string",
+                  "level": 0
+                },
+                "C5": {
+                  "value": "userp2",
+                  "type": "string",
+                  "level": 0
+                },
+                "B6": {
+                  "value": "",
+                  "type": "string",
+                  "level": 0
+                },
+                "B7": {
+                  "value": "Message",
+                  "type": "string",
+                  "level": 0
+                },
+                "B8": {
+                  "value": "a",
+                  "type": "string",
+                  "level": 0
+                },
+                "C8": {
+                  "formula": "RANDBETWEEN(1,1000)",
+                  "value": 973,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "B9": {
+                  "value": "b",
+                  "type": "string",
+                  "level": 0
+                },
+                "C9": {
+                  "formula": "RANDBETWEEN(1,4444)",
+                  "value": 4108,
+                  "type": "undefined",
+                  "level": 0
+                },
+                "B13": {
+                  "formula": "MQTT.PUBLISH(|mqtt5_producer,JSON(B8:C9),\"test\",,JSON(B4:C5))",
+                  "value": true,
+                  "type": "undefined",
+                  "level": 0,
+                  "references": [
+                    "|mqtt5_producer"
+                  ]
+                }
+              },
+              "namedCells": {},
+              "graphCells": {},
+              "settings": {
+                "minrow": 0,
+                "maxrow": 100,
+                "mincol": -2,
+                "maxcol": 50,
+                "protected": false,
+                "showGrid": true,
+                "showHeader": true
+              }
+            },
+            "trigger": {
+              "type": "start",
+              "repeat": "endless"
+            }
+          }
+        ],
+        "metadata": {
+          "lastModified": "2019-05-08T12:30:10.480Z"
+        }
+      },
+      "graph": {
+        "id": "B1gENjznTQ",
+        "graphdef": {
+          "type": "machinegraph",
+          "version": "2",
+          "uniqueid": "1",
+          "o-outbox": {
+            "split": "5000",
+            "width": "5000"
+          },
+          "a-graphitem": [
+            {
+              "id": "2000",
+              "o-attributes": {
+                "o-sheetid": {
+                  "v": "By-u4M87dM",
+                  "t": "s"
+                },
+                "o-hidemessages": {
+                  "v": "false",
+                  "t": "b"
+                },
+                "o-inboxvisible": {
+                  "v": "true",
+                  "t": "b"
+                }
+              },
+              "o-pin": {
+                "o-p": {
+                  "o-x": {
+                    "v": "14000"
+                  },
+                  "o-y": {
+                    "v": "8500"
+                  }
+                },
+                "o-lp": {
+                  "o-x": {
+                    "f": "WIDTH%20*%200.5",
+                    "v": "12500"
+                  },
+                  "o-y": {
+                    "f": "HEIGHT%20*%200.5",
+                    "v": "7500"
+                  }
+                }
+              },
+              "o-size": {
+                "o-w": {
+                  "v": "25000"
+                },
+                "o-h": {
+                  "v": "15000"
+                }
+              },
+              "o-inbox": {
+                "split": "5000",
+                "width": "11271"
+              },
+              "o-processsheet": {
+                "o-attributes": {
+                  "o-calcondemand": {
+                    "v": "true",
+                    "t": "b"
+                  },
+                  "o-showgrid": {
+                    "v": "true",
+                    "t": "b"
+                  },
+                  "o-showheader": {
+                    "v": "true",
+                    "t": "b"
+                  },
+                  "o-showformulas": {
+                    "v": "false",
+                    "t": "b"
+                  },
+                  "o-protected": {
+                    "v": "false",
+                    "t": "b"
+                  },
+                  "o-greyifrows": {
+                    "v": "true",
+                    "t": "b"
+                  },
+                  "o-rows": {
+                    "v": "100"
+                  },
+                  "o-columns": {
+                    "v": "52"
+                  }
+                },
+                "o-name": {
+                  "v": "P1",
+                  "t": "s"
+                },
+                "o-rows": {},
+                "o-columns": {
+                  "a-section": [
+                    {
+                      "index": "0",
+                      "title": "IF",
+                      "size": "700",
+                      "visible": "1"
+                    },
+                    {
+                      "index": "1",
+                      "title": "IF",
+                      "size": "700",
+                      "visible": "1"
+                    }
+                  ]
+                },
+                "o-drawings": {},
+                "o-defaultcell": {
+                  "o-cell": {
+                    "o-f": {
+                      "o-fillstyle": {
+                        "v": "0"
+                      }
+                    },
+                    "o-t": {
+                      "o-halign": {
+                        "v": "3"
+                      },
+                      "o-valign": {
+                        "v": "2"
+                      }
+                    }
+                  }
+                },
+                "o-data": {}
+              }
+            }
+          ],
+          "o-images": {}
+        },
+        "machineId": "BkNEiGnTQ"
+      }
+    }
+  ],
+  "streams": [
+    {
+      "id": "rybuQpCdwN",
+      "name": "mqtt5_consumer",
+      "owner": "admin",
+      "disabled": false,
+      "className": "ConsumerConfiguration",
+      "lastModified": "2019-05-08T12:25:29.467Z",
+      "lastAccessed": "2019-03-15T08:06:55.523Z",
+      "connector": {
+        "_id": "B1xTFjCdvE",
+        "id": "B1xTFjCdvE",
+        "className": "ConnectorConfiguration",
+        "owner": "admin",
+        "disabled": false,
+        "lastModified": "2019-05-08T12:16:40.020Z",
+        "lastAccessed": "2019-03-15T08:00:05.159Z",
+        "isRef": true
+      },
+      "filter": null,
+      "labelAttribute": null,
+      "idAttribute": null,
+      "samplePayloads": null,
+      "mimeType": "application/json",
+      "clientId": "",
+      "clean": true,
+      "userPropertiesSubscribe": [],
+      "topics": [
+        "test"
+      ],
+      "state": "connected"
+    },
+    {
+      "id": "B1xTFjCdvE",
+      "name": "mqtt5_connector",
+      "owner": "admin",
+      "disabled": false,
+      "className": "ConnectorConfiguration",
+      "lastModified": "2019-05-08T12:25:29.438Z",
+      "lastAccessed": "2019-03-15T08:00:05.159Z",
+      "provider": {
+        "_id": "stream-mqtt",
+        "id": "stream-mqtt",
+        "className": "ProviderConfiguration",
+        "owner": null,
+        "disabled": null,
+        "lastModified": null,
+        "lastAccessed": null,
+        "isRef": true
+      },
+      "protocolVersion": 5,
+      "url": "localhost:1884",
+      "userPropertiesConnect": [],
+      "userName": "",
+      "password": "",
+      "certPath": "",
+      "keyPath": "",
+      "caCert": "",
+      "baseTopic": "cedalo/",
+      "retain": false,
+      "qos": 0
+    },
+    {
+      "id": "S1WosvpOtV",
+      "name": "mqtt5_producer",
+      "owner": "admin",
+      "disabled": false,
+      "className": "ProducerConfiguration",
+      "lastModified": "2019-05-08T12:25:29.450Z",
+      "lastAccessed": "2019-04-08T13:07:46.910Z",
+      "connector": {
+        "_id": "B1xTFjCdvE",
+        "id": "B1xTFjCdvE",
+        "className": "ConnectorConfiguration",
+        "owner": "admin",
+        "disabled": false,
+        "lastModified": "2019-05-08T12:16:40.020Z",
+        "lastAccessed": "2019-03-15T08:00:05.159Z",
+        "isRef": true
+      },
+      "samplePayloads": null,
+      "mimeType": "application/json",
+      "pubTopic": "",
+      "userPropertiesProduce": []
+    }
+  ]
+}

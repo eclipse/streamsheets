@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  streamsheets-gateway:
+    environment: 
+      NODE_OPTIONS: --inspect
+    ports:
+      - 9229:9229
+    expose:
+      - 9229
+  streamsheets-service-machines:
+    environment: 
+      NODE_OPTIONS: --inspect
+    ports:
+      - 9230:9229
+    expose:
+      - 9230
+  streamsheets-service-graphs:
+    environment: 
+      NODE_OPTIONS: --inspect
+    ports:
+      - 9231:9229
+    expose:
+      - 9231
+  streamsheets-service-streams:
+    environment: 
+      NODE_OPTIONS: --inspect
+    ports:
+      - 9233:9229
+    expose:
+      - 9233
+  streamsheets-service-auth:
+    environment: 
+      NODE_OPTIONS: --inspect
+    ports:
+      - 9235:9229
+    expose:
+      - 9235
+networks:
+  streamsheets:
+    external:
+      name: streamsheets

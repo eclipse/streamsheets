@@ -1,0 +1,203 @@
+{
+  "isFetching": true,
+  "data": {
+    "machine": {
+      "id": "BkNEiGnTQ",
+      "name": "feeder-mqtt-test",
+      "state": "paused",
+      "isTemplate": false,
+      "cycletime": 1000,
+      "metadata": {
+        "createdAt": 1519768111730,
+        "createdBy": "machineserver",
+        "updatedAt": 1542364099976,
+        "updatedBy": "unknown"
+      },
+      "streamsheets": [
+        {
+          "id": "By-u4M87dM",
+          "name": "P!",
+          "loop": {
+            "path": "",
+            "enabled": false
+          },
+          "inbox": {
+            "max": 100,
+            "type": "Inbox",
+            "id": {
+              "id": "BkG_VML7df"
+            },
+            "replace": {
+              "enabled": false,
+              "match": ""
+            },
+            "datasource": {
+              "id": "CONSUMER_MQTT",
+              "name": "MQTT Consumer"
+            }
+          },
+          "sheet": {
+            "cells": {
+              "B3": {
+                "formula": "RANDBETWEEN(0,100)",
+                "value": 87,
+                "type": null
+              },
+              "B5": {
+                "formula": "MQTT.PUBLISH(\"MQTT Connector\",OUTBOX(\"Message\"),\"test\")",
+                "value": true,
+                "type": "undefined",
+                "level": 0
+              },
+              "C3": {
+                "formula": "WRITE(OUTBOXDATA(\"Message\",\"NewItem\"),B3,\"String\")",
+                "value": "NewItem",
+                "type": null
+              },
+              "B9": {
+                "formula": "GETCYCLE()",
+                "value": 0,
+                "type": null
+              },
+              "E3": {
+                "formula": "READ(INBOXMETADATA(\"\",\"\",\"id\"),F3,\"String\")",
+                "value": "id",
+                "type": null
+              }
+            },
+            "settings": {
+              "minrow": 0,
+              "maxrow": 100,
+              "mincol": -2,
+              "maxcol": 50,
+              "protected": false,
+              "showGrid": true,
+              "showHeader": true
+            }
+          },
+          "trigger": {
+            "type": "start",
+            "repeat": "endless"
+          },
+          "eject": null,
+          "jsonFilter": null,
+          "collection": null,
+          "streamProcess": null,
+          "uniqueIdentifier": null,
+          "showDataSamples": null,
+          "ejectData": null,
+          "preferences": {
+            "showGrid": true,
+            "showHeader": true,
+            "sheetColumns": 50,
+            "sheetRows": 100,
+            "sheetProtect": false,
+            "hideMessages": false,
+            "showInbox": true,
+            "showFormulas": false
+          }
+        }
+      ],
+      "settings": {}
+    },
+    "graph": {
+      "id": "B1gENjznTQ",
+      "graphdef": {
+        "type": "machinegraph",
+        "version": "2",
+        "uniqueid": "1",
+        "o-outbox": {
+          "split": "5000",
+          "width": "5000"
+        },
+        "a-graphitem": [
+          {
+            "id": "2000",
+            "o-attributes": {
+              "o-sheetid": {
+                "v": "By-u4M87dM",
+                "t": "s"
+              }
+            },
+            "o-pin": {
+              "o-p": {
+                "o-x": {
+                  "v": "14000"
+                },
+                "o-y": {
+                  "v": "8500"
+                }
+              },
+              "o-lp": {
+                "o-x": {
+                  "f": "WIDTH%20*%200.5",
+                  "v": "12500"
+                },
+                "o-y": {
+                  "f": "HEIGHT%20*%200.5",
+                  "v": "7500"
+                }
+              }
+            },
+            "o-size": {
+              "o-w": {
+                "v": "25000"
+              },
+              "o-h": {
+                "v": "15000"
+              }
+            },
+            "o-inbox": {
+              "split": "5000",
+              "width": "11271"
+            },
+            "o-processsheet": {
+              "o-attributes": {
+                "o-calcondemand": {
+                  "v": "true",
+                  "t": "b"
+                }
+              },
+              "o-name": {
+                "v": "P!",
+                "t": "s"
+              },
+              "o-rows": {},
+              "o-columns": {
+                "a-section": [
+                  {
+                    "index": "0",
+                    "title": "IF",
+                    "size": "700",
+                    "visible": "1"
+                  }
+                ]
+              },
+              "o-drawings": {},
+              "o-defaultcell": {
+                "o-cell": {
+                  "o-f": {
+                    "o-fillstyle": {
+                      "v": "0"
+                    }
+                  },
+                  "o-t": {
+                    "o-halign": {
+                      "v": "3"
+                    },
+                    "o-valign": {
+                      "v": "2"
+                    }
+                  }
+                }
+              },
+              "o-data": {}
+            }
+          }
+        ],
+        "o-images": {}
+      },
+      "machineId": "BkNEiGnTQ"
+    }
+  }
+}

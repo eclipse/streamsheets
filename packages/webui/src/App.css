@@ -1,0 +1,40 @@
+#jsgTextEdit *, #jsgTextEdit *:before, #jsgTextEdit:after {
+    position: static;
+}
+
+.App {
+}
+
+.App-header {
+  background-color: #222;
+  height: 50px;
+  padding: 20px;
+  color: white;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+.react-grid-item {
+    padding: 0.2em;
+    border: thin solid #999999;
+    border-radius: 0.5em;
+}
+
+span {
+    font-size: 9pt;
+}
+
+/*
+.sketch-picker {
+    box-shadow: none !important;
+}
+*/
+
+@font-face {
+    font-family: 'MetaPlusLF';
+    src: local('MetaPlusLF');
+    font-weight: normal;
+    font-style: normal;
+}

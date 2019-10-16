@@ -1,0 +1,51 @@
+{
+  "name": "@cedalo/number-format",
+  "version": "1.0.210",
+  "description": "Number formatter",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --forceExit",
+    "lint": "./node_modules/.bin/eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedalo/streamsheets.git"
+  },
+  "author": "Cedalo contributors",
+  "bugs": {
+    "url": "https://github.com/cedalo/streamsheets/issues"
+  },
+  "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/number-format",
+  "devDependencies": {
+    "assert": "1.4.1",
+    "babel-core": "6.24.1",
+    "babel-loader": "6.4.1",
+    "babel-preset-env": "1.6.1",
+    "eslint": "3.19.0",
+    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
+    "eslint-config-prettier": "3.3.0",
+    "jest": "20.0.4",
+    "uuid": "3.0.1"
+  },
+  "eslintConfig": {
+    "extends": [
+      "cedalo",
+      "prettier"
+    ]
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageThreshold": {
+      "global": {
+        "branches": 50,
+        "functions": 40,
+        "lines": 50,
+        "statements": 50
+      }
+    }
+  },
+  "dependencies": {
+    "intl": "1.2.5"
+  },
+  "license": "EPL-2.0"
+}

@@ -1,0 +1,16 @@
+{
+    "http": {
+        "port": 8083,
+        "ipaddress": "0.0.0.0",
+        "secure": false,
+        "key": "localhost.key",
+        "cert": "localhost.cert"
+    },
+    "scaffolds": {
+      "defaultNode": {
+        "title": "Default node",
+        "index": 0,
+        "type": "node"
+      }
+    }
+}

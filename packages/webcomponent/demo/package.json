@@ -1,0 +1,42 @@
+{
+  "name": "@cedalo/streamsheets-webcomponent-demo",
+  "version": "0.0.1",
+  "description": "Streamsheets Web Component Demo",
+  "author": "Cedalo AG",
+  "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/webcomponent/demo",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedalo/streamsheets.git"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "start": "webpack-dev-server --mode development",
+    "lint": "./node_modules/.bin/eslint .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@cedalo/streammachine": "*",
+    "@cedalo/streamsheet-connection": "*"
+  },
+  "devDependencies": {
+    "@babel/core": "7.4.4",
+    "@babel/preset-env": "7.4.4",
+    "babel-loader": "8.0.5",
+    "eslint": "5.16.0",
+    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
+    "eslint-config-prettier": "4.2.0",
+    "eslint-plugin-prettier": "3.0.1",
+    "html-loader": "0.5.5",
+    "html-webpack-plugin": "3.2.0",
+    "prettier": "1.17.0",
+    "webpack": "^4.39.1",
+    "webpack-cli": "3.3.2",
+    "webpack-dev-server": "3.3.1",
+    "worker-loader": "2.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/cedalo/streamsheets/issues"
+  },
+  "license": "EPL-2.0"
+}

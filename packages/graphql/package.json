@@ -1,0 +1,63 @@
+{
+  "name": "@cedalo/graphql",
+  "version": "1.2.0",
+  "description": "GraphQL API",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --verbose --forceExit",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --forceExit --coverage",
+    "lint": "./node_modules/.bin/eslint ."
+  },
+  "author": "Cedalo AG",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedalo/streamsheets.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cedalo/streamsheets/issues"
+  },
+  "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/graphql",
+  "dependencies": {
+    "@cedalo/logger": "*",
+    "@cedalo/id-generator": "*",
+    "@cedalo/repository": "*",
+    "apollo-server-express": "2.6.4",
+    "mongodb": "3.0.11"
+  },
+  "devDependencies": {
+    "jest": "21.2.1",
+    "mongodb-memory-server": "5.1.5"
+  },
+  "eslintConfig": {
+    "extends": [
+      "cedalo",
+      "prettier"
+    ]
+  },
+  "unmockedModulePathPatterns": [
+    "jasmine-expect"
+  ],
+  "jest": {
+    "coverageDirectory": "coverage",
+    "moduleDirectories": [
+      "node_modules"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/test/"
+    ],
+    "testEnvironment": "node",
+    "coverageThreshold": {
+      "global": {
+        "branches": 25,
+        "functions": 25,
+        "lines": 40,
+        "statements": 40
+      }
+    }
+  },
+  "license": "EPL-2.0"
+}

@@ -1,0 +1,40 @@
+{
+  "messageContainers": [
+    {
+      "id": "example-messagecontainer-1",
+      "name": "Example Message Container 1",
+      "messages": [],
+      "messageReceivers": []
+    },
+    {
+      "id": "example-messagecontainer-2",
+      "name": "Example Message Container 2",
+      "messages": [],
+      "messageReceivers": []
+    },
+    {
+      "id": "example-messagecontainer-3",
+      "name": "Example Message Container 3",
+      "messages": [],
+      "messageReceivers": []
+    },
+    {
+      "id": "example-messagecontainer-4",
+      "name": "Example Message Container 4",
+      "messages": [],
+      "messageReceivers": []
+    },
+    {
+      "id": "example-messagecontainer-5",
+      "name": "Example Message Container 5",
+      "messages": [],
+      "messageReceivers": []
+    },
+    {
+      "id": "example-messagecontainer-6",
+      "name": "Example Message Container 6",
+      "messages": [],
+      "messageReceivers": []
+    }
+  ]
+}

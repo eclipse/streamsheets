@@ -1,0 +1,644 @@
+/* eslint-disable no-mixed-operators */
+
+
+const { FuncTerm, NullTerm } = require('./Term');
+const { ERROR, OK } = require('./ReturnCodes');
+
+/**
+ * Container to collect data from draw functions.
+ * @type {module.Drawings}
+ */
+module.exports = class Drawings {
+	constructor() {
+		this._drawings = {};
+		this._graphItems = {};
+	}
+
+	getGraphParam(terms, index, defaultValue) {
+		if (index >= terms.length) {
+			return defaultValue;
+		}
+
+		const term = terms[index];
+		if (term instanceof NullTerm) {
+			return defaultValue;
+		}
+		return term.value;
+	}
+
+	getGraphItem(nameItem) {
+		if (this._graphItems[nameItem] === undefined) {
+			this._graphItems[nameItem] = {};
+		}
+
+		return this._graphItems[nameItem];
+	}
+
+	updateGraphItem(scope, terms, type) {
+		const getRectParams = (item) => {
+			item.width = this.getGraphParam(terms, 5, 100);
+			item.height = this.getGraphParam(terms, 6, 100);
+			item.line = this.getGraphParam(terms, 7, '');
+			item.fill = this.getGraphParam(terms, 8, '');
+			item.attributes = this.getGraphParam(terms, 9, '');
+			item.events = this.getGraphParam(terms, 10, '');
+			item.angle = this.getGraphParam(terms, 11, 0);
+			item.rotcenter = this.getGraphParam(terms, 12, 4);
+		};
+
+		if (terms.length < 6 || !this.checkParam(terms, 2)) {
+			return ERROR.ARGS;
+		}
+
+		const item = this.getGraphItem(String(terms[0].value));
+		if (item === undefined) {
+			return ERROR.INVALID;
+		}
+
+		item.source = scope.graphCells.evaluating ? 'name' : 'cell';
+		item.sheetname = String(this.getGraphParam(terms, 0, ''));
+		item.parent = String(this.getGraphParam(terms, 1, ''));
+		item.name = String(this.getGraphParam(terms, 2, ''));
+		item.type = type;
+		item.x = this.getGraphParam(terms, 3, 0);
+		item.y = this.getGraphParam(terms, 4, 0);
+
+		switch (type) {
+		case 'label':
+			getRectParams(item);
+			item.text = String(this.getGraphParam(terms, 13, ''));
+			item.font = String(this.getGraphParam(terms, 14, ''));
+			break;
+		case 'rectangle':
+		case 'ellipse':
+			getRectParams(item);
+			break;
+		case 'chart':
+			getRectParams(item);
+			item.charttype = String(this.getGraphParam(terms, 13, 'column'));
+			if (terms.length > 14) {
+				const term = terms[14];
+				item.range = term.toString();
+			}
+			if (terms.length > 15) {
+				const term = terms[15];
+				item.formatrange = term.toString();
+			}
+			break;
+		case 'polygon':
+		case 'bezier':
+			getRectParams(item);
+			if (terms.length > 13) {
+				const term = terms[13];
+				item.range = term.toString();
+			}
+			item.close = this.getGraphParam(terms, 14, undefined);
+			break;
+		case 'line':
+			item.x2 = this.getGraphParam(terms, 5, 100);
+			item.y2 = this.getGraphParam(terms, 6, 100);
+			item.line = this.getGraphParam(terms, 7, '');
+			break;
+		case 'checkbox':
+		case 'button':
+			getRectParams(item);
+			item.text = String(this.getGraphParam(terms, 13, ''));
+			item.font = String(this.getGraphParam(terms, 14, ''));
+			if (terms.length > 15) {
+				const term = terms[15];
+				item.value = term.isStatic ? term.value : term.toString();
+			}
+			break;
+		case 'slider':
+			getRectParams(item);
+			item.text = String(this.getGraphParam(terms, 13, ''));
+			item.font = String(this.getGraphParam(terms, 14, ''));
+			if (terms.length > 15) {
+				const term = terms[15];
+				item.value = term.isStatic ? term.value : term.toString();
+			}
+			item.min = this.getGraphParam(terms, 16, 0);
+			item.max = this.getGraphParam(terms, 17, 100);
+			item.step = this.getGraphParam(terms, 18, 10);
+			item.scalefont = String(this.getGraphParam(terms, 19, ''));
+			item.marker = String(this.getGraphParam(terms, 20, ''));
+			if (terms.length > 21) {
+				const term = terms[21];
+				item.formatrange = term.isStatic ? term.value : term.toString();
+			}
+			break;
+		default:
+			break;
+		}
+
+		return OK.TRUE;
+	}
+
+	setGraphItems(graphItems) {
+		if (graphItems === undefined) {
+			this._graphItems = {};
+		} else {
+			this._graphItems = graphItems;
+		}
+	}
+
+	getGraphItems() {
+		return this._graphItems;
+	}
+
+	getDrawings() {
+		return this._drawings;
+	}
+
+	setDrawings(drawings) {
+		if (drawings === undefined) {
+			this._drawings = {};
+		} else {
+			this._drawings = drawings;
+		}
+	}
+
+	getDrawing(name) {
+		if (this._drawings[name] === undefined) {
+			this._drawings[name] = {
+				items: {}
+			};
+		}
+
+		return this._drawings[name];
+	}
+
+	hasDrawing(name) {
+		return this._drawings[name] !== undefined;
+	}
+
+	getItem(nameDrawing, nameItem) {
+		const drawing = this.getDrawing(nameDrawing);
+		if (drawing === undefined) {
+			return undefined;
+		}
+
+		if (drawing.items[nameItem] === undefined) {
+			drawing.items[nameItem] = {};
+		}
+
+		return drawing.items[nameItem];
+	}
+
+	checkParam(terms, index) {
+		return terms.length > index && terms[index].value !== null && terms[index].value !== undefined;
+	}
+
+	getEventParams(terms, drawing, index) {
+		if (terms.length > index && (terms[index] instanceof FuncTerm) && terms[index].params.length > 0) {
+			drawing.event = terms[index].name.toUpperCase();
+			drawing.func = terms[index].params[0].toString();
+		}
+	}
+
+	updateDrawing(terms) {
+		if (terms.length < 2 || !this.checkParam(terms, 0)) {
+			return ERROR.ARGS;
+		}
+		const drawing = this.getDrawing(String(terms[0].value));
+		if (drawing === undefined) {
+			return ERROR.INVALID;
+		}
+
+		drawing.range = this.checkParam(terms, 1) ? terms[1].toString() : '';
+		drawing.line = this.checkParam(terms, 2) ? String(terms[2].value) : '#000000';
+		drawing.fill = this.checkParam(terms, 3) ? String(terms[3].value) : '#FFFFFF';
+		if (terms.length > 7) {
+			drawing.xmin = this.checkParam(terms, 4) ? Number(terms[4].value) : undefined;
+			drawing.ymin = this.checkParam(terms, 5) ? Number(terms[5].value) : undefined;
+			drawing.xmax = this.checkParam(terms, 6) ? Number(terms[6].value) : undefined;
+			drawing.ymax = this.checkParam(terms, 7) ? Number(terms[7].value) : undefined;
+		}
+
+		this.getEventParams(terms, drawing, 8);
+
+		drawing.items = {};
+
+		return OK.TRUE;
+	}
+
+	deleteDrawing(terms) {
+		if (!this.checkParam(terms, 0)) {
+			return ERROR.ARGS;
+		}
+		const name = String(terms[0].value);
+
+		if (this._drawings[name] === undefined) {
+			return ERROR.INVALID_PARAM;
+		}
+
+		delete this._drawings[name];
+
+		return OK.TRUE;
+	}
+
+	updateLines(terms) {
+		if (terms.length < 3 || !this.checkParam(terms, 0) || !this.checkParam(terms, 1)) {
+			return ERROR.ARGS;
+		}
+		const item = this.getItem(String(terms[0].value), String(terms[1].value));
+		if (item === undefined) {
+			return ERROR.INVALID;
+		}
+		item.type = 'lines';
+		item.range = this.checkParam(terms, 2) ? terms[2].toString() : '';
+		item.line = this.checkParam(terms, 3) ? String(terms[3].value) : '#000000';
+		item.fill = this.checkParam(terms, 4) ? String(terms[4].value) : '#FFFFFF';
+		item.closed = this.checkParam(terms, 5) ? terms[5].value : false;
+
+		this.getEventParams(terms, item, 6);
+
+		return OK.TRUE;
+	}
+
+	updateItem(terms, type, rotated) {
+		if (terms.length < 6 || !this.checkParam(terms, 0) || !this.checkParam(terms, 1)) {
+			return ERROR.ARGS;
+		}
+		const item = this.getItem(String(terms[0].value), String(terms[1].value));
+		if (item === undefined) {
+			return ERROR.INVALID;
+		}
+
+		item.type = type;
+		item.angle = 0;
+		item.rotcenter = 6;
+		item.x = this.checkParam(terms, 2) ? Number(terms[2].value) : 0;
+		item.y = this.checkParam(terms, 3) ? Number(terms[3].value) : 0;
+
+		switch (type) {
+		case 'line':
+			item.x2 = this.checkParam(terms, 4) ? Number(terms[4].value) : 0;
+			item.y2 = this.checkParam(terms, 5) ? Number(terms[5].value) : 0;
+			item.line = this.checkParam(terms, 6) ? String(terms[6].value) : '#000000';
+			break;
+		case 'polygon':
+			item.width = this.checkParam(terms, 4) ? Number(terms[4].value) : 0;
+			item.height = this.checkParam(terms, 5) ? Number(terms[5].value) : 0;
+			item.line = this.checkParam(terms, 6) ? String(terms[6].value) : '#000000';
+			item.fill = this.checkParam(terms, 7) ? String(terms[7].value) : '#FFFFFF';
+			item.range = this.checkParam(terms, 8) ? terms[8].toString() : '';
+			item.closed = this.checkParam(terms, 9) ? terms[9].value : false;
+			if (rotated) {
+				item.angle = this.checkParam(terms, 10) ? Number(terms[10].value) : 0;
+				item.rotcenter = this.checkParam(terms, 11) ? Number(terms[11].value) : 0;
+				this.getEventParams(terms, item, 12);
+			} else {
+				this.getEventParams(terms, item, 10);
+			}
+			break;
+		case 'rect':
+		case 'ellipse':
+			item.width = this.checkParam(terms, 4) ? Number(terms[4].value) : 0;
+			item.height = this.checkParam(terms, 5) ? Number(terms[5].value) : 0;
+			item.line = this.checkParam(terms, 6) ? String(terms[6].value) : '#000000';
+			item.fill = this.checkParam(terms, 7) ? String(terms[7].value) : '#FFFFFF';
+
+			if (rotated) {
+				item.angle = this.checkParam(terms, 8) ? Number(terms[8].value) : 0;
+				item.rotcenter = this.checkParam(terms, 9) ? Number(terms[9].value) : 0;
+				this.getEventParams(terms, item, 10);
+			} else {
+				this.getEventParams(terms, item, 8);
+			}
+			break;
+		case 'label':
+			item.width = this.checkParam(terms, 4) ? Number(terms[4].value) : 0;
+			item.height = this.checkParam(terms, 5) ? Number(terms[5].value) : 0;
+			item.text = this.checkParam(terms, 6) ? String(terms[6].value) : undefined;
+			item.font = this.checkParam(terms, 7) ? String(terms[7].value) : undefined;
+
+			if (rotated) {
+				item.angle = this.checkParam(terms, 8) ? Number(terms[8].value) : 0;
+				item.rotcenter = this.checkParam(terms, 9) ? Number(terms[9].value) : 0;
+				this.getEventParams(terms, item, 10);
+			} else {
+				this.getEventParams(terms, item, 8);
+			}
+			break;
+		default:
+			break;
+		}
+
+		return OK.TRUE;
+	}
+
+	getEvents(terms) {
+		let result;
+
+		let i = 0;
+		while (this.checkParam(terms, i)) {
+			if (terms[i].name && terms[i].params && terms[i].params.length) {
+				const event = {
+					event: terms[i].name.toUpperCase(),
+					func: terms[i].params[0].toString(),
+				};
+				if (result === undefined) {
+					result = [];
+				}
+				result.push(event);
+			}
+			i += 1;
+		}
+
+		return result ? JSON.stringify(result) : '';
+	}
+
+	getAttributes(terms) {
+		const result = {};
+
+		// visible
+		if (this.checkParam(terms, 0)) {
+			result.visible = !!terms[0].value;
+		} else {
+			result.visible = true;
+		}
+		// container
+		if (this.checkParam(terms, 1)) {
+			result.container = String(terms[1].value);
+		} else {
+			result.container = 'top';
+		}
+		// clip
+		if (this.checkParam(terms, 2)) {
+			result.clip = !!terms[2].value;
+		} else {
+			result.clip = false;
+		}
+		// selectable
+		if (this.checkParam(terms, 3)) {
+			result.selectable = !!terms[3].value;
+		} else {
+			result.selectable = true;
+		}
+
+		return JSON.stringify(result);
+	}
+
+	getLineFormat(terms) {
+		const result = {};
+
+		if (this.checkParam(terms, 0)) {
+			result.color = String(terms[0].value);
+		} else {
+			result.color = '#000000';
+		}
+		if (this.checkParam(terms, 1)) {
+			result.style = Number(terms[1].value);
+		} else {
+			result.style = 1;
+		}
+		if (this.checkParam(terms, 2)) {
+			result.width = Number(terms[2].value);
+		} else {
+			result.width = 1;
+		}
+
+		if (this.checkParam(terms, 3)) {
+			result.startArrow = Number(terms[3].value);
+		} else {
+			result.startArrow = 0;
+		}
+
+		if (this.checkParam(terms, 4)) {
+			result.endArrow = Number(terms[4].value);
+		} else {
+			result.endArrow = 0;
+		}
+
+		return JSON.stringify(result);
+	}
+
+	getFontFormat(terms) {
+		const result = {};
+
+		if (this.checkParam(terms, 0)) {
+			result.fontname = String(terms[0].value);
+		} else {
+			result.fontname = 'Verdana';
+		}
+		if (this.checkParam(terms, 1)) {
+			result.fontsize = Number(terms[1].value);
+		} else {
+			result.fontsize = 8;
+		}
+		if (this.checkParam(terms, 2)) {
+			result.fontstyle = Number(terms[2].value);
+		} else {
+			result.fontstyle = 0;
+		}
+		if (this.checkParam(terms, 3)) {
+			result.fontcolor = String(terms[3].value);
+		} else {
+			result.fontcolor = '#000000';
+		}
+		if (this.checkParam(terms, 4)) {
+			result.alignment = Number(terms[4].value);
+		} else {
+			result.alignment = 0;
+		}
+
+		return JSON.stringify(result);
+	}
+
+	getLinearGradientFill(terms) {
+		const result = {};
+
+		result.type = 'gradient';
+		result.style = 0;
+
+		if (this.checkParam(terms, 0)) {
+			result.startcolor = String(terms[0].value);
+		} else {
+			result.startcolor = '#000000';
+		}
+
+		if (this.checkParam(terms, 1)) {
+			result.endcolor = String(terms[1].value);
+		} else {
+			result.endcolor = '#FFFFFF';
+		}
+
+		if (this.checkParam(terms, 2)) {
+			result.angle = Number(terms[2].value);
+		} else {
+			result.angle = 0;
+		}
+
+		return JSON.stringify(result);
+	}
+
+	getRadialGradientFill(terms) {
+		const result = {};
+
+		result.type = 'gradient';
+		result.style = 1;
+
+		if (this.checkParam(terms, 0)) {
+			result.startcolor = String(terms[0].value);
+		} else {
+			result.startcolor = '#000000';
+		}
+
+		if (this.checkParam(terms, 1)) {
+			result.endcolor = String(terms[1].value);
+		} else {
+			result.endcolor = '#FFFFFF';
+		}
+
+		if (this.checkParam(terms, 2)) {
+			result.xOffset = Number(terms[2].value);
+		} else {
+			result.xOffset = 50;
+		}
+
+		if (this.checkParam(terms, 3)) {
+			result.yOffset = Number(terms[3].value);
+		} else {
+			result.yOffset = 50;
+		}
+
+		return JSON.stringify(result);
+	}
+
+	getPatternFill(terms) {
+		const result = {};
+
+		result.type = 'pattern';
+		if (this.checkParam(terms, 0)) {
+			result.image = String(terms[0].value);
+		} else {
+			result.image = '';
+		}
+		if (this.checkParam(terms, 1)) {
+			result.style = Number(terms[1].value);
+		} else {
+			result.style = 0;
+		}
+
+		return JSON.stringify(result);
+	}
+
+	getQRCode(terms) {
+		if (!this.checkParam(terms, 0)) {
+			return ERROR.ARGS;
+		}
+
+		return `qrcode:${String(terms[0].value)}`;
+	}
+
+	static isPointOnLineSegment(point, linestart, lineend) {
+		// taken from getLinePointDistance which returns a Math.sqrt() value, which is not needed here...
+		const dist = (v, wx, wy) => ((v.x - wx) * (v.x - wx)) + ((v.y - wy) * (v.y - wy));
+
+		const getSquaredPointLineSegmentDistance = (p, v, w) => {
+			let d;
+
+			d = dist(v, w.x, w.y);
+			if (d === 0) {
+				d = dist(p, v.x, v.y);
+			} else {
+				const t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / d;
+				if (t < 0) {
+					d = dist(p, v.x, v.y);
+				} else if (t > 1) {
+					d = dist(p, w.x, w.y);
+				} else {
+					d = dist(p, v.x + t * (w.x - v.x), v.y + t * (w.y - v.y));
+				}
+			}
+			return d;
+		};
+
+		return getSquaredPointLineSegmentDistance(point, linestart, lineend) < 0.1;
+	}
+
+	/**
+	 * Checks whether a point lies within a polygon.
+	 *
+	 * @method isPointInPolygon
+	 * @param {Point}points Array of points that describe the polygon.
+	 * @param {Point}p Point to check for.
+	 * @return {Boolean}Returns true, if point lies within the polygon, else false.
+	 * @static
+	 */
+	static isPointInPolygon(points, p) {
+		let p1 = points[0];
+		let inside = false;
+		let i;
+
+		for (i = 1; i <= points.length; i += 1) {
+			const p2 = points[i % points.length];
+			// bail out early if point is on current line segment...
+			if (this.isPointOnLineSegment(p, p1, p2)) {
+				return 0;
+			}
+			if ((p1.y < p.y && p2.y >= p.y) || (p2.y < p.y && p1.y >= p.y)) {
+				if (p1.x + (((p.y - p1.y) / (p2.y - p1.y)) * (p2.x - p1.x)) < p.x) {
+					inside = !inside;
+				}
+			}
+			p1 = p2;
+		}
+		return inside ? 1 : -1;
+	}
+
+	ptInPolygon(sheet, terms) {
+		const value = (cell) => {
+			const val = cell && cell.value;
+			return (val != null && (typeof val === 'number')) ? val : 0;
+		};
+
+		if (terms.length < 3) {
+			return ERROR.ARGS;
+		}
+
+		const p = {
+			x: Number(terms[0].value),
+			y: Number(terms[1].value)
+		};
+		const pts = [];
+
+		const range = terms[2].value;
+		// must be a range...
+		if (range && range.start && range.end) {
+			if (range.width !== 2) {
+				return ERROR.ARGS;
+			}
+
+			let pt;
+
+			// sheet of cellsref might differ from function sheet
+			// ({ sheet } = cellsref.sheet);
+			range.iterate((cell) => {
+				if (pt === undefined) {
+					pt = {};
+				}
+				if (pt.x !== undefined) {
+					pt.y = value(cell);
+					pts.push(pt);
+					pt = undefined;
+				} else {
+					pt.x = value(cell);
+				}
+			});
+		} else {
+			return ERROR.ARGS;
+		}
+
+		return Drawings.isPointInPolygon(pts, p);
+	}
+
+	toGraphItemsJSON() {
+		return this._graphItems;
+	}
+
+	toJSON() {
+		return this._drawings;
+	}
+};

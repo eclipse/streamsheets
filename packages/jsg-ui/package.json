@@ -1,0 +1,76 @@
+{
+  "name": "@cedalo/jsg-ui",
+  "version": "3.0.211",
+  "description": "JavaScript Graph Framework",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint .",
+    "test": "./node_modules/.bin/jest --runInBand --forceExit",
+    "dist": "npm run bundle && npm run concatenate && npm run minify",
+    "distdebug": "npm run bundle && npm run concatenate",
+    "bundle": "./node_modules/.bin/webpack --config webpack.config.js",
+    "concatenate": "node ./scripts/concatenate.js",
+    "minify": "./node_modules/.bin/babili dist/jsg-3.0.0.js > dist/jsg-3.0.0.min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedalo/streamsheets.git"
+  },
+  "author": "Tensegrity Software",
+  "keywords": [
+    "javascript",
+    "drawing",
+    "graph"
+  ],
+  "bugs": {
+    "url": "https://github.com/cedalo/streamsheets/issues"
+  },
+  "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/jsg-ui",
+  "devDependencies": {
+    "babel-cli": "6.24.1",
+    "babel-core": "6.25.0",
+    "babel-loader": "7.1.0",
+    "babel-preset-env": "1.5.2",
+    "babili": "0.1.4",
+    "cheerio": "0.22.0",
+    "concat": "1.0.3",
+    "eslint": "3.19.0",
+    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
+    "eslint-config-prettier": "3.3.0",
+    "jest": "20.0.4",
+    "jest-cli": "20.0.4",
+    "mkdirp": "0.5.1",
+    "pug": "2.0.0-beta6",
+    "qunitjs": "2.1.0",
+    "require-dir": "0.3.1",
+    "script-loader": "0.7.0",
+    "uglify-js": "3.3.8",
+    "webpack": "3.3.0",
+    "yargs": "6.6.0"
+  },
+  "dependencies": {
+    "@cedalo/jsg-core": "*",
+    "@cedalo/number-format": "*",
+    "@cedalo/parser": "*",
+    "chart.js": "2.8.0",
+    "chartjs-plugin-datalabels": "0.5.0",
+    "hammerjs": "^2.0.8"
+  },
+  "eslintConfig": {
+    "extends": [
+      "cedalo",
+      "prettier"
+    ],
+    "rules": {
+      "no-mixed-operators": 0,
+      "no-bitwise": 0,
+      "no-unused-vars": 0,
+      "no-nested-ternary": 0,
+      "default-case": 0
+    }
+  },
+  "license": "EPL-2.0"
+}

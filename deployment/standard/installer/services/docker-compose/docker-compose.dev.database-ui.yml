@@ -1,0 +1,41 @@
+version: '3.7'
+
+services:
+  database-ui:
+    image: mongo-express
+    container_name: database-ui
+    restart: always
+    ports:
+      - 8096:8081
+    environment:
+      ME_CONFIG_MONGODB_SERVER: streamsheets-internal-mongodb
+      ME_CONFIG_MONGODB_PORT: 27017
+    links:
+      - streamsheets-internal-mongodb
+    depends_on:
+      - streamsheets-internal-mongodb
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+  database-ui-external:
+    image: mongo-express
+    container_name: database-ui-external
+    restart: always
+    ports:
+      - 8097:8081
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_PORT: 27017
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+networks:
+  streamsheets:
+    external:
+      name: streamsheets

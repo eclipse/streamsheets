@@ -1,0 +1,61 @@
+{
+  "name": "@cedalo/stream-mail-pop3",
+  "version": "1.4.0",
+  "description": "DL POP3 feeder",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --forceExit --runInBand",
+    "lint": "./node_modules/.bin/eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedalo/streamsheets.git"
+  },
+  "author": "Cedalo AG",
+  "bugs": {
+    "url": "https://github.com/cedalo/streamsheets/issues"
+  },
+  "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/stream/mail-pop3",
+  "devDependencies": {
+    "eslint": "3.19.0",
+    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
+    "eslint-config-prettier": "3.3.0",
+    "jest": "21.2.1",
+    "jest-cli": "21.2.1",
+    "smtp-server": "3.4.6"
+  },
+  "dependencies": {
+    "@cedalo/logger": "*",
+    "@cedalo/sdk-streams": "*",
+    "mailparser": "2.7.1",
+    "poplib": "0.1.7"
+  },
+  "eslintConfig": {
+    "extends": [
+      "cedalo",
+      "prettier"
+    ]
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "moduleDirectories": [
+      "node_modules"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/test/"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 20,
+        "functions": 20,
+        "lines": 20,
+        "statements": 20
+      }
+    }
+  },
+  "license": "EPL-2.0"
+}

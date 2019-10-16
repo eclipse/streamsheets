@@ -1,0 +1,87 @@
+{
+  "name": "@cedalo/service-machines",
+  "version": "1.4.0",
+  "description": "A service for managing machines.",
+  "main": "index.js",
+  "scripts": {
+    "bundle": "npx webpack --config webpack.config.js",
+    "lint": "./node_modules/.bin/eslint .",
+    "test": "./node_modules/.bin/jest --runInBand --forceExit",
+    "retrieve-build-number": "node ./scripts/retrieve-build-number.js",
+    "start": "node ./start.js",
+    "start:min": "node start.min.js",
+    "start-debug": "node --inspect=0.0.0.0 ./start.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedalo/streamsheets.git"
+  },
+  "author": "Cedalo AG",
+  "bugs": {
+    "url": "https://github.com/cedalo/streamsheets/issues"
+  },
+  "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/service-machines",
+  "dependencies": {
+    "@cedalo/sdk-streams": "*",
+    "@cedalo/gateway-client-node": "*",
+    "@cedalo/logger": "*",
+    "@cedalo/machine-core": "*",
+    "@cedalo/messages": "*",
+    "@cedalo/messaging-client": "*",
+    "@cedalo/protocols": "*",
+    "@cedalo/repository": "*",
+    "@cedalo/service-core": "*"
+  },
+  "devDependencies": {
+    "eslint": "3.19.0",
+    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
+    "eslint-config-prettier": "3.3.0",
+    "jest": "22.0.0",
+    "jest-cli": "22.0.0",
+    "sinon": "7.2.2",
+    "terser-webpack-plugin": "1.2.2",
+    "webpack": "4.29.1",
+    "webpack-cli": "3.2.3",
+    "webpack-node-externals": "1.7.2"
+  },
+  "eslintConfig": {
+    "extends": [
+      "cedalo",
+      "prettier"
+    ],
+    "env": {
+      "browser": true,
+      "node": true
+    },
+    "rules": {
+      "global-require": 1,
+      "no-undef": 1,
+      "no-unused-vars": 1
+    }
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "moduleFileExtensions": [
+      "js"
+    ],
+    "moduleDirectories": [
+      "node_modules"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/test/"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 10,
+        "functions": 10,
+        "lines": 10,
+        "statements": 10
+      }
+    }
+  },
+  "license": "EPL-2.0"
+}

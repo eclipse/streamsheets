@@ -1,0 +1,57 @@
+version: '3.7'
+
+services:
+  streamsheets-gateway:
+    logging:
+      driver: "json-file"
+    depends_on:
+      - logspout
+  streamsheets-service-machines:
+    logging:
+      driver: "json-file"
+    depends_on:
+      - logspout
+  streamsheets-service-graphs:
+    logging:
+      driver: "json-file"
+    depends_on:
+      - logspout
+  streamsheets-service-streams:
+    logging:
+      driver: "json-file"
+    depends_on:
+      - logspout
+  streamsheets-service-auth:
+    logging:
+      driver: "json-file"
+    depends_on:
+      - logspout
+  logspout:
+    image: gliderlabs/logspout
+    container_name: logspout
+    command:
+      - "syslog+tcp://oklog:7651"
+    ports:
+      - "8000:80"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    depends_on:
+      - oklog
+    networks:
+      - streamsheets
+  oklog:
+    image: oklog/oklog
+    container_name: oklog
+    volumes:
+      - oklog:/data
+    ports:
+      - 7650:7650
+    command: ingeststore -store.segment-replication-factor 1
+    networks:
+      - streamsheets
+volumes:
+  oklog:
+networks:
+  streamsheets:
+    external:
+      name: streamsheets

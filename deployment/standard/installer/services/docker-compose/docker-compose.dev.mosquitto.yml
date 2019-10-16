@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+  streamsheets-service-streams:
+    depends_on:
+      - broker
+  broker:
+    image: eclipse-mosquitto:1.6
+    container_name: broker
+    ports:
+      - 1883:1883
+      - 8082:8080
+    expose:
+      - 1883
+      - 8082
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/pw.txt:/mosquitto/config/pw.txt
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+networks:
+  streamsheets:
+    external:
+      name: streamsheets

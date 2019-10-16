@@ -1,0 +1,257 @@
+{
+	"info": {
+		"name": "REST Adapter API",
+		"_postman_id": "e7864cd8-3b40-c187-11f8-af4da2c49883",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8083/api/v1.0/cedalo/tests",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Stammdaten\": {\r\n        \"Auftragsdaten\": {\r\n            \"Bestellnr\": 2,\r\n            \"Kundennummer\": 4712,\r\n            \"E-Mail\": \"conrad.chefeinkaeufer@demokunde.de\",\r\n            \"Ust.Identnr.\": \"DE12224424\",\r\n            \"Bezahlung mit\": \"Kreditkarte\",\r\n            \"Versandart\": \"Standard\",\r\n            \"Mitteilung\": \"Hallo, dies ist ein Test\",\r\n            \"Artikel brutto\": 638,\r\n            \"Rabatt\": 0,\r\n            \"Artikel netto\": 536.13,\r\n            \"MwSt\": 101.87,\r\n            \"Versandkosten\": 0,\r\n            \"Zahlungsart-Gebühren\": 0\r\n        },\r\n        \"Rechnungsadresse\": {\r\n            \"Anrede\": \"Herr\",\r\n            \"Vorname\": \"Conrad\",\r\n            \"Nachname\": \"Chefeinkäufer\",\r\n            \"Firma\": \"Demokunde AG\",\r\n            \"Straße\": \"Demostraße\",\r\n            \"Nr\": \"48\",\r\n            \"PLZ\": \"12345\",\r\n            \"Ort\": \"Demohausen\",\r\n            \"Info\": \"Zusatzinfo\",\r\n            \"Bundesland\": \"Baden-Württemberg\",\r\n            \"Land\": \"Deutschland\",\r\n            \"Fon\": \"07661-24242\",\r\n            \"Fax\": \"07661-24242\"\r\n        },\r\n        \"Lieferadresse\": {\r\n            \"Anrede\": \"\",\r\n            \"Vorname\": \"\",\r\n            \"Nachname\": \"\",\r\n            \"Firma\": \"\",\r\n            \"Straße\": \"\",\r\n            \"Nr\": \"\",\r\n            \"PLZ\": \"\",\r\n            \"Ort\": \"\",\r\n            \"Info\": \"\",\r\n            \"Bundesland\": \"\",\r\n            \"Land\": \"\",\r\n            \"Fon\": \"\",\r\n            \"Fax\": \"\"\r\n        }\r\n    },\r\n    \"Positionen\": [\r\n        {\r\n            \"POS\": 1,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1302,\r\n            \"TITEL\": \"Kiteboard CABRINHA\",\r\n            \"TYP\": \"A\",\r\n            \"PARAMETER\": \"XL\",\r\n            \"KURZBESCHREIBUNG\": \"Freestyle und\",\r\n            \"EBRUTTO\": 479,\r\n            \"GESAMT\": 479,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 2,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Neues Freestyle\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 3,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Testprodukt\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 4,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Noch ein Testprodukt\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        }\r\n    ]\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:8083/api/v1.0/cedalo/tests",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"api",
+						"v1.0",
+						"cedalo",
+						"tests"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8083/api/v1.0/cedalo/tests with response",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Expect-Response",
+						"value": "true"
+					},
+					{
+						"key": "Response-Timeout",
+						"value": "5000"
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic ZXhhbXBsZTpleGFtcGxl"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Stammdaten\": {\r\n        \"Auftragsdaten\": {\r\n            \"Bestellnr\": 2,\r\n            \"Kundennummer\": 35435435345,\r\n            \"E-Mail\": \"conrad.chefeinkaeufer@demokunde.de\",\r\n            \"Ust.Identnr.\": \"DE12224424\",\r\n            \"Bezahlung mit\": \"Kreditkarte\",\r\n            \"Versandart\": \"Standard\",\r\n            \"Mitteilung\": \"Hallo, dies ist ein Test\",\r\n            \"Artikel brutto\": 638,\r\n            \"Rabatt\": 0,\r\n            \"Artikel netto\": 536.13,\r\n            \"MwSt\": 101.87,\r\n            \"Versandkosten\": 0,\r\n            \"Zahlungsart-Gebühren\": 0\r\n        },\r\n        \"Rechnungsadresse\": {\r\n            \"Anrede\": \"Herr\",\r\n            \"Vorname\": \"Conrad\",\r\n            \"Nachname\": \"Chefeinkäufer\",\r\n            \"Firma\": \"Demokunde AG\",\r\n            \"Straße\": \"Demostraße\",\r\n            \"Nr\": \"48\",\r\n            \"PLZ\": \"12345\",\r\n            \"Ort\": \"Demohausen\",\r\n            \"Info\": \"Zusatzinfo\",\r\n            \"Bundesland\": \"Baden-Württemberg\",\r\n            \"Land\": \"Deutschland\",\r\n            \"Fon\": \"07661-24242\",\r\n            \"Fax\": \"07661-24242\"\r\n        },\r\n        \"Lieferadresse\": {\r\n            \"Anrede\": \"\",\r\n            \"Vorname\": \"\",\r\n            \"Nachname\": \"\",\r\n            \"Firma\": \"\",\r\n            \"Straße\": \"\",\r\n            \"Nr\": \"\",\r\n            \"PLZ\": \"\",\r\n            \"Ort\": \"\",\r\n            \"Info\": \"\",\r\n            \"Bundesland\": \"\",\r\n            \"Land\": \"\",\r\n            \"Fon\": \"\",\r\n            \"Fax\": \"\"\r\n        }\r\n    },\r\n    \"Positionen\": [\r\n        {\r\n            \"POS\": 1,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1302,\r\n            \"TITEL\": \"Kiteboard CABRINHA\",\r\n            \"TYP\": \"A\",\r\n            \"PARAMETER\": \"XL\",\r\n            \"KURZBESCHREIBUNG\": \"Freestyle und\",\r\n            \"EBRUTTO\": 479,\r\n            \"GESAMT\": 479,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 2,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Neues Freestyle\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 3,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Testprodukt\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 4,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Noch ein Testprodukt\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        }\r\n    ]\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:8083/api/v1.0/cedalo/tests",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"api",
+						"v1.0",
+						"cedalo",
+						"tests"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8083/api/v1.0/cedalo/alexa",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Stammdaten\": {\r\n        \"Auftragsdaten\": {\r\n            \"Bestellnr\": 2,\r\n            \"Kundennummer\": 4712,\r\n            \"E-Mail\": \"conrad.chefeinkaeufer@demokunde.de\",\r\n            \"Ust.Identnr.\": \"DE12224424\",\r\n            \"Bezahlung mit\": \"Kreditkarte\",\r\n            \"Versandart\": \"Standard\",\r\n            \"Mitteilung\": \"Hallo, dies ist ein Test\",\r\n            \"Artikel brutto\": 638,\r\n            \"Rabatt\": 0,\r\n            \"Artikel netto\": 536.13,\r\n            \"MwSt\": 101.87,\r\n            \"Versandkosten\": 0,\r\n            \"Zahlungsart-Gebühren\": 0\r\n        },\r\n        \"Rechnungsadresse\": {\r\n            \"Anrede\": \"Herr\",\r\n            \"Vorname\": \"Conrad\",\r\n            \"Nachname\": \"Chefeinkäufer\",\r\n            \"Firma\": \"Demokunde AG\",\r\n            \"Straße\": \"Demostraße\",\r\n            \"Nr\": \"48\",\r\n            \"PLZ\": \"12345\",\r\n            \"Ort\": \"Demohausen\",\r\n            \"Info\": \"Zusatzinfo\",\r\n            \"Bundesland\": \"Baden-Württemberg\",\r\n            \"Land\": \"Deutschland\",\r\n            \"Fon\": \"07661-24242\",\r\n            \"Fax\": \"07661-24242\"\r\n        },\r\n        \"Lieferadresse\": {\r\n            \"Anrede\": \"\",\r\n            \"Vorname\": \"\",\r\n            \"Nachname\": \"\",\r\n            \"Firma\": \"\",\r\n            \"Straße\": \"\",\r\n            \"Nr\": \"\",\r\n            \"PLZ\": \"\",\r\n            \"Ort\": \"\",\r\n            \"Info\": \"\",\r\n            \"Bundesland\": \"\",\r\n            \"Land\": \"\",\r\n            \"Fon\": \"\",\r\n            \"Fax\": \"\"\r\n        }\r\n    },\r\n    \"Positionen\": [\r\n        {\r\n            \"POS\": 1,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1302,\r\n            \"TITEL\": \"Kiteboard CABRINHA\",\r\n            \"TYP\": \"A\",\r\n            \"PARAMETER\": \"XL\",\r\n            \"KURZBESCHREIBUNG\": \"Freestyle und\",\r\n            \"EBRUTTO\": 479,\r\n            \"GESAMT\": 479,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 2,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Neues Freestyle\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 3,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Testprodukt\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 4,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Noch ein Testprodukt\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        }\r\n    ]\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:8083/api/v1.0/cedalo/alexa",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"api",
+						"v1.0",
+						"cedalo",
+						"alexa"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "https://dev.cedalo.com/rest/v1.0/cedalo/example",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Stammdaten\": {\r\n        \"Auftragsdaten\": {\r\n            \"Bestellnr\": 2,\r\n            \"Kundennummer\": 4712,\r\n            \"E-Mail\": \"conrad.chefeinkaeufer@demokunde.de\",\r\n            \"Ust.Identnr.\": \"DE12224424\",\r\n            \"Bezahlung mit\": \"Kreditkarte\",\r\n            \"Versandart\": \"Standard\",\r\n            \"Mitteilung\": \"Hallo, dies ist ein Test\",\r\n            \"Artikel brutto\": 638,\r\n            \"Rabatt\": 0,\r\n            \"Artikel netto\": 536.13,\r\n            \"MwSt\": 101.87,\r\n            \"Versandkosten\": 0,\r\n            \"Zahlungsart-Gebühren\": 0\r\n        },\r\n        \"Rechnungsadresse\": {\r\n            \"Anrede\": \"Herr\",\r\n            \"Vorname\": \"Conrad\",\r\n            \"Nachname\": \"Chefeinkäufer\",\r\n            \"Firma\": \"Demokunde AG\",\r\n            \"Straße\": \"Demostraße\",\r\n            \"Nr\": \"48\",\r\n            \"PLZ\": \"12345\",\r\n            \"Ort\": \"Demohausen\",\r\n            \"Info\": \"Zusatzinfo\",\r\n            \"Bundesland\": \"Baden-Württemberg\",\r\n            \"Land\": \"Deutschland\",\r\n            \"Fon\": \"07661-24242\",\r\n            \"Fax\": \"07661-24242\"\r\n        },\r\n        \"Lieferadresse\": {\r\n            \"Anrede\": \"\",\r\n            \"Vorname\": \"\",\r\n            \"Nachname\": \"\",\r\n            \"Firma\": \"\",\r\n            \"Straße\": \"\",\r\n            \"Nr\": \"\",\r\n            \"PLZ\": \"\",\r\n            \"Ort\": \"\",\r\n            \"Info\": \"\",\r\n            \"Bundesland\": \"\",\r\n            \"Land\": \"\",\r\n            \"Fon\": \"\",\r\n            \"Fax\": \"\"\r\n        }\r\n    },\r\n    \"Positionen\": [\r\n        {\r\n            \"POS\": 1,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1302,\r\n            \"TITEL\": \"Kiteboard CABRINHA\",\r\n            \"TYP\": \"A\",\r\n            \"PARAMETER\": \"XL\",\r\n            \"KURZBESCHREIBUNG\": \"Freestyle und\",\r\n            \"EBRUTTO\": 479,\r\n            \"GESAMT\": 479,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 2,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Neues Freestyle\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 3,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Testprodukt\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 4,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Noch ein Testprodukt\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        }\r\n    ]\r\n}\r\n"
+				},
+				"url": {
+					"raw": "https://dev.cedalo.com/rest/v1.0/cedalo/example",
+					"protocol": "https",
+					"host": [
+						"dev",
+						"cedalo",
+						"com"
+					],
+					"path": [
+						"rest",
+						"v1.0",
+						"cedalo",
+						"example"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "https://dev.cedalo.com/rest/v1.0/oxid/example",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Stammdaten\": {\r\n        \"Auftragsdaten\": {\r\n            \"Bestellnr\": 2,\r\n            \"Kundennummer\": 4712,\r\n            \"E-Mail\": \"conrad.chefeinkaeufer@demokunde.de\",\r\n            \"Ust.Identnr.\": \"DE12224424\",\r\n            \"Bezahlung mit\": \"Kreditkarte\",\r\n            \"Versandart\": \"Standard\",\r\n            \"Mitteilung\": \"Hallo, dies ist ein Test\",\r\n            \"Artikel brutto\": 638,\r\n            \"Rabatt\": 0,\r\n            \"Artikel netto\": 536.13,\r\n            \"MwSt\": 101.87,\r\n            \"Versandkosten\": 0,\r\n            \"Zahlungsart-Gebühren\": 0\r\n        },\r\n        \"Rechnungsadresse\": {\r\n            \"Anrede\": \"Herr\",\r\n            \"Vorname\": \"Conrad\",\r\n            \"Nachname\": \"Chefeinkäufer\",\r\n            \"Firma\": \"Demokunde AG\",\r\n            \"Straße\": \"Demostraße\",\r\n            \"Nr\": \"48\",\r\n            \"PLZ\": \"12345\",\r\n            \"Ort\": \"Demohausen\",\r\n            \"Info\": \"Zusatzinfo\",\r\n            \"Bundesland\": \"Baden-Württemberg\",\r\n            \"Land\": \"Deutschland\",\r\n            \"Fon\": \"07661-24242\",\r\n            \"Fax\": \"07661-24242\"\r\n        },\r\n        \"Lieferadresse\": {\r\n            \"Anrede\": \"\",\r\n            \"Vorname\": \"\",\r\n            \"Nachname\": \"\",\r\n            \"Firma\": \"\",\r\n            \"Straße\": \"\",\r\n            \"Nr\": \"\",\r\n            \"PLZ\": \"\",\r\n            \"Ort\": \"\",\r\n            \"Info\": \"\",\r\n            \"Bundesland\": \"\",\r\n            \"Land\": \"\",\r\n            \"Fon\": \"\",\r\n            \"Fax\": \"\"\r\n        }\r\n    },\r\n    \"Positionen\": [\r\n        {\r\n            \"POS\": 1,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1302,\r\n            \"TITEL\": \"Kiteboard CABRINHA\",\r\n            \"TYP\": \"A\",\r\n            \"PARAMETER\": \"XL\",\r\n            \"KURZBESCHREIBUNG\": \"Freestyle und\",\r\n            \"EBRUTTO\": 479,\r\n            \"GESAMT\": 479,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 2,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Neues Freestyle\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 3,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Testprodukt\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 4,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Noch ein Testprodukt\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        }\r\n    ]\r\n}\r\n"
+				},
+				"url": {
+					"raw": "https://dev.cedalo.com/rest/v1.0/oxid/example",
+					"protocol": "https",
+					"host": [
+						"dev",
+						"cedalo",
+						"com"
+					],
+					"path": [
+						"rest",
+						"v1.0",
+						"oxid",
+						"example"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8083/api/v1.0/oxid/example",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Stammdaten\": {\r\n        \"Auftragsdaten\": {\r\n            \"Bestellnr\": 2,\r\n            \"Kundennummer\": 4712,\r\n            \"E-Mail\": \"conrad.chefeinkaeufer@demokunde.de\",\r\n            \"Ust.Identnr.\": \"DE12224424\",\r\n            \"Bezahlung mit\": \"Kreditkarte\",\r\n            \"Versandart\": \"Standard\",\r\n            \"Mitteilung\": \"Hallo, dies ist ein Test\",\r\n            \"Artikel brutto\": 638,\r\n            \"Rabatt\": 0,\r\n            \"Artikel netto\": 536.13,\r\n            \"MwSt\": 101.87,\r\n            \"Versandkosten\": 0,\r\n            \"Zahlungsart-Gebühren\": 0\r\n        },\r\n        \"Rechnungsadresse\": {\r\n            \"Anrede\": \"Herr\",\r\n            \"Vorname\": \"Conrad\",\r\n            \"Nachname\": \"Chefeinkäufer\",\r\n            \"Firma\": \"Demokunde AG\",\r\n            \"Straße\": \"Demostraße\",\r\n            \"Nr\": \"48\",\r\n            \"PLZ\": \"12345\",\r\n            \"Ort\": \"Demohausen\",\r\n            \"Info\": \"Zusatzinfo\",\r\n            \"Bundesland\": \"Baden-Württemberg\",\r\n            \"Land\": \"Deutschland\",\r\n            \"Fon\": \"07661-24242\",\r\n            \"Fax\": \"07661-24242\"\r\n        },\r\n        \"Lieferadresse\": {\r\n            \"Anrede\": \"\",\r\n            \"Vorname\": \"\",\r\n            \"Nachname\": \"\",\r\n            \"Firma\": \"\",\r\n            \"Straße\": \"\",\r\n            \"Nr\": \"\",\r\n            \"PLZ\": \"\",\r\n            \"Ort\": \"\",\r\n            \"Info\": \"\",\r\n            \"Bundesland\": \"\",\r\n            \"Land\": \"\",\r\n            \"Fon\": \"\",\r\n            \"Fax\": \"\"\r\n        }\r\n    },\r\n    \"Positionen\": [\r\n        {\r\n            \"POS\": 1,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1302,\r\n            \"TITEL\": \"Kiteboard CABRINHA\",\r\n            \"TYP\": \"A\",\r\n            \"PARAMETER\": \"XL\",\r\n            \"KURZBESCHREIBUNG\": \"Freestyle und\",\r\n            \"EBRUTTO\": 479,\r\n            \"GESAMT\": 479,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 2,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Neues Freestyle\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 3,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Testprodukt\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 4,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Noch ein Testprodukt\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        }\r\n    ]\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:8083/api/v1.0/oxid/example",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"api",
+						"v1.0",
+						"oxid",
+						"example"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "https://dev.cedalo.com/rest/v1.0/cedalo/oxid",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Stammdaten\": {\r\n        \"Auftragsdaten\": {\r\n            \"Bestellnr\": 2,\r\n            \"Kundennummer\": 4712,\r\n            \"E-Mail\": \"conrad.chefeinkaeufer@demokunde.de\",\r\n            \"Ust.Identnr.\": \"DE12224424\",\r\n            \"Bezahlung mit\": \"Kreditkarte\",\r\n            \"Versandart\": \"Standard\",\r\n            \"Mitteilung\": \"Hallo, dies ist ein Test\",\r\n            \"Artikel brutto\": 638,\r\n            \"Rabatt\": 0,\r\n            \"Artikel netto\": 536.13,\r\n            \"MwSt\": 101.87,\r\n            \"Versandkosten\": 0,\r\n            \"Zahlungsart-Gebühren\": 0\r\n        },\r\n        \"Rechnungsadresse\": {\r\n            \"Anrede\": \"Herr\",\r\n            \"Vorname\": \"Conrad\",\r\n            \"Nachname\": \"Chefeinkäufer\",\r\n            \"Firma\": \"Demokunde AG\",\r\n            \"Straße\": \"Demostraße\",\r\n            \"Nr\": \"48\",\r\n            \"PLZ\": \"12345\",\r\n            \"Ort\": \"Demohausen\",\r\n            \"Info\": \"Zusatzinfo\",\r\n            \"Bundesland\": \"Baden-Württemberg\",\r\n            \"Land\": \"Deutschland\",\r\n            \"Fon\": \"07661-24242\",\r\n            \"Fax\": \"07661-24242\"\r\n        },\r\n        \"Lieferadresse\": {\r\n            \"Anrede\": \"\",\r\n            \"Vorname\": \"\",\r\n            \"Nachname\": \"\",\r\n            \"Firma\": \"\",\r\n            \"Straße\": \"\",\r\n            \"Nr\": \"\",\r\n            \"PLZ\": \"\",\r\n            \"Ort\": \"\",\r\n            \"Info\": \"\",\r\n            \"Bundesland\": \"\",\r\n            \"Land\": \"\",\r\n            \"Fon\": \"\",\r\n            \"Fax\": \"\"\r\n        }\r\n    },\r\n    \"Positionen\": [\r\n        {\r\n            \"POS\": 1,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1302,\r\n            \"TITEL\": \"Kiteboard CABRINHA\",\r\n            \"TYP\": \"A\",\r\n            \"PARAMETER\": \"XL\",\r\n            \"KURZBESCHREIBUNG\": \"Freestyle und\",\r\n            \"EBRUTTO\": 479,\r\n            \"GESAMT\": 479,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 2,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Neues Freestyle\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 3,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Testprodukt\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        },\r\n        {\r\n            \"POS\": 4,\r\n            \"ANZAHL\": 1,\r\n            \"ART.-NR.\": 1402,\r\n            \"TITEL\": \"Trapez ION MADTRIXX\",\r\n            \"TYP\": \"B\",\r\n            \"PARAMETER\": \"XXL\",\r\n            \"KURZBESCHREIBUNG\": \"Noch ein Testprodukt\",\r\n            \"EBRUTTO\": 159,\r\n            \"GESAMT\": 159,\r\n            \"MWST\": 19\r\n        }\r\n    ]\r\n}\r\n"
+				},
+				"url": {
+					"raw": "https://dev.cedalo.com/rest/v1.0/cedalo/oxid",
+					"protocol": "https",
+					"host": [
+						"dev",
+						"cedalo",
+						"com"
+					],
+					"path": [
+						"rest",
+						"v1.0",
+						"cedalo",
+						"oxid"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

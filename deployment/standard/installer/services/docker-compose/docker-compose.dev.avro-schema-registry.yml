@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+  schema-registry:
+    image: "salsify/avro-schema-registry:0.13.3"
+    ports:
+    - 9091:8081
+    expose:
+    - 9091
+    environment:
+      PORT: 8081
+      AUTO_MIGRATE: 1
+      DATABASE_URL: postgresql://postgres:postgres@postgresql:5432/registry
+      FORCE_SSL: 0
+      SECRET_KEY_BASE: avro
+      SCHEMA_REGISTRY_PASSWORD: avro
+    networks:
+    - streamsheets
+    logging:
+      driver: json-file
+  postgresql:
+    image: "bitnami/postgresql:latest"
+    ports:
+    - 5432:5432
+    expose:
+    - 5432
+    environment:
+      POSTGRES_PASSWORD: postgres
+    networks:
+    - streamsheets
+    logging:
+      driver: json-file
+networks:
+  streamsheets:
+    external:
+      name: streamsheets
