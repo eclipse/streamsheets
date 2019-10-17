@@ -5,7 +5,7 @@ const StringAttribute = require('../attr/StringAttribute');
 const Attribute = require('../attr/Attribute');
 const Expression = require('../expr/Expression');
 
-module.exports = class SheetSliderNode extends Node {
+module.exports = class SheetKnobNode extends Node {
 	constructor() {
 		super();
 
@@ -15,18 +15,20 @@ module.exports = class SheetSliderNode extends Node {
 
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 		this.getItemAttributes().setContainer(false);
-		this.addAttribute(new StringAttribute('title', 'Slider'));
+		this.addAttribute(new StringAttribute('title', 'Knob'));
 		this.addAttribute(new Attribute('value', new Expression(50)));
 		this.addAttribute(new Attribute('min', new Expression(0)));
 		this.addAttribute(new Attribute('max', new Expression(100)));
 		this.addAttribute(new Attribute('step', new Expression(5)));
+		this.addAttribute(new Attribute('start', new Expression(Math.PI / 6)));
+		this.addAttribute(new Attribute('end', new Expression(Math.PI * 11 / 6)));
 		this.addAttribute(new StringAttribute('marker', ''));
 		this.addAttribute(new StringAttribute('scalefont', ''));
 		this.addAttribute(new StringAttribute('formatrange', ''));
 	}
 
 	newInstance() {
-		return new SheetSliderNode();
+		return new SheetKnobNode();
 	}
 
 	_copy(copiednodes, deep, ids) {
@@ -38,11 +40,11 @@ module.exports = class SheetSliderNode extends Node {
 	saveContent(file, absolute) {
 		super.saveContent(file, absolute);
 
-		file.writeAttributeString('type', 'sheetslidernode');
+		file.writeAttributeString('type', 'sheetknobnode');
 	}
 
 	_assignName(id) {
-		const name = this.getGraph().getUniqueName('Slider');
+		const name = this.getGraph().getUniqueName('Knob');
 		this.setName(name);
 	}
 

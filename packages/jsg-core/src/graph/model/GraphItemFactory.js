@@ -8,6 +8,7 @@ const ContentNode = require('./ContentNode');
 const SheetButtonNode = require('./SheetButtonNode');
 const SheetCheckboxNode = require('./SheetCheckboxNode');
 const SheetSliderNode = require('./SheetSliderNode');
+const SheetKnobNode = require('./SheetKnobNode');
 const CaptionNode = require('./CaptionNode');
 const CellsNode = require('./CellsNode');
 const HeaderNode = require('./HeaderNode');
@@ -2522,6 +2523,8 @@ class GraphItemFactory {
 				return new SheetCheckboxNode();
 			case 'sheetslidernode':
 				return new SheetSliderNode();
+			case 'sheetknobnode':
+				return new SheetKnobNode();
 			case 'inboxcontainer':
 				return new InboxContainer();
 			case 'outboxcontainer':

@@ -1527,7 +1527,7 @@ class Graphics {
 
 		const p0 = this.transformPoint(x0, y0, 0);
 		const p1 = this.transformPoint(x1, y1, 1);
-		const gradient = this._context2D.createRadialGradient(p0.x, p0.y, r0, p1.x, p1.y, r1);
+		const gradient = this._context2D.createRadialGradient(p0.x, p0.y, Math.max(1, r0), p1.x, p1.y, Math.max(1, r1));
 		return gradient;
 	}
 

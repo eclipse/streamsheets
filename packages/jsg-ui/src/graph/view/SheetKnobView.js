@@ -11,43 +11,40 @@ import {
 } from '@cedalo/jsg-core';
 import NodeView from './NodeView';
 
-export default class SheetSliderView extends NodeView {
+export default class SheetKnobView extends NodeView {
 	drawBorder(graphics, format, rect) {}
 
 	drawFill(graphics, format, rect) {
-		// super.drawFill(graphics, format, rect);
-
 		const item = this.getItem();
 		const title = item.getAttributeValueAtPath('title');
 		const tmpRect = rect.copy();
 		let value = item.getValue();
+		let titleHeight = 0;
 
 		if (!Numbers.isNumber(value)) {
 			value = 0;
 		}
 
-		tmpRect.x += 150;
-		tmpRect.y += rect.height / 2 - 100;
-		tmpRect.height = 200;
-		tmpRect.width -= 300;
-
 		const textFormat = item.getTextFormat();
 
 		textFormat.applyToGraphics(graphics);
 		graphics.setFont();
-		graphics.setTextBaseline('top');
+		graphics.setTextBaseline('bottom');
 
 		if (title && title.length) {
-			graphics.setTextAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
-			graphics.fillText(`${item.getAttributeValueAtPath('title')}`, rect.x + 100, rect.y + 100);
+			const text = `${item.getAttributeValueAtPath('title')}`;
+			graphics.setTextAlignment(JSG.TextFormatAttributes.TextAlignment.CENTER);
+			graphics.fillText(text, rect.width / 2, rect.height);
+			titleHeight = graphics.getCoordinateSystem().deviceToLogY(graphics.measureText(text).width);
 			textFormat.removeFromGraphics(graphics);
 		}
 
 		let min = item.getAttributeValueAtPath('min');
 		let max = item.getAttributeValueAtPath('max');
 		let step = item.getAttributeValueAtPath('step');
+		const startAngle = item.getAttributeValueAtPath('start');
+		const endAngle = item.getAttributeValueAtPath('end');
 		const marker = item.getAttributeValueAtPath('marker');
-		const style = item.getAttributeValueAtPath('style');
 		if (max === min) {
 			min -= 0.5;
 			max += 0.5;
@@ -60,13 +57,24 @@ export default class SheetSliderView extends NodeView {
 		value = Math.max(value, min);
 		value = Math.min(value, max);
 
+		this.setScaleFont(item, graphics);
+
+		let width = Math.max(
+			100,
+			graphics.getCoordinateSystem().deviceToLogX(graphics.measureText(String(max)).width, true)
+		);
+		width = Math.max(
+			width,
+			graphics.getCoordinateSystem().deviceToLogX(graphics.measureText(String(min)).width, true)
+		);
+
 		const ranges = [];
 		const formatRange = item.getAttributeValueAtPath('formatrange');
 		if (formatRange) {
 			const sheet = item.getSheet();
 			if (sheet && typeof formatRange === 'string') {
 				const frange = CellRange.parse(formatRange, sheet);
-				if (frange) {
+				if (frange && frange.getWidth() > 2) {
 					frange.shiftFromSheet();
 					for (let i = frange.getY1(); i <= frange.getY2(); i += 1) {
 						const def = {};
@@ -74,16 +82,26 @@ export default class SheetSliderView extends NodeView {
 						if (cell && cell.getValue() !== undefined) {
 							def.start = Number(cell.getValue());
 						}
-						if (frange.getWidth() > 1) {
-							cell = sheet.getDataProvider().getRC(frange.getX1() + 1, i);
+						cell = sheet.getDataProvider().getRC(frange.getX1() + 1, i);
+						if (cell && cell.getValue() !== undefined) {
+							def.end = Number(cell.getValue());
+						}
+						cell = sheet.getDataProvider().getRC(frange.getX1() + 2, i);
+						if (cell && cell.getValue()) {
+							def.color = String(cell.getValue());
+						}
+						if (frange.getWidth() > 3) {
+							cell = sheet.getDataProvider().getRC(frange.getX1() + 3, i);
 							if (cell && cell.getValue()) {
 								def.label = String(cell.getValue());
-							}
-						}
-						if (frange.getWidth() > 2) {
-							cell = sheet.getDataProvider().getRC(frange.getX1() + 2, i);
-							if (cell && cell.getValue()) {
-								def.color = String(cell.getValue());
+								width = Math.max(
+									width,
+									graphics
+										.getCoordinateSystem()
+										.deviceToLogX(graphics.measureText(String(def.label)).width, true)
+								);
+							} else {
+								def.label = ' ';
 							}
 						}
 						ranges.push(def);
@@ -92,116 +110,133 @@ export default class SheetSliderView extends NodeView {
 			}
 		}
 
-		let pos = ((value - min) / range) * tmpRect.width;
+		const height = graphics.getCoordinateSystem().deviceToLogX(graphics.measureText('M').width, true);
+		const size = Math.min(rect.width - width * 2 - 1200, rect.height - titleHeight - 800 - height * 2);
+		tmpRect.x += rect.width / 2 - size / 2;
+		tmpRect.y += rect.height / 2 - size / 2 - 100;
+		tmpRect.height = size;
+		tmpRect.width = size;
 
-		graphics.setFillColor('#FFFFFF');
-		graphics.fillRect(tmpRect);
+		if (format.applyFillToGraphics(graphics, tmpRect)) {
+			graphics.fillEllipse(tmpRect);
+		}
+
+		let x1;
+		let x2;
+		let y1;
+		let y2;
+		let angle = ((value - min) / range) * (endAngle - startAngle) + startAngle + Math.PI_2;
 
 		if (ranges.length && ranges[0].color) {
 			const colorRect = new Rectangle();
 			colorRect.y = tmpRect.y;
 			colorRect.height = tmpRect.height;
 			ranges.forEach((rang, index) => {
-				if (index && ranges[index - 1].color) {
-					colorRect.x = tmpRect.x + ((ranges[index - 1].start - min) / range) * tmpRect.width;
-					colorRect.width = ((ranges[index].start - ranges[index - 1].start) / range) * tmpRect.width;
-					graphics.setFillColor(ranges[index - 1].color);
-					graphics.fillRect(colorRect);
+				if (ranges[index].color) {
+					x1 = tmpRect.x + tmpRect.width / 2;
+					y1 = tmpRect.y + tmpRect.height / 2;
+					const angle1 =
+						((ranges[index].start - min) / range) * (endAngle - startAngle) + startAngle + Math.PI_2;
+					const angle2 =
+						((ranges[index].end - min) / range) * (endAngle - startAngle) + startAngle + Math.PI_2;
+					graphics.setLineColor(ranges[index].color);
+					graphics.setLineWidth(200);
+					graphics.beginPath();
+					graphics.arc(x1, y1, size / 2 + 300, angle1, angle2, false);
+					graphics.stroke();
 				}
 			});
-			graphics.setFillColor('#FFFFFF');
-		} else if (format.applyFillToGraphics(graphics, rect)) {
-			tmpRect.width = pos;
-			graphics.fillRect(tmpRect);
 		}
 
-		tmpRect.width = rect.width - 300;
-
 		if (format.applyLineToGraphics(graphics)) {
-			graphics.drawRect(tmpRect);
+			graphics.drawEllipse(tmpRect);
 			format.removeLineFromGraphics(graphics);
 		}
 
-		let scaleOffset = 500;
+		const markerSize = size / 10;
+
+		graphics.setLineColor('#444444');
+		graphics.setFillColor('#EEEEEE');
 
 		switch (marker) {
-			case 'square':
+			case 'arrowinner':
 				graphics.beginPath();
-				graphics.rect(tmpRect.x + pos - 250, tmpRect.y - 150, 500, 500);
-				graphics.fill();
-				graphics.stroke();
-				break;
-			case 'rect':
-				graphics.beginPath();
-				graphics.rect(tmpRect.x + pos - 125, tmpRect.y - 150, 250, 500);
-				graphics.fill();
-				graphics.stroke();
-				break;
-			case 'arrowtop':
-				graphics.beginPath();
-				graphics.moveTo(tmpRect.x + pos - 125, tmpRect.y - 250);
-				graphics.lineTo(tmpRect.x + pos + 125, tmpRect.y - 250);
-				graphics.lineTo(tmpRect.x + pos, tmpRect.y);
+				x1 = tmpRect.x + tmpRect.width / 2 + Math.cos(angle) * (size / 2);
+				y1 = tmpRect.y + tmpRect.height / 2 + Math.sin(angle) * (size / 2);
+				graphics.moveTo(x1, y1);
+				x1 = tmpRect.x + tmpRect.width / 2 + Math.cos(angle - 0.08) * (size / 2 - markerSize);
+				y1 = tmpRect.y + tmpRect.height / 2 + Math.sin(angle - 0.08) * (size / 2 - markerSize);
+				graphics.lineTo(x1, y1);
+				x1 = tmpRect.x + tmpRect.width / 2 + Math.cos(angle + 0.08) * (size / 2 - markerSize);
+				y1 = tmpRect.y + tmpRect.height / 2 + Math.sin(angle + 0.08) * (size / 2 - markerSize);
+				graphics.lineTo(x1, y1);
 				graphics.closePath();
 				graphics.fill();
 				graphics.stroke();
-				scaleOffset = 400;
-				break;
-			case 'arrowbottom':
-				graphics.beginPath();
-				graphics.moveTo(tmpRect.x + pos, tmpRect.y + 200);
-				graphics.lineTo(tmpRect.x + pos + 125, tmpRect.y + 450);
-				graphics.lineTo(tmpRect.x + pos - 125, tmpRect.y + 450);
-				graphics.closePath();
-				graphics.fill();
-				graphics.stroke();
-				scaleOffset = 600;
 				break;
 			case 'none':
 				break;
 			case 'circlesmall':
 				graphics.beginPath();
-				graphics.circle(tmpRect.x + pos, tmpRect.y + 100, 100);
+				x1 = tmpRect.x + tmpRect.width / 2 + Math.cos(angle) * (size / 2 - markerSize);
+				y1 = tmpRect.y + tmpRect.height / 2 + Math.sin(angle) * (size / 2 - markerSize);
+				graphics.circle(x1, y1, markerSize / 2);
 				graphics.fill();
 				graphics.stroke();
-				scaleOffset = 400;
 				break;
 			default:
 				graphics.beginPath();
-				graphics.circle(tmpRect.x + pos, tmpRect.y + 100, 250);
-				graphics.fill();
+				x1 = tmpRect.x + tmpRect.width / 2 + Math.cos(angle) * (size / 2 - markerSize);
+				y1 = tmpRect.y + tmpRect.height / 2 + Math.sin(angle) * (size / 2 - markerSize);
+				x2 = x1 + Math.cos(angle) * markerSize;
+				y2 = y1 + Math.sin(angle) * markerSize;
+				graphics.moveTo(x1, y1);
+				graphics.lineTo(x2, y2);
 				graphics.stroke();
 				break;
 		}
 
-		const width = Math.max(
-			100,
-			graphics.getCoordinateSystem().deviceToLogX(graphics.measureText(String(max)).width, true)
-		);
-
-		step = Math.max(step, this.calculateStepSize(range, tmpRect.width / width));
+		step = Math.max(step, this.calculateStepSize(range, (size * 2) / width));
 
 		graphics.setTextAlignment(JSG.TextFormatAttributes.TextAlignment.CENTER);
+		graphics.setTextBaseline('middle');
 		graphics.beginPath();
 
 		graphics.setFillColor(textFormat.getFontColor().getValue());
 		graphics.setLineColor('#333333');
 
-		this.setScaleFont(item, graphics);
-
 		if (ranges.length && ranges[0].label) {
 			ranges.forEach((rang) => {
-				pos = ((rang.start - min) / range) * tmpRect.width;
-				graphics.moveTo(tmpRect.x + pos, tmpRect.y + scaleOffset);
-				graphics.lineTo(tmpRect.x + pos, tmpRect.y + scaleOffset + 100);
-				graphics.fillText(String(rang.label), tmpRect.x + pos, tmpRect.y + scaleOffset + 200);
+				angle =
+					((rang.start + (rang.end - rang.start) / 2 - min) / range) * (endAngle - startAngle) +
+					startAngle +
+					Math.PI_2;
+				// x1 = tmpRect.x + tmpRect.width / 2 + Math.cos(angle) * (size / 2 + 200);
+				// y1 = tmpRect.y + tmpRect.height / 2 + Math.sin(angle) * (size / 2 + 200);
+				x2 = tmpRect.x + tmpRect.width / 2 + Math.cos(angle) * (size / 2 + 400);
+				y2 = tmpRect.y + tmpRect.height / 2 + Math.sin(angle) * (size / 2 + 400);
+				// graphics.moveTo(x1, y1);
+				// graphics.lineTo(x2, y2);
+				width = Math.max(
+					100,
+					graphics.getCoordinateSystem().deviceToLogX(graphics.measureText(String(rang.label)).width, true)
+				);
+				x2 += Math.cos(angle) * (width / 2 + 300);
+				y2 += Math.sin(angle) * (height / 2 + 300);
+				graphics.fillText(String(rang.label), x2, y2);
 			});
 		} else {
 			for (let i = min; i <= max; i += step) {
-				pos = ((i - min) / range) * tmpRect.width;
-				graphics.moveTo(tmpRect.x + pos, tmpRect.y + scaleOffset);
-				graphics.lineTo(tmpRect.x + pos, tmpRect.y + scaleOffset + 100);
-				graphics.fillText(String(MathUtils.roundTo(i, 10)), tmpRect.x + pos, tmpRect.y + scaleOffset + 200);
+				angle = ((i - min) / range) * (endAngle - startAngle) + startAngle + Math.PI_2;
+				x1 = tmpRect.x + tmpRect.width / 2 + Math.cos(angle) * (size / 2 + 200);
+				y1 = tmpRect.y + tmpRect.height / 2 + Math.sin(angle) * (size / 2 + 200);
+				x2 = tmpRect.x + tmpRect.width / 2 + Math.cos(angle) * (size / 2 + 400);
+				y2 = tmpRect.y + tmpRect.height / 2 + Math.sin(angle) * (size / 2 + 400);
+				graphics.moveTo(x1, y1);
+				graphics.lineTo(x2, y2);
+				x2 += Math.cos(angle) * (width / 2 + 100);
+				y2 += Math.sin(angle) * (width / 2 + 100);
+				graphics.fillText(String(MathUtils.roundTo(i, 10)), x2, y2);
 			}
 		}
 
@@ -269,6 +304,8 @@ export default class SheetSliderView extends NodeView {
 	valueFromLocation(event, viewer) {
 		const point = event.location.copy();
 		const item = this.getItem();
+		const start = item.getAttributeValueAtPath('start');
+		const end = item.getAttributeValueAtPath('end');
 		const min = item.getAttributeValueAtPath('min');
 		const max = item.getAttributeValueAtPath('max');
 
@@ -279,13 +316,14 @@ export default class SheetSliderView extends NodeView {
 			return true;
 		});
 
-		point.x -= 150;
-		const width =
-			this.getItem()
-				.getWidth()
-				.getValue() - 300;
+		const size = this.getItem().getSizeAsPoint();
+		let angle = Math.atan2(point.y - size.y / 2, point.x - size.x / 2) - Math.PI_2;
+		while (angle < 0) {
+			angle += Math.PI * 2;
+		}
+		const value = (angle - start) / (end - start) * (max - min) + min;
 
-		return Math.min(max, Math.max(min, (point.x / width) * (max - min) + min));
+		return Math.min(max, Math.max(min, value));
 	}
 
 	onValueChange(viewer) {
@@ -327,7 +365,7 @@ export default class SheetSliderView extends NodeView {
 
 		let sliderValue = this.valueFromLocation(event, viewer);
 		sliderValue += (sliderValue >= 0 ? step / 2 : -step / 2);
-		sliderValue -= (sliderValue % step);
+		sliderValue -= sliderValue % step;
 
 		if (value === sliderValue) {
 			return false;

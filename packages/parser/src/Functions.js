@@ -98,76 +98,16 @@ module.exports.Functions = {
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.updateGraphItem(scope, terms, 'slider', false) : ERROR.NOT_AVAILABLE;
 	},
-	DRAWING: (scope, ...terms) => {
+	'DRAW.KNOB': (scope, ...terms) => {
+		if (scope.graphCells === undefined) {
+			return OK.TRUE;
+		}
 		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateDrawing(terms) : ERROR.NOT_AVAILABLE;
-	},
-	/**
-	 * Create Rectangle on sheet
-	 * @param drawing Name of drawing
-	 * @param item Name of item
-	 * @param x X coordinate
-	 * @param y Y coordinate
-	 * @param width Width of item.
-	 * @param height Height of item.
-	 * @param lineformat Format of line separated by semicolons.
-	 * @param fillformat Fill color.
-	 * @returns {string}
-	 * @constructor
-	 */
-	RECT: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateItem(terms, 'rect', false) : ERROR.NOT_AVAILABLE;
-	},
-	RECTR: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateItem(terms, 'rect', true) : ERROR.NOT_AVAILABLE;
-	},
-	ELLIPSE: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateItem(terms, 'ellipse', false) : ERROR.NOT_AVAILABLE;
-	},
-	ELLIPSER: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateItem(terms, 'ellipse', true) : ERROR.NOT_AVAILABLE;
-	},
-	POLYGON: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateItem(terms, 'polygon', false) : ERROR.NOT_AVAILABLE;
-	},
-	POLYGONR: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateItem(terms, 'polygon', true) : ERROR.NOT_AVAILABLE;
-	},
-	LABEL: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateItem(terms, 'label', false) : ERROR.NOT_AVAILABLE;
-	},
-	LABELR: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateItem(terms, 'label', true) : ERROR.NOT_AVAILABLE;
+		return drawings ? drawings.updateGraphItem(scope, terms, 'knob', false) : ERROR.NOT_AVAILABLE;
 	},
 	CLASSIFYPOINT: (scope, ...terms) => {
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.ptInPolygon(scope, terms) : ERROR.NOT_AVAILABLE;
-	},
-	/**
-	 * Create line on sheet
-	 * @param drawing Name of drawing
-	 * @param item Name of item
-	 * @param x X Start coordinate
-	 * @param y Y Start coordinate
-	 * @param x2 X End coordinate
-	 * @param y2 Y End coordinate
-	 * @param lineformat Format of line separated by semicolons.
-	 */
-	LINE: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateItem(terms, 'line', false) : ERROR.NOT_AVAILABLE;
-	},
-	LINES: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateLines(terms) : ERROR.NOT_AVAILABLE;
 	},
 	/**
 	 * @param linestyle

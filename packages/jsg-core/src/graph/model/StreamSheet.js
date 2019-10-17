@@ -11,6 +11,8 @@ const Edge = require('./Edge');
 const TextNode = require('./TextNode');
 const SheetButtonNode = require('./SheetButtonNode');
 const SheetCheckboxNode = require('./SheetCheckboxNode');
+const SheetSliderNode = require('./SheetSliderNode');
+const SheetKnobNode = require('./SheetKnobNode');
 const Graph = require('./Graph');
 const FormatAttributes = require('../attr/FormatAttributes');
 const TextFormatAttributes = require('../attr/TextFormatAttributes');
@@ -850,6 +852,23 @@ module.exports = class StreamSheet extends WorksheetNode {
 						node.setAttributeAtPath('marker', drawItem.marker);
 						node.setAttributeAtPath('formatrange', drawItem.formatrange ? drawItem.formatrange : '');
 						break;
+					case 'knob':
+						this.setFontFormat(node.getTextFormat(), drawItem.font);
+						node.setAttributeAtPath('scalefont', drawItem.scalefont);
+						node.setAttributeAtPath('title', drawItem.text);
+						// to prevent flickering
+						if (node._targetValue === undefined || node._targetValue === drawItem.value) {
+							node.setAttributeAtPath('value', drawItem.value);
+							node._targetValue = undefined;
+						}
+						node.setAttributeAtPath('min', drawItem.min);
+						node.setAttributeAtPath('max', drawItem.max);
+						node.setAttributeAtPath('step', drawItem.step);
+						node.setAttributeAtPath('marker', drawItem.marker);
+						node.setAttributeAtPath('start', drawItem.start);
+						node.setAttributeAtPath('end', drawItem.end);
+						node.setAttributeAtPath('formatrange', drawItem.formatrange ? drawItem.formatrange : '');
+						break;
 					default:
 						break;
 					}
@@ -938,6 +957,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 			type = 'checkbox';
 		} else if (item instanceof JSG.SheetSliderNode) {
 			type = 'slider';
+		} else if (item instanceof JSG.SheetKnobNode) {
+			type = 'knob';
 		}
 
 		const graph = this.getGraph();
@@ -990,6 +1011,10 @@ module.exports = class StreamSheet extends WorksheetNode {
 				case 'slider':
 					formula += `,,,,,`;
 					formula += angle === 0 ? ',,"Slider",,50,0,100,10' : `${angle},,"Slider",,50,0,100,10`;
+					break;
+				case 'knob':
+					formula += `,,,,,`;
+					formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
 					break;
 				case 'chart': {
 					formula += `,,,,,`;
@@ -1098,12 +1123,14 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 		if (item instanceof JSG.ChartNode) {
 			type = 'chart';
-		} else if (item instanceof JSG.SheetButtonNode) {
+		} else if (item instanceof SheetButtonNode) {
 			type = 'button';
-		} else if (item instanceof JSG.SheetCheckboxNode) {
+		} else if (item instanceof SheetCheckboxNode) {
 			type = 'checkbox';
-		} else if (item instanceof JSG.SheetSliderNode) {
+		} else if (item instanceof SheetSliderNode) {
 			type = 'slider';
+		} else if (item instanceof SheetKnobNode) {
+			type = 'knob';
 		} else if (item instanceof JSG.TextNode) {
 			type = 'label';
 		}
@@ -1211,6 +1238,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			this.setGraphFunctionParam(termFunc, 8, formula);
 			this.setGraphFunctionParam(termFunc, 11, angle ? Term.fromNumber(angle) : new NullTerm());
 			switch (type) {
+				case 'knob':
 				case 'slider':
 				case 'button':
 				case 'checkbox': {

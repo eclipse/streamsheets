@@ -16,6 +16,7 @@ import {
 	SheetCheckboxNode,
 	SheetHeaderNode,
 	SheetSliderNode,
+	SheetKnobNode,
 	TreeItemsNode,
 	Dictionary,
 	Arrays,
@@ -38,6 +39,7 @@ import TreeItemsView from '../view/TreeItemsView';
 import SheetButtonView from '../view/SheetButtonView';
 import SheetCheckboxView from '../view/SheetCheckboxView';
 import SheetSliderView from '../view/SheetSliderView';
+import SheetKnobView from '../view/SheetKnobView';
 import NodeView from '../view/NodeView';
 import TextView from '../view/TextView';
 import StreamSheetContainerView from '../view/StreamSheetContainerView';
@@ -185,6 +187,9 @@ class NodeController extends GraphItemController {
 		}
 		if (model instanceof SheetSliderNode) {
 			return new SheetSliderView(model);
+		}
+		if (model instanceof SheetKnobNode) {
+			return new SheetKnobView(model);
 		}
 		if (model instanceof StreamSheetContainer) {
 			return new StreamSheetContainerView(model);

@@ -127,6 +127,26 @@ module.exports = class Drawings {
 				item.formatrange = term.isStatic ? term.value : term.toString();
 			}
 			break;
+		case 'knob':
+			getRectParams(item);
+			item.text = String(this.getGraphParam(terms, 13, ''));
+			item.font = String(this.getGraphParam(terms, 14, ''));
+			if (terms.length > 15) {
+				const term = terms[15];
+				item.value = term.isStatic ? term.value : term.toString();
+			}
+			item.min = this.getGraphParam(terms, 16, 0);
+			item.max = this.getGraphParam(terms, 17, 100);
+			item.step = this.getGraphParam(terms, 18, 10);
+			item.scalefont = String(this.getGraphParam(terms, 19, ''));
+			item.marker = String(this.getGraphParam(terms, 20, ''));
+			if (terms.length > 21) {
+				const term = terms[21];
+				item.formatrange = term.isStatic ? term.value : term.toString();
+			}
+			item.start = this.getGraphParam(terms, 22, Math.PI / 6);
+			item.end = this.getGraphParam(terms, 23, Math.PI * 11 / 6);
+			break;
 		default:
 			break;
 		}

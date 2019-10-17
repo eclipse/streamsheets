@@ -39,6 +39,7 @@ export default class SheetButtonView extends NodeView {
 		} else {
 			graphics.setFillColor(item._isFeedback || item.hover ? this.shade(color, -0.1) : color);
 		}
+		graphics.setFillStyle(1);
 		graphics.fillRect(rect);
 		graphics.setLineCorner(0);
 
