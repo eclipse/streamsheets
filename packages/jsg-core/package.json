@@ -21,7 +21,7 @@
     "babel-loader": "6.4.1",
     "babel-preset-env": "1.6.1",
     "cheerio": "0.22.0",
-    "eslint": "4.10.0",
+    "eslint": "4.18.2",
     "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git#eslint4",
     "eslint-config-prettier": "3.3.0",
     "jest": "19.0.2",
