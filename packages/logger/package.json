@@ -25,7 +25,7 @@
     "babel-core": "6.25.0",
     "babel-loader": "7.1.1",
     "babel-preset-env": "1.6.0",
-    "eslint": "3.19.0",
+    "eslint": "6.5.1",
     "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
     "eslint-config-prettier": "3.3.0",
     "jasmine-core": "2.6.4",
