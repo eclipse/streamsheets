@@ -1460,40 +1460,42 @@ export default class WorksheetView extends ContentNodeView {
 			return true;
 		}
 
-		try {
-			const jsonModel = JSON.parse(json);
-			let rows = target.getHeight();
-			if (target.getWidth() === 1 && target.getHeight() === 1) {
-				rows = jsonMeasure(jsonModel, 0);
-				if (target.getY1() + rows > item.getRowCount() || target.getX1() + 1 > item.getColumnCount()) {
-					this.notifyMessage({ id: 'SheetMessage.destRange' });
-					return false;
+		if (json[0] === '{') {
+			try {
+				const jsonModel = JSON.parse(json);
+				let rows = target.getHeight();
+				if (target.getWidth() === 1 && target.getHeight() === 1) {
+					rows = jsonMeasure(jsonModel, 0);
+					if (target.getY1() + rows > item.getRowCount() || target.getX1() + 1 > item.getColumnCount()) {
+						this.notifyMessage({ id: 'SheetMessage.destRange' });
+						return false;
+					}
 				}
+				const cellData = [];
+				jsonPaste(
+					jsonModel,
+					cellData,
+					{ row: target.getY1(), column: target.getX1(), level: 0 },
+					rows + target.getY1()
+				);
+				const selection = target.getSheet().getOwnSelection();
+				const selectRange = target.copy();
+				selectRange.setX2(selectRange.getX1() + 1);
+				selectRange.setY2(selectRange.getY1() + rows - 1);
+				selection.selectRange(selectRange);
+				attributesMap.remove(CellAttributes.LEVEL);
+				attributesMap.put(CellAttributes.KEY, true);
+
+				viewer.getInteractionHandler().execute(new SetCellsCommand(this.getItem(), cellData, true));
+
+				const cmd = new CellAttributesCommand([selectRange], attributesMap);
+
+				viewer.getInteractionHandler().execute(cmd);
+				this.notifySelectionChange(viewer);
+				return true;
+			} catch (e) {
+				console.log(e);
 			}
-			const cellData = [];
-			jsonPaste(
-				jsonModel,
-				cellData,
-				{ row: target.getY1(), column: target.getX1(), level: 0 },
-				rows + target.getY1()
-			);
-			const selection = target.getSheet().getOwnSelection();
-			const selectRange = target.copy();
-			selectRange.setX2(selectRange.getX1() + 1);
-			selectRange.setY2(selectRange.getY1() + rows - 1);
-			selection.selectRange(selectRange);
-			attributesMap.remove(CellAttributes.LEVEL);
-			attributesMap.put(CellAttributes.KEY, true);
-
-			viewer.getInteractionHandler().execute(new SetCellsCommand(this.getItem(), cellData, true));
-
-			const cmd = new CellAttributesCommand([selectRange], attributesMap);
-
-			viewer.getInteractionHandler().execute(cmd);
-			this.notifySelectionChange(viewer);
-			return true;
-		} catch (e) {
-			console.log(e);
 		}
 
 		const size = textMeasure(json);
