@@ -4,10 +4,9 @@ import * as Colors from '@material-ui/core/colors';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import SvgIcon from '@material-ui/core/SvgIcon';
 import Divider from '@material-ui/core/Divider';
 import DeleteIcon from '@material-ui/icons/Delete';
-import ImportIcon from '@material-ui/icons/CloudDownload';
-import ExportIcon from '@material-ui/icons/CloudUpload';
 import AdminAppIcon from '@material-ui/icons/Security';
 import DashboardIcon from '@material-ui/icons/ViewList';
 import NewIcon from '@material-ui/icons/NoteAdd';
@@ -175,7 +174,13 @@ export class MainDrawer extends Component {
 				>
 					<MenuItem onClick={() => this.handleImport()}>
 						<ListItemIcon>
-							<ImportIcon />
+							<SvgIcon>
+								<path
+									fill="#757575"
+									// eslint-disable-next-line max-len
+									d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"
+								/>
+							</SvgIcon>
 						</ListItemIcon>
 						<FormattedMessage id="Import" defaultMessage="Import" />
 					</MenuItem>
@@ -188,7 +193,13 @@ export class MainDrawer extends Component {
 				>
 					<MenuItem onClick={() => this.handleExport()}>
 						<ListItemIcon>
-							<ExportIcon />
+							<SvgIcon>
+								<path
+									fill="#757575"
+									// eslint-disable-next-line max-len
+									d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"
+								/>
+							</SvgIcon>
 						</ListItemIcon>
 						<FormattedMessage id="Export" defaultMessage="Export" />
 					</MenuItem>
