@@ -1100,6 +1100,12 @@ class EditTextInteraction extends AbstractInteraction {
 		const interactionHandler = this.getInteractionHandler();
 		const doApply = this._startText !== this._getNewText() && interactionHandler !== undefined && cmd !== undefined;
 
+		if (doApply) {
+			// this is necessary as text change does not trigger an GRPAHITEM_CHANGED event and stream eventhandler does get informed
+			// about the text change, but the visible change. But then the text content must be set to update the formula
+			this._item.setText(this._getNewText());
+		}
+
 		// set item to visible here because possible command execution may triggers an edge-layout which requires
 		// a visible text-node to layout correctly...
 		this._item.setItemAttribute(ItemAttributes.VISIBLE, true);
@@ -1120,12 +1126,12 @@ class EditTextInteraction extends AbstractInteraction {
 			}
 		}
 
-		const notification = new Notification(GraphItemController.ITEM_CHANGED_NOTIFICATION, this);
-		const notEvent = new Event(Event.CUSTOM, 0);
-		notEvent.source = this._item;
-		notification.event = notEvent;
-		notification.viewer = viewer;
-		NotificationCenter.getInstance().send(notification);
+		// const notification = new Notification(GraphItemController.ITEM_CHANGED_NOTIFICATION, this);
+		// const notEvent = new Event(Event.CUSTOM, 0);
+		// notEvent.source = this._item;
+		// notification.event = notEvent;
+		// notification.viewer = viewer;
+		// NotificationCenter.getInstance().send(notification);
 
 		return doApply;
 	}
