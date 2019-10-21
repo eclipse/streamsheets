@@ -22,9 +22,14 @@ module.exports = class MqttProducer extends sdk.ProducerMixin(MqttConnector) {
 			this.handleWarningOnce(new Error(warnings[0]));
 		}
 		if(errors.length>0) {
-			this.handleErrorOnce(new Error(errors[0]));
+			this.handleWarningOnce(new Error(errors[0]));
 		}
-		if (this.connected && errors<1) {
+		if(!this.connected) {
+			this.handleErrorOnce(
+					new Error('Cannot publish as client is not connected yet')
+			);
+		}
+		if (this.connected && errors.length<1) {
 			return new Promise((res, rej) => {
 				const options = {
 					qos,
@@ -64,9 +69,6 @@ module.exports = class MqttProducer extends sdk.ProducerMixin(MqttConnector) {
 				return false;
 			});
 		}
-		this.handleErrorOnce(
-			new Error('Cannot publish as client is not connected yet')
-		);
 		return false;
 	}
 
