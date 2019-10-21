@@ -238,11 +238,11 @@ module.exports = class MachineService extends MessagingService {
 				await RepositoryManager.machineRepository.updateMachineNamedCells(event.srcId, event.namedCells);
 				break;
 			case MachineServerMessagingProtocol.EVENTS.SHEET_CELLS_UPDATE_EVENT:
-				logger.info(`PersistenceService: persist new machine cells update: ${event.sheetCells}`);
+				logger.info(`PersistenceService: persist new machine cells update: ${event.cells}`);
 				await RepositoryManager.machineRepository.partiallyUpdateCells(
 					event.machineId,
 					event.srcId,
-					event.sheetCells
+					event.cells
 				);
 				break;
 			case MachineServerMessagingProtocol.EVENTS.SHEET_CELLRANGE_CHANGE_EVENT:
@@ -253,11 +253,12 @@ module.exports = class MachineService extends MessagingService {
 			// include editable-web-component:
 			// case MachineServerMessagingProtocol.EVENTS.SHEET_UPDATE_EVENT: {
 			// 	logger.info('PersistenceService: persist updated sheet...');
-			// 	const { machineId, srcId, sheetCells, sheetProperties, namedCells, graphCells } = event;
+			// 	const { machineId, srcId, sheet } = event;
+			// 	const { graphCells, namedCells, properties } = sheet;
 			// 	await RepositoryManager.machineRepository.updateSheet(
 			// 		machineId,
 			// 		srcId,
-			// 		{ cells: toMapObject(sheetCells, 'reference'), properties: sheetProperties, graphCells, namedCells }
+			// 		{ cells: toMapObject(sheet.cells, 'reference'), properties, graphCells, namedCells }
 			// 	);
 			// 	break;
 			// }
