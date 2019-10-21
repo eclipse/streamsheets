@@ -270,8 +270,8 @@ function handleUserLeftEvent(event) {
 
 function handleSheetUpdateEvent(event) {
 	const streamsheetId = event.srcId;
-	const cells = event.sheetCells;
-	const { drawings, graphItems, graphCells, namedCells } = event;
+	const { cells, sheet } = event;
+	const { drawings, graphItems, graphCells, namedCells } = sheet;
 	graphManager.updateCellValues(streamsheetId, cells, drawings, graphItems, graphCells, namedCells);
 	graphManager.redraw();
 }
@@ -640,19 +640,30 @@ export function connect() {
 						graphManager.setDrawingDisabled(true);
 						event.streamsheets.forEach((streamsheet) => {
 							try {
+								const {
+									id,
+									cells,
+									graphCells,
+									namedCells,
+									drawings,
+									graphItems,
+									inbox,
+									loop,
+									stats
+								} = streamsheet;
 								graphManager.handleStreamSheetStep(
-									streamsheet.id,
-									streamsheet.jsonpath,
-									streamsheet.cells,
-									streamsheet.namedCells,
-									streamsheet.graphCells,
-									streamsheet.drawings,
-									streamsheet.graphItems,
+									id,
+									loop.currentPath,
+									cells,
+									namedCells,
+									graphCells,
+									drawings,
+									graphItems,
 									// TODO: improve, outbox does not need to be updated for each streamsheet
 									event.outbox,
-									streamsheet.stats,
-									streamsheet.inbox,
-									streamsheet.currentMessage,
+									stats,
+									inbox,
+									inbox.currentMessage,
 								);
 							} catch (error) {
 								// this can happen if the machine step event comes

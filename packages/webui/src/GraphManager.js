@@ -760,9 +760,9 @@ export default class GraphManager {
 	}
 
 	updateMachine({streamsheets, outbox}) {
-		streamsheets.forEach(streamsheet => {
-			streamsheet.messages = streamsheet.inbox.messages;
-		})
+		// streamsheets.forEach(streamsheet => {
+		// 	streamsheet.messages = streamsheet.inbox.messages;
+		// });
 		this.updateOutbox(outbox);
 		this.updateStreamSheets(streamsheets);
 	}
@@ -821,25 +821,19 @@ export default class GraphManager {
 	}
 
 	updateStreamSheet(streamsheet) {
-		this.addInboxMessages(streamsheet.id, streamsheet.messages)
-		if (streamsheet.currentMessage) {
-			this.selectInboxMessage(
-				streamsheet.id,
-				streamsheet.currentMessage.id,
-				streamsheet.currentMessage.isProcessed,
-			);
+		const { id, inbox, loop, stats } = streamsheet;
+		if (inbox) {
+			const { currentMessage, messages, stream } = inbox;
+			this.addInboxMessages(id, messages)
+			if (currentMessage) this.selectInboxMessage(id, currentMessage.id, currentMessage.isProcessed);
+			if (stream) this.updateStream(id, stream);
 		}
-		if (streamsheet.loop.path) {
-			this.updateLoopElement(streamsheet.id, streamsheet.loop);
+		if (loop) {
+			if (loop.path) this.updateLoopElement(id, loop);
+			if (loop.currentPath) this.updatePath(id, loop.currentPath);
 		}
-		if (streamsheet.jsonpath) {
-			this.updatePath(streamsheet.id, streamsheet.jsonpath);
-		}
-		if (streamsheet.inbox && streamsheet.inbox.stream) {
-			this.updateStream(streamsheet.id, streamsheet.inbox.stream);
-		}
-		if (streamsheet.stats) {
-			this.updateStats(streamsheet.id, streamsheet.stats);
+		if (stats) {
+			this.updateStats(id, stats);
 		}
 	}
 
