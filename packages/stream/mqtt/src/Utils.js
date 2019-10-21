@@ -12,8 +12,8 @@ const TOPIC_WARNINGS = {
 	TOPIC_WITH_LEADING_SLASH: 'TOPIC_WITH_LEADING_SLASH',
 	TOPIC_WITH_FILTER_ALL: 'TOPIC_WITH_FILTER_ALL',
 	TOPIC_WITH_SPACES: 'TOPIC_WITH_SPACES',
-	TOPIC_STARTS_RESERVED: 'TOPIC_STARTS_RESERVED',
-	TOPIC_TOO_SHORT: 'TOPIC_TOO_SHORT'
+	TOPIC_STARTS_RESERVED: 'TOPIC_STARTS_RESERVED'
+	// TOPIC_TOO_SHORT: 'TOPIC_TOO_SHORT'
 };
 
 const getUrl = (conf) => {
@@ -116,9 +116,10 @@ const validateTopicForSubscribe = (topic) => {
 	if (topic.indexOf('#') > -1 && topic.indexOf('#') < topic.length - 1) {
 		result.errors.push(TOPIC_ERRORS.TOPIC_WILDCARD_POSITION_INVALID);
 	}
-	if (parts.length < 2) {
-		result.warnings.push(TOPIC_WARNINGS.TOPIC_TOO_SHORT);
-	}
+	// Remove it for now as seems to be confusing. However keep code till #19 is closed
+	// if (parts.length < 2) {
+	//	result.warnings.push(TOPIC_WARNINGS.TOPIC_TOO_SHORT);
+	// }
 	return result;
 };
 
