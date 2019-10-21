@@ -182,16 +182,11 @@ module.exports = class GraphManager {
 	handleStreamSheetStep(
 		machineId,
 		streamsheetId,
-		jsonpath,
 		cells,
 		namedCells,
 		graphCells,
 		drawings,
 		graphItems,
-		outbox,
-		stats,
-		inbox,
-		currentMessage
 	) {
 		this.updateCells(
 			machineId,
