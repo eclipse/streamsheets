@@ -43,16 +43,13 @@ const machine2json = (machine) => {
 		streamsheet.stats = _streamsheet.stats;
 		streamsheet.sheet.cells = _streamsheet ? getSheetCellsAsList(_streamsheet.sheet) : [];
 		const currmsg = _streamsheet.getMessage();
-		streamsheet.currentMessage = {
+		streamsheet.inbox.currentMessage = {
 			id: currmsg ? currmsg.id : null,
 			isProcessed: _streamsheet.isMessageProcessed(currmsg)
 		};
 		streamsheet.inbox.messages = _streamsheet.inbox.messages.slice(0);
-		streamsheet.jsonpath = _streamsheet.getCurrentLoopPath();
+		streamsheet.loop.currentPath = _streamsheet.getCurrentLoopPath();
 	});
-	// TODO add outbox messages? Actually not required, because messages are create via sheet anyway...
-	// json.outbox = {};
-	// json.outbox.messages = machine.outbox.messages.map(msg => Object.assign({}, msg));
 	return json;
 };
 const addDrawings = (machinejson, machine) => {
@@ -348,7 +345,7 @@ class DeleteCells extends ARequestHandler {
 				? deleteCellsFromRanges(msg.ranges, sheet)
 				: deleteCellsFromList(msg.indices, sheet);
 			enableSheetUpdate(sheet, updateHandler);
-			result.sheetCells = getSheetCellsAsList(sheet);
+			// result.sheetCells = getSheetCellsAsList(sheet);
 		}
 		return Promise.resolve(result);
 	}
@@ -581,7 +578,7 @@ class SetCellAt extends ARequestHandler {
 				sheet.setCellAt(index, cell);
 				return Promise.resolve({
 					cell: cellDescriptor(cell, index),
-					sheetCells: getSheetCellsAsList(sheet),
+					// sheetCells: getSheetCellsAsList(sheet),
 					drawings: sheet.getDrawings().toJSON(),
 					graphItems: sheet.getDrawings().toGraphItemsJSON()
 				});
@@ -734,13 +731,12 @@ class Subscribe extends ARequestHandler {
 				streamsheets: this.machine.streamsheets.map((streamsheet) => {
 					const currmsg = streamsheet.getMessage();
 					const streamsheetCopy = streamsheet.toJSON();
-					streamsheetCopy.currentMessage = {
+					streamsheetCopy.inbox.currentMessage = {
 						id: currmsg ? currmsg.id : null,
 						isProcessed: streamsheet.isMessageProcessed(currmsg)
 					};
-					streamsheetCopy.messages = streamsheet.inbox.messages.slice(0);
-					// streamsheetCopy.messageId = streamsheet.getMessage() && streamsheet.getMessage().id;
-					streamsheetCopy.jsonpath = streamsheet.getCurrentLoopPath();
+					streamsheetCopy.inbox.messages = streamsheet.inbox.messages.slice(0);
+					streamsheetCopy.loop.currentPath = streamsheet.getCurrentLoopPath();
 					streamsheetCopy.stats = streamsheet.stats;
 					return streamsheetCopy;
 				}),
