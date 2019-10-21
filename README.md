@@ -160,7 +160,7 @@ Streamsheets are maintained by the [Cedalo AG](https://cedalo.com/). Please chec
 
 ### Looking for support?
 
-For questions and support please join our [Slack Community](http://cedalo.slack.com), ask a question on [Stack Overflow](https://stackoverflow.com/questions/tagged/streamsheets), or contact us on [Twitter](https://twitter.com/cedalo_com).
+For questions and support please join our [Forum](https://forum.streamsheets.com), ask a question on [Stack Overflow](https://stackoverflow.com/questions/tagged/streamsheets), or contact us on [Twitter](https://twitter.com/cedalo_com).
 
 ### Where are the docs?
 
