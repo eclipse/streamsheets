@@ -150,19 +150,15 @@ module.exports = class GraphService extends MessagingService {
 			this._graphManager.handleMachineDescriptorUpdate(event);
 		} else if (event.type === GatewayMessagingProtocol.EVENTS.MACHINE_STEP_EVENT) {
 			event.streamsheets.forEach((streamsheet) => {
+				const { cells, graphCells, id, namedCells, drawings, graphItems } = streamsheet;
 				this._graphManager.handleStreamSheetStep(
 					event.srcId,
-					streamsheet.id,
-					streamsheet.jsonpath,
-					streamsheet.cells,
-					streamsheet.namedCells,
-					streamsheet.graphCells,
-					streamsheet.drawings,
-					streamsheet.graphItems,
-					event.outbox,
-					streamsheet.stats,
-					streamsheet.inbox,
-					streamsheet.currentMessage
+					id,
+					cells,
+					namedCells,
+					graphCells,
+					drawings,
+					graphItems
 				);
 			});
 		} else if (event.type === MachineServerMessagingProtocol.EVENTS.NAMED_CELLS_EVENT) {

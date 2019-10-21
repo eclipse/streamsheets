@@ -85,6 +85,13 @@ const applyProperties = (properties, processSheet) => {
 	}
 };
 
+const keyregex = new RegExp('\\[([^\\]]*)\\]', 'g');
+const path2array = (path) => {
+	const res = [];
+	path.replace(keyregex, (g0, g1) => res.push(g1));
+	return res;
+};
+
 // TODO review => instead of subclassing StreamMachine from MachineElement it might be better to compose
 export default class StreamMachine extends MachineElement { // HTMLElement {
 	constructor() {
@@ -493,7 +500,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 
 				applyProperties(sheet.properties, processSheet);
 
-				this.updateInbox(sheet.id, sheet.inbox);
+				this.updateInbox(sheet.id, sheet.inbox, sheet.loop);
 
 				sheet.cells.forEach((cellData) => {
 					const res = CellRange.refToRC(cellData.reference, processSheet);
@@ -528,13 +535,16 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 	get value() {
 	}
 
-	updateInbox(sheetId, inboxData = {}) {
+	updateInbox(sheetId, inboxData = {}, loop = {}) {
 		// we may ignore updating if inbox is not visible => what if visibility is toggled?
 		this.clearInbox(sheetId);
 		const inbox = this.getInbox(sheetId);
-		const { currmsg, messages = [] } = inboxData;
+		const { currentMessage, messages = [] } = inboxData;
 		messages.forEach((msg) => this.addMessage(inbox, msg, msg.Metadata));
-		if (currmsg) this.selectInboxMessage(sheetId, currmsg.id, currmsg.isProcessed);
+		if (currentMessage) {
+			this.selectInboxMessage(sheetId, currentMessage.id, currentMessage.isProcessed);
+			this.selectLoopPath(inbox, currentMessage.id, loop.currentPath);
+		}
 	}
 
 	updateOutbox(outboxData = {}) {
@@ -582,6 +592,20 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 	selectInboxMessage(sheetId, messageId, markAsDisabled) {
 		// this.setCurrentSelectedMessage( sheetId, messageId);
 		return this.selectMessage(this.getInbox(sheetId), messageId, markAsDisabled);
+	}
+	selectLoopPath(inbox, msgId, loopPath) {
+		if (loopPath) {
+			const messageItems = inbox.getMessageListItems();
+			const selectedMessage = messageItems && messageItems.getTreeItemById(msgId);
+			// how to select loop element from current message...
+			if (selectedMessage && selectedMessage.getItemByPath) {
+				const path = path2array(loopPath);
+				const item = selectedMessage.getItemByPath(path);
+				if (item != null && item.id != null) {
+					item.setSelection('global', new Expression(item.id.toString()));
+				}
+			}
+		}
 	}
 
 	removeMessage(messageBox, message = {}) {

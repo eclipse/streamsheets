@@ -741,8 +741,8 @@ class SetCellsCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId, undo) {
 		const cellDescriptors = undo ? command.undo.cellDescriptors : command.cells;
 		await this.deleteCells(cellDescriptors, runner, streamsheetId, userId);
-		const sheetCells = await this.updateCells(cellDescriptors, runner, streamsheetId, userId);
-		return { cells: descriptorsToCellDescriptorsObject(sheetCells.cells) };
+		const result = await this.updateCells(cellDescriptors, runner, streamsheetId, userId);
+		return { cells: descriptorsToCellDescriptorsObject(result.cells) };
 	}
 }
 
@@ -782,10 +782,7 @@ class SetGraphCellsCommandRequestHandler {
 class SetCellLevelsCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId) {
 		return command.levels
-			? runner.request('setCellsLevel', userId, {
-					levels: command.levels,
-					streamsheetId
-			  })
+			? runner.request('setCellsLevel', userId, { levels: command.levels, streamsheetId })
 			: { warning: 'No levels object within SetCellLevelsCommand!' };
 	}
 }
