@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/streamsheets.iml" filepath="$PROJECT_DIR$/.idea/streamsheets.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../streamsheets-documentation/.idea/streamsheets-documentation.iml" filepath="$PROJECT_DIR$/../streamsheets-documentation/.idea/streamsheets-documentation.iml" />
     </modules>
   </component>
 </project>
