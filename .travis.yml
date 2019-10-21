@@ -1,40 +1,36 @@
 jobs:
   include:
-    - language: node_js
-      node_js:
-      - 10.15.0
-      services:
-      - docker
-      cache:
-        yarn: true
-
-      before_install:
-      - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.15.2
-      - export PATH=$HOME/.yarn/bin:$PATH
-
-      install:
-      - yarn install --frozen-lockfile
-
-      script:
-      - yarn run lint
-      - yarn workspace @cedalo/machine-core test
-      - yarn workspace @cedalo/graphql test
-      - yarn workspace @cedalo/webui run local-build
-
-      deploy:
-      - provider: script
-        script: bash -c "docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/deploy.js
-          --push --derivative dev --tag develop"
-        on:
-          branch: master
-        skip_cleanup: true
-      - provider: script
-        script: bash -c 'docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/deploy.js
-          --push --tag $TRAVIS_TAG'
-        on:
-          condition: "${TRAVIS_TAG} =~ ^[0-9]+\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?(-bugfix[0-9])?$"
-          tags: true
-        skip_cleanup: true
+  - language: node_js
+    node_js:
+    - 10.15.0
+    services:
+    - docker
+    cache:
+      yarn: true
+    before_install:
+    - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.15.2
+    - export PATH=$HOME/.yarn/bin:$PATH
+    install:
+    - yarn install --frozen-lockfile
+    script:
+    - yarn run lint
+    - yarn workspace @cedalo/machine-core test
+    - yarn workspace @cedalo/graphql test
+    - yarn workspace @cedalo/webui run local-build
+    deploy:
+    - provider: script
+      script: bash -c "docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/deploy.js
+        --push --derivative dev --tag develop"
+      on:
+        branch: master
+      skip_cleanup: true
+    - provider: script
+      script: bash -c 'docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/deploy.js
+        --push --tag $TRAVIS_TAG'
+      on:
+        condition: "${TRAVIS_TAG} =~ ^[0-9]+\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?(-bugfix[0-9])?$"
+        tags: true
+      skip_cleanup: true
 notifications:
   slack:
     secure: IclZ9eaz/bfq6LfRSzCddkYOWM2Bp5stp6z/AsEjF7YasCaAX5nnRSxbNpyLUKdoLJ8QBm5oEIF7JltVUNnFOT3XSJ8OBaZ93xg7LJnGF2dDCNnjxkrdCPC3szT3/8NpXKNfbKyxSWwDr61flP5Tkr1MYSVCa4tsZrYkjyu3pJbQDsTg4jB3bAu7W/JvxD+m99wK+LyDhELQk6m3rcuZs5UOJn3WBIayXBZJYo5AFgDqxbst+XFZus+bWAZXFoIetX9n3ri8qEwSiMkp34YqyCvpim+YhNgSzxRrfjsZ4qMnyzmjP0a9NcGD4bVt5AzDKH3nGd9Lo3FtlL2ZvgyZPaFLE00HvqOPZqGD+EUKbX7iDwdMkJNP3b+vYJFUAW7dcTKRa4P7e95qpkFBD28PIxxoWNabHLZ+4odkmbe05tI/rOWlyP1Lunj1zrNE72eqv5OJFiVx7xmiSOlCoabnB065qO7xFyhNDEhMba3YZGPkmLMRdUuQlfHYO1gAtepmlB7OfGDiQuYm5XjehCa5p882THx1ItWyRBsxkfb4JSSr3qBQByCKs8doHvYrIhbAnM6PBB5ET+jRkwAF+MwRnsE6brJWy4rsLnmp50H4NS9KsfFLr7JemU4lz6EtrM6WvcPGblZ3yxOpvCfGTjI5UfJINIVU8c0ug8xH69YJP94=
@@ -42,3 +38,5 @@ env:
   global:
   - secure: DKHfn+35GGi4pT5XZtKRhrv5e8V83C4XXmd0Cer6dqXyyLjJblxvxkiGtjvUmTvFNAlpA9/VwPHwg+zr+szerj6kaQTVHesbSfDd9qeJrDmuW+7LNbA4O0V6PAUh0IBe05t9mcK9uS1X384wDafyJcFyYG4Cnpv9C/JVIgw4IVFStfT6qi+oIDf5s/hcFJk46lOmiXbDN59PuLx31efyP8ofKKE49u6KJ4dHYaZ4wP2m832/+PxjBjqbF5pvYEPEFUdeQO/8cT+4RlyIYQJ5Sqy3j3iRF4kftSuubXYU/Vp5of5qDL1gRHGCTCitl/o56c6OdM+diyxaPViKRSjeLV2pgPg+rotErKPbBOvFt4iZ3eg4XTGypw1oTTQQ8ggnq8gArRH7MQIIawW3EwembwJB5spIu89ECibgJ+NQWte2Xn3fkzosTkT9f3hYn9G6KkjH6t6eZula/OG48W13d1GXjBmKtCaEyzJpvPNneVGpaOGo+zDfP3SbQsfbpP0PaXKtZxrJdNqko0n0vnT12m+f1h6AGCSMpberkcsRs80Sypy7xsFqvox5Jogp/eR+KIlLhiTbch3UgpuOzPZ6SUIo0bZhdfYLr3iHsOtcwdHt1DJg9cp7nuiFedmCl2fIyibmWnzpAU3QmJCtDcT84f4SpgbESB5oVPCPZxvrgPs=
   - secure: NyYSUVba6zPgJNGuocnQoHbD1zKbw7bxww664xev6DpmYgMCuJuAXnfmF7MwTX5hE9ohem7HypVpytJF7lFbDVJ+XWYJsHP11RaB1WkbBsq9HedBA1YUOOy3/y3C/s6Df3LA445K66fd6XUFFaGa6FpYkK1QUZXP5aMPeWkctO/5yu3PiAn7+5+unrKnsW8TtonoZPILeBv0iy0+8oT2LX0gREjh+Ni6uGTRpg34/tG6SH4wZoa7jrtKwgmZBxx1vUYgQIXRgV7koK5l0fUC2+2cuu9LzBOdox1xGHSlhADPmYREP1ic4oEcv6qEDvQKaGkLFz2o9d3UJpfGavTY/xAS5dS8I3jDkGNQyiIThIS9wS/YlDey2dI4Ies6cdJHp2x6roD49vo0xbFYGdxsNaMHbwpBDqK5KGMRNN7eNzBpVUoEYZTtYMcsLawuFu2p+S/aco+mlQVY2UZdEFpxtKeeJYnEJbI3Ady7tIQxgqmGKaVBY5B3oLqAzUGJn3WzVzQ3naVIUYEE+SeoxMqymsUbkDMcjiYqCOeGjupji5kpvhhSjBJxZIJZlkSDdBra4KSuD2To5IDYyWQEcCZqxAvJYp3mXB8KIHgUaB88duHA4rz7Kbc5VePBCDn35J6pJF+MCnkszuf2cA5pxl38XXFjs+CkaTaCGn6I7GyVyGM=
+  - secure: RLlCoWTncCZzzr+GgMgbCYPXip607M4uw4YAfNYDyfCGFA6k9AQP0O8/EJyu324EETuE9vMI+G3YWnBJKC1PTaYZIYzw6kNtlmPGAlpcBl6nCB4ji5p9TycwtW7THyS0aSJvmlxrxIuG2XHg4nePMvaFWR1swgrR/FVxUmllsS154fyOtEdo2Pp1QstEBsIDLxJBOh00yJItrdVLuIHFVdCGdMDa3HiYweSHs+Nq0Wc/QDZD/9PVA9kSy1T5wG+m3dTapOjQcZVSUWl4kp8wFIteCZ7qPs5f5uJP1Q4NjaQh0pCy8538RMjon8QiqbgSeIdaKorsSAZpfYtT4IsgWMvdlOAmD89r/Js67a2y6dU4AG5cXwydeDabAMfAlf4GDQQW4fF4+EiB1fywmem0rQnzUtHRa/e28ZfWcwySHclVlWaH4+LLK6KxWjpGxKf4L6SHshlkKm8teZ49kZvwppE62z/SljEY6WwmPKasqxMQPJki0X9VItuklLMFCBpDTnMh9kTDS1d2QVmW25CNjlyYaRZztWi9R8nYv3aIfz4mYo9PIBFYrkq9x26gMkCnVxS2fEb5UMrvFjst7nscMLkkpFt6G9nS/3KnP1mGeo0cYaPjVrHbcj27fiPurvMdhyMh7xY88vJIbP/VfvZEM5r49kEhj8NqAXAOdR02q5k=
+  - secure: OaNux7pRK5UxjwVSaba9HaWPiCNyldCDuq2cBt4AwPZgXJlLLdzSsy232A+dnwlg+SBUi5GoAkGVD6I+5hc9xMBwHWkNCORKSou2lKcrYajmLOGj9I5SAtTUTeFyOh1zG1IEWlrs2ei4qJtqI+E1cVUwlbTX0gECbD2X7VSb7mcOnXNkav7P9o9h3rd8DbUJfamjFId00NyomouyrP+zM/kQJC7dX7ayvHzAP+9oUrHtb09W+9TSxy8yR7RLgysz/UdWY8yZvkEvHv0n/s4/IuDWM5uAs0JQAu4iTiPt1Tfxc1q0GCPikfr1xNcct+Mp4hyo0FGZt89Gz724muanl10uxe3m7XBFAlc+kTlIpddhXc1onLxNo9Jo2lnL/FtHLsvGm7DLeiLrNyVVPj2f4lv881cQfAVP7PDcDMgKSBd76qnEJu/nEr0iPz6hk6UebC63Nl+XA8H1juWY3Zauy9+XzP3bKlb6BANfH3pSqV2X7w4O/7YsShFCj+SAUi8GSHoUmPwwdrckemnGAO73E61iUCFxWClxS9Br7QyOIu0uYyG0Tf7MdchL0veHFsK6QcQombUBwDenX/c+Vqd+uIMgrXELKgFo/8r5tCE+hU/w6MSkGuOSgwa51CT0/1PuTpfebMZs6kO1x1JI3DW9S+eWCQBx/BLMZoGKm9QH2hE=
