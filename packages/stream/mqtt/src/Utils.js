@@ -96,7 +96,7 @@ const validateTopicForProduce = (topic) => {
 	const topicParts = String(topic).split('/');
 	topicParts.forEach((t) => {
 		if (t === '+' || t === '#') {
-			result.warnings.push(TOPIC_ERRORS.TOPIC_WILDCARD_UNEXPECTED);
+			result.errors.push(TOPIC_ERRORS.TOPIC_WILDCARD_UNEXPECTED);
 		}
 	});
 	return result;
