@@ -32,8 +32,9 @@ const deleteProps = (...props) => (obj) => props.forEach((prop) => delete obj[pr
 
 const deleteCellProps = deleteProps('reference', 'info');
 const deleteMachineProps = deleteProps('outbox', 'functionDefinitions', 'stats');
-const deleteStreamSheetProps = deleteProps('currentMessage', 'jsonpath', 'stats');
-const deleteInboxProps = deleteProps('messages');
+const deleteStreamSheetProps = deleteProps('stats');
+const deleteInboxProps = deleteProps('messages', 'currentMessage');
+const deleteLoopProps = deleteProps('currentPath', 'index');
 
 
 const deletePropsFromCells = (cells) => {
@@ -54,6 +55,7 @@ const checkAndTransformMachine = (machine) => {
 			checkStreamSheetCells(streamsheet);
 			deleteStreamSheetProps(streamsheet);
 			deleteInboxProps(streamsheet.inbox);
+			deleteLoopProps(streamsheet.loop);
 		});
 		return machine;
 	}
