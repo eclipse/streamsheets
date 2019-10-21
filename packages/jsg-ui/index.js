@@ -181,6 +181,7 @@ import SheetButtonView from './src/graph/view/SheetButtonView';
 import SheetCheckboxView from './src/graph/view/SheetCheckboxView';
 import SheetSliderView from './src/graph/view/SheetSliderView';
 import SheetKnobView from './src/graph/view/SheetKnobView';
+import { init as initExtensions }  from '@cedalo/jsg-extensions/ui';
 import TreeFeedbackView from './src/graph/feedback/TreeFeedbackView';
 import CellFeedbackView from './src/graph/feedback/CellFeedbackView';
 import CellEditor from './src/graph/view/CellEditor';
@@ -366,10 +367,13 @@ JSG.SheetButtonView = SheetButtonView;
 JSG.SheetCheckboxView = SheetCheckboxView;
 JSG.SheetSliderView = SheetSliderView;
 JSG.SheetKnobView = SheetKnobView;
+// JSG.SheetChartStateView = SheetChartStateView;
 JSG.TreeFeedbackView = TreeFeedbackView;
 JSG.CellFeedbackView = CellFeedbackView;
 JSG.CellEditor = CellEditor;
 
 JSG.Parser = Parser;
+
+initExtensions(JSG);
 
 export default JSG;

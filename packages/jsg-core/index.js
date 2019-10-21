@@ -1,5 +1,7 @@
 const JSG = require('./src/JSG');
 
+module.exports = JSG;
+
 JSG.ObjectFactory = require('./src/ObjectFactory');
 JSG.Math = require('./src/commons/Math');
 JSG.Arrays = require('./src/commons/Arrays');
@@ -270,6 +272,7 @@ const SheetButtonNode = require('./src/graph/model/SheetButtonNode');
 const SheetCheckboxNode = require('./src/graph/model/SheetCheckboxNode');
 const SheetSliderNode = require('./src/graph/model/SheetSliderNode');
 const SheetKnobNode = require('./src/graph/model/SheetKnobNode');
+const { SheetChartStateNode } = require('@cedalo/jsg-extensions/core');
 const HeaderNode = require('./src/graph/model/HeaderNode');
 const HeaderSection = require('./src/graph/model/HeaderSection');
 const StreamSheetContainer = require('./src/graph/model/StreamSheetContainer');
@@ -353,6 +356,7 @@ JSG.SheetButtonNode = SheetButtonNode;
 JSG.SheetCheckboxNode = SheetCheckboxNode;
 JSG.SheetSliderNode = SheetSliderNode;
 JSG.SheetKnobNode = SheetKnobNode;
+JSG.SheetChartStateNode = SheetChartStateNode;
 JSG.HeaderNode = HeaderNode;
 JSG.HeaderSection = HeaderSection;
 JSG.StreamSheetContainer = StreamSheetContainer;
@@ -373,5 +377,3 @@ JSG.WorksheetNode = WorksheetNode;
 JSG.TreeNode = TreeNode;
 JSG.TreeItemsNode = TreeItemsNode;
 JSG.TreeItem = TreeItem;
-
-module.exports = JSG;
