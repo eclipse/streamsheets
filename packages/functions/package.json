@@ -1,0 +1,9 @@
+{
+  "name": "functions",
+  "version": "1.2.0",
+  "description": "Definition for Sheet Functions",
+  "main": "index.js",
+  "repository": "https://github.com/cedalo/streamsheets",
+  "author": "Cedalo AG",
+  "private": true
+}
