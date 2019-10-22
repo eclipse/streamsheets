@@ -248,7 +248,8 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 					},
 					description: '',
 					type: {
-						name: 'string'
+						name: 'mqtt_topic',
+						context: 'publish'
 					}
 				},
 				{
