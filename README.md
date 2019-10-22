@@ -170,7 +170,6 @@ Check out our documentation website: [docs.cedalo.com](https://docs.cedalo.com/)
 
 Check out our [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
 
-- If you have already joined Slack, join our [#opensource-core](http://cedalo.slack.com/messages/opensource-core) channel and say hi!
 - Check out the issues with the [good first issue](https://github.com/cedalo/streamsheets/labels/good%20first%20issue) and [help wanted](https://github.com/cedalo/streamsheets/labels/help%20wanted) label.
 - Also have a look at our [roadmap](notes/roadmap).
 
