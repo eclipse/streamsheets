@@ -270,8 +270,8 @@ function handleUserLeftEvent(event) {
 
 function handleSheetUpdateEvent(event) {
 	const streamsheetId = event.srcId;
-	const { cells, sheet } = event;
-	const { drawings, graphItems, graphCells, namedCells } = sheet;
+	const { sheet } = event;
+	const { cells, drawings, graphItems, graphCells, namedCells } = sheet;
 	graphManager.updateCellValues(streamsheetId, cells, drawings, graphItems, graphCells, namedCells);
 	graphManager.redraw();
 }
