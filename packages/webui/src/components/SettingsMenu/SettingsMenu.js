@@ -439,9 +439,9 @@ export class SettingsMenu extends React.Component {
 												<TableCell>webui</TableCell>
 											</TableRow>
 											{
-												this.props.meta.services && 
+												this.props.meta.services &&
 												Object.values(this.props.meta.services)
-													.sort((a, b) => a.name.localeCompare(b.name))
+													.sort((a, b) => a.name && a.name.localeCompare(b.name))
 													.map((service) => this.renderServiceDetails(service)
 												)
 											}
