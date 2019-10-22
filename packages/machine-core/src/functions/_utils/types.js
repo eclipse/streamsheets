@@ -14,7 +14,8 @@ const TYPE = {
 	JSON: 'json',
 	// STREAM: 'stream',
 	LIST: 'list',
-	UNION: 'union'
+	UNION: 'union',
+	MQTT_TOPIC: 'mqtt_topic'
 };
 
 const toArray = (sheet, term, byRow, forceFlatOr2d) => {
@@ -261,6 +262,7 @@ const TERM_TYPE_FUNCS = {
 	[TYPE.BOOLEAN]: termAsBoolean,
 	[TYPE.INTEGER]: termAsInteger,
 	[TYPE.STRING]: termAsString,
+	[TYPE.MQTT_TOPIC]: termAsString,
 	[TYPE.ENUM]: termAsEnum,
 	[TYPE.LIST]: termAsList,
 	[TYPE.JSON]: termAsJSON,
@@ -294,6 +296,24 @@ const listConstraints = (value, config) => {
 	return value;
 };
 
+const mqttTopicConstraints = (value, config) => {
+	if (typeof value !== 'string') {
+		return ERROR.INVALID_PARAM;
+	}
+	if (value.indexOf('//') > -1
+			|| value.startsWith('#')
+			|| value.length < 1
+			|| value.indexOf('$') > -1
+	) {
+		return ERROR.INVALID_PARAM;
+	}
+	const topicParts = String(value).split('/');
+	if (config.context === 'publish') {
+		return !topicParts.find((t) => t.includes('+') || t.includes('#')) ? value : ERROR.INVALID_PARAM;
+	}
+	return value;
+};
+
 // value is alwyas defined
 const TYPE_CONSTRAINTS = {
 	[TYPE.NUMBER]: numberContraints,
@@ -304,6 +324,7 @@ const TYPE_CONSTRAINTS = {
 	[TYPE.ENUM]: (value) => value,
 	// [TYPE.STREAM]: value => value,
 	[TYPE.JSON]: (value) => value,
+	[TYPE.MQTT_TOPIC]: mqttTopicConstraints,
 	// Not supported for now
 	[TYPE.UNION]: (value) => value
 };
