@@ -474,6 +474,7 @@ export default class ChartView extends NodeView {
 		this._localCulture = undefined;
 		this._numberFormatX = undefined;
 		this._localCultureX = undefined;
+		this._showDataLabels = false;
 
 		series.forEach((currentSeries, index) => {
 			const set = {};
@@ -483,6 +484,9 @@ export default class ChartView extends NodeView {
 			set.borderColor = currentSeries.lineColor ? currentSeries.lineColor : undefined;
 			set.borderWidth = currentSeries.lineWidth ? currentSeries.lineWidth : undefined;
 			set.showLine = currentSeries.showLine ? currentSeries.showLine : undefined;
+			if (currentSeries.showDataLabels) {
+				this._showDataLabels = true;
+			}
 
 			set.datalabels = {
 				color: '#444444',
@@ -1001,7 +1005,7 @@ export default class ChartView extends NodeView {
 						padding: {
 							left: graphics.getCoordinateSystem().logToDeviceXNoZoom(250),
 							right: graphics.getCoordinateSystem().logToDeviceXNoZoom(250),
-							top: graphics.getCoordinateSystem().logToDeviceXNoZoom(400),
+							top: graphics.getCoordinateSystem().logToDeviceXNoZoom(this._showDataLabels ? 750: 400),
 							bottom: graphics.getCoordinateSystem().logToDeviceXNoZoom(250)
 						}
 					},

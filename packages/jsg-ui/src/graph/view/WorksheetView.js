@@ -172,13 +172,8 @@ export default class WorksheetView extends ContentNodeView {
 		const bounds = this.getScrollView().getBounds();
 		let point = new Point(0, 0);
 		const hScrollSize =
-			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN
-				? 0
-				: ScrollBar.SIZE;
-		const vScrollSize =
-			this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN
-				? 0
-				: ScrollBar.SIZE;
+			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		const vScrollSize = this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
 
 		point.setTo(event.location);
 		point = this.translateToSheet(point, viewer);
@@ -293,6 +288,27 @@ export default class WorksheetView extends ContentNodeView {
 		};
 
 		switch (event.event.key) {
+			case 'j':
+				if (event.event.ctrlKey) {
+					if (event.event.altKey) {
+						this.setPayloadRange(viewer, false);
+					} else {
+						if (selection.getSize() === 1) {
+							const range = selection.getAt(0);
+							if (range.getWidth() === 2 && !range.isColumnRange()) {
+								this.setPayloadRange(viewer, true);
+								event.consume();
+								return true;
+							}
+						}
+						this.notifyMessage({ id: 'SheetMessage.jsonRangeInvalid' });
+					}
+					// message
+					event.consume();
+					return true;
+				}
+				doDefault();
+				break;
 			case 'z':
 				if (event.event.ctrlKey) {
 					viewer.getInteractionHandler().undo();
@@ -797,13 +813,8 @@ export default class WorksheetView extends ContentNodeView {
 		const bounds = this.getScrollView().getBounds();
 		let point = location.copy();
 		const hScrollSize =
-			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN
-				? 0
-				: ScrollBar.SIZE;
-		const vScrollSize =
-			this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN
-				? 0
-				: ScrollBar.SIZE;
+			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		const vScrollSize = this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
 
 		point = this.translateToSheet(point, viewer);
 
@@ -942,13 +953,8 @@ export default class WorksheetView extends ContentNodeView {
 		let point = location.copy();
 		let cv;
 		const hScrollSize =
-			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN
-				? 0
-				: ScrollBar.SIZE;
-		const vScrollSize =
-			this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN
-				? 0
-				: ScrollBar.SIZE;
+			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		const vScrollSize = this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
 
 		point = this.translateToSheet(point, viewer);
 

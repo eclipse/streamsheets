@@ -176,9 +176,9 @@ const initFieldValues = (paramTerms, fields, target) => {
 		const sheetRefOperand =
 			term.operand instanceof SheetReference ? term.operand : isJSONFunc(term) && refFromJSONFunc(term);
 		if (sheetRefOperand) {
-			fields[index].value = sheetRefOperand.toString({ useName: true, item: target.item });
+			fields[index].value = `=${sheetRefOperand.toString({ useName: true, item: target.item })}`;
 		} else if (term instanceof FuncTerm) {
-			fields[index].value = term.toString();
+			fields[index].value = `=${term.toString()}`;
 		} else {
 			const { value } = term;
 			fields[index].value = value !== null ? value.toString() : undefined;
@@ -419,7 +419,6 @@ class FunctionWizard extends Component {
 			const cellEditor = CellEditor.getActiveCellEditor();
 			if (cellEditor) {
 				cellEditor.activateReferenceMode();
-				cellEditor.allowNoEqual = true;
 			}
 		}
 	};

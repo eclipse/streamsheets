@@ -564,6 +564,7 @@
     "SheetMessage.singleSelection": "This operation can only be applied to a single selection!",
     "SheetMessage.noinsertbefore": "A column can not be inserted before the IF Column!",
     "SheetMessage.nodeletebefore": "A column can not be deleted before the IF Column!",
+    "SheetMessage.jsonRangeInvalid": "A JSON Range must have exactly 2 columns!",
     "SortBy.label": "Sort By:",
     "SortBy.name": "Name",
     "SortBy.state": "State",
