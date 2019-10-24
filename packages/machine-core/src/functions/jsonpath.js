@@ -65,7 +65,7 @@ const deleteAt = (path, obj) => {
 };
 
 const getValueByPath = (obj, path) => {
-	if(typeof obj === 'object' && Object.keys(obj).length<1) {
+	if(!path || (typeof obj === 'object' && Object.keys(obj).length<1)) {
 		return null;
 	}
 	const parsed = parse(path);
