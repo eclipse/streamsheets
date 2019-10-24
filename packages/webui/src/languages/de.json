@@ -564,6 +564,7 @@
 	"SheetMessage.singleSelection": "Diese Aktion kann nur bei einer Einfachauswahl ausgeführt werden!",
     "SheetMessage.noinsertbefore": "Es darf vor der IF Spalte keine Spalte eingefügt werden!",
     "SheetMessage.nodeletebefore": "Diese Spalte darf nicht gelöscht werden!",
+    "SheetMessage.jsonRangeInvalid": "Eine JSON Range muss genau 2 Spalten haben!",
     "SortBy.label": "Anordnen:",
     "SortBy.name": "Name",
     "SortBy.state": "Status",
