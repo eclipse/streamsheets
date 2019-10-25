@@ -59,8 +59,8 @@ const Categories = {
 		de: 'Text',
 	},
 	streamsheet: {
-		en: 'StreamSheet',
-		de: 'StreamSheet',
+		en: 'Streamsheet',
+		de: 'Streamsheet',
 	},
 };
 
@@ -83,7 +83,7 @@ const Strings = {
 			description: 'Evaluates, if all given values are true',
 		},
 		de: {
-			argumentList: 'Wert1, Wert2',
+			argumentList: 'Wert1,Wert2',
 			description: 'Berechnet, ob alle Werte wahr sind',
 		},
 	},
@@ -127,40 +127,40 @@ const Strings = {
 			description: 'Returns the arctangent value based on the given x and y coordinates',
 		},
 		de: {
-			argumentList: 'Zahl',
+			argumentList: 'X,Y',
 			description: 'Gibt den Arkus Tangens basierend auf den übergebenen X und Y Koordinaten zurück',
 		},
 	},
 	ARRAY: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Range,Nest',
+			argumentList: 'Range,Nest,Flat',
 			description: 'Creates a JSON array entry using the given keys and values',
 		},
 		de: {
-			argumentList: 'Bereich,Verschachteln',
+			argumentList: 'Bereich,Verschachteln,Flach',
 			description: 'Erzeugt ein JSON Array Objekt mit den gegebenen Schlüssel und Werten',
 		},
 	},
 	ATTRIBUTES: {
 		category: 'drawing',
 		en: {
-			argumentList: '[Visible,Container,Clip,Selectable]',
+			argumentList: 'Visible,Container,Clip,Selectable',
 			description: 'Create an attribute description to assign attributes to a graphical object.',
 		},
 		de: {
-			argumentList: '[Sichtbar,Container,Clip,Auswählbar]',
+			argumentList: 'Sichtbar,Container,Clip,Auswählbar',
 			description: 'Erzeugt eine Attributbeschreibung für ein graphisches Objekt.',
 		},
 	},
 	AVERAGE: {
 		category: 'statistical',
 		en: {
-			argumentList: 'Value1,[ValueN]',
+			argumentList: 'Value1,ValueN',
 			description: 'Returns the average of specified cell values.',
 		},
 		de: {
-			argumentList: 'Wert1,[WertN]',
+			argumentList: 'Wert1,WertN',
 			description: 'Bestimmt den Mittelwert über alle aufgelisteten Zellwerte',
 		},
 	},
@@ -178,7 +178,7 @@ const Strings = {
 	BIN2DEC: {
 		category: 'engineering',
 		en: {
-			argumentList: 'Value',
+			argumentList: 'Number',
 			description: 'Converts a binary number to decimal',
 		},
 		de: {
@@ -189,51 +189,51 @@ const Strings = {
 	BIN2HEX: {
 		category: 'engineering',
 		en: {
-			argumentList: 'Value, [Places]',
+			argumentList: 'Number,Places',
 			description: 'Converts a binary number to hexadecimal',
 		},
 		de: {
-			argumentList: 'Zahl; [Stellen]',
+			argumentList: 'Zahl,Stellen',
 			description: 'Konvertiert eine binäre Zahl in eine hexaddezimale',
 		},
 	},
 	BIN2OCT: {
 		category: 'engineering',
 		en: {
-			argumentList: 'Value, [Places]',
+			argumentList: 'Number,Places',
 			description: 'Converts a binary number to octal',
 		},
 		de: {
-			argumentList: 'Zahl; [Stellen]',
+			argumentList: 'Zahl,Stellen',
 			description: 'Konvertiert eine binäre Zahl in eine oktale',
 		},
 	},
 	CHAR: {
 		category: 'text',
 		en: {
-			argumentList: 'Number,[CharacterSet]',
+			argumentList: 'Number,CharacterSet',
 			description: 'Returns the character represented by given number',
 		},
 		de: {
-			argumentList: 'Zahl,[CharacterSet]',
+			argumentList: 'Zahl,CharacterSet',
 			description: 'Liefert das Zeichen, das der angegebenen Zahl entspricht, zurück',
 		},
 	},
 	CHOOSE: {
 		category: 'lookup',
 		en: {
-			argumentList: 'Index,Value1,[ValueN]',
+			argumentList: 'Index,Value1,ValueN',
 			description: 'Returns the value at specified index from parameter list',
 		},
 		de: {
-			argumentList: 'Index,Wert1,[WertN]',
+			argumentList: 'Index,Wert1,WertN',
 			description: 'Gibt den Wert an der angebgebenen Stelle in der Parameterliste zurück',
 		},
 	},
 	CLASSIFYPOINT: {
 		category: 'drawing',
 		en: {
-			argumentList: 'X,Y,PointRange',
+			argumentList: 'X,Y,PolygonPointRange',
 			description: 'Checks, if a point lies within a polygon',
 		},
 		de: {
@@ -244,22 +244,22 @@ const Strings = {
 	CLEAN: {
 		category: 'text',
 		en: {
-			argumentList: 'Text,[Extended]',
+			argumentList: 'Text,Extended',
 			description: 'Removes all non-printable characters from given text',
 		},
 		de: {
-			argumentList: 'Text,[Extended]',
+			argumentList: 'Text,Extended',
 			description: 'Entfernt alle nicht darstellbaren Zeichen des übergebenen Textes',
 		},
 	},
 	CODE: {
 		category: 'text',
 		en: {
-			argumentList: 'Text,[CharacterSet]',
+			argumentList: 'Text,CharacterSet',
 			description: 'Returns the numeric code for the first character of given text',
 		},
 		de: {
-			argumentList: 'Text,[CharacterSet]',
+			argumentList: 'Text,CharacterSet',
 			description: 'Gibt die Zahl, die dem 1. Zeichen des übergebenen Textes entspricht, zurück',
 		},
 	},
@@ -277,22 +277,22 @@ const Strings = {
 	COLUMN: {
 		category: 'lookup',
 		en: {
-			argumentList: '[Reference]',
+			argumentList: 'Reference',
 			description: 'Returns the column number of given cell reference',
 		},
 		de: {
-			argumentList: '[Referenz]',
+			argumentList: 'Referenz',
 			description: 'Ermittelt die Spaltennummer der angegebenen Zellreferenz',
 		},
 	},
 	CONCAT: {
 		category: 'text',
 		en: {
-			argumentList: 'Value1,[ValueN]',
+			argumentList: 'Value1,ValueN',
 			description: 'Combines values of specified cells or cell ranges to one string',
 		},
 		de: {
-			argumentList: 'Wert1,[WertN]',
+			argumentList: 'Wert1,WertN',
 			description: 'Fügt alle Werte der angegebenen Zellen oder Zellbereiche zu einem Text zusammen',
 		},
 	},
@@ -310,45 +310,45 @@ const Strings = {
 	CORREL: {
 		category: 'statistical',
 		en: {
-			argumentList: 'CellRange_1,CellRange_2',
+			argumentList: 'CellRange1,CellRange2',
 			description: 'Returns the correlation coefficient of two cell ranges',
 		},
 		de: {
-			argumentList: 'Zellbereich_1,Zellbereich_2',
+			argumentList: 'Zellbereich1,Zellbereich2',
 			description: 'Gibt den Korrelationskoeffizienten zweier Zellbereiche zurück',
 		},
 	},
 	COS: {
 		category: 'math',
 		en: {
-			argumentList: 'Value',
+			argumentList: 'Angle',
 			description: 'Returns the cosine value of the value',
 		},
 		de: {
-			argumentList: 'Zahl',
-			description: 'Gibt den Cosinus der Zahl zurück',
+			argumentList: 'Winkel',
+			description: 'Gibt den Cosinus des Winkels zurück',
 		},
 	},
 	COUNT: {
 		category: 'statistical',
 		en: {
-			argumentList: 'Value1,[ValueN]',
+			argumentList: 'Value1,ValueN',
 			description: 'Counts the amount of number values in specified cells',
 		},
 		de: {
-			argumentList: 'Wert1,[WertN]',
+			argumentList: 'Wert1,WertN',
 			description: 'Zählt alle Werte, die einer Zahl entsprechen, aus den angegebenen Zellen oder Zellbereiche',
 		},
 	},
 	COUNTER: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Start,Step[,End,Reset]',
+			argumentList: 'Start,Step,End,Reset',
 			description:
 				'Increments or decrements a cell value by specified Step amount until optional End is reached. Reset initialize counter to Start again.',
 		},
 		de: {
-			argumentList: 'Start,Step[,End,Reset]',
+			argumentList: 'Start,Step,End,Reset',
 			description:
 				'Erhöht oder verringert den Start-Wert um Step bis der optionale End Wert erreicht wurde. Reset initialisiert den Zähler wieder mit Start-Wert.',
 		},
@@ -368,22 +368,22 @@ const Strings = {
 	DATEVALUE: {
 		category: 'date',
 		en: {
-			argumentList: 'Text',
+			argumentList: 'DateText',
 			description: 'Converts a date specified by given text to a serial number',
 		},
 		de: {
-			argumentList: 'Text',
+			argumentList: 'Datumstext',
 			description: 'Konvertiert ein als Text gegebenes Datum in eine serielle Zahl',
 		},
 	},
 	DAVERAGE: {
 		category: 'database',
 		en: {
-			argumentList: 'CellRange,ColumnIndex,CriteriaRange',
-			description: 'Returns the average of all cells at specified column in rows which match given criterias',
+			argumentList: 'DataRange,ColumnIndex,CriteriaRange',
+			description: 'Returns the average of all cells at specified column in rows which match given criteria',
 		},
 		de: {
-			argumentList: 'ZellBereich,SpaltenIndex,KriteriumBereich',
+			argumentList: 'DatenBereich,SpaltenIndex,KriteriumBereich',
 			description:
 				'Berechnet den Durchschnitt aller Zellen in der angegebenen Spalte zu den Zeilen, die die Bedingungen erfüllen',
 		},
@@ -391,23 +391,23 @@ const Strings = {
 	DAY: {
 		category: 'date',
 		en: {
-			argumentList: 'Value',
+			argumentList: 'DateValue',
 			description: 'Returns the day of the time value',
 		},
 		de: {
-			argumentList: 'Zahl',
-			description: 'Gibt den Tag eines Zeitwertes zurück',
+			argumentList: 'Datumswert',
+			description: 'Gibt den Tag eines Datumswertes zurück',
 		},
 	},
 	DCOUNT: {
 		category: 'database',
 		en: {
-			argumentList: 'CellRange,ColumnIndex,CriteriaRange',
+			argumentList: 'DataRange,ColumnIndex,CriteriaRange',
 			description:
 				'Counts all cells that represent a number at specified column in rows which match given criterias ',
 		},
 		de: {
-			argumentList: 'ZellBereich,SpaltenIndex,KriteriumBereich',
+			argumentList: 'Datenbereich,SpaltenIndex,KriteriumBereich',
 			description:
 				'Zählt alle Zellen, deren Wert einer Zahl entspricht, in der angegebenen Spalte, bei denen die Zeilen die Bedingungen erfüllen',
 		},
@@ -415,44 +415,44 @@ const Strings = {
 	DEC2BIN: {
 		category: 'engineering',
 		en: {
-			argumentList: 'Value, [Places]',
+			argumentList: 'Number,Places',
 			description: 'Converts a decimal number to binary',
 		},
 		de: {
-			argumentList: 'Zahl; [Stellen]',
+			argumentList: 'Zahl,Stellen',
 			description: 'Konvertiert eine dezimale Zahl in eine binäre',
 		},
 	},
 	DEC2HEX: {
 		category: 'engineering',
 		en: {
-			argumentList: 'Value, [Places]',
+			argumentList: 'Number,Places',
 			description: 'Converts a decimal number to hexadecimal',
 		},
 		de: {
-			argumentList: 'Zahl; [Stellen]',
+			argumentList: 'Zahl,Stellen',
 			description: 'Konvertiert eine dezimale Zahl in eine hexaddezimale',
 		},
 	},
 	DEC2OCT: {
 		category: 'engineering',
 		en: {
-			argumentList: 'Value, [Places]',
+			argumentList: 'Number,Places',
 			description: 'Converts a decimal number to octal',
 		},
 		de: {
-			argumentList: 'Zahl; [Stellen]',
+			argumentList: 'Zahl,Stellen',
 			description: 'Konvertiert eine dezimale Zahl in eine oktale',
 		},
 	},
 	DEGREES: {
 		category: 'math',
 		en: {
-			argumentList: 'Value',
+			argumentList: 'Radians',
 			description: 'Converts radians to degrees',
 		},
 		de: {
-			argumentList: 'Zahl',
+			argumentList: 'Radian',
 			description: 'Wandelt einen radialen Winkel in Grad um',
 		},
 	},
@@ -481,11 +481,11 @@ const Strings = {
 	DETECTCHANGE: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Condition,Period,CondTargetCell,TimeTargetCell',
+			argumentList: 'Condition,Period,PreviousResultCell,TimeStampCell,Delay',
 			description: 'Detects if a condition has changed',
 		},
 		de: {
-			argumentList: 'Bedingung,Periode,ZielZelleBedingung,ZielZelleZeit',
+			argumentList: 'Bedingung,Periode,VorherigesErgebnis,ZielZellenZeit,Verzögerung',
 			description: 'Ermittelt, ob sich eine Bedingung in einem Zeitraum geändert hat',
 		},
 	},
@@ -503,12 +503,12 @@ const Strings = {
 	DMAX: {
 		category: 'database',
 		en: {
-			argumentList: 'CellRange,ColumnIndex,CriteriaRange',
+			argumentList: 'DataRange,ColumnIndex,CriteriaRange',
 			description:
 				'Returns the largest number of all cells at specified column in rows which match given criterias ',
 		},
 		de: {
-			argumentList: 'ZellBereich,SpaltenIndex,KriteriumBereich',
+			argumentList: 'DatenBereich,SpaltenIndex,KriterienBereich',
 			description:
 				'Gibt die größte Zahl der Zellen in der angegebenen Spalte zurück, bei denen die Zeilen die Bedingungen erfüllen',
 		},
@@ -516,12 +516,12 @@ const Strings = {
 	DMIN: {
 		category: 'database',
 		en: {
-			argumentList: 'CellRange,ColumnIndex,CriteriaRange',
+			argumentList: 'DataRange,ColumnIndex,CriteriaRange',
 			description:
 				'Returns the smallest number of all cells at specified column in rows which match given criterias ',
 		},
 		de: {
-			argumentList: 'ZellBereich,SpaltenIndex,KriteriumBereich',
+			argumentList: 'DatenBereich,SpaltenIndex,KriterienBereich',
 			description:
 				'Gibt die kleinste Zahl der Zellen in der angegebenen Spalte zurück, bei denen die Zeilen die Bedingungen erfüllen',
 		},
@@ -659,11 +659,11 @@ const Strings = {
 	DSUM: {
 		category: 'database',
 		en: {
-			argumentList: 'CellRange,ColumnIndex,CriteriaRange',
+			argumentList: 'DataRange,ColumnIndex,CriteriaRange',
 			description: 'Adds all numbers at specified column in rows which match given criterias ',
 		},
 		de: {
-			argumentList: 'ZellBereich,SpaltenIndex,KriteriumBereich',
+			argumentList: 'DatenBereich,SpaltenIndex,KriterienBereich',
 			description:
 				'Addiert alle Werte der Zellen in der angegebenen Spalte, bei denen die Zeilen die Bedingungen erfüllen',
 		},
@@ -671,11 +671,11 @@ const Strings = {
 	'EDGE.DETECT': {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Condition,[Period],[Delay]',
+			argumentList: 'Condition,Period,Delay',
 			description: 'Detects if a condition has changed',
 		},
 		de: {
-			argumentList: 'Bedingung,[Periode],[Verzögerung]',
+			argumentList: 'Bedingung,Periode,Verzögerung',
 			description: 'Ermittelt, ob sich eine Bedingung in einem Zeitraum geändert hat',
 		},
 	},
@@ -693,11 +693,11 @@ const Strings = {
 	EVENTS: {
 		category: 'drawing',
 		en: {
-			argumentList: 'EventHandler1[, EventHandler2...]',
+			argumentList: 'EventHandler1, EventHandler2...',
 			description: 'Define an eventhandler for a graphical object',
 		},
 		de: {
-			argumentList: 'EventHandler1[, EventHandler2...]',
+			argumentList: 'EventHandler1, EventHandler2...',
 			description: 'Definiert einen Eventhandler für ein graphisches Objekt',
 		},
 	},
@@ -715,12 +715,12 @@ const Strings = {
 	EXECUTE: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'StreamSheet,Repeat,JSON,Selector',
+			argumentList: 'Streamsheet,Repeat,JSON,Selector',
 			description: 'Triggers the recalculation of another streamsheet',
 		},
 		de: {
-			argumentList: 'StreamSheet,Wiederholen,JSON,Selektor',
-			description: 'Aktiviert die Neuberechnung eines andere StreamSheets',
+			argumentList: 'Streamsheet,Wiederholen,JSON,Selektor',
+			description: 'Aktiviert die Neuberechnung eines andere Streamsheets',
 		},
 	},
 	FEEDINBOX: {
@@ -737,22 +737,22 @@ const Strings = {
 	'FILE.WRITE': {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Producer,Range,Directory,Filename,Mode,Separator',
+			argumentList: 'Producer,Range,Filename,Directory,Mode,Separator',
 			description: 'Writes a range as CSV to a file',
 		},
 		de: {
-			argumentList: 'Producer,Bereich,Verzeichnis,Dateiname,Mode,Separator',
+			argumentList: 'Producer,Bereich,Dateiname,Verzeichnis,Mode,Separator',
 			description: 'Schreibt einen Bereich als CSV in eine Datei',
 		},
 	},
 	FIND: {
 		category: 'text',
 		en: {
-			argumentList: 'Text,WithinText,[FromPos]',
+			argumentList: 'Text,WithinText,FromPos',
 			description: 'Returns index of first character of Text in WithinText if found, otherwise #VALUE!',
 		},
 		de: {
-			argumentList: 'Text,InText,[StartAnPos]',
+			argumentList: 'Text,InText,StartAnPos',
 			description: 'Liefert den Index des ersten Zeichens von Text in InText zurück oder #VALUE!',
 		},
 	},
@@ -811,6 +811,17 @@ const Strings = {
 			description: 'Berechnet den Y-Wert zu gegebenen X-Wert, basierend auf bekannten Werten.',
 		},
 	},
+	FRAC: {
+		category: 'math',
+		en: {
+			argumentList: 'Number',
+			description: 'Returns the fractional part of a number value',
+		},
+		de: {
+			argumentList: 'Zahl',
+			description: 'Berechnet den Dezimalteil einer Zahl',
+		},
+	},
 	GETCYCLE: {
 		category: 'streamsheet',
 		en: {
@@ -841,7 +852,7 @@ const Strings = {
 		},
 		de: {
 			argumentList: '',
-			description: 'Ermittelt den aktuellen Execute Schritt im StreamSheet.',
+			description: 'Ermittelt den aktuellen Execute Schritt im Streamsheet.',
 		},
 	},
 	GETMACHINESTEP: {
@@ -863,7 +874,7 @@ const Strings = {
 		},
 		de: {
 			argumentList: '',
-			description: 'Ermittelt den aktuellen StreamSheet Schritt.',
+			description: 'Ermittelt den aktuellen Streamsheet Schritt.',
 		},
 	},
 	GOTO: {
@@ -880,18 +891,18 @@ const Strings = {
 	HEX2BIN: {
 		category: 'engineering',
 		en: {
-			argumentList: 'Value, [Places]',
+			argumentList: 'Number,Places',
 			description: 'Converts a hexadecimal number to binary',
 		},
 		de: {
-			argumentList: 'Zahl; [Stellen]',
+			argumentList: 'Zahl,Stellen',
 			description: 'Konvertiert eine hexadezimale Zahl in eine binäre',
 		},
 	},
 	HEX2DEC: {
 		category: 'engineering',
 		en: {
-			argumentList: 'Value',
+			argumentList: 'Number',
 			description: 'Converts a hexadecimal number to decimal',
 		},
 		de: {
@@ -902,22 +913,22 @@ const Strings = {
 	HEX2OCT: {
 		category: 'engineering',
 		en: {
-			argumentList: 'Value, [Places]',
+			argumentList: 'Number,Places',
 			description: 'Converts a hexadecimal number to octal',
 		},
 		de: {
-			argumentList: 'Zahl; [Stellen]',
+			argumentList: 'Zahl; Stellen',
 			description: 'Konvertiert eine hexadezimale Zahl in eine oktale',
 		},
 	},
 	HOUR: {
 		category: 'date',
 		en: {
-			argumentList: 'Value',
+			argumentList: 'TimeValue',
 			description: 'Returns the hour of the time value',
 		},
 		de: {
-			argumentList: 'Zahl',
+			argumentList: 'Zeitwert',
 			description: 'Gibt die Stunde eines Zeitwertes zurück',
 		},
 	},
@@ -935,44 +946,44 @@ const Strings = {
 	IFERROR: {
 		category: 'info',
 		en: {
-			argumentList: 'Value,ValueOnError',
+			argumentList: 'Value,ErrorValue',
 			description: 'Returns ValueOnError if given Value represents an error otherwise the Value itself',
 		},
 		de: {
-			argumentList: 'Value,ValueOnError',
-			description: 'Gibt ValueOnError zurück, falls der Value einem Fehlerwert entspricht, sonst Value',
+			argumentList: 'Wert,Fehlerwert',
+			description: 'Gibt Fehlerwert zurück, falls der Value einem Fehlerwert entspricht, sonst Wert',
 		},
 	},
 	INBOX: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'StreamSheet,Message',
+			argumentList: 'Streamsheet,Message',
 			description: 'Creates a key to reference one or more messages from inbox',
 		},
 		de: {
-			argumentList: 'StreamSheet,Nachricht',
+			argumentList: 'Streamsheet,Nachricht',
 			description: 'Erzeugt einen Schlüssel, der einen oder mehrere Nachrichten aus der Inbox referenziert',
 		},
 	},
 	INBOXDATA: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'StreamSheet,Source,ValuesOrRange',
+			argumentList: 'Streamsheet,Message,ValuesOrRange',
 			description: 'Creates a JSON key from the given values or range to retrieve data',
 		},
 		de: {
-			argumentList: 'Ziel,WerteOderBereich',
+			argumentList: 'Streamsheet,Nachricht,WerteOderBereich',
 			description: 'Erzeugt einen JSON Schlüssel mit den gegebenen Werten für den Datenbereich',
 		},
 	},
 	INBOXMETADATA: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'StreamSheet,Source,ValuesOrRange',
+			argumentList: 'Streamsheet,Message,ValuesOrRange',
 			description: 'Creates a JSON key from the given values or range to retrieve metadata',
 		},
 		de: {
-			argumentList: 'Ziel,WerteOderBereich',
+			argumentList: 'Streamsheet,Nachricht,WerteOderBereich',
 			description: 'Erzeugt einen JSON Schlüssel mit den gegebenen Werten für Metadaten',
 		},
 	},
@@ -1079,12 +1090,12 @@ const Strings = {
 	'KAFKA.QUERY': {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Producer,Query,Target,[Timeout]',
+			argumentList: 'Producer,Query,Target,Timeout',
 			description:
 				'Fetches data from Kafka that matches query. REQUESTINFO can be used to check the status of the query',
 		},
 		de: {
-			argumentList: 'Producer,Query,Ziel,[Timeout]',
+			argumentList: 'Producer,Query,Ziel,Timeout',
 			description:
 				'Liest Daten aus Kafka mithilfe von Query. Status der Query kann mit REQUESTINFO abgefragt werden',
 		},
@@ -1093,11 +1104,11 @@ const Strings = {
 	'KAFKA.COMMAND': {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Producer,Command,Target,[Timeout]',
+			argumentList: 'Producer,Command,Target,Timeout',
 			description: 'Sends a KSQL Command to Kafka. REQUESTINFO can be used to check the status of the query',
 		},
 		de: {
-			argumentList: 'Producer,Command,Ziel,[Timeout]',
+			argumentList: 'Producer,Command,Ziel,Timeout',
 			description: 'Schickt einen KSQL Command an Kafka. Status der Query kann mit REQUESTINFO abgefragt werden',
 		},
 		experimental: true,
@@ -1116,11 +1127,11 @@ const Strings = {
 	LEFT: {
 		category: 'text',
 		en: {
-			argumentList: 'Text,[NumChars]',
+			argumentList: 'Text,NumChars',
 			description: 'Return the given amount of characters starting at the beginning of the text',
 		},
 		de: {
-			argumentList: 'Text,[Anzahl]',
+			argumentList: 'Text,Anzahl',
 			description: 'Gibt die gegebenen Anzahl von Zeichen vom Anfang des Textes zurück',
 		},
 	},
@@ -1146,6 +1157,17 @@ const Strings = {
 			description: 'Erzeugt einen Linienstil.',
 		},
 	},
+	LOOPCOUNT: {
+		category: 'streamsheet',
+		en: {
+			argumentList: '',
+			description: 'Returns the loop length',
+		},
+		de: {
+			argumentList: '',
+			description: 'Gibt die Anzahl der Loopelemente zurück .',
+		},
+	},
 	LOOPINDEX: {
 		category: 'streamsheet',
 		en: {
@@ -1160,22 +1182,22 @@ const Strings = {
 	'MAIL.SEND': {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Producer,Message,Subject,TO,CC,BCC,Attachments',
+			argumentList: 'Producer,Text,Subject,TO,CC,BCC,Attachments',
 			description: 'Sends a mail to the given mail addresses (TO, CC, BCC)',
 		},
 		de: {
-			argumentList: 'Producer,Nachricht,Betreff,TO,CC,BCC,Anhänge',
+			argumentList: 'Producer,Text,Betreff,TO,CC,BCC,Anhänge',
 			description: 'Versendet eine E-Mail an die E-Mail Adressen (TO, CC, BCC)',
 		},
 	},
 	MATCH: {
 		category: 'lookup',
 		en: {
-			argumentList: 'Value,CellRange,[MatchType]',
+			argumentList: 'Value,SearchRange,MatchType',
 			description: 'Returns relative column index of matching cell inside specified cell range',
 		},
 		de: {
-			argumentList: 'Wert,ZellBereich,[MatchType]',
+			argumentList: 'Wert,Suchbereich,Vergleichstyp',
 			description:
 				'Liefert den relativen Spaltenindex, innerhalb des Zellbereichs, der Zelle zurück, die mit dem gegebenen Wert übereinstimmt ',
 		},
@@ -1216,11 +1238,11 @@ const Strings = {
 	MINUTE: {
 		category: 'date',
 		en: {
-			argumentList: 'Value',
+			argumentList: 'Zeitwert',
 			description: 'Returns the minute of the time value',
 		},
 		de: {
-			argumentList: 'Zahl',
+			argumentList: 'Timevalue',
 			description: 'Gibt die Minute eines Zeitwertes zurück',
 		},
 	},
@@ -1235,72 +1257,72 @@ const Strings = {
 			description: 'Gibt den Rest einer Division zurück',
 		},
 	},
-	'MONGO.STORE': {
-		category: 'streamsheet',
-		en: {
-			argumentList: 'Producer,Collection,Message',
-			description: 'Stores a JSON object in MongoDB',
-		},
-		de: {
-			argumentList: 'Producer,Collection,Message',
-			description: 'Speichert ein JSON Objekt in MongoDB',
-		},
-	},
-	'MONGO.DELETE': {
-		category: 'streamsheet',
-		en: {
-			argumentList: 'Producer,Collection,QueryJSON,[Target],[Timeout]',
-			description: 'Deletes matching objects from MongoDB',
-		},
-		de: {
-			argumentList: 'Producer,Collection,QueryJSON,[Ziel],[Timeout]',
-			description: 'Löscht gesuchte Objekte aus MongoDB',
-		},
-	},
 	'MONGO.AGGREGATE': {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Producer,Collection,AggregateJSON,[Target],[ResultKeys],[Timeout]',
+			argumentList: 'Producer,Collection,AggregateJSON,Target,ResultKeys,Timeout',
 			description: 'Execute the Aggregation Pipeline defined by AggregateJSON',
 		},
 		de: {
-			argumentList: 'Producer,Collection,AggregateJSON,[Ziel],[ResultKeys],[Timeout]',
+			argumentList: 'Producer,Collection,AggregateJSON,Ziel,ResultKeys,Timeout',
 			description: 'Führt die Aggregation Pipeline in AggregateJSON aus',
 		},
 	},
 	'MONGO.COUNT': {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Producer,Collection,QueryJSON,[Target],[Timeout]',
+			argumentList: 'Producer,Collection,QueryJSON,Target,Timeout',
 			description: 'Count matching objects from MongoDB',
 		},
 		de: {
-			argumentList: 'Producer,Collection,QueryJSON,[Ziel],[Timeout]',
+			argumentList: 'Producer,Collection,QueryJSON,Ziel,Timeout',
 			description: 'Zählt gesuchte Objekte aus MongoDB',
+		},
+	},
+	'MONGO.DELETE': {
+		category: 'streamsheet',
+		en: {
+			argumentList: 'Producer,Collection,QueryJSON,Target,Timeout',
+			description: 'Deletes matching objects from MongoDB',
+		},
+		de: {
+			argumentList: 'Producer,Collection,QueryJSON,Ziel,Timeout',
+			description: 'Löscht gesuchte Objekte aus MongoDB',
 		},
 	},
 	'MONGO.QUERY': {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Producer,Collection,QueryJSON,Target,[ResultKeys],[PageSize],[Page],[Timeout]',
+			argumentList: 'Producer,Collection,QueryJSON,Target,ResultKeys,PageSize,Page,Sort,Timeout',
 			description:
 				'Finds objects in MongoDB that math QueryJSON. REQUESTINFO can be used to check the status of the query',
 		},
 		de: {
-			argumentList: 'Producer,Collection,QueryJSON,Ziel,[ResultKeys],[Seitengröße],[Seite],[Timeout]',
+			argumentList: 'Producer,Collection,QueryJSON,Ziel,ResultKeys,Seitengröße,Seite,Sortieren,Timeout',
 			description:
 				'Findet Objekte in MongoDB die QueryJSON erfüllen. Status der Query kann mit REQUESTINFO abgefragt werden',
 		},
 		experimental: true,
 	},
+	'MONGO.STORE': {
+		category: 'streamsheet',
+		en: {
+			argumentList: 'Producer,Collection,Document',
+			description: 'Stores a JSON object in MongoDB',
+		},
+		de: {
+			argumentList: 'Producer,Collection,Document',
+			description: 'Speichert ein JSON Objekt in MongoDB',
+		},
+	},
 	MONTH: {
 		category: 'date',
 		en: {
-			argumentList: 'Value',
+			argumentList: 'DateValue',
 			description: 'Returns the month of the time value',
 		},
 		de: {
-			argumentList: 'Zahl',
+			argumentList: 'Datumswert',
 			description: 'Gibt den Monat eines Zeitwertes zurück',
 		},
 	},
@@ -1340,11 +1362,11 @@ const Strings = {
 	NOT: {
 		category: 'logical',
 		en: {
-			argumentList: 'Value1',
+			argumentList: 'Value',
 			description: 'Inverts the given boolean value',
 		},
 		de: {
-			argumentList: 'Wert1',
+			argumentList: 'Wert',
 			description: 'Kehrt den gegebenen Wahrheitswert um',
 		},
 	},
@@ -1362,18 +1384,18 @@ const Strings = {
 	OCT2BIN: {
 		category: 'engineering',
 		en: {
-			argumentList: 'Value, [Places]',
+			argumentList: 'Number,Places',
 			description: 'Converts an octal number to binary',
 		},
 		de: {
-			argumentList: 'Zahl; [Stellen]',
+			argumentList: 'Zahl,Stellen',
 			description: 'Konvertiert eine oktale Zahl in eine binäre',
 		},
 	},
 	OCT2DEC: {
 		category: 'engineering',
 		en: {
-			argumentList: 'Value',
+			argumentList: 'Number',
 			description: 'Converts an octal number to decimal',
 		},
 		de: {
@@ -1384,11 +1406,11 @@ const Strings = {
 	OCT2HEX: {
 		category: 'engineering',
 		en: {
-			argumentList: 'Value, [Places]',
+			argumentList: 'Number,Places',
 			description: 'Converts an octal number to hexadecimal',
 		},
 		de: {
-			argumentList: 'Zahl; [Stellen]',
+			argumentList: 'Zahl,Stellen',
 			description: 'Konvertiert eine oktale Zahl in eine hexaddezimale',
 		},
 	},
@@ -1406,12 +1428,12 @@ const Strings = {
 	OFFSET: {
 		category: 'lookup',
 		en: {
-			argumentList: 'Range,Rows,Cols,[Height],[Width]',
+			argumentList: 'Range,RowOffset,ColumnOffset,Height,Width',
 			description:
 				'Returns range of cells that is a specified number of rows and columns from an initial specified range.',
 		},
 		de: {
-			argumentList: 'Bereich,Zeilen,Spalten,[Höhe],[Breite]',
+			argumentList: 'Bereich,Zeilenversatz,Spaltenversatz,Höhe,Breite',
 			description: 'Erzeugt einen Bereich mit dem angegebenen Versatz und der Höhe und Breite',
 		},
 	},
@@ -1797,11 +1819,11 @@ const Strings = {
 	PRODUCE: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Producer,JSON',
+			argumentList: 'Producer,JSONConfiguration',
 			description: 'Produces data using the Producer and a JSON specific to the Producer',
 		},
 		de: {
-			argumentList: 'Producer,JSON',
+			argumentList: 'Producer,JSONKonfiguration',
 			description: 'Produziert Daten mithilfe des Producers und dem Producerspezifischen JSON',
 		},
 	},
@@ -1819,12 +1841,12 @@ const Strings = {
 	RADIANS: {
 		category: 'math',
 		en: {
-			argumentList: 'Value',
+			argumentList: 'Degrees',
 			description: 'Converts the degrees value to radians',
 		},
 		de: {
-			argumentList: 'Wert',
-			description: 'Konvertiert den Winkel in Grad',
+			argumentList: 'Grad',
+			description: 'Konvertiert den Winkel in Radien',
 		},
 	},
 	RANDBETWEEN: {
@@ -1852,23 +1874,23 @@ const Strings = {
 	READ: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Key,TargetCell,Type',
+			argumentList: 'Key,TargetCellOrRange,Type,Direction,CacheLastValue',
 			description: 'Reads the values from a JSON object using the given key',
 		},
 		de: {
-			argumentList: 'Schüssel,Zielzelle,Typ',
+			argumentList: 'Schüssel,ZielzelleOderBereich,Typ,Richtung,LetztenWertMerken',
 			description: 'Kopiert die Werte aus einem JSON Objekt mit dem gegebenen Schlüssel in die Zelle',
 		},
 	},
 	REFRESH: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'StreamSheet',
+			argumentList: 'Streamsheet',
 			description: 'Updates the current queue of the given streamsheet',
 		},
 		de: {
-			argumentList: 'StreamSheet',
-			description: 'Aktualisiert die aktuelle Warteschlange des StreamSheets',
+			argumentList: 'Streamsheet',
+			description: 'Aktualisiert die aktuelle Warteschlange des Streamsheets',
 		},
 	},
 	REPEATINDEX: {
@@ -1885,11 +1907,11 @@ const Strings = {
 	REPLACE: {
 		category: 'text',
 		en: {
-			argumentList: 'Text,StartPos,NumChars,NewText',
+			argumentList: 'OldText,StartPos,NumChars,NewText',
 			description: 'Replaces the amount of characters in text at specified start position with new text',
 		},
 		de: {
-			argumentList: 'Text,StartPos,Anzahl,MitText',
+			argumentList: 'BisherigerText,StartPos,Anzahl,MitText',
 			description:
 				'Ersetzt die angegebene Anzahl an Zeichen im Text an angegebener Position durch einen neuen Text',
 		},
@@ -1930,35 +1952,35 @@ const Strings = {
 	RESPOND: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Producer,DataObjectId,ObjectOrRange',
+			argumentList: 'MessageOrJSON,Producer,RequestId',
 			description:
 				'Sends JSON data from the outbox or the range to a Producer that send a data object previously',
 		},
 		de: {
-			argumentList: 'Producer,DataObjectId,ObjektOderBereich',
+			argumentList: 'NachrichtOderJSON,Producer,RequestId',
 			description: `Sendet JSON Daten aus der Outbox oder vom gegebenen Bereich an einen Producer mit Hilfe
-				der DataObjectId`,
+				der RequestId`,
 		},
 	},
 	'REST.REQUEST': {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Producer,Path,Method,Target,ResultKeys,Body,Headers',
+			argumentList: 'Producer,URL,Method,Target,ResultKeys,Body,Headers,Timeout',
 			description: 'Create an asynchronous calls to a REST service',
 		},
 		de: {
-			argumentList: 'Producer,Pfad,Methode,Ziel,ResultKeys,Body,Headers',
+			argumentList: 'Producer,URL,Methode,Ziel,ResultKeys,Body,Headers,Timeout',
 			description: 'Erlaubt Aufrufe in einen REST Dienst',
 		},
 	},
 	'REST.RESPOND': {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Consumer,DataObjectId,Body,StatusCode,Headers',
+			argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
 			description: 'Sends data to a Producer that send a data object previously',
 		},
 		de: {
-			argumentList: 'Consumer,DataObjectId,Body,StatusCode,Headers',
+			argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
 			description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId.',
 		},
 	},
@@ -1976,11 +1998,11 @@ const Strings = {
 	RIGHT: {
 		category: 'text',
 		en: {
-			argumentList: 'Text,Count',
+			argumentList: 'Text,NumberOfCharacters',
 			description: 'Return the given amount of characters from the end of the text',
 		},
 		de: {
-			argumentList: 'Text,Anzahl',
+			argumentList: 'Text,AnzahlZeichen',
 			description: 'Gibt die gegebenen Anzahl von Zeichen vom Ende des Textes zurück',
 		},
 	},
@@ -1998,40 +2020,40 @@ const Strings = {
 	ROW: {
 		category: 'lookup',
 		en: {
-			argumentList: '[Reference]',
+			argumentList: 'Reference',
 			description: 'Returns the row number of given cell reference',
 		},
 		de: {
-			argumentList: '[Referenz]',
+			argumentList: 'Referenz',
 			description: 'Ermittelt die Zeilennummer der angegebenen Zellreferenz',
 		},
 	},
 	SEARCH: {
 		category: 'text',
 		en: {
-			argumentList: 'TextToSearch,Text,Index',
+			argumentList: 'TextToSearch,Text,StartingAt',
 			description: 'Return the index of the search text within the text. The search starts at index',
 		},
 		de: {
-			argumentList: 'Suchtext,Text, Index',
+			argumentList: 'Suchtext,Text,BeginneMitZeichen',
 			description: 'Gibt den Index des ersten Auftretens des Suchtextes im Text aus, beginnend beim Index',
 		},
 	},
 	SECOND: {
 		category: 'date',
 		en: {
-			argumentList: 'Value',
+			argumentList: 'DateValue',
 			description: 'Returns the seconds of the time value',
 		},
 		de: {
-			argumentList: 'Zahl',
+			argumentList: 'Datumswert',
 			description: 'Gibt die Sekunden eines Zeitwertes zurück',
 		},
 	},
 	SELECT: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'ListRange,CurrentValue',
+			argumentList: 'ListRange,ActualValue',
 			description: 'Display a pick list.',
 		},
 		de: {
@@ -2064,23 +2086,23 @@ const Strings = {
 	SETPHASE: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Condition,Text,PhaseCell',
-			description: 'If Condition is true, the Text will be written into PhaseCell',
+			argumentList: 'Condition,Text,TargetCell',
+			description: 'If Condition is true, the Text will be written into target cell',
 		},
 		de: {
-			argumentList: 'Bedingung,PhasenID,PhasenZelle',
-			description: 'Wenn die Bedingung TRUE ist, wird der Text in die Phasenzelle geschrieben',
+			argumentList: 'Bedingung,PhasenID,ZielZelle',
+			description: 'Wenn die Bedingung TRUE ist, wird der Text in die Zielzelle geschrieben',
 		},
 	},
 	SETVALUE: {
 		category: 'streamsheet',
 		en: {
-			argumentList: '[Condition],Value,Cell,[OverwriteFormula]',
-			description: 'If Condition is TRUE, the Value will be written into Cell',
+			argumentList: 'Condition,Value,TargetCell,OverwriteFormula',
+			description: 'If Condition is TRUE, the Value will be written into target cell',
 		},
 		de: {
-			argumentList: '[Bedingung],Wert,Zelle,[ErsetzeZellFormel]',
-			description: 'Wenn die Bedingung TRUE ist, wird der Wert in die Zelle geschrieben',
+			argumentList: 'Bedingung,Wert,Zielzelle,ErsetzeZellFormel',
+			description: 'Wenn die Bedingung TRUE ist, wird der Wert in die Zielzelle geschrieben',
 		},
 	},
 	SIGN: {
@@ -2097,11 +2119,11 @@ const Strings = {
 	SIN: {
 		category: 'math',
 		en: {
-			argumentList: 'Value',
+			argumentList: 'Angle',
 			description: 'Returns the sine value of the value',
 		},
 		de: {
-			argumentList: 'Zahl',
+			argumentList: 'Winkel',
 			description: 'Gibt den Sinus der Zahl zurück',
 		},
 	},
@@ -2131,14 +2153,14 @@ const Strings = {
 	STACKADD: {
 		category: 'stack',
 		en: {
-			argumentList: 'StackRange,SourceRange,Position,TargetRange',
+			argumentList: 'StackRange,SourceRange,Direction,TargetRange',
 			description:
-				'This function adds a row to the stack at the defined Position and copies the removed cells to the target range',
+				'This function adds a row to the stack at the defined direction and copies the removed cells to the target range',
 		},
 		de: {
-			argumentList: 'Stackbereich,Quellbereich,Position,Zielbereich',
+			argumentList: 'Stackbereich,Quellbereich,Richtung,Zielbereich',
 			description:
-				'Diese Funktion füget dem Stack eine Zeile an der angegebenen Position zu und kopiert die gelöschte Zeile in den Zielbereich',
+				'Diese Funktion fügt dem Stack eine Zeile in der angegebenen Richtung und kopiert die gelöschte Zeile in den Zielbereich',
 		},
 	},
 	STACKDROP: {
@@ -2169,12 +2191,12 @@ const Strings = {
 	STACKROTATE: {
 		category: 'stack',
 		en: {
-			argumentList: 'StackRange,Count,TargetRange',
-			description: 'This function rotates the complete stack by Count positions up or down.',
+			argumentList: 'StackRange,Position,TargetRange',
+			description: 'This function rotates the complete stack by Position positions up or down.',
 		},
 		de: {
-			argumentList: 'Stackbereich,Anzahl,Zielbereich',
-			description: 'Diese Funktion rotiert den Stack um die Anzahl der angegebnen Zeilen hoch oder runter.',
+			argumentList: 'Stackbereich,Position,Zielbereich',
+			description: 'Diese Funktion rotiert den Stack um die Anzahl der angegebenen Zeilen hoch oder runter.',
 		},
 	},
 	STACKSORT: {
@@ -2191,33 +2213,33 @@ const Strings = {
 	'STDEV.S': {
 		category: 'statistical',
 		en: {
-			argumentList: 'Number1,[Number2],...',
+			argumentList: 'Number1,Number2,...',
 			description: 'Returns the standard derivation of given values.',
 		},
 		de: {
-			argumentList: 'Zahl1,[Zahl2],...',
+			argumentList: 'Zahl1,Zahl2,...',
 			description: 'Liefert die Standardabweichung zu den angegebenen Zahlen.',
 		},
 	},
 	SUBSTITUTE: {
 		category: 'text',
 		en: {
-			argumentList: 'Text,OldText,NewText,[Occurrence]',
+			argumentList: 'Text,OldText,NewText,Occurrence',
 			description: 'Substitute specified text in given old text with new text',
 		},
 		de: {
-			argumentList: 'Text,OriginalerText,NeuerText,[Vorkommen]',
+			argumentList: 'Text,OriginalerText,NeuerText,Vorkommen',
 			description: 'Ersetzt angegebenen Text im originalen Text durch einen neuen Text',
 		},
 	},
 	SUBTREE: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'TopElement,[IncludeElementKey]',
+			argumentList: 'TopElement,IncludeElementKey',
 			description: 'Extracts a sub tree from the current message',
 		},
 		de: {
-			argumentList: 'ÜbergeordnetesElement,[InklusiveElementKey]',
+			argumentList: 'ÜbergeordnetesElement,InklusiveElementKey',
 			description: 'Extrahiert einen Teilbaum aus der aktuellen Nachricht',
 		},
 	},
@@ -2235,45 +2257,45 @@ const Strings = {
 	SWAPVALUES: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'SourceRange,TargetRange',
-			description: 'Swaps the values in the source range with the values in the target range',
+			argumentList: 'Range1,Range2',
+			description: 'Swaps the values in range1 with the values in range2',
 		},
 		de: {
-			argumentList: 'Quellbereich,Zielbereich',
-			description: 'Tauscht die Werte aus dem Quellbereich mit denen im Zielbereich',
+			argumentList: 'Bereich1,Bereich2',
+			description: 'Tauscht die Werte aus Bereich1 mit denen im Bereich2',
 		},
 	},
 	SWITCH: {
 		category: 'logical',
 		en: {
-			argumentList: 'Value,KeyValue-Pairs,[DefaultValue]',
-			description: 'Evaluates a value against a list of key-value pairs and returns value of first matched key',
+			argumentList: 'Expression,KeyValue1,Value1,KeyValueN,ValueN,DefaultValue',
+			description: 'Evaluates an expression against a list of key-value pairs and returns value of first matched key',
 		},
 		de: {
-			argumentList: 'Wert,SchlüsselWert-Paare,[DefaultWert]',
+			argumentList: 'Ausdruck,SchlüsselWert1,Wert1,SchlüsselWertN,WertN,DefaultWert',
 			description:
-				'Evaluiert den Wert gegen eine Liste von Schlüssel-Wert-Paare und liefert den Wert zum ersten passenden Schlüssel zurück',
+				'Evaluiert einen Ausdruck gegen eine Liste von Schlüssel-Wert-Paaren und liefert den Wert zum ersten passenden Schlüssel zurück',
 		},
 	},
 	TAN: {
 		category: 'math',
 		en: {
-			argumentList: 'Value',
+			argumentList: 'Angle',
 			description: 'Returns the tangent value of the value',
 		},
 		de: {
-			argumentList: 'Zahl',
+			argumentList: 'Winkel',
 			description: 'Gibt den Tangens der Zahl zurück',
 		},
 	},
 	TEXT: {
 		category: 'text',
 		en: {
-			argumentList: 'Number,FormatString',
+			argumentList: 'Number,FormatString,Locale',
 			description: 'Formats given number and converts it to text',
 		},
 		de: {
-			argumentList: 'Zahl,FormatString',
+			argumentList: 'Zahl,FormatString,Sprache',
 			description: 'Formatiert und wandelt die angegebene Zahl in einen Text um',
 		},
 	},
@@ -2293,23 +2315,23 @@ const Strings = {
 	TIMEAGGREGATE: {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Data,Backperiod,Method,BaseTime,Interval,TargetRange',
-			description: 'Aggregates values with the BackPeriod using the given method within the interval',
+			argumentList: 'DataCell,Period,AggregationMethod,TimeSerial,Interval,TargetRange',
+			description: 'Aggregates values with the Period using the given method within the interval',
 		},
 		de: {
-			argumentList: 'Wert,Gesamtperiode,Methode,BasisZeit,Intervall,Zielbereich',
+			argumentList: 'DatenZelle,Periode,Methode,BasisZeit,Intervall,Zielbereich',
 			description:
-				'Aggregiert Werte in der Gesamtperiode mit der angebenen Methode für den angegebenen Intervall',
+				'Aggregiert Werte in der Periode mit der angebenen Methode für den angegebenen Intervall',
 		},
 	},
 	TIMEVALUE: {
 		category: 'date',
 		en: {
-			argumentList: 'Text',
+			argumentList: 'TimeText',
 			description: 'Converts time given as text to a corresponding serial number',
 		},
 		de: {
-			argumentList: 'Text',
+			argumentList: 'Zeittext',
 			description: 'Konvertiert die als Text gegebene Zeit in eine serielle Zahl',
 		},
 	},
@@ -2349,45 +2371,34 @@ const Strings = {
 	VALUE: {
 		category: 'text',
 		en: {
-			argumentList: 'Text,[Locale]',
+			argumentList: 'Text,Locale',
 			description: 'Converts given text to number using optional locale code',
 		},
 		de: {
-			argumentList: 'Text,[Locale]',
+			argumentList: 'Text,Locale',
 			description: 'Konvertiert den Text in eine Zahl unter Berücksichtigung des optionalen Länder-Codes',
 		},
 	},
 	VLOOKUP: {
 		category: 'lookup',
 		en: {
-			argumentList: 'Value,Range,Index,[ExactMatch]',
+			argumentList: 'Value,Range,Index,ExactMatch',
 			description: 'Looks in the first column of an array and moves across the row to return the value of a cell',
 		},
 		de: {
-			argumentList: 'Wert,Bereich,Index,[ExakteÜbereinstimmung]',
+			argumentList: 'Wert,Bereich,Index,ExakteÜbereinstimmung',
 			description:
 				'Ermittelt die Zelle mit einem Index in einem Bereich, die dem Wert in der ersten Spalte entspricht',
 		},
 	},
-	// WEBPAGE: {
-	// 	category: 'streamsheet',
-	// 	en: {
-	// 		argumentList: 'URL, HTMLJSON, Refresh',
-	// 		description: 'Create a webpage at the given URL',
-	// 	},
-	// 	de: {
-	// 		argumentList: 'URL, HTMLJSON, Erneuern',
-	// 		description: 'Erzeuge eine Webseite an der angegebenen URL',
-	// 	},
-	// },
 	WEEKDAY: {
 		category: 'date',
 		en: {
-			argumentList: 'Value',
+			argumentList: 'DateValue',
 			description: 'Returns the week day of the time value',
 		},
 		de: {
-			argumentList: 'Zahl',
+			argumentList: 'Datumswert',
 			description: 'Gibt den Wochentag eines Zeitwertes zurück',
 		},
 	},
@@ -2405,12 +2416,12 @@ const Strings = {
 	YEAR: {
 		category: 'date',
 		en: {
-			argumentList: 'Value',
-			description: 'Returns the year of the time value',
+			argumentList: 'DateValue',
+			description: 'Returns the year of the date value',
 		},
 		de: {
-			argumentList: 'Zahl',
-			description: 'Gibt das Jahr eines Zeitwertes zurück',
+			argumentList: 'Datumswert',
+			description: 'Gibt das Jahr eines Datumswertes zurück',
 		},
 	},
 };
