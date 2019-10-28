@@ -540,7 +540,6 @@ const Strings = {
 				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Label,Labelschrift,Wert',
 			description: 'Erzeugt ein Button Objekt',
 		},
-		experimental: true,
 	},
 	'DRAW.CHART': {
 		category: 'drawing',
@@ -567,7 +566,6 @@ const Strings = {
 				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Label,Labelschrift,Wert',
 			description: 'Erzeugt ein Button Objekt',
 		},
-		experimental: true,
 	},
 	'DRAW.ELLIPSE': {
 		category: 'drawing',
@@ -642,7 +640,6 @@ const Strings = {
 				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Label,Labelschrift,Wert,Minimum,Maximum,Schritt,Skalenschrift,Marker,Skalenformat',
 			description: 'Erzeugt ein Schieberegler Objekt',
 		},
-		experimental: true,
 	},
 	DSUM: {
 		category: 'database',
