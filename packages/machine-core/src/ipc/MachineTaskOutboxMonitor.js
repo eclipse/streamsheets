@@ -1,6 +1,5 @@
 const MachineEvents = require('@cedalo/protocols').MachineServerMessagingProtocol.EVENTS;
-const State = require('../State');
-const MachineTaskMessagingClient = require('./MachineTaskMessagingClient');
+const { isNotRunning, isNotStepping, publishIf } = require('./utils');
 
 
 const eventmsg = (type, outbox, machine, props) => ({
@@ -24,6 +23,8 @@ class MachineTaskOutboxMonitor {
 		this.outbox.on('message_put', this.onMessagePut);
 		this.outbox.on('message_pop', this.onMessagePop);
 		this.outbox.on('message_changed', this.onMessageChanged);
+		// DL-2293 & DL-3300: we send outbox events only if machine is neither running nor stepping:
+		this.publishEvent = publishIf(isNotRunning(machine), isNotStepping(machine));
 	}
 
 	dispose() {
@@ -55,14 +56,6 @@ class MachineTaskOutboxMonitor {
 		const msg = eventmsg(MachineEvents.MESSAGE_CHANGED, this.outbox, this.machine, { message, messages });
 		this.publishEvent(msg);
 	}
-
-	// DL-2293: we send in-/outbox events only if machine is stopped or paused:
-	publishEvent(message) {
-		if (this.machine.state !== State.RUNNING) {
-			MachineTaskMessagingClient.publishEvent(message);
-		}
-	}
-
 }
 
 module.exports = MachineTaskOutboxMonitor;
