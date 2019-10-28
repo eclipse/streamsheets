@@ -160,10 +160,10 @@ module.exports = {
 	KAFKACOMMAND,
 	KAFKAQUERY,
 	// currently deprecated functions, but in case old machines are loaded...
-	STOP: () => ERROR.INVALID,
-	JSONKEY: () => ERROR.INVALID,
-	READJSON: () => ERROR.INVALID,
-	REMOVE: () => ERROR.INVALID,
-	STORE: () =>  ERROR.INVALID,
-	WRITEJSON: () => ERROR.INVALID
+	STOP: () => ERROR.NAME,
+	JSONKEY: () => ERROR.NAME,
+	READJSON: () => ERROR.NAME,
+	REMOVE: () => ERROR.NAME,
+	STORE: () =>  ERROR.NAME,
+	WRITEJSON: () => ERROR.NAME
 };
