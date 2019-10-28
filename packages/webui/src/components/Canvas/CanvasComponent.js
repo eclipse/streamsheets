@@ -172,7 +172,7 @@ export class CanvasComponent extends Component {
 			.execute(
 				new JSG.ChangeItemOrderCommand(
 					sheet,
-					ChangeItemOrderCommand.Action.TOTOP,
+					JSG.ChangeItemOrderCommand.Action.TOTOP,
 					graphManager.getGraphViewer(),
 				),
 			);
