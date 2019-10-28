@@ -111,7 +111,15 @@ export default class ChartView extends NodeView {
 				const end = vertical ? range._y2 : range._x2;
 
 				for (let i = start; i <= end; i += 1) {
-					cell = vertical ? data.getRC(range._x1, i) : data.getRC(i, range._y1);
+					cell = vertical
+						? range
+								.getSheet()
+								.getDataProvider()
+								.getRC(range._x1, i)
+						: range
+								.getSheet()
+								.getDataProvider()
+								.getRC(i, range._y1);
 					if (cell) {
 						val = cell.getValue();
 						if (typeof val === 'string' && val.length) {
@@ -166,7 +174,15 @@ export default class ChartView extends NodeView {
 				const end = vertical ? range._x2 : range._y2;
 
 				for (let i = start; i <= end; i += 1) {
-					cell = vertical ? data.getRC(i, range._y1, i) : data.getRC(range._x1, i);
+					cell = vertical
+						? range
+								.getSheet()
+								.getDataProvider()
+								.getRC(i, range._y1, i)
+						: range
+								.getSheet()
+								.getDataProvider()
+								.getRC(range._x1, i);
 					if (cell) {
 						val = cell.getValue();
 						if (typeof val === 'string' && val.length) {
@@ -417,7 +433,15 @@ export default class ChartView extends NodeView {
 
 			for (let i = start; i <= end; i += 1) {
 				val = '';
-				cell = vertical ? data.getRC(range._x1, i) : data.getRC(i, range._y1);
+				cell = vertical
+					? range
+							.getSheet()
+							.getDataProvider()
+							.getRC(range._x1, i)
+					: range
+							.getSheet()
+							.getDataProvider()
+							.getRC(i, range._y1);
 
 				if (cell) {
 					val = cell.getValue();
@@ -540,7 +564,10 @@ export default class ChartView extends NodeView {
 				set.label = currentSeries.seriesLabelRange;
 			} else {
 				range.shiftFromSheet();
-				cell = data.getRC(range._x1, range._y1);
+				cell = range
+					.getSheet()
+					.getDataProvider()
+					.getRC(range._x1, range._y1);
 				val = cell ? cell.getValue() : undefined;
 				set.label = val;
 			}
@@ -628,10 +655,26 @@ export default class ChartView extends NodeView {
 							case 'scatterLine': {
 								const value = { x: 0, y: 0 };
 								if (rangeX) {
-									cell = vertical ? data.getRC(rangeX._x1, j) : data.getRC(j, rangeX._y1);
+									cell = vertical
+										? range
+												.getSheet()
+												.getDataProvider()
+												.getRC(rangeX._x1, j)
+										: range
+												.getSheet()
+												.getDataProvider()
+												.getRC(j, rangeX._y1);
 									value.x = cell ? cell.getValue() : undefined;
 								}
-								cell = vertical ? data.getRC(range._x1, j) : data.getRC(j, range._y1);
+								cell = vertical
+									? range
+											.getSheet()
+											.getDataProvider()
+											.getRC(range._x1, j)
+									: range
+											.getSheet()
+											.getDataProvider()
+											.getRC(j, range._y1);
 								value.y = cell ? cell.getValue() : undefined;
 								set.data.push(value);
 								break;
@@ -639,13 +682,37 @@ export default class ChartView extends NodeView {
 							case 'bubble': {
 								const value = { x: 0, y: 0, r: 0 };
 								if (rangeX) {
-									cell = vertical ? data.getRC(rangeX._x1, j) : data.getRC(j, rangeX._y1);
+									cell = vertical
+										? range
+												.getSheet()
+												.getDataProvider()
+												.getRC(rangeX._x1, j)
+										: range
+												.getSheet()
+												.getDataProvider()
+												.getRC(j, rangeX._y1);
 									value.x = cell ? cell.getValue() : undefined;
 								}
-								cell = vertical ? data.getRC(range._x1, j) : data.getRC(j, range._y1);
+								cell = vertical
+									? range
+											.getSheet()
+											.getDataProvider()
+											.getRC(range._x1, j)
+									: range
+											.getSheet()
+											.getDataProvider()
+											.getRC(j, range._y1);
 								value.y = cell ? cell.getValue() : undefined;
 								if (rangeRadius) {
-									cell = vertical ? data.getRC(rangeRadius._x1, j) : data.getRC(j, rangeRadius._y1);
+									cell = vertical
+										? range
+												.getSheet()
+												.getDataProvider()
+												.getRC(rangeRadius._x1, j)
+										: range
+												.getSheet()
+												.getDataProvider()
+												.getRC(j, rangeRadius._y1);
 									value.r = cell ? cell.getValue() : undefined;
 									value.r = value.r || 0;
 								}
@@ -653,7 +720,15 @@ export default class ChartView extends NodeView {
 								break;
 							}
 							default:
-								cell = vertical ? data.getRC(range._x1, j) : data.getRC(j, range._y1);
+								cell = vertical
+									? range
+											.getSheet()
+											.getDataProvider()
+											.getRC(range._x1, j)
+									: range
+											.getSheet()
+											.getDataProvider()
+											.getRC(j, range._y1);
 								set.data.push(cell ? cell.getValue() : undefined);
 								break;
 						}
@@ -661,8 +736,14 @@ export default class ChartView extends NodeView {
 						if (formatRange) {
 							const colorIndex = j - startJ;
 							cell = vertical
-								? data.getRC(formatRange._x1, formatRange._y1 + colorIndex)
-								: data.getRC(formatRange._x1 + colorIndex, formatRange._y1);
+								? range
+										.getSheet()
+										.getDataProvider()
+										.getRC(formatRange._x1, formatRange._y1 + colorIndex)
+								: range
+										.getSheet()
+										.getDataProvider()
+										.getRC(formatRange._x1 + colorIndex, formatRange._y1);
 							if (cell) {
 								const color = cell.getValue();
 								if (color) {
@@ -776,7 +857,10 @@ export default class ChartView extends NodeView {
 		if (range.getWidth() === 2) {
 			for (let i = range.getY1(); i <= range.getY2(); i += 1) {
 				if (allValues !== undefined) {
-					const cell = data.getRC(range.getX1() + 1, i);
+					const cell = range
+						.getSheet()
+						.getDataProvider()
+						.getRC(range.getX1() + 1, i);
 					if (cell && cell.getValues()) {
 						allValues.push(cell);
 					} else {
@@ -797,7 +881,10 @@ export default class ChartView extends NodeView {
 		if (range.getHeight() === 2) {
 			for (let i = range.getX1(); i <= range.getX2(); i += 1) {
 				if (allValues !== undefined) {
-					const cell = data.getRC(i, range.getY1() + 1);
+					const cell = range
+						.getSheet()
+						.getDataProvider()
+						.getRC(i, range.getY1() + 1);
 					if (cell && cell.getValues()) {
 						allValues.push(cell);
 					} else {
@@ -834,8 +921,10 @@ export default class ChartView extends NodeView {
 				const range = CellRange.parse(text.substring(1).toUpperCase(), sheet);
 				if (range) {
 					range.shiftFromSheet();
-					const data = sheet.getDataProvider();
-					const cell = data.getRC(range._x1, range._y1);
+					const cell = range
+						.getSheet()
+						.getDataProvider()
+						.getRC(range._x1, range._y1);
 					if (cell) {
 						return cell.getValue();
 					}
@@ -1005,7 +1094,7 @@ export default class ChartView extends NodeView {
 						padding: {
 							left: graphics.getCoordinateSystem().logToDeviceXNoZoom(250),
 							right: graphics.getCoordinateSystem().logToDeviceXNoZoom(250),
-							top: graphics.getCoordinateSystem().logToDeviceXNoZoom(this._showDataLabels ? 750: 400),
+							top: graphics.getCoordinateSystem().logToDeviceXNoZoom(this._showDataLabels ? 750 : 400),
 							bottom: graphics.getCoordinateSystem().logToDeviceXNoZoom(250)
 						}
 					},
