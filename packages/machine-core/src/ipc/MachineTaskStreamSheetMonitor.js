@@ -1,15 +1,14 @@
-const { cellDescriptor, cellDescriptorAsObject, getSheetCellsAsList, reduceSheetCells } = require('./utils');
+const {
+	cellDescriptor,
+	cellDescriptorAsObject,
+	getSheetCellsAsList,
+	isNotRunning,
+	publishIf,
+	reduceSheetCells
+} = require('./utils');
 const MachineEvents = require('@cedalo/protocols').MachineServerMessagingProtocol.EVENTS;
 const MachineTaskMessagingClient = require('./MachineTaskMessagingClient');
 const RedisInboxAdapter = require('./RedisInboxAdapter');
-const State = require('../State');
-
-// DL-2293: publish depending on machine state...
-const publishIfNotInState = (state, machine) => (event) => {
-	if (machine.state !== state) {
-		MachineTaskMessagingClient.publishEvent(event);
-	}
-};
 
 class MachineTaskStreamSheetMonitor {
 	constructor(streamsheet) {
@@ -47,7 +46,7 @@ class MachineTaskStreamSheetMonitor {
 		this.streamsheet.inbox.on('message_put', this.inboxAdapter.put);
 		this.streamsheet.inbox.on('message_pop', this.inboxAdapter.pop);
 		// DL-2293: only publish if machine is stopped or paused...
-		this.publishIfStopped = publishIfNotInState(State.RUNNING, this.streamsheet.machine);
+		this.publishEvent = publishIf(isNotRunning(streamsheet.machine));
 	}
 
 	dispose() {
@@ -83,7 +82,7 @@ class MachineTaskStreamSheetMonitor {
 			machineId: streamsheet.machine.id,
 			streamsheetId: streamsheet.id
 		};
-		this.publishIfStopped(event);
+		this.publishEvent(event);
 	}
 
 	onEvent(ev) {
@@ -112,7 +111,7 @@ class MachineTaskStreamSheetMonitor {
 			totalSize: this.inboxAdapter.totalSize,
 			message: messageInInbox
 		};
-		this.publishIfStopped(event);
+		this.publishEvent(event);
 	}
 
 	onMessagePop(message) {
@@ -127,7 +126,7 @@ class MachineTaskStreamSheetMonitor {
 			totalSize: this.inboxAdapter.totalSize,
 			message
 		};
-		this.publishIfStopped(event);
+		this.publishEvent(event);
 	}
 
 	onMessageAttached(messageId) {
@@ -140,7 +139,7 @@ class MachineTaskStreamSheetMonitor {
 			machineState: streamsheet.machine.state,
 			messageId
 		};
-		this.publishIfStopped(event);
+		this.publishEvent(event);
 	}
 
 	onMessageDetached(messageId) {
@@ -153,7 +152,7 @@ class MachineTaskStreamSheetMonitor {
 			machineState: streamsheet.machine.state,
 			messageId
 		};
-		this.publishIfStopped(event);
+		this.publishEvent(event);
 	}
 
 	onSheetCellsUpdate(cells) {

@@ -1,5 +1,7 @@
 const SheetIndex = require('../machine/SheetIndex');
 const { Operand } = require('@cedalo/parser');
+const State = require('../State');
+const MachineTaskMessagingClient = require('./MachineTaskMessagingClient');
 
 // if there is a formula, the cell has to be send to the client, even if value === ''
 const isEmptyCell = (cell) => cell.term == null && cell.value === '';
@@ -73,6 +75,11 @@ const getSheetCellsAsObject = (sheet) => {
 	}, {});
 };
 	
+const publishIf = (...fns) => (event) => {
+	if(fns.reduce((valid, fn) => valid && fn(), true)) MachineTaskMessagingClient.publishEvent(event);
+};
+const isNotRunning = (machine) => () => machine.state !== State.RUNNING;
+const isNotStepping = (machine) => () => !machine.isManualStep;
 
 
 
@@ -82,6 +89,9 @@ module.exports = {
 	collectMachineStats,
 	getSheetCellsAsList,
 	getSheetCellsAsObject,
+	isNotRunning,
+	isNotStepping,
+	publishIf,
 	mapSheetCells,
 	reduceSheetCells,
 	updateNamedCellRefs
