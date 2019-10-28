@@ -252,16 +252,21 @@ export default class GraphManager {
 
 		this.updateGraph(machine);
 
-		const container = graph.getMachineContainer();
-		const maxSheet = container.getMachineContainerAttributes().getMaximizeSheet().getValue();
-		if (maxSheet !== 'none') {
-			const processContainer = graph.getStreamSheetContainerByStreamSheetName(maxSheet);
-			if (processContainer !== undefined) {
-				graph.setViewMode(processContainer, 2);
-				graph.markDirty();
+		if (graph.getStreamSheetContainerCount() === 1) {
+			const container = this.getGraph().getStreamSheetsContainer().getFirstStreamSheetContainer();
+			graph.setViewMode(container, 2);
+			graph.markDirty();
+		} else {
+			const container = graph.getMachineContainer();
+			const maxSheet = container.getMachineContainerAttributes().getMaximizeSheet().getValue();
+			if (maxSheet !== 'none') {
+				const processContainer = graph.getStreamSheetContainerByStreamSheetName(maxSheet);
+				if (processContainer !== undefined) {
+					graph.setViewMode(processContainer, 2);
+					graph.markDirty();
+				}
 			}
 		}
-
 
 		JSG.setDrawingDisabled(false);
 		this.redraw();
