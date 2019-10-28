@@ -229,7 +229,7 @@ export default class CellEditor {
 					return functions;
 				}
 			}
-		} 
+		}
 		if (info.function) {
 			this.funcInfo = { paramIndex: info.paramIndex };
 			return funcInfos.filter((entry) => entry[0] === info.function);
@@ -446,7 +446,7 @@ export default class CellEditor {
 		// reset
 		const ranges = this.activateEditRanges();
 
-		if (text.length && (text.charAt(0) === '=' || alwaysReplace)) {
+		if (text.length && (text.charAt(0) === '='/* || alwaysReplace */)) {
 			term = this.parseTextToTerm(text);
 		}
 

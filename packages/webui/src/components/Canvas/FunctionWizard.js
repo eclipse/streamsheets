@@ -201,7 +201,7 @@ const getInitalStream = (streams, streamName) => {
 
 const getStreamName = (funcTerm) => streamUtils.unprefix(funcTerm.params[0].toString());
 
-const isFormula = (formulaString, sheetItem) => !!sheetItem.parseTextToTerm(formulaString, false);
+const isFormula = (formulaString, sheetItem) => formulaString[0] === '=' && !!sheetItem.parseTextToTerm(formulaString, false);
 
 const isJSONParam = (type) =>
 	type && (type.name === 'json' || (type.name === 'union' && type.types.find((t) => t.name === 'json')));
