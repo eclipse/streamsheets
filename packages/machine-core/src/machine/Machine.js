@@ -59,6 +59,8 @@ class Machine {
 		this._streamsheets = new Map();
 		this._activeStreamSheets = null;
 		this._preventStop = false;
+		// tmp. until event/message handling is improved
+		this._isManualStep = false;
 		this.metadata = { ...DEF_CONF.metadata };
 		this._settings = { ...DEF_CONF.settings };
 		// read only properties...
@@ -222,6 +224,10 @@ class Machine {
 			this.settings.isOPCUA = itIs;
 			this._emitter.emit('update', 'opcua');
 		}
+	}
+
+	get isManualStep() {
+		return this._isManualStep;
 	}
 
 	get state() {
@@ -455,8 +461,23 @@ class Machine {
 	}
 
 	async step() {
+		// additional STEPPING state might lead to problems...
+		// if (this._state !== State.RUNNING) {
+		// 	const prevstate = this._state;
+		// 	// keep will stop, as it is transferred to stop...
+		// 	this._state = this._state !== State.WILL_STOP ? State.STEPPING : this._state;
+		// 	this._doStep(this.activeStreamSheets, true);
+		// 	this._state = this._state === State.STEPPING ? prevstate : this._state;
+		// }
 		if (this._state !== State.RUNNING) {
-			this._doStep(this.activeStreamSheets, true);
+			try {
+				this._isManualStep = true; 
+				this._doStep(this.activeStreamSheets, true);
+			} catch (err) {
+				logger.error(`Error while performing manual step on machine ${this.id}!!`, err);
+				this._emitter.emit('error', err);
+			}
+			this._isManualStep = false;
 		}
 	}
 
