@@ -1,0 +1,62 @@
+{
+  "SIMPLE": {
+    "metadata": {
+      "name": "SIMPLE",
+      "sender": "Cedalo"
+    },
+    "data": {
+      "Kundenname": {
+        "Vorname": "Max",
+        "Nachname": "Mustermann"
+      },
+      "Kundennummer": 123456789,
+      "Warenkorb": [
+        1,
+        2,
+        3
+      ],
+      "Positionen": [
+        {
+          "PosNr": 1,
+          "Artikelnr": 1234,
+          "Preis": 80.00
+        },
+        {
+          "PosNr": 2,
+          "Artikelnr": 12345,
+          "Preis": 59.99
+        },
+        {
+          "PosNr": 3,
+          "Artikelnr": 4535,
+          "Preis": 45.32
+        }
+      ]
+    }
+  },
+  "SIMPLE2": {
+    "metadata": {
+      "name": "SIMPLE2",
+      "sender": "Cedalo",
+      "Teile": [
+        {
+          "Nr": 1,
+          "Preis": 11.11
+        },
+        {
+          "Nr": 2,
+          "Preis": 22.22
+        }
+      ]
+    },
+    "data": {
+      "Kundenname": {
+        "Anrede": "Herr",
+        "Vorname": "Anton",
+        "Nachname": "Mustermann"
+      },
+      "Kundennummer": 987654321,
+      "Positionen": []
+    }
+  }
+}
