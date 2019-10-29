@@ -10,22 +10,27 @@ const Outbox = require('./src/machine/Outbox');
 const Sheet = require('./src/machine/Sheet');
 const SheetIndex = require('./src/machine/SheetIndex');
 const { SheetParser } = require('./src/parser/SheetParser');
+const { ErrorTerm } = require('./src/parser/Error');
 const SheetRange = require('./src/machine/SheetRange');
 const State = require('./src/State');
 const StreamSheet = require('./src/machine/StreamSheet');
 const StreamSheetTrigger = require('./src/machine/StreamSheetTrigger');
+const { CellRangeReference, CellReference } = require('./src/parser/References');
 
 
 const MachineTaskFile = require('path').resolve(__dirname, 'src', 'ipc', 'MachineTask.js');
 const isType = require('./src/utils/isType');
+const locale = require('./src/locale');
 
 const DEF_PROPS = require('./defproperties.json');
 
 module.exports = {
 	Cell,
+	CellRangeReference,
+	CellReference,
 	Channel,
 	ChannelRequestHandler,
-	Streams,
+	ErrorTerm,
 	Inbox,
 	LoggerMessagingClient,
 	Machine,
@@ -37,8 +42,10 @@ module.exports = {
 	SheetParser,
 	SheetRange,
 	State,
+	Streams,
 	StreamSheet,
 	StreamSheetTrigger,
 	isType,
+	locale,
 	DEF_PROPS
 };
