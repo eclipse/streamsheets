@@ -195,6 +195,11 @@ export class CanvasComponent extends Component {
 			return;
 		}
 
+		graphManager
+			.getGraphViewer()
+			.getSelectionProvider()
+			.clearSelection();
+
 		cnt %= 8;
 
 		graph.setViewMode(undefined, 0);
