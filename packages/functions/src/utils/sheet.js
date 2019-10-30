@@ -1,6 +1,5 @@
 // const SheetIndex = require('../../machine/SheetIndex');
 const ERROR = require('../functions/errors');
-const jsonpath = require('./jsonpath');
 const {
 	isBoxFuncTerm,
 	isInboxTerm,
@@ -9,8 +8,9 @@ const {
 	isOutboxTerm,
 	isOutboxDataTerm
 } = require('./terms');
-const { Cell, CellReference, Message, SheetRange } = require('@cedalo/machine-core');
 const { Term } = require('@cedalo/parser');
+const { jsonpath } = require('@cedalo/commons');
+const { Cell, CellReference, Message, SheetRange } = require('@cedalo/machine-core');
 
 
 // sheet: default sheet to use if CellReference must be created

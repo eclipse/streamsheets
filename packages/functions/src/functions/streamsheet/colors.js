@@ -1,5 +1,6 @@
 const ERROR = require('../errors');
-const { convert, runFunction } = require('../../utils');
+const { runFunction } = require('../../utils');
+const { convert } = require('@cedalo/commons');
 
 const ensureIsInRange = (val, min, max) => Math.min(max, Math.max(val, min));
 

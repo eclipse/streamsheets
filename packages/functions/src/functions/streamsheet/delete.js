@@ -1,5 +1,6 @@
 const ERROR = require('../errors');
-const {	jsonpath, runFunction, sheet: { getInbox, getOutbox } } = require('../../utils');
+const {	runFunction, sheet: { getInbox, getOutbox } } = require('../../utils');
+const { jsonpath } = require('@cedalo/commons');
 
 
 const clear = (box, id) => {

@@ -1,5 +1,6 @@
 const ERROR = require('../errors');
-const { convert, runFunction, sheet: { getMachine } } = require('../../utils');
+const { runFunction, sheet: { getMachine } } = require('../../utils');
+const { convert } = require('@cedalo/commons');
 
 
 const reachedEnd = (value, end, step) => (step < 0 ? value < end : value > end);

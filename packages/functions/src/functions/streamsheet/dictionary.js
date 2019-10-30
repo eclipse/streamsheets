@@ -1,5 +1,6 @@
 const ERROR = require('../errors');
-const { convert, runFunction, sheet: sheetutils } = require('../../utils');
+const { runFunction, sheet: sheetutils } = require('../../utils');
+const { convert } = require('@cedalo/commons');
 
 
 const createObj = (keys, values) => {

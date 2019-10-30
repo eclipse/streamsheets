@@ -1,7 +1,8 @@
 const logger = require('../../logger').create({ name: 'TEXT()' });
 const ERROR = require('../errors');
 const { getCodePage } = require('../../codepages');
-const { convert, runFunction, terms: onTerms } = require('../../utils');
+const { runFunction, terms: onTerms } = require('../../utils');
+const { convert } = require('@cedalo/commons');
 const Locale = require('@cedalo/machine-core').locale;
 const locales = require('@cedalo/machine-core').locale.locales;
 const NumberFormatter = require('@cedalo/number-format').NumberFormatter;

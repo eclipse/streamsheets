@@ -1,6 +1,6 @@
 const ERROR = require('../functions/errors');
-const convert = require('./convert');
 const sheetutils = require('./sheet');
+const { convert } = require('@cedalo/commons');
 const IdGenerator = require('@cedalo/id-generator');
 
 

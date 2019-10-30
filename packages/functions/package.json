@@ -26,6 +26,7 @@
     "jest-cli": "21.2.1"
   },
   "dependencies": {
+    "@cedalo/commons": "*",
     "@cedalo/id-generator": "*",
     "@cedalo/logger": "*",
     "@cedalo/machine-core": "*",
@@ -39,7 +40,7 @@
     ]
   },
   "jest": {
-    "collectCoverage": true,
+    "collectCoverage": false,
     "coverageDirectory": "coverage",
     "moduleDirectories": [
       "node_modules"
