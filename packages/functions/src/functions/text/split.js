@@ -1,5 +1,6 @@
 const ERROR = require('../errors');
-const { convert, runFunction } = require('../../utils');
+const { runFunction } = require('../../utils');
+const { convert } = require('@cedalo/commons');
 
 const split = (sheet, ...terms) =>
 	runFunction(sheet, terms)

@@ -1,9 +1,9 @@
 const ERROR = require('../functions/errors');
 const array = require('../functions/streamsheet/array');
 const jsonFunc = require('../functions/streamsheet/json');
-const convert = require('./convert');
 const { isFuncTerm } = require('./terms');
 const { Term } = require('@cedalo/parser');
+const { convert } = require('@cedalo/commons');
 
 const TYPE = {
 	STRING: 'string',

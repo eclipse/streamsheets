@@ -1,5 +1,6 @@
 const ERROR = require('../errors');
-const { convert, jsonpath, runFunction, sheet: { getInbox, getOutbox } } = require('../../utils');
+const { runFunction, sheet: { getInbox, getOutbox } } = require('../../utils');
+const { convert, jsonpath } = require('@cedalo/commons');
 
 
 const keyFrom = (path, funcname) => {

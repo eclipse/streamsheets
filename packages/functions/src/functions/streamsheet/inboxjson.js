@@ -1,5 +1,6 @@
 const ERROR = require('../errors');
-const { convert, runFunction, sheet: { getMessagesFromBox, getStreamSheetByName } } = require('../../utils');
+const { runFunction, sheet: { getMessagesFromBox, getStreamSheetByName } } = require('../../utils');
+const { convert } = require('@cedalo/commons');
 
 
 /** @deprecated ?? */

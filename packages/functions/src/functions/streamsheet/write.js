@@ -1,6 +1,7 @@
 const ERROR = require('../errors');
-const { convert, jsonbuilder, jsonpath, runFunction, sheet: { getOutbox } } = require('../../utils');
+const { jsonbuilder, runFunction, sheet: { getOutbox } } = require('../../utils');
 const { isType } = require('@cedalo/machine-core');
+const { convert, jsonpath } = require('@cedalo/commons');
 
 
 const TYPES = ['array', 'boolean', 'dictionary', 'number', 'string'];

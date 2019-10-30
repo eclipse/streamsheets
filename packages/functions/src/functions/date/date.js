@@ -1,12 +1,12 @@
 const ERROR = require('../errors');
 const locale = require('@cedalo/machine-core');
 const {
-	convert,
 	date: { ms2serial, serial2date, time2serial },
 	sheet: { getLocale },
 	runFunction,
 	values: { roundNumber }
 } = require('../../utils');
+const { convert } = require('@cedalo/commons');
 
 const SEC_MS = 1000;
 const MIN_MS = 60 * SEC_MS;

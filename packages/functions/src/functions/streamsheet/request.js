@@ -1,12 +1,12 @@
 const ERROR = require('../errors');
 const array = require('./array');
 const {
-	jsonpath,
 	sheet: sheetutils,
 	terms: { isInboxTerm, isOutboxTerm, termAsNumber },
 	validation: { ensure }
 } = require('../../utils');
 const { Term } = require('@cedalo/parser');
+const { jsonpath } = require('@cedalo/commons');
 const IdGenerator = require('@cedalo/id-generator');
 const { Cell, Message, SheetRange, State, Streams } = require('@cedalo/machine-core');
 

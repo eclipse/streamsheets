@@ -1,5 +1,6 @@
 const ERROR = require('../errors');
-const { calculate, common: { pipe }, convert, runFunction, terms: onTerms } = require('../../utils');
+const { calculate, common: { pipe }, runFunction, terms: onTerms } = require('../../utils');
+const { convert } = require('@cedalo/commons');
 
 
 const toNumbers = (sheet, terms, iteratorFn) => {

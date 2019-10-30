@@ -1,5 +1,6 @@
 const ERROR = require('../errors');
-const { common: { pipe }, convert, runFunction } = require('../../utils');
+const { common: { pipe }, runFunction } = require('../../utils');
+const { convert } = require('@cedalo/commons');
 
 const isBin = /^(-|\+)?([01]+)$/;
 const isDec = /^(-|\+)?([0-9]+)$/;

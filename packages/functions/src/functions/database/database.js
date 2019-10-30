@@ -1,6 +1,7 @@
 const ERROR = require('../errors');
 const ConditionRange = require('./ConditionRange');
-const { convert, runFunction, sheet: sheetutils } = require('../../utils');
+const { runFunction, sheet: sheetutils } = require('../../utils');
+const { convert } = require('@cedalo/commons');
 const { SheetIndex } = require('@cedalo/machine-core');
 
 const sharedidx = SheetIndex.create(1, 0);

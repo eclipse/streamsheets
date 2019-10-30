@@ -1,12 +1,11 @@
 const ERROR = require('../errors');
 const {
 	common: { deepCopy },
-	jsonpath,
 	runFunction,
 	sheet: { createMessageFromValue, getMachine, getStreamSheetByName }
 } = require('../../utils');
+const { jsonpath } = require('@cedalo/commons');
 const Message = require('@cedalo/machine-core');
-
 
 // DL-1835:
 const addMetaData = (message, sheet) => {
