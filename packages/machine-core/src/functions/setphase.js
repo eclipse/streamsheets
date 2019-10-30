@@ -1,8 +1,9 @@
 const ERROR = require('./errors');
 const Cell = require('../machine/Cell');
 const { cellFromTerm } = require('./utils');
-const { convert, runFunction } = require('./_utils');
+const { runFunction } = require('./_utils');
 const { Term } = require('@cedalo/parser');
+const { convert } = require('@cedalo/commons');
 
 const createCell = (sheet, term) => {
 	const refop = term && term.operand;

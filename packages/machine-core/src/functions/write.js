@@ -1,9 +1,9 @@
 const jb = require('./jsonbuilder');
-const jsonpath = require('./jsonpath');
 const { getOutbox } = require('./utils');
-const { convert, runFunction } = require('./_utils');
+const { runFunction } = require('./_utils');
 const { isType } = require('../utils');
 const ERROR = require('./errors');
+const { convert, jsonpath } = require('@cedalo/commons');
 
 
 const TYPES = ['array', 'boolean', 'dictionary', 'number', 'string'];

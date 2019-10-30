@@ -1,6 +1,7 @@
 const ERROR = require('./errors');
 const { getMachine } = require('./utils');
-const { convert, runFunction } = require('./_utils');
+const { runFunction } = require('./_utils');
+const { convert } = require('@cedalo/commons');
 
 
 const setcycletime = (sheet, ...terms) =>

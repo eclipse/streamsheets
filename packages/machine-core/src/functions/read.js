@@ -1,9 +1,9 @@
 const ERROR = require('./errors');
 const { ErrorTerm } = require('../parser/Error');
-const jsonpath = require('./jsonpath');
-const { convert, sheet: sheetutils } = require('./_utils');
+const { sheet: sheetutils } = require('./_utils');
 const { getMachine, getStreamSheetByName } = require('./utils');
 const { Term } = require('@cedalo/parser');
+const { convert, jsonpath } = require('@cedalo/commons');
 
 
 const toBool = (term, defval) => term ? convert.toBoolean(term.value, defval) : defval;

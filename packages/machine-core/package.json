@@ -24,6 +24,7 @@
     "jest-cli": "21.2.1"
   },
   "dependencies": {
+    "@cedalo/commons": "*",
     "@cedalo/id-generator": "*",
     "@cedalo/logger": "*",
     "@cedalo/messages": "*",

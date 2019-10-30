@@ -2,8 +2,8 @@ const { isFuncTerm } = require('../utils');
 const ERROR = require('../errors');
 const array = require('../array');
 const jsonFunc = require('../json');
-const convert = require('./convert');
 const { Term } = require('@cedalo/parser');
+const { convert } = require('@cedalo/commons');
 
 const TYPE = {
 	STRING: 'string',

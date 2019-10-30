@@ -1,4 +1,5 @@
-const { convert, runFunction } = require('./_utils');
+const { runFunction } = require('./_utils');
+const { convert } = require('@cedalo/commons');
 
 const bar = (sheet, ...terms) =>
 	runFunction(sheet, terms)

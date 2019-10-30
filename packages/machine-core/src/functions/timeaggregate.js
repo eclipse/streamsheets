@@ -1,8 +1,9 @@
 const ERROR = require('./errors');
-const { calculate, convert, runFunction, sheet: sheetutils } = require('./_utils');
+const { calculate, runFunction, sheet: sheetutils } = require('./_utils');
 const Cell = require('../machine/Cell');
-const { Functions, Term } = require('@cedalo/parser');
 const { isType } = require('../utils');
+const { convert } = require('@cedalo/commons');
+const { Functions, Term } = require('@cedalo/parser');
 
 const IGNORE = 'ignore';
 const MIN_INTERVAL = 1 / 1000; // 1ms

@@ -2,8 +2,9 @@ const ERROR = require('../errors');
 const Locale = require('../../locale');
 const locales = require('../../locale/locales');
 const logger = require('../../logger').create({ name: 'TEXT()' });
-const { convert, runFunction, terms: onTerms } = require('../_utils');
+const { runFunction, terms: onTerms } = require('../_utils');
 const { getCodePage } = require('./codepages');
+const { convert } = require('@cedalo/commons');
 const NumberFormatter = require('@cedalo/number-format').NumberFormatter;
 
 const getMachineLocale = (sheet) => {

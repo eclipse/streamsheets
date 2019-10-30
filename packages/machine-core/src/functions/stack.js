@@ -1,6 +1,7 @@
 const ERROR = require('./errors');
 const StackHelper = require('./stackhelper');
-const { convert, runFunction, sheet: sheetutils } = require('./_utils');
+const { runFunction, sheet: sheetutils } = require('./_utils');
+const { convert } = require('@cedalo/commons');
 
 const toBooleanStrict = convert.from().boolean.toBoolean;
 const toBoolean = (term, defval) => {

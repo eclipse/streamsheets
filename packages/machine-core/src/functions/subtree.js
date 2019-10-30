@@ -1,7 +1,7 @@
 const ERROR = require('./errors');
-const jsonpath = require('./jsonpath');
 const { getInbox, getOutbox } = require('./utils');
-const { convert, runFunction } = require('./_utils');
+const { runFunction } = require('./_utils');
+const { convert, jsonpath } = require('@cedalo/commons');
 
 
 const keyFrom = (path, funcname) => {

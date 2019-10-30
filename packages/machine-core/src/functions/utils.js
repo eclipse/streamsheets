@@ -1,7 +1,6 @@
 const Message = require('../machine/Message');
-const jsonpath = require('./jsonpath');
 const ERROR = require('./errors');
-const { convert } = require('./_utils');
+const { convert, jsonpath } = require('@cedalo/commons');
 
 
 const cutBrackets = (str) => {

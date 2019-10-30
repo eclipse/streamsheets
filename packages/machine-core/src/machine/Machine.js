@@ -8,7 +8,7 @@ const locale = require('../locale');
 const logger = require('../logger').create({ name: 'Machine' });
 const FunctionRegistry = require('../FunctionRegistry');
 const Streams = require('../streams/Streams');
-const { convert } = require('../functions/_utils');
+const { convert } = require('@cedalo/commons');
 
 // REVIEW: move to streamsheet!
 const defaultStreamSheetName = (streamsheet) => {

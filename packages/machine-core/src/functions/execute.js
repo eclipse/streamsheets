@@ -1,6 +1,6 @@
 const ERROR = require('./errors');
-const { convert } = require('./_utils');
 const { createMessageFromTerm, getMachine, getStreamSheetByName } = require('./utils');
+const { convert } = require('@cedalo/commons');
 
 
 const markAs = (term, marker) => {

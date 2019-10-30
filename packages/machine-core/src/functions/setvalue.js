@@ -1,7 +1,8 @@
 const ERROR = require('./errors');
 const Cell = require('../machine/Cell');
 const { Term } = require('@cedalo/parser');
-const { convert, runFunction, sheet: sheetutils } = require('./_utils');
+const { runFunction, sheet: sheetutils } = require('./_utils');
+const { convert } = require('@cedalo/commons');
 
 
 // const doIt = value => value || value == null;
