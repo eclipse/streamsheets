@@ -1,3 +1,4 @@
+const ERROR = require('../../src/functions/errors');
 const { Machine, StreamSheet, StreamSheetTrigger } = require('../..');
 const { createCellAt } = require('./utils');
 
@@ -53,6 +54,51 @@ describe('timeaggregate', () => {
 		expect(sheet.cellAt('A3').value).toBe(true);
 		createCellAt('A3', { formula: 'timeaggregate(A1, 4, 1, 2000, 1, C31:D31)' }, sheet);
 		expect(sheet.cellAt('A3').value).toBe(true);
+	});
+	// DL-3309
+	it('should reset values on machine start', async () => {
+		const sheet = machine.getStreamSheetByName('T1').sheet;
+		sheet.machine.cycletime = 100;
+		createCellAt('A1', { formula: 'A1+1' }, sheet);
+		createCellAt('A3', { formula: 'timeaggregate(A1, 8, 0, , 4)' }, sheet);
+		await machine.start();
+		await doAfter(1000, () => { machine.stop(); });
+		const term = sheet.cellAt('A3').term;
+		expect(term._timeaggregator.valStore.entries.length).toBeGreaterThan(8);
+		await machine.start();
+		await machine.stop();
+		expect(term._timeaggregator.valStore.entries.length).toBeLessThan(8);
+	});
+	it('should not reset values on machine transition from pause to start', async () => {
+		const sheet = machine.getStreamSheetByName('T1').sheet;
+		sheet.machine.cycletime = 100;
+		createCellAt('A1', { formula: 'A1+1' }, sheet);
+		createCellAt('A3', { formula: 'timeaggregate(A1, 8, 0, , 4)' }, sheet);
+		await machine.start();
+		await doAfter(1000, () => { machine.pause(); });
+		const term = sheet.cellAt('A3').term;
+		expect(term._timeaggregator.valStore.entries.length).toBeGreaterThan(8);
+		await machine.start();
+		await machine.stop();
+		expect(term._timeaggregator.valStore.entries.length).toBeGreaterThan(9);
+	});
+	it(`should return ${ERROR.NA} until value is available`, async () => {
+		const sheet = machine.getStreamSheetByName('T1').sheet;
+		sheet.machine.cycletime = 100;
+		createCellAt('A1', 'hello', sheet);
+		createCellAt('A3', { formula: 'timeaggregate(A1, 8, 0, , 4)' }, sheet);
+		await machine.start();
+		expect(sheet.cellAt('A3').value).toBe(ERROR.NA);
+		await doAfter(500, () => { createCellAt('A1', { formula: 'A1+1' }, sheet) });
+		await doAfter(500, () => { machine.stop(); });
+		expect(sheet.cellAt('A3').value).toBe(sheet.cellAt('A1').value);
+		// start again should reset
+		createCellAt('A1', 'hello', sheet);
+		await machine.start();
+		expect(sheet.cellAt('A3').value).toBe(ERROR.NA);
+		await doAfter(500, () => { createCellAt('A1', { formula: 'A1+1' }, sheet) });
+		await doAfter(500, () => { machine.stop(); });
+		expect(sheet.cellAt('A3').value).toBe(sheet.cellAt('A1').value);
 	});
 	describe.skip('no interval specified', () => {
 		it('should aggregate over all received values and return result', async () => {
@@ -471,6 +517,23 @@ describe('timeaggregate', () => {
 			await doAfter(3500, () => { machine.stop(); });
 			expect(sheet.cellAt('A1').value).toBe(5);
 			expect(sheet.cellAt('A3').value).toBe(14);
+		});
+		it('should support NONE aggregation method', async () => {
+			let sameValue = true;
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			createCellAt('A1', { formula: 'A1+1' }, sheet);
+			createCellAt('A3', { formula: 'timeaggregate(A1, 5, 0)' }, sheet);
+			expect(sheet.cellAt('A1').value).toBe(1);
+			expect(sheet.cellAt('A3').value).toBe(true);
+			machine.on('update', (type) => {
+				// ensure values are equal on each step:
+				if (type === 'step') sameValue = sameValue && sheet.cellAt('A3').value === sheet.cellAt('A1').value;
+			});
+			await machine.start();
+			await doAfter(3500, () => { machine.stop(); });
+			expect(sameValue).toBeTruthy();
+			expect(sheet.cellAt('A1').value).toBe(5);
+			expect(sheet.cellAt('A3').value).toBe(sheet.cellAt('A1').value);
 		});
 	});
 });
