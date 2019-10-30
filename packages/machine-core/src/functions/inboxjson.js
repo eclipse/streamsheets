@@ -1,6 +1,7 @@
 const ERROR = require('./errors');
-const { convert, runFunction } = require('./_utils');
+const { runFunction } = require('./_utils');
 const { getMessagesFromBox, getStreamSheetByName } = require('./utils');
+const { convert } = require('@cedalo/commons');
 
 /** @deprecated ?? */
 const inboxjson = (sheet, ...terms) =>

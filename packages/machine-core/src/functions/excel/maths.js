@@ -1,5 +1,6 @@
 const ERROR = require('../errors');
-const { convert, runFunction, values: { isEven, roundNumber } } = require('../_utils');
+const { runFunction, values: { isEven, roundNumber } } = require('../_utils');
+const { convert } = require('@cedalo/commons');
 
 // eslint-disable-next-line no-nested-ternary
 const _sign = (nr) => (nr > 0 ? 1 : nr < 0 ? -1 : 0);

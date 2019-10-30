@@ -1,5 +1,6 @@
 const ERROR = require('../errors');
-const { convert, runFunction, values: { isEven } } = require('../_utils');
+const { runFunction, values: { isEven } } = require('../_utils');
+const { convert } = require('@cedalo/commons');
 
 const valueOf = (term, defval) => {
 	const val = term.value;

@@ -1,6 +1,5 @@
 const calculate = require('./calculate');
 const common = require('./common');
-const convert = require('./convert');
 const date = require('./date');
 const excel = require('./excel');
 const runFunction = require('./runner');
@@ -11,7 +10,6 @@ const values = require('./values');
 module.exports = {
 	calculate,
 	common,
-	convert,
 	date,
 	excel,
 	runFunction,

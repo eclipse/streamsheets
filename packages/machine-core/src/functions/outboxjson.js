@@ -1,7 +1,7 @@
 const ERROR = require('./errors');
-const { convert, runFunction } = require('./_utils');
+const { runFunction } = require('./_utils');
 const { getMachine, getMessagesFromBox } = require('./utils');
-
+const { convert } = require('@cedalo/commons');
 
 const getOutbox = (sheet) => {
 	const machine = getMachine(sheet);

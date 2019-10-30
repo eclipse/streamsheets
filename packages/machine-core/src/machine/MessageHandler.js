@@ -1,4 +1,4 @@
-const jsonpath = require('../functions/jsonpath');
+const { jsonpath } = require('@cedalo/commons');
 
 const DEF = {
 	path: '',

@@ -1,7 +1,8 @@
 const ERROR = require('../errors');
 const SheetIndex = require('../../machine/SheetIndex');
 const SheetRange = require('../../machine/SheetRange');
-const { convert, excel, runFunction, sheet: sheetutils } = require('../_utils');
+const { excel, runFunction, sheet: sheetutils } = require('../_utils');
+const { convert } = require('@cedalo/commons');
 
 const createSheetRange = (start, end, sheet) => {
 	const range = SheetRange.fromStartEnd(start, end);

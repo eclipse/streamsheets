@@ -1,5 +1,6 @@
 const ERROR = require('./errors');
-const { convert, runFunction, sheet: sheetutils } = require('./_utils');
+const { runFunction, sheet: sheetutils } = require('./_utils');
+const { convert } = require('@cedalo/commons');
 
 
 const rangeSum = range => range.reduce((sum, cell) => {

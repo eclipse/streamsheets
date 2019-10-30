@@ -1,5 +1,6 @@
-const { convert, sheet: sheetutils } = require('./_utils');
+const { sheet: sheetutils } = require('./_utils');
 const SheetIndex = require('../machine/SheetIndex');
+const { convert } = require('@cedalo/commons');
 
 const sharedidx = SheetIndex.create(1, 0);
 const sharedrow = [];

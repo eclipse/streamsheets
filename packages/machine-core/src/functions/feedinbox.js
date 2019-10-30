@@ -1,9 +1,8 @@
 const ERROR = require('./errors');
 const Message = require('../machine/Message');
-const jsonpath = require('./jsonpath');
 const { common: { deepCopy }, runFunction } = require('./_utils');
 const { createMessageFromValue, getMachine, getStreamSheetByName } = require('./utils');
-
+const { jsonpath } = require('@cedalo/commons');
 
 // DL-1835:
 const addMetaData = (message, sheet) => {

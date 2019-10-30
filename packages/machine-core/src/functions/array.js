@@ -1,6 +1,6 @@
 const ERROR = require('./errors');
-const { convert, sheet: sheetutils, runFunction } = require('./_utils');
-// const runFunction = require('./_utils').runFunction;
+const { sheet: sheetutils, runFunction } = require('./_utils');
+const { convert } = require('@cedalo/commons');
 
 const nextRow = (arr) => {
 	const row = [];

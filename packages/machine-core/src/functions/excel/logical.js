@@ -1,5 +1,6 @@
 const ERROR = require('../errors');
-const { convert, runFunction, terms: onTerms, values: { isEven } } = require('../_utils');
+const { runFunction, terms: onTerms, values: { isEven } } = require('../_utils');
+const { convert } = require('@cedalo/commons');
 
 
 const runWith = (sheet, terms, logic) => 

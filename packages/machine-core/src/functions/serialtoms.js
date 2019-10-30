@@ -1,6 +1,7 @@
 const ERROR = require('./errors');
 const { serial2ms } = require('./_utils').date;
-const { convert, runFunction } = require('./_utils');
+const { runFunction } = require('./_utils');
+const { convert } = require('@cedalo/commons');
 
 
 const serialtoms = (sheet, ...terms) =>

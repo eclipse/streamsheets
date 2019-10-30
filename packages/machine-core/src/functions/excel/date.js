@@ -2,11 +2,11 @@ const ERROR = require('../errors');
 const locale = require('../../locale');
 const { getLocale } = require('../utils');
 const {
-	convert,
 	date: { ms2serial, serial2date, time2serial },
 	runFunction,
 	values: { roundNumber }
 } = require('../_utils');
+const { convert } = require('@cedalo/commons');
 
 const SEC_MS = 1000;
 const MIN_MS = 60 * SEC_MS;

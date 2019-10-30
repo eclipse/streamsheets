@@ -1,8 +1,9 @@
 const ERROR = require('./errors');
 const Cell = require('../machine/Cell');
-const { convert, runFunction } = require('./_utils');
+const { runFunction } = require('./_utils');
 const { ms2serial, serial2ms } = require('./_utils').date;
 const { Term } = require('@cedalo/parser');
+const { convert } = require('@cedalo/commons');
 
 
 const term2ms = (term) => {

@@ -1,5 +1,4 @@
 const ERROR = require('./errors');
-const jsonpath = require('./jsonpath');
 const Message = require('../machine/Message');
 const SheetRange = require('../machine/SheetRange');
 const {
@@ -14,12 +13,12 @@ const {
 const IdGenerator = require('@cedalo/id-generator');
 const { ensure } = require('./_utils/validation');
 const array = require('./array');
-const jp = require('./jsonpath');
 const sheetutils = require('./_utils').sheet;
 const Cell = require('../machine/Cell');
 const { Term } = require('@cedalo/parser');
 const Streams = require('../streams/Streams');
 const State = require('../State');
+const { jsonpath } = require('@cedalo/commons');
 
 const createPendingRequest = (promise) => ({ promise, status: 'pending' });
 const updatePendingRequest = (request, status) => {
@@ -107,7 +106,7 @@ const putToRange = (sheet, range, resultKeys, message) => {
 		} else {
 			const key = keys[columnIndex];
 			const object = dataAsArray[rowIndex];
-			const value = object ? jp.getValueByPath(object, key) : null;
+			const value = object ? jsonpath.getValueByPath(object, key) : null;
 			const newCell = value != null ? new Cell(value, Term.fromValue(value)) : null;
 			sheet.setCellAt(index, newCell);
 		}
@@ -135,7 +134,7 @@ const putToTarget = (sheet, targetTerm, data) => {
 };
 
 const toPath = (key) => {
-	const path = jp.parse(key);
+	const path = jsonpath.parse(key);
 	if (path.length > 0) {
 		return path;
 	}
@@ -149,9 +148,9 @@ const project = (data, resultKeys) => {
 		const projected = {};
 		resultKeys.forEach((key) => {
 			const path = toPath(key);
-			const value = jp.query(path, json);
+			const value = jsonpath.query(path, json);
 			if (value !== undefined) {
-				jp.setAt(path, projected, value);
+				jsonpath.setAt(path, projected, value);
 			}
 		});
 		return projected;

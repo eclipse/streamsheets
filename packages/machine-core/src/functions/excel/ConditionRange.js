@@ -1,5 +1,5 @@
 // a structure to manage conditions defined by sheetrange...
-const { convert } = require('../_utils');
+const { convert } = require('@cedalo/commons');
 const { Operation, Term } = require('@cedalo/parser');
 
 

@@ -1,7 +1,7 @@
 const ERROR = require('./errors');
-const jsonpath = require('./jsonpath');
 const runFunction = require('./_utils').runFunction;
 const { getInbox, getOutbox } = require('./utils');
+const { jsonpath } = require('@cedalo/commons');
 
 
 const clear = (box, id) => {
