@@ -6,5 +6,6 @@
 module.exports = {
 	bail: true,
 	collectCoverage: false,
-	verbose: true
+	verbose: true,
+	setupFiles: ['./setup.js']
 };
