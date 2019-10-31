@@ -11,7 +11,7 @@ const setup = (cycletime = 1000) => {
 	return { sheet: streamsheet.sheet, machine };
 };
 
-describe('getstep', () => {
+describe('getcycletime', () => {
 	it('should return machine cycletime currently used', () => {
 		const { sheet, machine } = setup();
 		// by default a machine has a cycletime of 1000ms
