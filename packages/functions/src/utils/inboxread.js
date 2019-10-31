@@ -1,6 +1,7 @@
 const { cutBrackets } = require('./common');
 const runFunction = require('./runner');
 const sheetutils = require('./sheet');
+const { getCellRangeFromTerm } = require('./terms');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 // now loop element is referenced if prefix is empty...
@@ -32,7 +33,7 @@ const createJSONPath = (prefix, streamsheet, terms) => {
 	}
 	terms.reduce((path, term) => {
 		// term can be a cell-range ...
-		const range = sheetutils.getCellRangeFromTerm(term, streamsheet.sheet);
+		const range = getCellRangeFromTerm(term, streamsheet.sheet);
 		if (range && !Error.isError(range)) {
 			range.iterate(cell => cell && path.push(cell.value));
 		} else {
