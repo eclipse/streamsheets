@@ -1,5 +1,4 @@
 const { convert } = require('@cedalo/commons');
-const IdGenerator = require('@cedalo/id-generator');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
 const { CellReference, SheetRange } = require('@cedalo/machine-core');
 
