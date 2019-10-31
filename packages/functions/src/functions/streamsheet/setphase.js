@@ -1,7 +1,7 @@
 const { runFunction, terms: { cellFromTerm } } = require('../../utils');
 const { Term } = require('@cedalo/parser');
 const { convert } = require('@cedalo/commons');
-const Cell = require('@cedalo/machine-core');
+const { Cell } = require('@cedalo/machine-core');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const createCell = (sheet, term) => {

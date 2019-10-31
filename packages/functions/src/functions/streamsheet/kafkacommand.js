@@ -1,6 +1,6 @@
 const { requestinternallegacy } = require('./request');
 const {	sheet: { getMachine } } = require('../../utils');
-const Message = require('@cedalo/machine-core');
+const { Message } = require('@cedalo/machine-core');
 
 
 const kafkacommand = (sheet, ...terms) => {

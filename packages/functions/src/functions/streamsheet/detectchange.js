@@ -1,7 +1,7 @@
 const { date: { ms2serial, serial2ms }, runFunction } = require('../../utils');
 const { Term } = require('@cedalo/parser');
 const { convert } = require('@cedalo/commons');
-const Cell = require('@cedalo/machine-core');
+const { Cell } = require('@cedalo/machine-core');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const term2ms = (term) => {
