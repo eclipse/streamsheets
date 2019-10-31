@@ -338,7 +338,7 @@ describe('replace', () => {
 			cells: { A1: 'hello', F2: { formula: 'JSON(A1:A1)' } }
 		});
 		expect(createTerm('replace(-A1,12,3,"later")', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('replace(-F2,12,3,"later")', sheet).value).toBe(Error.code.INVALID_PARAM);
+		expect(createTerm('replace(-F2,12,3,"later")', sheet).value).toBe(Error.code.VALUE);
 		expect(createTerm('replace(A1-,12,3,"later")', sheet).value).toBe(Error.code.NAME);
 		expect(createTerm('replace(B1,12,3,"laterB20,1")', sheet).value).toBe('laterB20,1');
 	});
