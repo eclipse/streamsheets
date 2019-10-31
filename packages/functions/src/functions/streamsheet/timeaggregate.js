@@ -1,7 +1,8 @@
-const { calculate, runFunction, sheet: sheetutils } = require('../../utils');
+const { calculate, runFunction, sheet: sheetutils, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { Functions, Term } = require('@cedalo/parser');
 const { Cell, isType } = require('@cedalo/machine-core');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 
 const IGNORE = 'ignore';
@@ -137,7 +138,7 @@ const timeaggregate = (sheet, ...terms) =>
 		.mapNextArg(method => getMethodNumber(method && method.value, DEF_METHOD))
 		.mapNextArg(timestamp => convert.toNumberStrict(timestamp != null ? timestamp.value : null, Functions.NOW()))
 		.mapNextArg(interval => convert.toNumberStrict(interval != null ? interval.value : null))
-		.mapNextArg(targetrange => sheetutils.getCellRangeFromTerm(targetrange, sheet))
+		.mapNextArg(targetrange => getCellRangeFromTerm(targetrange, sheet))
 		.mapNextArg(doSort => doSort != null ? convert.toBoolean(doSort.value) : false)
 		.validate((val, period, method, timestamp, interval) =>
 			((interval != null && interval < MIN_INTERVAL) ? Error.code.VALUE : undefined)

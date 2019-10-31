@@ -1,4 +1,4 @@
-const { runFunction, sheet: sheetutils } = require('../../utils');
+const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
@@ -13,7 +13,7 @@ const sumOf = (sheet, terms) => {
 	return terms.reduce((total, term) => {
 		// range or value:
 		if (!error) {
-			const range = sheetutils.getCellRangeFromTerm(term, sheet);
+			const range = getCellRangeFromTerm(term, sheet);
 			const nr = !range ? convert.toNumber(term.value, Error.code.VALUE) : undefined;
 			error = Error.isError(range) || Error.isError(nr) || Error.isError(term.value);
 			if (!error) total += range ? rangeSum(range) : nr;

@@ -1,4 +1,4 @@
-const { runFunction, sheet: sheetutils } = require('../../utils');
+const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 
@@ -6,7 +6,7 @@ const createJSONPath = (sheet, terms) => {
 	const jsonpath = [];
 	terms.reduce((path, term) => {
 		// term can be a cell-range ...
-		const range = sheetutils.getCellRangeFromTerm(term, sheet);
+		const range = getCellRangeFromTerm(term, sheet);
 		if (range && !Error.isError(range)) {
 			range.iterate(cell => cell && path.push(cell.value));
 		} else {

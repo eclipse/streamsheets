@@ -1,4 +1,4 @@
-const { sheet: sheetutils } = require('../../utils');
+const { terms: { getCellRangeFromTerm } } = require('../../utils');
 const https = require('https');
 const { FunctionErrors: FuncError } = require('@cedalo/error-codes');
 
@@ -971,7 +971,7 @@ const slice = (sheet, ...terms) => {
 
 	for (let i = 4; i < terms.length; i += 1) {
 		const eterm = terms[i];
-		const range = sheetutils.getCellRangeFromTerm(eterm, sheet);
+		const range = getCellRangeFromTerm(eterm, sheet);
 		if (range) {
 			range.iterate((cell) => {
 				if (dim1Elements.index === undefined) {
