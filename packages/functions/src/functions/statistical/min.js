@@ -1,5 +1,5 @@
-const ERROR = require('../errors');
 const { runFunction, sheet: sheetutils } = require('../../utils');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const newMin = (termOrCell, oldmin) => {
 	const val = !termOrCell.value ? 0 : termOrCell.value;
@@ -14,7 +14,7 @@ const min = (sheet, ...terms) =>
 			let valid = false;
 			const totalMin = terms.reduce((currMin, term) => {
 				const range = sheetutils.getCellRangeFromTerm(term, sheet);
-				error = ERROR.isError(range);
+				error = Error.isError(range);
 				valid = !error && (valid || !range);
 				currMin = range
 					? range.reduce((acc, cell) => {

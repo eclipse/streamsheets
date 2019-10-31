@@ -1,8 +1,8 @@
-const ERROR = require('../../src/functions/errors');
 const MESSAGES = require('../_data/messages.json');
 const { DELETE } = require('../../src/functions/streamsheet');
 const { createFuncTerm, createParamTerms } = require('../utils');
 const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const createMessage = (config, id) => {
 	const msg = new Message(JSON.parse(JSON.stringify(config.data)), id);
@@ -189,12 +189,12 @@ describe('delete', () => {
 		const sheet = setup({ streamsheetName: 'T1' });
 		const inbox = sheet.streamsheet.inbox;
 		expect(inbox.size).toBe(2);
-		expect(DELETE(sheet, createFuncTerm(sheet, 'inbox', createParamTerms('T1', 'unknown')))).toBe(ERROR.NO_MSG);
+		expect(DELETE(sheet, createFuncTerm(sheet, 'inbox', createParamTerms('T1', 'unknown')))).toBe(Error.code.NO_MSG);
 		expect(DELETE(sheet, createFuncTerm(sheet, 'inbox', createParamTerms('T1', 'msg-simple')))).toBe(true);
 		expect(DELETE(sheet, createFuncTerm(sheet, 'inbox', createParamTerms('T1', 'msg-simple2')))).toBe(true);
 		expect(inbox.size).toBe(0);
 		// eslint-disable-next-line
-		expect(DELETE(sheet, createFuncTerm(sheet, 'inbox', createParamTerms('T1', 'msg-simple')))).toBe(ERROR.NO_MSG);
+		expect(DELETE(sheet, createFuncTerm(sheet, 'inbox', createParamTerms('T1', 'msg-simple')))).toBe(Error.code.NO_MSG);
 		expect(inbox.size).toBe(0);
 	});
 	it('should return #NO_MSG_DATA if deleting unknown message data or metadata', () => {
@@ -202,8 +202,8 @@ describe('delete', () => {
 		const inbox = sheet.streamsheet.inbox;
 		expect(inbox.size).toBe(2);
 		expect(DELETE(sheet, createFuncTerm(sheet, 'inboxdata', createParamTerms('T1', '', 'unknown'))))
-			.toBe(ERROR.NO_MSG_DATA);
+			.toBe(Error.code.NO_MSG_DATA);
 		expect(DELETE(sheet, createFuncTerm(sheet, 'inboxmetadata', createParamTerms('T1', '', 'unknown'))))
-			.toBe(ERROR.NO_MSG_DATA);
+			.toBe(Error.code.NO_MSG_DATA);
 	});
 });

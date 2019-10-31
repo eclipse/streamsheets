@@ -1,6 +1,6 @@
-const ERROR = require('../errors');
 const { runFunction, sheet: sheetutils } = require('../../utils');
 const { convert } = require('@cedalo/commons');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const nextRow = (arr) => {
 	const row = [];
@@ -36,7 +36,7 @@ const array = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(3)
-		.mapNextArg(range => sheetutils.getCellRangeFromTerm(range, sheet) || ERROR.INVALID_PARAM)
+		.mapNextArg(range => sheetutils.getCellRangeFromTerm(range, sheet) || Error.INVALID_PARAM)
 		.mapNextArg(byrow => toBool(byrow, true))
 		.mapNextArg(flat => (flat ? flat.value === 'flat' : null))
 		.run((range, byrow, flat) => {

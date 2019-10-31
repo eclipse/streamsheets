@@ -1,7 +1,7 @@
-const ERROR = require('../../src/functions/errors');
 const SHEETS = require('../_data/sheets.json');
 const { createCellAt, createTerm } = require('../utils');
 const { Machine, StreamSheet } = require('@cedalo/machine-core');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 let machine;
 
@@ -74,6 +74,6 @@ describe('sum', () => {
 		expect(createTerm('sum(true)', sheet).value).toBe(1);
 		expect(createTerm('sum(false)', sheet).value).toBe(0);
 		expect(createTerm('sum("123")', sheet).value).toBe(123);
-		expect(createTerm('sum("asd","Asd")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('sum("asd","Asd")', sheet).value).toBe(Error.code.VALUE);
 	});
 });

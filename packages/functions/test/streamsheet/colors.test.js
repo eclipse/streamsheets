@@ -1,6 +1,6 @@
 const { createTerm } = require('../utils');
 const { StreamSheet } = require('@cedalo/machine-core');
-// const ERROR = require('../../src/functions/errors');
+
 
 describe('colors', () => {
 	describe('convert from cmyk', () => {

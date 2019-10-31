@@ -1,6 +1,5 @@
-// IFERROR
-// ISERR
-// ISERROR
-// ISEVEN
-// ISNA
-// ISODD
+const info = require('./info');
+
+module.exports = {
+	...info
+};

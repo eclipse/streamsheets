@@ -1,6 +1,6 @@
-const ERROR = require('../errors');
 const { runFunction, sheet: { getInbox, getOutbox } } = require('../../utils');
 const { convert, jsonpath } = require('@cedalo/commons');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 
 const keyFrom = (path, funcname) => {
@@ -18,16 +18,16 @@ const messageData = (message, path, funcname) => {
 		// path = path.length ? jsonpath.toString(path) : '';
 		const func = funcname === 'INBOXMETADATA' ? message.getMetaDataAt : message.getDataAt;
 		const data = func.call(message, path);
-		return data != null ? data : ERROR.NO_MSG_DATA;
+		return data != null ? data : Error.code.NO_MSG_DATA;
 	}
-	return ERROR.NO_MSG;
+	return Error.code.NO_MSG;
 };
 
 const dataFromMessage = (box, path, funcname) => {
 	const msgId = path.shift();
 	const message = box.peek(msgId);
 	return funcname === 'INBOX' || funcname === 'OUTBOX'
-		? message || ERROR.NO_MSG
+		? message || Error.code.NO_MSG
 		: messageData(message, path, funcname);
 };
 

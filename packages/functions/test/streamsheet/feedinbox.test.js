@@ -1,9 +1,8 @@
-const ERROR = require('../../src/functions/errors');
 const { FEEDINBOX } = require('../../src/functions/streamsheet');
 const { createTerm } = require('../utils');
 const { Term } = require('@cedalo/parser');
 const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
-
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const setup = () => {
 	const machine = new Machine();
@@ -142,7 +141,7 @@ describe('feedinbox', () => {
 		const t2 = getStreamSheet('T2', sheet);
 		sheet.machine.removeStreamSheet(t2);
 		sheet.processor._isProcessing = true;
-		expect(FEEDINBOX(sheet, Term.fromString('Data'), Term.fromString('T2'))).toBe(ERROR.NO_STREAMSHEET);
+		expect(FEEDINBOX(sheet, Term.fromString('Data'), Term.fromString('T2'))).toBe(Error.code.NO_STREAMSHEET);
 	});
 	// is allowed now: DL-876
 	it('should be allowed to push a message to own sheet streamsheet', () => {
@@ -192,17 +191,17 @@ describe('feedinbox', () => {
 		expect(t2.inbox.size).toBe(0);
 		await machine.step();
 		expect(t2.inbox.size).toBe(0);
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NO_MSG_DATA);
-		// expect(FEEDINBOX(sheet, createCellTerm('A1', sheet), Term.fromString('T2'))).toBe(ERROR.NO_MSG_DATA);
+		expect(sheet.cellAt('A1').value).toBe(Error.code.NO_MSG_DATA);
+		// expect(FEEDINBOX(sheet, createCellTerm('A1', sheet), Term.fromString('T2'))).toBe(Error.code.NO_MSG_DATA);
 		sheet.loadCells({ 'A1': { formula: 'feedinbox(B1, "T2")}' } });
 		await machine.step();
 		expect(t2.inbox.size).toBe(0);
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NO_MSG_DATA);
+		expect(sheet.cellAt('A1').value).toBe(Error.code.NO_MSG_DATA);
 	});
 	it('should return #ARG_NUM error if not enough parameters are specified', () => {
 		const sheet = setup();
-		expect(FEEDINBOX()).toBe(ERROR.ARGS);
-		expect(FEEDINBOX(sheet)).toBe(ERROR.ARGS);
-		expect(FEEDINBOX(sheet, Term.fromString('Data'))).toBe(ERROR.ARGS);
+		expect(FEEDINBOX()).toBe(Error.code.ARGS);
+		expect(FEEDINBOX(sheet)).toBe(Error.code.ARGS);
+		expect(FEEDINBOX(sheet, Term.fromString('Data'))).toBe(Error.code.ARGS);
 	});
 });

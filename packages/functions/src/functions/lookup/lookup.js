@@ -1,7 +1,8 @@
-const ERROR = require('../errors');
 const { excel, runFunction, sheet: sheetutils } = require('../../utils');
 const { convert } = require('@cedalo/commons');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 const { SheetIndex, SheetRange } = require('@cedalo/machine-core');
+
 
 const createSheetRange = (start, end, sheet) => {
 	const range = SheetRange.fromStartEnd(start, end);
@@ -23,20 +24,20 @@ const choose = (sheet, ...terms) =>
 		.withMinArgs(2)
 		.mapNextArg((nrTerm) => {
 			const nr = term2number(nrTerm, 0);
-			return nr > 0 ? nr : ERROR.VALUE;
+			return nr > 0 ? nr : Error.code.VALUE;
 		})
 		.run((nr) => {
 			const term = terms[Math.floor(nr)];
-			return term != null ? term.value : ERROR.VALUE;
+			return term != null ? term.value : Error.code.VALUE;
 		});
 
 const column = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMaxArgs(1)
-		.mapNextArg(ref => ref ? indexFromOperand(ref.operand) || ERROR.NAME : undefined)
+		.mapNextArg(ref => ref ? indexFromOperand(ref.operand) || Error.code.NAME : undefined)
 		.run((idx) => {
 			idx = idx || sheetutils.cellFromFunc(column);
-			return idx ? idx.col + 1 : ERROR.VALUE;
+			return idx ? idx.col + 1 : Error.code.VALUE;
 		});
 	
 //
@@ -48,16 +49,16 @@ const index = (sheet, ...terms) =>
 		.withMaxArgs(4)
 		.mapNextArg((ranges) => {
 			ranges = sheetutils.getCellRangesFromTerm(ranges, sheet, true);
-			return ranges && ranges.length ? ranges : ERROR.NAME;
+			return ranges && ranges.length ? ranges : Error.code.NAME;
 		})
 		.mapNextArg(rowoffset => convert.toNumber(rowoffset.value, 1) - 1)
 		.mapNextArg(coloffset => convert.toNumber(coloffset.value, 1) - 1)
 		.mapNextArg(areanr => ((areanr && areanr.value != null) ? convert.toNumber(areanr.value, 1) - 1 : 0))
 		.validate((ranges, rowoffset, coloffset, areanr) =>
-			ERROR.ifTrue((rowoffset < 0 || coloffset < 0 || areanr < 0), ERROR.VALUE))
+			Error.ifTrue((rowoffset < 0 || coloffset < 0 || areanr < 0), Error.code.VALUE))
 		.validate((ranges, rowoffset, coloffset, areanr) => {
 			const range = ranges[areanr];
-			return ERROR.ifTrue(!range || (rowoffset >= range.height || coloffset >= range.width), ERROR.REF);
+			return Error.ifTrue(!range || (rowoffset >= range.height || coloffset >= range.width), Error.code.REF);
 		})
 		.run((ranges, rowoffset, coloffset, areanr) => {
 			let value = '';
@@ -126,14 +127,14 @@ const match = (sheet, ...terms) =>
 		.mapNextArg(pivot => pivot.value)
 		.mapNextArg((range) => {
 			const cellrange = sheetutils.getCellRangeFromTerm(range, sheet, true);
-			return cellrange || ERROR.NAME;
+			return cellrange || Error.code.NAME;
 		})
 		.run((pivot, range) => {
 			const type = term2number(terms[2], 1);
 			// eslint-disable-next-line no-nested-ternary
 			const findInRange = type < 0 ? findSmallest : (type > 0 ? findLargest : findFirstEqual);
 			const idx = findInRange(range, pivot);
-			return idx > 0 ? idx : ERROR.NA;
+			return idx > 0 ? idx : Error.code.NA;
 		});
 
 
@@ -143,9 +144,9 @@ const match = (sheet, ...terms) =>
 const offset = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(3)
-		.mapNextArg(range => sheetutils.getCellRangeFromTerm(range, sheet) || ERROR.NAME)
-		.mapNextArg(row => term2number(row, ERROR.VALUE))
-		.mapNextArg(col => term2number(col, ERROR.VALUE))
+		.mapNextArg(range => sheetutils.getCellRangeFromTerm(range, sheet) || Error.code.NAME)
+		.mapNextArg(row => term2number(row, Error.code.VALUE))
+		.mapNextArg(col => term2number(col, Error.code.VALUE))
 		.mapNextArg(height => term2number(height, -1))
 		.mapNextArg(width => term2number(width, -1))
 		.reduce((range, row, col, height, width) => {
@@ -157,10 +158,10 @@ const offset = (sheet, ...terms) =>
 					startidx.col + (width < 0 ? range.width : width) - 1)
 				: null;
 			// check new indices (against sheet of function!!):
-			const error = ERROR.ifTrue(!startidx
+			const error = Error.ifTrue(!startidx
 				|| !endidx
 				|| !sheet.isValidIndex(startidx)
-				|| !sheet.isValidIndex(endidx), ERROR.REF);
+				|| !sheet.isValidIndex(endidx), Error.code.REF);
 			return error || [startidx, endidx];
 		})
 		.run((startidx, endidx) => {
@@ -171,7 +172,7 @@ const offset = (sheet, ...terms) =>
 				const cell = offRange.cellAt(offRange.start);
 				offset.term.cellValue = cell ? cell.value : 0;
 			} else {
-				offset.term.cellValue = ERROR.VALUE;
+				offset.term.cellValue = Error.code.VALUE;
 			}
 			return offRange;
 		});
@@ -179,10 +180,10 @@ const offset = (sheet, ...terms) =>
 const row = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMaxArgs(1)
-		.mapNextArg(ref => ref ? indexFromOperand(ref.operand) || ERROR.NAME : undefined)
+		.mapNextArg(ref => ref ? indexFromOperand(ref.operand) || Error.code.NAME : undefined)
 		.run((idx) => {
 			idx = idx || sheetutils.cellFromFunc(row);
-			return idx ? idx.row : ERROR.VALUE;
+			return idx ? idx.row : Error.code.VALUE;
 		});
 //
 // == VLOOKUP ==
@@ -201,10 +202,10 @@ const vlookup = (sheet, ...terms) =>
 		.withMinArgs(3)
 		.withMaxArgs(4)
 		.mapNextArg(lookup => lookup.value)
-		.mapNextArg(range => sheetutils.getCellRangeFromTerm(range, sheet) || ERROR.NAME)
+		.mapNextArg(range => sheetutils.getCellRangeFromTerm(range, sheet) || Error.code.NAME)
 		.mapNextArg((coloffset) => {
 			coloffset = term2number(coloffset, 1);
-			return coloffset > 0 ? coloffset - 1 : ERROR.REF;
+			return coloffset > 0 ? coloffset - 1 : Error.code.REF;
 		})
 		.mapNextArg((exactly) => {
 			exactly = exactly && convert.toBoolean(exactly.value);
@@ -225,7 +226,7 @@ const vlookup = (sheet, ...terms) =>
 				}
 				return stop;
 			});
-			return cellvalue != null ? cellvalue : ERROR.NV;
+			return cellvalue != null ? cellvalue : Error.code.NV;
 		});
 
 module.exports = {

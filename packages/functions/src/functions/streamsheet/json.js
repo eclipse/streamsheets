@@ -1,4 +1,3 @@
-const ERROR = require('../errors');
 const { runFunction, sheet: sheetutils } = require('../../utils');
 
 
@@ -53,7 +52,7 @@ const json = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(1)
 		.mapNextArg(range => sheetutils.getCellRangeFromTerm(range, sheet))
-		.validate((range) => ((range == null || range.width < 2) ? ERROR.INVALID_PARAM : null))
+		.validate((range) => ((range == null || range.width < 2) ? Error.INVALID_PARAM : null))
 		.run(range => jsonFromRange(range));
 
 

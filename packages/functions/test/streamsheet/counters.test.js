@@ -1,7 +1,7 @@
-const ERROR = require('../../src/functions/errors');
 const { GETCYCLE, GETEXECUTESTEP, GETMACHINESTEP, GETSTEP } = require('../../src/functions/streamsheet');
 const { createTerm } = require('../utils');
 const { Cell, Machine, Message, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const createStreamSheet = (name, trigger, cells) => {
 	const machine = new Machine();
@@ -198,7 +198,7 @@ describe('counter', () => {
 		expect(sheet.cellAt('A1').value).toBe(5);
 		expect(sheet.cellAt('B1').value).toBe(10);
 	});
-	it(`should return ${ERROR.ARGS} if number of parameters is wrong`, () => {
+	it(`should return ${Error.code.ARGS} if number of parameters is wrong`, () => {
 		const t1 = createStreamSheet('T1',
 			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' }), {});
 		const sheet = t1.sheet;
@@ -207,11 +207,11 @@ describe('counter', () => {
 		sheet.setCellAt('C1', new Cell(null, createTerm('counter(2,,)', sheet)));
 		sheet.setCellAt('D1', new Cell(null, createTerm('counter(2,)', sheet)));
 		sheet.setCellAt('E1', new Cell(null, createTerm('counter(,,)', sheet)));
-		expect(sheet.cellAt('A1').value).toBe(ERROR.ARGS);
-		expect(sheet.cellAt('B1').value).toBe(ERROR.ARGS);
-		expect(sheet.cellAt('C1').value).toBe(ERROR.ARGS);
-		expect(sheet.cellAt('D1').value).toBe(ERROR.ARGS);
-		expect(sheet.cellAt('E1').value).toBe(ERROR.ARGS);
+		expect(sheet.cellAt('A1').value).toBe(Error.code.ARGS);
+		expect(sheet.cellAt('B1').value).toBe(Error.code.ARGS);
+		expect(sheet.cellAt('C1').value).toBe(Error.code.ARGS);
+		expect(sheet.cellAt('D1').value).toBe(Error.code.ARGS);
+		expect(sheet.cellAt('E1').value).toBe(Error.code.ARGS);
 	});
 });
 
@@ -298,9 +298,9 @@ describe('getcycle', () => {
 	});
 	it('should return error if no sheet or no streamsheet available', () => {
 		const sheet = new StreamSheet().sheet;
-		expect(GETCYCLE()).toBe(ERROR.ARGS);
+		expect(GETCYCLE()).toBe(Error.code.ARGS);
 		sheet.streamsheet = undefined;
-		expect(GETCYCLE(sheet)).toBe(ERROR.NO_STREAMSHEET);
+		expect(GETCYCLE(sheet)).toBe(Error.code.NO_STREAMSHEET);
 	});
 });
 describe('getexecutestep', () => {
@@ -351,9 +351,9 @@ describe('getexecutestep', () => {
 	});
 	it('should return error if no sheet or no streamsheet available', () => {
 		const sheet = new StreamSheet().sheet;
-		expect(GETEXECUTESTEP()).toBe(ERROR.ARGS);
+		expect(GETEXECUTESTEP()).toBe(Error.code.ARGS);
 		sheet.streamsheet = undefined;
-		expect(GETEXECUTESTEP(sheet)).toBe(ERROR.NO_STREAMSHEET);
+		expect(GETEXECUTESTEP(sheet)).toBe(Error.code.NO_STREAMSHEET);
 	});
 });
 describe('getmachinestep', () => {
@@ -385,10 +385,10 @@ describe('getmachinestep', () => {
 	});
 	it('should return error if no sheet or no machine available', () => {
 		const sheet = new StreamSheet().sheet;
-		expect(GETMACHINESTEP()).toBe(ERROR.ARGS);
-		expect(GETMACHINESTEP(sheet)).toBe(ERROR.NO_MACHINE);
+		expect(GETMACHINESTEP()).toBe(Error.code.ARGS);
+		expect(GETMACHINESTEP(sheet)).toBe(Error.code.NO_MACHINE);
 		sheet.streamsheet = undefined;
-		expect(GETMACHINESTEP(sheet)).toBe(ERROR.NO_MACHINE);
+		expect(GETMACHINESTEP(sheet)).toBe(Error.code.NO_MACHINE);
 	});
 });
 describe('getstep', () => {
@@ -435,8 +435,8 @@ describe('getstep', () => {
 	});
 	it('should return error if no sheet or no streamsheet available', () => {
 		const sheet = new StreamSheet().sheet;
-		expect(GETSTEP()).toBe(ERROR.ARGS);
+		expect(GETSTEP()).toBe(Error.code.ARGS);
 		sheet.streamsheet = undefined;
-		expect(GETSTEP(sheet)).toBe(ERROR.NO_STREAMSHEET);
+		expect(GETSTEP(sheet)).toBe(Error.code.NO_STREAMSHEET);
 	});
 });

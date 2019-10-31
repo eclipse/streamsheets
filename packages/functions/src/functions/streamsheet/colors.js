@@ -1,6 +1,6 @@
-const ERROR = require('../errors');
 const { runFunction } = require('../../utils');
 const { convert } = require('@cedalo/commons');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const ensureIsInRange = (val, min, max) => Math.min(max, Math.max(val, min));
 
@@ -295,21 +295,21 @@ const transform = {
 	to(color) {
 		const func = this._color && this._color[color].bind(this._color);
 		const toColor = func && func();
-		return toColor ? toColor.toString() : ERROR.INVALID_PARAM;
+		return toColor ? toColor.toString() : Error.code.INVALID_PARAM;
 	}
 };
 
 const convertcolor = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(3)
-		.mapNextArg((valTerm) => convert.toString(valTerm.value, ERROR.VALUE))
-		.mapNextArg((fromTerm) => convert.toString(fromTerm.value, ERROR.VALUE))
-		.mapNextArg((toTerm) => convert.toString(toTerm.value, ERROR.VALUE))
+		.mapNextArg((valTerm) => convert.toString(valTerm.value, Error.code.VALUE))
+		.mapNextArg((fromTerm) => convert.toString(fromTerm.value, Error.code.VALUE))
+		.mapNextArg((toTerm) => convert.toString(toTerm.value, Error.code.VALUE))
 		.run((value, fromColor, toColor) => {
 			if (fromColor === toColor) {
 				let color = colors[fromColor];
 				color = color && color.fromStr(value);
-				return color ? color.toString() : ERROR.INVALID_PARAM;
+				return color ? color.toString() : Error.code.INVALID_PARAM;
 			}
 			return transform.color(value).from(fromColor).to(toColor);
 		});

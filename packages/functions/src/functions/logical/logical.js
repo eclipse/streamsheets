@@ -1,6 +1,6 @@
-const ERROR = require('../errors');
 const { runFunction, terms: onTerms, values: { isEven } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 
 const runWith = (sheet, terms, logic) => 
@@ -15,7 +15,7 @@ const runWith = (sheet, terms, logic) =>
 				// ignore values which could not be converted
 				if (bool != null) res = logic(res, bool);
 			});
-			return error || (res == null ? ERROR.VALUE : res);
+			return error || (res == null ? Error.code.VALUE : res);
 		});
 
 // boolean values: strings always true!! and 0 always false 
@@ -28,18 +28,18 @@ const not = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(1)
 		.run(() => {
-			const val = convert.toBoolean(terms[0].value, ERROR.VALUE);
-			const error = ERROR.isError(val);
+			const val = convert.toBoolean(terms[0].value, Error.code.VALUE);
+			const error = Error.isError(val);
 			return error || !val;
 		});
 
 
 const _switch = (sheet, ...terms) => {
-	const error = !sheet || terms.length < 3 ? ERROR.ARGS : undefined;
+	const error = !sheet || terms.length < 3 ? Error.code.ARGS : undefined;
 	if (!error) {
 		let matchIndex = -1;
 		const value = terms.shift().value;
-		const defval = isEven(terms.length) ? ERROR.NA : terms[terms.length - 1].value;
+		const defval = isEven(terms.length) ? Error.code.NA : terms[terms.length - 1].value;
 		terms.some((term, index) => {
 			// index must be even
 			matchIndex = (term.value === value && isEven(index)) ? index : -1;

@@ -1,7 +1,7 @@
-const ERROR = require('../../src/functions/errors');
 const { SETCYCLETIME } = require('../../src/functions');
 const { Term } = require('@cedalo/parser');
 const { Machine, SheetIndex, StreamSheet } = require('@cedalo/machine-core');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const setup = (cycletime = 1000) => {
 	const machine = new Machine();
@@ -21,8 +21,8 @@ describe('setcycletime', () => {
 	});
 	it('should not be possible to set a cycletime < 1', () => {
 		const { sheet } = setup();
-		expect(SETCYCLETIME(sheet, Term.fromNumber(0))).toBe(ERROR.VALUE);
-		expect(SETCYCLETIME(sheet, Term.fromNumber(-1))).toBe(ERROR.VALUE);
+		expect(SETCYCLETIME(sheet, Term.fromNumber(0))).toBe(Error.code.VALUE);
+		expect(SETCYCLETIME(sheet, Term.fromNumber(-1))).toBe(Error.code.VALUE);
 	});
 	it('should work inside a sheet', () => {
 		const cells = { A1: { formula: 'A1+1' }, B1: { formula: 'getcycletime()' } };
@@ -39,9 +39,9 @@ describe('setcycletime', () => {
 	it('should return error if no valid parameters are provided', () => {
 		const { sheet } = setup();
 		const invalidSheet = new StreamSheet().sheet;
-		expect(SETCYCLETIME()).toBe(ERROR.ARGS);
-		expect(SETCYCLETIME(sheet)).toBe(ERROR.ARGS);
-		expect(SETCYCLETIME(invalidSheet, Term.fromNumber(4000))).toBe(ERROR.NO_MACHINE);
-		expect(SETCYCLETIME(sheet, Term.fromString('abc'))).toBe(ERROR.VALUE);
+		expect(SETCYCLETIME()).toBe(Error.code.ARGS);
+		expect(SETCYCLETIME(sheet)).toBe(Error.code.ARGS);
+		expect(SETCYCLETIME(invalidSheet, Term.fromNumber(4000))).toBe(Error.code.NO_MACHINE);
+		expect(SETCYCLETIME(sheet, Term.fromString('abc'))).toBe(Error.code.VALUE);
 	});
 });

@@ -1,13 +1,13 @@
-const ERROR = require('../functions/errors');
 const { ensure } = require('./validation');
 const { Streams } = require('@cedalo/machine-core');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const publishinternal = (s, ...t) =>
 	ensure(s, t)
 		.withArgs(2, ['streamTerm', 'message'])
 		.withProducer()
-		.check(({ message }) => ERROR.isError(message) || ERROR.ifNot(message, ERROR.NO_MSG))
-		.check(({ message }) => ERROR.ifTrue(message.message === null || message.message === undefined))
+		.check(({ message }) => Error.isError(message) || Error.ifNot(message, Error.code.NO_MSG))
+		.check(({ message }) => Error.ifTrue(message.message === null || message.message === undefined))
 		.isProcessing()
 		.run(({ streamId, message }) => {
 			Streams.publish(streamId, message);

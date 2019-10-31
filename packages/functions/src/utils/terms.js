@@ -1,8 +1,7 @@
-const ERROR = require('../functions/errors');
 const sheetutils = require('./sheet');
 const { convert } = require('@cedalo/commons');
 const IdGenerator = require('@cedalo/id-generator');
-
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const cellFromTerm = (term) => {
 	const refop = term && term.operand;
@@ -11,13 +10,13 @@ const cellFromTerm = (term) => {
 
 const callCallback = (termOrCell, cb) => {
 	const value = termOrCell ? termOrCell.value : undefined;
-	const error = value != null ? ERROR.isError(value) : undefined;
+	const error = value != null ? Error.isError(value) : undefined;
 	if (value != null) cb(value, error);
 	return error;
 };
 const iterateTermValues = (sheet, term, callback) => {
 	const cellrange = sheetutils.getCellRangeFromTerm(term, sheet);
-	let error = ERROR.isError(cellrange); // e.g. illegal reference or range
+	let error = Error.isError(cellrange); // e.g. illegal reference or range
 	if (error) callback(undefined, error);
 	else if (cellrange) return !cellrange.some((cell) => !!callCallback(cell, callback));
 	else error = callCallback(term, callback);
@@ -56,7 +55,7 @@ const requestIdCurrentMessage = (sheet) => {
 const getRequestIdFromTerm = (requestIdTerm, sheet) => {
 	const requestIdParam = requestIdTerm && requestIdTerm.value;
 	const requestId = requestIdParam || requestIdCurrentMessage(sheet);
-	const error = ERROR.ifNot(typeof requestId === 'string', ERROR.INVALID_PARAM);
+	const error = Error.ifNot(typeof requestId === 'string', Error.code.INVALID_PARAM);
 	return error || requestId;
 };
 

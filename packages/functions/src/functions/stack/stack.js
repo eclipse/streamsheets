@@ -1,32 +1,32 @@
-const ERROR = require('../errors');
 const StackHelper = require('./stackhelper');
 const { runFunction, sheet: sheetutils } = require('../../utils');
 const { convert } = require('@cedalo/commons');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const toBooleanStrict = convert.from().boolean.toBoolean;
 const toBoolean = (term, defval) => {
 	const value = term ? term.value : undefined;
-	return value != null ? toBooleanStrict(value, ERROR.VALUE) : defval;
+	return value != null ? toBooleanStrict(value, Error.code.VALUE) : defval;
 };
 
 const checkRangeHeight = (ranges) => {
 	let error;
 	ranges.some((range) => {
-		error = ERROR.isError(range) || (range && range.height < 2 ? ERROR.INVALID_PARAM : undefined);
+		error = Error.isError(range) || (range && range.height < 2 ? Error.code.INVALID_PARAM : undefined);
 		return error != null;
 	});
 	return error || ranges;
 };
 
 const getTargetRange = (term, sheet) =>
-	((term && term.value != null) ? (sheetutils.getCellRangeFromTerm(term, sheet) || ERROR.VALUE) : undefined);
+	((term && term.value != null) ? (sheetutils.getCellRangeFromTerm(term, sheet) || Error.code.VALUE) : undefined);
 
 const add = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(2)
 		.withMaxArgs(4)
-		.mapNextArg(stackrange => sheetutils.getCellRangeFromTerm(stackrange, sheet) || ERROR.NAME)
-		.mapNextArg(sourcerange => sheetutils.getCellRangeFromTerm(sourcerange, sheet) || ERROR.NAME)
+		.mapNextArg(stackrange => sheetutils.getCellRangeFromTerm(stackrange, sheet) || Error.code.NAME)
+		.mapNextArg(sourcerange => sheetutils.getCellRangeFromTerm(sourcerange, sheet) || Error.code.NAME)
 		.mapNextArg(bottomTerm => toBoolean(bottomTerm, true))
 		.mapNextArg(targetrange => getTargetRange(targetrange, sheet))
 		.reduce((...ranges) => checkRangeHeight(ranges))
@@ -40,7 +40,7 @@ const drop = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(3)
-		.mapNextArg(stackrange => sheetutils.getCellRangeFromTerm(stackrange, sheet) || ERROR.NAME)
+		.mapNextArg(stackrange => sheetutils.getCellRangeFromTerm(stackrange, sheet) || Error.code.NAME)
 		.mapNextArg(position => (position ? convert.toNumber(position.value, 1) : 1))
 		.mapNextArg(targetrange => getTargetRange(targetrange, sheet))
 		.reduce((...ranges) => checkRangeHeight(ranges))
@@ -54,8 +54,8 @@ const find = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(2)
 		.withMaxArgs(4)
-		.mapNextArg(stackrange => sheetutils.getCellRangeFromTerm(stackrange, sheet) || ERROR.NAME)
-		.mapNextArg(criteriarange => sheetutils.getCellRangeFromTerm(criteriarange, sheet) || ERROR.NAME)
+		.mapNextArg(stackrange => sheetutils.getCellRangeFromTerm(stackrange, sheet) || Error.code.NAME)
+		.mapNextArg(criteriarange => sheetutils.getCellRangeFromTerm(criteriarange, sheet) || Error.code.NAME)
 		.mapNextArg(targetrange => getTargetRange(targetrange, sheet))
 		.mapNextArg(dropRows => toBoolean(dropRows, false))
 		.reduce((...ranges) => checkRangeHeight(ranges))
@@ -69,7 +69,7 @@ const rotate = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(3)
-		.mapNextArg(stackrange => sheetutils.getCellRangeFromTerm(stackrange, sheet) || ERROR.NAME)
+		.mapNextArg(stackrange => sheetutils.getCellRangeFromTerm(stackrange, sheet) || Error.code.NAME)
 		.mapNextArg(position => (position ? convert.toNumber(position.value, 1) : 1))
 		.mapNextArg(targetrange => getTargetRange(targetrange, sheet))
 		.reduce((...ranges) => checkRangeHeight(ranges))
@@ -82,8 +82,8 @@ const rotate = (sheet, ...terms) =>
 const sort = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(2)
-		.mapNextArg(stackrange => sheetutils.getCellRangeFromTerm(stackrange, sheet) || ERROR.NAME)
-		.mapNextArg(sortrange => sheetutils.getCellRangeFromTerm(sortrange, sheet) || ERROR.NAME)
+		.mapNextArg(stackrange => sheetutils.getCellRangeFromTerm(stackrange, sheet) || Error.code.NAME)
+		.mapNextArg(sortrange => sheetutils.getCellRangeFromTerm(sortrange, sheet) || Error.code.NAME)
 		.reduce((...ranges) => checkRangeHeight(ranges))
 		.run((stackrange, sortrange) => StackHelper.sort(stackrange, sortrange));
 

@@ -1,5 +1,3 @@
-// const SheetIndex = require('../../machine/SheetIndex');
-const ERROR = require('../functions/errors');
 const {
 	isBoxFuncTerm,
 	isInboxTerm,
@@ -10,15 +8,15 @@ const {
 } = require('./terms');
 const { Term } = require('@cedalo/parser');
 const { jsonpath } = require('@cedalo/commons');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 const { Cell, CellReference, Message, SheetRange } = require('@cedalo/machine-core');
-
 
 // sheet: default sheet to use if CellReference must be created
 const getCellFromTermIndex = (term, sheet) => {
 	let cell;
 	if (term.hasOperandOfType('CellRangeReference')) {
 		const range = term.operand.range;
-		cell = ERROR.isError(range) || range.sheet.cellAt(range.start);
+		cell = Error.isError(range) || range.sheet.cellAt(range.start);
 	} else {
 		// eslint-disable-next-line
 		term.value; // we need to get value to ensure a possible cell-index is set...
@@ -52,7 +50,7 @@ const getCellRangeFromTerm = (term, sheet, strict) => {
 		// we need to get value to ensure cell index is set...
 		const value = term.value;
 		// cannot simply return error here!! will prevent overriding an error-cell!!!
-		// range = ERROR.isError(value) || ((value instanceof SheetRange) && value);
+		// range = Error.isError(value) || ((value instanceof SheetRange) && value);
 		range = (value instanceof SheetRange) && value;
 		if (!range && !strict) {
 			range = createCellRangeFromCellReference(term)
@@ -87,7 +85,7 @@ const getCellRangesFromTerm = (term, sheet, strict) => {
 // 		const params = term.isList ? term.params : [term];
 // 		params.some((param) => {
 // 			const range = getCellRangeFromTerm(param, sheet);
-// 			if (!ERROR.isError(range)) {
+// 			if (!Error.isError(range)) {
 // 				range.iterate(cell => cell && list.push(cell));
 // 				return false;
 // 			}
@@ -103,7 +101,7 @@ const getCellReferencesFromTerm = (term, sheet) => {
 		const params = term.isList ? term.params : [term];
 		params.some((param) => {
 			const range = getCellRangeFromTerm(param, sheet);
-			if (ERROR.isError(range)) {
+			if (Error.isError(range)) {
 				refs = range;
 				return true;
 			}
@@ -180,7 +178,7 @@ const getInboxOrOutboxMessage = (path, machine) => {
 const createMessageFromValue = (value) => {
 	let message;
 	if (value != null) {
-		message = ERROR.isError(value) || new Message(typeof value === 'object' ? Object.assign({}, value) : { value });
+		message = Error.isError(value) || new Message(typeof value === 'object' ? Object.assign({}, value) : { value });
 	}
 	return message;
 };
@@ -218,25 +216,25 @@ const messageFromBox = (machine, sheet, term, requireMessageData = true) => {
 	let message;
 	if (isInboxTerm(term)) {
 		const inboxMessage = messageFromInbox(sheet, term);
-		message = inboxMessage ? { metadata: inboxMessage.metadata, data: inboxMessage.data } : ERROR.NO_MSG;
+		message = inboxMessage ? { metadata: inboxMessage.metadata, data: inboxMessage.data } : Error.code.NO_MSG;
 	} else if (isOutboxTerm(term)) {
 		const outboxMessage = messageFromOutbox(machine, term);
-		message = outboxMessage ? outboxMessage.data : ERROR.NO_MSG;
+		message = outboxMessage ? outboxMessage.data : Error.code.NO_MSG;
 	} else if (isOutboxDataTerm(term)) {
 		const [, ...path] = jsonpath.parse(term.value);
 		const outboxMessage = messageFromOutbox(machine, term);
-		message = outboxMessage ? jsonpath.query(path, outboxMessage.data) : ERROR.NO_MSG;
+		message = outboxMessage ? jsonpath.query(path, outboxMessage.data) : Error.code.NO_MSG;
 	} else if (isInboxDataTerm(term)) {
 		const [, , ...path] = jsonpath.parse(term.value);
 		const inboxMessage = messageFromInbox(sheet, term);
-		message = inboxMessage ? jsonpath.query(path, inboxMessage.data) : ERROR.NO_MSG;
+		message = inboxMessage ? jsonpath.query(path, inboxMessage.data) : Error.code.NO_MSG;
 	} else if (isInboxMetaDataTerm(term)) {
 		const [, , ...path] = jsonpath.parse(term.value);
 		const inboxMessage = messageFromInbox(sheet, term);
-		message = inboxMessage ? jsonpath.query(path, inboxMessage.metadata) : ERROR.NO_MSG;
+		message = inboxMessage ? jsonpath.query(path, inboxMessage.metadata) : Error.code.NO_MSG;
 	}
 	if (requireMessageData && (message === null || message === undefined)) {
-		return ERROR.NO_MSG_DATA;
+		return Error.code.NO_MSG_DATA;
 	}
 	return message;
 };

@@ -1,6 +1,5 @@
-const ERROR = require('../functions/errors');
 const { isNumber } = require('./values');
-
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const create = (key, next, parent) => {
 	const newparent = isNumber(next) ? [] : {};
@@ -33,8 +32,8 @@ const addTo = (parent, key, value) => {
 
 const add = (json, path, value) => {
 	const parent = createParent(path, json);
-	if (value == null) return ERROR.VALUE;
-	else if (typeof parent !== 'object') return ERROR.INVALID_PATH;
+	if (value == null) return Error.code.VALUE;
+	else if (typeof parent !== 'object') return Error.code.INVALID_PATH;
 	return addTo(parent, path.pop(), value) && json;
 };
 
