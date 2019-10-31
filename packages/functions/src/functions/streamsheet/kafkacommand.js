@@ -1,14 +1,13 @@
-const ERROR = require('../errors');
 const { requestinternallegacy } = require('./request');
 const {	sheet: { getMachine } } = require('../../utils');
 const Message = require('@cedalo/machine-core');
 
 
 const kafkacommand = (sheet, ...terms) => {
-	let error = terms.length < 4 && terms.length > 8 ? ERROR.ARGS : undefined;
+	let error = terms.length < 4 && terms.length > 8 ? Error.code.ARGS : undefined;
 	if (!error && sheet.isProcessing) {
 		const machine = getMachine(sheet);
-		error = ERROR.ifNot(machine, ERROR.NO_MACHINE);
+		error = Error.ifNot(machine, Error.code.NO_MACHINE);
 		const [
 			streamTerm,
 			commandTerm,

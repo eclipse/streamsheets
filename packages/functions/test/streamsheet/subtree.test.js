@@ -1,8 +1,8 @@
-const ERROR = require('../../src/functions/errors');
 const MSG = require('../_data/messages.json');
 const { SUBTREE } = require('../../src/functions/streamsheet');
 const { createCellAt, createFuncTerm, createParamTerms } = require('../utils');
 const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const createMessage = (msgjson) => {
 	const message = new Message(Object.assign({}, msgjson.data));
@@ -30,7 +30,7 @@ describe('subtree', () => {
 		expect(SUBTREE(sheet, createFuncTerm(sheet, 'inboxdata', createParamTerms('', '', 'Positionen', 2))))
 			.toEqual({ PosNr: 3, Artikelnr: 4535, Preis: 45.32 });
 		expect(SUBTREE(sheet, createFuncTerm(sheet, 'inboxdata', createParamTerms('', '', 'Positionen', 3))))
-			.toBe(ERROR.NO_MSG_DATA);
+			.toBe(Error.code.NO_MSG_DATA);
 		expect(SUBTREE(sheet, createFuncTerm(sheet, 'inboxdata', createParamTerms('', '', 'Positionen', 1, 'PosNr'))))
 			.toBe(2);
 	});
@@ -166,17 +166,17 @@ describe('subtree', () => {
 		createCellAt('B1', { formula: 'subtree(inbox(,"123"))' }, sheet);
 		createCellAt('C1', { formula: 'subtree(inboxdata(,,"Kundenname"))' }, sheet);
 		createCellAt('D1', { formula: 'subtree(inboxdata(,"1234","Kundenname"))' }, sheet);
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NO_MSG);
-		expect(sheet.cellAt('B1').value).toBe(ERROR.NO_MSG);
-		expect(sheet.cellAt('C1').value).toBe(ERROR.NO_MSG);
-		expect(sheet.cellAt('D1').value).toBe(ERROR.NO_MSG);
+		expect(sheet.cellAt('A1').value).toBe(Error.code.NO_MSG);
+		expect(sheet.cellAt('B1').value).toBe(Error.code.NO_MSG);
+		expect(sheet.cellAt('C1').value).toBe(Error.code.NO_MSG);
+		expect(sheet.cellAt('D1').value).toBe(Error.code.NO_MSG);
 	});
 	it('should return #NO_MSG_DATA if extracting from an unknown message data or metadata', () => {
 		const streamsheet = new StreamSheet();
 		const sheet = streamsheet.sheet;
 		streamsheet.inbox.put(createMessage(MSG.SIMPLE));
 		createCellAt('A1', { formula: 'subtree(inboxdata(,,"Kundenvorname"))' }, sheet);
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NO_MSG_DATA);
+		expect(sheet.cellAt('A1').value).toBe(Error.code.NO_MSG_DATA);
 	});
 	// DL-1115
 	describe('optional 2nd parameter to return parent JSON key', () => {

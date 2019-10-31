@@ -1,7 +1,6 @@
-const ERROR = require('../errors');
 const { sheet: { createMessageFromTerm, getMachine, getStreamSheetByName } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
-
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const markAs = (term, marker) => {
 	if (term) term._marker = marker;
@@ -92,12 +91,12 @@ const createExecuteMessage = (term, sheet) => {
 };
 
 const execute = (sheet, ...terms) => {
-	let error = !sheet || terms.length < 1 ? ERROR.ARGS : undefined;
+	let error = !sheet || terms.length < 1 ? Error.code.ARGS : undefined;
 	if (!error && sheet.isProcessing) {
 		const repeat = terms.length > 1 ? convert.toNumber(terms[1].value, 1) : 1;
 		const selector = terms[3] ? terms[3].value : undefined;
 		const streamsheet = getStreamSheetByName(terms[0].value, sheet);
-		error = ERROR.ifTrue((!streamsheet || streamsheet === sheet.streamsheet), ERROR.NO_STREAMSHEET);
+		error = Error.ifTrue((!streamsheet || streamsheet === sheet.streamsheet), Error.code.NO_STREAMSHEET);
 		if (!error && repeat > 0) {
 			let result = true;
 			const executeTerm = execute.term;
@@ -125,7 +124,7 @@ const execute = (sheet, ...terms) => {
 				// DL-1114 increase executestep only if current message is finished (loop) and streamsheet is not waiting
 				result = streamsheet.execute({ message, selector }, onExecuted(executeTerm));
 				// changed docu: should return NA in endless mode and successful trigger
-				result = result && streamsheet.trigger.isEndless ? ERROR.NA : result;
+				result = result && streamsheet.trigger.isEndless ? Error.code.NA : result;
 			}
 			if (isMarkedAs(executeTerm, 'resumed')) {
 				let retval = returnValue(executeTerm);
@@ -133,7 +132,7 @@ const execute = (sheet, ...terms) => {
 				setReturnValue(executeTerm, null);
 				// DL-1281: conform to docu....
 				if (retval == null) {
-					retval = streamsheet.trigger.isEndless ? ERROR.NA : !streamsheet.inbox.isEmpty();
+					retval = streamsheet.trigger.isEndless ? Error.code.NA : !streamsheet.inbox.isEmpty();
 				}
 				result = retval; // != null ? retval : true;
 			}

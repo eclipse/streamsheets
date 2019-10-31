@@ -1,4 +1,4 @@
-const ERROR = require('../functions/errors');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 
 class Runner {
@@ -10,7 +10,7 @@ class Runner {
 		this.defReturnValue = true;
 		this.mappedArgs = [];
 //		this.funcArgs = {};
-		this.error = ERROR.ifNot(sheet, ERROR.ARGS);
+		this.error = Error.ifNot(sheet, Error.code.ARGS);
 	}
 
 	onSheetCalculation() {
@@ -19,25 +19,25 @@ class Runner {
 	}
 
 	withArgCount(nr) {
-		this.error = this.error || ERROR.ifTrue(this.args.length !== nr, ERROR.ARGS);
+		this.error = this.error || Error.ifTrue(this.args.length !== nr, Error.code.ARGS);
 		return this;
 	}
 
 	withMinArgs(min) {
-		this.error = this.error || ERROR.ifTrue(this.args.length < min, ERROR.ARGS);
+		this.error = this.error || Error.ifTrue(this.args.length < min, Error.code.ARGS);
 		return this;
 	}
 
 	withMaxArgs(max) {
-		this.error = this.error || ERROR.ifTrue(this.args.length > max, ERROR.ARGS);
+		this.error = this.error || Error.ifTrue(this.args.length > max, Error.code.ARGS);
 		return this;
 	}
 
-	// adds additional value which is passed to run(), eg: addMappedArg(() => sheet.streamsheet || ERROR.NO_STREAMSHEET)
+	// adds additional value which is passed to run(), eg: addMappedArg(() => sheet.streamsheet || Error.code.NO_STREAMSHEET)
 	addMappedArg(fn) {
 		if (!this.error) {
 			const res = fn(...this.mappedArgs);
-			this.error = ERROR.isError(res);
+			this.error = Error.isError(res);
 			this.mappedArgs.push(res);
 		}
 		return this;
@@ -45,7 +45,7 @@ class Runner {
 	// addMappedArg2(name, fn) {
 	// 	if (!this.error) {
 	// 		const res = fn(this.funcArgs);
-	// 		this.error = ERROR.isError(res);
+	// 		this.error = Error.isError(res);
 	// 		this.funcArgs[name] = res;
 	// 	}
 	// 	return this;
@@ -55,7 +55,7 @@ class Runner {
 		if (!this.error) {
 			const term = this.args.shift();
 			const res = fn(term, ...this.mappedArgs);
-			this.error = ERROR.isError(res);
+			this.error = Error.isError(res);
 			this.mappedArgs.push(res);
 		}
 		return this;
@@ -64,7 +64,7 @@ class Runner {
 	// 	if (!this.error) {
 	// 		const term = this.args.shift();
 	// 		const res = fn(term, this.funcArgs);
-	// 		this.error = ERROR.isError(res);
+	// 		this.error = Error.isError(res);
 	// 		this.funcArgs[name] = res;
 	// 	}
 	// 	return this;
@@ -73,7 +73,7 @@ class Runner {
 	reduce(fn) {
 		if (!this.error) {
 			const res = fn(...this.mappedArgs);
-			this.error = ERROR.isError(res);
+			this.error = Error.isError(res);
 			this.mappedArgs = res;
 		}
 		return this;
@@ -81,7 +81,7 @@ class Runner {
 	// reduce2(name, fn) {
 	// 	if (!this.error) {
 	// 		const res = fn(this.funcArgs);
-	// 		this.error = ERROR.isError(res);
+	// 		this.error = Error.isError(res);
 	// 		this.funcArgs[name] = res;
 	// 	}
 	// 	return this;
@@ -89,13 +89,13 @@ class Runner {
 
 	validate(fn) {
 		if (!this.error) {
-			this.error = ERROR.isError(fn(...this.mappedArgs));
+			this.error = Error.isError(fn(...this.mappedArgs));
 		}
 		return this;
 	}
 	// validate2(fn) {
 	// 	if (!this.error) {
-	// 		this.error = ERROR.isError(fn(this.funcArgs));
+	// 		this.error = Error.isError(fn(this.funcArgs));
 	// 	}
 	// 	return this;
 	// }

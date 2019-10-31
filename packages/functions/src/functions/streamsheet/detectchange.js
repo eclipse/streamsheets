@@ -1,9 +1,8 @@
-const ERROR = require('../errors');
 const { date: { ms2serial, serial2ms }, runFunction } = require('../../utils');
 const { Term } = require('@cedalo/parser');
 const { convert } = require('@cedalo/commons');
 const Cell = require('@cedalo/machine-core');
-
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const term2ms = (term) => {
 	const value = convert.toNumber(term.value);
@@ -54,12 +53,12 @@ const detectchange = (sheet, ...terms) =>
 		.withMaxArgs(5)
 		.mapNextArg(newcond => convert.toBoolean(newcond.value, false))
 		.mapNextArg(period => convert.toNumber(period.value, 0))
-		.mapNextArg(oldcondcell => (oldcondcell.hasOperandOfType('CellReference') ? oldcondcell : ERROR.INVALID_PARAM))
-		.mapNextArg(timecell => (timecell.hasOperandOfType('CellReference') ? timecell : ERROR.INVALID_PARAM))
+		.mapNextArg(condcell => (condcell.hasOperandOfType('CellReference') ? condcell : Error.code.INVALID_PARAM))
+		.mapNextArg(timecell => (timecell.hasOperandOfType('CellReference') ? timecell : Error.code.INVALID_PARAM))
 		.mapNextArg(delay => (delay != null ? convert.toNumber(delay.value, 0) : 0))
-		.run((newcond, period, oldcondcell, timecell, delay) => {
-			const change = newcond && !convert.toBoolean(oldcondcell.value, false);
-			setCell(oldcondcell, Term.fromBoolean(newcond));
+		.run((newcond, period, condcell, timecell, delay) => {
+			const change = newcond && !convert.toBoolean(condcell.value, false);
+			setCell(condcell, Term.fromBoolean(newcond));
 			if (change) {
 				setCell(timecell, Term.fromNumber(ms2serial(Date.now())));
 			}

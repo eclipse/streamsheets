@@ -1,7 +1,7 @@
-const ERROR = require('../../src/functions/errors');
 const MESSAGES = require('../_data/messages.json');
 const { createTerm } = require('../utils');
 const { Cell, Machine, Message, SheetIndex, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const setup = (config) => {
 	const machine = new Machine();
@@ -243,7 +243,7 @@ describe('read', () => {
 			expect(sheet.cellAt('B3').value).toBe('Red');
 		});
 		// DL-578
-		it(`should set target cell to ${ERROR.NA} for processed message and corresponding param is set to true`, () => {
+		it(`should set target cell to ${Error.code.NA} for processed message and corresponding param is set to true`, () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			const streamsheet = sheet.streamsheet;
 			// only for special triggers like MACHINE_START/STOP and RANDOM or TIMER...
@@ -270,10 +270,10 @@ describe('read', () => {
 			expect(sheet.cellAt('A1').value).toBe('Vorname');
 			expect(sheet.cellAt('C1').value).toBe('Anton');
 			expect(sheet.cellAt('A2').value).toBe('Vorname');
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C2').value).toBe(Error.code.NA);
 		});
 		// DL-966
-		it(`should set target cell to ${ERROR.NA} if requested message data is not available`, () => {
+		it(`should set target cell to ${Error.code.NA} if requested message data is not available`, () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			const streamsheet = sheet.streamsheet;
 			// only for special triggers like MACHINE_START/STOP and RANDOM or TIMER...
@@ -296,14 +296,14 @@ describe('read', () => {
 			expect(sheet.cellAt('A1').value).toBe('Vorname');
 			expect(sheet.cellAt('C1').value).toBe('Max');
 			expect(sheet.cellAt('A2').value).toBe('Anrede');
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('C3').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C2').value).toBe(Error.code.NA);
+			expect(sheet.cellAt('C3').value).toBe(Error.code.NA);
 			streamsheet.step();
 			expect(sheet.cellAt('A1').value).toBe('Vorname');
 			expect(sheet.cellAt('C1').value).toBe('Anton');
 			expect(sheet.cellAt('A2').value).toBe('Anrede');
 			expect(sheet.cellAt('C2').value).toBe('Herr');
-			expect(sheet.cellAt('C3').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C3').value).toBe(Error.code.NA);
 			// we are in endless mode, so we keep last message, but target value is not available...
 			streamsheet.step();
 			streamsheet.step();
@@ -311,8 +311,8 @@ describe('read', () => {
 			expect(sheet.cellAt('A1').value).toBe('Vorname');
 			expect(sheet.cellAt('C1').value).toBe('Anton');
 			expect(sheet.cellAt('A2').value).toBe('Anrede');
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('C3').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C2').value).toBe(Error.code.NA);
+			expect(sheet.cellAt('C3').value).toBe(Error.code.NA);
 		});
 		// DL-966 & DL-578
 		// eslint-disable-next-line
@@ -380,7 +380,7 @@ describe('read', () => {
 			expect(sheet.cellAt('C2').value).toBe('Max-ABC');
 		});
 		// eslint-disable-next-line
-		it(`should return ${ERROR.NA} if 5. parameter is set to true and data not available or last read data if 5. parameter is false `, () => {
+		it(`should return ${Error.code.NA} if 5. parameter is set to true and data not available or last read data if 5. parameter is false `, () => {
 			// DL-966: try to mimic scenario from issue
 			const machine = new Machine();
 			const t1 = new StreamSheet({ name: 'T1' });
@@ -397,7 +397,7 @@ describe('read', () => {
 			t1.inbox.put(msg1);
 			t1.step();
 			expect(sheet.cellAt('C1').value).toBe('');
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C2').value).toBe(Error.code.NA);
 			t1.inbox.put(msg2);
 			t1.step();
 			expect(sheet.cellAt('C1').value).toBe('Herr');
@@ -405,7 +405,7 @@ describe('read', () => {
 			t1.inbox.put(msg1);
 			t1.step();
 			expect(sheet.cellAt('C1').value).toBe('Herr');
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C2').value).toBe(Error.code.NA);
 			t1.inbox.put(msg2);
 			t1.step();
 			expect(sheet.cellAt('C1').value).toBe('Herr');
@@ -413,7 +413,7 @@ describe('read', () => {
 			t1.inbox.put(msg1);
 			t1.step();
 			expect(sheet.cellAt('C1').value).toBe('Herr');
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C2').value).toBe(Error.code.NA);
 		});
 	});
 	describe('return value', () => {
@@ -601,7 +601,7 @@ describe('read', () => {
 			expect(sheet.cellAt('C3').value).toBe('value');
 			expect(sheet.cellAt('D3').value).toBe(1);
 		});
-		it(`should read dictionary and return ${ERROR.NA} if current message has not requested data`, () => {
+		it(`should read dictionary and return ${Error.code.NA} if current message has not requested data`, () => {
 			const machine = new Machine();
 			const t1 = new StreamSheet({ name: 'T1' });
 			machine.addStreamSheet(t1);
@@ -629,12 +629,12 @@ describe('read', () => {
 			expect(sheet.cellAt('D3').value).toBe(0);
 			// we should keep last read...
 			t1.step();
-			expect(sheet.cellAt('C1').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('D1').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('D2').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('C3').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('D3').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C1').value).toBe(Error.code.NA);
+			expect(sheet.cellAt('D1').value).toBe(Error.code.NA);
+			expect(sheet.cellAt('C2').value).toBe(Error.code.NA);
+			expect(sheet.cellAt('D2').value).toBe(Error.code.NA);
+			expect(sheet.cellAt('C3').value).toBe(Error.code.NA);
+			expect(sheet.cellAt('D3').value).toBe(Error.code.NA);
 			t1.step();
 			expect(sheet.cellAt('C1').value).toBe('dataType');
 			expect(sheet.cellAt('D1').value).toBe('Integer');
@@ -645,12 +645,12 @@ describe('read', () => {
 			t1.step();
 			t1.step();
 			t1.step();
-			expect(sheet.cellAt('C1').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('D1').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('D2').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('C3').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('D3').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C1').value).toBe(Error.code.NA);
+			expect(sheet.cellAt('D1').value).toBe(Error.code.NA);
+			expect(sheet.cellAt('C2').value).toBe(Error.code.NA);
+			expect(sheet.cellAt('D2').value).toBe(Error.code.NA);
+			expect(sheet.cellAt('C3').value).toBe(Error.code.NA);
+			expect(sheet.cellAt('D3').value).toBe(Error.code.NA);
 		});
 	});
 

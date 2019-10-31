@@ -1,6 +1,6 @@
-const ERROR = require('../errors');
 const { runFunction, sheet: { getMachine } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 
 const setcycletime = (sheet, ...terms) =>
@@ -8,9 +8,9 @@ const setcycletime = (sheet, ...terms) =>
 		.withArgCount(1)
 		.mapNextArg((cycletime) => {
 			const time = convert.toNumber(cycletime.value);
-			return time == null || time < 1 ? ERROR.VALUE : time;
+			return time == null || time < 1 ? Error.code.VALUE : time;
 		})
-		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)
+		.addMappedArg(() => getMachine(sheet) || Error.code.NO_MACHINE)
 		.run((cycletime, machine) => {
 			machine.cycletime = cycletime;
 			return true;

@@ -1,4 +1,3 @@
-const ERROR = require('../errors');
 const { calculate, runFunction, sheet: sheetutils } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { Functions, Term } = require('@cedalo/parser');
@@ -69,7 +68,7 @@ class Aggregator {
 		this.aggregate = aggregate(settings.method);
 		this.intervalFilter = timeFilter(settings.interval);
 		this.nextAggregation = Date.now() + settings.interval;
-		this._aggregatedValues = ERROR.NA;
+		this._aggregatedValues = Error.code.NA;
 	}
 
 	getAggregatedValues() {
@@ -117,7 +116,7 @@ class Aggregator {
 
 const getMethodNumber = (value, defNr) => {
 	const nr = value != null ? convert.toNumberStrict(value) : defNr;
-	return aggregations[nr] ? nr : ERROR.VALUE;
+	return aggregations[nr] ? nr : Error.code.VALUE;
 };
 const getAggregator = (term, settings) => {
 	if (!term._timeaggregator || !term._timeaggregator.hasEqual(settings)) {
@@ -134,14 +133,14 @@ const timeaggregate = (sheet, ...terms) =>
 		.withMaxArgs(7)
 		// we ignore any error values, since we do not want an error as return or in cell...
 		.mapNextArg(val => (val != null ? convert.toNumberStrict(val.value, IGNORE) : IGNORE))
-		.mapNextArg(period => convert.toNumberStrict(period != null ? period.value || 60 : 60, ERROR.VALUE))
+		.mapNextArg(period => convert.toNumberStrict(period != null ? period.value || 60 : 60, Error.code.VALUE))
 		.mapNextArg(method => getMethodNumber(method && method.value, DEF_METHOD))
 		.mapNextArg(timestamp => convert.toNumberStrict(timestamp != null ? timestamp.value : null, Functions.NOW()))
 		.mapNextArg(interval => convert.toNumberStrict(interval != null ? interval.value : null))
 		.mapNextArg(targetrange => sheetutils.getCellRangeFromTerm(targetrange, sheet))
 		.mapNextArg(doSort => doSort != null ? convert.toBoolean(doSort.value) : false)
 		.validate((val, period, method, timestamp, interval) =>
-			((interval != null && interval < MIN_INTERVAL) ? ERROR.VALUE : undefined)
+			((interval != null && interval < MIN_INTERVAL) ? Error.code.VALUE : undefined)
 		)
 		.run((val, period, method, timestamp, interval, targetrange, sorted) => {
 			period *= 1000; // in ms

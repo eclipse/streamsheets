@@ -1,5 +1,5 @@
-const ERROR = require('../functions/errors');
 const { getMachine } = require('./sheet');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 class Chain {
 
@@ -15,7 +15,7 @@ class Chain {
 		if (!this.context.sheet) this.withSheet();
 		if (!this.error) {
 			const machine = getMachine(this.sheet);
-			this.error = ERROR.ifNot(machine, ERROR.NO_MACHINE);
+			this.error = Error.ifNot(machine, Error.code.NO_MACHINE);
 			this.context.machine = machine;
 		}
 		return this;
@@ -23,7 +23,7 @@ class Chain {
 
 	withArgs(numberOfArgs, argMappings, vararg = false) {
 		if (!this.error) {
-			this.error = ERROR.ifTrue(this.args.length < numberOfArgs, ERROR.ARGS);
+			this.error = Error.ifTrue(this.args.length < numberOfArgs, Error.code.ARGS);
 			this.context.args = this.args;
 			if (Array.isArray(argMappings)) {
 				argMappings.forEach((name, index) => {
@@ -41,7 +41,7 @@ class Chain {
 	withSheet() {
 		if (!this.error) {
 			this.context.sheet = this.sheet;
-			this.error = ERROR.ifNot(this.sheet, ERROR.ARGS);
+			this.error = Error.ifNot(this.sheet, Error.code.ARGS);
 		}
 		return this;
 	}
@@ -51,7 +51,7 @@ class Chain {
 			return this;
 		}
 		const result = f(this.context, ...this.mappedArgs);
-		this.error = ERROR.isError(result);
+		this.error = Error.isError(result);
 		this.mappedArgs.push(result);
 		return this;
 	}
@@ -61,7 +61,7 @@ class Chain {
 			return this;
 		}
 		const result = f(this.context, ...this.mappedArgs);
-		this.error = ERROR.isError(result);
+		this.error = Error.isError(result);
 		return this;
 	}
 
@@ -89,7 +89,7 @@ class Chain {
 				if(term.value.state === 'connected'){
 					this.context.streamId = term.value.id;
 				} else {
-					this.error = ERROR.DISCONNECTED;
+					this.error = Error.code.DISCONNECTED;
 				}
 			} else {
 				this.error = errorToReturn;
@@ -99,11 +99,11 @@ class Chain {
 	}
 
 	withProducer(at = 0) {
-		return this.withStream(at, ERROR.NO_PRODUCER, 'producer');
+		return this.withStream(at, Error.code.NO_PRODUCER, 'producer');
 	}
 
 	withConsumer(at = 0) {
-		return this.withStream(at, ERROR.NO_CONSUMER, 'stream');
+		return this.withStream(at, Error.code.NO_CONSUMER, 'stream');
 	}
 }
 

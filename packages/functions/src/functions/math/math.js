@@ -1,6 +1,6 @@
-const ERROR = require('../errors');
 const { runFunction, values: { isEven, roundNumber } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 // eslint-disable-next-line no-nested-ternary
 const _sign = (nr) => (nr > 0 ? 1 : nr < 0 ? -1 : 0);
@@ -10,7 +10,7 @@ const _trunc = (nr, digits) => Math.trunc(nr * 10 ** digits) / 10 ** digits;
 const toNumberOrError = (value) => {
 	let nr = value != null ? convert.toNumber(value) : 0;
 	nr = nr == null && typeof value === 'string' && value.length < 1 ? 0 : nr;
-	return nr != null ? nr : ERROR.VALUE;
+	return nr != null ? nr : Error.code.VALUE;
 };
 
 const roundToEvenOrOdd = (nr, doEven) => {
@@ -45,13 +45,13 @@ const arccos = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(1)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
-		.validate((nr) => (nr > 1 || nr < -1 ? ERROR.VALUE : undefined))
+		.validate((nr) => (nr > 1 || nr < -1 ? Error.code.VALUE : undefined))
 		.run((nr) => Math.acos(nr));
 const arcsin = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(1)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
-		.validate((nr) => (nr > 1 || nr < -1 ? ERROR.VALUE : undefined))
+		.validate((nr) => (nr > 1 || nr < -1 ? Error.code.VALUE : undefined))
 		.run((nr) => Math.asin(nr));
 
 const degrees = (sheet, ...terms) =>
@@ -88,10 +88,10 @@ const mod = (sheet, ...terms) =>
 		.withArgCount(2)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.mapNextArg((divisor) => toNumberOrError(divisor.value))
-		.run((nr, divisor) => divisor !== 0 ? nr - (divisor * Math.floor(nr / divisor)) : ERROR.DIV0);
+		.run((nr, divisor) => divisor !== 0 ? nr - (divisor * Math.floor(nr / divisor)) : Error.code.DIV0);
 		// if we want to round result to a certain decimal to get e.g 0.2 instead of 0.199999996
 		// .run((nr, divisor) => {
-		// 	if (divisor === 0) return ERROR.DIV0;
+		// 	if (divisor === 0) return Error.code.DIV0;
 		// 	const decimals = Math.max(getDecimalsCount(nr), getDecimalsCount(divisor));
 		// 	return roundDecimaals(nr - divisor * Math.floor(nr / divisor), decimals);
 		// });
@@ -110,7 +110,7 @@ const power = (sheet, ...terms) =>
 		.mapNextArg((expo) => toNumberOrError(expo.value))
 		.run((base, expo) => {
 			const res = base ** expo;
-			return isFinite(res) ? res : ERROR.NUM;
+			return isFinite(res) ? res : Error.code.NUM;
 		});
 
 const radians = (sheet, ...terms) =>
@@ -124,7 +124,7 @@ const randbetween = (sheet, ...terms) =>
 		.withArgCount(2)
 		.mapNextArg((min) => toNumberOrError(min.value))
 		.mapNextArg((max) => toNumberOrError(max.value))
-		.validate((min, max) => (max < min ? ERROR.VALUE : null))
+		.validate((min, max) => (max < min ? Error.code.VALUE : null))
 		.run((min, max) => {
 			min = Math.ceil(min);
 			max = Math.floor(max);
@@ -150,7 +150,7 @@ const sqrt = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(1)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
-		.validate((nr) => (nr < 0 ? ERROR.NUM : nr))
+		.validate((nr) => (nr < 0 ? Error.code.NUM : nr))
 		.run((nr) => Math.sqrt(nr));
 
 const trunc = (sheet, ...terms) =>

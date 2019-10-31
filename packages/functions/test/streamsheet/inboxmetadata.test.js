@@ -1,10 +1,10 @@
-const ERROR = require('../../src/functions/errors');
 const SHEETS = require('../_data/sheets.json');
 const MESSAGES = require('../_data/messages.json');
 const { INBOXMETADATA } = require('../../src/functions/streamsheet');
 const { createCellTerm, createCellRangeTerm, createParamTerms } = require('../utils');
 const { Term } = require('@cedalo/parser');
 const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const createCellTerms = (strings, sheet) => strings.map(str => createCellTerm(str, sheet));
 
@@ -64,12 +64,12 @@ describe('inboxmetadata', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[data][Teile]');
 			let terms = createParamTerms('T1', '').concat(Term.fromString(''));
-			expect(INBOXMETADATA(sheet, ...terms)).toBe(ERROR.INVALID_LOOP_PATH);
+			expect(INBOXMETADATA(sheet, ...terms)).toBe(Error.code.INVALID_LOOP_PATH);
 			terms = createParamTerms('T1', '').concat(createParamTerms('', 'Nr'));
-			expect(INBOXMETADATA(sheet, ...terms)).toBe(ERROR.INVALID_LOOP_PATH);
+			expect(INBOXMETADATA(sheet, ...terms)).toBe(Error.code.INVALID_LOOP_PATH);
 			sheet.streamsheet.setLoopPath('');
 			terms = createParamTerms('T1', '').concat(Term.fromString(''));
-			expect(INBOXMETADATA(sheet, ...terms)).toBe(ERROR.INVALID_LOOP_PATH);
+			expect(INBOXMETADATA(sheet, ...terms)).toBe(Error.code.INVALID_LOOP_PATH);
 		});
 		it('should be possible to reference a loop-element absolute', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
@@ -100,7 +100,7 @@ describe('inboxmetadata', () => {
 			expect(sheet.cellAt('A1').value).toBe('[T1][]');
 			sheet.loadCells({ A1: { formula: 'inboxmetadata(,,)' } });
 			sheet.streamsheet.step();
-			expect(sheet.cellAt('A1').value).toBe(ERROR.INVALID_LOOP_PATH);
+			expect(sheet.cellAt('A1').value).toBe(Error.code.INVALID_LOOP_PATH);
 			sheet.loadCells({ A1: { formula: 'inboxmetadata("T1")' } });
 			sheet.streamsheet.step();
 			expect(sheet.cellAt('A1').value).toBe('[T1][]');			

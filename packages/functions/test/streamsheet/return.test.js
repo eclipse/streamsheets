@@ -1,5 +1,5 @@
-const ERROR = require('../../src/functions/errors');
 const { RETURN } = require('../../src/functions/streamsheet');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 const { Machine, SheetIndex, StreamSheet } = require('@cedalo/machine-core');
 
 let sheet;
@@ -53,6 +53,6 @@ describe('return', () => {
 		expect(RETURN(sheet)).toBe(true);
 	});
 	it('should return an error on missing arguments', () => {
-		expect(RETURN()).toBe(ERROR.ARGS);
+		expect(RETURN()).toBe(Error.code.ARGS);
 	});
 });

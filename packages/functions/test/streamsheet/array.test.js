@@ -1,9 +1,9 @@
-const ERROR = require('../../src/functions/errors');
 const SHEETS = require('../_data/sheets.json');
 const { ARRAY } = require('../../src/functions');
 const { createCellTerm, createCellRangeTerm } = require('../utils');
 const { Term } = require('@cedalo/parser');
 const { StreamSheet } = require('@cedalo/machine-core');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 describe('array', () => {
 	it('should create an array from specified single column cell range', () => {
@@ -107,14 +107,14 @@ describe('array', () => {
 	});
 
 	it('should return error code if no cell is specified', () => {
-		expect(ARRAY()).toBe(ERROR.ARGS);
-		expect(ARRAY(new StreamSheet().sheet)).toBe(ERROR.ARGS);
+		expect(ARRAY()).toBe(Error.code.ARGS);
+		expect(ARRAY(new StreamSheet().sheet)).toBe(Error.code.ARGS);
 	});
 
 	// define how to handle cells without any value... => currently we create an empty string!
 	it.skip('should return error code if specified cell is not valid', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: SHEETS.SIMPLE });
-		expect(ARRAY(sheet, createCellTerm('Z1', sheet))).toBe(ERROR.INVALID_PARAM);
+		expect(ARRAY(sheet, createCellTerm('Z1', sheet))).toBe(Error.code.INVALID_PARAM);
 	});
 	it.skip('should return empty array if specified cells do not exist', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: SHEETS.SIMPLE });

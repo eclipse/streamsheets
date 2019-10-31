@@ -1,4 +1,3 @@
-const ERROR = require('../errors');
 const array = require('./array');
 const {
 	sheet: sheetutils,
@@ -8,7 +7,9 @@ const {
 const { Term } = require('@cedalo/parser');
 const { jsonpath } = require('@cedalo/commons');
 const IdGenerator = require('@cedalo/id-generator');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 const { Cell, Message, SheetRange, State, Streams } = require('@cedalo/machine-core');
+
 
 const createPendingRequest = (promise) => ({ promise, status: 'pending' });
 const updatePendingRequest = (request, status) => {
@@ -24,7 +25,7 @@ const getPendingRequestInfo = (request) => {
 			info = true;
 			break;
 		case 'rejected':
-			info = ERROR.ERR;
+			info = Error.code.ERR;
 			break;
 		default:
 			info = false;
@@ -207,7 +208,7 @@ const resultKeysTermToArray = (sheet, term) => {
 		return term.value;
 	}
 	const keyArray = array(sheet, term, null, 'flat');
-	if (ERROR.isError(keyArray)) {
+	if (Error.isError(keyArray)) {
 		return [term.value];
 	}
 	return keyArray;
@@ -229,7 +230,7 @@ const requestinternal = (funcTerm, s, ...t) =>
 		.withArgs(3, ['streamTerm', 'message', 'internal'])
 		.withProducer()
 		.isProcessing()
-		.check(({ message }) => ERROR.ifTrue(message == null, ERROR.NO_MSG_DATA))
+		.check(({ message }) => Error.ifTrue(message == null, Error.code.NO_MSG_DATA))
 		.with(({ sheet, internal: { target } }) => sheetutils.getCellRangeFromTerm(target, sheet))
 		.check(
 			({ internal: { target } }, targetRange) =>
@@ -237,7 +238,7 @@ const requestinternal = (funcTerm, s, ...t) =>
 				isInboxTerm(target) ||
 				isOutboxTerm(target) ||
 				isRangeTerm(targetRange) ||
-				ERROR.TARGET
+				Error.code.TARGET
 		)
 		.run(({ sheet, streamId, message, internal: { target, resultKeys, timeout } }, targetRange) => {
 			let reqId = getRequestId(funcTerm);
@@ -266,10 +267,10 @@ const requestinternallegacy = (funcTerm, s, ...t) =>
 		.withArgs(3, ['streamTerm', 'message', 'targetTerm', 'resultKeysTerm', 'timeoutTerm'])
 		.withProducer()
 		.isProcessing()
-		.check(({ message }) => ERROR.ifTrue(message == null, ERROR.NO_MSG_DATA))
+		.check(({ message }) => Error.ifTrue(message == null, Error.code.NO_MSG_DATA))
 		.check(
 			({ targetTerm }) =>
-				isInboxTerm(targetTerm) || isOutboxTerm(targetTerm) || isRangeTerm(targetTerm) || ERROR.TARGET
+				isInboxTerm(targetTerm) || isOutboxTerm(targetTerm) || isRangeTerm(targetTerm) || Error.code.TARGET
 		)
 		.with(({ resultKeysTerm, sheet }) => resultKeysTermToArray(sheet, resultKeysTerm))
 		.with(({ timeoutTerm }) => termAsNumber(timeoutTerm))
@@ -298,7 +299,7 @@ const request = (s, ...t) =>
 		.withMachine()
 		.with(({ messageTerm, machine }) => sheetutils.createMessageFromTerm(messageTerm, machine))
 		.with(({ timeoutTerm }) => termAsNumber(timeoutTerm))
-		.check((context, message) => ERROR.ifTrue(message == null, ERROR.NO_MSG_DATA))
+		.check((context, message) => Error.ifTrue(message == null, Error.code.NO_MSG_DATA))
 		.run(({ sheet, streamTerm, targetTerm }, message, timeout) =>
 			// TODO: Add resultkeys
 			requestinternal(request.term, sheet, streamTerm, message, { target: targetTerm, timeout })

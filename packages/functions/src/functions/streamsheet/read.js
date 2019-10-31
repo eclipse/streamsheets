@@ -1,8 +1,8 @@
-const ERROR = require('../errors');
 const { sheet: sheetutils } = require('../../utils');
 const { Term } = require('@cedalo/parser');
 const { ErrorTerm } = require('@cedalo/machine-core');
 const { convert, jsonpath } = require('@cedalo/commons');
+const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 
 const toBool = (term, defval) => term ? convert.toBoolean(term.value, defval) : defval;
@@ -17,7 +17,7 @@ const setOrCreateCellAt = (index, value, isErrorValue, sheet) => {
 	if (cell.hasFormula) {
 		cell.value = value;
 	} else {
-		cell.term = isErrorValue ? ErrorTerm.fromError(ERROR.NA) : termFromValue(value);
+		cell.term = isErrorValue ? ErrorTerm.fromError(Error.code.NA) : termFromValue(value);
 	}
 	return cell;
 };
@@ -87,7 +87,7 @@ const spreadObjectList = (list, cellrange, isHorizontal) => {
 	});
 };
 const copyToCellRange = (cellrange, data, type, isHorizontal) => {
-	const isError = ERROR.isError(data);
+	const isError = Error.isError(data);
 	const objlist = !isError && toObjectList(data);
 	if (!isError && objlist) {
 		spreadObjectList(objlist, cellrange, isHorizontal);
@@ -125,7 +125,7 @@ const getData = (sheet, term, path, returnNA) => {
 		: getInboxMessage(sheet, path.shift(), path.shift());
 	// path = path.length ? jsonpath.toString(path) : '';
 	return (isProcessed(sheet, message) && returnNA)
-		? ERROR.NA
+		? Error.code.NA
 		: messageDataAt(path, message, funcname === 'INBOXMETADATA');
 };
 
@@ -141,13 +141,13 @@ const getLastPathPart = (path, term) => {
 
 // extract this!!
 const validate = (range, errorcode) =>
-	((!range || ERROR.isError(range) || ERROR.isError(range.sheet)) ? errorcode : undefined);
+	((!range || Error.isError(range) || Error.isError(range.sheet)) ? errorcode : undefined);
 
 const read = (sheet, ...terms) => {
-	let error = (!sheet || terms.length < 1) ? ERROR.ARGS : undefined;
+	let error = (!sheet || terms.length < 1) ? Error.code.ARGS : undefined;
 	const pathterm = terms[0];
 	const val = pathterm.value;
-	error = error || ERROR.isError(val);
+	error = error || Error.isError(val);
 	if (!error) {
 		const path = jsonpath.parse(val);
 		const type = toString(terms[2]);
@@ -156,17 +156,17 @@ const read = (sheet, ...terms) => {
 		let data = getData(sheet, pathterm, path, returnNA);
 		// no target cell => we return json value
 		const retval = target ? getLastPathPart(path, pathterm) : data;
-		if (data == null) data = (returnNA ? ERROR.NA : getLastValue(read.term, type));
+		if (data == null) data = (returnNA ? Error.code.NA : getLastValue(read.term, type));
 		if (target) {
 			const targetrange = sheetutils.getCellRangeFromTerm(target, sheet);
-			error = validate(targetrange, ERROR.INVALID_PARAM);
+			error = validate(targetrange, Error.code.INVALID_PARAM);
 			if (!error && targetrange) {
 				const isHorizontal = terms[3] ? !!terms[3].value : undefined;
 				read.term._lastValue = data;
 				copyToCellRange(targetrange, data, type, isHorizontal);
 			// } else {
 			// 	// invalid target parameter:
-			// 	error = ERROR.INVALID_PARAM;
+			// 	error = Error.code.INVALID_PARAM;
 			}
 		}
 		// we ignore any error here and return requested path or json value:
