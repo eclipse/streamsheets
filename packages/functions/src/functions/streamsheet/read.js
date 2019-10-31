@@ -1,4 +1,4 @@
-const { sheet: sheetutils } = require('../../utils');
+const { sheet: sheetutils, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { Term } = require('@cedalo/parser');
 const { ErrorTerm } = require('@cedalo/machine-core');
 const { convert, jsonpath } = require('@cedalo/commons');
@@ -158,7 +158,7 @@ const read = (sheet, ...terms) => {
 		const retval = target ? getLastPathPart(path, pathterm) : data;
 		if (data == null) data = (returnNA ? Error.code.NA : getLastValue(read.term, type));
 		if (target) {
-			const targetrange = sheetutils.getCellRangeFromTerm(target, sheet);
+			const targetrange = getCellRangeFromTerm(target, sheet);
 			error = validate(targetrange, Error.code.INVALID_PARAM);
 			if (!error && targetrange) {
 				const isHorizontal = terms[3] ? !!terms[3].value : undefined;

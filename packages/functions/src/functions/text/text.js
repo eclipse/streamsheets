@@ -2,20 +2,20 @@ const logger = require('../../logger').create({ name: 'TEXT()' });
 const { getCodePage } = require('../../codepages');
 const { runFunction, terms: onTerms } = require('../../utils');
 const { convert } = require('@cedalo/commons');
-const Locale = require('@cedalo/machine-core').locale;
-const locales = require('@cedalo/machine-core').locale.locales;
-const NumberFormatter = require('@cedalo/number-format').NumberFormatter;
+const { locale: Locales } = require('@cedalo/machine-core');
+const { NumberFormatter } = require('@cedalo/number-format');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
+
 
 const getMachineLocale = (sheet) => {
 	const machine = sheet.machine;
-	const locale = machine ? locales[machine.locale] : undefined;
-	return locale || locales.en;
+	const locale = machine ? Locales.get(machine.locale) : undefined;
+	return locale || Locales.get('en');
 };
 
 const getValueLocale = (localeStr) => {
 	localeStr = localeStr && localeStr.toLowerCase();
-	return localeStr ? locales[localeStr] || Error.code.VALUE : undefined;
+	return localeStr ? Locales.get(localeStr) || Error.code.VALUE : undefined;
 };
 
 const formatString = (term) => {
@@ -221,7 +221,7 @@ const text = (sheet, ...terms) =>
 			let res = Error.code.INVALID_PARAM;
 			try {
 				// const locale = getMachineLocale(sheet);
-				format = Locale.convert.nrFormatString(format, locale);
+				format = Locales.convert.nrFormatString(format, locale);
 				res = NumberFormatter.formatNumber(format, number, null, locale.code.short).formattedValue;
 			} catch (ex) {
 				/* ignore, will return error code */
@@ -258,7 +258,7 @@ const value = (sheet, ...terms) =>
 			let nr = typeof number === 'number' ? number : null;
 			if (nr == null) {
 				nr = convert.toString(number);
-				nr = nr != null ? convert.toNumber(Locale.convert.nrString(number, locale || getMachineLocale(sheet))) : nr;
+				nr = nr != null ? convert.toNumber(Locales.convert.nrString(number, locale || getMachineLocale(sheet))) : nr;
 			}
 			return nr != null ? nr : Error.code.VALUE;
 		});

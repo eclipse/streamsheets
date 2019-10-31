@@ -1,7 +1,7 @@
 const array = require('./array');
 const {
 	sheet: sheetutils,
-	terms: { isInboxTerm, isOutboxTerm, termAsNumber },
+	terms: { getCellRangeFromTerm, isInboxTerm, isOutboxTerm, termAsNumber },
 	validation: { ensure }
 } = require('../../utils');
 const { Term } = require('@cedalo/parser');
@@ -231,7 +231,7 @@ const requestinternal = (funcTerm, s, ...t) =>
 		.withProducer()
 		.isProcessing()
 		.check(({ message }) => Error.ifTrue(message == null, Error.code.NO_MSG_DATA))
-		.with(({ sheet, internal: { target } }) => sheetutils.getCellRangeFromTerm(target, sheet))
+		.with(({ sheet, internal: { target } }) => getCellRangeFromTerm(target, sheet))
 		.check(
 			({ internal: { target } }, targetRange) =>
 				target === undefined ||

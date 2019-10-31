@@ -1,5 +1,5 @@
 const ConditionRange = require('./ConditionRange');
-const { runFunction, sheet: sheetutils } = require('../../utils');
+const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
 const { SheetIndex } = require('@cedalo/machine-core');
@@ -20,12 +20,12 @@ const columnIndex = (range, pivot) => {
 const forEachMatchingRow = (sheet, terms, callback) =>
 	runFunction(sheet, terms)
 		.withArgCount(3)
-		.mapNextArg((dbrange) => sheetutils.getCellRangeFromTerm(dbrange, sheet) || Error.code.VALUE)
+		.mapNextArg((dbrange) => getCellRangeFromTerm(dbrange, sheet) || Error.code.VALUE)
 		.mapNextArg((pivot, dbrange) => {
 			const index = columnIndex(dbrange, pivot.value);
 			return index == null || index < 0 ? Error.code.VALUE : index;
 		})
-		.mapNextArg((criteriarange) => sheetutils.getCellRangeFromTerm(criteriarange, sheet) || Error.code.VALUE)
+		.mapNextArg((criteriarange) => getCellRangeFromTerm(criteriarange, sheet) || Error.code.VALUE)
 		.run((dbrange, pivot, criteriarange) => {
 			const condrange = ConditionRange.fromSheetRange(criteriarange.sheet, criteriarange);
 			condrange.forEachMatchingRow(dbrange, (rowidx) => {

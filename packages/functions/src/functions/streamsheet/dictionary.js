@@ -1,4 +1,4 @@
-const { runFunction, sheet: sheetutils } = require('../../utils');
+const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
@@ -36,7 +36,7 @@ const dictionary = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
-		.mapNextArg(cellrange => sheetutils.getCellRangeFromTerm(cellrange, sheet) || Error.code.INVALID_PARAM)
+		.mapNextArg(cellrange => getCellRangeFromTerm(cellrange, sheet) || Error.code.INVALID_PARAM)
 		.mapNextArg(byrow => convert.toBoolean(!!byrow && byrow.value, false))
 		.validate((cellrange) => Error.ifTrue(cellrange.width < 2 && cellrange.height < 2, Error.code.INVALID_PARAM))
 		.run((cellrange, byrow) => {

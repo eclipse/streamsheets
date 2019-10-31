@@ -1,4 +1,9 @@
-const { excel, runFunction, sheet: sheetutils } = require('../../utils');
+const {
+	excel,
+	runFunction,
+	sheet: sheetutils,
+	terms: { getCellRangeFromTerm, getCellRangesFromTerm }
+} = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
 const { SheetIndex, SheetRange } = require('@cedalo/machine-core');
@@ -48,7 +53,7 @@ const index = (sheet, ...terms) =>
 		.withMinArgs(3)
 		.withMaxArgs(4)
 		.mapNextArg((ranges) => {
-			ranges = sheetutils.getCellRangesFromTerm(ranges, sheet, true);
+			ranges = getCellRangesFromTerm(ranges, sheet, true);
 			return ranges && ranges.length ? ranges : Error.code.NAME;
 		})
 		.mapNextArg(rowoffset => convert.toNumber(rowoffset.value, 1) - 1)
@@ -126,7 +131,7 @@ const match = (sheet, ...terms) =>
 		.withMinArgs(2)
 		.mapNextArg(pivot => pivot.value)
 		.mapNextArg((range) => {
-			const cellrange = sheetutils.getCellRangeFromTerm(range, sheet, true);
+			const cellrange = getCellRangeFromTerm(range, sheet, true);
 			return cellrange || Error.code.NAME;
 		})
 		.run((pivot, range) => {
@@ -144,7 +149,7 @@ const match = (sheet, ...terms) =>
 const offset = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(3)
-		.mapNextArg(range => sheetutils.getCellRangeFromTerm(range, sheet) || Error.code.NAME)
+		.mapNextArg(range => getCellRangeFromTerm(range, sheet) || Error.code.NAME)
 		.mapNextArg(row => term2number(row, Error.code.VALUE))
 		.mapNextArg(col => term2number(col, Error.code.VALUE))
 		.mapNextArg(height => term2number(height, -1))
@@ -202,7 +207,7 @@ const vlookup = (sheet, ...terms) =>
 		.withMinArgs(3)
 		.withMaxArgs(4)
 		.mapNextArg(lookup => lookup.value)
-		.mapNextArg(range => sheetutils.getCellRangeFromTerm(range, sheet) || Error.code.NAME)
+		.mapNextArg(range => getCellRangeFromTerm(range, sheet) || Error.code.NAME)
 		.mapNextArg((coloffset) => {
 			coloffset = term2number(coloffset, 1);
 			return coloffset > 0 ? coloffset - 1 : Error.code.REF;

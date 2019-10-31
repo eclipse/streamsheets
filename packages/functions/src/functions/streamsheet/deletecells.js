@@ -1,4 +1,4 @@
-const { runFunction, sheet: sheetutils } = require('../../utils');
+const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 const deleteRange = (cellrange) => {
@@ -15,7 +15,7 @@ const deletecells = (sheet, ...terms) =>
 		.run(() => {
 			let error;
 			terms.some((term) => {
-				const cellrange = sheetutils.getCellRangeFromTerm(term, sheet);
+				const cellrange = getCellRangeFromTerm(term, sheet);
 				error = Error.isError(cellrange);
 				if (!error) deleteRange(cellrange);
 				return !!error;

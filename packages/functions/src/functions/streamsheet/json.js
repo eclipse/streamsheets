@@ -1,4 +1,4 @@
-const { runFunction, sheet: sheetutils } = require('../../utils');
+const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 
 
 const getParent = (node, level) => {
@@ -51,7 +51,7 @@ const jsonFromRange = (range) => {
 const json = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(1)
-		.mapNextArg(range => sheetutils.getCellRangeFromTerm(range, sheet))
+		.mapNextArg(range => getCellRangeFromTerm(range, sheet))
 		.validate((range) => ((range == null || range.width < 2) ? Error.INVALID_PARAM : null))
 		.run(range => jsonFromRange(range));
 
