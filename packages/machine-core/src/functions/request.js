@@ -150,7 +150,7 @@ const project = (data, resultKeys) => {
 		resultKeys.forEach((key) => {
 			const path = toPath(key);
 			const value = jp.query(path, json);
-			if (value) {
+			if (value !== undefined) {
 				jp.setAt(path, projected, value);
 			}
 		});
