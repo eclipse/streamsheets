@@ -4,7 +4,7 @@ const {
 	sheet: { createMessageFromValue, getMachine, getStreamSheetByName }
 } = require('../../utils');
 const { jsonpath } = require('@cedalo/commons');
-const Message = require('@cedalo/machine-core');
+const { Message } = require('@cedalo/machine-core');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
 // DL-1835:

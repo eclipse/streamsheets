@@ -1,4 +1,4 @@
-const locale = require('@cedalo/machine-core');
+const { locale } = require('@cedalo/machine-core');
 const {
 	date: { ms2serial, serial2date, time2serial },
 	sheet: { getLocale },
