@@ -59,6 +59,7 @@
         "lines": 20,
         "statements": 20
       }
-    }
+    },
+    "setupFiles": ["./test/setup.js"]
   }
 }
