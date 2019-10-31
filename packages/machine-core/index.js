@@ -10,6 +10,7 @@ const Outbox = require('./src/machine/Outbox');
 const Sheet = require('./src/machine/Sheet');
 const SheetIndex = require('./src/machine/SheetIndex');
 const { SheetParser } = require('./src/parser/SheetParser');
+const SheetParserContext = require('./src/parser/SheetParserContext');
 const { ErrorTerm } = require('./src/parser/Error');
 const SheetRange = require('./src/machine/SheetRange');
 const State = require('./src/State');
@@ -40,6 +41,7 @@ module.exports = {
 	Sheet,
 	SheetIndex,
 	SheetParser,
+	SheetParserContext,
 	SheetRange,
 	State,
 	Streams,
