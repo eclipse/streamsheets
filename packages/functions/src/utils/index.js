@@ -1,7 +1,7 @@
 const calculate = require('./calculate');
 const common = require('./common');
 const date = require('./date');
-// const excel = require('./excel');
+const excel = require('./excel');
 const jsonbuilder = require('./jsonbuilder');
 const runFunction = require('./runner');
 const sheet = require('./sheet');
@@ -14,7 +14,7 @@ module.exports = {
 	calculate,
 	common,
 	date,
-	// excel,
+	excel,
 	jsonbuilder,
 	runFunction,
 	sheet,
