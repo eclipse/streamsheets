@@ -1,4 +1,4 @@
-const ERROR = require('../functions/errors');
+const { FunctionErrors } = require('@cedalo/error-codes');
 const { BinaryOperator, BoolOperator, UnaryOperator } = require('@cedalo/parser');
 
 
@@ -10,11 +10,12 @@ const termValue = (term, defval) => {
 const calc = (left, right, op) => {
 	left = left != null ? Number(left) : 0;
 	right = right != null ? Number(right) : 0;
-	return isNaN(left) || isNaN(right) ? ERROR.VALUE : op(left, right);
+	return isNaN(left) || isNaN(right) ? FunctionErrors.VALUE : op(left, right);
 };
 
+const isError = (left, right) =>
 // eslint-disable-next-line no-nested-ternary
-const isError = (left, right) => ERROR.isError(left) ? left : (ERROR.isError(right) ? right : undefined);
+	FunctionErrors.isError(left) ? left : (FunctionErrors.isError(right) ? right : undefined);
 
 
 // replace some basic operations to behave more excel like, including excel-like error values...

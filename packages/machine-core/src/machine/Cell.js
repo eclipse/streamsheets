@@ -1,6 +1,6 @@
-const ERROR = require('../functions/errors');
-const { Operand } = require('@cedalo/parser');
 const { isType } = require('../utils');
+const { Operand } = require('@cedalo/parser');
+const { FunctionErrors } = require('@cedalo/error-codes');
 
 const CELL_VALUE_REPLACEMENT = '{ JSON Object }';
 
@@ -181,7 +181,7 @@ class Cell {
 		if (this._term) {
 			const value = this._value;
 			// fix value after load if it failed during load
-			if (value == null || ERROR.isError(value)) this._value = checkNaN(this._term.value);
+			if (value == null || FunctionErrors.isError(value)) this._value = checkNaN(this._term.value);
 		}
 	}
 }

@@ -1,8 +1,8 @@
 const Cell = require('../machine/Cell');
-const ERROR = require('../functions/errors');
 const { ErrorTerm } = require('./Error');
 const SheetParserContext = require('./SheetParserContext');
 const { ConcatOperator, Operations } = require('./Operations');
+const { FunctionErrors } = require('@cedalo/error-codes');
 const { Drawings, ErrorCodes, Operation, Parser, Term, Operand } = require('@cedalo/parser');
 
 class ObjectTerm extends Term {
@@ -66,16 +66,16 @@ const valueFromCellDescriptor = (descr) => {
 };
 
 const convertParserError = (error) => {
-	let err = ERROR.isError(error.code) || ERROR.isError(error.operand);
+	let err = FunctionErrors.isError(error.code) || FunctionErrors.isError(error.operand);
 	if (!err) {
 		switch (error.code) {
 			case ErrorCodes.MISSING_OPERAND:
 			case ErrorCodes.UNKNOWN_FUNCTION:
 			case ErrorCodes.UNKNOWN_IDENTIFIER:
-				err = ERROR.NAME;
+				err = FunctionErrors.NAME;
 				break;
 			default:
-				err = ERROR.ERR;
+				err = FunctionErrors.ERR;
 		}
 	}
 	return err;
