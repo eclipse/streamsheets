@@ -72,10 +72,10 @@ const convertParserError = (error) => {
 			case ErrorCodes.MISSING_OPERAND:
 			case ErrorCodes.UNKNOWN_FUNCTION:
 			case ErrorCodes.UNKNOWN_IDENTIFIER:
-				err = FunctionErrors.NAME;
+				err = FunctionErrors.code.NAME;
 				break;
 			default:
-				err = FunctionErrors.ERR;
+				err = FunctionErrors.code.ERR;
 		}
 	}
 	return err;
