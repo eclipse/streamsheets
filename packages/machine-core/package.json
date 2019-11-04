@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@cedalo/commons": "*",
+    "@cedalo/error-codes": "*",
     "@cedalo/id-generator": "*",
     "@cedalo/logger": "*",
     "@cedalo/messages": "*",
