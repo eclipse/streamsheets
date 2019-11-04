@@ -1,6 +1,7 @@
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { BinaryOperator, BoolOperator, UnaryOperator } = require('@cedalo/parser');
 
+const ERROR = FunctionErrors.code;
 
 const termValue = (term, defval) => {
 	const val = term != null ? term.value : null;
@@ -10,7 +11,7 @@ const termValue = (term, defval) => {
 const calc = (left, right, op) => {
 	left = left != null ? Number(left) : 0;
 	right = right != null ? Number(right) : 0;
-	return isNaN(left) || isNaN(right) ? FunctionErrors.code.VALUE : op(left, right);
+	return isNaN(left) || isNaN(right) ? ERROR.VALUE : op(left, right);
 };
 
 const isError = (left, right) =>
@@ -28,17 +29,17 @@ module.exports.Operations = [
 	new UnaryOperator('-', (right) => isError(right) || calc(-1, right, (l, r) => l * r)),
 
 	// eslint-disable-next-line
-	new BoolOperator('!=', (left, right) => isError(left, right) || (left != right)),
+	new BoolOperator('!=', (left, right) => isError(left, right) || left != right),
 	// eslint-disable-next-line
-	new BoolOperator('<>', (left, right) => isError(left, right) || (left != right)),
+	new BoolOperator('<>', (left, right) => isError(left, right) || left != right),
 	// eslint-disable-next-line
-	new BoolOperator('=', (left, right) => isError(left, right) || (left == right)),
+	new BoolOperator('=', (left, right) => isError(left, right) || left == right),
 	// eslint-disable-next-line
-	new BoolOperator('==', (left, right) => isError(left, right) || (left == right)),
-	new BoolOperator('>', (left, right) => isError(left, right) || (left > right)),
-	new BoolOperator('>=', (left, right) => isError(left, right) || (left >= right)),
-	new BoolOperator('<', (left, right) => isError(left, right) || (left < right)),
-	new BoolOperator('<=', (left, right) => isError(left, right) || (left <= right)),
+	new BoolOperator('==', (left, right) => isError(left, right) || left == right),
+	new BoolOperator('>', (left, right) => isError(left, right) || left > right),
+	new BoolOperator('>=', (left, right) => isError(left, right) || left >= right),
+	new BoolOperator('<', (left, right) => isError(left, right) || left < right),
+	new BoolOperator('<=', (left, right) => isError(left, right) || left <= right),
 	new BoolOperator('|', (left, right) => isError(left, right) || (left || right))
 ];
 
