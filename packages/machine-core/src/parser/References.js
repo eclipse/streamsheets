@@ -18,7 +18,7 @@ class AbstractCellReference extends Reference {
 			const machine = sheet.machine || sheet;
 			if (machine && this._streamsheetId && machine.getStreamSheet) {
 				const streamsheet = machine.getStreamSheet(this._streamsheetId);
-				sheet = streamsheet ? streamsheet.sheet : FunctionErrors.REF;
+				sheet = streamsheet ? streamsheet.sheet : FunctionErrors.code.REF;
 			}
 		}
 		return sheet;
@@ -69,7 +69,7 @@ class NamedCellReference extends AbstractCellReference {
 			cell.value = value;
 			return value;
 		}
-		return FunctionErrors.REF;
+		return FunctionErrors.code.REF;
 	}
 
 	get target() {
@@ -106,7 +106,7 @@ class CellReference extends AbstractCellReference {
 				return new CellReference(index, scope);
 			}
 			// index is invalid, so throw an error...
-			throw ParserError.create({ code: FunctionErrors.NAME }); // excel returns #NAME? if specified ref is invalid...
+			throw ParserError.create({ code: FunctionErrors.code.NAME }); // excel returns #NAME? if specified ref is invalid...
 		}
 		return undefined;
 	}
@@ -120,7 +120,7 @@ class CellReference extends AbstractCellReference {
 		const index = this.index;
 		const sheet = this.sheet;
 		const error =
-			FunctionErrors.isError(sheet) || (sheet && !isValidIndex(index, sheet) ? FunctionErrors.REF : undefined);
+			FunctionErrors.isError(sheet) || (sheet && !isValidIndex(index, sheet) ? FunctionErrors.code.REF : undefined);
 		return error || sheet.cellAt(index);
 	}
 
@@ -162,7 +162,7 @@ class CellRangeReference extends AbstractCellReference {
 				return new CellRangeReference(range, scope);
 			}
 			// range is invalid, so throw an error...
-			throw ParserError.create({ code: FunctionErrors.NAME }); // excel returns #NAME? if specified ref is invalid...
+			throw ParserError.create({ code: FunctionErrors.code.NAME }); // excel returns #NAME? if specified ref is invalid...
 		}
 		return undefined;
 	}
@@ -179,7 +179,7 @@ class CellRangeReference extends AbstractCellReference {
 		const error =
 			FunctionErrors.isError(sheet) ||
 			(sheet && (!isValidIndex(range.start, sheet) || !isValidIndex(range.end, sheet))
-				? FunctionErrors.REF
+				? FunctionErrors.code.REF
 				: null);
 		return error || range;
 	}
@@ -225,7 +225,7 @@ const referenceFromString = (str, scope) => {
 		// we have a sheet reference...
 		const machine = scope.machine || scope;
 		const streamsheet = machine ? machine.getStreamSheetByName(parts[0]) : undefined;
-		if (!streamsheet) throw ParserError.create({ code: FunctionErrors.REF });
+		if (!streamsheet) throw ParserError.create({ code: FunctionErrors.code.REF });
 		streamsheetId = streamsheet.id;
 		str = parts[1];
 	}

@@ -1,7 +1,7 @@
 const logger = require('../logger').create({ name: 'SheetParserContext' });
-const ERROR = require('../functions/errors');
-const Functions = require('../functions');
+// const Functions = require('../functions');
 const { referenceFromNode } = require('./References');
+const { FunctionErrors } = require('@cedalo/error-codes');
 const { ParserContext, Term } = require('@cedalo/parser');
 
 // DL-1431
@@ -18,14 +18,14 @@ const executor = func => function wrappedFunction(sheet, ...terms) {
 		result = func(sheet, ...terms);
 	} catch (err) {
 		logger.error('Error', err);
-		return ERROR.FUNC_EXEC;
+		return FunctionErrors.code.FUNC_EXEC;
 	}
 	func.term = undefined;
 	return result;
 };
 
 // DL-1253: an identifier can contain an error code. we ignore this and simply use a string term for it
-const createErrorTermFromNode = node => (node.type === 'identifier' && ERROR.isError(node.value)
+const createErrorTermFromNode = node => (node.type === 'identifier' && FunctionErrors.isError(node.value)
 	? Term.fromString(node.value)
 	: undefined);
 
@@ -44,7 +44,8 @@ class SheetParserContext extends ParserContext {
 	constructor(functions = {}) {
 		super();
 		this.strict = true;
-		this.functions = Object.assign({}, filter(this.functions), Functions, functions);
+		// this.functions = Object.assign({}, filter(this.functions), Functions, functions);
+		this.functions = Object.assign({}, filter(this.functions), functions);
 	}
 
 	// node: is a parser AST node

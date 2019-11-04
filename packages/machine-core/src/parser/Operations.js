@@ -10,7 +10,7 @@ const termValue = (term, defval) => {
 const calc = (left, right, op) => {
 	left = left != null ? Number(left) : 0;
 	right = right != null ? Number(right) : 0;
-	return isNaN(left) || isNaN(right) ? FunctionErrors.VALUE : op(left, right);
+	return isNaN(left) || isNaN(right) ? FunctionErrors.code.VALUE : op(left, right);
 };
 
 const isError = (left, right) =>
