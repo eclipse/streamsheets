@@ -151,5 +151,6 @@ module.exports = {
 	getOutbox,
 	getStreamSheet,
 	getStreamSheetByName,
+	messageFromBox,
 	messageFromBoxOrValue
 };
