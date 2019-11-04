@@ -1,5 +1,5 @@
 const logger = require('../logger').create({ name: 'SheetParserContext' });
-// const Functions = require('../functions');
+const Functions = require('../functions');
 const { referenceFromNode } = require('./References');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { ParserContext, Term } = require('@cedalo/parser');
@@ -44,8 +44,8 @@ class SheetParserContext extends ParserContext {
 	constructor(functions = {}) {
 		super();
 		this.strict = true;
-		// this.functions = Object.assign({}, filter(this.functions), Functions, functions);
-		this.functions = Object.assign({}, filter(this.functions), functions);
+		this.functions = Object.assign({}, filter(this.functions), Functions, functions);
+		// this.functions = Object.assign({}, filter(this.functions), functions);
 	}
 
 	// node: is a parser AST node
