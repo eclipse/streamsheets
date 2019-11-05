@@ -32,8 +32,12 @@ class NamedCells {
 	}
 
 	clear() {
-		this._cells.forEach((cell) => cell.dispose());
-		this._cells.clear();
+		const doIt = this._cells.size > 0;
+		if (doIt) {
+			this._cells.forEach((cell) => cell.dispose());
+			this._cells.clear();
+		}
+		return doIt;
 	}
 
 	get(name) {

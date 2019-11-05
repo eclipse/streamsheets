@@ -631,8 +631,8 @@ class SetNamedCells extends ARequestHandler {
 				if (setNamedCells(sheet, namedCells, oldNamedCells)) {
 					if (streamsheetId) sheet._notifyUpdate();
 					else this.machine.notifyUpdate('namedCells');
-					return Promise.resolve({ namedCells: oldNamedCells.getDescriptors() });
 				}
+				return Promise.resolve({ namedCells: oldNamedCells.getDescriptors() });
 			} catch (err) {
 				error = err;
 			}
@@ -651,12 +651,12 @@ class SetGraphCells extends ARequestHandler {
 			try {
 				sheet.getDrawings().removeAll();
 				const currentGraphCells = streamsheetId ? sheet.graphCells : this.machine.graphCells;
-				if (clear) currentGraphCells.clear();
-				if (setNamedCells(sheet, graphCells, currentGraphCells)) {
+				const notify = clear && currentGraphCells.clear();
+				if (setNamedCells(sheet, graphCells, currentGraphCells) || notify) {
 					if (streamsheetId) sheet._notifyUpdate();
 					else this.machine.notifyUpdate('graphCells');
-					return Promise.resolve({ graphCells: currentGraphCells.getDescriptors() });
 				}
+				return Promise.resolve({ graphCells: currentGraphCells.getDescriptors() });
 			} catch (err) {
 				error = err;
 			}
