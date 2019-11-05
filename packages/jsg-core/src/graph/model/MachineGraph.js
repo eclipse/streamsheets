@@ -10,6 +10,14 @@ const StreamSheet = require('./StreamSheet');
 const CellsNode = require('./CellsNode');
 const GraphUtils = require('../GraphUtils');
 
+const getStreamSheet = (item) => {
+	let sheet = item;
+	while (sheet && !(sheet instanceof StreamSheet)) {
+		sheet = sheet.getParent();
+	}
+	return sheet;
+};
+
 module.exports = class MachineGraph extends Graph {
 	constructor() {
 		super();
@@ -71,10 +79,11 @@ module.exports = class MachineGraph extends Graph {
 		const newId = this.getGraph().getUniqueGraphName('ID');
 		item.getItemAttributes().addAttribute(new StringAttribute('sheetname', newId));
 		const expr = ws.getGraphItemExpression(item);
-		if (expr) {
-			ws.updateGraphFunction(item);
-		} else {
-			ws.createGraphFunction(item);
+		const sheet = getStreamSheet(item);
+		const formula = expr ? ws.updateGraphFunction(item) : ws.createGraphFunction(item);
+		// TODO review: add formula to trigger SetGraphCellsCommand on add, but actually its wrong place here...
+		if (formula && sheet && sheet !== item) {
+			this.addGraphItemFormula(sheet, item, formula);
 		}
 	}
 
