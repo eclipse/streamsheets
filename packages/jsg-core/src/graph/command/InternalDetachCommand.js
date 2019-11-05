@@ -4,13 +4,10 @@ class InternalDetachCommand extends AbstractItemCommand {
 	static createFromObject(data = {}, { graph, viewer, factory }) {
 		let cmd;
 		const item = graph.getItemById(data.itemId);
-		const fromPort = graph.getItemById(data.portId);
-		if (item && fromPort) {
-			cmd = new InternalDetachCommand(item, fromPort).initWithObject(
-				data
-			);
-			if (data.oldPortId)
-				cmd._oldport = graph.getItemById(data.oldPortId);
+		if (item) {
+			const fromPort = graph.getItemById(data.portId);
+			cmd = new InternalDetachCommand(item, fromPort).initWithObject(data);
+			if (data.oldPortId) cmd._oldport = graph.getItemById(data.oldPortId);
 		}
 		return cmd;
 	}
