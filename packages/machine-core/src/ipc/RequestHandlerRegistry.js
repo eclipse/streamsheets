@@ -537,6 +537,19 @@ class Pause extends ARequestHandler {
 		}))
 	}
 }
+class RegisterFunctionModules extends ARequestHandler {
+	get isModifying() {
+		return false;
+	}
+	handle({ modules = [] }) {
+		logger.info('registerFunctionModules', modules);
+		modules.forEach((mod) => {
+			console.log(`REGISTER FUNCTION MODULE: ${mod}`);
+		});
+		return Promise.resolve();
+	}
+};
+
 class RegisterStreams extends ARequestHandler {
 	get isModifying() {
 		return false;
@@ -832,6 +845,7 @@ class RequestHandlerRegistry {
 		registry.handlers.set('load', new Load(machine, monitor));
 		registry.handlers.set('loadFunctions', new LoadFunctions(machine, monitor));
 		registry.handlers.set('pause', new Pause(machine, monitor));
+		registry.handlers.set('registerFunctionModules', new RegisterFunctionModules(machine, monitor));
 		registry.handlers.set('registerStreams', new RegisterStreams(machine, monitor));
 		registry.handlers.set('setCellAt', new SetCellAt(machine, monitor));
 		registry.handlers.set('setCells', new SetCells(machine, monitor));
