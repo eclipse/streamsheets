@@ -5,6 +5,7 @@ const { MachineServerMessagingProtocol, Topics, GatewayMessagingProtocol } = req
 const { State } = require('@cedalo/machine-core');
 
 const MachineServer = require('./MachineServer');
+const FunctionModulesResolver = require('../utils/FunctionModulesResolver');
 const MachineRequestHandlers = require('../handlers/MachineRequestHandlers');
 const MachineServerRequestHandlers = require('../handlers/MachineServerRequestHandlers');
 
@@ -77,6 +78,7 @@ module.exports = class MachineService extends MessagingService {
 
 		await RepositoryManager.connectAll();
 		await RepositoryManager.setupAllIndicies();
+		await FunctionModulesResolver.resolve();
 		await super._preStart();
 	}
 
