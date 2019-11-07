@@ -13,6 +13,9 @@ COPY mosquitto etc/mosquitto
 # Redis
 COPY redis/redis.conf /etc/redis.conf
 
+# Streamsheets services
+COPY services /services
+
 # Supervisor
 RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisord.conf
@@ -23,6 +26,12 @@ EXPOSE 27017
 EXPOSE 1883
 # Expose Redis port
 EXPOSE 6379
+# Expose Web UI port
+EXPOSE 9000
+# Expose Gateway ports
+EXPOSE 8082 8088
+# Expose Streams Service port
+EXPOSE 8083
 
 # General
 CMD [ "/usr/bin/supervisord", "-c", "/etc/supervisord.conf" ]
