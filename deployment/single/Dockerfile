@@ -4,7 +4,7 @@ LABEL maintainer="philip.ackermann@cedalo.com"
 RUN apk --no-cache add curl gnupg rsync unzip mongodb mosquitto redis supervisor
 
 # MongoDB
-COPY mongod.conf /etc/mongod.conf
+COPY mongodb/mongod.conf /etc/mongod.conf
 VOLUME /var/lib/mongodb
 
 # # Mosquitto
