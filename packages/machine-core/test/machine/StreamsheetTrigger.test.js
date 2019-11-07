@@ -1,6 +1,5 @@
-const ERROR = require('../../src/functions/errors');
 const { Machine, Message, State, StreamSheet, StreamSheetTrigger } = require('../..');
-
+const { FunctionErrors } = require('@cedalo/error-codes');
 
 const wait = ms => new Promise((resolve) => {
 	setTimeout(resolve, ms);
@@ -182,12 +181,12 @@ describe('StreamSheetTrigger', () => {
 			expect(t2.sheet.cellAt('A1').value).toBe(1);
 			await machine.step();
 			expect(t1.sheet.cellAt('A1').value).toBe(3);
-			expect(t1.sheet.cellAt('B1').value).toBe(ERROR.NA);
+			expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.NA);
 			expect(t2.sheet.cellAt('A1').value).toBe(2);
 			await machine.step();
 			await machine.step();
 			expect(t1.sheet.cellAt('A1').value).toBe(3);
-			expect(t1.sheet.cellAt('B1').value).toBe(ERROR.NA);
+			expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.NA);
 			expect(t2.sheet.cellAt('A1').value).toBe(4);
 		});
 		it('should always execute if triggered once and in endless mode until return', async () => {
@@ -201,16 +200,16 @@ describe('StreamSheetTrigger', () => {
 			// putMessages(t1, new Message(), new Message());
 			await machine.step();
 			expect(t1.sheet.cellAt('A1').value).toBe(2);
-			expect(t1.sheet.cellAt('B1').value).toBe(ERROR.NA);
+			expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.NA);
 			expect(t2.sheet.cellAt('A1').value).toBe(2);
 			await machine.step();
 			expect(t1.sheet.cellAt('A1').value).toBe(2);
-			expect(t1.sheet.cellAt('B1').value).toBe(ERROR.NA);
+			expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.NA);
 			expect(t2.sheet.cellAt('A1').value).toBe(3);
 			expect(t2.sheet.cellAt('B1').value).toBe(false);
 			await machine.step();
 			expect(t1.sheet.cellAt('A1').value).toBe(2);
-			expect(t1.sheet.cellAt('B1').value).toBe(ERROR.NA);
+			expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.NA);
 			expect(t2.sheet.cellAt('A1').value).toBe(4);
 			expect(t2.sheet.cellAt('B1').value).toBe(false);
 			await machine.step();

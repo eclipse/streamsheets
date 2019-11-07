@@ -1,6 +1,11 @@
-const { Term } = require('@cedalo/parser');
-const { Cell, Machine, Sheet, SheetRange, StreamSheet } = require('../..');
 const DEF_PROPS = require('../../defproperties.json');
+const { functions } = require('../utils');
+const { Cell, Machine, Sheet, SheetParser,SheetRange, StreamSheet } = require('../..');
+const { Term } = require('@cedalo/parser');
+
+beforeEach(() => {
+	SheetParser.context.registerFunctions(functions)
+});
 
 const setup = () => {
 	const machine = new Machine();

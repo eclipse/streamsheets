@@ -1,8 +1,9 @@
-const ERROR = require('../../src/functions/errors');
-const { createTerm } = require('../functions/utils');
+const { createTerm } = require('../utils');
 const { validate } = require('../utils');
 const { Machine, StreamSheet, Sheet, SheetIndex } = require('../..');
+const { FunctionErrors } = require('@cedalo/error-codes');
 
+const ERROR = FunctionErrors.code;
 const createMachine = () => {
 	const machine = new Machine();
 	machine.removeAllStreamSheets();
@@ -12,7 +13,7 @@ const createMachine = () => {
 };
 
 const rangeValues = (range) => {
-	if (ERROR.isError(range)) {
+	if (FunctionErrors.isError(range)) {
 		return range;
 	}
 	const vals = [];
