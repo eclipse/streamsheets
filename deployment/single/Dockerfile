@@ -7,6 +7,10 @@ RUN apk --no-cache add curl gnupg rsync unzip mongodb mosquitto redis supervisor
 COPY mongod.conf /etc/mongod.conf
 VOLUME /var/lib/mongodb
 
+# Supervisor
+RUN mkdir -p /var/log/supervisor
+COPY supervisord.conf /etc/supervisord.conf
+
 # General
 CMD [ "/usr/bin/supervisord", "-c", "/etc/supervisord.conf" ]
 
