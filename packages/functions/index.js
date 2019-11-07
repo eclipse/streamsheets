@@ -1,7 +1,9 @@
-const Functions = require('./src/functions');
+const { help, functions } = require('./src/functions');
 const FunctionFactory = require('./src/factory/FunctionFactory');
 
+
 module.exports = {
-	Functions,
+	help,
+	functions,
 	FunctionFactory
 };

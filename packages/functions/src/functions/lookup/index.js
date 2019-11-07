@@ -1,5 +1,9 @@
+const help = require('./help');
 const lookup = require('./lookup');
 
 module.exports = {
-	...lookup
+	help,
+	functions: {
+		...lookup
+	}
 };

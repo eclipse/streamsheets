@@ -1,5 +1,7 @@
+const help = require('./help');
 const database = require('./database');
 
 module.exports = {
-	...database
+	help,
+	functions: { ...database }
 };

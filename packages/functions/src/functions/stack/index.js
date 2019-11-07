@@ -1,5 +1,9 @@
+const help = require('./help');
 const stack = require('./stack');
 
 module.exports = {
-	...stack
+	help,
+	functions: {
+		...stack
+	}
 };
