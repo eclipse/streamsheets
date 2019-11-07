@@ -11,7 +11,7 @@ VOLUME /var/lib/mongodb
 COPY mosquitto etc/mosquitto
 
 # Redis
-COPY redis.conf /etc/redis.conf
+COPY redis/redis.conf /etc/redis.conf
 
 # Supervisor
 RUN mkdir -p /var/log/supervisor
