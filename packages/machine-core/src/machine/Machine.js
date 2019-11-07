@@ -6,7 +6,7 @@ const StreamSheet = require('./StreamSheet');
 const locale = require('../locale');
 const logger = require('../logger').create({ name: 'Machine' });
 const Streams = require('../streams/Streams');
-const { getFunctionDefinitions, registerFunctionDefinitions } = require('../utils/functions');
+const FunctionRegistry = require('../FunctionRegistry');
 const { convert } = require('@cedalo/commons');
 const IdGenerator = require('@cedalo/id-generator');
 
@@ -95,12 +95,12 @@ class Machine {
 			settings: this.settings,
 			className: this.className,
 			namedCells: this.namedCells.getDescriptors(),
-			functionDefinitions: getFunctionDefinitions()
+			functionDefinitions: FunctionRegistry.getFunctionDefinitions()
 		};
 	}
 
 	load(definition = {}, functionDefinitions = [], currentStreams = []) {
-		registerFunctionDefinitions(functionDefinitions);
+		FunctionRegistry.registerFunctionDefinitions(functionDefinitions);
 		const def = Object.assign({}, DEF_CONF, definition);
 		const streamsheets = def.streamsheets || [];
 		this._id = def.isTemplate ? this._id : def.id || this._id;
@@ -145,13 +145,13 @@ class Machine {
 	}
 
 	loadFunctions(functionDefinitions = []) {
-		registerFunctionDefinitions(functionDefinitions);
+		FunctionRegistry.registerFunctionDefinitions(functionDefinitions);
 		this._streamsheets.forEach((streamsheet) => {
 			const { sheet } = streamsheet;
 			const json = sheet.toJSON();
 			sheet.load(json);
 		});
-		this._emitter.emit('update', 'functions', getFunctionDefinitions());
+		this._emitter.emit('update', 'functions', FunctionRegistry.getFunctionDefinitions());
 	}
 
 	get id() {
