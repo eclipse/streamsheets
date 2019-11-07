@@ -1,5 +1,4 @@
 const logger = require('../logger').create({ name: 'SheetParserContext' });
-const Functions = require('../functions');
 const { referenceFromNode } = require('./References');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { ParserContext, Term } = require('@cedalo/parser');
@@ -40,12 +39,12 @@ const referenceTerm = (node, context) => {
 };
 
 class SheetParserContext extends ParserContext {
-
-	constructor(functions = {}) {
+	constructor() {
 		super();
 		this.strict = true;
-		this.functions = Object.assign({}, filter(this.functions), Functions, functions);
-		// this.functions = Object.assign({}, filter(this.functions), functions);
+		this.parserFunctions = filter(this.functions);
+		this.functions = Object.assign({}, this.parserFunctions);
+		this._functionFactory = undefined;
 	}
 
 	// node: is a parser AST node
@@ -58,6 +57,32 @@ class SheetParserContext extends ParserContext {
 		const func = super.getFunction(id);
 		// wrap into an execution function...
 		return func ? executor(func) : func;
+	}
+
+	getFunctionDefinitions() {
+		// currently we only need the names...
+		return Object.keys(this.functions).map((name) => ({ name }));
+	}
+
+	registerFunctions(functions = {}) {
+		this.functions = Object.assign({}, this.functions, functions);
+	}
+
+	registerFunctionDefinitions(definitions = []) {
+		const factory = this._functionFactory;
+		if (factory) {
+			this.registerFunctions(
+				definitions.reduce((fns, def) => {
+					const fn = factory.createFrom(def);
+					if (fn) fns[def.name] = fn;
+					return fns;
+				}, {})
+			);
+		}
+	}
+
+	registerFunctionFactory(factory) {
+		this._functionFactory = factory;
 	}
 }
 
