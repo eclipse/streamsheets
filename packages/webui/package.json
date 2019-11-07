@@ -74,6 +74,7 @@
     "worker-loader": "^1.1.0"
   },
   "dependencies": {
+    "@cedalo/functions": "*",
     "@cedalo/gateway-client": "*",
     "@cedalo/gateway-client-proxy": "*",
     "@cedalo/id-generator": "*",
