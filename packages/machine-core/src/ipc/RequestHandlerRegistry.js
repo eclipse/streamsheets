@@ -13,7 +13,7 @@ const StreamSheet = require('../machine/StreamSheet');
 const Streams = require('../streams/Streams');
 const MachineTaskMessagingClient = require('./MachineTaskMessagingClient');
 const { SheetParser } = require('../parser/SheetParser');
-const { registerFunctionModule, registerCoreFunctionsModule } = require('../utils/functions');
+const FunctionRegistry = require('../FunctionRegistry');
 // const { createPropertiesObject } = require('../utils');
 const DEF_SHEET_PROPS = require('../../defproperties.json');
 
@@ -545,8 +545,8 @@ class RegisterFunctionModules extends ARequestHandler {
 	handle({ modules = [] }) {
 		logger.info('registerFunctionModules', modules);
 		// first module is always our core-functions module:
-		registerCoreFunctionsModule(modules.shift());
-		modules.forEach((mod) => registerFunctionModule(mod));
+		FunctionRegistry.registerCoreFunctionsModule(modules.shift());
+		modules.forEach((mod) => FunctionRegistry.registerFunctionModule(mod));
 		return Promise.resolve();
 	}
 };
