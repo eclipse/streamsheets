@@ -7,6 +7,9 @@ RUN apk --no-cache add curl gnupg rsync unzip mongodb mosquitto redis supervisor
 COPY mongod.conf /etc/mongod.conf
 VOLUME /var/lib/mongodb
 
+# # Mosquitto
+COPY mosquitto etc/mosquitto
+
 # Redis
 COPY redis.conf /etc/redis.conf
 
