@@ -1,5 +1,9 @@
+const help = require('./help');
 const engineering = require('./engineering');
 
 module.exports = {
-	...engineering
+	help,
+	functions: {
+		...engineering
+	}
 };
