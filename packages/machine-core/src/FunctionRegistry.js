@@ -11,20 +11,23 @@ class FunctionRegistry {
 
 	registerCoreFunctionsModule(mod) {
 		requireModule(mod)
-			.then(({ Functions, FunctionFactory }) => {
-				if (Functions) SheetParser.context.registerFunctions(Functions);
+			.then(({ functions, FunctionFactory }) => {
+				if (functions) SheetParser.context.registerFunctions(functions);
 				if (FunctionFactory) SheetParser.context.registerFunctionFactory(FunctionFactory);
 			})
 			.catch((err) => logger.info(err.message));
 	}
+
 	registerFunctionModule(mod) {
 		requireModule(mod)
-			.then((functions) => functions && SheetParser.context.registerFunctions(functions))
+			.then(({ functions }) => functions && SheetParser.context.registerFunctions(functions))
 			.catch((err) => logger.info(err.message));
 	}
+
 	registerFunctionDefinitions(fnDefinitions) {
 		SheetParser.context.registerFunctionDefinitions(fnDefinitions);
 	}
+
 	getFunctionDefinitions() {
 		return SheetParser.context.getFunctionDefinitions();
 	}
