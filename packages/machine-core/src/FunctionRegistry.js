@@ -18,6 +18,9 @@ const updateState = (currentState, newDefinitions) => {
 	return { names, definitions };
 };
 
+/**
+ * @deprecated subject to remove! use ./utils/functions instead
+ */
 class StreamFunctionRegistry {
 	constructor() {
 		const machineFunctionNames = Object.keys(Functions);
