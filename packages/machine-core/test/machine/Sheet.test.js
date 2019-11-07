@@ -1,5 +1,5 @@
 const { celljson } = require('./utils');
-const { createCellAt, createTerm } = require('../functions/utils');
+const { createCellAt, createTerm } = require('../utils');
 const { Cell, Sheet, SheetIndex } = require('../..');
 
 const cellcount = (sheet) => {

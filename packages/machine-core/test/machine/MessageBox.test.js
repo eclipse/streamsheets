@@ -1,6 +1,6 @@
-const MessageBox = require('../../src/machine/MessageBox');
 const { Message } = require('../..');
-const MSG = require('../functions/data/messages.json');
+const MessageBox = require('../../src/machine/MessageBox');
+const MSG = require('../_data/messages.json');
 
 const counter = { put: 0, pop: 0 };
 const putListener = () => {

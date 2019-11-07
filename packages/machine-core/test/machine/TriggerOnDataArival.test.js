@@ -1,5 +1,5 @@
-const ERROR = require('../../src/functions/errors');
 const { Machine, Message, StreamSheet, StreamSheetTrigger } = require('../..');
+const { FunctionErrors } = require('@cedalo/error-codes');
 
 const createStreamSheet = (name, cells, trigger) => {
 	const streamsheet = new StreamSheet();
@@ -308,7 +308,7 @@ describe('StreamSheetTrigger: OnDataArrival', () => {
 			// run for 1 second
 			await wait(500);
 			await machine.stop();
-			expect(sheet1.cellAt('A1').value).toBe(ERROR.NA);
+			expect(sheet1.cellAt('A1').value).toBe(FunctionErrors.code.NA);
 			// getcycle returns number of steps done in endless mode => so must be far more than 1
 			expect(sheet2.cellAt('A2').value).toBeGreaterThan(1);
 		});

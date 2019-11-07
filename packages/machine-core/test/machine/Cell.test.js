@@ -1,7 +1,12 @@
+const { functions } = require('../utils');
 const { description } = require('./utils');
-const ERROR = require('../../src/functions/errors');
 const { Cell, SheetParser, StreamSheet } = require('../..');
 const { Term } = require('@cedalo/parser');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+beforeEach(() => {
+	SheetParser.context.registerFunctions(functions)
+});
 
 describe('Cell', () => {
 	const streamsheet = new StreamSheet();
@@ -55,13 +60,13 @@ describe('Cell', () => {
 			let cell = SheetParser.createCell({ formula: 'len(_A1)' }, sheet).init();
 			expect(cell).toBeDefined();
 			expect(cell.term).toBeDefined();
-			expect(ERROR.isError(cell.value)).toBeTruthy();
+			expect(FunctionErrors.isError(cell.value)).toBeTruthy();
 			expect(cell.hasFormula).toBeTruthy();
 			expect(cell.formula).toBe('len(_A1)');
 			cell = SheetParser.createCell({ formula: 'len(AEA1)' }, sheet).init();
 			expect(cell).toBeDefined();
 			expect(cell.term).toBeDefined();
-			expect(ERROR.isError(cell.value)).toBeTruthy();
+			expect(FunctionErrors.isError(cell.value)).toBeTruthy();
 			expect(cell.hasFormula).toBeTruthy();
 			expect(cell.formula).toBe('len(AEA1)');
 		});

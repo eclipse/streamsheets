@@ -1,5 +1,6 @@
 const { celljson } = require('./utils');
-const { Machine, Message, SheetIndex, StreamSheet, StreamSheetTrigger } = require('../..');
+const { SheetIndex, StreamSheet, StreamSheetTrigger } = require('../..');
+
 
 describe('StreamSheet', () => {
 	describe('load', () => {
@@ -73,49 +74,5 @@ describe('StreamSheet', () => {
 				expect(streamsheet2.sheet.cellAt(SheetIndex.create('IF1')).value).toBe('-A1');
 			});
 		});
-	});
-
-	test('message processing', () => {
-		// process message step by step...
-		const cells = {
-			A1: { formula: 'read(inboxdata(,,"Kundenname","Vorname"), B1)' },
-			A2: { formula: 'read(inboxdata(,,"Kundennummer"), B2)' },
-			A3: { formula: 'read(inboxdata(,,, "PosNr"), B3)' },
-			C3: { formula: 'read(inboxdata(,,, "ArtikelNr"), D3)' },
-			E3: { formula: 'read(inboxdata(,,, "Preis"), F3)' }
-		};
-		const msg = new Message({
-			Kundenname: { Vorname: 'Max', Nachname: 'Mustermann' },
-			Kundennummer: 1234,
-			Positionen: [
-				{ PosNr: 1, ArtikelNr: 23, Preis: 23.34 },
-				{ PosNr: 2, ArtikelNr: 42, Preis: 87.67 },
-				{ PosNr: 3, ArtikelNr: 13, Preis: 17.58 }
-			]
-		});
-		const machine = new Machine();
-		const streamsheet = new StreamSheet();
-		const sheet = streamsheet.sheet.load({ cells });
-		machine.addStreamSheet(streamsheet);
-		streamsheet.updateSettings({
-			loop: { path: '[Data][Positionen]', enabled: true },
-			trigger: StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ALWAYS })
-		});
-		streamsheet.inbox.put(msg);
-		streamsheet.step();
-		// check cells
-		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe('Max');
-		expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe(1234);
-		expect(sheet.cellAt(SheetIndex.create('B3')).value).toBe(1);
-		expect(sheet.cellAt(SheetIndex.create('D3')).value).toBe(23);
-		expect(sheet.cellAt(SheetIndex.create('F3')).value).toBe(23.34);
-		streamsheet.step();
-		expect(sheet.cellAt(SheetIndex.create('B3')).value).toBe(2);
-		expect(sheet.cellAt(SheetIndex.create('D3')).value).toBe(42);
-		expect(sheet.cellAt(SheetIndex.create('F3')).value).toBe(87.67);
-		streamsheet.step();
-		expect(sheet.cellAt(SheetIndex.create('B3')).value).toBe(3);
-		expect(sheet.cellAt(SheetIndex.create('D3')).value).toBe(13);
-		expect(sheet.cellAt(SheetIndex.create('F3')).value).toBe(17.58);
 	});
 });

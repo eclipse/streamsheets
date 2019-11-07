@@ -1,6 +1,7 @@
 const { Sheet, SheetParser } = require('../..');
-const ERROR = require('../../src/functions/errors');
+const { FunctionErrors } = require('@cedalo/error-codes');
 
+const ERROR = FunctionErrors.code;
 const SHEET = new Sheet();
 
 const validate = (expr, sheet = SHEET) => {
