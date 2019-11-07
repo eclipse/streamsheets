@@ -1,69 +1,32 @@
-const Functions = require('./functions');
-const { streamFunc } = require('./functions/_utils/func');
 const { SheetParser } = require('./parser/SheetParser');
-const SheetParserContext = require('./parser/SheetParserContext');
+const logger = require('./logger').create({ name: 'function-utilities' });
 
-const getNames = (definitions) => definitions.map((d) => d.name);
+// eslint-disable-next-line
+const requireModule = async (path) => require(path);
 
-const updateState = (currentState, newDefinitions) => {
-	const definitions = { ...currentState.definitions, ...newDefinitions };
-	definitions.all = [...definitions.stream, ...definitions.machine];
-	const machineNames = new Set(getNames(definitions.machine));
-	const streamNames = new Set(getNames(definitions.stream));
-	const names = {
-		machine: machineNames,
-		stream: streamNames,
-		all: new Set([...machineNames, ...streamNames])
-	};
-	return { names, definitions };
-};
-
-/**
- * @deprecated subject to remove! use ./utils/functions instead
- */
-class StreamFunctionRegistry {
-	constructor() {
-		const machineFunctionNames = Object.keys(Functions);
-		const machineFunctionDefinitions = Object.keys(Functions).map(
-			(name) => ({ name })
-		);
-
-		this.state = {
-			definitions: {
-				machine: machineFunctionDefinitions,
-				stream: [],
-				all: machineFunctionDefinitions
-			},
-			names: {
-				machine: new Set(machineFunctionNames),
-				stream: new Set(),
-				all: new Set(machineFunctionNames)
-			}
-		};
+class FunctionRegistry {
+	static of() {
+		return new FunctionRegistry();
 	}
 
-	registerStreamFunctions(functionDefinitions) {
-		const streamFunctions = functionDefinitions.reduce(
-			(funcObject, funcDefinition) => {
-				funcObject[funcDefinition.name] = streamFunc(funcDefinition);
-				return funcObject;
-			},
-			{}
-		);
-		// TODO: Do this differently
-		SheetParser.context = new SheetParserContext(streamFunctions);
-		this.state = updateState(this.state, {
-			stream: functionDefinitions
-		});
+	registerCoreFunctionsModule(mod) {
+		requireModule(mod)
+			.then(({ Functions, FunctionFactory }) => {
+				if (Functions) SheetParser.context.registerFunctions(Functions);
+				if (FunctionFactory) SheetParser.context.registerFunctionFactory(FunctionFactory);
+			})
+			.catch((err) => logger.info(err.message));
 	}
-
-	get functionDefinitions() {
-		return this.state.definitions.all;
+	registerFunctionModule(mod) {
+		requireModule(mod)
+			.then((functions) => functions && SheetParser.context.registerFunctions(functions))
+			.catch((err) => logger.info(err.message));
 	}
-
-	get streamFunctionNames() {
-		return this.state.names.stream;
+	registerFunctionDefinitions(fnDefinitions) {
+		SheetParser.context.registerFunctionDefinitions(fnDefinitions);
+	}
+	getFunctionDefinitions() {
+		return SheetParser.context.getFunctionDefinitions();
 	}
 }
-
-module.exports = new StreamFunctionRegistry();
+module.exports = FunctionRegistry.of();
