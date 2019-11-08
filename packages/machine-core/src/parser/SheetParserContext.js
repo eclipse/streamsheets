@@ -66,6 +66,7 @@ class SheetParserContext extends ParserContext {
 
 	registerFunctions(functions = {}) {
 		this.functions = Object.assign({}, this.functions, functions);
+		return this;
 	}
 
 	registerFunctionDefinitions(definitions = []) {
@@ -79,10 +80,12 @@ class SheetParserContext extends ParserContext {
 				}, {})
 			);
 		}
+		return this;
 	}
 
 	registerFunctionFactory(factory) {
 		this._functionFactory = factory;
+		return this;
 	}
 }
 
