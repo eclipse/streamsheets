@@ -31,7 +31,7 @@ EXPOSE 8081
 # Expose Web UI port
 EXPOSE 9000
 # Expose Gateway ports
-EXPOSE 8082 8088
+EXPOSE 8080 8088
 # Expose Streams Service port
 EXPOSE 8083
 
