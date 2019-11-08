@@ -1,4 +1,4 @@
-const Functions = require('../src/functions');
+const Functions = require('../src/functions').functions;
 const { FuncTerm, Term } = require('@cedalo/parser');
 const { CellReference, CellRangeReference, SheetIndex, SheetParser } = require('@cedalo/machine-core');
 
