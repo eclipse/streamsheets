@@ -1,9 +1,13 @@
-const { createTerm } = require('../utils');
-const { validate } = require('../utils');
-const { Machine, StreamSheet, Sheet, SheetIndex } = require('../..');
+const { createTerm, functions, validate } = require('../utils');
+const { Machine, StreamSheet, Sheet, SheetIndex, SheetParser } = require('../..');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
+
+beforeEach(() => {
+	SheetParser.context.registerFunctions(functions)
+});
+
 const createMachine = () => {
 	const machine = new Machine();
 	machine.removeAllStreamSheets();
