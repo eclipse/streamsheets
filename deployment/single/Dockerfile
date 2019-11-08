@@ -26,6 +26,8 @@ EXPOSE 27017
 EXPOSE 1883
 # Expose Redis port
 EXPOSE 6379
+# Expose nginx port
+EXPOSE 8081
 # Expose Web UI port
 EXPOSE 9000
 # Expose Gateway ports
