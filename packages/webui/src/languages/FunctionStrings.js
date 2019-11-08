@@ -5,22 +5,30 @@ import store from '../store';
 
 const { CellEditor } = JSG;
 
-const Strings = {};
-const Categories = {
-	all: {
-		en: 'All',
-		de: 'Alle',
-	}
-};
-
 // setup help:
-Object.entries(help).forEach(([catName, category]) => {
-	const { en, de, functions } = category;
-	Categories[catName] = { en, de };
+const alphabetical = (a,b) => a[0].localeCompare(b[0]);
+const createCategories = (categories, [name, category]) => {
+	const { en, de } = category;
+	categories[name] = { en, de };
+	return categories;
+};
+const createFunctions = (fns, [catName, category]) => {
+	const { functions } = category;
 	Object.entries(functions).forEach(([key, fn]) => {
-		Strings[key] = { category: catName, ...fn };
+		fns[key] = { category: catName, ...fn };
 	});
-});
+	return fns;
+};
+const createStrings = (strings, [name, fn]) => {
+	strings[name] = fn;
+	return strings;
+};
+const Categories = Object.entries(help)
+	.sort(alphabetical)
+	.reduce(createCategories, { all: { en: 'All', de: 'Alle' } });
+const Strings = Object.entries(Object.entries(help).reduce(createFunctions, {}))
+	.sort(alphabetical)
+	.reduce(createStrings, {});
 
 
 export default class FunctionStrings {
