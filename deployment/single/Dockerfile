@@ -1,7 +1,7 @@
 FROM node:12.4.0-alpine
 LABEL maintainer="philip.ackermann@cedalo.com"
 
-RUN apk --no-cache add curl gnupg rsync unzip mongodb mosquitto redis supervisor
+RUN apk --no-cache add g++ make curl nginx git gnupg rsync unzip mongodb mosquitto redis supervisor
 
 # MongoDB
 COPY mongodb/mongod.conf /etc/mongod.conf
