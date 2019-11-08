@@ -1,5 +1,5 @@
 const MSG = require('../_data/messages.json');
-const { OUTBOXJSON } = require('../../src/functions/streamsheet');
+const { OUTBOXJSON } = require('../../src/functions/streamsheet').functions;
 const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
 
 

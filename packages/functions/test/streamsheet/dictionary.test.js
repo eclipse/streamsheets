@@ -1,5 +1,5 @@
 const SHEETS = require('../_data/sheets.json');
-const { DICTIONARY } = require('../../src/functions');
+const { DICTIONARY } = require('../../src/functions').functions;
 const { createCellRangeTerm } = require('../utils');
 const { Term } = require('@cedalo/parser');
 const { StreamSheet } = require('@cedalo/machine-core');
