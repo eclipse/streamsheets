@@ -3,6 +3,13 @@ LABEL maintainer="philip.ackermann@cedalo.com"
 
 RUN apk --no-cache add g++ make curl nginx git gnupg rsync unzip mongodb mosquitto redis supervisor
 
+# Streamsheets services
+COPY services /services
+COPY streamsheets /streamsheets
+RUN cd /streamsheets && yarn install --production
+RUN npm i -g pushstate-server@3.0.1
+COPY streamsheets/packages/gateway/config /config
+
 # MongoDB
 COPY mongodb/mongod.conf /etc/mongod.conf
 VOLUME /var/lib/mongodb
