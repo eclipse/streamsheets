@@ -1,4 +1,4 @@
-const { MSTOSERIAL, SERIALTOMS } = require('../../src/functions');
+const { MSTOSERIAL, SERIALTOMS } = require('../../src/functions').functions;
 const { Term } = require('@cedalo/parser');
 const { Message, StreamSheet } = require('@cedalo/machine-core');
 

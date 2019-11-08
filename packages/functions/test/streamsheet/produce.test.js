@@ -1,6 +1,6 @@
 const MSG = require('../_data/messages.json');
 const SHEETS = require('../_data/sheets.json');
-const { PRODUCE } = require('../../src/functions/streamsheet');
+const { PRODUCE } = require('../../src/functions/streamsheet').functions;
 const { createCellRangeTerm, createFuncTerm, createParamTerms, createTerm } = require('../utils');
 const { Term } = require('@cedalo/parser');
 const { Machine, Message, Streams, StreamSheet } = require('@cedalo/machine-core');

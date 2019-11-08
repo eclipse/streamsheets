@@ -1,4 +1,4 @@
-const { FEEDINBOX } = require('../../src/functions/streamsheet');
+const { FEEDINBOX } = require('../../src/functions/streamsheet').functions;
 const { createTerm } = require('../utils');
 const { Term } = require('@cedalo/parser');
 const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');

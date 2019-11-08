@@ -1,4 +1,4 @@
-const { GETCYCLETIME } = require('../../src/functions/streamsheet');
+const { GETCYCLETIME } = require('../../src/functions/streamsheet').functions;
 const { Machine, SheetIndex, StreamSheet } = require('@cedalo/machine-core');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
 
