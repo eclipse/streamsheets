@@ -13,8 +13,8 @@ COPY mosquitto etc/mosquitto
 # Redis
 COPY redis/redis.conf /etc/redis.conf
 
-# Streamsheets services
-COPY services /services
+# nginx
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
 # Supervisor
 RUN mkdir -p /var/log/supervisor
@@ -37,5 +37,3 @@ EXPOSE 8083
 
 # General
 CMD [ "/usr/bin/supervisord", "-c", "/etc/supervisord.conf" ]
-
-
