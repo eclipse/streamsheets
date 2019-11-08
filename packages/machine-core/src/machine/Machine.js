@@ -95,6 +95,7 @@ class Machine {
 			settings: this.settings,
 			className: this.className,
 			namedCells: this.namedCells.getDescriptors(),
+			functionsHelp: FunctionRegistry.getFunctionsHelp(),
 			functionDefinitions: FunctionRegistry.getFunctionDefinitions()
 		};
 	}
