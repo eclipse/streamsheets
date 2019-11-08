@@ -5,7 +5,7 @@ const { FunctionErrors } = require('@cedalo/error-codes');
 const ERROR = FunctionErrors.code;
 
 beforeEach(() => {
-	SheetParser.context.registerFunctions(functions)
+	Object.assign(SheetParser.context.functions, functions);
 });
 
 const createMachine = () => {

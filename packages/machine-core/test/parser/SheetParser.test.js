@@ -7,7 +7,7 @@ const { FunctionErrors } = require('@cedalo/error-codes');
 
 let machine;
 beforeEach(() => {
-	SheetParser.context.registerFunctions(functions)
+	Object.assign(SheetParser.context.functions, functions);
 	SheetParser.context.scope = new Sheet();
 	machine = new Machine();
 	machine.addStreamSheet(new StreamSheet({ name: 'T1' }));

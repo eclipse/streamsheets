@@ -3,7 +3,7 @@ const { Machine, SheetIndex, SheetParser, SheetRange, StreamSheet } = require('.
 const DEF_PROPS = require('../../defproperties.json');
 
 beforeEach(() => {
-	SheetParser.context.registerFunctions(functions)
+	Object.assign(SheetParser.context.functions, functions);
 });
 
 

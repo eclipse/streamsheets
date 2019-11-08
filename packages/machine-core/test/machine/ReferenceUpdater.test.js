@@ -2,7 +2,7 @@ const { functions } = require('../utils');
 const { Machine, SheetParser, SheetRange, StreamSheet } = require('../..');
 
 beforeEach(() => {
-	SheetParser.context.registerFunctions(functions)
+	Object.assign(SheetParser.context.functions, functions);
 });
 
 const createMachine = () => ({
