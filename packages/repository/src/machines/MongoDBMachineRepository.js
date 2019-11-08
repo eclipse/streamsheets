@@ -31,7 +31,7 @@ const reduceCells = (cells) =>
 const deleteProps = (...props) => (obj) => props.forEach((prop) => delete obj[prop]);
 
 const deleteCellProps = deleteProps('reference', 'info');
-const deleteMachineProps = deleteProps('outbox', 'functionDefinitions', 'stats');
+const deleteMachineProps = deleteProps('outbox', 'functionDefinitions', 'functionsHelp', 'stats');
 const deleteStreamSheetProps = deleteProps('stats');
 const deleteInboxProps = deleteProps('messages', 'currentMessage');
 const deleteLoopProps = deleteProps('currentPath', 'index');
