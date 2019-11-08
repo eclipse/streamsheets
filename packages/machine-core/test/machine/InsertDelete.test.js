@@ -4,7 +4,7 @@ const { Cell, Machine, Sheet, SheetParser,SheetRange, StreamSheet } = require('.
 const { Term } = require('@cedalo/parser');
 
 beforeEach(() => {
-	SheetParser.context.registerFunctions(functions)
+	Object.assign(SheetParser.context.functions, functions);
 });
 
 const setup = () => {

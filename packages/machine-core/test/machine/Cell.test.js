@@ -5,7 +5,7 @@ const { Term } = require('@cedalo/parser');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
 beforeEach(() => {
-	SheetParser.context.registerFunctions(functions)
+	Object.assign(SheetParser.context.functions, functions);
 });
 
 describe('Cell', () => {
