@@ -1,6 +1,6 @@
 // import { appStrings } from './i18n';
 import JSG from '@cedalo/jsg-ui';
-import { help } from '@cedalo/functions';
+import help from 'core-functions-help';
 import store from '../store';
 
 const { CellEditor } = JSG;
@@ -33,7 +33,7 @@ const Strings = createSortedObject(createStrings(help));
 const Categories = createSortedObject(createCategories(help, { all: { en: 'All', de: 'Alle' } }));
 
 export default class FunctionStrings {
-	addFunctionsHelp(fnsHelp) {
+	addFunctionsHelp(fnsHelp = {}) {
 		createSortedObject(createStrings(fnsHelp, Strings));
 		createSortedObject(createCategories(fnsHelp, Categories));
 	}
