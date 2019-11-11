@@ -3,7 +3,15 @@ const {
 	terms: { getRequestIdFromTerm },
 	validation: { ensure }
 } = require('../../utils');
-const { Message, Streams } = require('@cedalo/machine-core');
+const mcore = require('../../machinecore');
+
+let Message;
+let Streams;
+mcore.getAsync().then((mod) => {
+	Message = mod.Message;
+	Streams = mod.Streams;
+});
+
 
 
 const respondinternal = (s, ...t) =>

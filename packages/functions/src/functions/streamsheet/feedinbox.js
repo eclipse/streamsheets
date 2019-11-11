@@ -4,8 +4,14 @@ const {
 	sheet: { createMessageFromValue, getMachine, getStreamSheetByName }
 } = require('../../utils');
 const { jsonpath } = require('@cedalo/commons');
-const { Message } = require('@cedalo/machine-core');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const mcore = require('../../machinecore');
+
+let Message;
+mcore.getAsync().then((mod) => {
+	Message = mod.Message;
+});
+
 
 // DL-1835:
 const addMetaData = (message, sheet) => {

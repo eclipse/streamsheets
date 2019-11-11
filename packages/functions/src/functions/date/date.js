@@ -1,4 +1,3 @@
-const { locale } = require('@cedalo/machine-core');
 const {
 	date: { ms2serial, serial2date, time2serial },
 	sheet: { getLocale },
@@ -7,6 +6,12 @@ const {
 } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const mcore = require('../../machinecore');
+
+let locale;
+mcore.getAsync().then((mod) => {
+	locale = mod.locale;
+});
 
 const SEC_MS = 1000;
 const MIN_MS = 60 * SEC_MS;

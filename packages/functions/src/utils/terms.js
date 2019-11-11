@@ -1,6 +1,13 @@
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
-const { CellReference, SheetRange } = require('@cedalo/machine-core');
+const mcore = require('../machinecore');
+
+let CellReference;
+let SheetRange;
+mcore.getAsync().then((mod) => {
+	CellReference = mod.CellReference;
+	SheetRange = mod.SheetRange;
+});
 
 const cellFromTerm = (term) => {
 	const refop = term && term.operand;

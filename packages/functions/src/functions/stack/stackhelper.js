@@ -1,9 +1,16 @@
 const { sheet: sheetutils } = require('../../utils');
 const { convert } = require('@cedalo/commons');
-const { SheetIndex } = require('@cedalo/machine-core');
+const mcore = require('../../machinecore');
 
-const sharedidx = SheetIndex.create(1, 0);
+// const sharedidx = SheetIndex.create(1, 0);
 const sharedrow = [];
+let sharedidx;
+let SheetIndex;
+mcore.getAsync().then((mod) => {
+	SheetIndex = mod.SheetIndex;
+	sharedidx = SheetIndex.create(1, 0);
+});
+
 
 const rowsFromRange = (range) => {
 	const rows = [];
