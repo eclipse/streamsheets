@@ -388,7 +388,7 @@ class Machine {
 				this.cyclemonitor.counterSecond = 0;
 				this.cyclemonitor.last = Date.now();
 				this.cyclemonitor.lastSecond = Date.now();
-				this._emitter.emit('update', 'state');
+				this._emitter.emit('update', 'state', { new: this._state, old: oldstate });
 				this.cycle(allStreamSheets);
 				this._emitter.emit('didStart', this);
 				logger.info(`Machine: -> STARTED machine ${this.id}`);
@@ -414,7 +414,7 @@ class Machine {
 			}
 			this._didStop();
 			logger.info(`Machine: -> ${this._state} machine ${this.id}`);
-			this._emitter.emit('update', 'state');
+			this._emitter.emit('update', 'state', { new: this._state, old: prevstate });
 		}
 	}
 	_willStop() {
@@ -432,6 +432,7 @@ class Machine {
 	}
 
 	forceStop() {
+		const oldstate = this._state;
 		this._state = State.STOPPED;
 		try {
 			this._clearCycle();
@@ -441,16 +442,17 @@ class Machine {
 		} catch (err) {
 			/* ignore */
 		}
-		this._emitter.emit('update', 'state');
+		this._emitter.emit('update', 'state', { new: this._state, old: oldstate });
 	}
 
 	async pause() {
 		if (this._state !== State.PAUSED && this._state !== State.WILL_STOP) {
+			const oldstate = this._state;
 			this._clearCycle();
 			this._state = State.PAUSED;
 			this.stats.cyclesPerSecond = 0;
 			this.streamsheets.forEach((streamsheet) => streamsheet.pause());
-			this._emitter.emit('update', 'state');
+			this._emitter.emit('update', 'state', { new: this._state, old: oldstate });
 			logger.info(`Machine: -> PAUSED machine ${this.id}`);
 		}
 	}
