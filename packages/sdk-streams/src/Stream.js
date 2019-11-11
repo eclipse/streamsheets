@@ -1,11 +1,22 @@
 const IdGenerator = require('@cedalo/id-generator');
-const events = require('events');
 const DefaultLogger = require('./DefaultLogger');
+const events = require('events');
+
+class EventEmitter extends events.EventEmitter {
+	emit (type, ...args) {
+		this._lastEventType = type;
+		super.emit(type, ...args)
+	};
+
+	isNewEventType(type) {
+		return this._lastEventType === type;
+	}
+}
 
 class Stream {
 	constructor({ id = IdGenerator.generate(), owner = 'anon' } = {}) {
 		this.logger = new DefaultLogger();
-		this._emitter = new events.EventEmitter();
+		this._emitter = new EventEmitter();
 		this._emitter.setMaxListeners(0);
 		// read only properties...
 		Object.defineProperties(this, {
@@ -26,6 +37,10 @@ class Stream {
 			type: this.type,
 			owner: this._owner
 		};
+	}
+
+	isNewEventType(type) {
+		return this._emitter.isNewEventType(type);
 	}
 
 	get owner() {
