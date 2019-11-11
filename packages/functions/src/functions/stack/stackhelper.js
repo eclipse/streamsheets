@@ -389,13 +389,17 @@ const matchRow = (row, criteriarange, indexMatch) => {
 	let doMatch = false;
 	const sheet = criteriarange.sheet;
 	const endrow = criteriarange.end.row;
+	const getCriteriaCell = (rowidx, criteriaidx) =>
+		criteriaidx != null && sharedidx.set(rowidx, criteriaidx) ? sheet.cellAt(sharedidx) : null;
+	const doesNotMatchCellCriteria = (cell, index) => {
+		const rowidx = doesNotMatchCellCriteria.rowidx;
+		const criteriaidx = indexMatch[index];
+		const criteriacell = getCriteriaCell(rowidx, criteriaidx);
+		return cell && criteriacell ? cell.value !== criteriacell.value : cell == null && criteriacell == null;
+	};
 	for (let rowidx = criteriarange.start.row + 1; rowidx <= endrow; rowidx += 1) {
-		const isFulFilled = !row.some((cell, index) => {
-			const criteriaidx = indexMatch[index];
-			const criteriacell =
-				criteriaidx != null && sharedidx.set(rowidx, criteriaidx) ? sheet.cellAt(sharedidx) : null;
-			return cell && criteriacell ? cell.value !== criteriacell.value : (cell == null && criteriacell == null);
-		});
+		doesNotMatchCellCriteria.rowidx = rowidx;
+		const isFulFilled = !row.some(doesNotMatchCellCriteria);
 		doMatch = doMatch || isFulFilled;
 	}
 	return doMatch;
