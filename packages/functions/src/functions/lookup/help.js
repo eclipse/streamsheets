@@ -4,17 +4,17 @@ module.exports = {
 	functions: {
 		CHOOSE: {
 			en: {
-				argumentList: 'Index,Value1,[ValueN]',
+				argumentList: 'Index,Value1,ValueN',
 				description: 'Returns the value at specified index from parameter list'
 			},
 			de: {
-				argumentList: 'Index,Wert1,[WertN]',
+				argumentList: 'Index,Wert1,WertN',
 				description: 'Gibt den Wert an der angebgebenen Stelle in der Parameterliste zurück'
 			}
 		},
 		COLUMN: {
-			en: { argumentList: '[Reference]', description: 'Returns the column number of given cell reference' },
-			de: { argumentList: '[Referenz]', description: 'Ermittelt die Spaltennummer der angegebenen Zellreferenz' }
+			en: { argumentList: 'Reference', description: 'Returns the column number of given cell reference' },
+			de: { argumentList: 'Referenz', description: 'Ermittelt die Spaltennummer der angegebenen Zellreferenz' }
 		},
 		INDEX: {
 			en: {
@@ -28,38 +28,38 @@ module.exports = {
 		},
 		MATCH: {
 			en: {
-				argumentList: 'Value,CellRange,[MatchType]',
+				argumentList: 'Value,SearchRange,MatchType',
 				description: 'Returns relative column index of matching cell inside specified cell range'
 			},
 			de: {
-				argumentList: 'Wert,ZellBereich,[MatchType]',
+				argumentList: 'Wert,Suchbereich,Vergleichstyp',
 				description:
 					'Liefert den relativen Spaltenindex, innerhalb des Zellbereichs, der Zelle zurück, die mit dem gegebenen Wert übereinstimmt '
 			}
 		},
 		OFFSET: {
 			en: {
-				argumentList: 'Range,Rows,Cols,[Height],[Width]',
+				argumentList: 'Range,RowOffset,ColumnOffset,Height,Width',
 				description:
 					'Returns range of cells that is a specified number of rows and columns from an initial specified range.'
 			},
 			de: {
-				argumentList: 'Bereich,Zeilen,Spalten,[Höhe],[Breite]',
+				argumentList: 'Bereich,Zeilenversatz,Spaltenversatz,Höhe,Breite',
 				description: 'Erzeugt einen Bereich mit dem angegebenen Versatz und der Höhe und Breite'
 			}
 		},
 		ROW: {
-			en: { argumentList: '[Reference]', description: 'Returns the row number of given cell reference' },
-			de: { argumentList: '[Referenz]', description: 'Ermittelt die Zeilennummer der angegebenen Zellreferenz' }
+			en: { argumentList: 'Reference', description: 'Returns the row number of given cell reference' },
+			de: { argumentList: 'Referenz', description: 'Ermittelt die Zeilennummer der angegebenen Zellreferenz' }
 		},
 		VLOOKUP: {
 			en: {
-				argumentList: 'Value,Range,Index,[ExactMatch]',
+				argumentList: 'Value,Range,Index,ExactMatch',
 				description:
 					'Looks in the first column of an array and moves across the row to return the value of a cell'
 			},
 			de: {
-				argumentList: 'Wert,Bereich,Index,[ExakteÜbereinstimmung]',
+				argumentList: 'Wert,Bereich,Index,ExakteÜbereinstimmung',
 				description:
 					'Ermittelt die Zelle mit einem Index in einem Bereich, die dem Wert in der ersten Spalte entspricht'
 			}

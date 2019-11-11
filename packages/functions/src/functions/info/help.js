@@ -4,12 +4,12 @@ module.exports = {
 	functions: {
 		IFERROR: {
 			en: {
-				argumentList: 'Value,ValueOnError',
+				argumentList: 'Value,ErrorValue',
 				description: 'Returns ValueOnError if given Value represents an error otherwise the Value itself'
 			},
 			de: {
-				argumentList: 'Value,ValueOnError',
-				description: 'Gibt ValueOnError zurück, falls der Value einem Fehlerwert entspricht, sonst Value'
+				argumentList: 'Wert,Fehlerwert',
+				description: 'Gibt Fehlerwert zurück, falls der Value einem Fehlerwert entspricht, sonst Wert'
 			}
 		},
 		ISERR: {

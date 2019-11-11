@@ -1,5 +1,5 @@
 module.exports = {
-	en: 'Date', 
+	en: 'Date',
 	de: 'Datum',
 	functions: {
 		DATE: {
@@ -15,12 +15,15 @@ module.exports = {
 			}
 		},
 		DATEVALUE: {
-			en: { argumentList: 'Text', description: 'Converts a date specified by given text to a serial number' },
-			de: { argumentList: 'Text', description: 'Konvertiert ein als Text gegebenes Datum in eine serielle Zahl' }
+			en: { argumentList: 'DateText', description: 'Converts a date specified by given text to a serial number' },
+			de: {
+				argumentList: 'Datumstext',
+				description: 'Konvertiert ein als Text gegebenes Datum in eine serielle Zahl'
+			}
 		},
 		DAY: {
-			en: { argumentList: 'Value', description: 'Returns the day of the time value' },
-			de: { argumentList: 'Zahl', description: 'Gibt den Tag eines Zeitwertes zurück' }
+			en: { argumentList: 'DateValue', description: 'Returns the day of the time value' },
+			de: { argumentList: 'Datumswert', description: 'Gibt den Tag eines Datumswertes zurück' }
 		},
 		EXCEL2JSONTIME: {
 			en: {
@@ -34,8 +37,8 @@ module.exports = {
 			}
 		},
 		HOUR: {
-			en: { argumentList: 'Value', description: 'Returns the hour of the time value' },
-			de: { argumentList: 'Zahl', description: 'Gibt die Stunde eines Zeitwertes zurück' }
+			en: { argumentList: 'TimeValue', description: 'Returns the hour of the time value' },
+			de: { argumentList: 'Zeitwert', description: 'Gibt die Stunde eines Zeitwertes zurück' }
 		},
 		JSONTIME2EXCEL: {
 			en: {
@@ -48,12 +51,12 @@ module.exports = {
 			}
 		},
 		MINUTE: {
-			en: { argumentList: 'Value', description: 'Returns the minute of the time value' },
-			de: { argumentList: 'Zahl', description: 'Gibt die Minute eines Zeitwertes zurück' }
+			en: { argumentList: 'Zeitwert', description: 'Returns the minute of the time value' },
+			de: { argumentList: 'Timevalue', description: 'Gibt die Minute eines Zeitwertes zurück' }
 		},
 		MONTH: {
-			en: { argumentList: 'Value', description: 'Returns the month of the time value' },
-			de: { argumentList: 'Zahl', description: 'Gibt den Monat eines Zeitwertes zurück' }
+			en: { argumentList: 'DateValue', description: 'Returns the month of the time value' },
+			de: { argumentList: 'Datumswert', description: 'Gibt den Monat eines Zeitwertes zurück' }
 		},
 		MSTOSERIAL: {
 			en: { argumentList: 'TimeValue', description: 'Converts the given ellapsed milliseconds to a date value' },
@@ -64,8 +67,8 @@ module.exports = {
 			de: { argumentList: '', description: 'Gibt den aktuellen Zeitwert zurück' }
 		},
 		SECOND: {
-			en: { argumentList: 'Value', description: 'Returns the seconds of the time value' },
-			de: { argumentList: 'Zahl', description: 'Gibt die Sekunden eines Zeitwertes zurück' }
+			en: { argumentList: 'DateValue', description: 'Returns the seconds of the time value' },
+			de: { argumentList: 'Datumswert', description: 'Gibt die Sekunden eines Zeitwertes zurück' }
 		},
 		SERIALTOMS: {
 			en: { argumentList: 'Date', description: 'Converts the given date to the ellapsed milliseconds' },
@@ -84,16 +87,22 @@ module.exports = {
 			}
 		},
 		TIMEVALUE: {
-			en: { argumentList: 'Text', description: 'Converts time given as text to a corresponding serial number' },
-			de: { argumentList: 'Text', description: 'Konvertiert die als Text gegebene Zeit in eine serielle Zahl' }
+			en: {
+				argumentList: 'TimeText',
+				description: 'Converts time given as text to a corresponding serial number'
+			},
+			de: {
+				argumentList: 'Zeittext',
+				description: 'Konvertiert die als Text gegebene Zeit in eine serielle Zahl'
+			}
 		},
 		WEEKDAY: {
-			en: { argumentList: 'Value', description: 'Returns the week day of the time value' },
-			de: { argumentList: 'Zahl', description: 'Gibt den Wochentag eines Zeitwertes zurück' }
+			en: { argumentList: 'DateValue', description: 'Returns the week day of the time value' },
+			de: { argumentList: 'Datumswert', description: 'Gibt den Wochentag eines Zeitwertes zurück' }
 		},
 		YEAR: {
-			en: { argumentList: 'Value', description: 'Returns the year of the time value' },
-			de: { argumentList: 'Zahl', description: 'Gibt das Jahr eines Zeitwertes zurück' }
+			en: { argumentList: 'DateValue', description: 'Returns the year of the date value' },
+			de: { argumentList: 'Datumswert', description: 'Gibt das Jahr eines Datumswertes zurück' }
 		}
 	}
 };
