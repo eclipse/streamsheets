@@ -1,6 +1,7 @@
 // import { appStrings } from './i18n';
 import JSG from '@cedalo/jsg-ui';
-import help from 'core-functions-help';
+// import help from 'core-functions-help';
+import { help } from '@cedalo/functions';
 import store from '../store';
 
 const { CellEditor } = JSG;
@@ -8,12 +9,14 @@ const { CellEditor } = JSG;
 // setup help:
 const alphabetical = (a,b) => a[0].localeCompare(b[0]);
 const reduceCategories = (categories, [name, category]) => {
-	const { en, de } = category;
-	categories[name] = { en, de };
+	if (category) {
+		const { en, de } = category;
+		categories[name] = { en, de };
+	}
 	return categories;
 };
-const reduceFunctions = (fns, [catName, category]) => {
-	const { functions } = category;
+const reduceFunctions = (fns, [catName, category = {}]) => {
+	const { functions = {} } = category;
 	Object.entries(functions).forEach(([key, fn]) => {
 		fns[key] = { category: catName, ...fn };
 	});
