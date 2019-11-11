@@ -101,7 +101,7 @@ const streamFunc = functionConfig => function f(sheet, stream, ...args) {
 	const func = BASE_FUNC_HANDLER[baseFunction];
 	const callArguments = [sheet, stream];
 
-	const transformedParams = handleParameters(sheet, paramsCopy, args, 1);
+	const transformedParams = handleParameters(sheet, paramsCopy, args, 2);
 	if (FunctionErrors.isError(transformedParams) ||
 		(typeof transformedParams === 'string' && transformedParams.startsWith(FunctionErrors.code.INVALID_PARAM))) {
 		return transformedParams;
