@@ -24,17 +24,17 @@ module.exports = {
 				description: 'Returns the arctangent value based on the given x and y coordinates'
 			},
 			de: {
-				argumentList: 'Zahl',
+				argumentList: 'X,Y',
 				description: 'Gibt den Arkus Tangens basierend auf den übergebenen X und Y Koordinaten zurück'
 			}
 		},
 		COS: {
-			en: { argumentList: 'Value', description: 'Returns the cosine value of the value' },
-			de: { argumentList: 'Zahl', description: 'Gibt den Cosinus der Zahl zurück' }
+			en: { argumentList: 'Angle', description: 'Returns the cosine value of the value' },
+			de: { argumentList: 'Winkel', description: 'Gibt den Cosinus des Winkels zurück' }
 		},
 		DEGREES: {
-			en: { argumentList: 'Value', description: 'Converts radians to degrees' },
-			de: { argumentList: 'Zahl', description: 'Wandelt einen radialen Winkel in Grad um' }
+			en: { argumentList: 'Radians', description: 'Converts radians to degrees' },
+			de: { argumentList: 'Radian', description: 'Wandelt einen radialen Winkel in Grad um' }
 		},
 		EVEN: {
 			en: { argumentList: 'Number', description: 'Returns the number rounded up to the nearest event integer' },
@@ -42,7 +42,7 @@ module.exports = {
 		},
 		FRAC: {
 			en: { argumentList: 'Number', description: 'Returns the fractional part of a number value' },
-			de: { argumentList: 'Zahl', description: 'Gibt die Nachkommastellen einer Zahl zurück' }			
+			de: { argumentList: 'Zahl', description: 'Berechnet den Dezimalteil einer Zahl' }
 		},
 		INT: {
 			en: { argumentList: 'Value', description: 'Rounds a number value down to its nearest integer' },
@@ -68,8 +68,8 @@ module.exports = {
 			de: { argumentList: 'Zahl,Potenz', description: 'Gibt den Wert der Zahl potenziert zurück' }
 		},
 		RADIANS: {
-			en: { argumentList: 'Value', description: 'Converts the degrees value to radians' },
-			de: { argumentList: 'Wert', description: 'Konvertiert den Winkel in Grad' }
+			en: { argumentList: 'Degrees', description: 'Converts the degrees value to radians' },
+			de: { argumentList: 'Grad', description: 'Konvertiert den Winkel in Radien' }
 		},
 		RANDBETWEEN: {
 			en: { argumentList: 'Min,Max', description: 'Creates a random value within the interval' },
@@ -87,8 +87,8 @@ module.exports = {
 			de: { argumentList: 'Zahl', description: 'Liefert das Vorzeichen der angebenenen Zahl zurück' }
 		},
 		SIN: {
-			en: { argumentList: 'Value', description: 'Returns the sine value of the value' },
-			de: { argumentList: 'Zahl', description: 'Gibt den Sinus der Zahl zurück' }
+			en: { argumentList: 'Angle', description: 'Returns the sine value of the value' },
+			de: { argumentList: 'Winkel', description: 'Gibt den Sinus der Zahl zurück' }
 		},
 		SQRT: {
 			en: { argumentList: 'Value', description: 'Returns square root of the value' },
@@ -99,8 +99,8 @@ module.exports = {
 			de: { argumentList: 'Bereich', description: 'Summiert die Zahlen im angegebenen Bereich auf' }
 		},
 		TAN: {
-			en: { argumentList: 'Value', description: 'Returns the tangent value of the value' },
-			de: { argumentList: 'Zahl', description: 'Gibt den Tangens der Zahl zurück' }
+			en: { argumentList: 'Angle', description: 'Returns the tangent value of the value' },
+			de: { argumentList: 'Winkel', description: 'Gibt den Tangens der Zahl zurück' }
 		},
 		TRUNC: {
 			en: { argumentList: 'Value', description: 'Truncates a number to an integer' },
