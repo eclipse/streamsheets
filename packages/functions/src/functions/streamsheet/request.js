@@ -155,7 +155,7 @@ const project = (data, resultKeys) => {
 		resultKeys.forEach((key) => {
 			const path = toPath(key);
 			const value = jsonpath.query(path, json);
-			if (value) {
+			if (value !== undefined) {
 				jsonpath.setAt(path, projected, value);
 			}
 		});
