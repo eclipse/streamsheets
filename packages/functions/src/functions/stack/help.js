@@ -4,14 +4,14 @@ module.exports = {
 	functions: {
 		STACKADD: {
 			en: {
-				argumentList: 'StackRange,SourceRange,Position,TargetRange',
+				argumentList: 'StackRange,SourceRange,Direction,TargetRange',
 				description:
-					'This function adds a row to the stack at the defined Position and copies the removed cells to the target range'
+					'This function adds a row to the stack at the defined direction and copies the removed cells to the target range'
 			},
 			de: {
-				argumentList: 'Stackbereich,Quellbereich,Position,Zielbereich',
+				argumentList: 'Stackbereich,Quellbereich,Richtung,Zielbereich',
 				description:
-					'Diese Funktion füget dem Stack eine Zeile an der angegebenen Position zu und kopiert die gelöschte Zeile in den Zielbereich'
+					'Diese Funktion fügt dem Stack eine Zeile in der angegebenen Richtung und kopiert die gelöschte Zeile in den Zielbereich'
 			}
 		},
 		STACKDROP: {
@@ -39,12 +39,12 @@ module.exports = {
 		},
 		STACKROTATE: {
 			en: {
-				argumentList: 'StackRange,Count,TargetRange',
-				description: 'This function rotates the complete stack by Count positions up or down.'
+				argumentList: 'StackRange,Position,TargetRange',
+				description: 'This function rotates the complete stack by Position positions up or down.'
 			},
 			de: {
-				argumentList: 'Stackbereich,Anzahl,Zielbereich',
-				description: 'Diese Funktion rotiert den Stack um die Anzahl der angegebnen Zeilen hoch oder runter.'
+				argumentList: 'Stackbereich,Position,Zielbereich',
+				description: 'Diese Funktion rotiert den Stack um die Anzahl der angegebenen Zeilen hoch oder runter.'
 			}
 		},
 		STACKSORT: {

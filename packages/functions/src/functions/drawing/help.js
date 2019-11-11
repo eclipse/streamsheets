@@ -4,11 +4,11 @@ module.exports = {
 	functions: {
 		ATTRIBUTES: {
 			en: {
-				argumentList: '[Visible,Container,Clip,Selectable]',
+				argumentList: 'Visible,Container,Clip,Selectable',
 				description: 'Create an attribute description to assign attributes to a graphical object.'
 			},
 			de: {
-				argumentList: '[Sichtbar,Container,Clip,Auswählbar]',
+				argumentList: 'Sichtbar,Container,Clip,Auswählbar',
 				description: 'Erzeugt eine Attributbeschreibung für ein graphisches Objekt.'
 			}
 		},
@@ -23,7 +23,7 @@ module.exports = {
 			}
 		},
 		CLASSIFYPOINT: {
-			en: { argumentList: 'X,Y,PointRange', description: 'Checks, if a point lies within a polygon' },
+			en: { argumentList: 'X,Y,PolygonPointRange', description: 'Checks, if a point lies within a polygon' },
 			de: { argumentList: 'X,Y,Punktebereich', description: 'Prüft, ob ein Punkt in einem Polygon liegt' }
 		},
 		'DRAW.BUTTON': {
@@ -140,11 +140,11 @@ module.exports = {
 		},
 		EVENTS: {
 			en: {
-				argumentList: 'EventHandler1[, EventHandler2...]',
+				argumentList: 'EventHandler1, EventHandler2...',
 				description: 'Define an eventhandler for a graphical object'
 			},
 			de: {
-				argumentList: 'EventHandler1[, EventHandler2...]',
+				argumentList: 'EventHandler1, EventHandler2...',
 				description: 'Definiert einen Eventhandler für ein graphisches Objekt'
 			}
 		},

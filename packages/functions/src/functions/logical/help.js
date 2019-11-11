@@ -4,7 +4,7 @@ module.exports = {
 	functions: {
 		AND: {
 			en: { argumentList: 'Value1,Value2', description: 'Evaluates, if all given values are true' },
-			de: { argumentList: 'Wert1, Wert2', description: 'Berechnet, ob alle Werte wahr sind' }
+			de: { argumentList: 'Wert1,Wert2', description: 'Berechnet, ob alle Werte wahr sind' }
 		},
 		IF: {
 			en: {
@@ -17,8 +17,8 @@ module.exports = {
 			}
 		},
 		NOT: {
-			en: { argumentList: 'Value1', description: 'Inverts the given boolean value' },
-			de: { argumentList: 'Wert1', description: 'Kehrt den gegebenen Wahrheitswert um' }
+			en: { argumentList: 'Value', description: 'Inverts the given boolean value' },
+			de: { argumentList: 'Wert', description: 'Kehrt den gegebenen Wahrheitswert um' }
 		},
 		OR: {
 			en: {
@@ -29,14 +29,14 @@ module.exports = {
 		},
 		SWITCH: {
 			en: {
-				argumentList: 'Value,KeyValue-Pairs,[DefaultValue]',
+				argumentList: 'Expression,KeyValue1,Value1,KeyValueN,ValueN,DefaultValue',
 				description:
-					'Evaluates a value against a list of key-value pairs and returns value of first matched key'
+					'Evaluates an expression against a list of key-value pairs and returns value of first matched key'
 			},
 			de: {
-				argumentList: 'Wert,SchlüsselWert-Paare,[DefaultWert]',
+				argumentList: 'Ausdruck,SchlüsselWert1,Wert1,SchlüsselWertN,WertN,DefaultWert',
 				description:
-					'Evaluiert den Wert gegen eine Liste von Schlüssel-Wert-Paare und liefert den Wert zum ersten passenden Schlüssel zurück'
+					'Evaluiert einen Ausdruck gegen eine Liste von Schlüssel-Wert-Paaren und liefert den Wert zum ersten passenden Schlüssel zurück'
 			}
 		}
 	}

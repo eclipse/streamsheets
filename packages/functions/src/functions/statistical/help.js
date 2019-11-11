@@ -3,29 +3,26 @@ module.exports = {
 	de: 'Statistik',
 	functions: {
 		AVERAGE: {
-			en: { argumentList: 'Value1,[ValueN]', description: 'Returns the average of specified cell values.' },
+			en: { argumentList: 'Value1,ValueN', description: 'Returns the average of specified cell values.' },
 			de: {
-				argumentList: 'Wert1,[WertN]',
+				argumentList: 'Wert1,WertN',
 				description: 'Bestimmt den Mittelwert über alle aufgelisteten Zellwerte'
 			}
 		},
 		CORREL: {
 			en: {
-				argumentList: 'CellRange_1,CellRange_2',
+				argumentList: 'CellRange1,CellRange2',
 				description: 'Returns the correlation coefficient of two cell ranges'
 			},
 			de: {
-				argumentList: 'Zellbereich_1,Zellbereich_2',
+				argumentList: 'Zellbereich1,Zellbereich2',
 				description: 'Gibt den Korrelationskoeffizienten zweier Zellbereiche zurück'
 			}
 		},
 		COUNT: {
-			en: {
-				argumentList: 'Value1,[ValueN]',
-				description: 'Counts the amount of number values in specified cells'
-			},
+			en: { argumentList: 'Value1,ValueN', description: 'Counts the amount of number values in specified cells' },
 			de: {
-				argumentList: 'Wert1,[WertN]',
+				argumentList: 'Wert1,WertN',
 				description:
 					'Zählt alle Werte, die einer Zahl entsprechen, aus den angegebenen Zellen oder Zellbereiche'
 			}
@@ -50,11 +47,11 @@ module.exports = {
 		},
 		'STDEV.S': {
 			en: {
-				argumentList: 'Number1,[Number2],...',
+				argumentList: 'Number1,Number2,...',
 				description: 'Returns the standard derivation of given values.'
 			},
 			de: {
-				argumentList: 'Zahl1,[Zahl2],...',
+				argumentList: 'Zahl1,Zahl2,...',
 				description: 'Liefert die Standardabweichung zu den angegebenen Zahlen.'
 			}
 		}

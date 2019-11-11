@@ -1,14 +1,14 @@
 module.exports = {
-	en: 'StreamSheet',
-	de: 'StreamSheet',
+	en: 'Streamsheet',
+	de: 'Streamsheet',
 	functions: {
 		ARRAY: {
 			en: {
-				argumentList: 'Range,Nest',
+				argumentList: 'Range,Nest,Flat',
 				description: 'Creates a JSON array entry using the given keys and values'
 			},
 			de: {
-				argumentList: 'Bereich,Verschachteln',
+				argumentList: 'Bereich,Verschachteln,Flach',
 				description: 'Erzeugt ein JSON Array Objekt mit den gegebenen Schlüssel und Werten'
 			}
 		},
@@ -34,12 +34,12 @@ module.exports = {
 		},
 		COUNTER: {
 			en: {
-				argumentList: 'Start,Step[,End,Reset]',
+				argumentList: 'Start,Step,End,Reset',
 				description:
 					'Increments or decrements a cell value by specified Step amount until optional End is reached. Reset initialize counter to Start again.'
 			},
 			de: {
-				argumentList: 'Start,Step[,End,Reset]',
+				argumentList: 'Start,Step,End,Reset',
 				description:
 					'Erhöht oder verringert den Start-Wert um Step bis der optionale End Wert erreicht wurde. Reset initialisiert den Zähler wieder mit Start-Wert.'
 			}
@@ -57,11 +57,11 @@ module.exports = {
 		},
 		DETECTCHANGE: {
 			en: {
-				argumentList: 'Condition,Period,CondTargetCell,TimeTargetCell',
+				argumentList: 'Condition,Period,PreviousResultCell,TimeStampCell,Delay',
 				description: 'Detects if a condition has changed'
 			},
 			de: {
-				argumentList: 'Bedingung,Periode,ZielZelleBedingung,ZielZelleZeit',
+				argumentList: 'Bedingung,Periode,VorherigesErgebnis,ZielZellenZeit,Verzögerung',
 				description: 'Ermittelt, ob sich eine Bedingung in einem Zeitraum geändert hat'
 			}
 		},
@@ -76,20 +76,20 @@ module.exports = {
 			}
 		},
 		'EDGE.DETECT': {
-			en: { argumentList: 'Condition,[Period],[Delay]', description: 'Detects if a condition has changed' },
+			en: { argumentList: 'Condition,Period,Delay', description: 'Detects if a condition has changed' },
 			de: {
-				argumentList: 'Bedingung,[Periode],[Verzögerung]',
+				argumentList: 'Bedingung,Periode,Verzögerung',
 				description: 'Ermittelt, ob sich eine Bedingung in einem Zeitraum geändert hat'
 			}
 		},
 		EXECUTE: {
 			en: {
-				argumentList: 'StreamSheet,Repeat,JSON,Selector',
+				argumentList: 'Streamsheet,Repeat,JSON,Selector',
 				description: 'Triggers the recalculation of another streamsheet'
 			},
 			de: {
-				argumentList: 'StreamSheet,Wiederholen,JSON,Selektor',
-				description: 'Aktiviert die Neuberechnung eines andere StreamSheets'
+				argumentList: 'Streamsheet,Wiederholen,JSON,Selektor',
+				description: 'Aktiviert die Neuberechnung eines andere Streamsheets'
 			}
 		},
 		FEEDINBOX: {
@@ -98,11 +98,11 @@ module.exports = {
 		},
 		'FILE.WRITE': {
 			en: {
-				argumentList: 'Producer,Range,Directory,Filename,Mode,Separator',
+				argumentList: 'Producer,Range,Filename,Directory,Mode,Separator',
 				description: 'Writes a range as CSV to a file'
 			},
 			de: {
-				argumentList: 'Producer,Bereich,Verzeichnis,Dateiname,Mode,Separator',
+				argumentList: 'Producer,Bereich,Dateiname,Verzeichnis,Mode,Separator',
 				description: 'Schreibt einen Bereich als CSV in eine Datei'
 			}
 		},
@@ -116,7 +116,7 @@ module.exports = {
 		},
 		GETEXECUTESTEP: {
 			en: { argumentList: '', description: 'Returns the current execute step count' },
-			de: { argumentList: '', description: 'Ermittelt den aktuellen Execute Schritt im StreamSheet.' }
+			de: { argumentList: '', description: 'Ermittelt den aktuellen Execute Schritt im Streamsheet.' }
 		},
 		GETMACHINESTEP: {
 			en: { argumentList: '', description: 'Returns the current machine step count' },
@@ -124,7 +124,7 @@ module.exports = {
 		},
 		GETSTEP: {
 			en: { argumentList: '', description: 'Returns the current step count' },
-			de: { argumentList: '', description: 'Ermittelt den aktuellen StreamSheet Schritt.' }
+			de: { argumentList: '', description: 'Ermittelt den aktuellen Streamsheet Schritt.' }
 		},
 		GOTO: {
 			en: { argumentList: 'Cell', description: 'Jumps to the given cell for next cell to evaluate' },
@@ -132,31 +132,31 @@ module.exports = {
 		},
 		INBOX: {
 			en: {
-				argumentList: 'StreamSheet,Message',
+				argumentList: 'Streamsheet,Message',
 				description: 'Creates a key to reference one or more messages from inbox'
 			},
 			de: {
-				argumentList: 'StreamSheet,Nachricht',
+				argumentList: 'Streamsheet,Nachricht',
 				description: 'Erzeugt einen Schlüssel, der einen oder mehrere Nachrichten aus der Inbox referenziert'
 			}
 		},
 		INBOXDATA: {
 			en: {
-				argumentList: 'StreamSheet,Source,ValuesOrRange',
+				argumentList: 'Streamsheet,Message,ValuesOrRange',
 				description: 'Creates a JSON key from the given values or range to retrieve data'
 			},
 			de: {
-				argumentList: 'Ziel,WerteOderBereich',
+				argumentList: 'Streamsheet,Nachricht,WerteOderBereich',
 				description: 'Erzeugt einen JSON Schlüssel mit den gegebenen Werten für den Datenbereich'
 			}
 		},
 		INBOXMETADATA: {
 			en: {
-				argumentList: 'StreamSheet,Source,ValuesOrRange',
+				argumentList: 'Streamsheet,Message,ValuesOrRange',
 				description: 'Creates a JSON key from the given values or range to retrieve metadata'
 			},
 			de: {
-				argumentList: 'Ziel,WerteOderBereich',
+				argumentList: 'Streamsheet,Nachricht,WerteOderBereich',
 				description: 'Erzeugt einen JSON Schlüssel mit den gegebenen Werten für Metadaten'
 			}
 		},
@@ -166,23 +166,23 @@ module.exports = {
 		},
 		'KAFKA.QUERY': {
 			en: {
-				argumentList: 'Producer,Query,Target,[Timeout]',
+				argumentList: 'Producer,Query,Target,Timeout',
 				description:
 					'Fetches data from Kafka that matches query. REQUESTINFO can be used to check the status of the query'
 			},
 			de: {
-				argumentList: 'Producer,Query,Ziel,[Timeout]',
+				argumentList: 'Producer,Query,Ziel,Timeout',
 				description:
 					'Liest Daten aus Kafka mithilfe von Query. Status der Query kann mit REQUESTINFO abgefragt werden'
 			}
 		},
 		'KAFKA.COMMAND': {
 			en: {
-				argumentList: 'Producer,Command,Target,[Timeout]',
+				argumentList: 'Producer,Command,Target,Timeout',
 				description: 'Sends a KSQL Command to Kafka. REQUESTINFO can be used to check the status of the query'
 			},
 			de: {
-				argumentList: 'Producer,Command,Ziel,[Timeout]',
+				argumentList: 'Producer,Command,Ziel,Timeout',
 				description:
 					'Schickt einen KSQL Command an Kafka. Status der Query kann mit REQUESTINFO abgefragt werden'
 			}
@@ -197,65 +197,69 @@ module.exports = {
 				description: 'Publiziert eine referenzierte Nachricht aus der Inbox oder Outbox oder ein JSON via Kafka'
 			}
 		},
+		LOOPCOUNT: {
+			en: { argumentList: '', description: 'Returns the loop length' },
+			de: { argumentList: '', description: 'Gibt die Anzahl der Loopelemente zurück .' }
+		},
 		LOOPINDEX: {
 			en: { argumentList: '', description: 'Returns the current loop index' },
 			de: { argumentList: '', description: 'Gibt den aktuellen Loop Index zurück.' }
 		},
 		'MAIL.SEND': {
 			en: {
-				argumentList: 'Producer,Message,Subject,TO,CC,BCC,Attachments',
+				argumentList: 'Producer,Text,Subject,TO,CC,BCC,Attachments',
 				description: 'Sends a mail to the given mail addresses (TO, CC, BCC)'
 			},
 			de: {
-				argumentList: 'Producer,Nachricht,Betreff,TO,CC,BCC,Anhänge',
+				argumentList: 'Producer,Text,Betreff,TO,CC,BCC,Anhänge',
 				description: 'Versendet eine E-Mail an die E-Mail Adressen (TO, CC, BCC)'
-			}
-		},
-		'MONGO.STORE': {
-			en: { argumentList: 'Producer,Collection,Message', description: 'Stores a JSON object in MongoDB' },
-			de: { argumentList: 'Producer,Collection,Message', description: 'Speichert ein JSON Objekt in MongoDB' }
-		},
-		'MONGO.DELETE': {
-			en: {
-				argumentList: 'Producer,Collection,QueryJSON,[Target],[Timeout]',
-				description: 'Deletes matching objects from MongoDB'
-			},
-			de: {
-				argumentList: 'Producer,Collection,QueryJSON,[Ziel],[Timeout]',
-				description: 'Löscht gesuchte Objekte aus MongoDB'
 			}
 		},
 		'MONGO.AGGREGATE': {
 			en: {
-				argumentList: 'Producer,Collection,AggregateJSON,[Target],[ResultKeys],[Timeout]',
+				argumentList: 'Producer,Collection,AggregateJSON,Target,ResultKeys,Timeout',
 				description: 'Execute the Aggregation Pipeline defined by AggregateJSON'
 			},
 			de: {
-				argumentList: 'Producer,Collection,AggregateJSON,[Ziel],[ResultKeys],[Timeout]',
+				argumentList: 'Producer,Collection,AggregateJSON,Ziel,ResultKeys,Timeout',
 				description: 'Führt die Aggregation Pipeline in AggregateJSON aus'
 			}
 		},
 		'MONGO.COUNT': {
 			en: {
-				argumentList: 'Producer,Collection,QueryJSON,[Target],[Timeout]',
+				argumentList: 'Producer,Collection,QueryJSON,Target,Timeout',
 				description: 'Count matching objects from MongoDB'
 			},
 			de: {
-				argumentList: 'Producer,Collection,QueryJSON,[Ziel],[Timeout]',
+				argumentList: 'Producer,Collection,QueryJSON,Ziel,Timeout',
 				description: 'Zählt gesuchte Objekte aus MongoDB'
+			}
+		},
+		'MONGO.DELETE': {
+			en: {
+				argumentList: 'Producer,Collection,QueryJSON,Target,Timeout',
+				description: 'Deletes matching objects from MongoDB'
+			},
+			de: {
+				argumentList: 'Producer,Collection,QueryJSON,Ziel,Timeout',
+				description: 'Löscht gesuchte Objekte aus MongoDB'
 			}
 		},
 		'MONGO.QUERY': {
 			en: {
-				argumentList: 'Producer,Collection,QueryJSON,Target,[ResultKeys],[PageSize],[Page],[Timeout]',
+				argumentList: 'Producer,Collection,QueryJSON,Target,ResultKeys,PageSize,Page,Sort,Timeout',
 				description:
 					'Finds objects in MongoDB that math QueryJSON. REQUESTINFO can be used to check the status of the query'
 			},
 			de: {
-				argumentList: 'Producer,Collection,QueryJSON,Ziel,[ResultKeys],[Seitengröße],[Seite],[Timeout]',
+				argumentList: 'Producer,Collection,QueryJSON,Ziel,ResultKeys,Seitengröße,Seite,Sortieren,Timeout',
 				description:
 					'Findet Objekte in MongoDB die QueryJSON erfüllen. Status der Query kann mit REQUESTINFO abgefragt werden'
 			}
+		},
+		'MONGO.STORE': {
+			en: { argumentList: 'Producer,Collection,Document', description: 'Stores a JSON object in MongoDB' },
+			de: { argumentList: 'Producer,Collection,Document', description: 'Speichert ein JSON Objekt in MongoDB' }
 		},
 		MOVEVALUES: {
 			en: {
@@ -296,27 +300,27 @@ module.exports = {
 		},
 		PRODUCE: {
 			en: {
-				argumentList: 'Producer,JSON',
+				argumentList: 'Producer,JSONConfiguration',
 				description: 'Produces data using the Producer and a JSON specific to the Producer'
 			},
 			de: {
-				argumentList: 'Producer,JSON',
+				argumentList: 'Producer,JSONKonfiguration',
 				description: 'Produziert Daten mithilfe des Producers und dem Producerspezifischen JSON'
 			}
 		},
 		READ: {
 			en: {
-				argumentList: 'Key,TargetCell,Type',
+				argumentList: 'Key,TargetCellOrRange,Type,Direction,CacheLastValue',
 				description: 'Reads the values from a JSON object using the given key'
 			},
 			de: {
-				argumentList: 'Schüssel,Zielzelle,Typ',
+				argumentList: 'Schüssel,ZielzelleOderBereich,Typ,Richtung,LetztenWertMerken',
 				description: 'Kopiert die Werte aus einem JSON Objekt mit dem gegebenen Schlüssel in die Zelle'
 			}
 		},
 		REFRESH: {
-			en: { argumentList: 'StreamSheet', description: 'Updates the current queue of the given streamsheet' },
-			de: { argumentList: 'StreamSheet', description: 'Aktualisiert die aktuelle Warteschlange des StreamSheets' }
+			en: { argumentList: 'Streamsheet', description: 'Updates the current queue of the given streamsheet' },
+			de: { argumentList: 'Streamsheet', description: 'Aktualisiert die aktuelle Warteschlange des Streamsheets' }
 		},
 		REPEATINDEX: {
 			en: { argumentList: '', description: 'Returns the current repeat index of the EXECUTE function' },
@@ -338,33 +342,33 @@ module.exports = {
 		},
 		RESPOND: {
 			en: {
-				argumentList: 'Producer,DataObjectId,ObjectOrRange',
+				argumentList: 'MessageOrJSON,Producer,RequestId',
 				description:
 					'Sends JSON data from the outbox or the range to a Producer that send a data object previously'
 			},
 			de: {
-				argumentList: 'Producer,DataObjectId,ObjektOderBereich',
+				argumentList: 'NachrichtOderJSON,Producer,RequestId',
 				description:
-					'Sendet JSON Daten aus der Outbox oder vom gegebenen Bereich an einen Producer mit Hilfe\n\t\t\t\tder DataObjectId'
+					'Sendet JSON Daten aus der Outbox oder vom gegebenen Bereich an einen Producer mit Hilfe der RequestId'
 			}
 		},
 		'REST.REQUEST': {
 			en: {
-				argumentList: 'Producer,Path,Method,Target,ResultKeys,Body,Headers',
+				argumentList: 'Producer,URL,Method,Target,ResultKeys,Body,Headers,Timeout',
 				description: 'Create an asynchronous calls to a REST service'
 			},
 			de: {
-				argumentList: 'Producer,Pfad,Methode,Ziel,ResultKeys,Body,Headers',
+				argumentList: 'Producer,URL,Methode,Ziel,ResultKeys,Body,Headers,Timeout',
 				description: 'Erlaubt Aufrufe in einen REST Dienst'
 			}
 		},
 		'REST.RESPOND': {
 			en: {
-				argumentList: 'Consumer,DataObjectId,Body,StatusCode,Headers',
+				argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
 				description: 'Sends data to a Producer that send a data object previously'
 			},
 			de: {
-				argumentList: 'Consumer,DataObjectId,Body,StatusCode,Headers',
+				argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
 				description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId.'
 			}
 		},
@@ -379,7 +383,7 @@ module.exports = {
 			}
 		},
 		SELECT: {
-			en: { argumentList: 'ListRange,CurrentValue', description: 'Display a pick list.' },
+			en: { argumentList: 'ListRange,ActualValue', description: 'Display a pick list.' },
 			de: { argumentList: 'Listenbereich,AktuellerWert', description: 'Zeigt eine Auswahlliste an.' }
 		},
 		SETCYCLETIME: {
@@ -388,53 +392,49 @@ module.exports = {
 		},
 		SETPHASE: {
 			en: {
-				argumentList: 'Condition,Text,PhaseCell',
-				description: 'If Condition is true, the Text will be written into PhaseCell'
+				argumentList: 'Condition,Text,TargetCell',
+				description: 'If Condition is true, the Text will be written into target cell'
 			},
 			de: {
-				argumentList: 'Bedingung,PhasenID,PhasenZelle',
-				description: 'Wenn die Bedingung TRUE ist, wird der Text in die Phasenzelle geschrieben'
+				argumentList: 'Bedingung,PhasenID,ZielZelle',
+				description: 'Wenn die Bedingung TRUE ist, wird der Text in die Zielzelle geschrieben'
 			}
 		},
 		SETVALUE: {
 			en: {
-				argumentList: '[Condition],Value,Cell,[OverwriteFormula]',
-				description: 'If Condition is TRUE, the Value will be written into Cell'
+				argumentList: 'Condition,Value,TargetCell,OverwriteFormula',
+				description: 'If Condition is TRUE, the Value will be written into target cell'
 			},
 			de: {
-				argumentList: '[Bedingung],Wert,Zelle,[ErsetzeZellFormel]',
-				description: 'Wenn die Bedingung TRUE ist, wird der Wert in die Zelle geschrieben'
+				argumentList: 'Bedingung,Wert,Zielzelle,ErsetzeZellFormel',
+				description: 'Wenn die Bedingung TRUE ist, wird der Wert in die Zielzelle geschrieben'
 			}
 		},
 		SUBTREE: {
 			en: {
-				argumentList: 'TopElement,[IncludeElementKey]',
+				argumentList: 'TopElement,IncludeElementKey',
 				description: 'Extracts a sub tree from the current message'
 			},
 			de: {
-				argumentList: 'ÜbergeordnetesElement,[InklusiveElementKey]',
+				argumentList: 'ÜbergeordnetesElement,InklusiveElementKey',
 				description: 'Extrahiert einen Teilbaum aus der aktuellen Nachricht'
 			}
 		},
 		SWAPVALUES: {
-			en: {
-				argumentList: 'SourceRange,TargetRange',
-				description: 'Swaps the values in the source range with the values in the target range'
-			},
+			en: { argumentList: 'Range1,Range2', description: 'Swaps the values in range1 with the values in range2' },
 			de: {
-				argumentList: 'Quellbereich,Zielbereich',
-				description: 'Tauscht die Werte aus dem Quellbereich mit denen im Zielbereich'
+				argumentList: 'Bereich1,Bereich2',
+				description: 'Tauscht die Werte aus Bereich1 mit denen im Bereich2'
 			}
 		},
 		TIMEAGGREGATE: {
 			en: {
-				argumentList: 'Data,Backperiod,Method,BaseTime,Interval,TargetRange',
-				description: 'Aggregates values with the BackPeriod using the given method within the interval'
+				argumentList: 'DataCell,Period,AggregationMethod,TimeSerial,Interval,TargetRange',
+				description: 'Aggregates values with the Period using the given method within the interval'
 			},
 			de: {
-				argumentList: 'Wert,Gesamtperiode,Methode,BasisZeit,Intervall,Zielbereich',
-				description:
-					'Aggregiert Werte in der Gesamtperiode mit der angebenen Methode für den angegebenen Intervall'
+				argumentList: 'DatenZelle,Periode,Methode,BasisZeit,Intervall,Zielbereich',
+				description: 'Aggregiert Werte in der Periode mit der angebenen Methode für den angegebenen Intervall'
 			}
 		},
 		WRITE: {
