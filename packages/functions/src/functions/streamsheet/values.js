@@ -1,8 +1,13 @@
 const { runFunction, terms: { getCellRangeFromTerm, getCellReferencesFromTerm } } = require('../../utils');
 const { Term } = require('@cedalo/parser');
-const { Cell } = require('@cedalo/machine-core');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const mcore = require('../../machinecore');
+
+let Cell;
+mcore.getAsync().then((mod) => {
+	Cell = mod.Cell;
+});
 
 // const doIt = value => value || value == null;
 const newCellAt = (index, value, sheet) => {

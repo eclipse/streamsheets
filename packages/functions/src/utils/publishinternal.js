@@ -1,6 +1,11 @@
 const { ensure } = require('./validation');
-const { Streams } = require('@cedalo/machine-core');
+const mcore = require('../machinecore');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
+
+let Streams;
+mcore.getAsync().then((mod) => {
+	Streams = mod.Streams;
+});
 
 const publishinternal = (s, ...t) =>
 	ensure(s, t)

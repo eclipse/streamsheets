@@ -2,9 +2,14 @@ const logger = require('../../logger').create({ name: 'TEXT()' });
 const { getCodePage } = require('../../codepages');
 const { runFunction, terms: onTerms } = require('../../utils');
 const { convert } = require('@cedalo/commons');
-const { locale: Locales } = require('@cedalo/machine-core');
 const { NumberFormatter } = require('@cedalo/number-format');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const mcore = require('../../machinecore');
+
+let Locales;
+mcore.getAsync().then(({locale}) => {
+	Locales = locale;
+});
 
 
 const getMachineLocale = (sheet) => {

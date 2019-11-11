@@ -1,10 +1,13 @@
+const mcore = require('../../machinecore');
 const ConditionRange = require('./ConditionRange');
 const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
-const { SheetIndex } = require('@cedalo/machine-core');
 
-const sharedidx = SheetIndex.create(1, 0);
+let sharedidx; 
+mcore.getAsync().then(({ SheetIndex }) => {
+	sharedidx = SheetIndex.create(1, 0);
+});
 
 const columnIndex = (range, pivot) => {
 	let index = convert.toNumber(pivot, 0) - 1;

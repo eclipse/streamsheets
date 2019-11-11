@@ -1,8 +1,14 @@
 const { termAsType, checkConstraints, asType } = require('../utils/types');
 const { messageFromBox, getMachine } = require('../utils/sheet');
 const { isBoxFuncTerm } = require('../utils/terms');
-const { Message } = require('@cedalo/machine-core');
 const {	FunctionErrors } = require('@cedalo/error-codes');
+const mcore = require('../machinecore');
+
+let Message;
+mcore.getAsync().then((mod) => {
+	Message = mod.Message;
+});
+
 
 const BASE_FUNC = {
 	REQUEST: 'request',

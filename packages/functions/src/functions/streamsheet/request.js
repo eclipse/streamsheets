@@ -8,7 +8,20 @@ const { Term } = require('@cedalo/parser');
 const { jsonpath } = require('@cedalo/commons');
 const IdGenerator = require('@cedalo/id-generator');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
-const { Cell, Message, SheetRange, State, Streams } = require('@cedalo/machine-core');
+const mcore = require('../../machinecore');
+
+let Cell;
+let Message;
+let SheetRange;
+let State;
+let Streams;
+mcore.getAsync().then((mod) => {
+	Cell = mod.Cell;
+	Message = mod.Message;
+	SheetRange = mod.SheetRange;
+	State = mod.State;
+	Streams = mod.Streams;
+});
 
 
 const createPendingRequest = (promise) => ({ promise, status: 'pending' });

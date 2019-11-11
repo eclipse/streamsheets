@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/functions",
   "devDependencies": {
+    "@cedalo/machine-core": "*",
     "eslint": "3.19.0",
     "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
     "eslint-config-prettier": "3.3.0",
@@ -30,7 +31,6 @@
     "@cedalo/error-codes": "*",
     "@cedalo/id-generator": "*",
     "@cedalo/logger": "*",
-    "@cedalo/machine-core": "*",
     "@cedalo/number-format": "*",
     "@cedalo/parser": "*"
   },
