@@ -65,13 +65,13 @@ const deleteAt = (path, obj) => {
 };
 
 const getValueByPath = (obj, path) => {
-	if(typeof obj === 'object' && Object.keys(obj).length<1) {
+	if (!path || (typeof obj === 'object' && Object.keys(obj).length < 1)) {
 		return null;
 	}
 	const parsed = parse(path);
-	if(Array.isArray(parsed) && parsed.length>0) {
+	if (Array.isArray(parsed) && parsed.length > 0) {
 		return query(parsed, obj);
-	} else if (obj[path]) {
+	} else if (obj[path] !== undefined) {
 		return obj[path];
 	}
 	return obj;
