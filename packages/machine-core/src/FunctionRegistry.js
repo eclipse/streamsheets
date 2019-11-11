@@ -2,6 +2,8 @@ const logger = require('./logger').create({ name: 'FunctionRegistry' });
 
 // eslint-disable-next-line
 const requireModule = async (path) => require(path);
+// eslint-disable-next-line
+const requireMachineCore = () => require('..');
 
 let functionFactory;
 
@@ -46,7 +48,8 @@ class FunctionRegistry {
 
 	registerCoreFunctionsModule(mod) {
 		requireModule(mod)
-			.then(({ functions, FunctionFactory }) => {
+			.then(({ functions, FunctionFactory, registerMachineCore }) => {
+				registerMachineCore(requireMachineCore());
 				registerCore(functions);
 				functionFactory = FunctionFactory;
 			})
@@ -55,7 +58,10 @@ class FunctionRegistry {
 
 	registerFunctionModule(mod) {
 		requireModule(mod)
-			.then(({ functions, help }) => registerAdditional(functions, help))
+			.then(({ functions, help, registerMachineCore }) => {
+				if (registerMachineCore) registerMachineCore(requireMachineCore);
+				registerAdditional(functions, help);
+			})
 			.catch((err) => logger.info(err.message));
 	}
 
