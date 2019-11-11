@@ -40,6 +40,10 @@ module.exports = {
 			en: { argumentList: 'Number', description: 'Returns the number rounded up to the nearest event integer' },
 			de: { argumentList: 'Zahl', description: 'Rundet eine Zahl auf die nächste gerade Ganzzahl auf' }
 		},
+		FRAC: {
+			en: { argumentList: 'Number', description: 'Returns the fractional part of a number value' },
+			de: { argumentList: 'Zahl', description: 'Gibt die Nachkommastellen einer Zahl zurück' }			
+		},
 		INT: {
 			en: { argumentList: 'Value', description: 'Rounds a number value down to its nearest integer' },
 			de: { argumentList: 'Zahl', description: 'Rundet eine Zahl zu ihrer nächsten Ganzen Zahl ab' }
