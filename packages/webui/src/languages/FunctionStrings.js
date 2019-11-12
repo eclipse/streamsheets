@@ -1,7 +1,6 @@
 // import { appStrings } from './i18n';
 import JSG from '@cedalo/jsg-ui';
-// import help from 'core-functions-help';
-import { help } from '@cedalo/functions';
+import help from '@cedalo/functions/help';
 import store from '../store';
 
 const { CellEditor } = JSG;
