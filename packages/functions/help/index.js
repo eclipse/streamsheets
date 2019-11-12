@@ -1,24 +1,18 @@
-const database = require('./database');
-const date = require('./date');
-const drawing = require('./drawing');
-const engineering = require('./engineering');
-const info = require('./info');
-const logical = require('./logical');
-const lookup = require('./lookup');
-const math = require('./math');
-// const olap = require('./olap');
-const stack = require('./stack');
-const statistical = require('./statistical');
-const streamsheet = require('./streamsheet');
-const text = require('./text');
+const database = require('../src/functions/database/help');
+const date = require('../src/functions/date/help');
+const drawing = require('../src/functions/drawing/help');
+const engineering = require('../src/functions/engineering/help');
+const info = require('../src/functions/info/help');
+const logical = require('../src/functions/logical/help');
+const lookup = require('../src/functions/lookup/help');
+const math = require('../src/functions/math/help');
+// const olap = require('../src/functions/olap/help');
+const stack = require('../src/functions/stack/help');
+const statistical = require('../src/functions/statistical/help');
+const streamsheet = require('../src/functions/streamsheet/help');
+const text = require('../src/functions/text/help');
 
-// THIS DOES NOT WORK :-(((
-// const { help } = require('../src/functions');
-// AND THIS NEITHER :-(
-// const database = require('../src/functions/database/help');
-// const ...
-
-const help = {
+module.exports = {
 	database,
 	date,
 	drawing,
@@ -33,5 +27,3 @@ const help = {
 	streamsheet,
 	text
 };
-
-module.exports = help;

@@ -1,4 +1,4 @@
-const { SETCYCLETIME } = require('../../src/functions').functions;
+const { SETCYCLETIME } = require('../../src/functions');
 const { Term } = require('@cedalo/parser');
 const { Machine, SheetIndex, StreamSheet } = require('@cedalo/machine-core');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
