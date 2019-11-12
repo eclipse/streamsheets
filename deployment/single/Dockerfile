@@ -10,6 +10,10 @@ RUN cd /streamsheets && yarn install --production
 RUN npm i -g pushstate-server@3.0.1
 COPY streamsheets/packages/gateway/config /config
 
+# # TODO: build WebUI in Docker image
+# RUN npm install --global cross-env
+# RUN cd /streamsheets/packages/webui && yarn install --production && npm run build
+
 # MongoDB
 COPY mongodb/mongod.conf /etc/mongod.conf
 VOLUME /var/lib/mongodb
