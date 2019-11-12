@@ -5,12 +5,7 @@ const {
 } = require('../../utils');
 const { jsonpath } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
-const mcore = require('../../machinecore');
-
-let Message;
-mcore.getAsync().then((mod) => {
-	Message = mod.Message;
-});
+const { Message } = require('@cedalo/machine-core');
 
 
 // DL-1835:

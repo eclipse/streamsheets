@@ -1,6 +1,5 @@
 const functions = require('../src/functions');
-const mcore = require('@cedalo/machine-core');
-const { SheetParser } = require('../src/machinecore').set(mcore);
+const { SheetParser } = require('@cedalo/machine-core');
 
 // setup parser and its context...
 Object.assign(SheetParser.context.functions, functions);

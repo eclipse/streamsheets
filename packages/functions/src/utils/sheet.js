@@ -9,14 +9,8 @@ const {
 const { Term } = require('@cedalo/parser');
 const { jsonpath } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
-const mcore = require('../machinecore');
+const { Cell, Message } = require('@cedalo/machine-core');
 
-let Cell;
-let Message;
-mcore.getAsync().then((mod) => {
-	Cell = mod.Cell;
-	Message = mod.Message;
-});
 
 const toStaticCell = cell => (cell != null ? new Cell(cell.value, Term.fromValue(cell.value)) : undefined);
 

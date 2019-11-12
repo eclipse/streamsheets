@@ -2,12 +2,7 @@ const { sheet: sheetutils, terms: { getCellRangeFromTerm } } = require('../../ut
 const { Term } = require('@cedalo/parser');
 const { convert, jsonpath } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
-const mcore = require('../../machinecore');
-
-let ErrorTerm;
-mcore.getAsync().then((mod) => {
-	ErrorTerm = mod.ErrorTerm;
-});
+const { ErrorTerm } = require('@cedalo/machine-core');
 
 
 const toBool = (term, defval) => term ? convert.toBoolean(term.value, defval) : defval;

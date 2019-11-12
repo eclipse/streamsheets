@@ -1,12 +1,6 @@
 const { requestinternallegacy } = require('./request');
 const {	sheet: { getMachine } } = require('../../utils');
-const mcore = require('../../machinecore');
-
-let Message;
-mcore.getAsync().then((mod) => {
-	Message = mod.Message;
-});
-
+const { Message } = require('@cedalo/machine-core');
 
 
 const kafkaquery = (sheet, ...terms) => {

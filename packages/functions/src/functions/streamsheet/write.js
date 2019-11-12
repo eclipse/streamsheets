@@ -1,15 +1,10 @@
 const { jsonbuilder, runFunction, sheet: { getOutbox } } = require('../../utils');
 const { convert, jsonpath } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
-const mcore = require('../../machinecore');
+const { isType } = require('@cedalo/machine-core');
+
 
 const TYPES = ['array', 'boolean', 'dictionary', 'number', 'string'];
-
-
-let isType;
-mcore.getAsync().then((mod) => {
-	isType = mod.isType;
-});
 
 const messageById = (id, outbox) => (id ? outbox.peek(id, true) : undefined);
 
