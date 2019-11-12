@@ -6,12 +6,8 @@ const {
 } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
-const mcore = require('../../machinecore');
+const { locale } = require('@cedalo/machine-core');
 
-let locale;
-mcore.getAsync().then((mod) => {
-	locale = mod.locale;
-});
 
 const SEC_MS = 1000;
 const MIN_MS = 60 * SEC_MS;

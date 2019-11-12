@@ -2,16 +2,7 @@ const { calculate, runFunction, sheet: sheetutils, terms: { getCellRangeFromTerm
 const { convert } = require('@cedalo/commons');
 const { Functions, Term } = require('@cedalo/parser');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const mcore = require('../../machinecore');
-
-let Cell;
-let State;
-let isType;
-mcore.getAsync().then((mod) => {
-	Cell = mod.Cell;
-	State = mod.State;
-	isType = mod.isType;
-});
+const { Cell, State, isType } = require('@cedalo/machine-core');
 
 
 const IGNORE = 'ignore';

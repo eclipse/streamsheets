@@ -6,14 +6,7 @@ const {
 } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
-const mcore = require('../../machinecore');
-
-let SheetIndex;
-let SheetRange;
-mcore.getAsync().then((mod) => {
-	SheetIndex = mod.SheetIndex;
-	SheetRange = mod.SheetRange;
-});
+const { SheetIndex, SheetRange } = require('@cedalo/machine-core');
 
 
 const createSheetRange = (start, end, sheet) => {

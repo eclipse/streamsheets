@@ -2,12 +2,7 @@ const { runFunction, terms: { cellFromTerm } } = require('../../utils');
 const { Term } = require('@cedalo/parser');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
-const mcore = require('../../machinecore');
-
-let Cell;
-mcore.getAsync().then((mod) => {
-	Cell = mod.Cell;
-});
+const { Cell } = require('@cedalo/machine-core');
 
 
 const createCell = (sheet, term) => {

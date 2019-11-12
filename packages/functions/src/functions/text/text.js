@@ -4,12 +4,7 @@ const { runFunction, terms: onTerms } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { NumberFormatter } = require('@cedalo/number-format');
 const { FunctionErrors: Error } = require('@cedalo/error-codes');
-const mcore = require('../../machinecore');
-
-let Locales;
-mcore.getAsync().then(({locale}) => {
-	Locales = locale;
-});
+const { locale: Locales } = require('@cedalo/machine-core');
 
 
 const getMachineLocale = (sheet) => {
