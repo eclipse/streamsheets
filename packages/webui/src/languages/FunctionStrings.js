@@ -6,7 +6,6 @@ import store from '../store';
 const { CellEditor } = JSG;
 
 // setup help:
-const alphabetical = (a,b) => a[0].localeCompare(b[0]);
 const reduceCategories = (categories, [name, category]) => {
 	if (category) {
 		const { en, de } = category;
@@ -21,27 +20,21 @@ const reduceFunctions = (fns, [catName, category = {}]) => {
 	});
 	return fns;
 };
-const reduceObject = (strings, [name, fn]) => {
-	strings[name] = fn;
-	return strings;
-};
-const createSortedObject = (obj) => Object.entries(obj).sort(alphabetical).reduce(reduceObject, {});
-
 const create = (reduceFn) => (fnsHelp, base = {}) => Object.entries(fnsHelp).reduce(reduceFn, base);
 const createStrings = create(reduceFunctions);
 const createCategories = create(reduceCategories);
 
-const Strings = createSortedObject(createStrings(help));
-const Categories = createSortedObject(createCategories(help, { all: { en: 'All', de: 'Alle' } }));
+const Strings = createStrings(help);
+const Categories = createCategories(help, { all: { en: 'All', de: 'Alle' } });
 
 export default class FunctionStrings {
 	addFunctionsHelp(fnsHelp = {}) {
-		createSortedObject(createStrings(fnsHelp, Strings));
-		createSortedObject(createCategories(fnsHelp, Categories));
+		createStrings(fnsHelp, Strings);
+		createCategories(fnsHelp, Categories);
 	}
 
 	enumerateFunctions(category, callback) {
-		const items = Object.keys(Strings);
+		const items = Object.keys(Strings).sort();
 		const { locale } = store.getState().locales; // appStrings.getLanguage();
 
 		items.forEach((item) => {
@@ -60,7 +53,7 @@ export default class FunctionStrings {
 	}
 
 	enumerateCategories(callback) {
-		const items = Object.keys(Categories);
+		const items = Object.keys(Categories).sort();
 		const { locale } = store.getState().locales; // appStrings.getLanguage();
 
 		items.sort((a, b) => {
