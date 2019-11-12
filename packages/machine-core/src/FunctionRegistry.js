@@ -48,8 +48,8 @@ class FunctionRegistry {
 
 	registerCoreFunctionsModule(mod) {
 		requireModule(mod)
-			.then(({ functions, FunctionFactory, registerMachineCore }) => {
-				registerMachineCore(requireMachineCore());
+			.then(({ functions, FunctionFactory, /* registerMachineCore */ }) => {
+				// registerMachineCore(requireMachineCore());
 				registerCore(functions);
 				functionFactory = FunctionFactory;
 			})
