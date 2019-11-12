@@ -1,5 +1,5 @@
 const MSG = require('../_data/messages.json');
-const { INBOXJSON } = require('../../src/functions').functions;
+const { INBOXJSON } = require('../../src/functions');
 const { Term } = require('@cedalo/parser');
 const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
 

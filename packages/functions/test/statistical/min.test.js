@@ -1,4 +1,4 @@
-const { MIN } = require('../../src/functions').functions;
+const { MIN } = require('../../src/functions');
 const SHEETS = require('../_data/sheets.json');
 const { createCellTerm, createCellTerms, createCellRangeTerm } = require('../utils');
 const { StreamSheet } = require('@cedalo/machine-core');

@@ -1,4 +1,4 @@
-const { functions } = require('../src/functions');
+const functions = require('../src/functions');
 const mcore = require('@cedalo/machine-core');
 const { SheetParser } = require('../src/machinecore').set(mcore);
 

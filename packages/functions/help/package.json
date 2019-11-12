@@ -1,8 +1,0 @@
-{
-  "name": "core-functions-help",
-  "version": "1.4.0",
-  "description": "Help definitions for core functions",
-  "main": "index.js",
-	"author": "Cedalo AG",
-  "license": "EPL-2.0"
-}
