@@ -62,3 +62,6 @@ typings/
 
 # License files
 license.lic
+
+# dynamic functions directory
+functions/
