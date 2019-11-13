@@ -1,9 +1,7 @@
 const logger = require('./logger').create({ name: 'FunctionRegistry' });
-
 // eslint-disable-next-line
 const requireModule = async (path) => require(path);
-// eslint-disable-next-line
-const requireMachineCore = () => require('..');
+
 
 let functionFactory;
 
@@ -13,13 +11,16 @@ const Functions = {
 	additionalHelp: {}
 };
 
-const registerCore = (functions = {}) => {
+const registerCore = ({ functions = {}, FunctionFactory } = {}) => {
 	Functions.core = Object.assign(Functions.core, functions);
+	functionFactory = FunctionFactory;
 };
-const registerAdditional = (functions = {}, help = {}) => {
+const registerAdditional = ({ functions = {}, help = {} } = {}) => {
 	Functions.additional = Object.assign(Functions.additional, functions);
 	Functions.additionalHelp = Object.assign(Functions.additionalHelp, help);
 };
+const logError = (err) => logger.info(err.message);
+
 
 const toName = (name) => ({ name });
 
@@ -47,22 +48,11 @@ class FunctionRegistry {
 	}
 
 	registerCoreFunctionsModule(mod) {
-		requireModule(mod)
-			.then(({ functions, FunctionFactory, /* registerMachineCore */ }) => {
-				// registerMachineCore(requireMachineCore());
-				registerCore(functions);
-				functionFactory = FunctionFactory;
-			})
-			.catch((err) => logger.info(err.message));
+		requireModule(mod).then(registerCore).catch(logError);
 	}
 
 	registerFunctionModule(mod) {
-		requireModule(mod)
-			.then(({ functions, help, registerMachineCore }) => {
-				if (registerMachineCore) registerMachineCore(requireMachineCore);
-				registerAdditional(functions, help);
-			})
-			.catch((err) => logger.info(err.message));
+		requireModule(mod).then(registerAdditional).catch(logError);
 	}
 
 	registerFunctionDefinitions(definitions = []) {
@@ -72,7 +62,7 @@ class FunctionRegistry {
 				if (fn) fns[def.name] = fn;
 				return fns;
 			}, {});
-			registerAdditional(functions);
+			registerAdditional({ functions });
 		}
 	}
 }
