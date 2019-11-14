@@ -1,7 +1,10 @@
 const SHEETS = require('../_data/sheets.json');
 const { createTerm } = require('../utils');
 const { Cell, StreamSheet } = require('@cedalo/machine-core');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
+
 
 describe('lookup functions', () => {
 	describe('choose', () => {
@@ -26,14 +29,14 @@ describe('lookup functions', () => {
 			// expect(createTerm('sum(A6:choose(2, A7, A8, A9))', sheet).value).toBe(80);
 		});
 		// DL-1407
-		it(`should return ${Error.code.VALUE} if index value is not a number or out of range`, () => {
+		it(`should return ${ERROR.VALUE} if index value is not a number or out of range`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('choose("asd",3,2,4)', sheet).value).toBe(Error.code.VALUE);
-			expect(createTerm('choose(-1,3,2,4)', sheet).value).toBe(Error.code.VALUE);
-			expect(createTerm('choose(0,3,2,4)', sheet).value).toBe(Error.code.VALUE);
-			expect(createTerm('choose(5,3,2,4)', sheet).value).toBe(Error.code.VALUE);
-			expect(createTerm('choose("0",3,2,4)', sheet).value).toBe(Error.code.VALUE);
-			expect(createTerm('choose("5",3,2,4)', sheet).value).toBe(Error.code.VALUE);
+			expect(createTerm('choose("asd",3,2,4)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('choose(-1,3,2,4)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('choose(0,3,2,4)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('choose(5,3,2,4)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('choose("0",3,2,4)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('choose("5",3,2,4)', sheet).value).toBe(ERROR.VALUE);
 		});
 	});
 	describe('column', () => {
@@ -55,10 +58,10 @@ describe('lookup functions', () => {
 			expect(sheet.cellAt('A1').value).toBe(1);
 			expect(sheet.cellAt('T30').value).toBe(20);
 		});
-		it(`should return ${Error.code.NAME} if given parameter does not represent cell reference or range`, () => {
+		it(`should return ${ERROR.NAME} if given parameter does not represent cell reference or range`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('column(hello)', sheet).value).toBe(Error.code.NAME);
-			expect(createTerm('column(A1D4)', sheet).value).toBe(Error.code.NAME);
+			expect(createTerm('column(hello)', sheet).value).toBe(ERROR.NAME);
+			expect(createTerm('column(A1D4)', sheet).value).toBe(ERROR.NAME);
 		});
 	});
 	describe('index', () => {
@@ -88,9 +91,9 @@ describe('lookup functions', () => {
 			expect(createTerm('index(A1:B2, true, true)', sheet).value).toBe(1);
 			expect(createTerm('index(A1:B2, 2, true)', sheet).value).toBe(3);
 			expect(createTerm('index(A1:B2, true, 2)', sheet).value).toBe(2);
-			expect(createTerm('index(A1:B2, 2, false)', sheet).value).toBe(Error.code.VALUE);
-			expect(createTerm('index(A1:B2, false, 1)', sheet).value).toBe(Error.code.VALUE);
-			expect(createTerm('index(A1:B2, false, false)', sheet).value).toBe(Error.code.VALUE);
+			expect(createTerm('index(A1:B2, 2, false)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('index(A1:B2, false, 1)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('index(A1:B2, false, false)', sheet).value).toBe(ERROR.VALUE);
 		});
 		it('should support area number if used with range-list', () => {
 			// if not given first range is used...
@@ -108,28 +111,28 @@ describe('lookup functions', () => {
 			expect(createTerm('index(C2, 1,1)', sheet).value).toBe(1);
 			expect(createTerm('index(C2, 1,2)', sheet).value).toBe(2);
 		});
-		it(`should return ${Error.code.VALUE} if negative or zero offsets are used`, () => {
+		it(`should return ${ERROR.VALUE} if negative or zero offsets are used`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('index(A1:C3, 0, 0)', sheet).value).toBe(Error.code.VALUE);
-			expect(createTerm('index(A1:B3, -1, -1)', sheet).value).toBe(Error.code.VALUE);
-			expect(createTerm('index(A1:C3, 1, -1)', sheet).value).toBe(Error.code.VALUE);
-			expect(createTerm('index(A1:C3, -1, 1)', sheet).value).toBe(Error.code.VALUE);
+			expect(createTerm('index(A1:C3, 0, 0)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('index(A1:B3, -1, -1)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('index(A1:C3, 1, -1)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('index(A1:C3, -1, 1)', sheet).value).toBe(ERROR.VALUE);
 		});
-		it(`should return ${Error.code.REF} if offsets are out of range`, () => {
+		it(`should return ${ERROR.REF} if offsets are out of range`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { A1: 1, B1: 2, A2: 3, B2: 4 } });
-			expect(createTerm('index(A1:B2, 3, 1)', sheet).value).toBe(Error.code.REF);
-			expect(createTerm('index(A1:B2, 1, 3)', sheet).value).toBe(Error.code.REF);
-			expect(createTerm('index(A1:B2, 3, 3)', sheet).value).toBe(Error.code.REF);
+			expect(createTerm('index(A1:B2, 3, 1)', sheet).value).toBe(ERROR.REF);
+			expect(createTerm('index(A1:B2, 1, 3)', sheet).value).toBe(ERROR.REF);
+			expect(createTerm('index(A1:B2, 3, 3)', sheet).value).toBe(ERROR.REF);
 		});
-		it(`should return ${Error.code.NAME} error if no cell range is specified`, () => {
+		it(`should return ${ERROR.NAME} error if no cell range is specified`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: SHEETS.SIMPLE });
-			expect(createTerm('index(A1, 1, 2)', sheet).value).toBe(Error.code.NAME);
+			expect(createTerm('index(A1, 1, 2)', sheet).value).toBe(ERROR.NAME);
 		});
 		it('should return #ARG_NUM error if not enough parameters are specified', () => {
 			const sheet = new StreamSheet().sheet.load({ cells: SHEETS.SIMPLE });
-			expect(createTerm('index()', sheet).value).toBe(Error.code.ARGS);
-			expect(createTerm('index(A1:B3)', sheet).value).toBe(Error.code.ARGS);
-			expect(createTerm('index(A1:B3, 1)', sheet).value).toBe(Error.code.ARGS);
+			expect(createTerm('index()', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('index(A1:B3)', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('index(A1:B3, 1)', sheet).value).toBe(ERROR.ARGS);
 		});
 	});
 	describe('match', () => {
@@ -147,7 +150,7 @@ describe('lookup functions', () => {
 			// largest
 			expect(createTerm('match(39, B2:B5, 1)', sheet).value).toBe(2);
 			// smallest => not descending order
-			expect(createTerm('match(40, B2:B5, -1)', sheet).value).toBe(Error.code.NA);
+			expect(createTerm('match(40, B2:B5, -1)', sheet).value).toBe(ERROR.NA);
 			// exact
 			expect(createTerm('match(41, B2:B5, 0)', sheet).value).toBe(4);
 		});
@@ -165,13 +168,66 @@ describe('lookup functions', () => {
 			 });
 			/* eslint-ensable */
 			// largest: not ascending order
-			expect(createTerm('match("Oranges", A2:A5, 1)', sheet).value).toBe(Error.code.NA);
+			expect(createTerm('match("Oranges", A2:A5, 1)', sheet).value).toBe(ERROR.NA);
 			// smallest
 			expect(createTerm('match("Or", A2:A5, -1)', sheet).value).toBe(2);
 			// exact
 			expect(createTerm('match("A*", A2:A7, 0)', sheet).value).toBe(4);
 			expect(createTerm('match("An~**", A2:A7, 0)', sheet).value).toBe(5);
 			expect(createTerm('match("Am~?*", A2:A7, 0)', sheet).value).toBe(6);
+		});
+		// DL-3336
+		it(`should return ${ERROR.NA} if applied to an empty cell range`, () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('MATCH(E14,G17:G41,TRUE)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('MATCH(23,G17:G41,TRUE)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('MATCH(E14,G17:G41,1)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('MATCH(23,G17:G41,1)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('MATCH(E14,G17:G41,0)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('MATCH(23,G17:G41,0)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('MATCH(E14,G17:G41,-1)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('MATCH(23,G17:G41,-1)', sheet).value).toBe(ERROR.NA);
+		});
+		it('should ignore empty or not matching cells in cell range', () => {
+			/* eslint-disable */
+			const sheet = new StreamSheet().sheet.load({
+				cells: {
+					A2: 'Bananas', B2: undefined,
+					A3: 'Oranges', B3: 38,
+					A4: 'Apples', B4: 'text',
+					A5: 'Pears', B5: 41,
+					A6: 'Pears', B6: 'world',
+					A7: 'Pears', B7: 38,
+					A8: 'Pears', B8: null
+				}
+			});
+			/* eslint-ensable */
+			expect(createTerm('match(39, B2:B5, 1)', sheet).value).toBe(2);
+			expect(createTerm('match(41, B2:B5, 1)', sheet).value).toBe(4);
+			expect(createTerm('match(42, B2:B5, 1)', sheet).value).toBe(4);
+			expect(createTerm('match(4, B2:B5, 1)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('match(38, B2:B5, 0)', sheet).value).toBe(2);
+			expect(createTerm('match(41, B2:B5, 0)', sheet).value).toBe(4);
+			expect(createTerm('match(42, B2:B5, 0)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('match(38, B5:B8, -1)', sheet).value).toBe(3);
+			expect(createTerm('match(41, B5:B8, -1)', sheet).value).toBe(1);
+			expect(createTerm('match(42, B5:B8, -1)', sheet).value).toBe(ERROR.NA);
+		});
+		it(`should return ${ERROR.NA} if cell range does not represent a list`, () => {
+			const sheet = new StreamSheet().sheet.load({
+				cells: {
+					A2: 'Bananas', B2: 29,
+					A3: 'Oranges', B3: 38,
+					A5: 'Pears', B4: 41,
+					C2: 42, D2: 43, E2: 44
+				}
+			});
+			expect(createTerm('MATCH(38,B2:C4,1)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('MATCH(38,B2:C4,0)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('MATCH(38,B2:C4,-1)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('MATCH(42,B2:E3,1)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('MATCH(42,B2:E3,0)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('MATCH(42,B2:E3,-1)', sheet).value).toBe(ERROR.NA);
 		});
 	});
 	describe('offset', () => {
@@ -191,7 +247,7 @@ describe('lookup functions', () => {
 			descr = cell.description();
 			expect(range.height).toBe(3);
 			expect(range.width).toBe(3);
-			expect(descr.value).toBe(Error.code.VALUE); // 'B6:D8');
+			expect(descr.value).toBe(ERROR.VALUE); // 'B6:D8');
 			expect(sheet.cellAt(range.start).value).toBe(4);
 			expect(sheet.cellAt(range.end)).toBeUndefined();
 			expect(createTerm(`sum(${range.toString()})`, sheet).value).toBe(34);
@@ -236,18 +292,18 @@ describe('lookup functions', () => {
 			expect(range.toString()).toBe('I19:I19');
 			expect(term.toString()).toBe('OFFSET(H18,1,1,1,1)');
 		});
-		it(`should return ${Error.code.REF} if new reference is not valid`, () => {
+		it(`should return ${ERROR.REF} if new reference is not valid`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { B6: 4, C6: 10, B7: 8, C7: 3, B8: 3, C8: 6 } });
-			expect(createTerm('offset(D3, -3, -3)', sheet).value).toBe(Error.code.REF);
+			expect(createTerm('offset(D3, -3, -3)', sheet).value).toBe(ERROR.REF);
 		});
-		it(`should return ${Error.code.ARGS} error if not enough parameters are specified`, () => {
+		it(`should return ${ERROR.ARGS} error if not enough parameters are specified`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('offset()', sheet).value).toBe(Error.code.ARGS);
-			expect(createTerm('offset(A1:B3)', sheet).value).toBe(Error.code.ARGS);
-			expect(createTerm('offset(A1:B3, 1)', sheet).value).toBe(Error.code.ARGS);
+			expect(createTerm('offset()', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('offset(A1:B3)', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('offset(A1:B3, 1)', sheet).value).toBe(ERROR.ARGS);
 		});
 		// DL-1425
-		it(`should return cell value if new range reference only one cell or a ${Error.code.VALUE} error`, () => {
+		it(`should return cell value if new range reference only one cell or a ${ERROR.VALUE} error`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { D4: 1, E4: 2, D5: 3, E5: 4 } });
 			sheet.setCellAt('A8', new Cell(null, createTerm('offset(A1:A1,1,1)', sheet)))
 			expect(sheet.cellAt('A8').cellValue).toBe(0)
@@ -258,7 +314,7 @@ describe('lookup functions', () => {
 			sheet.setCellAt('A8', new Cell(null, createTerm('offset(B2:C2,2,3,,1)', sheet)))
 			expect(sheet.cellAt('A8').cellValue).toBe(2)
 			sheet.setCellAt('A8', new Cell(null, createTerm('offset(B2:C2,2,3,1)', sheet)))
-			expect(sheet.cellAt('A8').cellValue).toBe(Error.code.VALUE)
+			expect(sheet.cellAt('A8').cellValue).toBe(ERROR.VALUE)
 		});
 	});
 	describe('row', () => {
@@ -283,10 +339,10 @@ describe('lookup functions', () => {
 			expect(sheet.cellAt('B1').value).toBe(2);
 			expect(sheet.cellAt('T30').value).toBe(30);
 		});
-		it(`should return ${Error.code.NAME} if given parameter does not represent cell reference or range`, () => {
+		it(`should return ${ERROR.NAME} if given parameter does not represent cell reference or range`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('row(hello)', sheet).value).toBe(Error.code.NAME);
-			expect(createTerm('row(A1D4)', sheet).value).toBe(Error.code.NAME);
+			expect(createTerm('row(hello)', sheet).value).toBe(ERROR.NAME);
+			expect(createTerm('row(A1D4)', sheet).value).toBe(ERROR.NAME);
 		});
 	});
 	describe('vlookup', () => {
@@ -329,28 +385,28 @@ describe('lookup functions', () => {
 			const sheet = new StreamSheet().sheet.load({ cells: SHEETS.SIMPLE });
 			expect(createTerm('vlookup("B*2", B1:d4, 3, true)', sheet).value).toBe('');
 		});
-		it(`should return ${Error.code.REF} if negative offset is used`, () => {
+		it(`should return ${ERROR.REF} if negative offset is used`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('vlookup("A3", A1:B3, 0)', sheet).value).toBe(Error.code.REF);
-			expect(createTerm('vlookup("A3", A1:B3, -1)', sheet).value).toBe(Error.code.REF);
+			expect(createTerm('vlookup("A3", A1:B3, 0)', sheet).value).toBe(ERROR.REF);
+			expect(createTerm('vlookup("A3", A1:B3, -1)', sheet).value).toBe(ERROR.REF);
 		});
-		it(`should return ${Error.code.NV} if referenced cell is not in specified cell range`, () => {
+		it(`should return ${ERROR.NV} if referenced cell is not in specified cell range`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: SHEETS.SIMPLE });
-			expect(createTerm('vlookup("B3", B1:B3, 2)', sheet).value).toBe(Error.code.NV);
-			expect(createTerm('vlookup("B3", B3, 2)', sheet).value).toBe(Error.code.NV);
+			expect(createTerm('vlookup("B3", B1:B3, 2)', sheet).value).toBe(ERROR.NV);
+			expect(createTerm('vlookup("B3", B3, 2)', sheet).value).toBe(ERROR.NV);
 		});
-		it(`should return ${Error.code.NAME} error if no cell range is specified`, () => {
+		it(`should return ${ERROR.NAME} error if no cell range is specified`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('vlookup("B3", , 2)', sheet).value).toBe(Error.code.NAME);
-			expect(createTerm('vlookup(-2, C22:E24, _3)', sheet).value).toBe(Error.code.NAME);
-			expect(createTerm('vlookup(-2, C22:E24, ^3)', sheet).value).toBe(Error.code.NAME);
-			expect(createTerm('vlookup(-2, C22:E24, ~3)', sheet).value).toBe(Error.code.NAME);
+			expect(createTerm('vlookup("B3", , 2)', sheet).value).toBe(ERROR.NAME);
+			expect(createTerm('vlookup(-2, C22:E24, _3)', sheet).value).toBe(ERROR.NAME);
+			expect(createTerm('vlookup(-2, C22:E24, ^3)', sheet).value).toBe(ERROR.NAME);
+			expect(createTerm('vlookup(-2, C22:E24, ~3)', sheet).value).toBe(ERROR.NAME);
 		});
-		it(`should return ${Error.code.ARGS} error if not enough parameters are specified`, () => {
+		it(`should return ${ERROR.ARGS} error if not enough parameters are specified`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('vlookup()', sheet).value).toBe(Error.code.ARGS);
-			expect(createTerm('vlookup("B3")', sheet).value).toBe(Error.code.ARGS);
-			expect(createTerm('vlookup("B3", B1:B3)', sheet).value).toBe(Error.code.ARGS);
+			expect(createTerm('vlookup()', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('vlookup("B3")', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('vlookup("B3", B1:B3)', sheet).value).toBe(ERROR.ARGS);
 		});
 	});
 });
