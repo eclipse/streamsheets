@@ -259,7 +259,8 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 						},
 						type: {
 							name: 'json'
-						}
+						},
+						defaultValue: {}
 					},
 					target,
 					timeout
