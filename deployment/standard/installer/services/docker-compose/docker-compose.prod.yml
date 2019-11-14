@@ -130,7 +130,6 @@ services:
       # MESSAGE_BROKER_PASSWORD:
       MESSAGE_BROKER_KEEP_ALIVE: 20
       # mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
-      MONGO_USER_DB_URI: mongodb://database:27017/userDB
       MONGO_DATABASE: streamsheets
       MONGO_HOST: streamsheets-internal-mongodb
       MONGO_PORT: 27017
