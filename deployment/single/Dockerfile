@@ -13,7 +13,7 @@ ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0
 	GATEWAY_HTTP_PORT=8080 \
 	GATEWAY_HTTP_HOST=localhost \
 	MONGO_DATABASE=streamsheets \
-	ONGO_HOST=localhost \
+	MONGO_HOST=localhost \
 	MONGO_PORT=27017 \
 	REDIS_HOST=localhost \
 	REDIS_PORT=6379 \
@@ -28,7 +28,6 @@ ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0
 	RESTSERVER_PORT=8083 \
 	STREAMSHEETS_LOG_LEVEL=debug \
 	NODE_ENV=production
-
 
 RUN apk --no-cache add g++ make curl nginx git gnupg rsync unzip mongodb mosquitto redis supervisor
 
