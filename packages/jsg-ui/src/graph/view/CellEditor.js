@@ -451,6 +451,7 @@ export default class CellEditor {
 		}
 
 		if (term === undefined || term.isInvalid) {
+			text = text.replace(/(\r\n|\n|\r)/gm, '');
 			return Strings.encodeXML(text);
 		}
 
