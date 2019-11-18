@@ -1,35 +1,22 @@
 /* eslint-disable max-len */
 const { TestHelper } = require('@cedalo/sdk-streams');
 const streamModule = require('../index');
-const MongoTestServer = require('./helpers/MongoTestServer');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 80000;
 
-process.env.MONGO_HOST = 'localhost';
-process.env.MONGO_PORT = '27018';
-process.env.MONGO_USER_DB_URI = 'mongodb://localhost:27018/userDB';
-process.env.MONGO_DB_USERNAME = '';
-process.env.MONGO_DB_PASSWORD = '';
-process.env.MONGO_USER_DATABASE = 'userdb';
+let mongoServer;
 
-const testServer = new MongoTestServer({
-	instance: {
-		port: Number(process.env.MONGO_PORT),
-		ip: process.env.MONGO_HOST,
-		dbName : process.env.MONGO_USER_DATABASE,
-		debug: false
-	},
+beforeAll(async () => {
+	mongoServer = new MongoMemoryServer();
+	await mongoServer.getConnectionString();
 });
-
-beforeEach(() => testServer.start());
-afterEach(() => testServer.stop());
-
+afterAll(() => mongoServer.stop());
 
 describe('MongoDBProvider', () => {
 	it('should create a new MongoDBProvider and test() for local db', async (done) => {
-
 		const config = {
-			name: "testConfig",
+			name: 'testConfig',
 			className: 'ProducerConfiguration',
 			connector: {
 				_id: 'CONNECTOR_MONGODB',
@@ -42,12 +29,10 @@ describe('MongoDBProvider', () => {
 					className: 'ProviderConfiguration',
 					isRef: true
 				},
-				externalHost: false
+				host: `localhost:${await mongoServer.getPort()}`,
+				dbName: 'testdb1'
 			},
-			collections: [
-				'test1'
-			],
-			dbName: 'testdb1'
+			collections: ['test1']
 		};
 
 		const stream = await TestHelper.provideStream(streamModule, config);
@@ -65,9 +50,7 @@ describe('MongoDBProvider', () => {
 						functionName: 'MONGO.QUERY',
 						collection: 'testdb'
 					},
-					Metadata: {
-
-					}
+					Metadata: {}
 				});
 				expect(res.response.Data.length === 1);
 				done();
@@ -77,4 +60,3 @@ describe('MongoDBProvider', () => {
 		}
 	});
 });
-

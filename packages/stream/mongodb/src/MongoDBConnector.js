@@ -2,7 +2,6 @@ const { Connector } = require('@cedalo/sdk-streams');
 const mongodb = require('mongodb');
 
 module.exports = class MongoDBConnector extends Connector {
-
 	constructor(config) {
 		super(config);
 		this._client = null;
@@ -19,29 +18,28 @@ module.exports = class MongoDBConnector extends Connector {
 	async connect() {
 		if (!this.connected) {
 			try {
-				let endPoint = '';
-				if (this.config.connector.externalHost === false) {
-					endPoint = process.env.MONGO_USER_DB_URI || 'mongodb://database:27017/userDB';
-				} else {
-					const authMechanism = (this.config.connector.authType) ?
-								`authMechanism=${this.config.connector.authType || 'DEFAULT'}` : '';
-					const username = (this.config.connector.userName) ?
-								encodeURIComponent(this.config.connector.userName) : undefined;
-					const password = (this.config.connector.password) ?
-								encodeURIComponent(this.config.connector.password) : undefined;
-					const auth = (authMechanism.length > 0 && username) ? `${username}:${password}@` : '';
-					let replicaSet = (this.config.connector.clusterName) ?
-								`replicaSet=${this.config.connector.clusterName}` : '';
-					if(replicaSet.length>0) {
-						replicaSet = (authMechanism === '') ? replicaSet : `&${replicaSet}`;
-					}
-					const database = this.dbName && this.dbName.length>0 ? `${this.dbName}` : '';
-					const options = (!!authMechanism || !!replicaSet) ? `?${authMechanism}${replicaSet}` : '';
-					const dbAndOpts = (database || options) ? `/${database}${options}` : '';
-						// mongodb://[username:password@]host1[:port1][,host2[:port2],
-						// ...[,hostN[:portN]]][/[database][?options]]
-					endPoint = `mongodb://${auth}${this.config.connector.host}${dbAndOpts}`;
+				const authMechanism = this.config.connector.authType
+					? `authMechanism=${this.config.connector.authType || 'DEFAULT'}`
+					: '';
+				const username = this.config.connector.userName
+					? encodeURIComponent(this.config.connector.userName)
+					: undefined;
+				const password = this.config.connector.password
+					? encodeURIComponent(this.config.connector.password)
+					: undefined;
+				const auth = authMechanism.length > 0 && username ? `${username}:${password}@` : '';
+				let replicaSet = this.config.connector.clusterName
+					? `replicaSet=${this.config.connector.clusterName}`
+					: '';
+				if (replicaSet.length > 0) {
+					replicaSet = authMechanism === '' ? replicaSet : `&${replicaSet}`;
 				}
+				const database = this.dbName && this.dbName.length > 0 ? `${this.dbName}` : '';
+				const options = !!authMechanism || !!replicaSet ? `?${authMechanism}${replicaSet}` : '';
+				const dbAndOpts = database || options ? `/${database}${options}` : '';
+				// mongodb://[username:password@]host1[:port1][,host2[:port2],
+				// ...[,hostN[:portN]]][/[database][?options]]
+				const endPoint = `mongodb://${auth}${this.config.connector.host}${dbAndOpts}`;
 				this.logger.debug(`Connecting to MongoDB ${endPoint}`);
 				this._client = await mongodb.connect(endPoint);
 				if (this.client) {

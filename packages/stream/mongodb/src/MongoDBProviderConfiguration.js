@@ -7,23 +7,11 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 			name: 'MongoDB Provider'
 		});
 		this.addConnectorDefinition({
-			id: 'externalHost',
-			label: {
-				en: 'External Host',
-				de: 'Externer Host'
-			},
-			onUpdate: 'reConnect',
-			type: ProviderConfiguration.FIELDTYPES.CHECKBOX,
-			defaultValue: false
-		});
-		this.addConnectorDefinition({
 			id: 'host',
 			label: 'Host(s)',
-			onUpdate: 'reConnect',
-			dependsOnPath: 'externalHost'
+			onUpdate: 'reConnect'
 		});
 		this.addConnectorDefinition({
-			dependsOnPath: 'externalHost',
 			id: 'dbName',
 			label: {
 				en: 'Database Name',
@@ -34,16 +22,16 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		this.addConnectorDefinition({
 			id: 'clusterName',
 			label: 'ReplicaSet',
+			advanced: true,
 			onUpdate: 'reConnect',
-			dependsOnPath: 'externalHost'
 		});
 		this.addConnectorDefinition({
 			id: 'authType',
-			dependsOnPath: 'externalHost',
 			label: {
 				en: 'Authentication Mechanism',
 				de: 'Authentifizierungsmethode'
 			},
+			advanced: true,
 			type: ProviderConfiguration.FIELDTYPES.SELECT,
 			options: [
 				{
@@ -80,8 +68,8 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 				en: 'User Name',
 				de: 'Benutzername'
 			},
+			advanced: true,
 			onUpdate: 'reConnect',
-			dependsOnPath: 'externalHost'
 		});
 		this.addConnectorDefinition({
 			id: 'password',
@@ -89,8 +77,8 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 				en: 'Password',
 				de: 'Kennwort'
 			},
+			advanced: true,
 			onUpdate: 'reConnect',
-			dependsOnPath: 'externalHost',
 			type: ProviderConfiguration.FIELDTYPES.PASSWORD
 		});
 
@@ -271,7 +259,8 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 						},
 						type: {
 							name: 'json'
-						}
+						},
+						defaultValue: {}
 					},
 					target,
 					timeout

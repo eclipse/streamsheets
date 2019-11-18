@@ -1,60 +1,60 @@
 {
-  "name": "@cedalo/stream-mongodb",
-  "version": "1.4.0",
-  "description": "MongoDB stream",
-  "main": "index.js",
-  "scripts": {
-    "test": "jest --forceExit --runInBand",
-    "lint": "./node_modules/.bin/eslint ."
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cedalo/streamsheets.git"
-  },
-  "author": "Cedalo AG",
-  "bugs": {
-    "url": "https://github.com/cedalo/streamsheets/issues"
-  },
-  "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/stream/mongodb",
-  "devDependencies": {
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "^3.3.0",
-    "jest": "^21.2.1",
-    "jest-cli": "^21.2.1",
-    "mongo-unit": "^1.4.5",
-    "mongodb-memory-server": "^5.2.3"
-  },
-  "dependencies": {
-    "@cedalo/sdk-streams": "*",
-    "mongodb": "3.0.11"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
-  },
-  "jest": {
-    "collectCoverage": true,
-    "coverageDirectory": "coverage",
-    "moduleDirectories": [
-      "node_modules"
-    ],
-    "testPathIgnorePatterns": [
-      "/node_modules/"
-    ],
-    "coveragePathIgnorePatterns": [
-      "/test/"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 20,
-        "functions": 20,
-        "lines": 20,
-        "statements": 20
-      }
-    }
-  },
-  "license": "EPL-2.0"
+	"name": "@cedalo/stream-mongodb",
+	"version": "1.4.0",
+	"description": "MongoDB stream",
+	"main": "index.js",
+	"scripts": {
+		"test": "jest --forceExit",
+		"test:watch": "jest --watch",
+		"lint": "./node_modules/.bin/eslint ."
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/cedalo/streamsheets.git"
+	},
+	"author": "Cedalo AG",
+	"bugs": {
+		"url": "https://github.com/cedalo/streamsheets/issues"
+	},
+	"homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/stream/mongodb",
+	"devDependencies": {
+		"eslint": "3.19.0",
+		"eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
+		"eslint-config-prettier": "^3.3.0",
+		"jest": "^21.2.1",
+		"jest-cli": "^21.2.1",
+		"mongodb-memory-server": "5.2.11"
+	},
+	"dependencies": {
+		"@cedalo/sdk-streams": "*",
+		"mongodb": "3.0.11"
+	},
+	"eslintConfig": {
+		"extends": [
+			"cedalo",
+			"prettier"
+		]
+	},
+	"jest": {
+		"collectCoverage": true,
+		"coverageDirectory": "coverage",
+		"moduleDirectories": [
+			"node_modules"
+		],
+		"testPathIgnorePatterns": [
+			"/node_modules/"
+		],
+		"coveragePathIgnorePatterns": [
+			"/test/"
+		],
+		"coverageThreshold": {
+			"global": {
+				"branches": 20,
+				"functions": 20,
+				"lines": 20,
+				"statements": 20
+			}
+		}
+	},
+	"license": "EPL-2.0"
 }
