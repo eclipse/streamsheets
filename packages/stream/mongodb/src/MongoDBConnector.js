@@ -2,7 +2,6 @@ const { Connector } = require('@cedalo/sdk-streams');
 const mongodb = require('mongodb');
 
 module.exports = class MongoDBConnector extends Connector {
-
 	constructor(config) {
 		super(config);
 		this._client = null;
