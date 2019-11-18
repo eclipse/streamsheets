@@ -217,14 +217,34 @@ const row = (sheet, ...terms) =>
 //
 // == VLOOKUP ==
 //
-const _match = (value, search, exactly) => {
-	if (value != null) {
-		if (exactly) return value === search;
-		value = (typeof value === 'number') ? Math.round(value) : value;
-		search = (typeof value === 'number') ? Math.round(search) : search;
-		return excel.wmatch(convert.toString(value), convert.toString(search));
-	}
-	return false;
+const doLookup = (search, range, exactly) => {
+	let lastIndex;
+	let lastValue;
+	const firstcol = range.start.col;
+	const searchType = typeof search;
+	range.someByCol((cell, idx) => {
+		let stop = idx.col > firstcol;
+		if (!stop && cell) {
+			const value = cell.value;
+			if (value === search) {
+				stop = true;
+				lastIndex = idx.copy();
+				// eslint-disable-next-line
+			} else if (!exactly && searchType === typeof value) {
+				if (excel.wmatch(convert.toString(value), convert.toString(search))) {
+					stop = true;
+					lastIndex = idx.copy();
+				} else if (value < search) {
+					if (lastValue == null || value > lastValue) {
+						lastValue = value;
+						lastIndex = idx.copy();
+					}
+				}
+			}
+		}
+		return stop;
+	});
+	return lastIndex
 };
 const vlookup = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -238,23 +258,18 @@ const vlookup = (sheet, ...terms) =>
 		})
 		.mapNextArg((exactly) => {
 			exactly = exactly && convert.toBoolean(exactly.value);
-			return exactly != null ? !exactly : true;
+			return exactly != null ? !exactly : false;
 		})
 		.run((lookup, range, coloffset, exactly) => {
 			let cellvalue;
-			const firstcol = range.start.col;
-			range.someByCol((cell, idx) => {
-				let stop = idx.col > firstcol;
-				if (cell && _match(cell.value, lookup, exactly)) {
-					idx.set(idx.row, idx.col + coloffset);
-					if (range.contains(idx)) {
-						stop = true;
-						cell = range.sheet.cellAt(idx);
-						cellvalue = cell ? cell.value : '';
-					}
+			const idx = doLookup(lookup, range, exactly);
+			if (idx) {
+				idx.set(idx.row, idx.col + coloffset);
+				if (range.contains(idx)) {
+					const cell = range.sheet.cellAt(idx);
+					cellvalue = cell ? cell.value : '';
 				}
-				return stop;
-			});
+			}
 			return cellvalue != null ? cellvalue : ERROR.NV;
 		});
 
