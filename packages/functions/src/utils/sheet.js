@@ -8,9 +8,10 @@ const {
 } = require('./terms');
 const { Term } = require('@cedalo/parser');
 const { jsonpath } = require('@cedalo/commons');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell, Message } = require('@cedalo/machine-core');
 
+const ERROR = FunctionErrors.code;
 
 const toStaticCell = cell => (cell != null ? new Cell(cell.value, Term.fromValue(cell.value)) : undefined);
 
@@ -72,7 +73,7 @@ const getInboxOrOutboxMessage = (path, machine) => {
 const createMessageFromValue = (value) => {
 	let message;
 	if (value != null) {
-		message = Error.isError(value) || new Message(typeof value === 'object' ? Object.assign({}, value) : { value });
+		message = FunctionErrors.isError(value) || new Message(typeof value === 'object' ? Object.assign({}, value) : { value });
 	}
 	return message;
 };
@@ -110,25 +111,25 @@ const messageFromBox = (machine, sheet, term, requireMessageData = true) => {
 	let message;
 	if (isInboxTerm(term)) {
 		const inboxMessage = messageFromInbox(sheet, term);
-		message = inboxMessage ? { metadata: inboxMessage.metadata, data: inboxMessage.data } : Error.code.NO_MSG;
+		message = inboxMessage ? { metadata: inboxMessage.metadata, data: inboxMessage.data } : ERROR.NO_MSG;
 	} else if (isOutboxTerm(term)) {
 		const outboxMessage = messageFromOutbox(machine, term);
-		message = outboxMessage ? outboxMessage.data : Error.code.NO_MSG;
+		message = outboxMessage ? outboxMessage.data : ERROR.NO_MSG;
 	} else if (isOutboxDataTerm(term)) {
 		const [, ...path] = jsonpath.parse(term.value);
 		const outboxMessage = messageFromOutbox(machine, term);
-		message = outboxMessage ? jsonpath.query(path, outboxMessage.data) : Error.code.NO_MSG;
+		message = outboxMessage ? jsonpath.query(path, outboxMessage.data) : ERROR.NO_MSG;
 	} else if (isInboxDataTerm(term)) {
 		const [, , ...path] = jsonpath.parse(term.value);
 		const inboxMessage = messageFromInbox(sheet, term);
-		message = inboxMessage ? jsonpath.query(path, inboxMessage.data) : Error.code.NO_MSG;
+		message = inboxMessage ? jsonpath.query(path, inboxMessage.data) : ERROR.NO_MSG;
 	} else if (isInboxMetaDataTerm(term)) {
 		const [, , ...path] = jsonpath.parse(term.value);
 		const inboxMessage = messageFromInbox(sheet, term);
-		message = inboxMessage ? jsonpath.query(path, inboxMessage.metadata) : Error.code.NO_MSG;
+		message = inboxMessage ? jsonpath.query(path, inboxMessage.metadata) : ERROR.NO_MSG;
 	}
 	if (requireMessageData && (message === null || message === undefined)) {
-		return Error.code.NO_MSG_DATA;
+		return ERROR.NO_MSG_DATA;
 	}
 	return message;
 };

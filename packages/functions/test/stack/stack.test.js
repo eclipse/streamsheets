@@ -1,7 +1,9 @@
 const STACKRANGE_SHEET = require('../_data/sheets.json').STACKRANGE;
 const { createTerm } = require('../utils');
 const { Cell, Machine, StreamSheet } = require('@cedalo/machine-core');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 let sheet;
 beforeEach(() => {
@@ -216,12 +218,12 @@ describe('stack functions', () => {
 				expect(sheet.cellAt('C30').value).toBe('C30');
 			});
 			// DL-2960
-			it(`should return ${Error.code.VALUE} if direction parameter is not a boolean`, () => {
-				expect(createTerm('stackadd(A10:C12, A1:C2, 0)', sheet).value).toBe(Error.code.VALUE);
-				expect(createTerm('stackadd(A10:C12, A1:C2, 1)', sheet).value).toBe(Error.code.VALUE);
-				expect(createTerm('stackadd(A10:C12, A1:C2, "")', sheet).value).toBe(Error.code.VALUE);
-				expect(createTerm('stackadd(A10:C12, A1:C2, "false")', sheet).value).toBe(Error.code.VALUE);
-				expect(createTerm('stackadd(A10:C12, A1:C2, "true")', sheet).value).toBe(Error.code.VALUE);
+			it(`should return ${ERROR.VALUE} if direction parameter is not a boolean`, () => {
+				expect(createTerm('stackadd(A10:C12, A1:C2, 0)', sheet).value).toBe(ERROR.VALUE);
+				expect(createTerm('stackadd(A10:C12, A1:C2, 1)', sheet).value).toBe(ERROR.VALUE);
+				expect(createTerm('stackadd(A10:C12, A1:C2, "")', sheet).value).toBe(ERROR.VALUE);
+				expect(createTerm('stackadd(A10:C12, A1:C2, "false")', sheet).value).toBe(ERROR.VALUE);
+				expect(createTerm('stackadd(A10:C12, A1:C2, "true")', sheet).value).toBe(ERROR.VALUE);
 				// none given => default value
 				expect(createTerm('stackadd(A10:C12, A1:C2)', sheet).value).toBe(true);
 				expect(createTerm('stackadd(A10:C12, A1:C2, )', sheet).value).toBe(true);
@@ -285,9 +287,9 @@ describe('stack functions', () => {
 		});
 		describe('stack add errors', () => {
 			// DL-1285
-			it(`should return ${Error.code.NAME} for invalid ranges`, () => {
-				expect(createTerm('stackadd(P2!A10:P2!C12, A2:C2)', sheet).value).toBe(Error.code.NAME);
-				expect(createTerm('stackadd(A10:C12, P2!A2:P2!C2)', sheet).value).toBe(Error.code.NAME);
+			it(`should return ${ERROR.NAME} for invalid ranges`, () => {
+				expect(createTerm('stackadd(P2!A10:P2!C12, A2:C2)', sheet).value).toBe(ERROR.NAME);
+				expect(createTerm('stackadd(A10:C12, P2!A2:P2!C2)', sheet).value).toBe(ERROR.NAME);
 			});
 		});
 	});
@@ -603,7 +605,7 @@ describe('stack functions', () => {
 		});
 		// DL-1440
 		it('should return an error if defined target range is invalid', () => {
-			expect(createTerm('stackdrop(A10:C13, B16:C17, false)', sheet).value).toBe(Error.code.VALUE);
+			expect(createTerm('stackdrop(A10:C13, B16:C17, false)', sheet).value).toBe(ERROR.VALUE);
 		});
 		// DL-2026
 		it('should not dispose moved cells', () => {

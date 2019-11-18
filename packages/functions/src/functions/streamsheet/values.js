@@ -1,9 +1,10 @@
 const { runFunction, terms: { getCellRangeFromTerm, getCellReferencesFromTerm } } = require('../../utils');
 const { Term } = require('@cedalo/parser');
 const { convert } = require('@cedalo/commons');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell } = require('@cedalo/machine-core');
 
+const ERROR = FunctionErrors.code;
 
 // const doIt = value => value || value == null;
 const newCellAt = (index, value, sheet) => {
@@ -13,7 +14,7 @@ const newCellAt = (index, value, sheet) => {
 };
 
 const setCells = (value, cellrefs, overwrite) => {
-	let res = Error.isError(cellrefs);
+	let res = FunctionErrors.isError(cellrefs);
 	if (!res) {
 		cellrefs.forEach((cellref) => {
 			const cell = cellref.target || newCellAt(cellref.index, value, cellref.sheet);
@@ -90,18 +91,18 @@ const copyvalues = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withArgCount(2)
 		.mapNextArg(source => getCellRangeFromTerm(source, sheet))
-		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || Error.code.TARGET)
+		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.TARGET)
 		.run((source, target) =>
 			copyRange(source, target)
 			|| copyCellValue(terms[0], target)
-			|| Error.code.SOURCE);
+			|| ERROR.SOURCE);
 
 const movevalues = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(2)
-		.mapNextArg(source => getCellRangeFromTerm(source, sheet) || Error.code.SOURCE)
-		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || Error.code.TARGET)
+		.mapNextArg(source => getCellRangeFromTerm(source, sheet) || ERROR.SOURCE)
+		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.TARGET)
 		.run((source, target) => {
 			const values = rangevalues(source);
 			const moved = moverangevalues(values, target);
@@ -123,8 +124,8 @@ const swapvalues = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(2)
-		.mapNextArg(source => getCellRangeFromTerm(source, sheet) || Error.code.SOURCE)
-		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || Error.code.TARGET)
+		.mapNextArg(source => getCellRangeFromTerm(source, sheet) || ERROR.SOURCE)
+		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.TARGET)
 		.run((source, target) => {
 			const sourcevalues = rangevalues(source);
 			const targetvalues = rangevalues(target);

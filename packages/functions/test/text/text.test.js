@@ -1,6 +1,8 @@
 const { createCellAt, createTerm } = require('../utils');
 const { Machine, StreamSheet } = require('@cedalo/machine-core');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 describe('char', () => {
 	it('should return ansi/cp1252 character for specified number', () => {
@@ -51,13 +53,13 @@ describe('char', () => {
 		expect(createTerm('char(138, "roman")', sheet).value).toBe('ä');
 		expect(createTerm('char(240, "roman")', sheet).value).toBe('');
 	});
-	it(`return ${Error.code.VALUE} if given number is not between 1 and 255 or specified value is not a number`, () => {
+	it(`return ${ERROR.VALUE} if given number is not between 1 and 255 or specified value is not a number`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('char()', sheet).value).toBe(Error.code.ARGS);
-		expect(createTerm('char(0)', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('char(256)', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('char("")', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('char("hi")', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('char()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('char(0)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('char(256)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('char("")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('char("hi")', sheet).value).toBe(ERROR.VALUE);
 	});
 });
 describe('clean', () => {
@@ -88,10 +90,10 @@ describe('clean', () => {
 		expect(createTerm('clean(B1)', sheet).value).toBe('');
 		expect(createTerm('clean("", true)', sheet).value).toBe('');
 	});
-	it(`return ${Error.code.ARGS} if too many or not enough parameters given`, () => {
+	it(`return ${ERROR.ARGS} if too many or not enough parameters given`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('clean()', sheet).value).toBe(Error.code.ARGS);
-		expect(createTerm('clean("", true, A1)', sheet).value).toBe(Error.code.ARGS);
+		expect(createTerm('clean()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('clean("", true, A1)', sheet).value).toBe(ERROR.ARGS);
 	});
 });
 describe('code', () => {
@@ -137,11 +139,11 @@ describe('code', () => {
 		expect(createTerm('code("ä", "roman")', sheet).value).toBe(138);
 		expect(createTerm('code("", "roman")', sheet).value).toBe(240);
 	});
-	it(`return ${Error.code.VALUE} if given string is empty or not a string`, () => {
+	it(`return ${ERROR.VALUE} if given string is empty or not a string`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('code("")', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('code(A1)', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('code()', sheet).value).toBe(Error.code.ARGS);
+		expect(createTerm('code("")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('code(A1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('code()', sheet).value).toBe(ERROR.ARGS);
 	});
 });
 describe('concat', () => {
@@ -176,7 +178,7 @@ describe('concat', () => {
 		expect(createTerm('concat(A1:C1, A2:B2, " ", "world")', sheet).value).toBe('hello world');
 		expect(createTerm('concat(A1, "ow", " ar", B1:B1, " y", B2:B2, "u", C2)', sheet).value).toBe('how are you?');
 	});
-	it(`should return ${Error.code.VALUE} if at least one concated value is invalid `, () => {
+	it(`should return ${ERROR.VALUE} if at least one concated value is invalid `, () => {
 		const cells = {
 			A1: 'h',
 			B1: 'e',
@@ -187,7 +189,7 @@ describe('concat', () => {
 			D2: 123
 		};
 		const sheet = new StreamSheet().sheet.load({ cells });
-		expect(createTerm('concat(-A1, B1, C1)', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('concat(-A1, B1, C1)', sheet).value).toBe(ERROR.VALUE);
 	});
 	// DL-2296:
 	it('should be possible to specify quotes', () => {
@@ -221,30 +223,30 @@ describe('find', () => {
 		expect(createTerm('find( , A1)', sheet).value).toBe(1);
 		expect(createTerm('find( , "Hello")', sheet).value).toBe(1);
 	});
-	it(`should return ${Error.code.VALUE} if search text is not found`, () => {
+	it(`should return ${ERROR.VALUE} if search text is not found`, () => {
 		const sheet = new StreamSheet().sheet.load({
 			cells: { A1: 'Miriam McGovern' }
 		});
-		expect(createTerm('find("W", A1)', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('find("Z", "Hello")', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('find("e", "Hello", 4)', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('find("W", A1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('find("Z", "Hello")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('find("e", "Hello", 4)', sheet).value).toBe(ERROR.VALUE);
 	});
-	it(`should return ${Error.code.VALUE} if start index is not greater zero`, () => {
+	it(`should return ${ERROR.VALUE} if start index is not greater zero`, () => {
 		const sheet = new StreamSheet().sheet.load({
 			cells: { A1: 'Miriam McGovern' }
 		});
-		expect(createTerm('find("M", A1, 0)', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('find("e", "Hello", -1)', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('find("M", A1, 0)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('find("e", "Hello", -1)', sheet).value).toBe(ERROR.VALUE);
 		expect(createTerm('find("H", "Hello", 1)', sheet).value).toBe(1);
 	});
-	it(`should return ${Error.code.VALUE} if start index is greater then text`, () => {
+	it(`should return ${ERROR.VALUE} if start index is greater then text`, () => {
 		const sheet = new StreamSheet().sheet.load({
 			cells: { A1: 'Miriam McGovern' }
 		});
 		expect(createTerm('find("n", A1, 15)', sheet).value).toBe(15);
-		expect(createTerm('find("n", A1, 16)', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('find("n", A1, 16)', sheet).value).toBe(ERROR.VALUE);
 		expect(createTerm('find("o", "Hello", 5)', sheet).value).toBe(5);
-		expect(createTerm('find("o", "Hello", 6)', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('find("o", "Hello", 6)', sheet).value).toBe(ERROR.VALUE);
 	});
 });
 describe('left', () => {
@@ -265,11 +267,11 @@ describe('left', () => {
 		expect(createTerm('left("Hello World", 999)', sheet).value).toBe('Hello World');
 		expect(createTerm('left(A1, 0)', sheet).value).toBe('');
 	});
-	it(`should return ${Error.code.VALUE} if specified number of characters is less than zero`, () => {
+	it(`should return ${ERROR.VALUE} if specified number of characters is less than zero`, () => {
 		const sheet = new StreamSheet().sheet.load({
 			cells: { A1: 'Sale Price' }
 		});
-		expect(createTerm('left(A1, -1)', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('left(A1, -1)', sheet).value).toBe(ERROR.VALUE);
 	});
 	it('should return empty string if no text is specified', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: undefined } });
@@ -292,7 +294,7 @@ describe('len', () => {
 	// DL-1327
 	it('should return error for invalid parameter', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: 'hello' } });
-		expect(createTerm('len(_A1)', sheet).value).toBe(Error.code.NAME);
+		expect(createTerm('len(_A1)', sheet).value).toBe(ERROR.NAME);
 	});
 });
 describe('mid', () => {
@@ -311,13 +313,13 @@ describe('mid', () => {
 		});
 		expect(createTerm('mid(A1, 20, 20)', sheet).value).toBe('');
 	});
-	it(`should return ${Error.code.VALUE} if start index is less than 1 or number of characters is less than zero`, () => {
+	it(`should return ${ERROR.VALUE} if start index is less than 1 or number of characters is less than zero`, () => {
 		const sheet = new StreamSheet().sheet.load({
 			cells: { A1: 'Fluid Flow' }
 		});
-		expect(createTerm('mid(A1, 0, 4)', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('mid(A1, -1, 5)', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('mid(A1, 1, -1)', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('mid(A1, 0, 4)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('mid(A1, -1, 5)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('mid(A1, 1, -1)', sheet).value).toBe(ERROR.VALUE);
 	});
 });
 describe('replace', () => {
@@ -333,13 +335,13 @@ describe('replace', () => {
 		expect(createTerm('replace("Hello", 2, 23, "i")', sheet).value).toBe('Hi');
 	});
 	// DL-1329
-	it(`should return ${Error.code.VALUE} or ${Error.code.NAME} for invalid parameter or formula`, () => {
+	it(`should return ${ERROR.VALUE} or ${ERROR.NAME} for invalid parameter or formula`, () => {
 		const sheet = new StreamSheet().sheet.load({
 			cells: { A1: 'hello', F2: { formula: 'JSON(A1:A1)' } }
 		});
-		expect(createTerm('replace(-A1,12,3,"later")', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('replace(-F2,12,3,"later")', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('replace(A1-,12,3,"later")', sheet).value).toBe(Error.code.NAME);
+		expect(createTerm('replace(-A1,12,3,"later")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('replace(-F2,12,3,"later")', sheet).value).toBe(ERROR.INVALID_PARAM);
+		expect(createTerm('replace(A1-,12,3,"later")', sheet).value).toBe(ERROR.NAME);
 		expect(createTerm('replace(B1,12,3,"laterB20,1")', sheet).value).toBe('laterB20,1');
 	});
 });
@@ -354,17 +356,17 @@ describe('rept', () => {
 		expect(createTerm('rept(A3, 3)', sheet).value).toBe('');
 	});
 	// DL-1330
-	it(`should return ${Error.code.VALUE} or ${Error.code.NAME} for invalid parameter`, () => {
+	it(`should return ${ERROR.VALUE} or ${ERROR.NAME} for invalid parameter`, () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: 'hello' } });
-		expect(createTerm('rept(-A1,3)', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('rept(_A1,3)', sheet).value).toBe(Error.code.NAME);
-		expect(createTerm('rept(|A1,3)', sheet).value).toBe(Error.code.NAME);
-		expect(createTerm('rept(}A1,3)', sheet).value).toBe(Error.code.NAME);
-		expect(createTerm('rept(]A1,3)', sheet).value).toBe(Error.code.NAME);
-		expect(createTerm('rept(²A1,3)', sheet).value).toBe(Error.code.NAME);
-		expect(createTerm('rept(³A1,3)', sheet).value).toBe(Error.code.NAME);
-		expect(createTerm('rept(~A1,3)', sheet).value).toBe(Error.code.NAME);
-		expect(createTerm('rept(°A1,3)', sheet).value).toBe(Error.code.NAME);
+		expect(createTerm('rept(-A1,3)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('rept(_A1,3)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('rept(|A1,3)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('rept(}A1,3)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('rept(]A1,3)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('rept(²A1,3)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('rept(³A1,3)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('rept(~A1,3)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('rept(°A1,3)', sheet).value).toBe(ERROR.NAME);
 	});
 });
 describe('right', () => {
@@ -386,11 +388,11 @@ describe('right', () => {
 		expect(createTerm('right("Hello World", 999)', sheet).value).toBe('Hello World');
 		expect(createTerm('right("", 134)', sheet).value).toBe('');
 	});
-	it(`should return ${Error.code.VALUE} if specified number of characters is less than zero`, () => {
+	it(`should return ${ERROR.VALUE} if specified number of characters is less than zero`, () => {
 		const sheet = new StreamSheet().sheet.load({
 			cells: { A1: 'Sale Price' }
 		});
-		expect(createTerm('right(A1, -1)', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('right(A1, -1)', sheet).value).toBe(ERROR.VALUE);
 	});
 	it('should return empty string if no text is specified', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: undefined } });
@@ -413,23 +415,23 @@ describe('search', () => {
 		expect(createTerm('search("E", "Search me again", 5)', sheet).value).toBe(9);
 		expect(createTerm('search("E", "Search me again", 1)', sheet).value).toBe(2);
 	});
-	it(`should return ${Error.code.VALUE} if text is not found`, () => {
+	it(`should return ${ERROR.VALUE} if text is not found`, () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: 'Find me' } });
-		expect(createTerm('search("meet", A1)', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('search("me", A1, 10)', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('search("meet", A1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('search("me", A1, 10)', sheet).value).toBe(ERROR.VALUE);
 	});
 	// DL-1331
-	it(`should return ${Error.code.VALUE} for invalid parameter`, () => {
+	it(`should return ${ERROR.VALUE} for invalid parameter`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('search("me", -A1)', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('search("me", _A1)', sheet).value).toBe(Error.code.NAME);
-		expect(createTerm('search("me", |A1)', sheet).value).toBe(Error.code.NAME);
-		expect(createTerm('search("me", }A1)', sheet).value).toBe(Error.code.NAME);
-		expect(createTerm('search("me", ]A1)', sheet).value).toBe(Error.code.NAME);
-		expect(createTerm('search("me", ²A1)', sheet).value).toBe(Error.code.NAME);
-		expect(createTerm('search("me", ³A1)', sheet).value).toBe(Error.code.NAME);
-		expect(createTerm('search("me", ~A1)', sheet).value).toBe(Error.code.NAME);
-		expect(createTerm('search("me", °A1)', sheet).value).toBe(Error.code.NAME);
+		expect(createTerm('search("me", -A1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('search("me", _A1)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('search("me", |A1)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('search("me", }A1)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('search("me", ]A1)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('search("me", ²A1)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('search("me", ³A1)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('search("me", ~A1)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('search("me", °A1)', sheet).value).toBe(ERROR.NAME);
 	});
 });
 describe('substitute', () => {
@@ -473,10 +475,10 @@ describe('text', () => {
 		expect(createTerm('TEXT(3456, "#.##0,00", "DE")', sheet).value).toBe('3.456,00');
 		expect(createTerm('TEXT(3456,",##.00")', sheet).value).toBe(',3456.00');
 		expect(createTerm('TEXT(3456,".##,00", "DE")', sheet).value).toBe('.3456,00');
-		// expect(createTerm('TEXT(3456,"######.qwe")', sheet).value).toBe(Error.code.VALUE);
-		// expect(createTerm('TEXT(3456,"##.00qws")', sheet).value).toBe(Error.code.VALUE);
-		// expect(createTerm('TEXT(3456,"##.00s")', sheet).value).toBe(Error.code.VALUE);
-		// expect(createTerm('TEXT(3456,"^Hallo ##.00")', sheet).value).toBe(Error.code.VALUE);
+		// expect(createTerm('TEXT(3456,"######.qwe")', sheet).value).toBe(ERROR.VALUE);
+		// expect(createTerm('TEXT(3456,"##.00qws")', sheet).value).toBe(ERROR.VALUE);
+		// expect(createTerm('TEXT(3456,"##.00s")', sheet).value).toBe(ERROR.VALUE);
+		// expect(createTerm('TEXT(3456,"^Hallo ##.00")', sheet).value).toBe(ERROR.VALUE);
 		expect(createTerm('TEXT(E22,"##,00", "DE")', sheet).value).toBe(',00');
 		expect(createTerm('TEXT(0,"#")', sheet).value).toBe('');
 		expect(createTerm('TEXT(F10,"#")', sheet).value).toBe('');
@@ -495,7 +497,7 @@ describe('text', () => {
 	it('should return an error if no value, format are given', () => {
 		const sheet = new StreamSheet().sheet;
 		createCellAt('A1', 123456, sheet);
-		expect(createTerm('text(A1, )', sheet).value).toBe(Error.code.INVALID_PARAM);
+		expect(createTerm('text(A1, )', sheet).value).toBe(ERROR.INVALID_PARAM);
 	});
 	it('should convert a value to specified format in different locale', () => {
 		const machine = new Machine();
@@ -506,7 +508,7 @@ describe('text', () => {
 		machine.addStreamSheet(t1);
 		createCellAt('A1', 1234.5678, sheet);
 		expect(createTerm('text(A1, "##,00")', sheet).value).toBe('1234,57');
-		expect(createTerm('text(A1, "##.00")', sheet).value).toBe(Error.code.INVALID_PARAM);
+		expect(createTerm('text(A1, "##.00")', sheet).value).toBe(ERROR.INVALID_PARAM);
 	});
 	// DL-1491
 	it('should support optional locale parameter to convert different locales', () => {
@@ -548,13 +550,13 @@ describe('unichar', () => {
 		expect(createTerm('unichar(255.123)', sheet).value).toBe('ÿ');
 		expect(createTerm('unichar(8226.901)', sheet).value).toBe('•');
 	});
-	it(`return ${Error.code.VALUE} if given number is not valid`, () => {
+	it(`return ${ERROR.VALUE} if given number is not valid`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('unichar()', sheet).value).toBe(Error.code.ARGS);
-		expect(createTerm('unichar(0)', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('unichar(655356)', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('unichar("")', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('unichar("hi")', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('unichar()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('unichar(0)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('unichar(655356)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('unichar("")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('unichar("hi")', sheet).value).toBe(ERROR.VALUE);
 	});
 });
 describe('unicode', () => {
@@ -572,11 +574,11 @@ describe('unicode', () => {
 		expect(createTerm('unicode("•")', sheet).value).toBe(8226);
 		expect(createTerm('unicode("€")', sheet).value).toBe(8364);
 	});
-	it(`return ${Error.code.VALUE} if given string is empty or not a string`, () => {
+	it(`return ${ERROR.VALUE} if given string is empty or not a string`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('unicode("")', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('unicode(A1)', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('unicode()', sheet).value).toBe(Error.code.ARGS);
+		expect(createTerm('unicode("")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('unicode(A1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('unicode()', sheet).value).toBe(ERROR.ARGS);
 	});
 });
 describe('value', () => {
@@ -599,14 +601,14 @@ describe('value', () => {
 		expect(createTerm('value("0,0045")', sheet).value).toBe(0.0045);
 		expect(createTerm('value("-0,00123")', sheet).value).toBe(-0.00123);
 		// english input leads to an error:
-		expect(createTerm('value("12.34")', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('value("12,345.67")', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('value("12.34")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("12,345.67")', sheet).value).toBe(ERROR.VALUE);
 		// new streamsheet without added to machine => english is default!
 		sheet = new StreamSheet().sheet;
 		expect(createTerm('value("22,456.789")', sheet).value).toBe(22456.789);
-		expect(createTerm('value("12,34")', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('value("22,45.678")', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('value("12.345,67")', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('value("12,34")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("22,45.678")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("12.345,67")', sheet).value).toBe(ERROR.VALUE);
 	});
 	it('should support specifying different locales', () => {
 		// german
@@ -616,12 +618,12 @@ describe('value', () => {
 		machine.addStreamSheet(t1);
 		// no locale specified => defaults to machine locale
 		expect(createTerm('value("22,45")', t1.sheet).value).toBe(22.45);
-		expect(createTerm('value("22.45")', t1.sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('value("22.45")', t1.sheet).value).toBe(ERROR.VALUE);
 		// specify different locale on the fly:
-		expect(createTerm('value("22,45", "en")', t1.sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('value("22,45", "en")', t1.sheet).value).toBe(ERROR.VALUE);
 		expect(createTerm('value("22.45", "en")', t1.sheet).value).toBe(22.45);
 		expect(createTerm('value("22,45", "DE")', t1.sheet).value).toBe(22.45);
-		expect(createTerm('value("22.45", "dE")', t1.sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('value("22.45", "dE")', t1.sheet).value).toBe(ERROR.VALUE);
 		// locale is ignored if value is a number already:
 		expect(createTerm('value(22.45, "en")', t1.sheet).value).toBe(22.45);
 		expect(createTerm('value(-0.12345, "en")', t1.sheet).value).toBe(-0.12345);
@@ -665,15 +667,15 @@ describe('value', () => {
 		expect(createTerm('value("123,45678901234567")', sheet).value.toString()).toBe('123.45678901234567');
 		expect(createTerm('value("999,9999999999999")', sheet).value.toString()).toBe('999.9999999999999');
 	});
-	it(`should return ${Error.code.VALUE} if text cannot be converted`, () => {
+	it(`should return ${ERROR.VALUE} if text cannot be converted`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('value("22_45")', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('value("22!")', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('value("a22")', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('value("22_45")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("22!")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("a22")', sheet).value).toBe(ERROR.VALUE);
 	});
-	it(`should return ${Error.code.VALUE} if specified unknown locale`, () => {
+	it(`should return ${ERROR.VALUE} if specified unknown locale`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('value("22_45", "sk")', sheet).value).toBe(Error.code.VALUE);
-		expect(createTerm('value("22_45", "us")', sheet).value).toBe(Error.code.VALUE);
+		expect(createTerm('value("22_45", "sk")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("22_45", "us")', sheet).value).toBe(ERROR.VALUE);
 	});
 });

@@ -3,7 +3,9 @@ const { DICTIONARY } = require('../../src/functions');
 const { createCellRangeTerm } = require('../utils');
 const { Term } = require('@cedalo/parser');
 const { StreamSheet } = require('@cedalo/machine-core');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 describe('dictionary', () => {
 	it('should create a single json object from specified 2 rows cell range', () => {
@@ -71,14 +73,14 @@ describe('dictionary', () => {
 	});
 
 	it('should return error code if no sheet or range is specified', () => {
-		expect(DICTIONARY()).toBe(Error.code.ARGS);
-		expect(DICTIONARY(new StreamSheet().sheet)).toBe(Error.code.ARGS);
+		expect(DICTIONARY()).toBe(ERROR.ARGS);
+		expect(DICTIONARY(new StreamSheet().sheet)).toBe(ERROR.ARGS);
 	});
 
 	it('should return error code if range is not valid', () => {
 		const sheet = new StreamSheet().sheet;
 		const range = createCellRangeTerm('12:B2', sheet);
-		expect(DICTIONARY(sheet, range)).toBe(Error.code.INVALID_PARAM);
+		expect(DICTIONARY(sheet, range)).toBe(ERROR.INVALID_PARAM);
 	});
 
 	// define how to handle cells without any value...

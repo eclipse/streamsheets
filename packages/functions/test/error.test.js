@@ -1,23 +1,25 @@
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 describe('isError', () => {
 	it('should return true for a valid error code', () => {
-		expect(Error.isError(Error.code.ARGS)).toBeTruthy();
-		expect(Error.isError(Error.code.FUNC_EXEC)).toBeTruthy();
-		expect(Error.isError(Error.code.INVALID)).toBeTruthy();
-		expect(Error.isError(Error.code.INVALID_PARAM)).toBeTruthy();
-		expect(Error.isError(Error.code.LIST)).toBeTruthy();
-		expect(Error.isError(Error.code.NO_MSG_DATA)).toBeTruthy();
-		expect(Error.isError(Error.code.OUTBOX)).toBeTruthy();
-		expect(Error.isError(Error.code.PROCSHEET)).toBeTruthy();
-		expect(Error.isError(Error.code.RANGE)).toBeTruthy();
-		expect(Error.isError(Error.code.RANGE_INVALID)).toBeTruthy();
-		expect(Error.isError(Error.code.SELF_REF)).toBeTruthy();
-		expect(Error.isError(Error.code.SOURCE)).toBeTruthy();
-		expect(Error.isError(Error.code.TARGET)).toBeTruthy();
+		expect(FunctionErrors.isError(ERROR.ARGS)).toBeTruthy();
+		expect(FunctionErrors.isError(ERROR.FUNC_EXEC)).toBeTruthy();
+		expect(FunctionErrors.isError(ERROR.INVALID)).toBeTruthy();
+		expect(FunctionErrors.isError(ERROR.INVALID_PARAM)).toBeTruthy();
+		expect(FunctionErrors.isError(ERROR.LIST)).toBeTruthy();
+		expect(FunctionErrors.isError(ERROR.NO_MSG_DATA)).toBeTruthy();
+		expect(FunctionErrors.isError(ERROR.OUTBOX)).toBeTruthy();
+		expect(FunctionErrors.isError(ERROR.PROCSHEET)).toBeTruthy();
+		expect(FunctionErrors.isError(ERROR.RANGE)).toBeTruthy();
+		expect(FunctionErrors.isError(ERROR.RANGE_INVALID)).toBeTruthy();
+		expect(FunctionErrors.isError(ERROR.SELF_REF)).toBeTruthy();
+		expect(FunctionErrors.isError(ERROR.SOURCE)).toBeTruthy();
+		expect(FunctionErrors.isError(ERROR.TARGET)).toBeTruthy();
 	});
 	it('should return false for an unkown error code', () => {
-		expect(Error.isError('error')).toBeFalsy();
-		expect(Error.isError('#UNKNOWN_ERROR')).toBeFalsy();
+		expect(FunctionErrors.isError('error')).toBeFalsy();
+		expect(FunctionErrors.isError('#UNKNOWN_ERROR')).toBeFalsy();
 	});
 });

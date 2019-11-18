@@ -1,5 +1,5 @@
 const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
 
 
 const newMax = (termOrCell, oldmax) => {
@@ -15,7 +15,7 @@ const max = (sheet, ...terms) =>
 			let valid = false;
 			const totalMax = terms.reduce((currMax, term) => {
 				const range = getCellRangeFromTerm(term, sheet);
-				error = Error.isError(range);
+				error = FunctionErrors.isError(range);
 				valid = !error && (valid || !range);
 				currMax = range
 					? range.reduce((acc, cell) => {

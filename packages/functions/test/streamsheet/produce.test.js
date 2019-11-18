@@ -4,7 +4,9 @@ const { PRODUCE } = require('../../src/functions/streamsheet').functions;
 const { createCellRangeTerm, createFuncTerm, createParamTerms, createTerm } = require('../utils');
 const { Term } = require('@cedalo/parser');
 const { Machine, Message, Streams, StreamSheet } = require('@cedalo/machine-core');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 let published = {};
 
@@ -74,13 +76,13 @@ describe('produce', () => {
 			const sheet = setup();
 			sheet.processor._isProcessing = true;
 			const json = Term.fromString('{"message":"Message","topic":"test/topic"');
-			expect(PRODUCE(sheet, producerRef(sheet), json)).toBe(Error.code.INVALID_PARAM);
+			expect(PRODUCE(sheet, producerRef(sheet), json)).toBe(ERROR.INVALID_PARAM);
 		});
 		it('should require a message field', () => {
 			const sheet = setup();
 			sheet.processor._isProcessing = true;
 			const json = Term.fromString('{"noMessageField":"Message","topic":"test/topic"');
-			expect(PRODUCE(sheet, producerRef(sheet), json)).toBe(Error.code.INVALID_PARAM);
+			expect(PRODUCE(sheet, producerRef(sheet), json)).toBe(ERROR.INVALID_PARAM);
 		});
 	});
 	describe.skip('publish json created by dictionary, array or subtree function', () => {
@@ -126,41 +128,41 @@ describe('produce', () => {
 		});
 	});
 	describe('error messages', () => {
-		it(`should return with ${Error.code.ARGS} if number of parameters are wrong`, () => {
-			expect(PRODUCE()).toBe(Error.code.ARGS);
+		it(`should return with ${ERROR.ARGS} if number of parameters are wrong`, () => {
+			expect(PRODUCE()).toBe(ERROR.ARGS);
 			const sheet = setup();
 			sheet.processor._isProcessing = true;
-			expect(PRODUCE(sheet)).toBe(Error.code.ARGS);
+			expect(PRODUCE(sheet)).toBe(ERROR.ARGS);
 		});
-		it(`should return with ${Error.code.NO_MACHINE} if machine could not be found`, () => {
+		it(`should return with ${ERROR.NO_MACHINE} if machine could not be found`, () => {
 			const sheet = setup();
 			sheet.processor._isProcessing = true;
 			const msgId = createTerm('OUTBOX("out1")', sheet);
 			sheet.streamsheet.machine = undefined;
-			expect(PRODUCE(sheet, producerRef(sheet), msgId)).toBe(Error.code.NO_MACHINE);
+			expect(PRODUCE(sheet, producerRef(sheet), msgId)).toBe(ERROR.NO_MACHINE);
 		});
-		it(`should return with ${Error.code.INVALID_PARAM} if message could not be found`, () => {
+		it(`should return with ${ERROR.INVALID_PARAM} if message could not be found`, () => {
 			const sheet = setup();
 			sheet.processor._isProcessing = true;
 			const msgId = createTerm('OUTBOX("out1")', sheet);
-			expect(PRODUCE(sheet, producerRef(sheet), msgId)).toBe(Error.code.INVALID_PARAM);
+			expect(PRODUCE(sheet, producerRef(sheet), msgId)).toBe(ERROR.INVALID_PARAM);
 		});
-		it(`should return with ${Error.code.NO_PRODUCER} if stream could not be resolved`, () => {
+		it(`should return with ${ERROR.NO_PRODUCER} if stream could not be resolved`, () => {
 			const sheet = setup();
 			sheet.processor._isProcessing = true;
 			const outbox = sheet.streamsheet.machine.outbox;
 			const msgId = createTerm('OUTBOX("out1")', sheet);
 			const streamId = createTerm(`|Unknown`, sheet);
 			outbox.put(new Message(Object.assign({}, MSG.SIMPLE.data), 'out1'));
-			expect(PRODUCE(sheet, streamId, msgId)).toBe(Error.code.NO_PRODUCER);
+			expect(PRODUCE(sheet, streamId, msgId)).toBe(ERROR.NO_PRODUCER);
 		});
-		it(`should return with ${Error.code.ARGS} if tried to publish null or undefined`, () => {
+		it(`should return with ${ERROR.ARGS} if tried to publish null or undefined`, () => {
 			const sheet = setup();
 			sheet.processor._isProcessing = true;
 			const topic = Term.fromString('test/topic');
-			expect(PRODUCE(sheet, producerRef(sheet), Term.fromString(null), topic)).toBe(Error.code.ARGS);
+			expect(PRODUCE(sheet, producerRef(sheet), Term.fromString(null), topic)).toBe(ERROR.ARGS);
 			expect(published['test/topic']).toBeUndefined();
-			expect(PRODUCE(sheet, producerRef(sheet), Term.fromString(undefined), topic)).toBe(Error.code.ARGS);
+			expect(PRODUCE(sheet, producerRef(sheet), Term.fromString(undefined), topic)).toBe(ERROR.ARGS);
 			expect(published['test/topic']).toBeUndefined();
 		});
 	});

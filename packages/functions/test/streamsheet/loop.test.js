@@ -1,7 +1,9 @@
 const MESSAGES = require('../_data/messages.json');
 const { createTerm } = require('../utils');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell, Machine, Message, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+
+const ERROR = FunctionErrors.code;
 
 const setup = (config) => {
 	const machine = new Machine();
@@ -33,7 +35,7 @@ describe('loopcount', () => {
 		});
 		const loopcount = createTerm('loopcount()', sheet);
 		sheet.setCellAt('A1', new Cell(null, loopcount));
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		// frst step will attach and set index to first element...
 		machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
@@ -55,7 +57,7 @@ describe('loopcount', () => {
 		});
 		const loopcount = createTerm('loopcount()', sheet);
 		sheet.setCellAt('A1', new Cell(null, loopcount));
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		// steps process first message, second one has loop with no elements...
 		machine.step();
 		machine.step();
@@ -65,7 +67,7 @@ describe('loopcount', () => {
 		machine.step();
 		expect(sheet.cellAt('A1').value).toBe(0);
 	});
-	it(`should return ${Error.code.NA} if no loop is defined`, () => {
+	it(`should return ${ERROR.NA} if no loop is defined`, () => {
 		const t1 = setup({
 			name: 'T1',
 			trigger: StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE })
@@ -80,16 +82,16 @@ describe('loopcount', () => {
 		});
 		const loopcount = createTerm('loopcount()', sheet);
 		sheet.setCellAt('A1', new Cell(null, loopcount));
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		// frst step will attach and set index to first element...
 		machine.step();
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		machine.step();
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		machine.step();
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 	});
-	it(`should return ${Error.code.NA} if no loop is active`, () => {
+	it(`should return ${ERROR.NA} if no loop is active`, () => {
 		const t1 = setup({
 			name: 'T1',
 			trigger: StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE })
@@ -104,14 +106,14 @@ describe('loopcount', () => {
 		});
 		const loopcount = createTerm('loopcount()', sheet);
 		sheet.setCellAt('A1', new Cell(null, loopcount));
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		// frst step will attach and set index to first element...
 		machine.step();
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		machine.step();
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		machine.step();
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 	});
 });
 describe('loopindex', () => {
@@ -130,7 +132,7 @@ describe('loopindex', () => {
 		});
 		const loopindex = createTerm('loopindex()', sheet);
 		sheet.setCellAt('A1', new Cell(null, loopindex));
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		// frst step will attach and set index to first element...
 		machine.step();
 		expect(sheet.cellAt('A1').value).toBe(1);
@@ -139,7 +141,7 @@ describe('loopindex', () => {
 		machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
 	});
-	it(`should return ${Error.code.NA} if no loop is defined`, () => {
+	it(`should return ${ERROR.NA} if no loop is defined`, () => {
 		const t1 = setup({
 			name: 'T1',
 			trigger: StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE })
@@ -154,16 +156,16 @@ describe('loopindex', () => {
 		});
 		const loopindex = createTerm('loopindex()', sheet);
 		sheet.setCellAt('A1', new Cell(null, loopindex));
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		// frst step will attach and set index to first element...
 		machine.step();
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		machine.step();
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		machine.step();
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 	});
-	it(`should return ${Error.code.NA} if no loop is active`, () => {
+	it(`should return ${ERROR.NA} if no loop is active`, () => {
 		const t1 = setup({
 			name: 'T1',
 			trigger: StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE })
@@ -178,13 +180,13 @@ describe('loopindex', () => {
 		});
 		const loopindex = createTerm('loopindex()', sheet);
 		sheet.setCellAt('A1', new Cell(null, loopindex));
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		// frst step will attach and set index to first element...
 		machine.step();
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		machine.step();
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 		machine.step();
-		expect(sheet.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
 	});
 });

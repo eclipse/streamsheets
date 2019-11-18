@@ -1,5 +1,5 @@
 const { ensure } = require('./validation');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
 const { Streams } = require('@cedalo/machine-core');
 // const mcore = require('../machine-core');
 
@@ -8,12 +8,14 @@ const { Streams } = require('@cedalo/machine-core');
 // 	Streams = mod.Streams;
 // });
 
+const ERROR = FunctionErrors.code;
+
 const publishinternal = (s, ...t) =>
 	ensure(s, t)
 		.withArgs(2, ['streamTerm', 'message'])
 		.withProducer()
-		.check(({ message }) => Error.isError(message) || Error.ifNot(message, Error.code.NO_MSG))
-		.check(({ message }) => Error.ifTrue(message.message === null || message.message === undefined))
+		.check(({ message }) => FunctionErrors.isError(message) || FunctionErrors.ifNot(message, ERROR.NO_MSG))
+		.check(({ message }) => FunctionErrors.ifTrue(message.message === null || message.message === undefined))
 		.isProcessing()
 		.run(({ streamId, message }) => {
 			Streams.publish(streamId, message);

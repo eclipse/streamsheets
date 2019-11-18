@@ -4,7 +4,9 @@ const { OUTBOXDATA } = require('../../src/functions/streamsheet').functions;
 const { createCellTerm, createCellRangeTerm, createParamTerms } = require('../utils');
 const { Term } = require('@cedalo/parser');
 const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 const createCellTerms = (strings, sheet) => strings.map(str => createCellTerm(str, sheet));
 
@@ -59,12 +61,12 @@ describe('outboxdata', () => {
 	});
 
 	describe('handling of missing parameters', () => {
-		it(`should return error "${Error.code.ARGS}" if not all required parameters are provided`, () => {
+		it(`should return error "${ERROR.ARGS}" if not all required parameters are provided`, () => {
 			const sheet = setup({ streamsheetName: 'T1' }).load(SHEETS.SIMPLE);
 			const terms = createParamTerms('').concat(Term.fromString(''));
-			expect(OUTBOXDATA()).toBe(Error.code.ARGS);
-			expect(OUTBOXDATA(sheet)).toBe(Error.code.ARGS);
-			expect(OUTBOXDATA(sheet, terms[0])).toBe(Error.code.NO_MSG_ID);
+			expect(OUTBOXDATA()).toBe(ERROR.ARGS);
+			expect(OUTBOXDATA(sheet)).toBe(ERROR.ARGS);
+			expect(OUTBOXDATA(sheet, terms[0])).toBe(ERROR.NO_MSG_ID);
 		});
 	});
 });

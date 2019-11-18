@@ -1,5 +1,7 @@
 const { runFunction } = require('../../utils');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 // maybe renamed to continue...
 const goto = (sheet, ...terms) =>
@@ -9,7 +11,7 @@ const goto = (sheet, ...terms) =>
 		.mapNextArg(term => term.operand)
 		.addMappedArg((operand) => {
 			const index = operand.index;
-			return index != null ? index : Error.code.INVALID_PARAM;
+			return index != null ? index : ERROR.INVALID_PARAM;
 		})
 		.run((oprand, index) => {
 			sheet.processor.goto(index);

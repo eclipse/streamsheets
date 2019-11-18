@@ -1,6 +1,8 @@
 const { createCellAt } = require('../utils');
 const { Machine, Message, SheetIndex, Streams, StreamSheet } = require('@cedalo/machine-core');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 const cellAt = (idxstr, sheet) => sheet.cellAt(SheetIndex.create(idxstr));
 
@@ -186,7 +188,7 @@ describe('requestinfo', () => {
 		sheet.startProcessing();
 		expect(cellAt('A1', sheet).value).toBe(true);
 	});
-	it(`should return ${Error.code.ERR} for a rejected request`, async () => {
+	it(`should return ${ERROR.ERR} for a rejected request`, async () => {
 		const streamsheet = setupStreamSheet({
 			A1: { formula: 'requestinfo(a2)' },
 			A2: { formula: 'request(|test_stream, "hallo", outbox("response"))' }
@@ -203,7 +205,7 @@ describe('requestinfo', () => {
 			await pendingRequest.reject('error');
 		} catch (err) {
 			sheet.startProcessing();
-			expect(cellAt('A1', sheet).value).toBe(Error.code.ERR);
+			expect(cellAt('A1', sheet).value).toBe(ERROR.ERR);
 			// because of requestinfo we cannot remove reqquest, so
 			expect(sheet.getPendingRequests().size).toBe(1);
 		}
