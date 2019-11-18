@@ -3,7 +3,9 @@ const { EXECUTE, GETEXECUTESTEP } = require('../../src/functions/streamsheet').f
 const { createCellAt, createTerm } = require('../utils');
 const { Term } = require('@cedalo/parser');
 const { Cell, Machine, Message, SheetIndex, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 const random = (nr = 10) => Math.floor(Math.random() * Math.floor(nr));
 const createMessage = () => new Message([
@@ -213,7 +215,7 @@ describe('execute', () => {
 		machine.step();
 		machine.step();
 		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(2);
-		expect(sheet1.cellAt(SheetIndex.create('B1')).value).toBe(Error.code.NA);
+		expect(sheet1.cellAt(SheetIndex.create('B1')).value).toBe(ERROR.NA);
 		expect(sheet1.cellAt(SheetIndex.create('C1')).value).toBe(1);
 		expect(sheet2.cellAt(SheetIndex.create('B2')).value).toBe(4);
 		expect(sheet2.cellAt(SheetIndex.create('C2')).value).toBe(false);
@@ -227,7 +229,7 @@ describe('execute', () => {
 		// ...and again from beginning...
 		machine.step();
 		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(3);
-		expect(sheet1.cellAt(SheetIndex.create('B1')).value).toBe(Error.code.NA);
+		expect(sheet1.cellAt(SheetIndex.create('B1')).value).toBe(ERROR.NA);
 		expect(sheet1.cellAt(SheetIndex.create('C1')).value).toBe(2);
 		expect(sheet2.cellAt(SheetIndex.create('B2')).value).toBe(6);
 		expect(sheet2.cellAt(SheetIndex.create('C2')).value).toBe(false);
@@ -298,7 +300,7 @@ describe('execute', () => {
 		// ...and once again from beginning...
 		machine.step();
 		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(3);
-		expect(sheet1.cellAt(SheetIndex.create('B1')).value).toBe(Error.code.NA);
+		expect(sheet1.cellAt(SheetIndex.create('B1')).value).toBe(ERROR.NA);
 		expect(sheet1.cellAt(SheetIndex.create('C1')).value).toBe(2);
 		expect(sheet2.cellAt(SheetIndex.create('A2')).value).toBe(1);
 		expect(sheet2.cellAt(SheetIndex.create('B2')).value).toBe('run');
@@ -339,7 +341,7 @@ describe('execute', () => {
 		// ...and again from beginning...
 		machine.step();
 		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(3);
-		expect(sheet1.cellAt(SheetIndex.create('B1')).value).toBe(Error.code.NA);
+		expect(sheet1.cellAt(SheetIndex.create('B1')).value).toBe(ERROR.NA);
 		expect(sheet1.cellAt(SheetIndex.create('C1')).value).toBe(2);
 		expect(sheet2.cellAt(SheetIndex.create('B2')).value).toBe(6);
 		expect(sheet2.cellAt(SheetIndex.create('C2')).value).toBe('run');
@@ -401,12 +403,12 @@ describe('execute', () => {
 		expect(sheet2.cellAt(SheetIndex.create('B2')).value).toBe(false);
 		machine.step();
 		machine.step();
-		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(Error.code.NA);
+		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(ERROR.NA);
 		expect(sheet1.cellAt(SheetIndex.create('C1')).value).toBe(1);
 		expect(sheet2.cellAt(SheetIndex.create('A2')).value).toBe(2);
 		expect(sheet2.cellAt(SheetIndex.create('B2')).value).toBe(false);
 		// change A1
-		// sheet1.cellAt('A1').value = 1; // removed Error.code.NA :-)
+		// sheet1.cellAt('A1').value = 1; // removed ERROR.NA :-)
 		createCellAt('A1', { formula: 'A1+1', value: 1 }, sheet1);
 		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(1);
 		expect(sheet1.cellAt(SheetIndex.create('C1')).value).toBe(2);
@@ -636,7 +638,7 @@ describe('execute', () => {
 			Step3: { Duration: 100, States: { Ampel1: 'Green' } }
 		}));
 		machine.step();
-		expect(sheet1.cellAt('A1').value).toBe(Error.code.NA);
+		expect(sheet1.cellAt('A1').value).toBe(ERROR.NA);
 		expect(sheet1.cellAt('B1').value).toBe(1);
 		expect(t2.stats.executesteps).toBe(1);
 		expect(t2.getCurrentLoopPath()).toBe('[Data][Step1]');
@@ -976,7 +978,7 @@ describe('concatenated execute() usage', () => {
 		expect(sheet1.cellAt('A1').value).toBe(2);
 		expect(sheet1.cellAt('B1').value).toBe(true);
 		expect(sheet2.cellAt('A2').value).toBe(2);
-		expect(sheet2.cellAt('B2').value).toBe(Error.code.NA);
+		expect(sheet2.cellAt('B2').value).toBe(ERROR.NA);
 		expect(sheet3.cellAt('A3').value).toBe(2);
 		expect(sheet3.cellAt('B3').value).toBe(1);
 		machine.step();
@@ -984,7 +986,7 @@ describe('concatenated execute() usage', () => {
 		expect(sheet1.cellAt('A1').value).toBe(2);
 		expect(sheet1.cellAt('B1').value).toBe(true);
 		expect(sheet2.cellAt('A2').value).toBe(2);
-		expect(sheet2.cellAt('B2').value).toBe(Error.code.NA);
+		expect(sheet2.cellAt('B2').value).toBe(ERROR.NA);
 		expect(sheet3.cellAt('A3').value).toBe(3);
 		expect(sheet3.cellAt('B3').value).toBe(2);
 		// will cause T3 to return
@@ -994,7 +996,7 @@ describe('concatenated execute() usage', () => {
 		expect(sheet1.cellAt('B1').value).toBe(true);
 		expect(sheet2.cellAt('A2').value).toBe(3);
 		// not true because execute is directly triggered again with next loop element
-		expect(sheet2.cellAt('B2').value).toBe(Error.code.NA);
+		expect(sheet2.cellAt('B2').value).toBe(ERROR.NA);
 		expect(sheet3.cellAt('A3').value).toBe(2);
 		expect(sheet3.cellAt('B3').value).toBe(1);
 		machine.step();
@@ -1002,7 +1004,7 @@ describe('concatenated execute() usage', () => {
 		expect(sheet1.cellAt('A1').value).toBe(2);
 		expect(sheet1.cellAt('B1').value).toBe(true);
 		expect(sheet2.cellAt('A2').value).toBe(3);
-		expect(sheet2.cellAt('B2').value).toBe(Error.code.NA);
+		expect(sheet2.cellAt('B2').value).toBe(ERROR.NA);
 		expect(sheet3.cellAt('A3').value).toBe(3);
 		expect(sheet3.cellAt('B3').value).toBe(2);
 		// will cause  T3 to return

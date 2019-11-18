@@ -1,5 +1,7 @@
 const { getMachine } = require('./sheet');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 class Chain {
 
@@ -15,7 +17,7 @@ class Chain {
 		if (!this.context.sheet) this.withSheet();
 		if (!this.error) {
 			const machine = getMachine(this.sheet);
-			this.error = Error.ifNot(machine, Error.code.NO_MACHINE);
+			this.error = FunctionErrors.ifNot(machine, ERROR.NO_MACHINE);
 			this.context.machine = machine;
 		}
 		return this;
@@ -23,7 +25,7 @@ class Chain {
 
 	withArgs(numberOfArgs, argMappings, vararg = false) {
 		if (!this.error) {
-			this.error = Error.ifTrue(this.args.length < numberOfArgs, Error.code.ARGS);
+			this.error = FunctionErrors.ifTrue(this.args.length < numberOfArgs, ERROR.ARGS);
 			this.context.args = this.args;
 			if (Array.isArray(argMappings)) {
 				argMappings.forEach((name, index) => {
@@ -41,7 +43,7 @@ class Chain {
 	withSheet() {
 		if (!this.error) {
 			this.context.sheet = this.sheet;
-			this.error = Error.ifNot(this.sheet, Error.code.ARGS);
+			this.error = FunctionErrors.ifNot(this.sheet, ERROR.ARGS);
 		}
 		return this;
 	}
@@ -51,7 +53,7 @@ class Chain {
 			return this;
 		}
 		const result = f(this.context, ...this.mappedArgs);
-		this.error = Error.isError(result);
+		this.error = FunctionErrors.isError(result);
 		this.mappedArgs.push(result);
 		return this;
 	}
@@ -61,7 +63,7 @@ class Chain {
 			return this;
 		}
 		const result = f(this.context, ...this.mappedArgs);
-		this.error = Error.isError(result);
+		this.error = FunctionErrors.isError(result);
 		return this;
 	}
 
@@ -89,7 +91,7 @@ class Chain {
 				if(term.value.state === 'connected'){
 					this.context.streamId = term.value.id;
 				} else {
-					this.error = Error.code.DISCONNECTED;
+					this.error = ERROR.DISCONNECTED;
 				}
 			} else {
 				this.error = errorToReturn;
@@ -99,11 +101,11 @@ class Chain {
 	}
 
 	withProducer(at = 0) {
-		return this.withStream(at, Error.code.NO_PRODUCER, 'producer');
+		return this.withStream(at, ERROR.NO_PRODUCER, 'producer');
 	}
 
 	withConsumer(at = 0) {
-		return this.withStream(at, Error.code.NO_CONSUMER, 'stream');
+		return this.withStream(at, ERROR.NO_CONSUMER, 'stream');
 	}
 }
 

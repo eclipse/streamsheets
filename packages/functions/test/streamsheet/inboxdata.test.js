@@ -4,7 +4,9 @@ const { INBOXDATA } = require('../../src/functions');
 const { createCellTerm, createCellRangeTerm, createParamTerms } = require('../utils');
 const { Term } = require('@cedalo/parser');
 const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 const createCellTerms = (strings, sheet) => strings.map(str => createCellTerm(str, sheet));
 
@@ -71,22 +73,22 @@ describe('inboxdata', () => {
 			const sheet = setup({ streamsheetName: 'T1' }).load({ cells: SHEETS.SIMPLE });
 			sheet.streamsheet.setLoopPath('[metadata][Positionen]');
 			let terms = createParamTerms('T1', '').concat(Term.fromString(''));
-			expect(INBOXDATA(sheet, ...terms)).toBe(Error.code.INVALID_LOOP_PATH);
+			expect(INBOXDATA(sheet, ...terms)).toBe(ERROR.INVALID_LOOP_PATH);
 			terms = createParamTerms('T1', '').concat(createParamTerms('', 'Artikel'));
-			expect(INBOXDATA(sheet, ...terms)).toBe(Error.code.INVALID_LOOP_PATH);
+			expect(INBOXDATA(sheet, ...terms)).toBe(ERROR.INVALID_LOOP_PATH);
 			sheet.streamsheet.setLoopPath('');
 			terms = createParamTerms('T1', '').concat(Term.fromString(''));
-			expect(INBOXDATA(sheet, ...terms)).toBe(Error.code.INVALID_LOOP_PATH);
+			expect(INBOXDATA(sheet, ...terms)).toBe(ERROR.INVALID_LOOP_PATH);
 		});
-		it(`should return error "${Error.code.INVALID_LOOP_PATH}" if given loop path does not match`, () => {
+		it(`should return error "${ERROR.INVALID_LOOP_PATH}" if given loop path does not match`, () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			// no loop set:
 			sheet.loadCells({ A1: { formula: 'inboxdata(,,)' } });
 			sheet.streamsheet.step();
-			expect(sheet.cellAt('A1').value).toBe(Error.code.INVALID_LOOP_PATH);
+			expect(sheet.cellAt('A1').value).toBe(ERROR.INVALID_LOOP_PATH);
 			sheet.loadCells({ A1: { formula: 'inboxdata(,,,"Positionen")' } });
 			sheet.streamsheet.step();
-			expect(sheet.cellAt('A1').value).toBe(Error.code.INVALID_LOOP_PATH);
+			expect(sheet.cellAt('A1').value).toBe(ERROR.INVALID_LOOP_PATH);
 			// set loop:
 			sheet.streamsheet.setLoopPath('[data]');
 			sheet.loadCells({ A1: { formula: 'inboxdata(,,)' } });
@@ -117,7 +119,7 @@ describe('inboxdata', () => {
 			// loop
 			sheet.loadCells({ A1: { formula: 'inboxdata(,,)' } });
 			sheet.streamsheet.step();
-			expect(sheet.cellAt('A1').value).toBe(Error.code.INVALID_LOOP_PATH);
+			expect(sheet.cellAt('A1').value).toBe(ERROR.INVALID_LOOP_PATH);
 			sheet.streamsheet.setLoopPath('[data][Positionen]');
 			sheet.loadCells({ A1: { formula: 'inboxdata(,,)' } });
 			sheet.streamsheet.step();

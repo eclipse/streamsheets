@@ -4,9 +4,10 @@ const {
 	sheet: { createMessageFromValue, getMachine, getStreamSheetByName }
 } = require('../../utils');
 const { jsonpath } = require('@cedalo/commons');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
 const { Message } = require('@cedalo/machine-core');
 
+const ERROR = FunctionErrors.code;
 
 // DL-1835:
 const addMetaData = (message, sheet) => {
@@ -60,9 +61,9 @@ const feedinbox = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(2)
-		.addMappedArg(() => getMachine(sheet) || Error.code.NO_MACHINE)
-		.addMappedArg((machine) => createMessageFromTerm(terms[0], machine) || Error.code.NO_MSG_DATA)
-		.addMappedArg(() => getStreamSheetByName(terms[1].value, sheet) || Error.code.NO_STREAMSHEET)
+		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)
+		.addMappedArg((machine) => createMessageFromTerm(terms[0], machine) || ERROR.NO_MSG_DATA)
+		.addMappedArg(() => getStreamSheetByName(terms[1].value, sheet) || ERROR.NO_STREAMSHEET)
 		.run((machine, message, streamsheet) => {
 			addMetaData(message, sheet);
 			streamsheet.inbox.put(message);

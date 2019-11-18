@@ -1,7 +1,8 @@
 const { GETCYCLETIME } = require('../../src/functions/streamsheet').functions;
 const { Machine, SheetIndex, StreamSheet } = require('@cedalo/machine-core');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
 
+const ERROR = FunctionErrors.code;
 
 const setup = (cycletime = 1000) => {
 	const machine = new Machine();
@@ -33,7 +34,7 @@ describe('getcycletime', () => {
 	});
 	it('should return error if no sheet or no machine available', () => {
 		const sheet = new StreamSheet().sheet;
-		expect(GETCYCLETIME()).toBe(Error.code.ARGS);
-		expect(GETCYCLETIME(sheet)).toBe(Error.code.NO_MACHINE);
+		expect(GETCYCLETIME()).toBe(ERROR.ARGS);
+		expect(GETCYCLETIME(sheet)).toBe(ERROR.NO_MACHINE);
 	});
 });

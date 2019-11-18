@@ -3,7 +3,9 @@ const jsonFunc = require('../functions/streamsheet/json');
 const { isFuncTerm } = require('./terms');
 const { Term } = require('@cedalo/parser');
 const { convert } = require('@cedalo/commons');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 const TYPE = {
 	STRING: 'string',
@@ -59,7 +61,7 @@ const asEnum = (value, config) => {
 	const index = lowerEnumValues.indexOf(lowerString);
 	const result = enumValues[index];
 	// if (value && result === undefined) {
-	// 	return Error.code.INVALID_PARAM;
+	// 	return ERROR.INVALID_PARAM;
 	// }
 	return result;
 };
@@ -192,7 +194,7 @@ const fromTerm = (f) => (term, ...args) => {
 	if (term && term.value !== undefined && term.value !== null) {
 		const result = f(term.value, ...args);
 		if (result === undefined) {
-			return Error.code.INVALID_PARAM;
+			return ERROR.INVALID_PARAM;
 		}
 		return result;
 	}
@@ -213,17 +215,17 @@ const termAsJSON = (term, config, sheet) => {
 			value = term.value;
 		} else if (Array.isArray(config.fields)) {
 			const recordArrays = safeArray(sheet, term, null, Term.fromString('2d'));
-			if (recordArrays.length > 1) return Error.code.INVALID_PARAM;
+			if (recordArrays.length > 1) return ERROR.INVALID_PARAM;
 			value = recordArrays[0];
 		} else {
 			const dict = jsonFunc(sheet, term);
-			if (!Error.isError(dict)) {
+			if (!FunctionErrors.isError(dict)) {
 				value = dict;
 			}
 		}
 		const result = asJSON(value, config);
 		if (result === undefined) {
-			return Error.code.INVALID_PARAM;
+			return ERROR.INVALID_PARAM;
 		}
 		return result;
 	}
@@ -234,10 +236,10 @@ const termAsList = (term, config, sheet) => {
 	const sybtypeConfig = config.type;
 	const mode = sybtypeConfig.name === TYPE.RECORD || sybtypeConfig.name === TYPE.LIST ? '2d' : 'flat';
 	let value = toArray(sheet, term, null, Term.fromString(mode));
-	if (Error.isError(value)) {
+	if (FunctionErrors.isError(value)) {
 		// eslint-disable-next-line
 		const singleValue = termAsType(term, sybtypeConfig, sheet);
-		if (Error.isError(singleValue)) return value;
+		if (FunctionErrors.isError(singleValue)) return value;
 		value = singleValue;
 	}
 	return asList(value, config);
@@ -249,7 +251,7 @@ const termAsUnion = (term, config, sheet) => {
 	for (let type of types) {
 		// eslint-disable-next-line
 		const value = termAsType(term, type, sheet);
-		if (!Error.isError(value) && value !== undefined) {
+		if (!FunctionErrors.isError(value) && value !== undefined) {
 			return value;
 		}
 	}
@@ -278,38 +280,38 @@ function termAsType(term, config, sheet) {
 
 const numberContraints = (value, config) => {
 	if (config.min) {
-		return config.min > value ? Error.code.INVALID_PARAM : value;
+		return config.min > value ? ERROR.INVALID_PARAM : value;
 	}
 	if (config.max) {
-		return config.max < value ? Error.code.INVALID_PARAM : value;
+		return config.max < value ? ERROR.INVALID_PARAM : value;
 	}
 	return value;
 };
 
 const listConstraints = (value, config) => {
 	if (config.min) {
-		return config.min > value.length ? Error.code.INVALID_PARAM : value;
+		return config.min > value.length ? ERROR.INVALID_PARAM : value;
 	}
 	if (config.max) {
-		return config.max < value.length ? Error.code.INVALID_PARAM : value;
+		return config.max < value.length ? ERROR.INVALID_PARAM : value;
 	}
 	return value;
 };
 
 const mqttTopicConstraints = (value, config) => {
 	if (typeof value !== 'string') {
-		return Error.code.INVALID_PARAM;
+		return ERROR.INVALID_PARAM;
 	}
 	if (value.indexOf('//') > -1
 			|| value.startsWith('#')
 			|| value.length < 1
 			|| value.indexOf('$') > -1
 	) {
-		return Error.code.INVALID_PARAM;
+		return ERROR.INVALID_PARAM;
 	}
 	const topicParts = String(value).split('/');
 	if (config.context === 'publish') {
-		return !topicParts.find((t) => t.includes('+') || t.includes('#')) ? value : Error.code.INVALID_PARAM;
+		return !topicParts.find((t) => t.includes('+') || t.includes('#')) ? value : ERROR.INVALID_PARAM;
 	}
 	return value;
 };

@@ -2,7 +2,9 @@ const { cutBrackets } = require('./common');
 const runFunction = require('./runner');
 const sheetutils = require('./sheet');
 const { getCellRangeFromTerm } = require('./terms');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 // now loop element is referenced if prefix is empty...
 const isLoopPrefix = (term) => {
@@ -28,13 +30,13 @@ const createJSONPath = (prefix, streamsheet, terms) => {
 			if (looppath.length) jsonpath.push(looppath);
 			jsonpath.push(streamsheet.getLoopIndexKey());
 		} else {
-			return Error.code.INVALID_LOOP_PATH;
+			return ERROR.INVALID_LOOP_PATH;
 		}
 	}
 	terms.reduce((path, term) => {
 		// term can be a cell-range ...
 		const range = getCellRangeFromTerm(term, streamsheet.sheet);
-		if (range && !Error.isError(range)) {
+		if (range && !FunctionErrors.isError(range)) {
 			range.iterate(cell => cell && path.push(cell.value));
 		} else {
 			path.push(term.value);
@@ -50,7 +52,7 @@ const getMessageId = term => (term && term.value) || '';
 // we cannot return an array anymore to ease further processing...  :(
 const inboxread = (prefix, sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.mapNextArg(() => sheetutils.getStreamSheet(terms.shift(), sheet) || Error.code.NO_STREAMSHEET)
+		.mapNextArg(() => sheetutils.getStreamSheet(terms.shift(), sheet) || ERROR.NO_STREAMSHEET)
 		.mapNextArg(() => getMessageId(terms.shift()))
 		.addMappedArg((streamsheet) => createJSONPath(prefix, streamsheet, terms))
 		.run((streamsheet, messageId, jsonpath) => {

@@ -3,9 +3,10 @@ const { getCodePage } = require('../../codepages');
 const { runFunction, terms: onTerms } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { NumberFormatter } = require('@cedalo/number-format');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
 const { locale: Locales } = require('@cedalo/machine-core');
 
+const ERROR = FunctionErrors.code;
 
 const getMachineLocale = (sheet) => {
 	const machine = sheet.machine;
@@ -15,7 +16,7 @@ const getMachineLocale = (sheet) => {
 
 const getValueLocale = (localeStr) => {
 	localeStr = localeStr && localeStr.toLowerCase();
-	return localeStr ? Locales.get(localeStr) || Error.code.VALUE : undefined;
+	return localeStr ? Locales.get(localeStr) || ERROR.VALUE : undefined;
 };
 
 const formatString = (term) => {
@@ -34,7 +35,7 @@ const getValue = (value) => {
 
 const toMinInteger = (term, min, defVal) => {
 	const nr = term ? Math.round(convert.toNumber(term.value, defVal)) : defVal;
-	return nr >= min ? nr : Error.code.VALUE;
+	return nr >= min ? nr : ERROR.VALUE;
 };
 
 // array splice for string:
@@ -61,9 +62,9 @@ const subInStr = (str, replacestr, replacement, occurrence) => {
 const doFind = (str, instr, atpos) => {
 	if (atpos > 0) {
 		const index = instr.indexOf(str, atpos - 1);
-		return index < 0 ? Error.code.VALUE : index + 1;
+		return index < 0 ? ERROR.VALUE : index + 1;
 	}
-	return Error.code.VALUE;
+	return ERROR.VALUE;
 };
 
 // printable ASCII characters are in range 32-126 (space - ~) )
@@ -78,13 +79,13 @@ const char = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
-		.mapNextArg((nr) => convert.toNumber(nr.value, Error.code.VALUE))
+		.mapNextArg((nr) => convert.toNumber(nr.value, ERROR.VALUE))
 		.mapNextArg((codepage) => codepage ? convert.toString(codepage.value, 'ansi') : 'ansi')
 		.run((nr, codepage) => {
 			nr = Math.floor(nr);
 			codepage = getCodePage(codepage);
-			if (!codepage) return Error.code.INVALID_PARAM;
-			return (nr > 0 && nr < 256) ? String.fromCharCode(codepage.toUniCode(nr)) : Error.code.VALUE;
+			if (!codepage) return ERROR.INVALID_PARAM;
+			return (nr > 0 && nr < 256) ? String.fromCharCode(codepage.toUniCode(nr)) : ERROR.VALUE;
 		});
 
 const clean = (sheet, ...terms) =>
@@ -103,16 +104,16 @@ const code = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
-		.mapNextArg((str) => convert.toString(str.value, Error.code.VALUE))
+		.mapNextArg((str) => convert.toString(str.value, ERROR.VALUE))
 		.mapNextArg((codepage) => codepage ? convert.toString(codepage.value, 'ansi') : 'ansi')
 		.run((str, codepage) => {
 			if (str.length > 0) {
 				codepage = getCodePage(codepage);
-				if (!codepage) return Error.code.INVALID_PARAM;
+				if (!codepage) return ERROR.INVALID_PARAM;
 				const chcode = codepage.fromUniCode(str.charCodeAt(0));
 				return chcode != null ? Number(chcode) : undefined;
 			}
-			return Error.code.VALUE;
+			return ERROR.VALUE;
 		});
 
 const concat = (sheet, ...terms) =>
@@ -120,7 +121,7 @@ const concat = (sheet, ...terms) =>
 		let error;
 		let result = '';
 		onTerms.iterateAllTermsValues(sheet, terms, (value, err) => {
-			error = error || err || (Number.isNaN(value) ? Error.code.VALUE : null);
+			error = error || err || (Number.isNaN(value) ? ERROR.VALUE : null);
 			if (!error) result += value != null ? value : '';
 		});
 		return error || result;
@@ -197,8 +198,8 @@ const substitute = (sheet, ...terms) =>
 		.withMinArgs(3)
 		.withMaxArgs(4)
 		.mapNextArg((str) => convert.toString(str.value, ''))
-		.mapNextArg((replacestr) => convert.toString(replacestr.value, Error.code.VALUE))
-		.mapNextArg((replacement) => convert.toString(replacement.value, Error.code.VALUE))
+		.mapNextArg((replacestr) => convert.toString(replacestr.value, ERROR.VALUE))
+		.mapNextArg((replacement) => convert.toString(replacement.value, ERROR.VALUE))
 		.mapNextArg((occurrence) => toMinInteger(occurrence, -1, -1))
 		.run((str, replacestr, replacement, occurrence) =>
 			subInStr(str, replacestr, replacement, occurrence)
@@ -213,12 +214,12 @@ const text = (sheet, ...terms) =>
 			const value = getValue(number.value);
 			return value != null ? value : 0;
 		})
-		.mapNextArg((format) => formatString(format) || Error.code.INVALID_PARAM)
+		.mapNextArg((format) => formatString(format) || ERROR.INVALID_PARAM)
 		.mapNextArg(
-			(locale) => getValueLocale(locale && convert.toString(locale.value)) || getMachineLocale(sheet) || Error.code.VALUE
+			(locale) => getValueLocale(locale && convert.toString(locale.value)) || getMachineLocale(sheet) || ERROR.VALUE
 		)
 		.run((number, format, locale) => {
-			let res = Error.code.INVALID_PARAM;
+			let res = ERROR.INVALID_PARAM;
 			try {
 				// const locale = getMachineLocale(sheet);
 				format = Locales.convert.nrFormatString(format, locale);
@@ -233,19 +234,19 @@ const text = (sheet, ...terms) =>
 const unichar = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(1)
-		.mapNextArg((nr) => convert.toNumber(nr.value, Error.code.VALUE))
+		.mapNextArg((nr) => convert.toNumber(nr.value, ERROR.VALUE))
 		.run((nr) => {
 			nr = Math.floor(nr);
-			return nr > 0 && nr < 65536 ? String.fromCharCode(nr) : Error.code.VALUE;
+			return nr > 0 && nr < 65536 ? String.fromCharCode(nr) : ERROR.VALUE;
 		});
 
 const unicode = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(1)
-		.mapNextArg((str) => convert.toString(str.value, Error.code.VALUE))
+		.mapNextArg((str) => convert.toString(str.value, ERROR.VALUE))
 		.run((str) => {
 			const chcode = str.length > 0 ? str.charCodeAt(0) : NaN;
-			return isNaN(chcode) ? Error.code.VALUE : chcode;
+			return isNaN(chcode) ? ERROR.VALUE : chcode;
 		});
 	
 const value = (sheet, ...terms) =>
@@ -260,7 +261,7 @@ const value = (sheet, ...terms) =>
 				nr = convert.toString(number);
 				nr = nr != null ? convert.toNumber(Locales.convert.nrString(number, locale || getMachineLocale(sheet))) : nr;
 			}
-			return nr != null ? nr : Error.code.VALUE;
+			return nr != null ? nr : ERROR.VALUE;
 		});
 
 module.exports = {

@@ -1,6 +1,8 @@
 const { createTerm } = require('../utils');
 const { Sheet } = require('@cedalo/machine-core');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 describe('split', () => {
 	it('should split a string by using a specified separator string and return split part at given index', () => {
@@ -31,9 +33,9 @@ describe('split', () => {
 	// DL-1332
 	it('should return error code for invalid or missing parameters', () => {
 		const sheet = new Sheet();
-		expect(createTerm('split()', sheet).value).toBe(Error.code.ARGS);
-		expect(createTerm('split("topic1/topic2/topic3")', sheet).value).toBe(Error.code.ARGS);
-		expect(createTerm('split("topic1/topic2/topic3", "/", 3, 45, 56)', sheet).value).toBe(Error.code.ARGS);
-		expect(createTerm('split("topic1/topic2/topic3", "/", 1B1)', sheet).value).toBe(Error.code.NAME);
+		expect(createTerm('split()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('split("topic1/topic2/topic3")', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('split("topic1/topic2/topic3", "/", 3, 45, 56)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('split("topic1/topic2/topic3", "/", 1B1)', sheet).value).toBe(ERROR.NAME);
 	});
 });

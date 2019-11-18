@@ -363,6 +363,18 @@ describe('lookup functions', () => {
 			expect(createTerm('vlookup(102, A2:C7, 2, false)', sheet).value).toBe('Fontana');
 			expect(createTerm('vlookup(103, A2:E7, 2, false)', sheet).value).toBe('Leal');
 		});
+		it('should use approximate matching by default', () => {
+			const sheet = new StreamSheet().sheet.load({ cells: SHEETS.NUMBERS });
+			expect(createTerm('vlookup(0, A1:B3, 1)', sheet).value).toBe(ERROR.NV);
+			expect(createTerm('vlookup(1, A1:B3, 1)', sheet).value).toBe(1);
+			expect(createTerm('vlookup(2, A1:B3, 1)', sheet).value).toBe(1);
+			expect(createTerm('vlookup(3, A1:B3, 1)', sheet).value).toBe(1);
+			expect(createTerm('vlookup(4, A1:B3, 1)', sheet).value).toBe(4);
+			expect(createTerm('vlookup(5, A1:B3, 1)', sheet).value).toBe(4);
+			expect(createTerm('vlookup(6, A1:B3, 1)', sheet).value).toBe(4);
+			expect(createTerm('vlookup(7, A1:B3, 1)', sheet).value).toBe(7);
+			expect(createTerm('vlookup(100, A1:B3, 1)', sheet).value).toBe(7);
+		});
 		it('should find another cell in range by search criteria number value', () => {
 			const sheet = new StreamSheet().sheet.load({ cells: SHEETS.NUMBERS });
 			expect(createTerm('vlookup(1, A1:C3, 2)', sheet).value).toBe(2);

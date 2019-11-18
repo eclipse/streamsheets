@@ -1,11 +1,13 @@
 const publishinternal = require('../../utils/publishinternal');
 const { runFunction, sheet: { messageFromBoxOrValue, getMachine } } = require('../../utils');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 const produce = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(2)
-		.addMappedArg(() => getMachine(sheet) || Error.code.NO_MACHINE)
+		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)
 		.mapNextArg((streamTerm) => streamTerm)
 		.mapNextArg((messageTerm, machine) => {
 			const message = messageFromBoxOrValue(machine, sheet, messageTerm);
@@ -13,7 +15,7 @@ const produce = (sheet, ...terms) =>
 				try {
 					return JSON.parse(message);
 				} catch (e) {
-					return Error.code.INVALID_PARAM;
+					return ERROR.INVALID_PARAM;
 				}
 			}
 			return message;

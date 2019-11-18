@@ -1,7 +1,8 @@
 const { terms: { getCellRangeFromTerm } } = require('../../utils');
 const https = require('https');
-const { FunctionErrors: FuncError } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
 
+const ERROR = FunctionErrors.code;
 
 const sliceMap = new Map();
 const route = 'https://cloud.cedalo.com/palo';
@@ -65,7 +66,7 @@ const check = (term, sheet, terms, min) => {
 	}
 
 	if (!sheet || !terms || terms.length < min) {
-		return FuncError.code.ARGS;
+		return ERROR.ARGS;
 	}
 
 	if (isMarkedAs(term, 'resumed')) {
@@ -888,13 +889,13 @@ const data = (sheet, ...terms) => {
 
 const datas = (sheet, ...terms) => {
 	if (!sheet || !terms || terms.length < 3) {
-		return FuncError.code.ARGS;
+		return ERROR.ARGS;
 	}
 
 	const sliceId = checkParam(terms, 0) ? String(terms[0].value) : '';
 	const sliceEntry = sliceMap.get(sliceId);
 	if (sliceEntry === undefined) {
-		return FuncError.code.INVALID_PARAM;
+		return ERROR.INVALID_PARAM;
 	}
 
 	const dim1 = checkParam(terms, 1) ? String(terms[1].value) : '';
@@ -904,18 +905,18 @@ const datas = (sheet, ...terms) => {
 	const dim2Index = sliceEntry.dim2Elements.elements.findIndex(element => element === dim2);
 
 	if (dim1Index === -1 || dim2Index === -1) {
-		return FuncError.code.INVALID_PARAM;
+		return ERROR.INVALID_PARAM;
 	}
 
 	const dim2Cnt = sliceEntry.dim2Elements.elements.length;
 
 	if ((dim1Index * dim2Cnt) + dim2Index >= sliceEntry.values.length) {
-		return FuncError.code.INVALID_PARAM;
+		return ERROR.INVALID_PARAM;
 	}
 
 	let value = sliceEntry.values[(dim1Index * dim2Cnt) + dim2Index];
 	if (value === undefined) {
-		return FuncError.code.INVALID_PARAM;
+		return ERROR.INVALID_PARAM;
 	}
 
 	value = value.split(';');
@@ -1055,14 +1056,14 @@ const slice = (sheet, ...terms) => {
 
 const slicedelete = (sheet, ...terms) => {
 	if (!sheet || !terms || terms.length < 1) {
-		return FuncError.code.ARGS;
+		return ERROR.ARGS;
 	}
 
 	const sliceId = checkParam(terms, 0) ? String(terms[0].value) : 'slice';
 	const sliceEntry = sliceMap.get(sliceId);
 
 	if (sliceEntry === undefined) {
-		return FuncError.code.INVALID_PARAM;
+		return ERROR.INVALID_PARAM;
 	}
 
 	sliceMap.delete(sliceId);

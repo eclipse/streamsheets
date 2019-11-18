@@ -1,7 +1,8 @@
 const { convert } = require('@cedalo/commons');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
 const { CellReference, SheetRange } = require('@cedalo/machine-core');
 
+const ERROR = FunctionErrors.code;
 
 const cellFromTerm = (term) => {
 	const refop = term && term.operand;
@@ -13,7 +14,7 @@ const getCellFromTermIndex = (term, sheet) => {
 	let cell;
 	if (term.hasOperandOfType('CellRangeReference')) {
 		const range = term.operand.range;
-		cell = Error.isError(range) || range.sheet.cellAt(range.start);
+		cell = FunctionErrors.isError(range) || range.sheet.cellAt(range.start);
 	} else {
 		// eslint-disable-next-line
 		term.value; // we need to get value to ensure a possible cell-index is set...
@@ -47,7 +48,7 @@ const getCellRangeFromTerm = (term, sheet, strict) => {
 		// we need to get value to ensure cell index is set...
 		const value = term.value;
 		// cannot simply return error here!! will prevent overriding an error-cell!!!
-		// range = Error.isError(value) || ((value instanceof SheetRange) && value);
+		// range = FunctionErrors.isError(value) || ((value instanceof SheetRange) && value);
 		range = (value instanceof SheetRange) && value;
 		if (!range && !strict) {
 			range = createCellRangeFromCellReference(term)
@@ -82,7 +83,7 @@ const getCellRangesFromTerm = (term, sheet, strict) => {
 // 		const params = term.isList ? term.params : [term];
 // 		params.some((param) => {
 // 			const range = getCellRangeFromTerm(param, sheet);
-// 			if (!Error.isError(range)) {
+// 			if (!FunctionErrors.isError(range)) {
 // 				range.iterate(cell => cell && list.push(cell));
 // 				return false;
 // 			}
@@ -98,7 +99,7 @@ const getCellReferencesFromTerm = (term, sheet) => {
 		const params = term.isList ? term.params : [term];
 		params.some((param) => {
 			const range = getCellRangeFromTerm(param, sheet);
-			if (Error.isError(range)) {
+			if (FunctionErrors.isError(range)) {
 				refs = range;
 				return true;
 			}
@@ -118,13 +119,13 @@ const getCellReferencesFromTerm = (term, sheet) => {
 
 const callCallback = (termOrCell, cb) => {
 	const value = termOrCell ? termOrCell.value : undefined;
-	const error = value != null ? Error.isError(value) : undefined;
+	const error = value != null ? FunctionErrors.isError(value) : undefined;
 	if (value != null) cb(value, error);
 	return error;
 };
 const iterateTermValues = (sheet, term, callback) => {
 	const cellrange = getCellRangeFromTerm(term, sheet);
-	let error = Error.isError(cellrange); // e.g. illegal reference or range
+	let error = FunctionErrors.isError(cellrange); // e.g. illegal reference or range
 	if (error) callback(undefined, error);
 	else if (cellrange) return !cellrange.some((cell) => !!callCallback(cell, callback));
 	else error = callCallback(term, callback);
@@ -163,7 +164,7 @@ const requestIdCurrentMessage = (sheet) => {
 const getRequestIdFromTerm = (requestIdTerm, sheet) => {
 	const requestIdParam = requestIdTerm && requestIdTerm.value;
 	const requestId = requestIdParam || requestIdCurrentMessage(sheet);
-	const error = Error.ifNot(typeof requestId === 'string', Error.code.INVALID_PARAM);
+	const error = FunctionErrors.ifNot(typeof requestId === 'string', ERROR.INVALID_PARAM);
 	return error || requestId;
 };
 

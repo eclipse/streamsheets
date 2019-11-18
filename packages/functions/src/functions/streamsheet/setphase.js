@@ -1,9 +1,10 @@
 const { runFunction, terms: { cellFromTerm } } = require('../../utils');
 const { Term } = require('@cedalo/parser');
 const { convert } = require('@cedalo/commons');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell } = require('@cedalo/machine-core');
 
+const ERROR = FunctionErrors.code;
 
 const createCell = (sheet, term) => {
 	const refop = term && term.operand;
@@ -17,7 +18,7 @@ const setphase = (sheet, ...terms) =>
 		.withMinArgs(3)
 		.withMaxArgs(4)
 		.mapNextArg(isTrue => convert.toBoolean(isTrue.value, false))
-		.mapNextArg(phaseId => (phaseId.value ? `${phaseId.value}` : Error.code.NV))
+		.mapNextArg(phaseId => (phaseId.value ? `${phaseId.value}` : ERROR.NV))
 		.mapNextArg(phaseCell => cellFromTerm(phaseCell))
 		.mapNextArg(overwrite => convert.toBoolean(overwrite && overwrite.value, false))
 		.run((isTrue, phaseId, phaseCell, overwrite) => {

@@ -1,6 +1,8 @@
 const { createCellAt, createTerm } = require('../utils');
 const { Machine, StreamSheet } = require('@cedalo/machine-core');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 describe('setphase', () => {
 	it('should only execute if sheet is processed', () => {
@@ -83,8 +85,8 @@ describe('setphase', () => {
 		const sheet = new StreamSheet().sheet;
 		// simulate sheet processing...
 		sheet.forceExecution(true);
-		expect(createTerm('setphase()', sheet).value).toBe(Error.code.ARGS);
-		expect(createTerm('setphase(A1)', sheet).value).toBe(Error.code.ARGS);
-		expect(createTerm('setphase(A1, "phase2")', sheet).value).toBe(Error.code.ARGS);
+		expect(createTerm('setphase()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('setphase(A1)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('setphase(A1, "phase2")', sheet).value).toBe(ERROR.ARGS);
 	});
 });

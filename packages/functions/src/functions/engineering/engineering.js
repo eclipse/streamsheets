@@ -1,6 +1,8 @@
 const { common: { pipe }, runFunction } = require('../../utils');
 const { convert } = require('@cedalo/commons');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
 
 const isBin = /^(-|\+)?([01]+)$/;
 const isDec = /^(-|\+)?([0-9]+)$/;
@@ -10,17 +12,17 @@ const isOct = /^(-|\+)?([0-7]+)$/;
 
 const getPlaces = (term) => {
 	const val = term ? term.value : 0;
-	const nr = val == null ? 0 : convert.toNumberStrict(val, Error.code.VALUE);
-	return nr < 0 ? Error.code.NUM : nr;
+	const nr = val == null ? 0 : convert.toNumberStrict(val, ERROR.VALUE);
+	return nr < 0 ? ERROR.NUM : nr;
 }
 // returns string value or '0' if not defined or an error
 const term2String = term => convert.toString(term.value) || '0';
 const fromBase = (base) => (val) => parseInt(val, base);
 const toRadix = (radix) => (val) => val.toString(radix);
 const toUpper = (val) => val.toUpperCase();
-const padded = (length) => (val) => (length && length < val.length) ? Error.code.NUM : val.padStart(length, '0');
-const checkNr = (nr) => isNaN(nr) ? Error.code.NUM : nr;
-const testStr = (fn) => (str) => Error.isError(str) || fn.test(str) ? str : Error.code.NUM;
+const padded = (length) => (val) => (length && length < val.length) ? ERROR.NUM : val.padStart(length, '0');
+const checkNr = (nr) => isNaN(nr) ? ERROR.NUM : nr;
+const testStr = (fn) => (str) => FunctionErrors.isError(str) || fn.test(str) ? str : ERROR.NUM;
 
 
 const toBinStr = pipe(term2String, testStr(isBin));

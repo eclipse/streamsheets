@@ -1,10 +1,11 @@
 const ConditionRange = require('./ConditionRange');
 const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
-const { FunctionErrors: Error } = require('@cedalo/error-codes');
+const { FunctionErrors } = require('@cedalo/error-codes');
 const { SheetIndex } = require('@cedalo/machine-core');
 
 
+const ERROR = FunctionErrors.code;
 const sharedidx = SheetIndex.create(1, 0);
 
 const columnIndex = (range, pivot) => {
@@ -21,12 +22,12 @@ const columnIndex = (range, pivot) => {
 const forEachMatchingRow = (sheet, terms, callback) =>
 	runFunction(sheet, terms)
 		.withArgCount(3)
-		.mapNextArg((dbrange) => getCellRangeFromTerm(dbrange, sheet) || Error.code.VALUE)
+		.mapNextArg((dbrange) => getCellRangeFromTerm(dbrange, sheet) || ERROR.VALUE)
 		.mapNextArg((pivot, dbrange) => {
 			const index = columnIndex(dbrange, pivot.value);
-			return index == null || index < 0 ? Error.code.VALUE : index;
+			return index == null || index < 0 ? ERROR.VALUE : index;
 		})
-		.mapNextArg((criteriarange) => getCellRangeFromTerm(criteriarange, sheet) || Error.code.VALUE)
+		.mapNextArg((criteriarange) => getCellRangeFromTerm(criteriarange, sheet) || ERROR.VALUE)
 		.run((dbrange, pivot, criteriarange) => {
 			const condrange = ConditionRange.fromSheetRange(criteriarange.sheet, criteriarange);
 			condrange.forEachMatchingRow(dbrange, (rowidx) => {
@@ -68,7 +69,7 @@ const dmin = (sheet, ...terms) => {
 	const error = forEachMatchingRow(sheet, terms, (nr) => {
 		if (min == null || nr < min) min = nr;
 	});
-	return error || (min != null ? min : Error.code.VALUE);
+	return error || (min != null ? min : ERROR.VALUE);
 };
 
 const dsum = (sheet, ...terms) => {
