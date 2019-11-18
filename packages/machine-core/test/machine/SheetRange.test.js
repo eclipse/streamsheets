@@ -1,7 +1,11 @@
-const { createTerm } = require('../functions/utils');
-const { Sheet, SheetIndex } = require('../..');
-const ERROR = require('../../src/functions/errors');
+const { createTerm, functions } = require('../utils');
+const { Sheet, SheetIndex, SheetParser } = require('../..');
 const SheetRange = require('../../src/machine/SheetRange');
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+beforeEach(() => {
+	Object.assign(SheetParser.context.functions, functions);
+});
 
 
 describe('SheetRange', () => {
@@ -320,7 +324,7 @@ describe('SheetRange', () => {
 			sheet.settings.maxrow = 2;
 			expect(colRange.value).toBe(3);
 			// this range is invalid now...
-			expect(rowRange.value).toBe(ERROR.VALUE);
+			expect(rowRange.value).toBe(FunctionErrors.code.REF);
 			sheet = new Sheet().load({ cells: { A1: 1, B1: 2, C1: 3, D1: 4 } });
 			colRange = createTerm('sum(A:D)', sheet);
 			rowRange = createTerm('sum(1:1)', sheet);
@@ -328,7 +332,7 @@ describe('SheetRange', () => {
 			expect(rowRange.value).toBe(10);
 			sheet.settings.maxcol = 1;
 			expect(rowRange.value).toBe(3);
-			expect(colRange.value).toBe(ERROR.VALUE);
+			expect(colRange.value).toBe(FunctionErrors.code.REF);
 		});
 	});
 	describe('isEqualTo', () => {

@@ -1,4 +1,9 @@
+const { functions } = require('../utils');
 const { Machine, SheetParser, SheetRange, StreamSheet } = require('../..');
+
+beforeEach(() => {
+	Object.assign(SheetParser.context.functions, functions);
+});
 
 const createMachine = () => ({
 	machine: new Machine(),

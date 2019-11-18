@@ -8,6 +8,7 @@ const {
 const StreamManager = require('../managers/StreamManager');
 const MachineTaskStreams = require('./MachineTaskStreams');
 const MachineTaskObserver = require('./MachineTaskObserver');
+const FunctionModulesResolver = require('../utils/FunctionModulesResolver');
 const logger = require('../utils/logger').create({ name: 'MachineTaskRunner' });
 
 // REVIEW: check if port is unused...
@@ -120,6 +121,7 @@ class MachineTaskRunner {
 const create = async (runneropts) => {
 	logger.info('create new MachineTaskRunner...');
 	const runner = new MachineTaskRunner(runneropts);
+	await runner.request('registerFunctionModules', undefined, {modules: FunctionModulesResolver.getModules() });
 	await runner.request('registerStreams', undefined, { descriptors: StreamManager.getDescriptors() });
 	return runner;
 };

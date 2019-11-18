@@ -15,6 +15,7 @@ import * as MachineActions from './MachineActions';
 import * as BackupRestoreActions from './BackupRestoreActions';
 import SheetParserContext from '../SheetParserContext';
 import { accessManager } from '../helper/AccessManager';
+import { functionStrings } from '../languages/FunctionStrings';
 
 const { EVENTS } = Protocols.GatewayMessagingProtocol;
 const CONFIG = ConfigManager.config.gatewayClientConfig;
@@ -528,6 +529,7 @@ export function loadSubscribeMachine(machineId, options = {}) {
 				dispatch(requestFailed(messageTypes.MACHINE_LOAD, response.machineserver.error));
 				return null;
 			}
+			functionStrings.addFunctionsHelp(response.machineserver.machine.functionsHelp);
 			JSG.FormulaParser.context = new SheetParserContext(
 				response.machineserver.machine.functionDefinitions.map((def) => def.name),
 			);
