@@ -7,6 +7,7 @@ import {
 	TextNodeAttributes,
 	ResizeItemCommand,
 	GraphUtils,
+	MathUtils,
 	Point,
 	default as JSG
 } from '@cedalo/jsg-core';
@@ -52,7 +53,7 @@ class FeedbackStructure {
 	 * @method update
 	 * @param {BoundingBox} selbbox The BoundingBox of current selection.
 	 */
-	update(selbbox) {
+	update(event, selbbox) {
 		this.feedback.resize(selbbox);
 
 		const size = selbbox.getSize();
@@ -272,6 +273,7 @@ class ResizeInteraction extends AbstractInteraction {
 		this._activeHandle = activeHandle;
 		this._fbStructures = undefined;
 		this._selectionbox = undefined;
+		this._orgSelectionBox = undefined;
 		this._snaphelper = undefined;
 	}
 
@@ -295,6 +297,7 @@ class ResizeInteraction extends AbstractInteraction {
 		this._selectionbox = new BoundingBox(0, 0);
 		viewer.getSelectionView().getBoundingBox(this._selectionbox);
 		viewer.getSelectionView().setVisible(false);
+		this._orgSelectionBox = this._selectionbox.copy();
 
 		super.onMouseDown(event, viewer);
 	}
@@ -340,24 +343,23 @@ class ResizeInteraction extends AbstractInteraction {
 	}
 
 	updateFeedback(event, viewer, offset) {
-		const self = this;
 		const bbox = this._selectionbox;
 		const handle = this._activeHandle;
 		const index = handle.getPointIndex();
 
 		if (index > -1) {
-			const gridpt = self.alignToGrid(this.currentLocation, viewer, event.event.altKey, JSG.ptCache.get());
+			const gridpt = this.alignToGrid(this.currentLocation, viewer, event.event.altKey, JSG.ptCache.get());
 			this._toBBox(bbox, gridpt, offset);
-			this._resizeBBox(bbox, offset, index);
+			this._resizeBBox(event, bbox, offset, index);
 			// SNAP IT:
 			this._alignToSnapLines(bbox, index, viewer, offset);
 			this._toBBox(bbox, gridpt.add(offset), offset);
-			this._resizeBBox(bbox, offset, index);
+			this._resizeBBox(event, bbox, offset, index);
 
 			JSG.ptCache.release(gridpt);
 			// apply new box to selection:
 			this._fbStructures.iterate((id, fbStr) => {
-				fbStr.update(bbox); // self._selectionbox);
+				fbStr.update(event, bbox);
 			});
 		}
 	}
@@ -372,49 +374,174 @@ class ResizeInteraction extends AbstractInteraction {
 		return boxpt;
 	}
 
-	_resizeBBox(bbox, offset, index) {
+	getCurrentPosition(bbox, index) {
+		const pts = bbox.getPoints();
+		const isLeft = (a, b, c) => ((b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x)) > 0;
+
+		switch (index) {
+		case 0:
+			return isLeft(pts[2], pts[0], this.currentLocation);
+		case 2:
+			return !isLeft(pts[3], pts[1], this.currentLocation);
+		case 4:
+			return isLeft(pts[0], pts[2], this.currentLocation);
+		case 6:
+			return !isLeft(pts[1], pts[3], this.currentLocation);
+		}
+
+		return false;
+	}
+
+	_resizeBBox(event, bbox, offset, index) {
 		const size = bbox.getSize(JSG.ptCache.get());
 		const topleft = bbox.getTopLeft(JSG.ptCache.get());
+		const orgSize = this._orgSelectionBox.getSize();
+		const orgTopLeft = this._orgSelectionBox.getTopLeft();
+		const diff = new Point(this.currentLocation.x - this.startLocation.x,
+			this.currentLocation.y - this.startLocation.y);
+		const angle = bbox.getAngle();
+		const position = this.getCurrentPosition(this._orgSelectionBox, index);
+
+		const calcSize = (posChange) => {
+			const length = MathUtils.getLineLength(
+				new Point(this.startLocation.x + posChange.x, this.startLocation.y + posChange.y), this.startLocation);
+			const pt = MathUtils.rotatePoint(posChange.copy(), -angle);
+			const angleDiff = Math.atan2(pt.y, pt.x);
+			pt.x = length * Math.cos(angleDiff);
+			pt.y = length * Math.sin(angleDiff);
+			if (event.event.shiftKey && !(index & 1)) {
+				if (position) {
+					pt.x = pt.y * (orgSize.x / orgSize.y);
+					if (index === 2 || index === 6) {
+						pt.x *= -1;
+					}
+				} else {
+					pt.y = pt.x * (orgSize.y / orgSize.x);
+					if (index === 2 || index === 6) {
+						pt.y *= -1;
+					}
+				}
+			}
+			return pt;
+		};
+		const sizeChange = calcSize(diff);
+
 		switch (index) {
 			case 0:
-				topleft.add(offset);
-				bbox.rotatePoint(topleft);
-				bbox.setTopLeftTo(topleft);
-				offset.multiply(-1);
-				offset.add(size);
+				if (event.event.ctrlKey) {
+					if (orgSize.x - sizeChange.x * 2 < 0) {
+						sizeChange.x = orgSize.x / 2;
+					}
+					if (orgSize.y - sizeChange.y * 2 < 0) {
+						sizeChange.y = orgSize.y / 2;
+					}					offset.set(orgSize.x - sizeChange.x * 2, orgSize.y - sizeChange.y * 2);
+				} else {
+					offset.set(orgSize.x - sizeChange.x, orgSize.y - sizeChange.y);
+				}
 				break;
 			case 1:
-				topleft.set(topleft.x, topleft.y + offset.y);
-				bbox.rotatePoint(topleft);
-				bbox.setTopLeftTo(topleft);
-				offset.set(size.x, size.y - offset.y);
+				sizeChange.x = 0;
+				if (event.event.ctrlKey) {
+					if (orgSize.y - sizeChange.y * 2 < 0) {
+						sizeChange.y = orgSize.y / 2;
+					}
+					offset.set(orgSize.x + sizeChange.x * 2, orgSize.y - sizeChange.y * 2);
+				} else {
+					if (orgSize.y - sizeChange.y < 0) {
+						sizeChange.y = orgSize.y;
+					}
+					offset.set(orgSize.x + sizeChange.x, orgSize.y - sizeChange.y);
+				}
 				break;
 			case 2:
-				topleft.set(topleft.x, topleft.y + offset.y);
-				bbox.rotatePoint(topleft);
-				bbox.setTopLeftTo(topleft);
-				offset.set(offset.x, size.y - offset.y);
+				if (event.event.ctrlKey) {
+					if (orgSize.x + sizeChange.x * 2 < 0) {
+						sizeChange.x = -orgSize.x / 2;
+					}
+					if (orgSize.y - sizeChange.y * 2 < 0) {
+						sizeChange.y = orgSize.y / 2;
+					}
+					offset.set(orgSize.x + sizeChange.x * 2, orgSize.y - sizeChange.y * 2);
+					sizeChange.x *= -1;
+				} else {
+					offset.set(orgSize.x + sizeChange.x, orgSize.y - sizeChange.y);
+					sizeChange.x = 0;
+				}
 				break;
 			case 3:
-				offset.y = size.y;
+				sizeChange.y = 0;
+				if (event.event.ctrlKey) {
+					if (orgSize.x + sizeChange.x * 2 < 0) {
+						sizeChange.x = -orgSize.x / 2;
+					}
+					offset.set(orgSize.x + sizeChange.x * 2, orgSize.y);
+					sizeChange.x *= -1;
+				} else {
+					offset.set(orgSize.x + sizeChange.x, orgSize.y);
+					sizeChange.x = 0;
+				}
 				break;
-			// case 4: nothing to do, can keep offset...
+			case 4:
+				if (event.event.ctrlKey) {
+					if (orgSize.x + sizeChange.x * 2 < 0) {
+						sizeChange.x = -orgSize.x / 2;
+					}
+					if (orgSize.y + sizeChange.y * 2 < 0) {
+						sizeChange.y = -orgSize.y / 2;
+					}
+					offset.set(orgSize.x + sizeChange.x * 2, orgSize.y + sizeChange.y * 2);
+					sizeChange.x *= -1;
+					sizeChange.y *= -1;
+				} else {
+					offset.set(orgSize.x + sizeChange.x, orgSize.y + sizeChange.y);
+					sizeChange.x = 0;
+					sizeChange.y = 0;
+				}
+				break;
 			case 5:
-				offset.x = size.x;
+				sizeChange.x = 0;
+				if (event.event.ctrlKey) {
+					if (orgSize.y + sizeChange.y * 2 < 0) {
+						sizeChange.y = -orgSize.y / 2;
+					}
+					offset.set(orgSize.x + sizeChange.x * 2, orgSize.y + sizeChange.y * 2);
+					sizeChange.y *= -1;
+				} else {
+					offset.set(orgSize.x + sizeChange.x, orgSize.y + sizeChange.y);
+					sizeChange.y = 0;
+				}
 				break;
 			case 6:
-				topleft.set(topleft.x + offset.x, topleft.y);
-				bbox.rotatePoint(topleft);
-				bbox.setTopLeftTo(topleft);
-				offset.set(size.x - offset.x, offset.y);
+				if (event.event.ctrlKey) {
+					if (orgSize.x - sizeChange.x * 2 < 0) {
+						sizeChange.x = orgSize.x / 2;
+					}
+					if (orgSize.y + sizeChange.y * 2 < 0) {
+						sizeChange.y = -orgSize.y / 2;
+					}
+					offset.set(orgSize.x - sizeChange.x * 2, orgSize.y + sizeChange.y * 2);
+					sizeChange.y *= -1;
+				} else {
+					offset.set(orgSize.x - sizeChange.x, orgSize.y + sizeChange.y);
+					sizeChange.y = 0;
+				}
 				break;
 			case 7:
-				topleft.set(topleft.x + offset.x, topleft.y);
-				bbox.rotatePoint(topleft);
-				bbox.setTopLeftTo(topleft);
-				offset.set(size.x - offset.x, size.y);
+				sizeChange.y = 0;
+				if (event.event.ctrlKey) {
+					if (orgSize.x - sizeChange.x * 2 < 0) {
+						sizeChange.x = orgSize.x / 2;
+					}
+					offset.set(orgSize.x - sizeChange.x * 2, orgSize.y + sizeChange.y * 2);
+				} else {
+					offset.set(orgSize.x - sizeChange.x, orgSize.y + sizeChange.y);
+				}
 				break;
 		}
+
+		MathUtils.rotatePoint(sizeChange, angle);
+		topleft.set(orgTopLeft.x + sizeChange.x, orgTopLeft.y + sizeChange.y);
+		bbox.setTopLeftTo(topleft);
 		bbox.setSizeTo(offset);
 		JSG.ptCache.release(size, topleft);
 	}
