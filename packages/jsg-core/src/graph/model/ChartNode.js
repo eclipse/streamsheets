@@ -327,6 +327,6 @@ module.exports = class ChartNode extends Node {
 	}
 
 	isAddLabelAllowed() {
-		return false;
+		return true;
 	}
 };
