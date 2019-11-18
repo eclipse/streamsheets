@@ -64,6 +64,7 @@ class SheetDeleteDialog extends React.Component {
 
 	handleSubmitDeleteSheet = () => {
 		const processContainer = this.state.sheet;
+		processContainer.getGraph().setViewMode(processContainer, 0);
 		const streamsheetId = processContainer
 			.getStreamSheetContainerAttributes()
 			.getSheetId()
