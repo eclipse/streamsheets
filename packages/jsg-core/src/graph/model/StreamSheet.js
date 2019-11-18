@@ -555,7 +555,13 @@ module.exports = class StreamSheet extends WorksheetNode {
 							JSG.imagePool.set(pattern, id);
 							format.setPattern(id);
 						} else {
-							format.setPattern(pattern);
+							const parts = pattern.split('?');
+							if (parts.length > 1) {
+								JSG.imagePool.update(parts[0], parts[1]);
+								format.setPattern(parts[0]);
+							} else {
+								format.setPattern(pattern);
+							}
 
 						}
 					} catch (e) {
