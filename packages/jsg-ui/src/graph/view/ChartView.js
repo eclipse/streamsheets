@@ -399,11 +399,11 @@ export default class ChartView extends NodeView {
 
 		if (values && values.length) {
 			values[0].getValues().forEach((value) => {
-				if (chartType === 'pie' || chartType === 'doughnut' || chartType === 'radar') {
+				// if (chartType === 'pie' || chartType === 'doughnut' || chartType === 'radar') {
 					categoryLabelData.push(ChartView.formatNumber(value.key, 'h:mm:ss', `time;en`));
-				} else {
-					categoryLabelData.push(value.key);
-				}
+				// } else {
+				// categoryLabelData.push(value.key);
+				// }
 			});
 		} else {
 			let categoryRange;
