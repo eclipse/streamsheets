@@ -113,7 +113,7 @@ class LoginPage extends React.Component {
 		}
 	}
 
-	async handleLogin(e, pId) {
+	async handleLogin(e, pId, redirect) {
 		if(e.preventDefault) {
 			e.preventDefault();
 		}
@@ -124,7 +124,7 @@ class LoginPage extends React.Component {
 					username,
 					password,
 					providerId: pId || providerId,
-				});
+				}, redirect);
 				this.setState({ error: resp.error });
 			} catch (err) {
 				this.setState({ error: err });
@@ -166,6 +166,7 @@ class LoginPage extends React.Component {
 	render() {
 		const params = new URLSearchParams(window.location.search);
 		const token = params.get('token');
+		const redirect = params.get('redirect');
 		const { classes } = this.props;
 		// eslint-disable-next-line react/prop-types
 		let { error } = this.state;
@@ -254,7 +255,7 @@ class LoginPage extends React.Component {
 											variant="flat"
 											type="submit"
 											size="large"
-											onClick={(event) => this.handleLogin(event)}
+											onClick={(event) => this.handleLogin(event, undefined, redirect)}
 										>
 											<FormattedMessage id="Login" defaultMessage="Login" />
 										</Button>
