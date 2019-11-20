@@ -10,8 +10,8 @@ const PARAMS = {
 			de: 'Ziel'
 		},
 		description: {
-			en: 'INBOX(), OUTBOX("MsgID") or a cell range, e.g. A1:B3',
-			de: 'INBOX(), OUTBOX("MsgID") oder ein Zellbereich, z.B. A1:B3'
+			en: '=INBOX(), =OUTBOX("MsgID") or a cell range, e.g. =A1:B3',
+			de: '=INBOX(), =OUTBOX("MsgID") oder ein Zellbereich, z.B. =A1:B3'
 		},
 		internal: true
 	},
