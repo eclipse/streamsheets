@@ -29,12 +29,12 @@ module.exports = {
 		},
 		SWITCH: {
 			en: {
-				argumentList: 'Expression,KeyValue1,Value1,KeyValueN,ValueN,DefaultValue',
+				argumentList: 'Value,KeyValue1,Value1,KeyValueN,ValueN,DefaultValue',
 				description:
 					'Evaluates an expression against a list of key-value pairs and returns value of first matched key'
 			},
 			de: {
-				argumentList: 'Ausdruck,SchlüsselWert1,Wert1,SchlüsselWertN,WertN,DefaultWert',
+				argumentList: 'Wert,SchlüsselWert1,Wert1,SchlüsselWertN,WertN,DefaultWert',
 				description:
 					'Evaluiert einen Ausdruck gegen eine Liste von Schlüssel-Wert-Paaren und liefert den Wert zum ersten passenden Schlüssel zurück'
 			}

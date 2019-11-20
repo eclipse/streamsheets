@@ -74,7 +74,7 @@ class AccessManager {
 		}
 	}
 
-	loginUI(token, user, session) {
+	loginUI(token, user, session, redirect) {
 		this.user = user;
 		localStorage.setItem('jwtToken', token);
 		localStorage.setItem('user', JSON.stringify(user));
@@ -82,7 +82,7 @@ class AccessManager {
 		if (!this.clientId) {
 			localStorage.setItem('streamsheet-client-id', this.generateClientId());
 		}
-		window.location = '/dashboard';
+		window.location = redirect ? decodeURIComponent(redirect) :'/dashboard';
 	}
 
 	can(/* resourceOrType, action */) {

@@ -36,12 +36,12 @@ export class CanvasComponent extends Component {
 			permissions.length > 0
 		) {
 			try {
-				const canEdit = MachineHelper.currentMachineCan(RESOURCE_ACTIONS.EDIT);
-				if (!canEdit) {
-					graphManager.setMachineProtected(true);
-				} else {
-					graphManager.setMachineProtected(false);
-				}
+				// const canEdit = MachineHelper.currentMachineCan(RESOURCE_ACTIONS.EDIT);
+				// if (!canEdit) {
+				// 	graphManager.setMachineProtected(true);
+				// } else {
+				// 	graphManager.setMachineProtected(false);
+				// }
 				return { ...state, loaded: true };
 			} catch (e) {
 				console.warn(e);
