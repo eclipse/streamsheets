@@ -65,7 +65,7 @@ export class MainDrawer extends Component {
 
 	handleOpenPreview = () => {
 		window.open(`${window.location.href}?viewmode=sheet&hideheader&hidegrid`, 'newwindow',
-			`width=${window.innerWidth},height=${window.outerHeight - 295}`);
+			`width=${window.innerWidth},height=${window.outerHeight - 290}`);
 		this.setAppState({
 			drawerOpen: false,
 		});
