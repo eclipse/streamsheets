@@ -38,6 +38,13 @@ RUN cd /streamsheets && yarn install --production
 RUN npm i -g pushstate-server@3.0.1
 COPY streamsheets/packages/gateway/config /config
 
+RUN mkdir -p \
+	/var/log/webui \
+	/var/log/gateway \
+	/var/log/service-graphs \
+	/var/log/service-machines \
+	/var/log/service-streams
+
 # # TODO: build WebUI in Docker image
 # RUN npm install --global cross-env
 # RUN cd /streamsheets/packages/webui && yarn install --production && npm run build
