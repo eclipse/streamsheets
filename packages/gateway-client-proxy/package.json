@@ -32,8 +32,6 @@
     "karma-coverage": "1.1.2",
     "karma-firefox-launcher": "1.0.1",
     "karma-jasmine": "1.1.0",
-    "karma-opera-launcher": "1.0.0",
-    "karma-phantomjs-launcher": "1.0.4",
     "karma-safari-launcher": "1.0.0",
     "webpack": "3.8.1",
     "worker-loader": "1.1.0"

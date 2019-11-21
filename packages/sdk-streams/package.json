@@ -25,9 +25,7 @@
   },
   "dependencies": {
     "@cedalo/id-generator": "*",
-    "avsc": "5.4.12",
     "jsonpath": "1.0.0",
-    "request": "2.88.0",
     "xml-js": "1.6.7"
   },
   "eslintConfig": {

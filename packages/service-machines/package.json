@@ -39,7 +39,6 @@
     "eslint-config-prettier": "3.3.0",
     "jest": "22.0.0",
     "jest-cli": "22.0.0",
-    "sinon": "7.2.2",
     "terser-webpack-plugin": "1.2.2",
     "webpack": "4.29.1",
     "webpack-cli": "3.2.3",

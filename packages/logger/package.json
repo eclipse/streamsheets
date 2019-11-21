@@ -36,7 +36,6 @@
     "karma-coverage": "1.1.2",
     "karma-firefox-launcher": "1.0.1",
     "karma-jasmine": "1.1.0",
-    "karma-opera-launcher": "1.0.0",
     "karma-safari-launcher": "1.0.0"
   },
   "eslintConfig": {
