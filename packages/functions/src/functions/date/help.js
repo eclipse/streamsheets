@@ -51,8 +51,8 @@ module.exports = {
 			}
 		},
 		MINUTE: {
-			en: { argumentList: 'Zeitwert', description: 'Returns the minute of the time value' },
-			de: { argumentList: 'Timevalue', description: 'Gibt die Minute eines Zeitwertes zurück' }
+			en: { argumentList: 'Timevalue', description: 'Returns the minute of the time value' },
+			de: { argumentList: 'Zeitwert', description: 'Gibt die Minute eines Zeitwertes zurück' }
 		},
 		MONTH: {
 			en: { argumentList: 'DateValue', description: 'Returns the month of the time value' },
@@ -67,8 +67,8 @@ module.exports = {
 			de: { argumentList: '', description: 'Gibt den aktuellen Zeitwert zurück' }
 		},
 		SECOND: {
-			en: { argumentList: 'DateValue', description: 'Returns the seconds of the time value' },
-			de: { argumentList: 'Datumswert', description: 'Gibt die Sekunden eines Zeitwertes zurück' }
+			en: { argumentList: 'TimeValue', description: 'Returns the seconds of the time value' },
+			de: { argumentList: 'Zeitwert', description: 'Gibt die Sekunden eines Zeitwertes zurück' }
 		},
 		SERIALTOMS: {
 			en: { argumentList: 'Date', description: 'Converts the given date to the ellapsed milliseconds' },

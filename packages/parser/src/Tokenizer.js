@@ -377,10 +377,10 @@ function parseParams(forList) {
 				params.push({ type: 'undef', start: index - 1, end: index });
 			}
 		} else if (ch !== closeCh) { // KEY_CODES.CPAREN) {
-			const errmsg = index < expr.length
+			const errmsg = index < length
 				? `Expected ${String.fromCharCode(KEY_CODES.PARAM_SEP)}`
 				: `Missing ${String.fromCharCode(closeCh)}`;
-			const errcode = index < expr.length ? ErrorCode.EXPECTED_SEPARATOR : ErrorCode.EXPECTED_BRACKET_RIGHT;
+			const errcode = index < length ? ErrorCode.EXPECTED_SEPARATOR : ErrorCode.EXPECTED_BRACKET_RIGHT;
 			if (!throwException(errmsg, index, errcode)) {
 				// throw error:
 				index -= 1;
@@ -569,14 +569,14 @@ function parseExpression(isGroupOrParam) {
 	// no operator, run 'til next character
 	skipWhiteSpace();
 	// operator might was used by unit operator, e.g. %
-	if (index <= expr.length && left) {
+	if (index <= length && left) {
 		if (UNIT_OPS.includes(left.operator) && isBinaryOperatorStr(left.operator)) {
 			const right = parseOperand();
 			if (right && right.type !== 'undef') {
 				const { operator: symbol, start } = left;
 				return createBinaryNode(left.arg, { start, symbol }, right);
 			}
-		} else if (index < expr.length && !isGroupOrParam) {
+		} else if (index < length && !isGroupOrParam) {
 			// eslint-disable-next-line max-len
 			left.isInvalid = !throwException(`Unexpected character: ${expr.charAt(index - 1)}`, index, ErrorCode.UNEXPECTED_CHAR);
 		}

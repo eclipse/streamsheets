@@ -16,6 +16,8 @@ const PrivateRoute = ({ component: Component, ...rest }) =>
 					<Redirect
 						to={{
 							pathname: '/login',
+							// eslint-disable-next-line
+							search: `?redirect=${encodeURIComponent(props.location.pathname + props.location.search)}`
 						}}
 					/>
 				);

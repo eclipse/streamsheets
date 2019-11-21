@@ -450,7 +450,7 @@ export default class CellEditor {
 			term = this.parseTextToTerm(text);
 		}
 
-		if (term === undefined || term.isInvalid) {
+		if (term === undefined) {
 			text = text.replace(/(\r\n|\n|\r)/gm, '');
 			return Strings.encodeXML(text);
 		}

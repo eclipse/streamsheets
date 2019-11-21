@@ -152,7 +152,7 @@ export function setUserSettings(settings) {
 	};
 }
 
-export function login(credentials) {
+export function login(credentials, redirect) {
 	return (dispatch) => {
 		dispatch({ type: ActionTypes.USER_LOGIN });
 		return gatewayClient.connect(CONFIG)
@@ -162,7 +162,7 @@ export function login(credentials) {
 				const response = resp.response || resp;
 				if (!response.error && response.token) {
 					const { session } = response;
-					accessManager.loginUI(response.token, response.user, session);
+					accessManager.loginUI(response.token, response.user, session, redirect);
 					return true;
 				}
 				return response;

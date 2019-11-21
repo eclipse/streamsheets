@@ -1296,11 +1296,11 @@ const Strings = {
 	'MQTT.PUBLISH': {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Producer,BoxMessageOrJSON,Topic,QoS',
+			argumentList: 'Producer,MessageOrValue,Topic,QoS,UserProperties',
 			description: 'Publishes a referenced Outbox or Inbox message or a JSON via MQTT',
 		},
 		de: {
-			argumentList: 'Producer,BoxNachrichtOderJSON,Topic,QoS',
+			argumentList: 'Producer,NachrichtOderWert,Topic,QoS,BenutzerAttribute',
 			description: 'Publiziert eine referenzierte Nachricht aus der Inbox oder Outbox oder ein JSON via MQTT',
 		},
 	},
