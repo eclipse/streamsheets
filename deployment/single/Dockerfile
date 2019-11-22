@@ -2,7 +2,7 @@ FROM node:12.4.0-alpine
 LABEL maintainer="philip.ackermann@cedalo.com"
 	
 ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0/gateway.yaml \
-	MESSAGE_BROKER_URL=mqtt://localhost:1883 \
+	MESSAGE_BROKER_URL=mqtt://localhost:1884 \
 	MESSAGE_BROKER_KEEP_ALIVE=20 \
 	MESSAGE_BROKER_USERNAME=cedalo \
 	MESSAGE_BROKER_PASSWORD=r35aJkR!&dz \
