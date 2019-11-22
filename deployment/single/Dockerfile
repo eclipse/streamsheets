@@ -37,7 +37,9 @@ COPY streamsheets /streamsheets
 RUN cd /streamsheets && yarn install --production
 RUN npm i -g pushstate-server@3.0.1
 COPY streamsheets/packages/gateway/config /config
+COPY wait-for-database.sh wait-for-database.sh
 
+# Create directories for logging
 RUN mkdir -p \
 	/var/log/webui \
 	/var/log/gateway \
