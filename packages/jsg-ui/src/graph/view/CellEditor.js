@@ -930,7 +930,7 @@ export default class CellEditor {
 			}
 		};
 
-		if (sel.rangeCount) {
+		if (sel.rangeCount && this.div) {
 			const element = this.div;
 			try {
 				traverseTextNodes(element, sel.getRangeAt(0));

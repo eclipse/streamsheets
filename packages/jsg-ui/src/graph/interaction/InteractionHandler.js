@@ -1,4 +1,4 @@
-/* global window */
+ /* global window document */
 
 import {
 	default as JSG,
@@ -16,6 +16,7 @@ import {
 	DeleteItemCommand,
 	SetAttributesMapCommand,
 	GroupCreator,
+	StreamSheetContainer,
 	FormatItemCommand,
 	TextFormatItemCommand,
 	TextFormatAttributes,
@@ -633,8 +634,36 @@ class InteractionHandler {
 	 * @method copySelection
 	 */
 	copySelection() {
-		JSG.clipOffset = new Point(200, 200);
+		JSG.clipOffset = new Point(0, 0);
 		JSG.clipXML = JSG.copyItems(this.viewer.getSelection());
+
+		const focus = document.activeElement;
+		const textarea = document.createElement('textarea');
+
+		// Place in top-left corner of screen regardless of scroll position.
+		textarea.style.position = 'fixed';
+		textarea.style.top = 0;
+		textarea.style.left = 0;
+
+		// Ensure it has a small width and height. Setting to 1px / 1em
+		// doesn't work as this gives a negative w/h on some browsers.
+		textarea.style.width = '1px';
+		textarea.style.height = '1px';
+		textarea.style.padding = 0;
+		textarea.style.border = 'none';
+		textarea.style.outline = 'none';
+		textarea.style.boxShadow = 'none';
+		textarea.style.background = 'transparent';
+
+		document.body.appendChild(textarea);
+
+		/* Copy the text inside the text field */
+		textarea.value = JSG.clipXML;
+		textarea.select();
+
+		document.execCommand('Copy');
+		document.body.removeChild(textarea);
+		focus.focus();
 	}
 
 	/**
@@ -699,9 +728,15 @@ class InteractionHandler {
 		if (!this.isPasteAvailable()) {
 			return;
 		}
+
+		const selectionProvider = this.viewer.getSelectionProvider();
+		if (selectionProvider.hasSingleSelection() &&
+			(selectionProvider.getFirstSelection().getModel() instanceof StreamSheetContainer)) {
+			return;
+		}
+
 		const cmd = new PasteItemsCommand(JSG.clipXML, this.viewer);
 		this.execute(cmd);
-		// JSG.clipOffset.add(new Point(200, 200));
 	}
 
 	/**

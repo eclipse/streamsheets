@@ -141,20 +141,16 @@ JSG.setDrawingDisabled = (status) => {
 
 JSG.copyItems = (selection) => {
 	const file = new JSG.JSONWriter();
+	const items = selection.length === undefined ? [selection] : selection;
 
 	file.writeStartDocument();
 	file.writeStartElement('clip');
 	file.writeStartArray('graphitem');
 
-	if (selection.length === undefined) {
-		selection.getModel().resolveParentReferences(true);
-		selection.getModel().save(file, true);
-	} else {
-		selection.forEach((sel) => {
-			sel.getModel().resolveParentReferences(true);
-			sel.getModel().save(file, true);
-		});
-	}
+	items.forEach((sel) => {
+		sel.getModel().resolveParentReferences(true);
+		sel.getModel().save(file, true);
+	});
 
 	file.writeEndArray('graphitem');
 	file.writeEndElement();

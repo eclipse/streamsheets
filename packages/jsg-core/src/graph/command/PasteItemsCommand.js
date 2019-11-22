@@ -1,6 +1,7 @@
 const JSG = require('../../JSG');
 const Command = require('./Command');
 const Graph = require('../model/Graph');
+const CellsNode = require('../model/CellsNode');
 const TextNode = require('../model/TextNode');
 const JSONReader = require('../../commons/JSONReader');
 const Arrays = require('../../commons/Arrays');
@@ -61,11 +62,12 @@ class PasteItemsCommand extends Command {
 		} else {
 			this.parent = undefined;
 		}
-		// use this offset to translated pasted items...
+		// use this offset to trans lated pasted items...
 		if (offset) {
 			this.offset = offset;
 		} else {
-			this.offset = new Point(200, 200);
+			JSG.clipOffset.add(new Point(200, 200));
+			this.offset = JSG.clipOffset.copy()
 		}
 		if (viewer) {
 			this.oldSelection = viewer.getSelection();
@@ -187,6 +189,7 @@ class PasteItemsCommand extends Command {
 			) {
 				selection = selection.getParent();
 			}
+
 			// ensure we are not copying inside ourself...
 			const ids = this._getPasteIds(selectionProvider);
 			return this._getVerifiedParent(selection.getModel(), ids);
@@ -281,6 +284,16 @@ class PasteItemsCommand extends Command {
 	_pasteItems(items, parent) {
 		const tmpbbox = JSG.boxCache.get();
 		const itemsbbox = JSG.boxCache.get();
+		let cellOffset;
+
+		if (parent instanceof CellsNode) {
+			const sheet = parent.getParent().getParent();
+			const selection = sheet.getOwnSelection();
+			if (selection.hasSelection()) {
+				const rect = sheet.getCellRect(selection.getAt(0));
+				cellOffset = { x: rect.x, y: rect.y };
+			}
+		}
 
 		items.forEach((item, i) => {
 			if (this.viewer) {
@@ -303,10 +316,20 @@ class PasteItemsCommand extends Command {
 			} else {
 				itemsbbox.union(tmpbbox);
 			}
-			this._translateToParent(item, parent);
+			if (!cellOffset) {
+				this._translateToParent(item, parent);
+			}
 			this.items.push(item);
 		});
-		this._translateItems(this.items, itemsbbox);
+		if (cellOffset) {
+			items.forEach((item) => {
+				item.disableRefresh();
+				item.translate(-itemsbbox.getLeft() + cellOffset.x, -itemsbbox.getTop()+  + cellOffset.y);
+				item.enableRefresh();
+			});
+		} else {
+			this._translateItems(this.items, itemsbbox);
+		}
 		JSG.boxCache.release(tmpbbox, itemsbbox);
 	}
 

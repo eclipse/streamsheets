@@ -26,7 +26,7 @@ import {
 	Dictionary,
 	JSONWriter,
 	JSONReader,
-	TextFormatAttributes
+	TextFormatAttributes, PasteItemsCommand
 } from '@cedalo/jsg-core';
 import { FuncTerm, Locale, Term, BinaryOperator } from '@cedalo/parser';
 import { NumberFormatter } from '@cedalo/number-format';
@@ -1265,6 +1265,18 @@ export default class WorksheetView extends ContentNodeView {
 			try {
 				const reader = new JSONReader(json);
 				const data = target.getSheet().readFromClipboard(reader);
+
+				if (data === undefined) {
+					const root = reader.getRoot();
+					const graphClip = reader.getObject(root, 'clip');
+					if (graphClip !== undefined) {
+						const cmd = new PasteItemsCommand(json, viewer, item.getCells());
+						viewer.getInteractionHandler().execute(cmd);
+						return true;
+					}
+					return false;
+				}
+
 				const graph = item.getGraph();
 				const sourceSheet = graph.getItemById(Number(data.sheetId));
 

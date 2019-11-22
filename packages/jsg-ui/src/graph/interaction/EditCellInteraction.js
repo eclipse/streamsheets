@@ -884,24 +884,28 @@ export default class EditCellInteraction extends EditTextInteraction {
 
 	willFinish(event, viewer) {
 		const view = this.getWorksheetView();
-		const data = view.getItem().textToExpression(this._getNewText());
-		const ref = view.getOwnSelection().activeCellToString();
-		let cmd = new JSG.SetCellDataCommand(this._item, ref, data.expression, true);
-		const interactionHandler = this.getInteractionHandler();
 
-		if (cmd !== undefined) {
-			interactionHandler.execute(cmd);
-			if (data.numberFormat) {
-				cmd = view.getNumberFormatCommand(
-					viewer,
-					view.getOwnSelection().getActiveCell(),
-					data.numberFormat,
-					data.localCulture
-				);
-				if (cmd) {
-					interactionHandler.execute(cmd);
+		try {
+			const data = view.getItem().textToExpression(this._getNewText());
+			const ref = view.getOwnSelection().activeCellToString();
+			let cmd = new JSG.SetCellDataCommand(this._item, ref, data.expression, true);
+			const interactionHandler = this.getInteractionHandler();
+
+			if (cmd !== undefined) {
+				interactionHandler.execute(cmd);
+				if (data.numberFormat) {
+					cmd = view.getNumberFormatCommand(
+						viewer,
+						view.getOwnSelection().getActiveCell(),
+						data.numberFormat,
+						data.localCulture
+					);
+					if (cmd) {
+						interactionHandler.execute(cmd);
+					}
 				}
 			}
+		} catch (e) {
 		}
 	}
 
