@@ -358,6 +358,15 @@ module.exports = class Drawings {
 					event: terms[i].name.toUpperCase(),
 					func: terms[i].params[0].toString(),
 				};
+
+				const paramstrs = terms[i].params
+					? terms[i].params.reduce((strings, param) => {
+						strings.push(param.toString());
+						return strings;
+					}, [])
+					: [];
+				event.func = paramstrs.join(',');
+
 				if (result === undefined) {
 					result = [];
 				}
