@@ -29,7 +29,7 @@ ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0
 	STREAMSHEETS_LOG_LEVEL=debug \
 	NODE_ENV=production
 
-RUN apk --no-cache add g++ make curl nginx git gnupg rsync unzip mongodb mosquitto redis supervisor
+RUN apk --no-cache add g++ make bash curl nginx git gnupg rsync unzip mongodb mosquitto redis supervisor
 
 # Streamsheets services
 COPY services /services
