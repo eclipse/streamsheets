@@ -3252,6 +3252,13 @@ class GraphItem extends Model {
 		return super.addAttribute(attribute);
 	}
 
+	updateSubAttributes() {
+		this._updateAttributes();
+		this._subItems.forEach((subItem) => {
+			subItem.updateSubAttributes();
+		});
+	}
+
 	_updateAttributes() {
 		this._attrCache.format = this.getModelAttributes().getAttribute(FormatAttributes.NAME);
 		this._attrCache.itemAttributes = this.getModelAttributes().getAttribute(ItemAttributes.NAME);

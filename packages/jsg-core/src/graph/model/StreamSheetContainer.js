@@ -430,6 +430,7 @@ module.exports = class StreamSheetContainer extends Node {
 
 		this._inboxCaption.getItemAttributes().setVisible(inbox);
 		this._inboxContainer.getItemAttributes().setVisible(inbox);
+		this._inboxContainer.updateSubAttributes();
 		this._splitter.getItemAttributes().setVisible(inbox);
 
 		if (captions) {

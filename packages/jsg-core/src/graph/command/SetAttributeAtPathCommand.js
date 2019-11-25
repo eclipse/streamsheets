@@ -120,7 +120,7 @@ class SetAttributeAtPathCommand extends AbstractItemCommand {
 			attr.setExpressionOrValue(value);
 			attr.evaluate(this._graphItem);
 		}
-		this._graphItem._updateAttributes();
+		this._graphItem.updateSubAttributes();
 	}
 }
 

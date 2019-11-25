@@ -427,16 +427,6 @@ export class InboxSettings extends React.Component {
 		);
 
 		graphManager.synchronizedExecute(cmd);
-		graphManager
-			.getGraph()
-			.getMachineContainer()
-			.layout();
-		graphManager
-			.getGraph()
-			.getMachineContainer()
-			.setRefreshNeeded(true);
-		graphManager.redraw();
-
 
 		this.handleClose();
 	};

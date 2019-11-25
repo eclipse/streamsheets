@@ -144,6 +144,7 @@ module.exports = class MachineContainer extends Node {
 		}
 
 		this._outboxContainer.getItemAttributes().setVisible(outbox);
+		this._outboxContainer.updateSubAttributes();
 		this._splitter.getItemAttributes().setVisible(outbox);
 
 		box.setLeft(0);

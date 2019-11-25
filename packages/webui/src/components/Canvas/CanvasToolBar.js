@@ -214,15 +214,6 @@ export class CanvasToolBar extends Component {
 			.getGraphViewer()
 			.getInteractionHandler()
 			.execute(cmd);
-		graphManager
-			.getGraph()
-			.getMachineContainer()
-			.layout();
-		graphManager
-			.getGraph()
-			.getMachineContainer()
-			.setRefreshNeeded(true);
-		graphManager.redraw();
 		graphManager.getCanvas().focus();
 	};
 
