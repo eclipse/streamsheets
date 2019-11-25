@@ -265,18 +265,13 @@ export class ChartProperties extends Component {
 		const series = this.state.series[this.state.seriesIndex];
 		if (series) {
 			if (this.state.pointIndex === 'all' || !series.pointInfo) {
-				if (series.lineMarker) {
-					return series.lineMarker;
-				}
-			} else {
-				const pointInfo = series.pointInfo[Number(this.state.pointIndex)];
-				if (pointInfo && pointInfo.lineMarker !== undefined) {
-					return pointInfo.lineMarker;
-				}
-				if (series.lineMarker) {
-					return series.lineMarker;
-				}
+				return series.lineMarker ? series.lineMarker : 'circle';
 			}
+			const pointInfo = series.pointInfo[Number(this.state.pointIndex)];
+			if (pointInfo && pointInfo.lineMarker !== undefined) {
+				return pointInfo.lineMarker;
+			}
+			return series.lineMarker ? series.lineMarker : 'circle';
 		}
 
 		return 'none';
@@ -309,7 +304,7 @@ export class ChartProperties extends Component {
 			return series.showLine;
 		}
 
-		return false;
+		return this.state.chartType === 'scatterLine';
 	}
 
 	getSeriesXAxisID() {
