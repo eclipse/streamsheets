@@ -3,7 +3,13 @@ const GraphParserContext = require('./GraphParserContext');
 
 const isFunction = ({ type } = {}) => type === 'function' || type === 'condition';
 const getFunctionName = ({ type, value }) => (type === 'condition' ? 'IF' : type === 'function' ? value : undefined);
-const tokenAt = (infos, pos) => infos.reduce((t, i) => (i && pos >= i.start && pos <= i.end ? i : t), {});
+const tokenAt = (infos, pos) => infos.reduce((token, info) => {
+	// ignore info with no length or use it if its next parameter
+	if (pos >= info.start && pos <= info.end && (info.end > info.start || token.paramIndex == null)) {
+		return info;
+	}
+	return token;
+}, {});
 const infoForToken = (token, pos, info = {}) => {
 	if (token) {
 		const { end, isInvalid, paramIndex, parent, start } = token;
