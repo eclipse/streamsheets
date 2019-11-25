@@ -27,6 +27,10 @@ const tokens2info = (tokens) => {
 	traverse(tokens, (info) => alltokens.push(info));
 	return alltokens;
 };
+const compareInfo = (i1, i2) => {
+	const idx = i1.start - i2.start;
+	return idx === 0 && i1.paramIndex != null && i2.paramIndex != null ? i1.paramIndex - i2.paramIndex : idx;
+};
 
 module.exports = class Parser {
 
@@ -45,7 +49,7 @@ module.exports = class Parser {
 	}
 
 	static getFormulaInfos(formula, context) {
-		return formula ? tokens2info(Tokenizer.createAST(formula, context)).sort((t1, t2) => t1.start - t2.start) : [];
+		return formula ? tokens2info(Tokenizer.createAST(formula, context)).sort(compareInfo) : [];
 	}
 
 	// TESTING PURPOSE ONLY

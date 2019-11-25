@@ -183,12 +183,13 @@ function skipSeparator(check, exp) {
 }
 function parseConditionPart(testSep) {
 	let exp;
-	if (ch !== KEY_CODES.PARAM_SEP && ch !== KEY_CODES.CPAREN) {
+	if (index <= length && ch !== KEY_CODES.PARAM_SEP && ch !== KEY_CODES.CPAREN) {
 		// eslint-disable-next-line
 		exp = parseExpression(true);
 		skipWhiteSpace();
-		skipSeparator(testSep, exp);
+		if (testSep) skipSeparator(testSep, exp);
 	} else if (!throwException('Expecting expression', index, ErrorCode.EXPECTED_EXPRESSION)) {
+		index = index < length ? index : length;
 		exp = { type: 'undef', isInvalid: true, start: index, end: index };
 		ch = expr.charCodeAt(index);
 		index += 1;
@@ -198,11 +199,13 @@ function parseConditionPart(testSep) {
 function parseConditionPartFalse() {
 	let exp;
 	if (index < length && ch !== KEY_CODES.CPAREN) {
+		skipSeparator();
 		// eslint-disable-next-line
 		exp = parseExpression(true);
 		skipWhiteSpace();
 		skipSeparator();
 	}
+	index = index < length ? index : length;
 	return exp || { type: 'undef', isInvalid: true, start: index, end: index }
 }
 // condition: ?(condition, doOnTrue, doOnFalse)
@@ -222,13 +225,16 @@ function parseCondition(oplength) {
 	cond.onTrue = parseConditionPart();
 	cond.onFalse = parseConditionPartFalse();
 	cond.condstr = oplength === 2 ? 'IF' : '?';
-	if (ch !== KEY_CODES.CPAREN && !throwException('Expecting ")"', index, ErrorCode.EXPECTED_BRACKET_RIGHT)) {
-		index -= 1; // move index one back, to get this character again when move on...
-		cond.isInvalid = true;
-	}
-	ch = expr.charCodeAt(index); // move on...
+	if (index > length) index = length;
 	cond.end = index;
-	index += 1;
+	if (ch !== KEY_CODES.CPAREN && !throwException('Expecting ")"', index, ErrorCode.EXPECTED_BRACKET_RIGHT)) {
+		// index -= 1; // move index one back, to get this character again when move on...
+		cond.isInvalid = true;
+	} else {
+		 // move on...
+		ch = expr.charCodeAt(index); // move on...
+		index += 1;
+	}
 	return cond;
 }
 
@@ -251,8 +257,8 @@ function parseString(prefix) {
 		ch = expr.charCodeAt(index);
 		index += 1;
 		if (isQuote(ch)) { // === KEY_CODES.QUOTE) {
-			ch = expr.charCodeAt(index);
-			index += 1;
+			// ch = expr.charCodeAt(index);
+			// index += 1;
 			break;
 			/* DL-1111 2x quotes should be handled as 1
 			this is wrong and this is not that easy since result will be invalid if parsed again!
@@ -272,8 +278,12 @@ function parseString(prefix) {
 			}
 		}
 	}
+	token.end = index;
 	token.value = str;
-	token.end = index - 1;
+	if (isQuote(ch)) { // === KEY_CODES.QUOTE) {
+		ch = expr.charCodeAt(index);
+		index += 1;
+	}
 	return token;
 }
 

@@ -1,4 +1,5 @@
 const http = require('http');
+
 const port = 8082;
 
 const requestHandler = (request, response) => {
@@ -9,7 +10,8 @@ const server = http.createServer(requestHandler);
 
 server.listen(port, (error) => {
 	if (error) {
-		return console.error(error);
+		console.error(error);
+	} else {
+		console.log(`Gateway is listening on ${port}`);
 	}
-	console.log(`Gateway is listening on ${port}`);
 });
