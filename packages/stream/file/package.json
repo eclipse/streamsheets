@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/stream-file",
-  "version": "1.5.0-alpha",
+  "version": "1.5.0",
   "description": "DL File feeder",
   "main": "index.js",
   "scripts": {
