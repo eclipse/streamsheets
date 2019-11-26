@@ -1525,7 +1525,7 @@ export default class ChartView extends NodeView {
 		if (
 			this.getItem()
 				.getItemAttributes()
-				.getSelected()
+				.getSelected().getValue()
 		) {
 			if (event.type === MouseEvent.MouseEventType.DBLCLK) {
 				NotificationCenter.getInstance().send(
