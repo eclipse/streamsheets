@@ -966,7 +966,7 @@ export class CanvasToolBar extends Component {
 				.applyFormatMap(attributesMap);
 		}
 		this.updateState();
-		graphManager.getCanvas().focus();
+		// graphManager.getCanvas().focus();
 	};
 
 	onFormatBorder = (type) => {
