@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/gateway-client-node",
-  "version": "1.5.0",
+  "version": "1.5.0-alpha",
   "description": "Node.js client for the gateway",
   "main": "index.js",
   "scripts": {
@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/gateway-client-node",
   "dependencies": {
-    "@cedalo/gateway-client": "*",
-    "@cedalo/protocols": "*",
+    "@cedalo/gateway-client": "1.5.0-alpha",
+    "@cedalo/protocols": "1.5.0-alpha",
     "ws": "7.1.0"
   },
   "devDependencies": {
@@ -38,7 +38,7 @@
     "karma-jasmine": "1.1.0",
     "karma-safari-launcher": "1.0.0",
     "sinon": "7.2.2",
-    "@cedalo/jsg-core": "*"
+    "@cedalo/jsg-core": "1.5.0-alpha"
   },
   "eslintConfig": {
     "extends": [

@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/webui",
-  "version": "1.5.0",
+  "version": "1.5.0-alpha",
   "private": true,
   "workspaces": {
     "nohoist": [
@@ -74,17 +74,17 @@
     "worker-loader": "^1.1.0"
   },
   "dependencies": {
-    "@cedalo/functions": "*",
-    "@cedalo/gateway-client": "*",
-    "@cedalo/gateway-client-proxy": "*",
-    "@cedalo/id-generator": "*",
-    "@cedalo/jsg-core": "*",
-    "@cedalo/jsg-ui": "*",
-    "@cedalo/number-format": "*",
-    "@cedalo/parser": "*",
-    "@cedalo/util": "*",
-    "@cedalo/protocols": "*",
-    "@cedalo/sdk-streams": "*",
+    "@cedalo/functions": "1.5.0-alpha",
+    "@cedalo/gateway-client": "1.5.0-alpha",
+    "@cedalo/gateway-client-proxy": "1.5.0-alpha",
+    "@cedalo/id-generator": "1.5.0-alpha",
+    "@cedalo/jsg-core": "1.5.0-alpha",
+    "@cedalo/jsg-ui": "1.5.0-alpha",
+    "@cedalo/number-format": "1.5.0-alpha",
+    "@cedalo/parser": "1.5.0-alpha",
+    "@cedalo/util": "1.5.0-alpha",
+    "@cedalo/protocols": "1.5.0-alpha",
+    "@cedalo/sdk-streams": "1.5.0-alpha",
     "@material-ui/core": "3.9.2",
     "@material-ui/icons": "3.0.2",
     "autosuggest-highlight": "^3.1.1",
