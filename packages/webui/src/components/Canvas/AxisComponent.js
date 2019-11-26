@@ -20,13 +20,15 @@ import CellRangeComponent from './CellRangeComponent';
 export default class AxisComponent extends React.Component {
 	static propTypes = {
 		axis: PropTypes.object.isRequired,
+		// eslint-disable-next-line react/no-unused-prop-types
+		chartNode: PropTypes.object.isRequired,
 		sheetView: PropTypes.object.isRequired,
 		handler: PropTypes.func.isRequired,
 		chartType: PropTypes.string.isRequired,
 	};
 
 	static getDerivedStateFromProps(props, state) {
-		if (state.id !== props.axis.id) {
+		if (state.id !== props.axis.id || state.chartid !== props.chartNode.getId()) {
 			let set;
 
 			if (props.axis.type === 'time') {
@@ -69,6 +71,7 @@ export default class AxisComponent extends React.Component {
 
 			return {
 				id: props.axis.id,
+				chartid: props.chartNode.getId(),
 				font,
 				titleFont,
 				min: set.min === undefined ? '' : set.min,

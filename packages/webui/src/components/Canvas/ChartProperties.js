@@ -2329,6 +2329,7 @@ export class ChartProperties extends Component {
 											</div> : null}
 										<FormControl>
 											<AxisComponent
+												chartNode={this.chartNode}
 												sheetView={sheetView}
 												axis={xAxis}
 												chartType={this.state.chartType}
@@ -2442,6 +2443,7 @@ export class ChartProperties extends Component {
 											</div> : null}
 										<FormControl>
 											<AxisComponent
+												chartNode={this.chartNode}
 												sheetView={sheetView}
 												axis={yAxis}
 												chartType={this.state.chartType}
