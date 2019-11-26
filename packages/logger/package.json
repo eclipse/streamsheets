@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/logger",
-  "version": "1.5.0",
+  "version": "1.5.0-alpha",
   "description": "Logging library",
   "main": "index.js",
   "scripts": {

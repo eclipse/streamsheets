@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/streammachine",
-  "version": "1.5.0",
+  "version": "1.5.0-alpha",
   "description": "Stream Machine Web Component",
   "main": "index.js",
   "scripts": {
@@ -18,10 +18,10 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/webcomponent/streammachine",
   "dependencies": {
-    "@cedalo/jsg-core": "*",
-    "@cedalo/jsg-ui": "*",
-    "@cedalo/number-format": "*",
-    "@cedalo/parser": "*",
+    "@cedalo/jsg-core": "1.5.0-alpha",
+    "@cedalo/jsg-ui": "1.5.0-alpha",
+    "@cedalo/number-format": "1.5.0-alpha",
+    "@cedalo/parser": "1.5.0-alpha",
     "moment": "^2.20.1"
   },
   "devDependencies": {
