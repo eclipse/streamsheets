@@ -169,25 +169,12 @@ function isOperator(c1, c2) {
 	return isBinaryOperatorStr(op) || (c2 ? isBinaryOperatorStr(op + String.fromCharCode(c2)) : false);
 }
 
-function skipSeparator(check, exp) {
-	if (ch === KEY_CODES.PARAM_SEP) {
-		// move on
-		ch = expr.charCodeAt(index);
-		index += 1;
-	} else if (
-		check &&
-		!throwException(`Expecting '${String.fromCharCode(KEY_CODES.PARAM_SEP)}'`, index, ErrorCode.EXPECTED_SEPARATOR)
-	) {
-		exp.isInvalid = true;
-	}
-}
-function parseConditionPart(testSep) {
+function parseConditionPart() {
 	let exp;
 	if (index <= length && ch !== KEY_CODES.PARAM_SEP && ch !== KEY_CODES.CPAREN) {
 		// eslint-disable-next-line
 		exp = parseExpression(true);
 		skipWhiteSpace();
-		if (testSep) skipSeparator(testSep, exp);
 	} else if (!throwException('Expecting expression', index, ErrorCode.EXPECTED_EXPRESSION)) {
 		index = index < length ? index : length;
 		exp = { type: 'undef', isInvalid: true, start: index, end: index };
@@ -196,14 +183,30 @@ function parseConditionPart(testSep) {
 	}
 	return exp;
 }
-function parseConditionPartFalse() {
+function skipSeparator() {
+	const skip = ch === KEY_CODES.PARAM_SEP;
+	if (skip) {
+		// move on
+		ch = expr.charCodeAt(index);
+		index += 1;
+	}
+	return skip;
+}
+function parseConditionTrueFalse(cond) {
 	let exp;
 	if (index < length && ch !== KEY_CODES.CPAREN) {
-		skipSeparator();
+		// if condition given it expects separator next
+		if (!skipSeparator() && cond) {
+			cond.isInvalid = true;
+			throwException(
+				`Expecting '${String.fromCharCode(KEY_CODES.PARAM_SEP)}'`,
+				index,
+				ErrorCode.EXPECTED_SEPARATOR
+			);
+		}
 		// eslint-disable-next-line
 		exp = parseExpression(true);
 		skipWhiteSpace();
-		skipSeparator();
 	}
 	index = index < length ? index : length;
 	return exp || { type: 'undef', isInvalid: true, start: index, end: index }
@@ -221,9 +224,9 @@ function parseCondition(oplength) {
 	}
 	ch = expr.charCodeAt(index);
 	index += 1;
-	cond.condition = parseConditionPart(true);
-	cond.onTrue = parseConditionPart();
-	cond.onFalse = parseConditionPartFalse();
+	cond.condition = parseConditionPart();
+	cond.onTrue = parseConditionTrueFalse(cond);
+	cond.onFalse = parseConditionTrueFalse();
 	cond.condstr = oplength === 2 ? 'IF' : '?';
 	if (index > length) index = length;
 	cond.end = index;

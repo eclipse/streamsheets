@@ -124,6 +124,14 @@ describe('parsing invalid conditions', () => {
 		expectInfoHas(info[2], { start: 4, end: 4, paramIndex: 1, type: 'undef', value: undefined });
 		expectInfoHas(info[3], { start: 4, end: 4, paramIndex: 2, type: 'undef', value: undefined });
 
+		info = Parser.getFormulaInfos('if(1,s', context);
+		expect(info).toBeDefined();
+		expect(info.length).toBe(4);
+		expectInfoHas(info[0], { start: 0, end: 6, paramIndex: undefined, type: 'condition' });
+		expectInfoHas(info[1], { start: 3, end: 4, paramIndex: 0, type: 'number', value: '1' });
+		expectInfoHas(info[2], { start: 5, end: 6, paramIndex: 1, type: 'identifier', value: 's' });
+		expectInfoHas(info[3], { start: 6, end: 6, paramIndex: 2, type: 'undef', value: undefined });
+
 		info = Parser.getFormulaInfos('if(1,sum,s', context);
 		expect(info.length).toBe(4);
 		expectInfoHas(info[0], { start: 0, end: 10, paramIndex: undefined, type: 'condition' });
@@ -137,6 +145,13 @@ describe('parsing invalid conditions', () => {
 		expectInfoHas(info[1], { start: 3, end: 5, paramIndex: 0, type: 'number', value: '12' });
 		expectInfoHas(info[2], { start: 6, end: 11, paramIndex: 1, type: 'string', value: 'sum' });
 		expectInfoHas(info[3], { start: 12, end: 12, paramIndex: 2, type: 'undef', value: undefined });
+
+		info = Parser.getFormulaInfos('if("s', context);
+		expect(info.length).toBe(4);
+		expectInfoHas(info[0], { start: 0, end: 5, paramIndex: undefined, type: 'condition' });
+		expectInfoHas(info[1], { start: 3, end: 5, paramIndex: 0, type: 'string', value: 's' });
+		expectInfoHas(info[2], { start: 5, end: 5, paramIndex: 1, type: 'undef', value: undefined });
+		expectInfoHas(info[3], { start: 5, end: 5, paramIndex: 2, type: 'undef', value: undefined });
 	});
 });
 
