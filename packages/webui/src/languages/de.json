@@ -457,6 +457,7 @@
 	"ChartProperties.axisMaximum": "Maximum",
 	"ChartProperties.axisStep": "Schritt",
 	"ChartProperties.axisTitle": "Achsentitel",
+	"ChartProperties.axisReverse": "Achse invertieren",
 	"ChartProperties.chartProperties": "Diagrammeinstellungen",
 	"ChartProperties.type": "Diagrammtyp:",
 	"ChartProperties.line": "Linie",

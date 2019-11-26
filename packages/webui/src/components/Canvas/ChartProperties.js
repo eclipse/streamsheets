@@ -938,6 +938,9 @@ export class ChartProperties extends Component {
 			}
 			this.reassignFont(axis.scaleLabel, value);
 			break;
+		case 'reverse':
+			axis.ticks.reverse = value;
+			break;
 		default:
 			break;
 		}

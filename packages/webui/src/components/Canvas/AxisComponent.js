@@ -8,9 +8,10 @@ import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
 import Input from '@material-ui/core/Input';
-// import Checkbox from '@material-ui/core/Checkbox';
+import Checkbox from '@material-ui/core/Checkbox';
 import Select from '@material-ui/core/Select';
 import Divider from '@material-ui/core/Divider';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 import FontComponent from './FontComponent';
 import CellRangeComponent from './CellRangeComponent';
@@ -75,6 +76,7 @@ export default class AxisComponent extends React.Component {
 				step: set.stepSize,
 				tickRotation,
 				title: props.axis.scaleLabel ? props.axis.scaleLabel.labelString || '' : '',
+				reverse: props.axis.ticks.reverse,
 			};
 		}
 		return null;
@@ -134,6 +136,7 @@ export default class AxisComponent extends React.Component {
 			step: set.stepSize,
 			tickRotation,
 			title: props.axis.scaleLabel ? props.axis.scaleLabel.labelString || '' : '',
+			reverse: props.axis.ticks.reverse,
 		};
 	}
 
@@ -233,6 +236,11 @@ export default class AxisComponent extends React.Component {
 
 	handleAxisStepBlur = () => {
 		this.props.handler('step', this.state.step === '' ? undefined : this.state.step);
+	};
+
+	handleReverseChange = (event, state) => {
+		this.setState({ reverse: state });
+		this.props.handler('reverse', state);
 	};
 
 	handleAxisTitleBlur = (event) => {
@@ -375,6 +383,21 @@ export default class AxisComponent extends React.Component {
 							/>
 						</FormControl> : null
 					}
+					<FormControlLabel
+						style={{
+							marginTop: '10px',
+						}}
+						control={<Checkbox
+							checked={this.state.reverse}
+							onChange={this.handleReverseChange}
+						/>}
+						label={
+							<FormattedMessage
+								id="ChartProperties.axisReverse"
+								defaultMessage="Invert Axis Labels"
+							/>
+						}
+					/>
 					{(this.props.axis.position === 'bottom' || this.props.axis.position === 'top') ?
 						<FormControl
 							style={{
