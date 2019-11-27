@@ -1400,6 +1400,7 @@ export class ChartProperties extends Component {
 								control={<Checkbox
 									checked={this.state.coherent}
 									onChange={this.handleCoherentChange}
+									disabled={this.chartNode._timeAggregate}
 								/>}
 								label={
 									<FormattedMessage
@@ -1491,6 +1492,7 @@ export class ChartProperties extends Component {
 											</InputLabel>
 											<Select
 												id="series-labels"
+												disabled={this.chartNode._timeAggregate}
 												value={this.state.seriesDirection}
 												onChange={this.handleSeriesDirectionChange}
 												input={<Input
@@ -1534,6 +1536,7 @@ export class ChartProperties extends Component {
 											<Select
 												id="series-labels"
 												value={this.state.seriesLabels}
+												disabled={this.chartNode._timeAggregate}
 												onChange={this.handleSeriesLabelsChange}
 												input={<Input
 													name="series-labels"
@@ -1581,6 +1584,7 @@ export class ChartProperties extends Component {
 												id="category-labels"
 												value={this.state.categoryLabels}
 												onChange={this.handleCategoryLabelsChange}
+												disabled={this.chartNode._timeAggregate}
 												input={<Input
 													name="category-labels"
 													id="category-labels"

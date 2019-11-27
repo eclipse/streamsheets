@@ -972,6 +972,7 @@ export default class ChartView extends NodeView {
 
 		// check for TIMEAGGREGATE(S)
 		const allValues = this.checkForTimeAggregates(data, item, range);
+		item._timeAggregate = allValues !== undefined;
 
 		const chartType = item.getChartType();
 		let categoryLabels;
