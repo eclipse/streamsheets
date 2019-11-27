@@ -92,7 +92,7 @@ module.exports = class Drawings {
 				const term = terms[13];
 				item.range = term.toString();
 			}
-			item.close = this.getGraphParam(terms, 14, undefined);
+			item.close = this.getGraphParam(terms, 14, true);
 			break;
 		case 'line':
 			item.x2 = this.getGraphParam(terms, 5, 100);
