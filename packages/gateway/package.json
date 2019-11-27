@@ -33,6 +33,7 @@
     "@cedalo/protocols": "*",
     "@cedalo/repository": "*",
     "@cedalo/service-core": "*",
+    "@cedalo/service-streams": "*",
     "apollo-server-express": "^2.8.1",
     "axios": "0.18.1",
     "bcryptjs": "2.4.3",
