@@ -21,18 +21,24 @@ const {
 	MongoDBConnection
 } = require('@cedalo/repository');
 
+const {
+	MongoDBStreamsRepository
+} = require('@cedalo/service-streams');
+
 const { createUserRepository } = require('@cedalo/graphql');
 
 const StreamRepositoryProxy = require('./StreamRepositoryProxy');
 
 const graphRepository = new MongoDBGraphRepository(config.mongodb);
 const machineRepository = new MongoDBMachineRepository(config.mongodb);
+const streamRepositoryLegacy = new MongoDBStreamsRepository(config.mongodb);
 const backupRestoreManager = new MongoDBBackupRestoreManager(config.mongodb);
 const configurationRepository = new MongoDBConfigurationRepository(config.mongodb);
 
 RepositoryManager.init({
 	graphRepository,
 	machineRepository,
+	streamRepositoryLegacy,
 	backupRestoreManager,
 	configurationRepository
 });
