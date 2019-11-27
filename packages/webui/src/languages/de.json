@@ -608,6 +608,7 @@
     "Tooltip.PasteFunction": "Funktion einfügen",
     "Tooltip.InsertTool": "Zeichenobjekt einfügen",
     "Tooltip.Chart": "Diagramm einfügen",
+    "Tooltip.SelectShapes": "Objekte über Selektionsrechteck auswählen",
     "Tooltip.ZoomHeader": "Vergrößern/Verkleinern",
     "Tooltip.ZoomMessage": "Die Ansicht der Maschine vergrößern oder verkleinern",
     "Tooltip.OutboxShow": "Outbox anzeigen",

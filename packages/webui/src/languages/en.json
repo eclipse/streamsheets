@@ -608,6 +608,7 @@
     "Tooltip.PasteFunction": "Insert Function",
     "Tooltip.InsertTool": "Insert Drawing Shape",
     "Tooltip.Chart": "Insert Chart",
+    "Tooltip.SelectShapes": "Select Shapes by selection rectangle",
     "Tooltip.ZoomHeader": "Zoom",
     "Tooltip.ZoomMessage": "Select a zoom factor to view the machine content",
     "Tooltip.OutboxShow": "Show Outbox",
