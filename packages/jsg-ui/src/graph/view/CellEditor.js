@@ -536,7 +536,37 @@ export default class CellEditor {
 		const ranges = this.setActiveRange(view);
 		const selection = this.getEditRanges();
 
-		view.updateSelectionFromEvent(event.key, event.shiftKey, event.ctrlKey, this.getEditRanges());
+		switch (event.key) {
+		case 'F4': {
+			const index = selection.getActiveRangeIndex();
+			const cellRange = selection.getAt(index);
+			if (cellRange._x1R && cellRange._x2R && cellRange._y1R && cellRange._y2R) {
+				cellRange._x1R = false;
+				cellRange._x2R = false;
+				cellRange._y1R = false;
+				cellRange._y2R = false;
+			} else if (!cellRange._x1R && !cellRange._x2R && !cellRange._y1R && !cellRange._y2R) {
+				cellRange._x1R = true;
+				cellRange._x2R = true;
+				cellRange._y1R = false;
+				cellRange._y2R = false;
+			} else if (cellRange._x1R && cellRange._x2R && !cellRange._y1R && !cellRange._y2R) {
+				cellRange._x1R = false;
+				cellRange._x2R = false;
+				cellRange._y1R = true;
+				cellRange._y2R = true;
+			} else {
+				cellRange._x1R = true;
+				cellRange._x2R = true;
+				cellRange._y1R = true;
+				cellRange._y2R = true;
+			}
+			break;
+		}
+		default:
+			view.updateSelectionFromEvent(event.key, event.shiftKey, event.ctrlKey, this.getEditRanges());
+			break;
+		}
 
 		event.preventDefault();
 		event.stopPropagation();
@@ -676,8 +706,19 @@ export default class CellEditor {
 		return undefined;
 	}
 
-	toggleReferenceType() {
+	toggleReferenceType(event, view) {
 		if (!this.isRangeSelected()) {
+			if (this.isReferenceByKeyAllowed()) {
+				const index = this.getSelectedRangeIndex();
+				this.activateReferenceMode();
+				if (index !== undefined) {
+					this.setActiveRangeIndex(index);
+				}
+				this.updateReference(
+					event,
+					view,
+				);
+			}
 			return;
 		}
 		const sel = window.getSelection();
@@ -721,6 +762,7 @@ export default class CellEditor {
 			range.setStart(node, 0);
 			range.setEnd(node, text.length);
 		}
+		return;
 	}
 
 	isReferenceByKeyAllowed() {

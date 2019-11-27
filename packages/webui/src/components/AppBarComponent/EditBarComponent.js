@@ -311,7 +311,7 @@ export class EditBarComponent extends Component {
 				this._cellEditor.toggleReferenceMode();
 				break;
 			case 'F4':
-				this._cellEditor.toggleReferenceType();
+				this._cellEditor.toggleReferenceType(event, view);
 				break;
 			case 'ArrowLeft':
 			case 'ArrowUp':
