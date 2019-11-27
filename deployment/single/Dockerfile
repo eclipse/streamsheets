@@ -68,6 +68,9 @@ COPY nginx/nginx.conf /etc/nginx/nginx.conf
 RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisord.conf
 
+# Copy default setup
+COPY init.json streamsheets/packages/gateway/config
+
 # Expose MongoDB port
 EXPOSE 27017
 # Expose Mosquitto port
