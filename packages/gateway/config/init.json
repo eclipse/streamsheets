@@ -1,0 +1,498 @@
+{
+	"machines": [
+	  {
+		"machine": {
+		  "id": "SyxdB05jH",
+		  "name": "REQUEST Test",
+		  "state": "stopped",
+		  "metadata": {
+			"owner": "anon",
+			"lastModified": 1573738080498,
+			"lastModifiedBy": "unknown",
+			"machineservice": {
+			  "id": "machines-H1oEBR5jH"
+			}
+		  },
+		  "streamsheets": [
+			{
+			  "id": "BJ-edBAciH",
+			  "name": "S1",
+			  "loop": {
+				"path": "",
+				"enabled": false
+			  },
+			  "inbox": {
+				"max": 20,
+				"type": "Inbox",
+				"id": "rJfe_H05iH",
+				"stream": null
+			  },
+			  "sheet": {
+				"cells": {
+				  "A1": {
+					"value": "method",
+					"type": "string",
+					"level": 0
+				  },
+				  "B1": {
+					"value": "GET",
+					"type": "string",
+					"level": 0
+				  },
+				  "E1": {
+					"value": "method",
+					"type": "string",
+					"level": 0
+				  },
+				  "F1": {
+					"value": "GET",
+					"type": "string",
+					"level": 0
+				  },
+				  "A2": {
+					"value": "url",
+					"type": "string",
+					"level": 0
+				  },
+				  "B2": {
+					"value": "https://wrong.host.badssl.com",
+					"type": "string",
+					"level": 0
+				  },
+				  "E2": {
+					"value": "url",
+					"type": "string",
+					"level": 0
+				  },
+				  "F2": {
+					"value": "https://wrong.host.badssl.com",
+					"type": "string",
+					"level": 0
+				  },
+				  "A3": {
+					"value": "strictSSL",
+					"type": "string",
+					"level": 0
+				  },
+				  "B3": {
+					"value": true,
+					"type": "bool",
+					"level": 0
+				  },
+				  "E3": {
+					"value": "strictSSL",
+					"type": "string",
+					"level": 0
+				  },
+				  "F3": {
+					"value": false,
+					"type": "bool",
+					"level": 0
+				  },
+				  "A7": {
+					"formula": "REQUEST(|REST_CLIENT,JSON(A1:B3),INBOX())",
+					"value": "SkfwLURqsB",
+					"type": "undefined",
+					"level": 0,
+					"references": [
+					  "|REST_CLIENT"
+					]
+				  },
+				  "E7": {
+					"formula": "REQUEST(|REST_CLIENT,JSON(E1:F3),INBOX())",
+					"value": "SkfwLURqsB",
+					"type": "undefined",
+					"level": 0,
+					"references": [
+					  "|REST_CLIENT"
+					]
+				  }
+				},
+				"namedCells": {},
+				"graphCells": {},
+				"properties": {
+				  "sheet": {},
+				  "cols": {},
+				  "rows": {},
+				  "cells": {}
+				},
+				"settings": {
+				  "minrow": 1,
+				  "maxrow": 100,
+				  "mincol": -2,
+				  "maxcol": 50,
+				  "protected": false
+				},
+				"drawings": {},
+				"graphItems": {}
+			  },
+			  "trigger": {
+				"type": "start",
+				"repeat": "endless"
+			  }
+			}
+		  ],
+		  "settings": {
+			"locale": "en",
+			"isOPCUA": false,
+			"cycletime": 100
+		  },
+		  "className": "Machine",
+		  "namedCells": {
+			"|REST_CLIENT": {
+			  "value": {
+				"id": "rkZqi6Zu5B",
+				"name": "REST_CLIENT",
+				"type": "producer",
+				"state": "connected",
+				"timestamp": 1573737784306
+			  },
+			  "type": "object",
+			  "info": {},
+			  "level": 0
+			}
+		  },
+		  "defproperties": {
+			"attributes": {
+			  "cell": {
+				"level": 0,
+				"protected": true,
+				"visible": true,
+				"key": false
+			  },
+			  "sheet": {
+				"defaultsectionsize": 2000,
+				"initialsection": 0
+			  }
+			},
+			"formats": {
+			  "styles": {
+				"brightness": 0,
+				"fillstyle": 0,
+				"fillcolor": "#FFFFFF",
+				"gradientcolor": "#CCCCCC",
+				"gradientcolorstops": "",
+				"gradientangle": 0,
+				"gradienttype": 0,
+				"gradientoffset_x": 0,
+				"gradientoffset_y": 0,
+				"linecolor": "#000000",
+				"linewidth": -1,
+				"linestyle": 1,
+				"lineshape": 0,
+				"linetransparency": 100,
+				"pattern": "",
+				"patternstyle": 0,
+				"transparency": 100,
+				"leftbordercolor": "#000000",
+				"leftborderstyle": 0,
+				"leftborderwidth": 1,
+				"topbordercolor": "#000000",
+				"topborderstyle": 0,
+				"topborderwidth": 1,
+				"rightbordercolor": "#000000",
+				"rightborderstyle": 0,
+				"rightborderwidth": 1,
+				"bottombordercolor": "#000000",
+				"bottomborderstyle": 0,
+				"bottomborderwidth": 1
+			  },
+			  "text": {
+				"baseline": "alphabetic",
+				"valign": 2,
+				"halign": 3,
+				"fontsize": 9,
+				"fontname": "Verdana",
+				"fontcolor": "#000000",
+				"fontstyle": 0,
+				"vposition": 3,
+				"hpostion": 3,
+				"richtext": true,
+				"lineheight": 1.2,
+				"numberformat": "General",
+				"localculture": "general"
+			  }
+			}
+		  }
+		},
+		"graph": {
+		  "id": "HJeWOHAqsB",
+		  "graphdef": {
+			"type": "machinegraph",
+			"version": "2",
+			"uniqueid": "1",
+			"o-outbox": {
+			  "split": "5000",
+			  "width": "5000"
+			},
+			"a-graphitem": [
+			  {
+				"id": "1000",
+				"o-attributes": {
+				  "o-sheetid": {
+					"v": "BJ-edBAciH",
+					"t": "s"
+				  }
+				},
+				"o-pin": {
+				  "o-p": {
+					"o-x": {
+					  "v": "11000"
+					},
+					"o-y": {
+					  "v": "7000"
+					}
+				  },
+				  "o-lp": {
+					"o-x": {
+					  "f": "WIDTH%20*%200.5",
+					  "v": "10500"
+					},
+					"o-y": {
+					  "f": "HEIGHT%20*%200.5",
+					  "v": "6500"
+					}
+				  }
+				},
+				"o-size": {
+				  "o-w": {
+					"v": "21000"
+				  },
+				  "o-h": {
+					"v": "13000"
+				  }
+				},
+				"o-inbox": {
+				  "split": "5000",
+				  "width": "8572"
+				},
+				"o-processsheet": {
+				  "o-attributes": {
+					"o-calcondemand": {
+					  "v": "true",
+					  "t": "b"
+					}
+				  },
+				  "o-name": {
+					"v": "S1",
+					"t": "s"
+				  },
+				  "o-rows": {},
+				  "o-columns": {
+					"a-section": [
+					  {
+						"index": "0",
+						"title": "COMMENT",
+						"size": "0",
+						"visible": "0"
+					  },
+					  {
+						"index": "1",
+						"title": "IF",
+						"size": "700",
+						"visible": "1"
+					  }
+					]
+				  },
+				  "o-drawings": {},
+				  "o-defaultcell": {
+					"o-cell": {}
+				  },
+				  "o-data": {
+					"a-r": [
+					  {
+						"n": "0",
+						"a-c": [
+						  {
+							"n": "2",
+							"o-cell": {
+							  "o-a": {
+								"o-key": {
+								  "v": "true",
+								  "t": "b"
+								}
+							  }
+							}
+						  },
+						  {
+							"n": "3",
+							"o-cell": {
+							  "o-a": {
+								"o-key": {
+								  "v": "true",
+								  "t": "b"
+								}
+							  }
+							}
+						  },
+						  {
+							"n": "6",
+							"o-cell": {
+							  "o-a": {
+								"o-key": {
+								  "v": "true",
+								  "t": "b"
+								}
+							  }
+							}
+						  },
+						  {
+							"n": "7",
+							"o-cell": {
+							  "o-a": {
+								"o-key": {
+								  "v": "true",
+								  "t": "b"
+								}
+							  }
+							}
+						  }
+						]
+					  },
+					  {
+						"n": "1",
+						"a-c": [
+						  {
+							"n": "2",
+							"o-cell": {
+							  "o-a": {
+								"o-key": {
+								  "v": "true",
+								  "t": "b"
+								}
+							  }
+							}
+						  },
+						  {
+							"n": "3",
+							"o-cell": {
+							  "o-a": {
+								"o-key": {
+								  "v": "true",
+								  "t": "b"
+								}
+							  }
+							}
+						  },
+						  {
+							"n": "6",
+							"o-cell": {
+							  "o-a": {
+								"o-key": {
+								  "v": "true",
+								  "t": "b"
+								}
+							  }
+							}
+						  },
+						  {
+							"n": "7",
+							"o-cell": {
+							  "o-a": {
+								"o-key": {
+								  "v": "true",
+								  "t": "b"
+								}
+							  }
+							}
+						  }
+						]
+					  },
+					  {
+						"n": "2",
+						"a-c": [
+						  {
+							"n": "2",
+							"o-cell": {
+							  "o-a": {
+								"o-key": {
+								  "v": "true",
+								  "t": "b"
+								}
+							  }
+							}
+						  },
+						  {
+							"n": "3",
+							"o-cell": {
+							  "o-a": {
+								"o-key": {
+								  "v": "true",
+								  "t": "b"
+								}
+							  }
+							}
+						  },
+						  {
+							"n": "6",
+							"o-cell": {
+							  "o-a": {
+								"o-key": {
+								  "v": "true",
+								  "t": "b"
+								}
+							  }
+							}
+						  },
+						  {
+							"n": "7",
+							"o-cell": {
+							  "o-a": {
+								"o-key": {
+								  "v": "true",
+								  "t": "b"
+								}
+							  }
+							}
+						  }
+						]
+					  }
+					]
+				  }
+				}
+			  }
+			],
+			"o-images": {}
+		  },
+		  "machineId": "SyxdB05jH"
+		}
+	  }
+	],
+	"streams": [
+	  {
+		"id": "rkZqi6Zu5B",
+		"name": "REST_CLIENT",
+		"disabled": false,
+		"className": "ProducerConfiguration",
+		"lastModified": "2019-11-14T13:22:56.744Z",
+		"lastAccessed": "2019-10-31T07:30:42.485Z",
+		"connector": {
+		  "_id": "BkgQcpZ_qS",
+		  "id": "BkgQcpZ_qS",
+		  "className": "ConnectorConfiguration",
+		  "disabled": false,
+		  "lastModified": "2019-10-31T07:30:19.076Z",
+		  "lastAccessed": "2019-10-31T07:30:18.974Z",
+		  "isRef": true
+		},
+		"mimeType": "auto"
+	  },
+	  {
+		"id": "BkgQcpZ_qS",
+		"name": "Rest_ClientC",
+		"disabled": false,
+		"className": "ConnectorConfiguration",
+		"lastModified": "2019-11-14T13:22:56.743Z",
+		"lastAccessed": "2019-10-31T07:30:18.974Z",
+		"provider": {
+		  "_id": "@cedalo/stream-rest-client",
+		  "id": "@cedalo/stream-rest-client",
+		  "className": "ProviderConfiguration",
+		  "isRef": true
+		},
+		"baseUrl": "",
+		"userName": "",
+		"password": ""
+	  }
+	]
+  }
