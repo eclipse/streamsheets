@@ -69,9 +69,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 		const columns = this.getColumns();
 		columns.setInitialSection(-2);
-		columns.setSectionTitle(0, 'COMMENT');
 		columns.setSectionSize(0, 0);
-		columns.setSectionTitle(1, 'IF');
 		columns.setSectionSize(1, 700);
 
 		attr = this.getItemAttributes();

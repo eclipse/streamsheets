@@ -13,7 +13,6 @@ module.exports = class HeaderSection {
 	constructor() {
 		this._size = 0;
 		this._visible = true;
-		this._title = undefined;
 		this._format = undefined;
 		this._textFormat = undefined;
 		this._attributes = undefined;
@@ -23,7 +22,6 @@ module.exports = class HeaderSection {
 		return (
 			this._size === defaultSize &&
 			this._visible === true &&
-			this._title === undefined &&
 			this._format === undefined &&
 			this._textFormat === undefined &&
 			this._attributes === undefined
@@ -35,7 +33,6 @@ module.exports = class HeaderSection {
 
 		copy._size = this._size;
 		copy._visible = this._visible;
-		copy._title = this._title;
 		if (this._format) {
 			copy._format = this._format.copy();
 		}
@@ -122,11 +119,6 @@ module.exports = class HeaderSection {
 	save(writer, index) {
 		writer.writeStartElement('section');
 		writer.writeAttributeNumber('index', index, 0);
-
-		if (this._title !== undefined) {
-			writer.writeAttributeString('title', this._title);
-		}
-
 		writer.writeAttributeNumber('size', this._size, 0);
 		writer.writeAttributeNumber('visible', this._visible ? 1 : 0);
 
@@ -172,10 +164,6 @@ module.exports = class HeaderSection {
 			this._visible = Number(visible) === 1;
 		}
 
-		const title = reader.getAttribute(object, 'title');
-		if (title !== undefined) {
-			this._title = title;
-		}
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {
 				case 'cell':

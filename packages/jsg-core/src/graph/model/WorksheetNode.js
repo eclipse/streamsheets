@@ -423,17 +423,7 @@ module.exports = class WorksheetNode extends ContentNode {
 						object = new HeaderSection();
 						object.read(reader, subchild);
 						object._index = c;
-						switch (result.range.getX1()) {
-							case 0:
-								object._title = 'COMMENT';
-								break;
-							case 1:
-								object._title = 'IF';
-								break;
-							default:
-								object._title = undefined;
-								break;
-						}
+						object._title = undefined;
 						result.columns[c] = object;
 					});
 					break;
