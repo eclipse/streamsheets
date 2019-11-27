@@ -1,10 +1,12 @@
 const config = require('../src/config');
 const fs = require('fs');
 const path = require('path');
+
 const INIT_FILE = path.join(__dirname, '..', 'config', 'init.json');
 const initJSON = JSON.parse(fs.readFileSync(INIT_FILE).toString());
 
-process.env.MONGO_PORT = 27018,
+// eslint-disable-next-line
+process.env.MONGO_PORT = 27018;
 process.env.MONGO_DATABASE = 'streamsheets-development';
 
 const {
@@ -33,11 +35,9 @@ RepositoryManager.init({
 	configurationRepository
 });
 
-const connectDatabases = async () => {
-	return RepositoryManager.connectAll().then(() =>
-		RepositoryManager.setupAllIndicies()
-	);
-}
+const connectDatabases = async () => RepositoryManager.connectAll().then(() =>
+	RepositoryManager.setupAllIndicies()
+);
 
 (async () => {
 	await connectDatabases();

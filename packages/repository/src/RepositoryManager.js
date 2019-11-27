@@ -17,10 +17,13 @@ module.exports = class RepositoryManager {
 		try {
 			const machines = initJSON.machines;
 			if (machines) {
+				// eslint-disable-next-line
 				for (const machineContainer of machines) {
 					try {
 						const { graph, machine} = machineContainer;
+						// eslint-disable-next-line
 						await RepositoryManager.graphRepository.saveGraph(graph);
+						// eslint-disable-next-line
 						await RepositoryManager.machineRepository.saveMachine(machine);
 					} catch (error) {
 						// ignore machine
@@ -29,9 +32,11 @@ module.exports = class RepositoryManager {
 			}
 			const streams = initJSON.streams;
 			if (streams) {
+				// eslint-disable-next-line
 				for (const stream of streams) {
 					try {
 						// TODO: replace with stream repository procy
+						// eslint-disable-next-line
 						await RepositoryManager.streamRepositoryLegacy.saveConfiguration(stream);
 					} catch (error) {
 						// ignore stream
