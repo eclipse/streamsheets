@@ -13,14 +13,10 @@ const expectInfoHas = (info, has) => {
 		}
 	});
 };
-const expectConditionTerm = (term, condValue, leftValue, rightValue) => {
+const expectConditionTerm = (term, ...params) => {
 	expect(term).toBeDefined();
-	expect(term.condition).toBeDefined();
-	expect(term.left).toBeDefined();
-	expect(term.right).toBeDefined();
-	expect(term.condition.value).toBe(condValue);
-	expect(term.left.value).toBe(leftValue);
-	expect(term.right.value).toBe(rightValue);
+	expect(term.params.length).toBe(params.length);
+	params.forEach((value, index) => expect(term.params[index].value).toBe(value));
 };
 
 describe('parsing conditions', () => {
@@ -90,68 +86,60 @@ describe('parsing invalid conditions', () => {
 	});
 	it('should return recognized terms so far', () => {
 		const term = Parser.parse('if(1,"sa', context);
+		const params = term.params;
 		expect(term.isInvalid).toBe(true);
-		expect(term.condition).toBeDefined();
-		expect(term.condition.value).toBe(1);
-		expect(term.left).toBeDefined();
-		expect(term.left.value).toBe('sa');
-		expect(term.right).toBeDefined();
-		expect(term.right.value).toBe(null);
+		expect(params.length).toBe(2);
+		expect(params[0].value).toBe(1);
+		expect(params[1].value).toBe('sa');
 		// additional tests
-		expectConditionTerm(Parser.parse('if(', context), null, null, null);
+		expectConditionTerm(Parser.parse('if(', context), null);
 		expectConditionTerm(Parser.parse('if(,,', context), null, null, null);
-		expectConditionTerm(Parser.parse('if(1', context), 1, null, null);
-		expectConditionTerm(Parser.parse('if(1,', context), 1, null, null);
+		expectConditionTerm(Parser.parse('if(1', context), 1);
+		expectConditionTerm(Parser.parse('if(1,', context), 1, null);
 		expectConditionTerm(Parser.parse('if(1,,', context), 1, null, null);
 		expectConditionTerm(Parser.parse('if(1,,"h', context), 1, null, 'h');
 		expectConditionTerm(Parser.parse('if(1,,"h)', context), 1, null, 'h)');
-		expectConditionTerm(Parser.parse('if(1,(2', context), 1, 2, null);
+		expectConditionTerm(Parser.parse('if(1,(2', context), 1, 2);
 	});
 	it('should parse info of invalid condition', () => {
 		let info = Parser.getFormulaInfos('if(1,"sa', context);
 		expect(info).toBeDefined();
-		expect(info.length).toBe(4);
-		expectInfoHas(info[0], { start: 0, end: 8, paramIndex: undefined, type: 'condition' });
+		expect(info.length).toBe(3);
+		expectInfoHas(info[0], { start: 0, end: 8, paramIndex: undefined, type: 'function', value: 'if' });
 		expectInfoHas(info[1], { start: 3, end: 4, paramIndex: 0, type: 'number', value: '1' });
 		expectInfoHas(info[2], { start: 5, end: 8, paramIndex: 1, type: 'string', value: 'sa' });
-		expectInfoHas(info[3], { start: 8, end: 8, paramIndex: 2, type: 'undef', value: undefined });
 
 		info = Parser.getFormulaInfos('if(1', context);
 		expect(info).toBeDefined();
-		expect(info.length).toBe(4);
-		expectInfoHas(info[0], { start: 0, end: 4, paramIndex: undefined, type: 'condition' });
+		expect(info.length).toBe(2);
+		expectInfoHas(info[0], { start: 0, end: 4, paramIndex: undefined, type: 'function', value: 'if' });
 		expectInfoHas(info[1], { start: 3, end: 4, paramIndex: 0, type: 'number', value: '1' });
-		expectInfoHas(info[2], { start: 4, end: 4, paramIndex: 1, type: 'undef', value: undefined });
-		expectInfoHas(info[3], { start: 4, end: 4, paramIndex: 2, type: 'undef', value: undefined });
 
 		info = Parser.getFormulaInfos('if(1,s', context);
 		expect(info).toBeDefined();
-		expect(info.length).toBe(4);
-		expectInfoHas(info[0], { start: 0, end: 6, paramIndex: undefined, type: 'condition' });
+		expect(info.length).toBe(3);
+		expectInfoHas(info[0], { start: 0, end: 6, paramIndex: undefined, type: 'function', value: 'if' });
 		expectInfoHas(info[1], { start: 3, end: 4, paramIndex: 0, type: 'number', value: '1' });
 		expectInfoHas(info[2], { start: 5, end: 6, paramIndex: 1, type: 'identifier', value: 's' });
-		expectInfoHas(info[3], { start: 6, end: 6, paramIndex: 2, type: 'undef', value: undefined });
 
 		info = Parser.getFormulaInfos('if(1,sum,s', context);
 		expect(info.length).toBe(4);
-		expectInfoHas(info[0], { start: 0, end: 10, paramIndex: undefined, type: 'condition' });
+		expectInfoHas(info[0], { start: 0, end: 10, paramIndex: undefined, type: 'function', value: 'if' });
 		expectInfoHas(info[1], { start: 3, end: 4, paramIndex: 0, type: 'number', value: '1' });
 		expectInfoHas(info[2], { start: 5, end: 8, paramIndex: 1, type: 'identifier', value: 'sum' });
 		expectInfoHas(info[3], { start: 9, end: 10, paramIndex: 2, type: 'identifier', value: 's' });
 
 		info = Parser.getFormulaInfos('if(12,"sum",', context);
 		expect(info.length).toBe(4);
-		expectInfoHas(info[0], { start: 0, end: 12, paramIndex: undefined, type: 'condition' });
+		expectInfoHas(info[0], { start: 0, end: 12, paramIndex: undefined, type: 'function', value: 'if' });
 		expectInfoHas(info[1], { start: 3, end: 5, paramIndex: 0, type: 'number', value: '12' });
 		expectInfoHas(info[2], { start: 6, end: 11, paramIndex: 1, type: 'string', value: 'sum' });
-		expectInfoHas(info[3], { start: 12, end: 12, paramIndex: 2, type: 'undef', value: undefined });
+		expectInfoHas(info[3], { start: 12, end: 13, paramIndex: 2, type: 'undef', value: undefined });
 
 		info = Parser.getFormulaInfos('if("s', context);
-		expect(info.length).toBe(4);
-		expectInfoHas(info[0], { start: 0, end: 5, paramIndex: undefined, type: 'condition' });
+		expect(info.length).toBe(2);
+		expectInfoHas(info[0], { start: 0, end: 5, paramIndex: undefined, type: 'function', value: 'if' });
 		expectInfoHas(info[1], { start: 3, end: 5, paramIndex: 0, type: 'string', value: 's' });
-		expectInfoHas(info[2], { start: 5, end: 5, paramIndex: 1, type: 'undef', value: undefined });
-		expectInfoHas(info[3], { start: 5, end: 5, paramIndex: 2, type: 'undef', value: undefined });
 	});
 	// DL-2704
 	it('should sort operator before its operands', () => {

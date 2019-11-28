@@ -54,6 +54,31 @@ describe('logical functions', () => {
 			expect(createTerm('and(A1:B1, C4, C2:C3)', sheet).value).toBe(true); // ERROR.VALUE);
 		});
 	});
+	describe('if', () => {
+		it('should return true value if condition is true and false value otherwise', () => {
+			const sheet = new StreamSheet().sheet;
+			createCellAt('A1', true, sheet);
+			createCellAt('A2', false, sheet);
+			expect(createTerm('if(A1, "hello", "world")', sheet).value).toBe('hello');
+			expect(createTerm('if(A2, "hello", "world")', sheet).value).toBe('world');
+		});
+		it('should return false as default if condition is false and no false value is provided', () => {
+			const sheet = new StreamSheet().sheet;
+			createCellAt('A2', false, sheet);
+			expect(createTerm('if(A2, "hello")', sheet).value).toBe(false);
+		});
+		it('should require condition and true value', () => {
+			const sheet = new StreamSheet().sheet;
+			createCellAt('A1', true, sheet);
+			createCellAt('A2', false, sheet);
+			expect(createTerm('if()', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('if(,)', sheet).value).toBe(false);
+			expect(createTerm('if(A1)', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('if(A1,)', sheet).value).toBe(true);
+			expect(createTerm('if(A2,,)', sheet).value).toBe(false);
+			expect(createTerm('if(A2,,,)', sheet).value).toBe(ERROR.ARGS);
+		});
+	});
 	describe('or', () => {
 		it(`should return ${ERROR.ARGS} if no parameters are given`, () => {
 			const sheet = new StreamSheet().sheet;
