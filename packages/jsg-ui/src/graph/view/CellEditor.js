@@ -762,7 +762,6 @@ export default class CellEditor {
 			range.setStart(node, 0);
 			range.setEnd(node, text.length);
 		}
-		return;
 	}
 
 	isReferenceByKeyAllowed() {
@@ -804,7 +803,6 @@ export default class CellEditor {
 
 		const range = sel.getRangeAt(0);
 		if (range === undefined) {
-			// eslint-disable-next-line
 			return false;
 		}
 
