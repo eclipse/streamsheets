@@ -362,7 +362,7 @@ module.exports = class MongoDBMachineRepository extends mix(
 			.then((resp) => resp.result && resp.result.ok);
 	}
 
-	deleteCells(machineId, streamsheetId, cellDescriptors) {
+	deleteCells(machineId, streamsheetId, cellDescriptors = []) {
 		const cells = 'streamsheets.$.sheet.cells.';
 		const selector = { _id: machineId, 'streamsheets.id': streamsheetId };
 		const unset = {};
