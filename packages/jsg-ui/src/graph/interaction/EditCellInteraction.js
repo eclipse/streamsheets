@@ -464,11 +464,11 @@ export default class EditCellInteraction extends EditTextInteraction {
 				this._newEdit = false;
 				break;
 			case 'F4':
-				this._cellEditor.toggleReferenceType();
+				this._cellEditor.toggleReferenceType(ev, view);
 				break;
 			case 'ArrowLeft':
-				if (this._cellEditor.isReferenceByKeyAllowed(view)) {
-					const index = this._cellEditor.getSelectedRangeIndex(view);
+				if (this._cellEditor.isReferenceByKeyAllowed()) {
+					const index = this._cellEditor.getSelectedRangeIndex();
 					this._cellEditor.activateReferenceMode();
 					if (index !== undefined) {
 						this._cellEditor.setActiveRangeIndex(index);
@@ -482,8 +482,8 @@ export default class EditCellInteraction extends EditTextInteraction {
 				}
 				break;
 			case 'ArrowRight':
-				if (this._cellEditor.isReferenceByKeyAllowed(view)) {
-					const index = this._cellEditor.getSelectedRangeIndex(view);
+				if (this._cellEditor.isReferenceByKeyAllowed()) {
+					const index = this._cellEditor.getSelectedRangeIndex();
 					this._cellEditor.activateReferenceMode();
 					if (index !== undefined) {
 						this._cellEditor.setActiveRangeIndex(index);
@@ -497,8 +497,8 @@ export default class EditCellInteraction extends EditTextInteraction {
 				}
 				break;
 			case 'ArrowUp':
-				if (this._cellEditor.isReferenceByKeyAllowed(view)) {
-					const index = this._cellEditor.getSelectedRangeIndex(view);
+				if (this._cellEditor.isReferenceByKeyAllowed()) {
+					const index = this._cellEditor.getSelectedRangeIndex();
 					this._cellEditor.activateReferenceMode();
 					if (index !== undefined) {
 						this._cellEditor.setActiveRangeIndex(index);
@@ -512,8 +512,8 @@ export default class EditCellInteraction extends EditTextInteraction {
 				}
 				break;
 			case 'ArrowDown':
-				if (this._cellEditor.isReferenceByKeyAllowed(view)) {
-					const index = this._cellEditor.getSelectedRangeIndex(view);
+				if (this._cellEditor.isReferenceByKeyAllowed()) {
+					const index = this._cellEditor.getSelectedRangeIndex();
 					this._cellEditor.activateReferenceMode();
 					if (index !== undefined) {
 						this._cellEditor.setActiveRangeIndex(index);
