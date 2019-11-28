@@ -762,6 +762,7 @@ export default class CellEditor {
 
 		const range = sel.getRangeAt(0);
 		if (range === undefined) {
+			// eslint-disable-next-line
 			return false;
 		}
 
