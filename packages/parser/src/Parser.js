@@ -121,7 +121,8 @@ module.exports = class Parser {
 		} else if (node.type === 'function') {
 			const func = context && context.getFunction(node.value);
 			// eslint-disable-next-line
-			const params = node.params.map(param => (param.type === 'number' ? Number(param.value) : (param.type === 'function' ? Parser.resultFrom(param, context) : param.value)));
+			const params = node.params.map((param) => ({ value: Parser.resultFrom(param, context) }));
+			// const params = node.params.map(param => (param.type === 'number' ? Number(param.value) : (param.type === 'function' ? Parser.resultFrom(param, context) : param.value)));
 			result = func ? func(context.scope, ...params) : undefined;
 		} else {
 			result = node.type === 'number' ? Number(node.value) : node.value;
