@@ -11,6 +11,7 @@ const getInitJSON = (filePath) => {
 		try {
 			initJSON = JSON.parse(fs.readFileSync(INIT_FILE).toString());
 		} catch (error) {
+			/* ignore */
 		}
 	}
 	return initJSON;
