@@ -54,11 +54,14 @@ const isodd = (sheet, ...terms) =>
 		.mapNextArg((term) => (term ? convert.toNumber(term.value, ERROR.VALUE) : ERROR.VALUE))
 		.run((value) => !isEven(Math.floor(value)));
 
+const na = (sheet, ...terms) =>	runFunction(sheet, terms).withArgCount(0).run(() => ERROR.NA);
+
 module.exports = {
 	IFERROR: iferror,
 	ISERR: iserr,
 	ISERROR: iserror,
 	ISEVEN: iseven,
 	ISNA: isna,
-	ISODD: isodd
+	ISODD: isodd,
+	NA: na
 };

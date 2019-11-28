@@ -1,3 +1,6 @@
+const { FunctionErrors: ERROR } = require('@cedalo/error-codes');
+
+
 module.exports = {
 	en: 'Information',
 	de: 'Information',
@@ -41,6 +44,10 @@ module.exports = {
 		ISODD: {
 			en: { argumentList: 'Value', description: 'Returns TRUE if given value is an odd number' },
 			de: { argumentList: 'Zahl', description: 'Gibt TRUE zurück, falls die angegebene Zahl ungerade ist' }
+		},
+		NA: {
+			en: { argumentList: '', description: `Returns the error value ${ERROR.code.NA}` },
+			de: { argumentList: '', description: `Gibt den Fehler ${ERROR.code.NA} zurück` }
 		}
 	}
 };
