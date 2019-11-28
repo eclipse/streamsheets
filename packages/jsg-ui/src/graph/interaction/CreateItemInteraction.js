@@ -128,15 +128,34 @@ class CreateItemInteraction extends AbstractInteraction {
 	updateFeedback(event, viewer, offset) {
 		const start = this.alignToGrid(this.startLocation, viewer, event.event.altKey, new Point(0, 0));
 		const last = this.alignToGrid(this.lastLocation, viewer, event.event.altKey, new Point(0, 0));
-		const width = start.x - last.x;
-		const height = start.y - last.y;
+
+		last.x = Math.max(start.x, last.x);
+		last.y = Math.max(start.y, last.y);
+
+		let width = start.x - last.x;
+		let height = start.y - last.y;
 		let newOrigin = last.copy();
 
 		newOrigin.x = Math.min(newOrigin.x, newOrigin.x + width);
 		newOrigin.y = Math.min(newOrigin.y, newOrigin.y + height);
 		newOrigin = this.alignToGrid(newOrigin, viewer, event.event.altKey, newOrigin);
 
+		if (event.event.shiftKey) {
+			if (this.currentLocation.x - this.startLocation.x > this.currentLocation.y - this.startLocation.y) {
+				height = width;
+			} else {
+				width = height;
+			}
+		}
+		if (event.event.ctrlKey) {
+			newOrigin.x += width;
+			newOrigin.y += height;
+			height *= 2;
+			width *= 2;
+		}
+
 		this._graphItem.setPinPointTo(newOrigin);
+
 		this._graphItem.setSize(Math.abs(width), Math.abs(height));
 		// call layoutAll to update items which depends on layout, e.g. lane...
 		this._graphItem.layoutAll();
