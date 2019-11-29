@@ -39,12 +39,14 @@ const referenceTerm = (node, context) => {
 	return undefined;
 };
 
+// for internally use only => to ease parsing 
+const noop = (/* sheet, ...terms */) => null;
 
 class SheetParserContext extends ParserContext {
 	constructor() {
 		super();
 		this.strict = true;
-		this.functions = Object.assign({}, filter(this.functions));
+		this.functions = Object.assign({NOOP: noop}, filter(this.functions));
 	}
 
 	// node: is a parser AST node
