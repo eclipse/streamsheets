@@ -1,5 +1,5 @@
 ./scripts/deploy.js \
-  --tag 1.4 \
+  --tag 1.5-alpha \
   --derivative dev \
   --service @cedalo/service-machines \
   --service @cedalo/service-auth \
