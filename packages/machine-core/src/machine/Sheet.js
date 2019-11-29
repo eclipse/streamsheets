@@ -177,6 +177,14 @@ module.exports = class Sheet {
 		this._pendingRequests.clear();
 	}
 
+	executeFunctions(fns) {
+		// some functions only works if machine runs...
+		const force = this.forceExecution(true);
+		const res = fns.map(fn => fn.value);
+		this.forceExecution(force);
+		return res;
+	}
+
 	updateSettings(settings) {
 		const { maxcol, maxrow } = this.settings;
 		this.settings = settings != null ? Object.assign(this.settings, settings) : this.settings;
