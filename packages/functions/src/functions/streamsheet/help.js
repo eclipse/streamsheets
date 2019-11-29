@@ -12,6 +12,16 @@ module.exports = {
 				description: 'Erzeugt ein JSON Array Objekt mit den gegebenen Schlüssel und Werten'
 			}
 		},
+		CALC: {
+			en: {
+				argumentList: '',
+				description: 'Recalculates streamsheet without doing a complete streamsheet step'
+			},
+			de: {
+				argumentList: '',
+				description: 'Berechnet das Streamsheet neu ohne einen kompletten Streamhseet-Schritt auszulösen'
+			}
+		},
 		'COLOR.CONVERT': {
 			en: {
 				argumentList: 'Color,SourceFormat,TargetFormat',
@@ -435,6 +445,16 @@ module.exports = {
 			de: {
 				argumentList: 'DatenZelle,Periode,Methode,BasisZeit,Intervall,Zielbereich',
 				description: 'Aggregiert Werte in der Periode mit der angebenen Methode für den angegebenen Intervall'
+			}
+		},
+		TRIGGERSTEP: {
+			en: {
+				argumentList: '',
+				description: 'Triggers a streamsheet step'
+			},
+			de: {
+				argumentList: '',
+				description: 'Löst einen Streamsheet-Schritt aus'
 			}
 		},
 		WRITE: {
