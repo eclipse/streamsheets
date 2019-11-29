@@ -5,6 +5,7 @@ const detectchange = require('./detectchange');
 const loop = require('./loop');
 const values = require('./values');
 const ARRAY = require('./array');
+const CALC = require('./calc');
 const DELETE = require('./delete');
 const DELETECELLS = require('./deletecells');
 const DICTIONARY = require('./dictionary');
@@ -32,6 +33,7 @@ const SETCYCLETIME = require('./setcycletime');
 const SETPHASE = require('./setphase');
 const SUBTREE = require('./subtree');
 const TIMEAGGREGATE = require('./timeaggregate');
+const TRIGGERSTEP = require('./triggerstep');
 const WRITE = require('./write');
 
 module.exports = {
@@ -43,6 +45,7 @@ module.exports = {
 		...loop,
 		...values,
 		ARRAY,
+		CALC,
 		DELETE,
 		DELETECELLS,
 		DICTIONARY,
@@ -72,6 +75,7 @@ module.exports = {
 		SETPHASE,
 		SUBTREE,
 		TIMEAGGREGATE,
+		TRIGGERSTEP,
 		WRITE
 	}
 };
