@@ -762,7 +762,6 @@ export default class CellEditor {
 			range.setStart(node, 0);
 			range.setEnd(node, text.length);
 		}
-		return;
 	}
 
 	isReferenceByKeyAllowed() {

@@ -284,15 +284,17 @@ export default class SheetInteraction extends Interaction {
 							const options = termFunc.params[0].operand._range;
 
 							options.enumerateShifted((optCell) => {
-								const value = optCell ? optCell.getValue() : '';
-								const option = document.createElement('option');
-								optionsCnt += 1;
-								option.value = value;
-								option.text = value;
-								option.selected = cell.getValue() === value;
-								option.style.paddingTop = '5px';
-								option.style.paddingBottom = '5px';
-								selectList.appendChild(option);
+								if (optCell) {
+									const value = optCell.getValue();
+									const option = document.createElement('option');
+									optionsCnt += 1;
+									option.value = value;
+									option.text = value;
+									option.selected = cell.getValue() === value;
+									option.style.paddingTop = '5px';
+									option.style.paddingBottom = '5px';
+									selectList.appendChild(option);
+								}
 							});
 						}
 					}

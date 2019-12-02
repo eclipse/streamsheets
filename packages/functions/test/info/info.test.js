@@ -147,4 +147,18 @@ describe('info functions', () => {
 			expect(createTerm('isodd("22)")', sheet).value).toBe(ERROR.VALUE);
 		});
 	});
+	describe('na', () => {
+		it(`should return error ${ERROR.NA}`, () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('na()', sheet).value).toBe(ERROR.NA);
+		});
+		it(`should return error ${ERROR.ARGS} if any parameters are given`, () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('na(12)', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('na(,)', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('na("hi")', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('na(true)', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('na(false)', sheet).value).toBe(ERROR.ARGS);
+		});
+	});
 });

@@ -62,7 +62,7 @@ const MachineContainerAttributes = class MachineContainerAttributes extends Attr
 		);
 		addAttribute(new StringAttribute(ATTR.MAXIMIZESHEET), 'none');
 		addAttribute(new BooleanAttribute(ATTR.OUTBOXVISIBLE), false);
-		addAttribute(new NumberAttribute(ATTR.HIDETOOLBARTHRESHOLD), 800);
+		addAttribute(new NumberAttribute(ATTR.HIDETOOLBARTHRESHOLD), 550);
 		addAttribute(new BooleanAttribute(ATTR.HIDETOOLBARS), false);
 		addAttribute(new BooleanAttribute(ATTR.PROTECTED), false);
 

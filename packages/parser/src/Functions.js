@@ -397,24 +397,24 @@ module.exports.Functions = {
 
 	SUM: (scope, ...terms) => terms.reduce((sum, curr) => (sum + curr.value), 0),
 
-	SIN: (scope, ...terms) => (terms.length ? Math.sin(terms[0].value) : ERROR.NO_VALUE),
+	SIN: (scope, ...terms) => (terms.length ? Math.sin(terms[0].value) : ERROR.ARGS),
 
-	COS: (scope, ...terms) => (terms.length ? Math.cos(terms[0].value) : ERROR.NO_VALUE),
+	COS: (scope, ...terms) => (terms.length ? Math.cos(terms[0].value) : ERROR.ARGS),
 
-	TAN: (scope, ...terms) => (terms.length ? Math.tan(terms[0].value) : ERROR.NO_VALUE),
+	TAN: (scope, ...terms) => (terms.length ? Math.tan(terms[0].value) : ERROR.ARGS),
 
-	ARCSIN: (scope, ...terms) => (terms.length ? Math.asin(terms[0].value) : ERROR.NO_VALUE),
+	ARCSIN: (scope, ...terms) => (terms.length ? Math.asin(terms[0].value) : ERROR.ARGS),
 
-	ARCCOS: (scope, ...terms) => (terms.length ? Math.acos(terms[0].value) : ERROR.NO_VALUE),
+	ARCCOS: (scope, ...terms) => (terms.length ? Math.acos(terms[0].value) : ERROR.ARGS),
 
-	ARCTAN: (scope, ...terms) => (terms.length ? Math.atan(terms[0].value) : ERROR.NO_VALUE),
+	ARCTAN: (scope, ...terms) => (terms.length ? Math.atan(terms[0].value) : ERROR.ARGS),
 
-	ARCTAN2: (scope, ...terms) => (terms.length === 2 ? Math.atan2(terms[0].value, terms[1].value) : ERROR.NO_VALUE),
+	ARCTAN2: (scope, ...terms) => (terms.length === 2 ? Math.atan2(terms[0].value, terms[1].value) : ERROR.ARGS),
 	// for compatibility
-	ATAN2: (scope, ...terms) => (terms.length === 2 ? Math.atan2(terms[0].value, terms[1].value) : ERROR.NO_VALUE),
-	ATAN: (scope, ...terms) => (terms.length ? Math.atan(terms[0].value) : ERROR.NO_VALUE),
-	ACOS: (scope, ...terms) => (terms.length ? Math.acos(terms[0].value) : ERROR.NO_VALUE),
-	ASIN: (scope, ...terms) => (terms.length ? Math.asin(terms[0].value) : ERROR.NO_VALUE),
+	ATAN2: (scope, ...terms) => (terms.length === 2 ? Math.atan2(terms[0].value, terms[1].value) : ERROR.ARGS),
+	ATAN: (scope, ...terms) => (terms.length ? Math.atan(terms[0].value) : ERROR.ARGS),
+	ACOS: (scope, ...terms) => (terms.length ? Math.acos(terms[0].value) : ERROR.ARGS),
+	ASIN: (scope, ...terms) => (terms.length ? Math.asin(terms[0].value) : ERROR.ARGS),
 	ONCLICK: (/* scope, ...terms */) => OK.TRUE,
 	ONDOUBLECLICK: (/* scope, ...terms */) => OK.TRUE,
 	ONMOUSEDOWN: (/* scope, ...terms */) => OK.TRUE,

@@ -386,28 +386,23 @@ class ExecuteFunction extends ARequestHandler {
 	get isModifying() {
 		return false;
 	}
-	handle(msg) {
-		const streamsheet = this.machine.getStreamSheet(msg.streamsheetId);
+	handle({ funcstr, streamsheetId}) {
+		let err;
+		let result;
+		const streamsheet = this.machine.getStreamSheet(streamsheetId);
 		if (streamsheet) {
-			let err;
-			let result;
 			const sheet = streamsheet.sheet;
 			try {
-				const functerm = msg.funcstr != null ? SheetParser.parse(msg.funcstr, sheet) : null;
-				err = functerm == null ? `Unknown function '${msg.funcstr}'!!` : null;
-				if (!err) {
-					// not nice, but some functions only works if machine runs...
-					// => need a better mechanism for this...
-					const force = sheet.forceExecution(true);
-					result = functerm.value;
-					sheet.forceExecution(force);
-				}
+				// funcstr may contain multiple functions separated by comma => wrap in noop() to ease parsing
+				const fns = SheetParser.parse(`noop(${funcstr})`, sheet).params || [];
+				result = sheet.executeFunctions(fns);
 			} catch (ex) {
-				err = `Failed to execute function '${msg.funcstr}'!!`;
+				err = `Failed to execute function(s): '${funcstr}'!!`;
 			}
-			return err == null ? Promise.resolve({ result }) : Promise.reject(new Error(err));
+		} else {
+			err = `Unknown streamsheet id: ${streamsheetId}`;
 		}
-		return Promise.reject(new Error(`Unknown streamsheet id: ${msg.streamsheetId}`));
+		return err == null ? Promise.resolve({ result }) : Promise.reject(new Error(err));
 	}
 }
 // include editable-web-component:
