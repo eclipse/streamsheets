@@ -35,6 +35,9 @@ module.exports = {
 	'MONGO.STORE': (scope, ...terms) => {
 		return OK.CALC;
 	},
+	'MONGO.REPLACE': (scope, ...terms) => {
+		return OK.CALC;
+	},
 	'FILE.WRITE': (scope, ...terms) => {
 		return OK.CALC;
 	},

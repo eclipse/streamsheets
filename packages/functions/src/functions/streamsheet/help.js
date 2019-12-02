@@ -261,6 +261,10 @@ module.exports = {
 			en: { argumentList: 'Producer,Collection,Document', description: 'Stores a JSON object in MongoDB' },
 			de: { argumentList: 'Producer,Collection,Document', description: 'Speichert ein JSON Objekt in MongoDB' }
 		},
+		'MONGO.REPLACE': {
+			en: { argumentList: 'Producer,Collection,Query,Document,Upsert', description: 'Replace a JSON object matching the query in MongoDB' },
+			de: { argumentList: 'Producer,Collection,Query,Document,Upsert', description: 'Ersetzt ein JSON Objekt, dass die Query erfüllt, in MongoDB' }
+		},
 		MOVEVALUES: {
 			en: {
 				argumentList: 'SourceRange,TargetRange',

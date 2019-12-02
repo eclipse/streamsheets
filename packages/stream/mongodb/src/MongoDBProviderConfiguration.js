@@ -23,7 +23,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 			id: 'clusterName',
 			label: 'ReplicaSet',
 			advanced: true,
-			onUpdate: 'reConnect',
+			onUpdate: 'reConnect'
 		});
 		this.addConnectorDefinition({
 			id: 'authType',
@@ -69,7 +69,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 				de: 'Benutzername'
 			},
 			advanced: true,
-			onUpdate: 'reConnect',
+			onUpdate: 'reConnect'
 		});
 		this.addConnectorDefinition({
 			id: 'password',
@@ -112,10 +112,8 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 						id: 'query',
 						label: 'Query',
 						description: {
-							en:
-								'JSON used for the query. Use "{}" to delete all documents',
-							de:
-								'JSON das für Query benutzt wird. "{}" um alle Dokumente zu löschen'
+							en: 'JSON used for the query. Use "{}" to delete all documents',
+							de: 'JSON das für Query benutzt wird. "{}" um alle Dokumente zu löschen'
 						},
 						type: {
 							name: 'json'
@@ -190,10 +188,8 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 							de: 'Sortierung'
 						},
 						description: {
-							en:
-								'1 or -1 to sort by creation time or range with sort JSON',
-							de:
-								'1 oder -1 für zeitliche Sortierung oder Zellbereich der Sortierung vorgibt'
+							en: '1 or -1 to sort by creation time or range with sort JSON',
+							de: '1 oder -1 für zeitliche Sortierung oder Zellbereich der Sortierung vorgibt'
 						},
 						type: {
 							name: 'union',
@@ -269,7 +265,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		);
 
 		this.addFunctionDefinition({
-			name: 'MONGO.STORE',
+			name: MongoDBFunctions.STORE,
 			baseFunction: 'produce',
 			parameters: [
 				{
@@ -288,6 +284,52 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 					type: {
 						name: 'json'
 					}
+				}
+			]
+		});
+
+		this.addFunctionDefinition({
+			name: MongoDBFunctions.REPLACE,
+			baseFunction: 'produce',
+			parameters: [
+				{
+					id: 'collection',
+					label: 'Collection',
+					type: {
+						name: 'string'
+					}
+				},
+				{
+					id: 'query',
+					label: 'Query',
+					description: {
+						en: 'JSON used for the query',
+						de: 'JSON das für Query benutzt wird'
+					},
+					type: {
+						name: 'json'
+					}
+				},
+				{
+					id: 'message',
+					label: {
+						en: 'Document',
+						de: 'Dokument'
+					},
+					type: {
+						name: 'json'
+					}
+				},
+				{
+					id: 'upsert',
+					label: {
+						en: 'Upsert',
+						de: 'Upsert'
+					},
+					type: {
+						name: 'boolean'
+					},
+					defaultValue: false
 				}
 			]
 		});
