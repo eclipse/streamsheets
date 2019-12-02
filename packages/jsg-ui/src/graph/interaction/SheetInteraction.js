@@ -286,14 +286,16 @@ export default class SheetInteraction extends Interaction {
 							options.enumerateShifted((optCell) => {
 								if (optCell) {
 									const value = optCell.getValue();
-									const option = document.createElement('option');
-									optionsCnt += 1;
-									option.value = value;
-									option.text = value;
-									option.selected = cell.getValue() === value;
-									option.style.paddingTop = '5px';
-									option.style.paddingBottom = '5px';
-									selectList.appendChild(option);
+									if (value !== undefined) {
+										const option = document.createElement('option');
+										optionsCnt += 1;
+										option.value = value;
+										option.text = value;
+										option.selected = cell.getValue() === value;
+										option.style.paddingTop = '5px';
+										option.style.paddingBottom = '5px';
+										selectList.appendChild(option);
+									}
 								}
 							});
 						}
