@@ -1224,6 +1224,17 @@ const Strings = {
 			description: 'Speichert ein JSON Objekt in MongoDB',
 		},
 	},
+	'MONGO.REPLACE': {
+		category: 'streamsheet',
+		en: {
+			argumentList: 'Producer,Collection,Query,Document,Upsert',
+			description: 'Replace a JSON object matching the query in MongoDB'
+		},
+		de: {
+			argumentList: 'Producer,Collection,Query,Document,Upsert',
+			description: 'Ersetzt ein JSON Objekt, dass die Query erfüllt, in MongoDB'
+		}
+	},
 	'MONGO.DELETE': {
 		category: 'streamsheet',
 		en: {

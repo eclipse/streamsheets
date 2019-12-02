@@ -51,7 +51,7 @@ const paramTypeToFieldType = (type) => {
 		case 'number':
 			return Field.TYPES.SHEET_RANGE;
 		case 'boolean':
-			return Field.TYPES.CHECKBOX;
+			return Field.TYPES.SHEET_RANGE;
 		case 'enum':
 			return Field.TYPES.SELECT;
 		case 'union':
@@ -270,7 +270,7 @@ class FunctionWizard extends Component {
 		if (props.options.messageTerm) {
 			initMainMessageField(fields, props.options.messageTerm);
 		} else if (!selectedCellFunction && props.lastDefinedJSONRange) {
-			initMainMessageField(fields, props.lastDefinedJSONRange);
+			initMainMessageField(fields, `=${props.lastDefinedJSONRange}`);
 		}
 		this.state = {
 			functions,

@@ -1577,6 +1577,7 @@ export default class WorksheetView extends ContentNodeView {
 								case 'MONGO.COUNT':
 								case 'MONGO.AGGREGATE':
 								case 'MONGO.STORE':
+								case 'MONGO.REPLACE':
 								case 'MONGO.DELETE':
 								case 'KAFKA.PUBLISH':
 								case 'KAFKA.COMMAND':

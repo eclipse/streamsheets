@@ -48,17 +48,46 @@ const buildProjection = (resultKeys) => {
 
 module.exports = class MongoDBProducer extends ProducerMixin(MongoDBConnector) {
 	async produce(config) {
+		const { query, functionName } = config;
+		if (query && query._id) {
+			config.query._id = mongodb.ObjectID(query._id);
+		}
+		const client = await this.connect();
+		const db = client.db(this.dbName);
+		let result;
+		switch (functionName) {
+			case MongoDBFunctions.REPLACE:
+				result = await this._replace(db, config);
+				break;
+			case MongoDBFunctions.STORE:
+			default:
+				result = await this._insert(db, config);
+				break;
+		}
+		return result;
+	}
+
+	async _insert(db, config) {
 		const { collection, message } = config;
 		try {
-			const msg = typeof message === 'string' ? JSON.parse(message) : message;
-			// msg._id = new mongodb.ObjectID();
-			const client = await this.connect();
-			const db = client.db(this.dbName);
+			const doc = typeof message === 'string' ? JSON.parse(message) : message;
 			this.logger.debug(`Publishing to ${collection}`);
-			const res = await db.collection(collection || this.config.collection).insertOne(msg);
+			const res = await db.collection(collection || this.config.collection).insertOne(doc);
 			return res;
 		} catch (e) {
 			return this.handleWarningOnce(e, 'PUBLISH ERROR');
+		}
+	}
+
+	async _replace(db, config) {
+		const { collection, message, query, upsert } = config;
+		try {
+			const doc = typeof message === 'string' ? JSON.parse(message) : message;
+			this.logger.debug(`Replacing in ${collection} where ${JSON.stringify(query)}. Upsert: ${upsert}`);
+			const res = await db.collection(collection || this.config.collection).replaceOne(query, doc, { upsert });
+			return res;
+		} catch (e) {
+			return this.handleWarningOnce(e);
 		}
 	}
 

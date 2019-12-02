@@ -52,10 +52,22 @@ const sample2 = {
 	}
 };
 
-const MONGOSTORE = async (connector_, message, collection) => {
+const MONGOSTORE = async (connector_, collection, message) => {
 	const commandResult = await connector_.produce({
 		message,
-		collection
+		collection,
+		functionName: 'MONGO.STORE'
+	});
+	return commandResult;
+};
+
+const MONGOREPLACE = async (connector_, collection, query, message, upsert = false) => {
+	const commandResult = await connector_.produce({
+		message,
+		collection,
+		query,
+		upsert,
+		functionName: 'MONGO.REPLACE'
 	});
 	return commandResult;
 };
@@ -111,7 +123,7 @@ describe('MongoDBFunctions', () => {
 	describe('MONGO.STORE', () => {
 		it('store without optional args', async () => {
 			const collection = newCollection();
-			const storeResult = await MONGOSTORE(connector, sample1, collection);
+			const storeResult = await MONGOSTORE(connector, collection, sample1);
 			const { insertedId } = storeResult;
 			expect(storeResult.result.ok).toEqual(1);
 			const result = await MONGOQUERY(connector, collection, {});
@@ -119,11 +131,57 @@ describe('MongoDBFunctions', () => {
 			expect(result.message.data[0]).toEqual({ _id: insertedId, ...sample1 });
 		});
 	});
+	describe('MONGO.REPLACE', () => {
+		const REPLACEMENT = {
+			id: 3,
+			name: 'replacemnt'
+		};
+		test('replace with match', async () => {
+			const collection = newCollection();
+			await MONGOSTORE(connector, collection, sample1);
+
+			const storeResult = await MONGOREPLACE(connector, collection, { id: 1 }, REPLACEMENT);
+			expect(storeResult.result.ok).toEqual(1);
+			const result = await MONGOQUERY(connector, collection, {});
+			expect(result.message.data).toHaveLength(1);
+			expect(result.message.data[0]).toMatchObject(REPLACEMENT);
+		});
+		test('replace with match and upsert', async () => {
+			const collection = newCollection();
+			await MONGOSTORE(connector, collection, sample1);
+
+			const storeResult = await MONGOREPLACE(connector, collection, { id: 1 }, REPLACEMENT, true);
+			expect(storeResult.result.ok).toEqual(1);
+			const result = await MONGOQUERY(connector, collection, {});
+			expect(result.message.data).toHaveLength(1);
+			expect(result.message.data[0]).toMatchObject(REPLACEMENT);
+		});
+		test('replace with no match', async () => {
+			const collection = newCollection();
+
+			const storeResult = await MONGOREPLACE(connector, collection, { id: 1 }, REPLACEMENT);
+			expect(storeResult.result.ok).toEqual(1);
+			expect(storeResult.result.n).toEqual(0);
+			const result = await MONGOQUERY(connector, collection, {});
+			expect(result.message.data).toHaveLength(0);
+		});
+
+		test('replace with no match and upsert', async () => {
+			const collection = newCollection();
+
+			const storeResult = await MONGOREPLACE(connector, collection, { id: 1 }, REPLACEMENT, true);
+			expect(storeResult.result.ok).toEqual(1);
+			expect(storeResult.result.n).toEqual(1);
+			const result = await MONGOQUERY(connector, collection, {});
+			expect(result.message.data).toHaveLength(1);
+			expect(result.message.data[0]).toMatchObject(REPLACEMENT);
+		});
+	});
 	describe('MONGO.QUERY', () => {
 		const collection = newCollection();
 		beforeAll(async () => {
-			await MONGOSTORE(connector, sample1, collection);
-			await MONGOSTORE(connector, sample2, collection);
+			await MONGOSTORE(connector, collection, sample1);
+			await MONGOSTORE(connector, collection, sample2);
 		});
 		test('query with empty query returns all docuements', async () => {
 			const result = await MONGOQUERY(connector, collection, {});
@@ -131,7 +189,6 @@ describe('MongoDBFunctions', () => {
 			expect(result.message.data[0]).toMatchObject(sample1);
 			expect(result.message.data[1]).toMatchObject(sample2);
 		});
-
 		test('query by field returns matching documents', async () => {
 			const result = await MONGOQUERY(connector, collection, { id: 1 });
 			expect(result.message.data).toHaveLength(1);
@@ -175,8 +232,8 @@ describe('MongoDBFunctions', () => {
 	describe('MONGO.DELETE', () => {
 		test('should delete all documents matching the query', async () => {
 			const collection = newCollection();
-			await MONGOSTORE(connector, sample1, collection);
-			await MONGOSTORE(connector, sample2, collection);
+			await MONGOSTORE(connector, collection, sample1);
+			await MONGOSTORE(connector, collection, sample2);
 
 			const result = await MONGODELETE(connector, collection, { id: 1 });
 			expect(result.message.data.n).toBe(1);
@@ -187,8 +244,8 @@ describe('MongoDBFunctions', () => {
 		});
 		test('should delete no document if query has no match', async () => {
 			const collection = newCollection();
-			await MONGOSTORE(connector, sample1, collection);
-			await MONGOSTORE(connector, sample2, collection);
+			await MONGOSTORE(connector, collection, sample1);
+			await MONGOSTORE(connector, collection, sample2);
 
 			const result = await MONGODELETE(connector, collection, { id: 3 });
 			expect(result.message.data.n).toBe(0);
@@ -196,8 +253,8 @@ describe('MongoDBFunctions', () => {
 		});
 		test('should delete all documents with empty query', async () => {
 			const collection = newCollection();
-			await MONGOSTORE(connector, sample1, collection);
-			await MONGOSTORE(connector, sample2, collection);
+			await MONGOSTORE(connector, collection, sample1);
+			await MONGOSTORE(connector, collection, sample2);
 
 			const result = await MONGODELETE(connector, collection, {});
 			expect(result.message.data.n).toBe(2);
