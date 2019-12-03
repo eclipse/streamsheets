@@ -314,15 +314,17 @@ export default class SheetInteraction extends Interaction {
 						'change',
 						(ev) => {
 							if (termFunc.params[0].operand && termFunc.params[0].operand._range) {
+								let targetSheet = sheet;
 								if (termFunc.params.length > 2 && termFunc.params[2].operand._range) {
 									targetRange = termFunc.params[2].operand._range;
 									expr = new Expression(String(ev.target.value));
+									targetSheet = targetRange.getSheet();
 								} else {
 									termFunc.params[1] = Term.fromString(String(ev.target.value));
 									expr.correctFormula(sheet);
 								}
 								const cmd = new JSG.SetCellDataCommand(
-									view.getItem(),
+									targetSheet,
 									targetRange.toString(),
 									expr,
 									false
