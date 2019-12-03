@@ -1,6 +1,6 @@
 *
 !packages/*
-packages/*/node_modules
+packages/**/node_modules
 !yarn.lock
 !.yarnrc
 !package.json
