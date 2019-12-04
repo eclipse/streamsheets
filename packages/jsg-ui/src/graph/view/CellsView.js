@@ -353,6 +353,7 @@ export default class CellsView extends NodeView {
 				case 'MONGO.COUNT':
 				case 'MONGO.AGGREGATE':
 				case 'MONGO.STORE':
+				case 'MONGO.REPLACE':
 				case 'MONGO.DELETE':
 				case 'KAFKA.PUBLISH':
 				case 'KAFKA.COMMAND':
@@ -1603,6 +1604,7 @@ export default class CellsView extends NodeView {
 			case 'MONGO.COUNT':
 			case 'MONGO.AGGREGATE':
 			case 'MONGO.STORE':
+			case 'MONGO.REPLACE':
 			case 'MONGO.DELETE':
 			case 'KAFKA.PUBLISH':
 			case 'KAFKA.COMMAND':

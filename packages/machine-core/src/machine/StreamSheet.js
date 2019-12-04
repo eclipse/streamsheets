@@ -367,7 +367,8 @@ class StreamSheet {
 		// DL-1334: exclude arrival trigger
 		const doIt = manual || this.trigger.type !== StreamSheetTrigger.TYPE.ARRIVAL || this.trigger.isEndless;
 		if (doIt) {
-			this._doStep();
+			const data = manual === 'force' ? { cmd: 'force' } : undefined;
+			this._doStep(data);
 		}
 	}
 
@@ -391,7 +392,7 @@ class StreamSheet {
 	}
 
 	// DL-1114: WORKAROUND until next DEMO finished...
-	_skipExecuteTrigger(data) {
+	_skipExecuteTrigger(data = {}) {
 		// we are executed but wait for an execute to finish!!
 		return (
 			this._state === State.REPEAT &&
@@ -403,11 +404,12 @@ class StreamSheet {
 	_doStep(data, message) {
 		let result;
 		const firstTime = !this._trigger.isActive;
+		const forceStep = data && data.cmd === 'force';
 		// (DL-531): reset repeat-steps on first cycle...
 		if (firstTime) this.stats.repeatsteps = 0;
 		this._trigger.preProcess(data);
 		const skipTrigger = this._skipExecuteTrigger(data);
-		if (!skipTrigger && doTrigger(this)) {
+		if (forceStep || (!skipTrigger && doTrigger(this))) {
 			let nextLoopElement = this._state === State.ACTIVE;
 			if (nextLoopElement && this._useNextLoopElement) {
 				this._useNextLoopElement = false;

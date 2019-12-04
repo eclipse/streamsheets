@@ -13,6 +13,7 @@ import {
 	HeaderNode,
 	SheetHeaderNode,
 	CellRange,
+	Expression,
 	WorksheetNode,
 	ExecuteFunctionCommand,
 	TreeItemsNode,
@@ -225,7 +226,7 @@ export default class SheetInteraction extends Interaction {
 		const cell = data.get(this._startCell);
 
 		if (cell !== undefined) {
-			const expr = cell.getExpression();
+			let expr = cell.getExpression();
 			if (expr !== undefined) {
 				const termFunc = expr.getTerm();
 
@@ -240,7 +241,7 @@ export default class SheetInteraction extends Interaction {
 						cellRect.y + cellRect.height + cellRect.height / 2
 					);
 					const size = new Point(cellRect.width, cellRect.height);
-					const targetRange = new CellRange(
+					let targetRange = new CellRange(
 						sheet,
 						this._startCell.x,
 						this._startCell.y,
@@ -284,15 +285,19 @@ export default class SheetInteraction extends Interaction {
 							const options = termFunc.params[0].operand._range;
 
 							options.enumerateShifted((optCell) => {
-								const value = optCell ? optCell.getValue() : '';
-								const option = document.createElement('option');
-								optionsCnt += 1;
-								option.value = value;
-								option.text = value;
-								option.selected = cell.getValue() === value;
-								option.style.paddingTop = '5px';
-								option.style.paddingBottom = '5px';
-								selectList.appendChild(option);
+								if (optCell) {
+									const value = optCell.getValue();
+									if (value !== undefined) {
+										const option = document.createElement('option');
+										optionsCnt += 1;
+										option.value = value;
+										option.text = value;
+										option.selected = cell.getValue() === value;
+										option.style.paddingTop = '5px';
+										option.style.paddingBottom = '5px';
+										selectList.appendChild(option);
+									}
+								}
 							});
 						}
 					}
@@ -309,10 +314,17 @@ export default class SheetInteraction extends Interaction {
 						'change',
 						(ev) => {
 							if (termFunc.params[0].operand && termFunc.params[0].operand._range) {
-								termFunc.params[1] = Term.fromString(String(ev.target.value));
-								expr.correctFormula(sheet);
+								let targetSheet = sheet;
+								if (termFunc.params.length > 2 && termFunc.params[2].operand._range) {
+									targetRange = termFunc.params[2].operand._range;
+									expr = new Expression(String(ev.target.value));
+									targetSheet = targetRange.getSheet();
+								} else {
+									termFunc.params[1] = Term.fromString(String(ev.target.value));
+									expr.correctFormula(sheet);
+								}
 								const cmd = new JSG.SetCellDataCommand(
-									view.getItem(),
+									targetSheet,
 									targetRange.toString(),
 									expr,
 									false

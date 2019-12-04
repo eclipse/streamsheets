@@ -854,6 +854,8 @@ export default class EditCellInteraction extends EditTextInteraction {
 		try {
 			view.getItem().textToExpression(newText);
 		} catch (e) {
+			this.div._ignoreBlur = true;
+			this._cellEditor.deActivateReferenceMode();
 			view.notifyMessage({
 				message: e.message,
 				focusElement: this.div,

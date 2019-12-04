@@ -446,7 +446,7 @@ export default class CellEditor {
 		// reset
 		const ranges = this.activateEditRanges();
 
-		if (text.length && (text.charAt(0) === '='/* || alwaysReplace */)) {
+		if (text.length && text.charAt(0) === '=' /* || alwaysReplace */) {
 			term = this.parseTextToTerm(text);
 		}
 
@@ -537,35 +537,35 @@ export default class CellEditor {
 		const selection = this.getEditRanges();
 
 		switch (event.key) {
-		case 'F4': {
-			const index = selection.getActiveRangeIndex();
-			const cellRange = selection.getAt(index);
-			if (cellRange._x1R && cellRange._x2R && cellRange._y1R && cellRange._y2R) {
-				cellRange._x1R = false;
-				cellRange._x2R = false;
-				cellRange._y1R = false;
-				cellRange._y2R = false;
-			} else if (!cellRange._x1R && !cellRange._x2R && !cellRange._y1R && !cellRange._y2R) {
-				cellRange._x1R = true;
-				cellRange._x2R = true;
-				cellRange._y1R = false;
-				cellRange._y2R = false;
-			} else if (cellRange._x1R && cellRange._x2R && !cellRange._y1R && !cellRange._y2R) {
-				cellRange._x1R = false;
-				cellRange._x2R = false;
-				cellRange._y1R = true;
-				cellRange._y2R = true;
-			} else {
-				cellRange._x1R = true;
-				cellRange._x2R = true;
-				cellRange._y1R = true;
-				cellRange._y2R = true;
+			case 'F4': {
+				const index = selection.getActiveRangeIndex();
+				const cellRange = selection.getAt(index);
+				if (cellRange._x1R && cellRange._x2R && cellRange._y1R && cellRange._y2R) {
+					cellRange._x1R = false;
+					cellRange._x2R = false;
+					cellRange._y1R = false;
+					cellRange._y2R = false;
+				} else if (!cellRange._x1R && !cellRange._x2R && !cellRange._y1R && !cellRange._y2R) {
+					cellRange._x1R = true;
+					cellRange._x2R = true;
+					cellRange._y1R = false;
+					cellRange._y2R = false;
+				} else if (cellRange._x1R && cellRange._x2R && !cellRange._y1R && !cellRange._y2R) {
+					cellRange._x1R = false;
+					cellRange._x2R = false;
+					cellRange._y1R = true;
+					cellRange._y2R = true;
+				} else {
+					cellRange._x1R = true;
+					cellRange._x2R = true;
+					cellRange._y1R = true;
+					cellRange._y2R = true;
+				}
+				break;
 			}
-			break;
-		}
-		default:
-			view.updateSelectionFromEvent(event.key, event.shiftKey, event.ctrlKey, this.getEditRanges());
-			break;
+			default:
+				view.updateSelectionFromEvent(event.key, event.shiftKey, event.ctrlKey, this.getEditRanges());
+				break;
 		}
 
 		event.preventDefault();
@@ -681,7 +681,10 @@ export default class CellEditor {
 		if (!this.isRangeSelected()) {
 			return undefined;
 		}
+		return this.getSelectedRangeIndexNoRange();
+	}
 
+	getSelectedRangeIndexNoRange() {
 		const sel = window.getSelection();
 
 		if (sel.rangeCount === 0) {
@@ -707,60 +710,11 @@ export default class CellEditor {
 	}
 
 	toggleReferenceType(event, view) {
-		if (!this.isRangeSelected()) {
-			if (this.isReferenceByKeyAllowed()) {
-				const index = this.getSelectedRangeIndex();
-				this.activateReferenceMode();
-				if (index !== undefined) {
-					this.setActiveRangeIndex(index);
-				}
-				this.updateReference(
-					event,
-					view,
-				);
-			}
-			return;
-		}
-		const sel = window.getSelection();
-
-		if (sel.rangeCount) {
-			const range = sel.getRangeAt(0);
-			let text = range.toString({ useName: true, item: this.formulaSheet });
-
-			const cellRange = CellRange.parse(text, this.formulaSheet, true);
-			if (cellRange === undefined) {
-				return;
-			}
-
-			if (cellRange._x1R && cellRange._x2R && cellRange._y1R && cellRange._y2R) {
-				cellRange._x1R = false;
-				cellRange._x2R = false;
-				cellRange._y1R = false;
-				cellRange._y2R = false;
-			} else if (!cellRange._x1R && !cellRange._x2R && !cellRange._y1R && !cellRange._y2R) {
-				cellRange._x1R = true;
-				cellRange._x2R = true;
-				cellRange._y1R = false;
-				cellRange._y2R = false;
-			} else if (cellRange._x1R && cellRange._x2R && !cellRange._y1R && !cellRange._y2R) {
-				cellRange._x1R = false;
-				cellRange._x2R = false;
-				cellRange._y1R = true;
-				cellRange._y2R = true;
-			} else {
-				cellRange._x1R = true;
-				cellRange._x2R = true;
-				cellRange._y1R = true;
-				cellRange._y2R = true;
-			}
-
-			text = cellRange.toString({ useName: true, item: this.formulaSheet });
-
-			range.deleteContents();
-			const node = document.createTextNode(text);
-			range.insertNode(node);
-			range.setStart(node, 0);
-			range.setEnd(node, text.length);
+		const index = this.getSelectedRangeIndexNoRange();
+		if (index !== undefined) {
+			this.setActiveRangeIndex(index);
+			this.selectedRangeByIndex(index);
+			this.updateReference(event, view);
 		}
 	}
 

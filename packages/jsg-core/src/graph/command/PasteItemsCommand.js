@@ -38,12 +38,11 @@ const GraphItem = require('../model/GraphItem');
 class PasteItemsCommand extends Command {
 	static createFromObject(data = {}, { graph, viewer }) {
 		const item = graph.getItemById(data.parentId) || graph;
-		const offset = new Point(data.offset.x, data.offset.y);
 		return new PasteItemsCommand(
 			data.json,
 			viewer,
 			item,
-			offset
+			data.offset ? new Point(data.offset.x, data.offset.y) : undefined
 		).initWithObject(data);
 	}
 	constructor(json, viewer, target, offset) {
@@ -63,12 +62,8 @@ class PasteItemsCommand extends Command {
 			this.parent = undefined;
 		}
 		// use this offset to trans lated pasted items...
-		if (offset) {
-			this.offset = offset;
-		} else {
-			JSG.clipOffset.add(new Point(200, 200));
-			this.offset = JSG.clipOffset.copy()
-		}
+		this.offset = offset;
+
 		if (viewer) {
 			this.oldSelection = viewer.getSelection();
 		}
@@ -76,7 +71,6 @@ class PasteItemsCommand extends Command {
 
 	initWithObject(data) {
 		const cmd = super.initWithObject(data);
-		cmd._lastOffset = new Point(data.lastOffset.x, data.lastOffset.y);
 		return cmd;
 	}
 
@@ -105,7 +99,6 @@ class PasteItemsCommand extends Command {
 				? this._getTargetParent().getId()
 				: this.parent.getId();
 		data.offset = this.offset;
-		data.lastOffset = this._lastOffset;
 
 		return data;
 	}
@@ -379,12 +372,18 @@ class PasteItemsCommand extends Command {
 
 	_translateItems(items, bbox) {
 		let angle = 0;
-		const offset =
-			this.offset !== undefined
-				? JSG.ptCache.get().setTo(this.offset)
-				: this._getOffset(this.parent, bbox, JSG.ptCache.get());
+		let offset;
+		// const offset =
+		// 	this.offset !== undefined
+		// 		? JSG.ptCache.get().setTo(this.offset)
+		// 		: this._getOffset(this.parent, bbox, JSG.ptCache.get());
 
-		this._lastOffset = offset.copy();
+		if (this.offset === undefined) {
+			JSG.clipOffset.add(new Point(200, 200));
+			offset = JSG.clipOffset.copy()
+		} else {
+			offset = JSG.ptCache.get().setTo(this.offset);
+		}
 
 		function translate(itm) {
 			angle += itm.getAngle().getValue();

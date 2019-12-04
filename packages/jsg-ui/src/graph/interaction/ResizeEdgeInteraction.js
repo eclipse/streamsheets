@@ -9,7 +9,7 @@ import {
 	CompoundCommand,
 	Port,
 	GraphUtils,
-	default as JSG
+	default as JSG, Point
 } from '@cedalo/jsg-core';
 import AbstractInteraction from './AbstractInteraction';
 import InteractionUtils from './InteractionUtils';
@@ -98,9 +98,57 @@ class ResizeEdgeInteraction extends AbstractInteraction {
 		return super._createSelectionFeedback(controller, viewer);
 	}
 
+	_alignShift(event, current) {
+		if (event.event.shiftKey) {
+			if (this.feedback.length) {
+				const prevpt = JSG.ptCache.get();
+				let prev = this._dragIndex > 0 ? this.feedback[0].getPointAt(this._dragIndex - 1, prevpt) : undefined;
+				if (!prev) {
+					prev =
+						this._dragIndex < this.feedback[0].getPointsCount() - 1
+							? this.feedback[0].getPointAt(this._dragIndex + 1, prev)
+							: undefined;
+				}
+				if (prev) {
+					const diff = new Point(this.currentLocation.x - prev.x, this.currentLocation.y - prev.y);
+					let angle = Math.atan2(diff.y, diff.x);
+					if (angle < 0) {
+						angle += Math.PI * 2;
+					}
+					if (angle > Math.PI_8 * 15 ||
+						angle < Math.PI_8 ||
+						(angle > Math.PI_8 * 7 && angle < Math.PI_8 * 9)) {
+						current.y = prev.y;
+					} else if ((angle > Math.PI_8 * 3 && angle < Math.PI_8 * 5) ||
+						(angle > Math.PI_8 * 11 && angle < Math.PI_8 * 13)) {
+						current.x = prev.x;
+					} else if ((angle > Math.PI_8 && angle < Math.PI_8 * 3) ||
+						(angle > Math.PI_8 * 9 && angle < Math.PI_8 * 11)) {
+						if (Math.abs(diff.x) > Math.abs(diff.y)) {
+							current.x = prev.x + diff.y;
+						} else {
+							current.y = prev.y + diff.x;
+						}
+					} else if ((angle > Math.PI_8 * 5 && angle < Math.PI_8 * 7) ||
+						(angle > Math.PI_8 * 13 && angle < Math.PI_8 * 15)) {
+						if (Math.abs(diff.x) > Math.abs(diff.y)) {
+							current.x = prev.x - diff.y;
+						} else {
+							current.y = prev.y - diff.x;
+						}
+					}
+				}
+				JSG.ptCache.release(prevpt);
+			}
+		}
+		return current;
+	}
+
 	updateFeedback(event, viewer, offset) {
 		const current = this.alignToGrid(this.currentLocation, viewer, event.event.altKey);
 		this._alignOrthogonal(current, viewer);
+		this._alignShift(event, current);
+
 		this.feedback[0].setPointAt(this._dragIndex, current);
 		this.showPossiblePortAt(event, viewer);
 	}
@@ -340,6 +388,7 @@ class ResizeEdgeInteraction extends AbstractInteraction {
 		const rootView = viewer.rootController.getView();
 		const newlocation = this.alignToGrid(location, viewer, event.event.altKey);
 		this._alignOrthogonal(newlocation, viewer);
+		this._alignShift(event, newlocation);
 		GraphUtils.traverseDown(rootView, parent, (v) => {
 			v.translateFromParent(newlocation);
 		});
