@@ -81,6 +81,9 @@ class FunctionErrors {
 		});
 		return error;
 	}
+	errorAt(index, error) {
+		return `${error}_${index}`;
+	}
 }
 
 module.exports = FunctionErrors.of(ERRORS, EXCEL_ERRORS);
