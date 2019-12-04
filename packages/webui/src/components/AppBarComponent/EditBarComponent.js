@@ -396,6 +396,9 @@ export class EditBarComponent extends Component {
 			// TODO: validate its a graph formula, if expected
 		} catch (e) {
 			const element = document.getElementById('editbarformula');
+			if (this._cellEditor) {
+				this._cellEditor.deActivateReferenceMode();
+			}
 			view.notifyMessage(
 				{
 					message: e.message,

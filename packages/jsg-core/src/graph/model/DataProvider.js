@@ -625,8 +625,8 @@ module.exports = class DataProvider {
 											!insert &&
 											refRange._y1 >= range.getY1() &&
 											refRange._y2 <= range.getY2() &&
-											refRange._x1 >= range.getX1() &&
-											refRange._x2 <= range.getX2()
+											refRange._x1 - this._sheet.getColumns().getInitialSection() >= range.getX1() &&
+											refRange._x2 - this._sheet.getColumns().getInitialSection() <= range.getX2()
 										) {
 											operand._range = undefined;
 										} else {
@@ -666,10 +666,10 @@ module.exports = class DataProvider {
 										}
 									} else if (
 										!insert &&
-										refRange._x1 >= range.getX1() &&
-										refRange._x2 <= range.getX2() &&
-										refRange._x1 >= range.getX1() &&
-										refRange._x2 <= range.getX2()
+										refRange._x1 - this._sheet.getColumns().getInitialSection() >= range.getX1() &&
+										refRange._x2 - this._sheet.getColumns().getInitialSection() <= range.getX2() &&
+										refRange._y1 >= range.getY1() &&
+										refRange._y2 <= range.getY2()
 									) {
 										operand._range = undefined;
 									} else {
