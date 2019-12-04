@@ -1,13 +1,15 @@
-const { runFunction } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const {	runFunction, values: { isNumber } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
 const ensureIsInRange = (val, min, max) => Math.min(max, Math.max(val, min));
+const areAllNumbers = (...numbers) => numbers.every(isNumber);
 
 const cmyk = {
 	color: { c: 0, m: 0, y: 0, k: 0 },
+	error: undefined,
 	fromStr(str) {
 		const colors = str.split(',').reduce((all, p, idx) => {
 			// eslint-disable-next-line no-nested-ternary
@@ -20,10 +22,13 @@ const cmyk = {
 		return colors.length === 4 ? this.set(...colors) : undefined;
 	},
 	set(c, m, y, k) {
-		this.color.c = ensureIsInRange(Math.round(c),0, 100);
-		this.color.m = ensureIsInRange(Math.round(m),0, 100);
-		this.color.y = ensureIsInRange(Math.round(y),0, 100);
-		this.color.k = ensureIsInRange(Math.round(k),0, 100);
+		this.error = this.error || (!areAllNumbers(c, m, y, k) ? ERROR.VALUE : undefined);
+		if (!this.error) {
+			this.color.c = ensureIsInRange(Math.round(c),0, 100);
+			this.color.m = ensureIsInRange(Math.round(m),0, 100);
+			this.color.y = ensureIsInRange(Math.round(y),0, 100);
+			this.color.k = ensureIsInRange(Math.round(k),0, 100);
+		}
 		return this;
 	},
 	toString() {
@@ -53,6 +58,7 @@ const cmyk = {
 
 const hex = {
 	color: 0,
+	error: undefined,
 	fromStr(str) {
 		str = str.startsWith('#') ? str.substr(1) : str;
 		return this.set(parseInt(str, 16));
@@ -61,6 +67,7 @@ const hex = {
 		return `${'000000'.substring(str.length)}${str}`;
 	},
 	set(color) {
+		this.error = this.error || (!isNumber(color) ? ERROR.VALUE : undefined);
 		this.color = color;
 		return this;
 	},
@@ -85,6 +92,7 @@ const hex = {
 
 const hsl = {
 	color: { h: 0, s: 0, l: 0 },
+	error: undefined,
 	fromStr(str) {
 		const colors = str.split(',').reduce((all, p, idx) => {
 			// eslint-disable-next-line no-nested-ternary
@@ -98,9 +106,12 @@ const hsl = {
 	},
 
 	set(h, s, l) {
-		this.color.h = ensureIsInRange(Math.round(h), 0, 360);
-		this.color.s = ensureIsInRange(Math.round(s), 0, 100);
-		this.color.l = ensureIsInRange(Math.round(l), 0, 100);
+		this.error = !areAllNumbers(h, s, l) ? ERROR.VALUE : undefined;
+		if (!this.error) {
+			this.color.h = ensureIsInRange(Math.round(h), 0, 360);
+			this.color.s = ensureIsInRange(Math.round(s), 0, 100);
+			this.color.l = ensureIsInRange(Math.round(l), 0, 100);
+		}
 		return this;
 	},
 	toString() {
@@ -145,6 +156,7 @@ const hsl = {
 };
 const hsv = {
 	color: { h: 0, s: 0, v: 0 },
+	error: undefined,
 	fromStr(str) {
 		const colors = str.split(',').reduce((all, p, idx) => {
 			// eslint-disable-next-line no-nested-ternary
@@ -157,9 +169,12 @@ const hsv = {
 		return colors.length === 3 ? this.set(...colors) : undefined;
 	},
 	set(h, s, v) {
-		this.color.h = ensureIsInRange(Math.round(h), 0, 360);
-		this.color.s = ensureIsInRange(Math.round(s), 0, 100);
-		this.color.v = ensureIsInRange(Math.round(v), 0, 100);
+		this.error = !areAllNumbers(h, s, v) ? ERROR.VALUE : undefined;
+		if (!this.error) {
+			this.color.h = ensureIsInRange(Math.round(h), 0, 360);
+			this.color.s = ensureIsInRange(Math.round(s), 0, 100);
+			this.color.v = ensureIsInRange(Math.round(v), 0, 100);
+		}
 		return this;
 	},
 	toString() {
@@ -202,6 +217,7 @@ const hsv = {
 
 const rgb = {
 	color: { r: 0, g: 0, b: 0 },
+	error: undefined,
 	fromStr(str) {
 		// rgb(,,) or (,,) or ,,
 		const colors = str.split(',').reduce((all, p, idx) => {
@@ -215,9 +231,12 @@ const rgb = {
 		return this.set(...colors);
 	},
 	set(r, g, b) {
-		this.color.r = ensureIsInRange(Math.round(r), 0, 255);
-		this.color.g = ensureIsInRange(Math.round(g), 0, 255);
-		this.color.b = ensureIsInRange(Math.round(b), 0, 255);
+		this.error = !areAllNumbers(r, g, b) ? ERROR.VALUE : undefined;
+		if (!this.error) {
+			this.color.r = ensureIsInRange(Math.round(r), 0, 255);
+			this.color.g = ensureIsInRange(Math.round(g), 0, 255);
+			this.color.b = ensureIsInRange(Math.round(b), 0, 255);
+		}
 		return this;
 	},
 	toString() {
@@ -284,6 +303,7 @@ const rgb = {
 const colors = { cmyk, hex, hsl, hsv, rgb };
 const transform = {
 	_color: undefined,
+	_error: undefined,
 	_value: 0,
 	color(val) {
 		this._value = val;
@@ -291,22 +311,25 @@ const transform = {
 	},
 	from(color) {
 		this._color = colors[color];
-		this._color = this._color && this._color.fromStr(this._value);
+		if (this._color) {
+			this._color = this._color.fromStr(this._value);
+			this._error = this._error || this._color.error;
+		} else this._error = ERROR.VALUE;	
 		return this;
 	},
 	to(color) {
-		const func = this._color && this._color[color].bind(this._color);
+		const func = !this._error && this._color[color].bind(this._color);
 		const toColor = func && func();
-		return toColor ? toColor.toString() : ERROR.INVALID_PARAM;
+		return toColor ? toColor.toString() : this._error || ERROR.INVALID_PARAM;
 	}
 };
 
 const convertcolor = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(3)
-		.mapNextArg((valTerm) => convert.toString(valTerm.value, ERROR.VALUE))
-		.mapNextArg((fromTerm) => convert.toString(fromTerm.value, ERROR.VALUE))
-		.mapNextArg((toTerm) => convert.toString(toTerm.value, ERROR.VALUE))
+		.mapNextArg((valTerm) => convert.toString(valTerm.value, ERROR.ARGS))
+		.mapNextArg((fromTerm) => convert.toString(fromTerm.value, ERROR.ARGS))
+		.mapNextArg((toTerm) => convert.toString(toTerm.value, ERROR.ARGS))
 		.run((value, fromColor, toColor) => {
 			if (fromColor === toColor) {
 				let color = colors[fromColor];
