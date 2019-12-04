@@ -94,12 +94,12 @@ module.exports = {
 			en: {
 				argumentList:
 					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,Label,LabelFont,Value,Min,Max,Step,ScaleFont,Marker,FormatRange,StartAngle,EndAngle',
-				description: 'Creates a slider control'
+				description: 'Creates a knob control'
 			},
 			de: {
 				argumentList:
 					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Label,Labelschrift,Wert,Minimum,Maximum,Schritt,Skalenschrift,Marker,Skalenformat,StartWinkel,EndWinkel',
-				description: 'Erzeugt ein Schieberegler Objekt'
+				description: 'Erzeugt ein Drehregler Objekt'
 			}
 		},
 		'DRAW.POLYGON': {
