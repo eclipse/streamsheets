@@ -27,9 +27,16 @@ const tokens2info = (tokens) => {
 	traverse(tokens, (info) => alltokens.push(info));
 	return alltokens;
 };
+const compareParamIndex = (idx1, idx2) => {
+	// eslint-disable-next-line no-nested-ternary
+	const i1 = idx1 != null ? idx1 : idx2 != null ? idx2 + 1 : 0;
+	// eslint-disable-next-line no-nested-ternary
+	const i2 = idx2 != null ? idx2 : idx1 != null ? idx1 + 1 : 0;
+	return i1 - i2;
+};
 const compareInfo = (i1, i2) => {
 	const idx = i1.start - i2.start;
-	return idx === 0 && i1.paramIndex != null && i2.paramIndex != null ? i1.paramIndex - i2.paramIndex : idx;
+	return idx === 0 ? compareParamIndex(i1.paramIndex, i2.paramIndex): idx;
 };
 
 module.exports = class Parser {
