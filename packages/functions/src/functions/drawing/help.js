@@ -29,7 +29,7 @@ module.exports = {
 		'DRAW.BUTTON': {
 			en: {
 				argumentList:
-					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Angle,Attributes,Events,RotCenter,Label,LabelFont,Value',
+					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,Label,LabelFont,Value',
 				description: 'Creates a button control'
 			},
 			de: {
@@ -41,7 +41,7 @@ module.exports = {
 		'DRAW.CHART': {
 			en: {
 				argumentList:
-					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Angle,Attributes,Events,RotCenter,ChartType,DataRange,FormatRange',
+					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,ChartType,DataRange,FormatRange',
 				description: 'Creates a chart'
 			},
 			de: {
@@ -53,7 +53,7 @@ module.exports = {
 		'DRAW.CHECKBOX': {
 			en: {
 				argumentList:
-					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Angle,Attributes,Events,RotCenter,Label,LabelFont,Value',
+					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,Label,LabelFont,Value',
 				description: 'Creates a checkbox control'
 			},
 			de: {
@@ -93,7 +93,7 @@ module.exports = {
 		'DRAW.KNOB': {
 			en: {
 				argumentList:
-					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Angle,Attributes,Events,RotCenter,Label,LabelFont,Value,Min,Max,Step,ScaleFont,Marker,FormatRange,StartAngle,EndeAngle',
+					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,Label,LabelFont,Value,Min,Max,Step,ScaleFont,Marker,FormatRange,StartAngle,EndAngle',
 				description: 'Creates a slider control'
 			},
 			de: {
@@ -105,7 +105,7 @@ module.exports = {
 		'DRAW.POLYGON': {
 			en: {
 				argumentList:
-					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Angle,Attributes,Events,RotCenter,PointRange,Close',
+					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,PointRange,Close',
 				description: 'Creates a polygon within the given drawing using proportional coordinates'
 			},
 			de: {
@@ -129,7 +129,7 @@ module.exports = {
 		'DRAW.SLIDER': {
 			en: {
 				argumentList:
-					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Angle,Attributes,Events,RotCenter,Label,LabelFont,Value,Min,Max,Step,ScaleFont,Marker,FormatRange',
+					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,Label,LabelFont,Value,Min,Max,Step,ScaleFont,Marker,FormatRange',
 				description: 'Creates a slider control'
 			},
 			de: {
