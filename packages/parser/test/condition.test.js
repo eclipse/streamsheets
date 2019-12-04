@@ -153,5 +153,19 @@ describe('parsing invalid conditions', () => {
 		expectInfoHas(info[2], { start: 5, end: 5, paramIndex: 1, type: 'undef', value: undefined });
 		expectInfoHas(info[3], { start: 5, end: 5, paramIndex: 2, type: 'undef', value: undefined });
 	});
+	// DL-2704
+	it('should sort operator before its operands', () => {
+		const info = Parser.getFormulaInfos('if(and(1,2)=true,42,23)', context);
+		expect(info).toBeDefined();
+		expect(info.length).toBe(8);
+		expectInfoHas(info[0], { start: 0, end: 23, paramIndex: undefined, type: 'condition' });
+		expectInfoHas(info[1], { start: 3, end: 16, paramIndex: 0, type: 'binaryop' });
+		expectInfoHas(info[2], { start: 3, end: 11, paramIndex: undefined, type: 'function', value: 'and' });
+		expectInfoHas(info[3], { start: 7, end: 8, paramIndex: 0, type: 'number', value: '1' });
+		expectInfoHas(info[4], { start: 9, end: 10, paramIndex: 1, type: 'number', value: '2' });
+		expectInfoHas(info[5], { start: 12, end: 16, paramIndex: undefined, type: 'identifier', value: 'true' });
+		expectInfoHas(info[6], { start: 17, end: 19, paramIndex: 1, type: 'number', value: '42' });
+		expectInfoHas(info[7], { start: 20, end: 22, paramIndex: 2, type: 'number', value: '23' });
+	});
 });
 
