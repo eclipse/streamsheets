@@ -800,7 +800,7 @@ export default class WorksheetView extends ContentNodeView {
 			changed = true;
 		}
 
-		if (rect.getBottom() + offset.y > bounds.height - colSize) {
+		if (rect.getBottom() + offset.y - 1 > bounds.height - colSize) {
 			model = viewport.getVerticalRangeModel();
 			viewport.getVerticalRangeModel().setValue(model._min + rect.getBottom() - bounds.height);
 			changed = true;
