@@ -1,4 +1,4 @@
-const { FunctionErrors } = require('@cedalo/error-codes');
+// const { FunctionErrors } = require('@cedalo/error-codes');
 
 const pipe = (...fns) => (val) => fns.reduce((res, fn) => fn(res), val);
 const compose = (...fns) => (val) => fns.reduceRight((res, fn) => fn(res), val);
@@ -10,23 +10,20 @@ const cutBrackets = (str) => {
 };
 
 
-const ignoreOnError = (fn) => (res) => FunctionErrors.isError(res) ? res : fn(res);
-const wrapFunctions = (fn, fns) => fns.map(f => fn(f));
+// const ignoreOnError = (fn) => (res) => FunctionErrors.isError(res) ? res : fn(res);
+// const wrapFunctions = (fn, fns) => fns.map(f => fn(f));
 
-const pipeCheckError = (...fns) => (val) => {
-	let res = val;
-	for (let i = 0; i < fns.length && !FunctionErrors.isError(res); i += 1) {
-		res = fns[i](res);
-	}
-	return res;
-};
+// const pipeCheckError = (...fns) => (val) => {
+// 	let res = val;
+// 	for (let i = 0; i < fns.length && !FunctionErrors.isError(res); i += 1) {
+// 		res = fns[i](res);
+// 	}
+// 	return res;
+// };
 
 module.exports = {
 	compose,
 	cutBrackets,
 	deepCopy,
-	ignoreOnError,
-	pipe,
-	pipeCheckError,
-	wrapFunctions
+	pipe
 };
