@@ -6084,7 +6084,7 @@
 		  "isRef": true
 		},
 		"protocolVersion": 4,
-		"url": "broker",
+		"url": "localhost",
 		"userPropertiesConnect": [],
 		"userName": "cedalo",
 		"password": "fc3fd1db-274e-4eec-b952-7ff4e1270e12",
