@@ -60,6 +60,9 @@ VOLUME /var/lib/mongodb
 # # Mosquitto
 COPY mosquitto etc/mosquitto
 
+# # Mosquitto Default
+COPY mosquitto-default etc/mosquitto-default
+
 # Redis
 COPY redis/redis.conf /etc/redis.conf
 
