@@ -1,8 +1,5 @@
 const { touch, generateId, applyUpdate } = require('./Document');
-const InternalError = require('./InternalError');
-const InputError = require('./InputError');
-const MongoError = require('./MongoError');
-const ERROR_CODES = require('./ErrorCodes');
+const { InternalError, InputError, MongoError, ErrorCodes } = require('./errors');
 
 const toExternal = (user) => {
 	if (!user) {
@@ -60,7 +57,7 @@ const sanitizeUpdate = (update) => {
 const validateSettings_ = (settings) => {
 	const { locale } = settings;
 	const errors = {
-		locale: !['en', 'de'].includes(locale) ? ERROR_CODES.LOCALE_INVALID : undefined
+		locale: !['en', 'de'].includes(locale) ? ErrorCodes.LOCALE_INVALID : undefined
 	};
 	return Object.values(errors).filter((error) => !!error).length > 0 ? errors : undefined;
 };
@@ -76,11 +73,11 @@ const validateSettings = (settings) => {
 const validate = (user) => {
 	const { username, email, password } = user;
 	const errors = {
-		username: !username ? ERROR_CODES.USERNAME_INVALID : undefined,
+		username: !username ? ErrorCodes.USERNAME_INVALID : undefined,
 		email: !(email && typeof email === 'string' && email.match(/^\S+@\S+\.\S+/))
-			? ERROR_CODES.EMAIL_INVALID
+			? ErrorCodes.EMAIL_INVALID
 			: undefined,
-		password: !password ? ERROR_CODES.PASSWORD_INVALID : undefined,
+		password: !password ? ErrorCodes.PASSWORD_INVALID : undefined,
 		settings: validateSettings_(user.settings)
 	};
 
@@ -124,9 +121,15 @@ const defaults = (user) => {
 	return copy;
 };
 
+const noop = () => {};
+
 const UserRepository = {
 	findUser: async (collection, id) => {
 		const result = await collection.findOne({ _id: id }, hidePassword());
+		return toExternal(result);
+	},
+	findMinimalUser: async (collection, id) => {
+		const result = await collection.findOne({ _id: id }, hidePassword({ projection: { _id: 1 } }));
 		return toExternal(result);
 	},
 	findUserByUsername: async (collection, username) => {
@@ -137,7 +140,8 @@ const UserRepository = {
 		const result = await collection.find({}, hidePassword()).toArray();
 		return result.map(toExternal);
 	},
-	createUser: async (collection, user) => {
+	createUser: async (collection, user, auth = noop) => {
+		await auth(user);
 		const userDocument = beforeWrite(defaults(generateId(toInternal(user))));
 		try {
 			await collection.insertOne(userDocument);
@@ -147,11 +151,11 @@ const UserRepository = {
 				const fieldErrors = await findConflict(collection, null, {
 					username: {
 						value: userDocument.username,
-						error: ERROR_CODES.USERNAME_IN_USE
+						error: ErrorCodes.USERNAME_IN_USE
 					},
 					email: {
 						value: userDocument.email,
-						error: ERROR_CODES.EMAIL_IN_USE
+						error: ErrorCodes.EMAIL_IN_USE
 					}
 				});
 				throw InputError.conflict('Username or email already in use', fieldErrors);
@@ -159,16 +163,17 @@ const UserRepository = {
 			throw error;
 		}
 	},
-	updateUser: async (collection, id, userUpdate) => {
+	updateUser: async (collection, id, userUpdate, auth = noop) => {
 		let userDocument;
 		try {
-			const currentUser = await collection.findOne({ _id: id });
-			if (!currentUser) {
-				throw InputError.notFound('User does not exist', ERROR_CODES.USER_NOT_FOUND);
+			const dbUser = await collection.findOne({ _id: id });
+			if (!dbUser) {
+				throw InputError.notFound('User does not exist', ErrorCodes.USER_NOT_FOUND);
 			}
+			await auth(toExternal(dbUser));
 			const sanitizedUpdate = toInternal(sanitizeUpdate(userUpdate));
-			const updatedUser = applyUpdate(currentUser, sanitizedUpdate);
-			updatedUser.password = currentUser.password;
+			const updatedUser = applyUpdate(dbUser, sanitizedUpdate);
+			updatedUser.password = dbUser.password;
 			userDocument = beforeWrite(updatedUser);
 			const result = await collection.findOneAndReplace(
 				{ _id: id },
@@ -181,11 +186,11 @@ const UserRepository = {
 				const fieldErrors = await findConflict(collection, id, {
 					username: {
 						value: userDocument.username,
-						error: ERROR_CODES.USERNAME_IN_USE
+						error: ErrorCodes.USERNAME_IN_USE
 					},
 					email: {
 						value: userDocument.email,
-						error: ERROR_CODES.EMAIL_IN_USE
+						error: ErrorCodes.EMAIL_IN_USE
 					}
 				});
 				throw InputError.conflict('Username or email already in use', fieldErrors);
@@ -193,15 +198,16 @@ const UserRepository = {
 			throw error;
 		}
 	},
-	updateSettings: async (collection, id, settingsUpdate) => {
+	updateSettings: async (collection, id, settingsUpdate, auth = noop) => {
 		let userDocument;
 		try {
-			const currentUser = await collection.findOne({ _id: id });
-			if (!currentUser) {
-				throw InputError.notFound('User does not exist', ERROR_CODES.USER_NOT_FOUND);
+			const dbUser = await collection.findOne({ _id: id });
+			if (!dbUser) {
+				throw InputError.notFound('User does not exist', ErrorCodes.USER_NOT_FOUND);
 			}
+			await auth(toExternal(dbUser));
 			const updatedSettings = validateSettings({
-				...currentUser.settings,
+				...dbUser.settings,
 				...toInternalSettings(settingsUpdate)
 			});
 			const update = { $set: touch({ settings: updatedSettings }) };
@@ -216,11 +222,11 @@ const UserRepository = {
 				const fieldErrors = await findConflict(collection, id, {
 					username: {
 						value: userDocument.username,
-						error: ERROR_CODES.USERNAME_IN_USE
+						error: ErrorCodes.USERNAME_IN_USE
 					},
 					email: {
 						value: userDocument.email,
-						error: ERROR_CODES.EMAIL_IN_USE
+						error: ErrorCodes.EMAIL_IN_USE
 					}
 				});
 				throw InputError.conflict('Username or email already in use', fieldErrors);
@@ -228,40 +234,35 @@ const UserRepository = {
 			throw error;
 		}
 	},
-	deleteUser: async (collection, id) => {
+	deleteUser: async (collection, id, auth = noop) => {
+		const dbUser = await collection.findOne({ _id: id });
+		if (!dbUser) {
+			throw InputError.notFound('User does not exist', ErrorCodes.USER_NOT_FOUND);
+		}
+		await auth(toExternal(dbUser));
+
 		const { result } = await collection.deleteOne({ _id: id });
 		if (result.n === 1) {
 			return true;
 		}
-		throw InputError.notFound('User does not exist', ERROR_CODES.USER_NOT_FOUND);
+		throw InputError.notFound('User does not exist', ErrorCodes.USER_NOT_FOUND);
 	},
 	getPassword: async (collection, username) => {
 		const result = await collection.findOne({ username }, { projection: { password: true } });
 		if (!result) {
-			throw InputError.notFound('User does not exist', ERROR_CODES.USER_NOT_FOUND);
+			throw InputError.notFound('User does not exist', ErrorCodes.USER_NOT_FOUND);
 		}
 		return result.password;
 	},
-	updatePassword: async (collection, id, password) => {
-		const user = await collection.findOne({ _id: id });
-		if (!user) {
-			throw InputError.notFound('User does not exist', ERROR_CODES.USER_NOT_FOUND);
+	updatePassword: async (collection, id, password, auth = noop) => {
+		const dbUser = await collection.findOne({ _id: id });
+		if (!dbUser) {
+			throw InputError.notFound('User does not exist', ErrorCodes.USER_NOT_FOUND);
 		}
-		const userDocument = beforeWrite(applyUpdate(user, { password }));
+		await auth(toExternal(dbUser));
+		const userDocument = beforeWrite(applyUpdate(dbUser, { password }));
 		const { result } = await collection.replaceOne({ _id: id }, userDocument, hidePassword());
 		return result.nModified === 1;
-	}
-};
-
-const catchUnexpectedErrors = (func) => async (...args) => {
-	try {
-		const result = await func(...args);
-		return result;
-	} catch (error) {
-		if (error.own) {
-			throw error;
-		}
-		throw InternalError.unexpected(error);
 	}
 };
 
@@ -283,7 +284,10 @@ const createUserRepository = (collection) => {
 		}
 	]);
 	return Object.entries(UserRepository).reduce(
-		(obj, [name, func]) => ({ ...obj, [name]: catchUnexpectedErrors((...args) => func(collection, ...args)) }),
+		(obj, [name, func]) => ({
+			...obj,
+			[name]: InternalError.catchUnexpected((...args) => func(collection, ...args))
+		}),
 		{}
 	);
 };
