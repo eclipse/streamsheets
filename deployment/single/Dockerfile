@@ -41,6 +41,8 @@ COPY wait-for-database.sh wait-for-database.sh
 
 # Create directories for logging
 RUN mkdir -p \
+	/var/log/mosquitto \
+	/var/log/mosquitto-default \
 	/var/log/webui \
 	/var/log/gateway \
 	/var/log/service-graphs \
