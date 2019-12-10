@@ -8,9 +8,13 @@ describe('engineering functions', () => {
 	describe('bin2dec', () => {
 		it('should convert a binary number to decimal', () => {
 			const sheet = new StreamSheet().sheet;
+			expect(createTerm('bin2dec(0)', sheet).value).toBe(0);
 			expect(createTerm('bin2dec(1010)', sheet).value).toBe(10);
 			expect(createTerm('bin2dec(1100100)', sheet).value).toBe(100);
-			expect(createTerm('bin2dec(1111111111)', sheet).value).toBe(1023);
+			expect(createTerm('bin2dec(1111111111)', sheet).value).toBe(-1);
+			expect(createTerm('bin2dec(1111110001)', sheet).value).toBe(-15);
+			expect(createTerm('bin2dec(1110011100)', sheet).value).toBe(-100);
+			expect(createTerm('bin2dec(1000000000)', sheet).value).toBe(-512);
 		});
 		it('should return 0 for undefined or empty cells', () => {
 			const sheet = new StreamSheet().sheet.load({
@@ -20,7 +24,7 @@ describe('engineering functions', () => {
 			expect(createTerm('bin2dec(A2)', sheet).value).toBe(0);
 			expect(createTerm('bin2dec(B2)', sheet).value).toBe(0);
 		});
-		it(`should return ${ERROR.NUM} if given value represents not a binary number`, () => {
+		it(`should return ${ERROR.NUM} if given value represents not a binary number or not in range`, () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: '1111200', C2: ' ', A3: false, B3: true }
 			});
@@ -29,15 +33,21 @@ describe('engineering functions', () => {
 			expect(createTerm('bin2dec(C2)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('bin2dec(A3)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('bin2dec(B3)', sheet).value).toBe(ERROR.NUM);
+			// not more than 10 bits
+			expect(createTerm('bin2dec(11111111111)', sheet).value).toBe(ERROR.NUM);
 		});
 	});
 	describe('bin2hex', () => {
 		it('should convert a binary number to hexadecimal', () => {
 			const sheet = new StreamSheet().sheet;
 			expect(createTerm('bin2hex(1110)', sheet).value).toBe('E');
-			// expect(createTerm('bin2hex(1110, "5")', sheet).value).toBe('0000E');
-			expect(createTerm('bin2hex(1111111111)', sheet).value).toBe('3FF');
 			expect(createTerm('bin2hex(11111011, 4)', sheet).value).toBe('00FB');
+			// expect(createTerm('bin2hex(1110, "5")', sheet).value).toBe('0000E');
+			expect(createTerm('bin2hex(11111011, 4)', sheet).value).toBe('00FB');
+			expect(createTerm('bin2hex(1111111111)', sheet).value).toBe('FFFFFFFFFF');
+			expect(createTerm('bin2hex(1111110001)', sheet).value).toBe('FFFFFFFFF1');
+			expect(createTerm('bin2hex(1110011100)', sheet).value).toBe('FFFFFFFF9C');
+			expect(createTerm('bin2hex(1000000000)', sheet).value).toBe('FFFFFFFE00');
 		});
 		it(`should return ${ERROR.VALUE} if places parameter is non numeric and ${ERROR.NUM} if it is negative`, () => {
 			const sheet = new StreamSheet().sheet.load({
@@ -59,7 +69,7 @@ describe('engineering functions', () => {
 			expect(createTerm('bin2hex(A2)', sheet).value).toBe('0');
 			expect(createTerm('bin2hex(B2)', sheet).value).toBe('0');
 		});
-		it(`should return ${ERROR.NUM} if given value represents not a binary number`, () => {
+		it(`should return ${ERROR.NUM} if given value represents not a binary number or is not in range`, () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: '1111200', C2: ' ', A3: false, B3: true }
 			});
@@ -68,6 +78,8 @@ describe('engineering functions', () => {
 			expect(createTerm('bin2hex(C2)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('bin2hex(A3)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('bin2hex(B3)', sheet).value).toBe(ERROR.NUM);
+			// not more than 10 bits
+			expect(createTerm('bin2hex(11111111111)', sheet).value).toBe(ERROR.NUM);
 		});
 	});
 	describe('bin2oct', () => {
@@ -76,6 +88,10 @@ describe('engineering functions', () => {
 			expect(createTerm('bin2oct(1001)', sheet).value).toBe('11');
 			expect(createTerm('bin2oct(1001, 4)', sheet).value).toBe('0011');
 			expect(createTerm('bin2oct(1100100)', sheet).value).toBe('144');
+			expect(createTerm('bin2oct(1111111111)', sheet).value).toBe('7777777777');
+			expect(createTerm('bin2oct(1111110001)', sheet).value).toBe('7777777761');
+			expect(createTerm('bin2oct(1110011100)', sheet).value).toBe('7777777634');
+			expect(createTerm('bin2oct(1000000000)', sheet).value).toBe('7777777000');
 		});
 		it(`should return ${ERROR.VALUE} if places parameter is non numeric and ${ERROR.NUM} if it is negative or 
 			is smaller then result value`, () => {
@@ -108,6 +124,8 @@ describe('engineering functions', () => {
 			expect(createTerm('bin2oct(C2)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('bin2oct(A3)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('bin2oct(B3)', sheet).value).toBe(ERROR.NUM);
+			// not more than 10 bits
+			expect(createTerm('bin2oct(11111111111)', sheet).value).toBe(ERROR.NUM);
 		});
 	});
 
@@ -116,9 +134,18 @@ describe('engineering functions', () => {
 		it('should convert a decimal number to binary', () => {
 			const sheet = new StreamSheet().sheet;
 			expect(createTerm('dec2bin(15)', sheet).value).toBe('1111');
+			expect(createTerm('dec2bin(9, 4)', sheet).value).toBe('1001');
 			// expect(createTerm('dec2bin(15, "8")', sheet).value).toBe('00001111');
 			expect(createTerm('dec2bin(15, 8)', sheet).value).toBe('00001111');
 			expect(createTerm('dec2bin(183)', sheet).value).toBe('10110111');
+		});
+		it('should support negative numbers', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('dec2bin(-0)', sheet).value).toBe('0');
+			expect(createTerm('dec2bin(-1)', sheet).value).toBe('1111111111');
+			expect(createTerm('dec2bin(-15)', sheet).value).toBe('1111110001');
+			expect(createTerm('dec2bin(-100)', sheet).value).toBe('1110011100');
+			expect(createTerm('dec2bin(-512)', sheet).value).toBe('1000000000');
 		});
 		it(`should return ${ERROR.VALUE} if places parameter is non numeric and ${ERROR.NUM} if it is negative or 
 			is smaller then result value`, () => {
@@ -144,7 +171,7 @@ describe('engineering functions', () => {
 			expect(createTerm('dec2bin(A2, 3)', sheet).value).toBe('000');
 			expect(createTerm('dec2bin(B2, 5)', sheet).value).toBe('00000');
 		});
-		it(`should return ${ERROR.NUM} if given value represents not a decimal number`, () => {
+		it(`should return ${ERROR.NUM} if given value represents not a decimal number or not in range`, () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
@@ -153,6 +180,9 @@ describe('engineering functions', () => {
 			expect(createTerm('dec2bin(C2)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('dec2bin(A3, "1")', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('dec2bin(B3)', sheet).value).toBe(ERROR.NUM);
+			// range is -512 to 511
+			expect(createTerm('dec2bin(512)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('dec2bin(-513)', sheet).value).toBe(ERROR.NUM);
 		});
 	});
 	describe('dec2hex', () => {
@@ -162,6 +192,15 @@ describe('engineering functions', () => {
 			// expect(createTerm('dec2hex(15, "4")', sheet).value).toBe('000F');
 			expect(createTerm('dec2hex(15, 4)', sheet).value).toBe('000F');
 			expect(createTerm('dec2hex(183)', sheet).value).toBe('B7');
+		});
+		it('should support negative numbers', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('dec2hex(-0)', sheet).value).toBe('0');
+			expect(createTerm('dec2hex(-1)', sheet).value).toBe('FFFFFFFFFF');
+			expect(createTerm('dec2hex(-15)', sheet).value).toBe('FFFFFFFFF1');
+			expect(createTerm('dec2hex(-54)', sheet).value).toBe('FFFFFFFFCA');
+			expect(createTerm('dec2hex(549755813887)', sheet).value).toBe('7FFFFFFFFF');
+			expect(createTerm('dec2hex(-549755813888)', sheet).value).toBe('8000000000');
 		});
 		it(`should return ${ERROR.VALUE} if places parameter is non numeric and ${ERROR.NUM} if it is negative or 
 			is smaller then result value`, () => {
@@ -187,7 +226,7 @@ describe('engineering functions', () => {
 			expect(createTerm('dec2hex(A2, 3)', sheet).value).toBe('000');
 			expect(createTerm('dec2hex(B2, 5)', sheet).value).toBe('00000');
 		});
-		it(`should return ${ERROR.NUM} if given value represents not a decimal number`, () => {
+		it(`should return ${ERROR.NUM} if given value represents not a decimal number or not in valid range`, () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
@@ -196,15 +235,25 @@ describe('engineering functions', () => {
 			expect(createTerm('dec2hex(C2)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('dec2hex(A3, "1")', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('dec2hex(B3)', sheet).value).toBe(ERROR.NUM);
+			// range is -549,755,813,888 <= .. <= 549,755,813,887
+			expect(createTerm('dec2hex(549755813888)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('dec2hex(-549755813889)', sheet).value).toBe(ERROR.NUM);
 		});
 	});
 	describe('dec2oct', () => {
 		it('should convert a decimal number to octal', () => {
 			const sheet = new StreamSheet().sheet;
 			expect(createTerm('dec2oct(15)', sheet).value).toBe('17');
-			// expect(createTerm('dec2oct(15, "4")', sheet).value).toBe('0017');
 			expect(createTerm('dec2oct(15, 4)', sheet).value).toBe('0017');
+			expect(createTerm('dec2oct(58, 3)', sheet).value).toBe('072');
 			expect(createTerm('dec2oct(183)', sheet).value).toBe('267');
+		});
+		it('should support negative numbers', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('dec2oct(-0)', sheet).value).toBe('0');
+			expect(createTerm('dec2oct(-1)', sheet).value).toBe('7777777777');
+			expect(createTerm('dec2oct(-100)', sheet).value).toBe('7777777634');
+			expect(createTerm('dec2oct(-536870912)', sheet).value).toBe('4000000000');
 		});
 		it(`should return ${ERROR.VALUE} if places parameter is non numeric and ${ERROR.NUM} if it is negative or 
 			is smaller then result value`, () => {
@@ -230,7 +279,7 @@ describe('engineering functions', () => {
 			expect(createTerm('dec2oct(A2, 3)', sheet).value).toBe('000');
 			expect(createTerm('dec2oct(B2, 5)', sheet).value).toBe('00000');
 		});
-		it(`should return ${ERROR.NUM} if given value represents not a decimal number`, () => {
+		it(`should return ${ERROR.NUM} if given value represents not a decimal number or is not in range`, () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
@@ -239,6 +288,8 @@ describe('engineering functions', () => {
 			expect(createTerm('dec2oct(C2)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('dec2oct(A3, "1")', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('dec2oct(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('dec2oct(536870912)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('dec2oct(-536870913)', sheet).value).toBe(ERROR.NUM);
 		});
 	});
 
@@ -248,7 +299,16 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet;
 			expect(createTerm('hex2bin("F")', sheet).value).toBe('1111');
 			expect(createTerm('hex2bin("F", 8)', sheet).value).toBe('00001111');
+			expect(createTerm('hex2bin("1FF",)', sheet).value).toBe('111111111');
 			expect(createTerm('hex2bin("B7",)', sheet).value).toBe('10110111');
+		});
+		it('should support negative numbers', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('hex2bin(-0)', sheet).value).toBe('0');
+			expect(createTerm('hex2bin("FFFFFFFFFF")', sheet).value).toBe('1111111111');
+			expect(createTerm('hex2bin("FFFFFFFFF1")', sheet).value).toBe('1111110001');
+			expect(createTerm('hex2bin("FFFFFFFF9C")', sheet).value).toBe('1110011100');
+			expect(createTerm('hex2bin("FFFFFFFE00")', sheet).value).toBe('1000000000');
 		});
 		it(`should return ${ERROR.VALUE} if places parameter is non numeric and ${ERROR.NUM} if it is negative or 
 			is smaller then result value`, () => {
@@ -274,7 +334,7 @@ describe('engineering functions', () => {
 			expect(createTerm('hex2bin(A2, 3)', sheet).value).toBe('000');
 			expect(createTerm('hex2bin(B2, 5)', sheet).value).toBe('00000');
 		});
-		it(`should return ${ERROR.NUM} if given value represents not a hexadecimal number`, () => {
+		it(`should return ${ERROR.NUM} if given value represents not a hexadecimal number or is not in range`, () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
@@ -283,14 +343,28 @@ describe('engineering functions', () => {
 			expect(createTerm('hex2bin(C2)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('hex2bin(A3, "1")', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('hex2bin(B3)', sheet).value).toBe(ERROR.NUM);
+			// range FFFFFFFE00 <= .. <= 1FF (-512 <=..<= 511)
+			expect(createTerm('hex2bin("FFFFFFFDFF")', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2bin("200")', sheet).value).toBe(ERROR.NUM);
+
+			expect(createTerm('dec2hex(549755813888)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('dec2hex(-549755813889)', sheet).value).toBe(ERROR.NUM);
 		});
 	});
 	describe('hex2dec', () => {
 		it('should convert a hexadecimal number to decimal', () => {
 			const sheet = new StreamSheet().sheet;
+			expect(createTerm('hex2dec(0)', sheet).value).toBe(0);
 			expect(createTerm('hex2dec("A5")', sheet).value).toBe(165);
-			// expect(createTerm('hex2dec("FFFFFFFF5B")', sheet).value).toBe(-165);
 			expect(createTerm('hex2dec("3DA408B9")', sheet).value).toBe(1034160313);
+			expect(createTerm('hex2dec("7FFFFFFFFF")', sheet).value).toBe(549755813887);
+		});
+		it('should support negative numbers', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('hex2dec("FFFFFFFFFF")', sheet).value).toBe(-1);
+			expect(createTerm('hex2dec("FFFFFFFFCA")', sheet).value).toBe(-54);
+			expect(createTerm('hex2dec("FFFFFFFF5B")', sheet).value).toBe(-165);
+			expect(createTerm('hex2dec("8000000000")', sheet).value).toBe(-549755813888);
 		});
 		it('should return 0 for undefined or empty cells', () => {
 			const sheet = new StreamSheet().sheet.load({
@@ -300,7 +374,7 @@ describe('engineering functions', () => {
 			expect(createTerm('hex2dec(A2)', sheet).value).toBe(0);
 			expect(createTerm('hex2dec(B2)', sheet).value).toBe(0);
 		});
-		it(`should return ${ERROR.NUM} if given value represents not a hexadecimal number`, () => {
+		it(`should return ${ERROR.NUM} if given value represents not a hexadecimal number or is not in range`, () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
@@ -309,14 +383,24 @@ describe('engineering functions', () => {
 			expect(createTerm('hex2dec(C2)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('hex2dec(A3)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('hex2dec(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2dec("90000000001")', sheet).value).toBe(ERROR.NUM);
 		});
 	});
 	describe('hex2oct', () => {
 		it('should convert a hexadecimal number to octal', () => {
 			const sheet = new StreamSheet().sheet;
 			expect(createTerm('hex2oct("A")', sheet).value).toBe('12');
+			expect(createTerm('hex2oct("F", 3)', sheet).value).toBe('017');
 			expect(createTerm('hex2oct("A", 4)', sheet).value).toBe('0012');
+			expect(createTerm('hex2oct("3B4E")', sheet).value).toBe('35516');
 			expect(createTerm('hex2oct("FF3", 4)', sheet).value).toBe('7763');
+			expect(createTerm('hex2oct("FFFFFFFF00")', sheet).value).toBe('7777777400');
+		});
+		it('should support negative numbers', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('hex2oct("FFFFFFFFFF")', sheet).value).toBe('7777777777');
+			expect(createTerm('hex2oct("FFFFFFFFCA")', sheet).value).toBe('7777777712');
+			expect(createTerm('hex2oct("FFFFFFFF5B")', sheet).value).toBe('7777777533');
 		});
 		it(`should return ${ERROR.VALUE} if places parameter is non numeric and ${ERROR.NUM} if it is negative`, () => {
 			const sheet = new StreamSheet().sheet.load({
@@ -339,7 +423,7 @@ describe('engineering functions', () => {
 			expect(createTerm('hex2oct(A2, 3)', sheet).value).toBe('000');
 			expect(createTerm('hex2oct(B2, 5)', sheet).value).toBe('00000');
 		});
-		it(`should return ${ERROR.NUM} if given value represents not a hexadecimal number`, () => {
+		it(`should return ${ERROR.NUM} if given value represents not a hexadecimal number or is not in range`, () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
@@ -348,6 +432,10 @@ describe('engineering functions', () => {
 			expect(createTerm('hex2oct(C2)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('hex2oct(A3, "1")', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('hex2oct(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2oct("1FFFFFFF0")', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2oct("FFDFFFFFFF")', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2oct("2000000000")', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2oct("8000000000")', sheet).value).toBe(ERROR.NUM);
 		});
 	});
 
@@ -356,8 +444,16 @@ describe('engineering functions', () => {
 		it('should convert an octal number to binary', () => {
 			const sheet = new StreamSheet().sheet;
 			expect(createTerm('oct2bin(15)', sheet).value).toBe('1101');
+			expect(createTerm('oct2bin(3, 3)', sheet).value).toBe('011');
 			expect(createTerm('oct2bin(15, 8)', sheet).value).toBe('00001101');
 			expect(createTerm('oct2bin(777)', sheet).value).toBe('111111111');
+		});
+		it('should support negative numbers', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('oct2bin(7777777777)', sheet).value).toBe('1111111111');
+			expect(createTerm('oct2bin(7777777634)', sheet).value).toBe('1110011100');
+			expect(createTerm('oct2bin(7777777667)', sheet).value).toBe('1110110111');
+			expect(createTerm('oct2bin(7777777000)', sheet).value).toBe('1000000000');
 		});
 		it(`should return ${ERROR.VALUE} if places parameter is non numeric and ${ERROR.NUM} if it is negative or 
 		is smaller then result value`, () => {
@@ -382,7 +478,7 @@ describe('engineering functions', () => {
 			expect(createTerm('oct2bin(A2, 3)', sheet).value).toBe('000');
 			expect(createTerm('oct2bin(B2, 5)', sheet).value).toBe('00000');
 		});
-		it(`should return ${ERROR.NUM} if given value represents not an octal number`, () => {
+		it(`should return ${ERROR.NUM} if given value represents not an octal number or is not in range`, () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
@@ -391,6 +487,47 @@ describe('engineering functions', () => {
 			expect(createTerm('oct2bin(C2)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('oct2bin(A3, "1")', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('oct2bin(B3)', sheet).value).toBe(ERROR.NUM);
+			// -513
+			expect(createTerm('oct2bin(7777776777)', sheet).value).toBe(ERROR.NUM);
+			// 512
+			expect(createTerm('oct2bin(1000)', sheet).value).toBe(ERROR.NUM);
+		});
+	});
+	describe('oct2dec', () => {
+		it('should convert an octal number to decimal', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('oct2dec(0)', sheet).value).toBe(0);
+			expect(createTerm('oct2dec("54")', sheet).value).toBe(44);
+			expect(createTerm('oct2dec("0077")', sheet).value).toBe(63);
+			
+		});
+		it('should support negative numbers', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('oct2dec(7777777777)', sheet).value).toBe(-1);
+			expect(createTerm('oct2dec(7777777667)', sheet).value).toBe(-73);
+			expect(createTerm('oct2dec(7777777634)', sheet).value).toBe(-100);
+			expect(createTerm('oct2dec(7777777533)', sheet).value).toBe(-165);
+			expect(createTerm('oct2dec(7777777000)', sheet).value).toBe(-512);
+			expect(createTerm('oct2dec(4000000000)', sheet).value).toBe(-536870912);
+		});
+		it('should return 0 for undefined or empty cells', () => {
+			const sheet = new StreamSheet().sheet.load({
+				cells: { A1: '', A2: undefined, B2: null }
+			});
+			expect(createTerm('oct2dec(A1)', sheet).value).toBe(0);
+			expect(createTerm('oct2dec(A2)', sheet).value).toBe(0);
+			expect(createTerm('oct2dec(B2)', sheet).value).toBe(0);
+		});
+		it(`should return ${ERROR.NUM} if given value represents not an octal number or is not in range`, () => {
+			const sheet = new StreamSheet().sheet.load({
+				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
+			});
+			expect(createTerm('oct2dec(A2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('oct2dec(B2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('oct2dec(C2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('oct2dec(A3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('oct2dec(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('oct2hex(8000000000)', sheet).value).toBe(ERROR.NUM);
 		});
 	});
 	describe('oct2hex', () => {
@@ -398,7 +535,18 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet;
 			expect(createTerm('oct2hex(17)', sheet).value).toBe('F');
 			expect(createTerm('oct2hex(17, 4)', sheet).value).toBe('000F');
+			expect(createTerm('oct2hex(100, 4)', sheet).value).toBe('0040');
 			expect(createTerm('oct2hex(267)', sheet).value).toBe('B7');
+			expect(createTerm('oct2hex(7777777533)', sheet).value).toBe('FFFFFFFF5B');
+		});
+		it('should support negative numbers', () => {
+			const sheet = new StreamSheet().sheet;
+			// expect(createTerm('dec2oct(-0)', sheet).value).toBe('0');
+			expect(createTerm('oct2hex(7777777777)', sheet).value).toBe('FFFFFFFFFF');
+			expect(createTerm('oct2hex(7777777634)', sheet).value).toBe('FFFFFFFF9C');
+			expect(createTerm('oct2hex(7777777667)', sheet).value).toBe('FFFFFFFFB7');
+			expect(createTerm('oct2hex(7777777000)', sheet).value).toBe('FFFFFFFE00');
+			expect(createTerm('oct2hex(4000000000)', sheet).value).toBe('FFE0000000');
 		});
 		it(`should return ${ERROR.VALUE} if places parameter is non numeric and ${ERROR.NUM} if it is negative or 
 		is smaller then result value`, () => {
@@ -424,7 +572,7 @@ describe('engineering functions', () => {
 			expect(createTerm('oct2hex(A2, 3)', sheet).value).toBe('000');
 			expect(createTerm('oct2hex(B2, 5)', sheet).value).toBe('00000');
 		});
-		it(`should return ${ERROR.NUM} if given value represents not an octal number`, () => {
+		it(`should return ${ERROR.NUM} if given value represents not an octal number or is not in range`, () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
@@ -433,31 +581,7 @@ describe('engineering functions', () => {
 			expect(createTerm('oct2hex(C2)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('oct2hex(A3, "1")', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('oct2hex(B3)', sheet).value).toBe(ERROR.NUM);
-		});
-	});
-	describe('oct2dec', () => {
-		it('should convert an octal number to decimal', () => {
-			const sheet = new StreamSheet().sheet;
-			expect(createTerm('oct2dec("54")', sheet).value).toBe(44);
-			expect(createTerm('oct2dec("0077")', sheet).value).toBe(63);
-		});
-		it('should return 0 for undefined or empty cells', () => {
-			const sheet = new StreamSheet().sheet.load({
-				cells: { A1: '', A2: undefined, B2: null }
-			});
-			expect(createTerm('oct2dec(A1)', sheet).value).toBe(0);
-			expect(createTerm('oct2dec(A2)', sheet).value).toBe(0);
-			expect(createTerm('oct2dec(B2)', sheet).value).toBe(0);
-		});
-		it(`should return ${ERROR.NUM} if given value represents not an octal number`, () => {
-			const sheet = new StreamSheet().sheet.load({
-				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
-			});
-			expect(createTerm('oct2dec(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2dec(B2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2dec(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2dec(A3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2dec(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('oct2hex(8000000000)', sheet).value).toBe(ERROR.NUM);
 		});
 	});
 });

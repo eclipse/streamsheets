@@ -1026,7 +1026,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 					formula += `"${item.getChartType()}"`;
 					const selection = graph.getSheetSelection();
 					if (selection) {
-						const range = selection.toStringByIndex(0, { item: this, useName: true });
+						const range = selection.toStringByIndex(0, { item: this, useName: true, forceName: true });
 						if (range) {
 							item.setDataRangeString(`=${range}`);
 							formula += `,${range}`;
@@ -1289,7 +1289,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			}
 		}
 
-		formula = expr.toLocaleString('en', { item: ws, useName: true });
+		formula = expr.toLocaleString('en', { item: ws, useName: true, forceName: true});
 		if (formula.length && formula[0] === '=') {
 			formula = formula.substring(1);
 		}

@@ -525,7 +525,7 @@ module.exports = class CellRange {
 			str = `~span${str}~/span`;
 		}
 
-		if (params && params.useName && params.item !== this.getSheet()) {
+		if (params && params.useName && (params.forceName || params.item !== this.getSheet())) {
 			return `${this.getSheet()
 				.getName()
 				.getValue()}!${str}`;
