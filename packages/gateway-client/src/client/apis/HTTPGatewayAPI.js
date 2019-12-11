@@ -3,11 +3,8 @@
 const GatewayAPI = require('./GatewayAPI');
 const {
 	BackupHTTPRequest,
-	DeleteGraphHTTPRequest,
 	DeleteMachineDefinitionHTTPRequest,
 	ExportMachineStreamHTTPRequest,
-	GetGraphHTTPRequest,
-	GetGraphsHTTPRequest,
 	GetMachineDefinitionHTTPRequest,
 	GetMachineDefinitionsHTTPRequest,
 	GetMachineDefinitionsByNameHTTPRequest,
@@ -15,9 +12,7 @@ const {
 	GraphQLHTTPRequest,
 	ImportMachineHTTPRequest,
 	RestoreHTTPRequest,
-	SaveGraphHTTPRequest,
 	SaveMachineDefinitionHTTPRequest,
-	UpdateGraphHTTPRequest,
 	UpdateMachineDefinitionHTTPRequest,
 	AuthenticateHTTPRequest
 } = require('../../requests/http/HTTPRequests');
@@ -165,45 +160,6 @@ module.exports = class HTTPGatewayAPI extends GatewayAPI {
 	restore(file) {
 		return this.sendRequest(
 			new RestoreHTTPRequest(this._restEndpointURL, this._token, file)
-		);
-	}
-
-	getGraphs() {
-		return this.sendRequest(
-			new GetGraphsHTTPRequest(this._restEndpointURL, this._token)
-		);
-	}
-
-	getGraph(graphId) {
-		return this.sendRequest(
-			new GetGraphHTTPRequest(this._restEndpointURL, this._token, graphId)
-		);
-	}
-
-	saveGraph(graph) {
-		return this.sendRequest(
-			new SaveGraphHTTPRequest(this._restEndpointURL, this._token, graph)
-		);
-	}
-
-	updateGraph(graphId, graph) {
-		return this.sendRequest(
-			new UpdateGraphHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				graphId,
-				graph
-			)
-		);
-	}
-
-	deleteGraph(graphId) {
-		return this.sendRequest(
-			new DeleteGraphHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				graphId
-			)
 		);
 	}
 

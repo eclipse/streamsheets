@@ -11,7 +11,6 @@ const ErrorRoutes = require('./routes/ErrorRoutes');
 const ExportImportRoutes = require('./routes/ExportImportRoutes');
 const MachineRoutes = require('./routes/MachineRoutes');
 const AuthRoutes = require('./routes/AuthRoutes');
-const GraphRoutes = require('./routes/GraphRoutes');
 const MetaInformationRoutes = require('./routes/MetaInformationRoutes');
 const BackupRestoreRoutes = require('./routes/BackupRestoreRoutes');
 const SetupRoutes = require('./routes/SetupRoutes');
@@ -29,20 +28,6 @@ module.exports = class APIRouter extends Router {
 		this.get('/healthcheck', (request, response) => {
 			response.status(200).json({});
 		});
-
-		this.all(
-			'/graphs',
-			passport.authenticate('jwt', { session: false }),
-			bodyParser.json({ inflate: true, strict: true }),
-			GraphRoutes.graphs
-		);
-		this.all(
-			'/graphs/:graphId',
-			passport.authenticate('jwt', { session: false }),
-			bodyParser.json({ inflate: true, strict: true }),
-			GraphRoutes.graph
-		);
-
 		this.all(
 			'/machines',
 			passport.authenticate('jwt', { session: false }),

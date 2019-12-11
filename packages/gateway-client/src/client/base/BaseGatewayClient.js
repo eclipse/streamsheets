@@ -605,32 +605,6 @@ module.exports = class BaseGatewayClient {
 
 	/**
 	 * *********************************************
-	 * Graph Definition API
-	 * *********************************************
-	 */
-
-	getGraphs() {
-		return this.http.getGraphs();
-	}
-
-	getGraph(graphId) {
-		return this.http.getGraph(graphId);
-	}
-
-	saveGraph(graph) {
-		return this.http.saveGraph(graph);
-	}
-
-	updateGraph(graphId, graph) {
-		return this.http.updateGraph(graphId, graph);
-	}
-
-	deleteGraph(graphId) {
-		return this.http.deleteGraph(graphId);
-	}
-
-	/**
-	 * *********************************************
 	 * Graph API
 	 * *********************************************
 	 */

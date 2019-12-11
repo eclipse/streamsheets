@@ -327,32 +327,6 @@ module.exports = class WebWorkerGatewayClientProxy {
 
 	/**
 	 * *********************************************
-	 * Graph Definition API
-	 * *********************************************
-	 */
-
-	getGraphs() {
-		return this._proxy('getGraphs');
-	}
-
-	getGraph(graphId) {
-		return this._proxy('getGraph', graphId);
-	}
-
-	saveGraph(graph) {
-		return this._proxy('saveGraph', graph);
-	}
-
-	updateGraph(graphId, graph) {
-		return this._proxy('updateGraph', graphId, graph);
-	}
-
-	deleteGraph(graphId) {
-		return this._proxy('deleteGraph', graphId);
-	}
-
-	/**
-	 * *********************************************
 	 * Graph API
 	 * *********************************************
 	 */

@@ -241,95 +241,11 @@ class DeleteMachineDefinitionHTTPRequest extends HTTPRequest {
 	}
 }
 
-class GetGraphsHTTPRequest extends HTTPRequest {
-	_getPath() {
-		return '/graphs';
-	}
-
-	_getConfig() {
-		return this._createGETConfig({}, this._createAuthHeader(this._token));
-	}
-}
-
-class GetGraphHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, graphId) {
-		super(baseEndpoint, token);
-		this._graphId = graphId;
-	}
-
-	_getPath() {
-		return `/graphs/${this._graphId}`;
-	}
-
-	_getConfig() {
-		return this._createGETConfig({}, this._createAuthHeader(this._token));
-	}
-}
-
-class SaveGraphHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, graph) {
-		super(baseEndpoint, token);
-		this._graph = graph;
-	}
-
-	_getPath() {
-		return '/graphs';
-	}
-
-	_getConfig() {
-		return this._createPOSTConfig(
-			this._graph,
-			{},
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
-class UpdateGraphHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, graphId, graph) {
-		super(baseEndpoint, token);
-		this._graphId = graphId;
-		this._graph = graph;
-	}
-
-	_getPath() {
-		return `/graphs/${this._graphId}`;
-	}
-
-	_getConfig() {
-		return this._createPUTConfig(
-			this._graph,
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
-class DeleteGraphHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, graphId) {
-		super(baseEndpoint, token);
-		this._graphId = graphId;
-	}
-
-	_getPath() {
-		return `/graphs/${this._graphId}`;
-	}
-
-	_getConfig() {
-		return this._createDELETEConfig(
-			{},
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
 module.exports = {
 	BackupHTTPRequest,
 	AuthenticateHTTPRequest,
-	DeleteGraphHTTPRequest,
 	DeleteMachineDefinitionHTTPRequest,
 	ExportMachineStreamHTTPRequest,
-	GetGraphHTTPRequest,
-	GetGraphsHTTPRequest,
 	GetMachineDefinitionHTTPRequest,
 	GetMachineDefinitionsHTTPRequest,
 	GetMachineDefinitionsByNameHTTPRequest,
@@ -337,8 +253,6 @@ module.exports = {
 	GraphQLHTTPRequest,
 	ImportMachineHTTPRequest,
 	RestoreHTTPRequest,
-	SaveGraphHTTPRequest,
 	SaveMachineDefinitionHTTPRequest,
-	UpdateGraphHTTPRequest,
 	UpdateMachineDefinitionHTTPRequest
 };
