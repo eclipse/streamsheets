@@ -29,7 +29,7 @@ ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0
 	STREAMSHEETS_LOG_LEVEL=debug \
 	NODE_ENV=production
 
-RUN apk --no-cache add g++ make bash curl nginx git gnupg rsync unzip mongodb mosquitto redis supervisor
+RUN apk --no-cache add g++ make bash curl nginx git gnupg rsync unzip mongodb mosquitto openssl redis supervisor
 
 # Streamsheets services
 COPY services /services
@@ -57,11 +57,12 @@ RUN mkdir -p \
 COPY mongodb/mongod.conf /etc/mongod.conf
 VOLUME /var/lib/mongodb
 
-# # Mosquitto
+# Mosquitto
 COPY mosquitto etc/mosquitto
 
-# # Mosquitto Default
+# Default Mosquitto
 COPY mosquitto-default etc/mosquitto-default
+COPY mosquitto-default-credentials etc/mosquitto-default-credentials
 
 # Redis
 COPY redis/redis.conf /etc/redis.conf
@@ -75,6 +76,9 @@ COPY supervisord.conf /etc/supervisord.conf
 
 # Copy default setup
 COPY init.json streamsheets/packages/gateway/config
+
+# Copy start script
+COPY streamsheets.sh streamsheets.sh
 
 # Expose MongoDB port
 EXPOSE 27017
@@ -92,4 +96,4 @@ EXPOSE 8080 8088
 EXPOSE 8083
 
 # General
-CMD [ "/usr/bin/supervisord", "-c", "/etc/supervisord.conf" ]
+CMD [ "sh", "streamsheets.sh" ]

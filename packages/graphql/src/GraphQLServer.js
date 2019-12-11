@@ -1,5 +1,6 @@
 const { ApolloServer, gql } = require('apollo-server-express');
 const { resolvers } = require('./resolvers');
+const { createApis } = require('./apis');
 
 const typeDefs = gql`
 	interface MutationResponse {
@@ -49,7 +50,9 @@ const typeDefs = gql`
 		firstName: String
 		lastName: String
 		lastModified: String!
+		admin: Boolean!
 		settings: UserSettings!
+		canDelete: Boolean!
 	}
 
 	input UserInput {
@@ -146,11 +149,18 @@ class GraphQLServer {
 		const server = new ApolloServer({
 			typeDefs,
 			resolvers,
-			context: ({ req }) => ({
-				session: getSession(req),
-				repositories,
-				encryption: config.encryption
-			})
+			context: async ({ req }) => {
+				const session = getSession(req);
+				const actor = await repositories.userRepository.findUser(session.user.id);
+				const apis = createApis(repositories, actor);
+				return {
+					actor,
+					apis,
+					encryption: config.encryption,
+					repositories,
+					session
+				};
+			}
 		});
 		server.applyMiddleware({ app, path });
 		return server;
