@@ -41,6 +41,7 @@ import HelpButton from './HelpButton';
 import { ViewModeHandler, ViewModePropTypes } from './ViewModeHandler';
 import { ResizeHandler } from './ResizeHandler';
 import GraphLocaleHandler from '../helper/GraphLocaleHandler';
+import LicenseExpireNotification from '../components/HelperComponent/LicenseExpireNotification';
 
 const useExperimental = (setAppState) => {
 	useEffect(() => setAppState({ experimental: localStorage.getItem('experimental') === 'true' }), []);
@@ -213,6 +214,7 @@ export function MachineDetailPage(props) {
 									</div>
 								) : null}
 								<MachineControlBar />
+								<LicenseExpireNotification />
 								<Toolbar
 									style={{
 										paddingRight: '5px',
