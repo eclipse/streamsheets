@@ -27,8 +27,6 @@ const {
 	GetConfigurationsByTypeHTTPRequest,
 	GetConfigurationByIdHTTPRequest,
 	DeleteConfigurationByIdHTTPRequest,
-	SaveMachineProcessSettingsHTTPRequest,
-	GetMachineProcessSettingsHTTPRequest,
 	AuthenticateHTTPRequest
 } = require('../../requests/http/HTTPRequests');
 
@@ -109,26 +107,6 @@ module.exports = class HTTPGatewayAPI extends GatewayAPI {
 				this._restEndpointURL,
 				this._token,
 				configId
-			)
-		);
-	}
-
-	saveMachineProcessSettings(settings) {
-		return this.sendRequest(
-			new SaveMachineProcessSettingsHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				settings
-			)
-		);
-	}
-
-	getMachineProcessSettings(machineId) {
-		return this.sendRequest(
-			new GetMachineProcessSettingsHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				machineId
 			)
 		);
 	}

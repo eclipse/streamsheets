@@ -433,42 +433,6 @@ class DeleteConfigurationByIdHTTPRequest extends HTTPRequest {
 	}
 }
 
-class SaveMachineProcessSettingsHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, settings) {
-		super(baseEndpoint, token);
-		this._settings = settings;
-	}
-
-	_getPath() {
-		return `/machines/${this._settings.machineId}/process-settings`;
-	}
-
-	_getConfig() {
-		return this._createPUTConfig(
-			this._settings,
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
-class GetMachineProcessSettingsHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, machineId) {
-		super(baseEndpoint, token);
-		this._machineId = machineId;
-	}
-
-	_getPath() {
-		return `/machines/${this._machineId}/process-settings`;
-	}
-
-	_getConfig() {
-		return this._createGETConfig(
-			this._machineId,
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
 module.exports = {
 	BackupHTTPRequest,
 	AuthenticateHTTPRequest,
@@ -495,7 +459,5 @@ module.exports = {
 	GetAllConfigurationsHTTPRequest,
 	GetConfigurationsByTypeHTTPRequest,
 	GetConfigurationByIdHTTPRequest,
-	DeleteConfigurationByIdHTTPRequest,
-	SaveMachineProcessSettingsHTTPRequest,
-	GetMachineProcessSettingsHTTPRequest
+	DeleteConfigurationByIdHTTPRequest
 };

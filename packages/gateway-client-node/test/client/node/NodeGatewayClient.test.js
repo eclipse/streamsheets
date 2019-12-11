@@ -894,38 +894,6 @@ describe('GatewayClient', () => {
 				.then(done);
 		});
 	});
-	describe('Process Settings API', () => {
-		const now = new Date();
-		const dummy = {
-			_id: 'setting1',
-			stream: 'SkU3wkNAW',
-			streamProcess: 'P1',
-			ejectData: false,
-			loopIdentifier: 'Loop',
-			loopType: 'single',
-			machineId: 'S1CxSiE0W',
-			settingsId: 'ByDVaCN0-',
-			showDataSamples: false,
-			triggerInterval: 0,
-			triggerPeriod: 0,
-			triggerType: 'arrival',
-			uniqueIdentifier: 'Unique'
-		};
-		dummy.machineId = now.getMilliseconds();
-		dummy._id = now.getMilliseconds();
-		const client = new GatewayClient({ name: 'Test gateway client' });
-		it('should save a process settings and find it in the list settings', () => {
-			client.connect(CONFIG)
-				.then(() => client.saveMachineProcessSettings(dummy)
-					.then((r) => {
-						expect(r.ok).toEqual(1);
-					})
-				)
-				.then(() => client.getMachineProcessSettings(dummy.machineId))
-				.then(s => expect(s.id).toEqual(s.id))
-				.then(() => client.disconnect());
-		});
-	});
 
 	describe('sendCommand()', () => {
 		it('should send a command', (done) => {

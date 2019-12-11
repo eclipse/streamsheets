@@ -671,45 +671,6 @@ paths:
         201:
           description: Processsheet successfully created.
 
-  /machines/{machineId}/process-settings:
-      parameters:
-        - $ref: '#/parameters/machineId'
-      get:
-        security:
-          - JWT: []
-        summary: Get process settings by machineId
-        description: Returns process settings by machineId.
-        tags:
-          - machines
-          - process settings
-        responses:
-          200:
-            description: Settings by machineId.
-      put:
-        consumes:
-          - application/json
-        parameters:
-          - in: body
-            description: The settings to save.
-            schema:
-              type: object
-              required:
-                - machineId
-              properties:
-                _id:
-                  type: string
-                machineId:
-                  type: string
-        security:
-          - JWT: []
-        summary: Save new process settings
-        tags:
-          - machines
-          - process settings
-        responses:
-          201:
-            description: Process settings successfully saved.
-
   /machines/{machineId}/settings:
     parameters:
       - $ref: '#/parameters/machineId'

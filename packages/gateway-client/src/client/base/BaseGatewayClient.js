@@ -769,19 +769,6 @@ module.exports = class BaseGatewayClient {
 	}
 
 	/**
-	 * *********************************************
-	 * Machine process settings API
-	 * *********************************************
-	 */
-	saveMachineProcessSettings(settings) {
-		return this.http.saveMachineProcessSettings(settings);
-	}
-
-	getMachineProcessSettings(machineId) {
-		return this.http.getMachineProcessSettings(machineId);
-	}
-
-	/**
 	 * ******************************************************************************************
 	 * Low Level API
 	 * ******************************************************************************************

@@ -64,13 +64,6 @@ module.exports = class APIRouter extends Router {
 		);
 
 		this.all(
-			'/machines/:machineId/process-settings',
-			passport.authenticate('jwt', { session: false }),
-			bodyParser.json({ inflate: true, strict: true }),
-			MachineRoutes.processSettings
-		);
-
-		this.all(
 			'/templates',
 			passport.authenticate('jwt', { session: false }),
 			bodyParser.json({ inflate: true, strict: true }),

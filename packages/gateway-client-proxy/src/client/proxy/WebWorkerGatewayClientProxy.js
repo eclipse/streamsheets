@@ -456,19 +456,6 @@ module.exports = class WebWorkerGatewayClientProxy {
 	}
 
 	/**
-	 * *********************************************
-	 * Machine process settings API
-	 * *********************************************
-	 */
-	saveMachineProcessSettings(settings) {
-		return this._proxy('saveMachineProcessSettings', settings);
-	}
-
-	getMachineProcessSettings(machineId) {
-		return this._proxy('getMachineProcessSettings', machineId);
-	}
-
-	/**
 	 * ******************************************************************************************
 	 * Low Level Proxy API
 	 * ******************************************************************************************
