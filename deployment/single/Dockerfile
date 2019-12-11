@@ -57,11 +57,12 @@ RUN mkdir -p \
 COPY mongodb/mongod.conf /etc/mongod.conf
 VOLUME /var/lib/mongodb
 
-# # Mosquitto
+# Mosquitto
 COPY mosquitto etc/mosquitto
 
-# # Mosquitto Default
+# Default Mosquitto
 COPY mosquitto-default etc/mosquitto-default
+COPY mosquitto-default-credentials etc/mosquitto-default-credentials
 
 # Redis
 COPY redis/redis.conf /etc/redis.conf
