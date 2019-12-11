@@ -283,14 +283,6 @@ module.exports = class MachineService extends MessagingService {
 					response.machine.state
 				);
 				break;
-			case MachineServerMessagingProtocol.MESSAGE_TYPES.SAVE_MACHINE_AS_TEMPLATE_MESSAGE_TYPE:
-				logger.debug('PersistenceService: save machine as template');
-				await RepositoryManager.machineRepository.saveMachineAsTemplate(
-					response.machine,
-					response.templateId,
-					response.templateName
-				);
-				break;
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.CREATE_STREAMSHEET_MESSAGE_TYPE:
 				logger.debug('PersistenceService: persisting streamsheet');
 				await RepositoryManager.machineRepository.addStreamSheet(response.machine.id, response.streamsheet);

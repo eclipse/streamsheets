@@ -566,14 +566,6 @@ module.exports = class BaseGatewayClient {
 		});
 	}
 
-	saveMachineAsTemplate(machineId, templateId, templateName) {
-		return this.socket.saveMachineAsTemplate(
-			machineId,
-			templateId,
-			templateName
-		);
-	}
-
 	redo(machineId) {
 		return this.socket.redo(machineId);
 	}
@@ -609,20 +601,6 @@ module.exports = class BaseGatewayClient {
 
 	getMetaInformation() {
 		return this.http.getMetaInformation();
-	}
-
-	/**
-	 * *********************************************
-	 * Template API
-	 * *********************************************
-	 */
-
-	getTemplates() {
-		return this.http.getTemplates();
-	}
-
-	getTemplate(templateId) {
-		return this.http.getTemplate(templateId);
 	}
 
 	/**

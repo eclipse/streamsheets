@@ -283,15 +283,6 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('saveMachineAs', originalMachineId, newName);
 	}
 
-	saveMachineAsTemplate(machineId, templateId, templateName) {
-		return this._proxy(
-			'saveMachineAsTemplate',
-			machineId,
-			templateId,
-			templateName
-		);
-	}
-
 	saveMachineCopy(originalMachineId, newName) {
 		return this._proxy('saveMachineCopy', originalMachineId, newName);
 	}
@@ -332,20 +323,6 @@ module.exports = class WebWorkerGatewayClientProxy {
 
 	getMetaInformation() {
 		return this._proxy('getMetaInformation');
-	}
-
-	/**
-	 * *********************************************
-	 * Template API
-	 * *********************************************
-	 */
-
-	getTemplates() {
-		return this._proxy('getTemplates');
-	}
-
-	getTemplate(templateId) {
-		return this._proxy('getTemplate', templateId);
 	}
 
 	/**

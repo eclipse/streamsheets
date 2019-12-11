@@ -147,44 +147,6 @@ describe('GatewayClient', () => {
 				});
 		});
 	});
-	describe('getTemplate()', () => {
-		it('should return a template for the given id', (done) => {
-			const client = new GatewayClient({ name: 'Test gateway client' });
-			client.on(MACHINE_SERVER_CONNECTED_EVENT, () => {
-				client.getTemplate(TEMPLATE_ID)
-					.then((response) => {
-						expect(response.id).toBeDefined();
-						expect(response.name).toBeDefined();
-						expect(response.isTemplate).toBeDefined();
-						expect(response.isTemplate).toBe(true);
-						expect(response.streamsheets).toBeDefined();
-					})
-					.then(() => client.disconnect())
-					.then(done);
-			});
-			return client.connect(CONFIG);
-		});
-	});
-	describe('getTemplates()', () => {
-		it('should return a list of all templates', (done) => {
-			const client = new GatewayClient({ name: 'Test gateway client' });
-			client.on(MACHINE_SERVER_CONNECTED_EVENT, () => {
-				client.getTemplates()
-					.then((templates) => {
-						expect(templates).toBeDefined();
-						expect(templates.length).toBeGreaterThan(0);
-						templates.forEach((template) => {
-							expect(template.id).toBeDefined();
-							expect(template.name).toBeDefined();
-							expect(template.isTemplate).toBeDefined();
-							expect(template.isTemplate).toBe(true);
-						});
-					})
-					.then(done);
-			});
-			return client.connect(CONFIG);
-		});
-	});
 	describe('getMachineDefinitions()', () => {
 		it('should return a list of all machines', (done) => {
 			const client = new GatewayClient({ name: 'Test gateway client' });

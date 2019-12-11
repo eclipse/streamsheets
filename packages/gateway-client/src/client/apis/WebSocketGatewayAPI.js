@@ -21,7 +21,6 @@ const {
 	UpdateMachineImageWebSocketRequest,
 	UpdateStreamSheetStreamsWebSocketRequest,
 	SaveMachineAsWebSocketRequest,
-	SaveMachineAsTemplateWebSocketRequest,
 	SetCycleTimeWebSocketRequest,
 	SetMachineLocaleWebSocketRequest,
 	SetNamedCellsWebSocketRequest,
@@ -399,17 +398,6 @@ module.exports = class WebSocketGatewayAPI extends GatewayAPI {
 				this._ws,
 				originalMachineId,
 				newName
-			)
-		);
-	}
-
-	saveMachineAsTemplate(machineId, templateId, templateName) {
-		return this.sendRequest(
-			new SaveMachineAsTemplateWebSocketRequest(
-				this._ws,
-				machineId,
-				templateId,
-				templateName
 			)
 		);
 	}

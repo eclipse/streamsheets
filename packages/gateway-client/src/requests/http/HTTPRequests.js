@@ -84,30 +84,6 @@ class GetMachineDefinitionsByNameHTTPRequest extends HTTPRequest {
 	}
 }
 
-class SaveTemplateHTTPRequest extends HTTPRequest {
-	_getPath() {
-		return '/templates';
-	}
-
-	_getConfig() {
-		return this._createPOSTConfig(
-			null,
-			{},
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
-class GetTemplatesHTTPRequest extends HTTPRequest {
-	_getPath() {
-		return '/templates';
-	}
-
-	_getConfig() {
-		return this._createGETConfig({}, this._createAuthHeader(this._token));
-	}
-}
-
 class GetMachineDefinitionHTTPRequest extends HTTPRequest {
 	constructor(baseEndpoint, token, machineId) {
 		super(baseEndpoint, token);
@@ -116,21 +92,6 @@ class GetMachineDefinitionHTTPRequest extends HTTPRequest {
 
 	_getPath() {
 		return `/machines/${this._machineId}`;
-	}
-
-	_getConfig() {
-		return this._createGETConfig({}, this._createAuthHeader(this._token));
-	}
-}
-
-class GetTemplateHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, templateId) {
-		super(baseEndpoint, token);
-		this._templateId = templateId;
-	}
-
-	_getPath() {
-		return `/templates/${this._templateId}`;
 	}
 
 	_getConfig() {
@@ -373,14 +334,11 @@ module.exports = {
 	GetMachineDefinitionsHTTPRequest,
 	GetMachineDefinitionsByNameHTTPRequest,
 	GetMetaInformationHTTPRequest,
-	GetTemplateHTTPRequest,
-	GetTemplatesHTTPRequest,
 	GraphQLHTTPRequest,
 	ImportMachineHTTPRequest,
 	RestoreHTTPRequest,
 	SaveGraphHTTPRequest,
 	SaveMachineDefinitionHTTPRequest,
-	SaveTemplateHTTPRequest,
 	UpdateGraphHTTPRequest,
 	UpdateMachineDefinitionHTTPRequest
 };

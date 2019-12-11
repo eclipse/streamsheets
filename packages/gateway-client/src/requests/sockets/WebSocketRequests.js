@@ -23,7 +23,6 @@ const {
 	STREAMSHEET_STREAM_UPDATE_TYPE,
 	UPDATE_MACHINE_IMAGE_MESSAGE_TYPE,
 	SAVE_MACHINE_AS_MESSAGE_TYPE,
-	SAVE_MACHINE_AS_TEMPLATE_MESSAGE_TYPE,
 	SET_MACHINE_CYCLE_TIME_MESSAGE_TYPE,
 	SET_MACHINE_LOCALE_MESSAGE_TYPE,
 	SET_MACHINE_UPDATE_INTERVAL_MESSAGE_TYPE,
@@ -591,23 +590,6 @@ class SaveMachineAsWebSocketRequest extends WebSocketRequest {
 	}
 }
 
-class SaveMachineAsTemplateWebSocketRequest extends WebSocketRequest {
-	constructor(ws, machineId, templateId, templateName) {
-		super(ws, SAVE_MACHINE_AS_TEMPLATE_MESSAGE_TYPE);
-		this._machineId = machineId;
-		this._templateId = templateId;
-		this._templateName = templateName;
-	}
-
-	_getConfig() {
-		return {
-			machineId: this._machineId,
-			templateId: this._templateId,
-			templateName: this._templateName
-		};
-	}
-}
-
 class ConfirmProcessedMachineStepRequest extends WebSocketRequest {
 	constructor(ws, machineId) {
 		super(ws, CONFIRM_PROCESSED_MACHINE_STEP);
@@ -839,7 +821,6 @@ module.exports = {
 	UpdateMachineSettingsWebSocketRequest,
 	UpdateStreamSheetStreamsWebSocketRequest,
 	SaveMachineAsWebSocketRequest,
-	SaveMachineAsTemplateWebSocketRequest,
 	SetCycleTimeWebSocketRequest,
 	SetMachineLocaleWebSocketRequest,
 	SetStreamSheetStepIntervalWebSocketRequest,

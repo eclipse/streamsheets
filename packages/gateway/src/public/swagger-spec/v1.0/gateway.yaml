@@ -742,63 +742,6 @@ paths:
       parameters:
         - $ref: "#/parameters/graphQLQuery"
 
-  /templates:
-    get:
-      security:
-        - JWT: []
-      summary: Get all templates.
-      description: |
-        The templates endpoint returns information about the machines that are
-        marked as templates.
-      tags:
-        - machines
-      responses:
-        200:
-          description: An array of machine templates.
-          schema:
-            $ref: '#/definitions/Machines'
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
-          
-  /templates/{templateId}:
-    get:
-      security:
-        - JWT: []
-      summary: Get a single template.
-      description: Returns a template based on a single ID.
-      parameters:
-        - $ref: "#/parameters/templateId"
-      tags:
-        - machines
-      responses:
-        "200":
-          description: Template response.
-          schema:
-            $ref: '#/definitions/Machine'
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
-    put:
-      security:
-        - JWT: []
-      summary: Update a template.
-      description: Update a template.
-      parameters:
-        - $ref: "#/parameters/templateId"
-        - $ref: "#/parameters/template"
-      tags:
-        - machines
-      responses:
-        "204":
-          description: Template updated.
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
-
   /system/setup:
     get:
       summary: Get the setup.
@@ -919,20 +862,6 @@ paths:
       responses:
         200:
           description: Processsheet.
-
-  /processsheettemplates:
-    get:
-      security:
-        - JWT: []
-      summary: Get processsheet templates
-      description: Returns a list of processsheet templates.
-      tags:
-        - machines
-        - processsheets
-        - processsheettemplates
-      responses:
-        200:
-          description: Processsheet templates.
 
   /machinesettings:
     get:
@@ -1232,11 +1161,6 @@ definitions:
             - stopped
             - paused
 
-  NewTemplate:
-      properties:
-        name:
-          type: string
-
   ImportData:
     type: object
 
@@ -1502,20 +1426,6 @@ parameters:
     required: Temperature
     schema:
       $ref: '#/definitions/NewOrUpdateMachineSetting'
-
-  templateId:
-    name: templateId
-    in: path
-    description: The ID of a template.
-    required: true
-    type: string
-  template:
-    name: template
-    in: body
-    description: Template to add.
-    required: true
-    schema:
-      $ref: '#/definitions/NewTemplate'
 
   importData:
     name: importData

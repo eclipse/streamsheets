@@ -12,14 +12,11 @@ const {
 	GetMachineDefinitionsHTTPRequest,
 	GetMachineDefinitionsByNameHTTPRequest,
 	GetMetaInformationHTTPRequest,
-	GetTemplateHTTPRequest,
-	GetTemplatesHTTPRequest,
 	GraphQLHTTPRequest,
 	ImportMachineHTTPRequest,
 	RestoreHTTPRequest,
 	SaveGraphHTTPRequest,
 	SaveMachineDefinitionHTTPRequest,
-	SaveTemplateHTTPRequest,
 	UpdateGraphHTTPRequest,
 	UpdateMachineDefinitionHTTPRequest,
 	AuthenticateHTTPRequest
@@ -93,32 +90,6 @@ module.exports = class HTTPGatewayAPI extends GatewayAPI {
 				this._token,
 				name
 			)
-		);
-	}
-
-	getTemplate(templateId) {
-		return this.sendRequest(
-			new GetTemplateHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				templateId
-			)
-		);
-	}
-
-	saveTemplate(template) {
-		return this.sendRequest(
-			new SaveTemplateHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				template
-			)
-		);
-	}
-
-	getTemplates() {
-		return this.sendRequest(
-			new GetTemplatesHTTPRequest(this._restEndpointURL, this._token)
 		);
 	}
 

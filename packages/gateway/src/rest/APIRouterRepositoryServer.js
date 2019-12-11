@@ -10,7 +10,6 @@ const IndexRoutes = require('./routes/IndexRoutes');
 const ErrorRoutes = require('./routes/ErrorRoutes');
 const ExportImportRoutes = require('./routes/ExportImportRoutes');
 const MachineRoutes = require('./routes/MachineRoutes');
-const TemplateRoutes = require('./routes/TemplateRoutes');
 const AuthRoutes = require('./routes/AuthRoutes');
 const GraphRoutes = require('./routes/GraphRoutes');
 const MetaInformationRoutes = require('./routes/MetaInformationRoutes');
@@ -61,20 +60,6 @@ module.exports = class APIRouter extends Router {
 			passport.authenticate('jwt', { session: false }),
 			bodyParser.json({ inflate: true, strict: true }),
 			MachineRoutes.machine
-		);
-
-		this.all(
-			'/templates',
-			passport.authenticate('jwt', { session: false }),
-			bodyParser.json({ inflate: true, strict: true }),
-			TemplateRoutes.templates
-		);
-
-		this.all(
-			'/templates/:templateId',
-			passport.authenticate('jwt', { session: false }),
-			bodyParser.json({ inflate: true, strict: true }),
-			TemplateRoutes.template
 		);
 
 		this.all(
