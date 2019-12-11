@@ -916,35 +916,3 @@ describe('loadGraph()', () => {
 		return client.connect(CONFIG);
 	});
 });
-describe('Admin API', () => {
-	const now = new Date();
-	const dummyProvider = {
-		id: 'AWSIOT',
-		name: 'AWS IoT (MQTT)',
-		className: 'ProviderConfiguration',
-		fields: ['provider', 'host', 'port', 'clientId', 'CACertificate', 'clientCertificate', 'privateKey']
-	};
-	const client = new GatewayClient({ name: 'Test gateway client' });
-	it('should save an connector and get find it in the list of configurations', (done) => {
-		client.connect(CONFIG)
-			.then(() => client.saveConfiguration(dummyProvider)
-				.then((r) => {
-					expect(r.ok).toEqual(1);
-				})
-			)
-			.then(() => client.getConfigurationById(dummyProvider.id))
-			.then(config => expect(config.id).toEqual(dummyProvider.id))
-			.then(() => client.disconnect())
-			.then(done);
-	});
-	it('should get a list of configurations', (done) => {
-		client.connect(CONFIG)
-			.then(() => client.getAllConfigurations()
-				.then((r) => {
-					expect(r.length > 0);
-				})
-			)
-			.then(() => client.disconnect())
-			.then(done);
-	});
-});

@@ -417,44 +417,6 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('reloadStreams', sources);
 	}
 
-	// TOBE deprecated:
-
-	saveConfiguration(configuration) {
-		return this._proxy('saveConfiguration', configuration);
-	}
-
-	getAllConfigurations() {
-		return this._proxy('getAllConfigurations');
-	}
-
-	getConfigurationsByType(configType) {
-		return this._proxy('getConfigurationsByType', configType);
-	}
-
-	getConnectorConfigurations() {
-		return this._proxy('getConnectorConfigurations');
-	}
-
-	getProviderConfigurations() {
-		return this._proxy('getProviderConfigurations');
-	}
-
-	getStreamsConfigurations() {
-		return this._proxy('getStreamsConfigurations');
-	}
-
-	getConfigurationById(configId) {
-		return this._proxy('getConfigurationById', configId);
-	}
-
-	deleteConfigurationById(configId) {
-		return this._proxy('deleteConfigurationById', configId);
-	}
-
-	streamsReload() {
-		return this._proxy('streamsReload');
-	}
-
 	/**
 	 * ******************************************************************************************
 	 * Low Level Proxy API

@@ -22,11 +22,6 @@ const {
 	SaveTemplateHTTPRequest,
 	UpdateGraphHTTPRequest,
 	UpdateMachineDefinitionHTTPRequest,
-	SaveConfigurationHTTPRequest,
-	GetAllConfigurationsHTTPRequest,
-	GetConfigurationsByTypeHTTPRequest,
-	GetConfigurationByIdHTTPRequest,
-	DeleteConfigurationByIdHTTPRequest,
 	AuthenticateHTTPRequest
 } = require('../../requests/http/HTTPRequests');
 
@@ -58,55 +53,6 @@ module.exports = class HTTPGatewayAPI extends GatewayAPI {
 			new GetMetaInformationHTTPRequest(
 				this._restEndpointURL,
 				this._token
-			)
-		);
-	}
-
-	saveConfiguration(configuration) {
-		return this.sendRequest(
-			new SaveConfigurationHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				configuration
-			)
-		);
-	}
-
-	getAllConfigurations() {
-		return this.sendRequest(
-			new GetAllConfigurationsHTTPRequest(
-				this._restEndpointURL,
-				this._token
-			)
-		);
-	}
-
-	getConfigurationsByType(configType) {
-		return this.sendRequest(
-			new GetConfigurationsByTypeHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				configType
-			)
-		);
-	}
-
-	getConfigurationById(configId) {
-		return this.sendRequest(
-			new GetConfigurationByIdHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				configId
-			)
-		);
-	}
-
-	deleteConfigurationById(configId) {
-		return this.sendRequest(
-			new DeleteConfigurationByIdHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				configId
 			)
 		);
 	}

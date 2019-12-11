@@ -361,78 +361,6 @@ class DeleteGraphHTTPRequest extends HTTPRequest {
 	}
 }
 
-class SaveConfigurationHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, configuration) {
-		super(baseEndpoint, token);
-		this._configuration = configuration;
-	}
-
-	_getPath() {
-		return '/admin/configuration';
-	}
-
-	_getConfig() {
-		return this._createPOSTConfig(
-			this._configuration,
-			{},
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
-class GetAllConfigurationsHTTPRequest extends HTTPRequest {
-	_getPath() {
-		return '/admin/configurations';
-	}
-
-	_getConfig() {
-		return this._createGETConfig({});
-	}
-}
-
-class GetConfigurationsByTypeHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, configType) {
-		super(baseEndpoint, token);
-		this._configType = configType;
-	}
-
-	_getPath() {
-		return `/admin/configurations/${this._configType}`;
-	}
-
-	_getConfig() {
-		return this._createGETConfig({});
-	}
-}
-
-class GetConfigurationByIdHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, configId) {
-		super(baseEndpoint, token);
-		this._configId = configId;
-	}
-	_getPath() {
-		return `/admin/configuration/${this._configId}`;
-	}
-
-	_getConfig() {
-		return this._createGETConfig({});
-	}
-}
-
-class DeleteConfigurationByIdHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, configId) {
-		super(baseEndpoint, token);
-		this._configId = configId;
-	}
-	_getPath() {
-		return `/admin/configuration/${this._configId}`;
-	}
-
-	_getConfig() {
-		return this._createDELETEConfig({});
-	}
-}
-
 module.exports = {
 	BackupHTTPRequest,
 	AuthenticateHTTPRequest,
@@ -454,10 +382,5 @@ module.exports = {
 	SaveMachineDefinitionHTTPRequest,
 	SaveTemplateHTTPRequest,
 	UpdateGraphHTTPRequest,
-	UpdateMachineDefinitionHTTPRequest,
-	SaveConfigurationHTTPRequest,
-	GetAllConfigurationsHTTPRequest,
-	GetConfigurationsByTypeHTTPRequest,
-	GetConfigurationByIdHTTPRequest,
-	DeleteConfigurationByIdHTTPRequest
+	UpdateMachineDefinitionHTTPRequest
 };

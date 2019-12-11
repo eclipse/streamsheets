@@ -722,52 +722,6 @@ module.exports = class BaseGatewayClient {
 		return this.socket.reloadStreams(sources);
 	}
 
-	// TODO: deprecate rest
-
-	saveConfiguration(configuration) {
-		return this.http.saveConfiguration(configuration);
-	}
-
-	getAllConfigurations() {
-		return this.http.getAllConfigurations();
-	}
-
-	getConfigurationsByType(configType) {
-		return this.http.getConfigurationsByType(configType);
-	}
-
-	getConnectorConfigurations() {
-		return this.getConfigurationsByType('ConnectorConfiguration');
-	}
-
-	getProviderConfigurations() {
-		return this.getConfigurationsByType('ProviderConfiguration');
-	}
-
-	getStreamConfigurations() {
-		return this.getConfigurationsByType('ConsumerConfiguration');
-	}
-
-	getConfigurationById(configId) {
-		// TODO: handle invalid configuration id on server-side
-		if (typeof configId === 'undefined') {
-			return Promise.resolve(null);
-		}
-		return this.http.getConfigurationById(configId);
-	}
-
-	deleteConfigurationById(configId) {
-		// TODO: handle invalid configuration id on server-side
-		if (typeof configId === 'undefined') {
-			return Promise.resolve(null);
-		}
-		return this.http.deleteConfigurationById(configId);
-	}
-
-	streamsReload() {
-		return this.socket.streamsReload();
-	}
-
 	/**
 	 * ******************************************************************************************
 	 * Low Level API

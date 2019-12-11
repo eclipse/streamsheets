@@ -41,7 +41,6 @@ const {
 	UNSUBSCRIBE_MACHINE_MESSAGE_TYPE,
 	// General request types
 	COMMAND_MESSAGE_TYPE,
-	STREAMS_RELOAD_TYPE,
 	USER_GET_MESSAGE_TYPE,
 	USER_SAVE_MESSAGE_TYPE,
 	USER_SETTINGS_GET_MESSAGE_TYPE,
@@ -796,22 +795,6 @@ class UpdateMachineSettingsWebSocketRequest extends WebSocketRequest {
 
 /**
  * ******************************************************************************************
- * Admin requests
- * ******************************************************************************************
- */
-
-class StreamsReloadWebSocketRequest extends WebSocketRequest {
-	constructor(ws) {
-		super(ws, STREAMS_RELOAD_TYPE);
-	}
-
-	_getConfig() {
-		return {};
-	}
-}
-
-/**
- * ******************************************************************************************
  * General requests
  * ******************************************************************************************
  */
@@ -873,7 +856,6 @@ module.exports = {
 	UndoWebSocketRequest,
 	UnloadMachineWebSocketRequest,
 	UnsubscribeMachineWebSocketRequest,
-	StreamsReloadWebSocketRequest,
 	// General requests
 	CommandWebSocketRequest,
 	UserGetSocketRequest,

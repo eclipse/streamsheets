@@ -102,7 +102,6 @@ const STREAMSHEET_STREAM_UPDATE_TYPE = 'streamsheet_stream_update';
 const STREAMSHEET_STREAM_UPDATED = 'streamsheet_stream_updated';
 const USER_JOINED_EVENT = 'user_joined';
 const USER_LEFT_EVENT = 'user_left';
-const STREAMS_RELOAD_TYPE = 'stream_reload';
 const STREAMS_RELOAD_EVENT = 'stream_reload';
 const USER_GET_MESSAGE_TYPE = 'user_get';
 const AUTH_DATA_MESSAGE_TYPE = 'auth_data';
@@ -169,7 +168,6 @@ module.exports = {
 		// General request types
 		COMMAND_MESSAGE_TYPE,
 		SELECTION_MESSAGE_TYPE,
-		STREAMS_RELOAD_TYPE,
 		USER_GET_MESSAGE_TYPE,
 		USER_SAVE_MESSAGE_TYPE,
 		USER_SETTINGS_GET_MESSAGE_TYPE,

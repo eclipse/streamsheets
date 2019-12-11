@@ -39,7 +39,6 @@ const {
 	UpdateMachineSettingsWebSocketRequest,
 	// General requests
 	CommandWebSocketRequest,
-	StreamsReloadWebSocketRequest,
 	UserGetSocketRequest,
 	UserSaveSocketRequest,
 	UserSettingGetSocketRequest,
@@ -412,12 +411,6 @@ module.exports = class WebSocketGatewayAPI extends GatewayAPI {
 				templateId,
 				templateName
 			)
-		);
-	}
-
-	streamsReload() {
-		return this.sendRequest(
-			new StreamsReloadWebSocketRequest(this._ws)
 		);
 	}
 
