@@ -1,4 +1,5 @@
-const InternalError = require('./InternalError');
+const { InternalError } = require('./errors');
+const { UserAuth } = require('./apis');
 
 const INTERNAL_ERROR_PAYLOAD = {
 	success: false,
@@ -16,19 +17,27 @@ const Payload = {
 	createSuccess: (payload) => ({ ...payload, success: true })
 };
 
+// const currentUser = async ({ repositories, session }) => repositories.userRepository.findUser(session.user.id);
+
 const resolvers = {
 	Query: {
-		me: async (obj, args, { repositories, session }) => repositories.userRepository.findUser(session.user.id),
+		me: async (obj, args, { actor }) => actor,
 		machines: async (obj, args, context) => context.repositories.machineRepository.getMachines(),
-		user: async (obj, { id }, { repositories }) => repositories.userRepository.findUser(id),
-		users: async (obj, args, { repositories }) => repositories.userRepository.findAllUsers(),
+		user: async (obj, { id }, { apis }) => {
+			try {
+				return apis.user.findUser(id);
+			} catch (error) {
+				return null;
+			}
+		},
+		users: async (obj, args, { apis }) => apis.user.findAllUsers(),
 		streams: async (obj, args, { repositories, session }) => repositories.streamRepository.findAllStreams(session)
 	},
 	Mutation: {
-		createUser: async (obj, { user }, { repositories, encryption }) => {
+		createUser: async (obj, { user }, { apis, encryption }) => {
 			try {
 				const hashedPassword = await encryption.hash(user.password);
-				const createdUser = await repositories.userRepository.createUser({ ...user, password: hashedPassword });
+				const createdUser = await apis.user.createUser({ ...user, password: hashedPassword });
 				return Payload.createSuccess({
 					code: 'USER_CREATED',
 					message: 'User created successfully',
@@ -38,9 +47,9 @@ const resolvers = {
 				return Payload.createFailure(error);
 			}
 		},
-		updateUser: async (obj, { id, user }, { repositories }) => {
+		updateUser: async (obj, { id, user }, { apis }) => {
 			try {
-				const updatedUser = await repositories.userRepository.updateUser(id, user);
+				const updatedUser = await apis.user.updateUser(id, user);
 				return Payload.createSuccess({
 					code: 'USER_UPDATED',
 					message: 'User updated successfully',
@@ -50,10 +59,10 @@ const resolvers = {
 				return Payload.createFailure(error);
 			}
 		},
-		updateUserPassword: async (obj, { id, newPassword }, { repositories, encryption }) => {
+		updateUserPassword: async (obj, { id, newPassword }, { apis, encryption }) => {
 			try {
 				const hashedPassword = await encryption.hash(newPassword);
-				await repositories.userRepository.updatePassword(id, hashedPassword);
+				await apis.user.updatePassword(id, hashedPassword);
 				return Payload.createSuccess({
 					code: 'PASSWORD_UPDATED',
 					message: 'Password updated successfully'
@@ -62,9 +71,9 @@ const resolvers = {
 				return Payload.createFailure(error);
 			}
 		},
-		updateUserSettings: async (obj, { id, settings }, { repositories }) => {
+		updateUserSettings: async (obj, { id, settings }, { apis }) => {
 			try {
-				const updatedUser = await repositories.userRepository.updateSettings(id, settings);
+				const updatedUser = await apis.user.updateSettings(id, settings);
 				return Payload.createSuccess({
 					code: 'SETTINGS_UPDATED',
 					message: 'Settings updated successfully',
@@ -74,9 +83,9 @@ const resolvers = {
 				return Payload.createFailure(error);
 			}
 		},
-		deleteUser: async (obj, { id }, { repositories }) => {
+		deleteUser: async (obj, { id }, { apis }) => {
 			try {
-				await repositories.userRepository.deleteUser(id);
+				await apis.user.deleteUser(id);
 				return Payload.createSuccess({
 					code: 'USER_DELETED',
 					message: 'User deleted successfully'
@@ -85,6 +94,10 @@ const resolvers = {
 				return Payload.createFailure(error);
 			}
 		}
+	},
+	User: {
+		admin: async (obj) => UserAuth.isAdmin(obj),
+		canDelete: async (obj, args, { actor }) => UserAuth.canDelete(actor, obj)
 	}
 };
 

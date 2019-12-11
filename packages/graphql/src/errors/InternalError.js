@@ -8,7 +8,20 @@ const unexpected = (error) => {
 
 const isInternal = (error) => error && error.type === 'INTERNAL';
 
+const catchUnexpected = (func) => async (...args) => {
+	try {
+		const result = await func(...args);
+		return result;
+	} catch (error) {
+		if (error.own) {
+			throw error;
+		}
+		throw unexpected(error);
+	}
+};
+
 module.exports = {
 	unexpected,
-	isInternal
+	isInternal,
+	catchUnexpected
 };

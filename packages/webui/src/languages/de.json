@@ -382,7 +382,7 @@
 	"Admin.notAuthorized": "Zugriff auf {target} nicht erlaubt.",
 	"Admin.users": "Benutzer",
 	"Admin.userDelete": "Benutzer löschen",
-	"Admin.deleteUserMessage": "Bitte bestätigen Sie, dass sie den Benutzer löschen wollen.",
+	"Admin.deleteUserMessage": "Möchten Sie diesen Benutzer wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
 	"Admin.saveUser": "Benutzereinstellungen speichern",
 	"Admin.deleteUser": "Benutzer löschen",
 	"Admin.userName": "Benutzername",
