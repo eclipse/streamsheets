@@ -77,6 +77,9 @@ COPY supervisord.conf /etc/supervisord.conf
 # Copy default setup
 COPY init.json streamsheets/packages/gateway/config
 
+# Copy start script
+COPY streamsheets.sh streamsheets.sh
+
 # Expose MongoDB port
 EXPOSE 27017
 # Expose Mosquitto port
@@ -93,4 +96,4 @@ EXPOSE 8080 8088
 EXPOSE 8083
 
 # General
-CMD [ "/usr/bin/supervisord", "-c", "/etc/supervisord.conf" ]
+CMD [ "sh", "streamsheets.sh" ]

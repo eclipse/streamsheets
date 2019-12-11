@@ -14,3 +14,4 @@ else
 	echo "Clear text password for Mosquitto broker is located in $FILE_CLEAR."
 	echo "For security reasons please copy the password from $FILE_CLEAR and delete that file afterwards."
 fi
+/usr/bin/supervisord -c /etc/supervisord.conf
