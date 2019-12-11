@@ -15,7 +15,7 @@ then
 else
 	echo "Password for default Mosquitto does not exist, will create one."
 	touch $FILE
-	PASSWORD=$(openssl rand -base64 32)
+	PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
 	mosquitto_passwd -b $FILE cedalo $PASSWORD
 	echo $PASSWORD >> $FILE_CLEAR
 	echo -e "${GREEN}Password for default Mosquitto created successfully.${NOCOLOR}"
