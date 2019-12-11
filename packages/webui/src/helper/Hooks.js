@@ -8,34 +8,39 @@ const graphQlReducer = (state = {}, action) => {
 				...state,
 				loading: true,
 				data: null,
-				errors: null,
+				errors: null
 			};
 		case 'data':
 			return {
 				...state,
 				loading: false,
 				data: action.data,
-				errors: null,
+				errors: null
 			};
 		case 'error':
 			return {
 				...state,
 				loading: false,
 				data: null,
-				errors: action.data,
+				errors: action.data
 			};
 		default:
 			throw Error();
 	}
 };
 
-export const useGraphQL = (query, variables, customCondition) => {
-	const [state, dispatch] = useReducer(graphQlReducer, { loading: true, data: null, error: null });
-	const condition = customCondition || [variables];
+const always = () => true;
+
+export const useGraphQL = (query, variables, customDeps, condition = always) => {
+	const [state, dispatch] = useReducer(graphQlReducer, { loading: true, data: null, errors: null });
+	const deps = customDeps || [variables];
 	useEffect(() => {
 		let canceled = false;
 		dispatch({ type: 'load' });
 		(async () => {
+			if (!condition()) {
+				return;
+			}
 			try {
 				const data = await gatewayClient.graphql(query, variables);
 				if (!canceled) {
@@ -51,8 +56,15 @@ export const useGraphQL = (query, variables, customCondition) => {
 		return () => {
 			canceled = true;
 		};
-	}, [query, ...condition]);
+	}, [query, ...deps]);
 	return state;
+};
+
+export const useGraphQLCB = (cb, ...args) => {
+	const state = useGraphQL(...args);
+	useEffect(() => {
+		cb(state);
+	}, [state]);
 };
 
 export const useDocumentTitle = (title) => {

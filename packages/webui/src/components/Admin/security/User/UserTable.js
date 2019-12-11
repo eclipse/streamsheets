@@ -3,6 +3,8 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
+import IconButton from '@material-ui/core/IconButton';
+import DeleteIcon from '@material-ui/icons/Delete';
 import { userShape } from './UserPropTypes';
 
 const USER_TABLE_COLUMNS = [
@@ -10,7 +12,7 @@ const USER_TABLE_COLUMNS = [
 	{ id: 'email', key: 'Admin.User.email' },
 	{ id: 'firstName', key: 'Admin.User.firstName' },
 	{ id: 'lastName', key: 'Admin.User.lastName' },
-	{ id: 'lastModified', key: 'Admin.User.lastModified' },
+	{ id: 'lastModified', key: 'Admin.User.lastModified' }
 ];
 
 // Workaround for Babel restriction, see https://github.com/yahoo/babel-plugin-react-intl/issues/119
@@ -19,14 +21,18 @@ function FormattedMessageFixed(props) {
 }
 
 export const UserTable = (props) => {
-	const { users, onSelectUser, onSort, sortBy, sortDirection } = props;
+	const { users, onDeleteUser, onSelectUser, onSort, sortBy, sortDirection } = props;
 
 	return (
 		<Table>
 			<TableHead>
 				<TableRow>
 					{USER_TABLE_COLUMNS.map((column) => (
-						<TableCell key={column.id} sortDirection={sortBy === column.id ? sortDirection : false}>
+						<TableCell
+							padding="checkbox"
+							key={column.id}
+							sortDirection={sortBy === column.id ? sortDirection : false}
+						>
 							<TableSortLabel
 								active={sortBy === column.id}
 								direction={sortDirection}
@@ -36,6 +42,7 @@ export const UserTable = (props) => {
 							</TableSortLabel>
 						</TableCell>
 					))}
+					<TableCell />
 				</TableRow>
 			</TableHead>
 			<TableBody>
@@ -48,6 +55,19 @@ export const UserTable = (props) => {
 						<TableCell>{user.firstName}</TableCell>
 						<TableCell>{user.lastName}</TableCell>
 						<TableCell>{moment(user.lastModified).fromNow()}</TableCell>
+						<TableCell>
+							{user.canDelete ? (
+								<IconButton
+									color="primary"
+									onClick={(event) => {
+										event.stopPropagation();
+										onDeleteUser(user.id);
+									}}
+								>
+									<DeleteIcon />
+								</IconButton>
+							) : null}
+						</TableCell>
 					</TableRow>
 				))}
 			</TableBody>
@@ -59,11 +79,12 @@ UserTable.propTypes = {
 	users: PropTypes.arrayOf(userShape).isRequired,
 	sortBy: PropTypes.string,
 	sortDirection: PropTypes.string,
+	onDeleteUser: PropTypes.func.isRequired,
 	onSelectUser: PropTypes.func.isRequired,
-	onSort: PropTypes.func.isRequired,
+	onSort: PropTypes.func.isRequired
 };
 
 UserTable.defaultProps = {
 	sortBy: undefined,
-	sortDirection: undefined,
+	sortDirection: undefined
 };

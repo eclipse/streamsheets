@@ -382,7 +382,7 @@
 	"Admin.notAuthorized": "Not Authorized accessing {target}",
 	"Admin.users": "Users",
 	"Admin.userDelete": "Delete User",
-	"Admin.deleteUserMessage": "Please confirm to delete this user",
+	"Admin.deleteUserMessage": "Do you really want to delete this user? This action can not be undone.",
 	"Admin.saveUser": "Save User Settings",
 	"Admin.deleteUser": "Delete User",
 	"Admin.userName": "User Name",

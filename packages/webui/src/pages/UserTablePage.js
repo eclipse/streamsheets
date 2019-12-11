@@ -1,11 +1,19 @@
 import { Button, CircularProgress, Grid, Paper, TextField, Typography } from '@material-ui/core';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import CheckIcon from '@material-ui/icons/Check';
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
+import React, { useEffect, useReducer, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { connect } from 'react-redux';
 import { openPage } from '../actions/actions';
 import { UserTable } from '../components/Admin/security/User/UserTable';
-import { useGraphQL } from '../helper/Hooks';
+import { Overlay } from '../components/HelperComponent/Overlay';
+import gatewayClient from '../helper/GatewayClient';
+import { useGraphQLCB } from '../helper/Hooks';
 import { intl } from '../helper/IntlGlobalProvider';
 import { AdminPageLayout } from '../layouts/AdminPageLayout';
 
@@ -13,25 +21,104 @@ const QUERY = `
 {
 	users {
 		id
-	  	username
-	  	email
-	  	lastName
-	  	firstName
-	  	lastModified
+		username
+		canDelete
+		email
+		lastName
+		firstName
+		lastModified
 	}
 }
 `;
+
+const DELETE_USER_MUTATION = `
+	mutation CreateUser($id: ID!) {
+		deleteUser(id: $id) {
+			success
+			code
+		}
+	}
+`;
+
+const defaultState = {
+	users: null,
+	errors: null,
+	loading: true,
+	userId: null,
+	pending: false,
+	reloading: false
+};
+
+const reducer = (state, action) => {
+	switch (action.type) {
+		case 'set_errors':
+			return {
+				...state,
+				errors: action.data
+			};
+		case 'set_users':
+			return {
+				...state,
+				loading: false,
+				users: action.data
+			};
+		case 'set_user_id':
+			return {
+				...state,
+				userId: action.data,
+				pending: false
+			};
+		case 'start_delete':
+			return {
+				...state,
+				pending: true
+			};
+		case 'delete_success':
+			return {
+				...state,
+				pending: false,
+				reloading: true,
+				userId: null
+			};
+		case 'reload_done':
+			return {
+				...state,
+				reloading: false
+			};
+		default:
+			throw new Error('Unknown action');
+	}
+};
 
 const UserTablePageComponent = (props) => {
 	const { onAddUser, onSelectUser } = props;
 	const [filterText, setTextFilter] = useState('');
 	const [sort, setSort] = useState({ field: 'username', direction: 'asc' });
+	const [state, dispatch] = useReducer(reducer, defaultState);
 
-	const { loading, data, errors } = useGraphQL(QUERY);
-
+	useGraphQLCB(
+		({ data, errors }) => {
+			if (data) {
+				dispatch({ type: 'set_users', data });
+			}
+			if (errors) {
+				dispatch({ type: 'set_errors', errors: data });
+			}
+		},
+		QUERY,
+		undefined,
+		[state.reloading],
+		() => !state.users || state.reloading
+	);
 	const directionMultiplier = sort.direction === 'asc' ? 1 : -1;
 
-	if (errors) {
+	useEffect(() => {
+		if (state.reloading && state.users) {
+			setTimeout(() => dispatch({ type: 'reload_done' }), 500);
+		}
+	}, [state.users]);
+
+	if (state.errors) {
 		return (
 			<div
 				style={{
@@ -39,31 +126,51 @@ const UserTablePageComponent = (props) => {
 					padding: '24px',
 					backgroundColor: '#EEE',
 					boxSizing: 'border-box',
-					overflow: 'auto',
+					overflow: 'auto'
 				}}
 			>
-				{errors.join('\n')}
+				{state.errors.join('\n')}
 			</div>
 		);
 	}
 
+	const deleteUser = async () => {
+		dispatch({ type: 'start_delete' });
+		try {
+			const {
+				deleteUser: { success, code }
+			} = await gatewayClient.graphql(DELETE_USER_MUTATION, {
+				id: state.userId
+			});
+			if (success) {
+				dispatch({ type: 'delete_success' });
+			} else {
+				dispatch({ type: 'done' });
+				console.error(`Failed to delete user: ${code}`);
+			}
+		} catch (error) {
+			dispatch({ type: 'done' });
+			console.error(error);
+		}
+	};
+
 	const filterAndSort = () => {
-		if (loading) {
+		if (state.loading) {
 			return [];
 		}
-		const { users = [] } = data || {};
+		const { users = [] } = state.users || {};
 		const shownUsers = filterText
 			? users.filter(({ username, email, firstName, lastName }) =>
 					Object.values({ username, email, firstName, lastName })
 						.join('\n')
 						.toLowerCase()
-						.match(filterText.toLowerCase()),
+						.match(filterText.toLowerCase())
 			  )
 			: users;
 		const sortedUsers = shownUsers.sort(
 			(a, b) =>
 				((a[sort.field] || '').toLowerCase() > (b[sort.field] || '').toLowerCase() ? 1 : -1) *
-				directionMultiplier,
+				directionMultiplier
 		);
 		return sortedUsers;
 	};
@@ -77,7 +184,7 @@ const UserTablePageComponent = (props) => {
 					maxHeight: '100%',
 					padding: '24px',
 					overflow: 'auto',
-					boxSizing: 'border-box',
+					boxSizing: 'border-box'
 				}}
 			>
 				<Paper
@@ -85,6 +192,7 @@ const UserTablePageComponent = (props) => {
 						padding: '32px',
 						maxWidth: '960px',
 						margin: 'auto',
+						position: 'relative'
 					}}
 				>
 					<Grid container spacing={32}>
@@ -112,6 +220,7 @@ const UserTablePageComponent = (props) => {
 						<Grid item xs={12} style={{ overflowX: 'auto', width: '0px' }}>
 							<UserTable
 								users={users}
+								onDeleteUser={(userId) => dispatch({ type: 'set_user_id', data: userId })}
 								onSelectUser={(userId) => onSelectUser(userId)}
 								onSort={(field) => {
 									const direction = field === sort.field && sort.direction === 'asc' ? 'desc' : 'asc';
@@ -119,15 +228,15 @@ const UserTablePageComponent = (props) => {
 								}}
 								sortBy={sort.field}
 								sortDirection={sort.direction}
-								loading={loading}
+								loading={state.loading}
 							/>
 						</Grid>
-						{!loading && users.length === 0 && (
+						{!state.loading && users.length === 0 && (
 							<Grid item xs={12} style={{ textAlign: 'center' }}>
 								<Typography variant="body1">No Users Found</Typography>
 							</Grid>
 						)}
-						{loading && (
+						{state.loading && (
 							<Grid container style={{ minHeight: '200px' }} justify="center" alignItems="center">
 								<Grid item>
 									<CircularProgress />
@@ -135,23 +244,55 @@ const UserTablePageComponent = (props) => {
 							</Grid>
 						)}
 					</Grid>
+					{state.pending && (
+						<Overlay>
+							<CircularProgress style={{ width: '24px', height: '24px' }} />
+						</Overlay>
+					)}
+					{state.reloading && (
+						<Overlay>
+							<CheckIcon color="primary" />
+						</Overlay>
+					)}
 				</Paper>
 			</div>
+			<Dialog open={!!state.userId && !state.pending && !state.deleted}>
+				<DialogTitle>
+					<FormattedMessage id="Admin.userDelete" defaultMessage="Delete User" />
+				</DialogTitle>
+				<DialogContent
+					style={{
+						marginTop: '20px'
+					}}
+				>
+					<DialogContentText>
+						<FormattedMessage
+							id="Admin.deleteUserMessage"
+							defaultMessage="Please confirm to delete this user."
+						/>
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={() => dispatch({ type: 'done' })} color="primary">
+						<FormattedMessage id="Cancel" defaultMessage="Cancel" />
+					</Button>
+					<Button data-action="delete" onClick={() => deleteUser()} color="primary" autoFocus>
+						<FormattedMessage id="Delete" defaultMessage="Delete" />
+					</Button>
+				</DialogActions>
+			</Dialog>
 		</AdminPageLayout>
 	);
 };
 
 UserTablePageComponent.propTypes = {
 	onAddUser: PropTypes.func.isRequired,
-	onSelectUser: PropTypes.func.isRequired,
+	onSelectUser: PropTypes.func.isRequired
 };
 
 const mapDispatchToProps = {
 	onAddUser: () => openPage('/administration/users/new'),
-	onSelectUser: (userId) => openPage(`/administration/users/${userId}`),
+	onSelectUser: (userId) => openPage(`/administration/users/${userId}`)
 };
 
-export const UserTablePage = connect(
-	null,
-	mapDispatchToProps,
-)(UserTablePageComponent);
+export const UserTablePage = connect(null, mapDispatchToProps)(UserTablePageComponent);
