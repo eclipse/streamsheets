@@ -1,54 +1,96 @@
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { amber, red } from '@material-ui/core/colors';
 import { IconButton, Snackbar, SnackbarContent } from '@material-ui/core';
-import { Close, Warning } from '@material-ui/icons';
+import { Close as CloseIcon, Error, Warning } from '@material-ui/icons';
+
+const styles = {
+	expired: {
+		icon: Error,
+		style: {
+			backgroundColor: red[700],
+			color: 'black'
+		}
+	},
+	willExpire: {
+		icon: Warning,
+		style: {
+			backgroundColor: amber[700],
+			color: 'black'
+		}
+	},
+	iconStyle: {
+		fontSize: 20,
+		opacity: 0.9,
+		marginRight: 6
+	},
+	message: {
+		display: 'flex',
+		alignItems: 'center'
+	}
+};
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const LICENSE_INFO = { isValid: true, validUntil: Date.now() + 18 * DAY_IN_MS };
+// Workaround for Babel restriction, see https://github.com/yahoo/babel-plugin-react-intl/issues/119
+const FormattedMessageFixed = (props) => <FormattedMessage {...props} />;
+
 const msToDays = (ms) => ms / DAY_IN_MS;
 const expiresIn = (validUntil) => msToDays(validUntil - Date.now());
 
 const getLicenseInfo = () => {
-	const info = localStorage.getItem('licenseInfo');
-	const licenseInfo = info ? JSON.parse(info) : {};
-	licenseInfo.validUntil = licenseInfo.validUntil != null ? licenseInfo.validUntil : Date.now() + 18 * DAY_IN_MS;
-	return licenseInfo;
+	let licenseInfo;
+	try {
+		licenseInfo = JSON.parse(localStorage.getItem('licenseInfo'));
+	} catch (err) {
+		/* ignore */
+	}
+	return Object.assign({}, LICENSE_INFO, licenseInfo);
 };
-const getDaysLeft = () => {
-	const licenseInfo = getLicenseInfo();
-	return expiresIn(licenseInfo.validUntil);
-};
+
 function LicenseExpireNotification() {
-	const [daysLeft, setDaysLeft] = useState(100);
+	const [open, setOpen] = useState(false);
+	const [licenseInfo, setLicenseInfo] = useState({ ...LICENSE_INFO });
+	const { isValid, validUntil} = licenseInfo;
+	const daysLeft = expiresIn(validUntil);
+	const days = isValid ? daysLeft.toFixed() : '';
+	const Icon = isValid ? styles.willExpire.icon : styles.expired.icon;
+	const contentStyle = isValid ? styles.willExpire.style : styles.expired.style;
+	const messageId = isValid ? 'License.WillExpire' : 'License.Expired';
+	const defMessage = isValid
+		? 'days left for expiration of your StreamSheets!'
+		: 'Your Streamsheet license has expired!';
+	const onClose = () => setOpen(false);
 	useEffect(() => {
-		setDaysLeft(getDaysLeft());
-	});
+		const info = getLicenseInfo();
+		const expiresInDays = expiresIn(info.validUntil);
+		setOpen(!info.isValid || expiresInDays < 20);
+		setLicenseInfo({ ...info });
+	}, []);
+
 	return (
 		<Snackbar
 			anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
 			key="daysLeft"
-			open={daysLeft < 20}
-			autoHideDuration={10 * 1000}
-			// ContentProps={{
-			// 	'aria-describedby': 'message-id'
-			// }}
+			open={open}
+			// onClose={onClose}
+			// autoHideDuration={8000}
 		>
 			<SnackbarContent
-				aria-describedby='message-id'
+				aria-describedby="message-id"
+				style={contentStyle}
 				message={
-					<span style={{ color: 'red' }} id="message-id">
-						<Warning style={{fontSize: 20, opacity: 0.9, marginRight: 6 }} />
-						{daysLeft.toFixed(1)}{' '}
-						<FormattedMessage
-							id="License.DaysLeftNotification"
-							defaultMessage="days left for expiration of your StreamSheets!"
-						/>
+					<span style={styles.message} id="message-id">
+						<Icon style={styles.iconStyle} />
+						{days}&nbsp;
+						<FormattedMessageFixed id={messageId} defaultMessage={defMessage} />
 					</span>
 				}
-				action={[
-					<IconButton key="close" aria-label="close" color="inherit"> { /* onClick={onClose}> */ }
-						<Close style={{fontSize: 20 }} />
+				action={licenseInfo.isValid ? [
+					<IconButton key="close" aria-label="close" color="inherit" onClick={onClose}>
+						<CloseIcon style={styles.iconStyle} />
 					</IconButton>
-				]}
+				] : []}
 			/>
 		</Snackbar>
 	);
