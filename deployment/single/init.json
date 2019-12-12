@@ -6087,7 +6087,7 @@
 		"url": "localhost",
 		"userPropertiesConnect": [],
 		"userName": "cedalo",
-		"password": "fc3fd1db-274e-4eec-b952-7ff4e1270e12",
+		"password": "<PLACEHOLDER_BROKER_PASSWORD>",
 		"certPath": "",
 		"keyPath": "",
 		"caCert": "",

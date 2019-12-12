@@ -15,8 +15,13 @@ then
 else
 	echo "Password for default Mosquitto does not exist, will create one."
 	touch $FILE
-	PASSWORD=$(openssl rand -base64 32)
+	# Generate random password
+	PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
+	# Write credentials in Mosquitto configuration
 	mosquitto_passwd -b $FILE cedalo $PASSWORD
+	# Write password in default MQTT connector configuration
+	sed -i "s/<PLACEHOLDER_BROKER_PASSWORD>/$PASSWORD/g" streamsheets/packages/gateway/config/init.json
+	# Write password in text file
 	echo $PASSWORD >> $FILE_CLEAR
 	echo -e "${GREEN}Password for default Mosquitto created successfully.${NOCOLOR}"
 	echo -e "Hashed password for Mosquitto broker is located in ${CYAN}$FILE${NOCOLOR}."
