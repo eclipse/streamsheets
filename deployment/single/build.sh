@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-docker build -t cedalo/streamsheets:1.5-alpha.1 .
+docker build -t cedalo/streamsheets:1.5-alpha .
