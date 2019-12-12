@@ -72,91 +72,6 @@ paths:
         200:
           description: success
 
-  /graphs:
-    get:
-      security:
-        - JWT: []
-      summary: Get all graphs.
-      description: |
-        The graph endpoint returns information about the graphs that are
-        available at a given location.
-      tags:
-        - graphs
-      responses:
-        200:
-          description: An array of graphs.
-          schema:
-            $ref: '#/definitions/Graphs'
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
-    post:
-      security:
-        - JWT: []
-      summary: Create a new graph.
-      description: Create a new graph.
-      tags:
-        - graphs
-      parameters:
-        - $ref: "#/parameters/newGraph"
-      responses:
-        "200":
-          description: Graph response.
-          schema:
-            $ref: '#/definitions/Graph'
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
-  /graphs/{graphId}:
-    get:
-      security:
-        - JWT: []
-      summary: Get a single graph.
-      description: Returns a graph based on a single ID.
-      parameters:
-        - $ref: "#/parameters/graphId"
-      tags:
-        - graphs
-      responses:
-        "200":
-          description: Graph response.
-          schema:
-            $ref: '#/definitions/Graph'
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
-    put:
-      security:
-        - JWT: []
-      summary: Update a graph.
-      description: Update a graph.
-      parameters:
-        - $ref: "#/parameters/graphId"
-        - $ref: "#/parameters/updateGraph"
-      tags:
-        - graphs
-      responses:
-        "204":
-          description: Graph updated.
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
-    delete:
-      security:
-        - JWT: []
-      summary: Delete a graph.
-      description: Delete a graph.
-      parameters:
-        - $ref: "#/parameters/graphId"
-      tags:
-        - graphs
-      responses:
-        204:
-          description: Successfully deleted graph.
   /users:
     get:
       security:
@@ -671,45 +586,6 @@ paths:
         201:
           description: Processsheet successfully created.
 
-  /machines/{machineId}/process-settings:
-      parameters:
-        - $ref: '#/parameters/machineId'
-      get:
-        security:
-          - JWT: []
-        summary: Get process settings by machineId
-        description: Returns process settings by machineId.
-        tags:
-          - machines
-          - process settings
-        responses:
-          200:
-            description: Settings by machineId.
-      put:
-        consumes:
-          - application/json
-        parameters:
-          - in: body
-            description: The settings to save.
-            schema:
-              type: object
-              required:
-                - machineId
-              properties:
-                _id:
-                  type: string
-                machineId:
-                  type: string
-        security:
-          - JWT: []
-        summary: Save new process settings
-        tags:
-          - machines
-          - process settings
-        responses:
-          201:
-            description: Process settings successfully saved.
-
   /machines/{machineId}/settings:
     parameters:
       - $ref: '#/parameters/machineId'
@@ -780,63 +656,6 @@ paths:
         - application/json
       parameters:
         - $ref: "#/parameters/graphQLQuery"
-
-  /templates:
-    get:
-      security:
-        - JWT: []
-      summary: Get all templates.
-      description: |
-        The templates endpoint returns information about the machines that are
-        marked as templates.
-      tags:
-        - machines
-      responses:
-        200:
-          description: An array of machine templates.
-          schema:
-            $ref: '#/definitions/Machines'
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
-          
-  /templates/{templateId}:
-    get:
-      security:
-        - JWT: []
-      summary: Get a single template.
-      description: Returns a template based on a single ID.
-      parameters:
-        - $ref: "#/parameters/templateId"
-      tags:
-        - machines
-      responses:
-        "200":
-          description: Template response.
-          schema:
-            $ref: '#/definitions/Machine'
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
-    put:
-      security:
-        - JWT: []
-      summary: Update a template.
-      description: Update a template.
-      parameters:
-        - $ref: "#/parameters/templateId"
-        - $ref: "#/parameters/template"
-      tags:
-        - machines
-      responses:
-        "204":
-          description: Template updated.
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
 
   /system/setup:
     get:
@@ -958,20 +777,6 @@ paths:
       responses:
         200:
           description: Processsheet.
-
-  /processsheettemplates:
-    get:
-      security:
-        - JWT: []
-      summary: Get processsheet templates
-      description: Returns a list of processsheet templates.
-      tags:
-        - machines
-        - processsheets
-        - processsheettemplates
-      responses:
-        200:
-          description: Processsheet templates.
 
   /machinesettings:
     get:
@@ -1207,36 +1012,6 @@ definitions:
       - mail
       - password
 
-  Graph:
-    type: object
-    properties:
-      id:
-        type: string
-        description: Unique identifier representing a specific graph.
-      graph:
-        type: object
-        description: The actual graph.
-  Graphs:
-    type: array
-    items:
-      $ref: '#/definitions/Graph'
-  NewGraph:
-      properties:
-        id:
-          type: string
-        machineId:
-          type: string
-        graph:
-          type: object
-  UpdateGraph:
-      properties:
-        id:
-          type: string
-        machineId:
-          type: string
-        graph:
-          type: object
-
   Machine:
     type: object
     properties:
@@ -1270,11 +1045,6 @@ definitions:
             - running
             - stopped
             - paused
-
-  NewTemplate:
-      properties:
-        name:
-          type: string
 
   ImportData:
     type: object
@@ -1423,27 +1193,6 @@ definitions:
 
 # List of reusable parameters
 parameters:
-  graphId:
-    name: graphId
-    in: path
-    description: The ID of a graph.
-    required: true
-    type: string
-  updateGraph:
-    name: graph
-    in: body
-    description: New graph to update
-    required: true
-    schema:
-      $ref: '#/definitions/UpdateGraph'
-  newGraph:
-    name: graph
-    in: body
-    description: New graph to create
-    required: true
-    schema:
-      $ref: '#/definitions/NewGraph'
-
   newUserOrLogin:
     name: User
     in: body
@@ -1541,20 +1290,6 @@ parameters:
     required: Temperature
     schema:
       $ref: '#/definitions/NewOrUpdateMachineSetting'
-
-  templateId:
-    name: templateId
-    in: path
-    description: The ID of a template.
-    required: true
-    type: string
-  template:
-    name: template
-    in: body
-    description: Template to add.
-    required: true
-    schema:
-      $ref: '#/definitions/NewTemplate'
 
   importData:
     name: importData

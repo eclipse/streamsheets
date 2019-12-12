@@ -566,14 +566,6 @@ module.exports = class BaseGatewayClient {
 		});
 	}
 
-	saveMachineAsTemplate(machineId, templateId, templateName) {
-		return this.socket.saveMachineAsTemplate(
-			machineId,
-			templateId,
-			templateName
-		);
-	}
-
 	redo(machineId) {
 		return this.socket.redo(machineId);
 	}
@@ -609,46 +601,6 @@ module.exports = class BaseGatewayClient {
 
 	getMetaInformation() {
 		return this.http.getMetaInformation();
-	}
-
-	/**
-	 * *********************************************
-	 * Template API
-	 * *********************************************
-	 */
-
-	getTemplates() {
-		return this.http.getTemplates();
-	}
-
-	getTemplate(templateId) {
-		return this.http.getTemplate(templateId);
-	}
-
-	/**
-	 * *********************************************
-	 * Graph Definition API
-	 * *********************************************
-	 */
-
-	getGraphs() {
-		return this.http.getGraphs();
-	}
-
-	getGraph(graphId) {
-		return this.http.getGraph(graphId);
-	}
-
-	saveGraph(graph) {
-		return this.http.saveGraph(graph);
-	}
-
-	updateGraph(graphId, graph) {
-		return this.http.updateGraph(graphId, graph);
-	}
-
-	deleteGraph(graphId) {
-		return this.http.deleteGraph(graphId);
 	}
 
 	/**
@@ -720,65 +672,6 @@ module.exports = class BaseGatewayClient {
 
 	reloadStreams(sources = []) {
 		return this.socket.reloadStreams(sources);
-	}
-
-	// TODO: deprecate rest
-
-	saveConfiguration(configuration) {
-		return this.http.saveConfiguration(configuration);
-	}
-
-	getAllConfigurations() {
-		return this.http.getAllConfigurations();
-	}
-
-	getConfigurationsByType(configType) {
-		return this.http.getConfigurationsByType(configType);
-	}
-
-	getConnectorConfigurations() {
-		return this.getConfigurationsByType('ConnectorConfiguration');
-	}
-
-	getProviderConfigurations() {
-		return this.getConfigurationsByType('ProviderConfiguration');
-	}
-
-	getStreamConfigurations() {
-		return this.getConfigurationsByType('ConsumerConfiguration');
-	}
-
-	getConfigurationById(configId) {
-		// TODO: handle invalid configuration id on server-side
-		if (typeof configId === 'undefined') {
-			return Promise.resolve(null);
-		}
-		return this.http.getConfigurationById(configId);
-	}
-
-	deleteConfigurationById(configId) {
-		// TODO: handle invalid configuration id on server-side
-		if (typeof configId === 'undefined') {
-			return Promise.resolve(null);
-		}
-		return this.http.deleteConfigurationById(configId);
-	}
-
-	streamsReload() {
-		return this.socket.streamsReload();
-	}
-
-	/**
-	 * *********************************************
-	 * Machine process settings API
-	 * *********************************************
-	 */
-	saveMachineProcessSettings(settings) {
-		return this.http.saveMachineProcessSettings(settings);
-	}
-
-	getMachineProcessSettings(machineId) {
-		return this.http.getMachineProcessSettings(machineId);
 	}
 
 	/**

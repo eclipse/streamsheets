@@ -33,10 +33,6 @@ API for managing the machine definitions in the repository. Internally this API 
 
 API for managing the machines on the machine server. Internally this API uses the HTTP Web Socket API provided by the gateway.
 
-### Template API
-
-API for managing the machine templates in the repository. Internally this API uses gateway HTTP API provided by the gateway.
-
 ### Graph Definition API
 
 API for managing the graph definitions in the repository. Internally this API uses gateway HTTP API provided by the gateway.

@@ -283,15 +283,6 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('saveMachineAs', originalMachineId, newName);
 	}
 
-	saveMachineAsTemplate(machineId, templateId, templateName) {
-		return this._proxy(
-			'saveMachineAsTemplate',
-			machineId,
-			templateId,
-			templateName
-		);
-	}
-
 	saveMachineCopy(originalMachineId, newName) {
 		return this._proxy('saveMachineCopy', originalMachineId, newName);
 	}
@@ -336,46 +327,6 @@ module.exports = class WebWorkerGatewayClientProxy {
 
 	/**
 	 * *********************************************
-	 * Template API
-	 * *********************************************
-	 */
-
-	getTemplates() {
-		return this._proxy('getTemplates');
-	}
-
-	getTemplate(templateId) {
-		return this._proxy('getTemplate', templateId);
-	}
-
-	/**
-	 * *********************************************
-	 * Graph Definition API
-	 * *********************************************
-	 */
-
-	getGraphs() {
-		return this._proxy('getGraphs');
-	}
-
-	getGraph(graphId) {
-		return this._proxy('getGraph', graphId);
-	}
-
-	saveGraph(graph) {
-		return this._proxy('saveGraph', graph);
-	}
-
-	updateGraph(graphId, graph) {
-		return this._proxy('updateGraph', graphId, graph);
-	}
-
-	deleteGraph(graphId) {
-		return this._proxy('deleteGraph', graphId);
-	}
-
-	/**
-	 * *********************************************
 	 * Graph API
 	 * *********************************************
 	 */
@@ -415,57 +366,6 @@ module.exports = class WebWorkerGatewayClientProxy {
 
 	reloadStreams(sources) {
 		return this._proxy('reloadStreams', sources);
-	}
-
-	// TOBE deprecated:
-
-	saveConfiguration(configuration) {
-		return this._proxy('saveConfiguration', configuration);
-	}
-
-	getAllConfigurations() {
-		return this._proxy('getAllConfigurations');
-	}
-
-	getConfigurationsByType(configType) {
-		return this._proxy('getConfigurationsByType', configType);
-	}
-
-	getConnectorConfigurations() {
-		return this._proxy('getConnectorConfigurations');
-	}
-
-	getProviderConfigurations() {
-		return this._proxy('getProviderConfigurations');
-	}
-
-	getStreamsConfigurations() {
-		return this._proxy('getStreamsConfigurations');
-	}
-
-	getConfigurationById(configId) {
-		return this._proxy('getConfigurationById', configId);
-	}
-
-	deleteConfigurationById(configId) {
-		return this._proxy('deleteConfigurationById', configId);
-	}
-
-	streamsReload() {
-		return this._proxy('streamsReload');
-	}
-
-	/**
-	 * *********************************************
-	 * Machine process settings API
-	 * *********************************************
-	 */
-	saveMachineProcessSettings(settings) {
-		return this._proxy('saveMachineProcessSettings', settings);
-	}
-
-	getMachineProcessSettings(machineId) {
-		return this._proxy('getMachineProcessSettings', machineId);
 	}
 
 	/**
