@@ -16,7 +16,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
 import Input from '@material-ui/core/Input';
 import Divider from '@material-ui/core/Divider';
-// import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 import { bindActionCreators } from 'redux';
@@ -26,7 +25,6 @@ import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/RemoveCircle';
 import CloseIcon from '@material-ui/icons/Close';
-// import * as Colors from '@material-ui/core/colors';
 import JSG from '@cedalo/jsg-ui';
 import { Arrays, CompoundCommand } from '@cedalo/jsg-core';
 import Slide from '@material-ui/core/Slide';
@@ -78,6 +76,39 @@ const styles = {
 		display: 'block'
 	}
 };
+
+const LINE_STYLES = [
+	{
+		value: 0,
+		name: 'Ohne',
+		image: 'lib/res/images/linestylenone.png',
+		id: 0,
+	},
+	{
+		value: 1,
+		name: '1',
+		image: 'lib/res/images/linestylesolid.png',
+		id: 1,
+	},
+	{
+		value: 2,
+		name: '2',
+		image: 'lib/res/images/linestyledot.png',
+		id: 2,
+	},
+	{
+		value: 3,
+		name: '3',
+		image: 'lib/res/images/linestyledash.png',
+		id: 3,
+	},
+	{
+		value: 4,
+		name: '4',
+		image: 'lib/res/images/linestyledashdot.png',
+		id: 4,
+	},
+];
 
 function TabContainer(props) {
 	return <Typography component="div">{props.children}</Typography>;
@@ -233,18 +264,81 @@ export class ChartProperties extends Component {
 
 		if (this.state.chartType === 'pie' || this.state.chartType === 'doughnut') {
 			if (this.state.pointIndex !== 'all') {
-				return colors.backgroundColor[Number(this.state.pointIndex) % 11];
+				return colors.borderColor[Number(this.state.pointIndex) % 11];
 			}
 		}
 
 		return colors.borderColor[this.state.seriesIndex % 11];
 	}
 
+	getSeriesMarkerLineColor() {
+		const series = this.state.series[this.state.seriesIndex];
+		if (series) {
+			if (this.state.pointIndex === 'all' || !series.pointInfo) {
+				if (series.markerLineColor) {
+					return series.markerLineColor;
+				}
+			} else {
+				const pointInfo = series.pointInfo[Number(this.state.pointIndex)];
+				if (pointInfo && pointInfo.markerLineColor !== undefined) {
+					return pointInfo.markerLineColor;
+				}
+				if (series.markerLineColor) {
+					return series.markerLineColor;
+				}
+			}
+		}
+
+		return colors.borderColor[this.state.seriesIndex % 11];
+	}
+
+	getSeriesMarkerFillColor() {
+		const series = this.state.series[this.state.seriesIndex];
+		if (series) {
+			if (this.state.pointIndex === 'all' || !series.pointInfo) {
+				if (series.markerFillColor) {
+					return series.markerFillColor;
+				}
+			} else {
+				const pointInfo = series.pointInfo[Number(this.state.pointIndex)];
+				if (pointInfo && pointInfo.markerFillColor !== undefined) {
+					return pointInfo.markerFillColor;
+				}
+				if (series.markerFillColor) {
+					return series.markerFillColor;
+				}
+			}
+		}
+
+		return colors.borderColor[this.state.seriesIndex % 11];
+	}
+
+	getSeriesLineStyle() {
+		const series = this.state.series[this.state.seriesIndex];
+		if (series) {
+			if (this.state.pointIndex === 'all' || !series.pointInfo) {
+				if (series.lineStyle !== undefined) {
+					return series.lineStyle;
+				}
+			} else {
+				const pointInfo = series.pointInfo[Number(this.state.pointIndex)];
+				if (pointInfo && pointInfo.lineStyle !== undefined) {
+					return pointInfo.lineStyle;
+				}
+				if (series.lineStyle !== undefined) {
+					return series.lineStyle;
+				}
+			}
+		}
+
+		return 1;
+	}
+
 	getSeriesLineWidth() {
 		const series = this.state.series[this.state.seriesIndex];
 		if (series) {
 			if (this.state.pointIndex === 'all' || !series.pointInfo) {
-				if (series.lineWidth) {
+				if (series.lineWidth !== undefined) {
 					return series.lineWidth;
 				}
 			} else {
@@ -252,29 +346,30 @@ export class ChartProperties extends Component {
 				if (pointInfo && pointInfo.lineWidth !== undefined) {
 					return pointInfo.lineWidth;
 				}
-				if (series.lineWidth) {
+				if (series.lineWidth !== undefined) {
 					return series.lineWidth;
 				}
 			}
 		}
 
-		return 3;
+		return 1;
 	}
 
 	getSeriesLineMarker() {
+		const defaultMarker = this.state.chartType === 'scatter' ? 'circle' : 'none';
 		const series = this.state.series[this.state.seriesIndex];
 		if (series) {
 			if (this.state.pointIndex === 'all' || !series.pointInfo) {
-				return series.lineMarker ? series.lineMarker : 'circle';
+				return series.lineMarker ? series.lineMarker : defaultMarker;
 			}
 			const pointInfo = series.pointInfo[Number(this.state.pointIndex)];
 			if (pointInfo && pointInfo.lineMarker !== undefined) {
 				return pointInfo.lineMarker;
 			}
-			return series.lineMarker ? series.lineMarker : 'circle';
+			return series.lineMarker ? series.lineMarker : defaultMarker;
 		}
 
-		return 'none';
+		return defaultMarker;
 	}
 
 	getSeriesShowDataLabels() {
@@ -392,15 +487,21 @@ export class ChartProperties extends Component {
 			legendPosition: item.legend.position,
 			legendFont: item.legend.font,
 			scales: item.scales
-			// axisId: item.scales.xAxes[0].id,
-			// xAxisId: item.scales.xAxes[0].id,
-			// yAxisId: item.scales.yAxes[0].id,
 		});
 	}
 
 	sendCommand(key, data) {
 		const cmd = new JSG.SetChartDataCommand(this.chartNode, key, data);
 		graphManager.synchronizedExecute(cmd);
+	}
+
+	isLineChart() {
+		return (
+			this.state.chartType === 'radar' ||
+			this.state.chartType === 'scatter' ||
+			this.state.chartType === 'line' ||
+			this.state.chartType === 'scatterLine'
+		);
 	}
 
 	hasXAxis() {
@@ -741,105 +842,54 @@ export class ChartProperties extends Component {
 		this.setState({ series: this.chartNode.data.series });
 	};
 
-	handleSeriesFillColorChange = (color) => {
+	handleSeriesFormatChange = (value, category) => {
+		const series = this.chartNode.data.series[this.state.seriesIndex];
+		if (series === undefined) {
+			return;
+		}
+
 		const cmd = this.createCommand();
+		const change = (data) => {
+			switch (category) {
+			case 'fillColor':
+			case 'lineColor':
+			case 'markerLineColor':
+			case 'markerFillColor':
+				data[category] = value === 'transparent' ? undefined : value;
+				break;
+			default:
+				data[category] = value;
+				break;
+			}
+		};
+
 		if (this.state.pointIndex === 'all') {
-			this.chartNode.data.series[this.state.seriesIndex].fillColor = color === 'transparent' ? undefined : color;
+			change(series);
+			if (series.pointInfo) {
+				series.pointInfo.forEach((info) => {
+					if (info) {
+						info[category] = undefined;
+					}
+				});
+			}
 		} else {
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo = [];
+			if (!series.pointInfo) {
+				series.pointInfo = [];
 			}
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)]) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)] = {};
+			const index = Number(this.state.pointIndex);
+			if (!series.pointInfo[index]) {
+				series.pointInfo[index] = {};
 			}
-			this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)].fillColor =
-				color === 'transparent' ? undefined : color;
+			change(series.pointInfo[index]);
 		}
 		this.setState({ series: this.chartNode.data.series });
 		this.executeDataCommand(cmd);
-	};
 
-	handleSeriesFillColorClose = () => {};
-
-	handleSeriesLineColorChange = (color) => {
-		const cmd = this.createCommand();
-		if (this.state.pointIndex === 'all') {
-			this.chartNode.data.series[this.state.seriesIndex].lineColor = color === 'transparent' ? undefined : color;
-		} else {
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo = [];
-			}
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)]) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)] = {};
-			}
-			this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)].lineColor =
-				color === 'transparent' ? undefined : color;
-		}
-		this.setState({ series: this.chartNode.data.series });
-		this.executeDataCommand(cmd);
-	};
-
-	handleSeriesLineColorClose = () => {};
-
-	handleSeriesLineWidthBlur = (event) => {
-		const cmd = this.createCommand();
-		if (this.state.pointIndex === 'all') {
-			this.chartNode.data.series[this.state.seriesIndex].lineWidth = Math.max(1, Number(event.target.value));
-		} else {
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo = [];
-			}
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)]) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)] = {};
-			}
-			this.chartNode.data.series[this.state.seriesIndex].pointInfo[
-				Number(this.state.pointIndex)
-			].lineWidth = Math.max(1, Number(event.target.value));
-		}
-		this.setState({ series: this.chartNode.data.series });
-		this.executeDataCommand(cmd);
-	};
-
-	handleSeriesLineMarkerChange = (event) => {
-		const cmd = this.createCommand();
-		if (this.state.pointIndex === 'all') {
-			this.chartNode.data.series[this.state.seriesIndex].lineMarker = event.target.value;
-		} else {
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo = [];
-			}
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)]) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)] = {};
-			}
-			this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)].lineMarker =
-				event.target.value;
-		}
-		this.setState({ series: this.chartNode.data.series });
-		this.executeDataCommand(cmd);
 	};
 
 	handleSeriesShowLineChange = (event, state) => {
 		const cmd = this.createCommand();
 		this.chartNode.data.series[this.state.seriesIndex].showLine = state;
-		this.setState({ series: this.chartNode.data.series });
-		this.executeDataCommand(cmd);
-	};
-
-	handleSeriesShowDataLabelsChange = (event, state) => {
-		const cmd = this.createCommand();
-		if (this.state.pointIndex === 'all') {
-			this.chartNode.data.series[this.state.seriesIndex].showDataLabels = state;
-		} else {
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo = [];
-			}
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)]) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)] = {};
-			}
-			this.chartNode.data.series[this.state.seriesIndex].pointInfo[
-				Number(this.state.pointIndex)
-			].showDataLabels = state;
-		}
 		this.setState({ series: this.chartNode.data.series });
 		this.executeDataCommand(cmd);
 	};
@@ -1773,7 +1823,8 @@ export class ChartProperties extends Component {
 									<FormControl
 										style={{
 											width: '95%',
-											marginTop: '10px'
+											marginTop: '10px',
+											marginBottom: '10px'
 										}}
 									>
 										<InputLabel htmlFor="point-names">
@@ -1800,104 +1851,123 @@ export class ChartProperties extends Component {
 												: null}
 										</Select>
 									</FormControl>
-									<FormControl
-										style={{
-											marginTop: '15px',
-											width: '90%'
-										}}
-									>
-										<ColorComponent
-											label={
-												<FormattedMessage
-													id="ChartProperties.seriesFillColor"
-													defaultMessage="Fill Color"
-												/>
-											}
-											transparent
-											color={this.getSeriesFillColor()}
-											onChange={(color) => this.handleSeriesFillColorChange(color)}
-											onClose={(color) => this.handleSeriesFillColorClose(color)}
-										/>
-									</FormControl>
-									<FormControl
-										style={{
-											marginBottom: '10px',
-											display: 'inline-flex',
-											width: '40%'
-										}}
-									>
-										<ColorComponent
-											label={
-												<FormattedMessage
-													id="ChartProperties.seriesLineColor"
-													defaultMessage="Line Color"
-												/>
-											}
-											transparent
-											color={this.getSeriesLineColor()}
-											onChange={(color) => this.handleSeriesLineColorChange(color)}
-											onClose={(color) => this.handleSeriesLineColorClose(color)}
-										/>
-									</FormControl>
-									<FormControl
-										style={{
-											width: '40%',
-											display: 'inline-flex',
-											marginTop: '3px',
-											marginLeft: '18px'
-										}}
-									>
-										<TextField
-											label={
-												<FormattedMessage
-													id="ChartProperties.lineWidth"
-													defaultMessage="Width"
-												/>
-											}
-											type="number"
-											value={this.getSeriesLineWidth()}
-											onChange={(event) => this.handleSeriesLineWidthBlur(event)}
-											onBlur={(event) => this.handleSeriesLineWidthBlur(event)}
-											onKeyPress={(event) => {
-												if (event.key === 'Enter') {
-													this.handleSeriesLineWidthBlur(event);
-												}
+									{!this.isLineChart() ? (
+										<FormControl
+											style={{
+												width: '90%'
 											}}
-										/>
-									</FormControl>
-									<FormControlLabel
-										control={
-											<Checkbox
-												checked={this.getSeriesShowDataLabels()}
-												onChange={this.handleSeriesShowDataLabelsChange}
+										>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="ChartProperties.seriesFillColor"
+														defaultMessage="Fill Color"
+													/>
+												}
+												transparent
+												width={70}
+												color={this.getSeriesFillColor()}
+												onChange={(color) => this.handleSeriesFormatChange(color, 'fillColor')}
 											/>
-										}
-										label={
-											<FormattedMessage
-												id="ChartProperties.showDataLabels"
-												defaultMessage="Show Datalabels"
-											/>
-										}
-									/>
-									{this.state.chartType === 'scatter' || this.state.chartType === 'scatterLine' ? (
-										<FormControlLabel
-											control={
-												<Checkbox
-													checked={this.getSeriesShowLine()}
-													onChange={this.handleSeriesShowLineChange}
-												/>
-											}
-											label={
-												<FormattedMessage
-													id="ChartProperties.connectPoints"
-													defaultMessage="Connect Points"
-												/>
-											}
-										/>
+										</FormControl>
 									) : null}
-									{this.state.chartType === 'scatter' ||
-									this.state.chartType === 'scatterLine' ||
-									this.state.chartType === 'line' ? (
+									{(!this.isLineChart() || this.state.pointIndex === 'all') ? (
+										<FormControl
+											style={{
+												display: 'inline-flex',
+												width: '28%'
+											}}
+										>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="ChartProperties.seriesLineColor"
+														defaultMessage="Line Color"
+													/>
+												}
+												transparent
+												width={70}
+												color={this.getSeriesLineColor()}
+												onChange={(color) => this.handleSeriesFormatChange(color, 'lineColor')}
+											/>
+										</FormControl>
+										) : null}
+									{(!this.isLineChart() || this.state.pointIndex === 'all') ? (
+										<FormControl
+											style={{
+												width: '15%',
+												display: 'inline-flex',
+												marginTop: '2px',
+												marginLeft: '10px'
+											}}
+										>
+											<TextField
+												label={
+													<FormattedMessage
+														id="ChartProperties.lineWidth"
+														defaultMessage="Width"
+													/>
+												}
+												type="number"
+												value={this.getSeriesLineWidth()}
+												onChange={(event) => this.handleSeriesFormatChange(Math.max(1, Number(event.target.value)), 'lineWidth')}
+												onBlur={(event) => this.handleSeriesFormatChange(Math.max(1, Number(event.target.value)), 'lineWidth')}
+												onKeyPress={(event) => {
+													if (event.key === 'Enter') {
+														this.handleSeriesFormatChange(Math.max(1, Number(event.target.value)), 'lineWidth');
+													}
+												}}
+											/>
+										</FormControl>
+									) : null}
+									{(this.isLineChart() && this.state.pointIndex === 'all') ? (
+										<FormControl
+											style={{
+												width: '43%',
+												marginLeft: '10px',
+												marginRight: '5px',
+												marginTop: '2px'
+											}}
+										>
+											<InputLabel htmlFor="line-style">
+												<FormattedMessage id="ChartProperties.lineStyle" defaultMessage="Style" />
+											</InputLabel>
+											<Select
+												id="line-style"
+												value={this.getSeriesLineStyle()}
+												onChange={(event) => this.handleSeriesFormatChange(Number(event.target.value), 'lineStyle')}
+												input={
+													<Input
+														style={{
+															backgroundImage: `url(${LINE_STYLES[this.getSeriesLineStyle()].image}`,
+															backgroundRepeat: 'no-repeat',
+															backgroundPositionY: 'center',
+															color: '#000000',
+														}}
+														defaultValue="0"
+														name="line-style"
+														id="line-style"
+													/>
+												}
+											>
+												{LINE_STYLES.map((name) => (
+													<MenuItem
+														style={{
+															backgroundImage: `url(${name.image})`,
+															backgroundRepeat: 'no-repeat',
+															backgroundPositionY: 'center',
+															color: `${name.id ? 'transparent' : '#000000'}`,
+														}}
+														value={name.value}
+														key={name.id}
+													>
+														{name.id === 0 ? name.name : ''}
+													</MenuItem>
+												))}
+											</Select>
+										</FormControl>
+									) : null}
+									{this.isLineChart() ? (
 										<FormControl
 											style={{
 												width: '95%',
@@ -1914,7 +1984,7 @@ export class ChartProperties extends Component {
 											<Select
 												id="series-marker"
 												value={this.getSeriesLineMarker()}
-												onChange={this.handleSeriesLineMarkerChange}
+												onChange={(event) => this.handleSeriesFormatChange(event.target.value, 'lineMarker')}
 												input={<Input name="series-marker" id="series-marker" />}
 											>
 												<MenuItem value="none" key={1}>
@@ -1973,6 +2043,75 @@ export class ChartProperties extends Component {
 												</MenuItem>
 											</Select>
 										</FormControl>
+									) : null}
+									{this.isLineChart() ? (
+										<FormControl
+											style={{
+												width: '50%'
+											}}
+										>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="ChartProperties.markerFillColor"
+														defaultMessage="Marker Fill Color"
+													/>
+												}
+												transparent
+												color={this.getSeriesMarkerFillColor()}
+												onChange={(color) => this.handleSeriesFormatChange(color, 'markerFillColor')}
+											/>
+										</FormControl>
+									) : null}
+									{this.isLineChart() ? (
+										<FormControl
+											style={{
+												display: 'inline-flex',
+												width: '50%'
+											}}
+										>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="ChartProperties.markerLineColor"
+														defaultMessage="Marker Line Color"
+													/>
+												}
+												transparent
+												color={this.getSeriesMarkerLineColor()}
+												onChange={(color) => this.handleSeriesFormatChange(color, 'markerLineColor')}
+											/>
+										</FormControl>
+									) : null}
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={this.getSeriesShowDataLabels()}
+												onChange={(event, state) => this.handleSeriesFormatChange(state, 'showDataLabels')}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="ChartProperties.showDataLabels"
+												defaultMessage="Show Datalabels"
+											/>
+										}
+									/>
+									{this.state.chartType === 'scatter' || this.state.chartType === 'scatterLine' ? (
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={this.getSeriesShowLine()}
+													onChange={this.handleSeriesShowLineChange}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="ChartProperties.connectPoints"
+													defaultMessage="Connect Points"
+												/>
+											}
+										/>
 									) : null}
 									{this.hasMultiXAxis() &&
 									this.state.scales.xAxes[0].type !== 'category' &&
