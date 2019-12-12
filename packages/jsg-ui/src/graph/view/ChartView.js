@@ -556,13 +556,32 @@ export default class ChartView extends NodeView {
 				}
 			}
 
+			if (currentSeries.showLine === undefined) {
+				if (chartType === 'scatterLine') {
+					set.showLine = true;
+				} else if (chartType === 'scatter') {
+					set.showLine = false;
+				}
+			} else {
+				set.showLine = currentSeries.showLine;
+			}
+
 			if (this.isLineChart(chartType)) {
 				set.pointBorderWidth = currentSeries.lineWidth;
 				set.pointBorderColor = currentSeries.markerLineColor;
 				set.pointBackgroundColor = currentSeries.markerFillColor;
+				if (chartType === 'scatter' && currentSeries.lineMarker === undefined) {
+					set.pointStyle = 'circle';
+					set.pointRadius = currentSeries.lineMarkerSize === undefined ? 4 : currentSeries.lineMarkerSize;
+				} else if (currentSeries.lineMarker === undefined || currentSeries.lineMarker === 'none') {
+					set.pointStyle = 'line';
+					set.pointRadius = 0;
+				} else {
+					set.pointStyle = currentSeries.lineMarker;
+					set.pointRadius = currentSeries.lineMarkerSize === undefined ? 4 : currentSeries.lineMarkerSize;
+				}
 			}
 
-			set.showLine = currentSeries.showLine;
 			if (currentSeries.showDataLabels) {
 				this._showDataLabels = true;
 			}
@@ -587,19 +606,6 @@ export default class ChartView extends NodeView {
 				}
 			};
 
-			if (chartType === 'scatter' && currentSeries.lineMarker === undefined) {
-				set.lineMarker = 'circle';
-			}
-			if (chartType === 'scatterLine' && currentSeries.showLine === undefined) {
-				set.showLine = true;
-			}
-			if (currentSeries.lineMarker === undefined || currentSeries.lineMarker === 'none') {
-				set.pointStyle = set.lineMarker ? set.lineMarker : 'line';
-				set.pointRadius = set.lineMarker ? 4 : 0;
-			} else {
-				set.pointStyle = currentSeries.lineMarker;
-				set.pointRadius = 4;
-			}
 			if (currentSeries.xAxisID) {
 				if (this.getItem().getAxisByName(currentSeries.xAxisID)) {
 					set.xAxisID = currentSeries.xAxisID;
@@ -1253,6 +1259,7 @@ export default class ChartView extends NodeView {
 					let lineStyle = false;
 					let lineMarkerColor = false;
 					let fillMarkerColor = false;
+					let lineMarkerSize = false;
 					const lineChart = this.isLineChart(chartType);
 					set.data.forEach((dataValue, dataIndex) => {
 						if (!lineChart &&
@@ -1295,6 +1302,12 @@ export default class ChartView extends NodeView {
 							serie.pointInfo[dataIndex].markerFillColor !== undefined
 						) {
 							fillMarkerColor = true;
+						}
+						if (lineChart &&
+							serie.pointInfo[dataIndex] &&
+							serie.pointInfo[dataIndex].lineMarkerSize !== undefined
+						) {
+							lineMarkerSize = true;
 						}
 					});
 
@@ -1399,6 +1412,21 @@ export default class ChartView extends NodeView {
 							if (serie.pointInfo[dataIndex] && serie.pointInfo[dataIndex].lineMarker !== undefined) {
 								set.pointStyle[dataIndex] = serie.pointInfo[dataIndex].lineMarker;
 								set.pointRadius[dataIndex] = set.pointStyle[dataIndex] === 'none' ? 0 : 4;
+							}
+						});
+					}
+					if (lineMarkerSize) {
+						if (!(set.pointRadius instanceof Array)) {
+							const radius = set.pointRadius;
+							set.pointRadius = [];
+							set.data.forEach(() => {
+								set.pointRadius.push(radius);
+							});
+						}
+						set.data.forEach((dataValue, dataIndex) => {
+							if (serie.pointInfo[dataIndex] &&
+								serie.pointInfo[dataIndex].lineMarkerSize !== undefined) {
+								set.pointRadius[dataIndex] = serie.pointInfo[dataIndex].lineMarkerSize;
 							}
 						});
 					}

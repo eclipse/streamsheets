@@ -372,6 +372,27 @@ export class ChartProperties extends Component {
 		return defaultMarker;
 	}
 
+	getSeriesLineMarkerSize() {
+		const series = this.state.series[this.state.seriesIndex];
+		if (series) {
+			if (this.state.pointIndex === 'all' || !series.pointInfo) {
+				if (series.lineMarkerSize !== undefined) {
+					return series.lineMarkerSize;
+				}
+			} else {
+				const pointInfo = series.pointInfo[Number(this.state.pointIndex)];
+				if (pointInfo && pointInfo.lineMarkerSize !== undefined) {
+					return pointInfo.lineMarkerSize;
+				}
+				if (series.lineWidth !== undefined) {
+					return series.lineMarkerSize;
+				}
+			}
+		}
+
+		return 4;
+	}
+
 	getSeriesShowDataLabels() {
 		const series = this.state.series[this.state.seriesIndex];
 		if (series) {
@@ -1970,7 +1991,7 @@ export class ChartProperties extends Component {
 									{this.isLineChart() ? (
 										<FormControl
 											style={{
-												width: '95%',
+												width: '75%',
 												marginTop: '10px',
 												marginBottom: '10px'
 											}}
@@ -2042,6 +2063,34 @@ export class ChartProperties extends Component {
 													/>
 												</MenuItem>
 											</Select>
+										</FormControl>
+									) : null}
+									{this.isLineChart() ? (
+										<FormControl
+											style={{
+												width: '15%',
+												display: 'inline-flex',
+												marginTop: '10px',
+												marginLeft: '10px'
+											}}
+										>
+											<TextField
+												label={
+													<FormattedMessage
+														id="ChartProperties.seriesMarkerSize"
+														defaultMessage="Size"
+													/>
+												}
+												type="number"
+												value={this.getSeriesLineMarkerSize()}
+												onChange={(event) => this.handleSeriesFormatChange(Math.max(0, Number(event.target.value)), 'lineMarkerSize')}
+												onBlur={(event) => this.handleSeriesFormatChange(Math.max(0, Number(event.target.value)), 'lineMarkerSize')}
+												onKeyPress={(event) => {
+													if (event.key === 'Enter') {
+														this.handleSeriesFormatChange(Math.max(0, Number(event.target.value)), 'lineMarkerSize');
+													}
+												}}
+											/>
 										</FormControl>
 									) : null}
 									{this.isLineChart() ? (

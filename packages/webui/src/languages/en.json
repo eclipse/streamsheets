@@ -508,6 +508,7 @@
     "ChartProperties.markerFillColor": "Marker Fill Color",
     "ChartProperties.markerLineColor": "Marker Line Color",
 	"ChartProperties.seriesMarker": "Marker",
+	"ChartProperties.seriesMarkerSize": "Size",
 	"ChartProperties.connectPoints": "Connect Points",
 	"ChartProperties.circle": "Circle",
 	"ChartProperties.cross": "Cross",
