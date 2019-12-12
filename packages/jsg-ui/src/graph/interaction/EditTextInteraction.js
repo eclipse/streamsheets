@@ -92,6 +92,8 @@ class EditTextInteraction extends AbstractInteraction {
 		// FIX: we mark div as removed...
 		this.createcmd = undefined;
 		this._startText = undefined;
+		this._item._editing = false;
+		this._item.getGraph().markDirty();
 
 		if (this.div === undefined || this.div._rm !== true) {
 			if (this.div !== undefined) {
@@ -259,12 +261,15 @@ class EditTextInteraction extends AbstractInteraction {
 
 		this.showTextNode(viewer);
 
-		this._item.setItemAttribute(ItemAttributes.VISIBLE, false);
+		// this._item.setItemAttribute(ItemAttributes.VISIBLE, false);
+		this._item._editing = true;
+		event.doRepaint = true;
+		this._item.getGraph().markDirty();
+
 		this._cancel = false;
 
 		viewer.getSelectionView().setVisible(false);
 
-		const view = controller.getView();
 		const cs = viewer.getCoordinateSystem();
 		const textFormat = this._item.getTextFormat();
 

@@ -454,7 +454,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 		}
 
 		attr.setClipChildren(def.clip);
-		attr.setVisible(def.visible);
+		if (!this._editing) {
+			attr.setVisible(def.visible);
+		}
 		attr.setSelectionMode(def.selectable ? 4 : 0);
 		attr.setScaleType(def.container === 'none' ? 'top' : def.container);
 		attr.setContainer(def.container !== 'none');
