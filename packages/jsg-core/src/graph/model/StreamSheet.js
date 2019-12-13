@@ -998,40 +998,40 @@ module.exports = class StreamSheet extends WorksheetNode {
 			formula += `${MathUtils.roundTo(center.x, digits)} ,${MathUtils.roundTo(center.y, digits)},`;
 			formula += `${MathUtils.roundTo(size.x, digits)} ,${MathUtils.roundTo(size.y, digits)}`;
 			const angle = MathUtils.roundTo(item.getAngle().getValue(), 2);
-			formula += `,,,`;
 			const containerType = item.getItemAttributes().getScaleType().getValue();
+			let attributes = '';
 			switch (containerType) {
 			case 'scale':
 			case 'bottom':
-				formula += `ATTRIBUTES(,"${containerType}")`;
+				attributes = `ATTRIBUTES(,"${containerType}")`;
 				break;
 			}
 			switch (type) {
 				case 'label':
-					formula += `,,`;
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,' : `${angle},,`;
 
 					formula += `"${item.getText().getValue()}"`;
 					item.getTextFormat().setRichText(false);
 					break;
 				case 'button':
-					formula += `,EVENTS(ONCLICK()),`;
+					formula += `,,,${attributes},EVENTS(ONCLICK()),`;
 					formula += angle === 0 ? ',,"Button",,FALSE' : `${angle},,"Button",,FALSE`;
 					break;
 				case 'checkbox':
-					formula += `,,`;
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,"Checkbox",,FALSE' : `${angle},,"Checkbox",,FALSE`;
 					break;
 				case 'slider':
-					formula += `,,`;
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,"Slider",,50,0,100,10' : `${angle},,"Slider",,50,0,100,10`;
 					break;
 				case 'knob':
-					formula += `,,`;
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
 					break;
 				case 'chart': {
-					formula += `,,`;
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,' : `${angle},,`;
 					formula += `"${item.getChartType()}"`;
 					const selection = graph.getSheetSelection();
@@ -1045,8 +1045,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 					break;
 				}
 				default:
-					if (angle !== 0) {
-						formula += `,,${angle}`;
+					if (angle !== 0 || attributes !== '') {
+						formula += `,,,${attributes},,${angle}`;
 					}
 					break;
 			}
