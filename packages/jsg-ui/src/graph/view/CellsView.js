@@ -1077,6 +1077,12 @@ export default class CellsView extends NodeView {
 			y: 0
 		};
 
+		JSG.rectCache.release(cellRect);
+
+		if (!borderMatrix.length) {
+			return;
+		}
+
 		borderMatrix[0].forEach((b, index) => {
 			state.draw = false;
 			graphics.beginPath();
@@ -1107,8 +1113,6 @@ export default class CellsView extends NodeView {
 				}
 			});
 		});
-
-		JSG.rectCache.release(cellRect);
 	}
 
 	enumerateVisibleCells(rows, columns, rect, viewRect, callback) {
