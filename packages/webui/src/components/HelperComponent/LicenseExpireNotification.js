@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import { amber, red } from '@material-ui/core/colors';
 import { IconButton, Snackbar, SnackbarContent } from '@material-ui/core';
@@ -30,44 +32,35 @@ const styles = {
 	}
 };
 
-const DAY_IN_MS = 24 * 60 * 60 * 1000;
-const LICENSE_INFO = { isValid: true, validUntil: Date.now() + 18 * DAY_IN_MS };
+const config = {
+	expired: {
+		Icon: styles.expired.icon,
+		contentStyle: styles.expired.style,
+		messageId: 'License.Expired',
+		defMessage: 'Your Streamsheet {edition}-license has expired!'
+	},
+	warning: {
+		Icon: styles.willExpire.icon,
+		contentStyle: styles.willExpire.style,
+		messageId: 'License.WillExpire',
+		defMessage: '{days} days left until your Streamsheet {edition}-license expires!'
+	}
+};
 // Workaround for Babel restriction, see https://github.com/yahoo/babel-plugin-react-intl/issues/119
 const FormattedMessageFixed = (props) => <FormattedMessage {...props} />;
 
-const msToDays = (ms) => ms / DAY_IN_MS;
-const expiresIn = (validUntil) => msToDays(validUntil - Date.now());
+function LicenseExpireNotification({ edition='', service='', daysLeft }) {
+	const isExpired = daysLeft < 1;
+	const days = isExpired ? '' : daysLeft.toFixed();
+	const Config = isExpired ? config.expired : config.warning;
 
-const getLicenseInfo = () => {
-	let licenseInfo;
-	try {
-		licenseInfo = JSON.parse(localStorage.getItem('licenseInfo'));
-	} catch (err) {
-		/* ignore */
-	}
-	return Object.assign({}, LICENSE_INFO, licenseInfo);
-};
-
-function LicenseExpireNotification() {
 	const [open, setOpen] = useState(false);
-	const [licenseInfo, setLicenseInfo] = useState({ ...LICENSE_INFO });
-	const { isValid, validUntil} = licenseInfo;
-	const daysLeft = expiresIn(validUntil);
-	const days = isValid ? daysLeft.toFixed() : '';
-	const Icon = isValid ? styles.willExpire.icon : styles.expired.icon;
-	const contentStyle = isValid ? styles.willExpire.style : styles.expired.style;
-	const messageId = isValid ? 'License.WillExpire' : 'License.Expired';
-	const defMessage = isValid
-		? 'days left for expiration of your StreamSheets!'
-		: 'Your Streamsheet license has expired!';
+	const [prevDays, setPrevDays] = useState(-1);
 	const onClose = () => setOpen(false);
-	useEffect(() => {
-		const info = getLicenseInfo();
-		const expiresInDays = expiresIn(info.validUntil);
-		setOpen(!info.isValid || expiresInDays < 20);
-		setLicenseInfo({ ...info });
-	}, []);
-
+	if (daysLeft !== prevDays) {
+		setOpen(daysLeft < 20);
+		setPrevDays(daysLeft);
+	}
 	return (
 		<Snackbar
 			anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
@@ -78,22 +71,46 @@ function LicenseExpireNotification() {
 		>
 			<SnackbarContent
 				aria-describedby="message-id"
-				style={contentStyle}
+				style={Config.contentStyle}
 				message={
 					<span style={styles.message} id="message-id">
-						<Icon style={styles.iconStyle} />
-						{days}&nbsp;
-						<FormattedMessageFixed id={messageId} defaultMessage={defMessage} />
+						<Config.Icon style={styles.iconStyle} />
+						<FormattedMessageFixed
+							id={Config.messageId}
+							defaultMessage={Config.defMessage}
+							values={{ days, edition, service }}
+						/>
 					</span>
 				}
-				action={licenseInfo.isValid ? [
-					<IconButton key="close" aria-label="close" color="inherit" onClick={onClose}>
-						<CloseIcon style={styles.iconStyle} />
-					</IconButton>
-				] : []}
+				action={
+					isExpired
+						? []
+						: [
+								<IconButton key="close" aria-label="close" color="inherit" onClick={onClose}>
+									<CloseIcon style={styles.iconStyle} />
+								</IconButton>
+						  ]
+				}
 			/>
 		</Snackbar>
 	);
 }
 
-export default LicenseExpireNotification;
+LicenseExpireNotification.propTypes = {
+	edition: PropTypes.string,
+	daysLeft: PropTypes.number,
+	service: PropTypes.string
+};
+
+LicenseExpireNotification.defaultProps = {
+	edition: '',
+	service: '',
+	daysLeft: 1500
+};
+
+const mapStateToProps = (state) => {
+	const { licenseInfo = {} } = state.meta;
+	return { ...licenseInfo };
+}
+
+export default connect(mapStateToProps)(LicenseExpireNotification);

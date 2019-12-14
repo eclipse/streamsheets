@@ -16,6 +16,7 @@ import DashBoardComponent from '../components/Dashboard/DashBoardComponent';
 import NewMachineDialog from '../components/HelperComponent/NewMachineDialog';
 import OpenDialog from '../components/HelperComponent/OpenDialog';
 import SaveAsDialog from '../components/HelperComponent/SaveAsDialog';
+import LicenseExpireNotification from '../components/HelperComponent/LicenseExpireNotification';
 import ErrorDialog from '../components/ImportExport/ErrorDialog';
 import ExportComponent from '../components/ImportExport/ExportComponent';
 import ImportDialog from '../components/ImportExport/ImportDialog';
@@ -188,7 +189,7 @@ export class DefaultLayout extends React.Component {
 									height: '58px',
 								}}
 							>
-
+								<LicenseExpireNotification />
 								<InfoToolBar title={this.getTitle(match.path)} />
 								{!this.props.isMachineEngineConnected ? (
 									<div>
