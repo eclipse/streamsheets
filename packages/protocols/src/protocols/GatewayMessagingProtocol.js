@@ -75,6 +75,7 @@ const COMMAND_EVENT = 'command';
 const GATEWAY_DISCONNECTED_EVENT = 'gateway_disconnected';
 const GRAPH_SERVER_CONNECTED_EVENT = 'graphserver_connected';
 const GRAPH_SERVER_DISCONNECTED_EVENT = 'graphserver_disconnected';
+const LICENSE_INFO_EVENT = 'license_information';
 const MACHINE_CYCLETIME_EVENT = 'machine_cycletime';
 const MACHINE_RENAME_EVENT = 'machine_rename';
 const MACHINE_FUNCTIONS_EVENT = 'machine_functions';
@@ -183,6 +184,7 @@ module.exports = {
 		GATEWAY_DISCONNECTED_EVENT,
 		GRAPH_SERVER_CONNECTED_EVENT,
 		GRAPH_SERVER_DISCONNECTED_EVENT,
+		LICENSE_INFO_EVENT,
 		MACHINE_LOCALE_EVENT: MachineServerEvents.MACHINE_LOCALE_EVENT,
 		MACHINE_RENAME_EVENT,
 		MACHINE_FUNCTIONS_EVENT,

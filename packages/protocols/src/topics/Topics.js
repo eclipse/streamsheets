@@ -10,6 +10,7 @@ const BASE_TOPIC = 'api/v1.1/digitalmachine';
 
 // Topics for the migrated system
 const ERRORS_GLOBAL = `${BASE_TOPIC}/errors`;
+const LICENSE_INFO = `${BASE_TOPIC}/license/info`;
 const SERVICES_STATUS = `${BASE_TOPIC}/services/status`;
 const SERVICES_STREAMS_INPUT = `${BASE_TOPIC}/services/streams/input`;
 const SERVICES_STREAMS_EVENTS = `${BASE_TOPIC}/services/streams/events`;
@@ -38,6 +39,7 @@ const SERVICES_MIGRATION_OUTPUT = `${BASE_TOPIC}/services/migration/output`;
 module.exports = {
 	BASE_TOPIC,
 	ERRORS_GLOBAL,
+	LICENSE_INFO,
 	SERVICES_STATUS,
 	SERVICES_AUTH_INPUT,
 	SERVICES_AUTH_EVENTS,
