@@ -5,7 +5,8 @@ module.exports = class MetaInformationRoutes {
 		const { gatewayService } = request.app.locals;
 		switch (request.method) {
 		case 'GET':
-			response.status(200).json(gatewayService.services);
+			// response.status(200).json(gatewayService.services);
+			response.status(200).json(gatewayService.getMetaInfo());
 			break;
 		default:
 			response.set('allow', 'GET');
