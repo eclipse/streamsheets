@@ -1,5 +1,5 @@
 const { MessagingService } = require('@cedalo/service-core');
-const { Topics } = require('@cedalo/protocols');
+const { GatewayMessagingProtocol, Topics } = require('@cedalo/protocols');
 const IdGenerator = require('@cedalo/id-generator');
 const { MongoDBConfigurationRepository } = require('@cedalo/repository');
 
@@ -10,6 +10,11 @@ const startRESTServer = require('../../rest/start');
 const MachineServiceMessageRouter = require('./MachineServiceMessageRouter');
 const Auth = require('../../Auth');
 
+const licenseInfoEvent = (licenseInfo) => ({
+	type: 'event',
+	event: { type: GatewayMessagingProtocol.EVENTS.LICENSE_INFO_EVENT, licenseInfo }
+});
+
 module.exports = class GatewayService extends MessagingService {
 
 	constructor(metadata) {
@@ -17,6 +22,7 @@ module.exports = class GatewayService extends MessagingService {
 		this.socketServer = new SocketServer(config.get('socket'), this);
 		this.machineRouter = new MachineServiceMessageRouter(this);
 		this._services = new Map();
+		this._licenseInfo = {};
 		this.configRepo = new MongoDBConfigurationRepository();
 	}
 
@@ -64,6 +70,7 @@ module.exports = class GatewayService extends MessagingService {
 
 	async _postStart() {
 		await super._postStart();
+		this.messagingClient.subscribe(`${Topics.LICENSE_INFO}`);
 		this.messagingClient.subscribe(`${Topics.SERVICES_STATUS}/#`);
 		this.messagingClient.on('message', (topic, message) => {
 			if (topic.startsWith(`${Topics.SERVICES_STATUS}/`)) {
@@ -72,6 +79,10 @@ module.exports = class GatewayService extends MessagingService {
 				this._updateServices(serviceName, serviceInformation);
 				this.socketServer.broadcast(serviceInformation);
 				this.broadcastEvent(serviceName, serviceInformation);
+			} else if (topic === Topics.LICENSE_INFO) {
+				const licenseInfo = JSON.parse(message.toString());
+				this._licenseInfo = { ...licenseInfo };
+				this.socketServer.broadcast(licenseInfoEvent(licenseInfo));
 			}
 		});
 	}
@@ -124,6 +135,9 @@ module.exports = class GatewayService extends MessagingService {
 		return services;
 	}
 
+	getMetaInfo() {
+		return { services: this.services, licenseInfo: this._licenseInfo };
+	}
 	getServiceStatus(service) {
 		const serviceInformation = this._services.get(service);
 		if (serviceInformation) {
