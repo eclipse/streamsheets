@@ -345,7 +345,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 				.getValue()
 		) {
 			case 'scale':
-				return 3;
+				return 0;
 			case 'bottom':
 				return 0;
 			default:
@@ -369,7 +369,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			) {
 				case 'scale': {
 					const width = parent.getWidth().getValue();
-					point.x *= width;
+					point.x = point.x / 10000 * width;
 					break;
 				}
 				default:
@@ -392,7 +392,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			) {
 				case 'scale': {
 					const height = parent.getHeight().getValue();
-					point.y *= height;
+					point.y = point.y / 10000 * height;
 					break;
 				}
 				case 'bottom': {
@@ -426,9 +426,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 		) {
 			case 'scale': {
 				const width = parent.getWidth().getValue();
-				point.x *= width;
+				point.x = point.x / 10000 * width;
 				const height = parent.getHeight().getValue();
-				point.y *= height;
+				point.y = point.y / 10000 * height;
 				break;
 			}
 			default:
@@ -905,9 +905,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 		) {
 			case 'scale': {
 				const width = parent.getWidth().getValue();
-				point.x /= width;
+				point.x = point.x / width * 10000;
 				const height = parent.getHeight().getValue();
-				point.y /= height;
+				point.y = point.y / height * 10000;
 				break;
 			}
 			case 'bottom': {
@@ -934,9 +934,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 		) {
 			case 'scale': {
 				const width = parent.getWidth().getValue();
-				point.x /= width;
+				point.x = point.x / width * 10000;
 				const height = parent.getHeight().getValue();
-				point.y /= height;
+				point.y = point.y / height * 10000;
 				break;
 			}
 			default:
