@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-VERSION="${1:-1.5-alpha}"
+VERSION="${1:-1.5-beta}"
 
 docker build -t cedalo/streamsheets-installer:$VERSION-linux . --build-arg os=linux
 # docker push cedalo/streamsheets-installer:$VERSION-linux

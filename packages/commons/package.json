@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/commons",
-  "version": "1.5.0-alpha",
+  "version": "1.5.0-beta",
   "description": "Common utilities",
   "main": "index.js",
   "scripts": {

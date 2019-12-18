@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/id-generator",
-  "version": "1.5.0-alpha",
+  "version": "1.5.0-beta",
   "description": "Generator for different types of ids",
   "main": "index.js",
   "scripts": {
