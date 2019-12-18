@@ -391,20 +391,19 @@ export default class ChartView extends NodeView {
 		return item.data.formatSeries;
 	}
 
-	getCategoryLabels(data, series, values, categories, chartType) {
+	getCategoryLabels(data, series, allValues, categories, chartType) {
 		const categoryLabelData = [];
-		if (values === undefined && (series === undefined || series.length < 1)) {
+		if (allValues === undefined && (series === undefined || series.length < 1)) {
 			return categoryLabelData;
 		}
 
-		if (values && values.length) {
-			values[0].getValues().forEach((value) => {
-				// if (chartType === 'pie' || chartType === 'doughnut' || chartType === 'radar') {
+		if (allValues && allValues.length) {
+			const values = allValues[0].getValues();
+			if (values) {
+				values.forEach((value) => {
 					categoryLabelData.push(ChartView.formatNumber(value.key, 'h:mm:ss', `time;en`));
-				// } else {
-				// categoryLabelData.push(value.key);
-				// }
-			});
+				});
+			}
 		} else {
 			let categoryRange;
 
@@ -638,8 +637,9 @@ export default class ChartView extends NodeView {
 			currentSeries.seriesLabel = set.label;
 			if (allValues && allValues.length > index) {
 				const values = allValues[index].getValues();
-				values.forEach((lvalue) => {
-					switch (chartType) {
+				if (values) {
+					values.forEach((lvalue) => {
+						switch (chartType) {
 						case 'bubble':
 						case 'scatter':
 						case 'scatterLine': {
@@ -668,8 +668,9 @@ export default class ChartView extends NodeView {
 							this._localCultureX = `time;en`;
 							this._numberFormatX = 'h:mm:ss';
 							break;
-					}
-				});
+						}
+					});
+				}
 
 				const tf = allValues[0].getTextFormat();
 				if (tf) {
@@ -891,6 +892,22 @@ export default class ChartView extends NodeView {
 		});
 	}
 
+	isTimeAggregateCell(cell) {
+		if (!cell) {
+			return false;
+		}
+		const expr = cell.getExpression();
+		if (expr === undefined) {
+			return false;
+		}
+		const formula = expr.getFormula();
+		if (!formula) {
+			return false;
+		}
+
+		return formula.indexOf('TIMEAGGREGATE') !== -1;
+	}
+
 	checkForTimeAggregates(data, item, range) {
 		let allValues = [];
 
@@ -898,7 +915,7 @@ export default class ChartView extends NodeView {
 			range.enumerateCells(true, (pos) => {
 				if (allValues !== undefined) {
 					const cell = data.get(pos);
-					if (cell && cell.getValues()) {
+					if (this.isTimeAggregateCell(cell)) {
 						allValues.push(cell);
 					} else {
 						allValues = undefined;
@@ -922,7 +939,7 @@ export default class ChartView extends NodeView {
 						.getSheet()
 						.getDataProvider()
 						.getRC(range.getX1() + 1, i);
-					if (cell && cell.getValues()) {
+					if (this.isTimeAggregateCell(cell)) {
 						allValues.push(cell);
 					} else {
 						allValues = undefined;
@@ -946,7 +963,7 @@ export default class ChartView extends NodeView {
 						.getSheet()
 						.getDataProvider()
 						.getRC(i, range.getY1() + 1);
-					if (cell && cell.getValues()) {
+					if (this.isTimeAggregateCell(cell)) {
 						allValues.push(cell);
 					} else {
 						allValues = undefined;
