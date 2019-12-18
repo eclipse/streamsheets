@@ -23,7 +23,6 @@ module.exports = {
 	gateway: {
 		host: process.env.GATEWAY_HOST || 'localhost',
 		port: parseInt(process.env.GATEWAY_HTTP_PORT, 10) || 8091,
-		graphsEndpoint: process.env.GATEWAY_GRAPHS_ENDPOINT || '/api/v1.0/graphs',
 		path: '/machineserver-proxy',
 		// eslint-disable-next-line
 		jwtToken: process.env.GATEWAY_JWTTOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJtYWNoaW5lc2VydmVyIiwiaWF0IjoxNDk0NDA3NzY5fQ.8Colz53DqouU4P4rERvzRK7Tkin4hkkGb7PMtLLg_74'

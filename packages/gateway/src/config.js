@@ -93,33 +93,6 @@ const config = convict({
 					env: 'STREAMSHEETS_GITHUB_CLIENT_SECRET'
 				}
 			},
-			openid: {
-				issuerHost: {
-					format: 'url',
-					default: 'https://splicex.ibm-garage.com/oidc/endpoint/I4P',
-					env: 'STREAMSHEETS_OPENID_ISSUER_HOST'
-				},
-				redirect_uri: {
-					format: 'url',
-					default: `${AUTH_API_URL}openid/callback'`,
-					env: 'STREAMSHEETS_OPENID_REDIRECT_URI'
-				},
-				client_id: {
-					format: String,
-					default: 'clientId',
-					env: 'STREAMSHEETS_OPENID_CLIENT_ID'
-				},
-				client_secret: {
-					format: String,
-					default: 'clientSecret',
-					env: 'STREAMSHEETS_OPENID_CLIENT_SECRET'
-				},
-				scope: {
-					format: String,
-					default: 'openid',
-					env: 'STREAMSHEETS_OPENID_SCOPE'
-				}
-			},
 			google: {
 				passReqToCallback: {
 					format: 'Boolean',

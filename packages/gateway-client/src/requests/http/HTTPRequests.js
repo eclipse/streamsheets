@@ -84,30 +84,6 @@ class GetMachineDefinitionsByNameHTTPRequest extends HTTPRequest {
 	}
 }
 
-class SaveTemplateHTTPRequest extends HTTPRequest {
-	_getPath() {
-		return '/templates';
-	}
-
-	_getConfig() {
-		return this._createPOSTConfig(
-			null,
-			{},
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
-class GetTemplatesHTTPRequest extends HTTPRequest {
-	_getPath() {
-		return '/templates';
-	}
-
-	_getConfig() {
-		return this._createGETConfig({}, this._createAuthHeader(this._token));
-	}
-}
-
 class GetMachineDefinitionHTTPRequest extends HTTPRequest {
 	constructor(baseEndpoint, token, machineId) {
 		super(baseEndpoint, token);
@@ -116,21 +92,6 @@ class GetMachineDefinitionHTTPRequest extends HTTPRequest {
 
 	_getPath() {
 		return `/machines/${this._machineId}`;
-	}
-
-	_getConfig() {
-		return this._createGETConfig({}, this._createAuthHeader(this._token));
-	}
-}
-
-class GetTemplateHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, templateId) {
-		super(baseEndpoint, token);
-		this._templateId = templateId;
-	}
-
-	_getPath() {
-		return `/templates/${this._templateId}`;
 	}
 
 	_getConfig() {
@@ -280,222 +241,18 @@ class DeleteMachineDefinitionHTTPRequest extends HTTPRequest {
 	}
 }
 
-class GetGraphsHTTPRequest extends HTTPRequest {
-	_getPath() {
-		return '/graphs';
-	}
-
-	_getConfig() {
-		return this._createGETConfig({}, this._createAuthHeader(this._token));
-	}
-}
-
-class GetGraphHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, graphId) {
-		super(baseEndpoint, token);
-		this._graphId = graphId;
-	}
-
-	_getPath() {
-		return `/graphs/${this._graphId}`;
-	}
-
-	_getConfig() {
-		return this._createGETConfig({}, this._createAuthHeader(this._token));
-	}
-}
-
-class SaveGraphHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, graph) {
-		super(baseEndpoint, token);
-		this._graph = graph;
-	}
-
-	_getPath() {
-		return '/graphs';
-	}
-
-	_getConfig() {
-		return this._createPOSTConfig(
-			this._graph,
-			{},
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
-class UpdateGraphHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, graphId, graph) {
-		super(baseEndpoint, token);
-		this._graphId = graphId;
-		this._graph = graph;
-	}
-
-	_getPath() {
-		return `/graphs/${this._graphId}`;
-	}
-
-	_getConfig() {
-		return this._createPUTConfig(
-			this._graph,
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
-class DeleteGraphHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, graphId) {
-		super(baseEndpoint, token);
-		this._graphId = graphId;
-	}
-
-	_getPath() {
-		return `/graphs/${this._graphId}`;
-	}
-
-	_getConfig() {
-		return this._createDELETEConfig(
-			{},
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
-class SaveConfigurationHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, configuration) {
-		super(baseEndpoint, token);
-		this._configuration = configuration;
-	}
-
-	_getPath() {
-		return '/admin/configuration';
-	}
-
-	_getConfig() {
-		return this._createPOSTConfig(
-			this._configuration,
-			{},
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
-class GetAllConfigurationsHTTPRequest extends HTTPRequest {
-	_getPath() {
-		return '/admin/configurations';
-	}
-
-	_getConfig() {
-		return this._createGETConfig({});
-	}
-}
-
-class GetConfigurationsByTypeHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, configType) {
-		super(baseEndpoint, token);
-		this._configType = configType;
-	}
-
-	_getPath() {
-		return `/admin/configurations/${this._configType}`;
-	}
-
-	_getConfig() {
-		return this._createGETConfig({});
-	}
-}
-
-class GetConfigurationByIdHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, configId) {
-		super(baseEndpoint, token);
-		this._configId = configId;
-	}
-	_getPath() {
-		return `/admin/configuration/${this._configId}`;
-	}
-
-	_getConfig() {
-		return this._createGETConfig({});
-	}
-}
-
-class DeleteConfigurationByIdHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, configId) {
-		super(baseEndpoint, token);
-		this._configId = configId;
-	}
-	_getPath() {
-		return `/admin/configuration/${this._configId}`;
-	}
-
-	_getConfig() {
-		return this._createDELETEConfig({});
-	}
-}
-
-class SaveMachineProcessSettingsHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, settings) {
-		super(baseEndpoint, token);
-		this._settings = settings;
-	}
-
-	_getPath() {
-		return `/machines/${this._settings.machineId}/process-settings`;
-	}
-
-	_getConfig() {
-		return this._createPUTConfig(
-			this._settings,
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
-class GetMachineProcessSettingsHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, machineId) {
-		super(baseEndpoint, token);
-		this._machineId = machineId;
-	}
-
-	_getPath() {
-		return `/machines/${this._machineId}/process-settings`;
-	}
-
-	_getConfig() {
-		return this._createGETConfig(
-			this._machineId,
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
 module.exports = {
 	BackupHTTPRequest,
 	AuthenticateHTTPRequest,
-	DeleteGraphHTTPRequest,
 	DeleteMachineDefinitionHTTPRequest,
 	ExportMachineStreamHTTPRequest,
-	GetGraphHTTPRequest,
-	GetGraphsHTTPRequest,
 	GetMachineDefinitionHTTPRequest,
 	GetMachineDefinitionsHTTPRequest,
 	GetMachineDefinitionsByNameHTTPRequest,
 	GetMetaInformationHTTPRequest,
-	GetTemplateHTTPRequest,
-	GetTemplatesHTTPRequest,
 	GraphQLHTTPRequest,
 	ImportMachineHTTPRequest,
 	RestoreHTTPRequest,
-	SaveGraphHTTPRequest,
 	SaveMachineDefinitionHTTPRequest,
-	SaveTemplateHTTPRequest,
-	UpdateGraphHTTPRequest,
-	UpdateMachineDefinitionHTTPRequest,
-	SaveConfigurationHTTPRequest,
-	GetAllConfigurationsHTTPRequest,
-	GetConfigurationsByTypeHTTPRequest,
-	GetConfigurationByIdHTTPRequest,
-	DeleteConfigurationByIdHTTPRequest,
-	SaveMachineProcessSettingsHTTPRequest,
-	GetMachineProcessSettingsHTTPRequest
+	UpdateMachineDefinitionHTTPRequest
 };

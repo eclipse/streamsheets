@@ -46,7 +46,7 @@ class ColorPicker extends React.Component {
 				<div
 					style={{
 						marginTop: '20px',
-						width: '100px',
+						width: '100%',
 						height: '40px',
 						borderRadius: '12px',
 						borderColor: 'black',

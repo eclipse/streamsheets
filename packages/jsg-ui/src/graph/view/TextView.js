@@ -23,6 +23,10 @@ class TextView extends NodeView {
 		const textFormat = item.getTextFormat();
 		let text;
 
+		if (item._editing) {
+			return;
+		}
+
 		// if an icon is defined, use that
 		if (textFormat.getIcon().getValue() === 0) {
 			text = item.getText().getValue();

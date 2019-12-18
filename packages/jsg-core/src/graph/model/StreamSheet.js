@@ -345,7 +345,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 				.getValue()
 		) {
 			case 'scale':
-				return 3;
+				return 0;
 			case 'bottom':
 				return 0;
 			default:
@@ -369,7 +369,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			) {
 				case 'scale': {
 					const width = parent.getWidth().getValue();
-					point.x *= width;
+					point.x = point.x / 10000 * width;
 					break;
 				}
 				default:
@@ -392,7 +392,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			) {
 				case 'scale': {
 					const height = parent.getHeight().getValue();
-					point.y *= height;
+					point.y = point.y / 10000 * height;
 					break;
 				}
 				case 'bottom': {
@@ -426,9 +426,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 		) {
 			case 'scale': {
 				const width = parent.getWidth().getValue();
-				point.x *= width;
+				point.x = point.x / 10000 * width;
 				const height = parent.getHeight().getValue();
-				point.y *= height;
+				point.y = point.y / 10000 * height;
 				break;
 			}
 			default:
@@ -454,7 +454,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 		}
 
 		attr.setClipChildren(def.clip);
-		attr.setVisible(def.visible);
+		if (!this._editing) {
+			attr.setVisible(def.visible);
+		}
 		attr.setSelectionMode(def.selectable ? 4 : 0);
 		attr.setScaleType(def.container === 'none' ? 'top' : def.container);
 		attr.setContainer(def.container !== 'none');
@@ -903,9 +905,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 		) {
 			case 'scale': {
 				const width = parent.getWidth().getValue();
-				point.x /= width;
+				point.x = point.x / width * 10000;
 				const height = parent.getHeight().getValue();
-				point.y /= height;
+				point.y = point.y / height * 10000;
 				break;
 			}
 			case 'bottom': {
@@ -932,9 +934,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 		) {
 			case 'scale': {
 				const width = parent.getWidth().getValue();
-				point.x /= width;
+				point.x = point.x / width * 10000;
 				const height = parent.getHeight().getValue();
-				point.y /= height;
+				point.y = point.y / height * 10000;
 				break;
 			}
 			default:
@@ -996,32 +998,40 @@ module.exports = class StreamSheet extends WorksheetNode {
 			formula += `${MathUtils.roundTo(center.x, digits)} ,${MathUtils.roundTo(center.y, digits)},`;
 			formula += `${MathUtils.roundTo(size.x, digits)} ,${MathUtils.roundTo(size.y, digits)}`;
 			const angle = MathUtils.roundTo(item.getAngle().getValue(), 2);
+			const containerType = item.getItemAttributes().getScaleType().getValue();
+			let attributes = '';
+			switch (containerType) {
+			case 'scale':
+			case 'bottom':
+				attributes = `ATTRIBUTES(,"${containerType}")`;
+				break;
+			}
 			switch (type) {
 				case 'label':
-					formula += `,,,,,`;
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,' : `${angle},,`;
 
 					formula += `"${item.getText().getValue()}"`;
 					item.getTextFormat().setRichText(false);
 					break;
 				case 'button':
-					formula += `,,,,EVENTS(ONCLICK()),`;
+					formula += `,,,${attributes},EVENTS(ONCLICK()),`;
 					formula += angle === 0 ? ',,"Button",,FALSE' : `${angle},,"Button",,FALSE`;
 					break;
 				case 'checkbox':
-					formula += `,,,,,`;
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,"Checkbox",,FALSE' : `${angle},,"Checkbox",,FALSE`;
 					break;
 				case 'slider':
-					formula += `,,,,,`;
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,"Slider",,50,0,100,10' : `${angle},,"Slider",,50,0,100,10`;
 					break;
 				case 'knob':
-					formula += `,,,,,`;
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
 					break;
 				case 'chart': {
-					formula += `,,,,,`;
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,' : `${angle},,`;
 					formula += `"${item.getChartType()}"`;
 					const selection = graph.getSheetSelection();
@@ -1035,8 +1045,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 					break;
 				}
 				default:
-					if (angle !== 0) {
-						formula += `,,,,,${angle}`;
+					if (angle !== 0 || attributes !== '') {
+						formula += `,,,${attributes},,${angle}`;
 					}
 					break;
 			}

@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/stream-kafka",
-  "version": "1.5.0-alpha",
+  "version": "1.5.0-beta",
   "description": "Apache Kafka stream",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,7 @@
     "jest-cli": "21.2.1"
   },
   "dependencies": {
-    "@cedalo/sdk-streams": "1.5.0-alpha",
+    "@cedalo/sdk-streams": "1.5.0-beta",
     "docker-compose": "0.12.0",
     "kafka-node": "3.0.1",
     "kafkajs": "1.9.3",

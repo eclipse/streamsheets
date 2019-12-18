@@ -73,6 +73,11 @@ const reducer = (state, action) => {
 				...state,
 				pending: true
 			};
+		case 'cancel_delete':
+			return {
+				...state,
+				userId: null
+			};
 		case 'delete_success':
 			return {
 				...state,
@@ -86,7 +91,7 @@ const reducer = (state, action) => {
 				reloading: false
 			};
 		default:
-			throw new Error('Unknown action');
+			throw new Error('UserTablePage reducer received unknown action');
 	}
 };
 
@@ -273,7 +278,7 @@ const UserTablePageComponent = (props) => {
 					</DialogContentText>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => dispatch({ type: 'done' })} color="primary">
+					<Button onClick={() => dispatch({ type: 'cancel_delete' })} color="primary">
 						<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 					</Button>
 					<Button data-action="delete" onClick={() => deleteUser()} color="primary" autoFocus>

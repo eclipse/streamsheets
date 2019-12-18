@@ -100,27 +100,4 @@ module.exports = class MachineRoute {
 			break;
 		}
 	}
-
-	static processSettings(request, response, next) {
-		const machineId = request.params.machineId;
-		const {
-			processSettingsRepository
-		} = request.app.locals.RepositoryManager;
-		switch (request.method) {
-		case 'GET':
-			processSettingsRepository.getMachineProcessSettings(machineId)
-					.then(setting => response.status(200).json(setting))
-					.catch(next);
-			break;
-		case 'PUT':
-			processSettingsRepository.saveMachineProcessSettings(request.body)
-					.then(result => response.status(200).json(result))
-					.catch(next);
-			break;
-		default:
-			response.set('allow', 'GET, PUT');
-			next(new httpError.MethodNotAllowed());
-			break;
-		}
-	}
 };

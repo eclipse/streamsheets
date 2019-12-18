@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/stream-rest-client",
-  "version": "1.5.0-alpha",
+  "version": "1.5.0-beta",
   "description": "Rest Client Feeder",
   "main": "index.js",
   "scripts": {
@@ -24,8 +24,8 @@
     "jest-cli": "21.2.1"
   },
   "dependencies": {
-    "@cedalo/rest-server-core": "1.5.0-alpha",
-    "@cedalo/sdk-streams": "1.5.0-alpha"
+    "@cedalo/rest-server-core": "1.5.0-beta",
+    "@cedalo/sdk-streams": "1.5.0-beta"
   },
   "eslintConfig": {
     "extends": [

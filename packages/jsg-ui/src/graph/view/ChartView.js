@@ -10,7 +10,7 @@ import {
 	Numbers,
 	TextFormatAttributes,
 	CellRange,
-	MathUtils
+	MathUtils, FormatAttributes
 } from '@cedalo/jsg-core';
 
 import { NumberFormatter } from '@cedalo/number-format';
@@ -391,20 +391,19 @@ export default class ChartView extends NodeView {
 		return item.data.formatSeries;
 	}
 
-	getCategoryLabels(data, series, values, categories, chartType) {
+	getCategoryLabels(data, series, allValues, categories, chartType) {
 		const categoryLabelData = [];
-		if (values === undefined && (series === undefined || series.length < 1)) {
+		if (allValues === undefined && (series === undefined || series.length < 1)) {
 			return categoryLabelData;
 		}
 
-		if (values && values.length) {
-			values[0].getValues().forEach((value) => {
-				// if (chartType === 'pie' || chartType === 'doughnut' || chartType === 'radar') {
+		if (allValues && allValues.length) {
+			const values = allValues[0].getValues();
+			if (values) {
+				values.forEach((value) => {
 					categoryLabelData.push(ChartView.formatNumber(value.key, 'h:mm:ss', `time;en`));
-				// } else {
-				// categoryLabelData.push(value.key);
-				// }
-			});
+				});
+			}
 		} else {
 			let categoryRange;
 
@@ -467,6 +466,43 @@ export default class ChartView extends NodeView {
 		return categoryLabelData;
 	}
 
+	isLineChart(chartType) {
+		return (
+			chartType === 'radar' ||
+			chartType === 'scatter' ||
+			chartType === 'line' ||
+			chartType === 'scatterLine'
+		);
+	}
+
+	getDashPattern(style, lineWidth) {
+		const dot = lineWidth;
+		const dash = lineWidth * 5;
+		const space = lineWidth * 3;
+		const dotspace = lineWidth * 2;
+		let pattern = [dash, space];
+
+		switch (style) {
+		case 0:
+			pattern = [0, 10];
+			break;
+		case 1:
+			pattern = [];
+			break;
+		case 2:
+			pattern = [dot, dotspace];
+			break;
+		case 3:
+			pattern = [dash, space];
+			break;
+		case 4:
+			pattern = [dash, space, dot, space];
+			break;
+		}
+
+		return pattern;
+	}
+
 	getRange(rangeString, sheet) {
 		if (rangeString && rangeString !== '' && rangeString[0] === '=') {
 			const range = CellRange.parse(rangeString.substring(1).toUpperCase(), sheet);
@@ -503,11 +539,48 @@ export default class ChartView extends NodeView {
 		series.forEach((currentSeries, index) => {
 			const set = {};
 			set.data = [];
-			set.borderWidth = 1;
 			set.backgroundColor = currentSeries.fillColor ? currentSeries.fillColor : undefined;
 			set.borderColor = currentSeries.lineColor ? currentSeries.lineColor : undefined;
-			set.borderWidth = currentSeries.lineWidth ? currentSeries.lineWidth : undefined;
-			set.showLine = currentSeries.showLine ? currentSeries.showLine : undefined;
+			set.borderWidth = currentSeries.lineWidth === undefined ? 1 : currentSeries.lineWidth;
+			if (currentSeries.lineStyle instanceof Array) {
+				set.borderDash = currentSeries.lineStyle;
+			} else {
+				switch (currentSeries.lineStyle) {
+				case 0:
+				case 2:
+				case 3:
+				case 4:
+					set.borderDash = this.getDashPattern(currentSeries.lineStyle, set.borderWidth);
+					break;
+				}
+			}
+
+			if (currentSeries.showLine === undefined) {
+				if (chartType === 'scatterLine') {
+					set.showLine = true;
+				} else if (chartType === 'scatter') {
+					set.showLine = false;
+				}
+			} else {
+				set.showLine = currentSeries.showLine;
+			}
+
+			if (this.isLineChart(chartType)) {
+				set.pointBorderWidth = currentSeries.lineWidth;
+				set.pointBorderColor = currentSeries.markerLineColor;
+				set.pointBackgroundColor = currentSeries.markerFillColor;
+				if (chartType === 'scatter' && currentSeries.lineMarker === undefined) {
+					set.pointStyle = 'circle';
+					set.pointRadius = currentSeries.lineMarkerSize === undefined ? 4 : currentSeries.lineMarkerSize;
+				} else if (currentSeries.lineMarker === undefined || currentSeries.lineMarker === 'none') {
+					set.pointStyle = 'line';
+					set.pointRadius = 0;
+				} else {
+					set.pointStyle = currentSeries.lineMarker;
+					set.pointRadius = currentSeries.lineMarkerSize === undefined ? 4 : currentSeries.lineMarkerSize;
+				}
+			}
+
 			if (currentSeries.showDataLabels) {
 				this._showDataLabels = true;
 			}
@@ -532,19 +605,6 @@ export default class ChartView extends NodeView {
 				}
 			};
 
-			if (chartType === 'scatter' && currentSeries.lineMarker === undefined) {
-				set.lineMarker = 'circle';
-			}
-			if (chartType === 'scatterLine' && currentSeries.showLine === undefined) {
-				set.showLine = true;
-			}
-			if (currentSeries.lineMarker === undefined || currentSeries.lineMarker === 'none') {
-				set.pointStyle = set.lineMarker ? set.lineMarker : 'line';
-				set.pointRadius = set.lineMarker ? 4 : 0;
-			} else {
-				set.pointStyle = currentSeries.lineMarker;
-				set.pointRadius = 4;
-			}
 			if (currentSeries.xAxisID) {
 				if (this.getItem().getAxisByName(currentSeries.xAxisID)) {
 					set.xAxisID = currentSeries.xAxisID;
@@ -577,8 +637,9 @@ export default class ChartView extends NodeView {
 			currentSeries.seriesLabel = set.label;
 			if (allValues && allValues.length > index) {
 				const values = allValues[index].getValues();
-				values.forEach((lvalue) => {
-					switch (chartType) {
+				if (values) {
+					values.forEach((lvalue) => {
+						switch (chartType) {
 						case 'bubble':
 						case 'scatter':
 						case 'scatterLine': {
@@ -607,8 +668,9 @@ export default class ChartView extends NodeView {
 							this._localCultureX = `time;en`;
 							this._numberFormatX = 'h:mm:ss';
 							break;
-					}
-				});
+						}
+					});
+				}
 
 				const tf = allValues[0].getTextFormat();
 				if (tf) {
@@ -830,6 +892,22 @@ export default class ChartView extends NodeView {
 		});
 	}
 
+	isTimeAggregateCell(cell) {
+		if (!cell) {
+			return false;
+		}
+		const expr = cell.getExpression();
+		if (expr === undefined) {
+			return false;
+		}
+		const formula = expr.getFormula();
+		if (!formula) {
+			return false;
+		}
+
+		return formula.indexOf('TIMEAGGREGATE') !== -1;
+	}
+
 	checkForTimeAggregates(data, item, range) {
 		let allValues = [];
 
@@ -837,7 +915,7 @@ export default class ChartView extends NodeView {
 			range.enumerateCells(true, (pos) => {
 				if (allValues !== undefined) {
 					const cell = data.get(pos);
-					if (cell && cell.getValues()) {
+					if (this.isTimeAggregateCell(cell)) {
 						allValues.push(cell);
 					} else {
 						allValues = undefined;
@@ -861,7 +939,7 @@ export default class ChartView extends NodeView {
 						.getSheet()
 						.getDataProvider()
 						.getRC(range.getX1() + 1, i);
-					if (cell && cell.getValues()) {
+					if (this.isTimeAggregateCell(cell)) {
 						allValues.push(cell);
 					} else {
 						allValues = undefined;
@@ -885,7 +963,7 @@ export default class ChartView extends NodeView {
 						.getSheet()
 						.getDataProvider()
 						.getRC(i, range.getY1() + 1);
-					if (cell && cell.getValues()) {
+					if (this.isTimeAggregateCell(cell)) {
 						allValues.push(cell);
 					} else {
 						allValues = undefined;
@@ -1195,32 +1273,58 @@ export default class ChartView extends NodeView {
 					let lineColor = false;
 					let lineWidth = false;
 					let lineMarker = false;
+					let lineStyle = false;
+					let lineMarkerColor = false;
+					let fillMarkerColor = false;
+					let lineMarkerSize = false;
+					const lineChart = this.isLineChart(chartType);
 					set.data.forEach((dataValue, dataIndex) => {
-						if (serie.pointInfo[dataIndex] && serie.pointInfo[dataIndex].fillColor !== undefined) {
+						if (!lineChart &&
+							serie.pointInfo[dataIndex] &&
+							serie.pointInfo[dataIndex].fillColor !== undefined) {
 							fillColor = true;
 						}
-						if (
-							chartType !== 'line' &&
-							chartType !== 'scatterLine' &&
+						if (!lineChart &&
 							serie.pointInfo[dataIndex] &&
 							serie.pointInfo[dataIndex].lineColor !== undefined
 						) {
 							lineColor = true;
 						}
-						if (
+						if (!lineChart &&
 							serie.pointInfo[dataIndex] &&
-							chartType !== 'bubble' &&
+							serie.pointInfo[dataIndex].lineStyle !== undefined
+						) {
+							lineStyle = true;
+						}
+						if (lineChart &&
+							serie.pointInfo[dataIndex] &&
 							serie.pointInfo[dataIndex].lineMarker !== undefined
 						) {
 							lineMarker = true;
 						}
-						if (
-							chartType !== 'line' &&
-							chartType !== 'scatterLine' &&
+						if (!lineChart &&
 							serie.pointInfo[dataIndex] &&
 							serie.pointInfo[dataIndex].lineWidth !== undefined
 						) {
 							lineWidth = true;
+						}
+						if (lineChart &&
+							serie.pointInfo[dataIndex] &&
+							serie.pointInfo[dataIndex].markerLineColor !== undefined
+						) {
+							lineMarkerColor = true;
+						}
+						if (lineChart &&
+							serie.pointInfo[dataIndex] &&
+							serie.pointInfo[dataIndex].markerFillColor !== undefined
+						) {
+							fillMarkerColor = true;
+						}
+						if (lineChart &&
+							serie.pointInfo[dataIndex] &&
+							serie.pointInfo[dataIndex].lineMarkerSize !== undefined
+						) {
+							lineMarkerSize = true;
 						}
 					});
 
@@ -1266,6 +1370,50 @@ export default class ChartView extends NodeView {
 							}
 						});
 					}
+					if (lineStyle) {
+						let dash;
+						if (!(set.borderDash instanceof Array)) {
+							dash = this.getDashPattern(serie.lineStyle, serie.lineWidth);
+							set.borderDash = [];
+							set.data.forEach(() => {
+								set.borderDash.push(dash);
+							});
+						}
+						set.data.forEach((dataValue, dataIndex) => {
+							if (serie.pointInfo[dataIndex] && serie.pointInfo[dataIndex].lineStyle !== undefined) {
+								dash = this.getDashPattern(serie.pointInfo[dataIndex].lineStyle, serie.lineWidth);
+								set.borderDash[dataIndex] = dash;
+							}
+						});
+					}
+					if (fillMarkerColor) {
+						if (!(set.pointBackgroundColor instanceof Array)) {
+							const color = set.pointBackgroundColor;
+							set.pointBackgroundColor = [];
+							set.data.forEach(() => {
+								set.pointBackgroundColor.push(color);
+							});
+						}
+						set.data.forEach((dataValue, dataIndex) => {
+							if (serie.pointInfo[dataIndex] && serie.pointInfo[dataIndex].markerFillColor) {
+								set.pointBackgroundColor[dataIndex] = serie.pointInfo[dataIndex].markerFillColor;
+							}
+						});
+					}
+					if (lineMarkerColor) {
+						if (!(set.pointBorderColor instanceof Array)) {
+							const color = set.pointBorderColor;
+							set.pointBorderColor = [];
+							set.data.forEach(() => {
+								set.pointBorderColor.push(color);
+							});
+						}
+						set.data.forEach((dataValue, dataIndex) => {
+							if (serie.pointInfo[dataIndex] && serie.pointInfo[dataIndex].markerLineColor) {
+								set.pointBorderColor[dataIndex] = serie.pointInfo[dataIndex].markerLineColor;
+							}
+						});
+					}
 					if (lineMarker) {
 						if (!(set.pointStyle instanceof Array)) {
 							const color = set.pointStyle;
@@ -1281,6 +1429,21 @@ export default class ChartView extends NodeView {
 							if (serie.pointInfo[dataIndex] && serie.pointInfo[dataIndex].lineMarker !== undefined) {
 								set.pointStyle[dataIndex] = serie.pointInfo[dataIndex].lineMarker;
 								set.pointRadius[dataIndex] = set.pointStyle[dataIndex] === 'none' ? 0 : 4;
+							}
+						});
+					}
+					if (lineMarkerSize) {
+						if (!(set.pointRadius instanceof Array)) {
+							const radius = set.pointRadius;
+							set.pointRadius = [];
+							set.data.forEach(() => {
+								set.pointRadius.push(radius);
+							});
+						}
+						set.data.forEach((dataValue, dataIndex) => {
+							if (serie.pointInfo[dataIndex] &&
+								serie.pointInfo[dataIndex].lineMarkerSize !== undefined) {
+								set.pointRadius[dataIndex] = serie.pointInfo[dataIndex].lineMarkerSize;
 							}
 						});
 					}
