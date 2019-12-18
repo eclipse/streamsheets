@@ -57,8 +57,8 @@ function LicenseExpireNotification({ edition='', service='', daysLeft }) {
 	const [open, setOpen] = useState(false);
 	const [prevDays, setPrevDays] = useState(-1);
 	const onClose = () => setOpen(false);
-	if (daysLeft < 20 && daysLeft !== prevDays) {
-		setOpen(true);
+	if (daysLeft !== prevDays) {
+		setOpen(daysLeft < 20);
 		setPrevDays(daysLeft);
 	}
 	return (
@@ -105,7 +105,7 @@ LicenseExpireNotification.propTypes = {
 LicenseExpireNotification.defaultProps = {
 	edition: '',
 	service: '',
-	daysLeft: 1000
+	daysLeft: 1500
 };
 
 const mapStateToProps = (state) => {
