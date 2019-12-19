@@ -16,7 +16,7 @@ const SheetRange = require('./src/machine/SheetRange');
 const State = require('./src/State');
 const StreamSheet = require('./src/machine/StreamSheet');
 const StreamSheetTrigger = require('./src/machine/StreamSheetTrigger');
-const { CellRangeReference, CellReference } = require('./src/parser/References');
+const { CellRangeReference, CellReference, referenceFromString } = require('./src/parser/References');
 
 
 const MachineTaskFile = require('path').resolve(__dirname, 'src', 'ipc', 'MachineTask.js');
@@ -49,5 +49,6 @@ module.exports = {
 	StreamSheetTrigger,
 	isType,
 	locale,
+	referenceFromString,
 	DEF_PROPS
 };

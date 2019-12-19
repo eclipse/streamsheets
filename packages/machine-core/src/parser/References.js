@@ -245,5 +245,6 @@ module.exports = {
 	CellReference,
 	CellRangeReference,
 	NamedCellReference,
-	referenceFromNode
+	referenceFromNode,
+	referenceFromString
 };
