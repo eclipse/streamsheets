@@ -16,7 +16,7 @@ afterAll(() => mongoServer.stop());
 describe('MongoDBConnector', () => {
 	it('should create a new MongoDBConnector and test() for local db', async () => {
 		const config = {
-			className: 'ConsumerConfiguration',
+			className: 'ProducerConfiguration',
 			connector: {
 				_id: 'CONNECTOR_MONGODB',
 				id: 'CONNECTOR_MONGODB',
