@@ -32,7 +32,7 @@ module.exports = class RestConsumer extends Connector {
 			return;
 		}
 
-		const uniqueTopics = new Set(topics.map((topic) => baseUrl + topic));
+		const uniqueTopics = new Set(topics.map((topic) => [baseUrl, topic].join('/').replace(/\/+/, '/')));
 		uniqueTopics.forEach((topic) => {
 			this._restServer.timeoutProvider = this;
 			this._handlers.set(topic, (message) =>
