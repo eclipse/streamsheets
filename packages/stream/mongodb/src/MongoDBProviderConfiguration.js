@@ -6,6 +6,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		super({
 			name: 'MongoDB Provider'
 		});
+		this.canConsume = false;
 		this.addConnectorDefinition({
 			id: 'host',
 			label: 'Host(s)',
@@ -82,11 +83,11 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 			type: ProviderConfiguration.FIELDTYPES.PASSWORD
 		});
 
-		this.addConsumerDefinition({
-			id: 'collections',
-			label: 'Collections',
-			type: ProviderConfiguration.FIELDTYPES.TEXTLIST
-		});
+		// this.addConsumerDefinition({
+		// 	id: 'collections',
+		// 	label: 'Collections',
+		// 	type: ProviderConfiguration.FIELDTYPES.TEXTLIST
+		// });
 		this.addProducerDefinition({
 			id: 'collection',
 			label: {

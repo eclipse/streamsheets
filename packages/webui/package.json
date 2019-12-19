@@ -118,7 +118,7 @@
   },
   "scripts": {
     "start": "node scripts/start.js",
-    "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 node scripts/build.js",
+    "build": "cross-env REACT_APP_VERSION=$npm_package_version REACT_APP_BUILD_NUMBER=$TRAVIS_BUILD_NUMBER NODE_OPTIONS=--max_old_space_size=4096 node scripts/build.js",
     "build:langs": "babel scripts/translate.js | node",
     "test": "node scripts/test.js --env=jsdom",
     "develop-build": "cross-env REACT_APP_VERSION=$npm_package_version REACT_APP_BUILD_NUMBER=$TRAVIS_BUILD_NUMBER REACT_APP_GATEWAY_REST_ENDPOINT=${REACT_APP_GATEWAY_REST_ENDPOINT:-https://dev.cedalo.com/api/v1.0} REACT_APP_GATEWAY_SOCKET_ENDPOINT=${REACT_APP_GATEWAY_SOCKET_ENDPOINT:-wss://dev.cedalo.com/wsserver/machineserver-proxy}  yarn run build",

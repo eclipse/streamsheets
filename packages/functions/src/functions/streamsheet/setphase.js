@@ -18,7 +18,7 @@ const setphase = (sheet, ...terms) =>
 		.withMinArgs(3)
 		.withMaxArgs(4)
 		.mapNextArg(isTrue => convert.toBoolean(isTrue.value, false))
-		.mapNextArg(phaseId => (phaseId.value ? `${phaseId.value}` : ERROR.NV))
+		.mapNextArg(phaseId => (phaseId.value ? `${phaseId.value}` : ERROR.NA))
 		.mapNextArg(phaseCell => cellFromTerm(phaseCell))
 		.mapNextArg(overwrite => convert.toBoolean(overwrite && overwrite.value, false))
 		.run((isTrue, phaseId, phaseCell, overwrite) => {
