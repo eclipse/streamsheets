@@ -17,7 +17,7 @@ const handleEvent = (event, callback) => {
 };
 const handleUpdate = (event, manager) => {
 	handleEvent(event, (descriptor) => {
-		if (['producer', 'consumer'].includes(descriptor.type)) {
+		if (['producer', 'consumer', 'stream'].includes(descriptor.type)) {
 			manager.descriptors.set(descriptor.id, descriptor);
 			manager.emitter.emit('streamChanged', descriptor);
 		}
