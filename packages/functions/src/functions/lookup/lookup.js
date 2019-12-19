@@ -6,7 +6,7 @@ const {
 } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { SheetIndex, SheetRange } = require('@cedalo/machine-core');
+const { SheetIndex, SheetRange, referenceFromString } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 
@@ -77,6 +77,29 @@ const index = (sheet, ...terms) =>
 				index.term.cellIndex = targetIdx;
 			}
 			return value;
+		});
+
+//
+// == INDIRECT ==
+//
+const convertRC = (str) => {
+	const colidx = str.toUpperCase().indexOf('C');
+	const row = parseInt(str.substring(1, colidx), 10);
+	const col = parseInt(str.substring(colidx + 1), 10) - 1;
+	return `${SheetIndex.columnAsStr(col)}${row}`;	
+};
+const refStrFromRC = (rcstr) => rcstr.split(':').map(convertRC).join(':');
+const indirect = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withMinArgs(1)
+		.withMaxArgs(2)
+		.mapNextArg(ref => ref)
+		.mapNextArg((isA1Style) => isA1Style ? convert.toBoolean(isA1Style.value, true) : true)
+		.run((ref, isA1Style) =>  {
+			const scope = ref.operand._streamsheetId ? ref.operand.sheet : sheet;
+			const val = isA1Style ? ref.value : refStrFromRC(ref.value);
+			ref = typeof val === 'string' ? referenceFromString(val, scope) : undefined;
+			return ref ? ref.value : ERROR.REF
 		});
 
 //
@@ -277,6 +300,7 @@ module.exports = {
 	CHOOSE: choose,
 	COLUMN: column,
 	INDEX: index,
+	INDIRECT: indirect,
 	MATCH: match,
 	OFFSET: offset,
 	ROW: row,

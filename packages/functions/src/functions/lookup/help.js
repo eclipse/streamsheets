@@ -26,6 +26,16 @@ module.exports = {
 				description: 'Ermittelt die Zelle aus dem Bereich mit dem Zeilen und Spaltenverweis'
 			}
 		},
+		INDIRECT: {
+			en: {
+				argumentList: 'Ref_Text,RC1C1_Style',
+				description: 'Returns the value of the reference specified by passed text string'
+			},
+			de: {
+				argumentList: 'Ref_Text,RC1C1_Stil',
+				description: 'Liefert den Wert der durch den gegebenen Text spezifizierten Referenz zurück'
+			}
+		},
 		MATCH: {
 			en: {
 				argumentList: 'Value,SearchRange,MatchType',
