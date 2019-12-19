@@ -632,6 +632,10 @@ export function connect() {
 					handleUserLeftEvent(event);
 					dispatch(receiveUserLeft(event));
 				});
+				gatewayClient.on(EVENTS.LICENSE_INFO_EVENT, (event) => {
+					const { licenseInfo = {}} = event;
+					dispatch({type: ActionTypes.LICENSE_INFORMATION, licenseInfo });
+				});
 				gatewayClient.on(EVENTS.MACHINE_STEP_EVENT, (event) => {
 					try {
 						// const startProcessingMachineStepEvent = document.createEvent('Event');

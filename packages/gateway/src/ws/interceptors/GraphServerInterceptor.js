@@ -162,7 +162,8 @@ module.exports = class GraphServerInterceptor extends Interceptor {
 			try {
 				const parameters = parameterMapping(context, {
 					id: message.requestId,
-					machineId: message.machineserver.machine.id
+					machineId: message.machineserver.machine.id,
+					templateId: message.machineserver.templateId
 				});
 				// eslint-disable-next-line
 				const request = new requestClass(parameters);

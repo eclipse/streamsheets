@@ -3,8 +3,21 @@ import * as Actions from '../constants/ActionTypes';
 const defaultMetaInformationState = {
 	services: {},
 	isFetching: false,
+	licenseInfo: {},
 	disconnectedServices: [],
 	allServicesConnected: true,
+};
+
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const msToDays = (ms) => ms / DAY_IN_MS;
+const expiresInDays = (validUntil) => Math.ceil(msToDays(validUntil - Date.now()));
+const createLicenseInfo = (licenseInfo = {}) => {
+	const { edition, service, validUntil } = licenseInfo;
+	const info = { edition, service };
+	if (validUntil != null) {
+		info.daysLeft = expiresInDays(validUntil);
+	}
+	return info;
 };
 
 export default function metaInformationReducer(state = defaultMetaInformationState, action) {
@@ -15,7 +28,7 @@ export default function metaInformationReducer(state = defaultMetaInformationSta
 				isFetching: true,
 			};
 		case Actions.RECEIVE_META_INFORMATION: {
-			const services = action.metaInformation;
+			const { licenseInfo, services } = action.metaInformation;
 			const disconnectedServices = Object.entries(services)
 				.filter(([serviceName]) => serviceName !== 'undefined')
 				.filter(([, service]) => !Object.keys(service.instances).length > 0)
@@ -24,8 +37,16 @@ export default function metaInformationReducer(state = defaultMetaInformationSta
 				...state,
 				isFetching: false,
 				services,
+				licenseInfo: createLicenseInfo(licenseInfo),
 				disconnectedServices,
 				allServicesConnected: disconnectedServices.length === 0
+			};
+		}
+		case Actions.LICENSE_INFORMATION: {
+			const { licenseInfo } = action;
+			return {
+				...state,
+				licenseInfo: createLicenseInfo(licenseInfo),
 			};
 		}
 		default:
