@@ -365,7 +365,7 @@ describe('lookup functions', () => {
 		});
 		it('should use approximate matching by default', () => {
 			const sheet = new StreamSheet().sheet.load({ cells: SHEETS.NUMBERS });
-			expect(createTerm('vlookup(0, A1:B3, 1)', sheet).value).toBe(ERROR.NV);
+			expect(createTerm('vlookup(0, A1:B3, 1)', sheet).value).toBe(ERROR.NA);
 			expect(createTerm('vlookup(1, A1:B3, 1)', sheet).value).toBe(1);
 			expect(createTerm('vlookup(2, A1:B3, 1)', sheet).value).toBe(1);
 			expect(createTerm('vlookup(3, A1:B3, 1)', sheet).value).toBe(1);
@@ -402,10 +402,10 @@ describe('lookup functions', () => {
 			expect(createTerm('vlookup("A3", A1:B3, 0)', sheet).value).toBe(ERROR.REF);
 			expect(createTerm('vlookup("A3", A1:B3, -1)', sheet).value).toBe(ERROR.REF);
 		});
-		it(`should return ${ERROR.NV} if referenced cell is not in specified cell range`, () => {
+		it(`should return ${ERROR.NA} if referenced cell is not in specified cell range`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: SHEETS.SIMPLE });
-			expect(createTerm('vlookup("B3", B1:B3, 2)', sheet).value).toBe(ERROR.NV);
-			expect(createTerm('vlookup("B3", B3, 2)', sheet).value).toBe(ERROR.NV);
+			expect(createTerm('vlookup("B3", B1:B3, 2)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('vlookup("B3", B3, 2)', sheet).value).toBe(ERROR.NA);
 		});
 		it(`should return ${ERROR.NAME} error if no cell range is specified`, () => {
 			const sheet = new StreamSheet().sheet;
