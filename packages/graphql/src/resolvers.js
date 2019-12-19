@@ -97,7 +97,8 @@ const resolvers = {
 	},
 	User: {
 		admin: async (obj) => UserAuth.isAdmin(obj),
-		canDelete: async (obj, args, { actor }) => UserAuth.canDelete(actor, obj)
+		canDelete: async (obj, args, { actor }) => UserAuth.canDelete(actor, obj),
+		rights: async (obj) => UserAuth.isAdmin(obj) ? ['User.Create'] : [],
 	}
 };
 

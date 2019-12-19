@@ -96,7 +96,7 @@ const reducer = (state, action) => {
 };
 
 const UserTablePageComponent = (props) => {
-	const { onAddUser, onSelectUser } = props;
+	const { onAddUser, onSelectUser, showAddUserButton } = props;
 	const [filterText, setTextFilter] = useState('');
 	const [sort, setSort] = useState({ field: 'username', direction: 'asc' });
 	const [state, dispatch] = useReducer(reducer, defaultState);
@@ -207,11 +207,13 @@ const UserTablePageComponent = (props) => {
 									<FormattedMessage id="Admin.Users" defaultMessage="Users" />
 								</Typography>
 							</Grid>
-							<Grid item>
-								<Button variant="contained" color="primary" onClick={onAddUser}>
-									<FormattedMessage id="Admin.User.add" defaultMessage="Add user" />
-								</Button>
-							</Grid>
+							{showAddUserButton && (
+								<Grid item>
+									<Button variant="contained" color="primary" onClick={onAddUser}>
+										<FormattedMessage id="Admin.User.add" defaultMessage="Add user" />
+									</Button>
+								</Grid>
+							)}
 						</Grid>
 						<Grid item xs={12}>
 							<TextField
@@ -292,7 +294,8 @@ const UserTablePageComponent = (props) => {
 
 UserTablePageComponent.propTypes = {
 	onAddUser: PropTypes.func.isRequired,
-	onSelectUser: PropTypes.func.isRequired
+	onSelectUser: PropTypes.func.isRequired,
+	showAddUserButton: PropTypes.bool.isRequired
 };
 
 const mapDispatchToProps = {
@@ -300,4 +303,11 @@ const mapDispatchToProps = {
 	onSelectUser: (userId) => openPage(`/administration/users/${userId}`)
 };
 
-export const UserTablePage = connect(null, mapDispatchToProps)(UserTablePageComponent);
+const mapStateToProps = (state) => ({
+	showAddUserButton: state.user.user && state.user.user.rights ? state.user.user.rights.includes('User.Create') : false
+});
+
+export const UserTablePage = connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(UserTablePageComponent);

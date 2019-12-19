@@ -446,6 +446,7 @@ export function getMe() {
 					settings {
 						locale
 					}
+					rights
 				}
 			}`
 		);

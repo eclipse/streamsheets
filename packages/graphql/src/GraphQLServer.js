@@ -53,6 +53,7 @@ const typeDefs = gql`
 		admin: Boolean!
 		settings: UserSettings!
 		canDelete: Boolean!
+		rights: [String!]!
 	}
 
 	input UserInput {

@@ -58,7 +58,7 @@ export const UserTable = (props) => {
 						<TableCell>
 							{user.canDelete ? (
 								<IconButton
-									color="primary"
+									style={{ color: '#FF0022' }}
 									onClick={(event) => {
 										event.stopPropagation();
 										onDeleteUser(user.id);
