@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { FormattedMessage } from 'react-intl';
 import { amber, red } from '@material-ui/core/colors';
-import { IconButton, Snackbar, SnackbarContent } from '@material-ui/core';
-import { Close as CloseIcon, Error, Warning } from '@material-ui/icons';
+import IconButton from '@material-ui/core/IconButton';
+import Snackbar from '@material-ui/core/Snackbar';
+import SnackbarContent from '@material-ui/core/SnackbarContent';
+import CloseIcon from '@material-ui/icons/Close';
+import Error from '@material-ui/icons/Error';
+import Warning from '@material-ui/icons/Warning';
+import PropTypes from 'prop-types';
+import React, { useState } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { connect } from 'react-redux';
 
 const styles = {
 	expired: {

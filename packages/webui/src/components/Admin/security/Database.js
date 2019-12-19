@@ -1,5 +1,7 @@
 /* eslint-disable react/prop-types */
-import { Button, FormControl, FormGroup } from '@material-ui/core';
+import FormGroup from '@material-ui/core/FormGroup';
+import Button from '@material-ui/core/Button';
+import FormControl from '@material-ui/core/FormControl';
 import { withStyles } from '@material-ui/core/styles';
 import ImportIcon from '@material-ui/icons/CloudDownload';
 import React, { Component } from 'react';

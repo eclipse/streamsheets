@@ -1,10 +1,15 @@
-import { Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel } from '@material-ui/core';
+import IconButton from '@material-ui/core/IconButton';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import DeleteIcon from '@material-ui/icons/Delete';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
-import IconButton from '@material-ui/core/IconButton';
-import DeleteIcon from '@material-ui/icons/Delete';
 import { userShape } from './UserPropTypes';
 
 const USER_TABLE_COLUMNS = [

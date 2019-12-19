@@ -1,7 +1,11 @@
-import { Dialog, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
+	
 
 function RequestStatusDialog(props) {
 	const { open, error } = props;

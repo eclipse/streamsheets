@@ -1,7 +1,10 @@
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { FormControl, InputLabel, Select, MenuItem } from '@material-ui/core';
 
 const createMachineStatusFilter = (statusToFilter) => (resources) => {
 	if (statusToFilter && statusToFilter.length > 0) {
