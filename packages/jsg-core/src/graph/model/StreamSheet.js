@@ -788,6 +788,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 					switch (drawItem.type) {
 					case 'label':
 						node.setText(drawItem.text === 'undefined' ? '' : Strings.decodeXML(drawItem.text));
+						if (drawItem.parent === '') {
+							node.associate(false);
+						}
 						this.setFontFormat(node.getTextFormat(), drawItem.font);
 						break;
 					case 'bezier':
