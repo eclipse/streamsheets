@@ -143,8 +143,8 @@ class DnD extends AbstractInteraction {
 		let canvasRectTrg;
 		let canvasRectSrc;
 
-		if (!(event.event instanceof MouseEvent) && event.gesture && event.gesture.touches.length) {
-			const touch = event.gesture.touches[0];
+		if (!(event.event instanceof MouseEvent) && event.gesture && event.gesture.pointers.length) {
+			const touch = event.gesture.pointers[0];
 			const target = document.elementFromPoint(touch.clientX, touch.clientY);
 
 			canvasRectSrc = canvas.getBoundingClientRect();
