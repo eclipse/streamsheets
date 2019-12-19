@@ -270,7 +270,7 @@ const vlookup = (sheet, ...terms) =>
 					cellvalue = cell ? cell.value : '';
 				}
 			}
-			return cellvalue != null ? cellvalue : ERROR.NV;
+			return cellvalue != null ? cellvalue : ERROR.NA;
 		});
 
 module.exports = {
