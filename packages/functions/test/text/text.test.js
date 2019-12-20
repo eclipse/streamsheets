@@ -652,6 +652,25 @@ describe('value', () => {
 		expect(createTerm('value("-0,0012345")', t1.sheet).value).toBe(-0.0012345);
 		expect(createTerm('value("22.456,789")', t1.sheet).value).toBe(22456.789);
 	});
+	it('should support multiple thousands separators', () => {
+		const s1 = new StreamSheet();
+		const machine = new Machine();
+		machine.locale = 'de';
+		machine.removeAllStreamSheets();
+		machine.addStreamSheet(s1);
+		expect(createTerm('value("1.234.567,8")', s1.sheet).value).toBe(1234567.8);
+		expect(createTerm('value("-1.234.567,8")', s1.sheet).value).toBe(-1234567.8);
+		expect(createTerm('value("2.34,56")', s1.sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("34,567,89")', s1.sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("1.234,567.89")', s1.sheet).value).toBe(ERROR.VALUE);
+		// do same with english locale
+		machine.locale = 'en';
+		expect(createTerm('value("1,234,567.8")', s1.sheet).value).toBe(1234567.8);
+		expect(createTerm('value("-1,234,567.8")', s1.sheet).value).toBe(-1234567.8);
+		expect(createTerm('value("2,34.56")', s1.sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("34.567.89")', s1.sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("1,234.567,89")', s1.sheet).value).toBe(ERROR.VALUE);
+	});
 	// DL-2502
 	it('should not cut large values', () => {
 		// german
