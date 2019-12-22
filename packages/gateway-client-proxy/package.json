@@ -24,9 +24,6 @@
     "babel-core": "6.25.0",
     "babel-loader": "7.1.1",
     "babel-preset-env": "1.6.0",
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "karma": "3.1.4",
     "karma-chrome-launcher": "2.2.0",
     "karma-coverage": "1.1.2",
@@ -35,21 +32,6 @@
     "karma-safari-launcher": "1.0.0",
     "webpack": "3.8.1",
     "worker-loader": "1.1.0"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ],
-    "env": {
-      "browser": true,
-      "node": true
-    },
-    "rules": {
-      "global-require": 1,
-      "no-undef": 1,
-      "no-unused-vars": 1
-    }
   },
   "license": "EPL-2.0"
 }

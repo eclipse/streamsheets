@@ -18,9 +18,6 @@
 	},
 	"homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/stream/mongodb",
 	"devDependencies": {
-		"eslint": "3.19.0",
-		"eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-		"eslint-config-prettier": "^3.3.0",
 		"jest": "^21.2.1",
 		"jest-cli": "^21.2.1",
 		"mongodb-memory-server": "5.2.11"
@@ -28,12 +25,6 @@
 	"dependencies": {
 		"@cedalo/sdk-streams": "1.5.0-beta",
 		"mongodb": "3.0.11"
-	},
-	"eslintConfig": {
-		"extends": [
-			"cedalo",
-			"prettier"
-		]
 	},
 	"jest": {
 		"collectCoverage": true,

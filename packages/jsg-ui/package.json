@@ -37,9 +37,6 @@
     "babili": "0.1.4",
     "cheerio": "0.22.0",
     "concat": "1.0.3",
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jest": "20.0.4",
     "jest-cli": "20.0.4",
     "mkdirp": "0.5.1",
@@ -58,19 +55,6 @@
     "chart.js": "2.9.3",
     "chartjs-plugin-datalabels": "0.7.0",
     "hammerjs": "^2.0.8"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ],
-    "rules": {
-      "no-mixed-operators": 0,
-      "no-bitwise": 0,
-      "no-unused-vars": 0,
-      "no-nested-ternary": 0,
-      "default-case": 0
-    }
   },
   "license": "EPL-2.0"
 }

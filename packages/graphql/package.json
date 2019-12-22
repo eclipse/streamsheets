@@ -30,12 +30,6 @@
     "jest": "21.2.1",
     "mongodb-memory-server": "5.2.11"
   },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
-  },
   "unmockedModulePathPatterns": [
     "jasmine-expect"
   ],

@@ -25,9 +25,6 @@
     "babel-core": "6.25.0",
     "babel-loader": "7.1.1",
     "babel-preset-env": "1.6.0",
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jasmine-core": "2.6.4",
     "jest": "20.0.0",
     "jest-cli": "18.1.0",
@@ -37,16 +34,6 @@
     "karma-firefox-launcher": "1.0.1",
     "karma-jasmine": "1.1.0",
     "karma-safari-launcher": "1.0.0"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ],
-    "env": {
-      "browser": true,
-      "node": true
-    }
   },
   "jest": {
     "collectCoverage": true,

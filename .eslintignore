@@ -20,14 +20,17 @@ packages/jsg-ui/gettingstarted
 packages/jsg-ui/scripts
 packages/jsg-ui/src/includes.js
 packages/jsg-ui/src/ui/events/hammer.js
+packages/webui/config
+packages/webui/public
+packages/webui/scripts
 **/node_modules
 **/coverage
 **/dist
 **/built
+**/build
 # TODO: Fix the following
 packages/cli
 packages/machine-test-runner
-packages/webui
 packages/machine-graphmodel
 packages/machine-graphview
 packages/webcomponent/demo

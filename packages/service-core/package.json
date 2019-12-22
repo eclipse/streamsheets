@@ -32,26 +32,8 @@
     "uuid": "3.3.2"
   },
   "devDependencies": {
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jest": "20.0.0",
     "jest-cli": "18.1.0"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ],
-    "env": {
-      "browser": true,
-      "node": true
-    },
-    "rules": {
-      "global-require": 1,
-      "no-undef": 1,
-      "no-unused-vars": 1
-    }
   },
   "jest": {
     "collectCoverage": true,

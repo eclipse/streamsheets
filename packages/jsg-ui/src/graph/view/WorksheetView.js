@@ -447,7 +447,6 @@ export default class WorksheetView extends ContentNodeView {
 					event.consume();
 					return true;
 				}
-				/* eslint-disable-next-line no-fallthrough: 0 */
 				doDownArrow(selection);
 				return true;
 			case 'Escape':
@@ -469,7 +468,7 @@ export default class WorksheetView extends ContentNodeView {
 			case 'x':
 			case 'X':
 			// x -> cut
-			/* eslint-disable-next-line no-fallthrough: 0 */
+			/* eslint-disable-next-line no-fallthrough */
 			case 'c':
 			case 'C':
 				// c -> copy
