@@ -71,20 +71,11 @@
   "devDependencies": {
     "@cedalo/jsg-core": "1.5.0-beta",
     "@cedalo/machine-core": "1.5.0-beta",
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jest": "19.0.1",
     "terser-webpack-plugin": "1.2.2",
     "webpack": "4.29.1",
     "webpack-cli": "3.2.3",
     "webpack-node-externals": "1.7.2"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
   },
   "unmockedModulePathPatterns": [
     "jasmine-expect"

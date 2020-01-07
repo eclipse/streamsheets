@@ -34,30 +34,12 @@
     "@cedalo/service-core": "1.5.0-beta"
   },
   "devDependencies": {
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jest": "22.0.0",
     "jest-cli": "22.0.0",
     "terser-webpack-plugin": "1.2.2",
     "webpack": "4.29.1",
     "webpack-cli": "3.2.3",
     "webpack-node-externals": "1.7.2"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ],
-    "env": {
-      "browser": true,
-      "node": true
-    },
-    "rules": {
-      "global-require": 1,
-      "no-undef": 1,
-      "no-unused-vars": 1
-    }
   },
   "jest": {
     "collectCoverage": true,

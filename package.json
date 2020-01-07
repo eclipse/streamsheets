@@ -1,38 +1,30 @@
 {
-  "name": "streamsheets",
-  "version": "1.1.61",
-  "private": true,
-  "workspaces": {
-    "packages": [
-      "cli/scripts",
-      "packages/*",
-      "packages/stream/*",
-      "packages/webcomponent/*",
-      "pro/*"
-    ],
-    "nohoist": [
-      "**/jest",
-      "**/jest-cli",
-      "**/eslint",
-      "**/babel-jest"
-    ]
-  },
-  "scripts": {
-	"lint": "./node_modules/.bin/eslint . && yarn workspace @cedalo/webui run lint",
-	"i18n:check": "node ./scripts/i18n.js --en ./packages/webui/src/languages/en.json --de ./packages/webui/src/languages/de.json"
-  },
-  "devDependencies": {
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
-    "prompts": "2.1.0",
-    "rimraf": "2.6.3",
-    "yargs": "13.2.2"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
-  }
+	"name": "streamsheets",
+	"version": "1.1.61",
+	"private": true,
+	"workspaces": {
+		"packages": [
+			"cli/scripts",
+			"packages/*",
+			"packages/stream/*",
+			"packages/webcomponent/*",
+			"pro/*"
+		],
+		"nohoist": [
+			"**/jest",
+			"**/jest-cli",
+			"**/babel-jest",
+			"**/eslint"
+		]
+	},
+	"scripts": {
+		"lint": "./node_modules/.bin/eslint .",
+		"i18n:check": "node ./scripts/i18n.js --en ./packages/webui/src/languages/en.json --de ./packages/webui/src/languages/de.json"
+	},
+	"devDependencies": {
+		"eslint": "6.8.0",
+		"prompts": "2.1.0",
+		"rimraf": "2.6.3",
+		"yargs": "13.2.2"
+	}
 }

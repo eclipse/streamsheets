@@ -21,9 +21,6 @@
     "babel-loader": "6.4.1",
     "babel-preset-env": "1.6.1",
     "cheerio": "0.22.0",
-    "eslint": "4.10.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git#eslint4",
-    "eslint-config-prettier": "3.3.0",
     "jest": "19.0.2",
     "jest-cli": "19.0.2",
     "mkdirp": "0.5.1",
@@ -37,19 +34,6 @@
     "@cedalo/parser": "1.5.0-beta",
     "date-fns": "^2.0.0-alpha.27",
     "qrjs2": "0.1.6"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ],
-    "rules": {
-      "no-mixed-operators": 0,
-      "no-bitwise": 0,
-      "no-unused-vars": 0,
-      "default-case": "off",
-      "no-nested-ternary": 0
-    }
   },
   "jest": {
     "collectCoverage": false,

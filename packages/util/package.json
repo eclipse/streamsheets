@@ -11,20 +11,10 @@
   "author": "Cedalo AG",
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/util",
   "devDependencies": {
-    "eslint": "4.8.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-plugin-import": "2.8.0",
-    "eslint-config-prettier": "3.3.0",
     "jest": "21.2.1",
     "jest-cli": "21.2.1"
   },
   "dependencies": {},
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
-  },
   "jest": {
     "collectCoverage": true,
     "coverageDirectory": "coverage",

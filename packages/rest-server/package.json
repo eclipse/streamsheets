@@ -17,9 +17,6 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/rest-server",
   "devDependencies": {
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jest": "21.2.1",
     "jest-cli": "21.2.1"
   },
@@ -27,12 +24,6 @@
     "@cedalo/rest-server-core": "1.5.0-beta",
     "@cedalo/sdk-streams": "1.5.0-beta",
     "lodash": "4.17.13"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
   },
   "jest": {
     "collectCoverage": true,
