@@ -1,6 +1,8 @@
 const { Term, BinaryOperator, Reference, Locale, CondTerm } = require('@cedalo/parser');
 const { parse, isValid } = require('date-fns');
-const { enGB, de, enUS } = require('date-fns/locale');
+const de = require('date-fns/locale/de');
+const enGB = require('date-fns/locale/en-GB');
+const enUS = require('date-fns/locale/en-US');
 
 const JSG = require('../../JSG');
 const Expression = require('../expr/Expression');
