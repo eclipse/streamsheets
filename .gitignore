@@ -64,4 +64,4 @@ typings/
 license.lic
 
 # dynamic functions directory
-functions/
+/functions
