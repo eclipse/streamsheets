@@ -356,7 +356,7 @@ function parseIdentifier(prefix) {
 		ch = expr.charCodeAt(index);
 		index += 1;
 		const ch2 = expr.charCodeAt(index);
-		if (!isValidIdentifier(ch) || isOperator(ch, ch2) || isConditionStart(ch, ch2)) {
+		if (!isValidIdentifier(ch) || isOperator(ch, ch2)) { // || isConditionStart(ch, ch2)) {
 			break;
 		}
 		identifier += String.fromCharCode(ch);
