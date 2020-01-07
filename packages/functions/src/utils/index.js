@@ -1,5 +1,6 @@
 const calculate = require('./calculate');
 const common = require('./common');
+const criterion = require('./criterion');
 const date = require('./date');
 const excel = require('./excel');
 const jsonbuilder = require('./jsonbuilder');
@@ -13,6 +14,7 @@ const values = require('./values');
 module.exports = {
 	calculate,
 	common,
+	criterion,
 	date,
 	excel,
 	jsonbuilder,
