@@ -1092,7 +1092,7 @@ export default class CellsView extends NodeView {
 					border.draw !== state.draw ||
 					border.color !== state.color ||
 					border.style !== state.style ||
-					border.width !== state.width ||
+					border.borderwidth !== state.width ||
 					borderMatrix.length - 1 === index2
 				) {
 					graphics.lineTo(border.x, border.y + (borderMatrix.length - 1 === index2 ? border.height : 0));
@@ -1109,7 +1109,7 @@ export default class CellsView extends NodeView {
 					state.draw = true;
 					state.color = border.color;
 					state.style = border.style;
-					state.width = border.width;
+					state.width = border.borderwidth;
 				}
 			});
 		});
