@@ -14,31 +14,82 @@ const typeDefs = gql`
 		de
 	}
 
+	enum StreamType {
+		consumer
+		producer
+	}
+
+	scalar ImportExportData
+
 	type StreamStatus {
 		streamEventType: String
 	}
 
-	type Stream {
+	type StreamLegacy {
 		id: ID!
 		name: String!
 		status: StreamStatus
 		disabled: Boolean!
 		className: String!
+		lastModified: Float!
+		owner: String
 	}
 
 	type StreamSheet {
-		id: String!
+		id: ID!
 		name: String!
+		inbox: Inbox!
+		sheet: Sheet!
+	}
+
+	type Sheet {
+		cells: [Cell!]!
+	}
+
+	type Cell {
+		formula: String
+		level: Int
+		referenes: [String!]
+	}
+
+	type Inbox {
+		id: ID!
+		stream: Stream
 	}
 
 	type Machine {
-		id: String!
+		id: ID!
 		name: String!
 		previewImage: String
 		state: String!
+<<<<<<< HEAD
 		streamSheets: [StreamSheet!]!
 		files: [String!]!
 		file(name: String!): String
+=======
+		metadata: MachineMetadata!
+		streamsheets: [StreamSheet!]!
+		referencedStreams: [ID!]!
+	}
+
+	type Stream {
+		id: ID!
+		name: String!
+		connector: Connector!
+		type: StreamType!
+	}
+
+	type Connector {
+		id: ID!
+		name: String!
+		provider: ID!
+		type: String!
+	}
+
+	type MachineMetadata {
+		lastModified: Float!
+		owner: String
+>>>>>>> graphql: Extend API for usage in Dashboard and Export
 	}
 
 	type UserSettings {
@@ -128,13 +179,23 @@ const typeDefs = gql`
 		message: String!
 	}
 
+	type ExportResult {
+		data: ImportExportData
+		success: Boolean!
+		code: String!
+		message: String!
+	}
+
 	type Query {
-		machines: [Machine!]!
 		machine(id: ID!): Machine
+		machines(name: String): [Machine!]!
 		me: User!
 		user(id: ID!): User
 		users: [User!]!
-		streams: [Stream]!
+		streams: [Stream!]!
+		connectors: [Connector!]!
+		streamsLegacy: [StreamLegacy!]!
+		export(machines: [ID!]!, streams:[ID!]!): ExportResult!
 	}
 
 	type Mutation {

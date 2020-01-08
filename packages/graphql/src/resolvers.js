@@ -1,6 +1,9 @@
 const path = require('path');
 const { InternalError } = require('./errors');
 const { UserAuth } = require('./apis');
+const { ArrayUtil } = require('@cedalo/util');
+const graphqlFields = require('graphql-fields');
+const { GraphQLJSONObject } = require('graphql-type-json');
 const fs = require('fs').promises;
 
 const MACHINE_DATA_DIR = process.env.MACHINE_DATA_DIR || './machinedata';
@@ -23,11 +26,47 @@ const Payload = {
 
 // const currentUser = async ({ repositories, session }) => repositories.userRepository.findUser(session.user.id);
 
+const streamClassNameToType = {
+	ProducerConfiguration: 'producer',
+	ConsumerConfiguration: 'consumer'
+};
+
+const filterRejected = (promises) =>
+	promises.reduce(async (pResults, p) => {
+		const results = await pResults;
+		try {
+			const result = await p;
+			return [...results, result];
+		} catch (e) {
+			return results;
+		}
+	}, Promise.resolve([]));
+
+const findMissingConnectors = (streamIds, streamsToExport) =>
+	Array.from(
+		new Set(
+			streamsToExport
+				.map((stream) => stream.connector && stream.connector.id)
+				.filter((id) => !!id)
+				.filter((id) => !streamIds.includes(id))
+		)
+	);
+
+const mapConnector = (c) => ({
+	id: c.id,
+	name: c.name,
+	provider: c.provider.id,
+	type: 'connector'
+});
+
 const resolvers = {
 	Query: {
 		me: async (obj, args, { actor }) => actor,
-		machines: async (obj, args, context) => context.repositories.machineRepository.getMachines(),
 		machine: async (obj, args, context) => context.repositories.machineRepository.findMachine(args.id),
+		machines: async (obj, args, context) => {
+			const { machineRepository } = context.repositories;
+			return args.name ? machineRepository.findMachinesByName(args.name) : machineRepository.getMachines();
+		},
 		user: async (obj, { id }, { apis }) => {
 			try {
 				return apis.user.findUser(id);
@@ -36,7 +75,77 @@ const resolvers = {
 			}
 		},
 		users: async (obj, args, { apis }) => apis.user.findAllUsers(),
-		streams: async (obj, args, { repositories, session }) => repositories.streamRepository.findAllStreams(session)
+		streamsLegacy: async (obj, args, { repositories, session }) =>
+			repositories.streamRepository.findAllStreams(session),
+		streams: async (obj, args, context) => {
+			const { repositories, session } = context;
+			const allConfigs = await repositories.streamRepository.findAllStreams(session);
+			const connectors = allConfigs
+				.filter((c) => c.className === 'ConnectorConfiguration')
+				.reduce((map, c) => ({ ...map, [c.id]: mapConnector(c) }), {});
+			const streams = allConfigs
+				.filter((s) => ['ConsumerConfiguration', 'ProducerConfiguration'].includes(s.className))
+				.map((s) => ({
+					id: s.id,
+					name: s.name,
+					connector: connectors[s.connector.id],
+					type: streamClassNameToType[s.className]
+				}));
+			return streams;
+		},
+		connectors: async (obj, args, { repositories, session }) => {
+			const allConfigs = await repositories.streamRepository.findAllStreams(session);
+			const connectors = allConfigs.filter((c) => c.className === 'ConnectorConfiguration').map(mapConnector);
+			return connectors;
+		},
+		export: async (obj, args, { repositories, session }) => {
+			const { streamRepository, machineRepository, graphRepository } = repositories;
+			const { streams, machines } = args;
+			const exportData = {
+				machines: [],
+				streams: []
+			};
+			if (Array.isArray(machines) && machines.length > 0) {
+				const pendingMachines = machines.map(async (machineId) => {
+					const result = await Promise.all([
+						machineRepository.findMachine(machineId),
+						graphRepository.findGraphByMachineId(machineId)
+					]);
+					return {
+						machine: { ...result[0], state: 'stopped' },
+						graph: result[1]
+					};
+				});
+				exportData.machines = await filterRejected(pendingMachines);
+				if (exportData.machines.length === 0) {
+					return {
+						data: null,
+						success: false,
+						code: 'MACHINE_NOT_FOUND',
+						message: 'Could not export the specified machine'
+					};
+				}
+			}
+
+			if (Array.isArray(streams) && streams.length > 0) {
+				const allStreams = await streamRepository.findAllStreams(session);
+				const streamsToExport = allStreams.filter((s) => streams.includes(s.id));
+				const missingConnectorIds = findMissingConnectors(streams, streamsToExport);
+				const allStreamsToExport = [...streams, ...missingConnectorIds];
+				exportData.streams = allStreams.filter((s) => allStreamsToExport.includes(s.id));
+				exportData.streams.forEach((stream) => {
+					// TODO: Should not be part of the result.
+					delete stream.status;
+				});
+			}
+
+			return {
+				data: exportData,
+				success: true,
+				code: 'EXPORT_SUCCESS',
+				message: 'Export succeded'
+			};
+		}
 	},
 	Mutation: {
 		createUser: async (obj, { user }, { apis, encryption }) => {
@@ -105,6 +214,7 @@ const resolvers = {
 		canDelete: async (obj, args, { actor }) => UserAuth.canDelete(actor, obj),
 		rights: async (obj) => (UserAuth.isAdmin(obj) ? ['User.Create'] : [])
 	},
+<<<<<<< HEAD
 	Machine: {
 		file: async (obj, args) => {
 			const { id } = obj;
@@ -131,6 +241,51 @@ const resolvers = {
 			}
 		}
 	}
+=======
+	Inbox: {
+		stream: async (obj, args, context, info) => {
+			const additionalFields =
+				Object.keys(graphqlFields(info)).filter((fieldName) => ['name', 'id'].includes(fieldName)).length > 0;
+			const stream =
+				obj.stream && additionalFields
+					? await context.repositories.streamRepositoryLegacy.findConfigurationById(obj.stream.id)
+					: obj.stream;
+			return stream !== null
+				? {
+						id: stream.id,
+						name: stream.name,
+						disabled: stream.dislabed || false,
+						lastModified: stream.lastModified,
+						owner: stream.owner,
+						className: stream.className
+				  }
+				: null;
+		}
+	},
+	Machine: {
+		referencedStreams: async (obj) => {
+			const machine = obj;
+			const referencedStreams = [].concat(
+				...machine.streamsheets.map((t) => {
+					const cells = Object.values(t.sheet.cells);
+					const cellStreamRefs = ArrayUtil.flatten(
+						cells.filter((c) => !!c.references).map((c) => c.references)
+					)
+						.filter((ref) => ref.startsWith('|'))
+						.map((ref) => machine.namedCells[ref])
+						.filter((stream) => stream !== undefined)
+						.map((stream) => stream.value && stream.value.id);
+
+					const inboxStream = t.inbox.stream;
+					const inboxStreamRef = inboxStream && inboxStream.id ? [inboxStream.id] : [];
+					return [...cellStreamRefs, ...inboxStreamRef];
+				})
+			);
+			return ArrayUtil.unique(referencedStreams);
+		}
+	},
+	ImportExportData: GraphQLJSONObject
+>>>>>>> graphql: Extend API for usage in Dashboard and Export
 };
 
 module.exports = { resolvers };
