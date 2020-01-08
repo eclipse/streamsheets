@@ -263,7 +263,7 @@ describe('Tokenizer', () => {
 			expect(ast.params[1].value).toBeUndefined();
 			expect(ast.params[2].type).toBe('undef');
 			expect(ast.params[2].value).toBeUndefined();
-
+			
 			ast = Tokenizer.createAST('test("","","")', _context);
 			expect(ast.params).toBeDefined();
 			expect(ast.params.length).toBe(3);
@@ -273,6 +273,17 @@ describe('Tokenizer', () => {
 			expect(ast.params[1].value).toBe('');
 			expect(ast.params[2].type).toBe('string');
 			expect(ast.params[2].value).toBe('');
+		});
+		
+		// DL-3412
+		it('should ignore IFs inside function names', () => {
+			const _context = new ParserContext();
+			_context.setFunction('COUNTIF', () => 'countif');
+			_context.setFunction('COUNTIFS', () => 'countifs');
+			validateResult('countif()', 'countif', _context);
+			validateResult('countifs()', 'countifs', _context);
+			validateResult('countIF()', 'countif', _context);
+			validateResult('countIFS()', 'countifs', _context);
 		});
 
 		// DL-987
