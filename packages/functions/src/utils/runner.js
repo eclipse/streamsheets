@@ -2,6 +2,8 @@ const { FunctionErrors } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
 
+const remove = (index, arr) => arr.splice(index, 1)[0];
+
 class Runner {
 	constructor(sheet, args) {
 		this.sheet = sheet;
@@ -70,6 +72,25 @@ class Runner {
 	// 	}
 	// 	return this;
 	// }
+
+	// under review:
+	mapArgAt(idx, fn) {
+		if (!this.error) {
+			const term = remove(idx, this.args);
+			const res = fn(term, ...this.mappedArgs);
+			this.error = FunctionErrors.isError(res);
+			this.mappedArgs.push(res);
+		}
+		return this;
+	}
+	mapRemaingingArgs(fn) {
+		if (!this.error) {
+			const res = fn(this.args, ...this.mappedArgs);
+			this.error = FunctionErrors.isError(res);
+			this.mappedArgs.push(res);
+		}
+		return this;
+	}
 
 	reduce(fn) {
 		if (!this.error) {

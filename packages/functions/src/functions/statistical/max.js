@@ -1,6 +1,7 @@
-const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { calculate, criteria, runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 
+const ERROR = FunctionErrors.code;
 
 const newMax = (termOrCell, oldmax) => {
 	const val = !termOrCell.value ? 0 : termOrCell.value;
@@ -29,5 +30,15 @@ const max = (sheet, ...terms) =>
 			return valid ? totalMax : error || 0;
 		});
 
+const maxifs = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withMinArgs(3)
+		.mapNextArg((maxrange) => getCellRangeFromTerm(maxrange, sheet) || ERROR.INVALID_PARAM)
+		.mapRemaingingArgs((remainingTerms) => criteria.createFromTerms(remainingTerms, sheet))
+		.validate((maxrange, _criteria) => !criteria.hasEqualRangeShapes(_criteria, maxrange) ? ERROR.VALUE : undefined)
+		.run((maxrange, _criteria) => calculate.max(criteria.getNumbers(_criteria, maxrange)));
 
-module.exports = max;
+module.exports = {
+	MAX: max,
+	MAXIFS: maxifs
+};

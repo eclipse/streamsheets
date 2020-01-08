@@ -1,5 +1,7 @@
-const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { calculate, criteria, runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
+
+const ERROR = FunctionErrors.code;
 
 
 const newMin = (termOrCell, oldmin) => {
@@ -29,5 +31,15 @@ const min = (sheet, ...terms) =>
 			return valid ? totalMin : error || 0;
 		});
 
+const minifs = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withMinArgs(3)
+		.mapNextArg((minrange) => getCellRangeFromTerm(minrange, sheet) || ERROR.INVALID_PARAM)
+		.mapRemaingingArgs((remainingTerms) => criteria.createFromTerms(remainingTerms, sheet))
+		.validate((minrange, _criteria) => !criteria.hasEqualRangeShapes(_criteria, minrange) ? ERROR.VALUE : undefined)
+		.run((minrange, _criteria) => calculate.min(criteria.getNumbers(_criteria, minrange)));
 
-module.exports = min;
+module.exports = {
+	MIN: min,
+	MINIFS: minifs
+};
