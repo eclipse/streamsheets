@@ -1,8 +1,8 @@
 /** @param {number[]} values */
-const max = (values) => values.reduce((m, v) => (m > v ? m : v), Number.MIN_SAFE_INTEGER);
+const max = (values) => values.length ? values.reduce((m, v) => (m > v ? m : v), Number.MIN_SAFE_INTEGER) : 0;
 
 /** @param {number[]} values */
-const min = (values) => values.reduce((m, v) => (m < v ? m : v), Number.MAX_SAFE_INTEGER);
+const min = (values) => values.length ? values.reduce((m, v) => (m < v ? m : v), Number.MAX_SAFE_INTEGER) : 0;
 
 /** @param {number[]} values */
 const product = (values) => values.reduce((p, v) => p * v, 1);

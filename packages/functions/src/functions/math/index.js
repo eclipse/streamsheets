@@ -7,12 +7,12 @@ module.exports = {
 	help,
 	functions: {
 		...math,
+		...sum,
 		ARCTAN,
 		ARCTAN2,
 		COS,
 		PI,
 		SIN,
-		SUM: sum,
 		TAN
 	}
 };
