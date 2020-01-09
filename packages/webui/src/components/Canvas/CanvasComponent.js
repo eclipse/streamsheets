@@ -108,9 +108,9 @@ export class CanvasComponent extends Component {
 		if (notification.object) {
 			const info = notification.object;
 			const item = info.button;
+			const { container } = info;
 			switch (item && item.getName().getValue()) {
 				case 'minimize': {
-					const { container } = info;
 					const sheet = container.getStreamSheet();
 
 					if (sheet.getOwnSelection().hasSelection()) {
@@ -121,14 +121,15 @@ export class CanvasComponent extends Component {
 						.getGraphViewer()
 						.getSelectionProvider()
 						.clearSelection();
-					this.setState({ graph: item.getGraph() });
 					break;
 				}
 				case 'maximize':
-					this.setState({ graph: item.getGraph() });
 					break;
 				default:
 					break;
+			}
+			if (container) {
+				this.setState({ graph: container.getGraph() });
 			}
 		}
 	}
