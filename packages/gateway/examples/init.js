@@ -3,8 +3,6 @@ const fs = require('fs');
 const path = require('path');
 
 const INIT_DIRECTORY = path.join(__dirname, '..', 'config');
-// const INIT_FILE = path.join(__dirname, '..', 'config', 'init.json');
-// const initJSON = JSON.parse(fs.readFileSync(INIT_FILE).toString());
 
 const files = fs.readdirSync(INIT_DIRECTORY);
 const initJSON = {
@@ -12,7 +10,6 @@ const initJSON = {
 	streams: []
 };
 files.forEach(file => {
-	console.log(path.join(INIT_DIRECTORY, file))
 	json = JSON.parse(fs.readFileSync(path.join(INIT_DIRECTORY, file)).toString());
 	if (json.machines) {
 		initJSON.machines = [...initJSON.machines, ...json.machines];
