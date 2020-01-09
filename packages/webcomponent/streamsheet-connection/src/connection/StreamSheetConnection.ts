@@ -13,13 +13,13 @@ const DEF_ENDPOINTS = {
 };
 
 type PendingPromise = {
-	resolve: (value?: unknown) => void,
-	reject: (reason?: any) => void
+	resolve: (value?: unknown) => void;
+	reject: (reason?: any) => void;
 };
 
-const machineFromResponse = (response: [any]) => {
+const machineIdFromResponse = (response: [any]) => {
 	// response is an array of machines => simply return first one...
-	if (response.length) return response[0];
+	if (response.length) return response[0].id;
 	throw new Error(`Unknown machine "${name}"`);
 };
 
@@ -27,10 +27,19 @@ const subscribe = (name: string, gateway: StreamSheetConnection) => {
 	if (!gateway.isReady) return Promise.reject(new Error('Component not ready yet!'));
 	const gwclient = gateway.client;
 	return name
-		? gwclient
-				.getMachineDefinitionsByName(name)
-				.then((response: any) => machineFromResponse(response))
-				.then((machine: IMachineJSON) => gwclient.loadSubscribeMachine(machine.id))
+		? gwclient.gatewayClient
+				.graphql(
+					`
+				query MachinesWithName($name: String) {
+					machines(name: $name) {
+					  id
+					}
+				  }
+				  `,
+					{ name }
+				)
+				.then((response: any) => machineIdFromResponse(response.machines))
+				.then((machineId: String) => gwclient.loadSubscribeMachine(machineId))
 				.then((response: any) => {
 					const { graphserver = {}, machineserver = {} } = response;
 					const graphdef = graphserver.graph ? graphserver.graph.graphdef : undefined;
