@@ -1,4 +1,3 @@
-import { saveAs } from 'file-saver';
 import * as ActionTypes from '../constants/ActionTypes';
 import gatewayClient from '../helper/GatewayClient';
 import store from '../store';
@@ -28,32 +27,9 @@ const importUpdateStreamSelection = (streamId, value) => ({
 	type: ActionTypes.IMPORT_UPDATE_STREAM_SELECTION,
 	data: { streamId, value },
 });
-const exportSelectMachines = (machineIds) => ({
-	type: ActionTypes.EXPORT_SELECT_MACHINES,
-	data: machineIds,
-});
-const exportDeselectMachines = (machineIds) => ({
-	type: ActionTypes.EXPORT_DESELECT_MACHINES,
-	data: machineIds,
-});
-const exportToggleMachine = (machineId) => ({
-	type: ActionTypes.EXPORT_TOGGLE_MACHINE,
-	data: machineId,
-});
-const exportReset = () => ({ type: ActionTypes.EXPORT_RESET });
 
-export function selectMachinesForExport(machineIds) {
-	store.dispatch(exportSelectMachines(machineIds));
-}
-export function deselectMachinesForExport(machineIds) {
-	store.dispatch(exportDeselectMachines(machineIds));
-}
-export function toggleMachineForExport(machineId) {
-	store.dispatch(exportToggleMachine(machineId));
-}
-
-export function resetExport() {
-	store.dispatch(exportReset());
+export function notifyExportFailed() {
+	store.dispatch(sendExportError());
 }
 
 export function showImportDialog(importData) {
@@ -66,7 +42,7 @@ export function showImportDialog(importData) {
 		};
 
 		dispatch(fetchExistingEntities(allowedImportData));
-		const existingMachines = await gatewayClient.getMachineDefinitions(
+		const { machines } = await gatewayClient.graphql(
 			`{
 				machines {
 					  name
@@ -77,7 +53,7 @@ export function showImportDialog(importData) {
 		const result = await gatewayClient.loadAllDSConfigurations();
 		dispatch(
 			receiveExistingEntities({
-				existingMachines,
+				existingMachines: machines,
 				existingStreams: result.response.streams,
 			}),
 		);
@@ -98,26 +74,6 @@ export function updateMachineSelection(machineId, value) {
 
 export function updateStreamSelection(streamId, value) {
 	store.dispatch(importUpdateStreamSelection(streamId, value));
-}
-
-export function doExport(machineIds, dsExport, fileName) {
-	return async (dispatch) => {
-		try {
-			const result = await gatewayClient.exportMachineStreamDefinitions(machineIds, []);
-			if (result.success) {
-				result.streams = dsExport;
-				delete result.success;
-				const blob = new Blob([JSON.stringify(result, null, 2)], {
-					type: 'text/plain;charset=utf8;',
-				});
-				saveAs(blob, fileName);
-			} else {
-				dispatch(sendExportError());
-			}
-		} catch (error) {
-			dispatch(sendExportError());
-		}
-	};
 }
 
 export function importMachinesAndStreams() {

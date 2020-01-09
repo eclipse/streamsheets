@@ -55,17 +55,27 @@ export class DefaultLayout extends React.Component {
 			}
 			await props.getMe();
 			await props.getMachines(`
-				{
+			{
+				machines {
 					name
 					id
-					lastModified
+					metadata {
+						lastModified
+						owner
+					}
 					previewImage
 					titleImage
-					streamSheets {
+					streamsheets {
 						name
+						inbox {
+							stream {
+								name
+							}
+						}
 					}
 					state
 				}
+			}
 			`);
 			await props.getDataStores();
 

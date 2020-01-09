@@ -4,231 +4,199 @@ import Fab from '@material-ui/core/Fab';
 import TableCell from '@material-ui/core/TableCell';
 import Tooltip from '@material-ui/core/Tooltip';
 import ExportIcon from '@material-ui/icons/CloudUpload';
+import { saveAs } from 'file-saver';
 import PropTypes from 'prop-types';
-import React from 'react';
-import { FormattedMessage, injectIntl, intlShape } from 'react-intl';
+import React, { useMemo, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as Actions from '../../actions/actions';
+import { notifyExportFailed } from '../../actions/actions';
 import { RESOURCE_ACTIONS, RESOURCE_TYPES } from '../../helper/AccessManager';
+import gatewayClient from '../../helper/GatewayClient';
+import { useGraphQL } from '../../helper/Hooks';
 import ResourceFilter from '../base/listing/ResourceFilter';
 import { Restricted } from '../HelperComponent/Restricted';
 import ExportDialog from './ExportDialog';
 import ExportTable from './ExportTable';
 import ImportDropzone from './ImportDropzone';
 
-const findMissingConnectors = (streamIds, streamsToExport) =>
-	Array.from(
-		new Set(
-			streamsToExport
-				.map((stream) => stream.connector && stream.connector.id)
-				.filter((id) => !!id)
-				.filter((id) => !streamIds.includes(id)),
-		),
-	);
+const TABLE_QUERY = `
+	{
+		machines {
+			id
+			name
+			referencedStreams
+		}
 
-const resolveStreams = (streamIds, streams) =>
-	streamIds.map((id) => streams.find((stream) => stream.id === id)).filter((stream) => !!stream);
+		streams {
+			id
+			name
+			type
+			connector {
+				id
+			}
+		}
 
-const getMachines = (props) => {
-	const { machines } = props;
-	if (machines.isFetching || machines.receivedAt === 0) {
-		return [];
+		connectors {
+			name
+			id
+			type
+		}
 	}
-	const machineData = machines.data || [];
-	return machineData;
+`;
+
+const EXPORT_QUERY = `
+	query Export($machines: [ID!]!, $streams: [ID!]!) {
+		export(machines: $machines, streams: $streams) {
+			data
+			success
+		}
+	}
+`;
+
+const doExport = async (machines, streams, fileName) => {
+	try {
+		const result = await gatewayClient.graphql(EXPORT_QUERY, { machines, streams });
+		if (result.export.success) {
+			const blob = new Blob([JSON.stringify(result.export.data, null, 2)], {
+				type: 'text/plain;charset=utf8;'
+			});
+			saveAs(blob, fileName);
+			return true;
+		}
+	} catch (error) {
+		console.error(error);
+	}
+	return false;
 };
 
-const flatten = (arrays) => [].concat(...arrays);
+const selectionArray = (selectionObject) =>
+	Object.entries(selectionObject)
+		.filter(([, v]) => v === true)
+		.map(([k]) => k);
 
-const getStreams = (props) => {
-	const { streams } = props;
-	if (streams.fetching) {
-		return [];
+const selectionCount = (selectionObject) => selectionArray(selectionObject).length;
+
+const isSelectionEmpty = (selectionObject) => selectionCount(selectionObject) === 0;
+
+const toggleSelection = (selectionObject, key) => ({ ...selectionObject, [key]: !selectionObject[key] });
+
+const defaultFileName = (machines, selectedMachines, streams, selectedStreams) => {
+	if (selectionCount(selectedMachines) === 1) {
+		const selectedMachine = selectionArray(selectedMachines)[0];
+		const machine = machines.find((m) => m.id === selectedMachine);
+		return machine && machine.name;
+	} else if (isSelectionEmpty(selectedMachines) && selectionCount(selectedStreams) === 1) {
+		const selectedStream = selectionArray(selectedStreams)[0];
+		const stream = streams.find((s) => s.id === selectedStream);
+		return stream && stream.name;
 	}
-	const { connectors, consumers, producers } = streams;
-	return [...connectors, ...consumers, ...producers];
+	return undefined;
 };
 
 const sort = (resources) => resources.sort((r1, r2) => r1.name.localeCompare(r2.name));
 
-const setToggle = (set, value) => (set.has(value) ? set.delete(value) : set.add(value));
-
-const setAddAll = (set, values) => new Set([...set, ...values]);
-
-const setDeleteAll = (set, values) => {
-	values.forEach((value) => set.delete(value));
-	return set;
-};
-
-const limitSelectedToFiltered = (selectedSet, ids) => new Set([...selectedSet].filter((v) => ids.includes(v)));
-
-const getReferencedStreams = (machine) => {
-	const referencedStreamsArray = [].concat(
-		...machine.streamsheets.map((t) => {
-			const cells = Object.values(t.sheet.cells);
-			const cellStreamRefs = flatten(cells.filter((c) => !!c.references).map((c) => c.references))
-				.filter((ref) => ref.startsWith('|'))
-				.map((ref) => machine.namedCells[ref])
-				.filter((stream) => stream !== undefined)
-				.map((stream) => stream.value && stream.value.id);
-
-			const inboxStream = t.inbox.stream;
-			const inboxStreamRef = inboxStream && inboxStream.id ? [inboxStream.id] : [];
-			return [...cellStreamRefs, ...inboxStreamRef];
-		}),
-	);
-	return new Set(referencedStreamsArray);
-};
-
-const resolveWithDependencies = (streams, stream) => {
-	if (stream.connector) {
-		return [stream.id, stream.connector.id];
-	} else if (Array.isArray(stream.consumers)) {
-		return [stream.id].concat(
-			...stream.consumers.map((streamRef) => {
-				const consumer = streams.find((s) => s.id === streamRef.id);
-				return resolveWithDependencies(streams, consumer);
-			}),
-		);
+const StreamType = ({ stream }) => {
+	switch (stream.type) {
+		case 'producer':
+			return <FormattedMessage id="Stream.Producer" defaultMessage="Producer" />;
+		case 'consumer':
+			return <FormattedMessage id="Stream.Consumer" defaultMessage="Consumer" />;
+		case 'connector':
+			return <FormattedMessage id="Stream.Connector" defaultMessage="Connector" />;
+		default:
+			return '';
 	}
-	return [stream.id];
 };
 
-const DS_CLASS_NAME_MAPPING = {
-	ProducerConfiguration: 'Stream.Producer',
-	ConnectorConfiguration: 'Stream.Connector',
-	ConsumerConfiguration: 'Stream.Consumer',
+StreamType.propTypes = {
+	stream: PropTypes.shape({
+		type: PropTypes.string
+	}).isRequired
 };
 
-const prepareForDisplay = (resources, filterFunction) =>
-	sort(filterFunction(resources));
-class ExportComponent extends React.Component {
-	static getDerivedStateFromProps(nextProps, prevState) {
-		const { filterFunction } = prevState;
-		const filteredMachines = prepareForDisplay(getMachines(nextProps), filterFunction);
-		const filteredStreams = prepareForDisplay(getStreams(nextProps), filterFunction);
+const streamWithConnector = (streams, streamId) => {
+	const stream = streams.find((s) => s.id === streamId);
+	return stream ? { [stream.id]: true, [stream.connector.id]: true } : {};
+};
 
-		return { filteredMachines, filteredStreams };
-	}
+const identity = (x) => x;
 
-	constructor(props) {
-		super(props);
-		this.state = {
-			// eslint-disable-next-line
-			filterFunction: (r) => r,
-			selectedStreams: new Set(),
-			filteredMachines: getMachines(props),
-			filteredStreams: getStreams(props),
-			showDialog: false,
-		};
-	}
+const ExportComponent = (props) => {
+	const { data /* errors, loading */ } = useGraphQL(TABLE_QUERY);
+	const streams = data ? data.streams : [];
+	const connectors = data ? data.connectors : [];
+	const machines = data ? data.machines : [];
 
-	onUpdateFilter = (filterFunction) => {
-		const filteredMachines = prepareForDisplay(getMachines(this.props), filterFunction);
-		const filteredStreams = prepareForDisplay(getStreams(this.props), filterFunction);
-		this.setState({
-			filteredMachines,
-			filteredStreams,
-			// eslint-disable-next-line
-			filterFunction,
-		});
-	};
+	const [selectedMachines, setSelectedMachines] = useState(props.initialMachineSelection);
+	const [selectedStreams, setSelectedStreams] = useState({});
+	const [showDialog, setShowDialog] = useState(false);
+	const [filter, setFilter] = useState({ func: identity });
 
-	onSelectMachine = (machineId) => {
-		this.props.toggleMachineForExport(machineId);
-	};
+	const sortedStreams = useMemo(() => sort([...streams, ...connectors]), [streams, connectors]);
+	const sortedMachines = useMemo(() => sort(machines), [machines]);
 
-	onSelectStream = (streamId) => {
-		const { selectedStreams } = this.state;
-		setToggle(selectedStreams, streamId);
-		this.setState({ selectedStreams });
-	};
+	const filteredStreams = useMemo(() => filter.func(sortedStreams), [filter, sortedStreams]);
+	const filteredMachines = useMemo(() => {
+		return filter.func(sortedMachines);
+	}, [filter, sortedMachines]);
 
-	onSelectAllMachines = (event) => {
-		const { filteredMachines } = this.state;
-		const currentMachineIds = filteredMachines.map((m) => m.id);
-		if (event.target.checked) {
-			this.props.selectMachinesForExport(currentMachineIds);
-		} else {
-			this.props.deselectMachinesForExport(currentMachineIds);
-		}
-	};
-
-	onSelectAllStreams = (event) => {
-		const { selectedStreams, filteredStreams } = this.state;
-		const currentStreamIds = filteredStreams.map((m) => m.id);
-		const updatedSelection = event.target.checked
-			? setAddAll(selectedStreams, currentStreamIds)
-			: setDeleteAll(selectedStreams, currentStreamIds);
-
-		this.setState({ selectedStreams: updatedSelection });
-	};
-
-	onSelectLinkedStreams = (machineId) => {
-		const { filteredMachines } = this.state;
-		const machine = filteredMachines.find((m) => m.id === machineId);
+	const selectLinkedStreams = (machineId) => {
+		const machine = data.machines.find((m) => m.id === machineId);
 		if (machine) {
-			const { selectedStreams } = this.state;
-			const referencedStreams = getReferencedStreams(machine);
-
-			const allStreams = getStreams(this.props);
-
-			const existingReferences = allStreams.filter((stream) => referencedStreams.has(stream.id));
-			const referencesWithDependencies = [].concat(
-				...existingReferences.map((stream) => resolveWithDependencies(allStreams, stream)),
+			const newSelection = machine.referencedStreams.reduce(
+				(acc, cur) => ({ ...acc, ...streamWithConnector(data.streams, cur) }),
+				{}
 			);
-
-			const updatedSelection = setAddAll(selectedStreams, referencesWithDependencies);
-			this.setState({ selectedStreams: updatedSelection });
+			setSelectedStreams({ ...selectedStreams, ...newSelection });
 		}
 	};
 
-	onExport = async (event, fileName) => {
-		const { selectedStreams } = this.state;
-		const { selectedMachines } = this.props;
-		if (selectedStreams.size === 0 && selectedMachines.size === 0) {
+	const toggleStream = (streamId) => {
+		setSelectedStreams(toggleSelection(selectedStreams, streamId));
+	};
+
+	const toggleMachine = (machineId) => {
+		setSelectedMachines(toggleSelection(selectedMachines, machineId));
+	};
+
+	const toggleAllStreams = (event) => {
+		const isSelected = event.target.checked;
+		const selectionUpdate = filteredStreams.reduce((acc, cur) => ({ ...acc, [cur.id]: isSelected }), {});
+		setSelectedStreams({ ...selectedStreams, ...selectionUpdate });
+	};
+
+	const toggleAllMachines = (event) => {
+		const isSelected = event.target.checked;
+		const selectionUpdate = filteredMachines.reduce((acc, cur) => ({ ...acc, [cur.id]: isSelected }), {});
+		setSelectedMachines({ ...selectedMachines, ...selectionUpdate });
+	};
+
+	const onConfirmExport = async (event, filename) => {
+		setShowDialog(false);
+		const machinesToExport = selectionArray(selectedMachines);
+		const streamsToExport = selectionArray(selectedStreams);
+		const success = await doExport(machinesToExport, streamsToExport, filename);
+		if (!success) {
+			props.notifyExportFailed();
+		}
+	};
+
+	const onExportButton = async () => {
+		if (selectionCount(selectedStreams) === 0 && selectionCount(selectedMachines) === 0) {
 			return;
 		}
-		// TODO: should be part of exportMachineStreamDefinitions result
-		// as soon as migration to graphql is done
-		const streamIds = [...selectedStreams];
-		const streams = getStreams(this.props);
-		const streamsToExport = resolveStreams(streamIds, streams);
-
-		const missingConnectorIds = findMissingConnectors(streamIds, streamsToExport);
-		const missingConnectors = resolveStreams(missingConnectorIds, streams);
-		const exportedStreams = [...streamsToExport, ...missingConnectors];
-		exportedStreams.forEach((stream) => {
-			// TODO: Should not be part of the result.
-			delete stream.status;
-		});
-
-		this.props.doExport([...selectedMachines], exportedStreams, fileName);
+		setShowDialog(true);
 	};
 
-	getStreamTypeName = (stream) => {
-		const id = DS_CLASS_NAME_MAPPING[stream.className];
-		return this.props.intl.formatMessage({ id, defaultMessage: '' });
-	};
-
-	hideDialog = () => {
-		this.setState({ showDialog: false });
-	};
-
-	showDialog = () => {
-		this.setState({ showDialog: true });
-	};
-
-	selectLinkedStreamsColumn = {
+	const selectLinkedStreamsColumn = {
 		header: (
-			<Restricted type={RESOURCE_TYPES.STREAM} action={RESOURCE_ACTIONS.VIEW}>
-				<TableCell key="linkedStreamsButton" />
+			<Restricted type={RESOURCE_TYPES.STREAM} action={RESOURCE_ACTIONS.VIEW} key="selecteLinked">
+				<TableCell />
 			</Restricted>
 		),
 		cellCreator: (resource) => (
-			<Restricted type={RESOURCE_TYPES.STREAM} action={RESOURCE_ACTIONS.VIEW}>
-				<TableCell key="linkedStreamsButton">
+			<Restricted type={RESOURCE_TYPES.STREAM} action={RESOURCE_ACTIONS.VIEW} key="selecteLinked">
+				<TableCell>
 					<Tooltip
 						enterDelay={300}
 						title={
@@ -242,7 +210,7 @@ class ExportComponent extends React.Component {
 							// className={classes.toolIconDark}
 							onClick={(event) => {
 								event.stopPropagation();
-								this.onSelectLinkedStreams(resource.id);
+								selectLinkedStreams(resource.id);
 							}}
 							variant="contained"
 						>
@@ -251,169 +219,134 @@ class ExportComponent extends React.Component {
 					</Tooltip>
 				</TableCell>
 			</Restricted>
-		),
+		)
 	};
 
-	streamTypeColumn = {
-		header: <TableCell key="typeName">Type</TableCell>,
-		cellCreator: (resource) => {
-			const typeName = this.getStreamTypeName(resource);
-			return <TableCell key="typeName">{typeName}</TableCell>;
-		},
+	const streamTypeColumn = {
+		header: <TableCell key="type">Type</TableCell>,
+		cellCreator: (resource) => (
+			<TableCell key="type">
+				<StreamType stream={resource} />
+			</TableCell>
+		)
 	};
 
-	defaultFileName = () => {
-		if (this.props.selectedMachines.size === 1) {
-			const selectedMachineId = [...this.props.selectedMachines][0];
-			const selectedMachine = getMachines(this.props).find((m) => m.id === selectedMachineId);
-			return selectedMachine && selectedMachine.name;
-		} else if (this.props.selectedMachines.size === 0 && this.state.selectedStreams.size === 1) {
-			const selectedStreamId = [...this.state.selectedStreams][0];
-			const selectedStream = getStreams(this.props).find((stream) => stream.id === selectedStreamId);
-			return selectedStream && selectedStream.name;
-		}
-		return undefined;
-	};
-
-	render() {
-		const machines = this.state.filteredMachines;
-		const streams = this.state.filteredStreams;
-		const streamIds = streams.map((stream) => stream.id);
-		const machineIds = machines.map((m) => m.id);
-		const selectedStreams = limitSelectedToFiltered(this.state.selectedStreams, streamIds);
-		const selectedMachines = limitSelectedToFiltered(this.props.selectedMachines, machineIds);
-		return (
-			<ImportDropzone>
+	return (
+		<ImportDropzone>
+			<div
+				style={{
+					display: 'flex',
+					flexFlow: 'column',
+					height: '100%',
+					position: 'relative'
+				}}
+			>
+				{showDialog && (
+					<ExportDialog
+						open
+						onCancel={() => setShowDialog(false)}
+						onConfirm={onConfirmExport}
+						fileName={defaultFileName(sortedMachines, selectedMachines, sortedStreams, selectedStreams)}
+					/>
+				)}
+				<Fab
+					variant="round"
+					color="default"
+					style={{
+						position: 'absolute',
+						right: '48px',
+						bottom: '48px',
+						backgroundColor: Colors.blue[800],
+						color: 'white'
+					}}
+					onClick={onExportButton}
+				>
+					<ExportIcon />
+				</Fab>
+				<ResourceFilter
+					filterName
+					onUpdateFilter={(filterFunction) => {
+						if (filterFunction) {
+							setFilter({ func: filterFunction });
+						}
+					}}
+				/>
 				<div
 					style={{
+						flexGrow: 1,
+						height: 'inherit',
 						display: 'flex',
-						flexFlow: 'column',
-						height: '100%',
-						position: 'relative',
+						width: '100%',
+						justifyContent: 'space-around',
+						flexWrap: 'wrap',
+						overflowY: 'auto'
 					}}
 				>
-					{this.state.showDialog && (
-						<ExportDialog
-							open
-							onCancel={this.hideDialog}
-							onConfirm={(event, name) => {
-								this.hideDialog();
-								this.onExport(event, name);
+					<Restricted type={RESOURCE_TYPES.MACHINE} action={RESOURCE_ACTIONS.VIEW}>
+						<div
+							style={{
+								padding: '16px',
+								flexGrow: 1,
+								minWidth: '500px'
 							}}
-							fileName={this.defaultFileName()}
-						/>
-					)}
-					<Fab
-						variant="fab"
-						color="default"
-						style={{
-							position: 'absolute',
-							right: '48px',
-							bottom: '48px',
-							backgroundColor: Colors.blue[800],
-							color: 'white',
-						}}
-						onClick={this.showDialog}
-					>
-						<ExportIcon />
-					</Fab>
-					<ResourceFilter filterName onUpdateFilter={this.onUpdateFilter} />
-					<div
-						style={{
-							flexGrow: 1,
-							height: 'inherit',
-							display: 'flex',
-							width: '100%',
-							justifyContent: 'space-around',
-							flexWrap: 'wrap',
-							overflowY: 'auto',
-						}}
-					>
-						<Restricted type={RESOURCE_TYPES.MACHINE} action={RESOURCE_ACTIONS.VIEW}>
-							<div
+						>
+							<h2
 								style={{
-									padding: '16px',
-									flexGrow: 1,
-									minWidth: '500px',
+									display: 'inline-flex'
 								}}
 							>
-								<h2
-									style={{
-										display: 'inline-flex',
-									}}
-								>
-									<FormattedMessage id="Export.List.Machines.Title" defaultMessage="Machines" />
-								</h2>
-								<ExportTable
-									resources={machines}
-									selected={selectedMachines}
-									onSelectAll={this.onSelectAllMachines}
-									onSelect={this.onSelectMachine}
-									columns={[this.selectLinkedStreamsColumn]}
-								/>
-							</div>
-						</Restricted>
-						<Restricted type={RESOURCE_TYPES.STREAM} action={RESOURCE_ACTIONS.VIEW}>
-							<div
+								<FormattedMessage id="Export.List.Machines.Title" defaultMessage="Machines" />
+							</h2>
+							<ExportTable
+								resources={filteredMachines}
+								selected={selectedMachines}
+								onSelectAll={toggleAllMachines}
+								onSelect={toggleMachine}
+								columns={[selectLinkedStreamsColumn]}
+							/>
+						</div>
+					</Restricted>
+					<Restricted type={RESOURCE_TYPES.STREAM} action={RESOURCE_ACTIONS.VIEW}>
+						<div
+							style={{
+								padding: '16px',
+								flexGrow: 1,
+								minWidth: '500px'
+							}}
+						>
+							<h2
 								style={{
-									padding: '16px',
-									flexGrow: 1,
-									minWidth: '500px',
+									display: 'inline-flex'
 								}}
 							>
-								<h2
-									style={{
-										display: 'inline-flex',
-									}}
-								>
-									<FormattedMessage id="Export.List.Streams.Title" defaultMessage="Streams" />
-								</h2>
+								<FormattedMessage id="Export.List.Streams.Title" defaultMessage="Streams" />
+							</h2>
 
-								<ExportTable
-									resources={streams}
-									selected={selectedStreams}
-									onSelectAll={this.onSelectAllStreams}
-									onSelect={this.onSelectStream}
-									columns={[this.streamTypeColumn]}
-								/>
-							</div>
-						</Restricted>
-					</div>
+							<ExportTable
+								resources={filteredStreams}
+								selected={selectedStreams}
+								onSelectAll={toggleAllStreams}
+								onSelect={toggleStream}
+								columns={[streamTypeColumn]}
+							/>
+						</div>
+					</Restricted>
 				</div>
-			</ImportDropzone>
-		);
-	}
-}
-ExportComponent.propTypes = {
-	// eslint-disable-next-line react/no-typos
-	intl: intlShape.isRequired,
-	// eslint-disable-next-line
-	machines: PropTypes.object.isRequired,
-	// eslint-disable-next-line
-	streams: PropTypes.object.isRequired,
-	// eslint-disable-next-line
-	selectedMachines: PropTypes.instanceOf(Set).isRequired,
-	selectMachinesForExport: PropTypes.func.isRequired,
-	deselectMachinesForExport: PropTypes.func.isRequired,
-	toggleMachineForExport: PropTypes.func.isRequired,
-	doExport: PropTypes.func.isRequired,
+			</div>
+		</ImportDropzone>
+	);
 };
 
 function mapStateToProps(state) {
+	const [, , initialMachine] = state.router.location.pathname.split('/');
+	const initialMachineSelection = initialMachine ? { [initialMachine]: true } : {};
 	return {
-		machines: state.machines,
-		streams: state.streams,
-		selectedMachines: state.export.selectedMachines,
+		initialMachineSelection
 	};
 }
 
-function mapDispatchToProps(dispatch) {
-	return bindActionCreators({ ...Actions }, dispatch);
-}
+const mapDispatchToProps = {
+	notifyExportFailed
+};
 
-export default injectIntl(
-	connect(
-		mapStateToProps,
-		mapDispatchToProps,
-	)(ExportComponent),
-);
+export default connect(mapStateToProps, mapDispatchToProps)(ExportComponent);

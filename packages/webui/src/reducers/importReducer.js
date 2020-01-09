@@ -167,7 +167,7 @@ export default function importDataReducer(state = defaultImportDataState, action
 			const isConsumerProducer = stream && !!stream.connector;
 			const alsoUnselectConnector = isConsumerProducer && value !== 0;
 			const dependentConnector =
-				alsoUnselectConnector && state.importData.streams.find((s) => s.id === s.connector.id);
+				alsoUnselectConnector && state.importData.streams.find((s) => s.id === stream.connector.id);
 			const dependentConnectorSelection = dependentConnector ? { [dependentConnector.id]: 1 } : {};
 
 			return {

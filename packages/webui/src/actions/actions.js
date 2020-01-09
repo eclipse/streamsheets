@@ -67,17 +67,13 @@ export const {
 } = UserActions;
 
 export const {
+	notifyExportFailed,
 	showImportDialog,
 	closeImportDialog,
 	importMachinesAndStreams,
 	showStartImportDialog,
-	selectMachinesForExport,
-	deselectMachinesForExport,
-	toggleMachineForExport,
-	resetExport,
 	updateMachineSelection,
 	updateStreamSelection,
-	doExport,
 } = ImportExportActions;
 
 export const { restore, backup } = BackupRestoreActions;
@@ -412,7 +408,7 @@ export function machineDetailViewQuery() {
 	return async (dispatch) => {
 		const result = await gatewayClient.graphql(`
 		{
-			streams {
+			streamsLegacy {
 				name
 				id
 				className
@@ -423,7 +419,7 @@ export function machineDetailViewQuery() {
 
 		}
 		`);
-		dispatch(receiveStreams({ streams: result.streams }));
+		dispatch(receiveStreams({ streams: result.streamsLegacy }));
 	};
 }
 
@@ -450,6 +446,7 @@ export function getMe() {
 					username
 					lastName
 					firstName
+					admin
 					settings {
 						locale
 					}
@@ -850,13 +847,20 @@ export function openUser(user) {
 	return (dispatch) => dispatch(push(`/administration/user/${user.userId}`));
 }
 
-export function machineWithSameNameExists(machineId, name) {
-	return gatewayClient.getMachineDefinitionsByName(name).then((machines) => {
-		const oneMachineWithSameName = machines.length === 1;
-		const multipleMachinesWithSameName = machines.length > 1;
-		const sameMachine = machines.length === 1 && machines[0].id === machineId;
-		return multipleMachinesWithSameName || (oneMachineWithSameName && !sameMachine);
-	});
+export async function machineWithSameNameExists(machineId, name) {
+	const result = await gatewayClient.graphql(
+		`
+		query MachinesWithName($name: String) {
+			machines(name: $name) {
+				id
+				name
+			}
+		}
+	  `,
+		{ name }
+	);
+	const otherWithSameName = result.machines.filter(({ id }) => id === machineId);
+	return otherWithSameName.length > 0;
 }
 
 export function rename(machineId, newName) {
