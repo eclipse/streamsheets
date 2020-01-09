@@ -10,7 +10,7 @@ const initJSON = {
 	streams: []
 };
 files.forEach(file => {
-	json = JSON.parse(fs.readFileSync(path.join(INIT_DIRECTORY, file)).toString());
+	const json = JSON.parse(fs.readFileSync(path.join(INIT_DIRECTORY, file)).toString());
 	if (json.machines) {
 		initJSON.machines = [...initJSON.machines, ...json.machines];
 	}

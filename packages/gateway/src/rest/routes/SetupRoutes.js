@@ -13,7 +13,7 @@ const getInitJSON = (initDirectory) => {
 	try {
 		const files = fs.readdirSync(initDirectory);
 		files.forEach(file => {
-			json = JSON.parse(fs.readFileSync(path.join(initDirectory, file)).toString());
+			const json = JSON.parse(fs.readFileSync(path.join(initDirectory, file)).toString());
 			if (json.machines) {
 				initJSON.machines = [...initJSON.machines, ...json.machines];
 			}
