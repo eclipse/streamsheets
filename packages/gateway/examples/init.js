@@ -2,8 +2,22 @@ const config = require('../src/config');
 const fs = require('fs');
 const path = require('path');
 
-const INIT_FILE = path.join(__dirname, '..', 'config', 'init.json');
-const initJSON = JSON.parse(fs.readFileSync(INIT_FILE).toString());
+const INIT_DIRECTORY = path.join(__dirname, '..', 'config');
+
+const files = fs.readdirSync(INIT_DIRECTORY);
+const initJSON = {
+	machines: [],
+	streams: []
+};
+files.forEach(file => {
+	const json = JSON.parse(fs.readFileSync(path.join(INIT_DIRECTORY, file)).toString());
+	if (json.machines) {
+		initJSON.machines = [...initJSON.machines, ...json.machines];
+	}
+	if (json.streams) {
+		initJSON.streams = [...initJSON.streams, ...json.streams];
+	}
+});
 
 // eslint-disable-next-line
 process.env.MONGO_PORT = 27018;
