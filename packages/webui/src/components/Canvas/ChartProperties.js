@@ -442,26 +442,28 @@ export class ChartProperties extends Component {
 	}
 
 	getCurrentAxis() {
-		let axis = this.state.scales.xAxes.filter((laxis) => laxis.id === this.state.axisId);
+		let axis = this.chartNode.scales.xAxes.filter((laxis) => laxis.id === this.state.axisId);
 		if (axis.length) {
 			return axis[0];
 		}
-		axis = this.state.scales.yAxes.filter((laxis) => laxis.id === this.state.axisId);
 
+		axis = this.chartNode.scales.yAxes.filter((laxis) => laxis.id === this.state.axisId);
 		if (axis.length) {
 			return axis[0];
 		}
-		return undefined;
+
+		return this.chartNode.scales.xAxes[0];
+		// return undefined;
 	}
 
 	getCurrentXAxis() {
-		const axis = this.state.scales.xAxes.filter((laxis) => laxis.id === this.state.xAxisId);
-		return axis.length ? axis[0] : undefined;
+		const axis = this.chartNode.scales.xAxes.filter((laxis) => laxis.id === this.state.xAxisId);
+		return axis.length ? axis[0] : this.chartNode.scales.xAxes[0];
 	}
 
 	getCurrentYAxis() {
-		const axis = this.state.scales.yAxes.filter((laxis) => laxis.id === this.state.yAxisId);
-		return axis.length ? axis[0] : undefined;
+		const axis = this.chartNode.scales.yAxes.filter((laxis) => laxis.id === this.state.yAxisId);
+		return axis.length ? axis[0] : this.chartNode.scales.yAxes[0];
 	}
 
 	escFunction(event) {
@@ -485,7 +487,15 @@ export class ChartProperties extends Component {
 			return;
 		}
 		this.chartNode = item;
+
+		const yAxis = this.getCurrentYAxis();
+		const xAxis = this.getCurrentXAxis();
+		const axis = this.getCurrentAxis();
+
 		this.setState({
+			axisId: axis.id,
+			xAxisId: xAxis.id,
+			yAxisId: yAxis.id,
 			chartType: item.getChartType(),
 			dataRange: item.getDataRange()
 				? `=${item.getDataRange().toString({ item: this.getSheet(this.chartNode), useName: true })}`

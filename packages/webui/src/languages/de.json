@@ -544,6 +544,7 @@
 	"ChartProperties.Empty": "Leere Zellen ignorieren",
 	"ChartProperties.Zero": "Leere Zellen und 0-Werte ignorieren",
     "ChartProperties.lineWidth": "Breite",
+    "ChartProperties.lineStyle": "Stil",
 	"Settings.Debug": "Debug Modus",
 	"Settings.ExperimentalFeatures": "Experimentelle Features",
     "ToolsContainer": "Container",
