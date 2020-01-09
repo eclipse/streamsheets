@@ -3,7 +3,7 @@ const path = require('path');
 
 const httpError = require('http-errors');
 
-const INIT_DIRECTORY = path.join(__dirname, '..', 'config');
+const INIT_DIRECTORY = path.join(__dirname, '..', '..', '..', 'config');
 
 const getInitJSON = (initDirectory) => {
 	const initJSON = {
