@@ -61,12 +61,10 @@ const typeDefs = gql`
 		id: ID!
 		name: String!
 		previewImage: String
+		titleImage: String
 		state: String!
-<<<<<<< HEAD
-		streamSheets: [StreamSheet!]!
 		files: [String!]!
 		file(name: String!): String
-=======
 		metadata: MachineMetadata!
 		streamsheets: [StreamSheet!]!
 		referencedStreams: [ID!]!
@@ -89,7 +87,6 @@ const typeDefs = gql`
 	type MachineMetadata {
 		lastModified: Float!
 		owner: String
->>>>>>> graphql: Extend API for usage in Dashboard and Export
 	}
 
 	type UserSettings {

@@ -25,6 +25,7 @@ export const dashboardQuery = `
 			id
 			name
 			previewImage
+			titleImage
 		}
   }
 `;

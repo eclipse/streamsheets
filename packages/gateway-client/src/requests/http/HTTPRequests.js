@@ -55,69 +55,6 @@ class GraphQLHTTPRequest extends HTTPRequest {
 	}
 }
 
-class GetMachineDefinitionsHTTPRequest extends HTTPRequest {
-	_getPath() {
-		return '/machines';
-	}
-
-	_getConfig() {
-		return this._createGETConfig({}, this._createAuthHeader(this._token));
-	}
-}
-
-class GetMachineDefinitionsByNameHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, name) {
-		super(baseEndpoint, token);
-		this._name = name;
-	}
-
-	_getPath() {
-		return '/machines';
-	}
-
-	_getConfig() {
-		return this._createGETConfig({}, this._createAuthHeader(this._token));
-	}
-
-	_getQueryString() {
-		return `?name=${this._name}`;
-	}
-}
-
-class GetMachineDefinitionHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, machineId) {
-		super(baseEndpoint, token);
-		this._machineId = machineId;
-	}
-
-	_getPath() {
-		return `/machines/${this._machineId}`;
-	}
-
-	_getConfig() {
-		return this._createGETConfig({}, this._createAuthHeader(this._token));
-	}
-}
-
-class ExportMachineStreamHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, machineIds, streamIds) {
-		super(baseEndpoint, token);
-		this._exportData = { machineIds, streamIds };
-	}
-
-	_getPath() {
-		return '/export';
-	}
-
-	_getConfig() {
-		return this._createPOSTConfig(
-			this._exportData,
-			{},
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
 class ImportMachineHTTPRequest extends HTTPRequest {
 	constructor(baseEndpoint, token, importData, importAsNew) {
 		super(baseEndpoint, token);
@@ -185,74 +122,11 @@ class RestoreHTTPRequest extends HTTPRequest {
 	}
 }
 
-class SaveMachineDefinitionHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, machineDefinition) {
-		super(baseEndpoint, token);
-		this._machineDefinition = machineDefinition;
-	}
-
-	_getPath() {
-		return '/machines';
-	}
-
-	_getConfig() {
-		return this._createPOSTConfig(
-			this._machineDefinition,
-			{},
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
-class UpdateMachineDefinitionHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, machineId, machine) {
-		super(baseEndpoint, token);
-		this._machineId = machineId;
-		this._machine = machine;
-	}
-
-	_getPath() {
-		return `/machines/${this._machineId}`;
-	}
-
-	_getConfig() {
-		return this._createPUTConfig(
-			this._machine,
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
-class DeleteMachineDefinitionHTTPRequest extends HTTPRequest {
-	constructor(baseEndpoint, token, machineId) {
-		super(baseEndpoint, token);
-		this._machineId = machineId;
-	}
-
-	_getPath() {
-		return `/machines/${this._machineId}`;
-	}
-
-	_getConfig() {
-		return this._createDELETEConfig(
-			{},
-			this._createAuthHeader(this._token)
-		);
-	}
-}
-
 module.exports = {
 	BackupHTTPRequest,
 	AuthenticateHTTPRequest,
-	DeleteMachineDefinitionHTTPRequest,
-	ExportMachineStreamHTTPRequest,
-	GetMachineDefinitionHTTPRequest,
-	GetMachineDefinitionsHTTPRequest,
-	GetMachineDefinitionsByNameHTTPRequest,
 	GetMetaInformationHTTPRequest,
 	GraphQLHTTPRequest,
 	ImportMachineHTTPRequest,
-	RestoreHTTPRequest,
-	SaveMachineDefinitionHTTPRequest,
-	UpdateMachineDefinitionHTTPRequest
+	RestoreHTTPRequest
 };

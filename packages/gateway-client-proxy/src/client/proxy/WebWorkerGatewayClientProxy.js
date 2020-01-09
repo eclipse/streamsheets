@@ -65,38 +65,6 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('graphql', query, variables);
 	}
 
-	getMachineDefinitions() {
-		return this._proxy('getMachineDefinitions');
-	}
-
-	getMachineDefinitionsByName(name) {
-		return this._proxy('getMachineDefinitionsByName', name);
-	}
-
-	getMachineDefinition(machineId) {
-		return this._proxy('getMachineDefinition', machineId);
-	}
-
-	saveMachineDefinition(machine) {
-		return this._proxy('saveMachineDefinition', machine);
-	}
-
-	updateMachineDefinition(machineId, machine) {
-		return this._proxy('updateMachineDefinition', machineId, machine);
-	}
-
-	deleteMachineDefinition(machineId) {
-		return this._proxy('deleteMachineDefinition', machineId);
-	}
-
-	exportMachineStreamDefinitions(machineIds, streamIds) {
-		return this._proxy(
-			'exportMachineStreamDefinitions',
-			machineIds,
-			streamIds
-		);
-	}
-
 	importMachineDefinition(importData, importAsNew) {
 		return this._proxy('importMachineDefinition', importData, importAsNew);
 	}

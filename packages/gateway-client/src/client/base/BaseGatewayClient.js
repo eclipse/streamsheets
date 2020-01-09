@@ -347,36 +347,25 @@ module.exports = class BaseGatewayClient {
 	 * *********************************************
 	 */
 
-	getMachineDefinitions(query) {
-		return this.http.getMachineDefinitions(query);
-	}
-
-	getMachineDefinitionsByName(name) {
-		return this.http.getMachineDefinitionsByName(name);
-	}
-
-	getMachineDefinition(machineId) {
-		return this.http.getMachineDefinition(machineId);
-	}
-
-	saveMachineDefinition(machineDefinition) {
-		return this.http.saveMachineDefinition(machineDefinition);
-	}
-
-	updateMachineDefinition(machineId, machine) {
-		return this.http.updateMachineDefinition(machineId, machine);
-	}
-
-	deleteMachineDefinition(machineId) {
-		return this.http.deleteMachineDefinition(machineId);
-	}
-
-	exportMachineStreamDefinitions(machineIds, streamIds) {
-		return this.http.exportMachine(machineIds, streamIds);
-	}
-
 	importMachineDefinition(importData, importAsNew) {
 		return this.http.importMachine(importData, importAsNew);
+	}
+
+	async exportMachineDefinition(machineId) {
+		const query = `
+			query Export($machines: [ID!]!) {
+				export(machines: $machines, streams: []) {
+					data
+					success
+					code
+				}
+			}
+		`;
+		const result = await this.graphql(query, {machines: [machineId]});
+		if(!result.export.success) {
+			throw new Error(result.export.code);
+		}
+		return result.export.data;
 	}
 
 	backup() {
@@ -388,7 +377,7 @@ module.exports = class BaseGatewayClient {
 	}
 
 	cloneMachine(machineId, newNameSuffix = 'Copy') {
-		return this.exportMachineStreamDefinitions([machineId], []).then(
+		return this.exportMachineDefinition(machineId).then(
 			(exportedMachines) => {
 				const importData = exportedMachines.machines[0];
 				importData.machine.name += ` ${newNameSuffix}`;
@@ -558,10 +547,7 @@ module.exports = class BaseGatewayClient {
 
 	saveMachineAs(originalMachineId, newMachineName) {
 		// return this.socket.saveMachineAs(originalMachineId, newMachineName);
-		return this.exportMachineStreamDefinitions(
-			[originalMachineId],
-			[]
-		).then((exportedMachines) => {
+		return this.exportMachineDefinition(originalMachineId).then((exportedMachines) => {
 			const importData = exportedMachines.machines[0];
 			importData.machine.name = newMachineName;
 			return this.importMachineDefinition(importData, true);

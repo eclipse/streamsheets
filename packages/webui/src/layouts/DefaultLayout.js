@@ -60,6 +60,7 @@ export class DefaultLayout extends React.Component {
 					id
 					lastModified
 					previewImage
+					titleImage
 					streamSheets {
 						name
 					}

@@ -147,26 +147,6 @@ describe('GatewayClient', () => {
 				});
 		});
 	});
-	describe('getMachineDefinitions()', () => {
-		it('should return a list of all machines', (done) => {
-			const client = new GatewayClient({ name: 'Test gateway client' });
-			client.on(MACHINE_SERVER_CONNECTED_EVENT, async () => {
-				await client.loadMachine(TEMPLATE_ID);
-				const machines = await client.getMachineDefinitions()
-				expect(machines).toBeDefined();
-				expect(machines.length).toBeGreaterThan(0);
-				machines.forEach((machine) => {
-					expect(machine.id).toBeDefined();
-					expect(machine.name).toBeDefined();
-					expect(machine.state).toBeDefined();
-					expect(machine.isTemplate).toBeDefined();
-					expect(machine.isTemplate).toBe(false);
-				});
-				done();
-			});
-			return client.connect(CONFIG);
-		});
-	});
 	describe('getMachine()', () => {
 		it('should return a machine for the given id', (done) => {
 			const client = new GatewayClient({ name: 'Test gateway client' });
@@ -187,74 +167,6 @@ describe('GatewayClient', () => {
 						expect(response.graphserver.graph).toBeDefined();
 						expect(response.graphserver.graph.id).toBeDefined();
 						expect(response.graphserver.graph.graphdef).toBeDefined();
-					})
-					.then(() => client.disconnect())
-					.then(done);
-			});
-			return client.connect(CONFIG);
-		});
-	});
-	describe('getMachineDefinition()', () => {
-		it('should return a machine definition for the given id', (done) => {
-			const client = new GatewayClient({ name: 'Test gateway client' });
-			client.on(MACHINE_SERVER_CONNECTED_EVENT, () => {
-				client.getMachineDefinitions()
-					.then(machines => machines[0])
-					.then(machine => client.getMachineDefinition(machine.id))
-					.then((response) => {
-						expect(response.id).toBeDefined();
-						expect(response.name).toBeDefined();
-						expect(response.isTemplate).toBeDefined();
-						expect(response.isTemplate).toBe(false);
-						expect(response.state).toBeDefined();
-						expect(response.streamsheets).toBeDefined();
-					})
-					.then(() => client.disconnect())
-					.then(done);
-			});
-			return client.connect(CONFIG);
-		});
-	});
-	describe('saveMachineDefinition()', () => {
-		it.skip('should save a machine', (done) => {
-			const client = new GatewayClient({ name: 'Test gateway client' });
-			client.on(MACHINE_SERVER_CONNECTED_EVENT, () => {
-				const id = shortid.generate();
-				const machine = {
-					id: shortid.generate(),
-					name: `machine-${id}`,
-					state: 'stopped',
-					isTemplate: false,
-					streamsheets: []
-				};
-				client.saveMachineDefinition(machine)
-					.then((response) => {
-						console.error(response);
-					})
-					.then(() => client.disconnect())
-					.then(done);
-			});
-			return client.connect(CONFIG);
-		});
-	});
-	describe('updateMachineDefinition()', () => {
-		it('should update a machine definition', (done) => {
-			const client = new GatewayClient({ name: 'Test gateway client' });
-			client.on(MACHINE_SERVER_CONNECTED_EVENT, () => {
-				client.getMachineDefinitions()
-					.then(machines => machines[0])
-					.then((machine) => {
-						const randomName = `machine-${Math.random()}`;
-						machine.name = randomName;
-						return client.updateMachineDefinition(machine.id, machine)
-							.then((updatedMachine) => {
-								expect(updatedMachine.id).toBeDefined();
-								expect(updatedMachine.name).toBeDefined();
-								expect(updatedMachine.name).toBe(machine.name);
-								expect(updatedMachine.state).toBeDefined();
-								expect(updatedMachine.isTemplate).toBeDefined();
-								expect(updatedMachine.streamsheets).toBeDefined();
-							});
 					})
 					.then(() => client.disconnect())
 					.then(done);
@@ -287,22 +199,6 @@ describe('GatewayClient', () => {
 					})
 					.then(() => client.disconnect())
 					.then(done);
-			});
-			return client.connect(CONFIG);
-		});
-		it('should increase the numnber of all machines', (done) => {
-			const client = new GatewayClient({ name: 'Test gateway client' });
-			client.on(MACHINE_SERVER_CONNECTED_EVENT, () => {
-				client.getMachineDefinitions()
-					.then((machines) => {
-						client.loadMachine(TEMPLATE_ID)
-							.then(() => client.getMachineDefinitions())
-							.then((updatedMachines) => {
-								expect(updatedMachines.length).toBe(machines.length + 1);
-							})
-							.then(() => client.disconnect())
-							.then(done);
-					});
 			});
 			return client.connect(CONFIG);
 		});
@@ -347,30 +243,6 @@ describe('GatewayClient', () => {
 			return client.connect(CONFIG);
 		});
 	});
-	describe('exportMachineDefinition()', () => {
-		it('should export a machine definition', (done) => {
-			const client = new GatewayClient({ name: 'Test gateway client' });
-			client.on(MACHINE_SERVER_CONNECTED_EVENT, async () => {
-				const response = await client.loadMachine(TEMPLATE_ID);
-				const machine = response.machineserver.machine;
-				const exportResponse = await client.exportMachineDefinition(machine.id);
-				expect(exportResponse.machine).toBeDefined();
-				expect(exportResponse.machine.id).toBeDefined();
-				expect(exportResponse.machine.name).toBeDefined();
-				expect(exportResponse.machine.isTemplate).toBeDefined();
-				expect(exportResponse.machine.isTemplate).toBe(false);
-				expect(exportResponse.machine.state).toBeDefined();
-				expect(exportResponse.machine.streamsheets).toBeDefined();
-				expect(exportResponse.graph).toBeDefined();
-				expect(exportResponse.graph.id).toBeDefined();
-				expect(exportResponse.graph.graphdef).toBeDefined();
-				expect(exportResponse.graph.machineId).toBeDefined();
-				await client.disconnect();
-				done();
-			});
-			return client.connect(CONFIG);
-		});
-	});
 	describe('loadMachine()', () => {
 		it('should load the machine for the given id', (done) => {
 			const client = new GatewayClient({ name: 'Test gateway client' });
@@ -401,8 +273,8 @@ describe('GatewayClient', () => {
 		it('should start the machine for the given id', (done) => {
 			const client = new GatewayClient({ name: 'Test gateway client' });
 			client.on(MACHINE_SERVER_CONNECTED_EVENT, () => {
-				client.getMachineDefinitions()
-					.then(machines => machines[0])
+				client.graphql('{machines{id}}')
+					.then(({machines}) => machines[0])
 					.then(machine => client.startMachine(machine.id))
 					.then((response) => {
 						expect(response.type).toBe('response');
@@ -424,8 +296,8 @@ describe('GatewayClient', () => {
 		it('should stop the machine for the given id', (done) => {
 			const client = new GatewayClient({ name: 'Test gateway client' });
 			client.on(MACHINE_SERVER_CONNECTED_EVENT, () => {
-				client.getMachineDefinitions()
-					.then(machines => machines[0])
+				client.graphql('{machines{id}}')
+					.then(({machines}) => machines[0])
 					.then(machine => client.stopMachine(machine.id))
 					.then((response) => {
 						expect(response.type).toBe('response');
@@ -447,8 +319,8 @@ describe('GatewayClient', () => {
 		it('should pause the machine for the given id', (done) => {
 			const client = new GatewayClient({ name: 'Test gateway client' });
 			client.on(MACHINE_SERVER_CONNECTED_EVENT, () => {
-				client.getMachineDefinitions()
-					.then(machines => machines[0])
+				client.graphql('{machines{id}}')
+					.then(({machines}) => machines[0])
 					.then(machine => client.pauseMachine(machine.id))
 					.then((response) => {
 						expect(response.type).toBe('response');
@@ -496,8 +368,8 @@ describe('GatewayClient', () => {
 		it('should step the machine for the given id', (done) => {
 			const client = new GatewayClient({ name: 'Test gateway client' });
 			return client.connect(CONFIG)
-				.then(() => client.getMachineDefinitions())
-				.then(machines => machines[0])
+				.then(() => client.graphql('{machines{id}}'))
+				.then(({machines}) => machines[0])
 				.then(machine => client.pauseMachine(machine.id))
 				.then(response => client.stepMachine(response.machineserver.machine.id))
 				.then((response) => {

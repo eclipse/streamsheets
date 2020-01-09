@@ -9,7 +9,6 @@ const upload = multer({ dest: 'backups/' });
 const IndexRoutes = require('./routes/IndexRoutes');
 const ErrorRoutes = require('./routes/ErrorRoutes');
 const ExportImportRoutes = require('./routes/ExportImportRoutes');
-const MachineRoutes = require('./routes/MachineRoutes');
 const AuthRoutes = require('./routes/AuthRoutes');
 const MetaInformationRoutes = require('./routes/MetaInformationRoutes');
 const BackupRestoreRoutes = require('./routes/BackupRestoreRoutes');
@@ -28,24 +27,6 @@ module.exports = class APIRouter extends Router {
 		this.get('/healthcheck', (request, response) => {
 			response.status(200).json({});
 		});
-		this.all(
-			'/machines',
-			passport.authenticate('jwt', { session: false }),
-			bodyParser.json({ inflate: true, strict: true }),
-			MachineRoutes.machines
-		);
-		this.all(
-			'/machines/overview',
-			passport.authenticate('jwt', { session: false }),
-			bodyParser.json({ inflate: true, strict: true }),
-			MachineRoutes.machinesOverview
-		);
-		this.all(
-			'/machines/:machineId',
-			passport.authenticate('jwt', { session: false }),
-			bodyParser.json({ inflate: true, strict: true }),
-			MachineRoutes.machine
-		);
 
 		this.all(
 			'/backup',
@@ -61,24 +42,10 @@ module.exports = class APIRouter extends Router {
 		);
 
 		this.all(
-			'/export',
-			passport.authenticate('jwt', { session: false }),
-			bodyParser.json({ inflate: true, strict: true }),
-			ExportImportRoutes.export
-		);
-
-		this.all(
 			'/import',
 			passport.authenticate('jwt', { session: false }),
 			bodyParser.json({ inflate: true, strict: true, limit: '50mb' }),
 			ExportImportRoutes.import
-		);
-
-		this.all(
-			'/exportall',
-			passport.authenticate('jwt', { session: false }),
-			bodyParser.json({ inflate: true, strict: true }),
-			ExportImportRoutes.exportAll
 		);
 
 		this.post(

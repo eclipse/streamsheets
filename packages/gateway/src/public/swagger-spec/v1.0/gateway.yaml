@@ -485,156 +485,6 @@ paths:
         404:
           description: The requested translation file is not available
 
-  /machines:
-    get:
-      security:
-        - JWT: []
-      summary: Get all machines.
-      description: |
-        The machines endpoint returns information about the machines that are
-        available at a given location.
-      tags:
-        - machines
-      responses:
-        200:
-          description: An array of machines.
-          schema:
-            $ref: '#/definitions/Machines'
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
-    post:
-      security:
-        - JWT: []
-      summary: Create a new machine.
-      description: Create a new machine.
-      tags:
-        - machines
-      parameters:
-        - $ref: "#/parameters/machine"
-      responses:
-        "200":
-          description: Machine response.
-          schema:
-            $ref: '#/definitions/Machine'
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
-  /machines/{machineId}:
-    get:
-      security:
-        - JWT: []
-      summary: Get a single machine.
-      description: Returns a machine based on a single ID.
-      parameters:
-        - $ref: "#/parameters/machineId"
-      tags:
-        - machines
-      responses:
-        "200":
-          description: Machine response.
-          schema:
-            $ref: '#/definitions/Machine'
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
-    put:
-      security:
-        - JWT: []
-      summary: Update a machine.
-      description: Update a machine.
-      parameters:
-        - $ref: "#/parameters/machineId"
-        - $ref: "#/parameters/machine"
-      tags:
-        - machines
-      responses:
-        "204":
-          description: Machine updated.
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
-
-  /machines/{machineId}/processsheets:
-    parameters:
-      - $ref: '#/parameters/machineId'
-    get:
-      security:
-        - JWT: []
-      summary: Get list of processsheets by machineId
-      description: Returns a list of processsheets by machineId.
-      tags:
-        - machines
-        - processsheets
-      responses:
-        200:
-          description: List of processsheets by machineId.
-    post:
-      parameters:
-        - $ref: '#/parameters/processsheet'
-      security:
-        - JWT: []
-      summary: Create new processsheet
-      tags:
-        - machines
-        - processsheets
-      responses:
-        201:
-          description: Processsheet successfully created.
-
-  /machines/{machineId}/settings:
-    parameters:
-      - $ref: '#/parameters/machineId'
-    get:
-      security:
-        - JWT: []
-      summary: Get settings by machineId
-      description: Returns settings by machineId.
-      tags:
-        - machines
-        - settings
-      responses:
-        200:
-          description: Settings by machineId.
-    put:
-      parameters:
-        - $ref: '#/parameters/machineSetting'
-      security:
-        - JWT: []
-      summary: Upsert settings by machineId
-      description: Returns settings by machineId.
-      tags:
-        - machines
-        - settings
-      responses:
-        200:
-          description: Settings by machineId.
-    options:
-      summary: CORS
-      tags:
-        - settings
-        - machines
-      responses:
-        200:
-          description: empty
-
-  /processsheets:
-    get:
-      security:
-        - JWT: []
-      summary: Get list of all processsheets
-      description: Returns a list of all processsheets.
-      tags:
-        - machines
-        - processsheets
-      responses:
-        200:
-          description: List of processsheets.
-
   /graphql:
     get:
       security:
@@ -678,24 +528,6 @@ paths:
       responses:
         201:
           description: Setup data.
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
-
-  /export:
-    post:
-      security:
-        - JWT: []
-      summary: Get the export data for a machine.
-      description: This endpoint returns the export data for machines.
-      parameters:
-        - $ref: "#/parameters/exportData"
-      tags:
-        - machines
-      responses:
-        200:
-          description: Export data for a machine.
         default:
           description: Unexpected error.
           schema:
@@ -746,22 +578,6 @@ paths:
           description: Created
         400:
           description: Failed
-
-  /exportall:
-    get:
-      security:
-        - JWT: []
-      summary: Get the export data for all machines.
-      description: This endpoint returns the export data for all machines.
-      tags:
-        - machines
-      responses:
-        200:
-          description: Export data for all machines.
-        default:
-          description: Unexpected error.
-          schema:
-            $ref: '#/definitions/Error'
 
   /processsheets/{processsheetId}:
     parameters:
@@ -1298,14 +1114,6 @@ parameters:
     required: true
     schema:
       $ref: '#/definitions/ImportData'
-  
-  exportData:
-    name: exportData
-    in: body
-    description: The export
-    required: true
-    schema:
-      $ref: '#/definitions/ExportData'
 
   setupData:
     name: setupData

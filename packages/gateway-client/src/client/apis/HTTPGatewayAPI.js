@@ -3,17 +3,10 @@
 const GatewayAPI = require('./GatewayAPI');
 const {
 	BackupHTTPRequest,
-	DeleteMachineDefinitionHTTPRequest,
-	ExportMachineStreamHTTPRequest,
-	GetMachineDefinitionHTTPRequest,
-	GetMachineDefinitionsHTTPRequest,
-	GetMachineDefinitionsByNameHTTPRequest,
 	GetMetaInformationHTTPRequest,
 	GraphQLHTTPRequest,
 	ImportMachineHTTPRequest,
 	RestoreHTTPRequest,
-	SaveMachineDefinitionHTTPRequest,
-	UpdateMachineDefinitionHTTPRequest,
 	AuthenticateHTTPRequest
 } = require('../../requests/http/HTTPRequests');
 
@@ -49,24 +42,6 @@ module.exports = class HTTPGatewayAPI extends GatewayAPI {
 		);
 	}
 
-	getMachineDefinitions(query) {
-		if (query) {
-			return this.sendRequest(
-				new GraphQLHTTPRequest(
-					this._restEndpointURL,
-					this._token,
-					query
-				)
-			).then((result) => result.machines);
-		}
-		return this.sendRequest(
-			new GetMachineDefinitionsHTTPRequest(
-				this._restEndpointURL,
-				this._token
-			)
-		);
-	}
-
 	graphql(query, variables) {
 		return this.sendRequest(
 			new GraphQLHTTPRequest(
@@ -74,68 +49,6 @@ module.exports = class HTTPGatewayAPI extends GatewayAPI {
 				this._token,
 				query,
 				variables
-			)
-		);
-	}
-
-	getMachineDefinitionsByName(name) {
-		return this.sendRequest(
-			new GetMachineDefinitionsByNameHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				name
-			)
-		);
-	}
-
-	getMachineDefinition(machineId) {
-		return this.sendRequest(
-			new GetMachineDefinitionHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				machineId
-			)
-		);
-	}
-
-	saveMachineDefinition(machineDefinition) {
-		return this.sendRequest(
-			new SaveMachineDefinitionHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				machineDefinition
-			)
-		);
-	}
-
-	updateMachineDefinition(machineId, machine) {
-		return this.sendRequest(
-			new UpdateMachineDefinitionHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				machineId,
-				machine
-			)
-		);
-	}
-
-	deleteMachineDefinition(machineId) {
-		return this.sendRequest(
-			new DeleteMachineDefinitionHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				machineId
-			)
-		);
-	}
-
-	exportMachine(machineIds, streamIds) {
-		return this.sendRequest(
-			new ExportMachineStreamHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				machineIds,
-				streamIds
 			)
 		);
 	}

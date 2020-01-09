@@ -8,18 +8,8 @@ const fixName = (name, existingNames, count = 1) => {
 	return existingNames.has(newName) ? fixName(name, existingNames, count + 1) : newName;
 };
 
-const filterRejected = (promises) =>
-	promises.reduce(async (pResults, p) => {
-		const results = await pResults;
-		try {
-			const result = await p;
-			return [...results, result];
-		} catch (e) {
-			return results;
-		}
-	}, Promise.resolve([]));
-
 module.exports = class ExportImportRoutes {
+<<<<<<< HEAD
 	static async export(request, response, next) {
 		const { machineRepository, graphRepository } = request.app.locals.RepositoryManager;
 		switch (request.method) {
@@ -55,6 +45,8 @@ module.exports = class ExportImportRoutes {
 				break;
 		}
 	}
+=======
+>>>>>>> gateway(-clients): Remove machine+export rest api in favor of gql
 
 	static async import(request, response, next) {
 		const { machineRepository, graphRepository } = request.app.locals.RepositoryManager;
@@ -116,32 +108,6 @@ module.exports = class ExportImportRoutes {
 				next(new httpError.MethodNotAllowed());
 				break;
 			}
-		}
-	}
-
-	static exportAll(request, response, next) {
-		const { machineRepository, graphRepository } = request.app.locals.RepositoryManager;
-		switch (request.method) {
-			case 'GET':
-				machineRepository
-					.getMachines()
-					.then((machines) => {
-						const promises = machines.map((machine) =>
-							graphRepository.findGraphByMachineId(machine.id).then((graph) => ({
-								machine,
-								graph
-							}))
-						);
-						Promise.all(promises)
-							.then((result) => response.status(200).json(result))
-							.catch(next);
-					})
-					.catch(next);
-				break;
-			default:
-				response.set('allow', 'GET');
-				next(new httpError.MethodNotAllowed());
-				break;
 		}
 	}
 };
