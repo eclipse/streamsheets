@@ -910,7 +910,8 @@ module.exports = class DataProvider {
 										operand.setItem(targetRange.getSheet());
 									}
 								}
-								if (absolute === false || targetRange.getSheet() === rangeSheet) {
+								if (absolute === false || targetRange.getSheet() === rangeSheet ||
+									(data.cut && absolute && targetRange.getSheet() !== rangeSheet)) {
 									if (range._x1R || absolute) {
 										range._x1 += xOff;
 									}
