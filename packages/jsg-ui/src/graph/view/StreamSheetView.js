@@ -581,6 +581,11 @@ export default class StreamSheetView extends WorksheetView {
 							notification.event.detailId !== 'attribute.add' &&
 							notification.event._attribute.getName() !== 'sheetformula'
 						) {
+							const item = notification.object.model;
+							const sheet = this.getItem().getContainer(item, item.getParent());
+							if (sheet !== this.getItem()) {
+								return;
+							}
 							this.updateGraphItem(this.getItem(), notification.object.model);
 						}
 						break;
@@ -590,9 +595,15 @@ export default class StreamSheetView extends WorksheetView {
 					case Event.BBOX:
 					case Event.SIZE:
 					case Event.ANGLE:
-					case Event.CUSTOM:
+					case Event.CUSTOM: {
+						const item = notification.event.source;
+						const sheet = this.getItem().getContainer(item, item.getParent());
+						if (sheet !== this.getItem()) {
+							return;
+						}
 						this.updateGraphItem(this.getItem(), notification.event.source);
 						break;
+					}
 					default:
 						break;
 				}
