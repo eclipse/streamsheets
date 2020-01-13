@@ -64,12 +64,12 @@ module.exports = {
 		},
 		VLOOKUP: {
 			en: {
-				argumentList: 'Value,Range,Index,ExactMatch',
+				argumentList: 'Value,Range,Index,RangeLookup',
 				description:
 					'Looks in the first column of an array and moves across the row to return the value of a cell'
 			},
 			de: {
-				argumentList: 'Wert,Bereich,Index,ExakteÜbereinstimmung',
+				argumentList: 'Wert,Bereich,Index,BereichVerweis',
 				description:
 					'Ermittelt die Zelle mit einem Index in einem Bereich, die dem Wert in der ersten Spalte entspricht'
 			}
