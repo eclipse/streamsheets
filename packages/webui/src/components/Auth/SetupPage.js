@@ -403,10 +403,11 @@ class SetupPage extends React.Component {
 										<Grid
 											container
 											irection="column"
-											style={{ height: "100%" }}
+											style={{ height: "70%" }}
 										>
 											<Grid
 												item xs={12}
+												style={{ height: "80%" }}
 											>
 												<Typography>
 													{this.getStepContent(this.state.activeStep)}
@@ -414,6 +415,7 @@ class SetupPage extends React.Component {
 											</Grid>
 											<Grid
 												item xs={12}
+												style={{ height: "20%" }}
 											>
 												<FormControl className={classes.formControl}>
 													<Select
