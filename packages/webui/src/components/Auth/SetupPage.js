@@ -400,15 +400,21 @@ class SetupPage extends React.Component {
 									// 	</div>
 									// ) : 
 									(
-										<div>
-											<div style={{height: '400px'}}>
+										<Grid
+											container
+											irection="column"
+											style={{ height: "100%" }}
+										>
+											<Grid
+												item xs={12}
+											>
 												<Typography>
 													{this.getStepContent(this.state.activeStep)}
 												</Typography>
-											</div>
-											<div style={{
-												padding: '20px',
-											}}>
+											</Grid>
+											<Grid
+												item xs={12}
+											>
 												<FormControl className={classes.formControl}>
 													<Select
 														value={this.state.localeSetup}
@@ -455,8 +461,8 @@ class SetupPage extends React.Component {
 														? <FormattedMessage id="Setup.Finish" defaultMessage="Finish" />
 														: <FormattedMessage id="Setup.Next" defaultMessage="Next" />}
 												</Button>
-											</div>
-										</div>
+											</Grid>
+										</Grid>
 									)}
 								</Paper>
 							</Paper>
