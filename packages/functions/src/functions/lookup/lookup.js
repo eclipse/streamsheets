@@ -1,5 +1,5 @@
 const {
-	excel,
+	Criterion,
 	runFunction,
 	sheet: sheetutils,
 	terms: { getCellRangeFromTerm, getCellRangesFromTerm }
@@ -161,11 +161,11 @@ const findFirstEqual = (range, pivot) => {
 	let matchidx = 0;
 	if (pivot != null) {
 		let relidx = 0;
-		const regex = typeof pivot === 'string' ? excel.toExcelRegEx(pivot) : null;
+		const criterion = typeof pivot === 'string' ? Criterion.ofMatch(pivot) : null;
 		range.some((cell) => {
 			relidx += 1;
 			const value = cell && cell.value;
-			matchidx = (regex && regex.test(value)) || value === pivot ? relidx : 0;
+			matchidx = (criterion && criterion.isFulFilledBy(value)) || value === pivot ? relidx : 0;
 			return matchidx > 0;
 		});
 	}
@@ -245,6 +245,7 @@ const doLookup = (search, range, exactly) => {
 	let lastValue;
 	const firstcol = range.start.col;
 	const searchType = typeof search;
+	const criterion = !exactly && Criterion.ofMatch(convert.toString(search));
 	range.someByCol((cell, idx) => {
 		let stop = idx.col > firstcol;
 		if (!stop && cell) {
@@ -254,7 +255,7 @@ const doLookup = (search, range, exactly) => {
 				lastIndex = idx.copy();
 				// eslint-disable-next-line
 			} else if (!exactly && searchType === typeof value) {
-				if (excel.wmatch(convert.toString(value), convert.toString(search))) {
+				if (criterion && criterion.isFulFilledBy(convert.toString(value))) {
 					stop = true;
 					lastIndex = idx.copy();
 				} else if (value < search) {
