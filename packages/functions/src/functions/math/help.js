@@ -98,6 +98,29 @@ module.exports = {
 			en: { argumentList: 'Range', description: 'Sums up all values in given range' },
 			de: { argumentList: 'Bereich', description: 'Summiert die Zahlen im angegebenen Bereich auf' }
 		},
+		SUMIF: {
+			en: {
+				argumentList: 'CellRange,Criterion,SumRange',
+				description:
+					'Returns the sum of all values in provided CellRange or SumRange if given, which fulfill given criterion'
+			},
+			de: {
+				argumentList: 'ZellBereich,Kriterium,SummenBereich',
+				description:
+					'Bestimmt die Summe aller Zellwerte im ZellBereich oder SummenBereich, falls angegeben, die das Kriterium erfüllen'
+			}
+		},
+		SUMIFS: {
+			en: {
+				argumentList: 'SumRange,Range1,Criterion1,RangeN,CriterionN',
+				description: 'Returns the sum of all values in SumRange which fulfill all given criteria'
+			},
+			de: {
+				argumentList: 'SummenBereich,Bereich1,Kriterium1,BereichN,KriteriumN',
+				description:
+					'Bestimmt die Summe aller Zellwerte aus dem SummenBereich die sämtliche Kriterien erfüllen'
+			}
+		},
 		TAN: {
 			en: { argumentList: 'Angle', description: 'Returns the tangent value of the value' },
 			de: { argumentList: 'Winkel', description: 'Gibt den Tangens der Zahl zurück' }
