@@ -1,6 +1,6 @@
 FROM node:12.4.0-alpine
 LABEL maintainer="philip.ackermann@cedalo.com"
-	
+
 ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0/gateway.yaml \
 	MESSAGE_BROKER_URL=mqtt://localhost:1884 \
 	MESSAGE_BROKER_KEEP_ALIVE=20 \
@@ -27,7 +27,8 @@ ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0
 	MONGO_USER_DB_URI=mongodb://localhost:27017/userDB \
 	RESTSERVER_PORT=8083 \
 	STREAMSHEETS_LOG_LEVEL=debug \
-	NODE_ENV=production
+	NODE_ENV=production \
+	STREAMS_SERVICE_START_DELAY=5000
 
 RUN apk --no-cache add g++ make bash curl nginx git gnupg rsync unzip mongodb mosquitto openssl redis supervisor
 
