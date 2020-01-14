@@ -1626,7 +1626,7 @@ export default class ChartView extends NodeView {
 	}
 
 	static formatNumber(value, numberFormat, localCulture) {
-		// somehow the scale value sometimes do not show correct values
+		// somehow the scale value sometimes does not show correct values
 		value = MathUtils.roundTo(value, 12);
 		if (numberFormat && numberFormat !== 'General' && localCulture) {
 			let formattingResult = {

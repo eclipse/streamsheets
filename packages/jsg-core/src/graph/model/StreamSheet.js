@@ -786,13 +786,31 @@ module.exports = class StreamSheet extends WorksheetNode {
 					this.setEvents(node, drawItem.events);
 
 					switch (drawItem.type) {
-					case 'label':
-						node.setText(drawItem.text === 'undefined' ? '' : Strings.decodeXML(drawItem.text));
+					case 'label': {
+						const range = CellRange.parse(drawItem.text, this, true);
+						let text = '';
+						if (range) {
+							const sourceSheet = range.getSheet()
+							const data = sourceSheet.getDataProvider();
+							range.shiftFromSheet();
+							const cell = data.getRC(range._x1, range._y1);
+							if (cell) {
+								const textFormat = sourceSheet.getTextFormatAtRC(range._x1, range._y1);
+								const result = sourceSheet.getFormattedValue(cell.getExpression(), cell.getValue(), textFormat, false);
+								if (result) {
+									text = result.formattedValue;
+								}
+							}
+						} else {
+							text = drawItem.text === 'undefined' ? '' : Strings.decodeXML(drawItem.text)
+						}
+						node.setText(text);
 						if (drawItem.parent === '') {
 							node.associate(false);
 						}
 						this.setFontFormat(node.getTextFormat(), drawItem.font);
 						break;
+					}
 					case 'bezier':
 						break;
 					case 'polygon':

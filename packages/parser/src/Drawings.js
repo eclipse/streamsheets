@@ -66,7 +66,10 @@ module.exports = class Drawings {
 		switch (type) {
 		case 'label':
 			getRectParams(item);
-			item.text = String(this.getGraphParam(terms, 13, ''));
+			if (terms.length > 13) {
+				item.text = terms.length > 13 ?  terms[13].toString() : '';
+			}
+			// item.text = String(this.getGraphParam(terms, 13, ''));
 			item.font = String(this.getGraphParam(terms, 14, ''));
 			break;
 		case 'rectangle':

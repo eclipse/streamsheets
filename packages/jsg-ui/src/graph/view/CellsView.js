@@ -378,51 +378,7 @@ export default class CellsView extends NodeView {
 	}
 
 	getFormattedValue(worksheetNode, expr, value, textFormat, showFormulas) {
-		let result = {
-			value,
-			formattedValue: value,
-			color: undefined,
-			type: 'general'
-		};
-
-		if (showFormulas) {
-			if (expr.hasFormula()) {
-				result.value = expr.toLocaleString(JSG.getParserLocaleSettings(), {
-					item: worksheetNode,
-					useName: true
-				});
-			} else if (result.value === undefined) {
-				result.value = '#NV';
-			}
-			result.formattedValue = result.value;
-		} else if (Numbers.isNumber(result.value) && result.value !== undefined && textFormat !== undefined) {
-			const numberFormat = textFormat.getNumberFormat();
-			if (numberFormat !== undefined) {
-				const fmt = numberFormat.getValue();
-				const set = textFormat
-					.getLocalCulture()
-					.getValue()
-					.toString();
-				const type = set.split(';');
-				try {
-					result = NumberFormatter.formatNumber(fmt, result.value, type[0]);
-				} catch (e) {
-					result.formattedValue = defaultCellErrorValue;
-				}
-				result.value = value;
-				[result.type] = type;
-				if (result.formattedValue === '' && (result.type === 'date' || result.type === 'time')) {
-					result.formattedValue = `#INVALID_${result.type.toUpperCase()}`;
-					result.value = result.formattedValue;
-				}
-			}
-		}
-
-		if (typeof result.value === 'boolean') {
-			result.formattedValue = result.value.toString().toUpperCase();
-		}
-
-		return result;
+		return worksheetNode.getFormattedValue(expr, value, textFormat, showFormulas);
 	}
 
 	drawKey(graphics, drawRect, column, row, visibleColumn, visibleRow) {
