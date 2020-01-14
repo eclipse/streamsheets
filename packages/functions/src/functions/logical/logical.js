@@ -24,6 +24,20 @@ const and = (sheet, ...terms) => runWith(sheet, terms, (res, currbool) => (res =
 
 const or = (sheet, ...terms) => runWith(sheet, terms, (res, currbool) => res || currbool);
 
+// important to return a function, because for condition term value should be evaluated on true/false!
+const termValue = (term, defval) => () => {
+	const value = term != null ? term.value : undefined;
+	return value != null ? value : defval;
+};
+
+const condition = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withMinArgs(2)
+		.withMaxArgs(3)
+		.mapNextArg((cond) => !!(cond.value))
+		.mapNextArg((onTrue) => termValue(onTrue, true)) // return a different value?
+		.mapNextArg((onFalse) => termValue(onFalse,false))
+		.run((cond, onTrue, onFalse) => cond ? onTrue() : onFalse());
 
 const not = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -54,6 +68,7 @@ const _switch = (sheet, ...terms) => {
 
 module.exports = {
 	AND: and,
+	IF: condition,
 	NOT: not,
 	OR: or,
 	SWITCH: _switch

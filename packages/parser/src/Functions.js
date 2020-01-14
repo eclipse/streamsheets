@@ -18,6 +18,8 @@ const ExcelDateToJSDate = (serial) => {
 	return new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate(), hours, minutes, seconds, ms);
 };
 
+const valueOr = (value, defVal) => value == null ? defVal : value;
+
 // default function definitions...
 module.exports.Functions = {
 	/**
@@ -420,4 +422,14 @@ module.exports.Functions = {
 	ONMOUSEDOWN: (/* scope, ...terms */) => OK.TRUE,
 	ONMOUSEUP: (/* scope, ...terms */) => OK.TRUE,
 	ONVALUECHANGE: (/* scope, ...terms */) => OK.TRUE,
+
+	IF: (scope, ...terms) => {
+		if (terms.length > 1) {
+			const condition = !!valueOr(terms[0].value, false);
+			const onTrue = valueOr(terms[1].value, true);
+			const onFalse = terms[2] ? valueOr(terms[2].value, null) : null;
+			return condition ? onTrue : onFalse;
+		}
+		return ERROR.ARGS;
+	}
 };

@@ -148,7 +148,7 @@ describe('Tokenizer', () => {
 			validateResult('iF("IF"=="if",2,4)', 4);
 			validateResult('If (4<=2,1,0)', 0);
 			validateResult('iF     (-4<=2,1,0)', 1);
-			validateResult('iF(4<=2,1,)', undefined);
+			validateResult('iF(4<=2,1,)', null);
 			// notes this:
 			validateResult('iF + of', 'iFof');
 		});
@@ -221,20 +221,16 @@ describe('Tokenizer', () => {
 			let sum = 0;
 			for (let i = 0, n = params.length; i < n; i += 1) {
 				const param = params[i];
-				sum += param.operand != null ? param.value : param;
+				sum += param.value != null ? param.value : param;
 			}
 			return sum;
 		});
 		context.setFunction('pi', () => Math.PI);
-		context.setFunction('SCOPE_ID', (scope, ...params) => {
-			const id = params.length > 0 ? params[0] : -1;
-			return (this && this.getId) ? this.getId() === id : false;
-		});
 		context.setFunction('MAX', (scope, ...params) => {
 			let max = Number.MIN_VALUE;
 			let value;
 			for (let i = 0, n = params.length; i < n; i += 1) {
-				value = params[i];
+				value = params[i].value != null ? params[i].value : params[i];
 				max = value > max ? value : max;
 			}
 			return max;
@@ -331,7 +327,12 @@ describe('Tokenizer', () => {
 		it('should be possible to set different decimal and parameter separator', () => {
 			const context = new ParserContext();
 			// replace SUM because validateResult() do not pass terms as params!!
-			context.setFunction('SUM', (scope, ...params) => params.reduce((sum, curr) => sum + curr, 0));
+			context.setFunction('SUM', (scope, ...params) =>
+				params.reduce((sum, curr) => {
+					curr = curr.value != null ? curr.value : curr;
+					return sum + curr;
+				}, 0)
+			);
 			context.separators = { decimal: ',', parameter: ';' };
 			const ast = Tokenizer.createAST('2,4 + 5,6', context);
 			expect(ast.left).toBeDefined();

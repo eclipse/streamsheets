@@ -81,14 +81,6 @@ function skipWhiteSpace() {
 		index += 1;
 	}
 }
-function isFollowedBy(chCode, startindex) {
-	let _ch = expr.charCodeAt(startindex);
-	while (startindex < length && (!_ch || _ch === KEY_CODES.TAB || _ch === KEY_CODES.SPACE)) {
-		_ch = expr.charCodeAt(startindex);
-		startindex += 1;
-	}
-	return _ch === chCode;
-}
 
 function isQuote(code) {
 	return code === KEY_CODES.QUOTE || code === KEY_CODES.LEFT_QUOTE || code === KEY_CODES.RIGHT_QUOTE;
@@ -147,23 +139,7 @@ function precedenceOfBinary(op) {
 	}
 	return prec;
 }
-function defineCondOperator(c1, c2) {
-	let c = String.fromCharCode(c1).toLowerCase();
-	if (c === 'i' && c2) {
-		c = String.fromCharCode(c2).toLowerCase();
-		return c === 'f' ? 2 : 0;
-	}
-	return c1 === KEY_CODES.QMARK ? 1 : 0;
-}
-function isConditionStart(c1, c2) {
-	let oplength = defineCondOperator(c1, c2);
-	if (oplength > 0) {
-		// eslint-disable-next-line
-		const peekAt = index + oplength - 1;
-		oplength = isFollowedBy(KEY_CODES.OPAREN, peekAt) ? oplength : 0;
-	}
-	return oplength;
-}
+
 function isOperator(c1, c2) {
 	const op = String.fromCharCode(c1);
 	return isBinaryOperatorStr(op) || (c2 ? isBinaryOperatorStr(op + String.fromCharCode(c2)) : false);
@@ -212,9 +188,8 @@ function parseConditionTrueFalse(cond) {
 	return exp || { type: 'undef', isInvalid: true, start: index, end: index }
 }
 // condition: ?(condition, doOnTrue, doOnFalse)
-function parseCondition(oplength) {
+function parseCondition() {
 	const cond = { type: 'condition', start: index - 1 };
-	index += oplength - 1;
 	ch = expr.charCodeAt(index);
 	index += 1;
 	skipWhiteSpace();
@@ -227,7 +202,6 @@ function parseCondition(oplength) {
 	cond.condition = parseConditionPart();
 	cond.onTrue = parseConditionTrueFalse(cond);
 	cond.onFalse = parseConditionTrueFalse();
-	cond.condstr = oplength === 2 ? 'IF' : '?';
 	if (index > length) index = length;
 	cond.end = index;
 	if (ch !== KEY_CODES.CPAREN && !throwException('Expecting ")"', index, ErrorCode.EXPECTED_BRACKET_RIGHT)) {
@@ -259,31 +233,27 @@ function parseString(prefix) {
 	while (index < length) {
 		ch = expr.charCodeAt(index);
 		index += 1;
-		if (isQuote(ch)) { // === KEY_CODES.QUOTE) {
-			// ch = expr.charCodeAt(index);
-			// index += 1;
+		if (isQuote(ch)) {
 			break;
-			/* DL-1111 2x quotes should be handled as 1
-			this is wrong and this is not that easy since result will be invalid if parsed again!
-			e.g: '"abc""def"' => results in '"abc"def"' => if parsed again => ERROR!!
-			if (isQuote(ch)) {
-				ch = expr.charCodeAt(index);
-				index += 1;
-			} else {
-				break;
-			}
-			*/
-		} else {
-			str += String.fromCharCode(ch);
-			if (ch === KEY_CODES.BSLASH) {
-				str += expr.charAt(index);
-				index += 1;
-			}
+		} else if (ch === KEY_CODES.BSLASH) {
+			ch = expr.charCodeAt(index);
+			index += 1;
 		}
+		str += String.fromCharCode(ch);
+		// 	/* DL-1111 2x quotes should be handled as 1
+		// 	this is wrong and this is not that easy since result will be invalid if parsed again!
+		// 	e.g: '"abc""def"' => results in '"abc"def"' => if parsed again => ERROR!!
+		// 	if (isQuote(ch)) {
+		// 		ch = expr.charCodeAt(index);
+		// 		index += 1;
+		// 	} else {
+		// 		break;
+		// 	}
+		// 	*/
 	}
 	token.end = index;
 	token.value = str;
-	if (isQuote(ch)) { // === KEY_CODES.QUOTE) {
+	if (isQuote(ch)) {
 		ch = expr.charCodeAt(index);
 		index += 1;
 	}
@@ -356,7 +326,7 @@ function parseIdentifier(prefix) {
 		ch = expr.charCodeAt(index);
 		index += 1;
 		const ch2 = expr.charCodeAt(index);
-		if (!isValidIdentifier(ch) || isOperator(ch, ch2)) { // || isConditionStart(ch, ch2)) {
+		if (ch === KEY_CODES.QMARK || !isValidIdentifier(ch) || isOperator(ch, ch2)) {
 			break;
 		}
 		identifier += String.fromCharCode(ch);
@@ -416,7 +386,7 @@ function parseParams(forList) {
 			const errcode = index < length ? ErrorCode.EXPECTED_SEPARATOR : ErrorCode.EXPECTED_BRACKET_RIGHT;
 			if (!throwException(errmsg, index, errcode)) {
 				// throw error:
-				index -= 1;
+				// index -= 1;
 				params.invalid = true;
 				break;
 			}
@@ -451,7 +421,7 @@ function parseFunctionOrIdentifier() {
 			index += 1;
 			const params = parseParams();
 			op = {
-				end: index - 1,
+				end: index >= length ? length : index - 1,
 				start: op.start,
 				type: 'function',
 				value: fname,
@@ -487,9 +457,8 @@ function parseOperand() {
 		op = parseNumber();
 		// currently all unit operations are single characters...
 		op = isUnitOperator(ch) ? parseUnary(op) : op;
-		// eslint-disable-next-line
-	} else if (op = isConditionStart(ch, expr.charCodeAt(index))) {
-		op = parseCondition(op);
+	} else if (ch === KEY_CODES.QMARK) {
+		op = parseCondition();
 	} else if (isQuote(ch)) { // === KEY_CODES.QUOTE) {
 		op = parseString();
 		// DL-1253: have to check if string is terminated by closing quote...
