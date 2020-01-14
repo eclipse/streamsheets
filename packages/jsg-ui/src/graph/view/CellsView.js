@@ -524,9 +524,11 @@ export default class CellsView extends NodeView {
 
 				graphics.setLineWidth(width === 1 ? 1 : cs.deviceToLogX(width));
 				graphics.beginPath();
+				graphics.applyLineDash();
 				graphics.moveTo(drawRect.x, drawRect.y);
 				graphics.lineTo(drawRect.x + drawRect.width, drawRect.y);
 				graphics.stroke();
+				graphics.clearLineDash();
 			}
 			style = attributes.getRightBorderStyle().getValue();
 			if (style !== FormatAttributes.LineStyle.NONE) {
@@ -544,9 +546,11 @@ export default class CellsView extends NodeView {
 
 				graphics.setLineWidth(width === 1 ? 1 : cs.deviceToLogX(width));
 				graphics.beginPath();
+				graphics.applyLineDash();
 				graphics.moveTo(drawRect.x, drawRect.y + drawRect.height);
 				graphics.lineTo(drawRect.x + drawRect.width, drawRect.y + drawRect.height);
 				graphics.stroke();
+				graphics.clearLineDash();
 			}
 		}
 	}
@@ -1097,6 +1101,7 @@ export default class CellsView extends NodeView {
 				) {
 					graphics.lineTo(border.x, border.y + (borderMatrix.length - 1 === index2 ? border.height : 0));
 					graphics.stroke();
+					graphics.clearLineDash();
 					graphics.beginPath();
 					state.draw = false;
 				}
@@ -1105,6 +1110,7 @@ export default class CellsView extends NodeView {
 					graphics.setLineStyle(border.style);
 					graphics.setLineWidth(border.borderwidth === 1 ? 1 : sheetInfo.cs.deviceToLogX(border.borderwidth));
 					graphics.beginPath();
+					graphics.applyLineDash();
 					graphics.moveTo(border.x, border.y);
 					state.draw = true;
 					state.color = border.color;
