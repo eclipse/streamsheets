@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/eslint-config",
-  "version": "1.5.0-beta",
+  "version": "1.5.0",
   "description": "ESLint Config",
   "author": "Cedalo AG",
   "license": "EPL-2.0",
