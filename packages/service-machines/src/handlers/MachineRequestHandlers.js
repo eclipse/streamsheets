@@ -773,9 +773,9 @@ class SetCellDataCommandRequestHandler {
 
 class SetGraphCellsCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId /* , undo */) {
-		// const graphCells = getGraphCells(command.descr);
-		const graphCells = getGraphCells(command.graphs);
-		return runner.request('setGraphCells', userId, { graphCells, streamsheetId, clear: true });
+		const { sheetIds, cellDescriptors } = command;
+		const graphCells = getGraphCells(cellDescriptors);
+		return runner.request('replaceGraphCells', userId, { graphCells, sheetIds });
 	}
 }
 
@@ -968,7 +968,7 @@ class CommandRequestHandler extends RequestHandler {
 			[
 				'command.SetCellsCommand',
 				new SetCellsCommandRequestHandler()
-			],
+			],			
 			[
 				'command.SetGraphCellsCommand',
 				new SetGraphCellsCommandRequestHandler()

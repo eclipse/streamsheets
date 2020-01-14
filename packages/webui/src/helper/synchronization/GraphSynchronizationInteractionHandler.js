@@ -81,10 +81,20 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 			return;
 		}
 
+		
 		this.graph.resetGraphItemFormulas();
-
+				
 		this.execute(cmp);
-		this.execute(new SetGraphCellsCommand(sheet, sheet.getGraphDescriptors()));
+		// replace all graph cells...
+		const graphCells = new Map();
+		this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
+			const sheetId = container.getStreamSheetContainerAttributes().getSheetId().getValue();
+			const descriptors = sheetId && container.getStreamSheet().getGraphDescriptors();
+			if (descriptors) graphCells.set(sheetId, descriptors);
+		});
+		if (graphCells.size) {
+			this.execute(new SetGraphCellsCommand(Array.from(graphCells.keys()), Array.from(graphCells.values())));
+		}
 	}
 
 	isSelectionInOutbox(graphItem) {
@@ -205,7 +215,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 
 	getStreamSheetIdFromProcessSheet(processSheet) {
 		const processSheetContainer = processSheet && processSheet.getStreamSheetContainer();
-		return (processSheetContainer && processSheetContainer instanceof JSG.StreamSheetContainer) ?
+		return (processSheetContainer) ? // && processSheetContainer instanceof JSG.StreamSheetContainer) ?
 			processSheetContainer.getStreamSheetContainerAttributes().getSheetId().getValue() : undefined;
 	}
 
