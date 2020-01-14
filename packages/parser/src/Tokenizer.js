@@ -233,31 +233,27 @@ function parseString(prefix) {
 	while (index < length) {
 		ch = expr.charCodeAt(index);
 		index += 1;
-		if (isQuote(ch)) { // === KEY_CODES.QUOTE) {
-			// ch = expr.charCodeAt(index);
-			// index += 1;
+		if (isQuote(ch)) {
 			break;
-			/* DL-1111 2x quotes should be handled as 1
-			this is wrong and this is not that easy since result will be invalid if parsed again!
-			e.g: '"abc""def"' => results in '"abc"def"' => if parsed again => ERROR!!
-			if (isQuote(ch)) {
-				ch = expr.charCodeAt(index);
-				index += 1;
-			} else {
-				break;
-			}
-			*/
-		} else {
-			str += String.fromCharCode(ch);
-			if (ch === KEY_CODES.BSLASH) {
-				str += expr.charAt(index);
-				index += 1;
-			}
+		} else if (ch === KEY_CODES.BSLASH) {
+			ch = expr.charCodeAt(index);
+			index += 1;
 		}
+		str += String.fromCharCode(ch);
+		// 	/* DL-1111 2x quotes should be handled as 1
+		// 	this is wrong and this is not that easy since result will be invalid if parsed again!
+		// 	e.g: '"abc""def"' => results in '"abc"def"' => if parsed again => ERROR!!
+		// 	if (isQuote(ch)) {
+		// 		ch = expr.charCodeAt(index);
+		// 		index += 1;
+		// 	} else {
+		// 		break;
+		// 	}
+		// 	*/
 	}
 	token.end = index;
 	token.value = str;
-	if (isQuote(ch)) { // === KEY_CODES.QUOTE) {
+	if (isQuote(ch)) {
 		ch = expr.charCodeAt(index);
 		index += 1;
 	}
@@ -390,7 +386,7 @@ function parseParams(forList) {
 			const errcode = index < length ? ErrorCode.EXPECTED_SEPARATOR : ErrorCode.EXPECTED_BRACKET_RIGHT;
 			if (!throwException(errmsg, index, errcode)) {
 				// throw error:
-				index -= 1;
+				// index -= 1;
 				params.invalid = true;
 				break;
 			}
@@ -425,7 +421,7 @@ function parseFunctionOrIdentifier() {
 			index += 1;
 			const params = parseParams();
 			op = {
-				end: index - 1,
+				end: index >= length ? length : index - 1,
 				start: op.start,
 				type: 'function',
 				value: fname,

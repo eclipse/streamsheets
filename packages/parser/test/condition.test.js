@@ -146,7 +146,7 @@ describe('parsing invalid conditions', () => {
 		const info = Parser.getFormulaInfos('if(and(1,2)=true,42,23)', context);
 		expect(info).toBeDefined();
 		expect(info.length).toBe(8);
-		expectInfoHas(info[0], { start: 0, end: 23, paramIndex: undefined, type: 'condition' });
+		expectInfoHas(info[0], { start: 0, end: 23, paramIndex: undefined, type: 'function' });
 		expectInfoHas(info[1], { start: 3, end: 16, paramIndex: 0, type: 'binaryop' });
 		expectInfoHas(info[2], { start: 3, end: 11, paramIndex: undefined, type: 'function', value: 'and' });
 		expectInfoHas(info[3], { start: 7, end: 8, paramIndex: 0, type: 'number', value: '1' });
