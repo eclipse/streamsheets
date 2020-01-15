@@ -1237,6 +1237,12 @@ export default class ChartView extends NodeView {
 					if (set.borderColor === undefined) {
 						set.borderColor = colors.borderColor[index % 11];
 					}
+					if (set.borderColor === undefined) {
+						set.borderColor = colors.borderColor[index % 11];
+					}
+					if (set.pointBorderColor === undefined) {
+						set.pointBorderColor = colors.borderColor[index % 11];
+					}
 				}
 				switch (chartType) {
 					case 'scatter':
