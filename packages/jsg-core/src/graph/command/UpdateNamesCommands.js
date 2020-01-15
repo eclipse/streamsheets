@@ -16,20 +16,20 @@ class UpdateGraphCellsCommand extends CompoundCommand {
 
 class SetGraphCellsCommand extends Command {
 	static createFromObject(data = {}) {
-		const { sheetIds, cellDescriptors } = data;
-		return new SetGraphCellsCommand(sheetIds, cellDescriptors).initWithObject(data);
+		const { streamsheetIds, cellDescriptors } = data;
+		return new SetGraphCellsCommand(streamsheetIds, cellDescriptors).initWithObject(data);
 	}
 
-	constructor(sheetIds = [], cellDescriptors = []) {
+	constructor(streamsheetIds = [], cellDescriptors = []) {
 		super();
-		this._sheetIds = sheetIds.slice();
+		this._streamsheetIds = streamsheetIds.slice();
 		this._cellDescriptors = cellDescriptors.slice();
 		this.isVolatile = true;
 	}
 
 	toObject() {
 		const data = super.toObject();
-		data.sheetIds = this._sheetIds;
+		data.streamsheetIds = this._streamsheetIds;
 		data.cellDescriptors = this._cellDescriptors;
 		return data;
 	}
