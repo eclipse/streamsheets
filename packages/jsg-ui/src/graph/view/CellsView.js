@@ -378,51 +378,7 @@ export default class CellsView extends NodeView {
 	}
 
 	getFormattedValue(worksheetNode, expr, value, textFormat, showFormulas) {
-		let result = {
-			value,
-			formattedValue: value,
-			color: undefined,
-			type: 'general'
-		};
-
-		if (showFormulas) {
-			if (expr.hasFormula()) {
-				result.value = expr.toLocaleString(JSG.getParserLocaleSettings(), {
-					item: worksheetNode,
-					useName: true
-				});
-			} else if (result.value === undefined) {
-				result.value = '#NV';
-			}
-			result.formattedValue = result.value;
-		} else if (Numbers.isNumber(result.value) && result.value !== undefined && textFormat !== undefined) {
-			const numberFormat = textFormat.getNumberFormat();
-			if (numberFormat !== undefined) {
-				const fmt = numberFormat.getValue();
-				const set = textFormat
-					.getLocalCulture()
-					.getValue()
-					.toString();
-				const type = set.split(';');
-				try {
-					result = NumberFormatter.formatNumber(fmt, result.value, type[0]);
-				} catch (e) {
-					result.formattedValue = defaultCellErrorValue;
-				}
-				result.value = value;
-				[result.type] = type;
-				if (result.formattedValue === '' && (result.type === 'date' || result.type === 'time')) {
-					result.formattedValue = `#INVALID_${result.type.toUpperCase()}`;
-					result.value = result.formattedValue;
-				}
-			}
-		}
-
-		if (typeof result.value === 'boolean') {
-			result.formattedValue = result.value.toString().toUpperCase();
-		}
-
-		return result;
+		return worksheetNode.getFormattedValue(expr, value, textFormat, showFormulas);
 	}
 
 	drawKey(graphics, drawRect, column, row, visibleColumn, visibleRow) {
@@ -524,9 +480,11 @@ export default class CellsView extends NodeView {
 
 				graphics.setLineWidth(width === 1 ? 1 : cs.deviceToLogX(width));
 				graphics.beginPath();
+				graphics.applyLineDash();
 				graphics.moveTo(drawRect.x, drawRect.y);
 				graphics.lineTo(drawRect.x + drawRect.width, drawRect.y);
 				graphics.stroke();
+				graphics.clearLineDash();
 			}
 			style = attributes.getRightBorderStyle().getValue();
 			if (style !== FormatAttributes.LineStyle.NONE) {
@@ -544,9 +502,11 @@ export default class CellsView extends NodeView {
 
 				graphics.setLineWidth(width === 1 ? 1 : cs.deviceToLogX(width));
 				graphics.beginPath();
+				graphics.applyLineDash();
 				graphics.moveTo(drawRect.x, drawRect.y + drawRect.height);
 				graphics.lineTo(drawRect.x + drawRect.width, drawRect.y + drawRect.height);
 				graphics.stroke();
+				graphics.clearLineDash();
 			}
 		}
 	}
@@ -1097,6 +1057,7 @@ export default class CellsView extends NodeView {
 				) {
 					graphics.lineTo(border.x, border.y + (borderMatrix.length - 1 === index2 ? border.height : 0));
 					graphics.stroke();
+					graphics.clearLineDash();
 					graphics.beginPath();
 					state.draw = false;
 				}
@@ -1105,6 +1066,7 @@ export default class CellsView extends NodeView {
 					graphics.setLineStyle(border.style);
 					graphics.setLineWidth(border.borderwidth === 1 ? 1 : sheetInfo.cs.deviceToLogX(border.borderwidth));
 					graphics.beginPath();
+					graphics.applyLineDash();
 					graphics.moveTo(border.x, border.y);
 					state.draw = true;
 					state.color = border.color;

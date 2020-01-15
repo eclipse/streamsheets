@@ -1,4 +1,5 @@
-const { Term, BinaryOperator, Reference, Locale, CondTerm } = require('@cedalo/parser');
+const { NumberFormatter } = require('@cedalo/number-format');
+const { Term, BinaryOperator, Reference, Locale } = require('@cedalo/parser');
 const { parse, isValid } = require('date-fns');
 const de = require('date-fns/locale/de').default;
 const enGB = require('date-fns/locale/en-GB').default;
@@ -9,7 +10,7 @@ const Expression = require('../expr/Expression');
 const ItemAttributes = require('../attr/ItemAttributes');
 const NotificationCenter = require('../notifications/NotificationCenter');
 const Notification = require('../notifications/Notification');
-const Point = require('../../geometry/Point');
+const Numbers = require('../../commons/Numbers');
 const Rectangle = require('../../geometry/Rectangle');
 
 const RowHeaderNode = require('./RowHeaderNode');
@@ -34,7 +35,7 @@ const SelectionMode = {
 	COLUMN: 1,
 	ROW: 2
 };
-
+const defaultCellErrorValue = '#####';
 const locales = { en: enGB, enUS, de };
 const dateFormats = [
 	'dd.MM.yy',
@@ -813,6 +814,54 @@ module.exports = class WorksheetNode extends ContentNode {
 
 		// remove unnecessary rows
 		rows.length = lastUsedRow + 1;
+	}
+
+	getFormattedValue(expr, value, textFormat, showFormulas) {
+		let result = {
+			value,
+			formattedValue: value,
+			color: undefined,
+			type: 'general'
+		};
+
+		if (showFormulas) {
+			if (expr.hasFormula()) {
+				result.value = expr.toLocaleString(JSG.getParserLocaleSettings(), {
+					item: this,
+					useName: true
+				});
+			} else if (result.value === undefined) {
+				result.value = '#NV';
+			}
+			result.formattedValue = result.value;
+		} else if (Numbers.isNumber(result.value) && result.value !== undefined && textFormat !== undefined) {
+			const numberFormat = textFormat.getNumberFormat();
+			if (numberFormat !== undefined) {
+				const fmt = numberFormat.getValue();
+				const set = textFormat
+					.getLocalCulture()
+					.getValue()
+					.toString();
+				const type = set.split(';');
+				try {
+					result = NumberFormatter.formatNumber(fmt, result.value, type[0]);
+				} catch (e) {
+					result.formattedValue = defaultCellErrorValue;
+				}
+				result.value = value;
+				[result.type] = type;
+				if (result.formattedValue === '' && (result.type === 'date' || result.type === 'time')) {
+					result.formattedValue = `#INVALID_${result.type.toUpperCase()}`;
+					result.value = result.formattedValue;
+				}
+			}
+		}
+
+		if (typeof result.value === 'boolean') {
+			result.formattedValue = result.value.toString().toUpperCase();
+		}
+
+		return result;
 	}
 
 	textToExpression(text) {

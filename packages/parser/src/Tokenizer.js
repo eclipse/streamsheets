@@ -235,11 +235,14 @@ function parseString(prefix) {
 		index += 1;
 		if (isQuote(ch)) {
 			break;
-		} else if (ch === KEY_CODES.BSLASH) {
-			ch = expr.charCodeAt(index);
-			index += 1;
+		} else {
+			str += String.fromCharCode(ch);
+			if (ch === KEY_CODES.BSLASH) {
+				str += expr.charAt(index);
+				ch = expr.charCodeAt(index);
+				index += 1;
+			}
 		}
-		str += String.fromCharCode(ch);
 		// 	/* DL-1111 2x quotes should be handled as 1
 		// 	this is wrong and this is not that easy since result will be invalid if parsed again!
 		// 	e.g: '"abc""def"' => results in '"abc"def"' => if parsed again => ERROR!!

@@ -1237,6 +1237,12 @@ export default class ChartView extends NodeView {
 					if (set.borderColor === undefined) {
 						set.borderColor = colors.borderColor[index % 11];
 					}
+					if (set.borderColor === undefined) {
+						set.borderColor = colors.borderColor[index % 11];
+					}
+					if (set.pointBorderColor === undefined) {
+						set.pointBorderColor = colors.borderColor[index % 11];
+					}
 				}
 				switch (chartType) {
 					case 'scatter':
@@ -1626,7 +1632,7 @@ export default class ChartView extends NodeView {
 	}
 
 	static formatNumber(value, numberFormat, localCulture) {
-		// somehow the scale value sometimes do not show correct values
+		// somehow the scale value sometimes does not show correct values
 		value = MathUtils.roundTo(value, 12);
 		if (numberFormat && numberFormat !== 'General' && localCulture) {
 			let formattingResult = {

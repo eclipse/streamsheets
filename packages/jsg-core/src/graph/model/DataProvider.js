@@ -888,6 +888,8 @@ module.exports = class DataProvider {
 						} else if (operand._range) {
 							const range = operand._range;
 							const rangeSheet = range.getSheet();
+							const targetSheet = targetRange.getSheet();
+							const sourceSheet = sourceRange.getSheet();
 							const initR = rangeSheet.getRows().getInitialSection();
 							const initC = rangeSheet.getColumns().getInitialSection();
 							// if copy or reference is within source range
@@ -898,20 +900,20 @@ module.exports = class DataProvider {
 									range._y1 - initR >= sourceRange._y1 &&
 									range._y2 - initR <= sourceRange._y2)
 							) {
-								if (sourceRange.getSheet() === range.getSheet()) {
+								if (sourceSheet === rangeSheet) {
 									if (data.cut) {
 										// moved range to another sheet
-										if (sourceRange.getSheet() !== targetRange.getSheet()) {
-											range.setSheet(targetRange.getSheet());
-											operand.setItem(targetRange.getSheet());
+										if (sourceSheet !== targetSheet) {
+											range.setSheet(targetSheet);
+											operand.setItem(targetSheet);
 										}
 									} else {
-										range.setSheet(targetRange.getSheet());
-										operand.setItem(targetRange.getSheet());
+										range.setSheet(targetSheet);
+										operand.setItem(targetSheet);
 									}
 								}
-								if (absolute === false || targetRange.getSheet() === rangeSheet ||
-									(data.cut && absolute && targetRange.getSheet() !== rangeSheet)) {
+								if (absolute === false || targetSheet === rangeSheet ||
+									(data.cut && absolute && sourceSheet === rangeSheet)) {
 									if (range._x1R || absolute) {
 										range._x1 += xOff;
 									}

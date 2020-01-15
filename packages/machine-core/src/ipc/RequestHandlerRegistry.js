@@ -559,6 +559,40 @@ class RegisterStreams extends ARequestHandler {
 		return Promise.resolve();
 	}
 }
+class ReplaceGraphCells extends ARequestHandler {
+	handle({ graphCells, streamsheetIds = [] }) {
+		const appliedCells = new Map();
+		streamsheetIds.forEach((id, index) => {
+			const streamsheet = this.machine.getStreamSheet(id);
+			const sheet = streamsheet && streamsheet.sheet;
+			if (sheet) {
+				try {
+					sheet.getDrawings().removeAll();
+					const cells = graphCells[index];
+					const currentGraphCells = sheet.graphCells;
+					const notify = currentGraphCells.clear();
+					appliedCells.set(id, cells);
+					if (setNamedCells(sheet, cells, currentGraphCells) || notify) {
+						sheet._notifyUpdate();
+					}
+				} catch (err) {
+					// ignore error!
+					logger.warn(`Failed to set graph-cells of streamsheet:  ${streamsheet.name}(${id})!`);
+				}
+			} else {
+				// we ignore unknown sheets
+				logger.warn(`Unknown streamsheet with id "${id}" !`);
+			}
+		});
+		const result = { streamsheetIds: [], graphCells: [] };
+		Array.from(appliedCells.entries()).reduce((res, [id, cells]) => {
+			res.streamsheetIds.push(id);
+			res.graphCells.push(cells);
+			return res;
+		}, result);
+		return Promise.resolve(result);
+	}
+}
 // DL-1156 not used anymore
 // handlers.set('selectMessage', (msg) => {
 // 	const streamsheet = machine.getStreamSheet(msg.streamsheetId);
@@ -843,6 +877,7 @@ class RequestHandlerRegistry {
 		registry.handlers.set('pause', new Pause(machine, monitor));
 		registry.handlers.set('registerFunctionModules', new RegisterFunctionModules(machine, monitor));
 		registry.handlers.set('registerStreams', new RegisterStreams(machine, monitor));
+		registry.handlers.set('replaceGraphCells', new ReplaceGraphCells(machine, monitor));
 		registry.handlers.set('setCellAt', new SetCellAt(machine, monitor));
 		registry.handlers.set('setCells', new SetCells(machine, monitor));
 		registry.handlers.set('setCellsLevel', new SetCellsLevel(machine, monitor));
