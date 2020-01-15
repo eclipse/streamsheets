@@ -370,8 +370,8 @@ module.exports = class MachineService extends MessagingService {
 				await updateNamedCells(RepositoryManager.machineRepository, response);
 				break;
 			case 'command.SetGraphCellsCommand': {
-				const { machineId, sheetIds, graphCells } = response;
-				sheetIds.forEach(async (id, index) => {
+				const { machineId, streamsheetIds, graphCells } = response;
+				streamsheetIds.forEach(async (id, index) => {
 					await updateGraphCells(RepositoryManager.machineRepository, {
 						machineId,
 						streamsheetId: id,

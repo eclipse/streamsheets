@@ -773,9 +773,9 @@ class SetCellDataCommandRequestHandler {
 
 class SetGraphCellsCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId /* , undo */) {
-		const { sheetIds, cellDescriptors } = command;
+		const { streamsheetIds, cellDescriptors } = command;
 		const graphCells = cellDescriptors.map((descriptor) => getGraphCells(descriptor));
-		return runner.request('replaceGraphCells', userId, { graphCells, sheetIds });
+		return runner.request('replaceGraphCells', userId, { graphCells, streamsheetIds });
 	}
 }
 
