@@ -787,7 +787,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 					switch (drawItem.type) {
 					case 'label': {
-						const range = CellRange.parse(drawItem.text, this, true);
+						const range = CellRange.parse(drawItem.formula, this, true);
 						let text = '';
 						if (range) {
 							const sourceSheet = range.getSheet()
