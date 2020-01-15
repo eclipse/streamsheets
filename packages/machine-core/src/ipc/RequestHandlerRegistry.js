@@ -560,9 +560,9 @@ class RegisterStreams extends ARequestHandler {
 	}
 }
 class ReplaceGraphCells extends ARequestHandler {
-	handle({ graphCells, sheetIds = [] }) {
+	handle({ graphCells, streamsheetIds = [] }) {
 		const appliedCells = new Map();
-		sheetIds.forEach((id, index) => {
+		streamsheetIds.forEach((id, index) => {
 			const streamsheet = this.machine.getStreamSheet(id);
 			const sheet = streamsheet && streamsheet.sheet;
 			if (sheet) {
@@ -584,9 +584,9 @@ class ReplaceGraphCells extends ARequestHandler {
 				logger.warn(`Unknown streamsheet with id "${id}" !`);
 			}
 		});
-		const result = { sheetIds: [], graphCells: [] };
+		const result = { streamsheetIds: [], graphCells: [] };
 		Array.from(appliedCells.entries()).reduce((res, [id, cells]) => {
-			res.sheetIds.push(id);
+			res.streamsheetIds.push(id);
 			res.graphCells.push(cells);
 			return res;
 		}, result);
