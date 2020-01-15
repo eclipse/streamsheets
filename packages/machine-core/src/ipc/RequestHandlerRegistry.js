@@ -561,6 +561,7 @@ class RegisterStreams extends ARequestHandler {
 }
 class ReplaceGraphCells extends ARequestHandler {
 	handle({ graphCells, sheetIds = [] }) {
+		const appliedCells = new Map();
 		sheetIds.forEach((id, index) => {
 			const streamsheet = this.machine.getStreamSheet(id);
 			const sheet = streamsheet && streamsheet.sheet;
@@ -570,6 +571,7 @@ class ReplaceGraphCells extends ARequestHandler {
 					const cells = graphCells[index];
 					const currentGraphCells = sheet.graphCells;
 					const notify = currentGraphCells.clear();
+					appliedCells.set(id, cells);
 					if (setNamedCells(sheet, cells, currentGraphCells) || notify) {
 						sheet._notifyUpdate();
 					}
@@ -582,8 +584,13 @@ class ReplaceGraphCells extends ARequestHandler {
 				logger.warn(`Unknown streamsheet with id "${id}" !`);
 			}
 		});
-		// no result, change if needed...
-		return Promise.resolve();
+		const result = { sheetIds: [], graphCells: [] };
+		Array.from(appliedCells.entries()).reduce((res, [id, cells]) => {
+			res.sheetIds.push(id);
+			res.graphCells.push(cells);
+			return res;
+		}, result);
+		return Promise.resolve(result);
 	}
 }
 // DL-1156 not used anymore
