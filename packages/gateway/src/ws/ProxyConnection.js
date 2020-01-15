@@ -101,11 +101,6 @@ module.exports = class ProxyConnection {
 						msg.topic.indexOf('persistence') >= 0
 					) {
 						this.messagingClient.publish(msg.topic, msg);
-					} else if (
-						msg.topic &&
-						msg.topic.indexOf('auth') >= 0
-					) {
-						this.messagingClient.publish(msg.topic, msg);
 					} else {
 						const response = await this.sendToServer(msg);
 						this.sendToClient(response);
@@ -130,7 +125,7 @@ module.exports = class ProxyConnection {
 			id,
 			user: {
 				id: user ? user.id : 'anon',
-				roles: user ? user.roles : [],
+				roles: [],
 				displayName: user ? [user.firstName, user.lastName].filter(e => !!e).join(' ') || user.username : ''
 			}
 		};
