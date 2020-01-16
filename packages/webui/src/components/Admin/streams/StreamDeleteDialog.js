@@ -197,7 +197,6 @@ class StreamDeleteDialog extends React.Component {
 function mapStateToProps(state) {
 	return {
 		appState: state.appState,
-		pageSelected: state.streams.pageSelected,
 		activeConfigurationId: state.streams.activeConfigurationId,
 		providers: state.streams.providers,
 		connectors: state.streams.connectors,

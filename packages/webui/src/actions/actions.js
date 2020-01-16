@@ -40,7 +40,6 @@ export const {
 	undoStream,
 	createNewConfiguration,
 	updateConfiguration,
-	setPageSelected,
 	setConfigurationActive,
 	deleteActiveConfiguration,
 	toggleDialogAddConfiguration,

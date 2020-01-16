@@ -27,6 +27,7 @@ module.exports = {
 		CLASSIFYPOINT,
 		'DRAW.BUTTON': Functions['DRAW.BUTTON'],
 		'DRAW.CHART': Functions['DRAW.CHART'],
+		'DRAW.CHARTSTATE': Functions['DRAW.CHARTSTATE'],
 		'DRAW.CHECKBOX': Functions['DRAW.CHECKBOX'],
 		'DRAW.ELLIPSE': Functions['DRAW.ELLIPSE'],
 		'DRAW.LABEL': Functions['DRAW.LABEL'],

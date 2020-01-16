@@ -135,7 +135,7 @@ export const AdminPageLayoutComponent = (props) => {
 					style={{ height: 'calc(100% - 58px)', flexWrap: 'nowrap' }}
 				>
 					<Grid item style={{ width: '200px', borderRight: '1px solid grey' }}>
-						<AdminNavigation selected={page} />
+						<AdminNavigation selection={page} />
 					</Grid>
 					<Grid item style={{ height: '100%', flexGrow: 1, background: '#EEE' }}>
 						{children}

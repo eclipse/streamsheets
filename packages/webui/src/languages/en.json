@@ -1,6 +1,7 @@
 {
 	"TitleMachine": "{name}",
-	"TitleStream": "Stream",
+	"TitleStreamUnknown": "Streams",
+	"TitleStream": "Streams - {streamName}",
 	"TitleDashboard": "Machine - Dashboard",
 	"TitlePage": "Stream Machines",
 	"TitleConnectors": "Streams - Connectors",

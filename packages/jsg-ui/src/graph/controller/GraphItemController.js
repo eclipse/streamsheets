@@ -520,6 +520,7 @@ class GraphItemController extends ModelController {
 		const fbItem = model.copy(detailed);
 
 		fbItem._isFeedback = true;
+		fbItem._parent = model.getGraph();
 
 		// if size references parent by formula, we better use the values
 		fbItem.setWidth(model.getWidth().getValue());

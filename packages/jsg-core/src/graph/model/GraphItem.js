@@ -838,11 +838,11 @@ class GraphItem extends Model {
 	 * Returns a custom reference. A custom reference can be provided to identify custom expressions in formulas.
 	 *
 	 * @method getCustomReference
-	 * @param {String} property Property to provide Referenc for.
+	 * @param {String} property Property to provide Reference for.
 	 * @return {Reference} A valid reference.
 	 */
 	getCustomReference(property) {
-		return this.getGraph().resolveCustomReference(this, property);
+		return this.getGraph() ? this.getGraph().resolveCustomReference(this, property) : undefined;
 	}
 
 	/**

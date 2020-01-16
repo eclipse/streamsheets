@@ -213,10 +213,10 @@ describe('MongoDBFunctions', () => {
 			expect(resultPage2.message.data[0]).toMatchObject(sample2);
 		});
 		test('query with simple sort by _id', async () => {
-			const result1 = await MONGOQUERY(connector, collection, {}, undefined, undefined, undefined, 1);
+			const result1 = await MONGOQUERY(connector, collection, {}, undefined, undefined, undefined, '1');
 			expect(result1.message.data).toHaveLength(2);
 			expect(result1.message.data[0]).toMatchObject(sample1);
-			const result2 = await MONGOQUERY(connector, collection, {}, undefined, undefined, undefined, -1);
+			const result2 = await MONGOQUERY(connector, collection, {}, undefined, undefined, undefined, '-1');
 			expect(result2.message.data).toHaveLength(2);
 			expect(result2.message.data[0]).toMatchObject(sample2);
 		});

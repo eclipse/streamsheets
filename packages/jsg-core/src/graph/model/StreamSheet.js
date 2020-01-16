@@ -13,6 +13,7 @@ const SheetButtonNode = require('./SheetButtonNode');
 const SheetCheckboxNode = require('./SheetCheckboxNode');
 const SheetSliderNode = require('./SheetSliderNode');
 const SheetKnobNode = require('./SheetKnobNode');
+const { SheetChartStateNode } = require('@cedalo/jsg-extensions/core');
 const Graph = require('./Graph');
 const FormatAttributes = require('../attr/FormatAttributes');
 const TextFormatAttributes = require('../attr/TextFormatAttributes');
@@ -896,6 +897,17 @@ module.exports = class StreamSheet extends WorksheetNode {
 						node.setAttributeAtPath('end', drawItem.end);
 						node.setAttributeAtPath('formatrange', drawItem.formatrange ? drawItem.formatrange : '');
 						break;
+					case 'chartstate':
+						node.setAttributeAtPath('title', drawItem.text);
+						this.setFontFormat(node.getTextFormat(), drawItem.font);
+						node.setAttributeAtPath('type', drawItem.charttype);
+						node.setAttributeAtPath('range', drawItem.range ? drawItem.range : '');
+						node.setAttributeAtPath('legend', drawItem.legend ? drawItem.legend : '');
+						node.setAttributeAtPath('min', drawItem.min);
+						node.setAttributeAtPath('max', drawItem.max);
+						node.setAttributeAtPath('step', drawItem.step);
+						node.setAttributeAtPath('scalefont', drawItem.scalefont);
+						break;
 					default:
 						break;
 					}
@@ -986,6 +998,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 			type = 'slider';
 		} else if (item instanceof JSG.SheetKnobNode) {
 			type = 'knob';
+		} else if (item instanceof JSG.SheetChartStateNode) {
+			type = 'chartstate';
 		}
 
 		const graph = this.getGraph();
@@ -1051,6 +1065,19 @@ module.exports = class StreamSheet extends WorksheetNode {
 					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
 					break;
+				case 'chartstate': {
+					formula += `,,,,,`;
+					formula += angle === 0 ? ',,"ChartState",,"state"' : `${angle},,"ChartState",,"state"`;
+					const selection = graph.getSheetSelection();
+					if (selection) {
+						const range = selection.toStringByIndex(0, { item: this, useName: true });
+						if (range) {
+							// item.setDataRangeString(`=${range}`);
+							formula += `,${range}`;
+						}
+					}
+					break;
+				}
 				case 'chart': {
 					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,' : `${angle},,`;
@@ -1166,6 +1193,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 			type = 'slider';
 		} else if (item instanceof SheetKnobNode) {
 			type = 'knob';
+		} else if (item instanceof SheetChartStateNode) {
+			type = 'chartstate';
 		} else if (item instanceof JSG.TextNode) {
 			type = 'label';
 		}

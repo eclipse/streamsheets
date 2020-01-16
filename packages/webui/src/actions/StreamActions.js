@@ -124,14 +124,6 @@ export function setConfigurationActive(id, type) {
 		});
 	};
 }
-export function setPageSelected(id) {
-	return (dispatch) => {
-		dispatch({
-			type: 'SELECT_PAGE',
-			payload: id,
-		});
-	};
-}
 
 export function toggleDialogAddConfiguration(event) {
 	return (dispatch) => {

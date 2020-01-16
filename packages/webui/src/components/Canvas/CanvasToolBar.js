@@ -560,6 +560,9 @@ export class CanvasToolBar extends Component {
 		case 'knob':
 			node = new JSG.SheetKnobNode();
 			break;
+		case 'chartstate':
+			node = new JSG.SheetChartStateNode();
+			break;
 		default:
 			break;
 		}
@@ -3364,7 +3367,21 @@ export class CanvasToolBar extends Component {
 								<SvgIcon>
 									<path
 										// eslint-disable-next-line max-len
-										d="M22,15C22,17.6 20.8,19.9 18.9,21.3L18.4,20.8L16.3,18.7L17.7,17.3L18.9,18.5C19.4,17.8 19.8,16.9 19.9,16H18V14H19.9C19.7,13.1 19.4,12.3 18.9,11.5L17.7,12.7L16.3,11.3L17.5,10.1C16.8,9.6 15.9,9.2 15,9.1V11H13V9.1C12.1,9.3 11.3,9.6 10.5,10.1L13.5,13.1C13.7,13.1 13.8,13 14,13A2,2 0 0,1 16,15A2,2 0 0,1 14,17A2,2 0 0,1 12,15C12,14.8 12,14.7 12.1,14.5L9.1,11.5C8.6,12.2 8.2,13.1 8.1,14H10V16H8.1C8.3,16.9 8.6,17.7 9.1,18.5L10.3,17.3L11.7,18.7L9.1,21.3C7.2,19.9 6,17.6 6,15A8,8 0 0,1 14,7A8,8 0 0,1 22,15M6.7,5.3L3.4,2L2,3.4L5.3,6.7L4,8H8V4L6.7,5.3Z"
+										d="M12,16A3,3 0 0,1 9,13C9,11.88 9.61,10.9 10.5,10.39L20.21,4.77L14.68,14.35C14.18,15.33 13.17,16 12,16M12,3C13.81,3 15.5,3.5 16.97,4.32L14.87,5.53C14,5.19 13,5 12,5A8,8 0 0,0 4,13C4,15.21 4.89,17.21 6.34,18.65H6.35C6.74,19.04 6.74,19.67 6.35,20.06C5.96,20.45 5.32,20.45 4.93,20.07V20.07C3.12,18.26 2,15.76 2,13A10,10 0 0,1 12,3M22,13C22,15.76 20.88,18.26 19.07,20.07V20.07C18.68,20.45 18.05,20.45 17.66,20.06C17.27,19.67 17.27,19.04 17.66,18.65V18.65C19.11,17.2 20,15.21 20,13C20,12 19.81,11 19.46,10.1L20.67,8C21.5,9.5 22,11.18 22,13Z"
+									/>
+								</SvgIcon>
+							</IconButton>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton
+								style={{ padding: '5px' }}
+								color="inherit"
+								onClick={() => this.onCreateControl('chartstate')}
+							>
+								<SvgIcon>
+									<path
+										// eslint-disable-next-line max-len
+										d="M16,5V18H21V5M4,18H9V5H4M10,18H15V5H10V18Z"
 									/>
 								</SvgIcon>
 							</IconButton>
