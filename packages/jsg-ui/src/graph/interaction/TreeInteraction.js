@@ -456,19 +456,11 @@ export default class TreeInteraction extends Interaction {
 
 			viewer.getGraphView().setFocus(this._controller);
 
-				// view.setSelectedItem(undefined, viewer);
-			if (
+			if (selecteditem &&
 				selecteditem.expanded !== null &&
 				relativePoint.x < view._expanderOffset + view._treeItemLeftMargin + view._indentOffset * selecteditem.depth
 			) {
 				return;
-			}
-
-			if (
-				selecteditem.expanded !== null &&
-				relativePoint.x < view._expanderOffset + view._treeItemLeftMargin + view._indentOffset * selecteditem.depth
-			) {
-				this.expandItem(selecteditem);
 			}
 
 			if (this._selectTreeItemAtPosition(relativePoint, depthOffset, viewer)) {
