@@ -13,6 +13,13 @@ const CellRange = require('./CellRange');
 const GraphUtils = require('../GraphUtils');
 
 const TYPE = 'Data';
+
+const getSheetFromExpression = (expr) => {
+	const term = expr.getTerm();
+	const operand = term && term.operand;
+	return operand && operand instanceof SheetReference && operand._item;
+};
+
 /**
  * Generic data provider for a worksheet. This provider simply saves its cell data in row
  * arrays. Each row array contains an array of cell arrays.
@@ -1244,9 +1251,11 @@ module.exports = class DataProvider {
 			const graph = this.getSheet().getGraph();
 			graph.getSheetNames().forEach((name) => {
 				const expr = name.getExpression();
-				if (expr !== undefined && expr.hasFormula()) {
+				// need to pass sheet to updateExpression() or otherwise reference in name gets lost...
+				const sheet = expr && expr.hasFormula() && getSheetFromExpression(expr);
+				if (sheet) {
 					invalidateExpression(expr);
-					updateExpression(graph, expr, targetColumn - sourceColumn, targetRow - sourceRow, true);
+					updateExpression(sheet, expr, targetColumn - sourceColumn, targetRow - sourceRow, true);
 				}
 			});
 		}
