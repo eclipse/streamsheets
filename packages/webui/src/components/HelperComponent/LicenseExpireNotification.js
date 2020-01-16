@@ -41,13 +41,13 @@ const config = {
 		Icon: styles.expired.icon,
 		contentStyle: styles.expired.style,
 		messageId: 'License.Expired',
-		defMessage: 'Your Streamsheet {edition}-license has expired!'
+		defMessage: 'Your Streamsheets {edition}-license has expired!'
 	},
 	warning: {
 		Icon: styles.willExpire.icon,
 		contentStyle: styles.willExpire.style,
 		messageId: 'License.WillExpire',
-		defMessage: '{days} days left until your Streamsheet {edition}-license expires!'
+		defMessage: '{days} days left until your Streamsheets {edition}-license expires!'
 	}
 };
 // Workaround for Babel restriction, see https://github.com/yahoo/babel-plugin-react-intl/issues/119
