@@ -1,5 +1,3 @@
-import { default as JSG } from '@cedalo/jsg-core';
-
 export default function SheetChartStateViewFactory(JSG, ...args) {
 	class SheetChartStateView extends JSG.NodeView {
 		drawFill(graphics, format, rect) {
