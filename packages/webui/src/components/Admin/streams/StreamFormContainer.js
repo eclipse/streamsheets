@@ -95,10 +95,7 @@ class StreamFormContainer extends React.Component {
 			const configuration = StreamHelper.getConfiguration(this.props,
 				this.configurationId);
 			if (configuration && configuration.className) {
-				const pageSelected = StreamHelper.getPageFromClass(
-					configuration.className);
 				this.props.setInitialConfiguration(configuration);
-				this.props.setPageSelected(pageSelected);
 				// eslint-disable-next-line react/no-did-update-set-state
 				this.setState({ ...prevState, model: configuration });
 			}
@@ -184,7 +181,7 @@ class StreamFormContainer extends React.Component {
 
 	handleDelete = (res) => {
 		if (res === true) {
-			const { pageSelected } = { ...this.props };
+			const pageSelected = StreamHelper.getPageFromClass(this.state.model.className);
 			this.props.openPage(`/administration/${pageSelected}`);
 		}
 	};
@@ -390,7 +387,6 @@ function mapStateToProps(state) {
 		appState: state.appState,
 		locale: state.locales.locale,
 		streams: state.streams,
-		pageSelected: state.streams.pageSelected,
 		fetching: state.streams.fetching,
 		activeConfigurationId: state.streams.activeConfigurationId,
 		providers: state.streams.providers,

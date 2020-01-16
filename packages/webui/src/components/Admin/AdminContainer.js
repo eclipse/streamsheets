@@ -17,7 +17,6 @@ import StreamFormContainer from './streams/StreamFormContainer';
 import Streams from './streams/Streams';
 
 
-let initiated = false;
 
 const getSelectedPage = (match, streams) => {
 	const parts = match.url.split('/');
@@ -30,41 +29,6 @@ const getSelectedPage = (match, streams) => {
 };
 
 export class AdminContainer extends Component {
-	static getDerivedStateFromProps(props /* , state */) {
-		if (!initiated) {
-			initiated = true;
-			const { location } = props;
-			let selectedPage = 'connectors';
-			switch (location.pathname) {
-				case '/administration/streams':
-					selectedPage = 'streams';
-					break;
-				case '/administration/consumers':
-					selectedPage = 'consumers';
-					break;
-				case '/administration/producers':
-					selectedPage = 'producers';
-					break;
-				case '/administration/connectors':
-					selectedPage = 'connectors';
-					break;
-				case '/administration/users':
-					selectedPage = 'users';
-					break;
-				case '/administration/user':
-					selectedPage = 'user';
-					break;
-				case '/administration/database':
-					selectedPage = 'database';
-					break;
-				default:
-					selectedPage = 'connectors';
-			}
-			props.setPageSelected(selectedPage);
-		}
-
-		return null;
-	}
 
 	constructor(props) {
 		super(props);
