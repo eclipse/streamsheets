@@ -15,10 +15,12 @@
     "url": "https://github.com/cedalo/streamsheets/issues"
   },
   "dependencies": {
-    "@cedalo/jsg-core": "1.5.0",
-    "@cedalo/jsg-ui": "1.5.0",
     "@cedalo/number-format": "1.5.0",
     "@cedalo/parser": "1.5.0"
+  },
+  "peerDependencies": {
+    "@cedalo/jsg-core": "1.5.0",
+    "@cedalo/jsg-ui": "1.5.0"
   },
   "license": "EPL-2.0"
 }
