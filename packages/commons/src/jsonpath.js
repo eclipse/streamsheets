@@ -71,10 +71,8 @@ const getValueByPath = (obj, path) => {
 	const parsed = parse(path);
 	if (Array.isArray(parsed) && parsed.length > 0) {
 		return query(parsed, obj);
-	} else if (obj[path] !== undefined) {
-		return obj[path];
 	}
-	return obj;
+	return obj[path];
 };
 
 module.exports = {
