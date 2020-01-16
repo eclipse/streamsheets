@@ -15,11 +15,6 @@ import { IconStream, IconSecurity, IconOrganize } from '../components/icons';
 
 const { RESOURCE_TYPES, RESOURCE_ACTIONS } = accessManager;
 
-const getPageSelected = () => {
-	const parts = window.location.href.split('/');
-	return parts[parts.indexOf('administration') + 1];
-};
-
 const MenuGroup = ({ open, label, icon, onClick, show, children }) => {
 	const entries = Array.isArray(children) ? children : [children];
 	const shownEntries = entries.filter((entry) => entry.props.show !== false);
@@ -49,14 +44,12 @@ const MenuEntry = ({ href, selected, children, show }) =>
 		</Link>
 	);
 
-export const AdminNavigation = () => {
+export const AdminNavigation = (props) => {
 	const [isStreamsOpen, setStreamsOpen] = useState(true);
 	const [isOrganizeOpen, setOrganizeOpen] = useState(true);
 	const [isSecurityOpen, setSecurityOpen] = useState(true);
 
-	const selected = getPageSelected();
-
-	const isSelected = (pageOrGroup) => selected === pageOrGroup
+	const isSelected = (pageOrGroup) => props.selection === pageOrGroup;
 
 	return (
 		<List component="nav" style={{ padding: 0 }}>
@@ -94,7 +87,7 @@ export const AdminNavigation = () => {
 			<MenuGroup
 				show={accessManager.can(
 					RESOURCE_TYPES.STREAM || accessManager.can(RESOURCE_TYPES.LABEL, RESOURCE_ACTIONS.EDIT),
-					RESOURCE_ACTIONS.VIEW,
+					RESOURCE_ACTIONS.VIEW
 				)}
 				open={isOrganizeOpen}
 				onClick={() => setOrganizeOpen(!isOrganizeOpen)}
