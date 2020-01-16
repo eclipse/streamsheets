@@ -209,7 +209,7 @@ module.exports = class MongoDBProducer extends ProducerMixin(MongoDBConnector) {
 			result.Metadata.projection = projection;
 			const limit = pageSize;
 			const skip = page === 0 ? 0 : (page - 1) * limit;
-			const sort = config.sort === -1 || config.sort === 1 ? { _id: config.sort } : config.sort;
+			const sort = config.sort === '-1' || config.sort === '1' ? { _id: parseInt(config.sort, 10) } : config.sort;
 			result.Data = await this._doQueryFind(collection, query, projection, skip, limit, sort);
 		} catch (e) {
 			result.Metadata.error = e.message;
