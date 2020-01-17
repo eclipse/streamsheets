@@ -296,37 +296,31 @@ describe('lookup functions', () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { B6: 4, C6: 10, B7: 8, C7: 3, B8: 3, C8: 6 } });
 			sheet.setCellAt('A10', new Cell(null, createTerm('offset(D3,3,-2,1,1)', sheet)))
 			let cell = sheet.cellAt('A10');
-			let range = cell.value;
-			let descr = cell.description();
-			expect(range.height).toBe(1);
-			expect(range.width).toBe(1);
-			expect(descr.value).toBe(4);
-			expect(sheet.cellAt(range.start).value).toBe(4);
+			let value = cell.value;
+			expect(value).toBe(4);
+			expect(value.height).toBeUndefined();
+			expect(value.width).toBeUndefined();
 			sheet.setCellAt('A10', new Cell(null, createTerm('offset(D3,3,-2,3,3)', sheet)))
 			cell = sheet.cellAt('A10');
-			range = cell.value;
-			descr = cell.description();
+			const range = cell.value;
 			expect(range.height).toBe(3);
 			expect(range.width).toBe(3);
-			expect(descr.value).toBe(ERROR.VALUE); // 'B6:D8');
 			expect(sheet.cellAt(range.start).value).toBe(4);
 			expect(sheet.cellAt(range.end)).toBeUndefined();
 			expect(createTerm(`sum(${range.toString()})`, sheet).value).toBe(34);
 			// from DL-884:
 			sheet.setCellAt('A10', new Cell(null, createTerm('offset(B6, 1, 1, 1, 1)', sheet)))
 			cell = sheet.cellAt('A10');
-			range = cell.value;
-			descr = cell.description();
-			expect(range.height).toBe(1);
-			expect(range.width).toBe(1);
-			expect(descr.value).toBe(3);
-			expect(sheet.cellAt(range.start).value).toBe(3);
+			value = cell.value;
+			expect(value).toBe(3);
+			expect(value.height).toBeUndefined();
+			expect(value.width).toBeUndefined();
 		})
 		it('should use given cell or range size if no height or with is given', () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { B6: 4, C6: 10, B7: 8, C7: 3, B8: 3, C8: 6 } });
 			let range = createTerm('offset(D3, 3, -2)', sheet).value;
-			expect(range.height).toBe(1);
-			expect(range.width).toBe(1);
+			// one cell => range is value:
+			expect(range).toBe(4);
 			range = createTerm('offset(D3:E5, 3, -2)', sheet).value;
 			expect(range.height).toBe(3);
 			expect(range.width).toBe(2);
@@ -347,10 +341,8 @@ describe('lookup functions', () => {
 		it('should not change original term (DL-783)', () => {
 			const sheet = new StreamSheet().sheet;
 			const term = createTerm('offset(H18,1,1,1,1)', sheet);
-			const range = term.value;
-			expect(range.height).toBe(1);
-			expect(range.width).toBe(1);
-			expect(range.toString()).toBe('I19:I19');
+			const value = term.value;
+			expect(value).toBeUndefined();
 			expect(term.toString()).toBe('OFFSET(H18,1,1,1,1)');
 		});
 		it(`should return ${ERROR.REF} if new reference is not valid`, () => {
@@ -367,15 +359,35 @@ describe('lookup functions', () => {
 		it(`should return cell value if new range reference only one cell or a ${ERROR.VALUE} error`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { D4: 1, E4: 2, D5: 3, E5: 4 } });
 			sheet.setCellAt('A8', new Cell(null, createTerm('offset(A1:A1,1,1)', sheet)))
-			expect(sheet.cellAt('A8').cellValue).toBe(0)
+			expect(sheet.cellAt('A8').value).toBeUndefined()
 			sheet.setCellAt('A8', new Cell(null, createTerm('offset(C3:C3,1,1)', sheet)))
-			expect(sheet.cellAt('A8').cellValue).toBe(1)
+			expect(sheet.cellAt('A8').value).toBe(1)
 			sheet.setCellAt('A8', new Cell(null, createTerm('offset(B2:C2,2,3,1,1)', sheet)))
-			expect(sheet.cellAt('A8').cellValue).toBe(2)
+			expect(sheet.cellAt('A8').value).toBe(2)
 			sheet.setCellAt('A8', new Cell(null, createTerm('offset(B2:C2,2,3,,1)', sheet)))
-			expect(sheet.cellAt('A8').cellValue).toBe(2)
+			expect(sheet.cellAt('A8').value).toBe(2)
 			sheet.setCellAt('A8', new Cell(null, createTerm('offset(B2:C2,2,3,1)', sheet)))
-			expect(sheet.cellAt('A8').cellValue).toBe(ERROR.VALUE)
+			const range = sheet.cellAt('A8').value;
+			expect(range).toBeDefined();
+			expect(range.height).toBe(1);
+			expect(range.width).toBe(2);
+		});
+		// DL-3383
+		it('define test summary :-)', () => {
+			const sheet = new StreamSheet().sheet.load({
+				cells: { A1: 23, A2: { formula: 'OFFSET(A2, -1, 0)' }, A4: { formula: 'A2' } }
+			});
+			let cell = sheet.cellAt('A2');
+			expect(cell.value).toBe(23);
+		});
+		it('it should return a single cell reference if its range covers only one cell', () => {
+			const sheet = new StreamSheet().sheet.load({ cells: { D4: 1, E4: 2, D5: 3, E5: 4 } });
+			let term = createTerm('offset(D3,1,0)', sheet);
+			expect(term.value).toBe(1);
+			term = createTerm('D4', sheet);
+			expect(term.value).toBe(1);
+			term = createTerm('sum(offset(D4,0,0,2,1))', sheet);
+			expect(term.value).toBe(4);
 		});
 	});
 	describe('row', () => {
