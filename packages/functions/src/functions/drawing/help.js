@@ -53,12 +53,12 @@ module.exports = {
 		'DRAW.CHARTSTATE': {
 			en: {
 				argumentList:
-					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,Title,TitleFont,ChartType,DataRange,LegendRange,Min,Max,Step',
+					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,Title,TitleFont,ChartType,DataRange,LegendRange,Min,Max,StepType,Step',
 				description: 'Creates a state chart'
 			},
 			de: {
 				argumentList:
-					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Titel,TitelSchrift,ChartTyp,Datenbereich,Legendenbereich,Minimum,Maximum,Schritt',
+					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Titel,TitelSchrift,ChartTyp,Datenbereich,Legendenbereich,Minimum,Maximum,SchrittTyp,Schritt',
 				description: 'Erzeugt ein Status Diagram'
 			}
 		},

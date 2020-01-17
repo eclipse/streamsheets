@@ -103,8 +103,9 @@ module.exports = class Drawings {
 			}
 			item.min = this.getGraphParam(terms, 18, '');
 			item.max = this.getGraphParam(terms, 19, '');
-			item.step = this.getGraphParam(terms, 20, 'minute');
-			item.scalefont = String(this.getGraphParam(terms, 21, ''));
+			item.stepType = this.getGraphParam(terms, 20, 'minute');
+			item.step = this.getGraphParam(terms, 21, 1);
+			item.scalefont = String(this.getGraphParam(terms, 22, ''));
 			break;
 		case 'polygon':
 		case 'bezier':

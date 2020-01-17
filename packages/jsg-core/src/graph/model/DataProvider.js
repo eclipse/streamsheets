@@ -1580,7 +1580,7 @@ module.exports = class DataProvider {
 		const utcDays = Math.floor(serial - 25569);
 		const utcValue = utcDays * 86400;
 		const dateInfo = new Date(utcValue * 1000);
-		const fractionalDay = serial - Math.floor(serial) + 0.0000001;
+		const fractionalDay = serial - Math.floor(serial);// + 0.0000001;
 		let totalSeconds = Math.floor(86400 * fractionalDay);
 		const seconds = totalSeconds % 60;
 
