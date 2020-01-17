@@ -670,6 +670,9 @@ describe('value', () => {
 		expect(createTerm('value("2,34.56")', s1.sheet).value).toBe(ERROR.VALUE);
 		expect(createTerm('value("34.567.89")', s1.sheet).value).toBe(ERROR.VALUE);
 		expect(createTerm('value("1,234.567,89")', s1.sheet).value).toBe(ERROR.VALUE);
+		// check with locale setting:
+		expect(createTerm('value("1.234.567,8", "de")', s1.sheet).value).toBe(1234567.8);
+		expect(createTerm('value("12.315.613.132,00", "de")', s1.sheet).value).toBe(12315613132);
 	});
 	// DL-2502
 	it('should not cut large values', () => {

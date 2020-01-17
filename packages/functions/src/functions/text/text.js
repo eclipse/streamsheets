@@ -259,7 +259,7 @@ const value = (sheet, ...terms) =>
 			let nr = typeof number === 'number' ? number : null;
 			if (nr == null) {
 				nr = convert.toString(number);
-				nr = nr != null ? convert.toNumber(Locales.convert.nrString(number, locale || getMachineLocale(sheet))) : nr;
+				if (nr != null) nr = convert.toNumber(Locales.convert.nrString(nr, locale || getMachineLocale(sheet)));
 			}
 			return nr != null ? nr : ERROR.VALUE;
 		});
