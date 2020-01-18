@@ -22,14 +22,14 @@ jobs:
     - yarn workspace @cedalo/webui run local-build
     deploy:
     - provider: script
-      script: bash -c "docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/deploy.js
-        --push --derivative dev --tag develop"
+      script: bash -c "docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/build.js
+        --name cedalo/streamsheets --tag develop --skip-frontend --push"
       on:
         branch: master
       skip_cleanup: true
     - provider: script
-      script: bash -c 'docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/deploy.js
-        --push --tag $TRAVIS_TAG'
+      script: bash -c 'docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/build.js
+        --name cedalo/streamsheets --tag $TRAVIS_TAG --skip-frontend --push'
       on:
         condition: "${TRAVIS_TAG} =~ ^[0-9]+\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?(-bugfix[0-9])?$"
         tags: true
