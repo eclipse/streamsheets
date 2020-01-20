@@ -6,7 +6,7 @@ docker volume ls | findstr streamsheets-data || docker volume create streamsheet
 
 SETLOCAL
 
-FOR /f "tokens=*" %%i in ('docker ps -a -q --no-trunc --filter name^=^^streamsheetsa$') DO SET STREAMSHEETS_CONTAINER_EXISTS_2=%%i
+FOR /f "tokens=*" %%i in ('docker ps -a -q --no-trunc --filter name^=^^streamsheets$') DO SET STREAMSHEETS_CONTAINER_EXISTS=%%i
 
 IF ["%STREAMSHEETS_CONTAINER_EXISTS%"] == [""] (
 	echo "Creating and starting Streamsheets Docker container"

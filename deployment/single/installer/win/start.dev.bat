@@ -6,7 +6,7 @@ docker volume ls | findstr streamsheets-data-dev || docker volume create streams
 
 SETLOCAL
 
-FOR /f "tokens=*" %%i in ('docker ps -a -q --no-trunc --filter name^=^^streamsheetsa$') DO SET STREAMSHEETS_CONTAINER_EXISTS_2=%%i
+FOR /f "tokens=*" %%i in ('docker ps -a -q --no-trunc --filter name^=^^streamsheets-dev$') DO SET STREAMSHEETS_CONTAINER_EXISTS=%%i
 
 IF ["%STREAMSHEETS_CONTAINER_EXISTS%"] == [""] (
 	echo "Creating and starting Streamsheets Docker container"
@@ -16,10 +16,10 @@ IF ["%STREAMSHEETS_CONTAINER_EXISTS%"] == [""] (
 		-p 1883:1883 ^
 		-v %~dp0\settings\mosquitto:/etc/mosquitto-default-credentials ^
 		-v streamsheets-data-dev:/var/lib/mongodb ^
-		--name streamsheets ^
+		--name streamsheets-dev ^
 		--network streamsheets ^
 		cedalo/streamsheets-dev
 ) ELSE (
 	echo "Starting Streamsheets Docker container"
-	docker start streamsheets -a
+	docker start streamsheets-dev -a
 )
