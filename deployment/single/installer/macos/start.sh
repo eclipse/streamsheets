@@ -5,7 +5,7 @@ docker network ls | grep streamsheets > /dev/null || docker network create strea
 docker volume ls | grep streamsheets-data > /dev/null || docker volume create streamsheets-data
 
 SCRIPT_LOCATION="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-STREAMSHEETS_CONTAINER_EXISTS="$(docker ps -a -q --no-trunc --filter name=^/streamsheets$)"
+STREAMSHEETS_CONTAINER_EXISTS="$(docker ps -a -q --no-trunc --filter name=^streamsheets$)"
 
 if [ ! $STREAMSHEETS_CONTAINER_EXISTS ]
 then

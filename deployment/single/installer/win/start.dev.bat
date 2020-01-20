@@ -18,7 +18,7 @@ IF ["%STREAMSHEETS_CONTAINER_EXISTS%"] == [""] (
 		-v streamsheets-data:/var/lib/mongodb ^
 		--name streamsheets ^
 		--network streamsheets ^
-		cedalo/streamsheets:1.5
+		cedalo/streamsheets-dev
 ) ELSE (
 	echo "Starting Streamsheets Docker container"
 	docker start streamsheets -a
