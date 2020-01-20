@@ -16,6 +16,7 @@ import SpeedIcon from '@material-ui/icons/Update';
 import StepForwardIcon from '@material-ui/icons/SkipNext';
 import StopIcon from '@material-ui/icons/Stop';
 import PauseIcon from '@material-ui/icons/Pause';
+import ShutdownIcon from '@material-ui/icons/Close';
 import { connect } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import Gauge from 'react-svg-gauge';
@@ -24,6 +25,7 @@ import CustomTooltip from '../base/customTooltip/CustomTooltip';
 import { accessManager } from '../../helper/AccessManager';
 import * as Actions from '../../actions/actions';
 import MachineHelper from '../../helper/MachineHelper';
+import gatewayClient from '../../helper/GatewayClient';
 
 const { RESOURCE_ACTIONS } = accessManager;
 
@@ -85,6 +87,18 @@ class MachineControlBar extends React.Component {
 			this.props.step(this.props.machineId);
 		}
 	};
+
+	onShutdownMachine = () => {
+		if (this.props.machineId) {
+			// eslint-disable-next-line
+			if (confirm('Are you sure that this machine should be removed?')) {
+				gatewayClient.unloadMachine(this.props.machineId).then(() => {
+					console.log('SHUTDOWN MACHINE!!');
+					window.close();
+				});
+			}
+		}
+	}
 
 	onChangeSpeed = (intervalInMilliseconds) => {
 		intervalInMilliseconds = transformSpeed(intervalInMilliseconds);
@@ -165,13 +179,13 @@ class MachineControlBar extends React.Component {
 				style={{
 					alignItems: 'center',
 					display: 'flex',
-					minHeight: '10px',
+					minHeight: '10px'
 				}}
 			>
 				<Toolbar>
 					<div
 						style={{
-							display: 'flex',
+							display: 'flex'
 						}}
 					>
 						<CustomTooltip header="Tooltip.StopHeader" message="Tooltip.StopMessage">
@@ -227,7 +241,7 @@ class MachineControlBar extends React.Component {
 					<div
 						style={{
 							marginLeft: '15px',
-							textAlign: 'right',
+							textAlign: 'right'
 						}}
 					>
 						<CustomTooltip
@@ -237,13 +251,29 @@ class MachineControlBar extends React.Component {
 						>
 							<div
 								style={{
-									display: 'inline',
+									display: 'inline'
 								}}
 							>
 								<IconButton color="inherit" onClick={this.onShowSpeed}>
 									<SpeedIcon />
 								</IconButton>
 							</div>
+						</CustomTooltip>
+					</div>
+					<div
+						style={{
+							marginLeft: '10px',
+							visibility: this.props.appState.experimental ? 'visible' : 'hidden'
+						}}
+					>
+						<CustomTooltip header="Tooltip.ShutdownMachineHeader" message="Tooltip.ShutdownMachineMessage">
+							<IconButton
+								color="inherit"
+								disabled={!this.props.appState.debug}
+								onClick={this.onShutdownMachine}
+							>
+								<ShutdownIcon />
+							</IconButton>
 						</CustomTooltip>
 					</div>
 				</Toolbar>
@@ -254,7 +284,7 @@ class MachineControlBar extends React.Component {
 					targetOrigin={{ horizontal: 'right', vertical: 'top' }}
 					onClose={this.onSpeedClose}
 					style={{
-						overflow: 'hidden',
+						overflow: 'hidden'
 					}}
 				>
 					<GridList
@@ -264,14 +294,14 @@ class MachineControlBar extends React.Component {
 						style={{
 							width: '390px',
 							margin: '0px',
-							padding: '15px',
+							padding: '15px'
 						}}
 					>
 						<GridListTile
 							cols={7}
 							style={{
 								padding: '2px',
-								textAlign: 'center',
+								textAlign: 'center'
 							}}
 						>
 							{
@@ -287,7 +317,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(10)}
 								style={{
 									padding: '0px',
-									minWidth: '50px',
+									minWidth: '50px'
 								}}
 								variant="outlined"
 								size="small"
@@ -300,7 +330,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(20)}
 								style={{
 									padding: '0px',
-									minWidth: '50px',
+									minWidth: '50px'
 								}}
 								variant="outlined"
 								size="small"
@@ -313,7 +343,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(50)}
 								style={{
 									padding: '0px',
-									minWidth: '50px',
+									minWidth: '50px'
 								}}
 								variant="outlined"
 								size="small"
@@ -326,7 +356,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(100)}
 								style={{
 									padding: '0px',
-									minWidth: '50px',
+									minWidth: '50px'
 								}}
 								variant="outlined"
 								size="small"
@@ -339,7 +369,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(200)}
 								style={{
 									padding: '0px',
-									minWidth: '50px',
+									minWidth: '50px'
 								}}
 								variant="outlined"
 								size="small"
@@ -352,7 +382,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(500)}
 								style={{
 									padding: '0px',
-									minWidth: '50px',
+									minWidth: '50px'
 								}}
 								variant="outlined"
 								size="small"
@@ -365,7 +395,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(1000)}
 								style={{
 									padding: '0px',
-									minWidth: '50px',
+									minWidth: '50px'
 								}}
 								variant="outlined"
 								size="small"
@@ -391,14 +421,14 @@ class MachineControlBar extends React.Component {
 						style={{
 							width: '390px',
 							margin: '0px',
-							padding: '15px',
+							padding: '15px'
 						}}
 					>
 						<GridListTile
 							cols={7}
 							style={{
 								padding: '2px',
-								textAlign: 'center',
+								textAlign: 'center'
 							}}
 						>
 							{
@@ -414,7 +444,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(1)}
 								style={{
 									padding: '0px',
-									minWidth: '50px',
+									minWidth: '50px'
 								}}
 								variant="outlined"
 								size="small"
@@ -427,7 +457,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(2)}
 								style={{
 									padding: '0px',
-									minWidth: '50px',
+									minWidth: '50px'
 								}}
 								variant="outlined"
 								size="small"
@@ -440,7 +470,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(5)}
 								style={{
 									padding: '0px',
-									minWidth: '50px',
+									minWidth: '50px'
 								}}
 								variant="outlined"
 								size="small"
@@ -453,7 +483,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(10)}
 								style={{
 									padding: '0px',
-									minWidth: '50px',
+									minWidth: '50px'
 								}}
 								variant="outlined"
 								size="small"
@@ -466,7 +496,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(20)}
 								style={{
 									padding: '0px',
-									minWidth: '50px',
+									minWidth: '50px'
 								}}
 								variant="outlined"
 								size="small"
@@ -479,7 +509,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(50)}
 								style={{
 									padding: '0px',
-									minWidth: '50px',
+									minWidth: '50px'
 								}}
 								variant="outlined"
 								size="small"
@@ -492,7 +522,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(100)}
 								style={{
 									padding: '0px',
-									minWidth: '50px',
+									minWidth: '50px'
 								}}
 								variant="outlined"
 								size="small"
@@ -518,14 +548,14 @@ class MachineControlBar extends React.Component {
 						style={{
 							width: '100%',
 							margin: '0px',
-							paddingTop: '15px',
+							paddingTop: '15px'
 						}}
 					>
 						<GridListTile
 							cols={6}
 							style={{
 								padding: '2px',
-								textAlign: 'center',
+								textAlign: 'center'
 							}}
 						>
 							<FormattedMessage id="MachineControl.updates" defaultMessage="Updates/sec." />
@@ -535,7 +565,7 @@ class MachineControlBar extends React.Component {
 							style={{
 								padding: '2px',
 								height: '20px',
-								textAlign: 'center',
+								textAlign: 'center'
 							}}
 						>
 							<FormattedMessage id="MachineControl.client" defaultMessage="Client" />
@@ -545,7 +575,7 @@ class MachineControlBar extends React.Component {
 							style={{
 								padding: '2px',
 								height: '20px',
-								textAlign: 'center',
+								textAlign: 'center'
 							}}
 						>
 							<FormattedMessage id="MachineControl.server" defaultMessage="Server" />
