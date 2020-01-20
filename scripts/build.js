@@ -52,7 +52,7 @@ try {
 	});
 
 	if (push) {
-		taggedImageArgs.forEach((image) => {
+		tags.map(buildTaggedImageArg).forEach((image) => {
 			console.log(`Pushing image ${image}`);
 			cp.execSync(`docker push ${image}`, { stdio: 'inherit' });
 		});
