@@ -28,7 +28,7 @@ RUN apk update && apk upgrade && \
 
 COPY --from=builder /build/node_modules /app/node_modules
 WORKDIR /app/packages/gateway
-RUN mkdir backups
+RUN mkdir -m 777 backups
 COPY --from=builder /build/packages/gateway/node_modules ./node_modules
 COPY --from=builder /build/packages/gateway/start.min.js /build/packages/gateway/package.json ./
 COPY --from=builder /build/packages/gateway/config ./config

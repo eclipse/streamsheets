@@ -905,6 +905,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 						node.setAttributeAtPath('legend', drawItem.legend ? drawItem.legend : '');
 						node.setAttributeAtPath('min', drawItem.min);
 						node.setAttributeAtPath('max', drawItem.max);
+						node.setAttributeAtPath('stepType', drawItem.stepType);
 						node.setAttributeAtPath('step', drawItem.step);
 						node.setAttributeAtPath('scalefont', drawItem.scalefont);
 						break;

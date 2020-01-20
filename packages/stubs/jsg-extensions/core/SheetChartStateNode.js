@@ -1,6 +1,6 @@
 module.exports = {};
 
-const { Node, ItemAttributes, StringAttribute, Attribute, Expression } = require('@cedalo/jsg-core');
+const { Node, ItemAttributes, NumberAttribute, StringAttribute, Attribute, Expression } = require('@cedalo/jsg-core');
 
 module.exports.SheetChartStateNode = class SheetChartStateNode extends Node {
 	constructor() {
@@ -19,7 +19,8 @@ module.exports.SheetChartStateNode = class SheetChartStateNode extends Node {
 		this.addAttribute(new StringAttribute('title', 'ChartState'));
 		this.addAttribute(new Attribute('min', new Expression('')));
 		this.addAttribute(new Attribute('max', new Expression('')));
-		this.addAttribute(new StringAttribute('step', 'minute'));
+		this.addAttribute(new StringAttribute('stepType', 'minute'));
+		this.addAttribute(new NumberAttribute('step', 1));
 		this.addAttribute(new StringAttribute('scalefont', ''));
 	}
 

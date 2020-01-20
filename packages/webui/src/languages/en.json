@@ -651,6 +651,8 @@
     "Tooltip.FormatVAlignCenterMessage": "The cell content will be displayed at the vertical center of the cell.",
     "Tooltip.FormatVAlignBottomHeader": "Textalignment bottom",
     "Tooltip.FormatVAlignBottomMessage": "The cell content will be displayed at the bottom of the cell.",
+    "Tooltip.ShutdownMachineHeader": "Shutdown machine",
+    "Tooltip.ShutdownMachineMessage": "Shutdown and remove machine from machine server",
     "NumberFormat.General": "General",
     "NumberFormat.Number": "Number",
     "NumberFormat.NumberRounded": "Number (rounded)",

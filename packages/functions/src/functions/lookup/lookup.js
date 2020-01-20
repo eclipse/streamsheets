@@ -218,13 +218,14 @@ const offset = (sheet, ...terms) =>
 		})
 		.run((startidx, endidx) => {
 			// we return a CellRangeReference...
-			const offRange = createSheetRange(startidx, endidx, sheet);
-			// DL-1425: if range references only one cell we returns its value in cell otherwise an error...
-			if (offRange.width === 1 && offRange.height === 1) {
-				const cell = offRange.cellAt(offRange.start);
-				offset.term.cellValue = cell ? cell.value : 0;
-			} else {
-				offset.term.cellValue = ERROR.VALUE;
+			let offRange = createSheetRange(startidx, endidx, sheet);
+			const { start, height, width } = offRange;
+			// DL-1425: if range references only one cell we return its value...
+			if (width === 1 && height === 1) {
+				const cell = offRange.cellAt(start);
+				offRange = cell ? cell.value : undefined;
+				// we need cellIndex to create SheetRange from within other terms
+				offset.term.cellIndex = start;
 			}
 			return offRange;
 		});

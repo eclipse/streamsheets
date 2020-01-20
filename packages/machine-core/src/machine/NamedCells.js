@@ -86,8 +86,8 @@ class NamedCells {
 
 	load(scope, names = {}) {
 		this.clear();
-		Object.keys(names).forEach((name) => {
-			const cell = SheetParser.createCell(names[name], scope);
+		Object.entries(names).forEach(([name, def]) => {
+			const cell = SheetParser.createCell(def, scope);
 			if (cell && cell.isDefined) {
 				this.set(name, cell);
 			}

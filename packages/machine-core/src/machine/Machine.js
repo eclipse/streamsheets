@@ -105,28 +105,24 @@ class Machine {
 	load(definition = {}, functionDefinitions = [], currentStreams = []) {
 		FunctionRegistry.registerFunctionDefinitions(functionDefinitions);
 		const def = Object.assign({}, DEF_CONF, definition);
-		const streamsheets = def.streamsheets || [];
+		// at least one streamsheet (required by graph-service!!):
+		const streamsheets = def.streamsheets || [{}];
 		this._id = def.isTemplate ? this._id : def.id || this._id;
 		this._name = def.isTemplate ? defaultMachineName() : def.name;
 		this.metadata = { ...this.metadata, ...definition.metadata};
 		this._settings = { ...this.settings, ...definition.settings};
+		// first time load named cells so that reference to named cells are resolved on streamsheets load
 		this.namedCells.load(this, def.namedCells);
 
 		// load streamsheets:
-		if (streamsheets.length > 0) {
-			this.removeAllStreamSheets();
-			// first add all
-			streamsheets.forEach((transdef) => {
-				const streamsheet = new StreamSheet(transdef);
-				transdef.id = streamsheet.id;
-				this.addStreamSheet(streamsheet);
-			});
-			// then load all
-			streamsheets.forEach((transdef) => this.getStreamSheet(transdef.id).load(transdef, this));
-		} else {
-			// at least one streamsheet (required by graph-service!!):
-			this.addStreamSheet(new StreamSheet());
-		}
+		this.removeAllStreamSheets();
+		streamsheets.forEach((transdef) => {
+			const streamsheet = new StreamSheet(transdef);
+			transdef.id = streamsheet.id;
+			this.addStreamSheet(streamsheet);
+		});
+		// then load all
+		streamsheets.forEach((transdef) => this.getStreamSheet(transdef.id).load(transdef, this));
 
 		currentStreams.forEach((descriptor) => Streams.registerSource(descriptor, this));
 		setTimeout(() => {
@@ -134,7 +130,8 @@ class Machine {
 			this.notifyUpdate('namedCells');
 		}, 60000);
 
-		// TODO: s this still required?
+		// second time load named cells so that references from named cells are resolved correctly
+		this.namedCells.load(this, def.namedCells);
 		// update value of cells to which are not currently valid without changing valid values
 		// => e.g. if a cell references another cell which was loaded later...
 		this._streamsheets.forEach((streamsheet) => streamsheet.sheet.iterate((cell) => cell.update()));

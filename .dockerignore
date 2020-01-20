@@ -7,3 +7,4 @@ packages/**/node_modules
 !npm-packages-offline-cache
 !scripts/workspace-util.js
 !packagejsons
+!deployment/single

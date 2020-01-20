@@ -5,24 +5,15 @@ const { ObjectId } = require('mongodb');
 
 const readFile = promisify(fs.readFile);
 
-const readBackupFile = async (files) => {
-	if (files && files.restoreData) {
-		const {
-			restoreData: { path }
-		} = files;
-		const fileContent = await readFile(path, 'utf8');
+const readBackupFile = async (file) => {
+	if (file && file.fieldname === 'restoreData') {
+		const fileContent = await readFile(file.path, 'utf8');
 		return JSON.parse(fileContent);
 	}
 	return null;
 };
 
-const isValidRestoreJson = (json) =>
-	json &&
-	json.graphs &&
-	json.streams &&
-	json.auth_user &&
-	json.auth_role &&
-	json.auth_policy;
+const isValidRestoreJson = (json) => json && json.graphs && json.streams && json.machines;
 
 module.exports = class BackupRestoreRoutes {
 	static async backup(request, response, next) {
@@ -30,9 +21,7 @@ module.exports = class BackupRestoreRoutes {
 			case 'GET':
 				try {
 					// Fix me
-					const {
-						db
-					} = request.app.locals.RepositoryManager.machineRepository;
+					const { db } = request.app.locals.RepositoryManager.machineRepository;
 					const collections = await db.listCollections().toArray();
 					const pendingEntries = collections
 						.map((c) => c.name)
@@ -71,10 +60,8 @@ module.exports = class BackupRestoreRoutes {
 			case 'POST':
 				try {
 					// Fix me
-					const {
-						db
-					} = request.app.locals.RepositoryManager.machineRepository;
-					const restoreJson = await readBackupFile(request.files);
+					const { db } = request.app.locals.RepositoryManager.machineRepository;
+					const restoreJson = await readBackupFile(request.file);
 					if (!isValidRestoreJson(restoreJson)) {
 						response.status(400).json({
 							restored: false,
@@ -92,9 +79,7 @@ module.exports = class BackupRestoreRoutes {
 
 					// auth_ collections use ObjectId as _id
 					const fixedAuthData = Object.entries(restoreJson)
-						.filter(([collection]) =>
-							collection.startsWith('auth_')
-						)
+						.filter(([collection]) => collection.startsWith('auth_'))
 						.map(([collection, docs]) => [
 							collection,
 							docs.map((d) => ({
@@ -112,13 +97,8 @@ module.exports = class BackupRestoreRoutes {
 					);
 
 					const pendingInserts = Object.entries(fixedRestoreJson)
-						.filter(
-							([, documents]) =>
-								Array.isArray(documents) && documents.length > 0
-						)
-						.map(([collection, documents]) =>
-							db.collection(collection).insertMany(documents)
-						);
+						.filter(([, documents]) => Array.isArray(documents) && documents.length > 0)
+						.map(([collection, documents]) => db.collection(collection).insertMany(documents));
 					await Promise.all(pendingInserts);
 					response.status(201).json({
 						restored: true
