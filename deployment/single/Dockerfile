@@ -33,12 +33,14 @@ ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0
 RUN apk --no-cache add g++ make bash curl nginx git gnupg rsync unzip mongodb mosquitto openssl redis supervisor
 
 # Streamsheets services
-COPY services /services
-COPY streamsheets /streamsheets
-RUN cd /streamsheets && yarn install --production
+COPY deployment/single/services /services
+COPY .yarnrc package.json yarn.lock /streamsheets/
+COPY packages /streamsheets/packages
+RUN cd /streamsheets && yarn install --production --frozen-lockfile
 RUN npm i -g pushstate-server@3.0.1
-COPY streamsheets/packages/gateway/config /config
-COPY wait-for-database.sh wait-for-database.sh
+# TODO: Check if this is really necessary
+COPY packages/gateway/config /config
+COPY deployment/single/wait-for-database.sh wait-for-database.sh
 
 # Create directories for logging
 RUN mkdir -p \
@@ -55,31 +57,31 @@ RUN mkdir -p \
 # RUN cd /streamsheets/packages/webui && yarn install --production && npm run build
 
 # MongoDB
-COPY mongodb/mongod.conf /etc/mongod.conf
+COPY deployment/single/mongodb/mongod.conf /etc/mongod.conf
 VOLUME /var/lib/mongodb
 
 # Mosquitto
-COPY mosquitto etc/mosquitto
+COPY deployment/single/mosquitto etc/mosquitto
 
 # Default Mosquitto
-COPY mosquitto-default etc/mosquitto-default
-COPY mosquitto-default-credentials etc/mosquitto-default-credentials
+COPY deployment/single/mosquitto-default etc/mosquitto-default
+COPY deployment/single/mosquitto-default-credentials etc/mosquitto-default-credentials
 
 # Redis
-COPY redis/redis.conf /etc/redis.conf
+COPY deployment/single/redis/redis.conf /etc/redis.conf
 
 # nginx
-COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY deployment/single/nginx/nginx.conf /etc/nginx/nginx.conf
 
 # Supervisor
 RUN mkdir -p /var/log/supervisor
-COPY supervisord.conf /etc/supervisord.conf
+COPY deployment/single/supervisord.conf /etc/supervisord.conf
 
 # Copy default setup
-COPY init.json streamsheets/packages/gateway/config
+COPY deployment/single/init.json streamsheets/packages/gateway/config
 
 # Copy start script
-COPY streamsheets.sh streamsheets.sh
+COPY deployment/single/streamsheets.sh streamsheets.sh
 
 # Expose MongoDB port
 EXPOSE 27017

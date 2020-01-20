@@ -22,18 +22,27 @@ jobs:
     - yarn workspace @cedalo/webui run local-build
     deploy:
     - provider: script
-      script: bash -c "docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/deploy.js
-        --push --derivative dev --tag develop"
+      script: bash -c "docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/build.js
+        --name cedalo/streamsheets-dev
+        --tag latest
+        --tag $(date +%A | tr '[:upper:]' '[:lower:]')
+        --skip-frontend
+        --push"
       on:
         branch: master
       skip_cleanup: true
+
     - provider: script
-      script: bash -c 'docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/deploy.js
-        --push --tag $TRAVIS_TAG'
+      script: bash -c 'docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/build.js
+        --name cedalo/streamsheets
+        --tag $TRAVIS_TAG
+        --skip-frontend
+        --push'
       on:
         condition: "${TRAVIS_TAG} =~ ^[0-9]+\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?(-bugfix[0-9])?$"
         tags: true
       skip_cleanup: true
+
 notifications:
   slack:
     secure: IclZ9eaz/bfq6LfRSzCddkYOWM2Bp5stp6z/AsEjF7YasCaAX5nnRSxbNpyLUKdoLJ8QBm5oEIF7JltVUNnFOT3XSJ8OBaZ93xg7LJnGF2dDCNnjxkrdCPC3szT3/8NpXKNfbKyxSWwDr61flP5Tkr1MYSVCa4tsZrYkjyu3pJbQDsTg4jB3bAu7W/JvxD+m99wK+LyDhELQk6m3rcuZs5UOJn3WBIayXBZJYo5AFgDqxbst+XFZus+bWAZXFoIetX9n3ri8qEwSiMkp34YqyCvpim+YhNgSzxRrfjsZ4qMnyzmjP0a9NcGD4bVt5AzDKH3nGd9Lo3FtlL2ZvgyZPaFLE00HvqOPZqGD+EUKbX7iDwdMkJNP3b+vYJFUAW7dcTKRa4P7e95qpkFBD28PIxxoWNabHLZ+4odkmbe05tI/rOWlyP1Lunj1zrNE72eqv5OJFiVx7xmiSOlCoabnB065qO7xFyhNDEhMba3YZGPkmLMRdUuQlfHYO1gAtepmlB7OfGDiQuYm5XjehCa5p882THx1ItWyRBsxkfb4JSSr3qBQByCKs8doHvYrIhbAnM6PBB5ET+jRkwAF+MwRnsE6brJWy4rsLnmp50H4NS9KsfFLr7JemU4lz6EtrM6WvcPGblZ3yxOpvCfGTjI5UfJINIVU8c0ug8xH69YJP94=
