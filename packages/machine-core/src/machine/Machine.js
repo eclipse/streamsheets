@@ -105,7 +105,6 @@ class Machine {
 	load(definition = {}, functionDefinitions = [], currentStreams = []) {
 		FunctionRegistry.registerFunctionDefinitions(functionDefinitions);
 		const def = Object.assign({}, DEF_CONF, definition);
-		// at least one streamsheet (required by graph-service!!):
 		const streamsheets = def.streamsheets || [{}];
 		this._id = def.isTemplate ? this._id : def.id || this._id;
 		this._name = def.isTemplate ? defaultMachineName() : def.name;
@@ -113,6 +112,8 @@ class Machine {
 		this._settings = { ...this.settings, ...definition.settings};
 		// first time load named cells so that reference to named cells are resolved on streamsheets load
 		this.namedCells.load(this, def.namedCells);
+		// at least one streamsheet (required by graph-service!!):
+		if (!streamsheets.length) streamsheets.push({});
 
 		// load streamsheets:
 		this.removeAllStreamSheets();
