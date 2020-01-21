@@ -93,7 +93,6 @@ class MachineControlBar extends React.Component {
 			// eslint-disable-next-line
 			if (confirm('Are you sure that this machine should be removed?')) {
 				gatewayClient.unloadMachine(this.props.machineId).then(() => {
-					console.log('SHUTDOWN MACHINE!!');
 					window.close();
 				});
 			}
