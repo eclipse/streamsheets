@@ -3,6 +3,7 @@ const { LoggerFactory } = require('@cedalo/logger');
 const AbstractStreamsRepository = require('./AbstractStreamsRepository');
 const MongoDBMixin = require('@cedalo/repository').MongoDBMixin;
 const defaultConfigurations = require('./configurations.json');
+const fs = require('fs');
 const CONFIG = require('../../config');
 
 const COLLECTION = CONFIG.database.collection || 'streams';
@@ -162,6 +163,18 @@ module.exports = class MongoDBStreamsRepository extends mix(
 			configuration.name = configuration.name
 			.replace(' ', '_')
 			.replace(/[^a-zA-Z0-9_]/, '');
+		}
+		if(configuration.id === 'CONNECTOR_MQTT' && configuration.url === 'broker' && configuration.userName === 'cedalo' && !configuration.migrated){
+			try {
+				const newPassword = fs.readFileSync('/etc/mosquitto-default-credentials/pw_clear.txt').toString().trim();
+				if(newPassword) {
+					configuration.url = 'localhost';
+					configuration.password = newPassword;
+					configuration.migrated = true;
+				}
+			} catch (error) {
+				// New password not found
+			}
 		}
 		return configuration;
 	}
