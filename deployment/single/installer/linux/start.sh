@@ -10,6 +10,7 @@ STREAMSHEETS_CONTAINER_EXISTS="$(docker ps -a -q --no-trunc --filter name=^strea
 if [ ! $STREAMSHEETS_CONTAINER_EXISTS ]
 then
 	echo "Creating and starting Streamsheets Docker container"
+	mkdir -p $SCRIPT_LOCATION/settings/mosquitto
 	docker run \
 		-p 8081:8081 \
 		-p 8083:8083 \

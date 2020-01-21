@@ -40,9 +40,8 @@ try {
 		console.log('Skipping frontend build');
 	} else {
 		console.log(`Building frontend`);
-		cp.execSync('yarn build', {
+		cp.execSync('yarn workspace @cedalo/webui local-build', {
 			stdio: 'inherit',
-			cwd: path.join('packages', 'webui')
 		});
 	}
 
