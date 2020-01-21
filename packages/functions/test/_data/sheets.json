@@ -57,8 +57,7 @@
     "A74": "600mV", "B74": "SINGLE",
     "A75": "700mV", "B75": "SINGLE",
     "A76": "600mV", "B76": "SINGLE",
-    "F70": "clicktype", "G70": "batteryvoltage",
-    "F80": "clicktype", "G80": "batteryvoltage",
-    "F90": "clicktype", "G90": "batteryvoltage"
+    "A80": "batteryvoltage", "B80": "clicktype",
+    "A90": "clicktype", "B90": "batteryvoltage"
   }
 }
