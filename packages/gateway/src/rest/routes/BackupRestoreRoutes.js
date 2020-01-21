@@ -2,6 +2,7 @@ const httpError = require('http-errors');
 const { promisify } = require('util');
 const fs = require('fs');
 const { ObjectId } = require('mongodb');
+const Migration = require('../../utils/Migration');
 
 const readFile = promisify(fs.readFile);
 
@@ -14,6 +15,8 @@ const readBackupFile = async (file) => {
 };
 
 const isValidRestoreJson = (json) => json && json.graphs && json.streams && json.machines;
+const isValid13RestoreJson = (json) =>
+	json && json.graphs && json.machines && json.auth_user && json.datasources && !json.streams;
 
 module.exports = class BackupRestoreRoutes {
 	static async backup(request, response, next) {
@@ -62,13 +65,14 @@ module.exports = class BackupRestoreRoutes {
 					// Fix me
 					const { db } = request.app.locals.RepositoryManager.machineRepository;
 					const restoreJson = await readBackupFile(request.file);
-					if (!isValidRestoreJson(restoreJson)) {
+					if (!isValidRestoreJson(restoreJson) && !isValid13RestoreJson(restoreJson)) {
 						response.status(400).json({
 							restored: false,
 							message: 'Invalid restore data found in request.'
 						});
 						return;
 					}
+
 					const collections = await db.listCollections().toArray();
 
 					const pendingCollectionDrop = collections
@@ -100,6 +104,12 @@ module.exports = class BackupRestoreRoutes {
 						.filter(([, documents]) => Array.isArray(documents) && documents.length > 0)
 						.map(([collection, documents]) => db.collection(collection).insertMany(documents));
 					await Promise.all(pendingInserts);
+
+					if (isValid13RestoreJson(restoreJson)) {
+						const migration = new Migration(db);
+						await migration.migrateCollections();
+					}
+
 					response.status(201).json({
 						restored: true
 					});
