@@ -27,12 +27,12 @@ module.exports = {
 		},
 		STACKFIND: {
 			en: {
-				argumentList: 'StackRange,CriteriaRange,TargetRange,Drop',
+				argumentList: 'StackRange,CriteriaRange,TargetRange,Drop,Unique',
 				description:
 					'This function uses the criteria range to select and copy one or multiple rows from the StackRange to the TargetRange.'
 			},
 			de: {
-				argumentList: 'StackBereich,Suchkriterien,Zielbereich,Löschen',
+				argumentList: 'StackBereich,Suchkriterien,Zielbereich,Löschen,Einzigartig',
 				description:
 					'Diese Funktion nutzt die Suchkriterien, um  einen Bereich von dem Stackbereich in der Zielbereich zu kopieren.'
 			}
