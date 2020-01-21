@@ -868,6 +868,121 @@ describe('stack functions', () => {
 			expect(sheet.cellAt('E42')).toBeUndefined();
 			expect(sheet.cellAt('F42').value).toBe(STACKRANGE_SHEET.B4);
 		});
+		describe('unique parameter', () => {			
+			it('should copy only first matching row', () => {
+				// fill stackrange:
+				expect(createTerm('stackadd(A80:B89, A70:B79)', sheet).value).toBe(true);
+				// find all with single clicktype:
+				expect(createTerm('stackfind(A80:B89, B70:B71, A90:B99)', sheet).value).toBe(true);
+				// check target range:
+				expect(sheet.cellAt('A91').value).toBe(STACKRANGE_SHEET.B71);
+				expect(sheet.cellAt('B91').value).toBe(STACKRANGE_SHEET.A71);
+				expect(sheet.cellAt('A92').value).toBe(STACKRANGE_SHEET.B74);
+				expect(sheet.cellAt('B92').value).toBe(STACKRANGE_SHEET.A74);
+				expect(sheet.cellAt('A93').value).toBe(STACKRANGE_SHEET.B75);
+				expect(sheet.cellAt('B93').value).toBe(STACKRANGE_SHEET.A75);
+				expect(sheet.cellAt('A94').value).toBe(STACKRANGE_SHEET.B76);
+				expect(sheet.cellAt('B94').value).toBe(STACKRANGE_SHEET.A76);
+				expect(sheet.cellAt('A95')).toBeUndefined();
+				expect(sheet.cellAt('B95')).toBeUndefined();
+				// fill stack again and copy only unique ones...
+				expect(createTerm('stackdrop(A80:B89, -1)', sheet).value).toBe(true);
+				expect(createTerm('stackdrop(A90:B99, -1)', sheet).value).toBe(true);
+				expect(createTerm('stackadd(A80:B89, A70:B79)', sheet).value).toBe(true);				
+				expect(createTerm('stackfind(A70:B79, B70:B71, A90:B99, , true)', sheet).value).toBe(true);
+				// check target range:
+				expect(sheet.cellAt('A91').value).toBe(STACKRANGE_SHEET.B71);
+				expect(sheet.cellAt('B91').value).toBe(STACKRANGE_SHEET.A71);
+				expect(sheet.cellAt('A92').value).toBe(STACKRANGE_SHEET.B75);
+				expect(sheet.cellAt('B92').value).toBe(STACKRANGE_SHEET.A75);
+				expect(sheet.cellAt('A93')).toBeUndefined();
+				expect(sheet.cellAt('B93')).toBeUndefined();
+				expect(sheet.cellAt('A94')).toBeUndefined();
+				expect(sheet.cellAt('B94')).toBeUndefined();
+			});
+			it('should drop only first matching row', () => {
+				// fill stackrange:
+				expect(createTerm('stackadd(A80:B89, A70:B79)', sheet).value).toBe(true);
+				// find and drop all with single clicktype:
+				expect(createTerm('stackfind(A80:B89, B70:B71, , true)', sheet).value).toBe(true);
+				// check stack range:
+				expect(sheet.cellAt('A81').value).toBe(STACKRANGE_SHEET.A72);
+				expect(sheet.cellAt('B81').value).toBe(STACKRANGE_SHEET.B72);
+				expect(sheet.cellAt('A82').value).toBe(STACKRANGE_SHEET.A73);
+				expect(sheet.cellAt('B82').value).toBe(STACKRANGE_SHEET.B73);
+				expect(sheet.cellAt('A83')).toBeUndefined();
+				expect(sheet.cellAt('B83')).toBeUndefined();
+				expect(sheet.cellAt('A84')).toBeUndefined();
+				expect(sheet.cellAt('B84')).toBeUndefined();
+				expect(sheet.cellAt('A85')).toBeUndefined();
+				expect(sheet.cellAt('B85')).toBeUndefined();
+				// fill stack again and drop only unique ones...
+				expect(createTerm('stackdrop(A80:B89, -1)', sheet).value).toBe(true);
+				expect(createTerm('stackadd(A80:B89, A70:B79)', sheet).value).toBe(true);
+				expect(createTerm('stackfind(A80:B89, B70:B71, , true, true)', sheet).value).toBe(true);
+				expect(sheet.cellAt('A81').value).toBe(STACKRANGE_SHEET.A72);
+				expect(sheet.cellAt('B81').value).toBe(STACKRANGE_SHEET.B72);
+				expect(sheet.cellAt('A82').value).toBe(STACKRANGE_SHEET.A73);
+				expect(sheet.cellAt('B82').value).toBe(STACKRANGE_SHEET.B73);
+				expect(sheet.cellAt('A83').value).toBe(STACKRANGE_SHEET.A74);
+				expect(sheet.cellAt('B83').value).toBe(STACKRANGE_SHEET.B74);
+				expect(sheet.cellAt('A84').value).toBe(STACKRANGE_SHEET.A76);
+				expect(sheet.cellAt('B84').value).toBe(STACKRANGE_SHEET.B76);
+				expect(sheet.cellAt('A85')).toBeUndefined();
+				expect(sheet.cellAt('B85')).toBeUndefined();
+				expect(sheet.cellAt('A86')).toBeUndefined();
+				expect(sheet.cellAt('B86')).toBeUndefined();
+			});
+			it('should copy and drop only first matching row', () => {
+				// fill stackrange:
+				expect(createTerm('stackadd(A80:B89, A70:B79)', sheet).value).toBe(true);
+				// find and drop all with single clicktype:
+				expect(createTerm('stackfind(A80:B89, B70:B71, A90:B99, true)', sheet).value).toBe(true);
+				// check stack range:
+				expect(sheet.cellAt('A81').value).toBe(STACKRANGE_SHEET.A72);
+				expect(sheet.cellAt('B81').value).toBe(STACKRANGE_SHEET.B72);
+				expect(sheet.cellAt('A82').value).toBe(STACKRANGE_SHEET.A73);
+				expect(sheet.cellAt('B82').value).toBe(STACKRANGE_SHEET.B73);
+				expect(sheet.cellAt('A83')).toBeUndefined();
+				expect(sheet.cellAt('B83')).toBeUndefined();
+				// check target range:
+				expect(sheet.cellAt('A91').value).toBe(STACKRANGE_SHEET.B71);
+				expect(sheet.cellAt('B91').value).toBe(STACKRANGE_SHEET.A71);
+				expect(sheet.cellAt('A92').value).toBe(STACKRANGE_SHEET.B74);
+				expect(sheet.cellAt('B92').value).toBe(STACKRANGE_SHEET.A74);
+				expect(sheet.cellAt('A93').value).toBe(STACKRANGE_SHEET.B75);
+				expect(sheet.cellAt('B93').value).toBe(STACKRANGE_SHEET.A75);
+				expect(sheet.cellAt('A94').value).toBe(STACKRANGE_SHEET.B76);
+				expect(sheet.cellAt('B94').value).toBe(STACKRANGE_SHEET.A76);
+				expect(sheet.cellAt('A95')).toBeUndefined();
+				expect(sheet.cellAt('B95')).toBeUndefined();
+
+				// fill stack again and drop only unique ones...
+				expect(createTerm('stackdrop(A80:B89, -1)', sheet).value).toBe(true);
+				expect(createTerm('stackdrop(A90:B99, -1)', sheet).value).toBe(true);
+				expect(createTerm('stackadd(A80:B89, A70:B79)', sheet).value).toBe(true);
+				expect(createTerm('stackfind(A80:B89, B70:B71, A90:B99, true, true)', sheet).value).toBe(true);
+				expect(sheet.cellAt('A81').value).toBe(STACKRANGE_SHEET.A72);
+				expect(sheet.cellAt('B81').value).toBe(STACKRANGE_SHEET.B72);
+				expect(sheet.cellAt('A82').value).toBe(STACKRANGE_SHEET.A73);
+				expect(sheet.cellAt('B82').value).toBe(STACKRANGE_SHEET.B73);
+				expect(sheet.cellAt('A83').value).toBe(STACKRANGE_SHEET.A74);
+				expect(sheet.cellAt('B83').value).toBe(STACKRANGE_SHEET.B74);
+				expect(sheet.cellAt('A84').value).toBe(STACKRANGE_SHEET.A76);
+				expect(sheet.cellAt('B84').value).toBe(STACKRANGE_SHEET.B76);
+				expect(sheet.cellAt('A85')).toBeUndefined();
+				expect(sheet.cellAt('B85')).toBeUndefined();
+				// check target range:
+				expect(sheet.cellAt('A91').value).toBe(STACKRANGE_SHEET.B71);
+				expect(sheet.cellAt('B91').value).toBe(STACKRANGE_SHEET.A71);
+				expect(sheet.cellAt('A92').value).toBe(STACKRANGE_SHEET.B75);
+				expect(sheet.cellAt('B92').value).toBe(STACKRANGE_SHEET.A75);
+				expect(sheet.cellAt('A93')).toBeUndefined();
+				expect(sheet.cellAt('B93')).toBeUndefined();
+				expect(sheet.cellAt('A94')).toBeUndefined();
+				expect(sheet.cellAt('B94')).toBeUndefined();
+			});
+		});
 	});
 	describe('stack rotate', () => {
 		it('should move all rows up if position is greater 0', () => {

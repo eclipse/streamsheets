@@ -333,8 +333,19 @@ class Graphics {
 	rect(x, y, width, height) {
 		this._fillOperation = true;
 		const p1 = this.transformPoint(x, y, 0);
-		const p2 = this.transformPoint(x + width, y + height, 1);
-		this._context2D.rect(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
+		width = Math.ceil(width - 0.5);
+		height = Math.ceil(height - 0.5);
+
+		const angle = this.getRotation();
+		if (angle) {
+			this._context2D.translate(p1.x, p1.y);
+			this._context2D.rotate(angle);
+			this._context2D.rect(0, 0, width, height);
+			this._context2D.rotate(-angle);
+			this._context2D.translate(-p1.x, -p1.y);
+		} else {
+			this._context2D.rect(p1.x, p1.y, width, height);
+		}
 		this._fillOperation = false;
 	}
 

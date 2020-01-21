@@ -398,10 +398,16 @@ const matchRow = (row, criteriarange, indexMatch) => {
 	}
 	return doMatch;
 };
-const find = (cellrange, criteriarange, droprows = false) => {
+const isUniqueInRows = (rows, unique) =>
+	!unique
+		? () => true
+		: (pivotrow) => !rows.some((row) => row.every((col, index) => col.value === pivotrow[index].value));
+
+const find = (cellrange, criteriarange, droprows = false, unique = false) => {
 	const sheet = cellrange.sheet;
-	const indexMatch = srcIdx2trgtIdx(cellrange, criteriarange);
 	const rows = [];
+	const isUnique = isUniqueInRows(rows, unique);
+	const indexMatch = srcIdx2trgtIdx(cellrange, criteriarange);
 	const filteredrows = [];
 	const endrow = cellrange.end.row;
 	for (let rowidx = cellrange.start.row + 1; rowidx <= endrow; rowidx += 1) {
@@ -409,7 +415,7 @@ const find = (cellrange, criteriarange, droprows = false) => {
 		// DL-629: stack should work on static values
 		cellrange.iterateRowAt(rowidx, cell => row.push(sheetutils.toStaticCell(cell)));
 		const match = matchRow(row, criteriarange, indexMatch);
-		if (match) {
+		if (match && isUnique(row)) {
 			rows.push(row);
 			if (droprows) dropRowAt(rowidx, cellrange);
 		} else {

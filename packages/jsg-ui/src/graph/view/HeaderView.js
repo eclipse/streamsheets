@@ -37,6 +37,7 @@ export default class HeaderView extends NodeView {
 
 	setFont(graphics) {
 		graphics.setFontName('Verdana');
+		graphics.setFontStyle(0);
 		graphics.setFontSize(9);
 		graphics.setFillColor('#333333');
 		graphics.setTextAlign(JSG.TextFormatAttributes.TextAlignment.CENTER);
