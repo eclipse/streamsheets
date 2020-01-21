@@ -118,7 +118,11 @@ class Producers extends Component {
 			{label: 'Provider', key: 'connector.provider.name'},
 			{label: 'Topics', key: 'topics'},
 		];
-		const producers = this.props.streams.producers.map((producer_) => {
+		const getProvider = stream => this.props.streams.providers.find((p) => {
+			const connector = this.props.streams.connectors.find(c => c.id === stream.connector.id);
+			return p.id === connector.provider.id;
+		});
+		const producers = this.props.streams.producers.filter(getProvider).map((producer_) => {
 			const producer = Object.assign({}, producer_);
 			producer.state = StreamHelper.getResourceState(producer, this.props.streams.statusMap);
 			producer.state = StreamHelper.getStatusFor(producer.state);
