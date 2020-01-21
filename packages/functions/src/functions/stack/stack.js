@@ -55,14 +55,15 @@ const drop = (sheet, ...terms) =>
 const find = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(2)
-		.withMaxArgs(4)
+		.withMaxArgs(5)
 		.mapNextArg(stackrange => getCellRangeFromTerm(stackrange, sheet) || ERROR.NAME)
 		.mapNextArg(criteriarange => getCellRangeFromTerm(criteriarange, sheet) || ERROR.NAME)
 		.mapNextArg(targetrange => getTargetRange(targetrange, sheet))
 		.mapNextArg(dropRows => toBoolean(dropRows, false))
+		.mapNextArg(unique => toBoolean(unique, false))
 		.reduce((...ranges) => checkRangeHeight(ranges))
-		.run((stackrange, criteriarange, targetrange, dropRows) => {
-			const rows = StackHelper.find(stackrange, criteriarange, dropRows);
+		.run((stackrange, criteriarange, targetrange, dropRows, unique) => {
+			const rows = StackHelper.find(stackrange, criteriarange, dropRows, unique);
 			if (targetrange) StackHelper.copyRowsToTarget(stackrange, targetrange, rows);
 			return !!rows.length;
 		});

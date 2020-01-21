@@ -34,6 +34,7 @@
     "A6": "100mV", "B6": "MULTIPLE", "C6": 56,
     "A7": "600mV", "B7": "SINGLE", "C7": 42,
     "A8": "800mV", "B8": "MULTIPLE", "C8": 23,
+    "A9": "600mV", "B9": "SINGLE",
     "A10": "serialnumber", "B10": "batteryvoltage", "C10": "clicktype", "D10": "comment",
     "A30": "A30", "B30": "B30", "C30": "C30","D30": "serialnumber", "E30": "batteryvoltage", "F30": "clicktype",
     "A31": "clicktype", "B31": "serialnumber", "C31": "batteryvoltage",
@@ -48,6 +49,15 @@
     "A61": "SINGLE", "B61": 56, "C61": "100mV",
     "A62": "MULTIPLE", "B62": 42, "C62": "600mV",
     "A64": "clicktype", "B64": "serialnumber", "C64": "batteryvoltage",
-    "A65": "NONE", "B65": true, "C65": "1000mV"
+    "A65": "NONE", "B65": true, "C65": "1000mV",
+    "A70": "batteryvoltage", "B70": "clicktype",
+    "A71": "600mV", "B71": "SINGLE",
+    "A72": "100mV", "B72": "MULTIPLE",
+    "A73": "800mV", "B73": "MULTIPLE",
+    "A74": "600mV", "B74": "SINGLE",
+    "A75": "700mV", "B75": "SINGLE",
+    "A76": "600mV", "B76": "SINGLE",
+    "A80": "batteryvoltage", "B80": "clicktype",
+    "A90": "clicktype", "B90": "batteryvoltage"
   }
 }
