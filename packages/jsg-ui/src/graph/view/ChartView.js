@@ -1162,6 +1162,15 @@ export default class ChartView extends NodeView {
 				options: {
 					devicePixelRatio: 1,
 					responsive: false,
+					options: {
+						animation: {
+							duration: 0 // general animation time
+						},
+						hover: {
+							animationDuration: 0 // duration of animations when hovering an item
+						},
+						responsiveAnimationDuration: 0 // animation duration after a resize
+					},
 					legend: {
 						position: 'right',
 						labels: {
