@@ -101,7 +101,8 @@ class Migration {
 			'stream-mongodb': '@cedalo/stream-mongodb',
 			'dl-feeder-kafka': '@cedalo/stream-kafka',
 			'stream-kafka': '@cedalo/stream-kafka',
-			'stream-mqtt': '@cedalo/stream-mqtt'
+			'stream-mqtt': '@cedalo/stream-mqtt',
+			'dl-feeder-opcua': '@cedalo/stream-opcua'
 		};
 
 		const connectorMigrations = {
