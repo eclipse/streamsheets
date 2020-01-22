@@ -44,7 +44,6 @@
     "express": "4.16.4",
     "express-session": "1.16.1",
     "form-data": "2.4.0",
-    "fs-extra": "7.0.1",
     "graphql": "14.5.8",
     "http-errors": "1.5.1",
     "ioredis": "4.6.2",
