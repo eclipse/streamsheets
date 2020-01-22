@@ -119,7 +119,7 @@ module.exports = class DefaultApp {
 		);
 
 		/* ===== Authentication ===== */
-		app.use(Auth.initialize(app));
+		app.use(Auth.initialize());
 		app.use(passport.session());
 
 		/* ===== CORS ===== */

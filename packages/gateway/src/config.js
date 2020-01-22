@@ -10,9 +10,7 @@ let APP_URL = process.env.STREAMSHEETS_APP_URL || 'http://localhost:3000';
 if (env === 'production') {
 	APP_URL = process.env.STREAMSHEETS_APP_URL || 'http://localhost:8081';
 }
-const AUTH_API_URL =
-	process.env.STREAMSHEETS_AUTH_API_URL ||
-	'http://localhost:8080/api/v1.0/auth/';
+
 const config = convict({
 	app: {
 		appUrl: {
@@ -20,13 +18,7 @@ const config = convict({
 			default: APP_URL,
 			env: 'STREAMSHEETS_APP_URL',
 			arg: 'STREAMSHEETS_APP_URL'
-		},
-		authProviders: {
-			format: '*',
-			default: 'openid',
-			env: 'AUTHENTICATION_PROVIDERS',
-			arg: 'AUTHENTICATION_PROVIDERS'
-		},
+		}
 	},
 	http: {
 		port: {
@@ -74,134 +66,6 @@ const config = convict({
 			default: '',
 			env: 'JWT_SECRET',
 			arg: 'JWT_SECRET'
-		},
-		strategies: {
-			github: {
-				callbackURL: {
-					format: 'url',
-					default: `${AUTH_API_URL}github/callback`,
-					env: 'STREAMSHEETS_GITHUB_REDIRECT_URI'
-				},
-				clientID: {
-					format: String,
-					default: 'clientId',
-					env: 'STREAMSHEETS_GITHUB_CLIENT_ID'
-				},
-				clientSecret: {
-					format: String,
-					default: 'clientSecret',
-					env: 'STREAMSHEETS_GITHUB_CLIENT_SECRET'
-				}
-			},
-			google: {
-				passReqToCallback: {
-					format: 'Boolean',
-					default: true,
-					env: 'STREAMSHEETS_GOOGLE_PASS_REQ_TO_CALLBACK'
-				},
-				callbackURL: {
-					format: 'url',
-					default: `${AUTH_API_URL}google/callback`,
-					env: 'STREAMSHEETS_GOOGLE_REDIRECT_URI'
-				},
-				clientID: {
-					format: String,
-					default: 'clientId',
-					env: 'STREAMSHEETS_GOOGLE_CLIENT_ID'
-				},
-				clientSecret: {
-					format: String,
-					default: 'clientSecret',
-					env: 'STREAMSHEETS_GOOGLE_CLIENT_SECRET'
-				},
-				scope: {
-					format: '*',
-					default: [
-						'https://www.googleapis.com/auth/userinfo.email',
-						'https://www.googleapis.com/auth/userinfo.profile'
-					],
-					env: 'STREAMSHEETS_GOOGLE_SCOPE'
-				}
-			},
-			oauth2: {
-				authorizationURL: {
-					format: 'url',
-					default: `http://test.me`,
-					env: 'STREAMSHEETS_OAUTH2_AUTHORIZATION_URL'
-				},
-				tokenURL: {
-					format: 'url',
-					default: `http://test.me`,
-					env: 'STREAMSHEETS_OAUTH2_TOKEN_URL'
-				},
-				callbackURL: {
-					format: 'url',
-					default: `${AUTH_API_URL}oauth2/callback`,
-					env: 'STREAMSHEETS_OAUTH2_REDIRECT_URI'
-				},
-				clientID: {
-					format: String,
-					default: 'id',
-					env: 'STREAMSHEETS_OAUTH2_CLIENT_ID'
-				},
-				clientSecret: {
-					format: String,
-					default: 'secret',
-					env: 'STREAMSHEETS_OAUTH2_CLIENT_SECRET'
-				},
-				scope: {
-					format: '*',
-					default: '',
-					env: 'STREAMSHEETS_OAUTH2_SCOPE'
-				}
-			},
-			ldap: {
-				passReqToCallback: {
-					format: 'Boolean',
-					default: true,
-					env: 'STREAMSHEETS_LDAP_PASS_REQ_TO_CALLBACK'
-				},
-				callbackURL: {
-					format: 'url',
-					default: `${AUTH_API_URL}oauth2/callback`,
-					env: 'STREAMSHEETS_LDAP_REDIRECT_URI'
-				},
-				clientID: {
-					format: String,
-					default: '',
-					env: 'STREAMSHEETS_LDAP_CLIENT_ID'
-				},
-				clientSecret: {
-					format: String,
-					default: '',
-					env: 'STREAMSHEETS_LDAP_CLIENT_SECRET'
-				},
-				url: {
-					format: String,
-					default: `ldap://127.0.0.1:389`,
-					env: 'STREAMSHEETS_LDAP_AUTHORIZATION_URL'
-				},
-				bindDN: {
-					format: String,
-					default: 'dc=example,dc=org',
-					env: 'STREAMSHEETS_LDAP_SCOPE'
-				},
-				bindCredentials: {
-					format: String,
-					default: 'secret',
-					env: 'STREAMSHEETS_LDAP_SCOPE'
-				},
-				searchBase: {
-					format: String,
-					default: 'dc=example,dc=org',
-					env: 'STREAMSHEETS_LDAP_SCOPE'
-				},
-				searchFilter: {
-					format: String,
-					default: '(uid={{cn}})',
-					env: 'STREAMSHEETS_LDAP_SCOPE'
-				}
-			}
 		},
 		redirectSuccessUrl: `${APP_URL}/login`,
 		redirectLogoutUrl: `${APP_URL}/logout`,
