@@ -17,6 +17,9 @@
   "bugs": {
     "url": "https://github.com/cedalo/streamsheets/issues"
   },
+  "dependencies": {
+    "@cedalo/logger": "1.5.0"
+  },
   "devDependencies": {
     "jest": "21.2.1",
     "jest-cli": "21.2.1"

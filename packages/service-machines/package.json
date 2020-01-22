@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/service-machines",
   "dependencies": {
+    "@cedalo/commons": "1.6.0-beta",
     "@cedalo/sdk-streams": "1.6.0-beta",
     "@cedalo/gateway-client-node": "1.6.0-beta",
     "@cedalo/functions": "1.6.0-beta",
