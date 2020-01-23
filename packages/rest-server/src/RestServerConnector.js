@@ -22,6 +22,14 @@ module.exports = class RestConsumer extends Connector {
 		this.setConnected();
 	}
 
+	async _updateListeners() {
+		await this.dispose();
+		if (this.config.topics) {
+			const { baseUrl } = this.config.connector;
+			this._registerListeners(this.config.topics, baseUrl);
+		}
+	}
+
 	async dispose() {
 		this._unregisterListeners();
 		this._handlers.clear();
