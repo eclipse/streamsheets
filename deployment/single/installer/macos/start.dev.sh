@@ -17,6 +17,9 @@ then
 		-p 1883:1883 \
 		-v $SCRIPT_LOCATION/settings/mosquitto:/etc/mosquitto-default-credentials \
 		-v streamsheets-data-dev:/var/lib/mongodb \
+		-v 
+    volumes:
+      - /tmp/examples/filefeeder:/filefeeder
 		--name streamsheets-dev \
 		--network streamsheets \
 		cedalo/streamsheets-dev
