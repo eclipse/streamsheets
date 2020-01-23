@@ -202,7 +202,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 								}
 							]
 						},
-						defaultValue: 1
+						defaultValue: '1'
 					},
 					timeout
 				]
