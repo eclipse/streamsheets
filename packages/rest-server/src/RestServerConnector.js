@@ -22,6 +22,14 @@ module.exports = class RestConsumer extends Connector {
 		this.setConnected();
 	}
 
+	async _updateListeners() {
+		await this.dispose();
+		if (this.config.topics) {
+			const { baseUrl } = this.config.connector;
+			this._registerListeners(this.config.topics, baseUrl);
+		}
+	}
+
 	async dispose() {
 		this._unregisterListeners();
 		this._handlers.clear();
@@ -32,7 +40,7 @@ module.exports = class RestConsumer extends Connector {
 			return;
 		}
 
-		const uniqueTopics = new Set(topics.map((topic) => [baseUrl, topic].join('/').replace(/\/+/, '/').replace(/^\//, '')));
+		const uniqueTopics = new Set(topics.map((topic) => [baseUrl, topic].join('/').replace(/\/+/g, '/').replace(/^\//g, '')));
 		uniqueTopics.forEach((topic) => {
 			this._restServer.timeoutProvider = this;
 			this._handlers.set(topic, (message) =>

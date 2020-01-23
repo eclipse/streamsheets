@@ -107,6 +107,11 @@ module.exports = class RestServerConsumer extends ConsumerMixin(RestServerConnec
 		}
 	}
 
+	async update(configDiff) {
+		await super.update(configDiff);
+		await this._updateListeners();
+	}
+
 	_hasCredentials() {
 		return this.config.connector.userName && this.config.connector.password;
 	}
