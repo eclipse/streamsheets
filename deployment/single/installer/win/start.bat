@@ -8,7 +8,7 @@ SETLOCAL
 
 FOR /f "tokens=*" %%i in ('docker ps -a -q --no-trunc --filter name^=^^streamsheets$') DO SET STREAMSHEETS_CONTAINER_EXISTS=%%i
 
-If "%1"=="pull" (
+If "%1"=="update" (
     echo "Checking for updates"
 	docker pull cedalo/streamsheets
 ) ELSE (

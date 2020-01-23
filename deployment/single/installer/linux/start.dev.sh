@@ -6,7 +6,7 @@ docker volume ls | grep streamsheets-data-dev > /dev/null || docker volume creat
 
 CMD=$1
 
-if [ $CMD = "pull" ]
+if [ $CMD = "update" ]
   then
     echo "Checking for updates"
 	docker pull cedalo/streamsheets-dev
