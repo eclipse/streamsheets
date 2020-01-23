@@ -124,6 +124,8 @@ class Machine {
 		});
 		// then load all
 		streamsheets.forEach((transdef) => this.getStreamSheet(transdef.id).load(transdef, this));
+		// second time load named cells so that references from named cells are resolved correctly
+		this.namedCells.load(this, def.namedCells);
 
 		currentStreams.forEach((descriptor) => Streams.registerSource(descriptor, this));
 		setTimeout(() => {
@@ -131,8 +133,7 @@ class Machine {
 			this.notifyUpdate('namedCells');
 		}, 60000);
 
-		// second time load named cells so that references from named cells are resolved correctly
-		this.namedCells.load(this, def.namedCells);
+
 		// update value of cells to which are not currently valid without changing valid values
 		// => e.g. if a cell references another cell which was loaded later...
 		this._streamsheets.forEach((streamsheet) => streamsheet.sheet.iterate((cell) => cell.update()));
