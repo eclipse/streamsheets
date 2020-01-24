@@ -36,7 +36,7 @@ RUN apk --no-cache add g++ make bash curl nginx git gnupg rsync unzip mosquitto 
 COPY deployment/single/services /services
 COPY .yarnrc package.json yarn.lock /streamsheets/
 COPY packages /streamsheets/packages
-RUN cd /streamsheets && yarn install --production --frozen-lockfile
+RUN cd /streamsheets && yarn install --production --frozen-lockfile --network-timeout 100000
 RUN npm i -g pushstate-server@3.0.1
 # TODO: Check if this is really necessary
 COPY packages/gateway/config /config
