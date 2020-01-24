@@ -70,7 +70,6 @@ module.exports = class MessagingService extends BaseService {
 				retain: true
 			}
 		});
-		// await this._messagingClient.connect({ kafkaHost: '192.168.178.20:9092' });
 		this._messagingClient.on('message', (topic, message) => {
 			// TODO: handle empty message
 			// TODO: handle JSON parse error
