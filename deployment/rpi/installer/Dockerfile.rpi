@@ -1,7 +1,7 @@
 FROM alpine:latest
 LABEL maintainer="philip.ackermann@cedalo.com"
 
-RUN apk --no-cache add curl gnupg unzip
+RUN apk --no-cache add curl gnupg rsync unzip
 
 # Copy the docker-compose files
 COPY ./docker-compose /installer/docker-compose
