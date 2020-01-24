@@ -9,5 +9,5 @@ SCRIPT_LOCATION="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd
 docker volume ls | grep streamsheets-data > /dev/null || docker volume create streamsheets-data
 
 sudo docker-compose \
-	-f ./docker-compose/docker-compose.yml \
+	-f ./docker-compose/docker-compose.prod.yml \
 	up
