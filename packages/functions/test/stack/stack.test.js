@@ -985,7 +985,85 @@ describe('stack functions', () => {
 			});
 			it('should handle empty cells in source range', () => {
 				const _sheet = new StreamSheet().sheet.load({ cells: SHEET.STACKFIND });
-				expect(createTerm('stackfind(C1:D16, A1:B2, E1:E16, true, true)', _sheet).value).toBe(true);
+				expect(createTerm('stackfind(C1:D16, A1:B2, E1:F16, true, true)', _sheet).value).toBe(true);
+				// check stack
+				expect(_sheet.cellAt('C2').value).toBe(10);
+				expect(_sheet.cellAt('D2').value).toBe(2);
+				expect(_sheet.cellAt('C3').value).toBe(7);
+				expect(_sheet.cellAt('D3').value).toBe(1);
+				expect(_sheet.cellAt('C4').value).toBe(7);
+				expect(_sheet.cellAt('D4').value).toBe(1);
+				// keep empty rows?
+				expect(_sheet.cellAt('C5')).toBeUndefined();
+				expect(_sheet.cellAt('D5')).toBeUndefined();
+				expect(_sheet.cellAt('C6').value).toBe(8);
+				expect(_sheet.cellAt('D6').value).toBe(2);
+				expect(_sheet.cellAt('C7').value).toBe(1);
+				expect(_sheet.cellAt('D7').value).toBe(1);
+				expect(_sheet.cellAt('C8').value).toBe(3);
+				expect(_sheet.cellAt('D8').value).toBe(1);
+				expect(_sheet.cellAt('C9').value).toBe(5);
+				expect(_sheet.cellAt('D9').value).toBe(1);
+				expect(_sheet.cellAt('C10').value).toBe(7);
+				expect(_sheet.cellAt('D10').value).toBe(1);
+				expect(_sheet.cellAt('C11')).toBeUndefined();
+				expect(_sheet.cellAt('D11')).toBeUndefined();
+				expect(_sheet.cellAt('C12').value).toBe(9);
+				expect(_sheet.cellAt('D12').value).toBe(1);
+				expect(_sheet.cellAt('C13').value).toBe(9);
+				expect(_sheet.cellAt('D13').value).toBe(1);
+				expect(_sheet.cellAt('C14').value).toBe(9);
+				expect(_sheet.cellAt('D14').value).toBe(1);
+				expect(_sheet.cellAt('C15').value).toBe(9);
+				expect(_sheet.cellAt('D15').value).toBe(1);
+				expect(_sheet.cellAt('C16')).toBeUndefined();
+				expect(_sheet.cellAt('D16')).toBeUndefined();
+				// check target
+				expect(_sheet.cellAt('E2').value).toBe(9);
+				expect(_sheet.cellAt('F2').value).toBe(1);
+				expect(_sheet.cellAt('E3')).toBeUndefined();
+				expect(_sheet.cellAt('F3')).toBeUndefined();
+
+				expect(createTerm('stackdrop(E1:F16, -1)', _sheet).value).toBe(true);
+				_sheet.load({ cells: SHEET.STACKFIND });
+				expect(createTerm('stackfind(C1:D16, A1:B2, E1:F16, true, false)', _sheet).value).toBe(true);
+				// check stack
+				expect(_sheet.cellAt('C2').value).toBe(10);
+				expect(_sheet.cellAt('D2').value).toBe(2);
+				expect(_sheet.cellAt('C3').value).toBe(7);
+				expect(_sheet.cellAt('D3').value).toBe(1);
+				expect(_sheet.cellAt('C4').value).toBe(7);
+				expect(_sheet.cellAt('D4').value).toBe(1);
+				// keep empty rows?
+				expect(_sheet.cellAt('C5')).toBeUndefined();
+				expect(_sheet.cellAt('D5')).toBeUndefined();
+				expect(_sheet.cellAt('C6').value).toBe(8);
+				expect(_sheet.cellAt('D6').value).toBe(2);
+				expect(_sheet.cellAt('C7').value).toBe(1);
+				expect(_sheet.cellAt('D7').value).toBe(1);
+				expect(_sheet.cellAt('C8').value).toBe(3);
+				expect(_sheet.cellAt('D8').value).toBe(1);
+				expect(_sheet.cellAt('C9').value).toBe(5);
+				expect(_sheet.cellAt('D9').value).toBe(1);
+				expect(_sheet.cellAt('C10').value).toBe(7);
+				expect(_sheet.cellAt('D10').value).toBe(1);
+				expect(_sheet.cellAt('C11')).toBeUndefined();
+				expect(_sheet.cellAt('D11')).toBeUndefined();
+				expect(_sheet.cellAt('C12')).toBeUndefined();
+				expect(_sheet.cellAt('D12')).toBeUndefined();
+				// check target range:
+				expect(_sheet.cellAt('E2').value).toBe(9);
+				expect(_sheet.cellAt('F2').value).toBe(1);
+				expect(_sheet.cellAt('E3').value).toBe(9);
+				expect(_sheet.cellAt('F3').value).toBe(1);
+				expect(_sheet.cellAt('E4').value).toBe(9);
+				expect(_sheet.cellAt('F4').value).toBe(1);
+				expect(_sheet.cellAt('E5').value).toBe(9);
+				expect(_sheet.cellAt('F5').value).toBe(1);
+				expect(_sheet.cellAt('E6').value).toBe(9);
+				expect(_sheet.cellAt('F6').value).toBe(1);
+				expect(_sheet.cellAt('E7')).toBeUndefined();
+				expect(_sheet.cellAt('F7')).toBeUndefined();
 			});
 		});
 	});
