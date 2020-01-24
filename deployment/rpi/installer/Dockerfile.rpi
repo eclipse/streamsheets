@@ -3,7 +3,7 @@ LABEL maintainer="philip.ackermann@cedalo.com"
 
 RUN apk --no-cache add curl gnupg unzip
 
-COPY ./scripts /scripts
+COPY ./docker-compose /docker-compose
 COPY install.sh /install
 RUN chmod +x /install
 
