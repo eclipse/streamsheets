@@ -3,8 +3,13 @@ LABEL maintainer="philip.ackermann@cedalo.com"
 
 RUN apk --no-cache add curl gnupg unzip
 
-COPY ./docker-compose /docker-compose
-COPY ./start.sh /start.sh
+# Copy the docker-compose files
+COPY ./docker-compose /installer/docker-compose
+
+# Copy the start script
+COPY ./start.sh /installer/start.sh
+
+# Copy the script executed during the installation
 COPY install.sh /install
 RUN chmod +x /install
 
