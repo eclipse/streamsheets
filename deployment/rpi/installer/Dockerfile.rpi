@@ -4,6 +4,7 @@ LABEL maintainer="philip.ackermann@cedalo.com"
 RUN apk --no-cache add curl gnupg unzip
 
 COPY ./docker-compose /docker-compose
+COPY ./start.sh /start.sh
 COPY install.sh /install
 RUN chmod +x /install
 
