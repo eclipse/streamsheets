@@ -401,7 +401,13 @@ const matchRow = (row, criteriarange, indexMatch) => {
 const isUniqueInRows = (rows, unique) =>
 	!unique
 		? () => true
-		: (pivotrow) => !rows.some((row) => row.every((col, index) => col.value === pivotrow[index].value));
+		: (pivotrow) =>
+				!rows.some((row) =>
+					row.every((col, index) => {
+						const pivot = pivotrow[index];
+						return col == null ? pivot == null : pivot != null && col.value === pivot.value;
+					})
+				);
 
 const find = (cellrange, criteriarange, droprows = false, unique = false) => {
 	const sheet = cellrange.sheet;

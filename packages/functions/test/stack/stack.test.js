@@ -1,9 +1,10 @@
-const STACKRANGE_SHEET = require('../_data/sheets.json').STACKRANGE;
+const SHEET = require('../_data/sheets.json');
 const { createTerm } = require('../utils');
 const { Cell, Machine, StreamSheet } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
+const STACKRANGE_SHEET = SHEET.STACKRANGE;
 
 let sheet;
 beforeEach(() => {
@@ -981,6 +982,10 @@ describe('stack functions', () => {
 				expect(sheet.cellAt('B93')).toBeUndefined();
 				expect(sheet.cellAt('A94')).toBeUndefined();
 				expect(sheet.cellAt('B94')).toBeUndefined();
+			});
+			it('should handle empty cells in source range', () => {
+				const _sheet = new StreamSheet().sheet.load({ cells: SHEET.STACKFIND });
+				expect(createTerm('stackfind(C1:D16, A1:B2, E1:E16, true, true)', _sheet).value).toBe(true);
 			});
 		});
 	});
