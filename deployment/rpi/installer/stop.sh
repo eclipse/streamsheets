@@ -2,4 +2,4 @@
 
 docker-compose \
 	-f ./docker-compose/docker-compose.prod.yml \
-	down
+	stop
