@@ -28,6 +28,7 @@ module.exports = class BackupRestoreRoutes {
 					const collections = await db.listCollections().toArray();
 					const pendingEntries = collections
 						.map((c) => c.name)
+						.filter(name => !name.startsWith('system.'))
 						.map(async (collection) => {
 							const data = await db
 								.collection(collection)
@@ -77,6 +78,7 @@ module.exports = class BackupRestoreRoutes {
 
 					const pendingCollectionDrop = collections
 						.map((c) => c.name)
+						.filter(name => !name.startsWith('system.'))
 						.map((name) => db.collection(name).drop());
 
 					await Promise.all(pendingCollectionDrop);
