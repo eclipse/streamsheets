@@ -5,11 +5,11 @@ services:
     image: cedalo/streamsheets-personal:1.5
     container_name: streamsheets
     ports:
+      - 1883:1883
       - 8081:8081
       - 8083:8083
-      - 1884:1884
-      - 6379:6379
     expose:
+      - 1883
       - 8081
       - 8083
     environment:
