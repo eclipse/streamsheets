@@ -56,6 +56,10 @@ RUN mkdir -p \
 # RUN npm install --global cross-env
 # RUN cd /streamsheets/packages/webui && yarn install --production && npm run build
 
+# License agreement
+RUN cp /streamsheets/packages/webui/licenses/license_personal_DE.pdf /streamsheets/packages/webui/build/license_DE.pdf
+RUN cp /streamsheets/packages/webui/licenses/license_personal_EN.pdf /streamsheets/packages/webui/build/license_EN.pdf
+
 # Mosquitto
 COPY deployment/single/mosquitto etc/mosquitto
 
