@@ -1,0 +1,43 @@
+version: '3.7'
+
+services:
+  streamsheets:
+    image: cedalo/streamsheets-personal:1.5
+    container_name: streamsheets
+    ports:
+      - 1883:1883
+      - 8081:8081
+      - 8083:8083
+    expose:
+      - 1883
+      - 8081
+      - 8083
+    environment:
+      MONGO_DATABASE: streamsheets
+      MONGO_HOST: streamsheets-internal-mongodb
+      MONGO_PORT: 27017
+      MONGO_USER_DB_URI: mongodb://streamsheets-internal-mongodb:27017/userDB
+    volumes:
+      - ../settings/mosquitto:/etc/mosquitto-default-credentials
+    links:
+      - streamsheets-internal-mongodb
+    depends_on:
+      - streamsheets-internal-mongodb
+    networks:
+      - streamsheets
+    # logging:
+    #   driver: "none"
+  streamsheets-internal-mongodb:
+    image: andresvidal/rpi3-mongodb3
+    #image: dhermanns/rpi-mongo
+    container_name: streamsheets-internal-mongodb
+    volumes:
+      - "/internal-mongo/data/db:/data/db"
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+networks:
+  streamsheets:
+    name: streamsheets
+    driver: bridge

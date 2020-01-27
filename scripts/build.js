@@ -25,13 +25,15 @@ const baseImage = argv.image || '';
 
 const imageName = argv.name;
 
+const dockerFileName = argv.dockerfile || 'Dockerfile';
+
 const skipFrontendBuild = argv.skipFrontend;
 
 const baseImageArg = baseImage ? `--build-arg BASE_IMAGE=${baseImage}` : '';
 
 const buildTaggedImageArg = (tag) => `${imageName}:${tag}`;
 
-const dockerFilePath = path.join('deployment', 'single', 'Dockerfile');
+const dockerFilePath = path.join('deployment', 'single', dockerFileName);
 
 const taggedImageArgs = tags.map((tag) => `-t ${buildTaggedImageArg(tag)}`);
 
