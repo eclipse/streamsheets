@@ -10,7 +10,6 @@ const { ERROR, OK } = require('./ReturnCodes');
  */
 module.exports = class Drawings {
 	constructor() {
-		this._drawings = {};
 		this._graphItems = {};
 	}
 
@@ -55,6 +54,7 @@ module.exports = class Drawings {
 			return ERROR.INVALID;
 		}
 
+
 		item.source = scope.graphCells.evaluating ? 'name' : 'cell';
 		item.sheetname = String(this.getGraphParam(terms, 0, ''));
 		item.parent = String(this.getGraphParam(terms, 1, ''));
@@ -62,6 +62,11 @@ module.exports = class Drawings {
 		item.type = type;
 		item.x = this.getGraphParam(terms, 3, 0);
 		item.y = this.getGraphParam(terms, 4, 0);
+
+		const cell = scope.graphCells._cells.get(item.sheetname);
+		if (cell) {
+			item.formula = cell.formula;
+		}
 
 		switch (type) {
 		case 'label':
@@ -188,54 +193,8 @@ module.exports = class Drawings {
 		return this._graphItems;
 	}
 
-	getDrawings() {
-		return this._drawings;
-	}
-
-	setDrawings(drawings) {
-		if (drawings === undefined) {
-			this._drawings = {};
-		} else {
-			this._drawings = drawings;
-		}
-	}
-
-	getDrawing(name) {
-		if (this._drawings[name] === undefined) {
-			this._drawings[name] = {
-				items: {}
-			};
-		}
-
-		return this._drawings[name];
-	}
-
-	hasDrawing(name) {
-		return this._drawings[name] !== undefined;
-	}
-
-	getItem(nameDrawing, nameItem) {
-		const drawing = this.getDrawing(nameDrawing);
-		if (drawing === undefined) {
-			return undefined;
-		}
-
-		if (drawing.items[nameItem] === undefined) {
-			drawing.items[nameItem] = {};
-		}
-
-		return drawing.items[nameItem];
-	}
-
 	checkParam(terms, index) {
 		return terms.length > index && terms[index].value !== null && terms[index].value !== undefined;
-	}
-
-	getEventParams(terms, drawing, index) {
-		if (terms.length > index && (terms[index] instanceof FuncTerm) && terms[index].params.length > 0) {
-			drawing.event = terms[index].name.toUpperCase();
-			drawing.func = terms[index].params[0].toString();
-		}
 	}
 
 	getEvents(terms) {
@@ -558,6 +517,6 @@ module.exports = class Drawings {
 	}
 
 	toJSON() {
-		return this._drawings;
+		return {};
 	}
 };

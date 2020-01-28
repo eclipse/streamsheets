@@ -6,8 +6,7 @@ FOR /f "tokens=*" %%i in ('docker ps -a -q --no-trunc --filter name^=^^streamshe
 FOR /f "tokens=*" %%i in ('docker ps -q --no-trunc --filter name^=^^streamsheets-dev$') DO SET STREAMSHEETS_RUNNING=%%i
 
 echo Checking for updates...
-FOR /f "tokens=*" %%i in ('docker pull cedalo/streamsheets-dev ^| findstr "Image is up to date"') DO SET NO_UPDATE=%%i
-
+FOR /f "tokens=*" %%i in ('docker pull cedalo/streamsheets-dev ^| findstr /C:"Image is up to date"') DO SET NO_UPDATE=%%i
 
 IF NOT ["%NO_UPDATE%"] == [""] (
 	echo Already up-to-date
