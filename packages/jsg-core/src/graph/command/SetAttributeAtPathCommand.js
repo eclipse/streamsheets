@@ -1,10 +1,9 @@
-const JSG = require('../../JSG');
 const ObjectFactory = require('../../ObjectFactory');
 const AbstractItemCommand = require('./AbstractItemCommand');
 const JSONReader = require('../../commons/JSONReader');
 const JSONWriter = require('../../commons/JSONWriter');
 const Expression = require('../expr/Expression');
-
+const Attribute = require('../attr/Attribute');
 
 const readExpression = ({ type, json }) => {
 	const expr = ObjectFactory.create(type);
@@ -26,11 +25,6 @@ const writeExpression = (expr) => {
 	return data;
 };
 
-const getItem = (data, graph) =>
-	data.itemId && data.parentId === undefined
-		? graph.getItemById(data.itemId)
-		: undefined;
-
 /**
  * Command to change the value of an existing attribute.
  *
@@ -51,6 +45,7 @@ const getItem = (data, graph) =>
  * @param {GraphItem} item Item to change an attribute of.
  * @param {String} path An existing attribute path which references the attribute to change.
  * @param {BooleanExpression | Object} newvalue New value of attribute.
+ * @param {Boolean} create Create Attribute, if not exisiting.
  * @since 2.0.11
  */
 class SetAttributeAtPathCommand extends AbstractItemCommand {
@@ -64,18 +59,20 @@ class SetAttributeAtPathCommand extends AbstractItemCommand {
 			? new SetAttributeAtPathCommand(
 					item,
 					data.path,
-					newValue
+					newValue,
+					data.create
 			  ).initWithObject(data)
 			: undefined;
 	}
 
-	constructor(item, path, newvalue) {
+	constructor(item, path, newvalue, create) {
 		super(item);
 
 		const attr = item.getAttributeAtPath(path);
 		this._path = path;
 		this._newvalue = newvalue;
-		this._oldvalue = attr ? attr.getExpression().copy() : undefined;
+		this._oldvalue = attr ? attr.getExpression().copy() : new Expression(0);
+		this._create = create;
 	}
 
 	initWithObject(data) {
@@ -92,6 +89,7 @@ class SetAttributeAtPathCommand extends AbstractItemCommand {
 			this._newvalue instanceof Expression
 				? writeExpression(this._newvalue)
 				: { type: 'static', value: this._newvalue };
+		data.create = this._create;
 		return data;
 	}
 
@@ -114,12 +112,18 @@ class SetAttributeAtPathCommand extends AbstractItemCommand {
 	}
 
 	_setAttributeTo(value) {
-		const attr = this._graphItem.getAttributeAtPath(this._path);
+		let attr = this._graphItem.getAttributeAtPath(this._path);
+
 		// value of 0 or false should be allowed
-		if (attr /* && value */) {
+		if (attr) {
 			attr.setExpressionOrValue(value);
 			attr.evaluate(this._graphItem);
+		} else if (this._create) {
+			attr = new Attribute('sheetformula', value);
+			this._graphItem.addAttributeAtPath(this._path, attr);
+			attr.evaluate(this._graphItem);
 		}
+
 		this._graphItem.updateSubAttributes();
 	}
 }

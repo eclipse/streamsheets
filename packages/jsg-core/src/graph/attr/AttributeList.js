@@ -236,6 +236,49 @@ class AttributeList extends Attribute {
 	}
 
 	/**
+	 * Adds given Attribute under specified path to given AttributeList.</br>
+	 * That means the path must be relative to the AttributeList and specifies the parent to add the
+	 * Attribute to.
+	 *
+	 * @method addAttributeAtPath
+	 * @param {String} path The parent Attribute path.
+	 * @param {JSG.graph.attr.Attribute} attribute The Attribute to add.
+	 * @param {JSG.graph.attr.AttributeList} toAttributes The AttributeList to start the parent look up at.
+	 * @param {Boolean} [addParents] An optional flag to indicate that each specified parent list within given path
+	 *     should be created if it not exists.
+	 * @return {JSG.graph.attr.Attribute} The added Attribute or undefined if attribute parent could
+	 * not be found.
+	 * @static
+	 */
+	static addAttributeAtPath(path, attribute, toAttributes, addParents) {
+		let parent = AttributeList.findAttributeByPath(this._getParentPath(path, attribute), toAttributes);
+
+		if (!parent && addParents) {
+			const parts = path
+				? path.split(Attribute.PATH_DELIMITER)
+				: [];
+			parent = AttributeList._lookUpAttribute(parts, toAttributes, addParents);
+		}
+		// const AttributeList = require('./AttributeList');
+		if (parent instanceof AttributeList) {
+			parent.addAttribute(attribute);
+			return attribute;
+		}
+
+		return undefined;
+	}
+
+	static _getParentPath(path, attribute) {
+		const name = attribute.getName();
+		const cutIndex = path.indexOf(name, path.length - name.length);
+		if (cutIndex !== -1) {
+			// cut off attribute name...
+			path = path.substring(0, cutIndex - 1);
+		}
+		return path;
+	}
+
+	/**
 	 * Sets the value of the Attribute specified by given path.<br/>
 	 * <b>Note:</b> if the attribute to change is defined by a template, it will be copied into the list which is
 	 * specified by given path before its value is set. Setting its value back again to match the value defined by the
