@@ -339,7 +339,7 @@ class Model {
 	 * attribute could not be added.
 	 */
 	addAttributeAtPath(path, attribute, addParents) {
-		return this._modelAttributes.addAttributeAtPath(path, attribute, addParents);
+		return AttributeList.addAttributeAtPath(path, attribute, this._modelAttributes, addParents);
 	}
 
 	/**

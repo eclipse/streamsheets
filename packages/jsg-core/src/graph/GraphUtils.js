@@ -114,22 +114,23 @@ class GraphUtils {
 	}
 
 	/**
-	 * Traverses item hierarchy from given item, inclusively, and calls the provided function on each
+	 * Traverses item hierarchy from given item and calls the provided function on each
 	 * visited sub-item.
 	 *
 	 * @static
 	 * @method traverseItem
 	 * @param {GraphItem} item The item to start traversal at.
 	 * @param {Function} func The function to call for each visited item.
+	 * @param {Boolean} include Include given item or not.
 	 */
-	static traverseItem(item, func) {
+	static traverseItem(item, func, include = true) {
 		if (item) {
-			let i;
-			let n;
-			func.call(this, item);
-			for (i = 0, n = item.getItemCount(); i < n; i += 1) {
-				GraphUtils.traverseItem(item.getItemAt(i), func);
+			if (include) {
+				func.call(this, item);
 			}
+			item.getItems().forEach((litem) => {
+				GraphUtils.traverseItem(litem, func);
+			});
 		}
 	}
 
