@@ -7,10 +7,10 @@ docker volume ls | findstr streamsheets-data-dev || docker volume create streams
 SETLOCAL enableextensions
 
 FOR /f "tokens=*" %%i in ('docker ps -a -q --no-trunc --filter name^=^^streamsheets-dev$') DO SET STREAMSHEETS_CONTAINER_EXISTS=%%i
+FOR /f "tokens=*" %%i in ('docker ps -q --no-trunc --filter name^=^^streamsheets-dev$') DO SET STREAMSHEETS_RUNNING=%%i
 
 If "%1"=="update" (
-    echo "Checking for updates"
-	docker pull cedalo/streamsheets-dev
+    "%~dp0update.dev.bat"
 ) ELSE (
 	IF ["%STREAMSHEETS_CONTAINER_EXISTS%"] == [""] (
 		echo "Creating and starting Streamsheets Docker container"

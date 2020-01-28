@@ -385,15 +385,17 @@ const matchRow = (row, criteriarange, indexMatch) => {
 	const endrow = criteriarange.end.row;
 	const getCriteriaCell = (rowidx, criteriaidx) =>
 		criteriaidx != null && sharedidx.set(rowidx, criteriaidx) ? sheet.cellAt(sharedidx) : null;
-	const doesNotMatchCellCriteria = (cell, index) => {
-		const rowidx = doesNotMatchCellCriteria.rowidx;
+	const notMatchCellCriteria = (cell, index) => {
+		const rowidx = notMatchCellCriteria.rowidx;
 		const criteriaidx = indexMatch[index];
 		const criteriacell = getCriteriaCell(rowidx, criteriaidx);
-		return cell && criteriacell ? cell.value !== criteriacell.value : cell == null && criteriacell == null;
+		const cellvalue = cell ? cell.value : undefined;
+		const criteriavalue = criteriacell ? criteriacell.value : undefined;
+		return criteriavalue != null && criteriavalue !== cellvalue;
 	};
 	for (let rowidx = criteriarange.start.row + 1; rowidx <= endrow; rowidx += 1) {
-		doesNotMatchCellCriteria.rowidx = rowidx;
-		const isFulFilled = !row.some(doesNotMatchCellCriteria);
+		notMatchCellCriteria.rowidx = rowidx;
+		const isFulFilled = !row.some(notMatchCellCriteria);
 		doMatch = doMatch || isFulFilled;
 	}
 	return doMatch;
@@ -401,7 +403,13 @@ const matchRow = (row, criteriarange, indexMatch) => {
 const isUniqueInRows = (rows, unique) =>
 	!unique
 		? () => true
-		: (pivotrow) => !rows.some((row) => row.every((col, index) => col.value === pivotrow[index].value));
+		: (pivotrow) =>
+				!rows.some((row) =>
+					row.every((col, index) => {
+						const pivot = pivotrow[index];
+						return col == null ? pivot == null : pivot != null && col.value === pivot.value;
+					})
+				);
 
 const find = (cellrange, criteriarange, droprows = false, unique = false) => {
 	const sheet = cellrange.sheet;
