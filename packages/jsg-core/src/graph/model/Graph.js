@@ -88,8 +88,6 @@ class Graph extends GraphItem {
 		this.setName('graph');
 	}
 
-	assignUniqueGraphName() {}
-
 	/**
 	 * Returns, if graph has changed.
 	 *
