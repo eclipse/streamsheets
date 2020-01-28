@@ -1,16 +1,18 @@
-const passport = require('passport');
-const passportJWT = require('passport-jwt');
-const jwt = require('jsonwebtoken');
-const { LoggerFactory } = require('@cedalo/logger');
+import passport from 'passport';
+import passportJWT from 'passport-jwt';
+import jwt from 'jsonwebtoken';
+import { LoggerFactory } from '@cedalo/logger';
 
-const logger = LoggerFactory.createLogger(
-	'gateway - Auth',
-	process.env.STREAMSHEETS_LOG_LEVEL
-);
+const logger = LoggerFactory.createLogger('gateway - Auth', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
 const ExtractJwt = passportJWT.ExtractJwt;
 const JwtStrategy = passportJWT.Strategy;
 
 class Auth {
+	private jwtOptions: passportJWT.StrategyOptions = {
+		jwtFromRequest: () => '',
+		secretOrKey: ''
+	};
+
 	initStrategies() {
 		passport.use(
 			'jwt',
@@ -25,7 +27,7 @@ class Auth {
 		);
 	}
 
-	set jwtSecret(secret) {
+	set jwtSecret(secret: string) {
 		this.jwtOptions = {
 			jwtFromRequest: ExtractJwt.fromAuthHeader(),
 			secretOrKey: secret
@@ -43,26 +45,27 @@ class Auth {
 		return passport.initialize();
 	}
 
-	getToken(payload) {
+	getToken(payload: object) {
 		return jwt.sign(payload, this.jwtOptions.secretOrKey, {
 			expiresIn: process.env.JWT_TOKEN_TTL || '365 days'
 		});
 	}
 
-	parseToken(token) {
-		if (process.env.NODE_ENV === 'develop' && token === 'develop') {
-			logger.warn('DEBUG!! Ignore invalid token!! REMOVE IT!!!');
-			return Promise.resolve({});
-		}
+	async parseToken(token: string): Promise<User> {
+		// if (process.env.NODE_ENV === 'develop' && token === 'develop') {
+		// 	logger.warn('DEBUG!! Ignore invalid token!! REMOVE IT!!!');
+		// 	return Promise.resolve({});
+		// }
 		return new Promise((resolve, reject) => {
 			jwt.verify(token, this.jwtOptions.secretOrKey, (err, decoded) => {
 				if (err) {
 					return reject(err);
 				}
-				return resolve(decoded);
+				// TODO: Check that we actually got a user object
+				return resolve(<User>decoded);
 			});
 		});
 	}
 }
 
-module.exports = new Auth();
+export default new Auth();

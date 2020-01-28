@@ -1,24 +1,31 @@
-const logger = require('../utils/logger').create({ name: 'SocketServer' });
-const { GatewayMessagingProtocol } = require('@cedalo/protocols');
-
-const utils = require('../utils');
-const Auth = require('../Auth');
-const ProxyConnection = require('./ProxyConnection');
-const InterceptorChain = require('./interceptors/InterceptorChain');
-const AuthorizationInterceptor = require('./interceptors/AuthorizationInterceptor');
-const GraphServerInterceptor = require('./interceptors/GraphServerInterceptor');
-const MachineServerInterceptor = require('./interceptors/MachineServerInterceptor');
-const WebSocket = require('ws');
+import { GatewayMessagingProtocol } from '@cedalo/protocols';
+import * as http from 'http';
+import WebSocket from 'ws';
+import Auth from '../Auth';
+import { getUserFromWebsocketRequest } from '../utils';
+import LoggerFactory from '../utils/logger';
+import AuthorizationInterceptor from './interceptors/AuthorizationInterceptor';
+import GraphServerInterceptor from './interceptors/GraphServerInterceptor';
+import InterceptorChain from './interceptors/InterceptorChain';
+import MachineServerInterceptor from './interceptors/MachineServerInterceptor';
+import ProxyConnection from './ProxyConnection';
+const logger = LoggerFactory.create({ name: 'SocketServer' });
 
 const DEFAULTS = {
 	host: '0.0.0.0',
 	port: 8088,
 	path: '/machineserver-proxy',
-	tokenKey: 'authToken',
+	tokenKey: 'authToken'
 };
 
-module.exports = class SocketServer {
-	constructor(config = DEFAULTS, gatewayService) {
+export default class SocketServer {
+	private wss: WebSocket.Server | null = null;
+	private wssConfig: WebSocket.ServerOptions;
+	private interceptorchain: InterceptorChain;
+	private _gatewayService: any;
+	_config: any;
+
+	constructor(config = DEFAULTS, gatewayService: any) {
 		this._config = Object.assign({}, DEFAULTS, config);
 		this._gatewayService = gatewayService;
 		this.wssConfig = {};
@@ -26,22 +33,18 @@ module.exports = class SocketServer {
 		this.wssConfig.host = this._config.host;
 		this.wssConfig.path = this._config.path;
 		this.wssConfig.clientTracking = true;
-		this.wssConfig.verifyClient = this._verifyClient.bind(this);
-		this.wss = null;
+		this.wssConfig.verifyClient = (info, cb) => {
+			getUserFromWebsocketRequest(info.req, this._config.tokenKey, Auth.parseToken.bind(Auth))
+				.then(() => cb(true))
+				.catch((error: any) => {
+					logger.warn('unable to verify client:', error && error.message ? error.message : error);
+					cb(false, 401, 'Unauthorized');
+				});
+		};
 		this.interceptorchain = new InterceptorChain();
 		this.interceptorchain.add(new AuthorizationInterceptor());
 		this.interceptorchain.add(new GraphServerInterceptor());
 		this.interceptorchain.add(new MachineServerInterceptor());
-	}
-
-	_verifyClient(info, cb) {
-		utils
-			.getUserFromWebsocketRequest(info.req, this._config.tokenKey, Auth.parseToken.bind(Auth))
-			.then(() => cb(true))
-			.catch((error) => {
-				logger.warn('unable to verify client:', error && error.message ? error.message : error);
-				cb(false, 401, 'Unauthorized')
-			});
 	}
 
 	get gatewayService() {
@@ -69,13 +72,9 @@ module.exports = class SocketServer {
 			  });
 	}
 
-	async handleConnection(ws, request) {
+	async handleConnection(ws: WebSocket, request: http.IncomingMessage) {
 		try {
-			const user = await utils.getUserFromWebsocketRequest(
-				request,
-				this._config.tokenKey,
-				Auth.parseToken.bind(Auth)
-			);
+			const user = await getUserFromWebsocketRequest(request, this._config.tokenKey, Auth.parseToken.bind(Auth));
 			// create & connect new client-connection...
 			this.connectClient(ProxyConnection.create(ws, request, user, this));
 			this.handleUserJoined(ws, user);
@@ -85,7 +84,7 @@ module.exports = class SocketServer {
 		}
 	}
 
-	handleUserJoined(ws, user) {
+	handleUserJoined(ws: WebSocket, user: User) {
 		logger.info('user joined', { user });
 		if (this.shouldBroadcast(user)) {
 			const message = {
@@ -95,15 +94,15 @@ module.exports = class SocketServer {
 					user
 				}
 			};
-			this.broadcastExceptForUser(message, user);
+			this.broadcastExceptForUser(message, user.id);
 		}
 	}
 
-	logoutUser({ user }) {
+	logoutUser({ user }: { user: User; msg?: any }) {
 		return this.findConnectionsByUser(user).forEach((c) => this.logoutConnection(c));
 	}
 
-	logoutConnection(connection) {
+	logoutConnection(connection: ProxyConnection) {
 		const message = {
 			type: 'event',
 			event: {
@@ -117,7 +116,7 @@ module.exports = class SocketServer {
 		connection.close();
 	}
 
-	handleUserLeft(session) {
+	handleUserLeft(session: Session) {
 		logger.info('user left', { user: session.user });
 		if (this.shouldBroadcast(session.user)) {
 			const message = {
@@ -128,47 +127,37 @@ module.exports = class SocketServer {
 					sessionId: session.id
 				}
 			};
-			this.broadcastExceptForUser(message, session);
+			this.broadcastExceptForUser(message, session.user.id);
 		}
 	}
 
-	shouldBroadcast(user) {
+	shouldBroadcast(user?: User) {
 		return user && user.id;
 	}
 
-	connectClient(client) {
+	connectClient(client: any) {
 		client.interceptor = this.interceptorchain;
-		client.connectGraphServer().catch((error) => {
+		client.connectGraphServer().catch((error: any) => {
 			logger.error('Graph service not available!');
 			logger.error(error);
 		});
-		client.connectMachineServer().catch((error) => {
+		client.connectMachineServer().catch((error: any) => {
 			logger.error('Machine service not available!');
 			logger.error(error);
 		});
 	}
 
-	handleRestRequest(message, user) {
-		const connection = this.findConnectionByUser(user);
-		return connection
-			? connection.sendToServer(message)
-			: Promise.reject(new Error(`No connection found for given user: ${user}`));
+	findConnectionBySession(session: Session) {
+		return [...ProxyConnection.openConnections].find((connection) => connection.id === session.id);
 	}
 
-	findConnectionByUser(session) {
-		let connection = null;
-		ProxyConnection.openConnections.forEach((client) => {
-			connection = client.id === session.id ? client : connection;
-		});
-		return connection;
+	findConnectionsByUser(user: User) {
+		return [...ProxyConnection.openConnections].filter(
+			(connection) => connection.user && connection.user.id === user.id
+		);
 	}
 
-	findConnectionsByUser(user) {
-		const connections = [...ProxyConnection.openConnections];
-		return connections.filter((connection) => connection.user && connection.user.id === user.id);
-	}
-
-	broadcast(message) {
+	broadcast(message: any) {
 		logger.info('Sending a broadcast message to all clients! Review!!');
 		logger.info(message);
 		ProxyConnection.openConnections.forEach((connection) => {
@@ -176,7 +165,7 @@ module.exports = class SocketServer {
 		});
 	}
 
-	broadcastExceptForUser(message, userId) {
+	broadcastExceptForUser(message: any, userId: string) {
 		logger.info('Sending a broadcast message to all clients except user! Review!!');
 		ProxyConnection.openConnections.forEach((connection) => {
 			if (connection.user && connection.user.id !== userId) {
@@ -185,26 +174,10 @@ module.exports = class SocketServer {
 		});
 	}
 
-	registerMachineServer(socketurl) {
-		// eslint-disable-next-line
-		logger.info(
-			`register machineserver at: ${socketurl} to ${ProxyConnection.openConnections.size} open connection(s)...`
-		);
-		ProxyConnection.openConnections.forEach((client) => client.connectMachineServer(socketurl));
-	}
-
-	registerGraphServer(socketurl) {
-		// eslint-disable-next-line
-		logger.info(
-			`register graphserver at: ${socketurl} to ${ProxyConnection.openConnections.size} open connection(s)...`
-		);
-		ProxyConnection.openConnections.forEach((client) => client.connectGraphServer(socketurl));
-	}
-
 	close() {
 		if (this.wss) {
 			this.wss.close(); // terminates all connections => ProxyConnection#close() should be called automatically...
 			this.wss = null;
 		}
 	}
-};
+}

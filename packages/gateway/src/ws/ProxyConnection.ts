@@ -1,52 +1,68 @@
-const uuidv4 = require('uuid/v4');
-// const utils = require('../utils');
-const ServerConnection = require('./ServerConnection');
-const WebSocket = require('ws');
-const _ = require('lodash');
-const { MessagingClient } = require('@cedalo/messaging-client');
-const { Topics, GatewayMessagingProtocol } = require('@cedalo/protocols');
-const Auth = require('../Auth');
-const utils = require('../utils');
-const { LoggerFactory } = require('@cedalo/logger');
+import IdGenerator from '@cedalo/id-generator';
+import ServerConnection from './ServerConnection';
+import WebSocket from 'ws';
 
-const logger = LoggerFactory.createLogger(
-	'gateway - ProxyConnection',
-	process.env.STREAMSHEETS_LOG_LEVEL
-);
+import Auth from '../Auth';
+import { getClientIdFromWebsocketRequest, getUserFromWebsocketRequest } from '../utils';
+import { MessagingClient } from '@cedalo/messaging-client';
+import { Topics, GatewayMessagingProtocol } from '@cedalo/protocols';
+import { LoggerFactory } from '@cedalo/logger';
+import SocketServer from './SocketServer';
+import * as http from 'http';
 
-const OPEN_CONNECTIONS = new Set();
+const logger = LoggerFactory.createLogger('gateway - ProxyConnection', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
+
+const OPEN_CONNECTIONS: Set<ProxyConnection> = new Set();
+
+interface MessageContext {
+	user: User;
+	message: WSRequest;
+	connection: ProxyConnection;
+	graphserver?: any;
+	machineserver?: any;
+}
 
 // MachineServer client connection => analog for GraphServer?!
-module.exports = class ProxyConnection {
+export default class ProxyConnection {
+	id: string;
+	user: User;
+	clientId: null | string;
+	private request: http.IncomingMessage;
+	private clientsocket: WebSocket;
+	private socketserver: SocketServer;
+	private messagingClient: MessagingClient;
+	private graphserver: ServerConnection;
+	private machineserver: ServerConnection;
+	private interceptor: any;
+
 	static get openConnections() {
 		return OPEN_CONNECTIONS;
 	}
 
-	static create(ws, request, user, socketserver) {
+	static create(ws: WebSocket, request: http.IncomingMessage, user: User, socketserver: SocketServer) {
 		// think: check if we already have a connection for this user...
 		const connection = new ProxyConnection(ws, request, user, socketserver);
 		ProxyConnection.openConnections.add(connection);
 		return connection;
 	}
 
-	constructor(ws, request, user, socketserver) {
-		this.id = uuidv4();
+	constructor(ws: WebSocket, request: http.IncomingMessage, user: User, socketserver: SocketServer) {
+		this.id = IdGenerator.generateUUID();
 		this.request = request;
 		this.user = user;
 		this.clientsocket = ws;
 		this.socketserver = socketserver;
 		this.messagingClient = new MessagingClient();
-		this.messagingClient.connect(
-			process.env.MESSAGE_BROKER_URL || 'mqtt://localhost:1883'
-		);
+		this.messagingClient.connect(process.env.MESSAGE_BROKER_URL || 'mqtt://localhost:1883');
 		this.graphserver = new ServerConnection('graphserver', 'graphs');
 		this.machineserver = new ServerConnection('machineserver', 'machines');
 		this.clientsocket.on('message', (message) => {
-			const parsedMessage = JSON.parse(message);
+			const parsedMessage = JSON.parse(message.toString());
 			if (parsedMessage.type === GatewayMessagingProtocol.MESSAGE_TYPES.CONFIRM_PROCESSED_MACHINE_STEP) {
 				this.machineserver.confirmMachineStep(parsedMessage.machineId);
 			}
 		});
+
 		this.graphserver.eventHandler = (ev) => this.onServerEvent(ev);
 		this.machineserver.eventHandler = (ev) => this.onServerEvent(ev);
 		this.messagingClient.subscribe(`${Topics.SERVICES_STREAMS_EVENTS}/#`);
@@ -82,30 +98,23 @@ module.exports = class ProxyConnection {
 		});
 		ws.on('message', async (message) => {
 			try {
-				const msg = JSON.parse(message);
+				const msg = JSON.parse(message.toString());
 				if (msg.type !== 'ping') {
 					await this.updateConnectionState(ws);
 					msg.session = this.session;
-					if(msg.type === GatewayMessagingProtocol.MESSAGE_TYPES.USER_LOGOUT_MESSAGE_TYPE) {
+					if (msg.type === GatewayMessagingProtocol.MESSAGE_TYPES.USER_LOGOUT_MESSAGE_TYPE) {
 						this.socketserver.logoutUser({
 							user: this.user,
 							msg
 						});
-					} else if (
-						msg.topic &&
-						msg.topic.indexOf('stream') >= 0
-					) {
+					} else if (msg.topic && msg.topic.indexOf('stream') >= 0) {
 						this.messagingClient.publish(msg.topic, msg);
-					} else if (
-						msg.topic &&
-						msg.topic.indexOf('persistence') >= 0
-					) {
+					} else if (msg.topic && msg.topic.indexOf('persistence') >= 0) {
 						this.messagingClient.publish(msg.topic, msg);
 					} else {
 						const response = await this.sendToServer(msg);
 						this.sendToClient(response);
 					}
-
 				}
 			} catch (err) {
 				logger.warn(err);
@@ -115,34 +124,35 @@ module.exports = class ProxyConnection {
 		this.sendServicesStatusToClient();
 	}
 
-	setUser(user) {
+	setUser(user: User) {
 		this.user = user;
 	}
 
-	get session() {
+	get session(): Session {
 		const { id, user } = this;
 		return {
 			id,
 			user: {
 				id: user ? user.id : 'anon',
 				roles: [],
-				displayName: user ? [user.firstName, user.lastName].filter(e => !!e).join(' ') || user.username : ''
+				displayName: user ? [user.firstName, user.lastName].filter((e) => !!e).join(' ') || user.username : ''
 			}
 		};
 	}
 
-	async updateConnectionState(ws) {
-		if(ws) {
+	async updateConnectionState(ws: WebSocket) {
+		if (ws) {
 			try {
-				const user = await utils.getUserFromWebsocketRequest(this.request, this.socketserver._config.tokenKey, Auth.parseToken.bind(Auth));
+				const user = await getUserFromWebsocketRequest(
+					this.request,
+					this.socketserver._config.tokenKey,
+					Auth.parseToken.bind(Auth)
+				);
 				this.setUser(user);
 			} catch (err) {
 				logger.warn(err.name);
-				this.socketserver.logoutUser({
-					user: this.user,
-				});
+				this.user && this.socketserver.logoutUser({ user: this.user });
 			}
-
 		}
 	}
 
@@ -158,15 +168,11 @@ module.exports = class ProxyConnection {
 
 	sendServicesStatusToClient() {
 		// TODO: handle this more flexible
-		this.sendToClient(
-			this.socketserver.gatewayService.getServiceStatus('graphs')
-		);
-		this.sendToClient(
-			this.socketserver.gatewayService.getServiceStatus('machines')
-		);
+		this.sendToClient(this.socketserver.gatewayService.getServiceStatus('graphs'));
+		this.sendToClient(this.socketserver.gatewayService.getServiceStatus('machines'));
 	}
 
-	onServerEvent(event) {
+	onServerEvent(event: any) {
 		switch (event.type) {
 			case 'connect':
 			case 'disconnect':
@@ -205,33 +211,29 @@ module.exports = class ProxyConnection {
 		return this.machineserver.connect();
 	}
 
-	createMessageContext(message) {
+	createMessageContext(message: any): MessageContext {
 		// if message is a string it should be an already stringified message!
-		message = _.isString(message) ? JSON.parse(message) : message;
+		message = typeof message === 'string' ? JSON.parse(message) : message;
 		return {
 			user: this.user,
 			message,
-			connection: this,
-			result: message.result || undefined
+			connection: this
+			// result: message.result || undefined
 		};
 	}
 
-	async sendToServer(message) {
-		const context = await this._beforeSendToServer(
-			this.createMessageContext(message)
-		);
-		const response = {
+	async sendToServer(message: WSRequest) {
+		const context = await this._beforeSendToServer(this.createMessageContext(message));
+		const response: WSResponse = {
 			type: 'response',
 			requestId: context.message.requestId,
-			requestType: context.message.type,
-			result: context.result || undefined
+			requestType: context.message.type
+			// TODO: Is this in use?
+			// result: context.result || undefined
 		};
 		try {
-			const machineServerResponse = await this._sendToMachineServer(
-				context
-			);
-			response.machineserver =
-				machineServerResponse && machineServerResponse.response;
+			const machineServerResponse = await this._sendToMachineServer(context);
+			response.machineserver = machineServerResponse && machineServerResponse.response;
 		} catch (error) {
 			logger.error(error);
 			response.machineserver = {
@@ -240,55 +242,24 @@ module.exports = class ProxyConnection {
 		}
 		try {
 			const graphServerResponse = await this._sendToGraphServer(context);
-			response.graphserver =
-				graphServerResponse && graphServerResponse.response;
+			response.graphserver = graphServerResponse && graphServerResponse.response;
 		} catch (error) {
 			logger.error(error);
 			response.graphserver = {
 				error: error.error
 			};
 		}
-
-		// if (this._newMachineCreated(response)) {
-		// 	const message = {
-		// 		type: 'event',
-		// 		event: {
-		// 			type: 'machine_created'
-		// 		}
-		// 	};
-		// 	// this.socketserver.broadcastExceptForUser({
-		// 	// 	type: 'machine_created'
-		// 	// }, this.session);
-		// 	this.socketserver.broadcast(message);
-		// }
 		return response;
 	}
 
-	_newMachineCreated(response) {
-		return (
-			response.requestType ===
-				GatewayMessagingProtocol.MESSAGE_TYPES
-					.LOAD_MACHINE_MESSAGE_TYPE &&
-			response.machineserver.templateId === 'base_machine'
-		);
+	_beforeSendToServer(context: MessageContext) {
+		return this.interceptor ? this.interceptor.beforeSendToServer(context) : Promise.resolve(context);
 	}
 
-	_beforeSendToServer(context) {
-		return this.interceptor
-			? this.interceptor.beforeSendToServer(context)
-			: Promise.resolve(context);
-	}
-
-	async _sendToGraphServer(context) {
+	async _sendToGraphServer(context: MessageContext) {
 		if (context.graphserver) {
-			const graphServerResponse = await this.graphserver.send(
-				context.message,
-				context.message.requestId
-			);
-			if (
-				graphServerResponse &&
-				graphServerResponse.requestType === 'command'
-			) {
+			const graphServerResponse = await this.graphserver.send(context.message, context.message.requestId);
+			if (graphServerResponse && graphServerResponse.requestType === 'command') {
 				delete graphServerResponse.response.graph.graphdef;
 			}
 			return graphServerResponse;
@@ -296,20 +267,14 @@ module.exports = class ProxyConnection {
 		return null;
 	}
 
-	_sendToMachineServer(context) {
+	_sendToMachineServer(context: MessageContext) {
 		return !context.machineserver
 			? Promise.resolve()
-			: this.machineserver.send(
-					context.message,
-					context.message.requestId
-			  );
+			: this.machineserver.send(context.message, context.message.requestId);
 	}
 
-	async sendStepToClient(stepMessage) {
-		if (
-			!this.clientsocket ||
-			this.clientsocket.readyState !== WebSocket.OPEN
-		) {
+	async sendStepToClient(stepMessage: EventData) {
+		if (!this.clientsocket || this.clientsocket.readyState !== WebSocket.OPEN) {
 			return;
 		}
 		this.socketserver.gatewayService.notifySendMessageToClient();
@@ -317,30 +282,21 @@ module.exports = class ProxyConnection {
 	}
 
 	// called by proxy to send a message to client...
-	async sendToClient(message) {
+	async sendToClient(message: any) {
 		try {
-			const ctxt = await this._beforeSendToClient(
-				this.createMessageContext(message)
-			);
+			const ctxt: MessageContext = await this._beforeSendToClient(this.createMessageContext(message));
 			ctxt.message.session = this.session;
 			this.clientsocket.send(JSON.stringify(ctxt.message));
 		} catch (error) {
 			logger.error('Failed to send message to client!', error);
 		}
 	}
-	_beforeSendToClient(context) {
+	async _beforeSendToClient(context: MessageContext): Promise<MessageContext> {
 		return new Promise((resolve /* , reject */) => {
-			if (
-				!this.clientsocket ||
-				this.clientsocket.readyState !== WebSocket.OPEN
-			) {
+			if (!this.clientsocket || this.clientsocket.readyState !== WebSocket.OPEN) {
 				// reject(new Error('Client connection not established!'));
 			} else {
-				resolve(
-					this.interceptor
-						? this.interceptor.beforeSendToClient(context)
-						: context
-				);
+				resolve(this.interceptor ? this.interceptor.beforeSendToClient(context) : context);
 			}
 		});
 	}
@@ -354,4 +310,4 @@ module.exports = class ProxyConnection {
 		ProxyConnection.openConnections.delete(this);
 		logger.info('closed & removed client connection...');
 	}
-};
+}

@@ -1,33 +1,50 @@
-const { GatewayMessagingProtocol, Topics } = require('@cedalo/protocols');
-const { MessagingClient } = require('@cedalo/messaging-client');
-const IdGenerator = require('@cedalo/id-generator');
-const RedisConnection = require('./RedisConnection');
+import { GatewayMessagingProtocol, Topics } from '@cedalo/protocols';
+import { MessagingClient } from '@cedalo/messaging-client';
+import IdGenerator from '@cedalo/id-generator';
+import RedisConnection from './RedisConnection';
+import LoggerFactory from '../utils/logger';
 
-const logger = require('../utils/logger').create({ name: 'ServerConnection' });
+const logger = LoggerFactory.create({ name: 'ServerConnection' });
 
-const LOG_EV_HANDLER = (event) =>
-	logger.info(
-		`${event.type}-event from server ${event.server}: ${event.data}`
-	);
+const LOG_EV_HANDLER = (event: PropType<IWSEvent, 'event'>) =>
+	logger.info(`${event.type}-event from server ${event.server}: ${event.data}`);
 
-const deletePendingRequest = (requestId, requests) => {
+const deletePendingRequest = (requestId: number, requests: PendingRequestMap<ServiceResponse>) => {
 	const request = requests.get(requestId);
 	if (request) {
-		clearTimeout(request.timeoutId);
+		request.timeoutId && clearTimeout(request.timeoutId);
 		requests.delete(requestId);
 	}
 	return request;
 };
-const timeoutHandler = (requestId, requests) => {
-	const { reject } = deletePendingRequest(requestId, requests);
-	reject({
-		message: 'ServerConnection: Timeout'
-	});
+const timeoutHandler = (requestId: number, requests: PendingRequestMap<ServiceResponse>) => {
+	const pending = deletePendingRequest(requestId, requests);
+	if (pending) {
+		pending.reject({
+			message: 'ServerConnection: Timeout'
+		});
+	}
 };
 
+type PendingRequestMap<T> = Map<number, PendingRequest<T>>;
 
-module.exports = class ServerConnection {
-	constructor(type, serviceType) {
+type PendingRequest<T> = {
+	resolve: (value?: T | PromiseLike<T>) => void;
+	reject: (reason?: any) => void;
+	timeoutId?: NodeJS.Timeout;
+};
+
+export default class ServerConnection {
+	private id: string;
+	private type: string;
+	private serviceType: string;
+	private timeout: number;
+	private _pendingRequests: PendingRequestMap<ServiceResponse>;
+	private messagingClient: MessagingClient;
+	private _redisConnection?: RedisConnection;
+	private _evHandler: null | ((event: any) => any);
+
+	constructor(type: string, serviceType: string) {
 		this.id = IdGenerator.generate();
 		this.type = type;
 		this.serviceType = serviceType;
@@ -40,9 +57,7 @@ module.exports = class ServerConnection {
 			this._redisConnection = RedisConnection.connect();
 			this.stepEventHandler = this.stepEventHandler.bind(this);
 		}
-		this.messagingClient.connect(
-			process.env.MESSAGE_BROKER_URL || 'mqtt://localhost:1883'
-		);
+		this.messagingClient.connect(process.env.MESSAGE_BROKER_URL || 'mqtt://localhost:1883');
 	}
 
 	set eventHandler(handler) {
@@ -53,11 +68,11 @@ module.exports = class ServerConnection {
 		return this._evHandler || LOG_EV_HANDLER;
 	}
 
-	confirmMachineStep(machineId) {
+	confirmMachineStep(machineId: string) {
 		if (this._redisConnection) this._redisConnection.confirmMachineStep(machineId);
 	}
 
-	stepEventHandler(stepEvent) {
+	stepEventHandler(stepEvent: string | object) {
 		this.eventHandler({ type: 'step', server: this.type, data: stepEvent });
 	}
 
@@ -74,11 +89,14 @@ module.exports = class ServerConnection {
 
 	disconnect() {
 		if (this._redisConnection) {
-			const request = (machineId, type) => ({ machineId, type, requestId: Math.random() });
+			const request = (machineId: string, type: PropType<WSRequest, 'type'>) => ({
+				machineId,
+				type
+			});
 			this._redisConnection.subscriptions.forEach((subscription) => {
 				const { machineId } = subscription;
-				this.send(request(machineId, GatewayMessagingProtocol.MESSAGE_TYPES.UNSUBSCRIBE_MACHINE_MESSAGE_TYPE));
-				this.send(request(machineId, GatewayMessagingProtocol.MESSAGE_TYPES.UNSUBSCRIBE_GRAPH_MESSAGE_TYPE));
+				this.send(request(machineId, 'machine_unsubscribe'), Math.random());
+				this.send(request(machineId, 'graph_unsubscribe'), Math.random());
 			});
 			// finally
 			this._redisConnection.close();
@@ -88,22 +106,16 @@ module.exports = class ServerConnection {
 
 	// TODO: improve this, because this way one instance of this class
 	// handles both messages from the machine service and the graph service
-	_handleTopicUnsubscribe(message) {
+	_handleTopicUnsubscribe(message: WSRequest) {
 		switch (message.type) {
-			case GatewayMessagingProtocol.MESSAGE_TYPES
-				.UNSUBSCRIBE_MACHINE_MESSAGE_TYPE:
+			case 'machine_unsubscribe':
 				if (this._redisConnection) {
 					this._redisConnection.unsubscribe(message.machineId);
 				}
-				this.messagingClient.unsubscribe(
-					`${Topics.SERVICES_MACHINES_EVENTS}/${message.machineId}`
-				);
+				this.messagingClient.unsubscribe(`${Topics.SERVICES_MACHINES_EVENTS}/${message.machineId}`);
 				break;
-			case GatewayMessagingProtocol.MESSAGE_TYPES
-				.UNSUBSCRIBE_GRAPH_MESSAGE_TYPE:
-				this.messagingClient.unsubscribe(
-					`${Topics.SERVICES_GRAPHS_EVENTS}/${message.machineId}`
-				);
+			case 'graph_unsubscribe':
+				this.messagingClient.unsubscribe(`${Topics.SERVICES_GRAPHS_EVENTS}/${message.machineId}`);
 				break;
 			default:
 				break;
@@ -112,16 +124,16 @@ module.exports = class ServerConnection {
 
 	// TODO: improve this, because this way one instance of this class
 	// handles both messages from the machine service and the graph service
-	_handleTopicSubscribe(messageType, message) {
-		switch (messageType) {
-			case GatewayMessagingProtocol.MESSAGE_TYPES.LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE:
-			case GatewayMessagingProtocol.MESSAGE_TYPES.SUBSCRIBE_MACHINE_MESSAGE_TYPE:
-				this._redisConnection.subscribe(message.machine.id, this.stepEventHandler);
-				this.messagingClient.subscribe(`${Topics.SERVICES_MACHINES_EVENTS}/${message.machine.id}`);
+	_handleTopicSubscribe(message: ServiceResponse) {
+		switch (message.requestType) {
+			case 'machine_subscribe':
+			case 'machine_load_subscribe':
+				this._redisConnection?.subscribe(message.response.machine.id, this.stepEventHandler);
+				this.messagingClient.subscribe(`${Topics.SERVICES_MACHINES_EVENTS}/${message.response.machine.id}`);
 				break;
-			case GatewayMessagingProtocol.MESSAGE_TYPES.LOAD_SUBSCRIBE_GRAPH_MESSAGE_TYPE:
-			case GatewayMessagingProtocol.MESSAGE_TYPES.SUBSCRIBE_GRAPH_MESSAGE_TYPE:
-				this.messagingClient.subscribe(`${Topics.SERVICES_GRAPHS_EVENTS}/${message.graph.machineId}`);
+			case 'graph_load_subscribe':
+			case 'graph_subscribe':
+				this.messagingClient.subscribe(`${Topics.SERVICES_GRAPHS_EVENTS}/${message.response.graph.machineId}`);
 				break;
 			default:
 				break;
@@ -129,7 +141,7 @@ module.exports = class ServerConnection {
 	}
 
 	// if request id is specified we wait for a response...
-	send(message, requestId) {
+	async send(message: WSRequest, requestId?: number): Promise<ServiceResponse> {
 		message.sender = {
 			id: this.id
 		};
@@ -137,10 +149,7 @@ module.exports = class ServerConnection {
 		return new Promise((resolve, reject) => {
 			if (requestId) {
 				this._pendingRequests.set(requestId, { resolve, reject });
-				const timeoutId = setTimeout(
-					() => timeoutHandler(requestId, this._pendingRequests),
-					this.timeout
-				);
+				const timeoutId = setTimeout(() => timeoutHandler(requestId, this._pendingRequests), this.timeout);
 				this._pendingRequests.set(requestId, {
 					resolve,
 					reject,
@@ -150,29 +159,20 @@ module.exports = class ServerConnection {
 				resolve();
 			}
 			logger.info(`Send message to ${this.type}: ${message.type}`);
-			this.messagingClient.publish(
-				`${Topics.BASE_TOPIC}/services/${this.serviceType}/input`,
-				message
-			);
+			this.messagingClient.publish(`${Topics.BASE_TOPIC}/services/${this.serviceType}/input`, message);
 		});
 	}
 
 	// TODO: extract this logic into separate class
 	// eslint-disable-next-line
-	handleMessage(message, topic) {
+	handleMessage(message: string, topic: string) {
 		try {
 			const parsedMessage = JSON.parse(message);
 			// 1.) Handle request response
-			const request = deletePendingRequest(
-				parsedMessage.requestId,
-				this._pendingRequests
-			);
+			const request = deletePendingRequest(parsedMessage.requestId, this._pendingRequests);
 			if (request) {
 				if (parsedMessage.type === 'response') {
-					this._handleTopicSubscribe(
-						parsedMessage.requestType,
-						parsedMessage.response
-					);
+					this._handleTopicSubscribe(parsedMessage);
 					return request.resolve(parsedMessage);
 				}
 				return request.reject(parsedMessage);
@@ -215,10 +215,10 @@ module.exports = class ServerConnection {
 		}
 	}
 
-	_requestTriggeredFromThisConnection(options) {
+	_requestTriggeredFromThisConnection(options: any) {
 		if (options && options.originalSender) {
 			return options.originalSender.id === this.id;
 		}
 		return false;
 	}
-};
+}
