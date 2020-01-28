@@ -286,6 +286,14 @@ module.exports = class WorksheetNode extends ContentNode {
 	}
 
 	isProtected() {
+		const graph = this.getGraph();
+
+		if (graph !== undefined) {
+			const view = graph.getViewParams();
+			if (view && view.viewMode !== null) {
+				return true;
+			}
+		}
 		return this.getWorksheetAttributes()
 			.getProtected()
 			.getValue();
