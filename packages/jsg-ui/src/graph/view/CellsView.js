@@ -364,6 +364,12 @@ export default class CellsView extends NodeView {
 				case 'MAIL.SEND':
 				case 'FEEDINBOX':
 				case 'EXECUTE':
+				case 'OPCUA.FOLDERS':
+				case 'OPCUA.JSON':
+				case 'OPCUA.READ':
+				case 'OPCUA.RESPOND':
+				case 'OPCUA.VARIABLES':
+				case 'OPCUA.WRITE':
 					this.drawPublish(graphics, x, y, rect, clipRect, data, termFunc, grey);
 					return true;
 				case 'SELECT':
