@@ -77,6 +77,10 @@ module.exports = class ExportImportRoutes {
 					machine.id = IdGenerator.generate();
 					graph.id = IdGenerator.generate();
 					graph.machineId = machine.id;
+					machine.streamsheets.forEach((streamsheet) => {
+						streamsheet.id = IdGenerator.generate();
+						streamsheet.inbox.id = IdGenerator.generate();
+					});
 				}
 				const existingMachine = await machineRepository.findMachineByName(
 					machine.name,
