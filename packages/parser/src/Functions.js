@@ -72,6 +72,13 @@ module.exports.Functions = {
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.updateGraphItem(scope, terms, 'chart', false) : ERROR.NOT_AVAILABLE;
 	},
+	'DRAW.PLOT': (scope, ...terms) => {
+		if (scope.graphCells === undefined) {
+			return OK.TRUE;
+		}
+		const drawings = scope.getDrawings && scope.getDrawings();
+		return drawings ? drawings.updateGraphItem(scope, terms, 'plot', false) : ERROR.NOT_AVAILABLE;
+	},
 	'DRAW.CHARTSTATE': (scope, ...terms) => {
 		if (scope.graphCells === undefined) {
 			return OK.TRUE;
@@ -113,6 +120,9 @@ module.exports.Functions = {
 		}
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.updateGraphItem(scope, terms, 'knob', false) : ERROR.NOT_AVAILABLE;
+	},
+	DATAROW: (scope) => {
+
 	},
 	CLASSIFYPOINT: (scope, ...terms) => {
 		const drawings = scope.getDrawings && scope.getDrawings();

@@ -563,6 +563,17 @@ export class CanvasToolBar extends Component {
 		case 'chartstate':
 			node = new JSG.SheetChartStateNode();
 			break;
+		case 'plot': {
+			node = new JSG.SheetPlotNode();
+			const sheetView = graphManager.getActiveSheetView();
+			if (sheetView) {
+				const selection = sheetView.getOwnSelection();
+				if (selection) {
+					node.createDataSourcesFromSelection(selection);
+				}
+			}
+			break;
+		}
 		default:
 			break;
 		}
@@ -3380,9 +3391,19 @@ export class CanvasToolBar extends Component {
 							>
 								<SvgIcon>
 									<path
-										// eslint-disable-next-line max-len
 										d="M16,5V18H21V5M4,18H9V5H4M10,18H15V5H10V18Z"
 									/>
+								</SvgIcon>
+							</IconButton>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton
+								style={{ padding: '5px' }}
+								color="inherit"
+								onClick={() => this.onCreateControl('plot')}
+							>
+								<SvgIcon>
+									<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
 								</SvgIcon>
 							</IconButton>
 						</GridListTile>

@@ -13,6 +13,7 @@ const SheetButtonNode = require('./SheetButtonNode');
 const SheetCheckboxNode = require('./SheetCheckboxNode');
 const SheetSliderNode = require('./SheetSliderNode');
 const SheetKnobNode = require('./SheetKnobNode');
+const SheetPlotNode = require('./SheetPlotNode');
 const { SheetChartStateNode } = require('@cedalo/jsg-extensions/core');
 const Graph = require('./Graph');
 const FormatAttributes = require('../attr/FormatAttributes');
@@ -156,7 +157,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		// save data provider
 		this.getDataProvider().save(writer);
 
-		writer.writeEndElement(writer);
+		writer.writeEndElement();
 	}
 
 	readFromUndo(json) {
@@ -850,6 +851,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 							node.getItemAttributes().setClosed(drawItem.close);
 						}
 						break;
+					case 'plot':
+						// node.setChartType(drawItem.charttype);
+						break;
 					case 'chart':
 						node.setDataRangeString(drawItem.range ? `=${drawItem.range}` : '');
 						node.setFormatDataRangeString(drawItem.formatrange ? `=${drawItem.formatrange}` : '');
@@ -1001,6 +1005,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 			type = 'knob';
 		} else if (item instanceof JSG.SheetChartStateNode) {
 			type = 'chartstate';
+		} else if (item instanceof JSG.SheetPlotNode) {
+			type = 'plot';
 		}
 
 		const graph = this.getGraph();
@@ -1194,6 +1200,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 			type = 'slider';
 		} else if (item instanceof SheetKnobNode) {
 			type = 'knob';
+		} else if (item instanceof SheetPlotNode) {
+			type = 'plot';
 		} else if (item instanceof SheetChartStateNode) {
 			type = 'chartstate';
 		} else if (item instanceof JSG.TextNode) {

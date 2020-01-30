@@ -114,6 +114,18 @@ module.exports = {
 				description: 'Erzeugt ein Drehregler Objekt'
 			}
 		},
+		'DRAW.PLOT': {
+			en: {
+				argumentList:
+					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,ChartType,DataRange,FormatRange',
+				description: 'Creates a chart'
+			},
+			de: {
+				argumentList:
+					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Diagrammtyp,Datenbereich,Formatbereich',
+				description: 'Erzeugt ein Diagramm'
+			}
+		},
 		'DRAW.POLYGON': {
 			en: {
 				argumentList:

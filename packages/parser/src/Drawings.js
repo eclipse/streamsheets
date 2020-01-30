@@ -81,6 +81,9 @@ module.exports = class Drawings {
 		case 'ellipse':
 			getRectParams(item);
 			break;
+		case 'plot':
+			getRectParams(item);
+			break;
 		case 'chart':
 			getRectParams(item);
 			item.charttype = String(this.getGraphParam(terms, 13, 'column'));

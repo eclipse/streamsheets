@@ -603,6 +603,19 @@ const Strings = {
 			description: 'Erzeugt eine Linie',
 		},
 	},
+	'DRAW.PLOT': {
+		category: 'drawing',
+		en: {
+			argumentList:
+				'UniqueID,Container,Name,X,Y,Width,Height,Line,Fill,Attributes,Events,Angle,RotCenter,ChartType,DataRange',
+			description: 'Creates a chart',
+		},
+		de: {
+			argumentList:
+				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Diagrammtyp,Datenbereich',
+			description: 'Erzeugt ein Diagramm',
+		},
+	},
 	'DRAW.POLYGON': {
 		category: 'drawing',
 		en: {

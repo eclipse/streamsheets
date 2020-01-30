@@ -9,6 +9,7 @@ const SheetButtonNode = require('./SheetButtonNode');
 const SheetCheckboxNode = require('./SheetCheckboxNode');
 const SheetSliderNode = require('./SheetSliderNode');
 const SheetKnobNode = require('./SheetKnobNode');
+const SheetPlotNode = require('./SheetPlotNode');
 const { SheetChartStateNode } = require('@cedalo/jsg-extensions/core');
 const CaptionNode = require('./CaptionNode');
 const CellsNode = require('./CellsNode');
@@ -2528,6 +2529,8 @@ class GraphItemFactory {
 				return new SheetKnobNode();
 			case 'sheetchartstatenode':
 				return new SheetChartStateNode();
+			case 'sheetplotnode':
+				return new SheetPlotNode();
 			case 'inboxcontainer':
 				return new InboxContainer();
 			case 'outboxcontainer':
