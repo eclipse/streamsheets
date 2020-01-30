@@ -470,7 +470,7 @@ export default class GraphManager {
 						if (index !== -1) {
 							const sheetName = name.substring(0, index);
 							name = name.substring(index + 1);
-							const node = graph.getItemByGraphName(name);
+							const node = graph.getItemById(Number(name));
 							const sheet = graph.getItemByName(sheetName);
 							if (node && sheet) {
 								const graphController = this._graphEditor.getGraphViewer().getGraphController();
