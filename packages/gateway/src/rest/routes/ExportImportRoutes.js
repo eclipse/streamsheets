@@ -65,10 +65,21 @@ module.exports = class ExportImportRoutes {
 					machine.id = IdGenerator.generate();
 					graph.id = IdGenerator.generate();
 					graph.machineId = machine.id;
+					const sheetIdMap = {};
 					machine.streamsheets.forEach((streamsheet) => {
-						streamsheet.id = IdGenerator.generate();
+						const newSheetId = IdGenerator.generate();
+						sheetIdMap[streamsheet.id] = newSheetId;
+						streamsheet.id = newSheetId;
 						streamsheet.inbox.id = IdGenerator.generate();
 					});
+					if(graph.graphdef && graph.graphdef['a-graphitem']){
+						graph.graphdef['a-graphitem'].forEach(gi => {
+							if(gi['o-attributes'] && gi['o-attributes']['o-sheetid']) {
+								const sheetIdObject = gi['o-attributes']['o-sheetid'];
+								sheetIdObject.v = sheetIdMap[sheetIdObject.v] || sheetIdObject.v;
+							}
+						});
+					}
 				}
 				const existingMachine = await machineRepository.findMachineByName(machine.name, { id: 1 });
 				const isNameConflict = existingMachine && existingMachine.id !== machine.id;
