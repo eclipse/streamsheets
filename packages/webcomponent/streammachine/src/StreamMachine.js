@@ -10,6 +10,7 @@ const {
 	MachineGraph,
 	GraphEditor,
 	SheetGraphItemEventActivator,
+	SheetPlotActivator,
 	EditTextActivator,
 	TreeItemsNode,
 	Expression,
@@ -189,6 +190,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 			SheetGraphItemEventActivator.KEY,
 			new SheetGraphItemEventActivator()
 		);
+		defInteraction.addActivator(SheetPlotActivator.KEY, new SheetPlotActivator());
 		defInteraction.addActivator(SheetActivator.KEY, new SheetActivator());
 		defInteraction.addActivator(
 			EditTextActivator.KEY,

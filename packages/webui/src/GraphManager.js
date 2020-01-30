@@ -21,6 +21,7 @@ const {
 	MachineGraph,
 	GraphEditor,
 	SheetGraphItemEventActivator,
+	SheetPlotActivator,
 	// CreateEdgeActivator,
 	EditTextActivator,
 	JSONReader,
@@ -151,6 +152,7 @@ export default class GraphManager {
 		defInteraction.addActivator(RotateActivator.KEY, new RotateActivator());
 		defInteraction.addActivator(SheetGraphItemEventActivator.KEY, new SheetGraphItemEventActivator());
 		defInteraction.addActivator(SheetActivator.KEY, new SheetActivator());
+		defInteraction.addActivator(SheetPlotActivator.KEY, new SheetPlotActivator());
 		defInteraction.addActivator(EditTextActivator.KEY, new EditTextActivator());
 		defInteraction.addActivator(MoveActivator.KEY, new MoveActivator());
 		defInteraction.addActivator(MarqueeActivator.KEY, new MarqueeActivator());

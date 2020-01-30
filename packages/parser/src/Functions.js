@@ -122,7 +122,10 @@ module.exports.Functions = {
 		return drawings ? drawings.updateGraphItem(scope, terms, 'knob', false) : ERROR.NOT_AVAILABLE;
 	},
 	DATAROW: (scope) => {
-
+		return OK.TRUE;
+	},
+	AXIS: (scope) => {
+		return OK.TRUE;
 	},
 	CLASSIFYPOINT: (scope, ...terms) => {
 		const drawings = scope.getDrawings && scope.getDrawings();
