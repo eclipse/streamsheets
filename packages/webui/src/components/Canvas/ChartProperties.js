@@ -630,8 +630,6 @@ export class ChartProperties extends Component {
 		this.chartNode.setChartType(event.target.value);
 		this.chartNode.resetScales();
 
-		cmd._sheetView.updateGraphItem(cmd._sheetView.getItem(), this.chartNode);
-
 		cmd.add(new JSG.SetChartDataCommand(this.chartNode, 'data', this.chartNode.data, cmd._chartContent.data));
 		cmd.add(new JSG.SetChartDataCommand(this.chartNode, 'scales', this.chartNode.scales, cmd._chartContent.scales));
 
@@ -722,9 +720,6 @@ export class ChartProperties extends Component {
 
 		this.chartNode.setDataRangeString(range);
 		this.setState({ dataRange: range });
-
-		cmd._sheetView.updateGraphItem(cmd._sheetView.getItem(), this.chartNode);
-
 		this.executeDataCommand(cmd);
 	};
 
