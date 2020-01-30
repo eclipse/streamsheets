@@ -169,9 +169,6 @@ module.exports = class ProxyConnection {
 		this.sendToClient(
 			this.socketserver.gatewayService.getServiceStatus('machines')
 		);
-		this.sendToClient(
-			this.socketserver.gatewayService.getServiceStatus('persistence')
-		);
 	}
 
 	onServerEvent(event) {
