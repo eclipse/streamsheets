@@ -780,7 +780,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 			if (viewMode.view) {
 				const info = getSheetInfo(viewMode.view);
 				if (info !== undefined) {
-					const node = this.graph.getItemByGraphName(info.range);
+					const node = this.graph.getItemById(Number(info.range));
 					const sheet = this.graph.getItemByName(info.sheet);
 					if (node && sheet) {
 						const graphController = this.graphEditor.getGraphViewer().getGraphController();

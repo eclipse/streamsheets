@@ -8,14 +8,18 @@ import { graphManager } from '../../GraphManager';
 import * as Actions from '../../actions/actions';
 
 const {
+	ItemAttributes,
+	AttributeUtils,
 	StreamSheet,
 	StreamSheetView,
 	StreamSheetContainerView,
 	WorksheetNode,
 	RemoveSelectionCommand,
 	DeleteCellContentCommand,
+	SetAttributeAtPathCommand,
 	SetCellDataCommand,
 	CellEditor,
+	Expression,
 	Strings,
 	SelectionProvider,
 } = JSG;
@@ -76,7 +80,6 @@ export class EditBarComponent extends Component {
 		const formula = document.getElementById('editbarformula');
 		const info = document.getElementById('editbarreference');
 		const selection = graphManager.getGraphViewer().getSelection();
-		let infoText = '';
 		let formulaText = '';
 		const state = {};
 
@@ -88,9 +91,7 @@ export class EditBarComponent extends Component {
 			const item = selection[0].getModel();
 			const sheet = getContainer(item);
 			if (sheet) {
-				const attrName = item.getItemAttributes().getAttribute('sheetname');
 				const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
-				infoText = attrName ? attrName.getValue() : '';
 				const expr = attrFormula ? attrFormula.getExpression() : undefined;
 				if (expr) {
 					formulaText = expr.getTerm()
@@ -119,7 +120,7 @@ export class EditBarComponent extends Component {
 		}
 
 		formula.innerHTML = formulaText;
-		info.innerHTML = infoText;
+		info.innerHTML = '';
 
 		if (this.props.appState.cellSelected === true) {
 			state.cellSelected = false;
@@ -433,8 +434,12 @@ export class EditBarComponent extends Component {
 					}
 				}
 			}
-			view.updateGraphItem(item, graphItem, formula);
-			graphManager.getGraphEditor().getInteractionHandler().updateGraphItems();
+			const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
+			cmd = new SetAttributeAtPathCommand(graphItem, path, new Expression(0, formula));
+			// this is necessary, to keep changes, otherwise formula will be recreated from graphitem
+			graphItem.setAttributeAtPath(path, formula);
+			graphItem._noFormulaUpdate = true;
+			// graphManager.synchronizedExecute(cmd);
 		} else {
 			const ref = item.getOwnSelection().activeCellToString();
 			if (data.numberFormat) {
