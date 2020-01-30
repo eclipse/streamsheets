@@ -33,18 +33,18 @@ class AccessManager {
 		return getGUID();
 	}
 
-	generateClientId() {
-		return `${this.user.username}-${getGUID()}`;
-	}
-
-	logoutUI(/* user, sessionId */) {
+	logoutUI(preserveCurrentUrl /* user, sessionId */) {
 		sessionStorage.removeItem('sessionId');
 		localStorage.removeItem('jwtToken');
 		localStorage.removeItem('user');
 		localStorage.removeItem('streamsheets-prefs-listing-sortby');
 		localStorage.removeItem('streamsheets-prefs-listing-layout');
 		localStorage.removeItem('streamsheets-prefs-addnewdialog');
-		window.location = '/login';
+		const redirect =
+			preserveCurrentUrl && !window.location.pathname.startsWith('/login')
+				? `?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`
+				: '';
+		window.location = `/login${redirect}`;
 	}
 
 	loginWithToken({ token, username, newUrl }) {
@@ -58,26 +58,9 @@ class AccessManager {
 		window.location = newUrl;
 	}
 
-	updateLocalStorageFromSession(session) {
-		const { user } = session;
-		this.user = user;
-		const currentSavedUser = JSON.parse(localStorage.getItem('user') || '{}');
-		if (user.username === currentSavedUser.username) {
-			localStorage.setItem('user', JSON.stringify(user));
-			sessionStorage.setItem('sessionId', session ? session.id : '');
-			localStorage.setItem('streamsheet-client-id', this.generateClientId());
-		}
-	}
-
-	loginUI(token, user, session, redirect) {
-		this.user = user;
+	loginUI(token, redirect) {
 		localStorage.setItem('jwtToken', token);
-		localStorage.setItem('user', JSON.stringify(user));
-		sessionStorage.setItem('sessionId', session ? session.id : '');
-		if (!this.clientId) {
-			localStorage.setItem('streamsheet-client-id', this.generateClientId());
-		}
-		window.location = redirect ? decodeURIComponent(redirect) :'/dashboard';
+		window.location = redirect ? decodeURIComponent(redirect) : '/dashboard';
 	}
 
 	can(/* resourceOrType, action */) {

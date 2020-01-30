@@ -85,7 +85,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			const sessionId = sessionStorage.getItem('sessionId');
 			const user = JSON.parse(localStorage.getItem('user'));
 			if (user && sessionId) {
-				const id = `${sessionId};${user.userId};${user.displayName}`;
+				const id = `${sessionId};${user.id};${user.displayName}`;
 				this.setSelectionId(id);
 			}
 		}

@@ -161,8 +161,7 @@ export function login(credentials, redirect) {
 				dispatch({ type: ActionTypes.USER_LOGIN_RESPONSE, response: resp });
 				const response = resp.response || resp;
 				if (!response.error && response.token) {
-					const { session } = response;
-					accessManager.loginUI(response.token, response.user, session, redirect);
+					accessManager.loginUI(response.token, redirect);
 					return true;
 				}
 				return response;
@@ -185,7 +184,7 @@ export function logout(token) {
 				...CONFIG
 			});
 			gatewayClient.logout(token);
-			// accessManager.logoutUI()
+			accessManager.logoutUI();
 		} catch(err) {
 			dispatch({ type: ActionTypes.ERROR, err });
 			throw err;

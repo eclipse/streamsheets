@@ -116,6 +116,7 @@ module.exports = class ProxyConnection {
 				logger.warn(err);
 			}
 		});
+		this.sendSessionToClient();
 		this.sendServicesStatusToClient();
 	}
 
@@ -124,16 +125,14 @@ module.exports = class ProxyConnection {
 	}
 
 	get session() {
+		const { id, user } = this;
 		return {
-			id: this.id,
+			id,
 			user: {
-				userId: this.user ? this.user.userId : 'anon',
-				roles: this.user ? this.user.roles : [],
-				displayName: this.user
-					? this.user.displayName || `${this.user.firstName} ${this.user.secondName}`
-					: ''
-			},
-			clientId: this.clientId
+				id: user ? user.id : 'anon',
+				roles: user ? user.roles : [],
+				displayName: user ? [user.firstName, user.lastName].filter(e => !!e).join(' ') || user.username : ''
+			}
 		};
 	}
 
@@ -152,8 +151,14 @@ module.exports = class ProxyConnection {
 		}
 	}
 
-	generateClientId(clientUUID) {
-		return `${this.user.userId}-${clientUUID}`;
+	sendSessionToClient() {
+		this.sendToClient({
+			type: 'event',
+			event: {
+				type: GatewayMessagingProtocol.EVENTS.SESSION_INIT_EVENT,
+				session: this.session
+			}
+		});
 	}
 
 	sendServicesStatusToClient() {
