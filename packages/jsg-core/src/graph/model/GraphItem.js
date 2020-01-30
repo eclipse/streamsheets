@@ -2230,7 +2230,6 @@ class GraphItem extends Model {
 			const attr = this.getItemAttributes().getAttribute('sheetsource');
 			if (!attr || attr.getValue() !== 'cell') {
 				this._assignName(newId);
-				this.getGraph().assignUniqueGraphName(this);
 			}
 			// save old/new id match to restore references to id in expressions, attributes and ports
 
@@ -2959,24 +2958,6 @@ class GraphItem extends Model {
 
 		for (i = this._subItems.length - 1; i >= 0; i -= 1) {
 			subItem = this._subItems[i].getItemByName(name);
-			if (subItem !== undefined) {
-				return subItem;
-			}
-		}
-		return undefined;
-	}
-
-	getItemByGraphName(name) {
-		const attr = this.getItemAttributes().getAttribute('sheetname');
-		if (attr && name === attr.getValue()) {
-			return this;
-		}
-
-		let i;
-		let subItem;
-
-		for (i = this._subItems.length - 1; i >= 0; i -= 1) {
-			subItem = this._subItems[i].getItemByGraphName(name);
 			if (subItem !== undefined) {
 				return subItem;
 			}

@@ -637,14 +637,17 @@ module.exports = class StreamSheet extends WorksheetNode {
 			return;
 		}
 
-		// TODO recreate, if different shape and from cell
 		Object.values(graphItems).forEach((drawItem) => {
 			if (drawItem.sheetname === '') {
 				return;
 			}
-			let node = graph.getItemByGraphName(drawItem.sheetname);
+			const id = Number(drawItem.sheetname);
+			let node = graph.getItemById(id);
 			if (node === undefined && drawItem.source === 'cell') {
-				// item formula is on sheet -> create object
+				if (!JSG.Numbers.isNumber(id)) {
+					return;
+				}
+				// item )formula is on sheet -> create object
 				switch (drawItem.type) {
 					case 'rectangle':
 						node = new Node();
@@ -693,10 +696,16 @@ module.exports = class StreamSheet extends WorksheetNode {
 					node.getItemAttributes().addAttribute(new StringAttribute('sheetsource', drawItem.source));
 					parent.addItem(node);
 					node.setName(drawItem.name);
-					node.getItemAttributes().addAttribute(new StringAttribute('sheetname', drawItem.sheetname));
+					node.setId(id);
 				}
 			}
 			if (node) {
+				const attr = node.getItemAttributes().getAttribute('sheetformula');
+				if (attr && attr.getExpression()) {
+					if (attr.getExpression().getFormula() !== drawItem.formula) {
+						return;
+					}
+				}
 				node.getItemAttributes().addAttribute(new StringAttribute('sheetsource', drawItem.source));
 				let parent;
 
@@ -707,7 +716,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 					parent = this.getCells();
 				}
 
-				if (parent !== node.getParent() && node.getId() !== parent.getId()) {
+				if (parent !== node.getParent() && id !== parent.getId()) {
 					node.changeParent(parent);
 				}
 
@@ -917,14 +926,12 @@ module.exports = class StreamSheet extends WorksheetNode {
 			}
 		});
 
-		// if (this.getOwnSelection().getActiveCell()) {
 		NotificationCenter.getInstance().send(
 			new Notification(WorksheetNode.SELECTION_CHANGED_NOTIFICATION, {
 				item: this,
 				updateFinal: true
 			})
 		);
-		// }
 	}
 
 	convertToContainerPos(point, parent) {
@@ -1004,9 +1011,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		}
 
 		const graph = this.getGraph();
-		let attr = item.getItemAttributes().getAttribute('sheetname');
-		const newId = attr.getValue();
-		let formula = `DRAW.${type.toUpperCase()}("${newId}",`;
+		let formula = `DRAW.${type.toUpperCase()}("${item.getId()}",`;
 
 		if (item.getParent() instanceof CellsNode) {
 			formula += `,"${item.getName().getValue()}",`;
@@ -1103,10 +1108,10 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 		formula += ')';
 
-		attr = new Attribute('sheetformula', new Expression(0, formula));
-		item.getItemAttributes().addAttribute(attr);
-		attr.evaluate(item);
-
+		// const attr = new Attribute('sheetformula', new Expression(0, formula));
+		// item.getItemAttributes().addAttribute(attr);
+		// attr.evaluate(item);
+		//
 		return formula;
 	}
 
@@ -1157,11 +1162,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 		}
 
 		return ws;
-	}
-
-	getGraphItemName(item) {
-		const attr = item.getItemAttributes().getAttribute('sheetname');
-		return attr ? attr.getValue() : undefined;
 	}
 
 	getGraphItemExpression(item) {
@@ -1216,7 +1216,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 						case JSG.LineShape.TYPE: {
 							switch (index) {
 								case 0:
-									termFunc.params[0] = Term.fromString(this.getGraphItemName(item));
+									termFunc.params[0] = Term.fromString(String(item.getId()));
 									break;
 								case 1:
 									if (item.getParent() instanceof CellsNode) {
@@ -1261,7 +1261,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 						default:
 							switch (index) {
 								case 0:
-									termFunc.params[0] = Term.fromString(this.getGraphItemName(item));
+									termFunc.params[0] = Term.fromString(String(item.getId()));
 									break;
 								case 1:
 									if (item.getParent() instanceof CellsNode) {
@@ -1396,17 +1396,48 @@ module.exports = class StreamSheet extends WorksheetNode {
 		return sheetDescriptor;
 	}
 
+	updateOrCreateGraphFormulas() {
+		const formulas = [];
+		let oldFormula;
+		let formula;
+
+		const add = (item) => {
+			const attrSource = item.getItemAttributes().getAttribute('sheetsource');
+			if (!(attrSource && attrSource.getValue() === 'cell')) {
+				const attr = item.getItemAttributes().getAttribute('sheetformula');
+				oldFormula = undefined;
+				if (attr && attr.getExpression()) {
+					oldFormula = attr.getExpression().getFormula();
+					formula = item._noFormulaUpdate ? oldFormula : this.updateGraphFunction(item)
+				} else {
+					formula = this.createGraphFunction(item);
+				}
+
+				if (formula && (oldFormula !== formula || item._noFormulaUpdate)) {
+					formulas.push({
+						item,
+						formula
+					});
+				}
+				item._noFormulaUpdate = undefined;
+			}
+		};
+
+		GraphUtils.traverseItem(this.getCells(), (item) => add(item), false);
+
+		return formulas;
+	}
+
 	getGraphDescriptors() {
 		const graphs = [];
 
 		const add = (item) => {
-			const attrName = item.getItemAttributes().getAttribute('sheetname');
 			const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
 
-			if (attrName && attrFormula) {
+			if (attrFormula) {
 				const expr = attrFormula.getExpression();
 				const cellDescriptor = {
-					name: attrName.getValue(),
+					name: `${item.getId()}`,
 					formula: expr ? expr.getFormula() : undefined,
 					value: expr.getValue(),
 					type: typeof expr.getValue()
@@ -1415,7 +1446,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			}
 		};
 
-		GraphUtils.traverseItem(this.getCells(), (item) => add(item));
+		GraphUtils.traverseItem(this.getCells(), (item) => add(item), false);
 
 		return graphs;
 	}

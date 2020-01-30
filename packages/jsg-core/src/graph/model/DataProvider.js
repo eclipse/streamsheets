@@ -763,10 +763,9 @@ module.exports = class DataProvider {
 				});
 
 				const updateGraph = (item) => {
-					const attrName = item.getItemAttributes().getAttribute('sheetname');
 					const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
 
-					if (attrName && attrFormula) {
+					if (attrFormula) {
 						const expr = attrFormula.getExpression();
 						if (expr !== undefined && expr.hasFormula()) {
 							update(sheet, expr);
@@ -1226,10 +1225,9 @@ module.exports = class DataProvider {
 					});
 
 					const updateGraph = (item) => {
-						const attrName = item.getItemAttributes().getAttribute('sheetname');
 						const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
 
-						if (attrName && attrFormula) {
+						if (attrFormula) {
 							const expr = attrFormula.getExpression();
 							if (expr !== undefined && expr.hasFormula()) {
 								invalidateExpression(expr);
