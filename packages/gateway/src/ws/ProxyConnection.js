@@ -33,7 +33,6 @@ module.exports = class ProxyConnection {
 		this.id = uuidv4();
 		this.request = request;
 		this.user = user;
-		this.clientId = null;
 		this.clientsocket = ws;
 		this.socketserver = socketserver;
 		this.messagingClient = new MessagingClient();
@@ -90,7 +89,6 @@ module.exports = class ProxyConnection {
 					if(msg.type === GatewayMessagingProtocol.MESSAGE_TYPES.USER_LOGOUT_MESSAGE_TYPE) {
 						this.socketserver.logoutUser({
 							user: this.user,
-							clientId: this.clientId,
 							msg
 						});
 					} else if (
@@ -125,10 +123,6 @@ module.exports = class ProxyConnection {
 		this.user = user;
 	}
 
-	setClientId(clientId) {
-		this.clientId = clientId;
-	}
-
 	get session() {
 		return {
 			id: this.id,
@@ -147,21 +141,11 @@ module.exports = class ProxyConnection {
 		if(ws) {
 			try {
 				const user = await utils.getUserFromWebsocketRequest(this.request, this.socketserver._config.tokenKey, Auth.parseToken.bind(Auth));
-				const clientId = utils.getClientIdFromWebsocketRequest(this.request);
-				if(!this.user) {
-					this.setUser(user);
-					this.setClientId(this.generateClientId(clientId));
-				} else {
-					this.setUser(user);
-					if(!this.clientId) {
-						this.setClientId(clientId);
-					}
-				}
+				this.setUser(user);
 			} catch (err) {
 				logger.warn(err.name);
 				this.socketserver.logoutUser({
 					user: this.user,
-					clientId: this.clientId,
 				});
 			}
 

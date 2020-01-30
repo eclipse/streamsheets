@@ -29,10 +29,6 @@ class AccessManager {
 		return localStorage.getItem('sessionId');
 	}
 
-	get clientId() {
-		return localStorage.getItem('streamsheet-client-id');
-	}
-
 	generateGUID() {
 		return getGUID();
 	}
@@ -45,7 +41,6 @@ class AccessManager {
 		sessionStorage.removeItem('sessionId');
 		localStorage.removeItem('jwtToken');
 		localStorage.removeItem('user');
-		localStorage.removeItem('streamsheet-client-id');
 		localStorage.removeItem('streamsheets-prefs-listing-sortby');
 		localStorage.removeItem('streamsheets-prefs-listing-layout');
 		localStorage.removeItem('streamsheets-prefs-addnewdialog');

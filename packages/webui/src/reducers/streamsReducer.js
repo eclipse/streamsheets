@@ -272,9 +272,6 @@ export default (state = defaultState, action) => {
 					}
 					default:
 				}
-				if(newState.tempConfiguration && config.id === newState.tempConfiguration.id) {
-					newState.tempConfiguration.clientId = config.clientId;
-				}
 			}
 			if (streamEventType === 'delete') {
 				newState.providers = newState.providers.filter(p => p.id !== config.id);
