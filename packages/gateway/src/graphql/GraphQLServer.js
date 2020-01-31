@@ -1,6 +1,5 @@
 const { ApolloServer, gql } = require('apollo-server-express');
 const { resolvers } = require('./resolvers');
-const { createApis } = require('./apis');
 
 const typeDefs = gql`
 	interface MutationResponse {
@@ -192,7 +191,7 @@ const typeDefs = gql`
 		streams: [Stream!]!
 		connectors: [Connector!]!
 		streamsLegacy: [StreamLegacy!]!
-		export(machines: [ID!]!, streams:[ID!]!): ExportResult!
+		export(machines: [ID!]!, streams: [ID!]!): ExportResult!
 	}
 
 	type Mutation {
@@ -205,24 +204,11 @@ const typeDefs = gql`
 `;
 
 class GraphQLServer {
-	static init(app, path, getSession, config) {
-		const repositories = config.RepositoryManager;
-
+	static init(app, path, getContext) {
 		const server = new ApolloServer({
 			typeDefs,
 			resolvers,
-			context: async ({ req }) => {
-				const session = getSession(req);
-				const actor = await repositories.userRepository.findUser(session.user.id);
-				const apis = createApis(repositories, actor);
-				return {
-					actor,
-					apis,
-					encryption: config.encryption,
-					repositories,
-					session
-				};
-			}
+			context: async ({ req }) => getContext(req)
 		});
 		server.applyMiddleware({ app, path });
 		return server;

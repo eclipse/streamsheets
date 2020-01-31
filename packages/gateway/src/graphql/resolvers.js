@@ -1,6 +1,10 @@
+<<<<<<< HEAD:packages/graphql/src/resolvers.js
 const path = require('path');
 const { InternalError } = require('./errors');
 const { UserAuth } = require('./apis');
+=======
+const { InternalError } = require('../errors');
+>>>>>>> integrate graphql package into gateway:packages/gateway/src/graphql/resolvers.js
 const { ArrayUtil } = require('@cedalo/util');
 const graphqlFields = require('graphql-fields');
 const { GraphQLJSONObject } = require('graphql-type-json');
@@ -23,8 +27,6 @@ const Payload = {
 	},
 	createSuccess: (payload) => ({ ...payload, success: true })
 };
-
-// const currentUser = async ({ repositories, session }) => repositories.userRepository.findUser(session.user.id);
 
 const streamClassNameToType = {
 	ProducerConfiguration: 'producer',
@@ -67,14 +69,14 @@ const resolvers = {
 			const { machineRepository } = context.repositories;
 			return args.name ? machineRepository.findMachinesByName(args.name) : machineRepository.getMachines();
 		},
-		user: async (obj, { id }, { apis }) => {
+		user: async (obj, { id }, { api }) => {
 			try {
-				return apis.user.findUser(id);
+				return api.user.findUser(id);
 			} catch (error) {
 				return null;
 			}
 		},
-		users: async (obj, args, { apis }) => apis.user.findAllUsers(),
+		users: async (obj, args, { api }) => api.user.findAllUsers(),
 		streamsLegacy: async (obj, args, { repositories, session }) =>
 			repositories.streamRepository.findAllStreams(session),
 		streams: async (obj, args, context) => {
@@ -148,10 +150,10 @@ const resolvers = {
 		}
 	},
 	Mutation: {
-		createUser: async (obj, { user }, { apis, encryption }) => {
+		createUser: async (obj, { user }, { api, encryption }) => {
 			try {
 				const hashedPassword = await encryption.hash(user.password);
-				const createdUser = await apis.user.createUser({ ...user, password: hashedPassword });
+				const createdUser = await api.user.createUser({ ...user, password: hashedPassword });
 				return Payload.createSuccess({
 					code: 'USER_CREATED',
 					message: 'User created successfully',
@@ -161,9 +163,9 @@ const resolvers = {
 				return Payload.createFailure(error);
 			}
 		},
-		updateUser: async (obj, { id, user }, { apis }) => {
+		updateUser: async (obj, { id, user }, { api }) => {
 			try {
-				const updatedUser = await apis.user.updateUser(id, user);
+				const updatedUser = await api.user.updateUser(id, user);
 				return Payload.createSuccess({
 					code: 'USER_UPDATED',
 					message: 'User updated successfully',
@@ -173,10 +175,10 @@ const resolvers = {
 				return Payload.createFailure(error);
 			}
 		},
-		updateUserPassword: async (obj, { id, newPassword }, { apis, encryption }) => {
+		updateUserPassword: async (obj, { id, newPassword }, { api, encryption }) => {
 			try {
 				const hashedPassword = await encryption.hash(newPassword);
-				await apis.user.updatePassword(id, hashedPassword);
+				await api.user.updatePassword(id, hashedPassword);
 				return Payload.createSuccess({
 					code: 'PASSWORD_UPDATED',
 					message: 'Password updated successfully'
@@ -185,9 +187,9 @@ const resolvers = {
 				return Payload.createFailure(error);
 			}
 		},
-		updateUserSettings: async (obj, { id, settings }, { apis }) => {
+		updateUserSettings: async (obj, { id, settings }, { api }) => {
 			try {
-				const updatedUser = await apis.user.updateSettings(id, settings);
+				const updatedUser = await api.user.updateSettings(id, settings);
 				return Payload.createSuccess({
 					code: 'SETTINGS_UPDATED',
 					message: 'Settings updated successfully',
@@ -197,9 +199,9 @@ const resolvers = {
 				return Payload.createFailure(error);
 			}
 		},
-		deleteUser: async (obj, { id }, { apis }) => {
+		deleteUser: async (obj, { id }, { api }) => {
 			try {
-				await apis.user.deleteUser(id);
+				await api.user.deleteUser(id);
 				return Payload.createSuccess({
 					code: 'USER_DELETED',
 					message: 'User deleted successfully'
@@ -210,11 +212,30 @@ const resolvers = {
 		}
 	},
 	User: {
-		admin: async (obj) => UserAuth.isAdmin(obj),
-		canDelete: async (obj, args, { actor }) => UserAuth.canDelete(actor, obj),
-		rights: async (obj) => (UserAuth.isAdmin(obj) ? ['User.Create'] : [])
+		admin: async (obj, args, { auth }) => auth.isAdmin(obj),
+		canDelete: async (obj, args, { actor, auth }) => auth.canDeleteUser(actor, obj),
+		rights: async (obj, args, { auth }) => (await auth.isAdmin(obj) ? ['User.Create'] : [])
 	},
-<<<<<<< HEAD
+	Inbox: {
+		stream: async (obj, args, context, info) => {
+			const additionalFields =
+				Object.keys(graphqlFields(info)).filter((fieldName) => ['name', 'id'].includes(fieldName)).length > 0;
+			const stream =
+				obj.stream && additionalFields
+					? await context.repositories.streamRepositoryLegacy.findConfigurationById(obj.stream.id)
+					: obj.stream;
+			return stream !== null
+				? {
+						id: stream.id,
+						name: stream.name,
+						disabled: stream.dislabed || false,
+						lastModified: stream.lastModified,
+						owner: stream.owner,
+						className: stream.className
+				  }
+				: null;
+		}
+	},
 	Machine: {
 		file: async (obj, args) => {
 			const { id } = obj;
@@ -239,30 +260,7 @@ const resolvers = {
 			} catch (error) {
 				return [];
 			}
-		}
-	}
-=======
-	Inbox: {
-		stream: async (obj, args, context, info) => {
-			const additionalFields =
-				Object.keys(graphqlFields(info)).filter((fieldName) => ['name', 'id'].includes(fieldName)).length > 0;
-			const stream =
-				obj.stream && additionalFields
-					? await context.repositories.streamRepositoryLegacy.findConfigurationById(obj.stream.id)
-					: obj.stream;
-			return stream !== null
-				? {
-						id: stream.id,
-						name: stream.name,
-						disabled: stream.dislabed || false,
-						lastModified: stream.lastModified,
-						owner: stream.owner,
-						className: stream.className
-				  }
-				: null;
-		}
-	},
-	Machine: {
+		},
 		referencedStreams: async (obj) => {
 			const machine = obj;
 			const referencedStreams = [].concat(
@@ -285,7 +283,6 @@ const resolvers = {
 		}
 	},
 	ImportExportData: GraphQLJSONObject
->>>>>>> graphql: Extend API for usage in Dashboard and Export
 };
 
 module.exports = { resolvers };

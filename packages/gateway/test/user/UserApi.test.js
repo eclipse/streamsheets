@@ -1,7 +1,7 @@
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongodb = require('mongodb');
-const { createUserRepository } = require('../src/UserRepository');
-const UserApi = require('../src/apis/UserApi');
+const { createUserRepository } = require('../../src/user/UserRepository.ts');
+const glue = require('../../src/glue.ts').default;
 
 let mongoServer;
 let client;
@@ -20,12 +20,13 @@ afterAll(async () => {
 	await mongoServer.stop();
 });
 
-const newUserRepository = async (actor) => {
+const newUserApi = async (actor) => {
 	const collection = newCollection();
-	const internalApi = await createUserRepository(collection);
+	const userRepository = await createUserRepository(collection);
+	const { api } = glue({ userRepository }, actor);
 	return {
-		internalApi,
-		api: UserApi.create(internalApi, actor)
+		internalApi: userRepository,
+		api: api.user
 	};
 };
 
@@ -66,10 +67,10 @@ const removePassword = (user) => {
 	return copy;
 };
 
-describe('AuthUserRepository', () => {
+describe('UserApi', () => {
 	describe('createUser', () => {
 		test('should succeed as admin', async () => {
-			const { api } = await newUserRepository(ADMIN);
+			const { api } = await newUserApi(ADMIN);
 			const user = TEST_USER_1;
 
 			const result = await api.createUser(user);
@@ -81,7 +82,7 @@ describe('AuthUserRepository', () => {
 
 		test('should fail as non-admin', async () => {
 			expect.assertions(1);
-			const { api } = await newUserRepository(NON_ADMIN);
+			const { api } = await newUserApi(NON_ADMIN);
 			const user = TEST_USER_1;
 
 			try {
@@ -94,7 +95,7 @@ describe('AuthUserRepository', () => {
 
 	describe('updateUser', () => {
 		test('should succeed as admin', async () => {
-			const { api, internalApi } = await newUserRepository(ADMIN);
+			const { api, internalApi } = await newUserApi(ADMIN);
 			const user = TEST_USER_1;
 			const update = {
 				username: 'new_username'
@@ -113,7 +114,7 @@ describe('AuthUserRepository', () => {
 		});
 
 		test('should succeed as self', async () => {
-			const { api, internalApi } = await newUserRepository(TEST_USER_1);
+			const { api, internalApi } = await newUserApi(TEST_USER_1);
 			const user = TEST_USER_1;
 			const update = {
 				username: 'new_username'
@@ -132,7 +133,7 @@ describe('AuthUserRepository', () => {
 		});
 
 		test('should fail as non-admin', async () => {
-			const { api, internalApi } = await newUserRepository(NON_ADMIN);
+			const { api, internalApi } = await newUserApi(NON_ADMIN);
 			const user = TEST_USER_1;
 			const update = {
 				username: 'new_username'
@@ -148,7 +149,7 @@ describe('AuthUserRepository', () => {
 
 	describe('updatePassword', () => {
 		test('should succeed as admin', async () => {
-			const { api, internalApi } = await newUserRepository(ADMIN);
+			const { api, internalApi } = await newUserApi(ADMIN);
 			const user = TEST_USER_1;
 
 			await internalApi.createUser(TEST_USER_1);
@@ -162,7 +163,7 @@ describe('AuthUserRepository', () => {
 		});
 
 		test('should succeed as self', async () => {
-			const { api, internalApi } = await newUserRepository(TEST_USER_1);
+			const { api, internalApi } = await newUserApi(TEST_USER_1);
 			const user = TEST_USER_1;
 
 			await internalApi.createUser(TEST_USER_1);
@@ -176,7 +177,7 @@ describe('AuthUserRepository', () => {
 		});
 
 		test('should fail as non-admin', async () => {
-			const { api, internalApi } = await newUserRepository(NON_ADMIN);
+			const { api, internalApi } = await newUserApi(NON_ADMIN);
 			const user = TEST_USER_1;
 			await internalApi.createUser(TEST_USER_1);
 			const newPassword = 'new_password';
@@ -189,7 +190,7 @@ describe('AuthUserRepository', () => {
 
 	describe('updateSettings', () => {
 		test('should succeed as admin', async () => {
-			const { api, internalApi } = await newUserRepository(ADMIN);
+			const { api, internalApi } = await newUserApi(ADMIN);
 			const user = TEST_USER_1;
 			const { lastModified } = await internalApi.createUser(user);
 			const newSettings = { locale: 'de' };
@@ -203,7 +204,7 @@ describe('AuthUserRepository', () => {
 		});
 
 		test('should succeed as self', async () => {
-			const { api, internalApi } = await newUserRepository(ADMIN);
+			const { api, internalApi } = await newUserApi(ADMIN);
 			const user = TEST_USER_1;
 			const { lastModified } = await internalApi.createUser(user);
 			const newSettings = { locale: 'de' };
@@ -217,7 +218,7 @@ describe('AuthUserRepository', () => {
 		});
 
 		test('should fail as non-admin', async () => {
-			const { api, internalApi } = await newUserRepository(NON_ADMIN);
+			const { api, internalApi } = await newUserApi(NON_ADMIN);
 			const user = TEST_USER_1;
 			await internalApi.createUser(user);
 			const newSettings = { locale: 'de' };
@@ -230,7 +231,7 @@ describe('AuthUserRepository', () => {
 
 	describe('deleteUser', () => {
 		test('should succeed as admin', async () => {
-			const { api, internalApi } = await newUserRepository(ADMIN);
+			const { api, internalApi } = await newUserApi(ADMIN);
 			const user = TEST_USER_1;
 			await internalApi.createUser(user);
 
@@ -240,7 +241,7 @@ describe('AuthUserRepository', () => {
 		});
 
 		test('should succeed as self', async () => {
-			const { api, internalApi } = await newUserRepository(TEST_USER_1);
+			const { api, internalApi } = await newUserApi(TEST_USER_1);
 			const user = TEST_USER_1;
 			await internalApi.createUser(user);
 
@@ -250,7 +251,7 @@ describe('AuthUserRepository', () => {
 		});
 
 		test('should fail as non-admin', async () => {
-			const { api, internalApi } = await newUserRepository(NON_ADMIN);
+			const { api, internalApi } = await newUserApi(NON_ADMIN);
 			const user = TEST_USER_1;
 			await internalApi.createUser(user);
 
@@ -260,14 +261,14 @@ describe('AuthUserRepository', () => {
 		});
 
 		test('should fail to delete admin', async () => {
-			const { api, internalApi } = await newUserRepository(ADMIN);
+			const { api, internalApi } = await newUserApi(ADMIN);
 			const user = ADMIN;
 			await internalApi.createUser(user);
 
 			const promise = api.deleteUser(user.id);
 
 			await expect(promise).rejects.toHaveProperty('code', 'NOT_ALLOWED');
-		})
+		});
 	});
 
 	describe('find', () => {
@@ -280,7 +281,7 @@ describe('AuthUserRepository', () => {
 		describe('as admin', () => {
 			let api;
 			beforeAll(async () => {
-				const repo = await newUserRepository(ADMIN);
+				const repo = await newUserApi(ADMIN);
 				api = repo.api;
 				await populate(repo.internalApi);
 			});
@@ -319,7 +320,7 @@ describe('AuthUserRepository', () => {
 		describe('as non-admin', () => {
 			let api;
 			beforeAll(async () => {
-				const repo = await newUserRepository(TEST_USER_1);
+				const repo = await newUserApi(TEST_USER_1);
 				api = repo.api;
 				await populate(repo.internalApi);
 			});

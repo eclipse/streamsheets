@@ -1,6 +1,6 @@
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongodb = require('mongodb');
-const { createUserRepository } = require('../src/UserRepository');
+const { createUserRepository } = require('../../src/user/UserRepository.ts');
 
 let mongoServer;
 let client;

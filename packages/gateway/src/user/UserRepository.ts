@@ -1,29 +1,35 @@
-const { touch, generateId, applyUpdate } = require('./Document');
-const { InternalError, InputError, MongoError, ErrorCodes } = require('./errors');
+import { Collection, FindOneOptions, FindOneAndReplaceOption } from 'mongodb';
 
-const toExternal = (user) => {
+const { touch, generateId, applyUpdate } = require('./Document');
+const { InternalError, InputError, MongoError, ErrorCodes } = require('../errors');
+
+type InternalUser = Omit<User, 'id' | 'settings'> & { _id: PropType<User, 'id'>; settings: InternalSettings };
+type InternalSettings = UserSettings;
+type PartialInternalUser = Partial<Omit<InternalUser, 'settings'> & { settings: Partial<InternalSettings> }>;
+type UserCollection = Collection<InternalUser>;
+
+function toExternal(user: null | undefined): null;
+function toExternal(user: InternalUser): User;
+function toExternal(user: InternalUser | null | undefined): User | null;
+function toExternal(user: InternalUser | null | undefined): User | null {
 	if (!user) {
 		return null;
 	}
-	const copy = { ...user };
-	if (copy._id !== undefined) {
-		copy.id = copy._id;
-		delete copy._id;
-	}
+	const { _id, ...copy } = { ...user, id: user._id };
 	delete copy.password;
 	return copy;
-};
+}
 
-const toInternalSettings = (settings) => {
-	const internal = {};
+const toInternalSettings = (settings: Partial<UserSettings>): Partial<InternalSettings> => {
+	const internal: Partial<InternalSettings> = {};
 	if (settings.locale !== undefined) {
 		internal.locale = settings.locale;
 	}
 	return internal;
 };
 
-const toInternal = (user) => {
-	const internal = {};
+const toInternal = (user: Partial<User>): PartialInternalUser => {
+	const internal: PartialInternalUser = {};
 	if (user.id !== undefined) {
 		internal._id = user.id;
 	}
@@ -48,13 +54,13 @@ const toInternal = (user) => {
 	return internal;
 };
 
-const sanitizeUpdate = (update) => {
+const sanitizeUpdate = (update: Partial<User>) => {
 	const copy = { ...update };
 	delete copy.password;
 	return copy;
 };
 
-const validateSettings_ = (settings) => {
+const validateSettings_ = (settings: InternalSettings) => {
 	const { locale } = settings;
 	const errors = {
 		locale: !['en', 'de'].includes(locale) ? ErrorCodes.LOCALE_INVALID : undefined
@@ -62,15 +68,15 @@ const validateSettings_ = (settings) => {
 	return Object.values(errors).filter((error) => !!error).length > 0 ? errors : undefined;
 };
 
-const validateSettings = (settings) => {
+const validateSettings = (settings: InternalSettings) => {
 	const errors = validateSettings_(settings);
 	if (errors) {
 		throw InputError.invalid('Invalid settings', errors);
-	}
+	}	
 	return settings;
 };
 
-const validate = (user) => {
+const validate = (user: InternalUser) => {
 	const { username, email, password } = user;
 	const errors = {
 		username: !username ? ErrorCodes.USERNAME_INVALID : undefined,
@@ -87,30 +93,42 @@ const validate = (user) => {
 	return user;
 };
 
-const hidePassword = (options = {}) => ({ ...options, projection: { ...options.projection, password: false } });
+const hidePassword = (options: FindOneOptions | FindOneAndReplaceOption = {}) => ({
+	...options,
+	projection: { ...options.projection, password: false }
+});
 
-const beforeWrite = (user) => validate(touch(user));
+const beforeWrite = (user: InternalUser) => validate(touch(user));
 
-const findConflict = async (collection, self = '', fields) => {
-	const existing = await collection
+type UniqueFields = 'username' | 'email';
+
+const findConflict = async (
+	collection: UserCollection,
+	self = '',
+	fields: { [key in UniqueFields]: { value: any; error: string } }
+) => {
+	const existing: PartialInternalUser[] = await collection
 		.find(
 			{ $or: Object.entries(fields).map(([key, { value }]) => ({ [key]: value })), _id: { $ne: self } },
 			{ projection: Object.keys(fields) }
 		)
 		.toArray();
-	const fieldErrors = existing.reduce(
+	const fieldErrors: { [key in UniqueFields]?: string } = existing.reduce(
 		(acc, current) =>
 			Object.assign(
-				...Object.entries(fields).map(([key, { value, error }]) => ({
-					[key]: acc[key] || value === current[key] ? error : undefined
-				}))
+				{},
+				...Object.entries(fields).map(([key, { value, error }]) => {
+					if (key === 'email' || key === 'username') {
+						return { [key]: acc[key] || value === current[key] ? error : undefined };
+					}
+				})
 			),
-		{}
+		<{ [key in UniqueFields]?: string }>{}
 	);
 	return fieldErrors;
 };
 
-const defaults = (user) => {
+const defaults = (user: Omit<InternalUser, 'settings'> & { settings: Partial<InternalSettings> }): InternalUser => {
 	const copy = { ...user };
 	if (!copy.settings) {
 		copy.settings = {};
@@ -118,29 +136,29 @@ const defaults = (user) => {
 	if (!copy.settings.locale) {
 		copy.settings.locale = 'en';
 	}
-	return copy;
+	return <InternalUser>copy;
 };
 
 const noop = () => {};
 
 const UserRepository = {
-	findUser: async (collection, id) => {
+	findUser: async (collection: UserCollection, id: ID) => {
 		const result = await collection.findOne({ _id: id }, hidePassword());
 		return toExternal(result);
 	},
-	findMinimalUser: async (collection, id) => {
+	findMinimalUser: async (collection: UserCollection, id: ID) => {
 		const result = await collection.findOne({ _id: id }, hidePassword({ projection: { _id: 1 } }));
 		return toExternal(result);
 	},
-	findUserByUsername: async (collection, username) => {
+	findUserByUsername: async (collection: UserCollection, username: string) => {
 		const result = await collection.findOne({ username }, hidePassword());
 		return toExternal(result);
 	},
-	findAllUsers: async (collection) => {
+	findAllUsers: async (collection: UserCollection) => {
 		const result = await collection.find({}, hidePassword()).toArray();
 		return result.map(toExternal);
 	},
-	createUser: async (collection, user, auth = noop) => {
+	createUser: async (collection: UserCollection, user: User, auth: Authenticator<User> = noop) => {
 		await auth(user);
 		const userDocument = beforeWrite(defaults(generateId(toInternal(user))));
 		try {
@@ -148,7 +166,7 @@ const UserRepository = {
 			return toExternal(userDocument);
 		} catch (error) {
 			if (MongoError.isConflict(error)) {
-				const fieldErrors = await findConflict(collection, null, {
+				const fieldErrors = await findConflict(collection, undefined, {
 					username: {
 						value: userDocument.username,
 						error: ErrorCodes.USERNAME_IN_USE
@@ -163,7 +181,12 @@ const UserRepository = {
 			throw error;
 		}
 	},
-	updateUser: async (collection, id, userUpdate, auth = noop) => {
+	updateUser: async (
+		collection: UserCollection,
+		id: ID,
+		userUpdate: Partial<User>,
+		auth: Authenticator<User> = noop
+	) => {
 		let userDocument;
 		try {
 			const dbUser = await collection.findOne({ _id: id });
@@ -182,7 +205,7 @@ const UserRepository = {
 			);
 			return toExternal(result.value);
 		} catch (error) {
-			if (MongoError.isConflict(error)) {
+			if (MongoError.isConflict(error) && userDocument) {
 				const fieldErrors = await findConflict(collection, id, {
 					username: {
 						value: userDocument.username,
@@ -198,8 +221,12 @@ const UserRepository = {
 			throw error;
 		}
 	},
-	updateSettings: async (collection, id, settingsUpdate, auth = noop) => {
-		let userDocument;
+	updateSettings: async (
+		collection: UserCollection,
+		id: ID,
+		settingsUpdate: Partial<UserSettings>,
+		auth: Authenticator<User> = noop
+	) => {
 		try {
 			const dbUser = await collection.findOne({ _id: id });
 			if (!dbUser) {
@@ -218,23 +245,10 @@ const UserRepository = {
 			);
 			return toExternal(result.value);
 		} catch (error) {
-			if (MongoError.isConflict(error)) {
-				const fieldErrors = await findConflict(collection, id, {
-					username: {
-						value: userDocument.username,
-						error: ErrorCodes.USERNAME_IN_USE
-					},
-					email: {
-						value: userDocument.email,
-						error: ErrorCodes.EMAIL_IN_USE
-					}
-				});
-				throw InputError.conflict('Username or email already in use', fieldErrors);
-			}
 			throw error;
 		}
 	},
-	deleteUser: async (collection, id, auth = noop) => {
+	deleteUser: async (collection: UserCollection, id: ID, auth: Authenticator<User> = noop) => {
 		const dbUser = await collection.findOne({ _id: id });
 		if (!dbUser) {
 			throw InputError.notFound('User does not exist', ErrorCodes.USER_NOT_FOUND);
@@ -247,14 +261,14 @@ const UserRepository = {
 		}
 		throw InputError.notFound('User does not exist', ErrorCodes.USER_NOT_FOUND);
 	},
-	getPassword: async (collection, username) => {
+	getPassword: async (collection: UserCollection, username: string) => {
 		const result = await collection.findOne({ username }, { projection: { password: true } });
 		if (!result) {
 			throw InputError.notFound('User does not exist', ErrorCodes.USER_NOT_FOUND);
 		}
 		return result.password;
 	},
-	updatePassword: async (collection, id, password, auth = noop) => {
+	updatePassword: async (collection: UserCollection, id: ID, password: string, auth: Authenticator<User> = noop) => {
 		const dbUser = await collection.findOne({ _id: id });
 		if (!dbUser) {
 			throw InputError.notFound('User does not exist', ErrorCodes.USER_NOT_FOUND);
@@ -266,7 +280,7 @@ const UserRepository = {
 	}
 };
 
-const createUserRepository = (collection) => {
+const createUserRepository = (collection: UserCollection): UserRepository => {
 	collection.createIndexes([
 		{
 			key: {
@@ -286,10 +300,10 @@ const createUserRepository = (collection) => {
 	return Object.entries(UserRepository).reduce(
 		(obj, [name, func]) => ({
 			...obj,
-			[name]: InternalError.catchUnexpected((...args) => func(collection, ...args))
+			[name]: InternalError.catchUnexpected((...args: any[]) => func(collection, args[0], args[1], args[2]))
 		}),
 		{}
-	);
+	) as UserRepository;
 };
 
 module.exports = {
