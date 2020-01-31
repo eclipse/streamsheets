@@ -313,6 +313,7 @@ export default class WorksheetView extends ContentNodeView {
 				if (event.event.ctrlKey) {
 					viewer.getInteractionHandler().undo();
 				}
+				doDefault();
 				break;
 			case 'g':
 				/* scribble to create png from range
