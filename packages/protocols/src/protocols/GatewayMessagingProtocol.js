@@ -75,6 +75,7 @@ const COMMAND_EVENT = 'command';
 const GATEWAY_DISCONNECTED_EVENT = 'gateway_disconnected';
 const GRAPH_SERVER_CONNECTED_EVENT = 'graphserver_connected';
 const GRAPH_SERVER_DISCONNECTED_EVENT = 'graphserver_disconnected';
+const SESSION_INIT_EVENT = 'session_init';
 const LICENSE_INFO_EVENT = 'license_information';
 const MACHINE_CYCLETIME_EVENT = 'machine_cycletime';
 const MACHINE_RENAME_EVENT = 'machine_rename';
@@ -181,6 +182,7 @@ module.exports = {
 	EVENTS: {
 		// Events
 		COMMAND_EVENT,
+		SESSION_INIT_EVENT,
 		GATEWAY_DISCONNECTED_EVENT,
 		GRAPH_SERVER_CONNECTED_EVENT,
 		GRAPH_SERVER_DISCONNECTED_EVENT,

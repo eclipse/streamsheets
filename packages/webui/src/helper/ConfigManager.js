@@ -15,7 +15,6 @@ const CONFIG = {
 	socketEndpointURL: localStorage.getItem('socketEndpointURL') || GATEWAY_SOCKET_ENDPOINT,
 	restEndpointURL: localStorage.getItem('restEndpointURL') || GATEWAY_REST_ENDPOINT,
 	token: accessManager.authToken,
-	clientId: accessManager.clientId,
 };
 
 const DEF_CONFIG = {
