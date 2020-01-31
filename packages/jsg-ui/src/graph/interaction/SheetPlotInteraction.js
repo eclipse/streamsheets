@@ -36,27 +36,30 @@ export default class SheetPlotInteraction extends Interaction {
 	isElementHit(event, viewer) {
 		const pt = this.toLocalCoordinate(event, viewer);
 
-		const item = this._controller.getModel();
-		if (item.title.position.containsPoint(pt)) {
-			return true;
-		}
-
-		if (item.plot.position.containsPoint(pt)) {
-			return true;
-		}
-
-		if (item.xAxes.some((axis) => axis.position.containsPoint(pt))) {
-			return true;
-		}
-
-		if (item.yAxes.some((axis) => axis.position.containsPoint(pt))) {
-			return true;
-		}
-
-		return false;
+		return this._controller.getModel().isElementHit(pt);
 	}
 
 	onMouseDown(event, viewer) {
+
+		const formula = document.getElementById('editbarformula');
+		const info = this.isElementHit(event, viewer);
+
+		if (formula) {
+			switch (info.element) {
+			case 'datarow':
+				formula.innerHTML = `=${info.data.getFormula()}`;
+				break;
+			case 'title':
+				formula.innerHTML = `=${info.data.title.getFormula()}`;
+				break;
+			case 'xAxis':
+			case 'yAxis':
+				formula.innerHTML = `=${info.data.formula.getFormula()}`;
+				break;
+			}
+		}
+
+
 	}
 
 	onMouseDrag(event, viewer) {

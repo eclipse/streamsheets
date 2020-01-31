@@ -7,10 +7,7 @@ const Expression = require('../expr/Expression');
 
 class ChartRect {
 	constructor(left, top, right, bottom) {
-		this.left = left || 0;
-		this.top = top || 0;
-		this.right = right || 0;
-		this.bottom = bottom || 0;
+		this.set(left, top, right, bottom);
 	}
 
 	reset() {
@@ -22,6 +19,13 @@ class ChartRect {
 
 	containsPoint(pt) {
 		return pt.x >= this.left && pt.x <= this.right && pt.y >= this.top && pt.y <= this.bottom;
+	}
+
+	set(left, top, right, bottom) {
+		this.left = left || 0;
+		this.top = top || 0;
+		this.right = right || 0;
+		this.bottom = bottom || 0;
 	}
 
 	get width() {
@@ -139,7 +143,7 @@ module.exports = class SheetPlotNode extends Node {
 			switch (axis.align) {
 			case 'bottom':
 				axis.position.top = this.plot.position.bottom;
-				axis.position.bottom = axis.position.top - axis.size;
+				axis.position.bottom = axis.position.top + axis.size;
 				break;
 			}
 		});
@@ -155,6 +159,180 @@ module.exports = class SheetPlotNode extends Node {
 		});
 
 		super.layout();
+	}
+
+	getParamInfo(term, index) {
+		if (term && term.params && term.params.length >= index) {
+			const { operand } = term.params[index];
+			if (operand instanceof SheetReference) {
+				const range = operand._range.copy();
+				range.shiftFromSheet();
+				return { sheet: operand._item, range };
+			}
+		}
+		return undefined;
+	}
+
+	getParamValue(term, index) {
+		const info = this.getParamInfo(term, index);
+		if (info) {
+			const cell = info.sheet.getDataProvider().getRC(info.range._x1, info.range._y1);
+			return cell ? cell.getValue() : 0;
+		}
+		if (term && term.params && term.params.length >= index) {
+			return Number(term.params[index].value);
+		}
+		return 0;
+	}
+
+	isTimeAggregateRange(sheet, range) {
+		if (range.getWidth() !== 1 || range.getHeight() !== 1) {
+			return undefined;
+		}
+		const cell = sheet.getDataProvider().getRC(range._x1, range._y1);
+		const expr = cell ? cell.getExpression() : undefined;
+		if (expr === undefined) {
+			return undefined;
+		}
+		const formula = expr.getFormula();
+
+		if (formula && formula.indexOf('TIMEAGGREGATE') !== -1) {
+			return cell;
+		}
+
+		return undefined;
+	}
+
+	getDataSourceInfo(ds) {
+		const ret = {
+			x: this.getParamInfo(ds.getTerm(), 1),
+			y: this.getParamInfo(ds.getTerm(), 2)
+		};
+		ret.xTime = this.isTimeAggregateRange(ret.x.sheet, ret.x.range);
+		ret.yTime = this.isTimeAggregateRange(ret.y.sheet, ret.y.range);
+
+		return ret;
+	}
+
+	getAxisInfo(formula) {
+		return {
+			min: this.getParamValue(formula.getTerm(), 0),
+			max: this.getParamValue(formula.getTerm(), 1),
+			step: this.getParamValue(formula.getTerm(), 2),
+		};
+	}
+
+	getValue(ref, index, value) {
+
+		if (this.xAxes[0].type === 'category') {
+			value.x = index;
+		} else if (ref.xTime) {
+			const values = ref.xTime.getValues();
+			if (values && values.length > index) {
+				value.x = values[index].key;
+			}
+		} else if (index <= ref.x.range._y2 - ref.x.range._y1) {
+			const cell = ref.x.sheet.getDataProvider().getRC(ref.x.range._x1, ref.x.range._y1 + index);
+			value.x =  cell ? Number(cell.getValue()) : 0;
+		}
+
+		if (ref.yTime) {
+			const values = ref.yTime.getValues();
+			if (values && values.length > index) {
+				value.y = values[index].value;
+				return true;
+			}
+		} else if (index <= ref.y.range._y2 - ref.y.range._y1) {
+			const cell = ref.y.sheet.getDataProvider().getRC(ref.y.range._x1, ref.y.range._y1 + index);
+			value.y =  cell ? Number(cell.getValue()) : 0;
+			return true;
+		}
+
+		return false;
+	}
+
+	validateAxis(axisInfo) {
+		return (axisInfo.step > 0 && axisInfo.max > axisInfo.min);
+	}
+
+	scaleToAxis(info, value) {
+
+		value = (value - info.min) / (info.max - info.min);
+
+		return value;
+	}
+
+
+	isElementHit(pt) {
+
+		if (this.title.position.containsPoint(pt)) {
+			return {
+				element: 'title',
+				data: this.title
+			};
+		}
+
+		let result = this.dataSources.filter((ds, index) => {
+			const ref = this.getDataSourceInfo(ds);
+			const dataRect = new ChartRect();
+			const plotRect = this.plot.position;
+			if (ref) {
+				const xAxisInfo = this.getAxisInfo(this.xAxes[0].formula);
+				const yAxisInfo = this.getAxisInfo(this.yAxes[0].formula);
+				if (this.validateAxis(xAxisInfo) && this.validateAxis(yAxisInfo)) {
+					let pointIndex = 0;
+					let x;
+					let y;
+					const value = {};
+
+					while (this.getValue(ref, pointIndex, value)) {
+						x = this.scaleToAxis(xAxisInfo, value.x);
+						y = this.scaleToAxis(yAxisInfo, value.y);
+						dataRect.set(plotRect.left + x * plotRect.width - 200,
+							plotRect.bottom - y * plotRect.height - 200,
+							plotRect.left + x * plotRect.width + 200,
+							plotRect.bottom - y * plotRect.height + 200);
+						if (dataRect.containsPoint(pt)) {
+							return true;
+						}
+						pointIndex += 1;
+					}
+				}
+			}
+			return false;
+		});
+
+		if (result.length) {
+			return {
+				element: 'datarow',
+				data: result[0]
+			};
+		}
+
+		result = this.xAxes.filter((axis) => axis.position.containsPoint(pt));
+		if (result.length) {
+			return {
+				element: 'xAxis',
+				data: result[0]
+			};
+		}
+
+		result = this.yAxes.filter((axis) => axis.position.containsPoint(pt));
+		if (result.length) {
+			return {
+				element: 'xAxis',
+				data: result[0]
+			};
+		}
+
+		if (this.plot.position.containsPoint(pt)) {
+			return {
+				element: 'plot',
+				data: this.plot
+			};
+		}
+
+		return undefined;
 	}
 
 
