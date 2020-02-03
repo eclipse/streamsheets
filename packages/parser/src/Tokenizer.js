@@ -424,13 +424,14 @@ function parseFunctionOrIdentifier() {
 			index += 1;
 			const params = parseParams();
 			op = {
-				end: index >= length ? length : index - 1,
+				end: index - 1,
 				start: op.start,
 				type: 'function',
 				value: fname,
 				params
 			};
 			op.isInvalid = !!params.invalid;
+			if (op.isInvalid && index >= length) op.end = length;
 		} else {
 			const idx = op.value ? index - op.value.length : index;
 			throwException(`Unknown function "${op.value}"`, idx - 1, ErrorCode.UNKNOWN_FUNCTION);

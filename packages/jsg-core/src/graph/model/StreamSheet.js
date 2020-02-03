@@ -1350,6 +1350,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 			}
 		}
 
+		item.getTextFormat().setRichText(false);
+
 		formula = expr.toLocaleString('en', { item: ws, useName: true, forceName: true});
 		if (formula.length && formula[0] === '=') {
 			formula = formula.substring(1);
