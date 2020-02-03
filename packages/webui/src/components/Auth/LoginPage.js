@@ -102,14 +102,19 @@ class LoginPage extends React.Component {
 			});
 			// eslint-disable-next-line react/no-did-mount-set-state
 		}
-		localStorage.removeItem('jwtToken');
-		localStorage.removeItem('user');
 		const params = new URLSearchParams(window.location.search);
 		const token = params.get('token');
 		const userId = params.get('userId');
 		if (token) {
+			localStorage.removeItem('jwtToken');
+			localStorage.removeItem('user');
 			const url = params.get('url') || '/dashboard';
 			this.loginUI(token, userId, url);
+		}
+		const existingToken = localStorage.getItem('jwtToken');
+		if(existingToken){
+			const redirect = params.get('redirect');
+			window.location = redirect ? decodeURIComponent(redirect) :'/dashboard';
 		}
 	}
 
@@ -139,7 +144,7 @@ class LoginPage extends React.Component {
 		localStorage.setItem(
 			'user',
 			JSON.stringify({
-				userId,
+				id: userId,
 			}),
 		);
 		window.location = url;

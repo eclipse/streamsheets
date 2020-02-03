@@ -28,7 +28,7 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 			const attr = cont
 				.getModel()
 				.getItemAttributes()
-				.getAttribute('sheetname');
+				.getAttribute('sheetsource');
 			if (attr) {
 				const name = attr.getValue();
 				if (name && name.length) {

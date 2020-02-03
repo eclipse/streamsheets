@@ -72,7 +72,7 @@ module.exports = class Drawings {
 		case 'label':
 			getRectParams(item);
 			if (terms.length > 13) {
-				item.formula = terms.length > 13 ?  terms[13].toString() : '';
+				item.label = terms.length > 13 ?  terms[13].toString() : '';
 			}
 			item.text = String(this.getGraphParam(terms, 13, ''));
 			item.font = String(this.getGraphParam(terms, 14, ''));

@@ -90,11 +90,6 @@ const fns = {
 		const token = querystring.parse(url.parse(reqUrl).query)[tokenKey];
 		return tokenParser(token);
 	},
-	getClientIdFromWebsocketRequest(request) {
-		const reqUrl = request.url;
-		const clientId = querystring.parse(url.parse(reqUrl).query).clientId;
-		return clientId === 'undefined' ? undefined : clientId;
-	},
 	checkArity(type, fnName, fn, expectedArity) {
 		if (fn.length !== expectedArity) {
 			return `registered ${type} ${fnName} interceptor takes ${fn.length} parameter,

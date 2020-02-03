@@ -24,7 +24,7 @@ const removeSelection = () => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const sessionId = sessionStorage.getItem('sessionId');
 	if (user) {
-		const id = `${sessionId};${user.userId};${user.displayName}`;
+		const id = `${sessionId};${user.id};${user.displayName}`;
 		graphManager.removeSelection(id);
 	}
 };
@@ -262,7 +262,7 @@ function handleUserJoinedEvent(/* event */) {}
 
 function handleUserLeftEvent(event) {
 	const { sessionId, user } = event;
-	const id = `${sessionId};${user.userId};${user.displayName}`;
+	const id = `${sessionId};${user.id};${user.displayName}`;
 	if (event.user) {
 		graphManager.removeSelection(id);
 	}
@@ -449,8 +449,13 @@ export function getMe() {
 				}
 			}`
 		);
-
-		dispatch({ type: ActionTypes.USER_FETCHED, user: result.me });
+		const user = result.me;
+		const displayName = [user.firstName, user.lastName].filter(e => !!e).join(' ') || user.username;
+		localStorage.setItem(
+			'user',
+			JSON.stringify({ id: user.id, displayName, settings: user.settings })
+		);
+		dispatch({ type: ActionTypes.USER_FETCHED, user });
 	};
 }
 
@@ -602,14 +607,16 @@ export function connect() {
 	});
 	const config = {
 		...CONFIG,
-		token: accessManager.authToken,
-		clientId: accessManager.generateGUID(),
+		token: accessManager.authToken
 	};
 	return (dispatch) =>
 		gatewayClient
 			.connect(config)
 			.then(() => {
 				getMetaInformationAndDispatch();
+				gatewayClient.on(EVENTS.SESSION_INIT_EVENT, (event) => {
+					sessionStorage.setItem('sessionId', event.session.id);
+				});
 				gatewayClient.on(EVENTS.GATEWAY_DISCONNECTED_EVENT, (event) => {
 					getMetaInformationAndDispatch();
 					dispatch(clientDisconnected(event));

@@ -28,7 +28,7 @@ module.exports = class BaseGatewayClient {
 	}
 
 	// eslint-disable-next-line consistent-return
-	async connect({ socketEndpointURL, restEndpointURL, token, clientId } = {}) {
+	async connect({ socketEndpointURL, restEndpointURL, token } = {}) {
 		if (this._isConnected || this._isConnecting) {
 			return Promise.resolve({});
 		}
@@ -37,7 +37,6 @@ module.exports = class BaseGatewayClient {
 		this._socketEndpointURL = socketEndpointURL || this._socketEndpointURL;
 		this._restEndpointURL = restEndpointURL || this._restEndpointURL;
 		this._token = token || this._token;
-		this._clientId = clientId || this._clientId;
 		try {
 			await this._connectRESTServer(restEndpointURL);
 			this.http = new HTTPGatewayAPI(
@@ -46,7 +45,7 @@ module.exports = class BaseGatewayClient {
 				this.logger
 			);
 			if(this._token) {
-				const ws = await this._connectSocketServer(`${this._socketEndpointURL}?authToken=${this._token}&clientId=${this._clientId}`);
+				const ws = await this._connectSocketServer(`${this._socketEndpointURL}?authToken=${this._token}`);
 				this._ws = ws;
 				this.socket = new WebSocketGatewayAPI(this._ws, this.logger);
 				this._keepAlive();
@@ -57,7 +56,7 @@ module.exports = class BaseGatewayClient {
 			this._isConnected = false;
 			this._isConnecting = false;
 			this.logger.error(
-				`${this._socketEndpointURL}?authToken=${this._token}&clientId=${this._clientId}`
+				`${this._socketEndpointURL}?authToken=${this._token}`
 			);
 			this.logger.error(error);
 		}
@@ -67,8 +66,7 @@ module.exports = class BaseGatewayClient {
 		const socketEndpointURL = this._socketEndpointURL;
 		const restEndpointURL = this._restEndpointURL;
 		const token = this._token;
-		const clientId = this._clientId;
-		this.connect({ socketEndpointURL, restEndpointURL, token, clientId });
+		this.connect({ socketEndpointURL, restEndpointURL, token });
 	}
 
 	disconnect() {

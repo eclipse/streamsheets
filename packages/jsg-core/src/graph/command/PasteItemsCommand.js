@@ -289,9 +289,6 @@ class PasteItemsCommand extends Command {
 		}
 
 		items.forEach((item, i) => {
-			if (this.viewer) {
-				this._removeAttribute(item, 'sheetname');
-			}
 			parent.addItem(item);
 			// for text nodes set new text format parent...
 			if (item instanceof TextNode) {
@@ -483,10 +480,33 @@ class PasteItemsCommand extends Command {
 	 */
 	undo() {
 		// delete created items
+		if (this.items.length === 0) {
+			const reader = this._getReader();
+			const head = this._getStartNode(reader);
+			const graph = this.parent.getGraph();
 
-		this.items.forEach((item) => {
-			this.parent.removeItem(item);
-		});
+			reader.iterateObjects(head, (name, child) => {
+				switch (name) {
+				case 'gi':
+				case 'graphitem': {
+					const id = Number(reader.getAttribute(child, 'id'));
+					if (id !== undefined) {
+						const item = graph.getItemById(id);
+						if (item !== undefined) {
+							this.parent.removeItem(item);
+						}
+					}
+					break;
+				}
+				default:
+					break;
+				}
+			});
+		} else {
+			this.items.forEach((item) => {
+				this.parent.removeItem(item);
+			});
+		}
 	}
 
 	/**

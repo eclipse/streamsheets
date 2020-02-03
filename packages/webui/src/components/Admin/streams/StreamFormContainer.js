@@ -29,14 +29,9 @@ class StreamFormContainer extends React.Component {
 	static getDerivedStateFromProps(props, state) {
 		const { tempConfiguration } = props.streams;
 		let progressing = false;
-		let clientId = null;
 		if (state.model) {
 			const configuration = StreamHelper.getConfiguration(props,
 				state.model.id);
-			if(tempConfiguration) {
-				({clientId} = tempConfiguration);
-			}
-			clientId = clientId || state.model.clientId;
 			progressing = configuration ? configuration.progressing : false;
 		}
 		if (state.model && !props.streams.tempConfiguration) {
@@ -44,7 +39,6 @@ class StreamFormContainer extends React.Component {
 				...state,
 				model: {
 					...state.model,
-					clientId,
 					name: state.model.name.trim(),
 					status: undefined,
 					state: props.streams.statusMap[state.model.id],
@@ -57,7 +51,6 @@ class StreamFormContainer extends React.Component {
 				...state,
 				model: {
 					...tempConfiguration,
-					clientId,
 					status: undefined,
 					state: props.streams.statusMap[tempConfiguration.id],
 				},
