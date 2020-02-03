@@ -538,4 +538,73 @@ describe('timeaggregate', () => {
 			expect(sheet.cellAt('A3').value).toBe(sheet.cellAt('A1').value);
 		});
 	});
+	// DL-3578:
+	describe.skip('limit parameter', () => {
+		it(`should return ${ERROR.LIMIT} if limit is reached`, async () => {
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			createCellAt('A1', { formula: 'A1+1' }, sheet);
+			createCellAt('A3', { formula: 'timeaggregate(A1,5,9,,,,,2)' }, sheet);
+			await machine.start();
+			await doAfter(3500, () => { machine.stop(); });
+			expect(sheet.cellAt('A1').value).toBe(5);
+			expect(sheet.cellAt('A3').value).toBe(ERROR.LIMIT);
+		});
+		it('should limit number of stored values', async () => {
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			createCellAt('A1', { formula: 'A1+1' }, sheet);
+			createCellAt('A3', { formula: 'timeaggregate(A1,5,9,,,,,2)' }, sheet);
+			await machine.start();
+			await doAfter(3500, () => { machine.stop(); });
+			expect(sheet.cellAt('A1').value).toBe(5);
+			// check cell values
+			const cell = sheet.cellAt('A3');
+			const values = cell.info.values.map(({ value }) => value);
+			expect(values).toEqual([4, 5]);
+			expect(cell.value).toBe(ERROR.LIMIT);
+		});
+		it('should limit number of aggregated values', async () => {
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			createCellAt('A1', { formula: 'A1+1' }, sheet);
+			createCellAt('A3', { formula: 'timeaggregate(A1,5,0,,0.5,,,2)' }, sheet);
+			await machine.start();
+			await doAfter(3500, () => { machine.stop(); });
+			expect(sheet.cellAt('A1').value).toBe(5);
+			// check cell values
+			const cell = sheet.cellAt('A3');
+			const values = cell.info.values.map(({ value }) => value);
+			expect(values).toEqual([4, 5]);
+			expect(cell.value).toBe(ERROR.LIMIT);
+		});
+		it(`should respect sort before applying limit`, async () => {
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			createCellAt('A1', { formula: 'A1+1' }, sheet);
+			createCellAt('B1', { formula: 'B1+1' }, sheet);
+			createCellAt('C1', { formula: '100-B1' }, sheet);
+			createCellAt('A3', { formula: 'timeaggregate(A1,5,0,C1,,,true,2)' }, sheet);
+			await machine.start();
+			await doAfter(3500, () => machine.stop());
+			expect(sheet.cellAt('A1').value).toBe(5);
+			expect(sheet.cellAt('C1').value).toBe(95);
+			const cell = sheet.cellAt('A3');
+			const keys = cell.info.values.map(({ key }) => key);
+			const values = cell.info.values.map(({ value }) => value);
+			expect(keys).toEqual([97, 98]);
+			expect(values).toEqual([3, 2]);
+			expect(cell.value).toBe(ERROR.LIMIT);
+		});
+		it('should support optional limit parameter with 1000 as default', () => {
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			createCellAt('A1', { formula: 'A1+1' }, sheet);
+			createCellAt('A3', { formula: 'timeaggregate(A1)' }, sheet);
+			expect(sheet.cellAt('A1').value).toBe(1);
+			sheet.streamsheet.step();
+			const cell = sheet.cellAt('A3');
+			expect(cell).toBeDefined();
+			const term = cell.term;
+			expect(term).toBeDefined();
+			expect(term._timeaggregator).toBeDefined();
+			expect(term._timeaggregator.settings.limit).toBe(1000);
+			expect(sheet.cellAt('A1').value).toBe(2);
+		});
+	});
 });
