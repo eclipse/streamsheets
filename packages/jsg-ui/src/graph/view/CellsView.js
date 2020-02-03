@@ -1586,6 +1586,12 @@ export default class CellsView extends NodeView {
 			case 'REST.RESPOND':
 			case 'MAIL.SEND':
 			case 'FEEDINBOX':
+			case 'OPCUA.FOLDERS':
+			case 'OPCUA.JSON':
+			case 'OPCUA.READ':
+			case 'OPCUA.RESPOND':
+			case 'OPCUA.VARIABLES':
+			case 'OPCUA.WRITE':
 			case 'EXECUTE':
 				result.value = String(data.getValue());
 
