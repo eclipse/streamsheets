@@ -25,6 +25,7 @@ const getTargetRange = (term, sheet) =>
 
 const add = (sheet, ...terms) =>
 	runFunction(sheet, terms)
+		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(4)
 		.mapNextArg(stackrange => getCellRangeFromTerm(stackrange, sheet) || ERROR.NAME)
@@ -40,6 +41,7 @@ const add = (sheet, ...terms) =>
 
 const drop = (sheet, ...terms) =>
 	runFunction(sheet, terms)
+		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(3)
 		.mapNextArg(stackrange => getCellRangeFromTerm(stackrange, sheet) || ERROR.NAME)
@@ -54,6 +56,7 @@ const drop = (sheet, ...terms) =>
 
 const find = (sheet, ...terms) =>
 	runFunction(sheet, terms)
+		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(5)
 		.mapNextArg(stackrange => getCellRangeFromTerm(stackrange, sheet) || ERROR.NAME)
@@ -70,6 +73,7 @@ const find = (sheet, ...terms) =>
 
 const rotate = (sheet, ...terms) =>
 	runFunction(sheet, terms)
+		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(3)
 		.mapNextArg(stackrange => getCellRangeFromTerm(stackrange, sheet) || ERROR.NAME)
@@ -84,6 +88,7 @@ const rotate = (sheet, ...terms) =>
 
 const sort = (sheet, ...terms) =>
 	runFunction(sheet, terms)
+		.onSheetCalculation()
 		.withMinArgs(2)
 		.mapNextArg(stackrange => getCellRangeFromTerm(stackrange, sheet) || ERROR.NAME)
 		.mapNextArg(sortrange => getCellRangeFromTerm(sortrange, sheet) || ERROR.NAME)

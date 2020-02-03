@@ -119,7 +119,7 @@ export class EditBarComponent extends Component {
 			state.graphCellSelected = false;
 		}
 
-		formula.innerHTML = formulaText;
+		formula.innerHTML = Strings.encodeXML(formulaText);
 		info.innerHTML = '';
 
 		if (this.props.appState.cellSelected === true) {
