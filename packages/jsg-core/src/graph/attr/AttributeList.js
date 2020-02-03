@@ -677,13 +677,11 @@ class AttributeList extends Attribute {
 	 * @return {Boolean} <code>true</code> if at least one attribute was changed, <code>false</code> otherwise.
 	 */
 	applyMap(map, item) {
-		const self = this;
 		let change = false;
 		const event = this._sendPreEvent(map, item);
-
-		function apply(name, value) {
-			change = self.setAttribute(name, value) || change;
-		}
+		const apply = (name, value) => {
+			change = this.setAttribute(name, value) || change;
+		};
 
 		if (!event || event.doIt) {
 			map.iterate(apply);

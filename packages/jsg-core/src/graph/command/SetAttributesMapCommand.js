@@ -1,7 +1,9 @@
-const JSG = require('../../JSG');
 const AbstractItemCommand = require('./AbstractItemCommand');
 const AttributeList = require('../attr/AttributeList');
 const Dictionary = require('../../commons/Dictionary');
+const JSONReader = require('../../commons/JSONReader');
+const JSONWriter = require('../../commons/JSONWriter');
+const ObjectFactory = require('../../ObjectFactory');
 
 /**
  * Command to apply several attributes to an item.<br/>
@@ -67,7 +69,19 @@ class SetAttributesMapCommand extends AbstractItemCommand {
 
 	initWithObject(data) {
 		const cmd = super.initWithObject(data);
-		cmd._oldMap = new Dictionary().setMap(data.oldmap);
+		cmd._oldMap = new Dictionary();
+
+		const reader = new JSONReader(data.oldmap);
+		const root = reader.getRoot();
+		reader.iterateObjects(root, (name, child) => {
+			const type = reader.getAttribute(child, 'type');
+			const expr = ObjectFactory.create(type);
+			expr.read(reader, child);
+			expr.evaluate(this._graphItem);
+
+			cmd._oldMap.put(name, expr);
+		});
+
 		return cmd;
 	}
 
@@ -75,7 +89,28 @@ class SetAttributesMapCommand extends AbstractItemCommand {
 		const data = super.toObject();
 		data.path = this._listpath;
 		data.map = this._map.getMap();
-		data.oldmap = this._oldMap.getMap();
+		// data.oldmap = this._oldMap.getMap();
+
+		const attrlist = this._graphItem.getAttributeAtPath(this._listpath);
+		const writer = new JSONWriter();
+		writer.writeStartDocument();
+
+		this._oldMap.iterate((name) => {
+			const attr = attrlist.getAttribute(name);
+			if (attr) {
+				const expr = attr.getExpression();
+				if (expr) {
+					writer.writeStartElement(name);
+					writer.writeAttributeString('type', expr.constructor.name);
+					expr.save('expression', writer);
+					writer.writeEndElement(name);
+				}
+			}
+		});
+
+		writer.writeEndDocument();
+		data.oldmap = writer.flush();
+
 		return data;
 	}
 
