@@ -208,8 +208,8 @@ module.exports = class SheetPlotNode extends Node {
 			x: this.getParamInfo(ds.getTerm(), 1),
 			y: this.getParamInfo(ds.getTerm(), 2)
 		};
-		ret.xTime = this.isTimeAggregateRange(ret.x.sheet, ret.x.range);
-		ret.yTime = this.isTimeAggregateRange(ret.y.sheet, ret.y.range);
+		ret.xTime = ret.x ? this.isTimeAggregateRange(ret.x.sheet, ret.x.range) : false;
+		ret.yTime = ret.y ? this.isTimeAggregateRange(ret.y.sheet, ret.y.range) : false;
 
 		return ret;
 	}

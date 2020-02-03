@@ -31,37 +31,52 @@ export default class SheetPlotView extends NodeView {
 				}
 
 				this.drawPlot(graphics, item, plotRect, xAxisInfo, yAxisInfo, ref);
-				this.drawXAxes(graphics, item, xAxisInfo);
-				this.drawYAxes(graphics, item, yAxisInfo);
-				this.drawTitle(graphics, item);
 			}
 		});
+
+		this.drawXAxes(graphics, item);
+		this.drawYAxes(graphics, item);
+		this.drawTitle(graphics, item);
 	}
 
 	drawXAxes(graphics, item, xAxisInfo) {
 		const axes = item.xAxes;
 
-		graphics.beginPath();
-		graphics.setLineColor('#AAAAAA');
-
 		axes.forEach((axis) => {
+			const info = item.getAxisInfo(axis.formula);
+			// draw axis line
+			graphics.beginPath();
+			graphics.setLineColor('#AAAAAA');
 			graphics.moveTo(axis.position.left, axis.position.top);
 			graphics.lineTo(axis.position.right, axis.position.top);
+			graphics.stroke();
+
+			graphics.setTextBaseline('top');
+			graphics.setFillColor('#000000');
+			graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
+			graphics.fillText(`${info.min}`, axis.position.left, axis.position.top);
+			graphics.fillText(`${info.max}`, axis.position.right, axis.position.top);
 		});
-		graphics.stroke();
 	}
 
-	drawYAxes(graphics, item, yAxisInfo) {
+	drawYAxes(graphics, item) {
 		const axes = item.yAxes;
 
-		graphics.beginPath();
-		graphics.setLineColor('#AAAAAA');
-
 		axes.forEach((axis) => {
+			const info = item.getAxisInfo(axis.formula);
+
+			graphics.beginPath();
+			graphics.setLineColor('#AAAAAA');
 			graphics.moveTo(axis.position.right, axis.position.top);
 			graphics.lineTo(axis.position.right, axis.position.bottom);
+			graphics.stroke();
+
+			graphics.setTextBaseline('middle');
+			graphics.setFillColor('#000000');
+			graphics.setTextAlignment(TextFormatAttributes.TextAlignment.RIGHT);
+			graphics.fillText(`${info.min}`, axis.position.right, axis.position.bottom);
+			graphics.fillText(`${info.max}`, axis.position.right, axis.position.top);
 		});
-		graphics.stroke();
 	}
 
 	drawPlot(graphics, item, plotRect, xAxisInfo, yAxisInfo, ref) {

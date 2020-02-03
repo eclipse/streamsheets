@@ -59,7 +59,14 @@ class InternalDeleteItemCommand extends AbstractItemCommand {
 		const data = super.toObject();
 		data.index = this._index;
 		if (this._parent) {
-			data.parentId = this._parent.getId();
+			if (
+				this._parent._parent &&
+				this._parent._parent instanceof ContentNode
+			) {
+				data.parentId = this._parent._parent.getId();
+			} else {
+				data.parentId = this._parent.getId();
+			}
 		}
 		data.itemJson = writeGraphItem(this._graphItem);
 		if (this._info) data.info = writeGroupUndoInfo(this._info);
