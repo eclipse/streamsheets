@@ -50,6 +50,7 @@ class InternalDeleteItemCommand extends AbstractItemCommand {
 	initWithObject(data, { graph }) {
 		const cmd = super.initWithObject(data);
 		cmd._index = data.index;
+		cmd._parent = graph.getItemById(data.parentId);
 		if (data.info) cmd._info = readGroupUndoInfo(data.info);
 		return cmd;
 	}
@@ -57,6 +58,9 @@ class InternalDeleteItemCommand extends AbstractItemCommand {
 	toObject() {
 		const data = super.toObject();
 		data.index = this._index;
+		if (this._parent) {
+			data.parentId = this._parent.getId();
+		}
 		data.itemJson = writeGraphItem(this._graphItem);
 		if (this._info) data.info = writeGroupUndoInfo(this._info);
 		return data;
