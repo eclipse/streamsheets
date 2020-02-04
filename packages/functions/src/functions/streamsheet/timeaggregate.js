@@ -7,6 +7,7 @@ const { Cell, State, isType } = require('@cedalo/machine-core');
 
 const IGNORE = 'ignore';
 const MIN_INTERVAL = 1 / 1000; // 1ms
+const DEF_LIMIT = 1000;
 const DEF_METHOD = 9;
 const ERROR = FunctionErrors.code;
 
@@ -15,7 +16,8 @@ const countNumber = (acc, entry) => isType.number(entry.value) ? acc + 1 : acc;
 const toValue = (entry) => entry.value;
 
 const aggregations = {
-	'0': (entries) => toValue(entries[entries.length - 1]),
+	// '0': (entries) => toValue(entries[entries.length - 1]),
+	'0': (entries) => entries.length ? toValue(entries[entries.length - 1]) : undefined,
 	'1': (entries) => calculate.avg(entries.map(toValue)),
 	// doesn't make sense because no number values are ignored anyway!
 	'2': (entries) => entries.reduce(countNumber, 0),
@@ -60,13 +62,14 @@ const setDisposeHandler = (term, sheet) => {
 };
 
 class Store {
-	static of(filter, sorted) {
-		return new Store(filter, sorted);
+	static of(filter, sorted, limitFilter) {
+		return new Store(filter, sorted, limitFilter);
 	}
-	constructor(filter, sorted) {
+	constructor(filter, sorted, limitFilter) {
 		this.filter = filter;
 		this.entries = [];
 		this.sortIt = sorted;
+		this.limitFilter = limitFilter;
 	}
 
 	reset() {
@@ -77,15 +80,17 @@ class Store {
 		this.entries.push({ key, value, timestamp: now });
 		if (this.sortIt) this.entries.sort(compareByKey);
 		this.entries = this.filter(this.entries, now);
+		this.entries = this.limitFilter(this.entries);
 	}
 }
 
 class Aggregator {
 	static of(settings) {
-		const { period, interval, sorted } = settings;
-		const store = Store.of(timeFilter(period), sorted);
+		const { period, interval, sorted, limit } = settings;
+		const limitFilter = sizeFilter(limit);
+		const store = Store.of(timeFilter(period), sorted, limitFilter);
 		const size = interval > 0 ? Math.round(period / interval) : 1;
-		const aggStore = Store.of(sizeFilter(size), sorted);
+		const aggStore = Store.of(sizeFilter(size), sorted, limitFilter);
 		return new Aggregator(store, aggStore, settings);
 	}
 	constructor(valStore, aggStore, settings) {
@@ -106,13 +111,14 @@ class Aggregator {
 	}
 
 	getAggregatedValues() {
-		return this._aggregatedValues;
+		return this.valStore.entries.length < this.settings.limit ? this._aggregatedValues : ERROR.LIMIT;
 	}
 
-	hasEqual({ period, method, interval, sorted }) {
+	hasEqual({ period, method, interval, sorted, limit }) {
 		return (
 			this.settings.method === method &&
 			this.settings.sorted === sorted &&
+			areEqualNr(this.settings.limit, limit) &&
 			areEqualNr(this.settings.period, period) &&
 			areEqualNr(this.settings.interval, interval)
 		);
@@ -126,7 +132,7 @@ class Aggregator {
 		this._aggregatedValues = this.aggregate(this.valStore.entries);
 		if (interval > 0 && now >= this.nextAggregation) {
 			const aggregated = this.aggregate(this.intervalFilter(this.valStore.entries, now));
-			this.aggStore.push(now, aggregated, timestamp);
+			if (aggregated != null) this.aggStore.push(now, aggregated, timestamp);
 			this.nextAggregation = now + interval;
 		}
 	}
@@ -164,7 +170,7 @@ const timeaggregate = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.withMaxArgs(7)
+		.withMaxArgs(8)
 		// we ignore any error values, since we do not want an error as return or in cell...
 		.mapNextArg(val => (val != null ? convert.toNumberStrict(val.value, IGNORE) : IGNORE))
 		.mapNextArg(period => convert.toNumberStrict(period != null ? period.value || 60 : 60, ERROR.VALUE))
@@ -173,12 +179,13 @@ const timeaggregate = (sheet, ...terms) =>
 		.mapNextArg(interval => convert.toNumberStrict(interval != null ? interval.value : null))
 		.mapNextArg(targetrange => getCellRangeFromTerm(targetrange, sheet))
 		.mapNextArg(doSort => doSort != null ? convert.toBoolean(doSort.value) : false)
+		.mapNextArg(limit => convert.toNumberStrict(limit != null ? limit.value || DEF_LIMIT: DEF_LIMIT, ERROR.VALUE))
 		.validate((v, p, m, t, interval) =>	((interval != null && interval < MIN_INTERVAL) ? ERROR.VALUE : undefined))
-		.run((val, period, method, timestamp, interval, targetrange, sorted) => {
+		.run((val, period, method, timestamp, interval, targetrange, sorted, limit) => {
 			period *= 1000; // in ms
 			interval = interval != null ? interval * 1000 : -1;
 			const term = timeaggregate.term;
-			const settings = { period, method, interval, sorted };
+			const settings = { period, method, interval, sorted, limit };
 			const aggregator = getAggregator(term, settings);
 			setDisposeHandler(term, sheet);
 			registerStateListener(term, sheet);
