@@ -229,53 +229,6 @@ export default function notificationsReducer(state = defaultNotificationsState, 
 				notifications: state.notifications,
 			};
 		}
-		case Actions.RECEIVE_USER_JOINED:
-			notification = {
-				title: <FormattedMessage id="Notification.header.user" defaultMessage="User update" />,
-				message: (
-					<FormattedMessage
-						id="User.joined"
-						defaultMessage="User joined: {user}"
-						values={{
-							user: action.event.user ? action.event.user.userId : '',
-						}}
-					/>
-				),
-				color: Colors.green[600],
-				icon: <PersonIcon />,
-				timestamp: Date.now(),
-				labels: ['info', 'user', 'join'],
-			};
-			// NotificationCenter.showNotification(notification);
-			addNotification(notification, state);
-			return {
-				...state,
-				counter: state.counter + 1,
-				notifications: state.notifications,
-			};
-		case Actions.RECEIVE_USER_LEFT:
-			notification = {
-				title: <FormattedMessage id="Notification.header.user" defaultMessage="User update" />,
-				message: (
-					<FormattedMessage
-						id="User.left"
-						defaultMessage="User joined: {user}"
-						values={{
-							user: action.event.user ? action.event.user.userId : '',
-						}}
-					/>
-				),
-				color: Colors.red[600],
-				icon: <PersonIcon />,
-				labels: ['info', 'user', 'left'],
-			};
-			// NotificationCenter.showNotification(notification);
-			addNotification(notification, state);
-			return {
-				...state,
-				counter: state.counter + 1,
-				notifications: state.notifications,
-			};
 		case Actions.RECEIVE_MACHINE_CLONE:
 			notification = {
 				title: <FormattedMessage id="Notification.machine.cloned" defaultMessage="Machine Cloned" />,
