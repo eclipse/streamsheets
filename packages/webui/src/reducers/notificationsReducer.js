@@ -1,7 +1,6 @@
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import InfoIcon from '@material-ui/icons/Info';
-import PersonIcon from '@material-ui/icons/Person';
 import ErrorIcon from '@material-ui/icons/ReportProblem';
 import * as Colors from '@material-ui/core/colors';
 import * as Actions from '../constants/ActionTypes';
