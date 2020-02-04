@@ -1,3 +1,4 @@
+
 const SheetReference = require ('../expr/SheetReference');
 const Node = require('./Node');
 const ItemAttributes = require('../attr/ItemAttributes');
@@ -56,14 +57,14 @@ module.exports = class SheetPlotNode extends Node {
 		this.xAxes = [{
 			type: 'linear',
 			align: 'bottom',
-			formula: new Expression(0, 'AXIS(E2,E3,E4)'),
+			formula: new Expression(0, 'AXIS(E2,E3,E4,F2,F3)'),
 			position: new ChartRect(),
 			size: 500,
 		}];
 		this.yAxes = [{
 			type: 'linear',
 			align: 'left',
-			formula: new Expression(0, 'AXIS(F2,F3,F4)'),
+			formula: new Expression(0, 'AXIS(D2,D3,D4)'),
 			position: new ChartRect(),
 			size: 1000,
 		}];
@@ -162,7 +163,7 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	getParamInfo(term, index) {
-		if (term && term.params && term.params.length >= index) {
+		if (term && term.params && term.params.length > index) {
 			const { operand } = term.params[index];
 			if (operand instanceof SheetReference) {
 				const range = operand._range.copy();
@@ -177,12 +178,24 @@ module.exports = class SheetPlotNode extends Node {
 		const info = this.getParamInfo(term, index);
 		if (info) {
 			const cell = info.sheet.getDataProvider().getRC(info.range._x1, info.range._y1);
-			return cell ? cell.getValue() : 0;
+			return cell ? cell.getValue() : undefined;
 		}
-		if (term && term.params && term.params.length >= index) {
+		if (term && term.params && term.params.length > index) {
 			return Number(term.params[index].value);
 		}
-		return 0;
+		return undefined;
+	}
+
+	getParamFormat(term, index) {
+		const info = this.getParamInfo(term, index);
+		if (info) {
+			const tf = info.sheet.getTextFormatAtRC(info.range._x1, info.range._y1);
+			return {
+				localCulture: tf.getLocalCulture().getValue().toString(),
+				numberFormat: tf.getNumberFormat().getValue()
+			}
+		}
+		return undefined;
 	}
 
 	isTimeAggregateRange(sheet, range) {
@@ -215,11 +228,35 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	getAxisInfo(formula) {
-		return {
-			min: this.getParamValue(formula.getTerm(), 0),
-			max: this.getParamValue(formula.getTerm(), 1),
-			step: this.getParamValue(formula.getTerm(), 2),
+		const term = formula.getTerm();
+
+		const result = {
+			min: this.getParamValue(term, 0),
+			max: this.getParamValue(term, 1),
+			step: this.getParamValue(term, 2),
+			minZoom: this.getParamValue(term, 3),
+			maxZoom: this.getParamValue(term, 4),
 		};
+
+		result.format = this.getParamFormat(term, 0);
+
+		if (result.minZoom !== undefined) {
+			result.min = result.minZoom;
+		}
+		if (result.maxZoom !== undefined) {
+			result.max = result.maxZoom;
+		}
+		if (result.min === undefined) {
+			result.min = 0;
+		}
+		if (result.max === undefined) {
+			result.max = 100;
+		}
+		if (result.step === undefined) {
+			result.step = 10;
+		}
+
+		return result;
 	}
 
 	getValue(ref, index, value) {
@@ -262,8 +299,15 @@ module.exports = class SheetPlotNode extends Node {
 		return value;
 	}
 
+	scaleFromAxis(info, point) {
+		point.x -= this.plot.position.left;
+
+		return info.min + point.x / (this.plot.position.right - this.plot.position.left) * (info.max - info.min);
+	}
 
 	isElementHit(pt) {
+		let result;
+		const dataPoints = [];
 
 		if (this.title.position.containsPoint(pt)) {
 			return {
@@ -272,41 +316,44 @@ module.exports = class SheetPlotNode extends Node {
 			};
 		}
 
-		let result = this.dataSources.filter((ds, index) => {
-			const ref = this.getDataSourceInfo(ds);
-			const dataRect = new ChartRect();
-			const plotRect = this.plot.position;
-			if (ref) {
-				const xAxisInfo = this.getAxisInfo(this.xAxes[0].formula);
-				const yAxisInfo = this.getAxisInfo(this.yAxes[0].formula);
-				if (this.validateAxis(xAxisInfo) && this.validateAxis(yAxisInfo)) {
-					let pointIndex = 0;
-					let x;
-					let y;
-					const value = {};
+		if (this.plot.position.containsPoint(pt)) {
+			result = this.dataSources.filter((ds, index) => {
+				const ref = this.getDataSourceInfo(ds);
+				const dataRect = new ChartRect();
+				const plotRect = this.plot.position;
+				if (ref) {
+					const xAxisInfo = this.getAxisInfo(this.xAxes[0].formula);
+					const yAxisInfo = this.getAxisInfo(this.yAxes[0].formula);
+					if (this.validateAxis(xAxisInfo) && this.validateAxis(yAxisInfo)) {
+						let pointIndex = 0;
+						let x;
+						let y;
+						const value = {};
 
-					while (this.getValue(ref, pointIndex, value)) {
-						x = this.scaleToAxis(xAxisInfo, value.x);
-						y = this.scaleToAxis(yAxisInfo, value.y);
-						dataRect.set(plotRect.left + x * plotRect.width - 200,
-							plotRect.bottom - y * plotRect.height - 200,
-							plotRect.left + x * plotRect.width + 200,
-							plotRect.bottom - y * plotRect.height + 200);
-						if (dataRect.containsPoint(pt)) {
-							return true;
+						while (this.getValue(ref, pointIndex, value)) {
+							x = this.scaleToAxis(xAxisInfo, value.x);
+							y = this.scaleToAxis(yAxisInfo, value.y);
+							dataRect.set(plotRect.left + x * plotRect.width - 200,
+								plotRect.bottom - y * plotRect.height - 200,
+								plotRect.left + x * plotRect.width + 200,
+								plotRect.bottom - y * plotRect.height + 200);
+							if (dataRect.containsPoint(pt)) {
+								dataPoints.push(value);
+								return true;
+							}
+							pointIndex += 1;
 						}
-						pointIndex += 1;
 					}
 				}
+				return false;
+			});
+			if (result.length) {
+				return {
+					element: 'datarow',
+					data: result[0],
+					dataPoints
+				};
 			}
-			return false;
-		});
-
-		if (result.length) {
-			return {
-				element: 'datarow',
-				data: result[0]
-			};
 		}
 
 		result = this.xAxes.filter((axis) => axis.position.containsPoint(pt));

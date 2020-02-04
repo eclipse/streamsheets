@@ -25,7 +25,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 	 * @return {GraphItemController} The controller at specified location or
 	 * <code>undefined</code>.
 	 */
-	_getControllerAt(location, viewer, dispatcher) {
+	_getControllerAt(location, viewer) {
 		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
 			return cont.getModel() instanceof SheetPlotNode;
 		});
@@ -34,14 +34,32 @@ export default class SheetPlotActivator extends InteractionActivator {
 	onMouseDoubleClick(event, viewer, dispatcher) {
 	}
 
-	onMouseDown(event, viewer, dispatcher) {
-		const controller = this._getControllerAt(event.location, viewer, dispatcher);
+	removeInfo(event, viewer) {
+		if (viewer.getGraphView().hasLayer('chartinfo')) {
+			viewer.getGraphView().clearLayer('chartinfo');
+			event.doRepaint = true;
+		}
+	}
+
+	getInteraction(event, viewer) {
+		const controller = this._getControllerAt(event.location, viewer);
 		if (controller === undefined) {
-			return;
+			return undefined;
 		}
 
 		const interaction = new SheetPlotInteraction();
 		interaction._controller = controller;
+		return interaction;
+	}
+
+	onMouseDown(event, viewer, dispatcher) {
+		const interaction = this.getInteraction(event, viewer);
+		if (interaction === undefined) {
+			this.removeInfo(event, viewer);
+			return;
+		}
+
+		viewer.getGraphView().clearLayer('chartselection');
 
 		if (interaction.isElementHit(event, viewer)) {
 			this.activateInteraction(interaction, dispatcher);
@@ -50,10 +68,29 @@ export default class SheetPlotActivator extends InteractionActivator {
 			}
 			event.isConsumed = true;
 			event.hasActivated = true;
+		} else {
+			const formula = document.getElementById('editbarformula');
+			if (formula) {
+				formula.innerHTML = '';
+			}
 		}
 	}
 
 	onMouseMove(event, viewer, dispatcher) {
+		const interaction = this.getInteraction(event, viewer);
+		if (interaction === undefined) {
+			this.removeInfo(event, viewer);
+			return;
+		}
+		const selection = interaction.isElementHit(event, viewer);
+		if (selection && (selection.element === 'plot' || selection.element === 'datarow')) {
+			interaction.showData(selection, event, viewer);
+			event.isConsumed = true;
+			event.hasActivated = true;
+			event.doRepaint = true;
+		} else {
+			this.removeInfo(event, viewer);
+		}
 	}
 
 	handleContextMenu(event, viewer, dispatcher) {

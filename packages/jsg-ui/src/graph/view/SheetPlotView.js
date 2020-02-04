@@ -1,6 +1,9 @@
 import {
-	SheetReference, TextFormatAttributes
+	MathUtils,
+	TextFormatAttributes
 } from '@cedalo/jsg-core';
+import { NumberFormatter } from '@cedalo/number-format';
+
 import NodeView from './NodeView';
 
 export default class SheetPlotView extends NodeView {
@@ -54,8 +57,16 @@ export default class SheetPlotView extends NodeView {
 			graphics.setTextBaseline('top');
 			graphics.setFillColor('#000000');
 			graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
-			graphics.fillText(`${info.min}`, axis.position.left, axis.position.top);
-			graphics.fillText(`${info.max}`, axis.position.right, axis.position.top);
+
+			if (info.format) {
+				const min = this.formatNumber(info.min, info.format.numberFormat, info.format.localCulture);
+				const max = this.formatNumber(info.max, info.format.numberFormat, info.format.localCulture);
+				graphics.fillText(`${min}`, axis.position.left, axis.position.top + 150);
+				graphics.fillText(`${max}`, axis.position.right, axis.position.top + 150);
+			} else {
+				graphics.fillText(`${info.min}`, axis.position.left, axis.position.top + 150);
+				graphics.fillText(`${info.max}`, axis.position.right, axis.position.top + 150);
+			}
 		});
 	}
 
@@ -74,8 +85,17 @@ export default class SheetPlotView extends NodeView {
 			graphics.setTextBaseline('middle');
 			graphics.setFillColor('#000000');
 			graphics.setTextAlignment(TextFormatAttributes.TextAlignment.RIGHT);
-			graphics.fillText(`${info.min}`, axis.position.right, axis.position.bottom);
-			graphics.fillText(`${info.max}`, axis.position.right, axis.position.top);
+
+			if (info.format) {
+				const min = this.formatNumber(info.min, info.format.numberFormat, info.format.localCulture);
+				const max = this.formatNumber(info.max, info.format.numberFormat, info.format.localCulture);
+				graphics.fillText(`${min}`, axis.position.right - 150, axis.position.bottom);
+				graphics.fillText(`${max}`, axis.position.right - 150, axis.position.top);
+			} else {
+				graphics.fillText(`${info.min}`, axis.position.right - 150, axis.position.bottom);
+				graphics.fillText(`${info.max}`, axis.position.right - 150, axis.position.top);
+			}
+
 		});
 	}
 
@@ -84,6 +104,11 @@ export default class SheetPlotView extends NodeView {
 		let x;
 		let y;
 		const value = {};
+
+		graphics.save();
+		graphics.beginPath();
+		graphics.rect(plotRect.left, plotRect.top, plotRect.width, plotRect.height);
+		graphics.clip();
 
 		graphics.beginPath();
 		graphics.setLineColor('#FF0000');
@@ -100,6 +125,7 @@ export default class SheetPlotView extends NodeView {
 		}
 
 		graphics.stroke();
+		graphics.restore();
 	}
 
 	drawTitle(graphics, item) {
@@ -111,6 +137,28 @@ export default class SheetPlotView extends NodeView {
 		graphics.setFillColor('#000000');
 		graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
 		graphics.fillText(text, title.position.width / 2, title.position.top);
+	}
+
+	formatNumber(value, numberFormat, localCulture) {
+		// somehow the scale value sometimes does not show correct values
+		value = MathUtils.roundTo(value, 12);
+		if (numberFormat && numberFormat !== 'General' && localCulture) {
+			let formattingResult = {
+				value,
+				formattedValue: value,
+				color: undefined,
+				type: 'general'
+			};
+			const type = localCulture.split(';');
+			try {
+				formattingResult = NumberFormatter.formatNumber(numberFormat, formattingResult.value, type[0]);
+			} catch (e) {
+				formattingResult.formattedValue = '#####';
+			}
+
+			return formattingResult.formattedValue;
+		}
+		return String(value);
 	}
 
 }

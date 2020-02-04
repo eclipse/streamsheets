@@ -161,6 +161,10 @@ export default class SheetActivator extends InteractionActivator {
 				this._controller = controller;
 				event.isConsumed = true;
 				event.hasActivated = true;
+				if (viewer.getGraphView().hasLayer('chartinfo')) {
+					viewer.getGraphView().clearLayer('chartinfo');
+					event.doRepaint = true;
+				}
 				return;
 			}
 		}
