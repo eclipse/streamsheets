@@ -342,7 +342,6 @@ class TreeContextComponent extends Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
 		streams: state.streams,
 		machine: state.monitor.machine,
 	};

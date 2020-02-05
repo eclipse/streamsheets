@@ -98,7 +98,6 @@ export class AdminContainer extends Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
 		adminSecurity: state.adminSecurity,
 		myUser: state.user.user,
 		streams: {

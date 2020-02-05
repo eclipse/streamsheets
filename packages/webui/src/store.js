@@ -6,6 +6,7 @@ import {createBrowserHistory} from 'history';
 import { routerReducer, routerMiddleware } from 'react-router-redux';
 import LoggerMiddleware from './helper/LoggerMiddleware';
 import appReducer from './reducers/appReducer';
+import jsgReducer from './reducers/jsgReducer';
 import exportReducer from './reducers/exportReducer';
 import importReducer from './reducers/importReducer';
 import requestReducer from './reducers/monitorreducers';
@@ -26,6 +27,7 @@ const middleware = [thunkMiddleware, LoggerMiddleware, historyMiddleware];
 
 const store = createStore(combineReducers({
 	appState: appReducer,
+	jsgState: jsgReducer,
 	export: exportReducer,
 	import: importReducer,
 	meta: metaInformationReducer,

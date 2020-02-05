@@ -162,13 +162,8 @@ export class InsertCellContentDialog extends React.Component {
 	}
 }
 
-function mapStateToProps(state) {
-	return {
-		appState: state.appState,
-	};
-}
 function mapDispatchToProps(dispatch) {
 	return bindActionCreators(Actions, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InsertCellContentDialog);
+export default connect(null, mapDispatchToProps)(InsertCellContentDialog);

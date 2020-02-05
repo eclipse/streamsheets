@@ -194,13 +194,8 @@ class GraphContextComponent extends Component {
 	}
 }
 
-function mapStateToProps(state) {
-	return {
-		appState: state.appState,
-	};
-}
 function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(GraphContextComponent);
+export default connect(null, mapDispatchToProps)(GraphContextComponent);

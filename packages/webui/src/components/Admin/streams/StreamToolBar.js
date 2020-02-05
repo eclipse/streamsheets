@@ -151,7 +151,6 @@ function mapStateToProps(state) {
 		streams: state.streams,
 		deleteDialogOpen: state.appState.deleteDialogOpen,
 		savePending: state.streams.savePending,
-		appState: state.appState,
 		fetching: state.streams.fetching,
 		activeConfigurationId: state.streams.activeConfigurationId,
 		providers: state.streams.providers,
