@@ -72,7 +72,7 @@ module.exports = class SheetPlotNode extends Node {
 			position: new ChartRect()
 		};
 		this.title = {
-			title: new Expression(0, 'A1'),
+			formula: new Expression(0, 'A1'),
 			position: new ChartRect(),
 			size: 1000
 		};
@@ -106,7 +106,7 @@ module.exports = class SheetPlotNode extends Node {
 		this.plot.position.bottom = size.y - this.chart.margins.bottom;
 		this.plot.position.right = size.x - this.chart.margins.right;
 
-		const title = String(this.getExpressionValue(this.title.title));
+		const title = String(this.getExpressionValue(this.title.formula));
 		if (title.length) {
 			this.plot.position.top += this.title.size;
 			this.title.position.top = this.chart.margins.top;
@@ -308,6 +308,7 @@ module.exports = class SheetPlotNode extends Node {
 	isElementHit(pt) {
 		let result;
 		const dataPoints = [];
+		let dataIndex = 0;
 
 		if (this.title.position.containsPoint(pt)) {
 			return {
@@ -339,6 +340,7 @@ module.exports = class SheetPlotNode extends Node {
 								plotRect.bottom - y * plotRect.height + 200);
 							if (dataRect.containsPoint(pt)) {
 								dataPoints.push(value);
+								dataIndex = index;
 								return true;
 							}
 							pointIndex += 1;
@@ -350,6 +352,7 @@ module.exports = class SheetPlotNode extends Node {
 			if (result.length) {
 				return {
 					element: 'datarow',
+					index: dataIndex,
 					data: result[0],
 					dataPoints
 				};
@@ -367,7 +370,7 @@ module.exports = class SheetPlotNode extends Node {
 		result = this.yAxes.filter((axis) => axis.position.containsPoint(pt));
 		if (result.length) {
 			return {
-				element: 'xAxis',
+				element: 'yAxis',
 				data: result[0]
 			};
 		}
@@ -407,7 +410,7 @@ module.exports = class SheetPlotNode extends Node {
 		this.yAxes.forEach((axis) => {
 			axis.formula.evaluate(this);
 		});
-		this.title.title.evaluate(this);
+		this.title.formula.evaluate(this);
 	}
 
 	_copy(copiednodes, deep, ids) {

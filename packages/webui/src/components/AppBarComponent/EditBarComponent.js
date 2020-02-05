@@ -18,10 +18,12 @@ const {
 	DeleteCellContentCommand,
 	SetAttributeAtPathCommand,
 	SetCellDataCommand,
+	SetChartFormulaCommand,
 	CellEditor,
 	Expression,
 	Strings,
 	SelectionProvider,
+	SheetPlotView,
 } = JSG;
 
 /**
@@ -91,15 +93,8 @@ export class EditBarComponent extends Component {
 			const item = selection[0].getModel();
 			const sheet = getContainer(item);
 			if (sheet) {
-				const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
-				const expr = attrFormula ? attrFormula.getExpression() : undefined;
-				if (expr) {
-					formulaText = expr.getTerm()
-						? `=${expr.getTerm().toLocaleString(JSG.getParserLocaleSettings(), {
-								item: sheet,
-								useName: true,
-						  })}`
-						: '';
+				formulaText = selection[0].getView().getSelectedFormula(sheet);
+				if (formulaText) {
 					state.graphCellSelected = true;
 				}
 				const attr = item.getAttributeAtPath('showwizard');
@@ -434,12 +429,16 @@ export class EditBarComponent extends Component {
 					}
 				}
 			}
-			const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
-			cmd = new SetAttributeAtPathCommand(graphItem, path, new Expression(0, formula));
-			// this is necessary, to keep changes, otherwise formula will be recreated from graphitem
-			graphItem.setAttributeAtPath(path, formula);
-			graphItem._noFormulaUpdate = true;
-			// graphManager.synchronizedExecute(cmd);
+			const chartView = selection.getFirstSelection().getView();
+			if ((chartView instanceof SheetPlotView) && chartView.hasSelectedFormula()) {
+				cmd = new SetChartFormulaCommand(graphItem, chartView.chartSelection, formula);
+			} else {
+				const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
+				cmd = new SetAttributeAtPathCommand(graphItem, path, new Expression(0, formula));
+				// this is necessary, to keep changes, otherwise formula will be recreated from graphitem
+				graphItem.setAttributeAtPath(path, formula);
+				graphItem._noFormulaUpdate = true;
+			}
 		} else {
 			const ref = item.getOwnSelection().activeCellToString();
 			if (data.numberFormat) {

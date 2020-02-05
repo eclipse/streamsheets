@@ -1,6 +1,7 @@
 const CommandFactory = require('./CommandFactory');
 const SetCellDataCommand = require('./SetCellDataCommand');
 const SetChartDataCommand = require('./SetChartDataCommand');
+const SetChartFormulaCommand = require('./SetChartFormulaCommand');
 const SetSheetCellsCommand = require('./SetSheetCellsCommand');
 const SetCellsCommand = require('./SetCellsCommand');
 const SetMachineCommand = require('./SetMachineCommand');
@@ -48,6 +49,7 @@ const Registry = {
 	'command.SetGraphItemsCommand': SetGraphItemsCommand,
 	'command.SetCellDataCommand': SetCellDataCommand,
 	'command.SetChartDataCommand': SetChartDataCommand,
+	'command.SetChartFormulaCommand': SetChartFormulaCommand,
 	'command.SetSheetCellsCommand': SetSheetCellsCommand,
 	'command.SetCellsCommand': SetCellsCommand,
 	'command.SetMachineCommand': SetMachineCommand,

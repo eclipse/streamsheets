@@ -2,13 +2,14 @@ import {
 	GraphUtils,
 	StreamSheet,
 	NumberExpression,
-	SetCellDataCommand
+	SetCellDataCommand, NotificationCenter, Notification
 } from '@cedalo/jsg-core';
 
 import Interaction from './Interaction';
 import ChartSelectionFeedbackView from '../feedback/ChartSelectionFeedbackView';
 import ChartInfoFeedbackView from '../feedback/ChartInfoFeedbackView';
 import Cursor from '../../ui/Cursor';
+import SelectionProvider from '../view/SelectionProvider';
 
 export default class SheetPlotInteraction extends Interaction {
 	constructor() {
@@ -57,33 +58,23 @@ export default class SheetPlotInteraction extends Interaction {
 			return;
 		}
 
-		const formula = document.getElementById('editbarformula');
+		const selectionProvider = viewer.getSelectionProvider();
+		if (!selectionProvider.hasSelection() || selectionProvider.getFirstSelection() !== this._controller) {
+			viewer.clearSelection();
+			viewer.select(this._controller);
+		}
+
 		const view = this._controller.getView();
 		const selection = this.isElementHit(event, viewer);
 		if (selection === undefined) {
 			return;
 		}
 
-		if (formula) {
-			switch (selection.element) {
-			case 'datarow':
-				formula.innerHTML = `=${selection.data.getFormula()}`;
-				break;
-			case 'title':
-				formula.innerHTML = `=${selection.data.title.getFormula()}`;
-				break;
-			case 'xAxis':
-			case 'yAxis':
-				formula.innerHTML = `=${selection.data.formula.getFormula()}`;
-				break;
-			default:
-				formula.innerHTML = '';
-				break;
-			}
-		}
-		viewer.setCursor(Cursor.Style.AUTO);
-
 		view.chartSelection  = selection;
+
+		NotificationCenter.getInstance().send(new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, view.getItem()));
+
+		viewer.setCursor(Cursor.Style.AUTO);
 
 		if (selection) {
 			const layer = view.getGraphView().getLayer('chartselection');

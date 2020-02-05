@@ -1,12 +1,9 @@
 import { default as JSG, SheetPlotNode, NotificationCenter, Notification, Shape } from '@cedalo/jsg-core';
 
-import StreamSheetContainerView from '../view/StreamSheetContainerView';
 import SheetPlotInteraction from './SheetPlotInteraction';
 import InteractionActivator from './InteractionActivator';
-import Feedback from '../feedback/Feedback';
-import Cursor from '../../ui/Cursor';
-import SheetInteraction from './SheetInteraction';
 import MouseEvent from '../../ui/events/MouseEvent';
+import SelectionProvider from '../view/SelectionProvider';
 
 const KEY = 'sheetplot.activator';
 
@@ -69,10 +66,8 @@ export default class SheetPlotActivator extends InteractionActivator {
 			event.isConsumed = true;
 			event.hasActivated = true;
 		} else {
-			const formula = document.getElementById('editbarformula');
-			if (formula) {
-				formula.innerHTML = '';
-			}
+			interaction._controller.getView().chartSelection = undefined;
+			NotificationCenter.getInstance().send(new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, interaction._controller.getModel()));
 		}
 	}
 

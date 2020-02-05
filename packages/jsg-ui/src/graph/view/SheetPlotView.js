@@ -1,4 +1,5 @@
 import {
+	default as JSG,
 	MathUtils,
 	TextFormatAttributes
 } from '@cedalo/jsg-core';
@@ -7,6 +8,13 @@ import { NumberFormatter } from '@cedalo/number-format';
 import NodeView from './NodeView';
 
 export default class SheetPlotView extends NodeView {
+	onSelectionChange(selected) {
+		if (!selected) {
+			this.chartSelection = undefined;
+			this.getGraphView().clearLayer('chartselection');
+		}
+	}
+
 	drawBorder(graphics, format, rect) {
 		super.drawBorder(graphics, format, rect);
 	}
@@ -131,7 +139,7 @@ export default class SheetPlotView extends NodeView {
 	drawTitle(graphics, item) {
 		const { title } = item;
 
-		const text = String(item.getExpressionValue(title.title));
+		const text = String(item.getExpressionValue(title.formula));
 
 		graphics.setTextBaseline('top');
 		graphics.setFillColor('#000000');
@@ -161,4 +169,37 @@ export default class SheetPlotView extends NodeView {
 		return String(value);
 	}
 
+	hasSelectedFormula(sheet) {
+		if (this.chartSelection) {
+			switch (this.chartSelection.element) {
+			case 'datarow':
+			case 'title':
+			case 'xAxis':
+			case 'yAxis':
+				return true;
+			default:
+				return false;
+			}
+		}
+
+		return false;
+	}
+
+	getSelectedFormula(sheet) {
+		if (this.chartSelection) {
+			switch (this.chartSelection.element) {
+			case 'datarow':
+				return `=${this.chartSelection.data.getFormula()}`;
+			case 'title':
+				return `=${this.chartSelection.data.formula.getFormula()}`;
+			case 'xAxis':
+			case 'yAxis':
+				return `=${this.chartSelection.data.formula.getFormula()}`;
+			default:
+				break;
+			}
+		}
+
+		return super.getSelectedFormula(sheet);
+	}
 }

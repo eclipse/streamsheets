@@ -135,6 +135,7 @@ export class CanvasToolBar extends Component {
 			anchorEl: undefined,
 			zoomOpen: false,
 			toolsOpen: false,
+			chartsOpen: false,
 			borderOpen: false,
 			graphSelected: false,
 		};
@@ -243,6 +244,16 @@ export class CanvasToolBar extends Component {
 		});
 	};
 
+	onShowCharts = (event) => {
+		// This prevents ghost click.
+		event.preventDefault();
+
+		this.setState({
+			chartsOpen: true,
+			anchorEl: event.currentTarget,
+		});
+	};
+
 	onShowBorder = (event) => {
 		// This prevents ghost click.
 		event.preventDefault();
@@ -336,6 +347,12 @@ export class CanvasToolBar extends Component {
 	onToolsClose = () => {
 		this.setState({
 			toolsOpen: false,
+		});
+	};
+
+	onChartsClose = () => {
+		this.setState({
+			chartsOpen: false,
 		});
 	};
 
@@ -576,6 +593,27 @@ export class CanvasToolBar extends Component {
 		}
 		default:
 			break;
+		}
+
+		graphManager
+			.getGraphViewer()
+			.getInteractionHandler()
+			.setActiveInteraction(new JSG.CreateItemInteraction(node));
+		graphManager.getCanvas().focus();
+	};
+
+	onCreatePlot = (type) => {
+		this.setState({
+			chartsOpen: false,
+		});
+
+		const node = new JSG.SheetPlotNode();
+		const sheetView = graphManager.getActiveSheetView();
+		if (sheetView) {
+			const selection = sheetView.getOwnSelection();
+			if (selection) {
+				node.createDataSourcesFromSelection(selection, type);
+			}
 		}
 
 		graphManager
@@ -3396,17 +3434,6 @@ export class CanvasToolBar extends Component {
 								</SvgIcon>
 							</IconButton>
 						</GridListTile>
-						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateControl('plot')}
-							>
-								<SvgIcon>
-									<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
-								</SvgIcon>
-							</IconButton>
-						</GridListTile>
 					</GridList>
 				</Popover>
 				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.Chart" defaultMessage="Chart" />}>
@@ -3422,6 +3449,82 @@ export class CanvasToolBar extends Component {
 						</IconButton>
 					</div>
 				</Tooltip>
+				<Tooltip
+					enterDelay={300}
+					title={<FormattedMessage id="Tooltip.InsertChart" defaultMessage="Show Chart Types" />}
+				>
+					<div>
+						<IconButton style={buttonStyle} onClick={this.onShowCharts}>
+							<SvgIcon>
+								<path
+									// eslint-disable-next-line max-len
+									d="M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z"
+								/>
+							</SvgIcon>
+						</IconButton>
+					</div>
+				</Tooltip>
+				<Popover
+					open={this.state.chartsOpen}
+					anchorEl={this.state.anchorEl}
+					anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+					transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+					onExited={this.handleFocus}
+					onClose={this.onChartsClose}
+					style={{
+						overflow: 'hidden',
+					}}
+				>
+					<GridList
+						cols={6}
+						cellHeight={35}
+						spacing={2}
+						style={{
+							width: '240px',
+							margin: '2px',
+						}}
+					>
+						<GridListTile
+							cols={6}
+							style={{
+								height: '23px',
+							}}
+						>
+							<div
+								style={{
+									backgroundColor: Colors.blue[800],
+									color: 'white',
+									fontSize: '10pt',
+									padding: '3px',
+								}}
+							>
+								<FormattedMessage id="ChartTypes" defaultMessage="Chart Types" />
+							</div>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton
+								style={{ padding: '5px' }}
+								color="inherit"
+								onClick={() => this.onCreatePlot('column')}
+							>
+								<SvgIcon>
+									<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
+								</SvgIcon>
+							</IconButton>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton
+								style={{ padding: '5px' }}
+								color="inherit"
+								onClick={() => this.onCreatePlot('line')}
+							>
+								<SvgIcon>
+									<path d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z" />
+								</SvgIcon>
+							</IconButton>
+						</GridListTile>
+					</GridList>
+				</Popover>
 				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.SelectShapes" defaultMessage="Select Shapes" />}>
 					<div>
 						<IconButton
