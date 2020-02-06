@@ -56,6 +56,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import JSG from '@cedalo/jsg-ui';
 import { NumberFormatter } from '@cedalo/number-format';
+import { ToolbarExtensions } from '@cedalo/webui-extensions';
 
 import InsertCellsDialog from '../SheetDialogs/InsertCellsDialog';
 import DeleteCellsDialog from '../SheetDialogs/DeleteCellsDialog';
@@ -3546,12 +3547,7 @@ export class CanvasToolBar extends Component {
 					}}
 				/>
 				{window.outerWidth > 1200 ? (
-					<div
-						style={{
-							position: 'absolute',
-							right: '10px',
-						}}
-					>
+					<div>
 						<CustomTooltip
 							header="Tooltip.ZoomHeader"
 							message="Tooltip.ZoomMessage"
@@ -3585,6 +3581,10 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</Tooltip>
 					</div>
+				) : null}
+
+				{window.outerWidth > 1200 ? (
+					<ToolbarExtensions />
 				) : null}
 				<Popover
 					open={this.state.zoomOpen}

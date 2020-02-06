@@ -7,6 +7,7 @@ import {
 	Rectangle,
 	GraphSettings,
 	StableDictionary,
+	WorksheetNode,
 	default as JSG
 } from '@cedalo/jsg-core';
 import GraphItemView from './GraphItemView';
@@ -953,9 +954,21 @@ class GraphView extends GraphItemView {
 	}
 
 	setFocus(controller) {
-		if (controller !== this._focus) {
+		if (this._focus === undefined || controller === undefined || controller.getModel().getId() !== this._focus.getModel().getId()) {
+			let mark = true;
+			if (this._focus && controller) {
+				const focusS = this._focus.getModel().getItemAttributes().getAttribute('sheetformula');
+				const controllerS = controller.getModel().getItemAttributes().getAttribute('sheetformula');
+				const focusM = this._focus.getModel() instanceof WorksheetNode;
+				const controllerM = controller.getModel() instanceof WorksheetNode;
+				if ((focusS && controllerS) || (focusS && controllerM) || (focusM && controllerS)) {
+					mark = false;
+				}
+			}
+			if (mark) {
+				this.getItem().markDirty();
+			}
 			this._focus = controller;
-			this.getItem().markDirty();
 		}
 	}
 

@@ -38,6 +38,6 @@ module.exports = class RemoveSelectionCommand extends AbstractItemCommand {
 
 	redo() {
 		this._graphItem.removeSelection(this._id);
-		this._graphItem.getGraph().markDirty();
+		// this._graphItem.getGraph().markDirty();
 	}
 };
