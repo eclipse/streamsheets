@@ -109,7 +109,7 @@ TBD -->
 
 ## 🚀 Quick start
 
-After successfully running the installer as described navigate to the following directory and run the start script (depending on the target platform).
+After successfully running the installer navigate to the install directory and run the start script (depending on the target platform).
 
 For Linux:
 ```
