@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/jsg-ui",
-  "version": "1.5.0",
+  "version": "1.5.2",
   "description": "JavaScript Graph Framework",
   "main": "index.js",
   "directories": {
@@ -49,10 +49,10 @@
     "yargs": "6.6.0"
   },
   "dependencies": {
-    "@cedalo/jsg-core": "1.5.0",
-    "@cedalo/number-format": "1.5.0",
-    "@cedalo/parser": "1.5.0",
-    "@cedalo/jsg-extensions": "1.5.0",
+    "@cedalo/jsg-core": "1.5.2",
+    "@cedalo/number-format": "1.5.2",
+    "@cedalo/parser": "1.5.2",
+    "@cedalo/jsg-extensions": "1.5.2",
     "chart.js": "2.9.3",
     "chartjs-plugin-datalabels": "0.7.0",
     "hammerjs": "^2.0.8"

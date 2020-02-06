@@ -1,6 +1,6 @@
 {
 	"name": "streamsheets",
-	"version": "1.1.61",
+	"version": "1.5.2",
 	"private": true,
 	"workspaces": {
 		"packages": [

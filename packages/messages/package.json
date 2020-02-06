@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/messages",
-  "version": "1.5.0",
+  "version": "1.5.2",
   "description": "Different messages that are used for the communication between the different components.",
   "main": "index.js",
   "scripts": {
@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/messages",
   "dependencies": {
-    "@cedalo/id-generator": "1.5.0",
-    "@cedalo/protocols": "1.5.0"
+    "@cedalo/id-generator": "1.5.2",
+    "@cedalo/protocols": "1.5.2"
   },
   "devDependencies": {
     "jest": "20.0.0",

@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/rest-server",
-  "version": "1.5.0",
+  "version": "1.5.2",
   "description": "REST server",
   "main": "index.js",
   "scripts": {
@@ -21,8 +21,8 @@
     "jest-cli": "21.2.1"
   },
   "dependencies": {
-    "@cedalo/rest-server-core": "1.5.0",
-    "@cedalo/sdk-streams": "1.5.0",
+    "@cedalo/rest-server-core": "1.5.2",
+    "@cedalo/sdk-streams": "1.5.2",
     "lodash": "4.17.13"
   },
   "jest": {

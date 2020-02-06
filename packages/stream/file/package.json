@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/stream-file",
-  "version": "1.5.0",
+  "version": "1.5.2",
   "description": "DL File feeder",
   "main": "index.js",
   "scripts": {
@@ -21,8 +21,8 @@
     "jest-cli": "21.2.1"
   },
   "dependencies": {
-    "@cedalo/logger": "1.5.0",
-    "@cedalo/sdk-streams": "1.5.0",
+    "@cedalo/logger": "1.5.2",
+    "@cedalo/sdk-streams": "1.5.2",
     "event-stream": "3.3.4",
     "fs-extra": "7.0.0",
     "iconv-lite": "0.4.24"
