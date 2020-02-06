@@ -84,7 +84,7 @@ export class EditBarComponent extends Component {
 		const state = {};
 
 		if (selection.length) {
-			graphManager.getGraphViewer().getGraphView().setFocus(undefined);
+			graphManager.getGraphViewer().getGraphView().setFocus(selection[0]);
 		}
 
 		if (selection !== undefined && selection.length === 1) {
