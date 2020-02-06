@@ -12,11 +12,11 @@ module.exports = class SetChartFormulaCommand extends AbstractItemCommand {
 		if (item) {
 			cmd = new SetChartFormulaCommand(
 				item,
-				data.formula,
 				{
 					element: data.element,
 					index: data.index
 				},
+				data.formula,
 			).initWithObject(data);
 		}
 		return cmd;
@@ -52,7 +52,7 @@ module.exports = class SetChartFormulaCommand extends AbstractItemCommand {
 	redo() {
 		switch (this.element) {
 		case 'datarow':
-			this._graphItem.dataSources[this.index] = new Expression(0, this.formula);
+			this._graphItem.series[this.index].formula = new Expression(0, this.formula);
 			break;
 		case 'title':
 			this._graphItem.title.formula = new Expression(0, this.formula);

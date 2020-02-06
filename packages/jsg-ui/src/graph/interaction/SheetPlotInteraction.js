@@ -111,14 +111,14 @@ export default class SheetPlotInteraction extends Interaction {
 		}
 
 		const item = this._controller.getModel();
-		const xAxisInfo = item.getAxisInfo(item.xAxes[0].formula);
 		const view = layer[0];
-		if (item.validateAxis(xAxisInfo) && view.endPoint) {
+		if (view.endPoint) {
 			const ptStart = this.toLocalCoordinate(event, viewer, view.point.copy());
 			const ptEnd = this.toLocalCoordinate(event, viewer, view.endPoint.copy());
 			if (ptStart.x !== ptEnd.x) {
-				const valueStart = item.scaleFromAxis(xAxisInfo, ptStart.x < ptEnd.x ? ptStart : ptEnd);
-				const valueEnd = item.scaleFromAxis(xAxisInfo, ptStart.x < ptEnd.x ? ptEnd : ptStart);
+				const axes = item.getAxes(0, 0);
+				const valueStart = item.scaleFromAxis(axes.x.scale, ptStart.x < ptEnd.x ? ptStart : ptEnd);
+				const valueEnd = item.scaleFromAxis(axes.x.scale, ptStart.x < ptEnd.x ? ptEnd : ptStart);
 
 				this.setParamValue(item, item.xAxes[0].formula.getTerm(), 3, valueStart);
 				this.setParamValue(item, item.xAxes[0].formula.getTerm(), 4, valueEnd);
@@ -127,7 +127,6 @@ export default class SheetPlotInteraction extends Interaction {
 				event.doRepaint = true;
 			}
 		}
-
 
 		super.onMouseUp(event, viewer);
 	}

@@ -1,10 +1,8 @@
-
 const SheetReference = require ('../expr/SheetReference');
 const Node = require('./Node');
 const ItemAttributes = require('../attr/ItemAttributes');
-const StringAttribute = require('../attr/StringAttribute');
-const Attribute = require('../attr/Attribute');
 const Expression = require('../expr/Expression');
+const Numbers = require('../../commons/Numbers');
 
 class ChartRect {
 	constructor(left, top, right, bottom) {
@@ -50,7 +48,7 @@ module.exports = class SheetPlotNode extends Node {
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 		this.getItemAttributes().setContainer(false);
 
-		this.dataSources = [];
+		this.series = [];
 		this.chart = {
 			margins: new ChartRect(150, 150, 150, 150),
 		};
@@ -227,39 +225,56 @@ module.exports = class SheetPlotNode extends Node {
 		return ret;
 	}
 
-	getAxisInfo(formula) {
-		const term = formula.getTerm();
+	getAxes(x, y) {
+		const fill = ((axis) => {
+			const { formula } = axis;
+			const term = formula.getTerm();
+			const result = {
+				min: this.getParamValue(term, 0),
+				max: this.getParamValue(term, 1),
+				step: this.getParamValue(term, 2),
+				minZoom: this.getParamValue(term, 3),
+				maxZoom: this.getParamValue(term, 4),
+			};
 
-		const result = {
-			min: this.getParamValue(term, 0),
-			max: this.getParamValue(term, 1),
-			step: this.getParamValue(term, 2),
-			minZoom: this.getParamValue(term, 3),
-			maxZoom: this.getParamValue(term, 4),
+			result.format = this.getParamFormat(term, 0);
+
+			if (result.minZoom !== undefined) {
+				result.min = result.minZoom;
+			}
+			if (result.maxZoom !== undefined) {
+				result.max = result.maxZoom;
+			}
+			if (result.min === undefined) {
+				result.min = axis.minData;
+			}
+			if (result.max === undefined) {
+				result.max = axis.maxData;
+			}
+			if (result.step === undefined) {
+				result.step = 10;
+			}
+			if (axis.step < 0) {
+				axis.step = 1;
+			}
+			if (axis.max <= axis.min) {
+				axis.max = axis.min + 100;
+			}
+			axis.scale = result;
+		});
+
+		fill(this.xAxes[x]);
+		fill(this.yAxes[y]);
+
+		return {
+			x: this.xAxes[x],
+			y: this.yAxes[y]
 		};
-
-		result.format = this.getParamFormat(term, 0);
-
-		if (result.minZoom !== undefined) {
-			result.min = result.minZoom;
-		}
-		if (result.maxZoom !== undefined) {
-			result.max = result.maxZoom;
-		}
-		if (result.min === undefined) {
-			result.min = 0;
-		}
-		if (result.max === undefined) {
-			result.max = 100;
-		}
-		if (result.step === undefined) {
-			result.step = 10;
-		}
-
-		return result;
 	}
 
 	getValue(ref, index, value) {
+		value.x = 0;
+		value.y = 0;
 
 		if (this.xAxes[0].type === 'category') {
 			value.x = index;
@@ -268,9 +283,14 @@ module.exports = class SheetPlotNode extends Node {
 			if (values && values.length > index) {
 				value.x = values[index].key;
 			}
-		} else if (index <= ref.x.range._y2 - ref.x.range._y1) {
+		} else if (ref.x && index <= ref.x.range._y2 - ref.x.range._y1) {
 			const cell = ref.x.sheet.getDataProvider().getRC(ref.x.range._x1, ref.x.range._y1 + index);
-			value.x =  cell ? Number(cell.getValue()) : 0;
+			if (cell) {
+				value.x = cell.getValue();
+				if (!Numbers.isNumber(value.x)) {
+					value.x = 0;
+				}
+			}
 		}
 
 		if (ref.yTime) {
@@ -279,17 +299,18 @@ module.exports = class SheetPlotNode extends Node {
 				value.y = values[index].value;
 				return true;
 			}
-		} else if (index <= ref.y.range._y2 - ref.y.range._y1) {
+		} else if (ref.y && index <= ref.y.range._y2 - ref.y.range._y1) {
 			const cell = ref.y.sheet.getDataProvider().getRC(ref.y.range._x1, ref.y.range._y1 + index);
-			value.y =  cell ? Number(cell.getValue()) : 0;
+			if (cell) {
+				value.y = cell.getValue();
+				if (!Numbers.isNumber(value.y)) {
+					value.y = 0;
+				}
+			}
 			return true;
 		}
 
 		return false;
-	}
-
-	validateAxis(axisInfo) {
-		return (axisInfo.step > 0 && axisInfo.max > axisInfo.min);
 	}
 
 	scaleToAxis(info, value) {
@@ -318,33 +339,30 @@ module.exports = class SheetPlotNode extends Node {
 		}
 
 		if (this.plot.position.containsPoint(pt)) {
-			result = this.dataSources.filter((ds, index) => {
-				const ref = this.getDataSourceInfo(ds);
+			result = this.series.filter((series, index) => {
+				const ref = this.getDataSourceInfo(series.formula);
 				const dataRect = new ChartRect();
 				const plotRect = this.plot.position;
 				if (ref) {
-					const xAxisInfo = this.getAxisInfo(this.xAxes[0].formula);
-					const yAxisInfo = this.getAxisInfo(this.yAxes[0].formula);
-					if (this.validateAxis(xAxisInfo) && this.validateAxis(yAxisInfo)) {
-						let pointIndex = 0;
-						let x;
-						let y;
-						const value = {};
+					const axes = this.getAxes(0, 0);
+					let pointIndex = 0;
+					let x;
+					let y;
+					const value = {};
 
-						while (this.getValue(ref, pointIndex, value)) {
-							x = this.scaleToAxis(xAxisInfo, value.x);
-							y = this.scaleToAxis(yAxisInfo, value.y);
-							dataRect.set(plotRect.left + x * plotRect.width - 200,
-								plotRect.bottom - y * plotRect.height - 200,
-								plotRect.left + x * plotRect.width + 200,
-								plotRect.bottom - y * plotRect.height + 200);
-							if (dataRect.containsPoint(pt)) {
-								dataPoints.push(value);
-								dataIndex = index;
-								return true;
-							}
-							pointIndex += 1;
+					while (this.getValue(ref, pointIndex, value)) {
+						x = this.scaleToAxis(axes.x.scale, value.x);
+						y = this.scaleToAxis(axes.y.scale, value.y);
+						dataRect.set(plotRect.left + x * plotRect.width - 200,
+							plotRect.bottom - y * plotRect.height - 200,
+							plotRect.left + x * plotRect.width + 200,
+							plotRect.bottom - y * plotRect.height + 200);
+						if (dataRect.containsPoint(pt)) {
+							dataPoints.push(value);
+							dataIndex = index;
+							return true;
 						}
+						pointIndex += 1;
 					}
 				}
 				return false;
@@ -385,13 +403,60 @@ module.exports = class SheetPlotNode extends Node {
 		return undefined;
 	}
 
+	setMinMax() {
+		let xMin = Number.MAX_VALUE;
+		let xMax = Number.MIN_VALUE;
+		let yMin = Number.MAX_VALUE;
+		let yMax = Number.MIN_VALUE;
+		let valid = false;
 
-	createDataSourcesFromSelection(selection) {
-		this.dataSources = [
-			new Expression(0, 'DATAROW(B1,A2:A10,B2:B10)'),
-			new Expression(0, 'DATAROW(C1,A2:A10,C2:C10)'),
-			new Expression(0, 'DATAROW(,A12,A12)')
-		];
+		this.series.forEach((series, index) => {
+			const ref = this.getDataSourceInfo(series.formula);
+			if (ref) {
+				let pointIndex = 0;
+				const value = {};
+
+				while (this.getValue(ref, pointIndex, value)) {
+					xMin = Math.min(value.x, xMin);
+					xMax = Math.max(value.x, xMax);
+					yMin = Math.min(value.y, yMin);
+					yMax = Math.max(value.y, yMax);
+					pointIndex += 1;
+					valid = true;
+				}
+			}
+		});
+
+		if (!valid) {
+			xMin = 0;
+			xMax = 100;
+			yMin = 0;
+			yMax = 100;
+		}
+		if (xMin >= xMax) {
+			xMax = xMin + 1;
+		}
+		if (yMin >= yMax) {
+			yMax = yMin + 1;
+		}
+
+		this.xAxes[0].minData = xMin;
+		this.xAxes[0].maxData = xMax;
+		this.yAxes[0].minData = yMin;
+		this.yAxes[0].maxData = yMax;
+	}
+
+	createSeriesFromSelection(selection, type) {
+		this.series = [{
+			type,
+			formula: new Expression(0, 'DATAROW(B1,A2:A10,B2:B10)'),
+		}, {
+			type,
+			formula: new Expression(0, 'DATAROW(C1,A2:A10,C2:C10)'),
+		}, {
+			type,
+			formula: new Expression(0, 'DATAROW(,A12,A12)')
+		}];
 		this.evaluate();
 	}
 
@@ -401,8 +466,8 @@ module.exports = class SheetPlotNode extends Node {
 
 	evaluate() {
 		super.evaluate();
-		this.dataSources.forEach((ds) => {
-			ds.evaluate(this);
+		this.series.forEach((serie) => {
+			serie.formula.evaluate(this);
 		});
 		this.xAxes.forEach((axis) => {
 			axis.formula.evaluate(this);
@@ -416,8 +481,11 @@ module.exports = class SheetPlotNode extends Node {
 	_copy(copiednodes, deep, ids) {
 		const copy = super._copy(copiednodes, deep, ids);
 
-		this.dataSources.forEach((datasource, index) => {
-			copy.dataSources.push(datasource.copy());
+		this.series.forEach((serie, index) => {
+		 	copy.series.push({
+				type: serie.type,
+				formula: serie.formula.copy()
+			});
 		});
 
 		return copy;
@@ -428,23 +496,42 @@ module.exports = class SheetPlotNode extends Node {
 
 		writer.writeAttributeString('type', 'sheetplotnode');
 
-		writer.writeStartElement('datasources');
-		this.dataSources.forEach((datasource, index) => {
-			datasource.save(`DS${index}`, writer);
+		writer.writeStartElement('plot');
+		writer.writeStartArray('series');
+
+		this.series.forEach((serie, index) => {
+			writer.writeStartElement('series');
+			serie.formula.save('formula', writer);
+			writer.writeEndElement();
 		});
+		writer.writeEndArray('series');
+
 		writer.writeEndElement();
 	}
 
 	read(reader, object) {
 		super.read(reader, object);
 
-		const ds = reader.getObject(object, 'datasources');
 
-		if (ds) {
-			reader.iterateObjects(ds, (name, child) => {
-				const expr = new Expression(0);
-				expr.read(reader, child);
-				this.dataSources.push(expr);
+		const plot = reader.getObject(object, 'plot');
+		if (plot) {
+			this.series = [];
+			reader.iterateObjects(plot, (name, child) => {
+				switch (name) {
+				case 'series': {
+					const serie = [];
+					reader.iterateObjects(child, (subName, subChild) => {
+						switch (subName) {
+						case 'formula':
+							serie.formula = new Expression(0);
+							serie.formula.read(reader, subChild);
+							break;
+						}
+					});
+					this.series.push(serie);
+					break;
+				}
+				}
 			});
 		}
 	}

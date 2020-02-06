@@ -580,17 +580,6 @@ export class CanvasToolBar extends Component {
 		case 'chartstate':
 			node = new JSG.SheetChartStateNode();
 			break;
-		case 'plot': {
-			node = new JSG.SheetPlotNode();
-			const sheetView = graphManager.getActiveSheetView();
-			if (sheetView) {
-				const selection = sheetView.getOwnSelection();
-				if (selection) {
-					node.createDataSourcesFromSelection(selection);
-				}
-			}
-			break;
-		}
 		default:
 			break;
 		}
@@ -612,7 +601,7 @@ export class CanvasToolBar extends Component {
 		if (sheetView) {
 			const selection = sheetView.getOwnSelection();
 			if (selection) {
-				node.createDataSourcesFromSelection(selection, type);
+				node.createSeriesFromSelection(selection, type);
 			}
 		}
 
@@ -3454,7 +3443,11 @@ export class CanvasToolBar extends Component {
 					title={<FormattedMessage id="Tooltip.InsertChart" defaultMessage="Show Chart Types" />}
 				>
 					<div>
-						<IconButton style={buttonStyle} onClick={this.onShowCharts}>
+						<IconButton
+							style={buttonStyle}
+							onClick={this.onShowCharts}
+							disabled={!this.props.appState.cellSelected}
+						>
 							<SvgIcon>
 								<path
 									// eslint-disable-next-line max-len
