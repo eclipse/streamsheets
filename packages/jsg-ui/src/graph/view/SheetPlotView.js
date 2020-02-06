@@ -41,12 +41,12 @@ export default class SheetPlotView extends NodeView {
 			}
 		});
 
-		this.drawXAxes(graphics, item, axes);
-		this.drawYAxes(graphics, item, axes);
+		this.drawXAxes(graphics, plotRect, item);
+		this.drawYAxes(graphics, plotRect, item);
 		this.drawTitle(graphics, item);
 	}
 
-	drawXAxes(graphics, item) {
+	drawXAxes(graphics, plotRect, item) {
 		const axes = item.xAxes;
 
 		axes.forEach((axis) => {
@@ -61,19 +61,24 @@ export default class SheetPlotView extends NodeView {
 			graphics.setFillColor('#000000');
 			graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
 
-			if (axis.scale.format) {
-				const min = this.formatNumber(axis.scale.min, axis.scale.format.numberFormat, axis.scale.format.localCulture);
-				const max = this.formatNumber(axis.scale.max, axis.scale.format.numberFormat, axis.scale.format.localCulture);
-				graphics.fillText(`${min}`, axis.position.left, axis.position.top + 150);
-				graphics.fillText(`${max}`, axis.position.right, axis.position.top + 150);
-			} else {
-				graphics.fillText(`${axis.scale.min}`, axis.position.left, axis.position.top + 150);
-				graphics.fillText(`${axis.scale.max}`, axis.position.right, axis.position.top + 150);
+			let current = axis.scale.min;
+			let x;
+
+			while (current <= axis.scale.max) {
+				x = item.scaleToAxis(axis.scale, current);
+				if (axis.scale.format) {
+					const text = this.formatNumber(current, axis.scale.format.numberFormat,
+						axis.scale.format.localCulture);
+					graphics.fillText(`${text}`, plotRect.left + x * plotRect.width, axis.position.top + 150);
+				} else {
+					graphics.fillText(`${current}`, plotRect.left + x * plotRect.width, axis.position.top + 150);
+				}
+				current += axis.scale.step;
 			}
 		});
 	}
 
-	drawYAxes(graphics, item) {
+	drawYAxes(graphics, plotRect, item) {
 		const axes = item.yAxes;
 
 		axes.forEach((axis) => {
@@ -87,16 +92,20 @@ export default class SheetPlotView extends NodeView {
 			graphics.setFillColor('#000000');
 			graphics.setTextAlignment(TextFormatAttributes.TextAlignment.RIGHT);
 
-			if (axis.scale.format) {
-				const min = this.formatNumber(axis.scale.min, axis.scale.format.numberFormat, axis.scale.format.localCulture);
-				const max = this.formatNumber(axis.scale.max, axis.scale.format.numberFormat, axis.scale.format.localCulture);
-				graphics.fillText(`${min}`, axis.position.right - 150, axis.position.bottom);
-				graphics.fillText(`${max}`, axis.position.right - 150, axis.position.top);
-			} else {
-				graphics.fillText(`${axis.scale.min}`, axis.position.right - 150, axis.position.bottom);
-				graphics.fillText(`${axis.scale.max}`, axis.position.right - 150, axis.position.top);
-			}
+			let current = axis.scale.min;
+			let y;
 
+			while (current <= axis.scale.max) {
+				y = item.scaleToAxis(axis.scale, current);
+				if (axis.scale.format) {
+					const text = this.formatNumber(current, axis.scale.format.numberFormat,
+						axis.scale.format.localCulture);
+					graphics.fillText(`${text}`, axis.position.right - 150, plotRect.bottom - y * plotRect.height);
+				} else {
+					graphics.fillText(`${current}`, axis.position.right - 150, plotRect.bottom - y * plotRect.height);
+				}
+				current += axis.scale.step;
+			}
 		});
 	}
 

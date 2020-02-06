@@ -4,6 +4,8 @@ const ItemAttributes = require('../attr/ItemAttributes');
 const Expression = require('../expr/Expression');
 const Numbers = require('../../commons/Numbers');
 
+const epsilon = 0.000000001;
+
 class ChartRect {
 	constructor(left, top, right, bottom) {
 		this.set(left, top, right, bottom);
@@ -229,7 +231,7 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	getAxes(x, y) {
-		const fill = ((axis) => {
+		const fill = ((axis, size, direction) => {
 			const { formula } = axis;
 			const term = formula.getTerm();
 			const result = {
@@ -248,31 +250,237 @@ module.exports = class SheetPlotNode extends Node {
 			if (result.maxZoom !== undefined) {
 				result.max = result.maxZoom;
 			}
-			if (result.min === undefined) {
-				result.min = axis.minData;
-			}
-			if (result.max === undefined) {
-				result.max = axis.maxData;
-			}
-			if (result.step === undefined) {
-				result.step = 10;
-			}
-			if (result.step < 0) {
-				result.step = 1;
-			}
-			if (result.max <= result.min) {
-				result.max = result.min + 100;
-			}
+
+			this.autoScale(axis, result, size, direction);
+
+			// if (result.min === undefined) {
+			// 	result.min = axis.minData;
+			// }
+			// if (result.max === undefined) {
+			// 	result.max = axis.maxData;
+			// }
+			//
+			//
+			// if (result.step === undefined) {
+			// 	result.step = 10;
+			// }
+			// if (result.step < 0) {
+			// 	result.step = 1;
+			// }
+			// if (result.max <= result.min) {
+			// 	result.max = result.min + 100;
+			// }
 			axis.scale = result;
 		});
 
-		fill(this.xAxes[x]);
-		fill(this.yAxes[y]);
+		fill(this.xAxes[x], 10000, 'x');
+		fill(this.yAxes[y], 5000, 'y');
 
 		return {
 			x: this.xAxes[x],
 			y: this.yAxes[y]
 		};
+	}
+
+	autoScale(axis, input, size, direction) {
+		let stepCount;
+		let nAbstand;
+		let m;
+		let potMin;
+		let potMax;
+		let abstandLin;
+		let minBeschriftung;
+		let maxBeschriftung;
+		let min = axis.minData;
+		let max = axis.maxData;
+
+		switch (axis.type) {
+		case 'logarithmic':	    			 /* n„chstgr”áere und n„chstkleinere Dekade suchen */
+			// if (min <= 0.0) {
+			// 	min = 0.1;
+			// }
+			// if (max <= 0.0) {
+			// 	max = 1;
+			// }
+			// if ( min >= 1.0 ) {
+			// 	potMin = Numbers.digitsBefore( min ) - 1;
+			// 	minBeschriftung = Math.pow( 10.0, potMin);
+			// } else {
+			// 	if (min <= DBL_MIN ) {
+			// 		if ( max > 0 ) {
+			// 			min = max / 1000;
+			// 		} else {
+			// 			min = 0.000001;
+			// 		}
+			// 		potMin = (int) min;
+			// 		potMin = -Numbers.digitsBehind( min );
+			// 		if ( potMin > (int) log10 (DBL_MAX) ) {
+			// 			minBeschriftung = min;
+			// 		} else {
+			// 			minBeschriftung = pow( 10.0, potMin );
+			// 		}
+			// 	} else {
+			// 		potMin = -Numbers.digitsBehind( min );
+			// 		if ( potMin > (int) log10 (DBL_MAX)) {
+			// 			minBeschriftung = min;
+			// 		} else {
+			// 			minBeschriftung = pow( 10.0, potMin );
+			// 		}
+			// 	}
+			// }
+			//
+			// if ( max >= 1.0 ) {
+			// 	potMax = Numbers.digitsBefore(max);
+			// } else {
+			// 	potMax = -Numbers.digitsBehind(max) + 1;
+			// }
+			//
+			// if ( potMax > (int) log10 (DBL_MAX) ) {
+			// 	maxBeschriftung = max;
+			// } else{
+			// 	maxBeschriftung = pow(10, potMax);
+			// }
+
+			// if (m_fMinimumScaleIsAuto)
+			// 	m_minimumScale = minBeschriftung;
+			// if (m_fMinimumScaleIsAuto && m_minimumScale < ctEpsilon)
+			// 	m_minimumScale = 1.0;
+			// if (m_fMaximumScaleIsAuto)
+			// 	m_maximumScale = maxBeschriftung;
+			// if (m_maximumScale - m_minimumScale < ctEpsilon)
+			// 	m_maximumScale += 1.0;	// sicher ist sicher
+			break;
+		case 'linear':
+		case 'time':
+			/* Durch vergrößern dieser Zahl verfeinert     */
+			/* sich das im Automatikmode generierte Raster */
+			stepCount = 8;    /* 11 => sehr fein      */
+
+			if (direction === 'x') {
+				stepCount = Math.min(13, size / 1500);
+			} else {
+				// dTmp = (double)m_TickLabels.GetFont().GetSize() / 72 * 2540 * 2.0;
+				stepCount = Math.min(13, size / 500);
+			}
+
+			stepCount = Math.max(1, stepCount);
+			//        if(m_fMinimumScaleIsAuto && min > 0.0) min = 0.0;
+			if (input.max === undefined && input.maxData < 0.0) {
+				max = 0.0;
+			}
+			if (max - min > max * 0.15) {
+				min = 0;
+			}
+			if (input.max !== undefined) {
+				max = input.max;
+			}
+			if (input.min !== undefined) {
+				min = input.min;
+			}
+
+			// normierten Abstand zwischen den Beschriftungsstrichen ermitteln
+
+			nAbstand = 5;
+
+			if (max > min) {
+				const diff = max - min;
+
+				abstandLin = diff / stepCount;
+				// den Abstand auf eine Zahl zwischen 1 und 10 bringen
+				if (abstandLin >= 1) {
+					m = Numbers.digitsBefore(abstandLin) - 1;
+				} else {
+					m = -Numbers.digitsBehind(abstandLin);
+				}
+				// eslint-disable-next-line no-restricted-properties
+				abstandLin = abstandLin / Math.pow(10, m);
+				// 1, 2 oder 5 zuweisen
+				if ( abstandLin > 5.0) {
+					abstandLin = 10.0;         // von 5.0
+				} else if ( abstandLin > 2.0) {
+					abstandLin = 5.0;         // von 5.0
+				} else if ( abstandLin > 1.0 ) {
+					abstandLin = 2.0;
+				} else {
+					abstandLin = 1.0;
+				}
+				// das ist jetzt der normierte Abstand
+				// eslint-disable-next-line no-restricted-properties
+				abstandLin = abstandLin * Math.pow(10, m);
+			} else {
+				abstandLin = 1.0;
+			}
+			// MinWert der Beschriftung ermitteln
+			if (input.min === undefined) {
+				// if value range is small...
+				minBeschriftung = min / abstandLin;
+				minBeschriftung = Math.floor(minBeschriftung);
+				minBeschriftung = minBeschriftung * abstandLin;
+				if (min < 0.0 && minBeschriftung >= min - 3) {
+					minBeschriftung -= abstandLin;
+				}
+			} else {
+				minBeschriftung = input.min;
+			}
+			// MaxWert der Beschriftung ermitteln
+			if (input.max === undefined) {
+				maxBeschriftung = max / abstandLin;
+				if (Math.abs(maxBeschriftung % 1.0) > 0.0001) {
+					maxBeschriftung = Math.ceil(maxBeschriftung);
+				}
+				maxBeschriftung = maxBeschriftung * abstandLin;
+				if (max > 0.0  && maxBeschriftung <= max + 3) {
+					maxBeschriftung += abstandLin;
+				}
+			} else {
+				maxBeschriftung = input.max;
+			}
+
+			if (axis.type === 'time') {
+				// if (m_fMinimumScaleIsAuto)
+				// 	m_dMinimumScale = dMin;
+				// if (m_fMaximumScaleIsAuto)
+				// 	m_dMaximumScale = dMax;
+			} else {
+				if (input.min === undefined) {
+					input.min = minBeschriftung;
+				}
+				if (input.max === undefined) {
+					input.max = maxBeschriftung;
+				}
+			}
+
+			if (input.min >= input.max) {
+				if (input.min < 0.0) {
+					input.max = input.min * 0.9 + 0.15;
+				} else {
+					input.max = input.max * 1.1 + 0.15;
+				}
+			}
+
+			if (input.step === undefined) {
+				input.step = abstandLin;
+			}
+
+			input.step = Math.max(input.step, epsilon * 10);
+
+			while (input.step * 1000 < input.max - input.min) {
+				input.step *= 10;
+			}
+
+			if (nAbstand < 1) {
+				nAbstand = 1;
+			}
+			// if (m_fMinorUnitIsAuto) {
+			// 	m_minorUnit = m_dMajorUnit / nAbstand;
+			// }
+			//
+			// m_minorUnit = max(m_minorUnit, ctEpsilon * 10);
+			// while (m_minorUnit * 1000 < m_maximumScale - m_minimumScale) {
+			// 	m_minorUnit *= 10;
+			// }
+			break;
+		}
 	}
 
 	getValue(ref, index, value) {

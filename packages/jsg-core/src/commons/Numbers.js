@@ -88,7 +88,7 @@ class Numbers {
 		return value % 2 === 0;
 	}
 
-	static DigitsBefore( value ) {
+	static digitsBefore( value ) {
 		let j = 0;
 
 		while( value >= 1.0 ) {
@@ -98,7 +98,7 @@ class Numbers {
 		return j;
 	}
 
-	static DigitsBehind(value) {
+	static digitsBehind(value) {
 		let j = 0;
 
 		while ( value <= 1.0 ) {
