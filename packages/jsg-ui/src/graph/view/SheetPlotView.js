@@ -1,6 +1,6 @@
 import {
-	default as JSG,
 	MathUtils,
+	SheetPlotNode,
 	TextFormatAttributes
 } from '@cedalo/jsg-core';
 import { NumberFormatter } from '@cedalo/number-format';
@@ -34,15 +34,13 @@ export default class SheetPlotView extends NodeView {
 		const plotRect = item.plot.position;
 		const axes = item.getAxes(0, 0);
 
-		series.forEach((serie) => {
-			const ref = item.getDataSourceInfo(serie.formula);
-			if (ref) {
-				this.drawPlot(graphics, item, plotRect, axes, ref);
-			}
-		});
-
 		this.drawXAxes(graphics, plotRect, item);
 		this.drawYAxes(graphics, plotRect, item);
+
+		series.forEach((serie, index) => {
+			this.drawPlot(graphics, item, plotRect, serie, index, axes);
+		});
+
 		this.drawTitle(graphics, item);
 	}
 
@@ -94,26 +92,41 @@ export default class SheetPlotView extends NodeView {
 
 			let current = axis.scale.min;
 			let y;
+			let yPlot;
+
+			graphics.beginPath();
+			graphics.setLineColor('#CCCCCC');
 
 			while (current <= axis.scale.max) {
 				y = item.scaleToAxis(axis.scale, current);
+				yPlot = plotRect.bottom - y * plotRect.height
 				if (axis.scale.format) {
 					const text = this.formatNumber(current, axis.scale.format.numberFormat,
 						axis.scale.format.localCulture);
-					graphics.fillText(`${text}`, axis.position.right - 150, plotRect.bottom - y * plotRect.height);
+					graphics.fillText(`${text}`, axis.position.right - 150, yPlot);
 				} else {
-					graphics.fillText(`${current}`, axis.position.right - 150, plotRect.bottom - y * plotRect.height);
+					graphics.fillText(`${current}`, axis.position.right - 150, yPlot);
 				}
+				graphics.moveTo(plotRect.left, yPlot);
+				graphics.lineTo(plotRect.right, yPlot);
 				current += axis.scale.step;
 			}
+
+			graphics.stroke();
 		});
+
 	}
 
-	drawPlot(graphics, item, plotRect, axes, ref) {
+	drawPlot(graphics, item, plotRect, serie, seriesIndex, axes) {
 		let index = 0;
 		let x;
 		let y;
 		const value = {};
+
+		const ref = item.getDataSourceInfo(serie.formula);
+		if (!ref) {
+			return;
+		}
 
 		graphics.save();
 		graphics.beginPath();
@@ -121,7 +134,7 @@ export default class SheetPlotView extends NodeView {
 		graphics.clip();
 
 		graphics.beginPath();
-		graphics.setLineColor('#FF0000');
+		graphics.setLineColor(serie.line && serie.line.color ? serie.line.color : SheetPlotNode.defaultColors.line[seriesIndex]);
 
 		while (item.getValue(ref, index, value)) {
 			x = item.scaleToAxis(axes.x.scale, value.x);

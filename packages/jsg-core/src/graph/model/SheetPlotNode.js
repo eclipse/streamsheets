@@ -5,6 +5,36 @@ const Expression = require('../expr/Expression');
 const Numbers = require('../../commons/Numbers');
 
 const epsilon = 0.000000001;
+const defaultChartColors = {
+	background: [
+		'rgb(54, 162, 235)',
+		'rgb(255, 99, 132)',
+		'rgb(255, 206, 86)',
+		'rgb(75, 192, 192)',
+		'rgb(153, 102, 255)',
+		'rgb(255, 159, 64)',
+		'rgb(98,51,58)',
+		'rgb(0,177,91)',
+		'rgb(88,207,255)',
+		'rgb(255,139,116)',
+		'rgb(131,240,255)',
+		'rgb(224,108,255)'
+	],
+	line: [
+		'rgb(54, 162, 235)',
+		'rgb(255,99,132)',
+		'rgb(255, 206, 86)',
+		'rgb(75, 192, 192)',
+		'rgb(153, 102, 255)',
+		'rgb(255, 159, 64)',
+		'rgb(98,51,58)',
+		'rgb(0,177,91)',
+		'rgb(88,207,255)',
+		'rgb(255,139,116)',
+		'rgb(131,240,255)',
+		'rgb(224,108,255)'
+	]
+};
 
 class ChartRect {
 	constructor(left, top, right, bottom) {
@@ -55,7 +85,7 @@ module.exports = class SheetPlotNode extends Node {
 			margins: new ChartRect(150, 150, 150, 150),
 		};
 		this.xAxes = [{
-			type: 'linear',
+			type: 'time',
 			align: 'bottom',
 			formula: new Expression(0, 'AXIS(E2,E3,E4,F2,F3)'),
 			position: new ChartRect(),
@@ -253,28 +283,11 @@ module.exports = class SheetPlotNode extends Node {
 
 			this.autoScale(axis, result, size, direction);
 
-			// if (result.min === undefined) {
-			// 	result.min = axis.minData;
-			// }
-			// if (result.max === undefined) {
-			// 	result.max = axis.maxData;
-			// }
-			//
-			//
-			// if (result.step === undefined) {
-			// 	result.step = 10;
-			// }
-			// if (result.step < 0) {
-			// 	result.step = 1;
-			// }
-			// if (result.max <= result.min) {
-			// 	result.max = result.min + 100;
-			// }
 			axis.scale = result;
 		});
 
-		fill(this.xAxes[x], 10000, 'x');
-		fill(this.yAxes[y], 5000, 'y');
+		fill(this.xAxes[x], this.plot.position.width, 'x');
+		fill(this.yAxes[y], this.plot.position.height, 'y');
 
 		return {
 			x: this.xAxes[x],
@@ -284,71 +297,73 @@ module.exports = class SheetPlotNode extends Node {
 
 	autoScale(axis, input, size, direction) {
 		let stepCount;
-		let nAbstand;
+		let nDist = 5;
 		let m;
 		let potMin;
 		let potMax;
-		let abstandLin;
-		let minBeschriftung;
-		let maxBeschriftung;
+		let distLin;
+		let minLabel;
+		let maxLabel;
 		let min = axis.minData;
 		let max = axis.maxData;
 
 		switch (axis.type) {
 		case 'logarithmic':	    			 /* n„chstgr”áere und n„chstkleinere Dekade suchen */
-			// if (min <= 0.0) {
-			// 	min = 0.1;
-			// }
-			// if (max <= 0.0) {
-			// 	max = 1;
-			// }
-			// if ( min >= 1.0 ) {
-			// 	potMin = Numbers.digitsBefore( min ) - 1;
-			// 	minBeschriftung = Math.pow( 10.0, potMin);
-			// } else {
-			// 	if (min <= DBL_MIN ) {
-			// 		if ( max > 0 ) {
-			// 			min = max / 1000;
-			// 		} else {
-			// 			min = 0.000001;
-			// 		}
-			// 		potMin = (int) min;
-			// 		potMin = -Numbers.digitsBehind( min );
-			// 		if ( potMin > (int) log10 (DBL_MAX) ) {
-			// 			minBeschriftung = min;
-			// 		} else {
-			// 			minBeschriftung = pow( 10.0, potMin );
-			// 		}
-			// 	} else {
-			// 		potMin = -Numbers.digitsBehind( min );
-			// 		if ( potMin > (int) log10 (DBL_MAX)) {
-			// 			minBeschriftung = min;
-			// 		} else {
-			// 			minBeschriftung = pow( 10.0, potMin );
-			// 		}
-			// 	}
-			// }
-			//
-			// if ( max >= 1.0 ) {
-			// 	potMax = Numbers.digitsBefore(max);
-			// } else {
-			// 	potMax = -Numbers.digitsBehind(max) + 1;
-			// }
-			//
-			// if ( potMax > (int) log10 (DBL_MAX) ) {
-			// 	maxBeschriftung = max;
-			// } else{
-			// 	maxBeschriftung = pow(10, potMax);
-			// }
+			if (min <= 0.0) {
+				min = 0.1;
+			}
+			if (max <= 0.0) {
+				max = 1;
+			}
+			if ( min >= 1.0 ) {
+				potMin = Numbers.digitsBefore( min ) - 1;
+				minLabel = 10.0 ** potMin;
+			} else if (min <= DBL_MIN ) {
+				if ( max > 0 ) {
+					min = max / 1000;
+				} else {
+					min = 0.000001;
+				}
+				potMin = Math.floor(min);
+				potMin = -Numbers.digitsBehind( min );
+				if ( potMin > Math.floor(Math.log10(Number.MAX_VALUE))) {
+					minLabel = min;
+				} else {
+					minLabel = 10.0 ** potMin;
+				}
+			} else {
+				potMin = -Numbers.digitsBehind( min );
+				if ( potMin > Math.floor(Math.log10(Number.MAX_VALUE))) {
+					minLabel = min;
+				} else {
+					minLabel = 10.0 ** potMin;
+				}
+			}
 
-			// if (m_fMinimumScaleIsAuto)
-			// 	m_minimumScale = minBeschriftung;
-			// if (m_fMinimumScaleIsAuto && m_minimumScale < ctEpsilon)
-			// 	m_minimumScale = 1.0;
-			// if (m_fMaximumScaleIsAuto)
-			// 	m_maximumScale = maxBeschriftung;
-			// if (m_maximumScale - m_minimumScale < ctEpsilon)
-			// 	m_maximumScale += 1.0;	// sicher ist sicher
+			if ( max >= 1.0 ) {
+				potMax = Numbers.digitsBefore(max);
+			} else {
+				potMax = -Numbers.digitsBehind(max) + 1;
+			}
+
+			if ( potMax > Math.floor(Math.log10(Number.MAX_VALUE))) {
+				maxLabel = max;
+			} else{
+				maxLabel = pow(10, potMax);
+			}
+
+			if (input.min === undefined) {
+				input.min = minLabel;
+			}
+			if (input.min !== undefined && input.min < epsilon) {
+				input.min = 1.0;
+			}
+			if (input.max === undefined) {
+				input.max = maxLabel;
+			}
+			if (input.max - input.min < epsilon) {
+				input.max += 1.0;	// sicher ist sicher
+			}
 			break;
 		case 'linear':
 		case 'time':
@@ -360,7 +375,7 @@ module.exports = class SheetPlotNode extends Node {
 				stepCount = Math.min(13, size / 1500);
 			} else {
 				// dTmp = (double)m_TickLabels.GetFont().GetSize() / 72 * 2540 * 2.0;
-				stepCount = Math.min(13, size / 500);
+				stepCount = Math.min(13, size / 1000);
 			}
 
 			stepCount = Math.max(1, stepCount);
@@ -368,7 +383,7 @@ module.exports = class SheetPlotNode extends Node {
 			if (input.max === undefined && input.maxData < 0.0) {
 				max = 0.0;
 			}
-			if (max - min > max * 0.15) {
+			if (max - min > max * 0.15 && axis.type !== 'time') {
 				min = 0;
 			}
 			if (input.max !== undefined) {
@@ -378,75 +393,73 @@ module.exports = class SheetPlotNode extends Node {
 				min = input.min;
 			}
 
-			// normierten Abstand zwischen den Beschriftungsstrichen ermitteln
-
-			nAbstand = 5;
-
 			if (max > min) {
 				const diff = max - min;
 
-				abstandLin = diff / stepCount;
+				distLin = diff / stepCount;
 				// den Abstand auf eine Zahl zwischen 1 und 10 bringen
-				if (abstandLin >= 1) {
-					m = Numbers.digitsBefore(abstandLin) - 1;
+				if (distLin >= 1) {
+					m = Numbers.digitsBefore(distLin) - 1;
 				} else {
-					m = -Numbers.digitsBehind(abstandLin);
+					m = -Numbers.digitsBehind(distLin);
 				}
 				// eslint-disable-next-line no-restricted-properties
-				abstandLin = abstandLin / Math.pow(10, m);
+				distLin = distLin / Math.pow(10, m);
 				// 1, 2 oder 5 zuweisen
-				if ( abstandLin > 5.0) {
-					abstandLin = 10.0;         // von 5.0
-				} else if ( abstandLin > 2.0) {
-					abstandLin = 5.0;         // von 5.0
-				} else if ( abstandLin > 1.0 ) {
-					abstandLin = 2.0;
+				if ( distLin > 5.0) {
+					distLin = 10.0;         // von 5.0
+				} else if ( distLin > 2.0) {
+					distLin = 5.0;         // von 5.0
+				} else if ( distLin > 1.0 ) {
+					distLin = 2.0;
 				} else {
-					abstandLin = 1.0;
+					distLin = 1.0;
 				}
 				// das ist jetzt der normierte Abstand
 				// eslint-disable-next-line no-restricted-properties
-				abstandLin = abstandLin * Math.pow(10, m);
+				distLin = distLin * Math.pow(10, m);
 			} else {
-				abstandLin = 1.0;
+				distLin = 1.0;
 			}
 			// MinWert der Beschriftung ermitteln
 			if (input.min === undefined) {
 				// if value range is small...
-				minBeschriftung = min / abstandLin;
-				minBeschriftung = Math.floor(minBeschriftung);
-				minBeschriftung = minBeschriftung * abstandLin;
-				if (min < 0.0 && minBeschriftung >= min - 3) {
-					minBeschriftung -= abstandLin;
+				minLabel = min / distLin;
+				minLabel = Math.floor(minLabel);
+				minLabel = minLabel * distLin;
+				if (min < 0.0 && minLabel >= min - 3) {
+					minLabel -= distLin;
 				}
 			} else {
-				minBeschriftung = input.min;
+				minLabel = input.min;
 			}
 			// MaxWert der Beschriftung ermitteln
 			if (input.max === undefined) {
-				maxBeschriftung = max / abstandLin;
-				if (Math.abs(maxBeschriftung % 1.0) > 0.0001) {
-					maxBeschriftung = Math.ceil(maxBeschriftung);
+				maxLabel = max / distLin;
+				if (Math.abs(maxLabel % 1.0) > 0.0001) {
+					maxLabel = Math.ceil(maxLabel);
 				}
-				maxBeschriftung = maxBeschriftung * abstandLin;
-				if (max > 0.0  && maxBeschriftung <= max + 3) {
-					maxBeschriftung += abstandLin;
+				maxLabel = maxLabel * distLin;
+				if (max > 0.0  && maxLabel <= max + 3) {
+					maxLabel += distLin;
 				}
 			} else {
-				maxBeschriftung = input.max;
+				maxLabel = input.max;
 			}
 
 			if (axis.type === 'time') {
-				// if (m_fMinimumScaleIsAuto)
-				// 	m_dMinimumScale = dMin;
-				// if (m_fMaximumScaleIsAuto)
-				// 	m_dMaximumScale = dMax;
-			} else {
 				if (input.min === undefined) {
-					input.min = minBeschriftung;
+					input.min = min;
 				}
 				if (input.max === undefined) {
-					input.max = maxBeschriftung;
+					input.max = max;
+				}
+			} else {
+				if (input.min === undefined) {
+					input.min = minLabel;
+				}
+				if (input.max === undefined) {
+					input.max = maxLabel;
 				}
 			}
 
@@ -459,7 +472,7 @@ module.exports = class SheetPlotNode extends Node {
 			}
 
 			if (input.step === undefined) {
-				input.step = abstandLin;
+				input.step = distLin;
 			}
 
 			input.step = Math.max(input.step, epsilon * 10);
@@ -468,11 +481,11 @@ module.exports = class SheetPlotNode extends Node {
 				input.step *= 10;
 			}
 
-			if (nAbstand < 1) {
-				nAbstand = 1;
+			if (nDist < 1) {
+				nDist = 1;
 			}
 			// if (m_fMinorUnitIsAuto) {
-			// 	m_minorUnit = m_dMajorUnit / nAbstand;
+			// 	m_minorUnit = m_dMajorUnit / nDist;
 			// }
 			//
 			// m_minorUnit = max(m_minorUnit, ctEpsilon * 10);
@@ -660,12 +673,21 @@ module.exports = class SheetPlotNode extends Node {
 	createSeriesFromSelection(selection, type) {
 		this.series = [{
 			type,
+			line: {
+				color: defaultChartColors.line[0],
+			},
 			formula: new Expression(0, 'DATAROW(B1,A2:A10,B2:B10)'),
 		}, {
 			type,
+			line: {
+				color: defaultChartColors.line[1],
+			},
 			formula: new Expression(0, 'DATAROW(C1,A2:A10,C2:C10)'),
 		}, {
 			type,
+			line: {
+				color: defaultChartColors.line[2],
+			},
 			formula: new Expression(0, 'DATAROW(,A12,A12)')
 		}];
 		this.evaluate();
@@ -695,6 +717,7 @@ module.exports = class SheetPlotNode extends Node {
 		this.series.forEach((serie, index) => {
 		 	copy.series.push({
 				type: serie.type,
+				line: serie.line ? JSON.parse(JSON.stringify(serie.line)) : undefined,
 				formula: serie.formula.copy()
 			});
 		});
@@ -722,7 +745,6 @@ module.exports = class SheetPlotNode extends Node {
 
 	read(reader, object) {
 		super.read(reader, object);
-
 
 		const plot = reader.getObject(object, 'plot');
 		if (plot) {
@@ -764,5 +786,9 @@ module.exports = class SheetPlotNode extends Node {
 
 	isAddLabelAllowed() {
 		return false;
+	}
+
+	static get defaultColors() {
+		return defaultChartColors;
 	}
 };
