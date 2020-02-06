@@ -91,7 +91,7 @@ There are Docker images available for installing Streamsheets on Linux, macOS, W
 Run the following command to execute the installer for Streamsheets (replace the placeholders accordingly).
 
 * `<PATH>`: path to the installation directory, e.g., "~/streamsheets"
-* `<VERSION>`: version to install, e.g., "1.4"
+* `<VERSION>`: version to install, e.g., "1.5"
 * `<PLATFORM>`: target platform (one of `linux`, `macos`, `rpi`, `win`)
 
 ```
@@ -100,7 +100,7 @@ docker run -v <PATH>:/streamsheets cedalo/streamsheets-installer:<VERSION>-<PLAT
 
 Example
 ```
-docker run -v ~/streamsheets:/streamsheets cedalo/streamsheets-installer:1.4-linux
+docker run -v ~/streamsheets:/streamsheets cedalo/streamsheets-installer:1.5-linux
 ```
 
 <!-- ### Running from source code
@@ -113,25 +113,25 @@ After successfully running the installer as described navigate to the following 
 
 For Linux:
 ```
-cd <PATH>/services/scripts/linux
+cd <PATH>
 sh start.sh
 ```
 
 For macOS:
 ```
-cd <PATH>/services/scripts/macos
+cd <PATH>
 sh start.sh
 ```
 
 For Windows:
 ```
-cd <PATH>/services/scripts/win
+cd <PATH>
 start.bat
 ```
 
 For Raspberry Pi:
 ```
-cd <PATH>/streamsheets/scripts/
+cd <PATH>
 sh start.sh
 ```
 
