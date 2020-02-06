@@ -257,7 +257,7 @@ class Connector extends Stream {
 		this._connected = false;
 		this._connecting = false;
 		this.logger.debug(`stream ${this.toString()} initialize onClose()`);
-		this._emitter.emit(Connector.EVENTS.CLOSE, this.id);
+		// this._emitter.emit(Connector.EVENTS.CLOSE, this.id);
 		if(reason) {
 			this.handleError(reason);
 			this._dispose();
