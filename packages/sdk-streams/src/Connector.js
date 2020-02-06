@@ -14,8 +14,7 @@ const DEF_RETRY_OPTS = {
 	forever: true,
 	factor: 2,
 	minTimeout: 1 * 1000,
-	maxTimeout: 20 * 1000,
-	randomize: true,
+	maxTimeout: 60 * 1000,
 };
 
 class Connector extends Stream {
@@ -27,7 +26,6 @@ class Connector extends Stream {
 			factor: process.env.STREAMSHEETS_STREAM_RETRY_FACTOR || DEF_RETRY_OPTS.factor,
 			minTimeout: process.env.STREAMSHEETS_STREAM_RETRY_MIN_TIMEOUT || DEF_RETRY_OPTS.minTimeout,
 			maxTimeout: process.env.STREAMSHEETS_STREAM_RETRY_MAX_TIMEOUT || DEF_RETRY_OPTS.maxTimeout,
-			randomize: process.env.STREAMSHEETS_STREAM_RETRY_RANDOMIZE || DEF_RETRY_OPTS.randomize,
 		};
 		this.config = cfg;
 		this._notifyErrorTimeout = null;
@@ -392,13 +390,12 @@ class Connector extends Stream {
 	}
 
 	_nextAttemptTimeOut() {
-		const {random, minTimeout, factor, maxTimeout = 10000, retries, forever} = this._retryOpts;
-		const random_ = typeof random === 'undefined' ? Math.random() : 1;
+		const {minTimeout, factor, maxTimeout = 10000, retries, forever} = this._retryOpts;
 		this._attempt = this._attempt + 1;
 		if(!forever && this._attempt > retries) {
 			return -1;
 		}
-		return Math.min(random_ * minTimeout * factor ** this._attempt, maxTimeout);
+		return Math.min(minTimeout * factor ** this._attempt, maxTimeout);
 	}
 }
 

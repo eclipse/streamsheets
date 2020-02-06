@@ -313,6 +313,7 @@ export default class WorksheetView extends ContentNodeView {
 				if (event.event.ctrlKey) {
 					viewer.getInteractionHandler().undo();
 				}
+				doDefault();
 				break;
 			case 'g':
 				/* scribble to create png from range
@@ -1586,6 +1587,12 @@ export default class WorksheetView extends ContentNodeView {
 								case 'REST.RESPOND':
 								case 'MAIL.SEND':
 								case 'FEEDINBOX':
+								case 'OPCUA.FOLDERS':
+								case 'OPCUA.JSON':
+								case 'OPCUA.READ':
+								case 'OPCUA.RESPOND':
+								case 'OPCUA.VARIABLES':
+								case 'OPCUA.WRITE':
 								case 'EXECUTE':
 									value = termFunc.getFuncId();
 									graphics.setFontStyle(TextFormatAttributes.FontStyle.BOLD);

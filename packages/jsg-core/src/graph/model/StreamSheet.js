@@ -700,13 +700,13 @@ module.exports = class StreamSheet extends WorksheetNode {
 				}
 			}
 			if (node) {
+				node.getItemAttributes().addAttribute(new StringAttribute('sheetsource', drawItem.source));
 				const attr = node.getItemAttributes().getAttribute('sheetformula');
 				if (attr && attr.getExpression()) {
 					if (attr.getExpression().getFormula() !== drawItem.formula) {
 						return;
 					}
 				}
-				node.getItemAttributes().addAttribute(new StringAttribute('sheetsource', drawItem.source));
 				let parent;
 
 				node.setName(drawItem.name);
@@ -1029,15 +1029,15 @@ module.exports = class StreamSheet extends WorksheetNode {
 			pStart = this.convertToContainerPos(pStart, item.getParent());
 			let pEnd = item.getEndPoint();
 			pEnd = this.convertToContainerPos(pEnd, item.getParent());
-			formula += `${MathUtils.roundTo(pStart.x, digits)} ,${MathUtils.roundTo(pStart.y, digits)},`;
-			formula += `${MathUtils.roundTo(pEnd.x, digits)} ,${MathUtils.roundTo(pEnd.y, digits)}`;
+			formula += `${MathUtils.roundTo(pStart.x, digits)},${MathUtils.roundTo(pStart.y, digits)},`;
+			formula += `${MathUtils.roundTo(pEnd.x, digits)},${MathUtils.roundTo(pEnd.y, digits)}`;
 		} else {
 			let center = item.getPinPoint();
 			center = this.convertToContainerPos(center, item.getParent());
 			let size = item.getSizeAsPoint();
 			size = this.convertToContainerSize(size, item.getParent());
-			formula += `${MathUtils.roundTo(center.x, digits)} ,${MathUtils.roundTo(center.y, digits)},`;
-			formula += `${MathUtils.roundTo(size.x, digits)} ,${MathUtils.roundTo(size.y, digits)}`;
+			formula += `${MathUtils.roundTo(center.x, digits)},${MathUtils.roundTo(center.y, digits)},`;
+			formula += `${MathUtils.roundTo(size.x, digits)},${MathUtils.roundTo(size.y, digits)}`;
 			const angle = MathUtils.roundTo(item.getAngle().getValue(), 2);
 			const containerType = item.getItemAttributes().getScaleType().getValue();
 			let attributes = '';
@@ -1349,6 +1349,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 				}
 			}
 		}
+
+		item.getTextFormat().setRichText(false);
 
 		formula = expr.toLocaleString('en', { item: ws, useName: true, forceName: true});
 		if (formula.length && formula[0] === '=') {
