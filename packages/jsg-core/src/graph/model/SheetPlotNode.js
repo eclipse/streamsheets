@@ -179,7 +179,10 @@ module.exports = class SheetPlotNode extends Node {
 			return cell ? cell.getValue() : undefined;
 		}
 		if (term && term.params && term.params.length > index) {
-			return Number(term.params[index].value);
+			const value = term.params[index].value;
+			if (value !== null && value !== undefined) {
+				return Number(term.params[index].value);
+			}
 		}
 		return undefined;
 	}
@@ -254,11 +257,11 @@ module.exports = class SheetPlotNode extends Node {
 			if (result.step === undefined) {
 				result.step = 10;
 			}
-			if (axis.step < 0) {
-				axis.step = 1;
+			if (result.step < 0) {
+				result.step = 1;
 			}
-			if (axis.max <= axis.min) {
-				axis.max = axis.min + 100;
+			if (result.max <= result.min) {
+				result.max = result.min + 100;
 			}
 			axis.scale = result;
 		});

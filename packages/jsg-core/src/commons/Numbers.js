@@ -88,6 +88,25 @@ class Numbers {
 		return value % 2 === 0;
 	}
 
+	static DigitsBefore( value ) {
+		let j = 0;
+
+		while( value >= 1.0 ) {
+			value /= 10.0;
+			j += 1;
+		}
+		return j;
+	}
+
+	static DigitsBehind(value) {
+		let j = 0;
+
+		while ( value <= 1.0 ) {
+			value *= 10.0;
+			j += 1;
+		}
+		return( j );
+	}
 	/**
 	 * Formats given number
 	 *
