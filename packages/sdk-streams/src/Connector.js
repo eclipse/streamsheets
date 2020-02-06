@@ -395,7 +395,8 @@ class Connector extends Stream {
 		if(!forever && this._attempt > retries) {
 			return -1;
 		}
-		return Math.min(minTimeout * factor ** this._attempt, maxTimeout);
+		const timeout = Math.min(minTimeout * factor ** this._attempt, maxTimeout);
+		return timeout + (Math.random() * timeout/10);
 	}
 }
 
