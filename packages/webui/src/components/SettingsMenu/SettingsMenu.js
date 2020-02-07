@@ -163,7 +163,7 @@ export class SettingsMenu extends React.Component {
 					<TableCell>{service.version}</TableCell>
 					{/* <TableCell>{service.buildNumber}</TableCell> */}
 					<TableCell>{instance.status === 'running' ? <CheckCircleIcon style={{color: 'green'}} /> : ''}</TableCell>
-					<TableCell>{instance.id}</TableCell>
+					{/* <TableCell>{instance.id}</TableCell> */}
 				</TableRow>
 			}
 			)
@@ -172,7 +172,7 @@ export class SettingsMenu extends React.Component {
 				<TableCell>N/A</TableCell>
 				{/* <TableCell>N/A</TableCell> */}
 				<TableCell>N/A</TableCell>
-				<TableCell>N/A</TableCell>
+				{/* <TableCell>N/A</TableCell> */}
 			</TableRow>
 	}
 
@@ -419,12 +419,12 @@ export class SettingsMenu extends React.Component {
 														defaultMessage="Status"
 													/>
 												</TableCell>
-												<TableCell>
+												{/* <TableCell>
 													<FormattedMessage
 														id="Instances"
 														defaultMessage="Instances"
 													/>
-												</TableCell>
+												</TableCell> */}
 											</TableRow>
 										</TableHead>
 										<TableBody>
@@ -436,7 +436,7 @@ export class SettingsMenu extends React.Component {
 												<TableCell>
 													<CheckCircleIcon style={{color: 'green'}}/>
 												</TableCell>
-												<TableCell>webui</TableCell>
+												{/* <TableCell>webui</TableCell> */}
 											</TableRow>
 											{
 												this.props.meta.services &&
