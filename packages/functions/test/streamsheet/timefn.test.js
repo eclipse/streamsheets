@@ -42,17 +42,6 @@ describe('time.store', () => {
 		expect(term._timestore.size).toBe(3);
 		expect(term._timestore.values('v1')).toEqual([2, 3, 4]);
 	});
-	it(`should return error ${ERROR.ARGS} if required parameter is missing`, () => {
-		const sheet = newSheet();
-		createCellAt('A3', { formula: 'time.store()' }, sheet);
-		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
-		createCellAt('A3', { formula: 'time.store(,)' }, sheet);
-		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
-		createCellAt('A3', { formula: 'time.store(,,)' }, sheet);
-		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
-		createCellAt('A3', { formula: 'time.store(,,,)' }, sheet);
-		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
-	});
 	it('should support period parameter', async () => {
 		const machine = newMachine({ cycletime: 1000 });
 		const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -203,6 +192,17 @@ describe('time.store', () => {
 		expect(term._timestore.values('v1')).toEqual([2, 3, 4]);
 		expect(term._timestore.values('v2')).toEqual([]);
 		expect(term._timestore.values('v3')).toEqual([200, 300, 400]);
+	});
+	it(`should return error ${ERROR.ARGS} if required parameter is missing`, () => {
+		const sheet = newSheet();
+		createCellAt('A3', { formula: 'time.store()' }, sheet);
+		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
+		createCellAt('A3', { formula: 'time.store(,)' }, sheet);
+		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
+		createCellAt('A3', { formula: 'time.store(,,)' }, sheet);
+		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
+		createCellAt('A3', { formula: 'time.store(,,,)' }, sheet);
+		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
 	});
 });
 describe('time.interval', () => {
