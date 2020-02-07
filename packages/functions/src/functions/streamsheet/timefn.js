@@ -27,7 +27,11 @@ const insert = (entry, entries) => {
 	return entries;
 };
 const sizeFilter = (size) => (entries) => {
-	if (entries.length > size) entries.shift();
+	if (entries.length > size) {
+		entries.shift();
+		return ERROR.LIMIT;
+	}
+	return true;
 };
 const periodFilter = (period) => (entries) => {
 	const delta = entries[entries.length - 1].timestamp - entries[0].timestamp;
@@ -63,8 +67,8 @@ class TimeStore {
 
 	push(timestamp, values) {
 		insert({ timestamp, values }, this.entries);
-		this.limitBySize(this.entries);
 		this.limitByPeriod(this.entries);
+		return this.limitBySize(this.entries);
 	}
 }
 const getTimeStore = (term, period, limit) => {
@@ -87,8 +91,7 @@ const store = (sheet, ...terms) =>
 		.run((values, period, timestamp, limit) => {
 			const term = store.term;
 			const timestore = getTimeStore(term, period, limit);
-			timestore.push(timestamp || Date.now(), values);
-			return true;
+			return timestore.push(timestamp || Date.now(), values);
 		});
 
 const interval = () => {};
