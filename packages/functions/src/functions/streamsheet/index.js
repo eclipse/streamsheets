@@ -3,6 +3,7 @@ const colors = require('./colors');
 const counters = require('./counters');
 const detectchange = require('./detectchange');
 const loop = require('./loop');
+const time = require('./time');
 const values = require('./values');
 const ARRAY = require('./array');
 const CALC = require('./calc');
@@ -32,7 +33,6 @@ const SELECT = require('./select');
 const SETCYCLETIME = require('./setcycletime');
 const SETPHASE = require('./setphase');
 const SUBTREE = require('./subtree');
-const timefn = require('./timefn');
 const TIMEAGGREGATE = require('./timeaggregate');
 const TRIGGERSTEP = require('./triggerstep');
 const WRITE = require('./write');
@@ -44,7 +44,7 @@ module.exports = {
 		...counters,
 		...detectchange,
 		...loop,
-		...timefn,
+		...time,
 		...values,
 		ARRAY,
 		CALC,

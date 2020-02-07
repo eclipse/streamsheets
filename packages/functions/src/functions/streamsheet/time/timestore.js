@@ -1,13 +1,6 @@
-const {
-	// calculate,
-	runFunction,
-	// sheet: sheetutils,
-	// terms: { getCellRangeFromTerm }
-} = require('../../utils');
+const {	runFunction } = require('../../../utils');
 const { convert } = require('@cedalo/commons');
-// const { Functions, Term } = require('@cedalo/parser');
 const { FunctionErrors } = require('@cedalo/error-codes');
-// const { Cell, State, isType } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 const DEF_LIMIT = 1000;
@@ -83,7 +76,6 @@ const store = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(4)
-		// we ignore any error values, since we do not want an error as return or in cell...
 		.mapNextArg((values) => values.value || ERROR.ARGS)
 		.mapNextArg(period => period != null ? convert.toNumberStrict(period.value || DEF_PERIOD, ERROR.VALUE) : DEF_PERIOD)
 		.mapNextArg(timestamp => timestamp != null && convert.toNumberStrict(timestamp.value))
@@ -94,11 +86,5 @@ const store = (sheet, ...terms) =>
 			return timestore.push(timestamp || Date.now(), values);
 		});
 
-const interval = () => {};
-const query = () => {};
 
-module.exports = {
-	'TIME.INTERVAL': interval,
-	'TIME.QUERY': query,
-	'TIME.STORE': store
-};
+module.exports = store;
