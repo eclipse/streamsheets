@@ -1,5 +1,5 @@
 const SHEETS = require('../_data/sheets.json');
-const { createCellAt, createTerm } = require('../utils');
+const { createCellAt, createTerm } = require('../utilities');
 const { StreamSheet } = require('@cedalo/machine-core');
 
 const evaluate = sheet => sheet.iterate(cell => cell.evaluate());

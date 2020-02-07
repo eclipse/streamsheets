@@ -1,4 +1,4 @@
-const { createTerm } = require('../utils');
+const { createTerm } = require('../utilities');
 const { Cell, Machine, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
 
 const setup = (transconfig) => {

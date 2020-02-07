@@ -1,4 +1,4 @@
-const { createTerm } = require('../utils');
+const { createTerm } = require('../utilities');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { StreamSheet } = require('@cedalo/machine-core');
 

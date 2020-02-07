@@ -1,6 +1,6 @@
 const MESSAGES = require('../_data/messages.json');
 const { DELETE } = require('../../src/functions/streamsheet').functions;
-const { createFuncTerm, createParamTerms } = require('../utils');
+const { createFuncTerm, createParamTerms } = require('../utilities');
 const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
 

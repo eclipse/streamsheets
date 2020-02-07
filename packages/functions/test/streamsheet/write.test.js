@@ -1,7 +1,7 @@
 const MSG = require('../_data/messages.json');
 const SHEETS = require('../_data/sheets.json');
 const { WRITE } = require('../../src/functions');
-const { createCellTerm, createCellRangeTerm, createFuncTerm, createParamTerms, createTerm } = require('../utils');
+const { createCellTerm, createCellRangeTerm, createFuncTerm, createParamTerms, createTerm } = require('../utilities');
 const { NullTerm, Term } = require('@cedalo/parser');
 const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');

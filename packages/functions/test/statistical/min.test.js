@@ -2,7 +2,7 @@ const { FunctionErrors } = require('@cedalo/error-codes');
 const { StreamSheet } = require('@cedalo/machine-core');
 const { MIN } = require('../../src/functions');
 const SHEETS = require('../_data/sheets.json');
-const { createCellTerm, createCellTerms, createCellRangeTerm, createTerm } = require('../utils');
+const { createCellTerm, createCellTerms, createCellRangeTerm, createTerm } = require('../utilities');
 
 ERROR = FunctionErrors.code;
 

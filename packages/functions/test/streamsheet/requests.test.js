@@ -1,4 +1,4 @@
-const { createCellAt } = require('../utils');
+const { createCellAt } = require('../utilities');
 const { Machine, Message, SheetIndex, Streams, StreamSheet } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
 

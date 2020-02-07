@@ -1,4 +1,4 @@
-const { createTerm } = require('../utils');
+const { createTerm } = require('../utilities');
 const { ms2serial, serial2ms, serial2date } = require('../../src/utils').date;
 const { StreamSheet } = require('@cedalo/machine-core');
 

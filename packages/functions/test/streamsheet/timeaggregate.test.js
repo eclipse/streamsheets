@@ -1,6 +1,6 @@
-const { createCellAt } = require('../utils');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Machine, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { createCellAt } = require('../utilities');
 
 // eslint-disable-next-line no-undef
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 20 * 1000;

@@ -1,7 +1,7 @@
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Machine, StreamSheet } = require('@cedalo/machine-core');
 const SHEETS = require('../_data/sheets.json');
-const { createCellAt, createTerm } = require('../utils');
+const { createCellAt, createTerm } = require('../utilities');
 
 const ERROR = FunctionErrors.code;
 
