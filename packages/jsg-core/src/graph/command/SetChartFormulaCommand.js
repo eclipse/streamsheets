@@ -1,5 +1,6 @@
 const AbstractItemCommand = require('./AbstractItemCommand');
 const Expression = require('../expr/Expression');
+const { restoreExpression, writeExpression } = require('./utils');
 
 /**
  * @class SetChartFormulaCommand
@@ -10,24 +11,25 @@ module.exports = class SetChartFormulaCommand extends AbstractItemCommand {
 		let cmd;
 		const item = graph.getItemById(data.itemId);
 		if (item) {
+			const expression = restoreExpression(data.expression, item || graph);
 			cmd = new SetChartFormulaCommand(
 				item,
 				{
 					element: data.element,
 					index: data.index
 				},
-				data.formula,
+				expression,
 			).initWithObject(data);
 		}
 		return cmd;
 	}
 
-	constructor(item, selection, formula) {
+	constructor(item, selection, expression) {
 		super(item);
 
 		this.element = selection.element;
 		this.index = selection.index;
-		this.formula = formula;
+		this.expression = expression;
 	}
 
 	initWithObject(data) {
@@ -41,7 +43,7 @@ module.exports = class SetChartFormulaCommand extends AbstractItemCommand {
 
 		data.element = this.element;
 		data.index = this.index;
-		data.formula = this.formula;
+		data.expression = writeExpression(this.expression);
 
 		return data;
 	}
@@ -52,16 +54,16 @@ module.exports = class SetChartFormulaCommand extends AbstractItemCommand {
 	redo() {
 		switch (this.element) {
 		case 'datarow':
-			this._graphItem.series[this.index].formula = new Expression(0, this.formula);
+			this._graphItem.series[this.index].formula = this.expression;
 			break;
 		case 'title':
-			this._graphItem.title.formula = new Expression(0, this.formula);
+			this._graphItem.title.formula = this.expression;
 			break;
 		case 'xAxis':
-			this._graphItem.xAxes[0].formula = new Expression(0, this.formula);
+			this._graphItem.xAxes[0].formula = this.expression;
 			break;
 		case 'yAxis':
-			this._graphItem.yAxes[0].formula = new Expression(0, this.formula);
+			this._graphItem.yAxes[0].formula = this.expression;
 			break;
 		default:
 			break;

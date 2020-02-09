@@ -103,6 +103,11 @@ export class EditBarComponent extends Component {
 					state.showChartProperties = true;
 					attr.setExpressionOrValue(false);
 				}
+				if ((item instanceof JSG.SheetPlotNode) && attr && attr.getValue() === true) {
+					item.createSeriesFromSelection(graphManager.getGraphViewer(), sheet, graphManager.chartSelection);
+					graphManager.getGraphEditor().invalidate();
+					attr.setExpressionOrValue(false);
+				}
 			}
 
 			const view = getProcessContainerView(selection[0]);
@@ -431,7 +436,7 @@ export class EditBarComponent extends Component {
 			}
 			const chartView = selection.getFirstSelection().getView();
 			if ((chartView instanceof SheetPlotView) && chartView.hasSelectedFormula()) {
-				cmd = new SetChartFormulaCommand(graphItem, chartView.chartSelection, formula);
+				cmd = new SetChartFormulaCommand(graphItem, chartView.chartSelection, data.expression);
 			} else {
 				const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
 				cmd = new SetAttributeAtPathCommand(graphItem, path, new Expression(0, formula));

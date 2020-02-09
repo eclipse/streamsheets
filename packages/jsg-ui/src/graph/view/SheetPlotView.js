@@ -1,4 +1,5 @@
 import {
+	default as JSG,
 	MathUtils,
 	SheetPlotNode,
 	TextFormatAttributes
@@ -34,12 +35,24 @@ export default class SheetPlotView extends NodeView {
 		const plotRect = item.plot.position;
 		const axes = item.getAxes(0, 0);
 
+		if (!axes) {
+			return;
+		}
+
+		graphics.setFontSize(8);
+		graphics.setFontStyle(TextFormatAttributes.FontStyle.NORMAL);
+		graphics.setFont();
+
 		this.drawXAxes(graphics, plotRect, item);
 		this.drawYAxes(graphics, plotRect, item);
 
 		series.forEach((serie, index) => {
 			this.drawPlot(graphics, item, plotRect, serie, index, axes);
 		});
+
+		graphics.setFontSize(12);
+		graphics.setFontStyle(TextFormatAttributes.FontStyle.BOLD);
+		graphics.setFont();
 
 		this.drawTitle(graphics, item);
 	}
@@ -48,30 +61,37 @@ export default class SheetPlotView extends NodeView {
 		const axes = item.xAxes;
 
 		axes.forEach((axis) => {
-			// draw axis line
-			graphics.beginPath();
-			graphics.setLineColor('#AAAAAA');
-			graphics.moveTo(axis.position.left, axis.position.top);
-			graphics.lineTo(axis.position.right, axis.position.top);
-			graphics.stroke();
+			if (axis.position) {
+				// draw axis line
+				graphics.beginPath();
+				graphics.setLineColor('#AAAAAA');
+				graphics.moveTo(axis.position.left, axis.position.top);
+				graphics.lineTo(axis.position.right, axis.position.top);
+				graphics.stroke();
 
-			graphics.setTextBaseline('top');
-			graphics.setFillColor('#000000');
-			graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
+				graphics.setTextBaseline('top');
+				graphics.setFillColor('#000000');
+				graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
 
-			let current = axis.scale.min;
-			let x;
+				let current = axis.scale.min;
+				let x;
+				axis.scale.format = {
+					localCulture: `time;en`,
+					numberFormat: 'h:mm:ss',
+				};
 
-			while (current <= axis.scale.max) {
-				x = item.scaleToAxis(axis.scale, current);
-				if (axis.scale.format) {
-					const text = this.formatNumber(current, axis.scale.format.numberFormat,
-						axis.scale.format.localCulture);
-					graphics.fillText(`${text}`, plotRect.left + x * plotRect.width, axis.position.top + 150);
-				} else {
-					graphics.fillText(`${current}`, plotRect.left + x * plotRect.width, axis.position.top + 150);
+				while (current <= axis.scale.max) {
+					x = item.scaleToAxis(axis.scale, current);
+					if (axis.scale.format) {
+						const text = this.formatNumber(current, axis.scale.format.numberFormat,
+							axis.scale.format.localCulture);
+						graphics.fillText(`${text}`, plotRect.left + x * plotRect.width, axis.position.top + 150);
+					} else {
+						graphics.fillText(`${current}`, plotRect.left + x * plotRect.width, axis.position.top + 150);
+					}
+					current += axis.scale.step;
+					current = MathUtils.roundTo(current, 12);
 				}
-				current += axis.scale.step;
 			}
 		});
 	}
@@ -80,41 +100,43 @@ export default class SheetPlotView extends NodeView {
 		const axes = item.yAxes;
 
 		axes.forEach((axis) => {
-			graphics.beginPath();
-			graphics.setLineColor('#AAAAAA');
-			graphics.moveTo(axis.position.right, axis.position.top);
-			graphics.lineTo(axis.position.right, axis.position.bottom);
-			graphics.stroke();
+			if (axis.position) {
+				graphics.beginPath();
+				graphics.setLineColor('#AAAAAA');
+				graphics.moveTo(axis.position.right, axis.position.top);
+				graphics.lineTo(axis.position.right, axis.position.bottom);
+				graphics.stroke();
 
-			graphics.setTextBaseline('middle');
-			graphics.setFillColor('#000000');
-			graphics.setTextAlignment(TextFormatAttributes.TextAlignment.RIGHT);
+				graphics.setTextBaseline('middle');
+				graphics.setFillColor('#000000');
+				graphics.setTextAlignment(TextFormatAttributes.TextAlignment.RIGHT);
 
-			let current = axis.scale.min;
-			let y;
-			let yPlot;
+				let current = axis.scale.min;
+				let y;
+				let yPlot;
 
-			graphics.beginPath();
-			graphics.setLineColor('#CCCCCC');
+				graphics.beginPath();
+				graphics.setLineColor('#CCCCCC');
 
-			while (current <= axis.scale.max) {
-				y = item.scaleToAxis(axis.scale, current);
-				yPlot = plotRect.bottom - y * plotRect.height
-				if (axis.scale.format) {
-					const text = this.formatNumber(current, axis.scale.format.numberFormat,
-						axis.scale.format.localCulture);
-					graphics.fillText(`${text}`, axis.position.right - 150, yPlot);
-				} else {
-					graphics.fillText(`${current}`, axis.position.right - 150, yPlot);
+				while (current <= axis.scale.max) {
+					y = item.scaleToAxis(axis.scale, MathUtils.roundTo(current, 12));
+					yPlot = plotRect.bottom - y * plotRect.height
+					if (axis.scale.format) {
+						const text = this.formatNumber(current, axis.scale.format.numberFormat,
+							axis.scale.format.localCulture);
+						graphics.fillText(`${text}`, axis.position.right - 150, yPlot);
+					} else {
+						graphics.fillText(`${current}`, axis.position.right - 150, yPlot);
+					}
+					graphics.moveTo(plotRect.left, yPlot);
+					graphics.lineTo(plotRect.right, yPlot);
+					current += axis.scale.step;
+					current = MathUtils.roundTo(current, 12);
 				}
-				graphics.moveTo(plotRect.left, yPlot);
-				graphics.lineTo(plotRect.right, yPlot);
-				current += axis.scale.step;
+
+				graphics.stroke();
 			}
-
-			graphics.stroke();
 		});
-
 	}
 
 	drawPlot(graphics, item, plotRect, serie, seriesIndex, axes) {
@@ -135,6 +157,7 @@ export default class SheetPlotView extends NodeView {
 
 		graphics.beginPath();
 		graphics.setLineColor(serie.line && serie.line.color ? serie.line.color : SheetPlotNode.defaultColors.line[seriesIndex]);
+		graphics.setLineWidth(50);
 
 		while (item.getValue(ref, index, value)) {
 			x = item.scaleToAxis(axes.x.scale, value.x);
@@ -148,6 +171,7 @@ export default class SheetPlotView extends NodeView {
 		}
 
 		graphics.stroke();
+		graphics.setLineWidth(-1);
 		graphics.restore();
 	}
 
@@ -159,7 +183,7 @@ export default class SheetPlotView extends NodeView {
 		graphics.setTextBaseline('top');
 		graphics.setFillColor('#000000');
 		graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
-		graphics.fillText(text, title.position.width / 2, title.position.top);
+		graphics.fillText(text, title.position.left + title.position.width / 2, title.position.top);
 	}
 
 	formatNumber(value, numberFormat, localCulture) {
@@ -201,17 +225,30 @@ export default class SheetPlotView extends NodeView {
 	}
 
 	getSelectedFormula(sheet) {
+		let expr;
+
 		if (this.chartSelection) {
 			switch (this.chartSelection.element) {
 			case 'datarow':
-				return `=${this.chartSelection.data.formula.getFormula()}`;
-			case 'title':
-				return `=${this.chartSelection.data.formula.getFormula()}`;
 			case 'xAxis':
 			case 'yAxis':
-				return `=${this.chartSelection.data.formula.getFormula()}`;
+			case 'title':
+				expr = this.chartSelection.data.formula;
+				break;
 			default:
 				break;
+			}
+		}
+
+		if (expr) {
+			if (expr.getTerm()) {
+				const formula = `=${expr.getTerm().toLocaleString(JSG.getParserLocaleSettings(), {
+					item: sheet,
+					useName: true,
+				})}`;
+				return formula
+			} else {
+				return expr.getValue();
 			}
 		}
 
