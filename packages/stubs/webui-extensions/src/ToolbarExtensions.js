@@ -14,8 +14,7 @@ export class ToolbarExtensions extends Component {
 					position: 'absolute',
 					right: '10px',
 				}}
-			>
-			</div>
+			/>
 		);
 	}
 }
