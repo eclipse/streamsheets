@@ -52,9 +52,9 @@ describe('time.store', () => {
 		await machine.step();
 		expect(term._timestore.size).toBe(1);
 		expect(term._timestore.values('v1')).toEqual([2]);
-		await sleep(2);
+		await sleep(10);
 		await machine.step();
-		await sleep(2);
+		await sleep(10);
 		await machine.step();
 		expect(term._timestore.size).toBe(1);
 		expect(term._timestore.values('v1')).toEqual([4]);
