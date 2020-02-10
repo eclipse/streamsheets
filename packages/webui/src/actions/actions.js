@@ -96,6 +96,14 @@ export function setAppState(newState) {
 	return store.dispatch(putAppState(newState));
 }
 
+const putJsgState = (data) => ({
+	type: 'SET_JSG_STATE',
+	data
+});
+export function setJsgState(data) {
+	return store.dispatch(putJsgState(data));
+}
+
 const putFormFeedback = (notification) => ({
 	type: ActionTypes.FORM_INPUT_FEEDBACK,
 	notification,

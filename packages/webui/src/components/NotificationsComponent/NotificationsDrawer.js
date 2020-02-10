@@ -33,7 +33,7 @@ class NotificationsDrawer extends React.Component {
 		return (
 			<Drawer
 				anchor="right"
-				open={this.props.appState.notificationsOpen}
+				open={this.props.notificationsOpen}
 				onClose={() => this.props.setAppState({
 					notificationsOpen: false,
 					anchorEl: null,
@@ -94,7 +94,7 @@ class NotificationsDrawer extends React.Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
+		notificationsOpen: state.appState.notificationsOpen,
 		notifications: state.notifications,
 	};
 }

@@ -152,7 +152,33 @@ const project = (data, resultKeys) => {
 	return isArray ? projectedArray : projectedArray[0];
 };
 
-const createRequest = (sheet, oldReqId, target, resultKeys, promise) => {
+const handleResponse = (handle, sheet, target, resultKeys, message, funcTerm) => {
+	const { targets = [] } = handle;
+	targets.some((trgt) => {
+		switch (trgt) {
+			case 'none':
+				return true;
+			case 'sheet':
+				if (target instanceof SheetRange) {
+					putToRange(sheet, target, resultKeys, message);
+					return true;
+				}
+				return false;
+			case 'outbox':
+				putToTarget(sheet, target, message);
+				return true;
+			case 'values':
+				if (funcTerm.cell) {
+					funcTerm.cell.info = { values: message.data };
+					return true;
+				}
+				return false;
+			default:
+				return false;
+		}
+	});
+};
+const createRequest = (sheet, funcTerm, oldReqId, target, resultKeys, promise) => {
 	const reqId = IdGenerator.generate();
 	const pendingRequests = sheet.getPendingRequests();
 	pendingRequests.delete(oldReqId);
@@ -160,8 +186,9 @@ const createRequest = (sheet, oldReqId, target, resultKeys, promise) => {
 	promise
 		.then((json) => {
 			if (pendingRequests.has(reqId)) {
-				// Do we need the follwing line?
-				const messsageData = json && json.type === 'response' ? json.response : json;
+				const type = json && json.type;
+				const responseHandle = type === 'response' && json.responseHandle;
+				const messsageData = type === 'response' ? json.response : json;
 				const message = isMessageObject(messsageData)
 					? Message.fromJSON(messsageData)
 					: new Message(messsageData);
@@ -170,7 +197,10 @@ const createRequest = (sheet, oldReqId, target, resultKeys, promise) => {
 				}
 				message.metadata.type = 'response';
 				message.metadata.requestId = json.requestId;
-				if (target instanceof SheetRange) {
+				if (responseHandle) {
+					// we need a general way to handle request response, this is rather :-/
+					handleResponse(responseHandle, sheet, target, resultKeys, message, funcTerm);
+				} else if (target instanceof SheetRange) {
 					putToRange(sheet, target, resultKeys, message);
 				} else {
 					putToTarget(sheet, target, message);
@@ -251,6 +281,7 @@ const requestinternal = (funcTerm, s, ...t) =>
 				}
 				reqId = createRequest(
 					sheet,
+					funcTerm,
 					reqId,
 					target_,
 					resultKeys,
@@ -281,6 +312,7 @@ const requestinternallegacy = (funcTerm, s, ...t) =>
 				message.metadata.requestId = reqId;
 				reqId = createRequest(
 					sheet,
+					funcTerm,
 					reqId,
 					targetTerm,
 					resultKeys,

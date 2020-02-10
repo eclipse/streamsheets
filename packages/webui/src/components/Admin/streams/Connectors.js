@@ -70,7 +70,7 @@ class Connectors extends Component {
 				window.open(`/administration/stream/${resourceId}`);
 				break;
 			case 1: {
-				const { deleteDialogOpen } = this.props.appState;
+				const { deleteDialogOpen } = this.props;
 				this.props.setDeleteDialogOpen(!deleteDialogOpen);
 				break;
 			}
@@ -207,7 +207,7 @@ class Connectors extends Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
+		deleteDialogOpen: state.appState.deleteDialogOpen,
 		streams: state.streams,
 		adminSecurity: state.adminSecurity,
 	};

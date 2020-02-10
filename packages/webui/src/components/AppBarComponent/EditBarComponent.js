@@ -83,7 +83,8 @@ export class EditBarComponent extends Component {
 		const info = document.getElementById('editbarreference');
 		const selection = graphManager.getGraphViewer().getSelection();
 		let formulaText = '';
-		const state = {};
+		const jsgState = {};
+		const appState = {};
 
 		if (selection.length) {
 			graphManager.getGraphViewer().getGraphView().setFocus(selection[0]);
@@ -95,12 +96,12 @@ export class EditBarComponent extends Component {
 			if (sheet) {
 				formulaText = selection[0].getView().getSelectedFormula(sheet);
 				if (formulaText) {
-					state.graphCellSelected = true;
+					jsgState.graphCellSelected = true;
 				}
 				const attr = item.getAttributeAtPath('showwizard');
 				if ((item instanceof JSG.ChartNode) && item.getDataRange() && attr && attr.getValue() === true) {
 					graphManager.getGraphEditor().invalidate();
-					state.showChartProperties = true;
+					appState.showChartProperties = true;
 					attr.setExpressionOrValue(false);
 				}
 				if ((item instanceof JSG.SheetPlotNode) && attr && attr.getValue() === true) {
@@ -120,20 +121,24 @@ export class EditBarComponent extends Component {
 				view.moveSheetToTop(graphManager.getGraphViewer());
 			}
 		} else {
-			state.showChartProperties = false;
-			state.graphCellSelected = false;
+			appState.showChartProperties = false;
+			jsgState.graphCellSelected = false;
 		}
 
 		formula.innerHTML = Strings.encodeXML(formulaText);
 		info.innerHTML = '';
 
-		if (this.props.appState.cellSelected === true) {
-			state.cellSelected = false;
+		if (this.props.cellSelected === true) {
+			jsgState.cellSelected = false;
 		}
 
-		if (Object.keys(state).length) {
-			this.props.setAppState(state);
+		if (Object.keys(jsgState).length) {
+			this.props.setJsgState(jsgState);
 		}
+		if (Object.keys(appState).length) {
+			this.props.setJsgState(appState);
+		}
+		
 	}
 
 	onSheetSelectionChanged(notification) {
@@ -159,8 +164,8 @@ export class EditBarComponent extends Component {
 		const activeCell = item.getOwnSelection().getActiveCell();
 
 		if (!(item instanceof StreamSheet) || activeCell === undefined) {
-			if (this.props.appState.cellSelected) {
-				this.props.setAppState({ cellSelected: false });
+			if (this.props.cellSelected) {
+				this.props.setJsgState({ cellSelected: false });
 			}
 			formula.innerHTML = '';
 			info.innerHTML = '';
@@ -174,17 +179,17 @@ export class EditBarComponent extends Component {
 		formula.innerHTML = value;
 		info.innerHTML = item.getOwnSelection().refToString();
 
-		if (this.props.appState.cellSelected === false) {
-			this.props.setAppState({ cellSelected: true });
+		if (this.props.cellSelected === false) {
+			this.props.setJsgState({ cellSelected: true });
 		}
 	}
 
 	getSheetView() {
 		let view;
 
-		if (this.props.appState.cellSelected) {
+		if (this.props.cellSelected) {
 			view = graphManager.getActiveSheetView();
-		} else if (this.props.appState.graphCellSelected) {
+		} else if (this.props.graphCellSelected) {
 			const selection = graphManager.getGraphViewer().getSelection();
 			if (selection !== undefined && selection.length === 1) {
 				view = selection[0].getView();
@@ -493,7 +498,7 @@ export class EditBarComponent extends Component {
 					id="editbarreference"
 					disabled
 					onKeyDown={this.handleReferenceKeyDown}
-					contentEditable={this.props.appState.cellSelected}
+					contentEditable={this.props.cellSelected}
 					style={{
 						margin: 0,
 						padding: '3px 3px 0px 3px',
@@ -533,7 +538,7 @@ export class EditBarComponent extends Component {
 				</span>
 				<span
 					id="editbarformula"
-					contentEditable={this.props.appState.cellSelected || this.props.appState.graphCellSelected}
+					contentEditable={this.props.cellSelected || this.props.graphCellSelected}
 					onKeyDown={this.handleFormulaKeyDown}
 					onKeyUp={this.handleFormulaKeyUp}
 					onBlur={this.handleFormulaBlur}
@@ -567,7 +572,8 @@ export class EditBarComponent extends Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState
+		cellSelected: state.jsgState.cellSelected,
+		graphCellSelected: state.jsgState.graphCellSelected
 	};
 }
 

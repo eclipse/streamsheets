@@ -52,7 +52,7 @@ export class SaveAsDialog extends Component {
 		return (
 			<Dialog
 				fullWidth
-				open={this.props.appState.showSaveAsDialog}
+				open={this.props.showSaveAsDialog}
 				onClose={() => this.props.setAppState({ showSaveAsDialog: false })}
 			>
 				<DialogTitle>
@@ -100,7 +100,7 @@ export class SaveAsDialog extends Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
+		showSaveAsDialog: state.appState.showSaveAsDialog,
 		machines: state.machines,
 		monitor: state.monitor,
 	};

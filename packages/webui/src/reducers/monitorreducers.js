@@ -218,6 +218,7 @@ export default function doRequest(state = defState, reqaction) {
 			break;
 		}
 		default:
+			return state;
 	}
 	return newstate;
 }
