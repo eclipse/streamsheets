@@ -85,7 +85,8 @@ class Cell {
 			descr.type = 'unit';
 			descr.value = term.toString();
 		}
-		descr.info = this.info;
+		// if info contains more than values
+		descr.info = { values: this.info.values };
 		// TODO: move level to cell properties
 		descr.level = this.level;
 		const references = this._references && refStrings(this._references);
