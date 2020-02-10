@@ -71,6 +71,7 @@ export default class ChartSelectionFeedbackView extends View {
 		case 'xAxis':
 		case 'yAxis':
 		case 'plot':
+		case 'legend':
 			drawMarkerRect(selection.data.position);
 			break;
 		default:

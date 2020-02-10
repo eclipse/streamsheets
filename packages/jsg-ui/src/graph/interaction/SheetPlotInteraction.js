@@ -2,6 +2,8 @@ import {
 	GraphUtils,
 	StreamSheet,
 	NumberExpression,
+	Selection,
+	DeleteCellContentCommand,
 	SetCellDataCommand, NotificationCenter, Notification
 } from '@cedalo/jsg-core';
 
@@ -120,8 +122,8 @@ export default class SheetPlotInteraction extends Interaction {
 				const valueStart = item.scaleFromAxis(axes.x.scale, ptStart.x < ptEnd.x ? ptStart : ptEnd);
 				const valueEnd = item.scaleFromAxis(axes.x.scale, ptStart.x < ptEnd.x ? ptEnd : ptStart);
 
-				this.setParamValue(item, item.xAxes[0].formula.getTerm(), 3, valueStart);
-				this.setParamValue(item, item.xAxes[0].formula.getTerm(), 4, valueEnd);
+				this.setParamValue(viewer, item, item.xAxes[0].formula.getTerm(), 3, valueStart);
+				this.setParamValue(viewer, item, item.xAxes[0].formula.getTerm(), 4, valueEnd);
 
 				viewer.getGraph().markDirty();
 				event.doRepaint = true;
@@ -131,13 +133,20 @@ export default class SheetPlotInteraction extends Interaction {
 		super.onMouseUp(event, viewer);
 	}
 
-	setParamValue(item, term, index, value) {
+	setParamValue(viewer, item, term, index, value) {
 		const info = item.getParamInfo(term, index);
 		if (info) {
 			const range = info.range.copy();
-			range.shiftToSheet();
-			const cmd  = new SetCellDataCommand(info.sheet, range.toString(), new NumberExpression(value), true);
-			this.getInteractionHandler().execute(cmd);
+			let cmd;
+			if (value === undefined) {
+				const selection = new Selection(info.sheet);
+				selection.add(range);
+				cmd = new DeleteCellContentCommand(info.sheet, selection.toStringMulti(), "all")
+			} else {
+				range.shiftToSheet();
+			 	cmd  = new SetCellDataCommand(info.sheet, range.toString(), new NumberExpression(value), true);
+			}
+			viewer.getInteractionHandler().execute(cmd);
 		}
 
 		return 0;

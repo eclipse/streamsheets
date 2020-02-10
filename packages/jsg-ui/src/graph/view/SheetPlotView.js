@@ -1,5 +1,6 @@
 import {
 	default as JSG,
+	GraphUtils,
 	MathUtils,
 	SheetPlotNode,
 	TextFormatAttributes
@@ -50,11 +51,34 @@ export default class SheetPlotView extends NodeView {
 			this.drawPlot(graphics, item, plotRect, serie, index, axes);
 		});
 
+		this.drawLegend(graphics, plotRect, item);
+
 		graphics.setFontSize(12);
 		graphics.setFontStyle(TextFormatAttributes.FontStyle.BOLD);
 		graphics.setFont();
 
 		this.drawTitle(graphics, item);
+	}
+
+	drawLegend(graphics, plotRect, item) {
+		const legendData = item.getLegend();
+		const margin = 200;
+		const metrics = GraphUtils.getFontMetricsEx('Verdana', 8);
+		const { legend } = item;
+
+		graphics.beginPath();
+		graphics.rect(legend.position.left, legend.position.top, legend.position.width, legend.position.height);
+		graphics.stroke();
+
+		graphics.setTextAlignment(TextFormatAttributes.TextAlignment.LEFT);
+		graphics.setTextBaseline('top');
+
+		let y = legend.position.top;
+		legendData.forEach((entry) => {
+			graphics.fillText(entry.name, legend.position.left, y);
+			y += metrics.height;
+		});
+
 	}
 
 	drawXAxes(graphics, plotRect, item) {
@@ -75,10 +99,10 @@ export default class SheetPlotView extends NodeView {
 
 				let current = axis.scale.min;
 				let x;
-				axis.scale.format = {
-					localCulture: `time;en`,
-					numberFormat: 'h:mm:ss',
-				};
+				// axis.scale.format = {
+				// 	localCulture: `time;en`,
+				// 	numberFormat: 'h:mm:ss',
+				// };
 
 				while (current <= axis.scale.max) {
 					x = item.scaleToAxis(axis.scale, current);

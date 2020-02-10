@@ -95,7 +95,7 @@ module.exports = class SetCellDataCommand extends AbstractItemCommand {
 			.setExpression(this._pos, this._expr);
 		if (cell) {
 			cell.evaluate(this._graphItem);
-			if (this._expr.hasFormula()) {
+			if (this.expr && this._expr.hasFormula()) {
 				cell._value = '#CALC';
 			}
 		}

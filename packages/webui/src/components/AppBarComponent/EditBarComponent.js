@@ -104,7 +104,12 @@ export class EditBarComponent extends Component {
 					attr.setExpressionOrValue(false);
 				}
 				if ((item instanceof JSG.SheetPlotNode) && attr && attr.getValue() === true) {
-					item.createSeriesFromSelection(graphManager.getGraphViewer(), sheet, graphManager.chartSelection);
+					item.createSeriesFromSelection(
+						graphManager.getGraphViewer(),
+						sheet,
+						graphManager.chartSelection,
+						graphManager.chartType
+					);
 					graphManager.getGraphEditor().invalidate();
 					attr.setExpressionOrValue(false);
 				}

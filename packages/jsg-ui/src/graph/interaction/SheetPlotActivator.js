@@ -29,6 +29,21 @@ export default class SheetPlotActivator extends InteractionActivator {
 	}
 
 	onMouseDoubleClick(event, viewer, dispatcher) {
+		const interaction = this.getInteraction(event, viewer);
+		if (interaction === undefined) {
+			return;
+		}
+
+		const selection = interaction.isElementHit(event, viewer);
+		if (selection && (selection.element === 'xAxis' || selection.element === 'yAxis')) {
+			const axis = selection.data;
+
+			interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula.getTerm(), 3, undefined);
+			interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula.getTerm(), 4, undefined);
+
+			viewer.getGraph().markDirty();
+			event.doRepaint = true;
+		}
 	}
 
 	removeInfo(event, viewer) {
