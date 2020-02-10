@@ -1,48 +1,13 @@
 /* eslint-disable react/no-unused-state,react/prop-types */
-import Collapse from '@material-ui/core/Collapse';
 import List from '@material-ui/core/List';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import MenuItem from '@material-ui/core/MenuItem';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
+import { MenuGroup, MenuEntry } from '@cedalo/webui-components';
 import React, { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 // import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { accessManager } from '../helper/AccessManager';
 import { IconStream, IconSecurity, IconOrganize } from '../components/icons';
 
 const { RESOURCE_TYPES, RESOURCE_ACTIONS } = accessManager;
-
-const MenuGroup = ({ open, label, icon, onClick, show, children }) => {
-	const entries = Array.isArray(children) ? children : [children];
-	const shownEntries = entries.filter((entry) => entry.props.show !== false);
-	const selected = shownEntries.some((entry) => entry.props.selected);
-	return show === false || shownEntries === 0 ? null : (
-		<React.Fragment>
-			<MenuItem onClick={onClick} selected={selected}>
-				<ListItemIcon>{icon}</ListItemIcon>
-				<ListItemText primary={label} style={{ padding: 0 }} />
-				{open ? <ExpandLess /> : <ExpandMore />}
-			</MenuItem>
-			<Collapse in={open} timeout="auto" unmountOnExit key={2}>
-				<List component="div" disablePadding>
-					{children}
-				</List>
-			</Collapse>
-		</React.Fragment>
-	);
-};
-
-const MenuEntry = ({ href, selected, children, show }) =>
-	show === false ? null : (
-		<Link style={{ textDecoration: 'none' }} to={href} href={href}>
-			<MenuItem dense selected={selected}>
-				<ListItemText inset primary={children} />
-			</MenuItem>
-		</Link>
-	);
 
 export const AdminNavigation = (props) => {
 	const [isStreamsOpen, setStreamsOpen] = useState(true);
