@@ -1,7 +1,7 @@
-const timeaggregate = require('./timeaggregate');
+const timeinterval = require('./timeinterval');
 const timestore = require('./timestore');
 
 module.exports = {
-	'TIME.AGGREGATE': timeaggregate,
+	'TIME.INTERVAL': timeinterval,
 	'TIME.STORE': timestore
 };

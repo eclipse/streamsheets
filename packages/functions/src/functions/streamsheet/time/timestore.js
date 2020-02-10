@@ -1,6 +1,7 @@
-const {	runFunction } = require('../../../utils');
+const {	runFunction, terms: { hasValue } } = require('../../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const IdGenerator = require('@cedalo/id-generator');
 
 const ERROR = FunctionErrors.code;
 const DEF_LIMIT = 1000;
@@ -31,13 +32,12 @@ const periodFilter = (period) => (entries) => {
 	if (delta > period) entries.shift();
 };
 class TimeStore {
-	// period is in seconds
 	constructor(period, limit) {
+		this.id = IdGenerator.generateShortId();
 		this.entries = [];
 		this.limit = limit;
 		this.period = period;
 		this.limitBySize = sizeFilter(limit);
-		// period is in seconds
 		this.limitByPeriod = periodFilter(period * 1000);
 	}
 
@@ -77,12 +77,15 @@ const store = (sheet, ...terms) =>
 		.withMinArgs(1)
 		.withMaxArgs(4)
 		.mapNextArg((values) => values.value || ERROR.ARGS)
-		.mapNextArg(period => period != null ? convert.toNumberStrict(period.value || DEF_PERIOD, ERROR.VALUE) : DEF_PERIOD)
+		.mapNextArg(period => hasValue(period) ? convert.toNumberStrict(period.value, ERROR.VALUE) : DEF_PERIOD)
 		.mapNextArg(timestamp => timestamp != null && convert.toNumberStrict(timestamp.value))
-		.mapNextArg(limit => limit != null ? convert.toNumberStrict(limit.value || DEF_LIMIT, ERROR.VALUE) : DEF_LIMIT)
+		.mapNextArg(limit => hasValue(limit) ? convert.toNumberStrict(limit.value, ERROR.VALUE) : DEF_LIMIT)
 		.run((values, period, timestamp, limit) => {
+			// TODO: should we validate values, e.g. if key or value is undefined?
+			// => prevent wrong usage, accidental wrong json
 			const term = store.term;
 			const timestore = getTimeStore(term, period, limit);
+			// should we filter certain values, e.g. ERRORs?
 			return timestore.push(timestamp || Date.now(), values);
 		});
 
