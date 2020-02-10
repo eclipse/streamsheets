@@ -967,7 +967,7 @@ module.exports = class SheetPlotNode extends Node {
 				break;
 			case 'scatter':
 			case 'scatterLine':
-				if ((vertical && width > 1) || (!vertical && height > 1)) {
+				if (!categoryLabels && ((vertical && width > 1) || (!vertical && height > 1))) {
 					categoryLabels = true;
 					startI += 1;
 				}

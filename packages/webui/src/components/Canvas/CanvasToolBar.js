@@ -584,7 +584,7 @@ export class CanvasToolBar extends Component {
 		graphManager.getCanvas().focus();
 	};
 
-	onCreatePlot = () => {
+	onCreatePlot = (type) => {
 		this.setState({
 			chartsOpen: false
 		});
@@ -597,7 +597,7 @@ export class CanvasToolBar extends Component {
 			const selection = sheetView.getOwnSelection();
 			if (selection) {
 				graphManager.chartSelection = selection.copy();
-				// node.createSeriesFromSelection(selection, type);
+				graphManager.chartType = type;
 			}
 		}
 
@@ -3472,11 +3472,26 @@ export class CanvasToolBar extends Component {
 										onClick={() => this.onCreatePlot('line')}
 									>
 										<SvgIcon>
-											<path d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z" />
+											<path
+												d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z"
+											/>
 										</SvgIcon>
 									</IconButton>
 								</GridListTile>
-							</GridList>
+								<GridListTile cols={1}>
+									<IconButton
+										style={{ padding: '5px' }}
+										color="inherit"
+										onClick={() => this.onCreatePlot('scatter')}
+									>
+										<SvgIcon>
+											<path
+												// eslint-disable-next-line max-len
+												d="M2,2H4V20H22V22H2V2M9,10A3,3 0 0,1 12,13A3,3 0 0,1 9,16A3,3 0 0,1 6,13A3,3 0 0,1 9,10M13,2A3,3 0 0,1 16,5A3,3 0 0,1 13,8A3,3 0 0,1 10,5A3,3 0 0,1 13,2M18,12A3,3 0 0,1 21,15A3,3 0 0,1 18,18A3,3 0 0,1 15,15A3,3 0 0,1 18,12Z"
+											/>
+										</SvgIcon>
+									</IconButton>
+								</GridListTile>							</GridList>
 						</Popover>
 					</div>
 				) : null}
