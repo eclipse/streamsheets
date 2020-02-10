@@ -6,12 +6,14 @@ import { FormattedMessage } from 'react-intl';
 // import { connect } from 'react-redux';
 import { accessManager } from '../helper/AccessManager';
 import { IconStream, IconSecurity, IconOrganize } from '../components/icons';
+import { AdminNavigationExtensions } from '@cedalo/webui-extensions';
 
 const { RESOURCE_TYPES, RESOURCE_ACTIONS } = accessManager;
 
 export const AdminNavigation = (props) => {
 	const [isStreamsOpen, setStreamsOpen] = useState(true);
 	const [isOrganizeOpen, setOrganizeOpen] = useState(true);
+	const [isPluginsOpen, setPluginsOpen] = useState(true);
 	const [isSecurityOpen, setSecurityOpen] = useState(true);
 
 	const isSelected = (pageOrGroup) => props.selection === pageOrGroup;
@@ -63,6 +65,12 @@ export const AdminNavigation = (props) => {
 					<FormattedMessage id="Dashboard.database" defaultMessage="Database" />
 				</MenuEntry>
 			</MenuGroup>
+
+			<AdminNavigationExtensions
+				open={isPluginsOpen}
+				isSelected={isSelected}
+				setPluginsOpen={setPluginsOpen}
+			/>
 		</List>
 	);
 };
