@@ -72,7 +72,6 @@ class LoginPage extends React.Component {
 	static propTypes = {
 		login: PropTypes.func.isRequired,
 		classes: PropTypes.object.isRequired,
-		// appState: PropTypes.object.isRequired,
 		// logout: PropTypes.func.isRequired,
 	};
 
@@ -320,7 +319,6 @@ class LoginPage extends React.Component {
 }
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
 		user: state.user,
 	};
 }

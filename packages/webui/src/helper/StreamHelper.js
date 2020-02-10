@@ -145,7 +145,7 @@ export default class StreamHelper {
 			break;
 		}
 		case StreamHelper.BUTTONS.DELETE: {
-			const { deleteDialogOpen } = props.appState;
+			const { deleteDialogOpen } = props;
 			props.setDeleteDialogOpen(!deleteDialogOpen);
 			break;
 		}

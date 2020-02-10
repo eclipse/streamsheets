@@ -118,9 +118,6 @@ TabContainer.propTypes = {
 };
 
 export class ChartProperties extends Component {
-	static propTypes = {
-		appState: PropTypes.object.isRequired
-	};
 
 	constructor(props) {
 		super(props);
@@ -176,7 +173,7 @@ export class ChartProperties extends Component {
 
 	componentWillReceiveProps(nextProps) {
 		// You don't have to do this check first, but it can help prevent an unneeded render
-		if (nextProps.appState.showChartProperties === true) {
+		if (nextProps.showChartProperties === true) {
 			this.updateState();
 		}
 	}
@@ -1223,7 +1220,7 @@ export class ChartProperties extends Component {
 			return <div />;
 		}
 		return (
-			<Slide direction="left" in={this.props.appState.showChartProperties} mountOnEnter unmountOnExit>
+			<Slide direction="left" in={this.props.showChartProperties} mountOnEnter unmountOnExit>
 				<div
 					style={{
 						backgroundColor: '#FFFFFF',
@@ -1233,7 +1230,7 @@ export class ChartProperties extends Component {
 						right: '0px',
 						width: '300px',
 						height: '100%',
-						visibility: this.props.appState.showChartProperties ? 'visible' : 'hidden',
+						visibility: this.props.showChartProperties ? 'visible' : 'hidden',
 						overflowX: 'hidden',
 						overflowY: 'auto',
 						zIndex: '1250'
@@ -2618,7 +2615,7 @@ export class ChartProperties extends Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState
+		showChartProperties: state.appState.showChartProperties
 	};
 }
 

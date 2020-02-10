@@ -377,7 +377,6 @@ StreamFormContainer.defaultProps = {};
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
 		locale: state.locales.locale,
 		streams: state.streams,
 		fetching: state.streams.fetching,

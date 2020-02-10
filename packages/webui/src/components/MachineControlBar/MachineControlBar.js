@@ -262,13 +262,13 @@ class MachineControlBar extends React.Component {
 					<div
 						style={{
 							marginLeft: '10px',
-							visibility: this.props.appState.experimental ? 'visible' : 'hidden'
+							visibility: this.props.experimental ? 'visible' : 'hidden'
 						}}
 					>
 						<CustomTooltip header="Tooltip.ShutdownMachineHeader" message="Tooltip.ShutdownMachineMessage">
 							<IconButton
 								color="inherit"
-								disabled={!this.props.appState.debug}
+								disabled={!this.props.debug}
 								onClick={this.onShutdownMachine}
 							>
 								<ShutdownIcon />
@@ -406,7 +406,7 @@ class MachineControlBar extends React.Component {
 							<Slider
 								step={1}
 								value={reverseSpeed(this.state.speed)}
-								min={this.props.appState.experimental ? 1 : minSpeed}
+								min={this.props.experimental ? 1 : minSpeed}
 								max={maxSpeed}
 								onChange={this.onChangeSpeed}
 							/>
@@ -606,7 +606,8 @@ class MachineControlBar extends React.Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
+		experimental: state.appState.experimental,
+		debug: state.appState.debug,
 		machineId: state.monitor.machine.id,
 		machineState: state.monitor.machine.state,
 		machineCyclesPerSecond: state.monitor.performance.cyclesPerSecond,

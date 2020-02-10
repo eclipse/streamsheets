@@ -32,7 +32,7 @@ class NotificationsComponent extends React.Component {
 								badgeContent={this.props.notifications.notifications.length}
 								color="secondary"
 								style={{
-									visibility: this.props.appState.showTools &&
+									visibility: this.props.showTools &&
 									this.props.notifications.notifications.length ? 'visible' : 'hidden',
 								}}
 							>
@@ -66,7 +66,7 @@ class NotificationsComponent extends React.Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
+		showTools: state.appState.showTools,
 		machine: state.machine,
 		notifications: state.notifications,
 	};

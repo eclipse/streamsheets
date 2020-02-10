@@ -26,7 +26,6 @@ import { intl } from '../../../helper/IntlGlobalProvider';
 
 class StreamDeleteDialog extends React.Component {
 	static propTypes = {
-		appState: PropTypes.object.isRequired,
 		onDelete: PropTypes.func,
 	};
 
@@ -137,7 +136,7 @@ class StreamDeleteDialog extends React.Component {
 	};
 
 	render() {
-		const { deleteDialogOpen } = this.props.appState;
+		const { deleteDialogOpen } = this.props;
 		const stream = StreamHelper.getActiveConfiguration(this.props);
 		if(!stream)
 			return null;
@@ -196,7 +195,7 @@ class StreamDeleteDialog extends React.Component {
 }
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
+		deleteDialogOpen: state.appState.deleteDialogOpen,
 		activeConfigurationId: state.streams.activeConfigurationId,
 		providers: state.streams.providers,
 		connectors: state.streams.connectors,

@@ -1,6 +1,5 @@
 /* eslint-disable react/forbid-prop-types,react/prop-types */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withStyles } from '@material-ui/core/styles/index';
@@ -46,9 +45,6 @@ const HINT_MESSAGES = {
 	/>,
 };
 class NewStreamDialog extends React.Component {
-	static propTypes = {
-		appState: PropTypes.object.isRequired,
-	};
 
 	constructor(props) {
 		super(props);
@@ -123,10 +119,10 @@ class NewStreamDialog extends React.Component {
 	isNameValid = (name) => name.length > 0;
 
 	render() {
-		const { appState } = this.props;
+		const { addStreamDialogOpen } = this.props;
 		return (
 			<AddNewDialog
-				open={appState.addStreamDialogOpen}
+				open={addStreamDialogOpen}
 				onClose={this.handleClose}
 				resources={this.getAddBasedOnOptions()}
 				title={this.title}
@@ -142,7 +138,7 @@ class NewStreamDialog extends React.Component {
 }
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
+		addStreamDialogOpen: state.appState.addStreamDialogOpen,
 		activeConfigurationId: state.streams.activeConfigurationId,
 		providers: state.streams.providers,
 		connectors: state.streams.connectors,

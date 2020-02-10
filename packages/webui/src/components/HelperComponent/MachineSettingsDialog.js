@@ -54,7 +54,7 @@ export class MachineSettingsDialog extends React.Component {
 	}
 
 	componentWillReceiveProps() {
-		if (!this.props.appState.openSettings) {
+		if (!this.props.openSettings) {
 			if (graphManager.getGraph() === undefined) {
 				return;
 			}
@@ -161,7 +161,7 @@ export class MachineSettingsDialog extends React.Component {
 	render() {
 		return (
 			<Dialog
-				open={this.props.appState.openSettings}
+				open={this.props.openSettings}
 				onClose={() => this.handleSettingsCancel()}
 				onKeyDown={this.handleKeyPressed}
 			>
@@ -328,7 +328,7 @@ export class MachineSettingsDialog extends React.Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
+		openSettings: state.appState.openSettings,
 		machine: state.machine,
 	};
 }
