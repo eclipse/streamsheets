@@ -89,6 +89,9 @@ export class AdminContainer extends Component {
 					{this.props.location.pathname.startsWith('/administration/stream/') ? (
 						<StreamFormContainer match={this.props.match} />
 					) : null}
+					{this.props.location.pathname.startsWith('/administration/plugins/') ? (
+						<div>Plugin</div>
+					) : null}
 				</div>
 				<NewStreamDialog />
 			</div>
