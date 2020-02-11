@@ -7,10 +7,6 @@ import { connect } from 'react-redux';
 // eslint-disable-next-line react/prefer-stateless-function
 export class AdminNavigationExtensions extends Component {
 
-	constructor(props) {
-		super(props);
-	}
-
 	render() {
 		return null;
 	}
