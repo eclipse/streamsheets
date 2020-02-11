@@ -1,12 +1,8 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-bitwise */
 
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
-import { FormattedMessage } from 'react-intl';
-import IconPlugins from '@material-ui/icons/Build';
-
-import { MenuGroup, MenuEntry } from '@cedalo/webui-components';
 
 // eslint-disable-next-line react/prefer-stateless-function
 export class AdminNavigationExtensions extends Component {
@@ -16,18 +12,7 @@ export class AdminNavigationExtensions extends Component {
 	}
 
 	render() {
-		return (
-			<MenuGroup
-				open={this.props.open}
-				onClick={() => this.props.setPluginsOpen(!this.props.open)}
-				label={<FormattedMessage id="Dashboard.plugins" defaultMessage="Plugins" />}
-				icon={<IconPlugins />}
-			>
-				<MenuEntry href="/administration/plugins/opcua" selected={this.props.isSelected('plugins')}>
-					<FormattedMessage id="Extensions.OPCUA.Menu" defaultMessage="OPC UA Tree" />
-				</MenuEntry>
-			</MenuGroup>
-		);
+		return null;
 	}
 }
 
