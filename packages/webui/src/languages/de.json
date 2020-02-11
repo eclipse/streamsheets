@@ -167,6 +167,7 @@
 	"ProcessContainerSettings.starTimeDate": "Startzeit/-datum",
 	"ProcessContainerSettings.loopArrayText": "Liste abarbeiten (Einmal pro Listenelement berechnen)",
 	"ProcessContainerSettings.loopArray": "Name des Listenelements",
+	"ProcessContainerSettings.loopRecursively": "Rekursiv",
 	"ProcessContainerSettings.repeat": "Berechnung wiederholen bis RETURN() ausgeführt wird",
 	"ProcessContainerSettings.hideMessages": "Nicht verarbeitete Nachrichten ausblenden",
     "ProcessContainerSettings.tooManyColumns": "Maximal 50 Spalten erlaubt!",

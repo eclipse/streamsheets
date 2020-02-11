@@ -166,6 +166,7 @@
 	"ProcessContainerSettings.starTimeDate": "Start Time/Date",
 	"ProcessContainerSettings.loopArrayText": "Loop through array (one calculation per array element)",
 	"ProcessContainerSettings.loopArray": "Loop element",
+	"ProcessContainerSettings.loopRecursively": "Recursively",
 	"ProcessContainerSettings.repeat": "Repeat calculation endlessly until RETURN() is executed",
 	"ProcessContainerSettings.hideMessages": "Hide unprocessed Messages",
 	"ProcessContainerSettings.tooManyColumns": "Maximum of 50 columns allowed!",

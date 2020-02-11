@@ -58,5 +58,25 @@
       "Kundennummer": 987654321,
       "Positionen": []
     }
+  },
+  "RECURSIVE": {
+    "data": {
+      "measurements": [
+        {
+          "ts": "2020-02-11",
+          "series": {
+            "time": [0, 23, 24],
+            "temperature": [45.4231, 46.4222, 44.2432]
+          }
+        },
+        {
+          "ts": "2020-02-12",
+          "series": {
+            "time": [1, 46, 48],
+            "temperature": [90.4231, 92.4222, 88.2432]
+          }
+        }
+      ]
+    }
   }
 }

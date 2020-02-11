@@ -31,7 +31,23 @@ const TEST_MSG = new Message({
 			'3.low': 'low',
 			'4.close': 'close'
 		}
-	}
+	},
+	measurements: [
+		{
+			"ts": "2020-02-11",
+			"series": {
+				"time": [0, 23, 24],
+				"temperature": [45.4231, 46.4222, 44.2432]
+			}
+		},
+		{
+			"ts": "2020-02-12",
+			"series": {
+				"time": [1, 46, 48],
+				"temperature": [90.4231, 92.4222, 88.2432]
+			}
+		}
+	],
 }, '1234-567');
 
 
@@ -160,6 +176,30 @@ describe('MessageHandler', () => {
 		expect(prevdata[1]).toBe('Enthärter');
 		expect(prevdata[2]).toBe(0.3);
 	});
+	it('should support getting array key for specified index', () => {
+		const mh = new MessageHandler({ path: '[data][measurements]', enabled: true });
+		// attach message:
+		mh.message = TEST_MSG;
+		expect(mh.indexKey).toBe('[0]');
+		expect(mh.next()).toEqual({
+			ts: '2020-02-11',
+			series: { time: [0, 23, 24], temperature: [45.4231, 46.4222, 44.2432] }
+		});
+		expect(mh.indexKey).toBe('[1]');
+		expect(mh.next()).toEqual({
+			ts: '2020-02-12',
+			series: { time: [1, 46, 48], temperature: [90.4231, 92.4222, 88.2432] }
+		});
+	});
+	it('should support getting object key for specified index', () => {
+		const mh = new MessageHandler({ path: '[data][measurements][0][series]', enabled: true });
+		// attach message:
+		mh.message = TEST_MSG;
+		expect(mh.indexKey).toBe('[time]');
+		expect(mh.next()).toEqual([0, 23, 24]);
+		expect(mh.indexKey).toBe('[temperature]');
+		expect(mh.next()).toEqual([45.4231, 46.4222, 44.2432]);
+	});
 
 	describe('hasNext', () => {
 		it('should return true if more data is available', () => {
@@ -214,13 +254,16 @@ describe('MessageHandler', () => {
 			// check default values:
 			expect(json.path).toBe('');
 			expect(json.enabled).toBeFalsy();
+			expect(json.recursively).toBeFalsy();
 			// change config:
 			mh.path = 'Kunde.Nummer';
 			mh.isEnabled = true;
+			mh.isRecursive = true;
 			json = mh.toJSON();
 			expect(json).toBeDefined();
 			expect(json.path).toBe('Kunde.Nummer');
 			expect(json.enabled).toBeTruthy();
+			expect(json.recursively).toBeTruthy();
 		});
 		it('should restore from a previous created JSON object', () => {
 			const mh = new MessageHandler();
@@ -228,12 +271,79 @@ describe('MessageHandler', () => {
 			expect(restored).toBeDefined();
 			expect(restored.path).toBe('');
 			expect(restored.isEnabled).toBeFalsy();
+			expect(restored.isRecursive).toBeFalsy();
 			mh.path = 'Artikel.Hammer';
 			mh.isEnabled = false;
+			mh.isRecursive = true;
 			restored = new MessageHandler(mh.toJSON());
 			expect(restored).toBeDefined();
 			expect(restored.path).toBe('Artikel.Hammer');
 			expect(restored.isEnabled).toBeFalsy();
+			expect(restored.isRecursive).toBeTruthy();
+		});
+	});
+
+	describe('recursive traversal', () => {
+		it('should be possible to step through message data recursively', () => {
+			// const mh = Traversal.of(TEST_MSG.data.measurements);
+			const mh = new MessageHandler({ path: '[data][measurements]', enabled: true, recursively: true });
+			// attach message:
+			mh.message = TEST_MSG;
+			expect(mh.indexKey).toBe('[0]');
+			expect(mh.next()).toEqual({
+				ts: '2020-02-11',
+				series: { time: [0, 23, 24], temperature: [45.4231, 46.4222, 44.2432] }
+			});
+			expect(mh.indexKey).toBe('[0][ts]');
+			expect(mh.next()).toEqual('2020-02-11');
+			expect(mh.indexKey).toBe('[0][series]');
+			expect(mh.next()).toEqual({ time: [0, 23, 24], temperature: [45.4231, 46.4222, 44.2432] });
+			expect(mh.indexKey).toBe('[0][series][time]');
+			expect(mh.next()).toEqual([0, 23, 24]);
+			expect(mh.indexKey).toBe('[0][series][time][0]');
+			expect(mh.next()).toEqual(0);
+			expect(mh.indexKey).toBe('[0][series][time][1]');
+			expect(mh.next()).toEqual(23);
+			expect(mh.indexKey).toBe('[0][series][time][2]');
+			expect(mh.next()).toEqual(24);
+			expect(mh.indexKey).toBe('[0][series][temperature]');
+			expect(mh.next()).toEqual([45.4231, 46.4222, 44.2432]);
+			expect(mh.indexKey).toBe('[0][series][temperature][0]');
+			expect(mh.next()).toEqual(45.4231);
+			expect(mh.indexKey).toBe('[0][series][temperature][1]');
+			expect(mh.next()).toEqual(46.4222);
+			expect(mh.indexKey).toBe('[0][series][temperature][2]');
+			expect(mh.next()).toEqual(44.2432);
+			expect(mh.indexKey).toBe('[1]');
+			expect(mh.next()).toEqual({
+				ts: '2020-02-12',
+				series: { time: [1, 46, 48], temperature: [90.4231, 92.4222, 88.2432] }
+			});
+			expect(mh.indexKey).toBe('[1][ts]');
+			expect(mh.next()).toEqual('2020-02-12');
+			expect(mh.indexKey).toBe('[1][series]');
+			expect(mh.next()).toEqual({ time: [1, 46, 48], temperature: [90.4231, 92.4222, 88.2432] });
+			expect(mh.indexKey).toBe('[1][series][time]');
+			expect(mh.next()).toEqual([1, 46, 48]);
+			expect(mh.indexKey).toBe('[1][series][time][0]');
+			expect(mh.next()).toEqual(1);
+			expect(mh.indexKey).toBe('[1][series][time][1]');
+			expect(mh.next()).toEqual(46);
+			expect(mh.indexKey).toBe('[1][series][time][2]');
+			expect(mh.next()).toEqual(48);
+			expect(mh.indexKey).toBe('[1][series][temperature]');
+			expect(mh.next()).toEqual([90.4231, 92.4222, 88.2432]);
+			expect(mh.indexKey).toBe('[1][series][temperature][0]');
+			expect(mh.next()).toEqual(90.4231);
+			expect(mh.indexKey).toBe('[1][series][temperature][1]');
+			expect(mh.next()).toEqual(92.4222);
+			expect(mh.indexKey).toBe('[1][series][temperature][2]');
+			expect(mh.next()).toEqual(88.2432);
+			// we key stays on last!
+			expect(mh.indexKey).toBe('[1][series][temperature][2]');
+			expect(mh.next()).toBeUndefined();
+			expect(mh.indexKey).toBe('[1][series][temperature][2]');
+			expect(mh.next()).toBeUndefined();
 		});
 	});
 });

@@ -166,7 +166,7 @@ class StreamSheet {
 	isMessageProcessed(message) {
 		const handler = this._msgHandler;
 		if (message == null && this._trigger.isEndless && hasLoop(handler)) {
-			return !handler._message || (handler._used && !(handler._index < handler._loopElement.loop.length - 1));
+			return !handler._message || (handler._used && !(handler._index < handler._stack.length - 1));
 		}
 		return message == null ? handler.isProcessed : message === handler.message && handler.isProcessed;
 	}
@@ -426,7 +426,7 @@ class StreamSheet {
 				// if (this._state === State.ACTIVE) this._msgHandler.next();
 				nextLoopElement = this._state === State.ACTIVE;
 			}
-			this._emitter.emit('step', this._msgHandler.prefix(), this);
+			this._emitter.emit('step', this);
 			// if still active after process/resume, step to next loop data:
 			// if (this._state === State.ACTIVE) this._msgHandler.next();
 			if (nextLoopElement && (!this._trigger.isEndless || !hasLoop(this._msgHandler))) this._msgHandler.next();

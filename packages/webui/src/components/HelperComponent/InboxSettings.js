@@ -470,6 +470,10 @@ export class InboxSettings extends React.Component {
 		const enabled = state;
 		this.setState({ loop: { ...this.state.loop, enabled } });
 	};
+	handleLoopRecursively = (event, state) => {
+		const recursively = state;
+		this.setState({ loop: { ...this.state.loop, recursively } });
+	};
 
 	handleRepeatCalculation = (event, state) => {
 		const repeat = state ? 'endless' : 'once';
@@ -728,19 +732,37 @@ export class InboxSettings extends React.Component {
 							</div>
 						) : null}
 						<FormGroup style={styles.formControl}>
-							<FormControlLabel
-								disabled={!this.hasStream() || !canEdit}
-								control={
-									<Checkbox checked={this.state.loop.enabled} onChange={this.handleLoopEnabled} />
-								}
-								// eslint-disable-next-line
-								label={
-									<FormattedMessage
-										id="ProcessContainerSettings.loopArrayText"
-										defaultMessage="Loop"
-									/>
-								}
-							/>
+							<div style={{ marginBottom: '5px' }}>
+								<FormControlLabel
+									disabled={!this.hasStream() || !canEdit}
+									control={
+										<Checkbox checked={this.state.loop.enabled} onChange={this.handleLoopEnabled} />
+									}
+									// eslint-disable-next-line
+									label={
+										<FormattedMessage
+											id="ProcessContainerSettings.loopArrayText"
+											defaultMessage="Loop"
+										/>
+									}
+								/>
+								<FormControlLabel
+									control={
+										<Checkbox
+										checked={this.state.loop.recursively}
+										onChange={this.handleLoopRecursively}
+										/>
+									}
+									// eslint-disable-next-line
+									label={
+										<FormattedMessage
+										id="ProcessContainerSettings.loopRecursively"
+										defaultMessage="Recursively"
+										/>
+									}
+									disabled={!this.state.loop.enabled || !canEdit}
+								/>
+							</div>
 							<TextField
 								// eslint-disable-next-line
 								label={

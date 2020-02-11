@@ -237,7 +237,7 @@ class MachineTaskStreamSheetMonitor {
 				result: getSheetCellsAsList(streamsheet.sheet),
 				// jsonpath: streamsheet.getCurrentLoopPath(),
 				loop: {
-					index: streamsheet.getLoopIndexKey(),
+					// index: streamsheet.getLoopIndexKey(),
 					currentPath: streamsheet.getCurrentLoopPath()
 				},
 				inbox: {
@@ -285,8 +285,7 @@ class MachineTaskStreamSheetMonitor {
 				}
 			},
 			loop: {
-				// TODO: still required?
-				index: streamsheet.getLoopIndexKey(),
+				// index: streamsheet.getLoopIndexKey(),
 				currentPath: streamsheet.getCurrentLoopPath()
 			},
 			stats: streamsheet.stats

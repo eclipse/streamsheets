@@ -111,6 +111,58 @@ describe('inboxdata', () => {
 			const terms = createParamTerms('T1', '', 'Positionen', '2', 'Artikel');
 			expect(INBOXDATA(sheet, ...terms)).toBe('[T1][][Positionen][2][Artikel]');
 		});
+		it('should work with recursive loop element', async () => {
+			const machine = new Machine();
+			const streamsheet = new StreamSheet();
+			const sheet = streamsheet.sheet;
+			streamsheet.updateSettings({
+				loop: { path: '[data][measurements]', enabled: true, recursively: true },
+				trigger: { type: 'always' }
+			});
+			streamsheet.inbox.put(new Message(Object.assign({}, MESSAGES.RECURSIVE.data), 'msg-recursive'));
+			sheet.loadCells({ A1: { formula: 'inboxdata(, , ,)' } });
+			machine.addStreamSheet(streamsheet);
+			expect(sheet.cellAt('A1').value).toBe('[][][measurements][0]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][0]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][0][ts]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][0][series]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][0][series][time]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][0][series][time][0]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][0][series][time][1]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][0][series][time][2]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][0][series][temperature]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][0][series][temperature][0]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][0][series][temperature][1]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][0][series][temperature][2]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][1]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][1][ts]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][1][series]');
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][1][series][time]');
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][1][series][temperature]');
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			expect(sheet.cellAt('A1').value).toBe('[S1][][measurements][1][series][temperature][2]');
+		});
 	});
 
 	describe('handling of missing parameters', () => {

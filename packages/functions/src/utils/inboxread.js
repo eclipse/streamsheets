@@ -1,4 +1,3 @@
-const { cutBrackets } = require('./common');
 const runFunction = require('./runner');
 const sheetutils = require('./sheet');
 const { getCellRangeFromTerm } = require('./terms');
@@ -14,7 +13,7 @@ const isLoopPrefix = (term) => {
 const loopPath = (path, prefix) => {
 	if (path && path.toLowerCase().startsWith(prefix)) {
 		path = path.substr(prefix.length);
-		return cutBrackets(path);
+		return path;
 	}
 	return undefined;
 };
@@ -37,9 +36,9 @@ const createJSONPath = (prefix, streamsheet, terms) => {
 		// term can be a cell-range ...
 		const range = getCellRangeFromTerm(term, streamsheet.sheet);
 		if (range && !FunctionErrors.isError(range)) {
-			range.iterate(cell => cell && path.push(cell.value));
-		} else {
-			path.push(term.value);
+			range.iterate((cell) => cell && cell.value != null && path.push(`[${cell.value}]`));
+		} else if (term.value != null) {
+			path.push(`[${term.value}]`);
 		}
 		return path;
 	}, jsonpath);
@@ -56,7 +55,7 @@ const inboxread = (prefix, sheet, ...terms) =>
 		.mapNextArg(() => getMessageId(terms.shift()))
 		.addMappedArg((streamsheet) => createJSONPath(prefix, streamsheet, terms))
 		.run((streamsheet, messageId, jsonpath) => {
-			const path = jsonpath.length ? `[${jsonpath.join('][')}]` : '';
+			const path = jsonpath.join('');
 			return `[${streamsheet.name}][${messageId}]${path}`;
 		});
 
