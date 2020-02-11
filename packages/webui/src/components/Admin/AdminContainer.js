@@ -15,6 +15,7 @@ import Producers from './streams/Producers';
 import StreamDeleteDialog from './streams/StreamDeleteDialog';
 import StreamFormContainer from './streams/StreamFormContainer';
 import Streams from './streams/Streams';
+import { PluginExtensions } from '@cedalo/webui-extensions';
 
 
 
@@ -90,7 +91,7 @@ export class AdminContainer extends Component {
 						<StreamFormContainer match={this.props.match} />
 					) : null}
 					{this.props.location.pathname.startsWith('/administration/plugins/') ? (
-						<div>Plugin</div>
+						<PluginExtensions />
 					) : null}
 				</div>
 				<NewStreamDialog />
