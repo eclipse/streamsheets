@@ -238,6 +238,7 @@
     "Dashboard.producers": "Produzenten",
 	"Dashboard.security": "Sicherheit",
 	"Dashboard.organization": "Organisation",
+	"Dashboard.plugins": "Plugins",
 	"Dashboard.users": "Benutzer",
 	"Dashboard.any": "Alle",
 	"Dashboard.running": "Gestartet",

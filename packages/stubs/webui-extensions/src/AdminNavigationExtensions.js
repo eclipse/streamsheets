@@ -23,8 +23,8 @@ export class AdminNavigationExtensions extends Component {
 				label={<FormattedMessage id="Dashboard.plugins" defaultMessage="Plugins" />}
 				icon={<IconPlugins />}
 			>
-					<FormattedMessage id="Dashboard.database" defaultMessage="Database" />
 				<MenuEntry href="/administration/plugins/opcua" selected={this.props.isSelected('plugins')}>
+					<FormattedMessage id="Extensions.OPCUA.Menu" defaultMessage="OPC UA Tree" />
 				</MenuEntry>
 			</MenuGroup>
 		);
