@@ -61,6 +61,9 @@ module.exports = class SetPlotDataCommand extends AbstractItemCommand {
 		case 'series':
 			this._graphItem.readSeries(reader, root);
 			break;
+		case 'legend':
+			this._graphItem.readLegend(reader, root);
+			break;
 		}
 
 		this._graphItem.evaluate();

@@ -12,36 +12,143 @@ const SetPlotDataCommand = require('../command/SetPlotDataCommand');
 const CompoundCommand = require('../command/CompoundCommand');
 
 const epsilon = 0.000000001;
-const defaultChartColors = {
-	background: [
-		'rgb(54, 162, 235)',
-		'rgb(255, 99, 132)',
-		'rgb(255, 206, 86)',
-		'rgb(75, 192, 192)',
-		'rgb(153, 102, 255)',
-		'rgb(255, 159, 64)',
-		'rgb(98,51,58)',
-		'rgb(0,177,91)',
-		'rgb(88,207,255)',
-		'rgb(255,139,116)',
-		'rgb(131,240,255)',
-		'rgb(224,108,255)'
-	],
-	line: [
-		'rgb(54, 162, 235)',
-		'rgb(255,99,132)',
-		'rgb(255, 206, 86)',
-		'rgb(75, 192, 192)',
-		'rgb(153, 102, 255)',
-		'rgb(255, 159, 64)',
-		'rgb(98,51,58)',
-		'rgb(0,177,91)',
-		'rgb(88,207,255)',
-		'rgb(255,139,116)',
-		'rgb(131,240,255)',
-		'rgb(224,108,255)'
-	]
+const templates = {
+	basic: {
+		font: {
+			name: 'Verdana',
+			size: 8
+		},
+		title: {
+			font: {
+				size: 14
+			},
+		},
+		legend: {
+			linecolor: '#CCCCCC',
+		},
+		axis: {
+			linecolor: '#AAAAAA',
+		},
+		series: {
+			linewidth: 50,
+			fill: [
+				'rgb(54, 162, 235)',
+				'rgb(255, 99, 132)',
+				'rgb(255, 206, 86)',
+				'rgb(75, 192, 192)',
+				'rgb(153, 102, 255)',
+				'rgb(255, 159, 64)',
+				'rgb(98,51,58)',
+				'rgb(0,177,91)',
+				'rgb(88,207,255)',
+				'rgb(255,139,116)',
+				'rgb(131,240,255)',
+				'rgb(224,108,255)'
+			],
+			line: [
+				'rgb(54, 162, 235)',
+				'rgb(255,99,132)',
+				'rgb(255, 206, 86)',
+				'rgb(75, 192, 192)',
+				'rgb(153, 102, 255)',
+				'rgb(255, 159, 64)',
+				'rgb(98,51,58)',
+				'rgb(0,177,91)',
+				'rgb(88,207,255)',
+				'rgb(255,139,116)',
+				'rgb(131,240,255)',
+				'rgb(224,108,255)'
+			]
+		}
+	}
 };
+
+class ChartFormat {
+	get lineColor() {
+		return this.line && this.line.color ? this.line.color : undefined;
+	}
+
+	set lineColor(value) {
+		if (value === undefined) {
+			return;
+		}
+		if (this.line === undefined) {
+			this.line = {};
+		}
+		this.line.color = value;
+	}
+
+	get lineWidth() {
+		return this.line && this.line.width !== undefined ? this.line.width : undefined;
+	}
+
+	set lineWidth(value) {
+		if (value === undefined) {
+			return;
+		}
+		if (this.line === undefined) {
+			this.line = {};
+		}
+		this.line.width = Number(value);
+	}
+
+	save(name, writer) {
+		writer.writeStartElement(name);
+		if (this.line) {
+			writer.writeStartElement('line');
+			if (this.lineColor) {
+				writer.writeAttributeString('color', this.lineColor);
+			}
+			if (this.lineWidth) {
+				writer.writeAttributeNumber('width', this.lineWidth, 0);
+			}
+			writer.writeEndElement();
+		}
+		writer.writeEndElement();
+	}
+
+	read(reader, object) {
+		reader.iterateObjects(object, (name, child) => {
+			switch (name) {
+			case 'line':
+				this.line = {};
+				this.lineWidth = reader.getAttribute(child, 'width');
+				this.lineColor = reader.getAttribute(child, 'color');
+				break;
+			}
+		});
+	}
+}
+
+class ChartSeries {
+	constructor(type, formula) {
+		this.type = type || 'line';
+		this.formula = formula;
+		this.format = new ChartFormat();
+	}
+
+	save(writer) {
+		writer.writeStartElement('series');
+		this.formula.save('formula', writer);
+		this.format.save('format', writer);
+		writer.writeEndElement();
+	}
+
+	read(reader, object) {
+		reader.iterateObjects(object, (name, child) => {
+			switch (name) {
+			case 'formula':
+				this.formula = new Expression(0);
+				this.formula.read(reader, child);
+				break;
+			case 'format':
+				this.format = new ChartFormat();
+				this.format.read(reader, child);
+				break;
+			}
+		});
+	}
+}
 
 class ChartRect {
 	constructor(left, top, right, bottom) {
@@ -111,11 +218,12 @@ module.exports = class SheetPlotNode extends Node {
 		};
 		this.xAxes = [
 			{
-				type: 'time',
+				type: 'linear',
 				align: 'bottom',
 				formula: new Expression(0, 'AXIS()'),
 				position: new ChartRect(),
-				size: 500
+				format: new ChartFormat(),
+				size: 500,
 			}
 		];
 		this.yAxes = [
@@ -124,51 +232,27 @@ module.exports = class SheetPlotNode extends Node {
 				align: 'left',
 				formula: new Expression(0, 'AXIS()'),
 				position: new ChartRect(),
+				format: new ChartFormat(),
 				size: 1000
 			}
 		];
 		this.plot = {
-			position: new ChartRect()
+			position: new ChartRect(),
+			format: new ChartFormat(),
 		};
 		this.legend = {
+			formula: new Expression('Legend', ''),
 			position: new ChartRect(),
+			format: new ChartFormat(),
 			align: 'right'
 		};
 		this.title = {
 			formula: new Expression('Chart', ''),
 			position: new ChartRect(),
+			format: new ChartFormat(),
 			size: 700
 		};
-		this.series = [
-			{
-				type: 'line',
-				line: {
-					color: defaultChartColors.line[0]
-				},
-				formula: new Expression(0, 'DATAROW(B1,A2:A10,B2:B10)')
-			},
-			{
-				type: 'line',
-				line: {
-					color: defaultChartColors.line[1]
-				},
-				formula: new Expression(0, 'DATAROW(C1,A2:A10,C2:C10)')
-			},
-			{
-				type: 'line',
-				line: {
-					color: defaultChartColors.line[2]
-				},
-				formula: new Expression(0, 'DATAROW(,A12,A12)')
-			},
-			{
-				type: 'line',
-				line: {
-					color: defaultChartColors.line[3]
-				},
-				formula: new Expression(0, 'DATAROW(,A12,A12)')
-			}
-		];
+		this.series = [new ChartSeries('line', new Expression(0, 'DATAROW(B1,A2:A10,B2:B10)'))];
 	}
 
 	getExpressionValue(expr) {
@@ -731,6 +815,26 @@ module.exports = class SheetPlotNode extends Node {
 		return info.min + (point.x / (this.plot.position.right - this.plot.position.left)) * (info.max - info.min);
 	}
 
+	getDataFromSelection(selection) {
+		switch (selection.element) {
+		case 'datarow':
+			return this.series[selection.index];
+		case 'xAxis':
+			return this.xAxes[selection.index];
+		case 'yAxis':
+			return this.yAxes[selection.index];
+		case 'title':
+			return this.title;
+		case 'legend':
+			return this.legend;
+		case 'plot':
+			return this.plot;
+		default:
+			break;
+		}
+		return undefined;
+	}
+
 	isElementHit(pt) {
 		let result;
 		const dataPoints = [];
@@ -795,6 +899,7 @@ module.exports = class SheetPlotNode extends Node {
 		if (result.length) {
 			return {
 				element: 'xAxis',
+				index: 0,
 				data: result[0]
 			};
 		}
@@ -803,6 +908,7 @@ module.exports = class SheetPlotNode extends Node {
 		if (result.length) {
 			return {
 				element: 'yAxis',
+				index: 0,
 				data: result[0]
 			};
 		}
@@ -924,10 +1030,7 @@ module.exports = class SheetPlotNode extends Node {
 					} else {
 						formula = new Expression(0, `DATAROW(,${ref},${ref})`);
 					}
-					this.series.push({
-						type,
-						formula
-					});
+					this.series.push(new ChartSeries(type, formula));
 					index += 1;
 				});
 				this.xAxes[0].type = 'time';
@@ -1046,10 +1149,7 @@ module.exports = class SheetPlotNode extends Node {
 				const refName = tmpRange.toString({ item: sheet, useName: true });
 				formula += `${refName})`;
 
-				this.series.push({
-					type,
-					formula: new Expression(0, formula)
-				});
+				this.series.push(new ChartSeries(type, new Expression(0, formula)));
 			}
 			this.finishCommand(cmd, 'series');
 			cmp.add(cmd);
@@ -1088,11 +1188,8 @@ module.exports = class SheetPlotNode extends Node {
 		copy.series = [];
 
 		this.series.forEach((serie, index) => {
-			copy.series.push({
-				type: serie.type,
-				line: serie.line ? JSON.parse(JSON.stringify(serie.line)) : undefined,
-				formula: serie.formula.copy()
-			});
+			const copySerie = new ChartSeries(serie.type, serie.formula.copy());
+			copy.series.push(copySerie);
 		});
 
 		return copy;
@@ -1101,6 +1198,14 @@ module.exports = class SheetPlotNode extends Node {
 	saveTitle(writer) {
 		writer.writeStartElement('title');
 		this.title.formula.save('formula', writer);
+		this.title.format.save('format', writer);
+		writer.writeEndElement();
+	}
+
+	saveLegend(writer) {
+		writer.writeStartElement('legend');
+		this.legend.formula.save('formula', writer);
+		this.legend.format.save('format', writer);
 		writer.writeEndElement();
 	}
 
@@ -1108,9 +1213,7 @@ module.exports = class SheetPlotNode extends Node {
 		writer.writeStartArray('series');
 
 		this.series.forEach((serie, index) => {
-			writer.writeStartElement('series');
-			serie.formula.save('formula', writer);
-			writer.writeEndElement();
+			serie.save(writer);
 		});
 		writer.writeEndArray('series');
 	}
@@ -1127,6 +1230,7 @@ module.exports = class SheetPlotNode extends Node {
 				writer.writeAttributeString('type', axis.type);
 				writer.writeAttributeString('position', axis.position.toString());
 				axis.formula.save('formula', writer);
+				axis.format.save('format', writer);
 
 				writer.writeEndElement();
 			});
@@ -1148,6 +1252,7 @@ module.exports = class SheetPlotNode extends Node {
 		this.saveTitle(writer);
 		this.saveSeries(writer);
 		this.saveAxes(writer);
+		this.saveLegend(writer);
 
 		writer.writeEndElement();
 	}
@@ -1158,14 +1263,40 @@ module.exports = class SheetPlotNode extends Node {
 				case 'title': {
 					reader.iterateObjects(child, (subName, subChild) => {
 						switch (subName) {
-							case 'formula':
-								this.title.formula = new Expression(0);
-								this.title.formula.read(reader, subChild);
-								break;
+						case 'formula':
+							this.title.formula = new Expression(0);
+							this.title.formula.read(reader, subChild);
+							break;
+						case 'format':
+							this.title.format = new ChartFormat();
+							this.title.format.read(reader, subChild);
+							break;
 						}
 					});
 					break;
 				}
+			}
+		});
+	}
+
+	readLegend(reader, object) {
+		reader.iterateObjects(object, (name, child) => {
+			switch (name) {
+			case 'legend': {
+				reader.iterateObjects(child, (subName, subChild) => {
+					switch (subName) {
+					case 'formula':
+						this.legend.formula = new Expression(0);
+						this.legend.formula.read(reader, subChild);
+						break;
+					case 'format':
+						this.legend.format = new ChartFormat();
+						this.legend.format.read(reader, subChild);
+						break;
+					}
+				});
+				break;
+			}
 			}
 		});
 	}
@@ -1176,15 +1307,8 @@ module.exports = class SheetPlotNode extends Node {
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {
 				case 'series': {
-					const serie = {};
-					reader.iterateObjects(child, (subName, subChild) => {
-						switch (subName) {
-							case 'formula':
-								serie.formula = new Expression(0);
-								serie.formula.read(reader, subChild);
-								break;
-						}
-					});
+					const serie = new ChartSeries();
+					serie.read(reader, child);
 					this.series.push(serie);
 					break;
 				}
@@ -1200,7 +1324,9 @@ module.exports = class SheetPlotNode extends Node {
 			switch (name) {
 				case 'xaxis':
 				case 'yaxis': {
-					const axis = {};
+					const axis = {
+						format: new ChartFormat()
+					};
 					axis.size =
 						reader.getAttribute(child, 'size') === undefined
 							? 500
@@ -1217,10 +1343,14 @@ module.exports = class SheetPlotNode extends Node {
 
 					reader.iterateObjects(child, (subName, subChild) => {
 						switch (subName) {
-							case 'formula':
-								axis.formula = new Expression(0);
-								axis.formula.read(reader, subChild);
-								break;
+						case 'formula':
+							axis.formula = new Expression(0);
+							axis.formula.read(reader, subChild);
+							break;
+						case 'format':
+							axis.format = new ChartFormat();
+							axis.format.read(reader, subChild);
+							break;
 						}
 					});
 					if (name === 'xaxis') {
@@ -1240,6 +1370,7 @@ module.exports = class SheetPlotNode extends Node {
 		const plot = reader.getObject(object, 'plot');
 		if (plot) {
 			this.readTitle(reader, plot);
+			this.readLegend(reader, plot);
 			this.readSeries(reader, plot);
 			this.readAxes(reader, plot);
 		}
@@ -1249,15 +1380,18 @@ module.exports = class SheetPlotNode extends Node {
 		const writer = new JSONWriter();
 		writer.writeStartDocument();
 		switch (key) {
-			case 'title':
-				this.saveTitle(writer);
-				break;
-			case 'series':
-				this.saveSeries(writer);
-				break;
-			case 'axes':
-				this.saveAxes(writer);
-				break;
+		case 'title':
+			this.saveTitle(writer);
+			break;
+		case 'series':
+			this.saveSeries(writer);
+			break;
+		case 'axes':
+			this.saveAxes(writer);
+			break;
+		case 'legend':
+			this.saveLegend(writer);
+			break;
 		}
 		writer.writeEndDocument();
 
@@ -1295,7 +1429,11 @@ module.exports = class SheetPlotNode extends Node {
 		return false;
 	}
 
-	static get defaultColors() {
-		return defaultChartColors;
+	getTemplate(name) {
+		return templates[name];
+	}
+
+	static get templates() {
+		return templates;
 	}
 };

@@ -1411,6 +1411,7 @@ export class CanvasToolBar extends Component {
 				.getSelectionProvider()
 				.hasSelection()
 		) {
+
 			if (color.hex === 'transparent') {
 				attributesMap.put(FormatAttributes.LINESTYLE, FormatAttributes.LineStyle.NONE);
 			} else {

@@ -769,6 +769,10 @@ class GraphItemView extends View {
 
 		return formula;
 	}
+
+	applyAttributes() {
+		return false;
+	}
 }
 
 export default GraphItemView;

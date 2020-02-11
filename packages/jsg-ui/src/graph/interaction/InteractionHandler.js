@@ -1011,6 +1011,11 @@ class InteractionHandler {
 
 		const selection = this.viewer.getSelection();
 		if (selection.length !== 0) {
+
+			if (selection[0].getView().applyAttributes(map, this.viewer)) {
+				return;
+			}
+
 			const cmd = new CompoundCommand();
 
 			selection.forEach((sel) => {

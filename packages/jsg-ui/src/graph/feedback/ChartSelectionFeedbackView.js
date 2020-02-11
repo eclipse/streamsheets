@@ -36,11 +36,20 @@ export default class ChartSelectionFeedbackView extends View {
 			return true;
 		});
 
+		const selection = this.chartView.chartSelection;
+		const item = this.chartView.getItem();
+		const data = item.getDataFromSelection(selection);
+		const plotRect = item.plot.position;
+		if (!data) {
+			return;
+		}
+
 		graphics.save();
 		graphics.translate(point.x, point.y);
+		// graphics.beginPath();
+		// graphics.rect(plotRect.left, plotRect.top, plotRect.width, plotRect.height);
+		// graphics.clip();
 
-		const item = this.chartView.getItem();
-		const selection = this.chartView.chartSelection;
 		graphics.setFillColor(SelectionStyle.MARKER_FILL_COLOR);
 		graphics.setLineColor(SelectionStyle.MARKER_BORDER_COLOR);
 		graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
@@ -48,20 +57,21 @@ export default class ChartSelectionFeedbackView extends View {
 
 		switch (selection.element) {
 		case 'datarow': {
-			const ref = item.getDataSourceInfo(selection.data.formula);
+			const ref = item.getDataSourceInfo(data.formula);
 			if (ref) {
 				const axes = item.getAxes(0, 0);
 				let index = 0;
 				let x;
 				let y;
 				const value = {};
-				const plotRect = item.plot.position;
 
 				while (item.getValue(ref, index, value)) {
 					x = plotRect.left + item.scaleToAxis(axes.x.scale, value.x) * plotRect.width;
 					y = plotRect.bottom - item.scaleToAxis(axes.y.scale, value.y) * plotRect.height;
-					rect.set(x - 75, y - 75, 150, 150);
-					graphics.drawMarker(rect, true);
+					if (x >= plotRect.left && x <= plotRect.right && y > plotRect.top && y < plotRect.bottom) {
+						rect.set(x - 75, y - 75, 150, 150);
+						graphics.drawMarker(rect, true);
+					}
 					index += 1;
 				}
 			}
@@ -72,7 +82,7 @@ export default class ChartSelectionFeedbackView extends View {
 		case 'yAxis':
 		case 'plot':
 		case 'legend':
-			drawMarkerRect(selection.data.position);
+			drawMarkerRect(data.position);
 			break;
 		default:
 			break;
@@ -80,6 +90,5 @@ export default class ChartSelectionFeedbackView extends View {
 
 		graphics.translate(-point.x, -point.y);
 		graphics.restore();
-
 	}
 }
