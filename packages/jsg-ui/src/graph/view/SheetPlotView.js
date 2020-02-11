@@ -71,14 +71,21 @@ export default class SheetPlotView extends NodeView {
 		graphics.stroke();
 
 		graphics.setTextAlignment(TextFormatAttributes.TextAlignment.LEFT);
-		graphics.setTextBaseline('top');
+		graphics.setTextBaseline('center');
 
-		let y = legend.position.top;
-		legendData.forEach((entry) => {
-			graphics.fillText(entry.name, legend.position.left, y);
-			y += metrics.height;
+		let y = legend.position.top + margin;
+		legendData.forEach((entry, index) => {
+
+			graphics.beginPath();
+			graphics.setLineColor(entry.series.line && entry.series.line.color ? entry.series.line.color : SheetPlotNode.defaultColors.line[index]);
+			graphics.setLineWidth(50);
+			graphics.moveTo(legend.position.left + margin, y + metrics.lineheight / 2);
+			graphics.lineTo(legend.position.left + margin * 4, y + metrics.lineheight / 2);
+			graphics.stroke();
+
+			graphics.fillText(entry.name, legend.position.left + margin * 5, y + metrics.lineheight / 2);
+			y += metrics.lineheight;
 		});
-
 	}
 
 	drawXAxes(graphics, plotRect, item) {
@@ -99,10 +106,13 @@ export default class SheetPlotView extends NodeView {
 
 				let current = axis.scale.min;
 				let x;
-				// axis.scale.format = {
-				// 	localCulture: `time;en`,
-				// 	numberFormat: 'h:mm:ss',
-				// };
+
+				if (axis.type === 'time') {
+					axis.scale.format = {
+						localCulture: `time;en`,
+						numberFormat: 'h:mm:ss',
+					};
+				}
 
 				while (current <= axis.scale.max) {
 					x = item.scaleToAxis(axis.scale, current);

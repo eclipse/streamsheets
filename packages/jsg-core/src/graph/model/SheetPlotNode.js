@@ -245,11 +245,12 @@ module.exports = class SheetPlotNode extends Node {
 				const measure = cs.deviceToLogX(JSG.graphics.measureText(String(entry.name)).width);
 				width = Math.max(width, measure);
 			});
+			width += margin * 6;
 			this.plot.position.right -= (width + margin);
 			this.legend.position.left = this.plot.position.right + margin;
 			this.legend.position.right = size.x - this.chart.margins.right;
 			this.legend.position.top = this.plot.position.top;
-			this.legend.position.bottom = this.plot.position.top + legend.length * (metrics.height);
+			this.legend.position.bottom = this.plot.position.top + legend.length * (metrics.lineheight) + margin * 2;
 		}
 
 		this.xAxes.forEach((axis) => {
@@ -313,7 +314,7 @@ module.exports = class SheetPlotNode extends Node {
 		return undefined;
 	}
 
-	getParamValue(term, index) {
+	getParamValue(term, index, type = 'string') {
 		const info = this.getParamInfo(term, index);
 		if (info) {
 			const cell = info.sheet.getDataProvider().getRC(info.range._x1, info.range._y1);
@@ -322,7 +323,7 @@ module.exports = class SheetPlotNode extends Node {
 		if (term && term.params && term.params.length > index) {
 			const value = term.params[index].value;
 			if (value !== null && value !== undefined) {
-				return Number(term.params[index].value);
+				return type === 'string' ? term.params[index].value : Number(term.params[index].value);
 			}
 		}
 		return undefined;
@@ -367,7 +368,7 @@ module.exports = class SheetPlotNode extends Node {
 
 	getDataSourceInfo(ds) {
 		const ret = {
-			name: this.getParamValue(ds.getTerm(), 0),
+			name: this.getParamValue(ds.getTerm(), 0, 'string'),
 			x: this.getParamInfo(ds.getTerm(), 1),
 			y: this.getParamInfo(ds.getTerm(), 2)
 		};
@@ -381,10 +382,10 @@ module.exports = class SheetPlotNode extends Node {
 		const legend = [];
 		this.series.forEach((series, index) => {
 			const ref = this.getDataSourceInfo(series.formula);
-			if (ref && ref.name) {
+			if (ref && ref.name !== undefined) {
 				legend.push({
 					name: ref.name,
-
+					series
 				});
 			}
 		});
@@ -887,8 +888,6 @@ module.exports = class SheetPlotNode extends Node {
 			this.xAxes[0].type = 'linear';
 			break;
 		}
-		this.finishCommand(cmdAxis, 'axes')
-
 		// check for TIMEAGGREGATES
 		if (width <= 2 || height <= 2) {
 			const taRange = range.copy();
@@ -931,7 +930,7 @@ module.exports = class SheetPlotNode extends Node {
 					});
 					index += 1;
 				});
-				this.evaluate();
+				this.xAxes[0].type = 'time';
 				this.finishCommand(cmd, 'series');
 				cmp.add(cmd);
 			}
@@ -1059,6 +1058,7 @@ module.exports = class SheetPlotNode extends Node {
 		this.evaluate();
 
 		if (cmp.hasCommands()) {
+			this.finishCommand(cmdAxis, 'axes');
 			cmp.add(cmdAxis);
 			viewer.getInteractionHandler().execute(cmp);
 		}

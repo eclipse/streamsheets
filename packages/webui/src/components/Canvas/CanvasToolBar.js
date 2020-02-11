@@ -3491,7 +3491,8 @@ export class CanvasToolBar extends Component {
 											/>
 										</SvgIcon>
 									</IconButton>
-								</GridListTile>							</GridList>
+								</GridListTile>
+							</GridList>
 						</Popover>
 					</div>
 				) : null}
