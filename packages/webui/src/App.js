@@ -66,6 +66,7 @@ class App extends React.Component {
 									<PrivateRoute path="/administration/database" component={DefaultLayout} />
 									<Route path="/administration/consumers" component={DefaultLayout} />
 									<Route path="/administration/producers" component={DefaultLayout} />
+									<PrivateRoute path="/administration/plugins/" component={DefaultLayout} />
 									<PrivateRoute exact path="/administration/users" component={UserTablePage} />
 									<PrivateRoute exact path="/administration/users/new" component={CreateUserPage} />
 									<PrivateRoute exact path="/administration/users/:userId([^\/]{4,})" component={UpdateUserPage} />
