@@ -63,6 +63,10 @@ const adjustValueOf = (cell) => {
 
 
 class Cell {
+	static get VALUE_REPLACEMENT() {
+		return CELL_VALUE_REPLACEMENT;
+	}
+
 	constructor(value, term) {
 		setTerm(term, this);
 		this._value = value;

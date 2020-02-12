@@ -2,7 +2,7 @@ const { sheet: sheetutils, terms: { getCellRangeFromTerm } } = require('../../ut
 const { Term } = require('@cedalo/parser');
 const { convert, jsonpath } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { ErrorTerm } = require('@cedalo/machine-core');
+const { Cell, ErrorTerm, isType } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 
@@ -10,15 +10,18 @@ const toBool = (term, defval) => term ? convert.toBoolean(term.value, defval) : 
 
 const toString = term => (term ? convert.toString(term.value, '') : '');
 
-const termFromValue = value => (value == null || (typeof value === 'object')) ? undefined : Term.fromValue(value);
+// DL-3703 for object values we have to use special replacement
+const termFromValue = value => (isType.object(value) ? Term.fromValue(Cell.VALUE_REPLACEMENT) : Term.fromValue(value));
 
 const setOrCreateCellAt = (index, value, isErrorValue, sheet) => {
 	const cell = sheet.cellAt(index, true);
 	// DL-2144: if cell has a formula only set its value, otherwise its term
 	if (cell.hasFormula) {
 		cell.value = value;
+	} else if(isErrorValue) {
+		cell.term = ErrorTerm.fromError(ERROR.NA);
 	} else {
-		cell.term = isErrorValue ? ErrorTerm.fromError(ERROR.NA) : termFromValue(value);
+		cell.term = value != null ? termFromValue(value) : Term.fromValue('');
 	}
 	return cell;
 };
@@ -28,7 +31,7 @@ const defValue = type => (type === 'number' ? 0 : (type === 'boolean' ? false : 
 
 const getLastValue = (term, type) => {
 	const value = term._lastValue;
-	return value != null ? value : defValue(type.toLowerCase());
+	return value != null ? value : defValue(type);
 };
 
 const copyDataToCellRange = (range, isErrorValue, sheet, provider) => {
@@ -89,10 +92,12 @@ const spreadObjectList = (list, cellrange, isHorizontal) => {
 };
 const copyToCellRange = (cellrange, data, type, isHorizontal) => {
 	const isError = FunctionErrors.isError(data);
-	const objlist = !isError && toObjectList(data);
-	if (!isError && objlist) {
-		spreadObjectList(objlist, cellrange, isHorizontal);
-		return;
+	if (!isError) {
+		const objlist = (!type || type === 'array') && toObjectList(data);
+		if (objlist) {
+			spreadObjectList(objlist, cellrange, isHorizontal);
+			return;
+		} 
 	}
 	const sheet = cellrange.sheet;
 	if (cellrange.width === 1 && cellrange.height === 1) {
@@ -151,7 +156,7 @@ const read = (sheet, ...terms) => {
 	error = error || FunctionErrors.isError(val);
 	if (!error) {
 		const path = jsonpath.parse(val);
-		const type = toString(terms[2]);
+		const type = toString(terms[2]).toLowerCase();
 		const target = terms[1];
 		const returnNA = toBool(terms[4], false);
 		let data = getData(sheet, pathterm, path, returnNA);
