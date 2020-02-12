@@ -1,5 +1,7 @@
+
 const JSG = require('../../JSG');
 const GraphUtils = require('../GraphUtils');
+const MathUtils = require('../../geometry/MathUtils');
 const SheetReference = require('../expr/SheetReference');
 const CellRange = require('./CellRange');
 const Node = require('./Node');
@@ -517,7 +519,6 @@ module.exports = class SheetPlotNode extends Node {
 
 	autoScale(axis, input, size, direction) {
 		let stepCount;
-		let nDist = 5;
 		let m;
 		let potMin;
 		let potMax;
@@ -574,7 +575,7 @@ module.exports = class SheetPlotNode extends Node {
 			if (potMax > Math.floor(Math.log10(Number.MAX_VALUE))) {
 				maxLabel = max;
 			} else {
-				maxLabel = pow(10, potMax);
+				maxLabel = 10 ** potMax;
 			}
 
 			if (input.min === undefined) {
@@ -590,8 +591,143 @@ module.exports = class SheetPlotNode extends Node {
 				input.max += 1.0; // sicher ist sicher
 			}
 			break;
-		case 'linear':
 		case 'time':
+			if (direction === 'x') {
+				stepCount = Math.min(13, size / 1500);
+			} else {
+				// dTmp = (double)m_TickLabels.GetFont().GetSize() / 72 * 2540 * 2.0;
+				stepCount = Math.min(13, size / 1300);
+			}
+
+			stepCount = Math.max(1, Math.floor(stepCount));
+
+			if (input.min === undefined) {
+				input.min = min;
+			}
+			if (input.max === undefined) {
+				input.max = max;
+			}
+
+			if (input.min >= input.max) {
+				if (input.min < 0.0) {
+					input.max = input.min * 0.9 + 0.15;
+				} else {
+					input.max = input.max * 1.1 + 0.15;
+				}
+			}
+
+			const diff = (input.max - input.min) / stepCount;
+
+			if (input.step === undefined) {
+				let timeStep;
+				let step;
+				let format = {
+					localCulture: `time;en`,
+					numberFormat: 'h:mm:ss',
+				};
+				if (diff > 90) {
+					timeStep = 'year';
+					step = Math.floor(Math.max(1, diff / 300));
+					format = {
+						localCulture: `date;en`,
+						numberFormat: 'dd\\.MM\\.yy',
+					};
+				} else if (diff > 30) {				// from 300 to 450
+					timeStep = 'quarter';
+					step = 1;
+					format = {
+						localCulture: `date;en`,
+						numberFormat: 'dd\\.MM\\.yy',
+					};
+				} else if (diff > 7) {				// from 70 to 300
+					timeStep = 'month';
+					step = 1;
+					format = {
+						localCulture: `date;en`,
+						numberFormat: 'dd\\.MM\\.yy',
+					};
+				} else if (diff > 3) {				// from 10 to 70
+					timeStep = 'week';
+					step = 1;
+					format = {
+						localCulture: `date;en`,
+						numberFormat: 'dd\\.MM\\.yy',
+					};
+				} else if (diff > 0.5) {					// from 1 to 10
+					timeStep = 'day';
+					if (diff < 1) {
+						step = 1;
+					} else if (diff < 2) {
+						step = 2;
+					} else {
+						step = 5;
+					}
+					format = {
+						localCulture: `date;en`,
+						numberFormat: 'dd\\.MM\\.yy',
+					};
+				} else if (diff > 2700 / 86400) {
+					timeStep = 'hour';
+					if (diff < 3600 / 86400) {
+						step = 1;
+					} else if (diff < 7200 / 86400) {
+						step = 2;
+					} else if (diff < 21600 / 86400) {
+						step = 6;
+					} else {
+						step = 12;
+					}
+				} else if (diff > 45 / 86400) {
+					timeStep = 'minute';
+					step = 1;
+					if (diff < 60 / 86400) {
+						step = 1;
+					} else if (diff < 120 / 86400) {
+						step = 2;
+					} else if (diff < 300 / 86400) {
+						step = 5;
+					} else if (diff < 600 / 86400) {
+						step = 10;
+					} else {
+						step = 30;
+					}
+				} else if (diff > 0.3 / 86000) {
+					timeStep = 'second';
+					if (diff < 1 / 86400) {
+						step = 1;
+					} else if (diff < 2 / 86400) {
+						step = 2;
+					} else if (diff < 5 / 86400) {
+						step = 5;
+					} else if (diff < 10 / 86400) {
+						step = 10;
+					} else {
+						step = 30;
+					}
+				} else {
+					timeStep = 'millisecond';
+					if (diff < 0.05 / 86400) {
+						step = 100;
+					} else {
+						step = 500;
+					}
+					format = {
+						localCulture: `time;en`,
+						numberFormat: 'h:mm:ss.000',
+					};
+				}
+				input.step = step;
+				input.timeStep = timeStep;
+				input.format = format;
+			}
+
+			input.step = Math.max(input.step, epsilon * 10);
+
+			// while (input.step * 1000 < input.max - input.min) {
+			// 	input.step *= 10;
+			// }
+			break;
+		case 'linear':
 			/* Durch vergrößern dieser Zahl verfeinert     */
 			/* sich das im Automatikmode generierte Raster */
 			stepCount = 8; /* 11 => sehr fein      */
@@ -611,11 +747,11 @@ module.exports = class SheetPlotNode extends Node {
 			if (max - min > max * 0.15 && axis.type !== 'time' && min > 0) {
 				min = 0;
 			}
-			if (input.max !== undefined) {
-				max = input.max;
-			}
 			if (input.min !== undefined) {
 				min = input.min;
+			}
+			if (input.max !== undefined) {
+				max = input.max;
 			}
 
 			if (max > min) {
@@ -628,8 +764,7 @@ module.exports = class SheetPlotNode extends Node {
 				} else {
 					m = -Numbers.digitsBehind(distLin);
 				}
-				// eslint-disable-next-line no-restricted-properties
-				distLin = distLin / Math.pow(10, m);
+				distLin /= 10 ** m;
 				// 1, 2 oder 5 zuweisen
 				if (distLin > 5) {
 					distLin = 10; // von 5.0
@@ -641,8 +776,7 @@ module.exports = class SheetPlotNode extends Node {
 					distLin = 1;
 				}
 				// das ist jetzt der normierte Abstand
-				// eslint-disable-next-line no-restricted-properties
-				distLin = distLin * Math.pow(10, m);
+				distLin *= 10 ** m;
 			} else {
 				distLin = 1;
 			}
@@ -651,7 +785,7 @@ module.exports = class SheetPlotNode extends Node {
 				// if value range is small...
 				minLabel = min / distLin;
 				minLabel = Math.floor(minLabel);
-				minLabel = minLabel * distLin;
+				minLabel *= distLin;
 				if (min < 0.0 && minLabel >= min - 3) {
 					minLabel -= distLin;
 				}
@@ -672,20 +806,11 @@ module.exports = class SheetPlotNode extends Node {
 				maxLabel = input.max;
 			}
 
-			if (axis.type === 'time') {
-				if (input.min === undefined) {
-					input.min = min;
-				}
-				if (input.max === undefined) {
-					input.max = max;
-				}
-			} else {
-				if (input.min === undefined) {
-					input.min = minLabel;
-				}
-				if (input.max === undefined) {
-					input.max = maxLabel;
-				}
+			if (input.min === undefined) {
+				input.min = minLabel;
+			}
+			if (input.max === undefined) {
+				input.max = maxLabel;
 			}
 
 			if (input.min >= input.max) {
@@ -706,9 +831,9 @@ module.exports = class SheetPlotNode extends Node {
 				input.step *= 10;
 			}
 
-			if (nDist < 1) {
-				nDist = 1;
-			}
+			// if (nDist < 1) {
+			// 	nDist = 1;
+			// }
 			// if (m_fMinorUnitIsAuto) {
 			// 	m_minorUnit = m_dMajorUnit / nDist;
 			// }
@@ -813,6 +938,95 @@ module.exports = class SheetPlotNode extends Node {
 		point.x -= this.plot.position.left;
 
 		return info.min + (point.x / (this.plot.position.right - this.plot.position.left)) * (info.max - info.min);
+	}
+
+	incrementScale(axis, value) {
+		let result;
+
+		switch (axis.type) {
+		case 'time':
+			switch (axis.scale.timeStep) {
+			case 'year': {
+				const date = MathUtils.excelDateToJSDate(value);
+				date.setDate(1);
+				date.setMonth(0);
+				date.setFullYear(date.getFullYear() + axis.scale.step);
+				result = Math.floor(MathUtils.JSDateToExcelDate(date));
+				break;
+			}
+			case 'quarter': {
+				const date = MathUtils.excelDateToJSDate(value);
+				date.setDate(1);
+				date.setMonth(date.getMonth() - (date.getMonth() % 3) + axis.scale.step * 3);
+				result = Math.floor(MathUtils.JSDateToExcelDate(date));
+				break;
+			}
+			case 'month': {
+				const date = MathUtils.excelDateToJSDate(value);
+				date.setDate(1);
+				date.setMonth(date.getMonth() + axis.scale.step);
+				result = Math.floor(MathUtils.JSDateToExcelDate(date));
+				break;
+			}
+			case 'week': {
+				const date = MathUtils.excelDateToJSDate(value);
+				const day = date.getDay();
+				if (day) {
+					value += 7 - day;
+				} else {
+					value += 7 * axis.scale.step;
+				}
+				result = Math.floor(value);
+				break;
+			}
+			case 'day':
+				result = Math.floor(value) + axis.scale.step;
+				break;
+			case 'hour': {
+				const date = MathUtils.excelDateToJSDate(value);
+				date.setHours(date.getHours() + axis.scale.step);
+				date.setMinutes(0);
+				date.setSeconds(0);
+				date.setMilliseconds(0);
+				result = MathUtils.JSDateToExcelDate(date);
+				break;
+			}
+			case 'minute': {
+				const date = MathUtils.excelDateToJSDate(value);
+				date.setMinutes(date.getMinutes() + axis.scale.step);
+				date.setSeconds(0);
+				date.setMilliseconds(0);
+				result = MathUtils.JSDateToExcelDate(date);
+				break;
+			}
+			case 'second': {
+				const date = MathUtils.excelDateToJSDate(value);
+				date.setSeconds(date.getSeconds() + axis.scale.step);
+				date.setMilliseconds(0);
+				result = MathUtils.JSDateToExcelDate(date);
+				break;
+			}
+			case 'millisecond': {
+				const date = MathUtils.excelDateToJSDate(value);
+				const ms = date.getMilliseconds();
+				if (ms % axis.scale.step) {
+					date.setMilliseconds(ms + (axis.scale.step - (ms % axis.scale.step)));
+				} else {
+					date.setMilliseconds(date.getMilliseconds() + axis.scale.step);
+				}
+				result = MathUtils.JSDateToExcelDate(date);
+				break;
+			}
+			default:
+				result = value + 1;
+				break;
+			}
+			break;
+		default:
+			result = MathUtils.roundTo(value + axis.scale.step, 12);
+			break;
+		}
+		return result;
 	}
 
 	getDataFromSelection(selection) {

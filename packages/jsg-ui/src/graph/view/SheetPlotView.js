@@ -77,8 +77,8 @@ export default class SheetPlotView extends NodeView {
 		graphics.setTextBaseline('center');
 
 		let y = legend.position.top + margin;
-		legendData.forEach((entry, index) => {
 
+		legendData.forEach((entry, index) => {
 			graphics.beginPath();
 			graphics.setLineColor(entry.series.format.lineColor || item.getTemplate('basic').series.line[index]);
 			graphics.setLineWidth(entry.series.format.lineWidth || item.getTemplate('basic').series.linewidth);
@@ -89,6 +89,8 @@ export default class SheetPlotView extends NodeView {
 			graphics.fillText(entry.name, legend.position.left + margin * 5, y + metrics.lineheight / 2);
 			y += metrics.lineheight;
 		});
+
+		graphics.setLineWidth(-1);
 	}
 
 	drawXAxes(graphics, plotRect, item, grid) {
@@ -107,13 +109,6 @@ export default class SheetPlotView extends NodeView {
 					graphics.setTextBaseline('top');
 					graphics.setFillColor('#000000');
 					graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
-
-					if (axis.type === 'time') {
-						axis.scale.format = {
-							localCulture: `time;en`,
-							numberFormat: 'h:mm:ss',
-						};
-					}
 				}
 
 				let current = axis.scale.min;
@@ -125,6 +120,10 @@ export default class SheetPlotView extends NodeView {
 					graphics.setLineColor('#CCCCCC');
 				}
 
+				if (axis.type === 'time') {
+					current = item.incrementScale(axis, current - 0.0000001);
+				}
+
 				while (current <= axis.scale.max) {
 					x = item.scaleToAxis(axis.scale, current);
 					xPlot = plotRect.left + x * plotRect.width;
@@ -134,13 +133,12 @@ export default class SheetPlotView extends NodeView {
 					} else if (axis.scale.format) {
 						const text = this.formatNumber(current, axis.scale.format.numberFormat,
 							axis.scale.format.localCulture);
-						graphics.fillText(`${text}`, xPlot, axis.position.top + 150);
+						graphics.fillText(`${text}`, xPlot, axis.position.top + 200);
 					} else {
 						graphics.fillText(`${current}`, xPlot,
-							axis.position.top + 150);
+							axis.position.top + 200);
 					}
-					current += axis.scale.step;
-					current = MathUtils.roundTo(current, 12);
+					current = item.incrementScale(axis, current);
 				}
 				if (grid) {
 					graphics.stroke();
@@ -184,9 +182,9 @@ export default class SheetPlotView extends NodeView {
 					} else if (axis.scale.format) {
 						const text = this.formatNumber(current, axis.scale.format.numberFormat,
 							axis.scale.format.localCulture);
-						graphics.fillText(`${text}`, axis.position.right - 150, yPlot);
+						graphics.fillText(`${text}`, axis.position.right - 200, yPlot);
 					} else {
-						graphics.fillText(`${current}`, axis.position.right - 150, yPlot);
+						graphics.fillText(`${current}`, axis.position.right - 200, yPlot);
 					}
 
 					current += axis.scale.step;
@@ -219,7 +217,6 @@ export default class SheetPlotView extends NodeView {
 		graphics.beginPath();
 		graphics.setLineColor(serie.format.lineColor || item.getTemplate('basic').series.line[seriesIndex]);
 		graphics.setLineWidth(serie.format.lineWidth || item.getTemplate('basic').series.linewidth);
-		graphics.setLineWidth(50);
 
 		while (item.getValue(ref, index, value)) {
 			x = item.scaleToAxis(axes.x.scale, value.x);
@@ -233,7 +230,7 @@ export default class SheetPlotView extends NodeView {
 		}
 
 		graphics.stroke();
-		graphics.setLineWidth(-1);
+		graphics.setLineWidth(1);
 		graphics.restore();
 	}
 
