@@ -520,6 +520,7 @@ module.exports = class SheetPlotNode extends Node {
 	autoScale(axis, input, size, direction) {
 		let stepCount;
 		let m;
+		let diff;
 		let potMin;
 		let potMax;
 		let distLin;
@@ -616,7 +617,7 @@ module.exports = class SheetPlotNode extends Node {
 				}
 			}
 
-			const diff = (input.max - input.min) / stepCount;
+			diff = (input.max - input.min) / stepCount;
 
 			if (input.step === undefined) {
 				let timeStep;
@@ -755,7 +756,7 @@ module.exports = class SheetPlotNode extends Node {
 			}
 
 			if (max > min) {
-				const diff = max - min;
+				diff = max - min;
 
 				distLin = diff / stepCount;
 				// den Abstand auf eine Zahl zwischen 1 und 10 bringen
