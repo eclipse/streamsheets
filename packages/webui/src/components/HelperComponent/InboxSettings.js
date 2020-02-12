@@ -749,7 +749,7 @@ export class InboxSettings extends React.Component {
 								<FormControlLabel
 									control={
 										<Checkbox
-										checked={this.state.loop.recursively}
+										checked={!!this.state.loop.recursively}
 										onChange={this.handleLoopRecursively}
 										/>
 									}
@@ -760,7 +760,7 @@ export class InboxSettings extends React.Component {
 										defaultMessage="Recursively"
 										/>
 									}
-									disabled={!this.state.loop.enabled || !canEdit}
+									disabled={!this.hasStream() || !this.state.loop.enabled || !canEdit}
 								/>
 							</div>
 							<TextField
