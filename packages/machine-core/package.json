@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/machine-core",
-  "version": "1.5.0",
+  "version": "1.6.0-alpha",
   "description": "Core classes and models for digital landscape machineserver",
   "main": "index.js",
   "scripts": {

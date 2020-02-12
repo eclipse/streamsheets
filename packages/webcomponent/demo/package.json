@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/streamsheets-webcomponent-demo",
-  "version": "1.5.0",
+  "version": "1.6.0-alpha",
   "description": "Streamsheets Web Component Demo",
   "author": "Cedalo AG",
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/webcomponent/demo",
