@@ -21,7 +21,7 @@
     "jest-cli": "21.2.1"
   },
   "dependencies": {
-    "@cedalo/sdk-streams": "1.5.0",
+    "@cedalo/sdk-streams": "1.6.0-alpha",
     "docker-compose": "0.12.0",
     "kafka-node": "3.0.1",
     "kafkajs": "1.9.3",

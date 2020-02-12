@@ -19,9 +19,9 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/graphql",
   "dependencies": {
-    "@cedalo/id-generator": "1.5.0",
-    "@cedalo/logger": "1.5.0",
-    "@cedalo/repository": "1.5.0",
+    "@cedalo/id-generator": "1.6.0-alpha",
+    "@cedalo/logger": "1.6.0-alpha",
+    "@cedalo/repository": "1.6.0-alpha",
     "apollo-server-express": "2.6.4",
     "graphql": "14.5.8",
     "mongodb": "3.0.11"

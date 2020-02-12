@@ -19,8 +19,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@cedalo/gateway-client": "1.5.0",
-    "@cedalo/gateway-client-proxy": "1.5.0"
+    "@cedalo/gateway-client": "1.6.0-alpha",
+    "@cedalo/gateway-client-proxy": "1.6.0-alpha"
   },
   "devDependencies": {
     "prettier": "1.17.0"

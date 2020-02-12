@@ -31,9 +31,9 @@
     "yargs": "6.6.0"
   },
   "dependencies": {
-    "@cedalo/parser": "1.5.0",
-    "@cedalo/number-format": "1.5.0",
-    "@cedalo/jsg-extensions": "1.5.0",
+    "@cedalo/parser": "1.6.0-alpha",
+    "@cedalo/number-format": "1.6.0-alpha",
+    "@cedalo/jsg-extensions": "1.6.0-alpha",
     "date-fns": "^2.0.0-alpha.27",
     "qrjs2": "0.1.6"
   },

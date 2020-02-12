@@ -21,8 +21,8 @@
     "jest-cli": "21.2.1"
   },
   "dependencies": {
-    "@cedalo/rest-server-core": "1.5.0",
-    "@cedalo/sdk-streams": "1.5.0"
+    "@cedalo/rest-server-core": "1.6.0-alpha",
+    "@cedalo/sdk-streams": "1.6.0-alpha"
   },
   "jest": {
     "collectCoverage": true,

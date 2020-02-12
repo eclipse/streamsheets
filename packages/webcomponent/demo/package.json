@@ -16,8 +16,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@cedalo/streammachine": "1.5.0",
-    "@cedalo/streamsheet-connection": "1.5.0"
+    "@cedalo/streammachine": "1.6.0-alpha",
+    "@cedalo/streamsheet-connection": "1.6.0-alpha"
   },
   "devDependencies": {
     "@babel/core": "7.4.4",
