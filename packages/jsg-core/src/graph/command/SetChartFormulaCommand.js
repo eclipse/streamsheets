@@ -60,10 +60,10 @@ module.exports = class SetChartFormulaCommand extends AbstractItemCommand {
 			this._graphItem.title.formula = this.expression;
 			break;
 		case 'xAxis':
-			this._graphItem.xAxes[0].formula = this.expression;
+			this._graphItem.xAxes[this.index].formula = this.expression;
 			break;
 		case 'yAxis':
-			this._graphItem.yAxes[0].formula = this.expression;
+			this._graphItem.yAxes[this.index].formula = this.expression;
 			break;
 		case 'legend':
 			this._graphItem.legend.formula = this.expression;

@@ -59,15 +59,15 @@ export default class ChartSelectionFeedbackView extends View {
 		case 'datarow': {
 			const ref = item.getDataSourceInfo(data.formula);
 			if (ref) {
-				const axes = item.getAxes(0, 0);
+				const axes = item.getAxes(data.xAxis, data.yAxis);
 				let index = 0;
 				let x;
 				let y;
 				const value = {};
 
 				while (item.getValue(ref, index, value)) {
-					x = plotRect.left + item.scaleToAxis(axes.x.scale, value.x) * plotRect.width;
-					y = plotRect.bottom - item.scaleToAxis(axes.y.scale, value.y) * plotRect.height;
+					x = plotRect.left + item.scaleToAxis(axes.x, value.x, false) * plotRect.width;
+					y = plotRect.bottom - item.scaleToAxis(axes.y, value.y, false) * plotRect.height;
 					if (x >= plotRect.left && x <= plotRect.right && y > plotRect.top && y < plotRect.bottom) {
 						rect.set(x - 75, y - 75, 150, 150);
 						graphics.drawMarker(rect, true);
