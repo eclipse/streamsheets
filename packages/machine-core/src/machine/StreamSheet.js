@@ -403,8 +403,11 @@ class StreamSheet {
 
 	_doStep(data, message) {
 		let result;
+		const prevState = this._state;
 		const firstTime = !this._trigger.isActive;
 		const forceStep = data && data.cmd === 'force';
+		// DL-3719 workaround to prevent moving loop-index twice in same step
+		this._nxtResumed = false;
 		// (DL-531): reset repeat-steps on first cycle...
 		if (firstTime) this.stats.repeatsteps = 0;
 		this._trigger.preProcess(data);
@@ -429,7 +432,10 @@ class StreamSheet {
 			this._emitter.emit('step', this);
 			// if still active after process/resume, step to next loop data:
 			// if (this._state === State.ACTIVE) this._msgHandler.next();
-			if (nextLoopElement && (!this._trigger.isEndless || !hasLoop(this._msgHandler))) this._msgHandler.next();
+			if (!this._nxtResumed && nextLoopElement && (!this._trigger.isEndless || !hasLoop(this._msgHandler))) {
+				this._nxtResumed = prevState === State.RESUMED;
+				this._msgHandler.next();
+			}
 		}
 		this._trigger.postProcess(data);
 		this._didStep(result);
