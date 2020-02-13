@@ -31,28 +31,22 @@ export default class SheetPlotView extends NodeView {
 		}
 
 		item.setMinMax();
+		item.setScales();
 
 		const { series } = item;
 		const plotRect = item.plot.position;
-		const axes = item.getAxes(0, 0);
-
-		if (!axes) {
-			return;
-		}
 
 		graphics.setFontSize(8);
 		graphics.setFontStyle(TextFormatAttributes.FontStyle.NORMAL);
 		graphics.setFont();
 
-		this.drawXAxes(graphics, plotRect, item, true);
-		this.drawYAxes(graphics, plotRect, item, true);
+		this.drawAxes(graphics, plotRect, item, true);
 
 		series.forEach((serie, index) => {
-			this.drawPlot(graphics, item, plotRect, serie, index, axes);
+			this.drawPlot(graphics, item, plotRect, serie, index);
 		});
 
-		this.drawXAxes(graphics, plotRect, item, false);
-		this.drawYAxes(graphics, plotRect, item, false);
+		this.drawAxes(graphics, plotRect, item, false);
 		this.drawLegend(graphics, plotRect, item);
 
 		graphics.setFontSize(12);
@@ -74,7 +68,7 @@ export default class SheetPlotView extends NodeView {
 		graphics.stroke();
 
 		graphics.setTextAlignment(TextFormatAttributes.TextAlignment.LEFT);
-		graphics.setTextBaseline('center');
+		graphics.setTextBaseline('middle');
 
 		let y = legend.position.top + margin;
 
@@ -93,112 +87,138 @@ export default class SheetPlotView extends NodeView {
 		graphics.setLineWidth(-1);
 	}
 
-	drawXAxes(graphics, plotRect, item, grid) {
-		const axes = item.xAxes;
+	drawAxes(graphics, plotRect, item, grid) {
+		item.xAxes.forEach((axis) => {
+			this.drawAxis(graphics, plotRect, item, axis, grid);
+		});
 
-		axes.forEach((axis) => {
-			if (axis.position) {
-				// draw axis line
-				if (!grid) {
-					graphics.beginPath();
-					graphics.setLineColor(axis.format.lineColor || item.getTemplate('basic').axis.linecolor);
-					graphics.moveTo(axis.position.left, axis.position.top);
-					graphics.lineTo(axis.position.right, axis.position.top);
-					graphics.stroke();
-
-					graphics.setTextBaseline('top');
-					graphics.setFillColor('#000000');
-					graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
-				}
-
-				let current = axis.scale.min;
-				let x;
-				let xPlot;
-
-				if (grid) {
-					graphics.beginPath();
-					graphics.setLineColor('#CCCCCC');
-				}
-
-				if (axis.type === 'time') {
-					current = item.incrementScale(axis, current - 0.0000001);
-				}
-
-				while (current <= axis.scale.max) {
-					x = item.scaleToAxis(axis.scale, current);
-					xPlot = plotRect.left + x * plotRect.width;
-					if (grid) {
-						graphics.moveTo(xPlot, plotRect.top);
-						graphics.lineTo(xPlot, plotRect.bottom);
-					} else if (axis.scale.format) {
-						const text = this.formatNumber(current, axis.scale.format.numberFormat,
-							axis.scale.format.localCulture);
-						graphics.fillText(`${text}`, xPlot, axis.position.top + 200);
-					} else {
-						graphics.fillText(`${current}`, xPlot,
-							axis.position.top + 200);
-					}
-					current = item.incrementScale(axis, current);
-				}
-				if (grid) {
-					graphics.stroke();
-				}
-			}
+		item.yAxes.forEach((axis) => {
+			this.drawAxis(graphics, plotRect, item, axis, grid);
 		});
 	}
 
-	drawYAxes(graphics, plotRect, item, grid) {
-		const axes = item.yAxes;
-
-		axes.forEach((axis) => {
-			if (axis.position) {
-				if (!grid) {
-					graphics.beginPath();
-					graphics.setLineColor(axis.format.lineColor || item.getTemplate('basic').axis.linecolor);
-					graphics.moveTo(axis.position.right, axis.position.top);
-					graphics.lineTo(axis.position.right, axis.position.bottom);
-					graphics.stroke();
-
-					graphics.setTextBaseline('middle');
-					graphics.setFillColor('#000000');
-					graphics.setTextAlignment(TextFormatAttributes.TextAlignment.RIGHT);
-				}
-
-				let current = axis.scale.min;
-				let y;
-				let yPlot;
-
-				if (grid) {
-					graphics.beginPath();
-					graphics.setLineColor('#CCCCCC');
-				}
-
-				while (current <= axis.scale.max) {
-					y = item.scaleToAxis(axis.scale, MathUtils.roundTo(current, 12));
-					yPlot = plotRect.bottom - y * plotRect.height
-					if (grid) {
-						graphics.moveTo(plotRect.left, yPlot);
-						graphics.lineTo(plotRect.right, yPlot);
-					} else if (axis.scale.format) {
-						const text = this.formatNumber(current, axis.scale.format.numberFormat,
-							axis.scale.format.localCulture);
-						graphics.fillText(`${text}`, axis.position.right - 200, yPlot);
-					} else {
-						graphics.fillText(`${current}`, axis.position.right - 200, yPlot);
-					}
-
-					current += axis.scale.step;
-					current = MathUtils.roundTo(current, 12);
-				}
-
-				if (grid) {
-					graphics.stroke();
-				}
+	drawAxis(graphics, plotRect, item, axis, grid) {
+		if (!axis.position || !axis.scale) {
+			return;
+		}
+		// draw axis line
+		if (!grid) {
+			graphics.beginPath();
+			graphics.setLineColor(axis.format.lineColor || item.getTemplate('basic').axis.linecolor);
+			switch (axis.align) {
+			case 'left':
+				graphics.moveTo(axis.position.right, axis.position.top);
+				graphics.lineTo(axis.position.right, axis.position.bottom);
+				graphics.setTextBaseline('middle');
+				graphics.setTextAlignment(TextFormatAttributes.TextAlignment.RIGHT);
+				break;
+			case 'right':
+				graphics.moveTo(axis.position.left, axis.position.top);
+				graphics.lineTo(axis.position.left, axis.position.bottom);
+				graphics.setTextBaseline('middle');
+				graphics.setTextAlignment(TextFormatAttributes.TextAlignment.LEFT);
+				break;
+			case 'top':
+				graphics.moveTo(axis.position.left, axis.position.bottom);
+				graphics.lineTo(axis.position.right, axis.position.bottom);
+				graphics.setTextBaseline('bottom');
+				graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
+				break;
+			case 'bottom':
+				graphics.moveTo(axis.position.left, axis.position.top);
+				graphics.lineTo(axis.position.right, axis.position.top);
+				graphics.setTextBaseline('top');
+				graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
+				break;
 			}
-		});
+			graphics.stroke();
+
+			graphics.setFillColor('#000000');
+		}
+
+		let current = axis.scale.min;
+		let pos;
+		let plot;
+
+		if (grid) {
+			graphics.beginPath();
+			graphics.setLineColor('#CCCCCC');
+		}
+
+		if (axis.type === 'time') {
+			current = item.incrementScale(axis, current - 0.0000001);
+		}
+
+		while (current <= axis.scale.max) {
+			if (axis.type === 'category' && current >= axis.scale.max) {
+				break;
+			}
+
+			pos = item.scaleToAxis(axis, current, grid);
+
+			switch (axis.align) {
+			case 'left':
+				plot = plotRect.bottom - pos * plotRect.height;
+				if (grid) {
+					graphics.moveTo(plotRect.left, plot);
+					graphics.lineTo(plotRect.right, plot);
+				} else if (axis.scale.format) {
+					const text = this.formatNumber(current, axis.scale.format.numberFormat,
+						axis.scale.format.localCulture);
+					graphics.fillText(`${text}`, axis.position.right - 200, plot);
+				} else {
+					graphics.fillText(`${current}`, axis.position.right - 200, plot);
+				}
+				break;
+			case 'right':
+				plot = plotRect.bottom - pos * plotRect.height;
+				if (grid) {
+					graphics.moveTo(plotRect.left, plot);
+					graphics.lineTo(plotRect.right, plot);
+				} else if (axis.scale.format) {
+					const text = this.formatNumber(current, axis.scale.format.numberFormat,
+						axis.scale.format.localCulture);
+					graphics.fillText(`${text}`, axis.position.left + 200, plot);
+				} else {
+					graphics.fillText(`${current}`, axis.position.left + 200, plot);
+				}
+				break;
+			case 'top':
+				plot = plotRect.left + pos * plotRect.width;
+				if (grid) {
+					graphics.moveTo(plot, plotRect.top);
+					graphics.lineTo(plot, plotRect.bottom);
+				} else if (axis.scale.format) {
+					const text = this.formatNumber(current, axis.scale.format.numberFormat,
+						axis.scale.format.localCulture);
+					graphics.fillText(`${text}`, plot, axis.position.bottom - 200);
+				} else {
+					graphics.fillText(`${current}`, plot, axis.position.bottom - 200);
+				}
+				break;
+			case 'bottom':
+				plot = plotRect.left + pos * plotRect.width;
+				if (grid) {
+					graphics.moveTo(plot, plotRect.top);
+					graphics.lineTo(plot, plotRect.bottom);
+				} else if (axis.scale.format) {
+					const text = this.formatNumber(current, axis.scale.format.numberFormat,
+						axis.scale.format.localCulture);
+					graphics.fillText(`${text}`, plot, axis.position.top + 200);
+				} else {
+					graphics.fillText(`${current}`, plot, axis.position.top + 200);
+				}
+				break;
+			}
+
+			current = item.incrementScale(axis, current);
+		}
+		if (grid) {
+			graphics.stroke();
+		}
 	}
 
-	drawPlot(graphics, item, plotRect, serie, seriesIndex, axes) {
+	drawPlot(graphics, item, plotRect, serie, seriesIndex) {
 		let index = 0;
 		let x;
 		let y;
@@ -206,6 +226,11 @@ export default class SheetPlotView extends NodeView {
 
 		const ref = item.getDataSourceInfo(serie.formula);
 		if (!ref) {
+			return;
+		}
+
+		const axes = item.getAxes(serie.xAxis, serie.yAxis);
+		if (!axes) {
 			return;
 		}
 
@@ -219,8 +244,8 @@ export default class SheetPlotView extends NodeView {
 		graphics.setLineWidth(serie.format.lineWidth || item.getTemplate('basic').series.linewidth);
 
 		while (item.getValue(ref, index, value)) {
-			x = item.scaleToAxis(axes.x.scale, value.x);
-			y = item.scaleToAxis(axes.y.scale, value.y);
+			x = item.scaleToAxis(axes.x, value.x, false);
+			y = item.scaleToAxis(axes.y, value.y, false);
 			if (index) {
 				graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
 			} else {
@@ -239,7 +264,7 @@ export default class SheetPlotView extends NodeView {
 
 		const text = String(item.getExpressionValue(title.formula));
 
-		graphics.setTextBaseline('center');
+		graphics.setTextBaseline('middle');
 		graphics.setFillColor('#000000');
 		graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
 		graphics.fillText(text, title.position.left + title.position.width / 2, title.position.top + title.position.height / 2);

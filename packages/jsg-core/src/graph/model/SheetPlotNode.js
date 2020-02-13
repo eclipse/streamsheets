@@ -127,16 +127,29 @@ class ChartSeries {
 		this.type = type || 'line';
 		this.formula = formula;
 		this.format = new ChartFormat();
+		this.xAxis = 'primary';
+		this.yAxis = 'primary';
 	}
 
 	save(writer) {
 		writer.writeStartElement('series');
+		writer.writeAttributeString('xaxis', this.xAxis);
+		writer.writeAttributeString('yaxis', this.yAxis);
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
 		writer.writeEndElement();
 	}
 
 	read(reader, object) {
+		this.xAxis =
+			reader.getAttribute(object, 'xaxis') === undefined
+				? 'primary'
+				: reader.getAttribute(object, 'xaxis');
+		this.yAxis =
+			reader.getAttribute(object, 'yaxis') === undefined
+				? 'primary'
+				: reader.getAttribute(object, 'yaxis');
+
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {
 			case 'formula':
@@ -226,6 +239,16 @@ module.exports = class SheetPlotNode extends Node {
 				position: new ChartRect(),
 				format: new ChartFormat(),
 				size: 500,
+				name: 'primary'
+			},
+			{
+				type: 'category',
+				align: 'top',
+				formula: new Expression(0, 'AXIS()'),
+				position: new ChartRect(),
+				format: new ChartFormat(),
+				size: 500,
+				name: 'secondary'
 			}
 		];
 		this.yAxes = [
@@ -235,7 +258,17 @@ module.exports = class SheetPlotNode extends Node {
 				formula: new Expression(0, 'AXIS()'),
 				position: new ChartRect(),
 				format: new ChartFormat(),
-				size: 1000
+				size: 1000,
+				name: 'primary'
+			},
+			{
+				type: 'linear',
+				align: 'right',
+				formula: new Expression(0, 'AXIS()'),
+				position: new ChartRect(),
+				format: new ChartFormat(),
+				size: 500,
+				name: 'secondary'
 			}
 		];
 		this.plot = {
@@ -342,7 +375,7 @@ module.exports = class SheetPlotNode extends Node {
 		this.xAxes.forEach((axis) => {
 			switch (axis.align) {
 			case 'top':
-				this.plot.position.top -= axis.size;
+				this.plot.position.top += axis.size;
 				break;
 			case 'bottom':
 				this.plot.position.bottom -= axis.size;
@@ -365,6 +398,10 @@ module.exports = class SheetPlotNode extends Node {
 			if (axis.position) {
 				Object.assign(axis.position, this.plot.position);
 				switch (axis.align) {
+				case 'top':
+					axis.position.top = this.plot.position.top - axis.size;
+					axis.position.bottom = this.plot.position.top;
+					break;
 				case 'bottom':
 					axis.position.top = this.plot.position.bottom;
 					axis.position.bottom = axis.position.top + axis.size;
@@ -378,8 +415,12 @@ module.exports = class SheetPlotNode extends Node {
 				Object.assign(axis.position, this.plot.position);
 				switch (axis.align) {
 				case 'left':
-					axis.position.right = this.plot.position.left;
 					axis.position.left = this.plot.position.left - axis.size;
+					axis.position.right = this.plot.position.left;
+					break;
+				case 'right':
+					axis.position.left = this.plot.position.right;
+					axis.position.right = this.plot.position.right + axis.size;
 					break;
 				}
 			}
@@ -479,7 +520,7 @@ module.exports = class SheetPlotNode extends Node {
 		return legend;
 	}
 
-	getAxes(x, y) {
+	setScales() {
 		const fill = (axis, size, direction) => {
 			if (!axis) {
 				return;
@@ -508,13 +549,111 @@ module.exports = class SheetPlotNode extends Node {
 			axis.scale = result;
 		};
 
-		fill(this.xAxes[x], this.plot.position.width, 'x');
-		fill(this.yAxes[y], this.plot.position.height, 'y');
+		this.xAxes.forEach((axis) => {
+			fill(axis, this.plot.position.width, 'x');
+		});
+		this.yAxes.forEach((axis) => {
+				fill(axis, this.plot.position.height, 'y');
+		});
+	}
+
+	getAxes(x, y) {
+		let xAxis;
+		let yAxis;
+
+		if (x === undefined) {
+			xAxis = this.xAxes[0];
+		} else {
+			const result = this.xAxes.filter((axis) => axis.name === x);
+			xAxis = result.length ? result[0] : this.xAxes[0];
+		}
+		if (y === undefined) {
+			yAxis = this.yAxes[0];
+		} else {
+			const result = this.yAxes.filter((axis) => axis.name === y);
+			yAxis = result.length ? result[0] : this.yAxes[0];
+		}
 
 		return {
-			x: this.xAxes[x],
-			y: this.yAxes[y]
+			x: xAxis,
+			y: yAxis
 		};
+	}
+
+	setMinMax() {
+		let xMin = Number.MAX_VALUE;
+		let xMax = -Number.MAX_VALUE;
+		let yMin = Number.MAX_VALUE;
+		let yMax = -Number.MAX_VALUE;
+		let valid = false;
+
+		if (!this.xAxes.length || !this.yAxes.length) {
+			return;
+		}
+
+		// evaluate min/max for series
+		this.series.forEach((series, index) => {
+			const ref = this.getDataSourceInfo(series.formula);
+			if (ref) {
+				let pointIndex = 0;
+				const value = {};
+
+				while (this.getValue(ref, pointIndex, value)) {
+					xMin = Math.min(value.x, xMin);
+					xMax = Math.max(value.x, xMax);
+					yMin = Math.min(value.y, yMin);
+					yMax = Math.max(value.y, yMax);
+					pointIndex += 1;
+					valid = true;
+				}
+				if (!valid) {
+					// TODO different values for category axis
+					xMin = 0;
+					xMax = 100;
+					yMin = 0;
+					yMax = 100;
+				}
+				if (xMin >= xMax) {
+					xMax = xMin + 1;
+				}
+				if (yMin >= yMax) {
+					yMax = yMin + 1;
+				}
+				series.xMin = xMin;
+				series.xMax = xMax;
+				series.yMin = yMin;
+				series.yMax = yMax;
+			} else {
+				series.xMin = 0;
+				series.xMax = 100;
+				series.yMin = 0;
+				series.yMax = 100;
+			}
+		});
+
+		this.xAxes.forEach((axis) => {
+			axis.minData = Number.MAX_VALUE;
+			axis.maxData = -Number.MAX_VALUE;
+			this.series.forEach((series, index) => {
+				if (series.xAxis === axis.name) {
+					axis.minData = Math.min(series.xMin, axis.minData);
+					axis.maxData = Math.max(series.xMax, axis.maxData);
+				}
+			});
+			axis.scale = undefined;
+		});
+
+		this.yAxes.forEach((axis) => {
+			axis.minData = Number.MAX_VALUE;
+			axis.maxData = -Number.MAX_VALUE;
+			this.series.forEach((series, index) => {
+				if (series.yAxis === axis.name) {
+					axis.minData = Math.min(series.yMin, axis.minData);
+					axis.maxData = Math.max(series.yMax, axis.maxData);
+				}
+			});
+			axis.scale = undefined;
+		});
 	}
 
 	autoScale(axis, input, size, direction) {
@@ -532,10 +671,10 @@ module.exports = class SheetPlotNode extends Node {
 		switch (axis.type) {
 		case 'category':
 			input.min = min;
-			input.max = max;
+			input.max = max + 1;
 			input.step = 1;
 			break;
-		case 'logarithmic' /* n„chstgr”áere und n„chstkleinere Dekade suchen */:
+		case 'logarithmic':
 			if (min <= 0.0) {
 				min = 0.1;
 			}
@@ -545,7 +684,7 @@ module.exports = class SheetPlotNode extends Node {
 			if (min >= 1.0) {
 				potMin = Numbers.digitsBefore(min) - 1;
 				minLabel = 10.0 ** potMin;
-			} else if (min <= DBL_MIN) {
+			} else if (min <= -Number.MAX_VALUE) {
 				if (max > 0) {
 					min = max / 1000;
 				} else {
@@ -929,8 +1068,22 @@ module.exports = class SheetPlotNode extends Node {
 		return false;
 	}
 
-	scaleToAxis(info, value) {
-		value = (value - info.min) / (info.max - info.min);
+	scaleToAxis(axis, value, grid) {
+
+		switch (axis.type) {
+		case 'category':
+			if (!grid) {
+				value += 0.5;
+			}
+			value = (value - axis.scale.min) / (axis.scale.max - axis.scale.min);
+			break;
+		case 'linear':
+			value = (value - axis.scale.min) / (axis.scale.max - axis.scale.min);
+			break;
+		default:
+			value = (value - axis.scale.min) / (axis.scale.max - axis.scale.min);
+			break;
+		}
 
 		return value;
 	}
@@ -1075,15 +1228,15 @@ module.exports = class SheetPlotNode extends Node {
 				const dataRect = new ChartRect();
 				const plotRect = this.plot.position;
 				if (ref) {
-					const axes = this.getAxes(0, 0);
+					const axes = this.getAxes(series.xAxis, series.yAxis);
 					let pointIndex = 0;
 					let x;
 					let y;
 					const value = {};
 
 					while (this.getValue(ref, pointIndex, value)) {
-						x = this.scaleToAxis(axes.x.scale, value.x);
-						y = this.scaleToAxis(axes.y.scale, value.y);
+						x = this.scaleToAxis(axes.x, value.x, false);
+						y = this.scaleToAxis(axes.y, value.y, false);
 						dataRect.set(
 							plotRect.left + x * plotRect.width - 200,
 							plotRect.bottom - y * plotRect.height - 200,
@@ -1114,7 +1267,7 @@ module.exports = class SheetPlotNode extends Node {
 		if (result.length) {
 			return {
 				element: 'xAxis',
-				index: 0,
+				index: this.xAxes.indexOf(result[0]),
 				data: result[0]
 			};
 		}
@@ -1123,7 +1276,7 @@ module.exports = class SheetPlotNode extends Node {
 		if (result.length) {
 			return {
 				element: 'yAxis',
-				index: 0,
+				index: this.yAxes.indexOf(result[0]),
 				data: result[0]
 			};
 		}
@@ -1136,52 +1289,6 @@ module.exports = class SheetPlotNode extends Node {
 		}
 
 		return undefined;
-	}
-
-	setMinMax() {
-		let xMin = Number.MAX_VALUE;
-		let xMax = -Number.MAX_VALUE;
-		let yMin = Number.MAX_VALUE;
-		let yMax = -Number.MAX_VALUE;
-		let valid = false;
-
-		this.series.forEach((series, index) => {
-			const ref = this.getDataSourceInfo(series.formula);
-			if (ref) {
-				let pointIndex = 0;
-				const value = {};
-
-				while (this.getValue(ref, pointIndex, value)) {
-					xMin = Math.min(value.x, xMin);
-					xMax = Math.max(value.x, xMax);
-					yMin = Math.min(value.y, yMin);
-					yMax = Math.max(value.y, yMax);
-					pointIndex += 1;
-					valid = true;
-				}
-			}
-		});
-
-		if (!valid) {
-			// TODO different values for category axis
-			xMin = 0;
-			xMax = 100;
-			yMin = 0;
-			yMax = 100;
-		}
-		if (xMin >= xMax) {
-			xMax = xMin + 1;
-		}
-		if (yMin >= yMax) {
-			yMax = yMin + 1;
-		}
-
-		if (this.xAxes.length && this.yAxes.length) {
-			this.xAxes[0].minData = xMin;
-			this.xAxes[0].maxData = xMax;
-			this.yAxes[0].minData = yMin;
-			this.yAxes[0].maxData = yMax;
-		}
 	}
 
 	createSeriesFromSelection(viewer, sheet, selection, type) {
@@ -1443,6 +1550,7 @@ module.exports = class SheetPlotNode extends Node {
 				writer.writeAttributeNumber('size', axis.size, 0);
 				writer.writeAttributeString('align', axis.align);
 				writer.writeAttributeString('type', axis.type);
+				writer.writeAttributeString('name', axis.name);
 				writer.writeAttributeString('position', axis.position.toString());
 				axis.formula.save('formula', writer);
 				axis.format.save('format', writer);
@@ -1554,6 +1662,10 @@ module.exports = class SheetPlotNode extends Node {
 						reader.getAttribute(child, 'type') === undefined
 							? 'linear'
 							: reader.getAttribute(child, 'type');
+					axis.name =
+						reader.getAttribute(child, 'name') === undefined
+							? 'primary'
+							: reader.getAttribute(child, 'name');
 					axis.position = ChartRect.fromString(reader.getAttribute(child, 'position'));
 
 					reader.iterateObjects(child, (subName, subChild) => {

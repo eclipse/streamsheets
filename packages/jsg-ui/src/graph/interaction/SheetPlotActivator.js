@@ -35,14 +35,28 @@ export default class SheetPlotActivator extends InteractionActivator {
 		}
 
 		const selection = interaction.isElementHit(event, viewer);
-		if (selection && (selection.element === 'xAxis' || selection.element === 'yAxis')) {
-			const axis = selection.data;
+		if (selection) {
+			switch (selection.element) {
+			case 'xAxis':
+			case 'yAxis': {
+				const axis = selection.data;
 
-			interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula.getTerm(), 3, undefined);
-			interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula.getTerm(), 4, undefined);
+				interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula.getTerm(), 3,
+					undefined);
+				interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula.getTerm(), 4,
+					undefined);
 
-			viewer.getGraph().markDirty();
-			event.doRepaint = true;
+				viewer.getGraph().markDirty();
+				event.doRepaint = true;
+				break;
+			}
+			case 'datarow':
+				selection.data.xAxis = 'secondary';
+				selection.data.yAxis = 'secondary';
+				viewer.getGraph().markDirty();
+				event.doRepaint = true;
+				break;
+			}
 		}
 	}
 
