@@ -251,7 +251,7 @@ const clientDisconnected = () => ({ type: ActionTypes.DISCONNECT });
 const connectedService = () => ({ type: ActionTypes.SERVICE_CONNECTED });
 const disconnectedService = () => ({ type: ActionTypes.SERVICE_DISCONNECTED });
 
-const receiveStreams = (data) => ({
+export const receiveStreams = (data) => ({
 	type: ActionTypes.RECEIVE_STREAMS,
 	data: data || {},
 });
@@ -402,25 +402,6 @@ export function timeoutStreamControlEvent(stream) {
 			},
 		},
 	});
-}
-
-export function machineDetailViewQuery() {
-	return async (dispatch) => {
-		const result = await gatewayClient.graphql(`
-		{
-			streamsLegacy {
-				name
-				id
-				className
-				status {
-					streamEventType
-				}
-			}
-
-		}
-		`);
-		dispatch(receiveStreams({ streams: result.streamsLegacy }));
-	};
 }
 
 function _getDataStores(dispatch) {

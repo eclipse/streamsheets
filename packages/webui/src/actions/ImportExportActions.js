@@ -2,7 +2,6 @@ import * as ActionTypes from '../constants/ActionTypes';
 import gatewayClient from '../helper/GatewayClient';
 import store from '../store';
 import { updateMachines } from './MachineActions';
-import { accessManager, RESOURCE_ACTIONS, RESOURCE_TYPES } from '../helper/AccessManager';
 
 const fetchExistingEntities = (data) => ({ type: ActionTypes.FETCH_EXISTING, data });
 const receiveExistingEntities = (data) => ({ type: ActionTypes.RECEIVE_EXISTING, data });
@@ -34,11 +33,11 @@ export function notifyExportFailed() {
 
 export function showImportDialog(importData) {
 	return async (dispatch) => {
+		const user = store.getStore().user.user;
+		const rights = user ? user.rights : [];
 		const allowedImportData = {
-			machines: accessManager.can(RESOURCE_TYPES.MACHINE, RESOURCE_ACTIONS.CREATE) ? importData.machines : [],
-			streams: accessManager.can(RESOURCE_TYPES.STREAM, RESOURCE_ACTIONS.CREATE)
-				? importData.streams
-				: [],
+			machines: rights.includes('machine.edit') ? importData.machines : [],
+			streams: rights.includes('stream') ? importData.streams : []
 		};
 
 		dispatch(fetchExistingEntities(allowedImportData));

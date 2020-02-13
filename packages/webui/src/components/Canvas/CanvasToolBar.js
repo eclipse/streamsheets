@@ -52,7 +52,7 @@ import EditNamesIcon from '@material-ui/icons/ViewList';
 import ZoomIcon from '@material-ui/icons/ZoomIn';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
-import React, { Component } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import { SketchPicker } from 'react-color';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
@@ -96,6 +96,18 @@ const buttonStyle = {
 	height: '34px',
 	width: '34px',
 	padding: '4px 0px 0px 0px'
+};
+
+const WidthHelper = (props) => {
+	const [currentWidth, setCurrentWidth] = useState(window.outerWidth);
+	useEffect(() => {
+		const handleResize = () => {
+			setCurrentWidth(window.outerWidth);
+		};
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, []);
+	return props.width < currentWidth ? props.children : null;
 };
 
 const numberFormats = [
@@ -3850,7 +3862,7 @@ export class CanvasToolBar extends Component {
 						margin: '0px 8px'
 					}}
 				/>
-				{window.outerWidth > 1200 ? (
+				<WidthHelper width={1200}>
 					<div
 						style={{
 							right: '10px',
@@ -3888,7 +3900,7 @@ export class CanvasToolBar extends Component {
 						</Tooltip>
 						<ToolbarExtensions />
 					</div>
-				) : null}
+				</WidthHelper>
 				<Popover
 					open={this.state.zoomOpen}
 					anchorEl={this.state.anchorEl}

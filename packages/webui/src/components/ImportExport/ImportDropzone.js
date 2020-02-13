@@ -5,7 +5,6 @@ import Dropzone from 'react-dropzone';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
-import { RESOURCE_ACTIONS, RESOURCE_TYPES } from '../../helper/AccessManager';
 import { NotAllowed, Restricted } from '../HelperComponent/Restricted';
 
 const convertLegacyFormat = (json) => ({
@@ -55,10 +54,7 @@ class ImportDropzone extends React.Component {
 	render() {
 		return (
 			<Restricted
-				oneOf={[
-					{ type: RESOURCE_TYPES.STREAM, action: RESOURCE_ACTIONS.CREATE },
-					{ type: RESOURCE_TYPES.MACHINE, action: RESOURCE_ACTIONS.CREATE },
-				]}
+				all={['stream', 'machine.edit']}
 			>
 				<NotAllowed style={{ width: '100%', height: '100%' }}>{this.props.children}</NotAllowed>
 				<Dropzone

@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import Constants from '../../constants/Constants';
-import { accessManager } from '../../helper/AccessManager';
 import CombinedResourceListing from '../base/listing/CombinedResourceListing';
 import { IconPause, IconPlay, IconStop } from '../icons';
 import ImportDropzone from '../ImportExport/ImportDropzone';
@@ -15,7 +14,6 @@ import FilterMachineStatus from './FilterMachineStatus';
 import { formatDateString } from '../base/listing/Utils';
 import { ImageUploadDialog } from '@cedalo/webui-extensions';
 
-const { RESOURCE_TYPES, RESOURCE_ACTIONS } = accessManager;
 
 const styles = (theme) => ({
 	root: {
@@ -157,10 +155,10 @@ class DashBoardComponent extends Component {
 				lastModified_formatted: formatDateString(new Date(lastModified).toISOString()),
 			};
 		});
-		const canControl = accessManager.can(RESOURCE_TYPES.MACHINE, RESOURCE_ACTIONS.CONTROL);
-		const canDelete = accessManager.can(RESOURCE_TYPES.MACHINE, RESOURCE_ACTIONS.DELETE);
-		const canView = accessManager.can(RESOURCE_TYPES.MACHINE, RESOURCE_ACTIONS.VIEW);
-		const canEdit = accessManager.can(RESOURCE_TYPES.MACHINE, RESOURCE_ACTIONS.EDIT);
+		const canControl = this.props.rights.includes('machine.edit');
+		const canDelete = this.props.rights.includes('machine.edit');
+		const canView = this.props.rights.includes('machine.view');
+		const canEdit = this.props.rights.includes('machine.edit');
 		const menuOptions =[];
 		if (canView) {
 			menuOptions.push({
@@ -268,7 +266,7 @@ class DashBoardComponent extends Component {
 					onMenuSelect={this.handleMenuSelect}
 					onResourceOpen={this.onResourceOpen}
 					handleNew={
-						accessManager.canViewUI(accessManager.PERMISSIONS.MACHINE_ADD) ? this.handleNew : undefined
+						this.props.rights.includes('machine.edit') ? this.handleNew : undefined
 					}
 					headerBackgroundColor="#6C6C70"
 					filters={[FilterMachineStatus]}
@@ -289,6 +287,7 @@ function mapStateToProps(state) {
 		streams: state.streams,
 		machine: state.monitor.machine,
 		machines: state.machines.data,
+		rights: state.user.user ? state.user.user.rights : []
 	};
 }
 function mapDispatchToProps(dispatch) {

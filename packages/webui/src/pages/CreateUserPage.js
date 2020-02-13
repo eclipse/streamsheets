@@ -21,8 +21,8 @@ const createUserReducer = (state, action) => {
 				user: { ...state.user, username: action.data },
 				errors: {
 					...state.errors,
-					username: StringUtil.isEmpty(action.data) ? 'USERNAME_REQUIRED' : undefined,
-				},
+					username: StringUtil.isEmpty(action.data) ? 'USERNAME_REQUIRED' : undefined
+				}
 			};
 		case 'set_email':
 			return {
@@ -31,20 +31,20 @@ const createUserReducer = (state, action) => {
 				user: { ...state.user, email: action.data },
 				errors: {
 					...state.errors,
-					email: StringUtil.isEmpty(action.data) ? 'EMAIL_REQUIRED' : undefined,
-				},
+					email: StringUtil.isEmpty(action.data) ? 'EMAIL_REQUIRED' : undefined
+				}
 			};
 		case 'set_first_name':
 			return {
 				...state,
 				pristine: false,
-				user: { ...state.user, firstName: action.data },
+				user: { ...state.user, firstName: action.data }
 			};
 		case 'set_last_name':
 			return {
 				...state,
 				pristine: false,
-				user: { ...state.user, lastName: action.data },
+				user: { ...state.user, lastName: action.data }
 			};
 		case 'set_password':
 			return {
@@ -52,15 +52,15 @@ const createUserReducer = (state, action) => {
 				pristine: false,
 				user: {
 					...state.user,
-					password: action.data,
-				},
+					password: action.data
+				}
 			};
 		case 'set_password_confirmation':
 			return {
 				...state,
 				pristine: false,
 				passwordConfirmationPristine: false,
-				passwordConfirmation: action.data,
+				passwordConfirmation: action.data
 			};
 		case 'check_passwords':
 			return {
@@ -72,26 +72,26 @@ const createUserReducer = (state, action) => {
 						state.user.password &&
 						state.user.password !== state.passwordConfirmation
 							? 'PASSWORD_DONT_MATCH'
-							: undefined,
-				},
+							: undefined
+				}
 			};
 		case 'save':
 			return {
 				...state,
-				savePending: true,
+				savePending: true
 			};
 		case 'saving_error':
 			return {
 				...state,
 				savePending: false,
 				pristine: true,
-				errors: action.data,
+				errors: action.data
 			};
 		case 'saving_success':
 			return {
 				...state,
 				savePending: false,
-				saved: true,
+				saved: true
 			};
 		default:
 			throw new Error('Unkown action');
@@ -129,12 +129,13 @@ export const CreatUserPageComponent = (props) => {
 			firstName: '',
 			lastName: '',
 			password: '',
+			role: ''
 		},
 		errors: {},
 		passwordConfirmation: '',
 		passwordConfirmationPristine: true,
 		savePending: false,
-		saved: false,
+		saved: false
 	});
 	useEffect(() => {
 		const timeoutId = setTimeout(() => {
@@ -161,9 +162,9 @@ export const CreatUserPageComponent = (props) => {
 		dispatch({ type: 'save' });
 		try {
 			const {
-				createUser: { success, fieldErrors, code, user },
+				createUser: { success, fieldErrors, code, user }
 			} = await gatewayClient.graphql(CREATE_USER_MUTATION, {
-				user: state.user,
+				user: state.user
 			});
 			if (success) {
 				dispatch({ type: 'saving_success', data: user });
@@ -183,7 +184,7 @@ export const CreatUserPageComponent = (props) => {
 			<div
 				style={{
 					minHeight: '100%',
-					padding: '24px',
+					padding: '24px'
 				}}
 			>
 				<Paper style={{ padding: '32px', maxWidth: '960px', margin: 'auto', position: 'relative' }}>
@@ -224,15 +225,12 @@ export const CreatUserPageComponent = (props) => {
 
 CreatUserPageComponent.propTypes = {
 	onCancel: PropTypes.func.isRequired,
-	onSubmit: PropTypes.func.isRequired,
+	onSubmit: PropTypes.func.isRequired
 };
 
 const mapDispatchToProps = {
 	onCancel: () => openPage('/administration/users'),
-	onSubmit: () => openPage('/administration/users'),
+	onSubmit: () => openPage('/administration/users')
 };
 
-export const CreateUserPage = connect(
-	null,
-	mapDispatchToProps,
-)(CreatUserPageComponent);
+export const CreateUserPage = connect(null, mapDispatchToProps)(CreatUserPageComponent);

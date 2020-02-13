@@ -309,7 +309,7 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = (state) => ({
-	showAddUserButton: state.user.user && state.user.user.rights ? state.user.user.rights.includes('User.Create') : false
+	showAddUserButton: state.user.user && state.user.user.rights ? state.user.user.rights.includes('user.edit') : false
 });
 
 export const UserTablePage = connect(

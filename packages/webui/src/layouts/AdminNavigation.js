@@ -3,14 +3,14 @@ import List from '@material-ui/core/List';
 import { MenuGroup, MenuEntry } from '@cedalo/webui-components';
 import React, { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-// import { connect } from 'react-redux';
-import { accessManager } from '../helper/AccessManager';
+import { connect } from 'react-redux';
 import { IconStream, IconSecurity, IconOrganize } from '../components/icons';
 import { AdminNavigationExtensions } from '@cedalo/webui-extensions';
 
-const { RESOURCE_TYPES, RESOURCE_ACTIONS } = accessManager;
 
-export const AdminNavigation = (props) => {
+export const AdminNavigation = connect(({ user }) => ({
+	rights: user.user ? user.user.rights : []
+}))((props) => {
 	const [isStreamsOpen, setStreamsOpen] = useState(true);
 	const [isOrganizeOpen, setOrganizeOpen] = useState(true);
 	const [isPluginsOpen, setPluginsOpen] = useState(true);
@@ -21,7 +21,7 @@ export const AdminNavigation = (props) => {
 	return (
 		<List component="nav" style={{ padding: 0 }}>
 			<MenuGroup
-				show={accessManager.can(RESOURCE_TYPES.STREAM, RESOURCE_ACTIONS.VIEW)}
+				show={props.rights.includes('stream')}
 				// show={false}
 				open={isStreamsOpen}
 				label={<FormattedMessage id="Dashboard.manage" defaultMessage="Streams" />}
@@ -40,7 +40,6 @@ export const AdminNavigation = (props) => {
 			</MenuGroup>
 
 			<MenuGroup
-				show={accessManager.can(RESOURCE_TYPES.SECURITY, RESOURCE_ACTIONS.VIEW)}
 				open={isSecurityOpen}
 				onClick={() => setSecurityOpen(!isSecurityOpen)}
 				label={<FormattedMessage id="Dashboard.security" defaultMessage="Security" />}
@@ -52,16 +51,12 @@ export const AdminNavigation = (props) => {
 			</MenuGroup>
 
 			<MenuGroup
-				show={accessManager.can(
-					RESOURCE_TYPES.STREAM || accessManager.can(RESOURCE_TYPES.LABEL, RESOURCE_ACTIONS.EDIT),
-					RESOURCE_ACTIONS.VIEW
-				)}
 				open={isOrganizeOpen}
 				onClick={() => setOrganizeOpen(!isOrganizeOpen)}
 				label={<FormattedMessage id="Dashboard.organisation" defaultMessage="Organization" />}
 				icon={<IconOrganize />}
 			>
-				<MenuEntry href="/administration/database" selected={isSelected('database')}>
+				<MenuEntry show={props.rights.includes('database')} href="/administration/database" selected={isSelected('database')}>
 					<FormattedMessage id="Dashboard.database" defaultMessage="Database" />
 				</MenuEntry>
 			</MenuGroup>
@@ -73,4 +68,4 @@ export const AdminNavigation = (props) => {
 			/>
 		</List>
 	);
-};
+});

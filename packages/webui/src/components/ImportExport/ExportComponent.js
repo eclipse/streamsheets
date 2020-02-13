@@ -10,11 +10,10 @@ import React, { useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { notifyExportFailed } from '../../actions/actions';
-import { RESOURCE_ACTIONS, RESOURCE_TYPES } from '../../helper/AccessManager';
 import gatewayClient from '../../helper/GatewayClient';
 import { useGraphQL } from '../../helper/Hooks';
 import ResourceFilter from '../base/listing/ResourceFilter';
-import { Restricted } from '../HelperComponent/Restricted';
+import { Restricted, NotAllowed } from '../HelperComponent/Restricted';
 import ExportDialog from './ExportDialog';
 import ExportTable from './ExportTable';
 import ImportDropzone from './ImportDropzone';
@@ -190,12 +189,12 @@ const ExportComponent = (props) => {
 
 	const selectLinkedStreamsColumn = {
 		header: (
-			<Restricted type={RESOURCE_TYPES.STREAM} action={RESOURCE_ACTIONS.VIEW} key="selecteLinked">
+			<Restricted all={['stream']} key="selecteLinked">
 				<TableCell />
 			</Restricted>
 		),
 		cellCreator: (resource) => (
-			<Restricted type={RESOURCE_TYPES.STREAM} action={RESOURCE_ACTIONS.VIEW} key="selecteLinked">
+			<Restricted all={['stream']} key="selecteLinked">
 				<TableCell>
 					<Tooltip
 						enterDelay={300}
@@ -232,108 +231,124 @@ const ExportComponent = (props) => {
 	};
 
 	return (
-		<ImportDropzone>
-			<div
-				style={{
-					display: 'flex',
-					flexFlow: 'column',
-					height: '100%',
-					position: 'relative'
-				}}
-			>
-				{showDialog && (
-					<ExportDialog
-						open
-						onCancel={() => setShowDialog(false)}
-						onConfirm={onConfirmExport}
-						fileName={defaultFileName(sortedMachines, selectedMachines, sortedStreams, selectedStreams)}
-					/>
-				)}
-				<Fab
-					variant="round"
-					color="default"
-					style={{
-						position: 'absolute',
-						right: '48px',
-						bottom: '48px',
-						backgroundColor: Colors.blue[800],
-						color: 'white'
-					}}
-					onClick={onExportButton}
-				>
-					<ExportIcon />
-				</Fab>
-				<ResourceFilter
-					filterName
-					onUpdateFilter={(filterFunction) => {
-						if (filterFunction) {
-							setFilter({ func: filterFunction });
-						}
-					}}
-				/>
+		<Restricted oneOf={['machine.view', 'stream']}>
+			<NotAllowed>
 				<div
 					style={{
-						flexGrow: 1,
-						height: 'inherit',
-						display: 'flex',
-						width: '100%',
-						justifyContent: 'space-around',
-						flexWrap: 'wrap',
-						overflowY: 'auto'
+						fontSize: '2rem',
+						textAlign: 'center',
+						color: 'red',
+						// border: 'red dotted',
+						padding: '5px',
+						margin: '50px'
 					}}
 				>
-					<Restricted type={RESOURCE_TYPES.MACHINE} action={RESOURCE_ACTIONS.VIEW}>
-						<div
-							style={{
-								padding: '16px',
-								flexGrow: 1,
-								minWidth: '500px'
-							}}
-						>
-							<h2
-								style={{
-									display: 'inline-flex'
-								}}
-							>
-								<FormattedMessage id="Export.List.Machines.Title" defaultMessage="Machines" />
-							</h2>
-							<ExportTable
-								resources={filteredMachines}
-								selected={selectedMachines}
-								onSelectAll={toggleAllMachines}
-								onSelect={toggleMachine}
-								columns={[selectLinkedStreamsColumn]}
-							/>
-						</div>
-					</Restricted>
-					<Restricted type={RESOURCE_TYPES.STREAM} action={RESOURCE_ACTIONS.VIEW}>
-						<div
-							style={{
-								padding: '16px',
-								flexGrow: 1,
-								minWidth: '500px'
-							}}
-						>
-							<h2
-								style={{
-									display: 'inline-flex'
-								}}
-							>
-								<FormattedMessage id="Export.List.Streams.Title" defaultMessage="Streams" />
-							</h2>
-
-							<ExportTable
-								resources={filteredStreams}
-								selected={selectedStreams}
-								onSelectAll={toggleAllStreams}
-								onSelect={toggleStream}
-								columns={[streamTypeColumn]}
-							/>
-						</div>
-					</Restricted>
+					<FormattedMessage id="Admin.notAuthorized" defaultMessage="Not Authorized" />
 				</div>
-			</div>
-		</ImportDropzone>
+			</NotAllowed>
+			<ImportDropzone>
+				<div
+					style={{
+						display: 'flex',
+						flexFlow: 'column',
+						height: '100%',
+						position: 'relative'
+					}}
+				>
+					{showDialog && (
+						<ExportDialog
+							open
+							onCancel={() => setShowDialog(false)}
+							onConfirm={onConfirmExport}
+							fileName={defaultFileName(sortedMachines, selectedMachines, sortedStreams, selectedStreams)}
+						/>
+					)}
+					<Fab
+						variant="round"
+						color="default"
+						style={{
+							position: 'absolute',
+							right: '48px',
+							bottom: '48px',
+							backgroundColor: Colors.blue[800],
+							color: 'white'
+						}}
+						onClick={onExportButton}
+					>
+						<ExportIcon />
+					</Fab>
+					<ResourceFilter
+						filterName
+						onUpdateFilter={(filterFunction) => {
+							if (filterFunction) {
+								setFilter({ func: filterFunction });
+							}
+						}}
+					/>
+					<div
+						style={{
+							flexGrow: 1,
+							height: 'inherit',
+							display: 'flex',
+							width: '100%',
+							justifyContent: 'space-around',
+							flexWrap: 'wrap',
+							overflowY: 'auto'
+						}}
+					>
+						<Restricted all={['machine.view']}>
+							<div
+								style={{
+									padding: '16px',
+									flexGrow: 1,
+									minWidth: '500px'
+								}}
+							>
+								<h2
+									style={{
+										display: 'inline-flex'
+									}}
+								>
+									<FormattedMessage id="Export.List.Machines.Title" defaultMessage="Machines" />
+								</h2>
+								<ExportTable
+									resources={filteredMachines}
+									selected={selectedMachines}
+									onSelectAll={toggleAllMachines}
+									onSelect={toggleMachine}
+									columns={[selectLinkedStreamsColumn]}
+								/>
+							</div>
+						</Restricted>
+						<Restricted all={['stream']}>
+							<div
+								style={{
+									padding: '16px',
+									flexGrow: 1,
+									minWidth: '500px'
+								}}
+							>
+								<h2
+									style={{
+										display: 'inline-flex'
+									}}
+								>
+									<FormattedMessage id="Export.List.Streams.Title" defaultMessage="Streams" />
+								</h2>
+
+								<ExportTable
+									resources={filteredStreams}
+									selected={selectedStreams}
+									onSelectAll={toggleAllStreams}
+									onSelect={toggleStream}
+									columns={[streamTypeColumn]}
+								/>
+							</div>
+						</Restricted>
+					</div>
+				</div>
+			</ImportDropzone>
+		</Restricted>
 	);
 };
 

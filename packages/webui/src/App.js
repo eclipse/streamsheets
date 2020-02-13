@@ -1,5 +1,6 @@
 /* eslint-disable react/no-did-mount-set-state */
 import React from 'react';
+import { connect } from 'react-redux';
 import { Route, Redirect } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import fetch from 'isomorphic-fetch';
@@ -60,7 +61,12 @@ class App extends React.Component {
 									<Route
 										exact
 										path="/administration"
-										render={() => <Redirect to="/administration/connectors" />}
+										render={() => {
+											if (this.props.rights.includes('stream')) {
+												return <Redirect to="/administration/connectors" />;
+											}
+											return <Redirect to="/administration/users" />;
+										}}
 									/>
 									<PrivateRoute path="/administration/connectors" component={DefaultLayout} />
 									<PrivateRoute path="/administration/database" component={DefaultLayout} />
@@ -87,4 +93,4 @@ class App extends React.Component {
 	}
 }
 
-export default App;
+export default connect(({ user }) => ({ rights: user.user ? user.user.rights : [] }))(App);
