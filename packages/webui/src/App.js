@@ -25,7 +25,7 @@ class App extends React.Component {
 		const response = await fetch(`${GATEWAY_CONFIG.restEndpointURL}/system/setup`);
 		const setup = await response.json();
 		this.setState({
-			setup,
+			setup
 		});
 	}
 
@@ -35,14 +35,14 @@ class App extends React.Component {
 				<div
 					style={{
 						height: '100%',
-						width: '100%',
+						width: '100%'
 					}}
 				>
 					<Route path="/setup" component={SetupPage} />
 					{this.state && !isSetupCompleted(this.state.setup) && (
 						<Redirect
 							to={{
-								pathname: '/setup',
+								pathname: '/setup'
 							}}
 						/>
 					)}
@@ -50,7 +50,7 @@ class App extends React.Component {
 						<div
 							style={{
 								height: '100%',
-								width: '100%',
+								width: '100%'
 							}}
 						>
 							<Route path="/login" component={LoginPage} />
@@ -75,7 +75,11 @@ class App extends React.Component {
 									<PrivateRoute path="/administration/plugins/" component={DefaultLayout} />
 									<PrivateRoute exact path="/administration/users" component={UserTablePage} />
 									<PrivateRoute exact path="/administration/users/new" component={CreateUserPage} />
-									<PrivateRoute exact path="/administration/users/:userId([^\/]{4,})" component={UpdateUserPage} />
+									<PrivateRoute
+										exact
+										path="/administration/users/:userId([^\/]{4,})"
+										component={UpdateUserPage}
+									/>
 								</React.Fragment>
 							)}
 

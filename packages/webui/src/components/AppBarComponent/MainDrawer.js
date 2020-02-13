@@ -30,18 +30,17 @@ export class MainDrawer extends Component {
 	}
 
 	handleNew = () => {
-			this.props.getDataStores()
-			.then(() =>
-				this.setAppState({
-					drawerOpen: false,
-					showNewDialog: true,
-				}),
-			);
+		this.props.getDataStores().then(() =>
+			this.setAppState({
+				drawerOpen: false,
+				showNewDialog: true
+			})
+		);
 	};
 
 	handleExport = () => {
 		this.setAppState({
-			drawerOpen: false,
+			drawerOpen: false
 		});
 		this.props.openExport(this.props.machineId);
 	};

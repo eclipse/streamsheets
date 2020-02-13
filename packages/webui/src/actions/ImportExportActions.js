@@ -11,7 +11,7 @@ const sendExportError = (data) => ({ type: ActionTypes.SEND_EXPORT_ERROR, data }
 const sendImport = () => ({ type: ActionTypes.SEND_IMPORT });
 const sendImportMachineSuccess = (data) => ({
 	type: ActionTypes.SEND_IMPORT_MACHINE_SUCCESS,
-	data,
+	data
 });
 const sendImportMachineError = (data) => ({ type: ActionTypes.SEND_IMPORT_MACHINE_ERROR, data });
 const sendImportSuccess = (data) => ({ type: ActionTypes.SEND_IMPORT_SUCCESS, data });
@@ -20,11 +20,11 @@ const hideImportDialog = () => ({ type: ActionTypes.HIDE_IMPORT_DIALOG });
 const showStartImport = () => ({ type: ActionTypes.SHOW_START_IMPORT });
 const importUpdateMachineSelection = (machineId, value) => ({
 	type: ActionTypes.IMPORT_UPDATE_MACHINE_SELECTION,
-	data: { machineId, value },
+	data: { machineId, value }
 });
 const importUpdateStreamSelection = (streamId, value) => ({
 	type: ActionTypes.IMPORT_UPDATE_STREAM_SELECTION,
-	data: { streamId, value },
+	data: { streamId, value }
 });
 
 export function notifyExportFailed() {
@@ -47,14 +47,14 @@ export function showImportDialog(importData) {
 					  name
 					  id
 				}
-			}`,
+			}`
 		);
 		const result = await gatewayClient.loadAllDSConfigurations();
 		dispatch(
 			receiveExistingEntities({
 				existingMachines: machines,
-				existingStreams: result.response.streams,
-			}),
+				existingStreams: result.response.streams
+			})
 		);
 	};
 }
@@ -81,7 +81,7 @@ export function importMachinesAndStreams() {
 			importData: { machines, streams },
 			upgradedMachines,
 			machineSelection,
-			streamSelection,
+			streamSelection
 		} = getState().import;
 
 		dispatch(sendImport());
@@ -101,8 +101,8 @@ export function importMachinesAndStreams() {
 						sendImportMachineSuccess({
 							id: machineId,
 							newId: result.id,
-							name: result.name,
-						}),
+							name: result.name
+						})
 					);
 				}
 			} catch (error) {
