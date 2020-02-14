@@ -138,7 +138,7 @@ export class EditBarComponent extends Component {
 		if (Object.keys(appState).length) {
 			this.props.setJsgState(appState);
 		}
-		
+
 	}
 
 	onSheetSelectionChanged(notification) {
@@ -451,7 +451,7 @@ export class EditBarComponent extends Component {
 				const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
 				cmd = new SetAttributeAtPathCommand(graphItem, path, new Expression(0, formula));
 				// this is necessary, to keep changes, otherwise formula will be recreated from graphitem
-				graphItem.setAttributeAtPath(path, formula);
+				graphItem.setAttributeAtPath(path, new Expression(0, formula));
 				graphItem._noFormulaUpdate = true;
 			}
 		} else {

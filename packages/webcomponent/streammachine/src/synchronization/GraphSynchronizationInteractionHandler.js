@@ -1,6 +1,4 @@
 import JSG from '@cedalo/jsg-ui';
-
-// import * as Actions from '../../actions/actions';
 import CommandStack from './CommandStack';
 
 
@@ -48,7 +46,8 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		this.streamMachine.sendCommand(commandJSON);
 
 		if (commandJSON.name !== 'command.RemoveSelectionCommand' &&
-			commandJSON.name !== 'command.SetSelectionCommand') {
+			commandJSON.name !== 'command.SetSelectionCommand' &&
+			commandJSON.name !== 'command.ChangeItemOrderCommand') {
 			this.updateGraphItems();
 		}
 	}
