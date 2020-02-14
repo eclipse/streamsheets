@@ -118,7 +118,7 @@ export default class SheetPlotInteraction extends Interaction {
 			const ptStart = this.toLocalCoordinate(event, viewer, view.point.copy());
 			const ptEnd = this.toLocalCoordinate(event, viewer, view.endPoint.copy());
 			if (ptStart.x !== ptEnd.x) {
-				const axes = item.getAxes(0, 0);
+				const axes = item.getAxes();
 				const valueStart = item.scaleFromAxis(axes.x.scale, ptStart.x < ptEnd.x ? ptStart : ptEnd);
 				const valueEnd = item.scaleFromAxis(axes.x.scale, ptStart.x < ptEnd.x ? ptEnd : ptStart);
 

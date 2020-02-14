@@ -189,6 +189,44 @@ describe('execute', () => {
 		expect(t1.getLoopIndex()).toBe(2); // loop index is always bound to avaialble loop elements...
 		expect(GETEXECUTESTEP(t2.sheet)).toBe(3);
 	});
+	// DL-3719
+	it('should not go on with next loop element if execute resumed in same cycle', async () => {
+		const t1 = machine.getStreamSheetByName('T1');
+		const t2 = machine.getStreamSheetByName('T2');
+		t1.sheet.load({
+			cells: {
+				A1: { formula: 'A1+1' },
+				B1: { formula: 'read(inboxdata(,,),B2:C4,"Dictionary")' },
+				A5: { formula: 'execute("T2", 1)' },
+				A6: { formula: 'loopindex()' }
+			}
+		});
+		t2.sheet.load({ cells: { A2: { formula: 'A2+1' } } });
+		t1.trigger = StreamSheetTrigger.create({ type: 'always' });
+		t2.trigger = StreamSheetTrigger.create({ type: 'execute', repeat: 'once' });
+		t1.updateSettings({ loop: { path: '[data][Positionen]', enabled: true } });
+		t1.inbox.put(new Message(Object.assign({}, MSG.SIMPLE.data)));
+		expect(t1.getLoopIndex()).toBe(0);
+		await machine.step();
+		expect(t1.getLoopIndex()).toBe(1);
+		expect(t1.sheet.cellAt('C2').value).toBe(1);
+		expect(t1.sheet.cellAt('A6').value).toBe(2);
+		await machine.step();
+		expect(t1.getLoopIndex()).toBe(2);
+		expect(t1.sheet.cellAt('C2').value).toBe(2);
+		expect(t1.sheet.cellAt('A6').value).toBe(3);
+		await machine.step();
+		expect(t1.getLoopIndex()).toBe(2);
+		expect(t1.sheet.cellAt('C2').value).toBe(3);
+		expect(t1.sheet.cellAt('A6').value).toBe(3);
+		// note the loop index will not pass its bounds!
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		expect(t1.getLoopIndex()).toBe(2);
+		expect(t1.sheet.cellAt('C2').value).toBe(3);
+		expect(t1.sheet.cellAt('A6').value).toBe(3);
+	});
 	it('should trigger execution in endless mode until return is called', async () => {
 		const t1 = machine.getStreamSheetByName('T1');
 		const t2 = machine.getStreamSheetByName('T2');
