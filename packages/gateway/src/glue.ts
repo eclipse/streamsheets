@@ -1,5 +1,5 @@
 import { baseAuth, createAuthorization } from './authorization';
-import { GlobalContext, ID, Machine, RequestContext } from './streamsheets';
+import { GlobalContext, ID, Machine, RequestContext, Scope } from './streamsheets';
 import { Actor, UserApi, BaseUserApi } from './user';
 import { FunctionObject, PartialApply1All } from './common';
 import { InternalError } from './errors';
@@ -15,30 +15,44 @@ export const createApi = <T extends FunctionObject>(context: RequestContext, raw
 
 const createApis = (rawApi: RawAPI, context: RequestContext) => ({
 	user: createApi(context, rawApi.user),
-	machine: createApi(context, rawApi.machine)
+	machine: createApi(context, rawApi.machine),
+	stream: createApi(context, rawApi.stream)
 });
 
 export interface RawAPI {
 	user: BaseUserApi;
 	machine: {
-		findMachine(context: RequestContext, machineId: ID): Promise<Machine>;
+		findMachine(context: RequestContext, machineId: ID): Promise<Machine | null>;
+		findMachines(context: RequestContext, scope?: Scope): Promise<Machine[]>;
 	};
 }
 
 export interface API {
-	machine: {
-		findMachine(machineId: ID): Promise<Machine>;
-	};
 	user: UserApi;
+	machine: {
+		findMachine(machineId: ID): Promise<Machine | null>;
+		findMachines(scope?: Scope): Promise<Machine[]>;
+	};
 }
 
 export const RawAPI = {
 	user: BaseUserApi,
 	machine: {
 		findMachine: async ({ machineRepo, auth }: RequestContext, machineId: string) => {
-			const machine: Machine = await machineRepo.findMachine(machineId);
-			await auth.verifyMachine('view', machine);
+			const machine: Machine | null = await machineRepo.findMachine(machineId);
+			if (machine) {
+				await auth.verifyMachine('view', machine);
+			}
 			return machine;
+		},
+		findMachines: async ({ machineRepo, auth }: RequestContext, scope?: Scope): Promise<Machine[]> => {
+			const validScope = auth.isValidScope(scope);
+			if (!validScope) {
+				return [];
+			}
+			const query = scope ? { 'scope.id': scope.id } : null;
+			const machines = await machineRepo.findMachines(query);
+			return machines;
 		}
 	}
 };

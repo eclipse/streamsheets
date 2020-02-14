@@ -7,8 +7,8 @@ export interface GlobalContext {
 	rawAuth: BaseAuth;
 	encryption: any;
 	repositories: any;
-	userRepo: UserRepository
-	machineRepo: any
+	userRepo: UserRepository;
+	machineRepo: any;
 }
 
 export interface RequestContext extends GlobalContext {
@@ -16,6 +16,10 @@ export interface RequestContext extends GlobalContext {
 	auth: Authorization;
 	actor: Actor;
 	session: Session;
+}
+
+export interface Scope {
+	id: string;
 }
 
 export interface Session {
@@ -286,12 +290,15 @@ export type ID = string;
 export type Authorizer<T> = (entity: T) => void;
 
 export interface Machine {
-	isTemplate?: boolean
-	name: string
+	isTemplate?: boolean;
+	scope?: Scope;
+	name: string;
 }
 
 export interface Sheet {
 	machineId: ID;
 }
 
-export interface Stream {}
+export interface Stream {
+	scope?: Scope;
+}

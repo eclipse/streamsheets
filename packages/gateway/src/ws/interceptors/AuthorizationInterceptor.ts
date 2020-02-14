@@ -26,6 +26,9 @@ export default class AuthorizationInterceptor implements Interceptor {
 		console.log('TO SERVER', context.message);
 		const { auth, message } = context;
 		const machine = await context.api.machine.findMachine(message.machineId || '');
+		if(!machine){
+			return context;
+		}
 		// const { command, machineId } = message;
 		// const streamsheetId = message.streamsheetId || command.streamsheetId;
 		switch (message.type) {

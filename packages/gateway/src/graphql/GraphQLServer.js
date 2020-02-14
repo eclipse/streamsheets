@@ -93,8 +93,13 @@ const typeDefs = gql`
 		locale: Locale!
 	}
 
+	type Scope {
+		id: ID!
+	}
+
 	type User {
 		id: ID!
+		scope: Scope
 		username: String!
 		email: String!
 		firstName: String
@@ -110,6 +115,7 @@ const typeDefs = gql`
 		username: String!
 		password: String!
 		email: String!
+		scope: ScopeInput
 		firstName: String
 		lastName: String
 	}
@@ -117,6 +123,7 @@ const typeDefs = gql`
 	input UpdateUserInput {
 		username: String
 		email: String
+		scope: ScopeInput
 		firstName: String
 		lastName: String
 	}
@@ -183,16 +190,20 @@ const typeDefs = gql`
 		message: String!
 	}
 
+	input ScopeInput {
+		id: ID!
+	}
+
 	type Query {
 		machine(id: ID!): Machine
-		machines(name: String): [Machine!]!
+		machines(scope: ScopeInput, name: String): [Machine!]!
 		machine(id: ID!): Machine
 		me: User!
 		user(id: ID!): User
-		users: [User!]!
-		streams: [Stream!]!
-		connectors: [Connector!]!
-		streamsLegacy: [StreamLegacy!]!
+		users(scope: ScopeInput): [User!]!
+		streams(scope: ScopeInput): [Stream!]!
+		connectors(scope: ScopeInput): [Connector!]!
+		streamsLegacy(scope: ScopeInput): [StreamLegacy!]!
 		export(machines: [ID!]!, streams: [ID!]!): ExportResult!
 	}
 

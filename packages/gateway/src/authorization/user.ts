@@ -1,11 +1,13 @@
 /* eslint-disable no-unused-vars */
-import { RequestContext } from '../streamsheets';
+import { RequestContext, Scope } from '../streamsheets';
 import { User } from '../user';
 
 export type UserAction = 'create' | 'delete' | 'view' | 'update';
 
 const isAdmin = (context: RequestContext, user: User) => user.id === '00000000000000';
 const isSelf = ({ actor }: RequestContext, user: User) => actor.id === user.id;
+const isValidScope = ({ actor, auth }: RequestContext, scope?: Scope) =>
+	auth.isAdmin(actor) || (scope ? actor.scope?.id === scope.id : false);
 const rights = ({ actor, auth }: RequestContext) =>
 	auth.isAdmin(actor)
 		? ['machine.view', 'machine.edit', 'stream', 'user.edit', 'user.view', 'database']
@@ -29,5 +31,6 @@ export const UserAuth = {
 	isAdmin,
 	isSelf,
 	rights,
+	isValidScope,
 	userCan
 };

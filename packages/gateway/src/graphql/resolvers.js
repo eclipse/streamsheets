@@ -62,9 +62,9 @@ const resolvers = {
 		machine: async (obj, args, { api }) => {
 			return api.machine.findMachine(args.id);
 		},
-		machines: async (obj, args, context) => {
-			const { machineRepository } = context.repositories;
-			return args.name ? machineRepository.findMachinesByName(args.name) : machineRepository.getMachines();
+		machines: async (obj, args, { repositories, api }) => {
+			const { machineRepository } = repositories;
+			return args.name ? machineRepository.findMachinesByName(args.name) : api.machine.findMachines(args.scope);
 		},
 		user: async (obj, { id }, { api }) => {
 			try {
@@ -278,7 +278,7 @@ const resolvers = {
 			);
 			return ArrayUtil.unique(referencedStreams);
 		},
-		canEdit: async (obj, args, {auth}) => {
+		canEdit: async (obj, args, { auth }) => {
 			return auth.machineCan('edit', obj);
 		}
 	},
