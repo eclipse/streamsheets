@@ -102,7 +102,8 @@ module.exports = class GraphServerInterceptor extends Interceptor {
 	beforeSendToClient(context) {
 		if (context.message && context.message.type === 'event') {
 			return this._handleServerEvent(context);
-		} else if (context.message && context.message.type === 'response') {
+		}
+		if (context.message && context.message.type === 'response') {
 			return this._handleMachineServerResponse(context);
 		}
 		return Promise.resolve(context);
@@ -113,7 +114,7 @@ module.exports = class GraphServerInterceptor extends Interceptor {
 		if (graphserver) {
 			switch (event.type) {
 			// eslint-disable-next-line
-			case MachineServerMessagingProtocol.EVENTS.STREAMSHEET_STEP:
+			case MachineServerMessagingProtocol.EVENTS.STREAMSHEET_STEP: {
 				const message = {
 					type: GraphServerMessagingProtocol.MESSAGE_TYPES.UPDATE_PROCESS_SHEET_MESSAGE_TYPE,
 					streamsheet: {
@@ -124,6 +125,7 @@ module.exports = class GraphServerInterceptor extends Interceptor {
 				};
 				return graphserver.send(message)
 					.then(() => Promise.resolve(context));
+			}
 			/*
 			// eslint-disable-next-line
 			case MachineServerMessagingProtocol.EVENTS.MESSAGE_PUT:
@@ -171,7 +173,7 @@ module.exports = class GraphServerInterceptor extends Interceptor {
 				message.graphserver = response.response;
 				return context;
 			} catch (err) {
-				logger.error('Failed to handle machine-server response!', err, context);
+				logger.error('Failed to handle machine-server response!', err, message);
 			}
 		} else {
 			const reason = !requestMapping

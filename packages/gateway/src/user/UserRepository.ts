@@ -1,22 +1,41 @@
 import { Collection, FindOneOptions, FindOneAndReplaceOption } from 'mongodb';
+import { User, UserSettings, UserFromRepo, NewUser } from './types';
+import { Authorizer, ID } from '../streamsheets';
+import { PropType } from '../common';
 
 const { touch, generateId, applyUpdate } = require('./Document');
 const { InternalError, InputError, MongoError, ErrorCodes } = require('../errors');
 
-type InternalUser = Omit<User, 'id' | 'settings'> & { _id: PropType<User, 'id'>; settings: InternalSettings };
+export interface UserRepository {
+	findUser(id: ID): Promise<UserFromRepo | null>;
+	findMinimalUser(id: ID): Promise<Pick<User, 'id'> | null>;
+	findUserByUsername(username: string): Promise<UserFromRepo | null>;
+	findAllUsers(): Promise<Array<UserFromRepo>>;
+	createUser(user: User, auth: Authorizer<UserFromRepo>): Promise<UserFromRepo>;
+	updateUser(id: ID, userUpdate: Partial<User>, auth: Authorizer<User>): Promise<UserFromRepo>;
+	updateSettings(id: ID, settingsUpdate: Partial<UserSettings>, auth: Authorizer<User>): Promise<UserFromRepo>;
+	deleteUser(id: ID, auth: Authorizer<User>): Promise<boolean>;
+	getPassword(username: string): Promise<string>;
+	updatePassword(id: ID, password: string, auth: Authorizer<User>): Promise<boolean>;
+}
+
+type InternalUser = Omit<UserFromRepo, 'id' | 'settings'> & {
+	_id: PropType<UserFromRepo, 'id'>;
+	password: string;
+	settings: InternalSettings;
+};
 type InternalSettings = UserSettings;
 type PartialInternalUser = Partial<Omit<InternalUser, 'settings'> & { settings: Partial<InternalSettings> }>;
 type UserCollection = Collection<InternalUser>;
 
 function toExternal(user: null | undefined): null;
-function toExternal(user: InternalUser): User;
-function toExternal(user: InternalUser | null | undefined): User | null;
-function toExternal(user: InternalUser | null | undefined): User | null {
+function toExternal(user: InternalUser): UserFromRepo;
+function toExternal(user: InternalUser | null | undefined): UserFromRepo | null;
+function toExternal(user: InternalUser | null | undefined): UserFromRepo | null {
 	if (!user) {
 		return null;
 	}
-	const { _id, ...copy } = { ...user, id: user._id };
-	delete copy.password;
+	const { _id, password, ...copy } = { ...user, id: user._id };
 	return copy;
 }
 
@@ -28,7 +47,7 @@ const toInternalSettings = (settings: Partial<UserSettings>): Partial<InternalSe
 	return internal;
 };
 
-const toInternal = (user: Partial<User>): PartialInternalUser => {
+const toInternal = (user: Partial<User & NewUser>): PartialInternalUser => {
 	const internal: PartialInternalUser = {};
 	if (user.id !== undefined) {
 		internal._id = user.id;
@@ -55,8 +74,7 @@ const toInternal = (user: Partial<User>): PartialInternalUser => {
 };
 
 const sanitizeUpdate = (update: Partial<User>) => {
-	const copy = { ...update };
-	delete copy.password;
+	const { password = '', ...copy } = { ...update };
 	return copy;
 };
 
@@ -72,7 +90,7 @@ const validateSettings = (settings: InternalSettings) => {
 	const errors = validateSettings_(settings);
 	if (errors) {
 		throw InputError.invalid('Invalid settings', errors);
-	}	
+	}
 	return settings;
 };
 
@@ -158,8 +176,12 @@ const UserRepository = {
 		const result = await collection.find({}, hidePassword()).toArray();
 		return result.map(toExternal);
 	},
-	createUser: async (collection: UserCollection, user: User, auth: Authenticator<User> = noop) => {
-		await auth(user);
+	createUser: async (collection: UserCollection, user: User, auth: Authorizer<User> = noop) => {
+		try {
+			await auth(user);
+		} catch (error) {
+			throw error;
+		}
 		const userDocument = beforeWrite(defaults(generateId(toInternal(user))));
 		try {
 			await collection.insertOne(userDocument);
@@ -185,7 +207,7 @@ const UserRepository = {
 		collection: UserCollection,
 		id: ID,
 		userUpdate: Partial<User>,
-		auth: Authenticator<User> = noop
+		auth: Authorizer<User> = noop
 	) => {
 		let userDocument;
 		try {
@@ -225,7 +247,7 @@ const UserRepository = {
 		collection: UserCollection,
 		id: ID,
 		settingsUpdate: Partial<UserSettings>,
-		auth: Authenticator<User> = noop
+		auth: Authorizer<User> = noop
 	) => {
 		try {
 			const dbUser = await collection.findOne({ _id: id });
@@ -248,7 +270,7 @@ const UserRepository = {
 			throw error;
 		}
 	},
-	deleteUser: async (collection: UserCollection, id: ID, auth: Authenticator<User> = noop) => {
+	deleteUser: async (collection: UserCollection, id: ID, auth: Authorizer<User> = noop) => {
 		const dbUser = await collection.findOne({ _id: id });
 		if (!dbUser) {
 			throw InputError.notFound('User does not exist', ErrorCodes.USER_NOT_FOUND);
@@ -268,7 +290,7 @@ const UserRepository = {
 		}
 		return result.password;
 	},
-	updatePassword: async (collection: UserCollection, id: ID, password: string, auth: Authenticator<User> = noop) => {
+	updatePassword: async (collection: UserCollection, id: ID, password: string, auth: Authorizer<User> = noop) => {
 		const dbUser = await collection.findOne({ _id: id });
 		if (!dbUser) {
 			throw InputError.notFound('User does not exist', ErrorCodes.USER_NOT_FOUND);
@@ -280,7 +302,7 @@ const UserRepository = {
 	}
 };
 
-const createUserRepository = (collection: UserCollection): UserRepository => {
+export const createUserRepository = (collection: UserCollection): UserRepository => {
 	collection.createIndexes([
 		{
 			key: {
@@ -304,8 +326,4 @@ const createUserRepository = (collection: UserCollection): UserRepository => {
 		}),
 		{}
 	) as UserRepository;
-};
-
-module.exports = {
-	createUserRepository
 };

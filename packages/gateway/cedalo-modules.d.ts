@@ -66,7 +66,97 @@ declare module '@cedalo/protocols' {
 		static EVENTS: {
 			USER_JOINED_EVENT: 'user_joined';
 			USER_LEFT_EVENT: 'user_left';
-			SESSION_INIT_EVENT: 'session_init'
+			SESSION_INIT_EVENT: 'session_init';
+		};
+	}
+
+	class StreamsMessagingProtocol {
+		static MESSAGE_TYPES: {
+			ADD_MESSAGE_MESSAGE_TYPE: 'message_add';
+			COMMAND_MESSAGE_TYPE: 'command';
+			CREATE_GRAPH_MESSAGE_TYPE: 'graph_create';
+			CREATE_STREAMSHEET_MESSAGE_TYPE: 'streamsheet_create';
+			DELETE_GRAPH_MESSAGE_TYPE: 'graph_delete';
+			DELETE_STREAMSHEET_MESSAGE_TYPE: 'streamsheet_delete';
+			GET_GRAPH_MESSAGE_TYPE: 'graph_get';
+			LOAD_GRAPH_MESSAGE_TYPE: 'graph_load';
+			LOAD_SUBSCRIBE_GRAPH_MESSAGE_TYPE: 'graph_load_subscribe';
+			META_INFORMATION_MESSAGE_TYPE: 'meta_information';
+			PING_GRAPHSOCKETSERVER_MESSAGE_TYPE: 'ping_graphsocketserver';
+			SELECTION_MESSAGE_TYPE: 'selection';
+			SUBSCRIBE_GRAPH_MESSAGE_TYPE: 'graph_subscribe';
+			REDO_MESSAGE_TYPE: 'redo';
+			UNDO_MESSAGE_TYPE: 'undo';
+			UNSUBSCRIBE_GRAPH_MESSAGE_TYPE: 'graph_unsubscribe';
+			UPDATE_PROCESS_SHEET_MESSAGE_TYPE: 'update_process_sheets';
+		};
+	}
+
+	class MachineServerMessagingProtocol {
+		static MESSAGE_TYPES: {
+			ADD_INBOX_MESSAGE: 'add_inbox_message';
+			CREATE_STREAMSHEET_MESSAGE_TYPE: 'streamsheet_create';
+			STREAMSHEET_STREAM_UPDATE_TYPE: 'streamsheet_stream_update';
+			GET_MACHINE_MESSAGE_TYPE: 'machine_get';
+			GET_MACHINES_MESSAGE_TYPE: 'machineserver_machines';
+			DELETE_MACHINE_MESSAGE_TYPE: 'machine_delete';
+			DELETE_STREAMSHEET_MESSAGE_TYPE: 'streamsheet_delete';
+			LOAD_MACHINE_MESSAGE_TYPE: 'machine_load';
+			UNLOAD_MACHINE_MESSAGE_TYPE: 'machine_unload';
+			LOAD_SHEET_CELLS: 'load_sheet_cells';
+			MACHINE_UPDATE_SETTINGS: 'machine_update_settings';
+			META_INFORMATION_MESSAGE_TYPE: 'meta_information';
+			OPEN_MACHINE_MESSAGE_TYPE: 'machine_open';
+			PAUSE_MACHINE_MESSAGE_TYPE: 'machine_pause';
+			RENAME_MACHINE_MESSAGE_TYPE: 'machine_rename';
+			SAVE_MACHINE_AS_MESSAGE_TYPE: 'machine_save_as';
+			SAVE_MACHINE_COPY_MESSAGE_TYPE: 'machine_save_copy';
+			SET_MACHINE_CYCLE_TIME_MESSAGE_TYPE: 'machine_set_cycle_time';
+			SET_MACHINE_LOCALE_MESSAGE_TYPE: 'machine_set_locale';
+			SET_MACHINE_UPDATE_INTERVAL_MESSAGE_TYPE: 'machine_set_update_interval';
+			SET_NAMED_CELLS: 'set_named_cells';
+			SET_GRAPH_CELLS: 'set_graph_cells';
+			SET_SHEET_CELLS: 'set_sheet_cells';
+			START_MACHINE_MESSAGE_TYPE: 'machine_start';
+			START_MACHINES_MESSAGE_TYPE: 'machines_start';
+			STEP_MACHINE_MESSAGE_TYPE: 'machine_step';
+			STOP_MACHINE_MESSAGE_TYPE: 'machine_stop';
+			STOP_MACHINES_MESSAGE_TYPE: 'machines_stop';
+			STREAMSHEETS_ORDER_MESSAGE_TYPE: 'streamsheets_order';
+			SUBSCRIBE_MACHINE_MESSAGE_TYPE: 'machine_subscribe';
+			UNSUBSCRIBE_MACHINE_MESSAGE_TYPE: 'machine_unsubscribe';
+			UPDATE_MACHINE_IMAGE_MESSAGE_TYPE: 'update_machine_image';
+			LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE: 'machine_load_subscribe';
+			COMMAND_MESSAGE_TYPE: 'command';
+		};
+
+		static EVENTS: {
+			MACHINE_ADD_EVENT: 'machine_add';
+			MACHINE_CYCLETIME_EVENT: 'machine_cycletime';
+			MACHINE_DESCRIPTOR_UPDATE_EVENT: 'machine_descriptor_update';
+			MACHINE_LAST_MODIFIED_EVENT: 'machine_lastmodified';
+			MACHINE_LOCALE_EVENT: 'machine_locale';
+			MACHINE_OPCUA_EVENT: 'machine_opcua';
+			MACHINE_RENAME_EVENT: 'machine_rename';
+			MACHINE_FUNCTIONS_EVENT: 'machine_functions';
+			MACHINE_REMOVE_EVENT: 'machine_remove';
+			MACHINE_STATE_EVENT: 'machine_state';
+			MACHINE_STEP_EVENT: 'machine_step';
+			MESSAGE_ADD_EVENT: 'message_add';
+			STREAMSHEET_STEP: 'streamsheet_step';
+			STREAMSHEET_MESSAGE_ATTACHED: 'streamsheet_message_attached';
+			STREAMSHEET_MESSAGE_DETACHED: 'streamsheet_message_detached';
+			STREAMSHEET_STREAM_UPDATE_EVENT: 'streamsheet_stream_update';
+			STREAMSHEET_STREAM_UPDATED: 'streamsheet_stream_updated';
+			MESSAGE_BOX_CLEAR: 'message_box_clear';
+			MESSAGE_PUT: 'message_put';
+			MESSAGE_POP: 'message_pop';
+			MESSAGE_CHANGED: 'message_changed';
+			STREAMS_RELOAD_EVENT: 'stream_reload';
+			SHEET_UPDATE_EVENT: 'sheet_update';
+			SHEET_CELLRANGE_CHANGE_EVENT: 'sheet_cellrange_change';
+			SHEET_CELLS_UPDATE_EVENT: 'sheet_cells_update';
+			NAMED_CELLS_EVENT: 'named_cells';
 		};
 	}
 

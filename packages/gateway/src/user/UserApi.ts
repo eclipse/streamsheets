@@ -1,60 +1,40 @@
-import { InternalError } from '../errors';
+import { FunctionObject, PartialApply1All } from '../common';
+import { ID, RequestContext } from '../streamsheets';
+import { User, UserSettings } from './types';
 
-export const UserApi: IUserApi = {
-	findUser: async (userRepo: UserRepository, auth: Auth, actor: Actor, id: ID) => {
+export interface UserApi extends FunctionObject {
+	findUser(context: RequestContext, id: ID): Promise<User | null>;
+	findAllUsers(context: RequestContext): Promise<User[]>;
+	createUser(context: RequestContext, user: User): Promise<User>;
+	updateUser(context: RequestContext, id: ID, userUpdate: Partial<User>): Promise<User>;
+	updateSettings(context: RequestContext, id: ID, settingsUpdate: Partial<UserSettings>): Promise<User>;
+	updatePassword(context: RequestContext, id: ID, password: string): Promise<boolean>;
+	deleteUser(context: RequestContext, id: ID): Promise<boolean>;
+}
+export type UserApiApplied = PartialApply1All<UserApi>;
+
+export const UserApi: UserApi = {
+	findUser: async ({ auth, userRepo }, id) => {
 		const user = await userRepo.findUser(id);
 		if (user) {
-			auth.verifyViewUser(actor, user);
+			auth.verifyUser('view', user);
 		}
 		return user;
 	},
-	findAllUsers: async (userRepo: UserRepository, auth: Auth, actor: Actor) => {
-		if (auth.isAdmin(actor)) {
+	findAllUsers: async ({ userRepo, auth, actor }) => {
+		if (await auth.isAdmin(actor)) {
 			return userRepo.findAllUsers();
 		}
 		const self = await userRepo.findUser(actor.id);
 		return self ? [self] : [];
 	},
-	createUser: async (userRepo: UserRepository, auth: Auth, actor: Actor, user: User) =>
-		userRepo.createUser(user, () => {
-			auth.verifyCreateUser(actor, user);
-		}),
-	updateUser: async (userRepo: UserRepository, auth: Auth, actor: Actor, id: ID, userUpdate: Partial<User>) =>
-		userRepo.updateUser(id, userUpdate, (user: User) => {
-			auth.verifyUpdateUser(actor, user);
-		}),
-	updateSettings: async (
-		userRepo: UserRepository,
-		auth: Auth,
-		actor: Actor,
-		id: ID,
-		settingsUpdate: Partial<UserSettings>
-	) =>
-		userRepo.updateSettings(id, settingsUpdate, (user: User) => {
-			auth.verifyUpdateUser(actor, user);
-		}),
-	updatePassword: async (userRepo: UserRepository, auth: Auth, actor: Actor, id: ID, password: string) =>
-		userRepo.updatePassword(id, password, (user: User) => {
-			auth.verifyUpdateUser(actor, user);
-		}),
-	deleteUser: async (userRepo: UserRepository, auth: Auth, actor: Actor, id: ID) =>
-		userRepo.deleteUser(id, (user: User) => {
-			auth.verifyDeleteUser(actor, user);
-		})
-};
-
-export const create = (userRepo: UserRepository, getAuth: () => Auth, actor: Actor): UserApiApplied =>
-	<UserApiApplied>Object.entries(UserApi).reduce(
-		(obj, [name, func]) => ({
-			...obj,
-			[name]: InternalError.catchUnexpected((...args: any[]) =>
-				func(userRepo, getAuth(), actor, args[0], args[1])
-			)
-		}),
-		{}
-	);
-
-module.exports = {
-	create,
-	UserApi
+	createUser: async ({ userRepo, auth }, user) => userRepo.createUser(user, () => auth.verifyUser('create', user)),
+	updateUser: async ({ userRepo, auth }, id, userUpdate) =>
+		userRepo.updateUser(id, userUpdate, (user: User) => auth.verifyUser('update', user)),
+	updateSettings: async ({ userRepo, auth }, id, settingsUpdate) =>
+		userRepo.updateSettings(id, settingsUpdate, (user: User) => auth.verifyUser('update', user)),
+	updatePassword: async ({ userRepo, auth }, id, password) =>
+		userRepo.updatePassword(id, password, (user: User) => auth.verifyUser('update', user)),
+	deleteUser: async ({ userRepo, auth }, id) =>
+		userRepo.deleteUser(id, (user: User) => auth.verifyUser('delete', user))
 };

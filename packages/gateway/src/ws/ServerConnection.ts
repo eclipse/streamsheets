@@ -3,6 +3,8 @@ import { MessagingClient } from '@cedalo/messaging-client';
 import IdGenerator from '@cedalo/id-generator';
 import RedisConnection from './RedisConnection';
 import LoggerFactory from '../utils/logger';
+import { PropType } from '../common';
+import { IWSEvent, ServiceResponse, WSRequest, UnsubscribeGraphRequest, UnsubscribeMachineRequest } from '../streamsheets';
 
 const logger = LoggerFactory.create({ name: 'ServerConnection' });
 
@@ -95,8 +97,8 @@ export default class ServerConnection {
 			});
 			this._redisConnection.subscriptions.forEach((subscription) => {
 				const { machineId } = subscription;
-				this.send(request(machineId, 'machine_unsubscribe'), Math.random());
-				this.send(request(machineId, 'graph_unsubscribe'), Math.random());
+				this.send(request(machineId, 'machine_unsubscribe') as UnsubscribeMachineRequest, Math.random());
+				this.send(request(machineId, 'graph_unsubscribe') as UnsubscribeGraphRequest, Math.random());
 			});
 			// finally
 			this._redisConnection.close();

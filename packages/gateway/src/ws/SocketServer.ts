@@ -2,6 +2,7 @@ import { GatewayMessagingProtocol } from '@cedalo/protocols';
 import * as http from 'http';
 import WebSocket from 'ws';
 import Auth from '../Auth';
+import { User } from '../user';
 import { getUserFromWebsocketRequest } from '../utils';
 import LoggerFactory from '../utils/logger';
 import AuthorizationInterceptor from './interceptors/AuthorizationInterceptor';
@@ -9,6 +10,7 @@ import GraphServerInterceptor from './interceptors/GraphServerInterceptor';
 import InterceptorChain from './interceptors/InterceptorChain';
 import MachineServerInterceptor from './interceptors/MachineServerInterceptor';
 import ProxyConnection from './ProxyConnection';
+import { Session, GlobalContext } from '../streamsheets';
 const logger = LoggerFactory.create({ name: 'SocketServer' });
 
 const DEFAULTS = {
@@ -18,16 +20,18 @@ const DEFAULTS = {
 	tokenKey: 'authToken'
 };
 
-export default class SocketServer {
+export class SocketServer {
 	private wss: WebSocket.Server | null = null;
 	private wssConfig: WebSocket.ServerOptions;
 	private interceptorchain: InterceptorChain;
 	private _gatewayService: any;
+	globalContext: GlobalContext;
 	_config: any;
 
 	constructor(config = DEFAULTS, gatewayService: any) {
 		this._config = Object.assign({}, DEFAULTS, config);
 		this._gatewayService = gatewayService;
+		this.globalContext = gatewayService.globalContext;
 		this.wssConfig = {};
 		this.wssConfig.port = this._config.port;
 		this.wssConfig.host = this._config.host;
@@ -131,7 +135,7 @@ export default class SocketServer {
 		}
 	}
 
-	shouldBroadcast(user?: User) {
+	shouldBroadcast(user?: Partial<User>) {
 		return user && user.id;
 	}
 

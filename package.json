@@ -12,7 +12,8 @@
 			"pro/*"
 		],
 		"nohoist": [
-			"**/jest",
+			"*/jest",
+			"*/stream/jest",
 			"**/jest-cli",
 			"**/babel-jest",
 			"**/eslint"

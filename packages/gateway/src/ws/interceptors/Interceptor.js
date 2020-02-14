@@ -3,12 +3,12 @@
 module.exports = class Interceptor {
 
 	// eslint-disable-next-line
-	beforeSendToClient(context) {
-		return Promise.reject(new Error('Cannot call abstract Interceptor#sendToClient()!!'));
-	}
+	// beforeSendToClient(context) {
+	// 	return Promise.reject(new Error('Cannot call abstract Interceptor#sendToClient()!!'));
+	// }
 
-	// eslint-disable-next-line
-	beforeSendToServer(context) {
-		return Promise.reject(new Error('Cannot call abstract Interceptor#sendToServer()!!'));
-	}
+	// // eslint-disable-next-line
+	// beforeSendToServer(context) {
+	// 	return Promise.reject(new Error('Cannot call abstract Interceptor#sendToServer()!!'));
+	// }
 };

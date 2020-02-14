@@ -1,10 +1,13 @@
-const { MongoMemoryServer } = require('mongodb-memory-server');
-const mongodb = require('mongodb');
-const { createUserRepository } = require('../../src/user/UserRepository.ts');
-const glue = require('../../src/glue.ts').default;
+import 'jest';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import mongodb from 'mongodb';
+import { createUserRepository, UserRepository } from '../../src/user/UserRepository';
+import glue from '../../src/glue';
+import { UserApi, Actor } from '../../src/user';
+import { GlobalContext } from '../../src/streamsheets';
 
-let mongoServer;
-let client;
+let mongoServer: MongoMemoryServer;
+let client: any;
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 600000;
 
@@ -20,13 +23,13 @@ afterAll(async () => {
 	await mongoServer.stop();
 });
 
-const newUserApi = async (actor) => {
+const newUserApi = async (actor: Actor) => {
 	const collection = newCollection();
-	const userRepository = await createUserRepository(collection);
-	const { api } = glue({ userRepository }, actor);
+	const userRepo = await createUserRepository(collection);
+	const { api } = glue({ userRepo } as GlobalContext, actor);
 	return {
-		internalApi: userRepository,
-		api: api.user
+		internalApi: userRepo,
+		api: <UserApi>api.user
 	};
 };
 
@@ -38,14 +41,14 @@ const ADMIN = {
 };
 
 const NON_ADMIN = {
-	id: 3,
+	id: '3',
 	username: 'nonadmin',
 	email: 'nonadmin@example.com',
 	password: 'passwordnonadmin'
 };
 
 const TEST_USER_1 = {
-	id: 1,
+	id: '1',
 	username: 'johndoe',
 	email: 'johndoe@example.com',
 	firstName: 'John',
@@ -53,7 +56,7 @@ const TEST_USER_1 = {
 	password: 'password1'
 };
 const TEST_USER_2 = {
-	id: 2,
+	id: '2',
 	username: 'janedoe',
 	email: 'janedoe@example.com',
 	firstName: 'Jane',
@@ -61,7 +64,7 @@ const TEST_USER_2 = {
 	password: 'password2'
 };
 
-const removePassword = (user) => {
+const removePassword = (user: any) => {
 	const copy = { ...user };
 	delete copy.password;
 	return copy;
@@ -84,12 +87,7 @@ describe('UserApi', () => {
 			expect.assertions(1);
 			const { api } = await newUserApi(NON_ADMIN);
 			const user = TEST_USER_1;
-
-			try {
-				await api.createUser(user);
-			} catch (error) {
-				expect(error.code).toEqual('NOT_ALLOWED');
-			}
+			await expect(api.createUser(user)).rejects.toHaveProperty('code', 'NOT_ALLOWED');
 		});
 	});
 
@@ -100,7 +98,7 @@ describe('UserApi', () => {
 			const update = {
 				username: 'new_username'
 			};
-			await internalApi.createUser(user);
+			await internalApi.createUser(user, () => {});
 
 			const result = await api.updateUser(user.id, update);
 
@@ -119,7 +117,7 @@ describe('UserApi', () => {
 			const update = {
 				username: 'new_username'
 			};
-			await internalApi.createUser(user);
+			await internalApi.createUser(user, () => {});
 
 			const result = await api.updateUser(user.id, update);
 
@@ -139,7 +137,7 @@ describe('UserApi', () => {
 				username: 'new_username'
 			};
 
-			await internalApi.createUser(user);
+			await internalApi.createUser(user, () => {});
 
 			const promise = api.updateUser(user.id, update);
 
@@ -152,7 +150,7 @@ describe('UserApi', () => {
 			const { api, internalApi } = await newUserApi(ADMIN);
 			const user = TEST_USER_1;
 
-			await internalApi.createUser(TEST_USER_1);
+			await internalApi.createUser(TEST_USER_1, () => {});
 			const newPassword = 'new_password';
 
 			const result = await api.updatePassword(user.id, newPassword);
@@ -166,7 +164,7 @@ describe('UserApi', () => {
 			const { api, internalApi } = await newUserApi(TEST_USER_1);
 			const user = TEST_USER_1;
 
-			await internalApi.createUser(TEST_USER_1);
+			await internalApi.createUser(TEST_USER_1, () => {});
 			const newPassword = 'new_password';
 
 			const result = await api.updatePassword(user.id, newPassword);
@@ -179,7 +177,7 @@ describe('UserApi', () => {
 		test('should fail as non-admin', async () => {
 			const { api, internalApi } = await newUserApi(NON_ADMIN);
 			const user = TEST_USER_1;
-			await internalApi.createUser(TEST_USER_1);
+			await internalApi.createUser(TEST_USER_1, () => {});
 			const newPassword = 'new_password';
 
 			const promise = api.updatePassword(user.id, newPassword);
@@ -192,35 +190,35 @@ describe('UserApi', () => {
 		test('should succeed as admin', async () => {
 			const { api, internalApi } = await newUserApi(ADMIN);
 			const user = TEST_USER_1;
-			const { lastModified } = await internalApi.createUser(user);
+			const { lastModified } = await internalApi.createUser(user, () => {});
 			const newSettings = { locale: 'de' };
 
 			const result = await api.updateSettings(user.id, newSettings);
 
 			expect(result).toBeDefined();
 			expect(result.settings).toBeDefined();
-			expect(result.settings.locale).toEqual('de');
+			expect(result.settings?.locale).toEqual('de');
 			expect(result.lastModified).not.toEqual(lastModified);
 		});
 
 		test('should succeed as self', async () => {
 			const { api, internalApi } = await newUserApi(ADMIN);
 			const user = TEST_USER_1;
-			const { lastModified } = await internalApi.createUser(user);
+			const { lastModified } = await internalApi.createUser(user, () => {});
 			const newSettings = { locale: 'de' };
 
 			const result = await api.updateSettings(user.id, newSettings);
 
 			expect(result).toBeDefined();
 			expect(result.settings).toBeDefined();
-			expect(result.settings.locale).toEqual('de');
+			expect(result.settings?.locale).toEqual('de');
 			expect(result.lastModified).not.toEqual(lastModified);
 		});
 
 		test('should fail as non-admin', async () => {
 			const { api, internalApi } = await newUserApi(NON_ADMIN);
 			const user = TEST_USER_1;
-			await internalApi.createUser(user);
+			await internalApi.createUser(user, () => {});
 			const newSettings = { locale: 'de' };
 
 			const promise = api.updateSettings(user.id, newSettings);
@@ -233,7 +231,7 @@ describe('UserApi', () => {
 		test('should succeed as admin', async () => {
 			const { api, internalApi } = await newUserApi(ADMIN);
 			const user = TEST_USER_1;
-			await internalApi.createUser(user);
+			await internalApi.createUser(user, () => {});
 
 			const result = await api.deleteUser(user.id);
 
@@ -243,7 +241,7 @@ describe('UserApi', () => {
 		test('should succeed as self', async () => {
 			const { api, internalApi } = await newUserApi(TEST_USER_1);
 			const user = TEST_USER_1;
-			await internalApi.createUser(user);
+			await internalApi.createUser(user, () => {});
 
 			const result = await api.deleteUser(user.id);
 
@@ -253,7 +251,7 @@ describe('UserApi', () => {
 		test('should fail as non-admin', async () => {
 			const { api, internalApi } = await newUserApi(NON_ADMIN);
 			const user = TEST_USER_1;
-			await internalApi.createUser(user);
+			await internalApi.createUser(user, () => {});
 
 			const promise = api.deleteUser(user.id);
 
@@ -263,7 +261,7 @@ describe('UserApi', () => {
 		test('should fail to delete admin', async () => {
 			const { api, internalApi } = await newUserApi(ADMIN);
 			const user = ADMIN;
-			await internalApi.createUser(user);
+			await internalApi.createUser(user, () => {});
 
 			const promise = api.deleteUser(user.id);
 
@@ -272,14 +270,14 @@ describe('UserApi', () => {
 	});
 
 	describe('find', () => {
-		const populate = async (internalApi) => {
-			await internalApi.createUser(TEST_USER_1);
-			await internalApi.createUser(TEST_USER_2);
-			await internalApi.createUser(ADMIN);
+		const populate = async (internalApi: UserRepository) => {
+			await internalApi.createUser(TEST_USER_1, () => {});
+			await internalApi.createUser(TEST_USER_2, () => {});
+			await internalApi.createUser(ADMIN, () => {});
 		};
 
 		describe('as admin', () => {
-			let api;
+			let api: UserApi;
 			beforeAll(async () => {
 				const repo = await newUserApi(ADMIN);
 				api = repo.api;
@@ -311,14 +309,14 @@ describe('UserApi', () => {
 					expect(result).toHaveLength(3);
 					const testUser1 = result.find((user) => user.username === TEST_USER_1.username);
 					expect(testUser1).toMatchObject(removePassword(TEST_USER_1));
-					expect(testUser1.lastModified).toBeDefined();
+					expect(testUser1?.lastModified).toBeDefined();
 					expect(result.map((user) => user.username).sort()).toEqual(['admin', 'janedoe', 'johndoe']);
 				});
 			});
 		});
 
 		describe('as non-admin', () => {
-			let api;
+			let api: UserApi;
 			beforeAll(async () => {
 				const repo = await newUserApi(TEST_USER_1);
 				api = repo.api;

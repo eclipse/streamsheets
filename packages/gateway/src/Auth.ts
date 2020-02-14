@@ -2,6 +2,8 @@ import passport from 'passport';
 import passportJWT from 'passport-jwt';
 import jwt from 'jsonwebtoken';
 import { LoggerFactory } from '@cedalo/logger';
+import { User } from './user';
+import express from 'express';
 
 const logger = LoggerFactory.createLogger('gateway - Auth', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
 const ExtractJwt = passportJWT.ExtractJwt;
@@ -34,7 +36,7 @@ class Auth {
 		};
 	}
 
-	initialize() {
+	initialize(): express.Handler {
 		this.initStrategies();
 		passport.serializeUser((user, done) => {
 			done(null, user);

@@ -1,10 +1,5 @@
-<<<<<<< HEAD:packages/graphql/src/resolvers.js
 const path = require('path');
-const { InternalError } = require('./errors');
-const { UserAuth } = require('./apis');
-=======
 const { InternalError } = require('../errors');
->>>>>>> integrate graphql package into gateway:packages/gateway/src/graphql/resolvers.js
 const { ArrayUtil } = require('@cedalo/util');
 const graphqlFields = require('graphql-fields');
 const { GraphQLJSONObject } = require('graphql-type-json');
@@ -64,7 +59,9 @@ const mapConnector = (c) => ({
 const resolvers = {
 	Query: {
 		me: async (obj, args, { actor }) => actor,
-		machine: async (obj, args, context) => context.repositories.machineRepository.findMachine(args.id),
+		machine: async (obj, args, { api }) => {
+			return api.machine.findMachine(args.id);
+		},
 		machines: async (obj, args, context) => {
 			const { machineRepository } = context.repositories;
 			return args.name ? machineRepository.findMachinesByName(args.name) : machineRepository.getMachines();
@@ -213,8 +210,8 @@ const resolvers = {
 	},
 	User: {
 		admin: async (obj, args, { auth }) => auth.isAdmin(obj),
-		canDelete: async (obj, args, { actor, auth }) => auth.canDeleteUser(actor, obj),
-		rights: async (obj, args, { auth }) => (await auth.isAdmin(obj) ? ['User.Create'] : [])
+		canDelete: async (obj, args, { auth }) => auth.userCan('delete', obj),
+		rights: async (obj, args, { auth }) => auth.rights()
 	},
 	Inbox: {
 		stream: async (obj, args, context, info) => {
@@ -280,6 +277,9 @@ const resolvers = {
 				})
 			);
 			return ArrayUtil.unique(referencedStreams);
+		},
+		canEdit: async (obj, args, {auth}) => {
+			return auth.machineCan('edit', obj);
 		}
 	},
 	ImportExportData: GraphQLJSONObject

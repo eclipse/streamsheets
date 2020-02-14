@@ -1,21 +1,22 @@
 import IdGenerator from '@cedalo/id-generator';
 import ServerConnection from './ServerConnection';
 import WebSocket from 'ws';
-
+import { User } from '../user';
 import Auth from '../Auth';
-import { getClientIdFromWebsocketRequest, getUserFromWebsocketRequest } from '../utils';
+import { getUserFromWebsocketRequest } from '../utils';
 import { MessagingClient } from '@cedalo/messaging-client';
 import { Topics, GatewayMessagingProtocol } from '@cedalo/protocols';
 import { LoggerFactory } from '@cedalo/logger';
-import SocketServer from './SocketServer';
+import { SocketServer } from './SocketServer';
 import * as http from 'http';
+import { WSRequest, Session, WSResponse, EventData, GlobalContext, RequestContext } from '../streamsheets';
+import { getRequestContext } from '../context';
 
 const logger = LoggerFactory.createLogger('gateway - ProxyConnection', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
 
 const OPEN_CONNECTIONS: Set<ProxyConnection> = new Set();
 
-interface MessageContext {
-	user: User;
+export interface MessageContext extends RequestContext {
 	message: WSRequest;
 	connection: ProxyConnection;
 	graphserver?: any;
@@ -26,7 +27,6 @@ interface MessageContext {
 export default class ProxyConnection {
 	id: string;
 	user: User;
-	clientId: null | string;
 	private request: http.IncomingMessage;
 	private clientsocket: WebSocket;
 	private socketserver: SocketServer;
@@ -211,26 +211,30 @@ export default class ProxyConnection {
 		return this.machineserver.connect();
 	}
 
-	createMessageContext(message: any): MessageContext {
+	async createMessageContext(message: any): Promise<MessageContext> {
 		// if message is a string it should be an already stringified message!
 		message = typeof message === 'string' ? JSON.parse(message) : message;
 		return {
-			user: this.user,
+			...(await getRequestContext(this.socketserver.globalContext, this.session)),
 			message,
 			connection: this
-			// result: message.result || undefined
 		};
 	}
 
 	async sendToServer(message: WSRequest) {
-		const context = await this._beforeSendToServer(this.createMessageContext(message));
+		let context;
 		const response: WSResponse = {
 			type: 'response',
-			requestId: context.message.requestId,
-			requestType: context.message.type
+			requestId: message.requestId || 0,
+			requestType: message.type
 			// TODO: Is this in use?
 			// result: context.result || undefined
 		};
+		try {
+			context = await this._beforeSendToServer(await this.createMessageContext(message));
+		} catch (error) {
+			return { ...response, machineserver: { error }, graphserver: { error } };
+		}
 		try {
 			const machineServerResponse = await this._sendToMachineServer(context);
 			response.machineserver = machineServerResponse && machineServerResponse.response;
@@ -284,7 +288,7 @@ export default class ProxyConnection {
 	// called by proxy to send a message to client...
 	async sendToClient(message: any) {
 		try {
-			const ctxt: MessageContext = await this._beforeSendToClient(this.createMessageContext(message));
+			const ctxt: MessageContext = await this._beforeSendToClient(await this.createMessageContext(message));
 			ctxt.message.session = this.session;
 			this.clientsocket.send(JSON.stringify(ctxt.message));
 		} catch (error) {

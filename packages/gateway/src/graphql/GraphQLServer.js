@@ -67,6 +67,7 @@ const typeDefs = gql`
 		metadata: MachineMetadata!
 		streamsheets: [StreamSheet!]!
 		referencedStreams: [ID!]!
+		canEdit: Boolean
 	}
 
 	type Stream {
@@ -185,6 +186,7 @@ const typeDefs = gql`
 	type Query {
 		machine(id: ID!): Machine
 		machines(name: String): [Machine!]!
+		machine(id: ID!): Machine
 		me: User!
 		user(id: ID!): User
 		users: [User!]!
