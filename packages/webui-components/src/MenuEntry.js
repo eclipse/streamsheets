@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 const MenuEntry = ({ href, selected, children, show }) =>
 	show === false ? null : (
-		<Link style={{ textDecoration: 'none' }} to={href} href={href}>
+		<Link style={{ color: 'inherit', textDecoration: 'none' }} to={href} href={href}>
 			<MenuItem dense selected={selected}>
 				<ListItemText inset primary={children} />
 			</MenuItem>
