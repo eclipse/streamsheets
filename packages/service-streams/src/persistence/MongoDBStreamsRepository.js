@@ -4,7 +4,7 @@ const AbstractStreamsRepository = require('./AbstractStreamsRepository');
 const MongoDBMixin = require('@cedalo/repository').MongoDBMixin;
 const defaultConfigurations = require('./configurations.json');
 const fs = require('fs');
-const CONFIG = require('../../config');
+const CONFIG = require('../config');
 
 const COLLECTION = CONFIG.database.collection || 'streams';
 
