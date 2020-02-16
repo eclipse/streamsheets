@@ -121,7 +121,7 @@ module.exports.Functions = {
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.updateGraphItem(scope, terms, 'knob', false) : ERROR.NOT_AVAILABLE;
 	},
-	DATAROW: (scope) => {
+	SERIES: (scope) => {
 		return OK.TRUE;
 	},
 	AXIS: (scope) => {
