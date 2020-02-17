@@ -229,6 +229,7 @@ export interface UpdateMachineImageRequest extends IWSRequest {
 export interface LoadSubscribeMachineRequest extends IWSRequest {
 	type: 'machine_load_subscribe';
 	machineId: string;
+	scope: Scope;
 }
 
 export interface CreateStreamsheetRequest extends IWSRequest {

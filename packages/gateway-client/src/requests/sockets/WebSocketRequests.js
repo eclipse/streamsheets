@@ -458,16 +458,18 @@ class LoadMachineWebSocketRequest extends WebSocketRequest {
 }
 
 class LoadSubscribeMachineWebSocketRequest extends WebSocketRequest {
-	constructor(ws, machineId, settings) {
+	constructor(ws, machineId, settings, scope) {
 		super(ws, LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE);
 		this._machineId = machineId;
 		this._settings = settings;
+		this._scope = scope;
 	}
 
 	_getConfig() {
 		return {
 			machineId: this._machineId,
-			settings: this._settings
+			settings: this._settings,
+			scope: this._scope
 		};
 	}
 }

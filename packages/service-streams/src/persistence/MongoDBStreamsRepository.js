@@ -176,6 +176,9 @@ module.exports = class MongoDBStreamsRepository extends mix(
 				// New password not found
 			}
 		}
+		if(!configuration.scope){
+			configuration.scope = { id: 'root' };
+		}
 		return configuration;
 	}
 

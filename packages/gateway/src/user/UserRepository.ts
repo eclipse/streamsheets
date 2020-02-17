@@ -319,6 +319,7 @@ export const createUserRepository = (collection: UserCollection): UserRepository
 			unique: true
 		}
 	]);
+	collection.updateMany({ scope: { $exists: false } }, { $set: { scope: { id: 'root' } } });
 	return Object.entries(UserRepository).reduce(
 		(obj, [name, func]) => ({
 			...obj,

@@ -82,6 +82,10 @@ module.exports = class MachineService extends MessagingService {
 		await super._preStart();
 	}
 
+	async _ensureScope() {
+		await RepositoryManager.machineRepository.ensureScope({ id: 'root' });
+	}
+
 	async _loadRunningMachines() {
 		if (!this._loadedRunning) {
 			logger.debug('Loading machines with state running');
@@ -153,6 +157,7 @@ module.exports = class MachineService extends MessagingService {
 			logger.debug('Received Stream function definitions');
 			const functionDefinitions = message.event.data || [];
 			this._machineServer.functionDefinitions = functionDefinitions;
+			await this._ensureScope();
 			this._loadRunningMachines();
 		}
 	}

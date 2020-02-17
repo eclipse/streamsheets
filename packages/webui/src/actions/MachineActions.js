@@ -49,7 +49,7 @@ export const dashboardQuery = `
 
 export function updateMachines() {
 	return gatewayClient
-		.graphql(dashboardQuery, store.getState().user.user.scope)
+		.graphql(dashboardQuery, { scope: store.getState().user.user.scope } )
 		.then(({ scoped: { machines } }) => store.dispatch(receiveMachines(machines)));
 }
 

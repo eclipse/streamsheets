@@ -478,8 +478,8 @@ module.exports = class BaseGatewayClient {
 		return this.socket.unloadMachine(machineId);
 	}
 
-	loadSubscribeMachine(machineId, settings) {
-		return this.socket.loadSubscribeMachine(machineId, settings);
+	loadSubscribeMachine(machineId, settings, scope) {
+		return this.socket.loadSubscribeMachine(machineId, settings, scope);
 	}
 	pauseMachine(machineId) {
 		return this.socket.pauseMachine(machineId);

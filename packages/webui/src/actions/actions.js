@@ -518,9 +518,9 @@ export function clearNotifications() {
 export function loadSubscribeMachine(machineId, options = {}) {
 	return async (dispatch) => {
 		dispatch(sendMachineLoad(machineId));
-		const { settings, stream } = options || {};
+		const { settings, stream, scope } = options || {};
 		try {
-			const response = await gatewayClient.loadSubscribeMachine(machineId, settings);
+			const response = await gatewayClient.loadSubscribeMachine(machineId, settings, scope);
 			if (response.machineserver.error) {
 				dispatch(requestFailed(messageTypes.MACHINE_LOAD, response.machineserver.error));
 				return null;
@@ -836,7 +836,7 @@ export function openUser(user) {
 export async function machineWithSameNameExists(machineId, name) {
 	const {scopedByMachine} = await gatewayClient.graphql(
 		`
-		query MachinesWithName($name: String, $machineId: ID) {
+		query MachinesWithName($name: String, $machineId: ID!) {
 			scopedByMachine(machineId: $machineId) {
 				machines(name: $name) {
 					id

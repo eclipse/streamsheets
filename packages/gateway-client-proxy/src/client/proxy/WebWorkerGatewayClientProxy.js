@@ -177,8 +177,8 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('unloadMachine', machineId, settings);
 	}
 
-	loadSubscribeMachine(machineId, settings) {
-		return this._proxy('loadSubscribeMachine', machineId, settings);
+	loadSubscribeMachine(machineId, settings, scope) {
+		return this._proxy('loadSubscribeMachine', machineId, settings, scope);
 	}
 
 	pauseMachine(machineId) {

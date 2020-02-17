@@ -403,6 +403,10 @@ module.exports = class MongoDBMachineRepository extends mix(
 		});
 	}
 
+	async ensureScope(scope) {
+		return this.db.collection(this.collection).updateMany({ scope: { $exists: false } }, { $set: { scope } });
+	}
+
 	async updateStreams(stream) {
 		const selector = { 'streamsheets.inbox.stream.id': stream.id };
 		const update = {};

@@ -70,7 +70,6 @@ export function MachineDetailPage(props) {
 	}
 
 	const [userLoaded, setUserLoaded] = useState(false);
-	const [pageDataLoaded, setPageDataLoaded] = useState(false);
 	const [canEditMachine, setCanEditMachine] = useState(false);
 	useExperimental(props.setAppState);
 
@@ -94,8 +93,38 @@ export function MachineDetailPage(props) {
 		}
 	};
 
-	const loadPageData = async () => {
+	const handleState = (state) => {
+		props.setAppState(state);
+	};
+
+	useEffect(() => {
+		if (isConnected) {
+			loadUser();
+		}
+	}, [isConnected]);
+
+	const loadMachine = async () => {
+		const query = qs.parse(searchParams);
+		const stream = {
+			id: query.streamId,
+			name: query.streamName
+		};
+		const newMachineName = query.machineName;
+		const scope = { id: query.scope };
 		try {
+			const response = await props.loadSubscribeMachine(machineId, {
+				settings: { locale },
+				stream,
+				scope
+			});
+			const createdFromTemplate = !!response.machineserver.templateId;
+			const { machine } = response.machineserver;
+			if (createdFromTemplate) {
+				await props.rename(machine.id, newMachineName);
+				console.log(`Rerouting to machine ${machine.id}`);
+				const newURL = `/machines/${machine.id}`;
+				props.history.replace(newURL);
+			}
 			const { scopedByMachine } = await gatewayClient.graphql(
 				`
 			query MachineDetailPageData($machineId: ID!) {
@@ -118,48 +147,6 @@ export function MachineDetailPage(props) {
 			);
 			setCanEditMachine(scopedByMachine.machine.canEdit);
 			props.receiveStreams({ streams: scopedByMachine.streamsLegacy });
-			setPageDataLoaded(true);
-		} catch (error) {
-			console.warn(error);
-		}
-	};
-
-	const handleState = (state) => {
-		props.setAppState(state);
-	};
-
-	useEffect(() => {
-		if (isConnected) {
-			loadUser();
-		}
-	}, [isConnected]);
-
-	useEffect(() => {
-		if (userLoaded) {
-			loadPageData();
-		}
-	}, [userLoaded]);
-
-	const loadMachine = async () => {
-		const query = qs.parse(searchParams);
-		const stream = {
-			id: query.streamId,
-			name: query.streamName
-		};
-		const newMachineName = query.machineName;
-		try {
-			const response = await props.loadSubscribeMachine(machineId, {
-				settings: { locale },
-				stream
-			});
-			const createdFromTemplate = !!response.machineserver.templateId;
-			const { machine } = response.machineserver;
-			if (createdFromTemplate) {
-				await props.rename(machine.id, newMachineName);
-				console.log(`Rerouting to machine ${machine.id}`);
-				const newURL = `/machines/${machine.id}`;
-				props.history.replace(newURL);
-			}
 			graphManager.updateCanvas(showTools, viewMode);
 			graphManager.redraw();
 		} catch (error) {
@@ -169,12 +156,12 @@ export function MachineDetailPage(props) {
 	};
 
 	useEffect(() => {
-		if (pageDataLoaded && MachineHelper.currentMachineCan(RESOURCE_ACTIONS.VIEW) && machineId) {
+		if (userLoaded && MachineHelper.currentMachineCan(RESOURCE_ACTIONS.VIEW) && machineId) {
 			loadMachine();
 			return () => props.unsubscribe(machineId);
 		}
 		return () => {};
-	}, [pageDataLoaded, machineId]);
+	}, [userLoaded, machineId]);
 
 	useEffect(() => {
 		document.title = intl.formatMessage({ id: 'TitleMachine' }, { name: machineName || 'Machine' });

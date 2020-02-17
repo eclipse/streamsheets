@@ -224,9 +224,9 @@ module.exports = class WebSocketGatewayAPI extends GatewayAPI {
 			);
 	}
 
-	loadSubscribeMachine(machineId, settings) {
+	loadSubscribeMachine(machineId, settings, scope) {
 		return this.sendRequest(
-			new LoadSubscribeMachineWebSocketRequest(this._ws, machineId, settings),
+			new LoadSubscribeMachineWebSocketRequest(this._ws, machineId, settings, scope),
 			180000
 		);
 	}

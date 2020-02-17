@@ -8,7 +8,6 @@ const { MachineServerMessagingProtocol } = require('@cedalo/protocols');
 const VERSION = require('../../package.json').version;
 const BUILD_NUMBER = require('../../meta.json').buildNumber;
 
-
 const toTypeStr = (t) => {
 	switch (t) {
 		case 's':
@@ -470,9 +469,13 @@ class LoadMachineRequestHandler extends RequestHandler {
 	async handle(request, machineserver, repositoryManager) {
 		logger.info(`load machine: ${request.machineId}...`);
 		try {
-			const result = await machineserver.loadMachine(request.machineId, request.session, async () =>
-				repositoryManager.machineRepository.findMachine(request.machineId)
-			);
+			const result = await machineserver.loadMachine(request.machineId, request.scope, async () => {
+				const machine = await repositoryManager.machineRepository.findMachine(request.machineId);
+				if (machine.isTemplate) {
+					machine.scope = request.scope;
+				}
+				return machine;
+			});
 			const newMachine = !!result.templateId;
 			if (newMachine) {
 				await repositoryManager.machineRepository.saveMachine(JSON.parse(JSON.stringify(result.machine)));
