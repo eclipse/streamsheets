@@ -307,7 +307,8 @@ class StreamsManager {
 			await stream._dispose(true);
 		}
 		this.configsManager.removeConfiguration(configId);
-		this.managerHandler.onConfigDelete(configId, !!stream);
+		const scope = stream && stream.config.scope;
+		this.managerHandler.onConfigDelete(configId, !!stream, scope);
 		return this.repo.deleteConfiguration(configId);
 	}
 

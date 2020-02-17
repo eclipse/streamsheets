@@ -6,7 +6,7 @@ export interface StreamApi extends FunctionObject {
 	findById(context: RequestContext, scope: Scope, id: ID): Promise<Stream | null>;
 	findAllStreams(context: RequestContext, scope: Scope): Promise<Array<Stream>>;
 	executeStreamCommand(context: RequestContext, scope: Scope, command: StreamCommandRequest['cmd']): Promise<any>;
-	saveStream(context: RequestContext, scope: Scope, stream: Stream): Promise<Stream | null>;
+	saveStream(context: RequestContext, scope: Scope, stream: Stream): Promise<any>;
 	deleteStream(context: RequestContext, scope: Scope, id: ID): Promise<any>;
 	reloadStreams(context: RequestContext, scope: Scope, streams: ID[]): Promise<any>;
 }

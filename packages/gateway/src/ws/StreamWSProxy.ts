@@ -19,9 +19,10 @@ const buildErrorResponse = (request: StreamWSRequest, error: any) => ({
 
 export const StreamWSProxy = {
 	handleEvent: async ({ auth, actor }: RequestContext, proxyConnection: ProxyConnection, event: any) => {
-		if(auth.isInScope(actor.scope, event.event.data.stream)){
+		const { stream, config } = event.event.data;
+		if ((stream && auth.isInScope(actor.scope, stream)) || (config && auth.isInScope(actor.scope, config))) {
 			proxyConnection.onServerEvent(event);
-		};
+		}
 	},
 	handleRequest: async (context: RequestContext, proxyConnection: ProxyConnection, message: StreamWSRequest) => {
 		switch (message.type) {
@@ -36,8 +37,8 @@ export const StreamWSProxy = {
 			}
 			case StreamsMessagingProtocol.MESSAGE_TYPES.STREAM_CONFIG_SAVE: {
 				try {
-					const stream = await context.api.stream.saveStream(message.scope, message.configuration);
-					proxyConnection.onServerEvent(buildResponse(message, { result: stream }));
+					const result = await context.api.stream.saveStream(message.scope, message.configuration);
+					proxyConnection.onServerEvent(buildResponse(message, result));
 				} catch (error) {
 					proxyConnection.onServerEvent(buildErrorResponse(message, error));
 				}

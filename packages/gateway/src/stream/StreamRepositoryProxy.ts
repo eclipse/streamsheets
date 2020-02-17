@@ -72,13 +72,13 @@ export class StreamRepositoryProxy {
 		return result;
 	}
 
-	async saveStream(stream: Stream): Promise<Stream> {
+	async saveStream(stream: Stream): Promise<any> {
 		const message: Omit<SaveStreamRequest, 'scope'> = {
 			type: STREAM_CONFIG_SAVE,
 			requestId: Math.random(),
 			configuration: stream
 		};
-		const { result } = await this.requestHelper.doRequestMessage({ message, topic: SERVICES_STREAMS_INPUT });
+		const result = await this.requestHelper.doRequestMessage({ message, topic: SERVICES_STREAMS_INPUT });
 		return result;
 	}
 

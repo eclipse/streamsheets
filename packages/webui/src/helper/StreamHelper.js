@@ -240,14 +240,13 @@ export default class StreamHelper {
 	}
 
 	static async remove(scope, id) {
-		return new Promise((resolve, reject) => {
-			gatewayClient.connect(CONFIG)
-				.then(() => gatewayClient.deleteDSConfiguration(scope, id))
-				.then((res) => {
-					resolve(res);
-				})
-				.catch(e => reject(new Error(e)));
-		});
+		try {
+			await gatewayClient.connect(CONFIG);
+			const result = await gatewayClient.deleteDSConfiguration(scope, id);
+			return result;
+		} catch (error) {
+			throw new Error(error);
+		}
 	}
 
 	static async reloadAllOnMachineServer(scope, sources = []) {

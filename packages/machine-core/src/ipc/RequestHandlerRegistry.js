@@ -272,10 +272,8 @@ class StreamChanged extends ARequestHandler {
 }
 class StreamDeleted extends ARequestHandler {
 	handle(msg) {
-		if (msg.descriptor.scope.id === this.machine.scope) {
-			Streams.unregisterSource(msg.descriptor, this.machine);
-			this.machine.notifyUpdate('namedCells');
-		}
+		Streams.unregisterSource(msg.descriptor, this.machine);
+		this.machine.notifyUpdate('namedCells');
 		return Promise.resolve();
 	}
 }
