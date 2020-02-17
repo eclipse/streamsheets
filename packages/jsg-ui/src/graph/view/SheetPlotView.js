@@ -171,7 +171,7 @@ export default class SheetPlotView extends NodeView {
 						text = current;
 					}
 				} else {
-					text = this.formatNumber(current, axis.scale.format);
+					text = this.formatNumber(current, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
 				}
 			}
 
@@ -425,6 +425,19 @@ export default class SheetPlotView extends NodeView {
 			value = map.get('fontstyle');
 			if (value !== undefined ) {
 				data.format.fontStyle = Number(map.get('fontstyle'));
+			}
+			value = map.get('numberformat');
+			if (value === 'General') {
+				data.format.numberFormat = undefined;
+				data.format.localCulture = undefined;
+			} else {
+				if (value !== undefined) {
+					data.format.numberFormat = map.get('numberformat');
+				}
+				value = map.get('localculture');
+				if (value !== undefined) {
+					data.format.localCulture = map.get('localculture');
+				}
 			}
 			this.getItem().finishCommand(cmd, key);
 			viewer.getInteractionHandler().execute(cmd);

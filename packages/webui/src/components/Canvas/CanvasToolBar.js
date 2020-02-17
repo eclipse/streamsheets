@@ -758,30 +758,29 @@ export class CanvasToolBar extends Component {
 	};
 
 	onFormatNumberFormat = (format) => {
-		if (
-			graphManager
-				.getGraphEditor()
-				.getSelectionProvider()
-				.hasSelection()
-		) {
-			return;
-		}
-
-		const sheetView = graphManager.getActiveSheetView();
-		if (!sheetView) {
-			return;
-		}
-
 		const attributesMap = new Dictionary();
 
 		attributesMap.put(TextFormatAttributes.NUMBERFORMAT, format.nf);
 		attributesMap.put(TextFormatAttributes.LOCALCULTURE, format.local);
 
-		const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
-		graphManager
-			.getGraphViewer()
-			.getInteractionHandler()
-			.execute(cmd);
+		const sheetView = graphManager.getActiveSheetView();
+		if (sheetView) {
+			const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
+			graphManager
+				.getGraphViewer()
+				.getInteractionHandler()
+				.execute(cmd);
+		} else if (
+			graphManager
+				.getGraphEditor()
+				.getSelectionProvider()
+				.hasSelection()
+		) {
+			graphManager
+				.getGraphEditor()
+				.getInteractionHandler()
+				.applyTextFormatMap(attributesMap);
+		}
 
 		this.setState({
 			showNumberFormat: false
@@ -1802,7 +1801,7 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							color="inherit"
 							onClick={this.onShowNumberFormat}
-							disabled={!this.props.cellSelected}
+							disabled={!this.props.cellSelected && !this.state.graphSelected}
 							style={{
 								height: '34px',
 								width: '70px',
@@ -1811,7 +1810,7 @@ export class CanvasToolBar extends Component {
 						>
 							<span
 								style={{
-									color: this.props.cellSelected ? '#757575' : '#CCCCCC',
+									color: this.props.cellSelected || this.state.graphSelected ? '#757575' : '#CCCCCC',
 									fontWeight: 'bold',
 									fontSize: '10pt'
 								}}
@@ -1820,7 +1819,7 @@ export class CanvasToolBar extends Component {
 							</span>
 							<SvgIcon>
 								<path
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
+									fill={this.props.cellSelected || this.state.graphSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M7,10L12,15L17,10H7Z"
 								/>
