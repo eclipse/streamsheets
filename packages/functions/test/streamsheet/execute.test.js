@@ -853,6 +853,19 @@ describe('execute', () => {
 		sheet1.processor._isProcessing = true;
 		expect(EXECUTE(sheet1, target, repeat, Term.fromString('data'))).toBe(false);
 	});
+	// DL-3731:
+	test('check passed message', async () => {
+		const t1 = machine.getStreamSheetByName('T1');
+		const t2 = machine.getStreamSheetByName('T2');
+		t1.trigger = StreamSheetTrigger.create({ type: 'execute', repeat: 'once'  });
+		t2.trigger = StreamSheetTrigger.create({ type: 'always' });
+		t2.sheet.load({ cells: { A2: 'tests', B2: 'tests', A4: { formula: 'execute("T1", 1, JSON(A2:B2))' } } });
+		expect(t1.inbox.size).toBe(0);
+		await machine.step();
+		const msg = t1.inbox.peek();
+		expect(msg).toBeDefined();
+		expect(msg.data.tests).toBe('tests');
+	});
 });
 describe('concatenated execute() usage', () => {
 	// DL-1114
