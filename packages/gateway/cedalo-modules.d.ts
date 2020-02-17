@@ -10,6 +10,13 @@ declare module '@cedalo/logger' {
 	}
 }
 
+declare module '@cedalo/service-core' {
+	class MessagingRequestHelper {
+		constructor(messagingClient: any);
+		doRequestMessage(request: { message: any; topic: string }): Promise<any>;
+	}
+}
+
 declare module '@cedalo/protocols' {
 	class GatewayMessagingProtocol {
 		static MESSAGE_TYPES: {
@@ -72,23 +79,18 @@ declare module '@cedalo/protocols' {
 
 	class StreamsMessagingProtocol {
 		static MESSAGE_TYPES: {
-			ADD_MESSAGE_MESSAGE_TYPE: 'message_add';
-			COMMAND_MESSAGE_TYPE: 'command';
-			CREATE_GRAPH_MESSAGE_TYPE: 'graph_create';
-			CREATE_STREAMSHEET_MESSAGE_TYPE: 'streamsheet_create';
-			DELETE_GRAPH_MESSAGE_TYPE: 'graph_delete';
-			DELETE_STREAMSHEET_MESSAGE_TYPE: 'streamsheet_delete';
-			GET_GRAPH_MESSAGE_TYPE: 'graph_get';
-			LOAD_GRAPH_MESSAGE_TYPE: 'graph_load';
-			LOAD_SUBSCRIBE_GRAPH_MESSAGE_TYPE: 'graph_load_subscribe';
+			STREAM_CONFIG_SAVE: 'stream_config_save';
+			STREAM_CONFIG_DELETE: 'stream_config_delete';
+			STREAM_CONFIG_LOAD: 'stream_config_load';
+			STREAMS_CONFIG_LOAD_ALL: 'stream_config_load_all';
+			STREAM_UPDATE: 'stream_update';
+			STREAM_TEST: 'stream_test';
+			STREAM_LIST: 'stream_list';
+			STREAM_RELOAD: 'stream_reload';
+			STREAM_RELOAD_ALL: 'stream_reload_all';
+			STREAM_COMMAND_MESSAGE_TYPE: 'stream_command';
+			STREAM_LOOKUP_REQUEST: 'stream_lookup_request';
 			META_INFORMATION_MESSAGE_TYPE: 'meta_information';
-			PING_GRAPHSOCKETSERVER_MESSAGE_TYPE: 'ping_graphsocketserver';
-			SELECTION_MESSAGE_TYPE: 'selection';
-			SUBSCRIBE_GRAPH_MESSAGE_TYPE: 'graph_subscribe';
-			REDO_MESSAGE_TYPE: 'redo';
-			UNDO_MESSAGE_TYPE: 'undo';
-			UNSUBSCRIBE_GRAPH_MESSAGE_TYPE: 'graph_unsubscribe';
-			UPDATE_PROCESS_SHEET_MESSAGE_TYPE: 'update_process_sheets';
 		};
 	}
 

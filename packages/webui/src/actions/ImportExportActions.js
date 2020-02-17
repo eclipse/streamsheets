@@ -41,19 +41,28 @@ export function showImportDialog(importData) {
 		};
 
 		dispatch(fetchExistingEntities(allowedImportData));
-		const { machines } = await gatewayClient.graphql(
-			`{
-				machines {
-					  name
-					  id
+		const scope = store.getState().user.user.scope;
+		const {
+			scoped: { machines, streamsLegacy }
+		} = await gatewayClient.graphql(
+			`query GetImportInfo($scope: ScopeInput!) {
+				scoped(scope: $scope) {
+					machines {
+						  name
+						  id
+					}
+					streamsLegacy {
+						name
+						id
+					}
 				}
-			}`
+			}`,
+			{ scope }
 		);
-		const result = await gatewayClient.loadAllDSConfigurations();
 		dispatch(
 			receiveExistingEntities({
 				existingMachines: machines,
-				existingStreams: result.response.streams
+				existingStreams: streamsLegacy
 			})
 		);
 	};

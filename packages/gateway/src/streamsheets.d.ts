@@ -1,6 +1,8 @@
 import { Authorization, BaseAuth } from './authorization';
 import { API, RawAPI } from './glue';
 import { Actor, UserRepository } from './user';
+import { StreamRepositoryProxy } from './stream/StreamRepositoryProxy';
+import { Stream } from './stream/types';
 
 export interface GlobalContext {
 	rawApi: RawAPI;
@@ -9,6 +11,7 @@ export interface GlobalContext {
 	repositories: any;
 	userRepo: UserRepository;
 	machineRepo: any;
+	streamRepo: StreamRepositoryProxy;
 }
 
 export interface RequestContext extends GlobalContext {
@@ -299,6 +302,99 @@ export interface Sheet {
 	machineId: ID;
 }
 
-export interface Stream {
-	scope?: Scope;
+export interface BaseStreamWSRequest {
+	requestId: number;
+	scope: Scope;
 }
+
+export interface BaseStreamWSResponse {
+	type: 'response';
+	requestId: number;
+}
+
+export interface StreamCommandRequest extends BaseStreamWSRequest {
+	type: 'stream_command';
+	cmd: {
+		streamId: ID;
+	};
+}
+
+export interface ReloadStreamsRequest extends BaseStreamWSRequest {
+	type: 'stream_reload';
+	sources?: Array<ID>;
+}
+
+export interface DeleteStreamRequest extends BaseStreamWSRequest {
+	type: 'stream_config_delete';
+	configId: ID;
+}
+
+export interface GetStreamRequest extends BaseStreamWSRequest {
+	type: 'stream_config_load';
+	configId: ID;
+}
+
+export interface SaveStreamRequest extends BaseStreamWSRequest {
+	type: 'stream_config_save';
+	configuration: Stream;
+}
+
+export interface GetAllStreamsRequest extends BaseStreamWSRequest {
+	type: 'stream_config_load_all';
+}
+
+export interface StreamCommandResponse extends BaseStreamWSResponse {
+	requestType: 'stream_command';
+	response: {
+		result: any;
+	};
+}
+
+export interface ReloadStreamsResponse extends BaseStreamWSResponse {
+	requestType: 'stream_reload';
+	response: {};
+}
+
+export interface DeleteStreamResponse extends BaseStreamWSResponse {
+	requestType: 'stream_config_delete';
+	response: {
+		id: ID;
+		result: any;
+	};
+}
+
+export interface SaveStreamResponse extends BaseStreamWSResponse {
+	requestType: 'stream_config_save';
+	response: {
+		id: ID;
+		result: Stream;
+	};
+}
+
+export interface GetStreamResponse extends BaseStreamWSResponse {
+	requestType: 'stream_config_load';
+	response: Stream;
+}
+
+export interface GetAllStreamsResponse extends BaseStreamWSResponse {
+	requestType: 'stream_config_load_all';
+	response: {
+		streams: Array<Stream>;
+	};
+}
+
+export type StreamWSRequest =
+	| StreamCommandRequest
+	| ReloadStreamsRequest
+	| DeleteStreamRequest
+	| SaveStreamRequest
+	| GetStreamRequest
+	| GetAllStreamsRequest;
+
+export type StreamWSResponse =
+	| StreamCommandResponse
+	| ReloadStreamsResponse
+	| DeleteStreamResponse
+	| SaveStreamResponse
+	| GetStreamResponse
+	| GetAllStreamsResponse;

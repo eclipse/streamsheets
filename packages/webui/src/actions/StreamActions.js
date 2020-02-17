@@ -1,20 +1,22 @@
 import StreamHelper from '../helper/StreamHelper';
 import * as ActionTypes from '../constants/ActionTypes';
 import * as messageTypes from '../constants/WebsocketMessageTypes';
+import store from '../store';
 
 const requestFailed = (type, error) => ({ type: messageTypes.REQUEST_FAILED, request: type, error });
 
-export async function executeStreamCommand(cmd) {
-	return async (dispatch) => {
-		dispatch({ type: 'STREAM_COMMAND_REQUEST', configType: type });
-		return StreamHelper.executeStreamCommand(cmd);
+export function executeStreamCommand(cmd) {
+	return () => {
+		const scope = store.getState().user.user.scope;
+		return StreamHelper.executeStreamCommand(scope, cmd);
 	};
 }
 
 export function fetchAllConfigurationsByType(type) {
 	return (dispatch) => {
 		dispatch({ type: `FETCH_${type}S_FETCHING`, configType: type });
-		return StreamHelper.findAllByType(type)
+		const scope = store.getState().user.user.scope;
+		return StreamHelper.findAllByType(scope, type)
 			.then((configs) => {
 				dispatch({ type: `FETCH_${type}S_FULFILLED`, configType: type, payload: configs.slice(0) });
 			})
@@ -27,23 +29,24 @@ export function fetchAllConfigurationsByType(type) {
 export function setConfigurationSaved() {
 	return (dispatch) => {
 		dispatch({
-			type: 'SAVING_FULFILLED',
+			type: 'SAVING_FULFILLED'
 		});
 	};
 }
 export function saveConfiguration(configuration) {
 	return async (dispatch) => {
 		dispatch({
-			type: 'SAVING_PENDING',
+			type: 'SAVING_PENDING'
 		});
 		try {
-			const resp = await StreamHelper.save(configuration);
+			const scope = store.getState().user.user.scope;
+			const resp = await StreamHelper.save(scope, configuration);
 			const { result } = resp.response;
 			if (!result.error) {
 				dispatch({
 					type: 'SAVING_FULFILLED',
 					configType: configuration.className,
-					payload: resp,
+					payload: resp
 				});
 			} else {
 				dispatch({
@@ -52,30 +55,31 @@ export function saveConfiguration(configuration) {
 					payload: {
 						config: configuration,
 						result
-					},
+					}
 				});
 			}
 			return resp;
-		} catch(error) {
+		} catch (error) {
 			dispatch({
 				type: ActionTypes.STREAM_SAVING_ERROR,
 				configType: configuration.className,
-				payload: error,
+				payload: error
 			});
-			return {error};
+			return { error };
 		}
 	};
 }
 export function reloadAllStreams(sources) {
 	return (dispatch) => {
 		dispatch({ type: ActionTypes.STREAMS_RELOAD_REQUEST, sources });
-		StreamHelper.reloadAllOnMachineServer(sources)
+		const scope = store.getState().user.user.scope;
+		StreamHelper.reloadAllOnMachineServer(scope, sources)
 			.then((res) => {
-				dispatch({ type:  ActionTypes.STREAMS_RELOAD_RESPONSE, response: res });
+				dispatch({ type: ActionTypes.STREAMS_RELOAD_RESPONSE, response: res });
 			})
 			.catch((error) => {
 				dispatch(requestFailed(messageTypes.STREAMS_RELOAD, error));
-				dispatch({type:  ActionTypes.STREAMS_RELOAD_ERROR, error, sources})
+				dispatch({ type: ActionTypes.STREAMS_RELOAD_ERROR, error, sources });
 			});
 	};
 }
@@ -119,8 +123,8 @@ export function setConfigurationActive(id, type) {
 			configType: type,
 			payload: {
 				id,
-				type,
-			},
+				type
+			}
 		});
 	};
 }
@@ -147,19 +151,19 @@ export function deleteActiveConfiguration(id) {
 	return (dispatch) =>
 		new Promise(async (resolve, reject) => {
 			try {
-				const response = await StreamHelper.remove(id);
+				const scope = store.getState().user.user.scope;
+				const response = await StreamHelper.remove(scope, id);
 				dispatch({
 					type: 'DS_DELETE_ACTIVE',
 					payload: {
 						id,
 						response
-					},
+					}
 				});
 				return resolve(response);
 			} catch (e) {
 				dispatch({ type: 'DELETING_ERROR', id, payload: e });
 				return reject(e);
 			}
-		})
+		});
 }
-

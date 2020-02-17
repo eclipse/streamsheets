@@ -7,7 +7,9 @@ const { createAndConnect } = require('@cedalo/messaging-client');
 const descriptorFromEvent = (event) => {
 	const stream = event && event.data && event.data.stream;
 	const timestamp = stream && event.data.timestamp && new Date(event.data.timestamp).getTime();
-	return stream ? { id: stream.id, name: stream.name, type: stream.type, state: stream.state, timestamp } : undefined;
+	return stream
+		? { id: stream.id, name: stream.name, type: stream.type, state: stream.state, timestamp, scope: stream.scope }
+		: undefined;
 };
 
 const handleEvent = (event, callback) => {

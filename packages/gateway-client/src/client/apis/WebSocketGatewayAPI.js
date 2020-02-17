@@ -89,30 +89,30 @@ module.exports = class WebSocketGatewayAPI extends GatewayAPI {
 	 * ******************************************************************************************
 	 */
 
-	executeStreamCommand(cmd) {
-		return this.sendRequest(new StreamCommandSocketRequest(this._ws, cmd));
+	executeStreamCommand(scope, cmd) {
+		return this.sendRequest(new StreamCommandSocketRequest(this._ws, scope, cmd));
 	}
 
-	saveDSConfiguration(configuration) {
+	saveDSConfiguration(scope, configuration) {
 		return this.sendRequest(
-			new DSConfigurationSaveSocketRequest(this._ws, configuration)
+			new DSConfigurationSaveSocketRequest(this._ws, scope, configuration)
 		);
 	}
 
-	loadAllDSConfigurations() {
+	loadAllDSConfigurations(scope) {
 		return this.sendRequest(
-			new DSConfigurationLoadAllSocketRequest(this._ws)
+			new DSConfigurationLoadAllSocketRequest(this._ws, scope)
 		);
 	}
 
-	deleteDSConfiguration(configId) {
+	deleteDSConfiguration(scope, configId) {
 		return this.sendRequest(
-			new DSConfigurationDeleteSocketRequest(this._ws, configId)
+			new DSConfigurationDeleteSocketRequest(this._ws, scope, configId)
 		);
 	}
 
-	reloadStreams(sources = []) {
-		return this.sendRequest(new DSReloadSocketRequest(this._ws, sources));
+	reloadStreams(scope, sources = []) {
+		return this.sendRequest(new DSReloadSocketRequest(this._ws, scope, sources));
 	}
 
 	login(credentials) {

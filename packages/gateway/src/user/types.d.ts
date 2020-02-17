@@ -10,7 +10,7 @@ export interface User {
 	lastName?: string;
 	settings?: UserSettings;
 	lastModified?: string;
-	scope?: Scope;
+	scope: Scope;
 }
 
 export interface NewUser extends User {

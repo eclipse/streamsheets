@@ -268,8 +268,8 @@ module.exports = class BaseGatewayClient {
 	 * ******************************************************************************************
 	 */
 
-	executeStreamCommand(cmd) {
-		return this.socket.executeStreamCommand(cmd);
+	executeStreamCommand(scope, cmd) {
+		return this.socket.executeStreamCommand(scope, cmd);
 	}
 
 	graphql(query, variables) {
@@ -643,23 +643,23 @@ module.exports = class BaseGatewayClient {
 	 * *********************************************
 	 */
 
-	saveDSConfiguration(configuration) {
-		return this.socket.saveDSConfiguration(configuration);
+	saveDSConfiguration(scope, configuration) {
+		return this.socket.saveDSConfiguration(scope, configuration);
 	}
 
-	loadAllDSConfigurations() {
-		return this.socket.loadAllDSConfigurations();
+	loadAllDSConfigurations(scope) {
+		return this.socket.loadAllDSConfigurations(scope);
 	}
 
-	deleteDSConfiguration(configId) {
+	deleteDSConfiguration(scope, configId) {
 		if (typeof configId === 'undefined') {
 			return Promise.resolve(null);
 		}
-		return this.socket.deleteDSConfiguration(configId);
+		return this.socket.deleteDSConfiguration(scope, configId);
 	}
 
-	reloadStreams(sources = []) {
-		return this.socket.reloadStreams(sources);
+	reloadStreams(scope, sources = []) {
+		return this.socket.reloadStreams(scope, sources);
 	}
 
 	/**

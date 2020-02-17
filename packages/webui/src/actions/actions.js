@@ -405,7 +405,8 @@ export function timeoutStreamControlEvent(stream) {
 }
 
 function _getDataStores(dispatch) {
-	return gatewayClient.loadAllDSConfigurations().then((response) => {
+	const scope = store.getState().user.user.scope;
+	return gatewayClient.loadAllDSConfigurations(scope).then((response) => {
 		// const { session } = response;
 		// localStorage.setItem('user', JSON.stringify(session.user));
 		// sessionStorage.setItem('sessionId', session ? session.id : '');
@@ -424,6 +425,9 @@ export function getMe() {
 			`{
 				me {
 					id
+					scope {
+						id
+					}
 					username
 					lastName
 					firstName
@@ -442,6 +446,7 @@ export function getMe() {
 			JSON.stringify({ id: user.id, displayName, settings: user.settings })
 		);
 		dispatch({ type: ActionTypes.USER_FETCHED, user });
+		return user;
 	};
 }
 
@@ -829,18 +834,20 @@ export function openUser(user) {
 }
 
 export async function machineWithSameNameExists(machineId, name) {
-	const result = await gatewayClient.graphql(
+	const {scopedByMachine} = await gatewayClient.graphql(
 		`
-		query MachinesWithName($name: String) {
-			machines(name: $name) {
-				id
-				name
+		query MachinesWithName($name: String, $machineId: ID) {
+			scopedByMachine(machineId: $machineId) {
+				machines(name: $name) {
+					id
+					name
+				}
 			}
 		}
 	  `,
-		{ name }
+		{ name, machineId }
 	);
-	const otherWithSameName = result.machines.filter(({ id }) => id === machineId);
+	const otherWithSameName = scopedByMachine.machines.filter(({ id }) => id === machineId);
 	return otherWithSameName.length > 0;
 }
 
@@ -982,7 +989,8 @@ export function getDataStores() {
 		dispatch({
 			type: ActionTypes.FETCH_STREAMS,
 		});
-		return gatewayClient.loadAllDSConfigurations().then((response) => {
+		const scope = store.getState().user.user.scope;
+		return gatewayClient.loadAllDSConfigurations(scope).then((response) => {
 			// const { session } = response;
 			// localStorage.setItem('user', JSON.stringify(session.user));
 			// sessionStorage.setItem('sessionId', session ? session.id : '');

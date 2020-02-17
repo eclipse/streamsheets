@@ -53,30 +53,34 @@ export class DefaultLayout extends React.Component {
 			if (!props.isConnected) {
 				await props.connect();
 			}
-			await props.getMe();
+			const me = await props.getMe();
 			await props.getMachines(`
-			{
-				machines {
-					name
-					id
-					metadata {
-						lastModified
-						owner
-					}
-					previewImage
-					titleImage
-					streamsheets {
+			query Machines($scope: ScopeInput!) {
+				scoped(scope: $scope) {
+					machines {
 						name
-						inbox {
-							stream {
-								name
+						id
+						metadata {
+							lastModified
+							owner
+						}
+						titleImage
+						previewImage
+						streamsheets {
+							name
+							inbox {
+								stream {
+									name
+								}
 							}
 						}
+						state
 					}
-					state
 				}
 			}
-			`);
+			`,
+				{ scope: me.scope }
+			);
 			await props.getDataStores();
 
 			props.setAppState({ experimental: localStorage.getItem('experimental') === 'true' });

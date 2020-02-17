@@ -6,8 +6,17 @@ export type UserAction = 'create' | 'delete' | 'view' | 'update';
 
 const isAdmin = (context: RequestContext, user: User) => user.id === '00000000000000';
 const isSelf = ({ actor }: RequestContext, user: User) => actor.id === user.id;
-const isValidScope = ({ actor, auth }: RequestContext, scope?: Scope) =>
-	auth.isAdmin(actor) || (scope ? actor.scope?.id === scope.id : false);
+const isValidScope = ({ actor, auth }: RequestContext, scope: Scope) => {
+	if (!scope) {
+		throw new Error('MISSING_SCOPE');
+	} else {
+		return auth.isAdmin(actor) || actor.scope?.id === scope.id;
+	}
+};
+
+const isInScope = (context: RequestContext, scope: Scope, withScope: { scope?: Scope }) =>
+	scope.id === 'root' || scope.id === withScope.scope?.id;
+
 const rights = ({ actor, auth }: RequestContext) =>
 	auth.isAdmin(actor)
 		? ['machine.view', 'machine.edit', 'stream', 'user.edit', 'user.view', 'database']
@@ -32,5 +41,6 @@ export const UserAuth = {
 	isSelf,
 	rights,
 	isValidScope,
-	userCan
+	userCan,
+	isInScope
 };

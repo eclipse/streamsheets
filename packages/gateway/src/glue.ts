@@ -3,6 +3,7 @@ import { GlobalContext, ID, Machine, RequestContext, Scope } from './streamsheet
 import { Actor, UserApi, BaseUserApi } from './user';
 import { FunctionObject, PartialApply1All } from './common';
 import { InternalError } from './errors';
+import { BaseStreamApi, StreamApi } from './stream';
 
 export const createApi = <T extends FunctionObject>(context: RequestContext, rawApi: T): PartialApply1All<T> =>
 	Object.entries(rawApi).reduce(
@@ -23,16 +24,18 @@ export interface RawAPI {
 	user: BaseUserApi;
 	machine: {
 		findMachine(context: RequestContext, machineId: ID): Promise<Machine | null>;
-		findMachines(context: RequestContext, scope?: Scope): Promise<Machine[]>;
+		findMachines(context: RequestContext, scope: Scope): Promise<Machine[]>;
 	};
+	stream: BaseStreamApi;
 }
 
 export interface API {
 	user: UserApi;
 	machine: {
 		findMachine(machineId: ID): Promise<Machine | null>;
-		findMachines(scope?: Scope): Promise<Machine[]>;
+		findMachines(scope: Scope): Promise<Machine[]>;
 	};
+	stream: StreamApi;
 }
 
 export const RawAPI = {
@@ -45,7 +48,7 @@ export const RawAPI = {
 			}
 			return machine;
 		},
-		findMachines: async ({ machineRepo, auth }: RequestContext, scope?: Scope): Promise<Machine[]> => {
+		findMachines: async ({ machineRepo, auth }: RequestContext, scope: Scope): Promise<Machine[]> => {
 			const validScope = auth.isValidScope(scope);
 			if (!validScope) {
 				return [];
@@ -54,7 +57,8 @@ export const RawAPI = {
 			const machines = await machineRepo.findMachines(query);
 			return machines;
 		}
-	}
+	},
+	stream: BaseStreamApi
 };
 
 export default (globalContext: GlobalContext, actor: Actor): RequestContext => {

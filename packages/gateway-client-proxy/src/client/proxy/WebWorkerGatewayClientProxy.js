@@ -57,8 +57,8 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('waitUntilAllServersAreConnected', timeout);
 	}
 
-	executeStreamCommand(cmd) {
-		return this._proxy('executeStreamCommand', cmd);
+	executeStreamCommand(scope, cmd) {
+		return this._proxy('executeStreamCommand', scope, cmd);
 	}
 
 	graphql(query, variables) {
@@ -324,20 +324,20 @@ module.exports = class WebWorkerGatewayClientProxy {
 	 * *********************************************
 	 */
 
-	saveDSConfiguration(configuration) {
-		return this._proxy('saveDSConfiguration', configuration);
+	saveDSConfiguration(scope, configuration) {
+		return this._proxy('saveDSConfiguration', scope, configuration);
 	}
 
-	loadAllDSConfigurations() {
-		return this._proxy('loadAllDSConfigurations');
+	loadAllDSConfigurations(scope) {
+		return this._proxy('loadAllDSConfigurations', scope );
 	}
 
-	deleteDSConfiguration(configId) {
-		return this._proxy('deleteDSConfiguration', configId);
+	deleteDSConfiguration(scope, configId) {
+		return this._proxy('deleteDSConfiguration', scope, configId);
 	}
 
-	reloadStreams(sources) {
-		return this._proxy('reloadStreams', sources);
+	reloadStreams(scope, sources) {
+		return this._proxy('reloadStreams', scope, sources);
 	}
 
 	/**

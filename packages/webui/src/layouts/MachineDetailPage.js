@@ -96,26 +96,28 @@ export function MachineDetailPage(props) {
 
 	const loadPageData = async () => {
 		try {
-			const result = await gatewayClient.graphql(
+			const { scopedByMachine } = await gatewayClient.graphql(
 				`
 			query MachineDetailPageData($machineId: ID!) {
-				streamsLegacy {
-					name
-					id
-					className
-					status {
-						streamEventType
+				scopedByMachine(machineId: $machineId) {
+					streamsLegacy {
+						name
+						id
+						className
+						status {
+							streamEventType
+						}
 					}
-				}
-				machine(id: $machineId) {
-					canEdit
+					machine(id: $machineId) {
+						canEdit
+					}
 				}
 			}
 			`,
 				{ machineId }
 			);
-			setCanEditMachine(result.machine.canEdit);
-			props.receiveStreams({ streams: result.streamsLegacy });
+			setCanEditMachine(scopedByMachine.machine.canEdit);
+			props.receiveStreams({ streams: scopedByMachine.streamsLegacy });
 			setPageDataLoaded(true);
 		} catch (error) {
 			console.warn(error);

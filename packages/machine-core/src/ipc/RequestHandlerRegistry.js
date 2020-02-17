@@ -259,19 +259,23 @@ class StreamChanged extends ARequestHandler {
 		return false;
 	}
 	handle(msg) {
-		if (machineLoaded) {
-			Streams.registerSource(msg.descriptor, this.machine);
-			this.machine.notifyUpdate('namedCells');
-		} else {
-			updateCurrentStream(msg.descriptor);
+		if (msg.descriptor.scope) {
+			if (machineLoaded && this.machine.scope && msg.descriptor.scope.id === this.machine.scope.id) {
+				Streams.registerSource(msg.descriptor, this.machine);
+				this.machine.notifyUpdate('namedCells');
+			} else {
+				updateCurrentStream(msg.descriptor);
+			}
 		}
 		return Promise.resolve();
 	}
 }
 class StreamDeleted extends ARequestHandler {
 	handle(msg) {
-		Streams.unregisterSource(msg.descriptor, this.machine);
-		this.machine.notifyUpdate('namedCells');
+		if (msg.descriptor.scope.id === this.machine.scope) {
+			Streams.unregisterSource(msg.descriptor, this.machine);
+			this.machine.notifyUpdate('namedCells');
+		}
 		return Promise.resolve();
 	}
 }
@@ -387,7 +391,7 @@ class ExecuteFunction extends ARequestHandler {
 	get isModifying() {
 		return false;
 	}
-	handle({ funcstr, streamsheetId}) {
+	handle({ funcstr, streamsheetId }) {
 		let err;
 		let result;
 		const streamsheet = this.machine.getStreamSheet(streamsheetId);
@@ -459,7 +463,11 @@ class Load extends ARequestHandler {
 	}
 	handle({ machineDefinition, functionDefinitions }) {
 		try {
-			this.machine.load(machineDefinition, functionDefinitions, Array.from(currentStreams.values()));
+			this.machine.load(
+				machineDefinition,
+				functionDefinitions,
+				Array.from(currentStreams.values()).filter((stream) => stream.scope && stream.scope.id === machineDefinition.scope.id)
+			);
 			MachineTaskMessagingClient.register(this.machine);
 			machineLoaded = true;
 			return Promise.resolve(getDefinition(this.machine));
@@ -554,7 +562,7 @@ class Pause extends ARequestHandler {
 	handle(/* msg */) {
 		return this.machine.pause().then(() => ({
 			machine: { id: this.machine.id, state: this.machine.state, name: this.machine.name }
-		}))
+		}));
 	}
 }
 class RegisterFunctionModules extends ARequestHandler {
@@ -568,7 +576,7 @@ class RegisterFunctionModules extends ARequestHandler {
 		modules.forEach((mod) => FunctionRegistry.registerFunctionModule(mod));
 		return Promise.resolve();
 	}
-};
+}
 
 class RegisterStreams extends ARequestHandler {
 	get isModifying() {
@@ -809,7 +817,7 @@ class Subscribe extends ARequestHandler {
 				}),
 				machineDescriptor: createMachineDescriptor(this.machine)
 			}
-		})
+		});
 	}
 }
 class Unsubscribe extends ARequestHandler {
@@ -826,7 +834,7 @@ class Unsubscribe extends ARequestHandler {
 				name: this.machine.name,
 				subscribed: true
 			}
-		})
+		});
 	}
 }
 class Update extends ARequestHandler {
@@ -838,7 +846,7 @@ class Update extends ARequestHandler {
 }
 class UpdateMachine extends ARequestHandler {
 	handle(msg) {
-		setGlobalNamedCells(this.machine, toMapObject(msg.names.filter(({name}) => !name.startsWith('|'))));
+		setGlobalNamedCells(this.machine, toMapObject(msg.names.filter(({ name }) => !name.startsWith('|'))));
 		Object.entries(msg.sheets).forEach(([name, sheetdescr]) => {
 			const streamsheet = this.machine.getStreamSheetByName(name);
 			const sheet = streamsheet && streamsheet.sheet;
@@ -866,7 +874,7 @@ class UpdateMachineMonitor extends ARequestHandler {
 		return new Promise((resolve /* , reject */) => {
 			this.monitor.update(msg.props);
 			resolve({ machine: { id: this.machine.id, state: this.machine.state, name: this.machine.name } });
-		})
+		});
 	}
 }
 class UpdateStreamSheet extends ARequestHandler {
@@ -880,16 +888,15 @@ class UpdateStreamSheet extends ARequestHandler {
 			} else {
 				reject(new Error(`Unknown streamsheet id: ${msg.streamsheetId}`));
 			}
-		})
+		});
 	}
 }
-
 
 class RequestHandlerRegistry {
 	static of(monitor) {
 		const machine = monitor.machine;
 		const registry = new RequestHandlerRegistry();
-		registry.handlers.set('addInboxMessage', new AddInboxMessage(machine, monitor));		
+		registry.handlers.set('addInboxMessage', new AddInboxMessage(machine, monitor));
 		registry.handlers.set('createStreamSheet', new CreateStreamSheet(machine, monitor));
 		registry.handlers.set('executeFunction', new ExecuteFunction(machine, monitor));
 		registry.handlers.set('definition', new Definition(machine, monitor));

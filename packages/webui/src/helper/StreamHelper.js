@@ -109,7 +109,7 @@ export default class StreamHelper {
 		}
 		case StreamHelper.BUTTONS.START: {
 			const stream = StreamHelper.toggleDSProgress(resourceId, props);
-			StreamHelper.executeStreamCommand({
+			props.executeStreamCommand({
 				cmdType: 'custom',
 				value: undefined,
 				cmdId: 'start',
@@ -125,7 +125,7 @@ export default class StreamHelper {
 		}
 		case StreamHelper.BUTTONS.STOP: {
 			const stream = StreamHelper.toggleDSProgress(resourceId, props);
-			StreamHelper.executeStreamCommand({
+			props.executeStreamCommand({
 				cmdType: 'custom',
 				value: undefined,
 				cmdId: 'stop',
@@ -168,10 +168,10 @@ export default class StreamHelper {
 		return state;
 	}
 
-	static async executeStreamCommand(cmd) {
+	static async executeStreamCommand(scope, cmd) {
 		return new Promise((resolve, reject) => {
 			gatewayClient.connect(CONFIG)
-				.then(() => gatewayClient.executeStreamCommand(cmd))
+				.then(() => gatewayClient.executeStreamCommand(scope, cmd))
 				.then((res) => {
 					resolve(res);
 				})
@@ -179,7 +179,7 @@ export default class StreamHelper {
 		});
 	}
 
-	static async findAllByType(type) {
+	static async findAllByType(scope, type) {
 		const configClasses = {
 			providers: 'ProviderConfiguration',
 			connectors: 'ConnectorConfiguration',
@@ -188,7 +188,7 @@ export default class StreamHelper {
 		};
 		return new Promise((resolve, reject) => {
 			gatewayClient.connect(CONFIG)
-				.then(() => gatewayClient.loadAllDSConfigurations())
+				.then(() => gatewayClient.loadAllDSConfigurations(scope))
 				.then((configurations) => {
 					resolve(configurations[configClasses[type]]);
 				})
@@ -206,7 +206,7 @@ export default class StreamHelper {
 		return resource.className === 'ConnectorConfiguration';
 	};
 
-	static async save(configuration, props) {
+	static async save(scope, configuration, props) {
 		let json = {};
 		if (configuration) {
 			if (StreamHelper.isConfigClass(configuration) || configuration.className) {
@@ -229,7 +229,7 @@ export default class StreamHelper {
 			}
 			return new Promise((resolve, reject) => {
 				gatewayClient.connect(CONFIG)
-					.then(() => gatewayClient.saveDSConfiguration(json))
+					.then(() => gatewayClient.saveDSConfiguration(scope, json))
 					.then((res) => {
 						resolve(res);
 					})
@@ -239,10 +239,10 @@ export default class StreamHelper {
 		return false;
 	}
 
-	static async remove(id) {
+	static async remove(scope, id) {
 		return new Promise((resolve, reject) => {
 			gatewayClient.connect(CONFIG)
-				.then(() => gatewayClient.deleteDSConfiguration(id))
+				.then(() => gatewayClient.deleteDSConfiguration(scope, id))
 				.then((res) => {
 					resolve(res);
 				})
@@ -250,10 +250,10 @@ export default class StreamHelper {
 		});
 	}
 
-	static async reloadAllOnMachineServer(sources = []) {
+	static async reloadAllOnMachineServer(scope, sources = []) {
 		return new Promise((resolve, reject) => {
 			gatewayClient.connect(CONFIG)
-				.then(() => (gatewayClient.reloadStreams(sources)))
+				.then(() => (gatewayClient.reloadStreams(scope, sources)))
 				.then((res) => {
 					resolve(res);
 				})

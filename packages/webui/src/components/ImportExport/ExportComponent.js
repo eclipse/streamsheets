@@ -19,44 +19,48 @@ import ExportTable from './ExportTable';
 import ImportDropzone from './ImportDropzone';
 
 const TABLE_QUERY = `
-	{
-		machines {
-			id
-			name
-			referencedStreams
-		}
-
-		streams {
-			id
-			name
-			type
-			connector {
+	query ExportTable($scope: ScopeInput!) {
+		scoped(scope: $scope){
+			machines {
 				id
+				name
+				referencedStreams
 			}
-		}
-
-		connectors {
-			name
-			id
-			type
+	
+			streams {
+				id
+				name
+				type
+				connector {
+					id
+				}
+			}
+	
+			connectors {
+				name
+				id
+				type
+			}
 		}
 	}
 `;
 
 const EXPORT_QUERY = `
-	query Export($machines: [ID!]!, $streams: [ID!]!) {
-		export(machines: $machines, streams: $streams) {
-			data
-			success
+	query Export($scope: ScopeInput!, $machines: [ID!]!, $streams: [ID!]!) {
+		scoped(scope: $scope) {
+			export(machines: $machines, streams: $streams) {
+				data
+				success
+			}
 		}
 	}
 `;
 
-const doExport = async (machines, streams, fileName) => {
+const doExport = async (scope, machines, streams, fileName) => {
 	try {
-		const result = await gatewayClient.graphql(EXPORT_QUERY, { machines, streams });
-		if (result.export.success) {
-			const blob = new Blob([JSON.stringify(result.export.data, null, 2)], {
+		const { scoped } = await gatewayClient.graphql(EXPORT_QUERY, { machines, streams, scope });
+		if (scoped.export.success) {
+			const blob = new Blob([JSON.stringify(scoped.export.data, null, 2)], {
 				type: 'text/plain;charset=utf8;'
 			});
 			saveAs(blob, fileName);
@@ -121,10 +125,11 @@ const streamWithConnector = (streams, streamId) => {
 const identity = (x) => x;
 
 const ExportComponent = (props) => {
-	const { data /* errors, loading */ } = useGraphQL(TABLE_QUERY);
-	const streams = data ? data.streams : [];
-	const connectors = data ? data.connectors : [];
-	const machines = data ? data.machines : [];
+	const { scope } = props;
+	const { data /* errors, loading */ } = useGraphQL(TABLE_QUERY, { scope }, [scope.id]);
+	const streams = data ? data.scoped.streams : [];
+	const connectors = data ? data.scoped.connectors : [];
+	const machines = data ? data.scoped.machines : [];
 
 	const [selectedMachines, setSelectedMachines] = useState(props.initialMachineSelection);
 	const [selectedStreams, setSelectedStreams] = useState({});
@@ -140,10 +145,10 @@ const ExportComponent = (props) => {
 	}, [filter, sortedMachines]);
 
 	const selectLinkedStreams = (machineId) => {
-		const machine = data.machines.find((m) => m.id === machineId);
+		const machine = data.scoped.machines.find((m) => m.id === machineId);
 		if (machine) {
 			const newSelection = machine.referencedStreams.reduce(
-				(acc, cur) => ({ ...acc, ...streamWithConnector(data.streams, cur) }),
+				(acc, cur) => ({ ...acc, ...streamWithConnector(data.scoped.streams, cur) }),
 				{}
 			);
 			setSelectedStreams({ ...selectedStreams, ...newSelection });
@@ -174,7 +179,7 @@ const ExportComponent = (props) => {
 		setShowDialog(false);
 		const machinesToExport = selectionArray(selectedMachines);
 		const streamsToExport = selectionArray(selectedStreams);
-		const success = await doExport(machinesToExport, streamsToExport, filename);
+		const success = await doExport(props.scope, machinesToExport, streamsToExport, filename);
 		if (!success) {
 			props.notifyExportFailed();
 		}
@@ -356,7 +361,8 @@ function mapStateToProps(state) {
 	const [, , initialMachine] = state.router.location.pathname.split('/');
 	const initialMachineSelection = initialMachine ? { [initialMachine]: true } : {};
 	return {
-		initialMachineSelection
+		initialMachineSelection,
+		scope: state.user.user.scope
 	};
 }
 

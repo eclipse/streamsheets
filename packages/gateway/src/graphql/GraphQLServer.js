@@ -193,18 +193,23 @@ const typeDefs = gql`
 	input ScopeInput {
 		id: ID!
 	}
+	
+	type ScopedQuery {
+		machine(id: ID!): Machine
+		machines(name: String): [Machine!]!
+		machine(id: ID!): Machine
+		streams: [Stream!]!
+		connectors: [Connector!]!
+		streamsLegacy: [StreamLegacy!]!
+		export(machines: [ID!]!, streams: [ID!]!): ExportResult!
+	}
 
 	type Query {
-		machine(id: ID!): Machine
-		machines(scope: ScopeInput, name: String): [Machine!]!
-		machine(id: ID!): Machine
 		me: User!
 		user(id: ID!): User
-		users(scope: ScopeInput): [User!]!
-		streams(scope: ScopeInput): [Stream!]!
-		connectors(scope: ScopeInput): [Connector!]!
-		streamsLegacy(scope: ScopeInput): [StreamLegacy!]!
-		export(machines: [ID!]!, streams: [ID!]!): ExportResult!
+		users: [User!]!
+		scoped(scope: ScopeInput!): ScopedQuery!
+		scopedByMachine(machineId: ID!): ScopedQuery!
 	}
 
 	type Mutation {

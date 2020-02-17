@@ -57,28 +57,17 @@ const mapConnector = (c) => ({
 });
 
 const resolvers = {
-	Query: {
-		me: async (obj, args, { actor }) => actor,
+	ScopedQuery: {
 		machine: async (obj, args, { api }) => {
 			return api.machine.findMachine(args.id);
 		},
 		machines: async (obj, args, { repositories, api }) => {
 			const { machineRepository } = repositories;
-			return args.name ? machineRepository.findMachinesByName(args.name) : api.machine.findMachines(args.scope);
+			return args.name ? machineRepository.findMachinesByName(args.name) : api.machine.findMachines(obj.scope);
 		},
-		user: async (obj, { id }, { api }) => {
-			try {
-				return api.user.findUser(id);
-			} catch (error) {
-				return null;
-			}
-		},
-		users: async (obj, args, { api }) => api.user.findAllUsers(),
-		streamsLegacy: async (obj, args, { repositories, session }) =>
-			repositories.streamRepository.findAllStreams(session),
-		streams: async (obj, args, context) => {
-			const { repositories, session } = context;
-			const allConfigs = await repositories.streamRepository.findAllStreams(session);
+		streamsLegacy: async (obj, args, { api }) => api.stream.findAllStreams(obj.scope),
+		streams: async (obj, args, { api }) => {
+			const allConfigs = await api.stream.findAllStreams(obj.scope);
 			const connectors = allConfigs
 				.filter((c) => c.className === 'ConnectorConfiguration')
 				.reduce((map, c) => ({ ...map, [c.id]: mapConnector(c) }), {});
@@ -92,18 +81,19 @@ const resolvers = {
 				}));
 			return streams;
 		},
-		connectors: async (obj, args, { repositories, session }) => {
-			const allConfigs = await repositories.streamRepository.findAllStreams(session);
+		connectors: async (obj, args, { api }) => {
+			const allConfigs = await api.stream.findAllStreams(obj.scope);
 			const connectors = allConfigs.filter((c) => c.className === 'ConnectorConfiguration').map(mapConnector);
 			return connectors;
 		},
-		export: async (obj, args, { repositories, session }) => {
-			const { streamRepository, machineRepository, graphRepository } = repositories;
+		export: async (obj, args, { repositories, api }) => {
+			const { machineRepository, graphRepository } = repositories;
 			const { streams, machines } = args;
 			const exportData = {
 				machines: [],
 				streams: []
 			};
+			
 			if (Array.isArray(machines) && machines.length > 0) {
 				const pendingMachines = machines.map(async (machineId) => {
 					const result = await Promise.all([
@@ -127,7 +117,7 @@ const resolvers = {
 			}
 
 			if (Array.isArray(streams) && streams.length > 0) {
-				const allStreams = await streamRepository.findAllStreams(session);
+				const allStreams = await api.stream.findAllStreams(obj.scope);
 				const streamsToExport = allStreams.filter((s) => streams.includes(s.id));
 				const missingConnectorIds = findMissingConnectors(streams, streamsToExport);
 				const allStreamsToExport = [...streams, ...missingConnectorIds];
@@ -144,6 +134,30 @@ const resolvers = {
 				code: 'EXPORT_SUCCESS',
 				message: 'Export succeded'
 			};
+		}
+	},
+	Query: {
+		me: async (obj, args, { actor }) => actor,
+		user: async (obj, { id }, { api }) => {
+			try {
+				return api.user.findUser(id);
+			} catch (error) {
+				return null;
+			}
+		},
+		users: async (obj, args, { api }) => api.user.findAllUsers(),
+		scoped: async (obj, args, { auth }) => {
+			if (!auth.isValidScope(args.scope)) {
+				throw new Error('NOT_ALLOWED');
+			}
+			return { scope: args.scope };
+		},
+		scopedByMachine: async (obj, args, { machineRepo, auth }) => {
+			const { scope } = await machineRepo.findMachine(args.machineId);
+			if (!auth.isValidScope(scope)) {
+				throw new Error('NOT_ALLOWED');
+			}
+			return { scope };
 		}
 	},
 	Mutation: {
@@ -218,9 +232,7 @@ const resolvers = {
 			const additionalFields =
 				Object.keys(graphqlFields(info)).filter((fieldName) => ['name', 'id'].includes(fieldName)).length > 0;
 			const stream =
-				obj.stream && additionalFields
-					? await context.repositories.streamRepositoryLegacy.findConfigurationById(obj.stream.id)
-					: obj.stream;
+				obj.stream && additionalFields ? await context.api.stream.findById(obj.stream.id) : obj.stream;
 			return stream !== null
 				? {
 						id: stream.id,

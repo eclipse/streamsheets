@@ -366,6 +366,7 @@ module.exports = class StreamsMonitor {
 				data: {
 					timestamp: new Date(),
 					stream: {
+						scope: stream.config.scope,
 						id: stream.config.id,
 						name: stream.config.name,
 						className: stream.config.className,

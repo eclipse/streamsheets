@@ -8,6 +8,7 @@ class BaseConfiguration {
 		this._id = this.id;
 		this.name = config.name;
 		this.owner = config.owner;
+		this.scope = config.scope;
 		this._disabled = config.disabled;
 		this._className = this.constructor.name;
 		if (this._className !== 'ProviderConfiguration') {
@@ -29,6 +30,7 @@ class BaseConfiguration {
 			_id: this._id,
 			id: this._id,
 			name: this.name,
+			scope: this.scope,
 			owner: this.owner,
 			disabled: this.disabled,
 			className: this.className,

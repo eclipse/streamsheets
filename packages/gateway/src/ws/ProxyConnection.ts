@@ -11,6 +11,7 @@ import { SocketServer } from './SocketServer';
 import * as http from 'http';
 import { WSRequest, Session, WSResponse, EventData, GlobalContext, RequestContext } from '../streamsheets';
 import { getRequestContext } from '../context';
+import { StreamWSProxy } from './StreamWSProxy';
 
 const logger = LoggerFactory.createLogger('gateway - ProxyConnection', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
 
@@ -70,10 +71,17 @@ export default class ProxyConnection {
 		this.messagingClient.subscribe(`${Topics.SERVICES_PERSISTENCE_EVENTS}/#`);
 		// TODO: register to a topic that will receive all events from web client - adapt topic structure
 		this.messagingClient.on('message', (topic, message) => {
-			if (
-				topic.startsWith(Topics.SERVICES_STREAMS_EVENTS) &&
-				(topic.endsWith('response') || topic.endsWith('functions'))
-			) {
+			if (topic.startsWith(Topics.SERVICES_STREAMS_EVENTS)) {
+				if (topic.endsWith('response') || topic.endsWith('functions')) {
+					return;
+				}
+				const streamEvent = JSON.parse(message.toString());
+				if (streamEvent.type === 'response') {
+					return;
+				}
+				getRequestContext(this.socketserver.globalContext, this.session).then((requestContext) => {
+					StreamWSProxy.handleEvent(requestContext, this, streamEvent);
+				});
 				return;
 			}
 			let msg = message.toString();
@@ -108,7 +116,11 @@ export default class ProxyConnection {
 							msg
 						});
 					} else if (msg.topic && msg.topic.indexOf('stream') >= 0) {
-						this.messagingClient.publish(msg.topic, msg);
+						StreamWSProxy.handleRequest(
+							await getRequestContext(this.socketserver.globalContext, this.session),
+							this,
+							msg
+						);
 					} else if (msg.topic && msg.topic.indexOf('persistence') >= 0) {
 						this.messagingClient.publish(msg.topic, msg);
 					} else {

@@ -9,7 +9,7 @@ const {
 } = require('@cedalo/repository');
 const { MongoDBStreamsRepository } = require('@cedalo/service-streams');
 const { createUserRepository } = require('./user/UserRepository');
-import StreamRepositoryProxy from './StreamRepositoryProxy';
+import { StreamRepositoryProxy } from './stream';
 import glue, { RawAPI } from './glue';
 import { Session, GlobalContext } from './streamsheets';
 import { LoggerFactory } from '@cedalo/logger';
@@ -84,6 +84,7 @@ export const init = async (config: any, plugins: string[]) => {
 			encryption: encryptionContext,
 			userRepo: RepositoryManager.userRepository,
 			machineRepo: RepositoryManager.machineRepository,
+			streamRepo: RepositoryManager.streamRepository,
 			rawAuth: baseAuth,
 			rawApi: RawAPI
 		},
