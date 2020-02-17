@@ -170,11 +170,8 @@ export default class SheetPlotView extends NodeView {
 					if (text === undefined) {
 						text = current;
 					}
-				} else if (axis.scale.format) {
-					text = this.formatNumber(current, axis.scale.format.numberFormat,
-						axis.scale.format.localCulture);
 				} else {
-					text = current;
+					text = this.formatNumber(current, axis.scale.format);
 				}
 			}
 
@@ -276,19 +273,19 @@ export default class SheetPlotView extends NodeView {
 		graphics.fillText(text, title.position.left + title.position.width / 2, title.position.top + title.position.height / 2 + 50);
 	}
 
-	formatNumber(value, numberFormat, localCulture) {
+	formatNumber(value, format) {
 		// somehow the scale value sometimes does not show correct values
 		value = MathUtils.roundTo(value, 12);
-		if (numberFormat && numberFormat !== 'General' && localCulture) {
+		if (format && format.numberFormat && format.numberFormat !== 'General' && format.localCulture) {
 			let formattingResult = {
 				value,
 				formattedValue: value,
 				color: undefined,
 				type: 'general'
 			};
-			const type = localCulture.split(';');
+			const type = format.localCulture.split(';');
 			try {
-				formattingResult = NumberFormatter.formatNumber(numberFormat, formattingResult.value, type[0]);
+				formattingResult = NumberFormatter.formatNumber(format.numberFormat, formattingResult.value, type[0]);
 			} catch (e) {
 				formattingResult.formattedValue = '#####';
 			}

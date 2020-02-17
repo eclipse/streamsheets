@@ -355,15 +355,6 @@ module.exports = class SheetPlotNode extends Node {
 				format: new ChartFormat(),
 				size: 500,
 				name: 'primary'
-			},
-			{
-				type: 'category',
-				align: 'top',
-				formula: new Expression(0, 'AXIS()'),
-				position: new ChartRect(),
-				format: new ChartFormat(),
-				size: 500,
-				name: 'secondary'
 			}
 		];
 		this.yAxes = [
@@ -375,15 +366,6 @@ module.exports = class SheetPlotNode extends Node {
 				format: new ChartFormat(),
 				size: 1000,
 				name: 'primary'
-			},
-			{
-				type: 'linear',
-				align: 'right',
-				formula: new Expression(0, 'AXIS()'),
-				position: new ChartRect(),
-				format: new ChartFormat(),
-				size: 500,
-				name: 'secondary'
 			}
 		];
 		this.plot = {
@@ -1409,6 +1391,9 @@ module.exports = class SheetPlotNode extends Node {
 							plotRect.bottom - y * plotRect.height + 200
 						);
 						if (dataRect.containsPoint(pt)) {
+							value.axes = axes;
+							value.series = series;
+							value.seriesIndex = index;
 							dataPoints.push(value);
 							dataIndex = index;
 							return true;
