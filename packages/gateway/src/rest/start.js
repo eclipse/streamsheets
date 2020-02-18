@@ -1,7 +1,8 @@
 const http = require('http');
 const config = require('../config');
 const DefaultApp = require('./DefaultApp');
-const pkg = require('../../package.json');
+// eslint-disable-next-line
+const pkg = require('../../../package.json');
 
 process.title = pkg.name;
 
