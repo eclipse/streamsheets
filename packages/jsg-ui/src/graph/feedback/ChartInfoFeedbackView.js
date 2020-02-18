@@ -58,9 +58,9 @@ export default class ChartInfoFeedbackView extends View {
 				const ref = item.getDataSourceInfo(series.formula);
 				let label = '';
 				if (xValue) {
-					label = this.chartView.formatNumber(value.x, value.axes.x.scale.format);
+					label = item.formatNumber(value.x, value.axes.x.scale.format);
 				} else {
-					label = this.chartView.formatNumber(value.y, value.axes.y.scale.format);
+					label = item.formatNumber(value.y, value.axes.y.scale.format);
 				}
 				if (ref && ref.name !== undefined && !xValue) {
 					label = `${ref.name}: W${label}`;
@@ -83,7 +83,7 @@ export default class ChartInfoFeedbackView extends View {
 				width = Math.max(width, graphics.measureText(getLabel(this.selection.dataPoints[0], false)).width);
 			});
 
-			width = graphics.getCoordinateSystem().deviceToLogX(width, true);
+			width = graphics.getCoordinateSystem().deviceToLogX(width + 300, true);
 
 			graphics.beginPath();
 			graphics.setFillColor('#FFFFFF');

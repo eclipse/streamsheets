@@ -1,3 +1,4 @@
+const { NumberFormatter } = require('@cedalo/number-format');
 
 const JSG = require('../../JSG');
 const GraphUtils = require('../GraphUtils');
@@ -174,15 +175,12 @@ module.exports = class SheetPlotNode extends Node {
 		super();
 
 		this.getFormat().setLineColor('#AAAAAA');
-		this.getFormat().setFillColor('#FFFFFF');
-		this.getTextFormat().setFontSize(9);
-
+		this.getTextFormat().setFontSize(8);
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
-		this.getItemAttributes().setContainer(false);
 
 		this.series = [];
 		this.chart = {
-			margins: new ChartRect(150, 250, 800, 150)
+			margins: new ChartRect(200, 200, 200, 200)
 		};
 		this.xAxes = [
 			{
@@ -267,19 +265,100 @@ module.exports = class SheetPlotNode extends Node {
 		graphics.setFont();
 	}
 
+	formatNumber(value, format) {
+		// somehow the scale value sometimes does not show correct values
+		value = MathUtils.roundTo(value, 12);
+		if (format && format.numberFormat && format.numberFormat !== 'General' && format.localCulture) {
+			let formattingResult = {
+				value,
+				formattedValue: value,
+				color: undefined,
+				type: 'general'
+			};
+			const type = format.localCulture.split(';');
+			try {
+				formattingResult = NumberFormatter.formatNumber(format.numberFormat, formattingResult.value, type[0]);
+			} catch (e) {
+				formattingResult.formattedValue = '#####';
+			}
+
+			return formattingResult.formattedValue;
+		}
+		return String(value);
+	}
+
 	measureText(graphics, cs, format, id, text) {
 		const name = format.fontName || this.getTemplate('basic')[id].format.fontName || this.getTemplate('basic').font.name;
 		const size = format.fontSize || this.getTemplate('basic')[id].format.fontSize || this.getTemplate('basic').font.size;
 
 		return {
-			width: cs.deviceToLogX(graphics.measureText(text).width) + 300,
+			width: cs.deviceToLogX(graphics.measureText(text).width),
 			height: GraphUtils.getFontMetricsEx(name, size).lineheight
 		}
+	}
+
+	measureAxis(graphics, axis) {
+		const result = {
+			width: 0,
+			height: 0
+		};
+
+		if (!axis.position || !axis.scale) {
+			return result;
+		}
+
+		this.setFont(graphics, axis.format, 'axis', 'middle', TextFormatAttributes.TextAlignment.CENTER);
+
+		const cs = graphics.getCoordinateSystem();
+		let current = axis.scale.min;
+		let pos;
+		let text;
+
+		if (axis.type === 'time') {
+			current = this.incrementScale(axis, current - 0.0000001);
+		}
+
+		let refLabel;
+		if (axis.type === 'category') {
+			this.series.forEach((series, index) => {
+				if (series.xAxis === axis.name) {
+					refLabel = this.getDataSourceInfo(series.formula);
+				}
+			});
+		}
+
+		while (current <= axis.scale.max) {
+			if (axis.type === 'category' && current >= axis.scale.max) {
+				break;
+			}
+
+			pos = this.scaleToAxis(axis, current, true);
+
+			if (axis.type === 'category' && refLabel) {
+				text = this.getLabel(refLabel, Math.floor(current));
+				if (text === undefined) {
+					text = current;
+				}
+			} else {
+				text = this.formatNumber(current, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+			}
+
+			const size = this.measureText(graphics, cs, axis.format, 'axis', text);
+			result.width = Math.max(result.width, size.width);
+			result.height = Math.max(result.height, size.height);
+
+			current = this.incrementScale(axis, current);
+		}
+
+		return result;
 	}
 
 	layout() {
 		const size = this.getSize().toPoint();
 		const cs = JSG.graphics.getCoordinateSystem();
+
+		this.setMinMax();
+		this.setScales();
 
 		this.plot.position.left = this.chart.margins.left;
 		this.plot.position.top = this.chart.margins.top;
@@ -314,7 +393,7 @@ module.exports = class SheetPlotNode extends Node {
 			let textSize;
 			legend.forEach((entry) => {
 				textSize = this.measureText(JSG.graphics, cs, this.legend.format, 'legend', String(entry.name));
-				width = Math.max(textSize.width, width);
+				width = Math.max(textSize.width + 300, width);
 			});
 			width += margin * 6;
 			this.plot.position.right -= (width + margin);
@@ -325,6 +404,7 @@ module.exports = class SheetPlotNode extends Node {
 		}
 
 		this.xAxes.forEach((axis) => {
+			axis.size = this.measureAxis(JSG.graphics, axis).height + 300;
 			switch (axis.align) {
 			case 'top':
 				this.plot.position.top += axis.size;
@@ -336,6 +416,7 @@ module.exports = class SheetPlotNode extends Node {
 		});
 
 		this.yAxes.forEach((axis) => {
+			axis.size = this.measureAxis(JSG.graphics, axis).width + 300;
 			switch (axis.align) {
 			case 'left':
 				this.plot.position.left += axis.size;
@@ -510,7 +591,7 @@ module.exports = class SheetPlotNode extends Node {
 			fill(axis, this.plot.position.width, 'x');
 		});
 		this.yAxes.forEach((axis) => {
-				fill(axis, this.plot.position.height, 'y');
+			fill(axis, this.plot.position.height, 'y');
 		});
 	}
 
@@ -1151,7 +1232,12 @@ module.exports = class SheetPlotNode extends Node {
 				break;
 			case 'hour': {
 				const date = MathUtils.excelDateToJSDate(value);
-				date.setHours(date.getHours() + axis.scale.step);
+				const h = date.getHours();
+				if (h % axis.scale.step) {
+					date.setHours(h + (axis.scale.step - (h % axis.scale.step)));
+				} else {
+					date.setHours(h + axis.scale.step);
+				}
 				date.setMinutes(0);
 				date.setSeconds(0);
 				date.setMilliseconds(0);
@@ -1160,7 +1246,12 @@ module.exports = class SheetPlotNode extends Node {
 			}
 			case 'minute': {
 				const date = MathUtils.excelDateToJSDate(value);
-				date.setMinutes(date.getMinutes() + axis.scale.step);
+				const m = date.getMinutes();
+				if (m % axis.scale.step) {
+					date.setMinutes(m + (axis.scale.step - (m % axis.scale.step)));
+				} else {
+					date.setMinutes(m + axis.scale.step);
+				}
 				date.setSeconds(0);
 				date.setMilliseconds(0);
 				result = MathUtils.JSDateToExcelDate(date);
@@ -1168,7 +1259,12 @@ module.exports = class SheetPlotNode extends Node {
 			}
 			case 'second': {
 				const date = MathUtils.excelDateToJSDate(value);
-				date.setSeconds(date.getSeconds() + axis.scale.step);
+				const s = date.getSeconds();
+				if (s % axis.scale.step) {
+					date.setSeconds(s + (axis.scale.step - (s % axis.scale.step)));
+				} else {
+					date.setSeconds(s + axis.scale.step);
+				}
 				date.setMilliseconds(0);
 				result = MathUtils.JSDateToExcelDate(date);
 				break;
@@ -1179,7 +1275,7 @@ module.exports = class SheetPlotNode extends Node {
 				if (ms % axis.scale.step) {
 					date.setMilliseconds(ms + (axis.scale.step - (ms % axis.scale.step)));
 				} else {
-					date.setMilliseconds(date.getMilliseconds() + axis.scale.step);
+					date.setMilliseconds(ms + axis.scale.step);
 				}
 				result = MathUtils.JSDateToExcelDate(date);
 				break;

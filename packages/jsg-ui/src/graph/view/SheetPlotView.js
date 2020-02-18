@@ -5,7 +5,6 @@ import {
 	TextFormatAttributes,
 	FormatAttributes
 } from '@cedalo/jsg-core';
-import { NumberFormatter } from '@cedalo/number-format';
 
 import NodeView from './NodeView';
 
@@ -47,9 +46,9 @@ export default class SheetPlotView extends NodeView {
 			return;
 		}
 
-		item.setMinMax();
-		item.setScales();
-
+		// item.setMinMax();
+		// item.setScales();
+		//
 		const { series } = item;
 		const plotRect = item.plot.position;
 
@@ -171,7 +170,7 @@ export default class SheetPlotView extends NodeView {
 						text = current;
 					}
 				} else {
-					text = this.formatNumber(current, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+					text = item.formatNumber(current, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
 				}
 			}
 
@@ -299,28 +298,6 @@ export default class SheetPlotView extends NodeView {
 		item.setFont(graphics, title.format, 'title', 'middle', TextFormatAttributes.TextAlignment.CENTER);
 
 		graphics.fillText(text, title.position.left + title.position.width / 2, title.position.top + title.position.height / 2 + 50);
-	}
-
-	formatNumber(value, format) {
-		// somehow the scale value sometimes does not show correct values
-		value = MathUtils.roundTo(value, 12);
-		if (format && format.numberFormat && format.numberFormat !== 'General' && format.localCulture) {
-			let formattingResult = {
-				value,
-				formattedValue: value,
-				color: undefined,
-				type: 'general'
-			};
-			const type = format.localCulture.split(';');
-			try {
-				formattingResult = NumberFormatter.formatNumber(format.numberFormat, formattingResult.value, type[0]);
-			} catch (e) {
-				formattingResult.formattedValue = '#####';
-			}
-
-			return formattingResult.formattedValue;
-		}
-		return String(value);
 	}
 
 	getSelectedFormat() {
