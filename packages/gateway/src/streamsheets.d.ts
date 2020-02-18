@@ -3,12 +3,18 @@ import { API, RawAPI } from './glue';
 import { Actor, UserRepository } from './user';
 import { StreamRepositoryProxy } from './stream/StreamRepositoryProxy';
 import { Stream } from './stream/types';
+import { FunctionObject } from './common';
+import { IResolvers } from 'apollo-server-express';
 
 export interface GlobalContext {
 	rawApi: RawAPI;
 	rawAuth: BaseAuth;
 	encryption: any;
 	repositories: any;
+	graphql?: {
+		typeDefs?: string,
+		resolvers?: IResolvers,
+	}
 	userRepo: UserRepository;
 	machineRepo: any;
 	streamRepo: StreamRepositoryProxy;

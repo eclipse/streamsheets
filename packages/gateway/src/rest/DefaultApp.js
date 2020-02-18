@@ -152,7 +152,12 @@ module.exports = class DefaultApp {
 			}
 		});
 
-		GraphQLServer.init(app, '/api/v1.0/graphql', (req) => getRequestContext(this.globalContext, getSession(req)));
+		GraphQLServer.init(
+			app,
+			'/api/v1.0/graphql',
+			(req) => getRequestContext(this.globalContext, getSession(req)),
+			this.globalContext.graphql
+		);
 
 		const routerRepository = new APIRouterRepositoryServer();
 		app.use('/api/v1.0', routerRepository);

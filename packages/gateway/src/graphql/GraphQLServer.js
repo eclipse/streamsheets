@@ -222,10 +222,10 @@ const typeDefs = gql`
 `;
 
 class GraphQLServer {
-	static init(app, path, getContext) {
+	static init(app, path, getContext, extension = {}) {
 		const server = new ApolloServer({
-			typeDefs,
-			resolvers,
+			typeDefs: [typeDefs, extension.typeDefs].filter(x => !!x),
+			resolvers: [resolvers, extension.resolvers].filter(x => !!x),
 			context: async ({ req }) => getContext(req)
 		});
 		server.applyMiddleware({ app, path });
