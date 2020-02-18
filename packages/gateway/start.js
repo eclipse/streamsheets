@@ -2,8 +2,10 @@ const { LoggerFactory } = require('@cedalo/logger');
 const GatewayService = require('./src/services/gateway/GatewayService');
 const initializer = require('./src/initializer');
 const { resolve } = require('@cedalo/commons').moduleResolver;
-const metadata = require('./meta.json');
-const packageJSON = require('./package.json');
+// eslint-disable-next-line
+const metadata = require('../meta.json');
+// eslint-disable-next-line
+const packageJSON = require('../package.json');
 const initContext = require('./src/context').init;
 const config = require('./src/config');
 const path = require('path');
