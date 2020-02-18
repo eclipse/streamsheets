@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig-base.json",
   "compilerOptions": {
-    "outDir": "./dist",                        /* Redirect output structure to the directory. */
+    "outDir": "./out",                        /* Redirect output structure to the directory. */
     "composite": true,                     /* Enable project compilation */
   },
   "include": ["src", "start.js", "package.json", "meta.json", "cedalo-modules.d.ts"]
