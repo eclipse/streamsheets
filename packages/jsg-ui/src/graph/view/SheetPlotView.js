@@ -21,6 +21,23 @@ export default class SheetPlotView extends NodeView {
 		super.drawBorder(graphics, format, rect);
 	}
 
+	drawRect(graphics, rect, item, format, id) {
+		const lineColor = format.lineColor || item.getTemplate('basic')[id].format.lineColor;
+		const fillColor = format.fillColor || item.getTemplate('basic')[id].format.fillColor;
+
+		graphics.beginPath();
+		graphics.setLineWidth(1);
+		graphics.setLineColor(lineColor);
+		graphics.setFillColor(fillColor);
+		graphics.rect(rect.left, rect.top, rect.width, rect.height);
+		if (lineColor !== 'none') {
+			graphics.stroke();
+		}
+		if (fillColor !== 'none') {
+			graphics.fill();
+		}
+	}
+
 	drawFill(graphics, format, rect) {
 		super.drawFill(graphics, format, rect);
 
@@ -36,9 +53,7 @@ export default class SheetPlotView extends NodeView {
 		const { series } = item;
 		const plotRect = item.plot.position;
 
-		graphics.setFontSize(8);
-		graphics.setFontStyle(TextFormatAttributes.FontStyle.NORMAL);
-		graphics.setFont();
+		this.drawRect(graphics, plotRect, item, item.plot.format, 'plot');
 
 		this.drawAxes(graphics, plotRect, item, true);
 
@@ -48,40 +63,29 @@ export default class SheetPlotView extends NodeView {
 
 		this.drawAxes(graphics, plotRect, item, false);
 		this.drawLegend(graphics, plotRect, item);
-
-		graphics.setFontSize(12);
-		graphics.setFontStyle(TextFormatAttributes.FontStyle.BOLD);
-		graphics.setFont();
-
 		this.drawTitle(graphics, item);
 	}
 
 	drawLegend(graphics, plotRect, item) {
 		const legendData = item.getLegend();
 		const margin = 200;
-		const metrics = GraphUtils.getFontMetricsEx('Verdana', 8);
 		const { legend } = item;
 
-		graphics.beginPath();
-		graphics.setLineColor(legend.format.lineColor || item.getTemplate('basic').legend.linecolor);
-		graphics.rect(legend.position.left, legend.position.top, legend.position.width, legend.position.height);
-		graphics.stroke();
-
-		graphics.setTextAlignment(TextFormatAttributes.TextAlignment.LEFT);
-		graphics.setTextBaseline('middle');
-
-		let y = legend.position.top + margin;
+		this.drawRect(graphics, legend.position, item, legend.format, 'legend');
+		item.setFont(graphics, legend.format, 'legend', 'middle', TextFormatAttributes.TextAlignment.LEFT);
+		const textSize = item.measureText(graphics, graphics.getCoordinateSystem(), legend.format, 'legend', 'X');
+			let y = legend.position.top + margin;
 
 		legendData.forEach((entry, index) => {
 			graphics.beginPath();
 			graphics.setLineColor(entry.series.format.lineColor || item.getTemplate('basic').series.line[index]);
 			graphics.setLineWidth(entry.series.format.lineWidth || item.getTemplate('basic').series.linewidth);
-			graphics.moveTo(legend.position.left + margin, y + metrics.lineheight / 2);
-			graphics.lineTo(legend.position.left + margin * 4, y + metrics.lineheight / 2);
+			graphics.moveTo(legend.position.left + margin, y + textSize.height / 2);
+			graphics.lineTo(legend.position.left + margin * 4, y + textSize.height / 2);
 			graphics.stroke();
 
-			graphics.fillText(entry.name, legend.position.left + margin * 5, y + metrics.lineheight / 2);
-			y += metrics.lineheight;
+			graphics.fillText(entry.name, legend.position.left + margin * 5, y + textSize.height / 2);
+			y += textSize.height;
 		});
 
 		graphics.setLineWidth(-1);
@@ -109,36 +113,31 @@ export default class SheetPlotView extends NodeView {
 			case 'left':
 				graphics.moveTo(axis.position.right, axis.position.top);
 				graphics.lineTo(axis.position.right, axis.position.bottom);
-				graphics.setTextBaseline('middle');
-				graphics.setTextAlignment(TextFormatAttributes.TextAlignment.RIGHT);
+				item.setFont(graphics, axis.format, 'axis', 'middle', TextFormatAttributes.TextAlignment.RIGHT);
 				break;
 			case 'right':
 				graphics.moveTo(axis.position.left, axis.position.top);
 				graphics.lineTo(axis.position.left, axis.position.bottom);
-				graphics.setTextBaseline('middle');
-				graphics.setTextAlignment(TextFormatAttributes.TextAlignment.LEFT);
+				item.setFont(graphics, axis.format, 'axis', 'middle', TextFormatAttributes.TextAlignment.LEFT);
 				break;
 			case 'top':
 				graphics.moveTo(axis.position.left, axis.position.bottom);
 				graphics.lineTo(axis.position.right, axis.position.bottom);
-				graphics.setTextBaseline('bottom');
-				graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
+				item.setFont(graphics, axis.format, 'axis', 'bottom', TextFormatAttributes.TextAlignment.CENTER);
 				break;
 			case 'bottom':
 				graphics.moveTo(axis.position.left, axis.position.top);
 				graphics.lineTo(axis.position.right, axis.position.top);
-				graphics.setTextBaseline('top');
-				graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
+				item.setFont(graphics, axis.format, 'axis', 'top', TextFormatAttributes.TextAlignment.CENTER);
 				break;
 			}
 			graphics.stroke();
-
-			graphics.setFillColor('#000000');
 		}
 
 		let current = axis.scale.min;
 		let pos;
 		let plot;
+		let text;
 
 		if (grid) {
 			graphics.beginPath();
@@ -149,6 +148,15 @@ export default class SheetPlotView extends NodeView {
 			current = item.incrementScale(axis, current - 0.0000001);
 		}
 
+		let refLabel;
+		if (axis.type === 'category') {
+			item.series.forEach((series, index) => {
+				if (series.xAxis === axis.name) {
+					refLabel = item.getDataSourceInfo(series.formula);
+				}
+			});
+		}
+
 		while (current <= axis.scale.max) {
 			if (axis.type === 'category' && current >= axis.scale.max) {
 				break;
@@ -156,18 +164,25 @@ export default class SheetPlotView extends NodeView {
 
 			pos = item.scaleToAxis(axis, current, grid);
 
+			if (!grid) {
+				if (axis.type === 'category' && refLabel) {
+					text = item.getLabel(refLabel, Math.floor(current));
+					if (text === undefined) {
+						text = current;
+					}
+				} else {
+					text = this.formatNumber(current, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+				}
+			}
+
 			switch (axis.align) {
 			case 'left':
 				plot = plotRect.bottom - pos * plotRect.height;
 				if (grid) {
 					graphics.moveTo(plotRect.left, plot);
 					graphics.lineTo(plotRect.right, plot);
-				} else if (axis.scale.format) {
-					const text = this.formatNumber(current, axis.scale.format.numberFormat,
-						axis.scale.format.localCulture);
-					graphics.fillText(`${text}`, axis.position.right - 200, plot);
 				} else {
-					graphics.fillText(`${current}`, axis.position.right - 200, plot);
+					graphics.fillText(`${text}`, axis.position.right - 200, plot);
 				}
 				break;
 			case 'right':
@@ -175,12 +190,8 @@ export default class SheetPlotView extends NodeView {
 				if (grid) {
 					graphics.moveTo(plotRect.left, plot);
 					graphics.lineTo(plotRect.right, plot);
-				} else if (axis.scale.format) {
-					const text = this.formatNumber(current, axis.scale.format.numberFormat,
-						axis.scale.format.localCulture);
-					graphics.fillText(`${text}`, axis.position.left + 200, plot);
 				} else {
-					graphics.fillText(`${current}`, axis.position.left + 200, plot);
+					graphics.fillText(`${text}`, axis.position.left + 200, plot);
 				}
 				break;
 			case 'top':
@@ -188,12 +199,8 @@ export default class SheetPlotView extends NodeView {
 				if (grid) {
 					graphics.moveTo(plot, plotRect.top);
 					graphics.lineTo(plot, plotRect.bottom);
-				} else if (axis.scale.format) {
-					const text = this.formatNumber(current, axis.scale.format.numberFormat,
-						axis.scale.format.localCulture);
-					graphics.fillText(`${text}`, plot, axis.position.bottom - 200);
 				} else {
-					graphics.fillText(`${current}`, plot, axis.position.bottom - 200);
+					graphics.fillText(`${text}`, plot, axis.position.bottom - 200);
 				}
 				break;
 			case 'bottom':
@@ -201,12 +208,8 @@ export default class SheetPlotView extends NodeView {
 				if (grid) {
 					graphics.moveTo(plot, plotRect.top);
 					graphics.lineTo(plot, plotRect.bottom);
-				} else if (axis.scale.format) {
-					const text = this.formatNumber(current, axis.scale.format.numberFormat,
-						axis.scale.format.localCulture);
-					graphics.fillText(`${text}`, plot, axis.position.top + 200);
 				} else {
-					graphics.fillText(`${current}`, plot, axis.position.top + 200);
+					graphics.fillText(`${text}`, plot, axis.position.top + 200);
 				}
 				break;
 			}
@@ -222,6 +225,8 @@ export default class SheetPlotView extends NodeView {
 		let index = 0;
 		let x;
 		let y;
+		let barWidth = 100;
+		let zero;
 		const value = {};
 
 		const ref = item.getDataSourceInfo(serie.formula);
@@ -242,18 +247,44 @@ export default class SheetPlotView extends NodeView {
 		graphics.beginPath();
 		graphics.setLineColor(serie.format.lineColor || item.getTemplate('basic').series.line[seriesIndex]);
 		graphics.setLineWidth(serie.format.lineWidth || item.getTemplate('basic').series.linewidth);
+		graphics.setFillColor(serie.format.fillColor || item.getTemplate('basic').series.fill[seriesIndex]);
+
+		if (axes.x.type === 'category') {
+			barWidth = item.scaleToAxis(axes.x, 1, false)  * plotRect.width -
+				item.scaleToAxis(axes.x, 0, false) * plotRect.width;
+			barWidth = barWidth * 0.8 / item.series.length - 50;
+			zero = item.scaleToAxis(axes.y, 0, false);
+		}
+
+		let offset;
 
 		while (item.getValue(ref, index, value)) {
 			x = item.scaleToAxis(axes.x, value.x, false);
 			y = item.scaleToAxis(axes.y, value.y, false);
-			if (index) {
-				graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
-			} else {
-				graphics.moveTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+			switch (serie.type) {
+			case 'line':
+			case 'scatter':
+				if (index) {
+					graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+				} else {
+					graphics.moveTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+				}
+				break;
+			case 'column':
+				offset = -item.series.length / 2 * barWidth + seriesIndex * (barWidth + 50);
+				if (value.y >= 0) {
+					graphics.rect(plotRect.left + x * plotRect.width + offset, plotRect.bottom - zero * plotRect.height, barWidth, -(y - zero) * plotRect.height);
+				} else {
+					graphics.rect(plotRect.left + x * plotRect.width + offset, plotRect.bottom - zero * plotRect.height, barWidth, -(y - zero) * plotRect.height);
+				}
+				break;
 			}
 			index += 1;
 		}
 
+		if (serie.type === 'column') {
+			graphics.fill();
+		}
 		graphics.stroke();
 		graphics.setLineWidth(1);
 		graphics.restore();
@@ -264,25 +295,25 @@ export default class SheetPlotView extends NodeView {
 
 		const text = String(item.getExpressionValue(title.formula));
 
-		graphics.setTextBaseline('middle');
-		graphics.setFillColor('#000000');
-		graphics.setTextAlignment(TextFormatAttributes.TextAlignment.CENTER);
-		graphics.fillText(text, title.position.left + title.position.width / 2, title.position.top + title.position.height / 2);
+		this.drawRect(graphics, title.position, item, title.format, 'title');
+		item.setFont(graphics, title.format, 'title', 'middle', TextFormatAttributes.TextAlignment.CENTER);
+
+		graphics.fillText(text, title.position.left + title.position.width / 2, title.position.top + title.position.height / 2 + 50);
 	}
 
-	formatNumber(value, numberFormat, localCulture) {
+	formatNumber(value, format) {
 		// somehow the scale value sometimes does not show correct values
 		value = MathUtils.roundTo(value, 12);
-		if (numberFormat && numberFormat !== 'General' && localCulture) {
+		if (format && format.numberFormat && format.numberFormat !== 'General' && format.localCulture) {
 			let formattingResult = {
 				value,
 				formattedValue: value,
 				color: undefined,
 				type: 'general'
 			};
-			const type = localCulture.split(';');
+			const type = format.localCulture.split(';');
 			try {
-				formattingResult = NumberFormatter.formatNumber(numberFormat, formattingResult.value, type[0]);
+				formattingResult = NumberFormatter.formatNumber(format.numberFormat, formattingResult.value, type[0]);
 			} catch (e) {
 				formattingResult.formattedValue = '#####';
 			}
@@ -292,10 +323,56 @@ export default class SheetPlotView extends NodeView {
 		return String(value);
 	}
 
+	getSelectedFormat() {
+
+	}
+
+	getSelectedTextFormat() {
+		const tf = new TextFormatAttributes();
+
+		if (this.chartSelection) {
+			const data = this.getItem().getDataFromSelection(this.chartSelection);
+			const template = this.getItem().getTemplate('basic');
+			if (data) {
+				switch (this.chartSelection.element) {
+				case 'series':
+				case 'title':
+				case 'legend':
+					tf.setFontName(data.format.fontName || template[this.chartSelection.element].format.fontName || template.font.name);
+					tf.setFontSize(data.format.fontSize || template[this.chartSelection.element].format.fontSize || template.font.size);
+					if (data.format.fontStyle !== undefined) {
+						tf.setFontStyle(data.format.fontStyle);
+					} else if (template[this.chartSelection.element].format.fontStyle !== undefined) {
+						tf.setFontStyle(template[this.chartSelection.element].format.fontStyle);
+					} else {
+						tf.setFontStyle(template.font.style);
+					}
+					break;
+				case 'xAxis':
+				case 'yAxis':
+					tf.setFontName(data.format.fontName || template.axis.format.fontName || template.font.name);
+					tf.setFontSize(data.format.fontSize || template.axis.format.fontSize || template.font.size);
+					if (data.format.fontStyle !== undefined) {
+						tf.setFontStyle(data.format.fontStyle);
+					} else if (template.axis.format.fontStyle !== undefined) {
+						tf.setFontStyle(template.axis.format.fontStyle);
+					} else {
+						tf.setFontStyle(template.font.style);
+					}
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
+		return tf;
+	}
+
 	hasSelectedFormula(sheet) {
 		if (this.chartSelection) {
 			switch (this.chartSelection.element) {
-			case 'datarow':
+			case 'series':
 			case 'title':
 			case 'legend':
 			case 'xAxis':
@@ -314,7 +391,7 @@ export default class SheetPlotView extends NodeView {
 
 		if (this.chartSelection) {
 			switch (this.chartSelection.element) {
-			case 'datarow':
+			case 'series':
 			case 'xAxis':
 			case 'yAxis':
 			case 'title':
@@ -353,14 +430,50 @@ export default class SheetPlotView extends NodeView {
 			if (!data) {
 				return;
 			}
-			data.format.lineColor = map.get('linecolor');
+			let value = map.get('linecolor');
+			if (value ) {
+				data.format.lineColor = map.get('linecolor');
+			}
+			value = map.get('fillcolor');
+			if (value ) {
+				data.format.fillColor = map.get('fillcolor');
+			}
+			value = map.get('fontcolor');
+			if (value ) {
+				data.format.fontColor = map.get('fontcolor');
+			}
+			value = map.get('fontname');
+			if (value ) {
+				data.format.fontName = map.get('fontname');
+			}
+			value = map.get('fontsize');
+			if (value ) {
+				data.format.fontSize = Number(map.get('fontsize'));
+			}
+			value = map.get('fontstyle');
+			if (value !== undefined ) {
+				data.format.fontStyle = Number(map.get('fontstyle'));
+			}
+			value = map.get('numberformat');
+			if (value === 'General') {
+				data.format.numberFormat = undefined;
+				data.format.localCulture = undefined;
+			} else {
+				if (value !== undefined) {
+					data.format.numberFormat = map.get('numberformat');
+				}
+				value = map.get('localculture');
+				if (value !== undefined) {
+					data.format.localCulture = map.get('localculture');
+				}
+			}
 			this.getItem().finishCommand(cmd, key);
 			viewer.getInteractionHandler().execute(cmd);
 		};
 
 		if (this.chartSelection) {
 			switch (this.chartSelection.element) {
-			case 'datarow':
+			case 'series':
 				update('series');
 				return true;
 			case 'xAxis':
@@ -372,6 +485,9 @@ export default class SheetPlotView extends NodeView {
 				return true;
 			case 'legend':
 				update('legend');
+				return true;
+			case 'plot':
+				update('plot');
 				return true;
 			default:
 				break;

@@ -41,16 +41,16 @@ export default class SheetPlotActivator extends InteractionActivator {
 			case 'yAxis': {
 				const axis = selection.data;
 
-				interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula.getTerm(), 3,
+				interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula, 4,
 					undefined);
-				interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula.getTerm(), 4,
+				interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula, 5,
 					undefined);
 
 				viewer.getGraph().markDirty();
 				event.doRepaint = true;
 				break;
 			}
-			case 'datarow':
+			case 'series':
 				selection.data.xAxis = 'secondary';
 				selection.data.yAxis = 'secondary';
 				viewer.getGraph().markDirty();
@@ -107,7 +107,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 			return;
 		}
 		const selection = interaction.isElementHit(event, viewer);
-		if (selection && (selection.element === 'plot' || selection.element === 'datarow')) {
+		if (selection && (selection.element === 'plot' || selection.element === 'series')) {
 			interaction.showData(selection, event, viewer);
 			event.isConsumed = true;
 			event.hasActivated = true;

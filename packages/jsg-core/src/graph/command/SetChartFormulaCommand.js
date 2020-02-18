@@ -53,7 +53,7 @@ module.exports = class SetChartFormulaCommand extends AbstractItemCommand {
 
 	redo() {
 		switch (this.element) {
-		case 'datarow':
+		case 'series':
 			this._graphItem.series[this.index].formula = this.expression;
 			break;
 		case 'title':

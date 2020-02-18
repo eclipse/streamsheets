@@ -78,7 +78,9 @@ const {
 	SetSizeCommand,
 	MoveItemCommand,
 	FormatAttributes,
-	SelectionProvider
+	TextFormatAttributes,
+	SelectionProvider,
+	SheetPlotNode
 } = JSG;
 const { RESOURCE_TYPES, RESOURCE_ACTIONS } = accessManager;
 
@@ -437,8 +439,8 @@ export class CanvasToolBar extends Component {
 
 		const textnode = new JSG.TextNode('Text');
 		const f = textnode.getTextFormat();
-		f.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
-		f.setVerticalAlignment(JSG.TextFormatAttributes.VerticalTextAlignment.TOP);
+		f.setHorizontalAlignment(TextFormatAttributes.TextAlignment.LEFT);
+		f.setVerticalAlignment(TextFormatAttributes.VerticalTextAlignment.TOP);
 		f.setRichText(false);
 		textnode.associate(false);
 
@@ -618,7 +620,7 @@ export class CanvasToolBar extends Component {
 	onFormatHorizontalAlign = (align) => {
 		const attributesMap = new Dictionary();
 
-		attributesMap.put(JSG.TextFormatAttributes.HORIZONTALALIGN, align);
+		attributesMap.put(TextFormatAttributes.HORIZONTALALIGN, align);
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -648,7 +650,7 @@ export class CanvasToolBar extends Component {
 	onFormatVerticalAlign = (align) => {
 		const attributesMap = new Dictionary();
 
-		attributesMap.put(JSG.TextFormatAttributes.VERTICALALIGN, align);
+		attributesMap.put(TextFormatAttributes.VERTICALALIGN, align);
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -677,7 +679,7 @@ export class CanvasToolBar extends Component {
 	onFormatFontSize = (event) => {
 		const attributesMap = new Dictionary();
 
-		attributesMap.put(JSG.TextFormatAttributes.FONTSIZE, Number(event.target.value));
+		attributesMap.put(TextFormatAttributes.FONTSIZE, Number(event.target.value));
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -704,7 +706,7 @@ export class CanvasToolBar extends Component {
 	onFormatFontName = (event) => {
 		const attributesMap = new Dictionary();
 
-		attributesMap.put(JSG.TextFormatAttributes.FONTNAME, event.target.value);
+		attributesMap.put(TextFormatAttributes.FONTNAME, event.target.value);
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -733,8 +735,8 @@ export class CanvasToolBar extends Component {
 		if (sheetView) {
 			const attributesMap = new Dictionary();
 
-			attributesMap.put(JSG.TextFormatAttributes.NUMBERFORMAT, '0%');
-			attributesMap.put(JSG.TextFormatAttributes.LOCALCULTURE, 'percent;0');
+			attributesMap.put(TextFormatAttributes.NUMBERFORMAT, '0%');
+			attributesMap.put(TextFormatAttributes.LOCALCULTURE, 'percent;0');
 
 			if (
 				graphManager
@@ -756,30 +758,29 @@ export class CanvasToolBar extends Component {
 	};
 
 	onFormatNumberFormat = (format) => {
-		if (
+		const attributesMap = new Dictionary();
+
+		attributesMap.put(TextFormatAttributes.NUMBERFORMAT, format.nf);
+		attributesMap.put(TextFormatAttributes.LOCALCULTURE, format.local);
+
+		const sheetView = graphManager.getActiveSheetView();
+		if (sheetView) {
+			const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
+			graphManager
+				.getGraphViewer()
+				.getInteractionHandler()
+				.execute(cmd);
+		} else if (
 			graphManager
 				.getGraphEditor()
 				.getSelectionProvider()
 				.hasSelection()
 		) {
-			return;
+			graphManager
+				.getGraphEditor()
+				.getInteractionHandler()
+				.applyTextFormatMap(attributesMap);
 		}
-
-		const sheetView = graphManager.getActiveSheetView();
-		if (!sheetView) {
-			return;
-		}
-
-		const attributesMap = new Dictionary();
-
-		attributesMap.put(JSG.TextFormatAttributes.NUMBERFORMAT, format.nf);
-		attributesMap.put(JSG.TextFormatAttributes.LOCALCULTURE, format.local);
-
-		const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
-		graphManager
-			.getGraphViewer()
-			.getInteractionHandler()
-			.execute(cmd);
 
 		this.setState({
 			showNumberFormat: false
@@ -880,8 +881,8 @@ export class CanvasToolBar extends Component {
 					break;
 			}
 
-			attributesMap.put(JSG.TextFormatAttributes.NUMBERFORMAT, template.format);
-			attributesMap.put(JSG.TextFormatAttributes.LOCALCULTURE, culture);
+			attributesMap.put(TextFormatAttributes.NUMBERFORMAT, template.format);
+			attributesMap.put(TextFormatAttributes.LOCALCULTURE, culture);
 
 			if (
 				graphManager
@@ -912,11 +913,11 @@ export class CanvasToolBar extends Component {
 
 		const style = tf.getFontStyle() ? tf.getFontStyle().getValue() : 0;
 		const newStyle =
-			style & JSG.TextFormatAttributes.FontStyle.BOLD
-				? style & ~JSG.TextFormatAttributes.FontStyle.BOLD
-				: style | JSG.TextFormatAttributes.FontStyle.BOLD;
+			style & TextFormatAttributes.FontStyle.BOLD
+				? style & ~TextFormatAttributes.FontStyle.BOLD
+				: style | TextFormatAttributes.FontStyle.BOLD;
 
-		attributesMap.put(JSG.TextFormatAttributes.FONTSTYLE, newStyle);
+		attributesMap.put(TextFormatAttributes.FONTSTYLE, newStyle);
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -951,11 +952,11 @@ export class CanvasToolBar extends Component {
 
 		const style = tf.getFontStyle() ? tf.getFontStyle().getValue() : 0;
 		const newStyle =
-			style & JSG.TextFormatAttributes.FontStyle.ITALIC
-				? style & ~JSG.TextFormatAttributes.FontStyle.ITALIC
-				: style | JSG.TextFormatAttributes.FontStyle.ITALIC;
+			style & TextFormatAttributes.FontStyle.ITALIC
+				? style & ~TextFormatAttributes.FontStyle.ITALIC
+				: style | TextFormatAttributes.FontStyle.ITALIC;
 
-		attributesMap.put(JSG.TextFormatAttributes.FONTSTYLE, newStyle);
+		attributesMap.put(TextFormatAttributes.FONTSTYLE, newStyle);
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -1359,7 +1360,7 @@ export class CanvasToolBar extends Component {
 
 	onFormatFontColor = (color) => {
 		const attributesMap = new Dictionary();
-		attributesMap.put(JSG.TextFormatAttributes.FONTCOLOR, color.hex);
+		attributesMap.put(TextFormatAttributes.FONTCOLOR, color.hex);
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -1573,8 +1574,13 @@ export class CanvasToolBar extends Component {
 	updateState(state = {}) {
 		const selection = graphManager.getGraphViewer().getSelection();
 		if (selection.length) {
-			state.cellTextFormat = JSG.TextFormatAttributes.retainFromSelection(selection);
-			state.cellFormat = FormatAttributes.retainFromSelection(selection);
+			if (selection[0].getModel() instanceof SheetPlotNode) {
+				state.cellTextFormat = selection[0].getView().getSelectedTextFormat();
+				state.cellFormat = selection[0].getView().getSelectedFormat();
+			} else {
+				state.cellTextFormat = TextFormatAttributes.retainFromSelection(selection);
+				state.cellFormat = FormatAttributes.retainFromSelection(selection);
+			}
 		} else if (this.props.cellSelected) {
 			const sheetView = graphManager.getActiveSheetView();
 			if (sheetView) {
@@ -1795,7 +1801,7 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							color="inherit"
 							onClick={this.onShowNumberFormat}
-							disabled={!this.props.cellSelected}
+							disabled={!this.props.cellSelected && !this.state.graphSelected}
 							style={{
 								height: '34px',
 								width: '70px',
@@ -1804,7 +1810,7 @@ export class CanvasToolBar extends Component {
 						>
 							<span
 								style={{
-									color: this.props.cellSelected ? '#757575' : '#CCCCCC',
+									color: this.props.cellSelected || this.state.graphSelected ? '#757575' : '#CCCCCC',
 									fontWeight: 'bold',
 									fontSize: '10pt'
 								}}
@@ -1813,7 +1819,7 @@ export class CanvasToolBar extends Component {
 							</span>
 							<SvgIcon>
 								<path
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
+									fill={this.props.cellSelected || this.state.graphSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M7,10L12,15L17,10H7Z"
 								/>
@@ -1948,7 +1954,7 @@ export class CanvasToolBar extends Component {
 								backgroundColor:
 									tf &&
 									tf.getFontStyle() &&
-									tf.getFontStyle().getValue() & JSG.TextFormatAttributes.FontStyle.BOLD
+									tf.getFontStyle().getValue() & TextFormatAttributes.FontStyle.BOLD
 										? '#CCCCCC'
 										: 'white'
 							}}
@@ -1973,7 +1979,7 @@ export class CanvasToolBar extends Component {
 								backgroundColor:
 									tf &&
 									tf.getFontStyle() &&
-									tf.getFontStyle().getValue() & JSG.TextFormatAttributes.FontStyle.ITALIC
+									tf.getFontStyle().getValue() & TextFormatAttributes.FontStyle.ITALIC
 										? '#CCCCCC'
 										: 'white'
 							}}
@@ -3452,7 +3458,7 @@ export class CanvasToolBar extends Component {
 											padding: '3px'
 										}}
 									>
-										<FormattedMessage id="ChartTypes" defaultMessage="Chart Types" />
+										<FormattedMessage id="ChartTypesCategory" defaultMessage="Category Charts" />
 									</div>
 								</GridListTile>
 								<GridListTile cols={1}>
@@ -3483,13 +3489,61 @@ export class CanvasToolBar extends Component {
 									<IconButton
 										style={{ padding: '5px' }}
 										color="inherit"
+										onClick={() => this.onCreatePlot('profile')}
+									>
+										<SvgIcon>
+											<line stroke="#000" y2="22.09152" x2="2.899589" y1="2.635468" x1="2.690384" strokeWidth="2" fill="none"/>
+											<line stroke="#000" y2="21.254702" x2="21.518821" y1="21.2547" x1="2.690384" strokeWidth="2" fill="none"/>
+											<path d="m8.548121,21.045496c5.230121,-5.439326 5.230121,-5.439326 5.050195,-5.564336c0.179926,0.12501 -4.422581,-3.640678 -4.602507,-3.765688c0.179926,0.12501 5.619253,-3.640677 5.439327,-3.765687c0.179926,0.12501 -4.840991,-4.477498 -5.020917,-4.602507" strokeWidth="2" stroke="#000" fill="none"/>
+										</SvgIcon>
+									</IconButton>
+								</GridListTile>
+								<GridListTile
+									cols={6}
+									style={{
+										height: '23px'
+									}}
+								>
+									<div
+										style={{
+											backgroundColor: Colors.blue[800],
+											color: 'white',
+											fontSize: '10pt',
+											padding: '3px'
+										}}
+									>
+										<FormattedMessage id="ChartTypesXY" defaultMessage="XY Charts" />
+									</div>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<IconButton
+										style={{ padding: '5px' }}
+										color="inherit"
 										onClick={() => this.onCreatePlot('scatter')}
 									>
 										<SvgIcon>
 											<path
-												// eslint-disable-next-line max-len
-												d="M2,2H4V20H22V22H2V2M9,10A3,3 0 0,1 12,13A3,3 0 0,1 9,16A3,3 0 0,1 6,13A3,3 0 0,1 9,10M13,2A3,3 0 0,1 16,5A3,3 0 0,1 13,8A3,3 0 0,1 10,5A3,3 0 0,1 13,2M18,12A3,3 0 0,1 21,15A3,3 0 0,1 18,18A3,3 0 0,1 15,15A3,3 0 0,1 18,12Z"
+												d="M2,2H4V20H22V22H2V2"
 											/>
+											<circle cx="16" cy="12" r={1.5} />
+											<circle cx="8" cy="9" r={1.5} />
+											<circle cx="12" cy="17" r={1.5} />
+										</SvgIcon>
+									</IconButton>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<IconButton
+										style={{ padding: '5px' }}
+										color="inherit"
+										onClick={() => this.onCreatePlot('bubble')}
+									>
+										<SvgIcon>
+											<path
+												d="M2,2H4V20H22V22H2V2"
+											/>
+											<circle cx="18" cy="4" r={3} />
+											<circle cx="10" cy="9" r={3} />
+											<circle cx="14" cy="16" r={3} />
 										</SvgIcon>
 									</IconButton>
 								</GridListTile>

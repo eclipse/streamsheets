@@ -12,26 +12,31 @@ const Numbers = require('../../commons/Numbers');
 const JSONWriter = require('../../commons/JSONWriter');
 const SetPlotDataCommand = require('../command/SetPlotDataCommand');
 const CompoundCommand = require('../command/CompoundCommand');
+const ChartFormat = require('./chart/ChartFormat');
 
 const epsilon = 0.000000001;
+
 const templates = {
 	basic: {
 		font: {
 			name: 'Verdana',
-			size: 8
+			size: 8,
+			color: '#000000'
 		},
 		title: {
-			font: {
-				size: 14
-			},
+			format: new ChartFormat('none', 'none', 14, TextFormatAttributes.FontStyle.BOLD),
+		},
+		plot: {
+			format: new ChartFormat('none', '#FFFFFF'),
 		},
 		legend: {
-			linecolor: '#CCCCCC',
+			format: new ChartFormat('#CCCCCC', '#FFFFFF'),
 		},
 		axis: {
-			linecolor: '#AAAAAA',
+			format: new ChartFormat('#AAAAAA'),
 		},
 		series: {
+			format: new ChartFormat(),
 			linewidth: 50,
 			fill: [
 				'rgb(54, 162, 235)',
@@ -65,63 +70,6 @@ const templates = {
 	}
 };
 
-class ChartFormat {
-	get lineColor() {
-		return this.line && this.line.color ? this.line.color : undefined;
-	}
-
-	set lineColor(value) {
-		if (value === undefined) {
-			return;
-		}
-		if (this.line === undefined) {
-			this.line = {};
-		}
-		this.line.color = value;
-	}
-
-	get lineWidth() {
-		return this.line && this.line.width !== undefined ? this.line.width : undefined;
-	}
-
-	set lineWidth(value) {
-		if (value === undefined) {
-			return;
-		}
-		if (this.line === undefined) {
-			this.line = {};
-		}
-		this.line.width = Number(value);
-	}
-
-	save(name, writer) {
-		writer.writeStartElement(name);
-		if (this.line) {
-			writer.writeStartElement('line');
-			if (this.lineColor) {
-				writer.writeAttributeString('color', this.lineColor);
-			}
-			if (this.lineWidth) {
-				writer.writeAttributeNumber('width', this.lineWidth, 0);
-			}
-			writer.writeEndElement();
-		}
-		writer.writeEndElement();
-	}
-
-	read(reader, object) {
-		reader.iterateObjects(object, (name, child) => {
-			switch (name) {
-			case 'line':
-				this.line = {};
-				this.lineWidth = reader.getAttribute(child, 'width');
-				this.lineColor = reader.getAttribute(child, 'color');
-				break;
-			}
-		});
-	}
-}
-
 class ChartSeries {
 	constructor(type, formula) {
 		this.type = type || 'line';
@@ -133,6 +81,7 @@ class ChartSeries {
 
 	save(writer) {
 		writer.writeStartElement('series');
+		writer.writeAttributeString('type', this.type);
 		writer.writeAttributeString('xaxis', this.xAxis);
 		writer.writeAttributeString('yaxis', this.yAxis);
 		this.formula.save('formula', writer);
@@ -141,6 +90,10 @@ class ChartSeries {
 	}
 
 	read(reader, object) {
+		this.type =
+			reader.getAttribute(object, 'type') === undefined
+				? 'line'
+				: reader.getAttribute(object, 'type');
 		this.xAxis =
 			reader.getAttribute(object, 'xaxis') === undefined
 				? 'primary'
@@ -240,15 +193,6 @@ module.exports = class SheetPlotNode extends Node {
 				format: new ChartFormat(),
 				size: 500,
 				name: 'primary'
-			},
-			{
-				type: 'category',
-				align: 'top',
-				formula: new Expression(0, 'AXIS()'),
-				position: new ChartRect(),
-				format: new ChartFormat(),
-				size: 500,
-				name: 'secondary'
 			}
 		];
 		this.yAxes = [
@@ -260,15 +204,6 @@ module.exports = class SheetPlotNode extends Node {
 				format: new ChartFormat(),
 				size: 1000,
 				name: 'primary'
-			},
-			{
-				type: 'linear',
-				align: 'right',
-				formula: new Expression(0, 'AXIS()'),
-				position: new ChartRect(),
-				format: new ChartFormat(),
-				size: 500,
-				name: 'secondary'
 			}
 		];
 		this.plot = {
@@ -287,7 +222,7 @@ module.exports = class SheetPlotNode extends Node {
 			format: new ChartFormat(),
 			size: 700
 		};
-		this.series = [new ChartSeries('line', new Expression(0, 'DATAROW(B1,A2:A10,B2:B10)'))];
+		this.series = [new ChartSeries('line', new Expression(0, 'SERIES(B1,A2:A10,B2:B10)'))];
 	}
 
 	getExpressionValue(expr) {
@@ -310,10 +245,18 @@ module.exports = class SheetPlotNode extends Node {
 		return expr.getValue();
 	}
 
-	setFont(graphics, name, size, style) {
-		graphics.setFontName(name);
-		graphics.setFontSize(size);
-		graphics.setFontStyle(style);
+	setFont(graphics, format, id, vertical, horizontal) {
+		const fontColor = format.fontColor || this.getTemplate('basic')[id].format.fontColor || this.getTemplate('basic').font.color;
+		const fontName = format.fontName || this.getTemplate('basic')[id].format.fontName || this.getTemplate('basic').font.name;
+		const fontSize = format.fontSize || this.getTemplate('basic')[id].format.fontSize || this.getTemplate('basic').font.size;
+		const fontStyle = format.fontStyle === undefined ? this.getTemplate('basic')[id].format.fontStyle : format.fontStyle;
+
+		graphics.setTextBaseline(vertical);
+		graphics.setFillColor(fontColor);
+		graphics.setTextAlignment(horizontal);
+		graphics.setFontName(fontName);
+		graphics.setFontSize(fontSize);
+		graphics.setFontStyle(fontStyle === undefined ? 0 : fontStyle);
 		graphics.setFont();
 	}
 
@@ -322,6 +265,16 @@ module.exports = class SheetPlotNode extends Node {
 		graphics.setFontSize(8);
 		graphics.setFontStyle(0);
 		graphics.setFont();
+	}
+
+	measureText(graphics, cs, format, id, text) {
+		const name = format.fontName || this.getTemplate('basic')[id].format.fontName || this.getTemplate('basic').font.name;
+		const size = format.fontSize || this.getTemplate('basic')[id].format.fontSize || this.getTemplate('basic').font.size;
+
+		return {
+			width: cs.deviceToLogX(graphics.measureText(text).width) + 300,
+			height: GraphUtils.getFontMetricsEx(name, size).lineheight
+		}
 	}
 
 	layout() {
@@ -340,15 +293,14 @@ module.exports = class SheetPlotNode extends Node {
 			this.title.position.left = this.chart.margins.left;
 			this.title.position.right = size.x - this.chart.margins.right;
 			if (JSG.graphics) {
-				this.setFont(JSG.graphics, 'Verdana', 12, TextFormatAttributes.FontStyle.BOLD);
-				const width = cs.deviceToLogX(JSG.graphics.measureText(title).width);
-				this.title.position.left = size.x / 2 - width / 2;
-				this.title.position.right = size.x / 2 + width / 2;
-				this.resetFont(JSG.graphics);
-				const metrics = GraphUtils.getFontMetricsEx('Verdana', 12);
-				this.title.size = metrics.lineheight + metrics.descent;
+				this.setFont(JSG.graphics, this.title.format, 'title', 'middle', TextFormatAttributes.TextAlignment.CENTER);
+				const textSize = this.measureText(JSG.graphics, cs, this.title.format, 'title', title);
+				textSize.width += 300;
+				this.title.position.left = size.x / 2 - textSize.width / 2;
+				this.title.position.right = size.x / 2 + textSize.width / 2;
+				this.title.size = textSize.height + 300;
 				this.title.position.bottom = this.chart.margins.top + this.title.size;
-				this.plot.position.top += 200;
+				this.plot.position.top = this.title.position.bottom + 200;
 			}
 		} else {
 			this.title.position.reset();
@@ -357,19 +309,19 @@ module.exports = class SheetPlotNode extends Node {
 		const legend = this.getLegend();
 		if (legend.length) {
 			const margin = 200;
-			const metrics = GraphUtils.getFontMetricsEx('Verdana', 8);
-			this.setFont(JSG.graphics, 'Verdana', 8, TextFormatAttributes.FontStyle.NORMAL);
+			this.setFont(JSG.graphics, this.legend.format, 'legend', 'middle', TextFormatAttributes.TextAlignment.CENTER);
 			let width = 0;
+			let textSize;
 			legend.forEach((entry) => {
-				const measure = cs.deviceToLogX(JSG.graphics.measureText(String(entry.name)).width);
-				width = Math.max(width, measure);
+				textSize = this.measureText(JSG.graphics, cs, this.legend.format, 'legend', String(entry.name));
+				width = Math.max(textSize.width, width);
 			});
 			width += margin * 6;
 			this.plot.position.right -= (width + margin);
 			this.legend.position.left = this.plot.position.right + margin;
 			this.legend.position.right = size.x - this.chart.margins.right;
 			this.legend.position.top = this.plot.position.top;
-			this.legend.position.bottom = this.plot.position.top + legend.length * (metrics.lineheight) + margin * 2;
+			this.legend.position.bottom = this.plot.position.top + legend.length * (textSize.height) + margin * 2;
 		}
 
 		this.xAxes.forEach((axis) => {
@@ -531,8 +483,8 @@ module.exports = class SheetPlotNode extends Node {
 				min: this.getParamValue(term, 0),
 				max: this.getParamValue(term, 1),
 				step: this.getParamValue(term, 2),
-				minZoom: this.getParamValue(term, 3),
-				maxZoom: this.getParamValue(term, 4)
+				minZoom: this.getParamValue(term, 4),
+				maxZoom: this.getParamValue(term, 5)
 			};
 
 			result.format = this.getParamFormat(term, 0);
@@ -986,6 +938,39 @@ module.exports = class SheetPlotNode extends Node {
 		}
 	}
 
+	getLabel(ref, index) {
+		let label;
+
+		if (ref.xTime) {
+			return undefined;
+		} else if (ref.x) {
+			const vertical = ref.x.range.getWidth() === 1;
+			if (vertical) {
+				if (index <= ref.x.range._y2 - ref.x.range._y1) {
+					const cell = ref.x.sheet
+						.getDataProvider()
+						.getRC(ref.x.range._x1, ref.x.range._y1 + index);
+					if (cell) {
+						label = cell.getValue();
+					}
+				}
+			} else if (index <= ref.x.range._x2 - ref.x.range._x1) {
+				const cell = ref.x.sheet
+					.getDataProvider()
+					.getRC(ref.x.range._x1 + index, ref.x.range._y1);
+				if (cell) {
+					label = cell.getValue();
+				}
+			}
+		} else {
+			label = index;
+		}
+
+		return label;
+	}
+
+
+
 	getValue(ref, index, value) {
 		value.x = undefined;
 		value.y = 0;
@@ -1015,7 +1000,7 @@ module.exports = class SheetPlotNode extends Node {
 						}
 					}
 				}
-			} else if (index <= ref.x.range._y2 - ref.x.range._y1) {
+			} else if (index <= ref.x.range._x2 - ref.x.range._x1) {
 				const cell = ref.x.sheet
 					.getDataProvider()
 					.getRC(ref.x.range._x1 + index, ref.x.range._y1);
@@ -1185,7 +1170,7 @@ module.exports = class SheetPlotNode extends Node {
 
 	getDataFromSelection(selection) {
 		switch (selection.element) {
-		case 'datarow':
+		case 'series':
 			return this.series[selection.index];
 		case 'xAxis':
 			return this.xAxes[selection.index];
@@ -1244,6 +1229,9 @@ module.exports = class SheetPlotNode extends Node {
 							plotRect.bottom - y * plotRect.height + 200
 						);
 						if (dataRect.containsPoint(pt)) {
+							value.axes = axes;
+							value.series = series;
+							value.seriesIndex = index;
 							dataPoints.push(value);
 							dataIndex = index;
 							return true;
@@ -1255,7 +1243,7 @@ module.exports = class SheetPlotNode extends Node {
 			});
 			if (result.length) {
 				return {
-					element: 'datarow',
+					element: 'series',
 					index: dataIndex,
 					data: result[0],
 					dataPoints
@@ -1342,15 +1330,15 @@ module.exports = class SheetPlotNode extends Node {
 						rangeName._x1 -= 1;
 						rangeName._x2 -= 1;
 						const refName = rangeName.toString({ item: sheet, useName: true });
-						formula = new Expression(0, `DATAROW(${refName},${ref},${ref})`);
+						formula = new Expression(0, `SERIES(${refName},${ref},${ref})`);
 					} else if (height === 2) {
 						const rangeName = source.copy();
 						rangeName._y1 -= 1;
 						rangeName._y2 -= 1;
 						const refName = rangeName.toString({ item: sheet, useName: true });
-						formula = new Expression(0, `DATAROW(${refName},${ref},${ref})`);
+						formula = new Expression(0, `SERIES(${refName},${ref},${ref})`);
 					} else {
-						formula = new Expression(0, `DATAROW(,${ref},${ref})`);
+						formula = new Expression(0, `SERIES(,${ref},${ref})`);
 					}
 					this.series.push(new ChartSeries(type, formula));
 					index += 1;
@@ -1425,7 +1413,7 @@ module.exports = class SheetPlotNode extends Node {
 			}
 
 			for (let i = startI; i <= endI; i += step) {
-				formula = 'DATAROW(';
+				formula = 'SERIES(';
 				column = vertical ? i : startJ;
 				row = vertical ? startJ : i;
 
@@ -1524,6 +1512,12 @@ module.exports = class SheetPlotNode extends Node {
 		writer.writeEndElement();
 	}
 
+	savePlot(writer) {
+		writer.writeStartElement('plot');
+		this.plot.format.save('format', writer);
+		writer.writeEndElement();
+	}
+
 	saveLegend(writer) {
 		writer.writeStartElement('legend');
 		this.legend.formula.save('formula', writer);
@@ -1572,6 +1566,7 @@ module.exports = class SheetPlotNode extends Node {
 
 		writer.writeStartElement('plot');
 
+		this.savePlot(writer);
 		this.saveTitle(writer);
 		this.saveSeries(writer);
 		this.saveAxes(writer);
@@ -1620,6 +1615,23 @@ module.exports = class SheetPlotNode extends Node {
 				});
 				break;
 			}
+			}
+		});
+	}
+
+	readPlot(reader, object) {
+		reader.iterateObjects(object, (name, child) => {
+			switch (name) {
+			case 'plot':
+				reader.iterateObjects(child, (subName, subChild) => {
+					switch (subName) {
+					case 'format':
+						this.plot.format = new ChartFormat();
+						this.plot.format.read(reader, subChild);
+						break;
+					}
+				});
+				break;
 			}
 		});
 	}
@@ -1696,6 +1708,7 @@ module.exports = class SheetPlotNode extends Node {
 
 		const plot = reader.getObject(object, 'plot');
 		if (plot) {
+			this.readPlot(reader, plot);
 			this.readTitle(reader, plot);
 			this.readLegend(reader, plot);
 			this.readSeries(reader, plot);
@@ -1718,6 +1731,9 @@ module.exports = class SheetPlotNode extends Node {
 			break;
 		case 'legend':
 			this.saveLegend(writer);
+			break;
+		case 'plot':
+			this.savePlot(writer);
 			break;
 		}
 		writer.writeEndDocument();

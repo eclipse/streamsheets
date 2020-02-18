@@ -30,6 +30,7 @@
     "webpack-node-externals": "1.7.2"
   },
   "dependencies": {
+    "@cedalo/commons": "1.6.0-alpha",
     "@cedalo/stream-file": "1.6.0-alpha",
     "@cedalo/stream-kafka": "1.6.0-alpha",
     "@cedalo/stream-mail-smtp": "1.6.0-alpha",

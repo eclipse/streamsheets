@@ -56,6 +56,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 
 		if (commandJSON.name !== 'command.RemoveSelectionCommand' &&
 			commandJSON.name !== 'command.SetSelectionCommand' &&
+			commandJSON.name !== 'command.ChangeItemOrderCommand' &&
 			updateGraphItems) {
 			this.updateGraphItems();
 		}

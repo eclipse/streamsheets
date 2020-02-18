@@ -56,7 +56,7 @@ export default class ChartSelectionFeedbackView extends View {
 		graphics.setFillStyle(FormatAttributes.FillStyle.SOLID);
 
 		switch (selection.element) {
-		case 'datarow': {
+		case 'series': {
 			const ref = item.getDataSourceInfo(data.formula);
 			if (ref) {
 				const axes = item.getAxes(data.xAxis, data.yAxis);

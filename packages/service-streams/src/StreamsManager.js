@@ -2,7 +2,7 @@
 const { LoggerFactory } = require('@cedalo/logger');
 const { Topics } = require('@cedalo/protocols');
 const sdk = require('@cedalo/sdk-streams');
-const CONFIG = require('../config');
+const CONFIG = require('./config');
 const StreamsMonitor = require('./StreamsMonitor');
 const ConfigurationsManager = require('./ConfigurationsManager');
 const ProvidersManager = require('./ProvidersManager');

@@ -764,11 +764,11 @@ module.exports = class DataProvider {
 
 				const updateGraph = (item) => {
 					const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
-
 					if (attrFormula) {
 						const expr = attrFormula.getExpression();
 						if (expr !== undefined && expr.hasFormula()) {
 							update(sheet, expr);
+							item._noFormulaUpdate = true;
 						}
 					}
 				};
@@ -1232,6 +1232,7 @@ module.exports = class DataProvider {
 							if (expr !== undefined && expr.hasFormula()) {
 								invalidateExpression(expr);
 								updateExpression(sheet, expr, targetColumn - sourceColumn, targetRow - sourceRow, true);
+								item._noFormulaUpdate = true;
 							}
 						}
 					};

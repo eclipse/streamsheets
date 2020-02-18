@@ -108,6 +108,32 @@ const putToRange = (sheet, range, resultKeys, message) => {
 	if (machine && machine.state !== State.RUNNING) {
 		sheet._notifyUpdate();
 	}
+	return true;
+};
+const putToRange2 = (sheet, range, message) => {
+	const { data } = message;
+	const entries = Object.entries(data);
+	const sheetOnUpdate = sheet.onUpdate;
+	let rowidx = 0;
+	let colidx = -1;
+	sheet.onUpdate = null;
+	range.iterateByCol((cell, index, nextcol) => {
+		if (nextcol) {
+			rowidx = 0;
+			colidx += 1;
+		}
+		const [key, values] = entries[colidx];
+		const value = rowidx === 0 ? key : values[rowidx];
+		const newCell = value != null ? new Cell(value, Term.fromValue(value)) : null;
+		sheet.setCellAt(index, newCell);
+		rowidx += 1;
+	});
+	sheet.onUpdate = sheetOnUpdate;
+	const machine = sheetutils.getMachine(sheet);
+	if (machine && machine.state !== State.RUNNING) {
+		sheet._notifyUpdate();
+	}
+	return false;
 };
 
 const putToTarget = (sheet, targetTerm, data) => {
@@ -153,15 +179,16 @@ const project = (data, resultKeys) => {
 };
 
 const handleResponse = (handle, sheet, target, resultKeys, message, funcTerm) => {
-	const { targets = [] } = handle;
+	const { resultsType, targets = [] } = handle;
 	targets.some((trgt) => {
 		switch (trgt) {
 			case 'none':
 				return true;
 			case 'sheet':
 				if (target instanceof SheetRange) {
-					putToRange(sheet, target, resultKeys, message);
-					return true;
+					return resultsType
+						? putToRange2(sheet, target, message, resultsType)
+						: putToRange(sheet, target, resultKeys, message);
 				}
 				return false;
 			case 'outbox':
