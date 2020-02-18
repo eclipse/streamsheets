@@ -294,6 +294,9 @@ const resolvers = {
 			return auth.machineCan('edit', obj);
 		}
 	},
+	MachineMetadata: {
+		lastModified: (obj) => new Date(obj.lastModified).getTime()
+	},
 	ImportExportData: GraphQLJSONObject
 };
 
