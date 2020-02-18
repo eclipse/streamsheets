@@ -6,7 +6,7 @@ const unexpected = (error) => {
 	return error;
 };
 
-const isInternal = (error) => error && error.type === 'INTERNAL';
+const isInternal = (error) => (error && error.type === 'INTERNAL') || !error.code;
 
 const catchUnexpected = (func) => async (...args) => {
 	try {
