@@ -80,7 +80,7 @@ try {
 		filePath = process.env.STREAMSHEETS_GATEWAY_CONFIGURATION_PATH || 'config/config-production.json';
 	} else {
 		filePath = process.env.STREAMSHEETS_GATEWAY_CONFIGURATION_PATH ||
-			path.join(__dirname, '../', 'config', `config-development.json`);
+			path.join(__dirname, '..', '..', 'config', `config-development.json`);
 	}
 	config.loadFile(filePath);
 	config.validate({ allowed: 'strict' });
