@@ -2,8 +2,8 @@ import {
 	default as JSG,
 	GraphUtils,
 	MathUtils,
-	SheetPlotNode,
-	TextFormatAttributes
+	TextFormatAttributes,
+	FormatAttributes
 } from '@cedalo/jsg-core';
 import { NumberFormatter } from '@cedalo/number-format';
 
@@ -324,7 +324,34 @@ export default class SheetPlotView extends NodeView {
 	}
 
 	getSelectedFormat() {
+		const f = new FormatAttributes();
 
+		if (this.chartSelection) {
+			const data = this.getItem().getDataFromSelection(this.chartSelection);
+			const template = this.getItem().getTemplate('basic');
+			if (data) {
+				switch (this.chartSelection.element) {
+				case 'series':
+					f.setFillColor(data.format.fillColor || template.series.fill[this.chartSelection.index]);
+					f.setLineColor(data.format.lineColor || template.series.line[this.chartSelection.index]);
+					break;
+				case 'title':
+				case 'legend':
+					f.setFillColor(data.format.fillColor || template[this.chartSelection.element].format.fillColor);
+					f.setLineColor(data.format.lineColor || template[this.chartSelection.element].format.lineColor);
+					break;
+				case 'xAxis':
+				case 'yAxis':
+					f.setLineColor(data.format.lineColor || template.axis.format.lineColor);
+					f.setFillColor(data.format.fillColor || template.axis.format.fillColor);
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
+		return f;
 	}
 
 	getSelectedTextFormat() {

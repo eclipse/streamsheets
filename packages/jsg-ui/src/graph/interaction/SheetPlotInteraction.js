@@ -114,7 +114,7 @@ export default class SheetPlotInteraction extends Interaction {
 		if (layer === undefined || !layer.length) {
 			return;
 		}
-		if (layer.length > 1) {
+		if (layer.length >= 1) {
 			layer.forEach((view) => {
 				if (view.chartView.getItem().getId() === this._controller.getView().getItem().getId()) {
 					view.endPoint = event.location;

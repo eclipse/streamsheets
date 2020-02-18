@@ -430,7 +430,7 @@ module.exports = class SheetPlotNode extends Node {
 		}
 		const formula = expr.getFormula();
 
-		if (formula && formula.indexOf('TIMEAGGREGATE') !== -1) {
+		if (formula && (formula.indexOf('TIMEAGGREGATE') !== -1 || formula.indexOf('INFLUX.SELECT') !== -1)) {
 			return cell;
 		}
 
@@ -453,6 +453,11 @@ module.exports = class SheetPlotNode extends Node {
 		};
 		ret.xTime = ret.x ? this.isTimeAggregateRange(ret.x.sheet, ret.x.range) : false;
 		ret.yTime = ret.y ? this.isTimeAggregateRange(ret.y.sheet, ret.y.range) : false;
+
+		if (ret.xTime && !ret.yTime) {
+			// get influx key
+			ret.yKey = this.getParamValue(ds.getTerm(), 2, 'string');
+		}
 
 		return ret;
 	}
@@ -551,10 +556,14 @@ module.exports = class SheetPlotNode extends Node {
 				const value = {};
 
 				while (this.getValue(ref, pointIndex, value)) {
-					xMin = Math.min(value.x, xMin);
-					xMax = Math.max(value.x, xMax);
-					yMin = Math.min(value.y, yMin);
-					yMax = Math.max(value.y, yMax);
+					if (Numbers.isNumber(value.x)) {
+						xMin = Math.min(value.x, xMin);
+						xMax = Math.max(value.x, xMax);
+					}
+					if (Numbers.isNumber(value.y)) {
+						yMin = Math.min(value.y, yMin);
+						yMax = Math.max(value.y, yMax);
+					}
 					pointIndex += 1;
 					valid = true;
 				}
@@ -565,21 +574,23 @@ module.exports = class SheetPlotNode extends Node {
 					yMin = 0;
 					yMax = 100;
 				}
-				if (xMin >= xMax) {
-					xMax = xMin + 1;
-				}
-				if (yMin >= yMax) {
-					yMax = yMin + 1;
-				}
-				series.xMin = xMin;
-				series.xMax = xMax;
-				series.yMin = yMin;
-				series.yMax = yMax;
+				// if (xMin >= xMax) {
+				// 	xMax = xMin + 1;
+				// }
+				// if (yMin >= yMax) {
+				// 	yMax = yMin + 1;
+				// }
+				series.xMin = Numbers.isNumber(xMin) ? xMin : 0;
+				series.xMax = Numbers.isNumber(xMax) ? xMax : 100;
+				series.yMin = Numbers.isNumber(yMin) ? yMin : 0;
+				series.yMax = Numbers.isNumber(yMax) ? yMax : 100;
+				series.valueCount = pointIndex;
 			} else {
 				series.xMin = 0;
 				series.xMax = 100;
 				series.yMin = 0;
 				series.yMax = 100;
+				series.valueCount = 0;
 			}
 		});
 
@@ -983,8 +994,14 @@ module.exports = class SheetPlotNode extends Node {
 			value.x = index;
 		} else if (ref.xTime) {
 			const values = ref.xTime.getValues();
-			if (values && values.length > index) {
-				value.x = values[index].key;
+			if (values) {
+				if (values.time) {
+					if (values.time.length > index) {
+						value.x = values.time[index];
+					}
+				} else if (values.length > index) {
+					value.x = values[index].key;
+				}
 			}
 		} else if (ref.x) {
 			const vertical = ref.x.range.getWidth() === 1;
@@ -1017,8 +1034,19 @@ module.exports = class SheetPlotNode extends Node {
 
 		if (ref.yTime) {
 			const values = ref.yTime.getValues();
-			if (values && values.length > index) {
+			if (values.time) {
+				if (values.time.length > index) {
+					value.y = values.v1[index];
+					return true;
+				}
+			} else if (values.length > index) {
 				value.y = values[index].value;
+				return true;
+			}
+		} else if (ref.xTime) {
+			const values = ref.xTime.getValues();
+			if (values.time && values.time.length > index && values[ref.yKey]) {
+				value.y = values[ref.yKey][index];
 				return true;
 			}
 		} else if (ref.y) {
@@ -1304,7 +1332,7 @@ module.exports = class SheetPlotNode extends Node {
 			this.xAxes[0].type = 'linear';
 			break;
 		}
-		// check for TIMEAGGREGATES
+		// check for TIMEAGGREGATES and INFLUX.SELECT
 		if (width <= 2 || height <= 2) {
 			const taRange = range.copy();
 			if (width === 2) {
@@ -1322,26 +1350,44 @@ module.exports = class SheetPlotNode extends Node {
 				const cmd = this.prepareCommand('series');
 				let index = 0;
 				taRange.enumerateCells(true, (pos) => {
-					const source = new CellRange(taRange.getSheet(), pos.x, pos.y);
-					source.shiftToSheet();
-					const ref = source.toString({ item: sheet, useName: true });
-					if (width === 2) {
-						const rangeName = source.copy();
-						rangeName._x1 -= 1;
-						rangeName._x2 -= 1;
-						const refName = rangeName.toString({ item: sheet, useName: true });
-						formula = new Expression(0, `SERIES(${refName},${ref},${ref})`);
-					} else if (height === 2) {
-						const rangeName = source.copy();
-						rangeName._y1 -= 1;
-						rangeName._y2 -= 1;
-						const refName = rangeName.toString({ item: sheet, useName: true });
-						formula = new Expression(0, `SERIES(${refName},${ref},${ref})`);
+					const cell = data.get(pos);
+					const expr = cell.getExpression();
+					const values = cell.getValues();
+					if (expr && values && values.time) {
+						const source = new CellRange(taRange.getSheet(), pos.x, pos.y);
+						source.shiftToSheet();
+						const ref = source.toString({item: sheet, useName: true});
+						Object.keys(values).forEach((key) => {
+							if (key !== 'time') {
+								if (values[key].length && Numbers.isNumber(values[key][0])) {
+									formula = new Expression(0, `SERIES("${key}",${ref},"${key}")`);
+									this.series.push(new ChartSeries(type, formula));
+									index += 1;
+								}
+							}
+						});
 					} else {
-						formula = new Expression(0, `SERIES(,${ref},${ref})`);
+						const source = new CellRange(taRange.getSheet(), pos.x, pos.y);
+						source.shiftToSheet();
+						const ref = source.toString({item: sheet, useName: true});
+						if (width === 2) {
+							const rangeName = source.copy();
+							rangeName._x1 -= 1;
+							rangeName._x2 -= 1;
+							const refName = rangeName.toString({item: sheet, useName: true});
+							formula = new Expression(0, `SERIES(${refName},${ref},${ref})`);
+						} else if (height === 2) {
+							const rangeName = source.copy();
+							rangeName._y1 -= 1;
+							rangeName._y2 -= 1;
+							const refName = rangeName.toString({item: sheet, useName: true});
+							formula = new Expression(0, `SERIES(${refName},${ref},${ref})`);
+						} else {
+							formula = new Expression(0, `SERIES(,${ref},${ref})`);
+						}
+						this.series.push(new ChartSeries(type, formula));
+						index += 1;
 					}
-					this.series.push(new ChartSeries(type, formula));
-					index += 1;
 				});
 				this.xAxes[0].type = 'time';
 				this.finishCommand(cmd, 'series');
