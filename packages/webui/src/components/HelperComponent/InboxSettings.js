@@ -273,15 +273,6 @@ export class InboxSettings extends React.Component {
 		return type === 'start' && this.state.trigger.repeat === 'endless' ? 'continuously' : type;
 	};
 
-	hasStream = () => {
-		const { machine } = this.props;
-		if (machine.simulate) {
-			return true;
-		}
-		const { stream } = this.state.inbox;
-		return !!stream && !!stream.name && stream.name !== 'none';
-	};
-
 	handleShowGrid = (event, state) => {
 		this.setState({
 			preferences: {
@@ -734,7 +725,7 @@ export class InboxSettings extends React.Component {
 						<FormGroup style={styles.formControl}>
 							<div style={{ marginBottom: '5px' }}>
 								<FormControlLabel
-									disabled={!this.hasStream() || !canEdit}
+									disabled={!canEdit}
 									control={
 										<Checkbox checked={this.state.loop.enabled} onChange={this.handleLoopEnabled} />
 									}
@@ -760,7 +751,7 @@ export class InboxSettings extends React.Component {
 										defaultMessage="Recursively"
 										/>
 									}
-									disabled={!this.hasStream() || !this.state.loop.enabled || !canEdit}
+									disabled={!canEdit || !this.state.loop.enabled}
 								/>
 							</div>
 							<TextField
