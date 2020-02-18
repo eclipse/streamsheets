@@ -70,6 +70,9 @@ const toInternal = (user: Partial<User & NewUser>): PartialInternalUser => {
 	if (user.settings !== undefined) {
 		internal.settings = toInternalSettings(user.settings);
 	}
+	if (user.scope !== undefined) {
+		internal.scope = user.scope;
+	}
 	return internal;
 };
 

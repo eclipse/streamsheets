@@ -37,14 +37,16 @@ const ADMIN = {
 	id: '00000000000000',
 	username: 'admin',
 	email: 'admin@example.com',
-	password: 'passwordadmin'
+	password: 'passwordadmin',
+	scope: { id: 'root' }
 };
 
 const NON_ADMIN = {
 	id: '3',
 	username: 'nonadmin',
 	email: 'nonadmin@example.com',
-	password: 'passwordnonadmin'
+	password: 'passwordnonadmin',
+	scope: { id: 'root' }
 };
 
 const TEST_USER_1 = {
@@ -53,7 +55,8 @@ const TEST_USER_1 = {
 	email: 'johndoe@example.com',
 	firstName: 'John',
 	lastName: 'Doe',
-	password: 'password1'
+	password: 'password1',
+	scope: { id: 'root' }
 };
 const TEST_USER_2 = {
 	id: '2',
@@ -61,7 +64,8 @@ const TEST_USER_2 = {
 	email: 'janedoe@example.com',
 	firstName: 'Jane',
 	lastName: 'Doe',
-	password: 'password2'
+	password: 'password2',
+	scope: { id: 'root' }
 };
 
 const removePassword = (user: any) => {
