@@ -16,12 +16,14 @@ metadata.version = packageJSON.version;
 
 const resolvePlugins = async () => {
 	const moduleDir = path.resolve(process.env.PLUGINS_MODULE_DIR || 'plugins');
+	logger.info(`Looking for plugins in ${moduleDir}`);
 	const modules = await resolve(moduleDir);
 	return modules;
 };
 
 const run = async () => {
 	const plugins = await resolvePlugins();
+
 	const globalContext = await initContext(config, plugins);
 	const service = new GatewayService(metadata, globalContext);
 	await service.start();

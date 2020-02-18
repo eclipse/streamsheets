@@ -28,17 +28,20 @@ const encryptionContext = {
 	}
 };
 
-export type GatewayPlugin = { apply: (context: GlobalContext) => GlobalContext };
+export type GatewayPlugin = { apply: (context: GlobalContext) => Promise<GlobalContext> };
 
 const applyPlugins = async (context: GlobalContext, pluginModules: string[]) => {
 	return pluginModules.reduce(async (prev, mod) => {
 		const currentConfig = await prev;
 		try {
 			// eslint-disable-next-line
+			logger.info(`Loading plugin: ${mod}`);
 			const pluginMod: GatewayPlugin = require(mod);
-			return pluginMod.apply(currentConfig);
+			const appliedPlugin = await pluginMod.apply(currentConfig);
+			logger.info(`Successfully loaded plugin: ${mod}`);
+			return appliedPlugin;
 		} catch (error) {
-			logger.error(`Failed to apply plugin: ${mod}`, error.message);
+			logger.error(`Failed load plugin: ${mod}`, error.message);
 		}
 		return currentConfig;
 	}, Promise.resolve(context));
