@@ -65,7 +65,7 @@ const TEST_USER_2 = {
 	firstName: 'Jane',
 	lastName: 'Doe',
 	password: 'password2',
-	scope: { id: 'root' }
+	scope: { id: 'scope1' }
 };
 
 const removePassword = (user: any) => {
@@ -317,6 +317,24 @@ describe('UserApi', () => {
 					expect(result.map((user) => user.username).sort()).toEqual(['admin', 'janedoe', 'johndoe']);
 				});
 			});
+
+			describe('findByScope', () => {
+				test('should return all users with given scope', async () => {
+					const result = await api.findByScope({ id: 'root' });
+
+					expect(result).toHaveLength(2);
+					expect(result.map((u) => u.id)).toContain(ADMIN.id);
+					expect(result.map((u) => u.id)).toContain(TEST_USER_1.id);
+				});
+			});
+
+			describe('countByScope', () => {
+				test('should return count of users with given scope', async () => {
+					const result = await api.countByScope({ id: 'root' });
+
+					expect(result).toEqual(2);
+				});
+			});
 		});
 
 		describe('as non-admin', () => {
@@ -353,6 +371,27 @@ describe('UserApi', () => {
 
 					expect(result).toHaveLength(1);
 					expect(result[0]).toMatchObject(removePassword(TEST_USER_1));
+				});
+			});
+
+			describe('findByScope', () => {
+				test('should return self if self has given scope', async () => {
+					const result = await api.findByScope({ id: 'root' });
+
+					expect(result).toHaveLength(1);
+				});
+				test('should return empty list for any other scope', async () => {
+					const result = await api.findByScope({ id: 'scope1' });
+
+					expect(result).toHaveLength(0);
+				});
+			});
+
+			describe('countByScope', () => {
+				test('should return count of users with given scope', async () => {
+					const result = await api.countByScope({ id: 'root' });
+
+					expect(result).toEqual(0);
 				});
 			});
 		});

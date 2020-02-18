@@ -44,7 +44,8 @@ const TEST_USER_1 = {
 	email: 'johndoe@example.com',
 	firstName: 'John',
 	lastName: 'Doe',
-	password: 'password1'
+	password: 'password1',
+	scope: { id: 'scope1' }
 };
 const TEST_USER_2 = {
 	id: 2,
@@ -52,7 +53,8 @@ const TEST_USER_2 = {
 	email: 'janedoe@example.com',
 	firstName: 'Jane',
 	lastName: 'Doe',
-	password: 'password2'
+	password: 'password2',
+	scope: { id: 'scope2' }
 };
 
 const removePassword = (user) => {
@@ -532,6 +534,32 @@ describe('UserRepository', () => {
 				expect(testUser1).toMatchObject(removePassword(TEST_USER_1));
 				expect(testUser1.lastModified).toBeDefined();
 				expect(result.map((user) => user.username).sort()).toEqual(['janedoe', 'johndoe']);
+			});
+		});
+
+		describe('findByScope', () => {
+			test('should return all users with scope', async () => {
+				const result = await api.findByScope({ id: 'scope1' });
+
+				expect(result).toMatchObject([removePassword(TEST_USER_1)]);
+			});
+			test('should return no user if no user with scope exists', async () => {
+				const result = await api.findByScope({ id: 'scope3' });
+
+				expect(result).toEqual([]);
+			});
+		});
+
+		describe('countByScope', () => {
+			test('should return count of all users with scope', async () => {
+				const result = await api.countByScope({ id: 'scope1' });
+
+				expect(result).toEqual(1);
+			});
+			test('should return 0 if no user with scope exists', async () => {
+				const result = await api.countByScope({ id: 'scope3' });
+
+				expect(result).toEqual(0);
 			});
 		});
 

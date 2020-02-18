@@ -1,10 +1,12 @@
 import { FunctionObject, PartialApply1All } from '../common';
-import { ID, RequestContext } from '../streamsheets';
+import { ID, RequestContext, Scope } from '../streamsheets';
 import { User, UserSettings } from './types';
 
 export interface UserApi extends FunctionObject {
 	findUser(context: RequestContext, id: ID): Promise<User | null>;
 	findAllUsers(context: RequestContext): Promise<User[]>;
+	findByScope(context: RequestContext, scope: Scope): Promise<User[]>;
+	countByScope(context: RequestContext, scope: Scope): Promise<number>;
 	createUser(context: RequestContext, user: User): Promise<User>;
 	updateUser(context: RequestContext, id: ID, userUpdate: Partial<User>): Promise<User>;
 	updateSettings(context: RequestContext, id: ID, settingsUpdate: Partial<UserSettings>): Promise<User>;
@@ -22,11 +24,29 @@ export const UserApi: UserApi = {
 		return user;
 	},
 	findAllUsers: async ({ userRepo, auth, actor }) => {
-		if (await auth.isAdmin(actor)) {
+		if (auth.rights().includes('user.view')) {
 			return userRepo.findAllUsers();
 		}
 		const self = await userRepo.findUser(actor.id);
 		return self ? [self] : [];
+	},
+	findByScope: async ({ userRepo, auth, actor }: RequestContext, scope) => {
+		if (auth.rights().includes('user.view')) {
+			return userRepo.findByScope(scope);
+		}
+		if (auth.isValidScope(scope)) {
+			const self = await userRepo.findUser(actor.id);
+			if (self && auth.isInScope(scope, self)) {
+				return [self];
+			}
+		}
+		return [];
+	},
+	countByScope: async ({ userRepo, auth, actor }: RequestContext, scope) => {
+		if (auth.rights().includes('user.view')) {
+			return userRepo.countByScope(scope);
+		}
+		return 0;
 	},
 	createUser: async ({ userRepo, auth }, user) => userRepo.createUser(user, () => auth.verifyUser('create', user)),
 	updateUser: async ({ userRepo, auth }, id, userUpdate) =>

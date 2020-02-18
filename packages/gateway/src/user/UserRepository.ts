@@ -1,6 +1,6 @@
 import { Collection, FindOneOptions, FindOneAndReplaceOption } from 'mongodb';
 import { User, UserSettings, UserFromRepo, NewUser } from './types';
-import { Authorizer, ID } from '../streamsheets';
+import { Authorizer, ID, Scope } from '../streamsheets';
 import { PropType } from '../common';
 
 const { touch, generateId, applyUpdate } = require('./Document');
@@ -10,6 +10,8 @@ export interface UserRepository {
 	findUser(id: ID): Promise<UserFromRepo | null>;
 	findMinimalUser(id: ID): Promise<Pick<User, 'id'> | null>;
 	findUserByUsername(username: string): Promise<UserFromRepo | null>;
+	findByScope(scope: Scope): Promise<Array<UserFromRepo>>;
+	countByScope(scope: Scope): Promise<number>;
 	findAllUsers(): Promise<Array<UserFromRepo>>;
 	createUser(user: User, auth: Authorizer<UserFromRepo>): Promise<UserFromRepo>;
 	updateUser(id: ID, userUpdate: Partial<User>, auth: Authorizer<User>): Promise<UserFromRepo>;
@@ -178,6 +180,14 @@ const UserRepository = {
 	findAllUsers: async (collection: UserCollection) => {
 		const result = await collection.find({}, hidePassword()).toArray();
 		return result.map(toExternal);
+	},
+	findByScope: async (collection: UserCollection, scope: Scope) => {
+		const result = await collection.find<InternalUser>({ 'scope.id': scope.id }, hidePassword()).toArray();
+		return result.map(toExternal);
+	},
+	countByScope: async (collection: UserCollection, scope: Scope) => {
+		const count = await collection.count({ 'scope.id': scope.id });
+		return count;
 	},
 	createUser: async (collection: UserCollection, user: User, auth: Authorizer<User> = noop) => {
 		try {
