@@ -60,18 +60,14 @@ module.exports = class GatewayService extends MessagingService {
 	}
 
 	async _preStart() {
-		console.log('PRE START BEGIN')
 		await this.configRepo.connect();
 		await super._preStart();
 		await this.prepareJWT();
 		await this.socketServer.start();
-		console.log('PRE START END')
 	}
 
 	async _doStart() {
-		console.log('START BEGIN')
 		await startRESTServer(this.globalContext);
-		console.log('PRE START END')
 	}
 
 	async _postStart() {
