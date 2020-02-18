@@ -232,7 +232,7 @@ const resolvers = {
 			const additionalFields =
 				Object.keys(graphqlFields(info)).filter((fieldName) => ['name', 'id'].includes(fieldName)).length > 0;
 			const stream =
-				obj.stream && additionalFields ? await context.api.stream.findById(obj.stream.id) : obj.stream;
+				obj.stream && additionalFields ? await context.api.stream.findById(info.variableValues.scope, obj.stream.id) : obj.stream;
 			return stream !== null
 				? {
 						id: stream.id,
