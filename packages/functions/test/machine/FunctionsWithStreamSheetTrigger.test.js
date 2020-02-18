@@ -102,6 +102,7 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 		const sheet = t1.sheet;
 		const machine = createMachine({ settings: {cycletime: 50} }, t1);
 		expect(t1.trigger.isEndless).toBe(true);
+		expect(t1.stats.repeatsteps).toBe(0);
 		expect(sheet.cellAt('A1').value).toBe(1);
 		await machine.pause();
 		putMessages(t1, new Message());
@@ -112,12 +113,15 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B1').value).toBe(false);
 		await machine.step();
+		expect(t1.stats.repeatsteps).toBe(3);
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('B1').value).toBe(true);
 		await machine.step();
+		// return has reset repeatsteps counter:
+		expect(t1.stats.repeatsteps).toBe(1);
 		await machine.step();
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(4);
+		expect(sheet.cellAt('A1').value).toBe(7);
 		expect(sheet.cellAt('B1').value).toBe(true);
 	});
 	describe('DL-1484: calculation of additional sheet, triggered via execute, should be done in machine cycle', () => {

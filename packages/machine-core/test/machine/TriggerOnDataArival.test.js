@@ -58,7 +58,8 @@ describe('StreamSheetTrigger: OnDataArrival', () => {
 		putMessages(t1, new Message(), new Message(), new Message());
 		expect(sheet1.cellAt('A1').value).toBe(1);
 	});
-	it('should support manual step as long as there are messages', async () => {
+	// DL-3709 new behaviour:
+	it('should support manual step even if inbox has no messages', async () => {
 		const t1 = createStreamSheet('T1', { A1: { formula: 'A1+1' } });
 		const sheet1 = t1.sheet;
 		const machine = createMachine({ settings: {cycletime: 1000} }, t1);
@@ -71,10 +72,9 @@ describe('StreamSheetTrigger: OnDataArrival', () => {
 		await machine.step();
 		await machine.step();
 		expect(sheet1.cellAt('A1').value).toBe(4);
-		// no messages left, additional steps have no effect
 		await machine.step();
 		await machine.step();
-		expect(sheet1.cellAt('A1').value).toBe(4);
+		expect(sheet1.cellAt('A1').value).toBe(6);
 	});
 	it('should calculate as long as messages are in inbox', async () => {
 		const t1 = createStreamSheet('T1', { A1: { formula: 'A1+1' } });
