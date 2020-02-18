@@ -225,6 +225,8 @@ export default class SheetPlotView extends NodeView {
 		let index = 0;
 		let x;
 		let y;
+		let barWidth = 100;
+		let zero;
 		const value = {};
 
 		const ref = item.getDataSourceInfo(serie.formula);
@@ -245,18 +247,44 @@ export default class SheetPlotView extends NodeView {
 		graphics.beginPath();
 		graphics.setLineColor(serie.format.lineColor || item.getTemplate('basic').series.line[seriesIndex]);
 		graphics.setLineWidth(serie.format.lineWidth || item.getTemplate('basic').series.linewidth);
+		graphics.setFillColor(serie.format.fillColor || item.getTemplate('basic').series.fill[seriesIndex]);
+
+		if (axes.x.type === 'category') {
+			barWidth = item.scaleToAxis(axes.x, 1, false)  * plotRect.width -
+				item.scaleToAxis(axes.x, 0, false) * plotRect.width;
+			barWidth = barWidth * 0.8 / item.series.length - 50;
+			zero = item.scaleToAxis(axes.y, 0, false);
+		}
+
+		let offset;
 
 		while (item.getValue(ref, index, value)) {
 			x = item.scaleToAxis(axes.x, value.x, false);
 			y = item.scaleToAxis(axes.y, value.y, false);
-			if (index) {
-				graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
-			} else {
-				graphics.moveTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+			switch (serie.type) {
+			case 'line':
+			case 'scatter':
+				if (index) {
+					graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+				} else {
+					graphics.moveTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+				}
+				break;
+			case 'column':
+				offset = -item.series.length / 2 * barWidth + seriesIndex * (barWidth + 50);
+				if (value.y >= 0) {
+					graphics.rect(plotRect.left + x * plotRect.width + offset, plotRect.bottom - zero * plotRect.height, barWidth, -(y - zero) * plotRect.height);
+				} else {
+					graphics.rect(plotRect.left + x * plotRect.width + offset, plotRect.bottom - zero * plotRect.height, barWidth, -(y - zero) * plotRect.height);
+				}
+				break;
 			}
 			index += 1;
 		}
 
+		if (serie.type === 'column') {
+			graphics.fill();
+		}
 		graphics.stroke();
 		graphics.setLineWidth(1);
 		graphics.restore();

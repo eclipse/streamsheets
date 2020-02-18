@@ -81,6 +81,7 @@ class ChartSeries {
 
 	save(writer) {
 		writer.writeStartElement('series');
+		writer.writeAttributeString('type', this.type);
 		writer.writeAttributeString('xaxis', this.xAxis);
 		writer.writeAttributeString('yaxis', this.yAxis);
 		this.formula.save('formula', writer);
@@ -89,6 +90,10 @@ class ChartSeries {
 	}
 
 	read(reader, object) {
+		this.type =
+			reader.getAttribute(object, 'type') === undefined
+				? 'line'
+				: reader.getAttribute(object, 'type');
 		this.xAxis =
 			reader.getAttribute(object, 'xaxis') === undefined
 				? 'primary'
