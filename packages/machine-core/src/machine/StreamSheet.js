@@ -364,10 +364,14 @@ class StreamSheet {
 	}
 
 	step(manual) {
-		// DL-1334: exclude arrival trigger
-		const doIt = manual || this.trigger.type !== StreamSheetTrigger.TYPE.ARRIVAL || this.trigger.isEndless;
+		const triggerType = this.trigger.type;
+		// DL-1334: exclude arrival trigger on machine cycle step, because it is handled differently
+		const doIt = manual || this.trigger.isEndless || triggerType !== StreamSheetTrigger.TYPE.ARRIVAL;
 		if (doIt) {
-			const data = manual === 'force' ? { cmd: 'force' } : undefined;
+			// DL-3709: force manual step on ARRIVAL sheet
+			const data = manual === 'force' || (manual === true && triggerType === StreamSheetTrigger.TYPE.ARRIVAL)
+				? { cmd: 'force' }
+				: undefined;
 			this._doStep(data);
 		}
 	}
