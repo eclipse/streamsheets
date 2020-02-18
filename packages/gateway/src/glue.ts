@@ -14,11 +14,8 @@ export const createApi = <T extends FunctionObject>(context: RequestContext, raw
 		{}
 	) as PartialApply1All<T>;
 
-const createApis = (rawApi: RawAPI, context: RequestContext) => ({
-	user: createApi(context, rawApi.user),
-	machine: createApi(context, rawApi.machine),
-	stream: createApi(context, rawApi.stream)
-});
+const createApis = (rawApi: RawAPI, context: RequestContext): API =>
+	Object.entries(rawApi).reduce((acc, [key, value]) => ({ ...acc, [key]: createApi(context, value) }), {}) as API;
 
 export interface RawAPI {
 	user: BaseUserApi;
