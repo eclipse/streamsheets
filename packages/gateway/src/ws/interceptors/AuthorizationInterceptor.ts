@@ -18,12 +18,10 @@ export default class AuthorizationInterceptor implements Interceptor {
 	}
 
 	beforeSendToClient(context: MessageContext) {
-		// console.log('TO CLIENT', context.message);
 		return REJECT_ALL ? Promise.reject(new Error('Unknown user')) : Promise.resolve(context);
 	}
 
 	async beforeSendToServer(context: MessageContext) {
-		console.log('TO SERVER', context.message);
 		const { auth, message } = context;
 		const machine = await context.api.machine.findMachine(message.machineId || '');
 		if(!machine){
