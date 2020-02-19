@@ -37,6 +37,39 @@ describe('engineering functions', () => {
 			expect(createTerm('bin2dec(11111111111)', sheet).value).toBe(ERROR.NUM);
 		});
 	});
+	describe('bin2float', () => {
+		it('should convert a float number to binary', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('bin2float("0")', sheet).value).toBe(0);
+			expect(createTerm('bin2float("01000000010010010000111111011011")', sheet).value).toBe(
+				3.1415927410125732421875
+			);
+		});
+		it('should fill missing zeros at the beginning', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('bin2float("111")', sheet).value).toBe(
+				9.809089250273719496e-45
+			);
+		});
+		it('should tread undefined or empty cells as 0', () => {
+			const sheet = new StreamSheet().sheet.load({
+				cells: { A1: '', A2: undefined, B2: null }
+			});
+			expect(createTerm('bin2float(A1)', sheet).value).toBe(0);
+			expect(createTerm('bin2float(A2)', sheet).value).toBe(0);
+			expect(createTerm('bin2float(B2)', sheet).value).toBe(0);
+		});
+		it(`should return ${ERROR.NUM} if given value represents not a number`, () => {
+			const sheet = new StreamSheet().sheet.load({
+				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
+			});
+			expect(createTerm('bin2float(A2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('bin2float(B2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('bin2float(C2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('bin2float(A3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('bin2float(B3)', sheet).value).toBe(ERROR.NUM);
+		});
+	});
 	describe('bin2hex', () => {
 		it('should convert a binary number to hexadecimal', () => {
 			const sheet = new StreamSheet().sheet;
@@ -293,6 +326,66 @@ describe('engineering functions', () => {
 		});
 	});
 
+	describe('float2bin', () => {
+		it('should convert a float number to binary', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('float2bin(0)', sheet).value).toBe('00000000000000000000000000000000');
+			expect(createTerm('float2bin(3.141592653589793)', sheet).value).toBe('01000000010010010000111111011011');
+		});
+		it('should support negative numbers', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('float2bin(-1)', sheet).value).toBe('10111111100000000000000000000000');
+			expect(createTerm('float2bin(-3.141592653589793)', sheet).value).toBe('11000000010010010000111111011011');
+		});
+		it('should tread undefined or empty cells as 0', () => {
+			const sheet = new StreamSheet().sheet.load({
+				cells: { A1: '', A2: undefined, B2: null }
+			});
+			expect(createTerm('float2bin(A1)', sheet).value).toBe('00000000000000000000000000000000');
+			expect(createTerm('float2bin(A2)', sheet).value).toBe('00000000000000000000000000000000');
+			expect(createTerm('float2bin(B2)', sheet).value).toBe('00000000000000000000000000000000');
+		});
+		it(`should return ${ERROR.NUM} if given value represents not a number`, () => {
+			const sheet = new StreamSheet().sheet.load({
+				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
+			});
+			expect(createTerm('float2bin(A2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('float2bin(B2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('float2bin(C2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('float2bin(A3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('float2bin(B3)', sheet).value).toBe(ERROR.NUM);
+		});
+	});
+	describe('float2hex', () => {
+		it('should convert a float number to hexadecimal', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('float2hex(0)', sheet).value).toBe('0');
+			expect(createTerm('float2hex(3.141592653589793)', sheet).value).toBe('40490FDB');
+		});
+		it('should support negative numbers', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('float2hex(-1)', sheet).value).toBe('BF800000');
+			expect(createTerm('float2hex(-3.141592653589793)', sheet).value).toBe('C0490FDB');
+		});
+		it('should tread undefined or empty cells as 0', () => {
+			const sheet = new StreamSheet().sheet.load({
+				cells: { A1: '', A2: undefined, B2: null }
+			});
+			expect(createTerm('float2hex(A1)', sheet).value).toBe('0');
+			expect(createTerm('float2hex(A2)', sheet).value).toBe('0');
+			expect(createTerm('float2hex(B2)', sheet).value).toBe('0');
+		});
+		it(`should return ${ERROR.NUM} if given value represents not a number`, () => {
+			const sheet = new StreamSheet().sheet.load({
+				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
+			});
+			expect(createTerm('float2hex(A2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('float2hex(B2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('float2hex(C2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('float2hex(A3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('float2hex(B3)', sheet).value).toBe(ERROR.NUM);
+		});
+	});
 
 	describe('hex2bin', () => {
 		it('should convert a hexadecimal number to binary', () => {
@@ -436,6 +529,36 @@ describe('engineering functions', () => {
 			expect(createTerm('hex2oct("FFDFFFFFFF")', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('hex2oct("2000000000")', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('hex2oct("8000000000")', sheet).value).toBe(ERROR.NUM);
+		});
+	});
+	describe('hex2float', () => {
+		it('should convert a hexadecimal number to float', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('hex2float(0)', sheet).value).toBe(0);
+			expect(createTerm('hex2float("40490FDB")', sheet).value).toBe(3.1415927410125732421875);
+		});
+		it('should support negative numbers', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('hex2float("BF800000")', sheet).value).toBe(-1);
+			expect(createTerm('hex2float("C0490FDB")', sheet).value).toBe(-3.1415927410125732421875);
+		});
+		it('should tread undefined or empty cells as 0', () => {
+			const sheet = new StreamSheet().sheet.load({
+				cells: { A1: '', A2: undefined, B2: null }
+			});
+			expect(createTerm('hex2float(A1)', sheet).value).toBe(0);
+			expect(createTerm('hex2float(A2)', sheet).value).toBe(0);
+			expect(createTerm('hex2float(B2)', sheet).value).toBe(0);
+		});
+		it(`should return ${ERROR.NUM} if given value represents not a number`, () => {
+			const sheet = new StreamSheet().sheet.load({
+				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
+			});
+			expect(createTerm('hex2float(A2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2float(B2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2float(C2)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2float(A3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2float(B3)', sheet).value).toBe(ERROR.NUM);
 		});
 	});
 
