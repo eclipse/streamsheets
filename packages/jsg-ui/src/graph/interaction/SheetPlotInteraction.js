@@ -60,10 +60,9 @@ export default class SheetPlotInteraction extends Interaction {
 			}
 
 			const children = this._controller.getParent().children;
-
 			const pt = this.toLocalCoordinate(event, viewer, event.location.copy());
 			const axes = item.getAxes();
-			const value = item.scaleFromAxis(axes.x.scale, pt);
+			const value = item.scaleFromAxis(axes, pt);
 
 			children.forEach((controller) => {
 				if (controller.getModel() instanceof SheetPlotNode) {
@@ -147,11 +146,11 @@ export default class SheetPlotInteraction extends Interaction {
 				if (ptStart.x !== ptEnd.x) {
 					const item = this._controller.getModel();
 					const axes = item.getAxes();
-					const valueStart = item.scaleFromAxis(axes.x.scale, ptStart.x < ptEnd.x ? ptStart : ptEnd);
-					const valueEnd = item.scaleFromAxis(axes.x.scale, ptStart.x < ptEnd.x ? ptEnd : ptStart);
+					const valueStart = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptStart : ptEnd);
+					const valueEnd = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptEnd : ptStart);
 
-					this.setParamValue(viewer, item, item.xAxes[0].formula, 4, valueStart);
-					this.setParamValue(viewer, item, item.xAxes[0].formula, 5, valueEnd);
+					this.setParamValue(viewer, item, item.xAxes[0].formula, 4, valueStart.x);
+					this.setParamValue(viewer, item, item.xAxes[0].formula, 5, valueEnd.x);
 
 					viewer.getGraph().markDirty();
 					event.doRepaint = true;

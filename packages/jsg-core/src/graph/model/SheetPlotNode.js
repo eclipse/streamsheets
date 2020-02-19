@@ -595,20 +595,17 @@ module.exports = class SheetPlotNode extends Node {
 		});
 	}
 
-	getAxes(x, y) {
+	getAxes(series) {
 		let xAxis;
 		let yAxis;
 
-		if (x === undefined) {
+		if (series === undefined) {
 			xAxis = this.xAxes[0];
-		} else {
-			const result = this.xAxes.filter((axis) => axis.name === x);
-			xAxis = result.length ? result[0] : this.xAxes[0];
-		}
-		if (y === undefined) {
 			yAxis = this.yAxes[0];
 		} else {
-			const result = this.yAxes.filter((axis) => axis.name === y);
+			let result = this.xAxes.filter((axis) => axis.name === series.xAxis);
+			xAxis = result.length ? result[0] : this.xAxes[0];
+			result = this.yAxes.filter((axis) => axis.name === series.yAxis);
 			yAxis = result.length ? result[0] : this.yAxes[0];
 		}
 
@@ -632,6 +629,10 @@ module.exports = class SheetPlotNode extends Node {
 		// evaluate min/max for series
 		this.series.forEach((series, index) => {
 			const ref = this.getDataSourceInfo(series.formula);
+			const axes = this.getAxes(series);
+			if (index === 0) {
+				axes.x.categories = [];
+			}
 			if (ref) {
 				let pointIndex = 0;
 				const value = {};
@@ -645,6 +646,16 @@ module.exports = class SheetPlotNode extends Node {
 						yMin = Math.min(value.y, yMin);
 						yMax = Math.max(value.y, yMax);
 					}
+					if (axes.x.categories[index] === undefined) {
+						axes.x.categories[index] = [];
+					}
+					axes.x.categories[index][pointIndex] = {
+						x: value.x,
+						y: value.y,
+						axes,
+						series,
+						seriesIndex: index,
+					};
 					pointIndex += 1;
 					valid = true;
 				}
@@ -655,12 +666,7 @@ module.exports = class SheetPlotNode extends Node {
 					yMin = 0;
 					yMax = 100;
 				}
-				// if (xMin >= xMax) {
-				// 	xMax = xMin + 1;
-				// }
-				// if (yMin >= yMax) {
-				// 	yMax = yMin + 1;
-				// }
+
 				series.xMin = Numbers.isNumber(xMin) ? xMin : 0;
 				series.xMax = Numbers.isNumber(xMax) ? xMax : 100;
 				series.yMin = Numbers.isNumber(yMin) ? yMin : 0;
@@ -1061,8 +1067,6 @@ module.exports = class SheetPlotNode extends Node {
 		return label;
 	}
 
-
-
 	getValue(ref, index, value) {
 		value.x = undefined;
 		value.y = 0;
@@ -1115,18 +1119,20 @@ module.exports = class SheetPlotNode extends Node {
 
 		if (ref.yTime) {
 			const values = ref.yTime.getValues();
-			if (values.time) {
-				if (values.time.length > index) {
-					value.y = values.v1[index];
+			if (values) {
+				if (values.time) {
+					if (values.time.length > index) {
+						value.y = values.v1[index];
+						return true;
+					}
+				} else if (values.length > index) {
+					value.y = values[index].value;
 					return true;
 				}
-			} else if (values.length > index) {
-				value.y = values[index].value;
-				return true;
 			}
 		} else if (ref.xTime) {
 			const values = ref.xTime.getValues();
-			if (values.time && values.time.length > index && values[ref.yKey]) {
+			if (values && values.time && values.time.length > index && values[ref.yKey]) {
 				value.y = values[ref.yKey][index];
 				return true;
 			}
@@ -1182,10 +1188,14 @@ module.exports = class SheetPlotNode extends Node {
 		return value;
 	}
 
-	scaleFromAxis(info, point) {
+	scaleFromAxis(axes, point) {
 		point.x -= this.plot.position.left;
+		point.y = this.plot.position.bottom - point.y;
 
-		return info.min + (point.x / (this.plot.position.right - this.plot.position.left)) * (info.max - info.min);
+		return {
+			x: axes.x.scale.min + (point.x / (this.plot.position.right - this.plot.position.left)) * (axes.x.scale.max - axes.x.scale.min),
+			y: axes.y.scale.min + (point.y / (this.plot.position.bottom - this.plot.position.top)) * (axes.y.scale.max - axes.y.scale.min)
+		};
 	}
 
 	incrementScale(axis, value) {
@@ -1337,7 +1347,7 @@ module.exports = class SheetPlotNode extends Node {
 				const dataRect = new ChartRect();
 				const plotRect = this.plot.position;
 				if (ref) {
-					const axes = this.getAxes(series.xAxis, series.yAxis);
+					const axes = this.getAxes(series);
 					let pointIndex = 0;
 					let x;
 					let y;

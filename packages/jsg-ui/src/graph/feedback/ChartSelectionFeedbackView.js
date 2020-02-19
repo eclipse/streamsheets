@@ -59,7 +59,7 @@ export default class ChartSelectionFeedbackView extends View {
 		case 'series': {
 			const ref = item.getDataSourceInfo(data.formula);
 			if (ref) {
-				const axes = item.getAxes(data.xAxis, data.yAxis);
+				const axes = item.getAxes(data);
 				let index = 0;
 				let x;
 				let y;

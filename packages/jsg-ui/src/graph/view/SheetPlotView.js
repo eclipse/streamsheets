@@ -233,7 +233,7 @@ export default class SheetPlotView extends NodeView {
 			return;
 		}
 
-		const axes = item.getAxes(serie.xAxis, serie.yAxis);
+		const axes = item.getAxes(serie);
 		if (!axes) {
 			return;
 		}

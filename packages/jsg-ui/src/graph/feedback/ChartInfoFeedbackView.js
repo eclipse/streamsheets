@@ -32,7 +32,8 @@ export default class ChartInfoFeedbackView extends View {
 		graphics.beginPath();
 
 		const plotRect = item.plot.position;
-		const x = top.x + item.scaleToAxis(item.xAxes[0], this.value, false)  * plotRect.width;
+		const x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, false)  * plotRect.width;
+		const y = top.y;// - item.scaleToAxis(item.yAxes[0], this.value.y, false)  * plotRect.height;
 
 		graphics.moveTo(x, top.y);
 		graphics.lineTo(x, bottom.y);
@@ -57,19 +58,21 @@ export default class ChartInfoFeedbackView extends View {
 				const { series } = value;
 				const ref = item.getDataSourceInfo(series.formula);
 				let label = '';
+				let axis;
 				if (xValue) {
-					label = item.formatNumber(value.x, value.axes.x.scale.format);
+					axis = value.axes.x;
+					label = item.formatNumber(value.x, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
 				} else {
-					label = item.formatNumber(value.y, value.axes.y.scale.format);
+					axis = value.axes.y;
+					label = item.formatNumber(value.y, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
 				}
 				if (ref && ref.name !== undefined && !xValue) {
-					label = `${ref.name}: W${label}`;
+					label = `${ref.name}: ${label}`;
 				} else {
 					label = String(label);
 				}
 				return label;
 			};
-
 
 			graphics.setTextBaseline('top');
 			graphics.setTextAlignment(TextFormatAttributes.TextAlignment.LEFT);
@@ -77,19 +80,36 @@ export default class ChartInfoFeedbackView extends View {
 			graphics.setFontSize(9);
 			graphics.setFont();
 
-
 			width = graphics.measureText(getLabel(this.selection.dataPoints[0], true)).width;
-			this.selection.dataPoints.forEach((value) => {
-				width = Math.max(width, graphics.measureText(getLabel(this.selection.dataPoints[0], false)).width);
+			const values = [];
+
+			item.xAxes.forEach((axis) => {
+				if (axis.categories) {
+					axis.categories.forEach((data) => {
+						data.forEach((value) => {
+							if (value.x === this.selection.dataPoints[0].x) {
+								values.push(value);
+							}
+						});
+					});
+				}
 			});
 
-			width = graphics.getCoordinateSystem().deviceToLogX(width + 300, true);
+			if (!values.length) {
+				return;
+			}
+
+			values.forEach((value) => {
+				width = Math.max(width, graphics.measureText(getLabel(value, false)).width);
+			});
+
+			width = graphics.getCoordinateSystem().deviceToLogX(width, true);
 
 			graphics.beginPath();
 			graphics.setFillColor('#FFFFFF');
 			graphics.setLineColor('#AAAAAA');
-			graphics.rect(this.point.x + space, this.point.y + space, width + margin * 2,
-				margin * 2 + (this.selection.dataPoints.length + 1) * height);
+			graphics.rect(x + space, y + space, width + margin * 2,
+				margin * 2 + (values.length + 1) * height);
 			graphics.fill();
 			graphics.stroke();
 
@@ -97,11 +117,11 @@ export default class ChartInfoFeedbackView extends View {
 
 			const text = getLabel(this.selection.dataPoints[0], true);
 
-			graphics.fillText(text, this.point.x + space + margin, this.point.y + space + margin);
-			this.selection.dataPoints.forEach((value, index) => {
+			graphics.fillText(text, x + space + margin, y + space + margin);
+			values.forEach((value, index) => {
 				const label = getLabel(value, false);
 				graphics.setFillColor(value.series.format.lineColor || item.getTemplate('basic').series.line[value.seriesIndex]);
-				graphics.fillText(label, this.point.x + space + margin, this.point.y + height * (index + 1) + space + margin * 2);
+				graphics.fillText(label, x + space + margin, y + height * (index + 1) + space + margin * 2);
 			});
 		}
 	}
