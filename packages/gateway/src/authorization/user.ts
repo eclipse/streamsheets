@@ -21,6 +21,7 @@ const rights = ({ actor, auth }: RequestContext) =>
 	auth.isAdmin(actor)
 		? ['machine.view', 'machine.edit', 'stream', 'user.edit', 'user.view', 'database']
 		: ['machine.view', 'machine.edit', 'stream'];
+const roles = ({ actor, auth }: RequestContext) => (auth.rights().includes('roles') ? ['developer'] : []);
 const userCan = ({ actor, auth }: RequestContext, action: UserAction, user: User): boolean => {
 	switch (action) {
 		case 'create':
@@ -40,6 +41,7 @@ export const UserAuth = {
 	isAdmin,
 	isSelf,
 	rights,
+	roles,
 	isValidScope,
 	userCan,
 	isInScope

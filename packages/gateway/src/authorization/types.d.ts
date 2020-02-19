@@ -12,6 +12,7 @@ export interface Authorization extends Verify {
 	isInScope(scope: Scope, entity: { scope?: Scope }): boolean;
 	userCan(action: UserAction, user: User): boolean;
 	rights(): string[];
+	roles(): string[];
 	machineCan(action: MachineAction, machine: Machine): boolean;
 	streamCan(action: StreamAction, stream: Stream): boolean;
 }

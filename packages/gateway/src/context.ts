@@ -67,12 +67,14 @@ export const init = async (config: any, plugins: string[]) => {
 			// TODO: Remove after creation of admin is possible in setup
 			const users = await RepositoryManager.userRepository.findAllUsers();
 			if (users.length === 0) {
-				const pwhash = await config.encryption.hash('1234');
+				const pwhash = await encryptionContext.hash('1234');
 				await RepositoryManager.userRepository.createUser({
 					id: '00000000000000',
 					username: 'admin',
 					email: 'admin@cedalo.com',
-					password: pwhash
+					password: pwhash,
+					scope: { id: 'root' },
+					role: 'developer'
 				});
 			}
 		}
