@@ -73,16 +73,61 @@ const templates = {
 
 class ChartSeries {
 	constructor(type, formula) {
-		this.type = type || 'line';
+		this._stacked = false;
+		this._relative = false;
+		this.type = type;
 		this.formula = formula;
 		this.format = new ChartFormat();
 		this.xAxis = 'primary';
 		this.yAxis = 'primary';
 	}
 
+	set type(type) {
+		switch(type) {
+		case 'columnstacked':
+			this._type = 'column';
+			this._stacked = true;
+			break;
+		case 'columnstacked100':
+			this._type = 'column';
+			this._stacked = true;
+			this._relative = true;
+			break;
+		default:
+			this._type = type || 'line';
+			break;
+		}
+	}
+
+	get type() {
+		return this._type;
+	}
+
+	get stacked() {
+		return this._stacked;
+	}
+
+	set stacked(value) {
+		if (value === undefined || value === 'false') {
+			this._stacked = false;
+		} else {
+			this._stacked = !!Number(value);
+		}
+	}
+
+	get relative() {
+		return this._relative;
+	}
+
+	set relative(value) {
+		this._relative = (value === undefined ? false : !!Number(value));
+	}
+
 	save(writer) {
 		writer.writeStartElement('series');
 		writer.writeAttributeString('type', this.type);
+		writer.writeAttributeNumber('stacked', this.stacked ? 1 : 0);
+		writer.writeAttributeNumber('relative', this.relative ? 1 : 0);
 		writer.writeAttributeString('xaxis', this.xAxis);
 		writer.writeAttributeString('yaxis', this.yAxis);
 		this.formula.save('formula', writer);
@@ -91,10 +136,9 @@ class ChartSeries {
 	}
 
 	read(reader, object) {
-		this.type =
-			reader.getAttribute(object, 'type') === undefined
-				? 'line'
-				: reader.getAttribute(object, 'type');
+		this.type = reader.getAttribute(object, 'type');
+		this.stacked = reader.getAttribute(object, 'stacked');
+		this.relative = reader.getAttribute(object, 'relative');
 		this.xAxis =
 			reader.getAttribute(object, 'xaxis') === undefined
 				? 'primary'
@@ -646,10 +690,14 @@ module.exports = class SheetPlotNode extends Node {
 						yMin = Math.min(value.y, yMin);
 						yMax = Math.max(value.y, yMax);
 					}
-					if (axes.x.categories[index] === undefined) {
-						axes.x.categories[index] = [];
+					if (!axes.x.categories[pointIndex]) {
+						axes.x.categories[pointIndex] = {
+							values: [],
+							pos: 0,
+							neg: 0
+						};
 					}
-					axes.x.categories[index][pointIndex] = {
+					axes.x.categories[pointIndex].values[index] = {
 						x: value.x,
 						y: value.y,
 						axes,
@@ -658,6 +706,27 @@ module.exports = class SheetPlotNode extends Node {
 					};
 					pointIndex += 1;
 					valid = true;
+				}
+				if (series.stacked) {
+					axes.x.categories.forEach((category) => {
+						if (category.values) {
+							let pos = 0;
+							let neg = 0;
+							category.values.forEach((values) => {
+								if (Numbers.isNumber(values.y)) {
+									if (values.y > 0) {
+										pos += values.y;
+									} else {
+										neg += values.y;
+									}
+								}
+							});
+							category.pos = pos;
+							category.neg = neg;
+							yMax = Math.max(yMax, pos);
+							yMin = Math.min(yMin, neg);
+						}
+					});
 				}
 				if (!valid) {
 					// TODO different values for category axis
@@ -1188,6 +1257,10 @@ module.exports = class SheetPlotNode extends Node {
 		return value;
 	}
 
+	scaleSizeToAxis(axis, value) {
+		return value / (axis.scale.max - axis.scale.min);
+	}
+
 	scaleFromAxis(axes, point) {
 		point.x -= this.plot.position.left;
 		point.y = this.plot.position.bottom - point.y;
@@ -1430,6 +1503,8 @@ module.exports = class SheetPlotNode extends Node {
 
 		const cmdAxis = this.prepareCommand('axes');
 		switch (type) {
+		case 'columnstacked100':
+		case 'columnstacked':
 		case 'column':
 		case 'line':
 			this.xAxes[0].type = 'category';

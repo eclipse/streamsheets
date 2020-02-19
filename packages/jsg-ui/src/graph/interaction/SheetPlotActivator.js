@@ -50,12 +50,12 @@ export default class SheetPlotActivator extends InteractionActivator {
 				event.doRepaint = true;
 				break;
 			}
-			case 'series':
-				selection.data.xAxis = 'secondary';
-				selection.data.yAxis = 'secondary';
-				viewer.getGraph().markDirty();
-				event.doRepaint = true;
-				break;
+			// case 'series':
+			// 	selection.data.xAxis = 'secondary';
+			// 	selection.data.yAxis = 'secondary';
+			// 	viewer.getGraph().markDirty();
+			// 	event.doRepaint = true;
+			// 	break;
 			}
 		}
 	}

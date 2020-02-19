@@ -86,11 +86,11 @@ export default class ChartInfoFeedbackView extends View {
 			item.xAxes.forEach((axis) => {
 				if (axis.categories) {
 					axis.categories.forEach((data) => {
-						data.forEach((value) => {
-							if (value.x === this.selection.dataPoints[0].x) {
+						if (data.values && data.values[0].x === this.selection.dataPoints[0].x) {
+							data.values.forEach((value) => {
 								values.push(value);
-							}
-						});
+							});
+						}
 					});
 				}
 			});

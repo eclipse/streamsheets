@@ -3,6 +3,7 @@ import {
 	GraphUtils,
 	MathUtils,
 	TextFormatAttributes,
+	Numbers,
 	FormatAttributes
 } from '@cedalo/jsg-core';
 
@@ -225,6 +226,7 @@ export default class SheetPlotView extends NodeView {
 		let x;
 		let y;
 		let barWidth = 100;
+		const barMargin = serie.stacked ? 0 : 150;
 		let zero;
 		const value = {};
 
@@ -237,7 +239,6 @@ export default class SheetPlotView extends NodeView {
 		if (!axes) {
 			return;
 		}
-
 		graphics.save();
 		graphics.beginPath();
 		graphics.rect(plotRect.left, plotRect.top, plotRect.width, plotRect.height);
@@ -251,15 +252,55 @@ export default class SheetPlotView extends NodeView {
 		if (axes.x.type === 'category') {
 			barWidth = item.scaleToAxis(axes.x, 1, false)  * plotRect.width -
 				item.scaleToAxis(axes.x, 0, false) * plotRect.width;
-			barWidth = barWidth * 0.8 / item.series.length - 50;
+			barWidth = barWidth * 0.7 / (serie.stacked ? 1 : item.series.length);
 			zero = item.scaleToAxis(axes.y, 0, false);
 		}
 
 		let offset;
+		let height;
+		let tmp;
 
 		while (item.getValue(ref, index, value)) {
 			x = item.scaleToAxis(axes.x, value.x, false);
-			y = item.scaleToAxis(axes.y, value.y, false);
+			if (serie.stacked) {
+				if (serie.relative) {
+					y = 0;
+					for (let i = 0; i < seriesIndex; i += 1) {
+						tmp = axes.x.categories[index].values[i].y;
+						if (Numbers.isNumber(tmp)) {
+							if (value.y < 0) {
+								const neg = axes.x.categories[index].neg;
+								if (Numbers.isNumber(neg) && neg !== 0) {
+									y += tmp / neg * 100;
+								}
+							} else if (tmp > 0) {
+								const pos = axes.x.categories[index].pos;
+								if (Numbers.isNumber(pos) && pos !== 0) {
+									y += tmp / pos * 100;
+								}
+							}
+						}
+					}
+					y = item.scaleToAxis(axes.y, y, false);
+				} else {
+					y = 0;
+					for (let i = 0; i < seriesIndex; i += 1) {
+						tmp = axes.x.categories[index].values[i].y;
+						if (Numbers.isNumber(tmp)) {
+							if (value.y < 0) {
+								if (tmp < 0) {
+									y += tmp;
+								}
+							} else if (tmp > 0) {
+								y += tmp;
+							}
+						}
+					}
+					y = item.scaleToAxis(axes.y, y, false);
+				}
+			} else {
+				y = item.scaleToAxis(axes.y, value.y, false);
+			}
 			switch (serie.type) {
 			case 'line':
 			case 'scatter':
@@ -270,12 +311,25 @@ export default class SheetPlotView extends NodeView {
 				}
 				break;
 			case 'column':
-				offset = -item.series.length / 2 * barWidth + seriesIndex * (barWidth + 50);
-				if (value.y >= 0) {
-					graphics.rect(plotRect.left + x * plotRect.width + offset, plotRect.bottom - zero * plotRect.height, barWidth, -(y - zero) * plotRect.height);
+				if (serie.relative) {
+					height = 0;
+					if (value.y > 0) {
+						tmp = axes.x.categories[index].pos;
+						if (Numbers.isNumber(tmp) && tmp !== 0) {
+							height = item.scaleToAxis(axes.y, value.y / tmp * 100, false);
+						}
+					} else {
+						tmp = Math.abs(axes.x.categories[index].neg);
+						if (Numbers.isNumber(tmp) && tmp !== 0) {
+							height = -item.scaleToAxis(axes.y, value.y / tmp * 100, false);
+						}
+					}
 				} else {
-					graphics.rect(plotRect.left + x * plotRect.width + offset, plotRect.bottom - zero * plotRect.height, barWidth, -(y - zero) * plotRect.height);
+					height = item.scaleSizeToAxis(axes.y, value.y);
 				}
+				y = serie.stacked ? y : zero;
+				offset = serie.stacked ? -barWidth / 2 : -item.series.length / 2 * barWidth + seriesIndex * barWidth + barMargin / 2;
+				graphics.rect(plotRect.left + x * plotRect.width + offset, plotRect.bottom - y * plotRect.height, barWidth - barMargin, -height * plotRect.height);
 				break;
 			}
 			index += 1;
