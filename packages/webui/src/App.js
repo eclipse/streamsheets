@@ -5,7 +5,6 @@ import { Route, Redirect } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import fetch from 'isomorphic-fetch';
 import 'typeface-roboto'; // eslint-disable-line
-import DefaultLayout from './layouts/DefaultLayout';
 import MachineDetailPage from './layouts/MachineDetailPage';
 import LoginPage from './components/Auth/LoginPage';
 import SetupPage from './components/Auth/SetupPage';
@@ -14,7 +13,14 @@ import PrivateRoute from './components/Auth/PrivateRoute';
 import { history } from './store';
 import './App.css';
 import ConfigManager from './helper/ConfigManager';
-import { UserTablePage, CreateUserPage, UpdateUserPage } from './pages';
+import {
+	UserTablePage,
+	CreateUserPage,
+	UpdateUserPage,
+	DashboardPage,
+	ExportPage,
+	StreamsPage
+} from './pages';
 
 const GATEWAY_CONFIG = ConfigManager.config.gatewayClientConfig;
 
@@ -68,11 +74,11 @@ class App extends React.Component {
 											return <Redirect to="/administration/users" />;
 										}}
 									/>
-									<PrivateRoute path="/administration/connectors" component={DefaultLayout} />
-									<PrivateRoute path="/administration/database" component={DefaultLayout} />
-									<Route path="/administration/consumers" component={DefaultLayout} />
-									<Route path="/administration/producers" component={DefaultLayout} />
-									<PrivateRoute path="/administration/plugins/" component={DefaultLayout} />
+									<PrivateRoute path="/administration/connectors" component={StreamsPage} />
+									<PrivateRoute path="/administration/database" component={StreamsPage} />
+									<Route path="/administration/consumers" component={StreamsPage} />
+									<Route path="/administration/producers" component={StreamsPage} />
+									{/* <PrivateRoute path="/administration/plugins/" component={DefaultLayout} /> */}
 									<PrivateRoute exact path="/administration/users" component={UserTablePage} />
 									<PrivateRoute exact path="/administration/users/new" component={CreateUserPage} />
 									<PrivateRoute
@@ -83,12 +89,11 @@ class App extends React.Component {
 								</React.Fragment>
 							)}
 
-							<PrivateRoute path="/dashboard" component={DefaultLayout} />
-							<PrivateRoute path="/export" component={DefaultLayout} />
+							<PrivateRoute path="/dashboard" component={DashboardPage} />
+							<PrivateRoute path="/export" component={ExportPage} />
 							<PrivateRoute path="/machines/:machineId" component={MachineDetailPage} />
 							<Route path="/machines/:machineId/:userId/:token" component={MachineDetailPage} />
-							<PrivateRoute path="/start" component={DefaultLayout} />
-							<PrivateRoute path="/administration/stream/:configId" component={DefaultLayout} />
+							<PrivateRoute path="/administration/stream/:configId" component={StreamsPage} />
 						</div>
 					)}
 				</div>

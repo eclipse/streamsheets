@@ -83,8 +83,8 @@ ServerStatusDialog.defaultProps = {
 };
 
 function mapStateToProps(state, ownProps) {
-	const streamsLoaded = state.streams.fetched;
-	const machinesLoaded = state.machines.fetched;
+	const streamsLoaded = ownProps.noStreams || state.streams.fetched;
+	const machinesLoaded = ownProps.noMachines || state.machines.fetched;
 	const { isConnected } = state.monitor;
 	const { allServicesConnected } = state.meta;
 	const disconnectedServices = state.meta.disconnectedServices.join(', ');

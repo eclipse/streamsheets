@@ -1,42 +1,71 @@
+/* eslint-disable react/prop-types,react/no-unused-state */
 import AppBar from '@material-ui/core/AppBar';
-import Grid from '@material-ui/core/Grid';
 import * as Colors from '@material-ui/core/colors';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import Toolbar from '@material-ui/core/Toolbar';
-import PropTypes from 'prop-types';
 import React, { useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import * as Actions from '../actions/actions';
 import InfoToolBar from '../components/AppBarComponent/InfoToolBar';
 import MainDrawer from '../components/AppBarComponent/MainDrawer';
+import DashBoardComponent from '../components/Dashboard/DashBoardComponent';
+import LicenseExpireNotification from '../components/HelperComponent/LicenseExpireNotification';
 import NewMachineDialog from '../components/HelperComponent/NewMachineDialog';
 import OpenDialog from '../components/HelperComponent/OpenDialog';
+import SaveAsDialog from '../components/HelperComponent/SaveAsDialog';
 import ErrorDialog from '../components/ImportExport/ErrorDialog';
 import ImportDialog from '../components/ImportExport/ImportDialog';
 import StartImportDialog from '../components/ImportExport/StartImportDialog';
+import MachineDeleteDialog from '../components/MachineControlBar/MachineDeleteDialog';
 import NotificationsComponent from '../components/NotificationsComponent/NotificationsComponent';
 import RequestStatusDialog from '../components/RequestStatusDialog/RequestStatusDialog';
 import ServerStatusDialog from '../components/ServerStatusDialog/ServerStatusDialog';
 import SettingsMenu from '../components/SettingsMenu/SettingsMenu';
 import AlertDialog from '../components/SheetDialogs/AlertDialog';
 import DecisionDialog from '../components/SheetDialogs/DecisionDialog';
-import { useDocumentTitle } from '../helper/Hooks';
+import { intl } from '../helper/IntlGlobalProvider';
 import MachineHelper from '../helper/MachineHelper';
+import HelpButton from '../layouts/HelpButton';
 import theme from '../theme';
-import { AdminNavigation } from './AdminNavigation';
-import HelpButton from './HelpButton';
 
-export const AdminPageLayoutComponent = (props) => {
-	const {
-		page,
-		isMachineEngineConnected,
-		documentTitle,
-		isConnected,
-		children,
-		userLoaded,
-		requireStreams
-	} = props;
+const DASHBOARD_QUERY = `
+query Machines($scope: ScopeInput!) {
+	scoped(scope: $scope) {
+		machines {
+			name
+			id
+			metadata {
+				lastModified
+				owner
+			}
+			previewImage
+			titleImage
+			streamsheets {
+				name
+				inbox {
+					stream {
+						name
+					}
+				}
+			}
+			state
+		}
+	}
+}
+`;
+
+const useExperimental = (setAppState) => {
+	useEffect(() => setAppState({ experimental: localStorage.getItem('experimental') === 'true' }), []);
+};
+
+export function DashboardPageComponent(props) {
+	const { user, isConnected } = props;
+
+	const scopeId = user ? user.scope.id : null;
+
+	useExperimental(props.setAppState);
 
 	useEffect(() => {
 		if (!isConnected) {
@@ -45,23 +74,28 @@ export const AdminPageLayoutComponent = (props) => {
 	}, [isConnected]);
 
 	useEffect(() => {
-		if (isConnected && !userLoaded) {
+		if (isConnected) {
 			props.getMe();
 		}
 	}, [isConnected]);
 
-	useDocumentTitle(documentTitle);
+	useEffect(() => {
+		if (scopeId) {
+			props.getMachines(DASHBOARD_QUERY, { scope: { id: scopeId } });
+		}
+	}, [scopeId]);
 
-	if (!userLoaded) {
+	document.title = intl.formatMessage({ id: 'TitleDashboard' }, {});
+
+	if (!user) {
 		return (
 			<MuiThemeProvider theme={theme}>
 				<RequestStatusDialog />
-				<ServerStatusDialog noStreams={!requireStreams} noMachines />
+				<ServerStatusDialog noStreams />
 				<ErrorDialog />
 			</MuiThemeProvider>
 		);
 	}
-
 	return (
 		<MuiThemeProvider theme={theme}>
 			<div
@@ -75,15 +109,17 @@ export const AdminPageLayoutComponent = (props) => {
 					<StartImportDialog />
 					<NewMachineDialog />
 					<OpenDialog />
+					<SaveAsDialog />
+					<MachineDeleteDialog />
 					<MainDrawer />
 					<AlertDialog />
 					<DecisionDialog />
 					<RequestStatusDialog />
-					<ServerStatusDialog noStreams={!requireStreams} noMachines />
+					<ServerStatusDialog noStreams/>
 					<ErrorDialog />
 					<AppBar
 						style={{
-							background: isMachineEngineConnected ? Colors.blue[800] : Colors.red[900],
+							background: props.isMachineEngineConnected ? Colors.blue[800] : Colors.red[900],
 							display: 'flex',
 							margin: 0,
 							padding: 0,
@@ -97,27 +133,9 @@ export const AdminPageLayoutComponent = (props) => {
 								height: '58px'
 							}}
 						>
-							{/* <Snackbar
-								anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-								key="daysLeft"
-								open={daysLeft < 20}
-								ContentProps={{
-									'aria-describedby': 'message-id',
-								}}
-								message={
-									<span style={{ color: 'red' }} id="message-id">
-										{daysLeft}{' '}
-										<FormattedMessage
-											id="License.DaysLeftNotification"
-											defaultMessage="days left for expiration of your StreamSheets!"
-										/>
-									</span>
-								}
-							/> */}
-							<InfoToolBar
-								title={<FormattedMessage id="Administration" defaultMessage="Administration" />}
-							/>
-							{!isMachineEngineConnected ? (
+							<LicenseExpireNotification />
+							<InfoToolBar title={<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />} workspaceSelect />
+							{!props.isMachineEngineConnected ? (
 								<div>
 									<FormattedMessage id="ServicesDisconnected" defaultMessage="Disconnected: " />
 									{`${props.disconnectedServices}`}
@@ -136,53 +154,33 @@ export const AdminPageLayoutComponent = (props) => {
 						</div>
 					</AppBar>
 				</div>
-				<Grid
-					container
-					padding="0"
-					alignItems="stretch"
-					style={{ height: 'calc(100% - 58px)', flexWrap: 'nowrap' }}
+				<div
+					style={{
+						position: 'relative',
+						height: 'calc(100% - 59px)',
+						width: '100%',
+						overflow: 'hidden',
+						backgroundColor: '#EEEEEE'
+					}}
 				>
-					<Grid item style={{ width: '200px', borderRight: '1px solid grey' }}>
-						<AdminNavigation selection={page} />
-					</Grid>
-					<Grid item style={{ height: '100%', flexGrow: 1, background: '#EEE' }}>
-						{children}
-					</Grid>
-				</Grid>
+					<DashBoardComponent />
+				</div>
 			</div>
 		</MuiThemeProvider>
 	);
-};
-
-AdminPageLayoutComponent.propTypes = {
-	page: PropTypes.string.isRequired,
-	documentTitle: PropTypes.string.isRequired,
-	isMachineEngineConnected: PropTypes.bool.isRequired,
-	isConnected: PropTypes.bool.isRequired,
-	userLoaded: PropTypes.bool.isRequired,
-	children: PropTypes.node.isRequired,
-	disconnectedServices: PropTypes.string.isRequired,
-	connect: PropTypes.func.isRequired,
-	getMe: PropTypes.func.isRequired,
-	requireStreams: PropTypes.bool,
-};
-
-AdminPageLayoutComponent.defaultProps = {
-	requireStreams: false,
-};
+}
 
 function mapStateToProps(state) {
 	return {
 		isConnected: state.monitor.isConnected,
 		isMachineEngineConnected: MachineHelper.isMachineEngineConnected(state.monitor, state.meta),
-		disconnectedServices: state.meta.disconnectedServices.join(', '),
-		userLoaded: !!state.user.user
+		user: state.user.user,
+		disconnectedServices: state.meta.disconnectedServices.join(', ')
 	};
 }
 
-const mapDispatchToProps = {
-	connect: Actions.connect,
-	getMe: Actions.getMe
-};
+function mapDispatchToProps(dispatch) {
+	return bindActionCreators({ ...Actions }, dispatch);
+}
 
-export const AdminPageLayout = connect(mapStateToProps, mapDispatchToProps)(AdminPageLayoutComponent);
+export const DashboardPage = connect(mapStateToProps, mapDispatchToProps)(DashboardPageComponent);
