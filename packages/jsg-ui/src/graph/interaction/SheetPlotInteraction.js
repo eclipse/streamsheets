@@ -55,9 +55,9 @@ export default class SheetPlotInteraction extends Interaction {
 
 			const item = this._controller.getModel();
 			let type = item.xAxes[0].type;
-			if (type === 'category') {
-				return;
-			}
+			// if (type === 'category') {
+			// 	return;
+			// }
 
 			const children = this._controller.getParent().children;
 			const pt = this.toLocalCoordinate(event, viewer, event.location.copy());
@@ -67,10 +67,8 @@ export default class SheetPlotInteraction extends Interaction {
 			children.forEach((controller) => {
 				if (controller.getModel() instanceof SheetPlotNode) {
 					type = controller.getModel().xAxes[0].type;
-					if (type !== 'category') {
-						layer.push(
-							new ChartInfoFeedbackView(controller.getView(), selection, event.location.copy(), value, viewer));
-					}
+					layer.push(
+						new ChartInfoFeedbackView(controller.getView(), selection, event.location.copy(), value, viewer));
 				}
 			});
 		}

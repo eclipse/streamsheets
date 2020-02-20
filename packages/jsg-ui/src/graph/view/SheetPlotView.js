@@ -265,18 +265,19 @@ export default class SheetPlotView extends NodeView {
 			if (serie.stacked) {
 				if (serie.relative) {
 					y = 0;
-					for (let i = 0; i < seriesIndex; i += 1) {
-						tmp = axes.x.categories[index].values[i].y;
-						if (Numbers.isNumber(tmp)) {
-							if (value.y < 0) {
-								const neg = axes.x.categories[index].neg;
-								if (Numbers.isNumber(neg) && neg !== 0) {
-									y += tmp / neg * 100;
-								}
-							} else if (tmp > 0) {
-								const pos = axes.x.categories[index].pos;
-								if (Numbers.isNumber(pos) && pos !== 0) {
-									y += tmp / pos * 100;
+					const neg = axes.x.categories[index].neg;
+					const pos = axes.x.categories[index].pos;
+					const sum = pos - neg;
+					if (sum !== 0 && Numbers.isNumber(sum)) {
+						for (let i = 0; i < seriesIndex; i += 1) {
+							tmp = axes.x.categories[index].values[i].y;
+							if (Numbers.isNumber(tmp)) {
+								if (value.y < 0) {
+									if (tmp < 0) {
+										y += tmp / sum;
+									}
+								} else if (tmp > 0) {
+									y += tmp / sum;
 								}
 							}
 						}
@@ -313,16 +314,11 @@ export default class SheetPlotView extends NodeView {
 			case 'column':
 				if (serie.relative) {
 					height = 0;
-					if (value.y > 0) {
-						tmp = axes.x.categories[index].pos;
-						if (Numbers.isNumber(tmp) && tmp !== 0) {
-							height = item.scaleToAxis(axes.y, value.y / tmp * 100, false);
-						}
-					} else {
-						tmp = Math.abs(axes.x.categories[index].neg);
-						if (Numbers.isNumber(tmp) && tmp !== 0) {
-							height = -item.scaleToAxis(axes.y, value.y / tmp * 100, false);
-						}
+					const neg = axes.x.categories[index].neg;
+					const pos = axes.x.categories[index].pos;
+					const sum = pos - neg;
+					if (sum !== 0 && Numbers.isNumber(sum)) {
+						height = item.scaleSizeToAxis(axes.y, value.y / sum, false);
 					}
 				} else {
 					height = item.scaleSizeToAxis(axes.y, value.y);

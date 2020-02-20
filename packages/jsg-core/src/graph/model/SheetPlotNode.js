@@ -93,6 +93,15 @@ class ChartSeries {
 			this._stacked = true;
 			this._relative = true;
 			break;
+		case 'linestacked':
+			this._type = 'line';
+			this._stacked = true;
+			break;
+		case 'linestacked100':
+			this._type = 'line';
+			this._stacked = true;
+			this._relative = true;
+			break;
 		default:
 			this._type = type || 'line';
 			break;
@@ -727,6 +736,10 @@ module.exports = class SheetPlotNode extends Node {
 							yMin = Math.min(yMin, neg);
 						}
 					});
+					if (series.relative) {
+						yMax = 1;
+						yMin = yMin < 0 ? -1 : 0;
+					}
 				}
 				if (!valid) {
 					// TODO different values for category axis
@@ -769,6 +782,7 @@ module.exports = class SheetPlotNode extends Node {
 				if (series.yAxis === axis.name) {
 					axis.minData = Math.min(series.yMin, axis.minData);
 					axis.maxData = Math.max(series.yMax, axis.maxData);
+					axis.relative = series.relative;
 				}
 			});
 			axis.scale = undefined;
@@ -789,8 +803,16 @@ module.exports = class SheetPlotNode extends Node {
 
 		switch (axis.type) {
 		case 'category':
-			input.min = min;
-			input.max = max + 1;
+			if (input.min === undefined) {
+				input.min = min;
+			} else {
+				input.min = Math.floor(input.min);
+			}
+			if (input.max === undefined) {
+				input.max = max + 1;
+			} else {
+				input.max = Math.ceil(input.max);
+			}
 			input.step = 1;
 			break;
 		case 'logarithmic':
@@ -1041,25 +1063,33 @@ module.exports = class SheetPlotNode extends Node {
 			}
 			// MinWert der Beschriftung ermitteln
 			if (input.min === undefined) {
-				// if value range is small...
-				minLabel = min / distLin;
-				minLabel = Math.floor(minLabel);
-				minLabel *= distLin;
-				if (min < 0.0 && minLabel >= min - 3) {
-					minLabel -= distLin;
+				if (axis.relative) {
+					minLabel = min;
+				} else {
+					// if value range is small...
+					minLabel = min / distLin;
+					minLabel = Math.floor(minLabel);
+					minLabel *= distLin;
+					if (min < 0.0 && minLabel >= min - 3) {
+						minLabel -= distLin;
+					}
 				}
 			} else {
 				minLabel = input.min;
 			}
 			// MaxWert der Beschriftung ermitteln
 			if (input.max === undefined) {
-				maxLabel = max / distLin;
-				if (Math.abs(maxLabel % 1) > epsilon) {
-					maxLabel = Math.ceil(maxLabel);
-				}
-				maxLabel = maxLabel * distLin;
-				if (max > 0 && maxLabel <= max + 3) {
-					maxLabel += distLin;
+				if (axis.relative) {
+					maxLabel = max;
+				} else {
+					maxLabel = max / distLin;
+					if (Math.abs(maxLabel % 1) > epsilon) {
+						maxLabel = Math.ceil(maxLabel);
+					}
+					maxLabel = maxLabel * distLin;
+					if (max > 0 && maxLabel <= max + 3) {
+						maxLabel += distLin;
+					}
 				}
 			} else {
 				maxLabel = input.max;
@@ -1090,6 +1120,12 @@ module.exports = class SheetPlotNode extends Node {
 				input.step *= 10;
 			}
 
+			if (axis.relative) {
+				input.format = {
+					localCulture: `percent;en`,
+					numberFormat: '0%',
+				};
+			}
 			// if (nDist < 1) {
 			// 	nDist = 1;
 			// }
@@ -1266,7 +1302,7 @@ module.exports = class SheetPlotNode extends Node {
 		point.y = this.plot.position.bottom - point.y;
 
 		return {
-			x: axes.x.scale.min + (point.x / (this.plot.position.right - this.plot.position.left)) * (axes.x.scale.max - axes.x.scale.min),
+			x: axes.x.scale.min + (point.x / (this.plot.position.right - this.plot.position.left)) * (axes.x.scale.max - axes.x.scale.min) - (axes.x.type === 'category' ? 0.5 : 0),
 			y: axes.y.scale.min + (point.y / (this.plot.position.bottom - this.plot.position.top)) * (axes.y.scale.max - axes.y.scale.min)
 		};
 	}
@@ -1507,6 +1543,8 @@ module.exports = class SheetPlotNode extends Node {
 		case 'columnstacked':
 		case 'column':
 		case 'line':
+		case 'linestacked':
+		case 'linestacked100':
 			this.xAxes[0].type = 'category';
 			break;
 		case 'scatter':
@@ -1570,7 +1608,9 @@ module.exports = class SheetPlotNode extends Node {
 						index += 1;
 					}
 				});
-				this.xAxes[0].type = 'time';
+				if (type === 'scatter') {
+					this.xAxes[0].type = 'time';
+				}
 				this.finishCommand(cmd, 'series');
 				cmp.add(cmd);
 			}
