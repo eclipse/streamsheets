@@ -1,22 +1,10 @@
 const { sleep } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Machine, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
 const { createCellAt } = require('../../utilities');
-
-// eslint-disable-next-line no-undef
-// jasmine.DEFAULT_TIMEOUT_INTERVAL = 20 * 1000;
+const { newMachine } = require('./utils');
 
 const ERROR = FunctionErrors.code;
 
-const newMachine = ({ cycletime = 1000 } = {}) => {
-	const machine = new Machine();
-	machine.cycletime = cycletime;
-	machine.removeAllStreamSheets();
-	machine.addStreamSheet(
-		new StreamSheet({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.MACHINE_START, repeat: 'endless' } })
-	);
-	return machine;
-};
 
 describe('time.interval', () => {
 	it(`should return ${ERROR.ARGS} if used with too few or too many arguments or ${ERROR.VALUE} on wrong argument value`, () => {
