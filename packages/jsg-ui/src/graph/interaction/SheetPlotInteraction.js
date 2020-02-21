@@ -42,10 +42,10 @@ export default class SheetPlotInteraction extends Interaction {
 		return point;
 	}
 
-	isElementHit(event, viewer) {
+	isElementHit(event, viewer, oldSelection) {
 		const pt = this.toLocalCoordinate(event, viewer, event.location.copy());
 
-		return this._controller.getModel().isElementHit(pt);
+		return this._controller.getModel().isElementHit(pt, oldSelection);
 	}
 
 	showData(selection, event, viewer) {
@@ -86,7 +86,7 @@ export default class SheetPlotInteraction extends Interaction {
 		}
 
 		const view = this._controller.getView();
-		const selection = this.isElementHit(event, viewer);
+		const selection = this.isElementHit(event, viewer, view.chartSelection);
 		if (selection === undefined) {
 			return;
 		}

@@ -802,19 +802,27 @@ module.exports = class SheetPlotNode extends Node {
 		let max = axis.maxData;
 
 		switch (axis.type) {
-		case 'category':
-			if (input.min === undefined) {
-				input.min = min;
-			} else {
-				input.min = Math.floor(input.min);
-			}
-			if (input.max === undefined) {
-				input.max = max + 1;
-			} else {
-				input.max = Math.ceil(input.max);
-			}
-			input.step = 1;
-			break;
+		// case 'category':
+		// 	if (input.min === undefined) {
+		// 		input.min = min;
+		// 	} else {
+		// 		input.min = Math.floor(input.min);
+		// 	}
+		// 	if (input.max === undefined) {
+		// 		input.max = max + 1;
+		// 	} else {
+		// 		input.max = Math.ceil(input.max);
+		// 	}
+		// 	if (input.step === undefined) {
+		// 		if (direction === 'x') {
+		// 			input.step = Math.min(13, size / 1500);
+		// 		} else {
+		// 			// dTmp = (double)m_TickLabels.GetFont().GetSize() / 72 * 2540 * 2.0;
+		// 			input.step = Math.min(13, size / 1300);
+		// 		}
+		// 	}
+		// 	input.step = Math.max(1, input.step);
+		// 	break;
 		case 'logarithmic':
 			if (min <= 0.0) {
 				min = 0.1;
@@ -1009,6 +1017,7 @@ module.exports = class SheetPlotNode extends Node {
 			// }
 			break;
 		case 'linear':
+		case 'category':
 			/* Durch vergrößern dieser Zahl verfeinert     */
 			/* sich das im Automatikmode generierte Raster */
 			stepCount = 8; /* 11 => sehr fein      */
@@ -1125,6 +1134,12 @@ module.exports = class SheetPlotNode extends Node {
 					localCulture: `percent;en`,
 					numberFormat: '0%',
 				};
+			}
+
+			if (axis.type === 'category') {
+				input.min = Math.floor(input.min);
+				input.max = Math.ceil(input.max);
+				input.step = Math.max(1, input.step);
 			}
 			// if (nDist < 1) {
 			// 	nDist = 1;
@@ -1431,10 +1446,9 @@ module.exports = class SheetPlotNode extends Node {
 		return undefined;
 	}
 
-	isElementHit(pt) {
+	isElementHit(pt, oldSelection) {
 		let result;
 		const dataPoints = [];
-		let dataIndex = 0;
 
 		if (this.title.position.containsPoint(pt)) {
 			return {
@@ -1474,9 +1488,9 @@ module.exports = class SheetPlotNode extends Node {
 						if (dataRect.containsPoint(pt)) {
 							value.axes = axes;
 							value.series = series;
-							value.seriesIndex = index;
+							value.index = index;
+							value.pointIndex = pointIndex;
 							dataPoints.push(value);
-							dataIndex = index;
 							return true;
 						}
 						pointIndex += 1;
@@ -1485,10 +1499,15 @@ module.exports = class SheetPlotNode extends Node {
 				return false;
 			});
 			if (result.length) {
+				let index = 0;
+				if (oldSelection && oldSelection.element === 'series' && result.length > 1) {
+					index = oldSelection.selectionIndex < result.length - 1 ? oldSelection.selectionIndex + 1 : 0;
+				}
 				return {
 					element: 'series',
-					index: dataIndex,
-					data: result[0],
+					index: this.series.indexOf(result[index]),
+					selectionIndex: index,
+					data: result[index],
 					dataPoints
 				};
 			}
