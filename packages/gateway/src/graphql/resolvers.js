@@ -230,7 +230,7 @@ const resolvers = {
 	Inbox: {
 		stream: async (obj, args, context, info) => {
 			const additionalFields =
-				Object.keys(graphqlFields(info)).filter((fieldName) => ['name', 'id'].includes(fieldName)).length > 0;
+				Object.keys(graphqlFields(info)).filter((fieldName) => !['name', 'id'].includes(fieldName)).length > 0;
 			const stream =
 				obj.stream && additionalFields ? await context.api.stream.findById(info.variableValues.scope, obj.stream.id) : obj.stream;
 			return stream !== null
