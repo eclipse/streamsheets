@@ -4,7 +4,7 @@ const {	terms: { getCellRangeFromTerm } } = require('../../../utils');
 
 
 const ERROR = FunctionErrors.code;
-const DEF_LIMIT = 500;
+const DEF_LIMIT = 100;
 const MIN_INTERVAL = 1 / 1000; // 1ms
 
 

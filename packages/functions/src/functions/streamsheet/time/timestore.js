@@ -10,11 +10,11 @@ const DEF_PERIOD = 60;
 const insert = (entry, entries) => {
 	let left = 0;
 	let right = entries.length;
-	const timestamp = entry.timestamp;
+	const timestamp = entry.ts;
 	while (left < right) {
 		// eslint-disable-next-line no-bitwise
 		const idx = (left + right) >>> 1;
-		if (entries[idx].timestamp <= timestamp) left = idx + 1;
+		if (entries[idx].ts <= timestamp) left = idx + 1;
 		else right = idx;
 	}
 	entries.splice(right, 0, entry);
@@ -28,7 +28,7 @@ const sizeFilter = (size) => (entries) => {
 	return true;
 };
 const periodFilter = (period) => (entries) => {
-	const delta = entries[entries.length - 1].timestamp - entries[0].timestamp;
+	const delta = entries[entries.length - 1].ts - entries[0].ts;
 	if (delta > period) entries.shift();
 };
 class TimeStore {
@@ -53,13 +53,13 @@ class TimeStore {
 	}
 	timestamps() {
 		return this.entries.reduce((all, entry) => {
-			all.push(entry.timestamp);
+			all.push(entry.ts);
 			return all;
 		}, []);
 	}
 
-	push(timestamp, values) {
-		insert({ timestamp, values }, this.entries);
+	push(ts, values) {
+		insert({ ts, values }, this.entries);
 		this.limitByPeriod(this.entries);
 		return this.limitBySize(this.entries);
 	}
