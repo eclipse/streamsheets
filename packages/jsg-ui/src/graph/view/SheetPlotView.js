@@ -269,7 +269,7 @@ export default class SheetPlotView extends NodeView {
 					const pos = axes.x.categories[index].pos;
 					const sum = pos - neg;
 					if (sum !== 0 && Numbers.isNumber(sum)) {
-						for (let i = 0; i < seriesIndex; i += 1) {
+						for (let i = 0; i <= seriesIndex; i += 1) {
 							tmp = axes.x.categories[index].values[i].y;
 							if (Numbers.isNumber(tmp)) {
 								if (value.y < 0) {
@@ -285,14 +285,14 @@ export default class SheetPlotView extends NodeView {
 					y = item.scaleToAxis(axes.y, y, false);
 				} else {
 					y = 0;
-					for (let i = 0; i < seriesIndex; i += 1) {
+					for (let i = 0; i <= seriesIndex; i += 1) {
 						tmp = axes.x.categories[index].values[i].y;
 						if (Numbers.isNumber(tmp)) {
-							if (value.y < 0) {
+							if (value.y < 0 && serie.type === 'column') {
 								if (tmp < 0) {
 									y += tmp;
 								}
-							} else if (tmp > 0) {
+							} else if (tmp > 0 || serie.type !== 'column') {
 								y += tmp;
 							}
 						}
@@ -303,6 +303,7 @@ export default class SheetPlotView extends NodeView {
 				y = item.scaleToAxis(axes.y, value.y, false);
 			}
 			switch (serie.type) {
+			case 'area':
 			case 'line':
 			case 'scatter':
 				if (index) {
@@ -318,12 +319,12 @@ export default class SheetPlotView extends NodeView {
 					const pos = axes.x.categories[index].pos;
 					const sum = pos - neg;
 					if (sum !== 0 && Numbers.isNumber(sum)) {
-						height = item.scaleSizeToAxis(axes.y, value.y / sum, false);
+						height = -item.scaleSizeToAxis(axes.y, value.y / sum, false);
 					}
 				} else {
-					height = item.scaleSizeToAxis(axes.y, value.y);
+					height = -item.scaleSizeToAxis(axes.y, value.y);
 				}
-				y = serie.stacked ? y : zero;
+				// y = serie.stacked ? y : zero;
 				offset = serie.stacked ? -barWidth / 2 : -item.series.length / 2 * barWidth + seriesIndex * barWidth + barMargin / 2;
 				graphics.rect(plotRect.left + x * plotRect.width + offset, plotRect.bottom - y * plotRect.height, barWidth - barMargin, -height * plotRect.height);
 				break;
@@ -331,7 +332,15 @@ export default class SheetPlotView extends NodeView {
 			index += 1;
 		}
 
-		if (serie.type === 'column') {
+		if (serie.type === 'area') {
+			y = item.scaleToAxis(axes.y, 0, false);
+			graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+			x = item.scaleToAxis(axes.x, 0, false);
+			graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+			graphics.closePath();
+		}
+
+		if (serie.type === 'column' || serie.type === 'area') {
 			graphics.fill();
 		}
 		graphics.stroke();

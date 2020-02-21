@@ -84,6 +84,15 @@ class ChartSeries {
 
 	set type(type) {
 		switch(type) {
+		case 'areastacked':
+			this._type = 'area';
+			this._stacked = true;
+			break;
+		case 'areastacked100':
+			this._type = 'area';
+			this._stacked = true;
+			this._relative = true;
+			break;
 		case 'columnstacked':
 			this._type = 'column';
 			this._stacked = true;
@@ -1561,6 +1570,9 @@ module.exports = class SheetPlotNode extends Node {
 		case 'columnstacked100':
 		case 'columnstacked':
 		case 'column':
+		case 'area':
+		case 'areastacked':
+		case 'areastacked100':
 		case 'line':
 		case 'linestacked':
 		case 'linestacked100':
