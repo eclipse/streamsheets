@@ -75,6 +75,9 @@ const toInternal = (user: Partial<User & NewUser>): PartialInternalUser => {
 	if (user.scope !== undefined) {
 		internal.scope = user.scope;
 	}
+	if (user.role !== undefined) {
+		internal.role = user.role;
+	}
 	return internal;
 };
 

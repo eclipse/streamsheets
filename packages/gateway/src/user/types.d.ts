@@ -11,6 +11,7 @@ export interface User {
 	settings?: UserSettings;
 	lastModified?: string;
 	scope: Scope;
+	role: string;
 }
 
 export interface NewUser extends User {

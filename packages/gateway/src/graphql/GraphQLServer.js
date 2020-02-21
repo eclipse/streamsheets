@@ -108,6 +108,7 @@ const typeDefs = gql`
 		admin: Boolean!
 		settings: UserSettings!
 		canDelete: Boolean!
+		role: String!
 		rights: [String!]!
 	}
 
@@ -115,7 +116,8 @@ const typeDefs = gql`
 		username: String!
 		password: String!
 		email: String!
-		scope: ScopeInput
+		role: String!
+		scope: ScopeInput!
 		firstName: String
 		lastName: String
 	}
@@ -124,6 +126,7 @@ const typeDefs = gql`
 		username: String
 		email: String
 		scope: ScopeInput
+		role: String
 		firstName: String
 		lastName: String
 	}
@@ -208,6 +211,7 @@ const typeDefs = gql`
 		me: User!
 		user(id: ID!): User
 		users: [User!]!
+		roles: [String!]!
 		scoped(scope: ScopeInput!): ScopedQuery!
 		scopedByMachine(machineId: ID!): ScopedQuery!
 	}

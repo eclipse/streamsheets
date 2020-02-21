@@ -93,7 +93,7 @@ const resolvers = {
 				machines: [],
 				streams: []
 			};
-			
+
 			if (Array.isArray(machines) && machines.length > 0) {
 				const pendingMachines = machines.map(async (machineId) => {
 					const result = await Promise.all([
@@ -146,6 +146,7 @@ const resolvers = {
 			}
 		},
 		users: async (obj, args, { api }) => api.user.findAllUsers(),
+		roles: async (obj, args, { auth }) => auth.roles(),
 		scoped: async (obj, args, { auth }) => {
 			if (!auth.isValidScope(args.scope)) {
 				throw new Error('NOT_ALLOWED');
