@@ -426,7 +426,7 @@
 	"Admin.User.labelLastName": "Last name",
 	"Admin.User.labelPassword": "Password",
 	"Admin.User.labelPasswordConfirm": "Confirm password",
-	"Admin.User.search": "Suchen",
+	"Admin.User.search": "Search",
     "Admin.User.update": "Update user",
 	"Admin.User.email": "E-Mail",
 	"Admin.User.username": "Username",
