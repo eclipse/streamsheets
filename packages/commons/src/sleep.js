@@ -1,6 +1,6 @@
 const noop = () => {};
 
-const sleep = async (ms, fn = noop) =>
+const sleep = (ms, fn = noop) =>
 	new Promise((resolve) => {
 		setTimeout(() => resolve(fn()), ms);
 	});
