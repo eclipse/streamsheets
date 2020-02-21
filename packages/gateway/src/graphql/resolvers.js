@@ -225,7 +225,7 @@ const resolvers = {
 	User: {
 		admin: async (obj, args, { auth }) => auth.isAdmin(obj),
 		canDelete: async (obj, args, { auth }) => auth.userCan('delete', obj),
-		rights: async (obj, args, { auth }) => auth.rights()
+		rights: async (obj, args, { auth }) => auth.rights(obj)
 	},
 	Inbox: {
 		stream: async (obj, args, context, info) => {

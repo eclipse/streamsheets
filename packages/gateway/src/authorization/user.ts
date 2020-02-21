@@ -17,10 +17,12 @@ const isValidScope = ({ actor, auth }: RequestContext, scope: Scope) => {
 const isInScope = (context: RequestContext, scope: Scope, withScope: { scope?: Scope }) =>
 	scope.id === withScope.scope?.id;
 
-const rights = ({ actor, auth }: RequestContext) =>
-	auth.isAdmin(actor)
+const rights = ({ actor, auth }: RequestContext, user?: User) => {
+	const target = user || actor;
+	return auth.isAdmin(target)
 		? ['machine.view', 'machine.edit', 'stream', 'user.edit', 'user.view', 'database']
 		: ['machine.view', 'machine.edit', 'stream'];
+};
 const roles = ({ actor, auth }: RequestContext) => (auth.rights().includes('roles') ? ['developer'] : []);
 const userCan = ({ actor, auth }: RequestContext, action: UserAction, user: User): boolean => {
 	switch (action) {
