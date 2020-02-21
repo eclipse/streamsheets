@@ -46,12 +46,10 @@ export class MainDrawer extends Component {
 	};
 
 	handleOpen = () => {
-		this.props.getMachines().then(() =>
-			this.setAppState({
-				drawerOpen: false,
-				showOpenDialog: true
-			})
-		);
+		this.setAppState({
+			drawerOpen: false,
+			showOpenDialog: true
+		});
 	};
 
 	handleImport = () => {
