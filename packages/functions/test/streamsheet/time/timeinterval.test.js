@@ -92,7 +92,7 @@ describe('time.interval', () => {
 		createCellAt('A2', { formula: 'time.interval(A1, "v1", -1)' }, sheet);
 		expect(sheet.cellAt('A2').value).toBe(ERROR.VALUE);
 	});
-	it('should write values to cell info if no target specified', async () => {
+	it.skip('should write values to cell info if no target specified', async () => {
 		const machine = newMachine({ cycletime: 1000 });
 		const sheet = machine.getStreamSheetByName('T1').sheet;
 		createCellAt('A1', 'v1', sheet);
@@ -136,7 +136,7 @@ describe('time.interval', () => {
 		expect(intervalcell.info.values.length).toBe(4);
 		expect(intervalcell.info.values[3].value).toBe(5);
 	});
-	it('should store maximum period/time or limit values', async () => {
+	it.skip('should store maximum period/time or limit values', async () => {
 		const machine = newMachine({ cycletime: 1000 });
 		const sheet = machine.getStreamSheetByName('T1').sheet;
 		createCellAt('A1', 'v1', sheet);
@@ -167,7 +167,7 @@ describe('time.interval', () => {
 		expect(intervalcell.info.values[0].value).toBe(7);
 		expect(intervalcell.info.values[1].value).toBe(8);
 	});
-	it('should write values to target range and cell info', async () => {
+	it.skip('should write values to target range and cell info', async () => {
 		const machine = newMachine({ cycletime: 1000 });
 		const sheet = machine.getStreamSheetByName('T1').sheet;
 		createCellAt('A1', 'v1', sheet);
@@ -202,7 +202,7 @@ describe('time.interval', () => {
 		expect(sheet.cellAt('D8')).toBeUndefined();
 		expect(sheet.cellAt('E8')).toBeUndefined();
 	});
-	it('should ignore undefined values', async () => {
+	it.skip('should ignore undefined values', async () => {
 		const machine = newMachine({ cycletime: 1000 });
 		const sheet = machine.getStreamSheetByName('T1').sheet;
 		createCellAt('A1', 'v1', sheet);
