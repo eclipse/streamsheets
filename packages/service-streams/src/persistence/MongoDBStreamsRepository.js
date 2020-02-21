@@ -13,9 +13,7 @@ const logger = LoggerFactory.createLogger(
 	process.env.STREAMSHEETS_STREAMS_SERVICE_LOG_LEVEL
 );
 
-module.exports = class MongoDBStreamsRepository extends mix(
-	AbstractStreamsRepository
-).with(MongoDBMixin) {
+module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepository).with(MongoDBMixin) {
 	constructor(config = { conf: true }) {
 		super(config);
 		this.collection = this.config.collection || COLLECTION;
@@ -34,15 +32,9 @@ module.exports = class MongoDBStreamsRepository extends mix(
 
 	async setupIndicies() {
 		return Promise.all([
-			this.db
-				.collection(this.collection)
-				.createIndex({ id: 1 }, { unique: true, background: true }),
-			this.db
-				.collection(this.collection)
-				.createIndex({ name: 1 }, { unique: true }),
-			this.db
-				.collection(this.collection)
-				.createIndex({ className: 1 }, { background: true })
+			this.db.collection(this.collection).createIndex({ id: 1 }, { unique: true, background: true }),
+			this.db.collection(this.collection).createIndex({ name: 1 }, { unique: true }),
+			this.db.collection(this.collection).createIndex({ className: 1 }, { background: true })
 		]);
 	}
 
@@ -124,7 +116,7 @@ module.exports = class MongoDBStreamsRepository extends mix(
 
 	// TODO: should remove migration...
 	migrateConfiguration(config) {
-		if(typeof config !== 'object') {
+		if (typeof config !== 'object') {
 			return config;
 		}
 		const json = JSON.stringify(config);
@@ -143,11 +135,11 @@ module.exports = class MongoDBStreamsRepository extends mix(
 				delete configuration.pop3Port;
 				configuration.security = configuration.pop3Security;
 				delete configuration.pop3Security;
-			} else if(configuration.provider.id === 'dl-feeder-mqtt') {
+			} else if (configuration.provider.id === 'dl-feeder-mqtt') {
 				configuration.provider = {
-					_id: "stream-mqtt",
-					id: "stream-mqtt",
-					className: "ProviderConfiguration",
+					_id: 'stream-mqtt',
+					id: 'stream-mqtt',
+					className: 'ProviderConfiguration',
 					isRef: true
 				};
 				configuration.protocolVersion = 4;
@@ -158,14 +150,20 @@ module.exports = class MongoDBStreamsRepository extends mix(
 			}
 		}
 		if (configuration.className !== 'ProviderConfiguration') {
-			configuration.name = configuration.name
-			.replace(' ', '_')
-			.replace(/[^a-zA-Z0-9_]/, '');
+			configuration.name = configuration.name.replace(' ', '_').replace(/[^a-zA-Z0-9_]/, '');
 		}
-		if(configuration.id === 'CONNECTOR_MQTT' && configuration.url === 'broker' && configuration.userName === 'cedalo' && !configuration.migrated){
+		if (
+			configuration.id === 'CONNECTOR_MQTT' &&
+			configuration.url === 'broker' &&
+			configuration.userName === 'cedalo' &&
+			!configuration.migrated
+		) {
 			try {
-				const newPassword = fs.readFileSync('/etc/mosquitto-default-credentials/pw_clear.txt').toString().trim();
-				if(newPassword) {
+				const newPassword = fs
+					.readFileSync('/etc/mosquitto-default-credentials/pw_clear.txt')
+					.toString()
+					.trim();
+				if (newPassword) {
 					configuration.url = 'localhost';
 					configuration.password = newPassword;
 					configuration.migrated = true;
@@ -174,7 +172,7 @@ module.exports = class MongoDBStreamsRepository extends mix(
 				// New password not found
 			}
 		}
-		if(!configuration.scope){
+		if (!configuration.scope) {
 			configuration.scope = { id: 'root' };
 		}
 		return configuration;
@@ -184,11 +182,7 @@ module.exports = class MongoDBStreamsRepository extends mix(
 		// configuration = this.migrateConfiguration(configuration);
 		configuration._id = configuration.id;
 		configuration.lastModified = new Date().toISOString();
-		return this.upsertDocument(
-			this.collection,
-			{ _id: configuration._id },
-			configuration
-		);
+		return this.upsertDocument(this.collection, { _id: configuration._id }, configuration);
 	}
 
 	updateConfiguration(id, $set) {
@@ -197,9 +191,7 @@ module.exports = class MongoDBStreamsRepository extends mix(
 	}
 
 	saveConfigurations(configurations) {
-		return Promise.all(
-			configurations.map(async (c) => this.saveConfiguration(c))
-		);
+		return Promise.all(configurations.map(async (c) => this.saveConfiguration(c)));
 	}
 
 	deleteConfiguration(id) {
@@ -211,8 +203,6 @@ module.exports = class MongoDBStreamsRepository extends mix(
 	}
 
 	async deleteAllProviders() {
-		return this.db
-			.collection(this.collection)
-			.remove({ className: 'ProviderConfiguration' });
+		return this.db.collection(this.collection).remove({ className: 'ProviderConfiguration' });
 	}
 };
