@@ -21,7 +21,8 @@ module.exports = class RepositoryManager {
 					// eslint-disable-next-line
 					for (const machineContainer of machines) {
 						try {
-							const { graph, machine} = machineContainer;
+							const { graph, machine } = machineContainer;
+							machine.scope = { id: 'root' };
 							// eslint-disable-next-line
 							await RepositoryManager.graphRepository.saveGraph(graph);
 							// eslint-disable-next-line
@@ -37,6 +38,7 @@ module.exports = class RepositoryManager {
 					for (const stream of streams) {
 						try {
 							// TODO: replace with stream repository procy
+							stream.scope = { id: 'root' };
 							// eslint-disable-next-line
 							await RepositoryManager.streamRepositoryLegacy.saveConfiguration(stream);
 						} catch (error) {

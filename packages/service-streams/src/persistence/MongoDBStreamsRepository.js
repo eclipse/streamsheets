@@ -53,26 +53,26 @@ module.exports = class MongoDBStreamsRepository extends mix(
 		if (allConfigs.length < 1 || process.env.STREAMSHEETS_DB_SEED) {
 			const providerIds = CONFIG.providers.map((id) => id);
 
-			logger.info(
-				`ensureMinDataInRepos needs to populate configs at ${new Date()}`
-			);
-			const defConnectors = defaultConfigurations.filter(
-				(conf) =>
-					conf.className === 'ConnectorConfiguration' &&
-					conf.provider &&
-					providerIds.includes(conf.provider.id)
-			);
-			const defStreams = defaultConfigurations.filter(
-				(conf) =>
-					conf.className !== 'ConnectorConfiguration' &&
-					conf.connector &&
-					!!defConnectors.find((c) => c.id === conf.connector.id)
-			);
+			logger.info(`ensureMinDataInRepos needs to populate configs at ${new Date()}`);
+			const defConnectors = defaultConfigurations
+				.filter(
+					(conf) =>
+						conf.className === 'ConnectorConfiguration' &&
+						conf.provider &&
+						providerIds.includes(conf.provider.id)
+				)
+				.map((c) => ({ ...c, scope: { id: 'root' } }));
+			const defStreams = defaultConfigurations
+				.filter(
+					(conf) =>
+						conf.className !== 'ConnectorConfiguration' &&
+						conf.connector &&
+						!!defConnectors.find((c) => c.id === conf.connector.id)
+				)
+				.map((c) => ({ ...c, scope: { id: 'root' } }));
 			await this.saveConfigurations([...defConnectors, ...defStreams]);
 		}
-		await this.syncDefaultConfigurations(
-			allConfigs.filter((c) => c.className === 'ProviderConfiguration')
-		); // Promise.resolve();
+		await this.syncDefaultConfigurations(allConfigs.filter((c) => c.className === 'ProviderConfiguration')); // Promise.resolve();
 		if (allConfigs.length > 0) {
 			const newConfigs = allConfigs.map(this.migrateConfiguration);
 			const withoutOldProviders = newConfigs.filter(
@@ -96,12 +96,10 @@ module.exports = class MongoDBStreamsRepository extends mix(
 			all[provider.id] = provider;
 			return all;
 		}, {});
-		const addDefConfigs = defaultConfigurations.filter(
-			(cfg) => cfg.provider && !knownProviders[cfg.provider.id]
-		);
-		return Promise.all[
-			addDefConfigs.forEach((config) => this.saveConfiguration(config))
-		];
+		const addDefConfigs = defaultConfigurations
+			.filter((cfg) => cfg.provider && !knownProviders[cfg.provider.id])
+			.map((c) => ({ ...c, scope: { id: 'root' } }));
+		return Promise.all[addDefConfigs.forEach((config) => this.saveConfiguration(config))];
 	}
 
 	findAllConfigurations() {
