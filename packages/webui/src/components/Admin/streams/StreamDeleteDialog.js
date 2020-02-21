@@ -201,7 +201,6 @@ function mapStateToProps(state) {
 		connectors: state.streams.connectors,
 		consumers: state.streams.consumers,
 		producers: state.streams.producers,
-		machines: state.machines.data,
 	};
 }
 function mapDispatchToProps(dispatch) {
