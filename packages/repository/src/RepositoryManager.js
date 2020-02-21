@@ -46,22 +46,26 @@ module.exports = class RepositoryManager {
 						}
 					}
 				}
-			} catch(error) {
+			} catch (error) {
 				// console.error(error);
 			}
 		}
 	}
 
 	static connectAll() {
-		return Promise.all(Object.values(RepositoryManager)
-			.filter(repository => repository && repository.connect)
-			.map(repositoryWithConnect => repositoryWithConnect.connect()));
+		return Promise.all(
+			Object.values(RepositoryManager)
+				.filter((repository) => repository && repository.connect)
+				.map((repositoryWithConnect) => repositoryWithConnect.connect())
+		);
 	}
 
 	static setupAllIndicies() {
-		return Promise.all(Object.values(RepositoryManager)
-			.filter(repository => repository && repository.setupIndicies && repository.db)
-			.map(repository => repository.setupIndicies()));
+		return Promise.all(
+			Object.values(RepositoryManager)
+				.filter((repository) => repository && repository.setupIndicies && repository.db)
+				.map((repository) => repository.setupIndicies())
+		);
 	}
 
 	static async backup(config) {
@@ -77,5 +81,4 @@ module.exports = class RepositoryManager {
 		}
 		return null;
 	}
-
 };
