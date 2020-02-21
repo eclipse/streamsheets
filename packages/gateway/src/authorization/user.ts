@@ -15,7 +15,7 @@ const isValidScope = ({ actor, auth }: RequestContext, scope: Scope) => {
 };
 
 const isInScope = (context: RequestContext, scope: Scope, withScope: { scope?: Scope }) =>
-	scope.id === 'root' || scope.id === withScope.scope?.id;
+	scope.id === withScope.scope?.id;
 
 const rights = ({ actor, auth }: RequestContext) =>
 	auth.isAdmin(actor)
