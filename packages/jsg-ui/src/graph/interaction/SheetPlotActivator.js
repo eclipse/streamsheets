@@ -4,6 +4,7 @@ import SheetPlotInteraction from './SheetPlotInteraction';
 import InteractionActivator from './InteractionActivator';
 import MouseEvent from '../../ui/events/MouseEvent';
 import SelectionProvider from '../view/SelectionProvider';
+import Cursor from '../../ui/Cursor';
 
 const KEY = 'sheetplot.activator';
 
@@ -109,12 +110,15 @@ export default class SheetPlotActivator extends InteractionActivator {
 		const selection = interaction.isElementHit(event, viewer);
 		if (selection && (selection.element === 'plot' || selection.element === 'series')) {
 			interaction.showData(selection, event, viewer);
-			event.isConsumed = true;
-			event.hasActivated = true;
 			event.doRepaint = true;
 		} else {
 			this.removeInfo(event, viewer);
 		}
+		if (selection) {
+			event.isConsumed = true;
+			event.hasActivated = true;
+		}
+		viewer.setCursor(selection && selection.element === 'series' ? Cursor.Style.CROSS : Cursor.Style.AUTO);
 	}
 
 	handleContextMenu(event, viewer, dispatcher) {

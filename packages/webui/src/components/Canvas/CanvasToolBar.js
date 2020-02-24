@@ -3559,6 +3559,34 @@ export class CanvasToolBar extends Component {
 										</IconButton>
 									</Tooltip>
 								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.AreaStacked" defaultMessage="Area Stacked" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('areastacked')}
+										>
+											<img alt="" src="images/charts/areastacked.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.AreaStacked100" defaultMessage="Area Stacked 100" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('areastacked100')}
+										>
+											<img alt="" src="images/charts/areastacked100.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
 								<GridListTile
 									cols={6}
 									style={{
@@ -3586,7 +3614,7 @@ export class CanvasToolBar extends Component {
 											color="inherit"
 											onClick={() => this.onCreatePlot('scatter')}
 										>
-											<img alt="" src="images/charts/line.png" />
+											<img alt="" src="images/charts/scatter.png" />
 										</IconButton>
 									</Tooltip>
 								</GridListTile>
