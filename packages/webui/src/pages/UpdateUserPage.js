@@ -5,7 +5,7 @@ import CheckIcon from '@material-ui/icons/Check';
 import PropTypes from 'prop-types';
 import React, { useEffect, useReducer } from 'react';
 import { connect } from 'react-redux';
-import { openPage, getDataStores } from '../actions/actions';
+import { getDataStores, openPage } from '../actions/actions';
 import { UpdatePasswordForm } from '../components/Admin/security/User/UpdatePasswordForm';
 import { UpdateUserForm } from '../components/Admin/security/User/UpdateUserForm';
 import { Overlay } from '../components/HelperComponent/Overlay';
@@ -22,15 +22,13 @@ query UpdateUserForm($id: ID!) {
 	  	email
 	  	lastName
 		firstName
-		scope {
-			id
-		}
 	}
-	updateUserForm {
+	updateUserForm(userId: $id) {
 		fields {
 			id
 			label
 			default
+			current
 			options {
 				id
 				name
@@ -77,13 +75,7 @@ const updateUserReducer = (state, action) => {
 		case 'set_initial_user':
 			return {
 				...state,
-				user: {
-					username: action.data.username || '',
-					email: action.data.email || '',
-					lastName: action.data.lastName || '',
-					firstName: action.data.firstName || '',
-					scope: action.data.scope.id,
-				},
+				user: action.data,
 				originalUser: action.data
 			};
 		case 'set_username':
@@ -212,20 +204,8 @@ export const UpdateUserPageComponent = (props) => {
 	const { loading, errors, data } = useGraphQL(QUERY, { id: userId }, [userId]);
 	const [state, dispatch] = useReducer(updateUserReducer, {
 		pristine: true,
-		user: {
-			username: '',
-			email: '',
-			firstName: '',
-			lastName: '',
-			scope: '',
-		},
-		originalUser: {
-			username: '',
-			email: '',
-			firstName: '',
-			lastName: '',
-			scope: '',
-		},
+		user: {},
+		originalUser: {},
 		errors: {},
 		password: false,
 		savePending: false,
@@ -234,7 +214,17 @@ export const UpdateUserPageComponent = (props) => {
 
 	useEffect(() => {
 		if (data && data.user) {
-			dispatch({ type: 'set_initial_user', data: data.user });
+			const { id, ...user } = {
+				...data.user,
+				...data.updateUserForm.fields.reduce(
+					(acc, field) => ({ ...acc, [field.id]: field.current || field.default }),
+					{}
+				)
+			};
+			dispatch({
+				type: 'set_initial_user',
+				data: user
+			});
 		}
 	}, [data]);
 

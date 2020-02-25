@@ -5,7 +5,7 @@ import { User } from '../user';
 export type UserAction = 'create' | 'delete' | 'view' | 'update';
 
 const isAdmin = (context: RequestContext, user: User) => user.id === '00000000000000';
-const isSelf = ({ actor }: RequestContext, user: User) => actor.id === user.id;
+const isSelf = ({ actor }: RequestContext, user?: User) => (user ? actor.id === user.id : false);
 const isValidScope = ({ actor, auth }: RequestContext, scope: Scope) => {
 	if (!scope) {
 		throw new Error('MISSING_SCOPE');

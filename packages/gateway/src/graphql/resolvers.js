@@ -183,7 +183,10 @@ const resolvers = {
 		},
 		updateUser: async (obj, { id, user }, { api }) => {
 			try {
-				const updatedUser = await api.user.updateUser(id, { ...user, scope: { id: user.scope } });
+				const updatedUser = await api.user.updateUser(id, {
+					...user,
+					scope: user.scope ? { id: user.scope } : undefined
+				});
 				return Payload.createSuccess({
 					code: 'USER_UPDATED',
 					message: 'User updated successfully',

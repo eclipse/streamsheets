@@ -211,6 +211,7 @@ const typeDefs = gql`
 		id: String!
 		label: String!
 		default: ID!
+		current: ID!
 		options: [SelectFormFieldValues!]!
 	}
 
@@ -231,7 +232,7 @@ const typeDefs = gql`
 		scoped(scope: ScopeInput!): ScopedQuery!
 		scopedByMachine(machineId: ID!): ScopedQuery!
 		createUserForm: Form!
-		updateUserForm: Form!
+		updateUserForm(userId: ID!): Form!
 	}
 
 	type Mutation {
