@@ -159,7 +159,9 @@ const resolvers = {
 				throw new Error('NOT_ALLOWED');
 			}
 			return { scope };
-		}
+		},
+		createUserForm: async () => ({ fields: [] }),
+		updateUserForm: async () => ({ fields: [] })
 	},
 	Mutation: {
 		createUser: async (obj, { user }, { api, encryption }) => {

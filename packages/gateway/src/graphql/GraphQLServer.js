@@ -207,6 +207,22 @@ const typeDefs = gql`
 		export(machines: [ID!]!, streams: [ID!]!): ExportResult!
 	}
 
+	type SelectFormField {
+		id: String!
+		label: String!
+		default: ID!
+		options: [SelectFormFieldValues!]!
+	}
+
+	type SelectFormFieldValues {
+		id: ID!
+		name: String!
+	}
+
+	type Form {
+		fields: [SelectFormField!]!
+	}
+
 	type Query {
 		me: User!
 		user(id: ID!): User
@@ -214,6 +230,8 @@ const typeDefs = gql`
 		roles: [String!]!
 		scoped(scope: ScopeInput!): ScopedQuery!
 		scopedByMachine(machineId: ID!): ScopedQuery!
+		createUserForm: Form!
+		updateUserForm: Form!
 	}
 
 	type Mutation {
