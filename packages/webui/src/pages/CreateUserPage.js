@@ -11,9 +11,31 @@ import { Overlay } from '../components/HelperComponent/Overlay';
 import gatewayClient from '../helper/GatewayClient';
 import { intl } from '../helper/IntlGlobalProvider';
 import { AdminPageLayout } from '../layouts/AdminPageLayout';
+import { useGraphQL } from '../helper/Hooks';
+
+const QUERY = `
+query UserFormInfo {
+	createUserForm {
+		fields {
+			id
+			label
+			default
+			options {
+				id
+				name
+			}
+		}
+	}
+}
+`;
 
 const createUserReducer = (state, action) => {
 	switch (action.type) {
+		case 'init':
+			return {
+				...state,
+				user: action.data
+			};
 		case 'set_username':
 			return {
 				...state,
@@ -55,6 +77,15 @@ const createUserReducer = (state, action) => {
 					password: action.data
 				}
 			};
+		case 'set_field':
+			return {
+				...state,
+				pristine: false,
+				user: {
+					...state.user,
+					[action.data.id]: action.data.value
+				}
+			};
 		case 'set_password_confirmation':
 			return {
 				...state,
@@ -94,7 +125,7 @@ const createUserReducer = (state, action) => {
 				saved: true
 			};
 		default:
-			throw new Error('Unkown action');
+			throw new Error('Unkown action', action.type);
 	}
 };
 
@@ -121,22 +152,33 @@ const hasFieldError = (errors) =>
 
 export const CreatUserPageComponent = (props) => {
 	const { onCancel, onSubmit } = props;
+	const { loading, data } = useGraphQL(QUERY);
 	const [state, dispatch] = useReducer(createUserReducer, {
 		pristine: true,
-		user: {
-			username: '',
-			email: '',
-			firstName: '',
-			lastName: '',
-			password: '',
-			role: ''
-		},
+		user: {},
 		errors: {},
 		passwordConfirmation: '',
 		passwordConfirmationPristine: true,
 		savePending: false,
 		saved: false
 	});
+
+	useEffect(() => {
+		if (data) {
+			dispatch({
+				type: 'init',
+				data: {
+					username: '',
+					email: '',
+					firstName: '',
+					lastName: '',
+					password: '',
+					...data.createUserForm.fields.reduce((acc, field) => ({ ...acc, [field.id]: field.default }), {})
+				}
+			});
+		}
+	}, [data]);
+
 	useEffect(() => {
 		const timeoutId = setTimeout(() => {
 			dispatch({ type: 'check_passwords' });
@@ -179,6 +221,9 @@ export const CreatUserPageComponent = (props) => {
 		}
 	};
 
+	const showProgress = state.savePending || loading;
+	const additionalFields = data ? data.createUserForm.fields : [];
+
 	return (
 		<AdminPageLayout page="users" documentTitle={intl.formatMessage({ id: 'TitleUsers' })}>
 			<div
@@ -194,10 +239,12 @@ export const CreatUserPageComponent = (props) => {
 						passwordConfirmation={state.passwordConfirmation}
 						pristine={state.pristine}
 						valid={isValid}
-						disabled={state.savePending || state.saved}
+						disabled={showProgress || state.saved}
 						intl={intl}
 						onCancel={onCancel}
 						onSubmit={saveUser}
+						additionalFields={additionalFields}
+						onFieldUpdate={(id, value) => dispatch({ type: 'set_field', data: { id, value } })}
 						onUsernameUpdate={(value) => dispatch({ type: 'set_username', data: value })}
 						onEmailUpdate={(value) => dispatch({ type: 'set_email', data: value })}
 						onFirstNameUpdate={(value) => dispatch({ type: 'set_first_name', data: value })}
@@ -207,7 +254,7 @@ export const CreatUserPageComponent = (props) => {
 							dispatch({ type: 'set_password_confirmation', data: value })
 						}
 					/>
-					{state.savePending && (
+					{showProgress && (
 						<Overlay>
 							<CircularProgress style={{ width: '24px', height: '24px' }} />
 						</Overlay>
