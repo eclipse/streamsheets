@@ -7,8 +7,8 @@ import Error from '@material-ui/icons/Error';
 import Warning from '@material-ui/icons/Warning';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
-import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
+import { DynamicFormattedMessage } from './DynamicFormattedMessage';
 
 const styles = {
 	expired: {
@@ -50,10 +50,8 @@ const config = {
 		defMessage: '{days} days left until your Streamsheets {edition}-license expires!'
 	}
 };
-// Workaround for Babel restriction, see https://github.com/yahoo/babel-plugin-react-intl/issues/119
-const FormattedMessageFixed = (props) => <FormattedMessage {...props} />;
 
-function LicenseExpireNotification({ edition='', service='', daysLeft }) {
+function LicenseExpireNotification({ edition = '', service = '', daysLeft }) {
 	const isExpired = daysLeft < 1;
 	const days = isExpired ? '' : daysLeft.toFixed();
 	const Config = isExpired ? config.expired : config.warning;
@@ -79,7 +77,7 @@ function LicenseExpireNotification({ edition='', service='', daysLeft }) {
 				message={
 					<span style={styles.message} id="message-id">
 						<Config.Icon style={styles.iconStyle} />
-						<FormattedMessageFixed
+						<DynamicFormattedMessage
 							id={Config.messageId}
 							defaultMessage={Config.defMessage}
 							values={{ days, edition, service }}
@@ -115,6 +113,6 @@ LicenseExpireNotification.defaultProps = {
 const mapStateToProps = (state) => {
 	const { licenseInfo = {} } = state.meta;
 	return { ...licenseInfo };
-}
+};
 
 export default connect(mapStateToProps)(LicenseExpireNotification);

@@ -9,7 +9,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { FormattedMessage } from 'react-intl';
+import { DynamicFormattedMessage } from '../../../HelperComponent/DynamicFormattedMessage';
 import { userShape } from './UserPropTypes';
 
 const USER_TABLE_COLUMNS = [
@@ -19,11 +19,6 @@ const USER_TABLE_COLUMNS = [
 	{ id: 'lastName', key: 'Admin.User.lastName' },
 	{ id: 'lastModified', key: 'Admin.User.lastModified' }
 ];
-
-// Workaround for Babel restriction, see https://github.com/yahoo/babel-plugin-react-intl/issues/119
-function FormattedMessageFixed(props) {
-	return <FormattedMessage {...props} />;
-}
 
 export const UserTable = (props) => {
 	const { users, onDeleteUser, onSelectUser, onSort, sortBy, sortDirection } = props;
@@ -43,7 +38,7 @@ export const UserTable = (props) => {
 								direction={sortDirection}
 								onClick={() => onSort(column.id)}
 							>
-								<FormattedMessageFixed id={column.key} defaultMessage={column.key} />
+								<DynamicFormattedMessage id={column.key} defaultMessage={column.key} />
 							</TableSortLabel>
 						</TableCell>
 					))}
