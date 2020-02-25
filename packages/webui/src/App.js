@@ -13,14 +13,8 @@ import PrivateRoute from './components/Auth/PrivateRoute';
 import { history } from './store';
 import './App.css';
 import ConfigManager from './helper/ConfigManager';
-import {
-	UserTablePage,
-	CreateUserPage,
-	UpdateUserPage,
-	DashboardPage,
-	ExportPage,
-	StreamsPage
-} from './pages';
+import { UserTablePage, CreateUserPage, UpdateUserPage, DashboardPage, ExportPage, StreamsPage } from './pages';
+import { RoutesExtensions } from '@cedalo/webui-extensions';
 
 const GATEWAY_CONFIG = ConfigManager.config.gatewayClientConfig;
 
@@ -88,6 +82,8 @@ class App extends React.Component {
 									/>
 								</React.Fragment>
 							)}
+
+							<RoutesExtensions />
 
 							<PrivateRoute path="/dashboard" component={DashboardPage} />
 							<PrivateRoute path="/export" component={ExportPage} />
