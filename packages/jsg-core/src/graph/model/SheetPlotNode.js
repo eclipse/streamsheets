@@ -1199,28 +1199,32 @@ module.exports = class SheetPlotNode extends Node {
 					const sum = pos - neg;
 					if (sum !== 0 && Numbers.isNumber(sum)) {
 						for (let i = 0; i <= info.seriesIndex; i += 1) {
-							tmp = info.categories[info.index].values[i].y;
-							if (Numbers.isNumber(tmp)) {
-								if (value < 0) {
-									if (tmp < 0) {
+							if (info.categories[info.index].values[i]) {
+								tmp = info.categories[info.index].values[i].y;
+								if (Numbers.isNumber(tmp)) {
+									if (value < 0) {
+										if (tmp < 0) {
+											y += tmp / sum;
+										}
+									} else if (tmp > 0) {
 										y += tmp / sum;
 									}
-								} else if (tmp > 0) {
-									y += tmp / sum;
 								}
 							}
 						}
 					}
 				} else {
 					for (let i = 0; i <= info.seriesIndex; i += 1) {
-						tmp = info.categories[info.index].values[i].y;
-						if (Numbers.isNumber(tmp)) {
-							if (value < 0 && info.serie.type === 'column') {
-								if (tmp < 0) {
+						if (info.categories[info.index].values[i]) {
+							tmp = info.categories[info.index].values[i].y;
+							if (Numbers.isNumber(tmp)) {
+								if (value < 0 && info.serie.type === 'column') {
+									if (tmp < 0) {
+										y += tmp;
+									}
+								} else if (tmp > 0 || info.serie.type !== 'column') {
 									y += tmp;
 								}
-							} else if (tmp > 0 || info.serie.type !== 'column') {
-								y += tmp;
 							}
 						}
 					}
