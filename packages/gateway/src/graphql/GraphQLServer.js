@@ -117,7 +117,7 @@ const typeDefs = gql`
 		password: String!
 		email: String!
 		role: String!
-		scope: ScopeInput!
+		scope: ID
 		firstName: String
 		lastName: String
 	}
@@ -125,7 +125,7 @@ const typeDefs = gql`
 	input UpdateUserInput {
 		username: String
 		email: String
-		scope: ScopeInput
+		scope: ID
 		role: String
 		firstName: String
 		lastName: String

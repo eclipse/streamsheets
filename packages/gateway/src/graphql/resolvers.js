@@ -165,7 +165,11 @@ const resolvers = {
 		createUser: async (obj, { user }, { api, encryption }) => {
 			try {
 				const hashedPassword = await encryption.hash(user.password);
-				const createdUser = await api.user.createUser({ ...user, password: hashedPassword });
+				const createdUser = await api.user.createUser({
+					...user,
+					password: hashedPassword,
+					scope: { id: user.scope || 'root' }
+				});
 				return Payload.createSuccess({
 					code: 'USER_CREATED',
 					message: 'User created successfully',
@@ -177,7 +181,7 @@ const resolvers = {
 		},
 		updateUser: async (obj, { id, user }, { api }) => {
 			try {
-				const updatedUser = await api.user.updateUser(id, user);
+				const updatedUser = await api.user.updateUser(id, { ...user, scope: { id: user.scope } });
 				return Payload.createSuccess({
 					code: 'USER_UPDATED',
 					message: 'User updated successfully',
