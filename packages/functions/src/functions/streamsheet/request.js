@@ -116,17 +116,23 @@ const putToRange2 = (sheet, range, message) => {
 	const sheetOnUpdate = sheet.onUpdate;
 	let rowidx = 0;
 	let colidx = -1;
+	let newCell = null;
 	sheet.onUpdate = null;
 	range.iterateByCol((cell, index, nextcol) => {
 		if (nextcol) {
 			rowidx = 0;
 			colidx += 1;
 		}
-		const [key, values] = entries[colidx];
-		const value = rowidx === 0 ? key : values[rowidx];
-		const newCell = value != null ? new Cell(value, Term.fromValue(value)) : null;
+		// fix colidx might be larger than available entries (DL-3764)
+		if (colidx < entries.length) {
+			const [key, values] = entries[colidx];
+			// of course values array starts at 0 too :-)
+			const value = rowidx === 0 ? key : values[rowidx - 1];
+			if (value != null) newCell = new Cell(value, Term.fromValue(value));
+		}
 		sheet.setCellAt(index, newCell);
 		rowidx += 1;
+		newCell = null;
 	});
 	sheet.onUpdate = sheetOnUpdate;
 	const machine = sheetutils.getMachine(sheet);
