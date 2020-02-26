@@ -16,7 +16,7 @@ import MachineNameComponent from '../MachineNameComponent/MachineNameComponent';
 import { WorkspaceSelect } from '@cedalo/webui-extensions';
 
 export function InfoToolBar(props) {
-	const { machineId, toggleDrawer, openDashboard, title, workspaceSelect } = props;
+	const { machineId, toggleDrawer, openDashboard, title, workspaceSelect, canEditMachine } = props;
 
 	return (
 		<Toolbar
@@ -68,7 +68,7 @@ export function InfoToolBar(props) {
 				</Typography>
 			</CustomTooltip>
 			<WorkspaceSelect show={workspaceSelect} setScope={props.setScope} />
-			{MachineHelper.isMachineDetailsPage() && machineId ? <MachineNameComponent /> : null}
+			{MachineHelper.isMachineDetailsPage() && machineId ? <MachineNameComponent disabled={!canEditMachine} /> : null}
 		</Toolbar>
 	);
 }

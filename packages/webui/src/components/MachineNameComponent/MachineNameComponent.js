@@ -11,7 +11,6 @@ import ErrorIcon from '@material-ui/icons/Error';
 import * as Colors from '@material-ui/core/colors/index';
 import MachineHelper from '../../helper/MachineHelper';
 import * as Actions from '../../actions/actions';
-import { accessManager, PERMISSIONS } from '../../helper/AccessManager';
 
 const styles = {
 	default: {
@@ -109,7 +108,7 @@ class MachineNameComponent extends React.Component {
 						<TextField
 							error={/* !this.verifyName(this.state.machine.name) || */ !this.props.monitor.machineNameSaved}
 							id="machine-name"
-							disabled={accessManager.isAccessDisabled(PERMISSIONS.MACHINE_EDIT, false)}
+							disabled={!!this.props.disabled}
 							value={this.state.machine.name || ''}
 							onBlur={this.handleSaveMachineName}
 							onChange={this.handleChangeMachineName}
