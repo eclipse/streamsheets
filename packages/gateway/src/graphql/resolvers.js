@@ -61,9 +61,8 @@ const resolvers = {
 		machine: async (obj, args, { api }) => {
 			return api.machine.findMachine(args.id);
 		},
-		machines: async (obj, args, { repositories, api }) => {
-			const { machineRepository } = repositories;
-			return args.name ? machineRepository.findMachinesByName(args.name) : api.machine.findMachines(obj.scope);
+		machines: async (obj, args, { api }) => {
+			return args.name ? api.machine.findMachinesByName(obj.scope, args.name) : api.machine.findMachines(obj.scope);
 		},
 		streamsLegacy: async (obj, args, { api }) => api.stream.findAllStreams(obj.scope),
 		streams: async (obj, args, { api }) => {

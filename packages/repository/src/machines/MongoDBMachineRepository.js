@@ -132,9 +132,14 @@ module.exports = class MongoDBMachineRepository extends mix(
 		);
 	}
 
-	async machineWithNameExists(name) {
-		const machine = await this.findMachineByName(name);
-		return machine != null;
+	async machineWithNameExists(id, name) {
+		const machine = await this.getDocument(this.collection, id, {}, { scope: 1 });
+		const otherMachine =
+			machine &&
+			(await this.db
+				.collection(this.collection)
+				.findOne({ id: { $ne: id }, name, 'scope.id': machine.scope.id }, { id: 1 }));
+		return otherMachine != null;
 	}
 
 	// returns an array of machine definitions...

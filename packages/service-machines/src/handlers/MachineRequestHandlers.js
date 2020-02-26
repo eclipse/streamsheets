@@ -207,10 +207,8 @@ class RenameMachineRequestHandler extends RequestHandler {
 	}
 
 	async handle(request, machineserver, repositoryManager) {
-		const machineForName = await repositoryManager.machineRepository.findMachineByName(
-			request.newName
-		);
-		if (machineForName && machineForName.id !== request.machineId) {
+		const nameInUse = await repositoryManager.machineRepository.machineWithNameExists(request.machineId, request.newName)
+		if (nameInUse) {
 			// machine with same name already exists:
 			throw this.reject(
 				request,

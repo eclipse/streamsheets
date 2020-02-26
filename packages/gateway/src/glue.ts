@@ -22,6 +22,7 @@ export interface RawAPI {
 	machine: {
 		findMachine(context: RequestContext, machineId: ID): Promise<Machine | null>;
 		findMachines(context: RequestContext, scope: Scope): Promise<Machine[]>;
+		findMachinesByName(context: RequestContext, scope: Scope, name: string): Promise<Machine[]>;
 	};
 	stream: BaseStreamApi;
 }
@@ -31,6 +32,7 @@ export interface API {
 	machine: {
 		findMachine(machineId: ID): Promise<Machine | null>;
 		findMachines(scope: Scope): Promise<Machine[]>;
+		findMachinesByName(scope: Scope, name: string): Promise<Machine[]>;
 	};
 	stream: StreamApi;
 }
@@ -51,6 +53,19 @@ export const RawAPI = {
 				return [];
 			}
 			const query = scope ? { 'scope.id': scope.id } : null;
+			const machines = await machineRepo.findMachines(query);
+			return machines;
+		},
+		findMachinesByName: async (
+			{ machineRepo, auth }: RequestContext,
+			scope: Scope,
+			name: string
+		): Promise<Machine[]> => {
+			const validScope = auth.isValidScope(scope);
+			if (!validScope) {
+				return [];
+			}
+			const query = scope ? { 'scope.id': scope.id, name } : null;
 			const machines = await machineRepo.findMachines(query);
 			return machines;
 		}

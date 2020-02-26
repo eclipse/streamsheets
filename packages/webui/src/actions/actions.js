@@ -836,7 +836,7 @@ export function openUser(user) {
 }
 
 export async function machineWithSameNameExists(machineId, name) {
-	const {scopedByMachine} = await gatewayClient.graphql(
+	const { scopedByMachine } = await gatewayClient.graphql(
 		`
 		query MachinesWithName($name: String, $machineId: ID!) {
 			scopedByMachine(machineId: $machineId) {
@@ -849,7 +849,7 @@ export async function machineWithSameNameExists(machineId, name) {
 	  `,
 		{ name, machineId }
 	);
-	const otherWithSameName = scopedByMachine.machines.filter(({ id }) => id === machineId);
+	const otherWithSameName = scopedByMachine.machines.filter(({ id }) => id !== machineId);
 	return otherWithSameName.length > 0;
 }
 
