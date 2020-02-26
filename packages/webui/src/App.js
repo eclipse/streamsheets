@@ -1,5 +1,5 @@
 /* eslint-disable react/no-did-mount-set-state */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Route, Redirect } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
@@ -15,8 +15,41 @@ import './App.css';
 import ConfigManager from './helper/ConfigManager';
 import { UserTablePage, CreateUserPage, UpdateUserPage, DashboardPage, ExportPage, StreamsPage } from './pages';
 import { RoutesExtensions } from '@cedalo/webui-extensions';
+import * as Actions from './actions/actions';
+import MachineHelper from './helper/MachineHelper';
 
 const GATEWAY_CONFIG = ConfigManager.config.gatewayClientConfig;
+
+const DefaultAdminRouteRedirect = connect(
+	({ user, monitor, meta }) => ({
+		rights: user.user ? user.user.rights : null,
+		isConnected: MachineHelper.isMachineEngineConnected(monitor, meta)
+	}),
+	{
+		getMe: Actions.getMe,
+		connect: Actions.connect
+	}
+)((props) => {
+	const { rights, isConnected } = props;
+	useEffect(() => {
+		if (!isConnected) {
+			props.connect();
+		}
+	}, [isConnected]);
+
+	useEffect(() => {
+		if (isConnected && !rights) {
+			props.getMe();
+		}
+	}, [isConnected]);
+	if (!rights) {
+		return null;
+	}
+	if (rights.includes('stream')) {
+		return <Redirect to="/administration/connectors" />;
+	}
+	return <Redirect to="/administration/users" />;
+});
 
 const isLicenseAccepted = (setup) => setup.licenseAgreement && setup.licenseAgreement.accepted;
 const isSetupCompleted = (setup) => setup && isLicenseAccepted(setup);
@@ -58,16 +91,7 @@ class App extends React.Component {
 							<Route exact path="/" render={() => <Redirect to="/dashboard" />} />
 							{process.env.REACT_APP_HIDE_ADMIN ? null : (
 								<React.Fragment>
-									<Route
-										exact
-										path="/administration"
-										render={() => {
-											if (this.props.rights.includes('stream')) {
-												return <Redirect to="/administration/connectors" />;
-											}
-											return <Redirect to="/administration/users" />;
-										}}
-									/>
+									<Route exact path="/administration" component={DefaultAdminRouteRedirect} />
 									<PrivateRoute path="/administration/connectors" component={StreamsPage} />
 									<PrivateRoute path="/administration/database" component={StreamsPage} />
 									<Route path="/administration/consumers" component={StreamsPage} />
@@ -98,4 +122,4 @@ class App extends React.Component {
 	}
 }
 
-export default connect(({ user }) => ({ rights: user.user ? user.user.rights : [] }))(App);
+export default App;
