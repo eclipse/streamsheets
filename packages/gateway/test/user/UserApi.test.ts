@@ -38,7 +38,8 @@ const ADMIN = {
 	username: 'admin',
 	email: 'admin@example.com',
 	password: 'passwordadmin',
-	scope: { id: 'root' }
+	scope: { id: 'root' },
+	role: "developer"
 };
 
 const NON_ADMIN = {
@@ -46,7 +47,8 @@ const NON_ADMIN = {
 	username: 'nonadmin',
 	email: 'nonadmin@example.com',
 	password: 'passwordnonadmin',
-	scope: { id: 'root' }
+	scope: { id: 'root' },
+	role: "developer"
 };
 
 const TEST_USER_1 = {
@@ -56,7 +58,8 @@ const TEST_USER_1 = {
 	firstName: 'John',
 	lastName: 'Doe',
 	password: 'password1',
-	scope: { id: 'root' }
+	scope: { id: 'root' },
+	role: "developer"
 };
 const TEST_USER_2 = {
 	id: '2',
@@ -65,7 +68,8 @@ const TEST_USER_2 = {
 	firstName: 'Jane',
 	lastName: 'Doe',
 	password: 'password2',
-	scope: { id: 'scope1' }
+	scope: { id: 'scope1' },
+	role: "developer"
 };
 
 const removePassword = (user: any) => {
