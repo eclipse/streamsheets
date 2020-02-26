@@ -205,5 +205,5 @@ CreateUserForm.propTypes = {
 	onPasswordUpdate: PropTypes.func.isRequired,
 	onPasswordConfirmationUpdate: PropTypes.func.isRequired,
 	onSubmit: PropTypes.func.isRequired,
-	onCancel: PropTypes.func.isRequired,
+	onCancel: PropTypes.func.isRequired
 };

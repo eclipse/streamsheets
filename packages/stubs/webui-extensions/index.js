@@ -5,4 +5,5 @@ export * from './src/PluginExtensions';
 export * from './src/ToolbarExtensions';
 export * from './src/languages';
 export * from './src/RoutesExtensions';
+export * from './src/WorkspaceSelect';
 export { ImageUploadDialog } ;

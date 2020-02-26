@@ -251,6 +251,8 @@ const clientDisconnected = () => ({ type: ActionTypes.DISCONNECT });
 const connectedService = () => ({ type: ActionTypes.SERVICE_CONNECTED });
 const disconnectedService = () => ({ type: ActionTypes.SERVICE_DISCONNECTED });
 
+export const setScope = (data) => ({ type: ActionTypes.USER_SET_SCOPE, data });
+
 export const receiveStreams = (data) => ({
 	type: ActionTypes.RECEIVE_STREAMS,
 	data: data || {},

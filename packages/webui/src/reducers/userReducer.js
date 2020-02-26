@@ -81,6 +81,15 @@ export default function userReducer(state = defaulUserState, action) {
 			saving: false,
 		};
 	}
+	case Actions.USER_SET_SCOPE: {
+		return {
+			...state,
+			user: {
+				...state.user,
+				scope: { id: action.data }
+			}
+		};
+	}
 	case Actions.USER_SET: {
 		const user = Object.assign({}, action.user);
 		user.settings.locale = action.user.locale;

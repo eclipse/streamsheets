@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import { IconStream, IconSecurity, IconOrganize } from '../components/icons';
 import { AdminNavigationExtensions } from '@cedalo/webui-extensions';
 
-
 export const AdminNavigation = connect(({ user }) => ({
 	rights: user.user ? user.user.rights : []
 }))((props) => {
@@ -48,6 +47,14 @@ export const AdminNavigation = connect(({ user }) => ({
 				<MenuEntry href="/administration/users" selected={isSelected('users')}>
 					<FormattedMessage id="Dashboard.users" defaultMessage="Users" />
 				</MenuEntry>
+
+				<MenuEntry
+					show={props.rights.includes('workspace')}
+					href="/administration/workspaces"
+					selected={isSelected('workspaces')}
+				>
+					<FormattedMessage id="Dashboard.workspaces" defaultMessage="Workspaces" />
+				</MenuEntry>
 			</MenuGroup>
 
 			<MenuGroup
@@ -56,16 +63,16 @@ export const AdminNavigation = connect(({ user }) => ({
 				label={<FormattedMessage id="Dashboard.organisation" defaultMessage="Organization" />}
 				icon={<IconOrganize />}
 			>
-				<MenuEntry show={props.rights.includes('database')} href="/administration/database" selected={isSelected('database')}>
+				<MenuEntry
+					show={props.rights.includes('database')}
+					href="/administration/database"
+					selected={isSelected('database')}
+				>
 					<FormattedMessage id="Dashboard.database" defaultMessage="Database" />
 				</MenuEntry>
 			</MenuGroup>
 
-			<AdminNavigationExtensions
-				open={isPluginsOpen}
-				isSelected={isSelected}
-				setPluginsOpen={setPluginsOpen}
-			/>
+			<AdminNavigationExtensions open={isPluginsOpen} isSelected={isSelected} setPluginsOpen={setPluginsOpen} />
 		</List>
 	);
 });

@@ -6,15 +6,18 @@ import Typography from '@material-ui/core/Typography';
 import MenuIcon from '@material-ui/icons/Menu';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { connect } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import MachineHelper from '../../helper/MachineHelper';
 import CustomTooltip from '../base/customTooltip/CustomTooltip';
 import MachineNameComponent from '../MachineNameComponent/MachineNameComponent';
+import { WorkspaceSelect } from '@cedalo/webui-extensions';
 
 export function InfoToolBar(props) {
-	const { machineId, toggleDrawer, openDashboard, title } = props;
+	const { machineId, toggleDrawer, openDashboard, title, workspaceSelect } = props;
+
 	return (
 		<Toolbar
 			style={{
@@ -22,7 +25,7 @@ export function InfoToolBar(props) {
 				height: '58px',
 				minHeight: '58px',
 				maxHeight: '58px',
-				paddingLeft: '5px',
+				paddingLeft: '5px'
 			}}
 		>
 			<CustomTooltip header="Tooltip.MainMenuHeader" message="Tooltip.MainMenuMessage">
@@ -58,15 +61,14 @@ export function InfoToolBar(props) {
 						marginRight: '8px',
 						cursor: 'pointer',
 						fontSize: '1.2rem',
-						whiteSpace: 'nowrap',
+						whiteSpace: 'nowrap'
 					}}
 				>
 					{title}
 				</Typography>
 			</CustomTooltip>
-			{MachineHelper.isMachineDetailsPage() && machineId ? (
-				<MachineNameComponent />
-			) : null}
+			<WorkspaceSelect show={workspaceSelect} setScope={props.setScope} />
+			{MachineHelper.isMachineDetailsPage() && machineId ? <MachineNameComponent /> : null}
 		</Toolbar>
 	);
 }
@@ -75,31 +77,32 @@ InfoToolBar.propTypes = {
 	machineId: PropTypes.string,
 	title: PropTypes.node.isRequired,
 	toggleDrawer: PropTypes.func.isRequired,
-	openDashboard: PropTypes.func.isRequired,
+	openDashboard: PropTypes.func.isRequired
 };
 
 InfoToolBar.defaultProps = {
-	machineId: null,
+	machineId: null
 };
 
 function mapStateToProps(state) {
 	return {
 		machineId: state.monitor.machine.id,
-		drawerOpen: state.appState.drawerOpen,
+		drawerOpen: state.appState.drawerOpen
 	};
+}
+
+function mapDispatchToProps(dispatch) {
+	return { ...bindActionCreators({ ...Actions }, dispatch), dispatch };
 }
 
 function mergeProps(stateProps, dispatchProps, ownProps) {
 	return {
 		...ownProps,
 		...stateProps,
+		...dispatchProps,
 		toggleDrawer: () => dispatchProps.setAppState({ drawerOpen: !stateProps.drawerOpen }),
-		openDashboard: () => dispatchProps.openDashboard(stateProps.machineId),
+		openDashboard: () => dispatchProps.openDashboard(stateProps.machineId)
 	};
 }
 
-export default connect(
-	mapStateToProps,
-	Actions,
-	mergeProps,
-)(InfoToolBar);
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(InfoToolBar);
