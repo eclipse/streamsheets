@@ -1,3 +1,7 @@
+const { FunctionErrors } = require('@cedalo/error-codes');
+
+const ERROR = FunctionErrors.code;
+
 /** 
  * DL-3707: we use IEEE 754, i.e. single precision
  */
@@ -10,11 +14,11 @@ const toBinStr = (str, val) => `${str}${val.toString(2)}`;
 const toHexStr = (str, val) => `${str}${val.toString(16)}`;
 const toBin = () => uint.reduceRight(toBinStr, '');
 const toHex = () => uint.reduceRight(toHexStr, '');
-
+const validate = (nr) => (isNaN(nr) || !isFinite(nr) ? ERROR.NUM : nr);
 
 const binary2float = (binstr) => {
 	uint[0] = parseInt(binstr, 2);
-	return float[0];
+	return validate(float[0]);
 };
 
 const float2binary = (floatnr) => {
@@ -28,7 +32,7 @@ const float2hex = (floatnr) => {
 
 const hex2float = (hexstr) => {
 	uint[0] = parseInt(hexstr, 16);
-	return float[0];
+	return validate(float[0]);
 };
 
 module.exports = {

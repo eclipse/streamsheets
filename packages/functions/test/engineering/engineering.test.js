@@ -59,7 +59,7 @@ describe('engineering functions', () => {
 			expect(createTerm('bin2float(A2)', sheet).value).toBe(0);
 			expect(createTerm('bin2float(B2)', sheet).value).toBe(0);
 		});
-		it(`should return ${ERROR.NUM} if given value represents not a number`, () => {
+		it(`should return ${ERROR.NUM} if given value represents not a binary number`, () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
@@ -68,6 +68,12 @@ describe('engineering functions', () => {
 			expect(createTerm('bin2float(C2)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('bin2float(A3)', sheet).value).toBe(ERROR.NUM);
 			expect(createTerm('bin2float(B3)', sheet).value).toBe(ERROR.NUM);
+		});
+		// DL-3707
+		it(`should return ${ERROR.NUM} if given binary number is too large or infinity`, () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('bin2float("11111111100000000000000000000000")', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('bin2float("01111111100000000000000000000000")', sheet).value).toBe(ERROR.NUM);
 		});
 	});
 	describe('bin2hex', () => {
