@@ -1,6 +1,6 @@
 const { FunctionErrors } = require('@cedalo/error-codes');
 const aggregations = require('./aggregations');
-const mapQueryOptions = require('./mapQueryOptions');
+const readQueryOptions = require('./readQueryOptions');
 const {	runFunction } = require('../../../utils');
 
 const ERROR = FunctionErrors.code;
@@ -89,15 +89,15 @@ const timeQuery = (sheet, ...terms) =>
 		.withMinArgs(2)
 		.mapNextArg((storeref) => getStoreTerm(storeref) || ERROR.VALUE)
 		.mapRemaingingArgs((remain) => {
-			const options = mapQueryOptions(sheet, remain);
+			const options = readQueryOptions(sheet, remain);
 			return options.error || options.queries.length < 1  ? ERROR.VALUE : options;
 		})
 		.run((storeterm, options) => {
 			const term = timeQuery.term;
-			const timestore = storeterm._timestore;
-			const querystore = getQueryStore(term, options);
-			querystore.query(timestore, options.queries);
-			querystore.write(timestore, term.cell, options.range);
+			// const timestore = storeterm._timestore;
+			// const querystore = getQueryStore(term, options);
+			// querystore.query(timestore, options.queries);
+			// querystore.write(timestore, term.cell, options.range);
 
 			term.queries = options.queries;
 			term.interval = options.interval;

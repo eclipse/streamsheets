@@ -6,7 +6,7 @@ const { newMachine, newSheet } = require('./utils');
 const ERROR = FunctionErrors.code;
 
 describe('timequery', () => {
-	describe.skip('parameter mapping', () => {
+	describe.skip('parameter parsing', () => {
 		it(`should return ${ERROR.ARGS} if two few arguments are given`, () => {
 			const sheet = newSheet();
 			createCellAt('A3', { formula: 'time.query()' }, sheet);
@@ -26,54 +26,86 @@ describe('timequery', () => {
 			createCellAt('A3', { formula: 'time.query(A1,42)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
 		});
+		it(`should return ${ERROR.VALUE} if query json contains no value or values field`, () => {
+			const machine = newMachine();
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: { formula: 'time.store(JSON(B1:C1))' },
+					B2: 'info', C2: 'v1',
+					B3: 'infos', C3: 'v1, v2',
+				}
+			});
+
+			createCellAt('A1', { formula: 'time.store(JSON(B1:C1))' }, sheet);
+			createCellAt('A3', { formula: 'time.query(A1,)' }, sheet);
+			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			createCellAt('A3', { formula: 'time.query(A1, true)' }, sheet);
+			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			createCellAt('A3', { formula: 'time.query(A1,"v1:1")' }, sheet);
+			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			createCellAt('A3', { formula: 'time.query(A1,42)' }, sheet);
+			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+		});
 		it('should accept multiple queries', async () => {
 			const machine = newMachine();
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
 				cells: {
 					A1: { formula: 'time.store(JSON(B1:C1))' },
-					A2: 'field', B2: 'v1'
+					A2: 'value', B2: 'v1',
+					A3: 'values', B3: 'v1, v2'
 				}
 			});
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2))' }, sheet);
+			createCellAt('A4', { formula: 'time.query(A1,JSON(A2:B2))' }, sheet);
 			await machine.step();
-			let cell = sheet.cellAt('A3');
+			let cell = sheet.cellAt('A4');
 			expect(cell.value).toBe(true);
 			expect(cell.term.queries.length).toBe(1);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),JSON(A2:B2))' }, sheet);
+			createCellAt('A4', { formula: 'time.query(A1,JSON(A3:B3))' }, sheet);
 			await machine.step();
-			cell = sheet.cellAt('A3');
+			cell = sheet.cellAt('A4');
+			expect(cell.value).toBe(true);
+			expect(cell.term.queries.length).toBe(1);
+			createCellAt('A4', { formula: 'time.query(A1,JSON(A2:B2),JSON(A2:B2))' }, sheet);
+			await machine.step();
+			cell = sheet.cellAt('A4');
 			expect(cell.value).toBe(true);
 			expect(cell.term.queries.length).toBe(2);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),JSON(A2:B2),JSON(A2:B2))' }, sheet);
+			createCellAt('A4', { formula: 'time.query(A1,JSON(A2:B2),JSON(A2:B2),JSON(A2:B2))' }, sheet);
 			await machine.step();
-			cell = sheet.cellAt('A3');
+			cell = sheet.cellAt('A4');
 			expect(cell.value).toBe(true);
 			expect(cell.term.queries.length).toBe(3);
 		});
-		it('should identify interval parameter', () => {
-			const sheet = newSheet();
+		it('should identify interval parameter', async () => {
+			const machine = newMachine();
+			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
 				cells: {
 					A1: { formula: 'time.store(JSON(B1:C1))' },
-					A2: 'field', B2: 'v1'
+					A2: 'value', B2: 'v1'
 				}
 			});
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2))' }, sheet);
+			await machine.step();
 			let cell = sheet.cellAt('A3');
 			expect(cell.value).toBe(true);
 			// default value signals no interval set
 			expect(cell.term.interval).toBe(-1);
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),)' }, sheet);
+			await machine.step();
 			cell = sheet.cellAt('A3');
 			expect(cell.value).toBe(true);
 			// default value signals no interval set
 			expect(cell.term.interval).toBe(-1);
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),60)' }, sheet);
+			await machine.step();
 			cell = sheet.cellAt('A3');
 			expect(cell.value).toBe(true);
 			expect(cell.term.interval).toBe(60);
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),JSON(A2:B2),JSON(A2:B2),1)' }, sheet);
+			await machine.step();
 			cell = sheet.cellAt('A3');
 			expect(cell.value).toBe(true);
 			expect(cell.term.interval).toBe(1);
@@ -83,7 +115,7 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: { formula: 'time.store(JSON(B1:C1))' },
-					A2: 'field', B2: 'v1'
+					A2: 'value', B2: 'v1'
 				}
 			});
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),true)' }, sheet);
@@ -97,23 +129,27 @@ describe('timequery', () => {
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),-12)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
 		});
-		it('should identify range parameter', () => {
-			const sheet = newSheet();
+		it('should identify range parameter', async () => {
+			const machine = newMachine();
+			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
 				cells: {
 					A1: { formula: 'time.store(JSON(B1:C1))' },
-					A2: 'field', B2: 'v1'
+					A2: 'value', B2: 'v1'
 				}
 			});
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),1,A5:C6)' }, sheet);
+			await machine.step();
 			let cell = sheet.cellAt('A3');
 			expect(cell.value).toBe(true);
 			expect(cell.term.range.toString()).toBe('A5:C6');
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,A5:C6)' }, sheet);
+			await machine.step();
 			cell = sheet.cellAt('A3');
 			expect(cell.value).toBe(true);
 			expect(cell.term.range.toString()).toBe('A5:C6');
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),JSON(A2:B2),JSON(A2:B2),,A5:C6)' }, sheet);
+			await machine.step();
 			cell = sheet.cellAt('A3');
 			expect(cell.value).toBe(true);
 			expect(cell.term.range.toString()).toBe('A5:C6');
@@ -123,7 +159,7 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: { formula: 'time.store(JSON(B1:C1))' },
-					A2: 'field', B2: 'v1'
+					A2: 'value', B2: 'v1'
 				}
 			});
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),1,true)' }, sheet);
@@ -135,38 +171,46 @@ describe('timequery', () => {
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),JSON(A2:B2),JSON(A2:B2),,)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(true);
 		});
-		it('should identify limit parameter', () => {
-			const sheet = newSheet();
+		it('should identify limit parameter', async () => {
+			const machine = newMachine();
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+
 			sheet.load({
 				cells: {
 					A1: { formula: 'time.store(JSON(B1:C1))' },
-					A2: 'field', B2: 'v1'
+					A2: 'value', B2: 'v1'
 				}
 			});
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2))' }, sheet);
+			await machine.step();
 			let cell = sheet.cellAt('A3');
 			expect(cell.value).toBe(true);
 			// default value
-			expect(cell.term.limit).toBe(500);
+			expect(cell.term.limit).toBe(100);
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,,)' }, sheet);
+			await machine.step();
 			cell = sheet.cellAt('A3');
 			expect(cell.value).toBe(true);
 			// default value
-			expect(cell.term.limit).toBe(500);
+			expect(cell.term.limit).toBe(100);
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,,60)' }, sheet);
+			await machine.step();
 			cell = sheet.cellAt('A3');
 			expect(cell.value).toBe(true);
 			expect(cell.term.limit).toBe(60);
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),JSON(A2:B2),JSON(A2:B2),1,,1)' }, sheet);
+			await machine.step();
 			cell = sheet.cellAt('A3');
 			expect(cell.value).toBe(true);
 			expect(cell.term.limit).toBe(1);
 			// MIN_LIMIT is 1
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),1,,0)' }, sheet);
+			await machine.step();
 			cell = sheet.cellAt('A3');
 			expect(cell.value).toBe(true);
 			expect(cell.term.limit).toBe(1);
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,,-1)' }, sheet);
+			await machine.step();
 			cell = sheet.cellAt('A3');
 			expect(cell.value).toBe(true);
 			expect(cell.term.limit).toBe(1);
@@ -176,7 +220,7 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: { formula: 'time.store(JSON(B1:C1))' },
-					A2: 'field', B2: 'v1'
+					A2: 'value', B2: 'v1'
 				}
 			});
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,,true)' }, sheet);
@@ -186,7 +230,7 @@ describe('timequery', () => {
 			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,,"42")' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
 		});
-		it(`should return an ${ERROR.VALUE} if first parameter does not reference time.store`, () => {
+		it(`should return ${ERROR.VALUE} if first parameter does not reference time.store`, () => {
 			const sheet = newSheet();
 			createCellAt('A1', 'v1', sheet);
 			createCellAt('A4', { formula: 'time.query(A1, "v1")' }, sheet);
@@ -225,8 +269,8 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'B2+10)' },
 					A3: { formula: 'time.store(JSON(A1:B2))' },
-					A4: 'field', B4: 'v1',
-					A5: 'field', B5: 'v2',
+					A4: 'value', B4: 'v1',
+					A5: 'value', B5: 'v2',
 					A6: { formula: 'time.query(A3, JSON(A4:B5))' }
 				}
 			});
@@ -252,7 +296,7 @@ describe('timequery', () => {
 			expect(querycell.info.values.v1[3]).toBe(5);
 			expect(querycell.info.values.v2[3]).toBe(50);
 		});
-		it('should aggregate values in given interval', async () => {
+		it.skip('should aggregate values in given interval', async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -260,7 +304,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'B2+10)' },
 					A3: { formula: 'time.store(JSON(A1:B2))' },
-					A4: 'field', B4: 'v1', C4: 'field', D4: 'v2',
+					A4: 'value', B4: 'v1', C4: 'value', D4: 'v2',
 					A5: 'aggregate', B5: 9, C5: 'aggregate', D5: 4,					
 					A8: { formula: 'time.query(A3, JSON(A4:B5), 30/1000)' }
 				}
@@ -294,7 +338,6 @@ describe('timequery', () => {
 			// expect(querycell.info.values.v2[3]).toBe(50);
 		});
 		it.skip('should only aggregate values which timestamp is in given interval', () => {
-
 		});
 	});
 	// it('should be possible to aggregate values', () => {
@@ -492,5 +535,21 @@ describe('timequery', () => {
 			// store something => step => expect value
 		});
 	});
-	
+	describe.skip('aggregations methods', () => {
+		test('none', () => {});
+		test('avg', () => {});
+		test('max', () => {});
+		test('min', () => {});
+		test('count non zero', () => {});
+		test('count numbers', () => {});
+		test('product', () => {});
+		test('sum', () => {});
+		test('standard derivation', () => {});
+		it('should be possible to specify multiple aggregations for multiple values', () => {
+			const json = {values: 'v1,v2', aggregations: '2,3'};
+		});
+	});
+	describe.skip('specifying time range', () => {
+
+	});
 });
