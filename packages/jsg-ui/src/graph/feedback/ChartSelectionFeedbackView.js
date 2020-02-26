@@ -64,13 +64,44 @@ export default class ChartSelectionFeedbackView extends View {
 				let x;
 				let y;
 				const value = {};
+				const serie = data;
+				const barWidth = item.getBarWidth(axes, data, plotRect);
+				let barInfo;
+				const info = {
+					serie,
+					seriesIndex: selection.index,
+					categories: axes.x.categories
+				};
 
 				while (item.getValue(ref, index, value)) {
+					info.index = index;
 					x = plotRect.left + item.scaleToAxis(axes.x, value.x, undefined, false) * plotRect.width;
-					y = plotRect.bottom - item.scaleToAxis(axes.y, value.y, undefined, false) * plotRect.height;
-					if (x >= plotRect.left && x <= plotRect.right && y > plotRect.top && y < plotRect.bottom) {
-						rect.set(x - 75, y - 75, 150, 150);
-						graphics.drawMarker(rect, true);
+					y = plotRect.bottom - item.scaleToAxis(axes.y, value.y, info, false) * plotRect.height;
+					if (x + 1 >= plotRect.left && x - 1 <= plotRect.right && y + 1 >= plotRect.top && y - 1 <= plotRect.bottom) {
+						switch (serie.type) {
+						case 'column':
+							barInfo = item.getBarInfo(axes, serie, selection.index, index, value.y, barWidth);
+							rect.set(x + barInfo.offset  - 75, y - 75, 150, 150);
+							graphics.drawMarker(rect, true);
+							rect.set(x + barInfo.offset + barWidth - barInfo.margin - 75, y - 75, 150, 150);
+							graphics.drawMarker(rect, true);
+							rect.set(x + barInfo.offset  - 75, y - barInfo.height * plotRect.height - 75, 150, 150);
+							graphics.drawMarker(rect, true);
+							rect.set(x + barInfo.offset + barWidth - barInfo.margin - 75, y - barInfo.height * plotRect.height - 75, 150, 150);
+							graphics.drawMarker(rect, true);
+							break;
+						case 'area':
+							barInfo = item.getBarInfo(axes, serie, selection.index, index, value.y, barWidth);
+							rect.set(x - 75, y - 75, 150, 150);
+							graphics.drawMarker(rect, true);
+							rect.set(x - 75, y - barInfo.height * plotRect.height - 75, 150, 150);
+							graphics.drawMarker(rect, true);
+							break;
+						default:
+							rect.set(x - 75, y - 75, 150, 150);
+							graphics.drawMarker(rect, true);
+							break;
+						}
 					}
 					index += 1;
 				}

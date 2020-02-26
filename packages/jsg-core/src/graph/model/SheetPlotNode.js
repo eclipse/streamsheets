@@ -129,6 +129,7 @@ module.exports = class SheetPlotNode extends Node {
 
 		this.getFormat().setLineColor('#AAAAAA');
 		this.getTextFormat().setFontSize(8);
+		this.getItemAttributes().setContainer(false);
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 
 		this.series = [];
@@ -309,6 +310,7 @@ module.exports = class SheetPlotNode extends Node {
 	layout() {
 		const size = this.getSize().toPoint();
 		const cs = JSG.graphics.getCoordinateSystem();
+		this.getItemAttributes().setContainer(false);
 
 		this.setMinMax();
 		this.setScales();
@@ -1056,6 +1058,38 @@ module.exports = class SheetPlotNode extends Node {
 		}
 	}
 
+	getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
+		let height;
+		const margin = serie.stacked ? 0 : 150;
+
+		if (serie.relative) {
+			const neg = axes.x.categories[index].neg;
+			const pos = axes.x.categories[index].pos;
+			const sum = pos - neg;
+			if (sum !== 0 && Numbers.isNumber(sum)) {
+				height = -this.scaleSizeToAxis(axes.y, value / sum, false);
+			}
+		} else {
+			height = -this.scaleSizeToAxis(axes.y, value);
+		}
+		return {
+			margin,
+			height,
+			offset: serie.stacked ? -barWidth / 2 : -this.series.length / 2 * barWidth + seriesIndex * barWidth + margin / 2
+		}
+	}
+
+	getBarWidth(axes, serie, plotRect) {
+		if (axes.x.type === 'category') {
+			let barWidth = this.scaleToAxis(axes.x, 1, undefined, false) * plotRect.width -
+				this.scaleToAxis(axes.x, 0, undefined, false) * plotRect.width;
+			barWidth = barWidth * 0.7 / (serie.stacked ? 1 : this.series.length);
+			return barWidth;
+		}
+
+		return 100;
+	}
+
 	getLabel(ref, index) {
 		let label;
 
@@ -1408,7 +1442,9 @@ module.exports = class SheetPlotNode extends Node {
 		}
 
 		if (this.plot.position.containsPoint(pt)) {
-			result = this.series.filter((series, index) => {
+			const revSeries = [].concat(this.series).reverse();
+			result = revSeries.filter((series) => {
+				const index = this.series.indexOf(series);
 				const ref = this.getDataSourceInfo(series.formula);
 				const dataRect = new ChartRect();
 				const plotRect = this.plot.position;
@@ -1417,32 +1453,89 @@ module.exports = class SheetPlotNode extends Node {
 					let pointIndex = 0;
 					let x;
 					let y;
-					const value = {};
+					let barInfo;
+					const barWidth = this.getBarWidth(axes, series, plotRect);
 					const info = {
 						serie: series,
 						seriesIndex: index,
 						categories: axes.x.categories
 					};
+					const points = [];
+					const prevPoints = [];
+					const value = {};
 
 					while (this.getValue(ref, pointIndex, value)) {
 						info.index = pointIndex;
 						x = this.scaleToAxis(axes.x, value.x, undefined, false);
 						y = this.scaleToAxis(axes.y, value.y, info, false);
-						dataRect.set(
-							plotRect.left + x * plotRect.width - 200,
-							plotRect.bottom - y * plotRect.height - 200,
-							plotRect.left + x * plotRect.width + 200,
-							plotRect.bottom - y * plotRect.height + 200
-						);
+
+						switch (series.type) {
+						case 'column':
+							barInfo = this.getBarInfo(axes, series, index, pointIndex, value.y, barWidth);
+							dataRect.set(
+								plotRect.left + x * plotRect.width + barInfo.offset - 100,
+								plotRect.bottom - y * plotRect.height - 100,
+								plotRect.left + x * plotRect.width + barInfo.offset + 100 + barWidth - barInfo.margin,
+								plotRect.bottom - y * plotRect.height + 100 - barInfo.height * plotRect.height);
+
+							break;
+						case 'line':
+							dataRect.set(
+								plotRect.left + x * plotRect.width - 200,
+								plotRect.bottom - y * plotRect.height - 200,
+								plotRect.left + x * plotRect.width + 200,
+								plotRect.bottom - y * plotRect.height + 200
+							);
+							break;
+						case 'area':
+							dataRect.set(
+								plotRect.left + x * plotRect.width - 200,
+								plotRect.bottom - y * plotRect.height - 200,
+								plotRect.left + x * plotRect.width + 200,
+								plotRect.bottom - y * plotRect.height + 200
+							);
+							barInfo = this.getBarInfo(axes, series, index, pointIndex, value.y, barWidth);
+							points.push({
+								x: plotRect.left + x * plotRect.width,
+								y: plotRect.bottom - y * plotRect.height
+							});
+							prevPoints.push({
+								x: plotRect.left + x * plotRect.width,
+								y: plotRect.bottom - y * plotRect.height - barInfo.height * plotRect.height
+							});
+							break;
+						}
+
 						if (dataRect.containsPoint(pt)) {
 							value.axes = axes;
 							value.series = series;
 							value.index = index;
 							value.pointIndex = pointIndex;
-							dataPoints.push(value);
-							return true;
+							dataPoints.push({
+								x: value.x,
+								y: value.y,
+								axes,
+								series,
+								index,
+								pointIndex
+							});
+							if (series.type !== 'area') {
+								return true;
+							}
 						}
 						pointIndex += 1;
+					}
+					if (series.type === 'area') {
+						const searchPoints = [];
+						points.forEach((point) => {
+							searchPoints.push(point);
+						});
+						for (let i = prevPoints.length - 1; i >= 0; i -= 1) {
+							searchPoints.push(prevPoints[i]);
+						}
+						if (MathUtils.isPointInPolygon(searchPoints, pt)) {
+							return true;
+						}
 					}
 				}
 				return false;
@@ -1952,6 +2045,8 @@ module.exports = class SheetPlotNode extends Node {
 			this.readSeries(reader, plot);
 			this.readAxes(reader, plot);
 		}
+
+		this.getItemAttributes().setContainer(false);
 	}
 
 	saveByKey(key) {

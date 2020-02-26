@@ -80,6 +80,7 @@ const {
 	FormatAttributes,
 	TextFormatAttributes,
 	SelectionProvider,
+	MatrixLayout,
 	SheetPlotNode
 } = JSG;
 const { RESOURCE_TYPES, RESOURCE_ACTIONS } = accessManager;
@@ -540,6 +541,9 @@ export class CanvasToolBar extends Component {
 				break;
 			case 'scale':
 				node.setItemAttribute(ItemAttributes.SCALETYPE, type);
+				break;
+			case 'matrix':
+				node.setLayout(MatrixLayout.TYPE);
 				break;
 			default:
 				break;
@@ -3300,6 +3304,17 @@ export class CanvasToolBar extends Component {
 								style={{ padding: '5px' }}
 								color="inherit"
 								onClick={() => this.onCreateContainer('bottom')}
+							>
+								<SvgIcon>
+									<path d="M5,17.59L15.59,7H9V5H19V15H17V8.41L6.41,19L5,17.59Z" />
+								</SvgIcon>
+							</IconButton>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton
+								style={{ padding: '5px' }}
+								color="inherit"
+								onClick={() => this.onCreateContainer('matrix')}
 							>
 								<SvgIcon>
 									<path d="M5,17.59L15.59,7H9V5H19V15H17V8.41L6.41,19L5,17.59Z" />

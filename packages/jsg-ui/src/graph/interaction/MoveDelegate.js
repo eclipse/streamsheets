@@ -14,6 +14,7 @@ import {
 	ChangeItemOrderCommand,
 	ChangeParentCommand,
 	DetachCommand,
+	MatrixLayout,
 	GraphUtils,
 	Shape
 } from '@cedalo/jsg-core';
@@ -542,6 +543,10 @@ class MoveDelegate extends Delegate {
 				}
 			}
 			JSG.boxCache.release(controllerbox);
+		} else if (item.getParent() &&
+			item.getParent().getLayout() &&
+			item.getParent().getLayout().getType() === MatrixLayout.TYPE) {
+			isSuited = true;
 		}
 		return isSuited;
 	}
@@ -578,6 +583,15 @@ class MoveDelegate extends Delegate {
 		const target = targetController ? targetController.getModel() : undefined;
 
 		if (target && !target.isContainer()) {
+			if (target.getParent() &&
+				target.getParent().getLayout() &&
+				target.getParent().getLayout().getType() === MatrixLayout.TYPE) {
+				feedbacks.forEach((feedback) => {
+					item = feedback.getOriginalItem();
+					cmds.push(new ChangeItemOrderCommand(item, target.getIndex()));
+				});
+				return this._createCommand(cmds, false);
+			}
 			return undefined;
 		}
 

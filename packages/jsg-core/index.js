@@ -207,6 +207,7 @@ JSG.GraphLayout = require('./src/layout/GraphLayout');
 JSG.EdgeLayout = require('./src/layout/EdgeLayout');
 JSG.OrthogonalLayout = require('./src/layout/OrthogonalLayout');
 JSG.GridLayout = require('./src/layout/GridLayout');
+JSG.MatrixLayout = require('./src/layout/MatrixLayout');
 JSG.Line = require('./src/layout/Line');
 JSG.LayoutFactory = require('./src/layout/LayoutFactory');
 JSG.CommandUtils = require('./src/graph/command/utils');
