@@ -142,7 +142,6 @@ export default class GraphManager {
 		defInteraction.addActivator(ButtonActivator.KEY, new ButtonActivator());
 		defInteraction.addActivator(CaptionActivator.KEY, new CaptionActivator());
 		defInteraction.addActivator(ViewActivator.KEY, new ViewActivator());
-		// defInteraction.addActivator(CreateEdgeActivator.KEY, new CreateEdgeActivator());
 		defInteraction.addActivator(
 			StreamSheetContainerResizeActivator.KEY,
 			new StreamSheetContainerResizeActivator()

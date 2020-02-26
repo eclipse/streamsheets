@@ -57,8 +57,9 @@ export default class SheetPlotView extends NodeView {
 
 		this.drawAxes(graphics, plotRect, item, true);
 
+		let lastPoints;
 		series.forEach((serie, index) => {
-			this.drawPlot(graphics, item, plotRect, serie, index);
+			lastPoints = this.drawPlot(graphics, item, plotRect, serie, index, lastPoints);
 		});
 
 		this.drawAxes(graphics, plotRect, item, false);
@@ -162,7 +163,7 @@ export default class SheetPlotView extends NodeView {
 				break;
 			}
 
-			pos = item.scaleToAxis(axis, current, grid);
+			pos = item.scaleToAxis(axis, current, undefined, grid);
 
 			if (!grid) {
 				if (axis.type === 'category' && refLabel) {
@@ -221,23 +222,19 @@ export default class SheetPlotView extends NodeView {
 		}
 	}
 
-	drawPlot(graphics, item, plotRect, serie, seriesIndex) {
+	drawPlot(graphics, item, plotRect, serie, seriesIndex, lastPoints) {
 		let index = 0;
 		let x;
 		let y;
 		let barWidth = 100;
 		const barMargin = serie.stacked ? 0 : 150;
-		let zero;
 		const value = {};
 
 		const ref = item.getDataSourceInfo(serie.formula);
-		if (!ref) {
-			return;
-		}
-
 		const axes = item.getAxes(serie);
-		if (!axes) {
-			return;
+
+		if (!ref || !axes) {
+			return undefined;
 		}
 		graphics.save();
 		graphics.beginPath();
@@ -250,58 +247,66 @@ export default class SheetPlotView extends NodeView {
 		graphics.setFillColor(serie.format.fillColor || item.getTemplate('basic').series.fill[seriesIndex]);
 
 		if (axes.x.type === 'category') {
-			barWidth = item.scaleToAxis(axes.x, 1, false)  * plotRect.width -
-				item.scaleToAxis(axes.x, 0, false) * plotRect.width;
+			barWidth = item.scaleToAxis(axes.x, 1, undefined, false)  * plotRect.width -
+				item.scaleToAxis(axes.x, 0, undefined, false) * plotRect.width;
 			barWidth = barWidth * 0.7 / (serie.stacked ? 1 : item.series.length);
-			zero = item.scaleToAxis(axes.y, 0, false);
 		}
 
 		let offset;
 		let height;
-		let tmp;
+		const points = [];
+		const info = {
+			serie,
+			seriesIndex,
+			categories: axes.x.categories
+		};
 
 		while (item.getValue(ref, index, value)) {
-			x = item.scaleToAxis(axes.x, value.x, false);
-			if (serie.stacked) {
-				if (serie.relative) {
-					y = 0;
-					for (let i = 0; i < seriesIndex; i += 1) {
-						tmp = axes.x.categories[index].values[i].y;
-						if (Numbers.isNumber(tmp)) {
-							if (value.y < 0) {
-								const neg = axes.x.categories[index].neg;
-								if (Numbers.isNumber(neg) && neg !== 0) {
-									y += tmp / neg * 100;
-								}
-							} else if (tmp > 0) {
-								const pos = axes.x.categories[index].pos;
-								if (Numbers.isNumber(pos) && pos !== 0) {
-									y += tmp / pos * 100;
-								}
-							}
-						}
-					}
-					y = item.scaleToAxis(axes.y, y, false);
-				} else {
-					y = 0;
-					for (let i = 0; i < seriesIndex; i += 1) {
-						tmp = axes.x.categories[index].values[i].y;
-						if (Numbers.isNumber(tmp)) {
-							if (value.y < 0) {
-								if (tmp < 0) {
-									y += tmp;
-								}
-							} else if (tmp > 0) {
-								y += tmp;
-							}
-						}
-					}
-					y = item.scaleToAxis(axes.y, y, false);
-				}
-			} else {
-				y = item.scaleToAxis(axes.y, value.y, false);
-			}
+			info.index = index;
+			x = item.scaleToAxis(axes.x, value.x, undefined, false);
+			y = item.scaleToAxis(axes.y, value.y, info, false);
+			// if (serie.stacked) {
+			// 	if (serie.relative) {
+			// 		y = 0;
+			// 		const neg = axes.x.categories[index].neg;
+			// 		const pos = axes.x.categories[index].pos;
+			// 		const sum = pos - neg;
+			// 		if (sum !== 0 && Numbers.isNumber(sum)) {
+			// 			for (let i = 0; i <= seriesIndex; i += 1) {
+			// 				tmp = axes.x.categories[index].values[i].y;
+			// 				if (Numbers.isNumber(tmp)) {
+			// 					if (value.y < 0) {
+			// 						if (tmp < 0) {
+			// 							y += tmp / sum;
+			// 						}
+			// 					} else if (tmp > 0) {
+			// 						y += tmp / sum;
+			// 					}
+			// 				}
+			// 			}
+			// 		}
+			// 		y = item.scaleToAxis(axes.y, y, false);
+			// 	} else {
+			// 		y = 0;
+			// 		for (let i = 0; i <= seriesIndex; i += 1) {
+			// 			tmp = axes.x.categories[index].values[i].y;
+			// 			if (Numbers.isNumber(tmp)) {
+			// 				if (value.y < 0 && serie.type === 'column') {
+			// 					if (tmp < 0) {
+			// 						y += tmp;
+			// 					}
+			// 				} else if (tmp > 0 || serie.type !== 'column') {
+			// 					y += tmp;
+			// 				}
+			// 			}
+			// 		}
+			// 		y = item.scaleToAxis(axes.y, y, false);
+			// 	}
+			// } else {
+			// 	y = item.scaleToAxis(axes.y, value.y, false);
+			// }
 			switch (serie.type) {
+			case 'area':
 			case 'line':
 			case 'scatter':
 				if (index) {
@@ -309,25 +314,25 @@ export default class SheetPlotView extends NodeView {
 				} else {
 					graphics.moveTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
 				}
+				if (serie.type === 'area' && serie.stacked) {
+					points.push({
+						x: plotRect.left + x * plotRect.width,
+						y: plotRect.bottom - y * plotRect.height
+					})
+				}
 				break;
 			case 'column':
 				if (serie.relative) {
 					height = 0;
-					if (value.y > 0) {
-						tmp = axes.x.categories[index].pos;
-						if (Numbers.isNumber(tmp) && tmp !== 0) {
-							height = item.scaleToAxis(axes.y, value.y / tmp * 100, false);
-						}
-					} else {
-						tmp = Math.abs(axes.x.categories[index].neg);
-						if (Numbers.isNumber(tmp) && tmp !== 0) {
-							height = -item.scaleToAxis(axes.y, value.y / tmp * 100, false);
-						}
+					const neg = axes.x.categories[index].neg;
+					const pos = axes.x.categories[index].pos;
+					const sum = pos - neg;
+					if (sum !== 0 && Numbers.isNumber(sum)) {
+						height = -item.scaleSizeToAxis(axes.y, value.y / sum, false);
 					}
 				} else {
-					height = item.scaleSizeToAxis(axes.y, value.y);
+					height = -item.scaleSizeToAxis(axes.y, value.y);
 				}
-				y = serie.stacked ? y : zero;
 				offset = serie.stacked ? -barWidth / 2 : -item.series.length / 2 * barWidth + seriesIndex * barWidth + barMargin / 2;
 				graphics.rect(plotRect.left + x * plotRect.width + offset, plotRect.bottom - y * plotRect.height, barWidth - barMargin, -height * plotRect.height);
 				break;
@@ -335,12 +340,30 @@ export default class SheetPlotView extends NodeView {
 			index += 1;
 		}
 
-		if (serie.type === 'column') {
+		if (serie.type === 'area') {
+			if (seriesIndex && serie.stacked && lastPoints) {
+				let point;
+				for (let i = lastPoints.length - 1; i >= 0; i-= 1) {
+					point = lastPoints[i];
+					graphics.lineTo(point.x, point.y);
+				}
+			} else {
+				y = item.scaleToAxis(axes.y, 0, undefined, false);
+				graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+				x = item.scaleToAxis(axes.x, 0, undefined, false);
+				graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+			}
+			graphics.closePath();
+		}
+
+		if (serie.type === 'column' || serie.type === 'area') {
 			graphics.fill();
 		}
 		graphics.stroke();
 		graphics.setLineWidth(1);
 		graphics.restore();
+
+		return points;
 	}
 
 	drawTitle(graphics, item) {

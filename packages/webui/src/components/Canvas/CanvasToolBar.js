@@ -3437,17 +3437,17 @@ export class CanvasToolBar extends Component {
 						>
 							<GridList
 								cols={6}
-								cellHeight={35}
-								spacing={2}
+								cellHeight={40}
+								spacing={8}
 								style={{
-									width: '240px',
-									margin: '2px'
+									width: '310px',
+									margin: '1px'
 								}}
 							>
 								<GridListTile
 									cols={6}
 									style={{
-										height: '23px'
+										height: '30px'
 									}}
 								>
 									<div
@@ -3462,68 +3462,135 @@ export class CanvasToolBar extends Component {
 									</div>
 								</GridListTile>
 								<GridListTile cols={1}>
-									<IconButton
-										style={{ padding: '5px' }}
-										color="inherit"
-										onClick={() => this.onCreatePlot('column')}
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.Column" defaultMessage="Column" />}
 									>
-										<SvgIcon>
-											<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
-										</SvgIcon>
-									</IconButton>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('column')}
+										>
+											<img alt="" src="images/charts/column.png" />
+										</IconButton>
+									</Tooltip>
 								</GridListTile>
 								<GridListTile cols={1}>
-									<IconButton
-										style={{ padding: '5px' }}
-										color="inherit"
-										onClick={() => this.onCreatePlot('columnstacked')}
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.ColumnStacked" defaultMessage="Column Stacked" />}
 									>
-										<SvgIcon>
-											<path d="M22,21H2V3H4V19H6V17H10V19H12V16H16V19H18V17H22V21M18,14H22V16H18V14M12,6H16V9H12V6M16,15H12V10H16V15M6,10H10V12H6V10M10,16H6V13H10V16Z" />
-										</SvgIcon>
-									</IconButton>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('columnstacked')}
+										>
+											<img alt="" src="images/charts/columnstacked.png" />
+										</IconButton>
+									</Tooltip>
 								</GridListTile>
 								<GridListTile cols={1}>
-									<IconButton
-										style={{ padding: '5px' }}
-										color="inherit"
-										onClick={() => this.onCreatePlot('columnstacked100')}
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.ColumnStacked 100" defaultMessage="Column Stacked 100" />}
 									>
-										<SvgIcon>
-											<path d="M22,21H2V3H4V19H6V17H10V19H12V16H16V19H18V17H22V21M18,14H22V16H18V14M12,6H16V9H12V6M16,15H12V10H16V15M6,10H10V12H6V10M10,16H6V13H10V16Z" />
-										</SvgIcon>
-									</IconButton>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('columnstacked 100')}
+										>
+											<img alt="" src="images/charts/columnstacked100.png" />
+										</IconButton>
+									</Tooltip>
 								</GridListTile>
 								<GridListTile cols={1}>
-									<IconButton
-										style={{ padding: '5px' }}
-										color="inherit"
-										onClick={() => this.onCreatePlot('line')}
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.Line" defaultMessage="Line" />}
 									>
-										<SvgIcon>
-											<path
-												d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z"
-											/>
-										</SvgIcon>
-									</IconButton>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('line')}
+										>
+											<img alt="" src="images/charts/line.png" />
+										</IconButton>
+									</Tooltip>
 								</GridListTile>
 								<GridListTile cols={1}>
-									<IconButton
-										style={{ padding: '5px' }}
-										color="inherit"
-										onClick={() => this.onCreatePlot('profile')}
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.LineStacked" defaultMessage="Line Stacked" />}
 									>
-										<SvgIcon>
-											<line stroke="#000" y2="22.09152" x2="2.899589" y1="2.635468" x1="2.690384" strokeWidth="2" fill="none"/>
-											<line stroke="#000" y2="21.254702" x2="21.518821" y1="21.2547" x1="2.690384" strokeWidth="2" fill="none"/>
-											<path d="m8.548121,21.045496c5.230121,-5.439326 5.230121,-5.439326 5.050195,-5.564336c0.179926,0.12501 -4.422581,-3.640678 -4.602507,-3.765688c0.179926,0.12501 5.619253,-3.640677 5.439327,-3.765687c0.179926,0.12501 -4.840991,-4.477498 -5.020917,-4.602507" strokeWidth="2" stroke="#000" fill="none"/>
-										</SvgIcon>
-									</IconButton>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('linestacked')}
+										>
+											<img alt="" src="images/charts/linestacked.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.LineStacked100" defaultMessage="Line Stacked 100" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('linestacked100')}
+										>
+											<img alt="" src="images/charts/linestacked100.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.Area" defaultMessage="Area" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('area')}
+										>
+											<img alt="" src="images/charts/area.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.AreaStacked" defaultMessage="Area Stacked" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('areastacked')}
+										>
+											<img alt="" src="images/charts/areastacked.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.AreaStacked100" defaultMessage="Area Stacked 100" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('areastacked100')}
+										>
+											<img alt="" src="images/charts/areastacked100.png" />
+										</IconButton>
+									</Tooltip>
 								</GridListTile>
 								<GridListTile
 									cols={6}
 									style={{
-										height: '23px'
+										height: '30px'
 									}}
 								>
 									<div
@@ -3538,36 +3605,18 @@ export class CanvasToolBar extends Component {
 									</div>
 								</GridListTile>
 								<GridListTile cols={1}>
-									<IconButton
-										style={{ padding: '5px' }}
-										color="inherit"
-										onClick={() => this.onCreatePlot('scatter')}
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.Scatter" defaultMessage="Scatter" />}
 									>
-										<SvgIcon>
-											<path
-												d="M2,2H4V20H22V22H2V2"
-											/>
-											<circle cx="16" cy="12" r={1.5} />
-											<circle cx="8" cy="9" r={1.5} />
-											<circle cx="12" cy="17" r={1.5} />
-										</SvgIcon>
-									</IconButton>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<IconButton
-										style={{ padding: '5px' }}
-										color="inherit"
-										onClick={() => this.onCreatePlot('bubble')}
-									>
-										<SvgIcon>
-											<path
-												d="M2,2H4V20H22V22H2V2"
-											/>
-											<circle cx="18" cy="4" r={3} />
-											<circle cx="10" cy="9" r={3} />
-											<circle cx="14" cy="16" r={3} />
-										</SvgIcon>
-									</IconButton>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('scatter')}
+										>
+											<img alt="" src="images/charts/scatter.png" />
+										</IconButton>
+									</Tooltip>
 								</GridListTile>
 							</GridList>
 						</Popover>

@@ -32,8 +32,12 @@ export default class ChartInfoFeedbackView extends View {
 		graphics.beginPath();
 
 		const plotRect = item.plot.position;
-		const x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, false)  * plotRect.width;
-		const y = top.y;// - item.scaleToAxis(item.yAxes[0], this.value.y, false)  * plotRect.height;
+		const x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false)  * plotRect.width;
+		const y = top.y;
+
+		if (x  - top.x > plotRect.width || x - top.x < 0) {
+			return;
+		}
 
 		graphics.moveTo(x, top.y);
 		graphics.lineTo(x, bottom.y);
@@ -57,11 +61,18 @@ export default class ChartInfoFeedbackView extends View {
 			const getLabel = (value, xValue) => {
 				const { series } = value;
 				const ref = item.getDataSourceInfo(series.formula);
+
 				let label = '';
 				let axis;
 				if (xValue) {
 					axis = value.axes.x;
-					label = item.formatNumber(value.x, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+					if (axis.type === 'category' && ref) {
+						label = item.getLabel(ref, Math.floor(value.x));
+					}
+					if (label === '' || label === undefined) {
+						label = item.formatNumber(value.x,
+							axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+					}
 				} else {
 					axis = value.axes.y;
 					label = item.formatNumber(value.y, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
@@ -86,7 +97,7 @@ export default class ChartInfoFeedbackView extends View {
 			item.xAxes.forEach((axis) => {
 				if (axis.categories) {
 					axis.categories.forEach((data) => {
-						if (data.values && data.values[0].x === this.selection.dataPoints[0].x) {
+						if (data.values && data.values[0] && data.values[0].x === this.selection.dataPoints[0].x) {
 							data.values.forEach((value) => {
 								values.push(value);
 							});
