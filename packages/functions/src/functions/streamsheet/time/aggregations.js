@@ -1,52 +1,90 @@
-// const countNonZero = (acc, entry) => entry.value ? acc + 1 : acc;
-// const countNumber = (acc, entry) => isType.number(entry.value) ? acc + 1 : acc;
+const isNumber = (value) => typeof value === 'number';
+const isNonZero = (value) => !!value;
 
-const avg = () => {
+const none = (/* key */) => (entry) => entry;
+
+const avg = (key) => {
 	let n = 0;
 	let total = 0;
-	return {
-		init: () => total,
-		step: (val) => {
-			n += 1;
-			total += val;
-		},
-		result: () => n > 0 ? total / n : 0
+	return (entry) => {
+		n += 1;
+		total += entry[key];
+		entry[key] = total / n;
+		return entry;
 	};
 };
-const sum = () => {
+const count = (predicate) => (key) => {
 	let total = 0;
-	return {
-		init: () => total,
-		step: (val) => {
-			total += val;
-		},
-		result: () => total
+	return (entry) => {
+		total += predicate(entry[key]) ? 1 : 0;
+		entry[key] = total;
+		return entry;
 	};
 };
-
-// const aggregations = {
-// 	// '0': (entries) => toValue(entries[en	tries.length - 1]),
-// 	'0': (values) => values,
-// 	'1': (values) => calculate.avg(values),
-// 	// doesn't make sense because no number values are ignored anyway!
-// 	'2': (values) => values.reduce(countNumber, 0),
-// 	'3': (values) => values.reduce(countNonZero, 0),
-// 	'4': (values) => calculate.max(values),
-// 	'5': (values) => calculate.min(values),
-// 	'6': (values) => calculate.product(values),
-// 	'7': (values) => calculate.standardDerivation(values),
-// 	'9': (values) => calculate.sum(values)
-// };
+const max = (key) => {
+	let maxi = Number.MIN_SAFE_INTEGER;
+	return (entry) => {
+		if (entry[key] > maxi) maxi = entry[key];
+		entry[key] = maxi;
+		return entry;
+	};
+};
+const min = (key) => {
+	let mini = Number.MAX_SAFE_INTEGER;
+	return (entry) => {
+		if (entry[key] < mini) mini = entry[key];
+		entry[key] = mini;
+		return entry;
+	};
+};
+const product = (key) => {
+	let total = 1;
+	return (entry) => {
+		total *= entry[key];
+		entry[key] = total;
+		return entry;
+	};
+};
+const stdev = (key) => {
+	let n = 0;
+	let q1 = 0;
+	let q2 = 0;
+	let sq = 0;
+	return (entry) => {
+		const val = entry[key];
+		n += 1;
+		q1 += val;
+		q2 += val ** 2;
+		sq = q2 - q1 ** 2 / n;
+		entry[key] = n > 1 ? Math.sqrt(Math.abs(sq / (n - 1))) : 0;
+		return entry;
+	};
+};
+const sum = (key) => {
+	let total = 0;
+	return (entry) => {
+		total += entry[key];
+		entry[key] = total;
+		return entry;
+	};
+};
 
 const ALL = {
+	'0': none,
 	'1': avg,
+	'2': count(isNumber),
+	'3': count(isNonZero),
+	'4': max,
+	'5': min,
+	'6': product,
+	'7': stdev,
 	'9': sum
 };
 
 module.exports = {
-	get: (nr) => {
+	get: (nr, key) => {
 		const method = ALL[nr];
-		return method ? method() : undefined;
+		return method ? method(key) : undefined;
 	},
 	ALL,
 	avg,
