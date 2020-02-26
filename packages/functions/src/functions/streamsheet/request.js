@@ -126,7 +126,8 @@ const putToRange2 = (sheet, range, message) => {
 		// fix colidx might be larger than available entries (DL-3764)
 		if (colidx < entries.length) {
 			const [key, values] = entries[colidx];
-			const value = rowidx === 0 ? key : values[rowidx];
+			// of course values array starts at 0 too :-)
+			const value = rowidx === 0 ? key : values[rowidx - 1];
 			if (value != null) newCell = new Cell(value, Term.fromValue(value));
 		}
 		sheet.setCellAt(index, newCell);
