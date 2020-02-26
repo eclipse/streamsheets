@@ -20,8 +20,7 @@ module.exports = class MatrixLayout extends Layout {
 	}
 
 	getInitialSettings(graphitem) {
-		const lsettings = MatrixLayout.Settings.derive();
-		return lsettings;
+		return MatrixLayout.Settings.derive();
 	}
 
 	layout(graphitem) {

@@ -212,13 +212,6 @@ module.exports = class SheetPlotNode extends Node {
 		graphics.setFont();
 	}
 
-	resetFont(graphics) {
-		graphics.setFontName('Verdana');
-		graphics.setFontSize(8);
-		graphics.setFontStyle(0);
-		graphics.setFont();
-	}
-
 	formatNumber(value, format) {
 		// somehow the scale value sometimes does not show correct values
 		value = MathUtils.roundTo(value, 12);
@@ -274,7 +267,7 @@ module.exports = class SheetPlotNode extends Node {
 
 		let refLabel;
 		if (axis.type === 'category') {
-			this.series.forEach((series, index) => {
+			this.series.forEach((series) => {
 				if (series.xAxis === axis.name) {
 					refLabel = this.getDataSourceInfo(series.formula);
 				}
@@ -500,7 +493,7 @@ module.exports = class SheetPlotNode extends Node {
 
 	getLegend() {
 		const legend = [];
-		this.series.forEach((series, index) => {
+		this.series.forEach((series) => {
 			const ref = this.getDataSourceInfo(series.formula);
 			if (ref && ref.name !== undefined) {
 				legend.push({
@@ -668,7 +661,7 @@ module.exports = class SheetPlotNode extends Node {
 		this.xAxes.forEach((axis) => {
 			axis.minData = Number.MAX_VALUE;
 			axis.maxData = -Number.MAX_VALUE;
-			this.series.forEach((series, index) => {
+			this.series.forEach((series) => {
 				if (series.xAxis === axis.name) {
 					axis.minData = Math.min(series.xMin, axis.minData);
 					axis.maxData = Math.max(series.xMax, axis.maxData);
@@ -680,7 +673,7 @@ module.exports = class SheetPlotNode extends Node {
 		this.yAxes.forEach((axis) => {
 			axis.minData = Number.MAX_VALUE;
 			axis.maxData = -Number.MAX_VALUE;
-			this.series.forEach((series, index) => {
+			this.series.forEach((series) => {
 				if (series.yAxis === axis.name) {
 					axis.minData = Math.min(series.yMin, axis.minData);
 					axis.maxData = Math.max(series.yMax, axis.maxData);
@@ -997,7 +990,7 @@ module.exports = class SheetPlotNode extends Node {
 					if (Math.abs(maxLabel % 1) > epsilon) {
 						maxLabel = Math.ceil(maxLabel);
 					}
-					maxLabel = maxLabel * distLin;
+					maxLabel *= distLin;
 					if (max > 0 && maxLabel <= max + 3) {
 						maxLabel += distLin;
 					}
@@ -1095,7 +1088,8 @@ module.exports = class SheetPlotNode extends Node {
 
 		if (ref.xTime) {
 			return undefined;
-		} else if (ref.x) {
+		}
+		if (ref.x) {
 			const vertical = ref.x.range.getWidth() === 1;
 			if (vertical) {
 				if (index <= ref.x.range._y2 - ref.x.range._y1) {
@@ -1828,7 +1822,7 @@ module.exports = class SheetPlotNode extends Node {
 
 		copy.series = [];
 
-		this.series.forEach((serie, index) => {
+		this.series.forEach((serie) => {
 			const copySerie = new ChartSeries(serie.type, serie.formula.copy());
 			copy.series.push(copySerie);
 		});
@@ -1859,7 +1853,7 @@ module.exports = class SheetPlotNode extends Node {
 	saveSeries(writer) {
 		writer.writeStartArray('series');
 
-		this.series.forEach((serie, index) => {
+		this.series.forEach((serie) => {
 			serie.save(writer);
 		});
 		writer.writeEndArray('series');
@@ -1869,7 +1863,7 @@ module.exports = class SheetPlotNode extends Node {
 		const save = (data, name) => {
 			writer.writeStartArray(name);
 
-			data.forEach((axis, index) => {
+			data.forEach((axis) => {
 				writer.writeStartElement(name);
 
 				writer.writeAttributeNumber('size', axis.size, 0);
@@ -2077,9 +2071,7 @@ module.exports = class SheetPlotNode extends Node {
 	prepareCommand(key) {
 		// save current state
 		const current = this.saveByKey(key);
-		const cmd = new SetPlotDataCommand(this, key, undefined, current);
-
-		return cmd;
+		return new SetPlotDataCommand(this, key, undefined, current);
 	}
 
 	finishCommand(cmd, key) {
