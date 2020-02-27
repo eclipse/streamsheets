@@ -67,11 +67,7 @@ export default class ChartInfoFeedbackView extends View {
 				if (xValue) {
 					axis = value.axes.x;
 					if (axis.type === 'category' && ref) {
-						label = item.getLabel(ref, Math.floor(value.x));
-					}
-					if (label === '' || label === undefined) {
-						label = item.formatNumber(value.x,
-							axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+						label = item.getLabel(ref, axis, Math.floor(value.x));
 					}
 				} else {
 					axis = value.axes.y;

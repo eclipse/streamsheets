@@ -282,10 +282,7 @@ module.exports = class SheetPlotNode extends Node {
 			pos = this.scaleToAxis(axis, current, undefined, true);
 
 			if (axis.type === 'category' && refLabel) {
-				text = this.getLabel(refLabel, Math.floor(current));
-				if (text === undefined) {
-					text = current;
-				}
+				text = this.getLabel(refLabel, axis, Math.floor(current));
 			} else {
 				text = this.formatNumber(current, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
 			}
@@ -341,14 +338,14 @@ module.exports = class SheetPlotNode extends Node {
 			let textSize;
 			legend.forEach((entry) => {
 				textSize = this.measureText(JSG.graphics, cs, this.legend.format, 'legend', String(entry.name));
-				width = Math.max(textSize.width + 300, width);
+				width = Math.max(textSize.width, width);
 			});
 			width += margin * 6;
 			this.plot.position.right -= (width + margin);
 			this.legend.position.left = this.plot.position.right + margin;
 			this.legend.position.right = size.x - this.chart.margins.right;
 			this.legend.position.top = this.plot.position.top;
-			this.legend.position.bottom = this.plot.position.top + legend.length * (textSize.height) + margin * 2;
+			this.legend.position.bottom = this.plot.position.top + (legend.length - 1)* (textSize.height) * 1.3 + textSize.height + margin * 2;
 		}
 
 		this.xAxes.forEach((axis) => {
@@ -475,20 +472,23 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	getDataSourceInfo(ds) {
-		const ret = {
+		const timeParam = this.getParamInfo(ds.getTerm(), 1);
+		const time =  timeParam ? this.isTimeAggregateRange(timeParam.sheet, timeParam.range) : false;
+
+		if (time) {
+			return {
+				name: this.getParamValue(ds.getTerm(), 0, 'string'),
+				time,
+				xKey: this.getParamValue(ds.getTerm(), 2, 'string'),
+				yKey: this.getParamValue(ds.getTerm(), 3, 'string')
+			}
+		}
+
+		return {
 			name: this.getParamValue(ds.getTerm(), 0, 'string'),
 			x: this.getParamInfo(ds.getTerm(), 1),
 			y: this.getParamInfo(ds.getTerm(), 2)
 		};
-		ret.xTime = ret.x ? this.isTimeAggregateRange(ret.x.sheet, ret.x.range) : false;
-		ret.yTime = ret.y ? this.isTimeAggregateRange(ret.y.sheet, ret.y.range) : false;
-
-		if (ret.xTime && !ret.yTime) {
-			// get influx key
-			ret.yKey = this.getParamValue(ds.getTerm(), 2, 'string');
-		}
-
-		return ret;
 	}
 
 	getLegend() {
@@ -1003,7 +1003,7 @@ module.exports = class SheetPlotNode extends Node {
 				input.min = minLabel;
 			}
 			if (input.max === undefined) {
-				input.max = maxLabel;
+				input.max = axis.type === 'category' ? max + 1 : maxLabel;
 			}
 
 			if (input.min >= input.max) {
@@ -1083,13 +1083,21 @@ module.exports = class SheetPlotNode extends Node {
 		return 100;
 	}
 
-	getLabel(ref, index) {
-		let label;
+	getLabel(ref, axis, index) {
+		let label = index;
 
-		if (ref.xTime) {
-			return undefined;
-		}
-		if (ref.x) {
+		if (ref.time) {
+			const values = ref.time.getValues();
+			if (values) {
+				if (values.time) {
+					if (values.time.length > index && values[ref.xKey]) {
+						label = values[ref.xKey][index];
+					}
+				} else if (values.length > index) {
+					label = values[index].key;
+				}
+			}
+		} else if (ref.x) {
 			const vertical = ref.x.range.getWidth() === 1;
 			if (vertical) {
 				if (index <= ref.x.range._y2 - ref.x.range._y1) {
@@ -1108,8 +1116,13 @@ module.exports = class SheetPlotNode extends Node {
 					label = cell.getValue();
 				}
 			}
-		} else {
-			label = index;
+		}
+
+		if (Numbers.isNumber(label)) {
+			label = this.formatNumber(
+				label,
+				axis.format && axis.format.numberFormat ? axis.format : axis.scale.format
+			);
 		}
 
 		return label;
@@ -1123,19 +1136,39 @@ module.exports = class SheetPlotNode extends Node {
 			return false;
 		}
 
-		if (this.xAxes[0].type === 'category') {
-			value.x = index;
-		} else if (ref.xTime) {
-			const values = ref.xTime.getValues();
+		if (ref.time) {
+			const values = ref.time.getValues();
 			if (values) {
+				if (this.xAxes[0].type === 'category') {
+					value.x = index;
+				} else {
+					if (values.time) {
+						if (values.time.length > index && values[ref.xKey]) {
+							value.x = values[ref.xKey][index];
+						}
+					} else if (values.length > index) {
+						value.x = values[index].key;
+					}
+					if (!Numbers.isNumber(value.x)) {
+						value.x = 0;
+					}
+				}
 				if (values.time) {
-					if (values.time.length > index) {
-						value.x = values.time[index];
+					if (values.time.length > index && values[ref.yKey]) {
+						value.y = values[ref.yKey][index];
+						return true;
 					}
 				} else if (values.length > index) {
-					value.x = values[index].key;
+					value.y = values[index].value;
+					return true;
 				}
 			}
+
+			return false;
+		}
+
+		if (this.xAxes[0].type === 'category') {
+			value.x = index;
 		} else if (ref.x) {
 			const vertical = ref.x.range.getWidth() === 1;
 			if (vertical) {
@@ -1165,26 +1198,8 @@ module.exports = class SheetPlotNode extends Node {
 			value.x = index;
 		}
 
-		if (ref.yTime) {
-			const values = ref.yTime.getValues();
-			if (values) {
-				if (values.time) {
-					if (values.time.length > index) {
-						value.y = values.v1[index];
-						return true;
-					}
-				} else if (values.length > index) {
-					value.y = values[index].value;
-					return true;
-				}
-			}
-		} else if (ref.xTime) {
-			const values = ref.xTime.getValues();
-			if (values && values.time && values.time.length > index && values[ref.yKey]) {
-				value.y = values[ref.yKey][index];
-				return true;
-			}
-		} else if (ref.y) {
+
+		if (ref.y) {
 			const vertical = ref.y.range.getWidth() === 1;
 			if (vertical) {
 				if (index <= ref.y.range._y2 - ref.y.range._y1) {
@@ -1474,6 +1489,7 @@ module.exports = class SheetPlotNode extends Node {
 
 							break;
 						case 'line':
+						case 'scatter':
 							dataRect.set(
 								plotRect.left + x * plotRect.width - 200,
 								plotRect.bottom - y * plotRect.height - 200,
@@ -1588,6 +1604,7 @@ module.exports = class SheetPlotNode extends Node {
 		const data = range.getSheet().getDataProvider();
 		let time = true;
 		let formula;
+		let allTime = false;
 		const cmp = new CompoundCommand();
 
 		this.series = [];
@@ -1612,17 +1629,27 @@ module.exports = class SheetPlotNode extends Node {
 		// check for TIMEAGGREGATES and INFLUX.SELECT
 		if (width <= 2 || height <= 2) {
 			const taRange = range.copy();
-			if (width === 2) {
-				taRange._x1 += 1;
-			} else if (height === 2) {
-				taRange._y1 += 1;
-			}
 			taRange.enumerateCells(true, (pos) => {
 				const cell = data.get(pos);
 				if (!this.isTimeAggregateCell(cell)) {
 					time = false;
 				}
 			});
+			if (time === false) {
+				if (width === 2) {
+					taRange._x1 += 1;
+				} else if (height === 2) {
+					taRange._y1 += 1;
+				}
+				taRange.enumerateCells(true, (pos) => {
+					const cell = data.get(pos);
+					if (!this.isTimeAggregateCell(cell)) {
+						time = false;
+					}
+				});
+			} else {
+				allTime = true;
+			}
 			if (time) {
 				const cmd = this.prepareCommand('series');
 				let index = 0;
@@ -1637,7 +1664,7 @@ module.exports = class SheetPlotNode extends Node {
 						Object.keys(values).forEach((key) => {
 							if (key !== 'time') {
 								if (values[key].length && Numbers.isNumber(values[key][0])) {
-									formula = new Expression(0, `SERIES("${key}",${ref},"${key}")`);
+									formula = new Expression(0, `SERIES("${key}",${ref},"time","${key}")`);
 									this.series.push(new ChartSeries(type, formula));
 									index += 1;
 								}
@@ -1647,20 +1674,20 @@ module.exports = class SheetPlotNode extends Node {
 						const source = new CellRange(taRange.getSheet(), pos.x, pos.y);
 						source.shiftToSheet();
 						const ref = source.toString({item: sheet, useName: true});
-						if (width === 2) {
+						if (width === 2 && !allTime) {
 							const rangeName = source.copy();
 							rangeName._x1 -= 1;
 							rangeName._x2 -= 1;
 							const refName = rangeName.toString({item: sheet, useName: true});
-							formula = new Expression(0, `SERIES(${refName},${ref},${ref})`);
-						} else if (height === 2) {
+							formula = new Expression(0, `SERIES(${refName},${ref})`);
+						} else if (height === 2 && !allTime) {
 							const rangeName = source.copy();
 							rangeName._y1 -= 1;
 							rangeName._y2 -= 1;
 							const refName = rangeName.toString({item: sheet, useName: true});
-							formula = new Expression(0, `SERIES(${refName},${ref},${ref})`);
+							formula = new Expression(0, `SERIES(${refName},${ref})`);
 						} else {
-							formula = new Expression(0, `SERIES(,${ref},${ref})`);
+							formula = new Expression(0, `SERIES(,${ref})`);
 						}
 						this.series.push(new ChartSeries(type, formula));
 						index += 1;
@@ -1887,7 +1914,7 @@ module.exports = class SheetPlotNode extends Node {
 	saveContent(writer, absolute) {
 		super.saveContent(writer, absolute);
 
-		writer.writeAttributeString('type', 'sheetplotnode');
+		writer.writeAttributeString('type', 'streamchart');
 
 		writer.writeStartElement('plot');
 
@@ -2079,7 +2106,7 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	_assignName(id) {
-		const name = this.getGraph().getUniqueName('Plot');
+		const name = this.getGraph().getUniqueName('Streamchart');
 		this.setName(name);
 	}
 

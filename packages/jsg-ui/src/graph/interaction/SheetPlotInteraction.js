@@ -14,6 +14,8 @@ import ChartSelectionFeedbackView from '../feedback/ChartSelectionFeedbackView';
 import ChartInfoFeedbackView from '../feedback/ChartInfoFeedbackView';
 import Cursor from '../../ui/Cursor';
 import SelectionProvider from '../view/SelectionProvider';
+import WorksheetView from '../view/WorksheetView';
+import SheetInteraction from './SheetInteraction';
 
 export default class SheetPlotInteraction extends Interaction {
 	constructor() {
@@ -29,6 +31,19 @@ export default class SheetPlotInteraction extends Interaction {
 		this._feedback = undefined;
 
 		super.deactivate(viewer);
+	}
+
+	onKeyDown(event, viewer, dispatcher) {
+		const focus = viewer.getGraphView().getFocus();
+		if (focus && focus.getView() instanceof WorksheetView && focus.getView().hasSelection()) {
+			const interaction = this.activateInteraction(new SheetInteraction(), dispatcher);
+			interaction._controller = focus;
+			interaction._hitCode = WorksheetView.HitCode.SHEET;
+			if (interaction.onKeyDown(event, viewer)) {
+				event.isConsumed = true;
+				event.hasActivated = true;
+			}
+		}
 	}
 
 	toLocalCoordinate(event, viewer, point) {
@@ -141,7 +156,7 @@ export default class SheetPlotInteraction extends Interaction {
 			if (view.endPoint) {
 				const ptStart = this.toLocalCoordinate(event, viewer, view.point.copy());
 				const ptEnd = this.toLocalCoordinate(event, viewer, view.endPoint.copy());
-				if (ptStart.x !== ptEnd.x) {
+				if (Math.abs(ptEnd.x - ptStart.x) > 150) {
 					const item = this._controller.getModel();
 					const axes = item.getAxes();
 					const valueStart = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptStart : ptEnd);

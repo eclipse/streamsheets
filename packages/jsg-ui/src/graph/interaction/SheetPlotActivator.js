@@ -5,6 +5,8 @@ import InteractionActivator from './InteractionActivator';
 import MouseEvent from '../../ui/events/MouseEvent';
 import SelectionProvider from '../view/SelectionProvider';
 import Cursor from '../../ui/Cursor';
+import WorksheetView from '../view/WorksheetView';
+import SheetInteraction from './SheetInteraction';
 
 const KEY = 'sheetplot.activator';
 
@@ -27,6 +29,39 @@ export default class SheetPlotActivator extends InteractionActivator {
 		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
 			return cont.getModel() instanceof SheetPlotNode;
 		});
+	}
+
+	onKeyDown(event, viewer) {
+
+		const controller = viewer.getSelectionProvider().getFirstSelection();
+		if (!controller) {
+			return;
+		}
+		const item = controller.getModel();
+		if (!(item instanceof SheetPlotNode)) {
+			return;
+		}
+
+		if (controller.getView().chartSelection !== undefined) {
+			const selection = controller.getView().chartSelection;
+			if (selection) {
+				switch (selection.element) {
+				case 'series':
+					switch (event.event.key) {
+					case 'Delete': {
+						const cmd = item.prepareCommand('series');
+						JSG.Arrays.remove(item.series, selection.data);
+						item.finishCommand(cmd, 'series');
+						viewer.getInteractionHandler().execute(cmd);
+						event.consume();
+						event.hasActivated = true;
+						break;
+					}
+					}
+					break;
+				}
+			}
+		}
 	}
 
 	onMouseDoubleClick(event, viewer, dispatcher) {

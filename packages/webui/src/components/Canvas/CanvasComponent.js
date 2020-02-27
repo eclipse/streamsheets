@@ -23,6 +23,7 @@ import { accessManager } from '../../helper/AccessManager';
 import ChartProperties from './ChartProperties';
 import FunctionWizard from './FunctionWizard';
 import { intl } from '../../helper/IntlGlobalProvider';
+import StreamChartProperties from './StreamChartProperties';
 // import NotAuthorizedComponent from '../Errors/NotAuthorizedComponent';
 const { RESOURCE_ACTIONS } = accessManager;
 
@@ -80,6 +81,11 @@ export class CanvasComponent extends Component {
 			JSG.GRAPH_DOUBLE_CLICK_NOTIFICATION,
 			'onGraphDoubleClicked',
 		);
+		JSG.NotificationCenter.getInstance().register(
+			this,
+			JSG.PLOT_DOUBLE_CLICK_NOTIFICATION,
+			'onPlotDoubleClicked',
+		);
 		/* eslint-disable react/no-did-mount-set-state */
 		this.setState({ graphEditor });
 		/* eslint-enable react/no-did-mount-set-state */
@@ -102,6 +108,10 @@ export class CanvasComponent extends Component {
 
 	onGraphDoubleClicked() {
 		this.props.setAppState({ showChartProperties: true });
+	}
+
+	onPlotDoubleClicked() {
+		this.props.setAppState({ showStreamChartProperties: true });
 	}
 
 	onButtonClicked(notification) {
@@ -303,6 +313,7 @@ export class CanvasComponent extends Component {
 					//	aria-disabled={this.isAccessDisabled()}
 				/>
 				{viewMode.viewMode !== null || !canEdit ? null : <ChartProperties />}
+				{viewMode.viewMode !== null || !canEdit ? null : <StreamChartProperties />}
 				{viewMode.viewMode !== null || !canEdit ? null : (
 					<Slide direction="left" in={this.props.functionWizardVisible} mountOnEnter unmountOnExit>
 						<FunctionWizard />

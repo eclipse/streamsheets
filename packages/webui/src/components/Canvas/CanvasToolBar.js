@@ -3453,16 +3453,16 @@ export class CanvasToolBar extends Component {
 							<GridList
 								cols={6}
 								cellHeight={40}
-								spacing={8}
+								spacing={4}
 								style={{
-									width: '310px',
+									width: '270px',
 									margin: '1px'
 								}}
 							>
 								<GridListTile
 									cols={6}
 									style={{
-										height: '30px'
+										height: '24px'
 									}}
 								>
 									<div
@@ -3605,7 +3605,7 @@ export class CanvasToolBar extends Component {
 								<GridListTile
 									cols={6}
 									style={{
-										height: '30px'
+										height: '24px'
 									}}
 								>
 									<div

@@ -4,10 +4,13 @@ import {
 	MathUtils,
 	TextFormatAttributes,
 	Numbers,
-	FormatAttributes
+	FormatAttributes, NotificationCenter, Notification
 } from '@cedalo/jsg-core';
 
 import NodeView from './NodeView';
+import MouseEvent from '../../ui/events/MouseEvent';
+
+JSG.PLOT_DOUBLE_CLICK_NOTIFICATION = 'plot_double_click_notification';
 
 export default class SheetPlotView extends NodeView {
 	onSelectionChange(selected) {
@@ -81,12 +84,26 @@ export default class SheetPlotView extends NodeView {
 			graphics.beginPath();
 			graphics.setLineColor(entry.series.format.lineColor || item.getTemplate('basic').series.line[index]);
 			graphics.setLineWidth(entry.series.format.lineWidth || item.getTemplate('basic').series.linewidth);
-			graphics.moveTo(legend.position.left + margin, y + textSize.height / 2);
-			graphics.lineTo(legend.position.left + margin * 4, y + textSize.height / 2);
-			graphics.stroke();
 
+			switch (entry.series.type) {
+			case 'line':
+			case 'scatter':
+				graphics.moveTo(legend.position.left + margin, y + textSize.height / 2);
+				graphics.lineTo(legend.position.left + margin * 4, y + textSize.height / 2);
+				graphics.stroke();
+				break;
+			case 'area':
+			case 'column':
+				graphics.rect(legend.position.left + margin, y + textSize.height / 10, margin * 3, textSize.height * 2 / 3);
+				graphics.setFillColor(entry.series.format.fillColor || item.getTemplate('basic').series.fill[index]);
+				graphics.fill();
+				graphics.stroke();
+				break;
+			}
+
+			graphics.setFillColor('#000000');
 			graphics.fillText(entry.name, legend.position.left + margin * 5, y + textSize.height / 2);
-			y += textSize.height;
+			y += textSize.height * 1.3;
 		});
 
 		graphics.setLineWidth(-1);
@@ -167,10 +184,7 @@ export default class SheetPlotView extends NodeView {
 
 			if (!grid) {
 				if (axis.type === 'category' && refLabel) {
-					text = item.getLabel(refLabel, Math.floor(current));
-					if (text === undefined) {
-						text = current;
-					}
+					text = item.getLabel(refLabel, axis, Math.floor(current));
 				} else {
 					text = item.formatNumber(
 						current,
@@ -537,4 +551,21 @@ export default class SheetPlotView extends NodeView {
 		}
 		return false;
 	}
-}
+
+	doHandleEventAt(location, event) {
+		if (
+			this.getItem()
+				.getItemAttributes()
+				.getSelected().getValue()
+		) {
+			if (event.type === MouseEvent.MouseEventType.DBLCLK) {
+				NotificationCenter.getInstance().send(
+					new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
+						event
+					})
+				);
+				return true;
+			}
+		}
+		return false;
+	}}

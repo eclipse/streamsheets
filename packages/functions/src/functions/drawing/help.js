@@ -114,15 +114,15 @@ module.exports = {
 				description: 'Erzeugt ein Drehregler Objekt'
 			}
 		},
-		'DRAW.PLOT': {
+		'DRAW.STREAMCHART': {
 			en: {
 				argumentList:
-					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,ChartType,DataRange,FormatRange',
+					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter',
 				description: 'Creates a chart'
 			},
 			de: {
 				argumentList:
-					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Diagrammtyp,Datenbereich,Formatbereich',
+					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt',
 				description: 'Erzeugt ein Diagramm'
 			}
 		},

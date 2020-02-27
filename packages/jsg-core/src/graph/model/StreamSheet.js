@@ -1013,7 +1013,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		} else if (item instanceof JSG.SheetChartStateNode) {
 			type = 'chartstate';
 		} else if (item instanceof JSG.SheetPlotNode) {
-			type = 'plot';
+			type = 'streamchart';
 		}
 
 		const graph = this.getGraph();
@@ -1201,7 +1201,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		} else if (item instanceof SheetKnobNode) {
 			type = 'knob';
 		} else if (item instanceof SheetPlotNode) {
-			type = 'plot';
+			type = 'streamchart';
 		} else if (item instanceof SheetChartStateNode) {
 			type = 'chartstate';
 		} else if (item instanceof JSG.TextNode) {
