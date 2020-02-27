@@ -122,6 +122,7 @@ export class EditBarComponent extends Component {
 			}
 		} else {
 			appState.showChartProperties = false;
+			appState.showStreamChartProperties = false;
 			jsgState.graphCellSelected = false;
 		}
 
@@ -136,7 +137,7 @@ export class EditBarComponent extends Component {
 			this.props.setJsgState(jsgState);
 		}
 		if (Object.keys(appState).length) {
-			this.props.setJsgState(appState);
+			this.props.setAppState(appState);
 		}
 
 	}
