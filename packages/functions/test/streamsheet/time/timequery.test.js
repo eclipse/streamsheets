@@ -4,6 +4,9 @@ const { createCellAt } = require('../../utilities');
 const { newMachine, newSheet } = require('./utils');
 
 const ERROR = FunctionErrors.code;
+const expectValue = (value) => ({
+	toBeInRange: (min, max) => expect(value).toBeGreaterThanOrEqual(min) && expect(value).toBeLessThanOrEqual(max)
+});
 
 describe('timequery', () => {
 	describe.skip('parameter parsing', () => {
@@ -296,7 +299,7 @@ describe('timequery', () => {
 			expect(querycell.info.values.v1[3]).toBe(5);
 			expect(querycell.info.values.v2[3]).toBe(50);
 		});
-		it.skip('should aggregate values in given interval', async () => {
+		it('should aggregate values in given interval', async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -312,30 +315,24 @@ describe('timequery', () => {
 			const querycell = sheet.cellAt('A8');
 			expect(querycell.value).toBe(true);
 			await machine.start();
-			// await machine.step();
-			// await machine.step();
-			await sleep(40); // , () => machine.stop());
+			expect(querycell.term.interval).toBe(0.03);
+			await sleep(40);
 			await machine.stop();
-			// await machine.stop();
-			// await machine.step();
 			expect(querycell.info.values).toBeDefined();
-			
-			// expect(querycell.info.values.v1).toBeDefined();
-			// expect(querycell.info.values.v1.length).toBe(4);
-			// expect(querycell.info.values.v1[0]).toBe(2);
-
-			// expect(querycell.info.values.v1[1]).toBe(3);
-			// expect(querycell.info.values.v1[2]).toBe(4);
-			// expect(querycell.info.values.v2).toBeDefined();
-			// expect(querycell.info.values.v2.length).toBe(3);
-			// expect(querycell.info.values.v2[0]).toBe(20);
-			// expect(querycell.info.values.v2[1]).toBe(30);
-			// expect(querycell.info.values.v2[2]).toBe(40);
-			// await machine.step();
-			// expect(querycell.info.values.v1.length).toBe(4);
-			// expect(querycell.info.values.v2.length).toBe(4);
-			// expect(querycell.info.values.v1[3]).toBe(5);
-			// expect(querycell.info.values.v2[3]).toBe(50);
+			expect(querycell.info.values.v1.length).toBe(1);
+			expectValue(querycell.info.values.v1[0]).toBeInRange(9, 15);
+			// expect(querycell.info.values.v2).toBeUndefined();
+			// check multiple aggregation:
+			createCellAt('A8', 'time.query(A3, JSON(A4:B5), JSON(C4:D5),30/1000)', sheet);
+			// querycell = sheet.cellAt('A8');
+			// expect(querycell.value).toBe(true);
+			// await machine.start();
+			// expect(querycell.term.interval).toBe(0.03);
+			// await sleep(40);
+			// await machine.stop();
+			// expect(querycell.info.values).toBeDefined();
+			// expect(querycell.info.values.v1.length).toBe(1);
+			// expectValue(querycell.info.values.v1[0]).toBeInRange(9, 15);
 		});
 		it.skip('should only aggregate values which timestamp is in given interval', () => {
 		});
@@ -362,6 +359,9 @@ describe('timequery', () => {
 	// it('should be possible to limit values', () => {
 	// 	expect(false).toBe(true);
 	// });
+	it.skip('should not change entries of time.store', () => {
+		expect(false).toBe(true);
+	});
 	describe.skip('time.interval', () => {
 		it('should support only defined aggregate methods', async () => {
 			const machine = newMachine({ cycletime: 1000 });

@@ -1,33 +1,21 @@
 const { FunctionErrors } = require('@cedalo/error-codes');
-const aggregations = require('./aggregations');
+const { runFunction } = require('../../../utils');
 const readQueryOptions = require('./readQueryOptions');
-const {	runFunction } = require('../../../utils');
+const transform = require('./transform');
+
 
 const ERROR = FunctionErrors.code;
 
-const NOOP = () => 0;
 
 const timeFilter = period => (entries, now) => {
 	const limit = now - period;
 	return entries.filter((entry) => entry.ts > limit);
 };
-const createReducer = (queries) => queries.reduce((reducer, query) => {
-	reducer[query.field] = aggregations.get(query.aggregate) || NOOP;
-	return reducer;
-}, {});
+const sizeFilter = (size) => (entries) => {
+	if (entries.length > size) entries.shift();
+	return entries;
+};
 
-class Reducer {
-	static of(queries) {}
-	init() {
-		return {};
-	}
-	step() {}
-	result() {}
-	reduce(entries) {
-		entries.reduce((acc, entry) => this.step(acc, entry), this.init());
-		return this.result();
-	}
-}
 class QueryStore {
 	static of(options) {
 		return new QueryStore(options);
@@ -35,10 +23,15 @@ class QueryStore {
 	constructor({ interval, limit }) {
 		this.limit = limit;
 		this.interval = interval;
+		this.limitFilter = sizeFilter(limit);
 		this.intervalFilter = timeFilter(interval * 1000);
 		this.nextQuery = interval > 0 ? Date.now() + interval * 1000 : -1;
 		this.entries = [];
 		this.queried = 0;
+	}
+
+	reset() {
+		this.entries = [];
 	}
 
 	hasOptions({ interval, limit }) {
@@ -49,14 +42,27 @@ class QueryStore {
 		const now = Date.now();
 		this.queried += 1;
 		if (this.nextQuery < 0 || now >= this.nextQuery) {
-			const reducer = Reducer.of(queries);
+			const xform = transform.create(queries);
 			const entries = this.intervalFilter(store.entries, now);
-			const result = reducer.reduce(entries);
+			const result = entries.reduceRight(xform);
+			this.entries.push(result);
+			this.limitFilter(this.entries);
 			this.nextQuery = this.nextQuery > 0 ? now + this.interval * 1000 : -1;
 		}
 	}
 	write(store, cell, range) {
-		const values = store.entries.reduce(
+		// const values = this.entries.reduce(
+		// 	(all, { ts, values: vals }) => {
+		// 		all.time.push(ts);
+		// 		Object.keys(vals).forEach((key) => {
+		// 			all[key] = all[key] || [];
+		// 			all[key].push(vals[key]);
+		// 		});
+		// 		return all;
+		// 	},
+		// 	{ time: [] }
+		// );
+		const values = this.entries.reduce(
 			(all, { ts, values: vals }) => {
 				all.time.push(ts);
 				Object.keys(vals).forEach((key) => {
@@ -94,10 +100,10 @@ const timeQuery = (sheet, ...terms) =>
 		})
 		.run((storeterm, options) => {
 			const term = timeQuery.term;
-			// const timestore = storeterm._timestore;
-			// const querystore = getQueryStore(term, options);
-			// querystore.query(timestore, options.queries);
-			// querystore.write(timestore, term.cell, options.range);
+			const timestore = storeterm._timestore;
+			const querystore = getQueryStore(term, options);
+			querystore.query(timestore, options.queries);
+			querystore.write(timestore, term.cell, options.range);
 
 			term.queries = options.queries;
 			term.interval = options.interval;
