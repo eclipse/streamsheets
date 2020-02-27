@@ -315,12 +315,13 @@ describe('timequery', () => {
 			const querycell = sheet.cellAt('A8');
 			expect(querycell.value).toBe(true);
 			await machine.start();
-			expect(querycell.term.interval).toBe(0.03);
 			await sleep(40);
 			await machine.stop();
+			// 2 - 3 - 4 - 5 - 6
+			expect(sheet.cellAt('B1').value).toBe(6)
 			expect(querycell.info.values).toBeDefined();
 			expect(querycell.info.values.v1.length).toBe(1);
-			expectValue(querycell.info.values.v1[0]).toBeInRange(9, 15);
+			expectValue(querycell.info.values.v1[0]).toBeInRange(7, 15);
 			// expect(querycell.info.values.v2).toBeUndefined();
 			// check multiple aggregation:
 			createCellAt('A8', 'time.query(A3, JSON(A4:B5), JSON(C4:D5),30/1000)', sheet);
