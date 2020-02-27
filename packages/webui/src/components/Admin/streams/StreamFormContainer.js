@@ -152,8 +152,11 @@ class StreamFormContainer extends React.Component {
 					...this.props[AdminConstants.CONFIG_TYPE.ProducerConfiguration],
 					...this.props[AdminConstants.CONFIG_TYPE.ConsumerConfiguration],
 				];
-				const existing = configurations.filter(
-					c => c.name.toLowerCase() === model.name.toLowerCase());
+				const existing = configurations
+					// select all other configurations except the current
+					.filter(c => c.id !== model.id)
+					// select all with same name
+					.filter(c => c.name.toLowerCase() === model.name.toLowerCase());
 				errors = (existing.length > 0) ? [
 					this.props.intl.formatMessage({
 						id: 'Admin.duplicateName',
