@@ -1,31 +1,26 @@
-const {	common: { compose } } = require('../../../utils');
+const {
+	common: { compose }
+} = require('../../../utils');
 const aggregations = require('./aggregations');
 
 const NOOP = () => 0;
 
-// general map...
-const map = (mapFn) => (combineFn) => (a, c) => combineFn(a, mapFn(c));
-// ...and filter
-// const filter = predicateFn => combineFn => (a, c) => (predicateFn(c) ? combineFn(a, c) : a);
+// const map = (mapFn) => (combineFn) => (a, c) => combineFn(a, mapFn(c));
+const reduce = (reduceFn) => (combineFn) => (a, c) => combineFn(reduceFn(a, c), c);
+const filter = (predicateFn) => (combineFn) => (a, c) => (predicateFn(c) ? combineFn(a, c) : a);
 
-const combine = (acc, curr) => Object.assign(acc, curr);
+const combine = (acc /* , curr */) => acc;
 
-const init = (first) => (entry) => {
-	first.ts = entry.ts;
-	Object.assign(first.values, entry.values);
-	return first;
-};
+const interval = (period) => (entry) => entry.ts > period;
 
-const mapAggregate = (all, { value, aggregate } = {}) => {
-	// TODO define how to handle wrong/unknown aggregate method
-	const fn = aggregations.get(aggregate, value) || NOOP;
-	all.push(map(fn));
-	return all;
-};
-
-const create = (queries) => {
-	const aggregates = queries.reduce(mapAggregate, [map(init({ values: {} }))]);
-	return compose(...aggregates)(combine);
+const create = (queries, period) => {
+	const methods = queries.reduce((all, { value, aggregate }) => {
+		const method = aggregations.get(aggregate, value) || NOOP;
+		all.set(value, reduce(method));
+		return all;
+	}, new Map());
+	const xform = compose(filter(interval(period)), ...methods.values());
+	return xform(combine);
 };
 
 module.exports = {
