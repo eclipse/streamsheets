@@ -5,8 +5,22 @@ const { newMachine, newSheet } = require('./utils');
 
 const ERROR = FunctionErrors.code;
 const expectValue = (value) => ({
-	toBeInRange: (min, max) => expect(value).toBeGreaterThanOrEqual(min) && expect(value).toBeLessThanOrEqual(max)
+	toBeInRange: (min, max) => {
+		expect(value).toBeGreaterThanOrEqual(min);
+		expect(value).toBeLessThanOrEqual(max);
+	}
 });
+
+const getTimeStore = (cell) => cell.term._timestore;
+const getQueryStore = (cell) => cell.term._querystore;
+const getQueries = (cell) => cell.term._options.queries;
+
+
+const runMachine = async (machine, period) => {
+	await machine.start();
+	await sleep(period);
+	await machine.stop();
+};
 
 describe('timequery', () => {
 	describe.skip('parameter parsing', () => {
@@ -263,7 +277,7 @@ describe('timequery', () => {
 		// });
 	});
 
-	describe('query',() => {
+	describe.skip('query',() => {
 		it.skip('should return all values stored if no interval and no aggregate method are specified', async () => {
 			const machine = newMachine();
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -299,7 +313,7 @@ describe('timequery', () => {
 			expect(querycell.info.values.v1[3]).toBe(5);
 			expect(querycell.info.values.v2[3]).toBe(50);
 		});
-		it('should aggregate values in given interval', async () => {
+		it.skip('should aggregate values in given interval', async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -309,31 +323,32 @@ describe('timequery', () => {
 					A3: { formula: 'time.store(JSON(A1:B2))' },
 					A4: 'value', B4: 'v1', C4: 'value', D4: 'v2',
 					A5: 'aggregate', B5: 9, C5: 'aggregate', D5: 4,					
-					A8: { formula: 'time.query(A3, JSON(A4:B5), 30/1000)' }
+					A8: { formula: 'time.query(A3, JSON(A4:B5), 35/1000)' }
 				}
 			});
-			const querycell = sheet.cellAt('A8');
+			let querycell = sheet.cellAt('A8');
 			expect(querycell.value).toBe(true);
-			await machine.start();
-			await sleep(40);
-			await machine.stop();
+			await runMachine(machine, 45);
 			// 2 - 3 - 4 - 5 - 6
 			expect(sheet.cellAt('B1').value).toBe(6)
 			expect(querycell.info.values).toBeDefined();
+			expect(querycell.info.values.v2).toBeUndefined();
 			expect(querycell.info.values.v1.length).toBe(1);
-			expectValue(querycell.info.values.v1[0]).toBeInRange(7, 15);
-			// expect(querycell.info.values.v2).toBeUndefined();
+			expectValue(querycell.info.values.v1[0]).toBeInRange(14, 20);
 			// check multiple aggregation:
-			createCellAt('A8', 'time.query(A3, JSON(A4:B5), JSON(C4:D5),30/1000)', sheet);
-			// querycell = sheet.cellAt('A8');
-			// expect(querycell.value).toBe(true);
-			// await machine.start();
-			// expect(querycell.term.interval).toBe(0.03);
-			// await sleep(40);
-			// await machine.stop();
-			// expect(querycell.info.values).toBeDefined();
-			// expect(querycell.info.values.v1.length).toBe(1);
-			// expectValue(querycell.info.values.v1[0]).toBeInRange(9, 15);
+			createCellAt('A8', { formula: 'time.query(A3, JSON(A4:B5), JSON(C4:D5), 35/1000)' }, sheet);
+			querycell = sheet.cellAt('A8');
+			expect(querycell.value).toBe(true);
+			await runMachine(machine, 45);
+			// 7 - 8 - 9 - 10 - 11
+			expect(sheet.cellAt('B1').value).toBe(11);
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v2.length).toBe(1);
+			expectValue(querycell.info.values.v1[0]).toBeInRange(27, 45);
+			expect(querycell.info.values.v2[0]).toBeGreaterThan(90);
+			await runMachine(machine, 90);
+			expect(querycell.info.values.v1.length).toBe(3);
+			expect(querycell.info.values.v2.length).toBe(3);
 		});
 		it.skip('should only aggregate values which timestamp is in given interval', () => {
 		});
@@ -535,19 +550,238 @@ describe('timequery', () => {
 			// do not store something for several steps => we expect NA return
 			// store something => step => expect value
 		});
+		// it('should be possible to specify multiple aggregations for multiple values', () => {
+		// 	const json = {values: 'v1,v2', aggregations: '2,3'};
+		// });
+
 	});
-	describe.skip('aggregations methods', () => {
-		test('none', () => {});
-		test('avg', () => {});
-		test('max', () => {});
-		test('min', () => {});
-		test('count non zero', () => {});
-		test('count numbers', () => {});
-		test('product', () => {});
-		test('sum', () => {});
-		test('standard derivation', () => {});
-		it('should be possible to specify multiple aggregations for multiple values', () => {
-			const json = {values: 'v1,v2', aggregations: '2,3'};
+	describe('aggregations methods', () => {
+		test('none', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A3: 'value', B3: 'v1',
+					A4: 'aggregate', B4: 0,
+					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+				}
+			});
+			const querycell = sheet.cellAt('A5');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			const timestore = getTimeStore(sheet.cellAt('A2'));
+			const querystore = getQueryStore(querycell);
+			querystore.query(timestore, getQueries(querycell));
+			querystore.write(timestore, querycell);
+			expect(sheet.cellAt('B1').value).toBe(4)
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1[0]).toBe(4);
+		});
+		test('avg', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A3: 'value', B3: 'v1',
+					A4: 'aggregate', B4: 1,
+					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+				}
+			});
+			const querycell = sheet.cellAt('A5');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			const timestore = getTimeStore(sheet.cellAt('A2'));
+			const querystore = getQueryStore(querycell);
+			querystore.query(timestore, getQueries(querycell));
+			querystore.write(timestore, querycell);
+			expect(sheet.cellAt('B1').value).toBe(4)
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1[0]).toBe(3);
+		});
+		test('max', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A3: 'value', B3: 'v1',
+					A4: 'aggregate', B4: 4,
+					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+				}
+			});
+			const querycell = sheet.cellAt('A5');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			const timestore = getTimeStore(sheet.cellAt('A2'));
+			const querystore = getQueryStore(querycell);
+			querystore.query(timestore, getQueries(querycell));
+			querystore.write(timestore, querycell);
+			expect(sheet.cellAt('B1').value).toBe(4)
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1[0]).toBe(4);
+		});
+		test('min', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A3: 'value', B3: 'v1',
+					A4: 'aggregate', B4: 5,
+					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+				}
+			});
+			const querycell = sheet.cellAt('A5');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			const timestore = getTimeStore(sheet.cellAt('A2'));
+			const querystore = getQueryStore(querycell);
+			querystore.query(timestore, getQueries(querycell));
+			querystore.write(timestore, querycell);
+			expect(sheet.cellAt('B1').value).toBe(4)
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1[0]).toBe(2);
+		});
+		test('count non zero', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: 'hello',
+					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A3: 'value', B3: 'v1',
+					A4: 'aggregate', B4: 3,
+					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+				}
+			});
+			const querycell = sheet.cellAt('A5');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			createCellAt('B1', 0, sheet);
+			await machine.step();
+			createCellAt('B1', 0, sheet);
+			await machine.step();
+			createCellAt('B1', 'hello', sheet);
+			await machine.step();
+			const timestore = getTimeStore(sheet.cellAt('A2'));
+			const querystore = getQueryStore(querycell);
+			querystore.query(timestore, getQueries(querycell));
+			querystore.write(timestore, querycell);
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1[0]).toBe(2);			
+		});
+		test('count numbers', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A3: 'value', B3: 'v1',
+					A4: 'aggregate', B4: 2,
+					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+				}
+			});
+			const querycell = sheet.cellAt('A5');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			createCellAt('B1', 'hello', sheet);
+			await machine.step();
+			createCellAt('B1', 42, sheet);
+			await machine.step();
+			const timestore = getTimeStore(sheet.cellAt('A2'));
+			const querystore = getQueryStore(querycell);
+			querystore.query(timestore, getQueries(querycell));
+			querystore.write(timestore, querycell);
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1[0]).toBe(2);
+		});
+		test('product', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A3: 'value', B3: 'v1',
+					A4: 'aggregate', B4: 6,
+					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+				}
+			});
+			const querycell = sheet.cellAt('A5');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			const timestore = getTimeStore(sheet.cellAt('A2'));
+			const querystore = getQueryStore(querycell);
+			querystore.query(timestore, getQueries(querycell));
+			querystore.write(timestore, querycell);
+			expect(sheet.cellAt('B1').value).toBe(4)
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1[0]).toBe(24);
+		});
+		test('sum', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A3: 'value', B3: 'v1',
+					A4: 'aggregate', B4: 9,
+					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+				}
+			});
+			const querycell = sheet.cellAt('A5');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			const timestore = getTimeStore(sheet.cellAt('A2'));
+			const querystore = getQueryStore(querycell);
+			querystore.query(timestore, getQueries(querycell));
+			querystore.write(timestore, querycell);
+			expect(sheet.cellAt('B1').value).toBe(4)
+			expect(querycell.info.values.v1[0]).toBe(9);
+		});
+		test('standard derivation', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A3: 'value', B3: 'v1',
+					A4: 'aggregate', B4: 7,
+					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+				}
+			});
+			const querycell = sheet.cellAt('A5');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			const timestore = getTimeStore(sheet.cellAt('A2'));
+			const querystore = getQueryStore(querycell);
+			querystore.query(timestore, getQueries(querycell));
+			querystore.write(timestore, querycell);
+			expect(sheet.cellAt('B1').value).toBe(4)
+			expect(querycell.info.values.v1[0]).toBe(1);
 		});
 	});
 	describe.skip('specifying time range', () => {

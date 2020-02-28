@@ -7,14 +7,20 @@ const transform = require('./transform');
 const ERROR = FunctionErrors.code;
 
 
-const timeFilter = period => (entries, now) => {
-	const limit = now - period;
-	return entries.filter((entry) => entry.ts > limit);
-};
-const sizeFilter = (size) => (entries) => {
+const boundedPush = (size) => (value, entries) => {
+	entries.push(value);
 	if (entries.length > size) entries.shift();
 	return entries;
 };
+
+// const areEqualQueries = (query1, query2) => query1.value === query2.value && query1.aggregate ===  query2.aggregate;
+// const areEqualOptions = (opts1, opts2) =>
+// 	opts1.limit === opts2.limit &&
+// 	opts1.interval === opts2.interval &&
+// 	opts1.queries.length === opts2.queries.length &&
+// 	opts1.queries.every((query, index) => areEqualQueries(query, opts2.queries[index]));
+const areEqualOptions = (opts1, opts2) => opts1.limit === opts2.limit && opts1.interval === opts2.interval;
+
 
 class QueryStore {
 	static of(options) {
@@ -22,34 +28,30 @@ class QueryStore {
 	}
 	constructor({ interval, limit }) {
 		this.limit = limit;
-		this.interval = interval;
-		this.limitFilter = sizeFilter(limit);
-		this.intervalFilter = timeFilter(interval * 1000);
-		this.nextQuery = interval > 0 ? Date.now() + interval * 1000 : -1;
+		this.push = boundedPush(limit);
+		this.interval = interval * 1000;
+		this.nextQuery = interval > 0 ? Date.now() + this.interval : -1;
 		this.entries = [];
-		this.queried = 0;
 	}
 
 	reset() {
 		this.entries = [];
+		this.nextQuery = this.interval > 0 ? Date.now() + this.interval : -1;
 	}
 
-	hasOptions({ interval, limit }) {
-		return this.limit === limit && this.interval === interval;
+	query(store, queries, now = Date.now()) {
+		const xform = transform.create(queries, now - this.interval);
+		const result = store.entries.reduceRight(xform, { values: {} });
+		// TODO: how to handle empty values in result, ie. result = { values: {} }??
+		this.push(result, this.entries);
 	}
-
-	query(store, queries) {
-		const now = Date.now();
-		this.queried += 1;
-		if (this.nextQuery < 0 || now >= this.nextQuery) {
-			const xform = transform.create(queries);
-			const entries = this.intervalFilter(store.entries, now);
-			const result = entries.reduceRight(xform);
-			this.entries.push(result);
-			this.limitFilter(this.entries);
-			this.nextQuery = this.nextQuery > 0 ? now + this.interval * 1000 : -1;
+	queryOnInterval(store, queries, now = Date.now()) {
+		if (this.nextQuery > 0 && now >= this.nextQuery) {
+			this.doQuery(store, queries, now);
+			this.nextQuery = now + this.interval;
 		}
 	}
+
 	write(store, cell, range) {
 		// const values = this.entries.reduce(
 		// 	(all, { ts, values: vals }) => {
@@ -78,7 +80,8 @@ class QueryStore {
 }
 
 const getQueryStore = (term, options) => {
-	if (!term._querystore || !term._querystore.hasOptions(options)) {
+	if (!term._options || !term._querystore || !areEqualOptions(options, term._options)) {
+		term._options = options;
 		term._querystore = QueryStore.of(options);
 	}
 	return term._querystore;
@@ -102,21 +105,9 @@ const timeQuery = (sheet, ...terms) =>
 			const term = timeQuery.term;
 			const timestore = storeterm._timestore;
 			const querystore = getQueryStore(term, options);
-			querystore.query(timestore, options.queries);
+			querystore.queryOnInterval(timestore, options.queries);
 			querystore.write(timestore, term.cell, options.range);
-
-			term.queries = options.queries;
-			term.interval = options.interval;
-			term.range = options.range;
-			term.limit = options.limit;
-
-
 			return true;
-			// const term = timeInterval.term;
-			// const intervalstore = getIntervalStore(term, timestore, { key, method, interval, limit });
-			// const res = intervalstore.aggregate(timestore);
-			// intervalstore.write(timestore, term.cell, targetrange);
-			// return res;
 		});
 
 
