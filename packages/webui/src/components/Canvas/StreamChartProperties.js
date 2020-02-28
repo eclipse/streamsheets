@@ -27,6 +27,9 @@ import Slide from '@material-ui/core/Slide';
 
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Radio from '@material-ui/core/Radio';
 
 export class StreamChartProperties extends Component {
 	constructor(props) {
@@ -36,6 +39,7 @@ export class StreamChartProperties extends Component {
 
 	state = {
 		plotView: undefined,
+		legendPosition: 'all'
 	};
 
 	componentDidMount() {
@@ -160,7 +164,32 @@ export class StreamChartProperties extends Component {
 							width: '95%',
 							margin: '8px'
 						}}
-					/>
+					>
+						<RadioGroup
+							name="type"
+							value={this.state.legendPosition}
+							onChange={(event, state) => { this.setState({ legendPosition: state }); }}
+							style={{
+								marginTop: '20px',
+							}}
+						>
+							<FormControlLabel
+								value="all"
+								control={<Radio />}
+								label={<FormattedMessage id="DialogDelete.complete" defaultMessage="Left" />}
+							/>
+							<FormControlLabel
+								value="values"
+								control={<Radio />}
+								label={<FormattedMessage id="DialogDelete.values" defaultMessage="Top" />}
+							/>
+							<FormControlLabel
+								value="formats"
+								control={<Radio />}
+								label={<FormattedMessage id="DialogDelete.formats" defaultMessage="Right" />}
+							/>
+						</RadioGroup>
+					</FormControl>
 				</div>
 			</Slide>
 		);
