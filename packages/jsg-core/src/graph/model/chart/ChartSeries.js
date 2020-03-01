@@ -6,6 +6,7 @@ module.exports = class ChartSeries {
 	constructor(type, formula) {
 		this._stacked = false;
 		this._relative = false;
+		this._dataMode = 'datazero';
 		this.type = type;
 		this.formula = formula;
 		this.format = new ChartFormat();
@@ -64,11 +65,20 @@ module.exports = class ChartSeries {
 		this._relative = (value === undefined ? false : !!Number(value));
 	}
 
+	get dataMode() {
+		return this._dataMode;
+	}
+
+	set dataMode(value) {
+		this._dataMode = (value === undefined ? 'datazero' : value);
+	}
+
 	save(writer) {
 		writer.writeStartElement('series');
 		writer.writeAttributeString('type', this.type);
 		writer.writeAttributeNumber('stacked', this.stacked ? 1 : 0);
 		writer.writeAttributeNumber('relative', this.relative ? 1 : 0);
+		writer.writeAttributeString('datamode', this.dataMode);
 		writer.writeAttributeString('xaxis', this.xAxis);
 		writer.writeAttributeString('yaxis', this.yAxis);
 		this.formula.save('formula', writer);
@@ -80,6 +90,7 @@ module.exports = class ChartSeries {
 		this.type = reader.getAttribute(object, 'type');
 		this.stacked = reader.getAttribute(object, 'stacked');
 		this.relative = reader.getAttribute(object, 'relative');
+		this.dataMode = reader.getAttribute(object, 'datamode');
 		this.xAxis =
 			reader.getAttribute(object, 'xaxis') === undefined
 				? 'primary'

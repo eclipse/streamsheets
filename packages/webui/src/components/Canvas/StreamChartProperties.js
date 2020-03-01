@@ -1,37 +1,31 @@
 /* eslint-disable react/prop-types, react/forbid-prop-types */
 /* eslint-disable react/no-unused-state */
 import React, { Component } from 'react';
-// import Checkbox from '@material-ui/core/Checkbox';
-// import TextField from '@material-ui/core/TextField';
-// import FormControlLabel from '@material-ui/core/FormControlLabel';
-// import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-// import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-// import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-// import Tabs from '@material-ui/core/Tabs';
-// import Tab from '@material-ui/core/Tab';
-// import Select from '@material-ui/core/Select';
-import FormControl from '@material-ui/core/FormControl';
+import { Slide, RadioGroup, MenuItem, FormControlLabel, IconButton, FormLabel, FormControl, Typography } from '@material-ui/core'
+import Radio from '@material-ui/core/Radio';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import Input from '@material-ui/core/Input';
 import { FormattedMessage } from 'react-intl';
-// import MenuItem from '@material-ui/core/MenuItem';
-// import InputLabel from '@material-ui/core/InputLabel';
-// import Input from '@material-ui/core/Input';
-// import Divider from '@material-ui/core/Divider';
-// import PropTypes from 'prop-types';
-import Typography from '@material-ui/core/Typography';
+import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import JSG from '@cedalo/jsg-ui';
-import Slide from '@material-ui/core/Slide';
 
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Radio from '@material-ui/core/Radio';
 
 export class StreamChartProperties extends Component {
+	static propTypes = {
+		title: PropTypes.string.isRequired,
+		dummy: PropTypes.string,
+	};
+
+	static defaultProps = {
+		dummy: '',
+	};
+
 	constructor(props) {
 		super(props);
 		this.escFunction = this.escFunction.bind(this);
@@ -39,7 +33,6 @@ export class StreamChartProperties extends Component {
 
 	state = {
 		plotView: undefined,
-		legendPosition: 'all'
 	};
 
 	componentDidMount() {
@@ -110,8 +103,47 @@ export class StreamChartProperties extends Component {
 		this.props.setAppState({ showStreamChartProperties: false });
 	};
 
+	prepareCommand(key) {
+		const item = this.state.plotView.getItem();
+		return item.prepareCommand(key);
+	}
+
+	getData() {
+		const selection = this.state.plotView.chartSelection;
+		return selection === undefined ? undefined : this.state.plotView.getItem().getDataFromSelection(selection);
+	}
+
+	finishCommand(cmd, key) {
+		const item = this.state.plotView.getItem();
+		item.finishCommand(cmd, key);
+		graphManager
+			.getGraphViewer()
+			.getInteractionHandler()
+			.execute(cmd);
+		this.updateState();
+	}
+
+	handleDataModeChange = (event) => {
+		const cmd  = this.prepareCommand('series');
+		const data = this.getData();
+		data.dataMode = event.target.value;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleLegendAlignChange = (event, value) => {
+		const cmd  = this.prepareCommand('legend');
+		const data = this.getData();
+		data.align = value;
+		this.finishCommand(cmd, 'legend');
+	};
+
 	render() {
 		// const { expanded } = this.state;
+		if (!this.state.plotView) {
+			return <div/>
+		}
+		const selection = this.state.plotView.chartSelection;
+		const data = this.getData();
 		return (
 			<Slide direction="left" in={this.props.showStreamChartProperties} mountOnEnter unmountOnExit>
 				<div
@@ -130,6 +162,7 @@ export class StreamChartProperties extends Component {
 					}}
 				>
 					<div
+						id={this.props.dummy}
 						style={{
 							width: '100%',
 							height: '48px',
@@ -146,7 +179,7 @@ export class StreamChartProperties extends Component {
 								fontSize: '12pt'
 							}}
 						>
-							<FormattedMessage id="StreamchartProperties.title" defaultMessage="Streamchart Properties" />
+							{this.props.title}
 						</Typography>
 						<IconButton
 							style={{
@@ -159,37 +192,86 @@ export class StreamChartProperties extends Component {
 							<CloseIcon fontSize="inherit" />
 						</IconButton>
 					</div>
-					<FormControl
-						style={{
-							width: '95%',
-							margin: '8px'
-						}}
-					>
-						<RadioGroup
-							name="type"
-							value={this.state.legendPosition}
-							onChange={(event, state) => { this.setState({ legendPosition: state }); }}
+					{selection && selection.element === 'series' ?
+						<div>
+							<FormControl
+								style={{
+									width: '95%',
+									margin: '8px'
+								}}
+							>
+								<InputLabel htmlFor="hide-empty">
+									<FormattedMessage id="StreamChartProperties.DataHandling" defaultMessage="Missing Data" />
+								</InputLabel>
+								<Select
+									id="hide-empty"
+									value={data.dataMode}
+									onChange={this.handleDataModeChange}
+									input={<Input name="hide-empty" id="hide-empty" />}
+								>
+									<MenuItem value="datazero" key={1}>
+										<FormattedMessage
+											id="StreamChartProperties.DataZero"
+											defaultMessage="Display as zero"
+										/>
+									</MenuItem>
+									<MenuItem value="dataignore" key={2}>
+										<FormattedMessage
+											id="StreamChartProperties.DataIgnore"
+											defaultMessage="Do not display"
+										/>
+									</MenuItem>
+									<MenuItem value="datainterrupt" key={3}>
+										<FormattedMessage
+											id="StreamChartProperties.DataInterrupt"
+											defaultMessage="Interrupt line"
+										/>
+									</MenuItem>
+								</Select>
+							</FormControl>
+						</div> : null}
+					{selection && selection.element === 'legend' ?
+						<FormControl
 							style={{
-								marginTop: '20px',
+								width: '95%',
+								margin: '8px'
 							}}
 						>
-							<FormControlLabel
-								value="all"
-								control={<Radio />}
-								label={<FormattedMessage id="DialogDelete.complete" defaultMessage="Left" />}
-							/>
-							<FormControlLabel
-								value="values"
-								control={<Radio />}
-								label={<FormattedMessage id="DialogDelete.values" defaultMessage="Top" />}
-							/>
-							<FormControlLabel
-								value="formats"
-								control={<Radio />}
-								label={<FormattedMessage id="DialogDelete.formats" defaultMessage="Right" />}
-							/>
-						</RadioGroup>
-					</FormControl>
+							<RadioGroup
+								name="type"
+								value={data.align}
+								onChange={this.handleLegendAlignChange}
+							>
+								<FormLabel
+									component="legend"
+									style={{
+										marginBottom: '7px',
+									}}
+								>
+									Position
+								</FormLabel>
+								<FormControlLabel
+									value="left"
+									control={<Radio />}
+									label={<FormattedMessage id="StreamChartProperties.left" defaultMessage="Left" />}
+								/>
+								<FormControlLabel
+									value="top"
+									control={<Radio />}
+									label={<FormattedMessage id="StreamChartProperties.top" defaultMessage="Top" />}
+								/>
+								<FormControlLabel
+									value="right"
+									control={<Radio />}
+									label={<FormattedMessage id="StreamChartProperties.right" defaultMessage="Right" />}
+								/>
+								<FormControlLabel
+									value="bottom"
+									control={<Radio />}
+									label={<FormattedMessage id="StreamChartProperties.bottom" defaultMessage="Bottom" />}
+								/>
+							</RadioGroup>
+						</FormControl> : null}
 				</div>
 			</Slide>
 		);

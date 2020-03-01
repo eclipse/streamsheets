@@ -60,6 +60,8 @@ export class CanvasComponent extends Component {
 			graph: null,
 			loaded: false,
 			loading: 1,
+			chartWizardTitle: '',
+			dummy: ''
 		};
 	}
 
@@ -110,8 +112,23 @@ export class CanvasComponent extends Component {
 		this.props.setAppState({ showChartProperties: true });
 	}
 
-	onPlotDoubleClicked() {
-		this.props.setAppState({ showStreamChartProperties: true });
+	onPlotDoubleClicked(notification) {
+		if (notification.object.event.type === JSG.MouseEvent.MouseEventType.DBLCLK) {
+			this.props.setAppState({showStreamChartProperties: true});
+		}
+
+		const viewer = graphManager.getGraphViewer();
+		const controller = viewer.getSelectionProvider().getFirstSelection();
+		if (!controller) {
+			return;
+		}
+
+		if (controller.getView().chartSelection) {
+			this.setState({chartWizardTitle: controller.getView().chartSelection.element});
+		} else {
+			this.setState({chartWizardTitle: "Chart"});
+		}
+		this.setState({dummy: String(Math.random())});
 	}
 
 	onButtonClicked(notification) {
@@ -313,7 +330,7 @@ export class CanvasComponent extends Component {
 					//	aria-disabled={this.isAccessDisabled()}
 				/>
 				{viewMode.viewMode !== null || !canEdit ? null : <ChartProperties />}
-				{viewMode.viewMode !== null || !canEdit ? null : <StreamChartProperties />}
+				{viewMode.viewMode !== null || !canEdit ? null : <StreamChartProperties title={this.state.chartWizardTitle} dummy={this.state.dummy} />}
 				{viewMode.viewMode !== null || !canEdit ? null : (
 					<Slide direction="left" in={this.props.functionWizardVisible} mountOnEnter unmountOnExit>
 						<FunctionWizard />

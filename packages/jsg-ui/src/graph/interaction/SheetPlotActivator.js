@@ -5,9 +5,8 @@ import InteractionActivator from './InteractionActivator';
 import MouseEvent from '../../ui/events/MouseEvent';
 import SelectionProvider from '../view/SelectionProvider';
 import Cursor from '../../ui/Cursor';
-import WorksheetView from '../view/WorksheetView';
-import SheetInteraction from './SheetInteraction';
 
+JSG.PLOT_DOUBLE_CLICK_NOTIFICATION = 'plot_double_click_notification';
 const KEY = 'sheetplot.activator';
 
 export default class SheetPlotActivator extends InteractionActivator {
@@ -93,6 +92,11 @@ export default class SheetPlotActivator extends InteractionActivator {
 			// 	event.doRepaint = true;
 			// 	break;
 			}
+			NotificationCenter.getInstance().send(
+				new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
+					event
+				})
+			);
 		}
 	}
 
@@ -134,6 +138,11 @@ export default class SheetPlotActivator extends InteractionActivator {
 			interaction._controller.getView().chartSelection = undefined;
 			NotificationCenter.getInstance().send(new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, interaction._controller.getModel()));
 		}
+		NotificationCenter.getInstance().send(
+			new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
+				event
+			})
+		);
 	}
 
 	onMouseMove(event, viewer, dispatcher) {

@@ -338,14 +338,46 @@ module.exports = class SheetPlotNode extends Node {
 			let textSize;
 			legend.forEach((entry) => {
 				textSize = this.measureText(JSG.graphics, cs, this.legend.format, 'legend', String(entry.name));
-				width = Math.max(textSize.width, width);
+				if (this.legend.align === 'left' || this.legend.align === 'right') {
+					width = Math.max(textSize.width, width);
+				} else {
+					width += textSize.width;
+				}
 			});
-			width += margin * 6;
-			this.plot.position.right -= (width + margin);
-			this.legend.position.left = this.plot.position.right + margin;
-			this.legend.position.right = size.x - this.chart.margins.right;
-			this.legend.position.top = this.plot.position.top;
-			this.legend.position.bottom = this.plot.position.top + (legend.length - 1)* (textSize.height) * 1.3 + textSize.height + margin * 2;
+			switch (this.legend.align) {
+			case 'left':
+				width += margin * 6;
+				this.legend.position.left = this.plot.position.left;
+				this.legend.position.right = this.plot.position.left + width;
+				this.legend.position.top = this.plot.position.top;
+				this.legend.position.bottom = this.plot.position.top + (legend.length - 1)* (textSize.height) * 1.3 + textSize.height + margin * 2;
+				this.plot.position.left += (width + margin);
+				break;
+			case 'top':
+				width += margin * legend.length * 6;
+				this.legend.position.left = (size.x - width) / 2;
+				this.legend.position.right = (size.x + width) / 2;
+				this.legend.position.top = this.plot.position.top;
+				this.legend.position.bottom = this.plot.position.top + textSize.height * 1.3 + margin;
+				this.plot.position.top = this.legend.position.bottom + margin;
+				break;
+			case 'right':
+				width += margin * 6;
+				this.plot.position.right -= (width + margin);
+				this.legend.position.left = this.plot.position.right + margin;
+				this.legend.position.right = size.x - this.chart.margins.right;
+				this.legend.position.top = this.plot.position.top;
+				this.legend.position.bottom = this.plot.position.top + (legend.length - 1)* (textSize.height) * 1.3 + textSize.height + margin * 2;
+				break;
+			case 'bottom':
+				width += margin * legend.length * 6;
+				this.legend.position.left = (size.x - width) / 2;
+				this.legend.position.right = (size.x + width) / 2;
+				this.legend.position.top = this.plot.position.bottom - textSize.height * 1.3 - margin;
+				this.legend.position.bottom = this.plot.position.bottom;
+				this.plot.position.bottom = this.legend.position.top - margin;
+				break;
+			}
 		}
 
 		this.xAxes.forEach((axis) => {
@@ -585,7 +617,7 @@ module.exports = class SheetPlotNode extends Node {
 				let pointIndex = 0;
 				const value = {};
 
-				while (this.getValue(ref, pointIndex, value)) {
+				while (this.getValue(ref, series.dataMode, pointIndex, value)) {
 					if (Numbers.isNumber(value.x)) {
 						xMin = Math.min(value.x, xMin);
 						xMax = Math.max(value.x, xMax);
@@ -1128,9 +1160,17 @@ module.exports = class SheetPlotNode extends Node {
 		return label;
 	}
 
-	getValue(ref, index, value) {
+	getValue(ref, dataMode, index, value) {
+		const validate = val => {
+			if (dataMode ==='datazero') {
+				return Numbers.isNumber(val) ? val : 0;
+			}
+
+			return Numbers.isNumber(val) ? val : undefined;
+		};
+
 		value.x = undefined;
-		value.y = 0;
+		value.y = undefined;
 
 		if (!this.xAxes.length || !this.yAxes.length) {
 			return false;
@@ -1149,17 +1189,15 @@ module.exports = class SheetPlotNode extends Node {
 					} else if (values.length > index) {
 						value.x = values[index].key;
 					}
-					if (!Numbers.isNumber(value.x)) {
-						value.x = 0;
-					}
+					value.x = validate(value.x);
 				}
 				if (values.time) {
 					if (values.time.length > index && values[ref.yKey]) {
-						value.y = values[ref.yKey][index];
+						value.y = validate(values[ref.yKey][index]);
 						return true;
 					}
 				} else if (values.length > index) {
-					value.y = values[index].value;
+					value.y = validate(values[index].value);
 					return true;
 				}
 			}
@@ -1178,10 +1216,8 @@ module.exports = class SheetPlotNode extends Node {
 						.getRC(ref.x.range._x1, ref.x.range._y1 + index);
 					if (cell) {
 						value.x = cell.getValue();
-						if (!Numbers.isNumber(value.x)) {
-							value.x = 0;
-						}
 					}
+					value.x = validate(value.x);
 				}
 			} else if (index <= ref.x.range._x2 - ref.x.range._x1) {
 				const cell = ref.x.sheet
@@ -1189,10 +1225,8 @@ module.exports = class SheetPlotNode extends Node {
 					.getRC(ref.x.range._x1 + index, ref.x.range._y1);
 				if (cell) {
 					value.x = cell.getValue();
-					if (!Numbers.isNumber(value.x)) {
-						value.x = 0;
-					}
 				}
+				value.x = validate(value.x);
 			}
 		} else {
 			value.x = index;
@@ -1208,10 +1242,8 @@ module.exports = class SheetPlotNode extends Node {
 						.getRC(ref.y.range._x1, ref.y.range._y1 + index);
 					if (cell) {
 						value.y = cell.getValue();
-						if (!Numbers.isNumber(value.y)) {
-							value.y = 0;
-						}
 					}
+					value.y = validate(value.y);
 					return true;
 				}
 			} else if (index <= ref.y.range._x2 - ref.y.range._x1) {
@@ -1220,10 +1252,8 @@ module.exports = class SheetPlotNode extends Node {
 					.getRC(ref.y.range._x1 + index, ref.y.range._y1);
 				if (cell) {
 					value.y = cell.getValue();
-					if (!Numbers.isNumber(value.y)) {
-						value.y = 0;
-					}
 				}
+				value.y = validate(value.y);
 				return true;
 			}
 		}
@@ -1473,7 +1503,7 @@ module.exports = class SheetPlotNode extends Node {
 					const prevPoints = [];
 					const value = {};
 
-					while (this.getValue(ref, pointIndex, value)) {
+					while (this.getValue(ref, series.dataMode, pointIndex, value)) {
 						info.index = pointIndex;
 						x = this.scaleToAxis(axes.x, value.x, undefined, false);
 						y = this.scaleToAxis(axes.y, value.y, info, false);
@@ -1872,6 +1902,7 @@ module.exports = class SheetPlotNode extends Node {
 
 	saveLegend(writer) {
 		writer.writeStartElement('legend');
+		writer.writeAttributeString('align', this.legend.align);
 		this.legend.formula.save('formula', writer);
 		this.legend.format.save('format', writer);
 		writer.writeEndElement();
@@ -1953,6 +1984,11 @@ module.exports = class SheetPlotNode extends Node {
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {
 			case 'legend': {
+				this.legend.align =
+					reader.getAttribute(child, 'align') === undefined
+						? 'right'
+						: reader.getAttribute(child, 'align');
+
 				reader.iterateObjects(child, (subName, subChild) => {
 					switch (subName) {
 					case 'formula':

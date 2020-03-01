@@ -68,6 +68,9 @@ export default class ChartInfoFeedbackView extends View {
 					axis = value.axes.x;
 					if (axis.type === 'category' && ref) {
 						label = item.getLabel(ref, axis, Math.floor(value.x));
+					} else {
+						axis = value.axes.x;
+						label = item.formatNumber(value.x, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
 					}
 				} else {
 					axis = value.axes.y;
@@ -95,7 +98,9 @@ export default class ChartInfoFeedbackView extends View {
 					axis.categories.forEach((data) => {
 						if (data.values && data.values[0] && data.values[0].x === this.selection.dataPoints[0].x) {
 							data.values.forEach((value) => {
-								values.push(value);
+								if (value.x !== undefined && value.y !== undefined) {
+									values.push(value);
+								}
 							});
 						}
 					});

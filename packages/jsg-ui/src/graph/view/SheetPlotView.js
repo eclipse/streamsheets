@@ -8,9 +8,6 @@ import {
 } from '@cedalo/jsg-core';
 
 import NodeView from './NodeView';
-import MouseEvent from '../../ui/events/MouseEvent';
-
-JSG.PLOT_DOUBLE_CLICK_NOTIFICATION = 'plot_double_click_notification';
 
 export default class SheetPlotView extends NodeView {
 	onSelectionChange(selected) {
@@ -74,10 +71,12 @@ export default class SheetPlotView extends NodeView {
 		const legendData = item.getLegend();
 		const margin = 200;
 		const { legend } = item;
+		const cs = graphics.getCoordinateSystem();
 
 		this.drawRect(graphics, legend.position, item, legend.format, 'legend');
 		item.setFont(graphics, legend.format, 'legend', 'middle', TextFormatAttributes.TextAlignment.LEFT);
 		const textSize = item.measureText(graphics, graphics.getCoordinateSystem(), legend.format, 'legend', 'X');
+		let x = legend.position.left + margin;
 		let y = legend.position.top + margin;
 
 		legendData.forEach((entry, index) => {
@@ -88,13 +87,13 @@ export default class SheetPlotView extends NodeView {
 			switch (entry.series.type) {
 			case 'line':
 			case 'scatter':
-				graphics.moveTo(legend.position.left + margin, y + textSize.height / 2);
-				graphics.lineTo(legend.position.left + margin * 4, y + textSize.height / 2);
+				graphics.moveTo(x, y + textSize.height / 2);
+				graphics.lineTo(x + margin * 3, y + textSize.height / 2);
 				graphics.stroke();
 				break;
 			case 'area':
 			case 'column':
-				graphics.rect(legend.position.left + margin, y + textSize.height / 10, margin * 3, textSize.height * 2 / 3);
+				graphics.rect(x, y + textSize.height / 10, margin * 3, textSize.height * 2 / 3);
 				graphics.setFillColor(entry.series.format.fillColor || item.getTemplate('basic').series.fill[index]);
 				graphics.fill();
 				graphics.stroke();
@@ -102,8 +101,14 @@ export default class SheetPlotView extends NodeView {
 			}
 
 			graphics.setFillColor('#000000');
-			graphics.fillText(entry.name, legend.position.left + margin * 5, y + textSize.height / 2);
-			y += textSize.height * 1.3;
+			graphics.fillText(entry.name, x + margin * 4, y + textSize.height / 2);
+
+			if (legend.align === 'right' || legend.align === 'left') {
+				y += textSize.height * 1.3;
+			} else {
+				const size = item.measureText(JSG.graphics, cs, legend.format, 'legend', String(entry.name));
+				x += size.width + margin * 6;
+			}
 		});
 
 		graphics.setLineWidth(-1);
@@ -270,11 +275,12 @@ export default class SheetPlotView extends NodeView {
 			categories: axes.x.categories
 		};
 
-		while (item.getValue(ref, index, value)) {
+		while (item.getValue(ref, serie.dataMode, index, value)) {
 			info.index = index;
-			x = item.scaleToAxis(axes.x, value.x, undefined, false);
-			y = item.scaleToAxis(axes.y, value.y, info, false);
-			switch (serie.type) {
+			if (value.x !== undefined && value.y !== undefined) {
+				x = item.scaleToAxis(axes.x, value.x, undefined, false);
+				y = item.scaleToAxis(axes.y, value.y, info, false);
+				switch (serie.type) {
 				case 'area':
 				case 'line':
 				case 'scatter':
@@ -299,6 +305,7 @@ export default class SheetPlotView extends NodeView {
 						-barInfo.height * plotRect.height
 					);
 					break;
+				}
 			}
 			index += 1;
 		}
@@ -552,20 +559,21 @@ export default class SheetPlotView extends NodeView {
 		return false;
 	}
 
-	doHandleEventAt(location, event) {
-		if (
-			this.getItem()
-				.getItemAttributes()
-				.getSelected().getValue()
-		) {
-			if (event.type === MouseEvent.MouseEventType.DBLCLK) {
-				NotificationCenter.getInstance().send(
-					new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
-						event
-					})
-				);
-				return true;
-			}
-		}
-		return false;
-	}}
+	// doHandleEventAt(location, event) {
+	// 	if (
+	// 		this.getItem()
+	// 			.getItemAttributes()
+	// 			.getSelected().getValue()
+	// 	) {
+	// 		if (event.type === MouseEvent.MouseEventType.DBLCLK || event.type === MouseEvent.MouseEventType.DOWN) {
+	// 			// NotificationCenter.getInstance().send(
+	// 			// 	new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
+	// 			// 		event
+	// 			// 	})
+	// 			// );
+	// 			return false;
+	// 		}
+	// 	}
+	// 	return false;
+	// }
+}
