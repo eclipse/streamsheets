@@ -1,9 +1,10 @@
 import { FunctionObject, PartialApply1All } from '../common';
-import { ID, RequestContext, Scope, StreamWSRequest, StreamCommandRequest } from '../streamsheets';
+import { ID, RequestContext, Scope, StreamCommandRequest } from '../streamsheets';
 import { Stream } from './types';
 
 export interface StreamApi extends FunctionObject {
 	findById(context: RequestContext, scope: Scope, id: ID): Promise<Stream | null>;
+	findByName(context: RequestContext, scope: Scope, name: string): Promise<Stream | null>;
 	findAllStreams(context: RequestContext, scope: Scope): Promise<Array<Stream>>;
 	executeStreamCommand(context: RequestContext, scope: Scope, command: StreamCommandRequest['cmd']): Promise<any>;
 	saveStream(context: RequestContext, scope: Scope, stream: Stream): Promise<any>;
@@ -19,8 +20,21 @@ export const StreamApi: StreamApi = {
 			return [];
 		}
 		const streams: Stream[] = await streamRepo.findAllStreams();
-		const streamsInScope = streams.filter((stream) => auth.isInScope(scope, stream) || stream.className === 'ProviderConfiguration');
+		const streamsInScope = streams.filter(
+			(stream) => auth.isInScope(scope, stream) || stream.className === 'ProviderConfiguration'
+		);
 		return streamsInScope;
+	},
+	findByName: async ({ auth, streamRepo }, scope: Scope, name: string) => {
+		const validScope = auth.isValidScope(scope);
+		if (!validScope) {
+			return null;
+		}
+		const stream = await streamRepo.findByName(name);
+		if (!stream) {
+			return null;
+		}
+		return auth.isInScope(scope, stream) ? stream : null;
 	},
 	findById: async ({ auth, streamRepo }, scope: Scope, id: ID) => {
 		const validScope = auth.isValidScope(scope);
@@ -28,6 +42,9 @@ export const StreamApi: StreamApi = {
 			return null;
 		}
 		const stream = await streamRepo.findById(id);
+		if (!stream) {
+			return null;
+		}
 		return auth.isInScope(scope, stream) ? stream : null;
 	},
 	executeStreamCommand: async ({ auth, streamRepo }, scope, command) => {
@@ -36,7 +53,7 @@ export const StreamApi: StreamApi = {
 			return null;
 		}
 		const stream = await streamRepo.findById(command.streamId);
-		if (!auth.isInScope(scope, stream)) {
+		if (!stream || !auth.isInScope(scope, stream)) {
 			return null;
 		}
 		const result = await streamRepo.executeStreamCommand(command);
@@ -57,7 +74,7 @@ export const StreamApi: StreamApi = {
 			return null;
 		}
 		const stream = await streamRepo.findById(id);
-		if (!auth.isInScope(scope, stream)) {
+		if (!stream || !auth.isInScope(scope, stream)) {
 			return null;
 		}
 		const result = await streamRepo.deleteStream(id);

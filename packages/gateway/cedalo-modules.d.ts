@@ -82,6 +82,7 @@ declare module '@cedalo/protocols' {
 			STREAM_CONFIG_SAVE: 'stream_config_save';
 			STREAM_CONFIG_DELETE: 'stream_config_delete';
 			STREAM_CONFIG_LOAD: 'stream_config_load';
+			STREAM_CONFIG_LOAD_BY_NAME: 'stream_config_load_by_name';
 			STREAMS_CONFIG_LOAD_ALL: 'stream_config_load_all';
 			STREAM_UPDATE: 'stream_update';
 			STREAM_TEST: 'stream_test';
