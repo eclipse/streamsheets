@@ -12,6 +12,18 @@ module.exports = {
 				description: 'Erzeugt eine Attributbeschreibung für ein graphisches Objekt.'
 			}
 		},
+		AXIS: {
+			en: {
+				argumentList:
+					'Min,Max,Step,TimeStep,ZoomMin,ZoomMax',
+				description: 'Defines axis parameters'
+			},
+			de: {
+				argumentList:
+					'Minimum,Maximum,Schritt,Zeittyp,ZoomMinimum,ZoomMaximum',
+				description: 'Definiert Achsenparameter'
+			}
+		},
 		BAR: {
 			en: {
 				argumentList: 'Value,Direction,FillColor,LineColor',
@@ -271,6 +283,18 @@ module.exports = {
 				argumentList: 'Text',
 				description: 'Erzeugt einen QRCode Schlüssel, der für Füllmuster benutzt werden kann'
 			}
-		}
+		},
+		SERIES: {
+			en: {
+				argumentList:
+					'SeriesTitle,CategoriesOrDataSource,ValuesOrXValues,Values',
+				description: 'Defines series parameters'
+			},
+			de: {
+				argumentList:
+					'Reihentitel,KategorienOderDatenquelle,WerteOderXWerte,Werte',
+				description: 'Definiert Datenreihen Parameter'
+			}
+		},
 	}
 };

@@ -92,12 +92,12 @@ export default class SheetPlotActivator extends InteractionActivator {
 			// 	event.doRepaint = true;
 			// 	break;
 			}
-			NotificationCenter.getInstance().send(
-				new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
-					event
-				})
-			);
 		}
+		NotificationCenter.getInstance().send(
+			new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
+				event
+			})
+		);
 	}
 
 	removeInfo(event, viewer) {

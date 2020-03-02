@@ -132,7 +132,7 @@ export default class ChartInfoFeedbackView extends View {
 			graphics.fillText(text, x + space + margin, y + space + margin);
 			values.forEach((value, index) => {
 				const label = getLabel(value, false);
-				graphics.setFillColor(value.series.format.lineColor || item.getTemplate('basic').series.line[value.seriesIndex]);
+				graphics.setFillColor(value.series.format.lineColor || item.getTemplate().series.line[value.seriesIndex]);
 				graphics.fillText(label, x + space + margin, y + height * (index + 1) + space + margin * 2);
 			});
 		}

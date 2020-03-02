@@ -1,11 +1,22 @@
 /* eslint-disable react/prop-types, react/forbid-prop-types */
 /* eslint-disable react/no-unused-state */
 import React, { Component } from 'react';
-import { Slide, RadioGroup, MenuItem, FormControlLabel, IconButton, FormLabel, FormControl, Typography } from '@material-ui/core'
-import Radio from '@material-ui/core/Radio';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import Input from '@material-ui/core/Input';
+import {
+	Slide,
+	RadioGroup,
+	FormGroup,
+	MenuItem,
+	FormControlLabel,
+	IconButton,
+	FormLabel,
+	FormControl,
+	Radio,
+	Checkbox,
+	InputLabel,
+	Select,
+	Input,
+	Typography
+} from '@material-ui/core';
 import { FormattedMessage } from 'react-intl';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
@@ -19,11 +30,11 @@ import { graphManager } from '../../GraphManager';
 export class StreamChartProperties extends Component {
 	static propTypes = {
 		title: PropTypes.string.isRequired,
-		dummy: PropTypes.string,
+		dummy: PropTypes.string
 	};
 
 	static defaultProps = {
-		dummy: '',
+		dummy: ''
 	};
 
 	constructor(props) {
@@ -32,7 +43,7 @@ export class StreamChartProperties extends Component {
 	}
 
 	state = {
-		plotView: undefined,
+		plotView: undefined
 	};
 
 	componentDidMount() {
@@ -95,7 +106,7 @@ export class StreamChartProperties extends Component {
 		}
 
 		this.setState({
-			plotView: view,
+			plotView: view
 		});
 	}
 
@@ -110,7 +121,7 @@ export class StreamChartProperties extends Component {
 
 	getData() {
 		const selection = this.state.plotView.chartSelection;
-		return selection === undefined ? undefined : this.state.plotView.getItem().getDataFromSelection(selection);
+		return this.state.plotView.getItem().getDataFromSelection(selection);
 	}
 
 	finishCommand(cmd, key) {
@@ -124,26 +135,68 @@ export class StreamChartProperties extends Component {
 	}
 
 	handleDataModeChange = (event) => {
-		const cmd  = this.prepareCommand('series');
+		const cmd = this.prepareCommand('chart');
 		const data = this.getData();
 		data.dataMode = event.target.value;
-		this.finishCommand(cmd, 'series');
+		this.finishCommand(cmd, 'chart');
+	};
+
+	handleVisibleChange = (event, state, data, id) => {
+		const cmd = this.prepareCommand(id);
+		data.visible = state;
+		this.finishCommand(cmd, id);
+	};
+
+	handleTemplateChange = (event) => {
+		const cmd = this.prepareCommand('chart');
+		const data = this.getData();
+		data.template = event.target.value;
+		this.finishCommand(cmd, 'chart');
+
+		const attributesMap = new JSG.Dictionary();
+		attributesMap.put(JSG.FormatAttributes.FILLCOLOR, JSG.SheetPlotNode.templates[data.template].chart.format.fillColor);
+		attributesMap.put(JSG.FormatAttributes.FILLSTYLE, JSG.FormatAttributes.FillStyle.SOLID);
+
+		graphManager
+			.getGraphViewer()
+			.getInteractionHandler()
+			.applyFormatMap(attributesMap);
 	};
 
 	handleLegendAlignChange = (event, value) => {
-		const cmd  = this.prepareCommand('legend');
+		const cmd = this.prepareCommand('legend');
 		const data = this.getData();
 		data.align = value;
 		this.finishCommand(cmd, 'legend');
 	};
 
+	translateTitle(title) {
+		switch (title) {
+		case 'title':
+			return 'Title';
+		case 'plot':
+			return 'Plot';
+		case 'legend':
+			return 'Legend';
+		case 'xAxis':
+			return 'X Axis';
+		case 'yAxis':
+			return 'Y Axis';
+		case 'series':
+			return 'Series';
+		default:
+			return title;
+		}
+	}
+
 	render() {
 		// const { expanded } = this.state;
 		if (!this.state.plotView) {
-			return <div/>
+			return <div />;
 		}
 		const selection = this.state.plotView.chartSelection;
 		const data = this.getData();
+		const item = this.state.plotView.getItem();
 		return (
 			<Slide direction="left" in={this.props.showStreamChartProperties} mountOnEnter unmountOnExit>
 				<div
@@ -179,7 +232,7 @@ export class StreamChartProperties extends Component {
 								fontSize: '12pt'
 							}}
 						>
-							{this.props.title}
+							{this.translateTitle(this.props.title)}
 						</Typography>
 						<IconButton
 							style={{
@@ -192,8 +245,74 @@ export class StreamChartProperties extends Component {
 							<CloseIcon fontSize="inherit" />
 						</IconButton>
 					</div>
-					{selection && selection.element === 'series' ?
+					{!selection ? (
 						<div>
+							<FormControl
+								style={{
+									width: '70%',
+									margin: '8px'
+								}}
+							>
+								<InputLabel htmlFor="template">
+									<FormattedMessage id="StreamChartProperties.template" defaultMessage="Template" />
+								</InputLabel>
+								<Select
+									id="templates"
+									value={String(item.chart.template)}
+									onChange={this.handleTemplateChange}
+									input={<Input name="template" id="template" />}
+								>
+									{
+										Object.keys(JSG.SheetPlotNode.templates).map(key => (
+											<MenuItem value={key} key={key}>
+												{key}
+											</MenuItem>
+										))
+									}
+								</Select>
+							</FormControl>
+							<FormControl
+								style={{
+									width: '95%',
+									margin: '8px'
+								}}
+							>
+								<FormGroup>
+									<FormLabel
+										component="legend"
+										style={{
+											marginBottom: '7px'
+										}}
+									>
+										Visible
+									</FormLabel>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={item.title.visible}
+												onChange={(event, state) => this.handleVisibleChange(event, state, item.title, 'title')}
+											/>
+										}
+										label={
+											<FormattedMessage id="StreamChartProperties.title" defaultMessage="Title" />
+										}
+									/>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={item.legend.visible}
+												onChange={(event, state) => this.handleVisibleChange(event, state, item.legend, 'legend')}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.legend"
+												defaultMessage="Legend"
+											/>
+										}
+									/>
+								</FormGroup>
+							</FormControl>
 							<FormControl
 								style={{
 									width: '95%',
@@ -201,7 +320,10 @@ export class StreamChartProperties extends Component {
 								}}
 							>
 								<InputLabel htmlFor="hide-empty">
-									<FormattedMessage id="StreamChartProperties.DataHandling" defaultMessage="Missing Data" />
+									<FormattedMessage
+										id="StreamChartProperties.DataHandling"
+										defaultMessage="Missing Data"
+									/>
 								</InputLabel>
 								<Select
 									id="hide-empty"
@@ -229,23 +351,20 @@ export class StreamChartProperties extends Component {
 									</MenuItem>
 								</Select>
 							</FormControl>
-						</div> : null}
-					{selection && selection.element === 'legend' ?
+						</div>
+					) : null}
+					{selection && selection.element === 'legend' ? (
 						<FormControl
 							style={{
 								width: '95%',
 								margin: '8px'
 							}}
 						>
-							<RadioGroup
-								name="type"
-								value={data.align}
-								onChange={this.handleLegendAlignChange}
-							>
+							<RadioGroup name="type" value={data.align} onChange={this.handleLegendAlignChange}>
 								<FormLabel
 									component="legend"
 									style={{
-										marginBottom: '7px',
+										marginBottom: '7px'
 									}}
 								>
 									Position
@@ -268,10 +387,13 @@ export class StreamChartProperties extends Component {
 								<FormControlLabel
 									value="bottom"
 									control={<Radio />}
-									label={<FormattedMessage id="StreamChartProperties.bottom" defaultMessage="Bottom" />}
+									label={
+										<FormattedMessage id="StreamChartProperties.bottom" defaultMessage="Bottom" />
+									}
 								/>
 							</RadioGroup>
-						</FormControl> : null}
+						</FormControl>
+					) : null}
 				</div>
 			</Slide>
 		);

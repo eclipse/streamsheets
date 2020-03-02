@@ -73,7 +73,7 @@ export default class ChartSelectionFeedbackView extends View {
 					categories: axes.x.categories
 				};
 
-				while (item.getValue(ref, serie.dataMode, index, value)) {
+				while (item.getValue(ref, index, value)) {
 					info.index = index;
 					x = plotRect.left + item.scaleToAxis(axes.x, value.x, undefined, false) * plotRect.width;
 					y = plotRect.bottom - item.scaleToAxis(axes.y, value.y, info, false) * plotRect.height;

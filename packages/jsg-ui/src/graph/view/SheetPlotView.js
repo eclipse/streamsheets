@@ -22,8 +22,8 @@ export default class SheetPlotView extends NodeView {
 	}
 
 	drawRect(graphics, rect, item, format, id) {
-		const lineColor = format.lineColor || item.getTemplate('basic')[id].format.lineColor;
-		const fillColor = format.fillColor || item.getTemplate('basic')[id].format.fillColor;
+		const lineColor = format.lineColor || item.getTemplate()[id].format.lineColor;
+		const fillColor = format.fillColor || item.getTemplate()[id].format.fillColor;
 
 		graphics.beginPath();
 		graphics.setLineWidth(1);
@@ -73,6 +73,10 @@ export default class SheetPlotView extends NodeView {
 		const { legend } = item;
 		const cs = graphics.getCoordinateSystem();
 
+		if (!legend.visible) {
+			return;
+		}
+
 		this.drawRect(graphics, legend.position, item, legend.format, 'legend');
 		item.setFont(graphics, legend.format, 'legend', 'middle', TextFormatAttributes.TextAlignment.LEFT);
 		const textSize = item.measureText(graphics, graphics.getCoordinateSystem(), legend.format, 'legend', 'X');
@@ -81,8 +85,8 @@ export default class SheetPlotView extends NodeView {
 
 		legendData.forEach((entry, index) => {
 			graphics.beginPath();
-			graphics.setLineColor(entry.series.format.lineColor || item.getTemplate('basic').series.line[index]);
-			graphics.setLineWidth(entry.series.format.lineWidth || item.getTemplate('basic').series.linewidth);
+			graphics.setLineColor(entry.series.format.lineColor || item.getTemplate().series.line[index]);
+			graphics.setLineWidth(entry.series.format.lineWidth || item.getTemplate().series.linewidth);
 
 			switch (entry.series.type) {
 			case 'line':
@@ -94,13 +98,15 @@ export default class SheetPlotView extends NodeView {
 			case 'area':
 			case 'column':
 				graphics.rect(x, y + textSize.height / 10, margin * 3, textSize.height * 2 / 3);
-				graphics.setFillColor(entry.series.format.fillColor || item.getTemplate('basic').series.fill[index]);
+				graphics.setFillColor(entry.series.format.fillColor || item.getTemplate().series.fill[index]);
 				graphics.fill();
 				graphics.stroke();
 				break;
 			}
 
-			graphics.setFillColor('#000000');
+			const fontColor = legend.format.fontColor || item.getTemplate().legend.format.fontColor || item.getTemplate().font.color;
+
+			graphics.setFillColor(fontColor);
 			graphics.fillText(entry.name, x + margin * 4, y + textSize.height / 2);
 
 			if (legend.align === 'right' || legend.align === 'left') {
@@ -131,7 +137,7 @@ export default class SheetPlotView extends NodeView {
 		// draw axis line
 		if (!grid) {
 			graphics.beginPath();
-			graphics.setLineColor(axis.format.lineColor || item.getTemplate('basic').axis.linecolor);
+			graphics.setLineColor(axis.format.lineColor || item.getTemplate().axis.linecolor);
 			switch (axis.align) {
 				case 'left':
 					graphics.moveTo(axis.position.right, axis.position.top);
@@ -263,9 +269,9 @@ export default class SheetPlotView extends NodeView {
 		graphics.clip();
 
 		graphics.beginPath();
-		graphics.setLineColor(serie.format.lineColor || item.getTemplate('basic').series.line[seriesIndex]);
-		graphics.setLineWidth(serie.format.lineWidth || item.getTemplate('basic').series.linewidth);
-		graphics.setFillColor(serie.format.fillColor || item.getTemplate('basic').series.fill[seriesIndex]);
+		graphics.setLineColor(serie.format.lineColor || item.getTemplate().series.line[seriesIndex]);
+		graphics.setLineWidth(serie.format.lineWidth || item.getTemplate().series.linewidth);
+		graphics.setFillColor(serie.format.fillColor || item.getTemplate().series.fill[seriesIndex]);
 
 		const barWidth = item.getBarWidth(axes, serie, plotRect);
 		const points = [];
@@ -275,7 +281,7 @@ export default class SheetPlotView extends NodeView {
 			categories: axes.x.categories
 		};
 
-		while (item.getValue(ref, serie.dataMode, index, value)) {
+		while (item.getValue(ref, index, value)) {
 			info.index = index;
 			if (value.x !== undefined && value.y !== undefined) {
 				x = item.scaleToAxis(axes.x, value.x, undefined, false);
@@ -339,6 +345,10 @@ export default class SheetPlotView extends NodeView {
 	drawTitle(graphics, item) {
 		const { title } = item;
 
+		if (!title.visible) {
+			return;
+		}
+
 		const text = String(item.getExpressionValue(title.formula));
 
 		this.drawRect(graphics, title.position, item, title.format, 'title');
@@ -356,7 +366,7 @@ export default class SheetPlotView extends NodeView {
 
 		if (this.chartSelection) {
 			const data = this.getItem().getDataFromSelection(this.chartSelection);
-			const template = this.getItem().getTemplate('basic');
+			const template = this.getItem().getTemplate();
 			if (data) {
 				switch (this.chartSelection.element) {
 					case 'series':
@@ -387,7 +397,7 @@ export default class SheetPlotView extends NodeView {
 
 		if (this.chartSelection) {
 			const data = this.getItem().getDataFromSelection(this.chartSelection);
-			const template = this.getItem().getTemplate('basic');
+			const template = this.getItem().getTemplate();
 			if (data) {
 				switch (this.chartSelection.element) {
 					case 'series':

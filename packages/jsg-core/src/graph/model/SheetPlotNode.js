@@ -13,8 +13,11 @@ const Numbers = require('../../commons/Numbers');
 const JSONWriter = require('../../commons/JSONWriter');
 const SetPlotDataCommand = require('../command/SetPlotDataCommand');
 const CompoundCommand = require('../command/CompoundCommand');
+const Chart = require('./chart/Chart');
 const ChartFormat = require('./chart/ChartFormat');
+const ChartRect = require('./chart/ChartRect');
 const ChartSeries = require('./chart/ChartSeries');
+const ChartTitle = require('./chart/ChartTitle');
 
 const epsilon = 0.000000001;
 
@@ -24,6 +27,9 @@ const templates = {
 			name: 'Verdana',
 			size: 8,
 			color: '#000000'
+		},
+		chart: {
+			format: new ChartFormat('none', '#FFFFFF'),
 		},
 		title: {
 			format: new ChartFormat('none', 'none', 14, TextFormatAttributes.FontStyle.BOLD),
@@ -69,59 +75,62 @@ const templates = {
 				'rgb(224,108,255)'
 			]
 		}
+	},
+	dark: {
+		font: {
+			name: 'Verdana',
+			size: 8,
+			color: '#FFFFFF'
+		},
+		chart: {
+			format: new ChartFormat('none', '#000000'),
+		},
+		title: {
+			format: new ChartFormat('none', 'none', 14, TextFormatAttributes.FontStyle.BOLD),
+		},
+		plot: {
+			format: new ChartFormat('none', '#000000'),
+		},
+		legend: {
+			format: new ChartFormat('#CCCCCC', '#000000'),
+		},
+		axis: {
+			format: new ChartFormat('#FFFFFF'),
+		},
+		series: {
+			format: new ChartFormat(),
+			linewidth: 50,
+			fill: [
+				'rgb(54, 162, 235)',
+				'rgb(255, 99, 132)',
+				'rgb(255, 206, 86)',
+				'rgb(75, 192, 192)',
+				'rgb(153, 102, 255)',
+				'rgb(255, 159, 64)',
+				'rgb(98,51,58)',
+				'rgb(0,177,91)',
+				'rgb(88,207,255)',
+				'rgb(255,139,116)',
+				'rgb(131,240,255)',
+				'rgb(224,108,255)'
+			],
+			line: [
+				'rgb(54, 162, 235)',
+				'rgb(255,99,132)',
+				'rgb(255, 206, 86)',
+				'rgb(75, 192, 192)',
+				'rgb(153, 102, 255)',
+				'rgb(255, 159, 64)',
+				'rgb(98,51,58)',
+				'rgb(0,177,91)',
+				'rgb(88,207,255)',
+				'rgb(255,139,116)',
+				'rgb(131,240,255)',
+				'rgb(224,108,255)'
+			]
+		}
 	}
 };
-
-class ChartRect {
-	constructor(left, top, right, bottom) {
-		this.set(left, top, right, bottom);
-	}
-
-	reset() {
-		this.left = 0;
-		this.right = 0;
-		this.top = 0;
-		this.bottom = 0;
-	}
-
-	containsPoint(pt) {
-		return pt.x >= this.left && pt.x <= this.right && pt.y >= this.top && pt.y <= this.bottom;
-	}
-
-	set(left, top, right, bottom) {
-		this.left = left || 0;
-		this.top = top || 0;
-		this.right = right || 0;
-		this.bottom = bottom || 0;
-	}
-
-	get width() {
-		return this.right - this.left;
-	}
-
-	get height() {
-		return this.bottom - this.top;
-	}
-
-	toString() {
-		return `${this.left} ${this.top} ${this.right} ${this.bottom} `;
-	}
-
-	static fromString(str) {
-		const rect = new ChartRect(0, 0, 0, 0);
-		if (str !== undefined) {
-			const parts = str.split(' ');
-			if (parts.length === 4) {
-				rect.left = Number(parts[0]);
-				rect.top = Number(parts[1]);
-				rect.right = Number(parts[2]);
-				rect.bottom = Number(parts[3]);
-			}
-		}
-
-		return rect;
-	}
-}
 
 module.exports = class SheetPlotNode extends Node {
 	constructor() {
@@ -133,9 +142,7 @@ module.exports = class SheetPlotNode extends Node {
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 
 		this.series = [];
-		this.chart = {
-			margins: new ChartRect(200, 200, 200, 200)
-		};
+		this.chart = new Chart();
 		this.xAxes = [
 			{
 				type: 'linear',
@@ -164,16 +171,12 @@ module.exports = class SheetPlotNode extends Node {
 		};
 		this.legend = {
 			formula: new Expression('Legend', ''),
+			visible: true,
 			position: new ChartRect(),
 			format: new ChartFormat(),
 			align: 'right'
 		};
-		this.title = {
-			formula: new Expression('Chart', ''),
-			position: new ChartRect(),
-			format: new ChartFormat(),
-			size: 700
-		};
+		this.title = new ChartTitle(new Expression('Chart', ''));
 		this.series = [new ChartSeries('line', new Expression(0, 'SERIES(B1,A2:A10,B2:B10)'))];
 	}
 
@@ -198,10 +201,10 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	setFont(graphics, format, id, vertical, horizontal) {
-		const fontColor = format.fontColor || this.getTemplate('basic')[id].format.fontColor || this.getTemplate('basic').font.color;
-		const fontName = format.fontName || this.getTemplate('basic')[id].format.fontName || this.getTemplate('basic').font.name;
-		const fontSize = format.fontSize || this.getTemplate('basic')[id].format.fontSize || this.getTemplate('basic').font.size;
-		const fontStyle = format.fontStyle === undefined ? this.getTemplate('basic')[id].format.fontStyle : format.fontStyle;
+		const fontColor = format.fontColor || this.getTemplate()[id].format.fontColor || this.getTemplate().font.color;
+		const fontName = format.fontName || this.getTemplate()[id].format.fontName || this.getTemplate().font.name;
+		const fontSize = format.fontSize || this.getTemplate()[id].format.fontSize || this.getTemplate().font.size;
+		const fontStyle = format.fontStyle === undefined ? this.getTemplate()[id].format.fontStyle : format.fontStyle;
 
 		graphics.setTextBaseline(vertical);
 		graphics.setFillColor(fontColor);
@@ -235,8 +238,8 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	measureText(graphics, cs, format, id, text) {
-		const name = format.fontName || this.getTemplate('basic')[id].format.fontName || this.getTemplate('basic').font.name;
-		const size = format.fontSize || this.getTemplate('basic')[id].format.fontSize || this.getTemplate('basic').font.size;
+		const name = format.fontName || this.getTemplate()[id].format.fontName || this.getTemplate().font.name;
+		const size = format.fontSize || this.getTemplate()[id].format.fontSize || this.getTemplate().font.size;
 
 		return {
 			width: cs.deviceToLogX(graphics.measureText(text).width),
@@ -311,7 +314,7 @@ module.exports = class SheetPlotNode extends Node {
 		this.plot.position.right = size.x - this.chart.margins.right;
 
 		const title = String(this.getExpressionValue(this.title.formula));
-		if (title.length) {
+		if (this.title.visible && title.length) {
 			this.plot.position.top += this.title.size;
 			this.title.position.top = this.chart.margins.top;
 			this.title.position.left = this.chart.margins.left;
@@ -331,7 +334,7 @@ module.exports = class SheetPlotNode extends Node {
 		}
 
 		const legend = this.getLegend();
-		if (legend.length) {
+		if (legend.length && this.legend.visible) {
 			const margin = 200;
 			this.setFont(JSG.graphics, this.legend.format, 'legend', 'middle', TextFormatAttributes.TextAlignment.CENTER);
 			let width = 0;
@@ -617,7 +620,7 @@ module.exports = class SheetPlotNode extends Node {
 				let pointIndex = 0;
 				const value = {};
 
-				while (this.getValue(ref, series.dataMode, pointIndex, value)) {
+				while (this.getValue(ref, pointIndex, value)) {
 					if (Numbers.isNumber(value.x)) {
 						xMin = Math.min(value.x, xMin);
 						xMax = Math.max(value.x, xMax);
@@ -1160,9 +1163,9 @@ module.exports = class SheetPlotNode extends Node {
 		return label;
 	}
 
-	getValue(ref, dataMode, index, value) {
+	getValue(ref, index, value) {
 		const validate = val => {
-			if (dataMode ==='datazero') {
+			if (this.chart.dataMode ==='datazero') {
 				return Numbers.isNumber(val) ? val : 0;
 			}
 
@@ -1443,6 +1446,10 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	getDataFromSelection(selection) {
+		if (!selection) {
+			return this.chart;
+		}
+
 		switch (selection.element) {
 		case 'series':
 			return this.series[selection.index];
@@ -1457,9 +1464,8 @@ module.exports = class SheetPlotNode extends Node {
 		case 'plot':
 			return this.plot;
 		default:
-			break;
+			return this.chart;
 		}
-		return undefined;
 	}
 
 	isElementHit(pt, oldSelection) {
@@ -1503,7 +1509,7 @@ module.exports = class SheetPlotNode extends Node {
 					const prevPoints = [];
 					const value = {};
 
-					while (this.getValue(ref, series.dataMode, pointIndex, value)) {
+					while (this.getValue(ref, pointIndex, value)) {
 						info.index = pointIndex;
 						x = this.scaleToAxis(axes.x, value.x, undefined, false);
 						y = this.scaleToAxis(axes.y, value.y, info, false);
@@ -1887,13 +1893,6 @@ module.exports = class SheetPlotNode extends Node {
 		return copy;
 	}
 
-	saveTitle(writer) {
-		writer.writeStartElement('title');
-		this.title.formula.save('formula', writer);
-		this.title.format.save('format', writer);
-		writer.writeEndElement();
-	}
-
 	savePlot(writer) {
 		writer.writeStartElement('plot');
 		this.plot.format.save('format', writer);
@@ -1902,6 +1901,7 @@ module.exports = class SheetPlotNode extends Node {
 
 	saveLegend(writer) {
 		writer.writeStartElement('legend');
+		writer.writeAttributeNumber('visible', this.legend.visible ? 1 : 0);
 		writer.writeAttributeString('align', this.legend.align);
 		this.legend.formula.save('formula', writer);
 		this.legend.format.save('format', writer);
@@ -1949,8 +1949,9 @@ module.exports = class SheetPlotNode extends Node {
 
 		writer.writeStartElement('plot');
 
+		this.chart.save(writer);
 		this.savePlot(writer);
-		this.saveTitle(writer);
+		this.title.save(writer);
 		this.saveSeries(writer);
 		this.saveAxes(writer);
 		this.saveLegend(writer);
@@ -1958,32 +1959,14 @@ module.exports = class SheetPlotNode extends Node {
 		writer.writeEndElement();
 	}
 
-	readTitle(reader, object) {
-		reader.iterateObjects(object, (name, child) => {
-			switch (name) {
-				case 'title': {
-					reader.iterateObjects(child, (subName, subChild) => {
-						switch (subName) {
-						case 'formula':
-							this.title.formula = new Expression(0);
-							this.title.formula.read(reader, subChild);
-							break;
-						case 'format':
-							this.title.format = new ChartFormat();
-							this.title.format.read(reader, subChild);
-							break;
-						}
-					});
-					break;
-				}
-			}
-		});
-	}
-
 	readLegend(reader, object) {
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {
 			case 'legend': {
+				this.legend.visible =
+					reader.getAttribute(child, 'visible') === undefined
+						? true
+						: !!Number(reader.getAttribute(child, 'visible')) ;
 				this.legend.align =
 					reader.getAttribute(child, 'align') === undefined
 						? 'right'
@@ -2096,8 +2079,9 @@ module.exports = class SheetPlotNode extends Node {
 
 		const plot = reader.getObject(object, 'plot');
 		if (plot) {
+			this.chart.read(reader, plot);
 			this.readPlot(reader, plot);
-			this.readTitle(reader, plot);
+			this.title.read(reader, plot);
 			this.readLegend(reader, plot);
 			this.readSeries(reader, plot);
 			this.readAxes(reader, plot);
@@ -2111,7 +2095,7 @@ module.exports = class SheetPlotNode extends Node {
 		writer.writeStartDocument();
 		switch (key) {
 		case 'title':
-			this.saveTitle(writer);
+			this.title.save(writer);
 			break;
 		case 'series':
 			this.saveSeries(writer);
@@ -2124,6 +2108,9 @@ module.exports = class SheetPlotNode extends Node {
 			break;
 		case 'plot':
 			this.savePlot(writer);
+			break;
+		case 'chart':
+			this.chart.save(writer);
 			break;
 		}
 		writer.writeEndDocument();
@@ -2160,8 +2147,8 @@ module.exports = class SheetPlotNode extends Node {
 		return false;
 	}
 
-	getTemplate(name) {
-		return templates[name];
+	getTemplate() {
+		return templates[this.chart.template];
 	}
 
 	static get templates() {

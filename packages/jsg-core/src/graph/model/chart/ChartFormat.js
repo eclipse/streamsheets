@@ -1,11 +1,12 @@
 
 
 module.exports = class ChartFormat {
-	constructor(lineColor, fillColor, fontSize, fontStyle) {
+	constructor(lineColor, fillColor, fontSize, fontStyle, fontColor) {
 		this.lineColor = lineColor;
 		this.fillColor = fillColor;
 		this.fontSize = fontSize;
 		this.fontStyle = fontStyle;
+		this.fontColor = fontColor;
 	}
 
 	get lineColor() {
