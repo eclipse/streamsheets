@@ -31,9 +31,14 @@ module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepos
 	}
 
 	async setupIndicies() {
+		try {
+			await this.db.collection(this.collection).dropIndex({ name: 1 });
+		} catch (error) {
+			// ignore
+		}
 		return Promise.all([
 			this.db.collection(this.collection).createIndex({ id: 1 }, { unique: true, background: true }),
-			this.db.collection(this.collection).createIndex({ name: 1 }, { unique: true }),
+			this.db.collection(this.collection).createIndex({ name: 1, 'scope.id': 1 }, { unique: true }),
 			this.db.collection(this.collection).createIndex({ className: 1 }, { background: true })
 		]);
 	}
