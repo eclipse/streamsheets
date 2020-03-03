@@ -14,6 +14,7 @@ import glue, { RawAPI } from './glue';
 import { Session, GlobalContext } from './streamsheets';
 import { LoggerFactory } from '@cedalo/logger';
 import { baseAuth } from './authorization';
+import { MachineServiceProxy } from './machine';
 const logger = LoggerFactory.createLogger('gateway - context', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
 
 const encryptionContext = {
@@ -82,6 +83,7 @@ export const init = async (config: any, plugins: string[]) => {
 	RepositoryManager.streamRepository = new StreamRepositoryProxy();
 	await RepositoryManager.connectAll();
 	await RepositoryManager.setupAllIndicies();
+	const machineServiceProxy = new MachineServiceProxy();
 
 	const context = await applyPlugins(
 		{
@@ -91,7 +93,8 @@ export const init = async (config: any, plugins: string[]) => {
 			machineRepo: RepositoryManager.machineRepository,
 			streamRepo: RepositoryManager.streamRepository,
 			rawAuth: baseAuth,
-			rawApi: RawAPI
+			rawApi: RawAPI,
+			machineServiceProxy
 		},
 		plugins
 	);

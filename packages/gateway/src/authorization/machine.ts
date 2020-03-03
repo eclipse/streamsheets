@@ -24,6 +24,7 @@ export type MachineAction =
 	| 'set_machine_settings'
 	| 'rename'
 	| 'edit_graph'
+	| 'edit'
 	| 'unload';
 
 const machineCan = (/* context: RequestContext, action: MachineAction, machine: Machine */): boolean => true;

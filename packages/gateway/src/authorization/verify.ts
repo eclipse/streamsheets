@@ -1,9 +1,10 @@
 import { AuthError } from '../errors';
-import { Machine, RequestContext } from '../streamsheets';
+import { RequestContext } from '../streamsheets';
 import { User } from '../user';
 import { MachineAction } from './machine';
 import { Verify } from './types';
 import { UserAction } from './user';
+import { Machine } from '../machine';
 
 const verify = (allowed: boolean, error: any) => {
 	if (!allowed) {

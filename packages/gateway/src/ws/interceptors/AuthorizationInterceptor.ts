@@ -23,7 +23,7 @@ export default class AuthorizationInterceptor implements Interceptor {
 
 	async beforeSendToServer(context: MessageContext) {
 		const { auth, message } = context;
-		const machine = await context.api.machine.findMachine(message.machineId || '');
+		const machine = await context.machineRepo.findMachine(message.machineId || '');
 		if(!machine){
 			return context;
 		}

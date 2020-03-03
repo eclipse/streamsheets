@@ -123,13 +123,8 @@ module.exports = class MongoDBMachineRepository extends mix(
 					);
 	}
 
-	findMachineByName(name, projection) {
-		return this.getDocuments(this.collection, { name }, projection).then(
-			(r) => {
-				const machine = r && r.length > 0 ? r[0] : null;
-				return Promise.resolve(machine);
-			}
-		);
+	async findMachineByName(scope, name, projection) {
+		return this.getDocument(this.collection, {name, 'scope.id': scope.id}, projection);
 	}
 
 	async machineWithNameExists(id, name) {

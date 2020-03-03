@@ -1,9 +1,10 @@
-import { Machine, Scope } from '../streamsheets';
+import { Scope } from '../streamsheets';
 import { User } from '../user';
 import { MachineAction } from './machine';
 import { UserAction } from './user';
 import { StreamAction } from './stream';
 import { Stream } from '../stream';
+import { Machine } from '../machine';
 
 export interface Authorization extends Verify {
 	isAdmin(user: User): boolean;

@@ -328,16 +328,13 @@ class MachineUpdateSettingsRequestHandler extends RequestHandler {
 		const { cycleTime, isOPCUA, locale, newName } = settings;
 		if (newName != null) {
 			// check if we already have a machine with newName => its not allowed
-			const machineForName = await repositoryManager.machineRepository.findMachineByName(
+			const nameInUse = await repositoryManager.machineRepository.machineWithNameExists(
+				request.machineId,
 				newName
 			);
-
-			if (machineForName && machineForName.id !== request.machineId) {
+			if (nameInUse) {
 				// machine with same name already exists:
-				throw this.reject(
-					request,
-					`Machine with same name exists: '${newName}'!`
-				);
+				throw this.reject(request, `Machine with same name exists: '${newName}'!`);
 			}
 		}
 		return handleRequest(this, machineserver, request, 'update', {

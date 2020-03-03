@@ -59,10 +59,12 @@ const mapConnector = (c) => ({
 const resolvers = {
 	ScopedQuery: {
 		machine: async (obj, args, { api }) => {
-			return api.machine.findMachine(args.id);
+			return api.machine.findMachine(obj.scope, args.id);
 		},
 		machines: async (obj, args, { api }) => {
-			return args.name ? api.machine.findMachinesByName(obj.scope, args.name) : api.machine.findMachines(obj.scope);
+			return args.name
+				? api.machine.findMachinesByName(obj.scope, args.name)
+				: api.machine.findMachines(obj.scope);
 		},
 		streamsLegacy: async (obj, args, { api }) => api.stream.findAllStreams(obj.scope),
 		streams: async (obj, args, { api }) => {

@@ -5,19 +5,21 @@ import { StreamRepositoryProxy } from './stream/StreamRepositoryProxy';
 import { Stream } from './stream/types';
 import { FunctionObject } from './common';
 import { IResolvers } from 'apollo-server-express';
+import { MachineServiceProxy } from './machine';
 
 export interface GlobalContext {
-	rawApi: RawAPI;
+	rawApi: typeof RawAPI;
 	rawAuth: BaseAuth;
 	encryption: any;
 	repositories: any;
 	graphql?: {
-		typeDefs?: string,
-		resolvers?: IResolvers,
-	}
+		typeDefs?: string;
+		resolvers?: IResolvers;
+	};
 	userRepo: UserRepository;
 	machineRepo: any;
 	streamRepo: StreamRepositoryProxy;
+	machineServiceProxy: MachineServiceProxy;
 }
 
 export interface RequestContext extends GlobalContext {
@@ -298,16 +300,6 @@ export type WSResponse = IWSResponse;
 export type ID = string;
 
 export type Authorizer<T> = (entity: T) => void;
-
-export interface Machine {
-	isTemplate?: boolean;
-	scope?: Scope;
-	name: string;
-}
-
-export interface Sheet {
-	machineId: ID;
-}
 
 export interface BaseStreamWSRequest {
 	requestId: number;
