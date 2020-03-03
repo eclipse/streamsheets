@@ -5,4 +5,8 @@ export interface Stream {
 	name: string;
 	className: string;
 	scope?: Scope;
+	status?: string;
+	connector?: {
+		id: ID;
+	};
 }

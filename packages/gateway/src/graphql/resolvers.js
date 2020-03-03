@@ -28,27 +28,6 @@ const streamClassNameToType = {
 	ConsumerConfiguration: 'consumer'
 };
 
-const filterRejected = (promises) =>
-	promises.reduce(async (pResults, p) => {
-		const results = await pResults;
-		try {
-			const result = await p;
-			return [...results, result];
-		} catch (e) {
-			return results;
-		}
-	}, Promise.resolve([]));
-
-const findMissingConnectors = (streamIds, streamsToExport) =>
-	Array.from(
-		new Set(
-			streamsToExport
-				.map((stream) => stream.connector && stream.connector.id)
-				.filter((id) => !!id)
-				.filter((id) => !streamIds.includes(id))
-		)
-	);
-
 const mapConnector = (c) => ({
 	id: c.id,
 	name: c.name,
@@ -87,46 +66,16 @@ const resolvers = {
 			const connectors = allConfigs.filter((c) => c.className === 'ConnectorConfiguration').map(mapConnector);
 			return connectors;
 		},
-		export: async (obj, args, { repositories, api }) => {
-			const { machineRepository, graphRepository } = repositories;
-			const { streams, machines } = args;
-			const exportData = {
-				machines: [],
-				streams: []
-			};
+		export: async (obj, args, { api }) => {
+			const exportData = await api.export.doExport(obj.scope, args.machines, args.streams);
 
-			if (Array.isArray(machines) && machines.length > 0) {
-				const pendingMachines = machines.map(async (machineId) => {
-					const result = await Promise.all([
-						machineRepository.findMachine(machineId),
-						graphRepository.findGraphByMachineId(machineId)
-					]);
-					return {
-						machine: { ...result[0], state: 'stopped' },
-						graph: result[1]
-					};
-				});
-				exportData.machines = await filterRejected(pendingMachines);
-				if (exportData.machines.length === 0) {
-					return {
-						data: null,
-						success: false,
-						code: 'MACHINE_NOT_FOUND',
-						message: 'Could not export the specified machine'
-					};
-				}
-			}
-
-			if (Array.isArray(streams) && streams.length > 0) {
-				const allStreams = await api.stream.findAllStreams(obj.scope);
-				const streamsToExport = allStreams.filter((s) => streams.includes(s.id));
-				const missingConnectorIds = findMissingConnectors(streams, streamsToExport);
-				const allStreamsToExport = [...streams, ...missingConnectorIds];
-				exportData.streams = allStreams.filter((s) => allStreamsToExport.includes(s.id));
-				exportData.streams.forEach((stream) => {
-					// TODO: Should not be part of the result.
-					delete stream.status;
-				});
+			if (args.machines.length > 0 && exportData.machines.length === 0) {
+				return {
+					data: null,
+					success: false,
+					code: 'MACHINE_NOT_FOUND',
+					message: 'Could not export the specified machine'
+				};
 			}
 
 			return {
@@ -135,6 +84,9 @@ const resolvers = {
 				code: 'EXPORT_SUCCESS',
 				message: 'Export succeded'
 			};
+		},
+		getImportInfo: async ({ scope }, { input }, { api }) => {
+			return api.import.getImportInfo(scope, input);
 		}
 	},
 	Query: {
@@ -230,6 +182,22 @@ const resolvers = {
 				});
 			} catch (error) {
 				return Payload.createFailure(error);
+			}
+		},
+		scoped: async (obj, args, { auth }) => {
+			if (!auth.isValidScope(args.scope)) {
+				throw new Error('NOT_ALLOWED');
+			}
+			return { scope: args.scope };
+		}
+	},
+	ScopedMutation: {
+		import: async ({ scope }, { input }, { api }) => {
+			try {
+				const result = await api.import.doImport(scope, input.importData, input.machines, input.streams);
+				return result;
+			} catch (error) {
+				console.error(error.message);
 			}
 		}
 	},

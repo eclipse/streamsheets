@@ -8,7 +8,6 @@ const multer = require('multer');
 const upload = multer({ dest: 'backups/' });
 const IndexRoutes = require('./routes/IndexRoutes');
 const ErrorRoutes = require('./routes/ErrorRoutes');
-const ExportImportRoutes = require('./routes/ExportImportRoutes');
 const AuthRoutes = require('./routes/AuthRoutes');
 const MetaInformationRoutes = require('./routes/MetaInformationRoutes');
 const BackupRestoreRoutes = require('./routes/BackupRestoreRoutes');
@@ -39,13 +38,6 @@ module.exports = class APIRouter extends Router {
 			passport.authenticate('jwt', { session: false }),
 			upload.single('restoreData'),
 			BackupRestoreRoutes.restore
-		);
-
-		this.all(
-			'/import',
-			passport.authenticate('jwt', { session: false }),
-			bodyParser.json({ inflate: true, strict: true, limit: '50mb' }),
-			ExportImportRoutes.import
 		);
 
 		this.post(

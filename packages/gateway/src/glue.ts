@@ -1,6 +1,7 @@
 import { baseAuth, createAuthorization } from './authorization';
 import { FunctionObject, PartialApply1All } from './common';
 import { InternalError } from './errors';
+import { ExportApi, ImportApi } from './export-import';
 import { BaseMachineApi, MachineApi } from './machine';
 import { BaseStreamApi, StreamApi } from './stream';
 import { GlobalContext, RequestContext } from './streamsheets';
@@ -22,12 +23,16 @@ export interface API {
 	user: UserApi;
 	machine: MachineApi;
 	stream: StreamApi;
+	export: PartialApply1All<typeof ExportApi>;
+	import: PartialApply1All<typeof ImportApi>;
 }
 
 export const RawAPI = {
 	user: BaseUserApi,
 	machine: BaseMachineApi,
-	stream: BaseStreamApi
+	stream: BaseStreamApi,
+	export: ExportApi,
+	import: ImportApi
 };
 
 export default (globalContext: GlobalContext, actor: Actor): RequestContext => {

@@ -333,6 +333,11 @@ export interface GetStreamRequest extends BaseStreamWSRequest {
 	configId: ID;
 }
 
+export interface GetStreamByNameRequest extends BaseStreamWSRequest {
+	type: 'stream_config_load_by_name';
+	name: string;
+}
+
 export interface SaveStreamRequest extends BaseStreamWSRequest {
 	type: 'stream_config_save';
 	configuration: Stream;
@@ -375,6 +380,11 @@ export interface GetStreamResponse extends BaseStreamWSResponse {
 	response: Stream;
 }
 
+export interface GetStreamByNameResponse extends BaseStreamWSResponse {
+	requestType: 'stream_config_load_by_name';
+	response: Stream;
+}
+
 export interface GetAllStreamsResponse extends BaseStreamWSResponse {
 	requestType: 'stream_config_load_all';
 	response: {
@@ -388,6 +398,7 @@ export type StreamWSRequest =
 	| DeleteStreamRequest
 	| SaveStreamRequest
 	| GetStreamRequest
+	| GetStreamByNameRequest
 	| GetAllStreamsRequest;
 
 export type StreamWSResponse =
@@ -396,4 +407,5 @@ export type StreamWSResponse =
 	| DeleteStreamResponse
 	| SaveStreamResponse
 	| GetStreamResponse
+	| GetStreamByNameResponse
 	| GetAllStreamsResponse;

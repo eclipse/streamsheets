@@ -62,12 +62,12 @@ const typeDefs = gql`
 		previewImage: String
 		titleImage: String
 		state: String!
-		files: [String!]!
-		file(name: String!): String
 		metadata: MachineMetadata!
 		streamsheets: [StreamSheet!]!
 		referencedStreams: [ID!]!
 		canEdit: Boolean
+		files: [String!]!
+		file(name: String!): String
 	}
 
 	type Stream {
@@ -193,10 +193,62 @@ const typeDefs = gql`
 		message: String!
 	}
 
+	type ImportInfo {
+		machines: [MachineImportInfo!]!
+		streams: [StreamImportInfo!]!
+	}
+
+	type MachineImportInfo  {
+		id: ID!
+		nameInUse: Boolean!
+		proposedName: String!
+	}
+
+	type StreamImportInfo  {
+		id: ID!
+		nameInUse: Boolean!
+		proposedName: String!
+	}
+
 	input ScopeInput {
 		id: ID!
 	}
-	
+
+	input ImportInfoInput {
+		machines: [MachineImportInfoInput!]!
+		streams: [StreamImportInfoInput!]!
+	}
+
+	input MachineImportInfoInput {
+		id: ID!
+		name: String!
+	}
+
+	input StreamImportInfoInput {
+		id: ID!
+		name: String!
+	}
+
+	input ImportInput {
+		importData: ImportExportData!
+		machines: [ImportSelection!]!
+		streams: [ImportSelection!]!
+	}
+
+	input ImportSelection {
+		id: ID!
+		# replace: Boolean!
+		newName: String!
+	}
+
+	type ImportResult implements MutationResponse {
+		machines: [Machine!]!
+		streams: [Stream!]!
+		success: Boolean!
+		code: String!
+		message: String!
+	}
+
 	type ScopedQuery {
 		machine(id: ID!): Machine
 		machines(name: String): [Machine!]!
@@ -205,6 +257,7 @@ const typeDefs = gql`
 		connectors: [Connector!]!
 		streamsLegacy: [StreamLegacy!]!
 		export(machines: [ID!]!, streams: [ID!]!): ExportResult!
+		getImportInfo(input: ImportInfoInput!): ImportInfo!
 	}
 
 	type SelectFormField {
@@ -224,6 +277,10 @@ const typeDefs = gql`
 		fields: [SelectFormField!]!
 	}
 
+	type ScopedMutation {
+		import(input: ImportInput!): ImportResult!
+	}
+
 	type Query {
 		me: User!
 		user(id: ID!): User
@@ -241,6 +298,7 @@ const typeDefs = gql`
 		updateUserSettings(id: ID!, settings: UserSettingsInput!): UpdateUserSettingsPayload!
 		updateUserPassword(id: ID!, newPassword: String!): UpdateUserPasswordPayload!
 		deleteUser(id: ID!): DeleteUserPayload!
+		scoped(scope: ScopeInput): ScopedMutation!
 	}
 `;
 
