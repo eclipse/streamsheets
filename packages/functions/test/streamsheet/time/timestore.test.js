@@ -174,6 +174,9 @@ describe('time.store', () => {
 		expect(term._timestore.values('v2')).toEqual([]);
 		expect(term._timestore.values('v3')).toEqual([200, 300, 400]);
 	});
+	it('should reset store on machine start', () => {
+		expect(false).toBe(true);
+	});
 	it(`should return error ${ERROR.ARGS} if required parameter is missing`, () => {
 		const sheet = newSheet();
 		createCellAt('A3', { formula: 'time.store()' }, sheet);
