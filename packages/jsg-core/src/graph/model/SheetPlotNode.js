@@ -1697,10 +1697,21 @@ module.exports = class SheetPlotNode extends Node {
 						const source = new CellRange(taRange.getSheet(), pos.x, pos.y);
 						source.shiftToSheet();
 						const ref = source.toString({item: sheet, useName: true});
+						let xValue = 'time';
+						if (selection.getSize() > 1) {
+							const rangeX = selection.getAt(1);
+							const cellX = data.getRC(rangeX.getX1(), rangeX.getY1());
+							if (cellX) {
+								const valX = cellX.getValue();
+								if (valX !== undefined) {
+									xValue = String(valX);
+								}
+							}
+						}
 						Object.keys(values).forEach((key) => {
-							if (key !== 'time') {
+							if (key !== 'time' && key !== xValue) {
 								if (values[key].length && Numbers.isNumber(values[key][0])) {
-									formula = new Expression(0, `SERIES("${key}",${ref},"time","${key}")`);
+									formula = new Expression(0, `SERIES("${key}",${ref},"${xValue}","${key}")`);
 									this.series.push(new ChartSeries(type, formula));
 									index += 1;
 								}
