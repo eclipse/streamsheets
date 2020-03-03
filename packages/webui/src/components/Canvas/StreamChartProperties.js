@@ -24,6 +24,7 @@ import { connect } from 'react-redux';
 import CloseIcon from '@material-ui/icons/Close';
 import JSG from '@cedalo/jsg-ui';
 
+import CellRangeComponent from './CellRangeComponent';
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
 
@@ -170,6 +171,14 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'legend');
 	};
 
+	handleSeriesFormulaBlur = (event, series) => {
+		const cmd = this.prepareCommand('series');
+
+		series.formula = new JSG.Expression(0, event.target.textContent.replace(/^=/, ''));
+
+		this.finishCommand(cmd, 'series');
+	};
+
 	translateTitle(title) {
 		switch (title) {
 		case 'title':
@@ -189,6 +198,16 @@ export class StreamChartProperties extends Component {
 		}
 	}
 
+	getLabel(series) {
+		const item = this.state.plotView.getItem();
+		const ref = item.getDataSourceInfo(series.formula);
+		if (ref && ref.name !== undefined) {
+			return ref.name;
+		}
+
+		return String(item.series.indexOf(series));
+	}
+
 	render() {
 		// const { expanded } = this.state;
 		if (!this.state.plotView) {
@@ -197,6 +216,7 @@ export class StreamChartProperties extends Component {
 		const selection = this.state.plotView.chartSelection;
 		const data = this.getData();
 		const item = this.state.plotView.getItem();
+		const sheetView = this.getSheetView();
 		return (
 			<Slide direction="left" in={this.props.showStreamChartProperties} mountOnEnter unmountOnExit>
 				<div
@@ -393,6 +413,43 @@ export class StreamChartProperties extends Component {
 								/>
 							</RadioGroup>
 						</FormControl>
+					) : null}
+					{selection && selection.element === 'plot' ? (
+						<div>
+							<FormLabel
+								component="legend"
+								style={{
+									margin: '7px'
+								}}
+							>
+								Series
+							</FormLabel>
+							{
+								item.series.map(series => (
+									<FormControl
+										style={{
+											width: '95%',
+											margin: '7px',
+											fontSize: '8pt'
+										}}
+									>
+										<CellRangeComponent
+											label={this.getLabel(series)}
+											sheetView={sheetView}
+											fontSize='9pt'
+											range={`=${series.formula.getFormula()}`}
+											// onChange={this.handleDataRange}
+											onBlur={(event) => this.handleSeriesFormulaBlur(event, series)}
+											onKeyPress={(ev) => {
+												if (ev.key === 'Enter') {
+													this.handleDataRangeBlur(ev);
+												}
+											}}
+										/>
+									</FormControl>
+								))
+							}
+						</div>
 					) : null}
 				</div>
 			</Slide>

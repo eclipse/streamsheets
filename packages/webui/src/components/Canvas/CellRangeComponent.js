@@ -22,7 +22,8 @@ export default class CellRangeComponent extends React.Component {
 		label: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
 		helperText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 		range: PropTypes.string.isRequired,
-		sheetView: PropTypes.object.isRequired
+		sheetView: PropTypes.object.isRequired,
+		fontSize: PropTypes.string
 	};
 
 	static defaultProps = {
@@ -30,6 +31,7 @@ export default class CellRangeComponent extends React.Component {
 		onBlur: () => {},
 		onFocus: () => {},
 		required: false,
+		fontSize: '1rem',
 		helperText: undefined,
 	};
 
@@ -200,7 +202,7 @@ export default class CellRangeComponent extends React.Component {
 					<div
 						style={{
 							padding: '6px 0 7px',
-							fontSize: '1rem',
+							fontSize: this.props.fontSize,
 							borderBottom: '1px solid rgba(0, 0, 0, 0.42)',
 							outline: 'none',
 							display: 'inline-block',

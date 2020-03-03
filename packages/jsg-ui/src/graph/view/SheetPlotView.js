@@ -1,10 +1,7 @@
 import {
 	default as JSG,
-	GraphUtils,
-	MathUtils,
 	TextFormatAttributes,
-	Numbers,
-	FormatAttributes, NotificationCenter, Notification
+	FormatAttributes
 } from '@cedalo/jsg-core';
 
 import NodeView from './NodeView';
@@ -47,14 +44,10 @@ export default class SheetPlotView extends NodeView {
 			return;
 		}
 
-		// item.setMinMax();
-		// item.setScales();
-		//
 		const { series } = item;
 		const plotRect = item.plot.position;
 
 		this.drawRect(graphics, plotRect, item, item.plot.format, 'plot');
-
 		this.drawAxes(graphics, plotRect, item, true);
 
 		let lastPoints;
@@ -179,7 +172,7 @@ export default class SheetPlotView extends NodeView {
 
 		let refLabel;
 		if (axis.type === 'category') {
-			item.series.forEach((series, index) => {
+			item.series.forEach((series) => {
 				if (series.xAxis === axis.name) {
 					refLabel = item.getDataSourceInfo(series.formula);
 				}
@@ -275,6 +268,7 @@ export default class SheetPlotView extends NodeView {
 
 		const barWidth = item.getBarWidth(axes, serie, plotRect);
 		const points = [];
+		let newLine = true;
 		const info = {
 			serie,
 			seriesIndex,
@@ -283,17 +277,20 @@ export default class SheetPlotView extends NodeView {
 
 		while (item.getValue(ref, index, value)) {
 			info.index = index;
-			if (value.x !== undefined && value.y !== undefined) {
+			if (item.chart.dataMode === 'datainterrupt' || (value.x !== undefined && value.y !== undefined)) {
 				x = item.scaleToAxis(axes.x, value.x, undefined, false);
 				y = item.scaleToAxis(axes.y, value.y, info, false);
 				switch (serie.type) {
 				case 'area':
 				case 'line':
 				case 'scatter':
-					if (index) {
-						graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
-					} else {
+					if (item.chart.dataMode === 'datainterrupt' && (value.x === undefined || value.y === undefined)) {
+						newLine = true;
+					} else if (newLine) {
 						graphics.moveTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+						newLine = false;
+					} else {
+						graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
 					}
 					if (serie.type === 'area' && serie.stacked) {
 						points.push({
@@ -303,13 +300,15 @@ export default class SheetPlotView extends NodeView {
 					}
 					break;
 				case 'column':
-					barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
-					graphics.rect(
-						plotRect.left + x * plotRect.width + barInfo.offset,
-						plotRect.bottom - y * plotRect.height,
-						barWidth - barInfo.margin,
-						-barInfo.height * plotRect.height
-					);
+					if (value.x !== undefined && value.y !== undefined) {
+						barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
+						graphics.rect(
+							plotRect.left + x * plotRect.width + barInfo.offset,
+							plotRect.bottom - y * plotRect.height,
+							barWidth - barInfo.margin,
+							-barInfo.height * plotRect.height
+						);
+					}
 					break;
 				}
 			}
@@ -442,7 +441,7 @@ export default class SheetPlotView extends NodeView {
 		return tf;
 	}
 
-	hasSelectedFormula(sheet) {
+	hasSelectedFormula() {
 		if (this.chartSelection) {
 			switch (this.chartSelection.element) {
 				case 'series':
@@ -488,9 +487,8 @@ export default class SheetPlotView extends NodeView {
 					useName: true
 				})}`;
 				return formula;
-			} else {
-				return expr.getValue();
 			}
+			return expr.getValue();
 		}
 
 		return super.getSelectedFormula(sheet);
@@ -568,22 +566,4 @@ export default class SheetPlotView extends NodeView {
 		}
 		return false;
 	}
-
-	// doHandleEventAt(location, event) {
-	// 	if (
-	// 		this.getItem()
-	// 			.getItemAttributes()
-	// 			.getSelected().getValue()
-	// 	) {
-	// 		if (event.type === MouseEvent.MouseEventType.DBLCLK || event.type === MouseEvent.MouseEventType.DOWN) {
-	// 			// NotificationCenter.getInstance().send(
-	// 			// 	new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
-	// 			// 		event
-	// 			// 	})
-	// 			// );
-	// 			return false;
-	// 		}
-	// 	}
-	// 	return false;
-	// }
 }
