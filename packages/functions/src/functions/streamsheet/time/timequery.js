@@ -1,6 +1,10 @@
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { Cell } = require('@cedalo/machine-core');
+const { Term } = require('@cedalo/parser');
+
 const { runFunction } = require('../../../utils');
 const readQueryOptions = require('./readQueryOptions');
+const stateListener = require('./stateListener');
 const transform = require('./transform');
 
 
@@ -21,6 +25,46 @@ const boundedPush = (size) => (value, entries) => {
 // 	opts1.queries.every((query, index) => areEqualQueries(query, opts2.queries[index]));
 const areEqualOptions = (opts1, opts2) => opts1.limit === opts2.limit && opts1.interval === opts2.interval;
 
+const entriesReduce = (all, { ts, values: vals }) => {
+	all.time.push(ts);
+	if (vals) {
+		Object.keys(vals).forEach((key) => {
+			all[key] = all[key] || [];
+			all[key].push(vals[key]);
+		});
+	}
+	return all;
+};
+const limitEntries = (entries, limit) => {
+	const allEntries = entries.reduceRight((all, entry) => {
+		if (all.length < limit) all.push(entry);
+		return all;
+	}, []);
+	return allEntries.reverse();
+};
+const spreadValuesToRange = (values, range) => {
+	const sheet = range.sheet;
+	const time = values.time || [];
+	const entries = Object.entries(values).filter(([key]) => key !== 'time');
+	let row = -1;
+	let col = 0;
+	let value;
+	range.iterate((_cell, index, nextrow) => {
+		col = nextrow ? 0 : col + 1;
+		row = nextrow ? row + 1 : row;
+		value = undefined;
+		if (col === 0) {
+			value = row === 0 ? 'time' : time[row - 1];
+		} else {
+			const colEntries = entries[col - 1];
+			if (colEntries) {
+				value = row === 0 ? colEntries[0] : colEntries[1][row - 1];
+			}
+		}
+		const newCell = value != null ? new Cell(value, Term.fromValue(value)) : undefined;
+		sheet.setCellAt(index, newCell);
+	});
+};
 
 class QueryStore {
 	static of(options) {
@@ -32,6 +76,7 @@ class QueryStore {
 		this.interval = interval * 1000;
 		this.nextQuery = interval > 0 ? Date.now() + this.interval : -1;
 		this.entries = [];
+		this.reset = this.reset.bind(this);
 	}
 
 	reset() {
@@ -42,39 +87,24 @@ class QueryStore {
 	query(store, queries, now = Date.now()) {
 		const xform = transform.create(queries, now - this.interval);
 		const result = store.entries.reduceRight(xform, { values: {} });
+		result.ts = now;
 		// TODO: how to handle empty values in result, ie. result = { values: {} }??
 		this.push(result, this.entries);
 	}
 	queryOnInterval(store, queries, now = Date.now()) {
 		if (this.nextQuery > 0 && now >= this.nextQuery) {
-			this.doQuery(store, queries, now);
+			this.query(store, queries, now);
 			this.nextQuery = now + this.interval;
 		}
 	}
 
-	write(store, cell, range) {
-		// const values = this.entries.reduce(
-		// 	(all, { ts, values: vals }) => {
-		// 		all.time.push(ts);
-		// 		Object.keys(vals).forEach((key) => {
-		// 			all[key] = all[key] || [];
-		// 			all[key].push(vals[key]);
-		// 		});
-		// 		return all;
-		// 	},
-		// 	{ time: [] }
-		// );
-		const values = this.entries.reduce(
-			(all, { ts, values: vals }) => {
-				all.time.push(ts);
-				Object.keys(vals).forEach((key) => {
-					all[key] = all[key] || [];
-					all[key].push(vals[key]);
-				});
-				return all;
-			},
-			{ time: [] }
-		);
+	write(timestore, cell, range) {
+		let entries = this.entries;
+		if (this.interval < 0) {
+			entries = timestore.limit > this.limit ? limitEntries(timestore.entries, this.limit) : timestore.entries;
+		} 
+		const values = entries.reduce(entriesReduce, { time: [] });
+		if (range) spreadValuesToRange(values, range);
 		cell.info.values = values;
 	}
 }
@@ -105,9 +135,13 @@ const timeQuery = (sheet, ...terms) =>
 			const term = timeQuery.term;
 			const timestore = storeterm._timestore;
 			const querystore = getQueryStore(term, options);
+			stateListener.setDisposeHandler(sheet, term);
+			stateListener.registerCallback(sheet, term, querystore.reset);
 			querystore.queryOnInterval(timestore, options.queries);
 			querystore.write(timestore, term.cell, options.range);
-			return true;
+			const size = querystore.entries.length;
+			// eslint-disable-next-line no-nested-ternary
+			return size === 0 ? ERROR.NA : size < querystore.limit ? true : ERROR.LIMIT;
 		});
 
 
