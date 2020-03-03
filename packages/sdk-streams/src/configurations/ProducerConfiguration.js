@@ -61,6 +61,7 @@ class ProducerConfiguration extends BaseConfiguration {
 		const json = Object.assign({}, super.toJSON(), {
 			disabled: this.disabled,
 			connector: this._connector.toReference(),
+			providerId: this.provider.id,
 			samplePayloads: this.samplePayloads || undefined,
 			mimeType: this.mimeType || 'auto'
 		});

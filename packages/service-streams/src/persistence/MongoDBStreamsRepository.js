@@ -47,9 +47,8 @@ module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepos
 		// clean providers
 		await this.deleteAllProviders();
 		const allConfigs = await this.findAllConfigurations();
+		const providerIds = CONFIG.providers.map((id) => id);
 		if (allConfigs.length < 1 || process.env.STREAMSHEETS_DB_SEED) {
-			const providerIds = CONFIG.providers.map((id) => id);
-
 			logger.info(`ensureMinDataInRepos needs to populate configs at ${new Date()}`);
 			const defConnectors = defaultConfigurations
 				.filter(
@@ -66,12 +65,27 @@ module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepos
 						conf.connector &&
 						!!defConnectors.find((c) => c.id === conf.connector.id)
 				)
-				.map((c) => ({ ...c, scope: { id: 'root' } }));
+				.map((c) => ({
+					...c,
+					scope: { id: 'root' },
+					providerId: defConnectors.find((conncetor) => conncetor.id === c.connector.id).id
+				}));
 			await this.saveConfigurations([...defConnectors, ...defStreams]);
 		}
 		await this.syncDefaultConfigurations(allConfigs.filter((c) => c.className === 'ProviderConfiguration')); // Promise.resolve();
 		if (allConfigs.length > 0) {
-			const newConfigs = allConfigs.map(this.migrateConfiguration);
+			const connectorMap = new Map(
+				allConfigs
+					.filter(
+						(c) =>
+							c.className === 'ConnectorConfiguration' &&
+							c.provider &&
+							providerIds.includes(c.provider.id)
+					)
+					.map((c) => [c.id, c])
+			);
+
+			const newConfigs = allConfigs.map((c) => this.migrateConfiguration(c, connectorMap));
 			const withoutOldProviders = newConfigs.filter(
 				(config) =>
 					!(
@@ -120,7 +134,7 @@ module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepos
 	}
 
 	// TODO: should remove migration...
-	migrateConfiguration(config) {
+	migrateConfiguration(config, connectorMap) {
 		if (typeof config !== 'object') {
 			return config;
 		}
@@ -177,6 +191,14 @@ module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepos
 				// New password not found
 			}
 		}
+
+		if (configuration.connector && !configuration.provider) {
+			const connector = connectorMap.get(configuration.connector.id);
+			if (connector) {
+				configuration.providerId = connector.provider.id;
+			}
+		}
+
 		if (!configuration.scope) {
 			configuration.scope = { id: 'root' };
 		}
