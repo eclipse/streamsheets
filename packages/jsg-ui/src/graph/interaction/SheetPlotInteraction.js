@@ -7,7 +7,7 @@ import {
 	Selection,
 	DeleteCellContentCommand,
 	SheetPlotNode,
-	SetCellDataCommand, NotificationCenter, Notification
+	SetCellDataCommand, NotificationCenter, Notification, SetCellsCommand
 } from '@cedalo/jsg-core';
 
 import Interaction from './Interaction';
@@ -162,18 +162,9 @@ export default class SheetPlotInteraction extends Interaction {
 					const axes = item.getAxes();
 					const valueStart = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptStart : ptEnd);
 					const valueEnd = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptEnd : ptStart);
-					const cmp = new CompoundCommand()
-					let cmd = this.setParamValue(viewer, item, item.xAxes[0].formula, 4, valueStart.x);
-					if (cmd) {
-						cmp.add(cmd);
-					}
-					cmd = this.setParamValue(viewer, item, item.xAxes[0].formula, 5, valueEnd.x);
-					if (cmd) {
-						cmp.add(cmd);
-					}
-					if (cmp.hasCommands()) {
-						viewer.getInteractionHandler().execute(cmp);
-					}
+
+					this.setParamValues(viewer, item, item.xAxes[0].formula,
+						[{index: 4, value: valueStart.x}, {index: 5, value: valueEnd.x}]);
 					item.zooming = true;
 
 					viewer.getGraph().markDirty();
@@ -185,41 +176,57 @@ export default class SheetPlotInteraction extends Interaction {
 		super.onMouseUp(event, viewer);
 	}
 
-	setParamValue(viewer, item, expression, index, value) {
+	setParamValues(viewer, item, expression, values) {
 		const term = expression.getTerm();
 		if (term === undefined) {
-			return undefined;
+			return;
 		}
 
-		const info = item.getParamInfo(term, index);
-		if (info) {
-			const range = info.range.copy();
-			let cmd;
-			if (value === undefined) {
-				const selection = new Selection(info.sheet);
-				selection.add(range);
-				cmd = new DeleteCellContentCommand(info.sheet, selection.toStringMulti(), "all")
-			} else {
-				range.shiftToSheet();
-			 	cmd  = new SetCellDataCommand(info.sheet, range.toString(), new NumberExpression(value), true);
+		let selection;
+		const cellData = [];
+		let sheet;
+
+		values.forEach((value) => {
+			const info = item.getParamInfo(term, value.index);
+			if (info) {
+				sheet = info.sheet;
+				const range = info.range.copy();
+				if (value.value === undefined) {
+					if (!selection) {
+						selection = new Selection(info.sheet);
+					}
+					selection.add(range);
+				} else {
+					range.shiftToSheet();
+					const cell = {};
+					cell.reference = range.toString();
+					cell.value = value.value;
+					cellData.push(cell);
+				}
+			} else if (term && term.params) {
+				for (let i = term.params.length; i < value.index; i += 1) {
+					term.params[i] = new NullTerm();
+				}
+
+				if (value.value === undefined) {
+					term.params[value.index] = new NullTerm();
+				} else {
+					term.params[value.index] = Term.fromNumber(value.value);
+				}
+				expression.correctFormula();
 			}
-			return cmd;
+
+		});
+
+		if (sheet) {
+			if (selection) {
+				const cmd = new DeleteCellContentCommand(sheet, selection.toStringMulti(), "all");
+				viewer.getInteractionHandler().execute(cmd);
+			} else if (cellData.length) {
+				const cmd = new SetCellsCommand(sheet, cellData, false);
+				viewer.getInteractionHandler().execute(cmd);
+			}
 		}
-
-		if (term && term.params) {
-			for (let i = term.params.length; i < index; i += 1) {
-				term.params[i] = new NullTerm();
-			}
-
-			if (value === undefined) {
-				term.params[index] = new NullTerm();
-			} else {
-				term.params[index] = Term.fromNumber(value);
-			}
-			expression.correctFormula();
-		}
-
-		return undefined;
 	}
 
 	willFinish(event, viewer) {

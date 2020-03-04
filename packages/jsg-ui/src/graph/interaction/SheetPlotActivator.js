@@ -78,22 +78,10 @@ export default class SheetPlotActivator extends InteractionActivator {
 			case 'xAxis':
 			case 'yAxis': {
 				const axis = selection.data;
-				const cmp = new CompoundCommand();
 				const item = interaction._controller.getModel();
 
-				let cmd = interaction.setParamValue(viewer, item, axis.formula, 4,
-					undefined);
-				if (cmd) {
-					cmp.add(cmd);
-				}
-				cmd = interaction.setParamValue(viewer, item, axis.formula, 5,
-					undefined);
-				if (cmd) {
-					cmp.add(cmd);
-				}
-				if (cmp.hasCommands()) {
-					viewer.getInteractionHandler().execute(cmp);
-				}
+				interaction.setParamValues(viewer, item, axis.formula,
+					[{index: 4, value: undefined}, {index: 5, value: undefined}]);
 				item.zooming = true;
 
 				viewer.getGraph().markDirty();
