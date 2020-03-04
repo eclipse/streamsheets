@@ -2,6 +2,7 @@ const GraphLayout = require('./GraphLayout');
 const EdgeLayout = require('./EdgeLayout');
 const OrthogonalLayout = require('./OrthogonalLayout');
 const GridLayout = require('./GridLayout');
+const MatrixLayout = require('./MatrixLayout');
 const Arrays = require('../commons/Arrays');
 const Strings = require('../commons/Strings');
 const Dictionary = require('../commons/Dictionary');
@@ -48,6 +49,7 @@ const LayoutFactory = (() => {
 	allLayouts.put(OrthogonalLayout.TYPE, new OrthogonalLayout());
 	// general layout
 	allLayouts.put(GridLayout.TYPE, new GridLayout());
+	allLayouts.put(MatrixLayout.TYPE, new MatrixLayout());
 
 	function getOld(type) {
 		if (type) {

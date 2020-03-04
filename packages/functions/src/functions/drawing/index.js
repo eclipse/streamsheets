@@ -36,6 +36,7 @@ module.exports = {
 		'DRAW.LINE': Functions['DRAW.LINE'],
 		'DRAW.KNOB': Functions['DRAW.KNOB'],
 		'DRAW.PLOT': Functions['DRAW.PLOT'],
+		'DRAW.STREAMCHART': Functions['DRAW.STREAMCHART'],
 		'DRAW.POLYGON': Functions['DRAW.POLYGON'],
 		'DRAW.RECTANGLE': Functions['DRAW.RECTANGLE'],
 		'DRAW.SLIDER': Functions['DRAW.SLIDER'],

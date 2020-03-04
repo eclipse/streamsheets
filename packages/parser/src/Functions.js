@@ -79,6 +79,13 @@ module.exports.Functions = {
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.updateGraphItem(scope, terms, 'plot', false) : ERROR.NOT_AVAILABLE;
 	},
+	'DRAW.STREAMCHART': (scope, ...terms) => {
+		if (scope.graphCells === undefined) {
+			return OK.TRUE;
+		}
+		const drawings = scope.getDrawings && scope.getDrawings();
+		return drawings ? drawings.updateGraphItem(scope, terms, 'plot', false) : ERROR.NOT_AVAILABLE;
+	},
 	'DRAW.CHARTSTATE': (scope, ...terms) => {
 		if (scope.graphCells === undefined) {
 			return OK.TRUE;

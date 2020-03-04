@@ -80,6 +80,7 @@ const {
 	FormatAttributes,
 	TextFormatAttributes,
 	SelectionProvider,
+	MatrixLayout,
 	SheetPlotNode
 } = JSG;
 const { RESOURCE_TYPES, RESOURCE_ACTIONS } = accessManager;
@@ -540,6 +541,18 @@ export class CanvasToolBar extends Component {
 				break;
 			case 'scale':
 				node.setItemAttribute(ItemAttributes.SCALETYPE, type);
+				break;
+			case 'matrix1':
+				node.setLayout(MatrixLayout.TYPE);
+				node.getLayoutSettings().set(MatrixLayout.COLUMNS, 1);
+				break;
+			case 'matrix2':
+				node.setLayout(MatrixLayout.TYPE);
+				node.getLayoutSettings().set(MatrixLayout.COLUMNS, 2);
+				break;
+			case 'matrix3':
+				node.setLayout(MatrixLayout.TYPE);
+				node.getLayoutSettings().set(MatrixLayout.COLUMNS, 3);
 				break;
 			default:
 				break;
@@ -3306,6 +3319,39 @@ export class CanvasToolBar extends Component {
 								</SvgIcon>
 							</IconButton>
 						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton
+								style={{ padding: '5px' }}
+								color="inherit"
+								onClick={() => this.onCreateContainer('matrix1')}
+							>
+								<SvgIcon>
+									<path d="M3,4H21V8H3V4M3,10H21V14H3V10M3,16H21V20H3V16Z" />
+								</SvgIcon>
+							</IconButton>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton
+								style={{ padding: '5px' }}
+								color="inherit"
+								onClick={() => this.onCreateContainer('matrix2')}
+							>
+								<SvgIcon>
+									<path  d="M3,11H11V3H3M3,21H11V13H3M13,21H21V13H13M13,3V11H21V3" />
+								</SvgIcon>
+							</IconButton>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton
+								style={{ padding: '5px' }}
+								color="inherit"
+								onClick={() => this.onCreateContainer('matrix3')}
+							>
+								<SvgIcon>
+									<path d="M16,5V11H21V5M10,11H15V5H10M16,18H21V12H16M10,18H15V12H10M4,18H9V12H4M4,11H9V5H4V11Z" />
+								</SvgIcon>
+							</IconButton>
+						</GridListTile>
 						<GridListTile
 							cols={6}
 							style={{
@@ -3438,16 +3484,16 @@ export class CanvasToolBar extends Component {
 							<GridList
 								cols={6}
 								cellHeight={40}
-								spacing={8}
+								spacing={4}
 								style={{
-									width: '310px',
+									width: '270px',
 									margin: '1px'
 								}}
 							>
 								<GridListTile
 									cols={6}
 									style={{
-										height: '30px'
+										height: '24px'
 									}}
 								>
 									<div
@@ -3590,7 +3636,7 @@ export class CanvasToolBar extends Component {
 								<GridListTile
 									cols={6}
 									style={{
-										height: '30px'
+										height: '24px'
 									}}
 								>
 									<div

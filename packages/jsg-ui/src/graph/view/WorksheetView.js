@@ -1593,6 +1593,10 @@ export default class WorksheetView extends ContentNodeView {
 								case 'OPCUA.RESPOND':
 								case 'OPCUA.VARIABLES':
 								case 'OPCUA.WRITE':
+								case 'INFLUX.DROP':
+								case 'INFLUX.SELECT':
+								case 'INFLUX.SHOW':
+								case 'INFLUX.STORE':
 								case 'EXECUTE':
 									value = termFunc.getFuncId();
 									graphics.setFontStyle(TextFormatAttributes.FontStyle.BOLD);

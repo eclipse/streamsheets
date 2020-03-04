@@ -67,11 +67,10 @@ export default class ChartInfoFeedbackView extends View {
 				if (xValue) {
 					axis = value.axes.x;
 					if (axis.type === 'category' && ref) {
-						label = item.getLabel(ref, Math.floor(value.x));
-					}
-					if (label === '' || label === undefined) {
-						label = item.formatNumber(value.x,
-							axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+						label = item.getLabel(ref, axis, Math.floor(value.x));
+					} else {
+						axis = value.axes.x;
+						label = item.formatNumber(value.x, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
 					}
 				} else {
 					axis = value.axes.y;
@@ -99,7 +98,9 @@ export default class ChartInfoFeedbackView extends View {
 					axis.categories.forEach((data) => {
 						if (data.values && data.values[0] && data.values[0].x === this.selection.dataPoints[0].x) {
 							data.values.forEach((value) => {
-								values.push(value);
+								if (value.x !== undefined && value.y !== undefined) {
+									values.push(value);
+								}
 							});
 						}
 					});
@@ -131,7 +132,7 @@ export default class ChartInfoFeedbackView extends View {
 			graphics.fillText(text, x + space + margin, y + space + margin);
 			values.forEach((value, index) => {
 				const label = getLabel(value, false);
-				graphics.setFillColor(value.series.format.lineColor || item.getTemplate('basic').series.line[value.seriesIndex]);
+				graphics.setFillColor(value.series.format.lineColor || item.getTemplate().series.line[value.seriesIndex]);
 				graphics.fillText(label, x + space + margin, y + height * (index + 1) + space + margin * 2);
 			});
 		}

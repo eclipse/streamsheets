@@ -2530,6 +2530,7 @@ class GraphItemFactory {
 			case 'sheetchartstatenode':
 				return new SheetChartStateNode();
 			case 'sheetplotnode':
+			case 'streamchart':
 				return new SheetPlotNode();
 			case 'inboxcontainer':
 				return new InboxContainer();

@@ -145,6 +145,21 @@ class GraphContextComponent extends Component {
 						</MenuItem>
 						<Divider/>
 					</MenuList> : null}
+				{(item instanceof JSG.SheetPlotNode) ?
+					<MenuList>
+						<MenuItem
+							onClick={this.onShowChartProperties}
+							dense
+						>
+							<ListItemIcon>
+								<SvgIcon style={styles.menuItem} >
+									<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
+								</SvgIcon>
+							</ListItemIcon>
+							<ListItemText primary={<FormattedMessage id="EditChart" defaultMessage="Edit Chart" />} />
+						</MenuItem>
+						<Divider/>
+					</MenuList> : null}
 				<MenuItem
 					onClick={() => this.onChangeOrder(JSG.ChangeItemOrderCommand.Action.TOTOP)}
 					dense

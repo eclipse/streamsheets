@@ -370,6 +370,10 @@ export default class CellsView extends NodeView {
 				case 'OPCUA.RESPOND':
 				case 'OPCUA.VARIABLES':
 				case 'OPCUA.WRITE':
+				case 'INFLUX.DROP':
+				case 'INFLUX.SELECT':
+				case 'INFLUX.SHOW':
+				case 'INFLUX.STORE':
 					this.drawPublish(graphics, x, y, rect, clipRect, data, termFunc, grey);
 					return true;
 				case 'SELECT':
@@ -1592,6 +1596,10 @@ export default class CellsView extends NodeView {
 			case 'OPCUA.RESPOND':
 			case 'OPCUA.VARIABLES':
 			case 'OPCUA.WRITE':
+			case 'INFLUX.DROP':
+			case 'INFLUX.SELECT':
+			case 'INFLUX.SHOW':
+			case 'INFLUX.STORE':
 			case 'EXECUTE':
 				result.value = String(data.getValue());
 

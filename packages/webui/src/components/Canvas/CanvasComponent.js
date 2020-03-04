@@ -23,6 +23,7 @@ import { accessManager } from '../../helper/AccessManager';
 import ChartProperties from './ChartProperties';
 import FunctionWizard from './FunctionWizard';
 import { intl } from '../../helper/IntlGlobalProvider';
+import StreamChartProperties from './StreamChartProperties';
 // import NotAuthorizedComponent from '../Errors/NotAuthorizedComponent';
 const { RESOURCE_ACTIONS } = accessManager;
 
@@ -59,6 +60,8 @@ export class CanvasComponent extends Component {
 			graph: null,
 			loaded: false,
 			loading: 1,
+			chartWizardTitle: '',
+			dummy: ''
 		};
 	}
 
@@ -79,6 +82,11 @@ export class CanvasComponent extends Component {
 			this,
 			JSG.GRAPH_DOUBLE_CLICK_NOTIFICATION,
 			'onGraphDoubleClicked',
+		);
+		JSG.NotificationCenter.getInstance().register(
+			this,
+			JSG.PLOT_DOUBLE_CLICK_NOTIFICATION,
+			'onPlotDoubleClicked',
 		);
 		/* eslint-disable react/no-did-mount-set-state */
 		this.setState({ graphEditor });
@@ -102,6 +110,25 @@ export class CanvasComponent extends Component {
 
 	onGraphDoubleClicked() {
 		this.props.setAppState({ showChartProperties: true });
+	}
+
+	onPlotDoubleClicked(notification) {
+		if (notification.object.event.type === JSG.MouseEvent.MouseEventType.DBLCLK) {
+			this.props.setAppState({showStreamChartProperties: true});
+		}
+
+		const viewer = graphManager.getGraphViewer();
+		const controller = viewer.getSelectionProvider().getFirstSelection();
+		if (!controller) {
+			return;
+		}
+
+		if (controller.getView().chartSelection) {
+			this.setState({chartWizardTitle: controller.getView().chartSelection.element});
+		} else {
+			this.setState({chartWizardTitle: "Chart"});
+		}
+		this.setState({dummy: String(Math.random())});
 	}
 
 	onButtonClicked(notification) {
@@ -303,6 +330,7 @@ export class CanvasComponent extends Component {
 					//	aria-disabled={this.isAccessDisabled()}
 				/>
 				{viewMode.viewMode !== null || !canEdit ? null : <ChartProperties />}
+				{viewMode.viewMode !== null || !canEdit ? null : <StreamChartProperties title={this.state.chartWizardTitle} dummy={this.state.dummy} />}
 				{viewMode.viewMode !== null || !canEdit ? null : (
 					<Slide direction="left" in={this.props.functionWizardVisible} mountOnEnter unmountOnExit>
 						<FunctionWizard />

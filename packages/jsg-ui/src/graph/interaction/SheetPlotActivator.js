@@ -6,6 +6,7 @@ import MouseEvent from '../../ui/events/MouseEvent';
 import SelectionProvider from '../view/SelectionProvider';
 import Cursor from '../../ui/Cursor';
 
+JSG.PLOT_DOUBLE_CLICK_NOTIFICATION = 'plot_double_click_notification';
 const KEY = 'sheetplot.activator';
 
 export default class SheetPlotActivator extends InteractionActivator {
@@ -27,6 +28,39 @@ export default class SheetPlotActivator extends InteractionActivator {
 		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
 			return cont.getModel() instanceof SheetPlotNode;
 		});
+	}
+
+	onKeyDown(event, viewer) {
+
+		const controller = viewer.getSelectionProvider().getFirstSelection();
+		if (!controller) {
+			return;
+		}
+		const item = controller.getModel();
+		if (!(item instanceof SheetPlotNode)) {
+			return;
+		}
+
+		if (controller.getView().chartSelection !== undefined) {
+			const selection = controller.getView().chartSelection;
+			if (selection) {
+				switch (selection.element) {
+				case 'series':
+					switch (event.event.key) {
+					case 'Delete': {
+						const cmd = item.prepareCommand('series');
+						JSG.Arrays.remove(item.series, selection.data);
+						item.finishCommand(cmd, 'series');
+						viewer.getInteractionHandler().execute(cmd);
+						event.consume();
+						event.hasActivated = true;
+						break;
+					}
+					}
+					break;
+				}
+			}
+		}
 	}
 
 	onMouseDoubleClick(event, viewer, dispatcher) {
@@ -59,6 +93,11 @@ export default class SheetPlotActivator extends InteractionActivator {
 			// 	break;
 			}
 		}
+		NotificationCenter.getInstance().send(
+			new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
+				event
+			})
+		);
 	}
 
 	removeInfo(event, viewer) {
@@ -99,6 +138,11 @@ export default class SheetPlotActivator extends InteractionActivator {
 			interaction._controller.getView().chartSelection = undefined;
 			NotificationCenter.getInstance().send(new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, interaction._controller.getModel()));
 		}
+		NotificationCenter.getInstance().send(
+			new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
+				event
+			})
+		);
 	}
 
 	onMouseMove(event, viewer, dispatcher) {
