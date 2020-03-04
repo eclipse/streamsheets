@@ -91,6 +91,7 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 				}
 			}
 			cell.setValues(cellData.info.values);
+			cell.stale = cellData.info.stale;
 		});
 
 		if (this._namedCells) {

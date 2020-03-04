@@ -113,6 +113,14 @@ module.exports = class Cell {
 		}
 	}
 
+	set stale(flag) {
+		this._stale = flag;
+	}
+
+	get stale() {
+		return this._stale === undefined ? false : this._stale;
+	}
+
 	setValues(values) {
 		this._values = values;
 	}

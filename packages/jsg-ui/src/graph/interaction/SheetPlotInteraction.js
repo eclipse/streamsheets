@@ -174,6 +174,7 @@ export default class SheetPlotInteraction extends Interaction {
 					if (cmp.hasCommands()) {
 						viewer.getInteractionHandler().execute(cmp);
 					}
+					item.zooming = true;
 
 					viewer.getGraph().markDirty();
 					event.doRepaint = true;

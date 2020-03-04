@@ -437,6 +437,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 				cell.setExpression(expr);
 				cell.setValue(cellData.value);
 				cell.setValues(cellData.info ? cellData.info.values : undefined);
+				cell.stale = cellData.info ? cellData.info.stale : false;
 			});
 
 			setNamedCells(sheet.namedCells || {}, dataProvider);
@@ -520,6 +521,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 					cell.setExpression(expr);
 					cell.setValue(cellData.value);
 					cell.setValues(cellData.info ? cellData.info.values : undefined);
+					cell.stale = cellData.info ? cellData.info.stale : false;
 				});
 
 				setNamedCells(sheet.namedCells || {}, psDataProvider);

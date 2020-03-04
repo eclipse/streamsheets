@@ -78,14 +78,15 @@ export default class SheetPlotActivator extends InteractionActivator {
 			case 'xAxis':
 			case 'yAxis': {
 				const axis = selection.data;
-				const cmp = new CompoundCommand()
+				const cmp = new CompoundCommand();
+				const item = interaction._controller.getModel();
 
-				let cmd = interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula, 4,
+				let cmd = interaction.setParamValue(viewer, item, axis.formula, 4,
 					undefined);
 				if (cmd) {
 					cmp.add(cmd);
 				}
-				cmd = interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula, 5,
+				cmd = interaction.setParamValue(viewer, item, axis.formula, 5,
 					undefined);
 				if (cmd) {
 					cmp.add(cmd);
@@ -93,6 +94,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 				if (cmp.hasCommands()) {
 					viewer.getInteractionHandler().execute(cmp);
 				}
+				item.zooming = true;
 
 				viewer.getGraph().markDirty();
 				event.doRepaint = true;

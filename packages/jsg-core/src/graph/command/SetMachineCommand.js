@@ -99,6 +99,7 @@ module.exports = class SetMachineCommand extends AbstractItemCommand {
 					cell.setExpression(expr);
 					cell.setValue(cellData.value);
 					cell.setValues(cellData.info.values);
+					cell.stale = cellData.info.stale;
 				});
 
 				if (sourceData.names) {

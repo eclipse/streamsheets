@@ -101,6 +101,9 @@ const templates = {
 		axis: {
 			format: new ChartFormat('#FFFFFF'),
 		},
+		axisTitle: {
+			format: new ChartFormat('none', 'none', 9,  TextFormatAttributes.FontStyle.BOLD),
+		},
 		series: {
 			format: new ChartFormat(),
 			linewidth: 50,
@@ -1202,6 +1205,10 @@ module.exports = class SheetPlotNode extends Node {
 					label = cell.getValue();
 				}
 			}
+		}
+
+		if (label === undefined) {
+			label = index + 1;
 		}
 
 		if (Numbers.isNumber(label)) {
