@@ -15,6 +15,7 @@ const SetPlotDataCommand = require('../command/SetPlotDataCommand');
 const CompoundCommand = require('../command/CompoundCommand');
 const Chart = require('./chart/Chart');
 const ChartFormat = require('./chart/ChartFormat');
+const ChartAxis = require('./chart/ChartAxis');
 const ChartRect = require('./chart/ChartRect');
 const ChartSeries = require('./chart/ChartSeries');
 const ChartTitle = require('./chart/ChartTitle');
@@ -41,7 +42,10 @@ const templates = {
 			format: new ChartFormat('#CCCCCC', '#FFFFFF'),
 		},
 		axis: {
-			format: new ChartFormat('#AAAAAA'),
+			format: new ChartFormat('#CCCCCC'),
+		},
+		axisTitle: {
+			format: new ChartFormat('none', 'none', 9,  TextFormatAttributes.FontStyle.BOLD),
 		},
 		series: {
 			format: new ChartFormat(),
@@ -143,28 +147,8 @@ module.exports = class SheetPlotNode extends Node {
 
 		this.series = [];
 		this.chart = new Chart();
-		this.xAxes = [
-			{
-				type: 'linear',
-				align: 'bottom',
-				formula: new Expression(0, 'AXIS()'),
-				position: new ChartRect(),
-				format: new ChartFormat(),
-				size: 500,
-				name: 'primary'
-			}
-		];
-		this.yAxes = [
-			{
-				type: 'linear',
-				align: 'left',
-				formula: new Expression(0, 'AXIS()'),
-				position: new ChartRect(),
-				format: new ChartFormat(),
-				size: 1000,
-				name: 'primary'
-			}
-		];
+		this.xAxes = [new ChartAxis('primary', 'linear', 'bottom', 500)];
+		this.yAxes = [new ChartAxis('primary', 'linear', 'left', 1000)];
 		this.plot = {
 			position: new ChartRect(),
 			format: new ChartFormat(),
@@ -176,7 +160,7 @@ module.exports = class SheetPlotNode extends Node {
 			format: new ChartFormat(),
 			align: 'right'
 		};
-		this.title = new ChartTitle(new Expression('Chart', ''));
+		this.title = new ChartTitle(new Expression('Title', ''));
 		this.series = [new ChartSeries('line', new Expression(0, 'SERIES(B1,A2:A10,B2:B10)'))];
 	}
 
@@ -247,6 +231,16 @@ module.exports = class SheetPlotNode extends Node {
 		}
 	}
 
+	measureTitle(graphics, title, id, text) {
+		const cs = graphics.getCoordinateSystem();
+		this.setFont(graphics, title.format, id, 'middle', TextFormatAttributes.TextAlignment.CENTER);
+		const textSize = this.measureText(graphics, cs, title.format, id, text);
+		textSize.width += 300;
+		textSize.height += 300;
+
+		return textSize;
+	}
+
 	measureAxis(graphics, axis) {
 		const result = {
 			width: 0,
@@ -313,22 +307,18 @@ module.exports = class SheetPlotNode extends Node {
 		this.plot.position.bottom = size.y - this.chart.margins.bottom;
 		this.plot.position.right = size.x - this.chart.margins.right;
 
-		const title = String(this.getExpressionValue(this.title.formula));
-		if (this.title.visible && title.length) {
+		let title = String(this.getExpressionValue(this.title.formula));
+		if (this.title.visible) {
 			this.plot.position.top += this.title.size;
 			this.title.position.top = this.chart.margins.top;
 			this.title.position.left = this.chart.margins.left;
 			this.title.position.right = size.x - this.chart.margins.right;
-			if (JSG.graphics) {
-				this.setFont(JSG.graphics, this.title.format, 'title', 'middle', TextFormatAttributes.TextAlignment.CENTER);
-				const textSize = this.measureText(JSG.graphics, cs, this.title.format, 'title', title);
-				textSize.width += 300;
-				this.title.position.left = size.x / 2 - textSize.width / 2;
-				this.title.position.right = size.x / 2 + textSize.width / 2;
-				this.title.size = textSize.height + 300;
-				this.title.position.bottom = this.chart.margins.top + this.title.size;
-				this.plot.position.top = this.title.position.bottom + 200;
-			}
+			const textSize = this.measureTitle(JSG.graphics, this.title, 'title', title);
+			this.title.position.left = size.x / 2 - textSize.width / 2;
+			this.title.position.right = size.x / 2 + textSize.width / 2;
+			this.title.size = textSize.height;
+			this.title.position.bottom = this.chart.margins.top + this.title.size;
+			this.plot.position.top = this.title.position.bottom + 200;
 		} else {
 			this.title.position.reset();
 		}
@@ -384,6 +374,21 @@ module.exports = class SheetPlotNode extends Node {
 		}
 
 		this.xAxes.forEach((axis) => {
+			if (axis.title.visible) {
+				title = String(this.getExpressionValue(axis.title.formula));
+				axis.title.size = this.measureTitle(JSG.graphics, axis.title, 'axisTitle', title);
+				switch (axis.align) {
+				case 'top':
+					this.plot.position.top += axis.title.size.height;
+					break;
+				case 'bottom':
+					this.plot.position.bottom -= axis.title.size.height;
+					break;
+				}
+			}
+		});
+
+		this.xAxes.forEach((axis) => {
 			axis.size = this.measureAxis(JSG.graphics, axis).height + 300;
 			switch (axis.align) {
 			case 'top':
@@ -392,6 +397,21 @@ module.exports = class SheetPlotNode extends Node {
 			case 'bottom':
 				this.plot.position.bottom -= axis.size;
 				break;
+			}
+		});
+
+		this.yAxes.forEach((axis) => {
+			if (axis.title.visible) {
+				title = String(this.getExpressionValue(axis.title.formula));
+				axis.title.size = this.measureTitle(JSG.graphics, axis.title, 'axisTitle', title);
+				switch (axis.align) {
+				case 'left':
+					this.plot.position.left += axis.title.size.height;
+					break;
+				case 'right':
+					this.plot.position.right -= axis.title.size.height;
+					break;
+				}
 			}
 		});
 
@@ -414,10 +434,26 @@ module.exports = class SheetPlotNode extends Node {
 				case 'top':
 					axis.position.top = this.plot.position.top - axis.size;
 					axis.position.bottom = this.plot.position.top;
+					if (axis.title.visible) {
+						axis.title.position.top = axis.position.top - axis.title.size.height ;
+						axis.title.position.bottom = axis.position.top;
+						axis.title.position.left = axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
+						axis.title.position.right = axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
+					} else {
+						axis.title.position.reset();
+					}
 					break;
 				case 'bottom':
 					axis.position.top = this.plot.position.bottom;
 					axis.position.bottom = axis.position.top + axis.size;
+					if (axis.title.visible) {
+						axis.title.position.top = axis.position.bottom;
+						axis.title.position.bottom = axis.position.bottom + axis.title.size.height ;
+						axis.title.position.left = axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
+						axis.title.position.right = axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
+					} else {
+						axis.title.position.reset();
+					}
 					break;
 				}
 			}
@@ -430,10 +466,26 @@ module.exports = class SheetPlotNode extends Node {
 				case 'left':
 					axis.position.left = this.plot.position.left - axis.size;
 					axis.position.right = this.plot.position.left;
+					if (axis.title.visible) {
+						axis.title.position.left = axis.position.left - axis.title.size.height;
+						axis.title.position.right = axis.position.left;
+						axis.title.position.top = axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
+						axis.title.position.bottom = axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
+					} else {
+						axis.title.position.reset();
+					}
 					break;
 				case 'right':
 					axis.position.left = this.plot.position.right;
 					axis.position.right = this.plot.position.right + axis.size;
+					if (axis.title.visible) {
+						axis.title.position.left = axis.position.right;
+						axis.title.position.right = axis.position.right + axis.title.size.height;
+						axis.title.position.top = axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
+						axis.title.position.bottom = axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
+					} else {
+						axis.title.position.reset();
+					}
 					break;
 				}
 			}
@@ -646,7 +698,7 @@ module.exports = class SheetPlotNode extends Node {
 					pointIndex += 1;
 					valid = true;
 				}
-				if (series.stacked) {
+				if (this.chart.stacked) {
 					axes.x.categories.forEach((category) => {
 						if (category.values) {
 							let pos = 0;
@@ -666,7 +718,7 @@ module.exports = class SheetPlotNode extends Node {
 							yMin = Math.min(yMin, neg);
 						}
 					});
-					if (series.relative) {
+					if (this.chart.relative) {
 						yMax = 1;
 						yMin = yMin < 0 ? -1 : 0;
 					}
@@ -712,7 +764,6 @@ module.exports = class SheetPlotNode extends Node {
 				if (series.yAxis === axis.name) {
 					axis.minData = Math.min(series.yMin, axis.minData);
 					axis.maxData = Math.max(series.yMax, axis.maxData);
-					axis.relative = series.relative;
 				}
 			});
 			axis.scale = undefined;
@@ -1002,7 +1053,7 @@ module.exports = class SheetPlotNode extends Node {
 			}
 			// MinWert der Beschriftung ermitteln
 			if (input.min === undefined) {
-				if (axis.relative) {
+				if (this.chart.relative) {
 					minLabel = min;
 				} else {
 					// if value range is small...
@@ -1018,7 +1069,7 @@ module.exports = class SheetPlotNode extends Node {
 			}
 			// MaxWert der Beschriftung ermitteln
 			if (input.max === undefined) {
-				if (axis.relative) {
+				if (this.chart.relative) {
 					maxLabel = max;
 				} else {
 					maxLabel = max / distLin;
@@ -1059,7 +1110,7 @@ module.exports = class SheetPlotNode extends Node {
 				input.step *= 10;
 			}
 
-			if (axis.relative) {
+			if (this.chart.relative) {
 				input.format = {
 					localCulture: `percent;en`,
 					numberFormat: '0%',
@@ -1088,9 +1139,9 @@ module.exports = class SheetPlotNode extends Node {
 
 	getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		let height;
-		const margin = serie.stacked ? 0 : 150;
+		const margin = this.chart.stacked ? 0 : 150;
 
-		if (serie.relative) {
+		if (this.chart.relative) {
 			const neg = axes.x.categories[index].neg;
 			const pos = axes.x.categories[index].pos;
 			const sum = pos - neg;
@@ -1103,7 +1154,7 @@ module.exports = class SheetPlotNode extends Node {
 		return {
 			margin,
 			height,
-			offset: serie.stacked ? -barWidth / 2 : -this.series.length / 2 * barWidth + seriesIndex * barWidth + margin / 2
+			offset: this.chart.stacked ? -barWidth / 2 : -this.series.length / 2 * barWidth + seriesIndex * barWidth + margin / 2
 		}
 	}
 
@@ -1111,7 +1162,7 @@ module.exports = class SheetPlotNode extends Node {
 		if (axes.x.type === 'category') {
 			let barWidth = this.scaleToAxis(axes.x, 1, undefined, false) * plotRect.width -
 				this.scaleToAxis(axes.x, 0, undefined, false) * plotRect.width;
-			barWidth = barWidth * 0.7 / (serie.stacked ? 1 : this.series.length);
+			barWidth = barWidth * 0.7 / (this.chart.stacked ? 1 : this.series.length);
 			return barWidth;
 		}
 
@@ -1165,7 +1216,7 @@ module.exports = class SheetPlotNode extends Node {
 
 	getValue(ref, index, value) {
 		const validate = val => {
-			if (this.chart.dataMode ==='datazero') {
+			if (this.chart.dataMode ==='datazero' || this.chart.stacked) {
 				return Numbers.isNumber(val) ? val : 0;
 			}
 
@@ -1268,8 +1319,8 @@ module.exports = class SheetPlotNode extends Node {
 		if (info) {
 			let tmp;
 			let y = 0;
-			if (info.serie.stacked) {
-				if (info.serie.relative) {
+			if (this.chart.stacked) {
+				if (this.chart.relative) {
 					const neg = info.categories[info.index].neg;
 					const pos = info.categories[info.index].pos;
 					const sum = pos - neg;
@@ -1455,8 +1506,12 @@ module.exports = class SheetPlotNode extends Node {
 			return this.series[selection.index];
 		case 'xAxis':
 			return this.xAxes[selection.index];
+		case 'xAxisTitle':
+			return this.xAxes[selection.index].title;
 		case 'yAxis':
 			return this.yAxes[selection.index];
+		case 'yAxisTitle':
+			return this.yAxes[selection.index].title;
 		case 'title':
 			return this.title;
 		case 'legend':
@@ -1610,12 +1665,30 @@ module.exports = class SheetPlotNode extends Node {
 			};
 		}
 
+		result = this.xAxes.filter((axis) => axis.title.position.containsPoint(pt));
+		if (result.length) {
+			return {
+				element: 'xAxisTitle',
+				index: this.xAxes.indexOf(result[0]),
+				data: result[0].title
+			};
+		}
+
 		result = this.yAxes.filter((axis) => axis.position.containsPoint(pt));
 		if (result.length) {
 			return {
 				element: 'yAxis',
 				index: this.yAxes.indexOf(result[0]),
 				data: result[0]
+			};
+		}
+
+		result = this.yAxes.filter((axis) => axis.title.position.containsPoint(pt));
+		if (result.length) {
+			return {
+				element: 'yAxisTitle',
+				index: this.yAxes.indexOf(result[0]),
+				data: result[0].title
 			};
 		}
 
@@ -1644,19 +1717,30 @@ module.exports = class SheetPlotNode extends Node {
 		const cmp = new CompoundCommand();
 
 		this.series = [];
-
+		const cmdChart = this.prepareCommand('chart');
 		const cmdAxis = this.prepareCommand('axes');
+
+		this.chart.stacked = type.indexOf('stacked') !== -1;
+		this.chart.relative = type.indexOf('100') !== -1;
+
 		switch (type) {
 		case 'columnstacked100':
 		case 'columnstacked':
 		case 'column':
+			this.xAxes[0].type = 'category';
+			type = 'column';
+			break;
 		case 'area':
 		case 'areastacked':
 		case 'areastacked100':
+			this.xAxes[0].type = 'category';
+			type = 'area';
+			break;
 		case 'line':
 		case 'linestacked':
 		case 'linestacked100':
 			this.xAxes[0].type = 'category';
+			type = 'line';
 			break;
 		case 'scatter':
 			this.xAxes[0].type = 'linear';
@@ -1867,6 +1951,8 @@ module.exports = class SheetPlotNode extends Node {
 		this.evaluate();
 
 		if (cmp.hasCommands()) {
+			this.finishCommand(cmdChart, 'chart');
+			cmp.add(cmdChart);
 			this.finishCommand(cmdAxis, 'axes');
 			cmp.add(cmdAxis);
 			viewer.getInteractionHandler().execute(cmp);
@@ -1884,9 +1970,11 @@ module.exports = class SheetPlotNode extends Node {
 		});
 		this.xAxes.forEach((axis) => {
 			axis.formula.evaluate(this);
+			axis.title.formula.evaluate(this);
 		});
 		this.yAxes.forEach((axis) => {
 			axis.formula.evaluate(this);
+			axis.title.formula.evaluate(this);
 		});
 		this.title.formula.evaluate(this);
 	}
@@ -1931,22 +2019,10 @@ module.exports = class SheetPlotNode extends Node {
 	saveAxes(writer) {
 		const save = (data, name) => {
 			writer.writeStartArray(name);
-
 			data.forEach((axis) => {
-				writer.writeStartElement(name);
-
-				writer.writeAttributeNumber('size', axis.size, 0);
-				writer.writeAttributeString('align', axis.align);
-				writer.writeAttributeString('type', axis.type);
-				writer.writeAttributeString('name', axis.name);
-				writer.writeAttributeString('position', axis.position.toString());
-				axis.formula.save('formula', writer);
-				axis.format.save('format', writer);
-
-				writer.writeEndElement();
+				axis.save(writer, name);
 			});
-
-			writer.writeEndArray('name');
+			writer.writeEndArray(name);
 		};
 
 		save(this.xAxes, 'xaxis');
@@ -1962,7 +2038,7 @@ module.exports = class SheetPlotNode extends Node {
 
 		this.chart.save(writer);
 		this.savePlot(writer);
-		this.title.save(writer);
+		this.title.save('title', writer);
 		this.saveSeries(writer);
 		this.saveAxes(writer);
 		this.saveLegend(writer);
@@ -1971,48 +2047,35 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	readLegend(reader, object) {
-		reader.iterateObjects(object, (name, child) => {
-			switch (name) {
-			case 'legend': {
-				this.legend.visible =
-					reader.getAttribute(child, 'visible') === undefined
-						? true
-						: !!Number(reader.getAttribute(child, 'visible')) ;
-				this.legend.align =
-					reader.getAttribute(child, 'align') === undefined
-						? 'right'
-						: reader.getAttribute(child, 'align');
+		this.legend.visible =
+			reader.getAttribute(object, 'visible') === undefined
+				? true
+				: !!Number(reader.getAttribute(object, 'visible')) ;
+		this.legend.align =
+			reader.getAttribute(object, 'align') === undefined
+				? 'right'
+				: reader.getAttribute(object, 'align');
 
-				reader.iterateObjects(child, (subName, subChild) => {
-					switch (subName) {
-					case 'formula':
-						this.legend.formula = new Expression(0);
-						this.legend.formula.read(reader, subChild);
-						break;
-					case 'format':
-						this.legend.format = new ChartFormat();
-						this.legend.format.read(reader, subChild);
-						break;
-					}
-				});
+		reader.iterateObjects(object, (subName, subChild) => {
+			switch (subName) {
+			case 'formula':
+				this.legend.formula = new Expression(0);
+				this.legend.formula.read(reader, subChild);
 				break;
-			}
+			case 'format':
+				this.legend.format = new ChartFormat();
+				this.legend.format.read(reader, subChild);
+				break;
 			}
 		});
 	}
 
 	readPlot(reader, object) {
-		reader.iterateObjects(object, (name, child) => {
-			switch (name) {
-			case 'plot':
-				reader.iterateObjects(child, (subName, subChild) => {
-					switch (subName) {
-					case 'format':
-						this.plot.format = new ChartFormat();
-						this.plot.format.read(reader, subChild);
-						break;
-					}
-				});
+		reader.iterateObjects(object, (subName, subChild) => {
+			switch (subName) {
+			case 'format':
+				this.plot.format = new ChartFormat();
+				this.plot.format.read(reader, subChild);
 				break;
 			}
 		});
@@ -2023,12 +2086,12 @@ module.exports = class SheetPlotNode extends Node {
 
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {
-				case 'series': {
-					const serie = new ChartSeries();
-					serie.read(reader, child);
-					this.series.push(serie);
-					break;
-				}
+			case 'series': {
+				const serie = new ChartSeries();
+				serie.read(reader, child);
+				this.series.push(serie);
+				break;
+			}
 			}
 		});
 	}
@@ -2041,39 +2104,8 @@ module.exports = class SheetPlotNode extends Node {
 			switch (name) {
 				case 'xaxis':
 				case 'yaxis': {
-					const axis = {
-						format: new ChartFormat()
-					};
-					axis.size =
-						reader.getAttribute(child, 'size') === undefined
-							? 500
-							: Number(reader.getAttribute(child, 'size'));
-					axis.align =
-						reader.getAttribute(child, 'align') === undefined
-							? 'left'
-							: reader.getAttribute(child, 'align');
-					axis.type =
-						reader.getAttribute(child, 'type') === undefined
-							? 'linear'
-							: reader.getAttribute(child, 'type');
-					axis.name =
-						reader.getAttribute(child, 'name') === undefined
-							? 'primary'
-							: reader.getAttribute(child, 'name');
-					axis.position = ChartRect.fromString(reader.getAttribute(child, 'position'));
-
-					reader.iterateObjects(child, (subName, subChild) => {
-						switch (subName) {
-						case 'formula':
-							axis.formula = new Expression(0);
-							axis.formula.read(reader, subChild);
-							break;
-						case 'format':
-							axis.format = new ChartFormat();
-							axis.format.read(reader, subChild);
-							break;
-						}
-					});
+					const axis = new ChartAxis();
+					axis.read(reader, child);
 					if (name === 'xaxis') {
 						this.xAxes.push(axis);
 					} else {
@@ -2090,10 +2122,22 @@ module.exports = class SheetPlotNode extends Node {
 
 		const plot = reader.getObject(object, 'plot');
 		if (plot) {
-			this.chart.read(reader, plot);
-			this.readPlot(reader, plot);
-			this.title.read(reader, plot);
-			this.readLegend(reader, plot);
+			reader.iterateObjects(plot, (name, child) => {
+				switch (name) {
+				case 'plot':
+					this.readPlot(reader, child);
+					break;
+				case 'chart':
+					this.chart.read(reader, child);
+					break;
+				case 'title':
+					this.title.read(reader, child);
+					break;
+				case 'legend':
+					this.readLegend(reader, child);
+					break;
+				}
+			});
 			this.readSeries(reader, plot);
 			this.readAxes(reader, plot);
 		}
@@ -2106,7 +2150,7 @@ module.exports = class SheetPlotNode extends Node {
 		writer.writeStartDocument();
 		switch (key) {
 		case 'title':
-			this.title.save(writer);
+			this.title.save('title', writer);
 			break;
 		case 'series':
 			this.saveSeries(writer);

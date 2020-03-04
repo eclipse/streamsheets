@@ -179,6 +179,20 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'series');
 	};
 
+	handleGridlineVisibleChange = (event, state) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.gridVisible = state;
+		this.finishCommand(cmd, 'axes');
+	};
+
+	handleAxisTitleVisibleChange = (event, state) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.title.visible = state;
+		this.finishCommand(cmd, 'axes');
+	};
+
 	translateTitle(title) {
 		switch (title) {
 		case 'title':
@@ -425,8 +439,10 @@ export class StreamChartProperties extends Component {
 								Series
 							</FormLabel>
 							{
-								item.series.map(series => (
+								item.series.map((series, index) => (
 									<FormControl
+										/* eslint-disable-next-line react/no-array-index-key */
+										key={`s${index}`}
 										style={{
 											width: '95%',
 											margin: '7px',
@@ -449,6 +465,52 @@ export class StreamChartProperties extends Component {
 									</FormControl>
 								))
 							}
+						</div>
+					) : null}
+					{selection && (selection.element === 'xAxis' || (selection.element === 'yAxis')) ? (
+						<div>
+							<FormControl
+								style={{
+									width: '95%',
+									margin: '8px'
+								}}
+							>
+								<FormGroup>
+									<FormLabel
+										component="legend"
+										style={{
+											marginBottom: '7px'
+										}}
+									>
+										Visible
+									</FormLabel>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={data.gridVisible}
+												onChange={(event, state) => this.handleGridlineVisibleChange(event, state)}
+											/>
+										}
+										label={
+											<FormattedMessage id="StreamChartProperties.grid" defaultMessage="Gridline" />
+										}
+									/>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={data.title.visible}
+												onChange={(event, state) => this.handleAxisTitleVisibleChange(event, state)}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.AxisTitle"
+												defaultMessage="Axis title"
+											/>
+										}
+									/>
+								</FormGroup>
+							</FormControl>
 						</div>
 					) : null}
 				</div>

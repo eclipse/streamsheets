@@ -2,6 +2,7 @@ import { Term, NullTerm } from '@cedalo/parser';
 import {
 	GraphUtils,
 	StreamSheet,
+	CompoundCommand,
 	NumberExpression,
 	Selection,
 	DeleteCellContentCommand,
@@ -161,9 +162,18 @@ export default class SheetPlotInteraction extends Interaction {
 					const axes = item.getAxes();
 					const valueStart = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptStart : ptEnd);
 					const valueEnd = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptEnd : ptStart);
-
-					this.setParamValue(viewer, item, item.xAxes[0].formula, 4, valueStart.x);
-					this.setParamValue(viewer, item, item.xAxes[0].formula, 5, valueEnd.x);
+					const cmp = new CompoundCommand()
+					let cmd = this.setParamValue(viewer, item, item.xAxes[0].formula, 4, valueStart.x);
+					if (cmd) {
+						cmp.add(cmd);
+					}
+					cmd = this.setParamValue(viewer, item, item.xAxes[0].formula, 5, valueEnd.x);
+					if (cmd) {
+						cmp.add(cmd);
+					}
+					if (cmp.hasCommands()) {
+						viewer.getInteractionHandler().execute(cmp);
+					}
 
 					viewer.getGraph().markDirty();
 					event.doRepaint = true;
@@ -177,7 +187,7 @@ export default class SheetPlotInteraction extends Interaction {
 	setParamValue(viewer, item, expression, index, value) {
 		const term = expression.getTerm();
 		if (term === undefined) {
-			return;
+			return undefined;
 		}
 
 		const info = item.getParamInfo(term, index);
@@ -192,8 +202,7 @@ export default class SheetPlotInteraction extends Interaction {
 				range.shiftToSheet();
 			 	cmd  = new SetCellDataCommand(info.sheet, range.toString(), new NumberExpression(value), true);
 			}
-			viewer.getInteractionHandler().execute(cmd);
-			return;
+			return cmd;
 		}
 
 		if (term && term.params) {
@@ -208,6 +217,8 @@ export default class SheetPlotInteraction extends Interaction {
 			}
 			expression.correctFormula();
 		}
+
+		return undefined;
 	}
 
 	willFinish(event, viewer) {

@@ -57,7 +57,7 @@ export default class SheetPlotView extends NodeView {
 
 		this.drawAxes(graphics, plotRect, item, false);
 		this.drawLegend(graphics, plotRect, item);
-		this.drawTitle(graphics, item);
+		this.drawTitle(graphics, item, item.title, 'title', 0);
 	}
 
 	drawLegend(graphics, plotRect, item) {
@@ -115,22 +115,24 @@ export default class SheetPlotView extends NodeView {
 
 	drawAxes(graphics, plotRect, item, grid) {
 		item.xAxes.forEach((axis) => {
+			this.drawTitle(graphics, item, axis.title, 'axisTitle', 0);
 			this.drawAxis(graphics, plotRect, item, axis, grid);
 		});
 
 		item.yAxes.forEach((axis) => {
+			this.drawTitle(graphics, item, axis.title, 'axisTitle', Math.PI_2);
 			this.drawAxis(graphics, plotRect, item, axis, grid);
 		});
 	}
 
 	drawAxis(graphics, plotRect, item, axis, grid) {
-		if (!axis.position || !axis.scale) {
+		if (!axis.position || !axis.scale || (grid && !axis.gridVisible)) {
 			return;
 		}
 		// draw axis line
 		if (!grid) {
 			graphics.beginPath();
-			graphics.setLineColor(axis.format.lineColor || item.getTemplate().axis.linecolor);
+			graphics.setLineColor(axis.format.lineColor || item.getTemplate().axis.format.lineColor);
 			switch (axis.align) {
 				case 'left':
 					graphics.moveTo(axis.position.right, axis.position.top);
@@ -269,6 +271,8 @@ export default class SheetPlotView extends NodeView {
 		const barWidth = item.getBarWidth(axes, serie, plotRect);
 		const points = [];
 		let newLine = true;
+		let xFirst;
+		let xLast;
 		const info = {
 			serie,
 			seriesIndex,
@@ -289,14 +293,28 @@ export default class SheetPlotView extends NodeView {
 					} else if (newLine) {
 						graphics.moveTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
 						newLine = false;
+						xFirst = x;
+						xLast = x;
 					} else {
 						graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+						xLast = x;
 					}
-					if (serie.type === 'area' && serie.stacked) {
-						points.push({
-							x: plotRect.left + x * plotRect.width,
-							y: plotRect.bottom - y * plotRect.height
-						});
+					if (serie.type === 'area') {
+						if (newLine) {
+							y = item.scaleToAxis(axes.y, 0, undefined, false);
+							graphics.lineTo(plotRect.left + xLast * plotRect.width, plotRect.bottom - y * plotRect.height);
+							graphics.lineTo(plotRect.left + xFirst * plotRect.width, plotRect.bottom - y * plotRect.height);
+							graphics.closePath();
+							graphics.fill();
+							graphics.stroke();
+							graphics.beginPath();
+						}
+						if (item.chart.stacked) {
+							points.push({
+								x: plotRect.left + x * plotRect.width,
+								y: plotRect.bottom - y * plotRect.height
+							});
+						}
 					}
 					break;
 				case 'column':
@@ -316,7 +334,7 @@ export default class SheetPlotView extends NodeView {
 		}
 
 		if (serie.type === 'area') {
-			if (seriesIndex && serie.stacked && lastPoints) {
+			if (seriesIndex && item.chart.stacked && lastPoints) {
 				let point;
 				for (let i = lastPoints.length - 1; i >= 0; i -= 1) {
 					point = lastPoints[i];
@@ -324,8 +342,9 @@ export default class SheetPlotView extends NodeView {
 				}
 			} else {
 				y = item.scaleToAxis(axes.y, 0, undefined, false);
+				x = xLast;
 				graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
-				x = item.scaleToAxis(axes.x, 0, undefined, false);
+				x = xFirst;// item.scaleToAxis(axes.x, xFirst, undefined, false);
 				graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
 			}
 			graphics.closePath();
@@ -341,23 +360,36 @@ export default class SheetPlotView extends NodeView {
 		return points;
 	}
 
-	drawTitle(graphics, item) {
-		const { title } = item;
-
+	drawTitle(graphics, item, title, id, angle) {
 		if (!title.visible) {
 			return;
 		}
 
 		const text = String(item.getExpressionValue(title.formula));
 
-		this.drawRect(graphics, title.position, item, title.format, 'title');
-		item.setFont(graphics, title.format, 'title', 'middle', TextFormatAttributes.TextAlignment.CENTER);
+		this.drawRect(graphics, title.position, item, title.format, id);
+		item.setFont(graphics, title.format, id, 'middle', TextFormatAttributes.TextAlignment.CENTER);
 
-		graphics.fillText(
-			text,
-			title.position.left + title.position.width / 2,
-			title.position.top + title.position.height / 2 + 50
-		);
+		if (angle) {
+			graphics.translate(
+				title.position.left + title.position.width / 2,
+				title.position.top + title.position.height / 2 + 50
+			);
+			graphics.rotate(-angle);
+
+			graphics.fillText(text, 0, 0);
+
+			graphics.rotate(angle);
+			graphics.translate(
+				-(title.position.left + title.position.width / 2),
+				-(title.position.top + title.position.height / 2 + 50)
+			);
+		} else {
+			graphics.fillText(text,
+				title.position.left + title.position.width / 2,
+				title.position.top + title.position.height / 2 + 50
+			);
+		}
 	}
 
 	getSelectedFormat() {
@@ -368,20 +400,25 @@ export default class SheetPlotView extends NodeView {
 			const template = this.getItem().getTemplate();
 			if (data) {
 				switch (this.chartSelection.element) {
-					case 'series':
-						f.setFillColor(data.format.fillColor || template.series.fill[this.chartSelection.index]);
-						f.setLineColor(data.format.lineColor || template.series.line[this.chartSelection.index]);
-						break;
-					case 'title':
-					case 'legend':
-						f.setFillColor(data.format.fillColor || template[this.chartSelection.element].format.fillColor);
-						f.setLineColor(data.format.lineColor || template[this.chartSelection.element].format.lineColor);
-						break;
-					case 'xAxis':
-					case 'yAxis':
-						f.setLineColor(data.format.lineColor || template.axis.format.lineColor);
-						f.setFillColor(data.format.fillColor || template.axis.format.fillColor);
-						break;
+				case 'series':
+					f.setFillColor(data.format.fillColor || template.series.fill[this.chartSelection.index]);
+					f.setLineColor(data.format.lineColor || template.series.line[this.chartSelection.index]);
+					break;
+				case 'title':
+				case 'legend':
+					f.setFillColor(data.format.fillColor || template[this.chartSelection.element].format.fillColor);
+					f.setLineColor(data.format.lineColor || template[this.chartSelection.element].format.lineColor);
+					break;
+				case 'xAxis':
+				case 'yAxis':
+					f.setLineColor(data.format.lineColor || template.axis.format.lineColor);
+					f.setFillColor(data.format.fillColor || template.axis.format.fillColor);
+					break;
+				case 'xAxisTitle':
+				case 'yAxisTitle':
+					f.setLineColor(data.format.lineColor || template.axisTitle.format.lineColor);
+					f.setFillColor(data.format.fillColor || template.axisTitle.format.fillColor);
+					break;
 					default:
 						break;
 				}
@@ -399,41 +436,53 @@ export default class SheetPlotView extends NodeView {
 			const template = this.getItem().getTemplate();
 			if (data) {
 				switch (this.chartSelection.element) {
-					case 'series':
-					case 'title':
-					case 'legend':
-						tf.setFontName(
-							data.format.fontName ||
-								template[this.chartSelection.element].format.fontName ||
-								template.font.name
-						);
-						tf.setFontSize(
-							data.format.fontSize ||
-								template[this.chartSelection.element].format.fontSize ||
-								template.font.size
-						);
-						if (data.format.fontStyle !== undefined) {
-							tf.setFontStyle(data.format.fontStyle);
-						} else if (template[this.chartSelection.element].format.fontStyle !== undefined) {
-							tf.setFontStyle(template[this.chartSelection.element].format.fontStyle);
-						} else {
-							tf.setFontStyle(template.font.style);
-						}
-						break;
-					case 'xAxis':
-					case 'yAxis':
-						tf.setFontName(data.format.fontName || template.axis.format.fontName || template.font.name);
-						tf.setFontSize(data.format.fontSize || template.axis.format.fontSize || template.font.size);
-						if (data.format.fontStyle !== undefined) {
-							tf.setFontStyle(data.format.fontStyle);
-						} else if (template.axis.format.fontStyle !== undefined) {
-							tf.setFontStyle(template.axis.format.fontStyle);
-						} else {
-							tf.setFontStyle(template.font.style);
-						}
-						break;
-					default:
-						break;
+				case 'series':
+				case 'title':
+				case 'legend':
+					tf.setFontName(
+						data.format.fontName ||
+							template[this.chartSelection.element].format.fontName ||
+							template.font.name
+					);
+					tf.setFontSize(
+						data.format.fontSize ||
+							template[this.chartSelection.element].format.fontSize ||
+							template.font.size
+					);
+					if (data.format.fontStyle !== undefined) {
+						tf.setFontStyle(data.format.fontStyle);
+					} else if (template[this.chartSelection.element].format.fontStyle !== undefined) {
+						tf.setFontStyle(template[this.chartSelection.element].format.fontStyle);
+					} else {
+						tf.setFontStyle(template.font.style);
+					}
+					break;
+				case 'xAxis':
+				case 'yAxis':
+					tf.setFontName(data.format.fontName || template.axis.format.fontName || template.font.name);
+					tf.setFontSize(data.format.fontSize || template.axis.format.fontSize || template.font.size);
+					if (data.format.fontStyle !== undefined) {
+						tf.setFontStyle(data.format.fontStyle);
+					} else if (template.axis.format.fontStyle !== undefined) {
+						tf.setFontStyle(template.axis.format.fontStyle);
+					} else {
+						tf.setFontStyle(template.font.style);
+					}
+					break;
+				case 'xAxisTitle':
+				case 'yAxisTitle':
+					tf.setFontName(data.format.fontName || template.axisTitle.format.fontName || template.font.name);
+					tf.setFontSize(data.format.fontSize || template.axisTitle.format.fontSize || template.font.size);
+					if (data.format.fontStyle !== undefined) {
+						tf.setFontStyle(data.format.fontStyle);
+					} else if (template.axisTitle.format.fontStyle !== undefined) {
+						tf.setFontStyle(template.axisTitle.format.fontStyle);
+					} else {
+						tf.setFontStyle(template.font.style);
+					}
+					break;
+				default:
+					break;
 				}
 			}
 		}
@@ -448,7 +497,9 @@ export default class SheetPlotView extends NodeView {
 				case 'title':
 				case 'legend':
 				case 'xAxis':
+				case 'xAxisTitle':
 				case 'yAxis':
+				case 'yAxisTitle':
 					return true;
 				default:
 					return false;
@@ -467,7 +518,9 @@ export default class SheetPlotView extends NodeView {
 				case 'xAxis':
 				case 'yAxis':
 				case 'title':
-				case 'legend': {
+				case 'legend':
+				case 'xAxisTitle':
+				case 'yAxisTitle': {
 					const data = this.getItem().getDataFromSelection(this.chartSelection);
 					if (!data) {
 						return super.getSelectedFormula(sheet);
@@ -549,6 +602,8 @@ export default class SheetPlotView extends NodeView {
 					return true;
 				case 'xAxis':
 				case 'yAxis':
+				case 'xAxisTitle':
+				case 'yAxisTitle':
 					update('axes');
 					return true;
 				case 'title':

@@ -1,4 +1,7 @@
-import { default as JSG, SheetPlotNode, NotificationCenter, Notification, Shape } from '@cedalo/jsg-core';
+import {
+	default as JSG, CompoundCommand,
+	SheetPlotNode, NotificationCenter, Notification, Shape
+} from '@cedalo/jsg-core';
 
 import SheetPlotInteraction from './SheetPlotInteraction';
 import InteractionActivator from './InteractionActivator';
@@ -75,11 +78,21 @@ export default class SheetPlotActivator extends InteractionActivator {
 			case 'xAxis':
 			case 'yAxis': {
 				const axis = selection.data;
+				const cmp = new CompoundCommand()
 
-				interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula, 4,
+				let cmd = interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula, 4,
 					undefined);
-				interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula, 5,
+				if (cmd) {
+					cmp.add(cmd);
+				}
+				cmd = interaction.setParamValue(viewer, interaction._controller.getModel(), axis.formula, 5,
 					undefined);
+				if (cmd) {
+					cmp.add(cmd);
+				}
+				if (cmp.hasCommands()) {
+					viewer.getInteractionHandler().execute(cmp);
+				}
 
 				viewer.getGraph().markDirty();
 				event.doRepaint = true;

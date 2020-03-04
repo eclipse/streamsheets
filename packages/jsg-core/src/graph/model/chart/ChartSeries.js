@@ -4,8 +4,6 @@ const ChartFormat = require('./ChartFormat');
 
 module.exports = class ChartSeries {
 	constructor(type, formula) {
-		this._stacked = false;
-		this._relative = false;
 		this.type = type;
 		this.formula = formula;
 		this.format = new ChartFormat();
@@ -14,61 +12,16 @@ module.exports = class ChartSeries {
 	}
 
 	set type(type) {
-		if (type === undefined) {
-			return;
-		}
-
-		this._stacked = type.indexOf('stacked') !== -1;
-		this._relative = type.indexOf('100') !== -1;
-
-		switch(type) {
-		case 'areastacked':
-		case 'areastacked100':
-			this._type = 'area';
-			break;
-		case 'columnstacked':
-		case 'columnstacked100':
-			this._type = 'column';
-			break;
-		case 'linestacked':
-		case 'linestacked100':
-			this._type = 'line';
-			break;
-		default:
-			this._type = type || 'line';
-			break;
-		}
+		this._type = type || 'line';
 	}
 
 	get type() {
 		return this._type;
 	}
 
-	get stacked() {
-		return this._stacked;
-	}
-
-	set stacked(value) {
-		if (value === undefined || value === 'false') {
-			this._stacked = false;
-		} else {
-			this._stacked = !!Number(value);
-		}
-	}
-
-	get relative() {
-		return this._relative;
-	}
-
-	set relative(value) {
-		this._relative = (value === undefined ? false : !!Number(value));
-	}
-
 	save(writer) {
 		writer.writeStartElement('series');
 		writer.writeAttributeString('type', this.type);
-		writer.writeAttributeNumber('stacked', this.stacked ? 1 : 0);
-		writer.writeAttributeNumber('relative', this.relative ? 1 : 0);
 		writer.writeAttributeString('xaxis', this.xAxis);
 		writer.writeAttributeString('yaxis', this.yAxis);
 		this.formula.save('formula', writer);
@@ -78,8 +31,6 @@ module.exports = class ChartSeries {
 
 	read(reader, object) {
 		this.type = reader.getAttribute(object, 'type');
-		this.stacked = reader.getAttribute(object, 'stacked');
-		this.relative = reader.getAttribute(object, 'relative');
 		this.xAxis =
 			reader.getAttribute(object, 'xaxis') === undefined
 				? 'primary'

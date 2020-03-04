@@ -53,7 +53,7 @@ module.exports = class SetPlotDataCommand extends AbstractItemCommand {
 
 		switch (this._key) {
 		case 'title':
-			this._graphItem.title.read(reader, root);
+			this._graphItem.title.read(reader, reader.getObject(root, 'title'));
 			break;
 		case 'axes':
 			this._graphItem.readAxes(reader, root);
@@ -62,13 +62,13 @@ module.exports = class SetPlotDataCommand extends AbstractItemCommand {
 			this._graphItem.readSeries(reader, root);
 			break;
 		case 'legend':
-			this._graphItem.readLegend(reader, root);
+			this._graphItem.readLegend(reader, reader.getObject(root, 'legend'));
 			break;
 		case 'plot':
 			this._graphItem.readPlot(reader, root);
 			break;
 		case 'chart':
-			this._graphItem.chart.read(reader, root);
+			this._graphItem.chart.read(reader, reader.getObject(root, 'chart'));
 			break;
 		}
 
