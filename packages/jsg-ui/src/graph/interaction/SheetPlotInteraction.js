@@ -1,5 +1,6 @@
 import { Term, NullTerm } from '@cedalo/parser';
 import {
+	default as JSG,
 	GraphUtils,
 	StreamSheet,
 	CompoundCommand,
@@ -165,7 +166,7 @@ export default class SheetPlotInteraction extends Interaction {
 
 					this.setParamValues(viewer, item, item.xAxes[0].formula,
 						[{index: 4, value: valueStart.x}, {index: 5, value: valueEnd.x}]);
-					item.zooming = true;
+					JSG.zooming = true;
 
 					viewer.getGraph().markDirty();
 					event.doRepaint = true;

@@ -1,5 +1,5 @@
 import {
-	default as JSG, CompoundCommand,
+	default as JSG,
 	SheetPlotNode, NotificationCenter, Notification, Shape
 } from '@cedalo/jsg-core';
 
@@ -82,7 +82,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 
 				interaction.setParamValues(viewer, item, axis.formula,
 					[{index: 4, value: undefined}, {index: 5, value: undefined}]);
-				item.zooming = true;
+				JSG.zooming = true;
 
 				viewer.getGraph().markDirty();
 				event.doRepaint = true;
