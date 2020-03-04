@@ -3694,7 +3694,12 @@ export class CanvasToolBar extends Component {
 					}}
 				/>
 				{window.outerWidth > 1200 ? (
-					<div>
+					<div
+						style={{
+							right: '10px',
+							position: 'absolute',
+						}}
+					>
 						<CustomTooltip header="Tooltip.ZoomHeader" message="Tooltip.ZoomMessage">
 							<IconButton style={buttonStyle} aria-label="Zoom" onClick={this.onShowZoom}>
 								<ZoomIcon fontSize="inherit" />
@@ -3724,10 +3729,9 @@ export class CanvasToolBar extends Component {
 								</SvgIcon>
 							</IconButton>
 						</Tooltip>
+						<ToolbarExtensions />
 					</div>
 				) : null}
-
-				{window.outerWidth > 1200 ? <ToolbarExtensions /> : null}
 				<Popover
 					open={this.state.zoomOpen}
 					anchorEl={this.state.anchorEl}
