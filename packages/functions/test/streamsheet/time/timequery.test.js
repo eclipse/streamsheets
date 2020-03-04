@@ -657,15 +657,12 @@ describe('timequery', () => {
 					A9: { formula: 'time.store(JSON(A1:B8))' },
 					A10: 'values', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
 					A11: 'aggregates', B11: '1,1,1,1,1,1,1,1',
-					// A10: 'value', B10: 'v1', C4: 'value', D4: 'v2',
-					// A5: 'aggregate', B5: 9, C5: 'aggregate', D5: 4,					
 					A20: { formula: 'time.query(A9, JSON(A10:B11), 20/1000)' }
 				}
 			});
 			const querycell = sheet.cellAt('A20');
 			expect(querycell.value).toBe(true);
-			await runMachine(machine, 55);
-			expect(sheet.cellAt('B1').value).toBe(7)
+			await runMachine(machine, 50);
 			expect(querycell.info.values).toBeDefined();
 			expect(querycell.info.values.v1.length).toBe(2);
 			expect(querycell.info.values.v2).toEqual([0, 0]);
@@ -675,7 +672,6 @@ describe('timequery', () => {
 			expect(querycell.info.values.v6).toEqual([0, 0]);
 			expect(querycell.info.values.v7).toEqual([0, 0]);
 			expect(querycell.info.values.v8).toEqual([0, 0]);
-
 		});
 		test.skip('max', async () => {
 			const machine = newMachine({ cycletime: 10 });
@@ -702,6 +698,38 @@ describe('timequery', () => {
 			expect(querycell.info.values.v1.length).toBe(1);
 			expect(querycell.info.values.v1[0]).toBe(4);
 		});
+		test('max should ignore non number values', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: 'v2', B2: '',
+					A3: 'v3', B3: 'hello',
+					A4: 'v4', B4: true,
+					A5: 'v5', B5: false,
+					A6: 'v6', B6: '23',
+					A7: 'v7', B7: null,
+					A8: 'v8', B8: undefined,
+					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A10: 'values', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
+					A11: 'aggregates', B11: '4,4,4,4,4,4,4,4',
+					A20: { formula: 'time.query(A9, JSON(A10:B11), 20/1000)' }
+				}
+			});
+			const querycell = sheet.cellAt('A20');
+			expect(querycell.value).toBe(true);
+			await runMachine(machine, 50);
+			expect(querycell.info.values).toBeDefined();
+			expect(querycell.info.values.v1.length).toBe(2);
+			expect(querycell.info.values.v2).toEqual([Number.MIN_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]);
+			expect(querycell.info.values.v3).toEqual([Number.MIN_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]);
+			expect(querycell.info.values.v4).toEqual([Number.MIN_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]);
+			expect(querycell.info.values.v5).toEqual([Number.MIN_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]);
+			expect(querycell.info.values.v6).toEqual([Number.MIN_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]);
+			expect(querycell.info.values.v7).toEqual([Number.MIN_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]);
+			expect(querycell.info.values.v8).toEqual([Number.MIN_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]);
+		});
 		test.skip('min', async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -726,6 +754,38 @@ describe('timequery', () => {
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1.length).toBe(1);
 			expect(querycell.info.values.v1[0]).toBe(2);
+		});
+		test('min should ignore non number values', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: 'v2', B2: '',
+					A3: 'v3', B3: 'hello',
+					A4: 'v4', B4: true,
+					A5: 'v5', B5: false,
+					A6: 'v6', B6: '23',
+					A7: 'v7', B7: null,
+					A8: 'v8', B8: undefined,
+					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A10: 'values', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
+					A11: 'aggregates', B11: '5,5,5,5,5,5,5,5',
+					A20: { formula: 'time.query(A9, JSON(A10:B11), 20/1000)' }
+				}
+			});
+			const querycell = sheet.cellAt('A20');
+			expect(querycell.value).toBe(true);
+			await runMachine(machine, 50);
+			expect(querycell.info.values).toBeDefined();
+			expect(querycell.info.values.v1.length).toBe(2);
+			expect(querycell.info.values.v2).toEqual([Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]);
+			expect(querycell.info.values.v3).toEqual([Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]);
+			expect(querycell.info.values.v4).toEqual([Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]);
+			expect(querycell.info.values.v5).toEqual([Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]);
+			expect(querycell.info.values.v6).toEqual([Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]);
+			expect(querycell.info.values.v7).toEqual([Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]);
+			expect(querycell.info.values.v8).toEqual([Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]);
 		});
 		test.skip('count non zero', async () => {
 			const machine = newMachine({ cycletime: 10 });
@@ -755,6 +815,38 @@ describe('timequery', () => {
 			expect(querycell.info.values.v1.length).toBe(1);
 			expect(querycell.info.values.v1[0]).toBe(2);			
 		});
+		test('count non zero should ignore non number values', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: 'v2', B2: '',
+					A3: 'v3', B3: 'hello',
+					A4: 'v4', B4: true,
+					A5: 'v5', B5: false,
+					A6: 'v6', B6: '23',
+					A7: 'v7', B7: null,
+					A8: 'v8', B8: undefined,
+					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A10: 'values', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
+					A11: 'aggregates', B11: '3,3,3,3,3,3,3,3',
+					A20: { formula: 'time.query(A9, JSON(A10:B11), 20/1000)' }
+				}
+			});
+			const querycell = sheet.cellAt('A20');
+			expect(querycell.value).toBe(true);
+			await runMachine(machine, 55);
+			expect(querycell.info.values).toBeDefined();
+			expect(querycell.info.values.v1.length).toBe(2);
+			expect(querycell.info.values.v2).toEqual([0, 0]);
+			expect(querycell.info.values.v3).toEqual([0, 0]);
+			expect(querycell.info.values.v4).toEqual([0, 0]);
+			expect(querycell.info.values.v5).toEqual([0, 0]);
+			expect(querycell.info.values.v6).toEqual([0, 0]);
+			expect(querycell.info.values.v7).toEqual([0, 0]);
+			expect(querycell.info.values.v8).toEqual([0, 0]);
+		});
 		test.skip('count numbers', async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -781,6 +873,38 @@ describe('timequery', () => {
 			expect(querycell.info.values.v1.length).toBe(1);
 			expect(querycell.info.values.v1[0]).toBe(2);
 		});
+		test.skip('count numbers should ignore non number values', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: 'v2', B2: '',
+					A3: 'v3', B3: 'hello',
+					A4: 'v4', B4: true,
+					A5: 'v5', B5: false,
+					A6: 'v6', B6: '23',
+					A7: 'v7', B7: null,
+					A8: 'v8', B8: undefined,
+					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A10: 'values', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
+					A11: 'aggregates', B11: '2,2,2,2,2,2,2,2',
+					A20: { formula: 'time.query(A9, JSON(A10:B11), 20/1000)' }
+				}
+			});
+			const querycell = sheet.cellAt('A20');
+			expect(querycell.value).toBe(true);
+			await runMachine(machine, 50);
+			expect(querycell.info.values).toBeDefined();
+			expect(querycell.info.values.v1.length).toBe(2);
+			expect(querycell.info.values.v2).toEqual([0, 0]);
+			expect(querycell.info.values.v3).toEqual([0, 0]);
+			expect(querycell.info.values.v4).toEqual([0, 0]);
+			expect(querycell.info.values.v5).toEqual([0, 0]);
+			expect(querycell.info.values.v6).toEqual([0, 0]);
+			expect(querycell.info.values.v7).toEqual([0, 0]);
+			expect(querycell.info.values.v8).toEqual([0, 0]);
+		});
 		test.skip('product', async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -806,6 +930,38 @@ describe('timequery', () => {
 			expect(querycell.info.values.v1.length).toBe(1);
 			expect(querycell.info.values.v1[0]).toBe(24);
 		});
+		test.skip('product should ignore non number values', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: 'v2', B2: '',
+					A3: 'v3', B3: 'hello',
+					A4: 'v4', B4: true,
+					A5: 'v5', B5: false,
+					A6: 'v6', B6: '23',
+					A7: 'v7', B7: null,
+					A8: 'v8', B8: undefined,
+					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A10: 'values', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
+					A11: 'aggregates', B11: '6,6,6,6,6,6,6,6',
+					A20: { formula: 'time.query(A9, JSON(A10:B11), 20/1000)' }
+				}
+			});
+			const querycell = sheet.cellAt('A20');
+			expect(querycell.value).toBe(true);
+			await runMachine(machine, 50);
+			expect(querycell.info.values).toBeDefined();
+			expect(querycell.info.values.v1.length).toBe(2);
+			expect(querycell.info.values.v2).toEqual([0, 0]);
+			expect(querycell.info.values.v3).toEqual([0, 0]);
+			expect(querycell.info.values.v4).toEqual([0, 0]);
+			expect(querycell.info.values.v5).toEqual([0, 0]);
+			expect(querycell.info.values.v6).toEqual([0, 0]);
+			expect(querycell.info.values.v7).toEqual([0, 0]);
+			expect(querycell.info.values.v8).toEqual([0, 0]);
+		});
 		test.skip('sum', async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -829,6 +985,38 @@ describe('timequery', () => {
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1[0]).toBe(9);
+		});
+		test('sum should ignore non number values', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: 'v2', B2: '',
+					A3: 'v3', B3: 'hello',
+					A4: 'v4', B4: true,
+					A5: 'v5', B5: false,
+					A6: 'v6', B6: '23',
+					A7: 'v7', B7: null,
+					A8: 'v8', B8: undefined,
+					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A10: 'values', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
+					A11: 'aggregates', B11: '9,9,9,9,9,9,9,9',
+					A20: { formula: 'time.query(A9, JSON(A10:B11), 20/1000)' }
+				}
+			});
+			const querycell = sheet.cellAt('A20');
+			expect(querycell.value).toBe(true);
+			await runMachine(machine, 50);
+			expect(querycell.info.values).toBeDefined();
+			expect(querycell.info.values.v1.length).toBe(2);
+			expect(querycell.info.values.v2).toEqual([0, 0]);
+			expect(querycell.info.values.v3).toEqual([0, 0]);
+			expect(querycell.info.values.v4).toEqual([0, 0]);
+			expect(querycell.info.values.v5).toEqual([0, 0]);
+			expect(querycell.info.values.v6).toEqual([0, 0]);
+			expect(querycell.info.values.v7).toEqual([0, 0]);
+			expect(querycell.info.values.v8).toEqual([0, 0]);
 		});
 		test.skip('standard derivation', async () => {
 			const machine = newMachine({ cycletime: 10 });
@@ -854,9 +1042,37 @@ describe('timequery', () => {
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1[0]).toBe(1);
 		});
-		it.skip('should ignore (?? or whatever) non number values', () => {
-			// strings, undefined, null, true, false
-			expect(false).toBe(true);
+		test('astandard derivation should ignore non number values', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: 'v2', B2: '',
+					A3: 'v3', B3: 'hello',
+					A4: 'v4', B4: true,
+					A5: 'v5', B5: false,
+					A6: 'v6', B6: '23',
+					A7: 'v7', B7: null,
+					A8: 'v8', B8: undefined,
+					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A10: 'values', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
+					A11: 'aggregates', B11: '7,7,7,7,7,7,7,7',
+					A20: { formula: 'time.query(A9, JSON(A10:B11), 20/1000)' }
+				}
+			});
+			const querycell = sheet.cellAt('A20');
+			expect(querycell.value).toBe(true);
+			await runMachine(machine, 50);
+			expect(querycell.info.values).toBeDefined();
+			expect(querycell.info.values.v1.length).toBe(2);
+			expect(querycell.info.values.v2).toEqual([0, 0]);
+			expect(querycell.info.values.v3).toEqual([0, 0]);
+			expect(querycell.info.values.v4).toEqual([0, 0]);
+			expect(querycell.info.values.v5).toEqual([0, 0]);
+			expect(querycell.info.values.v6).toEqual([0, 0]);
+			expect(querycell.info.values.v7).toEqual([0, 0]);
+			expect(querycell.info.values.v8).toEqual([0, 0]);
 		});
 	});
 	describe.skip('compare methods', () => {

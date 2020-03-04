@@ -1,5 +1,7 @@
-const isNumber = (value) => typeof value === 'number';
-const isNonZero = (value) => !!value;
+const { isType } = require('@cedalo/machine-core');
+
+const isNumber = (value) => isType.number(value);
+const isNonZero = (value) => isType.number(value) && !!value;
 
 // on none we simply keep and return first received value...
 const none = () => {
@@ -17,10 +19,13 @@ const none = () => {
 const avg = () => {
 	let n = 0;
 	let total = 0;
-	return (value) => {
-		n += 1;
-		total += value;
-		return total / n;
+	return (value, previous = 0) => {
+		if (isType.number(value)) {
+			n += 1;
+			total += value;
+			return total / n;
+		}
+		return previous;
 	};
 };
 const count = (predicate) => () => {
@@ -30,23 +35,28 @@ const count = (predicate) => () => {
 		return total;
 	};
 };
-const max = () => (value, previous = Number.MIN_SAFE_INTEGER) => (value > previous ? value : previous);
-const min = () => (value, previous = Number.MAX_SAFE_INTEGER) => (value < previous ? value : previous);
-const product = () => (value, previous = 1) => value * previous;
+const max = () => (value, previous = Number.MIN_SAFE_INTEGER) =>
+	isType.number(value) && value > previous ? value : previous;
+const min = () => (value, previous = Number.MAX_SAFE_INTEGER) => 
+	isType.number(value) && value < previous ? value : previous;
+const product = () => (value, previous = 1) => isType.number(value) ? value * previous : previous;
 const stdev = () => {
 	let n = 0;
 	let q1 = 0;
 	let q2 = 0;
 	let sq = 0;
-	return (value) => {
-		n += 1;
-		q1 += value;
-		q2 += value ** 2;
-		sq = q2 - q1 ** 2 / n;
-		return n > 1 ? Math.sqrt(Math.abs(sq / (n - 1))) : 0;
+	return (value, previous = 0) => {
+		if (isType.number(value)) {
+			n += 1;
+			q1 += value;
+			q2 += value ** 2;
+			sq = q2 - q1 ** 2 / n;
+			return n > 1 ? Math.sqrt(Math.abs(sq / (n - 1))) : 0;
+		}
+		return previous;
 	};
 };
-const sum = () => (value, previous = 0) => value + previous;
+const sum = () => (value, previous = 0) => isType.number(value) ? value + previous : previous;
 
 
 const access = (key) => ({
@@ -59,7 +69,6 @@ const access = (key) => ({
 const aggregate = (key, method) => {
 	const accessor = access(key);
 	return (acc, entry) => {
-		// TODO check that we get number for entry value!
 		const value = method(accessor.get(entry), accessor.get(acc));
 		return accessor.set(value, acc);
 	};
