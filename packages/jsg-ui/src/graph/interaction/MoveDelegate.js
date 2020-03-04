@@ -193,7 +193,8 @@ class MoveDelegate extends Delegate {
 			this.highlightTargetController(interaction, event, viewer);
 		}
 
-		if (this._trgtController && !this._trgtController.getModel().isContainer()) {
+		const item = this._trgtController.getModel();
+		if (this._trgtController && !item.isContainer() && !this._isOrderTarget(item)) {
 			interaction.setCursor(Cursor.Style.DENY);
 		} else {
 			interaction.setCursor(Cursor.Style.MOVE);
@@ -543,12 +544,16 @@ class MoveDelegate extends Delegate {
 				}
 			}
 			JSG.boxCache.release(controllerbox);
-		} else if (item.getParent() &&
-			item.getParent().getLayout() &&
-			item.getParent().getLayout().getType() === MatrixLayout.TYPE) {
+		} else if (this._isOrderTarget(item)) {
 			isSuited = true;
 		}
 		return isSuited;
+	}
+
+	_isOrderTarget(item) {
+		return (item.getParent() &&
+			item.getParent().getLayout() &&
+			item.getParent().getLayout().getType() === MatrixLayout.TYPE);
 	}
 
 	/**

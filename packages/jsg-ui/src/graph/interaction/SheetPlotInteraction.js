@@ -107,15 +107,15 @@ export default class SheetPlotInteraction extends Interaction {
 			return;
 		}
 
-		view.chartSelection  = selection;
+		if (!view.getItem().isProtected()) {
+			view.chartSelection = selection;
+			NotificationCenter.getInstance().send(new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, view.getItem()));
+			viewer.setCursor(Cursor.Style.AUTO);
 
-		NotificationCenter.getInstance().send(new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, view.getItem()));
-
-		viewer.setCursor(Cursor.Style.AUTO);
-
-		if (selection) {
-			const layer = view.getGraphView().getLayer('chartselection');
-			layer.push(new ChartSelectionFeedbackView(view));
+			if (selection) {
+				const layer = view.getGraphView().getLayer('chartselection');
+				layer.push(new ChartSelectionFeedbackView(view));
+			}
 		}
 	}
 
