@@ -1,7 +1,8 @@
 const { isType } = require('@cedalo/machine-core');
 
 const isNumber = (value) => isType.number(value);
-const isNonZero = (value) => isType.number(value) && !!value;
+const isNonZero = (value) => !!value;
+// const isNonZero = (value) => isType.number(value) && !!value;
 
 // on none we simply keep and return first received value...
 const none = () => {
