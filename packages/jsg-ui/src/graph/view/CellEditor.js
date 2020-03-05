@@ -486,7 +486,7 @@ export default class CellEditor {
 			copy.shiftToSheet();
 			const rangeString = copy.toString({ useName: true, item: this.formulaSheet });
 
-			pos = formulaUpper.indexOf(rangeString);
+			pos = formulaUpper.indexOf(rangeString.toUpperCase());
 			if (pos === -1) {
 				err = true;
 			}
