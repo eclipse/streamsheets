@@ -84,16 +84,16 @@ class QueryStore {
 		this.nextQuery = this.interval > 0 ? Date.now() + this.interval : -1;
 	}
 
-	query(store, queries, now = Date.now()) {
-		const xform = transform.create(queries, now - this.interval);
+	query(store, query, now = Date.now()) {
+		const xform = transform.createFrom(query, now - this.interval);
 		const result = store.entries.reduceRight(xform, { values: {} });
 		result.ts = now;
 		// TODO: how to handle empty values in result, ie. result = { values: {} }??
 		this.push(result, this.entries);
 	}
-	queryOnInterval(store, queries, now = Date.now()) {
+	queryOnInterval(store, query, now = Date.now()) {
 		if (this.nextQuery > 0 && now >= this.nextQuery) {
-			this.query(store, queries, now);
+			this.query(store, query, now);
 			this.nextQuery = now + this.interval;
 		}
 	}
@@ -129,7 +129,7 @@ const timeQuery = (sheet, ...terms) =>
 		.mapNextArg((storeref) => getStoreTerm(storeref) || ERROR.VALUE)
 		.mapRemaingingArgs((remain) => {
 			const options = readQueryOptions(sheet, remain);
-			return options.error || options.queries.length < 1  ? ERROR.VALUE : options;
+			return options.error || options;
 		})
 		.run((storeterm, options) => {
 			const term = timeQuery.term;
@@ -137,7 +137,7 @@ const timeQuery = (sheet, ...terms) =>
 			const querystore = getQueryStore(term, options);
 			stateListener.setDisposeHandler(sheet, term);
 			stateListener.registerCallback(sheet, term, querystore.reset);
-			querystore.queryOnInterval(timestore, options.queries);
+			querystore.queryOnInterval(timestore, options.query);
 			querystore.write(timestore, term.cell, options.range);
 			const size = querystore.entries.length;
 			// eslint-disable-next-line no-nested-ternary

@@ -13,16 +13,13 @@ const combine = (acc /* , curr */) => acc;
 
 const interval = (period) => (entry) => entry.ts > period;
 
-const create = (queries, period) => {
-	const methods = queries.reduce((all, { value, aggregate }) => {
-		const method = aggregations.get(aggregate, value) || NOOP;
-		all.set(value, reduce(method));
-		return all;
-	}, new Map());
+const createFrom = (query, period) => {
+	const aggregate = query.aggregate || [];
+	const methods = query.select.map((key, index) => reduce(aggregations.get(aggregate[index], key) || NOOP));
 	const xform = compose(filter(interval(period)), ...methods.values());
 	return xform(combine);
 };
 
 module.exports = {
-	create
+	createFrom
 };
