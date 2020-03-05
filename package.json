@@ -21,6 +21,7 @@
 	"scripts": {
 		"lint": "./node_modules/.bin/eslint .",
 		"build": "node ./scripts/build.js --name cedalo/streamsheets-dev --tag local",
+		"tag:latest": "node ./scripts/tag-latest.js --from-image-tag 1.5",
 		"i18n:check": "node ./scripts/i18n.js --en ./packages/webui/src/languages/en.json --de ./packages/webui/src/languages/de.json"
 	},
 	"devDependencies": {
