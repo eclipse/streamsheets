@@ -3633,6 +3633,20 @@ export class CanvasToolBar extends Component {
 										</IconButton>
 									</Tooltip>
 								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.Bar" defaultMessage="Bar" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('bar')}
+										>
+											<img alt="" src="images/charts/bar.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
 								<GridListTile
 									cols={6}
 									style={{

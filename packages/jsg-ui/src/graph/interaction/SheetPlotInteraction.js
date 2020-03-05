@@ -65,6 +65,12 @@ export default class SheetPlotInteraction extends Interaction {
 		return this._controller.getModel().isElementHit(pt, oldSelection);
 	}
 
+	isPlotHit(event, viewer) {
+		const pt = this.toLocalCoordinate(event, viewer, event.location.copy());
+
+		return this._controller.getModel().isPlotHit(pt);
+	}
+
 	showData(selection, event, viewer) {
 		if (selection) {
 			viewer.getGraphView().clearLayer('chartinfo');

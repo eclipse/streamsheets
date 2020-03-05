@@ -56,6 +56,51 @@ export default class ChartSelectionFeedbackView extends View {
 		graphics.setFillStyle(FormatAttributes.FillStyle.SOLID);
 
 		switch (selection.element) {
+		case 'xAxisGrid':
+		case 'yAxisGrid': {
+			const axis = selection.data;
+			if (!axis.position || !axis.scale || !axis.gridVisible) {
+				break;
+			}
+
+			let current = axis.scale.min;
+			let pos;
+
+			if (axis.type === 'time') {
+				current = item.incrementScale(axis, current - 0.0000001);
+			}
+
+			while (current <= axis.scale.max) {
+				if (axis.type === 'category' && current >= axis.scale.max) {
+					break;
+				}
+				pos = item.scaleToAxis(axis, current, undefined, true);
+
+				switch (axis.align) {
+				case 'left':
+				case 'right':
+					pos = plotRect.bottom - pos * plotRect.height;
+					rect.set(plotRect.left, pos - 100, plotRect.right, pos + 100);
+					rect.set(plotRect.left - 75, pos - 75, 150, 150);
+					graphics.drawMarker(rect, true);
+					rect.set(plotRect.right - 75, pos - 75, 150, 150);
+					graphics.drawMarker(rect, true);
+					break;
+				case 'top':
+				case 'bottom':
+					pos = plotRect.left + pos * plotRect.width;
+					rect.set(pos - 75, plotRect.top - 75, 150, 150);
+					graphics.drawMarker(rect, true);
+					rect.set(pos - 75, plotRect.bottom - 75, 150, 150);
+					graphics.drawMarker(rect, true);
+					break;
+				}
+
+				current = item.incrementScale(axis, current);
+			}
+
+			}
+			break;
 		case 'series': {
 			const ref = item.getDataSourceInfo(data.formula);
 			if (ref) {
@@ -80,6 +125,7 @@ export default class ChartSelectionFeedbackView extends View {
 					if (x + 1 >= plotRect.left && x - 1 <= plotRect.right && y + 1 >= plotRect.top && y - 1 <= plotRect.bottom) {
 						switch (serie.type) {
 						case 'column':
+						case 'bar':
 							barInfo = item.getBarInfo(axes, serie, selection.index, index, value.y, barWidth);
 							rect.set(x + barInfo.offset  - 75, y - 75, 150, 150);
 							graphics.drawMarker(rect, true);

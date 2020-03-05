@@ -163,8 +163,9 @@ export default class SheetPlotActivator extends InteractionActivator {
 			this.removeInfo(event, viewer);
 			return;
 		}
-		const selection = interaction.isElementHit(event, viewer);
-		if (selection && (selection.element === 'plot' || selection.element === 'series')) {
+		let selection;
+		if (interaction.isPlotHit(event, viewer)) {
+			selection = interaction.isElementHit(event, viewer);
 			interaction.showData(selection, event, viewer);
 			event.doRepaint = true;
 		} else {
