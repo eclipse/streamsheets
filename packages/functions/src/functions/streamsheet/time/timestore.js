@@ -1,7 +1,8 @@
-const {	runFunction, terms: { hasValue } } = require('../../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const IdGenerator = require('@cedalo/id-generator');
+const {	runFunction, terms: { hasValue } } = require('../../../utils');
+const stateListener = require('./stateListener');
 
 const ERROR = FunctionErrors.code;
 const DEF_LIMIT = 1000;
@@ -39,10 +40,15 @@ class TimeStore {
 		this.period = period;
 		this.limitBySize = sizeFilter(limit);
 		this.limitByPeriod = periodFilter(period * 1000);
+		this.reset = this.reset.bind(this);
 	}
 
 	get size() {
 		return this.entries.length;
+	}
+
+	reset() {
+		this.entries = [];
 	}
 
 	values(key) {
@@ -81,11 +87,9 @@ const store = (sheet, ...terms) =>
 		.mapNextArg(timestamp => timestamp != null && convert.toNumberStrict(timestamp.value))
 		.mapNextArg(limit => hasValue(limit) ? convert.toNumberStrict(limit.value, ERROR.VALUE) : DEF_LIMIT)
 		.run((values, period, timestamp, limit) => {
-			// TODO: should we validate values, e.g. if key or value is undefined?
-			// => prevent wrong usage, accidental wrong json
 			const term = store.term;
 			const timestore = getTimeStore(term, period, limit);
-			// should we filter certain values, e.g. ERRORs?
+			stateListener.registerCallback(sheet, term, timestore.reset);
 			return timestore.push(timestamp || Date.now(), values);
 		});
 

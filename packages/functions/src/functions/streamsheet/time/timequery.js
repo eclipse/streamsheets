@@ -135,7 +135,6 @@ const timeQuery = (sheet, ...terms) =>
 			const term = timeQuery.term;
 			const timestore = storeterm._timestore;
 			const querystore = getQueryStore(term, options);
-			stateListener.setDisposeHandler(sheet, term);
 			stateListener.registerCallback(sheet, term, querystore.reset);
 			querystore.queryOnInterval(timestore, options.query);
 			querystore.write(timestore, term.cell, options.range);

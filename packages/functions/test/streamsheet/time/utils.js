@@ -1,3 +1,4 @@
+const { sleep } = require('@cedalo/commons');
 const { Machine, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
 
 const newMachine = ({ cycletime = 1000 } = {}) => {
@@ -14,7 +15,14 @@ const newSheet = () => {
 	return machine.getStreamSheetByName('T1').sheet;
 };
 
+const runMachine = async (machine, period) => {
+	await machine.start();
+	await sleep(period);
+	await machine.stop();
+};
+
 module.exports = {
 	newMachine,
-	newSheet
+	newSheet,
+	runMachine
 };

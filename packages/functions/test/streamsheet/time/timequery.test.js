@@ -1,7 +1,7 @@
 const { sleep } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { createCellAt } = require('../../utilities');
-const { newMachine, newSheet } = require('./utils');
+const { newMachine, newSheet, runMachine } = require('./utils');
 const readQueryOptions = require('../../../src/functions/streamsheet/time/readQueryOptions');
 
 const ERROR = FunctionErrors.code;
@@ -14,11 +14,6 @@ const getParams = (cell) => {
 	// remove store parameter:
 	params.shift();
 	return params;
-};
-const runMachine = async (machine, period) => {
-	await machine.start();
-	await sleep(period);
-	await machine.stop();
 };
 
 describe('timequery', () => {

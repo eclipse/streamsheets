@@ -1,7 +1,7 @@
 const { sleep } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { createCellAt } = require('../../utilities');
-const { newMachine, newSheet } = require('./utils');
+const { newMachine, newSheet, runMachine } = require('./utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -174,8 +174,22 @@ describe('time.store', () => {
 		expect(term._timestore.values('v2')).toEqual([]);
 		expect(term._timestore.values('v3')).toEqual([200, 300, 400]);
 	});
-	it('should reset store on machine start', () => {
-		expect(false).toBe(true);
+	it('should reset store on machine start', async () => {
+		const machine = newMachine({ cycletime: 1000 });
+		const sheet = machine.getStreamSheetByName('T1').sheet;
+		createCellAt('A1', 'v1', sheet);
+		createCellAt('B1', { formula: 'B1+1' }, sheet);
+		createCellAt('A3', { formula: 'time.store(JSON(A1:B1))' }, sheet);
+		const cell = sheet.cellAt('A3');
+		const term = cell.term;
+		expect(cell.value).toBe(true);
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		expect(term._timestore.size).toBe(3);
+		await runMachine(machine, 50);
+		// one is stored on machine start...
+		expect(term._timestore.size).toBe(1);
 	});
 	it(`should return error ${ERROR.ARGS} if required parameter is missing`, () => {
 		const sheet = newSheet();
