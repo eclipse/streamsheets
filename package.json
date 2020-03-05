@@ -20,6 +20,7 @@
 	},
 	"scripts": {
 		"lint": "./node_modules/.bin/eslint .",
+		"build": "node ./scripts/build.js --name cedalo/streamsheets-dev --tag local",
 		"i18n:check": "node ./scripts/i18n.js --en ./packages/webui/src/languages/en.json --de ./packages/webui/src/languages/de.json"
 	},
 	"devDependencies": {
