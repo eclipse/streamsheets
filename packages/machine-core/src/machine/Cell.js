@@ -89,8 +89,7 @@ class Cell {
 			descr.type = 'unit';
 			descr.value = term.toString();
 		}
-		// if info contains more than values add only those required by clients
-		descr.info = { stale: this.info.stale, values: this.info.values };
+		descr.info = { ...this.info };
 		// TODO: move level to cell properties
 		descr.level = this.level;
 		const references = this._references && refStrings(this._references);
