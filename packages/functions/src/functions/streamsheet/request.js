@@ -186,7 +186,7 @@ const project = (data, resultKeys) => {
 
 const setCellInfo = (cell, stale, values, info = {}) => {
 	values = values || cell.info.values;
-	cell.info = { stale, values, ...info };
+	Object.assign(cell.info, { stale, values, ...info });
 };
 const handleResponse = (handle, sheet, target, resultKeys, message, funcTerm) => {
 	const { info, resultsType, targets = [] } = handle;
