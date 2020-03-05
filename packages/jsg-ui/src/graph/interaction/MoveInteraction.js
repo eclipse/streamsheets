@@ -223,7 +223,7 @@ class MoveInteraction extends AbstractInteraction {
 			this._finishMove(event, viewer);
 		JSG.ptCache.release(fbcenter);
 		JSG.boxCache.release(fbbox);
-		event.isConsumed = finished;
+		event.isConsumed = finished || this._delegate._isConsumed;
 		if (!finished) {
 			this.cancelInteraction(event, viewer);
 		}

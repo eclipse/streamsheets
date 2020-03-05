@@ -166,7 +166,7 @@ export default class SheetPlotInteraction extends Interaction {
 
 					this.setParamValues(viewer, item, item.xAxes[0].formula,
 						[{index: 4, value: valueStart.x}, {index: 5, value: valueEnd.x}]);
-					JSG.zooming = true;
+					item.spreadZoomInfo();
 
 					viewer.getGraph().markDirty();
 					event.doRepaint = true;

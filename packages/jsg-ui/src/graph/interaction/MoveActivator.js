@@ -1,4 +1,4 @@
-import { default as JSG, TextNode, Shape } from '@cedalo/jsg-core';
+import {default as JSG, TextNode, Shape, MatrixLayout} from '@cedalo/jsg-core';
 import InteractionActivator from './InteractionActivator';
 import MoveInteraction from './MoveInteraction';
 import GraphController from '../controller/GraphController';
@@ -99,15 +99,39 @@ class MoveActivator extends InteractionActivator {
 					}
 				}
 				// const controller = dispatcher.getControllerAt(event.location);
+				// temporarily remove protection to allow reordering for MatrixLayout
+				let protect = false;
+				if (this._isOrderItem(controller)) {
+					if (controller.getModel().isProtected()) {
+						controller.getModel().getSheet().setProtected(false);
+						protect = true;
+					}
+				}
 				if (this._doMoveWithoutHandle(controller)) {
 					if (!controller.isSelected()) {
 						viewer.clearSelection();
 						viewer.select(controller);
 					}
+					if (protect && this._isOrderItem(controller)) {
+						if (protect) {
+							controller.getModel().getSheet().setProtected(true);
+						}
+					}
 					this._activateOnDrag(event, viewer, dispatcher);
 				}
 			}
 		}
+	}
+
+	_isOrderItem(controller) {
+		if (!controller || (controller instanceof GraphController)) {
+			return false;
+		}
+
+		const item = controller.getModel();
+		return (item.getParent() &&
+			item.getParent().getLayout() &&
+			item.getParent().getLayout().getType() === MatrixLayout.TYPE);
 	}
 
 	_doExceedThreshold(event, viewer, dispatcher) {

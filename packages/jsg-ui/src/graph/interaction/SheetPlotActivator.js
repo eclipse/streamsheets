@@ -82,7 +82,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 
 				interaction.setParamValues(viewer, item, axis.formula,
 					[{index: 4, value: undefined}, {index: 5, value: undefined}]);
-				JSG.zooming = true;
+				item.spreadZoomInfo();
 
 				viewer.getGraph().markDirty();
 				event.doRepaint = true;
@@ -129,16 +129,22 @@ export default class SheetPlotActivator extends InteractionActivator {
 		}
 
 		viewer.getGraphView().clearLayer('chartselection');
+		const view = interaction._controller.getView();
 
 		if (interaction.isElementHit(event, viewer)) {
 			this.activateInteraction(interaction, dispatcher);
 			if (!event.isClicked(MouseEvent.ButtonType.RIGHT)) {
 				interaction.onMouseDown(event, viewer);
 			}
-			event.isConsumed = true;
-			event.hasActivated = true;
+			if (view.chartSelection === undefined) {
+				const interactionHandler = viewer.getInteractionHandler();
+				interactionHandler.setActiveInteraction(interactionHandler.getDefaultInteraction());
+			} else {
+				event.isConsumed = true;
+				event.hasActivated = true;
+			}
 		} else {
-			interaction._controller.getView().chartSelection = undefined;
+			view.chartSelection = undefined;
 			NotificationCenter.getInstance().send(new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, interaction._controller.getModel()));
 		}
 		NotificationCenter.getInstance().send(

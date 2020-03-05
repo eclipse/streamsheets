@@ -568,6 +568,7 @@ class MoveDelegate extends Delegate {
 		return (
 			item.isVisible() &&
 			item.isContainer() &&
+			!item.isProtected() &&
 			!(item instanceof Graph) &&
 			!(item instanceof LineConnection) &&
 			!(item instanceof Port) &&
@@ -588,15 +589,19 @@ class MoveDelegate extends Delegate {
 		const target = targetController ? targetController.getModel() : undefined;
 
 		if (target && !target.isContainer()) {
-			if (target.getParent() &&
-				target.getParent().getLayout() &&
-				target.getParent().getLayout().getType() === MatrixLayout.TYPE) {
+			if (this._isOrderTarget(target)) {
 				feedbacks.forEach((feedback) => {
 					item = feedback.getOriginalItem();
 					cmds.push(new ChangeItemOrderCommand(item, target.getIndex()));
+					if (item.isProtected && item.isProtected()) {
+						viewer.getSelectionProvider().clearSelection();
+					}
 				});
 				return this._createCommand(cmds, false);
 			}
+			viewer.getGraphView().clearFeedback();
+			viewer.getSelectionProvider().clearSelection();
+			this._isConsumed = true;
 			return undefined;
 		}
 

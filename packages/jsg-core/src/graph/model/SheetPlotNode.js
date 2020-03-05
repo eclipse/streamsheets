@@ -2205,6 +2205,16 @@ module.exports = class SheetPlotNode extends Node {
 		return sheet;
 	}
 
+	spreadZoomInfo() {
+		const sheet = this.getSheet();
+
+		GraphUtils.traverseItem(sheet, (item) => {
+			if (item instanceof SheetPlotNode) {
+				item.chartZoom = true;
+			}
+		}, false);
+	}
+
 	isAddLabelAllowed() {
 		return false;
 	}
