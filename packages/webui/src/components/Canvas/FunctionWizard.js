@@ -199,7 +199,7 @@ const getInitalStream = (streams, streamName) => {
 	return selectedStream || getDefaultStream(streams);
 };
 
-const getStreamName = (funcTerm) => streamUtils.unprefix(funcTerm.params[0].toString());
+const getStreamName = ({ params = [] }) => params.length ? streamUtils.unprefix(params[0].toString()) : '';
 
 const isFormula = (formulaString, sheetItem) => formulaString[0] === '=' && !!sheetItem.parseTextToTerm(formulaString, false);
 
