@@ -17,7 +17,7 @@ const getParams = (cell) => {
 };
 
 describe('timequery', () => {
-	describe('parameter parsing', () => {
+	describe.skip('parameter parsing', () => {
 		it('should parse given json query', () => {
 			const machine = newMachine();
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -238,7 +238,7 @@ describe('timequery', () => {
 			expect(cell.value).toBe(ERROR.VALUE);
 		});
 	});
-	describe('query',() => {
+	describe.skip('query',() => {
 		it('should return all stored values if no interval and no aggregate method are specified', async () => {
 			const machine = newMachine();
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -589,7 +589,7 @@ describe('timequery', () => {
 			expect(querycell.value).toBe(true);
 		});
 	});
-	describe('aggregations methods', () => {
+	describe.skip('aggregations methods', () => {
 		test('none', async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -1074,7 +1074,55 @@ describe('timequery', () => {
 			expect(querycell.info.values.v8).toEqual([0, 0]);
 		});
 	});
-	describe('compare methods', () => {
+	describe('where', () => {
+		it('should filter entries by > and >=', async () => {
+			const machine = newMachine({ cycletime: 10 });
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A3: 'select', B3: 'v1',
+					A4: 'aggregate', B4: 5, // minimum
+					A5: 'where', B5: 'v1 > 2',
+					A6: { formula: 'time.query(A2, JSON(A3:B5), 100)' }
+				}
+			});
+			const querycell = sheet.cellAt('A6');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			const timestore = getTimeStore(sheet.cellAt('A2'));
+			const querystore = getQueryStore(querycell);
+			querystore.query(timestore, getQuery(querycell));
+			querystore.write(timestore, querycell);
+			expect(sheet.cellAt('B1').value).toBe(4)
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1[0]).toBe(3);
+			// check for >=
+			createCellAt('B5', 'v1 >= 6', sheet);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			querystore.query(timestore, getQuery(querycell));
+			querystore.write(timestore, querycell);
+			expect(sheet.cellAt('B1').value).toBe(8)
+			expect(querycell.info.values.v1.length).toBe(2);
+			expect(querycell.info.values.v1[0]).toBe(3);
+			expect(querycell.info.values.v1[1]).toBe(6);
+		});
+		it.skip('should filter entries by < and <=', () => {
+		});
+		it.skip('should filter entries by = and !=', () => {
+		});
+		it.skip('should be possible to combine constraints with AND', () => {
+		});
+		it.skip('should be possible to combine constraints with OR', () => {
+		});
+		it.skip('should be possible to combine constraints with OR and AND', () => {
+		});
 
 	});
 });
