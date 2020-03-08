@@ -111,9 +111,10 @@ class QueryStore {
 
 const getQueryStore = (term, options) => {
 	if (!term._options || !term._querystore || !areEqualOptions(options, term._options)) {
-		term._options = options;
 		term._querystore = QueryStore.of(options);
 	}
+	// store current options which contains possible changed queries, required by tests...
+	term._options = options;
 	return term._querystore;
 };
 
