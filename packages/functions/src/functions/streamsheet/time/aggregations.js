@@ -88,7 +88,7 @@ const METHODS = {
 };
 
 module.exports = {
-	get: (nr, key) => {
+	get: (nr = 0, key) => {
 		const method = METHODS[nr];
 		return method ? aggregate(key, method()) : undefined;
 	}
