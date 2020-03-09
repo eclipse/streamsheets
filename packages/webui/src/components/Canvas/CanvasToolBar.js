@@ -3647,6 +3647,48 @@ export class CanvasToolBar extends Component {
 										</IconButton>
 									</Tooltip>
 								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.BarStacked" defaultMessage="Bar Stacked" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('barstacked')}
+										>
+											<img alt="" src="images/charts/barstacked.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.BarStacked100" defaultMessage="Bar Stacked 100" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('barstacked100')}
+										>
+											<img alt="" src="images/charts/barstacked100.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Chart.Profile" defaultMessage="Profile" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('profile')}
+										>
+											<img alt="" src="images/charts/profile.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
 								<GridListTile
 									cols={6}
 									style={{

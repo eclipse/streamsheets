@@ -83,6 +83,7 @@ export default class SheetPlotView extends NodeView {
 
 			switch (entry.series.type) {
 			case 'line':
+			case 'profile':
 			case 'scatter':
 				graphics.moveTo(x, y + textSize.height / 2);
 				graphics.lineTo(x + margin * 3, y + textSize.height / 2);
@@ -116,12 +117,12 @@ export default class SheetPlotView extends NodeView {
 
 	drawAxes(graphics, plotRect, item, grid) {
 		item.xAxes.forEach((axis) => {
-			this.drawTitle(graphics, item, axis.title, 'axisTitle', 0);
+			this.drawTitle(graphics, item, axis.title, 'axisTitle',  axis.isVertical() ? Math.PI_2 : 0);
 			this.drawAxis(graphics, plotRect, item, axis, grid);
 		});
 
 		item.yAxes.forEach((axis) => {
-			this.drawTitle(graphics, item, axis.title, 'axisTitle', Math.PI_2);
+			this.drawTitle(graphics, item, axis.title, 'axisTitle', axis.isVertical() ? Math.PI_2 : 0);
 			this.drawAxis(graphics, plotRect, item, axis, grid);
 		});
 	}
@@ -130,6 +131,7 @@ export default class SheetPlotView extends NodeView {
 		if (!axis.position || !axis.scale || (grid && !axis.gridVisible)) {
 			return;
 		}
+
 		// draw axis line
 		if (!grid) {
 			graphics.beginPath();
@@ -183,7 +185,7 @@ export default class SheetPlotView extends NodeView {
 		}
 
 		while (current <= axis.scale.max) {
-			if (axis.type === 'category' && current >= axis.scale.max) {
+			if (axis.type === 'category' && (grid ? current > axis.scale.max : current >= axis.scale.max)) {
 				break;
 			}
 
@@ -295,6 +297,19 @@ export default class SheetPlotView extends NodeView {
 				x = item.scaleToAxis(axes.x, value.x, undefined, false);
 				y = item.scaleToAxis(axes.y, value.y, info, false);
 				switch (serie.type) {
+				case 'profile':
+					if (item.chart.dataMode === 'datainterrupt' && (value.x === undefined || value.y === undefined)) {
+						newLine = true;
+					} else if (newLine) {
+						graphics.moveTo(plotRect.left + y * plotRect.width, plotRect.bottom - x * plotRect.height);
+						newLine = false;
+						xFirst = x;
+						xLast = x;
+					} else {
+						graphics.lineTo(plotRect.left + y * plotRect.width, plotRect.bottom - x * plotRect.height);
+						xLast = x;
+					}
+					break;
 				case 'area':
 				case 'line':
 				case 'scatter':
@@ -335,6 +350,17 @@ export default class SheetPlotView extends NodeView {
 							plotRect.bottom - y * plotRect.height,
 							barWidth - barInfo.margin,
 							-barInfo.height * plotRect.height
+						);
+					}
+					break;
+				case 'bar':
+					if (value.x !== undefined && value.y !== undefined) {
+						barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
+						graphics.rect(
+							plotRect.left + y * plotRect.width,
+							plotRect.bottom - x * plotRect.height + barInfo.offset,
+							barInfo.height * plotRect.width,
+							barWidth - barInfo.margin
 						);
 					}
 					break;
