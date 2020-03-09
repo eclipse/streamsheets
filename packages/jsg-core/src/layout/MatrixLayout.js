@@ -31,6 +31,18 @@ module.exports = class MatrixLayout extends Layout {
 		return changed;
 	}
 
+	getVisibleItemCount(item) {
+		let cnt = 0;
+
+		item.getItems().forEach((litem, index) => {
+			if (litem.isVisible()) {
+				cnt += 1;
+			}
+		});
+
+		return cnt;
+	}
+
 	_doLayout(item) {
 		const lsettings = this.getSettings(item);
 		let changed = false;
@@ -38,25 +50,31 @@ module.exports = class MatrixLayout extends Layout {
 		const box = JSG.boxCache.get().setTo(oldbox);
 		const newbox = JSG.boxCache.get();
 		const columns = lsettings.get(COLUMNS);
+		const count = this.getVisibleItemCount(item);
 
-		if (item.getItemCount() === 0 || !columns) {
+		if (count === 0 || !columns) {
 			return false;
 		}
 
 		const margin = lsettings.get(MARGIN);
 		const width = (box.getWidth() - margin * (columns + 1)) / columns;
-		const rows = Math.ceil(item.getItemCount() / columns);
-		const height = (box.getHeight() - ((rows + 1) * margin)) / Math.ceil(item.getItemCount() / columns);
+		const rows = Math.ceil(count / columns);
+		const height = (box.getHeight() - ((rows + 1) * margin)) / Math.ceil(count / columns);
+
+		let cnt = 0;
 
 		item.getItems().forEach((litem, index) => {
-			litem.getBoundingBox(newbox);
+			if (litem.isVisible()) {
+				litem.getBoundingBox(newbox);
 
-			const x = (index % columns) * width + ((index % columns) + 1) * margin;
-			const y = Math.floor(index / columns) * height + (Math.floor(index / columns) + 1) * margin + 1;
-			newbox.setTopLeft(x, y);
-			newbox.setBottomRight(x + width, y + height);
+				const x = (cnt % columns) * width + ((cnt % columns) + 1) * margin;
+				const y = Math.floor(cnt / columns) * height + (Math.floor(cnt / columns) + 1) * margin + 1;
+				newbox.setTopLeft(x, y);
+				newbox.setBottomRight(x + width, y + height);
 
-			litem.setBoundingBoxTo(newbox);
+				litem.setBoundingBoxTo(newbox);
+				cnt += 1;
+			}
 		});
 
 		// finally: did something change?
