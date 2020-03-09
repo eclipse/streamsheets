@@ -65,6 +65,12 @@ export default class SheetPlotInteraction extends Interaction {
 		return this._controller.getModel().isElementHit(pt, oldSelection);
 	}
 
+	isPlotHit(event, viewer) {
+		const pt = this.toLocalCoordinate(event, viewer, event.location.copy());
+
+		return this._controller.getModel().isPlotHit(pt);
+	}
+
 	showData(selection, event, viewer) {
 		if (selection) {
 			viewer.getGraphView().clearLayer('chartinfo');
@@ -166,7 +172,7 @@ export default class SheetPlotInteraction extends Interaction {
 
 					this.setParamValues(viewer, item, item.xAxes[0].formula,
 						[{index: 4, value: valueStart.x}, {index: 5, value: valueEnd.x}]);
-					JSG.zooming = true;
+					item.spreadZoomInfo();
 
 					viewer.getGraph().markDirty();
 					event.doRepaint = true;

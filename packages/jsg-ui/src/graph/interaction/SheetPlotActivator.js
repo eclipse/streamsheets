@@ -72,17 +72,17 @@ export default class SheetPlotActivator extends InteractionActivator {
 			return;
 		}
 
+		const item = interaction._controller.getModel();
 		const selection = interaction.isElementHit(event, viewer);
 		if (selection) {
 			switch (selection.element) {
 			case 'xAxis':
 			case 'yAxis': {
 				const axis = selection.data;
-				const item = interaction._controller.getModel();
 
 				interaction.setParamValues(viewer, item, axis.formula,
 					[{index: 4, value: undefined}, {index: 5, value: undefined}]);
-				JSG.zooming = true;
+				item.spreadZoomInfo();
 
 				viewer.getGraph().markDirty();
 				event.doRepaint = true;
@@ -96,11 +96,13 @@ export default class SheetPlotActivator extends InteractionActivator {
 			// 	break;
 			}
 		}
-		NotificationCenter.getInstance().send(
-			new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
-				event
-			})
-		);
+		if (!item.isProtected()) {
+			NotificationCenter.getInstance().send(
+				new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
+					event
+				})
+			);
+		}
 	}
 
 	removeInfo(event, viewer) {
@@ -129,16 +131,23 @@ export default class SheetPlotActivator extends InteractionActivator {
 		}
 
 		viewer.getGraphView().clearLayer('chartselection');
+		const view = interaction._controller.getView();
 
-		if (interaction.isElementHit(event, viewer)) {
+		const hit = interaction.isElementHit(event, viewer);
+		if (hit) {
 			this.activateInteraction(interaction, dispatcher);
 			if (!event.isClicked(MouseEvent.ButtonType.RIGHT)) {
 				interaction.onMouseDown(event, viewer);
 			}
-			event.isConsumed = true;
-			event.hasActivated = true;
+			if (view.chartSelection === undefined && hit.element !== 'series' && hit.element !== 'plot') {
+				const interactionHandler = viewer.getInteractionHandler();
+				interactionHandler.setActiveInteraction(interactionHandler.getDefaultInteraction());
+			} else {
+				event.isConsumed = true;
+				event.hasActivated = true;
+			}
 		} else {
-			interaction._controller.getView().chartSelection = undefined;
+			view.chartSelection = undefined;
 			NotificationCenter.getInstance().send(new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, interaction._controller.getModel()));
 		}
 		NotificationCenter.getInstance().send(
@@ -154,8 +163,9 @@ export default class SheetPlotActivator extends InteractionActivator {
 			this.removeInfo(event, viewer);
 			return;
 		}
-		const selection = interaction.isElementHit(event, viewer);
-		if (selection && (selection.element === 'plot' || selection.element === 'series')) {
+		let selection;
+		if (interaction.isPlotHit(event, viewer)) {
+			selection = interaction.isElementHit(event, viewer);
 			interaction.showData(selection, event, viewer);
 			event.doRepaint = true;
 		} else {

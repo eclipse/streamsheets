@@ -90,6 +90,7 @@ export default class SheetPlotView extends NodeView {
 				break;
 			case 'area':
 			case 'column':
+			case 'bar':
 				graphics.rect(x, y + textSize.height / 10, margin * 3, textSize.height * 2 / 3);
 				graphics.setFillColor(entry.series.format.fillColor || item.getTemplate().series.fill[index]);
 				graphics.fill();
@@ -165,7 +166,7 @@ export default class SheetPlotView extends NodeView {
 
 		if (grid) {
 			graphics.beginPath();
-			graphics.setLineColor('#CCCCCC');
+			graphics.setLineColor(axis.formatGrid.lineColor || item.getTemplate().axis.formatGrid.lineColor);
 		}
 
 		if (axis.type === 'time') {
@@ -258,12 +259,12 @@ export default class SheetPlotView extends NodeView {
 			return undefined;
 		}
 
-		if (JSG.zooming && ref.time) {
-			if (ref.time.stale) {
+		if (item.chartZoom) {
+			if (ref.time && ref.time.stale) {
 				graphics.setFillColor('#CCCCCC');
 				graphics.fillText('Retrieving Data...', 100, 500);
 			} else {
-				JSG.zooming = false;
+				item.chartZoom = false;
 			}
 		}
 
@@ -359,7 +360,7 @@ export default class SheetPlotView extends NodeView {
 			graphics.closePath();
 		}
 
-		if (serie.type === 'column' || serie.type === 'area') {
+		if (serie.type === 'column' || serie.type === 'bar' || serie.type === 'area') {
 			graphics.fill();
 		}
 		graphics.stroke();
@@ -409,6 +410,10 @@ export default class SheetPlotView extends NodeView {
 			const template = this.getItem().getTemplate();
 			if (data) {
 				switch (this.chartSelection.element) {
+				case 'plot':
+					f.setLineColor(data.format.lineColor || template.plot.format.lineColor);
+					f.setFillColor(data.format.fillColor || template.plot.format.fillColor);
+					break;
 				case 'series':
 					f.setFillColor(data.format.fillColor || template.series.fill[this.chartSelection.index]);
 					f.setLineColor(data.format.lineColor || template.series.line[this.chartSelection.index]);
@@ -422,6 +427,10 @@ export default class SheetPlotView extends NodeView {
 				case 'yAxis':
 					f.setLineColor(data.format.lineColor || template.axis.format.lineColor);
 					f.setFillColor(data.format.fillColor || template.axis.format.fillColor);
+					break;
+				case 'xAxisGrid':
+				case 'yAxisGrid':
+					f.setLineColor(data.formatGrid.lineColor || template.axis.formatGrid.lineColor);
 					break;
 				case 'xAxisTitle':
 				case 'yAxisTitle':
@@ -563,41 +572,51 @@ export default class SheetPlotView extends NodeView {
 			if (!data) {
 				return;
 			}
+			let format;
+			switch (this.chartSelection.element) {
+			case 'xAxisGrid':
+			case 'yAxisGrid':
+				format = data.formatGrid;
+				break;
+			default:
+				format = data.format;
+				break;
+			}
 			let value = map.get('linecolor');
 			if (value) {
-				data.format.lineColor = map.get('linecolor');
+				format.lineColor = map.get('linecolor');
 			}
 			value = map.get('fillcolor');
 			if (value) {
-				data.format.fillColor = map.get('fillcolor');
+				format.fillColor = map.get('fillcolor');
 			}
 			value = map.get('fontcolor');
 			if (value) {
-				data.format.fontColor = map.get('fontcolor');
+				format.fontColor = map.get('fontcolor');
 			}
 			value = map.get('fontname');
 			if (value) {
-				data.format.fontName = map.get('fontname');
+				format.fontName = map.get('fontname');
 			}
 			value = map.get('fontsize');
 			if (value) {
-				data.format.fontSize = Number(map.get('fontsize'));
+				format.fontSize = Number(map.get('fontsize'));
 			}
 			value = map.get('fontstyle');
 			if (value !== undefined) {
-				data.format.fontStyle = Number(map.get('fontstyle'));
+				format.fontStyle = Number(map.get('fontstyle'));
 			}
 			value = map.get('numberformat');
 			if (value === 'General') {
-				data.format.numberFormat = undefined;
-				data.format.localCulture = undefined;
+				format.numberFormat = undefined;
+				format.localCulture = undefined;
 			} else {
 				if (value !== undefined) {
-					data.format.numberFormat = map.get('numberformat');
+					format.numberFormat = map.get('numberformat');
 				}
 				value = map.get('localculture');
 				if (value !== undefined) {
-					data.format.localCulture = map.get('localculture');
+					format.localCulture = map.get('localculture');
 				}
 			}
 			this.getItem().finishCommand(cmd, key);
@@ -606,26 +625,28 @@ export default class SheetPlotView extends NodeView {
 
 		if (this.chartSelection) {
 			switch (this.chartSelection.element) {
-				case 'series':
-					update('series');
-					return true;
-				case 'xAxis':
-				case 'yAxis':
-				case 'xAxisTitle':
-				case 'yAxisTitle':
-					update('axes');
-					return true;
-				case 'title':
-					update('title');
-					return true;
-				case 'legend':
-					update('legend');
-					return true;
-				case 'plot':
-					update('plot');
-					return true;
-				default:
-					break;
+			case 'series':
+				update('series');
+				return true;
+			case 'xAxis':
+			case 'yAxis':
+			case 'xAxisTitle':
+			case 'yAxisTitle':
+			case 'xAxisGrid':
+			case 'yAxisGrid':
+				update('axes');
+				return true;
+			case 'title':
+				update('title');
+				return true;
+			case 'legend':
+				update('legend');
+				return true;
+			case 'plot':
+				update('plot');
+				return true;
+			default:
+				break;
 			}
 		}
 		return false;

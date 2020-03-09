@@ -13,6 +13,7 @@ module.exports = class ChartAxis {
 		this.align = align;
 		this.formula = new Expression(0, 'AXIS()');
 		this.format = new ChartFormat();
+		this.formatGrid = new ChartFormat();
 		this.title = new ChartTitle(new Expression('Title', ''), false);
 		this.gridVisible = true;
 	}
@@ -28,6 +29,7 @@ module.exports = class ChartAxis {
 		writer.writeAttributeString('position', this.position.toString());
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
+		this.formatGrid.save('formatGrid', writer);
 		this.title.save('axistitle', writer);
 
 		writer.writeEndElement();
@@ -65,6 +67,10 @@ module.exports = class ChartAxis {
 			case 'format':
 				this.format = new ChartFormat();
 				this.format.read(reader, subChild);
+				break;
+			case 'formatGrid':
+				this.formatGrid = new ChartFormat();
+				this.formatGrid.read(reader, subChild);
 				break;
 			case 'axistitle':
 				this.title = new ChartTitle(new Expression('Title', ''), false);

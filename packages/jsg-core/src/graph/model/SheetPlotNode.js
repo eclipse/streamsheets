@@ -43,6 +43,7 @@ const templates = {
 		},
 		axis: {
 			format: new ChartFormat('#CCCCCC'),
+			formatGrid: new ChartFormat('#CCCCCC'),
 		},
 		axisTitle: {
 			format: new ChartFormat('none', 'none', 9,  TextFormatAttributes.FontStyle.BOLD),
@@ -100,6 +101,7 @@ const templates = {
 		},
 		axis: {
 			format: new ChartFormat('#FFFFFF'),
+			formatGrid: new ChartFormat('#FFFFFF'),
 		},
 		axisTitle: {
 			format: new ChartFormat('none', 'none', 9,  TextFormatAttributes.FontStyle.BOLD),
@@ -1352,11 +1354,11 @@ module.exports = class SheetPlotNode extends Node {
 						if (info.categories[info.index].values[i]) {
 							tmp = info.categories[info.index].values[i].y;
 							if (Numbers.isNumber(tmp)) {
-								if (value < 0 && info.serie.type === 'column') {
+								if (value < 0 && (info.serie.type === 'column' || info.serie.type === 'bar')) {
 									if (tmp < 0) {
 										y += tmp;
 									}
-								} else if (tmp > 0 || info.serie.type !== 'column') {
+								} else if (tmp > 0 || (info.serie.type !== 'column' && info.serie.type !== 'bar')) {
 									y += tmp;
 								}
 							}
@@ -1512,10 +1514,12 @@ module.exports = class SheetPlotNode extends Node {
 		case 'series':
 			return this.series[selection.index];
 		case 'xAxis':
+		case 'xAxisGrid':
 			return this.xAxes[selection.index];
 		case 'xAxisTitle':
 			return this.xAxes[selection.index].title;
 		case 'yAxis':
+		case 'yAxisGrid':
 			return this.yAxes[selection.index];
 		case 'yAxisTitle':
 			return this.yAxes[selection.index].title;
@@ -1530,9 +1534,54 @@ module.exports = class SheetPlotNode extends Node {
 		}
 	}
 
+	checkAxis(axis, pt, plotRect) {
+		if (!axis.position || !axis.scale || !axis.gridVisible) {
+			return false;
+		}
+
+		let current = axis.scale.min;
+		let pos;
+		const rect = new ChartRect();
+
+		if (axis.type === 'time') {
+			current = this.incrementScale(axis, current - 0.0000001);
+		}
+
+		while (current <= axis.scale.max) {
+			if (axis.type === 'category' && current >= axis.scale.max) {
+				break;
+			}
+			pos = this.scaleToAxis(axis, current, undefined, true);
+
+			switch (axis.align) {
+			case 'left':
+			case 'right':
+				pos = plotRect.bottom - pos * plotRect.height;
+				rect.set(plotRect.left, pos - 100, plotRect.right, pos + 100);
+				break;
+			case 'top':
+			case 'bottom':
+				pos = plotRect.left + pos * plotRect.width;
+				rect.set(pos - 100, plotRect.top, pos + 100, plotRect.bottom);
+				break;
+			}
+			if (rect.containsPoint(pt)) {
+				return true;
+			}
+
+			current = this.incrementScale(axis, current);
+		}
+		return false;
+	}
+
+	isPlotHit(pt) {
+		return this.plot.position.containsPoint(pt);
+	}
+
 	isElementHit(pt, oldSelection) {
 		let result;
 		const dataPoints = [];
+		const plotRect = this.plot.position;
 
 		if (this.title.position.containsPoint(pt)) {
 			return {
@@ -1554,7 +1603,6 @@ module.exports = class SheetPlotNode extends Node {
 				const index = this.series.indexOf(series);
 				const ref = this.getDataSourceInfo(series.formula);
 				const dataRect = new ChartRect();
-				const plotRect = this.plot.position;
 				if (ref) {
 					const axes = this.getAxes(series);
 					let pointIndex = 0;
@@ -1672,6 +1720,15 @@ module.exports = class SheetPlotNode extends Node {
 			};
 		}
 
+		result = this.xAxes.filter((axis) => this.checkAxis(axis, pt, plotRect));
+		if (result.length) {
+			return {
+				element: 'xAxisGrid',
+				index: this.xAxes.indexOf(result[0]),
+				data: result[0]
+			};
+		}
+
 		result = this.xAxes.filter((axis) => axis.title.position.containsPoint(pt));
 		if (result.length) {
 			return {
@@ -1685,6 +1742,15 @@ module.exports = class SheetPlotNode extends Node {
 		if (result.length) {
 			return {
 				element: 'yAxis',
+				index: this.yAxes.indexOf(result[0]),
+				data: result[0]
+			};
+		}
+
+		result = this.yAxes.filter((axis) => this.checkAxis(axis, pt, plotRect));
+		if (result.length) {
+			return {
+				element: 'yAxisGrid',
 				index: this.yAxes.indexOf(result[0]),
 				data: result[0]
 			};
@@ -1736,6 +1802,12 @@ module.exports = class SheetPlotNode extends Node {
 		case 'column':
 			this.xAxes[0].type = 'category';
 			type = 'column';
+			break;
+		case 'barstacked100':
+		case 'barstacked':
+		case 'bar':
+			this.xAxes[0].type = 'category';
+			type = 'bar';
 			break;
 		case 'area':
 		case 'areastacked':
@@ -2203,6 +2275,16 @@ module.exports = class SheetPlotNode extends Node {
 		}
 
 		return sheet;
+	}
+
+	spreadZoomInfo() {
+		const sheet = this.getSheet();
+
+		GraphUtils.traverseItem(sheet, (item) => {
+			if (item instanceof SheetPlotNode) {
+				item.chartZoom = true;
+			}
+		}, false);
 	}
 
 	isAddLabelAllowed() {

@@ -1,6 +1,6 @@
 /* global window document */
 
-import { default as JSG, Point, CellRange, Selection, Strings, SheetReference } from '@cedalo/jsg-core';
+import {CellRange, default as JSG, Point, Selection, SheetReference, Strings} from '@cedalo/jsg-core';
 
 const { Locale } = require('@cedalo/parser');
 
@@ -242,7 +242,7 @@ export default class CellEditor {
 	}
 
 	generateFunctionListHTML(candidates) {
-		const candidatesHTML = candidates
+		return candidates
 			.map((info, index) => {
 				let html;
 				if (index === this.funcIndex) {
@@ -257,13 +257,11 @@ export default class CellEditor {
 				return html;
 			})
 			.join('');
-
-		return candidatesHTML;
 	}
 
 	generateFunctionHTML(candidates) {
-		const candidatesHTML = candidates
-			.map((info, index) => {
+		return candidates
+			.map((info) => {
 				let html;
 				html = '<div style="padding: 3px;background-color: #DDDDDD">';
 				if (this.funcInfo === undefined || this.funcInfo.paramIndex === undefined) {
@@ -297,8 +295,6 @@ export default class CellEditor {
 				return html;
 			})
 			.join('');
-
-		return candidatesHTML;
 	}
 
 	handleFunctionListKey(event, view) {
@@ -383,11 +379,6 @@ export default class CellEditor {
 		}
 	}
 
-	handleFunctionMouseDown(event) {
-		event.preventDefault();
-		event.stopPropagation();
-	}
-
 	updateFunctionInfo() {
 		this.funcs = this.getPotentialFunctionsUnderCursor();
 		if (this.funcs && this.funcs.length) {
@@ -440,7 +431,7 @@ export default class CellEditor {
 		}
 	}
 
-	updateEditRangesModel(text, alwaysReplace = false) {
+	updateEditRangesModel(text) {
 		let term;
 
 		// reset
@@ -486,7 +477,7 @@ export default class CellEditor {
 			copy.shiftToSheet();
 			const rangeString = copy.toString({ useName: true, item: this.formulaSheet });
 
-			pos = formulaUpper.indexOf(rangeString);
+			pos = formulaUpper.indexOf(rangeString.toUpperCase());
 			if (pos === -1) {
 				err = true;
 			}
@@ -728,11 +719,8 @@ export default class CellEditor {
 		}
 
 		const previous = this.getTextAtCursor(-1);
-		if (this.isReferenceChar(previous)) {
-			return true;
-		}
 
-		return false;
+		return this.isReferenceChar(previous);
 	}
 
 	isReferencePointingAllowed() {
@@ -741,11 +729,7 @@ export default class CellEditor {
 		}
 
 		const previous = this.getTextAtCursor(-1);
-		if (this.isReferenceChar(previous)) {
-			return true;
-		}
-
-		return false;
+		return this.isReferenceChar(previous);
 	}
 
 	isRangeSelected() {
@@ -846,15 +830,6 @@ export default class CellEditor {
 		}
 	}
 
-	insertRawTextAtCursor(text) {
-		const sel = window.getSelection();
-		if (sel.getRangeAt && sel.rangeCount) {
-			const range = sel.getRangeAt(0);
-			range.deleteContents();
-			range.insertNode(document.createTextNode(text));
-		}
-	}
-
 	isReferenceChar(char) {
 		switch (char) {
 			case '=':
@@ -874,11 +849,7 @@ export default class CellEditor {
 				return true;
 		}
 
-		if (this.allowNoEqual && char === '') {
-			return true;
-		}
-
-		return false;
+		return this.allowNoEqual && char === '';
 	}
 
 	getTextAtCursor(offset) {
