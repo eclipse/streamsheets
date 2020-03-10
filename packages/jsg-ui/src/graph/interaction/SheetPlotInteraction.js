@@ -1,4 +1,3 @@
-import { Term, NullTerm } from '@cedalo/parser';
 import {
 	default as JSG,
 	GraphUtils,
@@ -59,10 +58,10 @@ export default class SheetPlotInteraction extends Interaction {
 		return point;
 	}
 
-	isElementHit(event, viewer, oldSelection) {
+	isElementHit(event, viewer, oldSelection, skipSeries) {
 		const pt = this.toLocalCoordinate(event, viewer, event.location.copy());
 
-		return this._controller.getModel().isElementHit(pt, oldSelection);
+		return this._controller.getModel().isElementHit(pt, oldSelection, skipSeries);
 	}
 
 	isPlotHit(event, viewer) {
@@ -170,7 +169,7 @@ export default class SheetPlotInteraction extends Interaction {
 					const valueStart = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptStart : ptEnd);
 					const valueEnd = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptEnd : ptStart);
 
-					this.setParamValues(viewer, item, item.xAxes[0].formula,
+					item.setParamValues(viewer, item.xAxes[0].formula,
 						[{index: 4, value: valueStart.x}, {index: 5, value: valueEnd.x}]);
 					item.spreadZoomInfo();
 
@@ -181,59 +180,6 @@ export default class SheetPlotInteraction extends Interaction {
 		});
 
 		super.onMouseUp(event, viewer);
-	}
-
-	setParamValues(viewer, item, expression, values) {
-		const term = expression.getTerm();
-		if (term === undefined) {
-			return;
-		}
-
-		let selection;
-		const cellData = [];
-		let sheet;
-
-		values.forEach((value) => {
-			const info = item.getParamInfo(term, value.index);
-			if (info) {
-				sheet = info.sheet;
-				const range = info.range.copy();
-				if (value.value === undefined) {
-					if (!selection) {
-						selection = new Selection(info.sheet);
-					}
-					selection.add(range);
-				} else {
-					range.shiftToSheet();
-					const cell = {};
-					cell.reference = range.toString();
-					cell.value = value.value;
-					cellData.push(cell);
-				}
-			} else if (term && term.params) {
-				for (let i = term.params.length; i < value.index; i += 1) {
-					term.params[i] = new NullTerm();
-				}
-
-				if (value.value === undefined) {
-					term.params[value.index] = new NullTerm();
-				} else {
-					term.params[value.index] = Term.fromNumber(value.value);
-				}
-				expression.correctFormula();
-			}
-
-		});
-
-		if (sheet) {
-			if (selection) {
-				const cmd = new DeleteCellContentCommand(sheet, selection.toStringMulti(), "all");
-				viewer.getInteractionHandler().execute(cmd);
-			} else if (cellData.length) {
-				const cmd = new SetCellsCommand(sheet, cellData, false);
-				viewer.getInteractionHandler().execute(cmd);
-			}
-		}
 	}
 
 	willFinish(event, viewer) {

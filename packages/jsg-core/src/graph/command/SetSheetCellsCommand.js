@@ -90,8 +90,7 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 					cell._targetValue = undefined;
 				}
 			}
-			cell.setValues(cellData.info.values);
-			cell.stale = cellData.info.stale;
+			cell.setInfo(cellData.info);
 		});
 
 		if (this._namedCells) {

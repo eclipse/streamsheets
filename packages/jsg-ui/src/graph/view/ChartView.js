@@ -398,7 +398,7 @@ export default class ChartView extends NodeView {
 		}
 
 		if (allValues && allValues.length) {
-			const values = allValues[0].getValues();
+			const values = allValues[0].values;
 			if (values) {
 				values.forEach((value) => {
 					categoryLabelData.push(ChartView.formatNumber(value.key, 'h:mm:ss', `time;en`));
@@ -636,7 +636,7 @@ export default class ChartView extends NodeView {
 			}
 			currentSeries.seriesLabel = set.label;
 			if (allValues && allValues.length > index) {
-				const values = allValues[index].getValues();
+				const values = allValues[index].values;
 				if (values) {
 					values.forEach((lvalue) => {
 						switch (chartType) {

@@ -18,6 +18,11 @@ module.exports = class ChartAxis {
 		this.gridVisible = true;
 	}
 
+	isVertical() {
+		return this.align === 'left' || this.align === 'right';
+	}
+
+
 	save(writer, name) {
 		writer.writeStartElement(name);
 
