@@ -58,6 +58,18 @@ export default class SheetPlotView extends NodeView {
 		this.drawAxes(graphics, plotRect, item, false);
 		this.drawLegend(graphics, plotRect, item);
 		this.drawTitle(graphics, item, item.title, 'title', 0);
+
+		graphics.setTextBaseline('middle');
+		graphics.setFillColor('#444444');
+		graphics.setTextAlignment(1);
+		graphics.setFontName('Verdana');
+		graphics.setFontSize('8');
+		graphics.setFontStyle(0);
+		graphics.setFont();
+
+		item.actions.forEach(action => {
+			graphics.fillText(action.title, action.position.left + action.position.width / 2, action.position.top + action.position.height / 2);
+		});
 	}
 
 	drawLegend(graphics, plotRect, item) {

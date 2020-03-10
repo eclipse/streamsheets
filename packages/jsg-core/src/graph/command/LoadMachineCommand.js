@@ -94,8 +94,7 @@ module.exports = class LoadMachineCommand extends AbstractItemCommand {
 
 					cell.setExpression(expr);
 					cell.setValue(cellData.value);
-					cell.setValues(cellData.info.values);
-					cell.stale = cellData.info.stale;
+					cell.setInfo(cellData.info);
 				});
 
 				if (streamsheet.sheet.namedCells) {

@@ -80,7 +80,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 			case 'yAxis': {
 				const axis = selection.data;
 
-				interaction.setParamValues(viewer, item, axis.formula,
+				item.setParamValues(viewer, axis.formula,
 					[{index: 4, value: undefined}, {index: 5, value: undefined}]);
 				item.spreadZoomInfo();
 
@@ -135,6 +135,15 @@ export default class SheetPlotActivator extends InteractionActivator {
 
 		const hit = interaction.isElementHit(event, viewer);
 		if (hit) {
+			if (hit.element === 'action') {
+				const item = interaction._controller.getModel();
+				hit.data.action.call(item, viewer);
+				viewer.getGraph().markDirty();
+				event.doRepaint = true;
+				event.isConsumed = true;
+				event.hasActivated = true;
+				return;
+			}
 			this.activateInteraction(interaction, dispatcher);
 			if (!event.isClicked(MouseEvent.ButtonType.RIGHT)) {
 				interaction.onMouseDown(event, viewer);
@@ -171,11 +180,28 @@ export default class SheetPlotActivator extends InteractionActivator {
 		} else {
 			this.removeInfo(event, viewer);
 		}
+
+		selection = interaction.isElementHit(event, viewer, undefined, true);
 		if (selection) {
 			event.isConsumed = true;
 			event.hasActivated = true;
 		}
-		viewer.setCursor(selection && selection.element === 'series' ? Cursor.Style.CROSS : Cursor.Style.AUTO);
+
+		if (selection) {
+			switch (selection.element) {
+			case 'action':
+				viewer.setCursor(Cursor.Style.EXECUTE);
+				break;
+			case 'series':
+				viewer.setCursor(Cursor.Style.CROSS);
+				break;
+			default:
+				viewer.setCursor(Cursor.Style.AUTO);
+				break;
+			}
+		}  else {
+			viewer.setCursor(Cursor.Style.AUTO);
+		}
 	}
 
 	handleContextMenu(event, viewer, dispatcher) {

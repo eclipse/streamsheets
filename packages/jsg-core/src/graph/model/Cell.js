@@ -113,20 +113,20 @@ module.exports = class Cell {
 		}
 	}
 
-	set stale(flag) {
-		this._stale = flag;
+	setInfo(info) {
+		this._info = info;
 	}
 
 	get stale() {
-		return this._stale === undefined ? false : this._stale;
+		return this._info ? this._info.stale : false;
 	}
 
-	setValues(values) {
-		this._values = values;
+	get xvalue() {
+		return this._info ? this._info.xvalue : 'time';
 	}
 
-	getValues() {
-		return this._values;
+	get values() {
+		return this._info ? this._info.values : undefined;
 	}
 
 	clearContent() {

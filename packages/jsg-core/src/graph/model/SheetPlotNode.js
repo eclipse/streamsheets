@@ -1,3 +1,4 @@
+const { Term, NullTerm } = require('@cedalo/parser');
 const { NumberFormatter } = require('@cedalo/number-format');
 
 const JSG = require('../../JSG');
@@ -5,6 +6,7 @@ const GraphUtils = require('../GraphUtils');
 const MathUtils = require('../../geometry/MathUtils');
 const SheetReference = require('../expr/SheetReference');
 const CellRange = require('./CellRange');
+const Selection = require('./Selection');
 const Node = require('./Node');
 const ItemAttributes = require('../attr/ItemAttributes');
 const TextFormatAttributes = require('../attr/TextFormatAttributes');
@@ -12,6 +14,8 @@ const Expression = require('../expr/Expression');
 const Numbers = require('../../commons/Numbers');
 const JSONWriter = require('../../commons/JSONWriter');
 const SetPlotDataCommand = require('../command/SetPlotDataCommand');
+const SetCellsCommand = require('../command/SetCellsCommand');
+const DeleteCellContentCommand = require('../command/DeleteCellContentCommand');
 const CompoundCommand = require('../command/CompoundCommand');
 const Chart = require('./chart/Chart');
 const ChartFormat = require('./chart/ChartFormat');
@@ -151,6 +155,7 @@ module.exports = class SheetPlotNode extends Node {
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 
 		this.series = [];
+		this.actions = [];
 		this.chart = new Chart();
 		this.xAxes = [new ChartAxis('primary', 'linear', 'bottom', 500)];
 		this.yAxes = [new ChartAxis('primary', 'linear', 'left', 1000)];
@@ -379,6 +384,15 @@ module.exports = class SheetPlotNode extends Node {
 		}
 
 		this.xAxes.forEach((axis) => {
+			if (axis.scale.maxZoom !== undefined) {
+				this.actions = [{
+					position: new ChartRect(size.x - 2200, 0, size.x, 800),
+					action: this.resetZoom,
+					title: 'Reset Zoom'
+				}];
+			} else {
+				this.actions = [];
+			}
 			if (axis.title.visible) {
 				title = String(this.getExpressionValue(axis.title.formula));
 				axis.title.size = this.measureTitle(JSG.graphics, axis.title, 'axisTitle', title);
@@ -602,6 +616,59 @@ module.exports = class SheetPlotNode extends Node {
 			}
 		}
 		return undefined;
+	}
+
+	setParamValues(viewer, expression, values) {
+		const term = expression.getTerm();
+		if (term === undefined) {
+			return;
+		}
+
+		let selection;
+		const cellData = [];
+		let sheet;
+
+		values.forEach((value) => {
+			const info = this.getParamInfo(term, value.index);
+			if (info) {
+				sheet = info.sheet;
+				const range = info.range.copy();
+				if (value.value === undefined) {
+					if (!selection) {
+						selection = new Selection(info.sheet);
+					}
+					selection.add(range);
+				} else {
+					range.shiftToSheet();
+					const cell = {};
+					cell.reference = range.toString();
+					cell.value = value.value;
+					cellData.push(cell);
+				}
+			} else if (term && term.params) {
+				for (let i = term.params.length; i < value.index; i += 1) {
+					term.params[i] = new NullTerm();
+				}
+
+				if (value.value === undefined) {
+					term.params[value.index] = new NullTerm();
+				} else {
+					term.params[value.index] = Term.fromNumber(value.value);
+				}
+				expression.correctFormula();
+			}
+
+		});
+
+		if (sheet) {
+			if (selection) {
+				const cmd = new DeleteCellContentCommand(sheet, selection.toStringMulti(), "all");
+				viewer.getInteractionHandler().execute(cmd);
+			} else if (cellData.length) {
+				const cmd = new SetCellsCommand(sheet, cellData, false);
+				viewer.getInteractionHandler().execute(cmd);
+			}
+		}
 	}
 
 	getParamFormat(term, index) {
@@ -1263,7 +1330,7 @@ module.exports = class SheetPlotNode extends Node {
 		let label = index;
 
 		if (ref.time) {
-			const values = ref.time.getValues();
+			const values = ref.time.values;
 			if (values) {
 				if (values.time) {
 					if (values.time.length > index && values[ref.xKey]) {
@@ -1325,7 +1392,7 @@ module.exports = class SheetPlotNode extends Node {
 		}
 
 		if (ref.time) {
-			const values = ref.time.getValues();
+			const values = ref.time.values;
 			if (values) {
 				if (this.xAxes[0].type === 'category') {
 					value.x = index;
@@ -1663,10 +1730,19 @@ module.exports = class SheetPlotNode extends Node {
 		return this.plot.position.containsPoint(pt);
 	}
 
-	isElementHit(pt, oldSelection) {
+	isElementHit(pt, oldSelection, skipSeries = false) {
 		let result;
 		const dataPoints = [];
 		const plotRect = this.plot.position;
+
+		result = this.actions.filter((action) => action.position.containsPoint(pt));
+		if (result.length) {
+			return {
+				element: 'action',
+				data: result[0],
+				index: this.actions.indexOf(result[0])
+			};
+		}
 
 		if (this.title.position.containsPoint(pt)) {
 			return {
@@ -1682,7 +1758,7 @@ module.exports = class SheetPlotNode extends Node {
 			};
 		}
 
-		if (this.plot.position.containsPoint(pt)) {
+		if (!skipSeries && this.plot.position.containsPoint(pt)) {
 			const revSeries = [].concat(this.series).reverse();
 			result = revSeries.filter((series) => {
 				const index = this.series.indexOf(series);
@@ -1965,12 +2041,12 @@ module.exports = class SheetPlotNode extends Node {
 				taRange.enumerateCells(true, (pos) => {
 					const cell = data.get(pos);
 					const expr = cell.getExpression();
-					const values = cell.getValues();
+					const values = cell.values;
 					if (expr && values && values.time) {
 						const source = new CellRange(taRange.getSheet(), pos.x, pos.y);
 						source.shiftToSheet();
 						const ref = source.toString({item: sheet, useName: true});
-						let xValue = 'time';
+						let xValue = cell.xvalue;
 						if (selection.getSize() > 1) {
 							const rangeX = selection.getAt(1);
 							const cellX = data.getRC(rangeX.getX1(), rangeX.getY1());
@@ -1982,7 +2058,7 @@ module.exports = class SheetPlotNode extends Node {
 							}
 						}
 						Object.keys(values).forEach((key) => {
-							if (key !== 'time' && key !== xValue) {
+							if (key !== xValue && key !== 'time') {
 								if (values[key].length && Numbers.isNumber(values[key][0])) {
 									formula = new Expression(0, `SERIES("${key}",${ref},"${xValue}","${key}")`);
 									this.series.push(new ChartSeries(type, formula));
@@ -1990,6 +2066,9 @@ module.exports = class SheetPlotNode extends Node {
 								}
 							}
 						});
+						if (type === 'scatter' && xValue === 'time') {
+							this.xAxes[0].type = 'time';
+						}
 					} else {
 						const source = new CellRange(taRange.getSheet(), pos.x, pos.y);
 						source.shiftToSheet();
@@ -2011,11 +2090,11 @@ module.exports = class SheetPlotNode extends Node {
 						}
 						this.series.push(new ChartSeries(type, formula));
 						index += 1;
+						if (type === 'scatter') {
+							this.xAxes[0].type = 'time';
+						}
 					}
 				});
-				if (type === 'scatter') {
-					this.xAxes[0].type = 'time';
-				}
 				this.finishCommand(cmd, 'series');
 				cmp.add(cmd);
 			}
@@ -2395,6 +2474,13 @@ module.exports = class SheetPlotNode extends Node {
 				item.chartZoom = true;
 			}
 		}, false);
+	}
+
+	resetZoom(viewer) {
+
+		this.setParamValues(viewer, this.xAxes[0].formula,
+			[{index: 4, value: undefined}, {index: 5, value: undefined}]);
+		this.spreadZoomInfo();
 	}
 
 	isAddLabelAllowed() {
