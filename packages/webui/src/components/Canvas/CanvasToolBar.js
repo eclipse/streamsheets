@@ -3543,7 +3543,7 @@ export class CanvasToolBar extends Component {
 										<IconButton
 											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
 											color="inherit"
-											onClick={() => this.onCreatePlot('columnstacked 100')}
+											onClick={() => this.onCreatePlot('columnstacked100')}
 										>
 											<img alt="" src="images/charts/columnstacked100.png" />
 										</IconButton>

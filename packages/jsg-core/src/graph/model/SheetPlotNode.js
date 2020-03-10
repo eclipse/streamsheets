@@ -1261,7 +1261,7 @@ module.exports = class SheetPlotNode extends Node {
 				input.step *= 10;
 			}
 
-			if (this.chart.relative) {
+			if (this.chart.relative && axis.type === 'linear') {
 				input.format = {
 					localCulture: `percent;en`,
 					numberFormat: '0%',
