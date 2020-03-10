@@ -193,6 +193,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
+	handleAxisAutoZeroChange = (event, state) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.autoZero = state;
+		this.finishCommand(cmd, 'axes');
+	};
+
 	translateTitle(title) {
 		switch (title) {
 		case 'title':
@@ -506,6 +513,20 @@ export class StreamChartProperties extends Component {
 											<FormattedMessage
 												id="StreamChartProperties.AxisTitle"
 												defaultMessage="Axis title"
+											/>
+										}
+									/>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={data.autoZero}
+												onChange={(event, state) => this.handleAxisAutoZeroChange(event, state)}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.AutoZero"
+												defaultMessage="Start at Zero automatically"
 											/>
 										}
 									/>

@@ -16,6 +16,7 @@ module.exports = class ChartAxis {
 		this.formatGrid = new ChartFormat();
 		this.title = new ChartTitle(new Expression('Title', ''), false);
 		this.gridVisible = true;
+		this.autoZero = true;
 	}
 
 	isVertical() {
@@ -31,6 +32,7 @@ module.exports = class ChartAxis {
 		writer.writeAttributeString('type', this.type);
 		writer.writeAttributeString('name', this.name);
 		writer.writeAttributeNumber('gridvisible', this.gridVisible ? 1 : 0);
+		writer.writeAttributeNumber('autozero', this.autoZero ? 1 : 0);
 		writer.writeAttributeString('position', this.position.toString());
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
@@ -62,6 +64,10 @@ module.exports = class ChartAxis {
 			reader.getAttribute(object, 'gridvisible') === undefined
 				? true
 				: !!Number(reader.getAttribute(object, 'gridvisible')) ;
+		this.autoZero =
+			reader.getAttribute(object, 'autozero') === undefined
+				? true
+				: !!Number(reader.getAttribute(object, 'autozero')) ;
 
 		reader.iterateObjects(object, (subName, subChild) => {
 			switch (subName) {

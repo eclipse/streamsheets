@@ -30,7 +30,7 @@ const templates = {
 	basic: {
 		font: {
 			name: 'Verdana',
-			size: 8,
+			size: 7,
 			color: '#000000'
 		},
 		chart: {
@@ -88,7 +88,7 @@ const templates = {
 	dark: {
 		font: {
 			name: 'Verdana',
-			size: 8,
+			size: 7,
 			color: '#FFFFFF'
 		},
 		chart: {
@@ -307,7 +307,7 @@ module.exports = class SheetPlotNode extends Node {
 		}
 
 		axis.textSize.width = Math.max(result.width + 150, 1000);
-		axis.textSize.height = Math.max(result.width + 150, 500);
+		axis.textSize.height = Math.max(result.height + 100, 300);
 
 		return result;
 	}
@@ -1001,9 +1001,14 @@ module.exports = class SheetPlotNode extends Node {
 			break;
 		case 'time':
 			if (axis.isVertical()) {
-				stepCount = Math.min(13, size / 1000);
+				if (axis.textSize && axis.textSize.height) {
+					stepCount = Math.min(15, size / axis.textSize.height);
+				} else {
+					stepCount = Math.min(15, size / 1000);
+				}
+			} else if (axis.textSize && axis.textSize.width) {
+				stepCount = Math.min(13, size / axis.textSize.width);
 			} else {
-				// dTmp = (double)m_TickLabels.GetFont().GetSize() / 72 * 2540 * 2.0;
 				stepCount = Math.min(13, size / 1500);
 			}
 
@@ -1142,7 +1147,11 @@ module.exports = class SheetPlotNode extends Node {
 			stepCount = 8; /* 11 => sehr fein      */
 
 			if (axis.isVertical()) {
-				stepCount = Math.min(13, size / 1000);
+				if (axis.textSize && axis.textSize.height) {
+					stepCount = Math.min(13, size / axis.textSize.height);
+				} else {
+					stepCount = Math.min(13, size / 1000);
+				}
 			} else if (axis.textSize && axis.textSize.width) {
 				stepCount = Math.min(13, size / axis.textSize.width);
 			} else {
@@ -1154,7 +1163,7 @@ module.exports = class SheetPlotNode extends Node {
 			if (input.max === undefined && input.maxData < 0.0) {
 				max = 0;
 			}
-			if (max - min > max * 0.15 && axis.type !== 'time' && min > 0) {
+			if (max - min > max * 0.15 && axis.type !== 'time' && min > 0 && axis.autoZero) {
 				min = 0;
 			}
 			if (input.min !== undefined) {
@@ -1200,6 +1209,8 @@ module.exports = class SheetPlotNode extends Node {
 					minLabel = Math.floor(minLabel);
 					minLabel *= distLin;
 					if (min < 0.0 && minLabel >= min - 3) {
+						minLabel -= distLin;
+					} else  if (min > 0.0 && minLabel >= min - 3) {
 						minLabel -= distLin;
 					}
 				}
