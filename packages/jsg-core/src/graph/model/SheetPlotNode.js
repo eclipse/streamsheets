@@ -1208,9 +1208,7 @@ module.exports = class SheetPlotNode extends Node {
 					minLabel = min / distLin;
 					minLabel = Math.floor(minLabel);
 					minLabel *= distLin;
-					if (min < 0.0 && minLabel >= min - 3) {
-						minLabel -= distLin;
-					} else  if (min > 0.0 && minLabel >= min - 3) {
+					if (min !== 0.0 && minLabel >= min - 3) {
 						minLabel -= distLin;
 					}
 				}
@@ -1227,7 +1225,7 @@ module.exports = class SheetPlotNode extends Node {
 						maxLabel = Math.ceil(maxLabel);
 					}
 					maxLabel *= distLin;
-					if (max > 0 && maxLabel <= max + 3) {
+					if (max !== 0.0 && maxLabel <= max + 3) {
 						maxLabel += distLin;
 					}
 				}
