@@ -16,14 +16,8 @@ const MIN_INTERVAL = 1 / 1000; // 1ms
 
 const split = (str) => `${str}`.split(',').map((part) => part.trim());
 const createQuery = (json) => {
-	let query;
-	if (json != null && typeof json === 'object' && json.select) {
-		let aggregate = json.aggregate;
-		const { select, where } = json;
-		aggregate = aggregate != null ? split(aggregate) : [];
-		query = { select: split(select), aggregate, where };
-	}
-	return query;
+	const { select, aggregate, where } = json;
+	return { select: split(select), aggregate: aggregate != null ? split(aggregate) : [], where };
 };
 
 const boundedPush = (size) => (value, entries) => {
@@ -77,10 +71,9 @@ const spreadValuesToRange = (values, range) => {
 };
 
 class QueryStore {
-	static of(query, interval, limit) {
+	static of(queryjson, interval, limit) {
 		const store = new QueryStore(interval, limit);
-		store.queryobj = query;
-		store.xform = transform.createFrom(query, store.msInterval);
+		store.setQuery(queryjson);
 		return store;
 	}
 	constructor(interval, limit) {
@@ -98,20 +91,26 @@ class QueryStore {
 		this.entries = [];
 		this.nextQuery = this.msInterval > 0 ? Date.now() + this.msInterval : -1;
 	}
-
-	hasEqual(queryobj, interval, limit) {
-		return this.interval === interval && this.limit === limit && areEqualQueries(this.queryobj, queryobj);
+	
+	hasEqual(queryjson, interval, limit) {
+		return this.interval === interval && this.limit === limit && areEqualQueries(this.queryjson, queryjson);
+	}
+	
+	setQuery(json) {
+		this.query = createQuery(json);
+		this.queryjson = { ...json };
 	}
 
-	query(store, now = Date.now()) {
-		// const xform = transform.createFrom(this.query, now - this.msInterval);
-		const result = store.entries.reduceRight(this.xform, { ts: now, values: {} });
+	performQuery(store, now = Date.now()) {
+		// create fresh transform, because aggregations/filters work with closures!
+		const xform = transform.createFrom(this.query, now - this.msInterval);
+		const result = store.entries.reduceRight(xform, { ts: now, values: {} });
 		// TODO: how to handle empty values in result, ie. result = { values: {} }??
 		this.push(result, this.entries);
 	}
-	queryOnInterval(store, now = Date.now()) {
+	performQueryOnInterval(store, now = Date.now()) {
 		if (this.nextQuery > 0 && now >= this.nextQuery) {
-			this.query(store, now);
+			this.performQuery(store, now);
 			this.nextQuery = now + this.msInterval;
 		}
 		this.lastTry = now;
@@ -137,6 +136,8 @@ const getQueryStore = (term, query, interval, limit) => {
 	return term._querystore;
 };
 
+const isValidQuery = (json) => json != null && json.select != null && typeof json === 'object';
+
 const getRange = (term, sheet) =>
 	term && term.value != null ? getCellRangeFromTerm(term, sheet) || ERROR.VALUE : undefined;
 const getNumber = (value, defVal) => value != null ? convert.toNumberStrict(value) : defVal;
@@ -159,16 +160,16 @@ const timeQuery = (sheet, ...terms) =>
 		.withMinArgs(2)
 		.withMaxArgs(5)
 		.mapNextArg((storeref) => getStoreTerm(storeref) || ERROR.VALUE)
-		.mapNextArg((query) => createQuery(query.value) || ERROR.VALUE)
-		.mapNextArg((interval) => interval != null ? getInterval(interval.value) : -1)
+		.mapNextArg((query) => (isValidQuery(query.value) ? query.value : ERROR.VALUE))
+		.mapNextArg((interval) => (interval != null ? getInterval(interval.value) : -1))
 		.mapNextArg((range) => getRange(range))
-		.mapNextArg((limit) => limit != null ? getLimit(limit.value) : DEF_LIMIT)
-		.run((storeterm, query, interval, range, limit) => {
+		.mapNextArg((limit) => (limit != null ? getLimit(limit.value) : DEF_LIMIT))
+		.run((storeterm, queryjson, interval, range, limit) => {
 			const term = timeQuery.term;
 			const timestore = storeterm._timestore;
-			const querystore = getQueryStore(term, query, interval, limit);
+			const querystore = getQueryStore(term, queryjson, interval, limit);
 			stateListener.registerCallback(sheet, term, querystore.reset);
-			querystore.queryOnInterval(timestore);
+			querystore.performQueryOnInterval(timestore);
 			querystore.write(timestore, term.cell, range);
 			const size = querystore.entries.length;
 			// eslint-disable-next-line no-nested-ternary

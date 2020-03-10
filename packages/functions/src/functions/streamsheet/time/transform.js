@@ -11,17 +11,18 @@ const filter = (predicateFn) => (combineFn) => (a, c) => (predicateFn(c) ? combi
 const combine = (acc /* , curr */) => acc;
 
 const interval = (period) => (entry) => entry.ts > period;
-const interval2 = (period) => {
-	let last;
-	return (entry) => {
-		if (last == null) last = entry.ts - period;
-		return entry.ts > last;
-	};
-};
+// const interval2 = (period) => {
+// 	let last;
+// 	return (entry) => {
+// 		if (last == null) last = Date.now() - period;
+// 		// if (last == null) last = entry.ts - period;
+// 		return entry.ts > last;
+// 	};
+// };
 
 
 const createFrom = (query, period) => {
-	const xFormFns = [filter(interval2(period))];
+	const xFormFns = [filter(interval(period))];
 	const aggregate = query.aggregate || [];
 	const whereCondition = whereparser.parseCondition(query.where);
 	if (whereCondition) xFormFns.push(filter(whereCondition));

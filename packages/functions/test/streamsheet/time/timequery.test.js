@@ -6,7 +6,6 @@ const { newMachine, newSheet, runMachine } = require('./utils');
 const ERROR = FunctionErrors.code;
 const getTimeStore = (cell) => cell.term._timestore;
 const getQueryStore = (cell) => cell.term._querystore;
-const getQuery = (cell) => cell.term._options.query;
 
 
 describe('timequery', () => {
@@ -26,16 +25,16 @@ describe('timequery', () => {
 			await machine.step();
 			let querystore = getQueryStore(sheet.cellAt('A5'));
 			expect(querystore).toBeDefined();
-			expect(querystore.queryobj).toBeDefined();
-			expect(querystore.queryobj.where).toBeUndefined();
-			expect(querystore.queryobj.select).toEqual(['v1']);
-			expect(querystore.queryobj.aggregate.length).toBe(0);
+			expect(querystore.queryjson).toBeDefined();
+			expect(querystore.queryjson.select).toEqual('v1');
+			expect(querystore.queryjson.aggregate).toBeUndefined();
+			expect(querystore.queryjson.where).toBeUndefined();
 			createCellAt('A5', { formula: 'time.query(A1,JSON(A3:B4))' }, sheet);
 			await machine.step();
 			querystore = getQueryStore(sheet.cellAt('A5'));
-			expect(querystore.queryobj.where).toBeUndefined();
-			expect(querystore.queryobj.select).toEqual(['v1', 'v2', 'v3']);
-			expect(querystore.queryobj.aggregate).toEqual(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+			expect(querystore.queryjson.select).toEqual('v1, v2, v3');
+			expect(querystore.queryjson.aggregate).toEqual('0, 1, 2, 3, 4, 5, 6, 7, 8, 9');
+			expect(querystore.queryjson.where).toBeUndefined();
 		});
 		it('should identify interval parameter', async () => {
 			const machine = newMachine();
@@ -217,8 +216,8 @@ describe('timequery', () => {
 			expect(cell.value).toBe(ERROR.VALUE);
 		});
 	});
-	describe.skip('query',() => {
-		it.skip('should return all stored values if no interval and no aggregate method are specified', async () => {
+	describe('query',() => {
+		it('should return all stored values if no interval and no aggregate method are specified', async () => {
 			const machine = newMachine();
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -252,7 +251,7 @@ describe('timequery', () => {
 			expect(querycell.info.values.v1[3]).toBe(5);
 			expect(querycell.info.values.v2[3]).toBe(50);
 		});
-		it.skip('should return all stored values but bounded to limit if no interval and no aggregate method are specified', async () => {
+		it('should return all stored values but bounded to limit if no interval and no aggregate method are specified', async () => {
 			const machine = newMachine();
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -299,25 +298,25 @@ describe('timequery', () => {
 					A8: { formula: 'time.query(A3, JSON(A4:B5), 200/1000)' }
 				}
 			});
-			const querycell = sheet.cellAt('A8');
+			let querycell = sheet.cellAt('A8');
 			expect(querycell.value).toBe(true);
-			await runMachine(machine, 10350);
+			await runMachine(machine, 350);
 			expect(sheet.cellAt('B1').value).toBe(5);
 			expect(querycell.info.values).toBeDefined();
 			expect(querycell.info.values.v2).toBeUndefined();
 			expect(querycell.info.values.v1.length).toBe(1);
 			// check multiple aggregation:
-			// createCellAt('A8', { formula: 'time.query(A3, JSON(C4:D5), 200/1000)' }, sheet);
-			// querycell = sheet.cellAt('A8');
-			// expect(querycell.value).toBe(true);
-			// await runMachine(machine, 350);
-			// expect(querycell.info.values.v1.length).toBe(1);
-			// expect(querycell.info.values.v2.length).toBe(1);
-			// await runMachine(machine, 750);
-			// expect(querycell.info.values.v1.length).toBe(3);
-			// expect(querycell.info.values.v2.length).toBe(3);
+			createCellAt('A8', { formula: 'time.query(A3, JSON(C4:D5), 200/1000)' }, sheet);
+			querycell = sheet.cellAt('A8');
+			expect(querycell.value).toBe(true);
+			await runMachine(machine, 350);
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v2.length).toBe(1);
+			await runMachine(machine, 750);
+			expect(querycell.info.values.v1.length).toBe(3);
+			expect(querycell.info.values.v2.length).toBe(3);
 		});
-		it.skip('should only aggregate values with timestamp is in given interval', async () => {
+		it('should only aggregate values with timestamp is in given interval', async () => {
 			const machine = newMachine({ cycletime: 100 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -344,7 +343,7 @@ describe('timequery', () => {
 			expect(querycell.info.values.v1.length).toBe(1);
 			expect(querycell.info.values.v1[0]).toBeGreaterThan(minimum);
 		});
-		it.skip('should limit number of aggregated values', async () => {
+		it('should limit number of aggregated values', async () => {
 			const machine = newMachine({ cycletime: 100 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -362,7 +361,7 @@ describe('timequery', () => {
 			const querystore = getQueryStore(querycell);
 			expect(querystore.entries.length).toBe(1);
 		});
-		it.skip('should write result to target range', async () => {
+		it('should write result to target range', async () => {
 			const machine = newMachine({ cycletime: 100 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -391,7 +390,7 @@ describe('timequery', () => {
 			expect(sheet.cellAt('C11')).toBeUndefined();
 			expect(sheet.cellAt('D11')).toBeUndefined();
 		});
-		it.skip('should clear cells in range if fewer results were written', async () => {
+		it('should clear cells in range if fewer results were written', async () => {
 			const machine = newMachine({ cycletime: 100 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -427,7 +426,7 @@ describe('timequery', () => {
 			expect(sheet.cellAt('C12')).toBeUndefined();
 			expect(sheet.cellAt('D12')).toBeUndefined();
 		});
-		it.skip('should reset entries on machine start', async () => {
+		it('should reset entries on machine start', async () => {
 			const machine = newMachine({ cycletime: 100 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -452,7 +451,7 @@ describe('timequery', () => {
 			await runMachine(machine, 5);
 			expect(querystore.entries.length).toBe(0);
 		});
-		it.skip('should reset results range on machine start', async () => {
+		it('should reset results range on machine start', async () => {
 			const machine = newMachine({ cycletime: 100 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -509,7 +508,7 @@ describe('timequery', () => {
 			expect(sheet.cellAt('C11')).toBeUndefined();
 			expect(sheet.cellAt('D11')).toBeUndefined();
 		});
-		it.skip('should not change entries of time.store', async () => {
+		it('should not change entries of time.store', async () => {
 			const machine = newMachine({ cycletime: 100 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -532,7 +531,7 @@ describe('timequery', () => {
 			const entries = timestore.entries.map((entry) => entry.values.v1);
 			expect(entries).toEqual([2, 3, 4, 5, 6, 7]);
 		});
-		it.skip(`should return ${ERROR.LIMIT} if limit was reached`, async () => {
+		it(`should return ${ERROR.LIMIT} if limit was reached`, async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -549,7 +548,7 @@ describe('timequery', () => {
 			await runMachine(machine, 50);
 			expect(querycell.value).toBe(ERROR.LIMIT);
 		});
-		it.skip(`should return ${ERROR.NA} until first value is available`, async () => {
+		it(`should return ${ERROR.NA} until first value is available`, async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -569,7 +568,7 @@ describe('timequery', () => {
 			expect(querycell.value).toBe(true);
 		});
 	});
-	describe.skip('aggregations methods', () => {
+	describe('aggregations methods', () => {
 		test('none', async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -589,7 +588,7 @@ describe('timequery', () => {
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A2'));
 			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1.length).toBe(1);
@@ -614,7 +613,7 @@ describe('timequery', () => {
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A2'));
 			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1.length).toBe(1);
@@ -671,7 +670,7 @@ describe('timequery', () => {
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A2'));
 			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1.length).toBe(1);
@@ -728,7 +727,7 @@ describe('timequery', () => {
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A2'));
 			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1.length).toBe(1);
@@ -789,7 +788,7 @@ describe('timequery', () => {
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A2'));
 			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(querycell.info.values.v1.length).toBe(1);
 			expect(querycell.info.values.v1[0]).toBe(2);			
@@ -847,7 +846,7 @@ describe('timequery', () => {
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A2'));
 			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(querycell.info.values.v1.length).toBe(1);
 			expect(querycell.info.values.v1[0]).toBe(2);
@@ -903,7 +902,7 @@ describe('timequery', () => {
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A2'));
 			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1.length).toBe(1);
@@ -960,7 +959,7 @@ describe('timequery', () => {
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A2'));
 			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1[0]).toBe(9);
@@ -1016,7 +1015,7 @@ describe('timequery', () => {
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A2'));
 			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1[0]).toBe(1);
@@ -1054,7 +1053,7 @@ describe('timequery', () => {
 			expect(querycell.info.values.v8).toEqual([0, 0]);
 		});
 	});
-	describe.skip('where', () => {
+	describe('where', () => {
 		it('should filter entries by > and >=', async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -1074,8 +1073,9 @@ describe('timequery', () => {
 			await machine.step();
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A2'));
-			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			let querystore = getQueryStore(querycell);
+			querystore.id = 'STALE';
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1.length).toBe(1);
@@ -1086,12 +1086,13 @@ describe('timequery', () => {
 			await machine.step();
 			await machine.step();
 			await machine.step();
-			querystore.query(timestore, getQuery(querycell));
+			// changed query => new store
+			querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(8)
-			expect(querycell.info.values.v1.length).toBe(2);
-			expect(querycell.info.values.v1[0]).toBe(3);
-			expect(querycell.info.values.v1[1]).toBe(6);
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1[0]).toBe(6);
 		});
 		it('should filter non number entries by > and >=', async () => {
 			const machine = newMachine({ cycletime: 10 });
@@ -1114,8 +1115,8 @@ describe('timequery', () => {
 			await machine.step();
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A7'));
-			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			let querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(sheet.cellAt('B3').value).toBe('count4');
@@ -1127,13 +1128,14 @@ describe('timequery', () => {
 			await machine.step();
 			await machine.step();
 			await machine.step();
-			querystore.query(timestore, getQuery(querycell));
+			// changed query => new store
+			querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(8)
 			expect(sheet.cellAt('B3').value).toBe('count8');
-			expect(querycell.info.values.v1.length).toBe(2);
-			expect(querycell.info.values.v1[0]).toBe(2);
-			expect(querycell.info.values.v1[1]).toBe(6);
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1[0]).toBe(6);
 		});
 		it('should filter entries by < and <=', async () => {
 			const machine = newMachine({ cycletime: 10 });
@@ -1154,8 +1156,8 @@ describe('timequery', () => {
 			await machine.step();
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A2'));
-			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			let querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1.length).toBe(1);
@@ -1166,12 +1168,13 @@ describe('timequery', () => {
 			await machine.step();
 			await machine.step();
 			await machine.step();
-			querystore.query(timestore, getQuery(querycell));
+			// changed query => new store
+			querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(8)
-			expect(querycell.info.values.v1.length).toBe(2);
-			expect(querycell.info.values.v1[0]).toBe(3);
-			expect(querycell.info.values.v1[1]).toBe(7);
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1[0]).toBe(7);
 		});
 		it('should filter non number entries by < and <=', async () => {
 			const machine = newMachine({ cycletime: 10 });
@@ -1194,8 +1197,8 @@ describe('timequery', () => {
 			await machine.step();
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A7'));
-			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			let querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(sheet.cellAt('B3').value).toBe('count4');
@@ -1207,13 +1210,14 @@ describe('timequery', () => {
 			await machine.step();
 			await machine.step();
 			await machine.step();
-			querystore.query(timestore, getQuery(querycell));
+			// changed query => new store
+			querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(8)
 			expect(sheet.cellAt('B3').value).toBe('count8');
-			expect(querycell.info.values.v1.length).toBe(2);
-			expect(querycell.info.values.v1[0]).toBe(4);
-			expect(querycell.info.values.v1[1]).toBe(7);
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1[0]).toBe(7);
 		});
 		it('should filter entries by = and !=', async () => {
 			const machine = newMachine({ cycletime: 10 });
@@ -1234,8 +1238,8 @@ describe('timequery', () => {
 			await machine.step();
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A2'));
-			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			let querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1.length).toBe(1);
@@ -1246,12 +1250,13 @@ describe('timequery', () => {
 			await machine.step();
 			await machine.step();
 			await machine.step();
-			querystore.query(timestore, getQuery(querycell));
+			// changed query => new store
+			querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(8)
-			expect(querycell.info.values.v1.length).toBe(2);
-			expect(querycell.info.values.v1[0]).toBe(4);
-			expect(querycell.info.values.v1[1]).toBe(2);
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1[0]).toBe(2);
 		});
 		it('should filter non number entries by = and !=', async () => {
 			const machine = newMachine({ cycletime: 10 });
@@ -1274,8 +1279,8 @@ describe('timequery', () => {
 			await machine.step();
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A7'));
-			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			let querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1.length).toBe(1);
@@ -1287,12 +1292,13 @@ describe('timequery', () => {
 			await machine.step();
 			await machine.step();
 			await machine.step();
-			querystore.query(timestore, getQuery(querycell));
+			// changed query => new store
+			querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(8)
-			expect(querycell.info.values.v1.length).toBe(2);
-			expect(querycell.info.values.v1[0]).toBe(2);
-			expect(querycell.info.values.v1[1]).toBe(5);
+			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1[0]).toBe(5);
 		});
 		it('should be possible to combine constraints with AND', async () => {
 			const machine = newMachine({ cycletime: 10 });
@@ -1316,7 +1322,7 @@ describe('timequery', () => {
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A7'));
 			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1.length).toBe(1);
@@ -1344,7 +1350,7 @@ describe('timequery', () => {
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A7'));
 			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1.length).toBe(1);
@@ -1372,7 +1378,7 @@ describe('timequery', () => {
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A7'));
 			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1.length).toBe(1);
@@ -1400,7 +1406,7 @@ describe('timequery', () => {
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A7'));
 			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(querycell.info.values.v1.length).toBe(1);
@@ -1426,7 +1432,7 @@ describe('timequery', () => {
 			await machine.step();
 			const timestore = getTimeStore(sheet.cellAt('A3'));
 			const querystore = getQueryStore(querycell);
-			querystore.query(timestore, getQuery(querycell));
+			querystore.performQuery(timestore);
 			querystore.write(timestore, querycell);
 			expect(sheet.cellAt('B1').value).toBe(4)
 			expect(sheet.cellAt('B2').value).toBe('count4')
