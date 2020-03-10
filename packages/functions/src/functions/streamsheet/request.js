@@ -184,9 +184,9 @@ const project = (data, resultKeys) => {
 	return isArray ? projectedArray : projectedArray[0];
 };
 
-const setCellInfo = (cell, stale, values, info = {}) => {
+const setCellInfo = (cell, values, info = {}) => {
 	values = values || cell.info.values;
-	Object.assign(cell.info, { stale, values, ...info });
+	Object.assign(cell.info, { values, ...info });
 };
 const handleResponse = (handle, sheet, target, resultKeys, message, funcTerm) => {
 	const { info, resultsType, targets = [] } = handle;
@@ -206,7 +206,7 @@ const handleResponse = (handle, sheet, target, resultKeys, message, funcTerm) =>
 				return true;
 			case 'values':
 				if (funcTerm.cell) {
-					setCellInfo(funcTerm.cell, false, message.data, info);
+					setCellInfo(funcTerm.cell, message.data, info);
 					return true;
 				}
 				return false;
@@ -326,11 +326,6 @@ const requestinternal = (funcTerm, s, ...t) =>
 				);
 				setRequestId(funcTerm, reqId);
 				setDisposeHandler(funcTerm, reqId, sheet);
-			} else {
-				// DL-3817
-				// waiting for a pending request => mark cell info as stale for this step....
-				// NOTE: do not do this in createRequest(), because this would override cell.info set on response!!
-				setCellInfo(funcTerm.cell, true);
 			}
 			return reqId;
 		});
@@ -362,11 +357,6 @@ const requestinternallegacy = (funcTerm, s, ...t) =>
 				);
 				setRequestId(funcTerm, reqId);
 				setDisposeHandler(funcTerm, reqId, sheet);
-			} else {
-				// DL-3817
-				// waiting for a pending request => mark cell info as stale for this step....
-				// NOTE: do not do this in createRequest(), because this would override cell.info set on response!!
-				setCellInfo(funcTerm.cell, true);
 			}
 			return reqId;
 		});

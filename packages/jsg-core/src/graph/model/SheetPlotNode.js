@@ -26,6 +26,19 @@ const ChartTitle = require('./chart/ChartTitle');
 
 const epsilon = 0.000000001;
 
+const getXAxisRange = (item) => {
+	const axes = item.getAxes();
+	return { min: axes.x.minData, max: axes.x.maxData};
+};
+const isDefinedRange = (range = {}) => range.min != null && range.max != null;
+const isZoomedIn = (zoomrange, chartrange) =>
+	(zoomrange.min > chartrange.min && zoomrange.max <= chartrange.max) ||
+	(zoomrange.min >= chartrange.min && zoomrange.max < chartrange.max);
+const isZoomedOut = (zoomrange, chartrange) =>
+	(zoomrange.min < chartrange.min && zoomrange.max >= chartrange.max) ||
+	(zoomrange.min <= chartrange.min && zoomrange.max > chartrange.max);
+
+
 const templates = {
 	basic: {
 		font: {
@@ -157,6 +170,9 @@ module.exports = class SheetPlotNode extends Node {
 		this.series = [];
 		this.actions = [];
 		this.chart = new Chart();
+		this.chartZoom = false;
+		this.chartZoomIn = undefined;
+		this.chartZoomOut = undefined;
 		this.xAxes = [new ChartAxis('primary', 'linear', 'bottom', 500)];
 		this.yAxes = [new ChartAxis('primary', 'linear', 'left', 1000)];
 		this.plot = {
@@ -2453,21 +2469,36 @@ module.exports = class SheetPlotNode extends Node {
 		return sheet;
 	}
 
-	spreadZoomInfo() {
+	isZoomed() {
+		if (this.chartZoom) {
+			const zoomrange = getXAxisRange(this);
+			this.chartZoom = isDefinedRange(zoomrange);
+			if (this.chartZoom) {
+				if (isDefinedRange(this.chartZoomIn)) {
+					this.chartZoom = !isZoomedIn(zoomrange, this.chartZoomIn);
+				} else if (isDefinedRange(this.chartZoomOut)) {
+					this.chartZoom = !isZoomedOut(zoomrange, this.chartZoomOut);
+				} else this.chartZoom = false;
+			}
+		}
+		return !this.chartZoom;
+	}
+	spreadZoomInfo(out = false) {
 		const sheet = this.getSheet();
-
 		GraphUtils.traverseItem(sheet, (item) => {
 			if (item instanceof SheetPlotNode) {
+				const zoomrange = getXAxisRange(item);
 				item.chartZoom = true;
+				item.chartZoomIn = !out ? zoomrange : undefined;
+				item.chartZoomOut = out ? zoomrange : undefined;
 			}
 		}, false);
 	}
 
 	resetZoom(viewer) {
-
+		this.spreadZoomInfo(true);
 		this.setParamValues(viewer, this.xAxes[0].formula,
 			[{index: 4, value: undefined}, {index: 5, value: undefined}]);
-		this.spreadZoomInfo();
 	}
 
 	isAddLabelAllowed() {

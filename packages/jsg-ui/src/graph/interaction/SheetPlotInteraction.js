@@ -169,9 +169,9 @@ export default class SheetPlotInteraction extends Interaction {
 					const valueStart = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptStart : ptEnd);
 					const valueEnd = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptEnd : ptStart);
 
+					item.spreadZoomInfo();
 					item.setParamValues(viewer, item.xAxes[0].formula,
 						[{index: 4, value: valueStart.x}, {index: 5, value: valueEnd.x}]);
-					item.spreadZoomInfo();
 
 					viewer.getGraph().markDirty();
 					event.doRepaint = true;
