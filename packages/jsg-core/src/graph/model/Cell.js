@@ -117,12 +117,17 @@ module.exports = class Cell {
 		this._info = info;
 	}
 
-	get xvalue() {
-		return this._info ? this._info.xvalue : 'time';
-	}
-
+	
 	get values() {
 		return this._info ? this._info.values : undefined;
+	}
+
+	get valuesMarker() {
+		return this._info ? this._info.marker : undefined;
+	}
+
+	get xvalue() {
+		return this._info ? this._info.xvalue : 'time';
 	}
 
 	clearContent() {

@@ -13,6 +13,7 @@ const TextFormatAttributes = require('../attr/TextFormatAttributes');
 const Expression = require('../expr/Expression');
 const Numbers = require('../../commons/Numbers');
 const JSONWriter = require('../../commons/JSONWriter');
+const MarkCellValuesCommand = require('../command/MarkCellValuesCommand');
 const SetPlotDataCommand = require('../command/SetPlotDataCommand');
 const SetCellsCommand = require('../command/SetCellsCommand');
 const DeleteCellContentCommand = require('../command/DeleteCellContentCommand');
@@ -26,18 +27,23 @@ const ChartTitle = require('./chart/ChartTitle');
 
 const epsilon = 0.000000001;
 
-const getXAxisRange = (item) => {
-	const axes = item.getAxes();
-	return { min: axes.x.minData, max: axes.x.maxData};
+const isValuesCell = (cell) => cell && cell._info && cell.values != null;
+const getTimeCell = (item, formula) => {
+	const cell = item.getDataSourceInfo(formula);
+	return cell && cell.time;
 };
-const isDefinedRange = (range = {}) => range.min != null && range.max != null;
-const isZoomedIn = (zoomrange, chartrange) =>
-	(zoomrange.min > chartrange.min && zoomrange.max <= chartrange.max) ||
-	(zoomrange.min >= chartrange.min && zoomrange.max < chartrange.max);
-const isZoomedOut = (zoomrange, chartrange) =>
-	(zoomrange.min < chartrange.min && zoomrange.max >= chartrange.max) ||
-	(zoomrange.min <= chartrange.min && zoomrange.max > chartrange.max);
-
+const getCellReference = (formula) => {
+	let ref;
+	const term = formula.getTerm();
+	const cell = term.params && term.params[1];
+	const operand = cell && cell.operand;
+	if (operand instanceof SheetReference) {
+		const range = operand.getRange();
+		const sheet = range.getSheet();
+		ref = `${sheet.getName()}!${range.toString()}`;
+	}
+	return ref;
+};
 
 const templates = {
 	basic: {
@@ -171,8 +177,6 @@ module.exports = class SheetPlotNode extends Node {
 		this.actions = [];
 		this.chart = new Chart();
 		this.chartZoom = false;
-		this.chartZoomIn = undefined;
-		this.chartZoomOut = undefined;
 		this.xAxes = [new ChartAxis('primary', 'linear', 'bottom', 500)];
 		this.yAxes = [new ChartAxis('primary', 'linear', 'left', 1000)];
 		this.plot = {
@@ -2581,37 +2585,41 @@ module.exports = class SheetPlotNode extends Node {
 		return sheet;
 	}
 
-	isZoomed() {
-		if (this.chartZoom) {
-			const zoomrange = getXAxisRange(this);
-			this.chartZoom = isDefinedRange(zoomrange);
-			if (this.chartZoom) {
-				if (isDefinedRange(this.chartZoomIn)) {
-					this.chartZoom = !isZoomedIn(zoomrange, this.chartZoomIn);
-				} else if (isDefinedRange(this.chartZoomOut)) {
-					this.chartZoom = !isZoomedOut(zoomrange, this.chartZoomOut);
-				} else this.chartZoom = false;
-			}
-		}
+	isZoomed(serie) {
+		const cell = getTimeCell(this, serie.formula);
+		this.chartZoom = this.chartZoom && cell && cell.valuesMarker !== this.cellValuesMarker;
 		return !this.chartZoom;
 	}
-	spreadZoomInfo(out = false) {
+	spreadZoomInfo(viewer) {
+		const items = new Map();
 		const sheet = this.getSheet();
 		GraphUtils.traverseItem(sheet, (item) => {
 			if (item instanceof SheetPlotNode) {
-				const zoomrange = getXAxisRange(item);
+				// item.chartZoom = false;
 				item.chartZoom = true;
-				item.chartZoomIn = !out ? zoomrange : undefined;
-				item.chartZoomOut = out ? zoomrange : undefined;
-				item.chartZoomTimestamp = !out ? new Date(Date.now()) : undefined;
+				item.series.forEach((serie) => {
+					const { formula } = serie;
+					const cell = getTimeCell(item, formula);
+					if (isValuesCell(cell)) {
+						const cellref = getCellReference(formula);
+						if (cellref) {
+							// support multiple items on same reference
+							items.set(item, cellref);
+						}
+					}
+				});
 			}
 		}, false);
+		if (items.size) {
+			const cmd = MarkCellValuesCommand.fromItemCellRefMap(items);
+			viewer.getInteractionHandler().execute(cmd);
+		}
 	}
 
 	resetZoom(viewer) {
-		this.spreadZoomInfo(true);
 		this.setParamValues(viewer, this.xAxes[0].formula,
 			[{index: 4, value: undefined}, {index: 5, value: undefined}]);
+		this.spreadZoomInfo(viewer);
 	}
 
 	isAddLabelAllowed() {

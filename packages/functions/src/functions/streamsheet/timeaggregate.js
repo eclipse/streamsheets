@@ -136,7 +136,7 @@ class Aggregator {
 			this.nextAggregation = now + interval;
 		}
 	}
-	write(cell, range) {
+	write(cell, range, term) {
 		const entries = this.settings.interval > 0 ? this.aggStore.entries : this.valStore.entries;
 		if (range) {
 			const sheet = range.sheet;
@@ -150,7 +150,8 @@ class Aggregator {
 			});
 		}
 		// DL-2306 always return entries with cell
-		cell.info = { values: entries.map(({ key, value }) => ({ key, value })) };
+		const marker = term ? term._marker : undefined;
+		cell.info = { marker, values: entries.map(({ key, value }) => ({ key, value })) };
 	}
 }
 
@@ -191,7 +192,7 @@ const timeaggregate = (sheet, ...terms) =>
 			registerStateListener(term, sheet);
 			if (val !== IGNORE) {
 				aggregator.push(val, timestamp);
-				aggregator.write(sheetutils.cellFromFunc(timeaggregate), targetrange);
+				aggregator.write(sheetutils.cellFromFunc(timeaggregate), targetrange, term);
 			}
 			return aggregator.getAggregatedValues();
 		});

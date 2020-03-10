@@ -82,11 +82,22 @@ const isNotRunning = (machine) => () => machine.state !== State.RUNNING;
 const isNotStepping = (machine) => () => !machine.isManualStep;
 
 
+const getCellFromReference = (str, sheet) => {
+	const parts = str.split('!');
+	if (parts.length === 2) {
+		const machine = sheet.machine;
+		const streamsheet = machine ? machine.getStreamSheetByName(parts[0]) : undefined;
+		str = parts[1];
+		sheet = streamsheet ? streamsheet.sheet : undefined;
+	}
+	return { sheet, cell: sheet ? sheet.cellAt(str) : undefined };
+};
 
 module.exports = {
 	cellDescriptor,
 	cellDescriptorAsObject,
 	collectMachineStats,
+	getCellFromReference,
 	getSheetCellsAsList,
 	getSheetCellsAsObject,
 	isNotRunning,

@@ -123,9 +123,9 @@ export default class SheetPlotActivator extends InteractionActivator {
 				const axis = selection.data;
 
 				if (axis.allowZoom) {
-					item.spreadZoomInfo();
 					item.setParamValues(viewer, axis.formula,
-						[{index: 4, value: undefined}, {index: 5, value: undefined}]);
+						[{ index: 4, value: undefined }, { index: 5, value: undefined }]);
+					item.spreadZoomInfo(viewer);
 
 					viewer.getGraph().markDirty();
 					event.doRepaint = true;

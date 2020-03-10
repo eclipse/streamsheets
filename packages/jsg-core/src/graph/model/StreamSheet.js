@@ -98,6 +98,11 @@ module.exports = class StreamSheet extends WorksheetNode {
 		return new StreamSheet();
 	}
 
+	// to prevent cyclic dependencies if StreamSheet is used in commands
+	get isStreamSheet() {
+		return true;
+	}
+
 	assignIdsToChildren(item, lid) {
 		this._contentPane.getItems().forEach((subItem) => {
 			subItem._id = lid;

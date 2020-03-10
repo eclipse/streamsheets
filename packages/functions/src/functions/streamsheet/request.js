@@ -184,12 +184,12 @@ const project = (data, resultKeys) => {
 	return isArray ? projectedArray : projectedArray[0];
 };
 
-const setCellInfo = (cell, values, info = {}) => {
-	values = values || cell.info.values;
-	Object.assign(cell.info, { values, ...info });
+const setCellInfo = (cell, info = {}) => {
+	info.values = info.values || cell.info.values;
+	Object.assign(cell.info, info); // { values, ...info });
 };
 const handleResponse = (handle, sheet, target, resultKeys, message, funcTerm) => {
-	const { info, resultsType, targets = [] } = handle;
+	const { resultsType, targets = [] } = handle;
 	targets.some((trgt) => {
 		switch (trgt) {
 			case 'none':
@@ -206,7 +206,7 @@ const handleResponse = (handle, sheet, target, resultKeys, message, funcTerm) =>
 				return true;
 			case 'values':
 				if (funcTerm.cell) {
-					setCellInfo(funcTerm.cell, message.data, info);
+					setCellInfo(funcTerm.cell, { values: message.data, marker: funcTerm._marker });
 					return true;
 				}
 				return false;

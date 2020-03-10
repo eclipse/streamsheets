@@ -283,7 +283,7 @@ export default class SheetPlotView extends NodeView {
 			return undefined;
 		}
 
-		if (!item.isZoomed() && ref.time && ref.time.values) {
+		if (!item.isZoomed(serie)) {
 			graphics.setTextBaseline('top');
 			graphics.setFillColor('#CCCCCC');
 			graphics.setTextAlignment(0);

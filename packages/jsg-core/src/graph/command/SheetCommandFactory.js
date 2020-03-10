@@ -36,6 +36,7 @@ const FormatCellsCommand = require('./FormatCellsCommand');
 const FormatCellsCommandWC = require('./FormatCellsCommandWC');
 const SetCellLevelsCommand = require('./SetCellLevelsCommand');
 const TextFormatCellsCommand = require('./TextFormatCellsCommand');
+const MarkCellValuesCommand = require('./MarkCellValuesCommand');
 const {
 	UpdateSheetNamesCommand,
 	UpdateGraphCellsCommand,
@@ -84,7 +85,8 @@ const Registry = {
 	'command.FormatCellsCommand': FormatCellsCommand,
 	'command.FormatCellsCommandWC': FormatCellsCommandWC,
 	'command.SetCellLevelsCommand': SetCellLevelsCommand,
-	'command.TextFormatCellsCommand': TextFormatCellsCommand
+	'command.TextFormatCellsCommand': TextFormatCellsCommand,
+	'command.MarkCellValuesCommand': MarkCellValuesCommand
 };
 module.exports = class SheetCommandFactory {
 	// extends CommandFactory {

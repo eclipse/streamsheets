@@ -829,6 +829,16 @@ class DeleteTreeItemCommandRequestHandler {
 	}
 }
 
+class MarkCellValuesCommandRequestHandler {
+	async handleCommand(command, runner, streamsheetId, userId) {
+		return runner.request('markRequests', userId, {
+			markers: command.markers,
+			streamsheetId
+		});
+	}
+}
+
+
 class UpdateSheetNamesCommandRequestHandler {
 	mapCommand(command) {
 		let cmd = {};
@@ -956,7 +966,10 @@ class CommandRequestHandler extends RequestHandler {
 			// 	new PasteCellsCommandRequestHandler()
 			// ],
 			// ~
-
+			[
+				'command.MarkCellValuesCommand',
+				new MarkCellValuesCommandRequestHandler()
+			],
 			[
 				'command.SetCellDataCommand',
 				new SetCellDataCommandRequestHandler()
