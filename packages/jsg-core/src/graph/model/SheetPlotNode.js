@@ -257,6 +257,11 @@ module.exports = class SheetPlotNode extends Node {
 			height: 0
 		};
 
+		axis.textSize = {
+			width: 1000,
+			height: 500
+		};
+
 		if (!axis.position || !axis.scale) {
 			return result;
 		}
@@ -300,6 +305,9 @@ module.exports = class SheetPlotNode extends Node {
 
 			current = this.incrementScale(axis, current);
 		}
+
+		axis.textSize.width = Math.max(result.width + 150, 1000);
+		axis.textSize.height = Math.max(result.width + 150, 500);
 
 		return result;
 	}
@@ -934,27 +942,6 @@ module.exports = class SheetPlotNode extends Node {
 		const size = axis.isVertical() ? axis.position.height : axis.position.width;
 
 		switch (axis.type) {
-		// case 'category':
-		// 	if (input.min === undefined) {
-		// 		input.min = min;
-		// 	} else {
-		// 		input.min = Math.floor(input.min);
-		// 	}
-		// 	if (input.max === undefined) {
-		// 		input.max = max + 1;
-		// 	} else {
-		// 		input.max = Math.ceil(input.max);
-		// 	}
-		// 	if (input.step === undefined) {
-		// 		if (direction === 'x') {
-		// 			input.step = Math.min(13, size / 1500);
-		// 		} else {
-		// 			// dTmp = (double)m_TickLabels.GetFont().GetSize() / 72 * 2540 * 2.0;
-		// 			input.step = Math.min(13, size / 1300);
-		// 		}
-		// 	}
-		// 	input.step = Math.max(1, input.step);
-		// 	break;
 		case 'logarithmic':
 			if (min <= 0.0) {
 				min = 0.1;
@@ -1156,8 +1143,9 @@ module.exports = class SheetPlotNode extends Node {
 
 			if (axis.isVertical()) {
 				stepCount = Math.min(13, size / 1000);
+			} else if (axis.textSize && axis.textSize.width) {
+				stepCount = Math.min(13, size / axis.textSize.width);
 			} else {
-				// dTmp = (double)m_TickLabels.GetFont().GetSize() / 72 * 2540 * 2.0;
 				stepCount = Math.min(13, size / 1500);
 			}
 
@@ -1273,17 +1261,6 @@ module.exports = class SheetPlotNode extends Node {
 				input.max = Math.ceil(input.max);
 				input.step = Math.max(1, input.step);
 			}
-			// if (nDist < 1) {
-			// 	nDist = 1;
-			// }
-			// if (m_fMinorUnitIsAuto) {
-			// 	m_minorUnit = m_dMajorUnit / nDist;
-			// }
-			//
-			// m_minorUnit = max(m_minorUnit, ctEpsilon * 10);
-			// while (m_minorUnit * 1000 < m_maximumScale - m_minimumScale) {
-			// 	m_minorUnit *= 10;
-			// }
 			break;
 		}
 	}
