@@ -1593,6 +1593,7 @@ export default class WorksheetView extends ContentNodeView {
 								case 'OPCUA.RESPOND':
 								case 'OPCUA.VARIABLES':
 								case 'OPCUA.WRITE':
+								case 'EMAIL.SEND':
 								case 'SMS.SEND':
 								case 'INFLUX.DROP':
 								case 'INFLUX.SELECT':

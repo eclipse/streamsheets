@@ -370,6 +370,7 @@ export default class CellsView extends NodeView {
 				case 'OPCUA.RESPOND':
 				case 'OPCUA.VARIABLES':
 				case 'OPCUA.WRITE':
+				case 'EMAIL.SEND':
 				case 'SMS.SEND':
 				case 'INFLUX.DROP':
 				case 'INFLUX.SELECT':
@@ -1597,6 +1598,7 @@ export default class CellsView extends NodeView {
 			case 'OPCUA.RESPOND':
 			case 'OPCUA.VARIABLES':
 			case 'OPCUA.WRITE':
+			case 'EMAIL.SEND':
 			case 'SMS.SEND':
 			case 'INFLUX.DROP':
 			case 'INFLUX.SELECT':
