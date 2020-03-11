@@ -72,7 +72,6 @@ module.exports = class SetPlotDataCommand extends AbstractItemCommand {
 			break;
 		}
 
-		this._graphItem.layout();
 		this._graphItem.evaluate();
 		this._graphItem.getGraph().markDirty();
 	}

@@ -27,7 +27,6 @@ module.exports = class ChartAxis {
 	save(writer, name) {
 		writer.writeStartElement(name);
 
-		writer.writeAttributeNumber('size', this.size, 0);
 		writer.writeAttributeString('align', this.align);
 		writer.writeAttributeString('type', this.type);
 		writer.writeAttributeString('name', this.name);
@@ -43,10 +42,6 @@ module.exports = class ChartAxis {
 	}
 
 	read(reader, object) {
-		this.size =
-			reader.getAttribute(object, 'size') === undefined
-				? 500
-				: Number(reader.getAttribute(object, 'size'));
 		this.align =
 			reader.getAttribute(object, 'align') === undefined
 				? 'left'
