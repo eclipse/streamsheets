@@ -1,8 +1,4 @@
-import {
-	default as JSG,
-	TextFormatAttributes,
-	FormatAttributes
-} from '@cedalo/jsg-core';
+import { default as JSG, TextFormatAttributes, FormatAttributes } from '@cedalo/jsg-core';
 
 import NodeView from './NodeView';
 
@@ -67,8 +63,12 @@ export default class SheetPlotView extends NodeView {
 		graphics.setFontStyle(0);
 		graphics.setFont();
 
-		item.actions.forEach(action => {
-			graphics.fillText(action.title, action.position.left + action.position.width / 2, action.position.top + action.position.height / 2);
+		item.actions.forEach((action) => {
+			graphics.fillText(
+				action.title,
+				action.position.left + action.position.width / 2,
+				action.position.top + action.position.height / 2
+			);
 		});
 	}
 
@@ -94,24 +94,25 @@ export default class SheetPlotView extends NodeView {
 			graphics.setLineWidth(entry.series.format.lineWidth || item.getTemplate().series.linewidth);
 
 			switch (entry.series.type) {
-			case 'line':
-			case 'profile':
-			case 'scatter':
-				graphics.moveTo(x, y + textSize.height / 2);
-				graphics.lineTo(x + margin * 3, y + textSize.height / 2);
-				graphics.stroke();
-				break;
-			case 'area':
-			case 'column':
-			case 'bar':
-				graphics.rect(x, y + textSize.height / 10, margin * 3, textSize.height * 2 / 3);
-				graphics.setFillColor(entry.series.format.fillColor || item.getTemplate().series.fill[index]);
-				graphics.fill();
-				graphics.stroke();
-				break;
+				case 'line':
+				case 'profile':
+				case 'scatter':
+					graphics.moveTo(x, y + textSize.height / 2);
+					graphics.lineTo(x + margin * 3, y + textSize.height / 2);
+					graphics.stroke();
+					break;
+				case 'area':
+				case 'column':
+				case 'bar':
+					graphics.rect(x, y + textSize.height / 10, margin * 3, (textSize.height * 2) / 3);
+					graphics.setFillColor(entry.series.format.fillColor || item.getTemplate().series.fill[index]);
+					graphics.fill();
+					graphics.stroke();
+					break;
 			}
 
-			const fontColor = legend.format.fontColor || item.getTemplate().legend.format.fontColor || item.getTemplate().font.color;
+			const fontColor =
+				legend.format.fontColor || item.getTemplate().legend.format.fontColor || item.getTemplate().font.color;
 
 			graphics.setFillColor(fontColor);
 			graphics.fillText(entry.name, x + margin * 4, y + textSize.height / 2);
@@ -129,7 +130,7 @@ export default class SheetPlotView extends NodeView {
 
 	drawAxes(graphics, plotRect, item, grid) {
 		item.xAxes.forEach((axis) => {
-			this.drawTitle(graphics, item, axis.title, 'axisTitle',  axis.isVertical() ? Math.PI_2 : 0);
+			this.drawTitle(graphics, item, axis.title, 'axisTitle', axis.isVertical() ? Math.PI_2 : 0);
 			this.drawAxis(graphics, plotRect, item, axis, grid);
 		});
 
@@ -196,6 +197,10 @@ export default class SheetPlotView extends NodeView {
 			});
 		}
 
+		const cs = graphics.getCoordinateSystem();
+		let last;
+		let width = 0;
+
 		while (current <= axis.scale.max) {
 			if (axis.type === 'category' && (grid ? current > axis.scale.max : current >= axis.scale.max)) {
 				break;
@@ -213,6 +218,8 @@ export default class SheetPlotView extends NodeView {
 					);
 				}
 			}
+
+			width = cs.deviceToLogX(graphics.measureText(text).width);
 
 			switch (axis.align) {
 				case 'left':
@@ -247,8 +254,9 @@ export default class SheetPlotView extends NodeView {
 					if (grid) {
 						graphics.moveTo(plot, plotRect.top);
 						graphics.lineTo(plot, plotRect.bottom);
-					} else {
+					} else if (last === undefined || plot - width / 2 + 100 > last) {
 						graphics.fillText(`${text}`, plot, axis.position.top + 200);
+						last = plot + width / 2;
 					}
 					break;
 			}
@@ -274,8 +282,14 @@ export default class SheetPlotView extends NodeView {
 		}
 
 		if (!item.isZoomed()) {
+			graphics.setTextBaseline('top');
 			graphics.setFillColor('#CCCCCC');
-			graphics.fillText('Retrieving Data...', 100, 500);
+			graphics.setTextAlignment(0);
+			graphics.setFontName('Verdana');
+			graphics.setFontSize('8');
+			graphics.setFontStyle(0);
+			graphics.setFont();
+			graphics.fillText('Retrieving Data...', 100, 100);
 		}
 
 		graphics.save();
@@ -305,73 +319,85 @@ export default class SheetPlotView extends NodeView {
 				x = item.scaleToAxis(axes.x, value.x, undefined, false);
 				y = item.scaleToAxis(axes.y, value.y, info, false);
 				switch (serie.type) {
-				case 'profile':
-					if (item.chart.dataMode === 'datainterrupt' && (value.x === undefined || value.y === undefined)) {
-						newLine = true;
-					} else if (newLine) {
-						graphics.moveTo(plotRect.left + y * plotRect.width, plotRect.bottom - x * plotRect.height);
-						newLine = false;
-						xFirst = x;
-						xLast = x;
-					} else {
-						graphics.lineTo(plotRect.left + y * plotRect.width, plotRect.bottom - x * plotRect.height);
-						xLast = x;
-					}
-					break;
-				case 'area':
-				case 'line':
-				case 'scatter':
-					if (item.chart.dataMode === 'datainterrupt' && (value.x === undefined || value.y === undefined)) {
-						newLine = true;
-					} else if (newLine) {
-						graphics.moveTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
-						newLine = false;
-						xFirst = x;
-						xLast = x;
-					} else {
-						graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
-						xLast = x;
-					}
-					if (serie.type === 'area') {
-						if (newLine) {
-							y = item.scaleToAxis(axes.y, 0, undefined, false);
-							graphics.lineTo(plotRect.left + xLast * plotRect.width, plotRect.bottom - y * plotRect.height);
-							graphics.lineTo(plotRect.left + xFirst * plotRect.width, plotRect.bottom - y * plotRect.height);
-							graphics.closePath();
-							graphics.fill();
-							graphics.stroke();
-							graphics.beginPath();
+					case 'profile':
+						if (
+							item.chart.dataMode === 'datainterrupt' &&
+							(value.x === undefined || value.y === undefined)
+						) {
+							newLine = true;
+						} else if (newLine) {
+							graphics.moveTo(plotRect.left + y * plotRect.width, plotRect.bottom - x * plotRect.height);
+							newLine = false;
+							xFirst = x;
+							xLast = x;
+						} else {
+							graphics.lineTo(plotRect.left + y * plotRect.width, plotRect.bottom - x * plotRect.height);
+							xLast = x;
 						}
-						if (item.chart.stacked) {
-							points.push({
-								x: plotRect.left + x * plotRect.width,
-								y: plotRect.bottom - y * plotRect.height
-							});
+						break;
+					case 'area':
+					case 'line':
+					case 'scatter':
+						if (
+							item.chart.dataMode === 'datainterrupt' &&
+							(value.x === undefined || value.y === undefined)
+						) {
+							newLine = true;
+						} else if (newLine) {
+							graphics.moveTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+							newLine = false;
+							xFirst = x;
+							xLast = x;
+						} else {
+							graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+							xLast = x;
 						}
-					}
-					break;
-				case 'column':
-					if (value.x !== undefined && value.y !== undefined) {
-						barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
-						graphics.rect(
-							plotRect.left + x * plotRect.width + barInfo.offset,
-							plotRect.bottom - y * plotRect.height,
-							barWidth - barInfo.margin,
-							-barInfo.height * plotRect.height
-						);
-					}
-					break;
-				case 'bar':
-					if (value.x !== undefined && value.y !== undefined) {
-						barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
-						graphics.rect(
-							plotRect.left + y * plotRect.width,
-							plotRect.bottom - x * plotRect.height + barInfo.offset,
-							barInfo.height * plotRect.width,
-							barWidth - barInfo.margin
-						);
-					}
-					break;
+						if (serie.type === 'area') {
+							if (newLine) {
+								y = item.scaleToAxis(axes.y, 0, undefined, false);
+								graphics.lineTo(
+									plotRect.left + xLast * plotRect.width,
+									plotRect.bottom - y * plotRect.height
+								);
+								graphics.lineTo(
+									plotRect.left + xFirst * plotRect.width,
+									plotRect.bottom - y * plotRect.height
+								);
+								graphics.closePath();
+								graphics.fill();
+								graphics.stroke();
+								graphics.beginPath();
+							}
+							if (item.chart.stacked) {
+								points.push({
+									x: plotRect.left + x * plotRect.width,
+									y: plotRect.bottom - y * plotRect.height
+								});
+							}
+						}
+						break;
+					case 'column':
+						if (value.x !== undefined && value.y !== undefined) {
+							barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
+							graphics.rect(
+								plotRect.left + x * plotRect.width + barInfo.offset,
+								plotRect.bottom - y * plotRect.height,
+								barWidth - barInfo.margin,
+								-barInfo.height * plotRect.height
+							);
+						}
+						break;
+					case 'bar':
+						if (value.x !== undefined && value.y !== undefined) {
+							barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
+							graphics.rect(
+								plotRect.left + y * plotRect.width,
+								plotRect.bottom - x * plotRect.height + barInfo.offset,
+								barInfo.height * plotRect.width,
+								barWidth - barInfo.margin
+							);
+						}
+						break;
 				}
 			}
 			index += 1;
@@ -388,7 +414,7 @@ export default class SheetPlotView extends NodeView {
 				y = item.scaleToAxis(axes.y, 0, undefined, false);
 				x = xLast;
 				graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
-				x = xFirst;// item.scaleToAxis(axes.x, xFirst, undefined, false);
+				x = xFirst; // item.scaleToAxis(axes.x, xFirst, undefined, false);
 				graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
 			}
 			graphics.closePath();
@@ -429,7 +455,8 @@ export default class SheetPlotView extends NodeView {
 				-(title.position.top + title.position.height / 2 + 50)
 			);
 		} else {
-			graphics.fillText(text,
+			graphics.fillText(
+				text,
 				title.position.left + title.position.width / 2,
 				title.position.top + title.position.height / 2 + 50
 			);
@@ -444,33 +471,33 @@ export default class SheetPlotView extends NodeView {
 			const template = this.getItem().getTemplate();
 			if (data) {
 				switch (this.chartSelection.element) {
-				case 'plot':
-					f.setLineColor(data.format.lineColor || template.plot.format.lineColor);
-					f.setFillColor(data.format.fillColor || template.plot.format.fillColor);
-					break;
-				case 'series':
-					f.setFillColor(data.format.fillColor || template.series.fill[this.chartSelection.index]);
-					f.setLineColor(data.format.lineColor || template.series.line[this.chartSelection.index]);
-					break;
-				case 'title':
-				case 'legend':
-					f.setFillColor(data.format.fillColor || template[this.chartSelection.element].format.fillColor);
-					f.setLineColor(data.format.lineColor || template[this.chartSelection.element].format.lineColor);
-					break;
-				case 'xAxis':
-				case 'yAxis':
-					f.setLineColor(data.format.lineColor || template.axis.format.lineColor);
-					f.setFillColor(data.format.fillColor || template.axis.format.fillColor);
-					break;
-				case 'xAxisGrid':
-				case 'yAxisGrid':
-					f.setLineColor(data.formatGrid.lineColor || template.axis.formatGrid.lineColor);
-					break;
-				case 'xAxisTitle':
-				case 'yAxisTitle':
-					f.setLineColor(data.format.lineColor || template.axisTitle.format.lineColor);
-					f.setFillColor(data.format.fillColor || template.axisTitle.format.fillColor);
-					break;
+					case 'plot':
+						f.setLineColor(data.format.lineColor || template.plot.format.lineColor);
+						f.setFillColor(data.format.fillColor || template.plot.format.fillColor);
+						break;
+					case 'series':
+						f.setFillColor(data.format.fillColor || template.series.fill[this.chartSelection.index]);
+						f.setLineColor(data.format.lineColor || template.series.line[this.chartSelection.index]);
+						break;
+					case 'title':
+					case 'legend':
+						f.setFillColor(data.format.fillColor || template[this.chartSelection.element].format.fillColor);
+						f.setLineColor(data.format.lineColor || template[this.chartSelection.element].format.lineColor);
+						break;
+					case 'xAxis':
+					case 'yAxis':
+						f.setLineColor(data.format.lineColor || template.axis.format.lineColor);
+						f.setFillColor(data.format.fillColor || template.axis.format.fillColor);
+						break;
+					case 'xAxisGrid':
+					case 'yAxisGrid':
+						f.setLineColor(data.formatGrid.lineColor || template.axis.formatGrid.lineColor);
+						break;
+					case 'xAxisTitle':
+					case 'yAxisTitle':
+						f.setLineColor(data.format.lineColor || template.axisTitle.format.lineColor);
+						f.setFillColor(data.format.fillColor || template.axisTitle.format.fillColor);
+						break;
 					default:
 						break;
 				}
@@ -488,53 +515,57 @@ export default class SheetPlotView extends NodeView {
 			const template = this.getItem().getTemplate();
 			if (data) {
 				switch (this.chartSelection.element) {
-				case 'series':
-				case 'title':
-				case 'legend':
-					tf.setFontName(
-						data.format.fontName ||
-							template[this.chartSelection.element].format.fontName ||
-							template.font.name
-					);
-					tf.setFontSize(
-						data.format.fontSize ||
-							template[this.chartSelection.element].format.fontSize ||
-							template.font.size
-					);
-					if (data.format.fontStyle !== undefined) {
-						tf.setFontStyle(data.format.fontStyle);
-					} else if (template[this.chartSelection.element].format.fontStyle !== undefined) {
-						tf.setFontStyle(template[this.chartSelection.element].format.fontStyle);
-					} else {
-						tf.setFontStyle(template.font.style);
-					}
-					break;
-				case 'xAxis':
-				case 'yAxis':
-					tf.setFontName(data.format.fontName || template.axis.format.fontName || template.font.name);
-					tf.setFontSize(data.format.fontSize || template.axis.format.fontSize || template.font.size);
-					if (data.format.fontStyle !== undefined) {
-						tf.setFontStyle(data.format.fontStyle);
-					} else if (template.axis.format.fontStyle !== undefined) {
-						tf.setFontStyle(template.axis.format.fontStyle);
-					} else {
-						tf.setFontStyle(template.font.style);
-					}
-					break;
-				case 'xAxisTitle':
-				case 'yAxisTitle':
-					tf.setFontName(data.format.fontName || template.axisTitle.format.fontName || template.font.name);
-					tf.setFontSize(data.format.fontSize || template.axisTitle.format.fontSize || template.font.size);
-					if (data.format.fontStyle !== undefined) {
-						tf.setFontStyle(data.format.fontStyle);
-					} else if (template.axisTitle.format.fontStyle !== undefined) {
-						tf.setFontStyle(template.axisTitle.format.fontStyle);
-					} else {
-						tf.setFontStyle(template.font.style);
-					}
-					break;
-				default:
-					break;
+					case 'series':
+					case 'title':
+					case 'legend':
+						tf.setFontName(
+							data.format.fontName ||
+								template[this.chartSelection.element].format.fontName ||
+								template.font.name
+						);
+						tf.setFontSize(
+							data.format.fontSize ||
+								template[this.chartSelection.element].format.fontSize ||
+								template.font.size
+						);
+						if (data.format.fontStyle !== undefined) {
+							tf.setFontStyle(data.format.fontStyle);
+						} else if (template[this.chartSelection.element].format.fontStyle !== undefined) {
+							tf.setFontStyle(template[this.chartSelection.element].format.fontStyle);
+						} else {
+							tf.setFontStyle(template.font.style);
+						}
+						break;
+					case 'xAxis':
+					case 'yAxis':
+						tf.setFontName(data.format.fontName || template.axis.format.fontName || template.font.name);
+						tf.setFontSize(data.format.fontSize || template.axis.format.fontSize || template.font.size);
+						if (data.format.fontStyle !== undefined) {
+							tf.setFontStyle(data.format.fontStyle);
+						} else if (template.axis.format.fontStyle !== undefined) {
+							tf.setFontStyle(template.axis.format.fontStyle);
+						} else {
+							tf.setFontStyle(template.font.style);
+						}
+						break;
+					case 'xAxisTitle':
+					case 'yAxisTitle':
+						tf.setFontName(
+							data.format.fontName || template.axisTitle.format.fontName || template.font.name
+						);
+						tf.setFontSize(
+							data.format.fontSize || template.axisTitle.format.fontSize || template.font.size
+						);
+						if (data.format.fontStyle !== undefined) {
+							tf.setFontStyle(data.format.fontStyle);
+						} else if (template.axisTitle.format.fontStyle !== undefined) {
+							tf.setFontStyle(template.axisTitle.format.fontStyle);
+						} else {
+							tf.setFontStyle(template.font.style);
+						}
+						break;
+					default:
+						break;
 				}
 			}
 		}
@@ -608,13 +639,13 @@ export default class SheetPlotView extends NodeView {
 			}
 			let format;
 			switch (this.chartSelection.element) {
-			case 'xAxisGrid':
-			case 'yAxisGrid':
-				format = data.formatGrid;
-				break;
-			default:
-				format = data.format;
-				break;
+				case 'xAxisGrid':
+				case 'yAxisGrid':
+					format = data.formatGrid;
+					break;
+				default:
+					format = data.format;
+					break;
 			}
 			let value = map.get('linecolor');
 			if (value) {
@@ -659,28 +690,28 @@ export default class SheetPlotView extends NodeView {
 
 		if (this.chartSelection) {
 			switch (this.chartSelection.element) {
-			case 'series':
-				update('series');
-				return true;
-			case 'xAxis':
-			case 'yAxis':
-			case 'xAxisTitle':
-			case 'yAxisTitle':
-			case 'xAxisGrid':
-			case 'yAxisGrid':
-				update('axes');
-				return true;
-			case 'title':
-				update('title');
-				return true;
-			case 'legend':
-				update('legend');
-				return true;
-			case 'plot':
-				update('plot');
-				return true;
-			default:
-				break;
+				case 'series':
+					update('series');
+					return true;
+				case 'xAxis':
+				case 'yAxis':
+				case 'xAxisTitle':
+				case 'yAxisTitle':
+				case 'xAxisGrid':
+				case 'yAxisGrid':
+					update('axes');
+					return true;
+				case 'title':
+					update('title');
+					return true;
+				case 'legend':
+					update('legend');
+					return true;
+				case 'plot':
+					update('plot');
+					return true;
+				default:
+					break;
 			}
 		}
 		return false;

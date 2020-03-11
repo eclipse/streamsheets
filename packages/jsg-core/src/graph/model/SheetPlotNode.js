@@ -270,10 +270,10 @@ module.exports = class SheetPlotNode extends Node {
 	measureAxis(graphics, axis) {
 		const result = {
 			width: 0,
-			height: 0
+			height: 0,
+			last: 0
 		};
 
-		const oldSize = { ...axis.textSize };
 		axis.textSize = {
 			width: 1000,
 			height: 300
@@ -320,13 +320,18 @@ module.exports = class SheetPlotNode extends Node {
 			result.width = Math.max(result.width, size.width);
 			result.height = Math.max(result.height, size.height);
 
+			result.last = size.width + 200;
+			if (result.first === undefined) {
+				result.first = result.width + 200;
+			}
+
 			current = this.incrementScale(axis, current);
 		}
 
 		axis.textSize.width = Math.max(result.width + 150, 1000);
 		axis.textSize.height = Math.max(result.height + 100, 300);
-
-		result.change = oldSize ? (Math.abs(oldSize.width - axis.textSize.width) > 1 || Math.abs(oldSize.height - axis.textSize.height) > 1) : true;
+		axis.textSize.firstWidth = result.first;
+		axis.textSize.lastWidth = result.last;
 
 		result.width += 300;
 		result.height += 300;
@@ -335,20 +340,11 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	layout() {
-		let cnt = 0;
-
-		this.setMinMax();
-
-		while (this.doLayout(cnt === 2) && cnt < 3) {
-			cnt += 1;
-		}
-	}
-
-	doLayout(force) {
 		const size = this.getSize().toPoint();
 		const cs = JSG.graphics.getCoordinateSystem();
 		this.getItemAttributes().setContainer(false);
 
+		this.setMinMax();
 		this.setScales();
 
 		this.plot.position.left = this.chart.margins.left;
@@ -369,8 +365,22 @@ module.exports = class SheetPlotNode extends Node {
 			this.title.position.bottom = this.chart.margins.top + this.title.size;
 			this.plot.position.top = this.title.position.bottom + 200;
 		} else {
+			this.plot.position.top += 200;
 			this.title.position.reset();
 		}
+
+		this.xAxes.forEach((axis) => {
+			if (axis.scale.maxZoom !== undefined) {
+				this.plot.position.top = Math.max(this.plot.position.top, 800);
+				this.actions = [{
+					position: new ChartRect(size.x - 2200, 0, size.x, 800),
+					action: this.resetZoom,
+					title: 'Reset Zoom'
+				}];
+			} else {
+				this.actions = [];
+			}
+		});
 
 		const legend = this.getLegend();
 		if (legend.length && this.legend.visible) {
@@ -422,16 +432,8 @@ module.exports = class SheetPlotNode extends Node {
 			}
 		}
 
+		// reduce plot by axis title size
 		this.xAxes.forEach((axis) => {
-			if (axis.scale.maxZoom !== undefined) {
-				this.actions = [{
-					position: new ChartRect(size.x - 2200, 0, size.x, 800),
-					action: this.resetZoom,
-					title: 'Reset Zoom'
-				}];
-			} else {
-				this.actions = [];
-			}
 			if (axis.title.visible) {
 				title = String(this.getExpressionValue(axis.title.formula));
 				axis.title.size = this.measureTitle(JSG.graphics, axis.title, 'axisTitle', title);
@@ -452,8 +454,7 @@ module.exports = class SheetPlotNode extends Node {
 			}
 		});
 
-		let result = false;
-
+		// reduce plot by axis size
 		this.xAxes.forEach((axis) => {
 			switch (axis.align) {
 			case 'left':
@@ -472,9 +473,6 @@ module.exports = class SheetPlotNode extends Node {
 				axis.size = this.measureAxis(JSG.graphics, axis);
 				this.plot.position.bottom -= axis.size.height;
 				break;
-			}
-			if (axis.size.change) {
-				result = true;
 			}
 		});
 
@@ -518,14 +516,23 @@ module.exports = class SheetPlotNode extends Node {
 				this.plot.position.bottom -= axis.size.height;
 				break;
 			}
-			if (axis.size.change) {
-				result = true;
-			}
 		});
 
-		if (result && !force) {
-			return true;
-		}
+		// ensure for axis first and last label space
+		this.xAxes.forEach((axis) => {
+			switch (axis.align) {
+			case 'left':
+				break;
+			case 'right':
+				break;
+			case 'top':
+				break;
+			case 'bottom':
+				this.plot.position.left = Math.max(this.plot.position.left, axis.textSize.firstWidth / 2);
+				this.plot.position.right = Math.min(this.plot.position.right, size.x - axis.textSize.lastWidth / 2);
+				break;
+			}
+		});
 
 		this.xAxes.forEach((axis) => {
 			if (axis.position) {
@@ -641,7 +648,7 @@ module.exports = class SheetPlotNode extends Node {
 
 		super.layout();
 
-		return false;
+		return;
 	}
 
 	getParamInfo(term, index) {
@@ -1047,13 +1054,7 @@ module.exports = class SheetPlotNode extends Node {
 			break;
 		case 'time':
 			if (axis.isVertical()) {
-				if (axis.textSize && axis.textSize.height) {
-					stepCount = Math.min(15, size / axis.textSize.height);
-				} else {
-					stepCount = Math.min(15, size / 1000);
-				}
-			} else if (axis.textSize && axis.textSize.width) {
-				stepCount = Math.min(13, size / axis.textSize.width);
+				stepCount = Math.min(13, size / 600);
 			} else {
 				stepCount = Math.min(13, size / 1500);
 			}
@@ -1136,7 +1137,7 @@ module.exports = class SheetPlotNode extends Node {
 					} else {
 						step = 12;
 					}
-				} else if (diff > 45 / 86400) {
+				} else if (diff > 30 / 86400) {
 					timeStep = 'minute';
 					step = 1;
 					if (diff < 60 / 86400) {
@@ -1193,13 +1194,7 @@ module.exports = class SheetPlotNode extends Node {
 			stepCount = 8; /* 11 => sehr fein      */
 
 			if (axis.isVertical()) {
-				if (axis.textSize && axis.textSize.height) {
-					stepCount = Math.min(13, size / axis.textSize.height);
-				} else {
-					stepCount = Math.min(13, size / 1000);
-				}
-			} else if (axis.textSize && axis.textSize.width) {
-				stepCount = Math.min(13, size / axis.textSize.width);
+				stepCount = Math.min(13, size / 600);
 			} else {
 				stepCount = Math.min(13, size / 1500);
 			}

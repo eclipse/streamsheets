@@ -32,7 +32,7 @@ module.exports = class ChartRect {
 	}
 
 	toString() {
-		return `${this.left} ${this.top} ${this.right} ${this.bottom} `;
+		return `${this.left} ${this.top} ${this.right} ${this.bottom}`;
 	}
 
 	static fromString(str) {

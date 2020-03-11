@@ -44,6 +44,14 @@ export default class SheetPlotActivator extends InteractionActivator {
 			return;
 		}
 
+		const finish = (cmd, key) => {
+			item.finishCommand(cmd, key);
+			viewer.getInteractionHandler().execute(cmd);
+			event.consume();
+			event.hasActivated = true;
+		};
+
+
 		if (controller.getView().chartSelection !== undefined) {
 			const selection = controller.getView().chartSelection;
 			if (selection) {
@@ -53,10 +61,44 @@ export default class SheetPlotActivator extends InteractionActivator {
 					case 'Delete': {
 						const cmd = item.prepareCommand('series');
 						JSG.Arrays.remove(item.series, selection.data);
-						item.finishCommand(cmd, 'series');
-						viewer.getInteractionHandler().execute(cmd);
-						event.consume();
-						event.hasActivated = true;
+						finish(cmd, 'series');
+						break;
+					}
+					}
+					break;
+				case 'legend':
+					switch (event.event.key) {
+					case 'Delete': {
+						const cmd = item.prepareCommand('legend');
+						item.legend.visible = false;
+						finish(cmd, 'legend');
+						break;
+					}
+					}
+					break;
+				case 'title':
+					switch (event.event.key) {
+					case 'Delete': {
+						const cmd = item.prepareCommand('title');
+						item.title.visible = false;
+						finish(cmd, 'title');
+						break;
+					}
+					}
+					break;
+				case 'xAxisGrid':
+				case 'yAxisGrid':
+				case 'xAxisTitle':
+				case 'yAxisTitle':
+					switch (event.event.key) {
+					case 'Delete': {
+						const cmd = item.prepareCommand('axes');
+						if (selection.element === 'xAxisTitle' || selection.element === 'yAxisTitle') {
+							selection.data.visible = false;
+						} else {
+							selection.data.gridVisible = false;
+						}
+						finish(cmd, 'axes');
 						break;
 					}
 					}
