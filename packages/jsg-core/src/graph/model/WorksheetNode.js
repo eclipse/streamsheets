@@ -289,6 +289,9 @@ module.exports = class WorksheetNode extends ContentNode {
 		const graph = this.getGraph();
 
 		if (graph !== undefined) {
+			if (graph.overrideProtection) {
+				return false;
+			}
 			const view = graph.getViewParams();
 			if (view && view.viewMode !== null) {
 				return true;

@@ -94,7 +94,6 @@ export default class ChartInfoFeedbackView extends View {
 			graphics.setFontSize(9);
 			graphics.setFont();
 
-			width = graphics.measureText(getLabel(this.selection.dataPoints[0], true)).width;
 			const values = [];
 
 			item.xAxes.forEach((axis) => {
@@ -115,6 +114,7 @@ export default class ChartInfoFeedbackView extends View {
 				return;
 			}
 
+			width = graphics.measureText(getLabel(values[0], true)).width;
 			values.forEach((value) => {
 				width = Math.max(width, graphics.measureText(getLabel(value, false)).width);
 			});
@@ -131,7 +131,7 @@ export default class ChartInfoFeedbackView extends View {
 
 			graphics.setFillColor('#000000');
 
-			const text = getLabel(this.selection.dataPoints[0], true);
+			const text = getLabel(values[0], true);
 
 			graphics.fillText(text, x + space + margin, y + space + margin);
 			values.forEach((value, index) => {

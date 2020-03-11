@@ -100,24 +100,18 @@ class MoveActivator extends InteractionActivator {
 				}
 				// const controller = dispatcher.getControllerAt(event.location);
 				// temporarily remove protection to allow reordering for MatrixLayout
-				let protect = false;
 				if (this._isOrderItem(controller)) {
-					if (controller.getModel().isProtected()) {
-						controller.getModel().getSheet().setProtected(false);
-						protect = true;
-					}
+					controller.getModel().getGraph().overrideProtection = true;
 				}
 				if (this._doMoveWithoutHandle(controller)) {
 					if (!controller.isSelected()) {
 						viewer.clearSelection();
 						viewer.select(controller);
 					}
-					if (protect && this._isOrderItem(controller)) {
-						if (protect) {
-							controller.getModel().getSheet().setProtected(true);
-						}
-					}
 					this._activateOnDrag(event, viewer, dispatcher);
+				}
+				if (this._isOrderItem(controller)) {
+					controller.getModel().getGraph().overrideProtection = false;
 				}
 			}
 		}
