@@ -80,9 +80,9 @@ export default class SheetPlotActivator extends InteractionActivator {
 			case 'yAxis': {
 				const axis = selection.data;
 
+				item.spreadZoomInfo();
 				item.setParamValues(viewer, axis.formula,
 					[{index: 4, value: undefined}, {index: 5, value: undefined}]);
-				item.spreadZoomInfo();
 
 				viewer.getGraph().markDirty();
 				event.doRepaint = true;

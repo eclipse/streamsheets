@@ -117,10 +117,6 @@ module.exports = class Cell {
 		this._info = info;
 	}
 
-	get stale() {
-		return this._info ? this._info.stale : false;
-	}
-
 	get xvalue() {
 		return this._info ? this._info.xvalue : 'time';
 	}

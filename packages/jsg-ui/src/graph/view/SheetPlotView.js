@@ -273,13 +273,9 @@ export default class SheetPlotView extends NodeView {
 			return undefined;
 		}
 
-		if (item.chartZoom) {
-			if (ref.time && ref.time.stale) {
-				graphics.setFillColor('#CCCCCC');
-				graphics.fillText('Retrieving Data...', 100, 500);
-			} else {
-				item.chartZoom = false;
-			}
+		if (!item.isZoomed()) {
+			graphics.setFillColor('#CCCCCC');
+			graphics.fillText('Retrieving Data...', 100, 500);
 		}
 
 		graphics.save();
