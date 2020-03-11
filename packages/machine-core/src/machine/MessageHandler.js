@@ -132,7 +132,7 @@ class MessageHandler {
 			this.isEnabled && this._hasLoop && this._index < this._stack.length
 				? this._stack[this._index].value
 				: undefined;
-		if (nxtdata != null) this._index = Math.min(this._index + 1, this._stack.length);		
+		if (nxtdata !== undefined) this._index = Math.min(this._index + 1, this._stack.length);		
 		this._used = true;
 		return nxtdata;
 	}
@@ -143,7 +143,7 @@ class MessageHandler {
 			this.isEnabled && this._hasLoop && this._stack.length > 0 && this._index > 1
 				? this._stack[this._index - 2].value
 				: undefined;
-		if (prevdata != null) this._index = Math.max(this._index - 1, 0);
+		if (prevdata !== undefined) this._index = Math.max(this._index - 1, 0);
 		return prevdata;
 	}
 }
