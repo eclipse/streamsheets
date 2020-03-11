@@ -19,6 +19,7 @@ const {
 	PauseMachineWebSocketRequest,
 	RenameMachineWebSocketRequest,
 	UpdateMachineImageWebSocketRequest,
+	UpdateMachineTitleImageWebSocketRequest,
 	UpdateStreamSheetStreamsWebSocketRequest,
 	SaveMachineAsWebSocketRequest,
 	SetCycleTimeWebSocketRequest,
@@ -242,6 +243,16 @@ module.exports = class WebSocketGatewayAPI extends GatewayAPI {
 				this._ws,
 				machineId,
 				previewImage
+			)
+		);
+	}
+
+	updateMachineTitleImage(machineId, titleImage) {
+		return this.sendRequest(
+			new UpdateMachineTitleImageWebSocketRequest(
+				this._ws,
+				machineId,
+				titleImage
 			)
 		);
 	}
