@@ -717,20 +717,21 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	getDataSourceInfo(ds) {
-		const timeParam = this.getParamInfo(ds.getTerm(), 1);
+		const timeParam = this.getParamInfo(ds.getTerm(), 2);
 		const time =  timeParam ? this.isTimeAggregateRange(timeParam.sheet, timeParam.range) : false;
 
 		if (time) {
 			return {
-				name: this.getParamValue(ds.getTerm(), 0, 'string'),
+				xName: this.getParamValue(ds.getTerm(), 0, 'string'),
+				yName: this.getParamValue(ds.getTerm(), 1, 'string'),
 				time,
-				xKey: this.getParamValue(ds.getTerm(), 2, 'string'),
-				yKey: this.getParamValue(ds.getTerm(), 3, 'string')
+				xKey: this.getParamValue(ds.getTerm(), 3, 'string'),
+				yKey: this.getParamValue(ds.getTerm(), 4, 'string')
 			}
 		}
 
 		return {
-			name: this.getParamValue(ds.getTerm(), 0, 'string'),
+			yName: this.getParamValue(ds.getTerm(), 0, 'string'),
 			x: this.getParamInfo(ds.getTerm(), 1),
 			y: this.getParamInfo(ds.getTerm(), 2)
 		};
@@ -740,9 +741,9 @@ module.exports = class SheetPlotNode extends Node {
 		const legend = [];
 		this.series.forEach((series) => {
 			const ref = this.getDataSourceInfo(series.formula);
-			if (ref && ref.name !== undefined) {
+			if (ref && ref.yName !== undefined) {
 				legend.push({
-					name: ref.name,
+					name: ref.yName,
 					series
 				});
 			}
@@ -1215,7 +1216,7 @@ module.exports = class SheetPlotNode extends Node {
 			} else {
 				minLabel = input.min;
 			}
-			// MaxWert der Beschriftung ermitteln
+			// MaxWert der Besch riftung ermitteln
 			if (input.max === undefined) {
 				if (this.chart.relative) {
 					maxLabel = max;
@@ -2046,7 +2047,7 @@ module.exports = class SheetPlotNode extends Node {
 						Object.keys(values).forEach((key) => {
 							if (key !== xValue && key !== 'time') {
 								if (values[key].length && Numbers.isNumber(values[key][0])) {
-									formula = new Expression(0, `SERIES("${key}",${ref},"${xValue}","${key}")`);
+									formula = new Expression(0, `SERIES("${xValue}","${key}",${ref},"${xValue}","${key}")`);
 									this.series.push(new ChartSeries(type, formula));
 									index += 1;
 								}
@@ -2064,15 +2065,15 @@ module.exports = class SheetPlotNode extends Node {
 							rangeName._x1 -= 1;
 							rangeName._x2 -= 1;
 							const refName = rangeName.toString({item: sheet, useName: true});
-							formula = new Expression(0, `SERIES(${refName},${ref})`);
+							formula = new Expression(0, `SERIES("Time",${refName},${ref})`);
 						} else if (height === 2 && !allTime) {
 							const rangeName = source.copy();
 							rangeName._y1 -= 1;
 							rangeName._y2 -= 1;
 							const refName = rangeName.toString({item: sheet, useName: true});
-							formula = new Expression(0, `SERIES(${refName},${ref})`);
+							formula = new Expression(0, `SERIES("Time",${refName},${ref})`);
 						} else {
-							formula = new Expression(0, `SERIES(,${ref})`);
+							formula = new Expression(0, `SERIES("Time",,${ref})`);
 						}
 						this.series.push(new ChartSeries(type, formula));
 						index += 1;

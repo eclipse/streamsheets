@@ -222,8 +222,8 @@ export class StreamChartProperties extends Component {
 	getLabel(series) {
 		const item = this.state.plotView.getItem();
 		const ref = item.getDataSourceInfo(series.formula);
-		if (ref && ref.name !== undefined) {
-			return ref.name;
+		if (ref && ref.yName !== undefined) {
+			return ref.yName;
 		}
 
 		return String(item.series.indexOf(series));

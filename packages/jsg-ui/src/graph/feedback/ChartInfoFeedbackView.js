@@ -69,7 +69,7 @@ export default class ChartInfoFeedbackView extends View {
 					if (axis.type === 'category' && ref) {
 						label = item.getLabel(ref, axis, Math.floor(value.x));
 					} else if (axis.type !== 'category' && ref && ref.time && ref.time.xvalue) {
-						label = ref.time.xvalue;
+						label = ref.xName;
 						axis = value.axes.x;
 						label += `: ${item.formatNumber(value.x, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format)}`;
 					} else {
@@ -80,8 +80,8 @@ export default class ChartInfoFeedbackView extends View {
 					axis = value.axes.y;
 					label = item.formatNumber(value.y, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
 				}
-				if (ref && ref.name !== undefined && !xValue) {
-					label = `${ref.name}: ${label}`;
+				if (ref && ref.yName !== undefined && !xValue) {
+					label = `${ref.yName}: ${label}`;
 				} else {
 					label = String(label);
 				}
