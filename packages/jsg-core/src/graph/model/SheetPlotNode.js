@@ -647,8 +647,6 @@ module.exports = class SheetPlotNode extends Node {
 		});
 
 		super.layout();
-
-		return;
 	}
 
 	getParamInfo(term, index) {
