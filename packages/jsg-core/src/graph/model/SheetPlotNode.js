@@ -273,10 +273,10 @@ module.exports = class SheetPlotNode extends Node {
 			height: 0
 		};
 
-		const oldSize = axis.textSize;
+		const oldSize = { ...axis.textSize };
 		axis.textSize = {
 			width: 1000,
-			height: 500
+			height: 300
 		};
 
 		if (!axis.position || !axis.scale) {
@@ -328,6 +328,9 @@ module.exports = class SheetPlotNode extends Node {
 
 		result.change = oldSize ? (Math.abs(oldSize.width - axis.textSize.width) > 1 || Math.abs(oldSize.height - axis.textSize.height) > 1) : true;
 
+		result.width += 300;
+		result.height += 300;
+
 		return result;
 	}
 
@@ -336,12 +339,12 @@ module.exports = class SheetPlotNode extends Node {
 
 		this.setMinMax();
 
-		while (this.doLayout() && cnt < 3) {
+		while (this.doLayout(cnt === 2) && cnt < 3) {
 			cnt += 1;
 		}
 	}
 
-	doLayout() {
+	doLayout(force) {
 		const size = this.getSize().toPoint();
 		const cs = JSG.graphics.getCoordinateSystem();
 		this.getItemAttributes().setContainer(false);
@@ -455,19 +458,19 @@ module.exports = class SheetPlotNode extends Node {
 			switch (axis.align) {
 			case 'left':
 				axis.size = this.measureAxis(JSG.graphics, axis);
-				this.plot.position.left += axis.size.width + 300;
+				this.plot.position.left += axis.size.width;
 				break;
 			case 'right':
 				axis.size = this.measureAxis(JSG.graphics, axis);
-				this.plot.position.right -= axis.size.width + 300;
+				this.plot.position.right -= axis.size.width;
 				break;
 			case 'top':
 				axis.size = this.measureAxis(JSG.graphics, axis);
-				this.plot.position.top += axis.size.height + 300;
+				this.plot.position.top += axis.size.height;
 				break;
 			case 'bottom':
 				axis.size = this.measureAxis(JSG.graphics, axis);
-				this.plot.position.bottom -= axis.size.height + 300;
+				this.plot.position.bottom -= axis.size.height;
 				break;
 			}
 			if (axis.size.change) {
@@ -500,19 +503,19 @@ module.exports = class SheetPlotNode extends Node {
 			switch (axis.align) {
 			case 'left':
 				axis.size = this.measureAxis(JSG.graphics, axis);
-				this.plot.position.left += axis.size.width + 300;
+				this.plot.position.left += axis.size.width;
 				break;
 			case 'right':
 				axis.size = this.measureAxis(JSG.graphics, axis);
-				this.plot.position.right -= axis.size.width + 300;
+				this.plot.position.right -= axis.size.width;
 				break;
 			case 'top':
 				axis.size = this.measureAxis(JSG.graphics, axis);
-				this.plot.position.top += axis.size.height + 300;
+				this.plot.position.top += axis.size.height;
 				break;
 			case 'bottom':
 				axis.size = this.measureAxis(JSG.graphics, axis);
-				this.plot.position.bottom -= axis.size.height + 300;
+				this.plot.position.bottom -= axis.size.height;
 				break;
 			}
 			if (axis.size.change) {
@@ -520,7 +523,7 @@ module.exports = class SheetPlotNode extends Node {
 			}
 		});
 
-		if (result) {
+		if (result && !force) {
 			return true;
 		}
 
@@ -529,7 +532,7 @@ module.exports = class SheetPlotNode extends Node {
 				Object.assign(axis.position, this.plot.position);
 				switch (axis.align) {
 				case 'left':
-					axis.position.left = this.plot.position.left - axis.size;
+					axis.position.left = this.plot.position.left - axis.size.width;
 					axis.position.right = this.plot.position.left;
 					if (axis.title.visible) {
 						axis.title.position.left = axis.position.left - axis.title.size.height;
@@ -542,7 +545,7 @@ module.exports = class SheetPlotNode extends Node {
 					break;
 				case 'right':
 					axis.position.left = this.plot.position.right;
-					axis.position.right = this.plot.position.right + axis.size;
+					axis.position.right = this.plot.position.right + axis.size.width;
 					if (axis.title.visible) {
 						axis.title.position.left = axis.position.right;
 						axis.title.position.right = axis.position.right + axis.title.size.height;
@@ -553,7 +556,7 @@ module.exports = class SheetPlotNode extends Node {
 					}
 					break;
 				case 'top':
-					axis.position.top = this.plot.position.top - axis.size;
+					axis.position.top = this.plot.position.top - axis.size.height;
 					axis.position.bottom = this.plot.position.top;
 					if (axis.title.visible) {
 						axis.title.position.top = axis.position.top - axis.title.size.height ;
@@ -566,7 +569,7 @@ module.exports = class SheetPlotNode extends Node {
 					break;
 				case 'bottom':
 					axis.position.top = this.plot.position.bottom;
-					axis.position.bottom = axis.position.top + axis.size;
+					axis.position.bottom = axis.position.top + axis.size.height;
 					if (axis.title.visible) {
 						axis.title.position.top = axis.position.bottom;
 						axis.title.position.bottom = axis.position.bottom + axis.title.size.height ;
@@ -585,7 +588,7 @@ module.exports = class SheetPlotNode extends Node {
 				Object.assign(axis.position, this.plot.position);
 				switch (axis.align) {
 				case 'left':
-					axis.position.left = this.plot.position.left - axis.size;
+					axis.position.left = this.plot.position.left - axis.size.width;
 					axis.position.right = this.plot.position.left;
 					if (axis.title.visible) {
 						axis.title.position.left = axis.position.left - axis.title.size.height;
@@ -598,7 +601,7 @@ module.exports = class SheetPlotNode extends Node {
 					break;
 				case 'right':
 					axis.position.left = this.plot.position.right;
-					axis.position.right = this.plot.position.right + axis.size;
+					axis.position.right = this.plot.position.right + axis.size.width;
 					if (axis.title.visible) {
 						axis.title.position.left = axis.position.right;
 						axis.title.position.right = axis.position.right + axis.title.size.height;
@@ -609,7 +612,7 @@ module.exports = class SheetPlotNode extends Node {
 					}
 					break;
 				case 'top':
-					axis.position.top = this.plot.position.top - axis.size;
+					axis.position.top = this.plot.position.top - axis.size.height;
 					axis.position.bottom = this.plot.position.top;
 					if (axis.title.visible) {
 						axis.title.position.top = axis.position.top - axis.title.size.height ;
@@ -622,7 +625,7 @@ module.exports = class SheetPlotNode extends Node {
 					break;
 				case 'bottom':
 					axis.position.top = this.plot.position.bottom;
-					axis.position.bottom = axis.position.top + axis.size;
+					axis.position.bottom = axis.position.top + axis.size.height;
 					if (axis.title.visible) {
 						axis.title.position.top = axis.position.bottom;
 						axis.title.position.bottom = axis.position.bottom + axis.title.size.height ;
