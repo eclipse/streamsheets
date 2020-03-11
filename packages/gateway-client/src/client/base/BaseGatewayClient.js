@@ -500,6 +500,10 @@ module.exports = class BaseGatewayClient {
 		return this.socket.updateMachineImage(machineId, previewImage);
 	}
 
+	updateMachineTitleImage(machineId, titleImage) {
+		return this.socket.updateMachineTitleImage(machineId, titleImage);
+	}
+
 	renameMachine(machineId, newName) {
 		return this.socket.renameMachine(machineId, newName);
 	}
