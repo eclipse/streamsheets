@@ -22,6 +22,7 @@ const {
 	RENAME_MACHINE_MESSAGE_TYPE,
 	STREAMSHEET_STREAM_UPDATE_TYPE,
 	UPDATE_MACHINE_IMAGE_MESSAGE_TYPE,
+	UPDATE_MACHINE_TITLE_IMAGE_MESSAGE_TYPE,
 	SAVE_MACHINE_AS_MESSAGE_TYPE,
 	SET_MACHINE_CYCLE_TIME_MESSAGE_TYPE,
 	SET_MACHINE_LOCALE_MESSAGE_TYPE,
@@ -486,6 +487,23 @@ class UpdateMachineImageWebSocketRequest extends WebSocketRequest {
 			topic: this._topic,
 			machineId: this._machineId,
 			previewImage: this._previewImage
+		};
+	}
+}
+
+class UpdateMachineTitleImageWebSocketRequest extends WebSocketRequest {
+	constructor(ws, machineId, titleImage) {
+		super(ws, UPDATE_MACHINE_TITLE_IMAGE_MESSAGE_TYPE);
+		this._topic = SERVICES_PERSISTENCE_INPUT;
+		this._machineId = machineId;
+		this._titleImage = titleImage;
+	}
+
+	_getConfig() {
+		return {
+			topic: this._topic,
+			machineId: this._machineId,
+			titleImage: this._titleImage
 		};
 	}
 }
