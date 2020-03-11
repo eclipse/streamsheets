@@ -257,6 +257,7 @@ module.exports = class SheetPlotNode extends Node {
 			height: 0
 		};
 
+		const oldSize = axis.textSize;
 		axis.textSize = {
 			width: 1000,
 			height: 500
@@ -309,15 +310,26 @@ module.exports = class SheetPlotNode extends Node {
 		axis.textSize.width = Math.max(result.width + 150, 1000);
 		axis.textSize.height = Math.max(result.height + 100, 300);
 
+		result.change = oldSize ? (Math.abs(oldSize.width - axis.textSize.width) > 1 || Math.abs(oldSize.height - axis.textSize.height) > 1) : true;
+
 		return result;
 	}
 
 	layout() {
+		let cnt = 0;
+
+		this.setMinMax();
+
+		while (this.doLayout() && cnt < 3) {
+			cnt += 1;
+		}
+	}
+
+	doLayout() {
 		const size = this.getSize().toPoint();
 		const cs = JSG.graphics.getCoordinateSystem();
 		this.getItemAttributes().setContainer(false);
 
-		this.setMinMax();
 		this.setScales();
 
 		this.plot.position.left = this.chart.margins.left;
@@ -421,24 +433,29 @@ module.exports = class SheetPlotNode extends Node {
 			}
 		});
 
+		let result = false;
+
 		this.xAxes.forEach((axis) => {
 			switch (axis.align) {
 			case 'left':
-				axis.size = this.measureAxis(JSG.graphics, axis).width + 300;
-				this.plot.position.left += axis.size;
+				axis.size = this.measureAxis(JSG.graphics, axis);
+				this.plot.position.left += axis.size.width + 300;
 				break;
 			case 'right':
-				axis.size = this.measureAxis(JSG.graphics, axis).width + 300;
-				this.plot.position.right -= axis.size;
+				axis.size = this.measureAxis(JSG.graphics, axis);
+				this.plot.position.right -= axis.size.width + 300;
 				break;
 			case 'top':
-				axis.size = this.measureAxis(JSG.graphics, axis).height + 300;
-				this.plot.position.top += axis.size;
+				axis.size = this.measureAxis(JSG.graphics, axis);
+				this.plot.position.top += axis.size.height + 300;
 				break;
 			case 'bottom':
-				axis.size = this.measureAxis(JSG.graphics, axis).height + 300;
-				this.plot.position.bottom -= axis.size;
+				axis.size = this.measureAxis(JSG.graphics, axis);
+				this.plot.position.bottom -= axis.size.height + 300;
 				break;
+			}
+			if (axis.size.change) {
+				result = true;
 			}
 		});
 
@@ -466,23 +483,30 @@ module.exports = class SheetPlotNode extends Node {
 		this.yAxes.forEach((axis) => {
 			switch (axis.align) {
 			case 'left':
-				axis.size = this.measureAxis(JSG.graphics, axis).width + 300;
-				this.plot.position.left += axis.size;
+				axis.size = this.measureAxis(JSG.graphics, axis);
+				this.plot.position.left += axis.size.width + 300;
 				break;
 			case 'right':
-				axis.size = this.measureAxis(JSG.graphics, axis).width + 300;
-				this.plot.position.right -= axis.size;
+				axis.size = this.measureAxis(JSG.graphics, axis);
+				this.plot.position.right -= axis.size.width + 300;
 				break;
 			case 'top':
-				axis.size = this.measureAxis(JSG.graphics, axis).height + 300;
-				this.plot.position.top += axis.size;
+				axis.size = this.measureAxis(JSG.graphics, axis);
+				this.plot.position.top += axis.size.height + 300;
 				break;
 			case 'bottom':
-				axis.size = this.measureAxis(JSG.graphics, axis).height + 300;
-				this.plot.position.bottom -= axis.size;
+				axis.size = this.measureAxis(JSG.graphics, axis);
+				this.plot.position.bottom -= axis.size.height + 300;
 				break;
 			}
+			if (axis.size.change) {
+				result = true;
+			}
 		});
+
+		if (result) {
+			return true;
+		}
 
 		this.xAxes.forEach((axis) => {
 			if (axis.position) {
@@ -597,6 +621,8 @@ module.exports = class SheetPlotNode extends Node {
 		});
 
 		super.layout();
+
+		return false;
 	}
 
 	getParamInfo(term, index) {
