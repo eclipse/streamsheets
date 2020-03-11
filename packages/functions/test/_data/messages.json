@@ -1,82 +1,122 @@
 {
-  "SIMPLE": {
-    "metadata": {
-      "name": "SIMPLE",
-      "sender": "Cedalo"
-    },
-    "data": {
-      "Kundenname": {
-        "Vorname": "Max",
-        "Nachname": "Mustermann"
-      },
-      "Kundennummer": 123456789,
-      "Warenkorb": [
-        1,
-        2,
-        3
-      ],
-      "Positionen": [
-        {
-          "PosNr": 1,
-          "Artikelnr": 1234,
-          "Preis": 80.00
-        },
-        {
-          "PosNr": 2,
-          "Artikelnr": 12345,
-          "Preis": 59.99
-        },
-        {
-          "PosNr": 3,
-          "Artikelnr": 4535,
-          "Preis": 45.32
-        }
-      ]
-    }
-  },
-  "SIMPLE2": {
-    "metadata": {
-      "name": "SIMPLE2",
-      "sender": "Cedalo",
-      "Teile": [
-        {
-          "Nr": 1,
-          "Preis": 11.11
-        },
-        {
-          "Nr": 2,
-          "Preis": 22.22
-        }
-      ]
-    },
-    "data": {
-      "Kundenname": {
-        "Anrede": "Herr",
-        "Vorname": "Anton",
-        "Nachname": "Mustermann"
-      },
-      "Kundennummer": 987654321,
-      "Positionen": []
-    }
-  },
-  "RECURSIVE": {
-    "data": {
-      "measurements": [
-        {
-          "ts": "2020-02-11",
-          "series": {
-            "time": [0, 23, 24],
-            "temperature": [45.4231, 46.4222, 44.2432]
-          }
-        },
-        {
-          "ts": "2020-02-12",
-          "series": {
-            "time": [1, 46, 48],
-            "temperature": [90.4231, 92.4222, 88.2432]
-          }
-        }
-      ]
-    }
-  }
+	"SIMPLE": {
+		"metadata": {
+			"name": "SIMPLE",
+			"sender": "Cedalo"
+		},
+		"data": {
+			"Kundenname": {
+				"Vorname": "Max",
+				"Nachname": "Mustermann"
+			},
+			"Kundennummer": 123456789,
+			"Warenkorb": [1, 2, 3],
+			"Positionen": [
+				{
+					"PosNr": 1,
+					"Artikelnr": 1234,
+					"Preis": 80.0
+				},
+				{
+					"PosNr": 2,
+					"Artikelnr": 12345,
+					"Preis": 59.99
+				},
+				{
+					"PosNr": 3,
+					"Artikelnr": 4535,
+					"Preis": 45.32
+				}
+			]
+		}
+	},
+	"SIMPLE2": {
+		"metadata": {
+			"name": "SIMPLE2",
+			"sender": "Cedalo",
+			"Teile": [
+				{
+					"Nr": 1,
+					"Preis": 11.11
+				},
+				{
+					"Nr": 2,
+					"Preis": 22.22
+				}
+			]
+		},
+		"data": {
+			"Kundenname": {
+				"Anrede": "Herr",
+				"Vorname": "Anton",
+				"Nachname": "Mustermann"
+			},
+			"Kundennummer": 987654321,
+			"Positionen": []
+		}
+	},
+	"RECURSIVE": {
+		"data": {
+			"measurements": [
+				{
+					"ts": "2020-02-11",
+					"series": {
+						"time": [0, 23, 24],
+						"temperature": [45.4231, 46.4222, 44.2432]
+					}
+				},
+				{
+					"ts": "2020-02-12",
+					"series": {
+						"time": [1, 46, 48],
+						"temperature": [90.4231, 92.4222, 88.2432]
+					}
+				}
+			]
+		}
+	},
+  "RECURSIVE_NULL": {
+  	"Action": "checkouts/create",
+		"OrderToken": "5872141e3ec679702431e6404cfc9d96",
+		"CartToken": "f32579d24ae731ba7179ec1e58879a61",
+		"LineItems": [
+			{
+				"applied_discounts": [],
+				"key": "2561a332c166390e653c43459ecbacba",
+				"destination_location_id": null,
+				"fulfillment_service": "manual",
+				"gift_card": false,
+				"grams": 0,
+				"origin_location_id": 1775311913097,
+				"product_id": 4645186896009,
+				"properties": [],
+				"quantity": 1,
+				"requires_shipping": false,
+				"sku": "1",
+				"tax_lines": [],
+				"taxable": false,
+				"title": "Streamsheets",
+				"variant_id": 32637062938761,
+				"variant_title": "",
+				"variant_price": "10.00",
+				"vendor": "cedalocloud",
+				"user_id": null,
+				"unit_price_measurement": {
+					"measured_type": null,
+					"quantity_value": null,
+					"quantity_unit": null,
+					"reference_value": null,
+					"reference_unit": null
+				},
+				"country_hs_codes": [],
+				"country_code_of_origin": null,
+				"province_code_of_origin": null,
+				"harmonized_system_code": null,
+				"compare_at_price": null,
+				"line_price": "10.00",
+				"price": "10.00",
+				"presentment_title": "Streamsheets"
+			}
+		]
+	}
 }
