@@ -251,9 +251,16 @@ export default class SheetPlotView extends NodeView {
 					if (grid) {
 						graphics.moveTo(plot, plotRect.top);
 						graphics.lineTo(plot, plotRect.bottom);
-					} else if (last === undefined || plot - width / 2 + 100 > last) {
-						graphics.fillText(`${text}`, plot, axis.position.top + 200);
-						last = plot + width / 2;
+					} else {
+						if (axis.invert) {
+							if (last === undefined || plot + width / 2 + 100 < last) {
+								graphics.fillText(`${text}`, plot, axis.position.top + 200);
+							}
+							last = plot - width / 2;
+						} else if (last === undefined || plot - width / 2 + 100 > last) {
+							graphics.fillText(`${text}`, plot, axis.position.top + 200);
+							last = plot + width / 2;
+						 }
 					}
 					break;
 			}

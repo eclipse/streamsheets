@@ -169,8 +169,15 @@ export default class SheetPlotInteraction extends Interaction {
 				if (Math.abs(ptEnd.x - ptStart.x) > 150) {
 					const item = this._controller.getModel();
 					const axes = item.getAxes();
-					const valueStart = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptStart : ptEnd);
-					const valueEnd = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptEnd : ptStart);
+					let valueStart;
+					let valueEnd;
+					if (axes.x.invert) {
+						valueStart = item.scaleFromAxis(axes, ptStart.x > ptEnd.x ? ptStart : ptEnd);
+						valueEnd = item.scaleFromAxis(axes, ptStart.x > ptEnd.x ? ptEnd : ptStart);
+					} else {
+						valueStart = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptStart : ptEnd);
+						valueEnd = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptEnd : ptStart);
+					}
 
 					item.spreadZoomInfo();
 					item.setParamValues(viewer, item.xAxes[0].formula,

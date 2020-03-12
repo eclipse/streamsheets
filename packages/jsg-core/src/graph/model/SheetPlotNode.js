@@ -1588,6 +1588,13 @@ module.exports = class SheetPlotNode extends Node {
 		point.x -= this.plot.position.left;
 		point.y = this.plot.position.bottom - point.y;
 
+		if (axes.x.invert) {
+			point.x = (this.plot.position.right - this.plot.position.left) - point.x;
+		}
+		if (axes.y.invert) {
+			point.y = (this.plot.position.bottom - this.plot.position.top) - point.y;
+		}
+
 		return {
 			x: axes.x.scale.min + (point.x / (this.plot.position.right - this.plot.position.left)) * (axes.x.scale.max - axes.x.scale.min) - (axes.x.type === 'category' ? 0.5 : 0),
 			y: axes.y.scale.min + (point.y / (this.plot.position.bottom - this.plot.position.top)) * (axes.y.scale.max - axes.y.scale.min)
