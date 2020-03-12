@@ -16,13 +16,14 @@ module.exports = class ChartAxis {
 		this.formatGrid = new ChartFormat();
 		this.title = new ChartTitle(new Expression('Title', ''), false);
 		this.gridVisible = true;
+		this.allowZoom = true;
+		this.updateZoom = false;
 		this.autoZero = true;
 	}
 
 	isVertical() {
 		return this.align === 'left' || this.align === 'right';
 	}
-
 
 	save(writer, name) {
 		writer.writeStartElement(name);
@@ -32,6 +33,8 @@ module.exports = class ChartAxis {
 		writer.writeAttributeString('name', this.name);
 		writer.writeAttributeNumber('gridvisible', this.gridVisible ? 1 : 0);
 		writer.writeAttributeNumber('autozero', this.autoZero ? 1 : 0);
+		writer.writeAttributeNumber('allowzoom', this.allowZoom ? 1 : 0);
+		writer.writeAttributeNumber('updatezoom', this.updateZoom ? 1 : 0);
 		writer.writeAttributeString('position', this.position.toString());
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
@@ -42,27 +45,14 @@ module.exports = class ChartAxis {
 	}
 
 	read(reader, object) {
-		this.align =
-			reader.getAttribute(object, 'align') === undefined
-				? 'left'
-				: reader.getAttribute(object, 'align');
-		this.type =
-			reader.getAttribute(object, 'type') === undefined
-				? 'linear'
-				: reader.getAttribute(object, 'type');
-		this.name =
-			reader.getAttribute(object, 'name') === undefined
-				? 'primary'
-				: reader.getAttribute(object, 'name');
+		this.align = reader.getAttributeString(object, 'align', 'left');
+		this.type = reader.getAttributeString(object, 'type', 'linear');
+		this.name = reader.getAttributeString(object, 'name', 'primary');
 		this.position = ChartRect.fromString(reader.getAttribute(object, 'position'));
-		this.gridVisible =
-			reader.getAttribute(object, 'gridvisible') === undefined
-				? true
-				: !!Number(reader.getAttribute(object, 'gridvisible')) ;
-		this.autoZero =
-			reader.getAttribute(object, 'autozero') === undefined
-				? true
-				: !!Number(reader.getAttribute(object, 'autozero')) ;
+		this.gridVisible = reader.getAttributeBoolean(object, 'gridvisible', true);
+		this.autoZero = reader.getAttributeBoolean(object, 'autozero', true);
+		this.allowZoom = reader.getAttributeBoolean(object, 'allowzoom', true);
+		this.updateZoom = reader.getAttributeBoolean(object, 'updatezoom', false);
 
 		reader.iterateObjects(object, (subName, subChild) => {
 			switch (subName) {

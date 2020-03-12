@@ -30,6 +30,18 @@ module.exports = class JSONReader extends Reader {
 		return object[key];
 	}
 
+	getAttributeBoolean(object, key, defaultValue) {
+		return this.getAttribute(object, key) === undefined
+			? defaultValue
+			: !!Number(this.getAttribute(object, key));
+	}
+
+	getAttributeString(object, key, defaultValue) {
+		return this.getAttribute(object, key) === undefined
+			? defaultValue
+			: this.getAttribute(object, key);
+	}
+
 	getAttributeNumber(object, name, defvalue) {
 		const nrstr = this.getAttribute(object, name);
 		return nrstr !== undefined ? Number(nrstr) : defvalue;

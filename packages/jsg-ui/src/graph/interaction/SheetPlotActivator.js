@@ -122,12 +122,14 @@ export default class SheetPlotActivator extends InteractionActivator {
 			case 'yAxis': {
 				const axis = selection.data;
 
-				item.spreadZoomInfo();
-				item.setParamValues(viewer, axis.formula,
-					[{index: 4, value: undefined}, {index: 5, value: undefined}]);
+				if (axis.allowZoom) {
+					item.spreadZoomInfo();
+					item.setParamValues(viewer, axis.formula,
+						[{index: 4, value: undefined}, {index: 5, value: undefined}]);
 
-				viewer.getGraph().markDirty();
-				event.doRepaint = true;
+					viewer.getGraph().markDirty();
+					event.doRepaint = true;
+				}
 				break;
 			}
 			// case 'series':

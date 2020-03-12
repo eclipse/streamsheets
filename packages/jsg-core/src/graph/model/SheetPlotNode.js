@@ -819,11 +819,17 @@ module.exports = class SheetPlotNode extends Node {
 
 			result.format = this.getParamFormat(term, 0);
 
-			if (result.minZoom !== undefined) {
+			if (result.minZoom !== undefined && axis.allowZoom) {
 				result.min = result.minZoom;
+				if (this.chartZoomTimestamp && axis.updateZoom) {
+					result.min += MathUtils.JSDateToExcelDate(new Date(Date.now())) - MathUtils.JSDateToExcelDate(this.chartZoomTimestamp);
+				}
 			}
-			if (result.maxZoom !== undefined) {
+			if (result.maxZoom !== undefined && axis.allowZoom) {
 				result.max = result.maxZoom;
+				if (this.chartZoomTimestamp && axis.updateZoom) {
+					result.max += MathUtils.JSDateToExcelDate(new Date(Date.now())) - MathUtils.JSDateToExcelDate(this.chartZoomTimestamp);
+				}
 			}
 
 			this.autoScale(axis, result);
@@ -2513,6 +2519,7 @@ module.exports = class SheetPlotNode extends Node {
 				item.chartZoom = true;
 				item.chartZoomIn = !out ? zoomrange : undefined;
 				item.chartZoomOut = out ? zoomrange : undefined;
+				item.chartZoomTimestamp = !out ? new Date(Date.now()) : undefined;
 			}
 		}, false);
 	}

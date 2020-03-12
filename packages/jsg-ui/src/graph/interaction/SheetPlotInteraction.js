@@ -129,18 +129,21 @@ export default class SheetPlotInteraction extends Interaction {
 		const graphView = viewer.getGraphView();
 
 		graphView.clearLayer('chartselection');
-		const layer = graphView.getLayer('chartinfo');
-		if (layer === undefined || !layer.length) {
-			return;
+
+		if (this._controller.getModel().xAxes[0].allowZoom) {
+			const layer = graphView.getLayer('chartinfo');
+			if (layer === undefined || !layer.length) {
+				return;
+			}
+			if (layer.length >= 1) {
+				layer.forEach((view) => {
+					if (view.chartView.getItem().getId() === this._controller.getModel().getId()) {
+						view.endPoint = event.location;
+					}
+				});
+			}
+			viewer.setCursor(Cursor.Style.CROSS);
 		}
-		if (layer.length >= 1) {
-			layer.forEach((view) => {
-				if (view.chartView.getItem().getId() === this._controller.getView().getItem().getId()) {
-					view.endPoint = event.location;
-				}
-			});
-		}
-		viewer.setCursor(Cursor.Style.CROSS);
 	}
 
 	onMouseDoubleClick(event, viewer) {

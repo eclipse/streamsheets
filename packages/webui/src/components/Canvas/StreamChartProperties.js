@@ -186,6 +186,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
+	handleAxisTypeChange = (event) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.type = event.target.value;
+		this.finishCommand(cmd, 'axes');
+	};
+
 	handleAxisTitleVisibleChange = (event, state) => {
 		const cmd = this.prepareCommand('axes');
 		const data = this.getData();
@@ -200,6 +207,20 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
+	handleAxisAllowZoomChange = (event, state) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.allowZoom = state;
+		this.finishCommand(cmd, 'axes');
+	};
+
+	handleAxisUpdateZoomChange = (event, state) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.updateZoom = state;
+		this.finishCommand(cmd, 'axes');
+	};
+
 	translateTitle(title) {
 		switch (title) {
 		case 'title':
@@ -209,9 +230,14 @@ export class StreamChartProperties extends Component {
 		case 'legend':
 			return 'Legend';
 		case 'xAxis':
-			return 'X Axis';
 		case 'yAxis':
-			return 'Y Axis';
+			return 'Axis';
+		case 'xAxisGrid':
+		case 'yAxisGrid':
+			return 'Grid';
+		case 'xAxisTitle':
+		case 'yAxisTitle':
+			return 'Axis Title';
 		case 'series':
 			return 'Series';
 		default:
@@ -479,6 +505,47 @@ export class StreamChartProperties extends Component {
 							<FormControl
 								style={{
 									width: '95%',
+									margin: '8px',
+								}}
+							>
+								<InputLabel htmlFor="axis-type">
+									<FormattedMessage
+										id="ChartProperties.axisType"
+										defaultMessage="Axis Type"
+									/>
+								</InputLabel>
+								<Select
+									id="chart-type"
+									value={data.type}
+									onChange={this.handleAxisTypeChange}
+									input={<Input
+										name="chart-type"
+										id="chart-type"
+									/>}
+								>
+									<MenuItem value="linear" key={1}>
+										<FormattedMessage
+											id="ChartProperties.axisTypeLinear"
+											defaultMessage="Linear"
+										/>
+									</MenuItem>
+									<MenuItem value="time" key={2}>
+										<FormattedMessage
+											id="ChartProperties.axisTypeTime"
+											defaultMessage="Time"
+										/>
+									</MenuItem>
+									<MenuItem value="logarithmic" key={3}>
+										<FormattedMessage
+											id="ChartProperties.axisTypeLogarithmic"
+											defaultMessage="Logarithmic"
+										/>
+									</MenuItem>
+								</Select>
+							</FormControl>
+							<FormControl
+								style={{
+									width: '95%',
 									margin: '8px'
 								}}
 							>
@@ -486,6 +553,7 @@ export class StreamChartProperties extends Component {
 									<FormLabel
 										component="legend"
 										style={{
+											margiTop: '7px',
 											marginBottom: '7px'
 										}}
 									>
@@ -516,6 +584,15 @@ export class StreamChartProperties extends Component {
 											/>
 										}
 									/>
+									<FormLabel
+										component="legend"
+										style={{
+											margiTop: '7px',
+											marginBottom: '7px'
+										}}
+									>
+										Settings
+									</FormLabel>
 									<FormControlLabel
 										control={
 											<Checkbox
@@ -527,6 +604,34 @@ export class StreamChartProperties extends Component {
 											<FormattedMessage
 												id="StreamChartProperties.AutoZero"
 												defaultMessage="Start at Zero automatically"
+											/>
+										}
+									/>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={data.allowZoom}
+												onChange={(event, state) => this.handleAxisAllowZoomChange(event, state)}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.AllowZoom"
+												defaultMessage="Allow to zoom by mouse"
+											/>
+										}
+									/>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={data.updateZoom}
+												onChange={(event, state) => this.handleAxisUpdateZoomChange(event, state)}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.UpdateZoom"
+												defaultMessage="Update Zoom by ellapsing time"
 											/>
 										}
 									/>
