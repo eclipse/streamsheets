@@ -373,6 +373,7 @@ export default class CellsView extends NodeView {
 				case 'EMAIL.SEND':
 				case 'SMS.SEND':
 				case 'INFLUX.DROP':
+				case 'INFLUX.EXPORT':
 				case 'INFLUX.SELECT':
 				case 'INFLUX.SHOW':
 				case 'INFLUX.STORE':
