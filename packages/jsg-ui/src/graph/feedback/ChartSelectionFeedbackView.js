@@ -63,18 +63,15 @@ export default class ChartSelectionFeedbackView extends View {
 				break;
 			}
 
-			let current = axis.scale.min;
 			let pos;
+			let current = item.getAxisStart(axis);
+			const final = item.getAxisEnd(axis);
 
-			if (axis.type === 'time') {
-				current = item.incrementScale(axis, current - 0.0000001);
-			}
-
-			while (current <= axis.scale.max) {
-				if (axis.type === 'category' && current > axis.scale.max) {
+			while (current.value <= final) {
+				if (axis.type === 'category' && current.value > axis.scale.max) {
 					break;
 				}
-				pos = item.scaleToAxis(axis, current, undefined, true);
+				pos = item.scaleToAxis(axis, current.value, undefined, true);
 
 				switch (axis.align) {
 				case 'left':

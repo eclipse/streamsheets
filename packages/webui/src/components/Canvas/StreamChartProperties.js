@@ -200,6 +200,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
+	handleAxisInvertChange = (event, state) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.invert = state;
+		this.finishCommand(cmd, 'axes');
+	};
+
 	handleAxisAutoZeroChange = (event, state) => {
 		const cmd = this.prepareCommand('axes');
 		const data = this.getData();
@@ -348,6 +355,7 @@ export class StreamChartProperties extends Component {
 									<FormLabel
 										component="legend"
 										style={{
+											marginTop: '7px',
 											marginBottom: '7px'
 										}}
 									>
@@ -553,7 +561,7 @@ export class StreamChartProperties extends Component {
 									<FormLabel
 										component="legend"
 										style={{
-											margiTop: '7px',
+											marginTop: '7px',
 											marginBottom: '7px'
 										}}
 									>
@@ -587,12 +595,26 @@ export class StreamChartProperties extends Component {
 									<FormLabel
 										component="legend"
 										style={{
-											margiTop: '7px',
+											marginTop: '12px',
 											marginBottom: '7px'
 										}}
 									>
 										Settings
 									</FormLabel>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={data.invert}
+												onChange={(event, state) => this.handleAxisInvertChange(event, state)}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.Invert"
+												defaultMessage="Invert"
+											/>
+										}
+									/>
 									<FormControlLabel
 										control={
 											<Checkbox
