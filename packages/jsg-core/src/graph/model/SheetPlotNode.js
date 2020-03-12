@@ -286,15 +286,12 @@ module.exports = class SheetPlotNode extends Node {
 		this.setFont(graphics, axis.format, 'axis', 'middle', TextFormatAttributes.TextAlignment.CENTER);
 
 		const cs = graphics.getCoordinateSystem();
-		let current = axis.scale.min;
 		let pos;
 		let text;
-
-		if (axis.type === 'time') {
-			current = this.incrementScale(axis, current - 0.0000001);
-		}
-
+		let current = this.getAxisStart(axis);
+		const final = this.getAxisEnd(axis);
 		let refLabel;
+
 		if (axis.type === 'category') {
 			this.series.forEach((series) => {
 				if (series.xAxis === axis.name) {
@@ -303,17 +300,17 @@ module.exports = class SheetPlotNode extends Node {
 			});
 		}
 
-		while (current <= axis.scale.max) {
-			if (axis.type === 'category' && current >= axis.scale.max) {
+		while (current.value <= final) {
+			if (axis.type === 'category' && current.value >= axis.scale.max) {
 				break;
 			}
 
-			pos = this.scaleToAxis(axis, current, undefined, true);
+			pos = this.scaleToAxis(axis, current.value, undefined, true);
 
 			if (axis.type === 'category' && refLabel) {
-				text = this.getLabel(refLabel, axis, Math.floor(current));
+				text = this.getLabel(refLabel, axis, Math.floor(current.value));
 			} else {
-				text = this.formatNumber(current, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+				text = this.formatNumber(current.value, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
 			}
 
 			const size = this.measureText(graphics, cs, axis.format, 'axis', text);
@@ -1562,9 +1559,22 @@ module.exports = class SheetPlotNode extends Node {
 		case 'linear':
 			value = (value - axis.scale.min) / (axis.scale.max - axis.scale.min);
 			break;
+		case 'logarithmic':
+				// if (dLinWert > ctEpsilon) {
+				// 	dFaktor = (double) ( rDiag.right - rDiag.left ) /
+				// 		( log10(m_dMaximumScale) - log10(m_dMinimumScale) );
+				// 	nSkal = rDiag.left + (int)(0.5 + dFaktor * (log10(dLinWert) - log10(m_dMinimumScale)));
+				// }
+				// break;
+			value = (Math.log10(value) - Math.log10(axis.scale.min)) / (Math.log10(axis.scale.max) - Math.log10(axis.scale.min));
+			break;
 		default:
 			value = (value - axis.scale.min) / (axis.scale.max - axis.scale.min);
 			break;
+		}
+
+		if (axis.invert) {
+			value = 1 - value;
 		}
 
 		return value;
@@ -1584,14 +1594,83 @@ module.exports = class SheetPlotNode extends Node {
 		};
 	}
 
-	incrementScale(axis, value) {
-		let result;
+	getAxisStart(axis) {
+		let start = {
+			value: axis.scale.min
+		};
 
 		switch (axis.type) {
 		case 'time':
+			start.value -= 0.0000001;
+			start = this.incrementScale(axis, start);
+			break;
+		case 'logarithmic': {
+			let a = start.value;
+			let value = start.value;
+			let startDecade = 0.1;
+			if (a > 1) {
+				while (a > 1) {
+					a = a / 10;
+					startDecade = startDecade * 10;
+				}
+			} else {
+				while (a < 1) {
+					a = a * 10;
+					startDecade = startDecade / 10;
+				}
+			}
+			let result = startDecade;
+			let i = 1;
+
+			while (result < value) {
+				i += 1;
+				result = startDecade * i;
+			}
+
+			value = startDecade * i;
+			return {
+				value,
+				startDecade: startDecade * 10,
+				i,
+				end: false
+			};
+		}
+		}
+
+		return start;
+	}
+
+	getAxisEnd(axis) {
+		return axis.scale.max;
+	}
+
+	incrementScale(axis, valueInfo) {
+		let result;
+
+		switch (axis.type) {
+		case 'logarithmic':
+			result = valueInfo.value;
+				// durchlaufen jeder Dekade
+			while (valueInfo.i <= 10) {
+				valueInfo.value = valueInfo.startDecade * valueInfo.i;
+				// if (valueInfo.i === 1) {
+				// 	valueInfo.i += 1;
+				// 	return valueInfo;
+				// }
+				valueInfo.i += 1;
+			}
+			valueInfo.i = 1;
+			if (Math.log10(Number.MAX_VALUE) - (Math.log10(valueInfo.startDecade) + 1) > 1) {
+				valueInfo.startDecade = valueInfo.startDecade * 10;
+			} else if (!valueInfo.end) {
+				valueInfo.startDecade = valueInfo.startDecade * 10;
+				valueInfo.end = true;
+			}
+			break;
+		case 'time':
 			switch (axis.scale.timeStep) {
 			case 'year': {
-				const date = MathUtils.excelDateToJSDate(value);
+				const date = MathUtils.excelDateToJSDate(valueInfo.value);
 				date.setDate(1);
 				date.setMonth(0);
 				date.setFullYear(date.getFullYear() + axis.scale.step);
@@ -1599,35 +1678,35 @@ module.exports = class SheetPlotNode extends Node {
 				break;
 			}
 			case 'quarter': {
-				const date = MathUtils.excelDateToJSDate(value);
+				const date = MathUtils.excelDateToJSDate(valueInfo.value);
 				date.setDate(1);
 				date.setMonth(date.getMonth() - (date.getMonth() % 3) + axis.scale.step * 3);
 				result = Math.floor(MathUtils.JSDateToExcelDate(date));
 				break;
 			}
 			case 'month': {
-				const date = MathUtils.excelDateToJSDate(value);
+				const date = MathUtils.excelDateToJSDate(valueInfo.value);
 				date.setDate(1);
 				date.setMonth(date.getMonth() + axis.scale.step);
 				result = Math.floor(MathUtils.JSDateToExcelDate(date));
 				break;
 			}
 			case 'week': {
-				const date = MathUtils.excelDateToJSDate(value);
+				const date = MathUtils.excelDateToJSDate(valueInfo.value);
 				const day = date.getDay();
 				if (day) {
-					value += 7 - day;
+					valueInfo.value += 7 - day;
 				} else {
-					value += 7 * axis.scale.step;
+					valueInfo.value += 7 * axis.scale.step;
 				}
-				result = Math.floor(value);
+				result = Math.floor(valueInfo.value);
 				break;
 			}
 			case 'day':
-				result = Math.floor(value) + axis.scale.step;
+				result = Math.floor(valueInfo.value) + axis.scale.step;
 				break;
 			case 'hour': {
-				const date = MathUtils.excelDateToJSDate(value);
+				const date = MathUtils.excelDateToJSDate(valueInfo.value);
 				const h = date.getHours();
 				if (h % axis.scale.step) {
 					date.setHours(h + (axis.scale.step - (h % axis.scale.step)));
@@ -1641,7 +1720,7 @@ module.exports = class SheetPlotNode extends Node {
 				break;
 			}
 			case 'minute': {
-				const date = MathUtils.excelDateToJSDate(value);
+				const date = MathUtils.excelDateToJSDate(valueInfo.value);
 				const m = date.getMinutes();
 				if (m % axis.scale.step) {
 					date.setMinutes(m + (axis.scale.step - (m % axis.scale.step)));
@@ -1654,7 +1733,7 @@ module.exports = class SheetPlotNode extends Node {
 				break;
 			}
 			case 'second': {
-				const date = MathUtils.excelDateToJSDate(value);
+				const date = MathUtils.excelDateToJSDate(valueInfo.value);
 				const s = date.getSeconds();
 				if (s % axis.scale.step) {
 					date.setSeconds(s + (axis.scale.step - (s % axis.scale.step)));
@@ -1666,7 +1745,7 @@ module.exports = class SheetPlotNode extends Node {
 				break;
 			}
 			case 'millisecond': {
-				const date = MathUtils.excelDateToJSDate(value);
+				const date = MathUtils.excelDateToJSDate(valueInfo.value);
 				const ms = date.getMilliseconds();
 				if (ms % axis.scale.step) {
 					date.setMilliseconds(ms + (axis.scale.step - (ms % axis.scale.step)));
@@ -1677,15 +1756,16 @@ module.exports = class SheetPlotNode extends Node {
 				break;
 			}
 			default:
-				result = value + 1;
+				result = valueInfo.value + 1;
 				break;
 			}
+			valueInfo.value = result;
 			break;
 		default:
-			result = MathUtils.roundTo(value + axis.scale.step, 12);
+			valueInfo.value = MathUtils.roundTo(valueInfo.value + axis.scale.step, 12);
 			break;
 		}
-		return result;
+		return valueInfo;
 	}
 
 	getDataFromSelection(selection) {
@@ -1722,19 +1802,16 @@ module.exports = class SheetPlotNode extends Node {
 			return false;
 		}
 
-		let current = axis.scale.min;
 		let pos;
 		const rect = new ChartRect();
+		let current = this.getAxisStart(axis);
+		const final = this.getAxisEnd(axis);
 
-		if (axis.type === 'time') {
-			current = this.incrementScale(axis, current - 0.0000001);
-		}
-
-		while (current <= axis.scale.max) {
-			if (axis.type === 'category' && current >= axis.scale.max) {
+		while (current.value <= final) {
+			if (axis.type === 'category' && current.value >= axis.scale.max) {
 				break;
 			}
-			pos = this.scaleToAxis(axis, current, undefined, true);
+			pos = this.scaleToAxis(axis, current.value, undefined, true);
 
 			switch (axis.align) {
 			case 'left':

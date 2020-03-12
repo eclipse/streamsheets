@@ -17,6 +17,7 @@ module.exports = class ChartAxis {
 		this.title = new ChartTitle(new Expression('Title', ''), false);
 		this.gridVisible = true;
 		this.allowZoom = true;
+		this.invert = false;
 		this.updateZoom = false;
 		this.autoZero = true;
 	}
@@ -35,6 +36,7 @@ module.exports = class ChartAxis {
 		writer.writeAttributeNumber('autozero', this.autoZero ? 1 : 0);
 		writer.writeAttributeNumber('allowzoom', this.allowZoom ? 1 : 0);
 		writer.writeAttributeNumber('updatezoom', this.updateZoom ? 1 : 0);
+		writer.writeAttributeNumber('invert', this.invert ? 1 : 0);
 		writer.writeAttributeString('position', this.position.toString());
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
@@ -53,6 +55,7 @@ module.exports = class ChartAxis {
 		this.autoZero = reader.getAttributeBoolean(object, 'autozero', true);
 		this.allowZoom = reader.getAttributeBoolean(object, 'allowzoom', true);
 		this.updateZoom = reader.getAttributeBoolean(object, 'updatezoom', false);
+		this.invert = reader.getAttributeBoolean(object, 'invert', false);
 
 		reader.iterateObjects(object, (subName, subChild) => {
 			switch (subName) {

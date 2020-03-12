@@ -174,19 +174,13 @@ export default class SheetPlotView extends NodeView {
 			graphics.stroke();
 		}
 
-		let current = axis.scale.min;
-		let pos;
-		let plot;
-		let text;
-
 		if (grid) {
 			graphics.beginPath();
 			graphics.setLineColor(axis.formatGrid.lineColor || item.getTemplate().axis.formatGrid.lineColor);
 		}
 
-		if (axis.type === 'time') {
-			current = item.incrementScale(axis, current - 0.0000001);
-		}
+		let current = item.getAxisStart(axis);
+		const final = item.getAxisEnd(axis);
 
 		let refLabel;
 		if (axis.type === 'category') {
@@ -200,20 +194,23 @@ export default class SheetPlotView extends NodeView {
 		const cs = graphics.getCoordinateSystem();
 		let last;
 		let width = 0;
+		let pos;
+		let plot;
+		let text;
 
-		while (current <= axis.scale.max) {
-			if (axis.type === 'category' && (grid ? current > axis.scale.max : current >= axis.scale.max)) {
+		while (current.value <= final) {
+			if (axis.type === 'category' && (grid ? current.value > axis.scale.max : current.value >= axis.scale.max)) {
 				break;
 			}
 
-			pos = item.scaleToAxis(axis, current, undefined, grid);
+			pos = item.scaleToAxis(axis, current.value, undefined, grid);
 
 			if (!grid) {
 				if (axis.type === 'category' && refLabel) {
-					text = item.getLabel(refLabel, axis, Math.floor(current));
+					text = item.getLabel(refLabel, axis, Math.floor(current.value));
 				} else {
 					text = item.formatNumber(
-						current,
+						current.value,
 						axis.format && axis.format.numberFormat ? axis.format : axis.scale.format
 					);
 				}
@@ -281,7 +278,7 @@ export default class SheetPlotView extends NodeView {
 			return undefined;
 		}
 
-		if (!item.isZoomed()) {
+		if (!item.isZoomed() && ref.time && ref.time.values) {
 			graphics.setTextBaseline('top');
 			graphics.setFillColor('#CCCCCC');
 			graphics.setTextAlignment(0);
