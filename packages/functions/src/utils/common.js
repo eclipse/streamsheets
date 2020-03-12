@@ -1,7 +1,5 @@
 // const { FunctionErrors } = require('@cedalo/error-codes');
 
-const pipe = (...fns) => (val) => fns.reduce((res, fn) => fn(res), val);
-const compose = (...fns) => (val) => fns.reduceRight((res, fn) => fn(res), val);
 const deepCopy = (obj) => JSON.parse(JSON.stringify(obj));
 
 const cutBrackets = (str) => {
@@ -22,8 +20,6 @@ const cutBrackets = (str) => {
 // };
 
 module.exports = {
-	compose,
 	cutBrackets,
-	deepCopy,
-	pipe
+	deepCopy
 };

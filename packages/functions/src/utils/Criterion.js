@@ -1,5 +1,4 @@
-const { convert } = require('@cedalo/commons');
-const { pipe } = require('./common');
+const { convert, functions: { pipe } } = require('@cedalo/commons');
 
 const createRegEx = (searchstr, flags) => {
 	searchstr = searchstr.replace(/(\(|\)|\[|\])/g, '\\$1');
