@@ -1,7 +1,7 @@
+const { functions: { pipe } } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell, Machine, StreamSheet } = require('@cedalo/machine-core');
 const { createCellAt, createTerm } = require('../utils');
-const { pipe } = require('../../src/utils/common');
 const SHEET = require('../_data/sheets.json');
 
 const ERROR = FunctionErrors.code;

@@ -1,6 +1,6 @@
-const { calculate, common: { pipe }, runFunction, terms: onTerms } = require('../../utils');
-const { convert } = require('@cedalo/commons');
+const { convert, functions: { pipe } } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { calculate, runFunction, terms: onTerms } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 

@@ -83,7 +83,11 @@ class NewStreamDialog extends React.Component {
 		this.props.toggleDialogAddConfiguration();
 	};
 
-	isNameUnique = (name) => !this.resources.find((c) => c.name.toLowerCase() === name.toLowerCase());
+	isNameUnique = (name) => {
+		const equalName = (s) => s.name.toLowerCase() === name.toLowerCase();
+		const { consumers, producers, connectors } = this.props;
+		return !consumers.some(equalName) && !producers.some(equalName) && !connectors.some(equalName);
+	};
 
 	isNameValid = (name) => name.length > 0;
 

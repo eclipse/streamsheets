@@ -1,6 +1,6 @@
-const { convert } = require('@cedalo/commons');
+const { convert, functions: { pipe } } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { common: { pipe }, runFunction } = require('../../utils');
+const { runFunction } = require('../../utils');
 const { binary2float, float2binary, float2hex, hex2float } = require('./buffer');
 
 const ERROR = FunctionErrors.code;

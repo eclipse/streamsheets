@@ -312,6 +312,7 @@ const requestinternal = (funcTerm, s, ...t) =>
 			let reqId = getRequestId(funcTerm);
 			if (!isPendingRequest(sheet, reqId)) {
 				message.metadata.requestId = reqId;
+				if (sheet.machine) message.metadata.machineId = sheet.machine.id;
 				const target_ = targetRange || target;
 				if (targetRange) {
 					message.data.pageSize = determinePageSize(targetRange, message.data.pageSize, resultKeys);
@@ -347,6 +348,7 @@ const requestinternallegacy = (funcTerm, s, ...t) =>
 			let reqId = getRequestId(funcTerm);
 			if (!isPendingRequest(sheet, reqId)) {
 				message.metadata.requestId = reqId;
+				if (sheet.machine) message.metadata.machineId = sheet.machine.id;
 				reqId = createRequest(
 					sheet,
 					funcTerm,
