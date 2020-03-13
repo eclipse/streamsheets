@@ -32,17 +32,11 @@ const getTimeCell = (item, formula) => {
 	const cell = item.getDataSourceInfo(formula);
 	return cell && cell.time;
 };
-const getCellReference = (formula) => {
-	let ref;
-	const term = formula.getTerm();
-	const cell = term.params && term.params[1];
-	const operand = cell && cell.operand;
-	if (operand instanceof SheetReference) {
-		const range = operand.getRange();
-		const sheet = range.getSheet();
-		ref = `${sheet.getName()}!${range.toString()}`;
-	}
-	return ref;
+const getCellReference = (item, formula) => {
+	// which index is it? 1 or 2 or should we search?
+	const { range, sheet } = item.getParamInfo(formula.getTerm(), 2);
+	if (range) range.shiftToSheet();
+	return range && sheet ? `${sheet.getName()}!${range.toString()}` : undefined;
 };
 
 const templates = {
@@ -2595,18 +2589,13 @@ module.exports = class SheetPlotNode extends Node {
 		const sheet = this.getSheet();
 		GraphUtils.traverseItem(sheet, (item) => {
 			if (item instanceof SheetPlotNode) {
-				// item.chartZoom = false;
-				item.chartZoom = true;
-				item.series.forEach((serie) => {
-					const { formula } = serie;
+				item.chartZoom = false;
+				item.series.forEach(({ formula }) => {
 					const cell = getTimeCell(item, formula);
-					if (isValuesCell(cell)) {
-						const cellref = getCellReference(formula);
-						if (cellref) {
-							// support multiple items on same reference
-							items.set(item, cellref);
-						}
-					}
+					const cellref = isValuesCell(cell) && getCellReference(item, formula);
+					item.chartZoom = !!cellref;
+					// support multiple items on same reference
+					if (item.chartZoom) items.set(item, cellref);
 				});
 			}
 		}, false);
