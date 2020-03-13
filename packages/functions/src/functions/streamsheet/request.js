@@ -189,7 +189,7 @@ const setCellInfo = (cell, info = {}) => {
 	Object.assign(cell.info, info); // { values, ...info });
 };
 const handleResponse = (handle, sheet, target, resultKeys, message, funcTerm) => {
-	const { resultsType, targets = [] } = handle;
+	const { info = {}, resultsType, targets = [] } = handle;
 	targets.some((trgt) => {
 		switch (trgt) {
 			case 'none':
@@ -206,7 +206,7 @@ const handleResponse = (handle, sheet, target, resultKeys, message, funcTerm) =>
 				return true;
 			case 'values':
 				if (funcTerm.cell) {
-					setCellInfo(funcTerm.cell, { values: message.data, marker: funcTerm._marker });
+					setCellInfo(funcTerm.cell, { ...info, values: message.data, marker: funcTerm._marker });
 					return true;
 				}
 				return false;
