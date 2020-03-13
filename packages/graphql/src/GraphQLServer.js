@@ -37,6 +37,8 @@ const typeDefs = gql`
 		previewImage: String
 		state: String!
 		streamSheets: [StreamSheet!]!
+		files: [String!]!
+		file(name: String!): String
 	}
 
 	type UserSettings {
@@ -128,6 +130,7 @@ const typeDefs = gql`
 
 	type Query {
 		machines: [Machine!]!
+		machine(id: ID!): Machine
 		me: User!
 		user(id: ID!): User
 		users: [User!]!
