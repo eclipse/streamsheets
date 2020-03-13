@@ -123,7 +123,8 @@ const functionParamToField = (param) => {
 	const fieldDefinition = {
 		id: param.id,
 		label: param.label,
-		// defaultValue: param.defaultValue,
+		// empty defaultValue to prevent adding it to function if nothing is specified for this parameter...
+		defaultValue: '',
 		type: fieldType,
 		options,
 		required: isRequired(param),
