@@ -1,9 +1,4 @@
-import AdminNavigationExtensions from './src/AdminNavigationExtensions';
-import PluginExtensions from './src/PluginExtensions';
-import ToolbarExtensions from './src/ToolbarExtensions';
-
-export {
-	AdminNavigationExtensions,
-	PluginExtensions,
-	ToolbarExtensions
-}
+export * from './src/AdminNavigationExtensions';
+export * from './src/PluginExtensions';
+export * from './src/ToolbarExtensions';
+export * from './src/languages';
