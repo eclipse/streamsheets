@@ -13,6 +13,7 @@ const TextFormatAttributes = require('../attr/TextFormatAttributes');
 const Expression = require('../expr/Expression');
 const Numbers = require('../../commons/Numbers');
 const JSONWriter = require('../../commons/JSONWriter');
+const MarkCellValuesCommand = require('../command/MarkCellValuesCommand');
 const SetPlotDataCommand = require('../command/SetPlotDataCommand');
 const SetCellsCommand = require('../command/SetCellsCommand');
 const DeleteCellContentCommand = require('../command/DeleteCellContentCommand');
@@ -26,18 +27,17 @@ const ChartTitle = require('./chart/ChartTitle');
 
 const epsilon = 0.000000001;
 
-const getXAxisRange = (item) => {
-	const axes = item.getAxes();
-	return { min: axes.x.minData, max: axes.x.maxData};
+const isValuesCell = (cell) => cell && cell._info && cell.values != null;
+const getTimeCell = (item, formula) => {
+	const cell = item.getDataSourceInfo(formula);
+	return cell && cell.time;
 };
-const isDefinedRange = (range = {}) => range.min != null && range.max != null;
-const isZoomedIn = (zoomrange, chartrange) =>
-	(zoomrange.min > chartrange.min && zoomrange.max <= chartrange.max) ||
-	(zoomrange.min >= chartrange.min && zoomrange.max < chartrange.max);
-const isZoomedOut = (zoomrange, chartrange) =>
-	(zoomrange.min < chartrange.min && zoomrange.max >= chartrange.max) ||
-	(zoomrange.min <= chartrange.min && zoomrange.max > chartrange.max);
-
+const getCellReference = (item, formula) => {
+	// which index is it? 1 or 2 or should we search?
+	const { range, sheet } = item.getParamInfo(formula.getTerm(), 2);
+	if (range) range.shiftToSheet();
+	return range && sheet ? `${sheet.getName()}!${range.toString()}` : undefined;
+};
 
 const templates = {
 	basic: {
@@ -171,8 +171,6 @@ module.exports = class SheetPlotNode extends Node {
 		this.actions = [];
 		this.chart = new Chart();
 		this.chartZoom = false;
-		this.chartZoomIn = undefined;
-		this.chartZoomOut = undefined;
 		this.xAxes = [new ChartAxis('primary', 'linear', 'bottom', 500)];
 		this.yAxes = [new ChartAxis('primary', 'linear', 'left', 1000)];
 		this.plot = {
@@ -2575,37 +2573,36 @@ module.exports = class SheetPlotNode extends Node {
 		return sheet;
 	}
 
-	isZoomed() {
-		if (this.chartZoom) {
-			const zoomrange = getXAxisRange(this);
-			this.chartZoom = isDefinedRange(zoomrange);
-			if (this.chartZoom) {
-				if (isDefinedRange(this.chartZoomIn)) {
-					this.chartZoom = !isZoomedIn(zoomrange, this.chartZoomIn);
-				} else if (isDefinedRange(this.chartZoomOut)) {
-					this.chartZoom = !isZoomedOut(zoomrange, this.chartZoomOut);
-				} else this.chartZoom = false;
-			}
-		}
+	isZoomed(serie) {
+		const cell = getTimeCell(this, serie.formula);
+		this.chartZoom = this.chartZoom && cell && cell.valuesMarker !== this.cellValuesMarker;
 		return !this.chartZoom;
 	}
-	spreadZoomInfo(out = false) {
+	spreadZoomInfo(viewer) {
+		const items = new Map();
 		const sheet = this.getSheet();
 		GraphUtils.traverseItem(sheet, (item) => {
 			if (item instanceof SheetPlotNode) {
-				const zoomrange = getXAxisRange(item);
-				item.chartZoom = true;
-				item.chartZoomIn = !out ? zoomrange : undefined;
-				item.chartZoomOut = out ? zoomrange : undefined;
-				item.chartZoomTimestamp = !out ? new Date(Date.now()) : undefined;
+				item.chartZoom = false;
+				item.series.forEach(({ formula }) => {
+					const cell = getTimeCell(item, formula);
+					const cellref = isValuesCell(cell) && getCellReference(item, formula);
+					item.chartZoom = !!cellref;
+					// support multiple items on same reference
+					if (item.chartZoom) items.set(item, cellref);
+				});
 			}
 		}, false);
+		if (items.size) {
+			const cmd = MarkCellValuesCommand.fromItemCellRefMap(items);
+			viewer.getInteractionHandler().execute(cmd);
+		}
 	}
 
 	resetZoom(viewer) {
-		this.spreadZoomInfo(true);
 		this.setParamValues(viewer, this.xAxes[0].formula,
 			[{index: 4, value: undefined}, {index: 5, value: undefined}]);
+		this.spreadZoomInfo(viewer);
 	}
 
 	isAddLabelAllowed() {

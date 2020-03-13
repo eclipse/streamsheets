@@ -2,6 +2,7 @@ const logger = require('../logger').create({ name: 'RequestHandlerRegistry' });
 const {
 	cellDescriptor,
 	collectMachineStats,
+	getCellFromReference,
 	getSheetCellsAsList,
 	getSheetCellsAsObject,
 	updateNamedCellRefs
@@ -480,6 +481,29 @@ class LoadFunctions extends ARequestHandler {
 		}
 	}
 }
+class MarkRequests extends ARequestHandler {
+	get isModifying() {
+		return false;
+	}
+
+	handle({ markers, streamsheetId }) {
+		const streamsheet = this.machine.getStreamSheet(streamsheetId);
+		const sheet = streamsheet && streamsheet.sheet;
+		if (sheet) {
+			markers.forEach(({ reference, marker }) => {
+				const { cell, sheet: cellsheet }  = getCellFromReference(reference, sheet);
+				if (cell) {
+					const term = cell.term;
+					const reqId = term._pendingRequestId;
+					if (reqId) cellsheet.getPendingRequests().delete(reqId);
+					term._marker = marker;
+				}
+			});
+			return Promise.resolve();
+		}
+		return Promise.reject(new Error(`Unknown streamsheet id: ${streamsheetId}`));
+	}
+}
 
 // NOT USED ANYMORE!?
 // handlers.set('loadSheet', (msg) => {
@@ -874,6 +898,7 @@ class RequestHandlerRegistry {
 		registry.handlers.set('deleteStreamSheet', new DeleteStreamSheet(machine, monitor));
 		registry.handlers.set('load', new Load(machine, monitor));
 		registry.handlers.set('loadFunctions', new LoadFunctions(machine, monitor));
+		registry.handlers.set('markRequests', new MarkRequests(machine, monitor));
 		registry.handlers.set('pause', new Pause(machine, monitor));
 		registry.handlers.set('registerFunctionModules', new RegisterFunctionModules(machine, monitor));
 		registry.handlers.set('registerStreams', new RegisterStreams(machine, monitor));
