@@ -427,6 +427,33 @@ export default class SheetPlotView extends NodeView {
 		}
 		graphics.stroke();
 		graphics.setLineWidth(1);
+
+		if (serie.marker.style !== 'none') {
+			index = 0;
+			graphics.beginPath();
+			graphics.setLineColor(serie.marker.lineColor || item.getTemplate().series.line[seriesIndex]);
+			graphics.setFillColor(serie.marker.fillColor || item.getTemplate().series.fill[seriesIndex]);
+			while (item.getValue(ref, index, value)) {
+				info.index = index;
+				if (item.chart.dataMode === 'datainterrupt' || (value.x !== undefined && value.y !== undefined)) {
+					x = item.scaleToAxis(axes.x, value.x, undefined, false);
+					y = item.scaleToAxis(axes.y, value.y, info, false);
+					switch (serie.type) {
+					case 'line':
+					case 'scatter':
+						this.drawMarker(graphics, serie, {
+							x: plotRect.left + x * plotRect.width,
+							y: plotRect.bottom - y * plotRect.height
+						});
+						break;
+					}
+				}
+				index += 1;
+			}
+			graphics.fill();
+			graphics.stroke();
+		}
+
 		graphics.restore();
 
 		return points;
@@ -463,6 +490,69 @@ export default class SheetPlotView extends NodeView {
 				title.position.top + title.position.height / 2 + 50
 			);
 		}
+	}
+
+	drawMarker(graphics, serie, pos) {
+		const size = serie.marker.size  * 75;
+		let fill = false;
+
+		switch (serie.marker.style) {
+		case 'circle':
+			graphics.moveTo(pos.x, pos.y);
+			graphics.circle(pos.x, pos.y, size / 2, size / 2);
+			fill = true;
+			break;
+		case 'cross':
+			graphics.moveTo(pos.x - size / 2, pos.y);
+			graphics.lineTo(pos.x + size / 2, pos.y);
+			graphics.moveTo(pos.x, pos.y - size / 2);
+			graphics.lineTo(pos.x, pos.y + size / 2);
+			break;
+		case 'crossRot':
+			graphics.moveTo(pos.x - size / 2, pos.y - size / 2);
+			graphics.lineTo(pos.x + size / 2, pos.y + size / 2);
+			graphics.moveTo(pos.x + size / 2, pos.y - size / 2);
+			graphics.lineTo(pos.x - size / 2, pos.y + size / 2);
+			break;
+		case 'dash':
+			graphics.rect(pos.x - size / 2, pos.y - size / 6, size, size / 3);
+			fill = true;
+			break;
+		case 'line':
+			graphics.moveTo(pos.x - size / 2, pos.y);
+			graphics.lineTo(pos.x + size / 2, pos.y);
+			break;
+		case 'rect':
+			graphics.rect(pos.x - size / 2, pos.y - size / 2, size, size);
+			fill = true;
+			break;
+		case 'rectRot':
+			graphics.moveTo(pos.x, pos.y - size / 2);
+			graphics.lineTo(pos.x + size / 2, pos.y);
+			graphics.lineTo(pos.x, pos.y + size / 2);
+			graphics.lineTo(pos.x - size / 2, pos.y);
+			graphics.closePath();
+			fill = true;
+			break;
+		case 'star':
+			graphics.moveTo(pos.x - size / 2, pos.y);
+			graphics.lineTo(pos.x + size / 2, pos.y);
+			graphics.moveTo(pos.x, pos.y - size / 2);
+			graphics.lineTo(pos.x, pos.y + size / 2);
+			graphics.moveTo(pos.x - size / 2, pos.y - size / 2);
+			graphics.lineTo(pos.x + size / 2, pos.y + size / 2);
+			graphics.moveTo(pos.x + size / 2, pos.y - size / 2);
+			graphics.lineTo(pos.x - size / 2, pos.y + size / 2);
+			break;
+		case 'triangle':
+			graphics.moveTo(pos.x, pos.y - size / 2);
+			graphics.lineTo(pos.x + size / 2, pos.y + size / 2);
+			graphics.lineTo(pos.x - size / 2, pos.y + size / 2);
+			graphics.closePath();
+			fill = true;
+			break;
+		}
+
 	}
 
 	getSelectedFormat() {

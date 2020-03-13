@@ -1,12 +1,14 @@
 
 const Expression = require('../../expr/Expression');
 const ChartFormat = require('./ChartFormat');
+const ChartMarker = require('./ChartMarker');
 
 module.exports = class ChartSeries {
 	constructor(type, formula) {
 		this.type = type;
 		this.formula = formula;
 		this.format = new ChartFormat();
+		this.marker = new ChartMarker();
 		this.xAxis = 'primary';
 		this.yAxis = 'primary';
 	}
@@ -26,6 +28,7 @@ module.exports = class ChartSeries {
 		writer.writeAttributeString('yaxis', this.yAxis);
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
+		this.marker.save('marker', writer);
 		writer.writeEndElement();
 	}
 
@@ -49,6 +52,10 @@ module.exports = class ChartSeries {
 			case 'format':
 				this.format = new ChartFormat();
 				this.format.read(reader, child);
+				break;
+			case 'marker':
+				this.marker = new ChartMarker();
+				this.marker.read(reader, child);
 				break;
 			}
 		});

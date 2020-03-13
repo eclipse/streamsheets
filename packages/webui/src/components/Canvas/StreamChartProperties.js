@@ -27,6 +27,9 @@ import JSG from '@cedalo/jsg-ui';
 import CellRangeComponent from './CellRangeComponent';
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
+import ColorComponent from '../SheetDialogs/ColorComponent';
+
+const markerSizes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export class StreamChartProperties extends Component {
 	static propTypes = {
@@ -226,6 +229,34 @@ export class StreamChartProperties extends Component {
 		const data = this.getData();
 		data.updateZoom = state;
 		this.finishCommand(cmd, 'axes');
+	};
+
+	handleSeriesMarkerStyleChange = (event) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.marker._style = event.target.value;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesMarkerSizeChange = (event) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.marker._size = Number(event.target.value);
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesMarkerFillColorChange = (color) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.marker.fillColor = color;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesMarkerLineColorChange = (color) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.marker.lineColor = color;
+		this.finishCommand(cmd, 'series');
 	};
 
 	translateTitle(title) {
@@ -632,20 +663,6 @@ export class StreamChartProperties extends Component {
 									<FormControlLabel
 										control={
 											<Checkbox
-												checked={data.allowZoom}
-												onChange={(event, state) => this.handleAxisAllowZoomChange(event, state)}
-											/>
-										}
-										label={
-											<FormattedMessage
-												id="StreamChartProperties.AllowZoom"
-												defaultMessage="Allow to zoom by mouse"
-											/>
-										}
-									/>
-									<FormControlLabel
-										control={
-											<Checkbox
 												checked={data.updateZoom}
 												onChange={(event, state) => this.handleAxisUpdateZoomChange(event, state)}
 											/>
@@ -657,7 +674,166 @@ export class StreamChartProperties extends Component {
 											/>
 										}
 									/>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={data.allowZoom}
+												onChange={(event, state) => this.handleAxisAllowZoomChange(event, state)}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.AllowZoom"
+												defaultMessage="Allow to zoom by mouse"
+											/>
+										}
+									/>
 								</FormGroup>
+							</FormControl>
+						</div>
+					) : null}
+					{selection && (selection.element === 'series') ? (
+						<div>
+							<FormLabel
+								component="legend"
+								style={{
+									margin: '8px'
+								}}
+							>
+								Marker
+							</FormLabel>
+							<FormControl
+								style={{
+									width: '55%',
+									display: 'inline-flex',
+									margin: '8px',
+								}}
+							>
+								<InputLabel htmlFor="series-marker">
+									<FormattedMessage
+										id="StreamChartProperties.Style"
+										defaultMessage="Style"
+									/>
+								</InputLabel>
+								<Select
+									id="series-marker"
+									value={data.marker.style}
+									onChange={this.handleSeriesMarkerStyleChange}
+									input={<Input name="series-marker" id="series-marker" />}
+								>
+									<MenuItem value="none" key={1}>
+										<FormattedMessage id="ChartProperties.none" defaultMessage="None" />
+									</MenuItem>
+									<MenuItem value="circle" key={2}>
+										<FormattedMessage
+											id="ChartProperties.circle"
+											defaultMessage="Circle"
+										/>
+									</MenuItem>
+									<MenuItem value="cross" key={3}>
+										<FormattedMessage
+											id="ChartProperties.cross"
+											defaultMessage="Cross"
+										/>
+									</MenuItem>
+									<MenuItem value="crossRot" key={4}>
+										<FormattedMessage
+											id="ChartProperties.rotatedCross"
+											defaultMessage="Rotated Cross"
+										/>
+									</MenuItem>
+									<MenuItem value="dash" key={5}>
+										<FormattedMessage id="ChartProperties.dash" defaultMessage="Dash" />
+									</MenuItem>
+									<MenuItem value="line" key={6}>
+										<FormattedMessage id="ChartProperties.line" defaultMessage="Line" />
+									</MenuItem>
+									<MenuItem value="rect" key={7}>
+										<FormattedMessage
+											id="ChartProperties.rectangle"
+											defaultMessage="Rectangle"
+										/>
+									</MenuItem>
+									<MenuItem value="rectRot" key={9}>
+										<FormattedMessage
+											id="ChartProperties.diamond"
+											defaultMessage="Diamond"
+										/>
+									</MenuItem>
+									<MenuItem value="star" key={10}>
+										<FormattedMessage id="ChartProperties.star" defaultMessage="Star" />
+									</MenuItem>
+									<MenuItem value="triangle" key={11}>
+										<FormattedMessage
+											id="ChartProperties.triangle"
+											defaultMessage="Triangle"
+										/>
+									</MenuItem>
+								</Select>
+							</FormControl>
+							<FormControl
+								style={{
+									width: '29%',
+									display: 'inline-flex',
+									margin: '8px'
+								}}
+							>
+								<InputLabel htmlFor="template">
+									<FormattedMessage id="StreamChartProperties.MarkerSize" defaultMessage="Size" />
+								</InputLabel>
+								<Select
+									id="templates"
+									value={data.marker.size}
+									onChange={this.handleSeriesMarkerSizeChange}
+									input={<Input name="template" id="template" />}
+								>
+									{
+										Object.keys(markerSizes).map(key => (
+											<MenuItem value={key} key={key}>
+												{key}
+											</MenuItem>
+										))
+									}
+								</Select>
+							</FormControl>
+							<FormControl
+								style={{
+									width: '45%',
+									margin: '8px'
+								}}
+							>
+								<ColorComponent
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.FillColor"
+											defaultMessage="Fill Color"
+										/>
+									}
+									width={110}
+									transparent
+									color={data.marker.fillColor || item.getTemplate().series.fill[selection.index]}
+									onChange={(color) => this.handleSeriesMarkerFillColorChange(color)}
+								/>
+							</FormControl>
+							<FormControl
+								style={{
+									display: 'inline-flex',
+									width: '44%',
+									margin: '8px'
+								}}
+							>
+								<ColorComponent
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.LineColor"
+											defaultMessage="Line Color"
+										/>
+									}
+									width={110}
+									transparent
+									color={data.marker.lineColor || item.getTemplate().series.line[selection.index]}
+									onChange={(color) => this.handleSeriesMarkerLineColorChange(color)}
+								/>
 							</FormControl>
 						</div>
 					) : null}

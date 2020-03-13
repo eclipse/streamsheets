@@ -1560,12 +1560,6 @@ module.exports = class SheetPlotNode extends Node {
 			value = (value - axis.scale.min) / (axis.scale.max - axis.scale.min);
 			break;
 		case 'logarithmic':
-				// if (dLinWert > ctEpsilon) {
-				// 	dFaktor = (double) ( rDiag.right - rDiag.left ) /
-				// 		( log10(m_dMaximumScale) - log10(m_dMinimumScale) );
-				// 	nSkal = rDiag.left + (int)(0.5 + dFaktor * (log10(dLinWert) - log10(m_dMinimumScale)));
-				// }
-				// break;
 			value = (Math.log10(value) - Math.log10(axis.scale.min)) / (Math.log10(axis.scale.max) - Math.log10(axis.scale.min));
 			break;
 		default:
