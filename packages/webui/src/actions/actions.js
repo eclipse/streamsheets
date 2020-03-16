@@ -757,6 +757,10 @@ export function sendSelection(selection) {
 	gatewayClient.sendSelection(selection);
 }
 
+export function setTitleImage(machine, image) {
+	gatewayClient.updateMachineTitleImage(machine.id, image);
+}
+
 export function setMachineActive(machine) {
 	return (dispatch) => {
 		dispatch(putMachine(machine));
