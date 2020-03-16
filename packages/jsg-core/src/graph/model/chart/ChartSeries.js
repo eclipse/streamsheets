@@ -6,6 +6,7 @@ const ChartMarker = require('./ChartMarker');
 module.exports = class ChartSeries {
 	constructor(type, formula) {
 		this.type = type;
+		this.smooth = false;
 		this.formula = formula;
 		this.format = new ChartFormat();
 		this.marker = new ChartMarker();
@@ -26,6 +27,7 @@ module.exports = class ChartSeries {
 		writer.writeAttributeString('type', this.type);
 		writer.writeAttributeString('xaxis', this.xAxis);
 		writer.writeAttributeString('yaxis', this.yAxis);
+		writer.writeAttributeNumber('smooth', this.smooth ? 1 : 0);
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
 		this.marker.save('marker', writer);
@@ -34,14 +36,9 @@ module.exports = class ChartSeries {
 
 	read(reader, object) {
 		this.type = reader.getAttribute(object, 'type');
-		this.xAxis =
-			reader.getAttribute(object, 'xaxis') === undefined
-				? 'primary'
-				: reader.getAttribute(object, 'xaxis');
-		this.yAxis =
-			reader.getAttribute(object, 'yaxis') === undefined
-				? 'primary'
-				: reader.getAttribute(object, 'yaxis');
+		this.xAxis = reader.getAttributeString(object, 'xaxis', 'primary');
+		this.yAxis = reader.getAttributeString(object, 'yaxis', 'primary');
+		this.smooth = reader.getAttributeBoolean(object, 'smooth', false);
 
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {

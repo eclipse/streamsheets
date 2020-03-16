@@ -3709,14 +3709,42 @@ export class CanvasToolBar extends Component {
 								<GridListTile cols={1}>
 									<Tooltip
 										enterDelay={300}
-										title={<FormattedMessage id="Chart.Scatter" defaultMessage="Scatter" />}
+										title={<FormattedMessage id="StreamCharts.Scatter" defaultMessage="Scatter" />}
 									>
 										<IconButton
 											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
 											color="inherit"
-											onClick={() => this.onCreatePlot('scatter')}
+											onClick={() => this.onCreatePlot('scattermarker')}
 										>
-											<img alt="" src="images/charts/scatter.png" />
+											<img alt="" src="images/charts/scattermarker.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="StreamCharts.ScatterLineMarker" defaultMessage="Scatter with Line and Markers" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('scatterlinemarker')}
+										>
+											<img alt="" src="images/charts/scatterlinemarker.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="StreamCharts.ScatterLine" defaultMessage="Scatter with Line" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('scatterline')}
+										>
+											<img alt="" src="images/charts/scatterline.png" />
 										</IconButton>
 									</Tooltip>
 								</GridListTile>

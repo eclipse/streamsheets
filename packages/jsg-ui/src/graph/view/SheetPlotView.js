@@ -2,6 +2,34 @@ import { default as JSG, TextFormatAttributes, FormatAttributes } from '@cedalo/
 
 import NodeView from './NodeView';
 
+const opposedLine = (start, end) => {
+	const lengthX = end.x - start.x;
+	const lengthY = end.y - start.y;
+	return {
+		length: Math.sqrt((lengthX ** 2) + (lengthY ** 2)),
+		angle: Math.atan2(lengthY, lengthX)
+	}
+};
+
+const controlPoint = (current, previous, next, reverse) => {
+	// When 'current' is the first or last point of the array
+	// 'previous' or 'next' don't exist.
+	// Replace with 'current'
+	const p = previous || current;
+	const n = next || current;
+	// The smoothing ratio
+	const smoothing = 0.2;
+	// Properties of the opposed-line
+	const o = opposedLine(p, n);
+	// If is end-control-point, add PI to the angle to go backward
+	const angle = o.angle + (reverse ? Math.PI : 0);
+	const length = o.length * smoothing;
+	// The control point position is relative to the current point
+	const x = current.x + Math.cos(angle) * length;
+	const y = current.y + Math.sin(angle) * length;
+	return { x, y };
+};
+
 export default class SheetPlotView extends NodeView {
 	onSelectionChange(selected) {
 		if (!selected) {
@@ -270,10 +298,43 @@ export default class SheetPlotView extends NodeView {
 		}
 	}
 
+	setLineStyle(graphics, lineStyle) {
+		if (lineStyle === 'none') {
+			graphics.setLineColor('rgba(1,1,1,0)');
+		}
+	}
+
+	getPlotPoint(item, axes, ref, info, defPt, index, offset, pt) {
+		if (item.getValue(ref, index + offset, pt)) {
+			info.index = index + offset;
+			pt.x = pt.x === undefined ? defPt.x : pt.x;
+			pt.y = pt.y === undefined ? defPt.y : pt.y;
+			pt.x = item.scaleToAxis(axes.x, pt.x, undefined, false);
+			pt.y = item.scaleToAxis(axes.y, pt.y, info, false);
+		} else {
+			pt.x = defPt.x;
+			pt.y = defPt.y;
+			pt.x = item.scaleToAxis(axes.x, pt.x, undefined, false);
+			pt.y = item.scaleToAxis(axes.y, pt.y, info, false);
+		}
+		return pt;
+	}
+
+// 	var points = [{x:1,y:1},{x:2,y:3},{x:3,y:4},{x:4,y:2},{x:5,y:6}] //took 5 example points
+// 	ctx.moveTo((points[0].x), points[0].y);
+//
+// 	for(var i = 0; i < points.length-1; i ++)
+// {
+//
+// 	var x_mid = (points[i].x + points[i+1].x) / 2;
+// 	var y_mid = (points[i].y + points[i+1].y) / 2;
+// 	var cp_x1 = (x_mid + points[i].x) / 2;
+// 	var cp_x2 = (x_mid + points[i+1].x) / 2;
+// 	ctx.quadraticCurveTo(cp_x1,points[i].y ,x_mid, y_mid);
+// 	ctx.quadraticCurveTo(cp_x2,points[i+1].y ,points[i+1].x,points[i+1].y);
+// }
 	drawPlot(graphics, item, plotRect, serie, seriesIndex, lastPoints) {
 		let index = 0;
-		let x;
-		let y;
 		let barInfo;
 		const value = {};
 		const ref = item.getDataSourceInfo(serie.formula);
@@ -302,6 +363,7 @@ export default class SheetPlotView extends NodeView {
 		graphics.beginPath();
 		graphics.setLineColor(serie.format.lineColor || item.getTemplate().series.line[seriesIndex]);
 		graphics.setLineWidth(serie.format.lineWidth || item.getTemplate().series.linewidth);
+		this.setLineStyle(graphics, serie.format.lineStyle);
 		graphics.setFillColor(serie.format.fillColor || item.getTemplate().series.fill[seriesIndex]);
 
 		const barWidth = item.getBarWidth(axes, serie, plotRect);
@@ -309,6 +371,29 @@ export default class SheetPlotView extends NodeView {
 		let newLine = true;
 		let xFirst;
 		let xLast;
+		const pt = {x: 0, y: 0};
+		const ptPrev = {x: 0, y: 0};
+		const ptNext = {x: 0, y: 0};
+		const ptLast = {x: 0, y: 0};
+		const toPlot = (point) => {
+			if (serie.type === 'bar' || serie.type === 'profile') {
+				const x = point.x;
+				if (point.x !== undefined) {
+					point.x = plotRect.left + point.y * plotRect.width;
+				}
+				if (point.y !== undefined) {
+					point.y = plotRect.bottom - x * plotRect.height;
+				}
+			} else {
+				if (point.x !== undefined) {
+					point.x = plotRect.left + point.x * plotRect.width;
+				}
+				if (point.y !== undefined) {
+					point.y = plotRect.bottom - point.y * plotRect.height;
+				}
+			}
+			return point;
+		};
 		const info = {
 			serie,
 			seriesIndex,
@@ -318,8 +403,9 @@ export default class SheetPlotView extends NodeView {
 		while (item.getValue(ref, index, value)) {
 			info.index = index;
 			if (item.chart.dataMode === 'datainterrupt' || (value.x !== undefined && value.y !== undefined)) {
-				x = item.scaleToAxis(axes.x, value.x, undefined, false);
-				y = item.scaleToAxis(axes.y, value.y, info, false);
+				pt.x = item.scaleToAxis(axes.x, value.x, undefined, false);
+				pt.y = item.scaleToAxis(axes.y, value.y, info, false);
+				toPlot(pt);
 				switch (serie.type) {
 					case 'profile':
 						if (
@@ -328,17 +414,27 @@ export default class SheetPlotView extends NodeView {
 						) {
 							newLine = true;
 						} else if (newLine) {
-							graphics.moveTo(plotRect.left + y * plotRect.width, plotRect.bottom - x * plotRect.height);
+							graphics.moveTo(pt.x, pt.y);
 							newLine = false;
-							xFirst = x;
-							xLast = x;
+							xFirst = pt.x;
+							xLast = pt.x;
 						} else {
-							graphics.lineTo(plotRect.left + y * plotRect.width, plotRect.bottom - x * plotRect.height);
-							xLast = x;
+							if (serie.smooth) {
+								this.getPlotPoint(item, axes, ref, info, value, index, -1, ptLast);
+								toPlot(ptLast);
+
+								const midX = (ptLast.x + pt.x) / 2;
+								const midY = (ptLast.y + pt.y) / 2;
+								const cpY1 = (midY + ptLast.y) / 2;
+								const cpY2 = (midY + pt.y) / 2;
+								graphics.quadraticCurveTo(ptLast.x, cpY1, midX, midY);
+								graphics.quadraticCurveTo(pt.x, cpY2, pt.x, pt.y);
+							} else {
+								graphics.lineTo(pt.x, pt.y);
+							}
+							xLast = pt.x;
 						}
 						break;
-					case 'area':
-					case 'line':
 					case 'scatter':
 						if (
 							item.chart.dataMode === 'datainterrupt' &&
@@ -346,24 +442,69 @@ export default class SheetPlotView extends NodeView {
 						) {
 							newLine = true;
 						} else if (newLine) {
-							graphics.moveTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+							graphics.moveTo(pt.x, pt.y);
 							newLine = false;
-							xFirst = x;
-							xLast = x;
+							xFirst = pt.x;
+							xLast = pt.x;
 						} else {
-							graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
-							xLast = x;
+							if (serie.smooth) {
+								this.getPlotPoint(item, axes, ref, info, value, index, 1, ptNext);
+								this.getPlotPoint(item, axes, ref, info, value, index, -1, ptLast);
+								this.getPlotPoint(item, axes, ref, info, value, index, -2, ptPrev);
+								toPlot(ptPrev);
+								toPlot(ptLast);
+								toPlot(ptNext);
+
+								const cp1 = controlPoint(ptLast, ptPrev, pt);
+								const cp2 = controlPoint(pt, ptLast, ptNext, true);
+
+								graphics.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, pt.x, pt.y);
+							} else {
+								graphics.lineTo(pt.x, pt.y);
+							}
+
+							xLast = pt.x;
+						}
+						break;
+					case 'area':
+					case 'line':
+						if (
+							item.chart.dataMode === 'datainterrupt' &&
+							(value.x === undefined || value.y === undefined)
+						) {
+							newLine = true;
+						} else if (newLine) {
+							graphics.moveTo(pt.x, pt.y);
+							newLine = false;
+							xFirst = pt.x;
+							xLast = pt.x;
+						} else {
+							if (serie.smooth) {
+								this.getPlotPoint(item, axes, ref, info, value, index, -1, ptLast);
+								toPlot(ptLast);
+
+								const midX = (ptLast.x + pt.x) / 2;
+								const midY = (ptLast.y + pt.y) / 2;
+								const cpX1 = (midX + ptLast.x) / 2;
+								const cpX2 = (midX + pt.x) / 2;
+								graphics.quadraticCurveTo(cpX1, ptLast.y, midX, midY);
+								graphics.quadraticCurveTo(cpX2, pt.y ,pt.x, pt.y);
+							} else {
+								graphics.lineTo(pt.x, pt.y);
+							}
+
+							xLast = pt.x;
 						}
 						if (serie.type === 'area') {
 							if (newLine) {
-								y = item.scaleToAxis(axes.y, 0, undefined, false);
+								pt.y = item.scaleToAxis(axes.y, 0, undefined, false);
 								graphics.lineTo(
-									plotRect.left + xLast * plotRect.width,
-									plotRect.bottom - y * plotRect.height
+									xLast,
+									plotRect.bottom - pt.y * plotRect.height
 								);
 								graphics.lineTo(
 									plotRect.left + xFirst * plotRect.width,
-									plotRect.bottom - y * plotRect.height
+									plotRect.bottom - pt.y * plotRect.height
 								);
 								graphics.closePath();
 								graphics.fill();
@@ -372,8 +513,8 @@ export default class SheetPlotView extends NodeView {
 							}
 							if (item.chart.stacked) {
 								points.push({
-									x: plotRect.left + x * plotRect.width,
-									y: plotRect.bottom - y * plotRect.height
+									x: pt.x,
+									y: pt.y
 								});
 							}
 						}
@@ -382,8 +523,8 @@ export default class SheetPlotView extends NodeView {
 						if (value.x !== undefined && value.y !== undefined) {
 							barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
 							graphics.rect(
-								plotRect.left + x * plotRect.width + barInfo.offset,
-								plotRect.bottom - y * plotRect.height,
+								pt.x + barInfo.offset,
+								pt.y,
 								barWidth - barInfo.margin,
 								-barInfo.height * plotRect.height
 							);
@@ -393,8 +534,8 @@ export default class SheetPlotView extends NodeView {
 						if (value.x !== undefined && value.y !== undefined) {
 							barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
 							graphics.rect(
-								plotRect.left + y * plotRect.width,
-								plotRect.bottom - x * plotRect.height + barInfo.offset,
+								pt.x,
+								pt.y + barInfo.offset,
 								barInfo.height * plotRect.width,
 								barWidth - barInfo.margin
 							);
@@ -410,14 +551,22 @@ export default class SheetPlotView extends NodeView {
 				let point;
 				for (let i = lastPoints.length - 1; i >= 0; i -= 1) {
 					point = lastPoints[i];
-					graphics.lineTo(point.x, point.y);
+					if (serie.smooth && i < lastPoints.length - 1) {
+						const pLast = lastPoints[i + 1];
+						const midX = (pLast.x + point.x) / 2;
+						const midY = (pLast.y + point.y) / 2;
+						const cpX1 = (midX + pLast.x) / 2;
+						const cpX2 = (midX + point.x) / 2;
+						graphics.quadraticCurveTo(cpX1, pLast.y, midX, midY);
+						graphics.quadraticCurveTo(cpX2, point.y ,point.x, point.y);
+					} else {
+						graphics.lineTo(point.x, point.y);
+					}
 				}
 			} else {
-				y = item.scaleToAxis(axes.y, 0, undefined, false);
-				x = xLast;
-				graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
-				x = xFirst; // item.scaleToAxis(axes.x, xFirst, undefined, false);
-				graphics.lineTo(plotRect.left + x * plotRect.width, plotRect.bottom - y * plotRect.height);
+				pt.y = item.scaleToAxis(axes.y, 0, undefined, false);
+				graphics.lineTo(xLast, plotRect.bottom - pt.y * plotRect.height);
+				graphics.lineTo(xFirst, plotRect.bottom - pt.y * plotRect.height);
 			}
 			graphics.closePath();
 		}
@@ -436,14 +585,16 @@ export default class SheetPlotView extends NodeView {
 			while (item.getValue(ref, index, value)) {
 				info.index = index;
 				if (item.chart.dataMode === 'datainterrupt' || (value.x !== undefined && value.y !== undefined)) {
-					x = item.scaleToAxis(axes.x, value.x, undefined, false);
-					y = item.scaleToAxis(axes.y, value.y, info, false);
+					pt.x = item.scaleToAxis(axes.x, value.x, undefined, false);
+					pt.y = item.scaleToAxis(axes.y, value.y, info, false);
 					switch (serie.type) {
+					case 'profile':
 					case 'line':
 					case 'scatter':
+						toPlot(pt);
 						this.drawMarker(graphics, serie, {
-							x: plotRect.left + x * plotRect.width,
-							y: plotRect.bottom - y * plotRect.height
+							x: pt.x,
+							y: pt.y
 						});
 						break;
 					}
@@ -493,7 +644,7 @@ export default class SheetPlotView extends NodeView {
 	}
 
 	drawMarker(graphics, serie, pos) {
-		const size = serie.marker.size  * 75;
+		const size = serie.marker.size  * 60;
 		let fill = false;
 
 		switch (serie.marker.style) {

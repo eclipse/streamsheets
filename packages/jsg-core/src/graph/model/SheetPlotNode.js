@@ -47,23 +47,23 @@ const templates = {
 			color: '#000000'
 		},
 		chart: {
-			format: new ChartFormat('none', '#FFFFFF'),
+			format: new ChartFormat('none', undefined, '#FFFFFF'),
 		},
 		title: {
-			format: new ChartFormat('none', 'none', 14, TextFormatAttributes.FontStyle.BOLD),
+			format: new ChartFormat('none', undefined, 'none', 12),
 		},
 		plot: {
-			format: new ChartFormat('none', '#FFFFFF'),
+			format: new ChartFormat('none', undefined, '#FFFFFF'),
 		},
 		legend: {
-			format: new ChartFormat('#CCCCCC', '#FFFFFF'),
+			format: new ChartFormat('#CCCCCC', undefined, '#FFFFFF'),
 		},
 		axis: {
 			format: new ChartFormat('#CCCCCC'),
 			formatGrid: new ChartFormat('#CCCCCC'),
 		},
 		axisTitle: {
-			format: new ChartFormat('none', 'none', 9,  TextFormatAttributes.FontStyle.BOLD),
+			format: new ChartFormat('none', undefined, 'none', 9),
 		},
 		series: {
 			format: new ChartFormat(),
@@ -105,23 +105,23 @@ const templates = {
 			color: '#FFFFFF'
 		},
 		chart: {
-			format: new ChartFormat('none', '#000000'),
+			format: new ChartFormat('none', undefined, '#000000'),
 		},
 		title: {
-			format: new ChartFormat('none', 'none', 14, TextFormatAttributes.FontStyle.BOLD),
+			format: new ChartFormat('none', undefined, 'none', 12),
 		},
 		plot: {
-			format: new ChartFormat('none', '#000000'),
+			format: new ChartFormat('none', undefined, '#000000'),
 		},
 		legend: {
-			format: new ChartFormat('#CCCCCC', '#000000'),
+			format: new ChartFormat('#CCCCCC', undefined, '#000000'),
 		},
 		axis: {
 			format: new ChartFormat('#FFFFFF'),
 			formatGrid: new ChartFormat('#FFFFFF'),
 		},
 		axisTitle: {
-			format: new ChartFormat('none', 'none', 9,  TextFormatAttributes.FontStyle.BOLD),
+			format: new ChartFormat('none', undefined, 'none', 9),
 		},
 		series: {
 			format: new ChartFormat(),
@@ -995,10 +995,10 @@ module.exports = class SheetPlotNode extends Node {
 
 		switch (axis.type) {
 		case 'logarithmic':
-			if (min <= 0.0) {
-				min = 0.1;
+			if (min <= 0) {
+				min = 0.01;
 			}
-			if (max <= 0.0) {
+			if (max <= 0) {
 				max = 1;
 			}
 			if (min >= 1.0) {
@@ -2072,7 +2072,20 @@ module.exports = class SheetPlotNode extends Node {
 		let time = true;
 		let formula;
 		let allTime = false;
+		let markers = false;
+		let line = true;
 		const cmp = new CompoundCommand();
+		const createSeries = (ltype, lformula, marker, lline) => {
+			const serie = new ChartSeries(ltype, new Expression(0, lformula));
+			if (marker) {
+				serie.marker._style = 'rect';
+			}
+			if (lline === false) {
+				serie.format.lineStyle = 'none';
+			}
+
+			return serie;
+		};
 
 		this.series = [];
 		const cmdChart = this.prepareCommand('chart');
@@ -2080,6 +2093,7 @@ module.exports = class SheetPlotNode extends Node {
 
 		this.chart.stacked = type.indexOf('stacked') !== -1;
 		this.chart.relative = type.indexOf('100') !== -1;
+		markers = type.indexOf('marker') !== -1;
 
 		switch (type) {
 		case 'columnstacked100':
@@ -2114,7 +2128,14 @@ module.exports = class SheetPlotNode extends Node {
 			this.xAxes[0].type = 'category';
 			type = 'line';
 			break;
-		case 'scatter':
+		case 'scattermarker':
+			line = false;
+			type = 'scatter';
+			this.xAxes[0].type = 'linear';
+			break;
+		case 'scatterline':
+		case 'scatterlinemarker':
+			type = 'scatter';
 			this.xAxes[0].type = 'linear';
 			break;
 		}
@@ -2167,8 +2188,9 @@ module.exports = class SheetPlotNode extends Node {
 						Object.keys(values).forEach((key) => {
 							if (key !== xValue && key !== 'time') {
 								if (values[key].length && Numbers.isNumber(values[key][0])) {
-									formula = new Expression(0, `SERIES("${xValue}","${key}",${ref},"${xValue}","${key}")`);
-									this.series.push(new ChartSeries(type, formula));
+									formula = `SERIES("${xValue}","${key}",${ref},"${xValue}","${key}")`;
+									const serie = createSeries(type, formula, markers, line);
+									this.series.push(serie);
 									index += 1;
 								}
 							}
@@ -2185,17 +2207,18 @@ module.exports = class SheetPlotNode extends Node {
 							rangeName._x1 -= 1;
 							rangeName._x2 -= 1;
 							const refName = rangeName.toString({item: sheet, useName: true});
-							formula = new Expression(0, `SERIES("Time",${refName},${ref})`);
+							formula = `SERIES("Time",${refName},${ref})`;
 						} else if (height === 2 && !allTime) {
 							const rangeName = source.copy();
 							rangeName._y1 -= 1;
 							rangeName._y2 -= 1;
 							const refName = rangeName.toString({item: sheet, useName: true});
-							formula = new Expression(0, `SERIES("Time",${refName},${ref})`);
+							formula = `SERIES("Time",${refName},${ref})`;
 						} else {
-							formula = new Expression(0, `SERIES("Time",,${ref})`);
+							formula = `SERIES("Time",,${ref})`;
 						}
-						this.series.push(new ChartSeries(type, formula));
+						const serie = createSeries(type, formula, markers, line);
+						this.series.push(serie);
 						index += 1;
 						if (type === 'scatter') {
 							this.xAxes[0].type = 'time';
@@ -2236,7 +2259,6 @@ module.exports = class SheetPlotNode extends Node {
 				// startI += 1;
 				break;
 			case 'scatter':
-			case 'scatterLine':
 				if (!categoryLabels && ((vertical && width > 1) || (!vertical && height > 1))) {
 					categoryLabels = true;
 					startI += 1;
@@ -2317,7 +2339,8 @@ module.exports = class SheetPlotNode extends Node {
 				const refName = tmpRange.toString({ item: sheet, useName: true });
 				formula += `${refName})`;
 
-				this.series.push(new ChartSeries(type, new Expression(0, formula)));
+				const serie = createSeries(type, formula, markers, line);
+				this.series.push(serie);
 			}
 			this.finishCommand(cmd, 'series');
 			cmp.add(cmd);

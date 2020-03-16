@@ -259,6 +259,14 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'series');
 	};
 
+	handleSeriesSmoothChange = (event, state) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.smooth = state;
+		this.finishCommand(cmd, 'series');
+	};
+
+
 	translateTitle(title) {
 		switch (title) {
 		case 'title':
@@ -788,7 +796,7 @@ export class StreamChartProperties extends Component {
 									input={<Input name="template" id="template" />}
 								>
 									{
-										Object.keys(markerSizes).map(key => (
+										Object.values(markerSizes).map(key => (
 											<MenuItem value={key} key={key}>
 												{key}
 											</MenuItem>
@@ -835,6 +843,32 @@ export class StreamChartProperties extends Component {
 									onChange={(color) => this.handleSeriesMarkerLineColorChange(color)}
 								/>
 							</FormControl>
+							<FormGroup
+								style={{
+									margin: '8px'
+								}}
+							>
+								<FormLabel
+									component="legend"
+									style={{
+										marginTop: '12px',
+										marginBottom: '7px'
+									}}
+								>
+									Settings
+								</FormLabel>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={data.smooth}
+											onChange={(event, state) => this.handleSeriesSmoothChange(event, state)}
+										/>
+									}
+									label={
+										<FormattedMessage id="StreamChartProperties.SmoothLine" defaultMessage="Smooth Line" />
+									}
+								/>
+							</FormGroup>
 						</div>
 					) : null}
 				</div>
