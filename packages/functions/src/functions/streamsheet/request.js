@@ -303,6 +303,8 @@ const requestinternal = (funcTerm, s, ...t) =>
 		.check(
 			({ internal: { target } }, targetRange) =>
 				target === undefined ||
+				// target can be a NullTerm:
+				target.value === null ||
 				isInboxTerm(target) ||
 				isOutboxTerm(target) ||
 				isRangeTerm(targetRange) ||

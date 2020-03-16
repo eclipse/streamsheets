@@ -37,6 +37,7 @@ class MarkCellValuesCommand extends Command {
 		this.items = items;
 		this.markers = markers;
 		this.cellrefs = cellrefs;
+		this.isVolatile = true;
 	}
 
 	initWithObject(data) {
