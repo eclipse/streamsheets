@@ -186,6 +186,21 @@ module.exports = class MachineService extends MessagingService {
 							type: 'response'
 						});
 						break;
+					// eslint-disable-next-line no-case-declarations
+					case MachineServerMessagingProtocol.MESSAGE_TYPES.UPDATE_MACHINE_TITLE_IMAGE_MESSAGE_TYPE:
+						const { titleImage } = message;
+						if (titleImage !== null && typeof titleImage !== 'undefined') {
+							await RepositoryManager.machineRepository.updateMachineTitleImage(
+								message.machineId,
+								titleImage
+							);
+						}
+						this.publishMessage(Topics.SERVICES_PERSISTENCE_EVENTS, {
+							requestId: message.requestId,
+							machineId: message.machineId,
+							type: 'response'
+						});
+						break;
 					default:
 						break;
 				}
