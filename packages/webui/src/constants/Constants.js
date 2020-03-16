@@ -8,5 +8,6 @@ export default {
 		PAUSE: 5,
 		EXPORT: 6,
 		CLONE: 7,
+		SET_TITLE_IMAGE: 8,
 	}
 };
