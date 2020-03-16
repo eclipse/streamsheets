@@ -84,6 +84,7 @@ declare module '@cedalo/protocols' {
 			STREAM_CONFIG_LOAD: 'stream_config_load';
 			STREAM_CONFIG_LOAD_BY_NAME: 'stream_config_load_by_name';
 			STREAMS_CONFIG_LOAD_ALL: 'stream_config_load_all';
+			STREAM_GET_PROVIDERS: 'stream_get_providers';
 			STREAM_UPDATE: 'stream_update';
 			STREAM_TEST: 'stream_test';
 			STREAM_LIST: 'stream_list';

@@ -213,6 +213,20 @@ class LoadConfigurationByNameRequestHandler extends RequestHandler {
 	}
 }
 
+class GetProvidersRequestHandler extends RequestHandler {
+	constructor() {
+		super(MESSAGE_TYPES.STREAM_GET_PROVIDERS);
+	}
+
+	async handle(handlerArgs) {
+		const { message, streamsManager } = handlerArgs;
+		const result = await streamsManager.configsManager.providers;
+		return this.confirm(message, {
+			result
+		});
+	}
+}
+
 class ReloadAllRequestHandler extends RequestHandler {
 	constructor() {
 		super(MESSAGE_TYPES.STREAM_RELOAD);
@@ -363,6 +377,7 @@ module.exports = {
 	LoadConfigurationRequestHandler,
 	LoadConfigurationByNameRequestHandler,
 	LoadAllConfigurationsRequestHandler,
+	GetProvidersRequestHandler,
 	ReloadAllRequestHandler,
 	UpdateRequestHandler,
 	TestRequestHandler,

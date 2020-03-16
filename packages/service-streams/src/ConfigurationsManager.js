@@ -38,6 +38,10 @@ class ConfigurationsManager {
 		this._configurations = this.configurations.filter((c) => c.id !== id);
 	}
 
+	get providers() {
+		return [...this.providerConfigs.keys()];
+	}
+
 	static orderConfigs(configs = []) {
 		const connectors = [];
 		const streams = [];
