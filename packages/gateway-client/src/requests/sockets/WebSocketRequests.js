@@ -836,6 +836,7 @@ module.exports = {
 	PauseMachineWebSocketRequest,
 	RenameMachineWebSocketRequest,
 	UpdateMachineImageWebSocketRequest,
+	UpdateMachineTitleImageWebSocketRequest,
 	UpdateMachineSettingsWebSocketRequest,
 	UpdateStreamSheetStreamsWebSocketRequest,
 	SaveMachineAsWebSocketRequest,
