@@ -153,10 +153,10 @@ class ResourcesGrid extends React.Component {
 							width: '500px',
 							height: '500px',
 							// eslint-disable-next-line
-							backgroundImage: `url(${(this.state
-								.activeResource &&
-								this.state.activeResource.previewImage) ||
-								'images/preview.png'})`,
+							backgroundImage: `url(${
+								(this.state.activeResource && this.state.activeResource.titleImage) 
+								|| (this.state.activeResource && this.state.activeResource.previewImage) 
+								|| 'images/preview.png'})`,
 							backgroundSize: '100%',
 						}}
 					/>
@@ -249,12 +249,13 @@ class ResourcesGrid extends React.Component {
 														<div
 															style={{
 																width: '245px',
-																height: '100px',
+																height: '120px',
 																// eslint-disable-next-line
-																backgroundImage: `url(${resource.previewImage ||
-																	'images/preview.png'})`,
-																filter:
-																	'grayscale(70%)',
+																backgroundImage: `url(${
+																	resource.titleImage
+																	|| resource.previewImage
+																	|| 'images/preview.png'})`,
+																backgroundSize: '245px 120px',
 																marginBottom:
 																	'10px',
 															}}
