@@ -65,7 +65,8 @@ module.exports = class MachineRoute {
 						name: machine.name,
 						state: machine.state,
 						metadata: machine.metadata,
-						previewImage: machine.previewImage
+						previewImage: machine.previewImage,
+						titleImage: machine.titleImage
 					})))
 					.then(machines => response.status(200).json(machines))
 					.catch(next);
