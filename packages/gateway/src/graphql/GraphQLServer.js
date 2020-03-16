@@ -73,6 +73,7 @@ const typeDefs = gql`
 	type Stream {
 		id: ID!
 		name: String!
+		provider: ID!
 		connector: Connector!
 		type: StreamType!
 	}
@@ -258,6 +259,7 @@ const typeDefs = gql`
 		streamsLegacy: [StreamLegacy!]!
 		export(machines: [ID!]!, streams: [ID!]!): ExportResult!
 		getImportInfo(input: ImportInfoInput!): ImportInfo!
+		providers: [String!]!
 	}
 
 	type SelectFormField {

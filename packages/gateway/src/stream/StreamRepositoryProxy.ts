@@ -1,17 +1,18 @@
 import { MessagingClient } from '@cedalo/messaging-client';
 import { StreamsMessagingProtocol, Topics } from '@cedalo/protocols';
 import { MessagingRequestHelper } from '@cedalo/service-core';
-import { Stream } from './types';
 import {
+	Stream,
+	ReloadStreamsRequest,
+	SaveStreamRequest,
 	DeleteStreamRequest,
 	GetAllStreamsRequest,
 	GetStreamRequest,
 	GetStreamByNameRequest,
-	ID,
-	ReloadStreamsRequest,
-	SaveStreamRequest,
-	StreamCommandRequest
-} from '../streamsheets';
+	StreamCommandRequest,
+	GetProvidersRequest
+} from './types';
+import { ID } from '../streamsheets';
 
 const { SERVICES_STREAMS_INPUT, SERVICES_STREAMS_EVENTS } = Topics;
 const {
@@ -21,7 +22,8 @@ const {
 	STREAM_CONFIG_DELETE,
 	STREAM_RELOAD,
 	STREAM_CONFIG_LOAD,
-	STREAM_CONFIG_LOAD_BY_NAME
+	STREAM_CONFIG_LOAD_BY_NAME,
+	STREAM_GET_PROVIDERS
 } = StreamsMessagingProtocol.MESSAGE_TYPES;
 
 export class StreamRepositoryProxy {
@@ -50,6 +52,15 @@ export class StreamRepositoryProxy {
 			type: STREAM_CONFIG_LOAD_BY_NAME,
 			requestId: Math.random(),
 			name
+		};
+		const { result } = await this.requestHelper.doRequestMessage({ message, topic: SERVICES_STREAMS_INPUT });
+		return result;
+	}
+
+	async providers() {
+		const message: Omit<GetProvidersRequest, 'scope'> = {
+			type: STREAM_GET_PROVIDERS,
+			requestId: Math.random()
 		};
 		const { result } = await this.requestHelper.doRequestMessage({ message, topic: SERVICES_STREAMS_INPUT });
 		return result;

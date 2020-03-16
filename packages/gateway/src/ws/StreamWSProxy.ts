@@ -1,6 +1,7 @@
 import { StreamsMessagingProtocol } from '@cedalo/protocols';
-import { RequestContext, StreamWSRequest, StreamWSResponse } from '../streamsheets';
+import { RequestContext } from '../streamsheets';
 import ProxyConnection from './ProxyConnection';
+import { StreamWSRequest, StreamWSResponse } from '../stream/types';
 
 const buildResponse = (request: StreamWSRequest, response: StreamWSResponse['response']): StreamWSResponse =>
 	({

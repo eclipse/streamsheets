@@ -1,6 +1,6 @@
 import { FunctionObject, PartialApply1All } from '../common';
-import { ID, RequestContext, Scope, StreamCommandRequest } from '../streamsheets';
-import { Stream } from './types';
+import { ID, RequestContext, Scope } from '../streamsheets';
+import { Stream, StreamCommandRequest } from './types';
 
 export interface StreamApi extends FunctionObject {
 	findById(context: RequestContext, scope: Scope, id: ID): Promise<Stream | null>;
@@ -35,6 +35,14 @@ export const StreamApi: StreamApi = {
 			return null;
 		}
 		return auth.isInScope(scope, stream) ? stream : null;
+	},
+	providers: async ({ auth, streamRepo }, scope: Scope) => {
+		const validScope = auth.isValidScope(scope);
+		if (!validScope) {
+			return [];
+		}
+		const providers = streamRepo.providers();
+		return providers;
 	},
 	findById: async ({ auth, streamRepo }, scope: Scope, id: ID) => {
 		const validScope = auth.isValidScope(scope);

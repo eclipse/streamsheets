@@ -57,7 +57,8 @@ const resolvers = {
 					id: s.id,
 					name: s.name,
 					connector: connectors[s.connector.id],
-					type: streamClassNameToType[s.className]
+					type: streamClassNameToType[s.className],
+					provider: s.providerId
 				}));
 			return streams;
 		},
@@ -87,7 +88,8 @@ const resolvers = {
 		},
 		getImportInfo: async ({ scope }, { input }, { api }) => {
 			return api.import.getImportInfo(scope, input);
-		}
+		},
+		providers: async ({ scope }, args, { api }) => api.stream.providers(scope)
 	},
 	Query: {
 		me: async (obj, args, { actor }) => actor,
