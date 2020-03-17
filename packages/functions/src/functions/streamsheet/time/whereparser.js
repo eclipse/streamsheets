@@ -66,17 +66,29 @@ const whereCondition = (term, scope) => (entry) => {
 
 const CONTEXT = new EntryContext();
 
-const parseCondition = (wherestr) => {
-	let condition;
-	if (wherestr) {
-		CONTEXT.scope = new EntryScope();
-		const term = Parser.parse(correct(wherestr), CONTEXT);
-		if (term) condition = whereCondition(term, CONTEXT.scope);
-		CONTEXT.scope = undefined;
-	}
+const parseWhereStr = (str) => {
+	CONTEXT.scope = new EntryScope();
+	const term = Parser.parse(correct(str), CONTEXT);
+	const condition = term ? whereCondition(term, CONTEXT.scope) : undefined;
+	CONTEXT.scope = undefined;
 	return condition;
 };
 
+const parse = () => {
+	let laststr;
+	let lastres;
+	return (wherestr) => {
+		if (wherestr) {
+			if (wherestr !== laststr) {
+				laststr = wherestr;
+				lastres = parseWhereStr(wherestr);
+			}
+			return lastres;
+		}
+		return undefined;
+	};
+};
+
 module.exports = {
-	parseCondition
+	parseCondition: parse()
 };
