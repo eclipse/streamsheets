@@ -5,6 +5,7 @@ const {
 	BackupHTTPRequest,
 	GetMetaInformationHTTPRequest,
 	GraphQLHTTPRequest,
+	GraphQLWithFileHTTPRequest,
 	ImportMachineHTTPRequest,
 	RestoreHTTPRequest,
 	AuthenticateHTTPRequest
@@ -42,7 +43,18 @@ module.exports = class HTTPGatewayAPI extends GatewayAPI {
 		);
 	}
 
-	graphql(query, variables) {
+	graphql(query, variables, file) {
+		if(file){
+			return this.sendRequest(
+				new GraphQLWithFileHTTPRequest(
+					this._restEndpointURL,
+					this._token,
+					query,
+					variables,
+					file
+				)
+			);
+		}
 		return this.sendRequest(
 			new GraphQLHTTPRequest(
 				this._restEndpointURL,

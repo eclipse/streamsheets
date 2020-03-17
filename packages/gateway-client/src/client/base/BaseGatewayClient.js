@@ -272,8 +272,8 @@ module.exports = class BaseGatewayClient {
 		return this.socket.executeStreamCommand(scope, cmd);
 	}
 
-	graphql(query, variables) {
-		return this.http.graphql(query, variables);
+	graphql(query, variables, file) {
+		return this.http.graphql(query, variables, file);
 	}
 
 	/**

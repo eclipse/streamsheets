@@ -55,6 +55,40 @@ class GraphQLHTTPRequest extends HTTPRequest {
 	}
 }
 
+class GraphQLWithFileHTTPRequest extends HTTPRequest {
+	constructor(baseEndpoint, token, query, variables, file) {
+		super(baseEndpoint, token);
+		this.formData = new FormData();
+		this.formData.append('operations', JSON.stringify({query, variables}));
+		this.formData.append('map', JSON.stringify({"0": ["variables.file"]}));
+		this.formData.append('0', file);
+		console.log(this.formData.get('0'));
+	}
+
+	_getPath() {
+		return '/graphql';
+	}
+
+	_getConfig() {
+		return this._createPOSTConfig(
+			this.formData,
+			{},
+			this._createAuthHeader(this._token)
+		);
+	}
+
+	_getDefaultHeaders() {
+		return {
+			Accept: 'application/json'
+		};
+	}
+
+	_setBodyToPayloadConfig(payloadConfig, body) {
+		// don't serialize to JSON because it is form data
+		payloadConfig.body = body;
+	}
+}
+
 class ImportMachineHTTPRequest extends HTTPRequest {
 	constructor(baseEndpoint, token, importData, importAsNew) {
 		super(baseEndpoint, token);
@@ -127,6 +161,7 @@ module.exports = {
 	AuthenticateHTTPRequest,
 	GetMetaInformationHTTPRequest,
 	GraphQLHTTPRequest,
+	GraphQLWithFileHTTPRequest,
 	ImportMachineHTTPRequest,
 	RestoreHTTPRequest
 };

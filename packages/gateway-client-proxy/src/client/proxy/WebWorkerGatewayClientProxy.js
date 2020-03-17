@@ -61,8 +61,8 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('executeStreamCommand', scope, cmd);
 	}
 
-	graphql(query, variables) {
-		return this._proxy('graphql', query, variables);
+	graphql(query, variables, file) {
+		return this._proxy('graphql', query, variables, file);
 	}
 
 	importMachineDefinition(importData, importAsNew) {
