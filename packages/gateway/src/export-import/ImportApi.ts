@@ -27,10 +27,9 @@ export type ImportSelection = {
 	newName: string;
 };
 
-
-const fixName = (name: string, existingNames: Set<string>, count = 1): string => {
-	const newName = `${name} ${count}`;
-	return existingNames.has(newName) ? fixName(name, existingNames, count + 1) : newName;
+const fixName = (name: string, existingNames: Set<string>, delimiter = ' ', count = 1, ): string => {
+	const newName = `${name}${delimiter}${count}`;
+	return existingNames.has(newName) ? fixName(name, existingNames, delimiter, count + 1) : newName;
 };
 
 // const fixName2 = (name: string, existingNames: Set<string>, countDelimiter = ' ', count = 1): string => {
@@ -61,17 +60,6 @@ const fixStreamRefs = (cells: { [key: string]: Cell }, streamRenames: Map<string
 		}
 	});
 };
-
-// const setNewInboxIds = ({ machine, graph }: MachineWithGraph) => {
-// 	const sheetIdMap = new Map<ID, ID>();
-// 	machine.streamsheets.forEach((streamsheet) => {
-// 		const newSheetId = IdGenerator.generate();
-// 		sheetIdMap.set(streamsheet.id, newSheetId);
-// 		streamsheet.id = newSheetId;
-// 		streamsheet.inbox.id = IdGenerator.generate();
-// 	});
-
-// };
 
 function mapBy<T extends object, X extends keyof T>(array: T[], key: X) {
 	return new Map(array.map((e) => [e[key], e]));
@@ -164,7 +152,6 @@ const createMachineImport = ({
 		id: graphId
 	};
 	const toImport = { machine, graph } as MachineWithGraph;
-	// setNewInboxIds(toImport);
 	return toImport;
 };
 
@@ -311,8 +298,10 @@ const doImport = async (
 };
 
 const getImportInfo = async ({ repositories }: RequestContext, scope: Scope, importInfo: ImportInfo) => {
-	const machineNames = await repositories.machineRepository.getNames(scope);
-	const streamNames = await repositories.streamRepositoryLegacy.getNames(scope);
+	const machineNameList: Array<string> = await repositories.machineRepository.getNames(scope);
+	const streamNamesList: Array<string> = await repositories.streamRepositoryLegacy.getNames(scope);
+	const machineNames = new Set(machineNameList);
+	const streamNames = new Set(streamNamesList);
 
 	const machineInfos = importInfo.machines.map((m) => ({
 		id: m.id,
@@ -334,7 +323,7 @@ const getImportInfo = async ({ repositories }: RequestContext, scope: Scope, imp
 	streamInfos.filter((info) => !info.nameInUse).forEach((info) => streamNames.add(info.proposedName));
 	for (const info of streamInfos) {
 		if (info.nameInUse) {
-			info.proposedName = fixName(info.proposedName, streamNames);
+			info.proposedName = fixName(info.proposedName, streamNames, '_');
 			streamNames.add(info.proposedName);
 		}
 	}

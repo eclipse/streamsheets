@@ -195,20 +195,13 @@ const typeDefs = gql`
 	}
 
 	type ImportInfo {
-		machines: [MachineImportInfo!]!
-		streams: [StreamImportInfo!]!
+		machines: [ImportInfoEntry!]!
+		streams: [ImportInfoEntry!]!
 	}
 
-	type MachineImportInfo  {
+	type ImportInfoEntry {
 		id: ID!
 		nameInUse: Boolean!
-		proposedName: String!
-	}
-
-	type StreamImportInfo  {
-		id: ID!
-		nameInUse: Boolean!
-		proposedName: String!
 	}
 
 	input ScopeInput {
@@ -231,7 +224,6 @@ const typeDefs = gql`
 	}
 
 	input ImportInput {
-		importData: ImportExportData!
 		machines: [ImportSelection!]!
 		streams: [ImportSelection!]!
 	}
@@ -243,8 +235,6 @@ const typeDefs = gql`
 	}
 
 	type ImportResult implements MutationResponse {
-		machines: [Machine!]!
-		streams: [Stream!]!
 		success: Boolean!
 		code: String!
 		message: String!
@@ -253,7 +243,6 @@ const typeDefs = gql`
 	type ScopedQuery {
 		machine(id: ID!): Machine
 		machines(name: String): [Machine!]!
-		machine(id: ID!): Machine
 		streams: [Stream!]!
 		connectors: [Connector!]!
 		streamsLegacy: [StreamLegacy!]!
@@ -280,7 +269,7 @@ const typeDefs = gql`
 	}
 
 	type ScopedMutation {
-		import(input: ImportInput!): ImportResult!
+		import(input: ImportInput!, file: Upload!): ImportResult!
 	}
 
 	type Query {

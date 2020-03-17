@@ -68,7 +68,7 @@ export const BaseMachineApi = {
 		if (existingMachine) {
 			await auth.verifyMachine('edit', machine);
 		}
-		await machineRepo.saveOrUpdateMachine(machine.id, machine);
+		await machineRepo.saveOrUpdateMachine(machine.id, { ...machine, scope });
 		if (graph) {
 			await repositories.graphRepository.saveOrUpdateGraph(graph.id, graph);
 		}
@@ -85,7 +85,6 @@ export const BaseMachineApi = {
 	load: async ({ machineServiceProxy, api }: RequestContext, scope: Scope, machineId: ID) => {
 		const machine = await api.machine.findMachine(scope, machineId);
 		if (machine) {
-
 			const result = await machineServiceProxy.load(machineId);
 			return result;
 		}

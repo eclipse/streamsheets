@@ -13,6 +13,17 @@ const INTERNAL_ERROR_PAYLOAD = {
 	message: 'An internal server error occured'
 };
 
+const streamToBuffer = async (stream) => {
+	return new Promise((resolve) => {
+		const chunks = [];
+		stream.on('data', (chunk) => chunks.push(chunk));
+		stream.on('end', () => {
+			const buffer = Buffer.concat(chunks);
+			resolve(buffer);
+		});
+	});
+};
+
 const Payload = {
 	createFailure: (error) => {
 		if (InternalError.isInternal(error)) {
@@ -194,12 +205,19 @@ const resolvers = {
 		}
 	},
 	ScopedMutation: {
-		import: async ({ scope }, { input }, { api }) => {
+		import: async ({ scope }, { input, file }, { api }) => {
 			try {
-				const result = await api.import.doImport(scope, input.importData, input.machines, input.streams);
-				return result;
+				const { stream } = await file;
+				const buffer = await streamToBuffer(stream);
+				const importData = JSON.parse(buffer.toString());
+				const result = await api.import.doImport(scope, importData, input.machines, input.streams);
+				return Payload.createSuccess({
+					success: true,
+					code: 'IMPORT_SUCCESS',
+					message: 'Import machines and streams successfully'
+				})
 			} catch (error) {
-				console.error(error.message);
+				Payload.createFailure(error);
 			}
 		}
 	},
