@@ -3748,6 +3748,20 @@ export class CanvasToolBar extends Component {
 										</IconButton>
 									</Tooltip>
 								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="StreamCharts.Bubble" defaultMessage="Bubble" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('bubble')}
+										>
+											<img alt="" src="images/charts/bubble.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
 							</GridList>
 						</Popover>
 					</div>

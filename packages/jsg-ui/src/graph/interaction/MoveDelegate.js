@@ -193,8 +193,7 @@ class MoveDelegate extends Delegate {
 			this.highlightTargetController(interaction, event, viewer);
 		}
 
-		const item = this._trgtController.getModel();
-		if (this._trgtController && !item.isContainer() && !this._isOrderTarget(item)) {
+		if (this._trgtController && !this._trgtController.getModel().isContainer() && !this._isOrderTarget(this._trgtController.getModel())) {
 			interaction.setCursor(Cursor.Style.DENY);
 		} else {
 			interaction.setCursor(Cursor.Style.MOVE);

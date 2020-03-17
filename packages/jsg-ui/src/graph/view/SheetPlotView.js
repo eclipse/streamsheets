@@ -137,6 +137,12 @@ export default class SheetPlotView extends NodeView {
 					graphics.fill();
 					graphics.stroke();
 					break;
+			case 'bubble':
+				graphics.circle(x + textSize.height, y + textSize.height / 2, (textSize.height * 2) / 5);
+				graphics.setFillColor(entry.series.format.fillColor || item.getTemplate().series.fill[index]);
+				graphics.fill();
+				graphics.stroke();
+				break;
 			}
 
 			const fontColor =
@@ -304,6 +310,21 @@ export default class SheetPlotView extends NodeView {
 		}
 	}
 
+	scaleBubble(axis, plotRect, serie, value) {
+		const radiusMax = Math.min(plotRect.width, plotRect.height) / 12; // * (double)Group.GetBubbleScale() / 100.0;
+
+		if (value > 0 && axis.cMaxData > 0) {
+			// if( Group.GetSizeRepresents() == ctSizeIsWidth ) {
+			// 	iRadius = (int)(dOuterCircle / dMax * dSize);
+			// } else {
+			const maxArea = radiusMax * radiusMax * Math.PI;
+			const objectArea = value / axis.cMaxData * maxArea;
+			return Math.sqrt(objectArea / Math.PI);
+			// }
+		}
+		return 0;
+	}
+
 	getPlotPoint(item, axes, ref, info, defPt, index, offset, pt) {
 		if (item.getValue(ref, index + offset, pt)) {
 			info.index = index + offset;
@@ -320,19 +341,6 @@ export default class SheetPlotView extends NodeView {
 		return pt;
 	}
 
-// 	var points = [{x:1,y:1},{x:2,y:3},{x:3,y:4},{x:4,y:2},{x:5,y:6}] //took 5 example points
-// 	ctx.moveTo((points[0].x), points[0].y);
-//
-// 	for(var i = 0; i < points.length-1; i ++)
-// {
-//
-// 	var x_mid = (points[i].x + points[i+1].x) / 2;
-// 	var y_mid = (points[i].y + points[i+1].y) / 2;
-// 	var cp_x1 = (x_mid + points[i].x) / 2;
-// 	var cp_x2 = (x_mid + points[i+1].x) / 2;
-// 	ctx.quadraticCurveTo(cp_x1,points[i].y ,x_mid, y_mid);
-// 	ctx.quadraticCurveTo(cp_x2,points[i+1].y ,points[i+1].x,points[i+1].y);
-// }
 	drawPlot(graphics, item, plotRect, serie, seriesIndex, lastPoints) {
 		let index = 0;
 		let barInfo;
@@ -433,6 +441,13 @@ export default class SheetPlotView extends NodeView {
 								graphics.lineTo(pt.x, pt.y);
 							}
 							xLast = pt.x;
+						}
+						break;
+					case 'bubble':
+						if (value.x !== undefined && value.y !== undefined && value.c !== undefined) {
+							const radius = this.scaleBubble(axes.y, plotRect, serie, value.c);
+							graphics.moveTo(pt.x + radius, pt.y);
+							graphics.circle(pt.x, pt.y, radius);
 						}
 						break;
 					case 'scatter':
@@ -571,11 +586,13 @@ export default class SheetPlotView extends NodeView {
 			graphics.closePath();
 		}
 
-		if (serie.type === 'column' || serie.type === 'bar' || serie.type === 'area') {
+		if (serie.type === 'column' || serie.type === 'bar' || serie.type === 'area' || serie.type === 'bubble') {
 			graphics.fill();
 		}
 		graphics.stroke();
 		graphics.setLineWidth(1);
+
+		graphics.restore();
 
 		if (serie.marker.style !== 'none') {
 			index = 0;
@@ -592,10 +609,12 @@ export default class SheetPlotView extends NodeView {
 					case 'line':
 					case 'scatter':
 						toPlot(pt);
-						this.drawMarker(graphics, serie, {
-							x: pt.x,
-							y: pt.y
-						});
+						if (plotRect.containsPoint(pt)) {
+							this.drawMarker(graphics, serie, {
+								x: pt.x,
+								y: pt.y
+							});
+						}
 						break;
 					}
 				}
@@ -605,7 +624,6 @@ export default class SheetPlotView extends NodeView {
 			graphics.stroke();
 		}
 
-		graphics.restore();
 
 		return points;
 	}
@@ -650,7 +668,7 @@ export default class SheetPlotView extends NodeView {
 		switch (serie.marker.style) {
 		case 'circle':
 			graphics.moveTo(pos.x, pos.y);
-			graphics.circle(pos.x, pos.y, size / 2, size / 2);
+			graphics.circle(pos.x, pos.y, size / 2);
 			fill = true;
 			break;
 		case 'cross':

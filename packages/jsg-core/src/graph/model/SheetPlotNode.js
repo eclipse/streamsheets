@@ -778,7 +778,8 @@ module.exports = class SheetPlotNode extends Node {
 		return {
 			yName: this.getParamValue(ds.getTerm(), 0, 'string'),
 			x: this.getParamInfo(ds.getTerm(), 1),
-			y: this.getParamInfo(ds.getTerm(), 2)
+			y: this.getParamInfo(ds.getTerm(), 2),
+			c: this.getParamInfo(ds.getTerm(), 3)
 		};
 	}
 
@@ -865,6 +866,8 @@ module.exports = class SheetPlotNode extends Node {
 		let xMax = -Number.MAX_VALUE;
 		let yMin = Number.MAX_VALUE;
 		let yMax = -Number.MAX_VALUE;
+		let cMin = Number.MAX_VALUE;
+		let cMax = -Number.MAX_VALUE;
 		let valid = false;
 
 		if (!this.xAxes.length || !this.yAxes.length) {
@@ -891,6 +894,10 @@ module.exports = class SheetPlotNode extends Node {
 						yMin = Math.min(value.y, yMin);
 						yMax = Math.max(value.y, yMax);
 					}
+					if (Numbers.isNumber(value.c)) {
+						cMin = Math.min(value.c, cMin);
+						cMax = Math.max(value.c, cMax);
+					}
 					if (!axes.x.categories[pointIndex]) {
 						axes.x.categories[pointIndex] = {
 							values: [],
@@ -901,6 +908,7 @@ module.exports = class SheetPlotNode extends Node {
 					axes.x.categories[pointIndex].values[index] = {
 						x: value.x,
 						y: value.y,
+						c: value.c,
 						axes,
 						series,
 						seriesIndex: index,
@@ -939,18 +947,24 @@ module.exports = class SheetPlotNode extends Node {
 					xMax = 100;
 					yMin = 0;
 					yMax = 100;
+					cMin = 0;
+					cMax = 100;
 				}
 
 				series.xMin = Numbers.isNumber(xMin) ? xMin : 0;
 				series.xMax = Numbers.isNumber(xMax) ? xMax : 100;
 				series.yMin = Numbers.isNumber(yMin) ? yMin : 0;
 				series.yMax = Numbers.isNumber(yMax) ? yMax : 100;
+				series.cMin = Numbers.isNumber(cMin) ? cMin : 0;
+				series.cMax = Numbers.isNumber(cMax) ? cMax : 100;
 				series.valueCount = pointIndex;
 			} else {
 				series.xMin = 0;
 				series.xMax = 100;
 				series.yMin = 0;
 				series.yMax = 100;
+				series.cMin = 0;
+				series.cMax = 100;
 				series.valueCount = 0;
 			}
 		});
@@ -962,6 +976,10 @@ module.exports = class SheetPlotNode extends Node {
 				if (series.xAxis === axis.name) {
 					axis.minData = Math.min(series.xMin, axis.minData);
 					axis.maxData = Math.max(series.xMax, axis.maxData);
+					if (series.type === 'bubble') {
+						axis.minData -= (axis.maxData - axis.minData) * 0.08;
+						axis.maxData += (axis.maxData - axis.minData) * 0.08;
+					}
 				}
 			});
 			axis.scale = undefined;
@@ -974,9 +992,23 @@ module.exports = class SheetPlotNode extends Node {
 				if (series.yAxis === axis.name) {
 					axis.minData = Math.min(series.yMin, axis.minData);
 					axis.maxData = Math.max(series.yMax, axis.maxData);
+					if (series.type === 'bubble') {
+						axis.minData -= (axis.maxData - axis.minData) * 0.08;
+						axis.maxData += (axis.maxData - axis.minData) * 0.08;
+					}
 				}
 			});
 			axis.scale = undefined;
+		});
+		this.yAxes.forEach((axis) => {
+			axis.cMinData = Number.MAX_VALUE;
+			axis.cMaxData = -Number.MAX_VALUE;
+			this.series.forEach((series) => {
+				if (series.yAxis === axis.name) {
+					axis.cMinData = Math.min(series.cMin, axis.cMinData);
+					axis.cMaxData = Math.max(series.cMax, axis.cMaxData);
+				}
+			});
 		});
 	}
 
@@ -1401,15 +1433,41 @@ module.exports = class SheetPlotNode extends Node {
 		return label;
 	}
 
-	getValue(ref, index, value) {
-		const validate = val => {
-			if (this.chart.dataMode ==='datazero' || this.chart.stacked) {
-				return Numbers.isNumber(val) ? val : 0;
+	validate(val) {
+		if (this.chart.dataMode ==='datazero' || this.chart.stacked) {
+			return Numbers.isNumber(val) ? val : 0;
+		}
+
+		return Numbers.isNumber(val) ? val : undefined;
+	}
+
+	getValueFromRange(range, sheet, index) {
+		let value;
+		const vertical = range.getWidth() === 1;
+		if (vertical) {
+			if (index <= range._y2 - range._y1) {
+				const cell = sheet
+					.getDataProvider()
+					.getRC(range._x1, range._y1 + index);
+				if (cell) {
+					value = cell.getValue();
+				}
+				return this.validate(value);
 			}
+		} else if (index <= range._x2 - range._x1) {
+			const cell = sheet
+				.getDataProvider()
+				.getRC(range._x1 + index, range._y1);
+			if (cell) {
+				value = cell.getValue();
+			}
+			return this.validate(value);
+		}
 
-			return Numbers.isNumber(val) ? val : undefined;
-		};
+		return '#er';
+	}
 
+	getValue(ref, index, value) {
 		value.x = undefined;
 		value.y = undefined;
 
@@ -1430,15 +1488,15 @@ module.exports = class SheetPlotNode extends Node {
 					} else if (values.length > index) {
 						value.x = values[index].key;
 					}
-					value.x = validate(value.x);
+					value.x = this.validate(value.x);
 				}
 				if (values.time) {
 					if (values.time.length > index && values[ref.yKey]) {
-						value.y = validate(values[ref.yKey][index]);
+						value.y = this.validate(values[ref.yKey][index]);
 						return true;
 					}
 				} else if (values.length > index) {
-					value.y = validate(values[index].value);
+					value.y = this.validate(values[index].value);
 					return true;
 				}
 			}
@@ -1449,52 +1507,18 @@ module.exports = class SheetPlotNode extends Node {
 		if (this.xAxes[0].type === 'category') {
 			value.x = index;
 		} else if (ref.x) {
-			const vertical = ref.x.range.getWidth() === 1;
-			if (vertical) {
-				if (index <= ref.x.range._y2 - ref.x.range._y1) {
-					const cell = ref.x.sheet
-						.getDataProvider()
-						.getRC(ref.x.range._x1, ref.x.range._y1 + index);
-					if (cell) {
-						value.x = cell.getValue();
-					}
-					value.x = validate(value.x);
-				}
-			} else if (index <= ref.x.range._x2 - ref.x.range._x1) {
-				const cell = ref.x.sheet
-					.getDataProvider()
-					.getRC(ref.x.range._x1 + index, ref.x.range._y1);
-				if (cell) {
-					value.x = cell.getValue();
-				}
-				value.x = validate(value.x);
-			}
+			value.x = this.getValueFromRange(ref.x.range, ref.x.sheet, index);
 		} else {
 			value.x = index;
 		}
 
+		if (ref.c) {
+			value.c = this.getValueFromRange(ref.c.range, ref.c.sheet, index);
+		}
 
 		if (ref.y) {
-			const vertical = ref.y.range.getWidth() === 1;
-			if (vertical) {
-				if (index <= ref.y.range._y2 - ref.y.range._y1) {
-					const cell = ref.y.sheet
-						.getDataProvider()
-						.getRC(ref.y.range._x1, ref.y.range._y1 + index);
-					if (cell) {
-						value.y = cell.getValue();
-					}
-					value.y = validate(value.y);
-					return true;
-				}
-			} else if (index <= ref.y.range._x2 - ref.y.range._x1) {
-				const cell = ref.y.sheet
-					.getDataProvider()
-					.getRC(ref.y.range._x1 + index, ref.y.range._y1);
-				if (cell) {
-					value.y = cell.getValue();
-				}
-				value.y = validate(value.y);
+			value.y = this.getValueFromRange(ref.y.range, ref.y.sheet, index);
+			if (value.y !== '#er') {
 				return true;
 			}
 		}
@@ -1921,6 +1945,7 @@ module.exports = class SheetPlotNode extends Node {
 							break;
 						case 'line':
 						case 'scatter':
+						case 'bubble':
 							dataRect.set(
 								plotRect.left + x * plotRect.width - 200,
 								plotRect.bottom - y * plotRect.height - 200,
@@ -2138,6 +2163,9 @@ module.exports = class SheetPlotNode extends Node {
 			type = 'scatter';
 			this.xAxes[0].type = 'linear';
 			break;
+		case 'bubble':
+			this.xAxes[0].type = 'linear';
+			break;
 		}
 		// check for TIMEAGGREGATES and INFLUX.SELECT
 		if (width <= 2 || height <= 2) {
@@ -2239,6 +2267,7 @@ module.exports = class SheetPlotNode extends Node {
 			let step = 1;
 			let column;
 			let row;
+			let refName;
 			let seriesLabels = false;
 			const tmpRange = new CellRange(range.getSheet(), 0, 0);
 			const cmd = this.prepareCommand('series');
@@ -2256,7 +2285,10 @@ module.exports = class SheetPlotNode extends Node {
 			switch (type) {
 			case 'bubble':
 				step = 2;
-				// startI += 1;
+				if (!categoryLabels && ((vertical && width > 1) || (!vertical && height > 1))) {
+					categoryLabels = true;
+					startI += 1;
+				}
 				break;
 			case 'scatter':
 				if (!categoryLabels && ((vertical && width > 1) || (!vertical && height > 1))) {
@@ -2300,7 +2332,7 @@ module.exports = class SheetPlotNode extends Node {
 				if (seriesLabels) {
 					tmpRange.set(column, row, column, row);
 					tmpRange.shiftToSheet();
-					const refName = tmpRange.toString({ item: sheet, useName: true });
+					refName = tmpRange.toString({ item: sheet, useName: true });
 					formula += `${refName},`;
 				} else {
 					formula += ',';
@@ -2313,20 +2345,10 @@ module.exports = class SheetPlotNode extends Node {
 						tmpRange.set(range._x1 + (seriesLabels ? 1 : 0), range._y1, range._x2, range._y1);
 					}
 					tmpRange.shiftToSheet();
-					const refName = tmpRange.toString({ item: sheet, useName: true });
+					refName = tmpRange.toString({ item: sheet, useName: true });
 					formula += `${refName},`;
 				} else {
 					formula += ',';
-				}
-
-				if (type === 'bubble') {
-					// if (vertical) {
-					// 	tmpRange.set(column + 1, row + (seriesLabels ? 1 : 0), column + 1, row + endJ - startJ);
-					// } else {
-					// 	tmpRange.set(column + (seriesLabels ? 1 : 0), row + 1, column + endJ - startJ, row + 1);
-					// }
-					// tmpRange.shiftToSheet();
-					// currentSeries.dataRadius = `=${tmpRange.toString({ item: chartSheet, useName: true })}`;
 				}
 
 				if (vertical) {
@@ -2336,8 +2358,21 @@ module.exports = class SheetPlotNode extends Node {
 				}
 
 				tmpRange.shiftToSheet();
-				const refName = tmpRange.toString({ item: sheet, useName: true });
-				formula += `${refName})`;
+				refName = tmpRange.toString({ item: sheet, useName: true });
+				formula += `${refName}`;
+
+				if (type === 'bubble') {
+					if (vertical) {
+						tmpRange.set(column + 1, row + (seriesLabels ? 1 : 0), column + 1, row + endJ - startJ);
+					} else {
+						tmpRange.set(column + (seriesLabels ? 1 : 0), row + 1, column + endJ - startJ, row + 1);
+					}
+					tmpRange.shiftToSheet();
+					refName = tmpRange.toString({ item: sheet, useName: true });
+					formula += `,${refName}`;
+				}
+
+				formula += ')';
 
 				const serie = createSeries(type, formula, markers, line);
 				this.series.push(serie);
