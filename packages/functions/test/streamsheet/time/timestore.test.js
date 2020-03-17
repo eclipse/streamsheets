@@ -202,6 +202,18 @@ describe('time.store', () => {
 		createCellAt('A3', { formula: 'time.store(,,,)' }, sheet);
 		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
 	});
+	it(`should return error ${ERROR.VALUE} if limit is below 1`, async () => {
+		const machine = newMachine({ cycletime: 1000 });
+		const sheet = machine.getStreamSheetByName('T1').sheet;
+		createCellAt('A1', 'v1', sheet);
+		createCellAt('B1', { formula: 'B1+1' }, sheet);
+		createCellAt('A3', { formula: 'time.store(JSON(A1:B1),,,0)' }, sheet);
+		expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+		createCellAt('A3', { formula: 'time.store(JSON(A1:B1),,,-1)' }, sheet);
+		expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+		createCellAt('A3', { formula: 'time.store(JSON(A1:B1),,,-123456)' }, sheet);
+		expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+	});
 	it(`should return ${ERROR.LIMIT} if limit is reached`, async () => {
 		const machine = newMachine({ cycletime: 1000 });
 		const sheet = machine.getStreamSheetByName('T1').sheet;

@@ -20,9 +20,15 @@ const runMachine = async (machine, period) => {
 	await sleep(period);
 	await machine.stop();
 };
+const runMachinePause = async (machine, period) => {
+	await machine.start();
+	await sleep(period);
+	await machine.pause();
+};
 
 module.exports = {
 	newMachine,
 	newSheet,
-	runMachine
+	runMachine,
+	runMachinePause
 };
