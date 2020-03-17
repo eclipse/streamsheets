@@ -28,6 +28,7 @@ import CellRangeComponent from './CellRangeComponent';
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
 import ColorComponent from '../SheetDialogs/ColorComponent';
+import Button from '@material-ui/core/Button';
 
 const markerSizes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -231,6 +232,23 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
+	handleAddAxis = () => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		const selection = this.state.plotView.chartSelection;
+		const item = this.state.plotView.getItem();
+		const axis = new JSG.ChartAxis(data.name, data.type, data.align, 500);
+
+		if (selection.element === 'xAxis') {
+			axis.align = (item.xAxes.length % 2) ? 'top' : 'bottom';
+			item.xAxes.push(axis);
+		} else {
+			axis.align = (item.yAxes.length % 2) ? 'right' : 'left';
+			item.yAxes.push(axis);
+		}
+		this.finishCommand(cmd, 'axes');
+	};
+
 	handleSeriesMarkerStyleChange = (event) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
@@ -265,7 +283,6 @@ export class StreamChartProperties extends Component {
 		data.smooth = state;
 		this.finishCommand(cmd, 'series');
 	};
-
 
 	translateTitle(title) {
 		switch (title) {
@@ -697,6 +714,23 @@ export class StreamChartProperties extends Component {
 										}
 									/>
 								</FormGroup>
+							</FormControl>
+							<FormControl
+								style={{
+									width: '95%',
+									margin: '8px'
+								}}
+							>
+								<Button
+									style={{
+									}}
+									onClick={this.handleAddAxis}
+									color="primary">
+									<FormattedMessage
+										id="StreamChartProperties.AddAxis"
+										defaultMessage="Add Axis"
+									/>
+								</Button>
 							</FormControl>
 						</div>
 					) : null}

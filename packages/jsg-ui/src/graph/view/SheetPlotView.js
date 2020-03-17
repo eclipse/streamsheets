@@ -115,11 +115,13 @@ export default class SheetPlotView extends NodeView {
 		const textSize = item.measureText(graphics, graphics.getCoordinateSystem(), legend.format, 'legend', 'X');
 		let x = legend.position.left + margin;
 		let y = legend.position.top + margin;
+		let textPos = margin * 4;
 
 		legendData.forEach((entry, index) => {
 			graphics.beginPath();
 			graphics.setLineColor(entry.series.format.lineColor || item.getTemplate().series.line[index]);
 			graphics.setLineWidth(entry.series.format.lineWidth || item.getTemplate().series.linewidth);
+			graphics.setFillColor(entry.series.format.fillColor || item.getTemplate().series.fill[index]);
 
 			switch (entry.series.type) {
 				case 'line':
@@ -127,19 +129,23 @@ export default class SheetPlotView extends NodeView {
 				case 'scatter':
 					graphics.moveTo(x, y + textSize.height / 2);
 					graphics.lineTo(x + margin * 3, y + textSize.height / 2);
+					this.drawMarker(graphics, entry.series, {
+						x: x + margin * 1.5,
+						y: y + textSize.height / 2
+					}, 3);
+					graphics.fill();
 					graphics.stroke();
 					break;
 				case 'area':
 				case 'column':
 				case 'bar':
 					graphics.rect(x, y + textSize.height / 10, margin * 3, (textSize.height * 2) / 3);
-					graphics.setFillColor(entry.series.format.fillColor || item.getTemplate().series.fill[index]);
 					graphics.fill();
 					graphics.stroke();
 					break;
 			case 'bubble':
-				graphics.circle(x + textSize.height, y + textSize.height / 2, (textSize.height * 2) / 5);
-				graphics.setFillColor(entry.series.format.fillColor || item.getTemplate().series.fill[index]);
+				textPos = margin * 2;
+				graphics.circle(x + margin / 2, y + textSize.height / 2, (textSize.height * 2) / 5);
 				graphics.fill();
 				graphics.stroke();
 				break;
@@ -149,13 +155,13 @@ export default class SheetPlotView extends NodeView {
 				legend.format.fontColor || item.getTemplate().legend.format.fontColor || item.getTemplate().font.color;
 
 			graphics.setFillColor(fontColor);
-			graphics.fillText(entry.name, x + margin * 4, y + textSize.height / 2);
+			graphics.fillText(entry.name, x + textPos, y + textSize.height / 2);
 
 			if (legend.align === 'right' || legend.align === 'left') {
 				y += textSize.height * 1.3;
 			} else {
 				const size = item.measureText(JSG.graphics, cs, legend.format, 'legend', String(entry.name));
-				x += size.width + margin * 6;
+				x += size.width + margin * 2 + textPos;
 			}
 		});
 
@@ -661,8 +667,8 @@ export default class SheetPlotView extends NodeView {
 		}
 	}
 
-	drawMarker(graphics, serie, pos) {
-		const size = serie.marker.size  * 60;
+	drawMarker(graphics, serie, pos, defaultSize) {
+		const size = (defaultSize || serie.marker.size) * 60;
 		let fill = false;
 
 		switch (serie.marker.style) {

@@ -383,6 +383,7 @@ module.exports = class SheetPlotNode extends Node {
 			this.setFont(JSG.graphics, this.legend.format, 'legend', 'middle', TextFormatAttributes.TextAlignment.CENTER);
 			let width = 0;
 			let textSize;
+			let extra = margin * 4;
 			legend.forEach((entry) => {
 				textSize = this.measureText(JSG.graphics, cs, this.legend.format, 'legend', String(entry.name));
 				if (this.legend.align === 'left' || this.legend.align === 'right') {
@@ -390,10 +391,13 @@ module.exports = class SheetPlotNode extends Node {
 				} else {
 					width += textSize.width;
 				}
+				if (entry.series.type !== 'bubble') {
+					extra = margin * 6;
+				}
 			});
 			switch (this.legend.align) {
 			case 'left':
-				width += margin * 6;
+				width += extra;
 				this.legend.position.left = this.plot.position.left;
 				this.legend.position.right = this.plot.position.left + width;
 				this.legend.position.top = this.plot.position.top;
@@ -401,7 +405,7 @@ module.exports = class SheetPlotNode extends Node {
 				this.plot.position.left += (width + margin);
 				break;
 			case 'top':
-				width += margin * legend.length * 6;
+				width += extra * legend.length;
 				this.legend.position.left = (size.x - width) / 2;
 				this.legend.position.right = (size.x + width) / 2;
 				this.legend.position.top = this.plot.position.top;
@@ -409,7 +413,7 @@ module.exports = class SheetPlotNode extends Node {
 				this.plot.position.top = this.legend.position.bottom + margin;
 				break;
 			case 'right':
-				width += margin * 6;
+				width += extra;
 				this.plot.position.right -= (width + margin);
 				this.legend.position.left = this.plot.position.right + margin;
 				this.legend.position.right = size.x - this.chart.margins.right;
@@ -417,7 +421,7 @@ module.exports = class SheetPlotNode extends Node {
 				this.legend.position.bottom = this.plot.position.top + (legend.length - 1)* (textSize.height) * 1.3 + textSize.height + margin * 2;
 				break;
 			case 'bottom':
-				width += margin * legend.length * 6;
+				width += extra * legend.length;
 				this.legend.position.left = (size.x - width) / 2;
 				this.legend.position.right = (size.x + width) / 2;
 				this.legend.position.top = this.plot.position.bottom - textSize.height * 1.3 - margin;
@@ -450,23 +454,35 @@ module.exports = class SheetPlotNode extends Node {
 		});
 
 		// reduce plot by axis size
-		this.xAxes.forEach((axis) => {
+		this.xAxes.forEach((axis, index) => {
 			switch (axis.align) {
 			case 'left':
 				axis.size = this.measureAxis(JSG.graphics, axis);
 				this.plot.position.left += axis.size.width;
+				if (index) {
+					this.plot.position.left += 200;
+				}
 				break;
 			case 'right':
 				axis.size = this.measureAxis(JSG.graphics, axis);
 				this.plot.position.right -= axis.size.width;
+				if (index) {
+					this.plot.position.right -= 200;
+				}
 				break;
 			case 'top':
 				axis.size = this.measureAxis(JSG.graphics, axis);
 				this.plot.position.top += axis.size.height;
+				if (index) {
+					this.plot.position.top += 200;
+				}
 				break;
 			case 'bottom':
 				axis.size = this.measureAxis(JSG.graphics, axis);
 				this.plot.position.bottom -= axis.size.height;
+				if (index) {
+					this.plot.position.bottom -= 200;
+				}
 				break;
 			}
 		});
@@ -492,23 +508,35 @@ module.exports = class SheetPlotNode extends Node {
 			}
 		});
 
-		this.yAxes.forEach((axis) => {
+		this.yAxes.forEach((axis, index) => {
 			switch (axis.align) {
 			case 'left':
 				axis.size = this.measureAxis(JSG.graphics, axis);
 				this.plot.position.left += axis.size.width;
+				if (index) {
+					this.plot.position.left += 200;
+				}
 				break;
 			case 'right':
 				axis.size = this.measureAxis(JSG.graphics, axis);
 				this.plot.position.right -= axis.size.width;
+				if (index) {
+					this.plot.position.right -= 200;
+				}
 				break;
 			case 'top':
 				axis.size = this.measureAxis(JSG.graphics, axis);
 				this.plot.position.top += axis.size.height;
+				if (index) {
+					this.plot.position.top += 200;
+				}
 				break;
 			case 'bottom':
 				axis.size = this.measureAxis(JSG.graphics, axis);
 				this.plot.position.bottom -= axis.size.height;
+				if (index) {
+					this.plot.position.bottom -= 200;
+				}
 				break;
 			}
 		});
@@ -521,6 +549,8 @@ module.exports = class SheetPlotNode extends Node {
 			case 'right':
 				break;
 			case 'top':
+				this.plot.position.left = Math.max(this.plot.position.left, axis.textSize.firstWidth / 2);
+				this.plot.position.right = Math.min(this.plot.position.right, size.x - axis.textSize.lastWidth / 2);
 				break;
 			case 'bottom':
 				this.plot.position.left = Math.max(this.plot.position.left, axis.textSize.firstWidth / 2);
@@ -529,57 +559,71 @@ module.exports = class SheetPlotNode extends Node {
 			}
 		});
 
+		let { left, top, right, bottom } = this.plot.position;
+
 		this.xAxes.forEach((axis) => {
 			if (axis.position) {
 				Object.assign(axis.position, this.plot.position);
 				switch (axis.align) {
 				case 'left':
-					axis.position.left = this.plot.position.left - axis.size.width;
-					axis.position.right = this.plot.position.left;
+					axis.position.left = left - axis.size.width;
+					axis.position.right = left;
+					left -= axis.size.width;
 					if (axis.title.visible) {
 						axis.title.position.left = axis.position.left - axis.title.size.height;
 						axis.title.position.right = axis.position.left;
 						axis.title.position.top = axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
 						axis.title.position.bottom = axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
+						left -= axis.title.size.height;
 					} else {
 						axis.title.position.reset();
 					}
+					left -= 200;
 					break;
 				case 'right':
-					axis.position.left = this.plot.position.right;
-					axis.position.right = this.plot.position.right + axis.size.width;
+					axis.position.left = right;
+					axis.position.right = right + axis.size.width;
+					right += axis.size.width;
 					if (axis.title.visible) {
 						axis.title.position.left = axis.position.right;
 						axis.title.position.right = axis.position.right + axis.title.size.height;
 						axis.title.position.top = axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
 						axis.title.position.bottom = axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
+						right += axis.title.size.height;
 					} else {
 						axis.title.position.reset();
 					}
+					right += 200;
 					break;
 				case 'top':
-					axis.position.top = this.plot.position.top - axis.size.height;
-					axis.position.bottom = this.plot.position.top;
+					axis.position.top = top - axis.size.height;
+					axis.position.bottom = top;
+					top -= axis.size.height;
 					if (axis.title.visible) {
-						axis.title.position.top = axis.position.top - axis.title.size.height ;
+						axis.title.position.top = axis.position.top - axis.title.size.height;
 						axis.title.position.bottom = axis.position.top;
 						axis.title.position.left = axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
 						axis.title.position.right = axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
+						top -= axis.title.size.height;
 					} else {
 						axis.title.position.reset();
 					}
+					top -= 200;
 					break;
 				case 'bottom':
-					axis.position.top = this.plot.position.bottom;
-					axis.position.bottom = axis.position.top + axis.size.height;
+					axis.position.top = bottom;
+					axis.position.bottom = bottom + axis.size.height;
+					bottom += axis.size.height;
 					if (axis.title.visible) {
 						axis.title.position.top = axis.position.bottom;
 						axis.title.position.bottom = axis.position.bottom + axis.title.size.height ;
 						axis.title.position.left = axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
 						axis.title.position.right = axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
+						bottom += axis.title.size.height;
 					} else {
 						axis.title.position.reset();
 					}
+					bottom += 200;
 					break;
 				}
 			}
@@ -590,52 +634,64 @@ module.exports = class SheetPlotNode extends Node {
 				Object.assign(axis.position, this.plot.position);
 				switch (axis.align) {
 				case 'left':
-					axis.position.left = this.plot.position.left - axis.size.width;
-					axis.position.right = this.plot.position.left;
+					axis.position.left = left - axis.size.width;
+					axis.position.right = left;
+					left -= axis.size.width;
 					if (axis.title.visible) {
 						axis.title.position.left = axis.position.left - axis.title.size.height;
 						axis.title.position.right = axis.position.left;
 						axis.title.position.top = axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
 						axis.title.position.bottom = axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
+						left -= axis.title.size.height;
 					} else {
 						axis.title.position.reset();
 					}
+					left -= 200;
 					break;
 				case 'right':
-					axis.position.left = this.plot.position.right;
-					axis.position.right = this.plot.position.right + axis.size.width;
+					axis.position.left = right;
+					axis.position.right = right + axis.size.width;
+					right += axis.size.width;
 					if (axis.title.visible) {
 						axis.title.position.left = axis.position.right;
 						axis.title.position.right = axis.position.right + axis.title.size.height;
 						axis.title.position.top = axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
 						axis.title.position.bottom = axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
+						right += axis.title.size.height;
 					} else {
 						axis.title.position.reset();
 					}
+					right += 200;
 					break;
 				case 'top':
-					axis.position.top = this.plot.position.top - axis.size.height;
-					axis.position.bottom = this.plot.position.top;
+					axis.position.top = top - axis.size.height;
+					axis.position.bottom = top;
+					top -= axis.size.height;
 					if (axis.title.visible) {
 						axis.title.position.top = axis.position.top - axis.title.size.height ;
 						axis.title.position.bottom = axis.position.top;
 						axis.title.position.left = axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
 						axis.title.position.right = axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
+						top -= axis.title.size.height;
 					} else {
 						axis.title.position.reset();
 					}
+					top -= 200;
 					break;
 				case 'bottom':
-					axis.position.top = this.plot.position.bottom;
-					axis.position.bottom = axis.position.top + axis.size.height;
+					axis.position.top = bottom;
+					axis.position.bottom = bottom + axis.size.height;
+					bottom += axis.size.height;
 					if (axis.title.visible) {
 						axis.title.position.top = axis.position.bottom;
 						axis.title.position.bottom = axis.position.bottom + axis.title.size.height ;
 						axis.title.position.left = axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
 						axis.title.position.right = axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
+						bottom += axis.title.size.height;
 					} else {
 						axis.title.position.reset();
 					}
+					bottom += 200;
 					break;
 				}
 			}
