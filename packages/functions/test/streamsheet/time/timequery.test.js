@@ -18,7 +18,7 @@ describe('timequery', () => {
 					A1: { formula: 'time.store(JSON(B1:C1))' },
 					A2: 'select', B2: 'v1',
 					A3: 'select', B3: 'v1, v2, v3',
-					A4: 'aggregate', B4: '0, 1, 2, 3, 4, 5, 6, 7, 8, 9'
+					A4: 'aggregate', B4: '0, 1, 2, 3, 4, 5, 6, 7, 9'
 				}
 			});
 			createCellAt('A5', { formula: 'time.query(A1,JSON(A2:B2))' }, sheet);
@@ -33,7 +33,7 @@ describe('timequery', () => {
 			await machine.step();
 			querystore = getQueryStore(sheet.cellAt('A5'));
 			expect(querystore.queryjson.select).toEqual('v1, v2, v3');
-			expect(querystore.queryjson.aggregate).toEqual('0, 1, 2, 3, 4, 5, 6, 7, 8, 9');
+			expect(querystore.queryjson.aggregate).toEqual('0, 1, 2, 3, 4, 5, 6, 7, 9');
 			expect(querystore.queryjson.where).toBeUndefined();
 		});
 		it('should identify interval parameter', async () => {
@@ -145,18 +145,23 @@ describe('timequery', () => {
 			createCellAt('A3', { formula: 'time.query(A1,42)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
 		});
-		it(`should return ${ERROR.VALUE} if query contains unknown aggregate method`, () => {
+		it(`should return ${ERROR.VALUE} if query contains unknown aggregate method`, async () => {
 			const machine = newMachine();
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
 				cells: {
 					A1: { formula: 'time.store(JSON(B1:C1))' },
 					A2: 'select', B2: 'v1',
-					A3: 'aggregation', B3: 9,
+					A3: 'aggregate', B3: 19,
 				}
 			});
 			createCellAt('A4', { formula: 'time.query(A1,JSON(A2:B3))' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			await machine.step();
+			expect(sheet.cellAt('A4').value).toBe(ERROR.VALUE);
+			createCellAt('B3', '0,1,2,3,4,5,6,7,8,9', sheet); // 8 is unknown...
+			createCellAt('A4', { formula: 'time.query(A1,JSON(A2:B3))' }, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A4').value).toBe(ERROR.VALUE);
 		});
 		it(`should return ${ERROR.VALUE} for invalid interval parameter`, () => {
 			const sheet = newSheet();
@@ -225,7 +230,7 @@ describe('timequery', () => {
 			expect(cell.value).toBe(ERROR.VALUE);
 		});
 	});
-	describe.skip('query',() => {
+	describe('query',() => {
 		it('should return all stored values if no interval and no aggregate method are specified', async () => {
 			const machine = newMachine();
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -602,7 +607,7 @@ describe('timequery', () => {
 			expect(querycell.value).toBe(true);
 		});
 	});
-	describe.skip('aggregations methods', () => {
+	describe('aggregations methods', () => {
 		test('none', async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -1087,7 +1092,7 @@ describe('timequery', () => {
 			expect(querycell.info.values.v8).toEqual([0, 0]);
 		});
 	});
-	describe.skip('where', () => {
+	describe('where', () => {
 		it('should filter entries by > and >=', async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;

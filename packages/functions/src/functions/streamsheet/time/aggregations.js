@@ -91,5 +91,6 @@ module.exports = {
 	get: (nr = 0, key) => {
 		const method = METHODS[nr];
 		return method ? aggregate(key, method()) : undefined;
-	}
+	},
+	validate: (methods = []) => methods.every((nr) => !!METHODS[nr])
 };

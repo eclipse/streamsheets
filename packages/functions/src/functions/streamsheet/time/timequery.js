@@ -3,6 +3,7 @@ const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell } = require('@cedalo/machine-core');
 const { Term } = require('@cedalo/parser');
 const { runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../../utils');
+const aggregations = require('./aggregations');
 const stateListener = require('./stateListener');
 const transform = require('./transform');
 
@@ -73,7 +74,7 @@ class QueryStore {
 	static of(queryjson, interval, limit) {
 		const store = new QueryStore(interval, limit);
 		store.setQuery(queryjson);
-		return store;
+		return store.isValid() ? store : undefined;
 	}
 	constructor(interval, limit) {
 		this.limit = limit;
@@ -90,11 +91,18 @@ class QueryStore {
 		this.entries = [];
 		this.nextQuery = this.msInterval > 0 ? Date.now() + this.msInterval : -1;
 	}
-	
+
 	hasEqual(queryjson, interval, limit) {
 		return this.interval === interval && this.limit === limit && areEqualQueries(this.queryjson, queryjson);
 	}
-	
+
+	isValid() {
+		if (this.query) {
+			return aggregations.validate(this.query.aggregate);
+		}
+		return false;
+	}
+
 	setQuery(json) {
 		this.query = createQuery(json);
 		this.queryjson = { ...json };
@@ -118,7 +126,7 @@ class QueryStore {
 		let entries = this.entries;
 		if (this.msInterval < 0) {
 			entries = timestore.limit > this.limit ? limitEntries(timestore.entries, this.limit) : timestore.entries;
-		} 
+		}
 		const values = entries.reduce(entriesReduce, { time: [] });
 		if (range) spreadValuesToRange(values, range);
 		cell.info.values = values;
@@ -165,12 +173,16 @@ const timeQuery = (sheet, ...terms) =>
 			const term = timeQuery.term;
 			const timestore = storeterm._timestore;
 			const querystore = getQueryStore(term, queryjson, interval, limit);
-			stateListener.registerCallback(sheet, term, querystore.reset);
-			querystore.performQueryOnInterval(timestore);
-			querystore.write(timestore, term.cell, range);
-			const size = querystore.entries.length;
-			// eslint-disable-next-line no-nested-ternary
-			return size === 0 ? ERROR.NA : size < querystore.limit ? true : ERROR.LIMIT;
+			if (querystore) {
+				stateListener.registerCallback(sheet, term, querystore.reset);
+				querystore.performQueryOnInterval(timestore);
+				querystore.write(timestore, term.cell, range);
+				const size = querystore.entries.length;
+				// eslint-disable-next-line no-nested-ternary
+				return size === 0 ? ERROR.NA : size < querystore.limit ? true : ERROR.LIMIT;
+			}
+			// failed to create store...
+			return ERROR.VALUE;
 		});
 
 
