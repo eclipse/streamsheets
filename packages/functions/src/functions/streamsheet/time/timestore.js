@@ -6,6 +6,7 @@ const stateListener = require('./stateListener');
 
 const ERROR = FunctionErrors.code;
 const DEF_LIMIT = 1000;
+const DEF_LIMIT_MIN = 1;
 const DEF_PERIOD = 60;
 
 const insert = (entry, entries) => {
@@ -77,6 +78,11 @@ const getTimeStore = (term, period, limit) => {
 	return term._timestore;
 };
 
+const getLimit = (term) => {
+	const limit = hasValue(term) ? convert.toNumberStrict(term.value, ERROR.VALUE) : DEF_LIMIT;
+	return limit >= DEF_LIMIT_MIN ? limit : ERROR.VALUE;
+};
+
 const store = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
@@ -85,7 +91,7 @@ const store = (sheet, ...terms) =>
 		.mapNextArg((values) => values.value || ERROR.ARGS)
 		.mapNextArg(period => hasValue(period) ? convert.toNumberStrict(period.value, ERROR.VALUE) : DEF_PERIOD)
 		.mapNextArg(timestamp => timestamp != null && convert.toNumberStrict(timestamp.value))
-		.mapNextArg(limit => hasValue(limit) ? convert.toNumberStrict(limit.value, ERROR.VALUE) : DEF_LIMIT)
+		.mapNextArg(limit => getLimit(limit))
 		.run((values, period, timestamp, limit) => {
 			const term = store.term;
 			const timestore = getTimeStore(term, period, limit);

@@ -2,15 +2,14 @@ const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell } = require('@cedalo/machine-core');
 const { Term } = require('@cedalo/parser');
-
-const { runFunction, terms: { getCellRangeFromTerm } } = require('../../../utils');
-// const readQueryOptions = require('./readQueryOptions');
+const { runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../../utils');
 const stateListener = require('./stateListener');
 const transform = require('./transform');
 
 
 const ERROR = FunctionErrors.code;
 const DEF_LIMIT = 100;
+const DEF_LIMIT_MIN = 1;
 const MIN_INTERVAL = 1 / 1000; // 1ms
 
 
@@ -105,7 +104,6 @@ class QueryStore {
 		// create fresh transform, because aggregations/filters work with closures!
 		const xform = transform.createFrom(this.query, now - this.msInterval);
 		const result = store.entries.reduceRight(xform, { ts: now, values: {} });
-		// TODO: how to handle empty values in result, ie. result = { values: {} }??
 		this.push(result, this.entries);
 	}
 	performQueryOnInterval(store, now = Date.now()) {
@@ -131,8 +129,6 @@ const getQueryStore = (term, query, interval, limit) => {
 	if (!term._querystore || !term._querystore.hasEqual(query, interval, limit)) {
 		term._querystore = QueryStore.of(query, interval, limit);
 	}
-	// store current options which contains possible changed queries, required by tests...
-	// term._options = options;
 	return term._querystore;
 };
 
@@ -140,15 +136,16 @@ const isValidQuery = (json) => json != null && json.select != null && typeof jso
 
 const getRange = (term, sheet) =>
 	term && term.value != null ? getCellRangeFromTerm(term, sheet) || ERROR.VALUE : undefined;
-const getNumber = (value, defVal) => value != null ? convert.toNumberStrict(value) : defVal;
-const getLimit = (nr) => {
-	nr = getNumber(nr, DEF_LIMIT);
-	return nr != null ? Math.max(1, nr) : ERROR.VALUE;
-}; 
-const getInterval = (nr) => {
-	nr = getNumber(nr, -1);
-	return nr != null && (nr >= MIN_INTERVAL || nr === -1) ? nr : ERROR.VALUE;
+
+const getLimit = (term) => {
+	const limit = hasValue(term) ? convert.toNumberStrict(term.value, ERROR.VALUE) : DEF_LIMIT;
+	return limit >= DEF_LIMIT_MIN ? limit : ERROR.VALUE;
 };
+const getInterval = (term) => {
+	const interval = hasValue(term) ? convert.toNumberStrict(term.value, ERROR.VALUE) : -1;
+	return interval >= MIN_INTERVAL || interval === -1 ? interval : ERROR.VALUE;
+};
+
 const storeFromTerm = (term) => term && term.name === 'time.store' ? term : undefined;
 const getTermFromRef = (cellref) => cellref.operand.target ? cellref.operand.target.term : undefined;
 const getStoreTerm = (term) => storeFromTerm(term) || storeFromTerm(getTermFromRef(term));
@@ -161,9 +158,9 @@ const timeQuery = (sheet, ...terms) =>
 		.withMaxArgs(5)
 		.mapNextArg((storeref) => getStoreTerm(storeref) || ERROR.VALUE)
 		.mapNextArg((query) => (isValidQuery(query.value) ? query.value : ERROR.VALUE))
-		.mapNextArg((interval) => (interval != null ? getInterval(interval.value) : -1))
+		.mapNextArg((interval) => getInterval(interval))
 		.mapNextArg((range) => getRange(range))
-		.mapNextArg((limit) => (limit != null ? getLimit(limit.value) : DEF_LIMIT))
+		.mapNextArg((limit) => getLimit(limit))
 		.run((storeterm, queryjson, interval, range, limit) => {
 			const term = timeQuery.term;
 			const timestore = storeterm._timestore;
