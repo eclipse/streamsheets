@@ -21,13 +21,13 @@ export interface StreamImportInfo {
 	name: string;
 }
 
-export type ImportSelection = {
+export type ImportSelection = {	
 	id: ID;
-	connector?: ID;
+	connectorId?: ID;
 	newName: string;
 };
 
-const fixName = (name: string, existingNames: Set<string>, delimiter = ' ', count = 1, ): string => {
+const fixName = (name: string, existingNames: Set<string>, delimiter = ' ', count = 1): string => {
 	const newName = `${name}${delimiter}${count}`;
 	return existingNames.has(newName) ? fixName(name, existingNames, delimiter, count + 1) : newName;
 };
@@ -205,7 +205,7 @@ const doImport = async (
 					stream: selection.stream,
 					existing,
 					name: selection.newName,
-					connectorId: selection.connector,
+					connectorId: selection.connectorId,
 					oldNewConnectorId,
 					oldNewStreamId,
 					oldNewStreamName

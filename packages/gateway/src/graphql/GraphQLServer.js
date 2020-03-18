@@ -231,6 +231,7 @@ const typeDefs = gql`
 	input ImportSelection {
 		id: ID!
 		# replace: Boolean!
+		connectorId: ID
 		newName: String!
 	}
 

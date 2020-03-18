@@ -642,7 +642,11 @@ function ImportDialogInner(props) {
 			.map((m) => ({ id: m.id, newName: m.newName }));
 		const streamSelection = Object.values(state.streams)
 			.filter((s) => s.selected)
-			.map((s) => ({ id: s.id, newName: s.newName }));
+			.map((s) => ({
+				id: s.id,
+				newName: s.newName,
+				connectorId: s.connectorId === 'original' ? null : s.connectorId
+			}));
 		const selectedMachineIds = machineSelection.map((s) => s.id);
 		const selectedStreamIds = streamSelection.map((s) => s.id);
 		const trimmedImportFileContent = {
