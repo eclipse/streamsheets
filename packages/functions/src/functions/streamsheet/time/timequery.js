@@ -13,11 +13,21 @@ const DEF_LIMIT = 100;
 const DEF_LIMIT_MIN = 1;
 const MIN_INTERVAL = 1 / 1000; // 1ms
 
-
+const checkForWildCard = (query) => {
+	let aggridx = 0;
+	query.hasWildcard = query.select.some((str, index) => {
+		aggridx = index;
+		return str === '*';
+	});
+	// move wildcard aggregation to first place:
+	if (query.hasWildcard) query.aggregate[0] = query.aggregate[aggridx];
+};
 const split = (str) => `${str}`.split(',').map((part) => part.trim());
 const createQuery = (json) => {
 	const { select, aggregate, where } = json;
-	return { select: split(select), aggregate: aggregate != null ? split(aggregate) : [], where };
+	const query = { select: split(select), aggregate: aggregate != null ? split(aggregate) : [], where };
+	checkForWildCard(query);
+	return query;
 };
 
 const boundedPush = (size) => (value, entries) => {
@@ -29,12 +39,13 @@ const boundedPush = (size) => (value, entries) => {
 const areEqualQueries = (q1, q2) => q1.select === q2.select && q1.aggregate === q2.aggregate && q1.where === q2.where;
 
 
-const entriesReduce = (all, { ts, values: vals }) => {
+const entriesReduce = (all, { ts, values: vals }, index) => {
 	all.time.push(ts);
 	if (vals) {
 		Object.keys(vals).forEach((key) => {
 			all[key] = all[key] || [];
-			all[key].push(vals[key]);
+			// add at index, important if values are not equally present!! => undefined at index if no value exist
+			all[key][index] = vals[key];
 		});
 	}
 	return all;

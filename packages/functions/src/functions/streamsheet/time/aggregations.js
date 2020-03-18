@@ -75,6 +75,27 @@ const aggregate = (key, method) => {
 	};
 };
 
+const methodFactory = (method) => {
+	const keys = {};
+	return {
+		get: (key) => {
+			keys[key] = keys[key] || method();
+			return keys[key];
+		}
+	};
+};
+const wildcard = (method) => {
+	const methodMap = methodFactory(method);
+	return (acc, entry) => {
+		const accValues = acc.values;
+		Object.entries(entry.values).forEach(([key, value]) => {
+			const aggr = methodMap.get(key);
+			accValues[key] = aggr(value, accValues[key]);
+		});
+		return acc;
+	};
+};
+
 const METHODS = {
 	'0': none,
 	'1': avg,
@@ -88,9 +109,13 @@ const METHODS = {
 };
 
 module.exports = {
-	get: (nr = 0, key) => {
-		const method = METHODS[nr];
+	get: (nr, key) => { // = 0, key) => {
+		const method = METHODS[nr || 0];
 		return method ? aggregate(key, method()) : undefined;
 	},
-	validate: (methods = []) => methods.every((nr) => !!METHODS[nr])
+	getWildCard: (nr) => { // = 0) => {
+		const method = METHODS[nr || 0];
+		return method ? wildcard(method) : undefined;
+	},
+	validate: (methods = []) => methods.every((nr) => !nr || !!METHODS[nr])
 };

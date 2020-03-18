@@ -26,7 +26,11 @@ const createFrom = (query, period) => {
 	const aggregate = query.aggregate || [];
 	const whereCondition = whereparser.parseCondition(query.where);
 	if (whereCondition) xFormFns.push(filter(whereCondition));
-	query.select.forEach((key, index) => xFormFns.push(reduce(aggregations.get(aggregate[index], key) || NOOP)));
+	if (query.hasWildcard) {
+		xFormFns.push(reduce(aggregations.getWildCard(aggregate[0]) || NOOP));
+	} else {
+		query.select.forEach((key, index) => xFormFns.push(reduce(aggregations.get(aggregate[index], key) || NOOP)));
+	}
 	const xform = compose(...xFormFns);
 	return xform(combine);
 };

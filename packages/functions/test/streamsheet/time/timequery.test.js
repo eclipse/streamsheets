@@ -1481,4 +1481,203 @@ describe('timequery', () => {
 			expect(querycell.info.values.v2[0]).toBe('count4');
 		});
 	});
+	describe('wildcard support', () => {
+		it('should aggregate all stored values', async () => {
+			const machine = newMachine();
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: 'v2', B2: { formula: 'B2+10)' },
+					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A4: 'select', B4: '*',
+					A5: 'aggregate', B5: 9,
+					A6: { formula: 'time.query(A3, JSON(A4:B5), 10)' }
+				}
+			});
+			const querycell = sheet.cellAt('A6');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			const timestore = getTimeStore(sheet.cellAt('A3'));
+			const querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
+			querystore.write(timestore, querycell);
+			expect(querycell.info.values.v1[0]).toBe(9);
+			expect(querycell.info.values.v2[0]).toBe(90);
+		});
+		it('should only apply first aggregate on all stored values', async () => {
+			const machine = newMachine();
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: 'v2', B2: { formula: 'B2+10)' },
+					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A4: 'select', B4: '*',
+					A5: 'aggregate', B5: '4,9,1',
+					A6: { formula: 'time.query(A3, JSON(A4:B5), 10)' }
+				}
+			});
+			const querycell = sheet.cellAt('A6');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			expect(querycell.value).toBe(ERROR.NA);
+			const timestore = getTimeStore(sheet.cellAt('A3'));
+			const querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
+			querystore.write(timestore, querycell);
+			expect(querycell.info.values.v1[0]).toBe(4);
+			expect(querycell.info.values.v2[0]).toBe(40);
+		});
+		it('should take last value if no aggregate method is specified', async () => {
+			const machine = newMachine();
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: 'v2', B2: { formula: 'B2+10)' },
+					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A4: 'select', B4: '*',
+					A5: 'aggregate', B5: '',
+					A6: { formula: 'time.query(A3, JSON(A4:B5), 10)' }
+				}
+			});
+			const querycell = sheet.cellAt('A6');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			expect(querycell.value).toBe(ERROR.NA);
+			const timestore = getTimeStore(sheet.cellAt('A3'));
+			let querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
+			querystore.write(timestore, querycell);
+			expect(querycell.info.values.v1[0]).toBe(3);
+			expect(querycell.info.values.v2[0]).toBe(30);
+			// clear aggregation, will change query!
+			createCellAt('B5', undefined, sheet);
+			await machine.step();
+			await machine.step();
+			expect(querycell.value).toBe(ERROR.NA);
+			querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
+			querystore.write(timestore, querycell);
+			expect(querycell.info.values.v1[0]).toBe(5);
+			expect(querycell.info.values.v2[0]).toBe(50);
+			// clear aggregation, will change query!
+			createCellAt('A5', undefined, sheet);
+			await machine.step();
+			await machine.step();
+			expect(querycell.value).toBe(ERROR.NA);
+			querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
+			querystore.write(timestore, querycell);
+			expect(querycell.info.values.v1[0]).toBe(7);
+			expect(querycell.info.values.v2[0]).toBe(70);
+			await machine.step();
+			await machine.step();
+			expect(querycell.value).toBe(true);
+			querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
+			querystore.write(timestore, querycell);
+			expect(querycell.info.values.v1[1]).toBe(9);
+			expect(querycell.info.values.v2[1]).toBe(90);
+		});
+		it('should always do wildcard aggregation if select contains at least one *', async () => {
+			const machine = newMachine();
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: 'v2', B2: { formula: 'B2+10)' },
+					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A4: 'select', B4: 'v1,*',
+					A5: 'aggregate', B5: '4,9',
+					A6: { formula: 'time.query(A3, JSON(A4:B5), 10)' }
+				}
+			});
+			const querycell = sheet.cellAt('A6');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			const timestore = getTimeStore(sheet.cellAt('A3'));
+			const querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
+			querystore.write(timestore, querycell);
+			expect(querycell.info.values.v1).toBeDefined();
+			expect(querycell.info.values.v2).toBeDefined();
+			expect(querycell.info.values.v1[0]).toBe(9);
+			expect(querycell.info.values.v2[0]).toBe(90);
+		});
+		it('return all stored values if no aggregate and no interval are specified', async () => {
+			const machine = newMachine();
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: 'v2', B2: { formula: 'B2+10)' },
+					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A4: 'select', B4: '*',
+					A6: { formula: 'time.query(A3, JSON(A4:B5))' }
+				}
+			});
+			const querycell = sheet.cellAt('A6');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			const timestore = getTimeStore(sheet.cellAt('A3'));
+			const querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
+			querystore.write(timestore, querycell);
+			expect(querycell.info.values.v1[0]).toBe(2);
+			expect(querycell.info.values.v2[0]).toBe(20);
+			expect(querycell.info.values.v1[1]).toBe(3);
+			expect(querycell.info.values.v2[1]).toBe(30);
+			expect(querycell.info.values.v1[2]).toBe(4);
+			expect(querycell.info.values.v2[2]).toBe(40);
+		});
+		it('should handle values added later too', async () => {
+			const machine = newMachine();
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A4: 'select', B4: '*',
+					A5: 'aggregate', B5: '9',
+					A6: { formula: 'time.query(A3, JSON(A4:B5), 10)' }
+				}
+			});
+			const querycell = sheet.cellAt('A6');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			const timestore = getTimeStore(sheet.cellAt('A3'));
+			const querystore = getQueryStore(querycell);
+			querystore.performQuery(timestore);
+			querystore.write(timestore, querycell);
+			expect(querycell.info.values.v1).toBeDefined();
+			expect(querycell.info.values.v2).toBeUndefined();
+			expect(querycell.info.values.v1[0]).toBe(9);
+			// now add second value
+			createCellAt('A2', 'v2', sheet);
+			createCellAt('B2', { formula: 'B2+10' }, sheet);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			querystore.performQuery(timestore);
+			querystore.write(timestore, querycell);
+			expect(querycell.info.values.v2).toBeDefined();
+			expect(querycell.info.values.v1[0]).toBe(9);
+			expect(querycell.info.values.v1[1]).toBe(27);
+			expect(querycell.info.values.v2[0]).toBeUndefined();
+			expect(querycell.info.values.v2[1]).toBe(90);
+		});
+	});
 });
