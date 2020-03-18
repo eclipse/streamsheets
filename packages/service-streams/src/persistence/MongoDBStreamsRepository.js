@@ -232,4 +232,18 @@ module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepos
 	async deleteAllProviders() {
 		return this.db.collection(this.collection).remove({ className: 'ProviderConfiguration' });
 	}
+
+	async getNames(scope) {
+		const streams = await this.db
+			.collection(this.collection)
+			.find(
+				{
+					'scope.id': scope.id,
+					className: { $in: ['ConsumerConfiguration', 'ProducerConfiguration', 'ConnectorConfiguration'] }
+				},
+				{ projection: { name: 1 } }
+			)
+			.toArray();
+		return streams.map((m) => m.name);
+	}
 };
