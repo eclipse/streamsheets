@@ -348,7 +348,7 @@ const FormattedError = (props) => {
 				<FormattedMessage id="Import.Error.DuplicateName" defaultMessage="Duplicate name in current import!" />
 			);
 		default:
-			return error;
+			return null;
 	}
 };
 
@@ -428,7 +428,7 @@ const StreamList = withShowable((props) => {
 							id={id}
 							label={<FormattedMessage id="Import.Stream.ImportAs" defaultMessage="Import As" />}
 							error={!!error}
-							helperText={<FormattedError error={error} stream={newName} />}
+							helperText={error ? <FormattedError error={error} stream={newName} /> : undefined}
 							variant="outlined"
 							fullWidth
 							disabled={!selected}
@@ -551,7 +551,7 @@ const MachineList = withShowable((props) => {
 						label={<FormattedMessage id="Import.Machine.ImportAs" defaultMessage="Import As" />}
 						variant="outlined"
 						error={!!error}
-						helperText={<FormattedError error={error} />}
+						helperText={error ? <FormattedError error={error} /> : undefined}
 						disabled={!selected}
 						value={newName}
 						fullWidth
