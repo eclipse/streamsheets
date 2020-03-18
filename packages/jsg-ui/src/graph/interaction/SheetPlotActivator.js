@@ -1,6 +1,6 @@
 import {
 	default as JSG,
-	SheetPlotNode, NotificationCenter, Notification, Shape
+	SheetPlotNode, NotificationCenter, Notification, Shape, Arrays
 } from '@cedalo/jsg-core';
 
 import SheetPlotInteraction from './SheetPlotInteraction';
@@ -82,6 +82,23 @@ export default class SheetPlotActivator extends InteractionActivator {
 						const cmd = item.prepareCommand('title');
 						item.title.visible = false;
 						finish(cmd, 'title');
+						break;
+					}
+					}
+					break;
+				case 'xAxis':
+				case 'yAxis':
+					switch (event.event.key) {
+					case 'Delete': {
+						const cmd = item.prepareCommand('axes');
+						if (selection.element === 'xAxis' && item.xAxes.length > 1) {
+							item.reAssignAxis(selection.data, true);
+							Arrays.remove(item.xAxes, selection.data);
+						} else if (selection.element === 'yAxis' && item.yAxes.length > 1) {
+							item.reAssignAxis(selection.data, false);
+							Arrays.remove(item.yAxes, selection.data);
+						}
+						finish(cmd, 'axes');
 						break;
 					}
 					}

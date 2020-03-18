@@ -10,8 +10,8 @@ module.exports = class ChartSeries {
 		this.formula = formula;
 		this.format = new ChartFormat();
 		this.marker = new ChartMarker();
-		this.xAxis = 'primary';
-		this.yAxis = 'primary';
+		this.xAxis = 'XAxis1';
+		this.yAxis = 'YAxis1';
 	}
 
 	set type(type) {
@@ -36,8 +36,8 @@ module.exports = class ChartSeries {
 
 	read(reader, object) {
 		this.type = reader.getAttribute(object, 'type');
-		this.xAxis = reader.getAttributeString(object, 'xaxis', 'primary');
-		this.yAxis = reader.getAttributeString(object, 'yaxis', 'primary');
+		this.xAxis = reader.getAttributeString(object, 'xaxis', 'XAxis1');
+		this.yAxis = reader.getAttributeString(object, 'yaxis', 'YAxis1');
 		this.smooth = reader.getAttributeBoolean(object, 'smooth', false);
 
 		reader.iterateObjects(object, (name, child) => {

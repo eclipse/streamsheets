@@ -49,7 +49,7 @@ module.exports = class ChartAxis {
 	read(reader, object) {
 		this.align = reader.getAttributeString(object, 'align', 'left');
 		this.type = reader.getAttributeString(object, 'type', 'linear');
-		this.name = reader.getAttributeString(object, 'name', 'primary');
+		this.name = reader.getAttributeString(object, 'name', 'Axis1');
 		this.position = ChartRect.fromString(reader.getAttribute(object, 'position'));
 		this.gridVisible = reader.getAttributeBoolean(object, 'gridvisible', true);
 		this.autoZero = reader.getAttributeBoolean(object, 'autozero', true);

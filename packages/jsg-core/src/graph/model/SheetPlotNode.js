@@ -171,8 +171,8 @@ module.exports = class SheetPlotNode extends Node {
 		this.actions = [];
 		this.chart = new Chart();
 		this.chartZoom = false;
-		this.xAxes = [new ChartAxis('primary', 'linear', 'bottom', 500)];
-		this.yAxes = [new ChartAxis('primary', 'linear', 'left', 1000)];
+		this.xAxes = [new ChartAxis('XAxis1', 'linear', 'bottom', 500)];
+		this.yAxes = [new ChartAxis('YAxis1', 'linear', 'left', 1000)];
 		this.plot = {
 			position: new ChartRect(),
 			format: new ChartFormat(),
@@ -918,14 +918,6 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	setMinMax() {
-		let xMin = Number.MAX_VALUE;
-		let xMax = -Number.MAX_VALUE;
-		let yMin = Number.MAX_VALUE;
-		let yMax = -Number.MAX_VALUE;
-		let cMin = Number.MAX_VALUE;
-		let cMax = -Number.MAX_VALUE;
-		let valid = false;
-
 		if (!this.xAxes.length || !this.yAxes.length) {
 			return;
 		}
@@ -940,6 +932,13 @@ module.exports = class SheetPlotNode extends Node {
 			if (ref) {
 				let pointIndex = 0;
 				const value = {};
+				let xMin = Number.MAX_VALUE;
+				let xMax = -Number.MAX_VALUE;
+				let yMin = Number.MAX_VALUE;
+				let yMax = -Number.MAX_VALUE;
+				let cMin = Number.MAX_VALUE;
+				let cMax = -Number.MAX_VALUE;
+				let valid = false;
 
 				while (this.getValue(ref, pointIndex, value)) {
 					if (Numbers.isNumber(value.x)) {
@@ -1026,45 +1025,64 @@ module.exports = class SheetPlotNode extends Node {
 		});
 
 		this.xAxes.forEach((axis) => {
-			axis.minData = Number.MAX_VALUE;
-			axis.maxData = -Number.MAX_VALUE;
+			axis.minData = undefined;
+			axis.maxData = undefined;
 			this.series.forEach((series) => {
 				if (series.xAxis === axis.name) {
-					axis.minData = Math.min(series.xMin, axis.minData);
-					axis.maxData = Math.max(series.xMax, axis.maxData);
+					axis.minData = axis.minData === undefined ? series.xMin : Math.min(series.xMin, axis.minData);
+					axis.maxData = axis.maxData === undefined ? series.xMax : Math.max(series.xMax, axis.maxData);
 					if (series.type === 'bubble') {
 						axis.minData -= (axis.maxData - axis.minData) * 0.08;
 						axis.maxData += (axis.maxData - axis.minData) * 0.08;
 					}
 				}
 			});
+			if (axis.minData === undefined) {
+				axis.minData = 0;
+			}
+			if (axis.maxData === undefined) {
+				axis.maxData = 100;
+			}
 			axis.scale = undefined;
 		});
 
 		this.yAxes.forEach((axis) => {
-			axis.minData = Number.MAX_VALUE;
-			axis.maxData = -Number.MAX_VALUE;
+			axis.minData = undefined;
+			axis.maxData = undefined;
 			this.series.forEach((series) => {
 				if (series.yAxis === axis.name) {
-					axis.minData = Math.min(series.yMin, axis.minData);
-					axis.maxData = Math.max(series.yMax, axis.maxData);
+					axis.minData = axis.minData === undefined ? series.yMin : Math.min(series.yMin, axis.minData);
+					axis.maxData = axis.maxData === undefined ? series.yMax : Math.max(series.yMax, axis.maxData);
 					if (series.type === 'bubble') {
 						axis.minData -= (axis.maxData - axis.minData) * 0.08;
 						axis.maxData += (axis.maxData - axis.minData) * 0.08;
 					}
 				}
 			});
+			if (axis.minData === undefined) {
+				axis.minData = 0;
+			}
+			if (axis.maxData === undefined) {
+				axis.maxData = 100;
+			}
 			axis.scale = undefined;
 		});
+
 		this.yAxes.forEach((axis) => {
-			axis.cMinData = Number.MAX_VALUE;
-			axis.cMaxData = -Number.MAX_VALUE;
+			axis.cMinData = undefined;
+			axis.cMaxData = undefined;
 			this.series.forEach((series) => {
-				if (series.yAxis === axis.name) {
-					axis.cMinData = Math.min(series.cMin, axis.cMinData);
-					axis.cMaxData = Math.max(series.cMax, axis.cMaxData);
+				if (series.type === 'bubble' && series.yAxis === axis.name) {
+					axis.cMinData = axis.cMinData === undefined ? series.yMin : Math.min(series.yMin, axis.cMinData);
+					axis.cMaxData = axis.cMaxData === undefined ? series.yMax : Math.max(series.yMax, axis.cMaxData);
 				}
 			});
+			if (axis.cMinData === undefined) {
+				axis.cMinData = 0;
+			}
+			if (axis.cMaxData === undefined) {
+				axis.cMaxData = 100;
+			}
 		});
 	}
 
@@ -2725,6 +2743,44 @@ module.exports = class SheetPlotNode extends Node {
 
 	getTemplate() {
 		return templates[this.chart.template];
+	}
+
+	reAssignAxis(axis, xAxis) {
+		if (xAxis) {
+			this.series.forEach(serie => {
+				if (serie.xAxis === axis.name) {
+					serie.xAxis = this.xAxes[0].name;
+				}
+			});
+		} else {
+			this.series.forEach(serie => {
+				if (serie.yAxis === axis.name) {
+					serie.yAxis = this.yAxes[0].name;
+				}
+			});
+		}
+	};
+
+	getUniqueAxisName(axes) {
+		let array;
+		let name;
+		let i = 1;
+
+		if (axes === 'xAxis') {
+			array = this.xAxes;
+			name = 'XAxis';
+		} else {
+			array = this.yAxes;
+			name = 'YAxis';
+		}
+
+		while (true) {
+			const test = `${name}${i}`;
+			if (!array.some((axis) => axis.name === test)) {
+				return test;
+			}
+			i += 1;
+		}
 	}
 
 	static get templates() {
