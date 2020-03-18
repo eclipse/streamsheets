@@ -137,6 +137,14 @@ module.exports = class MongoDBMachineRepository extends mix(
 		return otherMachine != null;
 	}
 
+	async getNames(scope) {
+		const machines = await this.db
+			.collection(this.collection)
+			.find({ 'scope.id': scope.id }, { projection: { name: 1 } })
+			.toArray();
+		return machines.map((m) => m.name);
+	}
+
 	// returns an array of machine definitions...
 	getMachines() {
 		return this.getDocuments(
