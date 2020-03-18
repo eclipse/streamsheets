@@ -3,7 +3,6 @@ const colors = require('./colors');
 const counters = require('./counters');
 const detectchange = require('./detectchange');
 const loop = require('./loop');
-const time = require('./time');
 const values = require('./values');
 const ARRAY = require('./array');
 const CALC = require('./calc');
@@ -44,7 +43,6 @@ module.exports = {
 		...counters,
 		...detectchange,
 		...loop,
-		...time,
 		...values,
 		ARRAY,
 		CALC,

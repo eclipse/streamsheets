@@ -1,4 +1,4 @@
-const { common: { compose } } = require('../../../utils');
+const { common: { compose } } = require('../../utils');
 const aggregations = require('./aggregations');
 const whereparser = require('./whereparser');
 

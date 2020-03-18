@@ -1,7 +1,7 @@
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const IdGenerator = require('@cedalo/id-generator');
-const {	runFunction, terms: { hasValue } } = require('../../../utils');
+const {	runFunction, terms: { hasValue } } = require('../../utils');
 const stateListener = require('./stateListener');
 
 const ERROR = FunctionErrors.code;
