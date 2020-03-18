@@ -259,55 +259,55 @@ export default function notificationsReducer(state = defaultNotificationsState, 
 				counter: state.counter + 1,
 				notifications: state.notifications,
 			};
-		case Actions.SEND_IMPORT_SUCCESS:
-			notification = {
-				title: <FormattedMessage id="Import.Notification.Success.Title" defaultMessage="Import Successful" />,
-				message: (
-					<FormattedMessage id="Import.Notification.Success.Message" defaultMessage="Import Successful" />
-				),
-				color: Colors.green[600],
-				icon: <InfoIcon />,
-				timestamp: Date.now(),
-			};
-			NotificationCenter.showNotification(notification);
-			addNotification(notification, state);
-			return {
-				...state,
-				counter: state.counter + 1,
-				notifications: state.notifications,
-			};
-		case Actions.SEND_IMPORT_ERROR:
-			notification = {
-				title: <FormattedMessage id="Request.failed" defaultMessage="Request failed" />,
-				message: <FormattedMessage id="Import.Notification.Error.Message" defaultMessage="Import Failed" />,
-				color: Colors.red[600],
-				icon: <ErrorIcon />,
-				timestamp: Date.now(),
-				error: <FormattedMessage id="Request.failed" defaultMessage="Request failed" />,
-			};
-			NotificationCenter.showNotification(notification);
-			addNotification(notification, state);
-			return {
-				...state,
-				counter: state.counter + 1,
-				notifications: state.notifications,
-			};
-		case Actions.SEND_EXPORT_ERROR:
-			notification = {
-				title: <FormattedMessage id="Request.failed" defaultMessage="Request failed" />,
-				message: <FormattedMessage id="Export.Notification.Error.Message" defaultMessage="Export Failed" />,
-				color: Colors.red[600],
-				icon: <ErrorIcon />,
-				timestamp: Date.now(),
-				error: <FormattedMessage id="Request.failed" defaultMessage="Request failed" />,
-			};
-			NotificationCenter.showNotification(notification);
-			addNotification(notification, state);
-			return {
-				...state,
-				counter: state.counter + 1,
-				notifications: state.notifications,
-			};
+		// case Actions.SEND_IMPORT_SUCCESS:
+		// 	notification = {
+		// 		title: <FormattedMessage id="Import.Notification.Success.Title" defaultMessage="Import Successful" />,
+		// 		message: (
+		// 			<FormattedMessage id="Import.Notification.Success.Message" defaultMessage="Import Successful" />
+		// 		),
+		// 		color: Colors.green[600],
+		// 		icon: <InfoIcon />,
+		// 		timestamp: Date.now(),
+		// 	};
+		// 	NotificationCenter.showNotification(notification);
+		// 	addNotification(notification, state);
+		// 	return {
+		// 		...state,
+		// 		counter: state.counter + 1,
+		// 		notifications: state.notifications,
+		// 	};
+		// case Actions.SEND_IMPORT_ERROR:
+		// 	notification = {
+		// 		title: <FormattedMessage id="Request.failed" defaultMessage="Request failed" />,
+		// 		message: <FormattedMessage id="Import.Notification.Error.Message" defaultMessage="Import Failed" />,
+		// 		color: Colors.red[600],
+		// 		icon: <ErrorIcon />,
+		// 		timestamp: Date.now(),
+		// 		error: <FormattedMessage id="Request.failed" defaultMessage="Request failed" />,
+		// 	};
+		// 	NotificationCenter.showNotification(notification);
+		// 	addNotification(notification, state);
+		// 	return {
+		// 		...state,
+		// 		counter: state.counter + 1,
+		// 		notifications: state.notifications,
+		// 	};
+		// case Actions.SEND_EXPORT_ERROR:
+		// 	notification = {
+		// 		title: <FormattedMessage id="Request.failed" defaultMessage="Request failed" />,
+		// 		message: <FormattedMessage id="Export.Notification.Error.Message" defaultMessage="Export Failed" />,
+		// 		color: Colors.red[600],
+		// 		icon: <ErrorIcon />,
+		// 		timestamp: Date.now(),
+		// 		error: <FormattedMessage id="Request.failed" defaultMessage="Request failed" />,
+		// 	};
+		// 	NotificationCenter.showNotification(notification);
+		// 	addNotification(notification, state);
+		// 	return {
+		// 		...state,
+		// 		counter: state.counter + 1,
+		// 		notifications: state.notifications,
+		// 	};
 		case Actions.SEND_RESTORE_ERROR:
 			notification = {
 				title: <FormattedMessage id="Request.failed" defaultMessage="Request failed" />,

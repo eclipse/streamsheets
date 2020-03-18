@@ -70,10 +70,7 @@ export const {
 	notifyExportFailed,
 	showImportDialog,
 	closeImportDialog,
-	importMachinesAndStreams,
 	showStartImportDialog,
-	updateMachineSelection,
-	updateStreamSelection,
 } = ImportExportActions;
 
 export const { restore, backup } = BackupRestoreActions;
