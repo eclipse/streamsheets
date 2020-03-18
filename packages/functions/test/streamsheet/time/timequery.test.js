@@ -15,13 +15,13 @@ describe('timequery', () => {
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
 				cells: {
-					A1: { formula: 'time.store(JSON(B1:C1))' },
+					A1: { formula: 'timestore(JSON(B1:C1))' },
 					A2: 'select', B2: 'v1',
 					A3: 'select', B3: 'v1, v2, v3',
 					A4: 'aggregate', B4: '0, 1, 2, 3, 4, 5, 6, 7, 9'
 				}
 			});
-			createCellAt('A5', { formula: 'time.query(A1,JSON(A2:B2))' }, sheet);
+			createCellAt('A5', { formula: 'timequery(A1,JSON(A2:B2))' }, sheet);
 			await machine.step();
 			let querystore = getQueryStore(sheet.cellAt('A5'));
 			expect(querystore).toBeDefined();
@@ -29,7 +29,7 @@ describe('timequery', () => {
 			expect(querystore.queryjson.select).toEqual('v1');
 			expect(querystore.queryjson.aggregate).toBeUndefined();
 			expect(querystore.queryjson.where).toBeUndefined();
-			createCellAt('A5', { formula: 'time.query(A1,JSON(A3:B4))' }, sheet);
+			createCellAt('A5', { formula: 'timequery(A1,JSON(A3:B4))' }, sheet);
 			await machine.step();
 			querystore = getQueryStore(sheet.cellAt('A5'));
 			expect(querystore.queryjson.select).toEqual('v1, v2, v3');
@@ -41,23 +41,23 @@ describe('timequery', () => {
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
 				cells: {
-					A1: { formula: 'time.store(JSON(B1:C1))' },
+					A1: { formula: 'timestore(JSON(B1:C1))' },
 					A2: 'select', B2: 'v1'
 				}
 			});
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2))' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2))' }, sheet);
 			await machine.step();
 			let querystore = getQueryStore(sheet.cellAt('A3'));
 			expect(querystore.interval).toBe(-1);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),)' }, sheet);
 			await machine.step();
 			querystore = getQueryStore(sheet.cellAt('A3'));
 			expect(querystore.interval).toBe(-1);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),60)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),60)' }, sheet);
 			await machine.step();
 			querystore = getQueryStore(sheet.cellAt('A3'));
 			expect(querystore.interval).toBe(60);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),1)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),1)' }, sheet);
 			await machine.step();
 			querystore = getQueryStore(sheet.cellAt('A3'));
 			expect(querystore.interval).toBe(1);
@@ -68,15 +68,15 @@ describe('timequery', () => {
 		// 	const sheet = machine.getStreamSheetByName('T1').sheet;
 		// 	sheet.load({
 		// 		cells: {
-		// 			A1: { formula: 'time.store(JSON(B1:C1))' },
+		// 			A1: { formula: 'timestore(JSON(B1:C1))' },
 		// 			A2: 'select', B2: 'v1'
 		// 		}
 		// 	});
-		// 	createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),1,A5:C6)' }, sheet);
+		// 	createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),1,A5:C6)' }, sheet);
 		// 	await machine.step();
 		// 	let querystore = getQueryStore(sheet.cellAt('A3'));
 		// 	expect(querystore.range.toString()).toBe('A5:C6');
-		// 	createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,A5:C6)' }, sheet);
+		// 	createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,A5:C6)' }, sheet);
 		// 	await machine.step();
 		// 	querystore = getQueryStore(sheet.cellAt('A3'));
 		// 	expect(querystore.range.toString()).toBe('A5:C6');
@@ -86,28 +86,28 @@ describe('timequery', () => {
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
 				cells: {
-					A1: { formula: 'time.store(JSON(B1:C1))' },
+					A1: { formula: 'timestore(JSON(B1:C1))' },
 					A2: 'select', B2: 'v1'
 				}
 			});
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2))' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2))' }, sheet);
 			await machine.step();
 			let querystore = getQueryStore(sheet.cellAt('A3'));
 			expect(querystore.limit).toBe(100);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,,)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,,)' }, sheet);
 			await machine.step();
 			querystore = getQueryStore(sheet.cellAt('A3'));
 			expect(querystore.limit).toBe(100);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,,60)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,,60)' }, sheet);
 			await machine.step();
 			querystore = getQueryStore(sheet.cellAt('A3'));
 			expect(querystore.limit).toBe(60);
 		});
 		it(`should return ${ERROR.ARGS} if two few arguments are given`, () => {
 			const sheet = newSheet();
-			createCellAt('A3', { formula: 'time.query()' }, sheet);
+			createCellAt('A3', { formula: 'timequery()' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
-			createCellAt('A3', { formula: 'time.query(,)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(,)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
 		});
 		it(`should return ${ERROR.VALUE} if query does not contain a select clause`, () => {
@@ -115,34 +115,34 @@ describe('timequery', () => {
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
 				cells: {
-					A1: { formula: 'time.store(JSON(B1:C1))' },
+					A1: { formula: 'timestore(JSON(B1:C1))' },
 					A2: 'selection', B2: 'v1', C2: 'select',
 					A3: 'values', B3: 'v1, v2',
 					// json() does not trim key, so following results in an error
 					A4: ' select ', B4: 'v1, v2, v3'
 				}
 			});
-			createCellAt('A5', { formula: 'time.query(A1,JSON(F2:G2))' }, sheet);
+			createCellAt('A5', { formula: 'timequery(A1,JSON(F2:G2))' }, sheet);
 			expect(sheet.cellAt('A5').value).toBe(ERROR.VALUE);
-			createCellAt('A5', { formula: 'time.query(A1,JSON(C2))' }, sheet);
+			createCellAt('A5', { formula: 'timequery(A1,JSON(C2))' }, sheet);
 			expect(sheet.cellAt('A5').value).toBe(ERROR.VALUE);
-			createCellAt('A5', { formula: 'time.query(A1,JSON(A2:B2))' }, sheet);
+			createCellAt('A5', { formula: 'timequery(A1,JSON(A2:B2))' }, sheet);
 			expect(sheet.cellAt('A5').value).toBe(ERROR.VALUE);
-			createCellAt('A5', { formula: 'time.query(A1,JSON(A3:B3))' }, sheet);
+			createCellAt('A5', { formula: 'timequery(A1,JSON(A3:B3))' }, sheet);
 			expect(sheet.cellAt('A5').value).toBe(ERROR.VALUE);
-			createCellAt('A5', { formula: 'time.query(A1,JSON(A4:B4))' }, sheet);
+			createCellAt('A5', { formula: 'timequery(A1,JSON(A4:B4))' }, sheet);
 			expect(sheet.cellAt('A5').value).toBe(ERROR.VALUE);
 		});
 		it(`should return ${ERROR.VALUE} if query is not a json`, () => {
 			const sheet = newSheet();
-			createCellAt('A1', { formula: 'time.store(JSON(B1:C1))' }, sheet);
-			createCellAt('A3', { formula: 'time.query(A1,)' }, sheet);
+			createCellAt('A1', { formula: 'timestore(JSON(B1:C1))' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-			createCellAt('A3', { formula: 'time.query(A1, true)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1, true)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-			createCellAt('A3', { formula: 'time.query(A1,"v1:1")' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,"v1:1")' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-			createCellAt('A3', { formula: 'time.query(A1,42)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,42)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
 		});
 		it(`should return ${ERROR.VALUE} if query contains unknown aggregate method`, async () => {
@@ -150,16 +150,16 @@ describe('timequery', () => {
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
 				cells: {
-					A1: { formula: 'time.store(JSON(B1:C1))' },
+					A1: { formula: 'timestore(JSON(B1:C1))' },
 					A2: 'select', B2: 'v1',
 					A3: 'aggregate', B3: 19,
 				}
 			});
-			createCellAt('A4', { formula: 'time.query(A1,JSON(A2:B3))' }, sheet);
+			createCellAt('A4', { formula: 'timequery(A1,JSON(A2:B3))' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(ERROR.VALUE);
 			createCellAt('B3', '0,1,2,3,4,5,6,7,8,9', sheet); // 8 is unknown...
-			createCellAt('A4', { formula: 'time.query(A1,JSON(A2:B3))' }, sheet);
+			createCellAt('A4', { formula: 'timequery(A1,JSON(A2:B3))' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(ERROR.VALUE);
 		});
@@ -167,64 +167,64 @@ describe('timequery', () => {
 			const sheet = newSheet();
 			sheet.load({
 				cells: {
-					A1: { formula: 'time.store(JSON(B1:C1))' },
+					A1: { formula: 'timestore(JSON(B1:C1))' },
 					A2: 'select', B2: 'v1'
 				}
 			});
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),true)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),true)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),"")' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),"")' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),"42")' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),"42")' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),0)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),0)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),-12)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),-12)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),JSON(A2:B2))' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),JSON(A2:B2))' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
 		});
 		it(`should return ${ERROR.VALUE} for invalid range parameter`, () => {
 			const sheet = newSheet();
 			sheet.load({
 				cells: {
-					A1: { formula: 'time.store(JSON(B1:C1))' },
+					A1: { formula: 'timestore(JSON(B1:C1))' },
 					A2: 'select', B2: 'v1'
 				}
 			});
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),1,true)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),1,true)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,"r1:s2")' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,"r1:s2")' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),JSON(A2:B2),,42)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),JSON(A2:B2),,42)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,,)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,,)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(true);
 		});
 		it(`should return ${ERROR.VALUE} for invalid limit parameter`, () => {
 			const sheet = newSheet();
 			sheet.load({
 				cells: {
-					A1: { formula: 'time.store(JSON(B1:C1))' },
+					A1: { formula: 'timestore(JSON(B1:C1))' },
 					A2: 'select', B2: 'v1'
 				}
 			});
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,,true)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,,true)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,,"")' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,,"")' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,,"42")' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,,"42")' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
 			// MIN_LIMIT is 1
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),1,,0)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),1,,0)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-			createCellAt('A3', { formula: 'time.query(A1,JSON(A2:B2),,,-1)' }, sheet);
+			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,,-1)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
 		});
-		it(`should return ${ERROR.VALUE} if first parameter does not reference time.store`, () => {
+		it(`should return ${ERROR.VALUE} if first parameter does not reference timestore`, () => {
 			const sheet = newSheet();
 			createCellAt('A1', 'v1', sheet);
-			createCellAt('A4', { formula: 'time.query(A1, "v1")' }, sheet);
+			createCellAt('A4', { formula: 'timequery(A1, "v1")' }, sheet);
 			const cell = sheet.cellAt('A4');
 			// const term = cell.term;
 			expect(cell.value).toBe(ERROR.VALUE);
@@ -238,9 +238,9 @@ describe('timequery', () => {
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'B2+10)' },
-					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1, v2',
-					A6: { formula: 'time.query(A3, JSON(A4:B5))' }
+					A6: { formula: 'timequery(A3, JSON(A4:B5))' }
 				}
 			});
 			const querycell = sheet.cellAt('A6');
@@ -272,9 +272,9 @@ describe('timequery', () => {
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'B2+10)' },
-					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1,v2',
-					A6: { formula: 'time.query(A3, JSON(A4:B4),,,2)' }
+					A6: { formula: 'timequery(A3, JSON(A4:B4),,,2)' }
 				}
 			});
 			const querycell = sheet.cellAt('A6');
@@ -306,10 +306,10 @@ describe('timequery', () => {
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'B2+10)' },
-					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1', C4: 'select', D4: 'v1,v2',
 					A5: 'aggregate', B5: 9, C5: 'aggregate', D5: '9, 4',
-					A8: { formula: 'time.query(A3, JSON(A4:B5), 200/1000)' }
+					A8: { formula: 'timequery(A3, JSON(A4:B5), 200/1000)' }
 				}
 			});
 			let querycell = sheet.cellAt('A8');
@@ -320,7 +320,7 @@ describe('timequery', () => {
 			expect(querycell.info.values.v2).toBeUndefined();
 			expect(querycell.info.values.v1.length).toBe(1);
 			// check multiple aggregation:
-			createCellAt('A8', { formula: 'time.query(A3, JSON(C4:D5), 200/1000)' }, sheet);
+			createCellAt('A8', { formula: 'timequery(A3, JSON(C4:D5), 200/1000)' }, sheet);
 			querycell = sheet.cellAt('A8');
 			expect(querycell.value).toBe(true);
 			await runMachine(machine, 350);
@@ -336,10 +336,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 5,
-					A5: { formula: `time.query(A2, JSON(A3:B4), 200/1000)` }
+					A5: { formula: `timequery(A2, JSON(A3:B4), 200/1000)` }
 				}
 			});
 			const querycell = sheet.cellAt('A5');
@@ -363,10 +363,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 5,
-					A5: { formula: `time.query(A2, JSON(A3:B4), 200/1000, , 1)` }
+					A5: { formula: `timequery(A2, JSON(A3:B4), 200/1000, , 1)` }
 				}
 			});
 			const querycell = sheet.cellAt('A5');
@@ -382,10 +382,10 @@ describe('timequery', () => {
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'B2+10)' },
-					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1,v2',
 					A5: 'aggregate', B5: '9,4',
-					A8: { formula: 'time.query(A3, JSON(A4:B5), 200/1000, B8:D12)' }
+					A8: { formula: 'timequery(A3, JSON(A4:B5), 200/1000, B8:D12)' }
 				}
 			});
 			const querycell = sheet.cellAt('A8');
@@ -411,10 +411,10 @@ describe('timequery', () => {
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'B2+10)' },
-					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1',
 					A5: 'aggregate', B5: 9,
-					A8: { formula: 'time.query(A3, JSON(A4:B5), 200/1000, B8:D12)' },
+					A8: { formula: 'timequery(A3, JSON(A4:B5), 200/1000, B8:D12)' },
 					B8: 'hello', C9: 'world', D12: '!!'
 				}
 			});
@@ -447,10 +447,10 @@ describe('timequery', () => {
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'B2+10)' },
-					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1,v2',
 					A5: 'aggregate', B5: '9,4',
-					A8: { formula: 'time.query(A3, JSON(A4:B5), 200/1000, B8:D12)' }
+					A8: { formula: 'timequery(A3, JSON(A4:B5), 200/1000, B8:D12)' }
 				}
 			});
 			const querycell = sheet.cellAt('A8');
@@ -472,10 +472,10 @@ describe('timequery', () => {
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'B2+10)' },
-					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1,v2',
 					A5: 'aggregate', B5: '9,4',
-					A8: { formula: 'time.query(A3, JSON(A4:B5), 200/1000, B8:D12)' }
+					A8: { formula: 'timequery(A3, JSON(A4:B5), 200/1000, B8:D12)' }
 				}
 			});
 			const querycell = sheet.cellAt('A8');
@@ -522,16 +522,16 @@ describe('timequery', () => {
 			expect(sheet.cellAt('C11')).toBeUndefined();
 			expect(sheet.cellAt('D11')).toBeUndefined();
 		});
-		it('should not change entries of time.store', async () => {
+		it('should not change entries of timestore', async () => {
 			const machine = newMachine({ cycletime: 100 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B1))' },
+					A2: { formula: 'timestore(JSON(A1:B1))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 5,
-					A5: { formula: `time.query(A2, JSON(A3:B4), 200/1000)` }
+					A5: { formula: `timequery(A2, JSON(A3:B4), 200/1000)` }
 				}
 			});
 			const storecell = sheet.cellAt('A2');
@@ -551,10 +551,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A3: { formula: 'time.store(JSON(A1:B1))' },
+					A3: { formula: 'timestore(JSON(A1:B1))' },
 					A4: 'select', B4: 'v1',
 					A5: 'aggregate', B5: 9,
-					A8: { formula: 'time.query(A3, JSON(A4:B5), 100/1000)' }
+					A8: { formula: 'timequery(A3, JSON(A4:B5), 100/1000)' }
 				}
 			});
 			const querycell = sheet.cellAt('A8');
@@ -576,10 +576,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 5,
-					A5: { formula: `time.query(A2, JSON(A3:B4), 15/1000, , 1)` }
+					A5: { formula: `timequery(A2, JSON(A3:B4), 15/1000, , 1)` }
 				}
 			});
 			const querycell = sheet.cellAt('A5');
@@ -593,10 +593,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 5,
-					A5: { formula: `time.query(A2, JSON(A3:B4), 20/1000)` }
+					A5: { formula: `timequery(A2, JSON(A3:B4), 20/1000)` }
 				}
 			});
 			const querycell = sheet.cellAt('A5');
@@ -614,10 +614,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 0,
-					A5: { formula: 'time.query(A2, JSON(A3:B4), 1)' }
+					A5: { formula: 'timequery(A2, JSON(A3:B4), 1)' }
 				}
 			});
 			const querycell = sheet.cellAt('A5');
@@ -639,10 +639,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 1,
-					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
 			const querycell = sheet.cellAt('A5');
@@ -671,10 +671,10 @@ describe('timequery', () => {
 					A6: 'v6', B6: '23',
 					A7: 'v7', B7: null,
 					A8: 'v8', B8: undefined,
-					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
 					A11: 'aggregate', B11: '1,1,1,1,1,1,1,1',
-					A20: { formula: 'time.query(A9, JSON(A10:B11), 200/1000)' }
+					A20: { formula: 'timequery(A9, JSON(A10:B11), 200/1000)' }
 				}
 			});
 			const querycell = sheet.cellAt('A20');
@@ -696,10 +696,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 4,
-					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
 			const querycell = sheet.cellAt('A5');
@@ -728,10 +728,10 @@ describe('timequery', () => {
 					A6: 'v6', B6: '23',
 					A7: 'v7', B7: null,
 					A8: 'v8', B8: undefined,
-					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
 					A11: 'aggregate', B11: '4,4,4,4,4,4,4,4',
-					A20: { formula: 'time.query(A9, JSON(A10:B11), 200/1000)' }
+					A20: { formula: 'timequery(A9, JSON(A10:B11), 200/1000)' }
 				}
 			});
 			const querycell = sheet.cellAt('A20');
@@ -753,10 +753,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 5,
-					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
 			const querycell = sheet.cellAt('A5');
@@ -785,10 +785,10 @@ describe('timequery', () => {
 					A6: 'v6', B6: '23',
 					A7: 'v7', B7: null,
 					A8: 'v8', B8: undefined,
-					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
 					A11: 'aggregate', B11: '5,5,5,5,5,5,5,5',
-					A20: { formula: 'time.query(A9, JSON(A10:B11), 200/1000)' }
+					A20: { formula: 'timequery(A9, JSON(A10:B11), 200/1000)' }
 				}
 			});
 			const querycell = sheet.cellAt('A20');
@@ -810,10 +810,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: 'hello',
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 3,
-					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
 			const querycell = sheet.cellAt('A5');
@@ -845,10 +845,10 @@ describe('timequery', () => {
 					A6: 'v6', B6: '23',
 					A7: 'v7', B7: null,
 					A8: 'v8', B8: undefined,
-					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
 					A11: 'aggregate', B11: '3,3,3,3,3,3,3,3',
-					A20: { formula: 'time.query(A9, JSON(A10:B11), 200/1000)' }
+					A20: { formula: 'timequery(A9, JSON(A10:B11), 200/1000)' }
 				}
 			});
 			const querycell = sheet.cellAt('A20');
@@ -870,10 +870,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 2,
-					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
 			const querycell = sheet.cellAt('A5');
@@ -903,10 +903,10 @@ describe('timequery', () => {
 					A6: 'v6', B6: '23',
 					A7: 'v7', B7: null,
 					A8: 'v8', B8: undefined,
-					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
 					A11: 'aggregate', B11: '2,2,2,2,2,2,2,2',
-					A20: { formula: 'time.query(A9, JSON(A10:B11), 200/1000)' }
+					A20: { formula: 'timequery(A9, JSON(A10:B11), 200/1000)' }
 				}
 			});
 			const querycell = sheet.cellAt('A20');
@@ -928,10 +928,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 6,
-					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
 			const querycell = sheet.cellAt('A5');
@@ -960,10 +960,10 @@ describe('timequery', () => {
 					A6: 'v6', B6: '23',
 					A7: 'v7', B7: null,
 					A8: 'v8', B8: undefined,
-					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
 					A11: 'aggregate', B11: '6,6,6,6,6,6,6,6',
-					A20: { formula: 'time.query(A9, JSON(A10:B11), 200/1000)' }
+					A20: { formula: 'timequery(A9, JSON(A10:B11), 200/1000)' }
 				}
 			});
 			const querycell = sheet.cellAt('A20');
@@ -985,10 +985,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 9,
-					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
 			const querycell = sheet.cellAt('A5');
@@ -1016,10 +1016,10 @@ describe('timequery', () => {
 					A6: 'v6', B6: '23',
 					A7: 'v7', B7: null,
 					A8: 'v8', B8: undefined,
-					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
 					A11: 'aggregate', B11: '9,9,9,9,9,9,9,9',
-					A20: { formula: 'time.query(A9, JSON(A10:B11), 200/1000)' }
+					A20: { formula: 'timequery(A9, JSON(A10:B11), 200/1000)' }
 				}
 			});
 			const querycell = sheet.cellAt('A20');
@@ -1041,10 +1041,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 7,
-					A5: { formula: `time.query(A2, JSON(A3:B4), 1)` }
+					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
 			const querycell = sheet.cellAt('A5');
@@ -1072,10 +1072,10 @@ describe('timequery', () => {
 					A6: 'v6', B6: '23',
 					A7: 'v7', B7: null,
 					A8: 'v8', B8: undefined,
-					A9: { formula: 'time.store(JSON(A1:B8))' },
+					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
 					A11: 'aggregate', B11: '7,7,7,7,7,7,7,7',
-					A20: { formula: 'time.query(A9, JSON(A10:B11), 200/1000)' }
+					A20: { formula: 'timequery(A9, JSON(A10:B11), 200/1000)' }
 				}
 			});
 			const querycell = sheet.cellAt('A20');
@@ -1099,11 +1099,11 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 5, // minimum
 					A5: 'where', B5: 'v1 > 2',
-					A6: { formula: 'time.query(A2, JSON(A3:B5), 100)' }
+					A6: { formula: 'timequery(A2, JSON(A3:B5), 100)' }
 				}
 			});
 			const querycell = sheet.cellAt('A6');
@@ -1141,11 +1141,11 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: 'hello',
 					A3: 'v3', B3: { formula: 'concat("count",B1)' },
-					A7: { formula: 'time.store(JSON(A1:B3))' },
+					A7: { formula: 'timestore(JSON(A1:B3))' },
 					A8: 'select', B8: 'v1',
 					A9: 'aggregate', B9: 5, // minimum
 					A10: 'where', B10: 'v2 > "he"',
-					A11: { formula: 'time.query(A7, JSON(A8:B10), 100)' }
+					A11: { formula: 'timequery(A7, JSON(A8:B10), 100)' }
 				}
 			});
 			const querycell = sheet.cellAt('A11');
@@ -1182,11 +1182,11 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 4, // maximum
 					A5: 'where', B5: 'v1 < 4',
-					A6: { formula: 'time.query(A2, JSON(A3:B5), 100)' }
+					A6: { formula: 'timequery(A2, JSON(A3:B5), 100)' }
 				}
 			});
 			const querycell = sheet.cellAt('A6');
@@ -1223,11 +1223,11 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: 'hello',
 					A3: 'v3', B3: { formula: 'concat("count",B1)' },
-					A7: { formula: 'time.store(JSON(A1:B3))' },
+					A7: { formula: 'timestore(JSON(A1:B3))' },
 					A8: 'select', B8: 'v1',
 					A9: 'aggregate', B9: 4, // maximum
 					A10: 'where', B10: 'v2 < "world"',
-					A11: { formula: 'time.query(A7, JSON(A8:B10), 100)' }
+					A11: { formula: 'timequery(A7, JSON(A8:B10), 100)' }
 				}
 			});
 			const querycell = sheet.cellAt('A11');
@@ -1264,11 +1264,11 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A2: { formula: 'time.store(JSON(A1:B2))' },
+					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 5, // minimum
 					A5: 'where', B5: 'v1 = 4',
-					A6: { formula: 'time.query(A2, JSON(A3:B5), 100)' }
+					A6: { formula: 'timequery(A2, JSON(A3:B5), 100)' }
 				}
 			});
 			const querycell = sheet.cellAt('A6');
@@ -1305,11 +1305,11 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: true,
 					A3: 'v3', B3: '',
-					A7: { formula: 'time.store(JSON(A1:B3))' },
+					A7: { formula: 'timestore(JSON(A1:B3))' },
 					A8: 'select', B8: 'v1',
 					A9: 'aggregate', B9: 5, // minimum
 					A10: 'where', B10: 'v2 = true',
-					A11: { formula: 'time.query(A7, JSON(A8:B10), 100)' }
+					A11: { formula: 'timequery(A7, JSON(A8:B10), 100)' }
 				}
 			});
 			const querycell = sheet.cellAt('A11');
@@ -1347,11 +1347,11 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: 'kitchen',
 					A3: 'v3', B3: { formula: 'B3+10)' },
-					A7: { formula: 'time.store(JSON(A1:B3))' },
+					A7: { formula: 'timestore(JSON(A1:B3))' },
 					A8: 'select', B8: 'v1',
 					A9: 'aggregate', B9: 5, // minimum
 					A10: 'where', B10: 'v2 = "kitchen" AND v3 > 30',
-					A11: { formula: 'time.query(A7, JSON(A8:B10), 100)' }
+					A11: { formula: 'timequery(A7, JSON(A8:B10), 100)' }
 				}
 			});
 			const querycell = sheet.cellAt('A11');
@@ -1375,11 +1375,11 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: 'kitchen',
 					A3: 'v3', B3: { formula: 'B3+10)' },
-					A7: { formula: 'time.store(JSON(A1:B3))' },
+					A7: { formula: 'timestore(JSON(A1:B3))' },
 					A8: 'select', B8: 'v1',
 					A9: 'aggregate', B9: 5, // minimum
 					A10: 'where', B10: 'v2 = "bathroom" OR v3 > 30',
-					A11: { formula: 'time.query(A7, JSON(A8:B10), 100)' }
+					A11: { formula: 'timequery(A7, JSON(A8:B10), 100)' }
 				}
 			});
 			const querycell = sheet.cellAt('A11');
@@ -1403,11 +1403,11 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: 'kitchen',
 					A3: 'v3', B3: { formula: 'B3+10)' },
-					A7: { formula: 'time.store(JSON(A1:B3))' },
+					A7: { formula: 'timestore(JSON(A1:B3))' },
 					A8: 'select', B8: 'v1',
 					A9: 'aggregate', B9: 5, // minimum
 					A10: 'where', B10: 'v2 = "bathroom" OR v3 > 20 AND v3 = 40',
-					A11: { formula: 'time.query(A7, JSON(A8:B10), 100)' }
+					A11: { formula: 'timequery(A7, JSON(A8:B10), 100)' }
 				}
 			});
 			const querycell = sheet.cellAt('A11');
@@ -1431,11 +1431,11 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: 'kitchen AND bathroom',
 					A3: 'v3', B3: 'bedroom OR toilet',
-					A7: { formula: 'time.store(JSON(A1:B3))' },
+					A7: { formula: 'timestore(JSON(A1:B3))' },
 					A8: 'select', B8: 'v1',
 					A9: 'aggregate', B9: 5, // minimum
 					A10: 'where', B10: 'v2 = "bedroom AND bathroom" OR v3 = "bedroom OR toilet"',
-					A11: { formula: 'time.query(A7, JSON(A8:B10), 100)' }
+					A11: { formula: 'timequery(A7, JSON(A8:B10), 100)' }
 				}
 			});
 			const querycell = sheet.cellAt('A11');
@@ -1458,10 +1458,10 @@ describe('timequery', () => {
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'concat("count",B1)' },
-					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1,v2',
 					A5: 'where', B5: 'v2 > "count3"',
-					A6: { formula: 'time.query(A3, JSON(A4:B5), 100)' }
+					A6: { formula: 'timequery(A3, JSON(A4:B5), 100)' }
 				}
 			});
 			const querycell = sheet.cellAt('A6');
@@ -1489,10 +1489,10 @@ describe('timequery', () => {
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'B2+10)' },
-					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: '*',
 					A5: 'aggregate', B5: 9,
-					A6: { formula: 'time.query(A3, JSON(A4:B5), 10)' }
+					A6: { formula: 'timequery(A3, JSON(A4:B5), 10)' }
 				}
 			});
 			const querycell = sheet.cellAt('A6');
@@ -1514,10 +1514,10 @@ describe('timequery', () => {
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'B2+10)' },
-					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: '*',
 					A5: 'aggregate', B5: '4,9,1',
-					A6: { formula: 'time.query(A3, JSON(A4:B5), 10)' }
+					A6: { formula: 'timequery(A3, JSON(A4:B5), 10)' }
 				}
 			});
 			const querycell = sheet.cellAt('A6');
@@ -1540,10 +1540,10 @@ describe('timequery', () => {
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'B2+10)' },
-					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: '*',
 					A5: 'aggregate', B5: '',
-					A6: { formula: 'time.query(A3, JSON(A4:B5), 10)' }
+					A6: { formula: 'timequery(A3, JSON(A4:B5), 10)' }
 				}
 			});
 			const querycell = sheet.cellAt('A6');
@@ -1593,10 +1593,10 @@ describe('timequery', () => {
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'B2+10)' },
-					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1,*',
 					A5: 'aggregate', B5: '4,9',
-					A6: { formula: 'time.query(A3, JSON(A4:B5), 10)' }
+					A6: { formula: 'timequery(A3, JSON(A4:B5), 10)' }
 				}
 			});
 			const querycell = sheet.cellAt('A6');
@@ -1620,9 +1620,9 @@ describe('timequery', () => {
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: 'v2', B2: { formula: 'B2+10)' },
-					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: '*',
-					A6: { formula: 'time.query(A3, JSON(A4:B5))' }
+					A6: { formula: 'timequery(A3, JSON(A4:B5))' }
 				}
 			});
 			const querycell = sheet.cellAt('A6');
@@ -1647,10 +1647,10 @@ describe('timequery', () => {
 			sheet.load({
 				cells: {
 					A1: 'v1', B1: { formula: 'B1+1)' },
-					A3: { formula: 'time.store(JSON(A1:B2))' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: '*',
 					A5: 'aggregate', B5: '9',
-					A6: { formula: 'time.query(A3, JSON(A4:B5), 10)' }
+					A6: { formula: 'timequery(A3, JSON(A4:B5), 10)' }
 				}
 			});
 			const querycell = sheet.cellAt('A6');

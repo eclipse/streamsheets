@@ -5,13 +5,13 @@ const { newMachine, newSheet, runMachine } = require('./utils');
 
 const ERROR = FunctionErrors.code;
 
-describe('time.store', () => {
+describe('timestore', () => {
 	it('should store values over specified time', async () => {
 		const machine = newMachine({ cycletime: 1000 });
 		const sheet = machine.getStreamSheetByName('T1').sheet;
 		createCellAt('A1', 'v1', sheet);
 		createCellAt('B1', { formula: 'B1+1' }, sheet);
-		createCellAt('A3', { formula: 'time.store(JSON(A1:B1))' }, sheet);
+		createCellAt('A3', { formula: 'timestore(JSON(A1:B1))' }, sheet);
 		const cell = sheet.cellAt('A3');
 		const term = cell.term;
 		expect(cell.value).toBe(true);
@@ -28,7 +28,7 @@ describe('time.store', () => {
 		const sheet = machine.getStreamSheetByName('T1').sheet;
 		createCellAt('A1', 'v1', sheet);
 		createCellAt('B1', { formula: 'B1+1' }, sheet);
-		createCellAt('A3', { formula: 'time.store(JSON(A1:B1),1/1000)' }, sheet);
+		createCellAt('A3', { formula: 'timestore(JSON(A1:B1),1/1000)' }, sheet);
 		const cell = sheet.cellAt('A3');
 		const term = cell.term;
 		expect(cell.value).toBe(true);
@@ -47,7 +47,7 @@ describe('time.store', () => {
 		const sheet = machine.getStreamSheetByName('T1').sheet;
 		createCellAt('A1', 'v1', sheet);
 		createCellAt('B1', { formula: 'B1+1' }, sheet);
-		createCellAt('A3', { formula: 'time.store(JSON(A1:B1),,,1)' }, sheet);
+		createCellAt('A3', { formula: 'timestore(JSON(A1:B1),,,1)' }, sheet);
 		const cell = sheet.cellAt('A3');
 		const term = cell.term;
 		expect(cell.value).toBe(true);
@@ -64,7 +64,7 @@ describe('time.store', () => {
 		const sheet = machine.getStreamSheetByName('T1').sheet;
 		createCellAt('A1', 'v1', sheet);
 		createCellAt('B1', { formula: 'B1+1' }, sheet);
-		createCellAt('A3', { formula: 'time.store(JSON(A1:B1),,B1)' }, sheet);
+		createCellAt('A3', { formula: 'timestore(JSON(A1:B1),,B1)' }, sheet);
 		const cell = sheet.cellAt('A3');
 		const term = cell.term;
 		expect(cell.value).toBe(true);
@@ -80,7 +80,7 @@ describe('time.store', () => {
 		createCellAt('A1', 'v1', sheet);
 		createCellAt('B1', { formula: 'B1+1' }, sheet);
 		createCellAt('C1', { formula: '100-B1' }, sheet);
-		createCellAt('A3', { formula: 'time.store(JSON(A1:B1),,C1)' }, sheet);
+		createCellAt('A3', { formula: 'timestore(JSON(A1:B1),,C1)' }, sheet);
 		const cell = sheet.cellAt('A3');
 		const term = cell.term;
 		expect(cell.value).toBe(true);
@@ -96,7 +96,7 @@ describe('time.store', () => {
 		createCellAt('A1', 'v1', sheet);
 		createCellAt('B1', { formula: 'B1+1' }, sheet);
 		createCellAt('C1', { formula: 'C1+1' }, sheet);
-		createCellAt('A3', { formula: 'time.store(JSON(A1:B1),,C1)' }, sheet);
+		createCellAt('A3', { formula: 'timestore(JSON(A1:B1),,C1)' }, sheet);
 		const cell = sheet.cellAt('A3');
 		const term = cell.term;
 		expect(cell.value).toBe(true);
@@ -122,7 +122,7 @@ describe('time.store', () => {
 		const sheet = machine.getStreamSheetByName('T1').sheet;
 		createCellAt('A1', 'v1', sheet);
 		createCellAt('B1', { formula: 'B1+1' }, sheet);
-		createCellAt('A3', { formula: 'time.store(JSON(A1:B1))' }, sheet);
+		createCellAt('A3', { formula: 'timestore(JSON(A1:B1))' }, sheet);
 		const cell = sheet.cellAt('A3');
 		const term = cell.term;
 		expect(cell.value).toBe(true);
@@ -144,7 +144,7 @@ describe('time.store', () => {
 		createCellAt('B1', { formula: 'B1+1' }, sheet);
 		createCellAt('B2', { formula: 'B2+10' }, sheet);
 		createCellAt('B3', { formula: 'B3+100' }, sheet);
-		createCellAt('A5', { formula: 'time.store(JSON(A1:B3))' }, sheet);
+		createCellAt('A5', { formula: 'timestore(JSON(A1:B3))' }, sheet);
 		const cell = sheet.cellAt('A5');
 		const term = cell.term;
 		expect(cell.value).toBe(true);
@@ -163,7 +163,7 @@ describe('time.store', () => {
 		createCellAt('B1', { formula: 'B1+1' }, sheet);
 		createCellAt('B2', { formula: 'B2+10' }, sheet);
 		createCellAt('B3', { formula: 'B3+100' }, sheet);
-		createCellAt('A5', { formula: 'time.store(JSON(A1:B4))' }, sheet);
+		createCellAt('A5', { formula: 'timestore(JSON(A1:B4))' }, sheet);
 		const cell = sheet.cellAt('A5');
 		const term = cell.term;
 		expect(cell.value).toBe(true);
@@ -179,7 +179,7 @@ describe('time.store', () => {
 		const sheet = machine.getStreamSheetByName('T1').sheet;
 		createCellAt('A1', 'v1', sheet);
 		createCellAt('B1', { formula: 'B1+1' }, sheet);
-		createCellAt('A3', { formula: 'time.store(JSON(A1:B1))' }, sheet);
+		createCellAt('A3', { formula: 'timestore(JSON(A1:B1))' }, sheet);
 		const cell = sheet.cellAt('A3');
 		const term = cell.term;
 		expect(cell.value).toBe(true);
@@ -193,13 +193,13 @@ describe('time.store', () => {
 	});
 	it(`should return error ${ERROR.ARGS} if required parameter is missing`, () => {
 		const sheet = newSheet();
-		createCellAt('A3', { formula: 'time.store()' }, sheet);
+		createCellAt('A3', { formula: 'timestore()' }, sheet);
 		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
-		createCellAt('A3', { formula: 'time.store(,)' }, sheet);
+		createCellAt('A3', { formula: 'timestore(,)' }, sheet);
 		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
-		createCellAt('A3', { formula: 'time.store(,,)' }, sheet);
+		createCellAt('A3', { formula: 'timestore(,,)' }, sheet);
 		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
-		createCellAt('A3', { formula: 'time.store(,,,)' }, sheet);
+		createCellAt('A3', { formula: 'timestore(,,,)' }, sheet);
 		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
 	});
 	it(`should return error ${ERROR.VALUE} if limit is below 1`, async () => {
@@ -207,11 +207,11 @@ describe('time.store', () => {
 		const sheet = machine.getStreamSheetByName('T1').sheet;
 		createCellAt('A1', 'v1', sheet);
 		createCellAt('B1', { formula: 'B1+1' }, sheet);
-		createCellAt('A3', { formula: 'time.store(JSON(A1:B1),,,0)' }, sheet);
+		createCellAt('A3', { formula: 'timestore(JSON(A1:B1),,,0)' }, sheet);
 		expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-		createCellAt('A3', { formula: 'time.store(JSON(A1:B1),,,-1)' }, sheet);
+		createCellAt('A3', { formula: 'timestore(JSON(A1:B1),,,-1)' }, sheet);
 		expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
-		createCellAt('A3', { formula: 'time.store(JSON(A1:B1),,,-123456)' }, sheet);
+		createCellAt('A3', { formula: 'timestore(JSON(A1:B1),,,-123456)' }, sheet);
 		expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
 	});
 	it(`should return ${ERROR.LIMIT} if limit is reached`, async () => {
@@ -219,7 +219,7 @@ describe('time.store', () => {
 		const sheet = machine.getStreamSheetByName('T1').sheet;
 		createCellAt('A1', 'v1', sheet);
 		createCellAt('B1', { formula: 'B1+1' }, sheet);
-		createCellAt('A3', { formula: 'time.store(JSON(A1:B1),,,2)' }, sheet);
+		createCellAt('A3', { formula: 'timestore(JSON(A1:B1),,,2)' }, sheet);
 		expect(sheet.cellAt('A3').value).toBe(true);
 		await machine.step();
 		expect(sheet.cellAt('A3').value).toBe(true);
