@@ -6,6 +6,10 @@ export interface Stream {
 	className: string;
 	scope?: Scope;
 	status?: string;
+	providerId?: ID;
+	provider?: {
+		id: ID;
+	}
 	connector?: {
 		id: ID;
 	};

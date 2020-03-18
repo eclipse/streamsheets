@@ -201,7 +201,7 @@ const doImport = async (
 		streamsToImport.map(async (selection) => {
 			try {
 				const existing = await api.stream.findByName(scope, selection.newName);
-				return createStreamImport({
+				const stream = createStreamImport({
 					stream: selection.stream,
 					existing,
 					name: selection.newName,
@@ -210,6 +210,17 @@ const doImport = async (
 					oldNewStreamId,
 					oldNewStreamName
 				});
+				if (stream && !stream.providerId) {
+					const connectorId = stream.connector.id;
+					const connector =
+						newConnectors.find((c) => c.id === connectorId) ||
+						(await api.stream.findById(scope, connectorId));
+					if (!connector) {
+						return null;
+					}
+					return { ...stream, providerId: connector.provider!.id };
+				}
+				return stream;
 			} catch (error) {
 				logger.info(`Failed to prepare import! Stream#${selection.id}(${selection.newName})`, error.message);
 				return null;
