@@ -112,7 +112,7 @@ export default class ChartSelectionFeedbackView extends View {
 				const info = {
 					serie,
 					seriesIndex: selection.index,
-					categories: axes.x.categories
+					categories: axes.y.categories
 				};
 
 				while (item.getValue(ref, index, value)) {

@@ -364,6 +364,8 @@ module.exports = class SheetPlotNode extends Node {
 			this.title.position.reset();
 		}
 
+		this.actions = [];
+
 		this.xAxes.forEach((axis) => {
 			if (axis.scale.maxZoom !== undefined) {
 				this.plot.position.top = Math.max(this.plot.position.top, 800);
@@ -372,8 +374,6 @@ module.exports = class SheetPlotNode extends Node {
 					action: this.resetZoom,
 					title: 'Reset Zoom'
 				}];
-			} else {
-				this.actions = [];
 			}
 		});
 
@@ -728,7 +728,7 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	setParamValues(viewer, expression, values) {
-		const term = expression.getTerm();
+		let term = expression.getTerm();
 		if (term === undefined) {
 			return;
 		}
@@ -765,6 +765,8 @@ module.exports = class SheetPlotNode extends Node {
 					term.params[value.index] = Term.fromNumber(value.value);
 				}
 				expression.correctFormula();
+				// term can change
+				term = expression.getTerm();
 			}
 
 		});
@@ -922,13 +924,14 @@ module.exports = class SheetPlotNode extends Node {
 			return;
 		}
 
+		this.yAxes.forEach(axis => {
+			axis.categories = [];
+		});
+
 		// evaluate min/max for series
 		this.series.forEach((series, index) => {
 			const ref = this.getDataSourceInfo(series.formula);
 			const axes = this.getAxes(series);
-			if (index === 0) {
-				axes.x.categories = [];
-			}
 			if (ref) {
 				let pointIndex = 0;
 				const value = {};
@@ -953,14 +956,14 @@ module.exports = class SheetPlotNode extends Node {
 						cMin = Math.min(value.c, cMin);
 						cMax = Math.max(value.c, cMax);
 					}
-					if (!axes.x.categories[pointIndex]) {
-						axes.x.categories[pointIndex] = {
+					if (!axes.y.categories[pointIndex]) {
+						axes.y.categories[pointIndex] = {
 							values: [],
 							pos: 0,
 							neg: 0
 						};
 					}
-					axes.x.categories[pointIndex].values[index] = {
+					axes.y.categories[pointIndex].values[index] = {
 						x: value.x,
 						y: value.y,
 						c: value.c,
@@ -972,7 +975,7 @@ module.exports = class SheetPlotNode extends Node {
 					valid = true;
 				}
 				if (this.chart.stacked) {
-					axes.x.categories.forEach((category) => {
+					axes.y.categories.forEach((category) => {
 						if (category.values) {
 							let pos = 0;
 							let neg = 0;
@@ -1425,8 +1428,8 @@ module.exports = class SheetPlotNode extends Node {
 		const margin = this.chart.stacked ? 0 : 150;
 
 		if (this.chart.relative) {
-			const neg = axes.x.categories[index].neg;
-			const pos = axes.x.categories[index].pos;
+			const neg = axes.y.categories[index].neg;
+			const pos = axes.y.categories[index].pos;
 			const sum = pos - neg;
 			if (sum !== 0 && Numbers.isNumber(sum)) {
 				height = -this.scaleSizeToAxis(axes.y, value / sum, false);
@@ -1436,7 +1439,7 @@ module.exports = class SheetPlotNode extends Node {
 		}
 		return {
 			margin,
-			height,
+			height: axes.y.invert ? -height : height,
 			offset: this.chart.stacked ? -barWidth / 2 : -this.series.length / 2 * barWidth + seriesIndex * barWidth + margin / 2
 		}
 	}
@@ -1452,7 +1455,7 @@ module.exports = class SheetPlotNode extends Node {
 					this.scaleToAxis(axes.x, 0, undefined, false) * plotRect.width;
 			}
 			barWidth = barWidth * 0.7 / (this.chart.stacked ? 1 : this.series.length);
-			return barWidth;
+			return Math.abs(barWidth);
 		}
 
 		return 100;
@@ -1675,19 +1678,27 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	scaleFromAxis(axes, point) {
-		point.x -= this.plot.position.left;
-		point.y = this.plot.position.bottom - point.y;
+		let x = point.x - this.plot.position.left;
+		let y = this.plot.position.bottom - point.y;
 
 		if (axes.x.invert) {
-			point.x = (this.plot.position.right - this.plot.position.left) - point.x;
+			x = (this.plot.position.right - this.plot.position.left) - x;
 		}
 		if (axes.y.invert) {
-			point.y = (this.plot.position.bottom - this.plot.position.top) - point.y;
+			y = (this.plot.position.bottom - this.plot.position.top) - y;
+		}
+
+		if (axes.x.align === 'bottom' || axes.x.align === 'top') {
+			return {
+				x: axes.x.scale.min + (x / (this.plot.position.right - this.plot.position.left)) * (axes.x.scale.max - axes.x.scale.min) - (axes.x.type === 'category' ? 0.5 : 0),
+				y: axes.y.scale.min + (y / (this.plot.position.bottom - this.plot.position.top)) * (axes.y.scale.max - axes.y.scale.min)
+			};
+
 		}
 
 		return {
-			x: axes.x.scale.min + (point.x / (this.plot.position.right - this.plot.position.left)) * (axes.x.scale.max - axes.x.scale.min) - (axes.x.type === 'category' ? 0.5 : 0),
-			y: axes.y.scale.min + (point.y / (this.plot.position.bottom - this.plot.position.top)) * (axes.y.scale.max - axes.y.scale.min)
+			x: axes.x.scale.min + (y / (this.plot.position.bottom - this.plot.position.top)) * (axes.x.scale.max - axes.x.scale.min) - (axes.x.type === 'category' ? 0.5 : 0),
+			y: axes.y.scale.min + (x / (this.plot.position.right - this.plot.position.left)) * (axes.y.scale.max - axes.y.scale.min)
 		};
 	}
 
@@ -1979,7 +1990,7 @@ module.exports = class SheetPlotNode extends Node {
 					const info = {
 						serie: series,
 						seriesIndex: index,
-						categories: axes.x.categories
+						categories: axes.y.categories
 					};
 					const points = [];
 					const prevPoints = [];

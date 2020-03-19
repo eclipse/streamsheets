@@ -17,10 +17,14 @@ export default class ChartInfoFeedbackView extends View {
 		const item = this.chartView.getItem();
 		const top = new Point(item.plot.position.left, item.plot.position.top);
 		const bottom = new Point(item.plot.position.left, item.plot.position.bottom);
+		const left = new Point(item.plot.position.left, item.plot.position.top);
+		const right = new Point(item.plot.position.right, item.plot.position.top);
 
 		GraphUtils.traverseUp(this.chartView, this._graphView, (v) => {
 			v.translateToParent(top);
 			v.translateToParent(bottom);
+			v.translateToParent(left);
+			v.translateToParent(right);
 			return true;
 		});
 
@@ -32,20 +36,39 @@ export default class ChartInfoFeedbackView extends View {
 		graphics.beginPath();
 
 		const plotRect = item.plot.position;
-		const x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false)  * plotRect.width;
-		const y = top.y;
+		let x;
+		let y;
 
-		if (x  - top.x > plotRect.width || x - top.x < 0) {
-			return;
-		}
+		if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
+			x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false)  * plotRect.width;
+			y = top.y;
 
-		graphics.moveTo(x, top.y);
-		graphics.lineTo(x, bottom.y);
+			if (x  - top.x > plotRect.width || x - top.x < 0) {
+				return;
+			}
+			graphics.moveTo(x, top.y);
+			graphics.lineTo(x, bottom.y);
 
-		if (this.endPoint) {
-			graphics.moveTo(this.endPoint.x, top.y);
-			graphics.lineTo(this.endPoint.x, bottom.y);
-			graphics.rect(this.point.x, top.y, this.endPoint.x - this.point.x, bottom.y - top.y);
+			if (this.endPoint) {
+				graphics.moveTo(this.endPoint.x, top.y);
+				graphics.lineTo(this.endPoint.x, bottom.y);
+				graphics.rect(this.point.x, top.y, this.endPoint.x - this.point.x, bottom.y - top.y);
+			}
+		} else {
+			x = top.x;
+			y = bottom.y - item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false)  * plotRect.height;
+
+			if (y - top.y > plotRect.height || y - top.y < 0) {
+				return;
+			}
+			graphics.moveTo(left.x, y);
+			graphics.lineTo(right.x, y);
+
+			if (this.endPoint) {
+				graphics.moveTo(left.x, this.endPoint.y);
+				graphics.lineTo(right.x, this.endPoint.y);
+				graphics.rect(left.x, this.point.y, right.x - left.x, this.endPoint.y - this.point.y);
+			}
 		}
 
 		graphics.stroke();
@@ -96,7 +119,7 @@ export default class ChartInfoFeedbackView extends View {
 
 			const values = [];
 
-			item.xAxes.forEach((axis) => {
+			item.yAxes.forEach((axis) => {
 				if (axis.categories) {
 					axis.categories.forEach((data) => {
 						if (data.values && data.values[0] && data.values[0].x === this.selection.dataPoints[0].x) {

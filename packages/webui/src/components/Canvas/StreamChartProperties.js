@@ -601,6 +601,11 @@ export class StreamChartProperties extends Component {
 									onChange={this.handleAxisTypeChange}
 									input={<Input name="chart-type" id="chart-type" />}
 								>
+									{selection.element === 'xAxis' ?
+										<MenuItem value="category" key={0}>
+											<FormattedMessage id="ChartProperties.axisTypeCategory" defaultMessage="Category" />
+										</MenuItem>
+									: null}
 									<MenuItem value="linear" key={1}>
 										<FormattedMessage id="ChartProperties.axisTypeLinear" defaultMessage="Linear" />
 									</MenuItem>

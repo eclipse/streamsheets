@@ -411,7 +411,7 @@ export default class SheetPlotView extends NodeView {
 		const info = {
 			serie,
 			seriesIndex,
-			categories: axes.x.categories
+			categories: axes.y.categories
 		};
 
 		while (item.getValue(ref, index, value)) {
