@@ -1,7 +1,7 @@
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const IdGenerator = require('@cedalo/id-generator');
-const {	runFunction, terms: { hasValue } } = require('../../utils');
+const {	date: { serial2ms }, runFunction, terms: { hasValue } } = require('../../utils');
 const stateListener = require('./stateListener');
 
 const ERROR = FunctionErrors.code;
@@ -78,6 +78,17 @@ const getTimeStore = (term, period, limit) => {
 	return term._timestore;
 };
 
+const getPeriod = (term) => hasValue(term) ? convert.toNumberStrict(term.value, ERROR.VALUE) : DEF_PERIOD;
+
+const getTimeStamp = (term) => {
+	// expect custom timestamp to be an excel serial number!
+	if (hasValue(term) && term.value !== '') {
+		let timestamp = convert.toNumberStrict(term.value);
+		timestamp = timestamp != null && serial2ms(timestamp);
+		return timestamp || ERROR.VALUE;
+	}
+	return undefined;
+};
 const getLimit = (term) => {
 	const limit = hasValue(term) ? convert.toNumberStrict(term.value, ERROR.VALUE) : DEF_LIMIT;
 	return limit >= DEF_LIMIT_MIN ? limit : ERROR.VALUE;
@@ -89,9 +100,9 @@ const store = (sheet, ...terms) =>
 		.withMinArgs(1)
 		.withMaxArgs(4)
 		.mapNextArg((values) => values.value || ERROR.ARGS)
-		.mapNextArg(period => hasValue(period) ? convert.toNumberStrict(period.value, ERROR.VALUE) : DEF_PERIOD)
-		.mapNextArg(timestamp => timestamp != null && convert.toNumberStrict(timestamp.value))
-		.mapNextArg(limit => getLimit(limit))
+		.mapNextArg((period) => getPeriod(period))
+		.mapNextArg((timestamp) => getTimeStamp(timestamp))
+		.mapNextArg((limit) => getLimit(limit))
 		.run((values, period, timestamp, limit) => {
 			const term = store.term;
 			const timestore = getTimeStore(term, period, limit);
