@@ -1,6 +1,6 @@
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { StreamSheet } = require('@cedalo/machine-core');
-const { createTerm } = require('../utils');
+const { createTerm } = require('../utilities');
 
 const ERROR = FunctionErrors.code;
 

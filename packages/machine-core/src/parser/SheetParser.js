@@ -1,7 +1,7 @@
 const Cell = require('../machine/Cell');
 const { ErrorTerm } = require('./Error');
 const SheetParserContext = require('./SheetParserContext');
-const { ConcatOperator, Operations } = require('./Operations');
+const { AndOperator, ConcatOperator, Operations } = require('./Operations');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Drawings, ErrorCodes, Operation, Parser, Term, Operand } = require('@cedalo/parser');
 
@@ -81,6 +81,7 @@ const convertParserError = (error) => {
 	return err;
 };
 
+Operation.register(new AndOperator(), 2);
 Operation.register(new ConcatOperator(), 7);
 
 // replace basic parser operations with own, more excel like, once

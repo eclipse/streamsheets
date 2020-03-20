@@ -1,5 +1,5 @@
 const { GETCYCLE, GETEXECUTESTEP, GETMACHINESTEP, GETSTEP } = require('../../src/functions/streamsheet').functions;
-const { createTerm } = require('../utils');
+const { createTerm } = require('../utilities');
 const { Cell, Machine, Message, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
 

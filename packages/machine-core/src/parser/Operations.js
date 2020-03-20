@@ -53,3 +53,10 @@ module.exports.ConcatOperator = class ConcatOperator extends BinaryOperator {
 		return isError(left, right) ||  `${termValue(left, '')}${termValue(right, '')}`;
 	}
 };
+
+// used by timequery's where clause
+module.exports.AndOperator = class AndOperator extends BoolOperator {
+	constructor() {
+		super('&&', (left, right) => isError(left, right) || (left && right));
+	}
+};

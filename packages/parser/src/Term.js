@@ -20,9 +20,11 @@ class Term {
 		// object, array, null => converted to string...
 		if (typeof val === 'number') {
 			return Term.fromNumber(val);
-		} else if (typeof val === 'boolean') {
+		} 
+		if (typeof val === 'boolean') {
 			return Term.fromBoolean(val);
-		} else if (typeof val === 'string') {
+		}
+		 if (typeof val === 'string') {
 			return Term.fromString(val);
 		}
 		return val ? Term.fromString(val.toString()) : Term.fromString('');
@@ -61,15 +63,13 @@ class Term {
 		);
 	}
 
-	// returns true of the term value is only based on static operands, like string, bool, number...
+	// returns true if term value is only based on static operands, like string, bool, number...
 	// NOTE: UNDEF operand is treated as static too!!
 	get isStatic() {
 		// check for unary operators which might comes from general parsiing with negative numbers...
 		return (
 			!this.operand.isTypeOf(Operand.TYPE.REFERENCE) &&
-			(!this.operator ||
-				(this.operator.isTypeOf(Operation.TYPE.UNARY) &&
-					this.operator.symbol === '-'))
+			(!this.operator || (this.operator.isTypeOf(Operation.TYPE.UNARY) && this.operator.symbol === '-'))
 		);
 		// return !this.operator && !this.operand.isTypeOf(Operand.TYPE.REFERENCE);
 	}

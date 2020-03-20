@@ -11,6 +11,7 @@ const stack = require('./stack');
 const statistical = require('./statistical');
 const streamsheet = require('./streamsheet');
 const text = require('./text');
+const timeseries = require('./timeseries');
 
 module.exports = {
 	...database.functions,
@@ -25,5 +26,6 @@ module.exports = {
 	...stack.functions,
 	...statistical.functions,
 	...streamsheet.functions,
-	...text.functions
+	...text.functions,
+	...timeseries.functions
 };

@@ -1,5 +1,5 @@
 const MESSAGES = require('../_data/messages.json');
-const { createTerm } = require('../utils');
+const { createTerm } = require('../utilities');
 const { Cell, Machine, Message, SheetIndex, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
 

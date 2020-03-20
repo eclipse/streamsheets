@@ -169,7 +169,7 @@ const getRequestIdFromTerm = (requestIdTerm, sheet) => {
 };
 
 // const getPendingRequestIdFromTerm = (funcTerm) => (funcTerm && funcTerm._pendingRequestId) || IdGenerator.generate();
-
+const hasValue = (term) => term && term.value != null;
 
 module.exports = {
 	cellFromTerm,
@@ -180,6 +180,7 @@ module.exports = {
 	getCellReferencesFromTerm,
 	// getPendingRequestIdFromTerm,
 	getRequestIdFromTerm,
+	hasValue,
 	isFuncTerm,
 	isBoxFuncTerm,
 	isInboxTerm,
