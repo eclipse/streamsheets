@@ -165,7 +165,7 @@ const getInterval = (term) => {
 	return interval >= MIN_INTERVAL || interval === -1 ? interval : ERROR.VALUE;
 };
 
-const storeFromTerm = (term) => term && term.name === 'timestore' ? term : undefined;
+const storeFromTerm = (term) => term && (term.name === 'timestore' || term.name === 'TIMESTORE') ? term : undefined;
 const getTermFromRef = (cellref) => cellref.operand.target ? cellref.operand.target.term : undefined;
 const getStoreTerm = (term) => storeFromTerm(term) || storeFromTerm(getTermFromRef(term));
 
