@@ -10,13 +10,12 @@ const filter = (predicateFn) => (combineFn) => (a, c) => (predicateFn(c) ? combi
 
 const combine = (acc /* , curr */) => acc;
 
-const interval = (period) => (entry) => entry.ts > period;
-// const interval2 = (period) => {
+const interval = (period) => (entry) => period < 0 || entry.ts > period;
+// const interval = (period) => {
 // 	let last;
 // 	return (entry) => {
-// 		if (last == null) last = Date.now() - period;
-// 		// if (last == null) last = entry.ts - period;
-// 		return entry.ts > last;
+// 		if (last == null) last = entry.ts - period;
+// 		return period < 0 || entry.ts > last;
 // 	};
 // };
 
