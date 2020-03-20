@@ -13,7 +13,7 @@ import { IconPause, IconPlay, IconStop } from '../icons';
 import ImportDropzone from '../ImportExport/ImportDropzone';
 import FilterMachineStatus from './FilterMachineStatus';
 import { formatDateString } from '../base/listing/Utils';
-import ImageUploadDialog from './ImageUploadDialog';
+import { ImageUploadDialog } from '@cedalo/webui-extensions';
 
 const { RESOURCE_TYPES, RESOURCE_ACTIONS } = accessManager;
 
@@ -54,8 +54,10 @@ class DashBoardComponent extends Component {
 		this.setState({
 			dialogMachineTitleImageOpen: false
 		});
-		this.props.setTitleImage(this.state.currentMachine, result.imgSrc);
-		this.props.openDashboard(this.state.currentMachine.id);
+		if (result.imgSrc) {
+			this.props.setTitleImage(this.state.currentMachine, result.imgSrc);
+			this.props.openDashboard(this.state.currentMachine.id);
+		}
 	}
 
 	handleNew = () => {
