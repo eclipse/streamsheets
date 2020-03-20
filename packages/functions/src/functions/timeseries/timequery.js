@@ -2,7 +2,7 @@ const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell } = require('@cedalo/machine-core');
 const { Term } = require('@cedalo/parser');
-const { date: { localNow }, runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../utils');
+const { date: { localNow, ms2serial }, runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../utils');
 const aggregations = require('./aggregations');
 const stateListener = require('./stateListener');
 const transform = require('./transform');
@@ -41,7 +41,7 @@ const areEqualQueries = (q1, q2) => q1.select === q2.select && q1.aggregate === 
 
 
 const entriesReduce = (all, { ts, values: vals }, index) => {
-	all.time.push(ts);
+	all.time.push(ms2serial(ts));
 	if (vals) {
 		Object.keys(vals).forEach((key) => {
 			all[key] = all[key] || [];
@@ -131,6 +131,7 @@ class QueryStore {
 		const values = entries.reduce(entriesReduce, { time: [] });
 		if (range) spreadValuesToRange(values, range);
 		cell.info.values = values;
+		cell.info.xvalue = 'time';
 	}
 }
 
