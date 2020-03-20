@@ -1,4 +1,4 @@
-const { common: { compose } } = require('../../utils');
+const { functions: { compose } } = require('@cedalo/commons');
 const aggregations = require('./aggregations');
 const whereparser = require('./whereparser');
 
