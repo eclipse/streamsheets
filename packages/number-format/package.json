@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/number-format",
-  "version": "1.6.0-alpha",
+  "version": "1.6.0-beta",
   "description": "Number formatter",
   "main": "index.js",
   "scripts": {

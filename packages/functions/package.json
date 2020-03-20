@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/functions",
-  "version": "1.6.0-alpha",
+  "version": "1.6.0-beta",
   "description": "Definition and implementation of general Sheet Functions",
   "main": "index.js",
   "scripts": {
@@ -23,13 +23,13 @@
     "jest-cli": "21.2.1"
   },
   "peerDependencies": {
-    "@cedalo/commons": "1.6.0-alpha",
-    "@cedalo/error-codes": "1.6.0-alpha",
-    "@cedalo/id-generator": "1.6.0-alpha",
-    "@cedalo/logger": "1.6.0-alpha",
-    "@cedalo/machine-core": "1.6.0-alpha",
-    "@cedalo/number-format": "1.6.0-alpha",
-    "@cedalo/parser": "1.6.0-alpha"
+    "@cedalo/commons": "1.6.0-beta",
+    "@cedalo/error-codes": "1.6.0-beta",
+    "@cedalo/id-generator": "1.6.0-beta",
+    "@cedalo/logger": "1.6.0-beta",
+    "@cedalo/machine-core": "1.6.0-beta",
+    "@cedalo/number-format": "1.6.0-beta",
+    "@cedalo/parser": "1.6.0-beta"
   },
   "jest": {
     "collectCoverage": false,

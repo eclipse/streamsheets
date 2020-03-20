@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/stream-mqtt",
-  "version": "1.6.0-alpha",
+  "version": "1.6.0-beta",
   "description": "DL MQTT feeder",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "jest-cli": "21.2.1"
   },
   "dependencies": {
-    "@cedalo/sdk-streams": "1.6.0-alpha",
+    "@cedalo/sdk-streams": "1.6.0-beta",
     "mqtt": "3.0.0"
   },
   "jest": {
