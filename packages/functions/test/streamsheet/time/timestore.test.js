@@ -1,6 +1,7 @@
 const { sleep } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { createCellAt } = require('../../utilities');
+const { date: { localNow } } = require('../../../src/utils');
 const { newMachine, newSheet, runMachine } = require('./utils');
 
 const ERROR = FunctionErrors.code;
@@ -135,6 +136,7 @@ describe('timestore', () => {
 		// one is stored on machine start...
 		expect(timestore().size).toBe(1);
 	});
+	it('should support')
 	it(`should return error ${ERROR.ARGS} if required parameter is missing`, () => {
 		const sheet = newSheet();
 		createCellAt('A3', { formula: 'timestore()' }, sheet);
@@ -229,19 +231,19 @@ describe('timestore', () => {
 			expect(timestore().size).toBe(2);
 			expect(timestore().values('v1')).toEqual([2, 3]);
 			// create timestamp before period:
-			const msBefore = Date.now() - 2 * 60 * 1000;
+			const msBefore = localNow() - 2 * 60 * 1000;
 			createCellAt('B2', { formula: `mstoserial(${msBefore})` }, sheet);
 			await machine.step();
 			expect(timestore().size).toBe(2);
 			expect(timestore().values('v1')).toEqual([2, 3]);
 			// create timetamp within period:
-			const msBetween = Date.now() - 10 * 1000;
+			const msBetween = localNow() - 10 * 1000;
 			createCellAt('B2', { formula: `mstoserial(${msBetween})` }, sheet);
 			await machine.step();
 			expect(timestore().size).toBe(3);
 			expect(timestore().values('v1')).toEqual([5, 2, 3]);
 			// after timetamp within period:
-			const msAfter = Date.now() + 2 * 60 * 1000;
+			const msAfter = localNow() + 2 * 60 * 1000;
 			createCellAt('B2', { formula: `mstoserial(${msAfter})` }, sheet);
 			machine.step();
 			expect(sheet.cellAt('A3').value).toBe(true);
@@ -251,7 +253,7 @@ describe('timestore', () => {
 		it('should support timestamp parameter', async () => {
 			const machine = newMachine({ cycletime: 1000 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
-			const ts = Date.now();
+			const ts = localNow();
 			createCellAt('A1', 'v1', sheet);
 			createCellAt('B1', { formula: 'B1+1' }, sheet);
 			createCellAt('C1', { formula: `mstoserial(${ts})` }, sheet);
@@ -276,7 +278,7 @@ describe('timestore', () => {
 			const cell = sheet.cellAt('A3');
 			const timestore = timestoreFrom(cell);
 			expect(cell.value).toBe(true);
-			const timestamp1 = Date.now();
+			const timestamp1 = localNow();
 			createCellAt('C1', { formula: `mstoserial(${timestamp1})`}, sheet);
 			await machine.step();
 			expect(timestore().timestamps()).toEqual([timestamp1]);
@@ -291,7 +293,7 @@ describe('timestore', () => {
 		it('should add new entry after last entry with same timestamp', async () => {
 			const machine = newMachine({ cycletime: 1000 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
-			const ts1 = Date.now();
+			const ts1 = localNow();
 			createCellAt('A1', 'v1', sheet);
 			createCellAt('B1', { formula: 'B1+1' }, sheet);
 			createCellAt('C1', { formula: `mstoserial(${ts1})`}, sheet);

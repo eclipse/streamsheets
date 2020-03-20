@@ -10,7 +10,7 @@ const query = (querycell, timecell) => {
 	const timestore = timestoreFrom(timecell);
 	const querystore = querystoreFrom(querycell);
 	querystore().performQuery(timestore());
-	querystore().write(timestore(), querycell);
+	querystore().write(querycell);
 };
 
 describe('timequery', () => {
@@ -98,11 +98,11 @@ describe('timequery', () => {
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2))' }, sheet);
 			let querystore = querystoreFrom(sheet.cellAt('A3'));
 			await machine.step();
-			expect(querystore().limit).toBe(100);
+			expect(querystore().limit).toBe(1000);
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,,)' }, sheet);
 			querystore = querystoreFrom(sheet.cellAt('A3'));
 			await machine.step();
-			expect(querystore().limit).toBe(100);
+			expect(querystore().limit).toBe(1000);
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,,60)' }, sheet);
 			querystore = querystoreFrom(sheet.cellAt('A3'));
 			await machine.step();
@@ -236,6 +236,41 @@ describe('timequery', () => {
 		});
 	});
 	describe('query',() => {
+		it('should aggregate all stored values if no interval is specified', async () => {
+			const machine = newMachine();
+			const sheet = machine.getStreamSheetByName('T1').sheet;
+			sheet.load({
+				cells: {
+					A1: 'v1', B1: { formula: 'B1+1)' },
+					A2: 'v2', B2: { formula: 'B2+10)' },
+					A3: { formula: 'timestore(JSON(A1:B2))' },
+					A4: 'select', B4: 'v1, v2',
+					A5: 'aggregate', B5: '9, 4',
+					A6: { formula: 'timequery(A3, JSON(A4:B5))' }
+				}
+			});
+			const querycell = sheet.cellAt('A6');
+			expect(querycell.value).toBe(true);
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			expect(querycell.info.values).toBeDefined();
+			expect(querycell.info.values.v1).toBeDefined();
+			expect(querycell.info.values.v2).toBeDefined();
+			expect(querycell.info.values.v1.length).toBe(3);
+			expect(querycell.info.values.v2.length).toBe(3);
+			expect(querycell.info.values.v1[0]).toBe(2);
+			expect(querycell.info.values.v1[1]).toBe(5);
+			expect(querycell.info.values.v1[2]).toBe(9);
+			expect(querycell.info.values.v2[0]).toBe(20);
+			expect(querycell.info.values.v2[1]).toBe(30);
+			expect(querycell.info.values.v2[2]).toBe(40);
+			await machine.step();
+			expect(querycell.info.values.v1.length).toBe(4);
+			expect(querycell.info.values.v2.length).toBe(4);
+			expect(querycell.info.values.v1[3]).toBe(14);
+			expect(querycell.info.values.v2[3]).toBe(50);
+		});
 		it('should return all stored values if no interval and no aggregate method are specified', async () => {
 			const machine = newMachine();
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -335,7 +370,7 @@ describe('timequery', () => {
 			expect(querycell.info.values.v1.length).toBe(3);
 			expect(querycell.info.values.v2.length).toBe(3);
 		});
-		it('should only aggregate values with timestamp is in given interval', async () => {
+		it('should only aggregate values with timestamp in given interval', async () => {
 			const machine = newMachine({ cycletime: 100 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
