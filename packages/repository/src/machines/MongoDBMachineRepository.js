@@ -202,6 +202,10 @@ module.exports = class MongoDBMachineRepository extends mix(
 		return this.updateDocument(this.collection, id, { previewImage });
 	}
 
+	updateMachineTitleImage(id, titleImage) {
+		return this.updateDocument(this.collection, id, { titleImage });
+	}
+
 	addStreamSheet(machineId, streamsheet) {
 		const selector = { _id: machineId };
 		checkStreamSheetCells(streamsheet);

@@ -13,6 +13,7 @@ import { IconPause, IconPlay, IconStop } from '../icons';
 import ImportDropzone from '../ImportExport/ImportDropzone';
 import FilterMachineStatus from './FilterMachineStatus';
 import { formatDateString } from '../base/listing/Utils';
+import { ImageUploadDialog } from '@cedalo/webui-extensions';
 
 const { RESOURCE_TYPES, RESOURCE_ACTIONS } = accessManager;
 
@@ -28,6 +29,13 @@ const styles = (theme) => ({
 
 class DashBoardComponent extends Component {
 
+	constructor(props) {
+		super(props);
+		this.state = {
+			dialogMachineTitleImageOpen: false,
+		};
+	}
+
 	onResourceOpen = (resource, newWindow) => {
 		if (newWindow) {
 			window.open(`/machines/${resource.id}`, '_blank');
@@ -35,6 +43,22 @@ class DashBoardComponent extends Component {
 			this.props.openPage(`/machines/${resource.id}`);
 		}
 	};
+
+	onCloseDialogMachineTitleImage = () => {
+		this.setState({
+			dialogMachineTitleImageOpen: false
+		});
+	}
+
+	onSubmitDialogMachineTitleImage = (result) => {
+		this.setState({
+			dialogMachineTitleImageOpen: false
+		});
+		if (result.imgSrc) {
+			this.props.setTitleImage(this.state.currentMachine, result.imgSrc);
+			this.props.openDashboard(this.state.currentMachine.id);
+		}
+	}
 
 	handleNew = () => {
 		this.props.setAppState({
@@ -65,6 +89,16 @@ class DashBoardComponent extends Component {
 				this.props.setAppState({
 					showDeleteMachineDialog: true,
 				});
+				break;
+			}
+			case Constants.RESOURCE_MENU_IDS.SET_TITLE_IMAGE: {
+				const machine = this.props.machines.find((m) => m.id === resourceId);
+				this.props.setMachineActive({...machine});
+				this.setState({
+					dialogMachineTitleImageOpen: true,
+					currentMachine: machine
+				});
+				this.props.openDashboard(machine);
 				break;
 			}
 			case Constants.RESOURCE_MENU_IDS.START: {
@@ -152,6 +186,12 @@ class DashBoardComponent extends Component {
 				value: Constants.RESOURCE_MENU_IDS.EXPORT,
 			});
 		}
+		if (canEdit) {
+			menuOptions.push({
+				label: <FormattedMessage id="Dashboard.setTitleImage" defaultMessage="Set image"/>,
+				value: Constants.RESOURCE_MENU_IDS.SET_TITLE_IMAGE,
+			});
+		}
 		if (canControl) {
 			menuOptions.push('divider');
 			menuOptions.push({
@@ -233,6 +273,11 @@ class DashBoardComponent extends Component {
 					headerBackgroundColor="#6C6C70"
 					filters={[FilterMachineStatus]}
 					filterName
+				/>
+				<ImageUploadDialog
+					open={this.state.dialogMachineTitleImageOpen}
+					onClose={this.onCloseDialogMachineTitleImage}
+					onSubmit={this.onSubmitDialogMachineTitleImage}
 				/>
 			</ImportDropzone>
 		);

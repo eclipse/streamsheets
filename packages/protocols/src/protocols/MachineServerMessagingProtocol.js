@@ -37,6 +37,7 @@ const STREAMSHEETS_ORDER_MESSAGE_TYPE = 'streamsheets_order';
 const SUBSCRIBE_MACHINE_MESSAGE_TYPE = 'machine_subscribe';
 const UNSUBSCRIBE_MACHINE_MESSAGE_TYPE = 'machine_unsubscribe';
 const UPDATE_MACHINE_IMAGE_MESSAGE_TYPE = 'update_machine_image';
+const UPDATE_MACHINE_TITLE_IMAGE_MESSAGE_TYPE = 'update_machine_title_image';
 const LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE = 'machine_load_subscribe';
 
 
@@ -122,7 +123,8 @@ module.exports = {
 		// General request types
 		COMMAND_MESSAGE_TYPE,
 		STREAMSHEET_STREAM_UPDATE_TYPE,
-		UPDATE_MACHINE_IMAGE_MESSAGE_TYPE
+		UPDATE_MACHINE_IMAGE_MESSAGE_TYPE,
+		UPDATE_MACHINE_TITLE_IMAGE_MESSAGE_TYPE
 	},
 	EVENTS: {
 		MACHINE_ADD_EVENT,

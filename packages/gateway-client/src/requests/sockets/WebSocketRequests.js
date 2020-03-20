@@ -22,6 +22,7 @@ const {
 	RENAME_MACHINE_MESSAGE_TYPE,
 	STREAMSHEET_STREAM_UPDATE_TYPE,
 	UPDATE_MACHINE_IMAGE_MESSAGE_TYPE,
+	UPDATE_MACHINE_TITLE_IMAGE_MESSAGE_TYPE,
 	SAVE_MACHINE_AS_MESSAGE_TYPE,
 	SET_MACHINE_CYCLE_TIME_MESSAGE_TYPE,
 	SET_MACHINE_LOCALE_MESSAGE_TYPE,
@@ -490,6 +491,23 @@ class UpdateMachineImageWebSocketRequest extends WebSocketRequest {
 	}
 }
 
+class UpdateMachineTitleImageWebSocketRequest extends WebSocketRequest {
+	constructor(ws, machineId, titleImage) {
+		super(ws, UPDATE_MACHINE_TITLE_IMAGE_MESSAGE_TYPE);
+		this._topic = SERVICES_PERSISTENCE_INPUT;
+		this._machineId = machineId;
+		this._titleImage = titleImage;
+	}
+
+	_getConfig() {
+		return {
+			topic: this._topic,
+			machineId: this._machineId,
+			titleImage: this._titleImage
+		};
+	}
+}
+
 class UpdateStreamSheetStreamsWebSocketRequest extends WebSocketRequest {
 	constructor(ws, machineId, streamsheetId, streams) {
 		super(ws, STREAMSHEET_STREAM_UPDATE_TYPE);
@@ -818,6 +836,7 @@ module.exports = {
 	PauseMachineWebSocketRequest,
 	RenameMachineWebSocketRequest,
 	UpdateMachineImageWebSocketRequest,
+	UpdateMachineTitleImageWebSocketRequest,
 	UpdateMachineSettingsWebSocketRequest,
 	UpdateStreamSheetStreamsWebSocketRequest,
 	SaveMachineAsWebSocketRequest,

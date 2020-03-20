@@ -221,6 +221,10 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('updateMachineImage', machineId, previewImage);
 	}
 
+	updateMachineTitleImage(machineId, titleImage) {
+		return this._proxy('updateMachineTitleImage', machineId, titleImage);
+	}
+
 	renameMachine(machineId, newName) {
 		return this._proxy('renameMachine', machineId, newName);
 	}
