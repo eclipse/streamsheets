@@ -1,13 +1,14 @@
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const IdGenerator = require('@cedalo/id-generator');
-const {	date: { serial2ms }, runFunction, terms: { hasValue } } = require('../../utils');
+const {	date: { localNow, serial2ms }, runFunction, terms: { hasValue } } = require('../../utils');
 const stateListener = require('./stateListener');
 
 const ERROR = FunctionErrors.code;
 const DEF_LIMIT = 1000;
 const DEF_LIMIT_MIN = 1;
 const DEF_PERIOD = 60;
+
 
 const insert = (entry, entries) => {
 	let left = 0;
@@ -107,7 +108,7 @@ const store = (sheet, ...terms) =>
 			const term = store.term;
 			const timestore = getTimeStore(term, period, limit);
 			stateListener.registerCallback(sheet, term, timestore.reset);
-			return timestore.push(timestamp || Date.now(), values);
+			return timestore.push(timestamp || localNow(), values);
 		});
 
 

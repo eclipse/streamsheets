@@ -2,16 +2,17 @@ const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell } = require('@cedalo/machine-core');
 const { Term } = require('@cedalo/parser');
-const { runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../utils');
+const { date: { localNow }, runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../utils');
 const aggregations = require('./aggregations');
 const stateListener = require('./stateListener');
 const transform = require('./transform');
 
 
 const ERROR = FunctionErrors.code;
-const DEF_LIMIT = 100;
+const DEF_LIMIT = 1000;
 const DEF_LIMIT_MIN = 1;
 const MIN_INTERVAL = 1 / 1000; // 1ms
+
 
 const checkForWildCard = (query) => {
 	let aggridx = 0;
@@ -44,18 +45,11 @@ const entriesReduce = (all, { ts, values: vals }, index) => {
 	if (vals) {
 		Object.keys(vals).forEach((key) => {
 			all[key] = all[key] || [];
-			// add at index, important if values are not equally present!! => undefined at index if no value exist
+			// IMPORTANT!! add at index ensures equally array length for all values => undefined at index if no value exist
 			all[key][index] = vals[key];
 		});
 	}
 	return all;
-};
-const limitEntries = (entries, limit) => {
-	const allEntries = entries.reduceRight((all, entry) => {
-		if (all.length < limit) all.push(entry);
-		return all;
-	}, []);
-	return allEntries.reverse();
 };
 const spreadValuesToRange = (values, range) => {
 	const sheet = range.sheet;
@@ -91,16 +85,15 @@ class QueryStore {
 		this.limit = limit;
 		this.interval = interval;
 		this.msInterval = interval * 1000;
-		this.nextQuery = interval > 0 ? Date.now() + this.msInterval : -1;
+		this.nextQuery = interval > 0 ? localNow() + this.msInterval : -1;
 		this.entries = [];
 		this.push = boundedPush(limit);
 		this.reset = this.reset.bind(this);
-		this.lastTry = 0;
 	}
 
 	reset() {
 		this.entries = [];
-		this.nextQuery = this.msInterval > 0 ? Date.now() + this.msInterval : -1;
+		this.nextQuery = this.msInterval > 0 ? localNow() + this.msInterval : -1;
 	}
 
 	hasEqual(queryjson, interval, limit) {
@@ -119,25 +112,22 @@ class QueryStore {
 		this.queryjson = { ...json };
 	}
 
-	performQuery(store, now = Date.now()) {
+	performQuery(store, now = localNow()) {
 		// create fresh transform, because aggregations/filters work with closures!
-		const xform = transform.createFrom(this.query, now - this.msInterval);
+		const period = this.msInterval > 0 ? now - this.msInterval : -1;
+		const xform = transform.createFrom(this.query, period);
 		const result = store.entries.reduceRight(xform, { ts: now, values: {} });
 		this.push(result, this.entries);
 	}
-	performQueryOnInterval(store, now = Date.now()) {
-		if (this.nextQuery > 0 && now >= this.nextQuery) {
+	performQueryOnInterval(store, now = localNow()) {
+		if (this.nextQuery < 0 || now >= this.nextQuery) {
 			this.performQuery(store, now);
-			this.nextQuery = now + this.msInterval;
+			if (this.nextQuery > 0) this.nextQuery = now + this.msInterval;
 		}
-		this.lastTry = now;
 	}
 
-	write(timestore, cell, range) {
-		let entries = this.entries;
-		if (this.msInterval < 0) {
-			entries = timestore.limit > this.limit ? limitEntries(timestore.entries, this.limit) : timestore.entries;
-		}
+	write(cell, range) {
+		const entries = this.entries;
 		const values = entries.reduce(entriesReduce, { time: [] });
 		if (range) spreadValuesToRange(values, range);
 		cell.info.values = values;
@@ -187,7 +177,7 @@ const timeQuery = (sheet, ...terms) =>
 			if (querystore) {
 				stateListener.registerCallback(sheet, term, querystore.reset);
 				querystore.performQueryOnInterval(timestore);
-				querystore.write(timestore, term.cell, range);
+				querystore.write(term.cell, range);
 				const size = querystore.entries.length;
 				// eslint-disable-next-line no-nested-ternary
 				return size === 0 ? ERROR.NA : size < querystore.limit ? true : ERROR.LIMIT;
