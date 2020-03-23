@@ -202,6 +202,13 @@ const resolvers = {
 				throw new Error('NOT_ALLOWED');
 			}
 			return { scope: args.scope };
+		},
+		scopedByMachine: async (obj, args, { machineRepo, auth }) => {
+			const { scope } = await machineRepo.findMachine(args.machineId);
+			if (!auth.isValidScope(scope)) {
+				throw new Error('NOT_ALLOWED');
+			}
+			return { scope };
 		}
 	},
 	ScopedMutation: {
@@ -210,14 +217,34 @@ const resolvers = {
 				const { stream } = await file;
 				const buffer = await streamToBuffer(stream);
 				const importData = JSON.parse(buffer.toString());
-				const result = await api.import.doImport(scope, importData, input.machines, input.streams);
+				await api.import.doImport(scope, importData, input.machines, input.streams);
 				return Payload.createSuccess({
-					success: true,
 					code: 'IMPORT_SUCCESS',
 					message: 'Import machines and streams successfully'
-				})
+				});
 			} catch (error) {
-				Payload.createFailure(error);
+				return Payload.createFailure(error);
+			}
+		},
+		cloneMachine: async ({ scope }, { machineId, newName }, { api }) => {
+			try {
+				const suffix = 'Copy';
+				const exportData = await api.export.doExport(scope, [machineId], []);
+				const machine = exportData.machines[0].machine;
+				const importInfo = await api.import.getImportInfo(scope, {
+					machines: [{ id: machineId, name: newName || `${machine.name} ${suffix}` }],
+					streams: []
+				});
+				const proposedName = importInfo.machines[0].proposedName;
+				const result = await api.import.doImport(scope, exportData, [{ id: machineId, newName: proposedName }]);
+				const machines = await api.machine.findMachinesByName(scope, result.machines[0]);
+				return Payload.createSuccess({
+					code: 'CLONE_SUCCESS',
+					message: 'Machine cloned successfully',
+					clonedMachine: machines[0]
+				});
+			} catch (error) {
+				return Payload.createFailure(error);
 			}
 		}
 	},

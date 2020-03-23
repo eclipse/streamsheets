@@ -72,8 +72,8 @@ class DashBoardComponent extends Component {
 		switch (optionIndex) {
 			case Constants.RESOURCE_MENU_IDS.CLONE: {
 				const response = await this.props.cloneMachine(resourceId);
-				if(response && response.machine) {
-					window.open(`/machines/${response.machine.id}`, '_blank');
+				if(response && response.clonedMachine) {
+					window.open(`/machines/${response.clonedMachine.id}`, '_blank');
 				}
 				break;
 			}

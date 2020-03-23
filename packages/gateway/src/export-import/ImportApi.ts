@@ -159,8 +159,8 @@ const doImport = async (
 	{ repositories, api }: RequestContext,
 	scope: Scope,
 	importData: ExportImportData,
-	machineSelection: ImportSelection[],
-	streamSelection: ImportSelection[]
+	machineSelection: ImportSelection[] = [],
+	streamSelection: ImportSelection[] = []
 ) => {
 	// Keep track of renames and re-ids
 	const oldNewConnectorId = new Map<ID, ID>();

@@ -241,6 +241,13 @@ const typeDefs = gql`
 		message: String!
 	}
 
+	type CloneResult implements MutationResponse {
+		success: Boolean!
+		code: String!
+		message: String!
+		clonedMachine: Machine
+	}
+
 	type ScopedQuery {
 		machine(id: ID!): Machine
 		machines(name: String): [Machine!]!
@@ -271,6 +278,7 @@ const typeDefs = gql`
 
 	type ScopedMutation {
 		import(input: ImportInput!, file: Upload!): ImportResult!
+		cloneMachine(machineId: ID!, newName: String): CloneResult!
 	}
 
 	type Query {
@@ -291,6 +299,7 @@ const typeDefs = gql`
 		updateUserPassword(id: ID!, newPassword: String!): UpdateUserPasswordPayload!
 		deleteUser(id: ID!): DeleteUserPayload!
 		scoped(scope: ScopeInput): ScopedMutation!
+		scopedByMachine(machineId: ID!): ScopedMutation!
 	}
 `;
 

@@ -1018,10 +1018,10 @@ export function saveMachineAs(originalMachineId, newMachineName) {
 	return (dispatch) => {
 		dispatch({ type: ActionTypes.SEND_MACHINE_SAVE_AS });
 		return gatewayClient.saveMachineAs(originalMachineId, newMachineName).then((response) => {
-			if (response.imported) {
+			if (response.success) {
 				dispatch({
 					type: ActionTypes.RECEIVE_MACHINE_SAVE_AS,
-					newMachineName: response.name,
+					newMachineName: response.clonedMachine.name,
 				});
 			} else {
 				dispatch(requestFailed(messageTypes.MACHINE_SAVE_AS, response));
