@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-vars */
 import { RequestContext, Scope } from '../streamsheets';
 import { User } from '../user';
+import { LoggerFactory } from '@cedalo/logger';
+const logger = LoggerFactory.createLogger('UserAuthorization', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
 
 export type UserAction = 'create' | 'delete' | 'view' | 'update';
 
@@ -10,7 +12,11 @@ const isValidScope = ({ actor, auth }: RequestContext, scope: Scope) => {
 	if (!scope) {
 		throw new Error('MISSING_SCOPE');
 	} else {
-		return auth.isAdmin(actor) || actor.scope?.id === scope.id;
+		const valid = auth.isAdmin(actor) || actor.scope?.id === scope.id;
+		if(!valid) {
+			logger.warn(`Invalid scope! Scope#${scope.id} User#${actor.id}`);
+		}
+		return valid;
 	}
 };
 
