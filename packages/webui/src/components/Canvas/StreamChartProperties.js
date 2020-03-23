@@ -146,6 +146,26 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'chart');
 	};
 
+	handleChartStackedChange = (event, state) => {
+		const cmd = this.prepareCommand('chart');
+		const data = this.getData();
+		data.stacked = state;
+		if (state === false) {
+			data.relative = false;
+		}
+		this.finishCommand(cmd, 'chart');
+	};
+
+	handleChartHundredPercentChange = (event, state) => {
+		const cmd = this.prepareCommand('chart');
+		const data = this.getData();
+		data.relative = state;
+		if (state === true) {
+			data.stacked = true;
+		}
+		this.finishCommand(cmd, 'chart');
+	};
+
 	handleVisibleChange = (event, state, data, id) => {
 		const cmd = this.prepareCommand(id);
 		data.visible = state;
@@ -193,6 +213,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
+	handleAxisVisibleChange = (event, state) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.visible = state;
+		this.finishCommand(cmd, 'axes');
+	};
+
 	handleAxisTypeChange = (event) => {
 		const cmd = this.prepareCommand('axes');
 		const data = this.getData();
@@ -232,6 +259,13 @@ export class StreamChartProperties extends Component {
 		const cmd = this.prepareCommand('axes');
 		const data = this.getData();
 		data.updateZoom = state;
+		this.finishCommand(cmd, 'axes');
+	};
+
+	handleAxisAlignChange = (event) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.align = event.target.value;
 		this.finishCommand(cmd, 'axes');
 	};
 
@@ -326,6 +360,13 @@ export class StreamChartProperties extends Component {
 			default:
 				return title;
 		}
+	}
+
+	isVerticalChart() {
+		const item = this.state.plotView.getItem();
+		const serie = item.series[0];
+
+		return serie.type === 'bar' || serie.type === 'profile';
 	}
 
 	getLabel(series) {
@@ -504,6 +545,53 @@ export class StreamChartProperties extends Component {
 									</MenuItem>
 								</Select>
 							</FormControl>
+							<FormControl
+								style={{
+									width: '95%',
+									margin: '8px'
+								}}
+							>
+								<FormGroup>
+									<FormLabel
+										component="legend"
+										style={{
+											marginTop: '7px',
+											marginBottom: '7px'
+										}}
+									>
+										Settings
+									</FormLabel>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={item.chart.stacked}
+												onChange={(event, state) =>
+													this.handleChartStackedChange(event, state)
+												}
+											/>
+										}
+										label={
+											<FormattedMessage id="StreamChartProperties.Stacked" defaultMessage="Stacked" />
+										}
+									/>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={item.chart.relative}
+												onChange={(event, state) =>
+													this.handleChartHundredPercentChange(event, state)
+												}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.HundredPercent"
+												defaultMessage="100%"
+											/>
+										}
+									/>
+								</FormGroup>
+							</FormControl>
 						</div>
 					) : null}
 					{selection && selection.element === 'legend' ? (
@@ -639,6 +727,22 @@ export class StreamChartProperties extends Component {
 									<FormControlLabel
 										control={
 											<Checkbox
+												checked={data.visible}
+												onChange={(event, state) =>
+													this.handleAxisVisibleChange(event, state)
+												}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.Axis"
+												defaultMessage="Axis"
+											/>
+										}
+									/>
+									<FormControlLabel
+										control={
+											<Checkbox
 												checked={data.gridVisible}
 												onChange={(event, state) =>
 													this.handleGridlineVisibleChange(event, state)
@@ -738,6 +842,47 @@ export class StreamChartProperties extends Component {
 										}
 									/>
 								</FormGroup>
+
+							</FormControl>
+							<FormControl
+								style={{
+									width: '55%',
+									display: 'inline-flex',
+									margin: '8px'
+								}}
+							>
+								<InputLabel htmlFor="axis-position">
+									<FormattedMessage id="StreamChartProperties.AxisPosition" defaultMessage="Position" />
+								</InputLabel>
+								<Select
+									id="axis-position"
+									value={data.align}
+									onChange={this.handleAxisAlignChange}
+									input={<Input name="axis-position" id="axis-position" />}
+								>
+									{((this.isVerticalChart() && selection.element === 'xAxis') ||
+									selection.element === 'yAxis') ? (
+										<MenuItem value="left" key={1}>
+											<FormattedMessage id="StreamChartProperties.AxisLeft"
+															  defaultMessage="Left"/>
+										</MenuItem>
+									) : (
+										< MenuItem value="bottom" key={4}>
+											<FormattedMessage id="StreamChartProperties.AxisBottom" defaultMessage="Bottom" />
+										</MenuItem>
+									)}
+									{((this.isVerticalChart() && selection.element === 'xAxis') ||
+										selection.element === 'yAxis') ? (
+											< MenuItem value="right" key={2}>
+												<FormattedMessage id="StreamChartProperties.AxisRight" defaultMessage="Right" />
+											</MenuItem>
+										) : (
+											<MenuItem value="top" key={3}>
+												<FormattedMessage id="StreamChartProperties.AxisTop"
+												defaultMessage="Top"/>
+											</MenuItem>
+										)}
+								</Select>
 							</FormControl>
 							<FormControl
 								style={{

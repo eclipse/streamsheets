@@ -197,6 +197,7 @@ class GraphView extends GraphItemView {
 
 		JSG.boxCache.release(box);
 		graphics._context2D.imageSmoothingEnabled = false;
+		this.orgGraphics = graphics;
 
 		graph.setZoom(cs.getZoom());
 		this.createGraphCache(cs, visiblerect, graphRect, tileSize, logTileSize);

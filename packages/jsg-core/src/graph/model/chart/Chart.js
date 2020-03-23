@@ -2,6 +2,7 @@ const ChartRect = require('./ChartRect');
 
 module.exports = class Chart {
 	constructor() {
+		this._period = false;
 		this._stacked = false;
 		this._relative = false;
 		this._dataMode = 'datazero';
@@ -25,6 +26,14 @@ module.exports = class Chart {
 		this._stacked = (value === undefined ? false : !!Number(value));
 	}
 
+	get period() {
+		return this._period;
+	}
+
+	set period(value) {
+		this._period = (value === undefined ? false : !!Number(value));
+	}
+
 	get relative() {
 		return this._relative;
 	}
@@ -39,6 +48,7 @@ module.exports = class Chart {
 		writer.writeAttributeString('template', this.template);
 		writer.writeAttributeNumber('stacked', this.stacked ? 1 : 0);
 		writer.writeAttributeNumber('relative', this.relative ? 1 : 0);
+		writer.writeAttributeNumber('period', this.period ? 1 : 0);
 		writer.writeEndElement();
 	}
 
@@ -46,6 +56,7 @@ module.exports = class Chart {
 		this.dataMode = reader.getAttribute(object, 'datamode');
 		this.stacked = reader.getAttribute(object, 'stacked');
 		this.relative = reader.getAttribute(object, 'relative');
+		this.period = reader.getAttribute(object, 'period');
 		this.template = reader.getAttribute(object, 'template') ?
 			reader.getAttribute(object, 'template') : 'basic';
 	}

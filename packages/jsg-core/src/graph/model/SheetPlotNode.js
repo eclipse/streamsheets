@@ -391,7 +391,7 @@ module.exports = class SheetPlotNode extends Node {
 				} else {
 					width += textSize.width;
 				}
-				if (entry.series.type !== 'bubble') {
+				if (!entry.series || entry.series.type !== 'bubble') {
 					extra = margin * 6;
 				}
 			});
@@ -829,7 +829,8 @@ module.exports = class SheetPlotNode extends Node {
 				yName: this.getParamValue(ds.getTerm(), 1, 'string'),
 				time,
 				xKey: this.getParamValue(ds.getTerm(), 3, 'string'),
-				yKey: this.getParamValue(ds.getTerm(), 4, 'string')
+				yKey: this.getParamValue(ds.getTerm(), 4, 'string'),
+				cKey: this.getParamValue(ds.getTerm(), 5, 'string')
 			}
 		}
 
@@ -843,6 +844,28 @@ module.exports = class SheetPlotNode extends Node {
 
 	getLegend() {
 		const legend = [];
+
+		const expr = this.legend.formula;
+		if (expr !== undefined) {
+			const term = expr.getTerm();
+			if (term) {
+				const {operand} = term;
+				if (operand instanceof SheetReference) {
+					const range = operand._range.copy();
+					range.shiftFromSheet();
+					for (let i = 0; i < range.getHeight(); i += 1) {
+						const entry = {};
+						let cell = range._worksheet.getDataProvider().getRC(range._x1, range._y1 + i);
+						entry.name = cell ? cell.getValue() : '';
+						cell = range._worksheet.getDataProvider().getRC(range._x1 + 1, range._y1 + i);
+						entry.color = cell ? cell.getValue() : '';
+						legend.push(entry);
+					}
+					return legend;
+				}
+			}
+		}
+
 		this.series.forEach((series) => {
 			const ref = this.getDataSourceInfo(series.formula);
 			if (ref && ref.yName !== undefined) {
@@ -1076,8 +1099,8 @@ module.exports = class SheetPlotNode extends Node {
 			axis.cMaxData = undefined;
 			this.series.forEach((series) => {
 				if (series.type === 'bubble' && series.yAxis === axis.name) {
-					axis.cMinData = axis.cMinData === undefined ? series.yMin : Math.min(series.yMin, axis.cMinData);
-					axis.cMaxData = axis.cMaxData === undefined ? series.yMax : Math.max(series.yMax, axis.cMaxData);
+					axis.cMinData = axis.cMinData === undefined ? series.cMin : Math.min(series.cMin, axis.cMinData);
+					axis.cMaxData = axis.cMaxData === undefined ? series.cMax : Math.max(series.cMax, axis.cMaxData);
 				}
 			});
 			if (axis.cMinData === undefined) {
@@ -1425,7 +1448,7 @@ module.exports = class SheetPlotNode extends Node {
 
 	getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		let height;
-		const margin = this.chart.stacked ? 0 : 150;
+		const margin = this.chart.stacked || serie.type === 'state' ? 0 : 150;
 
 		if (this.chart.relative) {
 			const neg = axes.y.categories[index].neg;
@@ -1454,7 +1477,8 @@ module.exports = class SheetPlotNode extends Node {
 				barWidth = this.scaleToAxis(axes.x, 1, undefined, false) * plotRect.width -
 					this.scaleToAxis(axes.x, 0, undefined, false) * plotRect.width;
 			}
-			barWidth = barWidth * 0.7 / (this.chart.stacked ? 1 : this.series.length);
+			const fact = serie.type === 'state' ? 1 : 0.7;
+			barWidth = barWidth * fact / (this.chart.stacked ? 1 : this.series.length);
 			return Math.abs(barWidth);
 		}
 
@@ -1510,15 +1534,15 @@ module.exports = class SheetPlotNode extends Node {
 		return label;
 	}
 
-	validate(val) {
+	validate(val, allowString) {
 		if (this.chart.dataMode ==='datazero' || this.chart.stacked) {
-			return Numbers.isNumber(val) ? val : 0;
+			return allowString || Numbers.isNumber(val) ? val : 0;
 		}
 
-		return Numbers.isNumber(val) ? val : undefined;
+		return allowString || Numbers.isNumber(val) ? val : undefined;
 	}
 
-	getValueFromRange(range, sheet, index) {
+	getValueFromRange(range, sheet, index, allowString = false) {
 		let value;
 		const vertical = range.getWidth() === 1;
 		if (vertical) {
@@ -1529,7 +1553,7 @@ module.exports = class SheetPlotNode extends Node {
 				if (cell) {
 					value = cell.getValue();
 				}
-				return this.validate(value);
+				return this.validate(value, allowString);
 			}
 		} else if (index <= range._x2 - range._x1) {
 			const cell = sheet
@@ -1538,7 +1562,7 @@ module.exports = class SheetPlotNode extends Node {
 			if (cell) {
 				value = cell.getValue();
 			}
-			return this.validate(value);
+			return this.validate(value, allowString);
 		}
 
 		return '#er';
@@ -1568,6 +1592,12 @@ module.exports = class SheetPlotNode extends Node {
 					value.x = this.validate(value.x);
 				}
 				if (values.time) {
+					if (values.time.length > index && values[ref.cKey]) {
+						value.c = values[ref.cKey][index];
+					}
+				}
+				value.x = this.validate(value.x);
+				if (values.time) {
 					if (values.time.length > index && values[ref.yKey]) {
 						value.y = this.validate(values[ref.yKey][index]);
 						return true;
@@ -1590,7 +1620,7 @@ module.exports = class SheetPlotNode extends Node {
 		}
 
 		if (ref.c) {
-			value.c = this.getValueFromRange(ref.c.range, ref.c.sheet, index);
+			value.c = this.getValueFromRange(ref.c.range, ref.c.sheet, index, true);
 		}
 
 		if (ref.y) {
@@ -2020,6 +2050,7 @@ module.exports = class SheetPlotNode extends Node {
 							);
 							break;
 						case 'column':
+						case 'state':
 							barInfo = this.getBarInfo(axes, series, index, pointIndex, value.y, barWidth);
 							dataRect.set(
 								plotRect.left + x * plotRect.width + barInfo.offset - 100,
@@ -2181,6 +2212,7 @@ module.exports = class SheetPlotNode extends Node {
 		const data = range.getSheet().getDataProvider();
 		let time = true;
 		let formula;
+		let step = 1;
 		let allTime = false;
 		let markers = false;
 		let line = true;
@@ -2200,6 +2232,7 @@ module.exports = class SheetPlotNode extends Node {
 		this.series = [];
 		const cmdChart = this.prepareCommand('chart');
 		const cmdAxis = this.prepareCommand('axes');
+		const cmdLegend = this.prepareCommand('legend');
 
 		this.chart.stacked = type.indexOf('stacked') !== -1;
 		this.chart.relative = type.indexOf('100') !== -1;
@@ -2249,9 +2282,25 @@ module.exports = class SheetPlotNode extends Node {
 			this.xAxes[0].type = 'linear';
 			break;
 		case 'bubble':
+			step = 2;
 			this.xAxes[0].type = 'linear';
 			break;
+		case 'statecolumn':
+		case 'statetime':
+		case 'stateperiod':
+			step = 2;
+			this.chart.stacked = true;
+			this.chart.relative = true;
+			this.chart.period = type === 'stateperiod';
+			this.xAxes[0].type = type === 'statecolumn' ? 'category' : 'time';
+			this.xAxes[0].gridVisible = false;
+			this.yAxes[0].gridVisible = false;
+			this.yAxes[0].visible = false;
+			this.legend.visible = false;
+			type = 'state';
+			break;
 		}
+
 		// check for TIMEAGGREGATES and INFLUX.SELECT
 		if (width <= 2 || height <= 2) {
 			const taRange = range.copy();
@@ -2278,7 +2327,6 @@ module.exports = class SheetPlotNode extends Node {
 			}
 			if (time) {
 				const cmd = this.prepareCommand('series');
-				let index = 0;
 				taRange.enumerateCells(true, (pos) => {
 					const cell = data.get(pos);
 					const expr = cell.getExpression();
@@ -2298,17 +2346,29 @@ module.exports = class SheetPlotNode extends Node {
 								}
 							}
 						}
-						Object.keys(values).forEach((key) => {
+						const fields = Object.keys(values);
+						for (let i = 0; i < fields.length; i += 1) {
+							const key = fields[i];
 							if (key !== xValue && key !== 'time') {
 								if (values[key].length && Numbers.isNumber(values[key][0])) {
-									formula = `SERIES("${xValue}","${key}",${ref},"${xValue}","${key}")`;
+									if (type === 'bubble' || type === 'state') {
+										i += 1;
+										for (; i < fields.length; i += 1) {
+											const radius = fields[i];
+											if (values[radius].length && (Numbers.isNumber(values[radius][0]) || type === 'state')) {
+												formula = `SERIES("${xValue}","${key}",${ref},"${xValue}","${key}","${radius}")`;
+												break;
+											}
+										}
+									} else {
+										formula = `SERIES("${xValue}","${key}",${ref},"${xValue}","${key}")`;
+									}
 									const serie = createSeries(type, formula, markers, line);
 									this.series.push(serie);
-									index += 1;
 								}
 							}
-						});
-						if (type === 'scatter' && xValue === 'time') {
+						}
+						if ((type === 'scatter' || type === 'bubble') && xValue === 'time') {
 							this.xAxes[0].type = 'time';
 						}
 					} else {
@@ -2332,8 +2392,7 @@ module.exports = class SheetPlotNode extends Node {
 						}
 						const serie = createSeries(type, formula, markers, line);
 						this.series.push(serie);
-						index += 1;
-						if (type === 'scatter') {
+						if (type === 'scatter' || type === 'bubble') {
 							this.xAxes[0].type = 'time';
 						}
 					}
@@ -2349,7 +2408,6 @@ module.exports = class SheetPlotNode extends Node {
 			let endI = vertical ? range._x2 : range._y2;
 			const startJ = vertical ? range._y1 : range._x1;
 			const endJ = vertical ? range._y2 : range._x2;
-			let step = 1;
 			let column;
 			let row;
 			let refName;
@@ -2369,12 +2427,6 @@ module.exports = class SheetPlotNode extends Node {
 
 			switch (type) {
 			case 'bubble':
-				step = 2;
-				if (!categoryLabels && ((vertical && width > 1) || (!vertical && height > 1))) {
-					categoryLabels = true;
-					startI += 1;
-				}
-				break;
 			case 'scatter':
 				if (!categoryLabels && ((vertical && width > 1) || (!vertical && height > 1))) {
 					categoryLabels = true;
@@ -2446,7 +2498,7 @@ module.exports = class SheetPlotNode extends Node {
 				refName = tmpRange.toString({ item: sheet, useName: true });
 				formula += `${refName}`;
 
-				if (type === 'bubble') {
+				if (type === 'bubble' || type === 'state') {
 					if (vertical) {
 						tmpRange.set(column + 1, row + (seriesLabels ? 1 : 0), column + 1, row + endJ - startJ);
 					} else {
@@ -2473,6 +2525,8 @@ module.exports = class SheetPlotNode extends Node {
 			cmp.add(cmdChart);
 			this.finishCommand(cmdAxis, 'axes');
 			cmp.add(cmdAxis);
+			this.finishCommand(cmdLegend, 'legend');
+			cmp.add(cmdLegend);
 			viewer.getInteractionHandler().execute(cmp);
 		}
 	}
@@ -2495,6 +2549,7 @@ module.exports = class SheetPlotNode extends Node {
 			axis.title.formula.evaluate(this);
 		});
 		this.title.formula.evaluate(this);
+		this.legend.formula.evaluate(this);
 	}
 
 	_copy(copiednodes, deep, ids) {

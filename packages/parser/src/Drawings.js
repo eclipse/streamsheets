@@ -405,6 +405,19 @@ module.exports = class Drawings {
 		return JSON.stringify(result);
 	}
 
+	getPatternVideo(terms) {
+		const result = {};
+
+		result.type = 'video';
+		if (this.checkParam(terms, 0)) {
+			result.video = String(terms[0].value);
+		} else {
+			result.video = '';
+		}
+
+		return JSON.stringify(result);
+	}
+
 	getQRCode(terms) {
 		if (!this.checkParam(terms, 0)) {
 			return ERROR.ARGS;

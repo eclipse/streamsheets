@@ -145,6 +145,7 @@ export default class ChartSelectionFeedbackView extends View {
 						if (x + 1 >= plotRect.left && x - 1 <= plotRect.right && y + 1 >= plotRect.top && y - 1 <= plotRect.bottom) {
 							switch (serie.type) {
 							case 'column':
+							case 'state':
 								barInfo = item.getBarInfo(axes, serie, selection.index, index, value.y, barWidth);
 								rect.set(x + barInfo.offset  - 75, y - 75, 150, 150);
 								graphics.drawMarker(rect, true);

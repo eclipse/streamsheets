@@ -70,17 +70,18 @@ export default class SheetPlotView extends NodeView {
 
 		const { series } = item;
 		const plotRect = item.plot.position;
+		const legendData = item.getLegend();
 
 		this.drawRect(graphics, plotRect, item, item.plot.format, 'plot');
 		this.drawAxes(graphics, plotRect, item, true);
 
 		let lastPoints;
 		series.forEach((serie, index) => {
-			lastPoints = this.drawPlot(graphics, item, plotRect, serie, index, lastPoints);
+			lastPoints = this.drawPlot(graphics, item, plotRect, serie, index, lastPoints, legendData);
 		});
 
 		this.drawAxes(graphics, plotRect, item, false);
-		this.drawLegend(graphics, plotRect, item);
+		this.drawLegend(graphics, plotRect, item, legendData);
 		this.drawTitle(graphics, item, item.title, 'title', 0);
 
 		graphics.setTextBaseline('middle');
@@ -100,8 +101,7 @@ export default class SheetPlotView extends NodeView {
 		});
 	}
 
-	drawLegend(graphics, plotRect, item) {
-		const legendData = item.getLegend();
+	drawLegend(graphics, plotRect, item, legendData) {
 		const margin = 200;
 		const { legend } = item;
 		const cs = graphics.getCoordinateSystem();
@@ -116,14 +116,22 @@ export default class SheetPlotView extends NodeView {
 		let x = legend.position.left + margin;
 		let y = legend.position.top + margin;
 		let textPos = margin * 4;
+		let type = 'bar';
 
 		legendData.forEach((entry, index) => {
 			graphics.beginPath();
-			graphics.setLineColor(entry.series.format.lineColor || item.getTemplate().series.line[index]);
-			graphics.setLineWidth(entry.series.format.lineWidth || item.getTemplate().series.linewidth);
-			graphics.setFillColor(entry.series.format.fillColor || item.getTemplate().series.fill[index]);
+			if (entry.series) {
+				graphics.setLineColor(entry.series.format.lineColor || item.getTemplate().series.line[index]);
+				graphics.setLineWidth(entry.series.format.lineWidth || item.getTemplate().series.linewidth);
+				graphics.setFillColor(entry.series.format.fillColor || item.getTemplate().series.fill[index]);
+				type = entry.series.type;
+			} else {
+				graphics.setLineWidth(1);
+				graphics.setLineColor(entry.color);
+				graphics.setFillColor(entry.color);
+			}
 
-			switch (entry.series.type) {
+			switch (type) {
 				case 'line':
 				case 'profile':
 				case 'scatter':
@@ -138,6 +146,7 @@ export default class SheetPlotView extends NodeView {
 					break;
 				case 'area':
 				case 'column':
+				case 'state':
 				case 'bar':
 					graphics.rect(x, y + textSize.height / 10, margin * 3, (textSize.height * 2) / 3);
 					graphics.fill();
@@ -170,13 +179,17 @@ export default class SheetPlotView extends NodeView {
 
 	drawAxes(graphics, plotRect, item, grid) {
 		item.xAxes.forEach((axis) => {
-			this.drawTitle(graphics, item, axis.title, 'axisTitle', axis.isVertical() ? Math.PI_2 : 0);
-			this.drawAxis(graphics, plotRect, item, axis, grid);
+			if (axis.visible) {
+				this.drawTitle(graphics, item, axis.title, 'axisTitle', axis.isVertical() ? Math.PI_2 : 0);
+				this.drawAxis(graphics, plotRect, item, axis, grid);
+			}
 		});
 
 		item.yAxes.forEach((axis) => {
-			this.drawTitle(graphics, item, axis.title, 'axisTitle', axis.isVertical() ? Math.PI_2 : 0);
-			this.drawAxis(graphics, plotRect, item, axis, grid);
+			if (axis.visible) {
+				this.drawTitle(graphics, item, axis.title, 'axisTitle', axis.isVertical() ? Math.PI_2 : 0);
+				this.drawAxis(graphics, plotRect, item, axis, grid);
+			}
 		});
 	}
 
@@ -347,7 +360,7 @@ export default class SheetPlotView extends NodeView {
 		return pt;
 	}
 
-	drawPlot(graphics, item, plotRect, serie, seriesIndex, lastPoints) {
+	drawPlot(graphics, item, plotRect, serie, seriesIndex, lastPoints, legendData) {
 		let index = 0;
 		let barInfo;
 		const value = {};
@@ -551,6 +564,44 @@ export default class SheetPlotView extends NodeView {
 							);
 						}
 						break;
+					case 'state':
+						if (value.x !== undefined && value.y !== undefined && value.c !== undefined) {
+							graphics.beginPath();
+							barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
+							value.c = this.translateFromLegend(value.c, legendData);
+							const [fill, line] = String(value.c).split(';');
+							if (fill && fill.length) {
+								graphics.setFillColor(fill);
+							}
+							if (line && line.length) {
+								graphics.setLineColor(line);
+							}
+							if (item.chart.period && index) {
+								this.getPlotPoint(item, axes, ref, info, value, index, -1, ptLast);
+								toPlot(ptLast);
+								graphics.rect(
+									pt.x,
+									pt.y,
+									Math.abs(ptLast.x - pt.x) + 20,
+									-barInfo.height * plotRect.height + 20
+								);
+
+							} else {
+								graphics.rect(
+									pt.x + barInfo.offset,
+									pt.y,
+									barWidth + 10,
+									-barInfo.height * plotRect.height
+								);
+							}
+							if (fill && fill.length) {
+								graphics.fill();
+							}
+							if (line && line.length) {
+								graphics.stroke();
+							}
+						}
+						break;
 					case 'bar':
 						if (value.x !== undefined && value.y !== undefined) {
 							barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
@@ -595,7 +646,9 @@ export default class SheetPlotView extends NodeView {
 		if (serie.type === 'column' || serie.type === 'bar' || serie.type === 'area' || serie.type === 'bubble') {
 			graphics.fill();
 		}
-		graphics.stroke();
+		if (serie.type !== 'state') {
+			graphics.stroke();
+		}
 		graphics.setLineWidth(1);
 
 		graphics.restore();
@@ -728,6 +781,20 @@ export default class SheetPlotView extends NodeView {
 			break;
 		}
 
+	}
+
+	translateFromLegend(color, legendData) {
+		if (!legendData.length || !legendData[0].color) {
+			return color;
+		}
+
+		for (let i = 0;  i< legendData.length; i += 1) {
+			const entry = legendData[i];
+			if (color === entry.name) {
+				return entry.color;
+			}
+		}
+		return color;
 	}
 
 	getSelectedFormat() {

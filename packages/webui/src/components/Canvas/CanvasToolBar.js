@@ -3762,6 +3762,65 @@ export class CanvasToolBar extends Component {
 										</IconButton>
 									</Tooltip>
 								</GridListTile>
+								<GridListTile
+									cols={6}
+									style={{
+										height: '24px'
+									}}
+								>
+									<div
+										style={{
+											backgroundColor: Colors.blue[800],
+											color: 'white',
+											fontSize: '10pt',
+											padding: '3px'
+										}}
+									>
+										<FormattedMessage id="StreamChartProperties.StateCharts" defaultMessage="State Charts" />
+									</div>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="StreamCharts.StateColumn" defaultMessage="State Column" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('statecolumn')}
+										>
+											<img alt="" src="images/charts/statecolumn.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="StreamCharts.StateTime" defaultMessage="State Time" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('statetime')}
+										>
+											<img alt="" src="images/charts/statetime.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="StreamCharts.StatePeriod" defaultMessage="State Period" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('stateperiod')}
+										>
+											<img alt="" src="images/charts/stateperiod.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
 							</GridList>
 						</Popover>
 					</div>

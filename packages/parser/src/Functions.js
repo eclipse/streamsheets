@@ -159,6 +159,10 @@ module.exports.Functions = {
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.getPatternFill(terms) : ERROR.NOT_AVAILABLE;
 	},
+	FILLVIDEO: (scope, ...terms) => {
+		const drawings = scope.getDrawings && scope.getDrawings();
+		return drawings ? drawings.getPatternVideo(terms) : ERROR.NOT_AVAILABLE;
+	},
 	FONTFORMAT: (scope, ...terms) => {
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.getFontFormat(terms) : ERROR.NOT_AVAILABLE;
