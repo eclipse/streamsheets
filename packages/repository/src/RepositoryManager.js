@@ -1,3 +1,5 @@
+const MongoDBConnection = require('./mongoDB/MongoDBConnection');
+
 module.exports = class RepositoryManager {
 	static init({
 		graphRepository,
@@ -52,12 +54,15 @@ module.exports = class RepositoryManager {
 		}
 	}
 
-	static connectAll() {
-		return Promise.all(
-			Object.values(RepositoryManager)
-				.filter((repository) => repository && repository.connect)
-				.map((repositoryWithConnect) => repositoryWithConnect.connect())
-		);
+	static async connectAll(existingConnection) {
+		const connection = existingConnection || (await MongoDBConnection.create());
+		const db = connection.db();
+		Object.values(RepositoryManager)
+			.filter((repository) => repository && repository.connect)
+			.forEach((repositoryWithConnect) => {
+				// FIXME: should provide a method
+				repositoryWithConnect.db = db;
+			});
 	}
 
 	static setupAllIndicies() {

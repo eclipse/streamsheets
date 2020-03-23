@@ -25,7 +25,7 @@ module.exports = class GatewayService extends MessagingService {
 		this.machineRouter = new MachineServiceMessageRouter(this);
 		this._services = new Map();
 		this._licenseInfo = {};
-		this.configRepo = new MongoDBConfigurationRepository();
+		this.configRepo = globalContext.repositories.configurationRepository;
 	}
 
 	async prepareJWT() {
@@ -60,7 +60,6 @@ module.exports = class GatewayService extends MessagingService {
 	}
 
 	async _preStart() {
-		await this.configRepo.connect();
 		await super._preStart();
 		await this.prepareJWT();
 		await this.socketServer.start();
