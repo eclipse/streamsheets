@@ -311,6 +311,7 @@
 	"Import.Stream.ImportAs": "Import As",
 	"Import.List.Streams.ShowAdvanced": "Show Advanced",
 	"Import.Machine.ImportAs": "Import As",
+	"Import.Connector.FromFile": "(from file)",
 	"Export.Notification.Error.Message": "Export failed.",
 	"Export.SelectStreams.Tooltip": "Select Streams used by the machine",
 	"Export.SelectStreams": "Select Streams",

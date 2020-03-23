@@ -312,6 +312,7 @@
 	"Import.Stream.ImportAs": "Importieren als",
 	"Import.List.Streams.ShowAdvanced": "Fortgeschritten",
 	"Import.Machine.ImportAs": "Importieren als",
+	"Import.Connector.FromFile": "(aus Datei)",
 	"Import.OpenMachine": "Öffnen",
 	"Import.Select.DontImport": "Nicht importieren",
 	"Import.Select.Import": "Importieren",

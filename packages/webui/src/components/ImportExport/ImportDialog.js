@@ -306,7 +306,7 @@ const ConnectorSelect = (props) => {
 			) : null}
 			{originalConnector ? (
 				<MenuItem value="original" disabled={originalNotSelected}>
-					<i>{originalConnector.newName}</i>
+					<i>{originalConnector.newName} <FormattedMessage id="Import.Connector.FromFile" defaultMessage="(from file)" /></i>
 				</MenuItem>
 			) : null}
 			{availableConnectors.map((c) => (
