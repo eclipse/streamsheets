@@ -24,7 +24,7 @@ describe('timequery', () => {
 					A1: { formula: 'timestore(JSON(B1:C1))' },
 					A2: 'select', B2: 'v1',
 					A3: 'select', B3: 'v1, v2, v3',
-					A4: 'aggregate', B4: '0, 1, 2, 3, 4, 5, 6, 7, 9'
+					A4: 'aggregate', B4: 'none, avg, count, counta, max, min, product, stdevs, sum'
 				}
 			});
 			createCellAt('A5', { formula: 'timequery(A1,JSON(A2:B2))' }, sheet);
@@ -39,7 +39,7 @@ describe('timequery', () => {
 			querystore = querystoreFrom(sheet.cellAt('A5'));
 			await machine.step();
 			expect(querystore().queryjson.select).toEqual('v1, v2, v3');
-			expect(querystore().queryjson.aggregate).toEqual('0, 1, 2, 3, 4, 5, 6, 7, 9');
+			expect(querystore().queryjson.aggregate).toEqual('none, avg, count, counta, max, min, product, stdevs, sum');
 			expect(querystore().queryjson.where).toBeUndefined();
 		});
 		it('should identify interval parameter', async () => {
@@ -158,13 +158,13 @@ describe('timequery', () => {
 				cells: {
 					A1: { formula: 'timestore(JSON(B1:C1))' },
 					A2: 'select', B2: 'v1',
-					A3: 'aggregate', B3: 19,
+					A3: 'aggregate', B3: 'fun',
 				}
 			});
 			createCellAt('A4', { formula: 'timequery(A1,JSON(A2:B3))' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(ERROR.VALUE);
-			createCellAt('B3', '0,1,2,3,4,5,6,7,8,9', sheet); // 8 is unknown...
+			createCellAt('B3', 'none, avg, count, counta, fn, max, min, product, stdevs, sum', sheet); // fn is unknown...
 			createCellAt('A4', { formula: 'timequery(A1,JSON(A2:B3))' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(ERROR.VALUE);
@@ -246,7 +246,7 @@ describe('timequery', () => {
 					A2: 'v2', B2: { formula: 'B2+10)' },
 					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1, v2',
-					A5: 'aggregate', B5: '9, 4',
+					A5: 'aggregate', B5: 'sum, max',
 					A6: { formula: 'timequery(A3, JSON(A4:B5))' }
 				}
 			});
@@ -349,7 +349,7 @@ describe('timequery', () => {
 					A2: 'v2', B2: { formula: 'B2+10)' },
 					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1', C4: 'select', D4: 'v1,v2',
-					A5: 'aggregate', B5: 9, C5: 'aggregate', D5: '9, 4',
+					A5: 'aggregate', B5: 'sum', C5: 'aggregate', D5: 'sum, max',
 					A8: { formula: 'timequery(A3, JSON(A4:B5), 20/1000)' }
 				}
 			});
@@ -376,7 +376,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 5,
+					A4: 'aggregate', B4: 'min',
 					A5: { formula: `timequery(A2, JSON(A3:B4), 200/1000)` }
 				}
 			});
@@ -403,7 +403,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 5,
+					A4: 'aggregate', B4: 'min',
 					A5: { formula: `timequery(A2, JSON(A3:B4), 20/1000, , 1)` }
 				}
 			});
@@ -420,7 +420,7 @@ describe('timequery', () => {
 					A2: 'v2', B2: { formula: 'B2+10)' },
 					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1,v2',
-					A5: 'aggregate', B5: '9,4',
+					A5: 'aggregate', B5: 'sum,max',
 					A8: { formula: 'timequery(A3, JSON(A4:B5), 200/1000, B8:D12)' }
 				}
 			});
@@ -464,7 +464,7 @@ describe('timequery', () => {
 					A2: 'v2', B2: { formula: 'B2+10)' },
 					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1',
-					A5: 'aggregate', B5: 9,
+					A5: 'aggregate', B5: 'sum',
 					A8: { formula: 'timequery(A3, JSON(A4:B5), 200/1000, B8:D12)' },
 					B8: 'hello', C9: 'world', D12: '!!'
 				}
@@ -498,7 +498,7 @@ describe('timequery', () => {
 					A2: 'v2', B2: { formula: 'B2+10)' },
 					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1,v2',
-					A5: 'aggregate', B5: '9,4',
+					A5: 'aggregate', B5: 'sum,max',
 					A8: { formula: 'timequery(A3, JSON(A4:B5), 200/1000)' }
 				}
 			});
@@ -525,7 +525,7 @@ describe('timequery', () => {
 					A2: 'v2', B2: { formula: 'B2+10)' },
 					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1,v2',
-					A5: 'aggregate', B5: '9,4',
+					A5: 'aggregate', B5: 'sum,max',
 					A8: { formula: 'timequery(A3, JSON(A4:B5), 200/1000, B8:D12)' }
 				}
 			});
@@ -586,7 +586,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B1))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 5,
+					A4: 'aggregate', B4: 'min',
 					A5: { formula: `timequery(A2, JSON(A3:B4), 200/1000)` }
 				}
 			});
@@ -616,11 +616,10 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A3: { formula: 'timestore(JSON(A1:B1))' },
 					A4: 'select', B4: 'v1',
-					A5: 'aggregate', B5: 9,
+					A5: 'aggregate', B5: 'sum',
 					A8: { formula: 'timequery(A3, JSON(A4:B5), 100/1000)' }
 				}
 			});
-			const timecell = sheet.cellAt('A3');
 			const querycell = sheet.cellAt('A8');
 			expect(querycell.value).toBe(true);
 			// collect some query results
@@ -630,7 +629,7 @@ describe('timequery', () => {
 			await runMachinePause(machine, 250);
 			expect(querycell.info.values.v1.length).toBeGreaterThanOrEqual(3);
 			// new query store resets:
-			createCellAt('B5', 1, sheet);
+			createCellAt('B5', 'avg', sheet);
 			await runMachinePause(machine, 150);
 			expect(querycell.info.values.v1.length).toBeLessThan(3);
 		});
@@ -642,7 +641,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 5,
+					A4: 'aggregate', B4: 'min',
 					A5: { formula: `timequery(A2, JSON(A3:B4), 15/1000, , 1)` }
 				}
 			});
@@ -659,7 +658,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 5,
+					A4: 'aggregate', B4: 'min',
 					A5: { formula: `timequery(A2, JSON(A3:B4), 20/1000)` }
 				}
 			});
@@ -680,7 +679,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 0,
+					A4: 'aggregate', B4: 'none',
 					A5: { formula: 'timequery(A2, JSON(A3:B4), 1)' }
 				}
 			});
@@ -702,7 +701,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 1,
+					A4: 'aggregate', B4: 'avg',
 					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
@@ -731,7 +730,7 @@ describe('timequery', () => {
 					A8: 'v8', B8: undefined,
 					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
-					A11: 'aggregate', B11: '1,1,1,1,1,1,1,1',
+					A11: 'aggregate', B11: 'avg,avg,avg,avg,avg,avg,avg,avg',
 					A20: { formula: 'timequery(A9, JSON(A10:B11), 1)' }
 				}
 			});
@@ -769,7 +768,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 4,
+					A4: 'aggregate', B4: 'max',
 					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
@@ -798,7 +797,7 @@ describe('timequery', () => {
 					A8: 'v8', B8: undefined,
 					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
-					A11: 'aggregate', B11: '4,4,4,4,4,4,4,4',
+					A11: 'aggregate', B11: 'max,max,max,max,max,max,max,max',
 					A20: { formula: 'timequery(A9, JSON(A10:B11), 1)' }
 				}
 			});
@@ -836,7 +835,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 5,
+					A4: 'aggregate', B4: 'min',
 					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
@@ -865,7 +864,7 @@ describe('timequery', () => {
 					A8: 'v8', B8: undefined,
 					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
-					A11: 'aggregate', B11: '5,5,5,5,5,5,5,5',
+					A11: 'aggregate', B11: 'min,min,min,min,min,min,min,min',
 					A20: { formula: 'timequery(A9, JSON(A10:B11), 1)' }
 				}
 			});
@@ -903,7 +902,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: 'hello',
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 3,
+					A4: 'aggregate', B4: 'counta',
 					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
@@ -935,7 +934,7 @@ describe('timequery', () => {
 					A8: 'v8', B8: undefined,
 					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
-					A11: 'aggregate', B11: '3,3,3,3,3,3,3,3',
+					A11: 'aggregate', B11: 'counta,counta,counta,counta,counta,counta,counta,counta',
 					A20: { formula: 'timequery(A9, JSON(A10:B11), 1)' }
 				}
 			});
@@ -973,7 +972,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 2,
+					A4: 'aggregate', B4: 'count',
 					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
@@ -1003,7 +1002,7 @@ describe('timequery', () => {
 					A8: 'v8', B8: undefined,
 					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
-					A11: 'aggregate', B11: '2,2,2,2,2,2,2,2',
+					A11: 'aggregate', B11: 'count,count,count,count,count,count,count,count',
 					A20: { formula: 'timequery(A9, JSON(A10:B11), 1)' }
 				}
 			});
@@ -1041,7 +1040,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 6,
+					A4: 'aggregate', B4: 'product',
 					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
@@ -1070,7 +1069,7 @@ describe('timequery', () => {
 					A8: 'v8', B8: undefined,
 					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
-					A11: 'aggregate', B11: '6,6,6,6,6,6,6,6',
+					A11: 'aggregate', B11: 'product,product,product,product,product,product,product,product',
 					A20: { formula: 'timequery(A9, JSON(A10:B11), 1)' }
 				}
 			});
@@ -1108,7 +1107,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 9,
+					A4: 'aggregate', B4: 'sum',
 					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
@@ -1136,7 +1135,7 @@ describe('timequery', () => {
 					A8: 'v8', B8: undefined,
 					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
-					A11: 'aggregate', B11: '9,9,9,9,9,9,9,9',
+					A11: 'aggregate', B11: 'sum,sum,sum,sum,sum,sum,sum,sum',
 					A20: { formula: 'timequery(A9, JSON(A10:B11), 1)' }
 				}
 			});
@@ -1174,7 +1173,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 7,
+					A4: 'aggregate', B4: 'stdevs',
 					A5: { formula: `timequery(A2, JSON(A3:B4), 1)` }
 				}
 			});
@@ -1202,7 +1201,7 @@ describe('timequery', () => {
 					A8: 'v8', B8: undefined,
 					A9: { formula: 'timestore(JSON(A1:B8))' },
 					A10: 'select', B10: 'v1,v2,v3,v4,v5,v6,v7,v8',
-					A11: 'aggregate', B11: '7,7,7,7,7,7,7,7',
+					A11: 'aggregate', B11: 'stdevs,stdevs,stdevs,stdevs,stdevs,stdevs,stdevs,stdevs',
 					A20: { formula: 'timequery(A9, JSON(A10:B11), 1)' }
 				}
 			});
@@ -1242,7 +1241,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 5, // minimum
+					A4: 'aggregate', B4: 'min',
 					A5: 'where', B5: 'v1 > 2',
 					A6: { formula: 'timequery(A2, JSON(A3:B5), 100)' }
 				}
@@ -1279,7 +1278,7 @@ describe('timequery', () => {
 					A3: 'v3', B3: { formula: 'concat("count",B1)' },
 					A7: { formula: 'timestore(JSON(A1:B3))' },
 					A8: 'select', B8: 'v1',
-					A9: 'aggregate', B9: 5, // minimum
+					A9: 'aggregate', B9: 'min',
 					A10: 'where', B10: 'v2 > "he"',
 					A11: { formula: 'timequery(A7, JSON(A8:B10), 100)' }
 				}
@@ -1315,7 +1314,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 4, // maximum
+					A4: 'aggregate', B4: 'max',
 					A5: 'where', B5: 'v1 < 4',
 					A6: { formula: 'timequery(A2, JSON(A3:B5), 100)' }
 				}
@@ -1352,7 +1351,7 @@ describe('timequery', () => {
 					A3: 'v3', B3: { formula: 'concat("count",B1)' },
 					A7: { formula: 'timestore(JSON(A1:B3))' },
 					A8: 'select', B8: 'v1',
-					A9: 'aggregate', B9: 4, // maximum
+					A9: 'aggregate', B9: 'max',
 					A10: 'where', B10: 'v2 < "world"',
 					A11: { formula: 'timequery(A7, JSON(A8:B10), 100)' }
 				}
@@ -1389,7 +1388,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
-					A4: 'aggregate', B4: 5, // minimum
+					A4: 'aggregate', B4: 'min',
 					A5: 'where', B5: 'v1 = 4',
 					A6: { formula: 'timequery(A2, JSON(A3:B5), 100)' }
 				}
@@ -1426,7 +1425,7 @@ describe('timequery', () => {
 					A3: 'v3', B3: '',
 					A7: { formula: 'timestore(JSON(A1:B3))' },
 					A8: 'select', B8: 'v1',
-					A9: 'aggregate', B9: 5, // minimum
+					A9: 'aggregate', B9: 'min',
 					A10: 'where', B10: 'v2 = true',
 					A11: { formula: 'timequery(A7, JSON(A8:B10), 100)' }
 				}
@@ -1464,7 +1463,7 @@ describe('timequery', () => {
 					A3: 'v3', B3: { formula: 'B3+10)' },
 					A7: { formula: 'timestore(JSON(A1:B3))' },
 					A8: 'select', B8: 'v1',
-					A9: 'aggregate', B9: 5, // minimum
+					A9: 'aggregate', B9: 'min',
 					A10: 'where', B10: 'v2 = "kitchen" AND v3 > 30',
 					A11: { formula: 'timequery(A7, JSON(A8:B10), 100)' }
 				}
@@ -1490,7 +1489,7 @@ describe('timequery', () => {
 					A3: 'v3', B3: { formula: 'B3+10)' },
 					A7: { formula: 'timestore(JSON(A1:B3))' },
 					A8: 'select', B8: 'v1',
-					A9: 'aggregate', B9: 5, // minimum
+					A9: 'aggregate', B9: 'min',
 					A10: 'where', B10: 'v2 = "bathroom" OR v3 > 30',
 					A11: { formula: 'timequery(A7, JSON(A8:B10), 100)' }
 				}
@@ -1516,7 +1515,7 @@ describe('timequery', () => {
 					A3: 'v3', B3: { formula: 'B3+10)' },
 					A7: { formula: 'timestore(JSON(A1:B3))' },
 					A8: 'select', B8: 'v1',
-					A9: 'aggregate', B9: 5, // minimum
+					A9: 'aggregate', B9: 'min',
 					A10: 'where', B10: 'v2 = "bathroom" OR v3 > 20 AND v3 = 40',
 					A11: { formula: 'timequery(A7, JSON(A8:B10), 100)' }
 				}
@@ -1542,7 +1541,7 @@ describe('timequery', () => {
 					A3: 'v3', B3: 'bedroom OR toilet',
 					A7: { formula: 'timestore(JSON(A1:B3))' },
 					A8: 'select', B8: 'v1',
-					A9: 'aggregate', B9: 5, // minimum
+					A9: 'aggregate', B9: 'min',
 					A10: 'where', B10: 'v2 = "bedroom AND bathroom" OR v3 = "bedroom OR toilet"',
 					A11: { formula: 'timequery(A7, JSON(A8:B10), 100)' }
 				}
@@ -1596,7 +1595,7 @@ describe('timequery', () => {
 					A2: 'v2', B2: { formula: 'B2+10)' },
 					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: '*',
-					A5: 'aggregate', B5: 9,
+					A5: 'aggregate', B5: 'sum',
 					A6: { formula: 'timequery(A3, JSON(A4:B5), 10)' }
 				}
 			});
@@ -1619,7 +1618,7 @@ describe('timequery', () => {
 					A2: 'v2', B2: { formula: 'B2+10)' },
 					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: '*',
-					A5: 'aggregate', B5: '4,9,1',
+					A5: 'aggregate', B5: 'max,sum,avg',
 					A6: { formula: 'timequery(A3, JSON(A4:B5), 10)' }
 				}
 			});
@@ -1688,7 +1687,7 @@ describe('timequery', () => {
 					A2: 'v2', B2: { formula: 'B2+10)' },
 					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1,*',
-					A5: 'aggregate', B5: '4,9',
+					A5: 'aggregate', B5: 'max,sum',
 					A6: { formula: 'timequery(A3, JSON(A4:B5), 10)' }
 				}
 			});
@@ -1738,7 +1737,7 @@ describe('timequery', () => {
 					A1: 'v1', B1: { formula: 'B1+1)' },
 					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: '*',
-					A5: 'aggregate', B5: '9',
+					A5: 'aggregate', B5: 'sum',
 					A6: { formula: 'timequery(A3, JSON(A4:B5), 10)' }
 				}
 			});

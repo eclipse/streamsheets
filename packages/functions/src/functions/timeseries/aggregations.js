@@ -97,25 +97,36 @@ const wildcard = (method) => {
 };
 
 const METHODS = {
-	'0': none,
-	'1': avg,
-	'2': count(isNumber),
-	'3': count(isNonZero),
-	'4': max,
-	'5': min,
-	'6': product,
-	'7': stdev,
-	'9': sum
+	'none': none,
+	'avg': avg,
+	'count': count(isNumber),
+	'counta': count(isNonZero),
+	'max': max,
+	'min': min,
+	'product': product,
+	'stdevs': stdev,
+	'sum': sum
 };
+const getMethod = (str) => METHODS[str.toLowerCase()];
+const hasMethod = (str) => !!METHODS[str.toLowerCase()];
 
 module.exports = {
-	get: (nr, key) => { // = 0, key) => {
-		const method = METHODS[nr || 0];
+	get: (str, key) => { // = 0, key) => {
+		const method = getMethod(str || 'none');
 		return method ? aggregate(key, method()) : undefined;
 	},
-	getWildCard: (nr) => { // = 0) => {
-		const method = METHODS[nr || 0];
+	getWildCard: (str) => { // = 'none') => {
+		const method = getMethod(str || 'none');
 		return method ? wildcard(method) : undefined;
 	},
-	validate: (methods = []) => methods.every((nr) => !nr || !!METHODS[nr])
+	validate: (methods = []) => methods.every((str) => !str || hasMethod(str))
+	// get: (nr, key) => { // = 0, key) => {
+	// 	const method = METHODS[nr || 0];
+	// 	return method ? aggregate(key, method()) : undefined;
+	// },
+	// getWildCard: (nr) => { // = 0) => {
+	// 	const method = METHODS[nr || 0];
+	// 	return method ? wildcard(method) : undefined;
+	// },
+	// validate: (methods = []) => methods.every((nr) => !nr || !!METHODS[nr])
 };
