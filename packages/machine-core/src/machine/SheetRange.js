@@ -23,29 +23,31 @@ const createColumnRange = (startcol, endcol) => {
 };
 
 class SheetRange {
-	static fromRangeStr(str) {
+	static fromRangeStr(str, sheet) {
 		let range;
 		const idx = str && str.split(':');
 		if (idx && idx.length === 2) {
 			const end = SheetIndex.create(idx[1]);
 			const start = SheetIndex.create(idx[0]);
-			range = start && end && SheetRange.fromStartEnd(start, end);
+			range = start && end && SheetRange.fromStartEnd(start, end, sheet);
 			if (!range) {
 				const row = toNumber(idx[0]);
 				const col = row == null && colCharRegEx.test(idx[0]) ? SheetIndex.columnAsNr(idx[0]) : undefined;
-				range =
+				if (row != null) range = createRowRange(row, idx[1]);
+				else if (col != null) range = createColumnRange(col, idx[1]);
+				if (range != null) range.sheet = sheet;
 					// eslint-disable-next-line no-nested-ternary
-					row != null
-						? createRowRange(row, idx[1])
-						: col != null
-						? createColumnRange(col, idx[1])
-						: undefined; // ERROR.NAME);
+					// row != null
+					// 	? createRowRange(row, idx[1])
+					// 	: col != null
+					// 	? createColumnRange(col, idx[1])
+					// 	: undefined; // ERROR.NAME);
 			}
 		}
 		return range;
 	}
 
-	static fromStartEnd(startidx, endidx) {
+	static fromStartEnd(startidx, endidx, sheet) {
 		const endcol = endidx.col;
 		const startcol = startidx.col;
 		const end = SheetIndex.create(Math.max(startidx.row, endidx.row), Math.max(startcol, endcol));
@@ -54,7 +56,9 @@ class SheetRange {
 		const start = SheetIndex.create(Math.min(startidx.row, endidx.row), Math.min(startcol, endcol));
 		start._isAbsCol = endidx.col < startidx.col ? endidx._isAbsCol : startidx._isAbsCol;
 		start._isAbsRow = endidx.Row < startidx.row ? endidx._isAbsRow : startidx._isAbsRow;
-		return new SheetRange(start, end);
+		const range = new SheetRange(start, end);
+		range.sheet = sheet;
+		return range;
 	}
 
 	// start and end indices are inclusive...
