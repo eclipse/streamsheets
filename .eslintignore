@@ -4,6 +4,7 @@ packages/stream/kafka/examples
 packages/stream/kafka/docker
 packages/gateway-client-proxy/webpack.config.js
 packages/gateway/src/public
+packages/gateway/out
 packages/jsg-comp-core/server
 packages/jsg-comp-ui/gettingstarted
 packages/jsg-comp-ui/gulp-tasks
