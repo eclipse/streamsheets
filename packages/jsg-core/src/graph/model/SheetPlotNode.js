@@ -797,31 +797,22 @@ module.exports = class SheetPlotNode extends Node {
 		return undefined;
 	}
 
-	isTimeAggregateCell(cell) {
-		const expr = cell ? cell.getExpression() : undefined;
-		if (expr === undefined) {
-			return undefined;
-		}
-		const formula = expr.getFormula();
-
-		if (formula && (formula.indexOf('TIMEAGGREGATE') !== -1 || formula.indexOf('INFLUX.SELECT') !== -1)) {
-			return cell;
-		}
-
-		return undefined;
+	isTimeBasedCell(cell) {
+		// if and only if cell has time values...
+		return cell && cell._info && cell._info.values && cell._info.values.time != null ? cell : undefined;
 	}
 
-	isTimeAggregateRange(sheet, range) {
+	isTimeBasedRange(sheet, range) {
 		if (range.getWidth() !== 1 || range.getHeight() !== 1) {
 			return undefined;
 		}
 		const cell = sheet.getDataProvider().getRC(range._x1, range._y1);
-		return this.isTimeAggregateCell(cell);
+		return this.isTimeBasedCell(cell);
 	}
 
 	getDataSourceInfo(ds) {
 		const timeParam = this.getParamInfo(ds.getTerm(), 2);
-		const time =  timeParam ? this.isTimeAggregateRange(timeParam.sheet, timeParam.range) : false;
+		const time =  timeParam ? this.isTimeBasedRange(timeParam.sheet, timeParam.range) : false;
 
 		if (time) {
 			return {
@@ -2306,7 +2297,7 @@ module.exports = class SheetPlotNode extends Node {
 			const taRange = range.copy();
 			taRange.enumerateCells(true, (pos) => {
 				const cell = data.get(pos);
-				if (!this.isTimeAggregateCell(cell)) {
+				if (!this.isTimeBasedCell(cell)) {
 					time = false;
 				}
 			});
@@ -2318,7 +2309,7 @@ module.exports = class SheetPlotNode extends Node {
 				}
 				taRange.enumerateCells(true, (pos) => {
 					const cell = data.get(pos);
-					if (!this.isTimeAggregateCell(cell)) {
+					if (!this.isTimeBasedCell(cell)) {
 						time = false;
 					}
 				});
