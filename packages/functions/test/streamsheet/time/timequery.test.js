@@ -1,16 +1,17 @@
 const { sleep } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { SheetRange } = require('@cedalo/machine-core');
 const { createCellAt } = require('../../utilities');
 const { newMachine, newSheet, runMachine, runMachinePause } = require('./utils');
 
 const ERROR = FunctionErrors.code;
 const timestoreFrom = (cell) => () => cell.term._timestore;
 const querystoreFrom = (cell) => () => cell.term._querystore;
-const query = (querycell, timecell) => {
+const query = (querycell, timecell, range) => {
 	const timestore = timestoreFrom(timecell);
 	const querystore = querystoreFrom(querycell);
 	querystore().performQuery(timestore());
-	querystore().write(querycell);
+	querystore().write(querycell, range);
 };
 
 describe('timequery', () => {
@@ -340,7 +341,7 @@ describe('timequery', () => {
 			expect(querycell.info.values.v2[1]).toBe(50);
 		});
 		it('should aggregate values in given interval', async () => {
-			const machine = newMachine({ cycletime: 100 });
+			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
 				cells: {
@@ -349,26 +350,23 @@ describe('timequery', () => {
 					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1', C4: 'select', D4: 'v1,v2',
 					A5: 'aggregate', B5: 9, C5: 'aggregate', D5: '9, 4',
-					A8: { formula: 'timequery(A3, JSON(A4:B5), 200/1000)' }
+					A8: { formula: 'timequery(A3, JSON(A4:B5), 20/1000)' }
 				}
 			});
 			let querycell = sheet.cellAt('A8');
 			expect(querycell.value).toBe(true);
-			await runMachine(machine, 350);
-			expect(sheet.cellAt('B1').value).toBe(5);
+			expect(querycell.info.values).toBeUndefined();
+			await runMachine(machine, 50);
 			expect(querycell.info.values).toBeDefined();
 			expect(querycell.info.values.v2).toBeUndefined();
-			expect(querycell.info.values.v1.length).toBe(1);
+			expect(querycell.info.values.v1.length).toBeGreaterThanOrEqual(1);
 			// check multiple aggregation:
-			createCellAt('A8', { formula: 'timequery(A3, JSON(C4:D5), 200/1000)' }, sheet);
+			createCellAt('A8', { formula: 'timequery(A3, JSON(C4:D5), 20/1000)' }, sheet);
 			querycell = sheet.cellAt('A8');
 			expect(querycell.value).toBe(true);
-			await runMachine(machine, 350);
-			expect(querycell.info.values.v1.length).toBe(1);
-			expect(querycell.info.values.v2.length).toBe(1);
-			await runMachine(machine, 750);
-			expect(querycell.info.values.v1.length).toBe(3);
-			expect(querycell.info.values.v2.length).toBe(3);
+			await runMachine(machine, 50);
+			expect(querycell.info.values.v1.length).toBeGreaterThanOrEqual(1);
+			expect(querycell.info.values.v2.length).toBeGreaterThanOrEqual(1);
 		});
 		it('should only aggregate values with timestamp in given interval', async () => {
 			const machine = newMachine({ cycletime: 100 });
@@ -398,7 +396,7 @@ describe('timequery', () => {
 			expect(querycell.info.values.v1[0]).toBeGreaterThan(minimum);
 		});
 		it('should limit number of aggregated values', async () => {
-			const machine = newMachine({ cycletime: 100 });
+			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
 				cells: {
@@ -406,11 +404,11 @@ describe('timequery', () => {
 					A2: { formula: 'timestore(JSON(A1:B2))' },
 					A3: 'select', B3: 'v1',
 					A4: 'aggregate', B4: 5,
-					A5: { formula: `timequery(A2, JSON(A3:B4), 200/1000, , 1)` }
+					A5: { formula: `timequery(A2, JSON(A3:B4), 20/1000, , 1)` }
 				}
 			});
 			const querystore = querystoreFrom(sheet.cellAt('A5'));
-			await runMachine(machine, 550);
+			await runMachine(machine, 100);
 			expect(querystore().entries.length).toBe(1);
 		});
 		it('should write result to target range', async () => {
@@ -426,16 +424,33 @@ describe('timequery', () => {
 					A8: { formula: 'timequery(A3, JSON(A4:B5), 200/1000, B8:D12)' }
 				}
 			});
-			await runMachine(machine, 550);
+			const timecell = sheet.cellAt('A3');
+			const querycell = sheet.cellAt('A8');
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			query(querycell, timecell, SheetRange.fromRangeStr('B8:D12', sheet));
 			expect(sheet.cellAt('B8').value).toBe('time');
 			expect(sheet.cellAt('C8').value).toBe('v1');
 			expect(sheet.cellAt('D8').value).toBe('v2');
 			expect(sheet.cellAt('B9')).toBeDefined();
-			expect(sheet.cellAt('C9')).toBeDefined();
-			expect(sheet.cellAt('D9')).toBeDefined();
+			expect(sheet.cellAt('C9').value).toBe(9);
+			expect(sheet.cellAt('D9').value).toBe(40);
+			expect(sheet.cellAt('B10')).toBeUndefined();
+			expect(sheet.cellAt('C10')).toBeUndefined();
+			expect(sheet.cellAt('D10')).toBeUndefined();
+			await machine.step();
+			await machine.step();
+			query(querycell, timecell, SheetRange.fromRangeStr('B8:D12', sheet));
+			expect(sheet.cellAt('B8').value).toBe('time');
+			expect(sheet.cellAt('C8').value).toBe('v1');
+			expect(sheet.cellAt('D8').value).toBe('v2');
+			expect(sheet.cellAt('B9')).toBeDefined();
+			expect(sheet.cellAt('C9').value).toBe(9);
+			expect(sheet.cellAt('D9').value).toBe(40);
 			expect(sheet.cellAt('B10').value).toBeGreaterThan(sheet.cellAt('B9').value);
-			expect(sheet.cellAt('C10').value).toBeGreaterThan(sheet.cellAt('C9').value);
-			expect(sheet.cellAt('D10').value).toBeGreaterThan(sheet.cellAt('D9').value);
+			expect(sheet.cellAt('C10').value).toBe(20);
+			expect(sheet.cellAt('D10').value).toBe(60);
 			expect(sheet.cellAt('B11')).toBeUndefined();
 			expect(sheet.cellAt('C11')).toBeUndefined();
 			expect(sheet.cellAt('D11')).toBeUndefined();
@@ -484,15 +499,19 @@ describe('timequery', () => {
 					A3: { formula: 'timestore(JSON(A1:B2))' },
 					A4: 'select', B4: 'v1,v2',
 					A5: 'aggregate', B5: '9,4',
-					A8: { formula: 'timequery(A3, JSON(A4:B5), 200/1000, B8:D12)' }
+					A8: { formula: 'timequery(A3, JSON(A4:B5), 200/1000)' }
 				}
 			});
+			const timecell = sheet.cellAt('A3');
+			const querycell = sheet.cellAt('A8');
 			const querystore = querystoreFrom(sheet.cellAt('A8'));
-			await runMachine(machine, 550);
-			expect(querystore().entries.length).toBe(2);
+			await machine.step();
+			query(querycell, timecell);
+			expect(querystore().entries.length).toBe(1);
 			// machine step should keep entries:
 			await machine.step();
-			expect(querystore().entries.length).toBeGreaterThanOrEqual(2);
+			query(querycell, timecell);
+			expect(querystore().entries.length).toBe(2);
 			// machine start should reset entries:
 			await runMachine(machine, 5);
 			expect(querystore().entries.length).toBe(0);
@@ -510,16 +529,23 @@ describe('timequery', () => {
 					A8: { formula: 'timequery(A3, JSON(A4:B5), 200/1000, B8:D12)' }
 				}
 			});
-			await runMachine(machine, 550);
+			const timecell = sheet.cellAt('A3');
+			const querycell = sheet.cellAt('A8');
+			await machine.step();
+			await machine.step();
+			query(querycell, timecell, SheetRange.fromRangeStr('B8:D12', sheet));
+			await machine.step();
+			await machine.step();
+			query(querycell, timecell, SheetRange.fromRangeStr('B8:D12', sheet));
 			expect(sheet.cellAt('B8').value).toBe('time');
 			expect(sheet.cellAt('C8').value).toBe('v1');
 			expect(sheet.cellAt('D8').value).toBe('v2');
 			expect(sheet.cellAt('B9')).toBeDefined();
-			expect(sheet.cellAt('C9')).toBeDefined();
-			expect(sheet.cellAt('D9')).toBeDefined();
+			expect(sheet.cellAt('C9').value).toBe(5);
+			expect(sheet.cellAt('D9').value).toBe(30);
 			expect(sheet.cellAt('B10').value).toBeGreaterThan(sheet.cellAt('B9').value);
-			expect(sheet.cellAt('C10').value).toBeGreaterThan(sheet.cellAt('C9').value);
-			expect(sheet.cellAt('D10').value).toBeGreaterThan(sheet.cellAt('D9').value);
+			expect(sheet.cellAt('C10').value).toBe(14);
+			expect(sheet.cellAt('D10').value).toBe(50);
 			expect(sheet.cellAt('B11')).toBeUndefined();
 			expect(sheet.cellAt('C11')).toBeUndefined();
 			expect(sheet.cellAt('D11')).toBeUndefined();
@@ -529,11 +555,11 @@ describe('timequery', () => {
 			expect(sheet.cellAt('C8').value).toBe('v1');
 			expect(sheet.cellAt('D8').value).toBe('v2');
 			expect(sheet.cellAt('B9')).toBeDefined();
-			expect(sheet.cellAt('C9')).toBeDefined();
-			expect(sheet.cellAt('D9')).toBeDefined();
+			expect(sheet.cellAt('C9').value).toBe(5);
+			expect(sheet.cellAt('D9').value).toBe(30);
 			expect(sheet.cellAt('B10').value).toBeGreaterThan(sheet.cellAt('B9').value);
-			expect(sheet.cellAt('C10').value).toBeGreaterThan(sheet.cellAt('C9').value);
-			expect(sheet.cellAt('D10').value).toBeGreaterThan(sheet.cellAt('D9').value);
+			expect(sheet.cellAt('C10').value).toBe(14);
+			expect(sheet.cellAt('D10').value).toBe(50);
 			expect(sheet.cellAt('B11')).toBeUndefined();
 			expect(sheet.cellAt('C11')).toBeUndefined();
 			expect(sheet.cellAt('D11')).toBeUndefined();
@@ -564,10 +590,18 @@ describe('timequery', () => {
 					A5: { formula: `timequery(A2, JSON(A3:B4), 200/1000)` }
 				}
 			});
+			const timecell = sheet.cellAt('A2');
 			const querycell = sheet.cellAt('A5');
-			const timestore = timestoreFrom(sheet.cellAt('A2'));
+			const timestore = timestoreFrom(timecell);
 			expect(querycell.value).toBe(true);
-			await runMachine(machine, 550);
+			await machine.step();
+			await machine.step();
+			query(querycell, timecell);
+			await machine.step();
+			await machine.step();
+			query(querycell, timecell);
+			await machine.step();
+			await machine.step();
 			expect(sheet.cellAt('B1').value).toBe(7);
 			expect(querycell.info.values.v1.length).toBe(2);
 			// check timestore entries:
@@ -586,14 +620,15 @@ describe('timequery', () => {
 					A8: { formula: 'timequery(A3, JSON(A4:B5), 100/1000)' }
 				}
 			});
+			const timecell = sheet.cellAt('A3');
 			const querycell = sheet.cellAt('A8');
 			expect(querycell.value).toBe(true);
+			// collect some query results
 			await runMachinePause(machine, 350);
 			expect(querycell.info.values).toBeDefined();
-			// same query store collects:
-			expect(querycell.info.values.v1.length).toBe(3);
-			await runMachinePause(machine, 150);
-			expect(querycell.info.values.v1.length).toBeGreaterThan(3);
+			expect(querycell.info.values.v1.length).toBeGreaterThanOrEqual(2);
+			await runMachinePause(machine, 250);
+			expect(querycell.info.values.v1.length).toBeGreaterThanOrEqual(3);
 			// new query store resets:
 			createCellAt('B5', 1, sheet);
 			await runMachinePause(machine, 150);
@@ -632,7 +667,7 @@ describe('timequery', () => {
 			expect(querycell.value).toBe(true);
 			await runMachine(machine, 15);
 			expect(querycell.value).toBe(ERROR.NA);
-			await runMachine(machine, 35);
+			await runMachine(machine, 50);
 			expect(querycell.value).toBe(true);
 		});
 	});
