@@ -61,6 +61,12 @@ const setDisposeHandler = (term, sheet) => {
 	};
 };
 
+const entriesReduce = (all, { key, value }) => {
+	all.time.push(key);
+	all.value.push(value);
+	return all;
+};
+
 class Store {
 	static of(filter, sorted, limitFilter) {
 		return new Store(filter, sorted, limitFilter);
@@ -151,7 +157,7 @@ class Aggregator {
 		}
 		// DL-2306 always return entries with cell
 		const marker = term ? term._marker : undefined;
-		cell.info = { marker, values: entries.map(({ key, value }) => ({ key, value })) };
+		cell.info = { marker, xvalue: 'time', values: entries.reduce(entriesReduce, { time: [], value: [] }) };
 	}
 }
 
