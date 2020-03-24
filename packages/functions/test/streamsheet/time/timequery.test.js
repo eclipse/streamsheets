@@ -543,7 +543,7 @@ describe('timequery', () => {
 			expect(sheet.cellAt('B9')).toBeDefined();
 			expect(sheet.cellAt('C9').value).toBe(5);
 			expect(sheet.cellAt('D9').value).toBe(30);
-			expect(sheet.cellAt('B10').value).toBeGreaterThan(sheet.cellAt('B9').value);
+			expect(sheet.cellAt('B10').value).toBeGreaterThanOrEqual(sheet.cellAt('B9').value);
 			expect(sheet.cellAt('C10').value).toBe(14);
 			expect(sheet.cellAt('D10').value).toBe(50);
 			expect(sheet.cellAt('B11')).toBeUndefined();
@@ -557,7 +557,7 @@ describe('timequery', () => {
 			expect(sheet.cellAt('B9')).toBeDefined();
 			expect(sheet.cellAt('C9').value).toBe(5);
 			expect(sheet.cellAt('D9').value).toBe(30);
-			expect(sheet.cellAt('B10').value).toBeGreaterThan(sheet.cellAt('B9').value);
+			expect(sheet.cellAt('B10').value).toBeGreaterThanOrEqual(sheet.cellAt('B9').value);
 			expect(sheet.cellAt('C10').value).toBe(14);
 			expect(sheet.cellAt('D10').value).toBe(50);
 			expect(sheet.cellAt('B11')).toBeUndefined();
