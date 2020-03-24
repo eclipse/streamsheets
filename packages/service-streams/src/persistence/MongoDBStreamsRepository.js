@@ -13,9 +13,7 @@ const logger = LoggerFactory.createLogger(
 	process.env.STREAMSHEETS_STREAMS_SERVICE_LOG_LEVEL
 );
 
-module.exports = class MongoDBStreamsRepository extends mix(
-	AbstractStreamsRepository
-).with(MongoDBMixin) {
+module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepository).with(MongoDBMixin) {
 	constructor(config = { conf: true }) {
 		super(config);
 		this.collection = this.config.collection || COLLECTION;
@@ -33,16 +31,15 @@ module.exports = class MongoDBStreamsRepository extends mix(
 	}
 
 	async setupIndicies() {
+		try {
+			await this.db.collection(this.collection).dropIndex({ name: 1 });
+		} catch (error) {
+			// ignore
+		}
 		return Promise.all([
-			this.db
-				.collection(this.collection)
-				.createIndex({ id: 1 }, { unique: true, background: true }),
-			this.db
-				.collection(this.collection)
-				.createIndex({ name: 1 }, { unique: true }),
-			this.db
-				.collection(this.collection)
-				.createIndex({ className: 1 }, { background: true })
+			this.db.collection(this.collection).createIndex({ id: 1 }, { unique: true, background: true }),
+			this.db.collection(this.collection).createIndex({ name: 1, 'scope.id': 1 }, { unique: true }),
+			this.db.collection(this.collection).createIndex({ className: 1 }, { background: true })
 		]);
 	}
 
@@ -50,31 +47,45 @@ module.exports = class MongoDBStreamsRepository extends mix(
 		// clean providers
 		await this.deleteAllProviders();
 		const allConfigs = await this.findAllConfigurations();
+		const providerIds = CONFIG.providers.map((id) => id);
 		if (allConfigs.length < 1 || process.env.STREAMSHEETS_DB_SEED) {
-			const providerIds = CONFIG.providers.map((id) => id);
-
-			logger.info(
-				`ensureMinDataInRepos needs to populate configs at ${new Date()}`
-			);
-			const defConnectors = defaultConfigurations.filter(
-				(conf) =>
-					conf.className === 'ConnectorConfiguration' &&
-					conf.provider &&
-					providerIds.includes(conf.provider.id)
-			);
-			const defStreams = defaultConfigurations.filter(
-				(conf) =>
-					conf.className !== 'ConnectorConfiguration' &&
-					conf.connector &&
-					!!defConnectors.find((c) => c.id === conf.connector.id)
-			);
+			logger.info(`ensureMinDataInRepos needs to populate configs at ${new Date()}`);
+			const defConnectors = defaultConfigurations
+				.filter(
+					(conf) =>
+						conf.className === 'ConnectorConfiguration' &&
+						conf.provider &&
+						providerIds.includes(conf.provider.id)
+				)
+				.map((c) => ({ ...c, scope: { id: 'root' } }));
+			const defStreams = defaultConfigurations
+				.filter(
+					(conf) =>
+						conf.className !== 'ConnectorConfiguration' &&
+						conf.connector &&
+						!!defConnectors.find((c) => c.id === conf.connector.id)
+				)
+				.map((c) => ({
+					...c,
+					scope: { id: 'root' },
+					providerId: defConnectors.find((conncetor) => conncetor.id === c.connector.id).id
+				}));
 			await this.saveConfigurations([...defConnectors, ...defStreams]);
 		}
-		await this.syncDefaultConfigurations(
-			allConfigs.filter((c) => c.className === 'ProviderConfiguration')
-		); // Promise.resolve();
+		await this.syncDefaultConfigurations(allConfigs.filter((c) => c.className === 'ProviderConfiguration')); // Promise.resolve();
 		if (allConfigs.length > 0) {
-			const newConfigs = allConfigs.map(this.migrateConfiguration);
+			const connectorMap = new Map(
+				allConfigs
+					.filter(
+						(c) =>
+							c.className === 'ConnectorConfiguration' &&
+							c.provider &&
+							providerIds.includes(c.provider.id)
+					)
+					.map((c) => [c.id, c])
+			);
+
+			const newConfigs = allConfigs.map((c) => this.migrateConfiguration(c, connectorMap));
 			const withoutOldProviders = newConfigs.filter(
 				(config) =>
 					!(
@@ -96,12 +107,10 @@ module.exports = class MongoDBStreamsRepository extends mix(
 			all[provider.id] = provider;
 			return all;
 		}, {});
-		const addDefConfigs = defaultConfigurations.filter(
-			(cfg) => cfg.provider && !knownProviders[cfg.provider.id]
-		);
-		return Promise.all[
-			addDefConfigs.forEach((config) => this.saveConfiguration(config))
-		];
+		const addDefConfigs = defaultConfigurations
+			.filter((cfg) => cfg.provider && !knownProviders[cfg.provider.id])
+			.map((c) => ({ ...c, scope: { id: 'root' } }));
+		return Promise.all[addDefConfigs.forEach((config) => this.saveConfiguration(config))];
 	}
 
 	findAllConfigurations() {
@@ -125,8 +134,8 @@ module.exports = class MongoDBStreamsRepository extends mix(
 	}
 
 	// TODO: should remove migration...
-	migrateConfiguration(config) {
-		if(typeof config !== 'object') {
+	migrateConfiguration(config, connectorMap) {
+		if (typeof config !== 'object') {
 			return config;
 		}
 		const json = JSON.stringify(config);
@@ -145,11 +154,11 @@ module.exports = class MongoDBStreamsRepository extends mix(
 				delete configuration.pop3Port;
 				configuration.security = configuration.pop3Security;
 				delete configuration.pop3Security;
-			} else if(configuration.provider.id === 'dl-feeder-mqtt') {
+			} else if (configuration.provider.id === 'dl-feeder-mqtt') {
 				configuration.provider = {
-					_id: "stream-mqtt",
-					id: "stream-mqtt",
-					className: "ProviderConfiguration",
+					_id: 'stream-mqtt',
+					id: 'stream-mqtt',
+					className: 'ProviderConfiguration',
 					isRef: true
 				};
 				configuration.protocolVersion = 4;
@@ -160,14 +169,20 @@ module.exports = class MongoDBStreamsRepository extends mix(
 			}
 		}
 		if (configuration.className !== 'ProviderConfiguration') {
-			configuration.name = configuration.name
-			.replace(' ', '_')
-			.replace(/[^a-zA-Z0-9_]/, '');
+			configuration.name = configuration.name.replace(' ', '_').replace(/[^a-zA-Z0-9_]/, '');
 		}
-		if(configuration.id === 'CONNECTOR_MQTT' && configuration.url === 'broker' && configuration.userName === 'cedalo' && !configuration.migrated){
+		if (
+			configuration.id === 'CONNECTOR_MQTT' &&
+			configuration.url === 'broker' &&
+			configuration.userName === 'cedalo' &&
+			!configuration.migrated
+		) {
 			try {
-				const newPassword = fs.readFileSync('/etc/mosquitto-default-credentials/pw_clear.txt').toString().trim();
-				if(newPassword) {
+				const newPassword = fs
+					.readFileSync('/etc/mosquitto-default-credentials/pw_clear.txt')
+					.toString()
+					.trim();
+				if (newPassword) {
 					configuration.url = 'localhost';
 					configuration.password = newPassword;
 					configuration.migrated = true;
@@ -176,6 +191,17 @@ module.exports = class MongoDBStreamsRepository extends mix(
 				// New password not found
 			}
 		}
+
+		if (configuration.connector && !configuration.provider) {
+			const connector = connectorMap.get(configuration.connector.id);
+			if (connector) {
+				configuration.providerId = connector.provider.id;
+			}
+		}
+
+		if (!configuration.scope) {
+			configuration.scope = { id: 'root' };
+		}
 		return configuration;
 	}
 
@@ -183,11 +209,7 @@ module.exports = class MongoDBStreamsRepository extends mix(
 		// configuration = this.migrateConfiguration(configuration);
 		configuration._id = configuration.id;
 		configuration.lastModified = new Date().toISOString();
-		return this.upsertDocument(
-			this.collection,
-			{ _id: configuration._id },
-			configuration
-		);
+		return this.upsertDocument(this.collection, { _id: configuration._id }, configuration);
 	}
 
 	updateConfiguration(id, $set) {
@@ -196,9 +218,7 @@ module.exports = class MongoDBStreamsRepository extends mix(
 	}
 
 	saveConfigurations(configurations) {
-		return Promise.all(
-			configurations.map(async (c) => this.saveConfiguration(c))
-		);
+		return Promise.all(configurations.map(async (c) => this.saveConfiguration(c)));
 	}
 
 	deleteConfiguration(id) {
@@ -210,8 +230,20 @@ module.exports = class MongoDBStreamsRepository extends mix(
 	}
 
 	async deleteAllProviders() {
-		return this.db
+		return this.db.collection(this.collection).remove({ className: 'ProviderConfiguration' });
+	}
+
+	async getNames(scope) {
+		const streams = await this.db
 			.collection(this.collection)
-			.remove({ className: 'ProviderConfiguration' });
+			.find(
+				{
+					'scope.id': scope.id,
+					className: { $in: ['ConsumerConfiguration', 'ProducerConfiguration', 'ConnectorConfiguration'] }
+				},
+				{ projection: { name: 1 } }
+			)
+			.toArray();
+		return streams.map((m) => m.name);
 	}
 };

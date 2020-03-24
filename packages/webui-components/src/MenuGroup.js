@@ -11,7 +11,7 @@ const MenuGroup = ({ open, label, icon, onClick, show, children }) => {
 	const entries = Array.isArray(children) ? children : [children];
 	const shownEntries = entries.filter((entry) => entry.props.show !== false);
 	const selected = shownEntries.some((entry) => entry.props.selected);
-	return show === false || shownEntries === 0 ? null : (
+	return show === false || shownEntries.length === 0 ? null : (
 		<React.Fragment>
 			<MenuItem onClick={onClick} selected={selected}>
 				<ListItemIcon>{icon}</ListItemIcon>

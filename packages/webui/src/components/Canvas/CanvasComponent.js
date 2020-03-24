@@ -19,13 +19,11 @@ import TreeContextMenu from './TreeContextMenu';
 import GraphContextMenu from './GraphContextMenu';
 import SheetDeleteDialog from './SheetDeleteDialog';
 import MachineHelper from '../../helper/MachineHelper';
-import { accessManager } from '../../helper/AccessManager';
 import ChartProperties from './ChartProperties';
 import FunctionWizard from './FunctionWizard';
 import { intl } from '../../helper/IntlGlobalProvider';
 import StreamChartProperties from './StreamChartProperties';
 // import NotAuthorizedComponent from '../Errors/NotAuthorizedComponent';
-const { RESOURCE_ACTIONS } = accessManager;
 
 export class CanvasComponent extends Component {
 	static getDerivedStateFromProps(props, state) {
@@ -255,16 +253,8 @@ export class CanvasComponent extends Component {
 		graphManager.updateControls();
 	}
 
-	isAccessDisabled() {
-		return accessManager.isAccessDisabled(accessManager.PERMISSIONS.MACHINE_EDIT);
-	}
-
 	render() {
-		const canEdit = MachineHelper.currentMachineCan(RESOURCE_ACTIONS.EDIT);
-
-		/* if (!canView) {
-			return <NotAuthorizedComponent target={accessManager.PERMISSIONS.STREAM_EDIT} {...this.props} />;
-		} */
+		const canEdit = this.props.canEditMachine;
 		const sheets = [];
 		const graph = graphManager.getGraph();
 		if (graph) {

@@ -11,9 +11,7 @@ import React, { Component } from 'react';
 import Dropzone from 'react-dropzone';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as Actions from '../../../actions/actions';
-import { RESOURCE_ACTIONS, RESOURCE_TYPES } from '../../../helper/AccessManager';
+import { showErrorDialog, backup, restore } from '../../../actions/actions';
 import ConfirmDialog from '../../base/confirmDialog/ConfirmDialog';
 import NotAuthorizedComponent from '../../Errors/NotAuthorizedComponent';
 import { NotAllowed, Restricted } from '../../HelperComponent/Restricted';
@@ -76,7 +74,7 @@ class Database extends Component {
 
 	render() {
 		return (
-			<Restricted oneOf={[{ type: RESOURCE_TYPES.SECURITY, action: RESOURCE_ACTIONS.EDIT }]}>
+			<Restricted oneOf={['database']}>
 				<NotAllowed>
 					<NotAuthorizedComponent />
 				</NotAllowed>
@@ -176,8 +174,10 @@ class Database extends Component {
 	}
 }
 
-function mapDispatchToProps(dispatch) {
-	return bindActionCreators({ ...Actions }, dispatch);
-}
+const mapDispatchToProps = {
+	showErrorDialog,
+	backup,
+	restore
+};
 
 export default withStyles(styles)(connect(null, mapDispatchToProps)(Database));

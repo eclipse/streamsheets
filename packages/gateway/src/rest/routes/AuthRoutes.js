@@ -1,5 +1,5 @@
 const httpError = require('http-errors');
-const Auth = require('../../Auth');
+const Auth = require('../../Auth').default;
 const CONFIG = require('../../config').get('auth');
 const logger = require('@cedalo/logger').create({ name: 'AuthRoutes' });
 

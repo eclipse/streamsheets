@@ -67,17 +67,10 @@ export const {
 } = UserActions;
 
 export const {
+	notifyExportFailed,
 	showImportDialog,
 	closeImportDialog,
-	importMachinesAndStreams,
 	showStartImportDialog,
-	selectMachinesForExport,
-	deselectMachinesForExport,
-	toggleMachineForExport,
-	resetExport,
-	updateMachineSelection,
-	updateStreamSelection,
-	doExport,
 } = ImportExportActions;
 
 export const { restore, backup } = BackupRestoreActions;
@@ -255,7 +248,9 @@ const clientDisconnected = () => ({ type: ActionTypes.DISCONNECT });
 const connectedService = () => ({ type: ActionTypes.SERVICE_CONNECTED });
 const disconnectedService = () => ({ type: ActionTypes.SERVICE_DISCONNECTED });
 
-const receiveStreams = (data) => ({
+export const setScope = (data) => ({ type: ActionTypes.USER_SET_SCOPE, data });
+
+export const receiveStreams = (data) => ({
 	type: ActionTypes.RECEIVE_STREAMS,
 	data: data || {},
 });
@@ -408,27 +403,9 @@ export function timeoutStreamControlEvent(stream) {
 	});
 }
 
-export function machineDetailViewQuery() {
-	return async (dispatch) => {
-		const result = await gatewayClient.graphql(`
-		{
-			streams {
-				name
-				id
-				className
-				status {
-					streamEventType
-				}
-			}
-
-		}
-		`);
-		dispatch(receiveStreams({ streams: result.streams }));
-	};
-}
-
 function _getDataStores(dispatch) {
-	return gatewayClient.loadAllDSConfigurations().then((response) => {
+	const scope = store.getState().user.user.scope;
+	return gatewayClient.loadAllDSConfigurations(scope).then((response) => {
 		// const { session } = response;
 		// localStorage.setItem('user', JSON.stringify(session.user));
 		// sessionStorage.setItem('sessionId', session ? session.id : '');
@@ -447,9 +424,13 @@ export function getMe() {
 			`{
 				me {
 					id
+					scope {
+						id
+					}
 					username
 					lastName
 					firstName
+					admin
 					settings {
 						locale
 					}
@@ -464,6 +445,7 @@ export function getMe() {
 			JSON.stringify({ id: user.id, displayName, settings: user.settings })
 		);
 		dispatch({ type: ActionTypes.USER_FETCHED, user });
+		return user;
 	};
 }
 
@@ -535,9 +517,9 @@ export function clearNotifications() {
 export function loadSubscribeMachine(machineId, options = {}) {
 	return async (dispatch) => {
 		dispatch(sendMachineLoad(machineId));
-		const { settings, stream } = options || {};
+		const { settings, stream, scope } = options || {};
 		try {
-			const response = await gatewayClient.loadSubscribeMachine(machineId, settings);
+			const response = await gatewayClient.loadSubscribeMachine(machineId, settings, scope);
 			if (response.machineserver.error) {
 				dispatch(requestFailed(messageTypes.MACHINE_LOAD, response.machineserver.error));
 				return null;
@@ -850,13 +832,22 @@ export function openUser(user) {
 	return (dispatch) => dispatch(push(`/administration/user/${user.userId}`));
 }
 
-export function machineWithSameNameExists(machineId, name) {
-	return gatewayClient.getMachineDefinitionsByName(name).then((machines) => {
-		const oneMachineWithSameName = machines.length === 1;
-		const multipleMachinesWithSameName = machines.length > 1;
-		const sameMachine = machines.length === 1 && machines[0].id === machineId;
-		return multipleMachinesWithSameName || (oneMachineWithSameName && !sameMachine);
-	});
+export async function machineWithSameNameExists(machineId, name) {
+	const { scopedByMachine } = await gatewayClient.graphql(
+		`
+		query MachinesWithName($name: String, $machineId: ID!) {
+			scopedByMachine(machineId: $machineId) {
+				machines(name: $name) {
+					id
+					name
+				}
+			}
+		}
+	  `,
+		{ name, machineId }
+	);
+	const otherWithSameName = scopedByMachine.machines.filter(({ id }) => id !== machineId);
+	return otherWithSameName.length > 0;
 }
 
 export function rename(machineId, newName) {
@@ -997,7 +988,8 @@ export function getDataStores() {
 		dispatch({
 			type: ActionTypes.FETCH_STREAMS,
 		});
-		return gatewayClient.loadAllDSConfigurations().then((response) => {
+		const scope = store.getState().user.user.scope;
+		return gatewayClient.loadAllDSConfigurations(scope).then((response) => {
 			// const { session } = response;
 			// localStorage.setItem('user', JSON.stringify(session.user));
 			// sessionStorage.setItem('sessionId', session ? session.id : '');
@@ -1026,10 +1018,10 @@ export function saveMachineAs(originalMachineId, newMachineName) {
 	return (dispatch) => {
 		dispatch({ type: ActionTypes.SEND_MACHINE_SAVE_AS });
 		return gatewayClient.saveMachineAs(originalMachineId, newMachineName).then((response) => {
-			if (response.imported) {
+			if (response.success) {
 				dispatch({
 					type: ActionTypes.RECEIVE_MACHINE_SAVE_AS,
-					newMachineName: response.name,
+					newMachineName: response.clonedMachine.name,
 				});
 			} else {
 				dispatch(requestFailed(messageTypes.MACHINE_SAVE_AS, response));

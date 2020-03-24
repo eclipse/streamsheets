@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -11,9 +11,9 @@ import StopIcon from '@material-ui/icons/Stop';
 import PauseIcon from '@material-ui/icons/Pause';
 import CircleIcon from '@material-ui/icons/Brightness1';
 import { Link } from 'react-router-dom';
-
 import Divider from '@material-ui/core/Divider';
 import SortSelector from '../base/sortSelector/SortSelector';
+import { useGraphQL } from '../../helper/Hooks';
 
 const getColorForMachineState = (state) => {
 	switch (state) {
@@ -40,7 +40,7 @@ const buildList = (machines, onClick) =>
 		// eslint-disable-next-line jsx-a11y/anchor-is-valid
 		<Link
 			style={{
-				textDecoration: 'unset',
+				textDecoration: 'unset'
 			}}
 			to={`/machines/${machine.id}`}
 			key={machine.id}
@@ -53,69 +53,60 @@ const buildList = (machines, onClick) =>
 		</Link>
 	));
 
-class MachineList extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			sortedResources: props.machines.isFetching || props.machines.receivedAt === 0 ? [] : props.machines.data,
-		};
+const QUERY = `query Machines($scope: ScopeInput!) {
+	scoped(scope: $scope) {
+		machines {
+			name
+			id
+			state
+			metadata {
+				lastModified
+			}
+		}
 	}
+}`;
 
-	getResources = () => {
-		const { machines } = this.props;
-		return machines.isFetching || machines.receivedAt === 0 ? [] : machines.data;
-	};
+function MachineList(props) {
+	const { onItemClick } = props;
+	const { data, loading } = useGraphQL(QUERY, { scope: { id: props.scopeId } }, [props.scopeId]);
+	const [sorted, setSorted] = useState([]);
 
-	handleSort = (event, sortedResources) => {
-		this.setState({
-			sortedResources,
-		});
-	};
-
-	render() {
-		const { onItemClick, machines } = this.props;
-		const { sortedResources } = this.state;
-		return (
-			<div>
-				<div
-					style={{
-						margin: '20px 0px 0px 0px',
-						textAlign: 'right',
-					}}
-				>
+	const machines = data ? data.scoped.machines : [];
+	return (
+		<div>
+			<div
+				style={{
+					margin: '20px 0px 0px 0px',
+					textAlign: 'right'
+				}}
+			>
+				{!loading && (
 					<SortSelector
-						onSort={this.handleSort}
-						getResources={this.getResources}
+						onSort={(event, sortedResources) => setSorted(sortedResources)}
+						getResources={() => machines}
 						defaultSortBy="name"
 						defaultSortDir="asc"
 					/>
-				</div>
-				<div
-					style={{
-						height: '480px',
-						overflowY: 'auto',
-					}}
-				>
-					<List dense>
-						{machines.isFetching || machines.receivedAt === 0
-							? getPlaceholder()
-							: buildList(sortedResources, onItemClick)}
-					</List>
-				</div>
+				)}
 			</div>
-		);
-	}
+			<div
+				style={{
+					height: '480px',
+					overflowY: 'auto'
+				}}
+			>
+				<List dense>{loading ? getPlaceholder() : buildList(sorted, onItemClick)}</List>
+			</div>
+		</div>
+	);
 }
 MachineList.propTypes = {
-	// eslint-disable-next-line
-	machines: PropTypes.object,
-	onItemClick: PropTypes.func,
+	onItemClick: PropTypes.func
 };
 MachineList.defaultProps = {
-	onItemClick: () => {},
+	onItemClick: () => {}
 };
 function mapStateToProps(state) {
-	// messages from state
-	return { machines: state.machines };
+	return { scopeId: state.user.user.scope ? state.user.user.scope.id : null };
 }
 export default connect(mapStateToProps)(MachineList);

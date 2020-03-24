@@ -6053,6 +6053,7 @@
 		  "lastAccessed": "2019-09-06T11:23:30.642Z",
 		  "isRef": true
 		},
+		"providerId": "@cedalo/stream-mqtt",
 		"filter": null,
 		"labelAttribute": null,
 		"idAttribute": null,
@@ -6113,6 +6114,7 @@
 		  "lastAccessed": "2019-10-20T17:40:35.498Z",
 		  "isRef": true
 		},
+		"providerId": "@cedalo/stream-mqtt",
 		"samplePayloads": null,
 		"mimeType": "auto",
 		"clientId": "mqttjs_d9c49bb8",

@@ -12,7 +12,8 @@ const session = require('express-session');
 const passport = require('passport');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { GraphQLServer } = require('@cedalo/graphql');
+const { GraphQLServer } = require('../graphql/GraphQLServer');
+const { getRequestContext } = require('../context');
 // const swaggerMiddleware = require('swagger-express-middleware');
 
 // const pSwaggerMiddleware = util.promisify(swaggerMiddleware);
@@ -22,10 +23,10 @@ const logger = require('../utils/logger').create({ name: 'DefaultApp' });
 const APIRouter = require('./APIRouter');
 const APIRouterRepositoryServer = require('./APIRouterRepositoryServer');
 const Error = require('./error/Error');
-const Auth = require('../Auth');
+const Auth = require('../Auth').default;
 
 module.exports = class DefaultApp {
-	constructor(pkg, config) {
+	constructor(pkg, config, globalContext) {
 		const debug = util.debuglog(pkg.name);
 		/* ===== Define app ===== */
 		const app = new Express();
@@ -38,13 +39,15 @@ module.exports = class DefaultApp {
 			config
 		};
 
-		app.locals.gatewayService = config.gatewayService;
-		app.locals.RepositoryManager = config.RepositoryManager;
-		app.locals.encryption = config.encryption;
+		app.locals.gatewayService = globalContext.gatewayService;
+		app.locals.RepositoryManager = globalContext.repositories;
+		app.locals.encryption = globalContext.encryption;
+		app.locals.globalContext = globalContext;
 
 		/* ===== Class properties ===== */
 		this.app = app;
 		this.config = config;
+		this.globalContext = globalContext;
 		this.db = null;
 	}
 
@@ -119,7 +122,7 @@ module.exports = class DefaultApp {
 		);
 
 		/* ===== Authentication ===== */
-		app.use(Auth.initialize(app));
+		app.use(Auth.initialize());
 		app.use(passport.session());
 
 		/* ===== CORS ===== */
@@ -149,7 +152,12 @@ module.exports = class DefaultApp {
 			}
 		});
 
-		GraphQLServer.init(app, '/api/v1.0/graphql', getSession, this.config);
+		GraphQLServer.init(
+			app,
+			'/api/v1.0/graphql',
+			(req) => getRequestContext(this.globalContext, getSession(req)),
+			this.globalContext.graphql
+		);
 
 		const routerRepository = new APIRouterRepositoryServer();
 		app.use('/api/v1.0', routerRepository);
@@ -176,7 +184,6 @@ module.exports = class DefaultApp {
 	}
 
 	async start() {
-		await this.connectDatabases();
 		this.app.locals.db = this.db;
 		const { secure, port, ipaddress } = this.config.get('http');
 		let server;
@@ -199,11 +206,5 @@ module.exports = class DefaultApp {
 				resolve(server);
 			});
 		});
-	}
-
-	async connectDatabases() {
-		return this.app.locals.RepositoryManager.connectAll().then(() =>
-			this.app.locals.RepositoryManager.setupAllIndicies()
-		);
 	}
 };

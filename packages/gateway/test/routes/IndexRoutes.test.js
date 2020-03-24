@@ -1,15 +1,15 @@
 'use strict';
 
 const supertest = require('supertest');
-const before = require('../helper/BeforeHook');
+// const before = require('../helper/BeforeHook');
 
 let defaultApp;
 
-beforeAll(() => before.getApp().then((res) => {
-	defaultApp = res.defaultApp;
-}));
+// beforeAll(() => before.getApp().then((res) => {
+// 	defaultApp = res.defaultApp;
+// }));
 
-describe('@cedalo/gateway', () => {
+describe.skip('@cedalo/gateway', () => {
 	it('should test the root API page (GET, 200)', () => supertest(defaultApp.app)
 			.get('/api/v1.0/')
 			.set('Accept', 'application/json')

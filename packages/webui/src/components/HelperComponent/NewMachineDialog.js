@@ -44,6 +44,7 @@ export class NewMachineDialog extends Component {
 			} else {
 				url += `?machineName=${name}`;
 			}
+			url += `&scope=${this.props.scopeId}`
 			window.open(url);
 			this.handleClose();
 		}
@@ -71,7 +72,8 @@ function mapStateToProps(state) {
 	return {
 		open: state.appState.showNewDialog,
 		machines: state.machines.data,
-		consumers: state.streams.consumers.map((s) => ({ ...s, state: StreamHelper.getStreamState(s) }))
+		consumers: state.streams.consumers.map((s) => ({ ...s, state: StreamHelper.getStreamState(s) })),
+		scopeId: state.user.user.scope.id
 	};
 }
 

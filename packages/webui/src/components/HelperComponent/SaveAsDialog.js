@@ -101,7 +101,6 @@ export class SaveAsDialog extends Component {
 function mapStateToProps(state) {
 	return {
 		showSaveAsDialog: state.appState.showSaveAsDialog,
-		machines: state.machines,
 		monitor: state.monitor,
 	};
 }

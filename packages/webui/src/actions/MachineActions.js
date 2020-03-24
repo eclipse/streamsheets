@@ -5,37 +5,59 @@ import store from '../store';
 const receiveMachines = (machines) => ({
 	type: ActionTypes.RECEIVE_MACHINES,
 	machines,
-	receivedAt: Date.now(),
+	receivedAt: Date.now()
 });
 
 const fetchMachines = () => ({ type: ActionTypes.FETCH_MACHINES });
 
 const defaultQuery = `
-  {
-		machines {
-			id
-			name
+	query Machines($scope: ScopeInput!){
+		scoped(scope: $scope){
+			machines {
+				id
+				name
+			}
 		}
-  }
+	}
 `;
 
 export const dashboardQuery = `
-  {
-		machines {
-			id
-			name
-			previewImage
+	query DashBoard($scope: ScopeInput!) {
+		scoped(scope: $scope) {
+			machines {
+				name
+				id
+				metadata {
+					lastModified
+					owner
+				}
+				previewImage
+				titleImage
+				streamsheets {
+					name
+					inbox {
+						stream {
+							name
+						}
+					}
+				}
+				state
+			}
 		}
-  }
+	}
 `;
 
 export function updateMachines() {
-	return gatewayClient.getMachineDefinitions(dashboardQuery).then((machines) => store.dispatch(receiveMachines(machines)));
+	return gatewayClient
+		.graphql(dashboardQuery, { scope: store.getState().user.user.scope } )
+		.then(({ scoped: { machines } }) => store.dispatch(receiveMachines(machines)));
 }
 
-export function getMachines(query = defaultQuery) {
+export function getMachines(query = defaultQuery, queryParams = { scope: store.getState().user.user.scope }) {
 	return (dispatch) => {
 		dispatch(fetchMachines());
-		return gatewayClient.getMachineDefinitions(query).then((machines) => dispatch(receiveMachines(machines)));
+		return gatewayClient
+			.graphql(query, queryParams)
+			.then(({ scoped: { machines } }) => dispatch(receiveMachines(machines)));
 	};
 }

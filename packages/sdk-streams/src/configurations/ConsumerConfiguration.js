@@ -71,6 +71,7 @@ class ConsumerConfiguration extends BaseConfiguration {
 			labelAttribute: this.labelAttribute || undefined,
 			idAttribute: this.idAttribute || undefined,
 			samplePayloads: this.samplePayloads || undefined,
+			providerId: this.provider.id,
 			mimeType: this.mimeType || 'auto'
 		});
 		if (this.provider && this.provider.definition) {

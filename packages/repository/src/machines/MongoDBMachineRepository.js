@@ -123,18 +123,26 @@ module.exports = class MongoDBMachineRepository extends mix(
 					);
 	}
 
-	findMachineByName(name, projection) {
-		return this.getDocuments(this.collection, { name }, projection).then(
-			(r) => {
-				const machine = r && r.length > 0 ? r[0] : null;
-				return Promise.resolve(machine);
-			}
-		);
+	async findMachineByName(scope, name, projection) {
+		return this.getDocument(this.collection, {name, 'scope.id': scope.id}, projection);
 	}
 
-	async machineWithNameExists(name) {
-		const machine = await this.findMachineByName(name);
-		return machine != null;
+	async machineWithNameExists(id, name) {
+		const machine = await this.getDocument(this.collection, id, {}, { scope: 1 });
+		const otherMachine =
+			machine &&
+			(await this.db
+				.collection(this.collection)
+				.findOne({ id: { $ne: id }, name, 'scope.id': machine.scope.id }, { id: 1 }));
+		return otherMachine != null;
+	}
+
+	async getNames(scope) {
+		const machines = await this.db
+			.collection(this.collection)
+			.find({ 'scope.id': scope.id }, { projection: { name: 1 } })
+			.toArray();
+		return machines.map((m) => m.name);
 	}
 
 	// returns an array of machine definitions...
@@ -401,6 +409,10 @@ module.exports = class MongoDBMachineRepository extends mix(
 			}
 			return Promise.reject(error);
 		});
+	}
+
+	async ensureScope(scope) {
+		return this.db.collection(this.collection).updateMany({ scope: { $exists: false } }, { $set: { scope } });
 	}
 
 	async updateStreams(stream) {

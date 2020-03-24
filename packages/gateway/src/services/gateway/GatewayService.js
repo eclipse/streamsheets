@@ -4,11 +4,11 @@ const IdGenerator = require('@cedalo/id-generator');
 const { MongoDBConfigurationRepository } = require('@cedalo/repository');
 
 const config = require('../../config');
-const SocketServer = require('../../ws/SocketServer');
+const { SocketServer } = require('../../ws/SocketServer');
 
 const startRESTServer = require('../../rest/start');
 const MachineServiceMessageRouter = require('./MachineServiceMessageRouter');
-const Auth = require('../../Auth');
+const Auth = require('../../Auth').default;
 
 const licenseInfoEvent = (licenseInfo) => ({
 	type: 'event',
@@ -17,13 +17,15 @@ const licenseInfoEvent = (licenseInfo) => ({
 
 module.exports = class GatewayService extends MessagingService {
 
-	constructor(metadata) {
+	constructor(metadata, globalContext) {
 		super(metadata);
+		this.globalContext = globalContext;
+		this.globalContext.gatewayService = this;
 		this.socketServer = new SocketServer(config.get('socket'), this);
 		this.machineRouter = new MachineServiceMessageRouter(this);
 		this._services = new Map();
 		this._licenseInfo = {};
-		this.configRepo = new MongoDBConfigurationRepository();
+		this.configRepo = globalContext.repositories.configurationRepository;
 	}
 
 	async prepareJWT() {
@@ -58,14 +60,13 @@ module.exports = class GatewayService extends MessagingService {
 	}
 
 	async _preStart() {
-		await this.configRepo.connect();
 		await super._preStart();
 		await this.prepareJWT();
 		await this.socketServer.start();
 	}
 
 	async _doStart() {
-		await startRESTServer(this);
+		await startRESTServer(this.globalContext);
 	}
 
 	async _postStart() {

@@ -64,5 +64,11 @@ typings/
 # License files
 license.lic
 
-# dynamic functions directory
+# dynamic module directories
 /functions
+/plugins
+/machinedata
+
+
+# Gateway File upload dir
+/backups

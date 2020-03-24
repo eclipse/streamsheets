@@ -17,13 +17,14 @@ export default function machinesReducer(state = defaultMachinesState, action) {
 		};
 	case Actions.RECEIVE_MACHINE_CLONE: {
 		const {response} = action;
-		if(response && response.machine && response.imported) {
-			const newMachine = response.machine;
-			state.data.push(newMachine);
+		if(response && response.clonedMachine && response.success) {
+			const newMachine = response.clonedMachine;
+			return {
+				...state,
+				data: [...state.data, newMachine]
+			}			
 		}
-		return {
-			...state,
-		};
+		return state;
 	}
 	case Actions.RECEIVE_DELETE_MACHINE:
 		return {

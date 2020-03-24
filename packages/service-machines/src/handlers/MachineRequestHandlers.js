@@ -8,7 +8,6 @@ const { MachineServerMessagingProtocol } = require('@cedalo/protocols');
 const VERSION = require('../../package.json').version;
 const BUILD_NUMBER = require('../../meta.json').buildNumber;
 
-
 const toTypeStr = (t) => {
 	switch (t) {
 		case 's':
@@ -208,10 +207,8 @@ class RenameMachineRequestHandler extends RequestHandler {
 	}
 
 	async handle(request, machineserver, repositoryManager) {
-		const machineForName = await repositoryManager.machineRepository.findMachineByName(
-			request.newName
-		);
-		if (machineForName && machineForName.id !== request.machineId) {
+		const nameInUse = await repositoryManager.machineRepository.machineWithNameExists(request.machineId, request.newName)
+		if (nameInUse) {
 			// machine with same name already exists:
 			throw this.reject(
 				request,
@@ -331,16 +328,13 @@ class MachineUpdateSettingsRequestHandler extends RequestHandler {
 		const { cycleTime, isOPCUA, locale, newName } = settings;
 		if (newName != null) {
 			// check if we already have a machine with newName => its not allowed
-			const machineForName = await repositoryManager.machineRepository.findMachineByName(
+			const nameInUse = await repositoryManager.machineRepository.machineWithNameExists(
+				request.machineId,
 				newName
 			);
-
-			if (machineForName && machineForName.id !== request.machineId) {
+			if (nameInUse) {
 				// machine with same name already exists:
-				throw this.reject(
-					request,
-					`Machine with same name exists: '${newName}'!`
-				);
+				throw this.reject(request, `Machine with same name exists: '${newName}'!`);
 			}
 		}
 		return handleRequest(this, machineserver, request, 'update', {
@@ -470,9 +464,13 @@ class LoadMachineRequestHandler extends RequestHandler {
 	async handle(request, machineserver, repositoryManager) {
 		logger.info(`load machine: ${request.machineId}...`);
 		try {
-			const result = await machineserver.loadMachine(request.machineId, request.session, async () =>
-				repositoryManager.machineRepository.findMachine(request.machineId)
-			);
+			const result = await machineserver.loadMachine(request.machineId, request.scope, async () => {
+				const machine = await repositoryManager.machineRepository.findMachine(request.machineId);
+				if (machine.isTemplate) {
+					machine.scope = request.scope;
+				}
+				return machine;
+			});
 			const newMachine = !!result.templateId;
 			if (newMachine) {
 				await repositoryManager.machineRepository.saveMachine(JSON.parse(JSON.stringify(result.machine)));

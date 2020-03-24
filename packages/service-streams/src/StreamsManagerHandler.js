@@ -47,7 +47,8 @@ module.exports = class StreamsManagerHandler {
 					timestamp: new Date(),
 					stream: {
 						id: stream.id,
-						name: stream.name
+						name: stream.name,
+						scope: stream.scope
 					},
 					error: {
 						name: error.name,
@@ -74,7 +75,8 @@ module.exports = class StreamsManagerHandler {
 					timestamp: new Date(),
 					stream: {
 						id: stream.id,
-						name: stream.name
+						name: stream.name,
+						scope: stream.scope
 					},
 					notification
 				}
@@ -103,7 +105,8 @@ module.exports = class StreamsManagerHandler {
 					data: {
 						stream: {
 							id: config.id,
-							name: config.name
+							name: config.name,
+							scope: config.scope
 						},
 						isStream:
 							config.className === ConsumerConfiguration.name,
@@ -123,7 +126,7 @@ module.exports = class StreamsManagerHandler {
 		}
 	}
 
-	onConfigDelete(configId, isStream) {
+	onConfigDelete(configId, isStream, scope) {
 		const event = {
 			type: 'event',
 			event: {
@@ -132,7 +135,8 @@ module.exports = class StreamsManagerHandler {
 				timestamp: new Date(),
 				data: {
 					stream: {
-						id: configId
+						id: configId,
+						scope
 					},
 					isStream
 				}

@@ -60,7 +60,8 @@
 			"className": "ConnectorConfiguration",
 			"isRef": true
 		},
-		"topics": ["test", "test1"]
+		"topics": ["test", "test1"],
+		"providerId": "@cedalo/stream-mqtt"
 	},
 	{
 		"_id": "PRODUCER_MQTT",
@@ -73,7 +74,8 @@
 			"className": "ConnectorConfiguration",
 			"isRef": true
 		},
-		"topic": ""
+		"topic": "",
+		"providerId": "@cedalo/stream-mqtt"
 	},
 	{
 		"_id": "CONNECTOR_FILE_LOCAL",

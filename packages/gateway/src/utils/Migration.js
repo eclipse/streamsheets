@@ -209,7 +209,7 @@ class Migration {
 			delete machine.metadata;
 			machine.metadata = {
 				owner: machine.owner,
-				lastModified: machine.lastModified,
+				lastModified: new Date(machine.lastModified).getTime(),
 				lastModifiedBy: machine.owner
 			};
 			delete machine.owner;

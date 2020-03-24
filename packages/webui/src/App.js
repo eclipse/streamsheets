@@ -1,10 +1,10 @@
 /* eslint-disable react/no-did-mount-set-state */
-import React from 'react';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
 import { Route, Redirect } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import fetch from 'isomorphic-fetch';
 import 'typeface-roboto'; // eslint-disable-line
-import DefaultLayout from './layouts/DefaultLayout';
 import MachineDetailPage from './layouts/MachineDetailPage';
 import LoginPage from './components/Auth/LoginPage';
 import SetupPage from './components/Auth/SetupPage';
@@ -13,9 +13,43 @@ import PrivateRoute from './components/Auth/PrivateRoute';
 import { history } from './store';
 import './App.css';
 import ConfigManager from './helper/ConfigManager';
-import { UserTablePage, CreateUserPage, UpdateUserPage } from './pages';
+import { UserTablePage, CreateUserPage, UpdateUserPage, DashboardPage, ExportPage, StreamsPage } from './pages';
+import { RoutesExtensions } from '@cedalo/webui-extensions';
+import * as Actions from './actions/actions';
+import MachineHelper from './helper/MachineHelper';
 
 const GATEWAY_CONFIG = ConfigManager.config.gatewayClientConfig;
+
+const DefaultAdminRouteRedirect = connect(
+	({ user, monitor, meta }) => ({
+		rights: user.user ? user.user.rights : null,
+		isConnected: MachineHelper.isMachineEngineConnected(monitor, meta)
+	}),
+	{
+		getMe: Actions.getMe,
+		connect: Actions.connect
+	}
+)((props) => {
+	const { rights, isConnected } = props;
+	useEffect(() => {
+		if (!isConnected) {
+			props.connect();
+		}
+	}, [isConnected]);
+
+	useEffect(() => {
+		if (isConnected && !rights) {
+			props.getMe();
+		}
+	}, [isConnected]);
+	if (!rights) {
+		return null;
+	}
+	if (rights.includes('stream')) {
+		return <Redirect to="/administration/connectors" />;
+	}
+	return <Redirect to="/administration/users" />;
+});
 
 const isLicenseAccepted = (setup) => setup.licenseAgreement && setup.licenseAgreement.accepted;
 const isSetupCompleted = (setup) => setup && isLicenseAccepted(setup);
@@ -24,7 +58,7 @@ class App extends React.Component {
 		const response = await fetch(`${GATEWAY_CONFIG.restEndpointURL}/system/setup`);
 		const setup = await response.json();
 		this.setState({
-			setup,
+			setup
 		});
 	}
 
@@ -34,14 +68,14 @@ class App extends React.Component {
 				<div
 					style={{
 						height: '100%',
-						width: '100%',
+						width: '100%'
 					}}
 				>
 					<Route path="/setup" component={SetupPage} />
 					{this.state && !isSetupCompleted(this.state.setup) && (
 						<Redirect
 							to={{
-								pathname: '/setup',
+								pathname: '/setup'
 							}}
 						/>
 					)}
@@ -49,7 +83,7 @@ class App extends React.Component {
 						<div
 							style={{
 								height: '100%',
-								width: '100%',
+								width: '100%'
 							}}
 						>
 							<Route path="/login" component={LoginPage} />
@@ -57,28 +91,29 @@ class App extends React.Component {
 							<Route exact path="/" render={() => <Redirect to="/dashboard" />} />
 							{process.env.REACT_APP_HIDE_ADMIN ? null : (
 								<React.Fragment>
-									<Route
-										exact
-										path="/administration"
-										render={() => <Redirect to="/administration/connectors" />}
-									/>
-									<PrivateRoute path="/administration/connectors" component={DefaultLayout} />
-									<PrivateRoute path="/administration/database" component={DefaultLayout} />
-									<Route path="/administration/consumers" component={DefaultLayout} />
-									<Route path="/administration/producers" component={DefaultLayout} />
-									<PrivateRoute path="/administration/plugins/" component={DefaultLayout} />
+									<Route exact path="/administration" component={DefaultAdminRouteRedirect} />
+									<PrivateRoute path="/administration/connectors" component={StreamsPage} />
+									<PrivateRoute path="/administration/database" component={StreamsPage} />
+									<Route path="/administration/consumers" component={StreamsPage} />
+									<Route path="/administration/producers" component={StreamsPage} />
+									{/* <PrivateRoute path="/administration/plugins/" component={DefaultLayout} /> */}
 									<PrivateRoute exact path="/administration/users" component={UserTablePage} />
 									<PrivateRoute exact path="/administration/users/new" component={CreateUserPage} />
-									<PrivateRoute exact path="/administration/users/:userId([^\/]{4,})" component={UpdateUserPage} />
+									<PrivateRoute
+										exact
+										path="/administration/users/:userId([^\/]{4,})"
+										component={UpdateUserPage}
+									/>
 								</React.Fragment>
 							)}
 
-							<PrivateRoute path="/dashboard" component={DefaultLayout} />
-							<PrivateRoute path="/export" component={DefaultLayout} />
+							<RoutesExtensions />
+
+							<PrivateRoute path="/dashboard" component={DashboardPage} />
+							<PrivateRoute path="/export" component={ExportPage} />
 							<PrivateRoute path="/machines/:machineId" component={MachineDetailPage} />
 							<Route path="/machines/:machineId/:userId/:token" component={MachineDetailPage} />
-							<PrivateRoute path="/start" component={DefaultLayout} />
-							<PrivateRoute path="/administration/stream/:configId" component={DefaultLayout} />
+							<PrivateRoute path="/administration/stream/:configId" component={StreamsPage} />
 						</div>
 					)}
 				</div>

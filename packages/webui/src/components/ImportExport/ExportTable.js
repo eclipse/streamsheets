@@ -7,9 +7,16 @@ import TableRow from '@material-ui/core/TableRow';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+const selectionArray = (selectionObject) =>
+	Object.entries(selectionObject)
+		.filter(([, v]) => v === true)
+		.map(([k]) => k);
+
+const selectionCount = (selectionObject) => selectionArray(selectionObject).length;
+
 export default function ExportTable(props) {
 	const numResources = props.resources.length;
-	const numSelected = props.selected.size;
+	const numSelected = selectionCount(props.selected);
 	return (
 		<Table style={{ background: 'white', overflowY: 'auto' }}>
 			<TableHead>
@@ -27,7 +34,7 @@ export default function ExportTable(props) {
 			</TableHead>
 			<TableBody>
 				{props.resources.map((resource) => {
-					const isSelected = props.selected.has(resource.id);
+					const isSelected = !!props.selected[resource.id];
 					return (
 						<TableRow
 							onClick={() => props.onSelect(resource.id)}
@@ -58,7 +65,7 @@ ExportTable.propTypes = {
 			name: PropTypes.string,
 		}),
 	).isRequired,
-	selected: PropTypes.instanceOf(Set).isRequired,
+	selected: PropTypes.objectOf(PropTypes.bool).isRequired,
 	columns: PropTypes.arrayOf(
 		PropTypes.shape({
 			header: PropTypes.element,

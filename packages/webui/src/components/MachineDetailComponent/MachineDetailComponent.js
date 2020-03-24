@@ -2,7 +2,7 @@ import React from 'react';
 import CanvasComponent from '../Canvas/CanvasComponent';
 import MachineLoadingDialog from './MachineLoadingDialog';
 
-export default function MachineDetailComponent() {
+export default function MachineDetailComponent(props) {
 	return (
 		<div
 			style={{
@@ -11,7 +11,7 @@ export default function MachineDetailComponent() {
 			}}
 		>
 			<MachineLoadingDialog />
-			<CanvasComponent />
+			<CanvasComponent canEditMachine={props.canEditMachine} />
 		</div>
 	);
 }

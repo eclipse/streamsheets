@@ -194,7 +194,7 @@ export default class FieldComponents {
 	};
 
 	onStreamCommand = (event, field) => {
-		StreamHelper.executeStreamCommand({
+		this.props.executeStreamCommand({
 			cmdType: 'custom',
 			value: event.target.value,
 			cmdId: field.id,

@@ -17,13 +17,12 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Drawer from '@material-ui/core/Drawer';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { FormattedMessage } from 'react-intl';
-import { accessManager, RESOURCE_ACTIONS, RESOURCE_TYPES, PERMISSIONS } from '../../helper/AccessManager';
 import * as Actions from '../../actions/actions';
 import { Restricted } from '../HelperComponent/Restricted';
 
 export class MainDrawer extends Component {
 	state = {
-		adminOpen: false,
+		adminOpen: false
 	};
 
 	setAppState(state) {
@@ -31,49 +30,49 @@ export class MainDrawer extends Component {
 	}
 
 	handleNew = () => {
-			this.props.getDataStores()
-			.then(() =>
-				this.setAppState({
-					drawerOpen: false,
-					showNewDialog: true,
-				}),
-			);
+		this.props.getDataStores().then(() =>
+			this.setAppState({
+				drawerOpen: false,
+				showNewDialog: true
+			})
+		);
 	};
 
 	handleExport = () => {
 		this.setAppState({
-			drawerOpen: false,
+			drawerOpen: false
 		});
 		this.props.openExport(this.props.machineId);
 	};
 
 	handleOpen = () => {
-		this.props.getMachines().then(() =>
-			this.setAppState({
-				drawerOpen: false,
-				showOpenDialog: true,
-			}),
-		);
+		this.setAppState({
+			drawerOpen: false,
+			showOpenDialog: true
+		});
 	};
 
 	handleImport = () => {
 		this.props.showStartImportDialog();
 		this.setAppState({
-			drawerOpen: false,
+			drawerOpen: false
 		});
 	};
 
 	handleOpenPreview = () => {
-		window.open(`${window.location.href}?viewmode=sheet&hideheader&hidegrid`, 'newwindow',
-			`width=${window.innerWidth},height=${window.outerHeight - 290}`);
+		window.open(
+			`${window.location.href}?viewmode=sheet&hideheader&hidegrid`,
+			'newwindow',
+			`width=${window.innerWidth},height=${window.outerHeight - 290}`
+		);
 		this.setAppState({
-			drawerOpen: false,
+			drawerOpen: false
 		});
 	};
 
 	handleOpenAdmin = () => {
 		this.setAppState({
-			drawerOpen: false,
+			drawerOpen: false
 		});
 		window.open('/administration');
 	};
@@ -81,14 +80,14 @@ export class MainDrawer extends Component {
 	handleSaveAs = () => {
 		this.setAppState({
 			drawerOpen: false,
-			showSaveAsDialog: true,
+			showSaveAsDialog: true
 		});
 	};
 
 	handleOpenDashboard = () => {
 		this.props.openDashboard(this.props.machineId);
 		this.setAppState({
-			drawerOpen: false,
+			drawerOpen: false
 		});
 	};
 
@@ -99,43 +98,38 @@ export class MainDrawer extends Component {
 	showSettingsDialog = () => {
 		this.setAppState({
 			drawerOpen: false,
-			openSettings: true,
+			openSettings: true
 		});
 	};
 
 	showDeleteMachineDialog = () => {
 		this.setAppState({
 			drawerOpen: false,
-			showDeleteMachineDialog: true,
+			showDeleteMachineDialog: true
 		});
 	};
 
 	render() {
 		const { user } = this.props.user;
-		const canEdit = accessManager.canViewUI(accessManager.PERMISSIONS.MACHINE_EDIT);
 		if (!user) return null;
 		return (
-			<Drawer
-				width={300}
-				open={this.props.open}
-				onClose={() => this.setAppState({ drawerOpen: false })}
-			>
+			<Drawer width={300} open={this.props.open} onClose={() => this.setAppState({ drawerOpen: false })}>
 				<div
 					style={{
 						height: '18px',
 						padding: '20px',
-						backgroundColor: Colors.blue[800],
+						backgroundColor: Colors.blue[800]
 					}}
 				>
 					<span
 						style={{
-							color: 'white',
+							color: 'white'
 						}}
 					>
 						<FormattedMessage id="MainTitle" defaultMessage="Stream Machine" />
 					</span>
 				</div>
-				<Restricted permission={PERMISSIONS.MACHINE_ADD}>
+				<Restricted all={['machine.edit']}>
 					<MenuItem onClick={this.handleNew}>
 						<ListItemIcon>
 							<NewIcon />
@@ -143,7 +137,7 @@ export class MainDrawer extends Component {
 						<FormattedMessage id="New" defaultMessage="New" />
 					</MenuItem>
 				</Restricted>
-				<Restricted permission={PERMISSIONS.MACHINE_VIEW}>
+				<Restricted all={['machine.view']}>
 					<MenuItem onClick={this.handleOpen}>
 						<ListItemIcon>
 							<OpenIcon />
@@ -153,7 +147,7 @@ export class MainDrawer extends Component {
 				</Restricted>
 				{this.props.isMachineDetailPage ? (
 					<div>
-						<Restricted permission={PERMISSIONS.MACHINE_ADD}>
+						<Restricted all={['machine.edit']}>
 							<MenuItem onClick={() => this.handleSaveAs()}>
 								<ListItemIcon>
 									<CloneIcon />
@@ -163,8 +157,8 @@ export class MainDrawer extends Component {
 						</Restricted>
 					</div>
 				) : null}
-				<Restricted type={RESOURCE_TYPES.MACHINE} action={RESOURCE_ACTIONS.DELETE}>
-					{this.props.isMachineDetailPage && canEdit ? (
+				<Restricted all={['machine.edit']}>
+					{this.props.isMachineDetailPage && this.props.canEditMachine ? (
 						<MenuItem onClick={() => this.showDeleteMachineDialog()}>
 							<ListItemIcon>
 								<DeleteIcon />
@@ -174,12 +168,7 @@ export class MainDrawer extends Component {
 					) : null}
 				</Restricted>
 				<Divider />
-				<Restricted
-					oneOf={[
-						{ type: RESOURCE_TYPES.STREAM, action: RESOURCE_ACTIONS.CREATE },
-						{ type: RESOURCE_TYPES.MACHINE, action: RESOURCE_ACTIONS.CREATE },
-					]}
-				>
+				<Restricted all={['machine.edit', 'stream']}>
 					<MenuItem onClick={() => this.handleImport()}>
 						<ListItemIcon>
 							<SvgIcon>
@@ -193,12 +182,7 @@ export class MainDrawer extends Component {
 						<FormattedMessage id="Import" defaultMessage="Import" />
 					</MenuItem>
 				</Restricted>
-				<Restricted
-					oneOf={[
-						{ type: RESOURCE_TYPES.STREAM, action: RESOURCE_ACTIONS.VIEW },
-						{ type: RESOURCE_TYPES.MACHINE, action: RESOURCE_ACTIONS.VIEW },
-					]}
-				>
+				<Restricted oneOf={['machine.view', 'stream']}>
 					<MenuItem onClick={() => this.handleExport()}>
 						<ListItemIcon>
 							<SvgIcon>
@@ -212,7 +196,7 @@ export class MainDrawer extends Component {
 						<FormattedMessage id="Export" defaultMessage="Export" />
 					</MenuItem>
 				</Restricted>
-				{this.props.isMachineDetailPage && canEdit ? (
+				{this.props.isMachineDetailPage && this.props.canEditMachine ? (
 					<div>
 						<Divider />
 						<MenuItem onClick={() => this.showSettingsDialog()}>
@@ -230,14 +214,12 @@ export class MainDrawer extends Component {
 					</ListItemIcon>
 					<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />
 				</MenuItem>
-				{!accessManager.canViewCompositeUI(accessManager.PERMISSIONS.ADMINISTRATION) || process.env.REACT_APP_HIDE_ADMIN ? null : (
-					<MenuItem onClick={this.handleOpenAdmin}>
-						<ListItemIcon>
-							<AdminAppIcon />
-						</ListItemIcon>
-						<FormattedMessage id="Administration" defaultMessage="Administration" />
-					</MenuItem>
-				)}
+				<MenuItem onClick={this.handleOpenAdmin}>
+					<ListItemIcon>
+						<AdminAppIcon />
+					</ListItemIcon>
+					<FormattedMessage id="Administration" defaultMessage="Administration" />
+				</MenuItem>
 				{this.props.isMachineDetailPage ? (
 					<MenuItem onClick={this.handleOpenPreview}>
 						<ListItemIcon>
@@ -261,14 +243,11 @@ function mapStateToProps(state) {
 	return {
 		open: state.appState.drawerOpen,
 		machineId: state.monitor.machine.id,
-		user: state.user,
+		user: state.user
 	};
 }
 function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default connect(
-	mapStateToProps,
-	mapDispatchToProps,
-)(MainDrawer);
+export default connect(mapStateToProps, mapDispatchToProps)(MainDrawer);

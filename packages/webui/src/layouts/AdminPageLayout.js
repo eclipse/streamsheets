@@ -1,5 +1,5 @@
 import AppBar from '@material-ui/core/AppBar';
-import Grid  from '@material-ui/core/Grid';
+import Grid from '@material-ui/core/Grid';
 import * as Colors from '@material-ui/core/colors';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -28,7 +28,16 @@ import { AdminNavigation } from './AdminNavigation';
 import HelpButton from './HelpButton';
 
 export const AdminPageLayoutComponent = (props) => {
-	const { page, isMachineEngineConnected, documentTitle, isConnected, children, userLoaded } = props;
+	const {
+		page,
+		isMachineEngineConnected,
+		documentTitle,
+		isConnected,
+		children,
+		userLoaded,
+		workspaceSelect,
+		requireStreams
+	} = props;
 
 	useEffect(() => {
 		if (!isConnected) {
@@ -48,7 +57,7 @@ export const AdminPageLayoutComponent = (props) => {
 		return (
 			<MuiThemeProvider theme={theme}>
 				<RequestStatusDialog />
-				<ServerStatusDialog />
+				<ServerStatusDialog noStreams={!requireStreams} noMachines />
 				<ErrorDialog />
 			</MuiThemeProvider>
 		);
@@ -59,7 +68,7 @@ export const AdminPageLayoutComponent = (props) => {
 			<div
 				style={{
 					height: 'inherit',
-					width: 'inherit',
+					width: 'inherit'
 				}}
 			>
 				<div>
@@ -71,7 +80,7 @@ export const AdminPageLayoutComponent = (props) => {
 					<AlertDialog />
 					<DecisionDialog />
 					<RequestStatusDialog />
-					<ServerStatusDialog isMachineDetailPage />
+					<ServerStatusDialog noStreams={!requireStreams} noMachines />
 					<ErrorDialog />
 					<AppBar
 						style={{
@@ -79,14 +88,14 @@ export const AdminPageLayoutComponent = (props) => {
 							display: 'flex',
 							margin: 0,
 							padding: 0,
-							position: 'relative',
+							position: 'relative'
 						}}
 					>
 						<div
 							style={{
 								display: 'flex',
 								flexDirection: 'row',
-								height: '58px',
+								height: '58px'
 							}}
 						>
 							{/* <Snackbar
@@ -108,6 +117,7 @@ export const AdminPageLayoutComponent = (props) => {
 							/> */}
 							<InfoToolBar
 								title={<FormattedMessage id="Administration" defaultMessage="Administration" />}
+								workspaceSelect={workspaceSelect}
 							/>
 							{!isMachineEngineConnected ? (
 								<div>
@@ -118,7 +128,7 @@ export const AdminPageLayoutComponent = (props) => {
 							<Toolbar
 								style={{
 									paddingRight: '5px',
-									minHeight: '58px',
+									minHeight: '58px'
 								}}
 							>
 								<NotificationsComponent />
@@ -156,6 +166,13 @@ AdminPageLayoutComponent.propTypes = {
 	disconnectedServices: PropTypes.string.isRequired,
 	connect: PropTypes.func.isRequired,
 	getMe: PropTypes.func.isRequired,
+	requireStreams: PropTypes.bool,
+	workspaceSelect: PropTypes.bool
+};
+
+AdminPageLayoutComponent.defaultProps = {
+	requireStreams: false,
+	workspaceSelect: false
 };
 
 function mapStateToProps(state) {
@@ -163,16 +180,13 @@ function mapStateToProps(state) {
 		isConnected: state.monitor.isConnected,
 		isMachineEngineConnected: MachineHelper.isMachineEngineConnected(state.monitor, state.meta),
 		disconnectedServices: state.meta.disconnectedServices.join(', '),
-		userLoaded: !!state.user.user,
+		userLoaded: !!state.user.user
 	};
 }
 
 const mapDispatchToProps = {
 	connect: Actions.connect,
-	getMe: Actions.getMe,
+	getMe: Actions.getMe
 };
 
-export const AdminPageLayout = connect(
-	mapStateToProps,
-	mapDispatchToProps,
-)(AdminPageLayoutComponent);
+export const AdminPageLayout = connect(mapStateToProps, mapDispatchToProps)(AdminPageLayoutComponent);

@@ -16,6 +16,7 @@ module.exports = class ChartAxis {
 		this.formatGrid = new ChartFormat();
 		this.title = new ChartTitle(new Expression('Title', ''), false);
 		this.gridVisible = true;
+		this.visible = true;
 		this.allowZoom = true;
 		this.invert = false;
 		this.updateZoom = false;
@@ -33,6 +34,7 @@ module.exports = class ChartAxis {
 		writer.writeAttributeString('type', this.type);
 		writer.writeAttributeString('name', this.name);
 		writer.writeAttributeNumber('gridvisible', this.gridVisible ? 1 : 0);
+		writer.writeAttributeNumber('visible', this.visible ? 1 : 0);
 		writer.writeAttributeNumber('autozero', this.autoZero ? 1 : 0);
 		writer.writeAttributeNumber('allowzoom', this.allowZoom ? 1 : 0);
 		writer.writeAttributeNumber('updatezoom', this.updateZoom ? 1 : 0);
@@ -52,6 +54,7 @@ module.exports = class ChartAxis {
 		this.name = reader.getAttributeString(object, 'name', 'Axis1');
 		this.position = ChartRect.fromString(reader.getAttribute(object, 'position'));
 		this.gridVisible = reader.getAttributeBoolean(object, 'gridvisible', true);
+		this.visible = reader.getAttributeBoolean(object, 'visible', true);
 		this.autoZero = reader.getAttributeBoolean(object, 'autozero', true);
 		this.allowZoom = reader.getAttributeBoolean(object, 'allowzoom', true);
 		this.updateZoom = reader.getAttributeBoolean(object, 'updatezoom', false);

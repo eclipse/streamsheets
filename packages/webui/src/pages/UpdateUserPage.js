@@ -5,7 +5,7 @@ import CheckIcon from '@material-ui/icons/Check';
 import PropTypes from 'prop-types';
 import React, { useEffect, useReducer } from 'react';
 import { connect } from 'react-redux';
-import { openPage } from '../actions/actions';
+import { getDataStores, openPage } from '../actions/actions';
 import { UpdatePasswordForm } from '../components/Admin/security/User/UpdatePasswordForm';
 import { UpdateUserForm } from '../components/Admin/security/User/UpdateUserForm';
 import { Overlay } from '../components/HelperComponent/Overlay';
@@ -14,15 +14,26 @@ import { useGraphQL } from '../helper/Hooks';
 import { intl } from '../helper/IntlGlobalProvider';
 import { AdminPageLayout } from '../layouts/AdminPageLayout';
 
-
 const QUERY = `
-query FindUser($id: ID!) {
+query UpdateUserForm($id: ID!) {
 	user(id: $id) {
 		id
 	  	username
 	  	email
 	  	lastName
-	  	firstName
+		firstName
+	}
+	updateUserForm(userId: $id) {
+		fields {
+			id
+			label
+			default
+			current
+			options {
+				id
+				name
+			}
+		}
 	}
 }
 `;
@@ -64,13 +75,8 @@ const updateUserReducer = (state, action) => {
 		case 'set_initial_user':
 			return {
 				...state,
-				user: {
-					username: action.data.username || '',
-					email: action.data.email || '',
-					lastName: action.data.lastName || '',
-					firstName: action.data.firstName || '',
-				},
-				originalUser: action.data,
+				user: action.data,
+				originalUser: action.data
 			};
 		case 'set_username':
 			return {
@@ -79,8 +85,8 @@ const updateUserReducer = (state, action) => {
 				user: { ...state.user, username: action.data },
 				errors: {
 					...state.errors,
-					username: StringUtil.isEmpty(action.data) ? 'USERNAME_REQUIRED' : undefined,
-				},
+					username: StringUtil.isEmpty(action.data) ? 'USERNAME_REQUIRED' : undefined
+				}
 			};
 		case 'set_email':
 			return {
@@ -89,44 +95,53 @@ const updateUserReducer = (state, action) => {
 				user: { ...state.user, email: action.data },
 				errors: {
 					...state.errors,
-					email: StringUtil.isEmpty(action.data) ? 'EMAIL_REQUIRED' : undefined,
-				},
+					email: StringUtil.isEmpty(action.data) ? 'EMAIL_REQUIRED' : undefined
+				}
 			};
 		case 'set_first_name':
 			return {
 				...state,
 				pristine: false,
-				user: { ...state.user, firstName: action.data },
+				user: { ...state.user, firstName: action.data }
 			};
 		case 'set_last_name':
 			return {
 				...state,
 				pristine: false,
-				user: { ...state.user, lastName: action.data },
+				user: { ...state.user, lastName: action.data }
+			};
+		case 'set_field':
+			return {
+				...state,
+				pristine: false,
+				user: {
+					...state.user,
+					[action.data.id]: action.data.value
+				}
 			};
 		case 'save':
 			return {
 				...state,
-				savePending: true,
+				savePending: true
 			};
 		case 'saving_error':
 			return {
 				...state,
 				savePending: false,
 				pristine: true,
-				errors: action.data,
+				errors: action.data
 			};
 		case 'saving_success':
 			return {
 				...state,
 				savePending: false,
 				saved: true,
-				errors: {},
+				errors: {}
 			};
 		case 'set_password_1':
 			return {
 				...state,
-				password: { ...state.password, newPassword: action.data, validationPending: true },
+				password: { ...state.password, newPassword: action.data, validationPending: true }
 			};
 		case 'set_password_2':
 			return {
@@ -135,8 +150,8 @@ const updateUserReducer = (state, action) => {
 					...state.password,
 					confirmation: action.data,
 					confirmationPristine: false,
-					validationPending: true,
-				},
+					validationPending: true
+				}
 			};
 		case 'edit_password':
 			return {
@@ -148,8 +163,8 @@ const updateUserReducer = (state, action) => {
 					validationPending: true,
 					errors: {},
 					saved: false,
-					savePending: false,
-				},
+					savePending: false
+				}
 			};
 		case 'save_password':
 			return { ...state, password: { ...state.password, savePending: true } };
@@ -170,14 +185,14 @@ const updateUserReducer = (state, action) => {
 							state.password.newPassword &&
 							state.password.newPassword !== state.password.confirmation
 								? 'PASSWORD_DONT_MATCH'
-								: undefined,
-					},
-				},
+								: undefined
+					}
+				}
 			};
 		case 'finish_password':
 			return {
 				...state,
-				password: false,
+				password: false
 			};
 		default:
 			throw new Error(`Unkown action '${action.type}'`);
@@ -189,27 +204,27 @@ export const UpdateUserPageComponent = (props) => {
 	const { loading, errors, data } = useGraphQL(QUERY, { id: userId }, [userId]);
 	const [state, dispatch] = useReducer(updateUserReducer, {
 		pristine: true,
-		user: {
-			username: '',
-			email: '',
-			firstName: '',
-			lastName: '',
-		},
-		originalUser: {
-			username: '',
-			email: '',
-			firstName: '',
-			lastName: '',
-		},
+		user: {},
+		originalUser: {},
 		errors: {},
 		password: false,
 		savePending: false,
-		saved: false,
+		saved: false
 	});
 
 	useEffect(() => {
 		if (data && data.user) {
-			dispatch({ type: 'set_initial_user', data: data.user });
+			const { id, ...user } = {
+				...data.user,
+				...data.updateUserForm.fields.reduce(
+					(acc, field) => ({ ...acc, [field.id]: field.current || field.default }),
+					{}
+				)
+			};
+			dispatch({
+				type: 'set_initial_user',
+				data: user
+			});
 		}
 	}, [data]);
 
@@ -248,7 +263,7 @@ export const UpdateUserPageComponent = (props) => {
 					padding: '24px',
 					backgroundColor: '#EEE',
 					boxSizing: 'border-box',
-					overflow: 'auto',
+					overflow: 'auto'
 				}}
 			>
 				{errors.join('\n')}
@@ -260,10 +275,10 @@ export const UpdateUserPageComponent = (props) => {
 		dispatch({ type: 'save' });
 		try {
 			const {
-				updateUser: { success, fieldErrors, code, user },
+				updateUser: { success, fieldErrors, code, user }
 			} = await gatewayClient.graphql(UPDATE_USER_MUTATION, {
 				id: userId,
-				user: state.user,
+				user: state.user
 			});
 			if (success) {
 				dispatch({ type: 'saving_success', data: user });
@@ -282,10 +297,10 @@ export const UpdateUserPageComponent = (props) => {
 		dispatch({ type: 'save_password' });
 		try {
 			const {
-				updateUserPassword: { success, fieldErrors, code, user },
+				updateUserPassword: { success, fieldErrors, code, user }
 			} = await gatewayClient.graphql(UPDATE_PASSWORD_MUTATION, {
 				id: userId,
-				newPassword: state.password.newPassword,
+				newPassword: state.password.newPassword
 			});
 			if (success) {
 				dispatch({ type: 'saving_success_password', data: user });
@@ -299,6 +314,8 @@ export const UpdateUserPageComponent = (props) => {
 			console.error(error);
 		}
 	};
+
+	const additionalFields = data ? data.updateUserForm.fields : [];
 
 	const userForm = () => {
 		const hasError = hasFieldError(state.errors);
@@ -314,14 +331,14 @@ export const UpdateUserPageComponent = (props) => {
 				disabled={loading || state.savePending || state.saved}
 				onCancel={onCancel}
 				valid={isValid}
+				additionalFields={additionalFields}
+				onFieldUpdate={(id, value) => dispatch({ type: 'set_field', data: { id, value } })}
 				onSubmit={saveUser}
 				onUsernameUpdate={(value) => dispatch({ type: 'set_username', data: value })}
 				onEmailUpdate={(value) => dispatch({ type: 'set_email', data: value })}
 				onFirstNameUpdate={(value) => dispatch({ type: 'set_first_name', data: value })}
 				onLastNameUpdate={(value) => dispatch({ type: 'set_last_name', data: value })}
 				onChangePassword={() => dispatch({ type: 'edit_password' })}
-				onPasswordConfirmationUpdate={(value) => dispatch({ type: 'set_password_2', data: value })}
-				onNewPasswordUpdate={(value) => dispatch({ type: 'set_password_1', data: value })}
 			/>
 		);
 	};
@@ -357,7 +374,7 @@ export const UpdateUserPageComponent = (props) => {
 			<div
 				style={{
 					minHeight: '100%',
-					padding: '24px',
+					padding: '24px'
 				}}
 			>
 				<Paper style={{ padding: '32px', maxWidth: '960px', margin: 'auto', position: 'relative' }}>
@@ -381,19 +398,19 @@ export const UpdateUserPageComponent = (props) => {
 UpdateUserPageComponent.propTypes = {
 	userId: PropTypes.string.isRequired,
 	onCancel: PropTypes.func.isRequired,
-	onSubmit: PropTypes.func.isRequired,
+	onSubmit: PropTypes.func.isRequired
 };
 
-const mapDispatchToProps = {
-	onCancel: () => openPage('/administration/users'),
-	onSubmit: () => openPage('/administration/users'),
-};
-
-const mapStateToProps = (state, ownProps) => ({
-	userId: ownProps.match.params.userId,
+const mapDispatchToProps = (dispatch) => ({
+	onCancel: () => dispatch(openPage('/administration/users')),
+	onSubmit: () => {
+		dispatch(openPage('/administration/users'));
+		dispatch(getDataStores());
+	}
 });
 
-export const UpdateUserPage = connect(
-	mapStateToProps,
-	mapDispatchToProps,
-)(UpdateUserPageComponent);
+const mapStateToProps = (state, ownProps) => ({
+	userId: ownProps.match.params.userId
+});
+
+export const UpdateUserPage = connect(mapStateToProps, mapDispatchToProps)(UpdateUserPageComponent);

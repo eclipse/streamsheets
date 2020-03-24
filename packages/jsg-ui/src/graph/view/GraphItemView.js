@@ -1,10 +1,11 @@
 import {
 	default as JSG,
 	Shape,
+	Point,
 	ItemAttributes,
 	FormatAttributes,
 	TextFormatAttributes,
-	Rectangle
+	Rectangle, GraphUtils
 } from '@cedalo/jsg-core';
 import View from '../../ui/View';
 import ShapeRenderer from './shapes/ShapeRenderer';
@@ -444,6 +445,25 @@ class GraphItemView extends View {
 			this._shapeRenderer.drawShapeFill(this._item._shape, this._item.isClosed(), graphics);
 			format.removeShadowFromGraphics(graphics);
 		}
+
+		// if (this.getItem().myVideo && !this.videoStarted) {
+		// 	this.videoStarted = true;
+		// 	this.getItem().myVideo.addEventListener('play', () => {
+		// 		const step = () => {
+		// 			const view = this.getGraphView();
+		// 			const p = new Point(rect.x, rect.y);
+		//
+		// 			GraphUtils.traverseDown(view, this, (v) => {
+		// 				v.translateToParent(p);
+		// 				return true;
+		// 			});
+		// 			view.orgGraphics.drawImage(this.getItem().myVideo, p.x, p.y, rect.width, rect.height);
+		// 			requestAnimationFrame(step);
+		// 		};
+		//
+		// 		requestAnimationFrame(step);
+		// 	});
+		// }
 	}
 
 	/**

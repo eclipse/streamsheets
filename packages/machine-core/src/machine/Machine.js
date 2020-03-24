@@ -96,6 +96,7 @@ class Machine {
 			streamsheets: this.streamsheets.map((streamsheet) => streamsheet.toJSON()),
 			settings: this.settings,
 			className: this.className,
+			scope: this.scope,
 			namedCells: this.namedCells.getDescriptors(),
 			functionsHelp: FunctionRegistry.getFunctionsHelp(),
 			functionDefinitions: FunctionRegistry.getFunctionDefinitions()
@@ -108,6 +109,7 @@ class Machine {
 		const streamsheets = def.streamsheets || [{}];
 		this._id = def.isTemplate ? this._id : def.id || this._id;
 		this._name = def.isTemplate ? defaultMachineName() : def.name;
+		this._scope = def.scope;
 		this.metadata = { ...this.metadata, ...definition.metadata};
 		this._settings = { ...this.settings, ...definition.settings};
 		// first time load named cells so that reference to named cells are resolved on streamsheets load
@@ -154,6 +156,10 @@ class Machine {
 			sheet.load(json);
 		});
 		this._emitter.emit('update', 'functions', FunctionRegistry.getFunctionDefinitions());
+	}
+
+	get scope() {
+		return this._scope;
 	}
 
 	get id() {

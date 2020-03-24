@@ -394,7 +394,6 @@ function mapStateToProps(state) {
 		dirty: state.streams.dirty,
 		reloadResponse: state.streams.reloadResponse,
 		reloadStreamsPending: state.streams.reloadStreamsPending,
-		machines: state.machines.data,
 		user: state.user,
 	};
 }

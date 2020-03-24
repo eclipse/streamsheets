@@ -268,12 +268,12 @@ module.exports = class BaseGatewayClient {
 	 * ******************************************************************************************
 	 */
 
-	executeStreamCommand(cmd) {
-		return this.socket.executeStreamCommand(cmd);
+	executeStreamCommand(scope, cmd) {
+		return this.socket.executeStreamCommand(scope, cmd);
 	}
 
-	graphql(query, variables) {
-		return this.http.graphql(query, variables);
+	graphql(query, variables, file) {
+		return this.http.graphql(query, variables, file);
 	}
 
 	/**
@@ -347,36 +347,38 @@ module.exports = class BaseGatewayClient {
 	 * *********************************************
 	 */
 
-	getMachineDefinitions(query) {
-		return this.http.getMachineDefinitions(query);
-	}
+	async cloneMachine(machineId) {
+		const cloneMutation = `
+			mutation CloneMachine($machineId: ID!) {
+				scopedByMachine(machineId: $machineId) {
+					cloneMachine(machineId: $machineId) {
+						success
+						clonedMachine {
+							name
+							id
+							metadata {
+								lastModified
+								owner
+							}
+							previewImage
+							titleImage
+							streamsheets {
+								name
+								inbox {
+									stream {
+										name
+									}
+								}
+							}
+							state
+						}
+					}
+				}
+			}
+		`;
 
-	getMachineDefinitionsByName(name) {
-		return this.http.getMachineDefinitionsByName(name);
-	}
-
-	getMachineDefinition(machineId) {
-		return this.http.getMachineDefinition(machineId);
-	}
-
-	saveMachineDefinition(machineDefinition) {
-		return this.http.saveMachineDefinition(machineDefinition);
-	}
-
-	updateMachineDefinition(machineId, machine) {
-		return this.http.updateMachineDefinition(machineId, machine);
-	}
-
-	deleteMachineDefinition(machineId) {
-		return this.http.deleteMachineDefinition(machineId);
-	}
-
-	exportMachineStreamDefinitions(machineIds, streamIds) {
-		return this.http.exportMachine(machineIds, streamIds);
-	}
-
-	importMachineDefinition(importData, importAsNew) {
-		return this.http.importMachine(importData, importAsNew);
+		const result = await this.graphql(cloneMutation, { machineId });
+		return result.scopedByMachine.cloneMachine;
 	}
 
 	backup() {
@@ -385,16 +387,6 @@ module.exports = class BaseGatewayClient {
 
 	restore(file) {
 		return this.http.restore(file);
-	}
-
-	cloneMachine(machineId, newNameSuffix = 'Copy') {
-		return this.exportMachineStreamDefinitions([machineId], []).then(
-			(exportedMachines) => {
-				const importData = exportedMachines.machines[0];
-				importData.machine.name += ` ${newNameSuffix}`;
-				return this.importMachineDefinition(importData, true);
-			}
-		);
 	}
 
 	/**
@@ -489,8 +481,8 @@ module.exports = class BaseGatewayClient {
 		return this.socket.unloadMachine(machineId);
 	}
 
-	loadSubscribeMachine(machineId, settings) {
-		return this.socket.loadSubscribeMachine(machineId, settings);
+	loadSubscribeMachine(machineId, settings, scope) {
+		return this.socket.loadSubscribeMachine(machineId, settings, scope);
 	}
 	pauseMachine(machineId) {
 		return this.socket.pauseMachine(machineId);
@@ -556,16 +548,38 @@ module.exports = class BaseGatewayClient {
 		return this.socket.unsubscribeMachine(machineId);
 	}
 
-	saveMachineAs(originalMachineId, newMachineName) {
-		// return this.socket.saveMachineAs(originalMachineId, newMachineName);
-		return this.exportMachineStreamDefinitions(
-			[originalMachineId],
-			[]
-		).then((exportedMachines) => {
-			const importData = exportedMachines.machines[0];
-			importData.machine.name = newMachineName;
-			return this.importMachineDefinition(importData, true);
-		});
+	async saveMachineAs(machineId, newName) {
+		const cloneMutation = `
+			mutation CloneMachine($machineId: ID!, $newName: String!) {
+				scopedByMachine(machineId: $machineId) {
+					cloneMachine(machineId: $machineId, newName: $newName) {
+						success
+						clonedMachine {
+							name
+							id
+							metadata {
+								lastModified
+								owner
+							}
+							previewImage
+							titleImage
+							streamsheets {
+								name
+								inbox {
+									stream {
+										name
+									}
+								}
+							}
+							state
+						}
+					}
+				}
+			}
+		`;
+
+		const result = await this.graphql(cloneMutation, { machineId, newName });
+		return result.scopedByMachine.cloneMachine;
 	}
 
 	redo(machineId) {
@@ -657,23 +671,23 @@ module.exports = class BaseGatewayClient {
 	 * *********************************************
 	 */
 
-	saveDSConfiguration(configuration) {
-		return this.socket.saveDSConfiguration(configuration);
+	saveDSConfiguration(scope, configuration) {
+		return this.socket.saveDSConfiguration(scope, configuration);
 	}
 
-	loadAllDSConfigurations() {
-		return this.socket.loadAllDSConfigurations();
+	loadAllDSConfigurations(scope) {
+		return this.socket.loadAllDSConfigurations(scope);
 	}
 
-	deleteDSConfiguration(configId) {
+	deleteDSConfiguration(scope, configId) {
 		if (typeof configId === 'undefined') {
 			return Promise.resolve(null);
 		}
-		return this.socket.deleteDSConfiguration(configId);
+		return this.socket.deleteDSConfiguration(scope, configId);
 	}
 
-	reloadStreams(sources = []) {
-		return this.socket.reloadStreams(sources);
+	reloadStreams(scope, sources = []) {
+		return this.socket.reloadStreams(scope, sources);
 	}
 
 	/**

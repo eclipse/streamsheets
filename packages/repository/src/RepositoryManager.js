@@ -1,3 +1,5 @@
+const MongoDBConnection = require('./mongoDB/MongoDBConnection');
+
 module.exports = class RepositoryManager {
 	static init({
 		graphRepository,
@@ -21,7 +23,8 @@ module.exports = class RepositoryManager {
 					// eslint-disable-next-line
 					for (const machineContainer of machines) {
 						try {
-							const { graph, machine} = machineContainer;
+							const { graph, machine } = machineContainer;
+							machine.scope = { id: 'root' };
 							// eslint-disable-next-line
 							await RepositoryManager.graphRepository.saveGraph(graph);
 							// eslint-disable-next-line
@@ -37,6 +40,7 @@ module.exports = class RepositoryManager {
 					for (const stream of streams) {
 						try {
 							// TODO: replace with stream repository procy
+							stream.scope = { id: 'root' };
 							// eslint-disable-next-line
 							await RepositoryManager.streamRepositoryLegacy.saveConfiguration(stream);
 						} catch (error) {
@@ -44,22 +48,29 @@ module.exports = class RepositoryManager {
 						}
 					}
 				}
-			} catch(error) {
+			} catch (error) {
 				// console.error(error);
 			}
 		}
 	}
 
-	static connectAll() {
-		return Promise.all(Object.values(RepositoryManager)
-			.filter(repository => repository && repository.connect)
-			.map(repositoryWithConnect => repositoryWithConnect.connect()));
+	static async connectAll(existingConnection) {
+		const connection = existingConnection || (await MongoDBConnection.create());
+		const db = connection.db();
+		Object.values(RepositoryManager)
+			.filter((repository) => repository && repository.connect)
+			.forEach((repositoryWithConnect) => {
+				// FIXME: should provide a method
+				repositoryWithConnect.db = db;
+			});
 	}
 
 	static setupAllIndicies() {
-		return Promise.all(Object.values(RepositoryManager)
-			.filter(repository => repository && repository.setupIndicies && repository.db)
-			.map(repository => repository.setupIndicies()));
+		return Promise.all(
+			Object.values(RepositoryManager)
+				.filter((repository) => repository && repository.setupIndicies && repository.db)
+				.map((repository) => repository.setupIndicies())
+		);
 	}
 
 	static async backup(config) {
@@ -75,5 +86,4 @@ module.exports = class RepositoryManager {
 		}
 		return null;
 	}
-
 };

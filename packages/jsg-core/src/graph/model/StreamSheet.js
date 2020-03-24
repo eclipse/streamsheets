@@ -1,5 +1,5 @@
 /* eslint-disable no-empty */
-/* global window sessionStorage localStorage */
+/* global window sessionStorage localStorage document */
 
 const { Drawings, FuncTerm, Term, NullTerm } = require('@cedalo/parser');
 
@@ -50,6 +50,8 @@ const setSheetCaption = (sheetName, sheetContainer) => {
 		sheetContainer.getSheetCaption().setName(`${sheetName} ${JSG.getLocalizedString('Step')} - ${step}`);
 	}
 };
+
+let myVideo;
 
 /**
  * Node representing a worksheet. The worksheet contains additional nodes for the rows,
@@ -535,8 +537,29 @@ module.exports = class StreamSheet extends WorksheetNode {
 					break;
 			}
 		}
-
 		switch (def.type) {
+			// case 'video':
+			// 	if (typeof window !== 'undefined') {
+			// 		if (myVideo === undefined) {
+			// 			myVideo = document.createElement("video"); // create a video element
+			// 			document.body.append(myVideo);
+			// 			myVideo.src = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+			// 			// the video will now begin to load.
+			// 			// As some additional info is needed we will place the video in a
+			// 			// containing object for convenience
+			// 			myVideo.autoplay = true; // ensure that the video does not auto play
+			// 			myVideo.loop = true; // set the video to loop.
+			// 			myVideo.muted = true;
+			// 			myVideo.style.position = 'absolute';
+			// 			myVideo.style.top = '0px';
+			// 			myVideo.style.left = '0px';
+			// 			myVideo.style.width = '300px';
+			// 			myVideo.style.height = '200px';
+			// 			myVideo.style.zIndex = '20000';
+			// 			node.myVideo = myVideo;
+			// 		}
+			// 	}
+			// 	break;
 			case 'pattern': {
 				let pattern = def.image.length ? def.image : JSG.ImagePool.IMG_NOTAVAIL;
 				format.setFillStyle(FormatAttributes.FillStyle.PATTERN);

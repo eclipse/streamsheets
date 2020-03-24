@@ -191,9 +191,6 @@ export default function doRequest(state = defState, reqaction) {
 		case ActionTypes.USER_FETCH:
 			newstate.loadingState = 'FetchingUser';
 			break;
-		case ActionTypes.SEND_IMPORT:
-			newstate.loadingState = 'Importing';
-			break;
 		case ActionTypes.RECEIVE_CREATE_STREAMSHEET:
 			newstate.machine.streamsheets.push({ ...reqaction.data.machineserver.streamsheet });
 			break;

@@ -193,6 +193,40 @@ class LoadConfigurationRequestHandler extends RequestHandler {
 	}
 }
 
+class LoadConfigurationByNameRequestHandler extends RequestHandler {
+	constructor() {
+		super(MESSAGE_TYPES.STREAM_CONFIG_LOAD_BY_NAME);
+	}
+
+	handle(handlerArgs) {
+		const { message, streamsManager } = handlerArgs;
+		const { name } = message;
+
+		return new Promise(async (resolve) => {
+			const result = await streamsManager.configsManager.getConfigurationByName(name);
+			resolve(
+				this.confirm(message, {
+					result
+				})
+			);
+		});
+	}
+}
+
+class GetProvidersRequestHandler extends RequestHandler {
+	constructor() {
+		super(MESSAGE_TYPES.STREAM_GET_PROVIDERS);
+	}
+
+	async handle(handlerArgs) {
+		const { message, streamsManager } = handlerArgs;
+		const result = await streamsManager.configsManager.providers;
+		return this.confirm(message, {
+			result
+		});
+	}
+}
+
 class ReloadAllRequestHandler extends RequestHandler {
 	constructor() {
 		super(MESSAGE_TYPES.STREAM_RELOAD);
@@ -341,7 +375,9 @@ module.exports = {
 	SaveConfigurationRequestHandler,
 	DeleteConfigurationRequestHandler,
 	LoadConfigurationRequestHandler,
+	LoadConfigurationByNameRequestHandler,
 	LoadAllConfigurationsRequestHandler,
+	GetProvidersRequestHandler,
 	ReloadAllRequestHandler,
 	UpdateRequestHandler,
 	TestRequestHandler,

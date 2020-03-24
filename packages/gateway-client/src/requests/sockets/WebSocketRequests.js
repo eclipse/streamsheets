@@ -68,16 +68,18 @@ const {
 } = require('@cedalo/protocols').Topics;
 
 class StreamCommandSocketRequest extends WebSocketRequest {
-	constructor(ws, cmd) {
+	constructor(ws, scope, cmd) {
 		super(ws, STREAM_COMMAND_MESSAGE_TYPE);
 		this._topic = SERVICES_STREAMS_INPUT;
 		this._cmd = cmd;
+		this._scope = scope;
 	}
 
 	_getConfig() {
 		return {
 			cmd: this._cmd,
-			topic: this._topic
+			topic: this._topic,
+			scope: this._scope
 		};
 	}
 }
@@ -89,59 +91,68 @@ class StreamCommandSocketRequest extends WebSocketRequest {
  */
 
 class DSConfigurationSaveSocketRequest extends WebSocketRequest {
-	constructor(ws, configuration) {
+	constructor(ws, scope, configuration) {
 		super(ws, STREAM_CONFIG_SAVE);
 		this._topic = SERVICES_STREAMS_INPUT;
 		this._configuration = configuration;
+		this._scope = scope;
 	}
 
 	_getConfig() {
 		return {
 			configuration: this._configuration,
-			topic: this._topic
+			topic: this._topic,
+			scope: this._scope
 		};
 	}
 }
 
 class DSConfigurationLoadAllSocketRequest extends WebSocketRequest {
-	constructor(ws) {
+	constructor(ws, scope) {
 		super(ws, STREAMS_CONFIG_LOAD_ALL);
 		this._topic = SERVICES_STREAMS_INPUT;
+		this._scope = scope;
 	}
 
 	_getConfig() {
 		return {
-			topic: this._topic
+			topic: this._topic,
+			scope: this._scope
 		};
 	}
 }
 
 class DSConfigurationDeleteSocketRequest extends WebSocketRequest {
-	constructor(ws, configId) {
+	constructor(ws, scope, configId) {
 		super(ws, STREAM_CONFIG_DELETE);
 		this._topic = SERVICES_STREAMS_INPUT;
 		this._configId = configId;
+		this._scope = scope;
+
 	}
 
 	_getConfig() {
 		return {
 			topic: this._topic,
-			configId: this._configId
+			configId: this._configId,
+			scope: this._scope
 		};
 	}
 }
 
 class DSReloadSocketRequest extends WebSocketRequest {
-	constructor(ws, sources) {
+	constructor(ws, scope, sources) {
 		super(ws, STREAM_RELOAD);
 		this._topic = SERVICES_STREAMS_INPUT;
 		this._sources = sources;
+		this._scope = scope;
 	}
 
 	_getConfig() {
 		return {
 			topic: this._topic,
-			sources: this._sources
+			sources: this._sources,
+			scope: this._scope
 		};
 	}
 }
@@ -447,16 +458,18 @@ class LoadMachineWebSocketRequest extends WebSocketRequest {
 }
 
 class LoadSubscribeMachineWebSocketRequest extends WebSocketRequest {
-	constructor(ws, machineId, settings) {
+	constructor(ws, machineId, settings, scope) {
 		super(ws, LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE);
 		this._machineId = machineId;
 		this._settings = settings;
+		this._scope = scope;
 	}
 
 	_getConfig() {
 		return {
 			machineId: this._machineId,
-			settings: this._settings
+			settings: this._settings,
+			scope: this._scope
 		};
 	}
 }

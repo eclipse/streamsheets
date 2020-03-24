@@ -1,6 +1,5 @@
 import en from './en.json';
 import de from './de.json';
-import { languages } from '@cedalo/webui-extensions';
 
 const defLocale = () => {
 	let lang = window.navigator.userLanguage || window.navigator.language;
@@ -18,12 +17,6 @@ const defLocale = () => {
 export const DEFAULT_LOCALE = defLocale() || 'en';
 
 export const messages = {
-	de: {
-		...de,
-		...languages.de
-	},
-	en: {
-		...en,
-		...languages.en
-	}
+	de,
+	en,
 };

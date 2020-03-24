@@ -57,44 +57,12 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('waitUntilAllServersAreConnected', timeout);
 	}
 
-	executeStreamCommand(cmd) {
-		return this._proxy('executeStreamCommand', cmd);
+	executeStreamCommand(scope, cmd) {
+		return this._proxy('executeStreamCommand', scope, cmd);
 	}
 
-	graphql(query, variables) {
-		return this._proxy('graphql', query, variables);
-	}
-
-	getMachineDefinitions() {
-		return this._proxy('getMachineDefinitions');
-	}
-
-	getMachineDefinitionsByName(name) {
-		return this._proxy('getMachineDefinitionsByName', name);
-	}
-
-	getMachineDefinition(machineId) {
-		return this._proxy('getMachineDefinition', machineId);
-	}
-
-	saveMachineDefinition(machine) {
-		return this._proxy('saveMachineDefinition', machine);
-	}
-
-	updateMachineDefinition(machineId, machine) {
-		return this._proxy('updateMachineDefinition', machineId, machine);
-	}
-
-	deleteMachineDefinition(machineId) {
-		return this._proxy('deleteMachineDefinition', machineId);
-	}
-
-	exportMachineStreamDefinitions(machineIds, streamIds) {
-		return this._proxy(
-			'exportMachineStreamDefinitions',
-			machineIds,
-			streamIds
-		);
+	graphql(query, variables, file) {
+		return this._proxy('graphql', query, variables, file);
 	}
 
 	importMachineDefinition(importData, importAsNew) {
@@ -209,8 +177,8 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('unloadMachine', machineId, settings);
 	}
 
-	loadSubscribeMachine(machineId, settings) {
-		return this._proxy('loadSubscribeMachine', machineId, settings);
+	loadSubscribeMachine(machineId, settings, scope) {
+		return this._proxy('loadSubscribeMachine', machineId, settings, scope);
 	}
 
 	pauseMachine(machineId) {
@@ -356,20 +324,20 @@ module.exports = class WebWorkerGatewayClientProxy {
 	 * *********************************************
 	 */
 
-	saveDSConfiguration(configuration) {
-		return this._proxy('saveDSConfiguration', configuration);
+	saveDSConfiguration(scope, configuration) {
+		return this._proxy('saveDSConfiguration', scope, configuration);
 	}
 
-	loadAllDSConfigurations() {
-		return this._proxy('loadAllDSConfigurations');
+	loadAllDSConfigurations(scope) {
+		return this._proxy('loadAllDSConfigurations', scope );
 	}
 
-	deleteDSConfiguration(configId) {
-		return this._proxy('deleteDSConfiguration', configId);
+	deleteDSConfiguration(scope, configId) {
+		return this._proxy('deleteDSConfiguration', scope, configId);
 	}
 
-	reloadStreams(sources) {
-		return this._proxy('reloadStreams', sources);
+	reloadStreams(scope, sources) {
+		return this._proxy('reloadStreams', scope, sources);
 	}
 
 	/**
