@@ -2803,7 +2803,8 @@ class Graphics {
 
 	ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise) {
 		const p = this.transformPoint(x, y, 0);
-		this._context2D.ellipse(p.x, p.y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise);
+		const angle = this.getRotation();
+		this._context2D.ellipse(p.x, p.y, radiusX, radiusY, angle + rotation, startAngle, endAngle, anticlockwise);
 	}
 
 	/**

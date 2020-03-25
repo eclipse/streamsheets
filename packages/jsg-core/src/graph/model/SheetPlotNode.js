@@ -873,10 +873,19 @@ module.exports = class SheetPlotNode extends Node {
 	getLegend() {
 		const legend = [];
 
-		// if (this.series.length && this.series[0].type === 'pie') {
-
-		// }
-
+		if (this.series.length && this.series[0].type === 'pie') {
+			const ref = this.getDataSourceInfo(this.series[0].formula);
+			let index = 0;
+			const value = {};
+			while (this.getValue(ref, index, value)) {
+				const entry = {};
+				entry.name = this.getLabel(ref, undefined, index);
+				entry.series = this.series[0];
+				legend.push(entry);
+				index += 1;
+			}
+			return legend;
+		}
 
 		const expr = this.legend.formula;
 		if (expr !== undefined) {
@@ -1568,7 +1577,7 @@ module.exports = class SheetPlotNode extends Node {
 			label = index + 1;
 		}
 
-		if (Numbers.isNumber(label)) {
+		if (axis && Numbers.isNumber(label)) {
 			label = this.formatNumber(
 				label,
 				axis.format && axis.format.numberFormat ? axis.format : axis.scale.format
