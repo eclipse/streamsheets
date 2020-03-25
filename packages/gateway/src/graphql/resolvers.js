@@ -214,7 +214,7 @@ const resolvers = {
 	ScopedMutation: {
 		import: async ({ scope }, { input, file }, { api }) => {
 			try {
-				const { stream } = await file;
+				const stream = (await file).createReadStream();
 				const buffer = await streamToBuffer(stream);
 				const importData = JSON.parse(buffer.toString());
 				await api.import.doImport(scope, importData, input.machines, input.streams);
