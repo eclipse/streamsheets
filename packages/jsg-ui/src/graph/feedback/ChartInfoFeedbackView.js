@@ -39,42 +39,43 @@ export default class ChartInfoFeedbackView extends View {
 		let x;
 		let y;
 
-		if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
-			x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false)  * plotRect.width;
-			y = top.y;
+		if (item.xAxes[0].visible) {
+			if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
+				x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.width;
+				y = top.y;
 
-			if (x  - top.x > plotRect.width || x - top.x < 0) {
-				return;
-			}
-			graphics.moveTo(x, top.y);
-			graphics.lineTo(x, bottom.y);
+				if (x - top.x > plotRect.width || x - top.x < 0) {
+					return;
+				}
+				graphics.moveTo(x, top.y);
+				graphics.lineTo(x, bottom.y);
 
-			if (this.endPoint) {
-				graphics.moveTo(this.endPoint.x, top.y);
-				graphics.lineTo(this.endPoint.x, bottom.y);
-				graphics.rect(this.point.x, top.y, this.endPoint.x - this.point.x, bottom.y - top.y);
-			}
-		} else {
-			x = top.x;
-			y = bottom.y - item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false)  * plotRect.height;
+				if (this.endPoint) {
+					graphics.moveTo(this.endPoint.x, top.y);
+					graphics.lineTo(this.endPoint.x, bottom.y);
+					graphics.rect(this.point.x, top.y, this.endPoint.x - this.point.x, bottom.y - top.y);
+				}
+			} else {
+				x = top.x;
+				y = bottom.y - item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.height;
 
-			if (y - top.y > plotRect.height || y - top.y < 0) {
-				return;
-			}
-			graphics.moveTo(left.x, y);
-			graphics.lineTo(right.x, y);
+				if (y - top.y > plotRect.height || y - top.y < 0) {
+					return;
+				}
+				graphics.moveTo(left.x, y);
+				graphics.lineTo(right.x, y);
 
-			if (this.endPoint) {
-				graphics.moveTo(left.x, this.endPoint.y);
-				graphics.lineTo(right.x, this.endPoint.y);
-				graphics.rect(left.x, this.point.y, right.x - left.x, this.endPoint.y - this.point.y);
+				if (this.endPoint) {
+					graphics.moveTo(left.x, this.endPoint.y);
+					graphics.lineTo(right.x, this.endPoint.y);
+					graphics.rect(left.x, this.point.y, right.x - left.x, this.endPoint.y - this.point.y);
+				}
 			}
+			graphics.stroke();
+			graphics.setTransparency(30);
+			graphics.fill();
+			graphics.setTransparency(100);
 		}
-
-		graphics.stroke();
-		graphics.setTransparency(30);
-		graphics.fill();
-		graphics.setTransparency(100);
 
 		if (this.selection.dataPoints && this.selection.dataPoints.length) {
 			let width = 0;
@@ -101,7 +102,8 @@ export default class ChartInfoFeedbackView extends View {
 					}
 				} else {
 					axis = value.axes.y;
-					label = item.formatNumber(value.y, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+					label = item.formatNumber(value.y, 'General');
+					// label = item.formatNumber(value.y, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
 				}
 				if (ref && ref.yName !== undefined && !xValue) {
 					label = `${ref.yName}: ${label}`;
@@ -125,6 +127,9 @@ export default class ChartInfoFeedbackView extends View {
 						if (data.values && data.values[0] && data.values[0].x === this.selection.dataPoints[0].x) {
 							data.values.forEach((value) => {
 								if (value.x !== undefined && value.y !== undefined) {
+									if (item.chart.relative && value.barSize !== undefined) {
+										value.y = value.barSize;
+									}
 									values.push(value);
 								}
 							});

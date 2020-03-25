@@ -12,6 +12,19 @@ module.exports = class ChartRect {
 		this.bottom = 0;
 	}
 
+	sort() {
+		if (this.left > this.right) {
+			const x = this.right;
+			this.right = this.left;
+			this.left = x;
+		}
+		if (this.top > this.bottom) {
+			const y = this.bottom;
+			this.bottom = this.top;
+			this.top = y;
+		}
+	}
+
 	containsPoint(pt) {
 		return pt.x >= this.left && pt.x <= this.right && pt.y >= this.top && pt.y <= this.bottom;
 	}

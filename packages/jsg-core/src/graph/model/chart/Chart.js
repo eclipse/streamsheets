@@ -6,6 +6,7 @@ module.exports = class Chart {
 		this._stacked = false;
 		this._relative = false;
 		this._dataMode = 'datazero';
+		this.rotation = 0;
 		this.template = 'basic';
 		this.margins = new ChartRect(200, 200, 200, 200);
 	}
@@ -49,6 +50,7 @@ module.exports = class Chart {
 		writer.writeAttributeNumber('stacked', this.stacked ? 1 : 0);
 		writer.writeAttributeNumber('relative', this.relative ? 1 : 0);
 		writer.writeAttributeNumber('period', this.period ? 1 : 0);
+		writer.writeAttributeNumber('rotation', this.rotation);
 		writer.writeEndElement();
 	}
 
@@ -57,6 +59,7 @@ module.exports = class Chart {
 		this.stacked = reader.getAttribute(object, 'stacked');
 		this.relative = reader.getAttribute(object, 'relative');
 		this.period = reader.getAttribute(object, 'period');
+		this.rotation = reader.getAttributeNumber(object, 'rotation', 0);
 		this.template = reader.getAttribute(object, 'template') ?
 			reader.getAttribute(object, 'template') : 'basic';
 	}

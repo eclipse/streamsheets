@@ -182,7 +182,7 @@ module.exports = class SheetPlotNode extends Node {
 			visible: true,
 			position: new ChartRect(),
 			format: new ChartFormat(),
-			align: 'right'
+			align: 'middleright'
 		};
 		this.title = new ChartTitle(new Expression('Title', ''));
 		this.series = [new ChartSeries('line', new Expression(0, 'SERIES(B1,A2:A10,B2:B10)'))];
@@ -267,17 +267,19 @@ module.exports = class SheetPlotNode extends Node {
 
 	measureAxis(graphics, axis) {
 		const result = {
-			width: 0,
-			height: 0,
+			width: 200,
+			height: 200,
 			last: 0
 		};
 
 		axis.textSize = {
 			width: 1000,
-			height: 300
+			height: 300,
+			firstWidth: 0,
+			lastWidth: 0
 		};
 
-		if (!axis.position || !axis.scale) {
+		if (!axis.position || !axis.scale || !axis.visible) {
 			return result;
 		}
 
@@ -381,54 +383,59 @@ module.exports = class SheetPlotNode extends Node {
 		if (legend.length && this.legend.visible) {
 			const margin = 200;
 			this.setFont(JSG.graphics, this.legend.format, 'legend', 'middle', TextFormatAttributes.TextAlignment.CENTER);
-			let width = 0;
+			let legendWidth = 0;
 			let textSize;
 			let extra = margin * 4;
 			legend.forEach((entry) => {
 				textSize = this.measureText(JSG.graphics, cs, this.legend.format, 'legend', String(entry.name));
-				if (this.legend.align === 'left' || this.legend.align === 'right') {
-					width = Math.max(textSize.width, width);
+				if (this.legend.align === 'left' || this.legend.align === 'middleleft' || this.legend.align === 'middleright' || this.legend.align === 'right') {
+					legendWidth = Math.max(textSize.width, legendWidth);
 				} else {
-					width += textSize.width;
+					legendWidth += textSize.width;
 				}
 				if (!entry.series || entry.series.type !== 'bubble') {
 					extra = margin * 6;
 				}
 			});
+			const legendHeight = (legend.length - 1)* (textSize.height) * 1.3 + textSize.height + margin * 2;
 			switch (this.legend.align) {
 			case 'left':
-				width += extra;
+			case 'middleleft':
+				legendWidth += extra;
 				this.legend.position.left = this.plot.position.left;
-				this.legend.position.right = this.plot.position.left + width;
+				this.legend.position.right = this.plot.position.left + legendWidth;
 				this.legend.position.top = this.plot.position.top;
-				this.legend.position.bottom = this.plot.position.top + (legend.length - 1)* (textSize.height) * 1.3 + textSize.height + margin * 2;
-				this.plot.position.left += (width + margin);
+				this.legend.position.bottom = this.plot.position.top + legendHeight;
+				this.plot.position.left += (legendWidth + margin);
 				break;
 			case 'top':
-				width += extra * legend.length;
-				this.legend.position.left = (size.x - width) / 2;
-				this.legend.position.right = (size.x + width) / 2;
+				legendWidth += extra * legend.length;
+				this.legend.position.left = (size.x - legendWidth) / 2;
+				this.legend.position.right = (size.x + legendWidth) / 2;
 				this.legend.position.top = this.plot.position.top;
 				this.legend.position.bottom = this.plot.position.top + textSize.height * 1.3 + margin;
 				this.plot.position.top = this.legend.position.bottom + margin;
 				break;
 			case 'right':
-				width += extra;
-				this.plot.position.right -= (width + margin);
+			case 'middleright':
+				legendWidth += extra;
+				this.plot.position.right -= (legendWidth + margin);
 				this.legend.position.left = this.plot.position.right + margin;
 				this.legend.position.right = size.x - this.chart.margins.right;
 				this.legend.position.top = this.plot.position.top;
-				this.legend.position.bottom = this.plot.position.top + (legend.length - 1)* (textSize.height) * 1.3 + textSize.height + margin * 2;
+				this.legend.position.bottom = this.plot.position.top + legendHeight;
 				break;
 			case 'bottom':
-				width += extra * legend.length;
-				this.legend.position.left = (size.x - width) / 2;
-				this.legend.position.right = (size.x + width) / 2;
+				legendWidth += extra * legend.length;
+				this.legend.position.left = (size.x - legendWidth) / 2;
+				this.legend.position.right = (size.x + legendWidth) / 2;
 				this.legend.position.top = this.plot.position.bottom - textSize.height * 1.3 - margin;
 				this.legend.position.bottom = this.plot.position.bottom;
 				this.plot.position.bottom = this.legend.position.top - margin;
 				break;
 			}
+		} else {
+			this.legend.position.reset();
 		}
 
 		// reduce plot by axis title size
@@ -543,19 +550,21 @@ module.exports = class SheetPlotNode extends Node {
 
 		// ensure for axis first and last label space
 		this.xAxes.forEach((axis) => {
-			switch (axis.align) {
-			case 'left':
-				break;
-			case 'right':
-				break;
-			case 'top':
-				this.plot.position.left = Math.max(this.plot.position.left, axis.textSize.firstWidth / 2);
-				this.plot.position.right = Math.min(this.plot.position.right, size.x - axis.textSize.lastWidth / 2);
-				break;
-			case 'bottom':
-				this.plot.position.left = Math.max(this.plot.position.left, axis.textSize.firstWidth / 2);
-				this.plot.position.right = Math.min(this.plot.position.right, size.x - axis.textSize.lastWidth / 2);
-				break;
+			if (axis.visible) {
+				switch (axis.align) {
+				case 'left':
+					break;
+				case 'right':
+					break;
+				case 'top':
+					this.plot.position.left = Math.max(this.plot.position.left, axis.textSize.firstWidth / 2);
+					this.plot.position.right = Math.min(this.plot.position.right, size.x - axis.textSize.lastWidth / 2);
+					break;
+				case 'bottom':
+					this.plot.position.left = Math.max(this.plot.position.left, axis.textSize.firstWidth / 2);
+					this.plot.position.right = Math.min(this.plot.position.right, size.x - axis.textSize.lastWidth / 2);
+					break;
+				}
 			}
 		});
 
@@ -696,6 +705,22 @@ module.exports = class SheetPlotNode extends Node {
 				}
 			}
 		});
+
+		if (legend.length && this.legend.visible) {
+			const height = this.legend.position.height;
+			switch (this.legend.align) {
+			case 'left':
+			case 'right':
+				this.legend.position.top = this.plot.position.top;
+				this.legend.position.bottom = this.plot.position.top + height;
+				break;
+			case 'middleright':
+			case 'middleleft':
+				this.legend.position.top = this.plot.position.top + this.plot.position.height / 2 - height / 2;
+				this.legend.position.bottom = this.plot.position.top + this.plot.position.height / 2 + height / 2;
+				break;
+			}
+		}
 
 		super.layout();
 	}
@@ -1437,6 +1462,17 @@ module.exports = class SheetPlotNode extends Node {
 		}
 	}
 
+	getSliceInfo(axes, serie, seriesIndex, index, value) {
+		const neg = axes.y.categories[index].neg;
+		const pos = axes.y.categories[index].pos;
+		const sum = pos - neg;
+		if (sum !== 0 && Numbers.isNumber(sum)) {
+			return value / sum;
+		}
+
+		return 0;
+	}
+
 	getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		let height;
 		const margin = this.chart.stacked || serie.type === 'state' ? 0 : 150;
@@ -1927,7 +1963,7 @@ module.exports = class SheetPlotNode extends Node {
 	}
 
 	checkAxis(axis, pt, plotRect) {
-		if (!axis.position || !axis.scale || !axis.gridVisible) {
+		if (!axis.position || !axis.scale || !axis.gridVisible || !axis.visible) {
 			return false;
 		}
 
@@ -2079,6 +2115,7 @@ module.exports = class SheetPlotNode extends Node {
 							break;
 						}
 
+						dataRect.sort();
 						if (dataRect.containsPoint(pt)) {
 							value.axes = axes;
 							value.series = series;
@@ -2230,6 +2267,16 @@ module.exports = class SheetPlotNode extends Node {
 		markers = type.indexOf('marker') !== -1;
 
 		switch (type) {
+		case 'pie':
+		case 'pie3d':
+			this.chart.stacked = true;
+			this.chart.relative = true;
+			this.chart.rotation = type === 'pie3d' ? Math.PI / 6 : Math.PI / 2;
+			this.legend.align = 'bottom';
+			this.xAxes[0].visible = false;
+			this.yAxes[0].visible = false;
+			type = 'pie';
+			break;
 		case 'columnstacked100':
 		case 'columnstacked':
 		case 'column':

@@ -71,16 +71,41 @@ export default class SheetPlotView extends NodeView {
 		const { series } = item;
 		const plotRect = item.plot.position;
 		const legendData = item.getLegend();
+		let drawAxes = false;
 
-		this.drawRect(graphics, plotRect, item, item.plot.format, 'plot');
-		this.drawAxes(graphics, plotRect, item, true);
-
-		let lastPoints;
 		series.forEach((serie, index) => {
-			lastPoints = this.drawPlot(graphics, item, plotRect, serie, index, lastPoints, legendData);
+			switch (serie.type) {
+			case 'pie':
+				break;
+			default:
+				drawAxes = true;
+				break;
+			}
 		});
 
-		this.drawAxes(graphics, plotRect, item, false);
+		this.drawRect(graphics, plotRect, item, item.plot.format, 'plot');
+
+		if (drawAxes) {
+			this.drawAxes(graphics, plotRect, item, true);
+		}
+
+		let lastPoints;
+
+		series.forEach((serie, index) => {
+			switch (serie.type) {
+			case 'pie':
+				lastPoints = this.drawCircular(graphics, item, plotRect, serie, index, lastPoints, legendData);
+				break;
+			default:
+				lastPoints = this.drawCartesian(graphics, item, plotRect, serie, index, lastPoints, legendData);
+				drawAxes = true;
+				break;
+			}
+		});
+
+		if (drawAxes) {
+			this.drawAxes(graphics, plotRect, item, false);
+		}
 		this.drawLegend(graphics, plotRect, item, legendData);
 		this.drawTitle(graphics, item, item.title, 'title', 0);
 
@@ -148,6 +173,7 @@ export default class SheetPlotView extends NodeView {
 				case 'column':
 				case 'state':
 				case 'bar':
+				case 'pie':
 					graphics.rect(x, y + textSize.height / 10, margin * 3, (textSize.height * 2) / 3);
 					graphics.fill();
 					graphics.stroke();
@@ -166,7 +192,7 @@ export default class SheetPlotView extends NodeView {
 			graphics.setFillColor(fontColor);
 			graphics.fillText(entry.name, x + textPos, y + textSize.height / 2);
 
-			if (legend.align === 'right' || legend.align === 'left') {
+			if (legend.align === 'right' || legend.align === 'middleright' || legend.align === 'left' || legend.align === 'middleleft') {
 				y += textSize.height * 1.3;
 			} else {
 				const size = item.measureText(JSG.graphics, cs, legend.format, 'legend', String(entry.name));
@@ -360,7 +386,78 @@ export default class SheetPlotView extends NodeView {
 		return pt;
 	}
 
-	drawPlot(graphics, item, plotRect, serie, seriesIndex, lastPoints, legendData) {
+	drawCircular(graphics, item, plotRect, serie, seriesIndex, lastPoints, legendData) {
+		const ref = item.getDataSourceInfo(serie.formula);
+		const axes = item.getAxes(serie);
+		const value = {};
+		const radius = Math.min(plotRect.width, plotRect.height) / 2;
+		const yRadius = Math.abs(radius * Math.sin(item.chart.rotation));
+		const xc = plotRect.left + plotRect.width / 2;
+		const yc = plotRect.top + plotRect.height / 2;
+
+		graphics.beginPath();
+		graphics.setFillColor('#FF0000');
+
+		let index = 0;
+		const info = {
+			serie,
+			seriesIndex,
+			categories: axes.y.categories
+		};
+		let startAngle = 0;
+
+		graphics.setLineColor(serie.format.lineColor || item.getTemplate().series.line[seriesIndex]);
+		graphics.setLineWidth(serie.format.lineWidth || item.getTemplate().series.linewidth);
+		this.setLineStyle(graphics, serie.format.lineStyle);
+		graphics.setFillColor(serie.format.fillColor || item.getTemplate().series.fill[seriesIndex]);
+
+		let sum = 0;
+		while (item.getValue(ref, index, value)) {
+			index += 1;
+			if (value.y !== undefined) {
+				sum += Math.abs(value.y);
+			}
+		}
+
+		index = 0;
+		while (item.getValue(ref, index, value)) {
+			if (value.x !== undefined && value.y !== undefined) {
+				if (item.series.length === 1) {
+					graphics.setLineColor(item.getTemplate().series.line[index]);
+					graphics.setFillColor(item.getTemplate().series.fill[index]);
+				}
+				const angle = Math.abs(value.y) / sum * (Math.PI * 2);
+				switch (serie.type) {
+				case 'pie':
+					graphics.beginPath();
+					graphics.ellipse(xc, yc, radius, yRadius, 0, startAngle, startAngle + angle, false);
+					graphics.lineTo(xc, yc);
+					graphics.stroke();
+					// graphics.fill();
+					if (item.chart.rotation < Math.PI / 2){
+						graphics.beginPath();
+						graphics.ellipse(xc, yc, radius, yRadius, 0, startAngle, startAngle + angle, false);
+						let x = xc + radius * Math.cos(startAngle);
+						let y = yc + yRadius * Math.sin(startAngle);
+						graphics.lineTo(x, y);
+
+						graphics.ellipse(xc, yc + 500, radius, yRadius, 0, startAngle, startAngle + angle, false);
+						x = xc + radius * Math.cos(startAngle + angle);
+						y = yc + yRadius * Math.sin(startAngle + angle);
+						graphics.lineTo(x, y);
+						graphics.stroke();
+						graphics.fill();
+					}
+					break;
+				}
+				startAngle += angle;
+			}
+			index += 1;
+		}
+
+	}
+
+	drawCartesian(graphics, item, plotRect, serie, seriesIndex, lastPoints, legendData) {
 		let index = 0;
 		let barInfo;
 		const value = {};

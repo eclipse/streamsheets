@@ -96,6 +96,19 @@ class ScalableGraphics extends Graphics {
 		);
 	}
 
+	ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise) {
+		super.ellipse(
+			this._cs.logToDeviceX(x),
+			this._cs.logToDeviceY(y),
+			this._cs.logToDeviceX(radiusX),
+			this._cs.logToDeviceX(radiusY),
+			rotation,
+			startAngle,
+			endAngle,
+			anticlockwise
+		);
+	}
+
 	drawPixel(x, y) {
 		super.drawPixel(this._cs.logToDeviceX(x), this._cs.logToDeviceX(y));
 	}

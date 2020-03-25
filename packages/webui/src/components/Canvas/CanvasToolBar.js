@@ -3833,6 +3833,51 @@ export class CanvasToolBar extends Component {
 										</IconButton>
 									</Tooltip>
 								</GridListTile>
+								<GridListTile
+									cols={6}
+									style={{
+										height: '24px'
+									}}
+								>
+									<div
+										style={{
+											backgroundColor: Colors.blue[800],
+											color: 'white',
+											fontSize: '10pt',
+											padding: '3px'
+										}}
+									>
+										<FormattedMessage id="StreamChartProperties.PieCharts" defaultMessage="Pie and Doughnut Charts" />
+									</div>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="StreamCharts.Pie" defaultMessage="Pie" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('pie')}
+										>
+											<img alt="" src="images/charts/pie.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="StreamCharts.3dPie" defaultMessage="3D Pie" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('pie3d')}
+										>
+											<img alt="" src="images/charts/pie.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
 							</GridList>
 						</Popover>
 					</div>

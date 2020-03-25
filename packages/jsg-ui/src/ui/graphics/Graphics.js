@@ -2801,6 +2801,11 @@ class Graphics {
 		this._context2D.arc(p.x, p.y, radius, startAngle, endAngle, anticlockwise);
 	}
 
+	ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise) {
+		const p = this.transformPoint(x, y, 0);
+		this._context2D.ellipse(p.x, p.y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise);
+	}
+
 	/**
 	 * Add a circle to a path.
 	 *

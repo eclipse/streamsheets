@@ -616,6 +616,11 @@ export class StreamChartProperties extends Component {
 									label={<FormattedMessage id="StreamChartProperties.left" defaultMessage="Left" />}
 								/>
 								<FormControlLabel
+									value="middleleft"
+									control={<Radio />}
+									label={<FormattedMessage id="StreamChartProperties.middleleft" defaultMessage="Middle Left" />}
+								/>
+								<FormControlLabel
 									value="top"
 									control={<Radio />}
 									label={<FormattedMessage id="StreamChartProperties.top" defaultMessage="Top" />}
@@ -624,6 +629,11 @@ export class StreamChartProperties extends Component {
 									value="right"
 									control={<Radio />}
 									label={<FormattedMessage id="StreamChartProperties.right" defaultMessage="Right" />}
+								/>
+								<FormControlLabel
+									value="middleright"
+									control={<Radio />}
+									label={<FormattedMessage id="StreamChartProperties.middleright" defaultMessage="Middle Right" />}
 								/>
 								<FormControlLabel
 									value="bottom"
