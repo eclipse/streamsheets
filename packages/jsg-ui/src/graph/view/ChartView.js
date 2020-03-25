@@ -205,7 +205,7 @@ export default class ChartView extends NodeView {
 		return seriesLabels;
 	}
 
-	getSeries(data, range, seriesLabels, categoryLabels, values, chartType) {
+	getSeries(data, range, seriesLabels, categoryLabels, allValues, chartType) {
 		const item = this.getItem();
 		const chartSheet = item.getSheetContainer();
 		const vertical = this.getVertical(range);
@@ -223,16 +223,16 @@ export default class ChartView extends NodeView {
 			startI += 1;
 		}
 
-		if (values) {
+		if (allValues) {
 			if (item.data.series === undefined) {
 				item.data.series = [];
 			}
-			values.forEach((value, index) => {
+			allValues.forEach((value, index) => {
 				if (item.data.series[index] === undefined) {
 					item.data.series[index] = {};
 				}
 			});
-			item.data.series.length = values.length;
+			item.data.series.length = allValues.length;
 			if (seriesLabels) {
 				endI = Math.max(startI, endI);
 				for (let i = startI; i <= endI; i += 1) {
@@ -400,8 +400,8 @@ export default class ChartView extends NodeView {
 		if (allValues && allValues.length) {
 			const values = allValues[0].values;
 			if (values) {
-				values.forEach((value) => {
-					categoryLabelData.push(ChartView.formatNumber(value.key, 'h:mm:ss', `time;en`));
+				values.time.forEach((value) => {
+					categoryLabelData.push(ChartView.formatNumber(value, 'h:mm:ss', `time;en`));
 				});
 			}
 		} else {
@@ -638,14 +638,14 @@ export default class ChartView extends NodeView {
 			if (allValues && allValues.length > index) {
 				const values = allValues[index].values;
 				if (values) {
-					values.forEach((lvalue) => {
+					values.time.forEach((lvalue, vIndex) => {
 						switch (chartType) {
 						case 'bubble':
 						case 'scatter':
 						case 'scatterLine': {
 							const value = { x: 0, y: 0 };
-							value.x = lvalue.key || 0;
-							value.y = lvalue.value || 0;
+							value.x = lvalue || 0;
+							value.y = values.value[vIndex] || 0;
 							value.r = chartType === 'bubble' ? 1 : undefined;
 							set.data.push(value);
 							set._localCultureX = `time;en`;
@@ -655,14 +655,14 @@ export default class ChartView extends NodeView {
 							break;
 						}
 						case 'bar':
-							set.data.push(lvalue.value);
+							set.data.push(lvalue);
 							set._localCultureX = `time;en`;
 							set._numberFormatX = 'h:mm:ss';
 							this._localCulture = `time;en`;
 							this._numberFormat = 'h:mm:ss';
 							break;
 						default:
-							set.data.push(lvalue.value);
+							set.data.push(lvalue);
 							set._localCultureX = `time;en`;
 							set._numberFormatX = 'h:mm:ss';
 							this._localCultureX = `time;en`;
