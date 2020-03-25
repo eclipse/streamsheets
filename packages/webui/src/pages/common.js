@@ -1,5 +1,7 @@
 import { StringUtil } from '@cedalo/util';
 
+const lowerCaseIfString = (s) => (typeof s === 'string' ? s.toLowerCase() : s);
+
 export const filterAndSort = (fields = []) => (entities = [], filterText, sort) => {
 	const shownEntities =
 		filterText && fields.length > 0
@@ -15,7 +17,8 @@ export const filterAndSort = (fields = []) => (entities = [], filterText, sort) 
 	const directionMultiplier = sort.direction === 'asc' ? 1 : -1;
 	const sortedEntities = shownEntities.sort(
 		(a, b) =>
-			((a[sort.field] || '').toLowerCase() > (b[sort.field] || '').toLowerCase() ? 1 : -1) * directionMultiplier
+			(lowerCaseIfString(a[sort.field] || '') > lowerCaseIfString(b[sort.field] || '') ? 1 : -1) *
+			directionMultiplier
 	);
 	return sortedEntities;
 };
