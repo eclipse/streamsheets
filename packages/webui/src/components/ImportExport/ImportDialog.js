@@ -317,7 +317,7 @@ const ConnectorSelect = (props) => {
 	);
 };
 
-const withShowable = (Component) => (props) => (props.show !== false ? <Component {...props} /> : null);
+const withShowable = (Component) => ({ show, ...props }) => (show !== false ? <Component {...props} /> : null);
 
 const Grid = withShowable(MUIGrid);
 
