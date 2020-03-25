@@ -1005,7 +1005,7 @@ export class StreamChartProperties extends Component {
 									}
 									width={110}
 									transparent
-									color={data.marker.fillColor || item.getTemplate().series.fill[selection.index]}
+									color={data.marker.fillColor || item.getTemplate().series.getFillForIndex(selection.index)}
 									onChange={(color) => this.handleSeriesMarkerFillColorChange(color)}
 								/>
 							</FormControl>

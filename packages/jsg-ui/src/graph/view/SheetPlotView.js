@@ -1,4 +1,4 @@
-import { default as JSG, TextFormatAttributes, FormatAttributes } from '@cedalo/jsg-core';
+import { default as JSG, TextFormatAttributes, FormatAttributes, ChartRect, Rectangle } from '@cedalo/jsg-core';
 
 import NodeView from './NodeView';
 
@@ -93,9 +93,20 @@ export default class SheetPlotView extends NodeView {
 
 		series.forEach((serie, index) => {
 			switch (serie.type) {
-			case 'pie':
-				lastPoints = this.drawCircular(graphics, item, plotRect, serie, index, lastPoints, legendData);
+			case 'pie': {
+				const margin = 500;
+				let columns = Math.max(1, Math.ceil(plotRect.width / (plotRect.height ? plotRect.height : 1000)));
+				columns = Math.min(columns, item.series.length);
+				const rows = Math.ceil(item.series.length / columns);
+				const column = (index % columns);
+				const row = Math.floor(index / columns);
+				const rectPie = new ChartRect(plotRect.left + column * plotRect.width / columns + margin,
+					plotRect.top + row * plotRect.height / rows + margin,
+					plotRect.left + (column + 1) * plotRect.width / columns - margin,
+					plotRect.top + (row + 1) * plotRect.height / rows - margin);
+				this.drawCircular(graphics, item, rectPie, serie, index);
 				break;
+			}
 			default:
 				lastPoints = this.drawCartesian(graphics, item, plotRect, serie, index, lastPoints, legendData);
 				drawAxes = true;
@@ -148,7 +159,7 @@ export default class SheetPlotView extends NodeView {
 			if (entry.series) {
 				graphics.setLineColor(entry.series.format.lineColor || item.getTemplate().series.line[index]);
 				graphics.setLineWidth(entry.series.format.lineWidth || item.getTemplate().series.linewidth);
-				graphics.setFillColor(entry.series.format.fillColor || item.getTemplate().series.fill[index]);
+				graphics.setFillColor(entry.series.format.fillColor || item.getTemplate().series.getFillForIndex(index));
 				type = entry.series.type;
 			} else {
 				graphics.setLineWidth(1);
@@ -386,32 +397,25 @@ export default class SheetPlotView extends NodeView {
 		return pt;
 	}
 
-	drawCircular(graphics, item, plotRect, serie, seriesIndex, lastPoints, legendData) {
+	drawCircular(graphics, item, plotRect, serie, seriesIndex) {
 		const ref = item.getDataSourceInfo(serie.formula);
-		const axes = item.getAxes(serie);
 		const value = {};
 		const radius = Math.min(plotRect.width, plotRect.height) / 2;
 		const yRadius = Math.abs(radius * Math.sin(item.chart.rotation));
 		const xc = plotRect.left + plotRect.width / 2;
 		const yc = plotRect.top + plotRect.height / 2;
+		const fillRect = new Rectangle();
 
-		graphics.beginPath();
-		graphics.setFillColor('#FF0000');
+		graphics.setLineColor(serie.format.lineColor || item.getTemplate().series.getLineForIndex(seriesIndex));
+		graphics.setLineWidth(serie.format.lineWidth || item.getTemplate().series.linewidth);
+		graphics.setLineWidth(1);
+		this.setLineStyle(graphics, serie.format.lineStyle);
+		graphics.setFillColor(serie.format.fillColor || item.getTemplate().series.getFillForIndex(seriesIndex));
 
 		let index = 0;
-		const info = {
-			serie,
-			seriesIndex,
-			categories: axes.y.categories
-		};
 		let startAngle = 0;
-
-		graphics.setLineColor(serie.format.lineColor || item.getTemplate().series.line[seriesIndex]);
-		graphics.setLineWidth(serie.format.lineWidth || item.getTemplate().series.linewidth);
-		this.setLineStyle(graphics, serie.format.lineStyle);
-		graphics.setFillColor(serie.format.fillColor || item.getTemplate().series.fill[seriesIndex]);
-
 		let sum = 0;
+
 		while (item.getValue(ref, index, value)) {
 			index += 1;
 			if (value.y !== undefined) {
@@ -422,10 +426,8 @@ export default class SheetPlotView extends NodeView {
 		index = 0;
 		while (item.getValue(ref, index, value)) {
 			if (value.x !== undefined && value.y !== undefined) {
-				if (item.series.length === 1) {
-					graphics.setLineColor(item.getTemplate().series.line[index]);
-					graphics.setFillColor(item.getTemplate().series.fill[index]);
-				}
+				graphics.setLineColor(item.getTemplate().series.getLineForIndex(index));
+				graphics.setFillColor(item.getTemplate().series.getFillForIndex(index));
 				const angle = Math.abs(value.y) / sum * (Math.PI * 2);
 				switch (serie.type) {
 				case 'pie':
@@ -433,20 +435,28 @@ export default class SheetPlotView extends NodeView {
 					graphics.ellipse(xc, yc, radius, yRadius, 0, startAngle, startAngle + angle, false);
 					graphics.lineTo(xc, yc);
 					graphics.stroke();
-					// graphics.fill();
+					graphics.fill();
 					if (item.chart.rotation < Math.PI / 2){
-						graphics.beginPath();
-						graphics.ellipse(xc, yc, radius, yRadius, 0, startAngle, startAngle + angle, false);
-						let x = xc + radius * Math.cos(startAngle);
-						let y = yc + yRadius * Math.sin(startAngle);
-						graphics.lineTo(x, y);
+						if (startAngle <= Math.PI || startAngle + angle <= Math.PI) {
+							graphics.beginPath();
+							graphics.ellipse(xc, yc, radius, yRadius, 0, Math.max(0, startAngle),
+								Math.min(Math.PI, startAngle + angle), false);
+							const x1 = xc + radius * Math.cos(Math.min(Math.PI, startAngle + angle));
+							let y = yc + 500 + yRadius * Math.sin(Math.min(Math.PI, startAngle + angle));
+							graphics.lineTo(x1, y);
 
-						graphics.ellipse(xc, yc + 500, radius, yRadius, 0, startAngle, startAngle + angle, false);
-						x = xc + radius * Math.cos(startAngle + angle);
-						y = yc + yRadius * Math.sin(startAngle + angle);
-						graphics.lineTo(x, y);
-						graphics.stroke();
-						graphics.fill();
+							graphics.ellipse(xc, yc + 500, radius, yRadius, 0, Math.min(Math.PI, startAngle + angle),
+								Math.max(0, startAngle), true);
+							const x2 = xc + radius * Math.cos(Math.max(0, startAngle));
+							y = yc + yRadius * Math.sin(Math.max(0, startAngle));
+							graphics.lineTo(x2, y);
+							graphics.stroke();
+
+							fillRect.set(plotRect.left, y, plotRect.width, y);
+							graphics.setGradientLinear(fillRect, item.getTemplate().series.getFillForIndex(index), '#333333', 0, 0);
+							graphics.fill();
+						}
+
 					}
 					break;
 				}
@@ -485,10 +495,10 @@ export default class SheetPlotView extends NodeView {
 		graphics.clip();
 
 		graphics.beginPath();
-		graphics.setLineColor(serie.format.lineColor || item.getTemplate().series.line[seriesIndex]);
+		graphics.setLineColor(serie.format.lineColor || item.getTemplate().series.getLineForIndex(seriesIndex));
 		graphics.setLineWidth(serie.format.lineWidth || item.getTemplate().series.linewidth);
 		this.setLineStyle(graphics, serie.format.lineStyle);
-		graphics.setFillColor(serie.format.fillColor || item.getTemplate().series.fill[seriesIndex]);
+		graphics.setFillColor(serie.format.fillColor || item.getTemplate().series.getFillForIndex(seriesIndex));
 
 		const barWidth = item.getBarWidth(axes, serie, plotRect);
 		const points = [];
@@ -753,8 +763,8 @@ export default class SheetPlotView extends NodeView {
 		if (serie.marker.style !== 'none') {
 			index = 0;
 			graphics.beginPath();
-			graphics.setLineColor(serie.marker.lineColor || item.getTemplate().series.line[seriesIndex]);
-			graphics.setFillColor(serie.marker.fillColor || item.getTemplate().series.fill[seriesIndex]);
+			graphics.setLineColor(serie.marker.lineColor || item.getTemplate().series.getLineForIndex(seriesIndex));
+			graphics.setFillColor(serie.marker.fillColor || item.getTemplate().series.getFillForIndex(seriesIndex));
 			while (item.getValue(ref, index, value)) {
 				info.index = index;
 				if (item.chart.dataMode === 'datainterrupt' || (value.x !== undefined && value.y !== undefined)) {
@@ -907,8 +917,8 @@ export default class SheetPlotView extends NodeView {
 						f.setFillColor(data.format.fillColor || template.plot.format.fillColor);
 						break;
 					case 'series':
-						f.setFillColor(data.format.fillColor || template.series.fill[this.chartSelection.index]);
-						f.setLineColor(data.format.lineColor || template.series.line[this.chartSelection.index]);
+						f.setFillColor(data.format.fillColor || template.series.getFillForIndex(this.chartSelection.index));
+						f.setLineColor(data.format.lineColor || template.series.getLineForIndex(this.chartSelection.index));
 						break;
 					case 'title':
 					case 'legend':

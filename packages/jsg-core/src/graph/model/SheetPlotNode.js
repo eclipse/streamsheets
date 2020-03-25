@@ -68,6 +68,9 @@ const templates = {
 		series: {
 			format: new ChartFormat(),
 			linewidth: 50,
+			getFillForIndex(index) {
+				return this.fill[index % 11];
+			},
 			fill: [
 				'rgb(54, 162, 235)',
 				'rgb(255, 99, 132)',
@@ -82,6 +85,9 @@ const templates = {
 				'rgb(131,240,255)',
 				'rgb(224,108,255)'
 			],
+			getLineForIndex(index) {
+				return this.line[index % 11];
+			},
 			line: [
 				'rgb(54, 162, 235)',
 				'rgb(255,99,132)',
@@ -126,6 +132,9 @@ const templates = {
 		series: {
 			format: new ChartFormat(),
 			linewidth: 50,
+			getFillForIndex(index) {
+				return this.fill[index % 11];
+			},
 			fill: [
 				'rgb(54, 162, 235)',
 				'rgb(255, 99, 132)',
@@ -140,6 +149,9 @@ const templates = {
 				'rgb(131,240,255)',
 				'rgb(224,108,255)'
 			],
+			getLineForIndex(index) {
+				return this.line[index % 11];
+			},
 			line: [
 				'rgb(54, 162, 235)',
 				'rgb(255,99,132)',
@@ -860,6 +872,11 @@ module.exports = class SheetPlotNode extends Node {
 
 	getLegend() {
 		const legend = [];
+
+		if (this.series.length && this.series[0].type === 'pie') {
+
+		}
+
 
 		const expr = this.legend.formula;
 		if (expr !== undefined) {

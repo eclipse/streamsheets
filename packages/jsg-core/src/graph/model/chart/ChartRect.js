@@ -25,6 +25,15 @@ module.exports = class ChartRect {
 		}
 	}
 
+	get points() {
+		return [
+			{x: this.left, y: this.top},
+			{x: this.right, y: this.top},
+			{x: this.right, y: this.bottom},
+			{x: this.left, y: this.bottom},
+		];
+	}
+
 	containsPoint(pt) {
 		return pt.x >= this.left && pt.x <= this.right && pt.y >= this.top && pt.y <= this.bottom;
 	}
