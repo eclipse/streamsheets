@@ -873,9 +873,9 @@ module.exports = class SheetPlotNode extends Node {
 	getLegend() {
 		const legend = [];
 
-		if (this.series.length && this.series[0].type === 'pie') {
+		// if (this.series.length && this.series[0].type === 'pie') {
 
-		}
+		// }
 
 
 		const expr = this.legend.formula;
