@@ -1,9 +1,13 @@
-const timequery = require('./timequery');
-const timestore = require('./timestore');
+const help = require('./help');
+const TIMEAGGREGATE = require('./timeaggregate');
+const TIMEQUERY = require('./timequery');
+const TIMESTORE = require('./timestore');
 
 module.exports = {
+	help,
 	functions: {
-		TIMEQUERY: timequery,
-		TIMESTORE: timestore
+		TIMEAGGREGATE,
+		TIMEQUERY,
+		TIMESTORE
 	}
 };

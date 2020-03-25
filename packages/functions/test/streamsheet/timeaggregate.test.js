@@ -558,8 +558,7 @@ describe('timeaggregate', () => {
 			expect(sheet.cellAt('A1').value).toBe(5);
 			// check cell values
 			const cell = sheet.cellAt('A3');
-			const values = cell.info.values.map(({ value }) => value);
-			expect(values).toEqual([4, 5]);
+			expect(cell.info.values.value).toEqual([4, 5]);
 			expect(cell.value).toBe(ERROR.LIMIT);
 		});
 		it('should limit number of aggregated values', async () => {
@@ -571,8 +570,7 @@ describe('timeaggregate', () => {
 			expect(sheet.cellAt('A1').value).toBe(5);
 			// check cell values
 			const cell = sheet.cellAt('A3');
-			const values = cell.info.values.map(({ value }) => value);
-			expect(values).toEqual([4, 5]);
+			expect(cell.info.values.value).toEqual([4, 5]);
 			expect(cell.value).toBe(ERROR.LIMIT);
 		});
 		it(`should respect sort before applying limit`, async () => {
@@ -586,10 +584,8 @@ describe('timeaggregate', () => {
 			expect(sheet.cellAt('A1').value).toBe(5);
 			expect(sheet.cellAt('C1').value).toBe(95);
 			const cell = sheet.cellAt('A3');
-			const keys = cell.info.values.map(({ key }) => key);
-			const values = cell.info.values.map(({ value }) => value);
-			expect(keys).toEqual([97, 98]);
-			expect(values).toEqual([3, 2]);
+			expect(cell.info.values.time).toEqual([97, 98]);
+			expect(cell.info.values.value).toEqual([3, 2]);
 			expect(cell.value).toBe(ERROR.LIMIT);
 		});
 		it('should support optional limit parameter with 1000 as default', () => {
