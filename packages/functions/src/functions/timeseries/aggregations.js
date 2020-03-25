@@ -107,26 +107,15 @@ const METHODS = {
 	'stdevs': stdev,
 	'sum': sum
 };
-const getMethod = (str) => METHODS[str.toLowerCase()];
-const hasMethod = (str) => !!METHODS[str.toLowerCase()];
 
 module.exports = {
 	get: (str, key) => { // = 0, key) => {
-		const method = getMethod(str || 'none');
+		const method = METHODS[str || 'none'];
 		return method ? aggregate(key, method()) : undefined;
 	},
 	getWildCard: (str) => { // = 'none') => {
-		const method = getMethod(str || 'none');
+		const method = METHODS[str || 'none'];
 		return method ? wildcard(method) : undefined;
 	},
-	validate: (methods = []) => methods.every((str) => !str || hasMethod(str))
-	// get: (nr, key) => { // = 0, key) => {
-	// 	const method = METHODS[nr || 0];
-	// 	return method ? aggregate(key, method()) : undefined;
-	// },
-	// getWildCard: (nr) => { // = 0) => {
-	// 	const method = METHODS[nr || 0];
-	// 	return method ? wildcard(method) : undefined;
-	// },
-	// validate: (methods = []) => methods.every((nr) => !nr || !!METHODS[nr])
+	validate: (methods = []) => methods.every((str) => !str || !!METHODS[str])
 };
