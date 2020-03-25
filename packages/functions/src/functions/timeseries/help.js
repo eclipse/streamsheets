@@ -2,6 +2,16 @@ module.exports = {
 	en: 'Timeseries',
 	de: 'Zeitreihen',
 	functions: {
+		TIMEAGGREGATE: {
+			en: {
+				argumentList: 'DataCell,Period,AggregationMethod,TimeSerial,Interval,TargetRange,Sort,Limit',
+				description: 'Aggregates values with the Period using the given method within the interval'
+			},
+			de: {
+				argumentList: 'DatenZelle,Periode,Methode,BasisZeit,Intervall,Zielbereich,Sortieren,Limit',
+				description: 'Aggregiert Werte in der Periode mit der angebenen Methode für den angegebenen Intervall'
+			}
+		},
 		TIMEQUERY: {
 			en: {
 				argumentList: 'StoreReference,Query,Interval,TargetRange,Limit',

@@ -32,7 +32,6 @@ const SELECT = require('./select');
 const SETCYCLETIME = require('./setcycletime');
 const SETPHASE = require('./setphase');
 const SUBTREE = require('./subtree');
-const TIMEAGGREGATE = require('./timeaggregate');
 const TRIGGERSTEP = require('./triggerstep');
 const WRITE = require('./write');
 
@@ -74,7 +73,6 @@ module.exports = {
 		SETCYCLETIME,
 		SETPHASE,
 		SUBTREE,
-		TIMEAGGREGATE,
 		TRIGGERSTEP,
 		WRITE
 	}

@@ -441,16 +441,6 @@ module.exports = {
 				description: 'Tauscht die Werte aus Bereich1 mit denen im Bereich2'
 			}
 		},
-		TIMEAGGREGATE: {
-			en: {
-				argumentList: 'DataCell,Period,AggregationMethod,TimeSerial,Interval,TargetRange,Sort,Limit',
-				description: 'Aggregates values with the Period using the given method within the interval'
-			},
-			de: {
-				argumentList: 'DatenZelle,Periode,Methode,BasisZeit,Intervall,Zielbereich,Sortieren,Limit',
-				description: 'Aggregiert Werte in der Periode mit der angebenen Methode für den angegebenen Intervall'
-			}
-		},
 		TRIGGERSTEP: {
 			en: {
 				argumentList: '',

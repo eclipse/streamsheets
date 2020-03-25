@@ -24,9 +24,14 @@ const checkForWildCard = (query) => {
 	if (query.hasWildcard) query.aggregate[0] = query.aggregate[aggridx];
 };
 const split = (str) => `${str}`.split(',').map((part) => part.trim());
+const toLowerCase = (str) => str.toLowerCase();
 const createQuery = (json) => {
 	const { select, aggregate, where } = json;
-	const query = { select: split(select), aggregate: aggregate != null ? split(aggregate) : [], where };
+	const query = {
+		select: split(select),
+		aggregate: aggregate != null ? split(aggregate).map(toLowerCase) : [],
+		where
+	};
 	checkForWildCard(query);
 	return query;
 };
