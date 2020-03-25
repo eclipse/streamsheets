@@ -85,7 +85,6 @@ export const ImportDialog = connect((state) => ({ importData: state.import.impor
 				streams: importData.streams.map(({ id, name }) => ({ id, name }))
 		  }
 		: null;
-	console.log('RENDER OUTER IMPORT');
 	return importInfoInput ? <ImportDialogInner {...props} importInfoInput={importInfoInput} /> : null;
 });
 
@@ -372,7 +371,6 @@ const StreamList = withShowable((props) => {
 		({ selected, name, newName, id, nameInUse, availableConnectors, originalConnector, connectorId, type }) => {
 			const error = selected && streamErrors[id];
 			const showConnectorSelect = props.showConnectorSelect && type !== 'connector';
-			console.log(name, type, showConnectorSelect, connectorId);
 			const inputProps =
 				nameInUse && selected
 					? {
@@ -603,8 +601,6 @@ function ImportDialogInner(props) {
 		showConnectorSelect: false,
 		showConfirmation: false
 	});
-	// console.log(data, JSON.stringify(errors, null, 4), loading);
-	// console.log(JSON.stringify(state, null, 4));
 	useEffect(() => {
 		if (!loading && data) {
 			dispatch({
@@ -710,7 +706,6 @@ function ImportDialogInner(props) {
 		.filter((s) => s.type === 'connector' && s.selected)
 		.map((c) => c.id);
 
-	console.log('selectedConnectors', selectedConnectors);
 	const streamWithoutConnector = Object.values(state.streams).filter((s) => {
 		if (s.type === 'connector' || !s.selected) {
 			return false;
@@ -720,7 +715,6 @@ function ImportDialogInner(props) {
 		}
 		return !s.availableConnectors.map((c) => c.id).includes(s.connectorId);
 	});
-	console.log('streamWithoutConnector', streamWithoutConnector);
 	const importAllowed =
 		streamWithoutConnector.length === 0 &&
 		[...Object.values(streamErrors), ...Object.values(machineErrors)].every((error) => error === null);

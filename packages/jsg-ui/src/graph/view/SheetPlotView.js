@@ -157,7 +157,7 @@ export default class SheetPlotView extends NodeView {
 		legendData.forEach((entry, index) => {
 			graphics.beginPath();
 			if (entry.series) {
-				graphics.setLineColor(entry.series.format.lineColor || item.getTemplate().series.line[index]);
+				graphics.setLineColor(entry.series.format.lineColor || item.getTemplate().series.getLineForIndex(index));
 				graphics.setLineWidth(entry.series.format.lineWidth || item.getTemplate().series.linewidth);
 				graphics.setFillColor(entry.series.format.fillColor || item.getTemplate().series.getFillForIndex(index));
 				type = entry.series.type;
@@ -400,6 +400,13 @@ export default class SheetPlotView extends NodeView {
 	drawCircular(graphics, item, plotRect, serie, seriesIndex) {
 		const ref = item.getDataSourceInfo(serie.formula);
 		const value = {};
+
+		if (item.series.length > 1 && ref.yName) {
+			item.setFont(graphics, item.legend.format, 'legend', 'middle', TextFormatAttributes.TextAlignment.CENTER);
+			graphics.fillText(ref.yName, plotRect.left + plotRect.width / 2, plotRect.top);
+			plotRect.top += 500;
+		}
+
 		const radius = Math.min(plotRect.width, plotRect.height) / 2;
 		const yRadius = Math.abs(radius * Math.sin(item.chart.rotation));
 		const xc = plotRect.left + plotRect.width / 2;
