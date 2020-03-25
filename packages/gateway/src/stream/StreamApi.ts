@@ -30,11 +30,12 @@ export const StreamApi: StreamApi = {
 		if (!validScope) {
 			return null;
 		}
-		const stream = await streamRepo.findByName(name);
-		if (!stream) {
+		const streams = await streamRepo.findByName(name);
+		if (!streams) {
 			return null;
 		}
-		return auth.isInScope(scope, stream) ? stream : null;
+		const [stream] = streams.filter((s: Stream) => auth.isInScope(scope, s));
+		return stream || null;
 	},
 	providers: async ({ auth, streamRepo }, scope: Scope) => {
 		const validScope = auth.isValidScope(scope);
