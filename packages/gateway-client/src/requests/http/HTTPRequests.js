@@ -62,7 +62,6 @@ class GraphQLWithFileHTTPRequest extends HTTPRequest {
 		this.formData.append('operations', JSON.stringify({query, variables}));
 		this.formData.append('map', JSON.stringify({"0": ["variables.file"]}));
 		this.formData.append('0', file);
-		console.log(this.formData.get('0'));
 	}
 
 	_getPath() {
