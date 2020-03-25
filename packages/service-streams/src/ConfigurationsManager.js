@@ -14,7 +14,6 @@ const logger = LoggerFactory.createLogger(
 class ConfigurationsManager {
 	constructor(config) {
 		this.repo = config.repo;
-		this._configurations = [];
 		this.providerConfigs = new Map();
 		this.connectorConfigs = new Map();
 		this.consumerConfigs = new Map();
@@ -22,20 +21,24 @@ class ConfigurationsManager {
 		this.queueConfigs = new Map();
 	}
 
-	get configurations() {
-		return this._configurations;
-	}
-
 	getConfigurationById(id) {
-		return this.configurations.find((c) => c.id === id);
+		return (
+			this.providerConfigs.get(id) ||
+			this.connectorConfigs.get(id) ||
+			this.consumerConfigs.get(id) ||
+			this.producerConfigs.get(id)
+		);
 	}
 
-	getConfigurationByName(name) {
-		return this.configurations.find((c) => c.name === name);
+	async getConfigurationsByName(name) {
+		return this.repo.findConfigurationsByName(name);
 	}
 
 	removeConfiguration(id) {
-		this._configurations = this.configurations.filter((c) => c.id !== id);
+		this.providerConfigs.delete(id);
+		this.connectorConfigs.delete(id);
+		this.consumerConfigs.delete(id);
+		this.producerConfigs.delete(id);
 	}
 
 	get providers() {
@@ -216,13 +219,6 @@ class ConfigurationsManager {
 		}
 	}
 
-	async loadConfigurationByNameOrId(nameOrId) {
-		const config =
-			(await this.loadConfigurationByName(nameOrId)) ||
-			(await this.loadConfigurationById(nameOrId));
-		return config;
-	}
-
 	async loadConfigurationById(configId) {
 		const config = await this.repo.findConfigurationById(configId);
 		if (config) {
@@ -233,35 +229,18 @@ class ConfigurationsManager {
 		return null;
 	}
 
-	async loadConfigurationByName(configName) {
-		const config = await this.repo.findConfigurationByName(configName);
-		if (config) {
-			this.setConfiguration(config);
-		}
-		return config;
-	}
-
 	async loadConfigurations() {
-		this._configurations = [];
 		this.providerConfigs.clear();
 		this.connectorConfigs.clear();
 		this.consumerConfigs.clear();
 		this.producerConfigs.clear();
-		this._configurations = await this.repo.findAllConfigurations();
-		this._configurations.forEach(this.setConfiguration.bind(this));
-		return this._configurations;
+		const configurations = await this.repo.findAllConfigurations();
+		configurations.forEach(this.setConfiguration.bind(this));
+		return configurations;
 	}
 
-	findConnector(idOrName) {
-		return (
-			this.getConnectorbyId(idOrName) || this.getConnectorbyName(idOrName)
-		);
-	}
-
-	getConnectorbyName(name) {
-		return Array.from(this.connectorConfigs.values()).find(
-			(c) => c.name === name
-		);
+	findConnector(id) {
+		return this.getConnectorbyId(id);
 	}
 
 	getConnectorbyId(id) {

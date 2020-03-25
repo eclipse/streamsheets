@@ -75,20 +75,18 @@ class StreamsManager {
 		}
 	}
 
-	async reloadStream(name) {
-		if (name) {
-			name = name.trim();
-			const stream = this.findStream(name);
+	async reloadStream(id) {
+		if (id) {
+			id = id.trim();
+			const stream = this.findStream(id);
 			if (stream) {
 				await stream._dispose(true);
 			}
-			const connector = this.configsManager.findConnector(name);
+			const connector = this.configsManager.findConnector(id);
 			if (connector) {
 				return this.reloadStreamsByConnectorId(connector.id);
 			}
-			const config = await this.configsManager.loadConfigurationByNameOrId(
-				name
-			);
+			const config = await this.configsManager.loadConfigurationById(id);
 			if (
 				config &&
 				config.disabled !== true &&
@@ -216,11 +214,7 @@ class StreamsManager {
 						);
 					}
 				}
-				if (
-					ConfigurationsManager.configIsConsumerOrProducer(
-						configuration
-					)
-				) {
+				if (ConfigurationsManager.configIsConsumerOrProducer(configuration)) {
 					const mergeConfigs = (out, $set) => {
 						Object.keys(config.$set).forEach((key) => {
 							if (key === 'connector') {
@@ -261,13 +255,12 @@ class StreamsManager {
 						this.reloadStream(config.id);
 					}
 					return result;
-				} else if (
-					ConfigurationsManager.configIsConnector(configuration)
-				) {
+				} 
+				if (ConfigurationsManager.configIsConnector(configuration)) {
 					const newConfig = await this.updateConnector(config);
 					this.managerHandler.onConfigUpdate(newConfig);
 					this.setConfiguration(newConfig);
-					this.reloadStream(newConfig.name);
+					this.reloadStream(newConfig.id);
 					return true;
 				}
 				return true;
@@ -278,16 +271,14 @@ class StreamsManager {
 				const result = await this.repo.saveConfiguration(config);
 				this.managerHandler.onConfigUpdate(config);
 				this.configsManager.setConfiguration(config);
-				this.configurations.push(config);
-				this.reloadStream(config.name);
+				this.reloadStream(config.id || result.upsertedId._id);
 				return result;
 			}
 			config = this.configsManager.getDeepConfiguration(config);
 			const result = await this.repo.saveConfiguration(config.toJSON());
 			this.managerHandler.onConfigUpdate(config.toJSON());
 			this.configsManager.setConfiguration(config.toJSON());
-			this.configurations.push(config.toJSON());
-			this.reloadStream(config.name);
+			this.reloadStream(config.id || result.upsertedId._id);
 			return result;
 		} catch (e) {
 			logger.error(e);
@@ -369,7 +360,6 @@ class StreamsManager {
 								}
 								this.managerHandler.onConfigUpdate(conf.toJSON());
 								this.configsManager.setConfiguration(conf.toJSON());
-								this.configurations.push(conf.toJSON());
 							}
 						);
 						return stream._connect();
@@ -429,10 +419,6 @@ class StreamsManager {
 		);
 	}
 
-	get configurations() {
-		return this.configsManager.configurations;
-	}
-
 	get providersList() {
 		return this.providersManager.providersList;
 	}
@@ -473,24 +459,16 @@ class StreamsManager {
 		return list;
 	}
 
-	findConfiguration(idOrName) {
-		return this.configsManager.getConfigurationById(idOrName) || this.configsManager.getConfigurationByName(idOrName);
+	findConfiguration(id) {
+		return this.configsManager.getConfigurationById(id);
 	}
 
-	findStream(idOrName) {
-		return this.getStreamById(idOrName) || this.getStreamByName(idOrName);
-	}
-
-	getStreamByName(name) {
-		return this.getConsumerByName(name) || this.getProducerByName(name);
+	findStream(id) {
+		return this.getStreamById(id);
 	}
 
 	getStreamById(id) {
 		return this.getConsumerById(id) || this.getProducerById(id);
-	}
-
-	getConsumerByName(name) {
-		return this.consumersList.find((f) => f.config.name === name);
 	}
 
 	getConsumerById(id) {
@@ -499,10 +477,6 @@ class StreamsManager {
 
 	getProducerById(id) {
 		return this.producersList.find((f) => f.id === id);
-	}
-
-	getProducerByName(name) {
-		return this.producersList.find((f) => f.config.name === name);
 	}
 }
 

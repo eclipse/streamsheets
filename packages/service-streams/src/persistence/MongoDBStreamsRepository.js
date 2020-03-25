@@ -127,10 +127,9 @@ module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepos
 		return config;
 	}
 
-	async findConfigurationByName(name) {
-		const r = await this.getDocuments(this.collection, { name });
-		const config = r && r.length > 0 ? r[0] : null;
-		return config;
+	async findConfigurationsByName(name) {
+		const result = await this.getDocuments(this.collection, { name });
+		return result;
 	}
 
 	// TODO: should remove migration...

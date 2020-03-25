@@ -67,9 +67,7 @@ class SaveConfigurationRequestHandler extends RequestHandler {
 		const { message, streamsManager } = handlerArgs;
 		const { configuration } = message;
 		return new Promise(async (resolve) => {
-			const existingConf = streamsManager.configurations.find(
-				(c) => c.id === configuration.id
-			);
+			const existingConf = streamsManager.findConfiguration(configuration.id);
 			try {
 				const result = await streamsManager.saveConfiguration(
 					configuration
@@ -198,18 +196,11 @@ class LoadConfigurationByNameRequestHandler extends RequestHandler {
 		super(MESSAGE_TYPES.STREAM_CONFIG_LOAD_BY_NAME);
 	}
 
-	handle(handlerArgs) {
+	async handle(handlerArgs) {
 		const { message, streamsManager } = handlerArgs;
 		const { name } = message;
-
-		return new Promise(async (resolve) => {
-			const result = await streamsManager.configsManager.getConfigurationByName(name);
-			resolve(
-				this.confirm(message, {
-					result
-				})
-			);
-		});
+		const result = await streamsManager.configsManager.getConfigurationsByName(name);
+		return this.confirm(message, { result });
 	}
 }
 
@@ -241,7 +232,7 @@ class ReloadAllRequestHandler extends RequestHandler {
 			await streamsManager.configsManager.loadConfigurations();
 			const streams = sources
 				.map(streamsManager.findConfiguration.bind(streamsManager))
-				.map((stream) => stream.name);
+				.map((stream) => stream.id);
 			try {
 				result = await streamsManager.reloadAll(streams);
 				resolve(
