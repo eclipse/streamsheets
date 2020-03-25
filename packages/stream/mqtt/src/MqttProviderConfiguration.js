@@ -41,30 +41,52 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 			defaultValue: undefined
 		});
 		this.addConsumerDefinition({
+			id: 'fixedClientId',
+			label: {
+				en: 'Static Client Id',
+				de: 'Statische Client Id'
+			},
+			type: sdk.ProviderConfiguration.FIELDTYPES.CHECKBOX,
+			defaultValue: false
+		});
+		this.addConsumerDefinition({
 			id: 'clientId',
 			label: {
 				en: 'Client Id',
-				de: 'Benutzer Id'
+				de: 'Client Id'
 			},
 			help: {
-				en: 'The Client Id is used for identification of the client by the broker.  Leave empty for automatically generated Client ID. Adding identical Client IDs is allowed, but suggested for experts only. Identical Client IDs can lead to unforeseeable effects on the broker and the system!',
-				de: 'Die Client Id wird vom Broker zur Identifizierung des Clients verwendet. Diese wird bei leerer Eingabe automatisch generiert. Das Hinzufügen identischer Client Ids ist zulässig, wird jedoch nur Experten empfohlen. Identische Client Ids können zu unvorhersehbaren Auswirkungen auf den Broker und das System führen!'
+				en: 'The Client Id is used for identification of the client by the broker. Identical Client Ids can lead to unforeseeable effects on the broker and the system!',
+				de: 'Die Client Id wird vom Broker zur Identifizierung des Clients verwendet. Identische Client Ids können zu unvorhersehbaren Auswirkungen auf den Broker und das System führen!'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.RANDOM_STRING,
+			dependsOnPath: 'fixedClientId',
+			dependsOnValue: [true],
 			defaultValue: undefined
 		});
 
 		this.addProducerDefinition({
+			id: 'fixedClientId',
+			label: {
+				en: 'Static Client Id',
+				de: 'Statische Client Id'
+			},
+			type: sdk.ProviderConfiguration.FIELDTYPES.CHECKBOX,
+			defaultValue: false
+		});
+		this.addProducerDefinition({
 			id: 'clientId',
 			label: {
 				en: 'Client Id',
-				de: 'Benutzer Id'
+				de: 'Client Id'
 			},
 			help: {
-				en: 'The Client Id is used for identification of the client by the broker.  Leave empty for automatically generated Client ID. Adding identical Client IDs is allowed, but suggested for experts only. Identical Client IDs can lead to unforeseeable effects on the broker and the system!',
-				de: 'Benutzer Id (Die Benutzer Id wird vom Broker zur Identifizierung des Benutzer verwendet. Leer lassen für automatisch generierte Benutzer Id. Das Hinzufügen identischer Benutzer Ids ist zulässig, wird jedoch nur Experten empfohlen. Identische Benutzer Ids können zu unvorhersehbaren Auswirkungen auf den Broker und führen das System!'
+				en: 'The Client Id is used for identification of the client by the broker. Identical Client Ids can lead to unforeseeable effects on the broker and the system!',
+				de: 'Die Client Id wird vom Broker zur Identifizierung des Clients verwendet. Identische Client Ids können zu unvorhersehbaren Auswirkungen auf den Broker und das System führen!'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.RANDOM_STRING,
+			dependsOnPath: 'fixedClientId',
+			dependsOnValue: [true],
 			defaultValue: undefined
 		});
 

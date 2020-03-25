@@ -1,5 +1,6 @@
 const mqtt = require('mqtt');
 const sdk = require('@cedalo/sdk-streams');
+const IdGenerator = require('@cedalo/id-generator');
 const Utils = require('./Utils');
 
 module.exports = class MqttConnector extends sdk.Connector {
@@ -17,8 +18,11 @@ module.exports = class MqttConnector extends sdk.Connector {
 	}
 
 	get clientId() {
-		if(typeof this.config.clientId === 'string' && this.config.clientId.length<1) {
-			return undefined;
+		if(!this.config.fixedClientId) {
+			return IdGenerator.generate();	
+		}
+		if(this.config.clientId === 'string' && this.config.clientId.length<1) {
+			return IdGenerator.generate();
 		}
 		return this.config.clientId;
 	}
@@ -64,7 +68,7 @@ module.exports = class MqttConnector extends sdk.Connector {
 		}
 		try {
 			this._client = mqtt.connect(url, options);
-			if(this._client && this._client.options.clientId!== this.config.clientId) {
+			if(this.config.fixedClientId && this._client && this._client.options.clientId !== this.config.clientId) {
 				this.config.clientId = this._client.options.clientId;
 				this.persist();
 			}

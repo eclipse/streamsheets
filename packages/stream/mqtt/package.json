@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@cedalo/sdk-streams": "1.6.0-beta",
+    "@cedalo/id-generator": "1.6.0-beta",
     "mqtt": "3.0.0"
   },
   "jest": {
