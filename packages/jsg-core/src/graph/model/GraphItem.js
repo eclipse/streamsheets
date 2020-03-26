@@ -3363,6 +3363,10 @@ class GraphItem extends Model {
 		return this._paras;
 	}
 
+	get expressions() {
+		return [];
+	}
+
 	static get _tmpEvent() {
 		return _tmpEvent;
 	}

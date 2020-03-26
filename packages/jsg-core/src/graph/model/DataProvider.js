@@ -769,6 +769,9 @@ module.exports = class DataProvider {
 						if (expr !== undefined && expr.hasFormula()) {
 							update(sheet, expr);
 							item._noFormulaUpdate = true;
+							item.expressions.forEach(exp => {
+								update(sheet, exp);
+							});
 						}
 					}
 				};
@@ -1233,6 +1236,9 @@ module.exports = class DataProvider {
 								invalidateExpression(expr);
 								updateExpression(sheet, expr, targetColumn - sourceColumn, targetRow - sourceRow, true);
 								item._noFormulaUpdate = true;
+								item.expressions.forEach(exp => {
+									updateExpression(sheet, exp, targetColumn - sourceColumn, targetRow - sourceRow, true);
+								});
 							}
 						}
 					};

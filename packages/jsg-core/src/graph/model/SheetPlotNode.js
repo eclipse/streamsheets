@@ -2599,6 +2599,26 @@ module.exports = class SheetPlotNode extends Node {
 		return new SheetPlotNode();
 	}
 
+	get expressions() {
+		const expr = [];
+
+		this.series.forEach((serie) => {
+			expr.push(serie.formula);
+		});
+		this.xAxes.forEach((axis) => {
+			expr.push(axis.formula);
+			expr.push(axis.title.formula);
+		});
+		this.yAxes.forEach((axis) => {
+			expr.push(axis.formula);
+			expr.push(axis.title.formula);
+		});
+		expr.push(this.title.formula);
+		expr.push(this.legend.formula);
+
+		return expr;
+	}
+
 	evaluate() {
 		super.evaluate();
 		this.series.forEach((serie) => {
