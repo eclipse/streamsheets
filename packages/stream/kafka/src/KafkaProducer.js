@@ -40,11 +40,12 @@ module.exports = class KafkaProducer extends ProducerMixin(KafkaConnector) {
 	}
 
 	async produce(config) {
-		const {topic, message /* , qos */} = config;
+		const {topic, message, key} = config;
 		const msg = typeof message !== 'string' ? JSON.stringify(message) : message;
+		const messageKey = typeof key === 'string' && key.length > 0 ? key : '0';
 		return this._producer.send({
 			topic,
-			messages: [{key: '0', value: msg}],
+			messages: [{key: messageKey, value: msg}],
 		});
 	}
 

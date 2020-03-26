@@ -302,6 +302,17 @@ module.exports = class KafkaProviderConfiguration extends sdk.ProviderConfigurat
 					type: {
 						name: 'string'
 					}
+				},
+				{
+					id: 'key',
+					label: {
+						en: 'Key',
+						de: 'Key'
+					},
+					type: {
+						name: 'string'
+					},
+					optional: true
 				}
 			]
 		});
