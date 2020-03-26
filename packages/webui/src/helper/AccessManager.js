@@ -47,7 +47,10 @@ class AccessManager {
 		window.location = `/login${redirect}`;
 	}
 
-	loginWithToken({ token, username, newUrl }) {
+	loginWithToken({ token, username }) {
+		window.onbeforeunload= () => {
+			localStorage.removeItem('jwtToken');
+		};
 		localStorage.setItem('jwtToken', token);
 		localStorage.setItem(
 			'user',
@@ -55,7 +58,7 @@ class AccessManager {
 				username
 			})
 		);
-		window.location = newUrl;
+		// window.location = newUrl;
 	}
 
 	loginUI(token, redirect) {
