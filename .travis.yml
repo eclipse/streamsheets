@@ -41,7 +41,7 @@ jobs:
         --skip-frontend
         --push'
       on:
-        condition: "${TRAVIS_TAG} =~ ^[0-9]+\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?(-bugfix[0-9])?$"
+        condition: "${TRAVIS_TAG} =~ ^[0-9]+\\.[0-9]+(\\.[0-9]+)?.*$"
         tags: true
       skip_cleanup: true
 
