@@ -56,9 +56,10 @@ const useExperimental = (setAppState) => {
 };
 
 export function MachineDetailPage(props) {
-	const { locale, machineName, viewMode, searchParams, isConnected, showTools } = props;
+	const { locale, machineName, viewMode, searchParams, isConnected, showTools, location } = props;
 	// Should be directly on props
-	const { machineId, userId, token } = props.match.params;
+	const { machineId } = props.match.params;
+	const { token, userId } = qs.parse(location.search);
 
 	if (token && !accessManager.authToken) {
 		const newUrl = window.location.origin + /machines/ + machineId + window.location.search;
