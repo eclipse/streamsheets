@@ -61,7 +61,7 @@ class MathUtils {
 	 */
 	static toDegrees(radians, rounded) {
 		const degrees = (radians / Math.PI) * 180;
-		return rounded ? Math.round(degrees) : degrees;
+		return rounded !== undefined ? Math.round(degrees) : degrees;
 	}
 
 	/**

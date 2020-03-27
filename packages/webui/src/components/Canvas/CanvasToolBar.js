@@ -3867,6 +3867,20 @@ export class CanvasToolBar extends Component {
 								<GridListTile cols={1}>
 									<Tooltip
 										enterDelay={300}
+										title={<FormattedMessage id="StreamCharts.HalfPie" defaultMessage="Half Pie" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('piehalf')}
+										>
+											<img alt="" src="images/charts/halfpie.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
 										title={<FormattedMessage id="StreamCharts.3dPie" defaultMessage="3D Pie" />}
 									>
 										<IconButton
@@ -3874,7 +3888,21 @@ export class CanvasToolBar extends Component {
 											color="inherit"
 											onClick={() => this.onCreatePlot('pie3d')}
 										>
-											<img alt="" src="images/charts/pie.png" />
+											<img alt="" src="images/charts/pie3d.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="StreamCharts.Doughnut" defaultMessage="Doughnut" />}
+									>
+										<IconButton
+											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+											color="inherit"
+											onClick={() => this.onCreatePlot('doughnut')}
+										>
+											<img alt="" src="images/charts/doughnut.png" />
 										</IconButton>
 									</Tooltip>
 								</GridListTile>

@@ -873,7 +873,7 @@ module.exports = class SheetPlotNode extends Node {
 	getLegend() {
 		const legend = [];
 
-		if (this.series.length && this.series[0].type === 'pie') {
+		if (this.series.length && (this.series[0].type === 'pie' || this.series[0].type === 'doughnut')) {
 			const ref = this.getDataSourceInfo(this.series[0].formula);
 			let index = 0;
 			const value = {};
@@ -938,13 +938,13 @@ module.exports = class SheetPlotNode extends Node {
 
 			result.format = this.getParamFormat(term, 0);
 
-			if (result.minZoom !== undefined && axis.allowZoom) {
+			if (result.minZoom !== undefined && this.getAllowZoom(axis)) {
 				result.min = result.minZoom;
 				if (this.chartZoomTimestamp && axis.updateZoom) {
 					result.min += MathUtils.JSDateToExcelDate(new Date(Date.now())) - MathUtils.JSDateToExcelDate(this.chartZoomTimestamp);
 				}
 			}
-			if (result.maxZoom !== undefined && axis.allowZoom) {
+			if (result.maxZoom !== undefined && this.getAllowZoom(axis)) {
 				result.max = result.maxZoom;
 				if (this.chartZoomTimestamp && axis.updateZoom) {
 					result.max += MathUtils.JSDateToExcelDate(new Date(Date.now())) - MathUtils.JSDateToExcelDate(this.chartZoomTimestamp);
@@ -2295,13 +2295,26 @@ module.exports = class SheetPlotNode extends Node {
 		switch (type) {
 		case 'pie':
 		case 'pie3d':
+		case 'piehalf':
 			this.chart.stacked = true;
 			this.chart.relative = true;
+			this.chart.hole = 0;
 			this.chart.rotation = type === 'pie3d' ? Math.PI / 6 : Math.PI / 2;
+			this.chart.startAngle = type === 'piehalf' ? Math.PI_2 * 3 : 0;
+			this.chart.endAngle = type === 'piehalf' ? Math.PI_2 * 5 : Math.PI * 2;
 			this.legend.align = 'bottom';
 			this.xAxes[0].visible = false;
 			this.yAxes[0].visible = false;
 			type = 'pie';
+			break;
+		case 'doughnut':
+			this.chart.stacked = true;
+			this.chart.relative = true;
+			this.chart.hole = 0.5;
+			this.legend.align = 'bottom';
+			this.xAxes[0].visible = false;
+			this.yAxes[0].visible = false;
+			type = 'doughnut';
 			break;
 		case 'columnstacked100':
 		case 'columnstacked':
@@ -2931,6 +2944,14 @@ module.exports = class SheetPlotNode extends Node {
 			}
 			i += 1;
 		}
+	}
+
+	getAllowZoom(axis) {
+		if (!this.series.length || this.series[0].type === 'pie' || this.series[0].type === 'doughnut') {
+			return false;
+		}
+
+		return axis.allowZoom;
 	}
 
 	static get templates() {

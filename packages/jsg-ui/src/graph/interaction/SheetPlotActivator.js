@@ -139,7 +139,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 			case 'yAxis': {
 				const axis = selection.data;
 
-				if (axis.allowZoom) {
+				if (item.getAllowZoom(axis)) {
 					item.setParamValues(viewer, axis.formula,
 						[{ index: 4, value: undefined }, { index: 5, value: undefined }]);
 					item.spreadZoomInfo(viewer);

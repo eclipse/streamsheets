@@ -15,6 +15,8 @@ import {
 	InputLabel,
 	Select,
 	Input,
+	Button,
+	TextField,
 	Typography
 } from '@material-ui/core';
 import { FormattedMessage } from 'react-intl';
@@ -28,7 +30,6 @@ import CellRangeComponent from './CellRangeComponent';
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
 import ColorComponent from '../SheetDialogs/ColorComponent';
-import Button from '@material-ui/core/Button';
 
 const markerSizes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -163,6 +164,34 @@ export class StreamChartProperties extends Component {
 		if (state === true) {
 			data.stacked = true;
 		}
+		this.finishCommand(cmd, 'chart');
+	};
+
+	handleChartRotationChange = (event) => {
+		const cmd = this.prepareCommand('chart');
+		const data = this.getData();
+		data.rotation = JSG.MathUtils.toRadians(Math.max(10, event.target.value));
+		this.finishCommand(cmd, 'chart');
+	};
+
+	handleChartHoleChange = (event) => {
+		const cmd = this.prepareCommand('chart');
+		const data = this.getData();
+		data.hole = event.target.value / 100;
+		this.finishCommand(cmd, 'chart');
+	};
+
+	handleChartStartAngleChange = (event) => {
+		const cmd = this.prepareCommand('chart');
+		const data = this.getData();
+		data.startAngle = Math.min(data.endAngle, JSG.MathUtils.toRadians(event.target.value));
+		this.finishCommand(cmd, 'chart');
+	};
+
+	handleChartEndAngleChange = (event) => {
+		const cmd = this.prepareCommand('chart');
+		const data = this.getData();
+		data.endAngle = Math.max(data.startAngle, JSG.MathUtils.toRadians(event.target.value));
 		this.finishCommand(cmd, 'chart');
 	};
 
@@ -440,7 +469,7 @@ export class StreamChartProperties extends Component {
 						<div>
 							<FormControl
 								style={{
-									width: '70%',
+									width: '95%',
 									margin: '8px'
 								}}
 							>
@@ -458,6 +487,44 @@ export class StreamChartProperties extends Component {
 											{key}
 										</MenuItem>
 									))}
+								</Select>
+							</FormControl>
+							<FormControl
+								style={{
+									width: '95%',
+									margin: '8px'
+								}}
+							>
+								<InputLabel htmlFor="hide-empty">
+									<FormattedMessage
+										id="StreamChartProperties.DataHandling"
+										defaultMessage="Missing Data"
+									/>
+								</InputLabel>
+								<Select
+									id="hide-empty"
+									value={data.dataMode}
+									onChange={this.handleDataModeChange}
+									input={<Input name="hide-empty" id="hide-empty" />}
+								>
+									<MenuItem value="datazero" key={1}>
+										<FormattedMessage
+											id="StreamChartProperties.DataZero"
+											defaultMessage="Display as zero"
+										/>
+									</MenuItem>
+									<MenuItem value="dataignore" key={2}>
+										<FormattedMessage
+											id="StreamChartProperties.DataIgnore"
+											defaultMessage="Do not display"
+										/>
+									</MenuItem>
+									<MenuItem value="datainterrupt" key={3}>
+										<FormattedMessage
+											id="StreamChartProperties.DataInterrupt"
+											defaultMessage="Interrupt line"
+										/>
+									</MenuItem>
 								</Select>
 							</FormControl>
 							<FormControl
@@ -513,44 +580,6 @@ export class StreamChartProperties extends Component {
 									margin: '8px'
 								}}
 							>
-								<InputLabel htmlFor="hide-empty">
-									<FormattedMessage
-										id="StreamChartProperties.DataHandling"
-										defaultMessage="Missing Data"
-									/>
-								</InputLabel>
-								<Select
-									id="hide-empty"
-									value={data.dataMode}
-									onChange={this.handleDataModeChange}
-									input={<Input name="hide-empty" id="hide-empty" />}
-								>
-									<MenuItem value="datazero" key={1}>
-										<FormattedMessage
-											id="StreamChartProperties.DataZero"
-											defaultMessage="Display as zero"
-										/>
-									</MenuItem>
-									<MenuItem value="dataignore" key={2}>
-										<FormattedMessage
-											id="StreamChartProperties.DataIgnore"
-											defaultMessage="Do not display"
-										/>
-									</MenuItem>
-									<MenuItem value="datainterrupt" key={3}>
-										<FormattedMessage
-											id="StreamChartProperties.DataInterrupt"
-											defaultMessage="Interrupt line"
-										/>
-									</MenuItem>
-								</Select>
-							</FormControl>
-							<FormControl
-								style={{
-									width: '95%',
-									margin: '8px'
-								}}
-							>
 								<FormGroup>
 									<FormLabel
 										component="legend"
@@ -590,6 +619,128 @@ export class StreamChartProperties extends Component {
 											/>
 										}
 									/>
+									<div
+										style={{
+											flexDirection: 'row'
+										}}
+									>
+										<TextField
+											style={{
+												width: '120px',
+											}}
+											id="number"
+											label={<FormattedMessage id="StreamChartSettings.Rotation" defaultMessage="Rotation (Degrees)" />}
+											inputProps={{
+												min: 10,
+												max: 90,
+												step: 5,
+											}}
+											error={item.chart.rotation > Math.PI_2 || item.chart.rotation < 0}
+											helperText={
+												item.chart.rotation > Math.PI_2 || item.chart.rotation < 0 ? (
+													<FormattedMessage
+														id="StreamChartSettings.InvalidAngle"
+														defaultMessage="Angle must be between 0 and 90 degrees!"
+													/>
+												) : (
+													''
+												)
+											}
+											value={JSG.MathUtils.toDegrees(item.chart.rotation, 0)}
+											onChange={(event) => this.handleChartRotationChange(event)}
+											type="number"
+											margin="normal"
+										/>
+										<TextField
+											style={{
+												width: '152px',
+												marginLeft: '10px',
+											}}
+											id="number"
+											label={<FormattedMessage id="StreamChartSettings.DoughnutHole" defaultMessage="Doughnut Hole (Percent)" />}
+											inputProps={{
+												min: 0,
+												max: 80,
+												step: 1,
+											}}
+											error={item.chart.hole > 0.8 || item.chart.hole < 0}
+											helperText={
+												item.chart.hole > 0.8 || item.chart.hole < 0 ? (
+													<FormattedMessage
+														id="StreamChartSettings.InvalidDoughnutHole"
+														defaultMessage="The hole value must be between 0 and 80 percent!"
+													/>
+												) : (
+													''
+												)
+											}
+											value={item.chart.hole * 100}
+											onChange={(event) => this.handleChartHoleChange(event)}
+											type="number"
+											margin="normal"
+										/>
+									</div>
+									<div
+										style={{
+											flexDirection: 'row'
+										}}
+									>
+										<TextField
+											style={{
+												width: '135px',
+											}}
+											id="number"
+											label={<FormattedMessage id="StreamChartSettings.StartAngle" defaultMessage="Pie Start (Degrees)" />}
+											inputProps={{
+												min: 0,
+												max: 360,
+												step: 5,
+											}}
+											error={item.chart.startAngle > Math.PI * 2 || item.chart.startAngle < 0}
+											helperText={
+												item.chart.startAngle > Math.PI * 2  || item.chart.startAngle < 0 ? (
+													<FormattedMessage
+														id="StreamChartSettings.InvalidAngle360"
+														defaultMessage="Angle must be between 0 and 360 degrees!"
+													/>
+												) : (
+													''
+												)
+											}
+											value={JSG.MathUtils.toDegrees(item.chart.startAngle, 0)}
+											onChange={(event) => this.handleChartStartAngleChange(event)}
+											type="number"
+											margin="normal"
+										/>
+										<TextField
+											style={{
+												width: '135px',
+												marginLeft: '10px'
+											}}
+											id="number"
+											label={<FormattedMessage id="StreamChartSettings.EndAngle" defaultMessage="Pie End (Degrees)" />}
+											inputProps={{
+												min: 0,
+												max: 540,
+												step: 5,
+											}}
+											error={item.chart.endAngle > Math.PI * 3 || item.chart.endAngle < 0}
+											helperText={
+												item.chart.endAngle > Math.PI * 3 || item.chart.endAngle < 0 ? (
+													<FormattedMessage
+														id="StreamChartSettings.InvalidAngle540"
+														defaultMessage="Angle must be between 0 and 540 degrees!"
+													/>
+												) : (
+													''
+												)
+											}
+											value={JSG.MathUtils.toDegrees(item.chart.endAngle, 0)}
+											onChange={(event) => this.handleChartEndAngleChange(event)}
+											type="number"
+											margin="normal"
+										/>
+									</div>
 								</FormGroup>
 							</FormControl>
 						</div>
@@ -856,7 +1007,7 @@ export class StreamChartProperties extends Component {
 							</FormControl>
 							<FormControl
 								style={{
-									width: '55%',
+									width: '95%',
 									display: 'inline-flex',
 									margin: '8px'
 								}}

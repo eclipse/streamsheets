@@ -124,14 +124,15 @@ export default class SheetPlotInteraction extends Interaction {
 
 		graphView.clearLayer('chartselection');
 
-		if (this._controller.getModel().xAxes[0].allowZoom) {
+		const item = this._controller.getModel();
+		if (item.getAllowZoom(item.xAxes[0])) {
 			const layer = graphView.getLayer('chartinfo');
 			if (layer === undefined || !layer.length) {
 				return;
 			}
 			if (layer.length >= 1) {
 				layer.forEach((view) => {
-					if (view.chartView.getItem().getId() === this._controller.getModel().getId()) {
+					if (view.chartView.getItem().getId() === item.getId()) {
 						view.endPoint = event.location;
 					}
 				});

@@ -6,7 +6,10 @@ module.exports = class Chart {
 		this._stacked = false;
 		this._relative = false;
 		this._dataMode = 'datazero';
-		this.rotation = 0;
+		this.rotation = Math.PI_2;
+		this.startAngle = 0;
+		this.endAngle = Math.PI * 2;
+		this.hole = 0.5;
 		this.template = 'basic';
 		this.margins = new ChartRect(200, 200, 200, 200);
 	}
@@ -51,6 +54,9 @@ module.exports = class Chart {
 		writer.writeAttributeNumber('relative', this.relative ? 1 : 0);
 		writer.writeAttributeNumber('period', this.period ? 1 : 0);
 		writer.writeAttributeNumber('rotation', this.rotation);
+		writer.writeAttributeNumber('startangle', this.startAngle);
+		writer.writeAttributeNumber('endangle', this.endAngle);
+		writer.writeAttributeNumber('hole', this.hole);
 		writer.writeEndElement();
 	}
 
@@ -60,6 +66,9 @@ module.exports = class Chart {
 		this.relative = reader.getAttribute(object, 'relative');
 		this.period = reader.getAttribute(object, 'period');
 		this.rotation = reader.getAttributeNumber(object, 'rotation', 0);
+		this.startAngle = reader.getAttributeNumber(object, 'startangle', 0);
+		this.endAngle = reader.getAttributeNumber(object, 'endangle', Math.PI * 2);
+		this.hole = reader.getAttributeNumber(object, 'hole', 0.5);
 		this.template = reader.getAttribute(object, 'template') ?
 			reader.getAttribute(object, 'template') : 'basic';
 	}
