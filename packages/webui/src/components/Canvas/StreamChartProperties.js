@@ -195,6 +195,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'chart');
 	};
 
+	handleTooltipsChange = (event, state) => {
+		const cmd = this.prepareCommand('chart');
+		const data = this.getData();
+		data.tooltips = state
+		this.finishCommand(cmd, 'chart');
+	};
+
 	handleVisibleChange = (event, state, data, id) => {
 		const cmd = this.prepareCommand(id);
 		data.visible = state;
@@ -569,6 +576,22 @@ export class StreamChartProperties extends Component {
 											<FormattedMessage
 												id="StreamChartProperties.legend"
 												defaultMessage="Legend"
+											/>
+										}
+									/>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={item.chart.tooltips}
+												onChange={(event, state) =>
+													this.handleTooltipsChange(event, state)
+												}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.tooltips"
+												defaultMessage="Tooltips"
 											/>
 										}
 									/>

@@ -351,6 +351,12 @@ module.exports = class SheetPlotNode extends Node {
 
 	layout() {
 		const size = this.getSize().toPoint();
+
+		if (!JSG.graphics) {
+			super.layout();
+			return;
+		}
+
 		const cs = JSG.graphics.getCoordinateSystem();
 		this.getItemAttributes().setContainer(false);
 
@@ -995,9 +1001,9 @@ module.exports = class SheetPlotNode extends Node {
 		});
 
 		// evaluate min/max for series
-		this.series.forEach((series, index) => {
-			const ref = this.getDataSourceInfo(series.formula);
-			const axes = this.getAxes(series);
+		this.series.forEach((serie, index) => {
+			const ref = this.getDataSourceInfo(serie.formula);
+			const axes = this.getAxes(serie);
 			if (ref) {
 				let pointIndex = 0;
 				const value = {};
@@ -1034,7 +1040,7 @@ module.exports = class SheetPlotNode extends Node {
 						y: value.y,
 						c: value.c,
 						axes,
-						series,
+						serie,
 						seriesIndex: index,
 					};
 					pointIndex += 1;
@@ -1075,21 +1081,21 @@ module.exports = class SheetPlotNode extends Node {
 					cMax = 100;
 				}
 
-				series.xMin = Numbers.isNumber(xMin) ? xMin : 0;
-				series.xMax = Numbers.isNumber(xMax) ? xMax : 100;
-				series.yMin = Numbers.isNumber(yMin) ? yMin : 0;
-				series.yMax = Numbers.isNumber(yMax) ? yMax : 100;
-				series.cMin = Numbers.isNumber(cMin) ? cMin : 0;
-				series.cMax = Numbers.isNumber(cMax) ? cMax : 100;
-				series.valueCount = pointIndex;
+				serie.xMin = Numbers.isNumber(xMin) ? xMin : 0;
+				serie.xMax = Numbers.isNumber(xMax) ? xMax : 100;
+				serie.yMin = Numbers.isNumber(yMin) ? yMin : 0;
+				serie.yMax = Numbers.isNumber(yMax) ? yMax : 100;
+				serie.cMin = Numbers.isNumber(cMin) ? cMin : 0;
+				serie.cMax = Numbers.isNumber(cMax) ? cMax : 100;
+				serie.valueCount = pointIndex;
 			} else {
-				series.xMin = 0;
-				series.xMax = 100;
-				series.yMin = 0;
-				series.yMax = 100;
-				series.cMin = 0;
-				series.cMax = 100;
-				series.valueCount = 0;
+				serie.xMin = 0;
+				serie.xMax = 100;
+				serie.yMin = 0;
+				serie.yMax = 100;
+				serie.cMin = 0;
+				serie.cMax = 100;
+				serie.valueCount = 0;
 			}
 		});
 
@@ -1502,6 +1508,16 @@ module.exports = class SheetPlotNode extends Node {
 
 	getPieInfo(ref, serie, plotRect, index) {
 		let rect;
+		let pointIndex = 0;
+		const value = {};
+
+		let sum = 0;
+		while (this.getValue(ref, pointIndex, value)) {
+			pointIndex += 1;
+			if (value.y !== undefined) {
+				sum += Math.abs(value.y);
+			}
+		}
 
 		if (serie.type === 'pie') {
 			// calc region, if mulitple pies
@@ -1571,7 +1587,8 @@ module.exports = class SheetPlotNode extends Node {
 			xc,
 			yc,
 			height,
-			rect
+			rect,
+			sum
 		};
 	}
 
@@ -2105,32 +2122,130 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		return this.plot.position.containsPoint(pt);
 	}
 
-	isSeriesHitCircular(serie, ref, index, plotRect, pt, dataPoints) {
+	getEllipseSegmentPoints(xc, yc, xInnerRadius, yInnerRadius,	xOuterRadius, yOuterRadius, rotation, startAngle, endAngle, selection = false) {
+		const step = (endAngle - startAngle) / (selection ? 1 : 36);
+		const points = [];
+
+		if (endAngle <= startAngle) {
+			return points;
+		}
+
+		for (let i = startAngle; i < endAngle; i+= step) {
+			points.push({
+				x: xc + xOuterRadius * Math.cos(i),
+				y: yc + yOuterRadius * Math.sin(i)
+			});
+		}
+
+		for (let i = endAngle; i >= startAngle; i-= step) {
+			points.push({
+				x: xc + xInnerRadius * Math.cos(i),
+				y: yc + yInnerRadius * Math.sin(i)
+			});
+		}
+
+		return points;
+	}
+
+	isSeriesHitCircular(serie, ref, seriesIndex, plotRect, pt, dataPoints) {
 		if (!ref) {
 			return false;
 		}
 
 		const value = {};
-		const pieInfo = this.getPieInfo(ref, serie, plotRect, index);
+		const pieInfo = this.getPieInfo(ref, serie, plotRect, seriesIndex);
 		const axes = this.getAxes(serie);
+		let currentAngle = pieInfo.startAngle;
+		let points;
+		let index = 0;
+
+		while (this.getValue(ref, index, value)) {
+			if (value.x !== undefined && value.y !== undefined) {
+				const angle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
+				switch (serie.type) {
+				case 'doughnut': {
+					const xOuterRadius = pieInfo.xRadius * (this.chart.hole + (1 - this.chart.hole) * ((seriesIndex + 1) / this.series.length));
+					const yOuterRadius = pieInfo.yRadius * (this.chart.hole + (1 - this.chart.hole) * ((seriesIndex + 1) / this.series.length));
+					const xInnerRadius = pieInfo.xRadius * (this.chart.hole + (1 - this.chart.hole) * (seriesIndex / this.series.length));
+					const yInnerRadius = pieInfo.yRadius * (this.chart.hole + (1 - this.chart.hole) * (seriesIndex / this.series.length));
+					points = this.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, xInnerRadius, yInnerRadius,
+						xOuterRadius, yOuterRadius, 0, currentAngle, currentAngle + angle);
+					if (MathUtils.isPointInPolygon(points, pt)) {
+						value.series = serie;
+						value.index = seriesIndex;
+						value.pointIndex = index;
+						dataPoints.push({
+							x: value.x,
+							y: value.y,
+							axes,
+							serie,
+							index: seriesIndex,
+							pointIndex: index
+						});
+						return true;
+					}
+					break;
+				}
+				case 'pie':
+					points = this.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, 0, 0,
+						pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle, currentAngle + angle);
+					if (MathUtils.isPointInPolygon(points, pt)) {
+						value.series = serie;
+						value.index = seriesIndex;
+						value.pointIndex = index;
+						dataPoints.push({
+							x: value.x,
+							y: value.y,
+							axes,
+							serie,
+							index: seriesIndex,
+							pointIndex: index
+						});
+						return true;
+					}
+
+					// // 3d front
+					// if (item.chart.rotation < Math.PI / 2) {
+					// 	if ((currentAngle >= 0 && currentAngle <= Math.PI) || (currentAngle + angle >= 0 && currentAngle + angle <= Math.PI)) {
+					// 		graphics.ellipse(pieInfo.xc, pieInfo.yc, pieInfo.xRadius, pieInfo.yRadius, 0, Math.max(0, currentAngle),
+					// 			Math.min(Math.PI, currentAngle + angle), false);
+					// 		const x1 = pieInfo.xc + pieInfo.xRadius * Math.cos(Math.min(Math.PI, currentAngle + angle));
+					// 		let y = pieInfo.yc + pieInfo.height + pieInfo.yRadius * Math.sin(Math.min(Math.PI, currentAngle + angle));
+					// 		graphics.lineTo(x1, y);
+					//
+					// 		graphics.ellipse(pieInfo.xc, pieInfo.yc + pieInfo.height, pieInfo.xRadius, pieInfo.yRadius, 0,
+					// 			Math.min(Math.PI, currentAngle + angle),
+					// 			Math.max(0, currentAngle), true);
+					// 		const x2 = pieInfo.xc + pieInfo.xRadius * Math.cos(Math.max(0, currentAngle));
+					// 		y = pieInfo.yc + pieInfo.yRadius * Math.sin(Math.max(0, currentAngle));
+					// 		graphics.lineTo(x2, y);
+					//
+					// 	}
+					// }
+					break;
+				}
+				currentAngle += angle;
+			}
+			index += 1;
+		}
 
 		return false;
 	}
 
-	isSeriesHitCartesian(series, ref, index, plotRect, pt, dataPoints) {
+	isSeriesHitCartesian(serie, ref, index, plotRect, pt, dataPoints) {
 		if (!ref) {
 			return false;
 		}
 
 		const dataRect = new ChartRect();
-		const axes = this.getAxes(series);
+		const axes = this.getAxes(serie);
 		let pointIndex = 0;
 		let x;
 		let y;
 		let barInfo;
-		const barWidth = this.getBarWidth(axes, series, plotRect);
+		const barWidth = this.getBarWidth(axes, serie, plotRect);
 		const info = {
-			serie: series,
+			serie,
 			seriesIndex: index,
 			categories: axes.y.categories
 		};
@@ -2143,11 +2258,11 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 			x = this.scaleToAxis(axes.x, value.x, undefined, false);
 			y = this.scaleToAxis(axes.y, value.y, info, false);
 
-			switch (series.type) {
+			switch (serie.type) {
 			case 'pie':
 				break;
 			case 'bar':
-				barInfo = this.getBarInfo(axes, series, index, pointIndex, value.y, barWidth);
+				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
 				dataRect.set(
 					plotRect.left + y * plotRect.width - 100 + barInfo.height * plotRect.width,
 					plotRect.bottom - x * plotRect.height + barInfo.offset - 100,
@@ -2165,7 +2280,7 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 				break;
 			case 'column':
 			case 'state':
-				barInfo = this.getBarInfo(axes, series, index, pointIndex, value.y, barWidth);
+				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
 				dataRect.set(
 					plotRect.left + x * plotRect.width + barInfo.offset - 100,
 					plotRect.bottom - y * plotRect.height - 100,
@@ -2190,7 +2305,7 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 					plotRect.left + x * plotRect.width + 200,
 					plotRect.bottom - y * plotRect.height + 200
 				);
-				barInfo = this.getBarInfo(axes, series, index, pointIndex, value.y, barWidth);
+				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
 				points.push({
 					x: plotRect.left + x * plotRect.width,
 					y: plotRect.bottom - y * plotRect.height
@@ -2205,24 +2320,24 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 			dataRect.sort();
 			if (dataRect.containsPoint(pt)) {
 				value.axes = axes;
-				value.series = series;
+				value.serie = serie;
 				value.index = index;
 				value.pointIndex = pointIndex;
 				dataPoints.push({
 					x: value.x,
 					y: value.y,
 					axes,
-					series,
+					serie,
 					index,
 					pointIndex
 				});
-				if (series.type !== 'area') {
+				if (serie.type !== 'area') {
 					return true;
 				}
 			}
 			pointIndex += 1;
 		}
-		if (series.type === 'area') {
+		if (serie.type === 'area') {
 			const searchPoints = [];
 			points.forEach((point) => {
 				searchPoints.push(point);
@@ -2410,6 +2525,7 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 			this.chart.startAngle = type === 'piehalf' ? Math.PI_2 * 3 : 0;
 			this.chart.endAngle = type === 'piehalf' ? Math.PI_2 * 5 : Math.PI * 2;
 			this.legend.align = 'bottom';
+			this.xAxes[0].type = 'category';
 			this.xAxes[0].visible = false;
 			this.yAxes[0].visible = false;
 			type = 'pie';
@@ -2419,6 +2535,7 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 			this.chart.relative = true;
 			this.chart.hole = 0.5;
 			this.legend.align = 'bottom';
+			this.xAxes[0].type = 'category';
 			this.xAxes[0].visible = false;
 			this.yAxes[0].visible = false;
 			type = 'doughnut';
@@ -3054,11 +3171,15 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 	}
 
 	getAllowZoom(axis) {
-		if (!this.series.length || this.series[0].type === 'pie' || this.series[0].type === 'doughnut') {
+		if (this.isCircular()) {
 			return false;
 		}
 
 		return axis.allowZoom;
+	}
+
+	isCircular() {
+		return this.series.length && (this.series[0].type === 'pie' || this.series[0].type === 'doughnut');
 	}
 
 	static get templates() {

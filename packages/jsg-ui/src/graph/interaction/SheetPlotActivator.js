@@ -29,7 +29,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 	 */
 	_getControllerAt(location, viewer) {
 		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
-			return cont.getModel() instanceof SheetPlotNode;
+			return (cont.getModel() instanceof SheetPlotNode) && cont.getModel().isVisible();
 		});
 	}
 
@@ -234,12 +234,14 @@ export default class SheetPlotActivator extends InteractionActivator {
 			return;
 		}
 		let selection;
-		if (interaction.isPlotHit(event, viewer)) {
-			selection = interaction.isElementHit(event, viewer);
-			interaction.showData(selection, event, viewer);
-			event.doRepaint = true;
-		} else {
-			this.removeInfo(event, viewer);
+		if (interaction._controller.getModel().chart.tooltips) {
+			if (interaction.isPlotHit(event, viewer)) {
+				selection = interaction.isElementHit(event, viewer);
+				interaction.showData(selection, event, viewer);
+				event.doRepaint = true;
+			} else {
+				this.removeInfo(event, viewer);
+			}
 		}
 
 		selection = interaction.isElementHit(event, viewer, undefined, true);

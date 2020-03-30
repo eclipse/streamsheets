@@ -411,14 +411,6 @@ export default class SheetPlotView extends NodeView {
 		graphics.setFillColor(serie.format.fillColor || item.getTemplate().series.getFillForIndex(seriesIndex));
 
 		let index = 0;
-		let sum = 0;
-
-		while (item.getValue(ref, index, value)) {
-			index += 1;
-			if (value.y !== undefined) {
-				sum += Math.abs(value.y);
-			}
-		}
 
 		for (let i = 0; i < 2; i += 1) {
 			let currentAngle = pieInfo.startAngle;
@@ -427,8 +419,8 @@ export default class SheetPlotView extends NodeView {
 				if (value.x !== undefined && value.y !== undefined) {
 					graphics.setLineColor('#FFFFFF');
 					// graphics.setLineColor(item.getTemplate().series.getLineForIndex(index));
-					graphics.setFillColor(item.getTemplate().series.getFillForIndex(index));
-					const angle = Math.abs(value.y) / sum * (pieInfo.endAngle - pieInfo.startAngle);
+					graphics.setFillColor(serie.format.fillColor || item.getTemplate().series.getFillForIndex(index));
+					const angle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
 					switch (serie.type) {
 					case 'doughnut': {
 						const xOuterRadius = pieInfo.xRadius * (item.chart.hole + (1 - item.chart.hole) * ((seriesIndex + 1) / item.series.length));
@@ -1123,6 +1115,10 @@ export default class SheetPlotView extends NodeView {
 			value = map.get('fillcolor');
 			if (value) {
 				format.fillColor = map.get('fillcolor');
+			}
+			value = map.get('fillstyle');
+			if (value === 0 && format.fill) {
+				format.fill.color = undefined;
 			}
 			value = map.get('fontcolor');
 			if (value) {

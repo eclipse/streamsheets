@@ -82,7 +82,7 @@ export default class SheetPlotInteraction extends Interaction {
 			const value = item.scaleFromAxis(axes, pt);
 
 			children.forEach((controller) => {
-				if (controller.getModel() instanceof SheetPlotNode) {
+				if ((controller.getModel() instanceof SheetPlotNode) && controller.getModel().isVisible() && controller.getModel().chart.tooltips) {
 					layer.push(
 						new ChartInfoFeedbackView(controller.getView(), selection, event.location.copy(), value, viewer));
 				}

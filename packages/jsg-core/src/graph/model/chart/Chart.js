@@ -11,6 +11,7 @@ module.exports = class Chart {
 		this.endAngle = Math.PI * 2;
 		this.hole = 0.5;
 		this.template = 'basic';
+		this.tooltips = false;
 		this.margins = new ChartRect(200, 200, 200, 200);
 	}
 
@@ -53,6 +54,7 @@ module.exports = class Chart {
 		writer.writeAttributeNumber('stacked', this.stacked ? 1 : 0);
 		writer.writeAttributeNumber('relative', this.relative ? 1 : 0);
 		writer.writeAttributeNumber('period', this.period ? 1 : 0);
+		writer.writeAttributeNumber('tooltips', this.tooltips ? 1 : 0);
 		writer.writeAttributeNumber('rotation', this.rotation);
 		writer.writeAttributeNumber('startangle', this.startAngle);
 		writer.writeAttributeNumber('endangle', this.endAngle);
@@ -65,6 +67,7 @@ module.exports = class Chart {
 		this.stacked = reader.getAttribute(object, 'stacked');
 		this.relative = reader.getAttribute(object, 'relative');
 		this.period = reader.getAttribute(object, 'period');
+		this.tooltips = reader.getAttributeBoolean(object, 'tooltips', true);
 		this.rotation = reader.getAttributeNumber(object, 'rotation', 0);
 		this.startAngle = reader.getAttributeNumber(object, 'startangle', 0);
 		this.endAngle = reader.getAttributeNumber(object, 'endangle', Math.PI * 2);

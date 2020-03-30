@@ -39,7 +39,7 @@ export default class ChartInfoFeedbackView extends View {
 		let x;
 		let y;
 
-		if (item.xAxes[0].visible) {
+		if (!item.isCircular()) {
 			if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
 				x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.width;
 				y = top.y;
@@ -82,33 +82,43 @@ export default class ChartInfoFeedbackView extends View {
 			const space = 400;
 			const margin = 100;
 			const height = 400;
-			const getLabel = (value, xValue) => {
-				const { series } = value;
-				const ref = item.getDataSourceInfo(series.formula);
+			const getLabel = (value, xValue, circular) => {
+				const { serie } = value;
+				const ref = item.getDataSourceInfo(serie.formula);
 
 				let label = '';
 				let axis;
-				if (xValue) {
-					axis = value.axes.x;
-					if (axis.type === 'category' && ref) {
-						label = item.getLabel(ref, axis, Math.floor(value.x));
-					} else if (axis.type !== 'category' && ref && ref.time && ref.time.xvalue) {
-						label = ref.xName;
-						axis = value.axes.x;
-						label += `: ${item.formatNumber(value.x, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format)}`;
+				if (circular) {
+					if (xValue) {
+						label = `${ref.yName}`;
 					} else {
 						axis = value.axes.x;
-						label = item.formatNumber(value.x, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+						label = item.getLabel(ref, axis, Math.floor(value.x));
+						label = `${label}: ${item.formatNumber(value.y, 'General')}`;
 					}
 				} else {
-					axis = value.axes.y;
-					label = item.formatNumber(value.y, 'General');
-					// label = item.formatNumber(value.y, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
-				}
-				if (ref && ref.yName !== undefined && !xValue) {
-					label = `${ref.yName}: ${label}`;
-				} else {
-					label = String(label);
+					if (xValue) {
+						axis = value.axes.x;
+						if (axis.type === 'category' && ref) {
+							label = item.getLabel(ref, axis, Math.floor(value.x));
+						} else if (axis.type !== 'category' && ref && ref.time && ref.time.xvalue) {
+							label = ref.xName;
+							axis = value.axes.x;
+							label += `: ${item.formatNumber(value.x,
+								axis.format && axis.format.numberFormat ? axis.format : axis.scale.format)}`;
+						} else {
+							axis = value.axes.x;
+							label = item.formatNumber(value.x,
+								axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+						}
+					} else {
+						label = item.formatNumber(value.y, 'General');
+					}
+					if (ref && ref.yName !== undefined && !xValue) {
+						label = `${ref.yName}: ${label}`;
+					} else {
+						label = String(label);
+					}
 				}
 				return label;
 			};
@@ -120,31 +130,71 @@ export default class ChartInfoFeedbackView extends View {
 			graphics.setFont();
 
 			const values = [];
+			const circular = item.isCircular();
 
-			item.yAxes.forEach((axis) => {
-				if (axis.categories) {
-					axis.categories.forEach((data) => {
-						if (data.values && data.values[0] && data.values[0].x === this.selection.dataPoints[0].x) {
-							data.values.forEach((value) => {
-								if (value.x !== undefined && value.y !== undefined) {
-									if (item.chart.relative && value.barSize !== undefined) {
-										value.y = value.barSize;
-									}
-									values.push(value);
-								}
-							});
-						}
-					});
+			if (circular) {
+				const value = {};
+				if (this.selection.dataPoints[0].index >= item.series.length) {
+					return;
 				}
-			});
+				const serie = item.series[this.selection.dataPoints[0].index];
+				const ref = item.getDataSourceInfo(serie.formula);
+
+				const pieInfo = item.getPieInfo(ref, serie, plotRect, this.selection.dataPoints[0].index);
+				let currentAngle = pieInfo.startAngle;
+				let index = 0;
+				let angle = 0;
+				while (item.getValue(ref, index, value) && index <= this.selection.dataPoints[0].pointIndex) {
+					angle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
+					currentAngle += angle;
+					index += 1;
+				}
+				switch (serie.type) {
+				case 'pie':
+				case 'doughnut': {
+					const points = item.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, 0, 0,
+						pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle - angle, currentAngle, true);
+					if (points.length) {
+						x = top.x - item.plot.position.left + points[0].x;
+						y = top.y - item.plot.position.top + points[0].y;
+					}
+					break;
+				}
+				}
+
+				if (item.getValue(ref, this.selection.dataPoints[0].pointIndex, value)) {
+					value.seriesIndex = this.selection.dataPoints[0].index;
+					value.index = this.selection.dataPoints[0].pointIndex;
+					value.serie = serie;
+					value.axes = item.getAxes(serie);
+					values.push(value);
+				}
+			} else {
+				item.yAxes.forEach((axis) => {
+					if (axis.categories) {
+						axis.categories.forEach((data) => {
+							if (data.values && data.values[0] && data.values[0].x === this.selection.dataPoints[0].x) {
+								data.values.forEach((value) => {
+									if (value.x !== undefined && value.y !== undefined) {
+										if (item.chart.relative && value.barSize !== undefined) {
+											value.y = value.barSize;
+										}
+										values.push(value);
+									}
+								});
+							}
+						});
+					}
+				});
+			}
 
 			if (!values.length) {
 				return;
 			}
 
-			width = graphics.measureText(getLabel(values[0], true)).width;
+			width = graphics.measureText(getLabel(values[0], true, circular)).width;
 			values.forEach((value) => {
-				width = Math.max(width, graphics.measureText(getLabel(value, false)).width);
+				width = Math.max(width, graphics.measureText(getLabel(value, false, circular)).width);
 			});
 
 			width = graphics.getCoordinateSystem().deviceToLogX(width, true);
@@ -159,12 +209,18 @@ export default class ChartInfoFeedbackView extends View {
 
 			graphics.setFillColor('#000000');
 
-			const text = getLabel(values[0], true);
-
+			const text = getLabel(values[0], true, circular);
 			graphics.fillText(text, x + space + margin, y + space + margin);
+
 			values.forEach((value, index) => {
-				const label = getLabel(value, false);
-				graphics.setFillColor(value.series.format.lineColor || item.getTemplate().series.line[value.seriesIndex]);
+				const label = getLabel(value, false, circular);
+				if (circular) {
+					graphics.setFillColor(
+						item.getTemplate().series.getFillForIndex(value.index));
+				} else {
+					graphics.setFillColor(
+						value.serie.format.lineColor || item.getTemplate().series.getLineForIndex(value.seriesIndex));
+				}
 				graphics.fillText(label, x + space + margin, y + height * (index + 1) + space + margin * 2);
 			});
 		}

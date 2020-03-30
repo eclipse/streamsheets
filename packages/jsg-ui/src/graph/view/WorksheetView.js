@@ -312,6 +312,7 @@ export default class WorksheetView extends ContentNodeView {
 			case 'z':
 				if (event.event.ctrlKey) {
 					viewer.getInteractionHandler().undo();
+					return true;
 				}
 				doDefault();
 				break;
