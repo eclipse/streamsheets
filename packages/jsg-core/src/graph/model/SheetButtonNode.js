@@ -69,7 +69,7 @@ module.exports = class SheetButtonNode extends Node {
 			const range = CellRange.parse(value, sheet);
 			if (range) {
 				range.shiftFromSheet();
-				const cell = sheet.getDataProvider().getRC(range.getX1(), range.getY1());
+				const cell = range.getSheet().getDataProvider().getRC(range.getX1(), range.getY1());
 				if (cell) {
 					value = cell.getValue();
 					return !(value === 0 || value === '0' || value === false);

@@ -96,24 +96,10 @@ export default class SheetPlotView extends NodeView {
 
 			series.forEach((serie, index) => {
 				switch (serie.type) {
+				case 'pie':
 				case 'doughnut':
 					this.drawCircular(graphics, item, plotRect, serie, index);
 					break;
-				case 'pie': {
-					let columns = Math.max(1, Math.ceil(plotRect.width / (plotRect.height ? plotRect.height : 1000)));
-					columns = Math.min(columns, item.series.length);
-					const rows = Math.ceil(item.series.length / columns);
-					const column = (index % columns);
-					const row = Math.floor(index / columns);
-					const hMargin = columns > 1 ? 500 : 0;
-					const vMargin = rows > 1 ? 500 : 0;
-					const rectPie = new ChartRect(plotRect.left + column * plotRect.width / columns + hMargin,
-						plotRect.top + row * plotRect.height / rows + vMargin,
-						plotRect.left + (column + 1) * plotRect.width / columns - hMargin,
-						plotRect.top + (row + 1) * plotRect.height / rows - vMargin);
-					this.drawCircular(graphics, item, rectPie, serie, index);
-					break;
-				}
 				default:
 					lastPoints = this.drawCartesian(graphics, item, plotRect, serie, index, lastPoints, legendData);
 					drawAxes = true;
@@ -410,47 +396,13 @@ export default class SheetPlotView extends NodeView {
 	drawCircular(graphics, item, plotRect, serie, seriesIndex) {
 		const ref = item.getDataSourceInfo(serie.formula);
 		const value = {};
-		const height = 700 * Math.cos(item.chart.rotation);
+		const pieInfo = item.getPieInfo(ref, serie, plotRect, seriesIndex);
+		const fillRect = new Rectangle();
 
 		if (serie.type === 'pie' && item.series.length > 1 && ref.yName) {
 			item.setFont(graphics, item.legend.format, 'legend', 'middle', TextFormatAttributes.TextAlignment.CENTER);
-			graphics.fillText(ref.yName, plotRect.left + plotRect.width / 2, plotRect.top);
-			plotRect.top += 500;
+			graphics.fillText(ref.yName, pieInfo.rect.left + pieInfo.rect.width / 2, pieInfo.rect.top - 500);
 		}
-		plotRect.bottom -= height;
-
-		const startAngle = item.chart.startAngle - Math.PI_2;
-		const endAngle = item.chart.endAngle - Math.PI_2;
-		let angle = startAngle;
-		let yTop = 0;
-		let yBottom = 0;
-		while (angle < endAngle) {
-			if (Math.sin(angle) <= 0) {
-				yTop = Math.max(yTop, Math.abs(Math.sin(angle)));
-			} else {
-				yBottom = Math.max(yBottom, Math.abs(Math.sin(angle)));
-			}
-			angle += Math.PI_2 - (angle % Math.PI_2);
-		}
-		if (Math.sin(endAngle) <= 0) {
-			yTop = Math.max(yTop, Math.abs(Math.sin(endAngle)));
-		} else {
-			yBottom = Math.max(yBottom, Math.abs(Math.sin(endAngle)));
-		}
-
-		let yRadius = yTop + yBottom;
-		yRadius = plotRect.height / yRadius;
-		let xRadius = Math.abs(Math.sin(item.chart.rotation)) ? yRadius / Math.abs(Math.sin(item.chart.rotation)) : yRadius;
-		const xc = plotRect.left + plotRect.width / 2;
-		let yc = plotRect.top + yTop / (yTop + yBottom) * plotRect.height;
-		if (xRadius * 2 > plotRect.width) {
-			const fact = plotRect.width / (xRadius * 2);
-			xRadius *= fact;
-			yRadius *= fact;
-			yc -= (plotRect.height - yRadius) / 2;
-		}
-
-		const fillRect = new Rectangle();
 
 		graphics.setLineColor(serie.format.lineColor || item.getTemplate().series.getLineForIndex(seriesIndex));
 		graphics.setLineWidth(serie.format.lineWidth || item.getTemplate().series.linewidth);
@@ -469,26 +421,25 @@ export default class SheetPlotView extends NodeView {
 		}
 
 		for (let i = 0; i < 2; i += 1) {
-			let currentAngle = startAngle;
+			let currentAngle = pieInfo.startAngle;
 			index = 0;
 			while (item.getValue(ref, index, value)) {
 				if (value.x !== undefined && value.y !== undefined) {
 					graphics.setLineColor('#FFFFFF');
 					// graphics.setLineColor(item.getTemplate().series.getLineForIndex(index));
 					graphics.setFillColor(item.getTemplate().series.getFillForIndex(index));
-					angle = Math.abs(value.y) / sum * (endAngle - startAngle);
+					const angle = Math.abs(value.y) / sum * (pieInfo.endAngle - pieInfo.startAngle);
 					switch (serie.type) {
 					case 'doughnut': {
-						const xOuterRadius = xRadius * (item.chart.hole + (1 - item.chart.hole) * ((seriesIndex + 1) / item.series.length));
-						const yOuterRadius = yRadius * (item.chart.hole + (1 - item.chart.hole) * ((seriesIndex + 1) / item.series.length));
-						const xInnerRadius = xRadius * (item.chart.hole + (1 - item.chart.hole) * (seriesIndex / item.series.length));
-						const yInnerRadius = yRadius * (item.chart.hole + (1 - item.chart.hole) * (seriesIndex / item.series.length));
+						const xOuterRadius = pieInfo.xRadius * (item.chart.hole + (1 - item.chart.hole) * ((seriesIndex + 1) / item.series.length));
+						const yOuterRadius = pieInfo.yRadius * (item.chart.hole + (1 - item.chart.hole) * ((seriesIndex + 1) / item.series.length));
+						const xInnerRadius = pieInfo.xRadius * (item.chart.hole + (1 - item.chart.hole) * (seriesIndex / item.series.length));
+						const yInnerRadius = pieInfo.yRadius * (item.chart.hole + (1 - item.chart.hole) * (seriesIndex / item.series.length));
 						graphics.beginPath();
-						graphics.ellipse(xc, yc, xOuterRadius, yOuterRadius, 0, currentAngle, currentAngle + angle,
+						graphics.ellipse(pieInfo.xc, pieInfo.yc, xOuterRadius, yOuterRadius, 0, currentAngle, currentAngle + angle,
 							false);
-						graphics.ellipse(xc, yc, xInnerRadius, yInnerRadius, 0, currentAngle + angle, currentAngle,
+						graphics.ellipse(pieInfo.xc, pieInfo.yc, xInnerRadius, yInnerRadius, 0, currentAngle + angle, currentAngle,
 							true);
-						// graphics.lineTo(xc, yc);
 						if (i) {
 							graphics.stroke();
 						} else {
@@ -498,8 +449,8 @@ export default class SheetPlotView extends NodeView {
 					}
 					case 'pie':
 						graphics.beginPath();
-						graphics.ellipse(xc, yc, xRadius, yRadius, 0, currentAngle, currentAngle + angle, false);
-						graphics.lineTo(xc, yc);
+						graphics.ellipse(pieInfo.xc, pieInfo.yc, pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle, currentAngle + angle, false);
+						graphics.lineTo(pieInfo.xc, pieInfo.yc);
 
 						if (i) {
 							graphics.stroke();
@@ -511,30 +462,29 @@ export default class SheetPlotView extends NodeView {
 						if (item.chart.rotation < Math.PI / 2) {
 							if ((currentAngle >= 0 && currentAngle <= Math.PI) || (currentAngle + angle >= 0 && currentAngle + angle <= Math.PI)) {
 								graphics.beginPath();
-								graphics.ellipse(xc, yc, xRadius, yRadius, 0, Math.max(0, currentAngle),
+								graphics.ellipse(pieInfo.xc, pieInfo.yc, pieInfo.xRadius, pieInfo.yRadius, 0, Math.max(0, currentAngle),
 									Math.min(Math.PI, currentAngle + angle), false);
-								const x1 = xc + xRadius * Math.cos(Math.min(Math.PI, currentAngle + angle));
-								let y = yc + height + yRadius * Math.sin(Math.min(Math.PI, currentAngle + angle));
+								const x1 = pieInfo.xc + pieInfo.xRadius * Math.cos(Math.min(Math.PI, currentAngle + angle));
+								let y = pieInfo.yc + pieInfo.height + pieInfo.yRadius * Math.sin(Math.min(Math.PI, currentAngle + angle));
 								graphics.lineTo(x1, y);
 
-								graphics.ellipse(xc, yc + height, xRadius, yRadius, 0,
+								graphics.ellipse(pieInfo.xc, pieInfo.yc + pieInfo.height, pieInfo.xRadius, pieInfo.yRadius, 0,
 									Math.min(Math.PI, currentAngle + angle),
 									Math.max(0, currentAngle), true);
-								const x2 = xc + xRadius * Math.cos(Math.max(0, currentAngle));
-								y = yc + yRadius * Math.sin(Math.max(0, currentAngle));
+								const x2 = pieInfo.xc + pieInfo.xRadius * Math.cos(Math.max(0, currentAngle));
+								y = pieInfo.yc + pieInfo.yRadius * Math.sin(Math.max(0, currentAngle));
 								graphics.lineTo(x2, y);
 
 								if (i) {
 									graphics.stroke();
 								} else {
-									fillRect.set(plotRect.left, y, plotRect.width, y);
+									fillRect.set(pieInfo.rect.left, y, pieInfo.rect.width, y);
 									graphics.setGradientLinear(fillRect,
 										item.getTemplate().series.getFillForIndex(index),
 										'#333333', 0, 0);
 									graphics.fill();
 								}
 							}
-
 						}
 						break;
 					}

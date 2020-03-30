@@ -372,7 +372,7 @@ export default class SheetKnobView extends NodeView {
 			const range = CellRange.parse(value, sheet);
 			if (range) {
 				range.shiftFromSheet();
-				const cell = sheet.getDataProvider().createRC(range.getX1(), range.getY1());
+				const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
 				if (cell) {
 					value = cell.getValue();
 					if (value === sliderValue) {
@@ -386,7 +386,7 @@ export default class SheetKnobView extends NodeView {
 						reference: range.toString(),
 						value: sliderValue
 					});
-					viewer.getInteractionHandler().execute(new SetCellsCommand(sheet, cellData, false));
+					viewer.getInteractionHandler().execute(new SetCellsCommand(range.getSheet(), cellData, false));
 					this.onValueChange(viewer);
 					return false;
 				}

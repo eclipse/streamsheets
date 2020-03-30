@@ -76,7 +76,7 @@ export default class SheetButtonView extends NodeView {
 		const range = CellRange.parse(String(value), sheet);
 		if (range) {
 			range.shiftFromSheet();
-			const cell = sheet.getDataProvider().createRC(range.getX1(), range.getY1());
+			const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
 			if (cell) {
 				range.shiftToSheet();
 				const cellData = [];
@@ -99,7 +99,7 @@ export default class SheetButtonView extends NodeView {
 				if (cellData.length) {
 					cell.setValue(value);
 					cell.setTargetValue(value);
-					const cmd = new SetCellsCommand(sheet, cellData, false);
+					const cmd = new SetCellsCommand(range.getSheet(), cellData, false);
 					cmd._keepFeedback = true;
 					viewer.getInteractionHandler().execute(cmd);
 				}

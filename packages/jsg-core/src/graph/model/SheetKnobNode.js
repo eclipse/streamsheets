@@ -69,7 +69,7 @@ module.exports = class SheetKnobNode extends Node {
 			const range = CellRange.parse(value, sheet);
 			if (range) {
 				range.shiftFromSheet();
-				const cell = sheet.getDataProvider().getRC(range.getX1(), range.getY1());
+				const cell = range.getSheet().getDataProvider().getRC(range.getX1(), range.getY1());
 				if (cell) {
 					return cell.getValue();
 				}

@@ -281,7 +281,8 @@ module.exports = class SheetPlotNode extends Node {
 		const result = {
 			width: 200,
 			height: 200,
-			last: 0
+			last: 0,
+			first: 0
 		};
 
 		axis.textSize = {
@@ -1499,7 +1500,82 @@ module.exports = class SheetPlotNode extends Node {
 		return 0;
 	}
 
-	getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
+	getPieInfo(ref, serie, plotRect, index) {
+		let rect;
+
+		if (serie.type === 'pie') {
+			// calc region, if mulitple pies
+			let columns = Math.max(1, Math.ceil(plotRect.width / (plotRect.height ? plotRect.height : 1000)));
+			columns = Math.min(columns, this.series.length);
+			const rows = Math.ceil(this.series.length / columns);
+			const column = (index % columns);
+			const row = Math.floor(index / columns);
+			const hMargin = columns > 1 ? 500 : 0;
+			const vMargin = rows > 1 ? 500 : 0;
+			rect = new ChartRect(plotRect.left + column * plotRect.width / columns + hMargin,
+				plotRect.top + row * plotRect.height / rows + vMargin,
+				plotRect.left + (column + 1) * plotRect.width / columns - hMargin,
+				plotRect.top + (row + 1) * plotRect.height / rows - vMargin);
+		} else {
+			rect = plotRect.copy();
+		}
+
+		// deduct title
+		if (serie.type === 'pie' && this.series.length > 1 && ref.yName) {
+			rect.top += 500;
+		}
+
+		// decuct height of pie side
+		const height =  700 * Math.cos(this.chart.rotation);
+		rect.bottom -= height;
+
+		const startAngle = this.chart.startAngle - Math.PI_2;
+		const endAngle = this.chart.endAngle - Math.PI_2;
+		let angle = startAngle;
+		let yTop = 0;
+		let yBottom = 0;
+
+		// calc radius based on rect and start and end angle
+		while (angle < endAngle) {
+			if (Math.sin(angle) <= 0) {
+				yTop = Math.max(yTop, Math.abs(Math.sin(angle)));
+			} else {
+				yBottom = Math.max(yBottom, Math.abs(Math.sin(angle)));
+			}
+			angle += Math.PI_2 - (angle % Math.PI_2);
+		}
+
+		if (Math.sin(endAngle) <= 0) {
+			yTop = Math.max(yTop, Math.abs(Math.sin(endAngle)));
+		} else {
+			yBottom = Math.max(yBottom, Math.abs(Math.sin(endAngle)));
+		}
+
+		let yRadius = yTop + yBottom;
+		yRadius = rect.height / yRadius;
+		let xRadius = Math.abs(Math.sin(this.chart.rotation)) ? yRadius / Math.abs(
+			Math.sin(this.chart.rotation)) : yRadius;
+		const xc = rect.left + rect.width / 2;
+		if (xRadius * 2 > rect.width) {
+			const fact = rect.width / (xRadius * 2);
+			xRadius *= fact;
+			yRadius *= fact;
+		}
+		const yc = rect.top + rect.height / 2 + yTop * yRadius / 2 - yBottom * yRadius / 2;
+
+		return {
+			startAngle,
+			endAngle,
+			xRadius,
+			yRadius,
+			xc,
+			yc,
+			height,
+			rect
+		};
+	}
+
+getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		let height;
 		const margin = this.chart.stacked || serie.type === 'state' ? 0 : 150;
 
@@ -2029,10 +2105,147 @@ module.exports = class SheetPlotNode extends Node {
 		return this.plot.position.containsPoint(pt);
 	}
 
+	isSeriesHitCircular(serie, ref, index, plotRect, pt, dataPoints) {
+		if (!ref) {
+			return false;
+		}
+
+		const value = {};
+		const pieInfo = this.getPieInfo(ref, serie, plotRect, index);
+		const axes = this.getAxes(serie);
+
+		return false;
+	}
+
+	isSeriesHitCartesian(series, ref, index, plotRect, pt, dataPoints) {
+		if (!ref) {
+			return false;
+		}
+
+		const dataRect = new ChartRect();
+		const axes = this.getAxes(series);
+		let pointIndex = 0;
+		let x;
+		let y;
+		let barInfo;
+		const barWidth = this.getBarWidth(axes, series, plotRect);
+		const info = {
+			serie: series,
+			seriesIndex: index,
+			categories: axes.y.categories
+		};
+		const points = [];
+		const prevPoints = [];
+		const value = {};
+
+		while (this.getValue(ref, pointIndex, value)) {
+			info.index = pointIndex;
+			x = this.scaleToAxis(axes.x, value.x, undefined, false);
+			y = this.scaleToAxis(axes.y, value.y, info, false);
+
+			switch (series.type) {
+			case 'pie':
+				break;
+			case 'bar':
+				barInfo = this.getBarInfo(axes, series, index, pointIndex, value.y, barWidth);
+				dataRect.set(
+					plotRect.left + y * plotRect.width - 100 + barInfo.height * plotRect.width,
+					plotRect.bottom - x * plotRect.height + barInfo.offset - 100,
+					plotRect.left + y * plotRect.width + 100,
+					plotRect.bottom - x * plotRect.height + barInfo.offset + 100 + barWidth - barInfo.margin
+				);
+				break;
+			case 'profile':
+				dataRect.set(
+					plotRect.left + y * plotRect.width - 200,
+					plotRect.bottom - x * plotRect.height - 200,
+					plotRect.left + y * plotRect.width + 200,
+					plotRect.bottom - x * plotRect.height + 200
+				);
+				break;
+			case 'column':
+			case 'state':
+				barInfo = this.getBarInfo(axes, series, index, pointIndex, value.y, barWidth);
+				dataRect.set(
+					plotRect.left + x * plotRect.width + barInfo.offset - 100,
+					plotRect.bottom - y * plotRect.height - 100,
+					plotRect.left + x * plotRect.width + barInfo.offset + 100 + barWidth - barInfo.margin,
+					plotRect.bottom - y * plotRect.height + 100 - barInfo.height * plotRect.height);
+
+				break;
+			case 'line':
+			case 'scatter':
+			case 'bubble':
+				dataRect.set(
+					plotRect.left + x * plotRect.width - 200,
+					plotRect.bottom - y * plotRect.height - 200,
+					plotRect.left + x * plotRect.width + 200,
+					plotRect.bottom - y * plotRect.height + 200
+				);
+				break;
+			case 'area':
+				dataRect.set(
+					plotRect.left + x * plotRect.width - 200,
+					plotRect.bottom - y * plotRect.height - 200,
+					plotRect.left + x * plotRect.width + 200,
+					plotRect.bottom - y * plotRect.height + 200
+				);
+				barInfo = this.getBarInfo(axes, series, index, pointIndex, value.y, barWidth);
+				points.push({
+					x: plotRect.left + x * plotRect.width,
+					y: plotRect.bottom - y * plotRect.height
+				});
+				prevPoints.push({
+					x: plotRect.left + x * plotRect.width,
+					y: plotRect.bottom - y * plotRect.height - barInfo.height * plotRect.height
+				});
+				break;
+			}
+
+			dataRect.sort();
+			if (dataRect.containsPoint(pt)) {
+				value.axes = axes;
+				value.series = series;
+				value.index = index;
+				value.pointIndex = pointIndex;
+				dataPoints.push({
+					x: value.x,
+					y: value.y,
+					axes,
+					series,
+					index,
+					pointIndex
+				});
+				if (series.type !== 'area') {
+					return true;
+				}
+			}
+			pointIndex += 1;
+		}
+		if (series.type === 'area') {
+			const searchPoints = [];
+			points.forEach((point) => {
+				searchPoints.push(point);
+			});
+			for (let i = prevPoints.length - 1; i >= 0; i -= 1) {
+				searchPoints.push(prevPoints[i]);
+			}
+			if (MathUtils.isPointInPolygon(searchPoints, pt)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	isElementHit(pt, oldSelection, skipSeries = false) {
 		let result;
 		const dataPoints = [];
 		const plotRect = this.plot.position;
+
+		if (!this.isVisible()) {
+			return false;
+		}
 
 		result = this.actions.filter((action) => action.position.containsPoint(pt));
 		if (result.length) {
@@ -2059,122 +2272,16 @@ module.exports = class SheetPlotNode extends Node {
 
 		if (!skipSeries && this.plot.position.containsPoint(pt)) {
 			const revSeries = [].concat(this.series).reverse();
-			result = revSeries.filter((series) => {
-				const index = this.series.indexOf(series);
-				const ref = this.getDataSourceInfo(series.formula);
-				const dataRect = new ChartRect();
-				if (ref) {
-					const axes = this.getAxes(series);
-					let pointIndex = 0;
-					let x;
-					let y;
-					let barInfo;
-					const barWidth = this.getBarWidth(axes, series, plotRect);
-					const info = {
-						serie: series,
-						seriesIndex: index,
-						categories: axes.y.categories
-					};
-					const points = [];
-					const prevPoints = [];
-					const value = {};
-
-					while (this.getValue(ref, pointIndex, value)) {
-						info.index = pointIndex;
-						x = this.scaleToAxis(axes.x, value.x, undefined, false);
-						y = this.scaleToAxis(axes.y, value.y, info, false);
-
-						switch (series.type) {
-						case 'bar':
-							barInfo = this.getBarInfo(axes, series, index, pointIndex, value.y, barWidth);
-							dataRect.set(
-								plotRect.left + y * plotRect.width - 100 + barInfo.height * plotRect.width,
-								plotRect.bottom - x * plotRect.height + barInfo.offset - 100,
-								plotRect.left + y * plotRect.width + 100,
-								plotRect.bottom - x * plotRect.height + barInfo.offset + 100 + barWidth - barInfo.margin
-							);
-							break;
-						case 'profile':
-							dataRect.set(
-								plotRect.left + y * plotRect.width - 200,
-								plotRect.bottom - x * plotRect.height - 200,
-								plotRect.left + y * plotRect.width + 200,
-								plotRect.bottom - x * plotRect.height + 200
-							);
-							break;
-						case 'column':
-						case 'state':
-							barInfo = this.getBarInfo(axes, series, index, pointIndex, value.y, barWidth);
-							dataRect.set(
-								plotRect.left + x * plotRect.width + barInfo.offset - 100,
-								plotRect.bottom - y * plotRect.height - 100,
-								plotRect.left + x * plotRect.width + barInfo.offset + 100 + barWidth - barInfo.margin,
-								plotRect.bottom - y * plotRect.height + 100 - barInfo.height * plotRect.height);
-
-							break;
-						case 'line':
-						case 'scatter':
-						case 'bubble':
-							dataRect.set(
-								plotRect.left + x * plotRect.width - 200,
-								plotRect.bottom - y * plotRect.height - 200,
-								plotRect.left + x * plotRect.width + 200,
-								plotRect.bottom - y * plotRect.height + 200
-							);
-							break;
-						case 'area':
-							dataRect.set(
-								plotRect.left + x * plotRect.width - 200,
-								plotRect.bottom - y * plotRect.height - 200,
-								plotRect.left + x * plotRect.width + 200,
-								plotRect.bottom - y * plotRect.height + 200
-							);
-							barInfo = this.getBarInfo(axes, series, index, pointIndex, value.y, barWidth);
-							points.push({
-								x: plotRect.left + x * plotRect.width,
-								y: plotRect.bottom - y * plotRect.height
-							});
-							prevPoints.push({
-								x: plotRect.left + x * plotRect.width,
-								y: plotRect.bottom - y * plotRect.height - barInfo.height * plotRect.height
-							});
-							break;
-						}
-
-						dataRect.sort();
-						if (dataRect.containsPoint(pt)) {
-							value.axes = axes;
-							value.series = series;
-							value.index = index;
-							value.pointIndex = pointIndex;
-							dataPoints.push({
-								x: value.x,
-								y: value.y,
-								axes,
-								series,
-								index,
-								pointIndex
-							});
-							if (series.type !== 'area') {
-								return true;
-							}
-						}
-						pointIndex += 1;
-					}
-					if (series.type === 'area') {
-						const searchPoints = [];
-						points.forEach((point) => {
-							searchPoints.push(point);
-						});
-						for (let i = prevPoints.length - 1; i >= 0; i -= 1) {
-							searchPoints.push(prevPoints[i]);
-						}
-						if (MathUtils.isPointInPolygon(searchPoints, pt)) {
-							return true;
-						}
-					}
+			result = revSeries.filter((serie) => {
+				const index = this.series.indexOf(serie);
+				const ref = this.getDataSourceInfo(serie.formula);
+				switch (serie.type) {
+				case 'pie':
+				case 'doughnut':
+					return this.isSeriesHitCircular(serie, ref, index, plotRect, pt, dataPoints);
+				default:
+					return this.isSeriesHitCartesian(serie, ref, index, plotRect, pt, dataPoints);
 				}
-				return false;
 			});
 			if (result.length) {
 				let index = 0;

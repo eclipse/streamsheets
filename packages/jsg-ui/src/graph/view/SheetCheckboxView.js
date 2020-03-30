@@ -61,7 +61,7 @@ export default class SheetCheckboxView extends NodeView {
 		const range = CellRange.parse(value, sheet);
 		if (range) {
 			range.shiftFromSheet();
-			const cell = sheet.getDataProvider().createRC(range.getX1(), range.getY1());
+			const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
 			if (cell) {
 				range.shiftToSheet();
 				value = cell.getValue();
@@ -73,7 +73,7 @@ export default class SheetCheckboxView extends NodeView {
 					});
 					cell.setValue(true);
 					cell.setTargetValue(true);
-					viewer.getInteractionHandler().execute(new SetCellsCommand(sheet, cellData, false));
+					viewer.getInteractionHandler().execute(new SetCellsCommand(range.getSheet(), cellData, false));
 				} else if (value === 1 || value === '1' || value === true) {
 					cellData.push({
 						reference: range.toString(),
@@ -81,7 +81,7 @@ export default class SheetCheckboxView extends NodeView {
 					});
 					cell.setValue(false);
 					cell.setTargetValue(false);
-					viewer.getInteractionHandler().execute(new SetCellsCommand(sheet, cellData, false));
+					viewer.getInteractionHandler().execute(new SetCellsCommand(range.getSheet(), cellData, false));
 				}
 				return false;
 			}
