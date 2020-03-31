@@ -75,8 +75,8 @@
 			]
 		}
 	},
-  "RECURSIVE_NULL": {
-  	"Action": "checkouts/create",
+	"RECURSIVE_NULL": {
+		"Action": "checkouts/create",
 		"OrderToken": "5872141e3ec679702431e6404cfc9d96",
 		"CartToken": "f32579d24ae731ba7179ec1e58879a61",
 		"LineItems": [
@@ -118,5 +118,19 @@
 				"presentment_title": "Streamsheets"
 			}
 		]
+	},
+	"SPECIAL_CHARS": {
+		"data": {
+			"[0:0]": -0.616,
+			"[0:0].ID": "[0:0]",
+			"[0:0].Name": "Virtual\\\\Sin(T())",
+			"[0:0].Unit": "UnitName",
+			"[1:0]": -0.616,
+			"[1:0].ID": "[1:0]",
+			"[1:0].Name": "Sin(T())",
+			"[1:0].Unit": "",
+			"Timestamp": "2020-03-30T10:35:23.9805224Z",
+			"Identifier": "ibaPDAMQTTstore200309122136"
+		}
 	}
 }
