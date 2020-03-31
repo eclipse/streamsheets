@@ -1,7 +1,23 @@
 const AbstractItemCommand = require('./AbstractItemCommand');
 const Point = require('../../geometry/Point');
 const Expression = require('../expr/Expression');
+const BooleanExpression = require('../expr/BooleanExpression');
+const NumberExpression = require('../expr/NumberExpression');
+const StringExpression = require('../expr/StringExpression');
 const CellRange = require('../model/CellRange');
+
+const createExpression = ({ formula, type, value }) => {
+	switch (type) {
+		case 'bool':
+			return new BooleanExpression(value, formula);
+		case 'number':
+			return new NumberExpression(value, formula);
+		case 'string':
+			return new StringExpression(value, formula);
+	default:
+			return new Expression(value, formula);
+	}
+};
 
 /**
  * const SampleData = {
@@ -83,7 +99,7 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 				if (cell._targetValue !== undefined && cellData.value !== cell._targetValue) {
 					cellData.value = cell._targetValue;
 				}
-				const expr = new Expression(cellData.value, cellData.formula);
+				const expr = createExpression(cellData);
 				cell.setExpression(expr);
 				cell.setValue(cellData.value);
 				if (cell._targetValue !== undefined && cellData.value === cell._targetValue) {
