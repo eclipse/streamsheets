@@ -282,7 +282,6 @@ module.exports = class SheetPlotNode extends Node {
 			width: 200,
 			height: 200,
 			last: 0,
-			first: 0
 		};
 
 		axis.textSize = {
@@ -293,6 +292,7 @@ module.exports = class SheetPlotNode extends Node {
 		};
 
 		if (!axis.position || !axis.scale || !axis.visible) {
+			result.first = 0;
 			return result;
 		}
 
@@ -345,6 +345,9 @@ module.exports = class SheetPlotNode extends Node {
 
 		result.width += 300;
 		result.height += 300;
+		if (result.first === undefined) {
+			result.first = 0;
+		}
 
 		return result;
 	}
