@@ -99,10 +99,13 @@ class MarqueeActivator extends InteractionActivator {
 			.setTo(dispatcher.currentLocation)
 			.subtract(dispatcher.startLocation);
 		if (threshold.length() > this._marqueeThreshold) {
-			viewer.clearSelection();
-			const interaction = this.activateInteraction(new MarqueeInteraction(), dispatcher);
-			interaction.onMouseDrag(event, viewer);
-			event.hasActivated = true;
+			const controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, this._condition);
+			if (!controller.getModel().isProtected()) {
+				viewer.clearSelection();
+				const interaction = this.activateInteraction(new MarqueeInteraction(), dispatcher);
+				interaction.onMouseDrag(event, viewer);
+				event.hasActivated = true;
+			}
 		}
 		JSG.ptCache.release(threshold);
 	}

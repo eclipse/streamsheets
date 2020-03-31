@@ -291,6 +291,7 @@ module.exports = class MachineGraph extends Graph {
 	_copy(copiednodes, deep, ids) {
 		const copy = super._copy(copiednodes, deep, ids);
 
+		copy.reassignIds();
 		copy._assignItems();
 
 		return copy;

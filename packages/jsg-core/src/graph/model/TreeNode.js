@@ -65,7 +65,7 @@ module.exports = class TreeNode extends ContentNode {
 		return this._tree;
 	}
 
-	copy(copiednodes, deep, ids) {
+	_copy(copiednodes, deep, ids) {
 		const copy = super._copy(copiednodes, deep, ids);
 
 		copy._assignItems();
@@ -74,14 +74,7 @@ module.exports = class TreeNode extends ContentNode {
 	}
 
 	_assignItems() {
-		let i;
-		const cp = this.getContentPane();
-
-		for (i = 0; i < cp.getItemCount(); i += 1) {
-			const item = cp.getItemAt(i);
-
-			this._tree = item;
-		}
+		this._tree = this.getContentPane().getItemAt(0);
 	}
 
 	isAddLabelAllowed() {
