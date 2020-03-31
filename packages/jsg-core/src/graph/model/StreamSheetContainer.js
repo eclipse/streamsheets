@@ -56,7 +56,7 @@ module.exports = class StreamSheetContainer extends Node {
 		this._processSheet = new StreamSheet();
 		this.addItem(this._processSheet);
 
-		this.getFormat().setLineColor('#777777');
+		this.getFormat().setLineColor('#CCCCCC');
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 		// this.getItemAttributes().setMoveable(ItemAttributes.Moveable.NONE);
 		this.getItemAttributes().setRotatable(false);
@@ -64,7 +64,7 @@ module.exports = class StreamSheetContainer extends Node {
 		this.getItemAttributes().setContainer(false);
 		this.getItemAttributes().setClipChildren(true);
 
-		this._drawEnabled = false;
+		// this._drawEnabled = false;
 	}
 
 	createButtons() {

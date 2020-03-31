@@ -26,6 +26,14 @@ module.exports = class MessageContainer extends Node {
 		this._drawEnabled = false;
 	}
 
+	_copy(copiednodes, deep, ids) {
+		const copy = super._copy(copiednodes, deep, ids);
+
+		copy._assignItems();
+
+		return copy;
+	}
+
 	addButton(parent, name, image, halign) {
 		const button = new ButtonNode();
 		button.getItemAttributes().addAttribute(new StringAttribute('LayoutHorizontal', halign));
@@ -90,6 +98,7 @@ module.exports = class MessageContainer extends Node {
 
 		// json tools to limit level view
 		this._messageTools = new Node();
+		this._messageTools.setType('tool');
 		this._messageTools.getFormat().setFillColor('#EEEEEE');
 		this._messageTools.getFormat().setLineColor('#AAAAAA');
 		this._messageTools.getItemAttributes().setSelectionMode(ItemAttributes.SelectionMode.NONE);
@@ -123,6 +132,29 @@ module.exports = class MessageContainer extends Node {
 
 		const nc = JSG.NotificationCenter.getInstance();
 		nc.register(this, TreeItemsNode.SELECTION_CHANGED_NOTIFICATION, 'onTreeSelectionChanged');
+	}
+
+	_assignItems() {
+		this.getItems().forEach((item) => {
+			if (item instanceof CaptionNode) {
+				this._messageCaption = item;
+			} else if (item instanceof SplitterNode) {
+				this._splitter = item;
+			} else if (item instanceof TreeNode) {
+				switch (item.getType().getValue()) {
+				case 'me':
+					this._messageEditor = item;
+					break;
+				case 'ml':
+					this._messageList = item;
+					break;
+				default:
+					break;
+				}
+			} else if (item.getType().getValue() === 'tool') {
+				this._messageTools = item;
+			}
+		});
 	}
 
 	dispose() {
@@ -274,6 +306,7 @@ module.exports = class MessageContainer extends Node {
 					break;
 			}
 		});
+		this.getFormat().setLineColor('#FF0000');
 	}
 
 	layout() {

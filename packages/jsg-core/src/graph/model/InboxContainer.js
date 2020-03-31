@@ -16,6 +16,7 @@ module.exports = class InboxContainer extends MessageContainer {
 
 		this.createItems();
 		this.getMessageTreeItems()._lastCollapsedState.push('[Metadata]');
+		this.getFormat().setLineColor('#AAAAAA');
 
 		this._drawEnabled = false;
 	}
