@@ -1,13 +1,25 @@
-const keyregex = new RegExp('\\[([^\\]]*)\\]', 'g');
+// const keyregex = new RegExp('\\[([^\\]]*)\\]', 'g');
+// // returns an array with str keys to use as jsonkey path...
+// const parse = (str) => {
+// 	const res = [];
+// 	// TODO how to handle not well defined key string, e.g. square brackets inside keys
+// 	if (str && (typeof str === 'string')) {
+// 		str.replace(keyregex, (g0, g1) => res.push(g1));
+// 	}
+// 	return res;
+// };
 
+const cutLastChar = (str) => str.substring(0, str.length - 1);
 // returns an array with str keys to use as jsonkey path...
 const parse = (str) => {
-	const res = [];
-	// TODO how to handle not well defined key string, e.g. square brackets inside keys
-	if (str && (typeof str === 'string')) {
-		str.replace(keyregex, (g0, g1) => res.push(g1));
+	if (str && typeof str === 'string' && str.startsWith('[') && str.endsWith(']')) {
+		const parts = str.split('][');
+		const last = parts.length > 1 ? parts.length - 1 : 0;
+		parts[0] = parts[0].substr(1);
+		parts[last] = cutLastChar(parts[last]);
+		return parts;
 	}
-	return res;
+	return [];
 };
 
 const last = (parts) => {
