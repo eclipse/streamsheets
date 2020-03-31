@@ -4,6 +4,16 @@ const AbstractItemCommand = require('./AbstractItemCommand');
 const Point = require('../../geometry/Point');
 const NumberExpression = require('../expr/NumberExpression');
 
+const expr2str = (expr, delValue) =>
+	writeExpression(expr, (writer) => {
+		if (writer.root['o-expr']) {
+			if (expr instanceof NumberExpression) writer.root['o-expr'].t = 'n';
+			// delete value to indicate machine server to calculate DL-1724
+			if (delValue && expr.hasFormula()) delete writer.root['o-expr'].v;
+		}
+	});
+
+
 /**
  * @class SetCellDataCommand
  * @type {module.SetCellDataCommand}
@@ -66,18 +76,8 @@ module.exports = class SetCellDataCommand extends AbstractItemCommand {
 		data.reference = this._reference;
 		data.calc = this._calc;
 		data.createdNewCell = this._createdNewCell;
-		data.expr = writeExpression(this._expr, (writer) => {
-			if (writer.root['o-expr']) {
-				if (this._expr instanceof NumberExpression) {
-					writer.root['o-expr'].t = 'n';
-				}
-				// indicate machine server to calculate DL-1724
-				if (this._expr.hasFormula()) {
-					delete writer.root['o-expr'].v;
-				}
-			}
-		});
-		if (this._oldExpr) data.undo.expr = writeExpression(this._oldExpr);
+		data.expr = expr2str(this._expr, true);
+		if (this._oldExpr) data.undo.expr = expr2str(this._oldExpr);
 		return data;
 	}
 
