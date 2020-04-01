@@ -59,9 +59,11 @@ class DashBoardComponent extends Component {
 	}
 
 	handleNew = () => {
-		this.props.setAppState({
-			showNewDialog: true,
-		});
+		this.props.getDataStores().then(() =>
+			this.props.setAppState({
+				showNewDialog: true
+			})
+		);
 	};
 
 	handleMenuSelect = async (optionIndex, resourceId) => {
