@@ -55,6 +55,7 @@ class StreamsManager {
 			if (!this._started) {
 				logger.info('Define Providers');
 				await this.defineProviders(CONFIG.providers);
+				await this.configsManager.loadConfigurations();
 				logger.info('Publish Functions');
 				await this.publishFunctions();
 			}
