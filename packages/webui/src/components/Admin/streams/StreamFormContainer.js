@@ -257,6 +257,7 @@ class StreamFormContainer extends React.Component {
 					icon={icon}
 					isDirty={this.isDirty()}
 					cardHeader={<StreamToolBar
+						showState={!this.isConnnector()}
 						model={model}
 						isDirty={this.isDirty()}
 						match={this.props.match}
