@@ -3,8 +3,9 @@ const {
 	ProviderConfiguration,
 	ConnectorConfiguration,
 	ProducerConfiguration,
-	ConsumerConfiguration,
+	ConsumerConfiguration
 } = require('@cedalo/sdk-streams');
+const { ArrayUtil } = require('@cedalo/util');
 
 const logger = LoggerFactory.createLogger(
 	'Streams Service - Configurations Manager',
@@ -19,6 +20,7 @@ class ConfigurationsManager {
 		this.consumerConfigs = new Map();
 		this.producerConfigs = new Map();
 		this.queueConfigs = new Map();
+		this.setConfiguration = this.setConfiguration.bind(this);
 	}
 
 	getConfigurationById(id) {
@@ -48,8 +50,8 @@ class ConfigurationsManager {
 	static orderConfigs(configs = []) {
 		const connectors = [];
 		const streams = [];
-		configs.forEach(c => {
-			if(ConfigurationsManager.configIsConnector(c)) {
+		configs.forEach((c) => {
+			if (ConfigurationsManager.configIsConnector(c)) {
 				connectors.push(c);
 			} else {
 				streams.push(c);
@@ -59,22 +61,15 @@ class ConfigurationsManager {
 	}
 
 	static configIsConsumerOrProducer(config) {
-		return (
-			config.className === ConsumerConfiguration.name ||
-			config.className === ProducerConfiguration.name
-		);
+		return config.className === ConsumerConfiguration.name || config.className === ProducerConfiguration.name;
 	}
 
 	static configIsConsumer(config) {
-		return (
-			config.className === ConsumerConfiguration.name
-		);
+		return config.className === ConsumerConfiguration.name;
 	}
 
 	static configIsProducer(config) {
-		return (
-			config.className === ProducerConfiguration.name
-		);
+		return config.className === ProducerConfiguration.name;
 	}
 
 	static configIsConnector(config) {
@@ -113,42 +108,22 @@ class ConfigurationsManager {
 	}
 
 	getDeepConsumerConfiguration(config) {
-		const connectorConfig_ = this.connectorConfigs.get(
-			config.connector._id || config.connector.id
-		);
-		const connectorConfig = this.getDeepConnectorConfiguration(
-			connectorConfig_
-		);
-		const providerConfig = this.providerConfigs.get(
-			connectorConfig.provider.id
-		);
+		const connectorConfig_ = this.connectorConfigs.get(config.connector._id || config.connector.id);
+		const connectorConfig = this.getDeepConnectorConfiguration(connectorConfig_);
+		const providerConfig = this.providerConfigs.get(connectorConfig.provider.id);
 		return new ConsumerConfiguration(config, connectorConfig, providerConfig);
 	}
 
 	getDeepProducerConfiguration(config) {
-		const connectorConfig_ = this.connectorConfigs.get(
-			config.connector._id || config.connector.id
-		);
-		const connectorConfig = this.getDeepConnectorConfiguration(
-			connectorConfig_
-		);
-		const providerConfig = this.providerConfigs.get(
-			connectorConfig.provider.id
-		);
-		return new ProducerConfiguration(
-			config,
-			connectorConfig,
-			providerConfig
-		);
+		const connectorConfig_ = this.connectorConfigs.get(config.connector._id || config.connector.id);
+		const connectorConfig = this.getDeepConnectorConfiguration(connectorConfig_);
+		const providerConfig = this.providerConfigs.get(connectorConfig.provider.id);
+		return new ProducerConfiguration(config, connectorConfig, providerConfig);
 	}
 
 	getDeepConnectorConfiguration(config) {
-		const connectorConfig = this.connectorConfigs.get(
-			config._id || config.id
-		);
-		const providerConfig = this.providerConfigs.get(
-			connectorConfig.provider.id
-		);
+		const connectorConfig = this.connectorConfigs.get(config._id || config.id);
+		const providerConfig = this.providerConfigs.get(connectorConfig.provider.id);
 		if (!providerConfig) {
 			throw Error('INVALID_PROVIDER');
 		}
@@ -235,8 +210,34 @@ class ConfigurationsManager {
 		this.consumerConfigs.clear();
 		this.producerConfigs.clear();
 		const configurations = await this.repo.findAllConfigurations();
-		configurations.forEach(this.setConfiguration.bind(this));
-		return configurations;
+		const configsByType = ArrayUtil.partition(configurations, (config) => config.className);
+		if(!configsByType[ProviderConfiguration.name]) {
+			return []
+		}
+		configsByType[ProviderConfiguration.name].forEach(this.setConfiguration);
+		configsByType[ConnectorConfiguration.name].forEach((config) => {
+			if (this.providerConfigs.has(config.provider.id)) {
+				this.setConfiguration(config);
+			} else {
+				logger.warn(`Missing Provider#${config.provider.id} referenced by Conncetor#${config.id}`);
+			}
+		});
+		[...configsByType[ProducerConfiguration.name], ...configsByType[ConsumerConfiguration.name]].forEach(
+			(config) => {
+				if (this.connectorConfigs.has(config.connector.id)) {
+					this.setConfiguration(config);
+				} else {
+					logger.warn(`Missing Connector#${config.connector.id} referenced by Stream#${config.id}`);
+				}
+			}
+		);
+
+		return [
+			...this.providerConfigs.values(),
+			...this.connectorConfigs.values(),
+			...this.consumerConfigs.values(),
+			...this.producerConfigs.values()
+		];
 	}
 
 	findConnector(id) {
@@ -246,7 +247,6 @@ class ConfigurationsManager {
 	getConnectorbyId(id) {
 		return this.connectorConfigs.get(id);
 	}
-
 }
 
 module.exports = ConfigurationsManager;

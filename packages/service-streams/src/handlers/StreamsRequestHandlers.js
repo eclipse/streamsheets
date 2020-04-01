@@ -135,28 +135,23 @@ class LoadAllConfigurationsRequestHandler extends RequestHandler {
 		super(MESSAGE_TYPES.STREAMS_CONFIG_LOAD_ALL);
 	}
 
-	handle(handlerArgs) {
+	async handle(handlerArgs) {
 		const { message, streamsManager } = handlerArgs;
-		return new Promise(async (resolve, reject) => {
+		try {
 			const streams = await streamsManager.configsManager.loadConfigurations();
 			const streamsWithStatus = streams.map((stream) => {
-				stream.status = streamsManager.streamsMonitor.streamsStatusMap.get(
-					stream.id
-				);
+				stream.status = streamsManager.streamsMonitor.streamsStatusMap.get(stream.id);
 				return stream;
 			});
 			const result = {
 				streams: streamsWithStatus
 				// queueStrategies,
 			};
-			if (result) {
-				resolve(this.confirm(message, result));
-			} else {
-				reject(
-					this.reject({}, 'Failed to retrieve all DS configurations!')
-				);
-			}
-		});
+			return this.confirm(message, result);
+		} catch (error) {
+			logger.error('Failed to retrieve all Stream configurations!', error);
+			return this.reject(message, 'Failed to retrieve all Stream configurations!');
+		}
 	}
 }
 

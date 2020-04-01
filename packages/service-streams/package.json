@@ -44,6 +44,7 @@
     "@cedalo/repository": "1.6.0-beta",
     "@cedalo/sdk-streams": "1.6.0-beta",
     "@cedalo/service-core": "1.6.0-beta",
+    "@cedalo/util": "1.6.0-beta",
     "ioredis": "4.6.2",
     "mixwith": "0.1.1"
   },
