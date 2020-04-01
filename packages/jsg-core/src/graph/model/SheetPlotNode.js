@@ -52,6 +52,9 @@ const templates = {
 		title: {
 			format: new ChartFormat('none', undefined, 'none', 12),
 		},
+		datalabel: {
+			format: new ChartFormat('none', undefined, 'none', 6),
+		},
 		plot: {
 			format: new ChartFormat('none', undefined, '#FFFFFF'),
 		},
@@ -745,6 +748,18 @@ module.exports = class SheetPlotNode extends Node {
 		}
 
 		super.layout();
+	}
+
+	getDataLabel(value, serie) {
+		let text = '';
+
+		if (serie.dataLabel.content.x) {
+			text += value.x;
+		}
+		if (serie.dataLabel.content.y) {
+			text += value.y;
+		}
+		return text;
 	}
 
 	getParamInfo(term, index) {
@@ -1582,11 +1597,16 @@ module.exports = class SheetPlotNode extends Node {
 		}
 		const yc = rect.top + rect.height / 2 + yTop * yRadius / 2 - yBottom * yRadius / 2;
 
+
 		return {
 			startAngle,
 			endAngle,
 			xRadius,
 			yRadius,
+			xOuterRadius: xRadius * (this.chart.hole + (1 - this.chart.hole) * ((index + 1) / this.series.length)),
+			yOuterRadius: yRadius * (this.chart.hole + (1 - this.chart.hole) * ((index + 1) / this.series.length)),
+			xInnerRadius: xRadius * (this.chart.hole + (1 - this.chart.hole) * (index / this.series.length)),
+			yInnerRadius: yRadius * (this.chart.hole + (1 - this.chart.hole) * (index / this.series.length)),
 			xc,
 			yc,
 			height,
@@ -2125,8 +2145,8 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		return this.plot.position.containsPoint(pt);
 	}
 
-	getEllipseSegmentPoints(xc, yc, xInnerRadius, yInnerRadius,	xOuterRadius, yOuterRadius, rotation, startAngle, endAngle, selection = false) {
-		const step = (endAngle - startAngle) / (selection ? 1 : 36);
+	getEllipseSegmentPoints(xc, yc, xInnerRadius, yInnerRadius,	xOuterRadius, yOuterRadius, rotation, startAngle, endAngle, count) {
+		const step = (endAngle - startAngle) / count;
 		const points = [];
 
 		if (endAngle <= startAngle) {
@@ -2167,12 +2187,8 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 				const angle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
 				switch (serie.type) {
 				case 'doughnut': {
-					const xOuterRadius = pieInfo.xRadius * (this.chart.hole + (1 - this.chart.hole) * ((seriesIndex + 1) / this.series.length));
-					const yOuterRadius = pieInfo.yRadius * (this.chart.hole + (1 - this.chart.hole) * ((seriesIndex + 1) / this.series.length));
-					const xInnerRadius = pieInfo.xRadius * (this.chart.hole + (1 - this.chart.hole) * (seriesIndex / this.series.length));
-					const yInnerRadius = pieInfo.yRadius * (this.chart.hole + (1 - this.chart.hole) * (seriesIndex / this.series.length));
-					points = this.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, xInnerRadius, yInnerRadius,
-						xOuterRadius, yOuterRadius, 0, currentAngle, currentAngle + angle);
+					points = this.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, pieInfo.xInnerRadius, pieInfo.yInnerRadius,
+						pieInfo.xOuterRadius, pieInfo.yOuterRadius, 0, currentAngle, currentAngle + angle, 36);
 					if (MathUtils.isPointInPolygon(points, pt)) {
 						value.series = serie;
 						value.index = seriesIndex;
@@ -2191,7 +2207,7 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 				}
 				case 'pie':
 					points = this.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, 0, 0,
-						pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle, currentAngle + angle);
+						pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle, currentAngle + angle, 36);
 					if (MathUtils.isPointInPolygon(points, pt)) {
 						value.series = serie;
 						value.index = seriesIndex;
@@ -2262,8 +2278,125 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 			y = this.scaleToAxis(axes.y, value.y, info, false);
 
 			switch (serie.type) {
-			case 'pie':
+			case 'bar':
+				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
+				dataRect.set(
+					plotRect.left + y * plotRect.width - 100 + barInfo.height * plotRect.width,
+					plotRect.bottom - x * plotRect.height + barInfo.offset - 100,
+					plotRect.left + y * plotRect.width + 100,
+					plotRect.bottom - x * plotRect.height + barInfo.offset + 100 + barWidth - barInfo.margin
+				);
 				break;
+			case 'profile':
+				dataRect.set(
+					plotRect.left + y * plotRect.width - 200,
+					plotRect.bottom - x * plotRect.height - 200,
+					plotRect.left + y * plotRect.width + 200,
+					plotRect.bottom - x * plotRect.height + 200
+				);
+				break;
+			case 'column':
+			case 'state':
+				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
+				dataRect.set(
+					plotRect.left + x * plotRect.width + barInfo.offset - 100,
+					plotRect.bottom - y * plotRect.height - 100,
+					plotRect.left + x * plotRect.width + barInfo.offset + 100 + barWidth - barInfo.margin,
+					plotRect.bottom - y * plotRect.height + 100 - barInfo.height * plotRect.height);
+
+				break;
+			case 'line':
+			case 'scatter':
+			case 'bubble':
+				dataRect.set(
+					plotRect.left + x * plotRect.width - 200,
+					plotRect.bottom - y * plotRect.height - 200,
+					plotRect.left + x * plotRect.width + 200,
+					plotRect.bottom - y * plotRect.height + 200
+				);
+				break;
+			case 'area':
+				dataRect.set(
+					plotRect.left + x * plotRect.width - 200,
+					plotRect.bottom - y * plotRect.height - 200,
+					plotRect.left + x * plotRect.width + 200,
+					plotRect.bottom - y * plotRect.height + 200
+				);
+				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
+				points.push({
+					x: plotRect.left + x * plotRect.width,
+					y: plotRect.bottom - y * plotRect.height
+				});
+				prevPoints.push({
+					x: plotRect.left + x * plotRect.width,
+					y: plotRect.bottom - y * plotRect.height - barInfo.height * plotRect.height
+				});
+				break;
+			}
+
+			dataRect.sort();
+			if (dataRect.containsPoint(pt)) {
+				value.axes = axes;
+				value.serie = serie;
+				value.index = index;
+				value.pointIndex = pointIndex;
+				dataPoints.push({
+					x: value.x,
+					y: value.y,
+					axes,
+					serie,
+					index,
+					pointIndex
+				});
+				if (serie.type !== 'area') {
+					return true;
+				}
+			}
+			pointIndex += 1;
+		}
+		if (serie.type === 'area') {
+			const searchPoints = [];
+			points.forEach((point) => {
+				searchPoints.push(point);
+			});
+			for (let i = prevPoints.length - 1; i >= 0; i -= 1) {
+				searchPoints.push(prevPoints[i]);
+			}
+			if (MathUtils.isPointInPolygon(searchPoints, pt)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	isSeriesLabelHitCartesian(serie, ref, index, plotRect, pt, dataPoints) {
+		if (!ref) {
+			return false;
+		}
+
+		const dataRect = new ChartRect();
+		const axes = this.getAxes(serie);
+		let pointIndex = 0;
+		let x;
+		let y;
+		let barInfo;
+		const barWidth = this.getBarWidth(axes, serie, plotRect);
+		const info = {
+			serie,
+			seriesIndex: index,
+			categories: axes.y.categories
+		};
+		const points = [];
+		const prevPoints = [];
+		const value = {};
+
+		while (this.getValue(ref, pointIndex, value)) {
+			info.index = pointIndex;
+			x = this.scaleToAxis(axes.x, value.x, undefined, false);
+			y = this.scaleToAxis(axes.y, value.y, info, false);
+
+			switch (serie.type) {
 			case 'bar':
 				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
 				dataRect.set(
@@ -2388,6 +2521,35 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 			};
 		}
 
+		// if (!skipSeries && this.plot.position.containsPoint(pt)) {
+		// 	const revSeries = [].concat(this.series).reverse();
+		// 	result = revSeries.filter((serie) => {
+		// 		const index = this.series.indexOf(serie);
+		// 		const ref = this.getDataSourceInfo(serie.formula);
+		// 		switch (serie.type) {
+		// 		case 'pie':
+		// 		case 'doughnut':
+		// 			// return this.isSeriesHitCircular(serie, ref, index, plotRect, pt, dataPoints);
+		// 			break;
+		// 		default:
+		// 			return this.isSeriesLabelHitCartesian(serie, ref, index, plotRect, pt, dataPoints);
+		// 		}
+		// 	});
+		// 	if (result.length) {
+		// 		const index = 0;
+		// 		// if (oldSelection && oldSelection.element === 'series' && result.length > 1) {
+		// 		// 	index = oldSelection.selectionIndex < result.length - 1 ? oldSelection.selectionIndex + 1 : 0;
+		// 		// }
+		// 		return {
+		// 			element: 'serieslabel',
+		// 			index: this.series.indexOf(result[index]),
+		// 			selectionIndex: index,
+		// 			data: result[index],
+		// 			dataPoints
+		// 		};
+		// 	}
+		// }
+		//
 		if (!skipSeries && this.plot.position.containsPoint(pt)) {
 			const revSeries = [].concat(this.series).reverse();
 			result = revSeries.filter((serie) => {

@@ -107,6 +107,19 @@ export default class SheetPlotView extends NodeView {
 				}
 			});
 
+			series.forEach((serie, index) => {
+				if (serie.dataLabel.visible) {
+					switch (serie.type) {
+					case 'pie':
+					case 'doughnut':
+						break;
+					default:
+						lastPoints = this.drawCartesianLabels(graphics, item, plotRect, serie, index, lastPoints);
+						break;
+					}
+				}
+			});
+
 			if (drawAxes) {
 				this.drawAxes(graphics, plotRect, item, false);
 			}
@@ -423,14 +436,10 @@ export default class SheetPlotView extends NodeView {
 					const angle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
 					switch (serie.type) {
 					case 'doughnut': {
-						const xOuterRadius = pieInfo.xRadius * (item.chart.hole + (1 - item.chart.hole) * ((seriesIndex + 1) / item.series.length));
-						const yOuterRadius = pieInfo.yRadius * (item.chart.hole + (1 - item.chart.hole) * ((seriesIndex + 1) / item.series.length));
-						const xInnerRadius = pieInfo.xRadius * (item.chart.hole + (1 - item.chart.hole) * (seriesIndex / item.series.length));
-						const yInnerRadius = pieInfo.yRadius * (item.chart.hole + (1 - item.chart.hole) * (seriesIndex / item.series.length));
 						graphics.beginPath();
-						graphics.ellipse(pieInfo.xc, pieInfo.yc, xOuterRadius, yOuterRadius, 0, currentAngle, currentAngle + angle,
+						graphics.ellipse(pieInfo.xc, pieInfo.yc, pieInfo.xOuterRadius, pieInfo.yOuterRadius, 0, currentAngle, currentAngle + angle,
 							false);
-						graphics.ellipse(pieInfo.xc, pieInfo.yc, xInnerRadius, yInnerRadius, 0, currentAngle + angle, currentAngle,
+						graphics.ellipse(pieInfo.xc, pieInfo.yc, pieInfo.xInnerRadius, pieInfo.yInnerRadius, 0, currentAngle + angle, currentAngle,
 							true);
 						if (i) {
 							graphics.stroke();
@@ -810,6 +819,127 @@ export default class SheetPlotView extends NodeView {
 			graphics.stroke();
 		}
 
+
+		return points;
+	}
+
+	drawCartesianLabels(graphics, item, plotRect, serie, seriesIndex, lastPoints) {
+		let index = 0;
+		let barInfo;
+		const value = {};
+		const ref = item.getDataSourceInfo(serie.formula);
+		const axes = item.getAxes(serie);
+		const margin = 150;
+
+		if (!ref || !axes) {
+			return undefined;
+		}
+
+		const barWidth = item.getBarWidth(axes, serie, plotRect);
+		const points = [];
+		const pt = {x: 0, y: 0};
+		const toPlot = (point) => {
+			if (serie.type === 'bar' || serie.type === 'profile') {
+				const x = point.x;
+				if (point.x !== undefined) {
+					point.x = plotRect.left + point.y * plotRect.width;
+				}
+				if (point.y !== undefined) {
+					point.y = plotRect.bottom - x * plotRect.height;
+				}
+			} else {
+				if (point.x !== undefined) {
+					point.x = plotRect.left + point.x * plotRect.width;
+				}
+				if (point.y !== undefined) {
+					point.y = plotRect.bottom - point.y * plotRect.height;
+				}
+			}
+			return point;
+		};
+		const info = {
+			serie,
+			seriesIndex,
+			categories: axes.y.categories
+		};
+		const labelRect = new ChartRect();
+
+		item.setFont(graphics, serie.dataLabel.format, 'datalabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
+
+		while (item.getValue(ref, index, value)) {
+			info.index = index;
+			if (value.x !== undefined && value.y !== undefined) {
+				pt.x = item.scaleToAxis(axes.x, value.x, undefined, false);
+				pt.y = item.scaleToAxis(axes.y, value.y, info, false);
+				toPlot(pt);
+				switch (serie.type) {
+				case 'profile':
+				case 'scatter':
+					labelRect.set(pt.x, pt.y, pt.x, pt.y);
+					break;
+				case 'bubble': {
+					const radius = this.scaleBubble(axes.y, plotRect, serie, value.c);
+					labelRect.set(pt.x - radius, pt.y - radius, pt.x + radius, pt.y + radius);
+					break;
+				}
+				case 'area':
+				case 'line':
+					if (lastPoints && lastPoints.length > index) {
+						labelRect.set(pt.x, pt.y, pt.x, lastPoints[index].y);
+
+					} else {
+						labelRect.set(pt.x, pt.y, pt.x, pt.y);
+					}
+					if (serie.type === 'area') {
+						if (item.chart.stacked) {
+							points.push({
+								x: pt.x,
+								y: pt.y
+							});
+						}
+					}
+					break;
+				case 'column':
+				case 'state':
+					barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
+					labelRect.set(pt.x + barInfo.offset, pt.y, pt.x + barInfo.offset + barWidth - barInfo.margin, pt.y - barInfo.height * plotRect.height);
+					break;
+				case 'bar':
+					barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
+					labelRect.set(pt.x + barInfo.height * plotRect.width, pt.y + barInfo.offset, pt.x, pt.y + barInfo.offset + barWidth - barInfo.margin);
+					break;
+				}
+				const center = labelRect.center;
+				const text = item.getDataLabel(value, serie);
+				if (text.length) {
+					const textSize = item.measureText(graphics, graphics.getCoordinateSystem(), serie.dataLabel.format,
+						'datalabel', text);
+					textSize.height += margin;
+					textSize.width += margin;
+					switch (serie.dataLabel.position) {
+					case 'beforestart':
+						break;
+					case 'start':
+						break;
+					case 'center':
+						break;
+					case 'end':
+						break;
+					case 'behindend':
+						if (serie.type === 'profile' || serie.type === 'bar') {
+							labelRect.set(labelRect.right, center.y - textSize.height / 2,
+								labelRect.right + textSize.width, center.y + textSize.height / 2);
+						} else {
+							labelRect.set(center.x - textSize.width / 2, labelRect.top - textSize.height,
+								center.x + textSize.width / 2, labelRect.top);
+						}
+						break;
+					}
+					graphics.fillText(text, labelRect.center.x, labelRect.center.y);
+				}
+			}
+			index += 1;
+		}
 
 		return points;
 	}

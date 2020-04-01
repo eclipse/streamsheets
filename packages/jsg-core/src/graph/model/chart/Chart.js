@@ -11,7 +11,7 @@ module.exports = class Chart {
 		this.endAngle = Math.PI * 2;
 		this.hole = 0.5;
 		this.template = 'basic';
-		this.tooltips = false;
+		this.tooltips = true;
 		this.margins = new ChartRect(200, 200, 200, 200);
 	}
 

@@ -372,6 +372,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'series');
 	};
 
+	handleSeriesDataLabelsChange = (event, state) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.dataLabel.visible = state;
+		this.finishCommand(cmd, 'series');
+	};
+
 	translateTitle(title) {
 		const data = this.getData();
 
@@ -1203,35 +1210,6 @@ export class StreamChartProperties extends Component {
 									onChange={(color) => this.handleSeriesMarkerLineColorChange(color)}
 								/>
 							</FormControl>
-							<FormGroup
-								style={{
-									margin: '8px'
-								}}
-							>
-								<FormLabel
-									component="legend"
-									style={{
-										marginTop: '12px',
-										marginBottom: '7px'
-									}}
-								>
-									Settings
-								</FormLabel>
-								<FormControlLabel
-									control={
-										<Checkbox
-											checked={data.smooth}
-											onChange={(event, state) => this.handleSeriesSmoothChange(event, state)}
-										/>
-									}
-									label={
-										<FormattedMessage
-											id="StreamChartProperties.SmoothLine"
-											defaultMessage="Smooth Line"
-										/>
-									}
-								/>
-							</FormGroup>
 							<FormLabel
 								component="legend"
 								style={{
@@ -1286,6 +1264,49 @@ export class StreamChartProperties extends Component {
 									))}
 								</Select>
 							</FormControl>
+							<FormGroup
+								style={{
+									margin: '8px'
+								}}
+							>
+								<FormLabel
+									component="legend"
+									style={{
+										marginTop: '12px',
+										marginBottom: '7px'
+									}}
+								>
+									Settings
+								</FormLabel>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={data.smooth}
+											onChange={(event, state) => this.handleSeriesSmoothChange(event, state)}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.SmoothLine"
+											defaultMessage="Smooth Line"
+										/>
+									}
+								/>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={data.dataLabel.visible}
+											onChange={(event, state) => this.handleSeriesDataLabelsChange(event, state)}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.ShowDataLabels"
+											defaultMessage="Show Data Labels"
+										/>
+									}
+								/>
+							</FormGroup>
 						</div>
 					) : null}
 				</div>

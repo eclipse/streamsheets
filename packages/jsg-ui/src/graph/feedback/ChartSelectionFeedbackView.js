@@ -126,7 +126,7 @@ export default class ChartSelectionFeedbackView extends View {
 							const xInnerRadius = pieInfo.xRadius * (item.chart.hole + (1 - item.chart.hole) * (selection.index / item.series.length));
 							const yInnerRadius = pieInfo.yRadius * (item.chart.hole + (1 - item.chart.hole) * (selection.index / item.series.length));
 							const points = item.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, xInnerRadius, yInnerRadius,
-								xOuterRadius, yOuterRadius, 0, currentAngle, currentAngle + angle, true);
+								xOuterRadius, yOuterRadius, 0, currentAngle, currentAngle + angle, 2);
 							points.forEach((pt) => {
 								rect.set(pt.x - 75, pt.y - 75, 150, 150);
 								graphics.drawMarker(rect, true);
@@ -137,7 +137,7 @@ export default class ChartSelectionFeedbackView extends View {
 						case 'pie': {
 							const angle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
 							const points = item.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, 0, 0,
-								pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle, currentAngle + angle, true);
+								pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle, currentAngle + angle, 2);
 							points.forEach((pt) => {
 								rect.set(pt.x - 75, pt.y - 75, 150, 150);
 								graphics.drawMarker(rect, true);
