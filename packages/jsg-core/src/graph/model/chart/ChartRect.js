@@ -16,6 +16,10 @@ module.exports = class ChartRect {
 		return new ChartRect(this.left, this.top, this.right, this.bottom);
 	}
 
+	get center() {
+		return { x : (this.left + this.right) / 2, y: (this.top + this.bottom) / 2 };
+	}
+
 	sort() {
 		if (this.left > this.right) {
 			const x = this.right;

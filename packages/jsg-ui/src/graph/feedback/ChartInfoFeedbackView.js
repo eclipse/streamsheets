@@ -131,6 +131,7 @@ export default class ChartInfoFeedbackView extends View {
 
 			const values = [];
 			const circular = item.isCircular();
+			let pieInfo;
 
 			if (circular) {
 				const value = {};
@@ -140,7 +141,7 @@ export default class ChartInfoFeedbackView extends View {
 				const serie = item.series[this.selection.dataPoints[0].index];
 				const ref = item.getDataSourceInfo(serie.formula);
 
-				const pieInfo = item.getPieInfo(ref, serie, plotRect, this.selection.dataPoints[0].index);
+				pieInfo = item.getPieInfo(ref, serie, plotRect, this.selection.dataPoints[0].index);
 				let currentAngle = pieInfo.startAngle;
 				let index = 0;
 				let angle = 0;
@@ -150,13 +151,21 @@ export default class ChartInfoFeedbackView extends View {
 					index += 1;
 				}
 				switch (serie.type) {
-				case 'pie':
-				case 'doughnut': {
+				case 'pie': {
 					const points = item.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, 0, 0,
-						pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle - angle, currentAngle, true);
+						pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle - angle, currentAngle, 2);
 					if (points.length) {
-						x = top.x - item.plot.position.left + points[0].x;
-						y = top.y - item.plot.position.top + points[0].y;
+						x = top.x - item.plot.position.left + points[1].x;
+						y = top.y - item.plot.position.top + points[1].y;
+					}
+					break;
+				}
+				case 'doughnut': {
+					const points = item.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, pieInfo.xInnerRadius, pieInfo.yInnerRadius,
+						pieInfo.xOuterRadius, pieInfo.yOuterRadius, 0, currentAngle - angle, currentAngle, 2);
+					if (points.length) {
+						x = top.x - item.plot.position.left + points[1].x;
+						y = top.y - item.plot.position.top + points[1].y;
 					}
 					break;
 				}
@@ -186,6 +195,8 @@ export default class ChartInfoFeedbackView extends View {
 						});
 					}
 				});
+				x += space;
+				y += space;
 			}
 
 			if (!values.length) {
@@ -199,10 +210,19 @@ export default class ChartInfoFeedbackView extends View {
 
 			width = graphics.getCoordinateSystem().deviceToLogX(width, true);
 
+			if (circular) {
+				if (x < top.x + pieInfo.xc - plotRect.left) {
+					x -= width + margin * 2;
+				}
+				if (y < top.y + pieInfo.yc - plotRect.top) {
+					y -= (values.length + 1) * height + margin * 2;
+				}
+			}
+
 			graphics.beginPath();
 			graphics.setFillColor('#FFFFFF');
 			graphics.setLineColor('#AAAAAA');
-			graphics.rect(x + space, y + space, width + margin * 2,
+			graphics.rect(x, y, width + margin * 2,
 				margin * 2 + (values.length + 1) * height);
 			graphics.fill();
 			graphics.stroke();
@@ -210,7 +230,7 @@ export default class ChartInfoFeedbackView extends View {
 			graphics.setFillColor('#000000');
 
 			const text = getLabel(values[0], true, circular);
-			graphics.fillText(text, x + space + margin, y + space + margin);
+			graphics.fillText(text, x + margin, y + margin);
 
 			values.forEach((value, index) => {
 				const label = getLabel(value, false, circular);
@@ -221,7 +241,7 @@ export default class ChartInfoFeedbackView extends View {
 					graphics.setFillColor(
 						value.serie.format.lineColor || item.getTemplate().series.getLineForIndex(value.seriesIndex));
 				}
-				graphics.fillText(label, x + space + margin, y + height * (index + 1) + space + margin * 2);
+				graphics.fillText(label, x + margin, y + height * (index + 1) + margin * 2);
 			});
 		}
 	}
