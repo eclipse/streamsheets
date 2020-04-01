@@ -162,7 +162,7 @@ module.exports = class StreamsMonitor {
 
 	async onMessage(topic, message, stream) {
 		const jsonMessage = transformMessage(message);
-		redis.queueAll(streamSubscribersKey(stream.id), jsonMessage);
+		redis.queueAll(streamSubscribersKey(stream.id, stream.config.scope.id), jsonMessage);
 	}
 
 	onPublish(message, stream) {
