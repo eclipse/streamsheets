@@ -8,6 +8,7 @@ const {
 	MongoDBConnection
 } = require('@cedalo/repository');
 const { MongoDBStreamsRepository } = require('@cedalo/service-streams');
+import { User } from './user/types';
 const { createUserRepository } = require('./user/UserRepository');
 import { StreamRepositoryProxy } from './stream';
 import glue, { RawAPI } from './glue';
@@ -77,6 +78,20 @@ export const init = async (config: any, plugins: string[]) => {
 			role: 'developer'
 		});
 	}
+
+	// create an internal viewer user if not present:
+	if(users.filter((user: User) => user.username === 'sharedmachine').length === 0) {
+		const pwhash = await encryptionContext.hash(`${Math.random()}`);
+		await RepositoryManager.userRepository.createUser({
+			id: '00000000000001',
+			username: 'sharedmachine',
+			email: 'info@cedalo.com',
+			password: pwhash,
+			scope: { id: 'viewer' },
+			role: 'developer'
+		});
+	}
+
 	RepositoryManager.streamRepository = new StreamRepositoryProxy();
 	await RepositoryManager.connectAll(mongoConnection);
 	await RepositoryManager.setupAllIndicies();
