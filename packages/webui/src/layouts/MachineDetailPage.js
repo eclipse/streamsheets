@@ -59,7 +59,7 @@ const useExperimental = (setAppState) => {
 export function MachineDetailPage(props) {
 	const { locale, machineName, viewMode, searchParams, isConnected, showTools, location } = props;
 	// Should be directly on props
-	const { machineId } = props.match.params;
+	const machineId = props.match.params.machineId || props.machineId;
 	const { token, userId } = qs.parse(location.search);
 
 	if (token && !accessManager.authToken) {
@@ -127,6 +127,7 @@ export function MachineDetailPage(props) {
 				const newURL = Path.machine(machine.id);
 				props.history.replace(newURL);
 			}
+			// will probably always/often fail for shared machine due to wrong scope??
 			const { scopedByMachine } = await gatewayClient.graphql(
 				`
 			query MachineDetailPageData($machineId: ID!) {
@@ -153,11 +154,12 @@ export function MachineDetailPage(props) {
 			setCanEditMachine(scopedByMachine.machine.canEdit);
 			props.receiveStreams({ streams: scopedByMachine.streamsLegacy });
 			props.setScope(scopedByMachine.machine.scope.id);
-			graphManager.updateCanvas(showTools, viewMode);
-			graphManager.redraw();
 		} catch (error) {
 			console.log(error);
 			console.log(`${error ? error.toString() : ''}`);
+		} finally {
+			graphManager.updateCanvas(showTools, viewMode);
+			graphManager.redraw();
 		}
 	};
 
