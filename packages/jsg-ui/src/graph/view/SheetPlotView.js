@@ -375,21 +375,6 @@ export default class SheetPlotView extends NodeView {
 		}
 	}
 
-	scaleBubble(axis, plotRect, serie, value) {
-		const radiusMax = Math.min(plotRect.width, plotRect.height) / 12; // * (double)Group.GetBubbleScale() / 100.0;
-
-		if (value > 0 && axis.cMaxData > 0) {
-			// if( Group.GetSizeRepresents() == ctSizeIsWidth ) {
-			// 	iRadius = (int)(dOuterCircle / dMax * dSize);
-			// } else {
-			const maxArea = radiusMax * radiusMax * Math.PI;
-			const objectArea = value / axis.cMaxData * maxArea;
-			return Math.sqrt(objectArea / Math.PI);
-			// }
-		}
-		return 0;
-	}
-
 	getPlotPoint(item, axes, ref, info, defPt, index, offset, pt) {
 		if (item.getValue(ref, index + offset, pt)) {
 			info.index = index + offset;
@@ -538,25 +523,6 @@ export default class SheetPlotView extends NodeView {
 		const ptPrev = {x: 0, y: 0};
 		const ptNext = {x: 0, y: 0};
 		const ptLast = {x: 0, y: 0};
-		const toPlot = (point) => {
-			if (serie.type === 'bar' || serie.type === 'profile') {
-				const x = point.x;
-				if (point.x !== undefined) {
-					point.x = plotRect.left + point.y * plotRect.width;
-				}
-				if (point.y !== undefined) {
-					point.y = plotRect.bottom - x * plotRect.height;
-				}
-			} else {
-				if (point.x !== undefined) {
-					point.x = plotRect.left + point.x * plotRect.width;
-				}
-				if (point.y !== undefined) {
-					point.y = plotRect.bottom - point.y * plotRect.height;
-				}
-			}
-			return point;
-		};
 		const info = {
 			serie,
 			seriesIndex,
@@ -568,7 +534,7 @@ export default class SheetPlotView extends NodeView {
 			if (item.chart.dataMode === 'datainterrupt' || (value.x !== undefined && value.y !== undefined)) {
 				pt.x = item.scaleToAxis(axes.x, value.x, undefined, false);
 				pt.y = item.scaleToAxis(axes.y, value.y, info, false);
-				toPlot(pt);
+				item.toPlot(serie, plotRect, pt);
 				switch (serie.type) {
 					case 'profile':
 						if (
@@ -584,7 +550,7 @@ export default class SheetPlotView extends NodeView {
 						} else {
 							if (serie.smooth) {
 								this.getPlotPoint(item, axes, ref, info, value, index, -1, ptLast);
-								toPlot(ptLast);
+								item.toPlot(serie, plotRect, ptLast);
 
 								const midX = (ptLast.x + pt.x) / 2;
 								const midY = (ptLast.y + pt.y) / 2;
@@ -600,7 +566,7 @@ export default class SheetPlotView extends NodeView {
 						break;
 					case 'bubble':
 						if (value.x !== undefined && value.y !== undefined && value.c !== undefined) {
-							const radius = this.scaleBubble(axes.y, plotRect, serie, value.c);
+							const radius = item.scaleBubble(axes.y, plotRect, serie, value.c);
 							graphics.moveTo(pt.x + radius, pt.y);
 							graphics.circle(pt.x, pt.y, radius);
 						}
@@ -621,9 +587,9 @@ export default class SheetPlotView extends NodeView {
 								this.getPlotPoint(item, axes, ref, info, value, index, 1, ptNext);
 								this.getPlotPoint(item, axes, ref, info, value, index, -1, ptLast);
 								this.getPlotPoint(item, axes, ref, info, value, index, -2, ptPrev);
-								toPlot(ptPrev);
-								toPlot(ptLast);
-								toPlot(ptNext);
+								item.toPlot(serie, plotRect, ptPrev);
+								item.toPlot(serie, plotRect, ptLast);
+								item.toPlot(serie, plotRect, ptNext);
 
 								const cp1 = controlPoint(ptLast, ptPrev, pt);
 								const cp2 = controlPoint(pt, ptLast, ptNext, true);
@@ -651,7 +617,8 @@ export default class SheetPlotView extends NodeView {
 						} else {
 							if (serie.smooth) {
 								this.getPlotPoint(item, axes, ref, info, value, index, -1, ptLast);
-								toPlot(ptLast);
+								item.toPlot(serie, plotRect, ptLast);
+
 
 								const midX = (ptLast.x + pt.x) / 2;
 								const midY = (ptLast.y + pt.y) / 2;
@@ -714,7 +681,7 @@ export default class SheetPlotView extends NodeView {
 							}
 							if (item.chart.period && index) {
 								this.getPlotPoint(item, axes, ref, info, value, index, -1, ptLast);
-								toPlot(ptLast);
+								item.toPlot(serie, plotRect, ptLast);
 								graphics.rect(
 									pt.x,
 									pt.y,
@@ -803,7 +770,7 @@ export default class SheetPlotView extends NodeView {
 					case 'profile':
 					case 'line':
 					case 'scatter':
-						toPlot(pt);
+						item.toPlot(serie, plotRect, pt);
 						if (plotRect.containsPoint(pt)) {
 							this.drawMarker(graphics, serie, {
 								x: pt.x,
@@ -825,11 +792,9 @@ export default class SheetPlotView extends NodeView {
 
 	drawCartesianLabels(graphics, item, plotRect, serie, seriesIndex, lastPoints) {
 		let index = 0;
-		let barInfo;
 		const value = {};
 		const ref = item.getDataSourceInfo(serie.formula);
 		const axes = item.getAxes(serie);
-		const margin = 150;
 
 		if (!ref || !axes) {
 			return undefined;
@@ -838,105 +803,33 @@ export default class SheetPlotView extends NodeView {
 		const barWidth = item.getBarWidth(axes, serie, plotRect);
 		const points = [];
 		const pt = {x: 0, y: 0};
-		const toPlot = (point) => {
-			if (serie.type === 'bar' || serie.type === 'profile') {
-				const x = point.x;
-				if (point.x !== undefined) {
-					point.x = plotRect.left + point.y * plotRect.width;
-				}
-				if (point.y !== undefined) {
-					point.y = plotRect.bottom - x * plotRect.height;
-				}
-			} else {
-				if (point.x !== undefined) {
-					point.x = plotRect.left + point.x * plotRect.width;
-				}
-				if (point.y !== undefined) {
-					point.y = plotRect.bottom - point.y * plotRect.height;
-				}
-			}
-			return point;
-		};
 		const info = {
 			serie,
 			seriesIndex,
 			categories: axes.y.categories
 		};
-		const labelRect = new ChartRect();
 
-		item.setFont(graphics, serie.dataLabel.format, 'datalabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
+		item.setFont(graphics, serie.dataLabel.format, 'serieslabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
+		const params = {
+			graphics,
+			serie,
+			axes,
+			plotRect,
+			barWidth,
+			seriesIndex,
+			points,
+			lastPoints
+		};
 
 		while (item.getValue(ref, index, value)) {
 			info.index = index;
 			if (value.x !== undefined && value.y !== undefined) {
 				pt.x = item.scaleToAxis(axes.x, value.x, undefined, false);
 				pt.y = item.scaleToAxis(axes.y, value.y, info, false);
-				toPlot(pt);
-				switch (serie.type) {
-				case 'profile':
-				case 'scatter':
-					labelRect.set(pt.x, pt.y, pt.x, pt.y);
-					break;
-				case 'bubble': {
-					const radius = this.scaleBubble(axes.y, plotRect, serie, value.c);
-					labelRect.set(pt.x - radius, pt.y - radius, pt.x + radius, pt.y + radius);
-					break;
-				}
-				case 'area':
-				case 'line':
-					if (lastPoints && lastPoints.length > index) {
-						labelRect.set(pt.x, pt.y, pt.x, lastPoints[index].y);
-
-					} else {
-						labelRect.set(pt.x, pt.y, pt.x, pt.y);
-					}
-					if (serie.type === 'area') {
-						if (item.chart.stacked) {
-							points.push({
-								x: pt.x,
-								y: pt.y
-							});
-						}
-					}
-					break;
-				case 'column':
-				case 'state':
-					barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
-					labelRect.set(pt.x + barInfo.offset, pt.y, pt.x + barInfo.offset + barWidth - barInfo.margin, pt.y - barInfo.height * plotRect.height);
-					break;
-				case 'bar':
-					barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
-					labelRect.set(pt.x + barInfo.height * plotRect.width, pt.y + barInfo.offset, pt.x, pt.y + barInfo.offset + barWidth - barInfo.margin);
-					break;
-				}
-				const center = labelRect.center;
+				item.toPlot(serie, plotRect, pt);
 				const text = item.getDataLabel(value, serie);
-				if (text.length) {
-					const textSize = item.measureText(graphics, graphics.getCoordinateSystem(), serie.dataLabel.format,
-						'datalabel', text);
-					textSize.height += margin;
-					textSize.width += margin;
-					switch (serie.dataLabel.position) {
-					case 'beforestart':
-						break;
-					case 'start':
-						break;
-					case 'center':
-						break;
-					case 'end':
-						break;
-					case 'behindend':
-						if (serie.type === 'profile' || serie.type === 'bar') {
-							labelRect.set(labelRect.right, center.y - textSize.height / 2,
-								labelRect.right + textSize.width, center.y + textSize.height / 2);
-						} else {
-							labelRect.set(center.x - textSize.width / 2, labelRect.top - textSize.height,
-								center.x + textSize.width / 2, labelRect.top);
-						}
-						break;
-					}
-					graphics.fillText(text, labelRect.center.x, labelRect.center.y);
-				}
+				const labelRect = item.getLabelRect(pt, value, text, index, params);
+				graphics.fillText(text, labelRect.center.x, labelRect.center.y);
 			}
 			index += 1;
 		}
@@ -1066,6 +959,10 @@ export default class SheetPlotView extends NodeView {
 						f.setLineColor(data.format.lineColor || template.plot.format.lineColor);
 						f.setFillColor(data.format.fillColor || template.plot.format.fillColor);
 						break;
+					case 'serieslabel':
+						f.setFillColor(data.dataLabel.format.fillColor || template.series.getFillForIndex(this.chartSelection.index));
+						f.setLineColor(data.dataLabel.format.lineColor || template.series.getLineForIndex(this.chartSelection.index));
+					break;
 					case 'series':
 						f.setFillColor(data.format.fillColor || template.series.getFillForIndex(this.chartSelection.index));
 						f.setLineColor(data.format.lineColor || template.series.getLineForIndex(this.chartSelection.index));
@@ -1106,6 +1003,25 @@ export default class SheetPlotView extends NodeView {
 			const template = this.getItem().getTemplate();
 			if (data) {
 				switch (this.chartSelection.element) {
+					case 'serieslabel':
+						tf.setFontName(
+							data.dataLabel.format.fontName ||
+							template[this.chartSelection.element].format.fontName ||
+							template.font.name
+						);
+						tf.setFontSize(
+							data.dataLabel.format.fontSize ||
+							template[this.chartSelection.element].format.fontSize ||
+							template.font.size
+						);
+						if (data.dataLabel.format.fontStyle !== undefined) {
+							tf.setFontStyle(data.dataLabel.format.fontStyle);
+						} else if (template[this.chartSelection.element].format.fontStyle !== undefined) {
+							tf.setFontStyle(template[this.chartSelection.element].format.fontStyle);
+						} else {
+							tf.setFontStyle(template.font.style);
+						}
+						break;
 					case 'series':
 					case 'title':
 					case 'legend':
@@ -1234,6 +1150,9 @@ export default class SheetPlotView extends NodeView {
 				case 'yAxisGrid':
 					format = data.formatGrid;
 					break;
+				case 'serieslabel':
+					format = data.dataLabel.format;
+					break;
 				default:
 					format = data.format;
 					break;
@@ -1286,6 +1205,7 @@ export default class SheetPlotView extends NodeView {
 		if (this.chartSelection) {
 			switch (this.chartSelection.element) {
 				case 'series':
+				case 'serieslabel':
 					update('series');
 					return true;
 				case 'xAxis':

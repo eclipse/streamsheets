@@ -52,7 +52,7 @@ const templates = {
 		title: {
 			format: new ChartFormat('none', undefined, 'none', 12),
 		},
-		datalabel: {
+		serieslabel: {
 			format: new ChartFormat('none', undefined, 'none', 6),
 		},
 		plot: {
@@ -118,6 +118,9 @@ const templates = {
 		},
 		title: {
 			format: new ChartFormat('none', undefined, 'none', 12),
+		},
+		serieslabel: {
+			format: new ChartFormat('none', undefined, 'none', 6),
 		},
 		plot: {
 			format: new ChartFormat('none', undefined, '#000000'),
@@ -2081,6 +2084,7 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		}
 
 		switch (selection.element) {
+		case 'serieslabel':
 		case 'series':
 			return this.series[selection.index];
 		case 'xAxis':
@@ -2144,6 +2148,26 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 	isPlotHit(pt) {
 		return this.plot.position.containsPoint(pt);
 	}
+
+	toPlot(serie, plotRect, point) {
+		if (serie.type === 'bar' || serie.type === 'profile') {
+			const x = point.x;
+			if (point.x !== undefined) {
+				point.x = plotRect.left + point.y * plotRect.width;
+			}
+			if (point.y !== undefined) {
+				point.y = plotRect.bottom - x * plotRect.height;
+			}
+		} else {
+			if (point.x !== undefined) {
+				point.x = plotRect.left + point.x * plotRect.width;
+			}
+			if (point.y !== undefined) {
+				point.y = plotRect.bottom - point.y * plotRect.height;
+			}
+		}
+		return point;
+	};
 
 	getEllipseSegmentPoints(xc, yc, xInnerRadius, yInnerRadius,	xOuterRadius, yOuterRadius, rotation, startAngle, endAngle, count) {
 		const step = (endAngle - startAngle) / count;
@@ -2371,16 +2395,13 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 	}
 
 	isSeriesLabelHitCartesian(serie, ref, index, plotRect, pt, dataPoints) {
-		if (!ref) {
+		if (!ref || !JSG.graphics) {
 			return false;
 		}
 
-		const dataRect = new ChartRect();
 		const axes = this.getAxes(serie);
 		let pointIndex = 0;
-		let x;
-		let y;
-		let barInfo;
+		const ptValue = {x: 0, y: 0};
 		const barWidth = this.getBarWidth(axes, serie, plotRect);
 		const info = {
 			serie,
@@ -2390,106 +2411,128 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		const points = [];
 		const prevPoints = [];
 		const value = {};
+		const params = {
+			graphics: JSG.graphics,
+			serie,
+			axes,
+			plotRect,
+			barWidth,
+			seriesIndex: index,
+			points,
+			lastPoints: prevPoints
+		};
+
+		this.setFont(JSG.graphics, serie.dataLabel.format, 'serieslabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
 
 		while (this.getValue(ref, pointIndex, value)) {
 			info.index = pointIndex;
-			x = this.scaleToAxis(axes.x, value.x, undefined, false);
-			y = this.scaleToAxis(axes.y, value.y, info, false);
+			if (value.x !== undefined && value.y !== undefined) {
+				ptValue.x = this.scaleToAxis(axes.x, value.x, undefined, false);
+				ptValue.y = this.scaleToAxis(axes.y, value.y, info, false);
+				this.toPlot(serie, plotRect, ptValue);
 
-			switch (serie.type) {
-			case 'bar':
-				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
-				dataRect.set(
-					plotRect.left + y * plotRect.width - 100 + barInfo.height * plotRect.width,
-					plotRect.bottom - x * plotRect.height + barInfo.offset - 100,
-					plotRect.left + y * plotRect.width + 100,
-					plotRect.bottom - x * plotRect.height + barInfo.offset + 100 + barWidth - barInfo.margin
-				);
-				break;
-			case 'profile':
-				dataRect.set(
-					plotRect.left + y * plotRect.width - 200,
-					plotRect.bottom - x * plotRect.height - 200,
-					plotRect.left + y * plotRect.width + 200,
-					plotRect.bottom - x * plotRect.height + 200
-				);
-				break;
-			case 'column':
-			case 'state':
-				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
-				dataRect.set(
-					plotRect.left + x * plotRect.width + barInfo.offset - 100,
-					plotRect.bottom - y * plotRect.height - 100,
-					plotRect.left + x * plotRect.width + barInfo.offset + 100 + barWidth - barInfo.margin,
-					plotRect.bottom - y * plotRect.height + 100 - barInfo.height * plotRect.height);
-
-				break;
-			case 'line':
-			case 'scatter':
-			case 'bubble':
-				dataRect.set(
-					plotRect.left + x * plotRect.width - 200,
-					plotRect.bottom - y * plotRect.height - 200,
-					plotRect.left + x * plotRect.width + 200,
-					plotRect.bottom - y * plotRect.height + 200
-				);
-				break;
-			case 'area':
-				dataRect.set(
-					plotRect.left + x * plotRect.width - 200,
-					plotRect.bottom - y * plotRect.height - 200,
-					plotRect.left + x * plotRect.width + 200,
-					plotRect.bottom - y * plotRect.height + 200
-				);
-				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
-				points.push({
-					x: plotRect.left + x * plotRect.width,
-					y: plotRect.bottom - y * plotRect.height
-				});
-				prevPoints.push({
-					x: plotRect.left + x * plotRect.width,
-					y: plotRect.bottom - y * plotRect.height - barInfo.height * plotRect.height
-				});
-				break;
-			}
-
-			dataRect.sort();
-			if (dataRect.containsPoint(pt)) {
-				value.axes = axes;
-				value.serie = serie;
-				value.index = index;
-				value.pointIndex = pointIndex;
-				dataPoints.push({
-					x: value.x,
-					y: value.y,
-					axes,
-					serie,
-					index,
-					pointIndex
-				});
-				if (serie.type !== 'area') {
+				const text = this.getDataLabel(value, serie);
+				const dataRect = this.getLabelRect(ptValue, value, text, index, params);
+				dataRect.sort();
+				if (dataRect.containsPoint(pt)) {
 					return true;
 				}
 			}
 			pointIndex += 1;
 		}
-		if (serie.type === 'area') {
-			const searchPoints = [];
-			points.forEach((point) => {
-				searchPoints.push(point);
-			});
-			for (let i = prevPoints.length - 1; i >= 0; i -= 1) {
-				searchPoints.push(prevPoints[i]);
-			}
-			if (MathUtils.isPointInPolygon(searchPoints, pt)) {
-				return true;
-			}
-		}
 
 		return false;
 	}
 
-	isElementHit(pt, oldSelection, skipSeries = false) {
+	scaleBubble(axis, plotRect, serie, value) {
+		const radiusMax = Math.min(plotRect.width, plotRect.height) / 12; // * (double)Group.GetBubbleScale() / 100.0;
+
+		if (value > 0 && axis.cMaxData > 0) {
+			// if( Group.GetSizeRepresents() == ctSizeIsWidth ) {
+			// 	iRadius = (int)(dOuterCircle / dMax * dSize);
+			// } else {
+			const maxArea = radiusMax * radiusMax * Math.PI;
+			const objectArea = value / axis.cMaxData * maxArea;
+			return Math.sqrt(objectArea / Math.PI);
+			// }
+		}
+		return 0;
+	}
+
+	getLabelRect(pt, value, text, index, params) {
+		const labelRect = new ChartRect();
+		let barInfo;
+
+		switch (params.serie.type) {
+		case 'profile':
+		case 'scatter':
+			labelRect.set(pt.x, pt.y, pt.x, pt.y);
+			break;
+		case 'bubble': {
+			const radius = this.scaleBubble(params.axes.y, params.plotRect, params.serie, value.c);
+			labelRect.set(pt.x - radius, pt.y - radius, pt.x + radius, pt.y + radius);
+			break;
+		}
+		case 'area':
+		case 'line':
+			if (params.lastPoints && params.lastPoints.length > index) {
+				labelRect.set(pt.x, pt.y, pt.x, params.lastPoints[index].y);
+
+			} else {
+				labelRect.set(pt.x, pt.y, pt.x, pt.y);
+			}
+			if (params.serie.type === 'area') {
+				if (this.chart.stacked) {
+					params.points.push({
+						x: pt.x,
+						y: pt.y
+					});
+				}
+			}
+			break;
+		case 'column':
+		case 'state':
+			barInfo = this.getBarInfo(params.axes, params.serie, params.seriesIndex, index, value.y, params.barWidth);
+			labelRect.set(pt.x + barInfo.offset, pt.y, pt.x + barInfo.offset + params.barWidth - barInfo.margin,
+				pt.y - barInfo.height * params.plotRect.height);
+			break;
+		case 'bar':
+			barInfo = this.getBarInfo(params.axes, params.serie, params.seriesIndex, index, value.y, params.barWidth);
+			labelRect.set(pt.x + barInfo.height * params.plotRect.width, pt.y + barInfo.offset, pt.x,
+				pt.y + barInfo.offset + params.barWidth - barInfo.margin);
+			break;
+		}
+		const center = labelRect.center;
+		if (text.length) {
+			const margin = 150;
+			const textSize = this.measureText(params.graphics, params.graphics.getCoordinateSystem(), params.serie.dataLabel.format,
+				'serieslabel', text);
+			textSize.height += margin;
+			textSize.width += margin;
+			switch (params.serie.dataLabel.position) {
+			case 'beforestart':
+				break;
+			case 'start':
+				break;
+			case 'center':
+				break;
+			case 'end':
+				break;
+			case 'behindend':
+				if (params.serie.type === 'profile' || params.serie.type === 'bar') {
+					labelRect.set(labelRect.right, center.y - textSize.height / 2,
+						labelRect.right + textSize.width, center.y + textSize.height / 2);
+				} else {
+					labelRect.set(center.x - textSize.width / 2, labelRect.top - textSize.height,
+						center.x + textSize.width / 2, labelRect.top);
+				}
+				break;
+			}
+		}
+		return labelRect;
+	}
+
+	isElementHit(pt, oldSelection, series = 'yes') {
 		let result;
 		const dataPoints = [];
 		const plotRect = this.plot.position;
@@ -2521,36 +2564,33 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 			};
 		}
 
-		// if (!skipSeries && this.plot.position.containsPoint(pt)) {
-		// 	const revSeries = [].concat(this.series).reverse();
-		// 	result = revSeries.filter((serie) => {
-		// 		const index = this.series.indexOf(serie);
-		// 		const ref = this.getDataSourceInfo(serie.formula);
-		// 		switch (serie.type) {
-		// 		case 'pie':
-		// 		case 'doughnut':
-		// 			// return this.isSeriesHitCircular(serie, ref, index, plotRect, pt, dataPoints);
-		// 			break;
-		// 		default:
-		// 			return this.isSeriesLabelHitCartesian(serie, ref, index, plotRect, pt, dataPoints);
-		// 		}
-		// 	});
-		// 	if (result.length) {
-		// 		const index = 0;
-		// 		// if (oldSelection && oldSelection.element === 'series' && result.length > 1) {
-		// 		// 	index = oldSelection.selectionIndex < result.length - 1 ? oldSelection.selectionIndex + 1 : 0;
-		// 		// }
-		// 		return {
-		// 			element: 'serieslabel',
-		// 			index: this.series.indexOf(result[index]),
-		// 			selectionIndex: index,
-		// 			data: result[index],
-		// 			dataPoints
-		// 		};
-		// 	}
-		// }
-		//
-		if (!skipSeries && this.plot.position.containsPoint(pt)) {
+		if (series === 'yes' && this.plot.position.containsPoint(pt)) {
+			const revSeries = [].concat(this.series).reverse();
+			result = revSeries.filter((serie) => {
+				const index = this.series.indexOf(serie);
+				const ref = this.getDataSourceInfo(serie.formula);
+				switch (serie.type) {
+				case 'pie':
+				case 'doughnut':
+					// return this.isSeriesHitCircular(serie, ref, index, plotRect, pt, dataPoints);
+					break;
+				default:
+					return this.isSeriesLabelHitCartesian(serie, ref, index, plotRect, pt, dataPoints);
+				}
+				return false;
+			});
+			if (result.length) {
+				const index = 0;
+				return {
+					element: 'serieslabel',
+					index: this.series.indexOf(result[index]),
+					data: result[0],
+					dataPoints
+				};
+			}
+		}
+
+		if (series !== 'no' && this.plot.position.containsPoint(pt)) {
 			const revSeries = [].concat(this.series).reverse();
 			result = revSeries.filter((serie) => {
 				const index = this.series.indexOf(serie);

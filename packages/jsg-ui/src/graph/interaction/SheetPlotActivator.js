@@ -236,7 +236,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 		let selection;
 		if (interaction._controller.getModel().chart.tooltips) {
 			if (interaction.isPlotHit(event, viewer)) {
-				selection = interaction.isElementHit(event, viewer);
+				selection = interaction.isElementHit(event, viewer, undefined, 'only');
 				interaction.showData(selection, event, viewer);
 				event.doRepaint = true;
 			} else {
@@ -244,7 +244,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 			}
 		}
 
-		selection = interaction.isElementHit(event, viewer, undefined, true);
+		selection = interaction.isElementHit(event, viewer, undefined, 'no');
 		if (selection) {
 			event.isConsumed = true;
 			event.hasActivated = true;

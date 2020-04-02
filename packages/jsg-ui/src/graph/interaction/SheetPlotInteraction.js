@@ -58,10 +58,10 @@ export default class SheetPlotInteraction extends Interaction {
 		return point;
 	}
 
-	isElementHit(event, viewer, oldSelection, skipSeries) {
+	isElementHit(event, viewer, oldSelection, series) {
 		const pt = this.toLocalCoordinate(event, viewer, event.location.copy());
 
-		return this._controller.getModel().isElementHit(pt, oldSelection, skipSeries);
+		return this._controller.getModel().isElementHit(pt, oldSelection, series);
 	}
 
 	isPlotHit(event, viewer) {

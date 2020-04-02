@@ -400,6 +400,8 @@ export class StreamChartProperties extends Component {
 				return 'Axis Title';
 			case 'series':
 				return 'Series';
+			case 'serieslabel':
+				return 'Series Label';
 			default:
 				return title;
 		}
