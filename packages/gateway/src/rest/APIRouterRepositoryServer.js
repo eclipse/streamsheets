@@ -47,6 +47,12 @@ module.exports = class APIRouter extends Router {
 		);
 		this.options('/login', APIRouter.noopOptions);
 		this.post(
+			'/pathlogin',
+			bodyParser.json({ inflate: true, strict: true }),
+			AuthRoutes.pathLogin
+		);
+		this.options('/pathlogin', APIRouter.noopOptions);
+		this.post(
 			'/logout',
 			passport.authenticate('jwt', { session: false }),
 			bodyParser.json({ inflate: true, strict: true }),

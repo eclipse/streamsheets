@@ -43,4 +43,34 @@ module.exports = class AuthRoutes {
 				break;
 		}
 	}
+
+	static async pathLogin(request, response, next) {
+		const { userRepository } = request.app.locals.RepositoryManager;
+		switch (request.method) {
+			case 'POST':
+				try {
+					const { pathname } = request.body;
+					if (pathname && pathname.startsWith('/shared-machine')) {
+						const user = await userRepository.findUserByUsername('internalviewer');
+						const token = Auth.getToken(user);
+						response.status(200).json({ token, user });
+					} else {
+						response.status(403).json({ error: 'LOGIN_FAILED' });
+					}
+				} catch (error) {
+					if(error.code === 'USER_NOT_FOUND'){
+						logger.info('Login failed: Invalid username');
+						response.status(403).json({ error: 'LOGIN_FAILED' });
+					} else {
+						logger.error(error);
+						response.status(500).end();
+					}
+				}
+				break;
+			default:
+				response.set('allow', 'GET,POST');
+				next(new httpError.MethodNotAllowed());
+				break;
+		}
+	}
 };
