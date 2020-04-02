@@ -113,6 +113,7 @@ export default class ChartSelectionFeedbackView extends View {
 					categories: axes.y.categories
 				};
 				const barWidth = item.getBarWidth(axes, data, plotRect);
+				const pieInfo = item.isCircular() ? item.getPieInfo(ref, serie, plotRect, selection.index) : undefined;
 				const params = {
 					graphics,
 					serie,
@@ -121,7 +122,9 @@ export default class ChartSelectionFeedbackView extends View {
 					barWidth,
 					seriesIndex: selection.index,
 					points,
-					lastPoints: prevPoints
+					lastPoints: prevPoints,
+					pieInfo,
+					currentAngle : pieInfo ? pieInfo.startAngle : 0
 				};
 
 				item.setFont(graphics, serie.dataLabel.format, 'serieslabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
@@ -129,8 +132,6 @@ export default class ChartSelectionFeedbackView extends View {
 				graphics.setLineColor(SelectionStyle.MARKER_BORDER_COLOR);
 				graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
 				graphics.setFillStyle(FormatAttributes.FillStyle.SOLID);
-				// const pieInfo = item.isCircular() ? item.getPieInfo(ref, serie, plotRect, selection.index) : undefined;
-				// let currentAngle = pieInfo ? pieInfo.startAngle : 0;
 
 				while (item.getValue(ref, index, value)) {
 					info.index = index;
@@ -139,7 +140,7 @@ export default class ChartSelectionFeedbackView extends View {
 						pt.y = item.scaleToAxis(axes.y, value.y, info, false);
 						item.toPlot(serie, plotRect, pt);
 
-						const text = item.getDataLabel(value, serie);
+						const text = item.getDataLabel(value, axes.x, ref, serie);
 						const drawRect = item.getLabelRect(pt, value, text, index, params);
 						rect.set(drawRect.left - 50, drawRect.top - 50, 100, 100);
 						graphics.drawMarker(rect, true);

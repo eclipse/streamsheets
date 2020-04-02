@@ -51,7 +51,6 @@ export default class SheetPlotActivator extends InteractionActivator {
 			event.hasActivated = true;
 		};
 
-
 		if (controller.getView().chartSelection !== undefined) {
 			const selection = controller.getView().chartSelection;
 			if (selection) {
@@ -61,6 +60,16 @@ export default class SheetPlotActivator extends InteractionActivator {
 					case 'Delete': {
 						const cmd = item.prepareCommand('series');
 						JSG.Arrays.remove(item.series, selection.data);
+						finish(cmd, 'series');
+						break;
+					}
+					}
+					break;
+				case 'serieslabel':
+					switch (event.event.key) {
+					case 'Delete': {
+						const cmd = item.prepareCommand('series');
+						selection.data.dataLabel.visible = false;
 						finish(cmd, 'series');
 						break;
 					}
@@ -149,12 +158,6 @@ export default class SheetPlotActivator extends InteractionActivator {
 				}
 				break;
 			}
-			// case 'series':
-			// 	selection.data.xAxis = 'secondary';
-			// 	selection.data.yAxis = 'secondary';
-			// 	viewer.getGraph().markDirty();
-			// 	event.doRepaint = true;
-			// 	break;
 			}
 		}
 		if (!item.isProtected()) {

@@ -376,6 +376,41 @@ export class StreamChartProperties extends Component {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
 		data.dataLabel.visible = state;
+		if (data.dataLabel.visible &&
+			!data.dataLabel.content.x &&
+			!data.dataLabel.content.y &&
+			!data.dataLabel.content.radius &&
+			!data.dataLabel.content.series) {
+			data.dataLabel.content.y = true;
+		}
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesDataLabelsContentChange = (event, type, state) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.dataLabel.content[type] = state;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesDataLabelsSeparatorChange = (event) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.dataLabel.separator = event.target.value;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesDataLabelsPositionChange = (event) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.dataLabel.position = event.target.value;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesDataLabelsLinkChange = (event, state) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.dataLabel.linkNumberFormat = state;
 		this.finishCommand(cmd, 'series');
 	};
 
@@ -1309,6 +1344,196 @@ export class StreamChartProperties extends Component {
 									}
 								/>
 							</FormGroup>
+						</div>
+					) : null}
+					{selection && selection.element === 'serieslabel' ? (
+						<div>
+							<FormGroup
+								style={{
+									margin: '8px'
+								}}
+							>
+								<FormLabel
+									component="legend"
+									style={{
+										marginTop: '12px',
+										marginBottom: '7px'
+									}}
+								>
+									Display
+								</FormLabel>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={data.dataLabel.content.x}
+											onChange={(event, state) => this.handleSeriesDataLabelsContentChange(event, 'x', state)}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.Categories"
+											defaultMessage="X Values or Categories"
+										/>
+									}
+								/>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={data.dataLabel.content.y}
+											onChange={(event, state) => this.handleSeriesDataLabelsContentChange(event, 'y', state)}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.YValues"
+											defaultMessage="Y Values"
+										/>
+									}
+								/>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={data.dataLabel.content.radius}
+											onChange={(event, state) => this.handleSeriesDataLabelsContentChange(event, 'radius', state)}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.Radius"
+											defaultMessage="Radius"
+										/>
+									}
+								/>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={data.dataLabel.content.series}
+											onChange={(event, state) => this.handleSeriesDataLabelsContentChange(event, 'series', state)}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.Series"
+											defaultMessage="Series"
+										/>
+									}
+								/>
+							</FormGroup>
+							<FormControl
+								style={{
+									width: '95%',
+									margin: '8px'
+								}}
+							>
+								<InputLabel htmlFor="position">
+									<FormattedMessage
+										id="StreamChartProperties.Position"
+										defaultMessage="Position"
+									/>
+								</InputLabel>
+								<Select
+									id="position"
+									value={data.dataLabel.position}
+									onChange={this.handleSeriesDataLabelsPositionChange}
+									input={<Input name="position" id="position" />}
+								>
+									<MenuItem value="beforestart" key={1}>
+										<FormattedMessage
+											id="StreamChartProperties.BeforeStart"
+											defaultMessage="Before Start"
+										/>
+									</MenuItem>
+									<MenuItem value="start" key={2}>
+										<FormattedMessage
+											id="StreamChartProperties.start"
+											defaultMessage="Start"
+										/>
+									</MenuItem>
+									<MenuItem value="center" key={3}>
+										<FormattedMessage
+											id="StreamChartProperties.Center"
+											defaultMessage="Center"
+										/>
+									</MenuItem>
+									<MenuItem value="end" key={4}>
+										<FormattedMessage
+											id="StreamChartProperties.End"
+											defaultMessage="End"
+										/>
+									</MenuItem>
+									<MenuItem value="behindend" key={5}>
+										<FormattedMessage
+											id="StreamChartProperties.BehindEnd"
+											defaultMessage="Behind End"
+										/>
+									</MenuItem>
+								</Select>
+							</FormControl>
+							<FormControl
+								style={{
+									width: '95%',
+									margin: '8px'
+								}}
+							>
+								<InputLabel htmlFor="hide-empty">
+									<FormattedMessage
+										id="StreamChartProperties.Separator"
+										defaultMessage="Separator"
+									/>
+								</InputLabel>
+								<Select
+									id="hide-empty"
+									value={data.dataLabel.separator}
+									onChange={this.handleSeriesDataLabelsSeparatorChange}
+									input={<Input name="hide-empty" id="hide-empty" />}
+								>
+									<MenuItem value="&lf" key={1}>
+										<FormattedMessage
+											id="StreamChartProperties.LineFeed"
+											defaultMessage="Line Feed"
+										/>
+									</MenuItem>
+									<MenuItem value=" " key={2}>
+										<FormattedMessage
+											id="StreamChartProperties.Space"
+											defaultMessage="Space"
+										/>
+									</MenuItem>
+									<MenuItem value="," key={4}>
+										<FormattedMessage
+											id="StreamChartProperties.Comma"
+											defaultMessage="Comma"
+										/>
+									</MenuItem>
+									<MenuItem value=";" key={3}>
+										<FormattedMessage
+											id="StreamChartProperties.Semicolon"
+											defaultMessage="Semicolon"
+										/>
+									</MenuItem>
+								</Select>
+							</FormControl>
+							<FormControl
+								style={{
+									width: '95%',
+									margin: '8px'
+								}}
+							>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={data.dataLabel.linkNumberFormat}
+											onChange={(event, state) => this.handleSeriesDataLabelsLinkChange(event, state)}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.LinkNumberFormat"
+											defaultMessage="Link Numberformat to Cell"
+										/>
+									}
+								/>
+							</FormControl>
 						</div>
 					) : null}
 				</div>

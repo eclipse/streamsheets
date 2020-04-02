@@ -109,14 +109,7 @@ export default class SheetPlotView extends NodeView {
 
 			series.forEach((serie, index) => {
 				if (serie.dataLabel.visible) {
-					switch (serie.type) {
-					case 'pie':
-					case 'doughnut':
-						break;
-					default:
-						lastPoints = this.drawCartesianLabels(graphics, item, plotRect, serie, index, lastPoints);
-						break;
-					}
+					lastPoints = this.drawLabels(graphics, item, plotRect, serie, index, lastPoints);
 				}
 			});
 
@@ -790,7 +783,7 @@ export default class SheetPlotView extends NodeView {
 		return points;
 	}
 
-	drawCartesianLabels(graphics, item, plotRect, serie, seriesIndex, lastPoints) {
+	drawLabels(graphics, item, plotRect, serie, seriesIndex, lastPoints) {
 		let index = 0;
 		const value = {};
 		const ref = item.getDataSourceInfo(serie.formula);
@@ -808,6 +801,7 @@ export default class SheetPlotView extends NodeView {
 			seriesIndex,
 			categories: axes.y.categories
 		};
+		const pieInfo = item.isCircular() ? item.getPieInfo(ref, serie, plotRect, seriesIndex) : undefined;
 
 		item.setFont(graphics, serie.dataLabel.format, 'serieslabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
 		const params = {
@@ -818,7 +812,9 @@ export default class SheetPlotView extends NodeView {
 			barWidth,
 			seriesIndex,
 			points,
-			lastPoints
+			lastPoints,
+			pieInfo,
+			currentAngle : pieInfo ? pieInfo.startAngle : 0
 		};
 
 		while (item.getValue(ref, index, value)) {
@@ -827,9 +823,18 @@ export default class SheetPlotView extends NodeView {
 				pt.x = item.scaleToAxis(axes.x, value.x, undefined, false);
 				pt.y = item.scaleToAxis(axes.y, value.y, info, false);
 				item.toPlot(serie, plotRect, pt);
-				const text = item.getDataLabel(value, serie);
+				const text = item.getDataLabel(value, axes.x, ref, serie);
 				const labelRect = item.getLabelRect(pt, value, text, index, params);
-				graphics.fillText(text, labelRect.center.x, labelRect.center.y);
+				if (text instanceof Array) {
+					const lineHeight = (labelRect.height - 150 - (text.length - 1) * 50) / text.length;
+					let y = labelRect.top + 75 + lineHeight / 2;
+					text.forEach((part, pi) => {
+						graphics.fillText(part, labelRect.center.x, y);
+						y += 50 + lineHeight;
+					})
+				} else {
+					graphics.fillText(text, labelRect.center.x, labelRect.center.y);
+				}
 			}
 			index += 1;
 		}

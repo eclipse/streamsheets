@@ -37,9 +37,9 @@ module.exports = class JSONReader extends Reader {
 	}
 
 	getAttributeString(object, key, defaultValue) {
-		return this.getAttribute(object, key) === undefined
+		return Strings.decodeXML(this.getAttribute(object, key) === undefined
 			? defaultValue
-			: this.getAttribute(object, key);
+			: this.getAttribute(object, key));
 	}
 
 	getAttributeNumber(object, name, defvalue) {

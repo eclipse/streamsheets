@@ -753,15 +753,50 @@ module.exports = class SheetPlotNode extends Node {
 		super.layout();
 	}
 
-	getDataLabel(value, serie) {
-		let text = '';
+	getDataLabel(value, axis, ref, serie) {
+		let text;
+		if (serie.dataLabel.separator === '&lf') {
+			text = [];
+		} else {
+			text = ''
+		}
+		const add = (newText) => {
+			if (serie.dataLabel.separator === '&lf') {
+				text.push(String(newText));
+			} else {
+				if (text.length) {
+					text += serie.dataLabel.separator;
+				}
+				text += newText;
+			}
+		};
 
-		if (serie.dataLabel.content.x) {
-			text += value.x;
+		if (serie.dataLabel.content.series) {
+			if (ref && ref.yName !== undefined) {
+				add(ref.yName);
+			}
 		}
-		if (serie.dataLabel.content.y) {
-			text += value.y;
+		if (serie.dataLabel.content.x && value.x !== undefined) {
+			if (axis.type === 'category' && ref) {
+				add(this.getLabel(ref, axis, Math.floor(value.x)));
+			} else if (Numbers.isNumber(value.x) && serie.dataLabel.format && serie.dataLabel.format.numberFormat) {
+				add(this.formatNumber(value.x, serie.dataLabel.format));
+			} else {
+				add(value.x);
+			}
 		}
+		if (serie.dataLabel.content.y && value.y !== undefined) {
+			if (Numbers.isNumber(value.y) && serie.dataLabel.format && serie.dataLabel.format.numberFormat) {
+				add(this.formatNumber(value.y, serie.dataLabel.format));
+			} else {
+				add(value.y);
+			}
+		}
+
+		if (serie.dataLabel.content.radius && value.c !== undefined) {
+			add(value.c);
+		}
+
 		return text;
 	}
 
@@ -2394,8 +2429,8 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		return false;
 	}
 
-	isSeriesLabelHitCartesian(serie, ref, index, plotRect, pt, dataPoints) {
-		if (!ref || !JSG.graphics) {
+	isSeriesLabelHit(serie, ref, index, plotRect, pt, dataPoints) {
+		if (!ref || !JSG.graphics || !serie.dataLabel.visible) {
 			return false;
 		}
 
@@ -2411,6 +2446,7 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		const points = [];
 		const prevPoints = [];
 		const value = {};
+		const pieInfo = this.isCircular() ? this.getPieInfo(ref, serie, plotRect, index) : undefined;
 		const params = {
 			graphics: JSG.graphics,
 			serie,
@@ -2419,7 +2455,9 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 			barWidth,
 			seriesIndex: index,
 			points,
-			lastPoints: prevPoints
+			lastPoints: prevPoints,
+			pieInfo,
+			currentAngle : pieInfo ? pieInfo.startAngle : 0
 		};
 
 		this.setFont(JSG.graphics, serie.dataLabel.format, 'serieslabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
@@ -2431,11 +2469,13 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 				ptValue.y = this.scaleToAxis(axes.y, value.y, info, false);
 				this.toPlot(serie, plotRect, ptValue);
 
-				const text = this.getDataLabel(value, serie);
-				const dataRect = this.getLabelRect(ptValue, value, text, index, params);
-				dataRect.sort();
-				if (dataRect.containsPoint(pt)) {
-					return true;
+				const text = this.getDataLabel(value, axes.x, ref, serie);
+				if (text.length) {
+					const dataRect = this.getLabelRect(ptValue, value, text, index, params);
+					dataRect.sort();
+					if (dataRect.containsPoint(pt)) {
+						return true;
+					}
 				}
 			}
 			pointIndex += 1;
@@ -2462,73 +2502,166 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 	getLabelRect(pt, value, text, index, params) {
 		const labelRect = new ChartRect();
 		let barInfo;
-
-		switch (params.serie.type) {
-		case 'profile':
-		case 'scatter':
-			labelRect.set(pt.x, pt.y, pt.x, pt.y);
-			break;
-		case 'bubble': {
-			const radius = this.scaleBubble(params.axes.y, params.plotRect, params.serie, value.c);
-			labelRect.set(pt.x - radius, pt.y - radius, pt.x + radius, pt.y + radius);
-			break;
-		}
-		case 'area':
-		case 'line':
-			if (params.lastPoints && params.lastPoints.length > index) {
-				labelRect.set(pt.x, pt.y, pt.x, params.lastPoints[index].y);
-
-			} else {
-				labelRect.set(pt.x, pt.y, pt.x, pt.y);
-			}
-			if (params.serie.type === 'area') {
-				if (this.chart.stacked) {
-					params.points.push({
-						x: pt.x,
-						y: pt.y
-					});
-				}
-			}
-			break;
-		case 'column':
-		case 'state':
-			barInfo = this.getBarInfo(params.axes, params.serie, params.seriesIndex, index, value.y, params.barWidth);
-			labelRect.set(pt.x + barInfo.offset, pt.y, pt.x + barInfo.offset + params.barWidth - barInfo.margin,
-				pt.y - barInfo.height * params.plotRect.height);
-			break;
-		case 'bar':
-			barInfo = this.getBarInfo(params.axes, params.serie, params.seriesIndex, index, value.y, params.barWidth);
-			labelRect.set(pt.x + barInfo.height * params.plotRect.width, pt.y + barInfo.offset, pt.x,
-				pt.y + barInfo.offset + params.barWidth - barInfo.margin);
-			break;
-		}
-		const center = labelRect.center;
-		if (text.length) {
+		const measure = (label) => {
 			const margin = 150;
-			const textSize = this.measureText(params.graphics, params.graphics.getCoordinateSystem(), params.serie.dataLabel.format,
-				'serieslabel', text);
+			let textSize;
+			if (label instanceof Array) {
+				textSize = {
+					width: 0,
+					height: 0
+				};
+				label.forEach(txt => {
+					const textS = this.measureText(params.graphics, params.graphics.getCoordinateSystem(),
+						params.serie.dataLabel.format,
+						'serieslabel', txt);
+					textSize.width = Math.max(textS.width, textSize.width);
+					textSize.height += textS.height;
+				});
+				textSize.height += (label.length - 1) * 50;
+			} else {
+				textSize = this.measureText(params.graphics, params.graphics.getCoordinateSystem(),
+					params.serie.dataLabel.format,
+					'serieslabel', label);
+			}
 			textSize.height += margin;
 			textSize.width += margin;
-			switch (params.serie.dataLabel.position) {
-			case 'beforestart':
+			return textSize;
+		};
+
+		if (this.isCircular()) {
+			const angle = Math.abs(
+				value.y) / params.pieInfo.sum * (params.pieInfo.endAngle - params.pieInfo.startAngle);
+			const textAngle = params.currentAngle + angle / 2;
+			let xInnerRadius;
+			let yInnerRadius;
+			let xOuterRadius;
+			let yOuterRadius;
+			let xRadius;
+			let yRadius;
+			switch (params.serie.type) {
+			case 'doughnut':
+				xInnerRadius = params.pieInfo.xInnerRadius;
+				yInnerRadius = params.pieInfo.yInnerRadius;
+				xOuterRadius = params.pieInfo.xOuterRadius;
+				yOuterRadius = params.pieInfo.yOuterRadius;
 				break;
-			case 'start':
-				break;
-			case 'center':
-				break;
-			case 'end':
-				break;
-			case 'behindend':
-				if (params.serie.type === 'profile' || params.serie.type === 'bar') {
-					labelRect.set(labelRect.right, center.y - textSize.height / 2,
-						labelRect.right + textSize.width, center.y + textSize.height / 2);
-				} else {
-					labelRect.set(center.x - textSize.width / 2, labelRect.top - textSize.height,
-						center.x + textSize.width / 2, labelRect.top);
-				}
+			case 'pie':
+				xInnerRadius = 0;
+				yInnerRadius = 0;
+				xOuterRadius = params.pieInfo.xRadius;
+				yOuterRadius = params.pieInfo.yRadius;
 				break;
 			}
+			switch (params.serie.dataLabel.position) {
+			case 'beforestart':
+			case 'start':
+				xRadius = xInnerRadius;
+				yRadius = yInnerRadius;
+				break;
+			case 'center':
+				xRadius = (xInnerRadius + xOuterRadius) / 2;
+				yRadius = (yInnerRadius + yOuterRadius) / 2;
+				break;
+			case 'end':
+			case 'behindend':
+				xRadius = xOuterRadius;
+				yRadius = yOuterRadius;
+				break;
+			}
+			pt.x = params.pieInfo.xc + xRadius * Math.cos(textAngle);
+			pt.y = params.pieInfo.yc + yRadius * Math.sin(textAngle);
+			params.currentAngle += angle;
+			labelRect.set(pt.x, pt.y, pt.x, pt.y);
+			if (text.length) {
+				const textSize = measure(text);
+				const xOff = Math.cos(textAngle) * (textSize.width / 2 + 150);
+				const yOff = Math.sin(textAngle) * (textSize.height / 2 + 150);
+				switch (params.serie.dataLabel.position) {
+				case 'beforestart':
+				case 'start':
+					labelRect.set(labelRect.left + xOff - textSize.width / 2, labelRect.top + yOff - textSize.height / 2,
+						labelRect.right + xOff + textSize.width / 2, labelRect.bottom + yOff + textSize.height / 2);
+					break;
+				case 'center':
+					labelRect.set(labelRect.left - textSize.width / 2, labelRect.top - textSize.height / 2,
+						labelRect.right + textSize.width / 2, labelRect.bottom + textSize.height / 2);
+					break;
+				case 'end':
+					labelRect.set(labelRect.left - xOff - textSize.width / 2, labelRect.top - yOff - textSize.height / 2,
+						labelRect.right - xOff + textSize.width / 2, labelRect.bottom - yOff + textSize.height / 2);
+					break;
+				case 'behindend':
+					labelRect.set(labelRect.left + xOff - textSize.width / 2, labelRect.top + yOff - textSize.height / 2,
+						labelRect.right + xOff + textSize.width / 2, labelRect.bottom + yOff + textSize.height / 2);
+					break;
+				}
+			}
+		} else {
+			switch (params.serie.type) {
+			case 'profile':
+			case 'scatter':
+				labelRect.set(pt.x, pt.y, pt.x, pt.y);
+				break;
+			case 'bubble': {
+				const radius = this.scaleBubble(params.axes.y, params.plotRect, params.serie, value.c);
+				labelRect.set(pt.x - radius, pt.y - radius, pt.x + radius, pt.y + radius);
+				break;
+			}
+			case 'area':
+			case 'line':
+				if (params.lastPoints && params.lastPoints.length > index) {
+					labelRect.set(pt.x, pt.y, pt.x, params.lastPoints[index].y);
+				} else {
+					labelRect.set(pt.x, pt.y, pt.x, pt.y);
+				}
+				if (params.serie.type === 'area') {
+					if (this.chart.stacked) {
+						params.points.push({
+							x: pt.x,
+							y: pt.y
+						});
+					}
+				}
+				break;
+			case 'column':
+			case 'state':
+				barInfo = this.getBarInfo(params.axes, params.serie, params.seriesIndex, index, value.y,
+					params.barWidth);
+				labelRect.set(pt.x + barInfo.offset, pt.y, pt.x + barInfo.offset + params.barWidth - barInfo.margin,
+					pt.y - barInfo.height * params.plotRect.height);
+				break;
+			case 'bar':
+				barInfo = this.getBarInfo(params.axes, params.serie, params.seriesIndex, index, value.y,
+					params.barWidth);
+				labelRect.set(pt.x + barInfo.height * params.plotRect.width, pt.y + barInfo.offset, pt.x,
+					pt.y + barInfo.offset + params.barWidth - barInfo.margin);
+				break;
+			}
+			const center = labelRect.center;
+			if (text.length) {
+				const textSize = measure(text);
+				switch (params.serie.dataLabel.position) {
+				case 'beforestart':
+					break;
+				case 'start':
+					break;
+				case 'center':
+					break;
+				case 'end':
+					break;
+				case 'behindend':
+					if (params.serie.type === 'profile' || params.serie.type === 'bar') {
+						labelRect.set(labelRect.right, center.y - textSize.height / 2,
+							labelRect.right + textSize.width, center.y + textSize.height / 2);
+					} else {
+						labelRect.set(center.x - textSize.width / 2, labelRect.top - textSize.height,
+							center.x + textSize.width / 2, labelRect.top);
+					}
+					break;
+				}
+			}
 		}
+
 		return labelRect;
 	}
 
@@ -2569,15 +2702,7 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 			result = revSeries.filter((serie) => {
 				const index = this.series.indexOf(serie);
 				const ref = this.getDataSourceInfo(serie.formula);
-				switch (serie.type) {
-				case 'pie':
-				case 'doughnut':
-					// return this.isSeriesHitCircular(serie, ref, index, plotRect, pt, dataPoints);
-					break;
-				default:
-					return this.isSeriesLabelHitCartesian(serie, ref, index, plotRect, pt, dataPoints);
-				}
-				return false;
+				return this.isSeriesLabelHit(serie, ref, index, plotRect, pt, dataPoints);
 			});
 			if (result.length) {
 				const index = 0;
