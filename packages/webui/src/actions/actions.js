@@ -601,6 +601,7 @@ export function connect() {
 	});
 	const config = {
 		...CONFIG,
+		pathname: store.getState().router.location.pathname,
 		token: accessManager.authToken
 	};
 	return (dispatch) =>
