@@ -5,9 +5,9 @@ const REDIS_HOST = process.env.REDIS_HOST || 'internal-redis';
 // const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
 const redis = new Redis(REDIS_PORT, REDIS_HOST);
 redis.config('SET', 'notify-keyspace-events', 'K$ls');
-const streamKey = (streamId) => `stream.${streamId}`;
+const streamKey = (streamId, scopeId) => `stream.${scopeId}-${streamId}`;
 const inboxKey = (inboxId) => `inbox.${inboxId}`;
-const streamSubscribersKey = (streamId) => `${streamKey(streamId)}.subscribers`;
+const streamSubscribersKey = (streamId, scopeId) => `${streamKey(streamId, scopeId)}.subscribers`;
 
 const MAX_INBOX_SIZE = parseInt(process.env.MAX_INBOX_SIZE, 10) || 10000;
 

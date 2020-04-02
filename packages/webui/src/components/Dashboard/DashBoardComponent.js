@@ -14,23 +14,21 @@ import FilterMachineStatus from './FilterMachineStatus';
 import { formatDateString } from '../base/listing/Utils';
 import { ImageUploadDialog } from '@cedalo/webui-extensions';
 
-
 const styles = (theme) => ({
 	root: {
 		display: 'flex',
 		flexWrap: 'wrap',
 		justifyContent: 'space-around',
 		overflow: 'hidden',
-		backgroundColor: theme.palette.background.paper,
-	},
+		backgroundColor: theme.palette.background.paper
+	}
 });
 
 class DashBoardComponent extends Component {
-
 	constructor(props) {
 		super(props);
 		this.state = {
-			dialogMachineTitleImageOpen: false,
+			dialogMachineTitleImageOpen: false
 		};
 	}
 
@@ -46,7 +44,7 @@ class DashBoardComponent extends Component {
 		this.setState({
 			dialogMachineTitleImageOpen: false
 		});
-	}
+	};
 
 	onSubmitDialogMachineTitleImage = (result) => {
 		this.setState({
@@ -56,12 +54,14 @@ class DashBoardComponent extends Component {
 			this.props.setTitleImage(this.state.currentMachine, result.imgSrc);
 			this.props.openDashboard(this.state.currentMachine.id);
 		}
-	}
+	};
 
 	handleNew = () => {
-		this.props.setAppState({
-			showNewDialog: true,
-		});
+		this.props.getDataStores().then(() =>
+			this.props.setAppState({
+				showNewDialog: true
+			})
+		);
 	};
 
 	handleMenuSelect = async (optionIndex, resourceId) => {
@@ -72,7 +72,7 @@ class DashBoardComponent extends Component {
 		switch (optionIndex) {
 			case Constants.RESOURCE_MENU_IDS.CLONE: {
 				const response = await this.props.cloneMachine(resourceId);
-				if(response && response.clonedMachine) {
+				if (response && response.clonedMachine) {
 					window.open(`/machines/${response.clonedMachine.id}`, '_blank');
 				}
 				break;
@@ -82,16 +82,16 @@ class DashBoardComponent extends Component {
 				break;
 			case Constants.RESOURCE_MENU_IDS.DELETE: {
 				const machine = this.props.machines.find((m) => m.id === resourceId);
-				this.props.setMachineActive({...machine});
+				this.props.setMachineActive({ ...machine });
 				this.forceUpdate();
 				this.props.setAppState({
-					showDeleteMachineDialog: true,
+					showDeleteMachineDialog: true
 				});
 				break;
 			}
 			case Constants.RESOURCE_MENU_IDS.SET_TITLE_IMAGE: {
 				const machine = this.props.machines.find((m) => m.id === resourceId);
-				this.props.setMachineActive({...machine});
+				this.props.setMachineActive({ ...machine });
 				this.setState({
 					dialogMachineTitleImageOpen: true,
 					currentMachine: machine
@@ -151,58 +151,58 @@ class DashBoardComponent extends Component {
 			const lastModified = machine.metadata.lastModified || Date.now();
 			return {
 				...machine,
-				lastModified,	// needed by SortSelector
-				lastModified_formatted: formatDateString(new Date(lastModified).toISOString()),
+				lastModified, // needed by SortSelector
+				lastModified_formatted: formatDateString(new Date(lastModified).toISOString())
 			};
 		});
 		const canControl = this.props.rights.includes('machine.edit');
 		const canDelete = this.props.rights.includes('machine.edit');
 		const canView = this.props.rights.includes('machine.view');
 		const canEdit = this.props.rights.includes('machine.edit');
-		const menuOptions =[];
+		const menuOptions = [];
 		if (canView) {
 			menuOptions.push({
-				label: <FormattedMessage id="Dashboard.open" defaultMessage="Open"/>,
-				value: Constants.RESOURCE_MENU_IDS.OPEN,
+				label: <FormattedMessage id="Dashboard.open" defaultMessage="Open" />,
+				value: Constants.RESOURCE_MENU_IDS.OPEN
 			});
 		}
 		if (canEdit) {
 			menuOptions.push({
-				label: <FormattedMessage id="Copy" defaultMessage="Copy"/>,
-				value: Constants.RESOURCE_MENU_IDS.CLONE,
+				label: <FormattedMessage id="Copy" defaultMessage="Copy" />,
+				value: Constants.RESOURCE_MENU_IDS.CLONE
 			});
 		}
 		if (canDelete) {
 			menuOptions.push({
-				label: <FormattedMessage id="Dashboard.delete" defaultMessage="Delete"/>,
-				value: Constants.RESOURCE_MENU_IDS.DELETE,
+				label: <FormattedMessage id="Dashboard.delete" defaultMessage="Delete" />,
+				value: Constants.RESOURCE_MENU_IDS.DELETE
 			});
 		}
 		if (canView) {
 			menuOptions.push({
-				label: <FormattedMessage id="Dashboard.export" defaultMessage="Export"/>,
-				value: Constants.RESOURCE_MENU_IDS.EXPORT,
+				label: <FormattedMessage id="Dashboard.export" defaultMessage="Export" />,
+				value: Constants.RESOURCE_MENU_IDS.EXPORT
 			});
 		}
 		if (canEdit) {
 			menuOptions.push({
-				label: <FormattedMessage id="Dashboard.setTitleImage" defaultMessage="Set image"/>,
-				value: Constants.RESOURCE_MENU_IDS.SET_TITLE_IMAGE,
+				label: <FormattedMessage id="Dashboard.setTitleImage" defaultMessage="Set image" />,
+				value: Constants.RESOURCE_MENU_IDS.SET_TITLE_IMAGE
 			});
 		}
 		if (canControl) {
 			menuOptions.push('divider');
 			menuOptions.push({
-				label: <FormattedMessage id="Dashboard.start" defaultMessage="Start"/>,
-				value: Constants.RESOURCE_MENU_IDS.START,
+				label: <FormattedMessage id="Dashboard.start" defaultMessage="Start" />,
+				value: Constants.RESOURCE_MENU_IDS.START
 			});
 			menuOptions.push({
-				label: <FormattedMessage id="Dashboard.stop" defaultMessage="Stop"/>,
-				value: Constants.RESOURCE_MENU_IDS.STOP,
+				label: <FormattedMessage id="Dashboard.stop" defaultMessage="Stop" />,
+				value: Constants.RESOURCE_MENU_IDS.STOP
 			});
 			menuOptions.push({
-				label: <FormattedMessage id="Dashboard.pause" defaultMessage="Pause"/>,
-				value: Constants.RESOURCE_MENU_IDS.PAUSE,
+				label: <FormattedMessage id="Dashboard.pause" defaultMessage="Pause" />,
+				value: Constants.RESOURCE_MENU_IDS.PAUSE
 			});
 		}
 		return (
@@ -212,26 +212,29 @@ class DashBoardComponent extends Component {
 						{
 							label: this.props.intl.formatMessage({
 								id: 'Dashboard.sheets',
-								defaultMessage: 'Sheets',
+								defaultMessage: 'Sheets'
 							}),
-							key: 'streamsheets.length',
+							key: 'streamsheets.length'
 						},
 						{
 							// eslint-disable-next-line
 							label: this.props.intl.formatMessage({
 								id: 'Dashboard.streams',
-								defaultMessage: 'Streams',
+								defaultMessage: 'Streams'
 							}),
-							key: 'streamsheets[*].inbox.stream.name',
+							key: 'streamsheets[*].inbox.stream.name'
 						},
 						{
 							label: this.props.intl.formatMessage({
 								id: 'Admin.provideOwner',
-								defaultMessage: 'Owner',
+								defaultMessage: 'Owner'
 							}),
-							key: 'owner',
+							key: 'owner'
 						},
-						{ label: <FormattedMessage id="Admin.lastModified" defaultMessage="Last Modified" />, key: 'lastModified_formatted' },
+						{
+							label: <FormattedMessage id="Admin.lastModified" defaultMessage="Last Modified" />,
+							key: 'lastModified_formatted'
+						}
 					]}
 					label={<FormattedMessage id="Dashboard.processes" defaultMessage="Processes" />}
 					images
@@ -243,7 +246,7 @@ class DashBoardComponent extends Component {
 							menuId: Constants.RESOURCE_MENU_IDS.STOP,
 							state: 'stopped',
 							label: <FormattedMessage id="Tooltip.Stop" defaultMessage="Stop" />,
-						  	disabled: !canControl
+							disabled: !canControl
 						},
 						{
 							icon: IconPause,
@@ -258,16 +261,14 @@ class DashBoardComponent extends Component {
 							state: 'running',
 							label: <FormattedMessage id="Tooltip.Start" defaultMessage="Start" />,
 							disabled: !canControl
-						},
+						}
 					]}
 					menuOptions={menuOptions}
 					onFilter={this.onFilter}
 					handleFilter={this.handleFilter}
 					onMenuSelect={this.handleMenuSelect}
 					onResourceOpen={this.onResourceOpen}
-					handleNew={
-						this.props.rights.includes('machine.edit') ? this.handleNew : undefined
-					}
+					handleNew={this.props.rights.includes('machine.edit') ? this.handleNew : undefined}
 					headerBackgroundColor="#6C6C70"
 					filters={[FilterMachineStatus]}
 					filterName
@@ -294,9 +295,4 @@ function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default injectIntl(
-	connect(
-		mapStateToProps,
-		mapDispatchToProps,
-	)(withStyles(styles)(DashBoardComponent)),
-);
+export default injectIntl(connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(DashBoardComponent)));

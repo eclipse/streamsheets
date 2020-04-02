@@ -111,7 +111,6 @@ class Connectors extends Component {
 			});
 		}
 		const fields = [
-			{ label: 'State', key: 'state' },
 			{ label: 'Provider', key: 'provider.name' },
 			{ label: 'Topics', key: 'topics'},
 			{ label: 'Owner', key: 'owner' },

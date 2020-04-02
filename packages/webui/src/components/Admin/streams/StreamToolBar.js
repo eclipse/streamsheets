@@ -103,7 +103,6 @@ class StreamToolBar extends React.PureComponent {
 		}
 		return (<ResourceCardHeader
 			{...this.props}
-			showState
 			handleClicked={this.handleAction}
 			resource={resource}
 			titleAttribute="name"

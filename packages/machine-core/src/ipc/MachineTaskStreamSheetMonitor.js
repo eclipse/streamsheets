@@ -13,7 +13,7 @@ const RedisInboxAdapter = require('./RedisInboxAdapter');
 class MachineTaskStreamSheetMonitor {
 	constructor(streamsheet) {
 		this.streamsheet = streamsheet;
-		this.inboxAdapter = new RedisInboxAdapter(streamsheet.inbox);
+		this.inboxAdapter = new RedisInboxAdapter(streamsheet.inbox, this.streamsheet.machine.scope.id);
 		// update interval:
 		this.stepUpdateInterval = -1;
 		this._steps = 0;

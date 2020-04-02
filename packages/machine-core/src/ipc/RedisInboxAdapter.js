@@ -7,7 +7,8 @@ const REDIS_HOST = process.env.REDIS_HOST || 'internal-redis';
 const MAX_INBOX_SIZE = parseInt(process.env.MAX_INBOX_SIZE, 10) || 10000;
 // const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
 
-const redisAPI = (inboxId) => {
+const redisAPI = (inboxId, scopeId) => {
+	const scopedInboxId = `${scopeId}-${inboxId}`;
 	const redis = new Redis(REDIS_PORT, REDIS_HOST);
 	const eventRedis = redis.duplicate();
 	redis.defineCommand('ack', {
@@ -46,10 +47,10 @@ const redisAPI = (inboxId) => {
 	redis.on('error', redisErrorHandler);
 	eventRedis.on('error', redisErrorHandler);
 
-	const inboxKey = `inbox.${inboxId}`;
-	const inboxKeyPending = `inbox.${inboxId}.pending`;
+	const inboxKey = `inbox.${scopedInboxId}`;
+	const inboxKeyPending = `inbox.${scopedInboxId}.pending`;
 
-	const streamSubscriberKey = (streamId) => `stream.${streamId}.subscribers`;
+	const streamSubscriberKey = (streamId) => `stream.${scopeId}-${streamId}.subscribers`;
 
 	const queue = async (key, message) => redis.queue(key, message);
 
@@ -60,17 +61,17 @@ const redisAPI = (inboxId) => {
 
 	const clear = async () => redis.del(inboxKey, inboxKeyPending);
 
-	const isSubscribed = async (streamId) => redis.sismember(streamSubscriberKey(streamId), inboxId);
+	const isSubscribed = async (streamId) => redis.sismember(streamSubscriberKey(streamId), scopedInboxId);
 
 	const subscribe = async (streamId) => {
 		eventRedis.subscribe(inboxKey);
 		redis.del(inboxKeyPending);
-		redis.sadd(streamSubscriberKey(streamId), inboxId);
+		redis.sadd(streamSubscriberKey(streamId), scopedInboxId);
 	};
 
 	const unsubscribe = async (streamId) => {
 		eventRedis.unsubscribe(inboxKey);
-		redis.srem(streamSubscriberKey(streamId), inboxId);
+		redis.srem(streamSubscriberKey(streamId), scopedInboxId);
 	};
 
 	const ack = async () => redis.ack(inboxKey);
@@ -103,10 +104,10 @@ const redisAPI = (inboxId) => {
 };
 
 class RedisInboxAdapter {
-	constructor(inbox) {
+	constructor(inbox, scopeId) {
 		this.inbox = inbox;
 		this.redisLen = 0;
-		this.redis = redisAPI(this.inbox.id);
+		this.redis = redisAPI(this.inbox.id, scopeId);
 		this.redis.onNewMessage((message) => this._newMessage(message));
 		this.subscribe = this.subscribe.bind(this);
 		this.unsubscribe = this.unsubscribe.bind(this);
