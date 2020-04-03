@@ -2553,7 +2553,6 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 				break;
 			}
 			switch (params.serie.dataLabel.position) {
-			case 'beforestart':
 			case 'start':
 				xRadius = xInnerRadius;
 				yRadius = yInnerRadius;
@@ -2577,7 +2576,6 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 				const xOff = Math.cos(textAngle) * (textSize.width / 2 + 150);
 				const yOff = Math.sin(textAngle) * (textSize.height / 2 + 150);
 				switch (params.serie.dataLabel.position) {
-				case 'beforestart':
 				case 'start':
 					labelRect.set(labelRect.left + xOff - textSize.width / 2, labelRect.top + yOff - textSize.height / 2,
 						labelRect.right + xOff + textSize.width / 2, labelRect.bottom + yOff + textSize.height / 2);
@@ -2600,6 +2598,7 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 			switch (params.serie.type) {
 			case 'profile':
 			case 'scatter':
+			case 'line':
 				labelRect.set(pt.x, pt.y, pt.x, pt.y);
 				break;
 			case 'bubble': {
@@ -2607,23 +2606,8 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 				labelRect.set(pt.x - radius, pt.y - radius, pt.x + radius, pt.y + radius);
 				break;
 			}
-			case 'area':
-			case 'line':
-				if (params.lastPoints && params.lastPoints.length > index) {
-					labelRect.set(pt.x, pt.y, pt.x, params.lastPoints[index].y);
-				} else {
-					labelRect.set(pt.x, pt.y, pt.x, pt.y);
-				}
-				if (params.serie.type === 'area') {
-					if (this.chart.stacked) {
-						params.points.push({
-							x: pt.x,
-							y: pt.y
-						});
-					}
-				}
-				break;
 			case 'column':
+			case 'area':
 			case 'state':
 				barInfo = this.getBarInfo(params.axes, params.serie, params.seriesIndex, index, value.y,
 					params.barWidth);
@@ -2642,12 +2626,35 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 				const textSize = measure(text);
 				switch (params.serie.dataLabel.position) {
 				case 'beforestart':
+					if (params.serie.type === 'profile' || params.serie.type === 'bar') {
+						labelRect.set(labelRect.left - textSize.width, center.y - textSize.height / 2,
+							labelRect.left, center.y + textSize.height / 2);
+					} else {
+						labelRect.set(center.x - textSize.width / 2, labelRect.bottom,
+							center.x + textSize.width / 2, labelRect.bottom + textSize.height);
+					}
 					break;
 				case 'start':
+					if (params.serie.type === 'profile' || params.serie.type === 'bar') {
+						labelRect.set(labelRect.left, center.y - textSize.height / 2,
+							labelRect.left + textSize.width, center.y + textSize.height / 2);
+					} else {
+						labelRect.set(center.x - textSize.width / 2, labelRect.bottom - textSize.height,
+							center.x + textSize.width / 2, labelRect.bottom);
+					}
 					break;
 				case 'center':
+					labelRect.set(center.x - textSize.width / 2, center.y - textSize.height / 2,
+						center.x + textSize.width / 2, center.y + textSize.height / 2);
 					break;
 				case 'end':
+					if (params.serie.type === 'profile' || params.serie.type === 'bar') {
+						labelRect.set(labelRect.right - textSize.width, center.y - textSize.height / 2,
+							labelRect.right - textSize.width + textSize.width, center.y + textSize.height / 2);
+					} else {
+						labelRect.set(center.x - textSize.width / 2, labelRect.top,
+							center.x + textSize.width / 2, labelRect.top + textSize.height);
+					}
 					break;
 				case 'behindend':
 					if (params.serie.type === 'profile' || params.serie.type === 'bar') {
@@ -2697,7 +2704,7 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 			};
 		}
 
-		if (series === 'yes' && this.plot.position.containsPoint(pt)) {
+		if (series === 'yes') {
 			const revSeries = [].concat(this.series).reverse();
 			result = revSeries.filter((serie) => {
 				const index = this.series.indexOf(serie);

@@ -1440,13 +1440,13 @@ export class StreamChartProperties extends Component {
 									<MenuItem value="beforestart" key={1}>
 										<FormattedMessage
 											id="StreamChartProperties.BeforeStart"
-											defaultMessage="Before Start"
+											defaultMessage="Below or at inner Circle"
 										/>
 									</MenuItem>
 									<MenuItem value="start" key={2}>
 										<FormattedMessage
-											id="StreamChartProperties.start"
-											defaultMessage="Start"
+											id="StreamChartProperties.Start"
+											defaultMessage="At bottom or at inner Circle"
 										/>
 									</MenuItem>
 									<MenuItem value="center" key={3}>
@@ -1458,13 +1458,13 @@ export class StreamChartProperties extends Component {
 									<MenuItem value="end" key={4}>
 										<FormattedMessage
 											id="StreamChartProperties.End"
-											defaultMessage="End"
+											defaultMessage="At top or at outer Circle"
 										/>
 									</MenuItem>
 									<MenuItem value="behindend" key={5}>
 										<FormattedMessage
 											id="StreamChartProperties.BehindEnd"
-											defaultMessage="Behind End"
+											defaultMessage="Above or Outside"
 										/>
 									</MenuItem>
 								</Select>

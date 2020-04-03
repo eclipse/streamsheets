@@ -107,6 +107,8 @@ export default class SheetPlotView extends NodeView {
 				}
 			});
 
+			lastPoints = undefined;
+
 			series.forEach((serie, index) => {
 				if (serie.dataLabel.visible) {
 					lastPoints = this.drawLabels(graphics, item, plotRect, serie, index, lastPoints);
@@ -839,7 +841,7 @@ export default class SheetPlotView extends NodeView {
 			index += 1;
 		}
 
-		return points;
+		return params.points;
 	}
 
 	drawTitle(graphics, item, title, id, angle) {
