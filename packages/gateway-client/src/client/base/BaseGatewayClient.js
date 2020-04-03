@@ -28,7 +28,7 @@ module.exports = class BaseGatewayClient {
 	}
 
 	// eslint-disable-next-line consistent-return
-	async connect({ socketEndpointURL, restEndpointURL, token, pathname } = {}) {
+	async connect({ socketEndpointURL, restEndpointURL, token } = {}) {
 		if (this._isConnected || this._isConnecting) {
 			return Promise.resolve({});
 		}
@@ -39,16 +39,7 @@ module.exports = class BaseGatewayClient {
 		this._token = token || this._token;
 		try {
 			await this._connectRESTServer(restEndpointURL);
-			this.http = new HTTPGatewayAPI(
-				restEndpointURL,
-				this._token,
-				this.logger
-				);
-			if (pathname) {
-				const resp = await this.http.authenticate({ pathname });
-				this._token = resp.token || this._token;
-				this.http.token = this._token;
-			}
+			this.http = new HTTPGatewayAPI(restEndpointURL, this._token, this.logger);
 			if(this._token) {
 				const ws = await this._connectSocketServer(`${this._socketEndpointURL}?authToken=${this._token}`);
 				this._ws = ws;
