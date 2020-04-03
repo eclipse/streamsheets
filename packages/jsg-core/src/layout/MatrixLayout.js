@@ -59,7 +59,7 @@ module.exports = class MatrixLayout extends Layout {
 		const margin = lsettings.get(MARGIN);
 		const width = (box.getWidth() - margin * (columns + 1)) / columns;
 		const rows = Math.ceil(count / columns);
-		const height = (box.getHeight() - ((rows + 1) * margin)) / Math.ceil(count / columns);
+		const height = 5100; // (box.getHeight() - ((rows + 1) * margin)) / Math.ceil(count / columns);
 
 		let cnt = 0;
 
@@ -77,6 +77,7 @@ module.exports = class MatrixLayout extends Layout {
 			}
 		});
 
+		box.setHeight(rows * height + (rows + 1) * margin);
 		// finally: did something change?
 		if (!oldbox.isEqualTo(box, 0.001)) {
 			item.setBoundingBoxTo(box, true);
