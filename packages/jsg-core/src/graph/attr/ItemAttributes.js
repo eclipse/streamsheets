@@ -4,6 +4,7 @@ const BooleanAttribute = require('./BooleanAttribute');
 const NumberAttribute = require('./NumberAttribute');
 const RangeConstraint = require('../expr/RangeConstraint');
 const StringAttribute = require('./StringAttribute');
+const Attribute = require('./Attribute');
 
 
 const NAME = 'graphitem';
@@ -1432,7 +1433,7 @@ class ItemAttributes extends AttributeList {
 		attributes.addAttribute(selected);
 		addAttribute(new BooleanAttribute(ItemAttributes.SIZEABLE), true);
 		addAttribute(new BooleanAttribute(ItemAttributes.SNAPTO), true);
-		addAttribute(new BooleanAttribute(ItemAttributes.VISIBLE), true);
+		addAttribute(new Attribute(ItemAttributes.VISIBLE), true);
 		addAttribute(new NumberAttribute(ItemAttributes.MARGINLEFT), 0);
 		addAttribute(new NumberAttribute(ItemAttributes.MARGINRIGHT), 0);
 		addAttribute(new NumberAttribute(ItemAttributes.MARGINTOP), 0);

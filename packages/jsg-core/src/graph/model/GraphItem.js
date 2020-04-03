@@ -701,7 +701,7 @@ class GraphItem extends Model {
 			const graph = this.getGraph()
 			const node = graph && graph.getItemById(Number(visible));
 			if (node && node.getValue) {
-				visible = node.getValue();
+				visible = !!node.getValue();
 			} else {
 				visible = !!visible;
 			}
