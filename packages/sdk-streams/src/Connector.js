@@ -5,6 +5,9 @@ const ConnectorConfiguration = require('./configurations/ConnectorConfiguration'
 const Field = require('./configurations/Field');
 const Utils = require('./helpers/Utils');
 
+const STREAMSHEETS_STREAM_SUCCESS_THRESHOLD_TIME =
+	parseInt(process.env.STREAMSHEETS_STREAM_SUCCESS_THRESHOLD_TIME, 10) || 5000;
+
 const DEF_CONF = {
 	type: STREAM_TYPES.CONNECTOR,
 	notifyOnceDelay: 10000
@@ -265,6 +268,7 @@ class Connector extends Stream {
 			this._emitter.emit(Connector.EVENTS.DISPOSED, {
 				...this.config
 			});
+			clearTimeout(this._successThresholdTimerId);
 			this.setupReconnect();
 		}
 		// this.logger.info(`stream ${this.config.name} closes`);
@@ -377,7 +381,11 @@ class Connector extends Stream {
 		this.logger.debug(`Stream ${this.toString()} setConnected() done`);
 		this._connected = true;
 		this._connecting = false;
-		this._attempt = 0;
+		// If we get disconnected immediatly we don't want to reset our attempts
+		this._successThresholdTimerId = setTimeout(() => {
+			this._attempt = 0;
+		}, STREAMSHEETS_STREAM_SUCCESS_THRESHOLD_TIME);
+
 		this._emitter.emit(Connector.EVENTS.CONNECT, this);
 	}
 
