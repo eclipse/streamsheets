@@ -114,6 +114,7 @@ export default class ChartSelectionFeedbackView extends View {
 				};
 				const barWidth = item.getBarWidth(axes, data, plotRect);
 				const pieInfo = item.isCircular() ? item.getPieInfo(ref, serie, plotRect, selection.index) : undefined;
+				const legendData = item.getLegend();
 				const params = {
 					graphics,
 					serie,
@@ -140,7 +141,7 @@ export default class ChartSelectionFeedbackView extends View {
 						pt.y = item.scaleToAxis(axes.y, value.y, info, false);
 						item.toPlot(serie, plotRect, pt);
 
-						const text = item.getDataLabel(value, axes.x, ref, serie);
+						const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
 						const drawRect = item.getLabelRect(pt, value, text, index, params);
 						rect.set(drawRect.left - 50, drawRect.top - 50, 100, 100);
 						graphics.drawMarker(rect, true);
@@ -231,7 +232,6 @@ export default class ChartSelectionFeedbackView extends View {
 								const barWidth = item.getBarWidth(axes, data, plotRect);
 								switch (serie.type) {
 								case 'column':
-								case 'state':
 									barInfo = item.getBarInfo(axes, serie, selection.index, index, value.y, barWidth);
 									rect.set(x + barInfo.offset  - 50, y - 50, 100, 100);
 									graphics.drawMarker(rect, true);
@@ -241,6 +241,34 @@ export default class ChartSelectionFeedbackView extends View {
 									graphics.drawMarker(rect, true);
 									rect.set(x + barInfo.offset + barWidth - barInfo.margin - 50, y - barInfo.height * plotRect.height - 50, 100, 100);
 									graphics.drawMarker(rect, true);
+									break;
+								case 'state':
+									barInfo = item.getBarInfo(axes, serie, selection.index, index, value.y, barWidth);
+									if (item.chart.period) {
+										const ptNext = {x: 0, y: 0};
+										item.getPlotPoint(axes, ref, info, value, index, 1, ptNext);
+										rect.set(x + barInfo.offset - 50, y - 50, 100, 100);
+										graphics.drawMarker(rect, true);
+										rect.set(plotRect.left + (ptNext.x * plotRect.width) + barInfo.offset + barWidth - barInfo.margin - 50, y - 50, 100, 100);
+										graphics.drawMarker(rect, true);
+										rect.set(x + barInfo.offset - 50, y - barInfo.height * plotRect.height - 50,
+											100, 100);
+										graphics.drawMarker(rect, true);
+										rect.set(plotRect.left + (ptNext.x * plotRect.width) + barInfo.offset + barWidth - barInfo.margin - 50,
+											y - barInfo.height * plotRect.height - 50, 100, 100);
+										graphics.drawMarker(rect, true);
+									} else {
+										rect.set(x + barInfo.offset - 50, y - 50, 100, 100);
+										graphics.drawMarker(rect, true);
+										rect.set(x + barInfo.offset + barWidth - barInfo.margin - 50, y - 50, 100, 100);
+										graphics.drawMarker(rect, true);
+										rect.set(x + barInfo.offset - 50, y - barInfo.height * plotRect.height - 50,
+											100, 100);
+										graphics.drawMarker(rect, true);
+										rect.set(x + barInfo.offset + barWidth - barInfo.margin - 50,
+											y - barInfo.height * plotRect.height - 50, 100, 100);
+										graphics.drawMarker(rect, true);
+									}
 									break;
 								case 'area':
 									barInfo = item.getBarInfo(axes, serie, selection.index, index, value.y, barWidth);

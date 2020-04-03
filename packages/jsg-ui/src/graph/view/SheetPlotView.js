@@ -111,7 +111,7 @@ export default class SheetPlotView extends NodeView {
 
 			series.forEach((serie, index) => {
 				if (serie.dataLabel.visible) {
-					lastPoints = this.drawLabels(graphics, item, plotRect, serie, index, lastPoints);
+					lastPoints = this.drawLabels(graphics, item, plotRect, serie, index, lastPoints, legendData);
 				}
 			});
 
@@ -166,8 +166,13 @@ export default class SheetPlotView extends NodeView {
 				type = entry.series.type;
 			} else {
 				graphics.setLineWidth(1);
-				graphics.setLineColor(entry.color);
-				graphics.setFillColor(entry.color);
+				const parts = String(entry.color).split(';');
+				if (parts.length > 1) {
+					graphics.setLineColor(parts[1]);
+				}
+				if (parts.length > 0) {
+					graphics.setFillColor(parts[0]);
+				}
 			}
 
 			switch (type) {
@@ -370,22 +375,6 @@ export default class SheetPlotView extends NodeView {
 		}
 	}
 
-	getPlotPoint(item, axes, ref, info, defPt, index, offset, pt) {
-		if (item.getValue(ref, index + offset, pt)) {
-			info.index = index + offset;
-			pt.x = pt.x === undefined ? defPt.x : pt.x;
-			pt.y = pt.y === undefined ? defPt.y : pt.y;
-			pt.x = item.scaleToAxis(axes.x, pt.x, undefined, false);
-			pt.y = item.scaleToAxis(axes.y, pt.y, info, false);
-		} else {
-			pt.x = defPt.x;
-			pt.y = defPt.y;
-			pt.x = item.scaleToAxis(axes.x, pt.x, undefined, false);
-			pt.y = item.scaleToAxis(axes.y, pt.y, info, false);
-		}
-		return pt;
-	}
-
 	drawCircular(graphics, item, plotRect, serie, seriesIndex) {
 		const ref = item.getDataSourceInfo(serie.formula);
 		const value = {};
@@ -544,7 +533,7 @@ export default class SheetPlotView extends NodeView {
 							xLast = pt.x;
 						} else {
 							if (serie.smooth) {
-								this.getPlotPoint(item, axes, ref, info, value, index, -1, ptLast);
+								item.getPlotPoint(axes, ref, info, value, index, -1, ptLast);
 								item.toPlot(serie, plotRect, ptLast);
 
 								const midX = (ptLast.x + pt.x) / 2;
@@ -579,9 +568,9 @@ export default class SheetPlotView extends NodeView {
 							xLast = pt.x;
 						} else {
 							if (serie.smooth) {
-								this.getPlotPoint(item, axes, ref, info, value, index, 1, ptNext);
-								this.getPlotPoint(item, axes, ref, info, value, index, -1, ptLast);
-								this.getPlotPoint(item, axes, ref, info, value, index, -2, ptPrev);
+								item.getPlotPoint(axes, ref, info, value, index, 1, ptNext);
+								item.getPlotPoint(axes, ref, info, value, index, -1, ptLast);
+								item.getPlotPoint(axes, ref, info, value, index, -2, ptPrev);
 								item.toPlot(serie, plotRect, ptPrev);
 								item.toPlot(serie, plotRect, ptLast);
 								item.toPlot(serie, plotRect, ptNext);
@@ -611,7 +600,7 @@ export default class SheetPlotView extends NodeView {
 							xLast = pt.x;
 						} else {
 							if (serie.smooth) {
-								this.getPlotPoint(item, axes, ref, info, value, index, -1, ptLast);
+								item.getPlotPoint(axes, ref, info, value, index, -1, ptLast);
 								item.toPlot(serie, plotRect, ptLast);
 
 
@@ -666,7 +655,7 @@ export default class SheetPlotView extends NodeView {
 						if (value.x !== undefined && value.y !== undefined && value.c !== undefined) {
 							graphics.beginPath();
 							barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
-							value.c = this.translateFromLegend(value.c, legendData);
+							value.c = item.translateFromLegend(value.c, legendData);
 							const [fill, line] = String(value.c).split(';');
 							if (fill && fill.length) {
 								graphics.setFillColor(fill);
@@ -674,16 +663,15 @@ export default class SheetPlotView extends NodeView {
 							if (line && line.length) {
 								graphics.setLineColor(line);
 							}
-							if (item.chart.period && index) {
-								this.getPlotPoint(item, axes, ref, info, value, index, -1, ptLast);
-								item.toPlot(serie, plotRect, ptLast);
+							if (item.chart.period) {
+								item.getPlotPoint(axes, ref, info, value, index, 1, ptNext);
+								item.toPlot(serie, plotRect, ptNext);
 								graphics.rect(
 									pt.x,
 									pt.y,
-									Math.abs(ptLast.x - pt.x) + 20,
+									Math.abs(ptNext.x - pt.x) + 20,
 									-barInfo.height * plotRect.height + 20
 								);
-
 							} else {
 								graphics.rect(
 									pt.x + barInfo.offset,
@@ -785,7 +773,7 @@ export default class SheetPlotView extends NodeView {
 		return points;
 	}
 
-	drawLabels(graphics, item, plotRect, serie, seriesIndex, lastPoints) {
+	drawLabels(graphics, item, plotRect, serie, seriesIndex, lastPoints, legendData) {
 		let index = 0;
 		const value = {};
 		const ref = item.getDataSourceInfo(serie.formula);
@@ -825,7 +813,7 @@ export default class SheetPlotView extends NodeView {
 				pt.x = item.scaleToAxis(axes.x, value.x, undefined, false);
 				pt.y = item.scaleToAxis(axes.y, value.y, info, false);
 				item.toPlot(serie, plotRect, pt);
-				const text = item.getDataLabel(value, axes.x, ref, serie);
+				const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
 				const labelRect = item.getLabelRect(pt, value, text, index, params);
 				if (text instanceof Array) {
 					const lineHeight = (labelRect.height - 150 - (text.length - 1) * 50) / text.length;
@@ -938,20 +926,6 @@ export default class SheetPlotView extends NodeView {
 			break;
 		}
 
-	}
-
-	translateFromLegend(color, legendData) {
-		if (!legendData.length || !legendData[0].color) {
-			return color;
-		}
-
-		for (let i = 0;  i< legendData.length; i += 1) {
-			const entry = legendData[i];
-			if (color === entry.name) {
-				return entry.color;
-			}
-		}
-		return color;
 	}
 
 	getSelectedFormat() {

@@ -753,7 +753,7 @@ module.exports = class SheetPlotNode extends Node {
 		super.layout();
 	}
 
-	getDataLabel(value, axis, ref, serie) {
+	getDataLabel(value, axis, ref, serie, legendData) {
 		let text;
 		if (serie.dataLabel.separator === '&lf') {
 			text = [];
@@ -795,6 +795,14 @@ module.exports = class SheetPlotNode extends Node {
 
 		if (serie.dataLabel.content.radius && value.c !== undefined) {
 			add(value.c);
+		}
+
+		if (serie.dataLabel.content.state && value.c !== undefined) {
+			value.c = this.translateFromLegend(value.c, legendData);
+			const parts = String(value.c).split(';');
+			if (parts.length > 2) {
+				add(parts[2]);
+			}
 		}
 
 		return text;
@@ -982,6 +990,20 @@ module.exports = class SheetPlotNode extends Node {
 		});
 
 		return legend;
+	}
+
+	translateFromLegend(color, legendData) {
+		if (!legendData.length || !legendData[0].color) {
+			return color;
+		}
+
+		for (let i = 0;  i< legendData.length; i += 1) {
+			const entry = legendData[i];
+			if (color === entry.name) {
+				return entry.color;
+			}
+		}
+		return color;
 	}
 
 	setScales() {
@@ -2310,6 +2332,23 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		return false;
 	}
 
+	getPlotPoint(axes, ref, info, defPt, index, offset, pt) {
+		if (this.getValue(ref, index + offset, pt)) {
+			info.index = index + offset;
+			pt.x = pt.x === undefined ? defPt.x : pt.x;
+			pt.y = pt.y === undefined ? defPt.y : pt.y;
+			pt.x = this.scaleToAxis(axes.x, pt.x, undefined, false);
+			pt.y = this.scaleToAxis(axes.y, pt.y, info, false);
+		} else {
+			pt.x = defPt.x;
+			pt.y = defPt.y;
+			pt.x = this.scaleToAxis(axes.x, pt.x, undefined, false);
+			pt.y = this.scaleToAxis(axes.y, pt.y, info, false);
+		}
+		return pt;
+	}
+
+
 	isSeriesHitCartesian(serie, ref, index, plotRect, pt, dataPoints) {
 		if (!ref) {
 			return false;
@@ -2355,14 +2394,33 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 				);
 				break;
 			case 'column':
-			case 'state':
 				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
 				dataRect.set(
 					plotRect.left + x * plotRect.width + barInfo.offset - 100,
 					plotRect.bottom - y * plotRect.height - 100,
 					plotRect.left + x * plotRect.width + barInfo.offset + 100 + barWidth - barInfo.margin,
-					plotRect.bottom - y * plotRect.height + 100 - barInfo.height * plotRect.height);
-
+					plotRect.bottom - y * plotRect.height + 100 - barInfo.height * plotRect.height
+				);
+				break;
+			case 'state':
+				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
+				if (this.chart.period) {
+					const ptNext = {x: 0, y: 0};
+					this.getPlotPoint(axes, ref, info, value, pointIndex, 1, ptNext);
+					dataRect.set(
+						plotRect.left + x * plotRect.width + barInfo.offset - 100,
+						plotRect.bottom - y * plotRect.height - 100,
+						plotRect.left + (ptNext.x * plotRect.width) + barInfo.offset + 100 + barWidth - barInfo.margin,
+						plotRect.bottom - y * plotRect.height + 100 - barInfo.height * plotRect.height
+					);
+				} else {
+					dataRect.set(
+						plotRect.left + x * plotRect.width + barInfo.offset - 100,
+						plotRect.bottom - y * plotRect.height - 100,
+						plotRect.left + x * plotRect.width + barInfo.offset + 100 + barWidth - barInfo.margin,
+						plotRect.bottom - y * plotRect.height + 100 - barInfo.height * plotRect.height
+					);
+				}
 				break;
 			case 'line':
 			case 'scatter':
@@ -2438,6 +2496,7 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		let pointIndex = 0;
 		const ptValue = {x: 0, y: 0};
 		const barWidth = this.getBarWidth(axes, serie, plotRect);
+		const legendData = this.getLegend();
 		const info = {
 			serie,
 			seriesIndex: index,
@@ -2469,9 +2528,9 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 				ptValue.y = this.scaleToAxis(axes.y, value.y, info, false);
 				this.toPlot(serie, plotRect, ptValue);
 
-				const text = this.getDataLabel(value, axes.x, ref, serie);
+				const text = this.getDataLabel(value, axes.x, ref, serie, legendData);
 				if (text.length) {
-					const dataRect = this.getLabelRect(ptValue, value, text, index, params);
+					const dataRect = this.getLabelRect(ptValue, value, text, pointIndex, params);
 					dataRect.sort();
 					if (dataRect.containsPoint(pt)) {
 						return true;

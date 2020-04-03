@@ -380,6 +380,7 @@ export class StreamChartProperties extends Component {
 			!data.dataLabel.content.x &&
 			!data.dataLabel.content.y &&
 			!data.dataLabel.content.radius &&
+			!data.dataLabel.content.state &&
 			!data.dataLabel.content.series) {
 			data.dataLabel.content.y = true;
 		}
@@ -1401,6 +1402,20 @@ export class StreamChartProperties extends Component {
 										<FormattedMessage
 											id="StreamChartProperties.Radius"
 											defaultMessage="Radius"
+										/>
+									}
+								/>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={data.dataLabel.content.state}
+											onChange={(event, state) => this.handleSeriesDataLabelsContentChange(event, 'state', state)}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.State"
+											defaultMessage="State"
 										/>
 									}
 								/>
