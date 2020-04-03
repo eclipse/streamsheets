@@ -5,6 +5,9 @@ const ConnectorConfiguration = require('./configurations/ConnectorConfiguration'
 const Field = require('./configurations/Field');
 const Utils = require('./helpers/Utils');
 
+const STREAMSHEETS_STREAM_SUCCESS_THRESHOLD_TIME =
+	parseInt(process.env.STREAMSHEETS_STREAM_SUCCESS_THRESHOLD_TIME, 10) || 5000;
+
 const DEF_CONF = {
 	type: STREAM_TYPES.CONNECTOR,
 	notifyOnceDelay: 10000
@@ -14,7 +17,7 @@ const DEF_RETRY_OPTS = {
 	forever: true,
 	factor: 2,
 	minTimeout: 1 * 1000,
-	maxTimeout: 60 * 1000,
+	maxTimeout: 60 * 1000
 };
 
 class Connector extends Stream {
@@ -25,7 +28,7 @@ class Connector extends Stream {
 			forever: process.env.STREAMSHEETS_STREAM_RETRY_FOREVER || DEF_RETRY_OPTS.forever,
 			factor: process.env.STREAMSHEETS_STREAM_RETRY_FACTOR || DEF_RETRY_OPTS.factor,
 			minTimeout: process.env.STREAMSHEETS_STREAM_RETRY_MIN_TIMEOUT || DEF_RETRY_OPTS.minTimeout,
-			maxTimeout: process.env.STREAMSHEETS_STREAM_RETRY_MAX_TIMEOUT || DEF_RETRY_OPTS.maxTimeout,
+			maxTimeout: process.env.STREAMSHEETS_STREAM_RETRY_MAX_TIMEOUT || DEF_RETRY_OPTS.maxTimeout
 		};
 		this.config = cfg;
 		this._notifyErrorTimeout = null;
@@ -65,7 +68,7 @@ class Connector extends Stream {
 
 	async _connect() {
 		this._disconnecting = false;
-		if(!this._connecting) {
+		if (!this._connecting) {
 			this._connecting = true;
 			this.logger.debug(`Connecting ${this.toString()}`);
 			return new Promise(async (resolve, reject) => {
@@ -77,7 +80,7 @@ class Connector extends Stream {
 					this.handleError(e);
 					reject(e);
 				});
-				if(!this._reconnectTimeoutId) {
+				if (!this._reconnectTimeoutId) {
 					this._connectTimeoutId = setTimeout(async () => {
 						this.handleError(new Error(ERRORS.TIMEOUT_ERROR));
 						clearTimeout(this._connectTimeoutId);
@@ -104,36 +107,38 @@ class Connector extends Stream {
 	}
 
 	setupReconnect() {
-		if(!this._disconnecting) {
+		if (!this._disconnecting) {
 			clearTimeout(this._reconnectTimeoutId);
 			this._reconnectTimeoutId = null;
 			const reconnect = () => {
 				const nextTimeout = this._nextAttemptTimeOut();
-				if(!this._connecting) {
-					if(nextTimeout<0) {
+				if (!this._connecting) {
+					if (nextTimeout < 0) {
 						this.clearTimers();
 						this.logger.info(`Max number of attempts (${this._attempt}) reached for ${this.toString()}`);
 
 						return;
 					}
 					this.logger.info(`Next attempt (${this._attempt}) for ${this.toString()} in ${nextTimeout} ms`);
-					if(!this.isConnected) {
+					if (!this.isConnected) {
 						this._reconnect();
 						this._reconnectTimeoutId = setTimeout(reconnect, nextTimeout);
 					} else {
 						this.clearTimers();
 					}
 				} else {
-					this.logger.info(`Attempt ignored as still trying. Next attempt (${this._attempt}) for ${this.toString()} in ${nextTimeout} ms`);
+					this.logger.info(
+						`Attempt ignored as still trying. Next attempt (${
+							this._attempt
+						}) for ${this.toString()} in ${nextTimeout} ms`
+					);
 					this._reconnectTimeoutId = setTimeout(reconnect, nextTimeout);
 				}
-
 			};
-			if(!this._reconnectTimeoutId) {
+			if (!this._reconnectTimeoutId) {
 				this._reconnectTimeoutId = setTimeout(reconnect.bind(this), this._nextAttemptTimeOut());
 			}
 		}
-
 	}
 
 	async _reconnect() {
@@ -145,10 +150,10 @@ class Connector extends Stream {
 		return this._reload(false);
 	}
 
-	async _reload(force=true) {
+	async _reload(force = true) {
 		this._connected = false;
 		this.ready = false;
-		if(this.isConnected) {
+		if (this.isConnected) {
 			await this._dispose(force);
 		}
 		this._connecting = false;
@@ -163,10 +168,7 @@ class Connector extends Stream {
 				this.config.connector[id] = $set[id];
 				const field = definition.connector.find((def) => def.id === id);
 				if (field && field.onUpdate) {
-					handlers.set(
-						field.onUpdate,
-						this[field.onUpdate].bind(this)
-					);
+					handlers.set(field.onUpdate, this[field.onUpdate].bind(this));
 				}
 			});
 		}
@@ -179,10 +181,7 @@ class Connector extends Stream {
 			this.config.connector._id = $set.connector.id;
 		}
 		if ($set.disabled !== undefined) {
-			this.config.disabled =
-				$set.disabled === true ||
-				$set.disabled === 'true' ||
-				$set.disabled === 'on';
+			this.config.disabled = $set.disabled === true || $set.disabled === 'true' || $set.disabled === 'on';
 			if (this.config.disabled === true && this.isConnected) {
 				this.stop();
 			} else {
@@ -200,10 +199,7 @@ class Connector extends Stream {
 				try {
 					await handler();
 				} catch (e) {
-					this.handleError(
-						`Error update() for handler ${handler}`,
-						e
-					);
+					this.handleError(`Error update() for handler ${handler}`, e);
 				}
 			});
 		}
@@ -211,10 +207,10 @@ class Connector extends Stream {
 	}
 
 	async validateMessage(message) {
-		if(typeof message !== 'undefined') {
-			return { error: undefined};
+		if (typeof message !== 'undefined') {
+			return { error: undefined };
 		}
-		return {error: 'UNDEFINED'}
+		return { error: 'UNDEFINED' };
 	}
 
 	getConfigById(id, source = 'consumer', type = Field.TYPES.TEXT) {
@@ -258,13 +254,14 @@ class Connector extends Stream {
 		this._connecting = false;
 		this.logger.debug(`stream ${this.toString()} initialize onClose()`);
 		// this._emitter.emit(Connector.EVENTS.CLOSE, this.id);
-		if(reason) {
+		if (reason) {
 			this.handleError(reason);
 			this._dispose();
 		} else {
 			this._emitter.emit(Connector.EVENTS.DISPOSED, {
 				...this.config
 			});
+			clearTimeout(this._successThresholdTimerId);
 			this.setupReconnect();
 		}
 		// this.logger.info(`stream ${this.config.name} closes`);
@@ -274,16 +271,12 @@ class Connector extends Stream {
 		this.logger.debug(`stream ${this.toString()} initialize handleError()`);
 		const code = error.code || IdGenerator.generate();
 		this._errors.set(code, error);
-		this.logger.error(
-			`Stream ${this.toString()} error: ${error.message || error}`
-		);
+		this.logger.error(`Stream ${this.toString()} error: ${error.message || error}`);
 		this._emitter.emit(Connector.EVENTS.ERROR, error);
 	}
 
 	handleWarning(warning) {
-		this.logger.debug(
-			`Stream ${this.toString()} initialize handleWarning()`
-		);
+		this.logger.debug(`Stream ${this.toString()} initialize handleWarning()`);
 		this._warnings.push(warning);
 		this.logger.warn(warning);
 		this._emitter.emit(Connector.EVENTS.WARNING, warning);
@@ -302,7 +295,7 @@ class Connector extends Stream {
 	}
 
 	handleErrorOnce(error) {
-		if(!this._notifyErrorTimeout) {
+		if (!this._notifyErrorTimeout) {
 			this._notifyErrorTimeout = setTimeout(() => {
 				clearTimeout(this._notifyErrorTimeout);
 				this._notifyErrorTimeout = null;
@@ -312,7 +305,7 @@ class Connector extends Stream {
 	}
 
 	handleWarningOnce(warning) {
-		if(!this._notifyWarningTimeout) {
+		if (!this._notifyWarningTimeout) {
 			this._notifyWarningTimeout = setTimeout(() => {
 				clearTimeout(this._notifyWarningTimeout);
 				this._notifyWarningTimeout = null;
@@ -337,7 +330,7 @@ class Connector extends Stream {
 	async _dispose(force = false) {
 		this._disconnecting = true;
 		this._connecting = false;
-		if(force === true) {
+		if (force === true) {
 			this.clearTimers();
 		}
 		this._emitter.emit(Connector.EVENTS.DISPOSED, {
@@ -377,7 +370,11 @@ class Connector extends Stream {
 		this.logger.debug(`Stream ${this.toString()} setConnected() done`);
 		this._connected = true;
 		this._connecting = false;
-		this._attempt = 0;
+		// If we get disconnected immediatly we don't want to reset our attempts
+		this._successThresholdTimerId = setTimeout(() => {
+			this._attempt = 0;
+		}, STREAMSHEETS_STREAM_SUCCESS_THRESHOLD_TIME);
+
 		this._emitter.emit(Connector.EVENTS.CONNECT, this);
 	}
 
@@ -390,13 +387,13 @@ class Connector extends Stream {
 	}
 
 	_nextAttemptTimeOut() {
-		const {minTimeout, factor, maxTimeout = 10000, retries, forever} = this._retryOpts;
-		this._attempt = this._attempt + 1;
-		if(!forever && this._attempt > retries) {
+		const { minTimeout, factor, maxTimeout = 10000, retries, forever } = this._retryOpts;
+		this._attempt += 1;
+		if (!forever && this._attempt > retries) {
 			return -1;
 		}
 		const timeout = Math.min(minTimeout * factor ** this._attempt, maxTimeout);
-		return timeout + (Math.random() * timeout/10);
+		return timeout + (Math.random() * timeout) / 10;
 	}
 }
 

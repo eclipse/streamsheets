@@ -88,7 +88,6 @@ const ConsumerMixin = (Connector) =>
 			} catch (err) {
 				msg.error = err.message;
 			}
-			this.logger.debug(`message: ${m.toString()}`);
 			let message = Message.fromJSON({
 				Data: msg,
 				Metadata: meta
