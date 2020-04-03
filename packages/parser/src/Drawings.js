@@ -235,7 +235,7 @@ module.exports = class Drawings {
 
 		// visible
 		if (this.checkParam(terms, 0)) {
-			result.visible = !!terms[0].value;
+			result.visible = terms[0].value;
 		} else {
 			result.visible = true;
 		}

@@ -1,6 +1,7 @@
 const JSG = require('../../JSG');
 const Strings = require('../../commons/Strings');
 const Arrays = require('../../commons/Arrays');
+const Numbers = require('../../commons/Numbers');
 const Model = require('./Model');
 const Pin = require('../Pin');
 const Size = require('../Size');
@@ -695,7 +696,17 @@ class GraphItem extends Model {
 			return this._attrCache.visible;
 		}
 
-		const visible = this.getItemAttribute(ItemAttributes.VISIBLE).getValue();
+		let visible = this.getItemAttribute(ItemAttributes.VISIBLE).getValue();
+		if (Numbers.isNumber(visible)) {
+			const graph = this.getGraph()
+			const node = graph && graph.getItemById(Number(visible));
+			if (node && node.getValue) {
+				visible = node.getValue();
+			} else {
+				visible = !!visible;
+			}
+		}
+
 		if (visible) {
 			if (this._parent !== undefined && !this._parent.isVisible()) {
 				return false;
