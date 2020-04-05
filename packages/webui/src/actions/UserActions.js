@@ -152,43 +152,49 @@ export function setUserSettings(settings) {
 	};
 }
 
+const doLogin = async (request, dispatch) => {
+	dispatch({ type: ActionTypes.USER_LOGIN });
+	try {
+		await gatewayClient.connect(CONFIG);
+		const resp = await gatewayClient.authenticate(request);
+		dispatch({ type: ActionTypes.USER_LOGIN_RESPONSE, response: resp });
+		return resp.response || resp;
+	} catch ({ error }) {
+		dispatch({ type: ActionTypes.ERROR });
+		return { error };
+	}
+};
+
 export function login(credentials, redirect) {
-	return (dispatch) => {
-		dispatch({ type: ActionTypes.USER_LOGIN });
-		return gatewayClient.connect(CONFIG)
-			.then(() => gatewayClient.authenticate(credentials))
-			.then((resp) => {
-				dispatch({ type: ActionTypes.USER_LOGIN_RESPONSE, response: resp });
-				const response = resp.response || resp;
-				if (!response.error && response.token) {
-					accessManager.loginUI(response.token, redirect);
-					return true;
-				}
-				return response;
-			})
-			.catch(({ error }) => {
-				dispatch({ type: ActionTypes.ERROR });
-				return {
-					error
-				};
-			});
-	};
+	return (dispatch) => doLogin(credentials, dispatch).then((response) => {
+		if (!response.error && response.token) {
+			accessManager.loginUI(response.token, redirect);
+			return true;
+		}
+		return response;
+	});
 }
+export function pathLogin(pathname) {
+	return (dispatch) => doLogin({ pathname }, dispatch);
+}
+
+const doLogout = async (token, dispatch) => {
+	dispatch({ type: ActionTypes.USER_LOGOUT, token });
+	try {
+		await gatewayClient.connect({...CONFIG });
+		gatewayClient.logout(token);
+	} catch(err) {
+		dispatch({ type: ActionTypes.ERROR, err });
+		throw err;
+	}
+};
 
 export function logout(token) {
 	return async (dispatch) => {
-		dispatch({ type: ActionTypes.USER_LOGOUT, token });
-
-		try {
-			await gatewayClient.connect({
-				...CONFIG
-			});
-			gatewayClient.logout(token);
-			accessManager.logoutUI();
-		} catch(err) {
-			dispatch({ type: ActionTypes.ERROR, err });
-			throw err;
-		}
-
+		await doLogout(token, dispatch);
+		accessManager.logoutUI();
 	};
+}
+export function pathLogout(token) {
+	return (dispatch) => doLogout(token, dispatch).catch((/* ignore */) => null);
 }
