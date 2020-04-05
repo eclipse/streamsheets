@@ -3,6 +3,18 @@ const Auth = require('../../Auth').default;
 const CONFIG = require('../../config').get('auth');
 const logger = require('@cedalo/logger').create({ name: 'AuthRoutes' });
 
+const validatePath = async (pathname = '', machineRepository) => {
+	const parts = pathname.split('/');
+	const path = parts[parts.length - 2];
+	// next to last must be shared-machine
+	if (path === 'shared-machine') {
+		const id = parts[parts.length - 1];
+		const link = await machineRepository.getSharedLink({ id });
+		return !!link;
+	}
+	return false;
+};
+
 module.exports = class AuthRoutes {
 	static async logout(request) {
 		request.logout();
@@ -45,13 +57,14 @@ module.exports = class AuthRoutes {
 	}
 
 	static async pathLogin(request, response, next) {
-		const { userRepository } = request.app.locals.RepositoryManager;
+		const { machineRepository, userRepository } = request.app.locals.RepositoryManager;
 		switch (request.method) {
 			case 'POST':
 				try {
 					const { pathname } = request.body;
-					if (pathname && pathname.startsWith('/shared-machine')) {
-						const user = await userRepository.findUserByUsername('internalviewer');
+					const isValid = await validatePath(pathname, machineRepository);
+					if (isValid) {
+						const user = await userRepository.findUserByUsername('sharedmachine');
 						const token = Auth.getToken(user);
 						response.status(200).json({ token, user });
 					} else {
