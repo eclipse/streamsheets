@@ -83,7 +83,7 @@ export default class CellsView extends NodeView {
 
 	drawRead(graphics, x, y, rect, clipRect, data, termFunc, column, row, grey) {
 		let fillColor = '#AAAAAA';
-		let value = String(data.getValue());
+		const value = String(data.getValue());
 
 		termFunc.iterateParams((param, index) => {
 			switch (index) {
