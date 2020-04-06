@@ -581,13 +581,17 @@ module.exports = class TreeItemsNode extends Node {
 					let subIndex = index + 1;
 					let array = true;
 					let cnt = 0;
-					while (subIndex < this._jsonTree.length && this._jsonTree[subIndex].depth === item.depth + 1) {
-						if (this._jsonTree[subIndex].key !== String(cnt)) {
+					while (subIndex < this._jsonTree.length) {
+						if (this._jsonTree[subIndex].depth === item.depth + 1 && this._jsonTree[subIndex].key !== String(cnt)) {
 							array = false;
+						}
+						if (this._jsonTree[subIndex].depth <= item.depth) {
 							break;
 						}
+						if (this._jsonTree[subIndex].depth === item.depth + 1) {
+							cnt += 1;
+						}
 						subIndex += 1;
-						cnt += 1;
 					}
 					if (array) {
 						item.type = DataType.ARRAY;
