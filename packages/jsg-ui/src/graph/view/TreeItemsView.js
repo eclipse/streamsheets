@@ -520,7 +520,7 @@ export default class TreeItemsView extends NodeView {
 			return undefined;
 		}
 
-		const path = item.splitPath(activeItem);
+		const path = TreeItemsNode.splitPath(activeItem);
 		const model = this.getItem().getJsonTree();
 		let depth = 0;
 		let index;

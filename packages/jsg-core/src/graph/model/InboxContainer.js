@@ -45,7 +45,7 @@ module.exports = class InboxContainer extends MessageContainer {
 			const selstr = item.getItemPath(selectedItem);
 
 			if (selstr.startsWith(loopPath)) {
-				const parts = item.splitPath(selstr);
+				const parts = TreeItemsNode.splitPath(selstr);
 				if (parts.length > 1) {
 					const index = parts[1];
 					if (Numbers.canBeNumber(index)) {
@@ -93,7 +93,7 @@ module.exports = class InboxContainer extends MessageContainer {
 					if (activeItem === undefined || activeItem === '') {
 						// if no loop, try to restore selection
 						if (currentSelection) {
-							const selitem = messageTree.getItemByPath(messageTree.splitPath(currentSelection));
+							const selitem = messageTree.getItemByPath(TreeItemsNode.splitPath(currentSelection));
 							if (selitem !== undefined) {
 								messageTree._resetViewport = false;
 								NotificationCenter.getInstance().send(

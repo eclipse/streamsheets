@@ -10,6 +10,7 @@ import {
 	MathUtils,
 	Numbers,
 	TextFormatAttributes,
+	TreeItemsNode,
 	FormatAttributes
 } from '@cedalo/jsg-core';
 
@@ -86,12 +87,13 @@ export default class CellsView extends NodeView {
 
 		termFunc.iterateParams((param, index) => {
 			switch (index) {
-				case 0: {
-					const pos = value.lastIndexOf('[');
-					value = value.slice(pos + 1);
-					value = value.replace(/]/g, '');
-					break;
-				}
+				// case 0: {
+				// 	const keys = TreeItemsNode.splitPath(value);
+				// 	if (keys.length) {
+				// 		value = keys[keys.length - 1];
+				// 	}
+				// 	break;
+				// }
 				case 2:
 					switch (param.value) {
 						case 'String':
@@ -1543,9 +1545,10 @@ export default class CellsView extends NodeView {
 				term.iterateParams((param, index) => {
 					switch (index) {
 						case 0: {
-							const pos = result.value.lastIndexOf('[');
-							result.value = result.value.slice(pos + 1);
-							result.value = result.value.replace(/]/g, '');
+							const keys = TreeItemsNode.splitPath(result.value);
+							if (keys.length) {
+								result.value = keys[keys.length - 1];
+							}
 							break;
 						}
 						case 2:

@@ -194,11 +194,36 @@ module.exports = class TreeItemsNode extends Node {
 		return undefined;
 	}
 
-	splitPath(path) {
-		path = path.replace(/\[/g, '');
-		const keys = path.split(']');
 
-		keys.pop();
+	static splitPath(path) {
+		const keys = [];
+		let key;
+		let level = 0;
+
+		for (let i = 0; i < path.length; i++) {
+			switch (path[i]) {
+			case '[':
+				level += 1;
+				if (level === 1) {
+					key = '';
+				} else {
+					key += path[i];
+				}
+				break;
+			case ']':
+				if (level === 1) {
+					keys.push(key);
+					key = '';
+				} else {
+					key += path[i];
+				}
+				level -= 1;
+				break;
+			default:
+				key += path[i];
+				break;
+			}
+		}
 
 		return keys;
 	}
@@ -940,7 +965,7 @@ module.exports = class TreeItemsNode extends Node {
 		}
 
 		paths.forEach((path) => {
-			const item = this.getItemByPath(this.splitPath(path));
+			const item = this.getItemByPath(TreeItemsNode.splitPath(path));
 			if (item !== undefined) {
 				item.expanded = false;
 			}

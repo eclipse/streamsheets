@@ -124,7 +124,7 @@ export default class StreamSheetView extends WorksheetView {
 					skipDepth = undefined;
 				}
 				const itemPath = sourceView.getItem().getItemPath(treeItems[i]);
-				const path = sourceView.getItem().splitPath(itemPath);
+				const path = TreeItemsNode.splitPath(itemPath);
 				const activeItem = sourceView
 					.getItem()
 					.getTreeItemAttributes()
@@ -133,7 +133,7 @@ export default class StreamSheetView extends WorksheetView {
 				let activePath;
 
 				if (activeItem && activeItem.length && itemPath.startsWith(`${activeItem}`)) {
-					activePath = sourceView.getItem().splitPath(activeItem);
+					activePath = TreeItemsNode.splitPath(activeItem);
 				}
 
 				let pos = inBox ? 1 : 0;
@@ -360,7 +360,7 @@ export default class StreamSheetView extends WorksheetView {
 					skipDepth = undefined;
 				}
 				const itemPath = sourceView.getItem().getItemPath(treeItems[i]);
-				const path = sourceView.getItem().splitPath(itemPath);
+				const path = TreeItemsNode.splitPath(itemPath);
 
 				if (inBox) {
 					const sourceSheet = this.getSourceProcessSheet(sourceView);
@@ -393,7 +393,7 @@ export default class StreamSheetView extends WorksheetView {
 				let activePath;
 
 				if (activeItem && activeItem.length && itemPath.startsWith(`${activeItem}`)) {
-					activePath = sourceView.getItem().splitPath(activeItem);
+					activePath = TreeItemsNode.splitPath(activeItem);
 				}
 
 				let pos = inBox ? 1 : 0;

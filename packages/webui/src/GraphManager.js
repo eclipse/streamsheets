@@ -742,20 +742,11 @@ export default class GraphManager {
 		}
 	}
 
-	splitPath(path) {
-		path = path.replace(/\[/g, '');
-		const keys = path.split(']');
-
-		keys.pop();
-
-		return keys;
-	}
-
 	updatePath(streamsheetId, path) {
 		const treeNode = this.getInboxMessageTreeItems(streamsheetId);
 		if (treeNode) {
 			// const newPath = path.replace(/(\[)(\d)(\])/g, '.$2');
-			const item = treeNode.getItemByPath(this.splitPath(path));
+			const item = treeNode.getItemByPath(TreeItemsNode.splitPath(path));
 			// const item = treeNode.getItemByPath(newPath);
 			if (item === undefined || item.id === undefined) {
 				return null;
@@ -846,7 +837,7 @@ export default class GraphManager {
 
 	updateLoopIndex(streamsheetId, path) {
 		// const result = (new RegExp(/(\w*)\[(\d*)\]/g)).exec(path);
-		const result = this.splitPath(path);
+		const result = TreeItemsNode.splitPath(path);
 		if (result.length > 1) {
 			const index = result[result.length - 1];
 			const processSheetContainer = this.getStreamSheetContainer(streamsheetId);
