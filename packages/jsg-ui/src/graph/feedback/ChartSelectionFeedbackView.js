@@ -118,6 +118,8 @@ export default class ChartSelectionFeedbackView extends View {
 				const params = {
 					graphics,
 					serie,
+					info,
+					ref,
 					axes,
 					plotRect,
 					barWidth,
@@ -249,12 +251,12 @@ export default class ChartSelectionFeedbackView extends View {
 										item.getPlotPoint(axes, ref, info, value, index, 1, ptNext);
 										rect.set(x + barInfo.offset - 50, y - 50, 100, 100);
 										graphics.drawMarker(rect, true);
-										rect.set(plotRect.left + (ptNext.x * plotRect.width) + barInfo.offset + barWidth - barInfo.margin - 50, y - 50, 100, 100);
+										rect.set(plotRect.left + (ptNext.x * plotRect.width) + barInfo.offset - 50, y - 50, 100, 100);
 										graphics.drawMarker(rect, true);
 										rect.set(x + barInfo.offset - 50, y - barInfo.height * plotRect.height - 50,
 											100, 100);
 										graphics.drawMarker(rect, true);
-										rect.set(plotRect.left + (ptNext.x * plotRect.width) + barInfo.offset + barWidth - barInfo.margin - 50,
+										rect.set(plotRect.left + (ptNext.x * plotRect.width) + barInfo.offset - 50,
 											y - barInfo.height * plotRect.height - 50, 100, 100);
 										graphics.drawMarker(rect, true);
 									} else {

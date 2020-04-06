@@ -1675,9 +1675,9 @@ module.exports = class SheetPlotNode extends Node {
 		};
 	}
 
-getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
+	getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		let height;
-		const margin = this.chart.stacked || serie.type === 'state' ? 0 : 150;
+		const margin = (this.chart.stacked || serie.type === 'state') ? 0 : 150;
 
 		if (this.chart.relative) {
 			const neg = axes.y.categories[index].neg;
@@ -2408,17 +2408,17 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 					const ptNext = {x: 0, y: 0};
 					this.getPlotPoint(axes, ref, info, value, pointIndex, 1, ptNext);
 					dataRect.set(
-						plotRect.left + x * plotRect.width + barInfo.offset - 100,
-						plotRect.bottom - y * plotRect.height - 100,
-						plotRect.left + (ptNext.x * plotRect.width) + barInfo.offset + 100 + barWidth - barInfo.margin,
-						plotRect.bottom - y * plotRect.height + 100 - barInfo.height * plotRect.height
+						plotRect.left + x * plotRect.width + barInfo.offset,
+						plotRect.bottom - y * plotRect.height,
+						plotRect.left + (ptNext.x * plotRect.width) + barInfo.offset + barWidth - barInfo.margin,
+						plotRect.bottom - y * plotRect.height - barInfo.height * plotRect.height
 					);
 				} else {
 					dataRect.set(
-						plotRect.left + x * plotRect.width + barInfo.offset - 100,
-						plotRect.bottom - y * plotRect.height - 100,
-						plotRect.left + x * plotRect.width + barInfo.offset + 100 + barWidth - barInfo.margin,
-						plotRect.bottom - y * plotRect.height + 100 - barInfo.height * plotRect.height
+						plotRect.left + x * plotRect.width + barInfo.offset,
+						plotRect.bottom - y * plotRect.height,
+						plotRect.left + x * plotRect.width + barInfo.offset + barWidth - barInfo.margin,
+						plotRect.bottom - y * plotRect.height - barInfo.height * plotRect.height
 					);
 				}
 				break;
@@ -2509,6 +2509,8 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		const params = {
 			graphics: JSG.graphics,
 			serie,
+			info,
+			ref,
 			axes,
 			plotRect,
 			barWidth,
@@ -2665,9 +2667,26 @@ getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 				labelRect.set(pt.x - radius, pt.y - radius, pt.x + radius, pt.y + radius);
 				break;
 			}
+			case 'state':
+				barInfo = this.getBarInfo(params.axes, params.serie, params.seriesIndex, index, value.y,
+					params.barWidth);
+				if (this.chart.period) {
+					const ptNext = {x: 0, y: 0};
+					this.getPlotPoint(params.axes, params.ref, params.info, value, index, 1, ptNext);
+					this.toPlot(params.serie, params.plotRect, ptNext);
+					labelRect.set(
+						pt.x + barInfo.offset,
+						pt.y,
+						ptNext.x,
+						pt.y - barInfo.height * params.plotRect.height
+					);
+				} else {
+					labelRect.set(pt.x + barInfo.offset, pt.y, pt.x + barInfo.offset + params.barWidth - barInfo.margin,
+						pt.y - barInfo.height * params.plotRect.height);
+				}
+				break;
 			case 'column':
 			case 'area':
-			case 'state':
 				barInfo = this.getBarInfo(params.axes, params.serie, params.seriesIndex, index, value.y,
 					params.barWidth);
 				labelRect.set(pt.x + barInfo.offset, pt.y, pt.x + barInfo.offset + params.barWidth - barInfo.margin,

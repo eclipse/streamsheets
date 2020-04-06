@@ -667,7 +667,7 @@ export default class SheetPlotView extends NodeView {
 								item.getPlotPoint(axes, ref, info, value, index, 1, ptNext);
 								item.toPlot(serie, plotRect, ptNext);
 								graphics.rect(
-									pt.x,
+									pt.x + barInfo.offset,
 									pt.y,
 									Math.abs(ptNext.x - pt.x) + 20,
 									-barInfo.height * plotRect.height + 20
@@ -797,6 +797,8 @@ export default class SheetPlotView extends NodeView {
 		const params = {
 			graphics,
 			serie,
+			info,
+			ref,
 			axes,
 			plotRect,
 			barWidth,
