@@ -16,7 +16,7 @@ export class NewMachineDialog extends Component {
 
 	getListElement = (stream) => (
 		<React.Fragment>
-			<ListItemText primary={`${stream.name}`} />,
+			<ListItemText primary={`${stream.name}`} />
 			<img
 				style={{ float: 'right' }}
 				width={15}
