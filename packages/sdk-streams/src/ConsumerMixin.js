@@ -79,9 +79,9 @@ const ConsumerMixin = (Connector) =>
 		}
 
 		async onMessage(source, m, meta) {
-			this.logger.debug(
-				`Consumer ${this.toString()} onMessage() from ${source}`
-			);
+			// this.logger.debug(
+			// 	`Consumer ${this.toString()} onMessage() from ${source}`
+			// );
 			let msg = {};
 			try {
 				msg = Utils.transformToJSONObject(m, this.config.mimeType);
@@ -93,11 +93,11 @@ const ConsumerMixin = (Connector) =>
 				Metadata: meta
 			});
 			message.metadata.error = msg.error;
-			this.logger.debug(
-				`Consumer ${
-					this.config.name
-				} to ${source} message received: ${JSON.stringify(msg)}`
-			);
+			// this.logger.debug(
+			// 	`Consumer ${
+			// 		this.config.name
+			// 	} to ${source} message received: ${JSON.stringify(msg)}`
+			// );
 			message.source = source;
 			message.metadata.source = source;
 			try {
