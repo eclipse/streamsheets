@@ -5,7 +5,7 @@ const queryString = (query) =>
 		? query
 		: [
 				'',
-				Object.entries(queryObject)
+				Object.entries(query)
 					.map((pair) => pair.map(encodeURIComponent).join('='))
 					.join('&')
 		  ].join('?');

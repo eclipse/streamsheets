@@ -12,7 +12,7 @@ import AddNewDialog from '../../base/addNewDialog/AddNewDialog';
 import { Path } from '../../../helper/Path';
 
 const getPageSelected = () => {
-	const parts = window.location.href.split('/');
+	const parts = window.location.pathname.split('/');
 	return parts[parts.indexOf('administration') + 1];
 };
 
@@ -40,8 +40,7 @@ class NewStreamDialog extends React.Component {
 	}
 
 	getResourcesOfCurrentType = () => {
-		const parts = window.location.href.split('/');
-		const selected = parts[parts.indexOf('administration') + 1];
+		const selected = getPageSelected();
 		switch (selected) {
 			case AdminConstants.CONFIG_TYPE.ConnectorConfiguration: {
 				return this.props.providers;
