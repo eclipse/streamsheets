@@ -12,6 +12,7 @@ import gatewayClient from '../helper/GatewayClient';
 import { intl } from '../helper/IntlGlobalProvider';
 import { AdminPageLayout } from '../layouts/AdminPageLayout';
 import { useGraphQL } from '../helper/Hooks';
+import { Path } from '../helper/Path';
 
 const QUERY = `
 query UserFormInfo {
@@ -276,8 +277,8 @@ CreatUserPageComponent.propTypes = {
 };
 
 const mapDispatchToProps = {
-	onCancel: () => openPage('/administration/users'),
-	onSubmit: () => openPage('/administration/users')
+	onCancel: () => openPage(Path.users()),
+	onSubmit: () => openPage(Path.users())
 };
 
 export const CreateUserPage = connect(null, mapDispatchToProps)(CreatUserPageComponent);

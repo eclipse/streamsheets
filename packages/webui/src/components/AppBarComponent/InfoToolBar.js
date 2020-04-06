@@ -67,7 +67,7 @@ export function InfoToolBar(props) {
 					{title}
 				</Typography>
 			</CustomTooltip>
-			<WorkspaceSelect show={workspaceSelect} setScope={props.setScope} />
+			<WorkspaceSelect editable={workspaceSelect} setScope={props.setScope} />
 			{MachineHelper.isMachineDetailsPage() && machineId ? <MachineNameComponent disabled={!canEditMachine} /> : null}
 		</Toolbar>
 	);

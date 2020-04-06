@@ -23,6 +23,7 @@ import styles from '../styles';
 import * as Actions from '../../../actions/actions';
 import { IconMachine, IconStream, IconProducer } from '../../icons';
 import { intl } from '../../../helper/IntlGlobalProvider';
+import { Path } from '../../../helper/Path';
 
 class StreamDeleteDialog extends React.Component {
 	static propTypes = {
@@ -101,10 +102,10 @@ class StreamDeleteDialog extends React.Component {
 
 	handleConflictClick(conflict) {
 		if(conflict && conflict.id && conflict.className) {
-			window.open('/administration/stream/' + conflict.id);
+			window.open(Path.stream(conflict.id));
 		}
 		else if(conflict && conflict.id) {
-			window.open('/machines/' + conflict.id);
+			window.open(Path.machine(conflict.id))
 		}
 	}
 

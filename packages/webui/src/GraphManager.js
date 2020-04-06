@@ -9,6 +9,7 @@ import GraphSynchronizationInteractionHandler from './helper/synchronization/Gra
 import store from './store';
 import StreamHelper from './helper/StreamHelper';
 import { intl } from './helper/IntlGlobalProvider';
+import { Path } from './helper/Path';
 
 
 const {
@@ -876,8 +877,7 @@ export default class GraphManager {
 			const display = `${stream.name || 'None'}`;
 			processSheetContainer.setStream(display);
 			processSheetContainer.setStatus(display === 'None' ? '' : status);
-			const baseUrl = `${window.location.origin}/administration/stream/`;
-			processSheetContainer.getInboxCaption().setIconLink(`${baseUrl}${stream.id}`);
+			processSheetContainer.getInboxCaption().setIconLink(`${window.location.origin}${Path.stream(stream.id)}`);
 		}
 	}
 

@@ -15,6 +15,7 @@ import AdminConstants from '../../../constants/AdminConstants';
 import { /* IconPlay, */ IconReload, IconStop } from '../../icons';
 import StreamHelper from '../../../helper/StreamHelper';
 import { Restricted, NotAllowed } from '../../HelperComponent/Restricted';
+import { Path } from '../../../helper/Path';
 
 const { RESOURCE_TYPES, RESOURCE_ACTIONS } = accessManager;
 const getTopics = (config) => {
@@ -63,7 +64,7 @@ class Producers extends Component {
 		this.forceUpdate();
 		switch (optionIndex) {
 			case 0:
-				window.open(`/administration/stream/${resourceId}`);
+				window.open(Path.stream(resourceId));
 				break;
 			case 1: {
 				const { deleteDialogOpen } = this.props;

@@ -21,6 +21,7 @@ import {
 import {intl} from '../../helper/IntlGlobalProvider';
 import ResourceCardHeader from '../base/listing/ResourceCardHeader';
 import AdminConstants from '../../constants/AdminConstants';
+import { Path } from '../../helper/Path';
 
 let loading = false;
 
@@ -86,7 +87,7 @@ class AdminForm extends Component {
 	handleAction = (optionIndex, resourceId) => {
 		switch (optionIndex) {
 		case AdminConstants.SECURITY_BUTTONS.CLOSE: {
-			return this.props.openPage(`/administration/${this.props.listingPage}`);
+			return this.props.openPage(Path[this.props.listingPage]());
 		}
 		case AdminConstants.SECURITY_BUTTONS.DELETE: {
 			if (this.props.handleAction) {

@@ -6,9 +6,11 @@ import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { IconStream, IconSecurity, IconOrganize } from '../components/icons';
 import { AdminNavigationExtensions } from '@cedalo/webui-extensions';
+import { Path } from '../helper/Path';
 
 export const AdminNavigation = connect(({ user }) => ({
-	rights: user.user ? user.user.rights : []
+	rights: user.user ? user.user.rights : [],
+	scopeId: user.user ? user.user.scope.id : null,
 }))((props) => {
 	const [isStreamsOpen, setStreamsOpen] = useState(true);
 	const [isOrganizeOpen, setOrganizeOpen] = useState(true);
@@ -27,13 +29,13 @@ export const AdminNavigation = connect(({ user }) => ({
 				icon={<IconStream />}
 				onClick={() => setStreamsOpen(!isStreamsOpen)}
 			>
-				<MenuEntry href="/administration/connectors" selected={isSelected('connectors')}>
+				<MenuEntry href={Path.connectors()} selected={isSelected('connectors')}>
 					<FormattedMessage id="Dashboard.connectors" defaultMessage="Connectors" />
 				</MenuEntry>
-				<MenuEntry href="/administration/consumers" selected={isSelected('consumers')}>
+				<MenuEntry href={Path.consumers()} selected={isSelected('consumers')}>
 					<FormattedMessage id="Dashboard.consumers" defaultMessage="Consumers" />
 				</MenuEntry>
-				<MenuEntry href="/administration/producers" selected={isSelected('producers')}>
+				<MenuEntry href={Path.producers()} selected={isSelected('producers')}>
 					<FormattedMessage id="Dashboard.producers" defaultMessage="Producers" />
 				</MenuEntry>
 			</MenuGroup>
@@ -44,13 +46,13 @@ export const AdminNavigation = connect(({ user }) => ({
 				label={<FormattedMessage id="Dashboard.security" defaultMessage="Security" />}
 				icon={<IconSecurity />}
 			>
-				<MenuEntry href="/administration/users" selected={isSelected('users')}>
+				<MenuEntry href={Path.users()} selected={isSelected('users')}>
 					<FormattedMessage id="Dashboard.users" defaultMessage="Users" />
 				</MenuEntry>
 
 				<MenuEntry
 					show={props.rights.includes('workspace')}
-					href="/administration/workspaces"
+					href={Path.workspaces()}
 					selected={isSelected('workspaces')}
 				>
 					<FormattedMessage id="Dashboard.workspaces" defaultMessage="Workspaces" />
@@ -65,7 +67,7 @@ export const AdminNavigation = connect(({ user }) => ({
 			>
 				<MenuEntry
 					show={props.rights.includes('database')}
-					href="/administration/database"
+					href={Path.database()}
 					selected={isSelected('database')}
 				>
 					<FormattedMessage id="Dashboard.database" defaultMessage="Database" />

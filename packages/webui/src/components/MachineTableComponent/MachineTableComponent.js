@@ -22,6 +22,7 @@ import {
 } from 'react-router-dom';
 
 import * as Actions from '../../actions/actions';
+import { Path } from '../../helper/Path';
 
 const getPlaceholder = () => <TableRow />;
 
@@ -71,7 +72,7 @@ class MachineTableComponent extends React.Component {
 			<TableRow key={machine.id}>
 				<TableCell>
 					<Link
-						to={`/machines/${machine.id}`}
+						to={Path.machine(machine.id)}
 						key={machine.id}
 					>
 						{machine.name}

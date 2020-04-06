@@ -19,6 +19,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { FormattedMessage } from 'react-intl';
 import * as Actions from '../../actions/actions';
 import { Restricted } from '../HelperComponent/Restricted';
+import { Path } from '../../helper/Path';
 
 export class MainDrawer extends Component {
 	state = {
@@ -74,7 +75,7 @@ export class MainDrawer extends Component {
 		this.setAppState({
 			drawerOpen: false
 		});
-		window.open('/administration');
+		window.open(Path.administration());
 	};
 
 	handleSaveAs = () => {

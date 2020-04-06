@@ -9,6 +9,7 @@ import styles from '../styles';
 import * as Actions from '../../../actions/actions';
 import AdminConstants from '../../../constants/AdminConstants';
 import AddNewDialog from '../../base/addNewDialog/AddNewDialog';
+import { Path } from '../../../helper/Path';
 
 const getPageSelected = () => {
 	const parts = window.location.href.split('/');
@@ -72,7 +73,7 @@ class NewStreamDialog extends React.Component {
 			newConfiguration.name = name;
 			const resp = await this.props.saveConfiguration(newConfiguration);
 			if (!resp.error && resp.response && !resp.response.result.error) {
-				this.props.pushPage(`/administration/stream/${newConfiguration.id}`);
+				this.props.pushPage(Path.stream(newConfiguration.id));
 			}
 		}
 	};

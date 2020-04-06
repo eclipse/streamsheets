@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import Divider from '@material-ui/core/Divider';
 import SortSelector from '../base/sortSelector/SortSelector';
 import { useGraphQL } from '../../helper/Hooks';
+import { Path } from '../../helper/Path';
 
 const getColorForMachineState = (state) => {
 	switch (state) {
@@ -42,7 +43,7 @@ const buildList = (machines, onClick) =>
 			style={{
 				textDecoration: 'unset'
 			}}
-			to={`/machines/${machine.id}`}
+			to={Path.machine(machine.id)}
 			key={machine.id}
 		>
 			<ListItem button onClick={onClick}>

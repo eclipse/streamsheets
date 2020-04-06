@@ -50,6 +50,7 @@ import theme from '../theme';
 import HelpButton from './HelpButton';
 import { ResizeHandler } from './ResizeHandler';
 import { ViewModeHandler, ViewModePropTypes } from './ViewModeHandler';
+import { Path } from '../helper/Path';
 
 const useExperimental = (setAppState) => {
 	useEffect(() => setAppState({ experimental: localStorage.getItem('experimental') === 'true' }), []);
@@ -62,7 +63,7 @@ export function MachineDetailPage(props) {
 	const { token, userId } = qs.parse(location.search);
 
 	if (token && !accessManager.authToken) {
-		const newUrl = window.location.origin + /machines/ + machineId + window.location.search;
+		const newUrl = window.location.origin + Path.machine(machineId, window.location.search);
 		accessManager.loginWithToken({
 			token,
 			userId,
@@ -123,7 +124,7 @@ export function MachineDetailPage(props) {
 			if (createdFromTemplate) {
 				await props.rename(machine.id, newMachineName);
 				console.log(`Rerouting to machine ${machine.id}`);
-				const newURL = `/machines/${machine.id}`;
+				const newURL = Path.machine(machine.id);
 				props.history.replace(newURL);
 			}
 			const { scopedByMachine } = await gatewayClient.graphql(
@@ -140,6 +141,9 @@ export function MachineDetailPage(props) {
 					}
 					machine(id: $machineId) {
 						canEdit
+						scope {
+							id
+						}
 					}
 				}
 			}
@@ -148,6 +152,7 @@ export function MachineDetailPage(props) {
 			);
 			setCanEditMachine(scopedByMachine.machine.canEdit);
 			props.receiveStreams({ streams: scopedByMachine.streamsLegacy });
+			props.setScope(scopedByMachine.machine.scope.id);
 			graphManager.updateCanvas(showTools, viewMode);
 			graphManager.redraw();
 		} catch (error) {

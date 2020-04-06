@@ -6,6 +6,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import * as Actions from '../../actions/actions';
 import AddNewDialog from '../base/addNewDialog/AddNewDialog';
 import StreamHelper from '../../helper/StreamHelper';
+import { Path } from '../../helper/Path';
 
 export class NewMachineDialog extends Component {
 	constructor(props) {
@@ -38,14 +39,15 @@ export class NewMachineDialog extends Component {
 
 	handleSubmit = ({ selected, error, name }) => {
 		if (!error) {
-			let url = '/machines/base_machine';
+			const query = {
+				scope: this.props.scopeId,
+				machineName: name
+			};
 			if (selected && selected.id) {
-				url += `?streamId=${selected.id}&streamName=${selected.name}&machineName=${name}`;
-			} else {
-				url += `?machineName=${name}`;
+				query.streamId = selected.id;
+				query.streamName = selected.name;
 			}
-			url += `&scope=${this.props.scopeId}`
-			window.open(url);
+			window.open(Path.machine('base_machine', query));
 			this.handleClose();
 		}
 	};

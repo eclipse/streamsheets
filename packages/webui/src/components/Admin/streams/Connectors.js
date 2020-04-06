@@ -17,6 +17,7 @@ import Constants from '../../../constants/Constants';
 import StreamHelper from '../../../helper/StreamHelper';
 import { /* IconPlay, */ IconReload, IconStop } from '../../icons';
 import StreamToolBar from './StreamFormContainer';
+import { Path } from '../../../helper/Path';
 
 const { RESOURCE_TYPES, RESOURCE_ACTIONS } = accessManager;
 const getTopics = (config) => {
@@ -67,7 +68,7 @@ class Connectors extends Component {
 		this.forceUpdate();
 		switch (optionIndex) {
 			case 0:
-				window.open(`/administration/stream/${resourceId}`);
+				window.open(Path.stream(resourceId));
 				break;
 			case 1: {
 				const { deleteDialogOpen } = this.props;

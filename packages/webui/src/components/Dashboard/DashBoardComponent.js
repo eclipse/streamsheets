@@ -13,6 +13,7 @@ import ImportDropzone from '../ImportExport/ImportDropzone';
 import FilterMachineStatus from './FilterMachineStatus';
 import { formatDateString } from '../base/listing/Utils';
 import { ImageUploadDialog } from '@cedalo/webui-extensions';
+import { Path } from '../../helper/Path';
 
 const styles = (theme) => ({
 	root: {
@@ -33,10 +34,11 @@ class DashBoardComponent extends Component {
 	}
 
 	onResourceOpen = (resource, newWindow) => {
+		const path = Path.machine(resource.id)
 		if (newWindow) {
-			window.open(`/machines/${resource.id}`, '_blank');
+			window.open(path, '_blank');
 		} else {
-			this.props.openPage(`/machines/${resource.id}`);
+			this.props.openPage(path);
 		}
 	};
 
@@ -73,12 +75,12 @@ class DashBoardComponent extends Component {
 			case Constants.RESOURCE_MENU_IDS.CLONE: {
 				const response = await this.props.cloneMachine(resourceId);
 				if (response && response.clonedMachine) {
-					window.open(`/machines/${response.clonedMachine.id}`, '_blank');
+					window.open(Path.machine(response.clonedMachine.id), '_blank');
 				}
 				break;
 			}
 			case Constants.RESOURCE_MENU_IDS.OPEN:
-				window.open(`/machines/${resourceId}`, '_blank');
+				window.open(Path.machine(resourceId), '_blank');
 				break;
 			case Constants.RESOURCE_MENU_IDS.DELETE: {
 				const machine = this.props.machines.find((m) => m.id === resourceId);

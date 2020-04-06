@@ -21,6 +21,7 @@ import gatewayClient from '../helper/GatewayClient';
 import { useGraphQLCB } from '../helper/Hooks';
 import { intl } from '../helper/IntlGlobalProvider';
 import { AdminPageLayout } from '../layouts/AdminPageLayout';
+import { Path } from '../helper/Path';
 
 const QUERY = `
 {
@@ -304,8 +305,8 @@ UserTablePageComponent.propTypes = {
 };
 
 const mapDispatchToProps = {
-	onAddUser: () => openPage('/administration/users/new'),
-	onSelectUser: (userId) => openPage(`/administration/users/${userId}`)
+	onAddUser: () => openPage(Path.user('new')),
+	onSelectUser: (userId) => openPage(Path.user(userId))
 };
 
 const mapStateToProps = (state) => ({

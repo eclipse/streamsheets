@@ -16,6 +16,8 @@ import * as BackupRestoreActions from './BackupRestoreActions';
 import SheetParserContext from '../SheetParserContext';
 import { accessManager } from '../helper/AccessManager';
 import { functionStrings } from '../languages/FunctionStrings';
+import qs from 'query-string';
+import { Path } from '../helper/Path';
 
 const { EVENTS } = Protocols.GatewayMessagingProtocol;
 const CONFIG = ConfigManager.config.gatewayClientConfig;
@@ -439,12 +441,14 @@ export function getMe() {
 			}`
 		);
 		const user = result.me;
-		const displayName = [user.firstName, user.lastName].filter(e => !!e).join(' ') || user.username;
-		localStorage.setItem(
-			'user',
-			JSON.stringify({ id: user.id, displayName, settings: user.settings })
-		);
-		dispatch({ type: ActionTypes.USER_FETCHED, user });
+		const displayName = [user.firstName, user.lastName].filter((e) => !!e).join(' ') || user.username;
+		const urlHash = qs.parse(window.location.hash);
+		const currentScope = urlHash.scope;
+		localStorage.setItem('user', JSON.stringify({ id: user.id, displayName, settings: user.settings }));
+		dispatch({
+			type: ActionTypes.USER_FETCHED,
+			user: { ...user, scope: { id: currentScope || user.scope.id } }
+		});
 		return user;
 	};
 }
@@ -788,7 +792,7 @@ export function unsubscribe(machineId) {
 }
 
 export function openExport(machineId) {
-	const path = ['/export', machineId].filter((e) => !!e).join('/');
+	const path = Path.export(machineId);
 	window.open(path);
 }
 
@@ -800,14 +804,14 @@ export function openDashboard(currentMachineId) {
 			if (previewImage) {
 				return gatewayClient
 					.updateMachineImage(currentMachineId, previewImage)
-					.then(() => dispatch(push('/dashboard')))
+					.then(() => dispatch(push(Path.dashboard())))
 					.then(() => _getDataStores(dispatch))
 					.then(() => {
 						reloadDashboard();
 					});
 			}
 			return Promise.resolve()
-				.then(() => dispatch(push('/dashboard')))
+				.then(() => dispatch(push(Path.dashboard())))
 				.then(() => _getDataStores(dispatch))
 				.then(() => {
 					reloadDashboard();
@@ -817,7 +821,7 @@ export function openDashboard(currentMachineId) {
 	} else {
 		return (dispatch) =>
 			Promise.resolve()
-				.then(() => dispatch(push('/dashboard')))
+				.then(() => dispatch(push(Path.dashboard())))
 				.then(() => {
 					reloadDashboard();
 				});
@@ -825,11 +829,11 @@ export function openDashboard(currentMachineId) {
 }
 
 export function openStream(stream) {
-	return (dispatch) => dispatch(push(`/administration/stream/${stream.id}`));
+	return (dispatch) => dispatch(push(Path.stream(stream.id)));
 }
 
 export function openUser(user) {
-	return (dispatch) => dispatch(push(`/administration/user/${user.userId}`));
+	return (dispatch) => dispatch(push(Path.user(user.id)));
 }
 
 export async function machineWithSameNameExists(machineId, name) {

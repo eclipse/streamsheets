@@ -17,6 +17,7 @@ import { UserTablePage, CreateUserPage, UpdateUserPage, DashboardPage, ExportPag
 import { RoutesExtensions } from '@cedalo/webui-extensions';
 import * as Actions from './actions/actions';
 import MachineHelper from './helper/MachineHelper';
+import { Path } from './helper/Path';
 
 const GATEWAY_CONFIG = ConfigManager.config.gatewayClientConfig;
 
@@ -46,9 +47,9 @@ const DefaultAdminRouteRedirect = connect(
 		return null;
 	}
 	if (rights.includes('stream')) {
-		return <Redirect to="/administration/connectors" />;
+		return <Redirect to={Path.connectors()} />;
 	}
-	return <Redirect to="/administration/users" />;
+	return <Redirect to={Path.users()} />;
 });
 
 const isLicenseAccepted = (setup) => setup.licenseAgreement && setup.licenseAgreement.accepted;

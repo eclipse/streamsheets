@@ -13,6 +13,7 @@ import gatewayClient from '../helper/GatewayClient';
 import { useGraphQL } from '../helper/Hooks';
 import { intl } from '../helper/IntlGlobalProvider';
 import { AdminPageLayout } from '../layouts/AdminPageLayout';
+import { Path } from '../helper/Path';
 
 const QUERY = `
 query UpdateUserForm($id: ID!) {
@@ -402,9 +403,9 @@ UpdateUserPageComponent.propTypes = {
 };
 
 const mapDispatchToProps = (dispatch) => ({
-	onCancel: () => dispatch(openPage('/administration/users')),
+	onCancel: () => dispatch(openPage(Path.users())),
 	onSubmit: () => {
-		dispatch(openPage('/administration/users'));
+		dispatch(openPage(Path.users()));
 		dispatch(getDataStores());
 	}
 });

@@ -10,6 +10,7 @@ import statuserror from '../resources/statuserror.png';
 import ConfigManager from '../helper/ConfigManager';
 import gatewayClient from '../helper/GatewayClient';
 import AdminConstants from '../constants/AdminConstants';
+import { Path } from './Path';
 
 const CONFIG = ConfigManager.config.gatewayClientConfig;
 
@@ -104,7 +105,7 @@ export default class StreamHelper {
 		case StreamHelper.BUTTONS.CLOSE: {
 			const stream = StreamHelper.getConfiguration(props, resourceId);
 			const page = StreamHelper.getPageFromClass(stream.className);
-			props.openPage(`/administration/${page}`);
+			props.openPage(Path[page]());
 			break;
 		}
 		case StreamHelper.BUTTONS.START: {

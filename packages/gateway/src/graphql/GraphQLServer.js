@@ -68,6 +68,7 @@ const typeDefs = gql`
 		canEdit: Boolean
 		files: [String!]!
 		file(name: String!): String
+		scope: Scope!
 	}
 
 	type Stream {

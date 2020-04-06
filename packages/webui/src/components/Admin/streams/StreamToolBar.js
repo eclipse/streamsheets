@@ -12,6 +12,7 @@ import StreamHelper from '../../../helper/StreamHelper';
 import ResourceCardHeader from '../../base/listing/ResourceCardHeader';
 import { /* IconPlay, */IconStream, IconReload, IconStop, IconDelete, IconClose, IconSave} from '../../icons';
 import {accessManager} from '../../../helper/AccessManager';
+import { Path } from '../../../helper/Path';
 
 const {RESOURCE_TYPES, RESOURCE_ACTIONS} = accessManager;
 
@@ -50,7 +51,7 @@ class StreamToolBar extends React.PureComponent {
 	handleAction = (optionIndex, resourceId) => {
 		switch (optionIndex) {
 		case 0: {
-			this.props.openPage(`/administration/${this.props.listingPage}`);
+			this.props.openPage(Path[this.props.listingPage]());
 			break;
 		}
 		default:

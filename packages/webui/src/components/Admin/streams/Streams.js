@@ -13,6 +13,7 @@ import * as Actions from '../../../actions/actions';
 import { accessManager } from '../../../helper/AccessManager';
 import styles from '../styles';
 import AdminConstants from '../../../constants/AdminConstants';
+import { Path } from '../../../helper/Path';
 
 const options = [
 	<FormattedMessage id="Admin.edit" defaultMessage="Edit" />,
@@ -40,7 +41,7 @@ class Streams extends Component {
 		this.forceUpdate();
 		switch (optionIndex) {
 		case 0:
-			window.open(`/administration/stream/${resourceId}`);
+			window.open(Path.stream(resourceId));
 			break;
 		case 1: {
 			const { deleteDialogOpen } = this.props;

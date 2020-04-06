@@ -22,6 +22,7 @@ import StreamStatus from './StreamStatus';
 import FieldComponents from './FieldComponents';
 import NameField from './NameField';
 import { accessManager } from '../../../helper/AccessManager';
+import { Path } from '../../../helper/Path';
 
 const { RESOURCE_ACTIONS, RESOURCE_TYPES } = accessManager;
 
@@ -178,7 +179,7 @@ class StreamFormContainer extends React.Component {
 	handleDelete = (res) => {
 		if (res === true) {
 			const pageSelected = StreamHelper.getPageFromClass(this.state.model.className);
-			this.props.openPage(`/administration/${pageSelected}`);
+			this.props.openPage(Path[pageSelected]());
 		}
 	};
 
