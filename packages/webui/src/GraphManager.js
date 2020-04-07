@@ -381,6 +381,7 @@ export default class GraphManager {
 		if (currentMessage) {
 			this.selectInboxMessage(streamsheetId, currentMessage.id, currentMessage.isProcessed);
 		}
+
 		this.updateStats(streamsheetId, stats);
 		// this.redraw();
 	}
@@ -776,7 +777,16 @@ export default class GraphManager {
 	}
 
 	updateOutbox(outbox) {
-		this.addBoxMessages(this.getOutbox(), outbox.messages);
+		let id;
+		const outboxContainer = this.getOutbox();
+		const selection = outboxContainer.getMessageListItems().getSelectedItem();
+		if (selection) {
+			id = selection.id;
+		}
+		this.addBoxMessages(outboxContainer, outbox.messages);
+		if (id) {
+			this.selectMessage(outboxContainer, id, false);
+		}
 	}
 
 	updateInbox(streamsheetId, inbox) {
