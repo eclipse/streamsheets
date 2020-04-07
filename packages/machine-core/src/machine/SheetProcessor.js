@@ -47,6 +47,10 @@ class SheetProcessor {
 		this._sheet = sheet;
 	}
 
+	getCurrentCell() {
+		return cellAt(this._cursor.r, this._cursor.c, this._sheet);
+	}
+
 	start() {
 		let result;
 		if (!this._isProcessing) {
