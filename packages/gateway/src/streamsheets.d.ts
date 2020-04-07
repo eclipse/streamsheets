@@ -41,6 +41,7 @@ export interface Session {
 		id: string;
 		roles: string[];
 		displayName: string;
+		machineId?: string
 	};
 }
 

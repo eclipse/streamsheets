@@ -80,19 +80,6 @@ export const init = async (config: any, plugins: string[]) => {
 		});
 	}
 
-	// create an internal viewer user if not present:
-	if(users.filter((user: User) => user.username === 'sharedmachine').length === 0) {
-		const pwhash = await encryptionContext.hash(`${Math.random()}`);
-		await RepositoryManager.userRepository.createUser({
-			id: '00000000000001',
-			username: 'sharedmachine',
-			email: 'info@cedalo.com',
-			password: pwhash,
-			scope: { id: 'viewer' },
-			role: 'developer'
-		});
-	}
-
 	RepositoryManager.streamRepository = new StreamRepositoryProxy();
 	await RepositoryManager.connectAll(mongoClient);
 	await RepositoryManager.setupAllIndicies();

@@ -10,7 +10,7 @@ const validatePath = async (pathname = '', machineRepository) => {
 	if (path === 'shared-machine') {
 		const id = parts[parts.length - 1];
 		const link = await machineRepository.getSharedLink({ id });
-		return !!link;
+		return link && link.machineId;
 	}
 	return false;
 };
@@ -57,14 +57,23 @@ module.exports = class AuthRoutes {
 	}
 
 	static async pathLogin(request, response, next) {
-		const { machineRepository, userRepository } = request.app.locals.RepositoryManager;
+		const { sharedMachineRepo } = request.app.locals.globalContext;
 		switch (request.method) {
 			case 'POST':
 				try {
 					const { pathname } = request.body;
-					const isValid = await validatePath(pathname, machineRepository);
-					if (isValid) {
-						const user = await userRepository.findUserByUsername('sharedmachine');
+					const machineId = await validatePath(pathname, sharedMachineRepo);
+					if (machineId) {
+						const user = {
+							id: 'sharedmachine',
+							username: 'sharedmachine',
+							role: 'viewer',
+							scope: { id: 'root' },
+							settings: {
+								locale: 'en'
+							},
+							machineId
+						};
 						const token = Auth.getToken(user);
 						response.status(200).json({ token, user });
 					} else {
