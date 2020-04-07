@@ -16,6 +16,7 @@ import { Session, GlobalContext } from './streamsheets';
 import { LoggerFactory } from '@cedalo/logger';
 import { baseAuth } from './authorization';
 import { MachineServiceProxy } from './machine';
+import { MongoClient } from 'mongodb';
 const logger = LoggerFactory.createLogger('gateway - context', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
 
 const encryptionContext = {
@@ -50,7 +51,7 @@ const applyPlugins = async (context: GlobalContext, pluginModules: string[]) => 
 };
 
 export const init = async (config: any, plugins: string[]) => {
-	const mongoConnection = await MongoDBConnection.create();
+	const mongoClient: MongoClient = await MongoDBConnection.create();
 	const graphRepository = new MongoDBGraphRepository(config.mongodb);
 	const machineRepository = new MongoDBMachineRepository(config.mongodb);
 	const streamRepositoryLegacy = new MongoDBStreamsRepository(config.mongodb);
@@ -64,7 +65,7 @@ export const init = async (config: any, plugins: string[]) => {
 		configurationRepository
 	});
 	
-	RepositoryManager.userRepository = createUserRepository(mongoConnection.db().collection('users'));
+	RepositoryManager.userRepository = createUserRepository(mongoClient.db().collection('users'));
 	// TODO: Remove after creation of admin is possible in setup
 	const users = await RepositoryManager.userRepository.findAllUsers();
 	if (users.length === 0) {
@@ -93,12 +94,13 @@ export const init = async (config: any, plugins: string[]) => {
 	}
 
 	RepositoryManager.streamRepository = new StreamRepositoryProxy();
-	await RepositoryManager.connectAll(mongoConnection);
+	await RepositoryManager.connectAll(mongoClient);
 	await RepositoryManager.setupAllIndicies();
 	const machineServiceProxy = new MachineServiceProxy();
 
 	const context = await applyPlugins(
 		{
+			mongoClient,
 			repositories: RepositoryManager,
 			encryption: encryptionContext,
 			userRepo: RepositoryManager.userRepository,

@@ -6,8 +6,10 @@ import { Stream } from './stream/types';
 import { FunctionObject } from './common';
 import { IResolvers } from 'apollo-server-express';
 import { MachineServiceProxy } from './machine';
+import { MongoClient } from 'mongodb';
 
 export interface GlobalContext {
+	mongoClient: MongoClient
 	rawApi: typeof RawAPI;
 	rawAuth: BaseAuth;
 	encryption: any;
