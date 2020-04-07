@@ -2,7 +2,11 @@ const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell } = require('@cedalo/machine-core');
 const { Term } = require('@cedalo/parser');
-const { date: { localNow, ms2serial }, runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../utils');
+const {
+	date: { localNow, ms2serial },
+	runFunction,
+	terms: { getCellRangeFromTerm, getTargetTerm, hasValue }
+} = require('../../utils');
 const aggregations = require('./aggregations');
 const stateListener = require('./stateListener');
 const transform = require('./transform');
@@ -160,18 +164,17 @@ const getInterval = (term) => {
 	const interval = hasValue(term) ? convert.toNumberStrict(term.value, ERROR.VALUE) : -1;
 	return interval >= MIN_INTERVAL || interval === -1 ? interval : ERROR.VALUE;
 };
-
-const storeFromTerm = (term) => term && (term.name === 'timestore' || term.name === 'TIMESTORE') ? term : undefined;
-const getTermFromRef = (cellref) => cellref.operand.target ? cellref.operand.target.term : undefined;
-const getStoreTerm = (term) => storeFromTerm(term) || storeFromTerm(getTermFromRef(term));
-
+const getStoreTerm = (term) => {
+	term = getTargetTerm(term);
+	return term.name && term.name.toLowerCase() === 'timestore' ? term : undefined;
+};
 
 const timeQuery = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(5)
-		.mapNextArg((storeref) => getStoreTerm(storeref) || ERROR.VALUE)
+		.mapNextArg((term) => getStoreTerm(term) || ERROR.VALUE)
 		.mapNextArg((query) => (isValidQuery(query.value) ? query.value : ERROR.VALUE))
 		.mapNextArg((interval) => getInterval(interval))
 		.mapNextArg((range) => getRange(range))
