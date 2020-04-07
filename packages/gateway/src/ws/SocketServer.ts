@@ -2,6 +2,7 @@ import { GatewayMessagingProtocol } from '@cedalo/protocols';
 import * as http from 'http';
 import WebSocket from 'ws';
 import Auth from '../Auth';
+import { GlobalContext, Session } from '../streamsheets';
 import { User } from '../user';
 import { getUserFromWebsocketRequest } from '../utils';
 import LoggerFactory from '../utils/logger';
@@ -10,7 +11,7 @@ import GraphServerInterceptor from './interceptors/GraphServerInterceptor';
 import InterceptorChain from './interceptors/InterceptorChain';
 import MachineServerInterceptor from './interceptors/MachineServerInterceptor';
 import ProxyConnection from './ProxyConnection';
-import { Session, GlobalContext } from '../streamsheets';
+
 const logger = LoggerFactory.create({ name: 'SocketServer' });
 
 const DEFAULTS = {
@@ -89,7 +90,7 @@ export class SocketServer {
 	}
 
 	handleUserJoined(ws: WebSocket, user: User) {
-		logger.info('user joined', { user });
+		logger.debug('user joined', { user });
 		if (this.shouldBroadcast(user)) {
 			const message = {
 				type: 'event',

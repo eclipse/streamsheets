@@ -1,16 +1,16 @@
 import IdGenerator from '@cedalo/id-generator';
-import ServerConnection from './ServerConnection';
-import WebSocket from 'ws';
-import { User } from '../user';
-import Auth from '../Auth';
-import { getUserFromWebsocketRequest } from '../utils';
-import { MessagingClient } from '@cedalo/messaging-client';
-import { Topics, GatewayMessagingProtocol } from '@cedalo/protocols';
 import { LoggerFactory } from '@cedalo/logger';
-import { SocketServer } from './SocketServer';
+import { MessagingClient } from '@cedalo/messaging-client';
+import { GatewayMessagingProtocol, Topics } from '@cedalo/protocols';
 import * as http from 'http';
-import { WSRequest, Session, WSResponse, EventData, GlobalContext, RequestContext } from '../streamsheets';
+import WebSocket from 'ws';
+import Auth from '../Auth';
 import { getRequestContext } from '../context';
+import { EventData, RequestContext, Session, WSRequest, WSResponse } from '../streamsheets';
+import { User } from '../user';
+import { getUserFromWebsocketRequest } from '../utils';
+import ServerConnection from './ServerConnection';
+import { SocketServer } from './SocketServer';
 import { StreamWSProxy } from './StreamWSProxy';
 
 const logger = LoggerFactory.createLogger('gateway - ProxyConnection', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
