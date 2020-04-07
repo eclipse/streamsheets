@@ -12,7 +12,7 @@ import { User } from './user/types';
 const { createUserRepository } = require('./user/UserRepository');
 import { StreamRepositoryProxy } from './stream';
 import glue, { RawAPI } from './glue';
-import { Session, GlobalContext } from './streamsheets';
+import { Session, GlobalContext, RequestContext } from './streamsheets';
 import { LoggerFactory } from '@cedalo/logger';
 import { baseAuth } from './authorization';
 import { MachineServiceProxy } from './machine';
@@ -117,6 +117,9 @@ export const init = async (config: any, plugins: string[]) => {
 
 export const getRequestContext = async (globalContext: GlobalContext, session: Session) => {
 	const { repositories } = globalContext;
-	const actor = await repositories.userRepository.findUser(session.user.id);
+	const actor = await globalContext.rawApi.user.findUserBySession(globalContext as RequestContext, session);
+	if(!actor){
+		throw new Error('User not found!');
+	}
 	return glue(globalContext, actor);
 };
