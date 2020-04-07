@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { graphManager } from '../../GraphManager';
 import * as Actions from '../../actions/actions';
+import {Notification, NotificationCenter} from '@cedalo/jsg-core';
 
 const {
 	ItemAttributes,
@@ -104,15 +105,20 @@ export class EditBarComponent extends Component {
 					appState.showChartProperties = true;
 					attr.setExpressionOrValue(false);
 				}
-				if ((item instanceof JSG.SheetPlotNode) && attr && attr.getValue() === true) {
-					item.createSeriesFromSelection(
-						graphManager.getGraphViewer(),
-						sheet,
-						graphManager.chartSelection,
-						graphManager.chartType
-					);
-					graphManager.getGraphEditor().invalidate();
-					attr.setExpressionOrValue(false);
+				if (item instanceof JSG.SheetPlotNode) {
+				  	if (attr && attr.getValue() === true) {
+						item.createSeriesFromSelection(
+							graphManager.getGraphViewer(),
+							sheet,
+							graphManager.chartSelection,
+							graphManager.chartType
+						);
+						graphManager.getGraphEditor().invalidate();
+						attr.setExpressionOrValue(false);
+					} else if (!item.isProtected()) {
+						NotificationCenter.getInstance().send(
+							new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION));
+					}
 				}
 			}
 

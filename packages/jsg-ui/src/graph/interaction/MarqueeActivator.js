@@ -100,7 +100,7 @@ class MarqueeActivator extends InteractionActivator {
 			.subtract(dispatcher.startLocation);
 		if (threshold.length() > this._marqueeThreshold) {
 			const controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, this._condition);
-			if (!controller.getModel().isProtected()) {
+			if (!controller || !controller.getModel().isProtected()) {
 				viewer.clearSelection();
 				const interaction = this.activateInteraction(new MarqueeInteraction(), dispatcher);
 				interaction.onMouseDrag(event, viewer);

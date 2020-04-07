@@ -111,7 +111,7 @@ export class CanvasComponent extends Component {
 	}
 
 	onPlotDoubleClicked(notification) {
-		if (notification.object.event.type === JSG.MouseEvent.MouseEventType.DBLCLK) {
+		if (notification.object && notification.object.event.type === JSG.MouseEvent.MouseEventType.DBLCLK) {
 			this.props.setAppState({showStreamChartProperties: true});
 		}
 

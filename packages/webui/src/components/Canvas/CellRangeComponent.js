@@ -23,6 +23,7 @@ export default class CellRangeComponent extends React.Component {
 		helperText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 		range: PropTypes.string.isRequired,
 		sheetView: PropTypes.object.isRequired,
+		onlyReference: PropTypes.bool,
 		fontSize: PropTypes.string
 	};
 
@@ -30,6 +31,7 @@ export default class CellRangeComponent extends React.Component {
 		onChange: () => {},
 		onBlur: () => {},
 		onFocus: () => {},
+		onlyReference: true,
 		required: false,
 		fontSize: '1rem',
 		helperText: undefined,
@@ -67,7 +69,7 @@ export default class CellRangeComponent extends React.Component {
 		}
 
 		const cellEditor = CellEditor.activateCellEditor(event.target, graphManager.getGraphViewer(), view.getItem());
-		cellEditor.alwaysReplace = true;
+		cellEditor.alwaysReplace = this.props.onlyReference;
 		cellEditor.updateEditRangesView(this.props.sheetView);
 		this.setState({
 			focus: true,
