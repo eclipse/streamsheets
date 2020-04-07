@@ -22,7 +22,8 @@ const Strings = require('../commons/Strings');
  * @constructor
  * @since 1.6.18
  */
-const Settings = () => {
+// eslint-disable-next-line func-names
+const Settings = function() {
 	this._settings = {};
 };
 
