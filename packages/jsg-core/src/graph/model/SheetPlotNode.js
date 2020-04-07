@@ -1977,13 +1977,13 @@ module.exports = class SheetPlotNode extends Node {
 			let startDecade = 0.1;
 			if (a > 1) {
 				while (a > 1) {
-					a = a / 10;
-					startDecade = startDecade * 10;
+					a /= 10;
+					startDecade *= 10;
 				}
 			} else {
 				while (a < 1) {
-					a = a * 10;
-					startDecade = startDecade / 10;
+					a *= 10;
+					startDecade /= 10;
 				}
 			}
 			let result = startDecade;
@@ -2028,9 +2028,9 @@ module.exports = class SheetPlotNode extends Node {
 			}
 			valueInfo.i = 1;
 			if (Math.log10(Number.MAX_VALUE) - (Math.log10(valueInfo.startDecade) + 1) > 1) {
-				valueInfo.startDecade = valueInfo.startDecade * 10;
+				valueInfo.startDecade *= 10;
 			} else if (!valueInfo.end) {
-				valueInfo.startDecade = valueInfo.startDecade * 10;
+				valueInfo.startDecade *= 10;
 				valueInfo.end = true;
 			}
 			break;
@@ -3576,6 +3576,7 @@ module.exports = class SheetPlotNode extends Node {
 			name = 'YAxis';
 		}
 
+		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			const test = `${name}${i}`;
 			if (!array.some((axis) => axis.name === test)) {

@@ -164,7 +164,7 @@ module.exports = class FormatCellsCommandWC extends Command {
 
 	handleResponse(response, error) {
 		if (!response || error) {
-			console.error('Cannot handle response!!', error);
+			// console.error('Cannot handle response!!', error);
 			return;
 		}
 		if (!this._oldFormats) {

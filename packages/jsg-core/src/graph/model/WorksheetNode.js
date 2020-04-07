@@ -913,75 +913,71 @@ module.exports = class WorksheetNode extends ContentNode {
 			} else {
 				const locale = JSG.getParserLocale();
 				let date;
-				try {
-					dateFormats.some((format) => {
-						date = parse(text, format, new Date(), { locale: locales[locale] });
-						if (isValid(date)) {
-							let xlDate = this.getDataProvider().JSDateToExcelDate(date);
-							switch (format) {
-								case 'dd.MM.yy':
-									xlDate = Math.floor(xlDate);
-									localCulture = `date;${locale}`;
-									numberFormat = 'dd\\.mm\\.yy';
-									break;
-								case 'dd.MM.yy HH:mm':
-									localCulture = `date;${locale}`;
-									numberFormat = 'd\\.m\\.yy h:mm';
-									break;
-								case 'dd.MM.yyyy HH:mm':
-									localCulture = `date;${locale}`;
-									numberFormat = 'd\\.m\\.yyyy h:mm';
-									break;
-								case 'dd.MM.yyyy':
-									xlDate = Math.floor(xlDate);
-									localCulture = `date;${locale}`;
-									numberFormat = 'dd\\.mm\\.yyyy';
-									break;
-								case 'dd. MMM yyyy HH:mm':
-									localCulture = `date;${locale}`;
-									numberFormat = 'd\\.m\\.yy h:mm';
-									break;
-								case 'dd. MMM yy':
-								case 'dd. MMM yyyy':
-									xlDate = Math.floor(xlDate);
-									localCulture = `date;${locale}`;
-									numberFormat = 'd\\. mmm yyyy';
-									break;
-								case 'dd. MMM':
-									xlDate = Math.floor(xlDate);
-									localCulture = `date;${locale}`;
-									numberFormat = 'd\\. mmm';
-									break;
-								case 'MMM yy':
-								case 'MMM yyyy':
-									xlDate = Math.floor(xlDate);
-									localCulture = `date;${locale}`;
-									numberFormat = 'mmm yy';
-									break;
-								case 'HH:mm':
-									xlDate -= Math.trunc(xlDate);
-									localCulture = `time;${locale}`;
-									numberFormat = 'h:mm';
-									break;
-								case 'HH:mm:ss':
-									xlDate -= Math.trunc(xlDate);
-									localCulture = `time;${locale}`;
-									numberFormat = 'h:mm:ss';
-									break;
-								default:
-									xlDate = Math.floor(xlDate);
-									localCulture = `date;${locale}`;
-									numberFormat = 'dd\\.mm\\.yy';
-									break;
-							}
-							term = Term.fromNumber(xlDate);
-							return true;
+				dateFormats.some((format) => {
+					date = parse(text, format, new Date(), { locale: locales[locale] });
+					if (isValid(date)) {
+						let xlDate = this.getDataProvider().JSDateToExcelDate(date);
+						switch (format) {
+							case 'dd.MM.yy':
+								xlDate = Math.floor(xlDate);
+								localCulture = `date;${locale}`;
+								numberFormat = 'dd\\.mm\\.yy';
+								break;
+							case 'dd.MM.yy HH:mm':
+								localCulture = `date;${locale}`;
+								numberFormat = 'd\\.m\\.yy h:mm';
+								break;
+							case 'dd.MM.yyyy HH:mm':
+								localCulture = `date;${locale}`;
+								numberFormat = 'd\\.m\\.yyyy h:mm';
+								break;
+							case 'dd.MM.yyyy':
+								xlDate = Math.floor(xlDate);
+								localCulture = `date;${locale}`;
+								numberFormat = 'dd\\.mm\\.yyyy';
+								break;
+							case 'dd. MMM yyyy HH:mm':
+								localCulture = `date;${locale}`;
+								numberFormat = 'd\\.m\\.yy h:mm';
+								break;
+							case 'dd. MMM yy':
+							case 'dd. MMM yyyy':
+								xlDate = Math.floor(xlDate);
+								localCulture = `date;${locale}`;
+								numberFormat = 'd\\. mmm yyyy';
+								break;
+							case 'dd. MMM':
+								xlDate = Math.floor(xlDate);
+								localCulture = `date;${locale}`;
+								numberFormat = 'd\\. mmm';
+								break;
+							case 'MMM yy':
+							case 'MMM yyyy':
+								xlDate = Math.floor(xlDate);
+								localCulture = `date;${locale}`;
+								numberFormat = 'mmm yy';
+								break;
+							case 'HH:mm':
+								xlDate -= Math.trunc(xlDate);
+								localCulture = `time;${locale}`;
+								numberFormat = 'h:mm';
+								break;
+							case 'HH:mm:ss':
+								xlDate -= Math.trunc(xlDate);
+								localCulture = `time;${locale}`;
+								numberFormat = 'h:mm:ss';
+								break;
+							default:
+								xlDate = Math.floor(xlDate);
+								localCulture = `date;${locale}`;
+								numberFormat = 'dd\\.mm\\.yy';
+								break;
 						}
-						return false;
-					});
-				} catch (e) {
-					console.log(e);
-				}
+						term = Term.fromNumber(xlDate);
+						return true;
+					}
+					return false;
+				});
 				if (term === undefined) {
 					term = JSG.FormulaParser.parseValue(text, graph, this);
 				}

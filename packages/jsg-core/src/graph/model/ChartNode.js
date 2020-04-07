@@ -173,6 +173,7 @@ module.exports = class ChartNode extends Node {
 		let i = 1;
 		let axis;
 		/* eslint-disable no-loop-func */
+		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			if (x) {
 				name = `XAxis${i}`;

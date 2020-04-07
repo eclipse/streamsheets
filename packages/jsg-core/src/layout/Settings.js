@@ -22,7 +22,7 @@ const Strings = require('../commons/Strings');
  * @constructor
  * @since 1.6.18
  */
-const Settings = function() {
+const Settings = () => {
 	this._settings = {};
 };
 

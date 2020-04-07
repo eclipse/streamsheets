@@ -200,7 +200,7 @@ module.exports = class TreeItemsNode extends Node {
 		let key;
 		let level = 0;
 
-		for (let i = 0; i < path.length; i++) {
+		for (let i = 0; i < path.length; i += 1) {
 			switch (path[i]) {
 			case '[':
 				level += 1;
