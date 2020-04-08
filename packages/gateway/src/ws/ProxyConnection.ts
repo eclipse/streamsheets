@@ -35,6 +35,7 @@ export default class ProxyConnection {
 	private graphserver: ServerConnection;
 	private machineserver: ServerConnection;
 	private interceptor: any;
+	private machineId: string | undefined;
 
 	static get openConnections() {
 		return OPEN_CONNECTIONS;
@@ -147,8 +148,9 @@ export default class ProxyConnection {
 			user: {
 				id: user ? user.id : 'anon',
 				roles: [],
-				displayName: user ? [user.firstName, user.lastName].filter((e) => !!e).join(' ') || user.username : ''
-			}
+				displayName: user ? [user.firstName, user.lastName].filter((e) => !!e).join(' ') || user.username : '',
+				machineId: this.machineId
+			},
 		};
 	}
 
@@ -161,6 +163,7 @@ export default class ProxyConnection {
 					Auth.parseToken.bind(Auth)
 				);
 				this.setUser(user);
+				this.machineId = user.machineId;
 			} catch (err) {
 				logger.warn(err.name);
 				this.user && this.socketserver.logoutUser({ user: this.user });

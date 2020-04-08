@@ -21,6 +21,11 @@ class AuthenticateHTTPRequest extends HTTPRequest {
 		);
 	}
 }
+class AuthenticatePathHTTPRequest extends AuthenticateHTTPRequest {
+	_getPath() {
+		return '/pathlogin';
+	}
+}
 
 class GetMetaInformationHTTPRequest extends HTTPRequest {
 	_getPath() {
@@ -158,6 +163,7 @@ class RestoreHTTPRequest extends HTTPRequest {
 module.exports = {
 	BackupHTTPRequest,
 	AuthenticateHTTPRequest,
+	AuthenticatePathHTTPRequest,
 	GetMetaInformationHTTPRequest,
 	GraphQLHTTPRequest,
 	GraphQLWithFileHTTPRequest,

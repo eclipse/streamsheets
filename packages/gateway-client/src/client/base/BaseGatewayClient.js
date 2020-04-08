@@ -39,11 +39,7 @@ module.exports = class BaseGatewayClient {
 		this._token = token || this._token;
 		try {
 			await this._connectRESTServer(restEndpointURL);
-			this.http = new HTTPGatewayAPI(
-				restEndpointURL,
-				this._token,
-				this.logger
-			);
+			this.http = new HTTPGatewayAPI(restEndpointURL, this._token, this.logger);
 			if(this._token) {
 				const ws = await this._connectSocketServer(`${this._socketEndpointURL}?authToken=${this._token}`);
 				this._ws = ws;

@@ -8,7 +8,8 @@ const {
 	GraphQLWithFileHTTPRequest,
 	ImportMachineHTTPRequest,
 	RestoreHTTPRequest,
-	AuthenticateHTTPRequest
+	AuthenticateHTTPRequest,
+	AuthenticatePathHTTPRequest
 } = require('../../requests/http/HTTPRequests');
 
 module.exports = class HTTPGatewayAPI extends GatewayAPI {
@@ -29,9 +30,8 @@ module.exports = class HTTPGatewayAPI extends GatewayAPI {
 	 */
 
 	authenticate(authRequest) {
-		return this.sendRequest(
-			new AuthenticateHTTPRequest(this._restEndpointURL, authRequest)
-		);
+		const Request = authRequest.pathname != null ? AuthenticatePathHTTPRequest : AuthenticateHTTPRequest;
+		return this.sendRequest(new Request(this._restEndpointURL, authRequest));
 	}
 
 	getMetaInformation() {
