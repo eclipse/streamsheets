@@ -128,7 +128,7 @@ class StreamsManager {
 		const updates = relStreams.map(async (f) => {
 			const streamConfig = await this.updateStream({
 				...config,
-				type: f.className,
+				type: sdk.ConnectorConfiguration.name,
 				id: f.id
 			});
 			if (typeof config.$set.disabled !== 'undefined') {

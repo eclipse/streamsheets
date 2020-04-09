@@ -8,9 +8,9 @@ import { IconStream, IconSecurity, IconOrganize } from '../components/icons';
 import { AdminNavigationExtensions } from '@cedalo/webui-extensions';
 import { Path } from '../helper/Path';
 
-export const AdminNavigation = connect(({ user }) => ({
+export const AdminNavigation = connect(({ user, router }) => ({
 	rights: user.user ? user.user.rights : [],
-	scopeId: user.user ? user.user.scope.id : null,
+	hash: router.location.hash
 }))((props) => {
 	const [isStreamsOpen, setStreamsOpen] = useState(true);
 	const [isOrganizeOpen, setOrganizeOpen] = useState(true);
