@@ -478,10 +478,8 @@ export default class SheetPlotView extends NodeView {
 							if (line) {
 								graphics.stroke();
 							}
-						} else {
-							if (fill) {
-								graphics.fill();
-							}
+						} else if (fill) {
+							graphics.fill();
 						}
 						break;
 					}
@@ -494,10 +492,8 @@ export default class SheetPlotView extends NodeView {
 							if (line) {
 								graphics.stroke();
 							}
-						} else {
-							if (fill) {
-								graphics.fill();
-							}
+						} else if (fill) {
+							graphics.fill();
 						}
 
 						// 3d front
