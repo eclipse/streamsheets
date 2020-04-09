@@ -1,6 +1,6 @@
-const { sheet: sheetutils, terms: { getCellRangeFromTerm } } = require('../../utils');
+const { runFunction, sheet: sheetutils, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { Term } = require('@cedalo/parser');
-const { convert, jsonpath } = require('@cedalo/commons');
+const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell, ErrorTerm, isType } = require('@cedalo/machine-core');
 
@@ -110,72 +110,31 @@ const copyToCellRange = (cellrange, data, type, isHorizontal) => {
 };
 
 
-const getInboxMessage = (sheet, streamsheetName, messageId) => {
-	const streamsheet = sheetutils.getStreamSheetByName(streamsheetName, sheet);
-	return streamsheet ? streamsheet.getMessage(messageId) : undefined;
-};
-const getOutboxMessage = (sheet, messageId) => {
-	const machine = sheetutils.getMachine(sheet);
-	const outbox = machine && machine.outbox;
-	return outbox ? outbox.peek(messageId) : undefined;
-};
-// DL-578: special handling for special trigger types in endless mode:
-const isProcessed = (sheet, message) => sheet.streamsheet.isMessageProcessed(message);
-// eslint-disable-next-line
-const messageDataAt = (path, message, metadata) => message ? (metadata ? message.getMetaDataAt(path) : message.getDataAt(path)) : null;
-
-const getData = (sheet, term, path, returnNA) => {
-	const funcname = term.func && term.name;
-	const message = funcname === 'OUTBOXDATA'
-		? getOutboxMessage(sheet, path.shift())
-		: getInboxMessage(sheet, path.shift(), path.shift());
-	// path = path.length ? jsonpath.toString(path) : '';
-	return (isProcessed(sheet, message) && returnNA)
-		? ERROR.NA
-		: messageDataAt(path, message, funcname === 'INBOXMETADATA');
-};
-
-const getLastPathPart = (path, term) => {
-	if (path.length) {
-		const last = jsonpath.last(path);
-		// DL-1080: part of this issue specifies that READ() should return number value...
-		return convert.toNumber(last, last);
-	}
-	const funcname = term.func && term.name;
-	return funcname === 'INBOXMETADATA' ? 'Metadata' : 'Data';
-};
-
-// extract this!!
 const validate = (range, errorcode) =>
 	((!range || FunctionErrors.isError(range) || FunctionErrors.isError(range.sheet)) ? errorcode : undefined);
 
-const read = (sheet, ...terms) => {
-	let error = (!sheet || terms.length < 1) ? ERROR.ARGS : undefined;
-	const pathterm = terms[0];
-	const val = pathterm.value;
-	error = error || FunctionErrors.isError(val);
-	if (!error) {
-		const path = jsonpath.parse(val);
-		const type = toString(terms[2]).toLowerCase();
-		const target = terms[1];
-		const returnNA = toBool(terms[4], false);
-		let data = getData(sheet, pathterm, path, returnNA);
-		// no target cell => we return json value
-		const retval = target ? getLastPathPart(path, pathterm) : data;
-		if (data == null) data = (returnNA ? ERROR.NA : getLastValue(read.term, type));
-		if (target) {
-			const targetrange = getCellRangeFromTerm(target, sheet);
-			error = validate(targetrange, ERROR.INVALID_PARAM);
-			if (!error && targetrange) {
-				const isHorizontal = terms[3] ? !!terms[3].value : undefined;
-				read.term._lastValue = data;
-				copyToCellRange(targetrange, data, type, isHorizontal);
-			}
+
+const read = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+	.withMinArgs(1)
+	.withMaxArgs(5)
+	.mapNextArg((pathterm) => sheetutils.readMessageValue(sheet, pathterm))
+	.mapNextArg((target) => target && getCellRangeFromTerm(target, sheet))
+	.mapNextArg((type) => toString(type).toLowerCase())
+	.mapNextArg((isHorizontal) => toBool(isHorizontal, undefined))
+	.mapNextArg((returnNA) => toBool(returnNA, false))
+	.validate((data, targetRange) => targetRange ? validate(targetRange, ERROR.INVALID_PARAM) : undefined)
+	.run((data,targetRange, type, isHorizontal, returnNA) => {
+		if (data.value == null || data.isProcessed) {
+			data.value = (returnNA ? ERROR.NA : getLastValue(read.term, type));
 		}
-		// we ignore any error here and return requested path or json value:
-		return retval;
-	}
-	return error;
-};
+		if (targetRange) {
+			read.term._lastValue = data.value;
+			copyToCellRange(targetRange, data.value, type, isHorizontal);
+			// DL-1080: part of this issue specifies that READ() should return number value...
+			return convert.toNumber(data.key, data.key);
+		}
+		return data.value;
+	});
 
 module.exports = read;
