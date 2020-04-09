@@ -256,7 +256,7 @@ class LoginPage extends React.Component {
 										<Button
 											fullWidth
 											color="primary"
-											variant="flat"
+											variant="text"
 											type="submit"
 											size="large"
 											onClick={(event) => this.handleLogin(event, undefined, redirect)}

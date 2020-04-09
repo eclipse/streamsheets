@@ -1,10 +1,16 @@
-import { GatewayMessagingProtocol, Topics } from '@cedalo/protocols';
-import { MessagingClient } from '@cedalo/messaging-client';
 import IdGenerator from '@cedalo/id-generator';
-import RedisConnection from './RedisConnection';
-import LoggerFactory from '../utils/logger';
+import { MessagingClient } from '@cedalo/messaging-client';
+import { Topics } from '@cedalo/protocols';
 import { PropType } from '../common';
-import { IWSEvent, ServiceResponse, WSRequest, UnsubscribeGraphRequest, UnsubscribeMachineRequest } from '../streamsheets';
+import {
+	IWSEvent,
+	ServiceResponse,
+	UnsubscribeGraphRequest,
+	UnsubscribeMachineRequest,
+	WSRequest
+} from '../streamsheets';
+import LoggerFactory from '../utils/logger';
+import RedisConnection from './RedisConnection';
 
 const logger = LoggerFactory.create({ name: 'ServerConnection' });
 

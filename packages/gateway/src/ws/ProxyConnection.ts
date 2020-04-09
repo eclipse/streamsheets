@@ -1,16 +1,16 @@
 import IdGenerator from '@cedalo/id-generator';
-import ServerConnection from './ServerConnection';
-import WebSocket from 'ws';
-import { User } from '../user';
-import Auth from '../Auth';
-import { getUserFromWebsocketRequest } from '../utils';
-import { MessagingClient } from '@cedalo/messaging-client';
-import { Topics, GatewayMessagingProtocol } from '@cedalo/protocols';
 import { LoggerFactory } from '@cedalo/logger';
-import { SocketServer } from './SocketServer';
+import { MessagingClient } from '@cedalo/messaging-client';
+import { GatewayMessagingProtocol, Topics } from '@cedalo/protocols';
 import * as http from 'http';
-import { WSRequest, Session, WSResponse, EventData, GlobalContext, RequestContext } from '../streamsheets';
+import WebSocket from 'ws';
+import Auth from '../Auth';
 import { getRequestContext } from '../context';
+import { EventData, RequestContext, Session, WSRequest, WSResponse } from '../streamsheets';
+import { User } from '../user';
+import { getUserFromWebsocketRequest } from '../utils';
+import ServerConnection from './ServerConnection';
+import { SocketServer } from './SocketServer';
 import { StreamWSProxy } from './StreamWSProxy';
 
 const logger = LoggerFactory.createLogger('gateway - ProxyConnection', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
@@ -35,6 +35,7 @@ export default class ProxyConnection {
 	private graphserver: ServerConnection;
 	private machineserver: ServerConnection;
 	private interceptor: any;
+	private machineId: string | undefined;
 
 	static get openConnections() {
 		return OPEN_CONNECTIONS;
@@ -147,8 +148,9 @@ export default class ProxyConnection {
 			user: {
 				id: user ? user.id : 'anon',
 				roles: [],
-				displayName: user ? [user.firstName, user.lastName].filter((e) => !!e).join(' ') || user.username : ''
-			}
+				displayName: user ? [user.firstName, user.lastName].filter((e) => !!e).join(' ') || user.username : '',
+				machineId: this.machineId
+			},
 		};
 	}
 
@@ -161,6 +163,7 @@ export default class ProxyConnection {
 					Auth.parseToken.bind(Auth)
 				);
 				this.setUser(user);
+				this.machineId = user.machineId;
 			} catch (err) {
 				logger.warn(err.name);
 				this.user && this.socketserver.logoutUser({ user: this.user });

@@ -13,14 +13,16 @@ export const ViewModePropTypes = PropTypes.shape({
 function ViewModeHandlerComponent(props) {
 	const { searchParams } = props;
 	const params = new URLSearchParams(searchParams);
-	const viewMode = {
-		view: params.get('view'),
-		hidegrid: params.get('hidegrid'),
-		viewMode: params.get('viewmode'),
-		hideheader: params.get('hideheader'),
-	};
-	props.setAppState({ viewMode });
-
+	// if no params passed we keep those currently in app-state
+	if (searchParams) {
+		const viewMode = {
+			view: params.get('view'),
+			hidegrid: params.get('hidegrid'),
+			viewMode: params.get('viewmode'),
+			hideheader: params.get('hideheader')
+		};
+		props.setAppState({ viewMode });
+	}
 	return null;
 }
 

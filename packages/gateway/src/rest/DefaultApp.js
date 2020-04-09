@@ -146,11 +146,7 @@ module.exports = class DefaultApp {
 			})(req, res, next);
 		});
 
-		const getSession = (req) => ({
-			user: {
-				id: req.user.id
-			}
-		});
+		const getSession = (req) => ({ user: req.user });
 
 		GraphQLServer.init(
 			app,
