@@ -896,7 +896,7 @@ module.exports = class WorksheetNode extends ContentNode {
 			const type = this.getTextFormatAt(cell)
 				.getLocalCulture()
 				.getValue();
-			if (type === 'text') {
+			if (type === 'text' && !isFormula) {
 				return {
 					expression: ExpressionHelper.createExpressionFromValueTerm(Term.fromString(text))
 				};

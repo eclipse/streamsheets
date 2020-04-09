@@ -15,6 +15,7 @@ import {
 import TreeFeedbackView from '../feedback/TreeFeedbackView';
 import NodeView from './NodeView';
 import ContentPaneView from './ContentPaneView';
+import Cursor from '../../ui/Cursor';
 
 /**
  * This view is for a {{#crossLink "TreeItemsNode"}}{{/crossLink}} model. Although it
@@ -239,7 +240,7 @@ export default class TreeItemsView extends NodeView {
 
 			// draw key background
 			graphics.setFillColor(item.color);
-			graphics.fillRectangle(itemRectKey);
+			graphics.fillRectangle(itemRectKey.x, itemRectKey.y, itemRectKey.width, itemRectKey.height);
 
 			if (isActive) {
 				graphics.drawImage(
@@ -265,7 +266,7 @@ export default class TreeItemsView extends NodeView {
 				);
 
 				graphics.setFillColor(this._colorScheme.JSON_VALUE);
-				graphics.fillRectangle(itemRectValue);
+				graphics.fillRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height);
 
 				// darw value text
 				graphics.setFillColor('#222222');
@@ -275,13 +276,13 @@ export default class TreeItemsView extends NodeView {
 				graphics.setFillColor('#FFFFFF');
 				itemRectValue.x += itemRectValue.width;
 				itemRectValue.width = rect.width - itemRectValue.x;
-				graphics.fillRectangle(itemRectValue);
+				graphics.fillRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height);
 			}
 
 			if (item.disabled) {
 				graphics.setFillColor('#FFFFFF');
 				graphics.setTransparency(50);
-				graphics.fillRectangle(itemRectKey);
+				graphics.fillRectangle(itemRectKey.x, itemRectKey.y, itemRectKey.width, itemRectKey.height);
 				graphics.setTransparency(100);
 			}
 
@@ -291,7 +292,7 @@ export default class TreeItemsView extends NodeView {
 				graphics.setLineColor(focus ? '#444444' : '#777777');
 				itemRectKey.expandBy(20);
 
-				graphics.drawRectangle(itemRectKey);
+				graphics.drawRectangle(itemRectKey.x, itemRectKey.y, itemRectKey.width, itemRectKey.height);
 
 				graphics.setLineWidth(-1);
 				graphics.setLineStyle(FormatAttributes.LineStyle.NONE);
@@ -459,7 +460,7 @@ export default class TreeItemsView extends NodeView {
 	}
 
 	setLastItemAsSelected(viewer) {
-		const { length } = this._getVisibleJsonTree();
+		const {length} = this._getVisibleJsonTree();
 		const item = this._findSelectedItemByLevel(length - 1);
 
 		this.setSelection(item, viewer);
@@ -683,5 +684,71 @@ export default class TreeItemsView extends NodeView {
 		feedback.setLocationTo(point);
 
 		return feedback;
+	}
+
+	showTooltip(viewer, event) {
+		const item = this.getItem();
+		const view = this;
+		const treeItemAttr = item.getTreeItemAttributes();
+		const depthOffset = treeItemAttr.getDepthOffset().getValue();
+		const tmppoint = event.location.copy();
+		const relativePoint = view.translateToTreeView(tmppoint, viewer);
+		const drawlevel = parseInt(relativePoint.y / depthOffset, 10);
+
+		const selectedItem = view._findSelectedItemByLevel(drawlevel);
+		if (selectedItem === undefined) {
+			return;
+		}
+
+		event.isConsumed = true;
+
+		const key = view.isKeyEditing(drawlevel, relativePoint.x);
+		let text = key ? selectedItem.key : selectedItem.value;
+
+		if (text !== undefined) {
+			text = text ? text.toString() : '';
+			const graphics = viewer.getGraphicSystem().getGraphics();
+			const textFormat = item.getTextFormat();
+			textFormat.applyToGraphics(graphics);
+			graphics.setFont();
+			const textWidth = graphics.getCoordinateSystem().deviceToLogXNoZoom(graphics.measureText(text).width);
+			textFormat.removeFromGraphics(graphics);
+			if (textWidth > view._treeItemWidth - 300) {
+				const tipRect = view.getItemRect(selectedItem, key);
+				const cs = viewer.getCoordinateSystem();
+				const canvas = viewer.getCanvas();
+				const pos = new Point(tipRect.x, tipRect.y);
+
+				GraphUtils.traverseUp(this, viewer.getRootView(), (v) => {
+					v.translateToParent(pos);
+					return true;
+				});
+
+				JSG.toolTip.startTooltip(event, text, JSG.toolTip.getDelay() * 1.5, undefined, () => {
+					const zoom = cs.getZoom();
+					const rect = canvas.getBoundingClientRect();
+					const div = document.createElement('div');
+					div.innerHTML = text;
+					div.tabIndex = -1;
+					div.style.resize = 'none';
+					div.style.position = 'absolute';
+					// on top of everything and content div
+					div.style.zIndex = 101;
+					div.style.border = 'none';
+					div.style.background = key ? selectedItem.color : view._colorScheme.JSON_VALUE;
+					div.style.color = key ? '#FFFFFF' : '#000000';
+					div.style.fontSize = `${8 * zoom}pt`;
+					div.style.fontFamily = 'Verdana';
+					div.style.left = `${(cs.logToDeviceX(pos.x, false) + rect.x + 2).toFixed()}px`;
+					div.style.top = `${(cs.logToDeviceX(pos.y, false) + rect.y - 2).toFixed()}px`;
+					div.style.padding = '4px';
+					div.style.minHeight = '10px';
+					div.style.minWidth = '10px';
+					div.style.overflow = '';
+					div.style.boxShadow = '2px 2px 2px #BFBFBF';
+					return div;
+				});
+			}
+		}
 	}
 }

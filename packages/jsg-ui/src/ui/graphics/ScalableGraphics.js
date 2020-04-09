@@ -44,6 +44,24 @@ class ScalableGraphics extends Graphics {
 		super.fillText(text, this._cs.logToDeviceX(x), this._cs.logToDeviceY(y));
 	}
 
+	fillRectangle(x, y, width, height) {
+		super.fillRectangle(
+			this._cs.logToDeviceX(x),
+			this._cs.logToDeviceY(y),
+			this._cs.logToDeviceX(width),
+			this._cs.logToDeviceY(height)
+		);
+	}
+
+	drawRectangle(x, y, width, height) {
+		super.drawRectangle(
+			this._cs.logToDeviceX(x),
+			this._cs.logToDeviceY(y),
+			this._cs.logToDeviceX(width),
+			this._cs.logToDeviceY(height)
+		);
+	}
+
 	rect(x, y, width, height) {
 		super.rect(
 			this._cs.logToDeviceX(x),

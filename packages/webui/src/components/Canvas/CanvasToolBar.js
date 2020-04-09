@@ -98,6 +98,9 @@ const buttonStyle = {
 	padding: '4px 0px 0px 0px'
 };
 
+const borderStyle={borderRadius: '0%', padding: '0px 5px', width: '100px', height: '20px' }
+
+
 const WidthHelper = (props) => {
 	const [currentWidth, setCurrentWidth] = useState(window.outerWidth);
 	useEffect(() => {
@@ -139,6 +142,7 @@ export class CanvasToolBar extends Component {
 			showFillColor: false,
 			showFontColor: false,
 			showBorderColor: false,
+			showBorderStyle: false,
 			showNumberFormat: false,
 			anchorEl: undefined,
 			zoomOpen: false,
@@ -349,6 +353,22 @@ export class CanvasToolBar extends Component {
 	onCloseBorderColor = () => {
 		this.setState({
 			showBorderColor: false
+		});
+	};
+
+	onShowBorderStyle = (event) => {
+		// This prevents ghost click.
+		event.preventDefault();
+
+		this.setState({
+			showBorderStyle: true,
+			anchorEl: event.currentTarget
+		});
+	};
+
+	onCloseBorderStyle = () => {
+		this.setState({
+			showBorderStyle: false
 		});
 	};
 
@@ -1010,6 +1030,13 @@ export class CanvasToolBar extends Component {
 		const attributesMap = new Dictionary();
 		if (color.hex === 'transparent') {
 			attributesMap.put(FormatAttributes.FILLSTYLE, FormatAttributes.FillStyle.NONE);
+		} else if (color.hex.toUpperCase() === '#FFFFFE') {
+			attributesMap.put(FormatAttributes.FILLCOLOR, 'auto');
+			const f = this.state.cellFormat;
+			const style =  f && f.getFillStyle() ? f.getFillStyle().getValue() : '';
+			if (style === FormatAttributes.FillStyle.NONE) {
+				attributesMap.put(FormatAttributes.FILLSTYLE, FormatAttributes.FillStyle.SOLID);
+			}
 		} else {
 			attributesMap.put(FormatAttributes.FILLCOLOR, color.hex);
 			attributesMap.put(FormatAttributes.FILLSTYLE, FormatAttributes.FillStyle.SOLID);
@@ -1036,6 +1063,82 @@ export class CanvasToolBar extends Component {
 		}
 		this.updateState();
 		// graphManager.getCanvas().focus();
+	};
+
+	onFormatBorderStyle = (style) => {
+		const sheetView = graphManager.getActiveSheetView();
+		let cmd;
+		const attributesMap = new Dictionary();
+
+		if (sheetView) {
+			const selection = sheetView.getOwnSelection();
+			attributesMap.put(JSG.CellAttributes.LEFTBORDERSTYLE, style);
+			attributesMap.put(JSG.CellAttributes.TOPBORDERSTYLE, style);
+			attributesMap.put(JSG.CellAttributes.RIGHTBORDERSTYLE, style);
+			attributesMap.put(JSG.CellAttributes.BOTTOMBORDERSTYLE, style);
+			cmd = new JSG.CellAttributesCommand(selection.getRanges(), attributesMap);
+			graphManager
+				.getGraphViewer()
+				.getInteractionHandler()
+				.execute(cmd);
+		} else if (
+				graphManager
+					.getGraphEditor()
+					.getSelectionProvider()
+					.hasSelection()
+			) {
+			attributesMap.put(FormatAttributes.LINESTYLE, style);
+			graphManager
+				.getGraphEditor()
+				.getInteractionHandler()
+				.applyFormatMap(attributesMap);
+		}
+
+		this.updateState();
+		graphManager.getCanvas().focus();
+
+		this.setState({
+			showBorderStyle: false
+		});
+	};
+
+	onFormatBorderWidth = (width) => {
+		const sheetView = graphManager.getActiveSheetView();
+		let cmd;
+		const attributesMap = new Dictionary();
+
+		if (sheetView) {
+			const selection = sheetView.getOwnSelection();
+			const cs = JSG.graphics.getCoordinateSystem();
+			width = cs.logToDeviceYNoZoom(width);
+			attributesMap.put(JSG.CellAttributes.LEFTBORDERWIDTH, width);
+			attributesMap.put(JSG.CellAttributes.TOPBORDERWIDTH, width);
+			attributesMap.put(JSG.CellAttributes.RIGHTBORDERWIDTH, width);
+			attributesMap.put(JSG.CellAttributes.BOTTOMBORDERWIDTH, width);
+			cmd = new JSG.CellAttributesCommand(selection.getRanges(), attributesMap);
+			graphManager
+				.getGraphViewer()
+				.getInteractionHandler()
+				.execute(cmd);
+		} else if (
+			graphManager
+				.getGraphEditor()
+				.getSelectionProvider()
+				.hasSelection()
+		) {
+			attributesMap.put(FormatAttributes.LINEWIDTH, width);
+			graphManager
+				.getGraphEditor()
+				.getInteractionHandler()
+				.applyFormatMap(attributesMap);
+		}
+
+		this.updateState();
+		graphManager.getCanvas().focus();
+
+		this.setState({
+			showBorderStyle: false
+		});
 	};
 
 	onFormatBorder = (type) => {
@@ -1440,9 +1543,20 @@ export class CanvasToolBar extends Component {
 
 			if (color.hex === 'transparent') {
 				attributesMap.put(FormatAttributes.LINESTYLE, FormatAttributes.LineStyle.NONE);
+			} else if (color.hex.toUpperCase() === '#FFFFFE') {
+				attributesMap.put(FormatAttributes.LINECOLOR, 'auto');
+				const f = this.state.cellFormat;
+				const style =  f && f.getLineStyle() ? f.getLineStyle().getValue() : '';
+				if (style === FormatAttributes.LineStyle.NONE) {
+					attributesMap.put(FormatAttributes.LINESTYLE, FormatAttributes.LineStyle.SOLID);
+				}
 			} else {
 				attributesMap.put(FormatAttributes.LINECOLOR, color.hex);
-				attributesMap.put(FormatAttributes.LINESTYLE, FormatAttributes.LineStyle.SOLID);
+				const f = this.state.cellFormat;
+				const style =  f && f.getLineStyle() ? f.getLineStyle().getValue() : '';
+				if (style === FormatAttributes.LineStyle.NONE) {
+					attributesMap.put(FormatAttributes.LINESTYLE, FormatAttributes.LineStyle.SOLID);
+				}
 			}
 			graphManager
 				.getGraphEditor()
@@ -1596,6 +1710,11 @@ export class CanvasToolBar extends Component {
 		return '';
 	}
 
+	isChartSelected() {
+		const selection = graphManager.getGraphViewer().getSelection();
+		return selection && selection.length && (selection[0].getModel() instanceof SheetPlotNode);
+	}
+
 	updateState(state = {}) {
 		const selection = graphManager.getGraphViewer().getSelection();
 		if (selection.length) {
@@ -1648,6 +1767,35 @@ export class CanvasToolBar extends Component {
 	handleFocus = () => {
 		graphManager.getCanvas().focus();
 	};
+
+	getPresetColors() {
+		const colors = [
+			'#D0021B',
+			'#F5A623',
+			'#F8E71C',
+			'#8B572A',
+			'#7ED321',
+			'#417505',
+			'#BD10E0',
+			'#9013FE',
+			'#4A90E2',
+			'#50E3C2',
+			'#B8E986',
+			'#000000',
+			'#4A4A4A',
+			'#9B9B9B',
+			'#CCCCCC',
+			'#FFFFFF']
+		;
+
+		colors.push({title: 'None', color: 'transparent'});
+		if (this.isChartSelected()) {
+			colors.push({title: 'Automatic', color: '#FFFFFE'});
+		}
+
+		return colors;
+	}
+
 
 	render() {
 		const canEdit = accessManager.can(RESOURCE_TYPES.MACHINE, RESOURCE_ACTIONS.EDIT);
@@ -2288,25 +2436,37 @@ export class CanvasToolBar extends Component {
 					<SketchPicker
 						disableAlpha
 						color={f && f.getFillColor() ? f.getFillColor().getValue() : ''}
-						presetColors={[
-							'#D0021B',
-							'#F5A623',
-							'#F8E71C',
-							'#8B572A',
-							'#7ED321',
-							'#417505',
-							'#BD10E0',
-							'#9013FE',
-							'#4A90E2',
-							'#50E3C2',
-							'#B8E986',
-							'#000000',
-							'#4A4A4A',
-							'#9B9B9B',
-							'#FFFFFF',
-							'transparent'
-						]}
+						presetColors={this.getPresetColors()}
 						onChange={this.onFormatFillColor}
+					/>
+				</Popover>
+				<Tooltip
+					enterDelay={300}
+					title={<FormattedMessage id="Tooltip.FormatLine" defaultMessage="Line Format" />}
+				>
+					<div>
+						<IconButton
+							style={buttonStyle}
+							onClick={this.onShowBorderColor}
+							disabled={!this.props.cellSelected && !this.state.graphSelected}
+						>
+							<BorderColorIcon fontSize="inherit" />
+						</IconButton>
+					</div>
+				</Tooltip>
+				<Popover
+					open={this.state.showBorderColor}
+					anchorEl={this.state.anchorEl}
+					anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+					transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+					onExited={this.handleFocus}
+					onClose={this.onCloseBorderColor}
+				>
+					<SketchPicker
+						disableAlpha
+						color={this.getFormatBorderColor()}
+						onChange={this.onFormatBorderColor}
+						presetColors={this.getPresetColors()}
 					/>
 				</Popover>
 				<Tooltip
@@ -2431,52 +2591,280 @@ export class CanvasToolBar extends Component {
 						</GridListTile>
 					</GridList>
 				</Popover>
-				<Tooltip
-					enterDelay={300}
-					title={<FormattedMessage id="Tooltip.FormatLine" defaultMessage="Line Format" />}
-				>
+				{this.props.experimental ? (
 					<div>
-						<IconButton
-							style={buttonStyle}
-							onClick={this.onShowBorderColor}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+						<Tooltip
+							enterDelay={300}
+							title={<FormattedMessage id="Tooltip.BorderStyle" defaultMessage="Border Style" />}
 						>
-							<BorderColorIcon fontSize="inherit" />
-						</IconButton>
+							<div>
+								<IconButton
+									style={buttonStyle}
+									onClick={this.onShowBorderStyle}
+									disabled={!this.props.cellSelected && !this.state.graphSelected}
+								>
+									<SvgIcon>
+										<path
+											d="M3,16H8V14H3V16M9.5,16H14.5V14H9.5V16M16,16H21V14H16V16M3,20H5V18H3V20M7,20H9V18H7V20M11,20H13V18H11V20M15,20H17V18H15V20M19,20H21V18H19V20M3,12H11V10H3V12M13,12H21V10H13V12M3,4V8H21V4H3Z"
+										/>
+									</SvgIcon>
+								</IconButton>
+							</div>
+						</Tooltip>
+						<Popover
+							open={this.state.showBorderStyle}
+							anchorEl={this.state.anchorEl}
+							anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+							transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+							onExited={this.handleFocus}
+							onClose={this.onCloseBorderStyle}
+							style={{
+								overflow: 'hidden'
+							}}
+						>
+							<GridList
+								cols={1}
+								cellHeight={22}
+								spacing={4}
+								style={{
+									width: '110px',
+									margin: '1px'
+								}}
+							>
+								<GridListTile
+									cols={1}
+									style={{
+										height: '24px'
+									}}
+								>
+									<div
+										style={{
+											backgroundColor: Colors.blue[800],
+											color: 'white',
+											fontSize: '10pt',
+											padding: '3px'
+										}}
+									>
+										<FormattedMessage id="BorderStyle" defaultMessage="Border Style" />
+									</div>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Border.None" defaultMessage="None" />}
+									>
+										<IconButton
+											style={borderStyle}
+											color="inherit"
+											onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.NONE)}
+										>
+											<img alt="" src="lib/res/images/linestylenone.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Border.Solid" defaultMessage="Solid" />}
+									>
+										<IconButton
+											style={borderStyle}
+											color="inherit"
+											onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.SOLID)}
+										>
+											<img alt="" src="lib/res/images/linestylesolid.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Border.Dot" defaultMessage="Dot" />}
+									>
+										<IconButton
+											style={borderStyle}
+											color="inherit"
+											onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DOT)}
+										>
+											<img alt="" src="lib/res/images/linestyledot.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Border.Dash" defaultMessage="Dash" />}
+									>
+										<IconButton
+											style={borderStyle}
+											color="inherit"
+											onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASH)}
+										>
+											<img alt="" src="lib/res/images/linestyledash.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Border.DashDot" defaultMessage="Dash Dot" />}
+									>
+										<IconButton
+											style={borderStyle}
+											color="inherit"
+											onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOT)}
+										>
+											<img alt="" src="lib/res/images/linestyledashdot.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Border.DashDotDot" defaultMessage="Dash Dot Dot" />}
+									>
+										<IconButton
+											style={borderStyle}
+											color="inherit"
+											onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOTDOT)}
+										>
+											<img alt="" src="lib/res/images/linestyledashdotdot.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile
+									cols={1}
+									style={{
+										height: '24px'
+									}}
+								>
+									<div
+										style={{
+											backgroundColor: Colors.blue[800],
+											color: 'white',
+											fontSize: '10pt',
+											padding: '3px'
+										}}
+									>
+										<FormattedMessage id="BorderWidth" defaultMessage="Border Width" />
+									</div>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Border.Hairline" defaultMessage="Hairline (1px)" />}
+									>
+										<IconButton
+											style={borderStyle}
+											color="inherit"
+											onClick={() => this.onFormatBorderWidth(-1)}
+										>
+											<img alt="" src="lib/res/images/lineswidth1.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Border.MM025" defaultMessage="0.25 mm" />}
+									>
+										<IconButton
+											style={borderStyle}
+											color="inherit"
+											onClick={() => this.onFormatBorderWidth(25)}
+										>
+											<img alt="" src="lib/res/images/lineswidth025.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Border.MM05" defaultMessage="0.5 mm" />}
+									>
+										<IconButton
+											style={borderStyle}
+											color="inherit"
+											onClick={() => this.onFormatBorderWidth(50)}
+										>
+											<img alt="" src="lib/res/images/lineswidth05.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Border.MM075" defaultMessage="0.75 mm" />}
+									>
+										<IconButton
+											style={borderStyle}
+											color="inherit"
+											onClick={() => this.onFormatBorderWidth(75)}
+										>
+											<img alt="" src="lib/res/images/lineswidth075.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Border.MM100" defaultMessage="1 mm" />}
+									>
+										<IconButton
+											style={borderStyle}
+											color="inherit"
+											onClick={() => this.onFormatBorderWidth(100)}
+										>
+											<img alt="" src="lib/res/images/lineswidth100.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Border.MM200" defaultMessage="2 mm" />}
+									>
+										<IconButton
+											style={borderStyle}
+											color="inherit"
+											onClick={() => this.onFormatBorderWidth(200)}
+										>
+											<img alt="" src="lib/res/images/lineswidth200.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Border.MM300" defaultMessage="3 mm" />}
+									>
+										<IconButton
+											style={borderStyle}
+											color="inherit"
+											onClick={() => this.onFormatBorderWidth(300)}
+										>
+											<img alt="" src="lib/res/images/lineswidth300.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<Tooltip
+										enterDelay={300}
+										title={<FormattedMessage id="Border.MM400" defaultMessage="4 mm" />}
+									>
+										<IconButton
+											style={borderStyle}
+											color="inherit"
+											onClick={() => this.onFormatBorderWidth(400)}
+										>
+											<img alt="" src="lib/res/images/lineswidth400.png" />
+										</IconButton>
+									</Tooltip>
+								</GridListTile>
+							</GridList>
+						</Popover>
 					</div>
-				</Tooltip>
-				<Popover
-					open={this.state.showBorderColor}
-					anchorEl={this.state.anchorEl}
-					anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
-					transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-					onExited={this.handleFocus}
-					onClose={this.onCloseBorderColor}
-				>
-					<SketchPicker
-						disableAlpha
-						color={this.getFormatBorderColor()}
-						onChange={this.onFormatBorderColor}
-						presetColors={[
-							'#D0021B',
-							'#F5A623',
-							'#F8E71C',
-							'#8B572A',
-							'#7ED321',
-							'#417505',
-							'#BD10E0',
-							'#9013FE',
-							'#4A90E2',
-							'#50E3C2',
-							'#B8E986',
-							'#000000',
-							'#4A4A4A',
-							'#9B9B9B',
-							'#FFFFFF',
-							'transparent'
-						]}
-					/>
-				</Popover>
+				) : null}
 				<div
 					style={{
 						borderLeft: '1px solid #AAAAAA',

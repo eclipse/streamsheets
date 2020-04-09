@@ -785,6 +785,8 @@ class GraphItemView extends View {
 				item: sheet,
 				useName: true,
 			})}`;
+		} else {
+			return expr && expr.getFormula() ? expr.getFormula() : '';
 		}
 
 		return formula;

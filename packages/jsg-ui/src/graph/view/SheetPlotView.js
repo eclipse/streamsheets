@@ -42,21 +42,38 @@ export default class SheetPlotView extends NodeView {
 		super.drawBorder(graphics, format, rect);
 	}
 
-	drawRect(graphics, rect, item, format, id) {
+	setFormat(graphics, item, format, id) {
 		const lineColor = format.lineColor || item.getTemplate()[id].format.lineColor;
 		const fillColor = format.fillColor || item.getTemplate()[id].format.fillColor;
+		const lineStyle = format.lineStyle === undefined ? item.getTemplate()[id].format.lineStyle : format.lineStyle;
+		const lineWidth = format.lineWidth === undefined ? item.getTemplate()[id].format.lineWidth : format.lineWidth;
+		const fillStyle = format.fillStyle === undefined ? item.getTemplate()[id].format.fillStyle : format.fillStyle;
 
-		graphics.beginPath();
-		graphics.setLineWidth(1);
-		graphics.setLineColor(lineColor);
-		graphics.setFillColor(fillColor);
-		graphics.rect(rect.left, rect.top, rect.width, rect.height);
-		if (lineColor !== 'none') {
-			graphics.stroke();
+		const line = this.setLineStyle(graphics, lineStyle);
+		if (line) {
+			graphics.setLineWidth(lineWidth);
+			graphics.setLineColor(lineColor);
 		}
-		if (fillColor !== 'none') {
-			graphics.fill();
+		if (fillStyle !== 0) {
+			graphics.setFillColor(fillColor);
 		}
+
+		return {
+			line,
+			fill: fillStyle !== 0
+		};
+	}
+
+	drawRect(graphics, rect, item, format, id) {
+		const fi = this.setFormat(graphics, item, format, id);
+
+		if (fi.fill) {
+			graphics.fillRectangle(rect.left, rect.top, rect.width, rect.height);
+		}
+		if (fi.line) {
+			graphics.drawRectangle(rect.left, rect.top, rect.width, rect.height);
+		}
+		return fi.line || fi.fill;
 	}
 
 	drawFill(graphics, format, rect) {
@@ -156,16 +173,18 @@ export default class SheetPlotView extends NodeView {
 		let y = legend.position.top + margin;
 		let textPos = margin * 4;
 		let type = 'bar';
+		const template = item.getTemplate();
 
 		legendData.forEach((entry, index) => {
 			graphics.beginPath();
+			graphics.setLineWidth(entry.series.format.lineWidth || template.series.linewidth);
+			const line = this.setLineStyle(graphics,entry.series.format.lineStyle === undefined ? template.series.linestyle : entry.series.format.lineStyle);
+			const fill = (entry.series.format.fillStyle === undefined ? template.series.fillstyle : entry.series.format.fillStyle) > 0;
 			if (entry.series) {
-				graphics.setLineColor(entry.series.format.lineColor || item.getTemplate().series.getLineForIndex(index));
-				graphics.setLineWidth(entry.series.format.lineWidth || item.getTemplate().series.linewidth);
-				graphics.setFillColor(entry.series.format.fillColor || item.getTemplate().series.getFillForIndex(index));
+				graphics.setLineColor(entry.series.format.lineColor || template.series.getLineForIndex(index));
+				graphics.setFillColor(entry.series.format.fillColor || template.series.getFillForIndex(index));
 				type = entry.series.type;
 			} else {
-				graphics.setLineWidth(1);
 				const parts = String(entry.color).split(';');
 				if (parts.length > 1) {
 					graphics.setLineColor(parts[1]);
@@ -181,12 +200,25 @@ export default class SheetPlotView extends NodeView {
 				case 'scatter':
 					graphics.moveTo(x, y + textSize.height / 2);
 					graphics.lineTo(x + margin * 3, y + textSize.height / 2);
-					this.drawMarker(graphics, entry.series, {
-						x: x + margin * 1.5,
-						y: y + textSize.height / 2
-					}, 3);
-					graphics.fill();
-					graphics.stroke();
+					if (fill) {
+						graphics.fill();
+					}
+					if (line) {
+						graphics.stroke();
+					}
+					graphics.beginPath();
+					graphics.setLineColor(entry.series.marker.lineColor || item.getTemplate().series.getLineForIndex(index));
+					graphics.setFillColor(entry.series.marker.fillColor || item.getTemplate().series.getFillForIndex(index));
+					if (entry.series.marker.style !== undefined) {
+						graphics.clearLineDash();
+						graphics.setLineWidth(-1);
+						this.drawMarker(graphics, entry.series, {
+							x: x + margin * 1.5,
+							y: y + textSize.height / 2
+						}, 3);
+						graphics.fill();
+						graphics.stroke();
+					}
 					break;
 				case 'area':
 				case 'column':
@@ -194,20 +226,36 @@ export default class SheetPlotView extends NodeView {
 				case 'bar':
 				case 'pie':
 				case 'doughnut':
+					if (item.isCircular()) {
+						if (entry.series.format.lineColor === undefined) {
+							graphics.setLineColor('#FFFFFF');
+						} else {
+							graphics.setLineColor(entry.series.format.lineColor);
+						}
+					}
+
 					graphics.rect(x, y + textSize.height / 10, margin * 3, (textSize.height * 2) / 3);
-					graphics.fill();
-					graphics.stroke();
+					if (fill) {
+						graphics.fill();
+					}
+					if (line) {
+						graphics.stroke();
+					}
 					break;
 			case 'bubble':
 				textPos = margin * 2;
 				graphics.circle(x + margin / 2, y + textSize.height / 2, (textSize.height * 2) / 5);
-				graphics.fill();
-				graphics.stroke();
+				if (fill) {
+					graphics.fill();
+				}
+				if (line) {
+					graphics.stroke();
+				}
 				break;
 			}
 
 			const fontColor =
-				legend.format.fontColor || item.getTemplate().legend.format.fontColor || item.getTemplate().font.color;
+				legend.format.fontColor || template.legend.format.fontColor || template.font.color;
 
 			graphics.setFillColor(fontColor);
 			graphics.fillText(entry.name, x + textPos, y + textSize.height / 2);
@@ -244,10 +292,14 @@ export default class SheetPlotView extends NodeView {
 			return;
 		}
 
-		// draw axis line
-		if (!grid) {
-			graphics.beginPath();
-			graphics.setLineColor(axis.format.lineColor || item.getTemplate().axis.format.lineColor);
+		let fi;
+
+		graphics.beginPath();
+		if (grid) {
+			fi = this.setFormat(graphics, item, axis.formatGrid, 'axisgrid');
+		} else {
+			// draw axis line
+			fi = this.setFormat(graphics, item, axis.format, 'axis');
 			switch (axis.align) {
 				case 'left':
 					graphics.moveTo(axis.position.right, axis.position.top);
@@ -270,12 +322,9 @@ export default class SheetPlotView extends NodeView {
 					item.setFont(graphics, axis.format, 'axis', 'top', TextFormatAttributes.TextAlignment.CENTER);
 					break;
 			}
-			graphics.stroke();
-		}
-
-		if (grid) {
-			graphics.beginPath();
-			graphics.setLineColor(axis.formatGrid.lineColor || item.getTemplate().axis.formatGrid.lineColor);
+			if (fi.line) {
+				graphics.stroke();
+			}
 		}
 
 		let current = item.getAxisStart(axis);
@@ -364,15 +413,27 @@ export default class SheetPlotView extends NodeView {
 
 			current = item.incrementScale(axis, current);
 		}
-		if (grid) {
+		if (grid && fi.line) {
 			graphics.stroke();
 		}
 	}
 
 	setLineStyle(graphics, lineStyle) {
-		if (lineStyle === 'none') {
-			graphics.setLineColor('rgba(1,1,1,0)');
+		if (lineStyle === undefined) {
+			lineStyle = 1;
 		}
+
+		if (lineStyle === 'none') {
+			lineStyle = 0;
+		}
+		graphics.setLineStyle(lineStyle);
+		if (lineStyle > 1) {
+			graphics.applyLineDash();
+		} else {
+			graphics.clearLineDash();
+		}
+
+		return lineStyle > 0;
 	}
 
 	drawCircular(graphics, item, plotRect, serie, seriesIndex) {
@@ -388,9 +449,9 @@ export default class SheetPlotView extends NodeView {
 
 		graphics.setLineColor(serie.format.lineColor || item.getTemplate().series.getLineForIndex(seriesIndex));
 		graphics.setLineWidth(serie.format.lineWidth || item.getTemplate().series.linewidth);
-		graphics.setLineWidth(1);
-		this.setLineStyle(graphics, serie.format.lineStyle);
+		const line = this.setLineStyle(graphics, serie.format.lineStyle);
 		graphics.setFillColor(serie.format.fillColor || item.getTemplate().series.getFillForIndex(seriesIndex));
+		const fill = (serie.format.fillStyle === undefined ? item.getTemplate().series.fillstyle : serie.format.fillStyle) > 0;
 
 		let index = 0;
 
@@ -399,8 +460,11 @@ export default class SheetPlotView extends NodeView {
 			index = 0;
 			while (item.getValue(ref, index, value)) {
 				if (value.x !== undefined && value.y !== undefined) {
-					graphics.setLineColor('#FFFFFF');
-					// graphics.setLineColor(item.getTemplate().series.getLineForIndex(index));
+					if (serie.format.lineColor === undefined) {
+						graphics.setLineColor('#FFFFFF');
+					} else {
+						graphics.setLineColor(serie.format.lineColor);
+					}
 					graphics.setFillColor(serie.format.fillColor || item.getTemplate().series.getFillForIndex(index));
 					const angle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
 					switch (serie.type) {
@@ -411,9 +475,13 @@ export default class SheetPlotView extends NodeView {
 						graphics.ellipse(pieInfo.xc, pieInfo.yc, pieInfo.xInnerRadius, pieInfo.yInnerRadius, 0, currentAngle + angle, currentAngle,
 							true);
 						if (i) {
-							graphics.stroke();
+							if (line) {
+								graphics.stroke();
+							}
 						} else {
-							graphics.fill();
+							if (fill) {
+								graphics.fill();
+							}
 						}
 						break;
 					}
@@ -423,9 +491,13 @@ export default class SheetPlotView extends NodeView {
 						graphics.lineTo(pieInfo.xc, pieInfo.yc);
 
 						if (i) {
-							graphics.stroke();
+							if (line) {
+								graphics.stroke();
+							}
 						} else {
-							graphics.fill();
+							if (fill) {
+								graphics.fill();
+							}
 						}
 
 						// 3d front
@@ -446,13 +518,17 @@ export default class SheetPlotView extends NodeView {
 								graphics.lineTo(x2, y);
 
 								if (i) {
-									graphics.stroke();
+									if (line) {
+										graphics.stroke();
+									}
 								} else {
 									fillRect.set(pieInfo.rect.left, y, pieInfo.rect.width, y);
-									graphics.setGradientLinear(fillRect,
+									graphics.setGradientLinear(fillRect, serie.format.fillColor ||
 										item.getTemplate().series.getFillForIndex(index),
 										'#333333', 0, 0);
-									graphics.fill();
+									if (fill) {
+										graphics.fill();
+									}
 								}
 							}
 						}
@@ -817,6 +893,11 @@ export default class SheetPlotView extends NodeView {
 				item.toPlot(serie, plotRect, pt);
 				const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
 				const labelRect = item.getLabelRect(pt, value, text, index, params);
+
+				if (this.drawRect(graphics, labelRect, item, serie.dataLabel.format, 'serieslabel')) {
+					item.setFont(graphics, serie.dataLabel.format, 'serieslabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
+				}
+
 				if (text instanceof Array) {
 					const lineHeight = (labelRect.height - 150 - (text.length - 1) * 50) / text.length;
 					let y = labelRect.top + 75 + lineHeight / 2;
@@ -938,36 +1019,46 @@ export default class SheetPlotView extends NodeView {
 			const template = this.getItem().getTemplate();
 			if (data) {
 				switch (this.chartSelection.element) {
-					case 'plot':
-						f.setLineColor(data.format.lineColor || template.plot.format.lineColor);
-						f.setFillColor(data.format.fillColor || template.plot.format.fillColor);
-						break;
 					case 'serieslabel':
-						f.setFillColor(data.dataLabel.format.fillColor || template.series.getFillForIndex(this.chartSelection.index));
-						f.setLineColor(data.dataLabel.format.lineColor || template.series.getLineForIndex(this.chartSelection.index));
-					break;
-					case 'series':
-						f.setFillColor(data.format.fillColor || template.series.getFillForIndex(this.chartSelection.index));
-						f.setLineColor(data.format.lineColor || template.series.getLineForIndex(this.chartSelection.index));
-						break;
+					case 'plot':
 					case 'title':
 					case 'legend':
 						f.setFillColor(data.format.fillColor || template[this.chartSelection.element].format.fillColor);
+						f.setFillStyle(data.format.fillStyle === undefined ? template[this.chartSelection.element].format.fillStyle : data.format.fillStyle);
 						f.setLineColor(data.format.lineColor || template[this.chartSelection.element].format.lineColor);
+						f.setLineStyle(data.format.lineStyle === undefined ? template[this.chartSelection.element].format.lineStyle : data.format.lineStyle);
+						f.setLineWidth(data.format.lineWidth === undefined ? template[this.chartSelection.element].format.lineWidth : data.format.lineWidth);
+						break;
+					case 'series':
+						f.setFillColor(data.format.fillColor || template.series.getFillForIndex(this.chartSelection.index));
+						f.setFillStyle(data.format.fillStyle === undefined ? template.series.fillstyle : data.format.fillStyle);
+						f.setLineColor(data.format.lineColor || template.series.getLineForIndex(this.chartSelection.index));
+						f.setLineStyle(data.format.lineStyle === undefined ? template.series.linestyle : data.format.lineStyle);
+						f.setLineWidth(data.format.lineWidth === undefined ? template.series.linewidth : data.format.lineWidth);
 						break;
 					case 'xAxis':
 					case 'yAxis':
-						f.setLineColor(data.format.lineColor || template.axis.format.lineColor);
 						f.setFillColor(data.format.fillColor || template.axis.format.fillColor);
+						f.setFillStyle(data.format.fillStyle === undefined ? template.axis.format.fillStyle : data.format.fillStyle);
+						f.setLineColor(data.format.lineColor || template.axis.format.lineColor);
+						f.setLineStyle(data.format.lineStyle === undefined ? template.axis.format.lineStyle : data.format.lineStyle);
+						f.setLineWidth(data.format.lineWidth === undefined ? template.axis.format.lineWidth : data.format.lineWidth);
 						break;
 					case 'xAxisGrid':
 					case 'yAxisGrid':
-						f.setLineColor(data.formatGrid.lineColor || template.axis.formatGrid.lineColor);
+						f.setFillColor(data.formatGrid.fillColor || template.axis.format.fillColor);
+						f.setFillStyle(data.formatGrid.fillStyle === undefined ? template.axis.format.fillStyle : data.formatGrid.fillStyle);
+						f.setLineColor(data.formatGrid.lineColor || template.axis.format.lineColor);
+						f.setLineStyle(data.formatGrid.lineStyle === undefined ? template.axis.format.lineStyle : data.formatGrid.lineStyle);
+						f.setLineWidth(data.formatGrid.lineWidth === undefined ? template.axis.format.lineWidth : data.formatGrid.lineWidth);
 						break;
 					case 'xAxisTitle':
 					case 'yAxisTitle':
-						f.setLineColor(data.format.lineColor || template.axisTitle.format.lineColor);
 						f.setFillColor(data.format.fillColor || template.axisTitle.format.fillColor);
+						f.setFillStyle(data.format.fillStyle === undefined ? template.axisTitle.fillStyle : data.format.fillStyle);
+						f.setLineColor(data.format.lineColor || template.axisTitle.format.lineColor);
+						f.setLineStyle(data.format.lineStyle === undefined ? template.axisTitle.lineStyle : data.format.lineStyle);
+						f.setLineWidth(data.format.lineWidth === undefined ? template.axisTitle.lineWidth : data.format.lineWidth);
 						break;
 					default:
 						break;
@@ -1142,15 +1233,31 @@ export default class SheetPlotView extends NodeView {
 			}
 			let value = map.get('linecolor');
 			if (value) {
-				format.lineColor = map.get('linecolor');
+				if (value === 'auto' && format.line) {
+					format.line.color = undefined;
+				} else {
+					format.lineColor = map.get('linecolor');
+				}
+			}
+			value = map.get('linestyle');
+			if (value !== undefined) {
+				format.lineStyle = map.get('linestyle');
+			}
+			value = map.get('linewidth');
+			if (value) {
+				format.lineWidth = map.get('linewidth');
 			}
 			value = map.get('fillcolor');
 			if (value) {
-				format.fillColor = map.get('fillcolor');
+				if (value === 'auto' && format.fill) {
+					format.fill.color = undefined;
+				} else {
+					format.fillColor = map.get('fillcolor');
+				}
 			}
 			value = map.get('fillstyle');
-			if (value === 0 && format.fill) {
-				format.fill.color = undefined;
+			if (value !== undefined) {
+				format.fillStyle = map.get('fillstyle');
 			}
 			value = map.get('fontcolor');
 			if (value) {

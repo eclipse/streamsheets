@@ -318,16 +318,52 @@ class Graphics {
 		this.rect(r.x, r.y, r.width, r.height);
 	}
 
-	fillRectangle(r) {
-		this.beginPath();
-		this.rect(r.x, r.y, r.width, r.height);
-		this.fill();
+	// fillRectangle(r) {
+	// 	this.beginPath();
+	// 	this.rect(r.x, r.y, r.width, r.height);
+	// 	this.fill();
+	// }
+	//
+	// drawRectangle(r) {
+	// 	this.beginPath();
+	// 	this.rect(r.x, r.y, r.width, r.height);
+	// 	this.stroke();
+	// }
+	//
+	drawRectangle(x, y, width, height) {
+		const p1 = this.transformPoint(x, y, 0);
+		width = Math.ceil(width);
+		height = Math.ceil(height);
+
+		const angle = this.getRotation();
+		if (angle) {
+			this._context2D.translate(p1.x, p1.y);
+			this._context2D.rotate(angle);
+			this._context2D.strokeRect(0, 0, width, height);
+			this._context2D.rotate(-angle);
+			this._context2D.translate(-p1.x, -p1.y);
+		} else {
+			this._context2D.strokeRect(p1.x, p1.y, width, height);
+		}
 	}
 
-	drawRectangle(r) {
-		this.beginPath();
-		this.rect(r.x, r.y, r.width, r.height);
-		this.stroke();
+	fillRectangle(x, y, width, height) {
+		this._fillOperation = true;
+		const p1 = this.transformPoint(x, y, 0);
+		width = Math.ceil(width);
+		height = Math.ceil(height);
+
+		const angle = this.getRotation();
+		if (angle) {
+			this._context2D.translate(p1.x, p1.y);
+			this._context2D.rotate(angle);
+			this._context2D.fillRect(0, 0, width, height);
+			this._context2D.rotate(-angle);
+			this._context2D.translate(-p1.x, -p1.y);
+		} else {
+			this._context2D.fillRect(p1.x, p1.y, width, height);
+		}
+		this._fillOperation = false;
 	}
 
 	rect(x, y, width, height) {

@@ -47,30 +47,34 @@ const templates = {
 			color: '#000000'
 		},
 		chart: {
-			format: new ChartFormat('none', undefined, '#FFFFFF'),
+			format: new ChartFormat('#000000', 0, -1, 1, '#FFFFFF'),
 		},
 		title: {
-			format: new ChartFormat('none', undefined, 'none', 12),
+			format: new ChartFormat('#000000', 0, -1, 0, '#FFFFFF', 12),
 		},
 		serieslabel: {
-			format: new ChartFormat('none', undefined, 'none', 6),
+			format: new ChartFormat('#000000', 0, -1, 0, '#FFFFFF', 6),
 		},
 		plot: {
-			format: new ChartFormat('none', undefined, '#FFFFFF'),
+			format: new ChartFormat('#CCCCCC', 0, -1, 0, '#FFFFFF'),
 		},
 		legend: {
-			format: new ChartFormat('#CCCCCC', undefined, '#FFFFFF'),
+			format: new ChartFormat('#CCCCCC', 1, -1, 1,  '#FFFFFF'),
 		},
 		axis: {
-			format: new ChartFormat('#CCCCCC'),
-			formatGrid: new ChartFormat('#CCCCCC'),
+			format: new ChartFormat('#CCCCCC', 1, -1 ),
+		},
+		axisgrid: {
+			format: new ChartFormat('#CCCCCC', 1, -1 ),
 		},
 		axisTitle: {
-			format: new ChartFormat('none', undefined, 'none', 9),
+			format: new ChartFormat('#000000', 0, -1, 0, '#FFFFFF', 9),
 		},
 		series: {
 			format: new ChartFormat(),
 			linewidth: 50,
+			linestyle: 1,
+			fillstyle: 1,
 			getFillForIndex(index) {
 				return this.fill[index % 11];
 			},
@@ -114,30 +118,34 @@ const templates = {
 			color: '#FFFFFF'
 		},
 		chart: {
-			format: new ChartFormat('none', undefined, '#000000'),
+			format: new ChartFormat('#FFFFFF', 0, -1, 0, '#000000'),
 		},
 		title: {
-			format: new ChartFormat('none', undefined, 'none', 12),
+			format: new ChartFormat('#FFFFFF', 0, -1, 0, '#000000', 12),
 		},
 		serieslabel: {
-			format: new ChartFormat('none', undefined, 'none', 6),
+			format: new ChartFormat('#FFFFFF', 0, -1, 0, '#000000', 6),
 		},
 		plot: {
-			format: new ChartFormat('none', undefined, '#000000'),
+			format: new ChartFormat('#FFFFFF', 0, -1, 0,'#000000'),
 		},
 		legend: {
-			format: new ChartFormat('#CCCCCC', undefined, '#000000'),
+			format: new ChartFormat('#FFFFFF', 1, -1, 0, '#000000'),
 		},
 		axis: {
-			format: new ChartFormat('#FFFFFF'),
-			formatGrid: new ChartFormat('#FFFFFF'),
+			format: new ChartFormat('#FFFFFF', 1, -1),
+		},
+		axisgrid: {
+			format: new ChartFormat('#FFFFFF', 1, -1),
 		},
 		axisTitle: {
-			format: new ChartFormat('none', undefined, 'none', 9),
+			format: new ChartFormat('#FFFFFF', 0, 0, 1, '#000000',9),
 		},
 		series: {
 			format: new ChartFormat(),
 			linewidth: 50,
+			linestyle: 1,
+			fillstyle: 1,
 			getFillForIndex(index) {
 				return this.fill[index % 11];
 			},
@@ -2914,7 +2922,7 @@ module.exports = class SheetPlotNode extends Node {
 				serie.marker._style = 'rect';
 			}
 			if (lline === false) {
-				serie.format.lineStyle = 'none';
+				serie.format.lineStyle = 0;
 			}
 
 			return serie;

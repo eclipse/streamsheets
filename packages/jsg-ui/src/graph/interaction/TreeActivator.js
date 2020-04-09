@@ -86,70 +86,8 @@ export default class TreeActivator extends InteractionActivator {
 
 		const controller = this._getControllerAt(event.location, viewer, dispatcher);
 		if (controller) {
-			const item = controller.getModel();
-			const view = controller.getView();
-			const treeItemAttr = item.getTreeItemAttributes();
-			const depthOffset = treeItemAttr.getDepthOffset().getValue();
-			const tmppoint = event.location.copy();
-			const relativePoint = view.translateToTreeView(tmppoint, viewer);
-			const drawlevel = parseInt(relativePoint.y / depthOffset, 10);
-
 			dispatcher.setCursor(Cursor.Style.AUTO);
-			const selectedItem = view._findSelectedItemByLevel(drawlevel);
-			if (selectedItem === undefined) {
-				return;
-			}
-
-			event.isConsumed = true;
-
-			const key = view.isKeyEditing(drawlevel, relativePoint.x);
-			let text = key ? selectedItem.key : selectedItem.value;
-
-			if (text !== undefined) {
-				text = text ? text.toString() : '';
-				const graphics = viewer.getGraphicSystem().getGraphics();
-				const textFormat = item.getTextFormat();
-				textFormat.applyToGraphics(graphics);
-				graphics.setFont();
-				const textWidth = graphics.getCoordinateSystem().deviceToLogXNoZoom(graphics.measureText(text).width);
-				textFormat.removeFromGraphics(graphics);
-				if (textWidth > view._treeItemWidth - 300) {
-					const tipRect = view.getItemRect(selectedItem, key);
-					const cs = viewer.getCoordinateSystem();
-					const canvas = viewer.getCanvas();
-					const pos = new Point(tipRect.x, tipRect.y);
-
-					GraphUtils.traverseUp(controller.getView(), viewer.getRootView(), (v) => {
-						v.translateToParent(pos);
-						return true;
-					});
-
-					JSG.toolTip.startTooltip(event, text, JSG.toolTip.getDelay() * 1.5, this._controller, () => {
-						const zoom = cs.getZoom();
-						const rect = canvas.getBoundingClientRect();
-						const div = document.createElement('div');
-						div.innerHTML = text;
-						div.tabIndex = -1;
-						div.style.resize = 'none';
-						div.style.position = 'absolute';
-						// on top of everything and content div
-						div.style.zIndex = 101;
-						div.style.border = 'none';
-						div.style.background = key ? selectedItem.color : view._colorScheme.JSON_VALUE;
-						div.style.color = key ? '#FFFFFF' : '#000000';
-						div.style.fontSize = `${8 * zoom}pt`;
-						div.style.fontName = 'Verdana';
-						div.style.left = `${(cs.logToDeviceX(pos.x, false) + rect.x + 2).toFixed()}px`;
-						div.style.top = `${(cs.logToDeviceX(pos.y, false) + rect.y - 1).toFixed()}px`;
-						div.style.padding = '4px';
-						div.style.minHeight = '10px';
-						div.style.minWidth = '10px';
-						div.style.overflow = '';
-						div.style.boxShadow = '2px 2px 2px #BFBFBF';
-						return div;
-					});
-				}
-			}
+			controller.getView().showTooltip(viewer, event);
 		}
 	}
 

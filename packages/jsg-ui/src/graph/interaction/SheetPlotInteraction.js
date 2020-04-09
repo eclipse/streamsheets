@@ -182,6 +182,10 @@ export default class SheetPlotInteraction extends Interaction {
 						valueEnd = item.scaleFromAxis(axes, ptStart.y > ptEnd.y ? ptEnd : ptStart);
 					}
 
+					if (item.xAxes[0].type === 'category') {
+						valueStart.x = Math.max(0, valueStart.x);
+					}
+
 					item.setParamValues(viewer, item.xAxes[0].formula,
 						[{index: 4, value: valueStart.x}, {index: 5, value: valueEnd.x}]);
 					item.spreadZoomInfo(viewer);

@@ -323,7 +323,12 @@ export default class TreeInteraction extends Interaction {
 	}
 
 	onMouseMove(event, viewer) {
-		if (!this.isInside(viewer, event.location)) {
+		if (this.isInside(viewer, event.location)) {
+			if (this._controller) {
+				this.setCursor(Cursor.Style.AUTO);
+				this._controller.getView().showTooltip(viewer, event);
+			}
+		} else {
 			this.cancelInteraction(event, viewer);
 			this.setCursor(Cursor.Style.AUTO);
 		}

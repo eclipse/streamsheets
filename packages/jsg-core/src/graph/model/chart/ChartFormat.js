@@ -1,10 +1,12 @@
 
 
 module.exports = class ChartFormat {
-	constructor(lineColor, lineStyle, fillColor, fontSize, fontStyle, fontColor) {
+	constructor(lineColor, lineStyle, lineWidth, fillStyle, fillColor, fontSize, fontStyle, fontColor) {
 		this.lineColor = lineColor;
 		this.lineStyle = lineStyle;
+		this.lineWidth = lineWidth;
 		this.fillColor = fillColor;
+		this.fillStyle = fillStyle;
 		this.fontSize = fontSize;
 		this.fontStyle = fontStyle;
 		this.fontColor = fontColor;
@@ -49,7 +51,21 @@ module.exports = class ChartFormat {
 		if (this.line === undefined) {
 			this.line = {};
 		}
-		this.line.style = value;
+		this.line.style = Number(value);
+	}
+
+	get fillStyle() {
+		return this.fill && this.fill.style !== undefined ? this.fill.style : undefined;
+	}
+
+	set fillStyle(value) {
+		if (value === undefined) {
+			return;
+		}
+		if (this.fill === undefined) {
+			this.fill = {};
+		}
+		this.fill.style = Number(value);
 	}
 
 	get fillColor() {
@@ -77,6 +93,7 @@ module.exports = class ChartFormat {
 		if (this.font === undefined) {
 			this.font = {};
 		}
+
 		this.font.color = value;
 	}
 
@@ -155,7 +172,7 @@ module.exports = class ChartFormat {
 				writer.writeAttributeNumber('width', this.lineWidth, 0);
 			}
 			if (this.lineStyle !== undefined) {
-				writer.writeAttributeString('style', this.lineStyle);
+				writer.writeAttributeNumber('style', this.lineStyle, 0);
 			}
 			writer.writeEndElement();
 		}
@@ -163,6 +180,9 @@ module.exports = class ChartFormat {
 			writer.writeStartElement('fill');
 			if (this.fillColor) {
 				writer.writeAttributeString('color', this.fillColor);
+			}
+			if (this.fillStyle !== undefined) {
+				writer.writeAttributeNumber('style', this.fillStyle, 0);
 			}
 			writer.writeEndElement();
 		}
@@ -203,6 +223,7 @@ module.exports = class ChartFormat {
 			case 'fill':
 				this.fill = {};
 				this.fillColor = reader.getAttribute(child, 'color');
+				this.fillStyle = reader.getAttribute(child, 'style');
 				break;
 			case 'font':
 				this.font = {};

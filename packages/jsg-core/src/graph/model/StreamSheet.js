@@ -1154,17 +1154,25 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 		switch (format.getLineStyle().getValue()) {
 			case FormatAttributes.LineStyle.SOLID: {
-				const color = format.getLineColor().getValue();
-				if (color !== '#000000') {
-					return Term.fromString(color);
+				const width = format.getLineWidth().getValue();
+				if (width === -1 || width === 1) {
+					const color = format.getLineColor().getValue();
+					if (color === '#000000') {
+						return new NullTerm();
+					} else {
+						return Term.fromString(color);
+					}
 				}
-				return new NullTerm();
+				break;
 			}
 			case FormatAttributes.LineStyle.NONE:
 				return Term.fromString('None');
 			default:
-				return new NullTerm();
+				break;
 		}
+
+		const formula = `LINEFORMAT("${format.getLineColor().getValue()}",${format.getLineStyle().getValue()},${format.getLineWidth().getValue()})`;
+		return this.parseTextToTerm(formula);
 	}
 
 	getFillFormula(graph, item) {
@@ -1211,7 +1219,11 @@ module.exports = class StreamSheet extends WorksheetNode {
 			return undefined;
 		}
 
-		expr.evaluate(item);
+		try {
+			expr.evaluate(item);
+		} catch (e) {
+
+		}
 		const termFunc = expr.getTerm();
 		let type = item.getShape().getType();
 		if (type === undefined || termFunc === undefined) {
@@ -1334,7 +1346,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 			});
 			const graph = item.getGraph();
 			formula = this.getLineFormula(graph, item);
-			this.setGraphFunctionParam(termFunc, 7, formula);
+			const force = termFunc.params.length > 7 && (termFunc.params[7] instanceof FuncTerm) && termFunc.params[7].name === 'LINEFORMAT';
+			this.setGraphFunctionParam(termFunc, 7, formula, (formula instanceof FuncTerm) || force);
 			formula = this.getFillFormula(graph, item);
 			this.setGraphFunctionParam(termFunc, 8, formula);
 			this.setGraphFunctionParam(termFunc, 11, angle ? Term.fromNumber(angle) : new NullTerm());
