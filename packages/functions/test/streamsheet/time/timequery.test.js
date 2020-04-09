@@ -109,7 +109,7 @@ describe('timequery', () => {
 			await machine.step();
 			expect(querystore().limit).toBe(60);
 		});
-		it(`should return ${ERROR.ARGS} if two few arguments are given`, () => {
+		it(`should return ${ERROR.ARGS} if too few arguments are given`, () => {
 			const sheet = newSheet();
 			createCellAt('A3', { formula: 'timequery()' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
