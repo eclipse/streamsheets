@@ -66,6 +66,7 @@ license.lic
 
 # dynamic module directories
 /functions
+/functions_user
 /plugins
 /machinedata
 
