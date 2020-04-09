@@ -1,7 +1,7 @@
 import { StreamsMessagingProtocol } from '@cedalo/protocols';
+import { StreamWSRequest, StreamWSResponse } from '../stream/types';
 import { RequestContext } from '../streamsheets';
 import ProxyConnection from './ProxyConnection';
-import { StreamWSRequest, StreamWSResponse } from '../stream/types';
 
 const buildResponse = (request: StreamWSRequest, response: StreamWSResponse['response']): StreamWSResponse =>
 	({
@@ -20,8 +20,8 @@ const buildErrorResponse = (request: StreamWSRequest, error: any) => ({
 
 export const StreamWSProxy = {
 	handleEvent: async ({ auth, actor }: RequestContext, proxyConnection: ProxyConnection, event: any) => {
-		if(!event.event || !event.event.data){
-			if(auth.isAdmin(actor)){
+		if (!event.event || !event.event.data) {
+			if (auth.isAdmin(actor)) {
 				proxyConnection.onServerEvent(event);
 			}
 			return;

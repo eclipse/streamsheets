@@ -170,9 +170,6 @@ const read = (sheet, ...terms) => {
 				const isHorizontal = terms[3] ? !!terms[3].value : undefined;
 				read.term._lastValue = data;
 				copyToCellRange(targetrange, data, type, isHorizontal);
-			// } else {
-			// 	// invalid target parameter:
-			// 	error = ERROR.INVALID_PARAM;
 			}
 		}
 		// we ignore any error here and return requested path or json value:

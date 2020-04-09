@@ -18,7 +18,12 @@ const defaultState = {
 	showPasteFunctionsDialog: false,
 	functionWizard: { show: false },
 	showTools: true,
-	viewMode: { viewMode: null },
+	viewMode: {
+		hidegrid: null,
+		hideheader: null,
+		view: null,
+		viewMode: null
+	},
 	showEditNamesDialog: false,
 	formatOpen: false,
 	formulaOpen: false,

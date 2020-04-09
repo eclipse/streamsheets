@@ -1,9 +1,10 @@
 import { FunctionObject, PartialApply1All } from '../common';
-import { ID, RequestContext, Scope } from '../streamsheets';
+import { ID, RequestContext, Scope, Session } from '../streamsheets';
 import { User, UserSettings } from './types';
 
 export interface UserApi extends FunctionObject {
 	findUser(context: RequestContext, id: ID): Promise<User | null>;
+	findUserBySession(context: RequestContext, session: Session): Promise<User | null>;
 	findAllUsers(context: RequestContext): Promise<User[]>;
 	findByScope(context: RequestContext, scope: Scope): Promise<User[]>;
 	countByScope(context: RequestContext, scope: Scope): Promise<number>;
@@ -16,6 +17,9 @@ export interface UserApi extends FunctionObject {
 export type UserApiApplied = PartialApply1All<UserApi>;
 
 export const UserApi: UserApi = {
+	findUserBySession: async ({ userRepo }, session: Session) => {
+		return userRepo.findUser(session.user.id);
+	},
 	findUser: async ({ auth, userRepo }, id) => {
 		const user = await userRepo.findUser(id);
 		if (user) {

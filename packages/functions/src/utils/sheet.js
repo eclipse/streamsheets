@@ -140,6 +140,38 @@ const messageFromBoxOrValue = (machine, sheet, term, requireMessageData = true) 
 	}
 	return term.value;
 };
+// READ needs a slightly different message handling... :-( 
+// => COMBINE!! all message handling methods!!
+const readInboxMessage = (sheet, streamsheetName, messageId) => {
+	const streamsheet = getStreamSheetByName(streamsheetName, sheet);
+	return streamsheet ? streamsheet.inbox.peek(messageId) : undefined;
+};
+const readOutboxMessage = (sheet, messageId) => {
+	const machine = sheet.machine;
+	const outbox = machine && machine.outbox;
+	return outbox ? outbox.peek(messageId) : undefined;
+};
+const readMessage = (sheet, pathterm) => {
+	let message;
+	const path = jsonpath.parse(pathterm.value);
+	if(isOutboxDataTerm(pathterm)) {
+		message = readOutboxMessage(sheet, path.shift())
+	} else if(isInboxDataTerm(pathterm) || isInboxMetaDataTerm(pathterm)) {
+		message = readInboxMessage(sheet, path.shift(), path.shift())
+	} else message = ERROR.VALUE;
+	return { message, path };
+};
+const readMessageValue = (sheet, pathterm) => {
+	const isMeta = isInboxMetaDataTerm(pathterm);
+	const { path, message } = readMessage(sheet, pathterm);
+	const key = path && (path[path.length - 1] || (isMeta ? 'Metadata' : 'Data'));
+	if (message === ERROR.VALUE) return { key, value: message, isProcessed: false };
+	// DL-578: processed message should not return value
+	const isProcessed = !!message && sheet.streamsheet.isMessageProcessed(message);
+	// eslint-disable-next-line
+	const value = message ? (isMeta ? message.getMetaDataAt(path) : message.getDataAt(path)) : undefined;
+	return { isProcessed, key, value };
+}
 
 module.exports = {
 	cellFromFunc,
@@ -154,5 +186,6 @@ module.exports = {
 	getStreamSheet,
 	getStreamSheetByName,
 	messageFromBox,
-	messageFromBoxOrValue
+	messageFromBoxOrValue,
+	readMessageValue
 };
