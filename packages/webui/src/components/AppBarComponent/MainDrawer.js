@@ -62,7 +62,7 @@ export class MainDrawer extends Component {
 
 	handleOpenPreview = () => {
 		window.open(
-			`${window.location.href}?viewmode=sheet&hideheader&hidegrid`,
+			`${window.location.origin}${window.location.pathname}?viewmode=sheet&hideheader&hidegrid${window.location.hash}`,
 			'newwindow',
 			`width=${window.innerWidth},height=${window.outerHeight - 290}`
 		);
