@@ -10,15 +10,11 @@ export const ViewModePropTypes = PropTypes.shape({
 	hideheader: PropTypes.string,
 });
 
-const toSearchString = (str) => (str.startsWith('#') ? str.substring(1) : str);
-
 function ViewModeHandlerComponent(props) {
-	// DL-3962 hash-symbol in URL will lead to  empty searchParams...
-	const { hash, searchParams } = props;
-	const searchStr = toSearchString(searchParams || hash);
+	const { searchParams } = props;
+	const params = new URLSearchParams(searchParams);
 	// if no params passed we keep those currently in app-state
-	if (searchStr) {
-		const params = new URLSearchParams(searchStr);
+	if (searchParams) {
 		const viewMode = {
 			view: params.get('view'),
 			hidegrid: params.get('hidegrid'),
@@ -31,8 +27,6 @@ function ViewModeHandlerComponent(props) {
 }
 
 const mapStateToProps = (state) => ({
-	hash: state.router.location.hash,
-	location: state.router.location,
 	searchParams: state.router.location.search,
 });
 
