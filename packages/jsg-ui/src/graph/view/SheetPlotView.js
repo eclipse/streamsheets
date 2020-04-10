@@ -565,10 +565,12 @@ export default class SheetPlotView extends NodeView {
 		graphics.clip();
 
 		graphics.beginPath();
+
 		graphics.setLineColor(serie.format.lineColor || item.getTemplate().series.getLineForIndex(seriesIndex));
 		graphics.setLineWidth(serie.format.lineWidth || item.getTemplate().series.linewidth);
-		this.setLineStyle(graphics, serie.format.lineStyle);
+		const line = this.setLineStyle(graphics, serie.format.lineStyle);
 		graphics.setFillColor(serie.format.fillColor || item.getTemplate().series.getFillForIndex(seriesIndex));
+		const fill = (serie.format.fillStyle === undefined ? item.getTemplate().series.fillstyle : serie.format.fillStyle) > 0;
 
 		const barWidth = item.getBarWidth(axes, serie, plotRect);
 		const points = [];
@@ -700,8 +702,12 @@ export default class SheetPlotView extends NodeView {
 									plotRect.bottom - pt.y * plotRect.height
 								);
 								graphics.closePath();
-								graphics.fill();
-								graphics.stroke();
+								if (fill) {
+									graphics.fill();
+								}
+								if (line) {
+									graphics.stroke();
+								}
 								graphics.beginPath();
 							}
 							if (item.chart.stacked) {
@@ -728,12 +734,12 @@ export default class SheetPlotView extends NodeView {
 							graphics.beginPath();
 							barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
 							value.c = item.translateFromLegend(value.c, legendData);
-							const [fill, line] = String(value.c).split(';');
-							if (fill && fill.length) {
-								graphics.setFillColor(fill);
+							const [fillState, lineState] = String(value.c).split(';');
+							if (fillState && fillState.length) {
+								graphics.setFillColor(fillState);
 							}
-							if (line && line.length) {
-								graphics.setLineColor(line);
+							if (lineState && lineState.length) {
+								graphics.setLineColor(lineState);
 							}
 							if (item.chart.period) {
 								item.getPlotPoint(axes, ref, info, value, index, 1, ptNext);
@@ -752,10 +758,10 @@ export default class SheetPlotView extends NodeView {
 									-barInfo.height * plotRect.height
 								);
 							}
-							if (fill && fill.length) {
+							if (fillState && fillState.length) {
 								graphics.fill();
 							}
-							if (line && line.length) {
+							if (lineState && lineState.length) {
 								graphics.stroke();
 							}
 						}
@@ -801,14 +807,14 @@ export default class SheetPlotView extends NodeView {
 			graphics.closePath();
 		}
 
-		if (serie.type === 'column' || serie.type === 'bar' || serie.type === 'area' || serie.type === 'bubble') {
+		if (fill && (serie.type === 'column' || serie.type === 'bar' || serie.type === 'area' || serie.type === 'bubble')) {
 			graphics.fill();
 		}
-		if (serie.type !== 'state') {
+		if (line && serie.type !== 'state') {
 			graphics.stroke();
 		}
-		graphics.setLineWidth(1);
 
+		graphics.setLineWidth(1);
 		graphics.restore();
 
 		if (serie.marker.style !== 'none') {
