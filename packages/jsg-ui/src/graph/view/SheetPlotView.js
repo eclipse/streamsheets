@@ -207,7 +207,7 @@ export default class SheetPlotView extends NodeView {
 					graphics.moveTo(x, y + textSize.height / 2);
 					graphics.lineTo(x + margin * 3, y + textSize.height / 2);
 					if (fill) {
-						graphics.fill();
+						this.fill(graphics, entry.series.format);
 					}
 					if (line) {
 						graphics.stroke();
@@ -242,7 +242,7 @@ export default class SheetPlotView extends NodeView {
 
 					graphics.rect(x, y + textSize.height / 10, margin * 3, (textSize.height * 2) / 3);
 					if (fill) {
-						graphics.fill();
+						this.fill(graphics, entry.series.format);
 					}
 					if (line) {
 						graphics.stroke();
@@ -252,7 +252,7 @@ export default class SheetPlotView extends NodeView {
 				textPos = margin * 2;
 				graphics.circle(x + margin / 2, y + textSize.height / 2, (textSize.height * 2) / 5);
 				if (fill) {
-					graphics.fill();
+					this.fill(graphics, entry.series.format);
 				}
 				if (line) {
 					graphics.stroke();
@@ -830,7 +830,7 @@ export default class SheetPlotView extends NodeView {
 			graphics.stroke();
 		}
 
-		graphics.setLineWidth(1);
+		graphics.setLineWidth(-1);
 		graphics.restore();
 
 		if (serie.marker.style !== 'none') {
