@@ -222,8 +222,7 @@ module.exports = class SheetPlotNode extends Node {
 		const term = expr.getTerm();
 		if (term) {
 			const { operand } = term;
-
-			if (operand instanceof SheetReference) {
+			if ((operand instanceof SheetReference) && operand._range) {
 				const range = operand._range.copy();
 				range.shiftFromSheet();
 				const cell = range._worksheet.getDataProvider().getRC(range._x1, range._y1);
@@ -819,7 +818,7 @@ module.exports = class SheetPlotNode extends Node {
 	getParamInfo(term, index) {
 		if (term && term.params && term.params.length > index) {
 			const { operand } = term.params[index];
-			if (operand instanceof SheetReference) {
+			if ((operand instanceof SheetReference) && operand._range) {
 				const range = operand._range.copy();
 				range.shiftFromSheet();
 				return { sheet: operand._item, range };
@@ -971,7 +970,7 @@ module.exports = class SheetPlotNode extends Node {
 			const term = expr.getTerm();
 			if (term) {
 				const {operand} = term;
-				if (operand instanceof SheetReference) {
+				if ((operand instanceof SheetReference) && operand._range) {
 					const range = operand._range.copy();
 					range.shiftFromSheet();
 					for (let i = 0; i < range.getHeight(); i += 1) {
@@ -3605,6 +3604,7 @@ module.exports = class SheetPlotNode extends Node {
 	isCircular() {
 		return this.series.length && (this.series[0].type === 'pie' || this.series[0].type === 'doughnut');
 	}
+
 
 	static get templates() {
 		return templates;
