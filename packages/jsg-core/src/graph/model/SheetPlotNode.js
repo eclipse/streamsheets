@@ -3282,6 +3282,10 @@ module.exports = class SheetPlotNode extends Node {
 
 	evaluate() {
 		super.evaluate();
+
+		if (this.getGraph() === undefined) {
+			return;
+		}
 		this.series.forEach((serie) => {
 			serie.formula.evaluate(this);
 		});
