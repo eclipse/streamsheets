@@ -171,7 +171,7 @@
 	"ProcessContainerSettings.repeat": "Berechnung wiederholen bis RETURN() ausgeführt wird",
 	"ProcessContainerSettings.hideMessages": "Nicht verarbeitete Nachrichten ausblenden",
     "ProcessContainerSettings.tooManyColumns": "Maximal 50 Spalten erlaubt!",
-    "ProcessContainerSettings.tooManyRows": "Maximal 300 Zeilen erlaubt!",
+    "ProcessContainerSettings.tooManyRows": "Maximal 1000 Zeilen erlaubt!",
 	"Product.name": "Streamsheets",
 	"Product.name.header": "Produktname",
 	"SettingsMenu.help.header": "Info",

@@ -20,7 +20,6 @@ import NewMachineDialog from '../components/HelperComponent/NewMachineDialog';
 import OpenDialog from '../components/HelperComponent/OpenDialog';
 import { Restricted, NotAllowed } from '../components/HelperComponent/Restricted';
 import SaveAsDialog from '../components/HelperComponent/SaveAsDialog';
-import SheetSettings from '../components/HelperComponent/SheetSettings';
 import ErrorDialog from '../components/ImportExport/ErrorDialog';
 import ImportDialog from '../components/ImportExport/ImportDialog';
 import StartImportDialog from '../components/ImportExport/StartImportDialog';
@@ -234,7 +233,6 @@ export function MachineDetailPage(props) {
 								/>
 								<NamesDialog open={props.showEditNamesDialog} stateHandler={handleState} />
 								<StartImportDialog />
-								<SheetSettings />
 								<InboxSettings />
 								<MachineSettingsDialog />
 								<MachineDeleteDialog />

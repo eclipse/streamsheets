@@ -9,7 +9,6 @@ const defaultState = {
 	showImportDialog: false,
 	showNewDialog: false,
 	showOpenDialog: false,
-	showSheetSettings: false,
 	showInboxSettings: false,
 	showSaveAsDialog: false,
 	showFormatCellsDialog: false,

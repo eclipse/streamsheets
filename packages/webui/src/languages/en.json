@@ -170,7 +170,7 @@
 	"ProcessContainerSettings.repeat": "Repeat calculation endlessly until RETURN() is executed",
 	"ProcessContainerSettings.hideMessages": "Hide unprocessed Messages",
 	"ProcessContainerSettings.tooManyColumns": "Maximum of 50 columns allowed!",
-	"ProcessContainerSettings.tooManyRows": "Maximum of 300 rows allowed!",
+	"ProcessContainerSettings.tooManyRows": "Maximum of 1000 rows allowed!",
 	"Product.name": "Streamsheets",
 	"Product.name.header": "Product name",
 	"SettingsMenu.help.header": "Info",

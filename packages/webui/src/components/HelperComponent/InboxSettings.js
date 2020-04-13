@@ -865,15 +865,15 @@ export class InboxSettings extends React.Component {
 										label={<FormattedMessage id="Rows" defaultMessage="Rows" />}
 										inputProps={{
 											min: 1,
-											max: 600,
+											max: 1000,
 											step: 1,
 										}}
-										error={this.state.preferences.sheetRows > 600}
+										error={this.state.preferences.sheetRows > 1000}
 										helperText={
-											this.state.preferences.sheetRows > 600 ? (
+											this.state.preferences.sheetRows > 1000 ? (
 												<FormattedMessage
 													id="ProcessContainerSettings.tooManyRows"
-													defaultMessage="Only 600 rows allowed!"
+													defaultMessage="Only 1000 rows allowed!"
 												/>
 											) : (
 												''

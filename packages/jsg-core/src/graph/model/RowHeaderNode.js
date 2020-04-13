@@ -2,7 +2,7 @@ const Point = require('../../geometry/Point');
 const HeaderNode = require('./HeaderNode');
 const CellRange = require('./CellRange');
 
-const WIDTH = 700;
+const WIDTH = 900;
 /**
  * @class RowHeaderNode
 
