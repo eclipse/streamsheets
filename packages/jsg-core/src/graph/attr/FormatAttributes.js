@@ -1740,7 +1740,7 @@ class FormatAttributes extends AttributeList {
 
 		addAttribute(
 			new NumberAttribute(FormatAttributes.TRANSPARENCY),
-			undefined,
+			100,
 			new NumberRangeConstraint(0, 100, 100)
 		);
 		addAttribute(

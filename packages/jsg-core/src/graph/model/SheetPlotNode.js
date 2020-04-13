@@ -44,6 +44,7 @@ const templates = {
 		font: {
 			name: 'Verdana',
 			size: 7,
+			style: 0,
 			color: '#000000'
 		},
 		chart: {
@@ -115,6 +116,7 @@ const templates = {
 		font: {
 			name: 'Verdana',
 			size: 7,
+			style: 0,
 			color: '#FFFFFF'
 		},
 		chart: {

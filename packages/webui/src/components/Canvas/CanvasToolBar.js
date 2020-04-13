@@ -69,6 +69,7 @@ const ToolTextIcon = FormatAlignCenter;
 const {
 	Point,
 	Size,
+	Strings,
 	Dictionary,
 	AttributeUtils,
 	SetAttributeAtPathCommand,
@@ -1041,6 +1042,9 @@ export class CanvasToolBar extends Component {
 			attributesMap.put(FormatAttributes.FILLCOLOR, color.hex);
 			attributesMap.put(FormatAttributes.FILLSTYLE, FormatAttributes.FillStyle.SOLID);
 		}
+		if (this.isChartSelected()) {
+			attributesMap.put(FormatAttributes.TRANSPARENCY, color.rgb.a * 100);
+		}
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -1713,6 +1717,23 @@ export class CanvasToolBar extends Component {
 	isChartSelected() {
 		const selection = graphManager.getGraphViewer().getSelection();
 		return selection && selection.length && (selection[0].getModel() instanceof SheetPlotNode);
+	}
+
+	fillColorToRGBAObject(format) {
+		let color = format && format.getFillColor() ? format.getFillColor().getValue() : '#FFFFFF';
+		if (color.length && color[0] !== '#') {
+			return color;
+		}
+
+		color = Strings.cut(color, '#');
+		// cut off a leading #
+		color = parseInt(color, 16);
+		const r = color >> 16;
+		const g = (color >> 8) & 0xff;
+		const b = color & 0xff;
+		const a = format ? format.getTransparency().getValue() / 100 : 1;
+
+		return { r, g, b, a };
 	}
 
 	updateState(state = {}) {
@@ -2447,9 +2468,9 @@ export class CanvasToolBar extends Component {
 					onClose={this.onCloseFillColor}
 				>
 					<SketchPicker
-						// disableAlpha
+						disableAlpha={!this.isChartSelected()}
 						width={250}
-						color={f && f.getFillColor() ? f.getFillColor().getValue() : ''}
+						color={ this.fillColorToRGBAObject(f)}
 						presetColors={this.getPresetColors()}
 						onChange={this.onFormatFillColor}
 					/>

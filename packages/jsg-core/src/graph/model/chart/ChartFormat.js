@@ -1,7 +1,7 @@
 
 
 module.exports = class ChartFormat {
-	constructor(lineColor, lineStyle, lineWidth, fillStyle, fillColor, fontSize, fontStyle, fontColor) {
+	constructor(lineColor, lineStyle, lineWidth, fillStyle, fillColor, fontSize, fontStyle, fontColor, transparency) {
 		this.lineColor = lineColor;
 		this.lineStyle = lineStyle;
 		this.lineWidth = lineWidth;
@@ -10,6 +10,7 @@ module.exports = class ChartFormat {
 		this.fontSize = fontSize;
 		this.fontStyle = fontStyle;
 		this.fontColor = fontColor;
+		this.transparency = transparency;
 	}
 
 	get lineColor() {
@@ -66,6 +67,20 @@ module.exports = class ChartFormat {
 			this.fill = {};
 		}
 		this.fill.style = Number(value);
+	}
+
+	get transparency() {
+		return this.fill && this.fill.transparency !== undefined ? this.fill.transparency : undefined;
+	}
+
+	set transparency(value) {
+		if (value === undefined) {
+			return;
+		}
+		if (this.fill === undefined) {
+			this.fill = {};
+		}
+		this.fill.transparency = Number(value);
 	}
 
 	get fillColor() {
@@ -184,6 +199,9 @@ module.exports = class ChartFormat {
 			if (this.fillStyle !== undefined) {
 				writer.writeAttributeNumber('style', this.fillStyle, 0);
 			}
+			if (this.transparency !== undefined) {
+				writer.writeAttributeNumber('transparency', this.transparency, 0);
+			}
 			writer.writeEndElement();
 		}
 		if (this.font) {
@@ -224,6 +242,7 @@ module.exports = class ChartFormat {
 				this.fill = {};
 				this.fillColor = reader.getAttribute(child, 'color');
 				this.fillStyle = reader.getAttribute(child, 'style');
+				this.transparency = reader.getAttribute(child, 'transparency');
 				break;
 			case 'font':
 				this.font = {};
