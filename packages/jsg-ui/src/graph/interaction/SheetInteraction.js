@@ -366,7 +366,7 @@ export default class SheetInteraction extends Interaction {
 	_getTargetView(event, viewer) {
 		let controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => true);
 		if (!controller) {
-			return undefined;
+			return this._controller.getView();
 		}
 
 		if (controller.getModel() instanceof TreeItemsNode) {
@@ -378,7 +378,8 @@ export default class SheetInteraction extends Interaction {
 			!(controller.getModel() instanceof HeaderNode) &&
 			!(controller.getModel() instanceof SheetHeaderNode)
 		) {
-			return undefined;
+			return this._controller.getView();
+			// return undefined;
 		}
 
 		controller = controller.getParent().getParent();
@@ -571,6 +572,7 @@ export default class SheetInteraction extends Interaction {
 					case WorksheetView.HitCode.SELECTIONMOVE:
 					case WorksheetView.HitCode.REFERENCEMOVE:
 						view.showCell(cell);
+						this._updateFeedback(view, event, viewer);
 						break;
 					case WorksheetView.HitCode.ROW:
 					case WorksheetView.HitCode.COLUMN:
