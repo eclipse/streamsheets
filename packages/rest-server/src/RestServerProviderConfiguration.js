@@ -70,7 +70,12 @@ module.exports = class RestServerProviderConfiguration extends ProviderConfigura
 					},
 					description: '',
 					type: {
-						name: 'json'
+						name: 'union',
+						types: [
+							{ name: 'json' },
+							{ name: 'number' },
+							{ name: 'string' }
+						]
 					},
 					defaultValue: {}
 				},
