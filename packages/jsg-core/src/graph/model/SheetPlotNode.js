@@ -590,16 +590,27 @@ module.exports = class SheetPlotNode extends Node {
 			if (axis.visible) {
 				switch (axis.align) {
 				case 'left':
-					break;
 				case 'right':
 					break;
 				case 'top':
-					this.plot.position.left = Math.max(this.plot.position.left, axis.textSize.firstWidth / 2);
-					this.plot.position.right = Math.min(this.plot.position.right, size.x - axis.textSize.lastWidth / 2);
-					break;
 				case 'bottom':
 					this.plot.position.left = Math.max(this.plot.position.left, axis.textSize.firstWidth / 2);
 					this.plot.position.right = Math.min(this.plot.position.right, size.x - axis.textSize.lastWidth / 2);
+					break;
+				}
+			}
+		});
+
+		this.yAxes.forEach((axis) => {
+			if (axis.visible) {
+				switch (axis.align) {
+				case 'top':
+				case 'bottom':
+					this.plot.position.left = Math.max(this.plot.position.left, axis.textSize.firstWidth / 2);
+					this.plot.position.right = Math.min(this.plot.position.right, size.x - axis.textSize.lastWidth / 2);
+					break;
+				case 'left':
+				case 'right':
 					break;
 				}
 			}
