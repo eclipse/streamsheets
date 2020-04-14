@@ -76,7 +76,7 @@ module.exports = class RestServerProviderConfiguration extends ProviderConfigura
 							{ name: 'number' },
 							{ name: 'string' }
 						]
-					}
+					},
 					defaultValue: {}
 				},
 				{
