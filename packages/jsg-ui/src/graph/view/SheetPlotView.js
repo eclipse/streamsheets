@@ -1,4 +1,4 @@
-import { default as JSG, TextFormatAttributes, FormatAttributes, ChartRect, Rectangle } from '@cedalo/jsg-core';
+import { default as JSG, TextFormatAttributes, FormatAttributes, MathUtils, GraphUtils, ChartRect, Rectangle } from '@cedalo/jsg-core';
 
 import NodeView from './NodeView';
 
@@ -991,6 +991,9 @@ export default class SheetPlotView extends NodeView {
 			pieInfo,
 			currentAngle : pieInfo ? pieInfo.startAngle : 0
 		};
+		const name = serie.dataLabel.fontName || item.getTemplate().serieslabel.format.fontName || item.getTemplate().font.name;
+		const size = serie.dataLabel.fontSize || item.getTemplate().serieslabel.format.fontSize || item.getTemplate().font.size;
+		const lineHeight = GraphUtils.getFontMetricsEx(name, size).lineheight + 50;
 
 		while (item.getValue(ref, index, value)) {
 			info.index = index;
@@ -1005,16 +1008,18 @@ export default class SheetPlotView extends NodeView {
 					item.setFont(graphics, serie.dataLabel.format, 'serieslabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
 				}
 
+				const center = labelRect.center;
 				if (text instanceof Array) {
-					const lineHeight = (labelRect.height - 150 - (text.length - 1) * 50) / text.length;
 					let y = labelRect.top + 75 + lineHeight / 2;
 					text.forEach((part, pi) => {
-						this.drawRotatedText(graphics,part, labelRect.center.x, y, labelAngle, 0, 0);
+						y = center.y - (text.length - 1) * lineHeight / 2 + pi * lineHeight;
+						const p = MathUtils.getRotatedPoint({x: center.x, y}, center, -labelAngle);
+						this.drawRotatedText(graphics,part, p.x, p.y, labelAngle, 0, 0);
 						// graphics.fillText(part, labelRect.center.x, y);
-						y += 50 + lineHeight;
+						y += lineHeight;
 					})
 				} else {
-					this.drawRotatedText(graphics,`${text}`, labelRect.center.x, labelRect.center.y, labelAngle, 0, 0);
+					this.drawRotatedText(graphics,`${text}`, center.x, center.y, labelAngle, 0, 0);
 				}
 			}
 			index += 1;
