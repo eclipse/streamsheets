@@ -840,7 +840,7 @@ export default class SheetInteraction extends Interaction {
 			}
 			if (cont) {
 				const cell = this.getCell(cont.getView(), location, viewer);
-				if (cell.x === -1 || cell.y === -1) {
+				if (cell && (cell.x === -1 || cell.y === -1)) {
 					controller = cont;
 				} else {
 					cont = undefined;
