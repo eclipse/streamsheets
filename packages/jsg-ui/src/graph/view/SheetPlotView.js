@@ -299,33 +299,77 @@ export default class SheetPlotView extends NodeView {
 		}
 
 		let fi;
+		let xLabelOffset = 0;
+		let yLabelOffset = 0;
+		const labelAngle = axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-axis.format.fontRotation);
 
 		graphics.beginPath();
 		if (grid) {
 			fi = this.setFormat(graphics, item, axis.formatGrid, 'axisgrid');
 		} else {
+			let hAlign = TextFormatAttributes.TextAlignment.CENTER;
+			let vAlign = 'middle';
+			let textSize;
 			// draw axis line
 			fi = this.setFormat(graphics, item, axis.format, 'axis');
 			switch (axis.align) {
 				case 'left':
 					graphics.moveTo(axis.position.right, axis.position.top);
 					graphics.lineTo(axis.position.right, axis.position.bottom);
-					item.setFont(graphics, axis.format, 'axis', 'middle', TextFormatAttributes.TextAlignment.RIGHT);
+
+					if (labelAngle > 0) {
+						vAlign = 'bottom';
+					} else if (labelAngle < 0) {
+						vAlign = 'top';
+					}
+					item.setFont(graphics, axis.format, 'axis', vAlign, Math.abs(labelAngle) === Math.PI_2 ? TextFormatAttributes.TextAlignment.CENTER : TextFormatAttributes.TextAlignment.RIGHT);
+					textSize = item.measureText(graphics, graphics.getCoordinateSystem(), axis.format, 'axis', 'X');
+					if (labelAngle > 0) {
+						yLabelOffset = Math.cos(labelAngle) * textSize.height / 2;
+					} else if (labelAngle < 0) {
+						yLabelOffset = -Math.cos(labelAngle) * textSize.height / 2;
+					}
 					break;
 				case 'right':
 					graphics.moveTo(axis.position.left, axis.position.top);
 					graphics.lineTo(axis.position.left, axis.position.bottom);
-					item.setFont(graphics, axis.format, 'axis', 'middle', TextFormatAttributes.TextAlignment.LEFT);
+
+					if (labelAngle > 0) {
+						vAlign = 'top';
+					} else if (labelAngle < 0) {
+						vAlign = 'bottom';
+					}
+					item.setFont(graphics, axis.format, 'axis', vAlign, Math.abs(labelAngle) === Math.PI_2 ? TextFormatAttributes.TextAlignment.CENTER : TextFormatAttributes.TextAlignment.LEFT);
+					textSize = item.measureText(graphics, graphics.getCoordinateSystem(), axis.format, 'axis', 'X');
+					if (labelAngle > 0) {
+						yLabelOffset = -Math.cos(labelAngle) * textSize.height / 2;
+					} else if (labelAngle < 0) {
+						yLabelOffset = Math.cos(labelAngle) * textSize.height / 2;
+					}
 					break;
 				case 'top':
 					graphics.moveTo(axis.position.left, axis.position.bottom);
 					graphics.lineTo(axis.position.right, axis.position.bottom);
-					item.setFont(graphics, axis.format, 'axis', 'bottom', TextFormatAttributes.TextAlignment.CENTER);
+					if (labelAngle > 0) {
+						hAlign = TextFormatAttributes.TextAlignment.LEFT;
+					} else if (labelAngle < 0) {
+						hAlign = TextFormatAttributes.TextAlignment.RIGHT;
+					}
+					item.setFont(graphics, axis.format, 'axis', 'bottom', hAlign);
+					textSize = item.measureText(graphics, graphics.getCoordinateSystem(), axis.format, 'axis', 'X');
+					xLabelOffset = -Math.sin(labelAngle) * textSize.height / 2;
 					break;
 				case 'bottom':
 					graphics.moveTo(axis.position.left, axis.position.top);
 					graphics.lineTo(axis.position.right, axis.position.top);
-					item.setFont(graphics, axis.format, 'axis', 'top', TextFormatAttributes.TextAlignment.CENTER);
+					if (labelAngle > 0) {
+						hAlign = TextFormatAttributes.TextAlignment.RIGHT;
+					} else if (labelAngle < 0) {
+						hAlign = TextFormatAttributes.TextAlignment.LEFT;
+					}
+					item.setFont(graphics, axis.format, 'axis', 'top', hAlign);
+					textSize = item.measureText(graphics, graphics.getCoordinateSystem(), axis.format, 'axis', 'X');
+					xLabelOffset = Math.sin(labelAngle) * textSize.height / 2;
 					break;
 			}
 			if (fi.line) {
@@ -370,7 +414,21 @@ export default class SheetPlotView extends NodeView {
 				}
 			}
 
-			width = cs.deviceToLogX(graphics.measureText(text).width);
+			width = 0;
+			switch (axis.align) {
+			case 'left':
+			case 'right':
+				if (Math.abs(Math.abs(labelAngle) -  Math.PI_2) < Math.PI / 20) {
+					width = Math.abs(cs.deviceToLogX(graphics.measureText(text).width) * Math.sin(labelAngle));
+				}
+				break;
+			case 'top':
+			case 'bottom':
+				if (Math.abs(labelAngle) < Math.PI / 20) {
+					width = cs.deviceToLogX(graphics.measureText(text).width) * Math.cos(labelAngle);
+				}
+				break;
+			}
 
 			switch (axis.align) {
 				case 'left':
@@ -378,8 +436,14 @@ export default class SheetPlotView extends NodeView {
 					if (grid) {
 						graphics.moveTo(plotRect.left, plot);
 						graphics.lineTo(plotRect.right, plot);
-					} else {
-						graphics.fillText(`${text}`, axis.position.right - 200, plot);
+					} else if (axis.invert) {
+						if (last === undefined || plot - width / 2 + 100 > last) {
+							this.drawRotatedText(graphics,`${text}`, axis.position.right - 200, plot, labelAngle, xLabelOffset, yLabelOffset);
+						}
+						last = plot + width / 2;
+					} else if (last === undefined || plot + width / 2 + 100 < last) {
+						this.drawRotatedText(graphics,`${text}`, axis.position.right - 200, plot, labelAngle, xLabelOffset, yLabelOffset);
+						last = plot - width / 2;
 					}
 					break;
 				case 'right':
@@ -387,8 +451,14 @@ export default class SheetPlotView extends NodeView {
 					if (grid) {
 						graphics.moveTo(plotRect.left, plot);
 						graphics.lineTo(plotRect.right, plot);
-					} else {
-						graphics.fillText(`${text}`, axis.position.left + 200, plot);
+					} else if (axis.invert) {
+						if (last === undefined || plot - width / 2 + 100 > last) {
+							this.drawRotatedText(graphics,`${text}`, axis.position.left + 200, plot, labelAngle, xLabelOffset, yLabelOffset);
+						}
+						last = plot + width / 2;
+					} else if (last === undefined || plot + width / 2 + 100 < last) {
+						this.drawRotatedText(graphics,`${text}`, axis.position.left + 200, plot, labelAngle, xLabelOffset, yLabelOffset);
+						last = plot - width / 2;
 					}
 					break;
 				case 'top':
@@ -396,8 +466,14 @@ export default class SheetPlotView extends NodeView {
 					if (grid) {
 						graphics.moveTo(plot, plotRect.top);
 						graphics.lineTo(plot, plotRect.bottom);
-					} else {
-						graphics.fillText(`${text}`, plot, axis.position.bottom - 200);
+					} else if (axis.invert) {
+						if (last === undefined || plot + width / 2 + 100 < last) {
+							this.drawRotatedText(graphics,`${text}`, plot, axis.position.bottom - 200, labelAngle, xLabelOffset, yLabelOffset);
+						}
+						last = plot - width / 2;
+					} else if (last === undefined || plot - width / 2 + 100 > last) {
+						this.drawRotatedText(graphics, `${text}`, plot, axis.position.bottom - 200, labelAngle, xLabelOffset, yLabelOffset);
+						last = plot + width / 2;
 					}
 					break;
 				case 'bottom':
@@ -407,11 +483,11 @@ export default class SheetPlotView extends NodeView {
 						graphics.lineTo(plot, plotRect.bottom);
 					} else if (axis.invert) {
 						if (last === undefined || plot + width / 2 + 100 < last) {
-							graphics.fillText(`${text}`, plot, axis.position.top + 200);
+							this.drawRotatedText(graphics,`${text}`, plot, axis.position.top + 200, labelAngle, xLabelOffset, yLabelOffset);
 						}
 						last = plot - width / 2;
 					} else if (last === undefined || plot - width / 2 + 100 > last) {
-						graphics.fillText(`${text}`, plot, axis.position.top + 200);
+						this.drawRotatedText(graphics, `${text}`, plot, axis.position.top + 200, labelAngle, xLabelOffset, yLabelOffset);
 						last = plot + width / 2;
 					}
 					break;
@@ -421,6 +497,18 @@ export default class SheetPlotView extends NodeView {
 		}
 		if (grid && fi.line) {
 			graphics.stroke();
+		}
+	}
+
+	drawRotatedText(graphics, text, x, y, angle, xOffset, yOffset) {
+		if (angle) {
+			graphics.translate(x - xOffset, y + yOffset);
+			graphics.rotate(-angle);
+			graphics.fillText(text, 0, 0);
+			graphics.rotate(angle);
+			graphics.translate(- x + xOffset, - y - yOffset);
+		} else {
+			graphics.fillText(text, x, y);
 		}
 	}
 
@@ -886,6 +974,7 @@ export default class SheetPlotView extends NodeView {
 			categories: axes.y.categories
 		};
 		const pieInfo = item.isCircular() ? item.getPieInfo(ref, serie, plotRect, seriesIndex) : undefined;
+		const labelAngle = serie.dataLabel.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-serie.dataLabel.format.fontRotation);
 
 		item.setFont(graphics, serie.dataLabel.format, 'serieslabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
 		const params = {
@@ -920,11 +1009,12 @@ export default class SheetPlotView extends NodeView {
 					const lineHeight = (labelRect.height - 150 - (text.length - 1) * 50) / text.length;
 					let y = labelRect.top + 75 + lineHeight / 2;
 					text.forEach((part, pi) => {
-						graphics.fillText(part, labelRect.center.x, y);
+						this.drawRotatedText(graphics,part, labelRect.center.x, y, labelAngle, 0, 0);
+						// graphics.fillText(part, labelRect.center.x, y);
 						y += 50 + lineHeight;
 					})
 				} else {
-					graphics.fillText(text, labelRect.center.x, labelRect.center.y);
+					this.drawRotatedText(graphics,`${text}`, labelRect.center.x, labelRect.center.y, labelAngle, 0, 0);
 				}
 			}
 			index += 1;

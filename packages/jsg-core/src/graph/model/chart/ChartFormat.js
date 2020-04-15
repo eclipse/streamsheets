@@ -1,5 +1,3 @@
-
-
 module.exports = class ChartFormat {
 	constructor(lineColor, lineStyle, lineWidth, fillStyle, fillColor, fontSize, fontStyle, fontColor, transparency) {
 		this.lineColor = lineColor;
@@ -10,6 +8,7 @@ module.exports = class ChartFormat {
 		this.fontSize = fontSize;
 		this.fontStyle = fontStyle;
 		this.fontColor = fontColor;
+		this.fontRotation = 0;
 		this.transparency = transparency;
 	}
 
@@ -154,6 +153,20 @@ module.exports = class ChartFormat {
 		this.font.size = Number(value);
 	}
 
+	get fontRotation() {
+		return this.font && this.font.rotation ? this.font.rotation : undefined;
+	}
+
+	set fontRotation(value) {
+		if (value === undefined) {
+			return;
+		}
+		if (this.font === undefined) {
+			this.font = {};
+		}
+		this.font.rotation = Number(value);
+	}
+
 	get numberFormat() {
 		return this.font && this.font.number ? this.font.number : undefined;
 	}
@@ -224,6 +237,9 @@ module.exports = class ChartFormat {
 			if (this.localCulture) {
 				writer.writeAttributeString('local', this.localCulture);
 			}
+			if (this.fontRotation !== undefined) {
+				writer.writeAttributeNumber('rotation', this.fontRotation, 0);
+			}
 			writer.writeEndElement();
 		}
 		writer.writeEndElement();
@@ -250,6 +266,7 @@ module.exports = class ChartFormat {
 				this.fontName = reader.getAttribute(child, 'name');
 				this.fontSize = reader.getAttribute(child, 'size');
 				this.fontStyle = reader.getAttribute(child, 'style');
+				this.fontRotation = reader.getAttribute(child, 'rotation');
 				if (reader.getAttribute(child, 'number') !== undefined) {
 					this.numberFormat = reader.getAttribute(child, 'number');
 				}

@@ -249,6 +249,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
+	handleAxisLabelRotationChange = (event) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.format.fontRotation = event.target.value;
+		this.finishCommand(cmd, 'axes');
+	};
+
 	handleAxisVisibleChange = (event, state) => {
 		const cmd = this.prepareCommand('axes');
 		const data = this.getData();
@@ -384,6 +391,13 @@ export class StreamChartProperties extends Component {
 			!data.dataLabel.content.series) {
 			data.dataLabel.content.y = true;
 		}
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesDataLabelRotationChange = (event) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.dataLabel.format.fontRotation = event.target.value;
 		this.finishCommand(cmd, 'series');
 	};
 
@@ -942,6 +956,22 @@ export class StreamChartProperties extends Component {
 										/>
 									</MenuItem>
 								</Select>
+								<TextField
+									style={{
+										width: '150px',
+									}}
+									id="number"
+									label={<FormattedMessage id="StreamChartSettings.LabelRotation" defaultMessage="Rotate Labels (Degrees)" />}
+									inputProps={{
+										min: -90,
+										max: 90,
+										step: 5,
+									}}
+									value={data.format.fontRotation === undefined ? 0 : data.format.fontRotation}
+									onChange={(event) => this.handleAxisLabelRotationChange(event)}
+									type="number"
+									margin="normal"
+								/>
 							</FormControl>
 							<FormControl
 								style={{
@@ -1533,6 +1563,29 @@ export class StreamChartProperties extends Component {
 										/>
 									</MenuItem>
 								</Select>
+							</FormControl>
+							<FormControl
+								style={{
+									width: '95%',
+									margin: '8px'
+								}}
+							>
+								<TextField
+									style={{
+										width: '150px',
+									}}
+									id="number"
+									label={<FormattedMessage id="StreamChartSettings.LabelRotation" defaultMessage="Rotate Labels (Degrees)" />}
+									inputProps={{
+										min: -90,
+										max: 90,
+										step: 5,
+									}}
+									value={data.dataLabel.format.fontRotation === undefined ? 0 : data.dataLabel.format.fontRotation}
+									onChange={(event) => this.handleSeriesDataLabelRotationChange(event)}
+									type="number"
+									margin="normal"
+								/>
 							</FormControl>
 							<FormControl
 								style={{

@@ -276,10 +276,19 @@ module.exports = class SheetPlotNode extends Node {
 		const name = format.fontName || this.getTemplate()[id].format.fontName || this.getTemplate().font.name;
 		const size = format.fontSize || this.getTemplate()[id].format.fontSize || this.getTemplate().font.size;
 
-		return {
+		const result = {
 			width: cs.deviceToLogX(graphics.measureText(text).width),
 			height: GraphUtils.getFontMetricsEx(name, size).lineheight
+		};
+
+		const labelAngle = format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-format.fontRotation);
+		if (labelAngle) {
+			const width = result.width;
+			result.width = Math.abs(Math.sin(labelAngle) * result.height) + Math.abs(Math.cos(labelAngle) * result.width);
+			result.height = Math.abs(Math.sin(labelAngle) * width) + Math.abs(Math.cos(labelAngle) * result.height);
 		}
+
+		return result;
 	}
 
 	measureTitle(graphics, title, id, text) {
@@ -297,13 +306,19 @@ module.exports = class SheetPlotNode extends Node {
 			width: 200,
 			height: 200,
 			last: 0,
+			lastPos: 0,
+			firstPos: 0,
 		};
 
 		axis.textSize = {
 			width: 1000,
 			height: 300,
 			firstWidth: 0,
-			lastWidth: 0
+			firstHeight: 0,
+			firstPos: 0,
+			lastPos: 0,
+			lastWidth: 0,
+			lastHeight: 0
 		};
 
 		if (!axis.position || !axis.scale || !axis.visible) {
@@ -333,8 +348,7 @@ module.exports = class SheetPlotNode extends Node {
 				break;
 			}
 
-			pos = this.scaleToAxis(axis, current.value, undefined, true);
-
+			pos = this.scaleToAxis(axis, current.value, undefined, false);
 			if (axis.type === 'category' && refLabel) {
 				text = this.getLabel(refLabel, axis, Math.floor(current.value));
 			} else {
@@ -345,9 +359,13 @@ module.exports = class SheetPlotNode extends Node {
 			result.width = Math.max(result.width, size.width);
 			result.height = Math.max(result.height, size.height);
 
-			result.last = size.width + 200;
-			if (result.first === undefined) {
-				result.first = result.width + 200;
+			result.lastWidth = size.width + 200;
+			result.lastHeight = size.height + 200;
+			result.lastPos = pos;
+			if (result.firstWidth === undefined) {
+				result.firstPos = pos;
+				result.firstWidth = result.width + 200;
+				result.firstHeight = result.height + 200;
 			}
 
 			current = this.incrementScale(axis, current);
@@ -355,13 +373,18 @@ module.exports = class SheetPlotNode extends Node {
 
 		axis.textSize.width = Math.max(result.width + 150, 1000);
 		axis.textSize.height = Math.max(result.height + 100, 300);
-		axis.textSize.firstWidth = result.first;
-		axis.textSize.lastWidth = result.last;
+		axis.textSize.firstWidth = result.firstWidth;
+		axis.textSize.lastWidth = result.lastWidth;
+		axis.textSize.firstHeight = result.firstHeight;
+		axis.textSize.lastHeight = result.lastHeight;
+		axis.textSize.firstPos = result.firstPos;
+		axis.textSize.lastPos = result.lastPos;
 
 		result.width += 300;
 		result.height += 300;
 		if (result.first === undefined) {
-			result.first = 0;
+			result.firstWidth = 0;
+			result.firstHeight = 0;
 		}
 
 		return result;
@@ -588,27 +611,130 @@ module.exports = class SheetPlotNode extends Node {
 		// ensure for axis first and last label space
 		this.xAxes.forEach((axis) => {
 			if (axis.visible) {
+				const labelAngle = axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-axis.format.fontRotation);
 				switch (axis.align) {
-				case 'left':
-				case 'right':
+				case 'left': {
+					let plot = this.plot.position.bottom - axis.textSize.lastPos * this.plot.position.height;
+					if (Math.abs(labelAngle) === Math.PI_2) {
+						this.plot.position.top = Math.max(this.plot.position.top,
+							axis.textSize.lastHeight / 2 - (plot - this.plot.position.top) + 150);
+					} else if (labelAngle < 0) {
+						this.plot.position.top = Math.max(this.plot.position.top,
+							axis.textSize.lastHeight - (plot - this.plot.position.top) + 150);
+					}
+					plot = this.plot.position.bottom - axis.textSize.firstPos * this.plot.position.height;
+					if (Math.abs(labelAngle) === Math.PI_2) {
+						this.plot.position.bottom = Math.min(this.plot.position.bottom,
+							size.y - (plot + axis.textSize.lastHeight / 2 - this.plot.position.bottom));
+					} else if (labelAngle > 0) {
+						this.plot.position.bottom = Math.min(this.plot.position.bottom,
+							size.y - (plot + axis.textSize.lastHeight - this.plot.position.bottom));
+					}
 					break;
-				case 'top':
-				case 'bottom':
-					this.plot.position.left = Math.max(this.plot.position.left, axis.textSize.firstWidth / 2);
-					this.plot.position.right = Math.min(this.plot.position.right, size.x - axis.textSize.lastWidth / 2);
+				}
+				case 'right': {
+					let plot = this.plot.position.bottom - axis.textSize.lastPos * this.plot.position.height;
+					if (Math.abs(labelAngle) === Math.PI_2) {
+						this.plot.position.top = Math.max(this.plot.position.top,
+							axis.textSize.lastHeight / 2 - (plot - this.plot.position.top) + 150);
+					} else if (labelAngle > 0) {
+						this.plot.position.top = Math.max(this.plot.position.top,
+							axis.textSize.lastHeight - (plot - this.plot.position.top) + 150);
+					}
+					plot = this.plot.position.bottom - axis.textSize.firstPos * this.plot.position.height;
+					if (Math.abs(labelAngle) === Math.PI_2) {
+						this.plot.position.bottom = Math.min(this.plot.position.bottom,
+							size.y - (plot + axis.textSize.lastHeight / 2 - this.plot.position.bottom));
+					} else if (labelAngle < 0) {
+						this.plot.position.bottom = Math.min(this.plot.position.bottom,
+							size.y - (plot + axis.textSize.lastHeight - this.plot.position.bottom));
+					}
 					break;
+				}
+				case 'top': {
+					let plot = axis.textSize.firstPos * this.plot.position.width;
+					if (labelAngle === 0) {
+						this.plot.position.left = Math.max(this.plot.position.left,
+							axis.textSize.firstWidth / 2 - plot);
+					} else if (labelAngle < 0) {
+						this.plot.position.left = Math.max(this.plot.position.left,
+							axis.textSize.firstWidth - plot + 150);
+					}
+					plot = this.plot.position.left + axis.textSize.lastPos * this.plot.position.width;
+					if (labelAngle === 0) {
+						this.plot.position.right = Math.min(this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth / 2 - this.plot.position.right));
+					} else if (labelAngle > 0) {
+						this.plot.position.right = Math.min(this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth - this.plot.position.right) - 150);
+					}
+					break;
+				}
+				case 'bottom': {
+					let plot = axis.textSize.firstPos * this.plot.position.width;
+					if (labelAngle === 0) {
+						this.plot.position.left = Math.max(this.plot.position.left,
+							axis.textSize.firstWidth / 2 - plot);
+					} else if (labelAngle > 0) {
+						this.plot.position.left = Math.max(this.plot.position.left,
+							axis.textSize.firstWidth - plot + 150);
+					}
+					plot = this.plot.position.left + axis.textSize.lastPos * this.plot.position.width;
+					if (labelAngle === 0) {
+						this.plot.position.right = Math.min(this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth / 2 - this.plot.position.right));
+					} else if (labelAngle < 0) {
+						this.plot.position.right = Math.min(this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth - this.plot.position.right) - 150);
+					}
+					break;
+				}
 				}
 			}
 		});
 
 		this.yAxes.forEach((axis) => {
+			const labelAngle = axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-axis.format.fontRotation);
 			if (axis.visible) {
 				switch (axis.align) {
-				case 'top':
-				case 'bottom':
-					this.plot.position.left = Math.max(this.plot.position.left, axis.textSize.firstWidth / 2);
-					this.plot.position.right = Math.min(this.plot.position.right, size.x - axis.textSize.lastWidth / 2);
+				case 'top': {
+					let plot = axis.textSize.firstPos * this.plot.position.width;
+					if (labelAngle === 0) {
+						this.plot.position.left = Math.max(this.plot.position.left,
+							axis.textSize.firstWidth / 2 - plot);
+					} else if (labelAngle < 0) {
+						this.plot.position.left = Math.max(this.plot.position.left,
+							axis.textSize.firstWidth - plot + 150);
+					}
+					plot = this.plot.position.left + axis.textSize.lastPos * this.plot.position.width;
+					if (labelAngle === 0) {
+						this.plot.position.right = Math.min(this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth / 2 - this.plot.position.right));
+					} else if (labelAngle > 0) {
+						this.plot.position.right = Math.min(this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth - this.plot.position.right) - 150);
+					}
 					break;
+				}
+				case 'bottom': {
+					let plot = axis.textSize.firstPos * this.plot.position.width;
+					if (labelAngle === 0) {
+						this.plot.position.left = Math.max(this.plot.position.left,
+							axis.textSize.firstWidth / 2 - plot);
+					} else if (labelAngle > 0) {
+						this.plot.position.left = Math.max(this.plot.position.left,
+							axis.textSize.firstWidth - plot + 150);
+					}
+					plot = this.plot.position.left + axis.textSize.lastPos * this.plot.position.width;
+					if (labelAngle === 0) {
+						this.plot.position.right = Math.min(this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth / 2 - this.plot.position.right));
+					} else if (labelAngle < 0) {
+						this.plot.position.right = Math.min(this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth - this.plot.position.right) - 150);
+					}
+					break;
+				}
 				case 'left':
 				case 'right':
 					break;
@@ -1271,6 +1397,7 @@ module.exports = class SheetPlotNode extends Node {
 		let min = axis.minData;
 		let max = axis.maxData;
 		const size = axis.isVertical() ? axis.position.height : axis.position.width;
+		const labelAngle = axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-axis.format.fontRotation);
 
 		switch (axis.type) {
 		case 'logarithmic':
@@ -1472,9 +1599,10 @@ module.exports = class SheetPlotNode extends Node {
 			stepCount = 8; /* 11 => sehr fein      */
 
 			if (axis.isVertical()) {
-				stepCount = Math.min(13, size / 600);
+				// stepCount = Math.min(15, size / 600);
+				stepCount = Math.min(30, size / (Math.max(600, 1500 * Math.abs(Math.sin(labelAngle)))));
 			} else {
-				stepCount = Math.min(13, size / 1500);
+				stepCount = Math.min(30, size / (Math.max(600, 1500 * Math.abs(Math.cos(labelAngle)))));
 			}
 
 			stepCount = Math.max(1, stepCount);
@@ -1960,11 +2088,19 @@ module.exports = class SheetPlotNode extends Node {
 		let x = point.x - this.plot.position.left;
 		let y = this.plot.position.bottom - point.y;
 
-		if (axes.x.invert) {
-			x = (this.plot.position.right - this.plot.position.left) - x;
-		}
-		if (axes.y.invert) {
-			y = (this.plot.position.bottom - this.plot.position.top) - y;
+		switch (axes.x.align) {
+		case 'left':
+		case 'right':
+			if (axes.x.invert) {
+				y = this.plot.position.height - y;
+			}
+			break;
+		case 'top':
+		case 'bottom':
+			if (axes.x.invert) {
+				x = this.plot.position.width - x;
+			}
+			break;
 		}
 
 		if (axes.x.align === 'bottom' || axes.x.align === 'top') {
