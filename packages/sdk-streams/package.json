@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/sdk-streams",
-  "version": "1.6.0-beta",
+  "version": "1.6.0",
   "description": "Streams SDK",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "jest-cli": "21.2.1"
   },
   "dependencies": {
-    "@cedalo/id-generator": "1.6.0-beta",
+    "@cedalo/id-generator": "1.6.0",
     "jsonpath": "1.0.0",
     "xml-js": "1.6.7"
   },

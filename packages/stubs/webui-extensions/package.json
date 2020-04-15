@@ -1,6 +1,6 @@
 {
 	"name": "@cedalo/webui-extensions",
-	"version": "1.6.0-beta",
+	"version": "1.6.0",
 	"description": "Web UI Extensions",
 	"main": "index.js",
 	"repository": {

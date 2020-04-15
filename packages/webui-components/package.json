@@ -1,6 +1,6 @@
 {
 	"name": "@cedalo/webui-components",
-	"version": "1.6.0-beta",
+	"version": "1.6.0",
 	"description": "Web UI Components",
 	"main": "index.js",
 	"repository": {

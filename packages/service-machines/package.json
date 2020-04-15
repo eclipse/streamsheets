@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/service-machines",
-  "version": "1.6.0-beta",
+  "version": "1.6.0",
   "description": "A service for managing machines.",
   "main": "index.js",
   "scripts": {
@@ -22,17 +22,17 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/service-machines",
   "dependencies": {
-    "@cedalo/commons": "1.6.0-beta",
-    "@cedalo/sdk-streams": "1.6.0-beta",
-    "@cedalo/gateway-client-node": "1.6.0-beta",
-    "@cedalo/functions": "1.6.0-beta",
-    "@cedalo/logger": "1.6.0-beta",
-    "@cedalo/machine-core": "1.6.0-beta",
-    "@cedalo/messages": "1.6.0-beta",
-    "@cedalo/messaging-client": "1.6.0-beta",
-    "@cedalo/protocols": "1.6.0-beta",
-    "@cedalo/repository": "1.6.0-beta",
-    "@cedalo/service-core": "1.6.0-beta"
+    "@cedalo/commons": "1.6.0",
+    "@cedalo/sdk-streams": "1.6.0",
+    "@cedalo/gateway-client-node": "1.6.0",
+    "@cedalo/functions": "1.6.0",
+    "@cedalo/logger": "1.6.0",
+    "@cedalo/machine-core": "1.6.0",
+    "@cedalo/messages": "1.6.0",
+    "@cedalo/messaging-client": "1.6.0",
+    "@cedalo/protocols": "1.6.0",
+    "@cedalo/repository": "1.6.0",
+    "@cedalo/service-core": "1.6.0"
   },
   "devDependencies": {
     "jest": "22.0.0",
