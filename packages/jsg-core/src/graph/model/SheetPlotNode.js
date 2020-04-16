@@ -272,7 +272,7 @@ module.exports = class SheetPlotNode extends Node {
 		return String(value);
 	}
 
-	measureText(graphics, cs, format, id, text) {
+	measureText(graphics, cs, format, id, text, unrotated = false) {
 		const name = format.fontName || this.getTemplate()[id].format.fontName || this.getTemplate().font.name;
 		const size = format.fontSize || this.getTemplate()[id].format.fontSize || this.getTemplate().font.size;
 
@@ -281,11 +281,14 @@ module.exports = class SheetPlotNode extends Node {
 			height: GraphUtils.getFontMetricsEx(name, size).lineheight
 		};
 
-		const labelAngle = format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-format.fontRotation);
-		if (labelAngle) {
-			const width = result.width;
-			result.width = Math.abs(Math.sin(labelAngle) * result.height) + Math.abs(Math.cos(labelAngle) * result.width);
-			result.height = Math.abs(Math.sin(labelAngle) * width) + Math.abs(Math.cos(labelAngle) * result.height);
+		if (!unrotated) {
+			const labelAngle = format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-format.fontRotation);
+			if (labelAngle) {
+				const width = result.width;
+				result.width = Math.abs(Math.sin(labelAngle) * result.height) + Math.abs(
+					Math.cos(labelAngle) * result.width);
+				result.height = Math.abs(Math.sin(labelAngle) * width) + Math.abs(Math.cos(labelAngle) * result.height);
+			}
 		}
 
 		return result;
@@ -2676,6 +2679,8 @@ module.exports = class SheetPlotNode extends Node {
 			pieInfo,
 			currentAngle : pieInfo ? pieInfo.startAngle : 0
 		};
+		const labelAngle = serie.dataLabel.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-serie.dataLabel.format.fontRotation);
+		let ptCopy;
 
 		this.setFont(JSG.graphics, serie.dataLabel.format, 'serieslabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
 
@@ -2690,7 +2695,8 @@ module.exports = class SheetPlotNode extends Node {
 				if (text.length) {
 					const dataRect = this.getLabelRect(ptValue, value, text, pointIndex, params);
 					dataRect.sort();
-					if (dataRect.containsPoint(pt)) {
+					ptCopy = labelAngle ? MathUtils.getRotatedPoint(pt, dataRect.center, labelAngle): pt.copy();
+					if (dataRect.containsPoint(ptCopy)) {
 						return true;
 					}
 				}
@@ -2730,7 +2736,7 @@ module.exports = class SheetPlotNode extends Node {
 				label.forEach(txt => {
 					const textS = this.measureText(params.graphics, params.graphics.getCoordinateSystem(),
 						params.serie.dataLabel.format,
-						'serieslabel', txt);
+						'serieslabel', txt, true);
 					textSize.width = Math.max(textS.width, textSize.width);
 					textSize.height += textS.height;
 				});
@@ -2738,7 +2744,7 @@ module.exports = class SheetPlotNode extends Node {
 			} else {
 				textSize = this.measureText(params.graphics, params.graphics.getCoordinateSystem(),
 					params.serie.dataLabel.format,
-					'serieslabel', label);
+					'serieslabel', label, true);
 			}
 			textSize.height += margin;
 			textSize.width += margin;

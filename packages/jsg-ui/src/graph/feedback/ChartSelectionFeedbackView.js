@@ -1,4 +1,4 @@
-import { Point, GraphUtils, Rectangle, TextFormatAttributes, FormatAttributes } from '@cedalo/jsg-core';
+import { Point, MathUtils, GraphUtils, Rectangle, TextFormatAttributes, FormatAttributes } from '@cedalo/jsg-core';
 
 import View from '../../ui/View';
 import SelectionStyle from '../view/selection/SelectionStyle';
@@ -129,6 +129,7 @@ export default class ChartSelectionFeedbackView extends View {
 					pieInfo,
 					currentAngle : pieInfo ? pieInfo.startAngle : 0
 				};
+				const labelAngle = serie.dataLabel.format.fontRotation === undefined ? 0 : MathUtils.toRadians(-serie.dataLabel.format.fontRotation);
 
 				item.setFont(graphics, serie.dataLabel.format, 'serieslabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
 				graphics.setFillColor(SelectionStyle.MARKER_FILL_COLOR);
@@ -145,13 +146,21 @@ export default class ChartSelectionFeedbackView extends View {
 
 						const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
 						const drawRect = item.getLabelRect(pt, value, text, index, params);
-						rect.set(drawRect.left - 50, drawRect.top - 50, 100, 100);
+						let markerPt = new Point(drawRect.left, drawRect.top);
+						markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle) : markerPt;
+						rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
 						graphics.drawMarker(rect, true);
-						rect.set(drawRect.right - 50, drawRect.top - 50, 100, 100);
+						markerPt.set(drawRect.left, drawRect.bottom);
+						markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle) : markerPt;
+						rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
 						graphics.drawMarker(rect, true);
-						rect.set(drawRect.left - 50, drawRect.bottom - 50, 100, 100);
+						markerPt.set(drawRect.right, drawRect.top);
+						markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle) : markerPt;
+						rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
 						graphics.drawMarker(rect, true);
-						rect.set(drawRect.right - 50, drawRect.bottom - 50, 100, 100);
+						markerPt.set(drawRect.right, drawRect.bottom);
+						markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle) : markerPt;
+						rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
 						graphics.drawMarker(rect, true);
 					}
 					index += 1;

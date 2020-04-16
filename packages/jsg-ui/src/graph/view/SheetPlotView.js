@@ -1003,20 +1003,28 @@ export default class SheetPlotView extends NodeView {
 				item.toPlot(serie, plotRect, pt);
 				const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
 				const labelRect = item.getLabelRect(pt, value, text, index, params);
+				const center = labelRect.center;
+				if (labelAngle !== 0) {
+					graphics.translate(center.x, center.y);
+					labelRect.translate(-center.x, -center.y);
+					graphics.rotate(-labelAngle);
+				}
 
 				if (this.drawRect(graphics, labelRect, item, serie.dataLabel.format, 'serieslabel')) {
 					item.setFont(graphics, serie.dataLabel.format, 'serieslabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
 				}
+				if (labelAngle !== 0) {
+					graphics.rotate(labelAngle);
+					labelRect.translate(center.x, center.y);
+					graphics.translate(-center.x, -center.y);
+				}
 
-				const center = labelRect.center;
 				if (text instanceof Array) {
 					let y = labelRect.top + 75 + lineHeight / 2;
 					text.forEach((part, pi) => {
 						y = center.y - (text.length - 1) * lineHeight / 2 + pi * lineHeight;
 						const p = MathUtils.getRotatedPoint({x: center.x, y}, center, -labelAngle);
 						this.drawRotatedText(graphics,part, p.x, p.y, labelAngle, 0, 0);
-						// graphics.fillText(part, labelRect.center.x, y);
-						y += lineHeight;
 					})
 				} else {
 					this.drawRotatedText(graphics,`${text}`, center.x, center.y, labelAngle, 0, 0);

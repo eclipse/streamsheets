@@ -20,6 +20,13 @@ module.exports = class ChartRect {
 		return { x : (this.left + this.right) / 2, y: (this.top + this.bottom) / 2 };
 	}
 
+	translate(x, y) {
+		this.left += x;
+		this.right += x;
+		this.top += y;
+		this.bottom += y;
+	}
+
 	sort() {
 		if (this.left > this.right) {
 			const x = this.right;
