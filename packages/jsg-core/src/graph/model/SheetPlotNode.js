@@ -277,7 +277,7 @@ module.exports = class SheetPlotNode extends Node {
 		const size = format.fontSize || this.getTemplate()[id].format.fontSize || this.getTemplate().font.size;
 
 		const result = {
-			width: cs.deviceToLogX(graphics.measureText(text).width),
+			width: cs.deviceToLogX(graphics.measureText(text).width, true),
 			height: GraphUtils.getFontMetricsEx(name, size).lineheight
 		};
 
@@ -2726,7 +2726,7 @@ module.exports = class SheetPlotNode extends Node {
 		const labelRect = new ChartRect();
 		let barInfo;
 		const measure = (label) => {
-			const margin = 150;
+			const margin = 200;
 			let textSize;
 			if (label instanceof Array) {
 				textSize = {

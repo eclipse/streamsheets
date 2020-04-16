@@ -446,6 +446,7 @@ export default class GraphManager {
 		const ratio = devicePixelRatio / backingStoreRatio;
 
 		this._graphEditor.getCoordinateSystem().setDeviceRatio(ratio);
+		JSG.graphics.getCoordinateSystem().setDeviceRatio(ratio);
 		const oldWidth = canvas.clientWidth;
 		const oldHeight = canvas.clientHeight;
 		canvas.width = oldWidth * ratio;

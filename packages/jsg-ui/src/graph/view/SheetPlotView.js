@@ -991,8 +991,8 @@ export default class SheetPlotView extends NodeView {
 			pieInfo,
 			currentAngle : pieInfo ? pieInfo.startAngle : 0
 		};
-		const name = serie.dataLabel.fontName || item.getTemplate().serieslabel.format.fontName || item.getTemplate().font.name;
-		const size = serie.dataLabel.fontSize || item.getTemplate().serieslabel.format.fontSize || item.getTemplate().font.size;
+		const name = serie.dataLabel.format.fontName || item.getTemplate().serieslabel.format.fontName || item.getTemplate().font.name;
+		const size = serie.dataLabel.format.fontSize || item.getTemplate().serieslabel.format.fontSize || item.getTemplate().font.size;
 		const lineHeight = GraphUtils.getFontMetricsEx(name, size).lineheight + 50;
 
 		while (item.getValue(ref, index, value)) {

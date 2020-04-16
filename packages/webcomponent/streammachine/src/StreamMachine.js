@@ -737,6 +737,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 		const ratio = devicePixelRatio / backingStoreRatio;
 
 		this.graphEditor.getCoordinateSystem().setDeviceRatio(ratio);
+		JSG.graphics.getCoordinateSystem().setDeviceRatio(ratio);
 
 		const newWidth = Math.round(canvas.clientWidth * ratio);
 		const newHeight = Math.round(canvas.clientHeight * ratio);

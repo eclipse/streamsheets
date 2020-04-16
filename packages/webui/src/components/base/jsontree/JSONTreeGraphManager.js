@@ -161,6 +161,7 @@ export default class JSONTreeGraphManager {
 		const ratio = devicePixelRatio / backingStoreRatio;
 
 		this._graphEditor.getCoordinateSystem().setDeviceRatio(ratio);
+		JSG.graphics.getCoordinateSystem().setDeviceRatio(ratio);
 		const oldWidth = this.canvas.clientWidth;
 		const oldHeight = this.canvas.clientHeight;
 		this.canvas.width = oldWidth * ratio;
