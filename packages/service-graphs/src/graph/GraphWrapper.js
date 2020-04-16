@@ -75,7 +75,7 @@ module.exports = class GraphWrapper {
 	}
 
 	// TODO: use utility methods
-	getInbox(inboxId) {
+	getInbox(/* inboxId */) {
 		// TODO: get inbox container by id
 		// const inbox = this.getGraph().getItemById(inboxId);
 		return this.graph

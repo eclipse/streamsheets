@@ -105,7 +105,8 @@ module.exports = class Utils {
 	static transformFromJSONObject(msgObject, mimeType = 'application/json') {
 		if (typeof msgObject === 'string') {
 			return msgObject;
-		} else if (typeof msgObject === 'number') {
+		}
+		if (typeof msgObject === 'number') {
 			return `${msgObject}`;
 		}
 		if (typeof msgObject !== 'object')

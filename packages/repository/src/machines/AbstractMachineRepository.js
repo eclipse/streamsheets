@@ -1,5 +1,3 @@
-'use strict';
-
 /* eslint no-unused-vars: "off" */
 
 /**
@@ -18,7 +16,7 @@ module.exports = class AbstractMachineRepository {
 	 */
 	getMachines() {
 		return new Promise((resolve, reject) => {
-			reject('Method not implemented: getMachines()');
+			reject(new Error('Method not implemented: getMachines()'));
 		});
 	}
 
@@ -32,7 +30,7 @@ module.exports = class AbstractMachineRepository {
 	 */
 	saveMachine(machine) {
 		return new Promise((resolve, reject) => {
-			reject('Method not implemented: saveMachine()');
+			reject(new Error('Method not implemented: saveMachine()'));
 		});
 	}
 
@@ -46,7 +44,7 @@ module.exports = class AbstractMachineRepository {
 	 */
 	findMachine(id) {
 		return new Promise((resolve, reject) => {
-			reject('Method not implemented: findMachine()');
+			reject(new Error('Method not implemented: findMachine()'));
 		});
 	}
 
@@ -60,7 +58,7 @@ module.exports = class AbstractMachineRepository {
 	 */
 	updateMachine(machine) {
 		return new Promise((resolve, reject) => {
-			reject('Method not implemented: updateMachine()');
+			reject(new Error('Method not implemented: updateMachine()'));
 		});
 	}
 
@@ -74,13 +72,13 @@ module.exports = class AbstractMachineRepository {
 	 */
 	deleteMachine(machineId) {
 		return new Promise((resolve, reject) => {
-			reject('Method not implemented: deleteMachine()');
+			reject(new Error('Method not implemented: deleteMachine()'));
 		});
 	}
 
 	deleteAll() {
 		return new Promise((resolve, reject) => {
-			reject('Method not implemented: deleteAll()');
+			reject(new Error('Method not implemented: deleteAll()'));
 		});
 	}
 };

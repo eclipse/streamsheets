@@ -38,7 +38,7 @@ const decodeCert = (cert) => {
 };
 const getBufferCert = (val) => {
 	if (!val) return '';
-	return new Buffer(decodeCert(val));
+	return Buffer.from(decodeCert(val));
 };
 
 const getTopicValue = (topic) => {

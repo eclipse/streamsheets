@@ -68,26 +68,26 @@ module.exports = class MongoDBConnector extends Connector {
 		}
 	}
 
-	async test(config = { payload: { testme: 'testme' } }) {
-		const collectionName = this.config.collections[0];
-		return new Promise(async (resolve) => {
-			const fn = (topic, message) => {
-				this.logger.debug(`receiving at: ${topic}`);
-				if (topic === collectionName) {
-					const msg = message ? JSON.parse(message) : null;
-					resolve(msg.testme === config.payload.testme);
-				}
-			};
-			this.on('message', fn);
-			try {
-				await this._produce({
-					collectionName,
-					message: config.payload
-				});
-				setTimeout(async () => resolve(false), 20000);
-			} catch (e) {
-				resolve(false);
-			}
-		});
-	}
+	// async test(config = { payload: { testme: 'testme' } }) {
+	// 	const collectionName = this.config.collections[0];
+	// 	return new Promise(async (resolve) => {
+	// 		const fn = (topic, message) => {
+	// 			this.logger.debug(`receiving at: ${topic}`);
+	// 			if (topic === collectionName) {
+	// 				const msg = message ? JSON.parse(message) : null;
+	// 				resolve(msg.testme === config.payload.testme);
+	// 			}
+	// 		};
+	// 		this.on('message', fn);
+	// 		try {
+	// 			await this._produce({
+	// 				collectionName,
+	// 				message: config.payload
+	// 			});
+	// 			setTimeout(async () => resolve(false), 20000);
+	// 		} catch (e) {
+	// 			resolve(false);
+	// 		}
+	// 	});
+	// }
 };

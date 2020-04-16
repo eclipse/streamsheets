@@ -290,7 +290,7 @@ class GetGraphRequestHandler extends RequestHandler {
 }
 
 class InternalCommandRequestHandler {
-	handleCommand(command, graphWrapper, request) {
+	handleCommand(command, graphWrapper) {
 		return new Promise((resolve /* , reject */) => {
 			const processSheetId = this.getProcessSheetId(command);
 			const result = {};
@@ -353,7 +353,7 @@ class SetNameCommandRequestHandler extends RequestHandler {
 	}
 	handleCommand(command, graphWrapper, request) {
 		logger.debug('Handling selection request');
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve, /* reject */) => {
 			// const processSheet = graphWrapper.graph.getStreamSheetById(command.itemId);
 			// processSheet.setName(command.itemname);
 			resolve(
@@ -369,27 +369,27 @@ class SetNameCommandRequestHandler extends RequestHandler {
 	}
 }
 
-class SetAttributeAtPathCommandRequestHandler extends RequestHandler {
-	constructor() {
-		super('command.SetAttributeAtPathCommand');
-	}
-	handleCommand(command, graphWrapper, request) {
-		logger.debug('Handling selection request');
-		return new Promise((resolve, reject) => {
-			const item = graphWrapper.graph.getItemById(command.itemId);
-			item.setAttributeAtPath(command.path, command.newValue);
-			resolve(
-				this.confirm(request, {
-					graph: {
-						id: graphWrapper.id,
-						graphdef: graphWrapper.getGraphAsJSON(),
-						machineId: graphWrapper.machineId
-					}
-				})
-			);
-		});
-	}
-}
+// class SetAttributeAtPathCommandRequestHandler extends RequestHandler {
+// 	constructor() {
+// 		super('command.SetAttributeAtPathCommand');
+// 	}
+// 	handleCommand(command, graphWrapper, request) {
+// 		logger.debug('Handling selection request');
+// 		return new Promise((resolve, /* reject */) => {
+// 			const item = graphWrapper.graph.getItemById(command.itemId);
+// 			item.setAttributeAtPath(command.path, command.newValue);
+// 			resolve(
+// 				this.confirm(request, {
+// 					graph: {
+// 						id: graphWrapper.id,
+// 						graphdef: graphWrapper.getGraphAsJSON(),
+// 						machineId: graphWrapper.machineId
+// 					}
+// 				})
+// 			);
+// 		});
+// 	}
+// }
 
 class CommandRequestHandler extends RequestHandler {
 	constructor() {

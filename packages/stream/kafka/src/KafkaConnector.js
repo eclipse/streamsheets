@@ -30,7 +30,7 @@ module.exports = class KafkaConnector extends Connector {
 			this._sslOptions = undefined;
 			const getBufferCert = (val) => {
 				if (!val) return '';
-				return new Buffer(Utils.decodeCert(val));
+				return Buffer.from(Utils.decodeCert(val));
 			};
 			if (
 				this.config.connector.auth &&

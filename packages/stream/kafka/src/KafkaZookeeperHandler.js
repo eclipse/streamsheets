@@ -53,34 +53,34 @@ module.exports = class KafkaZookeeperHandler {
 		});
 	}
 
-	async test(config = { payload: { testme: 'testme' }, topic: 'test' }) {
-		return new Promise(async (res, rej) => {
-			await this._addTopics([config.topic]);
-			const fn = (message) => {
-				const { topic, value /* , offset, partition, highWaterOffset, key */} = message;
-				if (topic === config.topic) {
-					try {
-						const msg = JSON.parse(value);
-						res(msg.testme === 'testme');
-					} catch (e) {
-						this.stream.logger.warn(`Failed to parse message to json: ${message}`);
-						rej(e);
-					}
-				}
-			};
-			this._consumer.on('message', fn);
-			try {
-				await this._publish({
-					topic: config.topic,
-					message: config.payload
-				});
-			} catch (e) {
-				return res(false);
-			}
-			setTimeout(async () => res(false), 15000);
-			return false;
-		});
-	}
+	// async test(config = { payload: { testme: 'testme' }, topic: 'test' }) {
+	// 	return new Promise(async (res, rej) => {
+	// 		await this._addTopics([config.topic]);
+	// 		const fn = (message) => {
+	// 			const { topic, value /* , offset, partition, highWaterOffset, key */} = message;
+	// 			if (topic === config.topic) {
+	// 				try {
+	// 					const msg = JSON.parse(value);
+	// 					res(msg.testme === 'testme');
+	// 				} catch (e) {
+	// 					this.stream.logger.warn(`Failed to parse message to json: ${message}`);
+	// 					rej(e);
+	// 				}
+	// 			}
+	// 		};
+	// 		this._consumer.on('message', fn);
+	// 		try {
+	// 			await this._publish({
+	// 				topic: config.topic,
+	// 				message: config.payload
+	// 			});
+	// 		} catch (e) {
+	// 			return res(false);
+	// 		}
+	// 		setTimeout(async () => res(false), 15000);
+	// 		return false;
+	// 	});
+	// }
 
 	async dispose() {
 		await this._disposeClient(this._client);

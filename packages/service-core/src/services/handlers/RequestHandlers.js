@@ -4,7 +4,7 @@ const RequestHandler = require('./RequestHandler');
 
 class UnknownRequestHandler extends RequestHandler {
 	handle(request) {
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve) => {
 			resolve(`Unknown request '${request.type}'!`);
 		});
 	}

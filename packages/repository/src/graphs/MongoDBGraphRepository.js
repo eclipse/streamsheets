@@ -4,6 +4,7 @@ const { mix } = require('mixwith');
 const { Errors, CODES } = require('@cedalo/error-codes');
 const AbstractGraphRepository = require('./AbstractGraphRepository');
 const MongoDBMixin = require('../mongoDB/MongoDBMixin');
+const logger = require('@cedalo/logger').createLogger('GraphRepository');
 
 
 /**
@@ -37,7 +38,7 @@ module.exports = class MongoDBGraphRepository extends mix(AbstractGraphRepositor
 	}
 
 	findGraphByMachineId(machineId) {
-		console.log(`Finding machine for id ${machineId}`);
+		logger.info(`Finding machine for id ${machineId}`);
 		return this.getDocuments(this.COLLECTIONS.GRAPHS, { machineId })
 			.then((result) => {
 				if (!Array.isArray(result) || result.length === 0) {

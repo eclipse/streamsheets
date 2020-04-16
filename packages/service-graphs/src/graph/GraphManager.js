@@ -17,8 +17,6 @@ const SheetParserContext = require('./SheetParserContext');
 
 JSG.FormulaParser.context = new SheetParserContext();
 
-const prefixStreamName = (name) => `|${name}`;
-
 const findExistingName = (graph, id) =>
 	graph
 		.getSheetNames()
@@ -100,7 +98,8 @@ module.exports = class GraphManager {
 						graph,
 						new SheetName(name, new Expression(descr.value))
 					);
-				} else if (sheetName.getName() !== name) {
+				}
+				if (sheetName.getName() !== name) {
 					return new SetSheetNameCommand(
 						graph,
 						sheetName,

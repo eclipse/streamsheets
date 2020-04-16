@@ -44,15 +44,15 @@ module.exports = class MessagingService extends BaseService {
 		}
 	}
 
-	async _handleRequestMessage(topic, message) {
+	async _handleRequestMessage(/* topic, message */) {
 		return Promise.resolve();
 	}
 
-	async _handleResponseMessage(topic, message) {
+	async _handleResponseMessage(/* topic, message */) {
 		return Promise.resolve();
 	}
 
-	async _handleEventMessage(topic, message) {
+	async _handleEventMessage(/* topic, message */) {
 		return Promise.resolve();
 	}
 

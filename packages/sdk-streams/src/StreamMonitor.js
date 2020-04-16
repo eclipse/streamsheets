@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 const { EVENTS } = require('./Consumer');
 
 module.exports = class StreamMonitor {
