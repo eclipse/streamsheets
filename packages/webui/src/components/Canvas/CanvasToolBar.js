@@ -3,7 +3,7 @@
 
 import JSG from '@cedalo/jsg-ui';
 import { NumberFormatter } from '@cedalo/number-format';
-import { ToolbarExtensions } from '@cedalo/webui-extensions';
+import { ToolbarExtensions, ChartExtensions } from '@cedalo/webui-extensions';
 import Button from '@material-ui/core/Button';
 import * as Colors from '@material-ui/core/colors/index';
 import Divider from '@material-ui/core/Divider';
@@ -4212,65 +4212,6 @@ export class CanvasToolBar extends Component {
 											padding: '3px'
 										}}
 									>
-										<FormattedMessage id="StreamChartProperties.StateCharts" defaultMessage="State Charts" />
-									</div>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="StreamCharts.StateColumn" defaultMessage="State Column" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('statecolumn')}
-										>
-											<img alt="" src="images/charts/statecolumn.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="StreamCharts.StateTime" defaultMessage="State Time" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('statetime')}
-										>
-											<img alt="" src="images/charts/statetime.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="StreamCharts.StatePeriod" defaultMessage="State Period" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('stateperiod')}
-										>
-											<img alt="" src="images/charts/stateperiod.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile
-									cols={6}
-									style={{
-										height: '24px'
-									}}
-								>
-									<div
-										style={{
-											backgroundColor: Colors.blue[800],
-											color: 'white',
-											fontSize: '10pt',
-											padding: '3px'
-										}}
-									>
 										<FormattedMessage id="StreamChartProperties.PieCharts" defaultMessage="Pie and Doughnut Charts" />
 									</div>
 								</GridListTile>
@@ -4330,6 +4271,9 @@ export class CanvasToolBar extends Component {
 										</IconButton>
 									</Tooltip>
 								</GridListTile>
+								<ChartExtensions
+									onCreatePlot={this.onCreatePlot}
+								/>
 							</GridList>
 						</Popover>
 					</div>

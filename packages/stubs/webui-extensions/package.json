@@ -16,6 +16,7 @@
 	"peerDependencies": {
 		"@material-ui/core": "3.9.2",
 		"@material-ui/icons": "3.0.2",
+        "prop-types": "^15.6.0",
 		"react": "^16.2.0",
 		"react-intl": "^2.4.0",
 		"react-redux": "^5.0.6",
