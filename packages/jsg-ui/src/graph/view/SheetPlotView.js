@@ -91,6 +91,11 @@ export default class SheetPlotView extends NodeView {
 			return;
 		}
 
+		// graphics.save();
+		// graphics.beginPath();
+		// graphics.rect(rect.x, rect.y, rect.width, rect.height);
+		// graphics.clip();
+
 		const { series } = item;
 		const plotRect = item.plot.position;
 		const legendData = item.getLegend();
@@ -161,6 +166,8 @@ export default class SheetPlotView extends NodeView {
 				action.position.top + action.position.height / 2
 			);
 		});
+
+		// graphics.restore();
 	}
 
 	drawLegend(graphics, plotRect, item, legendData) {
@@ -994,6 +1001,7 @@ export default class SheetPlotView extends NodeView {
 		const name = serie.dataLabel.format.fontName || item.getTemplate().serieslabel.format.fontName || item.getTemplate().font.name;
 		const size = serie.dataLabel.format.fontSize || item.getTemplate().serieslabel.format.fontSize || item.getTemplate().font.size;
 		const lineHeight = GraphUtils.getFontMetricsEx(name, size).lineheight + 50;
+		const horizontalChart = (serie.type === 'profile' || serie.type === 'bar');
 
 		while (item.getValue(ref, index, value)) {
 			info.index = index;
@@ -1001,33 +1009,36 @@ export default class SheetPlotView extends NodeView {
 				pt.x = item.scaleToAxis(axes.x, value.x, undefined, false);
 				pt.y = item.scaleToAxis(axes.y, value.y, info, false);
 				item.toPlot(serie, plotRect, pt);
-				const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
-				const labelRect = item.getLabelRect(pt, value, text, index, params);
-				const center = labelRect.center;
-				if (labelAngle !== 0) {
-					graphics.translate(center.x, center.y);
-					labelRect.translate(-center.x, -center.y);
-					graphics.rotate(-labelAngle);
-				}
 
-				if (this.drawRect(graphics, labelRect, item, serie.dataLabel.format, 'serieslabel')) {
-					item.setFont(graphics, serie.dataLabel.format, 'serieslabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
-				}
-				if (labelAngle !== 0) {
-					graphics.rotate(labelAngle);
-					labelRect.translate(center.x, center.y);
-					graphics.translate(-center.x, -center.y);
-				}
+				if (horizontalChart || (pt.x >= plotRect.left && pt.x < plotRect.right)) {
+					const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
+					const labelRect = item.getLabelRect(pt, value, text, index, params);
+					const center = labelRect.center;
+					if (labelAngle !== 0) {
+						graphics.translate(center.x, center.y);
+						labelRect.translate(-center.x, -center.y);
+						graphics.rotate(-labelAngle);
+					}
 
-				if (text instanceof Array) {
-					let y = labelRect.top + 75 + lineHeight / 2;
-					text.forEach((part, pi) => {
-						y = center.y - (text.length - 1) * lineHeight / 2 + pi * lineHeight;
-						const p = MathUtils.getRotatedPoint({x: center.x, y}, center, -labelAngle);
-						this.drawRotatedText(graphics,part, p.x, p.y, labelAngle, 0, 0);
-					})
-				} else {
-					this.drawRotatedText(graphics,`${text}`, center.x, center.y, labelAngle, 0, 0);
+					if (this.drawRect(graphics, labelRect, item, serie.dataLabel.format, 'serieslabel')) {
+						item.setFont(graphics, serie.dataLabel.format, 'serieslabel', 'middle', TextFormatAttributes.TextAlignment.CENTER);
+					}
+					if (labelAngle !== 0) {
+						graphics.rotate(labelAngle);
+						labelRect.translate(center.x, center.y);
+						graphics.translate(-center.x, -center.y);
+					}
+
+					if (text instanceof Array) {
+						let y = labelRect.top + 75 + lineHeight / 2;
+						text.forEach((part, pi) => {
+							y = center.y - (text.length - 1) * lineHeight / 2 + pi * lineHeight;
+							const p = MathUtils.getRotatedPoint({x: center.x, y}, center, -labelAngle);
+							this.drawRotatedText(graphics,part, p.x, p.y, labelAngle, 0, 0);
+						})
+					} else {
+						this.drawRotatedText(graphics,`${text}`, center.x, center.y, labelAngle, 0, 0);
+					}
 				}
 			}
 			index += 1;

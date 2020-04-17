@@ -457,7 +457,7 @@ export class StreamChartProperties extends Component {
 		}
 	}
 
-	isVerticalChart() {
+	isHorizontalChart() {
 		const item = this.state.plotView.getItem();
 		const serie = item.series[0];
 
@@ -1125,8 +1125,8 @@ export class StreamChartProperties extends Component {
 									onChange={this.handleAxisAlignChange}
 									input={<Input name="axis-position" id="axis-position" />}
 								>
-									{((this.isVerticalChart() && selection.element === 'xAxis') ||
-									selection.element === 'yAxis') ? (
+									{((this.isHorizontalChart() && selection.element === 'xAxis') ||
+										(!this.isHorizontalChart() && selection.element === 'yAxis')) ? (
 										<MenuItem value="left" key={1}>
 											<FormattedMessage id="StreamChartProperties.AxisLeft"
 															  defaultMessage="Left"/>
@@ -1136,8 +1136,8 @@ export class StreamChartProperties extends Component {
 											<FormattedMessage id="StreamChartProperties.AxisBottom" defaultMessage="Bottom" />
 										</MenuItem>
 									)}
-									{((this.isVerticalChart() && selection.element === 'xAxis') ||
-										selection.element === 'yAxis') ? (
+									{((this.isHorizontalChart() && selection.element === 'xAxis') ||
+										(!this.isHorizontalChart() && selection.element === 'yAxis')) ? (
 											< MenuItem value="right" key={2}>
 												<FormattedMessage id="StreamChartProperties.AxisRight" defaultMessage="Right" />
 											</MenuItem>
