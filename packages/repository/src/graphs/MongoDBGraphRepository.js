@@ -4,7 +4,7 @@ const { mix } = require('mixwith');
 const { Errors, CODES } = require('@cedalo/error-codes');
 const AbstractGraphRepository = require('./AbstractGraphRepository');
 const MongoDBMixin = require('../mongoDB/MongoDBMixin');
-const logger = require('@cedalo/logger').createLogger('GraphRepository');
+const logger = require('@cedalo/logger').create({ name: 'GraphRepository'});
 
 
 /**
