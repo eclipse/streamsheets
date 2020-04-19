@@ -333,11 +333,6 @@ module.exports = class StreamsMonitor {
 	}
 
 	onDisposed(stream) {
-		const theStream = typeof stream.isNewEventType === 'function' ? stream : this.streams.get(stream.id);
-		if(theStream && !theStream.isNewEventType('dispose')) {
-			logger.debug(`ignoring ${stream.id || stream.config.id} onDisposed()`);
-			return;
-		}
 		logger.debug(`${stream.id || stream.config.id} onDisposed()`);
 		if (stream.config && stream.config.connector) {
 			this.notifyConnector(stream.config.connector, false);
