@@ -1,8 +1,6 @@
 const AbstractItemCommand = require('./AbstractItemCommand');
 const Point = require('../../geometry/Point');
 const Expression = require('../expr/Expression');
-const Attribute = require('../attr/Attribute');
-const StringAttribute = require('../attr/StringAttribute');
 const CellRange = require('../model/CellRange');
 
 /**
@@ -33,7 +31,6 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 		super(item);
 
 		this._data = data;
-		this._drawings = drawings;
 		this._graphItems = graphItems;
 		this._namedCells = namedCells;
 		this._graphCells = graphCells;
@@ -49,7 +46,6 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 		const data = super.toObject();
 
 		data.cells = this._data;
-		data.drawings = this._drawings;
 		data.graphItems = this._graphItems;
 		data.namedCells = this._namedCells;
 		data.graphCells = this._graphCells;
@@ -113,42 +109,6 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 			});
 		}
 
-		if (this._graphCells) {
-			const graph = this._graphItem.getGraph();
-			Object.keys(this._graphCells).forEach((key) => {
-				const node = graph.getItemByGraphName(key);
-				if (node !== undefined) {
-					let attr = node
-						.getItemAttributes()
-						.getAttribute('sheetformula');
-					if (!attr) {
-						const serverName = this._graphCells[key];
-						node.getItemAttributes().addAttribute(
-							new StringAttribute('sheetname', key)
-						);
-						attr = new Attribute(
-							'sheetformula',
-							new Expression(0, serverName.formula)
-						);
-						node.getItemAttributes().addAttribute(attr);
-						attr.evaluate(node);
-					}
-				}
-
-				// const name = data.getOrCreateGraph(key);
-				// if (name) {
-				// 	const serverName = this._graphCells[key];
-				// 	const expr = new Expression(serverName.value, serverName.formula);
-				// 	name.setExpression(expr);
-				// 	name.setValue(serverName.value);
-				// 	name.evaluate(this._graphItem);
-				// }
-			});
-		}
-
-		if (this._drawings) {
-			this._graphItem.getDrawings().setDrawings(this._drawings);
-		}
 		if (this._graphItems) {
 			this._graphItem.setGraphItems(this._graphItems);
 		}

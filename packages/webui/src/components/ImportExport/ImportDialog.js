@@ -1,21 +1,19 @@
-import {
-	Button,
-	CircularProgress,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-	Divider,
-	List,
-	ListItem,
-	ListItemIcon,
-	ListItemSecondaryAction,
-	ListItemText,
-	ListSubheader,
-	MenuItem,
-	Select,
-	Tooltip,
-} from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Divider from '@material-ui/core/Divider';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListSubheader from '@material-ui/core/ListSubheader';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+import Tooltip from '@material-ui/core/Tooltip';
 import VersionUpgrade from '@material-ui/icons/ArrowUpward';
 import ImportSuccess from '@material-ui/icons/Check';
 import ImportError from '@material-ui/icons/Error';

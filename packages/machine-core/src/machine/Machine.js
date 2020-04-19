@@ -1,4 +1,3 @@
-const IdGenerator = require('@cedalo/id-generator');
 const EventEmitter = require('events');
 const State = require('../State');
 const NamedCells = require('./NamedCells');
@@ -6,9 +5,10 @@ const Outbox = require('./Outbox');
 const StreamSheet = require('./StreamSheet');
 const locale = require('../locale');
 const logger = require('../logger').create({ name: 'Machine' });
-const FunctionRegistry = require('../FunctionRegistry');
 const Streams = require('../streams/Streams');
-const { convert } = require('../functions/_utils');
+const FunctionRegistry = require('../FunctionRegistry');
+const { convert } = require('@cedalo/commons');
+const IdGenerator = require('@cedalo/id-generator');
 
 // REVIEW: move to streamsheet!
 const defaultStreamSheetName = (streamsheet) => {
@@ -59,6 +59,8 @@ class Machine {
 		this._streamsheets = new Map();
 		this._activeStreamSheets = null;
 		this._preventStop = false;
+		// tmp. until event/message handling is improved
+		this._isManualStep = false;
 		this.metadata = { ...DEF_CONF.metadata };
 		this._settings = { ...DEF_CONF.settings };
 		// read only properties...
@@ -95,35 +97,35 @@ class Machine {
 			settings: this.settings,
 			className: this.className,
 			namedCells: this.namedCells.getDescriptors(),
-			functionDefinitions: FunctionRegistry.functionDefinitions
+			functionsHelp: FunctionRegistry.getFunctionsHelp(),
+			functionDefinitions: FunctionRegistry.getFunctionDefinitions()
 		};
 	}
 
 	load(definition = {}, functionDefinitions = [], currentStreams = []) {
-		FunctionRegistry.registerStreamFunctions(functionDefinitions);
+		FunctionRegistry.registerFunctionDefinitions(functionDefinitions);
 		const def = Object.assign({}, DEF_CONF, definition);
-		const streamsheets = def.streamsheets || [];
+		const streamsheets = def.streamsheets || [{}];
 		this._id = def.isTemplate ? this._id : def.id || this._id;
 		this._name = def.isTemplate ? defaultMachineName() : def.name;
 		this.metadata = { ...this.metadata, ...definition.metadata};
 		this._settings = { ...this.settings, ...definition.settings};
+		// first time load named cells so that reference to named cells are resolved on streamsheets load
 		this.namedCells.load(this, def.namedCells);
+		// at least one streamsheet (required by graph-service!!):
+		if (!streamsheets.length) streamsheets.push({});
 
 		// load streamsheets:
-		if (streamsheets.length > 0) {
-			this.removeAllStreamSheets();
-			// first add all
-			streamsheets.forEach((transdef) => {
-				const streamsheet = new StreamSheet(transdef);
-				transdef.id = streamsheet.id;
-				this.addStreamSheet(streamsheet);
-			});
-			// then load all
-			streamsheets.forEach((transdef) => this.getStreamSheet(transdef.id).load(transdef, this));
-		} else {
-			// at least one streamsheet (required by graph-service!!):
-			this.addStreamSheet(new StreamSheet());
-		}
+		this.removeAllStreamSheets();
+		streamsheets.forEach((transdef) => {
+			const streamsheet = new StreamSheet(transdef);
+			transdef.id = streamsheet.id;
+			this.addStreamSheet(streamsheet);
+		});
+		// then load all
+		streamsheets.forEach((transdef) => this.getStreamSheet(transdef.id).load(transdef, this));
+		// second time load named cells so that references from named cells are resolved correctly
+		this.namedCells.load(this, def.namedCells);
 
 		currentStreams.forEach((descriptor) => Streams.registerSource(descriptor, this));
 		setTimeout(() => {
@@ -131,7 +133,7 @@ class Machine {
 			this.notifyUpdate('namedCells');
 		}, 60000);
 
-		// TODO: s this still required?
+
 		// update value of cells to which are not currently valid without changing valid values
 		// => e.g. if a cell references another cell which was loaded later...
 		this._streamsheets.forEach((streamsheet) => streamsheet.sheet.iterate((cell) => cell.update()));
@@ -145,13 +147,13 @@ class Machine {
 	}
 
 	loadFunctions(functionDefinitions = []) {
-		FunctionRegistry.registerStreamFunctions(functionDefinitions);
+		FunctionRegistry.registerFunctionDefinitions(functionDefinitions);
 		this._streamsheets.forEach((streamsheet) => {
 			const { sheet } = streamsheet;
 			const json = sheet.toJSON();
 			sheet.load(json);
 		});
-		this._emitter.emit('update', 'functions', FunctionRegistry.functionDefinitions);
+		this._emitter.emit('update', 'functions', FunctionRegistry.getFunctionDefinitions());
 	}
 
 	get id() {
@@ -222,6 +224,10 @@ class Machine {
 			this.settings.isOPCUA = itIs;
 			this._emitter.emit('update', 'opcua');
 		}
+	}
+
+	get isManualStep() {
+		return this._isManualStep;
 	}
 
 	get state() {
@@ -387,7 +393,7 @@ class Machine {
 				this.cyclemonitor.counterSecond = 0;
 				this.cyclemonitor.last = Date.now();
 				this.cyclemonitor.lastSecond = Date.now();
-				this._emitter.emit('update', 'state');
+				this._emitter.emit('update', 'state', { new: this._state, old: oldstate });
 				this.cycle(allStreamSheets);
 				this._emitter.emit('didStart', this);
 				logger.info(`Machine: -> STARTED machine ${this.id}`);
@@ -413,7 +419,7 @@ class Machine {
 			}
 			this._didStop();
 			logger.info(`Machine: -> ${this._state} machine ${this.id}`);
-			this._emitter.emit('update', 'state');
+			this._emitter.emit('update', 'state', { new: this._state, old: prevstate });
 		}
 	}
 	_willStop() {
@@ -431,6 +437,7 @@ class Machine {
 	}
 
 	forceStop() {
+		const oldstate = this._state;
 		this._state = State.STOPPED;
 		try {
 			this._clearCycle();
@@ -440,23 +447,39 @@ class Machine {
 		} catch (err) {
 			/* ignore */
 		}
-		this._emitter.emit('update', 'state');
+		this._emitter.emit('update', 'state', { new: this._state, old: oldstate });
 	}
 
 	async pause() {
 		if (this._state !== State.PAUSED && this._state !== State.WILL_STOP) {
+			const oldstate = this._state;
 			this._clearCycle();
 			this._state = State.PAUSED;
 			this.stats.cyclesPerSecond = 0;
 			this.streamsheets.forEach((streamsheet) => streamsheet.pause());
-			this._emitter.emit('update', 'state');
+			this._emitter.emit('update', 'state', { new: this._state, old: oldstate });
 			logger.info(`Machine: -> PAUSED machine ${this.id}`);
 		}
 	}
 
 	async step() {
+		// additional STEPPING state might lead to problems...
+		// if (this._state !== State.RUNNING) {
+		// 	const prevstate = this._state;
+		// 	// keep will stop, as it is transferred to stop...
+		// 	this._state = this._state !== State.WILL_STOP ? State.STEPPING : this._state;
+		// 	this._doStep(this.activeStreamSheets, true);
+		// 	this._state = this._state === State.STEPPING ? prevstate : this._state;
+		// }
 		if (this._state !== State.RUNNING) {
-			this._doStep(this.activeStreamSheets, true);
+			try {
+				this._isManualStep = true; 
+				this._doStep(this.activeStreamSheets, true);
+			} catch (err) {
+				logger.error(`Error while performing manual step on machine ${this.id}!!`, err);
+				this._emitter.emit('error', err);
+			}
+			this._isManualStep = false;
 		}
 	}
 

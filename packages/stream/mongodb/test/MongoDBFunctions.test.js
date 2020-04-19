@@ -1,59 +1,73 @@
 /* eslint-disable max-len */
 const { TestHelper } = require('@cedalo/sdk-streams');
 const streamModule = require('../index');
-const MongoTestServer = require('./helpers/MongoTestServer');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 80000;
 
-process.env.MONGO_HOST = 'localhost';
-process.env.MONGO_PORT = '27018';
-process.env.MONGO_USER_DB_URI = 'mongodb://localhost:27018/userDB';
-process.env.MONGO_DB_USERNAME = '';
-process.env.MONGO_DB_PASSWORD = '';
-process.env.MONGO_USER_DATABASE = 'userdb';
+let mongoServer;
+let connectorConfig;
+let producerConfig;
+let connector;
 
-const testServer = new MongoTestServer({
-	instance: {
-		port: Number(process.env.MONGO_PORT),
-		ip: process.env.MONGO_HOST,
-		dbName : process.env.MONGO_USER_DATABASE,
-		debug: false
-	},
+beforeAll(async () => {
+	mongoServer = new MongoMemoryServer();
+	await mongoServer.getConnectionString();
+	connectorConfig = {
+		_id: 'CONNECTOR_MONGODB',
+		id: 'CONNECTOR_MONGODB',
+		name: 'MongoDB Connector ',
+		className: 'ConnectorConfiguration',
+		provider: {
+			_id: 'stream-mongodb',
+			id: 'stream-mongodb',
+			className: 'ProviderConfiguration',
+			isRef: true
+		},
+		host: `localhost:${await mongoServer.getPort()}`,
+		dbName: 'testdb1'
+	};
+	producerConfig = {
+		name: 'Local mongo feeder',
+		className: 'ProducerConfiguration',
+		connector: connectorConfig
+	};
+	connector = await TestHelper.createConnectorAndConnect(streamModule, producerConfig);
 });
 
-beforeEach(() => testServer.start());
-afterEach(() => testServer.stop());
+afterAll(() => mongoServer.stop());
 
-// https://cedalo.atlassian.net/browse/DL-665
-const connectorConfig = {
-	_id: 'CONNECTOR_MONGODB',
-	id: 'CONNECTOR_MONGODB',
-	name: 'MongoDB Connector ',
-	className: 'ConnectorConfiguration',
-	provider: {
-		_id: 'stream-mongodb',
-		id: 'stream-mongodb',
-		className: 'ProviderConfiguration',
-		isRef: true
-	},
-	externalHost: false
+const sample1 = {
+	id: 1,
+	name: 'test',
+	nested: {
+		other: 'value'
+	}
 };
-const producerConfig = {
-	name: 'Local mongo feeder',
-	className: 'ProducerConfiguration',
-	connector: connectorConfig,
-	collection: 'testcol'
+const sample2 = {
+	id: 2,
+	name: 'test2',
+	nested: {
+		other: 'other'
+	}
 };
 
-const sample = {
-	test: 'test',
-	test1: 'test1'
-};
-
-const MONGOSTORE = async (connector, message, collection) => {
-	const commandResult = await connector.produce({
+const MONGOSTORE = async (connector_, collection, message) => {
+	const commandResult = await connector_.produce({
 		message,
-		collection
+		collection,
+		functionName: 'MONGO.STORE'
+	});
+	return commandResult;
+};
+
+const MONGOREPLACE = async (connector_, collection, query, message, upsert = false) => {
+	const commandResult = await connector_.produce({
+		message,
+		collection,
+		query,
+		upsert,
+		functionName: 'MONGO.REPLACE'
 	});
 	return commandResult;
 };
@@ -71,17 +85,17 @@ const MONGOSTORE = async (connector, message, collection) => {
  * @returns {Promise<Promise<*>|*>}
  * @constructor
  */
-const MONGOQUERY = async (
-		connector, collection, query = {}, resultKeys = [], pageSize = 0,
-		page = 0) => {
+const MONGOQUERY = async (connector_, collection, query = {}, resultKeys = [], pageSize = 0, page = 0, sort) => {
 	const config = {
 		collection,
 		query,
 		resultKeys,
 		pageSize,
-		page
+		page,
+		sort,
+		functionName: 'MONGO.QUERY'
 	};
-	return connector.request({
+	return connector_.request({
 		Data: config,
 		Metadata: {
 			requestId: 1
@@ -89,14 +103,13 @@ const MONGOQUERY = async (
 	});
 };
 
-const MONGODELETE = async (
-		connector, collection, query = {}) => {
+const MONGODELETE = async (connector_, collection, query = {}) => {
 	const config = {
-		type: 'DELETE',
+		functionName: 'MONGO.DELETE',
 		collection,
 		query
 	};
-	return connector.request({
+	return connector_.request({
 		Data: config,
 		Metadata: {
 			requestId: 1
@@ -104,62 +117,152 @@ const MONGODELETE = async (
 	});
 };
 
+const newCollection = () => Math.random().toString();
+
 describe('MongoDBFunctions', () => {
-	it('should STORE and QUERY without no optional args', async (done) => {
-		try {
-			const connector = await TestHelper.createConnectorAndConnect(streamModule,
-					producerConfig);
-			const storeResult = await MONGOSTORE(connector, sample, producerConfig.collection);
+	describe('MONGO.STORE', () => {
+		it('store without optional args', async () => {
+			const collection = newCollection();
+			const storeResult = await MONGOSTORE(connector, collection, sample1);
+			const { insertedId } = storeResult;
 			expect(storeResult.result.ok).toEqual(1);
-			const _id = storeResult.insertedId;
-			const result = await MONGOQUERY(connector, producerConfig.collection,
-					{ _id });
-			expect(result.response.DATA.length).toEqual(2); // including keys
-		} catch (e) {
-			console.error(e);
-		}
-		done();
+			const result = await MONGOQUERY(connector, collection, {});
+			expect(result.message.data).toHaveLength(1);
+			expect(result.message.data[0]).toEqual({ _id: insertedId, ...sample1 });
+		});
 	});
-	it('should STORE, QUERY and DELETE with resultKeys defined', async (done) => {
-		try {
-			const connector = await TestHelper.createConnectorAndConnect(streamModule,
-					producerConfig);
-			const storeResult = await MONGOSTORE(connector, sample, producerConfig.collection);
+	describe('MONGO.REPLACE', () => {
+		const REPLACEMENT = {
+			id: 3,
+			name: 'replacemnt'
+		};
+		test('replace with match', async () => {
+			const collection = newCollection();
+			await MONGOSTORE(connector, collection, sample1);
+
+			const storeResult = await MONGOREPLACE(connector, collection, { id: 1 }, REPLACEMENT);
 			expect(storeResult.result.ok).toEqual(1);
-			const _id = storeResult.insertedId;
-			const result = await MONGOQUERY(connector, producerConfig.collection,
-					{ _id }, ['test']);
-			expect(result.response.DATA.length).toEqual(2); // including keys
-			expect(Array.isArray(result.response.DATA[0])).toEqual(true);
-			expect(result.response.DATA[0].length).toEqual(1);
-			const r = await MONGODELETE(connector, producerConfig.collection, {
-				_id
-			});
-			expect(r.response.DATA.result.ok).toEqual(1); // including keys
-		} catch (e) {
-			console.error(e);
-		}
-		done();
+			const result = await MONGOQUERY(connector, collection, {});
+			expect(result.message.data).toHaveLength(1);
+			expect(result.message.data[0]).toMatchObject(REPLACEMENT);
+		});
+		test('replace with match and upsert', async () => {
+			const collection = newCollection();
+			await MONGOSTORE(connector, collection, sample1);
+
+			const storeResult = await MONGOREPLACE(connector, collection, { id: 1 }, REPLACEMENT, true);
+			expect(storeResult.result.ok).toEqual(1);
+			const result = await MONGOQUERY(connector, collection, {});
+			expect(result.message.data).toHaveLength(1);
+			expect(result.message.data[0]).toMatchObject(REPLACEMENT);
+		});
+		test('replace with no match', async () => {
+			const collection = newCollection();
+
+			const storeResult = await MONGOREPLACE(connector, collection, { id: 1 }, REPLACEMENT);
+			expect(storeResult.result.ok).toEqual(1);
+			expect(storeResult.result.n).toEqual(0);
+			const result = await MONGOQUERY(connector, collection, {});
+			expect(result.message.data).toHaveLength(0);
+		});
+
+		test('replace with no match and upsert', async () => {
+			const collection = newCollection();
+
+			const storeResult = await MONGOREPLACE(connector, collection, { id: 1 }, REPLACEMENT, true);
+			expect(storeResult.result.ok).toEqual(1);
+			expect(storeResult.result.n).toEqual(1);
+			const result = await MONGOQUERY(connector, collection, {});
+			expect(result.message.data).toHaveLength(1);
+			expect(result.message.data[0]).toMatchObject(REPLACEMENT);
+		});
 	});
-	it('should STORE and QUERY with resultKeys && page defined', async (done) => {
-		try {
-			const connector = await TestHelper.createConnectorAndConnect(streamModule,
-					producerConfig);
-			const id = new Date().getMilliseconds();
-			await MONGOSTORE(connector, { ...sample, id });
-			await MONGOSTORE(connector, { ...sample, id });
-			await MONGOSTORE(connector, { ...sample, id });
-			await MONGOSTORE(connector, { ...sample, id });
-			const result = await MONGOQUERY(connector, producerConfig.collection,
-					{ id }, ['test', 'test1'], 2, 1);
-			expect(result.response.DATA.length).toEqual(3); // including keys
-			const result1 = await MONGOQUERY(connector, producerConfig.collection,
-					{ id }, ['test', 'test1'], 2, 2);
-			expect(result1.response.DATA.length).toEqual(3); // including keys
-		} catch (e) {
-			console.error(e);
-		}
-		done();
+	describe('MONGO.QUERY', () => {
+		const collection = newCollection();
+		beforeAll(async () => {
+			await MONGOSTORE(connector, collection, sample1);
+			await MONGOSTORE(connector, collection, sample2);
+		});
+		test('query with empty query returns all docuements', async () => {
+			const result = await MONGOQUERY(connector, collection, {});
+			expect(result.message.data).toHaveLength(2);
+			expect(result.message.data[0]).toMatchObject(sample1);
+			expect(result.message.data[1]).toMatchObject(sample2);
+		});
+		test('query by field returns matching documents', async () => {
+			const result = await MONGOQUERY(connector, collection, { id: 1 });
+			expect(result.message.data).toHaveLength(1);
+			expect(result.message.data[0]).toEqual(sample1);
+		});
+		test('query with simple resultKeys returns only specified keys', async () => {
+			const result = await MONGOQUERY(connector, collection, { id: 1 }, ['id']);
+			expect(result.message.data).toHaveLength(1);
+			expect(result.message.data[0]).toEqual({ id: 1 });
+		});
+		test('query with resultKeys path returns only specified keys', async () => {
+			const result = await MONGOQUERY(connector, collection, { id: 1 }, ['[nested][other]']);
+			expect(result.message.data).toHaveLength(1);
+			expect(result.message.data[0]).toEqual({ nested: { other: 'value' } });
+		});
+		test('query with page returns specified page with page index starting at 1', async () => {
+			const resultPage1 = await MONGOQUERY(connector, collection, {}, undefined, 1, 1);
+			expect(resultPage1.message.data).toHaveLength(1);
+			expect(resultPage1.message.data[0]).toMatchObject(sample1);
+			const resultPage2 = await MONGOQUERY(connector, collection, {}, undefined, 1, 2);
+			expect(resultPage2.message.data).toHaveLength(1);
+			expect(resultPage2.message.data[0]).toMatchObject(sample2);
+		});
+		test('query with simple sort by _id', async () => {
+			const result1 = await MONGOQUERY(connector, collection, {}, undefined, undefined, undefined, '1');
+			expect(result1.message.data).toHaveLength(2);
+			expect(result1.message.data[0]).toMatchObject(sample1);
+			const result2 = await MONGOQUERY(connector, collection, {}, undefined, undefined, undefined, '-1');
+			expect(result2.message.data).toHaveLength(2);
+			expect(result2.message.data[0]).toMatchObject(sample2);
+		});
+		test('query with sort by id', async () => {
+			const result1 = await MONGOQUERY(connector, collection, {}, undefined, undefined, undefined, { id: 1 });
+			expect(result1.message.data).toHaveLength(2);
+			expect(result1.message.data[0]).toMatchObject(sample1);
+			const result2 = await MONGOQUERY(connector, collection, {}, undefined, undefined, undefined, { id: -1 });
+			expect(result2.message.data).toHaveLength(2);
+			expect(result2.message.data[0]).toMatchObject(sample2);
+		});
+	});
+	describe('MONGO.DELETE', () => {
+		test('should delete all documents matching the query', async () => {
+			const collection = newCollection();
+			await MONGOSTORE(connector, collection, sample1);
+			await MONGOSTORE(connector, collection, sample2);
+
+			const result = await MONGODELETE(connector, collection, { id: 1 });
+			expect(result.message.data.n).toBe(1);
+			expect(result.message.data.ok).toBe(1);
+
+			const queryResult = await MONGOQUERY(connector, collection, { id: 1 });
+			expect(queryResult.message.data).toHaveLength(0);
+		});
+		test('should delete no document if query has no match', async () => {
+			const collection = newCollection();
+			await MONGOSTORE(connector, collection, sample1);
+			await MONGOSTORE(connector, collection, sample2);
+
+			const result = await MONGODELETE(connector, collection, { id: 3 });
+			expect(result.message.data.n).toBe(0);
+			expect(result.message.data.ok).toBe(1);
+		});
+		test('should delete all documents with empty query', async () => {
+			const collection = newCollection();
+			await MONGOSTORE(connector, collection, sample1);
+			await MONGOSTORE(connector, collection, sample2);
+
+			const result = await MONGODELETE(connector, collection, {});
+			expect(result.message.data.n).toBe(2);
+			expect(result.message.data.ok).toBe(1);
+			console.log(result.message.data);
+
+			const queryResult = await MONGOQUERY(connector, collection, {});
+			expect(queryResult.message.data).toHaveLength(0);
+		});
 	});
 });
-

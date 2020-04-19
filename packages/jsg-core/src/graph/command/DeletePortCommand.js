@@ -21,9 +21,7 @@ const Command = require('./Command');
 class DeletePortCommand extends Command {
 	static createFromObject(data = {}, { graph }) {
 		const port = graph.getItemById(data.itemId);
-		return port
-			? new DeletePortCommand(port).initWithObject(data)
-			: undefined;
+		return new DeletePortCommand(port).initWithObject(data);
 	}
 
 	constructor(port) {

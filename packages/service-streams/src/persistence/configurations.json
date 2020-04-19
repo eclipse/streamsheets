@@ -10,7 +10,7 @@
 			"className": "ProviderConfiguration",
 			"isRef": true
 		},
-		"host": "broker",
+		"url": "broker",
 		"baseTopic": "",
 		"userName": "cedalo",
 		"password": "fc3fd1db-274e-4eec-b952-7ff4e1270e12"

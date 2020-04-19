@@ -13,6 +13,7 @@ const logger = LoggerFactory.createLogger(
 	process.env.STREAMSHEETS_STREAMS_SERVICE_LOG_LEVEL
 );
 
+const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
 module.exports = class StreamsService extends MessagingService {
 	constructor(metadata) {
 		super(metadata);
@@ -33,6 +34,11 @@ module.exports = class StreamsService extends MessagingService {
 		});
 		this.finishStart();
 		// return this._streamsManager.start(); // keep for starting alone
+	}
+
+	async _preStart() {
+		await sleep(process.env.STREAMS_SERVICE_START_DELAY || 0);
+		await super._preStart();
 	}
 
 	async dependencyServiceStatusUpdated(

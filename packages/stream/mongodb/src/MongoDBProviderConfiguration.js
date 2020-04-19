@@ -6,24 +6,13 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		super({
 			name: 'MongoDB Provider'
 		});
-		this.addConnectorDefinition({
-			id: 'externalHost',
-			label: {
-				en: 'External Host',
-				de: 'Externer Host'
-			},
-			onUpdate: 'reConnect',
-			type: ProviderConfiguration.FIELDTYPES.CHECKBOX,
-			defaultValue: false
-		});
+		this.canConsume = false;
 		this.addConnectorDefinition({
 			id: 'host',
 			label: 'Host(s)',
-			onUpdate: 'reConnect',
-			dependsOnPath: 'externalHost'
+			onUpdate: 'reConnect'
 		});
 		this.addConnectorDefinition({
-			dependsOnPath: 'externalHost',
 			id: 'dbName',
 			label: {
 				en: 'Database Name',
@@ -34,16 +23,16 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		this.addConnectorDefinition({
 			id: 'clusterName',
 			label: 'ReplicaSet',
-			onUpdate: 'reConnect',
-			dependsOnPath: 'externalHost'
+			advanced: true,
+			onUpdate: 'reConnect'
 		});
 		this.addConnectorDefinition({
 			id: 'authType',
-			dependsOnPath: 'externalHost',
 			label: {
 				en: 'Authentication Mechanism',
 				de: 'Authentifizierungsmethode'
 			},
+			advanced: true,
 			type: ProviderConfiguration.FIELDTYPES.SELECT,
 			options: [
 				{
@@ -80,8 +69,8 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 				en: 'User Name',
 				de: 'Benutzername'
 			},
-			onUpdate: 'reConnect',
-			dependsOnPath: 'externalHost'
+			advanced: true,
+			onUpdate: 'reConnect'
 		});
 		this.addConnectorDefinition({
 			id: 'password',
@@ -89,16 +78,16 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 				en: 'Password',
 				de: 'Kennwort'
 			},
+			advanced: true,
 			onUpdate: 'reConnect',
-			dependsOnPath: 'externalHost',
 			type: ProviderConfiguration.FIELDTYPES.PASSWORD
 		});
 
-		this.addConsumerDefinition({
-			id: 'collections',
-			label: 'Collections',
-			type: ProviderConfiguration.FIELDTYPES.TEXTLIST
-		});
+		// this.addConsumerDefinition({
+		// 	id: 'collections',
+		// 	label: 'Collections',
+		// 	type: ProviderConfiguration.FIELDTYPES.TEXTLIST
+		// });
 		this.addProducerDefinition({
 			id: 'collection',
 			label: {
@@ -124,10 +113,8 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 						id: 'query',
 						label: 'Query',
 						description: {
-							en:
-								'JSON used for the query. Use "{}" to delete all documents',
-							de:
-								'JSON das für Query benutzt wird. "{}" um alle Dokumente zu löschen'
+							en: 'JSON used for the query. Use "{}" to delete all documents',
+							de: 'JSON das für Query benutzt wird. "{}" um alle Dokumente zu löschen'
 						},
 						type: {
 							name: 'json'
@@ -202,10 +189,8 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 							de: 'Sortierung'
 						},
 						description: {
-							en:
-								'1 or -1 to sort by creation time or range with sort JSON',
-							de:
-								'1 oder -1 für zeitliche Sortierung oder Zellbereich der Sortierung vorgibt'
+							en: '1 or -1 to sort by creation time or range with sort JSON',
+							de: '1 oder -1 für zeitliche Sortierung oder Zellbereich der Sortierung vorgibt'
 						},
 						type: {
 							name: 'union',
@@ -217,7 +202,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 								}
 							]
 						},
-						defaultValue: 1
+						defaultValue: '1'
 					},
 					timeout
 				]
@@ -271,7 +256,8 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 						},
 						type: {
 							name: 'json'
-						}
+						},
+						defaultValue: {}
 					},
 					target,
 					timeout
@@ -280,7 +266,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		);
 
 		this.addFunctionDefinition({
-			name: 'MONGO.STORE',
+			name: MongoDBFunctions.STORE,
 			baseFunction: 'produce',
 			parameters: [
 				{
@@ -299,6 +285,52 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 					type: {
 						name: 'json'
 					}
+				}
+			]
+		});
+
+		this.addFunctionDefinition({
+			name: MongoDBFunctions.REPLACE,
+			baseFunction: 'produce',
+			parameters: [
+				{
+					id: 'collection',
+					label: 'Collection',
+					type: {
+						name: 'string'
+					}
+				},
+				{
+					id: 'query',
+					label: 'Query',
+					description: {
+						en: 'JSON used for the query',
+						de: 'JSON das für Query benutzt wird'
+					},
+					type: {
+						name: 'json'
+					}
+				},
+				{
+					id: 'message',
+					label: {
+						en: 'Document',
+						de: 'Dokument'
+					},
+					type: {
+						name: 'json'
+					}
+				},
+				{
+					id: 'upsert',
+					label: {
+						en: 'Upsert',
+						de: 'Upsert'
+					},
+					type: {
+						name: 'boolean'
+					},
+					defaultValue: false
 				}
 			]
 		});

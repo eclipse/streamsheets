@@ -60,7 +60,8 @@ module.exports = class ChartNode extends Node {
 						fontColor: '#000000',
 						fontStyle: 'normal',
 						minRotation: 0,
-						maxRotation: 90
+						maxRotation: 90,
+						reverse: false
 					},
 					gridLines: {
 						display: false,
@@ -78,7 +79,8 @@ module.exports = class ChartNode extends Node {
 						fontColor: '#000000',
 						fontStyle: 'normal',
 						minRotation: 0,
-						maxRotation: 90
+						maxRotation: 90,
+						reverse: false
 					},
 					gridLines: {
 						display: true,
@@ -327,6 +329,6 @@ module.exports = class ChartNode extends Node {
 	}
 
 	isAddLabelAllowed() {
-		return false;
+		return true;
 	}
 };

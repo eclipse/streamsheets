@@ -3,32 +3,17 @@
 const GatewayAPI = require('./GatewayAPI');
 const {
 	BackupHTTPRequest,
-	DeleteGraphHTTPRequest,
 	DeleteMachineDefinitionHTTPRequest,
 	ExportMachineStreamHTTPRequest,
-	GetGraphHTTPRequest,
-	GetGraphsHTTPRequest,
 	GetMachineDefinitionHTTPRequest,
 	GetMachineDefinitionsHTTPRequest,
 	GetMachineDefinitionsByNameHTTPRequest,
 	GetMetaInformationHTTPRequest,
-	GetTemplateHTTPRequest,
-	GetTemplatesHTTPRequest,
 	GraphQLHTTPRequest,
 	ImportMachineHTTPRequest,
 	RestoreHTTPRequest,
-	SaveGraphHTTPRequest,
 	SaveMachineDefinitionHTTPRequest,
-	SaveTemplateHTTPRequest,
-	UpdateGraphHTTPRequest,
 	UpdateMachineDefinitionHTTPRequest,
-	SaveConfigurationHTTPRequest,
-	GetAllConfigurationsHTTPRequest,
-	GetConfigurationsByTypeHTTPRequest,
-	GetConfigurationByIdHTTPRequest,
-	DeleteConfigurationByIdHTTPRequest,
-	SaveMachineProcessSettingsHTTPRequest,
-	GetMachineProcessSettingsHTTPRequest,
 	AuthenticateHTTPRequest
 } = require('../../requests/http/HTTPRequests');
 
@@ -60,75 +45,6 @@ module.exports = class HTTPGatewayAPI extends GatewayAPI {
 			new GetMetaInformationHTTPRequest(
 				this._restEndpointURL,
 				this._token
-			)
-		);
-	}
-
-	saveConfiguration(configuration) {
-		return this.sendRequest(
-			new SaveConfigurationHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				configuration
-			)
-		);
-	}
-
-	getAllConfigurations() {
-		return this.sendRequest(
-			new GetAllConfigurationsHTTPRequest(
-				this._restEndpointURL,
-				this._token
-			)
-		);
-	}
-
-	getConfigurationsByType(configType) {
-		return this.sendRequest(
-			new GetConfigurationsByTypeHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				configType
-			)
-		);
-	}
-
-	getConfigurationById(configId) {
-		return this.sendRequest(
-			new GetConfigurationByIdHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				configId
-			)
-		);
-	}
-
-	deleteConfigurationById(configId) {
-		return this.sendRequest(
-			new DeleteConfigurationByIdHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				configId
-			)
-		);
-	}
-
-	saveMachineProcessSettings(settings) {
-		return this.sendRequest(
-			new SaveMachineProcessSettingsHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				settings
-			)
-		);
-	}
-
-	getMachineProcessSettings(machineId) {
-		return this.sendRequest(
-			new GetMachineProcessSettingsHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				machineId
 			)
 		);
 	}
@@ -169,32 +85,6 @@ module.exports = class HTTPGatewayAPI extends GatewayAPI {
 				this._token,
 				name
 			)
-		);
-	}
-
-	getTemplate(templateId) {
-		return this.sendRequest(
-			new GetTemplateHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				templateId
-			)
-		);
-	}
-
-	saveTemplate(template) {
-		return this.sendRequest(
-			new SaveTemplateHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				template
-			)
-		);
-	}
-
-	getTemplates() {
-		return this.sendRequest(
-			new GetTemplatesHTTPRequest(this._restEndpointURL, this._token)
 		);
 	}
 
@@ -270,45 +160,6 @@ module.exports = class HTTPGatewayAPI extends GatewayAPI {
 	restore(file) {
 		return this.sendRequest(
 			new RestoreHTTPRequest(this._restEndpointURL, this._token, file)
-		);
-	}
-
-	getGraphs() {
-		return this.sendRequest(
-			new GetGraphsHTTPRequest(this._restEndpointURL, this._token)
-		);
-	}
-
-	getGraph(graphId) {
-		return this.sendRequest(
-			new GetGraphHTTPRequest(this._restEndpointURL, this._token, graphId)
-		);
-	}
-
-	saveGraph(graph) {
-		return this.sendRequest(
-			new SaveGraphHTTPRequest(this._restEndpointURL, this._token, graph)
-		);
-	}
-
-	updateGraph(graphId, graph) {
-		return this.sendRequest(
-			new UpdateGraphHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				graphId,
-				graph
-			)
-		);
-	}
-
-	deleteGraph(graphId) {
-		return this.sendRequest(
-			new DeleteGraphHTTPRequest(
-				this._restEndpointURL,
-				this._token,
-				graphId
-			)
 		);
 	}
 

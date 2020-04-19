@@ -1,6 +1,35 @@
 const JSG = require('../JSG');
 const Point = require('./Point');
 
+
+const distanceSquared = (v, w) => ((v.x - w.x) * (v.x - w.x)) + ((v.y - w.y) * (v.y - w.y));
+const distanceToSegmentSquared = (p, v, w) => {
+	const dist = distanceSquared(v, w);
+	if (dist === 0) {
+		return distanceSquared(p, v);
+	}
+	const t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / dist;
+	if (t < 0) return distanceSquared(p, v);
+	if (t > 1) return distanceSquared(p, w);
+	return distanceSquared(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) });
+};
+const offset = (pt1, pt2, reusepoint) => {
+	const pt = reusepoint || new JSG.geometry.Point(0, 0);
+	pt.set(pt1.x - pt2.x, pt1.y - pt2.y);
+	return pt;
+};
+const offsetToSegment = (p, v, w) => {
+	const dist = distanceSquared(v, w);
+	if (dist === 0) {
+		return offset(p, v);
+	}
+	const t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / dist;
+	if (t < 0) return offset(p, v);
+	if (t > 1) return offset(p, w);
+	return offset(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) });
+};
+
+
 /**
  * This class provides geometric math helper functions.
  * Each function should be called in a static way, e.g. MathUtils.toRadians(180);
@@ -68,39 +97,7 @@ class MathUtils {
 	 * @static
 	 */
 	static getLinePointDistance(pointLine1, pointLine2, point) {
-		function sqr(x) {
-			return x * x;
-		}
-
-		function dist2(v, w) {
-			return sqr(v.x - w.x) + sqr(v.y - w.y);
-		}
-
-		function distToSegmentSquared(p, v, w) {
-			const l2 = dist2(v, w);
-
-			if (l2 === 0) {
-				return dist2(p, v);
-			}
-			const t =
-				((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
-			if (t < 0) {
-				return dist2(p, v);
-			}
-			if (t > 1) {
-				return dist2(p, w);
-			}
-			return dist2(p, {
-				x: v.x + t * (w.x - v.x),
-				y: v.y + t * (w.y - v.y)
-			});
-		}
-
-		function distToSegment(p, v, w) {
-			return Math.sqrt(distToSegmentSquared(p, v, w));
-		}
-
-		return distToSegment(point, pointLine1, pointLine2);
+		return Math.sqrt(distanceToSegmentSquared(point, pointLine1, pointLine2));
 	}
 
 	/**
@@ -115,41 +112,7 @@ class MathUtils {
 	 * @return {Point} Offset with x and y values from the Point to the Line.
 	 */
 	static getLinePointOffset(pointLine1, pointLine2, point, reusepoint) {
-		function sqr(x) {
-			return x * x;
-		}
-
-		function dist2(v, w) {
-			return sqr(v.x - w.x) + sqr(v.y - w.y);
-		}
-
-		function offset(v, w) {
-			const pt = reusepoint || new Point(0, 0);
-			pt.set(v.x - w.x, v.y - w.y);
-			return pt;
-		}
-
-		function distToSegment(p, v, w) {
-			const l2 = dist2(v, w);
-
-			if (l2 === 0) {
-				return offset(p, v);
-			}
-			const t =
-				((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
-			if (t < 0) {
-				return offset(p, v);
-			}
-			if (t > 1) {
-				return offset(p, w);
-			}
-			return offset(p, {
-				x: v.x + t * (w.x - v.x),
-				y: v.y + t * (w.y - v.y)
-			});
-		}
-
-		return distToSegment(point, pointLine1, pointLine2);
+		return offsetToSegment(point, pointLine1, pointLine2);
 	}
 
 	/**
@@ -527,34 +490,7 @@ class MathUtils {
 	 * @return {Boolean} Returns <code>true</code> if point is on specified line segment, <code>false</code> otherwise.
 	 */
 	static isPointOnLineSegment(point, linestart, lineend) {
-		// taken from getLinePointDistance which returns a Math.sqrt() value, which is not needed here...
-		function dist(v, wx, wy) {
-			return (v.x - wx) * (v.x - wx) + (v.y - wy) * (v.y - wy);
-		}
-
-		function getSquaredPointLineSegmentDistance(p, v, w) {
-			let d;
-
-			d = dist(v, w.x, w.y);
-			if (d === 0) {
-				d = dist(p, v.x, v.y);
-			} else {
-				const t =
-					((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / d;
-				if (t < 0) {
-					d = dist(p, v.x, v.y);
-				} else if (t > 1) {
-					d = dist(p, w.x, w.y);
-				} else {
-					d = dist(p, v.x + t * (w.x - v.x), v.y + t * (w.y - v.y));
-				}
-			}
-			return d;
-		}
-
-		return (
-			getSquaredPointLineSegmentDistance(point, linestart, lineend) < 0.1
-		);
+		return distanceToSegmentSquared(point, linestart, lineend) < 0.1;
 	}
 
 	/**
@@ -708,6 +644,27 @@ class MathUtils {
 		intersectionPoint.set(nx / d, ny / d);
 
 		return true;
+	}
+
+	static JSDateToExcelDate(inDate) {
+		return 25569.0 + (inDate.getTime() - inDate.getTimezoneOffset() * 60 * 1000) / (1000 * 60 * 60 * 24);
+	}
+
+	static excelDateToJSDate(serial) {
+		const utcDays = Math.floor(serial - 25569);
+		const utcValue = utcDays * 86400;
+		const dateInfo = new Date(utcValue * 1000);
+		const fractionalDay = serial - Math.floor(serial) + 0.0000001;
+		let totalSeconds = Math.floor(86400 * fractionalDay);
+		const seconds = totalSeconds % 60;
+
+		totalSeconds -= seconds;
+
+		const hours = Math.floor(totalSeconds / (60 * 60));
+		const minutes = Math.floor(totalSeconds / 60) % 60;
+		const ms = (86400 * fractionalDay - hours * 3600 - minutes * 60 - seconds) * 1000;
+
+		return new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate(), hours, minutes, seconds, ms);
 	}
 }
 

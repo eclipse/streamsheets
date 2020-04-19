@@ -27,6 +27,17 @@ const tokens2info = (tokens) => {
 	traverse(tokens, (info) => alltokens.push(info));
 	return alltokens;
 };
+const compareParamIndex = (idx1, idx2) => {
+	// eslint-disable-next-line no-nested-ternary
+	const i1 = idx1 != null ? idx1 : idx2 != null ? idx2 + 1 : 0;
+	// eslint-disable-next-line no-nested-ternary
+	const i2 = idx2 != null ? idx2 : idx1 != null ? idx1 + 1 : 0;
+	return i1 - i2;
+};
+const compareInfo = (i1, i2) => {
+	const idx = i1.start - i2.start;
+	return idx === 0 ? compareParamIndex(i1.paramIndex, i2.paramIndex): idx;
+};
 
 module.exports = class Parser {
 
@@ -45,7 +56,7 @@ module.exports = class Parser {
 	}
 
 	static getFormulaInfos(formula, context) {
-		return formula ? tokens2info(Tokenizer.createAST(formula, context)).sort((t1, t2) => t1.start - t2.start) : [];
+		return formula ? tokens2info(Tokenizer.createAST(formula, context)).sort(compareInfo) : [];
 	}
 
 	// TESTING PURPOSE ONLY
@@ -110,7 +121,8 @@ module.exports = class Parser {
 		} else if (node.type === 'function') {
 			const func = context && context.getFunction(node.value);
 			// eslint-disable-next-line
-			const params = node.params.map(param => (param.type === 'number' ? Number(param.value) : (param.type === 'function' ? Parser.resultFrom(param, context) : param.value)));
+			const params = node.params.map((param) => ({ value: Parser.resultFrom(param, context) }));
+			// const params = node.params.map(param => (param.type === 'number' ? Number(param.value) : (param.type === 'function' ? Parser.resultFrom(param, context) : param.value)));
 			result = func ? func(context.scope, ...params) : undefined;
 		} else {
 			result = node.type === 'number' ? Number(node.value) : node.value;

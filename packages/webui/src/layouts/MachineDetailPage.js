@@ -32,6 +32,13 @@ import ServerStatusDialog from '../components/ServerStatusDialog/ServerStatusDia
 import SettingsMenu from '../components/SettingsMenu/SettingsMenu';
 import AlertDialog from '../components/SheetDialogs/AlertDialog';
 import DecisionDialog from '../components/SheetDialogs/DecisionDialog';
+import InsertCellsDialog from '../components/SheetDialogs/InsertCellsDialog';
+import DeleteCellsDialog from '../components/SheetDialogs/DeleteCellsDialog';
+import DeleteCellContentDialog from '../components/SheetDialogs/DeleteCellContentDialog';
+import InsertCellContentDialog from '../components/SheetDialogs/InsertCellContentDialog';
+import NamesDialog from '../components/SheetDialogs/NamesDialog';
+import PasteFunctionDialog from '../components/SheetDialogs/PasteFunctionDialog';
+import FormatCellsDialog from '../components/SheetDialogs/FormatCellsDialog';
 import { graphManager } from '../GraphManager';
 import { accessManager, RESOURCE_ACTIONS } from '../helper/AccessManager';
 import { intl } from '../helper/IntlGlobalProvider';
@@ -41,6 +48,7 @@ import HelpButton from './HelpButton';
 import { ViewModeHandler, ViewModePropTypes } from './ViewModeHandler';
 import { ResizeHandler } from './ResizeHandler';
 import GraphLocaleHandler from '../helper/GraphLocaleHandler';
+import LicenseExpireNotification from '../components/HelperComponent/LicenseExpireNotification';
 
 const useExperimental = (setAppState) => {
 	useEffect(() => setAppState({ experimental: localStorage.getItem('experimental') === 'true' }), []);
@@ -91,6 +99,10 @@ export function MachineDetailPage(props) {
 		} catch (error) {
 			console.warn(error);
 		}
+	};
+
+	const handleState = (state) => {
+		props.setAppState(state);
 	};
 
 	useEffect(() => {
@@ -174,6 +186,23 @@ export function MachineDetailPage(props) {
 				{viewMode.viewMode === null ? (
 					<div>
 						<ImportDialog />
+						<InsertCellsDialog />
+						<DeleteCellsDialog />
+						<DeleteCellContentDialog
+							open={props.showDeleteCellContentDialog}
+							stateHandler={handleState}
+						/>
+						<InsertCellContentDialog
+							open={props.showInsertCellContentDialog}
+							stateHandler={handleState}
+						/>
+						<FormatCellsDialog open={props.showFormatCellsDialog} stateHandler={handleState} />
+						<PasteFunctionDialog
+							open={props.showPasteFunctionsDialog}
+							stateHandler={handleState}
+							experimental={props.experimental}
+						/>
+						<NamesDialog open={props.showEditNamesDialog} stateHandler={handleState} />
 						<StartImportDialog />
 						<NewMachineDialog />
 						<OpenDialog />
@@ -213,6 +242,7 @@ export function MachineDetailPage(props) {
 									</div>
 								) : null}
 								<MachineControlBar />
+								<LicenseExpireNotification />
 								<Toolbar
 									style={{
 										paddingRight: '5px',
@@ -298,7 +328,13 @@ function mapStateToProps(state) {
 		searchParams: state.router.location.search,
 		locale: state.locales.locale,
 		meta: state.meta,
-		adminSecurity: state.adminSecurity,
+		showDeleteCellContentDialog: state.appState.showDeleteCellContentDialog,
+		showInsertCellContentDialog: state.appState.showInsertCellContentDialog,
+		showFormatCellsDialog: state.appState.showFormatCellsDialog,
+		showPasteFunctionsDialog: state.appState.showPasteFunctionsDialog,
+		showEditNamesDialog: state.appState.showEditNamesDialog,
+		experimental: state.appState.experimental,
+		adminSecurity: state.adminSecurity
 	};
 }
 

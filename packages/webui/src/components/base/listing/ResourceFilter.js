@@ -1,5 +1,6 @@
 /* eslint-disable react/forbid-prop-types,react/no-unused-prop-types,jsx-a11y/click-events-have-key-events,react/no-find-dom-node,max-len */
-import { Grid, Paper } from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import FilterName from './FilterName';

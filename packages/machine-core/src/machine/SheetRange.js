@@ -1,4 +1,5 @@
 const SheetIndex = require('./SheetIndex');
+const { convert } = require('@cedalo/commons');
 
 const sharedidx = SheetIndex.create(1, 0);
 const colCharRegEx = new RegExp('^[a-z]+$', 'i');
@@ -8,8 +9,7 @@ const startRow = (sheet, startrow) => Math.max(sheet.settings.minrow, startrow);
 const endCol = (sheet, endcol) => Math.min(sheet.settings.maxcol, endcol);
 const startCol = (sheet, startcol) => Math.max(sheet.settings.mincol, startcol);
 
-// eslint-disable-next-line
-const toNumber = (str) => require('../functions/_utils').convert.toNumber(str); // wrapped to prevent circular dependency :-/
+const toNumber = (str) => convert.toNumber(str); // wrapped to prevent circular dependency :-/
 
 const createRowRange = (startrow, endrow) => {
 	endrow = toNumber(endrow);

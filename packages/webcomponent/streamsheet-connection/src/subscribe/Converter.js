@@ -195,13 +195,12 @@ const convertOutbox = (graphdef) => {
 	};
 };
 const convertSheetInbox = (streamsheet) => {
-	const currentMessage = streamsheet.currentMessage;
-	const { stream, max, messages } = streamsheet.inbox;
-	return { stream, currmsg: currentMessage, max, messages };
+	const { currentMessage, stream, max, messages } = streamsheet.inbox;
+	return { currentMessage, max, messages, producer: stream };
 };
 const convertStreamSheetSheet = (sheetdata) => {
 	const { cells = [], graphCells, graphItems, namedCells, settings } = sheetdata;
-	return { cells, graphCells, graphItems, namedCells, settings };
+	return { cells, graphCells, graphItems, namedCells, /* properties, */ settings };
 };
 // TODO: different formats for machine definition and steps => adjust when settled on new format...
 const convertStreamSheet = (streamsheet) => {
@@ -211,15 +210,19 @@ const convertStreamSheet = (streamsheet) => {
 	sheet.inbox = convertSheetInbox(streamsheet);
 	sheet.loop = streamsheet.loop ? { ...streamsheet.loop } : {};
 	sheet.loop.index = streamsheet.loopIndex;
-	sheet.loop.currpath = streamsheet.jsonpath;
+	sheet.loop.currpath = streamsheet.currentPath;
 	sheet.trigger = streamsheet.trigger;
 	return sheet;
 };
 
 const convertMachineSheet = (allSheets, streamsheet) => {
-	const sheet = { ...convertStreamSheet(streamsheet), ...convertStreamSheetSheet(streamsheet.sheet) };
-	allSheets.set(sheet.id, sheet);
+	const convertedStreamsheet = { ...convertStreamSheet(streamsheet) };
+	convertedStreamsheet.sheet = streamsheet.sheet || convertStreamSheetSheet(streamsheet);
+	allSheets.set(convertedStreamsheet.id, convertedStreamsheet);
 	return allSheets;
+	// const sheet = { ...convertStreamSheet(streamsheet), ...convertStreamSheetSheet(streamsheet.sheet) };
+	// allSheets.set(sheet.id, sheet);
+	// return allSheets;
 };
 
 
@@ -248,6 +251,7 @@ const convertMachineStepSheet = (allSheets, streamsheet) => {
 const convertSheets = (machinesheets, graphsheets, defproperties) => {
 	const convertSheet = convertGraphSheet(defproperties);
 	return Array.from(graphsheets.reduce(convertSheet, machinesheets.reduce(convertMachineSheet, new Map())).values());
+	// Array.from(graphsheets.reduce(convertGraphSheet, machinesheets.reduce(convertMachineSheet, new Map())).values());
 };
 
 
@@ -272,16 +276,19 @@ class Converter {
 	}
 
 	static convertSheetUpdate(data) {
-		const { srcId, name, graphCells, graphItems, namedCells, sheetCells } = data;
-		const sheet = {
-			id: srcId,
-			name,
-			cells: sheetCells,
-			graphCells,
-			graphItems,
-			namedCells
-		};
-		return { streamsheets: [sheet] };
+		const { srcId, name, sheet } = data;
+		const streamsheet = { id: srcId, name, sheet };
+		return { streamsheets: [streamsheet] };
+		// const { srcId, name, graphCells, graphItems, namedCells, sheetCells } = data;
+		// const sheet = {
+		// 	id: srcId,
+		// 	name,
+		// 	cells: sheetCells,
+		// 	graphCells,
+		// 	graphItems,
+		// 	namedCells
+		// };
+		// return { streamsheets: [sheet] };
 	}
 }
 export default Converter;

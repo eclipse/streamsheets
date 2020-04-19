@@ -8,16 +8,22 @@ import { graphManager } from '../../GraphManager';
 import * as Actions from '../../actions/actions';
 
 const {
+	ItemAttributes,
+	AttributeUtils,
 	StreamSheet,
 	StreamSheetView,
 	StreamSheetContainerView,
 	WorksheetNode,
 	RemoveSelectionCommand,
 	DeleteCellContentCommand,
+	SetAttributeAtPathCommand,
 	SetCellDataCommand,
+	SetChartFormulaCommand,
 	CellEditor,
+	Expression,
 	Strings,
 	SelectionProvider,
+	SheetPlotView,
 } = JSG;
 
 /**
@@ -76,35 +82,36 @@ export class EditBarComponent extends Component {
 		const formula = document.getElementById('editbarformula');
 		const info = document.getElementById('editbarreference');
 		const selection = graphManager.getGraphViewer().getSelection();
-		let infoText = '';
 		let formulaText = '';
-		const state = {};
+		const jsgState = {};
+		const appState = {};
 
 		if (selection.length) {
-			graphManager.getGraphViewer().getGraphView().setFocus(undefined);
+			graphManager.getGraphViewer().getGraphView().setFocus(selection[0]);
 		}
 
 		if (selection !== undefined && selection.length === 1) {
 			const item = selection[0].getModel();
 			const sheet = getContainer(item);
 			if (sheet) {
-				const attrName = item.getItemAttributes().getAttribute('sheetname');
-				const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
-				infoText = attrName ? attrName.getValue() : '';
-				const expr = attrFormula ? attrFormula.getExpression() : undefined;
-				if (expr) {
-					formulaText = expr.getTerm()
-						? `=${expr.getTerm().toLocaleString(JSG.getParserLocaleSettings(), {
-								item: sheet,
-								useName: true,
-						  })}`
-						: '';
-					state.graphCellSelected = true;
+				formulaText = selection[0].getView().getSelectedFormula(sheet);
+				if (formulaText) {
+					jsgState.graphCellSelected = true;
 				}
 				const attr = item.getAttributeAtPath('showwizard');
 				if ((item instanceof JSG.ChartNode) && item.getDataRange() && attr && attr.getValue() === true) {
 					graphManager.getGraphEditor().invalidate();
-					state.showChartProperties = true;
+					appState.showChartProperties = true;
+					attr.setExpressionOrValue(false);
+				}
+				if ((item instanceof JSG.SheetPlotNode) && attr && attr.getValue() === true) {
+					item.createSeriesFromSelection(
+						graphManager.getGraphViewer(),
+						sheet,
+						graphManager.chartSelection,
+						graphManager.chartType
+					);
+					graphManager.getGraphEditor().invalidate();
 					attr.setExpressionOrValue(false);
 				}
 			}
@@ -114,20 +121,24 @@ export class EditBarComponent extends Component {
 				view.moveSheetToTop(graphManager.getGraphViewer());
 			}
 		} else {
-			state.showChartProperties = false;
-			state.graphCellSelected = false;
+			appState.showChartProperties = false;
+			jsgState.graphCellSelected = false;
 		}
 
-		formula.innerHTML = formulaText;
-		info.innerHTML = infoText;
+		formula.innerHTML = Strings.encodeXML(formulaText);
+		info.innerHTML = '';
 
-		if (this.props.appState.cellSelected === true) {
-			state.cellSelected = false;
+		if (this.props.cellSelected === true) {
+			jsgState.cellSelected = false;
 		}
 
-		if (Object.keys(state).length) {
-			this.props.setAppState(state);
+		if (Object.keys(jsgState).length) {
+			this.props.setJsgState(jsgState);
 		}
+		if (Object.keys(appState).length) {
+			this.props.setJsgState(appState);
+		}
+
 	}
 
 	onSheetSelectionChanged(notification) {
@@ -153,8 +164,8 @@ export class EditBarComponent extends Component {
 		const activeCell = item.getOwnSelection().getActiveCell();
 
 		if (!(item instanceof StreamSheet) || activeCell === undefined) {
-			if (this.props.appState.cellSelected) {
-				this.props.setAppState({ cellSelected: false });
+			if (this.props.cellSelected) {
+				this.props.setJsgState({ cellSelected: false });
 			}
 			formula.innerHTML = '';
 			info.innerHTML = '';
@@ -168,17 +179,17 @@ export class EditBarComponent extends Component {
 		formula.innerHTML = value;
 		info.innerHTML = item.getOwnSelection().refToString();
 
-		if (this.props.appState.cellSelected === false) {
-			this.props.setAppState({ cellSelected: true });
+		if (this.props.cellSelected === false) {
+			this.props.setJsgState({ cellSelected: true });
 		}
 	}
 
 	getSheetView() {
 		let view;
 
-		if (this.props.appState.cellSelected) {
+		if (this.props.cellSelected) {
 			view = graphManager.getActiveSheetView();
-		} else if (this.props.appState.graphCellSelected) {
+		} else if (this.props.graphCellSelected) {
 			const selection = graphManager.getGraphViewer().getSelection();
 			if (selection !== undefined && selection.length === 1) {
 				view = selection[0].getView();
@@ -311,7 +322,7 @@ export class EditBarComponent extends Component {
 				this._cellEditor.toggleReferenceMode();
 				break;
 			case 'F4':
-				this._cellEditor.toggleReferenceType();
+				this._cellEditor.toggleReferenceType(event, view);
 				break;
 			case 'ArrowLeft':
 			case 'ArrowUp':
@@ -396,6 +407,9 @@ export class EditBarComponent extends Component {
 			// TODO: validate its a graph formula, if expected
 		} catch (e) {
 			const element = document.getElementById('editbarformula');
+			if (this._cellEditor) {
+				this._cellEditor.deActivateReferenceMode();
+			}
 			view.notifyMessage(
 				{
 					message: e.message,
@@ -430,8 +444,16 @@ export class EditBarComponent extends Component {
 					}
 				}
 			}
-			view.updateGraphItem(item, graphItem, formula);
-			graphManager.getGraphEditor().getInteractionHandler().updateGraphItems();
+			const chartView = selection.getFirstSelection().getView();
+			if ((chartView instanceof SheetPlotView) && chartView.hasSelectedFormula()) {
+				cmd = new SetChartFormulaCommand(graphItem, chartView.chartSelection, data.expression);
+			} else {
+				const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
+				cmd = new SetAttributeAtPathCommand(graphItem, path, new Expression(0, formula));
+				// this is necessary, to keep changes, otherwise formula will be recreated from graphitem
+				graphItem.setAttributeAtPath(path, new Expression(0, formula));
+				graphItem._noFormulaUpdate = true;
+			}
 		} else {
 			const ref = item.getOwnSelection().activeCellToString();
 			if (data.numberFormat) {
@@ -476,7 +498,7 @@ export class EditBarComponent extends Component {
 					id="editbarreference"
 					disabled
 					onKeyDown={this.handleReferenceKeyDown}
-					contentEditable={this.props.appState.cellSelected}
+					contentEditable={this.props.cellSelected}
 					style={{
 						margin: 0,
 						padding: '3px 3px 0px 3px',
@@ -516,7 +538,7 @@ export class EditBarComponent extends Component {
 				</span>
 				<span
 					id="editbarformula"
-					contentEditable={this.props.appState.cellSelected || this.props.appState.graphCellSelected}
+					contentEditable={this.props.cellSelected || this.props.graphCellSelected}
 					onKeyDown={this.handleFormulaKeyDown}
 					onKeyUp={this.handleFormulaKeyUp}
 					onBlur={this.handleFormulaBlur}
@@ -550,7 +572,8 @@ export class EditBarComponent extends Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState
+		cellSelected: state.jsgState.cellSelected,
+		graphCellSelected: state.jsgState.graphCellSelected
 	};
 }
 

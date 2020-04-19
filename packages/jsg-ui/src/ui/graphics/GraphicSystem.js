@@ -548,7 +548,7 @@ class GraphicSystem {
 				canvas.removeEventListener('touchend', onTouchDefault, true);
 				canvas.removeEventListener('touchcancel', onTouchCancel, true);
 				if (handler !== undefined) {
-					handler.off('pantart', onTouchDragStart);
+					handler.off('panstart', onTouchDragStart);
 					handler.off('panmove', onTouchDrag);
 					handler.off('panend', onTouchDragEnd);
 					handler.off('tap', onTouchTap);

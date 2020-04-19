@@ -59,6 +59,10 @@ typings/
 
 # WebStorm IDE
 .idea
+.vscode/tasks.json
 
 # License files
 license.lic
+
+# dynamic functions directory
+/functions

@@ -2,7 +2,6 @@
 
 const { mix } = require('mixwith');
 const { Errors, CODES } = require('@cedalo/error-codes');
-const IdGenerator = require('@cedalo/id-generator');
 
 const AbstractMachineRepository = require('./AbstractMachineRepository');
 const MongoDBMixin = require('../mongoDB/MongoDBMixin');
@@ -14,10 +13,6 @@ const MACHINE = {
 	name: 'Base Machine',
 	isTemplate: true,
 	streamsheets: []
-};
-const addMachineTemplate = (templates) => {
-	templates.push(MACHINE);
-	return Promise.resolve(templates);
 };
 
 const reduceCells = (cells) =>
@@ -31,9 +26,10 @@ const reduceCells = (cells) =>
 const deleteProps = (...props) => (obj) => props.forEach((prop) => delete obj[prop]);
 
 const deleteCellProps = deleteProps('reference', 'info');
-const deleteMachineProps = deleteProps('outbox', 'functionDefinitions', 'stats');
-const deleteStreamSheetProps = deleteProps('currentMessage', 'jsonpath', 'stats');
-const deleteInboxProps = deleteProps('messages');
+const deleteMachineProps = deleteProps('outbox', 'functionDefinitions', 'functionsHelp', 'stats');
+const deleteStreamSheetProps = deleteProps('stats');
+const deleteInboxProps = deleteProps('messages', 'currentMessage');
+const deleteLoopProps = deleteProps('currentPath', 'index');
 
 
 const deletePropsFromCells = (cells) => {
@@ -54,6 +50,7 @@ const checkAndTransformMachine = (machine) => {
 			checkStreamSheetCells(streamsheet);
 			deleteStreamSheetProps(streamsheet);
 			deleteInboxProps(streamsheet.inbox);
+			deleteLoopProps(streamsheet.loop);
 		});
 		return machine;
 	}
@@ -94,19 +91,6 @@ module.exports = class MongoDBMachineRepository extends mix(
 			return this.insertDocument(this.collection, machine);
 		}
 		return Promise.reject(new Error('Wrong machine definition!'));
-	}
-
-	saveMachineAsTemplate(
-		machine,
-		templateId = IdGenerator.generate(),
-		templateName
-	) {
-		machine.id = templateId;
-		machine.name = templateName;
-		machine.isTemplate = true;
-		// TODO: save machine as template
-		// return this.saveMachine(machine);
-		return Promise.resolve({});
 	}
 
 	saveMachines(machines = []) {
@@ -360,7 +344,7 @@ module.exports = class MongoDBMachineRepository extends mix(
 			.then((resp) => resp.result && resp.result.ok);
 	}
 
-	deleteCells(machineId, streamsheetId, cellDescriptors) {
+	deleteCells(machineId, streamsheetId, cellDescriptors = []) {
 		const cells = 'streamsheets.$.sheet.cells.';
 		const selector = { _id: machineId, 'streamsheets.id': streamsheetId };
 		const unset = {};
@@ -413,20 +397,6 @@ module.exports = class MongoDBMachineRepository extends mix(
 			}
 			return Promise.reject(error);
 		});
-	}
-
-	getTemplates() {
-		return this
-			.getDocuments(this.collection, { isTemplate: true })
-			.then((templates) => addMachineTemplate(templates));
-	}
-
-	findTemplate(id) {
-		return this.findMachine(id, { isTemplate: true });
-	}
-
-	updateTemplate(id, template) {
-		return this.replaceDocument(this.collection, id, template);
 	}
 
 	async updateStreams(stream) {

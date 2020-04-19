@@ -166,7 +166,11 @@ class ConfigurationsManager {
 	getDeepProducerConfigs(onlyActive = true) {
 		const allConfigs = [];
 		this.producerConfigs.forEach((c) => {
-			allConfigs.push(this.getDeepConfiguration(c));
+			try {
+				allConfigs.push(this.getDeepConfiguration(c));
+			} catch (e) {
+				logger.error(e);
+			}
 		});
 		if (onlyActive) {
 			return allConfigs.filter((c) => !c.disabled);

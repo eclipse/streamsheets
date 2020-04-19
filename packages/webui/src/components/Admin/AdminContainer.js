@@ -1,58 +1,35 @@
 /* eslint-disable react/prop-types */
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
-import {AdminNavigation} from '../../layouts/AdminNavigation';
-import Consumers from './streams/Consumers';
-import Connectors from './streams/Connectors';
+import { accessManager } from '../../helper/AccessManager';
+import StreamHelper from '../../helper/StreamHelper';
+import { AdminNavigation } from '../../layouts/AdminNavigation';
+import NotAuthorizedComponent from '../Errors/NotAuthorizedComponent';
 import Database from './security/Database';
+import Connectors from './streams/Connectors';
+import Consumers from './streams/Consumers';
 import NewStreamDialog from './streams/NewStreamDialog';
+import Producers from './streams/Producers';
 import StreamDeleteDialog from './streams/StreamDeleteDialog';
 import StreamFormContainer from './streams/StreamFormContainer';
-import { accessManager } from '../../helper/AccessManager';
-import NotAuthorizedComponent from '../Errors/NotAuthorizedComponent';
-import Producers from './streams/Producers';
 import Streams from './streams/Streams';
+import { PluginExtensions } from '@cedalo/webui-extensions';
 
-let initiated = false;
+
+
+const getSelectedPage = (match, streams) => {
+	const parts = match.url.split('/');
+	const relevantPart = parts[parts.indexOf('administration') + 1];
+	if (relevantPart === 'stream') {
+		const configuration = StreamHelper.getConfiguration(streams, match.params.configId);
+		return configuration ? StreamHelper.getPageFromClass(configuration.className) : 'connectors';
+	}
+	return relevantPart;
+};
 
 export class AdminContainer extends Component {
-	static getDerivedStateFromProps(props /* , state */) {
-		if (!initiated) {
-			initiated = true;
-			const { location } = props;
-			let selectedPage = 'connectors';
-			switch (location.pathname) {
-				case '/administration/streams':
-					selectedPage = 'streams';
-					break;
-				case '/administration/consumers':
-					selectedPage = 'consumers';
-					break;
-				case '/administration/producers':
-					selectedPage = 'producers';
-					break;
-				case '/administration/connectors':
-					selectedPage = 'connectors';
-					break;
-				case '/administration/users':
-					selectedPage = 'users';
-					break;
-				case '/administration/user':
-					selectedPage = 'user';
-					break;
-				case '/administration/database':
-					selectedPage = 'database';
-					break;
-				default:
-					selectedPage = 'connectors';
-			}
-			props.setPageSelected(selectedPage);
-		}
-
-		return null;
-	}
 
 	constructor(props) {
 		super(props);
@@ -84,7 +61,7 @@ export class AdminContainer extends Component {
 							height: '100%'
 						}}
 					>
-						<AdminNavigation match={this.props.match} />
+						<AdminNavigation selection={getSelectedPage(this.props.match, this.props.streams)} />
 					</div>
 				</div>
 				<div
@@ -113,6 +90,9 @@ export class AdminContainer extends Component {
 					{this.props.location.pathname.startsWith('/administration/stream/') ? (
 						<StreamFormContainer match={this.props.match} />
 					) : null}
+					{this.props.location.pathname.startsWith('/administration/plugins/') ? (
+						<PluginExtensions location={this.props.location} />
+					) : null}
 				</div>
 				<NewStreamDialog />
 			</div>
@@ -122,16 +102,18 @@ export class AdminContainer extends Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
 		adminSecurity: state.adminSecurity,
-		myUser: state.user.user
+		myUser: state.user.user,
+		streams: {
+			providers: state.streams.providers,
+			connectors: state.streams.connectors,
+			consumers: state.streams.consumers,
+			producers: state.streams.producers
+		}
 	};
 }
 function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default connect(
-	mapStateToProps,
-	mapDispatchToProps
-)(AdminContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(AdminContainer);

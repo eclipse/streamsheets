@@ -1,7 +1,7 @@
 const { MessagingRequestHelper } = require('@cedalo/service-core');
 const { MessagingClient } = require('@cedalo/messaging-client');
 const { SERVICES_STREAMS_INPUT, SERVICES_STREAMS_EVENTS } = require('@cedalo/protocols').Topics;
-const { STREAMS_CONFIG_LOAD_ALL } = require('@cedalo/protocols').StreamsMessagingProtocol.MESSAGE_TYPES;
+const { STREAMS_CONFIG_LOAD_ALL, STREAM_RELOAD } = require('@cedalo/protocols').StreamsMessagingProtocol.MESSAGE_TYPES;
 const IdGenerator = require('@cedalo/id-generator');
 
 class StreamRepositoryProxy {
@@ -20,6 +20,15 @@ class StreamRepositoryProxy {
 		};
 		const result = await this.requestHelper.doRequestMessage({ message, topic: SERVICES_STREAMS_INPUT });
 		return Array.isArray(result.streams) ? result.streams : [];
+	}
+
+	async reloadAll() {
+		const message = {
+			requestId: IdGenerator.generateUUID(),
+			type: STREAM_RELOAD
+		};
+		const result = await this.requestHelper.doRequestMessage({ message, topic: SERVICES_STREAMS_INPUT });
+		return result;
 	}
 }
 

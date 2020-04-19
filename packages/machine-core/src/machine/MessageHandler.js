@@ -1,48 +1,51 @@
-const jsonpath = require('../functions/jsonpath');
+const { jsonpath } = require('@cedalo/commons');
+const { isType } = require('../utils');
 
 const DEF = {
 	path: '',
-	enabled: false
+	enabled: false,
+	recursively: false
 };
 
-const loopElement = (message, datapath) => {
-	const element = { keys: undefined, loop: undefined };
+const traverse = (el, path, recursively, cb) => {
+	cb(el, path);
+	if (Array.isArray(el)) {
+		el.forEach((e, index) =>
+			recursively ? traverse(e, `${path}[${index}]`, recursively, cb) : cb(e, `${path}[${index}]`)
+		);
+	} else if (isType.object(el)) {
+		Object.keys(el).forEach((k) =>
+			recursively ? traverse(el[k], `${path}[${k}]`, recursively, cb) : cb(el[k], `${path}[${k}]`)
+		);
+	}
+};
+
+const getLoopElement = (message, datapath) => {
+	let loop;
 	if (message) {
 		const path = datapath && jsonpath.parse(datapath);
 		const rootpath = path && path.length ? path.shift().toLowerCase() : undefined;
-		// const looppath = path.length ? jsonpath.toString(path) : '';
-		// eslint-disable-next-line no-nested-ternary
-		element.loop = rootpath
-			? rootpath === 'data'
-				? message.getDataAt(path)
-				: message.getMetaDataAt(path)
-			: undefined;
-		// DL-1159: loop should support objects!
-		if (element.loop) {
-			element.keys = Object.keys(element.loop);
-			element.loop = Array.isArray(element.loop) ? element.loop : element.keys.map((key) => element.loop[key]);
-		}
+		if (rootpath) loop = rootpath === 'data' ? message.getDataAt(path) : message.getMetaDataAt(path);
 	}
-	return element;
-};
-const indexFromPath = (pathstr) => {
-	const parts = jsonpath.parse(pathstr);
-	const index = parseInt(parts[0], 10);
-	return !isNaN(index) && isFinite(index) ? Math.max(index, 0) : 0;
+	return loop;
 };
 
-const isLoopDefined = (handler) => handler.isEnabled && !!handler._loopElement.loop;
+const createStack = (loop, recursively = false) => {
+	const stack = [];
+	// DL-1159: loop should support objects!
+	if (loop) traverse(loop, '', recursively, (e, p) => p && stack.push({ key: p, value: e }));
+	return stack;
+};
 
-const getKeyForIndex = (index, keys) => (keys ? keys[Math.max(0, index)] : '0');
 
 class MessageHandler {
 	constructor(cfg = {}) {
 		this.config = Object.assign({}, DEF, cfg);
 		this._index = 0;
 		this._used = false; // REVIEW: to track if a message was used at all, e.g. if it has no loop-element. improve!!
-		// this._loop = undefined;
+		this._hasLoop = false;
 		this._message = undefined;
-		this._loopElement = { keys: undefined, loop: undefined };
+		this._stack = [];
 	}
 
 	toJSON() {
@@ -64,13 +67,12 @@ class MessageHandler {
 
 	get index() {
 		// DL-712: we keep last loop element...
-		const last = this._loopElement.loop ? this._loopElement.loop.length - 1 : 0;
+		const last = this._stack.length - 1;
 		return Math.max(0, Math.min(this._index, last));
 	}
 
 	get indexKey() {
-		// return '0' by default to match legacy behaviour which returned 0 as default...
-		return this._loopElement.keys ? this._loopElement.keys[this.index] : '0';
+		return this._stack.length ? this._stack[this.index].key : '[0]';
 	}
 
 	get message() {
@@ -93,55 +95,55 @@ class MessageHandler {
 		return !this._message || (this._used && !this.hasNext());
 	}
 
+	get isRecursive() {
+		return this.config.recursively;
+	}
+	set isRecursive(doIt) {
+		this.config.recursively = !!doIt;
+	}
+
 	hasLoop() {
-		return !!this._loopElement.loop;
+		return this._hasLoop;
 	}
 
 	getLoopCount() {
-		return this._loopElement.loop != null ? this._loopElement.loop.length : -1;
-	}
-
-	setLoopIndexFromPath(path) {
-		const looppath = this.path;
-		const pathIdx = path.indexOf(looppath);
-		this._index = pathIdx >= 0 ? indexFromPath(path.substr(pathIdx + looppath.length)) : 0;
+		return this._hasLoop ? this._stack.length : -1;
 	}
 
 	reset() {
 		this._index = 0;
 		this._used = false;
-		// this._loop = this._message ? loopElement(this._message, this.config.path) : undefined;
-		this._loopElement = loopElement(this._message, this.config.path);
-	}
-
-	prefix(/* pref */) {
-		const curridx = Math.max(0, this._index);
-		return `${this.path}[${curridx}]`;
+		const loop = getLoopElement(this._message, this.config.path);
+		this._stack = createStack(loop, this.config.recursively);
+		this._hasLoop = !!loop;
 	}
 
 	pathForIndex(index) {
-		return `${this.path}[${getKeyForIndex(index, this._loopElement.keys)}]`;
+		const key = index >= 0 && index < this._stack.length ? this._stack[index].key : '0';
+		return `${this.path}${key}`;
 	}
 
 	hasNext() {
-		return isLoopDefined(this) && this._index < this._loopElement.loop.length;
-	}
-
-	hasPrevious() {
-		return isLoopDefined(this) && this._index > 0;
+		return this.isEnabled && this._hasLoop && this._index < this._stack.length;
 	}
 
 	next() {
-		// we handle only 2D data...
-		const nxtdata = isLoopDefined(this) ? this._loopElement.loop[this._index] : undefined;
-		this._index = nxtdata != null ? Math.min(this._index + 1, this._loopElement.loop.length) : this._index;
+		const nxtdata =
+			this.isEnabled && this._hasLoop && this._index < this._stack.length
+				? this._stack[this._index].value
+				: undefined;
+		if (nxtdata != null) this._index = Math.min(this._index + 1, this._stack.length);		
 		this._used = true;
 		return nxtdata;
 	}
 
+	/** @deprecated */
 	previous() {
-		const prevdata = isLoopDefined(this) ? this._loopElement.loop[this._index - 2] : undefined;
-		this._index = prevdata != null ? Math.max(this._index - 1, 0) : this._index;
+		const prevdata =
+			this.isEnabled && this._hasLoop && this._stack.length > 0 && this._index > 1
+				? this._stack[this._index - 2].value
+				: undefined;
+		if (prevdata != null) this._index = Math.max(this._index - 1, 0);
 		return prevdata;
 	}
 }

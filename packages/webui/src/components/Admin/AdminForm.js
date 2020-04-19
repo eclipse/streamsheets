@@ -231,7 +231,6 @@ class AdminForm extends Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
 		security: state.adminSecurity,
 	};
 }

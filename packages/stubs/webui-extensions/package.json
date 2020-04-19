@@ -1,0 +1,25 @@
+{
+	"name": "@cedalo/webui-extensions",
+	"version": "1.6.0-alpha",
+	"description": "Web UI Extensions",
+	"main": "index.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/cedalo/streamsheets.git"
+	},
+	"author": "Cedalo AG",
+	"bugs": {
+		"url": "https://github.com/cedalo/streamsheets/issues"
+	},
+	"dependencies": {
+	},
+	"peerDependencies": {
+		"@material-ui/core": "3.9.2",
+		"@material-ui/icons": "3.0.2",
+		"react": "^16.2.0",
+		"react-intl": "^2.4.0",
+		"react-redux": "^5.0.6",
+		"redux": "^3.7.2"
+	},
+	"license": "EPL-2.0"
+}

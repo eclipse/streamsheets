@@ -1,9 +1,14 @@
-import { Button, Chip, FormLabel, Grid, TextField, Typography } from '@material-ui/core';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { IconUser } from '../../../icons';
-import { userShape } from './UserPropTypes';
+import Button from '@material-ui/core/Button'
+import Chip from '@material-ui/core/Chip'
+import FormLabel from '@material-ui/core/FormLabel'
+import Grid from '@material-ui/core/Grid'
+import TextField from '@material-ui/core/TextField'
+import Typography from '@material-ui/core/Typography'
+import PropTypes from 'prop-types'
+import React from 'react'
+import { FormattedMessage } from 'react-intl'
+import { IconUser } from '../../../icons'
+import { userShape } from './UserPropTypes'
 
 export const UpdateUserForm = (props) => {
 	const {

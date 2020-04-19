@@ -1,11 +1,13 @@
 const { Machine, StreamSheet, Sheet } = require('../..');
-const ERROR = require('../../src/functions/errors');
+const { functions } = require('../utils');
 const { SheetParser } = require('../../src/parser/SheetParser');
 const { FuncTerm, Operand } = require('@cedalo/parser');
+const { FunctionErrors } = require('@cedalo/error-codes');
 
 
 let machine;
 beforeEach(() => {
+	Object.assign(SheetParser.context.functions, functions);
 	SheetParser.context.scope = new Sheet();
 	machine = new Machine();
 	machine.addStreamSheet(new StreamSheet({ name: 'T1' }));
@@ -154,15 +156,15 @@ describe('parsing of custom operators', () => {
 	it('should return an error value for incomplete binary operations', () => {
 		let term = SheetParser.parse('2*');
 		expect(term).toBeDefined();
-		expect(ERROR.isError(term.value)).toBeTruthy();
+		expect(FunctionErrors.isError(term.value)).toBeTruthy();
 		term = SheetParser.parse('2-');
 		expect(term).toBeDefined();
-		expect(ERROR.isError(term.value)).toBeTruthy();
+		expect(FunctionErrors.isError(term.value)).toBeTruthy();
 		term = SheetParser.parse('max(1,-2-)');
 		expect(term).toBeDefined();
-		expect(ERROR.isError(term.value)).toBeTruthy();
+		expect(FunctionErrors.isError(term.value)).toBeTruthy();
 		term = SheetParser.parse('max(1,-2*)');
 		expect(term).toBeDefined();
-		expect(ERROR.isError(term.value)).toBeTruthy();
+		expect(FunctionErrors.isError(term.value)).toBeTruthy();
 	});
 });

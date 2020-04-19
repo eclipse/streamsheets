@@ -1,18 +1,6 @@
 version: '3.7'
 
 services:
-  reverseproxy:
-    image: nginx:latest
-    container_name: reverseproxy
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-    ports:
-        - 8081:8081
-    restart: always
-    networks:
-      - streamsheets
-    logging:
-      driver: "none"
   streamsheets-internal-broker:
     image: eclipse-mosquitto:1.5
     container_name: streamsheets-internal-broker

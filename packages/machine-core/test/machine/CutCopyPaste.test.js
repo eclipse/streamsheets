@@ -1,5 +1,10 @@
-const { Machine, SheetIndex, SheetRange, StreamSheet } = require('../..');
+const { functions } = require('../utils');
+const { Machine, SheetIndex, SheetParser, SheetRange, StreamSheet } = require('../..');
 const DEF_PROPS = require('../../defproperties.json');
+
+beforeEach(() => {
+	Object.assign(SheetParser.context.functions, functions);
+});
 
 
 const setup = () => {

@@ -8,6 +8,7 @@ const {
 const { MonitorManager, RequestHandlers } = require('@cedalo/service-core');
 const { logger } = require('@cedalo/logger');
 
+const SheetParserContext = require('../../graph/SheetParserContext');
 const GraphManager = require('../../graph/GraphManager');
 const GraphMonitor = require('../../graph/GraphMonitor');
 const GraphRequestHandlers = require('../handlers/GraphRequestHandlers');
@@ -19,6 +20,7 @@ const {
 
 const config = require('../../../config/config');
 
+const TOPIC_SERVICE_STREAMS_FUNCTIONS = `${Topics.SERVICES_STREAMS_EVENTS}/functions`;
 const graphRepository = new MongoDBGraphRepository(config.mongodb);
 
 RepositoryManager.init({
@@ -41,6 +43,8 @@ module.exports = class GraphService extends MessagingService {
 			await this._handleGraphServiceResponseMessage(message);
 		} else if (topic === Topics.SERVICES_MACHINES_OUTPUT) {
 			await this._handleMachineServiceResponseMessage(message);
+		} else if (topic === TOPIC_SERVICE_STREAMS_FUNCTIONS) {
+			this._handleStreamsFunctionsMessage(message);
 		}
 	}
 
@@ -127,6 +131,12 @@ module.exports = class GraphService extends MessagingService {
 					response.machine.id
 				);
 				break;
+			case MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_MACHINE_MESSAGE_TYPE:
+			case MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE: {
+				const { machine } = response;
+				if (machine) SheetParserContext.updateFunctions(machine.functionDefinitions);
+				break;
+			}
 			default:
 				break;
 		}
@@ -140,7 +150,6 @@ module.exports = class GraphService extends MessagingService {
 			this.publishMessage(Topics.SERVICES_GRAPHS_OUTPUT, response);
 		} catch (error) {
 			logger.error(`GraphService#handleMessage:Failed to handle request ${message.type}!\\nReason: `, error);
-			logger.error(`GraphService#handleMessage:Failed to handle request ${message.type}!\\nReason: `, error);
 		}
 	}
 
@@ -150,24 +159,25 @@ module.exports = class GraphService extends MessagingService {
 			this._graphManager.handleMachineDescriptorUpdate(event);
 		} else if (event.type === GatewayMessagingProtocol.EVENTS.MACHINE_STEP_EVENT) {
 			event.streamsheets.forEach((streamsheet) => {
+				const { cells, graphCells, id, namedCells, drawings, graphItems } = streamsheet;
 				this._graphManager.handleStreamSheetStep(
 					event.srcId,
-					streamsheet.id,
-					streamsheet.jsonpath,
-					streamsheet.cells,
-					streamsheet.namedCells,
-					streamsheet.graphCells,
-					streamsheet.drawings,
-					streamsheet.graphItems,
-					event.outbox,
-					streamsheet.stats,
-					streamsheet.inbox,
-					streamsheet.currentMessage
+					id,
+					cells,
+					namedCells,
+					graphCells,
+					drawings,
+					graphItems
 				);
 			});
 		} else if (event.type === MachineServerMessagingProtocol.EVENTS.NAMED_CELLS_EVENT) {
 			this._graphManager.handleStreamCellsUpdate(event.srcId, event.namedCells);
 		}
+	}
+
+	_handleStreamsFunctionsMessage({ event = {} }) {
+		const { data = {} } = event;
+		SheetParserContext.updateFunctions(data.functionDefinitions);
 	}
 
 	async _preStart() {
@@ -189,7 +199,8 @@ module.exports = class GraphService extends MessagingService {
 			Topics.SERVICES_GRAPHS_INPUT,
 			Topics.SERVICES_GRAPHS_OUTPUT,
 			`${Topics.SERVICES_MACHINES_EVENTS}/#`,
-			Topics.SERVICES_MACHINES_OUTPUT
+			Topics.SERVICES_MACHINES_OUTPUT,
+			TOPIC_SERVICE_STREAMS_FUNCTIONS
 		];
 	}
 };

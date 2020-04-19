@@ -838,11 +838,11 @@ class GraphItem extends Model {
 	 * Returns a custom reference. A custom reference can be provided to identify custom expressions in formulas.
 	 *
 	 * @method getCustomReference
-	 * @param {String} property Property to provide Referenc for.
+	 * @param {String} property Property to provide Reference for.
 	 * @return {Reference} A valid reference.
 	 */
 	getCustomReference(property) {
-		return this.getGraph().resolveCustomReference(this, property);
+		return this.getGraph() ? this.getGraph().resolveCustomReference(this, property) : undefined;
 	}
 
 	/**
@@ -2230,7 +2230,6 @@ class GraphItem extends Model {
 			const attr = this.getItemAttributes().getAttribute('sheetsource');
 			if (!attr || attr.getValue() !== 'cell') {
 				this._assignName(newId);
-				this.getGraph().assignUniqueGraphName(this);
 			}
 			// save old/new id match to restore references to id in expressions, attributes and ports
 
@@ -2966,24 +2965,6 @@ class GraphItem extends Model {
 		return undefined;
 	}
 
-	getItemByGraphName(name) {
-		const attr = this.getItemAttributes().getAttribute('sheetname');
-		if (attr && name === attr.getValue()) {
-			return this;
-		}
-
-		let i;
-		let subItem;
-
-		for (i = this._subItems.length - 1; i >= 0; i -= 1) {
-			subItem = this._subItems[i].getItemByGraphName(name);
-			if (subItem !== undefined) {
-				return subItem;
-			}
-		}
-		return undefined;
-	}
-
 	/**
 	 * Restores ids within expressions of this item sub items.
 	 *
@@ -3250,6 +3231,13 @@ class GraphItem extends Model {
 	addAttribute(attribute) {
 		this._attrCache = {};
 		return super.addAttribute(attribute);
+	}
+
+	updateSubAttributes() {
+		this._updateAttributes();
+		this._subItems.forEach((subItem) => {
+			subItem.updateSubAttributes();
+		});
 	}
 
 	_updateAttributes() {

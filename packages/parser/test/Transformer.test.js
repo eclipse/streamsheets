@@ -42,6 +42,11 @@ describe('Transformer', () => {
 		expect(Parser.parse('2+-2', DEF_CONTEXT).value).toBe(0);
 		expect(Parser.parse('2 + -2', DEF_CONTEXT).value).toBe(0);
 		expect(Parser.parse('2*-(2+1)', DEF_CONTEXT).value).toBe(-6);
+		expect(Parser.parse('(5-1)*-2', DEF_CONTEXT).value).toBe(-8);
+		expect(Parser.parse('5<1', DEF_CONTEXT).value).toBe(false);
+		expect(Parser.parse('  5  >   1  ', DEF_CONTEXT).value).toBe(true);
+		expect(Parser.parse('2 >=  1 +  1', DEF_CONTEXT).value).toBe(true);
+		expect(Parser.parse('-1<=1-1', DEF_CONTEXT).value).toBe(true);
 	});
 
 	test('unary op', () => {
@@ -73,48 +78,6 @@ describe('Transformer', () => {
 		expect(Parser.parse(`${HEIGHT} / 2 + ${HEIGHT} / 2 * -0.71 * (1 - ${DEPTH} * 2)`, DEF_CONTEXT).value).toBe(12.52);
 		expect(Parser.parse(`${HEIGHT} / 2 + ${HEIGHT} / 2 * -0.5 * (1 - ${DEPTH} * 2)`, DEF_CONTEXT).value).toBe(10);
 	});
-
-	test('conditions', () => {
-		expect(Parser.parse('.5*?(3>2,250,"falsch")', DEF_CONTEXT).value).toBe(125);
-
-		expect(Parser.parse('?(4!=2,1,0)', DEF_CONTEXT).value).toBe(1);
-		expect(Parser.parse('?(4>=2,1,0)', DEF_CONTEXT).value).toBe(1);
-		expect(Parser.parse('?(4<=2,1,0)', DEF_CONTEXT).value).toBe(0);
-		expect(Parser.parse('?(-4<=2,1,0)', DEF_CONTEXT).value).toBe(1);
-		expect(Parser.parse('?(4==2,1,0)', DEF_CONTEXT).value).toBe(0);
-		expect(Parser.parse('?(4==4,1,0)', DEF_CONTEXT).value).toBe(1);
-
-		expect(Parser.parse('?(3+3>1 & 4+3<1, a, b)', DEF_CONTEXT).value).toBe('b');
-		expect(Parser.parse('?(3+3>1 | 4+3<1, a, b)', DEF_CONTEXT).value).toBe('a');
-
-		expect(Parser.parse('2+2*?(4>1,2,0)', DEF_CONTEXT).value).toBe(6);
-		expect(Parser.parse('.5*?(3>2,250,"falsch")', DEF_CONTEXT).value).toBe(125);
-		expect(Parser.parse('?(3+2 > 1, ?(4 + 2 < 2, 42, 43), 44)', DEF_CONTEXT).value).toBe(43);
-		expect(Parser.parse('?(1+2>0,"ja", "no")', DEF_CONTEXT).value).toBe('ja');
-		expect(Parser.parse('(5-1)*-2', DEF_CONTEXT).value).toBe(-8);
-		expect(Parser.parse('5<1', DEF_CONTEXT).value).toBe(false);
-		expect(Parser.parse('  5  >   1  ', DEF_CONTEXT).value).toBe(true);
-		expect(Parser.parse('2 >=  1 +  1', DEF_CONTEXT).value).toBe(true);
-		expect(Parser.parse('-1<=1-1', DEF_CONTEXT).value).toBe(true);
-		expect(Parser.parse('?(5>1, "YES", "NO")', DEF_CONTEXT).value).toBe('YES');
-		expect(Parser.parse('?(5>1, ?(5<1, "mm", 42), "NO")', DEF_CONTEXT).value).toBe(42);
-
-		expect(Parser.parse('?(4,2,0)', DEF_CONTEXT).value).toBe(2);
-		expect(Parser.parse('?(4==,2,0)', DEF_CONTEXT).value).toBe(0);
-		expect(Parser.parse('?("hallo",2,0)', DEF_CONTEXT).value).toBe(2);
-	});
-
-	test('new IF condition', () => {
-		expect(Parser.parse('.5*IF(3>2,250,"falsch")', DEF_CONTEXT).value).toBe(125);
-		expect(Parser.parse('if ("IF",2,0)', DEF_CONTEXT).value).toBe(2);
-		expect(Parser.parse('iF("IF"=="if",2,4)', DEF_CONTEXT).value).toBe(4);
-		expect(Parser.parse('If (4<=2,1,0)', DEF_CONTEXT).value).toBe(0);
-		expect(Parser.parse('iF     (-4<=2,1,0)', DEF_CONTEXT).value).toBe(1);
-		expect(Parser.parse('IF(4<2,1)', DEF_CONTEXT).value).toBe(null);
-		// notes this:
-		expect(Parser.parse('iF + of', DEF_CONTEXT).value).toBe('iFof');
-	});
-
 	test('toString', () => {
 		expect(Parser.parse('-2', DEF_CONTEXT).toString()).toBe('-2');
 		expect(Parser.parse('(0-1)*-2', DEF_CONTEXT).toString()).toBe('(0-1)*-2');
@@ -131,17 +94,11 @@ describe('Transformer', () => {
 	});
 
 	test('reference usage', () => {
-		let testexpr = 'Item.3!WIDTH*0.5';
-		let term = Parser.parse(testexpr, DEF_CONTEXT);
+		const testexpr = 'Item.3!WIDTH*0.5';
+		const term = Parser.parse(testexpr, DEF_CONTEXT);
 		expect(term.operator.symbol).toBe('*');
 		expect(term.left.value).toBe('Item.3!WIDTH');
 		expect(term.right.value).toBe(0.5);
-
-		testexpr = '?(Item.4!SYMBOL:reference!="","", "undefined")';
-		term = Parser.parse(testexpr, DEF_CONTEXT);
-		expect(term.condition).toBeDefined();
-		expect(term.condition.left.value).toBe('Item.4!SYMBOL:reference');
-		expect(term.condition.operator.symbol).toBe('!=');
 	});
 	test('string parsing', () => {
 		let formula = '"  hallo Item.1 != <= => model.attributes:SYMBOL ()"';
@@ -204,9 +161,6 @@ describe('Transformer', () => {
 		// parse some more invalid formula:
 		validateTermIsInvalid(Parser.parse('sum(a', context));
 		validateTermIsInvalid(Parser.parse('SUM (1,2,tach  (0,3,2,1),4,MAX (5,3,4)', context));
-		validateTermIsInvalid(Parser.parse('?(3+3 1 & 4+3<1, a)', context));
-		validateTermIsInvalid(Parser.parse('?(Item.4!SYMBOL:reference!="")', context));
-		validateTermIsInvalid(Parser.parse('?(3+2 > 1, ?(4 + 2 < 2, 42, 43, 44)', context));
 		validateTermIsInvalid(Parser.parse('4/2+4/2*-0.97*(1-3*2', context));
 		validateTermIsInvalid(Parser.parse('Y / 2 + Y / 2 * -0.97 * (1 -  * 2)', context));
 	});

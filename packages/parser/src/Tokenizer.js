@@ -81,14 +81,6 @@ function skipWhiteSpace() {
 		index += 1;
 	}
 }
-function isFollowedBy(chCode, startindex) {
-	let _ch = expr.charCodeAt(startindex);
-	while (startindex < length && (!_ch || _ch === KEY_CODES.TAB || _ch === KEY_CODES.SPACE)) {
-		_ch = expr.charCodeAt(startindex);
-		startindex += 1;
-	}
-	return _ch === chCode;
-}
 
 function isQuote(code) {
 	return code === KEY_CODES.QUOTE || code === KEY_CODES.LEFT_QUOTE || code === KEY_CODES.RIGHT_QUOTE;
@@ -147,49 +139,57 @@ function precedenceOfBinary(op) {
 	}
 	return prec;
 }
-function defineCondOperator(c1, c2) {
-	let c = String.fromCharCode(c1).toLowerCase();
-	if (c === 'i' && c2) {
-		c = String.fromCharCode(c2).toLowerCase();
-		return c === 'f' ? 2 : 0;
-	}
-	return c1 === KEY_CODES.QMARK ? 1 : 0;
-}
-function isConditionStart(c1, c2) {
-	let oplength = defineCondOperator(c1, c2);
-	if (oplength > 0) {
-		// eslint-disable-next-line
-		const peekAt = index + oplength - 1;
-		oplength = isFollowedBy(KEY_CODES.OPAREN, peekAt) ? oplength : 0;
-	}
-	return oplength;
-}
+
 function isOperator(c1, c2) {
 	const op = String.fromCharCode(c1);
 	return isBinaryOperatorStr(op) || (c2 ? isBinaryOperatorStr(op + String.fromCharCode(c2)) : false);
 }
 
-function parseConditionPart(doTestParamSep) {
-	// eslint-disable-next-line
-	let _exp = parseExpression(true);
-	if (_exp) {
+function parseConditionPart() {
+	let exp;
+	if (index <= length && ch !== KEY_CODES.PARAM_SEP && ch !== KEY_CODES.CPAREN) {
+		// eslint-disable-next-line
+		exp = parseExpression(true);
 		skipWhiteSpace();
-		if (ch === KEY_CODES.PARAM_SEP) {
-			ch = expr.charCodeAt(index);
-			index += 1;
-		} else if (doTestParamSep
-			&& !throwException(`Expecting '${String.fromCharCode(KEY_CODES.PARAM_SEP)}'`, index, ErrorCode.EXPECTED_SEPARATOR)) {
-			_exp.isInvalid = true;
-		}
 	} else if (!throwException('Expecting expression', index, ErrorCode.EXPECTED_EXPRESSION)) {
-		_exp = { type: 'undef', isInvalid: true, start: index - 1, end: index };
+		index = index < length ? index : length;
+		exp = { type: 'undef', isInvalid: true, start: index, end: index };
+		ch = expr.charCodeAt(index);
+		index += 1;
 	}
-	return _exp;
+	return exp;
+}
+function skipSeparator() {
+	const skip = ch === KEY_CODES.PARAM_SEP;
+	if (skip) {
+		// move on
+		ch = expr.charCodeAt(index);
+		index += 1;
+	}
+	return skip;
+}
+function parseConditionTrueFalse(cond) {
+	let exp;
+	if (index < length && ch !== KEY_CODES.CPAREN) {
+		// if condition given it expects separator next
+		if (!skipSeparator() && cond) {
+			cond.isInvalid = true;
+			throwException(
+				`Expecting '${String.fromCharCode(KEY_CODES.PARAM_SEP)}'`,
+				index,
+				ErrorCode.EXPECTED_SEPARATOR
+			);
+		}
+		// eslint-disable-next-line
+		exp = parseExpression(true);
+		skipWhiteSpace();
+	}
+	index = index < length ? index : length;
+	return exp || { type: 'undef', isInvalid: true, start: index, end: index }
 }
 // condition: ?(condition, doOnTrue, doOnFalse)
-function parseCondition(oplength) {
+function parseCondition() {
 	const cond = { type: 'condition', start: index - 1 };
-	index += oplength - 1;
 	ch = expr.charCodeAt(index);
 	index += 1;
 	skipWhiteSpace();
@@ -199,17 +199,19 @@ function parseCondition(oplength) {
 	}
 	ch = expr.charCodeAt(index);
 	index += 1;
-	cond.condition = parseConditionPart(true);
-	cond.onTrue = parseConditionPart();
-	cond.onFalse = parseConditionPart();
-	cond.condstr = oplength === 2 ? 'IF' : '?';
-	if (ch !== KEY_CODES.CPAREN && !throwException('Expecting ")"', index, ErrorCode.EXPECTED_BRACKET_RIGHT)) {
-		index -= 1; // move index one back, to get this character again when move on...
-		cond.isInvalid = true;
-	}
-	ch = expr.charCodeAt(index); // move on...
+	cond.condition = parseConditionPart();
+	cond.onTrue = parseConditionTrueFalse(cond);
+	cond.onFalse = parseConditionTrueFalse();
+	if (index > length) index = length;
 	cond.end = index;
-	index += 1;
+	if (ch !== KEY_CODES.CPAREN && !throwException('Expecting ")"', index, ErrorCode.EXPECTED_BRACKET_RIGHT)) {
+		// index -= 1; // move index one back, to get this character again when move on...
+		cond.isInvalid = true;
+	} else {
+		 // move on...
+		ch = expr.charCodeAt(index); // move on...
+		index += 1;
+	}
 	return cond;
 }
 
@@ -231,30 +233,33 @@ function parseString(prefix) {
 	while (index < length) {
 		ch = expr.charCodeAt(index);
 		index += 1;
-		if (isQuote(ch)) { // === KEY_CODES.QUOTE) {
-			ch = expr.charCodeAt(index);
-			index += 1;
+		if (isQuote(ch)) {
 			break;
-			/* DL-1111 2x quotes should be handled as 1
-			this is wrong and this is not that easy since result will be invalid if parsed again!
-			e.g: '"abc""def"' => results in '"abc"def"' => if parsed again => ERROR!!
-			if (isQuote(ch)) {
-				ch = expr.charCodeAt(index);
-				index += 1;
-			} else {
-				break;
-			}
-			*/
 		} else {
 			str += String.fromCharCode(ch);
 			if (ch === KEY_CODES.BSLASH) {
 				str += expr.charAt(index);
+				ch = expr.charCodeAt(index);
 				index += 1;
 			}
 		}
+		// 	/* DL-1111 2x quotes should be handled as 1
+		// 	this is wrong and this is not that easy since result will be invalid if parsed again!
+		// 	e.g: '"abc""def"' => results in '"abc"def"' => if parsed again => ERROR!!
+		// 	if (isQuote(ch)) {
+		// 		ch = expr.charCodeAt(index);
+		// 		index += 1;
+		// 	} else {
+		// 		break;
+		// 	}
+		// 	*/
 	}
+	token.end = index;
 	token.value = str;
-	token.end = index - 1;
+	if (isQuote(ch)) {
+		ch = expr.charCodeAt(index);
+		index += 1;
+	}
 	return token;
 }
 
@@ -324,7 +329,7 @@ function parseIdentifier(prefix) {
 		ch = expr.charCodeAt(index);
 		index += 1;
 		const ch2 = expr.charCodeAt(index);
-		if (!isValidIdentifier(ch) || isOperator(ch, ch2) || isConditionStart(ch, ch2)) {
+		if (ch === KEY_CODES.QMARK || !isValidIdentifier(ch) || isOperator(ch, ch2)) {
 			break;
 		}
 		identifier += String.fromCharCode(ch);
@@ -367,7 +372,8 @@ function parseParams(forList) {
 	const closeCh = forList ? KEY_CODES.CBRACKET : KEY_CODES.CPAREN;
 	while (ch !== closeCh) { // KEY_CODES.CPAREN) {
 		// eslint-disable-next-line
-		params.push(parseExpression(true));
+		const param = parseExpression(true) || { type: 'undef', start: index - 1, end: index };
+		params.push(param);
 		skipWhiteSpace();
 		if (ch === KEY_CODES.PARAM_SEP) {
 			ch = expr.charCodeAt(index);
@@ -377,13 +383,13 @@ function parseParams(forList) {
 				params.push({ type: 'undef', start: index - 1, end: index });
 			}
 		} else if (ch !== closeCh) { // KEY_CODES.CPAREN) {
-			const errmsg = index < expr.length
+			const errmsg = index < length
 				? `Expected ${String.fromCharCode(KEY_CODES.PARAM_SEP)}`
 				: `Missing ${String.fromCharCode(closeCh)}`;
-			const errcode = index < expr.length ? ErrorCode.EXPECTED_SEPARATOR : ErrorCode.EXPECTED_BRACKET_RIGHT;
+			const errcode = index < length ? ErrorCode.EXPECTED_SEPARATOR : ErrorCode.EXPECTED_BRACKET_RIGHT;
 			if (!throwException(errmsg, index, errcode)) {
 				// throw error:
-				index -= 1;
+				// index -= 1;
 				params.invalid = true;
 				break;
 			}
@@ -425,6 +431,7 @@ function parseFunctionOrIdentifier() {
 				params
 			};
 			op.isInvalid = !!params.invalid;
+			if (op.isInvalid && index >= length) op.end = length;
 		} else {
 			const idx = op.value ? index - op.value.length : index;
 			throwException(`Unknown function "${op.value}"`, idx - 1, ErrorCode.UNKNOWN_FUNCTION);
@@ -454,9 +461,8 @@ function parseOperand() {
 		op = parseNumber();
 		// currently all unit operations are single characters...
 		op = isUnitOperator(ch) ? parseUnary(op) : op;
-		// eslint-disable-next-line
-	} else if (op = isConditionStart(ch, expr.charCodeAt(index))) {
-		op = parseCondition(op);
+	} else if (ch === KEY_CODES.QMARK) {
+		op = parseCondition();
 	} else if (isQuote(ch)) { // === KEY_CODES.QUOTE) {
 		op = parseString();
 		// DL-1253: have to check if string is terminated by closing quote...
@@ -480,10 +486,12 @@ function parseOperand() {
 		// closing parenthesis => we are inside a group expression
 		// or a comma which signals next term  => in both cases go on with undef operand, so
 		op = { type: 'undef', start: index - 1, end: index };
-	} else {
+	} else if (ch != null && !isNaN(ch)) {
 		op = parseFunctionOrIdentifier();
 		// currently all unit operations are single characters...
 		op = isUnitOperator(ch) ? parseUnary(op) : op;
+	} else {
+		op = { type: 'undef', isInvalid: true, start: index - 1, end: index };
 	}
 	return op;
 }
@@ -563,20 +571,20 @@ function parseExpression(isGroupOrParam) {
 	skipWhiteSpace();
 	const left = parseOperand();
 	const operator = parseOperator();
-	if (operator) {
+	if (left && operator) {
 		return parseRight(left, operator);
 	}
 	// no operator, run 'til next character
 	skipWhiteSpace();
 	// operator might was used by unit operator, e.g. %
-	if (index <= expr.length && left) {
+	if (index <= length && left) {
 		if (UNIT_OPS.includes(left.operator) && isBinaryOperatorStr(left.operator)) {
 			const right = parseOperand();
 			if (right && right.type !== 'undef') {
 				const { operator: symbol, start } = left;
 				return createBinaryNode(left.arg, { start, symbol }, right);
 			}
-		} else if (index < expr.length && !isGroupOrParam) {
+		} else if (index < length && !isGroupOrParam) {
 			// eslint-disable-next-line max-len
 			left.isInvalid = !throwException(`Unexpected character: ${expr.charAt(index - 1)}`, index, ErrorCode.UNEXPECTED_CHAR);
 		}

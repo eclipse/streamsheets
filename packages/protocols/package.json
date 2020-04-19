@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/protocols",
-  "version": "1.4.0",
+  "version": "1.6.0-alpha",
   "description": "Protocol definitions for communication between Gateway Client, Gateway, Machine Server and Graph Server",
   "main": "index.js",
   "scripts": {
@@ -19,25 +19,7 @@
   "devDependencies": {
     "babel-core": "6.25.0",
     "babel-loader": "7.1.1",
-    "babel-preset-env": "1.6.0",
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ],
-    "env": {
-      "browser": true,
-      "node": true
-    },
-    "rules": {
-      "global-require": 1,
-      "no-undef": 1,
-      "no-unused-vars": 1
-    }
+    "babel-preset-env": "1.6.0"
   },
   "license": "EPL-2.0"
 }

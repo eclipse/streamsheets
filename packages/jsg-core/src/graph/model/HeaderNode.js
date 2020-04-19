@@ -138,18 +138,7 @@ module.exports = class HeaderNode extends Node {
 	}
 
 	getSectionTitle(index) {
-		const data = this._sectionData[index];
-		if (data) {
-			return data._title;
-		}
 		return undefined;
-	}
-
-	setSectionTitle(index, title) {
-		const section = this.getOrCreateSectionAt(index);
-		if (section !== undefined) {
-			section._title = title;
-		}
 	}
 
 	getSectionFormat(index) {

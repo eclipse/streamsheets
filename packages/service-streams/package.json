@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/service-streams",
-  "version": "1.4.0",
+  "version": "1.6.0-alpha",
   "description": "Streams Service",
   "main": "index.js",
   "scripts": {
@@ -22,9 +22,6 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/service-streams",
   "devDependencies": {
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jest": "21.2.1",
     "jest-cli": "21.2.1",
     "terser-webpack-plugin": "1.2.2",
@@ -33,27 +30,22 @@
     "webpack-node-externals": "1.7.2"
   },
   "dependencies": {
-    "@cedalo/stream-file": "*",
-    "@cedalo/stream-kafka": "*",
-    "@cedalo/stream-mail-smtp": "*",
-    "@cedalo/stream-mongodb": "*",
-    "@cedalo/stream-rest-client": "*",
-    "@cedalo/rest-server": "*",
-    "@cedalo/stream-mqtt": "*",
-    "@cedalo/logger": "*",
-    "@cedalo/messaging-client": "*",
-    "@cedalo/protocols": "*",
-    "@cedalo/repository": "*",
-    "@cedalo/sdk-streams": "*",
-    "@cedalo/service-core": "*",
+    "@cedalo/commons": "1.6.0-alpha",
+    "@cedalo/stream-file": "1.6.0-alpha",
+    "@cedalo/stream-kafka": "1.6.0-alpha",
+    "@cedalo/stream-mail-smtp": "1.6.0-alpha",
+    "@cedalo/stream-mongodb": "1.6.0-alpha",
+    "@cedalo/stream-rest-client": "1.6.0-alpha",
+    "@cedalo/rest-server": "1.6.0-alpha",
+    "@cedalo/stream-mqtt": "1.6.0-alpha",
+    "@cedalo/logger": "1.6.0-alpha",
+    "@cedalo/messaging-client": "1.6.0-alpha",
+    "@cedalo/protocols": "1.6.0-alpha",
+    "@cedalo/repository": "1.6.0-alpha",
+    "@cedalo/sdk-streams": "1.6.0-alpha",
+    "@cedalo/service-core": "1.6.0-alpha",
     "ioredis": "4.6.2",
     "mixwith": "0.1.1"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
   },
   "jest": {
     "collectCoverage": true,

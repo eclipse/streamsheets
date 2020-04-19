@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/rest-server-core",
-  "version": "1.4.0",
+  "version": "1.6.0-alpha",
   "description": "A server to consume REST messages and publish events.",
   "main": "index.js",
   "scripts": {
@@ -20,17 +20,14 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/rest-server-core",
   "devDependencies": {
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jest": "21.2.1",
     "jest-cli": "23.6.0",
     "sinon": "4.1.2",
     "supertest": "3.0.0"
   },
   "dependencies": {
-    "@cedalo/logger": "*",
-    "@cedalo/id-generator": "*",
+    "@cedalo/logger": "1.6.0-alpha",
+    "@cedalo/id-generator": "1.6.0-alpha",
     "basic-auth": "2.0.0",
     "body-parser": "1.18.3",
     "cheerio": "1.0.0-rc.2",
@@ -41,13 +38,7 @@
     "http-errors": "1.5.1",
     "mkdirp": "0.5.1",
     "morgan": "1.9.1",
-    "request": "2.83.0"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
+    "request": "2.88.0"
   },
   "jest": {
     "collectCoverage": true,

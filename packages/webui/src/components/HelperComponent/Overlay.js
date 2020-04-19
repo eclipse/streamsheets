@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Grid } from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
 
 export const Overlay = (props) => (
 	<Grid
@@ -8,7 +8,7 @@ export const Overlay = (props) => (
 		justify="center"
 		alignItems="center"
 		style={{
-			zIndex: 100,
+			zIndex: 10000,
 			width: '100%',
 			height: '100%',
 			background: 'rgba(0,0,0,0.1)',

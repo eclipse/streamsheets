@@ -54,7 +54,7 @@ class CreateItemInteraction extends AbstractInteraction {
 		// check, if click on valid container
 		const graph = viewer.getGraphController().getModel();
 		const parent = this._parent ? this._parent.getModel() : graph;
-		if (!parent.isContainer()) {
+		if (!this.isAddAllowed(parent)) {
 			this.cancelInteraction(event, viewer);
 			if (!event.isConsumed && event instanceof MouseEvent) {
 				this.getInteractionHandler().handleMouseEvent(event);
@@ -128,24 +128,47 @@ class CreateItemInteraction extends AbstractInteraction {
 	updateFeedback(event, viewer, offset) {
 		const start = this.alignToGrid(this.startLocation, viewer, event.event.altKey, new Point(0, 0));
 		const last = this.alignToGrid(this.lastLocation, viewer, event.event.altKey, new Point(0, 0));
-		const width = start.x - last.x;
-		const height = start.y - last.y;
+
+		last.x = Math.max(start.x, last.x);
+		last.y = Math.max(start.y, last.y);
+
+		let width = start.x - last.x;
+		let height = start.y - last.y;
 		let newOrigin = last.copy();
 
 		newOrigin.x = Math.min(newOrigin.x, newOrigin.x + width);
 		newOrigin.y = Math.min(newOrigin.y, newOrigin.y + height);
 		newOrigin = this.alignToGrid(newOrigin, viewer, event.event.altKey, newOrigin);
 
+		if (event.event.shiftKey) {
+			if (this.currentLocation.x - this.startLocation.x > this.currentLocation.y - this.startLocation.y) {
+				height = width;
+			} else {
+				width = height;
+			}
+		}
+		if (event.event.ctrlKey) {
+			newOrigin.x += width;
+			newOrigin.y += height;
+			height *= 2;
+			width *= 2;
+		}
+
 		this._graphItem.setPinPointTo(newOrigin);
+
 		this._graphItem.setSize(Math.abs(width), Math.abs(height));
 		// call layoutAll to update items which depends on layout, e.g. lane...
 		this._graphItem.layoutAll();
 	}
 
+	isAddAllowed(model) {
+		return model.isContainer() && !model.isProtected() && model.isVisible();
+	}
+
 	onMouseMove(event, viewer) {
 		const controller = this._highlightTargetController(event, viewer) || viewer.getGraphController();
 
-		if (controller.getModel().isContainer()) {
+		if (this.isAddAllowed(controller.getModel())) {
 			this.setCursor(Cursor.Style.CROSS);
 		} else {
 			this.setCursor(Cursor.Style.DENY);
@@ -209,8 +232,7 @@ class CreateItemInteraction extends AbstractInteraction {
 			}
 
 			return (
-				controller.getModel().isContainer() &&
-				controller.getModel().isVisible() &&
+				this.isAddAllowed(controller.getModel()) &&
 				!(controller instanceof ConnectionController) &&
 				!(controller instanceof PortController) &&
 				!(controller instanceof GraphController)
@@ -272,7 +294,7 @@ class CreateItemInteraction extends AbstractInteraction {
 		const origin = fbItem.getOrigin();
 		// TODO(ah): this is not nice! parent must be undefined in case of graph here!! => check for it later
 		const parent = this._parent ? this._parent.getModel() : rootParent;
-		if (!parent.isContainer()) {
+		if (!this.isAddAllowed(parent)) {
 			return undefined;
 		}
 

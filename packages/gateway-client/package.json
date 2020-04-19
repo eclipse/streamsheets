@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/gateway-client",
-  "version": "1.4.0",
+  "version": "1.6.0-alpha",
   "description": "Client for the gateway",
   "main": "index.js",
   "scripts": {
@@ -18,19 +18,16 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/gateway-client",
   "dependencies": {
-    "@cedalo/logger": "*",
-    "@cedalo/protocols": "*",
+    "@cedalo/logger": "1.6.0-alpha",
+    "@cedalo/protocols": "1.6.0-alpha",
     "isomorphic-fetch": "2.2.1",
     "uuid": "3.3.2"
   },
   "devDependencies": {
-    "@cedalo/jsg-core": "*",
+    "@cedalo/jsg-core": "1.6.0-alpha",
     "babel-core": "6.25.0",
     "babel-loader": "7.1.1",
     "babel-preset-env": "1.6.0",
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jasmine-core": "2.6.4",
     "jest": "20.0.0",
     "jest-cli": "18.1.0",
@@ -39,24 +36,8 @@
     "karma-coverage": "1.1.2",
     "karma-firefox-launcher": "1.0.1",
     "karma-jasmine": "1.1.0",
-    "karma-opera-launcher": "1.0.0",
     "karma-safari-launcher": "1.0.0",
     "webpack-cli": "3.2.3"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ],
-    "env": {
-      "browser": true,
-      "node": true
-    },
-    "rules": {
-      "global-require": 1,
-      "no-undef": 1,
-      "no-unused-vars": 1
-    }
   },
   "jest": {
     "collectCoverage": true,

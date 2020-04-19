@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/util",
-  "version": "1.4.0",
+  "version": "1.6.0-alpha",
   "description": "Util package",
   "main": "index.js",
   "scripts": {
@@ -11,21 +11,10 @@
   "author": "Cedalo AG",
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/util",
   "devDependencies": {
-    "eslint": "4.8.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-plugin-import": "2.8.0",
-    "eslint-config-prettier": "3.3.0",
     "jest": "21.2.1",
-    "jest-cli": "21.2.1",
-    "sinon": "4.1.3"
+    "jest-cli": "21.2.1"
   },
   "dependencies": {},
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
-  },
   "jest": {
     "collectCoverage": true,
     "coverageDirectory": "coverage",

@@ -25,7 +25,7 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 		this.addConnectorDefinition({
 			id: 'url',
 			label: 'URL',
-			defaultValue: 'broker',
+			defaultValue: 'localhost',
 			help: 'mqtt://, mqtts://, tcp://,tls://, ws://, wss://'
 		});
 		this.addConnectorDefinition({
@@ -248,7 +248,8 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 					},
 					description: '',
 					type: {
-						name: 'string'
+						name: 'mqtt_topic',
+						context: 'publish'
 					}
 				},
 				{

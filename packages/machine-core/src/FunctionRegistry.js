@@ -1,66 +1,69 @@
-const Functions = require('./functions');
-const { streamFunc } = require('./functions/_utils/func');
-const { SheetParser } = require('./parser/SheetParser');
-const SheetParserContext = require('./parser/SheetParserContext');
+const logger = require('./logger').create({ name: 'FunctionRegistry' });
+// eslint-disable-next-line
+const requireModule = async (path) => require(path);
 
-const getNames = (definitions) => definitions.map((d) => d.name);
 
-const updateState = (currentState, newDefinitions) => {
-	const definitions = { ...currentState.definitions, ...newDefinitions };
-	definitions.all = [...definitions.stream, ...definitions.machine];
-	const machineNames = new Set(getNames(definitions.machine));
-	const streamNames = new Set(getNames(definitions.stream));
-	const names = {
-		machine: machineNames,
-		stream: streamNames,
-		all: new Set([...machineNames, ...streamNames])
-	};
-	return { names, definitions };
+let functionFactory;
+
+const Functions = {
+	core: {},
+	additional: {},
+	additionalHelp: {}
 };
 
-class StreamFunctionRegistry {
-	constructor() {
-		const machineFunctionNames = Object.keys(Functions);
-		const machineFunctionDefinitions = Object.keys(Functions).map(
-			(name) => ({ name })
-		);
+const registerCore = ({ functions = {}, FunctionFactory } = {}) => {
+	Functions.core = Object.assign(Functions.core, functions);
+	functionFactory = FunctionFactory;
+};
+const registerAdditional = ({ functions = {}, help = {} } = {}) => {
+	Functions.additional = Object.assign(Functions.additional, functions);
+	Functions.additionalHelp = Object.assign(Functions.additionalHelp, help);
+};
+const logError = (err) => logger.info(err.message);
 
-		this.state = {
-			definitions: {
-				machine: machineFunctionDefinitions,
-				stream: [],
-				all: machineFunctionDefinitions
-			},
-			names: {
-				machine: new Set(machineFunctionNames),
-				stream: new Set(),
-				all: new Set(machineFunctionNames)
-			}
-		};
+
+const toName = (name) => ({ name });
+
+class FunctionRegistry {
+	static of() {
+		return new FunctionRegistry();
 	}
 
-	registerStreamFunctions(functionDefinitions) {
-		const streamFunctions = functionDefinitions.reduce(
-			(funcObject, funcDefinition) => {
-				funcObject[funcDefinition.name] = streamFunc(funcDefinition);
-				return funcObject;
-			},
-			{}
-		);
-		// TODO: Do this differently
-		SheetParser.context = new SheetParserContext(streamFunctions);
-		this.state = updateState(this.state, {
-			stream: functionDefinitions
-		});
+	getFunction(id = '') {
+		id = id.toUpperCase();
+		return Functions.core[id] || Functions.additional[id];
 	}
 
-	get functionDefinitions() {
-		return this.state.definitions.all;
+	getFunctionDefinitions() {
+		// currently we only need the names...
+		return Object.keys(Functions.core).map(toName).concat(Object.keys(Functions.additional).map(toName));
 	}
 
-	get streamFunctionNames() {
-		return this.state.names.stream;
+	getFunctionsHelp() {
+		return Functions.additionalHelp;
+	}
+
+	hasFunction(id = '') {
+		return !!this.getFunction(id);
+	}
+
+	registerCoreFunctionsModule(mod) {
+		requireModule(mod).then(registerCore).catch(logError);
+	}
+
+	registerFunctionModule(mod) {
+		requireModule(mod).then(registerAdditional).catch(logError);
+	}
+
+	registerFunctionDefinitions(definitions = []) {
+		if (functionFactory) {
+			const functions = definitions.reduce((fns, def) => {
+				const fn = functionFactory.createFrom(def);
+				if (fn) fns[def.name] = fn;
+				return fns;
+			}, {});
+			registerAdditional({ functions });
+		}
 	}
 }
-
-module.exports = new StreamFunctionRegistry();
+module.exports = FunctionRegistry.of();

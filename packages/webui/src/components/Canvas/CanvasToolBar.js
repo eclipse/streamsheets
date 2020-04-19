@@ -1,76 +1,68 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-bitwise */
 
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import Slider from 'rc-slider';
-import 'rc-slider/assets/index.css';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
-import SvgIcon from '@material-ui/core/SvgIcon';
-import { SketchPicker } from 'react-color';
-import FormatAlignCenter from '@material-ui/icons/FormatAlignCenter';
-import FormatAlignLeft from '@material-ui/icons/FormatAlignLeft';
-import FormatAlignRight from '@material-ui/icons/FormatAlignRight';
-import FormatAlignJustify from '@material-ui/icons/FormatAlignJustify';
-import VerticalAlignBottom from '@material-ui/icons/VerticalAlignBottom';
-import VerticalAlignTop from '@material-ui/icons/VerticalAlignTop';
-import VerticalAlignCenter from '@material-ui/icons/VerticalAlignCenter';
-import BoldIcon from '@material-ui/icons/FormatBold';
-import ItalicIcon from '@material-ui/icons/FormatItalic';
-import FillColorIcon from '@material-ui/icons/FormatColorFill';
-import FontColorIcon from '@material-ui/icons/FormatColorText';
-import BorderColorIcon from '@material-ui/icons/BorderColor';
-import BorderAllIcon from '@material-ui/icons/BorderAll';
-import BorderBottomIcon from '@material-ui/icons/BorderBottom';
-import BorderLeftIcon from '@material-ui/icons/BorderLeft';
-import BorderRightIcon from '@material-ui/icons/BorderRight';
-import BorderTopIcon from '@material-ui/icons/BorderTop';
-import BorderHorizontalIcon from '@material-ui/icons/BorderHorizontal';
-import BorderVerticalIcon from '@material-ui/icons/BorderVertical';
-import BorderClearIcon from '@material-ui/icons/BorderClear';
-import BorderInnerIcon from '@material-ui/icons/BorderInner';
-import BorderOuterIcon from '@material-ui/icons/BorderOuter';
-import ZoomIcon from '@material-ui/icons/ZoomIn';
-import EditNamesIcon from '@material-ui/icons/ViewList';
-import ToolRectangleIcon from '@material-ui/icons/Crop32';
-import ToolEllipseIcon from '@material-ui/icons/PanoramaFishEye';
-import ToolPolylineIcon from '@material-ui/icons/Timeline';
-import ToolArrowIcon from '@material-ui/icons/TrendingFlat';
-import ToolStar from '@material-ui/icons/StarBorder';
-import StreamFunctionIcon from '@material-ui/icons/Send';
-import UndoIcon from '@material-ui/icons/Undo';
-import RedoIcon from '@material-ui/icons/Redo';
-import MessageIcon from '@material-ui/icons/Message';
-import Select from '@material-ui/core/Select';
-import Input from '@material-ui/core/Input';
-import { FormattedMessage } from 'react-intl';
-import Tooltip from '@material-ui/core/Tooltip';
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
-import Popover from '@material-ui/core/Popover';
-import * as Colors from '@material-ui/core/colors/index';
-import MenuItem from '@material-ui/core/MenuItem';
-import MenuList from '@material-ui/core/MenuList';
 import JSG from '@cedalo/jsg-ui';
 import { NumberFormatter } from '@cedalo/number-format';
-
-import InsertCellsDialog from '../SheetDialogs/InsertCellsDialog';
-import DeleteCellsDialog from '../SheetDialogs/DeleteCellsDialog';
-import DeleteCellContentDialog from '../SheetDialogs/DeleteCellContentDialog';
-import InsertCellContentDialog from '../SheetDialogs/InsertCellContentDialog';
-import { graphManager } from '../../GraphManager';
+import { ToolbarExtensions } from '@cedalo/webui-extensions';
+import Button from '@material-ui/core/Button';
+import * as Colors from '@material-ui/core/colors/index';
+import Divider from '@material-ui/core/Divider';
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
+import IconButton from '@material-ui/core/IconButton';
+import Input from '@material-ui/core/Input';
+import MenuItem from '@material-ui/core/MenuItem';
+import MenuList from '@material-ui/core/MenuList';
+import Popover from '@material-ui/core/Popover';
+import Select from '@material-ui/core/Select';
+import SvgIcon from '@material-ui/core/SvgIcon';
+import Toolbar from '@material-ui/core/Toolbar';
+import Tooltip from '@material-ui/core/Tooltip';
+import BorderAllIcon from '@material-ui/icons/BorderAll';
+import BorderBottomIcon from '@material-ui/icons/BorderBottom';
+import BorderClearIcon from '@material-ui/icons/BorderClear';
+import BorderColorIcon from '@material-ui/icons/BorderColor';
+import BorderHorizontalIcon from '@material-ui/icons/BorderHorizontal';
+import BorderInnerIcon from '@material-ui/icons/BorderInner';
+import BorderLeftIcon from '@material-ui/icons/BorderLeft';
+import BorderOuterIcon from '@material-ui/icons/BorderOuter';
+import BorderRightIcon from '@material-ui/icons/BorderRight';
+import BorderTopIcon from '@material-ui/icons/BorderTop';
+import BorderVerticalIcon from '@material-ui/icons/BorderVertical';
+import ToolRectangleIcon from '@material-ui/icons/Crop32';
+import FormatAlignCenter from '@material-ui/icons/FormatAlignCenter';
+import FormatAlignJustify from '@material-ui/icons/FormatAlignJustify';
+import FormatAlignLeft from '@material-ui/icons/FormatAlignLeft';
+import FormatAlignRight from '@material-ui/icons/FormatAlignRight';
+import BoldIcon from '@material-ui/icons/FormatBold';
+import FillColorIcon from '@material-ui/icons/FormatColorFill';
+import FontColorIcon from '@material-ui/icons/FormatColorText';
+import ItalicIcon from '@material-ui/icons/FormatItalic';
+import MessageIcon from '@material-ui/icons/Message';
+import ToolEllipseIcon from '@material-ui/icons/PanoramaFishEye';
+import RedoIcon from '@material-ui/icons/Redo';
+import ToolStar from '@material-ui/icons/StarBorder';
+import ToolPolylineIcon from '@material-ui/icons/Timeline';
+import ToolArrowIcon from '@material-ui/icons/TrendingFlat';
+import UndoIcon from '@material-ui/icons/Undo';
+import VerticalAlignBottom from '@material-ui/icons/VerticalAlignBottom';
+import VerticalAlignCenter from '@material-ui/icons/VerticalAlignCenter';
+import VerticalAlignTop from '@material-ui/icons/VerticalAlignTop';
+import EditNamesIcon from '@material-ui/icons/ViewList';
+import ZoomIcon from '@material-ui/icons/ZoomIn';
+import Slider from 'rc-slider';
+import 'rc-slider/assets/index.css';
+import React, { Component } from 'react';
+import { SketchPicker } from 'react-color';
+import { FormattedMessage } from 'react-intl';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
-import NamesDialog from '../SheetDialogs/NamesDialog';
-import PasteFunctionDialog from '../SheetDialogs/PasteFunctionDialog';
-import FormatCellsDialog from '../SheetDialogs/FormatCellsDialog';
-import { numberFormatTemplates } from '../../languages/NumberFormatTemplates';
+import { graphManager } from '../../GraphManager';
 import { accessManager } from '../../helper/AccessManager';
 import { intl } from '../../helper/IntlGlobalProvider';
 import CommandStack from '../../helper/synchronization/CommandStack';
+import { numberFormatTemplates } from '../../languages/NumberFormatTemplates';
 import CustomTooltip from '../base/customTooltip/CustomTooltip';
 
 const ToolTextIcon = FormatAlignCenter;
@@ -86,7 +78,9 @@ const {
 	SetSizeCommand,
 	MoveItemCommand,
 	FormatAttributes,
+	TextFormatAttributes,
 	SelectionProvider,
+	SheetPlotNode
 } = JSG;
 const { RESOURCE_TYPES, RESOURCE_ACTIONS } = accessManager;
 
@@ -94,13 +88,13 @@ const marks = {
 	50: '50%',
 	100: '100%',
 	150: '150%',
-	200: '200%',
+	200: '200%'
 };
 
 const buttonStyle = {
 	height: '34px',
 	width: '34px',
-	padding: '4px 0px 0px 0px',
+	padding: '4px 0px 0px 0px'
 };
 
 const numberFormats = [
@@ -116,7 +110,7 @@ const numberFormats = [
 	{ id: 'NumberFormat.Time', type: 'time', nf: 'h:mm:ss', local: 'time;de', value: 0.5 },
 	{ id: 'NumberFormat.DateTime', type: 'date', nf: 'd\\.m\\.yyyy h:mm', local: 'date;de', value: 43500.5 },
 	{ id: '-3' },
-	{ id: 'NumberFormat.Text', type: 'text', nf: '@', local: 'text', value: 1234.56 },
+	{ id: 'NumberFormat.Text', type: 'text', nf: '@', local: 'text', value: 1234.56 }
 ];
 
 // eslint-disable-next-line react/prefer-stateless-function
@@ -136,8 +130,9 @@ export class CanvasToolBar extends Component {
 			anchorEl: undefined,
 			zoomOpen: false,
 			toolsOpen: false,
+			chartsOpen: false,
 			borderOpen: false,
-			graphSelected: false,
+			graphSelected: false
 		};
 	}
 
@@ -145,17 +140,17 @@ export class CanvasToolBar extends Component {
 		JSG.NotificationCenter.getInstance().register(
 			this,
 			CommandStack.STACK_CHANGED_NOTIFICATION,
-			'onCommandStackChanged',
+			'onCommandStackChanged'
 		);
 		JSG.NotificationCenter.getInstance().register(
 			this,
 			JSG.WorksheetNode.SELECTION_CHANGED_NOTIFICATION,
-			'onSheetSelectionChanged',
+			'onSheetSelectionChanged'
 		);
 		JSG.NotificationCenter.getInstance().register(
 			this,
 			SelectionProvider.SELECTION_CHANGED_NOTIFICATION,
-			'onGraphSelectionChanged',
+			'onGraphSelectionChanged'
 		);
 	}
 
@@ -197,7 +192,7 @@ export class CanvasToolBar extends Component {
 	onShowZoom = (event) => {
 		this.setState({
 			zoomOpen: true,
-			anchorEl: event.currentTarget,
+			anchorEl: event.currentTarget
 		});
 	};
 
@@ -206,7 +201,7 @@ export class CanvasToolBar extends Component {
 		const attr = container.getMachineContainerAttributes();
 		const path = AttributeUtils.createPath(
 			JSG.MachineContainerAttributes.NAME,
-			JSG.MachineContainerAttributes.OUTBOXVISIBLE,
+			JSG.MachineContainerAttributes.OUTBOXVISIBLE
 		);
 		const cmd = new CompoundCommand();
 		cmd.add(new SetAttributeAtPathCommand(container, path, !attr.getOutboxVisible().getValue()));
@@ -215,15 +210,6 @@ export class CanvasToolBar extends Component {
 			.getGraphViewer()
 			.getInteractionHandler()
 			.execute(cmd);
-		graphManager
-			.getGraph()
-			.getMachineContainer()
-			.layout();
-		graphManager
-			.getGraph()
-			.getMachineContainer()
-			.setRefreshNeeded(true);
-		graphManager.redraw();
 		graphManager.getCanvas().focus();
 	};
 
@@ -233,13 +219,13 @@ export class CanvasToolBar extends Component {
 
 		this.setState({
 			showNumberFormat: true,
-			anchorEl: event.currentTarget,
+			anchorEl: event.currentTarget
 		});
 	};
 
 	onCloseNumberFormat = () => {
 		this.setState({
-			showNumberFormat: false,
+			showNumberFormat: false
 		});
 	};
 
@@ -249,7 +235,17 @@ export class CanvasToolBar extends Component {
 
 		this.setState({
 			toolsOpen: true,
-			anchorEl: event.currentTarget,
+			anchorEl: event.currentTarget
+		});
+	};
+
+	onShowCharts = (event) => {
+		// This prevents ghost click.
+		event.preventDefault();
+
+		this.setState({
+			chartsOpen: true,
+			anchorEl: event.currentTarget
 		});
 	};
 
@@ -259,7 +255,7 @@ export class CanvasToolBar extends Component {
 
 		this.setState({
 			borderOpen: true,
-			anchorEl: event.currentTarget,
+			anchorEl: event.currentTarget
 		});
 	};
 
@@ -269,13 +265,13 @@ export class CanvasToolBar extends Component {
 
 		this.setState({
 			showFillColor: true,
-			anchorEl: event.currentTarget,
+			anchorEl: event.currentTarget
 		});
 	};
 
 	onCloseFillColor = () => {
 		this.setState({
-			showFillColor: false,
+			showFillColor: false
 		});
 	};
 
@@ -285,13 +281,13 @@ export class CanvasToolBar extends Component {
 
 		this.setState({
 			showFontColor: true,
-			anchorEl: event.currentTarget,
+			anchorEl: event.currentTarget
 		});
 	};
 
 	onCloseFontColor = () => {
 		this.setState({
-			showFontColor: false,
+			showFontColor: false
 		});
 	};
 
@@ -301,13 +297,13 @@ export class CanvasToolBar extends Component {
 
 		this.setState({
 			showHAlign: true,
-			anchorEl: event.currentTarget,
+			anchorEl: event.currentTarget
 		});
 	};
 
 	onCloseHAlign = () => {
 		this.setState({
-			showHAlign: false,
+			showHAlign: false
 		});
 	};
 
@@ -317,13 +313,13 @@ export class CanvasToolBar extends Component {
 
 		this.setState({
 			showVAlign: true,
-			anchorEl: event.currentTarget,
+			anchorEl: event.currentTarget
 		});
 	};
 
 	onCloseVAlign = () => {
 		this.setState({
-			showVAlign: false,
+			showVAlign: false
 		});
 	};
 
@@ -333,38 +329,44 @@ export class CanvasToolBar extends Component {
 
 		this.setState({
 			showBorderColor: true,
-			anchorEl: event.currentTarget,
+			anchorEl: event.currentTarget
 		});
 	};
 
 	onCloseBorderColor = () => {
 		this.setState({
-			showBorderColor: false,
+			showBorderColor: false
 		});
 	};
 
 	onToolsClose = () => {
 		this.setState({
-			toolsOpen: false,
+			toolsOpen: false
+		});
+	};
+
+	onChartsClose = () => {
+		this.setState({
+			chartsOpen: false
 		});
 	};
 
 	onZoomClose = () => {
 		this.setState({
-			zoomOpen: false,
+			zoomOpen: false
 		});
 	};
 
 	onBorderClose = () => {
 		this.setState({
-			borderOpen: false,
+			borderOpen: false
 		});
 	};
 
 	onEditNames = () => {
 		this.handleState({
 			formulaOpen: false,
-			showEditNamesDialog: true,
+			showEditNamesDialog: true
 		});
 	};
 
@@ -379,13 +381,13 @@ export class CanvasToolBar extends Component {
 		// }
 		this.handleState({
 			formulaOpen: false,
-			showPasteFunctionsDialog: true,
+			showPasteFunctionsDialog: true
 		});
 	};
 
 	onCreateLine = () => {
 		this.setState({
-			toolsOpen: false,
+			toolsOpen: false
 		});
 		const edge = new JSG.Edge(new JSG.LineShape());
 		graphManager
@@ -396,7 +398,7 @@ export class CanvasToolBar extends Component {
 
 	onCreateArrow = () => {
 		this.setState({
-			toolsOpen: false,
+			toolsOpen: false
 		});
 		const edge = new JSG.Edge(new JSG.LineShape());
 		edge.getFormat().setLineArrowEnd(1);
@@ -408,7 +410,7 @@ export class CanvasToolBar extends Component {
 
 	onCreateRectangle = () => {
 		this.setState({
-			toolsOpen: false,
+			toolsOpen: false
 		});
 
 		graphManager
@@ -419,7 +421,7 @@ export class CanvasToolBar extends Component {
 
 	onCreateEllipse = () => {
 		this.setState({
-			toolsOpen: false,
+			toolsOpen: false
 		});
 
 		const node = new JSG.Node(new JSG.EllipseShape());
@@ -432,13 +434,13 @@ export class CanvasToolBar extends Component {
 
 	onCreateText = () => {
 		this.setState({
-			toolsOpen: false,
+			toolsOpen: false
 		});
 
 		const textnode = new JSG.TextNode('Text');
 		const f = textnode.getTextFormat();
-		f.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
-		f.setVerticalAlignment(JSG.TextFormatAttributes.VerticalTextAlignment.TOP);
+		f.setHorizontalAlignment(TextFormatAttributes.TextAlignment.LEFT);
+		f.setVerticalAlignment(TextFormatAttributes.VerticalTextAlignment.TOP);
 		f.setRichText(false);
 		textnode.associate(false);
 
@@ -450,7 +452,7 @@ export class CanvasToolBar extends Component {
 
 	onCreatePolyline = () => {
 		this.setState({
-			toolsOpen: false,
+			toolsOpen: false
 		});
 		const polynode = new JSG.Node(new JSG.PolygonShape());
 		polynode.setItemAttribute(ItemAttributes.CLOSED, false);
@@ -462,7 +464,7 @@ export class CanvasToolBar extends Component {
 
 	onCreateChart = () => {
 		this.setState({
-			toolsOpen: false,
+			toolsOpen: false
 		});
 
 		const node = new JSG.ChartNode();
@@ -476,11 +478,11 @@ export class CanvasToolBar extends Component {
 				const data = sheetView.getItem().getDataProvider();
 				const range = selection.getAt(0);
 				// check for TIMEAGGREGATE(S)
-				range.enumerateCells(true, pos => {
+				range.enumerateCells(true, (pos) => {
 					const cell = data.get(pos);
 					if (cell !== undefined) {
 						const expr = cell.getExpression();
-						if (expr && expr.hasFormula() && expr.getFormula().indexOf("TIMEAGGREGATE") !== -1) {
+						if (expr && expr.hasFormula() && expr.getFormula().indexOf('TIMEAGGREGATE') !== -1) {
 							node.setChartType('scatterLine');
 						}
 					}
@@ -496,12 +498,18 @@ export class CanvasToolBar extends Component {
 
 	onCreateTool = (type) => {
 		this.setState({
-			toolsOpen: false,
+			toolsOpen: false
 		});
 		graphManager
 			.getGraphViewer()
 			.getInteractionHandler()
 			.setActiveInteraction(new JSG.CreateItemInteraction(JSG.graphItemFactory.createItemFromString(type)));
+	};
+
+	onSelectShapes = () => {
+		const viewer = graphManager.getGraphViewer();
+		viewer.clearSelection();
+		viewer.getInteractionHandler().setActiveInteraction(new JSG.MarqueeInteraction(true));
 	};
 
 	onUndo = () => {
@@ -518,7 +526,7 @@ export class CanvasToolBar extends Component {
 
 	onCreateContainer = (type) => {
 		this.setState({
-			toolsOpen: false,
+			toolsOpen: false
 		});
 
 		const node = new JSG.Node();
@@ -548,24 +556,51 @@ export class CanvasToolBar extends Component {
 		let node;
 
 		this.setState({
-			toolsOpen: false,
+			toolsOpen: false
 		});
 
 		switch (type) {
-		case 'button':
-			node = new JSG.SheetButtonNode();
-			break;
-		case 'checkbox':
-			node = new JSG.SheetCheckboxNode();
-			break;
-		case 'slider':
-			node = new JSG.SheetSliderNode();
-			break;
-		case 'knob':
-			node = new JSG.SheetKnobNode();
-			break;
-		default:
-			break;
+			case 'button':
+				node = new JSG.SheetButtonNode();
+				break;
+			case 'checkbox':
+				node = new JSG.SheetCheckboxNode();
+				break;
+			case 'slider':
+				node = new JSG.SheetSliderNode();
+				break;
+			case 'knob':
+				node = new JSG.SheetKnobNode();
+				break;
+			case 'chartstate':
+				node = new JSG.SheetChartStateNode();
+				break;
+			default:
+				break;
+		}
+
+		graphManager
+			.getGraphViewer()
+			.getInteractionHandler()
+			.setActiveInteraction(new JSG.CreateItemInteraction(node));
+		graphManager.getCanvas().focus();
+	};
+
+	onCreatePlot = (type) => {
+		this.setState({
+			chartsOpen: false
+		});
+
+		const node = new JSG.SheetPlotNode();
+		const attr = node.addAttribute(new BooleanAttribute('showwizard', true));
+		attr.setTransient(true);
+		const sheetView = graphManager.getActiveSheetView();
+		if (sheetView) {
+			const selection = sheetView.getOwnSelection();
+			if (selection) {
+				graphManager.chartSelection = selection.copy();
+				graphManager.chartType = type;
+			}
 		}
 
 		graphManager
@@ -578,14 +613,14 @@ export class CanvasToolBar extends Component {
 	onFormatCells = () => {
 		this.handleState({
 			formatOpen: false,
-			showFormatCellsDialog: true,
+			showFormatCellsDialog: true
 		});
 	};
 
 	onFormatHorizontalAlign = (align) => {
 		const attributesMap = new Dictionary();
 
-		attributesMap.put(JSG.TextFormatAttributes.HORIZONTALALIGN, align);
+		attributesMap.put(TextFormatAttributes.HORIZONTALALIGN, align);
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -606,7 +641,7 @@ export class CanvasToolBar extends Component {
 				.applyTextFormatMap(attributesMap);
 		}
 		this.setState({
-			showHAlign: false,
+			showHAlign: false
 		});
 		this.updateState();
 		graphManager.getCanvas().focus();
@@ -615,7 +650,7 @@ export class CanvasToolBar extends Component {
 	onFormatVerticalAlign = (align) => {
 		const attributesMap = new Dictionary();
 
-		attributesMap.put(JSG.TextFormatAttributes.VERTICALALIGN, align);
+		attributesMap.put(TextFormatAttributes.VERTICALALIGN, align);
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -636,7 +671,7 @@ export class CanvasToolBar extends Component {
 				.applyTextFormatMap(attributesMap);
 		}
 		this.setState({
-			showVAlign: false,
+			showVAlign: false
 		});
 		this.updateState();
 	};
@@ -644,7 +679,7 @@ export class CanvasToolBar extends Component {
 	onFormatFontSize = (event) => {
 		const attributesMap = new Dictionary();
 
-		attributesMap.put(JSG.TextFormatAttributes.FONTSIZE, Number(event.target.value));
+		attributesMap.put(TextFormatAttributes.FONTSIZE, Number(event.target.value));
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -671,7 +706,7 @@ export class CanvasToolBar extends Component {
 	onFormatFontName = (event) => {
 		const attributesMap = new Dictionary();
 
-		attributesMap.put(JSG.TextFormatAttributes.FONTNAME, event.target.value);
+		attributesMap.put(TextFormatAttributes.FONTNAME, event.target.value);
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -700,8 +735,8 @@ export class CanvasToolBar extends Component {
 		if (sheetView) {
 			const attributesMap = new Dictionary();
 
-			attributesMap.put(JSG.TextFormatAttributes.NUMBERFORMAT, '0%');
-			attributesMap.put(JSG.TextFormatAttributes.LOCALCULTURE, 'percent;0');
+			attributesMap.put(TextFormatAttributes.NUMBERFORMAT, '0%');
+			attributesMap.put(TextFormatAttributes.LOCALCULTURE, 'percent;0');
 
 			if (
 				graphManager
@@ -723,33 +758,32 @@ export class CanvasToolBar extends Component {
 	};
 
 	onFormatNumberFormat = (format) => {
-		if (
+		const attributesMap = new Dictionary();
+
+		attributesMap.put(TextFormatAttributes.NUMBERFORMAT, format.nf);
+		attributesMap.put(TextFormatAttributes.LOCALCULTURE, format.local);
+
+		const sheetView = graphManager.getActiveSheetView();
+		if (sheetView) {
+			const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
+			graphManager
+				.getGraphViewer()
+				.getInteractionHandler()
+				.execute(cmd);
+		} else if (
 			graphManager
 				.getGraphEditor()
 				.getSelectionProvider()
 				.hasSelection()
 		) {
-			return;
+			graphManager
+				.getGraphEditor()
+				.getInteractionHandler()
+				.applyTextFormatMap(attributesMap);
 		}
-
-		const sheetView = graphManager.getActiveSheetView();
-		if (!sheetView) {
-			return;
-		}
-
-		const attributesMap = new Dictionary();
-
-		attributesMap.put(JSG.TextFormatAttributes.NUMBERFORMAT, format.nf);
-		attributesMap.put(JSG.TextFormatAttributes.LOCALCULTURE, format.local);
-
-		const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
-		graphManager
-			.getGraphViewer()
-			.getInteractionHandler()
-			.execute(cmd);
 
 		this.setState({
-			showNumberFormat: false,
+			showNumberFormat: false
 		});
 
 		this.updateState();
@@ -821,7 +855,7 @@ export class CanvasToolBar extends Component {
 						0,
 						0,
 						undefined,
-						0,
+						0
 					);
 					culture = `number;${decimals};${thousands}`;
 					break;
@@ -833,7 +867,7 @@ export class CanvasToolBar extends Component {
 						0,
 						0,
 						currency,
-						0,
+						0
 					);
 					culture = `currency;${decimals};${thousands};${currency}`;
 					break;
@@ -847,8 +881,8 @@ export class CanvasToolBar extends Component {
 					break;
 			}
 
-			attributesMap.put(JSG.TextFormatAttributes.NUMBERFORMAT, template.format);
-			attributesMap.put(JSG.TextFormatAttributes.LOCALCULTURE, culture);
+			attributesMap.put(TextFormatAttributes.NUMBERFORMAT, template.format);
+			attributesMap.put(TextFormatAttributes.LOCALCULTURE, culture);
 
 			if (
 				graphManager
@@ -879,11 +913,11 @@ export class CanvasToolBar extends Component {
 
 		const style = tf.getFontStyle() ? tf.getFontStyle().getValue() : 0;
 		const newStyle =
-			style & JSG.TextFormatAttributes.FontStyle.BOLD
-				? style & ~JSG.TextFormatAttributes.FontStyle.BOLD
-				: style | JSG.TextFormatAttributes.FontStyle.BOLD;
+			style & TextFormatAttributes.FontStyle.BOLD
+				? style & ~TextFormatAttributes.FontStyle.BOLD
+				: style | TextFormatAttributes.FontStyle.BOLD;
 
-		attributesMap.put(JSG.TextFormatAttributes.FONTSTYLE, newStyle);
+		attributesMap.put(TextFormatAttributes.FONTSTYLE, newStyle);
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -918,11 +952,11 @@ export class CanvasToolBar extends Component {
 
 		const style = tf.getFontStyle() ? tf.getFontStyle().getValue() : 0;
 		const newStyle =
-			style & JSG.TextFormatAttributes.FontStyle.ITALIC
-				? style & ~JSG.TextFormatAttributes.FontStyle.ITALIC
-				: style | JSG.TextFormatAttributes.FontStyle.ITALIC;
+			style & TextFormatAttributes.FontStyle.ITALIC
+				? style & ~TextFormatAttributes.FontStyle.ITALIC
+				: style | TextFormatAttributes.FontStyle.ITALIC;
 
-		attributesMap.put(JSG.TextFormatAttributes.FONTSTYLE, newStyle);
+		attributesMap.put(TextFormatAttributes.FONTSTYLE, newStyle);
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -976,7 +1010,7 @@ export class CanvasToolBar extends Component {
 				.applyFormatMap(attributesMap);
 		}
 		this.updateState();
-		graphManager.getCanvas().focus();
+		// graphManager.getCanvas().focus();
 	};
 
 	onFormatBorder = (type) => {
@@ -1016,7 +1050,7 @@ export class CanvasToolBar extends Component {
 								attributesMap.clear();
 								attributesMap.put(
 									JSG.CellAttributes.BOTTOMBORDERSTYLE,
-									FormatAttributes.LineStyle.NONE,
+									FormatAttributes.LineStyle.NONE
 								);
 
 								rangeCopy = range.copy();
@@ -1026,10 +1060,7 @@ export class CanvasToolBar extends Component {
 							}
 							if (range._y2 < range.getSheet().getRowCount()) {
 								attributesMap.clear();
-								attributesMap.put(
-									JSG.CellAttributes.TOPBORDERSTYLE,
-									FormatAttributes.LineStyle.NONE,
-								);
+								attributesMap.put(JSG.CellAttributes.TOPBORDERSTYLE, FormatAttributes.LineStyle.NONE);
 
 								rangeCopy = range.copy();
 								rangeCopy._y1 = rangeCopy._y2 + 1;
@@ -1038,10 +1069,7 @@ export class CanvasToolBar extends Component {
 							}
 							if (range._x1) {
 								attributesMap.clear();
-								attributesMap.put(
-									JSG.CellAttributes.RIGHTBORDERSTYLE,
-									FormatAttributes.LineStyle.NONE,
-								);
+								attributesMap.put(JSG.CellAttributes.RIGHTBORDERSTYLE, FormatAttributes.LineStyle.NONE);
 
 								rangeCopy = range.copy();
 								rangeCopy._x1 -= 1;
@@ -1050,10 +1078,7 @@ export class CanvasToolBar extends Component {
 							}
 							if (range._x2 < range.getSheet().getColumnCount()) {
 								attributesMap.clear();
-								attributesMap.put(
-									JSG.CellAttributes.LEFTBORDERSTYLE,
-									FormatAttributes.LineStyle.NONE,
-								);
+								attributesMap.put(JSG.CellAttributes.LEFTBORDERSTYLE, FormatAttributes.LineStyle.NONE);
 
 								rangeCopy = range.copy();
 								rangeCopy._x1 = rangeCopy._x2 + 1;
@@ -1102,7 +1127,7 @@ export class CanvasToolBar extends Component {
 								attributesMap.clear();
 								attributesMap.put(
 									JSG.CellAttributes.RIGHTBORDERSTYLE,
-									FormatAttributes.LineStyle.SOLID,
+									FormatAttributes.LineStyle.SOLID
 								);
 								rangeCopy = range.copy();
 								rangeCopy.setWidth(1);
@@ -1114,11 +1139,11 @@ export class CanvasToolBar extends Component {
 									attributesMap.clear();
 									attributesMap.put(
 										JSG.CellAttributes.LEFTBORDERSTYLE,
-										FormatAttributes.LineStyle.SOLID,
+										FormatAttributes.LineStyle.SOLID
 									);
 									attributesMap.put(
 										JSG.CellAttributes.RIGHTBORDERSTYLE,
-										FormatAttributes.LineStyle.SOLID,
+										FormatAttributes.LineStyle.SOLID
 									);
 
 									rangeCopy = range.copy();
@@ -1130,10 +1155,7 @@ export class CanvasToolBar extends Component {
 								}
 
 								attributesMap.clear();
-								attributesMap.put(
-									JSG.CellAttributes.LEFTBORDERSTYLE,
-									FormatAttributes.LineStyle.SOLID,
-								);
+								attributesMap.put(JSG.CellAttributes.LEFTBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
 								rangeCopy = range.copy();
 								rangeCopy._x1 = rangeCopy._x2;
 								copyRanges = [];
@@ -1147,7 +1169,7 @@ export class CanvasToolBar extends Component {
 								attributesMap.clear();
 								attributesMap.put(
 									JSG.CellAttributes.BOTTOMBORDERSTYLE,
-									FormatAttributes.LineStyle.SOLID,
+									FormatAttributes.LineStyle.SOLID
 								);
 								rangeCopy = range.copy();
 								rangeCopy.setHeight(1);
@@ -1159,11 +1181,11 @@ export class CanvasToolBar extends Component {
 									attributesMap.clear();
 									attributesMap.put(
 										JSG.CellAttributes.TOPBORDERSTYLE,
-										FormatAttributes.LineStyle.SOLID,
+										FormatAttributes.LineStyle.SOLID
 									);
 									attributesMap.put(
 										JSG.CellAttributes.BOTTOMBORDERSTYLE,
-										FormatAttributes.LineStyle.SOLID,
+										FormatAttributes.LineStyle.SOLID
 									);
 
 									rangeCopy = range.copy();
@@ -1175,10 +1197,7 @@ export class CanvasToolBar extends Component {
 								}
 
 								attributesMap.clear();
-								attributesMap.put(
-									JSG.CellAttributes.TOPBORDERSTYLE,
-									FormatAttributes.LineStyle.SOLID,
-								);
+								attributesMap.put(JSG.CellAttributes.TOPBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
 								rangeCopy = range.copy();
 								rangeCopy._y1 = rangeCopy._y2;
 								copyRanges = [];
@@ -1229,7 +1248,7 @@ export class CanvasToolBar extends Component {
 								attributesMap.clear();
 								attributesMap.put(
 									JSG.CellAttributes.RIGHTBORDERSTYLE,
-									FormatAttributes.LineStyle.SOLID,
+									FormatAttributes.LineStyle.SOLID
 								);
 								rangeCopy = range.copy();
 								rangeCopy.setWidth(1);
@@ -1241,11 +1260,11 @@ export class CanvasToolBar extends Component {
 									attributesMap.clear();
 									attributesMap.put(
 										JSG.CellAttributes.LEFTBORDERSTYLE,
-										FormatAttributes.LineStyle.SOLID,
+										FormatAttributes.LineStyle.SOLID
 									);
 									attributesMap.put(
 										JSG.CellAttributes.RIGHTBORDERSTYLE,
-										FormatAttributes.LineStyle.SOLID,
+										FormatAttributes.LineStyle.SOLID
 									);
 
 									rangeCopy = range.copy();
@@ -1257,10 +1276,7 @@ export class CanvasToolBar extends Component {
 								}
 
 								attributesMap.clear();
-								attributesMap.put(
-									JSG.CellAttributes.LEFTBORDERSTYLE,
-									FormatAttributes.LineStyle.SOLID,
-								);
+								attributesMap.put(JSG.CellAttributes.LEFTBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
 								rangeCopy = range.copy();
 								rangeCopy._x1 = rangeCopy._x2;
 								copyRanges = [];
@@ -1281,7 +1297,7 @@ export class CanvasToolBar extends Component {
 								attributesMap.clear();
 								attributesMap.put(
 									JSG.CellAttributes.BOTTOMBORDERSTYLE,
-									FormatAttributes.LineStyle.SOLID,
+									FormatAttributes.LineStyle.SOLID
 								);
 								rangeCopy = range.copy();
 								rangeCopy.setHeight(1);
@@ -1293,11 +1309,11 @@ export class CanvasToolBar extends Component {
 									attributesMap.clear();
 									attributesMap.put(
 										JSG.CellAttributes.TOPBORDERSTYLE,
-										FormatAttributes.LineStyle.SOLID,
+										FormatAttributes.LineStyle.SOLID
 									);
 									attributesMap.put(
 										JSG.CellAttributes.BOTTOMBORDERSTYLE,
-										FormatAttributes.LineStyle.SOLID,
+										FormatAttributes.LineStyle.SOLID
 									);
 
 									rangeCopy = range.copy();
@@ -1309,10 +1325,7 @@ export class CanvasToolBar extends Component {
 								}
 
 								attributesMap.clear();
-								attributesMap.put(
-									JSG.CellAttributes.TOPBORDERSTYLE,
-									FormatAttributes.LineStyle.SOLID,
-								);
+								attributesMap.put(JSG.CellAttributes.TOPBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
 								rangeCopy = range.copy();
 								rangeCopy._y1 = rangeCopy._y2;
 								copyRanges = [];
@@ -1340,14 +1353,14 @@ export class CanvasToolBar extends Component {
 			graphManager.getCanvas().focus();
 
 			this.setState({
-				borderOpen: false,
+				borderOpen: false
 			});
 		}
 	};
 
 	onFormatFontColor = (color) => {
 		const attributesMap = new Dictionary();
-		attributesMap.put(JSG.TextFormatAttributes.FONTCOLOR, color.hex);
+		attributesMap.put(TextFormatAttributes.FONTCOLOR, color.hex);
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
@@ -1399,6 +1412,7 @@ export class CanvasToolBar extends Component {
 				.getSelectionProvider()
 				.hasSelection()
 		) {
+
 			if (color.hex === 'transparent') {
 				attributesMap.put(FormatAttributes.LINESTYLE, FormatAttributes.LineStyle.NONE);
 			} else {
@@ -1417,9 +1431,9 @@ export class CanvasToolBar extends Component {
 
 	onCommandStackChanged = (notification) => {
 		const { commandStack } = notification.object;
-		this.props.setAppState({
+		this.props.setJsgState({
 			canUndo: commandStack.canUndo(),
-			canRedo: commandStack.canRedo(),
+			canRedo: commandStack.canRedo()
 		});
 	};
 
@@ -1550,7 +1564,7 @@ export class CanvasToolBar extends Component {
 		}
 
 		const canvas = graphManager.getCanvas();
-		if(canvas) {
+		if (canvas) {
 			canvas.focus();
 		}
 
@@ -1560,9 +1574,14 @@ export class CanvasToolBar extends Component {
 	updateState(state = {}) {
 		const selection = graphManager.getGraphViewer().getSelection();
 		if (selection.length) {
-			state.cellTextFormat = JSG.TextFormatAttributes.retainFromSelection(selection);
-			state.cellFormat = FormatAttributes.retainFromSelection(selection);
-		} else if (this.props.appState.cellSelected) {
+			if (selection[0].getModel() instanceof SheetPlotNode) {
+				state.cellTextFormat = selection[0].getView().getSelectedTextFormat();
+				state.cellFormat = selection[0].getView().getSelectedFormat();
+			} else {
+				state.cellTextFormat = TextFormatAttributes.retainFromSelection(selection);
+				state.cellFormat = FormatAttributes.retainFromSelection(selection);
+			}
+		} else if (this.props.cellSelected) {
 			const sheetView = graphManager.getActiveSheetView();
 			if (sheetView) {
 				const item = sheetView.getItem();
@@ -1610,7 +1629,7 @@ export class CanvasToolBar extends Component {
 		if (!this.isMachinePage(this.props) || !canEdit) {
 			return null;
 		}
-		const { viewMode } = this.props.appState;
+		const { viewMode } = this.props;
 		if (viewMode.viewMode !== null) {
 			return null;
 		}
@@ -1627,27 +1646,19 @@ export class CanvasToolBar extends Component {
 					position: 'relative',
 					width: '100%',
 					borderBottom: '1px solid #AAAAAA',
-					overflow: 'hidden',
+					overflow: 'hidden'
 				}}
 			>
 				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.Undo" defaultMessage="Undo" />}>
 					<div>
-						<IconButton
-							style={buttonStyle}
-							onClick={(e) => this.onUndo(e)}
-							disabled={!this.props.appState.canUndo}
-						>
+						<IconButton style={buttonStyle} onClick={(e) => this.onUndo(e)} disabled={!this.props.canUndo}>
 							<UndoIcon fontSize="inherit" />
 						</IconButton>
 					</div>
 				</Tooltip>
 				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.Redo" defaultMessage="Redo" />}>
 					<div>
-						<IconButton
-							style={buttonStyle}
-							onClick={(e) => this.onRedo(e)}
-							disabled={!this.props.appState.canRedo}
-						>
+						<IconButton style={buttonStyle} onClick={(e) => this.onRedo(e)} disabled={!this.props.canRedo}>
 							<RedoIcon fontSize="inherit" />
 						</IconButton>
 					</div>
@@ -1656,7 +1667,7 @@ export class CanvasToolBar extends Component {
 					style={{
 						borderLeft: '1px solid #AAAAAA',
 						height: '40px',
-						margin: '0px 8px',
+						margin: '0px 8px'
 					}}
 				/>
 				<Tooltip
@@ -1667,11 +1678,11 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							style={buttonStyle}
 							onClick={this.onFormatCells}
-							disabled={!this.props.appState.cellSelected}
+							disabled={!this.props.cellSelected}
 						>
 							<SvgIcon>
 								<path
-									fill={this.props.appState.cellSelected ? '#757575' : '#CCCCCC'}
+									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M21.7,13.35L20.7,14.35L18.65,12.3L19.65,11.3C19.86,11.08 20.21,11.08 20.42,11.3L21.7,12.58C21.92,12.79 21.92,13.14 21.7,13.35M12,18.94L18.07,12.88L20.12,14.93L14.06,21H12V18.94M4,2H18A2,2 0 0,1 20,4V8.17L16.17,12H12V16.17L10.17,18H4A2,2 0 0,1 2,16V4A2,2 0 0,1 4,2M4,6V10H10V6H4M12,6V10H18V6H12M4,12V16H10V12H4Z"
 								/>
@@ -1683,7 +1694,7 @@ export class CanvasToolBar extends Component {
 					style={{
 						borderLeft: '1px solid #AAAAAA',
 						height: '40px',
-						margin: '0px 8px',
+						margin: '0px 8px'
 					}}
 				/>
 				<Tooltip
@@ -1694,7 +1705,7 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							color="inherit"
 							onClick={() => this.onFormatDecimals(undefined, true)}
-							disabled={!this.props.appState.cellSelected}
+							disabled={!this.props.cellSelected}
 							style={buttonStyle}
 						>
 							<SvgIcon>
@@ -1705,7 +1716,7 @@ export class CanvasToolBar extends Component {
 									fontSize="9pt"
 									dy="0.25em"
 									textAnchor="middle"
-									fill={this.props.appState.cellSelected ? '#757575' : '#CCCCCC'}
+									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 								>
 									000
 								</text>
@@ -1721,7 +1732,7 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							color="inherit"
 							onClick={this.onFormatPercent}
-							disabled={!this.props.appState.cellSelected}
+							disabled={!this.props.cellSelected}
 							style={buttonStyle}
 						>
 							<SvgIcon>
@@ -1732,7 +1743,7 @@ export class CanvasToolBar extends Component {
 									fontSize="12pt"
 									dy="0.25em"
 									textAnchor="middle"
-									fill={this.props.appState.cellSelected ? '#757575' : '#CCCCCC'}
+									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 								>
 									%
 								</text>
@@ -1748,12 +1759,12 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							color="inherit"
 							onClick={() => this.onFormatDecimals(false)}
-							disabled={!this.props.appState.cellSelected}
+							disabled={!this.props.cellSelected}
 							style={buttonStyle}
 						>
 							<SvgIcon>
 								<path
-									fill={this.props.appState.cellSelected ? '#757575' : '#CCCCCC'}
+									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M12,17L15,20V18H21V16H15V14L12,17M9,5A3,3 0 0,1 12,8V11A3,3 0 0,1 9,14A3,3 0 0,1 6,11V8A3,3 0 0,1 9,5M9,7A1,1 0 0,0 8,8V11A1,1 0 0,0 9,12A1,1 0 0,0 10,11V8A1,1 0 0,0 9,7M4,12A1,1 0 0,1 5,13A1,1 0 0,1 4,14A1,1 0 0,1 3,13A1,1 0 0,1 4,12Z"
 								/>
@@ -1769,12 +1780,12 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							color="inherit"
 							onClick={() => this.onFormatDecimals(true)}
-							disabled={!this.props.appState.cellSelected}
+							disabled={!this.props.cellSelected}
 							style={buttonStyle}
 						>
 							<SvgIcon>
 								<path
-									fill={this.props.appState.cellSelected ? '#757575' : '#CCCCCC'}
+									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M22,17L19,20V18H13V16H19V14L22,17M9,5A3,3 0 0,1 12,8V11A3,3 0 0,1 9,14A3,3 0 0,1 6,11V8A3,3 0 0,1 9,5M9,7A1,1 0 0,0 8,8V11A1,1 0 0,0 9,12A1,1 0 0,0 10,11V8A1,1 0 0,0 9,7M16,5A3,3 0 0,1 19,8V11A3,3 0 0,1 16,14A3,3 0 0,1 13,11V8A3,3 0 0,1 16,5M16,7A1,1 0 0,0 15,8V11A1,1 0 0,0 16,12A1,1 0 0,0 17,11V8A1,1 0 0,0 16,7M4,12A1,1 0 0,1 5,13A1,1 0 0,1 4,14A1,1 0 0,1 3,13A1,1 0 0,1 4,12Z"
 								/>
@@ -1790,25 +1801,25 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							color="inherit"
 							onClick={this.onShowNumberFormat}
-							disabled={!this.props.appState.cellSelected}
+							disabled={!this.props.cellSelected && !this.state.graphSelected}
 							style={{
 								height: '34px',
 								width: '70px',
-								padding: '0px',
+								padding: '0px'
 							}}
 						>
 							<span
 								style={{
-									color: this.props.appState.cellSelected ? '#757575' : '#CCCCCC',
+									color: this.props.cellSelected || this.state.graphSelected ? '#757575' : '#CCCCCC',
 									fontWeight: 'bold',
-									fontSize: '10pt',
+									fontSize: '10pt'
 								}}
 							>
 								123
 							</span>
 							<SvgIcon>
 								<path
-									fill={this.props.appState.cellSelected ? '#757575' : '#CCCCCC'}
+									fill={this.props.cellSelected || this.state.graphSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M7,10L12,15L17,10H7Z"
 								/>
@@ -1835,7 +1846,7 @@ export class CanvasToolBar extends Component {
 									style={{
 										fontSize: '10pt',
 										width: '250px',
-										padding: '8px 16px',
+										padding: '8px 16px'
 									}}
 								>
 									<div>
@@ -1843,7 +1854,7 @@ export class CanvasToolBar extends Component {
 											style={{
 												textAlign: 'left',
 												display: 'inline-block',
-												width: '125px',
+												width: '125px'
 											}}
 										>
 											{intl.formatMessage({ id: format.id }, {})}
@@ -1852,7 +1863,7 @@ export class CanvasToolBar extends Component {
 											style={{
 												textAlign: 'right',
 												display: 'inline-block',
-												width: '125px',
+												width: '125px'
 											}}
 										>
 											{
@@ -1862,7 +1873,7 @@ export class CanvasToolBar extends Component {
 										</div>
 									</div>
 								</MenuItem>
-							),
+							)
 						)}
 					</MenuList>
 				</Popover>
@@ -1870,7 +1881,7 @@ export class CanvasToolBar extends Component {
 					style={{
 						borderLeft: '1px solid #AAAAAA',
 						height: '40px',
-						margin: '0px 8px 0px 0px',
+						margin: '0px 8px 0px 0px'
 					}}
 				/>
 				<Tooltip
@@ -1880,7 +1891,7 @@ export class CanvasToolBar extends Component {
 					<Select
 						style={{
 							width: '120px',
-							fontSize: '0.85rem',
+							fontSize: '0.85rem'
 						}}
 						id="font-name"
 						value={tf && tf.getFontName() ? tf.getFontName().getValue() : ''}
@@ -1909,7 +1920,7 @@ export class CanvasToolBar extends Component {
 						style={{
 							width: '50px',
 							marginLeft: '10px',
-							fontSize: '0.85rem',
+							fontSize: '0.85rem'
 						}}
 						id="font-size"
 						value={tf && tf.getFontSize() ? tf.getFontSize().getValue() : ''}
@@ -1943,12 +1954,12 @@ export class CanvasToolBar extends Component {
 								backgroundColor:
 									tf &&
 									tf.getFontStyle() &&
-									tf.getFontStyle().getValue() & JSG.TextFormatAttributes.FontStyle.BOLD
+									tf.getFontStyle().getValue() & TextFormatAttributes.FontStyle.BOLD
 										? '#CCCCCC'
-										: 'white',
+										: 'white'
 							}}
 							onClick={this.onFormatBold}
-							disabled={!this.props.appState.cellSelected && !this.state.graphSelected}
+							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
 							<BoldIcon fontSize="inherit" />
 						</IconButton>
@@ -1968,12 +1979,12 @@ export class CanvasToolBar extends Component {
 								backgroundColor:
 									tf &&
 									tf.getFontStyle() &&
-									tf.getFontStyle().getValue() & JSG.TextFormatAttributes.FontStyle.ITALIC
+									tf.getFontStyle().getValue() & TextFormatAttributes.FontStyle.ITALIC
 										? '#CCCCCC'
-										: 'white',
+										: 'white'
 							}}
 							onClick={this.onFormatItalic}
-							disabled={!this.props.appState.cellSelected && !this.state.graphSelected}
+							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
 							<ItalicIcon fontSize="inherit" />
 						</IconButton>
@@ -1987,7 +1998,7 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							style={buttonStyle}
 							onClick={this.onShowFontColor}
-							disabled={!this.props.appState.cellSelected && !this.state.graphSelected}
+							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
 							<FontColorIcon fontSize="inherit" />
 						</IconButton>
@@ -2003,7 +2014,7 @@ export class CanvasToolBar extends Component {
 				>
 					<SketchPicker
 						style={{
-							boxShadow: 'none !important',
+							boxShadow: 'none !important'
 						}}
 						disableAlpha
 						color={tf && tf.getFontColor() ? tf.getFontColor().getValue() : ''}
@@ -2014,7 +2025,7 @@ export class CanvasToolBar extends Component {
 					style={{
 						borderLeft: '1px solid #AAAAAA',
 						height: '40px',
-						margin: '0px 8px',
+						margin: '0px 8px'
 					}}
 				/>
 				<CustomTooltip header="Tooltip.FormatHAlignHeader" message="Tooltip.FormatHAlignMessage">
@@ -2024,10 +2035,10 @@ export class CanvasToolBar extends Component {
 								height: '34px',
 								width: '50px',
 								padding: '0px',
-								fontSize: '16pt',
+								fontSize: '16pt'
 							}}
 							onClick={this.onShowHAlign}
-							disabled={!this.props.appState.cellSelected}
+							disabled={!this.props.cellSelected}
 						>
 							{tf && tf.getHorizontalAlignment() && tf.getHorizontalAlignment().getValue() === 3 ? (
 								<FormatAlignJustify nativeColor="#919191" fontSize="inherit" />
@@ -2043,7 +2054,7 @@ export class CanvasToolBar extends Component {
 							) : null}
 							<SvgIcon>
 								<path
-									fill={this.props.appState.cellSelected ? '#757575' : '#CCCCCC'}
+									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M7,10L12,15L17,10H7Z"
 								/>
@@ -2059,7 +2070,7 @@ export class CanvasToolBar extends Component {
 					onClose={this.onCloseHAlign}
 					onExited={this.handleFocus}
 					style={{
-						overflow: 'hidden',
+						overflow: 'hidden'
 					}}
 				>
 					<GridList
@@ -2068,7 +2079,7 @@ export class CanvasToolBar extends Component {
 						spacing={2}
 						style={{
 							width: '160px',
-							margin: '3px',
+							margin: '3px'
 						}}
 					>
 						<GridListTile cols={1}>
@@ -2132,10 +2143,10 @@ export class CanvasToolBar extends Component {
 								height: '34px',
 								width: '50px',
 								padding: '0px',
-								fontSize: '16pt',
+								fontSize: '16pt'
 							}}
 							onClick={this.onShowVAlign}
-							disabled={!this.props.appState.cellSelected}
+							disabled={!this.props.cellSelected}
 						>
 							{tf && tf.getVerticalAlignment() && tf.getVerticalAlignment().getValue() === 0 ? (
 								<VerticalAlignTop fontSize="inherit" />
@@ -2148,7 +2159,7 @@ export class CanvasToolBar extends Component {
 							) : null}
 							<SvgIcon>
 								<path
-									fill={this.props.appState.cellSelected ? '#757575' : '#CCCCCC'}
+									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M7,10L12,15L17,10H7Z"
 								/>
@@ -2164,7 +2175,7 @@ export class CanvasToolBar extends Component {
 					onClose={this.onCloseVAlign}
 					onExited={this.handleFocus}
 					style={{
-						overflow: 'hidden',
+						overflow: 'hidden'
 					}}
 				>
 					<GridList
@@ -2173,7 +2184,7 @@ export class CanvasToolBar extends Component {
 						spacing={2}
 						style={{
 							width: '120px',
-							margin: '3px',
+							margin: '3px'
 						}}
 					>
 						<GridListTile cols={1}>
@@ -2224,7 +2235,7 @@ export class CanvasToolBar extends Component {
 					style={{
 						borderLeft: '1px solid #AAAAAA',
 						height: '40px',
-						margin: '0px 8px 0px 0px',
+						margin: '0px 8px 0px 0px'
 					}}
 				/>
 				<Tooltip
@@ -2235,7 +2246,7 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							style={buttonStyle}
 							onClick={this.onShowFillColor}
-							disabled={!this.props.appState.cellSelected && !this.state.graphSelected}
+							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
 							<FillColorIcon fontSize="inherit" />
 						</IconButton>
@@ -2268,7 +2279,7 @@ export class CanvasToolBar extends Component {
 							'#4A4A4A',
 							'#9B9B9B',
 							'#FFFFFF',
-							'transparent',
+							'transparent'
 						]}
 						onChange={this.onFormatFillColor}
 					/>
@@ -2278,11 +2289,7 @@ export class CanvasToolBar extends Component {
 					title={<FormattedMessage id="Tooltip.FormatBorder" defaultMessage="Border Format" />}
 				>
 					<div>
-						<IconButton
-							style={buttonStyle}
-							onClick={this.onShowBorder}
-							disabled={!this.props.appState.cellSelected}
-						>
+						<IconButton style={buttonStyle} onClick={this.onShowBorder} disabled={!this.props.cellSelected}>
 							<BorderAllIcon fontSize="inherit" />
 						</IconButton>
 					</div>
@@ -2295,7 +2302,7 @@ export class CanvasToolBar extends Component {
 					onClose={this.onBorderClose}
 					onExited={this.handleFocus}
 					style={{
-						overflow: 'hidden',
+						overflow: 'hidden'
 					}}
 				>
 					<GridList
@@ -2304,7 +2311,7 @@ export class CanvasToolBar extends Component {
 						spacing={2}
 						style={{
 							width: '200px',
-							margin: '4px',
+							margin: '4px'
 						}}
 					>
 						<GridListTile cols={1}>
@@ -2407,7 +2414,7 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							style={buttonStyle}
 							onClick={this.onShowBorderColor}
-							disabled={!this.props.appState.cellSelected && !this.state.graphSelected}
+							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
 							<BorderColorIcon fontSize="inherit" />
 						</IconButton>
@@ -2441,7 +2448,7 @@ export class CanvasToolBar extends Component {
 							'#4A4A4A',
 							'#9B9B9B',
 							'#FFFFFF',
-							'transparent',
+							'transparent'
 						]}
 					/>
 				</Popover>
@@ -2449,7 +2456,7 @@ export class CanvasToolBar extends Component {
 					style={{
 						borderLeft: '1px solid #AAAAAA',
 						height: '40px',
-						margin: '0px 8px',
+						margin: '0px 8px'
 					}}
 				/>
 				<Tooltip
@@ -2460,7 +2467,7 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							style={buttonStyle}
 							onClick={(e) => this.onPasteFunction(e)}
-							disabled={!this.props.appState.cellSelected}
+							disabled={!this.props.cellSelected}
 						>
 							<SvgIcon>
 								<text
@@ -2471,7 +2478,7 @@ export class CanvasToolBar extends Component {
 									fontSize="12pt"
 									dy="0.25em"
 									textAnchor="end"
-									fill={this.props.appState.cellSelected ? '#757575' : '#CCCCCC'}
+									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 								>
 									f
 								</text>
@@ -2482,7 +2489,7 @@ export class CanvasToolBar extends Component {
 									fontSize="8pt"
 									dy="0.25em"
 									textAnchor="left"
-									fill={this.props.appState.cellSelected ? '#757575' : '#CCCCCC'}
+									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 								>
 									(x)
 								</text>
@@ -2500,9 +2507,14 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							style={buttonStyle}
 							onClick={(e) => this.onStreamFunction(e)}
-							disabled={!this.props.appState.cellSelected}
+							disabled={!this.props.cellSelected}
 						>
-							<StreamFunctionIcon fontSize="inherit" />
+							<SvgIcon>
+								<path
+									// eslint-disable-next-line max-len
+									d="M16.79,23C16.37,22.83 16.07,22.45 16,22C15.95,21.74 16,21.56 16.4,20.84C17.9,18.14 18.67,15.09 18.63,12C18.67,9 17.94,6.07 16.5,3.44C16.29,3 16.1,2.58 15.94,2.13C16,1.75 16.19,1.4 16.5,1.19C16.95,0.95 17.5,1 17.91,1.28C18.19,1.64 18.43,2 18.63,2.42C19.71,4.5 20.44,6.7 20.8,9C21.03,10.81 21.06,12.65 20.89,14.47C20.58,16.81 19.89,19.07 18.83,21.18C18.19,22.46 17.83,23 17.45,23C17.37,23 17.28,23 17.2,23C17.06,23 16.93,23 16.79,23V23M12.43,20.79C11.86,20.63 11.5,20.05 11.62,19.47C11.62,19.35 11.93,18.8 12.21,18.24C13.39,15.97 13.9,13.41 13.67,10.86C13.53,9.03 13,7.25 12.13,5.64C11.5,4.38 11.46,4.18 11.83,3.64C12.27,3.15 13,3.08 13.54,3.5C14.26,4.56 14.83,5.72 15.25,6.94C16.53,10.73 16.33,14.86 14.69,18.5C13.85,20.39 13.26,21 12.43,20.74V20.79M7.93,18.56C7.57,18.4 7.3,18.08 7.2,17.7C7.2,17.5 7.2,17.24 7.65,16.44C9.14,13.74 9.14,10.46 7.65,7.76C7,6.5 7,6.24 7.53,5.76C7.72,5.54 8,5.43 8.3,5.47C8.94,5.47 9.3,5.78 9.84,6.91C10.69,8.47 11.13,10.22 11.12,12C11.16,13.81 10.72,15.61 9.85,17.2C9.31,18.25 9.04,18.5 8.5,18.59C8.31,18.61 8.11,18.59 7.93,18.5V18.56M3.72,16.43C3.39,16.27 3.13,16 3,15.65C2.9,15.3 3,15 3.4,14.36C3.9,13.68 4.14,12.84 4.09,12C4.16,11.15 3.93,10.31 3.44,9.61C3.27,9.36 3.13,9.09 3,8.82C2.89,8.19 3.31,7.59 4,7.47C4.54,7.37 4.92,7.6 5.42,8.36C6.87,10.57 6.87,13.42 5.42,15.63C4.91,16.4 4.33,16.63 3.73,16.43H3.72Z"
+								/>
+							</SvgIcon>
 						</IconButton>
 					</div>
 				</Tooltip>
@@ -2516,32 +2528,28 @@ export class CanvasToolBar extends Component {
 						</IconButton>
 					</div>
 				</Tooltip>
-				{this.props.appState.experimental ? (
-					<div
-						style={{
-							borderLeft: '1px solid #AAAAAA',
-							height: '40px',
-							margin: '0px 8px',
-						}}
-					/>
-				) : null}
-				{this.props.appState.experimental ? (
-					<Tooltip
-						enterDelay={300}
-						title={<FormattedMessage id="Tooltip.InsertTool" defaultMessage="Insert Tool" />}
-					>
-						<div>
-							<IconButton style={buttonStyle} onClick={this.onShowTools}>
-								<SvgIcon>
-									<path
-										// eslint-disable-next-line max-len
-										d="M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z"
-									/>
-								</SvgIcon>
-							</IconButton>
-						</div>
-					</Tooltip>
-				) : null}
+				<div
+					style={{
+						borderLeft: '1px solid #AAAAAA',
+						height: '40px',
+						margin: '0px 8px'
+					}}
+				/>
+				<Tooltip
+					enterDelay={300}
+					title={<FormattedMessage id="Tooltip.InsertTool" defaultMessage="Insert Tool" />}
+				>
+					<div>
+						<IconButton style={buttonStyle} onClick={this.onShowTools}>
+							<SvgIcon>
+								<path
+									// eslint-disable-next-line max-len
+									d="M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z"
+								/>
+							</SvgIcon>
+						</IconButton>
+					</div>
+				</Tooltip>
 				<Popover
 					open={this.state.toolsOpen}
 					anchorEl={this.state.anchorEl}
@@ -2550,7 +2558,7 @@ export class CanvasToolBar extends Component {
 					onExited={this.handleFocus}
 					onClose={this.onToolsClose}
 					style={{
-						overflow: 'hidden',
+						overflow: 'hidden'
 					}}
 				>
 					<GridList
@@ -2559,13 +2567,13 @@ export class CanvasToolBar extends Component {
 						spacing={2}
 						style={{
 							width: '240px',
-							margin: '2px',
+							margin: '2px'
 						}}
 					>
 						<GridListTile
 							cols={6}
 							style={{
-								height: '23px',
+								height: '23px'
 							}}
 						>
 							<div
@@ -2573,7 +2581,7 @@ export class CanvasToolBar extends Component {
 									backgroundColor: Colors.blue[800],
 									color: 'white',
 									fontSize: '10pt',
-									padding: '3px',
+									padding: '3px'
 								}}
 							>
 								<FormattedMessage id="ToolsStandard" defaultMessage="Standard" />
@@ -2672,7 +2680,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile
 							cols={6}
 							style={{
-								height: '23px',
+								height: '23px'
 							}}
 						>
 							<div
@@ -2680,7 +2688,7 @@ export class CanvasToolBar extends Component {
 									backgroundColor: Colors.blue[800],
 									color: 'white',
 									fontSize: '10pt',
-									padding: '3px',
+									padding: '3px'
 								}}
 							>
 								<FormattedMessage id="ToolsRectangles" defaultMessage="Rectangles" />
@@ -2898,7 +2906,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile
 							cols={6}
 							style={{
-								height: '23px',
+								height: '23px'
 							}}
 						>
 							<div
@@ -2906,7 +2914,7 @@ export class CanvasToolBar extends Component {
 									backgroundColor: Colors.blue[800],
 									color: 'white',
 									fontSize: '10pt',
-									padding: '3px',
+									padding: '3px'
 								}}
 							>
 								<FormattedMessage id="ToolsStars" defaultMessage="Stars" />
@@ -2990,7 +2998,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile
 							cols={6}
 							style={{
-								height: '23px',
+								height: '23px'
 							}}
 						>
 							<div
@@ -2998,7 +3006,7 @@ export class CanvasToolBar extends Component {
 									backgroundColor: Colors.blue[800],
 									color: 'white',
 									fontSize: '10pt',
-									padding: '3px',
+									padding: '3px'
 								}}
 							>
 								<FormattedMessage id="ToolsArrows" defaultMessage="Arrows" />
@@ -3117,7 +3125,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile
 							cols={6}
 							style={{
-								height: '23px',
+								height: '23px'
 							}}
 						>
 							<div
@@ -3125,7 +3133,7 @@ export class CanvasToolBar extends Component {
 									backgroundColor: Colors.blue[800],
 									color: 'white',
 									fontSize: '10pt',
-									padding: '3px',
+									padding: '3px'
 								}}
 							>
 								<FormattedMessage id="ToolsLegends" defaultMessage="Legends" />
@@ -3248,7 +3256,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile
 							cols={6}
 							style={{
-								height: '23px',
+								height: '23px'
 							}}
 						>
 							<div
@@ -3256,7 +3264,7 @@ export class CanvasToolBar extends Component {
 									backgroundColor: Colors.blue[800],
 									color: 'white',
 									fontSize: '10pt',
-									padding: '3px',
+									padding: '3px'
 								}}
 							>
 								<FormattedMessage id="ToolsContainer" defaultMessage="Container" />
@@ -3301,7 +3309,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile
 							cols={6}
 							style={{
-								height: '23px',
+								height: '23px'
 							}}
 						>
 							<div
@@ -3309,7 +3317,7 @@ export class CanvasToolBar extends Component {
 									backgroundColor: Colors.blue[800],
 									color: 'white',
 									fontSize: '10pt',
-									padding: '3px',
+									padding: '3px'
 								}}
 							>
 								<FormattedMessage id="ToolsControls" defaultMessage="Controls" />
@@ -3367,8 +3375,19 @@ export class CanvasToolBar extends Component {
 								<SvgIcon>
 									<path
 										// eslint-disable-next-line max-len
-										d="M22,15C22,17.6 20.8,19.9 18.9,21.3L18.4,20.8L16.3,18.7L17.7,17.3L18.9,18.5C19.4,17.8 19.8,16.9 19.9,16H18V14H19.9C19.7,13.1 19.4,12.3 18.9,11.5L17.7,12.7L16.3,11.3L17.5,10.1C16.8,9.6 15.9,9.2 15,9.1V11H13V9.1C12.1,9.3 11.3,9.6 10.5,10.1L13.5,13.1C13.7,13.1 13.8,13 14,13A2,2 0 0,1 16,15A2,2 0 0,1 14,17A2,2 0 0,1 12,15C12,14.8 12,14.7 12.1,14.5L9.1,11.5C8.6,12.2 8.2,13.1 8.1,14H10V16H8.1C8.3,16.9 8.6,17.7 9.1,18.5L10.3,17.3L11.7,18.7L9.1,21.3C7.2,19.9 6,17.6 6,15A8,8 0 0,1 14,7A8,8 0 0,1 22,15M6.7,5.3L3.4,2L2,3.4L5.3,6.7L4,8H8V4L6.7,5.3Z"
+										d="M12,16A3,3 0 0,1 9,13C9,11.88 9.61,10.9 10.5,10.39L20.21,4.77L14.68,14.35C14.18,15.33 13.17,16 12,16M12,3C13.81,3 15.5,3.5 16.97,4.32L14.87,5.53C14,5.19 13,5 12,5A8,8 0 0,0 4,13C4,15.21 4.89,17.21 6.34,18.65H6.35C6.74,19.04 6.74,19.67 6.35,20.06C5.96,20.45 5.32,20.45 4.93,20.07V20.07C3.12,18.26 2,15.76 2,13A10,10 0 0,1 12,3M22,13C22,15.76 20.88,18.26 19.07,20.07V20.07C18.68,20.45 18.05,20.45 17.66,20.06C17.27,19.67 17.27,19.04 17.66,18.65V18.65C19.11,17.2 20,15.21 20,13C20,12 19.81,11 19.46,10.1L20.67,8C21.5,9.5 22,11.18 22,13Z"
 									/>
+								</SvgIcon>
+							</IconButton>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton
+								style={{ padding: '5px' }}
+								color="inherit"
+								onClick={() => this.onCreateControl('chartstate')}
+							>
+								<SvgIcon>
+									<path d="M16,5V18H21V5M4,18H9V5H4M10,18H15V5H10V18Z" />
 								</SvgIcon>
 							</IconButton>
 						</GridListTile>
@@ -3378,7 +3397,7 @@ export class CanvasToolBar extends Component {
 					<div>
 						<IconButton
 							onClick={this.onCreateChart}
-							disabled={!this.props.appState.cellSelected}
+							disabled={!this.props.cellSelected}
 							style={buttonStyle}
 						>
 							<SvgIcon>
@@ -3387,24 +3406,201 @@ export class CanvasToolBar extends Component {
 						</IconButton>
 					</div>
 				</Tooltip>
+				{this.props.experimental ? (
+					<div>
+						<Tooltip
+							enterDelay={300}
+							title={<FormattedMessage id="Tooltip.InsertChart" defaultMessage="Show Chart Types" />}
+						>
+							<div>
+								<IconButton
+									style={buttonStyle}
+									onClick={this.onShowCharts}
+									disabled={!this.props.cellSelected}
+								>
+									<SvgIcon>
+										<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
+									</SvgIcon>
+								</IconButton>
+							</div>
+						</Tooltip>
+						<Popover
+							open={this.state.chartsOpen}
+							anchorEl={this.state.anchorEl}
+							anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+							transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+							onExited={this.handleFocus}
+							onClose={this.onChartsClose}
+							style={{
+								overflow: 'hidden'
+							}}
+						>
+							<GridList
+								cols={6}
+								cellHeight={35}
+								spacing={2}
+								style={{
+									width: '240px',
+									margin: '2px'
+								}}
+							>
+								<GridListTile
+									cols={6}
+									style={{
+										height: '23px'
+									}}
+								>
+									<div
+										style={{
+											backgroundColor: Colors.blue[800],
+											color: 'white',
+											fontSize: '10pt',
+											padding: '3px'
+										}}
+									>
+										<FormattedMessage id="ChartTypesCategory" defaultMessage="Category Charts" />
+									</div>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<IconButton
+										style={{ padding: '5px' }}
+										color="inherit"
+										onClick={() => this.onCreatePlot('column')}
+									>
+										<SvgIcon>
+											<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
+										</SvgIcon>
+									</IconButton>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<IconButton
+										style={{ padding: '5px' }}
+										color="inherit"
+										onClick={() => this.onCreatePlot('columnstacked')}
+									>
+										<SvgIcon>
+											<path d="M22,21H2V3H4V19H6V17H10V19H12V16H16V19H18V17H22V21M18,14H22V16H18V14M12,6H16V9H12V6M16,15H12V10H16V15M6,10H10V12H6V10M10,16H6V13H10V16Z" />
+										</SvgIcon>
+									</IconButton>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<IconButton
+										style={{ padding: '5px' }}
+										color="inherit"
+										onClick={() => this.onCreatePlot('columnstacked100')}
+									>
+										<SvgIcon>
+											<path d="M22,21H2V3H4V19H6V17H10V19H12V16H16V19H18V17H22V21M18,14H22V16H18V14M12,6H16V9H12V6M16,15H12V10H16V15M6,10H10V12H6V10M10,16H6V13H10V16Z" />
+										</SvgIcon>
+									</IconButton>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<IconButton
+										style={{ padding: '5px' }}
+										color="inherit"
+										onClick={() => this.onCreatePlot('line')}
+									>
+										<SvgIcon>
+											<path
+												d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z"
+											/>
+										</SvgIcon>
+									</IconButton>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<IconButton
+										style={{ padding: '5px' }}
+										color="inherit"
+										onClick={() => this.onCreatePlot('profile')}
+									>
+										<SvgIcon>
+											<line stroke="#000" y2="22.09152" x2="2.899589" y1="2.635468" x1="2.690384" strokeWidth="2" fill="none"/>
+											<line stroke="#000" y2="21.254702" x2="21.518821" y1="21.2547" x1="2.690384" strokeWidth="2" fill="none"/>
+											<path d="m8.548121,21.045496c5.230121,-5.439326 5.230121,-5.439326 5.050195,-5.564336c0.179926,0.12501 -4.422581,-3.640678 -4.602507,-3.765688c0.179926,0.12501 5.619253,-3.640677 5.439327,-3.765687c0.179926,0.12501 -4.840991,-4.477498 -5.020917,-4.602507" strokeWidth="2" stroke="#000" fill="none"/>
+										</SvgIcon>
+									</IconButton>
+								</GridListTile>
+								<GridListTile
+									cols={6}
+									style={{
+										height: '23px'
+									}}
+								>
+									<div
+										style={{
+											backgroundColor: Colors.blue[800],
+											color: 'white',
+											fontSize: '10pt',
+											padding: '3px'
+										}}
+									>
+										<FormattedMessage id="ChartTypesXY" defaultMessage="XY Charts" />
+									</div>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<IconButton
+										style={{ padding: '5px' }}
+										color="inherit"
+										onClick={() => this.onCreatePlot('scatter')}
+									>
+										<SvgIcon>
+											<path
+												d="M2,2H4V20H22V22H2V2"
+											/>
+											<circle cx="16" cy="12" r={1.5} />
+											<circle cx="8" cy="9" r={1.5} />
+											<circle cx="12" cy="17" r={1.5} />
+										</SvgIcon>
+									</IconButton>
+								</GridListTile>
+								<GridListTile cols={1}>
+									<IconButton
+										style={{ padding: '5px' }}
+										color="inherit"
+										onClick={() => this.onCreatePlot('bubble')}
+									>
+										<SvgIcon>
+											<path
+												d="M2,2H4V20H22V22H2V2"
+											/>
+											<circle cx="18" cy="4" r={3} />
+											<circle cx="10" cy="9" r={3} />
+											<circle cx="14" cy="16" r={3} />
+										</SvgIcon>
+									</IconButton>
+								</GridListTile>
+							</GridList>
+						</Popover>
+					</div>
+				) : null}
+				<Tooltip
+					enterDelay={300}
+					title={<FormattedMessage id="Tooltip.SelectShapes" defaultMessage="Select Shapes" />}
+				>
+					<div>
+						<IconButton onClick={this.onSelectShapes} style={buttonStyle} color="inherit">
+							<SvgIcon>
+								<g fill="#444444">
+									<path d="M11,17V19H9V17H11M7,17V19H5V17H7M19,9V11H17V9H19M19,5V7H17V5H19M15,5V7H13V5H15M11,5V7H9V5H11M7,5V7H5V5H7M7,13V15H5V13H7M7,9V11H5V9H7Z" />
+									<path
+										transform="translate(10 10) scale(0.6 0.6)"
+										d="M10.07,14.27C10.57,14.03 11.16,14.25 11.4,14.75L13.7,19.74L15.5,18.89L13.19,13.91C12.95,13.41 13.17,12.81 13.67,12.58L13.95,12.5L16.25,12.05L8,5.12V15.9L9.82,14.43L10.07,14.27M13.64,21.97C13.14,22.21 12.54,22 12.31,21.5L10.13,16.76L7.62,18.78C7.45,18.92 7.24,19 7,19A1,1 0 0,1 6,18V3A1,1 0 0,1 7,2C7.24,2 7.47,2.09 7.64,2.23L7.65,2.22L19.14,11.86C19.57,12.22 19.62,12.85 19.27,13.27C19.12,13.45 18.91,13.57 18.7,13.61L15.54,14.23L17.74,18.96C18,19.46 17.76,20.05 17.26,20.28L13.64,21.97Z"
+									/>
+								</g>
+							</SvgIcon>
+						</IconButton>
+					</div>
+				</Tooltip>
 				<div
 					style={{
 						borderLeft: '1px solid #AAAAAA',
 						height: '40px',
-						margin: '0px 8px',
+						margin: '0px 8px'
 					}}
 				/>
 				{window.outerWidth > 1200 ? (
-					<div
-						style={{
-							position: 'absolute',
-							right: '10px',
-						}}
-					>
-						<CustomTooltip
-							header="Tooltip.ZoomHeader"
-							message="Tooltip.ZoomMessage"
-						>
+					<div>
+						<CustomTooltip header="Tooltip.ZoomHeader" message="Tooltip.ZoomMessage">
 							<IconButton style={buttonStyle} aria-label="Zoom" onClick={this.onShowZoom}>
 								<ZoomIcon fontSize="inherit" />
 							</IconButton>
@@ -3435,6 +3631,8 @@ export class CanvasToolBar extends Component {
 						</Tooltip>
 					</div>
 				) : null}
+
+				{window.outerWidth > 1200 ? <ToolbarExtensions /> : null}
 				<Popover
 					open={this.state.zoomOpen}
 					anchorEl={this.state.anchorEl}
@@ -3443,7 +3641,7 @@ export class CanvasToolBar extends Component {
 					onClose={this.onZoomClose}
 					onExited={this.handleFocus}
 					style={{
-						overflow: 'hidden',
+						overflow: 'hidden'
 					}}
 				>
 					<GridList
@@ -3452,7 +3650,7 @@ export class CanvasToolBar extends Component {
 						spacing={2}
 						style={{
 							width: '360px',
-							margin: '0px',
+							margin: '0px'
 						}}
 					>
 						<GridListTile cols={1}>
@@ -3462,7 +3660,7 @@ export class CanvasToolBar extends Component {
 								style={{
 									minWidth: '50px',
 									padding: '0px',
-									margin: '4px',
+									margin: '4px'
 								}}
 							>
 								50%
@@ -3475,7 +3673,7 @@ export class CanvasToolBar extends Component {
 								style={{
 									minWidth: '50px',
 									padding: '0px',
-									margin: '4px',
+									margin: '4px'
 								}}
 							>
 								75%
@@ -3488,7 +3686,7 @@ export class CanvasToolBar extends Component {
 								style={{
 									minWidth: '50px',
 									padding: '0px',
-									margin: '4px',
+									margin: '4px'
 								}}
 							>
 								100%
@@ -3501,7 +3699,7 @@ export class CanvasToolBar extends Component {
 								style={{
 									minWidth: '50px',
 									padding: '0px',
-									margin: '4px',
+									margin: '4px'
 								}}
 							>
 								125%
@@ -3514,7 +3712,7 @@ export class CanvasToolBar extends Component {
 								style={{
 									minWidth: '50px',
 									padding: '0px',
-									margin: '4px',
+									margin: '4px'
 								}}
 							>
 								150%
@@ -3527,7 +3725,7 @@ export class CanvasToolBar extends Component {
 								style={{
 									minWidth: '50px',
 									padding: '0px',
-									margin: '4px',
+									margin: '4px'
 								}}
 							>
 								200%
@@ -3536,7 +3734,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile
 							cols={6}
 							style={{
-								height: '60px',
+								height: '60px'
 							}}
 						>
 							<Slider
@@ -3548,30 +3746,12 @@ export class CanvasToolBar extends Component {
 								marks={marks}
 								style={{
 									margin: '14px 0px 0px 20px',
-									width: '90%',
+									width: '90%'
 								}}
 							/>
 						</GridListTile>
 					</GridList>
 				</Popover>
-
-				<InsertCellsDialog />
-				<DeleteCellsDialog />
-				<DeleteCellContentDialog
-					open={this.props.appState.showDeleteCellContentDialog}
-					stateHandler={this.handleState}
-				/>
-				<InsertCellContentDialog
-					open={this.props.appState.showInsertCellContentDialog}
-					stateHandler={this.handleState}
-				/>
-				<FormatCellsDialog open={this.props.appState.showFormatCellsDialog} stateHandler={this.handleState} />
-				<PasteFunctionDialog
-					open={this.props.appState.showPasteFunctionsDialog}
-					stateHandler={this.handleState}
-					experimental={this.props.appState.experimental}
-				/>
-				<NamesDialog open={this.props.appState.showEditNamesDialog} stateHandler={this.handleState} />
 			</Toolbar>
 		);
 	}
@@ -3579,8 +3759,17 @@ export class CanvasToolBar extends Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
-		machineId: state.monitor.machine.id,
+		cellSelected: state.jsgState.cellSelected,
+		showDeleteCellContentDialog: state.appState.showDeleteCellContentDialog,
+		showInsertCellContentDialog: state.appState.showInsertCellContentDialog,
+		showFormatCellsDialog: state.appState.showFormatCellsDialog,
+		showPasteFunctionsDialog: state.appState.showPasteFunctionsDialog,
+		showEditNamesDialog: state.appState.showEditNamesDialog,
+		experimental: state.appState.experimental,
+		viewMode: state.appState.viewMode,
+		canUndo: state.jsgState.canUndo,
+		canRedo: state.jsgState.canRedo,
+		machineId: state.monitor.machine.id
 	};
 }
 
@@ -3588,7 +3777,4 @@ function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default connect(
-	mapStateToProps,
-	mapDispatchToProps,
-)(CanvasToolBar);
+export default connect(mapStateToProps, mapDispatchToProps)(CanvasToolBar);

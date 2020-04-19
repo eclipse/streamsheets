@@ -100,8 +100,8 @@ export class SettingsMenu extends React.Component {
 	};
 
 	showHelpDialog = () => {
-		this.setState({ experimental: this.props.appState.experimental });
-		this.setState({ debug: this.props.appState.debug });
+		this.setState({ experimental: this.props.experimental });
+		this.setState({ debug: this.props.debug });
 		this.props.setAppState({
 			showLoading: false,
 			openMoreSettingMenu: false,
@@ -163,7 +163,7 @@ export class SettingsMenu extends React.Component {
 					<TableCell>{service.version}</TableCell>
 					{/* <TableCell>{service.buildNumber}</TableCell> */}
 					<TableCell>{instance.status === 'running' ? <CheckCircleIcon style={{color: 'green'}} /> : ''}</TableCell>
-					<TableCell>{instance.id}</TableCell>
+					{/* <TableCell>{instance.id}</TableCell> */}
 				</TableRow>
 			}
 			)
@@ -172,7 +172,7 @@ export class SettingsMenu extends React.Component {
 				<TableCell>N/A</TableCell>
 				{/* <TableCell>N/A</TableCell> */}
 				<TableCell>N/A</TableCell>
-				<TableCell>N/A</TableCell>
+				{/* <TableCell>N/A</TableCell> */}
 			</TableRow>
 	}
 
@@ -191,7 +191,7 @@ export class SettingsMenu extends React.Component {
 						<IconButton
 							aria-label="More"
 							color="inherit"
-							aria-owns={this.props.appState.openMoreSettingMenu ? 'long-menu' : null}
+							aria-owns={this.props.openMoreSettingMenu ? 'long-menu' : null}
 							aria-haspopup="true"
 							onClick={event =>
 								this.props.setAppState({ anchorEl: event.currentTarget, openMoreSettingMenu: true })}
@@ -202,8 +202,8 @@ export class SettingsMenu extends React.Component {
 				</Tooltip>
 				<Menu
 					id="long-menu"
-					anchorEl={this.props.appState.anchorEl}
-					open={this.props.appState.openMoreSettingMenu}
+					anchorEl={this.props.anchorEl}
+					open={this.props.openMoreSettingMenu}
 					onClose={() => this.props.setAppState({ anchorEl: null, openMoreSettingMenu: false })}
 				>
 					<Card
@@ -234,7 +234,7 @@ export class SettingsMenu extends React.Component {
 					</MenuItem>
 				</Menu>
 				<Dialog
-					open={this.props.appState.openPreferences}
+					open={this.props.openPreferences}
 					onClose={this.handlePreferencesCancel}
 				>
 					<DialogTitle>
@@ -253,7 +253,7 @@ export class SettingsMenu extends React.Component {
 								position: 'relative',
 							}}
 						>
-							{ this.props.appState.showLoading ? (
+							{ this.props.showLoading ? (
 								<div
 									style={{
 										width: '100%',
@@ -329,7 +329,7 @@ export class SettingsMenu extends React.Component {
 					</DialogActions>
 				</Dialog>
 				<Dialog
-					open={this.props.appState.openHelp}
+					open={this.props.openHelp}
 					onClose={this.handleCloseHelp}
 					fullWidth
 					maxWidth="md"
@@ -419,12 +419,12 @@ export class SettingsMenu extends React.Component {
 														defaultMessage="Status"
 													/>
 												</TableCell>
-												<TableCell>
+												{/* <TableCell>
 													<FormattedMessage
 														id="Instances"
 														defaultMessage="Instances"
 													/>
-												</TableCell>
+												</TableCell> */}
 											</TableRow>
 										</TableHead>
 										<TableBody>
@@ -436,12 +436,12 @@ export class SettingsMenu extends React.Component {
 												<TableCell>
 													<CheckCircleIcon style={{color: 'green'}}/>
 												</TableCell>
-												<TableCell>webui</TableCell>
+												{/* <TableCell>webui</TableCell> */}
 											</TableRow>
 											{
-												this.props.meta.services && 
+												this.props.meta.services &&
 												Object.values(this.props.meta.services)
-													.sort((a, b) => a.name.localeCompare(b.name))
+													.sort((a, b) => a.name && a.name.localeCompare(b.name))
 													.map((service) => this.renderServiceDetails(service)
 												)
 											}
@@ -500,7 +500,13 @@ export class SettingsMenu extends React.Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
+		anchorEl: state.appState.anchorEl,
+		openMoreSettingMenu: state.appState.openMoreSettingMenu,
+		experimental: state.appState.experimental,
+		debug: state.appState.debug,
+		openPreferences: state.appState.openPreferences,
+		showLoading: state.appState.showLoading,
+		openHelp: state.appState.openHelp,
 		machine: state.machine,
 		monitor: state.monitor,
 		meta: state.meta,

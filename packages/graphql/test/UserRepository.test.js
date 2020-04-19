@@ -30,6 +30,14 @@ const MINIMAL_USER = {
 	email: 'minimal@example.com',
 	password: 'password0'
 };
+
+// const ADMIN = {
+// 	id: '00000000000000',
+// 	usename: 'admin',
+// 	email: 'admin@example.com',
+// 	password: 'passwordadmin'
+// }
+
 const TEST_USER_1 = {
 	id: 1,
 	username: 'johndoe',

@@ -129,9 +129,6 @@ module.exports = class LoadMachineCommand extends AbstractItemCommand {
 					);
 				}
 
-				if (streamsheet.sheet.drawings) {
-					sheet.getDrawings().setDrawings(streamsheet.sheet.drawings);
-				}
 				if (streamsheet.sheet.graphItems) {
 					sheet.setGraphItems(streamsheet.sheet.graphItems);
 				}

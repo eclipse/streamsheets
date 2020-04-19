@@ -195,11 +195,15 @@ class GraphItemController extends ModelController {
 	 */
 	setSelected(selected, disableEvent) {
 		const model = this.getModel();
+		const view = this.getView();
 		const eventsEnabled = model.areEventsEnabled();
 		if (disableEvent === true) {
 			model.disableEvents();
 		}
 		model.setItemAttribute(ItemAttributes.SELECTED, selected);
+		if (view.onSelectionChange) {
+			view.onSelectionChange(selected);
+		}
 		if (eventsEnabled === true && disableEvent === true) {
 			model.enableEvents();
 		}
@@ -520,6 +524,7 @@ class GraphItemController extends ModelController {
 		const fbItem = model.copy(detailed);
 
 		fbItem._isFeedback = true;
+		fbItem._parent = model.getGraph();
 
 		// if size references parent by formula, we better use the values
 		fbItem.setWidth(model.getWidth().getValue());

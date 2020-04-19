@@ -15,10 +15,11 @@ import Cursor from '../../ui/Cursor';
  * @constructor
  */
 class MarqueeInteraction extends Interaction {
-	constructor() {
+	constructor(traverseContentNodes = false) {
 		super();
 		// the feedback rectangle:
 		this._feedbackRect = undefined;
+		this._traverseContentNodes = traverseContentNodes;
 	}
 
 	deactivate(viewer) {
@@ -124,8 +125,8 @@ class MarqueeInteraction extends Interaction {
 				return false; // do not select children in addition
 			}
 
-			// don't traverse ContentNodeController
-			return !(controller instanceof ContentNodeController);
+			// don't traverse ContentNodeController, if not desired
+			return this._traverseContentNodes || !(controller instanceof ContentNodeController);
 		};
 		root.traverse(checkSelection);
 		viewer.setSelection(selection);

@@ -13,6 +13,13 @@ const CellRange = require('./CellRange');
 const GraphUtils = require('../GraphUtils');
 
 const TYPE = 'Data';
+
+const getSheetFromExpression = (expr) => {
+	const term = expr.getTerm();
+	const operand = term && term.operand;
+	return operand && operand instanceof SheetReference && operand._item;
+};
+
 /**
  * Generic data provider for a worksheet. This provider simply saves its cell data in row
  * arrays. Each row array contains an array of cell arrays.
@@ -625,8 +632,8 @@ module.exports = class DataProvider {
 											!insert &&
 											refRange._y1 >= range.getY1() &&
 											refRange._y2 <= range.getY2() &&
-											refRange._x1 >= range.getX1() &&
-											refRange._x2 <= range.getX2()
+											refRange._x1 - this._sheet.getColumns().getInitialSection() >= range.getX1() &&
+											refRange._x2 - this._sheet.getColumns().getInitialSection() <= range.getX2()
 										) {
 											operand._range = undefined;
 										} else {
@@ -666,10 +673,10 @@ module.exports = class DataProvider {
 										}
 									} else if (
 										!insert &&
-										refRange._x1 >= range.getX1() &&
-										refRange._x2 <= range.getX2() &&
-										refRange._x1 >= range.getX1() &&
-										refRange._x2 <= range.getX2()
+										refRange._x1 - this._sheet.getColumns().getInitialSection() >= range.getX1() &&
+										refRange._x2 - this._sheet.getColumns().getInitialSection() <= range.getX2() &&
+										refRange._y1 >= range.getY1() &&
+										refRange._y2 <= range.getY2()
 									) {
 										operand._range = undefined;
 									} else {
@@ -756,13 +763,12 @@ module.exports = class DataProvider {
 				});
 
 				const updateGraph = (item) => {
-					const attrName = item.getItemAttributes().getAttribute('sheetname');
 					const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
-
-					if (attrName && attrFormula) {
+					if (attrFormula) {
 						const expr = attrFormula.getExpression();
 						if (expr !== undefined && expr.hasFormula()) {
 							update(sheet, expr);
+							item._noFormulaUpdate = true;
 						}
 					}
 				};
@@ -888,6 +894,8 @@ module.exports = class DataProvider {
 						} else if (operand._range) {
 							const range = operand._range;
 							const rangeSheet = range.getSheet();
+							const targetSheet = targetRange.getSheet();
+							const sourceSheet = sourceRange.getSheet();
 							const initR = rangeSheet.getRows().getInitialSection();
 							const initC = rangeSheet.getColumns().getInitialSection();
 							// if copy or reference is within source range
@@ -898,19 +906,20 @@ module.exports = class DataProvider {
 									range._y1 - initR >= sourceRange._y1 &&
 									range._y2 - initR <= sourceRange._y2)
 							) {
-								if (sourceRange.getSheet() === range.getSheet()) {
+								if (sourceSheet === rangeSheet) {
 									if (data.cut) {
 										// moved range to another sheet
-										if (sourceRange.getSheet() !== targetRange.getSheet()) {
-											range.setSheet(targetRange.getSheet());
-											operand.setItem(targetRange.getSheet());
+										if (sourceSheet !== targetSheet) {
+											range.setSheet(targetSheet);
+											operand.setItem(targetSheet);
 										}
 									} else {
-										range.setSheet(targetRange.getSheet());
-										operand.setItem(targetRange.getSheet());
+										range.setSheet(targetSheet);
+										operand.setItem(targetSheet);
 									}
 								}
-								if (absolute === false || targetRange.getSheet() === rangeSheet) {
+								if (absolute === false || targetSheet === rangeSheet ||
+									(data.cut && absolute && sourceSheet === rangeSheet)) {
 									if (range._x1R || absolute) {
 										range._x1 += xOff;
 									}
@@ -1216,14 +1225,14 @@ module.exports = class DataProvider {
 					});
 
 					const updateGraph = (item) => {
-						const attrName = item.getItemAttributes().getAttribute('sheetname');
 						const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
 
-						if (attrName && attrFormula) {
+						if (attrFormula) {
 							const expr = attrFormula.getExpression();
 							if (expr !== undefined && expr.hasFormula()) {
 								invalidateExpression(expr);
 								updateExpression(sheet, expr, targetColumn - sourceColumn, targetRow - sourceRow, true);
+								item._noFormulaUpdate = true;
 							}
 						}
 					};
@@ -1241,9 +1250,11 @@ module.exports = class DataProvider {
 			const graph = this.getSheet().getGraph();
 			graph.getSheetNames().forEach((name) => {
 				const expr = name.getExpression();
-				if (expr !== undefined && expr.hasFormula()) {
+				// need to pass sheet to updateExpression() or otherwise reference in name gets lost...
+				const sheet = expr && expr.hasFormula() && getSheetFromExpression(expr);
+				if (sheet) {
 					invalidateExpression(expr);
-					updateExpression(graph, expr, targetColumn - sourceColumn, targetRow - sourceRow, true);
+					updateExpression(sheet, expr, targetColumn - sourceColumn, targetRow - sourceRow, true);
 				}
 			});
 		}
@@ -1568,7 +1579,7 @@ module.exports = class DataProvider {
 		const utcDays = Math.floor(serial - 25569);
 		const utcValue = utcDays * 86400;
 		const dateInfo = new Date(utcValue * 1000);
-		const fractionalDay = serial - Math.floor(serial) + 0.0000001;
+		const fractionalDay = serial - Math.floor(serial);// + 0.0000001;
 		let totalSeconds = Math.floor(86400 * fractionalDay);
 		const seconds = totalSeconds % 60;
 

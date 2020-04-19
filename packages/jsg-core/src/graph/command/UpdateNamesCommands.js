@@ -1,4 +1,5 @@
 const AbstractItemCommand = require('./AbstractItemCommand');
+const Command = require('./Command');
 const CompoundCommand = require('./CompoundCommand');
 
 class UpdateGraphCellsCommand extends CompoundCommand {
@@ -13,28 +14,23 @@ class UpdateGraphCellsCommand extends CompoundCommand {
 }
 
 
-class SetGraphCellsCommand extends AbstractItemCommand {
-	static createFromObject(data = {}, { graph }) {
-		const item = graph.getItemById(data.itemId);
-		return item
-			? new SetGraphCellsCommand(item, data.graphs).initWithObject(data)
-			: undefined;
+class SetGraphCellsCommand extends Command {
+	static createFromObject(data = {}) {
+		const { streamsheetIds, cellDescriptors } = data;
+		return new SetGraphCellsCommand(streamsheetIds, cellDescriptors).initWithObject(data);
 	}
 
-	constructor(item, graphs) {
-		super(item);
-		this._graphs = graphs;
+	constructor(streamsheetIds = [], cellDescriptors = []) {
+		super();
+		this._streamsheetIds = streamsheetIds.slice();
+		this._cellDescriptors = cellDescriptors.slice();
 		this.isVolatile = true;
-	}
-
-	initWithObject(data) {
-		const cmd = super.initWithObject(data);
-		return cmd;
 	}
 
 	toObject() {
 		const data = super.toObject();
-		data.graphs = this._graphs;
+		data.streamsheetIds = this._streamsheetIds;
+		data.cellDescriptors = this._cellDescriptors;
 		return data;
 	}
 

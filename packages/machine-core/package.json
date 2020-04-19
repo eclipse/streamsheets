@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/machine-core",
-  "version": "1.4.0",
+  "version": "1.6.0-alpha",
   "description": "Core classes and models for digital landscape machineserver",
   "main": "index.js",
   "scripts": {
@@ -17,29 +17,22 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/machine-core",
   "devDependencies": {
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jest": "21.2.1",
     "jest-cli": "21.2.1"
   },
   "dependencies": {
-    "@cedalo/id-generator": "*",
-    "@cedalo/logger": "*",
-    "@cedalo/messages": "*",
-    "@cedalo/messaging-client": "*",
-    "@cedalo/protocols": "*",
-    "@cedalo/number-format": "*",
-    "@cedalo/parser": "*",
+    "@cedalo/commons": "1.6.0-alpha",
+    "@cedalo/error-codes": "1.6.0-alpha",
+    "@cedalo/id-generator": "1.6.0-alpha",
+    "@cedalo/logger": "1.6.0-alpha",
+    "@cedalo/messages": "1.6.0-alpha",
+    "@cedalo/messaging-client": "1.6.0-alpha",
+    "@cedalo/protocols": "1.6.0-alpha",
+    "@cedalo/number-format": "1.6.0-alpha",
+    "@cedalo/parser": "1.6.0-alpha",
     "ioredis": "4.6.2",
     "moment": "2.22.2",
-    "request": "2.85.0"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
+    "request": "2.88.0"
   },
   "jest": {
     "collectCoverage": true,

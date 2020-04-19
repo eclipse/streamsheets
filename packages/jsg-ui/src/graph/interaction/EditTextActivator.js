@@ -117,6 +117,7 @@ class EditTextActivator extends InteractionActivator {
 				const controller = this._getTextNodeController(dispatcher, selection[0]);
 				if (controller !== undefined) {
 					this._startEditTextInteraction(event, viewer, dispatcher, controller);
+					event.doRepaint = true;
 				}
 			}
 		}

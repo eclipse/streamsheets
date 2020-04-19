@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/error-codes",
-  "version": "1.4.0",
+  "version": "1.6.0-alpha",
   "description": "Central point to declare error constants with simple helper methods",
   "main": "index.js",
   "scripts": {
@@ -10,22 +10,13 @@
   "author": "Cedalo AG",
   "dependencies": {
     "http-errors": "1.6.1",
-    "@cedalo/logger": "*"
+    "@cedalo/logger": "1.6.0-alpha"
   },
   "devDependencies": {
     "babel-core": "6.25.0",
     "babel-loader": "7.1.1",
     "babel-preset-env": "1.6.0",
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jest": "19.0.2"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
   },
   "jest": {
     "testEnvironment": "node"

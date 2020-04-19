@@ -36,7 +36,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		this._doRepaint = true;
 	}
 
-	execute(command, completionFunction) {
+	execute(command, completionFunction, updateGraphItems = true) {
 		this.handleCustomFields(command);
 		super.execute(command, completionFunction);
 		const commandJSON = command.toObject('execute');
@@ -55,36 +55,44 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 			});
 
 		if (commandJSON.name !== 'command.RemoveSelectionCommand' &&
-			commandJSON.name !== 'command.SetSelectionCommand') {
+			commandJSON.name !== 'command.SetSelectionCommand' &&
+			commandJSON.name !== 'command.ChangeItemOrderCommand' &&
+			updateGraphItems) {
 			this.updateGraphItems();
 		}
 	}
 
 	updateGraphItems() {
 		const cmp = new CompoundCommand();
-		const formulas = this.graph.getGraphItemFormulas();
 		const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
-		let sheet;
 
 		cmp.isVolatile = true;
 
-		Object.values(formulas).forEach((value) => {
-			if (value.formula) {
-				const cmd = new SetAttributeAtPathCommand(value.item, path, new Expression(0, value.formula));
-				cmd.isVolatile = true;
-				cmp.add(cmd);
-			}
-			({ sheet } = value);
+		this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
+			const formulas = container.getStreamSheet().updateOrCreateGraphFormulas();
+			Object.values(formulas).forEach((value) => {
+				if (value.formula) {
+					const cmd = new SetAttributeAtPathCommand(value.item, path, new Expression(0, value.formula), true);
+					cmd.isVolatile = true;
+					cmp.add(cmd);
+				}
+			});
 		});
 
-		if (!sheet) {
-			return;
+		if (cmp.hasCommands()) {
+			this.execute(cmp, undefined, false);
+
+			// replace all graph cells...
+			const graphCells = new Map();
+			this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
+				const sheetId = container.getStreamSheetContainerAttributes().getSheetId().getValue();
+				const descriptors = sheetId && container.getStreamSheet().getGraphDescriptors();
+				if (descriptors) graphCells.set(sheetId, descriptors);
+			});
+			if (graphCells.size) {
+				this.execute(new SetGraphCellsCommand(Array.from(graphCells.keys()), Array.from(graphCells.values())), undefined, false);
+			}
 		}
-
-		this.graph.resetGraphItemFormulas();
-
-		this.execute(cmp);
-		this.execute(new SetGraphCellsCommand(sheet, sheet.getGraphDescriptors()));
 	}
 
 	isSelectionInOutbox(graphItem) {
@@ -93,7 +101,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 			if (parent instanceof OutboxContainer) break;
 			parent = parent.getParent();
 		}
-		return !!parent; // graphItem && !(graphItem instanceof MachineGraph) && graphItem.getParent().getParent().getParent() instanceof OutboxContainer;
+		return !!parent;
 	}
 
 	handleCustomFields(command) {
@@ -205,7 +213,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 
 	getStreamSheetIdFromProcessSheet(processSheet) {
 		const processSheetContainer = processSheet && processSheet.getStreamSheetContainer();
-		return (processSheetContainer && processSheetContainer instanceof JSG.StreamSheetContainer) ?
+		return (processSheetContainer) ?
 			processSheetContainer.getStreamSheetContainerAttributes().getSheetId().getValue() : undefined;
 	}
 
@@ -243,6 +251,9 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 				Actions.sendCommand(this.graphWrapper.id, commandJSON, this.graphWrapper.machineId, true, false);
 			}
 		}
+
+		this.updateGraphItems();
+
 		return command;
 	}
 
@@ -287,6 +298,9 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 				Actions.sendCommand(this.graphWrapper.id, commandJSON, this.graphWrapper.machineId, false, true);
 			}
 		}
+
+		this.updateGraphItems();
+
 		return command;
 	}
 

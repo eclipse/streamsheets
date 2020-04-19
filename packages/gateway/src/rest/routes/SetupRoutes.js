@@ -1,4 +1,32 @@
+const fs = require('fs');
+const path = require('path');
+
 const httpError = require('http-errors');
+
+const INIT_DIRECTORY = path.join(__dirname, '..', '..', '..', 'config');
+
+const getInitJSON = (initDirectory) => {
+	const initJSON = {
+		machines: [],
+		streams: []
+	};
+	try {
+		const files = fs.readdirSync(initDirectory);
+		files.forEach(file => {
+			const json = JSON.parse(fs.readFileSync(path.join(initDirectory, file)).toString());
+			if (json.machines) {
+				initJSON.machines = [...initJSON.machines, ...json.machines];
+			}
+			if (json.streams) {
+				initJSON.streams = [...initJSON.streams, ...json.streams];
+			}
+		});
+	} catch (error) {
+		/* ignore */
+	}
+	return initJSON;
+}
+
 
 module.exports = class SetupRoutes {
 	static async getSetup(request, response, next) {
@@ -12,7 +40,9 @@ module.exports = class SetupRoutes {
 		case 'POST': {
 			const setupToSave = request.body;
 			try {
+				await request.app.locals.RepositoryManager.populateDatabases(getInitJSON(INIT_DIRECTORY));
 				await configurationRepository.saveSetup(setupToSave);
+				request.app.locals.RepositoryManager.streamRepository.reloadAll();
 				await response.status(201).json(setupToSave);
 			} catch(error) {
 				await response.status(400).json({

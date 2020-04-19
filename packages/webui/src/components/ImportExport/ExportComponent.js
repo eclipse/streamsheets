@@ -1,6 +1,8 @@
-import { Button, TableCell, Tooltip } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
 import * as Colors from '@material-ui/core/colors';
 import Fab from '@material-ui/core/Fab';
+import TableCell from '@material-ui/core/TableCell';
+import Tooltip from '@material-ui/core/Tooltip';
 import ExportIcon from '@material-ui/icons/CloudUpload';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -8,12 +10,12 @@ import { FormattedMessage, injectIntl, intlShape } from 'react-intl';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
+import { RESOURCE_ACTIONS, RESOURCE_TYPES } from '../../helper/AccessManager';
 import ResourceFilter from '../base/listing/ResourceFilter';
+import { Restricted } from '../HelperComponent/Restricted';
 import ExportDialog from './ExportDialog';
 import ExportTable from './ExportTable';
 import ImportDropzone from './ImportDropzone';
-import { Restricted } from '../HelperComponent/Restricted';
-import { RESOURCE_TYPES, RESOURCE_ACTIONS } from '../../helper/AccessManager';
 
 const findMissingConnectors = (streamIds, streamsToExport) =>
 	Array.from(

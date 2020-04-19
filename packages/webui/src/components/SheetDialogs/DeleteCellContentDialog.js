@@ -143,13 +143,8 @@ export class DeleteCellContentDialog extends React.Component {
 	}
 }
 
-function mapStateToProps(state) {
-	return {
-		appState: state.appState,
-	};
-}
 function mapDispatchToProps(dispatch) {
 	return bindActionCreators(Actions, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DeleteCellContentDialog);
+export default connect(null, mapDispatchToProps)(DeleteCellContentDialog);

@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/stream-mail-pop3",
-  "version": "1.4.0",
+  "version": "1.6.0-alpha",
   "description": "DL POP3 feeder",
   "main": "index.js",
   "scripts": {
@@ -17,24 +17,15 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/stream/mail-pop3",
   "devDependencies": {
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jest": "21.2.1",
     "jest-cli": "21.2.1",
     "smtp-server": "3.4.6"
   },
   "dependencies": {
-    "@cedalo/logger": "*",
-    "@cedalo/sdk-streams": "*",
+    "@cedalo/logger": "1.6.0-alpha",
+    "@cedalo/sdk-streams": "1.6.0-alpha",
     "mailparser": "2.7.1",
     "poplib": "0.1.7"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
   },
   "jest": {
     "collectCoverage": true,

@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/gateway",
-  "version": "1.4.0",
+  "version": "1.6.0-alpha",
   "description": "Gateway server",
   "main": "start.js",
   "scripts": {
@@ -24,14 +24,16 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/gateway",
   "dependencies": {
-    "@cedalo/error-codes": "*",
-    "@cedalo/id-generator": "*",
-    "@cedalo/logger": "*",
-    "@cedalo/messages": "*",
-    "@cedalo/messaging-client": "*",
-    "@cedalo/protocols": "*",
-    "@cedalo/repository": "*",
-    "@cedalo/service-core": "*",
+    "@cedalo/error-codes": "1.6.0-alpha",
+    "@cedalo/graphql": "1.6.0-alpha",
+    "@cedalo/id-generator": "1.6.0-alpha",
+    "@cedalo/logger": "1.6.0-alpha",
+    "@cedalo/messages": "1.6.0-alpha",
+    "@cedalo/messaging-client": "1.6.0-alpha",
+    "@cedalo/protocols": "1.6.0-alpha",
+    "@cedalo/repository": "1.6.0-alpha",
+    "@cedalo/service-core": "1.6.0-alpha",
+    "@cedalo/service-streams": "1.6.0-alpha",
     "apollo-server-express": "^2.8.1",
     "axios": "0.18.1",
     "bcryptjs": "2.4.3",
@@ -39,11 +41,11 @@
     "compression": "1.7.1",
     "convict": "5.0.0",
     "cors": "2.8.4",
-    "@cedalo/graphql": "*",
     "express": "4.16.4",
     "express-session": "1.16.1",
     "form-data": "2.4.0",
     "fs-extra": "7.0.1",
+    "graphql": "14.5.8",
     "http-errors": "1.5.1",
     "ioredis": "4.6.2",
     "jasmine-expect": "^4.0.3",
@@ -67,22 +69,13 @@
     "ws": "7.1.0"
   },
   "devDependencies": {
-    "@cedalo/jsg-core": "*",
-    "@cedalo/machine-core": "*",
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
+    "@cedalo/jsg-core": "1.6.0-alpha",
+    "@cedalo/machine-core": "1.6.0-alpha",
     "jest": "19.0.1",
     "terser-webpack-plugin": "1.2.2",
     "webpack": "4.29.1",
     "webpack-cli": "3.2.3",
     "webpack-node-externals": "1.7.2"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
   },
   "unmockedModulePathPatterns": [
     "jasmine-expect"

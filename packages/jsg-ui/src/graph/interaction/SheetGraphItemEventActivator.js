@@ -4,6 +4,7 @@ import StreamSheetContainerView from '../view/StreamSheetContainerView';
 import SheetGraphItemEventInteraction from './SheetGraphItemEventInteraction';
 import InteractionActivator from './InteractionActivator';
 import Feedback from '../feedback/Feedback';
+import Cursor from '../../ui/Cursor';
 
 const KEY = 'sheetgraphitemevent.activator';
 
@@ -27,7 +28,7 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 			const attr = cont
 				.getModel()
 				.getItemAttributes()
-				.getAttribute('sheetname');
+				.getAttribute('sheetsource');
 			if (attr) {
 				const name = attr.getValue();
 				if (name && name.length) {
@@ -137,6 +138,13 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 			this._feedback = undefined;
 			this._controller = undefined;
 			event.doRepaint = true;
+		}
+		if (controller) {
+			const events = controller.getModel()._sheetEvents;
+			if (events && events instanceof Array) {
+				dispatcher.setCursor(Cursor.Style.EXECUTE);
+				event.hasActivated = true;
+			}
 		}
 	}
 

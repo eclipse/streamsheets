@@ -12,15 +12,15 @@ const defaulUserState = {
 export default function userReducer(state = defaulUserState, action) {
 	switch (action.type) {
 		case Actions.RECEIVE_USER_LEFT: {
-			const { user, sessionId, logout } = action.event;
+			const { user, logout } = action.event;
 			let localUser = null;
 			try {
 				localUser = JSON.parse(localStorage.getItem('user'));
 			} catch (e) {
 				localUser = state.user;
 			}
-			if((!user && logout) || (!localUser && logout) || (user.userId === localUser.userId && logout)) {
-				accessManager.logoutUI(user, sessionId);
+			if((!user && logout) || (!localUser && logout) || (user.id === localUser.id && logout)) {
+				accessManager.logoutUI(true);
 			}
 			return {
 				...state,

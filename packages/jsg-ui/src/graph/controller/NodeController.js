@@ -17,6 +17,8 @@ import {
 	SheetHeaderNode,
 	SheetSliderNode,
 	SheetKnobNode,
+	SheetPlotNode,
+	SheetChartStateNode,
 	TreeItemsNode,
 	Dictionary,
 	Arrays,
@@ -40,6 +42,8 @@ import SheetButtonView from '../view/SheetButtonView';
 import SheetCheckboxView from '../view/SheetCheckboxView';
 import SheetSliderView from '../view/SheetSliderView';
 import SheetKnobView from '../view/SheetKnobView';
+import SheetPlotView from '../view/SheetPlotView';
+import { createView } from '@cedalo/jsg-extensions/ui';
 import NodeView from '../view/NodeView';
 import TextView from '../view/TextView';
 import StreamSheetContainerView from '../view/StreamSheetContainerView';
@@ -191,11 +195,19 @@ class NodeController extends GraphItemController {
 		if (model instanceof SheetKnobNode) {
 			return new SheetKnobView(model);
 		}
+		if (model instanceof SheetPlotNode) {
+			return new SheetPlotView(model);
+		}
 		if (model instanceof StreamSheetContainer) {
 			return new StreamSheetContainerView(model);
 		}
 		if (model instanceof StreamSheetContainer) {
 			return new StreamSheetContainerView(model);
+		}
+
+		const extension = createView(model);
+		if(extension){
+			return extension;
 		}
 
 		return new NodeView(model);

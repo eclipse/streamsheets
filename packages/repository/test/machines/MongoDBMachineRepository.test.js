@@ -153,35 +153,6 @@ describe('@cedalo/repository#MongoDBMachineRepository', () => {
 			.then(() => REPO.deleteMachine(machine.id))
 			.then(() => done());
 	});
-	it('should get stored machine template', (done) => {
-		const machine = dummyMachine();
-		const templateId = IdGenerator.generate();
-		const machineTemplate = dummyMachine(templateId, true);
-		expect.assertions(2);
-		return REPO.saveMachine(machine)
-			.then(() => REPO.saveMachine(machineTemplate))
-			.then(() => REPO.findTemplate(templateId))
-			.then((response) => {
-				expect(response).toBeDefined();
-				expect(response.id).toBe(templateId);
-				done();
-			});
-	});
-	it('should get all machine templates', (done) => {
-		const machine = dummyMachine();
-		const templateId = IdGenerator.generate();
-		const machineTemplate = dummyMachine(templateId, true);
-		expect.assertions(3);
-		return REPO.saveMachine(machine)
-			.then(() => REPO.saveMachine(machineTemplate))
-			.then(() => REPO.getTemplates())
-			.then((response) => {
-				expect(response).toBeDefined();
-				expect(response.length).toBe(3);  // add Base Machine & Simulated Machine templates...
-				expect(response[0].id).toBe(templateId);
-				done();
-			});
-	});
 	it('should update a streamsheet streams', () => {
 		const machine = dummyMachine();
 		machine.streamsheets = [

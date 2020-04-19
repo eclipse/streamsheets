@@ -21,6 +21,7 @@ const {
 	MachineGraph,
 	GraphEditor,
 	SheetGraphItemEventActivator,
+	SheetPlotActivator,
 	// CreateEdgeActivator,
 	EditTextActivator,
 	JSONReader,
@@ -151,6 +152,7 @@ export default class GraphManager {
 		defInteraction.addActivator(RotateActivator.KEY, new RotateActivator());
 		defInteraction.addActivator(SheetGraphItemEventActivator.KEY, new SheetGraphItemEventActivator());
 		defInteraction.addActivator(SheetActivator.KEY, new SheetActivator());
+		defInteraction.addActivator(SheetPlotActivator.KEY, new SheetPlotActivator());
 		defInteraction.addActivator(EditTextActivator.KEY, new EditTextActivator());
 		defInteraction.addActivator(MoveActivator.KEY, new MoveActivator());
 		defInteraction.addActivator(MarqueeActivator.KEY, new MarqueeActivator());
@@ -252,16 +254,21 @@ export default class GraphManager {
 
 		this.updateGraph(machine);
 
-		const container = graph.getMachineContainer();
-		const maxSheet = container.getMachineContainerAttributes().getMaximizeSheet().getValue();
-		if (maxSheet !== 'none') {
-			const processContainer = graph.getStreamSheetContainerByStreamSheetName(maxSheet);
-			if (processContainer !== undefined) {
-				graph.setViewMode(processContainer, 2);
-				graph.markDirty();
+		if (graph.getStreamSheetContainerCount() === 1) {
+			const container = this.getGraph().getStreamSheetsContainer().getFirstStreamSheetContainer();
+			graph.setViewMode(container, 2);
+			graph.markDirty();
+		} else {
+			const container = graph.getMachineContainer();
+			const maxSheet = container.getMachineContainerAttributes().getMaximizeSheet().getValue();
+			if (maxSheet !== 'none') {
+				const processContainer = graph.getStreamSheetContainerByStreamSheetName(maxSheet);
+				if (processContainer !== undefined) {
+					graph.setViewMode(processContainer, 2);
+					graph.markDirty();
+				}
 			}
 		}
-
 
 		JSG.setDrawingDisabled(false);
 		this.redraw();
@@ -465,7 +472,7 @@ export default class GraphManager {
 						if (index !== -1) {
 							const sheetName = name.substring(0, index);
 							name = name.substring(index + 1);
-							const node = graph.getItemByGraphName(name);
+							const node = graph.getItemById(Number(name));
 							const sheet = graph.getItemByName(sheetName);
 							if (node && sheet) {
 								const graphController = this._graphEditor.getGraphViewer().getGraphController();
@@ -760,9 +767,9 @@ export default class GraphManager {
 	}
 
 	updateMachine({streamsheets, outbox}) {
-		streamsheets.forEach(streamsheet => {
-			streamsheet.messages = streamsheet.inbox.messages;
-		})
+		// streamsheets.forEach(streamsheet => {
+		// 	streamsheet.messages = streamsheet.inbox.messages;
+		// });
 		this.updateOutbox(outbox);
 		this.updateStreamSheets(streamsheets);
 	}
@@ -821,25 +828,19 @@ export default class GraphManager {
 	}
 
 	updateStreamSheet(streamsheet) {
-		this.addInboxMessages(streamsheet.id, streamsheet.messages)
-		if (streamsheet.currentMessage) {
-			this.selectInboxMessage(
-				streamsheet.id,
-				streamsheet.currentMessage.id,
-				streamsheet.currentMessage.isProcessed,
-			);
+		const { id, inbox, loop, stats } = streamsheet;
+		if (inbox) {
+			const { currentMessage, messages, stream } = inbox;
+			this.addInboxMessages(id, messages)
+			if (currentMessage) this.selectInboxMessage(id, currentMessage.id, currentMessage.isProcessed);
+			if (stream) this.updateStream(id, stream);
 		}
-		if (streamsheet.loop.path) {
-			this.updateLoopElement(streamsheet.id, streamsheet.loop);
+		if (loop) {
+			if (loop.path) this.updateLoopElement(id, loop);
+			if (loop.currentPath) this.updatePath(id, loop.currentPath);
 		}
-		if (streamsheet.jsonpath) {
-			this.updatePath(streamsheet.id, streamsheet.jsonpath);
-		}
-		if (streamsheet.inbox && streamsheet.inbox.stream) {
-			this.updateStream(streamsheet.id, streamsheet.inbox.stream);
-		}
-		if (streamsheet.stats) {
-			this.updateStats(streamsheet.id, streamsheet.stats);
+		if (stats) {
+			this.updateStats(id, stats);
 		}
 	}
 

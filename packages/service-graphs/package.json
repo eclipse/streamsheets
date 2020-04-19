@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/service-graphs",
-  "version": "1.4.0",
+  "version": "1.6.0-alpha",
   "description": "A service for managing graphs.",
   "main": "index.js",
   "scripts": {
@@ -22,43 +22,24 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/service-graphs",
   "dependencies": {
-    "@cedalo/error-codes": "*",
-    "@cedalo/id-generator": "*",
-    "@cedalo/logger": "*",
-    "@cedalo/messages": "*",
-    "@cedalo/messaging-client": "*",
-    "@cedalo/protocols": "*",
-    "@cedalo/repository": "*",
-    "@cedalo/service-core": "*",
+    "@cedalo/error-codes": "1.6.0-alpha",
+    "@cedalo/id-generator": "1.6.0-alpha",
+    "@cedalo/logger": "1.6.0-alpha",
+    "@cedalo/messages": "1.6.0-alpha",
+    "@cedalo/messaging-client": "1.6.0-alpha",
+    "@cedalo/protocols": "1.6.0-alpha",
+    "@cedalo/repository": "1.6.0-alpha",
+    "@cedalo/service-core": "1.6.0-alpha",
     "ioredis": "4.6.2",
-    "@cedalo/jsg-core": "*"
+    "@cedalo/jsg-core": "1.6.0-alpha"
   },
   "devDependencies": {
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jest": "24.0.0",
     "jest-cli": "24.0.0",
-    "sinon": "7.2.2",
     "terser-webpack-plugin": "1.2.2",
     "webpack": "4.29.1",
     "webpack-cli": "3.2.3",
     "webpack-node-externals": "1.7.2"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ],
-    "env": {
-      "browser": true,
-      "node": true
-    },
-    "rules": {
-      "global-require": 1,
-      "no-undef": 1,
-      "no-unused-vars": 1
-    }
   },
   "jest": {
     "collectCoverage": true,

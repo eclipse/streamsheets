@@ -3,7 +3,7 @@ import * as ActionTypes from '../constants/ActionTypes';
 import gatewayClient from '../helper/GatewayClient';
 
 const sendRestoreSuccess = () => ({
-	type: ActionTypes.SEND_RESTORE_SUCCESS,
+	type: ActionTypes.SEND_RESTORE_SUCCESS
 });
 const sendRestoreError = (data) => ({ type: ActionTypes.SEND_RESTORE_ERROR, data });
 
@@ -16,7 +16,7 @@ export function backup() {
 	return async () => {
 		const response = await gatewayClient.backup();
 		const blob = new Blob([JSON.stringify(response)], {
-			type: 'text/plain;charset=utf8;',
+			type: 'text/plain;charset=utf8;'
 		});
 		saveAs(blob, backupFileName());
 	};
@@ -30,9 +30,11 @@ export function restore(file) {
 				dispatch(sendRestoreSuccess());
 			} else {
 				dispatch(sendRestoreError(message));
+				throw message;
 			}
 		} catch (error) {
 			dispatch(sendRestoreError(error));
+			throw error;
 		}
 	};
 }

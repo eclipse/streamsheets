@@ -2,27 +2,21 @@ const httpError = require('http-errors');
 const { promisify } = require('util');
 const fs = require('fs');
 const { ObjectId } = require('mongodb');
+const Migration = require('../../utils/Migration');
 
 const readFile = promisify(fs.readFile);
 
-const readBackupFile = async (files) => {
-	if (files && files.restoreData) {
-		const {
-			restoreData: { path }
-		} = files;
-		const fileContent = await readFile(path, 'utf8');
+const readBackupFile = async (file) => {
+	if (file && file.fieldname === 'restoreData') {
+		const fileContent = await readFile(file.path, 'utf8');
 		return JSON.parse(fileContent);
 	}
 	return null;
 };
 
-const isValidRestoreJson = (json) =>
-	json &&
-	json.graphs &&
-	json.streams &&
-	json.auth_user &&
-	json.auth_role &&
-	json.auth_policy;
+const isValidRestoreJson = (json) => json && json.graphs && json.streams && json.machines;
+const isValid13RestoreJson = (json) =>
+	json && json.graphs && json.machines && json.auth_user && json.datasources && !json.streams;
 
 module.exports = class BackupRestoreRoutes {
 	static async backup(request, response, next) {
@@ -30,12 +24,11 @@ module.exports = class BackupRestoreRoutes {
 			case 'GET':
 				try {
 					// Fix me
-					const {
-						db
-					} = request.app.locals.RepositoryManager.machineRepository;
+					const { db } = request.app.locals.RepositoryManager.machineRepository;
 					const collections = await db.listCollections().toArray();
 					const pendingEntries = collections
 						.map((c) => c.name)
+						.filter(name => !name.startsWith('system.'))
 						.map(async (collection) => {
 							const data = await db
 								.collection(collection)
@@ -71,30 +64,28 @@ module.exports = class BackupRestoreRoutes {
 			case 'POST':
 				try {
 					// Fix me
-					const {
-						db
-					} = request.app.locals.RepositoryManager.machineRepository;
-					const restoreJson = await readBackupFile(request.files);
-					if (!isValidRestoreJson(restoreJson)) {
+					const { db } = request.app.locals.RepositoryManager.machineRepository;
+					const restoreJson = await readBackupFile(request.file);
+					if (!isValidRestoreJson(restoreJson) && !isValid13RestoreJson(restoreJson)) {
 						response.status(400).json({
 							restored: false,
 							message: 'Invalid restore data found in request.'
 						});
 						return;
 					}
+
 					const collections = await db.listCollections().toArray();
 
 					const pendingCollectionDrop = collections
 						.map((c) => c.name)
+						.filter(name => !name.startsWith('system.'))
 						.map((name) => db.collection(name).drop());
 
 					await Promise.all(pendingCollectionDrop);
 
 					// auth_ collections use ObjectId as _id
 					const fixedAuthData = Object.entries(restoreJson)
-						.filter(([collection]) =>
-							collection.startsWith('auth_')
-						)
+						.filter(([collection]) => collection.startsWith('auth_'))
 						.map(([collection, docs]) => [
 							collection,
 							docs.map((d) => ({
@@ -112,14 +103,15 @@ module.exports = class BackupRestoreRoutes {
 					);
 
 					const pendingInserts = Object.entries(fixedRestoreJson)
-						.filter(
-							([, documents]) =>
-								Array.isArray(documents) && documents.length > 0
-						)
-						.map(([collection, documents]) =>
-							db.collection(collection).insertMany(documents)
-						);
+						.filter(([, documents]) => Array.isArray(documents) && documents.length > 0)
+						.map(([collection, documents]) => db.collection(collection).insertMany(documents));
 					await Promise.all(pendingInserts);
+
+					if (isValid13RestoreJson(restoreJson)) {
+						const migration = new Migration(db);
+						await migration.migrateCollections();
+					}
+
 					response.status(201).json({
 						restored: true
 					});

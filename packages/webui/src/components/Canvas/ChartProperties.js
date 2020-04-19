@@ -16,7 +16,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
 import Input from '@material-ui/core/Input';
 import Divider from '@material-ui/core/Divider';
-// import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 import { bindActionCreators } from 'redux';
@@ -26,12 +25,8 @@ import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/RemoveCircle';
 import CloseIcon from '@material-ui/icons/Close';
-// import * as Colors from '@material-ui/core/colors';
 import JSG from '@cedalo/jsg-ui';
-import {
-	Arrays,
-	CompoundCommand,
-} from '@cedalo/jsg-core';
+import { Arrays, CompoundCommand } from '@cedalo/jsg-core';
 import Slide from '@material-ui/core/Slide';
 
 import * as Actions from '../../actions/actions';
@@ -54,7 +49,7 @@ const colors = {
 		'rgb(88,207,255)',
 		'rgb(255,139,116)',
 		'rgb(131,240,255)',
-		'rgb(224,108,255)',
+		'rgb(224,108,255)'
 	],
 	borderColor: [
 		'rgb(54, 162, 235)',
@@ -68,38 +63,63 @@ const colors = {
 		'rgb(88,207,255)',
 		'rgb(255,139,116)',
 		'rgb(131,240,255)',
-		'rgb(224,108,255)',
+		'rgb(224,108,255)'
 	]
 };
 
 const styles = {
 	expansionSummary: {
-		padding: '0px 12px',
+		padding: '0px 12px'
 	},
 	expansionDetails: {
 		padding: '0px 12px',
-		display: 'block',
-	},
+		display: 'block'
+	}
 };
 
+const LINE_STYLES = [
+	{
+		value: 0,
+		name: 'Ohne',
+		image: 'lib/res/images/linestylenone.png',
+		id: 0,
+	},
+	{
+		value: 1,
+		name: '1',
+		image: 'lib/res/images/linestylesolid.png',
+		id: 1,
+	},
+	{
+		value: 2,
+		name: '2',
+		image: 'lib/res/images/linestyledot.png',
+		id: 2,
+	},
+	{
+		value: 3,
+		name: '3',
+		image: 'lib/res/images/linestyledash.png',
+		id: 3,
+	},
+	{
+		value: 4,
+		name: '4',
+		image: 'lib/res/images/linestyledashdot.png',
+		id: 4,
+	},
+];
 
 function TabContainer(props) {
-	return (
-		<Typography component="div">
-			{props.children}
-		</Typography>
-	);
+	return <Typography component="div">{props.children}</Typography>;
 }
 TabContainer.propTypes = {
-	children: PropTypes.node.isRequired,
+	children: PropTypes.node.isRequired
 };
 
 export class ChartProperties extends Component {
-	static propTypes = {
-		appState: PropTypes.object.isRequired,
-	};
 
-	constructor(props){
+	constructor(props) {
 		super(props);
 		this.escFunction = this.escFunction.bind(this);
 	}
@@ -123,11 +143,19 @@ export class ChartProperties extends Component {
 		categoryDataRange: '',
 		title: '',
 		titleFont: {
-			fontName: 'Verdana', fontSize: '12', bold: false, italic: false, color: '#000000',
+			fontName: 'Verdana',
+			fontSize: '12',
+			bold: false,
+			italic: false,
+			color: '#000000'
 		},
 		legendPosition: 'right',
 		legendFont: {
-			fontName: 'Verdana', fontSize: '9', bold: false, italic: false, color: '#000000',
+			fontName: 'Verdana',
+			fontSize: '9',
+			bold: false,
+			italic: false,
+			color: '#000000'
 		},
 		series: undefined,
 		seriesIndex: 0,
@@ -136,22 +164,22 @@ export class ChartProperties extends Component {
 		axisId: 'XAxis1',
 		xAxisId: 'XAxis1',
 		yAxisId: 'YAxis1',
-		scales: undefined,
+		scales: undefined
 	};
 
-	componentDidMount(){
-		document.addEventListener("keydown", this.escFunction, false);
+	componentDidMount() {
+		document.addEventListener('keydown', this.escFunction, false);
 	}
 
 	componentWillReceiveProps(nextProps) {
 		// You don't have to do this check first, but it can help prevent an unneeded render
-		if (nextProps.appState.showChartProperties === true) {
+		if (nextProps.showChartProperties === true) {
 			this.updateState();
 		}
 	}
 
-	componentWillUnmount(){
-		document.removeEventListener("keydown", this.escFunction, false);
+	componentWillUnmount() {
+		document.removeEventListener('keydown', this.escFunction, false);
 	}
 
 	getSheetView() {
@@ -174,7 +202,7 @@ export class ChartProperties extends Component {
 			return undefined;
 		}
 		const item = selection[0].getModel();
-		return (item instanceof JSG.ChartNode) ? item : undefined;
+		return item instanceof JSG.ChartNode ? item : undefined;
 	}
 
 	getSheet(chart) {
@@ -233,18 +261,81 @@ export class ChartProperties extends Component {
 
 		if (this.state.chartType === 'pie' || this.state.chartType === 'doughnut') {
 			if (this.state.pointIndex !== 'all') {
-				return colors.backgroundColor[Number(this.state.pointIndex) % 11];
+				return colors.borderColor[Number(this.state.pointIndex) % 11];
 			}
 		}
 
 		return colors.borderColor[this.state.seriesIndex % 11];
 	}
 
+	getSeriesMarkerLineColor() {
+		const series = this.state.series[this.state.seriesIndex];
+		if (series) {
+			if (this.state.pointIndex === 'all' || !series.pointInfo) {
+				if (series.markerLineColor) {
+					return series.markerLineColor;
+				}
+			} else {
+				const pointInfo = series.pointInfo[Number(this.state.pointIndex)];
+				if (pointInfo && pointInfo.markerLineColor !== undefined) {
+					return pointInfo.markerLineColor;
+				}
+				if (series.markerLineColor) {
+					return series.markerLineColor;
+				}
+			}
+		}
+
+		return colors.borderColor[this.state.seriesIndex % 11];
+	}
+
+	getSeriesMarkerFillColor() {
+		const series = this.state.series[this.state.seriesIndex];
+		if (series) {
+			if (this.state.pointIndex === 'all' || !series.pointInfo) {
+				if (series.markerFillColor) {
+					return series.markerFillColor;
+				}
+			} else {
+				const pointInfo = series.pointInfo[Number(this.state.pointIndex)];
+				if (pointInfo && pointInfo.markerFillColor !== undefined) {
+					return pointInfo.markerFillColor;
+				}
+				if (series.markerFillColor) {
+					return series.markerFillColor;
+				}
+			}
+		}
+
+		return colors.borderColor[this.state.seriesIndex % 11];
+	}
+
+	getSeriesLineStyle() {
+		const series = this.state.series[this.state.seriesIndex];
+		if (series) {
+			if (this.state.pointIndex === 'all' || !series.pointInfo) {
+				if (series.lineStyle !== undefined) {
+					return series.lineStyle;
+				}
+			} else {
+				const pointInfo = series.pointInfo[Number(this.state.pointIndex)];
+				if (pointInfo && pointInfo.lineStyle !== undefined) {
+					return pointInfo.lineStyle;
+				}
+				if (series.lineStyle !== undefined) {
+					return series.lineStyle;
+				}
+			}
+		}
+
+		return 1;
+	}
+
 	getSeriesLineWidth() {
 		const series = this.state.series[this.state.seriesIndex];
 		if (series) {
 			if (this.state.pointIndex === 'all' || !series.pointInfo) {
-				if (series.lineWidth) {
+				if (series.lineWidth !== undefined) {
 					return series.lineWidth;
 				}
 			} else {
@@ -252,34 +343,51 @@ export class ChartProperties extends Component {
 				if (pointInfo && pointInfo.lineWidth !== undefined) {
 					return pointInfo.lineWidth;
 				}
-				if (series.lineWidth) {
+				if (series.lineWidth !== undefined) {
 					return series.lineWidth;
 				}
 			}
 		}
 
-		return 3;
+		return 1;
 	}
 
 	getSeriesLineMarker() {
+		const defaultMarker = this.state.chartType === 'scatter' ? 'circle' : 'none';
 		const series = this.state.series[this.state.seriesIndex];
 		if (series) {
 			if (this.state.pointIndex === 'all' || !series.pointInfo) {
-				if (series.lineMarker) {
-					return series.lineMarker;
+				return series.lineMarker ? series.lineMarker : defaultMarker;
+			}
+			const pointInfo = series.pointInfo[Number(this.state.pointIndex)];
+			if (pointInfo && pointInfo.lineMarker !== undefined) {
+				return pointInfo.lineMarker;
+			}
+			return series.lineMarker ? series.lineMarker : defaultMarker;
+		}
+
+		return defaultMarker;
+	}
+
+	getSeriesLineMarkerSize() {
+		const series = this.state.series[this.state.seriesIndex];
+		if (series) {
+			if (this.state.pointIndex === 'all' || !series.pointInfo) {
+				if (series.lineMarkerSize !== undefined) {
+					return series.lineMarkerSize;
 				}
 			} else {
 				const pointInfo = series.pointInfo[Number(this.state.pointIndex)];
-				if (pointInfo && pointInfo.lineMarker !== undefined) {
-					return pointInfo.lineMarker;
+				if (pointInfo && pointInfo.lineMarkerSize !== undefined) {
+					return pointInfo.lineMarkerSize;
 				}
-				if (series.lineMarker) {
-					return series.lineMarker;
+				if (series.lineWidth !== undefined) {
+					return series.lineMarkerSize;
 				}
 			}
 		}
 
-		return 'none';
+		return 4;
 	}
 
 	getSeriesShowDataLabels() {
@@ -309,7 +417,7 @@ export class ChartProperties extends Component {
 			return series.showLine;
 		}
 
-		return false;
+		return this.state.chartType === 'scatterLine';
 	}
 
 	getSeriesXAxisID() {
@@ -331,29 +439,31 @@ export class ChartProperties extends Component {
 	}
 
 	getCurrentAxis() {
-		let axis = this.state.scales.xAxes.filter(laxis => laxis.id === this.state.axisId);
+		let axis = this.chartNode.scales.xAxes.filter((laxis) => laxis.id === this.state.axisId);
 		if (axis.length) {
 			return axis[0];
 		}
-		axis = this.state.scales.yAxes.filter(laxis => laxis.id === this.state.axisId);
 
+		axis = this.chartNode.scales.yAxes.filter((laxis) => laxis.id === this.state.axisId);
 		if (axis.length) {
 			return axis[0];
 		}
-		return undefined;
+
+		return this.chartNode.scales.xAxes[0];
+		// return undefined;
 	}
 
 	getCurrentXAxis() {
-		const axis = this.state.scales.xAxes.filter(laxis => laxis.id === this.state.xAxisId);
-		return axis.length ? axis[0] : undefined;
+		const axis = this.chartNode.scales.xAxes.filter((laxis) => laxis.id === this.state.xAxisId);
+		return axis.length ? axis[0] : this.chartNode.scales.xAxes[0];
 	}
 
 	getCurrentYAxis() {
-		const axis = this.state.scales.yAxes.filter(laxis => laxis.id === this.state.yAxisId);
-		return axis.length ? axis[0] : undefined;
+		const axis = this.chartNode.scales.yAxes.filter((laxis) => laxis.id === this.state.yAxisId);
+		return axis.length ? axis[0] : this.chartNode.scales.yAxes[0];
 	}
 
-	escFunction(event){
+	escFunction(event) {
 		if (event.keyCode === 27 && event.target && event.target.contentEditable !== 'true') {
 			this.props.setAppState({ showChartProperties: false });
 		}
@@ -374,9 +484,19 @@ export class ChartProperties extends Component {
 			return;
 		}
 		this.chartNode = item;
+
+		const yAxis = this.getCurrentYAxis();
+		const xAxis = this.getCurrentXAxis();
+		const axis = this.getCurrentAxis();
+
 		this.setState({
+			axisId: axis.id,
+			xAxisId: xAxis.id,
+			yAxisId: yAxis.id,
 			chartType: item.getChartType(),
-			dataRange: item.getDataRange() ? `=${item.getDataRange().toString({ item: this.getSheet(this.chartNode), useName: true })}` : '',
+			dataRange: item.getDataRange()
+				? `=${item.getDataRange().toString({ item: this.getSheet(this.chartNode), useName: true })}`
+				: '',
 			coherent: item.data.coherent,
 			hideEmpty: item.data.hideEmpty,
 			fill: item.data.fill,
@@ -394,10 +514,7 @@ export class ChartProperties extends Component {
 			titleFont: item.title.font,
 			legendPosition: item.legend.position,
 			legendFont: item.legend.font,
-			scales: item.scales,
-			// axisId: item.scales.xAxes[0].id,
-			// xAxisId: item.scales.xAxes[0].id,
-			// yAxisId: item.scales.yAxes[0].id,
+			scales: item.scales
 		});
 	}
 
@@ -406,26 +523,34 @@ export class ChartProperties extends Component {
 		graphManager.synchronizedExecute(cmd);
 	}
 
+	isLineChart() {
+		return (
+			this.state.chartType === 'radar' ||
+			this.state.chartType === 'scatter' ||
+			this.state.chartType === 'line' ||
+			this.state.chartType === 'scatterLine'
+		);
+	}
+
 	hasXAxis() {
-		return !(this.state.chartType === 'radar' ||
+		return !(
+			this.state.chartType === 'radar' ||
 			this.state.chartType === 'polarArea' ||
 			this.state.chartType === 'pie' ||
-			this.state.chartType === 'doughnut');
+			this.state.chartType === 'doughnut'
+		);
 	}
 
 	hasYAxis() {
-		return !(this.state.chartType === 'pie' ||
-			this.state.chartType === 'doughnut');
+		return !(this.state.chartType === 'pie' || this.state.chartType === 'doughnut');
 	}
 
 	hasMultiYAxis() {
-		return !(this.state.chartType === 'radar' ||
-			this.state.chartType === 'polarArea');
+		return !(this.state.chartType === 'radar' || this.state.chartType === 'polarArea');
 	}
 
 	hasMultiXAxis() {
-		return !(this.state.chartType === 'radar' ||
-			this.state.chartType === 'polarArea');
+		return !(this.state.chartType === 'radar' || this.state.chartType === 'polarArea');
 	}
 
 	reassignFont(target, source) {
@@ -459,7 +584,8 @@ export class ChartProperties extends Component {
 	}
 
 	executeCommand(cmd) {
-		graphManager.getGraphViewer()
+		graphManager
+			.getGraphViewer()
 			.getInteractionHandler()
 			.execute(cmd);
 
@@ -493,15 +619,13 @@ export class ChartProperties extends Component {
 			seriesIndex: 0,
 			pointIndex: 'all',
 			seriesDataIndex: 0,
-			series: this.chartNode.data.series,
+			series: this.chartNode.data.series
 		});
 
 		const cmd = this.createCommand();
 
 		this.chartNode.setChartType(event.target.value);
 		this.chartNode.resetScales();
-
-		cmd._sheetView.updateGraphItem(cmd._sheetView.getItem(), this.chartNode);
 
 		cmd.add(new JSG.SetChartDataCommand(this.chartNode, 'data', this.chartNode.data, cmd._chartContent.data));
 		cmd.add(new JSG.SetChartDataCommand(this.chartNode, 'scales', this.chartNode.scales, cmd._chartContent.scales));
@@ -539,7 +663,7 @@ export class ChartProperties extends Component {
 
 	handleAngleChange = (event, state) => {
 		const cmd = this.createCommand();
-		this.setState({ angle: state === true ? Math.PI : Math.PI * 2});
+		this.setState({ angle: state === true ? Math.PI : Math.PI * 2 });
 		this.chartNode.data.angle = state === true ? Math.PI : Math.PI * 2;
 		this.executeDataCommand(cmd);
 	};
@@ -593,9 +717,6 @@ export class ChartProperties extends Component {
 
 		this.chartNode.setDataRangeString(range);
 		this.setState({ dataRange: range });
-
-		cmd._sheetView.updateGraphItem(cmd._sheetView.getItem(), this.chartNode);
-
 		this.executeDataCommand(cmd);
 	};
 
@@ -615,7 +736,7 @@ export class ChartProperties extends Component {
 	handleSeriesData = (event, series) => {
 		series.data = event.target.value;
 		this.setState({ series: this.chartNode.data.series });
-	}
+	};
 
 	handleSeriesDataBlur = (event, series) => {
 		const cmd = this.createCommand();
@@ -623,12 +744,12 @@ export class ChartProperties extends Component {
 
 		this.setState({ series: this.chartNode.data.series });
 		this.executeDataCommand(cmd);
-	}
+	};
 
 	handleSeriesDataX = (event, series) => {
 		series.dataX = event.target.value;
 		this.setState({ series: this.chartNode.data.series });
-	}
+	};
 
 	handleSeriesDataXBlur = (event, series) => {
 		const cmd = this.createCommand();
@@ -636,12 +757,12 @@ export class ChartProperties extends Component {
 
 		this.setState({ series: this.chartNode.data.series });
 		this.executeDataCommand(cmd);
-	}
+	};
 
 	handleSeriesDataRadius = (event, series) => {
 		series.dataRadius = event.target.value;
 		this.setState({ series: this.chartNode.data.series });
-	}
+	};
 
 	handleSeriesDataRadiusBlur = (event, series) => {
 		const cmd = this.createCommand();
@@ -649,12 +770,12 @@ export class ChartProperties extends Component {
 
 		this.setState({ series: this.chartNode.data.series });
 		this.executeDataCommand(cmd);
-	}
+	};
 
 	handleSeriesLabel = (event, series) => {
 		series.seriesLabelRange = event.target.value;
 		this.setState({ series: this.chartNode.data.series });
-	}
+	};
 
 	handleSeriesLabelBlur = (event, series) => {
 		const cmd = this.createCommand();
@@ -662,7 +783,7 @@ export class ChartProperties extends Component {
 
 		this.setState({ series: this.chartNode.data.series });
 		this.executeDataCommand(cmd);
-	}
+	};
 
 	handleTitle = (event) => {
 		this.setState({ title: event.target.value });
@@ -678,23 +799,23 @@ export class ChartProperties extends Component {
 
 	assignFont(font, key, value) {
 		switch (key) {
-		case 'name':
-			font.fontName = value;
-			break;
-		case 'size':
-			font.fontSize = value;
-			break;
-		case 'color':
-			font.color = value;
-			break;
-		case 'bold':
-			font.bold = value;
-			break;
-		case 'italic':
-			font.italic = value;
-			break;
-		default:
-			break;
+			case 'name':
+				font.fontName = value;
+				break;
+			case 'size':
+				font.fontSize = value;
+				break;
+			case 'color':
+				font.color = value;
+				break;
+			case 'bold':
+				font.bold = value;
+				break;
+			case 'italic':
+				font.italic = value;
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -744,104 +865,54 @@ export class ChartProperties extends Component {
 		this.setState({ series: this.chartNode.data.series });
 	};
 
-	handleSeriesFillColorChange = (color) => {
+	handleSeriesFormatChange = (value, category) => {
+		const series = this.chartNode.data.series[this.state.seriesIndex];
+		if (series === undefined) {
+			return;
+		}
+
 		const cmd = this.createCommand();
+		const change = (data) => {
+			switch (category) {
+			case 'fillColor':
+			case 'lineColor':
+			case 'markerLineColor':
+			case 'markerFillColor':
+				data[category] = value === 'transparent' ? undefined : value;
+				break;
+			default:
+				data[category] = value;
+				break;
+			}
+		};
+
 		if (this.state.pointIndex === 'all') {
-			this.chartNode.data.series[this.state.seriesIndex].fillColor = color === 'transparent' ? undefined : color;
+			change(series);
+			if (series.pointInfo) {
+				series.pointInfo.forEach((info) => {
+					if (info) {
+						info[category] = undefined;
+					}
+				});
+			}
 		} else {
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo = [];
+			if (!series.pointInfo) {
+				series.pointInfo = [];
 			}
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)]) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)] = {};
+			const index = Number(this.state.pointIndex);
+			if (!series.pointInfo[index]) {
+				series.pointInfo[index] = {};
 			}
-			this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)].fillColor =
-				color === 'transparent' ? undefined : color;
+			change(series.pointInfo[index]);
 		}
 		this.setState({ series: this.chartNode.data.series });
 		this.executeDataCommand(cmd);
-	};
 
-	handleSeriesFillColorClose = () => {
-	};
-
-	handleSeriesLineColorChange = (color) => {
-		const cmd = this.createCommand();
-		if (this.state.pointIndex === 'all') {
-			this.chartNode.data.series[this.state.seriesIndex].lineColor = color === 'transparent' ? undefined : color;
-		} else {
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo = [];
-			}
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)]) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)] = {};
-			}
-			this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)].lineColor =
-				color === 'transparent' ? undefined : color;
-		}
-		this.setState({ series: this.chartNode.data.series });
-		this.executeDataCommand(cmd);
-	};
-
-	handleSeriesLineColorClose = () => {
-	};
-
-	handleSeriesLineWidthBlur = (event) => {
-		const cmd = this.createCommand();
-		if (this.state.pointIndex === 'all') {
-			this.chartNode.data.series[this.state.seriesIndex].lineWidth = Math.max(1, Number(event.target.value));
-		} else {
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo = [];
-			}
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)]) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)] = {};
-			}
-			this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)].lineWidth =
-				Math.max(1, Number(event.target.value));
-		}
-		this.setState({ series: this.chartNode.data.series });
-		this.executeDataCommand(cmd);
-	};
-
-	handleSeriesLineMarkerChange = (event) => {
-		const cmd = this.createCommand();
-		if (this.state.pointIndex === 'all') {
-			this.chartNode.data.series[this.state.seriesIndex].lineMarker = event.target.value;
-		} else {
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo = [];
-			}
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)]) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)] = {};
-			}
-			this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)].lineMarker =
-				event.target.value;
-		}
-		this.setState({ series: this.chartNode.data.series });
-		this.executeDataCommand(cmd);
 	};
 
 	handleSeriesShowLineChange = (event, state) => {
 		const cmd = this.createCommand();
 		this.chartNode.data.series[this.state.seriesIndex].showLine = state;
-		this.setState({ series: this.chartNode.data.series });
-		this.executeDataCommand(cmd);
-	};
-
-	handleSeriesShowDataLabelsChange = (event, state) => {
-		const cmd = this.createCommand();
-		if (this.state.pointIndex === 'all') {
-			this.chartNode.data.series[this.state.seriesIndex].showDataLabels = state;
-		} else {
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo = [];
-			}
-			if (!this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)]) {
-				this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)] = {};
-			}
-			this.chartNode.data.series[this.state.seriesIndex].pointInfo[Number(this.state.pointIndex)].showDataLabels = state;
-		}
 		this.setState({ series: this.chartNode.data.series });
 		this.executeDataCommand(cmd);
 	};
@@ -852,99 +923,102 @@ export class ChartProperties extends Component {
 		const axis = type === 'x' ? this.getCurrentXAxis() : this.getCurrentYAxis();
 
 		switch (key) {
-		case 'min':
-			if (axis.type === 'time') {
-				if (axis.time) {
-					delete axis.time.min;
-				}
-				if (value) {
-					if (axis.time === undefined) {
-						axis.time = {};
+			case 'min':
+				if (axis.type === 'time') {
+					if (axis.time) {
+						delete axis.time.min;
 					}
-					axis.time.min = value;
-				}
-			} else if (value !== undefined) {
-				axis.ticks.min = value;
-			} else {
-				delete axis.ticks.min;
-			}
-			break;
-		case 'max':
-			if (axis.type === 'time') {
-				if (axis.time) {
-					delete axis.time.max;
-				}
-				if (value) {
-					if (axis.time === undefined) {
-						axis.time = {};
+					if (value) {
+						if (axis.time === undefined) {
+							axis.time = {};
+						}
+						axis.time.min = value;
 					}
-					axis.time.max = value;
+				} else if (value !== undefined) {
+					axis.ticks.min = value;
+				} else {
+					delete axis.ticks.min;
 				}
-			} else if (value) {
-				axis.ticks.max = value;
-			} else {
-				delete axis.ticks.max;
-			}
-			break;
-		case 'step':
-			if (axis.type === 'time') {
-				if (axis.time) {
-					delete axis.time.stepSize;
-				}
-				if (value) {
-					if (axis.time === undefined) {
-						axis.time = {};
-					}
-					axis.time.stepSize = value;
-				}
-			} else if (value) {
-				axis.ticks.stepSize = value;
-			} else {
-				delete axis.ticks.stepSize;
-			}
-			break;
-		case 'type':
-			axis.type = value;
-			break;
-		case 'tickrotation':
-			switch (value) {
-			case 'auto':
-				axis.ticks.minRotation = 0;
-				axis.ticks.maxRotation = 90;
 				break;
-			case 'horizontal':
-				axis.ticks.minRotation = 0;
-				axis.ticks.maxRotation = 0;
+			case 'max':
+				if (axis.type === 'time') {
+					if (axis.time) {
+						delete axis.time.max;
+					}
+					if (value) {
+						if (axis.time === undefined) {
+							axis.time = {};
+						}
+						axis.time.max = value;
+					}
+				} else if (value) {
+					axis.ticks.max = value;
+				} else {
+					delete axis.ticks.max;
+				}
 				break;
-			case 'vertical':
-				axis.ticks.minRotation = 90;
-				axis.ticks.maxRotation = 90;
+			case 'step':
+				if (axis.type === 'time') {
+					if (axis.time) {
+						delete axis.time.stepSize;
+					}
+					if (value) {
+						if (axis.time === undefined) {
+							axis.time = {};
+						}
+						axis.time.stepSize = value;
+					}
+				} else if (value) {
+					axis.ticks.stepSize = value;
+				} else {
+					delete axis.ticks.stepSize;
+				}
+				break;
+			case 'type':
+				axis.type = value;
+				break;
+			case 'tickrotation':
+				switch (value) {
+					case 'auto':
+						axis.ticks.minRotation = 0;
+						axis.ticks.maxRotation = 90;
+						break;
+					case 'horizontal':
+						axis.ticks.minRotation = 0;
+						axis.ticks.maxRotation = 0;
+						break;
+					case 'vertical':
+						axis.ticks.minRotation = 90;
+						axis.ticks.maxRotation = 90;
+						break;
+					default:
+						break;
+				}
+				break;
+			case 'pos':
+				axis.position = value;
+				break;
+			case 'title':
+				if (axis.scaleLabel === undefined) {
+					axis.scaleLabel = {};
+				}
+				axis.scaleLabel.labelString = this.validateRange(value);
+				axis.scaleLabel.display = value !== undefined && value !== '';
+				break;
+			case 'font':
+				this.reassignFont(axis.ticks, value);
+				break;
+			case 'titlefont':
+				if (axis.scaleLabel === undefined) {
+					axis.scaleLabel = {};
+				}
+				this.reassignFont(axis.scaleLabel, value);
+				break;
+			case 'reverse':
+				axis.ticks.reverse = value;
 				break;
 			default:
 				break;
-			}
-			break;
-		case 'pos':
-			axis.position = value;
-			break;
-		case 'title':
-			if (axis.scaleLabel === undefined) {
-				axis.scaleLabel = {};
-			}
-			axis.scaleLabel.labelString = this.validateRange(value);
-			axis.scaleLabel.display = value !== undefined && value !== '';
-			break;
-		case 'font':
-			this.reassignFont(axis.ticks, value);
-			break;
-		case 'titlefont':
-			if (axis.scaleLabel === undefined) {
-				axis.scaleLabel = {};
-			}
-			this.reassignFont(axis.scaleLabel, value);
-			break;
-		default:
-			break;
 		}
 
 		this.setState({ scales: this.chartNode.scales });
@@ -992,10 +1066,9 @@ export class ChartProperties extends Component {
 				fontColor: '#000000',
 				fontStyle: 'normal',
 				minRotation: 0,
-				maxRotation: 90,
+				maxRotation: 90
 			},
-			gridLines: {
-			},
+			gridLines: {}
 		};
 
 		this.chartNode.scales.xAxes.push(axis);
@@ -1018,10 +1091,9 @@ export class ChartProperties extends Component {
 				fontColor: '#000000',
 				fontStyle: 'normal',
 				minRotation: 0,
-				maxRotation: 90,
+				maxRotation: 90
 			},
-			gridLines: {
-			},
+			gridLines: {}
 		};
 
 		this.chartNode.scales.yAxes.push(axis);
@@ -1087,8 +1159,7 @@ export class ChartProperties extends Component {
 		this.executeScalesCommand(cmd);
 	};
 
-	handleGridLineColorClose = () => {
-	};
+	handleGridLineColorClose = () => {};
 
 	handleGridlineVisibleChange = () => (event, state) => {
 		const axis = this.getCurrentAxis();
@@ -1122,9 +1193,9 @@ export class ChartProperties extends Component {
 		this.executeLegendCommand(cmd);
 	};
 
-	handleExpansionChange = panel => (event, expanded) => {
+	handleExpansionChange = (panel) => (event, expanded) => {
 		this.setState({
-			expanded: expanded ? panel : false,
+			expanded: expanded ? panel : false
 		});
 	};
 
@@ -1140,15 +1211,16 @@ export class ChartProperties extends Component {
 		const yAxis = this.getCurrentYAxis();
 		const xAxis = this.getCurrentXAxis();
 		const axis = this.getCurrentAxis();
-		const series = (this.state.series && this.state.series.length > this.state.seriesDataIndex) ?
-			this.state.series[this.state.seriesDataIndex] :
-			undefined;
+		const series =
+			this.state.series && this.state.series.length > this.state.seriesDataIndex
+				? this.state.series[this.state.seriesDataIndex]
+				: undefined;
 		const sheetView = this.getSheetView();
 		if (!yAxis || !xAxis || !axis || !sheetView) {
 			return <div />;
 		}
 		return (
-			<Slide direction="left" in={this.props.appState.showChartProperties} mountOnEnter unmountOnExit>
+			<Slide direction="left" in={this.props.showChartProperties} mountOnEnter unmountOnExit>
 				<div
 					style={{
 						backgroundColor: '#FFFFFF',
@@ -1158,10 +1230,10 @@ export class ChartProperties extends Component {
 						right: '0px',
 						width: '300px',
 						height: '100%',
-						visibility: this.props.appState.showChartProperties ? 'visible' : 'hidden',
+						visibility: this.props.showChartProperties ? 'visible' : 'hidden',
 						overflowX: 'hidden',
 						overflowY: 'auto',
-						zIndex: '1250',
+						zIndex: '1250'
 					}}
 				>
 					<div
@@ -1170,7 +1242,7 @@ export class ChartProperties extends Component {
 							height: '48px',
 							backgroundColor: 'grey',
 							display: 'flex',
-							justifyContent: 'space-between',
+							justifyContent: 'space-between'
 						}}
 					>
 						<Typography
@@ -1178,231 +1250,147 @@ export class ChartProperties extends Component {
 								color: 'white',
 								padding: '12px 0px 12px 12px',
 								display: 'inline-block',
-								fontSize: '12pt',
+								fontSize: '12pt'
 							}}
 						>
-							<FormattedMessage
-								id="ChartProperties.chartProperties"
-								defaultMessage="Chart Properties"
-							/>
+							<FormattedMessage id="ChartProperties.chartProperties" defaultMessage="Chart Properties" />
 						</Typography>
 						<IconButton
 							style={{
 								display: 'inline',
 								color: 'white',
-								padding: '12px',
+								padding: '12px'
 							}}
 							onClick={() => this.handleClose()}
 						>
-							<CloseIcon
-								fontSize="inherit"
-							/>
+							<CloseIcon fontSize="inherit" />
 						</IconButton>
 					</div>
 					<FormControl
 						style={{
 							width: '95%',
-							margin: '8px',
+							margin: '8px'
 						}}
 					>
 						<InputLabel htmlFor="chart-type">
-							<FormattedMessage
-								id="ChartProperties.type"
-								defaultMessage="Chart Type:"
-							/>
+							<FormattedMessage id="ChartProperties.type" defaultMessage="Chart Type:" />
 						</InputLabel>
 						<Select
 							id="chart-type"
 							value={this.state.chartType}
 							onChange={this.handleChartTypeChange}
-							input={<Input
-								name="chart-type"
-								id="chart-type"
-							/>}
+							input={<Input name="chart-type" id="chart-type" />}
 						>
 							<MenuItem value="line" key={1}>
-								<FormattedMessage
-									id="ChartProperties.line"
-									defaultMessage="Line"
-								/>
+								<FormattedMessage id="ChartProperties.line" defaultMessage="Line" />
 							</MenuItem>
 							<MenuItem value="column" key={2}>
-								<FormattedMessage
-									id="ChartProperties.column"
-									defaultMessage="Column"
-								/>
+								<FormattedMessage id="ChartProperties.column" defaultMessage="Column" />
 							</MenuItem>
 							<MenuItem value="bar" key={3}>
-								<FormattedMessage
-									id="ChartProperties.bar"
-									defaultMessage="Bar"
-								/>
+								<FormattedMessage id="ChartProperties.bar" defaultMessage="Bar" />
 							</MenuItem>
 							<MenuItem value="pie" key={4}>
-								<FormattedMessage
-									id="ChartProperties.pie"
-									defaultMessage="Pie"
-								/>
+								<FormattedMessage id="ChartProperties.pie" defaultMessage="Pie" />
 							</MenuItem>
 							<MenuItem value="doughnut" key={5}>
-								<FormattedMessage
-									id="ChartProperties.doughnut"
-									defaultMessage="Doughnut"
-								/>
+								<FormattedMessage id="ChartProperties.doughnut" defaultMessage="Doughnut" />
 							</MenuItem>
 							<MenuItem value="area" key={6}>
-								<FormattedMessage
-									id="ChartProperties.area"
-									defaultMessage="Area"
-								/>
+								<FormattedMessage id="ChartProperties.area" defaultMessage="Area" />
 							</MenuItem>
 							<MenuItem value="scatter" key={7}>
-								<FormattedMessage
-									id="ChartProperties.scatter"
-									defaultMessage="Scatter"
-								/>
+								<FormattedMessage id="ChartProperties.scatter" defaultMessage="Scatter" />
 							</MenuItem>
 							<MenuItem value="scatterLine" key={8}>
-								<FormattedMessage
-									id="ChartProperties.scatterLine"
-									defaultMessage="XY Line"
-								/>
+								<FormattedMessage id="ChartProperties.scatterLine" defaultMessage="XY Line" />
 							</MenuItem>
 							<MenuItem value="bubble" key={9}>
-								<FormattedMessage
-									id="ChartProperties.bubble"
-									defaultMessage="Bubble"
-								/>
+								<FormattedMessage id="ChartProperties.bubble" defaultMessage="Bubble" />
 							</MenuItem>
 							<MenuItem value="polarArea" key={10}>
-								<FormattedMessage
-									id="ChartProperties.polarArea"
-									defaultMessage="Polar Area"
-								/>
+								<FormattedMessage id="ChartProperties.polarArea" defaultMessage="Polar Area" />
 							</MenuItem>
 							<MenuItem value="radar" key={11}>
-								<FormattedMessage
-									id="ChartProperties.radar"
-									defaultMessage="Radar"
-								/>
+								<FormattedMessage id="ChartProperties.radar" defaultMessage="Radar" />
 							</MenuItem>
 						</Select>
 					</FormControl>
 					<div
 						style={{
 							paddingLeft: '8px',
-							paddingBottom: '8px',
+							paddingBottom: '8px'
 						}}
 					>
-						{(this.state.chartType === 'line' || this.state.chartType === 'area' ||
-						this.state.chartType === 'bar' || this.state.chartType === 'column') ?
+						{this.state.chartType === 'line' ||
+						this.state.chartType === 'area' ||
+						this.state.chartType === 'bar' ||
+						this.state.chartType === 'column' ? (
 							<FormControlLabel
-								control={<Checkbox
-									checked={this.state.stacked}
-									onChange={this.handleStackedChange}
-								/>}
-								label={
-									<FormattedMessage
-										id="ChartProperties.stacked"
-										defaultMessage="Stacked"
-									/>
-								}
-							/> : null}
-						{(this.state.chartType === 'line' || this.state.chartType === 'area') ?
+								control={<Checkbox checked={this.state.stacked} onChange={this.handleStackedChange} />}
+								label={<FormattedMessage id="ChartProperties.stacked" defaultMessage="Stacked" />}
+							/>
+						) : null}
+						{this.state.chartType === 'line' || this.state.chartType === 'area' ? (
 							<FormControlLabel
-								style={{
-								}}
-								control={<Checkbox
-									checked={this.state.step}
-									onChange={this.handleStepChange}
-								/>}
-								label={
-									<FormattedMessage
-										id="ChartProperties.step"
-										defaultMessage="Stepped"
-									/>
-								}
-							/> : null}
-						{((this.state.chartType === 'line' ||
+								style={{}}
+								control={<Checkbox checked={this.state.step} onChange={this.handleStepChange} />}
+								label={<FormattedMessage id="ChartProperties.step" defaultMessage="Stepped" />}
+							/>
+						) : null}
+						{(this.state.chartType === 'line' ||
 							this.state.chartType === 'radar' ||
 							this.state.chartType === 'scatter' ||
 							this.state.chartType === 'scatterLine' ||
-							this.state.chartType === 'area')
-							&& !this.state.step) ?
+							this.state.chartType === 'area') &&
+						!this.state.step ? (
 							<FormControlLabel
-								control={<Checkbox
-									checked={this.state.smooth}
-									onChange={this.handleSmoothChange}
-								/>}
-								label={
-									<FormattedMessage
-										id="ChartProperties.smooth"
-										defaultMessage="Smooth"
+								control={<Checkbox checked={this.state.smooth} onChange={this.handleSmoothChange} />}
+								label={<FormattedMessage id="ChartProperties.smooth" defaultMessage="Smooth" />}
+							/>
+						) : null}
+						{this.state.chartType === 'radar' ? (
+							<FormControlLabel
+								control={<Checkbox checked={this.state.fill} onChange={this.handleFillChange} />}
+								label={<FormattedMessage id="ChartProperties.fill" defaultMessage="Fill" />}
+							/>
+						) : null}
+						{this.state.chartType === 'pie' || this.state.chartType === 'doughnut' ? (
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={this.state.angle === Math.PI}
+										onChange={this.handleAngleChange}
 									/>
 								}
-							/> : null}
-						{(this.state.chartType === 'radar') ?
-							<FormControlLabel
-								control={<Checkbox
-									checked={this.state.fill}
-									onChange={this.handleFillChange}
-								/>}
-								label={
-									<FormattedMessage
-										id="ChartProperties.fill"
-										defaultMessage="Fill"
-									/>
-								}
-							/> : null}
-						{(this.state.chartType === 'pie' ||
-						  this.state.chartType === 'doughnut') ?
-							<FormControlLabel
-								control={<Checkbox
-									checked={this.state.angle === Math.PI}
-									onChange={this.handleAngleChange}
-								/>}
-								label={
-									<FormattedMessage
-										id="ChartProperties.gauge"
-										defaultMessage="Gauge"
-									/>
-								}
-							/> : null}
+								label={<FormattedMessage id="ChartProperties.gauge" defaultMessage="Gauge" />}
+							/>
+						) : null}
 					</div>
 					<Tabs
 						value={this.state.value}
 						style={{
 							backgroundColor: 'grey',
-							color: 'white',
+							color: 'white'
 						}}
 						onChange={this.handleChange}
 					>
-						<Tab label={
-							<FormattedMessage
-								id="ChartProperties.data"
-								defaultMessage="Data"
-							/>
-						}
-						/>
-						<Tab label={
-							<FormattedMessage
-								id="ChartProperties.settings"
-								defaultMessage="Settings"
-							/>
-						}
-						/>
+						<Tab label={<FormattedMessage id="ChartProperties.data" defaultMessage="Data" />} />
+						<Tab label={<FormattedMessage id="ChartProperties.settings" defaultMessage="Settings" />} />
 					</Tabs>
-					{
-						this.state.value === 0 &&
+					{this.state.value === 0 && (
 						<TabContainer>
 							<FormControlLabel
 								style={{
-									padding: '4px 8px 0px',
+									padding: '4px 8px 0px'
 								}}
-								control={<Checkbox
-									checked={this.state.coherent}
-									onChange={this.handleCoherentChange}
-								/>}
+								control={
+									<Checkbox
+										checked={this.state.coherent}
+										onChange={this.handleCoherentChange}
+										disabled={this.chartNode._timeAggregate}
+									/>
+								}
 								label={
 									<FormattedMessage
 										id="ChartProperties.coherentRange"
@@ -1413,23 +1401,17 @@ export class ChartProperties extends Component {
 							<FormControl
 								style={{
 									width: '95%',
-									margin: '8px',
+									margin: '8px'
 								}}
 							>
 								<InputLabel htmlFor="hide-empty">
-									<FormattedMessage
-										id="ChartProperties.DataHandling"
-										defaultMessage="Data"
-									/>
+									<FormattedMessage id="ChartProperties.DataHandling" defaultMessage="Data" />
 								</InputLabel>
 								<Select
 									id="hide-empty"
 									value={this.state.hideEmpty}
 									onChange={this.handleEmptyChange}
-									input={<Input
-										name="hide-empty"
-										id="hide-empty"
-									/>}
+									input={<Input name="hide-empty" id="hide-empty" />}
 								>
 									<MenuItem value="none" key={1}>
 										<FormattedMessage
@@ -1442,7 +1424,6 @@ export class ChartProperties extends Component {
 											id="ChartProperties.Empty"
 											defaultMessage="Ignore empty cells"
 										/>
-
 									</MenuItem>
 									<MenuItem value="zero" key={3}>
 										<FormattedMessage
@@ -1452,397 +1433,340 @@ export class ChartProperties extends Component {
 									</MenuItem>
 								</Select>
 							</FormControl>
-							{
-								this.state.coherent ?
-									<div>
-										<FormControl
-											style={{
-												width: '95%',
-												margin: '8px',
-											}}
-										>
-											<CellRangeComponent
-												sheetView={sheetView}
-												label={
-													<FormattedMessage
-														id="ChartProperties.dataRange"
-														defaultMessage="Data Range:"
-													/>
+							{this.state.coherent ? (
+								<div>
+									<FormControl
+										style={{
+											width: '95%',
+											margin: '8px'
+										}}
+									>
+										<CellRangeComponent
+											sheetView={sheetView}
+											label={
+												<FormattedMessage
+													id="ChartProperties.dataRange"
+													defaultMessage="Data Range:"
+												/>
+											}
+											range={this.state.dataRange ? this.state.dataRange : ''}
+											onChange={this.handleDataRange}
+											onBlur={this.handleDataRangeBlur}
+											onKeyPress={(ev) => {
+												if (ev.key === 'Enter') {
+													this.handleDataRangeBlur(ev);
 												}
-												range={this.state.dataRange ? this.state.dataRange : ''}
-												onChange={this.handleDataRange}
-												onBlur={this.handleDataRangeBlur}
-												onKeyPress={(ev) => {
-													if (ev.key === 'Enter') {
-														this.handleDataRangeBlur(ev);
-													}
-												}}
+											}}
+										/>
+									</FormControl>
+									<FormControl
+										style={{
+											width: '95%',
+											margin: '8px'
+										}}
+									>
+										<InputLabel htmlFor="series-direction">
+											<FormattedMessage
+												id="ChartProperties.seriesDirection"
+												defaultMessage="Series Direction:"
 											/>
-										</FormControl>
-										<FormControl
-											style={{
-												width: '95%',
-												margin: '8px',
-											}}
+										</InputLabel>
+										<Select
+											id="series-labels"
+											disabled={this.chartNode._timeAggregate}
+											value={this.state.seriesDirection}
+											onChange={this.handleSeriesDirectionChange}
+											input={<Input name="series-direction" id="series-direction" />}
 										>
-											<InputLabel htmlFor="series-direction">
+											<MenuItem value="auto" key={1}>
 												<FormattedMessage
-													id="ChartProperties.seriesDirection"
-													defaultMessage="Series Direction:"
+													id="ChartProperties.automatic"
+													defaultMessage="Automatic"
 												/>
-											</InputLabel>
-											<Select
-												id="series-labels"
-												value={this.state.seriesDirection}
-												onChange={this.handleSeriesDirectionChange}
-												input={<Input
-													name="series-direction"
-													id="series-direction"
-												/>}
-											>
-												<MenuItem value="auto" key={1}>
-													<FormattedMessage
-														id="ChartProperties.automatic"
-														defaultMessage="Automatic"
-													/>
-												</MenuItem>
-												<MenuItem value="columns" key={2}>
-													<FormattedMessage
-														id="ChartProperties.columns"
-														defaultMessage="Columns"
-													/>
-
-												</MenuItem>
-												<MenuItem value="rows" key={3}>
-													<FormattedMessage
-														id="ChartProperties.rows"
-														defaultMessage="Rows"
-													/>
-												</MenuItem>
-											</Select>
-										</FormControl>
-										<FormControl
-											style={{
-												width: '95%',
-												margin: '8px',
-											}}
-										>
-											<InputLabel htmlFor="series-labels">
+											</MenuItem>
+											<MenuItem value="columns" key={2}>
 												<FormattedMessage
-													id="ChartProperties.seriesLabels"
-													defaultMessage="Series Labels:"
+													id="ChartProperties.columns"
+													defaultMessage="Columns"
 												/>
-											</InputLabel>
-											<Select
-												id="series-labels"
-												value={this.state.seriesLabels}
-												onChange={this.handleSeriesLabelsChange}
-												input={<Input
-													name="series-labels"
-													id="series-labels"
-												/>}
-											>
-												<MenuItem value="auto" key={1}>
-													<FormattedMessage
-														id="ChartProperties.automatic"
-														defaultMessage="Automatic"
-													/>
-												</MenuItem>
-												<MenuItem value="first" key={2}>
-													{this.state.seriesDirection === 'columns' ?
-														<FormattedMessage
-															id="ChartProperties.firstRow"
-															defaultMessage="First Row"
-														/> :
-														<FormattedMessage
-															id="ChartProperties.firstColumn"
-															defaultMessage="First Column"
-														/>}
-												</MenuItem>
-												<MenuItem value="none" key={3}>
-													<FormattedMessage
-														id="ChartProperties.none"
-														defaultMessage="None"
-													/>
-												</MenuItem>
-											</Select>
-										</FormControl>
-										<FormControl
-											style={{
-												width: '95%',
-												margin: '8px',
-											}}
-										>
-											<InputLabel htmlFor="category-labels">
-												<FormattedMessage
-													id="ChartProperties.categoryLabels"
-													defaultMessage="Category Labels:"
-												/>
-											</InputLabel>
-											<Select
-												id="category-labels"
-												value={this.state.categoryLabels}
-												onChange={this.handleCategoryLabelsChange}
-												input={<Input
-													name="category-labels"
-													id="category-labels"
-												/>}
-											>
-												<MenuItem value="auto" key={1}>
-													<FormattedMessage
-														id="ChartProperties.automatic"
-														defaultMessage="Automatic"
-													/>
-												</MenuItem>
-												<MenuItem value="first" key={2}>
-													{this.state.seriesDirection === 'columns' ?
-														<FormattedMessage
-															id="ChartProperties.firstColumn"
-															defaultMessage="First Column"
-														/> :
-														<FormattedMessage
-															id="ChartProperties.firstRow"
-															defaultMessage="First Row"
-														/>}
-												</MenuItem>
-												<MenuItem value="none" key={3}>
-													<FormattedMessage
-														id="ChartProperties.none"
-														defaultMessage="None"
-													/>
-												</MenuItem>
-											</Select>
-										</FormControl>
-									</div> :
-									<div>
-										<FormControl
-											style={{
-												width: '95%',
-												margin: '8px',
-											}}
-										>
-											<CellRangeComponent
-												sheetView={sheetView}
-												label={
-													<FormattedMessage
-														id="ChartProperties.categoryDataRange"
-														defaultMessage="Category Data Range:"
-													/>
-												}
-												range={this.state.categoryDataRange ? this.state.categoryDataRange : ''}
-												onChange={this.handleCategoryDataRange}
-												onBlur={this.handleCategoryDataRangeBlur}
-												onKeyPress={(ev) => {
-													if (ev.key === 'Enter') {
-														this.handleCategoryDataRangeBlur(ev);
-													}
-												}}
+											</MenuItem>
+											<MenuItem value="rows" key={3}>
+												<FormattedMessage id="ChartProperties.rows" defaultMessage="Rows" />
+											</MenuItem>
+										</Select>
+									</FormControl>
+									<FormControl
+										style={{
+											width: '95%',
+											margin: '8px'
+										}}
+									>
+										<InputLabel htmlFor="series-labels">
+											<FormattedMessage
+												id="ChartProperties.seriesLabels"
+												defaultMessage="Series Labels:"
 											/>
-										</FormControl>
-										<FormControl
-											style={{
-												width: '70%',
-												margin: '8px',
-											}}
+										</InputLabel>
+										<Select
+											id="series-labels"
+											value={this.state.seriesLabels}
+											disabled={this.chartNode._timeAggregate}
+											onChange={this.handleSeriesLabelsChange}
+											input={<Input name="series-labels" id="series-labels" />}
 										>
-											<InputLabel htmlFor="series-names">
+											<MenuItem value="auto" key={1}>
 												<FormattedMessage
-													id="ChartProperties.series"
-													defaultMessage="Series"
+													id="ChartProperties.automatic"
+													defaultMessage="Automatic"
 												/>
-											</InputLabel>
-											<Select
-												id="series-names"
-												value={String(this.state.seriesDataIndex)}
-												onChange={this.handleSeriesDataIndexChange}
-												input={<Input
-													name="series-names"
-													id="series-names"
-												/>}
-											>
-												{
-													this.state.series ?
-														this.state.series.map((lseries, index) => (
-															<MenuItem
-																value={index.toString()}
-																key={index.toString()}
-															>
-																{
-																	lseries.seriesLabel ?
-																		lseries.seriesLabel :
-																		<FormattedMessage
-																			id="ChartProperties.newSeries"
-																			defaultMessage="New Series"
-																		/>
-																}
-															</MenuItem>
-														)) : null
+											</MenuItem>
+											<MenuItem value="first" key={2}>
+												{this.state.seriesDirection === 'columns' ? (
+													<FormattedMessage
+														id="ChartProperties.firstRow"
+														defaultMessage="First Row"
+													/>
+												) : (
+													<FormattedMessage
+														id="ChartProperties.firstColumn"
+														defaultMessage="First Column"
+													/>
+												)}
+											</MenuItem>
+											<MenuItem value="none" key={3}>
+												<FormattedMessage id="ChartProperties.none" defaultMessage="None" />
+											</MenuItem>
+										</Select>
+									</FormControl>
+									<FormControl
+										style={{
+											width: '95%',
+											margin: '8px'
+										}}
+									>
+										<InputLabel htmlFor="category-labels">
+											<FormattedMessage
+												id="ChartProperties.categoryLabels"
+												defaultMessage="Category Labels:"
+											/>
+										</InputLabel>
+										<Select
+											id="category-labels"
+											value={this.state.categoryLabels}
+											onChange={this.handleCategoryLabelsChange}
+											disabled={this.chartNode._timeAggregate}
+											input={<Input name="category-labels" id="category-labels" />}
+										>
+											<MenuItem value="auto" key={1}>
+												<FormattedMessage
+													id="ChartProperties.automatic"
+													defaultMessage="Automatic"
+												/>
+											</MenuItem>
+											<MenuItem value="first" key={2}>
+												{this.state.seriesDirection === 'columns' ? (
+													<FormattedMessage
+														id="ChartProperties.firstColumn"
+														defaultMessage="First Column"
+													/>
+												) : (
+													<FormattedMessage
+														id="ChartProperties.firstRow"
+														defaultMessage="First Row"
+													/>
+												)}
+											</MenuItem>
+											<MenuItem value="none" key={3}>
+												<FormattedMessage id="ChartProperties.none" defaultMessage="None" />
+											</MenuItem>
+										</Select>
+									</FormControl>
+								</div>
+							) : (
+								<div>
+									<FormControl
+										style={{
+											width: '95%',
+											margin: '8px'
+										}}
+									>
+										<CellRangeComponent
+											sheetView={sheetView}
+											label={
+												<FormattedMessage
+													id="ChartProperties.categoryDataRange"
+													defaultMessage="Category Data Range:"
+												/>
+											}
+											range={this.state.categoryDataRange ? this.state.categoryDataRange : ''}
+											onChange={this.handleCategoryDataRange}
+											onBlur={this.handleCategoryDataRangeBlur}
+											onKeyPress={(ev) => {
+												if (ev.key === 'Enter') {
+													this.handleCategoryDataRangeBlur(ev);
 												}
-											</Select>
-										</FormControl>
-										<IconButton
-											style={{
-												width: '34px', fontSize: '16pt',
 											}}
-											onClick={() => this.handleAddSeries()}
+										/>
+									</FormControl>
+									<FormControl
+										style={{
+											width: '70%',
+											margin: '8px'
+										}}
+									>
+										<InputLabel htmlFor="series-names">
+											<FormattedMessage id="ChartProperties.series" defaultMessage="Series" />
+										</InputLabel>
+										<Select
+											id="series-names"
+											value={String(this.state.seriesDataIndex)}
+											onChange={this.handleSeriesDataIndexChange}
+											input={<Input name="series-names" id="series-names" />}
 										>
-											<AddIcon fontSize="inherit" />
-										</IconButton>
-										<IconButton
-											style={{
-												width: '34px', fontSize: '16pt',
-											}}
-											disabled={this.chartNode.data.series &&
-											this.chartNode.data.series.length === 1}
-											onClick={() => this.handleDeleteSeries()}
-										>
-											<DeleteIcon fontSize="inherit" />
-										</IconButton>
-										<div>
-											{(this.state.chartType === 'scatter' ||
-											this.state.chartType === 'scatterLine' ||
-											this.state.chartType === 'bubble') ?
-												<FormControl
-													style={{
-														width: '95%', margin: '8px',
-													}}
-												>
-													<CellRangeComponent
-														sheetView={sheetView}
-														label={<FormattedMessage
+											{this.state.series
+												? this.state.series.map((lseries, index) => (
+														<MenuItem value={index.toString()} key={index.toString()}>
+															{lseries.seriesLabel ? (
+																lseries.seriesLabel
+															) : (
+																<FormattedMessage
+																	id="ChartProperties.newSeries"
+																	defaultMessage="New Series"
+																/>
+															)}
+														</MenuItem>
+												  ))
+												: null}
+										</Select>
+									</FormControl>
+									<IconButton
+										style={{
+											width: '34px',
+											fontSize: '16pt'
+										}}
+										onClick={() => this.handleAddSeries()}
+									>
+										<AddIcon fontSize="inherit" />
+									</IconButton>
+									<IconButton
+										style={{
+											width: '34px',
+											fontSize: '16pt'
+										}}
+										disabled={this.chartNode.data.series && this.chartNode.data.series.length === 1}
+										onClick={() => this.handleDeleteSeries()}
+									>
+										<DeleteIcon fontSize="inherit" />
+									</IconButton>
+									<div>
+										{this.state.chartType === 'scatter' ||
+										this.state.chartType === 'scatterLine' ||
+										this.state.chartType === 'bubble' ? (
+											<FormControl
+												style={{
+													width: '95%',
+													margin: '8px'
+												}}
+											>
+												<CellRangeComponent
+													sheetView={sheetView}
+													label={
+														<FormattedMessage
 															id="ChartProperties.seriesXValues"
 															defaultMessage="Series Values (X)"
-														/>}
-														range={series && series.dataX ? series.dataX : ''}
-														onChange={event =>
-															this.handleSeriesDataX(
-																event,
-																series,
-															)}
-														onBlur={event =>
-															this.handleSeriesDataXBlur(
-																event,
-																series,
-															)}
-														onKeyPress={(event) => {
-															if (event.key === 'Enter') {
-																this.handleSeriesDataXBlur(
-																	event,
-																	series,
-																)
-															}
+														/>
+													}
+													range={series && series.dataX ? series.dataX : ''}
+													onChange={(event) => this.handleSeriesDataX(event, series)}
+													onBlur={(event) => this.handleSeriesDataXBlur(event, series)}
+													onKeyPress={(event) => {
+														if (event.key === 'Enter') {
+															this.handleSeriesDataXBlur(event, series);
 														}
-														}
-													/>
-												</FormControl> : null}
-											<FormControl
-												style={{
-													width: '95%', margin: '8px',
-												}}
-											>
-												<CellRangeComponent
-													sheetView={sheetView}
-													label={<FormattedMessage
+													}}
+												/>
+											</FormControl>
+										) : null}
+										<FormControl
+											style={{
+												width: '95%',
+												margin: '8px'
+											}}
+										>
+											<CellRangeComponent
+												sheetView={sheetView}
+												label={
+													<FormattedMessage
 														id="ChartProperties.seriesValues"
 														defaultMessage="Series Values"
-													/>}
-													range={series && series.data ? series.data : ''}
-													onChange={event =>
-														this.handleSeriesData(
-															event,
-															series,
-														)}
-													onBlur={event =>
-														this.handleSeriesDataBlur(
-															event,
-															series,
-														)}
-													onKeyPress={(event) => {
-														if (event.key === 'Enter') {
-															this.handleSeriesDataBlur(
-																event,
-																series,
-															)
-														}
-													}
-													}
-												/>
-											</FormControl>
-											{(this.state.chartType === 'bubble') ?
-												<FormControl
-													style={{
-														width: '95%', margin: '8px',
-													}}
-												>
-													<CellRangeComponent
-														sheetView={sheetView}
-														label={<FormattedMessage
-															id="ChartProperties.seriesRadius"
-															defaultMessage="Series Values (Radius)"
-														/>}
-														range={series && series.dataRadius ? series.dataRadius : ''}
-														onChange={event =>
-															this.handleSeriesDataRadius(
-																event,
-																series,
-															)}
-														onBlur={event =>
-															this.handleSeriesDataRadiusBlur(
-																event,
-																series,
-															)}
-														onKeyPress={(event) => {
-															if (event.key === 'Enter') {
-																this.handleSeriesDataRadiusBlur(
-																	event,
-																	series,
-																)
-															}
-														}
-														}
 													/>
-												</FormControl> : null}
+												}
+												range={series && series.data ? series.data : ''}
+												onChange={(event) => this.handleSeriesData(event, series)}
+												onBlur={(event) => this.handleSeriesDataBlur(event, series)}
+												onKeyPress={(event) => {
+													if (event.key === 'Enter') {
+														this.handleSeriesDataBlur(event, series);
+													}
+												}}
+											/>
+										</FormControl>
+										{this.state.chartType === 'bubble' ? (
 											<FormControl
 												style={{
-													width: '95%', margin: '8px',
+													width: '95%',
+													margin: '8px'
 												}}
 											>
 												<CellRangeComponent
 													sheetView={sheetView}
-													label={<FormattedMessage
-														id="ChartProperties.seriesLabel"
-														defaultMessage="Series Label"
-													/>}
-													range={series ? series.seriesLabelRange : ''}
-													onChange={event =>
-														this.handleSeriesLabel(
-															event,
-															series,
-														)}
-													onBlur={event =>
-														this.handleSeriesLabelBlur(
-															event,
-															series,
-														)}
+													label={
+														<FormattedMessage
+															id="ChartProperties.seriesRadius"
+															defaultMessage="Series Values (Radius)"
+														/>
+													}
+													range={series && series.dataRadius ? series.dataRadius : ''}
+													onChange={(event) => this.handleSeriesDataRadius(event, series)}
+													onBlur={(event) => this.handleSeriesDataRadiusBlur(event, series)}
 													onKeyPress={(event) => {
 														if (event.key === 'Enter') {
-															this.handleSeriesLabelBlur(
-																event,
-																series,
-															)
+															this.handleSeriesDataRadiusBlur(event, series);
 														}
-													}
-													}
+													}}
 												/>
 											</FormControl>
-										</div>
+										) : null}
+										<FormControl
+											style={{
+												width: '95%',
+												margin: '8px'
+											}}
+										>
+											<CellRangeComponent
+												sheetView={sheetView}
+												label={
+													<FormattedMessage
+														id="ChartProperties.seriesLabel"
+														defaultMessage="Series Label"
+													/>
+												}
+												range={series ? series.seriesLabelRange : ''}
+												onChange={(event) => this.handleSeriesLabel(event, series)}
+												onBlur={(event) => this.handleSeriesLabelBlur(event, series)}
+												onKeyPress={(event) => {
+													if (event.key === 'Enter') {
+														this.handleSeriesLabelBlur(event, series);
+													}
+												}}
+											/>
+										</FormControl>
 									</div>
-
-							}
+								</div>
+							)}
 						</TabContainer>
-					}
-					{
-						this.state.value === 1 &&
+					)}
+					{this.state.value === 1 && (
 						<TabContainer>
 							<ExpansionPanel
 								expanded={expanded === 'panel1'}
@@ -1850,32 +1774,26 @@ export class ChartProperties extends Component {
 							>
 								<ExpansionPanelSummary style={styles.expansionSummary} expandIcon={<ExpandMoreIcon />}>
 									<Typography>
-										<FormattedMessage
-											id="ChartProperties.title"
-											defaultMessage="Title"
-										/>
+										<FormattedMessage id="ChartProperties.title" defaultMessage="Title" />
 									</Typography>
 								</ExpansionPanelSummary>
 								<ExpansionPanelDetails style={styles.expansionDetails}>
 									<FormControl
 										style={{
-											width: '95%',
+											width: '95%'
 										}}
 									>
 										<CellRangeComponent
 											sheetView={sheetView}
 											label={
-												<FormattedMessage
-													id="ChartProperties.title"
-													defaultMessage="Title"
-												/>
+												<FormattedMessage id="ChartProperties.title" defaultMessage="Title" />
 											}
 											range={this.state.title}
 											onChange={this.handleTitle}
 											onBlur={(event) => this.handleTitleBlur(event)}
 											onKeyPress={(event) => {
 												if (event.key === 'Enter') {
-													this.handleTitleBlur(event)
+													this.handleTitleBlur(event);
 												}
 											}}
 										/>
@@ -1901,7 +1819,7 @@ export class ChartProperties extends Component {
 								<ExpansionPanelDetails style={styles.expansionDetails}>
 									<FormControl
 										style={{
-											width: '95%',
+											width: '95%'
 										}}
 									>
 										<InputLabel htmlFor="series-names">
@@ -1914,28 +1832,22 @@ export class ChartProperties extends Component {
 											id="series-names"
 											value={String(this.state.seriesIndex)}
 											onChange={this.handleSeriesIndexChange}
-											input={<Input
-												name="series-names"
-												id="series-names"
-											/>}
+											input={<Input name="series-names" id="series-names" />}
 										>
-											{
-												this.state.series ?
-													this.state.series.map((lseries, index) => (
-														<MenuItem
-															value={index.toString()}
-															key={index.toString()}
-														>
+											{this.state.series
+												? this.state.series.map((lseries, index) => (
+														<MenuItem value={index.toString()} key={index.toString()}>
 															{lseries.seriesLabel}
 														</MenuItem>
-													)) : null
-											}
+												  ))
+												: null}
 										</Select>
 									</FormControl>
 									<FormControl
 										style={{
 											width: '95%',
 											marginTop: '10px',
+											marginBottom: '10px'
 										}}
 									>
 										<InputLabel htmlFor="point-names">
@@ -1948,126 +1860,142 @@ export class ChartProperties extends Component {
 											id="series-point"
 											value={String(this.state.pointIndex)}
 											onChange={this.handlePointIndexChange}
-											input={<Input
-												name="point-names"
-												id="point-names"
-											/>}
+											input={<Input name="point-names" id="point-names" />}
 										>
-											<MenuItem
-												value='all'
-												key='all'
-											>
-												<FormattedMessage
-													id="ChartProperties.all"
-													defaultMessage="All"
-												/>
+											<MenuItem value="all" key="all">
+												<FormattedMessage id="ChartProperties.all" defaultMessage="All" />
 											</MenuItem>
-											{
-												this.state.categoryLabelData ?
-													this.state.categoryLabelData.map((point, index) => (
-														<MenuItem
-															value={index.toString()}
-															key={index.toString()}
-														>
+											{this.state.categoryLabelData
+												? this.state.categoryLabelData.map((point, index) => (
+														<MenuItem value={index.toString()} key={index.toString()}>
 															{point || `Point ${index + 1}`}
 														</MenuItem>
-													)) : null
-											}
+												  ))
+												: null}
 										</Select>
 									</FormControl>
-									<FormControl
-										style={{
-											marginTop: '15px',
-											width: '90%',
-										}}
-									>
-										<ColorComponent
-											label={<FormattedMessage
-												id="ChartProperties.seriesFillColor"
-												defaultMessage="Fill Color"
-											/>}
-											transparent
-											color={this.getSeriesFillColor()}
-											onChange={color => this.handleSeriesFillColorChange(color)}
-											onClose={color => this.handleSeriesFillColorClose(color)}
-										/>
-									</FormControl>
-									<FormControl
-										style={{
-											marginBottom: '10px',
-											display: 'inline-flex',
-											width: '40%',
-										}}
-									>
-										<ColorComponent
-											label={<FormattedMessage
-												id="ChartProperties.seriesLineColor"
-												defaultMessage="Line Color"
-											/>}
-											transparent
-											color={this.getSeriesLineColor()}
-											onChange={color => this.handleSeriesLineColorChange(color)}
-											onClose={color => this.handleSeriesLineColorClose(color)}
-										/>
-									</FormControl>
-									<FormControl
-										style={{
-											width: '40%',
-											display: 'inline-flex',
-											marginTop: '3px',
-											marginLeft: '18px',
-										}}
-									>
-										<TextField
-											label={<FormattedMessage
-												id="ChartProperties.lineWidth"
-												defaultMessage="Width"
-											/>}
-											type='number'
-											value={this.getSeriesLineWidth()}
-											onChange={event => this.handleSeriesLineWidthBlur(event)}
-											onBlur={event => this.handleSeriesLineWidthBlur(event)}
-											onKeyPress={(event) => {
-												if (event.key === 'Enter') {
-													this.handleSeriesLineWidthBlur(event)
-												}
-											}}
-										/>
-									</FormControl>
-									<FormControlLabel
-										control={<Checkbox
-											checked={this.getSeriesShowDataLabels()}
-											onChange={this.handleSeriesShowDataLabelsChange}
-										/>}
-										label={
-											<FormattedMessage
-												id="ChartProperties.showDataLabels"
-												defaultMessage="Show Datalabels"
-											/>
-										}
-									/>
-									{(this.state.chartType === 'scatter' ||  this.state.chartType === 'scatterLine') ?
-										<FormControlLabel
-											control={
-												<Checkbox
-													checked={this.getSeriesShowLine()}
-													onChange={this.handleSeriesShowLineChange}
-												/>
-											}
-											label={<FormattedMessage
-												id="ChartProperties.connectPoints"
-												defaultMessage="Connect Points"
-											/>}
-										/> : null
-									}
-									{(this.state.chartType === 'scatter' ||
-										this.state.chartType === 'scatterLine' ||
-										this.state.chartType === 'line') ?
+									{!this.isLineChart() ? (
 										<FormControl
 											style={{
-												width: '95%',
+												width: '90%'
+											}}
+										>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="ChartProperties.seriesFillColor"
+														defaultMessage="Fill Color"
+													/>
+												}
+												transparent
+												width={70}
+												color={this.getSeriesFillColor()}
+												onChange={(color) => this.handleSeriesFormatChange(color, 'fillColor')}
+											/>
+										</FormControl>
+									) : null}
+									{(!this.isLineChart() || this.state.pointIndex === 'all') ? (
+										<FormControl
+											style={{
+												display: 'inline-flex',
+												width: '28%'
+											}}
+										>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="ChartProperties.seriesLineColor"
+														defaultMessage="Line Color"
+													/>
+												}
+												transparent
+												width={70}
+												color={this.getSeriesLineColor()}
+												onChange={(color) => this.handleSeriesFormatChange(color, 'lineColor')}
+											/>
+										</FormControl>
+										) : null}
+									{(!this.isLineChart() || this.state.pointIndex === 'all') ? (
+										<FormControl
+											style={{
+												width: '15%',
+												display: 'inline-flex',
+												marginTop: '2px',
+												marginLeft: '10px'
+											}}
+										>
+											<TextField
+												label={
+													<FormattedMessage
+														id="ChartProperties.lineWidth"
+														defaultMessage="Width"
+													/>
+												}
+												type="number"
+												value={this.getSeriesLineWidth()}
+												onChange={(event) => this.handleSeriesFormatChange(Math.max(1, Number(event.target.value)), 'lineWidth')}
+												onBlur={(event) => this.handleSeriesFormatChange(Math.max(1, Number(event.target.value)), 'lineWidth')}
+												onKeyPress={(event) => {
+													if (event.key === 'Enter') {
+														this.handleSeriesFormatChange(Math.max(1, Number(event.target.value)), 'lineWidth');
+													}
+												}}
+											/>
+										</FormControl>
+									) : null}
+									{(this.isLineChart() && this.state.pointIndex === 'all') ? (
+										<FormControl
+											style={{
+												width: '43%',
+												marginLeft: '10px',
+												marginRight: '5px',
+												marginTop: '2px'
+											}}
+										>
+											<InputLabel htmlFor="line-style">
+												<FormattedMessage id="ChartProperties.lineStyle" defaultMessage="Style" />
+											</InputLabel>
+											<Select
+												id="line-style"
+												value={this.getSeriesLineStyle()}
+												onChange={(event) => this.handleSeriesFormatChange(Number(event.target.value), 'lineStyle')}
+												input={
+													<Input
+														style={{
+															backgroundImage: `url(${LINE_STYLES[this.getSeriesLineStyle()].image}`,
+															backgroundRepeat: 'no-repeat',
+															backgroundPositionY: 'center',
+															color: '#000000',
+														}}
+														defaultValue="0"
+														name="line-style"
+														id="line-style"
+													/>
+												}
+											>
+												{LINE_STYLES.map((name) => (
+													<MenuItem
+														style={{
+															backgroundImage: `url(${name.image})`,
+															backgroundRepeat: 'no-repeat',
+															backgroundPositionY: 'center',
+															color: `${name.id ? 'transparent' : '#000000'}`,
+														}}
+														value={name.value}
+														key={name.id}
+													>
+														{name.id === 0 ? name.name : ''}
+													</MenuItem>
+												))}
+											</Select>
+										</FormControl>
+									) : null}
+									{this.isLineChart() ? (
+										<FormControl
+											style={{
+												width: '75%',
 												marginTop: '10px',
-												marginBottom: '10px',
+												marginBottom: '10px'
 											}}
 										>
 											<InputLabel htmlFor="series-marker">
@@ -2079,17 +2007,11 @@ export class ChartProperties extends Component {
 											<Select
 												id="series-marker"
 												value={this.getSeriesLineMarker()}
-												onChange={this.handleSeriesLineMarkerChange}
-												input={<Input
-													name="series-marker"
-													id="series-marker"
-												/>}
+												onChange={(event) => this.handleSeriesFormatChange(event.target.value, 'lineMarker')}
+												input={<Input name="series-marker" id="series-marker" />}
 											>
 												<MenuItem value="none" key={1}>
-													<FormattedMessage
-														id="ChartProperties.none"
-														defaultMessage="None"
-													/>
+													<FormattedMessage id="ChartProperties.none" defaultMessage="None" />
 												</MenuItem>
 												<MenuItem value="circle" key={2}>
 													<FormattedMessage
@@ -2110,16 +2032,10 @@ export class ChartProperties extends Component {
 													/>
 												</MenuItem>
 												<MenuItem value="dash" key={5}>
-													<FormattedMessage
-														id="ChartProperties.dash"
-														defaultMessage="Dash"
-													/>
+													<FormattedMessage id="ChartProperties.dash" defaultMessage="Dash" />
 												</MenuItem>
 												<MenuItem value="line" key={6}>
-													<FormattedMessage
-														id="ChartProperties.line"
-														defaultMessage="Line"
-													/>
+													<FormattedMessage id="ChartProperties.line" defaultMessage="Line" />
 												</MenuItem>
 												<MenuItem value="rect" key={7}>
 													<FormattedMessage
@@ -2132,7 +2048,6 @@ export class ChartProperties extends Component {
 														id="ChartProperties.roundedRectangle"
 														defaultMessage="Rounded Rectangle"
 													/>
-
 												</MenuItem>
 												<MenuItem value="rectRot" key={9}>
 													<FormattedMessage
@@ -2141,10 +2056,7 @@ export class ChartProperties extends Component {
 													/>
 												</MenuItem>
 												<MenuItem value="star" key={10}>
-													<FormattedMessage
-														id="ChartProperties.star"
-														defaultMessage="Star"
-													/>
+													<FormattedMessage id="ChartProperties.star" defaultMessage="Star" />
 												</MenuItem>
 												<MenuItem value="triangle" key={11}>
 													<FormattedMessage
@@ -2153,15 +2065,113 @@ export class ChartProperties extends Component {
 													/>
 												</MenuItem>
 											</Select>
-										</FormControl> : null
-									}
+										</FormControl>
+									) : null}
+									{this.isLineChart() ? (
+										<FormControl
+											style={{
+												width: '15%',
+												display: 'inline-flex',
+												marginTop: '10px',
+												marginLeft: '10px'
+											}}
+										>
+											<TextField
+												label={
+													<FormattedMessage
+														id="ChartProperties.seriesMarkerSize"
+														defaultMessage="Size"
+													/>
+												}
+												type="number"
+												value={this.getSeriesLineMarkerSize()}
+												onChange={(event) => this.handleSeriesFormatChange(Math.max(0, Number(event.target.value)), 'lineMarkerSize')}
+												onBlur={(event) => this.handleSeriesFormatChange(Math.max(0, Number(event.target.value)), 'lineMarkerSize')}
+												onKeyPress={(event) => {
+													if (event.key === 'Enter') {
+														this.handleSeriesFormatChange(Math.max(0, Number(event.target.value)), 'lineMarkerSize');
+													}
+												}}
+											/>
+										</FormControl>
+									) : null}
+									{this.isLineChart() ? (
+										<FormControl
+											style={{
+												width: '50%'
+											}}
+										>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="ChartProperties.markerFillColor"
+														defaultMessage="Marker Fill Color"
+													/>
+												}
+												transparent
+												color={this.getSeriesMarkerFillColor()}
+												onChange={(color) => this.handleSeriesFormatChange(color, 'markerFillColor')}
+											/>
+										</FormControl>
+									) : null}
+									{this.isLineChart() ? (
+										<FormControl
+											style={{
+												display: 'inline-flex',
+												width: '50%'
+											}}
+										>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="ChartProperties.markerLineColor"
+														defaultMessage="Marker Line Color"
+													/>
+												}
+												transparent
+												color={this.getSeriesMarkerLineColor()}
+												onChange={(color) => this.handleSeriesFormatChange(color, 'markerLineColor')}
+											/>
+										</FormControl>
+									) : null}
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={this.getSeriesShowDataLabels()}
+												onChange={(event, state) => this.handleSeriesFormatChange(state, 'showDataLabels')}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="ChartProperties.showDataLabels"
+												defaultMessage="Show Datalabels"
+											/>
+										}
+									/>
+									{this.state.chartType === 'scatter' || this.state.chartType === 'scatterLine' ? (
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={this.getSeriesShowLine()}
+													onChange={this.handleSeriesShowLineChange}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="ChartProperties.connectPoints"
+													defaultMessage="Connect Points"
+												/>
+											}
+										/>
+									) : null}
 									{this.hasMultiXAxis() &&
 									this.state.scales.xAxes[0].type !== 'category' &&
-									this.state.scales.xAxes.length > 1 ?
+									this.state.scales.xAxes.length > 1 ? (
 										<div>
 											<FormControl
 												style={{
-													width: '70%', marginBottom: '15px',
+													width: '70%',
+													marginBottom: '15px'
 												}}
 											>
 												<InputLabel htmlFor="axes-names">
@@ -2173,29 +2183,26 @@ export class ChartProperties extends Component {
 												<Select
 													id="axes-names"
 													value={this.getSeriesXAxisID()}
-													onChange={event => this.handleXAxesSeriesIndexChange(event)}
-													input={<Input
-														name="axes-names"
-														id="axes-names"
-													/>}
+													onChange={(event) => this.handleXAxesSeriesIndexChange(event)}
+													input={<Input name="axes-names" id="axes-names" />}
 												>
-													{this.state.scales.xAxes.map(laxis => (
-														<MenuItem
-															value={laxis.id}
-															key={laxis.id}
-														>
+													{this.state.scales.xAxes.map((laxis) => (
+														<MenuItem value={laxis.id} key={laxis.id}>
 															{laxis.id}
-														</MenuItem>))}
+														</MenuItem>
+													))}
 												</Select>
 											</FormControl>
-										</div> : null}
+										</div>
+									) : null}
 									{this.hasMultiYAxis() &&
 									this.state.scales.yAxes[0].type !== 'category' &&
-									this.state.scales.yAxes.length > 1 ?
+									this.state.scales.yAxes.length > 1 ? (
 										<div>
 											<FormControl
 												style={{
-													width: '70%', marginBottom: '15px',
+													width: '70%',
+													marginBottom: '15px'
 												}}
 											>
 												<InputLabel htmlFor="axes-names">
@@ -2207,25 +2214,21 @@ export class ChartProperties extends Component {
 												<Select
 													id="axes-names"
 													value={this.getSeriesYAxisID()}
-													onChange={event => this.handleYAxesSeriesIndexChange(event)}
-													input={<Input
-														name="axes-names"
-														id="axes-names"
-													/>}
+													onChange={(event) => this.handleYAxesSeriesIndexChange(event)}
+													input={<Input name="axes-names" id="axes-names" />}
 												>
-													{this.state.scales.yAxes.map(laxis => (
-														<MenuItem
-															value={laxis.id}
-															key={laxis.id}
-														>
+													{this.state.scales.yAxes.map((laxis) => (
+														<MenuItem value={laxis.id} key={laxis.id}>
 															{laxis.id}
-														</MenuItem>))}
+														</MenuItem>
+													))}
 												</Select>
 											</FormControl>
-										</div> : null}
+										</div>
+									) : null}
 								</ExpansionPanelDetails>
 							</ExpansionPanel>
-							{this.hasXAxis() ?
+							{this.hasXAxis() ? (
 								<ExpansionPanel
 									expanded={expanded === 'panel3'}
 									onChange={this.handleExpansionChange('panel3')}
@@ -2242,11 +2245,12 @@ export class ChartProperties extends Component {
 										</Typography>
 									</ExpansionPanelSummary>
 									<ExpansionPanelDetails style={styles.expansionDetails}>
-										{this.hasMultiXAxis() && xAxis.type !== 'category' ?
+										{this.hasMultiXAxis() && xAxis.type !== 'category' ? (
 											<div>
 												<FormControl
 													style={{
-														width: '70%', marginBottom: '15px',
+														width: '70%',
+														marginBottom: '15px'
 													}}
 												>
 													<InputLabel htmlFor="axes-names">
@@ -2258,25 +2262,21 @@ export class ChartProperties extends Component {
 													<Select
 														id="axes-names"
 														value={this.state.xAxisId}
-														onChange={event => this.handleXAxesIndexChange(event)}
-														input={<Input
-															name="axes-names"
-															id="axes-names"
-														/>}
+														onChange={(event) => this.handleXAxesIndexChange(event)}
+														input={<Input name="axes-names" id="axes-names" />}
 													>
-														{this.state.scales.xAxes.map(laxis => (
-															<MenuItem
-																value={laxis.id}
-																key={laxis.id}
-															>
+														{this.state.scales.xAxes.map((laxis) => (
+															<MenuItem value={laxis.id} key={laxis.id}>
 																{laxis.id}
-															</MenuItem>))}
+															</MenuItem>
+														))}
 													</Select>
 												</FormControl>
 												<IconButton
 													color="inherit"
 													style={{
-														width: '34px', fontSize: '16pt',
+														width: '34px',
+														fontSize: '16pt'
 													}}
 													onClick={() => this.handleAddXAxis()}
 												>
@@ -2284,7 +2284,8 @@ export class ChartProperties extends Component {
 												</IconButton>
 												<IconButton
 													style={{
-														width: '34px', fontSize: '16pt',
+														width: '34px',
+														fontSize: '16pt'
 													}}
 													disabled={this.chartNode.scales.xAxes.length === 1}
 													onClick={() => this.handleDeleteXAxis()}
@@ -2294,7 +2295,7 @@ export class ChartProperties extends Component {
 												<FormControl
 													style={{
 														width: '95%',
-														marginBottom: '15px',
+														marginBottom: '15px'
 													}}
 												>
 													<InputLabel htmlFor="axis-position">
@@ -2306,12 +2307,10 @@ export class ChartProperties extends Component {
 													<Select
 														id="axis-position"
 														value={xAxis.position ? xAxis.position : 'bottom'}
-														onChange={event => this
-															.handleAxisChanged('x', 'pos', event.target.value)}
-														input={<Input
-															name="axis-position"
-															id="axis-position"
-														/>}
+														onChange={(event) =>
+															this.handleAxisChanged('x', 'pos', event.target.value)
+														}
+														input={<Input name="axis-position" id="axis-position" />}
 													>
 														<MenuItem value="top" key={1}>
 															<FormattedMessage
@@ -2328,9 +2327,11 @@ export class ChartProperties extends Component {
 													</Select>
 												</FormControl>
 												<Divider style={{ margin: '10px 0px' }} />
-											</div> : null}
+											</div>
+										) : null}
 										<FormControl>
 											<AxisComponent
+												chartNode={this.chartNode}
 												sheetView={sheetView}
 												axis={xAxis}
 												chartType={this.state.chartType}
@@ -2338,8 +2339,9 @@ export class ChartProperties extends Component {
 											/>
 										</FormControl>
 									</ExpansionPanelDetails>
-								</ExpansionPanel> : null}
-							{this.hasYAxis() ?
+								</ExpansionPanel>
+							) : null}
+							{this.hasYAxis() ? (
 								<ExpansionPanel
 									expanded={expanded === 'panel4'}
 									onChange={this.handleExpansionChange('panel4')}
@@ -2356,11 +2358,12 @@ export class ChartProperties extends Component {
 										</Typography>
 									</ExpansionPanelSummary>
 									<ExpansionPanelDetails style={styles.expansionDetails}>
-										{this.hasMultiYAxis() && yAxis.type !== 'category' ?
+										{this.hasMultiYAxis() && yAxis.type !== 'category' ? (
 											<div>
 												<FormControl
 													style={{
-														width: '70%', marginBottom: '15px',
+														width: '70%',
+														marginBottom: '15px'
 													}}
 												>
 													<InputLabel htmlFor="axes-names">
@@ -2372,24 +2375,20 @@ export class ChartProperties extends Component {
 													<Select
 														id="axes-names"
 														value={this.state.yAxisId}
-														onChange={event => this.handleYAxesIndexChange(event)}
-														input={<Input
-															name="axes-names"
-															id="axes-names"
-														/>}
+														onChange={(event) => this.handleYAxesIndexChange(event)}
+														input={<Input name="axes-names" id="axes-names" />}
 													>
-														{this.state.scales.yAxes.map(laxis => (
-															<MenuItem
-																value={laxis.id}
-																key={laxis.id}
-															>
+														{this.state.scales.yAxes.map((laxis) => (
+															<MenuItem value={laxis.id} key={laxis.id}>
 																{laxis.id}
-															</MenuItem>))}
+															</MenuItem>
+														))}
 													</Select>
 												</FormControl>
 												<IconButton
 													style={{
-														width: '34px', fontSize: '16pt',
+														width: '34px',
+														fontSize: '16pt'
 													}}
 													onClick={() => this.handleAddYAxis()}
 												>
@@ -2397,7 +2396,8 @@ export class ChartProperties extends Component {
 												</IconButton>
 												<IconButton
 													style={{
-														width: '34px', fontSize: '16pt',
+														width: '34px',
+														fontSize: '16pt'
 													}}
 													disabled={this.chartNode.scales.yAxes.length === 1}
 													onClick={() => this.handleDeleteYAxis()}
@@ -2407,7 +2407,7 @@ export class ChartProperties extends Component {
 												<FormControl
 													style={{
 														width: '95%',
-														marginBottom: '15px',
+														marginBottom: '15px'
 													}}
 												>
 													<InputLabel htmlFor="axis-position">
@@ -2419,12 +2419,10 @@ export class ChartProperties extends Component {
 													<Select
 														id="axis-position"
 														value={yAxis.position ? yAxis.position : 'left'}
-														onChange={event => this
-															.handleAxisChanged('y', 'pos', event.target.value)}
-														input={<Input
-															name="axis-position"
-															id="axis-position"
-														/>}
+														onChange={(event) =>
+															this.handleAxisChanged('y', 'pos', event.target.value)
+														}
+														input={<Input name="axis-position" id="axis-position" />}
 													>
 														<MenuItem value="left" key={1}>
 															<FormattedMessage
@@ -2441,9 +2439,11 @@ export class ChartProperties extends Component {
 													</Select>
 												</FormControl>
 												<Divider style={{ margin: '10px 0px' }} />
-											</div> : null}
+											</div>
+										) : null}
 										<FormControl>
 											<AxisComponent
+												chartNode={this.chartNode}
 												sheetView={sheetView}
 												axis={yAxis}
 												chartType={this.state.chartType}
@@ -2451,119 +2451,109 @@ export class ChartProperties extends Component {
 											/>
 										</FormControl>
 									</ExpansionPanelDetails>
-								</ExpansionPanel> : null}
+								</ExpansionPanel>
+							) : null}
 							<ExpansionPanel
 								expanded={expanded === 'panel6'}
 								onChange={this.handleExpansionChange('panel6')}
 							>
 								<ExpansionPanelSummary style={styles.expansionSummary} expandIcon={<ExpandMoreIcon />}>
 									<Typography>
-										<FormattedMessage
-											id="ChartProperties.gridLines"
-											defaultMessage="Grid Lines"
-										/>
+										<FormattedMessage id="ChartProperties.gridLines" defaultMessage="Grid Lines" />
 									</Typography>
 								</ExpansionPanelSummary>
 								<ExpansionPanelDetails style={styles.expansionDetails}>
 									<FormControl
 										style={{
 											width: '95%',
-											marginBottom: '10px',
+											marginBottom: '10px'
 										}}
 									>
 										<InputLabel htmlFor="axes-names">
-											<FormattedMessage
-												id="ChartProperties.axes"
-												defaultMessage="Axes"
-											/>
+											<FormattedMessage id="ChartProperties.axes" defaultMessage="Axes" />
 										</InputLabel>
 										<Select
 											id="axes-names"
 											value={this.state.axisId}
-											onChange={event => this.handleAxesIndexChange(event)}
-											input={<Input
-												name="axes-names"
-												id="axes-names"
-											/>}
+											onChange={(event) => this.handleAxesIndexChange(event)}
+											input={<Input name="axes-names" id="axes-names" />}
 										>
-											{
-												this.hasXAxis() && this.state.scales ?
-													this.state.scales.xAxes.map(laxis => (
-														<MenuItem
-															value={laxis.id}
-															key={laxis.id}
-														>
+											{this.hasXAxis() && this.state.scales
+												? this.state.scales.xAxes.map((laxis) => (
+														<MenuItem value={laxis.id} key={laxis.id}>
 															{laxis.id}
 														</MenuItem>
-													)) : null
-											}
-											{
-												this.hasYAxis() && this.state.scales ?
-													this.state.scales.yAxes.map(laxis => (
-														<MenuItem
-															value={laxis.id}
-															key={laxis.id}
-														>
+												  ))
+												: null}
+											{this.hasYAxis() && this.state.scales
+												? this.state.scales.yAxes.map((laxis) => (
+														<MenuItem value={laxis.id} key={laxis.id}>
 															{laxis.id}
 														</MenuItem>
-													)) : null
-											}
+												  ))
+												: null}
 										</Select>
 									</FormControl>
 									<FormControl
 										style={{
 											width: '40%',
-											marginTop: '10px',
+											marginTop: '10px'
 										}}
 									>
 										<ColorComponent
-											label={<FormattedMessage
-												id="FormatCellsDialog.gridLineColor"
-												defaultMessage="Gridline Color"
-											/>}
-											color={(axis && axis.gridLines.color) ? axis.gridLines.color : '#DDDDDD'}
-											onChange={color => this.handleGridLineColorChange(color)}
-											onClose={color => this.handleGridLineColorClose(color)}
+											label={
+												<FormattedMessage
+													id="FormatCellsDialog.gridLineColor"
+													defaultMessage="Gridline Color"
+												/>
+											}
+											color={axis && axis.gridLines.color ? axis.gridLines.color : '#DDDDDD'}
+											onChange={(color) => this.handleGridLineColorChange(color)}
+											onClose={(color) => this.handleGridLineColorClose(color)}
 										/>
 									</FormControl>
 									<FormControl
 										style={{
 											width: '40%',
 											marginTop: '12px',
-											marginLeft: '18px',
+											marginLeft: '18px'
 										}}
 									>
 										<TextField
-											label={<FormattedMessage
-												id="ChartProperties.lineWidth"
-												defaultMessage="Width"
-											/>}
-											type='number'
-											value={(axis && axis.gridLines.lineWidth) ? axis.gridLines.lineWidth: 1}
-											onChange={event => this.handleGridLineWidthBlur(event)}
-											onBlur={event => this.handleGridLineWidthBlur(event)}
+											label={
+												<FormattedMessage
+													id="ChartProperties.lineWidth"
+													defaultMessage="Width"
+												/>
+											}
+											type="number"
+											value={axis && axis.gridLines.lineWidth ? axis.gridLines.lineWidth : 1}
+											onChange={(event) => this.handleGridLineWidthBlur(event)}
+											onBlur={(event) => this.handleGridLineWidthBlur(event)}
 											onKeyPress={(event) => {
 												if (event.key === 'Enter') {
-													this.handleGridLineWidthBlur(event)
+													this.handleGridLineWidthBlur(event);
 												}
 											}}
 										/>
 									</FormControl>
 									<FormControlLabel
 										style={{
-											marginBottom: '10px',
+											marginBottom: '10px'
 										}}
 										control={
 											<Checkbox
-												checked={(axis && axis.gridLines.display !== undefined) ?
-													axis.gridLines.display : true}
+												checked={
+													axis && axis.gridLines.display !== undefined
+														? axis.gridLines.display
+														: true
+												}
 												onChange={this.handleGridlineVisibleChange()}
 											/>
 										}
-										label={<FormattedMessage
-											id="ChartProperties.visible"
-											defaultMessage="Visible"
-										/>}
+										label={
+											<FormattedMessage id="ChartProperties.visible" defaultMessage="Visible" />
+										}
 									/>
 								</ExpansionPanelDetails>
 							</ExpansionPanel>
@@ -2573,63 +2563,39 @@ export class ChartProperties extends Component {
 							>
 								<ExpansionPanelSummary style={styles.expansionSummary} expandIcon={<ExpandMoreIcon />}>
 									<Typography>
-										<FormattedMessage
-											id="ChartProperties.legend"
-											defaultMessage="Legend"
-										/>
+										<FormattedMessage id="ChartProperties.legend" defaultMessage="Legend" />
 									</Typography>
 								</ExpansionPanelSummary>
 								<ExpansionPanelDetails style={styles.expansionDetails}>
 									<FormControl
 										style={{
 											width: '95%',
-											marginRight: '20px',
+											marginRight: '20px'
 										}}
 									>
 										<InputLabel htmlFor="legend-pos">
-											<FormattedMessage
-												id="ChartProperties.position"
-												defaultMessage="Position"
-											/>
+											<FormattedMessage id="ChartProperties.position" defaultMessage="Position" />
 										</InputLabel>
 										<Select
 											id="legend-pos"
 											value={this.state.legendPosition}
 											onChange={this.handleLegendPositionChange}
-											input={<Input
-												name="legend-pos"
-												id="legend-pos"
-											/>}
+											input={<Input name="legend-pos" id="legend-pos" />}
 										>
 											<MenuItem value="none" key={1}>
-												<FormattedMessage
-													id="ChartProperties.none"
-													defaultMessage="None"
-												/>
+												<FormattedMessage id="ChartProperties.none" defaultMessage="None" />
 											</MenuItem>
 											<MenuItem value="top" key={2}>
-												<FormattedMessage
-													id="ChartProperties.top"
-													defaultMessage="Top"
-												/>
+												<FormattedMessage id="ChartProperties.top" defaultMessage="Top" />
 											</MenuItem>
 											<MenuItem value="left" key={3}>
-												<FormattedMessage
-													id="ChartProperties.left"
-													defaultMessage="Left"
-												/>
+												<FormattedMessage id="ChartProperties.left" defaultMessage="Left" />
 											</MenuItem>
 											<MenuItem value="bottom" key={4}>
-												<FormattedMessage
-													id="ChartProperties.bottom"
-													defaultMessage="Bottom"
-												/>
+												<FormattedMessage id="ChartProperties.bottom" defaultMessage="Bottom" />
 											</MenuItem>
 											<MenuItem value="right" key={5}>
-												<FormattedMessage
-													id="ChartProperties.right"
-													defaultMessage="Right"
-												/>
+												<FormattedMessage id="ChartProperties.right" defaultMessage="Right" />
 											</MenuItem>
 										</Select>
 									</FormControl>
@@ -2640,7 +2606,7 @@ export class ChartProperties extends Component {
 								</ExpansionPanelDetails>
 							</ExpansionPanel>
 						</TabContainer>
-					}
+					)}
 				</div>
 			</Slide>
 		);
@@ -2649,7 +2615,7 @@ export class ChartProperties extends Component {
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
+		showChartProperties: state.appState.showChartProperties
 	};
 }
 
@@ -2657,4 +2623,7 @@ function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ChartProperties);
+export default connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(ChartProperties);

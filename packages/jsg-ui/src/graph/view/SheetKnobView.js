@@ -184,6 +184,7 @@ export default class SheetKnobView extends NodeView {
 				graphics.fill();
 				graphics.stroke();
 				break;
+			case 'line':
 			default:
 				graphics.beginPath();
 				x1 = tmpRect.x + tmpRect.width / 2 + Math.cos(angle) * (size / 2 - markerSize);
@@ -211,12 +212,8 @@ export default class SheetKnobView extends NodeView {
 					((rang.start + (rang.end - rang.start) / 2 - min) / range) * (endAngle - startAngle) +
 					startAngle +
 					Math.PI_2;
-				// x1 = tmpRect.x + tmpRect.width / 2 + Math.cos(angle) * (size / 2 + 200);
-				// y1 = tmpRect.y + tmpRect.height / 2 + Math.sin(angle) * (size / 2 + 200);
 				x2 = tmpRect.x + tmpRect.width / 2 + Math.cos(angle) * (size / 2 + 400);
 				y2 = tmpRect.y + tmpRect.height / 2 + Math.sin(angle) * (size / 2 + 400);
-				// graphics.moveTo(x1, y1);
-				// graphics.lineTo(x2, y2);
 				width = Math.max(
 					100,
 					graphics.getCoordinateSystem().deviceToLogX(graphics.measureText(String(rang.label)).width, true)

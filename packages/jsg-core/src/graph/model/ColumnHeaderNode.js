@@ -43,6 +43,16 @@ module.exports = class ColumnHeaderNode extends HeaderNode {
 		super.setInitialSection(index);
 	}
 
+	getSectionTitle(index) {
+		switch (index) {
+		case 0:
+			return 'COMMENT';
+		case 1:
+			return 'IF';
+		}
+		return undefined;
+	}
+
 	getSections() {
 		if (this.getParent()) {
 			return this.getParent()

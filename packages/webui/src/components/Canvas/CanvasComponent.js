@@ -36,12 +36,12 @@ export class CanvasComponent extends Component {
 			permissions.length > 0
 		) {
 			try {
-				const canEdit = MachineHelper.currentMachineCan(RESOURCE_ACTIONS.EDIT);
-				if (!canEdit) {
-					graphManager.setMachineProtected(true);
-				} else {
-					graphManager.setMachineProtected(false);
-				}
+				// const canEdit = MachineHelper.currentMachineCan(RESOURCE_ACTIONS.EDIT);
+				// if (!canEdit) {
+				// 	graphManager.setMachineProtected(true);
+				// } else {
+				// 	graphManager.setMachineProtected(false);
+				// }
 				return { ...state, loaded: true };
 			} catch (e) {
 				console.warn(e);
@@ -108,9 +108,9 @@ export class CanvasComponent extends Component {
 		if (notification.object) {
 			const info = notification.object;
 			const item = info.button;
+			const { container } = info;
 			switch (item && item.getName().getValue()) {
 				case 'minimize': {
-					const { container } = info;
 					const sheet = container.getStreamSheet();
 
 					if (sheet.getOwnSelection().hasSelection()) {
@@ -121,14 +121,15 @@ export class CanvasComponent extends Component {
 						.getGraphViewer()
 						.getSelectionProvider()
 						.clearSelection();
-					this.setState({ graph: item.getGraph() });
 					break;
 				}
 				case 'maximize':
-					this.setState({ graph: item.getGraph() });
 					break;
 				default:
 					break;
+			}
+			if (container) {
+				this.setState({ graph: container.getGraph() });
 			}
 		}
 	}
@@ -172,7 +173,7 @@ export class CanvasComponent extends Component {
 			.execute(
 				new JSG.ChangeItemOrderCommand(
 					sheet,
-					ChangeItemOrderCommand.Action.TOTOP,
+					JSG.ChangeItemOrderCommand.Action.TOTOP,
 					graphManager.getGraphViewer(),
 				),
 			);
@@ -194,6 +195,11 @@ export class CanvasComponent extends Component {
 
 			return;
 		}
+
+		graphManager
+			.getGraphViewer()
+			.getSelectionProvider()
+			.clearSelection();
 
 		cnt %= 8;
 

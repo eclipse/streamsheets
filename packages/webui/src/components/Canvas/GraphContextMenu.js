@@ -1,12 +1,7 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/forbid-prop-types */
-import React, { Component } from 'react';
-import { FormattedMessage } from 'react-intl';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import MenuList from '@material-ui/core/MenuList';
-import MenuItem from '@material-ui/core/MenuItem';
-import Paper from '@material-ui/core/Paper';
+import JSG from '@cedalo/jsg-ui';
+import Divider from '@material-ui/core/Divider';
 // import {
 // 	// ContentCopy as CopyIcon,
 // 	ContentPaste as PasteIcon,
@@ -14,13 +9,18 @@ import Paper from '@material-ui/core/Paper';
 // } from '@material-ui/icons';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import MenuItem from '@material-ui/core/MenuItem';
+import MenuList from '@material-ui/core/MenuList';
+import Paper from '@material-ui/core/Paper';
 import SvgIcon from '@material-ui/core/SvgIcon/SvgIcon';
-import {Divider} from '@material-ui/core';
-
-import JSG from '@cedalo/jsg-ui';
-
+import React, { Component } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
+
+
 
 const styles = {
 	menuItem: {
@@ -194,13 +194,8 @@ class GraphContextComponent extends Component {
 	}
 }
 
-function mapStateToProps(state) {
-	return {
-		appState: state.appState,
-	};
-}
 function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(GraphContextComponent);
+export default connect(null, mapDispatchToProps)(GraphContextComponent);

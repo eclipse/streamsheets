@@ -141,20 +141,24 @@ JSG.setDrawingDisabled = (status) => {
 
 JSG.copyItems = (selection) => {
 	const file = new JSG.JSONWriter();
+	const items = selection.length === undefined ? [selection] : selection;
+	const graphItems = items[0].getModel().getParent().getItems();
+
+	// sort items first, so drawing order of copied items does not change
+	items.sort((a, b) => {
+		const ia = graphItems.indexOf(a.getModel());
+		const ib = graphItems.indexOf(b.getModel());
+		return ia < ib ? -1 : 1
+	});
 
 	file.writeStartDocument();
 	file.writeStartElement('clip');
 	file.writeStartArray('graphitem');
 
-	if (selection.length === undefined) {
-		selection.getModel().resolveParentReferences(true);
-		selection.getModel().save(file, true);
-	} else {
-		selection.forEach((sel) => {
-			sel.getModel().resolveParentReferences(true);
-			sel.getModel().save(file, true);
-		});
-	}
+	items.forEach((sel) => {
+		sel.getModel().resolveParentReferences(true);
+		sel.getModel().save(file, true);
+	});
 
 	file.writeEndArray('graphitem');
 	file.writeEndElement();

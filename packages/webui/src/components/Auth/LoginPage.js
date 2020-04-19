@@ -72,7 +72,6 @@ class LoginPage extends React.Component {
 	static propTypes = {
 		login: PropTypes.func.isRequired,
 		classes: PropTypes.object.isRequired,
-		// appState: PropTypes.object.isRequired,
 		// logout: PropTypes.func.isRequired,
 	};
 
@@ -102,18 +101,23 @@ class LoginPage extends React.Component {
 			});
 			// eslint-disable-next-line react/no-did-mount-set-state
 		}
-		localStorage.removeItem('jwtToken');
-		localStorage.removeItem('user');
 		const params = new URLSearchParams(window.location.search);
 		const token = params.get('token');
 		const userId = params.get('userId');
 		if (token) {
+			localStorage.removeItem('jwtToken');
+			localStorage.removeItem('user');
 			const url = params.get('url') || '/dashboard';
 			this.loginUI(token, userId, url);
 		}
+		const existingToken = localStorage.getItem('jwtToken');
+		if(existingToken){
+			const redirect = params.get('redirect');
+			window.location = redirect ? decodeURIComponent(redirect) :'/dashboard';
+		}
 	}
 
-	async handleLogin(e, pId) {
+	async handleLogin(e, pId, redirect) {
 		if(e.preventDefault) {
 			e.preventDefault();
 		}
@@ -124,7 +128,7 @@ class LoginPage extends React.Component {
 					username,
 					password,
 					providerId: pId || providerId,
-				});
+				}, redirect);
 				this.setState({ error: resp.error });
 			} catch (err) {
 				this.setState({ error: err });
@@ -139,7 +143,7 @@ class LoginPage extends React.Component {
 		localStorage.setItem(
 			'user',
 			JSON.stringify({
-				userId,
+				id: userId,
 			}),
 		);
 		window.location = url;
@@ -166,6 +170,7 @@ class LoginPage extends React.Component {
 	render() {
 		const params = new URLSearchParams(window.location.search);
 		const token = params.get('token');
+		const redirect = params.get('redirect');
 		const { classes } = this.props;
 		// eslint-disable-next-line react/prop-types
 		let { error } = this.state;
@@ -254,7 +259,7 @@ class LoginPage extends React.Component {
 											variant="flat"
 											type="submit"
 											size="large"
-											onClick={(event) => this.handleLogin(event)}
+											onClick={(event) => this.handleLogin(event, undefined, redirect)}
 										>
 											<FormattedMessage id="Login" defaultMessage="Login" />
 										</Button>
@@ -314,7 +319,6 @@ class LoginPage extends React.Component {
 }
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
 		user: state.user,
 	};
 }

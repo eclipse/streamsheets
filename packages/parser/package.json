@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/parser",
-  "version": "1.0.211",
+  "version": "1.6.0-alpha",
   "description": "Cedalo formula parser",
   "main": "index.js",
   "scripts": {
@@ -22,16 +22,7 @@
     "babel-core": "6.24.1",
     "babel-loader": "6.4.1",
     "babel-preset-env": "1.6.1",
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jest": "20.0.4"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
   },
   "jest": {
     "testEnvironment": "node",

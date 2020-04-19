@@ -14,27 +14,40 @@ jobs:
     - yarn install --frozen-lockfile
     script:
     - yarn run lint
+    - yarn workspace @cedalo/parser test
+    - yarn workspace @cedalo/functions test
     - yarn workspace @cedalo/machine-core test
     - yarn workspace @cedalo/graphql test
+    - yarn workspace @cedalo/jsg-core test
+    - yarn workspace @cedalo/stream-mongodb test
     - yarn workspace @cedalo/webui run local-build
     deploy:
     - provider: script
-      script: bash -c "docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/deploy.js
-        --push --derivative dev --tag develop"
+      script: bash -c "docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/build.js
+        --name cedalo/streamsheets-dev
+        --tag latest
+        --tag $(date +%A | tr '[:upper:]' '[:lower:]')
+        --skip-frontend
+        --push"
       on:
         branch: master
       skip_cleanup: true
+
     - provider: script
-      script: bash -c 'docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/deploy.js
-        --push --tag $TRAVIS_TAG'
+      script: bash -c 'docker login -u $DOCKER_USER -p $DOCKER_PASSWORD && node scripts/build.js
+        --name cedalo/streamsheets
+        --tag $TRAVIS_TAG
+        --skip-frontend
+        --push'
       on:
         condition: "${TRAVIS_TAG} =~ ^[0-9]+\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?(-bugfix[0-9])?$"
         tags: true
       skip_cleanup: true
+
 notifications:
   slack:
     secure: IclZ9eaz/bfq6LfRSzCddkYOWM2Bp5stp6z/AsEjF7YasCaAX5nnRSxbNpyLUKdoLJ8QBm5oEIF7JltVUNnFOT3XSJ8OBaZ93xg7LJnGF2dDCNnjxkrdCPC3szT3/8NpXKNfbKyxSWwDr61flP5Tkr1MYSVCa4tsZrYkjyu3pJbQDsTg4jB3bAu7W/JvxD+m99wK+LyDhELQk6m3rcuZs5UOJn3WBIayXBZJYo5AFgDqxbst+XFZus+bWAZXFoIetX9n3ri8qEwSiMkp34YqyCvpim+YhNgSzxRrfjsZ4qMnyzmjP0a9NcGD4bVt5AzDKH3nGd9Lo3FtlL2ZvgyZPaFLE00HvqOPZqGD+EUKbX7iDwdMkJNP3b+vYJFUAW7dcTKRa4P7e95qpkFBD28PIxxoWNabHLZ+4odkmbe05tI/rOWlyP1Lunj1zrNE72eqv5OJFiVx7xmiSOlCoabnB065qO7xFyhNDEhMba3YZGPkmLMRdUuQlfHYO1gAtepmlB7OfGDiQuYm5XjehCa5p882THx1ItWyRBsxkfb4JSSr3qBQByCKs8doHvYrIhbAnM6PBB5ET+jRkwAF+MwRnsE6brJWy4rsLnmp50H4NS9KsfFLr7JemU4lz6EtrM6WvcPGblZ3yxOpvCfGTjI5UfJINIVU8c0ug8xH69YJP94=
 env:
   global:
-  - secure: WrGpZ2mf2ASFU7tVmbZI+AiYQx17qLtoJXUKQD3sEopnjH9Gtpg6CusTfaIIyx3haambrlSu0OIL3lY6Q3HR5dJ6uaPUVcpARQ4Opn5oeHRs1TglGC5TldDxLY2q0O3ZLBPDexQyPE499bW4PhmmdAAu3fCBPjL7n+8eK/CiIX9EXt5UupFWOUyQLtccPEHDq8rohnvR/aSa43vl5lndoNx8eJNdfd36q0g7eXZAdohULOVOE+0tb31S0uFBTlzvkpU9jcA7stm4uMH9jJAK6D7v1VcmGkqo4LLc8ufwE7pGAP7YnDm0fGvUtOO69fEa2XiJIl9Z0JYQMA+RiiFOblZWeJkwdYp78ooGULHF0t1H1pNYGtMJOaeLAdBfFRnDZKt4ZiIOELEDIEjUoYri3MJG00Ur5LK38N6h0w2wi4tkfAj7V+PhJ+qYCcKMFOa75/IexFxTF5nUmd4mDlV2cv+SPzLRKUojKBuoA+EIrRouZfvoie7nxRwirmOd0Cle2nSEcGWp3qK0WjswPVmpw6aJWJ3glctZe5gZD+SrsSp3zjlvCGHk+kglprAUhHmENSMpOKDH8fxhroX71tt9xZhz0d+D0lgSqmqpde1smgfnztHQcKWBwiw/y7KcWG1sNPV7OJ9StgQyFFb+1HCArlaW/ZXys2+LtV1LQdiNDGs=
-  - secure: GqWQiDpS1n+Mrw4yj/sBFoAW1N94oNJo1kRD/k/DWiPU614uNwVTpmi9IQ1nvFYgtjH/y+9n2LCWlSKC3kOUEzoCoTsY8xPR4elJ3mfQaDHUo8sGKI1adNv1Hu9qN8lNVMMQO0mUPJj8w0V8ElSZ27XlCJdnPRJy2sVbTjiURbrB5sYu86yvfaRWp4p2WBTNgEnnYFtQ/LQ1geX3OKvyD1CytecRXhldvX77UkyqYKyPmLVjpZzwfXnQcx2BmeY8JsXOQaStwDUQDhjeH2Xg9jcUkGigQmrU8SUegA7nbmHp+zkaNRxI2FeeTBx1zQkS4joyMQyuFqsSK1rlIxe/INep5HoAOMUYxTx/szFA8QdEmmoMlrRPZLfY+tGm7U+uMjihRuld+rFwabqbv1fncssBySN00kA3D5sJXoY6IvwSU4aEcz2VJFd41h6yxiMAHnD/vbLhjfl0T1yDfKB1RIxhxctH56WGTOS2ZOVtm7lBRjdDWpANiFw+w1i4DoGfebyojNMEmjdz0zPdIQrcDsY12qrhk3lWm7XuEQBk2Iy0YpyaWxE010ewOVHozGs+up7wCBOEfXn+G8zPWyt3Zo+9virIG1hYAVTbfu4m9m7X+hHZ2u/jC5nO955mgAf3V4xlt7ejfQ5kz4mlZP7T5aZd0Q8o9yIyt7UxBqlt0Gk=
+  - secure: Q0mKe/9jWtqtq0w/1QsMeIfMVtIsuZb54Z6RFJQttrmOw8KorAaizFWc+MF5ZoWzViB8hzB7hxkFh2c7Ze7hFjKT5pwLyRDpvkw7I/IC/KVDwG5CmrBtfw4SymJPuSbkxFCymBBicH66t3Dt1rc/8TFgEy0PDBEUaOMNv4gv5Z+8ZhyVjhEJazaw8iJYl04cshFraGQpycFozKeU2gxq6t89Bsoa1jejKRp+DbSKl9qQYDqVlP5e96HXfdv6oG8zgtQymcttKrftbWATDqOjabUWgVUhgsyTcNV/GsG7wovLfovE3+ExS/8fVInXVCwCKIMarkMeQGDC2WGMuSMlkzjfJV/nIqMcMLEhfjJY674CBhpvXqtFvuENPqstIEImjYgR9mEk7k4Be9I/HDPJKfjPl24l72d2N+Rh91jkfGMPVtBlqSUFjBdnCjAQpfFoTQYLCtl8eexo9sJJPrYt1gwcJh6sShF7B/GsBBVpdE8osVFLIf2Wm5PwqYHJDf1e0dFczOb9myPi74URx57xYmEW4yHL9nr5/XsJZKU8nzkwBR4/kT1X8Io0dZJnHA+npsICYS8hAbEc+Z5wvf/ekB86D2AZVnhqsLtZbxueICOk/K/1DOp3KfZZYQ8URd/Ggm5gm+w8wzRP5txtwVcKbgRyXBmI4QsLhBJEeWHlCmU=
+  - secure: QbWA7K8GNtZvBsKA+SiQZDgS3jbfvvWFHkejE9QRG8ecFRuHOMl/9ql7/y1/0CLvgX2Tim6BoFrViPqWVY/yaGfQWvZy9JHOn26JWafpadrFoJAy5DebF7jTV7BsyumlmlJ+T8bEcOARNdfKFsAd17hlbzO+JBSdW/catBe3snGG05XppxOWcasUDBawwYwfLfEcSBT4WI1Elz06h1P5N7FTnVA02v4lhR2Wmi/+3n+bst8GNCokKzNVtFcTYTyO66i/8mqmpTi3hQFdaynVPodd9gBarCE+u5v+5nS95deUA4U4FSuUQhKv6J0jnnE0SHFLypaBgmhSVR0VBqYpzB+VFTZ21K2I0NWx4Rha07Y7Qy8oVgYQ5bqve7tVRz6U92F0GI1Rq+AEd8F4RvvWFT1nt+7cENrcnB5PRD01ubsmR+dC2Pb9QBcUd5H4+hkawcN/6+g/gNmEhzVZNh4CcNT7m+4ghCBu2iJjwZxBXqYMpvbdsf93nrxqeNVjtB5Zzu1UN8WA7IzMMrMuymaeddD5amjIIWvv3H6MUUAqo1FRo5myjLIUWdyDu1fkTuywf/v7XKQ8l18+InHDxZ++pgZkaAgDBULo410FRICSiU6yFyEIzaUuGxJX542FOhQkb/WOhq91js+tn8SIVs9tZingq18qAzpern8nylSO8ts=

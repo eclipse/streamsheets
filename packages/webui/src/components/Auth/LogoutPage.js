@@ -37,7 +37,6 @@ class LogoutPage extends React.Component {
 }
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
 		user: state.user,
 	};
 }

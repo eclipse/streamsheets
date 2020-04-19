@@ -22,10 +22,6 @@ const defaultState = {
 	formatOpen: false,
 	formulaOpen: false,
 	notificationsOpen: false,
-	cellSelected: false,
-	graphCellSelected: false,
-	cellFormat: undefined,
-	cellTextFormat: undefined,
 	openMoreSettingMenu: false,
 	openHelp: false,
 	openSettings: false,
@@ -39,7 +35,7 @@ const defaultState = {
 	showDeleteSheetDialog: false,
 	adminSelectedPage: 'connectors',
 	lastDefinedJSONRange: null,
-	errorDialog: { open: false },
+	errorDialog: { open: false }
 };
 
 export default function appReducer(state = defaultState, action) {
@@ -47,7 +43,7 @@ export default function appReducer(state = defaultState, action) {
 		case ActionTypes.SET_APP_STATE:
 			return {
 				...state,
-				...action.newState,
+				...action.newState
 			};
 		case 'TOGGLE_ADD_CONFIG_DIALOG': {
 			const { addStreamDialogOpen } = state;
@@ -55,7 +51,7 @@ export default function appReducer(state = defaultState, action) {
 			return {
 				...state,
 				addStreamDialogOpen: !addStreamDialogOpen,
-				popupMenuE: event ? event.currentTarget : null,
+				popupMenuE: event ? event.currentTarget : null
 			};
 		}
 		case 'SET_DELETE_DIALOG_OPEN': {

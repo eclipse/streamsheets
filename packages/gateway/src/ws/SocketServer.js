@@ -99,8 +99,8 @@ module.exports = class SocketServer {
 		}
 	}
 
-	logoutUser({ clientId }) {
-		return this.findConnectionsByClientId(clientId).forEach((c) => this.logoutConnection(c));
+	logoutUser({ user }) {
+		return this.findConnectionsByUser(user).forEach((c) => this.logoutConnection(c));
 	}
 
 	logoutConnection(connection) {
@@ -133,7 +133,7 @@ module.exports = class SocketServer {
 	}
 
 	shouldBroadcast(user) {
-		return user && user.userId;
+		return user && user.id;
 	}
 
 	connectClient(client) {
@@ -165,12 +165,7 @@ module.exports = class SocketServer {
 
 	findConnectionsByUser(user) {
 		const connections = [...ProxyConnection.openConnections];
-		return connections.filter((connection) => connection.user && connection.user.userId === user.userId);
-	}
-
-	findConnectionsByClientId(clientId) {
-		const connections = [...ProxyConnection.openConnections];
-		return connections.filter((connection) => connection.user && connection.clientId === clientId);
+		return connections.filter((connection) => connection.user && connection.user.id === user.id);
 	}
 
 	broadcast(message) {
@@ -181,12 +176,10 @@ module.exports = class SocketServer {
 		});
 	}
 
-	broadcastExceptForUser(message, session) {
-		const userConnection = this.findConnectionByUser(session);
-		const userConnectionId = userConnection && userConnection.user && userConnection.user.userId;
+	broadcastExceptForUser(message, userId) {
 		logger.info('Sending a broadcast message to all clients except user! Review!!');
 		ProxyConnection.openConnections.forEach((connection) => {
-			if (connection.user && connection.user.userId !== userConnectionId) {
+			if (connection.user && connection.user.id !== userId) {
 				connection.sendToClient(message);
 			}
 		});

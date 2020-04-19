@@ -26,7 +26,7 @@ import {
 	Dictionary,
 	JSONWriter,
 	JSONReader,
-	TextFormatAttributes
+	TextFormatAttributes, PasteItemsCommand
 } from '@cedalo/jsg-core';
 import { FuncTerm, Locale, Term, BinaryOperator } from '@cedalo/parser';
 import { NumberFormatter } from '@cedalo/number-format';
@@ -172,13 +172,8 @@ export default class WorksheetView extends ContentNodeView {
 		const bounds = this.getScrollView().getBounds();
 		let point = new Point(0, 0);
 		const hScrollSize =
-			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN
-				? 0
-				: ScrollBar.SIZE;
-		const vScrollSize =
-			this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN
-				? 0
-				: ScrollBar.SIZE;
+			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		const vScrollSize = this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
 
 		point.setTo(event.location);
 		point = this.translateToSheet(point, viewer);
@@ -293,10 +288,32 @@ export default class WorksheetView extends ContentNodeView {
 		};
 
 		switch (event.event.key) {
+			case 'j':
+				if (event.event.ctrlKey) {
+					if (event.event.altKey) {
+						this.setPayloadRange(viewer, false);
+					} else {
+						if (selection.getSize() === 1) {
+							const range = selection.getAt(0);
+							if (range.getWidth() === 2 && !range.isColumnRange()) {
+								this.setPayloadRange(viewer, true);
+								event.consume();
+								return true;
+							}
+						}
+						this.notifyMessage({ id: 'SheetMessage.jsonRangeInvalid' });
+					}
+					// message
+					event.consume();
+					return true;
+				}
+				doDefault();
+				break;
 			case 'z':
 				if (event.event.ctrlKey) {
 					viewer.getInteractionHandler().undo();
 				}
+				doDefault();
 				break;
 			case 'g':
 				/* scribble to create png from range
@@ -431,7 +448,6 @@ export default class WorksheetView extends ContentNodeView {
 					event.consume();
 					return true;
 				}
-				/* eslint-disable-next-line no-fallthrough: 0 */
 				doDownArrow(selection);
 				return true;
 			case 'Escape':
@@ -453,7 +469,7 @@ export default class WorksheetView extends ContentNodeView {
 			case 'x':
 			case 'X':
 			// x -> cut
-			/* eslint-disable-next-line no-fallthrough: 0 */
+			/* eslint-disable-next-line no-fallthrough */
 			case 'c':
 			case 'C':
 				// c -> copy
@@ -784,7 +800,7 @@ export default class WorksheetView extends ContentNodeView {
 			changed = true;
 		}
 
-		if (rect.getBottom() + offset.y > bounds.height - colSize) {
+		if (rect.getBottom() + offset.y - 1 > bounds.height - colSize) {
 			model = viewport.getVerticalRangeModel();
 			viewport.getVerticalRangeModel().setValue(model._min + rect.getBottom() - bounds.height);
 			changed = true;
@@ -797,13 +813,8 @@ export default class WorksheetView extends ContentNodeView {
 		const bounds = this.getScrollView().getBounds();
 		let point = location.copy();
 		const hScrollSize =
-			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN
-				? 0
-				: ScrollBar.SIZE;
-		const vScrollSize =
-			this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN
-				? 0
-				: ScrollBar.SIZE;
+			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		const vScrollSize = this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
 
 		point = this.translateToSheet(point, viewer);
 
@@ -942,13 +953,8 @@ export default class WorksheetView extends ContentNodeView {
 		let point = location.copy();
 		let cv;
 		const hScrollSize =
-			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN
-				? 0
-				: ScrollBar.SIZE;
-		const vScrollSize =
-			this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN
-				? 0
-				: ScrollBar.SIZE;
+			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		const vScrollSize = this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
 
 		point = this.translateToSheet(point, viewer);
 
@@ -1259,6 +1265,18 @@ export default class WorksheetView extends ContentNodeView {
 			try {
 				const reader = new JSONReader(json);
 				const data = target.getSheet().readFromClipboard(reader);
+
+				if (data === undefined) {
+					const root = reader.getRoot();
+					const graphClip = reader.getObject(root, 'clip');
+					if (graphClip !== undefined) {
+						const cmd = new PasteItemsCommand(json, viewer, item.getCells());
+						viewer.getInteractionHandler().execute(cmd);
+						return true;
+					}
+					return false;
+				}
+
 				const graph = item.getGraph();
 				const sourceSheet = graph.getItemById(Number(data.sheetId));
 
@@ -1559,6 +1577,7 @@ export default class WorksheetView extends ContentNodeView {
 								case 'MONGO.COUNT':
 								case 'MONGO.AGGREGATE':
 								case 'MONGO.STORE':
+								case 'MONGO.REPLACE':
 								case 'MONGO.DELETE':
 								case 'KAFKA.PUBLISH':
 								case 'KAFKA.COMMAND':
@@ -1568,6 +1587,12 @@ export default class WorksheetView extends ContentNodeView {
 								case 'REST.RESPOND':
 								case 'MAIL.SEND':
 								case 'FEEDINBOX':
+								case 'OPCUA.FOLDERS':
+								case 'OPCUA.JSON':
+								case 'OPCUA.READ':
+								case 'OPCUA.RESPOND':
+								case 'OPCUA.VARIABLES':
+								case 'OPCUA.WRITE':
 								case 'EXECUTE':
 									value = termFunc.getFuncId();
 									graphics.setFontStyle(TextFormatAttributes.FontStyle.BOLD);

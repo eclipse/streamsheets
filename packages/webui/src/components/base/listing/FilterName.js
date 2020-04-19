@@ -1,7 +1,7 @@
+import TextField from '@material-ui/core/TextField';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { TextField } from '@material-ui/core';
 
 const createNameFilter = (textToFilter) => (resources) => {
 	if (textToFilter && textToFilter.length > 0) {

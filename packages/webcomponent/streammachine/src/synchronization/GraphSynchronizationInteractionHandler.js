@@ -1,6 +1,4 @@
 import JSG from '@cedalo/jsg-ui';
-
-// import * as Actions from '../../actions/actions';
 import CommandStack from './CommandStack';
 
 
@@ -48,7 +46,8 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		this.streamMachine.sendCommand(commandJSON);
 
 		if (commandJSON.name !== 'command.RemoveSelectionCommand' &&
-			commandJSON.name !== 'command.SetSelectionCommand') {
+			commandJSON.name !== 'command.SetSelectionCommand' &&
+			commandJSON.name !== 'command.ChangeItemOrderCommand') {
 			this.updateGraphItems();
 		}
 	}
@@ -77,7 +76,16 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		this.graph.resetGraphItemFormulas();
 
 		this.execute(cmp);
-		this.execute(new SetGraphCellsCommand(sheet, sheet.getGraphDescriptors()));
+		// replace all graph cells...
+		const graphCells = new Map();
+		this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
+			const sheetId = container.getStreamSheetContainerAttributes().getSheetId().getValue();
+			const descriptors = sheetId && container.getStreamSheet().getGraphDescriptors();
+			if (descriptors) graphCells.set(sheetId, descriptors);
+		});
+		if (graphCells.size) {
+			this.execute(new SetGraphCellsCommand(Array.from(graphCells.keys()), Array.from(graphCells.values())));
+		}
 	}
 
 	isSelectionInOutbox(graphItem) {

@@ -1,21 +1,21 @@
 /* global window document */
 
 import {
-	default as JSG,
-	FormatAttributes,
-	NotificationCenter,
-	Notification,
 	CompoundCommand,
-	TextFormatAttributes,
-	TextNodeAttributes,
-	SetTextCommand,
+	default as JSG,
 	Dictionary,
-	Point,
 	Event,
+	FormatAttributes,
 	GraphSettings,
-	MathUtils,
+	GraphUtils,
 	ItemAttributes,
-	GraphUtils
+	MathUtils,
+	Notification,
+	NotificationCenter,
+	Point,
+	SetTextCommand,
+	TextFormatAttributes,
+	TextNodeAttributes
 } from '@cedalo/jsg-core';
 import GraphView from '../view/GraphView';
 import AbstractInteraction from './AbstractInteraction';
@@ -24,7 +24,7 @@ import LayerId from '../view/LayerId';
 import KeyEvent from '../../ui/events/KeyEvent';
 import GraphEditor from '../../ui/GraphEditor';
 import ScrollPanel from '../../ui/ScrollPanel';
-import { ToolBreak, ToolButton, ToolColor, ToolList, ToolSeparator, FloatingToolbar }  from '../view/FloatingToolbar';
+import { FloatingToolbar, ToolBreak, ToolButton, ToolColor, ToolList, ToolSeparator } from '../view/FloatingToolbar';
 import Cursor from '../../ui/Cursor';
 
 /**
@@ -92,6 +92,8 @@ class EditTextInteraction extends AbstractInteraction {
 		// FIX: we mark div as removed...
 		this.createcmd = undefined;
 		this._startText = undefined;
+		this._item._editing = false;
+		this._item.getGraph().markDirty();
 
 		if (this.div === undefined || this.div._rm !== true) {
 			if (this.div !== undefined) {
@@ -216,13 +218,13 @@ class EditTextInteraction extends AbstractInteraction {
 	 * @param {ControllerViewer} viewer The ControllerViewer used by InteractionHandler.
 	 */
 	startEdit(controller, event, viewer) {
-		const onSelect = (ev) => {
+		const onSelect = () => {
 			this._formatInfo.reset();
 		};
 
-		const onMouseDown = (ev) => {};
+		const onMouseDown = () => {};
 
-		const onMouseUp = (ev) => {
+		const onMouseUp = () => {
 			setTimeout(() => {
 				this.updateToolbar(viewer);
 			}, 100);
@@ -259,12 +261,15 @@ class EditTextInteraction extends AbstractInteraction {
 
 		this.showTextNode(viewer);
 
-		this._item.setItemAttribute(ItemAttributes.VISIBLE, false);
+		// this._item.setItemAttribute(ItemAttributes.VISIBLE, false);
+		this._item._editing = true;
+		event.doRepaint = true;
+		this._item.getGraph().markDirty();
+
 		this._cancel = false;
 
 		viewer.getSelectionView().setVisible(false);
 
-		const view = controller.getView();
 		const cs = viewer.getCoordinateSystem();
 		const textFormat = this._item.getTextFormat();
 
@@ -340,9 +345,7 @@ class EditTextInteraction extends AbstractInteraction {
 		document.execCommand('defaultParagraphSeparator', null, 'p');
 		canvas.parentNode.appendChild(div);
 
-		const text = this.getEditText(this._item);
-
-		div.innerHTML = text;
+		div.innerHTML = this.getEditText(this._item);
 
 		// forces FF and IE to recalc size
 		div.style.left = '0px';
@@ -486,7 +489,6 @@ class EditTextInteraction extends AbstractInteraction {
 	 *
 	 * @method handleKeyUp
 	 * @param {KeyboardEvent} ev Native keyboard event triggered by inner used <code>textarea</code>.
-	 * @param {textarea} textarea Native textarea HTML DOM element.
 	 * @return {Boolean} Event return
 	 */
 	handleKeyUp(ev) {
@@ -625,7 +627,6 @@ class EditTextInteraction extends AbstractInteraction {
 			.getItemAttributes()
 			.getMaximumHeight()
 			.getValue();
-		const settings = item.getGraph().getSettings();
 		const origin = new Point(0, 0);
 
 		if (size.x > item._sizeText.x) {
@@ -757,7 +758,6 @@ class EditTextInteraction extends AbstractInteraction {
 			.getItemAttributes()
 			.getSizeMode()
 			.getValue();
-		const settings = item.getGraph().getSettings();
 		let horizontal;
 		let vertical;
 
@@ -1000,8 +1000,6 @@ class EditTextInteraction extends AbstractInteraction {
 	}
 
 	showTextNode(viewer) {
-		const settings = this._item.getGraph().getSettings();
-		const dplMode = settings.getDisplayMode();
 		const canvas = viewer.getCanvas();
 		const cs = viewer.getCoordinateSystem();
 		const sizeScale = cs.logToDeviceXNoZoom(750);
@@ -1104,9 +1102,15 @@ class EditTextInteraction extends AbstractInteraction {
 			// this is necessary as text change does not trigger an GRPAHITEM_CHANGED event and stream eventhandler does get informed
 			// about the text change, but the visible change. But then the text content must be set to update the formula
 			this._item.setText(this._getNewText());
+			const notification = new Notification(GraphItemController.ITEM_CHANGED_NOTIFICATION, this);
+			const notEvent = new Event(Event.CUSTOM, 0);
+			notEvent.source = this._item;
+			notification.event = notEvent;
+			notification.viewer = viewer;
+			NotificationCenter.getInstance().send(notification);
 		}
 
-		// set item to visible here because possible command execution may triggers an edge-layout which requires
+		// set item to visible here because possible command execution may trigger an edge-layout which requires
 		// a visible text-node to layout correctly...
 		this._item.setItemAttribute(ItemAttributes.VISIBLE, true);
 
@@ -1165,7 +1169,6 @@ class EditTextInteraction extends AbstractInteraction {
 	 *
 	 * @method clean
 	 * @param {DOM Node} node Node to retrieve HTML from.
-	 * @return {return_type} return_description
 	 */
 	clean(node) {
 		const nodes = [];

@@ -118,7 +118,6 @@ function createConditionTerm(context, node) {
 	const term = new CondTerm();
 	term._invalid = !!node.isInvalid;
 	term.useBrackets = !!node.useBrackets;
-	term.condstr = node.condstr || '?';
 	term.operator = Operation.get('?');
 	term.condition = createTerm(context, node.condition, node);
 	term.left = createTerm(context, node.onTrue, node);

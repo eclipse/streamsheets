@@ -166,7 +166,7 @@ class StreamSheet {
 	isMessageProcessed(message) {
 		const handler = this._msgHandler;
 		if (message == null && this._trigger.isEndless && hasLoop(handler)) {
-			return !handler._message || (handler._used && !(handler._index < handler._loopElement.loop.length - 1));
+			return !handler._message || (handler._used && !(handler._index < handler._stack.length - 1));
 		}
 		return message == null ? handler.isProcessed : message === handler.message && handler.isProcessed;
 	}
@@ -364,10 +364,15 @@ class StreamSheet {
 	}
 
 	step(manual) {
-		// DL-1334: exclude arrival trigger
-		const doIt = manual || this.trigger.type !== StreamSheetTrigger.TYPE.ARRIVAL || this.trigger.isEndless;
+		const triggerType = this.trigger.type;
+		// DL-1334: exclude arrival trigger on machine cycle step, because it is handled differently
+		const doIt = manual || this.trigger.isEndless || triggerType !== StreamSheetTrigger.TYPE.ARRIVAL;
 		if (doIt) {
-			this._doStep();
+			// DL-3709: force manual step on ARRIVAL sheet
+			const data = manual === 'force' || (manual === true && triggerType === StreamSheetTrigger.TYPE.ARRIVAL)
+				? { cmd: 'force' }
+				: undefined;
+			this._doStep(data);
 		}
 	}
 
@@ -391,7 +396,7 @@ class StreamSheet {
 	}
 
 	// DL-1114: WORKAROUND until next DEMO finished...
-	_skipExecuteTrigger(data) {
+	_skipExecuteTrigger(data = {}) {
 		// we are executed but wait for an execute to finish!!
 		return (
 			this._state === State.REPEAT &&
@@ -402,12 +407,16 @@ class StreamSheet {
 
 	_doStep(data, message) {
 		let result;
+		const prevState = this._state;
 		const firstTime = !this._trigger.isActive;
+		const forceStep = data && data.cmd === 'force';
+		// DL-3719 workaround to prevent moving loop-index twice in same step
+		this._nxtResumed = false;
 		// (DL-531): reset repeat-steps on first cycle...
 		if (firstTime) this.stats.repeatsteps = 0;
 		this._trigger.preProcess(data);
 		const skipTrigger = this._skipExecuteTrigger(data);
-		if (!skipTrigger && doTrigger(this)) {
+		if (forceStep || (!skipTrigger && doTrigger(this))) {
 			let nextLoopElement = this._state === State.ACTIVE;
 			if (nextLoopElement && this._useNextLoopElement) {
 				this._useNextLoopElement = false;
@@ -424,10 +433,13 @@ class StreamSheet {
 				// if (this._state === State.ACTIVE) this._msgHandler.next();
 				nextLoopElement = this._state === State.ACTIVE;
 			}
-			this._emitter.emit('step', this._msgHandler.prefix(), this);
+			this._emitter.emit('step', this);
 			// if still active after process/resume, step to next loop data:
 			// if (this._state === State.ACTIVE) this._msgHandler.next();
-			if (nextLoopElement && (!this._trigger.isEndless || !hasLoop(this._msgHandler))) this._msgHandler.next();
+			if (!this._nxtResumed && nextLoopElement && (!this._trigger.isEndless || !hasLoop(this._msgHandler))) {
+				this._nxtResumed = prevState === State.RESUMED;
+				this._msgHandler.next();
+			}
 		}
 		this._trigger.postProcess(data);
 		this._didStep(result);

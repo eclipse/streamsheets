@@ -7,12 +7,13 @@ const {
 	updateNamedCellRefs
 } = require('./utils');
 const Message = require('../machine/Message');
-const { SheetParser } = require('../parser/SheetParser');
 const SheetIndex = require('../machine/SheetIndex');
 const SheetRange = require('../machine/SheetRange');
 const StreamSheet = require('../machine/StreamSheet');
 const Streams = require('../streams/Streams');
 const MachineTaskMessagingClient = require('./MachineTaskMessagingClient');
+const { SheetParser } = require('../parser/SheetParser');
+const FunctionRegistry = require('../FunctionRegistry');
 // const { createPropertiesObject } = require('../utils');
 const DEF_SHEET_PROPS = require('../../defproperties.json');
 
@@ -43,16 +44,13 @@ const machine2json = (machine) => {
 		streamsheet.stats = _streamsheet.stats;
 		streamsheet.sheet.cells = _streamsheet ? getSheetCellsAsList(_streamsheet.sheet) : [];
 		const currmsg = _streamsheet.getMessage();
-		streamsheet.currentMessage = {
+		streamsheet.inbox.currentMessage = {
 			id: currmsg ? currmsg.id : null,
 			isProcessed: _streamsheet.isMessageProcessed(currmsg)
 		};
 		streamsheet.inbox.messages = _streamsheet.inbox.messages.slice(0);
-		streamsheet.jsonpath = _streamsheet.getCurrentLoopPath();
+		streamsheet.loop.currentPath = _streamsheet.getCurrentLoopPath();
 	});
-	// TODO add outbox messages? Actually not required, because messages are create via sheet anyway...
-	// json.outbox = {};
-	// json.outbox.messages = machine.outbox.messages.map(msg => Object.assign({}, msg));
 	return json;
 };
 const addDrawings = (machinejson, machine) => {
@@ -348,7 +346,7 @@ class DeleteCells extends ARequestHandler {
 				? deleteCellsFromRanges(msg.ranges, sheet)
 				: deleteCellsFromList(msg.indices, sheet);
 			enableSheetUpdate(sheet, updateHandler);
-			result.sheetCells = getSheetCellsAsList(sheet);
+			// result.sheetCells = getSheetCellsAsList(sheet);
 		}
 		return Promise.resolve(result);
 	}
@@ -388,28 +386,23 @@ class ExecuteFunction extends ARequestHandler {
 	get isModifying() {
 		return false;
 	}
-	handle(msg) {
-		const streamsheet = this.machine.getStreamSheet(msg.streamsheetId);
+	handle({ funcstr, streamsheetId}) {
+		let err;
+		let result;
+		const streamsheet = this.machine.getStreamSheet(streamsheetId);
 		if (streamsheet) {
-			let err;
-			let result;
 			const sheet = streamsheet.sheet;
 			try {
-				const functerm = msg.funcstr != null ? SheetParser.parse(msg.funcstr, sheet) : null;
-				err = functerm == null ? `Unknown function '${msg.funcstr}'!!` : null;
-				if (!err) {
-					// not nice, but some functions only works if machine runs...
-					// => need a better mechanism for this...
-					const force = sheet.forceExecution(true);
-					result = functerm.value;
-					sheet.forceExecution(force);
-				}
+				// funcstr may contain multiple functions separated by comma => wrap in noop() to ease parsing
+				const fns = SheetParser.parse(`noop(${funcstr})`, sheet).params || [];
+				result = sheet.executeFunctions(fns);
 			} catch (ex) {
-				err = `Failed to execute function '${msg.funcstr}'!!`;
+				err = `Failed to execute function(s): '${funcstr}'!!`;
 			}
-			return err == null ? Promise.resolve({ result }) : Promise.reject(new Error(err));
+		} else {
+			err = `Unknown streamsheet id: ${streamsheetId}`;
 		}
-		return Promise.reject(new Error(`Unknown streamsheet id: ${msg.streamsheetId}`));
+		return err == null ? Promise.resolve({ result }) : Promise.reject(new Error(err));
 	}
 }
 // include editable-web-component:
@@ -540,6 +533,19 @@ class Pause extends ARequestHandler {
 		}))
 	}
 }
+class RegisterFunctionModules extends ARequestHandler {
+	get isModifying() {
+		return false;
+	}
+	handle({ modules = [] }) {
+		logger.info('registerFunctionModules', modules);
+		// first module is always our core-functions module:
+		FunctionRegistry.registerCoreFunctionsModule(modules.shift());
+		modules.forEach((mod) => FunctionRegistry.registerFunctionModule(mod));
+		return Promise.resolve();
+	}
+};
+
 class RegisterStreams extends ARequestHandler {
 	get isModifying() {
 		return false;
@@ -551,6 +557,40 @@ class RegisterStreams extends ARequestHandler {
 			updateCurrentStream(stream);
 		});
 		return Promise.resolve();
+	}
+}
+class ReplaceGraphCells extends ARequestHandler {
+	handle({ graphCells, streamsheetIds = [] }) {
+		const appliedCells = new Map();
+		streamsheetIds.forEach((id, index) => {
+			const streamsheet = this.machine.getStreamSheet(id);
+			const sheet = streamsheet && streamsheet.sheet;
+			if (sheet) {
+				try {
+					sheet.getDrawings().removeAll();
+					const cells = graphCells[index];
+					const currentGraphCells = sheet.graphCells;
+					const notify = currentGraphCells.clear();
+					appliedCells.set(id, cells);
+					if (setNamedCells(sheet, cells, currentGraphCells) || notify) {
+						sheet._notifyUpdate();
+					}
+				} catch (err) {
+					// ignore error!
+					logger.warn(`Failed to set graph-cells of streamsheet:  ${streamsheet.name}(${id})!`);
+				}
+			} else {
+				// we ignore unknown sheets
+				logger.warn(`Unknown streamsheet with id "${id}" !`);
+			}
+		});
+		const result = { streamsheetIds: [], graphCells: [] };
+		Array.from(appliedCells.entries()).reduce((res, [id, cells]) => {
+			res.streamsheetIds.push(id);
+			res.graphCells.push(cells);
+			return res;
+		}, result);
+		return Promise.resolve(result);
 	}
 }
 // DL-1156 not used anymore
@@ -581,7 +621,7 @@ class SetCellAt extends ARequestHandler {
 				sheet.setCellAt(index, cell);
 				return Promise.resolve({
 					cell: cellDescriptor(cell, index),
-					sheetCells: getSheetCellsAsList(sheet),
+					// sheetCells: getSheetCellsAsList(sheet),
 					drawings: sheet.getDrawings().toJSON(),
 					graphItems: sheet.getDrawings().toGraphItemsJSON()
 				});
@@ -634,8 +674,8 @@ class SetNamedCells extends ARequestHandler {
 				if (setNamedCells(sheet, namedCells, oldNamedCells)) {
 					if (streamsheetId) sheet._notifyUpdate();
 					else this.machine.notifyUpdate('namedCells');
-					return Promise.resolve({ namedCells: oldNamedCells.getDescriptors() });
 				}
+				return Promise.resolve({ namedCells: oldNamedCells.getDescriptors() });
 			} catch (err) {
 				error = err;
 			}
@@ -654,12 +694,12 @@ class SetGraphCells extends ARequestHandler {
 			try {
 				sheet.getDrawings().removeAll();
 				const currentGraphCells = streamsheetId ? sheet.graphCells : this.machine.graphCells;
-				if (clear) currentGraphCells.clear();
-				if (setNamedCells(sheet, graphCells, currentGraphCells)) {
+				const notify = clear && currentGraphCells.clear();
+				if (setNamedCells(sheet, graphCells, currentGraphCells) || notify) {
 					if (streamsheetId) sheet._notifyUpdate();
 					else this.machine.notifyUpdate('graphCells');
-					return Promise.resolve({ graphCells: currentGraphCells.getDescriptors() });
 				}
+				return Promise.resolve({ graphCells: currentGraphCells.getDescriptors() });
 			} catch (err) {
 				error = err;
 			}
@@ -734,13 +774,12 @@ class Subscribe extends ARequestHandler {
 				streamsheets: this.machine.streamsheets.map((streamsheet) => {
 					const currmsg = streamsheet.getMessage();
 					const streamsheetCopy = streamsheet.toJSON();
-					streamsheetCopy.currentMessage = {
+					streamsheetCopy.inbox.currentMessage = {
 						id: currmsg ? currmsg.id : null,
 						isProcessed: streamsheet.isMessageProcessed(currmsg)
 					};
-					streamsheetCopy.messages = streamsheet.inbox.messages.slice(0);
-					// streamsheetCopy.messageId = streamsheet.getMessage() && streamsheet.getMessage().id;
-					streamsheetCopy.jsonpath = streamsheet.getCurrentLoopPath();
+					streamsheetCopy.inbox.messages = streamsheet.inbox.messages.slice(0);
+					streamsheetCopy.loop.currentPath = streamsheet.getCurrentLoopPath();
 					streamsheetCopy.stats = streamsheet.stats;
 					return streamsheetCopy;
 				}),
@@ -836,7 +875,9 @@ class RequestHandlerRegistry {
 		registry.handlers.set('load', new Load(machine, monitor));
 		registry.handlers.set('loadFunctions', new LoadFunctions(machine, monitor));
 		registry.handlers.set('pause', new Pause(machine, monitor));
+		registry.handlers.set('registerFunctionModules', new RegisterFunctionModules(machine, monitor));
 		registry.handlers.set('registerStreams', new RegisterStreams(machine, monitor));
+		registry.handlers.set('replaceGraphCells', new ReplaceGraphCells(machine, monitor));
 		registry.handlers.set('setCellAt', new SetCellAt(machine, monitor));
 		registry.handlers.set('setCells', new SetCells(machine, monitor));
 		registry.handlers.set('setCellsLevel', new SetCellsLevel(machine, monitor));

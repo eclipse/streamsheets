@@ -7,7 +7,7 @@ const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const GitHubStrategy = require('passport-github').Strategy;
 const LdapStrategy = require('passport-ldapauth');
 const OAuth2Strategy = require('passport-oauth2').Strategy;
-const OpenId2Strategy = require('passport-openid-connect').Strategy;
+// const OpenId2Strategy = require('passport-openid-connect').Strategy;
 const { LoggerFactory } = require('@cedalo/logger');
 
 const logger = LoggerFactory.createLogger(
@@ -58,10 +58,10 @@ class Auth {
 				}
 			})
 		);
-		passport.use(
-			'openid',
-			new OpenId2Strategy(strategies.openid, this.onSuccess)
-		);
+		// passport.use(
+		// 	'openid',
+		// 	new OpenId2Strategy(strategies.openid, this.onSuccess)
+		// );
 		passport.use(
 			'github',
 			new GitHubStrategy(strategies.github, this.onSuccess)

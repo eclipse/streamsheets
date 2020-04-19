@@ -10,6 +10,14 @@ const StreamSheet = require('./StreamSheet');
 const CellsNode = require('./CellsNode');
 const GraphUtils = require('../GraphUtils');
 
+const getStreamSheet = (item) => {
+	let sheet = item;
+	while (sheet && !(sheet instanceof StreamSheet)) {
+		sheet = sheet.getParent();
+	}
+	return sheet;
+};
+
 module.exports = class MachineGraph extends Graph {
 	constructor() {
 		super();
@@ -32,50 +40,7 @@ module.exports = class MachineGraph extends Graph {
 
 		// for global names
 		this._names = [];
-		this._graphItemFormulas = {};
 		this._drawEnabled = false;
-	}
-
-	addGraphItemFormula(sheet, item, formula) {
-		const attr = item.getItemAttributes().getAttribute('sheetname');
-		if (!attr || !attr.getValue()) {
-			return;
-		}
-
-		this._graphItemFormulas[attr.getValue()] = {
-			sheet,
-			item,
-			formula
-		};
-	}
-
-	resetGraphItemFormulas() {
-		this._graphItemFormulas = {};
-	}
-
-	getGraphItemFormulas() {
-		return this._graphItemFormulas;
-	}
-
-	assignUniqueGraphName(item) {
-		let ws = item.getParent();
-
-		while (ws && !(ws instanceof CellsNode)) {
-			ws = ws.getParent();
-		}
-		if (!ws) {
-			return;
-		}
-		ws = ws.getParent().getParent();
-
-		const newId = this.getGraph().getUniqueGraphName('ID');
-		item.getItemAttributes().addAttribute(new StringAttribute('sheetname', newId));
-		const expr = ws.getGraphItemExpression(item);
-		if (expr) {
-			ws.updateGraphFunction(item);
-		} else {
-			ws.createGraphFunction(item);
-		}
 	}
 
 	newInstance() {
@@ -443,58 +408,6 @@ module.exports = class MachineGraph extends Graph {
 		} while (found);
 
 		return name;
-	}
-
-	getUniqueGraphName(base, id) {
-		let name;
-		let cnt = 1;
-		let found = false;
-		const search = (item) => {
-			name = `${base}${cnt}`;
-			const attr = item.getItemAttributes().getAttribute('sheetname');
-			if (attr && name === attr.getValue()) {
-				found = true;
-				cnt += 1;
-			}
-		};
-
-		do {
-			found = false;
-			GraphUtils.traverseItem(this, (item) => search(item));
-		} while (found);
-
-		return name;
-	}
-
-	getItemByGraphName(name) {
-		let i;
-		let n;
-		let item;
-
-		if (name === '') {
-			return undefined;
-		}
-
-		for (i = 0, n = this._subItems.length; i < n; i += 1) {
-			item = this._subItems[i].getItemByGraphName(name);
-			if (item !== undefined) {
-				return item;
-			}
-		}
-
-		return undefined;
-	}
-
-	assignNewNameToItem(sheet, item) {
-		const assign = (itm) => {
-			const newId = this.getUniqueGraphName('ID');
-			itm._assignName();
-			itm.getItemAttributes().addAttribute(new StringAttribute('sheetname', newId));
-			// this.updateGraphItem(sheet, itm);
-			return true;
-		};
-
-		GraphUtils.traverseItem(item, assign);
 	}
 
 	setViewMode(item, mode) {

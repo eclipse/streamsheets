@@ -1,5 +1,6 @@
 import { StringUtil } from '@cedalo/util';
-import { CircularProgress, Paper } from '@material-ui/core';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Paper from '@material-ui/core/Paper';
 import CheckIcon from '@material-ui/icons/Check';
 import PropTypes from 'prop-types';
 import React, { useEffect, useReducer } from 'react';

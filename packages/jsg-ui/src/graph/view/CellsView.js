@@ -353,6 +353,7 @@ export default class CellsView extends NodeView {
 				case 'MONGO.COUNT':
 				case 'MONGO.AGGREGATE':
 				case 'MONGO.STORE':
+				case 'MONGO.REPLACE':
 				case 'MONGO.DELETE':
 				case 'KAFKA.PUBLISH':
 				case 'KAFKA.COMMAND':
@@ -363,6 +364,12 @@ export default class CellsView extends NodeView {
 				case 'MAIL.SEND':
 				case 'FEEDINBOX':
 				case 'EXECUTE':
+				case 'OPCUA.FOLDERS':
+				case 'OPCUA.JSON':
+				case 'OPCUA.READ':
+				case 'OPCUA.RESPOND':
+				case 'OPCUA.VARIABLES':
+				case 'OPCUA.WRITE':
 					this.drawPublish(graphics, x, y, rect, clipRect, data, termFunc, grey);
 					return true;
 				case 'SELECT':
@@ -377,51 +384,7 @@ export default class CellsView extends NodeView {
 	}
 
 	getFormattedValue(worksheetNode, expr, value, textFormat, showFormulas) {
-		let result = {
-			value,
-			formattedValue: value,
-			color: undefined,
-			type: 'general'
-		};
-
-		if (showFormulas) {
-			if (expr.hasFormula()) {
-				result.value = expr.toLocaleString(JSG.getParserLocaleSettings(), {
-					item: worksheetNode,
-					useName: true
-				});
-			} else if (result.value === undefined) {
-				result.value = '#NV';
-			}
-			result.formattedValue = result.value;
-		} else if (Numbers.isNumber(result.value) && result.value !== undefined && textFormat !== undefined) {
-			const numberFormat = textFormat.getNumberFormat();
-			if (numberFormat !== undefined) {
-				const fmt = numberFormat.getValue();
-				const set = textFormat
-					.getLocalCulture()
-					.getValue()
-					.toString();
-				const type = set.split(';');
-				try {
-					result = NumberFormatter.formatNumber(fmt, result.value, type[0]);
-				} catch (e) {
-					result.formattedValue = defaultCellErrorValue;
-				}
-				result.value = value;
-				[result.type] = type;
-				if (result.formattedValue === '' && (result.type === 'date' || result.type === 'time')) {
-					result.formattedValue = `#INVALID_${result.type.toUpperCase()}`;
-					result.value = result.formattedValue;
-				}
-			}
-		}
-
-		if (typeof result.value === 'boolean') {
-			result.formattedValue = result.value.toString().toUpperCase();
-		}
-
-		return result;
+		return worksheetNode.getFormattedValue(expr, value, textFormat, showFormulas);
 	}
 
 	drawKey(graphics, drawRect, column, row, visibleColumn, visibleRow) {
@@ -523,9 +486,11 @@ export default class CellsView extends NodeView {
 
 				graphics.setLineWidth(width === 1 ? 1 : cs.deviceToLogX(width));
 				graphics.beginPath();
+				graphics.applyLineDash();
 				graphics.moveTo(drawRect.x, drawRect.y);
 				graphics.lineTo(drawRect.x + drawRect.width, drawRect.y);
 				graphics.stroke();
+				graphics.clearLineDash();
 			}
 			style = attributes.getRightBorderStyle().getValue();
 			if (style !== FormatAttributes.LineStyle.NONE) {
@@ -543,9 +508,11 @@ export default class CellsView extends NodeView {
 
 				graphics.setLineWidth(width === 1 ? 1 : cs.deviceToLogX(width));
 				graphics.beginPath();
+				graphics.applyLineDash();
 				graphics.moveTo(drawRect.x, drawRect.y + drawRect.height);
 				graphics.lineTo(drawRect.x + drawRect.width, drawRect.y + drawRect.height);
 				graphics.stroke();
+				graphics.clearLineDash();
 			}
 		}
 	}
@@ -1076,6 +1043,12 @@ export default class CellsView extends NodeView {
 			y: 0
 		};
 
+		JSG.rectCache.release(cellRect);
+
+		if (!borderMatrix.length) {
+			return;
+		}
+
 		borderMatrix[0].forEach((b, index) => {
 			state.draw = false;
 			graphics.beginPath();
@@ -1085,11 +1058,12 @@ export default class CellsView extends NodeView {
 					border.draw !== state.draw ||
 					border.color !== state.color ||
 					border.style !== state.style ||
-					border.width !== state.width ||
+					border.borderwidth !== state.width ||
 					borderMatrix.length - 1 === index2
 				) {
 					graphics.lineTo(border.x, border.y + (borderMatrix.length - 1 === index2 ? border.height : 0));
 					graphics.stroke();
+					graphics.clearLineDash();
 					graphics.beginPath();
 					state.draw = false;
 				}
@@ -1098,16 +1072,15 @@ export default class CellsView extends NodeView {
 					graphics.setLineStyle(border.style);
 					graphics.setLineWidth(border.borderwidth === 1 ? 1 : sheetInfo.cs.deviceToLogX(border.borderwidth));
 					graphics.beginPath();
+					graphics.applyLineDash();
 					graphics.moveTo(border.x, border.y);
 					state.draw = true;
 					state.color = border.color;
 					state.style = border.style;
-					state.width = border.width;
+					state.width = border.borderwidth;
 				}
 			});
 		});
-
-		JSG.rectCache.release(cellRect);
 	}
 
 	enumerateVisibleCells(rows, columns, rect, viewRect, callback) {
@@ -1603,6 +1576,7 @@ export default class CellsView extends NodeView {
 			case 'MONGO.COUNT':
 			case 'MONGO.AGGREGATE':
 			case 'MONGO.STORE':
+			case 'MONGO.REPLACE':
 			case 'MONGO.DELETE':
 			case 'KAFKA.PUBLISH':
 			case 'KAFKA.COMMAND':
@@ -1612,6 +1586,12 @@ export default class CellsView extends NodeView {
 			case 'REST.RESPOND':
 			case 'MAIL.SEND':
 			case 'FEEDINBOX':
+			case 'OPCUA.FOLDERS':
+			case 'OPCUA.JSON':
+			case 'OPCUA.READ':
+			case 'OPCUA.RESPOND':
+			case 'OPCUA.VARIABLES':
+			case 'OPCUA.WRITE':
 			case 'EXECUTE':
 				result.value = String(data.getValue());
 

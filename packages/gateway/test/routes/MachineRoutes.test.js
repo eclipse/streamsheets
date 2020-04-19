@@ -67,34 +67,4 @@ describe('@cedalo/gateway', () => {
 				});
 		});
 	});
-	describe('PUT /api/v1.0/machines/:id/process-settings', () => {
-		const dummy = {
-			_id: 'setting1',
-			stream: 'SkU3wkNAW',
-			streamProcess: 'P1',
-			ejectData: false,
-			loopIdentifier: 'Loop',
-			loopType: 'single',
-			machineId: 'S1CxSiE0W',
-			settingsId: 'ByDVaCN0-',
-			showDataSamples: false,
-			triggerInterval: 0,
-			triggerPeriod: 0,
-			triggerType: 'arrival',
-			uniqueIdentifier: 'Unique'
-		};
-		it('should save process settings', () => {
-			const id = 'setting-1';
-			return supertest(defaultApp.app)
-				.put(`/api/v1.0/machines/${id}/process-settings`)
-				.set('Accept', 'application/json')
-				.set('Authorization', key)
-				.send(dummy)
-				.expect('Content-Type', /json/)
-				.expect(200)
-				.then((response) => {
-					expect(response.body.ok).toEqual(1);
-				});
-		});
-	});
 });

@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/jsg-core",
-  "version": "3.0.211",
+  "version": "1.6.0-alpha",
   "description": "JavaScript Graph Framework Core Module",
   "main": "index.js",
   "directories": {
@@ -21,9 +21,6 @@
     "babel-loader": "6.4.1",
     "babel-preset-env": "1.6.1",
     "cheerio": "0.22.0",
-    "eslint": "4.10.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git#eslint4",
-    "eslint-config-prettier": "3.3.0",
     "jest": "19.0.2",
     "jest-cli": "19.0.2",
     "mkdirp": "0.5.1",
@@ -34,26 +31,17 @@
     "yargs": "6.6.0"
   },
   "dependencies": {
-    "@cedalo/parser": "*",
+    "@cedalo/parser": "1.6.0-alpha",
+    "@cedalo/number-format": "1.6.0-alpha",
+    "@cedalo/jsg-extensions": "1.6.0-alpha",
     "date-fns": "^2.0.0-alpha.27",
     "qrjs2": "0.1.6"
   },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ],
-    "rules": {
-      "no-mixed-operators": 0,
-      "no-bitwise": 0,
-      "no-unused-vars": 0,
-      "default-case": "off",
-      "no-nested-ternary": 0
-    }
-  },
   "jest": {
     "collectCoverage": false,
-    "transformIgnorePatterns": ["<rootDir>/node_modules/"]
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/"
+    ]
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/jsg-core",
   "bugs": {

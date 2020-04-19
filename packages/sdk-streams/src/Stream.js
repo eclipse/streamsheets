@@ -1,15 +1,26 @@
 const IdGenerator = require('@cedalo/id-generator');
-const DefaultLogger = require('./DefaultLogger');
 const events = require('events');
+const DefaultLogger = require('./DefaultLogger');
+const { EVENTS } = require('./Constants');
 
 class EventEmitter extends events.EventEmitter {
-	emit (type, ...args) {
-		this._lastEventType = type;
-		super.emit(type, ...args)
-	};
+	constructor(...args) {
+		super(...args);
+		this._lastEventType = null;
+		this._noReemitted = [EVENTS.CONNECTOR.DISPOSED];
+	}
 
-	isNewEventType(type) {
-		return this._lastEventType === type;
+	emit(type, ...args) {
+		if (type === this._lastEventType && this._noReemitted.includes(type)) {
+			if(args[0] && args[0].force){
+				// Reset if we had an dispose triggerd by user action
+				// Otherwise the result of the action will not reach the user
+				this._lastEventType = null;
+			}
+			return;
+		}
+		this._lastEventType = type;
+		super.emit(type, ...args);
 	}
 }
 
@@ -37,10 +48,6 @@ class Stream {
 			type: this.type,
 			owner: this._owner
 		};
-	}
-
-	isNewEventType(type) {
-		return this._emitter.isNewEventType(type);
 	}
 
 	get owner() {

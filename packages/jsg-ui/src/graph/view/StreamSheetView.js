@@ -9,13 +9,10 @@ import {
 	StreamSheet,
 	SetCellsCommand,
 	Point,
-	Event,
 	BoundingBox
 } from '@cedalo/jsg-core';
 import CellFeedbackView from '../feedback/CellFeedbackView';
 import WorksheetView from './WorksheetView';
-import GraphController from '../controller/GraphController';
-import GraphItemController from '../controller/GraphItemController';
 import ClientEvent from '../../ui/events/ClientEvent';
 import ScrollBar from '../../ui/scrollview/ScrollBar';
 
@@ -32,20 +29,6 @@ const SHEET_DROP_FROM_OUTBOX = 'sheet_drop_from_outbox';
  * @constructor
  */
 export default class StreamSheetView extends WorksheetView {
-	constructor(item) {
-		super(item);
-
-		NotificationCenter.getInstance().register(this, GraphItemController.ITEM_CHANGED_NOTIFICATION, 'onItemChanged');
-		NotificationCenter.getInstance().register(this, GraphController.GRAPH_CHANGED_NOTIFICATION, 'onItemChanged');
-	}
-
-	dispose() {
-		super.dispose();
-
-		NotificationCenter.getInstance().unregister(this, GraphItemController.ITEM_CHANGED_NOTIFICATION);
-		NotificationCenter.getInstance().unregister(this, GraphController.GRAPH_CHANGED_NOTIFICATION);
-	}
-
 	// to allow scrolling while formula editing
 	handleMouseEvent(ev, viewer) {
 		// content hidden -> ignore
@@ -505,6 +488,11 @@ export default class StreamSheetView extends WorksheetView {
 								.getColumns()
 								.getInitialSection(),
 						valueRange._y1 -
+
+
+
+
+
 							this.getItem()
 								.getRows()
 								.getInitialSection()
@@ -538,67 +526,5 @@ export default class StreamSheetView extends WorksheetView {
 
 	static get SHEET_DROP_FROM_OUTBOX() {
 		return SHEET_DROP_FROM_OUTBOX;
-	}
-
-	updateGraphItem(sheet, item, formula) {
-		const attr = item.getItemAttributes().getAttribute('sheetsource');
-		if (attr && attr.getValue() === 'cell') {
-			return;
-		}
-
-		const name = this.getItem().getGraphItemName(item);
-		if (!name || name === '') {
-			return;
-		}
-
-		formula = formula || this.getItem().updateGraphFunction(item) || this.getItem().createGraphFunction(item);
-
-		const graph = this.getItem().getGraph();
-		graph.addGraphItemFormula(sheet, item, formula);
-	}
-
-	onItemChanged(notification) {
-		if (notification === undefined || notification.viewer === undefined) {
-			return;
-		}
-
-		switch (notification.name) {
-			case GraphController.GRAPH_CHANGED_NOTIFICATION:
-			case GraphItemController.ITEM_CHANGED_NOTIFICATION:
-				switch (notification.event.id) {
-					case Event.ITEMREMOVE: {
-						const item = notification.event.value;
-						const sheet = this.getItem().getContainer(item, item._lastParent);
-						if (sheet !== this.getItem()) {
-							return;
-						}
-						const graph = this.getItem().getGraph();
-						graph.addGraphItemFormula(sheet, item, undefined);
-						break;
-					}
-					case Event.ATTRIBUTE:
-						if (
-							notification.event.detailId !== 'attribute.add' &&
-							notification.event._attribute.getName() !== 'sheetformula'
-						) {
-							this.updateGraphItem(this.getItem(), notification.object.model);
-						}
-						break;
-					case Event.PARENT:
-					case Event.SHAPE:
-					case Event.PIN:
-					case Event.BBOX:
-					case Event.SIZE:
-					case Event.ANGLE:
-					case Event.CUSTOM:
-						this.updateGraphItem(this.getItem(), notification.event.source);
-						break;
-					default:
-						break;
-				}
-				break;
-			default:
-				break;
-		}
 	}
 }

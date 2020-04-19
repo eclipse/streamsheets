@@ -29,14 +29,9 @@ class StreamFormContainer extends React.Component {
 	static getDerivedStateFromProps(props, state) {
 		const { tempConfiguration } = props.streams;
 		let progressing = false;
-		let clientId = null;
 		if (state.model) {
 			const configuration = StreamHelper.getConfiguration(props,
 				state.model.id);
-			if(tempConfiguration) {
-				({clientId} = tempConfiguration);
-			}
-			clientId = clientId || state.model.clientId;
 			progressing = configuration ? configuration.progressing : false;
 		}
 		if (state.model && !props.streams.tempConfiguration) {
@@ -44,7 +39,6 @@ class StreamFormContainer extends React.Component {
 				...state,
 				model: {
 					...state.model,
-					clientId,
 					name: state.model.name.trim(),
 					status: undefined,
 					state: props.streams.statusMap[state.model.id],
@@ -57,7 +51,6 @@ class StreamFormContainer extends React.Component {
 				...state,
 				model: {
 					...tempConfiguration,
-					clientId,
 					status: undefined,
 					state: props.streams.statusMap[tempConfiguration.id],
 				},
@@ -95,10 +88,7 @@ class StreamFormContainer extends React.Component {
 			const configuration = StreamHelper.getConfiguration(this.props,
 				this.configurationId);
 			if (configuration && configuration.className) {
-				const pageSelected = StreamHelper.getPageFromClass(
-					configuration.className);
 				this.props.setInitialConfiguration(configuration);
-				this.props.setPageSelected(pageSelected);
 				// eslint-disable-next-line react/no-did-update-set-state
 				this.setState({ ...prevState, model: configuration });
 			}
@@ -184,7 +174,7 @@ class StreamFormContainer extends React.Component {
 
 	handleDelete = (res) => {
 		if (res === true) {
-			const { pageSelected } = { ...this.props };
+			const pageSelected = StreamHelper.getPageFromClass(this.state.model.className);
 			this.props.openPage(`/administration/${pageSelected}`);
 		}
 	};
@@ -387,10 +377,8 @@ StreamFormContainer.defaultProps = {};
 
 function mapStateToProps(state) {
 	return {
-		appState: state.appState,
 		locale: state.locales.locale,
 		streams: state.streams,
-		pageSelected: state.streams.pageSelected,
 		fetching: state.streams.fetching,
 		activeConfigurationId: state.streams.activeConfigurationId,
 		providers: state.streams.providers,

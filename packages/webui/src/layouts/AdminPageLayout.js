@@ -1,4 +1,5 @@
-import { AppBar, Grid } from '@material-ui/core';
+import AppBar from '@material-ui/core/AppBar';
+import Grid  from '@material-ui/core/Grid';
 import * as Colors from '@material-ui/core/colors';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -134,7 +135,7 @@ export const AdminPageLayoutComponent = (props) => {
 					style={{ height: 'calc(100% - 58px)', flexWrap: 'nowrap' }}
 				>
 					<Grid item style={{ width: '200px', borderRight: '1px solid grey' }}>
-						<AdminNavigation selected={page} />
+						<AdminNavigation selection={page} />
 					</Grid>
 					<Grid item style={{ height: '100%', flexGrow: 1, background: '#EEE' }}>
 						{children}

@@ -1,8 +1,7 @@
 const { isType } = require('../utils');
-const jsonpath = require('../functions/jsonpath');
+const { jsonpath } = require('@cedalo/commons');
 const { Functions } = require('@cedalo/parser');
 const IdGenerator = require('@cedalo/id-generator');
-
 
 const clear = (obj) => Object.keys(obj).forEach((key) => delete obj[key]);
 const now = () => (Functions.NOW ? Functions.NOW() : Date.now());

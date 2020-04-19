@@ -94,7 +94,7 @@ module.exports = class RestServerConsumer extends ConsumerMixin(RestServerConnec
 			message.metadata.transportDetails = transportDetails;
 			delete restMessage.metadata.user;
 			this.emit(message);
-			this._emitter.emit(Events.FEEDER.MESSAGE, topic, message, this.id);
+			this._emitter.emit(Events.CONSUMER.MESSAGE, topic, message, this.id);
 			if (!expectResponse) {
 				delete restMessage.metadata.transportDetails.clientIP;
 				this._restServer.handleResponse(requestId, restMessage);
@@ -105,6 +105,11 @@ module.exports = class RestServerConsumer extends ConsumerMixin(RestServerConnec
 				message: 'Username or password not correct.'
 			});
 		}
+	}
+
+	async update(configDiff) {
+		await super.update(configDiff);
+		await this._updateListeners();
 	}
 
 	_hasCredentials() {

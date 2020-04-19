@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/stream-rest-client",
-  "version": "1.4.0",
+  "version": "1.6.0-alpha",
   "description": "Rest Client Feeder",
   "main": "index.js",
   "scripts": {
@@ -17,21 +17,12 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/stream/rest-client",
   "devDependencies": {
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jest": "21.2.1",
     "jest-cli": "21.2.1"
   },
   "dependencies": {
-    "@cedalo/rest-server-core": "*",
-    "@cedalo/sdk-streams": "*"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
+    "@cedalo/rest-server-core": "1.6.0-alpha",
+    "@cedalo/sdk-streams": "1.6.0-alpha"
   },
   "jest": {
     "collectCoverage": true,

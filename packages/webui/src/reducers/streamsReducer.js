@@ -95,7 +95,6 @@ const defaultState = {
 	fetched: false,
 	dirty: false,
 	activeConfigurationId: 0,
-	pageSelected: '',
 	prevState: null,
 	savePending: false,
 	reloadStreamsPending: false,
@@ -273,9 +272,6 @@ export default (state = defaultState, action) => {
 					}
 					default:
 				}
-				if(newState.tempConfiguration && config.id === newState.tempConfiguration.id) {
-					newState.tempConfiguration.clientId = config.clientId;
-				}
 			}
 			if (streamEventType === 'delete') {
 				newState.providers = newState.providers.filter(p => p.id !== config.id);
@@ -328,9 +324,6 @@ export default (state = defaultState, action) => {
 			...state,
 			initialConfig: {...config}
 		};
-	}
-	case 'SELECT_PAGE': {
-		return { ...state, pageSelected: action.payload };
 	}
 	case `FETCH_${configType}S_FETCHING`: {
 		return Object.assign({}, state, {

@@ -15,6 +15,7 @@ import * as MachineActions from './MachineActions';
 import * as BackupRestoreActions from './BackupRestoreActions';
 import SheetParserContext from '../SheetParserContext';
 import { accessManager } from '../helper/AccessManager';
+import { functionStrings } from '../languages/FunctionStrings';
 
 const { EVENTS } = Protocols.GatewayMessagingProtocol;
 const CONFIG = ConfigManager.config.gatewayClientConfig;
@@ -23,7 +24,7 @@ const removeSelection = () => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const sessionId = sessionStorage.getItem('sessionId');
 	if (user) {
-		const id = `${sessionId};${user.userId};${user.displayName}`;
+		const id = `${sessionId};${user.id};${user.displayName}`;
 		graphManager.removeSelection(id);
 	}
 };
@@ -39,7 +40,6 @@ export const {
 	undoStream,
 	createNewConfiguration,
 	updateConfiguration,
-	setPageSelected,
 	setConfigurationActive,
 	deleteActiveConfiguration,
 	toggleDialogAddConfiguration,
@@ -94,6 +94,14 @@ const putAppState = (newState) => ({
 });
 export function setAppState(newState) {
 	return store.dispatch(putAppState(newState));
+}
+
+const putJsgState = (data) => ({
+	type: 'SET_JSG_STATE',
+	data
+});
+export function setJsgState(data) {
+	return store.dispatch(putJsgState(data));
 }
 
 const putFormFeedback = (notification) => ({
@@ -262,7 +270,7 @@ function handleUserJoinedEvent(/* event */) {}
 
 function handleUserLeftEvent(event) {
 	const { sessionId, user } = event;
-	const id = `${sessionId};${user.userId};${user.displayName}`;
+	const id = `${sessionId};${user.id};${user.displayName}`;
 	if (event.user) {
 		graphManager.removeSelection(id);
 	}
@@ -270,8 +278,8 @@ function handleUserLeftEvent(event) {
 
 function handleSheetUpdateEvent(event) {
 	const streamsheetId = event.srcId;
-	const cells = event.sheetCells;
-	const { drawings, graphItems, graphCells, namedCells } = event;
+	const { sheet } = event;
+	const { cells, drawings, graphItems, graphCells, namedCells } = sheet;
 	graphManager.updateCellValues(streamsheetId, cells, drawings, graphItems, graphCells, namedCells);
 	graphManager.redraw();
 }
@@ -445,11 +453,17 @@ export function getMe() {
 					settings {
 						locale
 					}
+					rights
 				}
 			}`
 		);
-
-		dispatch({ type: ActionTypes.USER_FETCHED, user: result.me });
+		const user = result.me;
+		const displayName = [user.firstName, user.lastName].filter(e => !!e).join(' ') || user.username;
+		localStorage.setItem(
+			'user',
+			JSON.stringify({ id: user.id, displayName, settings: user.settings })
+		);
+		dispatch({ type: ActionTypes.USER_FETCHED, user });
 	};
 }
 
@@ -528,6 +542,7 @@ export function loadSubscribeMachine(machineId, options = {}) {
 				dispatch(requestFailed(messageTypes.MACHINE_LOAD, response.machineserver.error));
 				return null;
 			}
+			functionStrings.addFunctionsHelp(response.machineserver.machine.functionsHelp);
 			JSG.FormulaParser.context = new SheetParserContext(
 				response.machineserver.machine.functionDefinitions.map((def) => def.name),
 			);
@@ -600,14 +615,16 @@ export function connect() {
 	});
 	const config = {
 		...CONFIG,
-		token: accessManager.authToken,
-		clientId: accessManager.generateGUID(),
+		token: accessManager.authToken
 	};
 	return (dispatch) =>
 		gatewayClient
 			.connect(config)
 			.then(() => {
 				getMetaInformationAndDispatch();
+				gatewayClient.on(EVENTS.SESSION_INIT_EVENT, (event) => {
+					sessionStorage.setItem('sessionId', event.session.id);
+				});
 				gatewayClient.on(EVENTS.GATEWAY_DISCONNECTED_EVENT, (event) => {
 					getMetaInformationAndDispatch();
 					dispatch(clientDisconnected(event));
@@ -630,6 +647,10 @@ export function connect() {
 					handleUserLeftEvent(event);
 					dispatch(receiveUserLeft(event));
 				});
+				gatewayClient.on(EVENTS.LICENSE_INFO_EVENT, (event) => {
+					const { licenseInfo = {}} = event;
+					dispatch({type: ActionTypes.LICENSE_INFORMATION, licenseInfo });
+				});
 				gatewayClient.on(EVENTS.MACHINE_STEP_EVENT, (event) => {
 					try {
 						// const startProcessingMachineStepEvent = document.createEvent('Event');
@@ -640,19 +661,30 @@ export function connect() {
 						graphManager.setDrawingDisabled(true);
 						event.streamsheets.forEach((streamsheet) => {
 							try {
+								const {
+									id,
+									cells,
+									graphCells,
+									namedCells,
+									drawings,
+									graphItems,
+									inbox,
+									loop,
+									stats
+								} = streamsheet;
 								graphManager.handleStreamSheetStep(
-									streamsheet.id,
-									streamsheet.jsonpath,
-									streamsheet.cells,
-									streamsheet.namedCells,
-									streamsheet.graphCells,
-									streamsheet.drawings,
-									streamsheet.graphItems,
+									id,
+									loop.currentPath,
+									cells,
+									namedCells,
+									graphCells,
+									drawings,
+									graphItems,
 									// TODO: improve, outbox does not need to be updated for each streamsheet
 									event.outbox,
-									streamsheet.stats,
-									streamsheet.inbox,
-									streamsheet.currentMessage,
+									stats,
+									inbox,
+									inbox.currentMessage,
 								);
 							} catch (error) {
 								// this can happen if the machine step event comes

@@ -21,7 +21,6 @@ const RENAME_MACHINE_MESSAGE_TYPE = 'machine_rename';
 const PAUSE_MACHINE_MESSAGE_TYPE = 'machine_pause';
 const PING_MACHINESOCKETSERVER_MESSAGE_TYPE = 'ping_machinesocketserver';
 const SAVE_MACHINE_AS_MESSAGE_TYPE = 'machine_save_as';
-const SAVE_MACHINE_AS_TEMPLATE_MESSAGE_TYPE = 'machine_save_as_template';
 const SAVE_MACHINE_COPY_MESSAGE_TYPE = 'machine_save_copy';
 const SET_MACHINE_CYCLE_TIME_MESSAGE_TYPE = 'machine_set_cycle_time';
 const SET_MACHINE_LOCALE_MESSAGE_TYPE = MachineServerMessageTypes.SET_MACHINE_LOCALE_MESSAGE_TYPE;
@@ -76,6 +75,8 @@ const COMMAND_EVENT = 'command';
 const GATEWAY_DISCONNECTED_EVENT = 'gateway_disconnected';
 const GRAPH_SERVER_CONNECTED_EVENT = 'graphserver_connected';
 const GRAPH_SERVER_DISCONNECTED_EVENT = 'graphserver_disconnected';
+const SESSION_INIT_EVENT = 'session_init';
+const LICENSE_INFO_EVENT = 'license_information';
 const MACHINE_CYCLETIME_EVENT = 'machine_cycletime';
 const MACHINE_RENAME_EVENT = 'machine_rename';
 const MACHINE_FUNCTIONS_EVENT = 'machine_functions';
@@ -102,7 +103,6 @@ const STREAMSHEET_STREAM_UPDATE_TYPE = 'streamsheet_stream_update';
 const STREAMSHEET_STREAM_UPDATED = 'streamsheet_stream_updated';
 const USER_JOINED_EVENT = 'user_joined';
 const USER_LEFT_EVENT = 'user_left';
-const STREAMS_RELOAD_TYPE = 'stream_reload';
 const STREAMS_RELOAD_EVENT = 'stream_reload';
 const USER_GET_MESSAGE_TYPE = 'user_get';
 const AUTH_DATA_MESSAGE_TYPE = 'auth_data';
@@ -138,7 +138,6 @@ module.exports = {
 		STREAMSHEET_STREAM_UPDATE_TYPE,
 		PING_MACHINESOCKETSERVER_MESSAGE_TYPE,
 		SAVE_MACHINE_AS_MESSAGE_TYPE,
-		SAVE_MACHINE_AS_TEMPLATE_MESSAGE_TYPE,
 		SAVE_MACHINE_COPY_MESSAGE_TYPE,
 		SET_MACHINE_CYCLE_TIME_MESSAGE_TYPE,
 		SET_MACHINE_LOCALE_MESSAGE_TYPE,
@@ -169,7 +168,6 @@ module.exports = {
 		// General request types
 		COMMAND_MESSAGE_TYPE,
 		SELECTION_MESSAGE_TYPE,
-		STREAMS_RELOAD_TYPE,
 		USER_GET_MESSAGE_TYPE,
 		USER_SAVE_MESSAGE_TYPE,
 		USER_SETTINGS_GET_MESSAGE_TYPE,
@@ -184,9 +182,11 @@ module.exports = {
 	EVENTS: {
 		// Events
 		COMMAND_EVENT,
+		SESSION_INIT_EVENT,
 		GATEWAY_DISCONNECTED_EVENT,
 		GRAPH_SERVER_CONNECTED_EVENT,
 		GRAPH_SERVER_DISCONNECTED_EVENT,
+		LICENSE_INFO_EVENT,
 		MACHINE_LOCALE_EVENT: MachineServerEvents.MACHINE_LOCALE_EVENT,
 		MACHINE_RENAME_EVENT,
 		MACHINE_FUNCTIONS_EVENT,

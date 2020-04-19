@@ -17,7 +17,7 @@ const ConsoleLogger = {
 		if (typeof console !== 'undefined') {
 			if (console.info) console.info(message);
 			else console.log(message);
-		} 
+		}
 	}
 };
 /* eslint-enable no-console */
@@ -119,7 +119,7 @@ class JSG {
 	 * @static
 	 */
 	static get clipOffset() {
-		return getOrCreate('clipOffset', './geometry/Point', 200, 200);
+		return getOrCreate('clipOffset', './geometry/Point', 0, 0);
 	}
 	static set clipOffset(val) {
 		jsg.clipOffset = val;

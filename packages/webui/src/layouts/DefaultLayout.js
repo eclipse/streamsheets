@@ -16,6 +16,7 @@ import DashBoardComponent from '../components/Dashboard/DashBoardComponent';
 import NewMachineDialog from '../components/HelperComponent/NewMachineDialog';
 import OpenDialog from '../components/HelperComponent/OpenDialog';
 import SaveAsDialog from '../components/HelperComponent/SaveAsDialog';
+import LicenseExpireNotification from '../components/HelperComponent/LicenseExpireNotification';
 import ErrorDialog from '../components/ImportExport/ErrorDialog';
 import ExportComponent from '../components/ImportExport/ExportComponent';
 import ImportDialog from '../components/ImportExport/ImportDialog';
@@ -32,6 +33,7 @@ import { intl } from '../helper/IntlGlobalProvider';
 import MachineHelper from '../helper/MachineHelper';
 import theme from '../theme';
 import HelpButton from './HelpButton';
+import StreamHelper from '../helper/StreamHelper';
 
 let initialized = false;
 let initializing = false;
@@ -105,7 +107,7 @@ export class DefaultLayout extends React.Component {
 	}
 
 	setDocumentTitle() {
-		const { match } = this.props;
+		const { match, streams } = this.props;
 		switch (match.path) {
 			case '/dashboard':
 				document.title = intl.formatMessage({ id: 'TitleDashboard' }, {});
@@ -124,10 +126,10 @@ export class DefaultLayout extends React.Component {
 				break;
 			default:
 				if (match.path.startsWith('/administration/stream')) {
-					// TODO get name of stream
-					document.title = intl.formatMessage({ id: 'TitleStream' }, {});
-				} else if (match.path.startsWith('/administration/stream')) {
-					document.title = intl.formatMessage({ id: 'TitleStream' }, {});
+					const configuration = StreamHelper.getConfiguration(streams, match.params.configId);
+					document.title = configuration
+						? intl.formatMessage({ id: 'TitleStream' }, { streamName: configuration.name })
+						: intl.formatMessage({ id: 'TitleStreamUnknown' }, {});
 				} else {
 					document.title = intl.formatMessage({ id: 'TitlePage' }, {});
 				}
@@ -188,7 +190,7 @@ export class DefaultLayout extends React.Component {
 									height: '58px',
 								}}
 							>
-
+								<LicenseExpireNotification />
 								<InfoToolBar title={this.getTitle(match.path)} />
 								{!this.props.isMachineEngineConnected ? (
 									<div>
@@ -271,6 +273,12 @@ function mapStateToProps(state) {
 		isMachineEngineConnected: MachineHelper.isMachineEngineConnected(state.monitor, state.meta),
 		user: state.user.user,
 		disconnectedServices: state.meta.disconnectedServices.join(', '),
+		streams: {
+			providers: state.streams.providers,
+			connectors: state.streams.connectors,
+			consumers: state.streams.consumers,
+			producers: state.streams.producers
+		}
 	};
 }
 

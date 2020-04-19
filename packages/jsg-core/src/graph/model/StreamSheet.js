@@ -13,6 +13,8 @@ const SheetButtonNode = require('./SheetButtonNode');
 const SheetCheckboxNode = require('./SheetCheckboxNode');
 const SheetSliderNode = require('./SheetSliderNode');
 const SheetKnobNode = require('./SheetKnobNode');
+const SheetPlotNode = require('./SheetPlotNode');
+const { SheetChartStateNode } = require('@cedalo/jsg-extensions/core');
 const Graph = require('./Graph');
 const FormatAttributes = require('../attr/FormatAttributes');
 const TextFormatAttributes = require('../attr/TextFormatAttributes');
@@ -69,9 +71,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 		const columns = this.getColumns();
 		columns.setInitialSection(-2);
-		columns.setSectionTitle(0, 'COMMENT');
 		columns.setSectionSize(0, 0);
-		columns.setSectionTitle(1, 'IF');
 		columns.setSectionSize(1, 700);
 
 		attr = this.getItemAttributes();
@@ -86,7 +86,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			const sessionId = sessionStorage.getItem('sessionId');
 			const user = JSON.parse(localStorage.getItem('user'));
 			if (user && sessionId) {
-				const id = `${sessionId};${user.userId};${user.displayName}`;
+				const id = `${sessionId};${user.id};${user.displayName}`;
 				this.setSelectionId(id);
 			}
 		}
@@ -157,7 +157,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		// save data provider
 		this.getDataProvider().save(writer);
 
-		writer.writeEndElement(writer);
+		writer.writeEndElement();
 	}
 
 	readFromUndo(json) {
@@ -347,7 +347,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 				.getValue()
 		) {
 			case 'scale':
-				return 3;
+				return 0;
 			case 'bottom':
 				return 0;
 			default:
@@ -371,7 +371,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			) {
 				case 'scale': {
 					const width = parent.getWidth().getValue();
-					point.x *= width;
+					point.x = point.x / 10000 * width;
 					break;
 				}
 				default:
@@ -394,7 +394,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			) {
 				case 'scale': {
 					const height = parent.getHeight().getValue();
-					point.y *= height;
+					point.y = point.y / 10000 * height;
 					break;
 				}
 				case 'bottom': {
@@ -428,9 +428,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 		) {
 			case 'scale': {
 				const width = parent.getWidth().getValue();
-				point.x *= width;
+				point.x = point.x / 10000 * width;
 				const height = parent.getHeight().getValue();
-				point.y *= height;
+				point.y = point.y / 10000 * height;
 				break;
 			}
 			default:
@@ -456,7 +456,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 		}
 
 		attr.setClipChildren(def.clip);
-		attr.setVisible(def.visible);
+		if (!this._editing) {
+			attr.setVisible(def.visible);
+		}
 		attr.setSelectionMode(def.selectable ? 4 : 0);
 		attr.setScaleType(def.container === 'none' ? 'top' : def.container);
 		attr.setContainer(def.container !== 'none');
@@ -555,7 +557,13 @@ module.exports = class StreamSheet extends WorksheetNode {
 							JSG.imagePool.set(pattern, id);
 							format.setPattern(id);
 						} else {
-							format.setPattern(pattern);
+							const parts = pattern.split('?');
+							if (parts.length > 1) {
+								JSG.imagePool.update(parts[0], parts[1]);
+								format.setPattern(parts[0]);
+							} else {
+								format.setPattern(pattern);
+							}
 
 						}
 					} catch (e) {
@@ -630,14 +638,17 @@ module.exports = class StreamSheet extends WorksheetNode {
 			return;
 		}
 
-		// TODO recreate, if different shape and from cell
 		Object.values(graphItems).forEach((drawItem) => {
 			if (drawItem.sheetname === '') {
 				return;
 			}
-			let node = graph.getItemByGraphName(drawItem.sheetname);
+			const id = Number(drawItem.sheetname);
+			let node = graph.getItemById(id);
 			if (node === undefined && drawItem.source === 'cell') {
-				// item formula is on sheet -> create object
+				if (!JSG.Numbers.isNumber(id)) {
+					return;
+				}
+				// item )formula is on sheet -> create object
 				switch (drawItem.type) {
 					case 'rectangle':
 						node = new Node();
@@ -686,11 +697,17 @@ module.exports = class StreamSheet extends WorksheetNode {
 					node.getItemAttributes().addAttribute(new StringAttribute('sheetsource', drawItem.source));
 					parent.addItem(node);
 					node.setName(drawItem.name);
-					node.getItemAttributes().addAttribute(new StringAttribute('sheetname', drawItem.sheetname));
+					node.setId(id);
 				}
 			}
 			if (node) {
 				node.getItemAttributes().addAttribute(new StringAttribute('sheetsource', drawItem.source));
+				const attr = node.getItemAttributes().getAttribute('sheetformula');
+				if (attr && attr.getExpression()) {
+					if (attr.getExpression().getFormula() !== drawItem.formula) {
+						return;
+					}
+				}
 				let parent;
 
 				node.setName(drawItem.name);
@@ -700,7 +717,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 					parent = this.getCells();
 				}
 
-				if (parent !== node.getParent() && node.getId() !== parent.getId()) {
+				if (parent !== node.getParent() && id !== parent.getId()) {
 					node.changeParent(parent);
 				}
 
@@ -780,10 +797,31 @@ module.exports = class StreamSheet extends WorksheetNode {
 					this.setEvents(node, drawItem.events);
 
 					switch (drawItem.type) {
-					case 'label':
-						node.setText(drawItem.text === 'undefined' ? '' : Strings.decodeXML(drawItem.text));
+					case 'label': {
+						const range = CellRange.parse(drawItem.formula, this, true);
+						let text = '';
+						if (range) {
+							const sourceSheet = range.getSheet()
+							const data = sourceSheet.getDataProvider();
+							range.shiftFromSheet();
+							const cell = data.getRC(range._x1, range._y1);
+							if (cell) {
+								const textFormat = sourceSheet.getTextFormatAtRC(range._x1, range._y1);
+								const result = sourceSheet.getFormattedValue(cell.getExpression(), cell.getValue(), textFormat, false);
+								if (result) {
+									text = result.formattedValue;
+								}
+							}
+						} else {
+							text = drawItem.text === 'undefined' ? '' : Strings.decodeXML(drawItem.text)
+						}
+						node.setText(text);
+						if (drawItem.parent === '') {
+							node.associate(false);
+						}
 						this.setFontFormat(node.getTextFormat(), drawItem.font);
 						break;
+					}
 					case 'bezier':
 						break;
 					case 'polygon':
@@ -821,6 +859,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 						if (drawItem.close !== undefined) {
 							node.getItemAttributes().setClosed(drawItem.close);
 						}
+						break;
+					case 'plot':
+						// node.setChartType(drawItem.charttype);
 						break;
 					case 'chart':
 						node.setDataRangeString(drawItem.range ? `=${drawItem.range}` : '');
@@ -869,6 +910,18 @@ module.exports = class StreamSheet extends WorksheetNode {
 						node.setAttributeAtPath('end', drawItem.end);
 						node.setAttributeAtPath('formatrange', drawItem.formatrange ? drawItem.formatrange : '');
 						break;
+					case 'chartstate':
+						node.setAttributeAtPath('title', drawItem.text);
+						this.setFontFormat(node.getTextFormat(), drawItem.font);
+						node.setAttributeAtPath('type', drawItem.charttype);
+						node.setAttributeAtPath('range', drawItem.range ? drawItem.range : '');
+						node.setAttributeAtPath('legend', drawItem.legend ? drawItem.legend : '');
+						node.setAttributeAtPath('min', drawItem.min);
+						node.setAttributeAtPath('max', drawItem.max);
+						node.setAttributeAtPath('stepType', drawItem.stepType);
+						node.setAttributeAtPath('step', drawItem.step);
+						node.setAttributeAtPath('scalefont', drawItem.scalefont);
+						break;
 					default:
 						break;
 					}
@@ -877,14 +930,12 @@ module.exports = class StreamSheet extends WorksheetNode {
 			}
 		});
 
-		// if (this.getOwnSelection().getActiveCell()) {
 		NotificationCenter.getInstance().send(
 			new Notification(WorksheetNode.SELECTION_CHANGED_NOTIFICATION, {
 				item: this,
 				updateFinal: true
 			})
 		);
-		// }
 	}
 
 	convertToContainerPos(point, parent) {
@@ -899,9 +950,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 		) {
 			case 'scale': {
 				const width = parent.getWidth().getValue();
-				point.x /= width;
+				point.x = point.x / width * 10000;
 				const height = parent.getHeight().getValue();
-				point.y /= height;
+				point.y = point.y / height * 10000;
 				break;
 			}
 			case 'bottom': {
@@ -928,9 +979,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 		) {
 			case 'scale': {
 				const width = parent.getWidth().getValue();
-				point.x /= width;
+				point.x = point.x / width * 10000;
 				const height = parent.getHeight().getValue();
-				point.y /= height;
+				point.y = point.y / height * 10000;
 				break;
 			}
 			default:
@@ -959,12 +1010,14 @@ module.exports = class StreamSheet extends WorksheetNode {
 			type = 'slider';
 		} else if (item instanceof JSG.SheetKnobNode) {
 			type = 'knob';
+		} else if (item instanceof JSG.SheetChartStateNode) {
+			type = 'chartstate';
+		} else if (item instanceof JSG.SheetPlotNode) {
+			type = 'plot';
 		}
 
 		const graph = this.getGraph();
-		let attr = item.getItemAttributes().getAttribute('sheetname');
-		const newId = attr.getValue();
-		let formula = `DRAW.${type.toUpperCase()}("${newId}",`;
+		let formula = `DRAW.${type.toUpperCase()}("${item.getId()}",`;
 
 		if (item.getParent() instanceof CellsNode) {
 			formula += `,"${item.getName().getValue()}",`;
@@ -982,47 +1035,68 @@ module.exports = class StreamSheet extends WorksheetNode {
 			pStart = this.convertToContainerPos(pStart, item.getParent());
 			let pEnd = item.getEndPoint();
 			pEnd = this.convertToContainerPos(pEnd, item.getParent());
-			formula += `${MathUtils.roundTo(pStart.x, digits)} ,${MathUtils.roundTo(pStart.y, digits)},`;
-			formula += `${MathUtils.roundTo(pEnd.x, digits)} ,${MathUtils.roundTo(pEnd.y, digits)}`;
+			formula += `${MathUtils.roundTo(pStart.x, digits)},${MathUtils.roundTo(pStart.y, digits)},`;
+			formula += `${MathUtils.roundTo(pEnd.x, digits)},${MathUtils.roundTo(pEnd.y, digits)}`;
 		} else {
 			let center = item.getPinPoint();
 			center = this.convertToContainerPos(center, item.getParent());
 			let size = item.getSizeAsPoint();
 			size = this.convertToContainerSize(size, item.getParent());
-			formula += `${MathUtils.roundTo(center.x, digits)} ,${MathUtils.roundTo(center.y, digits)},`;
-			formula += `${MathUtils.roundTo(size.x, digits)} ,${MathUtils.roundTo(size.y, digits)}`;
+			formula += `${MathUtils.roundTo(center.x, digits)},${MathUtils.roundTo(center.y, digits)},`;
+			formula += `${MathUtils.roundTo(size.x, digits)},${MathUtils.roundTo(size.y, digits)}`;
 			const angle = MathUtils.roundTo(item.getAngle().getValue(), 2);
+			const containerType = item.getItemAttributes().getScaleType().getValue();
+			let attributes = '';
+			switch (containerType) {
+			case 'scale':
+			case 'bottom':
+				attributes = `ATTRIBUTES(,"${containerType}")`;
+				break;
+			}
 			switch (type) {
 				case 'label':
-					formula += `,,,,,`;
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,' : `${angle},,`;
 
 					formula += `"${item.getText().getValue()}"`;
 					item.getTextFormat().setRichText(false);
 					break;
 				case 'button':
-					formula += `,,,,EVENTS(ONCLICK()),`;
+					formula += `,,,${attributes},EVENTS(ONCLICK()),`;
 					formula += angle === 0 ? ',,"Button",,FALSE' : `${angle},,"Button",,FALSE`;
 					break;
 				case 'checkbox':
-					formula += `,,,,,`;
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,"Checkbox",,FALSE' : `${angle},,"Checkbox",,FALSE`;
 					break;
 				case 'slider':
-					formula += `,,,,,`;
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,"Slider",,50,0,100,10' : `${angle},,"Slider",,50,0,100,10`;
 					break;
 				case 'knob':
-					formula += `,,,,,`;
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
 					break;
-				case 'chart': {
+				case 'chartstate': {
 					formula += `,,,,,`;
+					formula += angle === 0 ? ',,"ChartState",,"state"' : `${angle},,"ChartState",,"state"`;
+					const selection = graph.getSheetSelection();
+					if (selection) {
+						const range = selection.toStringByIndex(0, { item: this, useName: true });
+						if (range) {
+							// item.setDataRangeString(`=${range}`);
+							formula += `,${range}`;
+						}
+					}
+					break;
+				}
+				case 'chart': {
+					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,' : `${angle},,`;
 					formula += `"${item.getChartType()}"`;
 					const selection = graph.getSheetSelection();
 					if (selection) {
-						const range = selection.toStringByIndex(0, { item: this, useName: true });
+						const range = selection.toStringByIndex(0, { item: this, useName: true, forceName: true });
 						if (range) {
 							item.setDataRangeString(`=${range}`);
 							formula += `,${range}`;
@@ -1031,8 +1105,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 					break;
 				}
 				default:
-					if (angle !== 0) {
-						formula += `,,,,,${angle}`;
+					if (angle !== 0 || attributes !== '') {
+						formula += `,,,${attributes},,${angle}`;
 					}
 					break;
 			}
@@ -1040,10 +1114,10 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 		formula += ')';
 
-		attr = new Attribute('sheetformula', new Expression(0, formula));
-		item.getItemAttributes().addAttribute(attr);
-		attr.evaluate(item);
-
+		// const attr = new Attribute('sheetformula', new Expression(0, formula));
+		// item.getItemAttributes().addAttribute(attr);
+		// attr.evaluate(item);
+		//
 		return formula;
 	}
 
@@ -1096,11 +1170,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 		return ws;
 	}
 
-	getGraphItemName(item) {
-		const attr = item.getItemAttributes().getAttribute('sheetname');
-		return attr ? attr.getValue() : undefined;
-	}
-
 	getGraphItemExpression(item) {
 		const attr = item.getItemAttributes().getAttribute('sheetformula');
 		return attr ? attr.getExpression() : undefined;
@@ -1131,6 +1200,10 @@ module.exports = class StreamSheet extends WorksheetNode {
 			type = 'slider';
 		} else if (item instanceof SheetKnobNode) {
 			type = 'knob';
+		} else if (item instanceof SheetPlotNode) {
+			type = 'plot';
+		} else if (item instanceof SheetChartStateNode) {
+			type = 'chartstate';
 		} else if (item instanceof JSG.TextNode) {
 			type = 'label';
 		}
@@ -1151,7 +1224,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 						case JSG.LineShape.TYPE: {
 							switch (index) {
 								case 0:
-									termFunc.params[0] = Term.fromString(this.getGraphItemName(item));
+									termFunc.params[0] = Term.fromString(String(item.getId()));
 									break;
 								case 1:
 									if (item.getParent() instanceof CellsNode) {
@@ -1196,7 +1269,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 						default:
 							switch (index) {
 								case 0:
-									termFunc.params[0] = Term.fromString(this.getGraphItemName(item));
+									termFunc.params[0] = Term.fromString(String(item.getId()));
 									break;
 								case 1:
 									if (item.getParent() instanceof CellsNode) {
@@ -1285,7 +1358,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 			}
 		}
 
-		formula = expr.toLocaleString('en', { item: ws, useName: true });
+		item.getTextFormat().setRichText(false);
+
+		formula = expr.toLocaleString('en', { item: ws, useName: true, forceName: true});
 		if (formula.length && formula[0] === '=') {
 			formula = formula.substring(1);
 		}
@@ -1331,17 +1406,48 @@ module.exports = class StreamSheet extends WorksheetNode {
 		return sheetDescriptor;
 	}
 
+	updateOrCreateGraphFormulas() {
+		const formulas = [];
+		let oldFormula;
+		let formula;
+
+		const add = (item) => {
+			const attrSource = item.getItemAttributes().getAttribute('sheetsource');
+			if (!(attrSource && attrSource.getValue() === 'cell')) {
+				const attr = item.getItemAttributes().getAttribute('sheetformula');
+				oldFormula = undefined;
+				if (attr && attr.getExpression()) {
+					oldFormula = attr.getExpression().getFormula();
+					formula = item._noFormulaUpdate ? oldFormula : this.updateGraphFunction(item)
+				} else {
+					formula = this.createGraphFunction(item);
+				}
+
+				if (formula && (oldFormula !== formula || item._noFormulaUpdate)) {
+					formulas.push({
+						item,
+						formula
+					});
+				}
+				item._noFormulaUpdate = undefined;
+			}
+		};
+
+		GraphUtils.traverseItem(this.getCells(), (item) => add(item), false);
+
+		return formulas;
+	}
+
 	getGraphDescriptors() {
 		const graphs = [];
 
 		const add = (item) => {
-			const attrName = item.getItemAttributes().getAttribute('sheetname');
 			const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
 
-			if (attrName && attrFormula) {
+			if (attrFormula) {
 				const expr = attrFormula.getExpression();
 				const cellDescriptor = {
-					name: attrName.getValue(),
+					name: `${item.getId()}`,
 					formula: expr ? expr.getFormula() : undefined,
 					value: expr.getValue(),
 					type: typeof expr.getValue()
@@ -1350,7 +1456,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			}
 		};
 
-		GraphUtils.traverseItem(this.getCells(), (item) => add(item));
+		GraphUtils.traverseItem(this.getCells(), (item) => add(item), false);
 
 		return graphs;
 	}

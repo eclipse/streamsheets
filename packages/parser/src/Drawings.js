@@ -10,7 +10,6 @@ const { ERROR, OK } = require('./ReturnCodes');
  */
 module.exports = class Drawings {
 	constructor() {
-		this._drawings = {};
 		this._graphItems = {};
 	}
 
@@ -55,6 +54,7 @@ module.exports = class Drawings {
 			return ERROR.INVALID;
 		}
 
+
 		item.source = scope.graphCells.evaluating ? 'name' : 'cell';
 		item.sheetname = String(this.getGraphParam(terms, 0, ''));
 		item.parent = String(this.getGraphParam(terms, 1, ''));
@@ -63,14 +63,25 @@ module.exports = class Drawings {
 		item.x = this.getGraphParam(terms, 3, 0);
 		item.y = this.getGraphParam(terms, 4, 0);
 
+		const cell = scope.graphCells._cells.get(item.sheetname);
+		if (cell) {
+			item.formula = cell.formula;
+		}
+
 		switch (type) {
 		case 'label':
 			getRectParams(item);
+			if (terms.length > 13) {
+				item.label = terms.length > 13 ?  terms[13].toString() : '';
+			}
 			item.text = String(this.getGraphParam(terms, 13, ''));
 			item.font = String(this.getGraphParam(terms, 14, ''));
 			break;
 		case 'rectangle':
 		case 'ellipse':
+			getRectParams(item);
+			break;
+		case 'plot':
 			getRectParams(item);
 			break;
 		case 'chart':
@@ -85,6 +96,25 @@ module.exports = class Drawings {
 				item.formatrange = term.toString();
 			}
 			break;
+		case 'chartstate':
+			getRectParams(item);
+			item.text = String(this.getGraphParam(terms, 13, ''));
+			item.font = String(this.getGraphParam(terms, 14, ''));
+			item.charttype = String(this.getGraphParam(terms, 15, 'state'));
+			if (terms.length > 16) {
+				const term = terms[16];
+				item.range = term.toString();
+			}
+			if (terms.length > 17) {
+				const term = terms[17];
+				item.legend = term.toString();
+			}
+			item.min = this.getGraphParam(terms, 18, '');
+			item.max = this.getGraphParam(terms, 19, '');
+			item.stepType = this.getGraphParam(terms, 20, 'minute');
+			item.step = this.getGraphParam(terms, 21, 1);
+			item.scalefont = String(this.getGraphParam(terms, 22, ''));
+			break;
 		case 'polygon':
 		case 'bezier':
 			getRectParams(item);
@@ -92,7 +122,7 @@ module.exports = class Drawings {
 				const term = terms[13];
 				item.range = term.toString();
 			}
-			item.close = this.getGraphParam(terms, 14, undefined);
+			item.close = this.getGraphParam(terms, 14, true);
 			break;
 		case 'line':
 			item.x2 = this.getGraphParam(terms, 5, 100);
@@ -166,186 +196,8 @@ module.exports = class Drawings {
 		return this._graphItems;
 	}
 
-	getDrawings() {
-		return this._drawings;
-	}
-
-	setDrawings(drawings) {
-		if (drawings === undefined) {
-			this._drawings = {};
-		} else {
-			this._drawings = drawings;
-		}
-	}
-
-	getDrawing(name) {
-		if (this._drawings[name] === undefined) {
-			this._drawings[name] = {
-				items: {}
-			};
-		}
-
-		return this._drawings[name];
-	}
-
-	hasDrawing(name) {
-		return this._drawings[name] !== undefined;
-	}
-
-	getItem(nameDrawing, nameItem) {
-		const drawing = this.getDrawing(nameDrawing);
-		if (drawing === undefined) {
-			return undefined;
-		}
-
-		if (drawing.items[nameItem] === undefined) {
-			drawing.items[nameItem] = {};
-		}
-
-		return drawing.items[nameItem];
-	}
-
 	checkParam(terms, index) {
 		return terms.length > index && terms[index].value !== null && terms[index].value !== undefined;
-	}
-
-	getEventParams(terms, drawing, index) {
-		if (terms.length > index && (terms[index] instanceof FuncTerm) && terms[index].params.length > 0) {
-			drawing.event = terms[index].name.toUpperCase();
-			drawing.func = terms[index].params[0].toString();
-		}
-	}
-
-	updateDrawing(terms) {
-		if (terms.length < 2 || !this.checkParam(terms, 0)) {
-			return ERROR.ARGS;
-		}
-		const drawing = this.getDrawing(String(terms[0].value));
-		if (drawing === undefined) {
-			return ERROR.INVALID;
-		}
-
-		drawing.range = this.checkParam(terms, 1) ? terms[1].toString() : '';
-		drawing.line = this.checkParam(terms, 2) ? String(terms[2].value) : '#000000';
-		drawing.fill = this.checkParam(terms, 3) ? String(terms[3].value) : '#FFFFFF';
-		if (terms.length > 7) {
-			drawing.xmin = this.checkParam(terms, 4) ? Number(terms[4].value) : undefined;
-			drawing.ymin = this.checkParam(terms, 5) ? Number(terms[5].value) : undefined;
-			drawing.xmax = this.checkParam(terms, 6) ? Number(terms[6].value) : undefined;
-			drawing.ymax = this.checkParam(terms, 7) ? Number(terms[7].value) : undefined;
-		}
-
-		this.getEventParams(terms, drawing, 8);
-
-		drawing.items = {};
-
-		return OK.TRUE;
-	}
-
-	deleteDrawing(terms) {
-		if (!this.checkParam(terms, 0)) {
-			return ERROR.ARGS;
-		}
-		const name = String(terms[0].value);
-
-		if (this._drawings[name] === undefined) {
-			return ERROR.INVALID_PARAM;
-		}
-
-		delete this._drawings[name];
-
-		return OK.TRUE;
-	}
-
-	updateLines(terms) {
-		if (terms.length < 3 || !this.checkParam(terms, 0) || !this.checkParam(terms, 1)) {
-			return ERROR.ARGS;
-		}
-		const item = this.getItem(String(terms[0].value), String(terms[1].value));
-		if (item === undefined) {
-			return ERROR.INVALID;
-		}
-		item.type = 'lines';
-		item.range = this.checkParam(terms, 2) ? terms[2].toString() : '';
-		item.line = this.checkParam(terms, 3) ? String(terms[3].value) : '#000000';
-		item.fill = this.checkParam(terms, 4) ? String(terms[4].value) : '#FFFFFF';
-		item.closed = this.checkParam(terms, 5) ? terms[5].value : false;
-
-		this.getEventParams(terms, item, 6);
-
-		return OK.TRUE;
-	}
-
-	updateItem(terms, type, rotated) {
-		if (terms.length < 6 || !this.checkParam(terms, 0) || !this.checkParam(terms, 1)) {
-			return ERROR.ARGS;
-		}
-		const item = this.getItem(String(terms[0].value), String(terms[1].value));
-		if (item === undefined) {
-			return ERROR.INVALID;
-		}
-
-		item.type = type;
-		item.angle = 0;
-		item.rotcenter = 6;
-		item.x = this.checkParam(terms, 2) ? Number(terms[2].value) : 0;
-		item.y = this.checkParam(terms, 3) ? Number(terms[3].value) : 0;
-
-		switch (type) {
-		case 'line':
-			item.x2 = this.checkParam(terms, 4) ? Number(terms[4].value) : 0;
-			item.y2 = this.checkParam(terms, 5) ? Number(terms[5].value) : 0;
-			item.line = this.checkParam(terms, 6) ? String(terms[6].value) : '#000000';
-			break;
-		case 'polygon':
-			item.width = this.checkParam(terms, 4) ? Number(terms[4].value) : 0;
-			item.height = this.checkParam(terms, 5) ? Number(terms[5].value) : 0;
-			item.line = this.checkParam(terms, 6) ? String(terms[6].value) : '#000000';
-			item.fill = this.checkParam(terms, 7) ? String(terms[7].value) : '#FFFFFF';
-			item.range = this.checkParam(terms, 8) ? terms[8].toString() : '';
-			item.closed = this.checkParam(terms, 9) ? terms[9].value : false;
-			if (rotated) {
-				item.angle = this.checkParam(terms, 10) ? Number(terms[10].value) : 0;
-				item.rotcenter = this.checkParam(terms, 11) ? Number(terms[11].value) : 0;
-				this.getEventParams(terms, item, 12);
-			} else {
-				this.getEventParams(terms, item, 10);
-			}
-			break;
-		case 'rect':
-		case 'ellipse':
-			item.width = this.checkParam(terms, 4) ? Number(terms[4].value) : 0;
-			item.height = this.checkParam(terms, 5) ? Number(terms[5].value) : 0;
-			item.line = this.checkParam(terms, 6) ? String(terms[6].value) : '#000000';
-			item.fill = this.checkParam(terms, 7) ? String(terms[7].value) : '#FFFFFF';
-
-			if (rotated) {
-				item.angle = this.checkParam(terms, 8) ? Number(terms[8].value) : 0;
-				item.rotcenter = this.checkParam(terms, 9) ? Number(terms[9].value) : 0;
-				this.getEventParams(terms, item, 10);
-			} else {
-				this.getEventParams(terms, item, 8);
-			}
-			break;
-		case 'label':
-			item.width = this.checkParam(terms, 4) ? Number(terms[4].value) : 0;
-			item.height = this.checkParam(terms, 5) ? Number(terms[5].value) : 0;
-			item.text = this.checkParam(terms, 6) ? String(terms[6].value) : undefined;
-			item.font = this.checkParam(terms, 7) ? String(terms[7].value) : undefined;
-
-			if (rotated) {
-				item.angle = this.checkParam(terms, 8) ? Number(terms[8].value) : 0;
-				item.rotcenter = this.checkParam(terms, 9) ? Number(terms[9].value) : 0;
-				this.getEventParams(terms, item, 10);
-			} else {
-				this.getEventParams(terms, item, 8);
-			}
-			break;
-		default:
-			break;
-		}
-
-		return OK.TRUE;
 	}
 
 	getEvents(terms) {
@@ -358,6 +210,15 @@ module.exports = class Drawings {
 					event: terms[i].name.toUpperCase(),
 					func: terms[i].params[0].toString(),
 				};
+
+				const paramstrs = terms[i].params
+					? terms[i].params.reduce((strings, param) => {
+						strings.push(param.toString());
+						return strings;
+					}, [])
+					: [];
+				event.func = paramstrs.join(',');
+
 				if (result === undefined) {
 					result = [];
 				}
@@ -659,6 +520,6 @@ module.exports = class Drawings {
 	}
 
 	toJSON() {
-		return this._drawings;
+		return {};
 	}
 };

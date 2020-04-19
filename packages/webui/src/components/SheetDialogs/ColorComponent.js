@@ -13,12 +13,13 @@ export default class ColorComponent extends React.Component {
 		width: PropTypes.number,
 		transparent: PropTypes.bool,
 		onChange: PropTypes.func.isRequired,
-		onClose: PropTypes.func.isRequired,
+		onClose: PropTypes.func,
 	}
 
 	static defaultProps = {
 		width: 100,
 		transparent: false,
+		onClose: () => {}
 	};
 
 	constructor(props) {

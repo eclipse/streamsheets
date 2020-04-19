@@ -15,11 +15,12 @@ const use = (opts) => {
 	return locale;
 };
 
+const get = (locale) => locales[locale];
 const isSupported = locale => locales[locale] != null;
-
 
 module.exports = {
 	convert,
+	get,
 	isSupported,
 	use
 };

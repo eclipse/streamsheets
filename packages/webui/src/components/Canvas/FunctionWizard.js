@@ -51,7 +51,7 @@ const paramTypeToFieldType = (type) => {
 		case 'number':
 			return Field.TYPES.SHEET_RANGE;
 		case 'boolean':
-			return Field.TYPES.CHECKBOX;
+			return Field.TYPES.SHEET_RANGE;
 		case 'enum':
 			return Field.TYPES.SELECT;
 		case 'union':
@@ -176,9 +176,9 @@ const initFieldValues = (paramTerms, fields, target) => {
 		const sheetRefOperand =
 			term.operand instanceof SheetReference ? term.operand : isJSONFunc(term) && refFromJSONFunc(term);
 		if (sheetRefOperand) {
-			fields[index].value = sheetRefOperand.toString({ useName: true, item: target.item });
+			fields[index].value = `=${sheetRefOperand.toString({ useName: true, item: target.item })}`;
 		} else if (term instanceof FuncTerm) {
-			fields[index].value = term.toString();
+			fields[index].value = `=${term.toString()}`;
 		} else {
 			const { value } = term;
 			fields[index].value = value !== null ? value.toString() : undefined;
@@ -201,7 +201,7 @@ const getInitalStream = (streams, streamName) => {
 
 const getStreamName = (funcTerm) => streamUtils.unprefix(funcTerm.params[0].toString());
 
-const isFormula = (formulaString, sheetItem) => !!sheetItem.parseTextToTerm(formulaString, false);
+const isFormula = (formulaString, sheetItem) => formulaString[0] === '=' && !!sheetItem.parseTextToTerm(formulaString, false);
 
 const isJSONParam = (type) =>
 	type && (type.name === 'json' || (type.name === 'union' && type.types.find((t) => t.name === 'json')));
@@ -270,7 +270,7 @@ class FunctionWizard extends Component {
 		if (props.options.messageTerm) {
 			initMainMessageField(fields, props.options.messageTerm);
 		} else if (!selectedCellFunction && props.lastDefinedJSONRange) {
-			initMainMessageField(fields, props.lastDefinedJSONRange);
+			initMainMessageField(fields, `=${props.lastDefinedJSONRange}`);
 		}
 		this.state = {
 			functions,
@@ -419,7 +419,6 @@ class FunctionWizard extends Component {
 			const cellEditor = CellEditor.getActiveCellEditor();
 			if (cellEditor) {
 				cellEditor.activateReferenceMode();
-				cellEditor.allowNoEqual = true;
 			}
 		}
 	};

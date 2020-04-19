@@ -755,6 +755,24 @@ class GraphItemView extends View {
 	checkMaximumImageDimensions(image) {
 		return true;
 	}
+
+	getSelectedFormula(sheet) {
+		let formula = '';
+		const attrFormula = this.getItem().getItemAttributes().getAttribute('sheetformula');
+		const expr = attrFormula ? attrFormula.getExpression() : undefined;
+		if (expr && expr.getTerm()) {
+			formula = `=${expr.getTerm().toLocaleString(JSG.getParserLocaleSettings(), {
+				item: sheet,
+				useName: true,
+			})}`;
+		}
+
+		return formula;
+	}
+
+	applyAttributes() {
+		return false;
+	}
 }
 
 export default GraphItemView;

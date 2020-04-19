@@ -1,0 +1,26 @@
+{
+  "name": "@cedalo/jsg-extensions",
+  "version": "1.6.0-alpha",
+  "description": "JSG Extensions",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedalo/streamsheets.git"
+  },
+  "author": "Cedalo AG",
+  "bugs": {
+    "url": "https://github.com/cedalo/streamsheets/issues"
+  },
+  "dependencies": {
+    "@cedalo/number-format": "1.6.0-alpha",
+    "@cedalo/parser": "1.6.0-alpha"
+  },
+  "peerDependencies": {
+    "@cedalo/jsg-core": "1.6.0-alpha",
+    "@cedalo/jsg-ui": "1.6.0-alpha"
+  },
+  "license": "EPL-2.0"
+}

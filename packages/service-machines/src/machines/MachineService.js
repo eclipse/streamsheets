@@ -5,6 +5,7 @@ const { MachineServerMessagingProtocol, Topics, GatewayMessagingProtocol } = req
 const { State } = require('@cedalo/machine-core');
 
 const MachineServer = require('./MachineServer');
+const FunctionModulesResolver = require('../utils/FunctionModulesResolver');
 const MachineRequestHandlers = require('../handlers/MachineRequestHandlers');
 const MachineServerRequestHandlers = require('../handlers/MachineServerRequestHandlers');
 
@@ -77,6 +78,7 @@ module.exports = class MachineService extends MessagingService {
 
 		await RepositoryManager.connectAll();
 		await RepositoryManager.setupAllIndicies();
+		await FunctionModulesResolver.resolve();
 		await super._preStart();
 	}
 
@@ -238,11 +240,11 @@ module.exports = class MachineService extends MessagingService {
 				await RepositoryManager.machineRepository.updateMachineNamedCells(event.srcId, event.namedCells);
 				break;
 			case MachineServerMessagingProtocol.EVENTS.SHEET_CELLS_UPDATE_EVENT:
-				logger.info(`PersistenceService: persist new machine cells update: ${event.sheetCells}`);
+				logger.info(`PersistenceService: persist new machine cells update: ${event.cells}`);
 				await RepositoryManager.machineRepository.partiallyUpdateCells(
 					event.machineId,
 					event.srcId,
-					event.sheetCells
+					event.cells
 				);
 				break;
 			case MachineServerMessagingProtocol.EVENTS.SHEET_CELLRANGE_CHANGE_EVENT:
@@ -253,11 +255,12 @@ module.exports = class MachineService extends MessagingService {
 			// include editable-web-component:
 			// case MachineServerMessagingProtocol.EVENTS.SHEET_UPDATE_EVENT: {
 			// 	logger.info('PersistenceService: persist updated sheet...');
-			// 	const { machineId, srcId, sheetCells, sheetProperties, namedCells, graphCells } = event;
+			// 	const { machineId, srcId, sheet } = event;
+			// 	const { graphCells, namedCells, properties } = sheet;
 			// 	await RepositoryManager.machineRepository.updateSheet(
 			// 		machineId,
 			// 		srcId,
-			// 		{ cells: toMapObject(sheetCells, 'reference'), properties: sheetProperties, graphCells, namedCells }
+			// 		{ cells: toMapObject(sheet.cells, 'reference'), properties, graphCells, namedCells }
 			// 	);
 			// 	break;
 			// }
@@ -278,14 +281,6 @@ module.exports = class MachineService extends MessagingService {
 				await RepositoryManager.machineRepository.updateMachineState(
 					response.machine.id,
 					response.machine.state
-				);
-				break;
-			case MachineServerMessagingProtocol.MESSAGE_TYPES.SAVE_MACHINE_AS_TEMPLATE_MESSAGE_TYPE:
-				logger.debug('PersistenceService: save machine as template');
-				await RepositoryManager.machineRepository.saveMachineAsTemplate(
-					response.machine,
-					response.templateId,
-					response.templateName
 				);
 				break;
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.CREATE_STREAMSHEET_MESSAGE_TYPE:
@@ -374,7 +369,17 @@ module.exports = class MachineService extends MessagingService {
 			case 'command.UpdateSheetNamesCommand':
 				await updateNamedCells(RepositoryManager.machineRepository, response);
 				break;
-			case 'command.SetGraphCellsCommand':
+			case 'command.SetGraphCellsCommand': {
+				const { machineId, streamsheetIds, graphCells } = response;
+				streamsheetIds.forEach(async (id, index) => {
+					await updateGraphCells(RepositoryManager.machineRepository, {
+						machineId,
+						streamsheetId: id,
+						graphCells: graphCells[index]
+					});
+				});
+				break;
+			}
 			case 'command.UpdateGraphCellsCommand':
 				await updateGraphCells(RepositoryManager.machineRepository, response);
 				break;

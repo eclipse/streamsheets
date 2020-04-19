@@ -7,7 +7,7 @@ const keyregex = new RegExp('\\[([^\\]]*)\\]', 'g');
 
 const parse = (str) => {
 	const res = [];
-	if (str && (typeof str === 'string')) {
+	if (str && typeof str === 'string') {
 		str.replace(keyregex, (g0, g1) => res.push(g1));
 	}
 	return res;
@@ -16,7 +16,10 @@ const parse = (str) => {
 const getPath = (str) => {
 	// TODO: Required to support out jsonpath. Remove when replaced with real jsonpath
 	const parsed = parse(str);
-	return parsed.join('.');
+	if (parsed.length > 0) {
+		return parsed.join('.');
+	}
+	return str;
 };
 
 const buildProjection = (resultKeys) => {
@@ -45,20 +48,46 @@ const buildProjection = (resultKeys) => {
 
 module.exports = class MongoDBProducer extends ProducerMixin(MongoDBConnector) {
 	async produce(config) {
+		const { query, functionName } = config;
+		if (query && query._id) {
+			config.query._id = mongodb.ObjectID(query._id);
+		}
+		const client = await this.connect();
+		const db = client.db(this.dbName);
+		let result;
+		switch (functionName) {
+			case MongoDBFunctions.REPLACE:
+				result = await this._replace(db, config);
+				break;
+			case MongoDBFunctions.STORE:
+			default:
+				result = await this._insert(db, config);
+				break;
+		}
+		return result;
+	}
+
+	async _insert(db, config) {
 		const { collection, message } = config;
 		try {
-			const msg =
-				typeof message === 'string' ? JSON.parse(message) : message;
-			// msg._id = new mongodb.ObjectID();
-			const client = await this.connect();
-			const db = client.db(this.dbName);
+			const doc = typeof message === 'string' ? JSON.parse(message) : message;
 			this.logger.debug(`Publishing to ${collection}`);
-			const res = await db
-				.collection(collection || this.config.collection)
-				.insertOne(msg);
+			const res = await db.collection(collection || this.config.collection).insertOne(doc);
 			return res;
 		} catch (e) {
 			return this.handleWarningOnce(e, 'PUBLISH ERROR');
+		}
+	}
+
+	async _replace(db, config) {
+		const { collection, message, query, upsert } = config;
+		try {
+			const doc = typeof message === 'string' ? JSON.parse(message) : message;
+			this.logger.debug(`Replacing in ${collection} where ${JSON.stringify(query)}. Upsert: ${upsert}`);
+			const res = await db.collection(collection || this.config.collection).replaceOne(query, doc, { upsert });
+			return res;
+		} catch (e) {
+			return this.handleWarningOnce(e);
 		}
 	}
 
@@ -167,14 +196,7 @@ module.exports = class MongoDBProducer extends ProducerMixin(MongoDBConnector) {
 
 	// MONGOQUERY(Connector, Collection, QueryJSON, TargetBox, [ResultKeys], [PageSize], [Page])
 	async _queryFindASync(config) {
-		const {
-			collection,
-			query = {},
-			resultKeys = [],
-			pageSize = 0,
-			page = 0,
-			sort
-		} = config;
+		const { collection, query = {}, resultKeys = [], pageSize = 0, page = 0 } = config;
 		const result = {
 			Metadata: {
 				collection,
@@ -187,14 +209,8 @@ module.exports = class MongoDBProducer extends ProducerMixin(MongoDBConnector) {
 			result.Metadata.projection = projection;
 			const limit = pageSize;
 			const skip = page === 0 ? 0 : (page - 1) * limit;
-			result.Data = await this._doQueryFind(
-				collection,
-				query,
-				projection,
-				skip,
-				limit,
-				sort
-			);
+			const sort = config.sort === '-1' || config.sort === '1' ? { _id: parseInt(config.sort, 10) } : config.sort;
+			result.Data = await this._doQueryFind(collection, query, projection, skip, limit, sort);
 		} catch (e) {
 			result.Metadata.error = e.message;
 			this.handleWarningOnce(e);
@@ -202,75 +218,18 @@ module.exports = class MongoDBProducer extends ProducerMixin(MongoDBConnector) {
 		return result;
 	}
 
-	// MONGOQUERYSYNC(Connector, Collection, QueryJSON, ResultKeys, ResutsRange, [Page])
-	async _queryFindSync(config) {
-		const {
-			collection,
-			query = {},
-			resultKeys = [],
-			resultsRange = [],
-			page = 0,
-			sort
-		} = config;
-		const result = {
-			Metadata: {
-				page
-			},
-			Data: []
-		};
-		try {
-			const projection = buildProjection(resultKeys);
-			result.Metadata.projection = projection;
-			if (resultsRange) {
-				resultsRange.height =
-					typeof resultsRange.height === 'undefined'
-						? 0
-						: resultsRange.height;
-			}
-			const limit = resultsRange ? resultsRange.height : 0;
-			const skip = page * limit;
-			result.Data = await this._doQueryFind(
-				collection,
-				query,
-				projection,
-				skip,
-				limit,
-				sort
-			);
-			if (resultsRange.height < 1 && result.Data.length > 0) {
-				// add keys as first row
-				result.Data.unshift(
-					Object.keys(result.Data[0]).filter((f) => f !== '_id')
-				);
-			} else {
-				return result.Data;
-			}
-		} catch (e) {
-			result.Metadata.error = e.message;
-			this.handleError(e);
-		}
-		return result;
-	}
-
 	async _doQueryFind(collection, query, projection, skip, limit, sort) {
 		const client = await this.connect();
 		const db = client.db(this.dbName);
-		const sortJson =
-			typeof sort === 'object' ? sort : { _id: Number(sort) };
-		if (limit > 0) {
-			const cursor = await db
-				.collection(collection)
-				.find(query)
-				.sort(sortJson)
-				.project(projection)
-				.skip(skip)
-				.limit(limit);
-			return cursor.toArray();
-		}
-		const cursor = await db
+
+		return db
 			.collection(collection)
-			.find(query)
-			.project(projection);
-		return cursor.toArray();
+			.find(query, {
+				sort,
+				projection,
+				limit,
+				skip
+			})
+			.toArray();
 	}
 };

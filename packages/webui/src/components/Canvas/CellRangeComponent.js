@@ -159,7 +159,6 @@ export default class CellRangeComponent extends React.Component {
 				}
 				cellEditor.updateReference(
 					event,
-					formula,
 					view,
 				);
 			}

@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/number-format",
-  "version": "1.0.210",
+  "version": "1.6.0-alpha",
   "description": "Number formatter",
   "main": "index.js",
   "scripts": {
@@ -21,17 +21,8 @@
     "babel-core": "6.24.1",
     "babel-loader": "6.4.1",
     "babel-preset-env": "1.6.1",
-    "eslint": "3.19.0",
-    "eslint-config-cedalo": "git+ssh://git@github.com/cedalo/eslint-config-cedalo.git",
-    "eslint-config-prettier": "3.3.0",
     "jest": "20.0.4",
     "uuid": "3.0.1"
-  },
-  "eslintConfig": {
-    "extends": [
-      "cedalo",
-      "prettier"
-    ]
   },
   "jest": {
     "testEnvironment": "node",

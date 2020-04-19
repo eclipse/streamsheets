@@ -128,6 +128,10 @@ describe('GraphParser', () => {
 			info = Parser.parseFormulaInfo('sum(B1,3+5,sum(4,6)', 12);
 			expect(info.function).toBe('sum');
 			expect(info.paramIndex).toBeUndefined();
+			// DL-3631 nested 3-level deep:
+			info = Parser.parseFormulaInfo('sum("hello","world",cos(if(1<2,"yes","no"),if(2>3,"?","!"))', 63);
+			expect(info.function).toBe('sum');
+			expect(info.paramIndex).toBeUndefined();
 			ignoreErrors(ignored);
 		});
 		it('should handle incomplete function names', () => {
@@ -191,25 +195,25 @@ describe('GraphParser', () => {
 		// DL-3186
 		it('should work with conditions', () => {
 			let info = Parser.parseFormulaInfo('if(A1=1,sum(B1:B2),FALSE)', 1);
-			expect(info.function).toBe('IF');
+			expect(info.function).toBe('if');
 			expect(info.paramIndex).toBeUndefined();
 			info = Parser.parseFormulaInfo('if(A1=1,sum(B1:B2),FALSE)', 4);
-			expect(info.function).toBe('IF');
+			expect(info.function).toBe('if');
 			expect(info.paramIndex).toBe(0);
 			info = Parser.parseFormulaInfo('if(A1=1,sum(B1:B2),FALSE)', 7);
-			expect(info.function).toBe('IF');
+			expect(info.function).toBe('if');
 			expect(info.paramIndex).toBe(0);
 			info = Parser.parseFormulaInfo('if(A1=1,sum(B1:B2),FALSE)', 8);
-			expect(info.function).toBe('IF');
+			expect(info.function).toBe('if');
 			expect(info.paramIndex).toBe(1);
 			info = Parser.parseFormulaInfo('if(A1=1,sum(B1:B2),FALSE)', 14);
 			expect(info.function).toBe('sum');
 			expect(info.paramIndex).toBe(0);
 			info = Parser.parseFormulaInfo('if(A1=1,sum(B1:B2),FALSE)', 18);
-			expect(info.function).toBe('IF');
+			expect(info.function).toBe('if');
 			expect(info.paramIndex).toBe(1);
 			info = Parser.parseFormulaInfo('if(A1=1,sum(B1:B2),FALSE)', 19);
-			expect(info.function).toBe('IF');
+			expect(info.function).toBe('if');
 			expect(info.paramIndex).toBe(2);
 		});
 

@@ -158,8 +158,8 @@ class Handler {
 		const panel = viewer.getScrollPanel();
 
 		if (event.gesture) {
-			x = event.gesture.touches[0].clientX;
-			y = event.gesture.touches[0].clientY;
+			x = event.gesture.pointers[0].clientX;
+			y = event.gesture.pointers[0].clientY;
 		} else {
 			x = event.event.clientX;
 			y = event.event.clientY;

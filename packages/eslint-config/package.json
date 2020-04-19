@@ -1,0 +1,24 @@
+{
+  "name": "@cedalo/eslint-config",
+  "version": "1.6.0-alpha",
+  "description": "ESLint Config",
+  "author": "Cedalo AG",
+  "license": "EPL-2.0",
+  "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/eslint-config",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedalo/streamsheets.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cedalo/streamsheets/issues"
+  },
+  "dependencies": {
+    "eslint-config-airbnb": "18.0.1",
+    "eslint-config-airbnb-base": "14.0.0",
+    "eslint-config-prettier": "6.7.0",
+    "eslint-plugin-import": "2.18.2",
+    "eslint-plugin-jsx-a11y": "6.2.3",
+    "eslint-plugin-react": "7.14.3",
+    "eslint-plugin-react-hooks": "1.7.0"
+  }
+}

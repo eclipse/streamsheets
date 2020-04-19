@@ -540,7 +540,6 @@ const Strings = {
 				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Label,Labelschrift,Wert',
 			description: 'Erzeugt ein Button Objekt',
 		},
-		experimental: true,
 	},
 	'DRAW.CHART': {
 		category: 'drawing',
@@ -567,7 +566,6 @@ const Strings = {
 				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Label,Labelschrift,Wert',
 			description: 'Erzeugt ein Button Objekt',
 		},
-		experimental: true,
 	},
 	'DRAW.ELLIPSE': {
 		category: 'drawing',
@@ -603,6 +601,19 @@ const Strings = {
 		de: {
 			argumentList: 'UniqueID,Container,Name,X1,Y1,X2,Y2,Linienformat',
 			description: 'Erzeugt eine Linie',
+		},
+	},
+	'DRAW.PLOT': {
+		category: 'drawing',
+		en: {
+			argumentList:
+				'UniqueID,Container,Name,X,Y,Width,Height,Line,Fill,Attributes,Events,Angle,RotCenter,ChartType,DataRange',
+			description: 'Creates a chart',
+		},
+		de: {
+			argumentList:
+				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Diagrammtyp,Datenbereich',
+			description: 'Erzeugt ein Diagramm',
 		},
 	},
 	'DRAW.POLYGON': {
@@ -642,7 +653,6 @@ const Strings = {
 				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Label,Labelschrift,Wert,Minimum,Maximum,Schritt,Skalenschrift,Marker,Skalenformat',
 			description: 'Erzeugt ein Schieberegler Objekt',
 		},
-		experimental: true,
 	},
 	DSUM: {
 		category: 'database',
@@ -1227,6 +1237,17 @@ const Strings = {
 			description: 'Speichert ein JSON Objekt in MongoDB',
 		},
 	},
+	'MONGO.REPLACE': {
+		category: 'streamsheet',
+		en: {
+			argumentList: 'Producer,Collection,Query,Document,Upsert',
+			description: 'Replace a JSON object matching the query in MongoDB'
+		},
+		de: {
+			argumentList: 'Producer,Collection,Query,Document,Upsert',
+			description: 'Ersetzt ein JSON Objekt, dass die Query erfüllt, in MongoDB'
+		}
+	},
 	'MONGO.DELETE': {
 		category: 'streamsheet',
 		en: {
@@ -1299,11 +1320,11 @@ const Strings = {
 	'MQTT.PUBLISH': {
 		category: 'streamsheet',
 		en: {
-			argumentList: 'Producer,BoxMessageOrJSON,Topic,QoS',
+			argumentList: 'Producer,MessageOrValue,Topic,QoS,UserProperties',
 			description: 'Publishes a referenced Outbox or Inbox message or a JSON via MQTT',
 		},
 		de: {
-			argumentList: 'Producer,BoxNachrichtOderJSON,Topic,QoS',
+			argumentList: 'Producer,NachrichtOderWert,Topic,QoS,BenutzerAttribute',
 			description: 'Publiziert eine referenzierte Nachricht aus der Inbox oder Outbox oder ein JSON via MQTT',
 		},
 	},

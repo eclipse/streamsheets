@@ -46,6 +46,35 @@ class CreateEdgeInteraction extends CreateItemInteraction {
 
 	updateFeedback(event, viewer, offset) {
 		const last = this._alignedLocation(this.lastLocation, viewer, event);
+		if (event.event.shiftKey) {
+			const diff = new Point(this.currentLocation.x - this.startLocation.x, this.currentLocation.y - this.startLocation.y);
+			let angle = Math.atan2(diff.y, diff.x);
+			if (angle < 0) {
+				angle += Math.PI * 2;
+			}
+ 			if (angle > Math.PI_8 * 15 ||
+				angle < Math.PI_8 ||
+				(angle > Math.PI_8 * 7 && angle < Math.PI_8 * 9)) {
+				last.y = this.startLocation.y;
+			} else if ((angle > Math.PI_8 * 3 && angle < Math.PI_8 * 5) ||
+				(angle > Math.PI_8 * 11 && angle < Math.PI_8 * 13)) {
+				last.x = this.startLocation.x;
+			} else if ((angle > Math.PI_8 && angle < Math.PI_8 * 3) ||
+				(angle > Math.PI_8 * 9 && angle < Math.PI_8 * 11)) {
+				if (Math.abs(diff.x) > Math.abs(diff.y)) {
+					last.x = this.startLocation.x + diff.y;
+				} else {
+					last.y = this.startLocation.y + diff.x;
+				}
+			} else if ((angle > Math.PI_8 * 5 && angle < Math.PI_8 * 7) ||
+				(angle > Math.PI_8 * 13 && angle < Math.PI_8 * 15)) {
+				if (Math.abs(diff.x) > Math.abs(diff.y)) {
+					last.x = this.startLocation.x - diff.y;
+				} else {
+					last.y = this.startLocation.y - diff.x;
+				}
+			}
+		}
 		this._graphItem.setEndPointTo(last);
 		this._graphItem.refresh();
 		// required because we currently don't listen to graphItem changes!!

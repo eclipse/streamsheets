@@ -1,6 +1,7 @@
 const JSG = require('../../JSG');
 const Command = require('./Command');
 const Graph = require('../model/Graph');
+const CellsNode = require('../model/CellsNode');
 const TextNode = require('../model/TextNode');
 const JSONReader = require('../../commons/JSONReader');
 const Arrays = require('../../commons/Arrays');
@@ -37,12 +38,11 @@ const GraphItem = require('../model/GraphItem');
 class PasteItemsCommand extends Command {
 	static createFromObject(data = {}, { graph, viewer }) {
 		const item = graph.getItemById(data.parentId) || graph;
-		const offset = new Point(data.offset.x, data.offset.y);
 		return new PasteItemsCommand(
 			data.json,
 			viewer,
 			item,
-			offset
+			data.offset ? new Point(data.offset.x, data.offset.y) : undefined
 		).initWithObject(data);
 	}
 	constructor(json, viewer, target, offset) {
@@ -61,12 +61,9 @@ class PasteItemsCommand extends Command {
 		} else {
 			this.parent = undefined;
 		}
-		// use this offset to translated pasted items...
-		if (offset) {
-			this.offset = offset;
-		} else {
-			this.offset = new Point(200, 200);
-		}
+		// use this offset to trans lated pasted items...
+		this.offset = offset;
+
 		if (viewer) {
 			this.oldSelection = viewer.getSelection();
 		}
@@ -74,7 +71,6 @@ class PasteItemsCommand extends Command {
 
 	initWithObject(data) {
 		const cmd = super.initWithObject(data);
-		cmd._lastOffset = new Point(data.lastOffset.x, data.lastOffset.y);
 		return cmd;
 	}
 
@@ -103,7 +99,6 @@ class PasteItemsCommand extends Command {
 				? this._getTargetParent().getId()
 				: this.parent.getId();
 		data.offset = this.offset;
-		data.lastOffset = this._lastOffset;
 
 		return data;
 	}
@@ -187,6 +182,7 @@ class PasteItemsCommand extends Command {
 			) {
 				selection = selection.getParent();
 			}
+
 			// ensure we are not copying inside ourself...
 			const ids = this._getPasteIds(selectionProvider);
 			return this._getVerifiedParent(selection.getModel(), ids);
@@ -281,11 +277,18 @@ class PasteItemsCommand extends Command {
 	_pasteItems(items, parent) {
 		const tmpbbox = JSG.boxCache.get();
 		const itemsbbox = JSG.boxCache.get();
+		let cellOffset;
+
+		if (parent instanceof CellsNode) {
+			const sheet = parent.getParent().getParent();
+			const selection = sheet.getOwnSelection();
+			if (selection.hasSelection()) {
+				const rect = sheet.getCellRect(selection.getAt(0));
+				cellOffset = { x: rect.x, y: rect.y };
+			}
+		}
 
 		items.forEach((item, i) => {
-			if (this.viewer) {
-				this._removeAttribute(item, 'sheetname');
-			}
 			parent.addItem(item);
 			// for text nodes set new text format parent...
 			if (item instanceof TextNode) {
@@ -303,10 +306,20 @@ class PasteItemsCommand extends Command {
 			} else {
 				itemsbbox.union(tmpbbox);
 			}
-			this._translateToParent(item, parent);
+			if (!cellOffset) {
+				this._translateToParent(item, parent);
+			}
 			this.items.push(item);
 		});
-		this._translateItems(this.items, itemsbbox);
+		if (cellOffset) {
+			items.forEach((item) => {
+				item.disableRefresh();
+				item.translate(-itemsbbox.getLeft() + cellOffset.x, -itemsbbox.getTop()+  + cellOffset.y);
+				item.enableRefresh();
+			});
+		} else {
+			this._translateItems(this.items, itemsbbox);
+		}
 		JSG.boxCache.release(tmpbbox, itemsbbox);
 	}
 
@@ -356,12 +369,18 @@ class PasteItemsCommand extends Command {
 
 	_translateItems(items, bbox) {
 		let angle = 0;
-		const offset =
-			this.offset !== undefined
-				? JSG.ptCache.get().setTo(this.offset)
-				: this._getOffset(this.parent, bbox, JSG.ptCache.get());
+		let offset;
+		// const offset =
+		// 	this.offset !== undefined
+		// 		? JSG.ptCache.get().setTo(this.offset)
+		// 		: this._getOffset(this.parent, bbox, JSG.ptCache.get());
 
-		this._lastOffset = offset.copy();
+		if (this.offset === undefined) {
+			JSG.clipOffset.add(new Point(200, 200));
+			offset = JSG.clipOffset.copy()
+		} else {
+			offset = JSG.ptCache.get().setTo(this.offset);
+		}
 
 		function translate(itm) {
 			angle += itm.getAngle().getValue();
@@ -461,10 +480,33 @@ class PasteItemsCommand extends Command {
 	 */
 	undo() {
 		// delete created items
+		if (this.items.length === 0) {
+			const reader = this._getReader();
+			const head = this._getStartNode(reader);
+			const graph = this.parent.getGraph();
 
-		this.items.forEach((item) => {
-			this.parent.removeItem(item);
-		});
+			reader.iterateObjects(head, (name, child) => {
+				switch (name) {
+				case 'gi':
+				case 'graphitem': {
+					const id = Number(reader.getAttribute(child, 'id'));
+					if (id !== undefined) {
+						const item = graph.getItemById(id);
+						if (item !== undefined) {
+							this.parent.removeItem(item);
+						}
+					}
+					break;
+				}
+				default:
+					break;
+				}
+			});
+		} else {
+			this.items.forEach((item) => {
+				this.parent.removeItem(item);
+			});
+		}
 	}
 
 	/**
