@@ -146,22 +146,28 @@ export default class ChartSelectionFeedbackView extends View {
 
 						const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
 						const drawRect = item.getLabelRect(pt, value, text, index, params);
-						let markerPt = new Point(drawRect.left, drawRect.top);
-						markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle) : markerPt;
-						rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-						graphics.drawMarker(rect, true);
-						markerPt.set(drawRect.left, drawRect.bottom);
-						markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle) : markerPt;
-						rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-						graphics.drawMarker(rect, true);
-						markerPt.set(drawRect.right, drawRect.top);
-						markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle) : markerPt;
-						rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-						graphics.drawMarker(rect, true);
-						markerPt.set(drawRect.right, drawRect.bottom);
-						markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle) : markerPt;
-						rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-						graphics.drawMarker(rect, true);
+						if (drawRect) {
+							let markerPt = new Point(drawRect.left, drawRect.top);
+							markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center,
+								-labelAngle) : markerPt;
+							rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+							graphics.drawMarker(rect, true);
+							markerPt.set(drawRect.left, drawRect.bottom);
+							markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center,
+								-labelAngle) : markerPt;
+							rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+							graphics.drawMarker(rect, true);
+							markerPt.set(drawRect.right, drawRect.top);
+							markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center,
+								-labelAngle) : markerPt;
+							rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+							graphics.drawMarker(rect, true);
+							markerPt.set(drawRect.right, drawRect.bottom);
+							markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center,
+								-labelAngle) : markerPt;
+							rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+							graphics.drawMarker(rect, true);
+						}
 					}
 					index += 1;
 				}

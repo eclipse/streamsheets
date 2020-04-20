@@ -1160,6 +1160,8 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				graphics.closePath();
 				fill = true;
 				break;
+			default:
+				break;
 			}
 
 		}
