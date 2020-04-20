@@ -24,7 +24,6 @@ const {
 	Expression,
 	Strings,
 	SelectionProvider,
-	SheetPlotView,
 } = JSG;
 
 /**
@@ -452,7 +451,7 @@ export class EditBarComponent extends Component {
 				}
 			}
 			const chartView = selection.getFirstSelection().getView();
-			if ((chartView instanceof SheetPlotView) && chartView.hasSelectedFormula()) {
+			if ((chartView.isNewChart) && chartView.hasSelectedFormula()) {
 				cmd = new SetChartFormulaCommand(graphItem, chartView.chartSelection, data.expression);
 			} else {
 				const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
