@@ -2,7 +2,7 @@ import {
 	default as JSG,
 	Rectangle
 } from '@cedalo/jsg-core';
-import ViewPanel from '../ui/scrollview/ViewPanel';
+import ViewPanel from "./scrollview/ViewPanel";
 
 /**
  * A ViewPanel subclass to display a graph view.</br>

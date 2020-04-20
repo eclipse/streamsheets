@@ -906,6 +906,7 @@ module.exports = class WorksheetNode extends ContentNode {
 		if (isFormula) {
 			text = text.substring(1);
 		}
+		// eslint-disable-next-line no-useless-catch
 		try {
 			JSG.FormulaParser.context.separators = JSG.getParserLocaleSettings().separators;
 			if (isFormula) {

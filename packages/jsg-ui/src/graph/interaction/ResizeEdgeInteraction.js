@@ -13,7 +13,7 @@ import {
 } from '@cedalo/jsg-core';
 import AbstractInteraction from './AbstractInteraction';
 import InteractionUtils from './InteractionUtils';
-import LayerId from '../../graph/view/LayerId';
+import LayerId from "../view/LayerId";
 import PositionFeedbackView from '../view/PositionFeedbackView';
 
 /**

@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-operators */
 
 
-const { FuncTerm, NullTerm } = require('./Term');
+const { NullTerm } = require('./Term');
 const { ERROR, OK } = require('./ReturnCodes');
 
 /**

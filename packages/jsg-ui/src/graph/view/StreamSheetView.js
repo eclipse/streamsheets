@@ -255,7 +255,8 @@ export default class StreamSheetView extends WorksheetView {
 
 		if (sourceParent instanceof InboxContainer) {
 			return event.event.altKey ? 0 : 1;
-		} else if (sourceParent instanceof OutboxContainer) {
+		}
+		if (sourceParent instanceof OutboxContainer) {
 			return 0;
 		}
 

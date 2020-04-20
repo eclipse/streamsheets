@@ -1512,8 +1512,8 @@ export default class WorksheetView extends ContentNodeView {
 				viewer.getInteractionHandler().execute(cmd);
 				this.notifySelectionChange(viewer);
 				return true;
+				// eslint-disable-next-line no-empty
 			} catch (e) {
-				console.log(e);
 			}
 		}
 

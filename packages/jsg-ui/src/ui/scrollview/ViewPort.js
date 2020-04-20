@@ -1,7 +1,7 @@
 import { default as JSG, Notification, NotificationCenter, Point } from '@cedalo/jsg-core';
 import Widget from '../Widget';
-import RangeModel from '../scrollview/RangeModel';
-import ViewPanel from '../scrollview/ViewPanel';
+import RangeModel from "./RangeModel";
+import ViewPanel from "./ViewPanel";
 
 /**
  * The ViewPort acts like a window to look at the currently visible area of a, usually larger, view. This content view

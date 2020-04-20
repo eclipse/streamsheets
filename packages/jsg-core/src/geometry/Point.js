@@ -158,8 +158,8 @@ class Point {
 	normalize() {
 		const length = this.length();
 		if (length !== 0) {
-			this.x = this.x / length;
-			this.y = this.y / length;
+			this.x /= length;
+			this.y /= length;
 		}
 		return this;
 	}

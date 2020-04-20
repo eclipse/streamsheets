@@ -1,5 +1,5 @@
 import { default as JSG, Point, Event, Rectangle, FormatAttributes } from '@cedalo/jsg-core';
-import GraphItemView from '../../graph/view/GraphItemView';
+import GraphItemView from "./GraphItemView";
 
 /**
  * Internal listener class used by ContentPaneView. </br>

@@ -1158,9 +1158,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 					const color = format.getLineColor().getValue();
 					if (color === '#000000') {
 						return new NullTerm();
-					} else {
-						return Term.fromString(color);
 					}
+					return Term.fromString(color);
 				}
 				break;
 			}

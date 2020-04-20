@@ -1868,7 +1868,8 @@ class Graphics {
 		if (direction === 'in') {
 			// if lines comes in at this port, switch direction
 			return true;
-		} else if (direction === undefined) {
+		}
+		if (direction === undefined) {
 			// add start point line as outgoint line
 			this._portPointMap.set(key, 'out');
 			// check end point
