@@ -1,32 +1,38 @@
+const JSG = require('@cedalo/jsg-core');
+
 const {Term, NullTerm} = require('@cedalo/parser');
 const {NumberFormatter} = require('@cedalo/number-format');
 
-const JSG = require('../../JSG');
-const GraphUtils = require('../GraphUtils');
-const MathUtils = require('../../geometry/MathUtils');
-const SheetReference = require('../expr/SheetReference');
-const CellRange = require('./CellRange');
-const Selection = require('./Selection');
-const Node = require('./Node');
-const ItemAttributes = require('../attr/ItemAttributes');
-const TextFormatAttributes = require('../attr/TextFormatAttributes');
-const Expression = require('../expr/Expression');
-const Numbers = require('../../commons/Numbers');
-const JSONWriter = require('../../commons/JSONWriter');
-const MarkCellValuesCommand = require('../command/MarkCellValuesCommand');
-const SetPlotDataCommand = require('../command/SetPlotDataCommand');
-const SetCellsCommand = require('../command/SetCellsCommand');
-const DeleteCellContentCommand = require('../command/DeleteCellContentCommand');
-const CompoundCommand = require('../command/CompoundCommand');
-const Chart = require('./chart/Chart');
-const ChartFormat = require('./chart/ChartFormat');
-const ChartAxis = require('./chart/ChartAxis');
-const ChartRect = require('./chart/ChartRect');
-const ChartSeries = require('./chart/ChartSeries');
-const ChartTitle = require('./chart/ChartTitle');
+const {
+	Node,
+	GraphUtils,
+	MathUtils,
+	SheetReference,
+	CellRange,
+	ItemAttributes,
+	Expression,
+	Selection,
+	TextFormatAttributes,
+	Numbers,
+	JSONWriter,
+	MarkCellValuesCommand,
+	SetPlotDataCommand,
+	SetCellsCommand,
+	DeleteCellContentCommand,
+	CompoundCommand,
+	Chart,
+	ChartFormat,
+	ChartAxis,
+	ChartRect,
+	ChartSeries,
+	ChartTitle
+} = require('@cedalo/jsg-core');
+
+
+const a = require('@cedalo/jsg-core');
+console.log(a);
 
 const epsilon = 0.000000001;
-
 const isValuesCell = (cell) => cell && cell._info && cell.values != null;
 const getTimeCell = (item, formula) => {
 	const cell = item.getDataSourceInfo(formula);
@@ -186,7 +192,7 @@ const templates = {
 	}
 };
 
-module.exports = class SheetPlotNode extends Node {
+module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	constructor() {
 		super();
 
@@ -282,7 +288,7 @@ module.exports = class SheetPlotNode extends Node {
 		};
 
 		if (!unrotated) {
-			const labelAngle = format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-format.fontRotation);
+			const labelAngle = format.fontRotation === undefined ? 0 : MathUtils.toRadians(-format.fontRotation);
 			if (labelAngle) {
 				const width = result.width;
 				result.width = Math.abs(Math.sin(labelAngle) * result.height) + Math.abs(
@@ -498,6 +504,8 @@ module.exports = class SheetPlotNode extends Node {
 				this.legend.position.bottom = this.plot.position.bottom;
 				this.plot.position.bottom = this.legend.position.top - margin;
 				break;
+			default:
+				break;
 			}
 		} else {
 			this.legend.position.reset();
@@ -520,6 +528,8 @@ module.exports = class SheetPlotNode extends Node {
 					break;
 				case 'right':
 					this.plot.position.right -= axis.title.size.height;
+					break;
+				default:
 					break;
 				}
 			}
@@ -556,6 +566,8 @@ module.exports = class SheetPlotNode extends Node {
 					this.plot.position.bottom -= 200;
 				}
 				break;
+			default:
+				break;
 			}
 		});
 
@@ -575,6 +587,8 @@ module.exports = class SheetPlotNode extends Node {
 					break;
 				case 'bottom':
 					this.plot.position.bottom -= axis.title.size.height;
+					break;
+				default:
 					break;
 				}
 			}
@@ -609,6 +623,8 @@ module.exports = class SheetPlotNode extends Node {
 				if (index) {
 					this.plot.position.bottom -= 200;
 				}
+				break;
+			default:
 				break;
 			}
 		});
@@ -695,6 +711,8 @@ module.exports = class SheetPlotNode extends Node {
 					}
 					break;
 				}
+				default:
+					break;
 				}
 			}
 		});
@@ -744,6 +762,8 @@ module.exports = class SheetPlotNode extends Node {
 				}
 				case 'left':
 				case 'right':
+					break;
+				default:
 					break;
 				}
 			}
@@ -815,6 +835,8 @@ module.exports = class SheetPlotNode extends Node {
 					}
 					bottom += 200;
 					break;
+				default:
+					break;
 				}
 			}
 		});
@@ -883,6 +905,8 @@ module.exports = class SheetPlotNode extends Node {
 					}
 					bottom += 200;
 					break;
+				default:
+					break;
 				}
 			}
 		});
@@ -899,6 +923,8 @@ module.exports = class SheetPlotNode extends Node {
 			case 'middleleft':
 				this.legend.position.top = this.plot.position.top + this.plot.position.height / 2 - height / 2;
 				this.legend.position.bottom = this.plot.position.top + this.plot.position.height / 2 + height / 2;
+				break;
+			default:
 				break;
 			}
 		}
@@ -1742,6 +1768,8 @@ module.exports = class SheetPlotNode extends Node {
 				input.step = Math.max(1, input.step);
 			}
 			break;
+		default:
+			break;
 		}
 	}
 
@@ -2139,6 +2167,8 @@ module.exports = class SheetPlotNode extends Node {
 				x = this.plot.position.width - x;
 			}
 			break;
+		default:
+			break;
 		}
 
 		if (axes.x.align === 'bottom' || axes.x.align === 'top') {
@@ -2196,6 +2226,8 @@ module.exports = class SheetPlotNode extends Node {
 				end: false
 			};
 		}
+		default:
+			break;
 		}
 
 		return start;
@@ -2386,6 +2418,8 @@ module.exports = class SheetPlotNode extends Node {
 				pos = plotRect.left + pos * plotRect.width;
 				rect.set(pos - 100, plotRect.top, pos + 100, plotRect.bottom);
 				break;
+			default:
+				break;
 			}
 			if (rect.containsPoint(pt)) {
 				return true;
@@ -2512,6 +2546,8 @@ module.exports = class SheetPlotNode extends Node {
 					// currentAngle)); y = pieInfo.yc + pieInfo.yRadius * Math.sin(Math.max(0, currentAngle));
 					// graphics.lineTo(x2, y);  } }
 					break;
+				default:
+					break;
 				}
 				currentAngle += angle;
 			}
@@ -2637,6 +2673,8 @@ module.exports = class SheetPlotNode extends Node {
 					x: plotRect.left + x * plotRect.width,
 					y: plotRect.bottom - y * plotRect.height - barInfo.height * plotRect.height
 				});
+				break;
+			default:
 				break;
 			}
 
@@ -2817,6 +2855,8 @@ module.exports = class SheetPlotNode extends Node {
 				xOuterRadius = params.pieInfo.xRadius;
 				yOuterRadius = params.pieInfo.yRadius;
 				break;
+			default:
+				break;
 			}
 			switch (params.serie.dataLabel.position) {
 			case 'beforestart':
@@ -2832,6 +2872,8 @@ module.exports = class SheetPlotNode extends Node {
 			case 'behindend':
 				xRadius = xOuterRadius;
 				yRadius = yOuterRadius;
+				break;
+			default:
 				break;
 			}
 			pt.x = params.pieInfo.xc + xRadius * Math.cos(textAngle);
@@ -2862,6 +2904,8 @@ module.exports = class SheetPlotNode extends Node {
 					labelRect.set(labelRect.left + xOff - textSize.width / 2,
 						labelRect.top + yOff - textSize.height / 2,
 						labelRect.right + xOff + textSize.width / 2, labelRect.bottom + yOff + textSize.height / 2);
+					break;
+				default:
 					break;
 				}
 			}
@@ -2907,6 +2951,8 @@ module.exports = class SheetPlotNode extends Node {
 					params.barWidth);
 				labelRect.set(pt.x + barInfo.height * params.plotRect.width, pt.y + barInfo.offset, pt.x,
 					pt.y + barInfo.offset + params.barWidth - barInfo.margin);
+				break;
+			default:
 				break;
 			}
 			const center = labelRect.center;
@@ -3001,6 +3047,8 @@ module.exports = class SheetPlotNode extends Node {
 								center.x + textSize.width / 2, labelRect.top - offset);
 						}
 					}
+					break;
+				default:
 					break;
 				}
 			}
@@ -3273,6 +3321,8 @@ module.exports = class SheetPlotNode extends Node {
 			this.yAxes[0].visible = false;
 			this.legend.visible = false;
 			type = 'state';
+			break;
+		default:
 			break;
 		}
 
@@ -3639,6 +3689,8 @@ module.exports = class SheetPlotNode extends Node {
 				this.legend.format = new ChartFormat();
 				this.legend.format.read(reader, subChild);
 				break;
+			default:
+				break;
 			}
 		});
 	}
@@ -3649,6 +3701,8 @@ module.exports = class SheetPlotNode extends Node {
 			case 'format':
 				this.plot.format = new ChartFormat();
 				this.plot.format.read(reader, subChild);
+				break;
+			default:
 				break;
 			}
 		});
@@ -3665,6 +3719,8 @@ module.exports = class SheetPlotNode extends Node {
 				this.series.push(serie);
 				break;
 			}
+			default:
+				break;
 			}
 		});
 	}
@@ -3686,6 +3742,8 @@ module.exports = class SheetPlotNode extends Node {
 				}
 				break;
 			}
+			default:
+				break;
 			}
 		});
 	}
@@ -3708,6 +3766,8 @@ module.exports = class SheetPlotNode extends Node {
 					break;
 				case 'legend':
 					this.readLegend(reader, child);
+					break;
+				default:
 					break;
 				}
 			});
@@ -3739,6 +3799,8 @@ module.exports = class SheetPlotNode extends Node {
 			break;
 		case 'chart':
 			this.chart.save(writer);
+			break;
+		default:
 			break;
 		}
 		writer.writeEndDocument();
