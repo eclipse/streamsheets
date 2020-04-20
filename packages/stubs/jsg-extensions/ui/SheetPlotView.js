@@ -186,19 +186,24 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			let y = legend.position.top + margin;
 			let textPos = margin * 4;
 			let type = 'bar';
+			let fill = true;
+			let line = true;
 			const template = item.getTemplate();
 
 			legendData.forEach((entry, index) => {
 				graphics.beginPath();
-				graphics.setLineWidth(entry.series.format.lineWidth || template.series.linewidth);
-				const line = this.setLineStyle(graphics,
-					entry.series.format.lineStyle === undefined ? template.series.linestyle : entry.series.format.lineStyle);
-				const fill = (entry.series.format.fillStyle === undefined ? template.series.fillstyle : entry.series.format.fillStyle) > 0;
 				if (entry.series) {
+					graphics.setLineWidth(entry.series.format.lineWidth || template.series.linewidth);
+					line = this.setLineStyle(graphics,
+						entry.series.format.lineStyle === undefined ? template.series.linestyle : entry.series.format.lineStyle);
+					fill = (entry.series.format.fillStyle === undefined ? template.series.fillstyle : entry.series.format.fillStyle) > 0;
 					graphics.setLineColor(entry.series.format.lineColor || template.series.getLineForIndex(index));
 					graphics.setFillColor(entry.series.format.fillColor || template.series.getFillForIndex(index));
 					type = entry.series.type;
 				} else {
+					graphics.setLineWidth(template.series.linewidth);
+					line = this.setLineStyle(graphics, template.series.linestyle);
+					fill = template.series.fillstyle > 0;
 					const parts = String(entry.color).split(';');
 					if (parts.length > 1) {
 						graphics.setLineColor(parts[1]);
@@ -238,7 +243,6 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					break;
 				case 'area':
 				case 'column':
-				case 'state':
 				case 'bar':
 				case 'pie':
 				case 'doughnut':
@@ -252,7 +256,11 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 
 					graphics.rect(x, y + textSize.height / 10, margin * 3, (textSize.height * 2) / 3);
 					if (fill) {
-						this.fill(graphics, entry.series.format);
+						if (entry.series) {
+							this.fill(graphics, entry.series.format);
+						} else {
+							graphics.fill();
+						}
 					}
 					if (line) {
 						graphics.stroke();
@@ -873,43 +881,6 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 							);
 						}
 						break;
-					case 'state':
-						if (value.x !== undefined && value.y !== undefined && value.c !== undefined) {
-							graphics.beginPath();
-							barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
-							value.c = item.translateFromLegend(value.c, legendData);
-							const [fillState, lineState] = String(value.c).split(';');
-							if (fillState && fillState.length) {
-								graphics.setFillColor(fillState);
-							}
-							if (lineState && lineState.length) {
-								graphics.setLineColor(lineState);
-							}
-							if (item.chart.period) {
-								item.getPlotPoint(axes, ref, info, value, index, 1, ptNext);
-								item.toPlot(serie, plotRect, ptNext);
-								graphics.rect(
-									pt.x + barInfo.offset,
-									pt.y,
-									Math.abs(ptNext.x - pt.x) + 20,
-									-barInfo.height * plotRect.height + 20
-								);
-							} else {
-								graphics.rect(
-									pt.x + barInfo.offset,
-									pt.y,
-									barWidth + 10,
-									-barInfo.height * plotRect.height
-								);
-							}
-							if (fillState && fillState.length) {
-								graphics.fill();
-							}
-							if (lineState && lineState.length) {
-								graphics.stroke();
-							}
-						}
-						break;
 					case 'bar':
 						if (value.x !== undefined && value.y !== undefined) {
 							barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
@@ -922,6 +893,14 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 						}
 						break;
 					default:
+						graphics.setTextBaseline('center');
+						graphics.setFillColor('#CCCCCC');
+						graphics.setTextAlignment(1);
+						graphics.setFontName('Verdana');
+						graphics.setFontSize('8');
+						graphics.setFontStyle(0);
+						graphics.setFont();
+						graphics.fillText('Chart Type not available', plotRect.center.x, plotRect.center.y);
 						break;
 					}
 				}
@@ -1052,32 +1031,34 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					if (horizontalChart || (pt.x >= plotRect.left && pt.x < plotRect.right)) {
 						const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
 						const labelRect = item.getLabelRect(pt, value, text, index, params);
-						const center = labelRect.center;
-						if (labelAngle !== 0) {
-							graphics.translate(center.x, center.y);
-							labelRect.translate(-center.x, -center.y);
-							graphics.rotate(-labelAngle);
-						}
+						if (labelRect) {
+							const center = labelRect.center;
+							if (labelAngle !== 0) {
+								graphics.translate(center.x, center.y);
+								labelRect.translate(-center.x, -center.y);
+								graphics.rotate(-labelAngle);
+							}
 
-						if (this.drawRect(graphics, labelRect, item, serie.dataLabel.format, 'serieslabel')) {
-							item.setFont(graphics, serie.dataLabel.format, 'serieslabel', 'middle',
-								TextFormatAttributes.TextAlignment.CENTER);
-						}
-						if (labelAngle !== 0) {
-							graphics.rotate(labelAngle);
-							labelRect.translate(center.x, center.y);
-							graphics.translate(-center.x, -center.y);
-						}
+							if (this.drawRect(graphics, labelRect, item, serie.dataLabel.format, 'serieslabel')) {
+								item.setFont(graphics, serie.dataLabel.format, 'serieslabel', 'middle',
+									TextFormatAttributes.TextAlignment.CENTER);
+							}
+							if (labelAngle !== 0) {
+								graphics.rotate(labelAngle);
+								labelRect.translate(center.x, center.y);
+								graphics.translate(-center.x, -center.y);
+							}
 
-						if (text instanceof Array) {
-							let y = labelRect.top + 75 + lineHeight / 2;
-							text.forEach((part, pi) => {
-								y = center.y - (text.length - 1) * lineHeight / 2 + pi * lineHeight;
-								const p = MathUtils.getRotatedPoint({x: center.x, y}, center, -labelAngle);
-								this.drawRotatedText(graphics, part, p.x, p.y, labelAngle, 0, 0);
-							})
-						} else {
-							this.drawRotatedText(graphics, `${text}`, center.x, center.y, labelAngle, 0, 0);
+							if (text instanceof Array) {
+								let y = labelRect.top + 75 + lineHeight / 2;
+								text.forEach((part, pi) => {
+									y = center.y - (text.length - 1) * lineHeight / 2 + pi * lineHeight;
+									const p = MathUtils.getRotatedPoint({x: center.x, y}, center, -labelAngle);
+									this.drawRotatedText(graphics, part, p.x, p.y, labelAngle, 0, 0);
+								})
+							} else {
+								this.drawRotatedText(graphics, `${text}`, center.x, center.y, labelAngle, 0, 0);
+							}
 						}
 					}
 				}

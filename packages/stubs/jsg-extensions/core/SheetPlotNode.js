@@ -28,10 +28,6 @@ const {
 	ChartTitle
 } = require('@cedalo/jsg-core');
 
-
-const a = require('@cedalo/jsg-core');
-console.log(a);
-
 const epsilon = 0.000000001;
 const isValuesCell = (cell) => cell && cell._info && cell.values != null;
 const getTimeCell = (item, formula) => {
@@ -2764,10 +2760,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				const text = this.getDataLabel(value, axes.x, ref, serie, legendData);
 				if (text.length) {
 					const dataRect = this.getLabelRect(ptValue, value, text, pointIndex, params);
-					dataRect.sort();
-					ptCopy = labelAngle ? MathUtils.getRotatedPoint(pt, dataRect.center, labelAngle) : pt.copy();
-					if (dataRect.containsPoint(ptCopy)) {
-						return true;
+					if (dataRect) {
+						dataRect.sort();
+						ptCopy = labelAngle ? MathUtils.getRotatedPoint(pt, dataRect.center, labelAngle) : pt.copy();
+						if (dataRect.containsPoint(ptCopy)) {
+							return true;
+						}
 					}
 				}
 			}
@@ -2856,7 +2854,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				yOuterRadius = params.pieInfo.yRadius;
 				break;
 			default:
-				break;
+				return undefined;
 			}
 			switch (params.serie.dataLabel.position) {
 			case 'beforestart':
@@ -2921,24 +2919,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				labelRect.set(pt.x - radius, pt.y - radius, pt.x + radius, pt.y + radius);
 				break;
 			}
-			case 'state':
-				barInfo = this.getBarInfo(params.axes, params.serie, params.seriesIndex, index, value.y,
-					params.barWidth);
-				if (this.chart.period) {
-					const ptNext = {x: 0, y: 0};
-					this.getPlotPoint(params.axes, params.ref, params.info, value, index, 1, ptNext);
-					this.toPlot(params.serie, params.plotRect, ptNext);
-					labelRect.set(
-						pt.x + barInfo.offset,
-						pt.y,
-						ptNext.x,
-						pt.y - barInfo.height * params.plotRect.height
-					);
-				} else {
-					labelRect.set(pt.x + barInfo.offset, pt.y, pt.x + barInfo.offset + params.barWidth - barInfo.margin,
-						pt.y - barInfo.height * params.plotRect.height);
-				}
-				break;
 			case 'column':
 			case 'area':
 				barInfo = this.getBarInfo(params.axes, params.serie, params.seriesIndex, index, value.y,
@@ -2953,7 +2933,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					pt.y + barInfo.offset + params.barWidth - barInfo.margin);
 				break;
 			default:
-				break;
+				return undefined;
 			}
 			const center = labelRect.center;
 			let offset;
@@ -3307,20 +3287,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		case 'bubble':
 			step = 2;
 			this.xAxes[0].type = 'linear';
-			break;
-		case 'statecolumn':
-		case 'statetime':
-		case 'stateperiod':
-			step = 2;
-			this.chart.stacked = true;
-			this.chart.relative = true;
-			this.chart.period = type === 'stateperiod';
-			this.xAxes[0].type = type === 'statecolumn' ? 'category' : 'time';
-			this.xAxes[0].gridVisible = false;
-			this.yAxes[0].gridVisible = false;
-			this.yAxes[0].visible = false;
-			this.legend.visible = false;
-			type = 'state';
 			break;
 		default:
 			break;
