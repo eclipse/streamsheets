@@ -1,0 +1,20 @@
+{
+	"name": "@cedalo/service-machines-extensions",
+	"version": "1.6.0-beta",
+	"description": "Service Machines Extensions",
+	"main": "index.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/cedalo/streamsheets.git"
+	},
+	"author": "Cedalo AG",
+	"bugs": {
+		"url": "https://github.com/cedalo/streamsheets/issues"
+	},
+	"dependencies": {},
+	"peerDependencies": {
+		"@cedalo/commons": "1.6.0-beta",
+		"@cedalo/logger": "1.6.0-beta"
+	},
+	"license": "EPL-2.0"
+}

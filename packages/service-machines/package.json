@@ -32,7 +32,8 @@
     "@cedalo/messaging-client": "1.6.0-beta",
     "@cedalo/protocols": "1.6.0-beta",
     "@cedalo/repository": "1.6.0-beta",
-    "@cedalo/service-core": "1.6.0-beta"
+    "@cedalo/service-core": "1.6.0-beta",
+    "@cedalo/service-machines-extensions": "1.6.0-beta"
   },
   "devDependencies": {
     "jest": "22.0.0",
