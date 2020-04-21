@@ -144,7 +144,8 @@ const messageFromBoxOrValue = (machine, sheet, term, requireMessageData = true) 
 // => COMBINE!! all message handling methods!!
 const readInboxMessage = (sheet, streamsheetName, messageId) => {
 	const streamsheet = getStreamSheetByName(streamsheetName, sheet);
-	return streamsheet ? streamsheet.inbox.peek(messageId) : undefined;
+	// note: read current message from streamsheet instead of inbox, since it might not be top in inbox!!
+	return streamsheet ? streamsheet.getMessage(messageId) : undefined;
 };
 const readOutboxMessage = (sheet, messageId) => {
 	const machine = sheet.machine;
