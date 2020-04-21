@@ -188,6 +188,14 @@ JSG.SetSizeCommand = require('./src/graph/command/SetSizeCommand');
 JSG.SetLinePointAtCommand = require('./src/graph/command/SetLinePointAtCommand');
 JSG.SetLineShapePointsCommand = require('./src/graph/command/SetLineShapePointsCommand');
 JSG.SetBezierShapePointsCommand = require('./src/graph/command/SetBezierShapePointsCommand');
+
+const UpdateNamesCommands = require('./src/graph/command/UpdateNamesCommands');
+
+JSG.UpdateSheetNamesCommand = UpdateNamesCommands.UpdateSheetNamesCommand;
+JSG.UpdateGraphCellsCommand = UpdateNamesCommands.UpdateGraphCellsCommand;
+JSG.SetGraphCellsCommand = UpdateNamesCommands.SetGraphCellsCommand;
+JSG.SetGraphItemsCommand = UpdateNamesCommands.SetGraphItemsCommand;
+
 JSG.SetBezierLineShapePointCommand = require('./src/graph/command/SetBezierLineShapePointCommand');
 JSG.SetAttributesMapCommand = require('./src/graph/command/SetAttributesMapCommand');
 JSG.SetTextSizeModeCommand = require('./src/graph/command/SetTextSizeModeCommand');
