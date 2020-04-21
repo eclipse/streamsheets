@@ -1,4 +1,6 @@
 
+const JSONWriter = require('../../../commons/JSONWriter');
+const JSONReader = require('../../../commons/JSONReader');
 const Expression = require('../../expr/Expression');
 const ChartFormat = require('./ChartFormat');
 const ChartMarker = require('./ChartMarker');
@@ -14,6 +16,22 @@ module.exports = class ChartSeries {
 		this.dataLabel = new ChartDataLabel();
 		this.xAxis = 'XAxis1';
 		this.yAxis = 'YAxis1';
+	}
+
+	copy() {
+		const copy = new ChartSeries();
+
+		const writer = new JSONWriter();
+		writer.writeStartDocument();
+		this.save(writer);
+		writer.writeEndDocument();
+		const json = writer.flush();
+
+		const reader = new JSONReader(json);
+		const root = reader.getObject(reader.getRoot(), 'series');
+		copy.read(reader, root);
+
+		return copy;
 	}
 
 	set type(type) {

@@ -713,5 +713,16 @@
 	"Setup.Registration.SubcribedSuccessfully": "Danke für die Anmeldung zu unserem Newsletter! Bitte bestätigen Sie die Anmeldung, indem Sie auf den Bestätigungslink in der E-Mail klicken, die wir Ihnen gerade geschickt haben.",
 	"Setup.SetupStepAccept": "AGBs akzeptieren",
 	"Setup.SetupStepRead": "AGBs lesen",
-	"Setup.SetupStepNewsletter": "Newsletter abonnieren"
+	"Setup.SetupStepNewsletter": "Newsletter abonnieren",
+    "StreamChartProperties.Chart": "Diagramm",
+    "StreamChartProperties.AxisProperties": "Achse: {name}",
+    "StreamChartProperties.Title": "Titel",
+    "StreamChartProperties.Legend": "Legende",
+    "StreamChartProperties.Grid": "Gitternetz",
+    "StreamChartProperties.Series": "Datenreihen",
+    "StreamChartProperties.SeriesLabel": "Datenreihenbeschriftung",
+    "StreamChartProperties.AxisTitle": "Achsentitel",
+    "StreamChartProperties.Plot": "Diagrammbereich",
+    "StreamChartProperties.Templatebasic": "Standard",
+    "StreamChartProperties.Templatedark": "Dunkel"
 }

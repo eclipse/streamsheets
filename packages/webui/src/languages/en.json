@@ -708,5 +708,16 @@
 	"Setup.Registration.SubcribedSuccessfully": "Thanks for subscribing to our newsletter! Please click the confirmation link in the email we just send you to finish the registration.",
 	"Setup.SetupStepAccept": "Accept license agreement",
 	"Setup.SetupStepRead": "Read license agreement",
-	"Setup.SetupStepNewsletter": "Subscribe newsletter"
+	"Setup.SetupStepNewsletter": "Subscribe newsletter",
+    "StreamChartProperties.Chart": "Chart",
+    "StreamChartProperties.AxisProperties": "Axis: {name}",
+    "StreamChartProperties.Title": "Title",
+    "StreamChartProperties.Legend": "Legend",
+    "StreamChartProperties.Grid": "Grid",
+    "StreamChartProperties.Series": "Series",
+    "StreamChartProperties.SeriesLabel": "Series Label",
+    "StreamChartProperties.AxisTitle": "Axis Title",
+    "StreamChartProperties.Plot": "Plot",
+    "StreamChartProperties.Templatebasic": "Standard",
+    "StreamChartProperties.Templatedark": "Dark"
 }

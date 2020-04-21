@@ -208,7 +208,7 @@ export default class CellRangeComponent extends React.Component {
 							borderBottom: '1px solid rgba(0, 0, 0, 0.42)',
 							outline: 'none',
 							display: 'inline-block',
-							width: 'calc(100% - 70px)',
+							width: 'calc(100% - 50px)',
 						}}
 						id="sheet-ref"
 						contentEditable
@@ -227,7 +227,7 @@ export default class CellRangeComponent extends React.Component {
 					<IconButton
 						id="RefOK"
 						style={{
-							width: '34px',
+							width: '25px',
 							height: '34px',
 							padding: '5px',
 							display: 'inline',
@@ -240,7 +240,7 @@ export default class CellRangeComponent extends React.Component {
 					<IconButton
 						id="RefCancel"
 						style={{
-							width: '34px',
+							width: '25px',
 							height: '34px',
 							padding: '5px',
 							display: 'inline',

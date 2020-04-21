@@ -24,12 +24,15 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import CloseIcon from '@material-ui/icons/Close';
+import DeleteIcon from '@material-ui/icons/Delete';
 import JSG from '@cedalo/jsg-ui';
 
 import CellRangeComponent from './CellRangeComponent';
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
 import ColorComponent from '../SheetDialogs/ColorComponent';
+import { intl } from '../../helper/IntlGlobalProvider';
+import SvgIcon from '@material-ui/core/SvgIcon';
 
 const markerSizes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -242,6 +245,43 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'series');
 	};
 
+	handleSeriesDuplicate = (index) => {
+		const cmd = this.prepareCommand('series');
+		const item = this.state.plotView.getItem();
+
+		const copy = item.series[index].copy();
+		JSG.Arrays.insertAt(item.series, index, copy);
+
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesDelete = (index) => {
+		const cmd = this.prepareCommand('series');
+		const item = this.state.plotView.getItem();
+
+		JSG.Arrays.removeAt(item.series, index);
+
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesMoveDown = (index) => {
+		const cmd = this.prepareCommand('series');
+		const item = this.state.plotView.getItem();
+
+		JSG.Arrays.move(item.series, index, index + 1);
+
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesMoveUp = (index) => {
+		const cmd = this.prepareCommand('series');
+		const item = this.state.plotView.getItem();
+
+		JSG.Arrays.move(item.series, index, index - 1);
+
+		this.finishCommand(cmd, 'series');
+	};
+
 	handleGridlineVisibleChange = (event, state) => {
 		const cmd = this.prepareCommand('axes');
 		const data = this.getData();
@@ -433,25 +473,27 @@ export class StreamChartProperties extends Component {
 		const data = this.getData();
 
 		switch (title) {
+			case 'Chart':
+				return intl.formatMessage({ id: 'StreamChartProperties.Chart' }, { });
 			case 'title':
-				return 'Title';
+				return intl.formatMessage({ id: 'StreamChartProperties.Title' }, { });
 			case 'plot':
-				return 'Plot';
+				return intl.formatMessage({ id: 'StreamChartProperties.Plot' }, { });
 			case 'legend':
-				return 'Legend';
+				return intl.formatMessage({ id: 'StreamChartProperties.Legend' }, { });
 			case 'xAxis':
 			case 'yAxis':
-				return `Axis: ${data.name}`;
+				return intl.formatMessage({ id: 'StreamChartProperties.AxisProperties' }, { name : data.name });
 			case 'xAxisGrid':
 			case 'yAxisGrid':
-				return 'Grid';
+				return intl.formatMessage({ id: 'StreamChartProperties.Grid' }, { });
 			case 'xAxisTitle':
 			case 'yAxisTitle':
-				return 'Axis Title';
+				return intl.formatMessage({ id: 'StreamChartProperties.AxisTitle' }, { });
 			case 'series':
-				return 'Series';
+				return intl.formatMessage({ id: 'StreamChartProperties.Series' }, { });
 			case 'serieslabel':
-				return 'Series Label';
+				return intl.formatMessage({ id: 'StreamChartProperties.SeriesLabel' }, { });
 			default:
 				return title;
 		}
@@ -550,7 +592,7 @@ export class StreamChartProperties extends Component {
 								>
 									{Object.keys(JSG.SheetPlotNode.templates).map((key) => (
 										<MenuItem value={key} key={key}>
-											{key}
+											{intl.formatMessage({ id: `StreamChartProperties.Template${key}` }, { }) }
 										</MenuItem>
 									))}
 								</Select>
@@ -607,7 +649,10 @@ export class StreamChartProperties extends Component {
 											marginBottom: '7px'
 										}}
 									>
-										Visible
+										<FormattedMessage
+											id="StreamChartProperties.Visible"
+											defaultMessage="Visible"
+										/>
 									</FormLabel>
 									<FormControlLabel
 										control={
@@ -675,7 +720,7 @@ export class StreamChartProperties extends Component {
 														width: '120px',
 													}}
 													id="number"
-													label={<FormattedMessage id="StreamChartSettings.Rotation" defaultMessage="Rotation (Degrees)" />}
+													label={<FormattedMessage id="StreamChartProperties.Rotation" defaultMessage="Rotation (Degrees)" />}
 													inputProps={{
 														min: 10,
 														max: 90,
@@ -685,7 +730,7 @@ export class StreamChartProperties extends Component {
 													helperText={
 														item.chart.rotation > Math.PI_2 || item.chart.rotation < 0 ? (
 															<FormattedMessage
-																id="StreamChartSettings.InvalidAngle"
+																id="StreamChartProperties.InvalidAngle"
 																defaultMessage="Angle must be between 0 and 90 degrees!"
 															/>
 														) : (
@@ -703,7 +748,7 @@ export class StreamChartProperties extends Component {
 														marginLeft: '10px',
 													}}
 													id="number"
-													label={<FormattedMessage id="StreamChartSettings.DoughnutHole" defaultMessage="Doughnut Hole (Percent)" />}
+													label={<FormattedMessage id="StreamChartProperties.DoughnutHole" defaultMessage="Doughnut Hole (Percent)" />}
 													inputProps={{
 														min: 0,
 														max: 80,
@@ -713,7 +758,7 @@ export class StreamChartProperties extends Component {
 													helperText={
 														item.chart.hole > 0.8 || item.chart.hole < 0 ? (
 															<FormattedMessage
-																id="StreamChartSettings.InvalidDoughnutHole"
+																id="StreamChartProperties.InvalidDoughnutHole"
 																defaultMessage="The hole value must be between 0 and 80 percent!"
 															/>
 														) : (
@@ -736,7 +781,7 @@ export class StreamChartProperties extends Component {
 														width: '135px',
 													}}
 													id="number"
-													label={<FormattedMessage id="StreamChartSettings.StartAngle" defaultMessage="Pie Start (Degrees)" />}
+													label={<FormattedMessage id="StreamChartProperties.StartAngle" defaultMessage="Pie Start (Degrees)" />}
 													inputProps={{
 														min: 0,
 														max: 360,
@@ -746,7 +791,7 @@ export class StreamChartProperties extends Component {
 													helperText={
 														item.chart.startAngle > Math.PI * 2  || item.chart.startAngle < 0 ? (
 															<FormattedMessage
-																id="StreamChartSettings.InvalidAngle360"
+																id="StreamChartProperties.InvalidAngle360"
 																defaultMessage="Angle must be between 0 and 360 degrees!"
 															/>
 														) : (
@@ -764,7 +809,7 @@ export class StreamChartProperties extends Component {
 														marginLeft: '10px'
 													}}
 													id="number"
-													label={<FormattedMessage id="StreamChartSettings.EndAngle" defaultMessage="Pie End (Degrees)" />}
+													label={<FormattedMessage id="StreamChartProperties.EndAngle" defaultMessage="Pie End (Degrees)" />}
 													inputProps={{
 														min: 0,
 														max: 540,
@@ -774,7 +819,7 @@ export class StreamChartProperties extends Component {
 													helperText={
 														item.chart.endAngle > Math.PI * 3 || item.chart.endAngle < 0 ? (
 															<FormattedMessage
-																id="StreamChartSettings.InvalidAngle540"
+																id="StreamChartProperties.InvalidAngle540"
 																defaultMessage="Angle must be between 0 and 540 degrees!"
 															/>
 														) : (
@@ -797,7 +842,10 @@ export class StreamChartProperties extends Component {
 												marginBottom: '7px'
 											}}
 										>
-											Settings
+											<FormattedMessage
+												id="StreamChartProperties.Settings"
+												defaultMessage="Settings"
+											/>
 										</FormLabel>
 										<FormControlLabel
 											control={
@@ -846,7 +894,10 @@ export class StreamChartProperties extends Component {
 										marginBottom: '7px'
 									}}
 								>
-									Position
+									<FormattedMessage
+										id="StreamChartProperties.Position"
+										defaultMessage="Position"
+									/>
 								</FormLabel>
 								<FormControlLabel
 									value="left"
@@ -888,36 +939,104 @@ export class StreamChartProperties extends Component {
 							<FormLabel
 								component="legend"
 								style={{
-									margin: '7px'
+									margin: '7px 7px 15px 7px'
 								}}
 							>
-								Series
+								<FormattedMessage id="StreamChartProperties.Series" defaultMessage="Series" />
 							</FormLabel>
 							{item.series.map((series, index) => (
-								<FormControl
-									/* eslint-disable-next-line react/no-array-index-key */
-									key={`s${index}`}
+								<FormGroup
 									style={{
 										width: '95%',
 										margin: '7px',
-										fontSize: '8pt'
 									}}
 								>
-									<CellRangeComponent
-										label={this.getLabel(series)}
-										sheetView={sheetView}
-										onlyReference={false}
-										fontSize="9pt"
-										range={`=${series.formula.getFormula()}`}
-										// onChange={this.handleDataRange}
-										onBlur={(event) => this.handleSeriesFormulaBlur(event, series)}
-										onKeyPress={(ev) => {
-											if (ev.key === 'Enter') {
-												this.handleDataRangeBlur(ev);
-											}
+									<FormControl
+										/* eslint-disable-next-line react/no-array-index-key */
+										key={`s${index}`}
+										style={{
+											fontSize: '8pt',
+											borderTop: '1px solid #CCCCCC',
+											paddingTop: '7px'
 										}}
-									/>
-								</FormControl>
+									>
+										<CellRangeComponent
+											label={this.getLabel(series)}
+											sheetView={sheetView}
+											onlyReference={false}
+											fontSize="9pt"
+											range={`=${series.formula.getFormula()}`}
+											// onChange={this.handleDataRange}
+											onBlur={(event) => this.handleSeriesFormulaBlur(event, series)}
+											onKeyPress={(ev) => {
+												if (ev.key === 'Enter') {
+													this.handleDataRangeBlur(ev);
+												}
+											}}
+										/>
+									</FormControl>
+									<FormGroup
+										style={{
+											width: '95%',
+											margin: '0px',
+											flexDirection: 'row',
+											justifyContent: 'center'
+										}}
+									>
+										<IconButton
+											style={{
+												display: 'inline',
+											}}
+											onClick={() => this.handleSeriesDuplicate(index)}
+										>
+											<SvgIcon viewBox='-3 -3 32 32'>
+												<path
+													d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"
+												/>
+											</SvgIcon>
+										</IconButton>
+										{ item.series.length > 1  ? (
+										<IconButton
+											style={{
+												display: 'inline',
+											}}
+											onClick={() => this.handleSeriesDelete(index)}
+										>
+											<DeleteIcon fontSize="inherit" />
+										</IconButton>
+											) : null}
+										{ index  ? (
+										<IconButton
+											style={{
+												display: 'inline',
+											}}
+											onClick={() => this.handleSeriesMoveUp(index)}
+										>
+											<SvgIcon>
+												<path
+													fill='#757575'
+													d="M15,20H9V12H4.16L12,4.16L19.84,12H15V20Z"
+												/>
+											</SvgIcon>
+										</IconButton>
+										) : null}
+										{ index < item.series.length -1  ? (
+										<IconButton
+											style={{
+												display: 'inline',
+											}}
+											onClick={() => this.handleSeriesMoveDown(index)}
+										>
+											<SvgIcon>
+												<path
+													fill='#757575'
+													d="M9,4H15V12H19.84L12,19.84L4.16,12H9V4Z"
+												/>
+											</SvgIcon>
+										</IconButton>
+										) : null}
+									</FormGroup>
+								</FormGroup>
 							))}
 						</div>
 					) : null}
@@ -930,7 +1049,7 @@ export class StreamChartProperties extends Component {
 								}}
 							>
 								<InputLabel htmlFor="axis-type">
-									<FormattedMessage id="ChartProperties.axisType" defaultMessage="Axis Type" />
+									<FormattedMessage id="StreamChartProperties.axisType" defaultMessage="Axis Type" />
 								</InputLabel>
 								<Select
 									id="chart-type"
@@ -940,18 +1059,18 @@ export class StreamChartProperties extends Component {
 								>
 									{selection.element === 'xAxis' ?
 										<MenuItem value="category" key={0}>
-											<FormattedMessage id="ChartProperties.axisTypeCategory" defaultMessage="Category" />
+											<FormattedMessage id="StreamChartProperties.axisTypeCategory" defaultMessage="Category" />
 										</MenuItem>
 									: null}
 									<MenuItem value="linear" key={1}>
-										<FormattedMessage id="ChartProperties.axisTypeLinear" defaultMessage="Linear" />
+										<FormattedMessage id="StreamChartProperties.axisTypeLinear" defaultMessage="Linear" />
 									</MenuItem>
 									<MenuItem value="time" key={2}>
-										<FormattedMessage id="ChartProperties.axisTypeTime" defaultMessage="Time" />
+										<FormattedMessage id="StreamChartProperties.axisTypeTime" defaultMessage="Time" />
 									</MenuItem>
 									<MenuItem value="logarithmic" key={3}>
 										<FormattedMessage
-											id="ChartProperties.axisTypeLogarithmic"
+											id="StreamChartProperties.axisTypeLogarithmic"
 											defaultMessage="Logarithmic"
 										/>
 									</MenuItem>
@@ -961,7 +1080,7 @@ export class StreamChartProperties extends Component {
 										width: '150px',
 									}}
 									id="number"
-									label={<FormattedMessage id="StreamChartSettings.LabelRotation" defaultMessage="Rotate Labels (Degrees)" />}
+									label={<FormattedMessage id="StreamChartProperties.LabelRotation" defaultMessage="Rotate Labels (Degrees)" />}
 									inputProps={{
 										min: -90,
 										max: 90,
@@ -987,7 +1106,7 @@ export class StreamChartProperties extends Component {
 											marginBottom: '7px'
 										}}
 									>
-										Visible
+										<FormattedMessage id="StreamChartProperties.Visible" defaultMessage="Visible" />
 									</FormLabel>
 									<FormControlLabel
 										control={
@@ -1033,7 +1152,7 @@ export class StreamChartProperties extends Component {
 										label={
 											<FormattedMessage
 												id="StreamChartProperties.AxisTitle"
-												defaultMessage="Axis title"
+												defaultMessage="Axis Title"
 											/>
 										}
 									/>
@@ -1044,7 +1163,7 @@ export class StreamChartProperties extends Component {
 											marginBottom: '7px'
 										}}
 									>
-										Settings
+										<FormattedMessage id="StreamChartProperties.Settings" defaultMessage="Settings" />
 									</FormLabel>
 									<FormControlLabel
 										control={
@@ -1169,7 +1288,7 @@ export class StreamChartProperties extends Component {
 									margin: '8px'
 								}}
 							>
-								Marker
+								<FormattedMessage id="StreamChartProperties.Marker" defaultMessage="Marker" />
 							</FormLabel>
 							<FormControl
 								style={{
@@ -1188,37 +1307,37 @@ export class StreamChartProperties extends Component {
 									input={<Input name="series-marker" id="series-marker" />}
 								>
 									<MenuItem value="none" key={1}>
-										<FormattedMessage id="ChartProperties.none" defaultMessage="None" />
+										<FormattedMessage id="StreamChartProperties.none" defaultMessage="None" />
 									</MenuItem>
 									<MenuItem value="circle" key={2}>
-										<FormattedMessage id="ChartProperties.circle" defaultMessage="Circle" />
+										<FormattedMessage id="StreamChartProperties.circle" defaultMessage="Circle" />
 									</MenuItem>
 									<MenuItem value="cross" key={3}>
-										<FormattedMessage id="ChartProperties.cross" defaultMessage="Cross" />
+										<FormattedMessage id="StreamChartProperties.cross" defaultMessage="Cross" />
 									</MenuItem>
 									<MenuItem value="crossRot" key={4}>
 										<FormattedMessage
-											id="ChartProperties.rotatedCross"
+											id="StreamChartProperties.rotatedCross"
 											defaultMessage="Rotated Cross"
 										/>
 									</MenuItem>
 									<MenuItem value="dash" key={5}>
-										<FormattedMessage id="ChartProperties.dash" defaultMessage="Dash" />
+										<FormattedMessage id="StreamChartProperties.dash" defaultMessage="Dash" />
 									</MenuItem>
 									<MenuItem value="line" key={6}>
-										<FormattedMessage id="ChartProperties.line" defaultMessage="Line" />
+										<FormattedMessage id="StreamChartProperties.line" defaultMessage="Line" />
 									</MenuItem>
 									<MenuItem value="rect" key={7}>
-										<FormattedMessage id="ChartProperties.rectangle" defaultMessage="Rectangle" />
+										<FormattedMessage id="StreamChartProperties.rectangle" defaultMessage="Rectangle" />
 									</MenuItem>
 									<MenuItem value="rectRot" key={9}>
-										<FormattedMessage id="ChartProperties.diamond" defaultMessage="Diamond" />
+										<FormattedMessage id="StreamChartProperties.diamond" defaultMessage="Diamond" />
 									</MenuItem>
 									<MenuItem value="star" key={10}>
-										<FormattedMessage id="ChartProperties.star" defaultMessage="Star" />
+										<FormattedMessage id="StreamChartProperties.star" defaultMessage="Star" />
 									</MenuItem>
 									<MenuItem value="triangle" key={11}>
-										<FormattedMessage id="ChartProperties.triangle" defaultMessage="Triangle" />
+										<FormattedMessage id="StreamChartProperties.triangle" defaultMessage="Triangle" />
 									</MenuItem>
 								</Select>
 							</FormControl>
@@ -1290,7 +1409,7 @@ export class StreamChartProperties extends Component {
 									margin: '8px'
 								}}
 							>
-								Axis Assignment
+								<FormattedMessage id="StreamChartProperties.AxisAssignment" defaultMessage="Axis Assignment" />
 							</FormLabel>
 							<FormControl
 								style={{
@@ -1397,7 +1516,7 @@ export class StreamChartProperties extends Component {
 										marginBottom: '7px'
 									}}
 								>
-									Display
+									<FormattedMessage id="StreamChartProperties.Display" defaultMessage="Display" />
 								</FormLabel>
 								<FormControlLabel
 									control={
@@ -1575,7 +1694,7 @@ export class StreamChartProperties extends Component {
 										width: '150px',
 									}}
 									id="number"
-									label={<FormattedMessage id="StreamChartSettings.LabelRotation" defaultMessage="Rotate Labels (Degrees)" />}
+									label={<FormattedMessage id="StreamChartProperties.LabelRotation" defaultMessage="Rotate Labels (Degrees)" />}
 									inputProps={{
 										min: -90,
 										max: 90,
