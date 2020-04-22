@@ -1586,6 +1586,7 @@ export default class WorksheetView extends ContentNodeView {
 								case 'FILE.WRITE':
 								case 'REST.REQUEST':
 								case 'REST.RESPOND':
+								case 'HTTP.RESPOND':
 								case 'MAIL.SEND':
 								case 'FEEDINBOX':
 								case 'OPCUA.FOLDERS':
