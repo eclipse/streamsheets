@@ -3,7 +3,7 @@ const { ProviderConfiguration } = require('@cedalo/sdk-streams');
 module.exports = class RestClientProviderConfiguration extends ProviderConfiguration {
 	constructor() {
 		super({
-			name: 'REST Client Provider'
+			name: 'HTTP Client Provider'
 		});
 
 		this.canConsume = false;
@@ -12,7 +12,7 @@ module.exports = class RestClientProviderConfiguration extends ProviderConfigura
 
 		this.addConnectorDefinition({
 			id: 'baseUrl',
-			label: 'REST URL'
+			label: 'Base URL'
 		});
 
 		this.addConnectorDefinition({
