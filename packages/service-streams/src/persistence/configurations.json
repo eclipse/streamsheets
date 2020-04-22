@@ -37,7 +37,7 @@
 	{
 		"_id": "CONNECTOR_REST",
 		"id": "CONNECTOR_REST",
-		"name": "REST_Connector",
+		"name": "HTTP_Connector",
 		"className": "ConnectorConfiguration",
 		"provider": {
 			"_id": "@cedalo/rest-server",
