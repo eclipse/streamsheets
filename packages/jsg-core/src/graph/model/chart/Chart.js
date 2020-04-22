@@ -1,4 +1,5 @@
 const ChartRect = require('./ChartRect');
+const Expression = require('../../expr/Expression');
 
 module.exports = class Chart {
 	constructor() {
@@ -13,6 +14,11 @@ module.exports = class Chart {
 		this.template = 'basic';
 		this.tooltips = true;
 		this.margins = new ChartRect(200, 200, 200, 200);
+		this.coharentData = true;
+		this.firstCategoryLabels = true;
+		this.firstSeriesLabels = true;
+		this.dataInRows = true;
+		this.formula = new Expression(0);
 	}
 
 	get dataMode() {
@@ -51,6 +57,10 @@ module.exports = class Chart {
 		writer.writeStartElement('chart');
 		writer.writeAttributeString('datamode', this.dataMode);
 		writer.writeAttributeString('template', this.template);
+		writer.writeAttributeNumber('coharent', this.coharentData ? 1 : 0);
+		writer.writeAttributeNumber('firstcategories', this.firstCategoryLabels ? 1 : 0);
+		writer.writeAttributeNumber('firstseries', this.firstSeriesLabels ? 1 : 0);
+		writer.writeAttributeNumber('datainrows', this.dataInRows ? 1 : 0);
 		writer.writeAttributeNumber('stacked', this.stacked ? 1 : 0);
 		writer.writeAttributeNumber('relative', this.relative ? 1 : 0);
 		writer.writeAttributeNumber('period', this.period ? 1 : 0);
@@ -59,6 +69,7 @@ module.exports = class Chart {
 		writer.writeAttributeNumber('startangle', this.startAngle);
 		writer.writeAttributeNumber('endangle', this.endAngle);
 		writer.writeAttributeNumber('hole', this.hole);
+		this.formula.save('formula', writer);
 		writer.writeEndElement();
 	}
 
@@ -67,6 +78,10 @@ module.exports = class Chart {
 		this.stacked = reader.getAttribute(object, 'stacked');
 		this.relative = reader.getAttribute(object, 'relative');
 		this.period = reader.getAttribute(object, 'period');
+		this.coharentData = reader.getAttributeBoolean(object, 'coharent', true);
+		this.firstCategoryLabels = reader.getAttributeBoolean(object, 'firstcategories', true);
+		this.firstSeriesLabels = reader.getAttributeBoolean(object, 'firstseries', true);
+		this.dataInRows = reader.getAttributeBoolean(object, 'datainrows', true);
 		this.tooltips = reader.getAttributeBoolean(object, 'tooltips', true);
 		this.rotation = reader.getAttributeNumber(object, 'rotation', 0);
 		this.startAngle = reader.getAttributeNumber(object, 'startangle', 0);
@@ -74,5 +89,13 @@ module.exports = class Chart {
 		this.hole = reader.getAttributeNumber(object, 'hole', 0.5);
 		this.template = reader.getAttribute(object, 'template') ?
 			reader.getAttribute(object, 'template') : 'basic';
+		reader.iterateObjects(object, (name, child) => {
+			switch (name) {
+			case 'formula':
+				this.formula = new Expression(0);
+				this.formula.read(reader, child);
+				break;
+			}
+		});
 	}
 };

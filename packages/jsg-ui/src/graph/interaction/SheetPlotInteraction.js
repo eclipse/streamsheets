@@ -84,7 +84,7 @@ export default class SheetPlotInteraction extends Interaction {
 			children.forEach((controller) => {
 				if ((controller.getModel() instanceof SheetPlotNode) && controller.getModel().isVisible() && controller.getModel().chart.tooltips) {
 					layer.push(
-						new ChartInfoFeedbackView(controller.getView(), selection, event.location.copy(), value, viewer));
+						new ChartInfoFeedbackView(controller.getView(), selection, pt, value, viewer));
 				}
 			});
 		}
@@ -133,7 +133,8 @@ export default class SheetPlotInteraction extends Interaction {
 			if (layer.length >= 1) {
 				layer.forEach((view) => {
 					if (view.chartView.getItem().getId() === item.getId()) {
-						view.endPoint = event.location;
+						const pt = this.toLocalCoordinate(event, viewer, event.location.copy());
+						view.endPoint = pt;
 					}
 				});
 			}
@@ -159,8 +160,8 @@ export default class SheetPlotInteraction extends Interaction {
 
 		layer.forEach((view) => {
 			if (view.endPoint) {
-				const ptStart = this.toLocalCoordinate(event, viewer, view.point.copy());
-				const ptEnd = this.toLocalCoordinate(event, viewer, view.endPoint.copy());
+				const ptStart = view.point.copy();
+				const ptEnd = view.endPoint.copy();
 				if (Math.abs(ptEnd.x - ptStart.x) > 150) {
 					const item = this._controller.getModel();
 					const axes = item.getAxes();

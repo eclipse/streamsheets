@@ -21,18 +21,22 @@ export default class ChartSelectionFeedbackView extends View {
 		const point = new Point(0, 0);
 		const rect = new Rectangle();
 		const drawMarkerRect = ((sel) => {
-			rect.set(sel.left - 75, sel.top - 75, 100, 100);
+			rect.set(sel.left - 50, sel.top - 50, 100, 100);
 			graphics.drawMarker(rect, true);
-			rect.set(sel.right - 75, sel.top - 75, 100, 100);
+			rect.set(sel.right - 50, sel.top - 50, 100, 100);
 			graphics.drawMarker(rect, true);
-			rect.set(sel.left - 75, sel.bottom - 75, 100, 100);
+			rect.set(sel.left - 50, sel.bottom - 50, 100, 100);
 			graphics.drawMarker(rect, true);
-			rect.set(sel.right - 75, sel.bottom - 75, 100, 100);
+			rect.set(sel.right - 50, sel.bottom - 50, 100, 100);
 			graphics.drawMarker(rect, true);
 		});
 
+		let angle = 0; // this.chartView.getItem().getAngle().getValue();
 		GraphUtils.traverseUp(this.chartView, this._graphView, (v) => {
 			v.translateToParent(point);
+			if (v.getItem) {
+				angle += v.getItem().getAngle().getValue();
+			}
 			return true;
 		});
 
@@ -46,6 +50,7 @@ export default class ChartSelectionFeedbackView extends View {
 
 		graphics.save();
 		graphics.translate(point.x, point.y);
+		graphics.rotate(angle);
 		// graphics.beginPath();
 		// graphics.rect(plotRect.left, plotRect.top, plotRect.width, plotRect.height);
 		// graphics.clip();
@@ -78,17 +83,17 @@ export default class ChartSelectionFeedbackView extends View {
 				case 'right':
 					pos = plotRect.bottom - pos * plotRect.height;
 					rect.set(plotRect.left, pos - 100, plotRect.right, pos + 100);
-					rect.set(plotRect.left - 75, pos - 75, 100, 100);
+					rect.set(plotRect.left - 50, pos - 50, 100, 100);
 					graphics.drawMarker(rect, true);
-					rect.set(plotRect.right - 75, pos - 75, 100, 100);
+					rect.set(plotRect.right - 50, pos - 50, 100, 100);
 					graphics.drawMarker(rect, true);
 					break;
 				case 'top':
 				case 'bottom':
 					pos = plotRect.left + pos * plotRect.width;
-					rect.set(pos - 75, plotRect.top - 75, 100, 100);
+					rect.set(pos - 50, plotRect.top - 50, 100, 100);
 					graphics.drawMarker(rect, true);
-					rect.set(pos - 75, plotRect.bottom - 75, 100, 100);
+					rect.set(pos - 50, plotRect.bottom - 50, 100, 100);
 					graphics.drawMarker(rect, true);
 					break;
 				}
@@ -143,30 +148,31 @@ export default class ChartSelectionFeedbackView extends View {
 						pt.x = item.scaleToAxis(axes.x, value.x, undefined, false);
 						pt.y = item.scaleToAxis(axes.y, value.y, info, false);
 						item.toPlot(serie, plotRect, pt);
-
-						const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
-						const drawRect = item.getLabelRect(pt, value, text, index, params);
-						if (drawRect) {
-							let markerPt = new Point(drawRect.left, drawRect.top);
-							markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center,
-								-labelAngle) : markerPt;
-							rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-							graphics.drawMarker(rect, true);
-							markerPt.set(drawRect.left, drawRect.bottom);
-							markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center,
-								-labelAngle) : markerPt;
-							rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-							graphics.drawMarker(rect, true);
-							markerPt.set(drawRect.right, drawRect.top);
-							markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center,
-								-labelAngle) : markerPt;
-							rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-							graphics.drawMarker(rect, true);
-							markerPt.set(drawRect.right, drawRect.bottom);
-							markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center,
-								-labelAngle) : markerPt;
-							rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-							graphics.drawMarker(rect, true);
+						if (pt.x + 1 >= plotRect.left && pt.x - 1 <= plotRect.right && pt.y + 1 >= plotRect.top && pt.y - 1 <= plotRect.bottom) {
+							const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
+							const drawRect = item.getLabelRect(pt, value, text, index, params);
+							if (drawRect) {
+								let markerPt = new Point(drawRect.left, drawRect.top);
+								markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center,
+									-labelAngle) : markerPt;
+								rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+								graphics.drawMarker(rect, true);
+								markerPt.set(drawRect.left, drawRect.bottom);
+								markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center,
+									-labelAngle) : markerPt;
+								rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+								graphics.drawMarker(rect, true);
+								markerPt.set(drawRect.right, drawRect.top);
+								markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center,
+									-labelAngle) : markerPt;
+								rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+								graphics.drawMarker(rect, true);
+								markerPt.set(drawRect.right, drawRect.bottom);
+								markerPt = labelAngle ? MathUtils.getRotatedPoint(markerPt, drawRect.center,
+									-labelAngle) : markerPt;
+								rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+								graphics.drawMarker(rect, true);
+							}
 						}
 					}
 					index += 1;
@@ -196,25 +202,25 @@ export default class ChartSelectionFeedbackView extends View {
 					info.index = index;
 					switch (serie.type) {
 						case 'doughnut': {
-							const angle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
+							const pieAngle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
 							const points = item.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, pieInfo.xInnerRadius, pieInfo.yInnerRadius,
-								pieInfo.xOuterRadius, pieInfo.yOuterRadius, 0, currentAngle, currentAngle + angle, 2);
+								pieInfo.xOuterRadius, pieInfo.yOuterRadius, 0, currentAngle, currentAngle + pieAngle, 2);
 							points.forEach((pt) => {
 								rect.set(pt.x - 50, pt.y - 50, 100, 100);
 								graphics.drawMarker(rect, true);
 							});
-							currentAngle += angle;
+							currentAngle += pieAngle;
 							break;
 						}
 						case 'pie': {
-							const angle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
+							const pieAngle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
 							const points = item.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, 0, 0,
-								pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle, currentAngle + angle, 2);
+								pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle, currentAngle + pieAngle, 2);
 							points.forEach((pt) => {
 								rect.set(pt.x - 50, pt.y - 50, 100, 100);
 								graphics.drawMarker(rect, true);
 							});
-							currentAngle += angle;
+							currentAngle += pieAngle;
 							break;
 						}
 						case 'bar':
@@ -320,6 +326,7 @@ export default class ChartSelectionFeedbackView extends View {
 			break;
 		}
 
+		graphics.rotate(-angle);
 		graphics.translate(-point.x, -point.y);
 		graphics.restore();
 	}

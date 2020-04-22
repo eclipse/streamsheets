@@ -150,6 +150,43 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'chart');
 	};
 
+	handleChartCoharentChange = (event, state) => {
+		const cmd = this.prepareCommand('chart');
+		const item = this.state.plotView.getItem();
+		item.chart.coharentData = state;
+		this.finishCommand(cmd, 'chart');
+	};
+
+	handleChartFormulaBlur = (event) => {
+		const cmd = this.prepareCommand('chart');
+		const item = this.state.plotView.getItem();
+
+		item.chart.formula = new JSG.Expression(0, event.target.textContent.replace(/^=/, ''));
+
+		this.finishCommand(cmd, 'chart');
+	};
+
+	handleChartDataInRowsChange = (event, state) => {
+		const cmd = this.prepareCommand('chart');
+		const item = this.state.plotView.getItem();
+		item.chart.dataInRows = state;
+		this.finishCommand(cmd, 'chart');
+	};
+
+	handleChartFirstSeriesLabelsChange = (event, state) => {
+		const cmd = this.prepareCommand('chart');
+		const item = this.state.plotView.getItem();
+		item.chart.firstSeriesLabels = state;
+		this.finishCommand(cmd, 'chart');
+	};
+
+	handleChartFirstCategoryLabelsChange = (event, state) => {
+		const cmd = this.prepareCommand('chart');
+		const item = this.state.plotView.getItem();
+		item.chart.firstCategoryLabels = state;
+		this.finishCommand(cmd, 'chart');
+	};
+
 	handleChartStackedChange = (event, state) => {
 		const cmd = this.prepareCommand('chart');
 		const data = this.getData();
@@ -235,6 +272,13 @@ export class StreamChartProperties extends Component {
 		const data = this.getData();
 		data.align = value;
 		this.finishCommand(cmd, 'legend');
+	};
+
+	handleTitleAlignChange = (event, value) => {
+		const cmd = this.prepareCommand('title');
+		const data = this.getData();
+		data.align = value;
+		this.finishCommand(cmd, 'title');
 	};
 
 	handleSeriesFormulaBlur = (event, series) => {
@@ -517,7 +561,6 @@ export class StreamChartProperties extends Component {
 	}
 
 	render() {
-		// const { expanded } = this.state;
 		if (!this.state.plotView) {
 			return <div />;
 		}
@@ -934,6 +977,43 @@ export class StreamChartProperties extends Component {
 							</RadioGroup>
 						</FormControl>
 					) : null}
+					{selection && selection.element === 'title' ? (
+						<FormControl
+							style={{
+								width: '95%',
+								margin: '8px'
+							}}
+						>
+							<RadioGroup name="type" value={data.align} onChange={this.handleTitleAlignChange}>
+								<FormLabel
+									component="legend"
+									style={{
+										marginBottom: '7px'
+									}}
+								>
+									<FormattedMessage
+										id="StreamChartProperties.Position"
+										defaultMessage="Position"
+									/>
+								</FormLabel>
+								<FormControlLabel
+									value="left"
+									control={<Radio />}
+									label={<FormattedMessage id="StreamChartProperties.left" defaultMessage="Left" />}
+								/>
+								<FormControlLabel
+									value="center"
+									control={<Radio />}
+									label={<FormattedMessage id="StreamChartProperties.center" defaultMessage="Center" />}
+								/>
+								<FormControlLabel
+									value="right"
+									control={<Radio />}
+									label={<FormattedMessage id="StreamChartProperties.right" defaultMessage="Right" />}
+								/>
+							</RadioGroup>
+						</FormControl>
+					) : null}
 					{selection && selection.element === 'plot' ? (
 						<div>
 							<FormLabel
@@ -944,7 +1024,102 @@ export class StreamChartProperties extends Component {
 							>
 								<FormattedMessage id="StreamChartProperties.Series" defaultMessage="Series" />
 							</FormLabel>
-							{item.series.map((series, index) => (
+
+							<FormGroup
+								style={{
+									width: '95%',
+									margin: '7px 7px 15px 7px'
+								}}
+							>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={item.chart.coharentData}
+											onChange={(event, state) =>
+												this.handleChartCoharentChange(event, state)
+											}
+										/>
+									}
+									label={
+										<FormattedMessage id="StreamChartProperties.DataCoharent" defaultMessage="Data Range coharent" />
+									}
+								/>
+							</FormGroup>
+							{item.chart.coharentData ? (
+									<FormGroup
+										style={{
+											width: '95%',
+											margin: '7px 7px 15px 7px'
+										}}
+									>
+										<FormControl
+											style={{
+												fontSize: '8pt',
+												borderTop: '1px solid #CCCCCC',
+												paddingTop: '7px',
+												marginBottom: '10px'
+											}}
+										>
+											<CellRangeComponent
+												label={
+													<FormattedMessage id="StreamChartProperties.ChartDataRange" defaultMessage="Data Range" />
+												}
+												sheetView={sheetView}
+												onlyReference={false}
+												fontSize="9pt"
+												range={item.chart.formula.getFormula() ? `=${item.chart.formula.getFormula()}` : ''}
+												onBlur={(event) => this.handleChartFormulaBlur(event)}
+												onKeyPress={(event) => {
+													if (event.key === 'Enter') {
+														this.handleChartFormulaBlur(event);
+													}
+												}}
+											/>
+										</FormControl>
+										{!item.isTimeBasedChart() ? (
+											<div>
+												<FormControlLabel
+													control={
+														<Checkbox
+															checked={item.chart.dataInRows}
+															onChange={(event, state) =>
+																this.handleChartDataInRowsChange(event, state)
+															}
+														/>
+													}
+													label={
+														<FormattedMessage id="StreamChartProperties.DataInRows" defaultMessage="Data in Rows" />
+													}
+												/>
+												<FormControlLabel
+													control={
+														<Checkbox
+															checked={item.chart.firstSeriesLabels}
+															onChange={(event, state) =>
+																this.handleChartFirstSeriesLabelsChange(event, state)
+															}
+														/>
+													}
+													label={
+														<FormattedMessage id="StreamChartProperties.FirstSeriesLabels" defaultMessage="First Row/Column are Series Labels" />
+													}
+												/>
+												<FormControlLabel
+													control={
+														<Checkbox
+															checked={item.chart.firstCategoryLabels}
+															onChange={(event, state) =>
+																this.handleChartFirstCategoryLabelsChange(event, state)
+															}
+														/>
+													}
+													label={
+														<FormattedMessage id="StreamChartProperties.FirstCategoryLabels" defaultMessage="First Row/Column are Category Labels" />
+													}
+												/>
+											</div>) : null}
+									</FormGroup>
+								) : item.series.map((series, index) => (
 								<FormGroup
 									style={{
 										width: '95%',
@@ -968,9 +1143,9 @@ export class StreamChartProperties extends Component {
 											range={`=${series.formula.getFormula()}`}
 											// onChange={this.handleDataRange}
 											onBlur={(event) => this.handleSeriesFormulaBlur(event, series)}
-											onKeyPress={(ev) => {
-												if (ev.key === 'Enter') {
-													this.handleDataRangeBlur(ev);
+											onKeyPress={(event) => {
+												if (event.key === 'Enter') {
+													this.handleSeriesFormulaBlur(event, series);
 												}
 											}}
 										/>
@@ -1077,7 +1252,7 @@ export class StreamChartProperties extends Component {
 								</Select>
 								<TextField
 									style={{
-										width: '150px',
+										width: '200px',
 									}}
 									id="number"
 									label={<FormattedMessage id="StreamChartProperties.LabelRotation" defaultMessage="Rotate Labels (Degrees)" />}
@@ -1469,7 +1644,7 @@ export class StreamChartProperties extends Component {
 										marginBottom: '7px'
 									}}
 								>
-									Settings
+									<FormattedMessage id="StreamChartProperties.Settings" defaultMessage="Settings" />
 								</FormLabel>
 								<FormControlLabel
 									control={
@@ -1691,7 +1866,7 @@ export class StreamChartProperties extends Component {
 							>
 								<TextField
 									style={{
-										width: '150px',
+										width: '200px',
 									}}
 									id="number"
 									label={<FormattedMessage id="StreamChartProperties.LabelRotation" defaultMessage="Rotate Labels (Degrees)" />}
@@ -1729,6 +1904,40 @@ export class StreamChartProperties extends Component {
 							</FormControl>
 						</div>
 					) : null}
+					{selection && (selection.element === 'xAxisGrid' || selection.element === 'yAxisGrid') ? (
+						<div>
+							<FormGroup
+								style={{
+									margin: '8px'
+								}}
+							>
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={data.gridVisible}
+											onChange={(event, state) => this.handleGridlineVisibleChange(event, state)}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.Visible"
+											defaultMessage="Visible"
+										/>
+									}
+								/>
+							</FormGroup>
+						</div>
+					) : null}
+					<FormLabel
+						component="legend"
+						style={{
+							margin: '7px 7px 7px 7px',
+							fontSize: '7pt',
+							lineHeight: '1.5'
+						}}
+					>
+						<FormattedMessage id="StreamChartProperties.FormatHint" defaultMessage="Format Hint" />
+					</FormLabel>
 				</div>
 			</Slide>
 		);

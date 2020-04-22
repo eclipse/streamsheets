@@ -14,19 +14,32 @@ export default class ChartInfoFeedbackView extends View {
 	}
 
 	draw(graphics) {
+		const point = new Point(0, 0);
+		let angle = 0;
+
+		GraphUtils.traverseUp(this.chartView, this._graphView, (v) => {
+			v.translateToParent(point);
+			if (v.getItem) {
+				angle += v.getItem().getAngle().getValue();
+			}
+			return true;
+		});
+
+		graphics.translate(point.x, point.y);
+		graphics.rotate(angle);
+
+		this.draw2(graphics);
+
+		graphics.rotate(-angle);
+		graphics.translate(-point.x, -point.y);
+	};
+
+	draw2(graphics) {
 		const item = this.chartView.getItem();
 		const top = new Point(item.plot.position.left, item.plot.position.top);
 		const bottom = new Point(item.plot.position.left, item.plot.position.bottom);
 		const left = new Point(item.plot.position.left, item.plot.position.top);
 		const right = new Point(item.plot.position.right, item.plot.position.top);
-
-		GraphUtils.traverseUp(this.chartView, this._graphView, (v) => {
-			v.translateToParent(top);
-			v.translateToParent(bottom);
-			v.translateToParent(left);
-			v.translateToParent(right);
-			return true;
-		});
 
 		graphics.setFillColor(SelectionStyle.MARKER_FILL_COLOR);
 		graphics.setFillStyle(FormatAttributes.FillStyle.SOLID);
@@ -51,8 +64,8 @@ export default class ChartInfoFeedbackView extends View {
 				graphics.lineTo(x, bottom.y);
 
 				if (this.endPoint) {
-					graphics.moveTo(this.endPoint.x, top.y);
-					graphics.lineTo(this.endPoint.x, bottom.y);
+					// graphics.moveTo(this.endPoint.x, top.y);
+					// graphics.lineTo(this.endPoint.x, bottom.y);
 					graphics.rect(this.point.x, top.y, this.endPoint.x - this.point.x, bottom.y - top.y);
 				}
 			} else {
@@ -144,16 +157,16 @@ export default class ChartInfoFeedbackView extends View {
 				pieInfo = item.getPieInfo(ref, serie, plotRect, this.selection.dataPoints[0].index);
 				let currentAngle = pieInfo.startAngle;
 				let index = 0;
-				let angle = 0;
+				let pieAngle = 0;
 				while (item.getValue(ref, index, value) && index <= this.selection.dataPoints[0].pointIndex) {
-					angle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
-					currentAngle += angle;
+					pieAngle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
+					currentAngle += pieAngle;
 					index += 1;
 				}
 				switch (serie.type) {
 				case 'pie': {
 					const points = item.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, 0, 0,
-						pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle - angle, currentAngle, 2);
+						pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle - pieAngle, currentAngle, 2);
 					if (points.length) {
 						x = top.x - item.plot.position.left + points[1].x;
 						y = top.y - item.plot.position.top + points[1].y;
@@ -162,7 +175,7 @@ export default class ChartInfoFeedbackView extends View {
 				}
 				case 'doughnut': {
 					const points = item.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, pieInfo.xInnerRadius, pieInfo.yInnerRadius,
-						pieInfo.xOuterRadius, pieInfo.yOuterRadius, 0, currentAngle - angle, currentAngle, 2);
+						pieInfo.xOuterRadius, pieInfo.yOuterRadius, 0, currentAngle - pieAngle, currentAngle, 2);
 					if (points.length) {
 						x = top.x - item.plot.position.left + points[1].x;
 						y = top.y - item.plot.position.top + points[1].y;
