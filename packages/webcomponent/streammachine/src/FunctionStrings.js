@@ -897,6 +897,17 @@ const Strings = {
 			description: 'Gibt die Stunde eines Zeitwertes zurück',
 		},
 	},
+	'HTTP.RESPOND': {
+		category: 'streamsheet',
+		en: {
+			argumentList: 'Consumer,DataObjectId,Body,StatusCode,Headers',
+			description: 'Sends data to a Producer that send a data object previously',
+		},
+		de: {
+			argumentList: 'Consumer,DataObjectId,Body,StatusCode,Headers',
+			description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId.',
+		},
+	},
 	IF: {
 		category: 'logical',
 		en: {
