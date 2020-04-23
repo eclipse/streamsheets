@@ -2624,280 +2624,276 @@ export class CanvasToolBar extends Component {
 						</GridListTile>
 					</GridList>
 				</Popover>
-				{this.props.experimental ? (
+				<Tooltip
+					enterDelay={300}
+					title={<FormattedMessage id="Tooltip.BorderStyle" defaultMessage="Border Style" />}
+				>
 					<div>
-						<Tooltip
-							enterDelay={300}
-							title={<FormattedMessage id="Tooltip.BorderStyle" defaultMessage="Border Style" />}
+						<IconButton
+							style={buttonStyle}
+							onClick={this.onShowBorderStyle}
+							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
-							<div>
-								<IconButton
-									style={buttonStyle}
-									onClick={this.onShowBorderStyle}
-									disabled={!this.props.cellSelected && !this.state.graphSelected}
-								>
-									<SvgIcon>
-										<path
-											d="M3,16H8V14H3V16M9.5,16H14.5V14H9.5V16M16,16H21V14H16V16M3,20H5V18H3V20M7,20H9V18H7V20M11,20H13V18H11V20M15,20H17V18H15V20M19,20H21V18H19V20M3,12H11V10H3V12M13,12H21V10H13V12M3,4V8H21V4H3Z"
-										/>
-									</SvgIcon>
-								</IconButton>
-							</div>
-						</Tooltip>
-						<Popover
-							open={this.state.showBorderStyle}
-							anchorEl={this.state.anchorEl}
-							anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
-							transformOrigin={{ horizontal: 'left', vertical: 'top' }}
-							onExited={this.handleFocus}
-							onClose={this.onCloseBorderStyle}
+							<SvgIcon>
+								<path
+									d="M3,16H8V14H3V16M9.5,16H14.5V14H9.5V16M16,16H21V14H16V16M3,20H5V18H3V20M7,20H9V18H7V20M11,20H13V18H11V20M15,20H17V18H15V20M19,20H21V18H19V20M3,12H11V10H3V12M13,12H21V10H13V12M3,4V8H21V4H3Z"
+								/>
+							</SvgIcon>
+						</IconButton>
+					</div>
+				</Tooltip>
+				<Popover
+					open={this.state.showBorderStyle}
+					anchorEl={this.state.anchorEl}
+					anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+					transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+					onExited={this.handleFocus}
+					onClose={this.onCloseBorderStyle}
+					style={{
+						overflow: 'hidden'
+					}}
+				>
+					<GridList
+						cols={1}
+						cellHeight={22}
+						spacing={4}
+						style={{
+							width: '110px',
+							margin: '1px'
+						}}
+					>
+						<GridListTile
+							cols={1}
 							style={{
-								overflow: 'hidden'
+								height: '24px'
 							}}
 						>
-							<GridList
-								cols={1}
-								cellHeight={22}
-								spacing={4}
+							<div
 								style={{
-									width: '110px',
-									margin: '1px'
+									backgroundColor: Colors.blue[800],
+									color: 'white',
+									fontSize: '10pt',
+									padding: '3px'
 								}}
 							>
-								<GridListTile
-									cols={1}
-									style={{
-										height: '24px'
-									}}
+								<FormattedMessage id="BorderStyle" defaultMessage="Border Style" />
+							</div>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Border.None" defaultMessage="None" />}
+							>
+								<IconButton
+									style={borderStyle}
+									color="inherit"
+									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.NONE)}
 								>
-									<div
-										style={{
-											backgroundColor: Colors.blue[800],
-											color: 'white',
-											fontSize: '10pt',
-											padding: '3px'
-										}}
-									>
-										<FormattedMessage id="BorderStyle" defaultMessage="Border Style" />
-									</div>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Border.None" defaultMessage="None" />}
-									>
-										<IconButton
-											style={borderStyle}
-											color="inherit"
-											onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.NONE)}
-										>
-											<img alt="" src="lib/res/images/linestylenone.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Border.Solid" defaultMessage="Solid" />}
-									>
-										<IconButton
-											style={borderStyle}
-											color="inherit"
-											onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.SOLID)}
-										>
-											<img alt="" src="lib/res/images/linestylesolid.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Border.Dot" defaultMessage="Dot" />}
-									>
-										<IconButton
-											style={borderStyle}
-											color="inherit"
-											onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DOT)}
-										>
-											<img alt="" src="lib/res/images/linestyledot.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Border.Dash" defaultMessage="Dash" />}
-									>
-										<IconButton
-											style={borderStyle}
-											color="inherit"
-											onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASH)}
-										>
-											<img alt="" src="lib/res/images/linestyledash.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Border.DashDot" defaultMessage="Dash Dot" />}
-									>
-										<IconButton
-											style={borderStyle}
-											color="inherit"
-											onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOT)}
-										>
-											<img alt="" src="lib/res/images/linestyledashdot.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Border.DashDotDot" defaultMessage="Dash Dot Dot" />}
-									>
-										<IconButton
-											style={borderStyle}
-											color="inherit"
-											onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOTDOT)}
-										>
-											<img alt="" src="lib/res/images/linestyledashdotdot.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile
-									cols={1}
-									style={{
-										height: '24px'
-									}}
+									<img alt="" src="lib/res/images/linestylenone.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Border.Solid" defaultMessage="Solid" />}
+							>
+								<IconButton
+									style={borderStyle}
+									color="inherit"
+									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.SOLID)}
 								>
-									<div
-										style={{
-											backgroundColor: Colors.blue[800],
-											color: 'white',
-											fontSize: '10pt',
-											padding: '3px'
-										}}
-									>
-										<FormattedMessage id="BorderWidth" defaultMessage="Border Width" />
-									</div>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Border.Hairline" defaultMessage="Hairline (1px)" />}
-									>
-										<IconButton
-											style={borderStyle}
-											color="inherit"
-											onClick={() => this.onFormatBorderWidth(-1)}
-										>
-											<img alt="" src="lib/res/images/lineswidth1.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Border.MM025" defaultMessage="0.25 mm" />}
-									>
-										<IconButton
-											style={borderStyle}
-											color="inherit"
-											onClick={() => this.onFormatBorderWidth(25)}
-										>
-											<img alt="" src="lib/res/images/lineswidth025.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Border.MM05" defaultMessage="0.5 mm" />}
-									>
-										<IconButton
-											style={borderStyle}
-											color="inherit"
-											onClick={() => this.onFormatBorderWidth(50)}
-										>
-											<img alt="" src="lib/res/images/lineswidth05.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Border.MM075" defaultMessage="0.75 mm" />}
-									>
-										<IconButton
-											style={borderStyle}
-											color="inherit"
-											onClick={() => this.onFormatBorderWidth(75)}
-										>
-											<img alt="" src="lib/res/images/lineswidth075.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Border.MM100" defaultMessage="1 mm" />}
-									>
-										<IconButton
-											style={borderStyle}
-											color="inherit"
-											onClick={() => this.onFormatBorderWidth(100)}
-										>
-											<img alt="" src="lib/res/images/lineswidth100.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Border.MM200" defaultMessage="2 mm" />}
-									>
-										<IconButton
-											style={borderStyle}
-											color="inherit"
-											onClick={() => this.onFormatBorderWidth(200)}
-										>
-											<img alt="" src="lib/res/images/lineswidth200.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Border.MM300" defaultMessage="3 mm" />}
-									>
-										<IconButton
-											style={borderStyle}
-											color="inherit"
-											onClick={() => this.onFormatBorderWidth(300)}
-										>
-											<img alt="" src="lib/res/images/lineswidth300.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Border.MM400" defaultMessage="4 mm" />}
-									>
-										<IconButton
-											style={borderStyle}
-											color="inherit"
-											onClick={() => this.onFormatBorderWidth(400)}
-										>
-											<img alt="" src="lib/res/images/lineswidth400.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-							</GridList>
-						</Popover>
-					</div>
-				) : null}
+									<img alt="" src="lib/res/images/linestylesolid.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Border.Dot" defaultMessage="Dot" />}
+							>
+								<IconButton
+									style={borderStyle}
+									color="inherit"
+									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DOT)}
+								>
+									<img alt="" src="lib/res/images/linestyledot.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Border.Dash" defaultMessage="Dash" />}
+							>
+								<IconButton
+									style={borderStyle}
+									color="inherit"
+									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASH)}
+								>
+									<img alt="" src="lib/res/images/linestyledash.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Border.DashDot" defaultMessage="Dash Dot" />}
+							>
+								<IconButton
+									style={borderStyle}
+									color="inherit"
+									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOT)}
+								>
+									<img alt="" src="lib/res/images/linestyledashdot.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Border.DashDotDot" defaultMessage="Dash Dot Dot" />}
+							>
+								<IconButton
+									style={borderStyle}
+									color="inherit"
+									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOTDOT)}
+								>
+									<img alt="" src="lib/res/images/linestyledashdotdot.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile
+							cols={1}
+							style={{
+								height: '24px'
+							}}
+						>
+							<div
+								style={{
+									backgroundColor: Colors.blue[800],
+									color: 'white',
+									fontSize: '10pt',
+									padding: '3px'
+								}}
+							>
+								<FormattedMessage id="BorderWidth" defaultMessage="Border Width" />
+							</div>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Border.Hairline" defaultMessage="Hairline (1px)" />}
+							>
+								<IconButton
+									style={borderStyle}
+									color="inherit"
+									onClick={() => this.onFormatBorderWidth(-1)}
+								>
+									<img alt="" src="lib/res/images/lineswidth1.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Border.MM025" defaultMessage="0.25 mm" />}
+							>
+								<IconButton
+									style={borderStyle}
+									color="inherit"
+									onClick={() => this.onFormatBorderWidth(25)}
+								>
+									<img alt="" src="lib/res/images/lineswidth025.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Border.MM05" defaultMessage="0.5 mm" />}
+							>
+								<IconButton
+									style={borderStyle}
+									color="inherit"
+									onClick={() => this.onFormatBorderWidth(50)}
+								>
+									<img alt="" src="lib/res/images/lineswidth05.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Border.MM075" defaultMessage="0.75 mm" />}
+							>
+								<IconButton
+									style={borderStyle}
+									color="inherit"
+									onClick={() => this.onFormatBorderWidth(75)}
+								>
+									<img alt="" src="lib/res/images/lineswidth075.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Border.MM100" defaultMessage="1 mm" />}
+							>
+								<IconButton
+									style={borderStyle}
+									color="inherit"
+									onClick={() => this.onFormatBorderWidth(100)}
+								>
+									<img alt="" src="lib/res/images/lineswidth100.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Border.MM200" defaultMessage="2 mm" />}
+							>
+								<IconButton
+									style={borderStyle}
+									color="inherit"
+									onClick={() => this.onFormatBorderWidth(200)}
+								>
+									<img alt="" src="lib/res/images/lineswidth200.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Border.MM300" defaultMessage="3 mm" />}
+							>
+								<IconButton
+									style={borderStyle}
+									color="inherit"
+									onClick={() => this.onFormatBorderWidth(300)}
+								>
+									<img alt="" src="lib/res/images/lineswidth300.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Border.MM400" defaultMessage="4 mm" />}
+							>
+								<IconButton
+									style={borderStyle}
+									color="inherit"
+									onClick={() => this.onFormatBorderWidth(400)}
+								>
+									<img alt="" src="lib/res/images/lineswidth400.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+					</GridList>
+				</Popover>
 				<div
 					style={{
 						borderLeft: '1px solid #AAAAAA',
@@ -3756,32 +3752,10 @@ export class CanvasToolBar extends Component {
 							<IconButton
 								style={{ padding: '5px' }}
 								color="inherit"
-								onClick={() => this.onCreateContainer('matrix1')}
-							>
-								<SvgIcon>
-									<path d="M3,4H21V8H3V4M3,10H21V14H3V10M3,16H21V20H3V16Z" />
-								</SvgIcon>
-							</IconButton>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
 								onClick={() => this.onCreateContainer('matrix2')}
 							>
 								<SvgIcon>
 									<path  d="M3,11H11V3H3M3,21H11V13H3M13,21H21V13H13M13,3V11H21V3" />
-								</SvgIcon>
-							</IconButton>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateContainer('matrix3')}
-							>
-								<SvgIcon>
-									<path d="M16,5V11H21V5M10,11H15V5H10M16,18H21V12H16M10,18H15V12H10M4,18H9V12H4M4,11H9V5H4V11Z" />
 								</SvgIcon>
 							</IconButton>
 						</GridListTile>
@@ -3861,12 +3835,29 @@ export class CanvasToolBar extends Component {
 						</GridListTile>
 					</GridList>
 				</Popover>
-				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.Chart" defaultMessage="Chart" />}>
+				{this.props.experimental ? (
+					<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.Chart" defaultMessage="Chart" />}>
+						<div>
+							<IconButton
+								onClick={this.onCreateChart}
+								disabled={!this.props.cellSelected}
+								style={buttonStyle}
+							>
+								<SvgIcon>
+									<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
+								</SvgIcon>
+							</IconButton>
+						</div>
+					</Tooltip> ) : null}
+				<Tooltip
+					enterDelay={300}
+					title={<FormattedMessage id="Tooltip.InsertChart" defaultMessage="Show Chart Types" />}
+				>
 					<div>
 						<IconButton
-							onClick={this.onCreateChart}
-							disabled={!this.props.cellSelected}
 							style={buttonStyle}
+							onClick={this.onShowCharts}
+							disabled={!this.props.cellSelected}
 						>
 							<SvgIcon>
 								<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
@@ -3874,396 +3865,376 @@ export class CanvasToolBar extends Component {
 						</IconButton>
 					</div>
 				</Tooltip>
-				{this.props.experimental ? (
-					<div>
-						<Tooltip
-							enterDelay={300}
-							title={<FormattedMessage id="Tooltip.InsertChart" defaultMessage="Show Chart Types" />}
-						>
-							<div>
-								<IconButton
-									style={buttonStyle}
-									onClick={this.onShowCharts}
-									disabled={!this.props.cellSelected}
-								>
-									<SvgIcon>
-										<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
-									</SvgIcon>
-								</IconButton>
-							</div>
-						</Tooltip>
-						<Popover
-							open={this.state.chartsOpen}
-							anchorEl={this.state.anchorEl}
-							anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-							transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-							onExited={this.handleFocus}
-							onClose={this.onChartsClose}
+				<Popover
+					open={this.state.chartsOpen}
+					anchorEl={this.state.anchorEl}
+					anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+					transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+					onExited={this.handleFocus}
+					onClose={this.onChartsClose}
+					style={{
+						overflow: 'hidden'
+					}}
+				>
+					<GridList
+						cols={6}
+						cellHeight={40}
+						spacing={4}
+						style={{
+							width: '270px',
+							margin: '1px'
+						}}
+					>
+						<GridListTile
+							cols={6}
 							style={{
-								overflow: 'hidden'
+								height: '24px'
 							}}
 						>
-							<GridList
-								cols={6}
-								cellHeight={40}
-								spacing={4}
+							<div
 								style={{
-									width: '270px',
-									margin: '1px'
+									backgroundColor: Colors.blue[800],
+									color: 'white',
+									fontSize: '10pt',
+									padding: '3px'
 								}}
 							>
-								<GridListTile
-									cols={6}
-									style={{
-										height: '24px'
-									}}
+								<FormattedMessage id="ChartTypesCategory" defaultMessage="Category Charts" />
+							</div>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Chart.Column" defaultMessage="Column" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('column')}
 								>
-									<div
-										style={{
-											backgroundColor: Colors.blue[800],
-											color: 'white',
-											fontSize: '10pt',
-											padding: '3px'
-										}}
-									>
-										<FormattedMessage id="ChartTypesCategory" defaultMessage="Category Charts" />
-									</div>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Chart.Column" defaultMessage="Column" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('column')}
-										>
-											<img alt="" src="images/charts/column.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Chart.ColumnStacked" defaultMessage="Column Stacked" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('columnstacked')}
-										>
-											<img alt="" src="images/charts/columnstacked.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Chart.ColumnStacked 100" defaultMessage="Column Stacked 100" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('columnstacked100')}
-										>
-											<img alt="" src="images/charts/columnstacked100.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Chart.Bar" defaultMessage="Bar" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('bar')}
-										>
-											<img alt="" src="images/charts/bar.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Chart.BarStacked" defaultMessage="Bar Stacked" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('barstacked')}
-										>
-											<img alt="" src="images/charts/barstacked.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Chart.BarStacked100" defaultMessage="Bar Stacked 100" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('barstacked100')}
-										>
-											<img alt="" src="images/charts/barstacked100.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Chart.Line" defaultMessage="Line" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('line')}
-										>
-											<img alt="" src="images/charts/line.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Chart.LineStacked" defaultMessage="Line Stacked" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('linestacked')}
-										>
-											<img alt="" src="images/charts/linestacked.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Chart.LineStacked100" defaultMessage="Line Stacked 100" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('linestacked100')}
-										>
-											<img alt="" src="images/charts/linestacked100.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Chart.Area" defaultMessage="Area" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('area')}
-										>
-											<img alt="" src="images/charts/area.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Chart.AreaStacked" defaultMessage="Area Stacked" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('areastacked')}
-										>
-											<img alt="" src="images/charts/areastacked.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Chart.AreaStacked100" defaultMessage="Area Stacked 100" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('areastacked100')}
-										>
-											<img alt="" src="images/charts/areastacked100.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="Chart.Profile" defaultMessage="Profile" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('profile')}
-										>
-											<img alt="" src="images/charts/profile.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile
-									cols={6}
-									style={{
-										height: '24px'
-									}}
+									<img alt="" src="images/charts/column.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Chart.ColumnStacked" defaultMessage="Column Stacked" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('columnstacked')}
 								>
-									<div
-										style={{
-											backgroundColor: Colors.blue[800],
-											color: 'white',
-											fontSize: '10pt',
-											padding: '3px'
-										}}
-									>
-										<FormattedMessage id="ChartTypesXY" defaultMessage="XY Charts" />
-									</div>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="StreamCharts.Scatter" defaultMessage="Scatter" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('scattermarker')}
-										>
-											<img alt="" src="images/charts/scattermarker.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="StreamCharts.ScatterLineMarker" defaultMessage="Scatter with Line and Markers" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('scatterlinemarker')}
-										>
-											<img alt="" src="images/charts/scatterlinemarker.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="StreamCharts.ScatterLine" defaultMessage="Scatter with Line" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('scatterline')}
-										>
-											<img alt="" src="images/charts/scatterline.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="StreamCharts.Bubble" defaultMessage="Bubble" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('bubble')}
-										>
-											<img alt="" src="images/charts/bubble.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile
-									cols={6}
-									style={{
-										height: '24px'
-									}}
+									<img alt="" src="images/charts/columnstacked.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Chart.ColumnStacked 100" defaultMessage="Column Stacked 100" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('columnstacked100')}
 								>
-									<div
-										style={{
-											backgroundColor: Colors.blue[800],
-											color: 'white',
-											fontSize: '10pt',
-											padding: '3px'
-										}}
-									>
-										<FormattedMessage id="StreamChartProperties.PieCharts" defaultMessage="Pie and Doughnut Charts" />
-									</div>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="StreamCharts.Pie" defaultMessage="Pie" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('pie')}
-										>
-											<img alt="" src="images/charts/pie.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="StreamCharts.HalfPie" defaultMessage="Half Pie" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('piehalf')}
-										>
-											<img alt="" src="images/charts/halfpie.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="StreamCharts.3dPie" defaultMessage="3D Pie" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('pie3d')}
-										>
-											<img alt="" src="images/charts/pie3d.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<GridListTile cols={1}>
-									<Tooltip
-										enterDelay={300}
-										title={<FormattedMessage id="StreamCharts.Doughnut" defaultMessage="Doughnut" />}
-									>
-										<IconButton
-											style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-											color="inherit"
-											onClick={() => this.onCreatePlot('doughnut')}
-										>
-											<img alt="" src="images/charts/doughnut.png" />
-										</IconButton>
-									</Tooltip>
-								</GridListTile>
-								<ChartExtensions
-									onCreatePlot={this.onCreatePlot}
-								/>
-							</GridList>
-						</Popover>
-					</div>
-				) : null}
+									<img alt="" src="images/charts/columnstacked100.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Chart.Bar" defaultMessage="Bar" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('bar')}
+								>
+									<img alt="" src="images/charts/bar.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Chart.BarStacked" defaultMessage="Bar Stacked" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('barstacked')}
+								>
+									<img alt="" src="images/charts/barstacked.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Chart.BarStacked100" defaultMessage="Bar Stacked 100" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('barstacked100')}
+								>
+									<img alt="" src="images/charts/barstacked100.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Chart.Line" defaultMessage="Line" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('line')}
+								>
+									<img alt="" src="images/charts/line.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Chart.LineStacked" defaultMessage="Line Stacked" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('linestacked')}
+								>
+									<img alt="" src="images/charts/linestacked.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Chart.LineStacked100" defaultMessage="Line Stacked 100" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('linestacked100')}
+								>
+									<img alt="" src="images/charts/linestacked100.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Chart.Area" defaultMessage="Area" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('area')}
+								>
+									<img alt="" src="images/charts/area.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Chart.AreaStacked" defaultMessage="Area Stacked" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('areastacked')}
+								>
+									<img alt="" src="images/charts/areastacked.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Chart.AreaStacked100" defaultMessage="Area Stacked 100" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('areastacked100')}
+								>
+									<img alt="" src="images/charts/areastacked100.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Chart.Profile" defaultMessage="Profile" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('profile')}
+								>
+									<img alt="" src="images/charts/profile.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile
+							cols={6}
+							style={{
+								height: '24px'
+							}}
+						>
+							<div
+								style={{
+									backgroundColor: Colors.blue[800],
+									color: 'white',
+									fontSize: '10pt',
+									padding: '3px'
+								}}
+							>
+								<FormattedMessage id="ChartTypesXY" defaultMessage="XY Charts" />
+							</div>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="StreamCharts.Scatter" defaultMessage="Scatter" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('scattermarker')}
+								>
+									<img alt="" src="images/charts/scattermarker.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="StreamCharts.ScatterLineMarker" defaultMessage="Scatter with Line and Markers" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('scatterlinemarker')}
+								>
+									<img alt="" src="images/charts/scatterlinemarker.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="StreamCharts.ScatterLine" defaultMessage="Scatter with Line" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('scatterline')}
+								>
+									<img alt="" src="images/charts/scatterline.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="StreamCharts.Bubble" defaultMessage="Bubble" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('bubble')}
+								>
+									<img alt="" src="images/charts/bubble.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile
+							cols={6}
+							style={{
+								height: '24px'
+							}}
+						>
+							<div
+								style={{
+									backgroundColor: Colors.blue[800],
+									color: 'white',
+									fontSize: '10pt',
+									padding: '3px'
+								}}
+							>
+								<FormattedMessage id="StreamChartProperties.PieCharts" defaultMessage="Pie and Doughnut Charts" />
+							</div>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="StreamCharts.Pie" defaultMessage="Pie" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('pie')}
+								>
+									<img alt="" src="images/charts/pie.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="StreamCharts.HalfPie" defaultMessage="Half Pie" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('piehalf')}
+								>
+									<img alt="" src="images/charts/halfpie.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="StreamCharts.3dPie" defaultMessage="3D Pie" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('pie3d')}
+								>
+									<img alt="" src="images/charts/pie3d.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="StreamCharts.Doughnut" defaultMessage="Doughnut" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('doughnut')}
+								>
+									<img alt="" src="images/charts/doughnut.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<ChartExtensions
+							onCreatePlot={this.onCreatePlot}
+						/>
+					</GridList>
+				</Popover>
 				<Tooltip
 					enterDelay={300}
 					title={<FormattedMessage id="Tooltip.SelectShapes" defaultMessage="Select Shapes" />}

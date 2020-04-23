@@ -10,6 +10,7 @@ module.exports = class ChartSeries {
 	constructor(type, formula) {
 		this.type = type;
 		this.smooth = false;
+		this.visible = true;
 		this.formula = formula;
 		this.format = new ChartFormat();
 		this.marker = new ChartMarker();
@@ -48,6 +49,7 @@ module.exports = class ChartSeries {
 		writer.writeAttributeString('xaxis', this.xAxis);
 		writer.writeAttributeString('yaxis', this.yAxis);
 		writer.writeAttributeNumber('smooth', this.smooth ? 1 : 0);
+		writer.writeAttributeNumber('visible', this.visible ? 1 : 0);
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
 		this.marker.save('marker', writer);
@@ -60,6 +62,7 @@ module.exports = class ChartSeries {
 		this.xAxis = reader.getAttributeString(object, 'xaxis', 'XAxis1');
 		this.yAxis = reader.getAttributeString(object, 'yaxis', 'YAxis1');
 		this.smooth = reader.getAttributeBoolean(object, 'smooth', false);
+		this.visible = reader.getAttributeBoolean(object, 'visible', true);
 
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {

@@ -1,13 +1,9 @@
 import {
-	default as JSG,
 	GraphUtils,
 	StreamSheet,
-	CompoundCommand,
-	NumberExpression,
-	Selection,
-	DeleteCellContentCommand,
 	SheetPlotNode,
-	SetCellDataCommand, NotificationCenter, Notification, SetCellsCommand
+	NotificationCenter,
+	Notification
 } from '@cedalo/jsg-core';
 
 import Interaction from './Interaction';
@@ -79,12 +75,20 @@ export default class SheetPlotInteraction extends Interaction {
 			const children = this._controller.getParent().children;
 			const pt = this.toLocalCoordinate(event, viewer, event.location.copy());
 			const axes = item.getAxes();
+			const group = item.getAxes().x.zoomGroup;
 			const value = item.scaleFromAxis(axes, pt);
 
-			children.forEach((controller) => {
-				if ((controller.getModel() instanceof SheetPlotNode) && controller.getModel().isVisible() && controller.getModel().chart.tooltips) {
-					layer.push(
-						new ChartInfoFeedbackView(controller.getView(), selection, pt, value, viewer));
+			const sheetView = this._controller.getView().getSheetView();
+			GraphUtils.traverse(sheetView, (plotView) => {
+				if (plotView.getItem) {
+					const plot = plotView.getItem();
+					if ((plot instanceof SheetPlotNode) && plot.isVisible()) {
+						const groupOther = plot.getAxes().x.zoomGroup;
+						if (item === plot || (groupOther.length && group === groupOther)) {
+							layer.push(
+								new ChartInfoFeedbackView(plotView, selection, pt, value, viewer));
+						}
+					}
 				}
 			});
 		}

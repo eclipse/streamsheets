@@ -20,6 +20,7 @@ module.exports = class ChartAxis {
 		this.allowZoom = true;
 		this.invert = false;
 		this.updateZoom = false;
+		this.zoomGroup = '';
 		this.autoZero = true;
 	}
 
@@ -39,6 +40,7 @@ module.exports = class ChartAxis {
 		writer.writeAttributeNumber('allowzoom', this.allowZoom ? 1 : 0);
 		writer.writeAttributeNumber('updatezoom', this.updateZoom ? 1 : 0);
 		writer.writeAttributeNumber('invert', this.invert ? 1 : 0);
+		writer.writeAttributeString('zoomgroup', this.zoomGroup);
 		writer.writeAttributeString('position', this.position.toString());
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
@@ -52,6 +54,7 @@ module.exports = class ChartAxis {
 		this.align = reader.getAttributeString(object, 'align', 'left');
 		this.type = reader.getAttributeString(object, 'type', 'linear');
 		this.name = reader.getAttributeString(object, 'name', 'Axis1');
+		this.zoomGroup = reader.getAttributeString(object, 'zoomgroup', '');
 		this.position = ChartRect.fromString(reader.getAttribute(object, 'position'));
 		this.gridVisible = reader.getAttributeBoolean(object, 'gridvisible', true);
 		this.visible = reader.getAttributeBoolean(object, 'visible', true);

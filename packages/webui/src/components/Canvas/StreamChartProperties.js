@@ -12,6 +12,7 @@ import {
 	FormControl,
 	Radio,
 	Checkbox,
+	InputAdornment,
 	InputLabel,
 	Select,
 	Input,
@@ -283,8 +284,14 @@ export class StreamChartProperties extends Component {
 
 	handleSeriesFormulaBlur = (event, series) => {
 		const cmd = this.prepareCommand('series');
+		const item = this.state.plotView.getItem();
+		const newFormula = event.target.textContent.replace(/^=/, '');
 
-		series.formula = new JSG.Expression(0, event.target.textContent.replace(/^=/, ''));
+		if (series.formula && newFormula !== series.formula.getFormula()) {
+			item.chart.formula = new JSG.Expression(0);
+		}
+
+		series.formula = new JSG.Expression(0, newFormula);
 
 		this.finishCommand(cmd, 'series');
 	};
@@ -389,6 +396,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
+	handleAxisZoomGroupChange = (event) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.zoomGroup = event.target.value;
+		this.finishCommand(cmd, 'axes');
+	};
+
 	handleAxisAlignChange = (event) => {
 		const cmd = this.prepareCommand('axes');
 		const data = this.getData();
@@ -418,6 +432,17 @@ export class StreamChartProperties extends Component {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
 		data.xAxis = event.target.value;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleShowSeries = () => {
+		const cmd = this.prepareCommand('series');
+		const item = this.state.plotView.getItem();
+
+		item.series.forEach((serie) => {
+			serie.visible = true;
+		});
+
 		this.finishCommand(cmd, 'series');
 	};
 
@@ -460,6 +485,13 @@ export class StreamChartProperties extends Component {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
 		data.smooth = state;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesVisibleChange = (event, state) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.visible = state;
 		this.finishCommand(cmd, 'series');
 	};
 
@@ -1213,6 +1245,18 @@ export class StreamChartProperties extends Component {
 									</FormGroup>
 								</FormGroup>
 							))}
+							{item.getVisibleSeries() < item.series.length ? (
+							<FormControl
+								style={{
+									width: '95%',
+									margin: '8px'
+								}}
+							>
+								<Button style={{}} onClick={this.handleShowSeries} color="primary">
+									<FormattedMessage id="StreamChartProperties.ShowAllSeries" defaultMessage="Show all Series" />
+								</Button>
+							</FormControl>
+							) : null}
 						</div>
 					) : null}
 					{selection && (selection.element === 'xAxis' || selection.element === 'yAxis') ? (
@@ -1251,15 +1295,16 @@ export class StreamChartProperties extends Component {
 									</MenuItem>
 								</Select>
 								<TextField
-									style={{
-										width: '200px',
-									}}
 									id="number"
-									label={<FormattedMessage id="StreamChartProperties.LabelRotation" defaultMessage="Rotate Labels (Degrees)" />}
-									inputProps={{
+									label={<FormattedMessage id="StreamChartProperties.AxisLabelRotation" defaultMessage="Rotate Labels" />}
+									style={{
+										width: '170px',
+									}}
+									InputProps={{
 										min: -90,
 										max: 90,
 										step: 5,
+										endAdornment: <InputAdornment position="end"><FormattedMessage id="StreamChartProperties.Degrees" defaultMessage="Degrees" /></InputAdornment>
 									}}
 									value={data.format.fontRotation === undefined ? 0 : data.format.fontRotation}
 									onChange={(event) => this.handleAxisLabelRotationChange(event)}
@@ -1399,6 +1444,12 @@ export class StreamChartProperties extends Component {
 												defaultMessage="Allow to zoom by mouse"
 											/>
 										}
+									/>
+									<TextField
+										label={<FormattedMessage id="StreamChartProperties.ZoomGroup" defaultMessage="Zoom Group" />}
+										value={data.zoomGroup}
+										onBlur={(event) => this.handleAxisZoomGroupChange(event)}
+										margin="normal"
 									/>
 								</FormGroup>
 
@@ -1663,6 +1714,20 @@ export class StreamChartProperties extends Component {
 								<FormControlLabel
 									control={
 										<Checkbox
+											checked={data.visible}
+											onChange={(event, state) => this.handleSeriesVisibleChange(event, state)}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.Visible"
+											defaultMessage="Visible"
+										/>
+									}
+								/>
+								<FormControlLabel
+									control={
+										<Checkbox
 											checked={data.dataLabel.visible}
 											onChange={(event, state) => this.handleSeriesDataLabelsChange(event, state)}
 										/>
@@ -1866,14 +1931,15 @@ export class StreamChartProperties extends Component {
 							>
 								<TextField
 									style={{
-										width: '200px',
+										width: '170px',
 									}}
 									id="number"
-									label={<FormattedMessage id="StreamChartProperties.LabelRotation" defaultMessage="Rotate Labels (Degrees)" />}
-									inputProps={{
+									label={<FormattedMessage id="StreamChartProperties.LabelRotation" defaultMessage="Rotate Labels" />}
+									InputProps={{
 										min: -90,
 										max: 90,
 										step: 5,
+										endAdornment: <InputAdornment position="end"><FormattedMessage id="StreamChartProperties.Degrees" defaultMessage="Degrees" /></InputAdornment>
 									}}
 									value={data.dataLabel.format.fontRotation === undefined ? 0 : data.dataLabel.format.fontRotation}
 									onChange={(event) => this.handleSeriesDataLabelRotationChange(event)}

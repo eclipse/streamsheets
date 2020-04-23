@@ -4,7 +4,7 @@ import View from '../../ui/View';
 import SelectionStyle from '../view/selection/SelectionStyle';
 
 export default class ChartInfoFeedbackView extends View {
-	constructor(chartView, selection, point, value, viewer) {
+	constructor(chartView, selection, point, value) {
 		super();
 
 		this.chartView = chartView;
@@ -46,51 +46,52 @@ export default class ChartInfoFeedbackView extends View {
 		graphics.setLineColor(SelectionStyle.MARKER_BORDER_COLOR);
 		graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
 
-		graphics.beginPath();
-
 		const plotRect = item.plot.position;
 		let x;
 		let y;
 
-		if (!item.isCircular()) {
-			if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
-				x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.width;
-				y = top.y;
+		if (item.xAxes[0].allowZoom) {
+			graphics.beginPath();
+			if (!item.isCircular()) {
+				if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
+					x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.width;
+					y = top.y;
 
-				if (x - top.x > plotRect.width || x - top.x < 0) {
-					return;
-				}
-				graphics.moveTo(x, top.y);
-				graphics.lineTo(x, bottom.y);
+					if (x - top.x > plotRect.width || x - top.x < 0) {
+						return;
+					}
+					graphics.moveTo(x, top.y);
+					graphics.lineTo(x, bottom.y);
 
-				if (this.endPoint) {
-					// graphics.moveTo(this.endPoint.x, top.y);
-					// graphics.lineTo(this.endPoint.x, bottom.y);
-					graphics.rect(this.point.x, top.y, this.endPoint.x - this.point.x, bottom.y - top.y);
-				}
-			} else {
-				x = top.x;
-				y = bottom.y - item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.height;
+					if (this.endPoint) {
+						// graphics.moveTo(this.endPoint.x, top.y);
+						// graphics.lineTo(this.endPoint.x, bottom.y);
+						graphics.rect(this.point.x, top.y, this.endPoint.x - this.point.x, bottom.y - top.y);
+					}
+				} else {
+					x = top.x;
+					y = bottom.y - item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.height;
 
-				if (y - top.y > plotRect.height || y - top.y < 0) {
-					return;
-				}
-				graphics.moveTo(left.x, y);
-				graphics.lineTo(right.x, y);
+					if (y - top.y > plotRect.height || y - top.y < 0) {
+						return;
+					}
+					graphics.moveTo(left.x, y);
+					graphics.lineTo(right.x, y);
 
-				if (this.endPoint) {
-					graphics.moveTo(left.x, this.endPoint.y);
-					graphics.lineTo(right.x, this.endPoint.y);
-					graphics.rect(left.x, this.point.y, right.x - left.x, this.endPoint.y - this.point.y);
+					if (this.endPoint) {
+						graphics.moveTo(left.x, this.endPoint.y);
+						graphics.lineTo(right.x, this.endPoint.y);
+						graphics.rect(left.x, this.point.y, right.x - left.x, this.endPoint.y - this.point.y);
+					}
 				}
+				graphics.stroke();
+				graphics.setTransparency(30);
+				graphics.fill();
+				graphics.setTransparency(100);
 			}
-			graphics.stroke();
-			graphics.setTransparency(30);
-			graphics.fill();
-			graphics.setTransparency(100);
 		}
 
-		if (this.selection.dataPoints && this.selection.dataPoints.length) {
+		if (item.chart.tooltips && this.selection.dataPoints && this.selection.dataPoints.length) {
 			let width = 0;
 			const space = 400;
 			const margin = 100;

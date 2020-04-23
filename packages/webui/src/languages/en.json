@@ -758,10 +758,12 @@
     "StreamChartProperties.axisTypeLinear": "Linear",
     "StreamChartProperties.axisTypeTime": "Time",
     "StreamChartProperties.axisTypeLogarithmic": "Logarithmic",
-    "StreamChartProperties.LabelRotation": "Rotate Labels (Degrees)",
+    "StreamChartProperties.LabelRotation": "Rotate Labels",
+    "StreamChartProperties.AxisLabelRotation": "Rotate Axis Labels",
     "StreamChartProperties.Axis": "Axis",
     "StreamChartProperties.grid": "Gridline",
     "StreamChartProperties.Invert": "Invert",
+    "StreamChartProperties.Degrees": "Degrees",
     "StreamChartProperties.AutoZero": "Start at Zero automatically",
     "StreamChartProperties.UpdateZoom": "Update Zoom by ellapsing time",
     "StreamChartProperties.AllowZoom": "Allow to zoom by mouse",
@@ -807,5 +809,7 @@
     "StreamChartProperties.Comma": "Comma",
     "StreamChartProperties.Semicolon": "Semicolon",
     "StreamChartProperties.LinkNumberFormat": "Link Numberformat to Cell",
+    "StreamChartProperties.ZoomGroup": "Zoom Group Name",
+    "StreamChartProperties.ShowAllSeries": "Show all Series",
     "StreamChartProperties.FormatHint": "Please use the toolbar for line, fill and font settings"
 }

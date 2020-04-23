@@ -237,14 +237,12 @@ export default class SheetPlotActivator extends InteractionActivator {
 			return;
 		}
 		let selection;
-		if (interaction._controller.getModel().chart.tooltips) {
-			if (interaction.isPlotHit(event, viewer)) {
-				selection = interaction.isElementHit(event, viewer, undefined, 'only');
-				interaction.showData(selection, event, viewer);
-				event.doRepaint = true;
-			} else {
-				this.removeInfo(event, viewer);
-			}
+		if (interaction.isPlotHit(event, viewer)) {
+			selection = interaction.isElementHit(event, viewer, undefined, 'only');
+			interaction.showData(selection, event, viewer);
+			event.doRepaint = true;
+		} else {
+			this.removeInfo(event, viewer);
 		}
 
 		selection = interaction.isElementHit(event, viewer, undefined, 'no');
