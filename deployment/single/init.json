@@ -1,4 +1,5 @@
 {
+	"version": 2,
 	"machines": [
 	  {
 		"machine": {
@@ -585,6 +586,9 @@
 			  "info": {},
 			  "level": 0
 			}
+		  },
+		  "scope": {
+			"id": "root"
 		  }
 		},
 		"graph": {
@@ -4263,6 +4267,9 @@
 			  "info": {},
 			  "level": 0
 			}
+		  },
+		  "scope": {
+			"id": "root"
 		  }
 		},
 		"graph": {
@@ -5905,12 +5912,45 @@
 	],
 	"streams": [
 	  {
+		"id": "CONNECTOR_MQTT",
+		"name": "MQTT_Connector",
+		"owner": null,
+		"disabled": null,
+		"className": "ConnectorConfiguration",
+		"lastModified": "2020-04-23T09:01:58.688Z",
+		"lastAccessed": "2019-09-06T11:23:30.642Z",
+		"provider": {
+		  "_id": "@cedalo/stream-mqtt",
+		  "id": "@cedalo/stream-mqtt",
+		  "className": "ProviderConfiguration",
+		  "owner": null,
+		  "disabled": null,
+		  "lastModified": null,
+		  "lastAccessed": null,
+		  "isRef": true
+		},
+		"protocolVersion": 4,
+		"url": "mqtt://localhost",
+		"userPropertiesConnect": [],
+		"userName": "cedalo",
+		"password": "<PLACEHOLDER_BROKER_PASSWORD>",
+		"certPath": "",
+		"keyPath": "",
+		"caCert": "",
+		"baseTopic": "cedalo/",
+		"retain": false,
+		"qos": 0,
+		"scope": {
+		  "id": "root"
+		}
+	  },
+	  {
 		"id": "HkZRIJtchH",
 		"name": "Wind_Data",
 		"owner": null,
 		"disabled": false,
 		"className": "ConsumerConfiguration",
-		"lastModified": "2019-11-28T11:44:34.413Z",
+		"lastModified": "2020-04-23T09:01:58.697Z",
 		"lastAccessed": "2019-11-26T10:32:53.686Z",
 		"connector": {
 		  "_id": "CONNECTOR_MQTT",
@@ -5933,37 +5973,10 @@
 		"userPropertiesSubscribe": [],
 		"topics": [
 		  "powerplant/plants/windmill"
-		]
-	  },
-	  {
-		"id": "CONNECTOR_MQTT",
-		"name": "MQTT_Connector",
-		"owner": null,
-		"disabled": null,
-		"className": "ConnectorConfiguration",
-		"lastModified": "2019-11-28T11:37:36.954Z",
-		"lastAccessed": "2019-09-06T11:23:30.642Z",
-		"provider": {
-		  "_id": "@cedalo/stream-mqtt",
-		  "id": "@cedalo/stream-mqtt",
-		  "className": "ProviderConfiguration",
-		  "owner": null,
-		  "disabled": null,
-		  "lastModified": null,
-		  "lastAccessed": null,
-		  "isRef": true
-		},
-		"protocolVersion": 4,
-		"url": "mqtt://localhost",
-		"userPropertiesConnect": [],
-		"userName": "cedalo",
-		"password": "<PLACEHOLDER_BROKER_PASSWORD>",
-		"certPath": "",
-		"keyPath": "",
-		"caCert": "",
-		"baseTopic": "cedalo/",
-		"retain": false,
-		"qos": 0
+		],
+		"scope": {
+		  "id": "root"
+		}
 	  },
 	  {
 		"id": "PRODUCER_MQTT",
@@ -5971,7 +5984,7 @@
 		"owner": null,
 		"disabled": false,
 		"className": "ProducerConfiguration",
-		"lastModified": "2019-11-28T11:37:36.952Z",
+		"lastModified": "2020-04-23T09:01:58.692Z",
 		"lastAccessed": "2019-10-20T17:40:35.491Z",
 		"connector": {
 		  "_id": "CONNECTOR_MQTT",
@@ -5989,7 +6002,10 @@
 		"clientId": "mqttjs_d9c49bb8",
 		"clean": true,
 		"pubTopic": "",
-		"userPropertiesProduce": []
+		"userPropertiesProduce": [],
+		"scope": {
+		  "id": "root"
+		}
 	  }
 	]
   }
