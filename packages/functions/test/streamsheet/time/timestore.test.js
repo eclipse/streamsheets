@@ -136,7 +136,6 @@ describe('timestore', () => {
 		// one is stored on machine start...
 		expect(timestore().size).toBe(1);
 	});
-	it('should support')
 	it(`should return error ${ERROR.ARGS} if required parameter is missing`, () => {
 		const sheet = newSheet();
 		createCellAt('A3', { formula: 'timestore()' }, sheet);
