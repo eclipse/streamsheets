@@ -5954,7 +5954,7 @@
 		  "isRef": true
 		},
 		"protocolVersion": 4,
-		"url": "localhost",
+		"url": "mqtt://localhost",
 		"userPropertiesConnect": [],
 		"userName": "cedalo",
 		"password": "<PLACEHOLDER_BROKER_PASSWORD>",
