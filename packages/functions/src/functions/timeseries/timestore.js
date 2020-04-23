@@ -2,6 +2,7 @@ const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const IdGenerator = require('@cedalo/id-generator');
 const {	date: { localNow, serial2ms }, runFunction, terms: { hasValue } } = require('../../utils');
+const toJSON = require('../streamsheet/json');
 const stateListener = require('./stateListener');
 
 const ERROR = FunctionErrors.code;
@@ -95,12 +96,22 @@ const getLimit = (term) => {
 	return limit >= DEF_LIMIT_MIN ? limit : ERROR.VALUE;
 };
 
+const isPlainObject = (value) => {
+	const proto = Object.getPrototypeOf(value);
+	return proto == null || Object.getPrototypeOf(proto) == null;
+};
+const getValues = (sheet, term) => {
+	const value = term.value;
+	if (value != null) return isPlainObject(value) ? value : toJSON(sheet, term);
+	return undefined;
+};
+
 const store = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(4)
-		.mapNextArg((values) => values.value || ERROR.ARGS)
+		.mapNextArg((values) => getValues(sheet, values) || ERROR.ARGS)
 		.mapNextArg((period) => getPeriod(period))
 		.mapNextArg((timestamp) => getTimeStamp(timestamp))
 		.mapNextArg((limit) => getLimit(limit))
