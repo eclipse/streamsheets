@@ -13,7 +13,7 @@ const none = () => {
 			val = value;
 			first = true;
 		}
-		return val;
+		return isType.object(val) ? '{ JSON Object }' : val;
 	};
 };
 
