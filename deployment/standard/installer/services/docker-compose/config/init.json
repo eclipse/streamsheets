@@ -555,7 +555,7 @@
 				"id": "CONSUMER_MQTT",
 				"name": "MQTT_Consumer",
 				"type": "stream",
-				"state": "disconnected",
+				"state": "connected",
 				"timestamp": 1583745353059
 			  },
 			  "type": "object",
@@ -579,7 +579,7 @@
 				"id": "BkbHaJUSE8",
 				"name": "edxample23",
 				"type": "stream",
-				"state": "disconnected",
+				"state": "connected",
 				"timestamp": 1583745353583
 			  },
 			  "type": "object",
@@ -4129,7 +4129,7 @@
 				  },
 				  "B20": {
 					"formula": "MQTT.PUBLISH(|MQTT_Producer,JSON(A10:B15),B19)",
-					"value": "#DISCONNECTED",
+					"value": true,
 					"type": "undefined",
 					"level": 0,
 					"references": [
@@ -4236,7 +4236,7 @@
 				"id": "CONSUMER_MQTT",
 				"name": "MQTT_Consumer",
 				"type": "stream",
-				"state": "disconnected",
+				"state": "connected",
 				"timestamp": 1583745353059
 			  },
 			  "type": "object",
@@ -4260,7 +4260,7 @@
 				"id": "BkbHaJUSE8",
 				"name": "edxample23",
 				"type": "stream",
-				"state": "disconnected",
+				"state": "connected",
 				"timestamp": 1583745353583
 			  },
 			  "type": "object",
