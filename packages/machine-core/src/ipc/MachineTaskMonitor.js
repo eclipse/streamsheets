@@ -36,7 +36,14 @@ const redisApi = () => {
 	let current = Promise.resolve();
 	let next = null;
 	const redis = new Redis(REDIS_PORT, REDIS_HOST);
-
+	const serialize = (obj) => {
+		try {
+			return JSON.stringify(obj);
+		} catch (err) {
+			logger.error('Failed to stringify object for redis!', obj);
+		}
+		return undefined;
+	};
 	const setStep = async (machineId, event) => {
 		const isAlreadyAwaiting = next !== null;
 		next = event;
@@ -46,8 +53,9 @@ const redisApi = () => {
 			} catch (error) {
 				logger.error('Failed to set step in redis', error);
 			} finally {
-				current = redis.set(machineStepKey(machineId), JSON.stringify(next));
+				const serialized = serialize(next);
 				next = null;
+				current = serialized ? redis.set(machineStepKey(machineId), serialized) : Promise.resolve();
 			}
 		}
 	};
