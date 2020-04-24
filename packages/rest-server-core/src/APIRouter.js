@@ -8,7 +8,7 @@ module.exports = class APIRouter extends Router {
 	constructor(opts = APIRouter.defaultOptions()) {
 		super(opts);
 		this.all(
-			'/v1.0/*',
+			['/*', '/v1.0/*'],
 			bodyParser.json({ inflate: true, strict: true }),
 			bodyParser.urlencoded({ extended: false }),
 			bodyParser.text(),

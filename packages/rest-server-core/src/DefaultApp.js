@@ -68,6 +68,7 @@ module.exports = class DefaultApp {
 		/* ===== Routes ===== */
 		const apiRouter = new APIRouter();
 		app.use('/api', apiRouter);
+		app.use('/request', apiRouter);
 		const webpageRouter = new WebpageRouter();
 		app.use('/webpage', webpageRouter);
 		const imageRouter = new ImageRouter();
