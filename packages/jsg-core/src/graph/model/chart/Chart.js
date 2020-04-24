@@ -18,7 +18,7 @@ module.exports = class Chart {
 		this.firstCategoryLabels = true;
 		this.firstSeriesLabels = true;
 		this.dataInRows = true;
-		this.formula = new Expression(0);
+		this.formula = new Expression('');
 	}
 
 	get dataMode() {

@@ -159,33 +159,58 @@ export class StreamChartProperties extends Component {
 	};
 
 	handleChartFormulaBlur = (event) => {
-		const cmd = this.prepareCommand('chart');
-		const item = this.state.plotView.getItem();
+		const formula = event.target.textContent.replace(/^=/, '');
+		const cmdChart = this.prepareCommand('chart');
 
-		item.chart.formula = new JSG.Expression(0, event.target.textContent.replace(/^=/, ''));
-
-		this.finishCommand(cmd, 'chart');
+		this.updateFormulas(formula, cmdChart);
 	};
+
+	updateFormulas(formula, cmdChart) {
+		const item = this.state.plotView.getItem();
+		const viewer = graphManager.getGraphViewer();
+		const sheet = this.getSheetView().getItem();
+		const series = item.series.length ? item.series[0] : undefined;
+		const type = series ? series.type : 'line';
+		const line = series && series.format.lineStyle !== undefined ? series.format.lineStyle : true;
+		const markers = series ? series.marker.style : 'none';
+
+		const range = JSG.CellRange.parse(formula, sheet, true);
+		if (range) {
+			range.shiftFromSheet();
+			const selection = new JSG.Selection(sheet)
+			selection.add(range);
+			item.chart.formula = new JSG.Expression(0, formula);
+
+			item.updateSeriesFromRange(viewer, sheet, selection, type, line, markers,
+				cmdChart, undefined, undefined, false);
+		}
+		this.updateState();
+	}
 
 	handleChartDataInRowsChange = (event, state) => {
 		const cmd = this.prepareCommand('chart');
 		const item = this.state.plotView.getItem();
+
 		item.chart.dataInRows = state;
-		this.finishCommand(cmd, 'chart');
+
+		this.updateFormulas(item.chart.formula.getFormula(), cmd);
+		this.updateState();
 	};
 
 	handleChartFirstSeriesLabelsChange = (event, state) => {
 		const cmd = this.prepareCommand('chart');
 		const item = this.state.plotView.getItem();
 		item.chart.firstSeriesLabels = state;
-		this.finishCommand(cmd, 'chart');
+		this.updateFormulas(item.chart.formula.getFormula(), cmd);
+		this.updateState();
 	};
 
 	handleChartFirstCategoryLabelsChange = (event, state) => {
 		const cmd = this.prepareCommand('chart');
 		const item = this.state.plotView.getItem();
 		item.chart.firstCategoryLabels = state;
-		this.finishCommand(cmd, 'chart');
+		this.updateFormulas(item.chart.formula.getFormula(), cmd);
+		this.updateState();
 	};
 
 	handleChartStackedChange = (event, state) => {
@@ -288,7 +313,7 @@ export class StreamChartProperties extends Component {
 		const newFormula = event.target.textContent.replace(/^=/, '');
 
 		if (series.formula && newFormula !== series.formula.getFormula()) {
-			item.chart.formula = new JSG.Expression(0);
+			item.chart.formula = new JSG.Expression('');
 		}
 
 		series.formula = new JSG.Expression(0, newFormula);
