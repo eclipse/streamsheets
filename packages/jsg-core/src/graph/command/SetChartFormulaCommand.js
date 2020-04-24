@@ -54,7 +54,11 @@ module.exports = class SetChartFormulaCommand extends AbstractItemCommand {
 	redo() {
 		switch (this.element) {
 		case 'series':
-			this._graphItem.series[this.index].formula = this.expression;
+			if (this._graphItem.series[this.index].formula && this.expression.getFormula() !== this._graphItem.series[this.index].formula.getFormula()) {
+				this._graphItem.series[this.index].formula = this.expression;
+				this._graphItem.chart.formula = new Expression('');
+				this._graphItem.chart.coharentData = false;
+			}
 			break;
 		case 'title':
 			this._graphItem.title.formula = this.expression;
@@ -73,6 +77,10 @@ module.exports = class SetChartFormulaCommand extends AbstractItemCommand {
 			break;
 		case 'legend':
 			this._graphItem.legend.formula = this.expression;
+			break;
+		case 'plot':
+			this._graphItem.chart.formula = this.expression;
+			this._graphItem.chart.coharentData = true;
 			break;
 		default:
 			break;

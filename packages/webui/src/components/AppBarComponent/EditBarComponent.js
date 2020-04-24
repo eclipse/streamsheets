@@ -452,7 +452,13 @@ export class EditBarComponent extends Component {
 			}
 			const chartView = selection.getFirstSelection().getView();
 			if ((chartView.isNewChart) && chartView.hasSelectedFormula()) {
-				cmd = new SetChartFormulaCommand(graphItem, chartView.chartSelection, data.expression);
+				if (chartView.chartSelection.element === 'plot') {
+					const chart = chartView.getItem();
+					const cmdChart = chart.prepareCommand('chart');
+					chart.updateFormulas(graphManager.getGraphViewer(), formula, cmdChart);
+				} else {
+					cmd = new SetChartFormulaCommand(graphItem, chartView.chartSelection, data.expression);
+				}
 			} else {
 				const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
 				cmd = new SetAttributeAtPathCommand(graphItem, path, new Expression(0, formula));
