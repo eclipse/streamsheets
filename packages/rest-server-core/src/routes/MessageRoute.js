@@ -85,7 +85,14 @@ module.exports = class MessageRoute {
 	}
 
 	static getTopicFromPath(path) {
-		const parts = /\/v1.0\/(.*)/i.exec(path);
-		return parts.length >= 2 ? parts[1] : '';
+		// old API,e.g., /api/v1.0/cedalo/tests
+		let parts = /\/v1.0\/(.*)/i.exec(path);
+		if (parts) {
+			return parts.length >= 2 ? parts[1] : '';
+		} else {
+			// new API,e.g., /request/cedalo/tests
+			parts = /\/(.*)/i.exec(path);
+			return parts.length >= 2 ? parts[1] : '';
+		}
 	}
 };
