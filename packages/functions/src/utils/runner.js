@@ -6,7 +6,7 @@ const remove = (index, arr) => arr.splice(index, 1)[0];
 
 class ErrorHandler {
 	constructor() {
-		this._error = undefined;
+		this._errorCode = undefined;
 		this._errorIndex = -1;
 		this._ignoreError = false;
 	}
@@ -16,16 +16,16 @@ class ErrorHandler {
 	}
 
 	getError() {
-		return this._error ? { error: this._error, index: this._errorIndex } : undefined;
+		return this._errorCode ? { code: this._errorCode, index: this._errorIndex } : undefined;
 	}
 
 	hasError() {
-		return this._error && !this._ignoreError;
+		return this._errorCode && !this._ignoreError;
 	}
 
 	update(res, index) {
-		if (res && !this._error) {
-			this._error = FunctionErrors.isError(res);
+		if (res && !this._errorCode) {
+			this._errorCode = FunctionErrors.isError(res);
 			this._errorIndex = index != null ? index : -1;
 		}
 	}
@@ -134,7 +134,7 @@ class Runner {
 
 	run(fn) {
 		if (this.errorHandler.hasError()) {
-			return this.errorHandler.getError().error;
+			return this.errorHandler.getError().code;
 		}
 		return this.isEnabled ? fn(...this.mappedArgs, this.errorHandler.getError()) : this.defReturnValue;
 	}

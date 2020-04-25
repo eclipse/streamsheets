@@ -27,7 +27,7 @@ describe('runFunction', () => {
 				error = err;
 			});
 			expect(error).toBeDefined();
-			expect(error.error).toBe(ERROR.NA);
+			expect(error.code).toBe(ERROR.NA);
 			expect(error.index).toBe(2);
 	});
 });
