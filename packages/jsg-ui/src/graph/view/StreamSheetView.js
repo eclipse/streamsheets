@@ -379,9 +379,12 @@ export default class StreamSheetView extends WorksheetView {
 					const outbox = this.getOutbox(sourceView);
 					let name = 'Message';
 					if (outbox !== undefined) {
-						const sel = outbox.getMessageListItems().getSelectedItem();
-						if (sel) {
-							name = sel.key;
+						let sel = outbox.getMessageListItems().getSelectedItem();
+						if (!sel) {
+							sel = this._findSelectedItemByLevel(0);
+						}
+						if (sel && sel.id) {
+							name = sel.id;
 						}
 					}
 					formula = `WRITE(OUTBOXDATA("${name}"`;
