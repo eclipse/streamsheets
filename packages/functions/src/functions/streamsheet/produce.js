@@ -21,5 +21,6 @@ const produce = (sheet, ...terms) =>
 			return message;
 		})
 		.run((machine, streamTerm, message) => publishinternal(sheet, streamTerm, message));
+produce.displayName = true;
 
 module.exports = produce;

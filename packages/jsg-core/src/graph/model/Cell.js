@@ -117,7 +117,9 @@ module.exports = class Cell {
 		this._info = info;
 	}
 
-	
+	get displayFunctionName() {
+		return this._info && this._info.displayName;
+	}
 	get values() {
 		return this._info ? this._info.values : undefined;
 	}

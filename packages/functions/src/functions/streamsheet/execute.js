@@ -144,5 +144,6 @@ const execute = (sheet, ...terms) => {
 	}
 	return error || true; // not processing, so its ok...
 };
+execute.displayName = true;
 
 module.exports = execute;

@@ -95,6 +95,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		this.addFunctionDefinition(
 			this.requestFunction((target, resultKeys, timeout) => ({
 				name: MongoDBFunctions.DELETE,
+				displayName: true,
 				baseFunction: 'request',
 				parameters: [
 					{
@@ -124,6 +125,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		this.addFunctionDefinition(
 			this.requestFunction((target, resultKeys, timeout) => ({
 				name: MongoDBFunctions.QUERY,
+				displayName: true,
 				baseFunction: 'request',
 				parameters: [
 					{
@@ -207,6 +209,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		this.addFunctionDefinition(
 			this.requestFunction((target, resultKeys, timeout) => ({
 				name: MongoDBFunctions.AGGREGATE,
+				displayName: true,
 				baseFunction: 'request',
 				parameters: [
 					{
@@ -233,6 +236,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		this.addFunctionDefinition(
 			this.requestFunction((target, resultKeys, timeout) => ({
 				name: MongoDBFunctions.COUNT,
+				displayName: true,
 				baseFunction: 'request',
 				parameters: [
 					{
@@ -262,6 +266,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 
 		this.addFunctionDefinition({
 			name: MongoDBFunctions.STORE,
+			displayName: true,
 			baseFunction: 'produce',
 			parameters: [
 				{
@@ -286,6 +291,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 
 		this.addFunctionDefinition({
 			name: MongoDBFunctions.REPLACE,
+			displayName: true,
 			baseFunction: 'produce',
 			parameters: [
 				{

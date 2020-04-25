@@ -14,6 +14,7 @@ const filter = (functions) => Object.entries(functions).reduce((acc, [name, func
 const executor = func => function wrappedFunction(sheet, ...terms) {
 	let result;
 	func.term = wrappedFunction.term;
+	wrappedFunction.displayName = func.displayName;
 	try {
 		result = func(sheet, ...terms);
 	} catch (err) {

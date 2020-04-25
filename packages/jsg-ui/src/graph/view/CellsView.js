@@ -327,66 +327,33 @@ export default class CellsView extends NodeView {
 		const termFunc = expr.getTerm();
 
 		if (termFunc && termFunc instanceof FuncTerm) {
-			switch (termFunc.getFuncId()) {
-				case 'BAR':
-					// if there is a bar function in this cell, draw bar according to function parameters
-					this.drawBar(
-						data.getValue(),
-						graphics,
-						rect,
-						termFunc,
-						borderMatrix,
-						column,
-						row,
-						visibleColumn,
-						visibleRow
-					);
-					return true;
-				case 'READ':
-				case 'WRITE':
-					this.drawRead(graphics, x, y, rect, clipRect, data, termFunc, column, row, grey);
-					return true;
-				case 'PRODUCE':
-				case 'PUBLISH':
-				case 'REQUEST':
-				case 'RESPOND':
-				case 'MQTT.PUBLISH':
-				case 'MONGO.QUERY':
-				case 'MONGO.COUNT':
-				case 'MONGO.AGGREGATE':
-				case 'MONGO.STORE':
-				case 'MONGO.REPLACE':
-				case 'MONGO.DELETE':
-				case 'KAFKA.PUBLISH':
-				case 'KAFKA.COMMAND':
-				case 'KAFKA.QUERY':
-				case 'FILE.WRITE':
-				case 'REST.REQUEST':
-				case 'REST.RESPOND':
-				case 'HTTP.RESPOND':
-				case 'MAIL.SEND':
-				case 'FEEDINBOX':
-				case 'EXECUTE':
-				case 'OPCUA.FOLDERS':
-				case 'OPCUA.JSON':
-				case 'OPCUA.READ':
-				case 'OPCUA.RESPOND':
-				case 'OPCUA.VARIABLES':
-				case 'OPCUA.WRITE':
-				case 'EMAIL.SEND':
-				case 'SMS.SEND':
-				case 'INFLUX.DROP':
-				case 'INFLUX.EXPORT':
-				case 'INFLUX.SELECT':
-				case 'INFLUX.SHOW':
-				case 'INFLUX.STORE':
-					this.drawPublish(graphics, x, y, rect, clipRect, data, termFunc, grey);
-					return true;
-				case 'SELECT':
-					this.drawSelect(graphics, x, y, rect, clipRect, data, termFunc);
-					return true;
-				default:
-					break;
+			if (data.displayFunctionName) {
+				switch (termFunc.getFuncId()) {
+					case 'BAR':
+						// if there is a bar function in this cell, draw bar according to function parameters
+						this.drawBar(
+							data.getValue(),
+							graphics,
+							rect,
+							termFunc,
+							borderMatrix,
+							column,
+							row,
+							visibleColumn,
+							visibleRow
+						);
+						break;
+					case 'READ':
+					case 'WRITE':
+						this.drawRead(graphics, x, y, rect, clipRect, data, termFunc, column, row, grey);
+						break;
+					case 'SELECT':
+						this.drawSelect(graphics, x, y, rect, clipRect, data, termFunc);
+						break;
+					default:
+						this.drawPublish(graphics, x, y, rect, clipRect, data, termFunc, grey);
+				}
+				return true;
 			}
 		}
 
@@ -1531,105 +1498,66 @@ export default class CellsView extends NodeView {
 	getFormattedValueFromFunction(data, result) {
 		const term = data.getExpression().getTerm();
 
-		if (!term || !(term instanceof FuncTerm)) {
-			return false;
-		}
-
-		switch (term.getFuncId()) {
-			case 'BAR':
-				break;
-			case 'READ':
-			case 'WRITE':
-				result.fillColor = '#AAAAAA';
-				result.color = '#FFFFFF';
-				result.bold = true;
-				term.iterateParams((param, index) => {
-					switch (index) {
-						case 0: {
-							const keys = TreeItemsNode.splitPath(result.value);
-							if (keys.length) {
-								result.value = keys[keys.length - 1];
+		if (data.displayFunctionName && term && (term instanceof FuncTerm)) {
+			switch (term.getFuncId()) {
+				case 'BAR':
+				case 'SELECT':
+					break;
+				case 'READ':
+				case 'WRITE':
+					result.fillColor = '#AAAAAA';
+					result.color = '#FFFFFF';
+					result.bold = true;
+					term.iterateParams((param, index) => {
+						switch (index) {
+							case 0: {
+								const keys = TreeItemsNode.splitPath(result.value);
+								if (keys.length) {
+									result.value = keys[keys.length - 1];
+								}
+								break;
 							}
-							break;
+							case 2:
+								switch (param.value) {
+									case 'String':
+										result.fillColor = '#009408';
+										break;
+									case 'Number':
+										result.fillColor = '#497B8D';
+										break;
+									case 'Bool':
+										result.fillColor = '#B1C639';
+										break;
+									case 'Dictionary':
+										result.fillColor = '#E17000';
+										break;
+									case 'Array':
+										result.fillColor = '#2D5B89';
+										break;
+									default:
+										break;
+								}
+								break;
+							default:
+								break;
 						}
-						case 2:
-							switch (param.value) {
-								case 'String':
-									result.fillColor = '#009408';
-									break;
-								case 'Number':
-									result.fillColor = '#497B8D';
-									break;
-								case 'Bool':
-									result.fillColor = '#B1C639';
-									break;
-								case 'Dictionary':
-									result.fillColor = '#E17000';
-									break;
-								case 'Array':
-									result.fillColor = '#2D5B89';
-									break;
-								default:
-									break;
-							}
-							break;
-						default:
-							break;
+					}, this);
+					break;
+				default:
+					result.value = String(data.getValue());
+					if (result.value === 'true' || result.value[0] !== '#') {
+						result.fillColor = '#1976d2';
+						result.value = term.getFuncId();
+						result.formattedValue = term.getFuncId();
+					} else {
+						result.fillColor = '#FF0000';
 					}
-				}, this);
-				break;
-			case 'PRODUCE':
-			case 'PUBLISH':
-			case 'REQUEST':
-			case 'RESPOND':
-			case 'MQTT.PUBLISH':
-			case 'MONGO.QUERY':
-			case 'MONGO.COUNT':
-			case 'MONGO.AGGREGATE':
-			case 'MONGO.STORE':
-			case 'MONGO.REPLACE':
-			case 'MONGO.DELETE':
-			case 'KAFKA.PUBLISH':
-			case 'KAFKA.COMMAND':
-			case 'KAFKA.QUERY':
-			case 'FILE.WRITE':
-			case 'REST.REQUEST':
-			case 'REST.RESPOND':
-			case 'HTTP.RESPOND':
-			case 'MAIL.SEND':
-			case 'FEEDINBOX':
-			case 'OPCUA.FOLDERS':
-			case 'OPCUA.JSON':
-			case 'OPCUA.READ':
-			case 'OPCUA.RESPOND':
-			case 'OPCUA.VARIABLES':
-			case 'OPCUA.WRITE':
-			case 'EMAIL.SEND':
-			case 'SMS.SEND':
-			case 'INFLUX.DROP':
-			case 'INFLUX.SELECT':
-			case 'INFLUX.SHOW':
-			case 'INFLUX.STORE':
-			case 'EXECUTE':
-				result.value = String(data.getValue());
-
-				if (result.value === 'true' || result.value[0] !== '#') {
-					result.fillColor = '#1976d2';
-					result.value = term.getFuncId();
-					result.formattedValue = term.getFuncId();
-				} else {
-					result.fillColor = '#FF0000';
-				}
-				result.color = '#FFFFFF';
-				result.bold = true;
-				break;
-			case 'SELECT':
-				// this.drawSelect(graphics, x, y, rect, clipRect, data, termFunc);
-				break;
-			default:
-				break;
+					result.color = '#FFFFFF';
+					result.bold = true;
+			}
+			// shouldn't we return true here?
+			// return true;
 		}
-
 		return false;
 	}
 

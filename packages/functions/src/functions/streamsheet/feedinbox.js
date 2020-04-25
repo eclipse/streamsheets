@@ -69,6 +69,6 @@ const feedinbox = (sheet, ...terms) =>
 			streamsheet.inbox.put(message);
 			return true;
 		});
-
+feedinbox.displayName = true;
 
 module.exports = feedinbox;

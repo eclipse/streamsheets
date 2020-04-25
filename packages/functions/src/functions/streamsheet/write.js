@@ -71,6 +71,6 @@ const write = (sheet, ...terms) =>
 			outbox.setMessageData(message, newData);
 			return retval;
 		});
-
+write.displayName = true;
 
 module.exports = write;

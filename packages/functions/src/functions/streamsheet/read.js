@@ -136,5 +136,6 @@ const read = (sheet, ...terms) =>
 		}
 		return data.value;
 	});
+read.displayName = true;
 
 module.exports = read;

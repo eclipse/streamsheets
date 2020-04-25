@@ -14,5 +14,6 @@ const select = (sheet, ...terms) => {
 
 	return target;
 };
+select.displayName = true;
 
 module.exports = select;
