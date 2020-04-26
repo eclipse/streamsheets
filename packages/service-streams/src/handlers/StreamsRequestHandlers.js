@@ -24,7 +24,6 @@ class StreamCommandRequestHandler extends RequestHandler {
 						streamsManager.configsManager.findConnector(streamId);
 					if (stream) {
 						const result = await streamsManager.executeCommand(cmd);
-						logger.debug(result);
 						return resolve(
 							this.confirm(message, {
 								result
@@ -40,7 +39,6 @@ class StreamCommandRequestHandler extends RequestHandler {
 					);
 				}
 				const result = await streamsManager.executeCommand(cmd);
-				logger.debug(result);
 				return resolve(
 					this.confirm(message, {
 						result
@@ -72,7 +70,6 @@ class SaveConfigurationRequestHandler extends RequestHandler {
 				const result = await streamsManager.saveConfiguration(
 					configuration
 				);
-				logger.debug(result);
 				if (result) {
 					return resolve(
 						this.confirm(message, {
@@ -110,7 +107,6 @@ class DeleteConfigurationRequestHandler extends RequestHandler {
 		const { configId } = message;
 		return new Promise(async (resolve, reject) => {
 			const result = await streamsManager.deleteConfiguration(configId);
-			logger.debug(result);
 			if (result) {
 				resolve(
 					this.confirm(message, {
@@ -289,7 +285,6 @@ class UpdateRequestHandler extends RequestHandler {
 		const { config } = message;
 		return new Promise(async (resolve, reject) => {
 			const result = await streamsManager.updateStream(config);
-			logger.debug(result);
 			if (result) {
 				resolve(
 					this.confirm(message, {
@@ -320,7 +315,6 @@ class TestRequestHandler extends RequestHandler {
 		const { config } = message;
 		return new Promise(async (resolve, reject) => {
 			const result = await streamsManager.test(config);
-			logger.debug(result);
 			if (result) {
 				resolve(
 					this.confirm(message, {

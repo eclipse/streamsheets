@@ -18,7 +18,6 @@ module.exports = class KafkaProducer extends ProducerMixin(KafkaConnector) {
 				this.onClose();
 			});
 			const res = await this._producer.connect();
-			this.logger.debug(res);
 			this.logger.info('Producer connected');
 			this.setConnected();
 
@@ -29,10 +28,9 @@ module.exports = class KafkaProducer extends ProducerMixin(KafkaConnector) {
 		}
 		try {
 			if (this.isConnected && this.ksqlRESTUrl) {
-				const res1 = await this.doKSQLCommand({
+				await this.doKSQLCommand({
 					ksqlCommand: 'show topics;show tables;',
 				});
-				this.logger.debug(res1);
 			}
 		} catch (e) {
 			this.handleWarning(e);
@@ -52,7 +50,7 @@ module.exports = class KafkaProducer extends ProducerMixin(KafkaConnector) {
 	async request(config_) {
 		const requestId = config_.Metadata.requestId;
 		const config = config_.Data;
-		this.logger.debug(JSON.stringify(config.Data));
+		// this.logger.debug(JSON.stringify(config.Data));
 		const name = config.functionName;
 		let response;
 		try {

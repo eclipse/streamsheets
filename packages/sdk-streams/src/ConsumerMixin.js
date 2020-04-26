@@ -183,23 +183,10 @@ const ConsumerMixin = (Connector) =>
 
 		async update(configDiff) {
 			const { type, $set } = configDiff;
-			const handlers = new Map();
-			const definition = this.config.connector.provider.definition;
 			if (type === ConsumerConfiguration.NAME) {
 				Object.keys($set).forEach((id) => {
 					if (id !== 'connector' && !id.includes('.')) {
 						this.config[id] = $set[id];
-						if (definition) {
-							const field = definition.consumer.find(
-								(def) => def.id === id
-							);
-							if (field && field.onUpdate) {
-								handlers.set(
-									field.onUpdate,
-									this[field.onUpdate].bind(this)
-								);
-							}
-						}
 					}
 				});
 				if ($set.filter !== undefined) {
@@ -212,7 +199,7 @@ const ConsumerMixin = (Connector) =>
 					this.config.idAttribute = $set.idAttribute;
 				}
 			}
-			return super.update(configDiff, handlers);
+			return super.update(configDiff);
 		}
 	};
 

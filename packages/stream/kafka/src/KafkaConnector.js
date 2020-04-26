@@ -75,7 +75,7 @@ module.exports = class KafkaConnector extends Connector {
 	async connectKafka() {
 		try {
 			this.logger.debug('Connecting with kafka only with config:');
-			this.logger.debug(JSON.stringify(this.config));
+			// this.logger.debug(JSON.stringify(this.config));
 			const connectionString =
 				this.config.connector.connectionString || 'localhost:9092';
 			const config = {

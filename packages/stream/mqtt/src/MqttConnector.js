@@ -18,17 +18,17 @@ module.exports = class MqttConnector extends sdk.Connector {
 	}
 
 	get clientId() {
-		if(!this.config.fixedClientId) {
-			return IdGenerator.generate();	
+		if (!this.config.fixedClientId) {
+			return IdGenerator.generate();
 		}
-		if(this.config.clientId === 'string' && this.config.clientId.length<1) {
+		if (this.config.clientId === 'string' && this.config.clientId.length < 1) {
 			return IdGenerator.generate();
 		}
 		return this.config.clientId;
 	}
 
 	async connect() {
-		if(this.client && this.client.reconnecting) {
+		if (this.client && this.client.reconnecting) {
 			return;
 		}
 		const url = Utils.getUrl(this.config.connector);
@@ -49,26 +49,22 @@ module.exports = class MqttConnector extends sdk.Connector {
 			clean: !!this.config.clean,
 			clientId: this.clientId,
 			username:
-				this.config.connector.userName &&
-				this.config.connector.userName.trim().length > 0
+				this.config.connector.userName && this.config.connector.userName.trim().length > 0
 					? this.config.connector.userName
 					: undefined,
 			password:
-				this.config.connector.password &&
-				this.config.connector.password.trim().length > 0
+				this.config.connector.password && this.config.connector.password.trim().length > 0
 					? this.config.connector.password
 					: undefined,
 			url,
 			...sslOptions
 		};
-		if (
-			this.hasUserProperties(this.config.connector.userPropertiesConnect)
-		) {
+		if (this.hasUserProperties(this.config.connector.userPropertiesConnect)) {
 			options.properties.userProperties = this.config.connector.userPropertiesConnect;
 		}
 		try {
 			this._client = mqtt.connect(url, options);
-			if(this.config.fixedClientId && this._client && this._client.options.clientId !== this.config.clientId) {
+			if (this.config.fixedClientId && this._client && this._client.options.clientId !== this.config.clientId) {
 				this.config.clientId = this._client.options.clientId;
 				this.persist();
 			}
@@ -82,20 +78,24 @@ module.exports = class MqttConnector extends sdk.Connector {
 		this._client.on('connect', () => this.setConnected());
 		this._client.on('error', async (error) => {
 			this.handleError(error);
-			return this._dispose();
+			this._client.end(true);
 		});
 		this._client.on('close', this.onClose);
 		// this._client.on('offline', this.onClose);
 		// this._client.on('disconnect', this.onClose);
-		this.client.on('end', () => {
-			this.logger(`${this.toString()} mqtt client ended`);
-		});
+		// this.client.on('end', () => {
+		// 	this.logger.debug(`${this.toString()} mqtt client ended`);
+		// });
 	}
 
 	async dispose() {
 		return new Promise((res, rej) => {
 			if (this.client) {
 				try {
+					// callback passed to this.client.end will not be called if not connected
+					if (this.client.disconnected) {
+						res(true);
+					}
 					this.client.end(true, (o) => res(o));
 					this.client.removeAllListeners();
 				} catch (e) {

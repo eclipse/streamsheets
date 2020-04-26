@@ -34,7 +34,6 @@ module.exports = class KafkaConsumer extends ConsumerMixin(KafkaConnector) {
 				this.onClose();
 			});
 			const res = await this._consumer.connect();
-			this.logger.debug(res);
 			this.logger.info('Consumer connected');
 			this.setConnected();
 		} catch (e) {
