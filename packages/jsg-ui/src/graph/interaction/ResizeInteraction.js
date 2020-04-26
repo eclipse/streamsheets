@@ -349,12 +349,14 @@ class ResizeInteraction extends AbstractInteraction {
 
 		if (index > -1) {
 			const gridpt = this.alignToGrid(this.currentLocation, viewer, event.event.altKey, JSG.ptCache.get());
+			const pt = new Point(0, 0);
 			this._toBBox(bbox, gridpt, offset);
-			this._resizeBBox(event, bbox, offset, index);
+			this._resizeBBox(event, bbox, offset, index, pt);
 			// SNAP IT:
 			this._alignToSnapLines(bbox, index, viewer, offset);
+			pt.setTo(offset);
 			this._toBBox(bbox, gridpt.add(offset), offset);
-			this._resizeBBox(event, bbox, offset, index);
+			this._resizeBBox(event, bbox, offset, index, pt);
 
 			JSG.ptCache.release(gridpt);
 			// apply new box to selection:
@@ -392,13 +394,13 @@ class ResizeInteraction extends AbstractInteraction {
 		return false;
 	}
 
-	_resizeBBox(event, bbox, offset, index) {
+	_resizeBBox(event, bbox, offset, index, snapOffset) {
 		const size = bbox.getSize(JSG.ptCache.get());
 		const topleft = bbox.getTopLeft(JSG.ptCache.get());
 		const orgSize = this._orgSelectionBox.getSize();
 		const orgTopLeft = this._orgSelectionBox.getTopLeft();
-		const diff = new Point(this.currentLocation.x - this.startLocation.x,
-			this.currentLocation.y - this.startLocation.y);
+		const diff = new Point(this.currentLocation.x - this.startLocation.x + snapOffset.x,
+			this.currentLocation.y - this.startLocation.y + snapOffset.y);
 		const angle = bbox.getAngle();
 		const position = this.getCurrentPosition(this._orgSelectionBox, index);
 
