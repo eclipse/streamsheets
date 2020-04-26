@@ -784,6 +784,7 @@ export default class GraphManager {
 		if (selection) {
 			id = selection.id;
 		}
+		this.clearOutbox();
 		this.addBoxMessages(outboxContainer, outbox.messages);
 		if (id) {
 			this.selectMessage(outboxContainer, id, false);
