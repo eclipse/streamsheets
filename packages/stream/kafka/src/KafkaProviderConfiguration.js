@@ -274,6 +274,7 @@ module.exports = class KafkaProviderConfiguration extends sdk.ProviderConfigurat
 
 		this.addFunctionDefinition({
 			name: 'KAFKA.PUBLISH',
+			displayName: true,
 			baseFunction: 'produce',
 			parameters: [
 				{
@@ -319,6 +320,7 @@ module.exports = class KafkaProviderConfiguration extends sdk.ProviderConfigurat
 
 		this.addFunctionDefinition(this.requestFunction((target, resultKeys, timeout) => ({
 			name: KafkaFunctions.QUERY,
+			displayName: true,
 			baseFunction: 'request',
 			parameters: [
 				{
@@ -340,6 +342,7 @@ module.exports = class KafkaProviderConfiguration extends sdk.ProviderConfigurat
 
 		this.addFunctionDefinition(this.requestFunction((target, resultKeys, timeout) => ({
 			name: KafkaFunctions.COMMAND,
+			displayName: true,
 			baseFunction: 'request',
 			parameters: [
 				{

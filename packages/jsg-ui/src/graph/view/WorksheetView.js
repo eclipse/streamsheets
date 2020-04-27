@@ -1567,50 +1567,10 @@ export default class WorksheetView extends ContentNodeView {
 					let value = cell.getValue();
 					if (expr) {
 						const termFunc = expr.getTerm();
-						if (termFunc && termFunc instanceof FuncTerm) {
-							switch (termFunc.getFuncId()) {
-								case 'PRODUCE':
-								case 'PUBLISH':
-								case 'REQUEST':
-								case 'RESPOND':
-								case 'MQTT.PUBLISH':
-								case 'MONGO.QUERY':
-								case 'MONGO.COUNT':
-								case 'MONGO.AGGREGATE':
-								case 'MONGO.STORE':
-								case 'MONGO.REPLACE':
-								case 'MONGO.DELETE':
-								case 'KAFKA.PUBLISH':
-								case 'KAFKA.COMMAND':
-								case 'KAFKA.QUERY':
-								case 'FILE.WRITE':
-								case 'REST.REQUEST':
-								case 'REST.RESPOND':
-								case 'HTTP.RESPOND':
-								case 'MAIL.SEND':
-								case 'FEEDINBOX':
-								case 'OPCUA.FOLDERS':
-								case 'OPCUA.JSON':
-								case 'OPCUA.READ':
-								case 'OPCUA.RESPOND':
-								case 'OPCUA.VARIABLES':
-								case 'OPCUA.WRITE':
-								case 'EMAIL.SEND':
-								case 'SMS.SEND':
-								case 'INFLUX.DROP':
-								case 'INFLUX.EXPORT':
-								case 'INFLUX.SELECT':
-								case 'INFLUX.SHOW':
-								case 'INFLUX.STORE':
-								case 'EXECUTE':
-									value = termFunc.getFuncId();
-									graphics.setFontStyle(TextFormatAttributes.FontStyle.BOLD);
-									break;
-								case 'WRITE':
-								case 'READ':
-									graphics.setFontStyle(TextFormatAttributes.FontStyle.BOLD);
-									break;
-							}
+						if (cell.displayFunctionName && termFunc && termFunc instanceof FuncTerm) {
+							const fnName = termFunc.getFuncId();
+							if (fnName !== 'READ' || fnName !== 'WRITE') value = fnName;
+							graphics.setFontStyle(TextFormatAttributes.FontStyle.BOLD);
 						}
 					}
 

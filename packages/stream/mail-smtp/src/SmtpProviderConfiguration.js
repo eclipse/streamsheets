@@ -65,6 +65,7 @@ module.exports = class SmtpProviderConfiguration extends sdk.ProviderConfigurati
 
 		this.addFunctionDefinition({
 			name: 'MAIL.SEND',
+			displayName: true,
 			baseFunction: 'produce',
 			parameters: [
 				{

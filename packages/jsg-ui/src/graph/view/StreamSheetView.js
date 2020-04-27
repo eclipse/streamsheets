@@ -94,6 +94,7 @@ export default class StreamSheetView extends WorksheetView {
 			label = 'PRODUCE';
 			color = '#1976d2';
 			range = new CellRange(this.getItem(), cell.x, cell.y, cell.x, cell.y);
+			return undefined;
 		} else {
 			inBox = this.isInbox(sourceView, event);
 			if (inBox === undefined) {
@@ -297,20 +298,20 @@ export default class StreamSheetView extends WorksheetView {
 		}
 
 		if (this.isMessageBox(sourceView, event)) {
-			const range = new CellRange(this.getItem(), feedback._cell.x, feedback._cell.y);
-			range.shiftToSheet();
+			// const range = new CellRange(this.getItem(), feedback._cell.x, feedback._cell.y);
+			// range.shiftToSheet();
+			//
+			// const messageFormula = this.isOutbox(sourceView, event) ? `OUTBOX("${selection.key}")` : 'INBOX()';
 
-			const messageFormula = this.isOutbox(sourceView, event) ? `OUTBOX("${selection.key}")` : 'INBOX()';
-
-			NotificationCenter.getInstance().send(
-				new Notification(StreamSheetView.SHEET_DROP_FROM_OUTBOX, {
-					event,
-					item: this.getItem(),
-					sheetView: this,
-					ref: range.toString(),
-					messageFormula
-				})
-			);
+			// NotificationCenter.getInstance().send(
+			// 	new Notification(StreamSheetView.SHEET_DROP_FROM_OUTBOX, {
+			// 		event,
+			// 		item: this.getItem(),
+			// 		sheetView: this,
+			// 		ref: range.toString(),
+			// 		messageFormula
+			// 	})
+			// );
 		} else {
 			const inBox = this.isInbox(sourceView, event);
 			if (inBox === undefined) {
@@ -378,9 +379,12 @@ export default class StreamSheetView extends WorksheetView {
 					const outbox = this.getOutbox(sourceView);
 					let name = 'Message';
 					if (outbox !== undefined) {
-						const sel = outbox.getMessageListItems().getSelectedItem();
-						if (sel) {
-							name = sel.key;
+						let sel = outbox.getMessageListItems().getSelectedItem();
+						if (!sel) {
+							sel = this._findSelectedItemByLevel(0);
+						}
+						if (sel && sel.id) {
+							name = sel.id;
 						}
 					}
 					formula = `WRITE(OUTBOXDATA("${name}"`;
@@ -418,6 +422,8 @@ export default class StreamSheetView extends WorksheetView {
 					} else {
 						pos = 1;
 					}
+				} else {
+					pos = 1;
 				}
 
 				if (path.length !== 1 || !inBox) {

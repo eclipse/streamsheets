@@ -89,30 +89,35 @@ const handleParameters = (sheet, parameters, args, errorOffset = 0) => {
 // 	}
 // 	return func(sheet, paramJson);
 // };
+const hasError = (val) =>
+	FunctionErrors.isError(val) || (typeof val === 'string' && val.startsWith(FunctionErrors.code.INVALID_PARAM));
 
-const streamFunc = functionConfig => function f(sheet, stream, ...args) {
-	const { baseFunction, parameters, name } = functionConfig;
-	const paramsCopy = [].concat(parameters);
-	const func = BASE_FUNC_HANDLER[baseFunction];
-	const callArguments = [sheet, stream];
 
-	const transformedParams = handleParameters(sheet, paramsCopy, args, 2);
-	if (FunctionErrors.isError(transformedParams) ||
-		(typeof transformedParams === 'string' && transformedParams.startsWith(FunctionErrors.code.INVALID_PARAM))) {
-		return transformedParams;
+const streamFunc = functionConfig => {
+	function f(sheet, stream, ...args) {
+		const { baseFunction, parameters, name } = functionConfig;
+		const paramsCopy = [].concat(parameters);
+		const func = BASE_FUNC_HANDLER[baseFunction];
+		const callArguments = [sheet, stream];
+
+		const transformedParams = handleParameters(sheet, paramsCopy, args, 2);
+		if (hasError(transformedParams)) {
+			return transformedParams;
+		}
+
+		transformedParams.stream.functionName = name;
+
+		// Ugly, fix me
+		if (baseFunction === BASE_FUNC.REQUEST) {
+			transformedParams.stream = new Message(transformedParams.stream);
+			callArguments.unshift(f.term);
+		}
+
+		callArguments.push(transformedParams.stream, transformedParams.internal);
+		return func(...callArguments);
 	}
-
-	transformedParams.stream.functionName = name;
-
-	// Ugly, fix me
-	if (baseFunction === BASE_FUNC.REQUEST) {
-		transformedParams.stream = new Message(transformedParams.stream);
-		callArguments.unshift(f.term);
-	}
-
-	callArguments.push(transformedParams.stream, transformedParams.internal);
-
-	return func(...callArguments);
+	f.displayName = functionConfig.displayName;
+	return f;
 };
 
 

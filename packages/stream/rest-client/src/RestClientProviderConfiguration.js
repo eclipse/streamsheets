@@ -34,6 +34,7 @@ module.exports = class RestClientProviderConfiguration extends ProviderConfigura
 
 		const functionDefinition = this.requestFunction((target, resultKeys, timeout) => ({
 			name: 'HTTP.REQUEST',
+			displayName: true,
 			baseFunction: 'request',
 			parameters: [
 				{
@@ -100,6 +101,7 @@ module.exports = class RestClientProviderConfiguration extends ProviderConfigura
 		this.addFunctionDefinition(
 			Object.assign({}, functionDefinition, {
 				name: 'REST.RESPOND',
+				displayName: true,
 				deprecated: true
 			})
 		);

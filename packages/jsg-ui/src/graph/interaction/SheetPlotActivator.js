@@ -269,8 +269,12 @@ export default class SheetPlotActivator extends InteractionActivator {
 	}
 
 	handleContextMenu(event, viewer, dispatcher) {
+
 		const controller = this._getControllerAt(event.location, viewer, dispatcher);
 		if (controller) {
+			if (controller.getModel().isProtected()) {
+				return;
+			}
 			if (!controller.isSelected()) {
 				viewer.getSelectionProvider().setSelection([controller]);
 				viewer.getSelectionView().refresh();

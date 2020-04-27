@@ -244,6 +244,7 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 
 		const functionDefinition = {
 			name: 'MQTT.PUBLISH',
+			displayName: true,
 			baseFunction: 'produce',
 			parameters: [
 				{
@@ -313,6 +314,7 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 		this.addFunctionDefinition(
 			Object.assign({}, functionDefinition, {
 				name: 'PUBLISH',
+				displayName: true,
 				deprecated: true
 			})
 		);

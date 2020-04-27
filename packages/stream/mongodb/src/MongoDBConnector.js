@@ -60,14 +60,6 @@ module.exports = class MongoDBConnector extends Connector {
 		}
 	}
 
-	async reConnect() {
-		if (this.client) {
-			this._client.close();
-			this._client = null;
-			this._connected = false;
-		}
-	}
-
 	// async test(config = { payload: { testme: 'testme' } }) {
 	// 	const collectionName = this.config.collections[0];
 	// 	return new Promise(async (resolve) => {

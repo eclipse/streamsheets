@@ -550,6 +550,76 @@ describe('read', () => {
 			expect(sheet.cellAt(SheetIndex.create('C1')).value).toBe(1);
 			expect(sheet.cellAt(SheetIndex.create('C2')).value).toBe(2);
 		});
+		// DL-4033
+		it('should copy an array of objects to larger target range', () => {
+			const sheet = setup({ streamsheetName: 'T1' });
+			const outbox = sheet.machine.outbox;
+			outbox.put(
+				new Message(
+					{
+						cart: [
+							{
+								Product: 'Quantity',
+								a: 2,
+								b: 2,
+								c: 2,
+								d: 2
+							},
+							{
+								Product: 'Price',
+								a: 12,
+								b: 13,
+								c: 4,
+								d: 5
+							},
+							{
+								Product: 'Lineprice',
+								a: 24,
+								b: 26,
+								c: 8,
+								d: 10
+							}
+						]
+					},
+					'Session'
+				)
+			);
+			expect(createTerm('read(outboxdata("Session","cart"), A1:F10)', sheet).value).toBe('cart');
+			expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe('Product');
+			expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe('Quantity');
+			expect(sheet.cellAt(SheetIndex.create('C1')).value).toBe('Price');
+			expect(sheet.cellAt(SheetIndex.create('D1')).value).toBe('Lineprice');
+			expect(sheet.cellAt(SheetIndex.create('E1')).value).toBe('Product');
+			expect(sheet.cellAt(SheetIndex.create('F1')).value).toBe('Quantity');
+			expect(sheet.cellAt(SheetIndex.create('A2')).value).toBe('a');
+			expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe(2);
+			expect(sheet.cellAt(SheetIndex.create('C2')).value).toBe(12);
+			expect(sheet.cellAt(SheetIndex.create('D2')).value).toBe(24);
+			expect(sheet.cellAt(SheetIndex.create('E2')).value).toBe('a');
+			expect(sheet.cellAt(SheetIndex.create('F2')).value).toBe(2);
+			expect(sheet.cellAt(SheetIndex.create('A3')).value).toBe('b');
+			expect(sheet.cellAt(SheetIndex.create('B3')).value).toBe(2);
+			expect(sheet.cellAt(SheetIndex.create('C3')).value).toBe(13);
+			expect(sheet.cellAt(SheetIndex.create('D3')).value).toBe(26);
+			expect(sheet.cellAt(SheetIndex.create('E3')).value).toBe('b');
+			expect(sheet.cellAt(SheetIndex.create('F3')).value).toBe(2);
+			expect(sheet.cellAt(SheetIndex.create('A4')).value).toBe('c');
+			expect(sheet.cellAt(SheetIndex.create('B4')).value).toBe(2);
+			expect(sheet.cellAt(SheetIndex.create('C4')).value).toBe(4);
+			expect(sheet.cellAt(SheetIndex.create('D4')).value).toBe(8);
+			expect(sheet.cellAt(SheetIndex.create('E4')).value).toBe('c');
+			expect(sheet.cellAt(SheetIndex.create('F4')).value).toBe(2);
+			expect(sheet.cellAt(SheetIndex.create('A5')).value).toBe('d');
+			expect(sheet.cellAt(SheetIndex.create('B5')).value).toBe(2);
+			expect(sheet.cellAt(SheetIndex.create('C5')).value).toBe(5);
+			expect(sheet.cellAt(SheetIndex.create('D5')).value).toBe(10);
+			expect(sheet.cellAt(SheetIndex.create('E5')).value).toBe('d');
+			expect(sheet.cellAt(SheetIndex.create('F5')).value).toBe(2);
+			expect(sheet.cellAt(SheetIndex.create('A6'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('B6'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('C6'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('D6'))).toBeUndefined();
+		});
 	});
 	describe('copy of dictionary data to cell range', () => {
 		it('should copy an object in vertical orientation if range height > range width', () => {

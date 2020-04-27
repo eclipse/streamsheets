@@ -98,7 +98,7 @@ module.exports = class MongoDBProducer extends ProducerMixin(MongoDBConnector) {
 		if (query && query._id) {
 			config.query._id = mongodb.ObjectID(query._id);
 		}
-		this.logger.debug(JSON.stringify(config.Data));
+		// this.logger.debug(JSON.stringify(config.Data));
 		let response;
 		switch (config.functionName) {
 			case MongoDBFunctions.QUERY:

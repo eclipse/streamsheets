@@ -4,123 +4,126 @@ const ERROR = FunctionErrors.code;
 
 const remove = (index, arr) => arr.splice(index, 1)[0];
 
+class ErrorHandler {
+	constructor() {
+		this._errorCode = undefined;
+		this._errorIndex = -1;
+		this._ignoreError = false;
+	}
+
+	set ignoreError(doIt) {
+		this._ignoreError = doIt;
+	}
+
+	getError() {
+		return this._errorCode ? { code: this._errorCode, index: this._errorIndex } : undefined;
+	}
+
+	hasError() {
+		return this._errorCode && !this._ignoreError;
+	}
+
+	update(res, index) {
+		if (res && !this._errorCode) {
+			this._errorCode = FunctionErrors.isError(res);
+			this._errorIndex = index != null ? index : -1;
+		}
+	}
+}
 class Runner {
 	constructor(sheet, args) {
 		this.sheet = sheet;
 		// work on copy or not???
 		this.args = args ? args.slice(0) : [];
+		this.index = 0;
 		this.isEnabled = true;
 		this.defReturnValue = true;
 		this.mappedArgs = [];
-//		this.funcArgs = {};
-		this.error = FunctionErrors.ifNot(sheet, ERROR.ARGS);
+		this.errorHandler = new ErrorHandler();
+		this.errorHandler.update(FunctionErrors.ifNot(sheet, ERROR.ARGS));
+	}
+
+	ignoreError() {
+		this.errorHandler.ignoreError = true;
+		return this;
 	}
 
 	onSheetCalculation() {
-		this.isEnabled = !this.error ? this.sheet.isProcessing : false;
+		this.isEnabled = !this.errorHandler.hasError() && this.sheet.isProcessing;
 		return this;
 	}
 
 	withArgCount(nr) {
-		this.error = this.error || FunctionErrors.ifTrue(this.args.length !== nr, ERROR.ARGS);
+		this.errorHandler.update(FunctionErrors.ifTrue(this.args.length !== nr, ERROR.ARGS));
 		return this;
 	}
 
 	withMinArgs(min) {
-		this.error = this.error || FunctionErrors.ifTrue(this.args.length < min, ERROR.ARGS);
+		this.errorHandler.update(FunctionErrors.ifTrue(this.args.length < min, ERROR.ARGS));
 		return this;
 	}
 
 	withMaxArgs(max) {
-		this.error = this.error || FunctionErrors.ifTrue(this.args.length > max, ERROR.ARGS);
+		this.errorHandler.update(FunctionErrors.ifTrue(this.args.length > max, ERROR.ARGS));
 		return this;
 	}
 
 	// adds additional value which is passed to run(), eg: addMappedArg(() => sheet.streamsheet || ERROR.NO_STREAMSHEET)
 	addMappedArg(fn) {
-		if (!this.error) {
+		if (!this.errorHandler.hasError()) {
 			const res = fn(...this.mappedArgs);
-			this.error = FunctionErrors.isError(res);
+			this.errorHandler.update(res);
 			this.mappedArgs.push(res);
 		}
 		return this;
 	}
-	// addMappedArg2(name, fn) {
-	// 	if (!this.error) {
-	// 		const res = fn(this.funcArgs);
-	// 		this.error = FunctionErrors.isError(res);
-	// 		this.funcArgs[name] = res;
-	// 	}
-	// 	return this;
-	// }
 
 	mapNextArg(fn) {
-		if (!this.error) {
+		if (!this.errorHandler.hasError()) {
 			const term = this.args.shift();
 			const res = fn(term, ...this.mappedArgs);
-			this.error = FunctionErrors.isError(res);
+			this.errorHandler.update(res, this.index);
 			this.mappedArgs.push(res);
+			this.index += 1;
 		}
 		return this;
 	}
-	// mapNextArg2(name, fn) {
-	// 	if (!this.error) {
-	// 		const term = this.args.shift();
-	// 		const res = fn(term, this.funcArgs);
-	// 		this.error = FunctionErrors.isError(res);
-	// 		this.funcArgs[name] = res;
-	// 	}
-	// 	return this;
-	// }
 
 	// under review:
 	mapArgAt(idx, fn) {
-		if (!this.error) {
+		if (!this.errorHandler.hasError()) {
 			const term = remove(idx, this.args);
 			const res = fn(term, ...this.mappedArgs);
-			this.error = FunctionErrors.isError(res);
+			this.errorHandler.update(res, idx);
 			this.mappedArgs.push(res);
+			this.index = idx;
 		}
 		return this;
 	}
 	mapRemaingingArgs(fn) {
-		if (!this.error) {
+		if (!this.errorHandler.hasError()) {
 			const res = fn(this.args, ...this.mappedArgs);
-			this.error = FunctionErrors.isError(res);
+			this.errorHandler.update(res);
 			this.mappedArgs.push(res);
 		}
 		return this;
 	}
 
 	reduce(fn) {
-		if (!this.error) {
+		if (!this.errorHandler.hasError()) {
 			const res = fn(...this.mappedArgs);
-			this.error = FunctionErrors.isError(res);
+			this.errorHandler.update(res);
 			this.mappedArgs = res;
 		}
 		return this;
 	}
-	// reduce2(name, fn) {
-	// 	if (!this.error) {
-	// 		const res = fn(this.funcArgs);
-	// 		this.error = FunctionErrors.isError(res);
-	// 		this.funcArgs[name] = res;
-	// 	}
-	// 	return this;
-	// }
 
 	validate(fn) {
-		if (!this.error) {
-			this.error = FunctionErrors.isError(fn(...this.mappedArgs));
+		if (!this.errorHandler.hasError()) {
+			this.errorHandler.update(fn(...this.mappedArgs));
 		}
 		return this;
 	}
-	// validate2(fn) {
-	// 	if (!this.error) {
-	// 		this.error = FunctionErrors.isError(fn(this.funcArgs));
-	// 	}
-	// 	return this;
-	// }
 
 	// tmp. => review and maybe combine with onSheetCalculation
 	defaultReturnValue(fn) {
@@ -128,18 +131,13 @@ class Runner {
 		this.defReturnValue = this.defReturnValue != null ? this.defReturnValue : true;
 		return this;
 	}
-	// defaultReturnValue2(fn) {
-	// 	this.defReturnValue = fn(this.funcArgs);
-	// 	this.defReturnValue = this.defReturnValue != null ? this.defReturnValue : true;
-	// 	return this;
-	// }
 
 	run(fn) {
-		return this.error || (this.isEnabled ? fn(...this.mappedArgs) : this.defReturnValue);
+		if (this.errorHandler.hasError()) {
+			return this.errorHandler.getError().code;
+		}
+		return this.isEnabled ? fn(...this.mappedArgs, this.errorHandler.getError()) : this.defReturnValue;
 	}
-	// run2(fn) {
-	// 	return this.error || (this.isEnabled ? fn(this.funcArgs) : this.defReturnValue);
-	// }
 }
 
 

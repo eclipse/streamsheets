@@ -11,5 +11,6 @@ const bar = (sheet, ...terms) =>
 			});
 			return result;
 		});
+bar.displayName = true;
 
 module.exports = bar;

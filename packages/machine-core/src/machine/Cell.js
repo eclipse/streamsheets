@@ -61,6 +61,7 @@ const adjustValueOf = (cell) => {
 	return value;
 };
 
+const displayName = (term) => term && term.func && term.func.displayName;
 
 class Cell {
 	static get VALUE_REPLACEMENT() {
@@ -89,7 +90,7 @@ class Cell {
 			descr.type = 'unit';
 			descr.value = term.toString();
 		}
-		descr.info = { ...this.info };
+		descr.info = { ...this.info, displayName:  displayName(term)};
 		// TODO: move level to cell properties
 		descr.level = this.level;
 		const references = this._references && refStrings(this._references);

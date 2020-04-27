@@ -123,6 +123,7 @@ module.exports = class FileProviderConfiguration extends ProviderConfiguration {
 
 		this.addFunctionDefinition({
 			name: 'FILE.WRITE',
+			displayName: true,
 			baseFunction: 'produce',
 			parameters: [
 				{

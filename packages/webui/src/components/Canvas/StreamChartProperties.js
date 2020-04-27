@@ -801,14 +801,16 @@ export class StreamChartProperties extends Component {
 											>
 												<TextField
 													style={{
-														width: '120px',
+														width: '135px',
 													}}
 													id="number"
-													label={<FormattedMessage id="StreamChartProperties.Rotation" defaultMessage="Rotation (Degrees)" />}
-													inputProps={{
+													label={<FormattedMessage id="StreamChartProperties.Rotation" defaultMessage="Rotation" />}
+													InputProps={{
 														min: 10,
 														max: 90,
 														step: 5,
+														endAdornment: <InputAdornment position="end"><FormattedMessage id="StreamChartProperties.Degrees" defaultMessage="Degrees" /></InputAdornment>
+
 													}}
 													error={item.chart.rotation > Math.PI_2 || item.chart.rotation < 0}
 													helperText={
@@ -828,15 +830,16 @@ export class StreamChartProperties extends Component {
 												/>
 												<TextField
 													style={{
-														width: '152px',
+														width: '135px',
 														marginLeft: '10px',
 													}}
 													id="number"
 													label={<FormattedMessage id="StreamChartProperties.DoughnutHole" defaultMessage="Doughnut Hole (Percent)" />}
-													inputProps={{
+													InputProps={{
 														min: 0,
 														max: 80,
 														step: 1,
+														endAdornment: <InputAdornment position="end">%</InputAdornment>
 													}}
 													error={item.chart.hole > 0.8 || item.chart.hole < 0}
 													helperText={
@@ -865,11 +868,12 @@ export class StreamChartProperties extends Component {
 														width: '135px',
 													}}
 													id="number"
-													label={<FormattedMessage id="StreamChartProperties.StartAngle" defaultMessage="Pie Start (Degrees)" />}
-													inputProps={{
+													label={<FormattedMessage id="StreamChartProperties.StartAngle" defaultMessage="Pie Start" />}
+													InputProps={{
 														min: 0,
 														max: 360,
 														step: 5,
+														endAdornment: <InputAdornment position="end"><FormattedMessage id="StreamChartProperties.Degrees" defaultMessage="Degrees" /></InputAdornment>
 													}}
 													error={item.chart.startAngle > Math.PI * 2 || item.chart.startAngle < 0}
 													helperText={
@@ -893,11 +897,12 @@ export class StreamChartProperties extends Component {
 														marginLeft: '10px'
 													}}
 													id="number"
-													label={<FormattedMessage id="StreamChartProperties.EndAngle" defaultMessage="Pie End (Degrees)" />}
-													inputProps={{
+													label={<FormattedMessage id="StreamChartProperties.EndAngle" defaultMessage="Pie End" />}
+													InputProps={{
 														min: 0,
 														max: 540,
 														step: 5,
+														endAdornment: <InputAdornment position="end"><FormattedMessage id="StreamChartProperties.Degrees" defaultMessage="Degrees" /></InputAdornment>
 													}}
 													error={item.chart.endAngle > Math.PI * 3 || item.chart.endAngle < 0}
 													helperText={
@@ -1142,7 +1147,9 @@ export class StreamChartProperties extends Component {
 														/>
 													}
 													label={
-														<FormattedMessage id="StreamChartProperties.FirstSeriesLabels" defaultMessage="First Row/Column are Series Labels" />
+														item.chart.dataInRows ?
+															<FormattedMessage id="StreamChartProperties.FirstSeriesLabelsRow" defaultMessage="First Row has Series Labels" /> :
+															<FormattedMessage id="StreamChartProperties.FirstSeriesLabelsColumn" defaultMessage="First Column has Series Labels" />
 													}
 												/>
 												<FormControlLabel
@@ -1155,7 +1162,9 @@ export class StreamChartProperties extends Component {
 														/>
 													}
 													label={
-														<FormattedMessage id="StreamChartProperties.FirstCategoryLabels" defaultMessage="First Row/Column are Category Labels" />
+														item.chart.dataInRows ?
+															<FormattedMessage id="StreamChartProperties.FirstCategoryLabelsColumn" defaultMessage="First Colummn has Category Labels" /> :
+															<FormattedMessage id="StreamChartProperties.FirstCategoryLabelsRow" defaultMessage="First Row has Category Labels" />
 													}
 												/>
 											</div>) : null}
