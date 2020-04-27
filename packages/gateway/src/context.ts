@@ -104,7 +104,7 @@ export const init = async (config: any, plugins: string[]) => {
 
 export const getRequestContext = async (globalContext: GlobalContext, session: Session) => {
 	let actor;
-	if((session as any).service === 'internal' && !session.user) {
+	if((session.user as any).service === 'internal' && !session.user.id) {
 		actor = await globalContext.userRepo.findUser('00000000000000');
 	} else {
 		actor = await globalContext.rawApi.user.findUserBySession(globalContext as RequestContext, session);
