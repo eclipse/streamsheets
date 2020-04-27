@@ -480,7 +480,7 @@ describe('read', () => {
 			expect(createTerm('read(inboxdata("T1",,"Positionen"),A1,"Number")', sheet).value).toBe('Positionen');
 			expect(createTerm('read(inboxdata("T1","msg-simple","Positionen",1,"PosNr"),A1,"Number")', sheet).value).toBe('PosNr');
 		});
-		// do we ever require this behaviour?
+		// do we ever require this behaviour? REMOVE IF NOT!!!
 		it.skip('should return value from json path if no target is specified', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[data][Positionen]');
@@ -948,7 +948,7 @@ describe('read', () => {
 				expect(t1.sheet.cellAt('B3').value).toBe('Message');
 			});
 		});
-		// DL-
+		// DL-4049
 		it('should read inbox message', () => {
 			const machine = new Machine();
 			const streamsheet = new StreamSheet({ name: 'S1' });
