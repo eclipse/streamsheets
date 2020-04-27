@@ -17,6 +17,7 @@ module.exports = class SplitterNode extends Node {
 		this.getFormat().setLineColor('#AAAAAA');
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 		this.getItemAttributes().setContainer(false);
+		this.getItemAttributes().setSnapTo(false);
 
 		this._direction = ItemAttributes.Direction.HORIZONTAL;
 	}

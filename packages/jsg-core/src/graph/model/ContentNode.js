@@ -22,6 +22,7 @@ class ContentPane extends GraphItem {
 
 		// use a rectangle shape:
 		// this.setShapeTo(new RectangleShape());
+		this.getItemAttributes().setSnapTo(false);
 
 		// defaults:
 		this.setSize(0, 0);
