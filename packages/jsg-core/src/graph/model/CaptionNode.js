@@ -15,6 +15,7 @@ module.exports = class CaptionNode extends Node {
 		this.getTextFormat().setFontColor('#FFFFFF');
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 		this.getItemAttributes().setContainer(false);
+		this.getItemAttributes().setSnapTo(false);
 		this.getItemAttributes().setSelectionMode(ItemAttributes.SelectionMode.NONE);
 	}
 
