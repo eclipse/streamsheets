@@ -41,7 +41,6 @@ module.exports = class GatewayService extends MessagingService {
 		}
 		Auth.jwtSecret = jwtSecret;
 		jwtToken =
-			jwtToken ||
 			Auth.getToken({
 				service: 'internal',
 				issuer: 'Cedalo'

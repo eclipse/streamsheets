@@ -103,8 +103,12 @@ export const init = async (config: any, plugins: string[]) => {
 };
 
 export const getRequestContext = async (globalContext: GlobalContext, session: Session) => {
-	const { repositories } = globalContext;
-	const actor = await globalContext.rawApi.user.findUserBySession(globalContext as RequestContext, session);
+	let actor;
+	if((session as any).service === 'internal' && !session.user) {
+		actor = await globalContext.userRepo.findUser('00000000000000');
+	} else {
+		actor = await globalContext.rawApi.user.findUserBySession(globalContext as RequestContext, session);
+	}
 	if(!actor){
 		throw new Error('User not found!');
 	}
