@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/streamsheets-webcomponent-demo",
-  "version": "1.6.0",
+  "version": "1.6.2",
   "description": "Streamsheets Web Component Demo",
   "author": "Cedalo AG",
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/webcomponent/demo",
@@ -16,8 +16,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@cedalo/streammachine": "1.6.0",
-    "@cedalo/streamsheet-connection": "1.6.0"
+    "@cedalo/streammachine": "1.6.2",
+    "@cedalo/streamsheet-connection": "1.6.2"
   },
   "devDependencies": {
     "@babel/core": "7.4.4",

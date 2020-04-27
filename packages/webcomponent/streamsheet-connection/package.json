@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/streamsheet-connection",
-  "version": "1.6.0",
+  "version": "1.6.2",
   "description": "WebComponent to connect to Gateway services",
   "author": "Cedalo AG",
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/webcomponent/streamsheet-connection",
@@ -19,8 +19,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@cedalo/gateway-client": "1.6.0",
-    "@cedalo/gateway-client-proxy": "1.6.0"
+    "@cedalo/gateway-client": "1.6.2",
+    "@cedalo/gateway-client-proxy": "1.6.2"
   },
   "devDependencies": {
     "prettier": "1.17.0"

@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/service-graphs",
-  "version": "1.6.0",
+  "version": "1.6.2",
   "description": "A service for managing graphs.",
   "main": "index.js",
   "scripts": {
@@ -22,16 +22,16 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/service-graphs",
   "dependencies": {
-    "@cedalo/error-codes": "1.6.0",
-    "@cedalo/id-generator": "1.6.0",
-    "@cedalo/logger": "1.6.0",
-    "@cedalo/messages": "1.6.0",
-    "@cedalo/messaging-client": "1.6.0",
-    "@cedalo/protocols": "1.6.0",
-    "@cedalo/repository": "1.6.0",
-    "@cedalo/service-core": "1.6.0",
+    "@cedalo/error-codes": "1.6.2",
+    "@cedalo/id-generator": "1.6.2",
+    "@cedalo/logger": "1.6.2",
+    "@cedalo/messages": "1.6.2",
+    "@cedalo/messaging-client": "1.6.2",
+    "@cedalo/protocols": "1.6.2",
+    "@cedalo/repository": "1.6.2",
+    "@cedalo/service-core": "1.6.2",
     "ioredis": "4.6.2",
-    "@cedalo/jsg-core": "1.6.0"
+    "@cedalo/jsg-core": "1.6.2"
   },
   "devDependencies": {
     "jest": "24.0.0",
