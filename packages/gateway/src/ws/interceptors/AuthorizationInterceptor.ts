@@ -73,7 +73,9 @@ export default class AuthorizationInterceptor implements Interceptor {
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.OPEN_MACHINE_MESSAGE_TYPE:
 				await auth.verifyMachine('view', machine);
 				break;
-			// case MachineServerMessagingProtocol.MESSAGE_TYPES.UNSUBSCRIBE_MACHINE_MESSAGE_TYPE: UNUSED?
+			case MachineServerMessagingProtocol.MESSAGE_TYPES.UNSUBSCRIBE_MACHINE_MESSAGE_TYPE:
+				// Currently needed to unsubscribe from redis events
+				break;
 			// case MachineServerMessagingProtocol.MESSAGE_TYPES.SUBSCRIBE_MACHINE_MESSAGE_TYPE: UNUSED?
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.SET_MACHINE_UPDATE_INTERVAL_MESSAGE_TYPE:
 				await auth.verifyMachine('set_update_interval', machine);
