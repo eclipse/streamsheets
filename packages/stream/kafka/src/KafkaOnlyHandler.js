@@ -16,7 +16,7 @@ module.exports = class KafkaOnlyHandler {
 	async connect() {
 		try {
 			this.stream.logger.debug('Connecting with kafka onlywith config:');
-			this.stream.logger.debug(JSON.stringify(this.stream.config));
+			// this.stream.logger.debug(JSON.stringify(this.stream.config));
 			const connectionString = this.stream.config.connector.connectionString ||
 										'localhost:9092';
 			const clientId = this.stream.config.clientId || 'cedalo-kafka-stream';
@@ -47,7 +47,7 @@ module.exports = class KafkaOnlyHandler {
 			await this._consumer.subscribe({ topic });
 			await this._consumer.run({
 				eachMessage: async ({ message }) => {
-					this.stream.logger.debug(JSON.stringify(message));
+					// this.stream.logger.debug(JSON.stringify(message));
 					this.stream.onMessage(topic, message.value);
 				}
 			});

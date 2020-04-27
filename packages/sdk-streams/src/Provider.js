@@ -29,7 +29,6 @@ class Provider {
 		this._id = this._id || IdGenerator.generate();
 		this._consumers = new Map();
 		this._producers = new Map();
-		this._errors = [];
 		this._defConfigConnectorsMap = new Map();
 		this._defConfigConsumersMap = new Map();
 	}
@@ -316,16 +315,11 @@ class Provider {
 		);
 		this._producers.clear();
 		this._consumers.clear();
-		this._errors = [];
 	}
 
 	clear() {
 		this.consumersList().clear();
 		this.producersList().clear();
-	}
-
-	get errors() {
-		return this._errors;
 	}
 
 	get consumersList() {

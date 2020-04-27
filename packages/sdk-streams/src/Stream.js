@@ -37,8 +37,6 @@ class Stream {
 		});
 		this._owner = owner;
 		this.uid = IdGenerator.generate();
-		this._errors = new Map();
-		this._warnings = [];
 	}
 
 	toJSON() {
@@ -58,10 +56,6 @@ class Stream {
 		this._owner = owner;
 	}
 
-	get errors() {
-		return Array.from(this._errors.values());
-	}
-
 	on(event, fn) {
 		this._emitter.on(event, fn);
 	}
@@ -72,11 +66,6 @@ class Stream {
 
 	removeAllListeners() {
 		this._emitter.removeAllListeners();
-	}
-
-	clearErrors() {
-		this._warnings = [];
-		this._errors.clear();
 	}
 
 	get isUsed() {
