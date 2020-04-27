@@ -611,6 +611,10 @@ export default class CellEditor {
 				}
 				if (rangeOld) {
 					range._color = rangeOld._color;
+					range._x1R = rangeOld._x1R;
+					range._x2R = rangeOld._x2R;
+					range._y1R = rangeOld._y1R;
+					range._y2R = rangeOld._y2R;
 				}
 				selection.setAt(index, range);
 				view.showCell(cell);
