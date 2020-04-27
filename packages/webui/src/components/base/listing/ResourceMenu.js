@@ -9,7 +9,6 @@ import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { FormattedMessage } from 'react-intl';
 
-const ITEM_HEIGHT = 78;
 const DEF_STYLES = {
 	icon: {
 		width: '25px',
@@ -83,7 +82,6 @@ export default class ResourceMenu extends React.Component {
 					onClose={this.handleClose}
 					PaperProps={{
 						style: {
-							maxHeight: ITEM_HEIGHT * 4.5,
 							width: 'auto',
 						},
 					}}
