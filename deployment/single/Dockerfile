@@ -27,6 +27,7 @@ ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0
 	MONGO_USER_DB_URI=mongodb://localhost:27017/userDB \
 	RESTSERVER_PORT=8083 \
 	STREAMSHEETS_LOG_LEVEL=debug \
+	STREAMSHEETS_STREAMS_SERVICE_LOG_LEVEL=info \
 	NODE_ENV=production \
 	STREAMS_SERVICE_START_DELAY=5000
 
