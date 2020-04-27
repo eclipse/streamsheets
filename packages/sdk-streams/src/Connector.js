@@ -1,4 +1,3 @@
-const IdGenerator = require('@cedalo/id-generator');
 const { ERRORS, EVENTS, STREAM_TYPES } = require('./Constants');
 const Stream = require('./Stream');
 const ConnectorConfiguration = require('./configurations/ConnectorConfiguration');
