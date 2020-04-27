@@ -480,7 +480,8 @@ describe('read', () => {
 			expect(createTerm('read(inboxdata("T1",,"Positionen"),A1,"Number")', sheet).value).toBe('Positionen');
 			expect(createTerm('read(inboxdata("T1","msg-simple","Positionen",1,"PosNr"),A1,"Number")', sheet).value).toBe('PosNr');
 		});
-		it('should return value from json path if no target is specified', () => {
+		// do we ever require this behaviour?
+		it.skip('should return value from json path if no target is specified', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[data][Positionen]');
 			expect(createTerm('read(inboxdata("T1",,"Positionen",1,"Preis"))', sheet).value).toBe(59.99);
@@ -822,7 +823,7 @@ describe('read', () => {
 		});
 	});
 	describe('JIRA bugs :-)', () => {
-		describe('@cedalo/DL-1122', () => {
+		describe('DL-1122', () => {
 			it('should read a list of dictionaries and spread it to given range', () => {
 				const machine = new Machine();
 				// eslint-disable-next-line
@@ -946,6 +947,62 @@ describe('read', () => {
 				expect(t1.sheet.cellAt('B2').value).toBe('');
 				expect(t1.sheet.cellAt('B3').value).toBe('Message');
 			});
+		});
+		// DL-
+		it('should read inbox message', () => {
+			const machine = new Machine();
+			const streamsheet = new StreamSheet({ name: 'S1' });
+			const sheet = streamsheet.sheet;
+			machine.addStreamSheet(streamsheet);
+			streamsheet.inbox.put(new Message({
+				Orderinformation: {
+					source: 'Testumgebung/247558',
+					SerialNo: 247315,
+					MouldId: 'Neue Schnecke 2',
+					NumCavities: 0,
+					NominalParts: 0,
+					AverageCycleTime: 0,
+					JobBadPartsCounter: 1278,
+					JobGoodPartsCounter: 10,
+					JobPartsCounter: 10194,
+					Name: 'ITS Test Wi-Re'
+				},
+				ParamIDs: ['W40225', 'M40222','#3452']
+			}));
+			sheet.load({ cells: {
+				A1: { formula: 'READ(INBOXDATA(,,"Orderinformation"),,"Dictionary")' },
+				A2: { formula: 'READ(INBOXDATA(,,A1,"source"),B2,"Number")' },
+				A3: { formula: 'READ(INBOXDATA(,,A1,"SerialNo"),B3,"Number")' },
+				A4: { formula: 'READ(INBOXDATA(,,A1,"MouldId"),B4,"Number")' },
+				A5: { formula: 'READ(INBOXDATA(,,A1,"NumCavities"),B5,"Number")' },
+				A6: { formula: 'READ(INBOXDATA(,,A1,"NominalParts"),B6,"Number")' },
+				A7: { formula: 'READ(INBOXDATA(,,A1,"AverageCycleTime"),B7,"Number")' },
+				A8: { formula: 'READ(INBOXDATA(,,A1,"JobBadPartsCounter"),B8,"Number")' },
+				A9: { formula: 'READ(INBOXDATA(,,A1,"JobGoodPartsCounter"),B9,"Number")' },
+				A10: { formula: 'READ(INBOXDATA(,,A1,"JobPartsCounter"),B10,"Number")' },
+				A11: { formula: 'READ(INBOXDATA(,,A1,"Name"),B11,"String")' },
+			}});
+			expect(sheet.cellAt('A1').value).toBe('Orderinformation');
+			expect(sheet.cellAt('A2').value).toBe('source');
+			expect(sheet.cellAt('A3').value).toBe('SerialNo');
+			expect(sheet.cellAt('A4').value).toBe('MouldId');
+			expect(sheet.cellAt('A5').value).toBe('NumCavities');
+			expect(sheet.cellAt('A6').value).toBe('NominalParts');
+			expect(sheet.cellAt('A7').value).toBe('AverageCycleTime');
+			expect(sheet.cellAt('A8').value).toBe('JobBadPartsCounter');
+			expect(sheet.cellAt('A9').value).toBe('JobGoodPartsCounter');
+			expect(sheet.cellAt('A10').value).toBe('JobPartsCounter');
+			expect(sheet.cellAt('A11').value).toBe('Name');
+			expect(sheet.cellAt('B2').value).toBe('Testumgebung/247558');
+			expect(sheet.cellAt('B3').value).toBe(247315);
+			expect(sheet.cellAt('B4').value).toBe('Neue Schnecke 2');
+			expect(sheet.cellAt('B5').value).toBe(0);
+			expect(sheet.cellAt('B6').value).toBe(0);
+			expect(sheet.cellAt('B7').value).toBe(0);
+			expect(sheet.cellAt('B8').value).toBe(1278);
+			expect(sheet.cellAt('B9').value).toBe(10);
+			expect(sheet.cellAt('B10').value).toBe(10194);
+			expect(sheet.cellAt('B11').value).toBe('ITS Test Wi-Re');
 		});
 	});
 
