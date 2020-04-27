@@ -14,16 +14,20 @@ const toString = term => (term ? convert.toString(term.value, '') : '');
 const termFromValue = value => (isType.object(value) ? Term.fromValue(Cell.VALUE_REPLACEMENT) : Term.fromValue(value));
 
 const setOrCreateCellAt = (index, value, isErrorValue, sheet) => {
-	const cell = sheet.cellAt(index, true);
-	// DL-2144: if cell has a formula only set its value, otherwise its term
-	if (cell.hasFormula) {
-		cell.value = value;
-	} else if(isErrorValue) {
-		cell.term = ErrorTerm.fromError(ERROR.NA);
+	if (value != null) {
+		const cell = sheet.cellAt(index, true);
+		// DL-2144: if cell has a formula only set its value, otherwise its term
+		if (cell.hasFormula) {
+			cell.value = value;
+		} else if (isErrorValue) {
+			cell.term = ErrorTerm.fromError(ERROR.NA);
+		} else {
+			cell.term = value != null ? termFromValue(value) : Term.fromValue('');
+		}
 	} else {
-		cell.term = value != null ? termFromValue(value) : Term.fromValue('');
+		// clear target:
+		sheet.setCellAt(index, undefined);
 	}
-	return cell;
 };
 
 // eslint-disable-next-line no-nested-ternary
@@ -84,6 +88,7 @@ const spreadObjectList = (list, cellrange, isHorizontal) => {
 	iterate.call(cellrange, (cell, index, next) => {
 		keyidx = next ? 0 : keyidx + 1;
 		listidx += next ? 1 : 0;
+		if (listidx > list.length) listidx = 0;
 		const isArray = Array.isArray(list[listidx]);
 		// eslint-disable-next-line
 		const value = isArray ? list[listidx][keys[keyidx]] : (listidx === 0 ? keys[keyidx] : list[listidx - 1][keys[keyidx]]);
