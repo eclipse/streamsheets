@@ -88,15 +88,15 @@ module.exports = class KafkaConnector extends Connector {
 					const prefix = namespace ? `[${namespace}] ` : '';
 					switch (level) {
 						case logLevel.INFO:
-							return this.logger.info(`${prefix}${log.message}`);
+							return this.logger.info(`Stream ${this.toString()}: ${prefix}${log.message}`);
 						case logLevel.ERROR:
-							return this.logger.error(`${prefix}${log.message}`);
+							return this.logger.error(`Stream ${this.toString()}: ${prefix}${log.message}`);
 						case logLevel.WARN:
-							return this.logger.warn(`${prefix}${log.message}`);
+							return this.logger.warn(`Stream ${this.toString()}: ${prefix}${log.message}`);
 						case logLevel.DEBUG:
-							return this.logger.debug(`${prefix}${log.message}`);
+							return this.logger.debug(`Stream ${this.toString()}: ${prefix}${log.message}`);
 						default:
-							return this.logger.info(`${prefix}${log.message}`);
+							return this.logger.info(`Stream ${this.toString()}: ${prefix}${log.message}`);
 					}
 				},
 				ssl: this._sslOptions,
@@ -109,7 +109,6 @@ module.exports = class KafkaConnector extends Connector {
 			this.onClose();
 			this.handleError(e);
 		}
-		this.logger.info('Client connected');
 	}
 
 	async connectZoo() {
