@@ -1516,6 +1516,16 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			}
 			return false;
 		}
+
+		getSheetView() {
+			let sheet = this;
+
+			while (sheet && (sheet.getItem && !sheet.getItem().getCellDescriptors)) {
+				sheet = sheet.getParent();
+			}
+
+			return sheet;
+		}
 	}
 
 	return new SheetPlotView(...args);

@@ -3836,6 +3836,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		return false;
 	}
 
+	isTimeBasedChart() {
+		return this.series.length && !!this.getDataSourceInfo(this.series[0].formula).time;
+	}
+
 	getTemplate() {
 		return templates[this.chart.template];
 	}
