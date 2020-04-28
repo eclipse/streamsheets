@@ -136,13 +136,9 @@ const read = (sheet, ...terms) =>
 			if (targetRange) {
 				read.term._lastValue = data.value;
 				copyToCellRange(targetRange, data.value, type, isHorizontal);
-				// DL-1080: part of this issue specifies that READ() should return number value...
-				// return convert.toNumber(data.key, data.key);
 			}
 			// DL-1080: part of this issue specifies that READ() should return number value...
 			return convert.toNumber(data.key, data.key);
-			// no target cell => we return json value
-			// return terms[1] != null ? data.key : data.value;
 		});
 read.displayName = true;
 

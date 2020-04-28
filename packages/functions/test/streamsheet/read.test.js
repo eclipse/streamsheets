@@ -480,14 +480,6 @@ describe('read', () => {
 			expect(createTerm('read(inboxdata("T1",,"Positionen"),A1,"Number")', sheet).value).toBe('Positionen');
 			expect(createTerm('read(inboxdata("T1","msg-simple","Positionen",1,"PosNr"),A1,"Number")', sheet).value).toBe('PosNr');
 		});
-		// do we ever require this behaviour? REMOVE IF NOT!!!
-		it.skip('should return value from json path if no target is specified', () => {
-			const sheet = setup({ streamsheetName: 'T1' });
-			sheet.streamsheet.setLoopPath('[data][Positionen]');
-			expect(createTerm('read(inboxdata("T1",,"Positionen",1,"Preis"))', sheet).value).toBe(59.99);
-			expect(createTerm('read(inboxdata("T1",,"Positionen"))', sheet).value).toEqual(MESSAGES.SIMPLE.data.Positionen);
-			expect(createTerm('read(inboxdata("T1",,"Positionen",0))', sheet).value).toEqual(MESSAGES.SIMPLE.data.Positionen[0]);
-		});
 		// DL-1080: part of this issue specifies that READ() should return number value...
 		it('should return number if last json path part is represents a number', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
