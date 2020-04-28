@@ -91,7 +91,7 @@ class Runner {
 		return this;
 	}
 
-	remapLastArg(fn) {
+	remapPrevArg(fn) {
 		if (!this.errorHandler.hasError()) {
 			const term = this.lastArg;
 			if (term) {

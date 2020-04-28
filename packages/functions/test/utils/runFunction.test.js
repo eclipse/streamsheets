@@ -30,28 +30,28 @@ describe('runFunction', () => {
 		expect(error.code).toBe(ERROR.NA);
 		expect(error.index).toBe(2);
 	});
-	it('should support remapping of last mapped argument', () => {
+	it('should support remapping of previous mapped argument', () => {
 		const sheet = new StreamSheet().sheet;
 		const runner = runFunction(sheet, ['hello', 'world', '!!']);
 		runner
 			.mapNextArg((first) => first)
-			.remapLastArg((first, prevRes) => {
+			.remapPrevArg((first, prevRes) => {
 				expect(first).toBe('hello');
 				expect(prevRes).toBe('hello');
 				return 'hallo';
 			})
 			.mapNextArg((second) => second)
-			.remapLastArg((second, prevRes) => {
+			.remapPrevArg((second, prevRes) => {
 				expect(second).toBe('world');
 				expect(prevRes).toBe('world');
 				return 123;
 			})
-			.remapLastArg((second, prevRes) => {
+			.remapPrevArg((second, prevRes) => {
 				expect(second).toBe('world');
 				expect(prevRes).toBe(123);
 				return false;
 			})
-			.remapLastArg((second, prevRes) => {
+			.remapPrevArg((second, prevRes) => {
 				expect(second).toBe('world');
 				expect(prevRes).toBe(false);
 				return 'welt';
