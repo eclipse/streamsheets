@@ -733,6 +733,11 @@ module.exports = class BaseGatewayClient {
 
 	_handleSocketMessage(message) {
 		const parsedMessage = JSON.parse(message);
+		if(parsedMessage.error === 'NOT_AUTHENTICATED'){
+			console.log('redirect event');
+			this._handleEvent({ type: 'redirect', to: '/login' });
+			return;
+		}
 		if (parsedMessage.type === 'response') {
 			if (this.socket) {
 				this.socket._handleSocketMessage(parsedMessage);

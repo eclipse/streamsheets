@@ -55,15 +55,8 @@ export const {
 } = StreamActions;
 
 export const {
-	createUser,
-	updateUser,
-	getAllUsers,
-	removeUserByUserId,
-	getUserByUserId,
-	setUser,
 	setUserSettings,
 	saveUserSettings,
-	saveCurrentUser,
 	login,
 	logout,
 } = UserActions;
@@ -429,9 +422,13 @@ export function getMe() {
 					scope {
 						id
 					}
+					scopes {
+						id
+						rights
+						name
+					}
 					username
-					lastName
-					firstName
+					displayName
 					admin
 					settings {
 						locale
@@ -441,10 +438,10 @@ export function getMe() {
 			}`
 		);
 		const user = result.me;
-		const displayName = [user.firstName, user.lastName].filter((e) => !!e).join(' ') || user.username;
+		const { id, displayName, settings  } = user;
 		const urlHash = qs.parse(window.location.hash);
 		const currentScope = urlHash.scope;
-		localStorage.setItem('user', JSON.stringify({ id: user.id, displayName, settings: user.settings }));
+		localStorage.setItem('user', JSON.stringify({ id, displayName, settings }));
 		dispatch({
 			type: ActionTypes.USER_FETCHED,
 			user: { ...user, scope: { id: currentScope || user.scope.id } }
@@ -598,6 +595,9 @@ function handleMessageDetached(event) {
 export function connect() {
 	gatewayClient.on('service', (/* event */) => {
 		getMetaInformationAndDispatch();
+	});
+	gatewayClient.on('redirect', () => {
+		accessManager.logoutUI(true);
 	});
 	const config = {
 		...CONFIG,

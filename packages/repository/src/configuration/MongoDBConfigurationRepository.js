@@ -10,9 +10,7 @@ const MongoDBMixin = require('../mongoDB/MongoDBMixin');
  * @extends AbstractConfigurationRepository
  * @public
  */
-module.exports = class MongoDBConfigurationRepository extends mix(
-	AbstractConfigurationRepository
-).with(MongoDBMixin) {
+module.exports = class MongoDBConfigurationRepository extends mix(AbstractConfigurationRepository).with(MongoDBMixin) {
 	constructor(config = {}) {
 		super(config);
 	}
@@ -33,28 +31,29 @@ module.exports = class MongoDBConfigurationRepository extends mix(
 		return this.upsertConfiguration(jwtObj, 'jwt');
 	}
 
+	getUser() {
+		return this.db.collection(this.COLLECTIONS.CONFIGURATIONS).findOne({ _id: 'user' });
+	}
+
+	saveUser(user) {
+		return this.upsertConfiguration(user, 'user');
+	}
+
 	findConfiguration(id) {
-		return this.getDocument(this.COLLECTIONS.CONFIGURATIONS, id).then(
-			(configuration) => configuration
-		);
+		return this.getDocument(this.COLLECTIONS.CONFIGURATIONS, id).then((configuration) => configuration);
 	}
 
 	upsertConfiguration(configuration, id) {
 		const configurationToSave = Object.assign({}, configuration);
 		configurationToSave._id = id;
-		return this.upsertDocument(
-			this.COLLECTIONS.CONFIGURATIONS,
-			{ _id: id },
-			configurationToSave
-		).then(() => configuration);
+		return this.upsertDocument(this.COLLECTIONS.CONFIGURATIONS, { _id: id }, configurationToSave).then(
+			() => configuration
+		);
 	}
 
 	saveConfiguration(configuration, id) {
 		const configurationToSave = Object.assign({}, configuration);
 		configurationToSave._id = id;
-		return this.insertDocument(
-			this.COLLECTIONS.CONFIGURATIONS,
-			configurationToSave
-		).then(() => configuration);
+		return this.insertDocument(this.COLLECTIONS.CONFIGURATIONS, configurationToSave).then(() => configuration);
 	}
 };

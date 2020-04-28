@@ -1,22 +1,3 @@
-declare module '@cedalo/logger' {
-	class Logger {
-		debug(...args: any): void;
-		info(...args: any): void;
-		warn(...args: any): void;
-		error(...args: any): void;
-	}
-	class LoggerFactory {
-		static createLogger(name: string, level: string): Logger;
-	}
-}
-
-declare module '@cedalo/service-core' {
-	class MessagingRequestHelper {
-		constructor(messagingClient: any);
-		doRequestMessage(request: { message: any; topic: string }): Promise<any>;
-	}
-}
-
 declare module '@cedalo/protocols' {
 	class GatewayMessagingProtocol {
 		static MESSAGE_TYPES: {
@@ -189,26 +170,4 @@ declare module '@cedalo/protocols' {
 		static SERVICES_AUTH_DATA: 'api/v1.1/digitalmachine/services/auth/data';
 		static CONFIG_JWT: 'api/v1.1/digitalmachine/config/jwt';
 	}
-}
-
-declare module '@cedalo/messaging-client' {
-	class MessagingClient {
-		connect(url: string, configuration?: any): Promise<any>;
-
-		publish(topic: string, message: object | string): Promise<any>;
-
-		subscribe(topic: string, options?: any): Promise<any>;
-
-		unsubscribe(topic: string): Promise<any>;
-
-		on(event: string, callback: (topic: string, message: string) => void): Promise<any>;
-
-		end(): Promise<any>;
-	}
-}
-
-declare module '@cedalo/id-generator' {
-	function generate(): string;
-	function generateUUID(): string;
-	function generateShortId(): string;
 }

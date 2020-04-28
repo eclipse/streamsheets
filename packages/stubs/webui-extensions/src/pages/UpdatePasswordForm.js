@@ -1,3 +1,4 @@
+import { IconUser } from '@cedalo/webui/src/components/icons';
 import Button from '@material-ui/core/Button';
 import Chip from '@material-ui/core/Chip';
 import Grid from '@material-ui/core/Grid';
@@ -6,7 +7,6 @@ import Typography from '@material-ui/core/Typography';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { IconUser } from '../../../icons';
 import { userShape } from './UserPropTypes';
 
 export const UpdatePasswordForm = (props) => {
@@ -21,7 +21,7 @@ export const UpdatePasswordForm = (props) => {
 		onNewPasswordUpdate,
 		onPasswordConfirmationUpdate,
 		onSubmit,
-		onCancel,
+		onCancel
 	} = props;
 
 	const errorsMappings = {
@@ -32,9 +32,9 @@ export const UpdatePasswordForm = (props) => {
 		USERNAME_IN_USE: intl.formatMessage({ id: 'Admin.User.errorUsernameInUse' }, {}),
 		USERNAME_INVALID: intl.formatMessage({ id: 'Admin.User.errorUsernameInvalid' }, {}),
 		UNEXPECTED_ERROR: intl.formatMessage({ id: 'Admin.User.errorUnexpected' }, {}),
-		PASSWORD_DONT_MATCH: intl.formatMessage({ id: 'Admin.User.errorPasswordsDontMatch' }, {}),
+		PASSWORD_DONT_MATCH: intl.formatMessage({ id: 'Admin.User.errorPasswordsDontMatch' }, {})
 	};
-	
+
 	const getError = (code) => (code ? errorsMappings[code] || errorsMappings.UNEXPECTED_ERROR : undefined);
 
 	return (
@@ -76,7 +76,9 @@ export const UpdatePasswordForm = (props) => {
 					<TextField
 						required
 						id="new-password-confirmation"
-						label={<FormattedMessage id="Admin.User.labelPasswordConfirm" defaultMessage="Confirm password" />}
+						label={
+							<FormattedMessage id="Admin.User.labelPasswordConfirm" defaultMessage="Confirm password" />
+						}
 						type="password"
 						fullWidth
 						error={!!errors.password}
@@ -109,14 +111,14 @@ UpdatePasswordForm.propTypes = {
 	disabled: PropTypes.bool.isRequired,
 	newPassword: PropTypes.string.isRequired,
 	errors: PropTypes.shape({
-		password: PropTypes.string,
+		password: PropTypes.string
 	}).isRequired,
 	intl: PropTypes.shape({
-		formatMessage: PropTypes.func.isRequired,
+		formatMessage: PropTypes.func.isRequired
 	}).isRequired,
 	passwordConfirmation: PropTypes.string.isRequired,
 	onNewPasswordUpdate: PropTypes.func.isRequired,
 	onPasswordConfirmationUpdate: PropTypes.func.isRequired,
 	onSubmit: PropTypes.func.isRequired,
-	onCancel: PropTypes.func.isRequired,
+	onCancel: PropTypes.func.isRequired
 };

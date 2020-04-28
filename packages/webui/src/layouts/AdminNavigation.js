@@ -9,7 +9,7 @@ import { AdminNavigationExtensions } from '@cedalo/webui-extensions';
 import { Path } from '../helper/Path';
 
 export const AdminNavigation = connect(({ user, router }) => ({
-	rights: user.user ? user.user.rights : [],
+	rights: user.rights,
 	hash: router.location.hash
 }))((props) => {
 	const [isStreamsOpen, setStreamsOpen] = useState(true);
@@ -46,7 +46,7 @@ export const AdminNavigation = connect(({ user, router }) => ({
 				label={<FormattedMessage id="Dashboard.security" defaultMessage="Security" />}
 				icon={<IconSecurity />}
 			>
-				<MenuEntry href={Path.users()} selected={isSelected('users')}>
+				<MenuEntry show={props.rights.includes('user.view')} href={Path.users()} selected={isSelected('users')}>
 					<FormattedMessage id="Dashboard.users" defaultMessage="Users" />
 				</MenuEntry>
 

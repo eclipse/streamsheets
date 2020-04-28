@@ -1,3 +1,10 @@
+import { openPage } from '@cedalo/webui/src/actions/actions';
+import { Overlay } from '@cedalo/webui/src/components/HelperComponent/Overlay';
+import gatewayClient from '@cedalo/webui/src/helper/GatewayClient';
+import { useGraphQLCB } from '@cedalo/webui/src/helper/Hooks';
+import { intl } from '@cedalo/webui/src/helper/IntlGlobalProvider';
+import { Path } from '@cedalo/webui/src/helper/Path';
+import { AdminPageLayout } from '@cedalo/webui/src/layouts/AdminPageLayout';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Dialog from '@material-ui/core/Dialog';
@@ -14,14 +21,7 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useReducer, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
-import { openPage } from '../actions/actions';
-import { UserTable } from '../components/Admin/security/User/UserTable';
-import { Overlay } from '../components/HelperComponent/Overlay';
-import gatewayClient from '../helper/GatewayClient';
-import { useGraphQLCB } from '../helper/Hooks';
-import { intl } from '../helper/IntlGlobalProvider';
-import { AdminPageLayout } from '../layouts/AdminPageLayout';
-import { Path } from '../helper/Path';
+import { UserTable } from './UserTable';
 
 const QUERY = `
 {
@@ -29,9 +29,6 @@ const QUERY = `
 		id
 		username
 		canDelete
-		email
-		lastName
-		firstName
 		lastModified
 	}
 }
@@ -102,7 +99,7 @@ const reducer = (state, action) => {
 };
 
 const UserTablePageComponent = (props) => {
-	const { onAddUser, onSelectUser, showAddUserButton } = props;
+	const { onAddUser, onSelectUser } = props;
 	const [filterText, setTextFilter] = useState('');
 	const [sort, setSort] = useState({ field: 'username', direction: 'asc' });
 	const [state, dispatch] = useReducer(reducer, defaultState);
@@ -201,6 +198,7 @@ const UserTablePageComponent = (props) => {
 				<Paper
 					style={{
 						padding: '32px',
+						maxHeight: '100%',
 						maxWidth: '960px',
 						margin: 'auto',
 						position: 'relative'
@@ -213,13 +211,11 @@ const UserTablePageComponent = (props) => {
 									<FormattedMessage id="Admin.Users" defaultMessage="Users" />
 								</Typography>
 							</Grid>
-							{showAddUserButton && (
-								<Grid item>
-									<Button variant="contained" color="primary" onClick={onAddUser}>
-										<FormattedMessage id="Admin.User.add" defaultMessage="Add user" />
-									</Button>
-								</Grid>
-							)}
+							<Grid item>
+								<Button variant="contained" color="primary" onClick={onAddUser}>
+									<FormattedMessage id="Admin.User.add" defaultMessage="Add user" />
+								</Button>
+							</Grid>
 						</Grid>
 						<Grid item xs={12}>
 							<TextField
@@ -301,7 +297,6 @@ const UserTablePageComponent = (props) => {
 UserTablePageComponent.propTypes = {
 	onAddUser: PropTypes.func.isRequired,
 	onSelectUser: PropTypes.func.isRequired,
-	showAddUserButton: PropTypes.bool.isRequired
 };
 
 const mapDispatchToProps = {
@@ -309,11 +304,7 @@ const mapDispatchToProps = {
 	onSelectUser: (userId) => openPage(Path.user(userId))
 };
 
-const mapStateToProps = (state) => ({
-	showAddUserButton: state.user.user && state.user.user.rights ? state.user.user.rights.includes('user.edit') : false
-});
-
 export const UserTablePage = connect(
-	mapStateToProps,
+	null,
 	mapDispatchToProps
 )(UserTablePageComponent);

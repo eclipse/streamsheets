@@ -117,6 +117,7 @@ const AUTH_ENTITY_CREATE_MESSAGE_TYPE = 'auth_entity_create';
 const AUTH_ENTITY_DELETE_MESSAGE_TYPE = 'auth_entity_delete';
 const AUTH_ENTITY_UPDATE_MESSAGE_TYPE = 'auth_entity_update';
 const STREAM_CONTROL_EVENT = 'stream_control_event';
+const REDIRECT = 'redirect';
 
 module.exports = {
 	MESSAGE_TYPES: {
@@ -216,6 +217,7 @@ module.exports = {
 		USER_JOINED_EVENT,
 		USER_LEFT_EVENT,
 		STREAMS_RELOAD_EVENT,
-		STREAM_CONTROL_EVENT
+		STREAM_CONTROL_EVENT,
+		REDIRECT
 	}
 };

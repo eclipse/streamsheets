@@ -13,7 +13,6 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { GraphQLServer } = require('../graphql/GraphQLServer');
-const { getRequestContext } = require('../context');
 // const swaggerMiddleware = require('swagger-express-middleware');
 
 // const pSwaggerMiddleware = util.promisify(swaggerMiddleware);
@@ -136,10 +135,18 @@ module.exports = class DefaultApp {
 		app.use('/api/v1.0/config', router);
 		/* ===== Graph QL ===== */
 		app.use('/api/v1.0/graphql', (req, res, next) => {
-			passport.authenticate('jwt', { session: false }, (err, user) => {
+			passport.authenticate('jwt', { session: false }, async (err, user) => {
 				if (user) {
-					req.user = user;
-					next();
+					try {
+						const actor = await app.locals.globalContext.getActor(app.locals.globalContext, { user });
+						if (!actor) {
+							res.status(403).json({ error: 'Not authenticated' });
+						}
+						req.user = actor;
+						next();
+					} catch (e) {
+						res.status(403).json({ error: 'Not authenticated' });
+					}
 				} else {
 					res.status(403).json({ error: 'Not authenticated' });
 				}
@@ -151,7 +158,7 @@ module.exports = class DefaultApp {
 		GraphQLServer.init(
 			app,
 			'/api/v1.0/graphql',
-			(req) => getRequestContext(this.globalContext, getSession(req)),
+			(req) => this.globalContext.getRequestContext(this.globalContext, getSession(req)),
 			this.globalContext.graphql
 		);
 

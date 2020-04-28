@@ -290,7 +290,7 @@ function mapStateToProps(state) {
 		streams: state.streams,
 		machine: state.monitor.machine,
 		machines: state.machines.data,
-		rights: state.user.user ? state.user.user.rights : []
+		rights: state.user.rights
 	};
 }
 function mapDispatchToProps(dispatch) {

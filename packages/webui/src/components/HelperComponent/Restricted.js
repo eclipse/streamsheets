@@ -21,7 +21,7 @@ function RestrictedComponent(props) {
 }
 
 const mapStateToProps = (state) => ({
-	rights: state.user.user && state.user.user.rights
+	rights: state.user.rights
 });
 
 export const Restricted = connect(mapStateToProps)(RestrictedComponent);

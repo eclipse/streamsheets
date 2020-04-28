@@ -1,64 +1,32 @@
-import { FunctionObject, PartialApply1All } from '../common';
-import { ID, RequestContext, Scope, Session } from '../streamsheets';
+import { PartialApply1All } from '../common';
+import { ID, RequestContext, Session } from '../streamsheets';
 import { User, UserSettings } from './types';
+import { InputError, AuthError } from '../..';
+import Auth from '../Auth';
 
-export interface UserApi extends FunctionObject {
-	findUser(context: RequestContext, id: ID): Promise<User | null>;
-	findUserBySession(context: RequestContext, session: Session): Promise<User | null>;
-	findAllUsers(context: RequestContext): Promise<User[]>;
-	findByScope(context: RequestContext, scope: Scope): Promise<User[]>;
-	countByScope(context: RequestContext, scope: Scope): Promise<number>;
-	createUser(context: RequestContext, user: User): Promise<User>;
-	updateUser(context: RequestContext, id: ID, userUpdate: Partial<User>): Promise<User>;
-	updateSettings(context: RequestContext, id: ID, settingsUpdate: Partial<UserSettings>): Promise<User>;
-	updatePassword(context: RequestContext, id: ID, password: string): Promise<boolean>;
-	deleteUser(context: RequestContext, id: ID): Promise<boolean>;
-}
 export type UserApiApplied = PartialApply1All<UserApi>;
 
-export const UserApi: UserApi = {
-	findUserBySession: async ({ userRepo }, session: Session) => {
+export type UserApi = typeof UserApi;
+
+export const UserApi = {
+	findUserBySession: async ({ userRepo }: RequestContext, session: Session) => {
 		return userRepo.findUser(session.user.id);
 	},
-	findUser: async ({ auth, userRepo }, id) => {
-		const user = await userRepo.findUser(id);
-		if (user) {
-			auth.verifyUser('view', user);
-		}
-		return user;
+	findUser: async ({ userRepo }: RequestContext, id: ID) => {
+		return userRepo.findUser(id);
 	},
-	findAllUsers: async ({ userRepo, auth, actor }) => {
-		if (auth.rights().includes('user.view')) {
-			return userRepo.findAllUsers();
-		}
-		const self = await userRepo.findUser(actor.id);
-		return self ? [self] : [];
+	findAllUsers: async ({ userRepo }: RequestContext) => {
+		return userRepo.findAllUsers();
 	},
-	findByScope: async ({ userRepo, auth, actor }: RequestContext, scope) => {
-		if (auth.rights().includes('user.view')) {
-			return userRepo.findByScope(scope);
+	createUser: async ({ userRepo }: RequestContext, user: User & { password: string }) => userRepo.createUser(user),
+	updateSettings: async ({ userRepo }: RequestContext, id: ID, settingsUpdate: Partial<UserSettings>) =>
+		userRepo.updateSettings(id, settingsUpdate),
+	updatePassword: async ({ userRepo }: RequestContext, id: ID, password: string) =>
+		userRepo.updatePassword(id, password),
+	deleteUser: async ({ userRepo }: RequestContext, id: ID) => {
+		if (id === '00000000000000') {
+			throw AuthError.notAllowed('Cannot delete admin!');
 		}
-		if (auth.isValidScope(scope)) {
-			const self = await userRepo.findUser(actor.id);
-			if (self && auth.isInScope(scope, self)) {
-				return [self];
-			}
-		}
-		return [];
-	},
-	countByScope: async ({ userRepo, auth, actor }: RequestContext, scope) => {
-		if (auth.rights().includes('user.view')) {
-			return userRepo.countByScope(scope);
-		}
-		return 0;
-	},
-	createUser: async ({ userRepo, auth }, user) => userRepo.createUser(user, () => auth.verifyUser('create', user)),
-	updateUser: async ({ userRepo, auth }, id, userUpdate) =>
-		userRepo.updateUser(id, userUpdate, (user: User) => auth.verifyUser('update', user)),
-	updateSettings: async ({ userRepo, auth }, id, settingsUpdate) =>
-		userRepo.updateSettings(id, settingsUpdate, (user: User) => auth.verifyUser('update', user)),
-	updatePassword: async ({ userRepo, auth }, id, password) =>
-		userRepo.updatePassword(id, password, (user: User) => auth.verifyUser('update', user)),
-	deleteUser: async ({ userRepo, auth }, id) =>
-		userRepo.deleteUser(id, (user: User) => auth.verifyUser('delete', user))
+		userRepo.deleteUser(id);
+	}
 };

@@ -5,7 +5,6 @@ import { GatewayMessagingProtocol, Topics } from '@cedalo/protocols';
 import * as http from 'http';
 import WebSocket from 'ws';
 import Auth from '../Auth';
-import { getRequestContext } from '../context';
 import { EventData, RequestContext, Session, WSRequest, WSResponse } from '../streamsheets';
 import { User } from '../user';
 import { getUserFromWebsocketRequest } from '../utils';
@@ -24,6 +23,11 @@ export interface MessageContext extends RequestContext {
 	machineserver?: any;
 }
 
+export interface Interceptor {
+	beforeSendToClient(context: MessageContext): Promise<MessageContext>;
+	beforeSendToServer(context: MessageContext): Promise<MessageContext>;
+}
+
 // MachineServer client connection => analog for GraphServer?!
 export default class ProxyConnection {
 	id: string;
@@ -34,7 +38,7 @@ export default class ProxyConnection {
 	private messagingClient: MessagingClient;
 	private graphserver: ServerConnection;
 	private machineserver: ServerConnection;
-	private interceptor: any;
+	private interceptor: Interceptor | null;
 	private machineId: string | undefined;
 
 	static get openConnections() {
@@ -80,7 +84,7 @@ export default class ProxyConnection {
 				if (streamEvent.type === 'response') {
 					return;
 				}
-				getRequestContext(this.socketserver.globalContext, this.session).then((requestContext) => {
+				this.socketserver.globalContext.getRequestContext(this.socketserver.globalContext, this.session).then((requestContext) => {
 					StreamWSProxy.handleEvent(requestContext, this, streamEvent);
 				});
 				return;
@@ -118,7 +122,7 @@ export default class ProxyConnection {
 						});
 					} else if (msg.topic && msg.topic.indexOf('stream') >= 0) {
 						StreamWSProxy.handleRequest(
-							await getRequestContext(this.socketserver.globalContext, this.session),
+							await this.socketserver.globalContext.getRequestContext(this.socketserver.globalContext, this.session),
 							this,
 							msg
 						);
@@ -147,7 +151,6 @@ export default class ProxyConnection {
 			id,
 			user: {
 				id: user ? user.id : 'anon',
-				roles: [],
 				displayName: user ? [user.firstName, user.lastName].filter((e) => !!e).join(' ') || user.username : '',
 				machineId: this.machineId
 			},
@@ -157,16 +160,18 @@ export default class ProxyConnection {
 	async updateConnectionState(ws: WebSocket) {
 		if (ws) {
 			try {
-				const user = await getUserFromWebsocketRequest(
+				const tokenUser = await getUserFromWebsocketRequest(
 					this.request,
 					this.socketserver._config.tokenKey,
 					Auth.parseToken.bind(Auth)
 				);
-				this.setUser(user);
-				this.machineId = user.machineId;
+				await this.socketserver.globalContext.getActor(this.socketserver.globalContext, {user: tokenUser} as Session)
+				this.setUser(tokenUser);
+				this.machineId = tokenUser.machineId;
 			} catch (err) {
 				logger.warn(err.name);
 				this.user && this.socketserver.logoutUser({ user: this.user });
+				this.clientsocket.close();
 			}
 		}
 	}
@@ -230,7 +235,7 @@ export default class ProxyConnection {
 		// if message is a string it should be an already stringified message!
 		message = typeof message === 'string' ? JSON.parse(message) : message;
 		return {
-			...(await getRequestContext(this.socketserver.globalContext, this.session)),
+			...(await this.socketserver.globalContext.getRequestContext(this.socketserver.globalContext, this.session)),
 			message,
 			connection: this
 		};

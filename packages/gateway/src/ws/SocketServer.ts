@@ -6,7 +6,6 @@ import { GlobalContext, Session } from '../streamsheets';
 import { User } from '../user';
 import { getUserFromWebsocketRequest } from '../utils';
 import LoggerFactory from '../utils/logger';
-import AuthorizationInterceptor from './interceptors/AuthorizationInterceptor';
 import GraphServerInterceptor from './interceptors/GraphServerInterceptor';
 import InterceptorChain from './interceptors/InterceptorChain';
 import MachineServerInterceptor from './interceptors/MachineServerInterceptor';
@@ -38,16 +37,8 @@ export class SocketServer {
 		this.wssConfig.host = this._config.host;
 		this.wssConfig.path = this._config.path;
 		this.wssConfig.clientTracking = true;
-		this.wssConfig.verifyClient = (info, cb) => {
-			getUserFromWebsocketRequest(info.req, this._config.tokenKey, Auth.parseToken.bind(Auth))
-				.then(() => cb(true))
-				.catch((error: any) => {
-					logger.warn('unable to verify client:', error && error.message ? error.message : error);
-					cb(false, 401, 'Unauthorized');
-				});
-		};
 		this.interceptorchain = new InterceptorChain();
-		this.interceptorchain.add(new AuthorizationInterceptor());
+		Object.values(this.globalContext.interceptors).forEach((i) => this.interceptorchain.add(i));
 		this.interceptorchain.add(new GraphServerInterceptor());
 		this.interceptorchain.add(new MachineServerInterceptor());
 	}
@@ -80,6 +71,12 @@ export class SocketServer {
 	async handleConnection(ws: WebSocket, request: http.IncomingMessage) {
 		try {
 			const user = await getUserFromWebsocketRequest(request, this._config.tokenKey, Auth.parseToken.bind(Auth));
+			try {
+				await this.globalContext.getActor(this.globalContext, { user } as Session);
+			} catch (error) {
+				await ws.send(JSON.stringify({ error: 'NOT_AUTHENTICATED' }));
+				ws.terminate();
+			}
 			// create & connect new client-connection...
 			this.connectClient(ProxyConnection.create(ws, request, user, this));
 			this.handleUserJoined(ws, user);

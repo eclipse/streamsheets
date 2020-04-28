@@ -7,8 +7,7 @@ export const showImport = (data) => ({ type: ActionTypes.SHOW_IMPORT, data });
 export const notifyExportFailed = (data) => ({ type: ActionTypes.SEND_EXPORT_ERROR, data });
 
 export function showImportDialog(importData) {
-	const user = store.getState().user.user;
-	const rights = user ? user.rights : [];
+	const rights = store.getState().user.rights;
 	const allowedImportData = {
 		machines: rights.includes('machine.edit') ? importData.machines : [],
 		streams: rights.includes('stream') ? importData.streams : []

@@ -13,8 +13,8 @@ import PrivateRoute from './components/Auth/PrivateRoute';
 import { history } from './store';
 import './App.css';
 import ConfigManager from './helper/ConfigManager';
-import { UserTablePage, CreateUserPage, UpdateUserPage, DashboardPage, ExportPage, StreamsPage } from './pages';
-import { RoutesExtensions } from '@cedalo/webui-extensions';
+import { DashboardPage, ExportPage, StreamsPage } from './pages';
+import { RoutesExtensions, UserTablePage, CreateUserPage, UpdateUserPage } from '@cedalo/webui-extensions';
 import * as Actions from './actions/actions';
 import MachineHelper from './helper/MachineHelper';
 import { Path } from './helper/Path';
@@ -23,7 +23,8 @@ const GATEWAY_CONFIG = ConfigManager.config.gatewayClientConfig;
 
 const DefaultAdminRouteRedirect = connect(
 	({ user, monitor, meta }) => ({
-		rights: user.user ? user.user.rights : null,
+		rights: user.rights,
+		hasUser: !!user.user,
 		isConnected: MachineHelper.isMachineEngineConnected(monitor, meta)
 	}),
 	{
@@ -31,7 +32,7 @@ const DefaultAdminRouteRedirect = connect(
 		connect: Actions.connect
 	}
 )((props) => {
-	const { rights, isConnected } = props;
+	const { rights, isConnected, hasUser } = props;
 	useEffect(() => {
 		if (!isConnected) {
 			props.connect();
@@ -39,11 +40,11 @@ const DefaultAdminRouteRedirect = connect(
 	}, [isConnected]);
 
 	useEffect(() => {
-		if (isConnected && !rights) {
+		if (isConnected && !hasUser) {
 			props.getMe();
 		}
 	}, [isConnected]);
-	if (!rights) {
+	if (!hasUser) {
 		return null;
 	}
 	if (rights.includes('stream')) {

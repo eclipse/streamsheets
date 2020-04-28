@@ -9,14 +9,11 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { DynamicFormattedMessage } from '../../../HelperComponent/DynamicFormattedMessage';
+import { DynamicFormattedMessage } from '@cedalo/webui/src/components/HelperComponent/DynamicFormattedMessage';
 import { userShape } from './UserPropTypes';
 
 const USER_TABLE_COLUMNS = [
 	{ id: 'username', key: 'Admin.User.username' },
-	{ id: 'email', key: 'Admin.User.email' },
-	{ id: 'firstName', key: 'Admin.User.firstName' },
-	{ id: 'lastName', key: 'Admin.User.lastName' },
 	{ id: 'lastModified', key: 'Admin.User.lastModified' }
 ];
 
@@ -51,9 +48,6 @@ export const UserTable = (props) => {
 						<TableCell>
 							<b>{user.username}</b>
 						</TableCell>
-						<TableCell>{user.email}</TableCell>
-						<TableCell>{user.firstName}</TableCell>
-						<TableCell>{user.lastName}</TableCell>
 						<TableCell>{moment(user.lastModified).fromNow()}</TableCell>
 						<TableCell>
 							{user.canDelete ? (

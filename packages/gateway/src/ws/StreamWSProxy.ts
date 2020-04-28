@@ -19,20 +19,15 @@ const buildErrorResponse = (request: StreamWSRequest, error: any) => ({
 });
 
 export const StreamWSProxy = {
-	handleEvent: async ({ auth, actor }: RequestContext, proxyConnection: ProxyConnection, event: any) => {
-		if (!event.event || !event.event.data) {
-			if (auth.isAdmin(actor)) {
+	handleEvent: async ({ api }: RequestContext, proxyConnection: ProxyConnection, event: any) => {
+
+		try {
+			const handledEvent = await api.stream.handleStreamEvent(event);
+			if(handledEvent) {
 				proxyConnection.onServerEvent(event);
 			}
-			return;
-		}
-		const { stream, config } = event.event.data;
-		if (
-			auth.isAdmin(actor) ||
-			(stream && auth.isInScope(actor.scope, stream)) ||
-			(config && auth.isInScope(actor.scope, config))
-		) {
-			proxyConnection.onServerEvent(event);
+		} catch(e) {
+			// do nothing
 		}
 	},
 	handleRequest: async (context: RequestContext, proxyConnection: ProxyConnection, message: StreamWSRequest) => {

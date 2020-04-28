@@ -1,11 +1,19 @@
 import IdGenerator from '@cedalo/id-generator';
 
-export const touch = (document: object) => ({ ...document, lastModified: new Date().toISOString() });
-export const customGenerateId = (document: object, idGenerator: () => string) => ({ _id: idGenerator(), ...document });
+export const touch = <T extends object>(document: T): T & { lastModified: string } => ({
+	...document,
+	lastModified: new Date().toISOString()
+});
+export const customGenerateId = <T extends any>(document: T, idGenerator: () => string): T & { _id: string } => ({
+	_id: idGenerator(),
+	...document
+});
 
-export const makeGenerateId = (idGenerator: () => string) => (document: object) =>
+export const makeGenerateId = <T extends any>(idGenerator: () => string) => (document: T): T & { _id: string } =>
 	customGenerateId(document, idGenerator);
-export const generateId = makeGenerateId(() => IdGenerator.generate());
+export const generateId: <T extends any>(document: T) => T & { _id: string } = makeGenerateId(() =>
+	IdGenerator.generate()
+);
 
 const sanitizeUpdate = (update: any) => {
 	const copy = { ...update };

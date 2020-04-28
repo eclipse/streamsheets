@@ -4,5 +4,5 @@
     "outDir": "./out",                        /* Redirect output structure to the directory. */
     "composite": true,                     /* Enable project compilation */
   },
-  "include": ["src", "start.js", "cedalo-modules.d.ts"]
+  "include": ["src", "start.js", "index.ts"]
 }

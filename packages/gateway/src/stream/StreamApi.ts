@@ -10,6 +10,7 @@ export interface StreamApi extends FunctionObject {
 	saveStream(context: RequestContext, scope: Scope, stream: Stream): Promise<any>;
 	deleteStream(context: RequestContext, scope: Scope, id: ID): Promise<any>;
 	reloadStreams(context: RequestContext, scope: Scope, streams: ID[]): Promise<any>;
+	handleStreamEvent(context: RequestContext, event: any): Promise<any | null>;
 }
 export type StreamApiApplied = PartialApply1All<StreamApi>;
 
@@ -101,5 +102,6 @@ export const StreamApi: StreamApi = {
 		if (streams.length > 0) {
 			await streamRepo.reloadStreams(allowedToReload);
 		}
-	}
+	},
+	handleStreamEvent: async ({ actor, auth }: RequestContext, event: any): Promise<any | null> => event
 };
