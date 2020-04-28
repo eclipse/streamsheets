@@ -36,6 +36,7 @@ class Runner {
 		// work on copy or not???
 		this.args = args ? args.slice(0) : [];
 		this.index = 0;
+		this.lastArg = undefined;
 		this.isEnabled = true;
 		this.defReturnValue = true;
 		this.mappedArgs = [];
@@ -85,10 +86,24 @@ class Runner {
 			this.errorHandler.update(res, this.index);
 			this.mappedArgs.push(res);
 			this.index += 1;
+			this.lastArg = term;
 		}
 		return this;
 	}
 
+	remapLastArg(fn) {
+		if (!this.errorHandler.hasError()) {
+			const term = this.lastArg;
+			if (term) {
+				const idx = this.index - 1;
+				const lastRes = this.mappedArgs.pop();
+				const res = fn(term, lastRes, ...this.mappedArgs);
+				this.errorHandler.update(res, idx);
+				this.mappedArgs.push(res);
+			}
+		}
+		return this;
+	}
 	// under review:
 	mapArgAt(idx, fn) {
 		if (!this.errorHandler.hasError()) {
