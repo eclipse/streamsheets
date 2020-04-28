@@ -43,7 +43,7 @@ module.exports = class SetupRoutes {
 			try {
 				await request.app.locals.RepositoryManager.populateDatabases(getInitJSON(INIT_DIRECTORY));
 				await configurationRepository.saveSetup(setupToSave);
-				request.app.locals.RepositoryManager.streamRepository.reloadAll();
+				await request.app.locals.RepositoryManager.streamRepository.reloadStreams([]);
 				await response.status(201).json(setupToSave);
 			} catch(error) {
 				await response.status(400).json({

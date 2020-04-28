@@ -121,26 +121,25 @@ const validate = (range, errorcode) =>
 
 const read = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-	.withMinArgs(1)
-	.withMaxArgs(5)
-	.mapNextArg((pathterm) => sheetutils.readMessageValue(sheet, pathterm))
-	.mapNextArg((target) => target && getCellRangeFromTerm(target, sheet))
-	.mapNextArg((type) => toString(type).toLowerCase())
-	.mapNextArg((isHorizontal) => toBool(isHorizontal, undefined))
-	.mapNextArg((returnNA) => toBool(returnNA, false))
-	.validate((data, targetRange) => targetRange ? validate(targetRange, ERROR.INVALID_PARAM) : undefined)
-	.run((data,targetRange, type, isHorizontal, returnNA) => {
-		if (data.value == null || data.isProcessed) {
-			data.value = (returnNA ? ERROR.NA : getLastValue(read.term, type));
-		}
-		if (targetRange) {
-			read.term._lastValue = data.value;
-			copyToCellRange(targetRange, data.value, type, isHorizontal);
+		.withMinArgs(1)
+		.withMaxArgs(5)
+		.mapNextArg((pathterm) => sheetutils.readMessageValue(sheet, pathterm))
+		.mapNextArg((target) => target && getCellRangeFromTerm(target, sheet))
+		.mapNextArg((type) => toString(type).toLowerCase())
+		.mapNextArg((isHorizontal) => toBool(isHorizontal, undefined))
+		.mapNextArg((returnNA) => toBool(returnNA, false))
+		.validate((data, targetRange) => targetRange && validate(targetRange, ERROR.INVALID_PARAM))
+		.run((data, targetRange, type, isHorizontal, returnNA) => {
+			if (data.value == null || data.isProcessed) {
+				data.value = returnNA ? ERROR.NA : getLastValue(read.term, type);
+			}
+			if (targetRange) {
+				read.term._lastValue = data.value;
+				copyToCellRange(targetRange, data.value, type, isHorizontal);
+			}
 			// DL-1080: part of this issue specifies that READ() should return number value...
 			return convert.toNumber(data.key, data.key);
-		}
-		return data.value;
-	});
+		});
 read.displayName = true;
 
 module.exports = read;

@@ -679,12 +679,13 @@ export function connect() {
 								// usually when the machine is running very fast
 							}
 						});
-						gatewayClient.confirmProcessedMachineStep(event.machineId || event.srcId);
 						// dispatch(finishedProcessingMachineStep());
 						// const finishedProcessingMachineStepEvent = document.createEvent('Event');
 						// finishedProcessingMachineStepEvent.initEvent('finished_processing_machine_step', true, true);
 						// document.dispatchEvent(finishedProcessingMachineStepEvent);
 						graphManager.setDrawingDisabled(false);
+						// finally confirm:
+						gatewayClient.confirmProcessedMachineStep(event.machineId || event.srcId);
 					} catch (error) {
 						console.error(error);
 					}

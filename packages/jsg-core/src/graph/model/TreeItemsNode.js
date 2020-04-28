@@ -46,6 +46,7 @@ module.exports = class TreeItemsNode extends Node {
 		this.getItemAttributes().setContainer(false);
 		this.getItemAttributes().setTopMargin(200);
 		this.getItemAttributes().setLeftMargin(200);
+		this.getItemAttributes().setSnapTo(false);
 
 		this._currentId = 0;
 		this._jsonTree = [];

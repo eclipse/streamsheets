@@ -1,4 +1,3 @@
-const IdGenerator = require('@cedalo/id-generator');
 const { ERRORS, EVENTS, STREAM_TYPES } = require('./Constants');
 const Stream = require('./Stream');
 const ConnectorConfiguration = require('./configurations/ConnectorConfiguration');
@@ -17,7 +16,7 @@ const DEF_RETRY_OPTS = {
 	forever: true,
 	factor: 2,
 	minTimeout: 1 * 1000,
-	maxTimeout: 60 * 1000
+	maxTimeout: 300 * 1000
 };
 
 class Connector extends Stream {
@@ -82,7 +81,9 @@ class Connector extends Stream {
 				});
 				if (!this._reconnectTimeoutId) {
 					this._connectTimeoutId = setTimeout(async () => {
-						this.handleError(new Error(ERRORS.TIMEOUT_ERROR));
+						if(!this._connected){
+							this.handleError(new Error(ERRORS.TIMEOUT_ERROR));
+						}
 						clearTimeout(this._connectTimeoutId);
 						this._connectTimeoutId = null;
 					}, this._connectTimeout);
