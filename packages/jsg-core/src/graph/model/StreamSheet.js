@@ -13,7 +13,6 @@ const SheetButtonNode = require('./SheetButtonNode');
 const SheetCheckboxNode = require('./SheetCheckboxNode');
 const SheetSliderNode = require('./SheetSliderNode');
 const SheetKnobNode = require('./SheetKnobNode');
-const { SheetChartStateNode, SheetPlotNode } = require('@cedalo/jsg-extensions/core');
 const Graph = require('./Graph');
 const FormatAttributes = require('../attr/FormatAttributes');
 const TextFormatAttributes = require('../attr/TextFormatAttributes');
@@ -39,6 +38,7 @@ const NotificationCenter = require('../notifications/NotificationCenter');
 const Notification = require('../notifications/Notification');
 const Coordinate = require('../Coordinate');
 const GraphUtils = require('../GraphUtils');
+const { SheetChartStateNode, SheetPlotNode } = require('@cedalo/jsg-extensions/core');
 
 const setSheetCaption = (sheetName, sheetContainer) => {
 	if (sheetContainer) {
