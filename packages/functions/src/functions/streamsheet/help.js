@@ -174,6 +174,26 @@ module.exports = {
 			en: { argumentList: 'Range', description: 'Converts given cell range to JSON' },
 			de: { argumentList: 'Zellbereich', description: 'Konvertiert den angebenen Zellbereich in ein JSON Objekt' }
 		},
+		'HTTP.REQUEST': {
+			en: {
+			  argumentList: 'Producer,URL,Method,Target,ResultKeys,Body,Headers,Timeout',
+			  description: 'Create an asynchronous calls to a REST service'
+			},
+			de: {
+			  argumentList: 'Producer,URL,Methode,Ziel,ResultKeys,Body,Headers,Timeout',
+			  description: 'Erlaubt Aufrufe in einen REST Dienst'
+			}
+		  },
+		  'HTTP.RESPOND': {
+			en: {
+			  argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
+			  description: 'Sends data to a Producer that send a data object previously'
+			},
+			de: {
+			  argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
+			  description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId.'
+			}
+		  },
 		'KAFKA.QUERY': {
 			en: {
 				argumentList: 'Producer,Query,Target,Timeout',

@@ -100,7 +100,7 @@ module.exports = class RestClientProviderConfiguration extends ProviderConfigura
 
 		this.addFunctionDefinition(
 			Object.assign({}, functionDefinition, {
-				name: 'REST.RESPOND',
+				name: 'REST.REQUEST',
 				displayName: true,
 				deprecated: true
 			})
