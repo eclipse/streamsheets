@@ -1,5 +1,3 @@
-import { TextFormatAttributes, FormatAttributes, MathUtils, GraphUtils, Rectangle } from '@cedalo/jsg-core';
-
 const opposedLine = (start, end) => {
 	const lengthX = end.x - start.x;
 	const lengthY = end.y - start.y;
@@ -29,6 +27,8 @@ const controlPoint = (current, previous, next, reverse) => {
 };
 
 export default function SheetPlotViewFactory(JSG, ...args) {
+
+	const { TextFormatAttributes, FormatAttributes, MathUtils, GraphUtils, Rectangle } = JSG;
 	class SheetPlotView extends JSG.NodeView {
 
 		onSelectionChange(selected) {
