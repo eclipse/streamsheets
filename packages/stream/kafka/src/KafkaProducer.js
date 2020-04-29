@@ -111,7 +111,9 @@ module.exports = class KafkaProducer extends ProducerMixin(KafkaConnector) {
 	}
 
 	async dispose() {
-		await this._producer.disconnect();
+		if(this._producer) {
+			await this._producer.disconnect();
+		}
 		await super.dispose();
 		this._producer = null;
 	}

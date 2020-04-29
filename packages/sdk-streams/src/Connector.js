@@ -187,7 +187,7 @@ class Connector extends Stream {
 		if ($set.mimeType !== undefined) {
 			this.config.mimeType = $set.mimeType;
 		}
-		// this._emitter.emit(Connector.EVENTS.UPDATE, configDiff);
+		this._emitter.emit(Connector.EVENTS.UPDATE, configDiff);
 	}
 
 	async validateMessage(message) {
