@@ -62,18 +62,6 @@ module.exports = {
 				description: 'Erzeugt ein Diagramm'
 			}
 		},
-		'DRAW.CHARTSTATE': {
-			en: {
-				argumentList:
-					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,Title,TitleFont,ChartType,DataRange,LegendRange,Min,Max,StepType,Step,ScaleFont',
-				description: 'Creates a state chart'
-			},
-			de: {
-				argumentList:
-					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Titel,TitelSchrift,ChartTyp,Datenbereich,Legendenbereich,Minimum,Maximum,SchrittTyp,Schritt,Skalenschrift',
-				description: 'Erzeugt ein Status Diagram'
-			}
-		},
 		'DRAW.CHECKBOX': {
 			en: {
 				argumentList:

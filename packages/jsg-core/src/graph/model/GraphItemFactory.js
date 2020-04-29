@@ -42,7 +42,7 @@ const Graph = require('./Graph');
 const Group = require('./Group');
 const ShapeBuilder = require('./ShapeBuilder');
 const GraphItemProperties = require('../properties/GraphItemProperties');
-const { SheetChartStateNode, SheetPlotNode } = require('@cedalo/jsg-extensions/core');
+const { SheetPlotNode } = require('@cedalo/jsg-extensions/core');
 
 /**
  * The GraphItemFactory is used to create GraphItems by their name. The generic items are handled
@@ -2525,7 +2525,7 @@ class GraphItemFactory {
 			case 'sheetknobnode':
 				return new SheetKnobNode();
 			case 'sheetchartstatenode':
-				return new SheetChartStateNode();
+				return new Node();
 			case 'chartnode':
 				// return new SheetPlotNode();
 				return new ChartNode();
