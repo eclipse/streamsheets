@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/gateway-client-proxy",
-  "version": "1.6.0-beta",
+  "version": "1.6.2",
   "description": "Client for the gateway",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/gateway-client-proxy",
   "dependencies": {
-    "@cedalo/gateway-client": "1.6.0-beta"
+    "@cedalo/gateway-client": "1.6.2"
   },
   "devDependencies": {
     "babel-core": "6.25.0",

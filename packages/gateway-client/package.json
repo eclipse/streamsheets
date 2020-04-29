@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/gateway-client",
-  "version": "1.6.0-beta",
+  "version": "1.6.2",
   "description": "Client for the gateway",
   "main": "index.js",
   "scripts": {
@@ -18,13 +18,13 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/gateway-client",
   "dependencies": {
-    "@cedalo/logger": "1.6.0-beta",
-    "@cedalo/protocols": "1.6.0-beta",
+    "@cedalo/logger": "1.6.2",
+    "@cedalo/protocols": "1.6.2",
     "isomorphic-fetch": "2.2.1",
     "uuid": "3.3.2"
   },
   "devDependencies": {
-    "@cedalo/jsg-core": "1.6.0-beta",
+    "@cedalo/jsg-core": "1.6.2",
     "babel-core": "6.25.0",
     "babel-loader": "7.1.1",
     "babel-preset-env": "1.6.0",
