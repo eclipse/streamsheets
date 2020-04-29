@@ -29,7 +29,6 @@ const SplitterNode = require('./SplitterNode');
 const MachineGraph = require('./MachineGraph');
 const TreeNode = require('./TreeNode');
 const TreeItemsNode = require('./TreeItemsNode');
-const ChartNode = require('./ChartNode');
 const RectangleShape = require('./shapes/RectangleShape');
 const BezierShape = require('./shapes/BezierShape');
 const OrthoLineShape = require('./shapes/OrthoLineShape');
@@ -2527,8 +2526,6 @@ class GraphItemFactory {
 			case 'sheetchartstatenode':
 				return new Node();
 			case 'chartnode':
-				// return new SheetPlotNode();
-				return new ChartNode();
 			case 'sheetplotnode':
 			case 'streamchart':
 				return new SheetPlotNode();

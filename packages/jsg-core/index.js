@@ -282,7 +282,6 @@ JSG.CellsNode = require('./src/graph/model/CellsNode');
 JSG.ColumnHeaderNode = require('./src/graph/model/ColumnHeaderNode');
 JSG.DataProvider = require('./src/graph/model/DataProvider');
 JSG.CaptionNode = require('./src/graph/model/CaptionNode');
-JSG.ChartNode = require('./src/graph/model/ChartNode');
 JSG.ButtonNode = require('./src/graph/model/ButtonNode');
 JSG.SheetButtonNode = require('./src/graph/model/SheetButtonNode');
 JSG.SheetCheckboxNode = require('./src/graph/model/SheetCheckboxNode');

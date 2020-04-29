@@ -99,11 +99,6 @@ export class EditBarComponent extends Component {
 					jsgState.graphCellSelected = true;
 				}
 				const attr = item.getAttributeAtPath('showwizard');
-				if ((item instanceof JSG.ChartNode) && item.getDataRange() && attr && attr.getValue() === true) {
-					graphManager.getGraphEditor().invalidate();
-					appState.showChartProperties = true;
-					attr.setExpressionOrValue(false);
-				}
 				if (item instanceof JSG.SheetPlotNode) {
 				  	if (attr && attr.getValue() === true) {
 						item.createSeriesFromSelection(
@@ -126,7 +121,6 @@ export class EditBarComponent extends Component {
 				view.moveSheetToTop(graphManager.getGraphViewer());
 			}
 		} else {
-			appState.showChartProperties = false;
 			appState.showStreamChartProperties = false;
 			jsgState.graphCellSelected = false;
 		}

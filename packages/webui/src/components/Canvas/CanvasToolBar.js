@@ -496,40 +496,6 @@ export class CanvasToolBar extends Component {
 			.setActiveInteraction(new JSG.CreatePolyLineInteraction(polynode));
 	};
 
-	onCreateChart = () => {
-		this.setState({
-			toolsOpen: false
-		});
-
-		const node = new JSG.ChartNode();
-		const attr = node.addAttribute(new BooleanAttribute('showwizard', true));
-		attr.setTransient(true);
-
-		const sheetView = graphManager.getActiveSheetView();
-		if (sheetView) {
-			const selection = sheetView.getOwnSelection();
-			if (selection) {
-				const data = sheetView.getItem().getDataProvider();
-				const range = selection.getAt(0);
-				// check for TIMEAGGREGATE(S)
-				range.enumerateCells(true, (pos) => {
-					const cell = data.get(pos);
-					if (cell !== undefined) {
-						const expr = cell.getExpression();
-						if (expr && expr.hasFormula() && expr.getFormula().indexOf('TIMEAGGREGATE') !== -1) {
-							node.setChartType('scatterLine');
-						}
-					}
-				});
-			}
-		}
-
-		graphManager
-			.getGraphViewer()
-			.getInteractionHandler()
-			.setActiveInteraction(new JSG.CreateItemInteraction(node));
-	};
-
 	onCreateTool = (type) => {
 		this.setState({
 			toolsOpen: false
@@ -3835,20 +3801,6 @@ export class CanvasToolBar extends Component {
 						</GridListTile>
 					</GridList>
 				</Popover>
-				{this.props.experimental ? (
-					<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.Chart" defaultMessage="Chart" />}>
-						<div>
-							<IconButton
-								onClick={this.onCreateChart}
-								disabled={!this.props.cellSelected}
-								style={buttonStyle}
-							>
-								<SvgIcon>
-									<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
-								</SvgIcon>
-							</IconButton>
-						</div>
-					</Tooltip> ) : null}
 				<Tooltip
 					enterDelay={300}
 					title={<FormattedMessage id="Tooltip.InsertChart" defaultMessage="Show Chart Types" />}
