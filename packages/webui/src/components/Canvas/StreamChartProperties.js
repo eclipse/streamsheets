@@ -1467,6 +1467,7 @@ export class StreamChartProperties extends Component {
 										label={<FormattedMessage id="StreamChartProperties.ZoomGroup" defaultMessage="Zoom Group" />}
 										value={data.zoomGroup}
 										onBlur={(event) => this.handleAxisZoomGroupChange(event)}
+										onChange={(event) => this.handleAxisZoomGroupChange(event)}
 										margin="normal"
 									/>
 								</FormGroup>
