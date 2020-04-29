@@ -29,7 +29,7 @@ module.exports = class AuthRoutes {
 				{
 					const { username, password } = request.body;
 					try {
-						const user = await login(username, password);
+						const user = await login(request.app.locals.globalContext, username, password);
 						const token = Auth.getToken(user);
 						response.status(200).json({ token, user });
 					} catch (error) {
@@ -54,12 +54,13 @@ module.exports = class AuthRoutes {
 				try {
 					const { pathname } = request.body;
 					const machineId = await validatePath(pathname, sharedMachineRepo);
+					
 					if (machineId) {
+						const machine = await request.app.locals.globalContext.machineRepo.findMachine(machineId);
 						const user = {
 							id: 'sharedmachine',
 							username: 'sharedmachine',
-							role: 'viewer',
-							scopes: [],
+							scopes: [{ id: machine.scope.id, role: 'viewer' }],
 							settings: {
 								locale: 'en'
 							},

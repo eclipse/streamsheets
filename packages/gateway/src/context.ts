@@ -2,7 +2,7 @@ import { LoggerFactory } from '@cedalo/logger';
 import bcrypt from 'bcryptjs';
 import { MongoClient } from 'mongodb';
 import { baseAuth, BaseAuth } from './authorization';
-import glue, { RawAPI } from './glue';
+import { glue, RawAPI } from './glue';
 import { MachineServiceProxy } from './machine';
 import { StreamRepositoryProxy } from './stream';
 import { GlobalContext, RequestContext, Session, GenericGlobalContext } from './streamsheets';
@@ -109,30 +109,29 @@ export const init = async (config: any, plugins: string[]) => {
 			rawApi: RawAPI,
 			machineServiceProxy,
 			getActor,
-			getRequestContext
+			getRequestContext,
+			login: async (context: GlobalContext, username: string, password: string) => {
+				try {
+					const hash = await context.userRepo.getPassword(username);
+					const valid = await context.encryption.verify(hash, password);
+					if (!valid) {
+						throw new Error('INVALID_CREDENTIALS');
+					}
+					const user = await context.userRepo.findUserByUsername(username);
+					if (!user) {
+						throw new Error('INVALID_CREDENTIALS');
+					}
+					return user;
+				} catch (e) {
+					if (e.code === 'USER_NOT_FOUND') {
+						throw new Error('INVALID_CREDENTIALS');
+					}
+					throw e;
+				}
+			}
 		} as GlobalContext,
 		plugins
 	);
-
-	context.login = async (username: string, password: string) => {
-		try {
-			const hash = await context.userRepo.getPassword(username);
-			const valid = await context.encryption.verify(hash, password);
-			if (!valid) {
-				throw new Error('INVALID_CREDENTIALS');
-			}
-			const user = await context.userRepo.findUserByUsername(username);
-			if (!user) {
-				throw new Error('INVALID_CREDENTIALS');
-			}
-			return user;
-		} catch (e) {
-			if (e.code === 'USER_NOT_FOUND') {
-				throw new Error('INVALID_CREDENTIALS');
-			}
-			throw e;
-		}
-	};
 
 	return context;
 };

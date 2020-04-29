@@ -19,7 +19,7 @@ export interface GenericGlobalContext<APIS extends { [key: string]: FunctionObje
 	interceptors: {
 		[key: string]: Interceptor;
 	};
-	login: (username: string, password: string) => Promise<User>;
+	login: (globalContext: GlobalContext, username: string, password: string) => Promise<User>;
 	graphql?: {
 		[key: string]: {
 			typeDefs?: DocumentNode;

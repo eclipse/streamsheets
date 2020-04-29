@@ -1,4 +1,4 @@
-const logger = require('@cedalo/logger').create({ name: 'Mongo' });
+const logger = require('@cedalo/logger').create({ name: 'Internal' });
 
 const unexpected = (error) => {
 	logger.error('Unexpected Error', error);

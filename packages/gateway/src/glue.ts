@@ -51,7 +51,7 @@ export const RawAPI = {
 	import: ImportApi
 };
 
-export default <
+export const glue = <
 	AUTH extends FunctionObject,
 	APIS extends FunctionObjectObject,
 	T extends GenericGlobalContext<APIS, AUTH>
