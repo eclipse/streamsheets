@@ -38,7 +38,7 @@ const NotificationCenter = require('../notifications/NotificationCenter');
 const Notification = require('../notifications/Notification');
 const Coordinate = require('../Coordinate');
 const GraphUtils = require('../GraphUtils');
-const { SheetChartStateNode, SheetPlotNode } = require('@cedalo/jsg-extensions/core');
+const { SheetPlotNode } = require('@cedalo/jsg-extensions/core');
 
 const setSheetCaption = (sheetName, sheetContainer) => {
 	if (sheetContainer) {
@@ -933,18 +933,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 						node.setAttributeAtPath('end', drawItem.end);
 						node.setAttributeAtPath('formatrange', drawItem.formatrange ? drawItem.formatrange : '');
 						break;
-					case 'chartstate':
-						node.setAttributeAtPath('title', drawItem.text);
-						this.setFontFormat(node.getTextFormat(), drawItem.font);
-						node.setAttributeAtPath('type', drawItem.charttype);
-						node.setAttributeAtPath('range', drawItem.range ? drawItem.range : '');
-						node.setAttributeAtPath('legend', drawItem.legend ? drawItem.legend : '');
-						node.setAttributeAtPath('min', drawItem.min);
-						node.setAttributeAtPath('max', drawItem.max);
-						node.setAttributeAtPath('stepType', drawItem.stepType);
-						node.setAttributeAtPath('step', drawItem.step);
-						node.setAttributeAtPath('scalefont', drawItem.scalefont);
-						break;
 					default:
 						break;
 					}
@@ -1031,8 +1019,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 			type = 'slider';
 		} else if (item instanceof JSG.SheetKnobNode) {
 			type = 'knob';
-		} else if (item instanceof JSG.SheetChartStateNode) {
-			type = 'chartstate';
 		} else if (item instanceof JSG.SheetPlotNode) {
 			type = 'streamchart';
 		}
@@ -1207,8 +1193,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 			type = 'knob';
 		} else if (item instanceof SheetPlotNode) {
 			type = 'streamchart';
-		} else if (item instanceof SheetChartStateNode) {
-			type = 'chartstate';
 		} else if (item instanceof JSG.TextNode) {
 			type = 'label';
 		}

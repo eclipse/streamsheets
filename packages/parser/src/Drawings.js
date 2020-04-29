@@ -96,25 +96,6 @@ module.exports = class Drawings {
 				item.formatrange = term.toString();
 			}
 			break;
-		case 'chartstate':
-			getRectParams(item);
-			item.text = String(this.getGraphParam(terms, 13, ''));
-			item.font = String(this.getGraphParam(terms, 14, ''));
-			item.charttype = String(this.getGraphParam(terms, 15, 'state'));
-			if (terms.length > 16) {
-				const term = terms[16];
-				item.range = term.toString();
-			}
-			if (terms.length > 17) {
-				const term = terms[17];
-				item.legend = term.toString();
-			}
-			item.min = this.getGraphParam(terms, 18, '');
-			item.max = this.getGraphParam(terms, 19, '');
-			item.stepType = this.getGraphParam(terms, 20, 'minute');
-			item.step = this.getGraphParam(terms, 21, 1);
-			item.scalefont = String(this.getGraphParam(terms, 22, ''));
-			break;
 		case 'polygon':
 		case 'bezier':
 			getRectParams(item);

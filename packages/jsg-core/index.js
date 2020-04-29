@@ -308,7 +308,6 @@ JSG.TreeItemsNode = require('./src/graph/model/TreeItemsNode');
 JSG.TreeItem = require('./src/graph/model/TreeItem');
 JSG.GraphItemFactory = require('./src/graph/model/GraphItemFactory');
 
-const { SheetChartStateNode, SheetPlotNode } = require('@cedalo/jsg-extensions/core');
+const { SheetPlotNode } = require('@cedalo/jsg-extensions/core');
 
 JSG.SheetPlotNode = SheetPlotNode;
-JSG.SheetChartStateNode = SheetChartStateNode;
