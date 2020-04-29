@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/messaging-client",
-  "version": "1.6.0-beta",
+  "version": "1.6.2",
   "description": "A client layer above the messaging client.",
   "main": "index.js",
   "scripts": {
@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/messaging-client",
   "dependencies": {
-    "@cedalo/id-generator": "1.6.0-beta",
-    "@cedalo/logger": "1.6.0-beta",
+    "@cedalo/id-generator": "1.6.2",
+    "@cedalo/logger": "1.6.2",
     "mqtt": "3.0.0"
   },
   "devDependencies": {

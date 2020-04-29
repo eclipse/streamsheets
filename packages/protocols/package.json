@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/protocols",
-  "version": "1.6.0-beta",
+  "version": "1.6.2",
   "description": "Protocol definitions for communication between Gateway Client, Gateway, Machine Server and Graph Server",
   "main": "index.js",
   "scripts": {
