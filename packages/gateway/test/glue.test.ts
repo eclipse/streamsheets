@@ -1,4 +1,4 @@
-import glue from '../src/glue';
+import { glue } from '../src/glue';
 import { BaseUserApi, User } from '../src/user';
 import { GlobalContext } from '../src/streamsheets';
 
