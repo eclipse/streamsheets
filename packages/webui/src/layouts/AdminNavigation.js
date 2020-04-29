@@ -46,7 +46,11 @@ export const AdminNavigation = connect(({ user, router }) => ({
 				label={<FormattedMessage id="Dashboard.security" defaultMessage="Security" />}
 				icon={<IconSecurity />}
 			>
-				<MenuEntry show={props.rights.includes('user.view')} href={Path.users()} selected={isSelected('users')}>
+				<MenuEntry
+					show={props.rights.includes('user.view') || props.rights.includes('self.view')}
+					href={Path.users()}
+					selected={isSelected('users')}
+				>
 					<FormattedMessage id="Dashboard.users" defaultMessage="Users" />
 				</MenuEntry>
 
