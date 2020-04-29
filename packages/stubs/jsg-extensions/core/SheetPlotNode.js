@@ -11,14 +11,11 @@ const {
 	CellRange,
 	ItemAttributes,
 	Expression,
-	Selection,
 	TextFormatAttributes,
 	Numbers,
 	JSONWriter,
 	MarkCellValuesCommand,
 	SetPlotDataCommand,
-	SetCellsCommand,
-	DeleteCellContentCommand,
 	CompoundCommand,
 	Chart,
 	ChartFormat,
@@ -26,7 +23,7 @@ const {
 	ChartRect,
 	ChartSeries,
 	ChartTitle
-} = require('@cedalo/jsg-core');
+} = JSG;
 
 const epsilon = 0.000000001;
 const isValuesCell = (cell) => cell && cell._info && cell.values != null;
@@ -1041,7 +1038,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				const range = info.range.copy();
 				if (value.value === undefined) {
 					if (!selection) {
-						selection = new Selection(info.sheet);
+						selection = new JSG.Selection(info.sheet);
 					}
 					selection.add(range);
 				} else {
@@ -1070,10 +1067,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 		if (sheet) {
 			if (selection) {
-				const cmd = new DeleteCellContentCommand(sheet, selection.toStringMulti(), "all");
+				const cmd = new JSG.DeleteCellContentCommand(sheet, selection.toStringMulti(), "all");
 				viewer.getInteractionHandler().execute(cmd);
 			} else if (cellData.length) {
-				const cmd = new SetCellsCommand(sheet, cellData, false);
+				const cmd = new JSG.SetCellsCommand(sheet, cellData, false);
 				viewer.getInteractionHandler().execute(cmd);
 			}
 		}
@@ -3834,6 +3831,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 	isAddLabelAllowed() {
 		return false;
+	}
+
+	isTimeBasedChart() {
+		return this.series.length && !!this.getDataSourceInfo(this.series[0].formula).time;
 	}
 
 	getTemplate() {
