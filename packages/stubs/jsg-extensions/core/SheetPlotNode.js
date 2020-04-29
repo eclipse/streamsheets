@@ -26,7 +26,7 @@ const {
 	ChartTitle
 } = require('@cedalo/jsg-core');
 
-// console.log(require('@cedalo/jsg-core'));
+//   console.log(require('@cedalo/jsg-core'));
 
 const epsilon = 0.000000001;
 const isValuesCell = (cell) => cell && cell._info && cell.values != null;
@@ -1484,6 +1484,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		let maxLabel;
 		let min = axis.minData;
 		let max = axis.maxData;
+		const stepDist = axis.type === 'category' ? 1000 : 1500;
+		const stepDistVert = axis.type === 'category' ? 600 : 1500;
 		const size = axis.isVertical() ? axis.position.height : axis.position.width;
 		const labelAngle = axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(
 			-axis.format.fontRotation);
@@ -1689,9 +1691,9 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 			if (axis.isVertical()) {
 				// stepCount = Math.min(15, size / 600);
-				stepCount = Math.min(30, size / (Math.max(600, 1500 * Math.abs(Math.sin(labelAngle)))));
+				stepCount = Math.min(30, size / (Math.max(600, stepDistVert * Math.abs(Math.sin(labelAngle)))));
 			} else {
-				stepCount = Math.min(30, size / (Math.max(600, 1500 * Math.abs(Math.cos(labelAngle)))));
+				stepCount = Math.min(30, size / (Math.max(600, stepDist * Math.abs(Math.cos(labelAngle)))));
 			}
 
 			stepCount = Math.max(1, stepCount);
@@ -3899,14 +3901,15 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	}
 
 	migrateData(migrationData) {
-		const { data } = migrationData;
+		const { data, title, legend, scales } = migrationData;
 
 		if (data.range) {
 			const formula = data.range.replace(/^=/, '');
+			this.chart.dataInRows = data.direction === 'columns';
 			this.updateFormulas(undefined, formula, undefined);
 		}
 
-		this.chart.stacked = data.chartType.indexOf('stacked') !== -1;
+		this.chart.stacked = data.stacked;
 		let type = 'line';
 
 		switch (data.chartType) {
@@ -3968,8 +3971,47 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			break;
 		}
 
-		this.series.forEach((serie) => {
+		this.title.visible = title.title.length > 0;
+		this.title.formula = new Expression(title.title);
+
+		if (legend.position === 'none') {
+			this.legend.visibe = false;
+		} else {
+			this.legend.align = legend.position;
+			this.legend.visibe = true;
+		}
+
+		const migrateAxis = (oldAxis, newAxis) => {
+			if (oldAxis.ticks.reverse) {
+				newAxis.invert = true;
+			}
+			const min = oldAxis.ticks.min === undefined ? '' : oldAxis.ticks.min;
+			const max = oldAxis.ticks.max === undefined ? '' : oldAxis.ticks.max;
+			const step = oldAxis.ticks.stepSize === undefined ? '' : oldAxis.ticks.stepSize;
+			newAxis.formula = new Expression(0, `AXIS(${min},${max},${step})`);
+			if (oldAxis.ticks.fontStyle === 'italic') {
+				newAxis.format.fontStyle = 2;
+			}
+			if (oldAxis.ticks.fontStyle === 'bold') {
+				newAxis.format.fontStyle = 1;
+			}
+		}
+
+		migrateAxis(scales.xAxes[0], this.xAxes[0]);
+		migrateAxis(scales.yAxes[0], this.yAxes[0]);
+
+		this.series.forEach((serie, index) => {
 			serie.type = type;
+			serie.smooth = data.smooth;
+			if (this.series.length === data.series.length) {
+				serie.dataLabel.visible = data.series[index].showDataLabels === true;
+				if (data.series[index].fillColor !== undefined) {
+					serie.format.fillColor = data.series[index].fillColor;
+				}
+				if (data.series[index].lineColor !== undefined) {
+					serie.format.lineColor = data.series[index].lineColor;
+				}
+			}
 		});
 
 	}

@@ -32,6 +32,10 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 	const {
 		TextFormatAttributes, FormatAttributes, MathUtils, GraphUtils, Rectangle
 	} = JSG;
+
+	JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION = 'graph_show_context_menu_notification';
+	JSG.GRAPH_DOUBLE_CLICK_NOTIFICATION = 'graph_double_click_notification';
+
 	class SheetPlotView extends JSG.NodeView {
 		isNewChart() {
 			return true;
