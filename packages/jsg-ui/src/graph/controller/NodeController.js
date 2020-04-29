@@ -5,7 +5,6 @@ import {
 	ButtonNode,
 	CaptionNode,
 	CellsNode,
-	ChartNode,
 	ColumnHeaderNode,
 	default as JSG,
 	InboxContainer,
@@ -34,7 +33,6 @@ import CellsView from '../view/CellsView';
 import ScrollbarView from '../view/ScrollbarView';
 import CaptionView from '../view/CaptionView';
 import ButtonView from '../view/ButtonView';
-import ChartView from '../view/ChartView';
 import TreeItemsView from '../view/TreeItemsView';
 import SheetButtonView from '../view/SheetButtonView';
 import SheetCheckboxView from '../view/SheetCheckboxView';
@@ -173,9 +171,6 @@ class NodeController extends GraphItemController {
 		}
 		if (model instanceof ButtonNode) {
 			return new ButtonView(model);
-		}
-		if (model instanceof ChartNode) {
-			return new ChartView(model);
 		}
 		if (model instanceof TreeItemsNode) {
 			return new TreeItemsView(model);

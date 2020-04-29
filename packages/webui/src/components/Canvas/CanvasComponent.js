@@ -19,7 +19,6 @@ import TreeContextMenu from './TreeContextMenu';
 import GraphContextMenu from './GraphContextMenu';
 import SheetDeleteDialog from './SheetDeleteDialog';
 import MachineHelper from '../../helper/MachineHelper';
-import ChartProperties from './ChartProperties';
 import FunctionWizard from './FunctionWizard';
 import { intl } from '../../helper/IntlGlobalProvider';
 import StreamChartProperties from './StreamChartProperties';
@@ -319,7 +318,6 @@ export class CanvasComponent extends Component {
 					tabIndex="0"
 					//	aria-disabled={this.isAccessDisabled()}
 				/>
-				{viewMode.viewMode !== null || !canEdit ? null : <ChartProperties />}
 				{viewMode.viewMode !== null || !canEdit ? null : <StreamChartProperties title={this.state.chartWizardTitle} dummy={this.state.dummy} />}
 				{viewMode.viewMode !== null || !canEdit ? null : (
 					<Slide direction="left" in={this.props.functionWizardVisible} mountOnEnter unmountOnExit>

@@ -4,7 +4,6 @@ const defaultState = {
 	experimental: false,
 	deviceRatio: true,
 	drawerOpen: false,
-	showChartProperties: false,
 	showStreamChartProperties: false,
 	showImportDialog: false,
 	showNewDialog: false,

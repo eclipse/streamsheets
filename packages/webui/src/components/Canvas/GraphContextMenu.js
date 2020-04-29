@@ -95,7 +95,7 @@ class GraphContextComponent extends Component {
 	onShowChartProperties = () => {
 		// const sheetView = graphManager.getActiveSheetView();
 		// eslint-disable-next-line react/prop-types
-		this.props.setAppState({ showChartProperties: true });
+		this.props.setAppState({ showStreamChartProperties: true });
 	};
 
 	handleClick = (event) => {
@@ -130,21 +130,6 @@ class GraphContextComponent extends Component {
 					visibility: [this.state.context ? 'visible' : 'hidden'],
 				}}
 			>
-				{(item instanceof JSG.ChartNode) ?
-					<MenuList>
-						<MenuItem
-							onClick={this.onShowChartProperties}
-							dense
-						>
-							<ListItemIcon>
-								<SvgIcon style={styles.menuItem} >
-									<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
-								</SvgIcon>
-							</ListItemIcon>
-							<ListItemText primary={<FormattedMessage id="EditChart" defaultMessage="Edit Chart" />} />
-						</MenuItem>
-						<Divider/>
-					</MenuList> : null}
 				{(item instanceof JSG.SheetPlotNode) ?
 					<MenuList>
 						<MenuItem

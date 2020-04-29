@@ -31,7 +31,6 @@ const PolygonShape = require('./shapes/PolygonShape');
 const Expression = require('../expr/Expression');
 const SheetReference = require('../expr/SheetReference');
 const WorksheetNode = require('./WorksheetNode');
-const ChartNode = require('./ChartNode');
 const CellsNode = require('./CellsNode');
 const CellRange = require('./CellRange');
 const NotificationCenter = require('../notifications/NotificationCenter');
@@ -46,7 +45,7 @@ const setSheetCaption = (sheetName, sheetContainer) => {
 			.getStreamSheetContainerAttributes()
 			.getStep()
 			.getValue();
-		sheetContainer.getSheetCaption().setName(`${sheetName} ${JSG.getLocalizedString('Step')} - ${step}`);
+		sheetContainer.getSheetCaption().setName(`${sheetName} - ${JSG.getLocalizedString('Step')} ${step}`);
 	}
 };
 
@@ -1181,9 +1180,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			return undefined;
 		}
 
-		if (item instanceof JSG.ChartNode) {
-			type = 'chart';
-		} else if (item instanceof SheetButtonNode) {
+		if (item instanceof SheetButtonNode) {
 			type = 'button';
 		} else if (item instanceof SheetCheckboxNode) {
 			type = 'checkbox';
@@ -1323,28 +1320,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 						Term.fromString(Strings.encodeXML(item.getText().getValue()))
 					);
 					break;
-				case 'chart': {
-					this.setGraphFunctionParam(termFunc, 13, Term.fromString(item.getChartType()));
-					let range = item.getDataRangeString();
-					if (range && range !== '' && range[0] === '=') {
-						this.setGraphFunctionParam(
-							termFunc,
-							14,
-							new Term(new SheetReference(ws, range.substring(1))),
-							true
-						);
-					}
-					range = item.getFormatDataRangeString();
-					if (range && range !== '' && range[0] === '=') {
-						this.setGraphFunctionParam(
-							termFunc,
-							15,
-							new Term(new SheetReference(ws, range.substring(1))),
-							true
-						);
-					}
-					break;
-				}
 			}
 		}
 
