@@ -4003,7 +4003,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		this.series.forEach((serie, index) => {
 			serie.type = type;
 			serie.smooth = data.smooth;
-			if (this.series.length === data.series.length) {
+			if (data.series && this.series.length === data.series.length) {
 				serie.dataLabel.visible = data.series[index].showDataLabels === true;
 				if (data.series[index].fillColor !== undefined) {
 					serie.format.fillColor = data.series[index].fillColor;
