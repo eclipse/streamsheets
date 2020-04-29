@@ -1,3 +1,5 @@
+// import { TextFormatAttributes, FormatAttributes, MathUtils, GraphUtils, Rectangle } from '@cedalo/jsg-core';
+
 const opposedLine = (start, end) => {
 	const lengthX = end.x - start.x;
 	const lengthY = end.y - start.y;
@@ -27,9 +29,13 @@ const controlPoint = (current, previous, next, reverse) => {
 };
 
 export default function SheetPlotViewFactory(JSG, ...args) {
-
-	const { TextFormatAttributes, FormatAttributes, MathUtils, GraphUtils, Rectangle } = JSG;
+	const {
+		TextFormatAttributes, FormatAttributes, MathUtils, GraphUtils, Rectangle
+	} = JSG;
 	class SheetPlotView extends JSG.NodeView {
+		isNewChart() {
+			return true;
+		}
 
 		onSelectionChange(selected) {
 			if (!selected) {
@@ -123,22 +129,25 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				let lastPoints;
 
 				series.forEach((serie, index) => {
-					switch (serie.type) {
-					case 'pie':
-					case 'doughnut':
-						this.drawCircular(graphics, item, plotRect, serie, index);
-						break;
-					default:
-						lastPoints = this.drawCartesian(graphics, item, plotRect, serie, index, lastPoints, legendData);
-						drawAxes = true;
-						break;
+					if (serie.visible) {
+						switch (serie.type) {
+						case 'pie':
+						case 'doughnut':
+							this.drawCircular(graphics, item, plotRect, serie, index);
+							break;
+						default:
+							lastPoints = this.drawCartesian(graphics, item, plotRect, serie, index, lastPoints,
+								legendData);
+							drawAxes = true;
+							break;
+						}
 					}
 				});
 
 				lastPoints = undefined;
 
 				series.forEach((serie, index) => {
-					if (serie.dataLabel.visible) {
+					if (serie.visible && serie.dataLabel.visible) {
 						lastPoints = this.drawLabels(graphics, item, plotRect, serie, index, lastPoints, legendData);
 					}
 				});
@@ -243,6 +252,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					break;
 				case 'area':
 				case 'column':
+					// eslint-disable-next-line no-fallthrough
 				case 'bar':
 				case 'pie':
 				case 'doughnut':
@@ -254,7 +264,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 						}
 					}
 
-					graphics.rect(x, y + textSize.height / 10, margin * 3, (textSize.height * 2) / 3);
+					graphics.rect(x, y + textSize.height / 10, margin * 3, textSize.height * 9 / 10);
 					if (fill) {
 						if (entry.series) {
 							this.fill(graphics, entry.series.format);
@@ -284,7 +294,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					legend.format.fontColor || template.legend.format.fontColor || template.font.color;
 
 				graphics.setFillColor(fontColor);
-				graphics.fillText(entry.name, x + textPos, y + textSize.height / 2);
+				graphics.fillText(entry.name, x + textPos, y + textSize.height * 1.1 / 2);
 
 				if (legend.align === 'right' || legend.align === 'middleright' || legend.align === 'left' || legend.align === 'middleleft') {
 					y += textSize.height * 1.3;
@@ -1350,6 +1360,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				switch (this.chartSelection.element) {
 				case 'series':
 				case 'title':
+				case 'plot':
 				case 'legend':
 				case 'xAxis':
 				case 'xAxisTitle':
@@ -1383,6 +1394,9 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					expr = data.formula;
 					break;
 				}
+				case 'plot':
+					expr = this.getItem().chart.formula;
+					break;
 				default:
 					break;
 				}
@@ -1396,7 +1410,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					})}`;
 					return formula;
 				}
-				return expr.getValue();
+				return String(expr.getValue());
 			}
 
 			return super.getSelectedFormula(sheet);
