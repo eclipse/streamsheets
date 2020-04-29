@@ -2482,8 +2482,6 @@ class GraphItemFactory {
 				return new PortMapper();
 			case 'text':
 				return new TextNode();
-			case 'chartnode':
-				return new ChartNode();
 			case 'machinegraph':
 				return new MachineGraph();
 			case 'worksheetnode':
@@ -2528,6 +2526,9 @@ class GraphItemFactory {
 				return new SheetKnobNode();
 			case 'sheetchartstatenode':
 				return new SheetChartStateNode();
+			case 'chartnode':
+				// return new SheetPlotNode();
+				return new ChartNode();
 			case 'sheetplotnode':
 			case 'streamchart':
 				return new SheetPlotNode();

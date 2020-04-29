@@ -50,7 +50,7 @@ const setSheetCaption = (sheetName, sheetContainer) => {
 	}
 };
 
-let myVideo;
+// let myVideo;
 
 /**
  * Node representing a worksheet. The worksheet contains additional nodes for the rows,
@@ -689,9 +689,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 					case 'ellipse':
 						node = new Node(new EllipseShape());
 						break;
-					case 'chart':
-						node = new ChartNode();
-						break;
 					case 'polygon':
 						node = new Node(new PolygonShape());
 						break;
@@ -888,13 +885,12 @@ module.exports = class StreamSheet extends WorksheetNode {
 						}
 						break;
 					case 'plot':
-						// node.setChartType(drawItem.charttype);
 						break;
-					case 'chart':
-						node.setDataRangeString(drawItem.range ? `=${drawItem.range}` : '');
-						node.setFormatDataRangeString(drawItem.formatrange ? `=${drawItem.formatrange}` : '');
-						node.setChartType(drawItem.charttype);
-						break;
+					// case 'chart':
+					// 	node.setDataRangeString(drawItem.range ? `=${drawItem.range}` : '');
+					// 	node.setFormatDataRangeString(drawItem.formatrange ? `=${drawItem.formatrange}` : '');
+					// 	node.setChartType(drawItem.charttype);
+					// 	break;
 					case 'checkbox':
 					case 'button':
 						this.setFontFormat(node.getTextFormat(), drawItem.font);
@@ -1025,9 +1021,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			return undefined;
 		}
 
-		if (item instanceof JSG.ChartNode) {
-			type = 'chart';
-		} else if (item instanceof JSG.TextNode) {
+		if (item instanceof JSG.TextNode) {
 			type = 'label';
 		} else if (item instanceof JSG.SheetButtonNode) {
 			type = 'button';
@@ -1104,33 +1098,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
 					break;
-				case 'chartstate': {
-					formula += `,,,,,`;
-					formula += angle === 0 ? ',,"ChartState",,"state"' : `${angle},,"ChartState",,"state"`;
-					const selection = graph.getSheetSelection();
-					if (selection) {
-						const range = selection.toStringByIndex(0, { item: this, useName: true });
-						if (range) {
-							// item.setDataRangeString(`=${range}`);
-							formula += `,${range}`;
-						}
-					}
-					break;
-				}
-				case 'chart': {
-					formula += `,,,${attributes},,`;
-					formula += angle === 0 ? ',,' : `${angle},,`;
-					formula += `"${item.getChartType()}"`;
-					const selection = graph.getSheetSelection();
-					if (selection) {
-						const range = selection.toStringByIndex(0, { item: this, useName: true, forceName: true });
-						if (range) {
-							item.setDataRangeString(`=${range}`);
-							formula += `,${range}`;
-						}
-					}
-					break;
-				}
 				default:
 					if (angle !== 0 || attributes !== '') {
 						formula += `,,,${attributes},,${angle}`;
