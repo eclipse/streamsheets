@@ -27,6 +27,7 @@ const deleteFromMessageBox = (box, path, funcname) => {
 	return error;
 };
 
+const getFuncName = (term) => term.name ? term.name.toUpperCase() : '';
 
 // we require INBOXDATA, INBOXMETADATA or OUTBOXDATA
 const _delete = (sheet, ...terms) =>
@@ -34,7 +35,7 @@ const _delete = (sheet, ...terms) =>
 		.withArgCount(1)
 		.mapNextArg(pathstr => pathstr.value)
 		.reduce(pathstr => [jsonpath.parse(pathstr)])
-		.addMappedArg(() => terms[0] && terms[0].func && terms[0].name)
+		.addMappedArg(() => getFuncName(terms[0]))
 		.addMappedArg((path, funcname) => (funcname.startsWith('OUTBOX')
 			? getOutbox(sheet) || ERROR.OUTBOX
 			: getInbox(sheet, path.shift()) || ERROR.NO_MSG))
