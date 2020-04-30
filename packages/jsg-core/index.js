@@ -236,7 +236,6 @@ JSG.CellFormatAttributes = require('./src/graph/attr/CellFormatAttributes');
 JSG.CellTextFormatAttributes = require('./src/graph/attr/CellTextFormatAttributes');
 JSG.TreeItemAttributes = require('./src/graph/attr/TreeItemAttributes');
 JSG.SetCellDataCommand = require('./src/graph/command/SetCellDataCommand');
-JSG.SetChartDataCommand = require('./src/graph/command/SetChartDataCommand');
 JSG.SetPlotDataCommand = require('./src/graph/command/SetPlotDataCommand');
 JSG.SetChartFormulaCommand = require('./src/graph/command/SetChartFormulaCommand');
 JSG.ExecuteFunctionCommand = require('./src/graph/command/ExecuteFunctionCommand');

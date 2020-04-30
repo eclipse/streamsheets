@@ -2,7 +2,7 @@ const AbstractItemCommand = require('./AbstractItemCommand');
 const JSONReader = require('../../commons/JSONReader');
 
 /**
- * @class SetChartDataCommand
+ * @class SetPlotDataCommand
  * @type {module.SetPlotDataCommand}
  */
 module.exports = class SetPlotDataCommand extends AbstractItemCommand {
