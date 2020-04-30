@@ -1669,6 +1669,7 @@ export class StreamChartProperties extends Component {
 									onChange={(color) => this.handleSeriesMarkerLineColorChange(color)}
 								/>
 							</FormControl>
+							{item.xAxes.length > 1 || item.yAxes.length > 1 ? (
 							<FormLabel
 								component="legend"
 								style={{
@@ -1677,52 +1678,57 @@ export class StreamChartProperties extends Component {
 							>
 								<FormattedMessage id="StreamChartProperties.AxisAssignment" defaultMessage="Axis Assignment" />
 							</FormLabel>
-							<FormControl
-								style={{
-									width: '43%',
-									display: 'inline-flex',
-									margin: '8px'
-								}}
-							>
-								<InputLabel htmlFor="template">
-									<FormattedMessage id="StreamChartProperties.XAxis" defaultMessage="XAxis" />
-								</InputLabel>
-								<Select
-									id="templates"
-									value={data.xAxis}
-									onChange={this.handleSeriesXAxisChange}
-									input={<Input name="template" id="template" />}
+							) : null}
+							{item.xAxes.length > 1 ? (
+								<FormControl
+									style={{
+										width: '43%',
+										display: 'inline-flex',
+										margin: '8px'
+									}}
 								>
-									{item.xAxes.map((axis) => (
-										<MenuItem value={axis.name} key={axis.name}>
-											{axis.name}
-										</MenuItem>
-									))}
-								</Select>
-							</FormControl>
-							<FormControl
-								style={{
-									width: '43%',
-									display: 'inline-flex',
-									margin: '8px'
-								}}
-							>
-								<InputLabel htmlFor="template">
-									<FormattedMessage id="StreamChartProperties.YAxis" defaultMessage="YAxis" />
-								</InputLabel>
-								<Select
-									id="templates"
-									value={data.yAxis}
-									onChange={this.handleSeriesYAxisChange}
-									input={<Input name="template" id="template" />}
+									<InputLabel htmlFor="template">
+										<FormattedMessage id="StreamChartProperties.XAxis" defaultMessage="XAxis" />
+									</InputLabel>
+									<Select
+										id="templates"
+										value={data.xAxis}
+										onChange={this.handleSeriesXAxisChange}
+										input={<Input name="template" id="template" />}
+									>
+										{item.xAxes.map((axis) => (
+											<MenuItem value={axis.name} key={axis.name}>
+												{axis.name}
+											</MenuItem>
+										))}
+									</Select>
+								</FormControl>
+							) : null}
+							{item.yAxes.length > 1 ? (
+								<FormControl
+									style={{
+										width: '43%',
+										display: 'inline-flex',
+										margin: '8px'
+									}}
 								>
-									{item.yAxes.map((axis) => (
-										<MenuItem value={axis.name} key={axis.name}>
-											{axis.name}
-										</MenuItem>
-									))}
-								</Select>
-							</FormControl>
+									<InputLabel htmlFor="template">
+										<FormattedMessage id="StreamChartProperties.YAxis" defaultMessage="YAxis" />
+									</InputLabel>
+									<Select
+										id="templates"
+										value={data.yAxis}
+										onChange={this.handleSeriesYAxisChange}
+										input={<Input name="template" id="template" />}
+									>
+										{item.yAxes.map((axis) => (
+											<MenuItem value={axis.name} key={axis.name}>
+												{axis.name}
+											</MenuItem>
+										))}
+									</Select>
+								</FormControl>
+							) : null}
 							<FormGroup
 								style={{
 									margin: '8px'

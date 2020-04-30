@@ -716,7 +716,7 @@
     "StreamChartProperties.Comma": "Komma",
     "StreamChartProperties.Semicolon": "Semikolon",
     "StreamChartProperties.LinkNumberFormat": "Zahlenformat aus Zelle übernehmen",
-    "StreamChartProperties.ZoomGroup": "Name der Vergrößerungsgruppe",
+    "StreamChartProperties.ZoomGroup": "Name der Diagrammgruppe",
     "StreamChartProperties.ShowAllSeries": "Alle Datenreihen anzeigen",
     "StreamChartProperties.FormatHint": "Einstellungen für Linien, Muster und Schriften bitte über die Toolbar vornehmen"
 }

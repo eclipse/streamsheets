@@ -716,7 +716,7 @@
     "StreamChartProperties.Comma": "Comma",
     "StreamChartProperties.Semicolon": "Semicolon",
     "StreamChartProperties.LinkNumberFormat": "Link Numberformat to Cell",
-    "StreamChartProperties.ZoomGroup": "Zoom Group Name",
+    "StreamChartProperties.ZoomGroup": "Chart Group Name",
     "StreamChartProperties.ShowAllSeries": "Show all Series",
     "StreamChartProperties.FormatHint": "Please use the toolbar for line, fill and font settings"
 }
