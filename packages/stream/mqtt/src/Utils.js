@@ -79,9 +79,9 @@ const validateTopicBasic = (topic) => {
 	if (topic.startsWith('/')) {
 		result.warnings.push(TOPIC_WARNINGS.TOPIC_WITH_LEADING_SLASH);
 	}
-	if (topic.startsWith('#')) {
-		result.warnings.push(TOPIC_WARNINGS.TOPIC_WITH_FILTER_ALL);
-	}
+	// if (topic.startsWith('#')) {
+	// 	result.warnings.push(TOPIC_WARNINGS.TOPIC_WITH_FILTER_ALL);
+	// }
 	if (topic.indexOf(' ') > -1) {
 		result.warnings.push(TOPIC_WARNINGS.TOPIC_WITH_SPACES);
 	}
