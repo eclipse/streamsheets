@@ -51,13 +51,4 @@ module.exports = class MqttConsumer extends sdk.ConsumerMixin(MqttConnector) {
 		}
 		return false;
 	}
-
-	async dispose() {
-		if(this.client) {
-			if(Array.isArray(this.topics) && this.topics.length >0) {
-				this.client.unsubscribe(this.topics);
-			}
-		}
-		return super.dispose();
-	}
 };
