@@ -79,21 +79,6 @@
 		"collection": ""
 	},
 	{
-		"_id": "CONNECTOR_REST",
-		"id": "CONNECTOR_REST",
-		"name": "HTTP_Connector",
-		"className": "ConnectorConfiguration",
-		"provider": {
-			"_id": "@cedalo/rest-server",
-			"id": "@cedalo/rest-server",
-			"className": "ProviderConfiguration",
-			"isRef": true
-		},
-		"baseUrl": "cedalo",
-		"userName": "",
-		"password": ""
-	},
-	{
 		"_id": "CONNECTOR_HTTP",
 		"id": "CONNECTOR_HTTP",
 		"name": "HTTP_Client_Connector",
