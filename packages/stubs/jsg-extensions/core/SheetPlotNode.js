@@ -2078,7 +2078,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 						label = cell.getValue();
 					}
 				}
-				if (axis.format.linkNumberFormat) {
+				if (axis && axis.format.linkNumberFormat) {
 					const tf = ref.x.sheet.getTextFormatAtRC(ref.x.range._x1, ref.x.range._y1 + index);
 					if (tf) {
 						axis.format.localCulture = tf
@@ -2093,7 +2093,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				if (cell) {
 					label = cell.getValue();
 				}
-				if (axis.format.linkNumberFormat) {
+				if (axis && axis.format.linkNumberFormat) {
 					const tf = ref.x.sheet.getTextFormatAtRC(ref.x.range._x1 + index, ref.x.range._y1);
 					if (tf) {
 						axis.format.localCulture = tf
