@@ -727,7 +727,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 
 			graphics.save();
 			graphics.beginPath();
-			graphics.rect(plotRect.left, plotRect.top, plotRect.width, plotRect.height);
+			graphics.rect(plotRect.left - 10, plotRect.top - 10, plotRect.width + 20, plotRect.height + 20);
 			graphics.clip();
 
 			graphics.beginPath();

@@ -26,6 +26,8 @@ const {
 	ChartTitle
 } = require('@cedalo/jsg-core');
 
+//   console.log(require('@cedalo/jsg-core'));
+
 const epsilon = 0.000000001;
 const isValuesCell = (cell) => cell && cell._info && cell.values != null;
 const getTimeCell = (item, formula) => {
@@ -964,7 +966,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (axis.type === 'category' && ref) {
 				add(this.getLabel(ref, axis, Math.floor(value.x)));
 			} else if (Numbers.isNumber(value.x)) {
-				if (serie.dataLabel.linkNumberFormat && value.formatX) {
+				if (serie.dataLabel.format.linkNumberFormat && value.formatX) {
 					add(this.formatNumber(value.x,
 						{numberFormat: value.formatX.numberFormat, localCulture: value.formatX.localCulture}));
 				} else if (serie.dataLabel.format && serie.dataLabel.format.numberFormat) {
@@ -978,7 +980,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		}
 		if (serie.dataLabel.content.y && value.y !== undefined) {
 			if (Numbers.isNumber(value.y)) {
-				if (serie.dataLabel.linkNumberFormat && value.formatY) {
+				if (serie.dataLabel.format.linkNumberFormat && value.formatY) {
 					add(this.formatNumber(value.y,
 						{numberFormat: value.formatY.numberFormat, localCulture: value.formatY.localCulture}));
 				} else if (serie.dataLabel.format && serie.dataLabel.format.numberFormat) {
@@ -1986,12 +1988,26 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 						label = cell.getValue();
 					}
 				}
+				if (axis.format.linkNumberFormat) {
+					const tf = ref.x.sheet.getTextFormatAtRC(ref.x.range._x1, ref.x.range._y1 + index);
+					if (tf) {
+						axis.format.localCulture = tf.getLocalCulture().getValue().toString();
+						axis.format.numberFormat = tf.getNumberFormat().getValue()
+					}
+				}
 			} else if (index <= ref.x.range._x2 - ref.x.range._x1) {
 				const cell = ref.x.sheet
 					.getDataProvider()
 					.getRC(ref.x.range._x1 + index, ref.x.range._y1);
 				if (cell) {
 					label = cell.getValue();
+				}
+				if (axis.format.linkNumberFormat) {
+					const tf = ref.x.sheet.getTextFormatAtRC(ref.x.range._x1 + index, ref.x.range._y1);
+					if (tf) {
+						axis.format.localCulture = tf.getLocalCulture().getValue().toString();
+						axis.format.numberFormat = tf.getNumberFormat().getValue()
+					}
 				}
 			}
 		}
@@ -3466,31 +3482,13 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 								}
 							}
 						}
-						if ((type === 'scatter' || type === 'bubble') && xValue === 'time') {
-							this.xAxes[0].type = 'time';
-						}
-					} else {
-						const source = new CellRange(taRange.getSheet(), pos.x, pos.y);
-						source.shiftToSheet();
-						const ref = source.toString({item: sheet, useName: true});
-						if (width === 2 && !allTime) {
-							const rangeName = source.copy();
-							rangeName._x1 -= 1;
-							rangeName._x2 -= 1;
-							const refName = rangeName.toString({item: sheet, useName: true});
-							formula = `SERIES("Time",${refName},${ref})`;
-						} else if (height === 2 && !allTime) {
-							const rangeName = source.copy();
-							rangeName._y1 -= 1;
-							rangeName._y2 -= 1;
-							const refName = rangeName.toString({item: sheet, useName: true});
-							formula = `SERIES("Time",${refName},${ref})`;
-						} else {
-							formula = `SERIES("Time",,${ref})`;
-						}
-						createSeries(type, formula, markers, line);
-						if (type === 'scatter' || type === 'bubble') {
-							this.xAxes[0].type = 'time';
+						if (xValue === 'time') {
+							if (type === 'scatter' || type === 'bubble') {
+								this.xAxes[0].type = 'time';
+							} else {
+								this.xAxes[0].format.localCulture =  `time;en`;
+								this.xAxes[0].format.numberFormat = 'h:mm:ss';
+							}
 						}
 					}
 				});
