@@ -391,6 +391,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
+	handleAxisNumberformatLinkChange = (event, state) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.format.linkNumberFormat = state;
+		this.finishCommand(cmd, 'axes');
+	};
+
 	handleAxisAllowZoomChange = (event, state) => {
 		const cmd = this.prepareCommand('axes');
 		const data = this.getData();
@@ -550,7 +557,7 @@ export class StreamChartProperties extends Component {
 	handleSeriesDataLabelsLinkChange = (event, state) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
-		data.dataLabel.linkNumberFormat = state;
+		data.dataLabel.format.linkNumberFormat = state;
 		this.finishCommand(cmd, 'series');
 	};
 
@@ -1434,6 +1441,20 @@ export class StreamChartProperties extends Component {
 									<FormControlLabel
 										control={
 											<Checkbox
+												checked={data.format.linkNumberFormat}
+												onChange={(event, state) => this.handleAxisNumberformatLinkChange(event, state)}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.LinkNumberFormat"
+												defaultMessage="Link Numberformat to Cell"
+											/>
+										}
+									/>
+									<FormControlLabel
+										control={
+											<Checkbox
 												checked={data.updateZoom}
 												onChange={(event, state) =>
 													this.handleAxisUpdateZoomChange(event, state)
@@ -1467,6 +1488,7 @@ export class StreamChartProperties extends Component {
 										label={<FormattedMessage id="StreamChartProperties.ZoomGroup" defaultMessage="Zoom Group" />}
 										value={data.zoomGroup}
 										onBlur={(event) => this.handleAxisZoomGroupChange(event)}
+										onChange={(event) => this.handleAxisZoomGroupChange(event)}
 										margin="normal"
 									/>
 								</FormGroup>
@@ -1974,7 +1996,7 @@ export class StreamChartProperties extends Component {
 								<FormControlLabel
 									control={
 										<Checkbox
-											checked={data.dataLabel.linkNumberFormat}
+											checked={data.dataLabel.format.linkNumberFormat}
 											onChange={(event, state) => this.handleSeriesDataLabelsLinkChange(event, state)}
 										/>
 									}
