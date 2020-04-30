@@ -148,10 +148,10 @@ class Connector extends Stream {
 		return this._reload(false);
 	}
 
-	async _reload(force = true) {
-		this._connected = false;
+	async _reload(force = false) {
 		this.ready = false;
 		if (this.isConnected) {
+			this._connected = false;
 			await this._dispose(force);
 		}
 		this._connecting = false;
