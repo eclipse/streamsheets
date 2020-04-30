@@ -13,6 +13,7 @@ module.exports = class ChartAxis {
 		this.align = align;
 		this.formula = new Expression(0, 'AXIS()');
 		this.format = new ChartFormat();
+		this.format.linkNumberFormat = true;
 		this.formatGrid = new ChartFormat();
 		this.title = new ChartTitle(new Expression('Title', ''), false);
 		this.gridVisible = true;

@@ -4,10 +4,10 @@ const ChartFormat = require('./ChartFormat');
 module.exports = class ChartDataLabel {
 	constructor() {
 		this.format = new ChartFormat();
+		this.format.linkNumberFormat = true;
 		this.visible = false;
 		this.position = 'behindend';
 		this.separator = '&lf';
-		this.linkNumberFormat = true;
 		this.content = {'x': false, y: true};
 	}
 
@@ -17,7 +17,6 @@ module.exports = class ChartDataLabel {
 		writer.writeAttributeString('separator', this.separator);
 		writer.writeAttributeString('content', JSON.stringify(this.content));
 		writer.writeAttributeNumber('visible', this.visible ? 1 : 0);
-		writer.writeAttributeNumber('linknumberformat', this.linkNumberFormat ? 1 : 0);
 		this.format.save('format', writer);
 		writer.writeEndElement();
 	}
@@ -26,7 +25,6 @@ module.exports = class ChartDataLabel {
 		this.position = reader.getAttributeString(object, 'position', 'behindend');
 		this.separator = reader.getAttributeString(object, 'separator', '&lf');
 		this.visible = reader.getAttributeBoolean(object, 'visible', false);
-		this.linkNumberFormat = reader.getAttributeBoolean(object, 'linknumberformat', true);
 		try {
 			this.content = JSON.parse(reader.getAttributeString(object, 'content', '{"x":false}, "y":true}'));
 		} catch (e) {

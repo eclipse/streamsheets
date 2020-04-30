@@ -50,40 +50,38 @@ export default class ChartInfoFeedbackView extends View {
 		let x;
 		let y;
 
-		if (item.xAxes[0].allowZoom) {
+		if (!item.isCircular()) {
 			graphics.beginPath();
-			if (!item.isCircular()) {
-				if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
-					x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.width;
-					y = top.y;
+			if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
+				x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.width;
+				y = top.y;
 
-					if (x - top.x > plotRect.width || x - top.x < 0) {
-						return;
-					}
-					graphics.moveTo(x, top.y);
-					graphics.lineTo(x, bottom.y);
-
-					if (this.endPoint) {
-						// graphics.moveTo(this.endPoint.x, top.y);
-						// graphics.lineTo(this.endPoint.x, bottom.y);
-						graphics.rect(this.point.x, top.y, this.endPoint.x - this.point.x, bottom.y - top.y);
-					}
-				} else {
-					x = top.x;
-					y = bottom.y - item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.height;
-
-					if (y - top.y > plotRect.height || y - top.y < 0) {
-						return;
-					}
-					graphics.moveTo(left.x, y);
-					graphics.lineTo(right.x, y);
-
-					if (this.endPoint) {
-						graphics.moveTo(left.x, this.endPoint.y);
-						graphics.lineTo(right.x, this.endPoint.y);
-						graphics.rect(left.x, this.point.y, right.x - left.x, this.endPoint.y - this.point.y);
-					}
+				if (x - top.x > plotRect.width || x - top.x < 0) {
+					return;
 				}
+				graphics.moveTo(x, top.y);
+				graphics.lineTo(x, bottom.y);
+
+				if (this.endPoint) {
+					graphics.rect(this.point.x, top.y, this.endPoint.x - this.point.x, bottom.y - top.y);
+				}
+			} else {
+				x = top.x;
+				y = bottom.y - item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.height;
+
+				if (y - top.y > plotRect.height || y - top.y < 0) {
+					return;
+				}
+				graphics.moveTo(left.x, y);
+				graphics.lineTo(right.x, y);
+
+				if (this.endPoint) {
+					graphics.moveTo(left.x, this.endPoint.y);
+					graphics.lineTo(right.x, this.endPoint.y);
+					graphics.rect(left.x, this.point.y, right.x - left.x, this.endPoint.y - this.point.y);
+				}
+			}
+			if (item.xAxes[0].allowZoom) {
 				graphics.stroke();
 				graphics.setTransparency(30);
 				graphics.fill();
