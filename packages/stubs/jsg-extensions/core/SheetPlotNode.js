@@ -1,7 +1,7 @@
 const JSG = require('@cedalo/jsg-core');
 
-const {Term, NullTerm} = require('@cedalo/parser');
-const {NumberFormatter} = require('@cedalo/number-format');
+const { Term, NullTerm } = require('@cedalo/parser');
+const { NumberFormatter } = require('@cedalo/number-format');
 
 const {
 	Node,
@@ -36,7 +36,7 @@ const getTimeCell = (item, formula) => {
 };
 const getCellReference = (item, formula) => {
 	// which index is it? 1 or 2 or should we search?
-	const {range, sheet} = item.getParamInfo(formula.getTerm(), 2);
+	const { range, sheet } = item.getParamInfo(formula.getTerm(), 2);
 	if (range) range.shiftToSheet();
 	return range && sheet ? `${sheet.getName()}!${range.toString()}` : undefined;
 };
@@ -50,28 +50,28 @@ const templates = {
 			color: '#000000'
 		},
 		chart: {
-			format: new ChartFormat('#000000', 0, -1, 1, '#FFFFFF'),
+			format: new ChartFormat('#000000', 0, -1, 1, '#FFFFFF')
 		},
 		title: {
-			format: new ChartFormat('#000000', 0, -1, 0, '#FFFFFF', 12),
+			format: new ChartFormat('#000000', 0, -1, 0, '#FFFFFF', 12)
 		},
 		serieslabel: {
-			format: new ChartFormat('#000000', 0, -1, 0, '#FFFFFF', 6),
+			format: new ChartFormat('#000000', 0, -1, 0, '#FFFFFF', 6)
 		},
 		plot: {
-			format: new ChartFormat('#CCCCCC', 0, -1, 0, '#FFFFFF'),
+			format: new ChartFormat('#CCCCCC', 0, -1, 0, '#FFFFFF')
 		},
 		legend: {
-			format: new ChartFormat('#CCCCCC', 1, -1, 1, '#FFFFFF'),
+			format: new ChartFormat('#CCCCCC', 1, -1, 1, '#FFFFFF')
 		},
 		axis: {
-			format: new ChartFormat('#CCCCCC', 1, -1),
+			format: new ChartFormat('#CCCCCC', 1, -1)
 		},
 		axisgrid: {
-			format: new ChartFormat('#CCCCCC', 1, -1),
+			format: new ChartFormat('#CCCCCC', 1, -1)
 		},
 		axisTitle: {
-			format: new ChartFormat('#000000', 0, -1, 0, '#FFFFFF', 9),
+			format: new ChartFormat('#000000', 0, -1, 0, '#FFFFFF', 9)
 		},
 		series: {
 			format: new ChartFormat(),
@@ -122,28 +122,28 @@ const templates = {
 			color: '#FFFFFF'
 		},
 		chart: {
-			format: new ChartFormat('#FFFFFF', 0, -1, 0, '#000000'),
+			format: new ChartFormat('#FFFFFF', 0, -1, 0, '#000000')
 		},
 		title: {
-			format: new ChartFormat('#FFFFFF', 0, -1, 0, '#000000', 12),
+			format: new ChartFormat('#FFFFFF', 0, -1, 0, '#000000', 12)
 		},
 		serieslabel: {
-			format: new ChartFormat('#FFFFFF', 0, -1, 0, '#000000', 6),
+			format: new ChartFormat('#FFFFFF', 0, -1, 0, '#000000', 6)
 		},
 		plot: {
-			format: new ChartFormat('#FFFFFF', 0, -1, 0, '#000000'),
+			format: new ChartFormat('#FFFFFF', 0, -1, 0, '#000000')
 		},
 		legend: {
-			format: new ChartFormat('#FFFFFF', 1, -1, 0, '#000000'),
+			format: new ChartFormat('#FFFFFF', 1, -1, 0, '#000000')
 		},
 		axis: {
-			format: new ChartFormat('#FFFFFF', 1, -1),
+			format: new ChartFormat('#FFFFFF', 1, -1)
 		},
 		axisgrid: {
-			format: new ChartFormat('#FFFFFF', 1, -1),
+			format: new ChartFormat('#FFFFFF', 1, -1)
 		},
 		axisTitle: {
-			format: new ChartFormat('#FFFFFF', 0, 0, 1, '#000000', 9),
+			format: new ChartFormat('#FFFFFF', 0, 0, 1, '#000000', 9)
 		},
 		series: {
 			format: new ChartFormat(),
@@ -205,7 +205,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		this.yAxes = [new ChartAxis('YAxis1', 'linear', 'left', 1000)];
 		this.plot = {
 			position: new ChartRect(),
-			format: new ChartFormat(),
+			format: new ChartFormat()
 		};
 		this.legend = {
 			formula: new Expression('Legend', ''),
@@ -225,8 +225,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 		const term = expr.getTerm();
 		if (term) {
-			const {operand} = term;
-			if ((operand instanceof SheetReference) && operand._range) {
+			const { operand } = term;
+			if (operand instanceof SheetReference && operand._range) {
 				const range = operand._range.copy();
 				range.shiftFromSheet();
 				const cell = range._worksheet.getDataProvider().getRC(range._x1, range._y1);
@@ -287,8 +287,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			const labelAngle = format.fontRotation === undefined ? 0 : MathUtils.toRadians(-format.fontRotation);
 			if (labelAngle) {
 				const width = result.width;
-				result.width = Math.abs(Math.sin(labelAngle) * result.height) + Math.abs(
-					Math.cos(labelAngle) * result.width);
+				result.width =
+					Math.abs(Math.sin(labelAngle) * result.height) + Math.abs(Math.cos(labelAngle) * result.width);
 				result.height = Math.abs(Math.sin(labelAngle) * width) + Math.abs(Math.cos(labelAngle) * result.height);
 			}
 		}
@@ -312,7 +312,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			height: 200,
 			last: 0,
 			lastPos: 0,
-			firstPos: 0,
+			firstPos: 0
 		};
 
 		axis.textSize = {
@@ -357,8 +357,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (axis.type === 'category' && refLabel) {
 				text = this.getLabel(refLabel, axis, Math.floor(current.value));
 			} else {
-				text = this.formatNumber(current.value,
-					axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+				text = this.formatNumber(
+					current.value,
+					axis.format && axis.format.numberFormat ? axis.format : axis.scale.format
+				);
 			}
 
 			const size = this.measureText(graphics, cs, axis.format, 'axis', text);
@@ -448,25 +450,37 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		this.xAxes.forEach((axis) => {
 			if (axis.scale.maxZoom !== undefined) {
 				this.plot.position.top = Math.max(this.plot.position.top, 800);
-				this.actions = [{
-					position: new ChartRect(size.x - 2200, 0, size.x, 800),
-					action: this.resetZoom,
-					title: 'Reset Zoom'
-				}];
+				this.actions = [
+					{
+						position: new ChartRect(size.x - 2200, 0, size.x, 800),
+						action: this.resetZoom,
+						title: 'Reset Zoom'
+					}
+				];
 			}
 		});
 
 		const legend = this.getLegend();
 		if (legend.length && this.legend.visible) {
 			const margin = 200;
-			this.setFont(JSG.graphics, this.legend.format, 'legend', 'middle',
-				TextFormatAttributes.TextAlignment.CENTER);
+			this.setFont(
+				JSG.graphics,
+				this.legend.format,
+				'legend',
+				'middle',
+				TextFormatAttributes.TextAlignment.CENTER
+			);
 			let legendWidth = 0;
-			let textSize;
+			let textSize = {};
 			let extra = margin * 4;
 			legend.forEach((entry) => {
 				textSize = this.measureText(JSG.graphics, cs, this.legend.format, 'legend', String(entry.name));
-				if (this.legend.align === 'left' || this.legend.align === 'middleleft' || this.legend.align === 'middleright' || this.legend.align === 'right') {
+				if (
+					this.legend.align === 'left' ||
+					this.legend.align === 'middleleft' ||
+					this.legend.align === 'middleright' ||
+					this.legend.align === 'right'
+				) {
 					legendWidth = Math.max(textSize.width, legendWidth);
 				} else {
 					legendWidth += textSize.width;
@@ -475,7 +489,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					extra = margin * 6;
 				}
 			});
-			const legendHeight = (legend.length - 1) * (textSize.height) * 1.3 + textSize.height + margin * 2;
+			const legendHeight = (legend.length - 1) * textSize.height * 1.3 + textSize.height + margin * 2;
 			switch (this.legend.align) {
 			case 'left':
 			case 'middleleft':
@@ -484,7 +498,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				this.legend.position.right = this.plot.position.left + legendWidth;
 				this.legend.position.top = this.plot.position.top;
 				this.legend.position.bottom = this.plot.position.top + legendHeight;
-				this.plot.position.left += (legendWidth + margin);
+				this.plot.position.left += legendWidth + margin;
 				break;
 			case 'top':
 				legendWidth += extra * legend.length;
@@ -497,7 +511,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			case 'right':
 			case 'middleright':
 				legendWidth += extra;
-				this.plot.position.right -= (legendWidth + margin);
+				this.plot.position.right -= legendWidth + margin;
 				this.legend.position.left = this.plot.position.right + margin;
 				this.legend.position.right = size.x - this.chart.margins.right;
 				this.legend.position.top = this.plot.position.top;
@@ -639,82 +653,114 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		// ensure for axis first and last label space
 		this.xAxes.forEach((axis) => {
 			if (axis.visible) {
-				const labelAngle = axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(
-					-axis.format.fontRotation);
+				const labelAngle =
+					axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-axis.format.fontRotation);
 				switch (axis.align) {
 				case 'left': {
 					let plot = this.plot.position.bottom - axis.textSize.lastPos * this.plot.position.height;
 					if (Math.abs(labelAngle) === Math.PI_2) {
-						this.plot.position.top = Math.max(this.plot.position.top,
-							axis.textSize.lastHeight / 2 - (plot - this.plot.position.top) + 150);
+						this.plot.position.top = Math.max(
+							this.plot.position.top,
+							axis.textSize.lastHeight / 2 - (plot - this.plot.position.top) + 150
+						);
 					} else if (labelAngle < 0) {
-						this.plot.position.top = Math.max(this.plot.position.top,
-							axis.textSize.lastHeight - (plot - this.plot.position.top) + 150);
+						this.plot.position.top = Math.max(
+							this.plot.position.top,
+							axis.textSize.lastHeight - (plot - this.plot.position.top) + 150
+						);
 					}
 					plot = this.plot.position.bottom - axis.textSize.firstPos * this.plot.position.height;
 					if (Math.abs(labelAngle) === Math.PI_2) {
-						this.plot.position.bottom = Math.min(this.plot.position.bottom,
-							size.y - (plot + axis.textSize.lastHeight / 2 - this.plot.position.bottom));
+						this.plot.position.bottom = Math.min(
+							this.plot.position.bottom,
+							size.y - (plot + axis.textSize.lastHeight / 2 - this.plot.position.bottom)
+						);
 					} else if (labelAngle > 0) {
-						this.plot.position.bottom = Math.min(this.plot.position.bottom,
-							size.y - (plot + axis.textSize.lastHeight - this.plot.position.bottom));
+						this.plot.position.bottom = Math.min(
+							this.plot.position.bottom,
+							size.y - (plot + axis.textSize.lastHeight - this.plot.position.bottom)
+						);
 					}
 					break;
 				}
 				case 'right': {
 					let plot = this.plot.position.bottom - axis.textSize.lastPos * this.plot.position.height;
 					if (Math.abs(labelAngle) === Math.PI_2) {
-						this.plot.position.top = Math.max(this.plot.position.top,
-							axis.textSize.lastHeight / 2 - (plot - this.plot.position.top) + 150);
+						this.plot.position.top = Math.max(
+							this.plot.position.top,
+							axis.textSize.lastHeight / 2 - (plot - this.plot.position.top) + 150
+						);
 					} else if (labelAngle > 0) {
-						this.plot.position.top = Math.max(this.plot.position.top,
-							axis.textSize.lastHeight - (plot - this.plot.position.top) + 150);
+						this.plot.position.top = Math.max(
+							this.plot.position.top,
+							axis.textSize.lastHeight - (plot - this.plot.position.top) + 150
+						);
 					}
 					plot = this.plot.position.bottom - axis.textSize.firstPos * this.plot.position.height;
 					if (Math.abs(labelAngle) === Math.PI_2) {
-						this.plot.position.bottom = Math.min(this.plot.position.bottom,
-							size.y - (plot + axis.textSize.lastHeight / 2 - this.plot.position.bottom));
+						this.plot.position.bottom = Math.min(
+							this.plot.position.bottom,
+							size.y - (plot + axis.textSize.lastHeight / 2 - this.plot.position.bottom)
+						);
 					} else if (labelAngle < 0) {
-						this.plot.position.bottom = Math.min(this.plot.position.bottom,
-							size.y - (plot + axis.textSize.lastHeight - this.plot.position.bottom));
+						this.plot.position.bottom = Math.min(
+							this.plot.position.bottom,
+							size.y - (plot + axis.textSize.lastHeight - this.plot.position.bottom)
+						);
 					}
 					break;
 				}
 				case 'top': {
 					let plot = axis.textSize.firstPos * this.plot.position.width;
 					if (labelAngle === 0) {
-						this.plot.position.left = Math.max(this.plot.position.left,
-							axis.textSize.firstWidth / 2 - plot);
+						this.plot.position.left = Math.max(
+							this.plot.position.left,
+							axis.textSize.firstWidth / 2 - plot
+						);
 					} else if (labelAngle < 0) {
-						this.plot.position.left = Math.max(this.plot.position.left,
-							axis.textSize.firstWidth - plot + 150);
+						this.plot.position.left = Math.max(
+							this.plot.position.left,
+							axis.textSize.firstWidth - plot + 150
+						);
 					}
 					plot = this.plot.position.left + axis.textSize.lastPos * this.plot.position.width;
 					if (labelAngle === 0) {
-						this.plot.position.right = Math.min(this.plot.position.right,
-							size.x - (plot + axis.textSize.lastWidth / 2 - this.plot.position.right));
+						this.plot.position.right = Math.min(
+							this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth / 2 - this.plot.position.right)
+						);
 					} else if (labelAngle > 0) {
-						this.plot.position.right = Math.min(this.plot.position.right,
-							size.x - (plot + axis.textSize.lastWidth - this.plot.position.right) - 150);
+						this.plot.position.right = Math.min(
+							this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth - this.plot.position.right) - 150
+						);
 					}
 					break;
 				}
 				case 'bottom': {
 					let plot = axis.textSize.firstPos * this.plot.position.width;
 					if (labelAngle === 0) {
-						this.plot.position.left = Math.max(this.plot.position.left,
-							axis.textSize.firstWidth / 2 - plot);
+						this.plot.position.left = Math.max(
+							this.plot.position.left,
+							axis.textSize.firstWidth / 2 - plot
+						);
 					} else if (labelAngle > 0) {
-						this.plot.position.left = Math.max(this.plot.position.left,
-							axis.textSize.firstWidth - plot + 150);
+						this.plot.position.left = Math.max(
+							this.plot.position.left,
+							axis.textSize.firstWidth - plot + 150
+						);
 					}
 					plot = this.plot.position.left + axis.textSize.lastPos * this.plot.position.width;
 					if (labelAngle === 0) {
-						this.plot.position.right = Math.min(this.plot.position.right,
-							size.x - (plot + axis.textSize.lastWidth / 2 - this.plot.position.right));
+						this.plot.position.right = Math.min(
+							this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth / 2 - this.plot.position.right)
+						);
 					} else if (labelAngle < 0) {
-						this.plot.position.right = Math.min(this.plot.position.right,
-							size.x - (plot + axis.textSize.lastWidth - this.plot.position.right) - 150);
+						this.plot.position.right = Math.min(
+							this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth - this.plot.position.right) - 150
+						);
 					}
 					break;
 				}
@@ -725,45 +771,61 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		});
 
 		this.yAxes.forEach((axis) => {
-			const labelAngle = axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(
-				-axis.format.fontRotation);
+			const labelAngle =
+				axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-axis.format.fontRotation);
 			if (axis.visible) {
 				switch (axis.align) {
 				case 'top': {
 					let plot = axis.textSize.firstPos * this.plot.position.width;
 					if (labelAngle === 0) {
-						this.plot.position.left = Math.max(this.plot.position.left,
-							axis.textSize.firstWidth / 2 - plot);
+						this.plot.position.left = Math.max(
+							this.plot.position.left,
+							axis.textSize.firstWidth / 2 - plot
+						);
 					} else if (labelAngle < 0) {
-						this.plot.position.left = Math.max(this.plot.position.left,
-							axis.textSize.firstWidth - plot + 150);
+						this.plot.position.left = Math.max(
+							this.plot.position.left,
+							axis.textSize.firstWidth - plot + 150
+						);
 					}
 					plot = this.plot.position.left + axis.textSize.lastPos * this.plot.position.width;
 					if (labelAngle === 0) {
-						this.plot.position.right = Math.min(this.plot.position.right,
-							size.x - (plot + axis.textSize.lastWidth / 2 - this.plot.position.right));
+						this.plot.position.right = Math.min(
+							this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth / 2 - this.plot.position.right)
+						);
 					} else if (labelAngle > 0) {
-						this.plot.position.right = Math.min(this.plot.position.right,
-							size.x - (plot + axis.textSize.lastWidth - this.plot.position.right) - 150);
+						this.plot.position.right = Math.min(
+							this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth - this.plot.position.right) - 150
+						);
 					}
 					break;
 				}
 				case 'bottom': {
 					let plot = axis.textSize.firstPos * this.plot.position.width;
 					if (labelAngle === 0) {
-						this.plot.position.left = Math.max(this.plot.position.left,
-							axis.textSize.firstWidth / 2 - plot);
+						this.plot.position.left = Math.max(
+							this.plot.position.left,
+							axis.textSize.firstWidth / 2 - plot
+						);
 					} else if (labelAngle > 0) {
-						this.plot.position.left = Math.max(this.plot.position.left,
-							axis.textSize.firstWidth - plot + 150);
+						this.plot.position.left = Math.max(
+							this.plot.position.left,
+							axis.textSize.firstWidth - plot + 150
+						);
 					}
 					plot = this.plot.position.left + axis.textSize.lastPos * this.plot.position.width;
 					if (labelAngle === 0) {
-						this.plot.position.right = Math.min(this.plot.position.right,
-							size.x - (plot + axis.textSize.lastWidth / 2 - this.plot.position.right));
+						this.plot.position.right = Math.min(
+							this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth / 2 - this.plot.position.right)
+						);
 					} else if (labelAngle < 0) {
-						this.plot.position.right = Math.min(this.plot.position.right,
-							size.x - (plot + axis.textSize.lastWidth - this.plot.position.right) - 150);
+						this.plot.position.right = Math.min(
+							this.plot.position.right,
+							size.x - (plot + axis.textSize.lastWidth - this.plot.position.right) - 150
+						);
 					}
 					break;
 				}
@@ -776,7 +838,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 		});
 
-		let {left, top, right, bottom} = this.plot.position;
+		let { left, top, right, bottom } = this.plot.position;
 
 		this.xAxes.forEach((axis) => {
 			if (axis.position) {
@@ -789,8 +851,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					if (axis.title.visible) {
 						axis.title.position.left = axis.position.left - axis.title.size.height;
 						axis.title.position.right = axis.position.left;
-						axis.title.position.top = axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
-						axis.title.position.bottom = axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
+						axis.title.position.top =
+							axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
+						axis.title.position.bottom =
+							axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
 						left -= axis.title.size.height;
 					} else {
 						axis.title.position.reset();
@@ -804,8 +868,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					if (axis.title.visible) {
 						axis.title.position.left = axis.position.right;
 						axis.title.position.right = axis.position.right + axis.title.size.height;
-						axis.title.position.top = axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
-						axis.title.position.bottom = axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
+						axis.title.position.top =
+							axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
+						axis.title.position.bottom =
+							axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
 						right += axis.title.size.height;
 					} else {
 						axis.title.position.reset();
@@ -819,8 +885,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					if (axis.title.visible) {
 						axis.title.position.top = axis.position.top - axis.title.size.height;
 						axis.title.position.bottom = axis.position.top;
-						axis.title.position.left = axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
-						axis.title.position.right = axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
+						axis.title.position.left =
+							axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
+						axis.title.position.right =
+							axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
 						top -= axis.title.size.height;
 					} else {
 						axis.title.position.reset();
@@ -834,8 +902,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					if (axis.title.visible) {
 						axis.title.position.top = axis.position.bottom;
 						axis.title.position.bottom = axis.position.bottom + axis.title.size.height;
-						axis.title.position.left = axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
-						axis.title.position.right = axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
+						axis.title.position.left =
+							axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
+						axis.title.position.right =
+							axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
 						bottom += axis.title.size.height;
 					} else {
 						axis.title.position.reset();
@@ -859,8 +929,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					if (axis.title.visible) {
 						axis.title.position.left = axis.position.left - axis.title.size.height;
 						axis.title.position.right = axis.position.left;
-						axis.title.position.top = axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
-						axis.title.position.bottom = axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
+						axis.title.position.top =
+							axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
+						axis.title.position.bottom =
+							axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
 						left -= axis.title.size.height;
 					} else {
 						axis.title.position.reset();
@@ -874,8 +946,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					if (axis.title.visible) {
 						axis.title.position.left = axis.position.right;
 						axis.title.position.right = axis.position.right + axis.title.size.height;
-						axis.title.position.top = axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
-						axis.title.position.bottom = axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
+						axis.title.position.top =
+							axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
+						axis.title.position.bottom =
+							axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
 						right += axis.title.size.height;
 					} else {
 						axis.title.position.reset();
@@ -889,8 +963,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					if (axis.title.visible) {
 						axis.title.position.top = axis.position.top - axis.title.size.height;
 						axis.title.position.bottom = axis.position.top;
-						axis.title.position.left = axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
-						axis.title.position.right = axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
+						axis.title.position.left =
+							axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
+						axis.title.position.right =
+							axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
 						top -= axis.title.size.height;
 					} else {
 						axis.title.position.reset();
@@ -904,8 +980,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					if (axis.title.visible) {
 						axis.title.position.top = axis.position.bottom;
 						axis.title.position.bottom = axis.position.bottom + axis.title.size.height;
-						axis.title.position.left = axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
-						axis.title.position.right = axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
+						axis.title.position.left =
+							axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
+						axis.title.position.right =
+							axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
 						bottom += axis.title.size.height;
 					} else {
 						axis.title.position.reset();
@@ -944,7 +1022,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		if (serie.dataLabel.separator === '&lf') {
 			text = [];
 		} else {
-			text = ''
+			text = '';
 		}
 		const add = (newText) => {
 			if (serie.dataLabel.separator === '&lf') {
@@ -967,8 +1045,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				add(this.getLabel(ref, axis, Math.floor(value.x)));
 			} else if (Numbers.isNumber(value.x)) {
 				if (serie.dataLabel.format.linkNumberFormat && value.formatX) {
-					add(this.formatNumber(value.x,
-						{numberFormat: value.formatX.numberFormat, localCulture: value.formatX.localCulture}));
+					add(
+						this.formatNumber(value.x, {
+							numberFormat: value.formatX.numberFormat,
+							localCulture: value.formatX.localCulture
+						})
+					);
 				} else if (serie.dataLabel.format && serie.dataLabel.format.numberFormat) {
 					add(this.formatNumber(value.x, serie.dataLabel.format));
 				} else {
@@ -981,8 +1063,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		if (serie.dataLabel.content.y && value.y !== undefined) {
 			if (Numbers.isNumber(value.y)) {
 				if (serie.dataLabel.format.linkNumberFormat && value.formatY) {
-					add(this.formatNumber(value.y,
-						{numberFormat: value.formatY.numberFormat, localCulture: value.formatY.localCulture}));
+					add(
+						this.formatNumber(value.y, {
+							numberFormat: value.formatY.numberFormat,
+							localCulture: value.formatY.localCulture
+						})
+					);
 				} else if (serie.dataLabel.format && serie.dataLabel.format.numberFormat) {
 					add(this.formatNumber(value.y, serie.dataLabel.format));
 				} else {
@@ -1010,11 +1096,11 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 	getParamInfo(term, index) {
 		if (term && term.params && term.params.length > index) {
-			const {operand} = term.params[index];
-			if ((operand instanceof SheetReference) && operand._range) {
+			const { operand } = term.params[index];
+			if (operand instanceof SheetReference && operand._range) {
 				const range = operand._range.copy();
 				range.shiftFromSheet();
-				return {sheet: operand._item, range};
+				return { sheet: operand._item, range };
 			}
 		}
 		return undefined;
@@ -1035,7 +1121,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		return undefined;
 	}
 
-	setParamValues(viewer, expression, values) {
+	setParamValues(viewer, expression, values, sourceItem) {
 		let term = expression.getTerm();
 		if (term === undefined) {
 			return;
@@ -1048,19 +1134,21 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		values.forEach((value) => {
 			const info = this.getParamInfo(term, value.index);
 			if (info) {
-				sheet = info.sheet;
-				const range = info.range.copy();
-				if (value.value === undefined) {
-					if (!selection) {
-						selection = new JSG.Selection(info.sheet);
+				if (this === sourceItem) {
+					sheet = info.sheet;
+					const range = info.range.copy();
+					if (value.value === undefined) {
+						if (!selection) {
+							selection = new JSG.Selection(info.sheet);
+						}
+						selection.add(range);
+					} else {
+						range.shiftToSheet();
+						const cell = {};
+						cell.reference = range.toString();
+						cell.value = value.value;
+						cellData.push(cell);
 					}
-					selection.add(range);
-				} else {
-					range.shiftToSheet();
-					const cell = {};
-					cell.reference = range.toString();
-					cell.value = value.value;
-					cellData.push(cell);
 				}
 			} else if (term && term.params) {
 				for (let i = term.params.length; i < value.index; i += 1) {
@@ -1076,12 +1164,11 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				// term can change
 				term = expression.getTerm();
 			}
-
 		});
 
 		if (sheet) {
 			if (selection) {
-				const cmd = new JSG.DeleteCellContentCommand(sheet, selection.toStringMulti(), "all");
+				const cmd = new JSG.DeleteCellContentCommand(sheet, selection.toStringMulti(), 'all');
 				viewer.getInteractionHandler().execute(cmd);
 			} else if (cellData.length) {
 				const cmd = new JSG.SetCellsCommand(sheet, cellData, false);
@@ -1134,7 +1221,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				xKey: this.getParamValue(ds.getTerm(), 3, 'string'),
 				yKey: this.getParamValue(ds.getTerm(), 4, 'string'),
 				cKey: this.getParamValue(ds.getTerm(), 5, 'string')
-			}
+			};
 		}
 
 		return {
@@ -1166,8 +1253,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		if (expr !== undefined) {
 			const term = expr.getTerm();
 			if (term) {
-				const {operand} = term;
-				if ((operand instanceof SheetReference) && operand._range) {
+				const { operand } = term;
+				if (operand instanceof SheetReference && operand._range) {
 					const range = operand._range.copy();
 					range.shiftFromSheet();
 					for (let i = 0; i < range.getHeight(); i += 1) {
@@ -1212,7 +1299,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	getVisibleSeriesIndex(index) {
 		let cnt = 0;
 
-		for (let i = 0; i < index; i+= 1) {
+		for (let i = 0; i < index; i += 1) {
 			const serie = this.series[i];
 			if (serie.visible) {
 				cnt += 1;
@@ -1241,7 +1328,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (!axis) {
 				return;
 			}
-			const {formula} = axis;
+			const { formula } = axis;
 			const term = formula.getTerm();
 			const result = {
 				min: this.getParamValue(term, 0),
@@ -1256,15 +1343,17 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (result.minZoom !== undefined && this.getAllowZoom(axis)) {
 				result.min = result.minZoom;
 				if (this.chartZoomTimestamp && axis.updateZoom) {
-					result.min += MathUtils.JSDateToExcelDate(new Date(Date.now())) - MathUtils.JSDateToExcelDate(
-						this.chartZoomTimestamp);
+					result.min +=
+						MathUtils.JSDateToExcelDate(new Date(Date.now())) -
+						MathUtils.JSDateToExcelDate(this.chartZoomTimestamp);
 				}
 			}
 			if (result.maxZoom !== undefined && this.getAllowZoom(axis)) {
 				result.max = result.maxZoom;
 				if (this.chartZoomTimestamp && axis.updateZoom) {
-					result.max += MathUtils.JSDateToExcelDate(new Date(Date.now())) - MathUtils.JSDateToExcelDate(
-						this.chartZoomTimestamp);
+					result.max +=
+						MathUtils.JSDateToExcelDate(new Date(Date.now())) -
+						MathUtils.JSDateToExcelDate(this.chartZoomTimestamp);
 				}
 			}
 
@@ -1306,7 +1395,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			return;
 		}
 
-		this.yAxes.forEach(axis => {
+		this.yAxes.forEach((axis) => {
 			axis.categories = [];
 		});
 
@@ -1346,13 +1435,17 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 								neg: 0
 							};
 						}
+						if (axes.x.format.linkNumberFormat && index === 0 && pointIndex === 0 && value.formatX) {
+							axes.x.format.numberFormat = value.formatX.numberFormat;
+							axes.x.format.localCulture = value.formatX.localCulture;
+						}
 						axes.y.categories[pointIndex].values[index] = {
 							x: value.x,
 							y: value.y,
 							c: value.c,
 							axes,
 							serie,
-							seriesIndex: index,
+							seriesIndex: index
 						};
 						pointIndex += 1;
 						valid = true;
@@ -1487,8 +1580,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		const stepDist = axis.type === 'category' ? 1000 : 1500;
 		const stepDistVert = axis.type === 'category' ? 600 : 1500;
 		const size = axis.isVertical() ? axis.position.height : axis.position.width;
-		const labelAngle = axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(
-			-axis.format.fontRotation);
+		const labelAngle =
+			axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-axis.format.fontRotation);
 
 		switch (axis.type) {
 		case 'logarithmic':
@@ -1579,37 +1672,41 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				let step;
 				let format = {
 					localCulture: `time;en`,
-					numberFormat: 'h:mm:ss',
+					numberFormat: 'h:mm:ss'
 				};
 				if (diff > 90) {
 					timeStep = 'year';
 					step = Math.floor(Math.max(1, diff / 300));
 					format = {
 						localCulture: `date;en`,
-						numberFormat: 'dd\\.MM\\.yy',
+						numberFormat: 'dd\\.MM\\.yy'
 					};
-				} else if (diff > 30) {				// from 300 to 450
+				} else if (diff > 30) {
+					// from 300 to 450
 					timeStep = 'quarter';
 					step = 1;
 					format = {
 						localCulture: `date;en`,
-						numberFormat: 'dd\\.MM\\.yy',
+						numberFormat: 'dd\\.MM\\.yy'
 					};
-				} else if (diff > 7) {				// from 70 to 300
+				} else if (diff > 7) {
+					// from 70 to 300
 					timeStep = 'month';
 					step = 1;
 					format = {
 						localCulture: `date;en`,
-						numberFormat: 'dd\\.MM\\.yy',
+						numberFormat: 'dd\\.MM\\.yy'
 					};
-				} else if (diff > 3) {				// from 10 to 70
+				} else if (diff > 3) {
+					// from 10 to 70
 					timeStep = 'week';
 					step = 1;
 					format = {
 						localCulture: `date;en`,
-						numberFormat: 'dd\\.MM\\.yy',
+						numberFormat: 'dd\\.MM\\.yy'
 					};
-				} else if (diff > 0.5) {					// from 1 to 10
+				} else if (diff > 0.5) {
+					// from 1 to 10
 					timeStep = 'day';
 					if (diff < 1) {
 						step = 1;
@@ -1620,7 +1717,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					}
 					format = {
 						localCulture: `date;en`,
-						numberFormat: 'dd\\.MM\\.yy',
+						numberFormat: 'dd\\.MM\\.yy'
 					};
 				} else if (diff > 2700 / 86400) {
 					timeStep = 'hour';
@@ -1669,7 +1766,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					}
 					format = {
 						localCulture: `time;en`,
-						numberFormat: 'h:mm:ss.000',
+						numberFormat: 'h:mm:ss.000'
 					};
 				}
 				input.step = step;
@@ -1691,9 +1788,9 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 			if (axis.isVertical()) {
 				// stepCount = Math.min(15, size / 600);
-				stepCount = Math.min(30, size / (Math.max(600, stepDistVert * Math.abs(Math.sin(labelAngle)))));
+				stepCount = Math.min(30, size / Math.max(600, stepDistVert * Math.abs(Math.sin(labelAngle))));
 			} else {
-				stepCount = Math.min(30, size / (Math.max(600, stepDist * Math.abs(Math.cos(labelAngle)))));
+				stepCount = Math.min(30, size / Math.max(600, stepDist * Math.abs(Math.cos(labelAngle))));
 			}
 
 			stepCount = Math.max(1, stepCount);
@@ -1799,7 +1896,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (this.chart.relative && axis.type === 'linear') {
 				input.format = {
 					localCulture: `percent;en`,
-					numberFormat: '0%',
+					numberFormat: '0%'
 				};
 			}
 
@@ -1812,17 +1909,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		default:
 			break;
 		}
-	}
-
-	getSliceInfo(axes, serie, seriesIndex, index, value) {
-		const neg = axes.y.categories[index].neg;
-		const pos = axes.y.categories[index].pos;
-		const sum = pos - neg;
-		if (sum !== 0 && Numbers.isNumber(sum)) {
-			return value / sum;
-		}
-
-		return 0;
 	}
 
 	getPieInfo(ref, serie, plotRect, index) {
@@ -1845,14 +1931,16 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			let columns = Math.max(1, Math.ceil(plotRect.width / (plotRect.height ? plotRect.height : 1000)));
 			columns = Math.min(columns, seriesCnt);
 			const rows = Math.ceil(seriesCnt / columns);
-			const column = (visibleIndex % columns);
+			const column = visibleIndex % columns;
 			const row = Math.floor(visibleIndex / columns);
 			const hMargin = columns > 1 ? 500 : 0;
 			const vMargin = rows > 1 ? 500 : 0;
-			rect = new ChartRect(plotRect.left + column * plotRect.width / columns + hMargin,
-				plotRect.top + row * plotRect.height / rows + vMargin,
-				plotRect.left + (column + 1) * plotRect.width / columns - hMargin,
-				plotRect.top + (row + 1) * plotRect.height / rows - vMargin);
+			rect = new ChartRect(
+				plotRect.left + (column * plotRect.width) / columns + hMargin,
+				plotRect.top + (row * plotRect.height) / rows + vMargin,
+				plotRect.left + ((column + 1) * plotRect.width) / columns - hMargin,
+				plotRect.top + ((row + 1) * plotRect.height) / rows - vMargin
+			);
 		} else {
 			rect = plotRect.copy();
 		}
@@ -1893,16 +1981,16 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 		let yRadius = yTop + yBottom;
 		yRadius = rect.height / yRadius;
-		let xRadius = Math.abs(Math.sin(this.chart.rotation)) ? yRadius / Math.abs(
-			Math.sin(this.chart.rotation)) : yRadius;
+		let xRadius = Math.abs(Math.sin(this.chart.rotation))
+			? yRadius / Math.abs(Math.sin(this.chart.rotation))
+			: yRadius;
 		const xc = rect.left + rect.width / 2;
 		if (xRadius * 2 > rect.width) {
 			const fact = rect.width / (xRadius * 2);
 			xRadius *= fact;
 			yRadius *= fact;
 		}
-		const yc = rect.top + rect.height / 2 + yTop * yRadius / 2 - yBottom * yRadius / 2;
-
+		const yc = rect.top + rect.height / 2 + (yTop * yRadius) / 2 - (yBottom * yRadius) / 2;
 
 		return {
 			startAngle,
@@ -1923,7 +2011,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 	getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		let height;
-		const margin = (this.chart.stacked || serie.type === 'state') ? 0 : 150;
+		const margin = this.chart.stacked || serie.type === 'state' ? 0 : 150;
 		const seriesCnt = this.getVisibleSeries();
 		const visibleSeriesIndex = this.getVisibleSeriesIndex(seriesIndex);
 
@@ -1940,8 +2028,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		return {
 			margin,
 			height: axes.y.invert ? -height : height,
-			offset: this.chart.stacked ? -barWidth / 2 : -seriesCnt / 2 * barWidth + visibleSeriesIndex * barWidth + margin / 2
-		}
+			offset: this.chart.stacked
+				? -barWidth / 2
+				: (-seriesCnt / 2) * barWidth + visibleSeriesIndex * barWidth + margin / 2
+		};
 	}
 
 	getBarWidth(axes, serie, plotRect) {
@@ -1949,14 +2039,16 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		if (axes.x.type === 'category') {
 			let barWidth;
 			if (serie.type === 'bar') {
-				barWidth = this.scaleToAxis(axes.x, 1, undefined, false) * plotRect.height -
+				barWidth =
+					this.scaleToAxis(axes.x, 1, undefined, false) * plotRect.height -
 					this.scaleToAxis(axes.x, 0, undefined, false) * plotRect.height;
 			} else {
-				barWidth = this.scaleToAxis(axes.x, 1, undefined, false) * plotRect.width -
+				barWidth =
+					this.scaleToAxis(axes.x, 1, undefined, false) * plotRect.width -
 					this.scaleToAxis(axes.x, 0, undefined, false) * plotRect.width;
 			}
 			const fact = serie.type === 'state' ? 1 : 0.7;
-			barWidth = barWidth * fact / (this.chart.stacked ? 1 : seriesCnt);
+			barWidth = (barWidth * fact) / (this.chart.stacked ? 1 : seriesCnt);
 			return Math.abs(barWidth);
 		}
 
@@ -1981,9 +2073,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			const vertical = ref.x.range.getWidth() === 1;
 			if (vertical) {
 				if (index <= ref.x.range._y2 - ref.x.range._y1) {
-					const cell = ref.x.sheet
-						.getDataProvider()
-						.getRC(ref.x.range._x1, ref.x.range._y1 + index);
+					const cell = ref.x.sheet.getDataProvider().getRC(ref.x.range._x1, ref.x.range._y1 + index);
 					if (cell) {
 						label = cell.getValue();
 					}
@@ -1991,22 +2081,26 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				if (axis.format.linkNumberFormat) {
 					const tf = ref.x.sheet.getTextFormatAtRC(ref.x.range._x1, ref.x.range._y1 + index);
 					if (tf) {
-						axis.format.localCulture = tf.getLocalCulture().getValue().toString();
-						axis.format.numberFormat = tf.getNumberFormat().getValue()
+						axis.format.localCulture = tf
+							.getLocalCulture()
+							.getValue()
+							.toString();
+						axis.format.numberFormat = tf.getNumberFormat().getValue();
 					}
 				}
 			} else if (index <= ref.x.range._x2 - ref.x.range._x1) {
-				const cell = ref.x.sheet
-					.getDataProvider()
-					.getRC(ref.x.range._x1 + index, ref.x.range._y1);
+				const cell = ref.x.sheet.getDataProvider().getRC(ref.x.range._x1 + index, ref.x.range._y1);
 				if (cell) {
 					label = cell.getValue();
 				}
 				if (axis.format.linkNumberFormat) {
 					const tf = ref.x.sheet.getTextFormatAtRC(ref.x.range._x1 + index, ref.x.range._y1);
 					if (tf) {
-						axis.format.localCulture = tf.getLocalCulture().getValue().toString();
-						axis.format.numberFormat = tf.getNumberFormat().getValue()
+						axis.format.localCulture = tf
+							.getLocalCulture()
+							.getValue()
+							.toString();
+						axis.format.numberFormat = tf.getNumberFormat().getValue();
 					}
 				}
 			}
@@ -2017,10 +2111,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		}
 
 		if (axis && Numbers.isNumber(label)) {
-			label = this.formatNumber(
-				label,
-				axis.format && axis.format.numberFormat ? axis.format : axis.scale.format
-			);
+			label = this.formatNumber(label, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
 		}
 
 		return label;
@@ -2039,30 +2130,32 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		const vertical = range.getWidth() === 1;
 		if (vertical) {
 			if (index <= range._y2 - range._y1) {
-				const cell = sheet
-					.getDataProvider()
-					.getRC(range._x1, range._y1 + index);
+				const cell = sheet.getDataProvider().getRC(range._x1, range._y1 + index);
 				if (cell) {
 					value = cell.getValue();
 				}
 				const tf = sheet.getTextFormatAtRC(range._x1, range._y1 + index);
 				if (tf) {
-					format.localCulture = tf.getLocalCulture().getValue().toString();
-					format.numberFormat = tf.getNumberFormat().getValue()
+					format.localCulture = tf
+						.getLocalCulture()
+						.getValue()
+						.toString();
+					format.numberFormat = tf.getNumberFormat().getValue();
 				}
 				return this.validate(value, allowString);
 			}
 		} else if (index <= range._x2 - range._x1) {
-			const cell = sheet
-				.getDataProvider()
-				.getRC(range._x1 + index, range._y1);
+			const cell = sheet.getDataProvider().getRC(range._x1 + index, range._y1);
 			if (cell) {
 				value = cell.getValue();
 			}
 			const tf = sheet.getTextFormatAtRC(range._x1 + index, range._y1);
 			if (tf) {
-				format.localCulture = tf.getLocalCulture().getValue().toString();
-				format.numberFormat = tf.getNumberFormat().getValue()
+				format.localCulture = tf
+					.getLocalCulture()
+					.getValue()
+					.toString();
+				format.numberFormat = tf.getNumberFormat().getValue();
 			}
 			return this.validate(value, allowString);
 		}
@@ -2196,8 +2289,9 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			value = (value - axis.scale.min) / (axis.scale.max - axis.scale.min);
 			break;
 		case 'logarithmic':
-			value = (Math.log10(value) - Math.log10(axis.scale.min)) / (Math.log10(axis.scale.max) - Math.log10(
-				axis.scale.min));
+			value =
+				(Math.log10(value) - Math.log10(axis.scale.min)) /
+				(Math.log10(axis.scale.max) - Math.log10(axis.scale.min));
 			break;
 		default:
 			value = (value - axis.scale.min) / (axis.scale.max - axis.scale.min);
@@ -2238,15 +2332,24 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 		if (axes.x.align === 'bottom' || axes.x.align === 'top') {
 			return {
-				x: axes.x.scale.min + (x / (this.plot.position.right - this.plot.position.left)) * (axes.x.scale.max - axes.x.scale.min) - (axes.x.type === 'category' ? 0.5 : 0),
-				y: axes.y.scale.min + (y / (this.plot.position.bottom - this.plot.position.top)) * (axes.y.scale.max - axes.y.scale.min)
+				x:
+					axes.x.scale.min +
+					(x / (this.plot.position.right - this.plot.position.left)) * (axes.x.scale.max - axes.x.scale.min) -
+					(axes.x.type === 'category' ? 0.5 : 0),
+				y:
+					axes.y.scale.min +
+					(y / (this.plot.position.bottom - this.plot.position.top)) * (axes.y.scale.max - axes.y.scale.min)
 			};
-
 		}
 
 		return {
-			x: axes.x.scale.min + (y / (this.plot.position.bottom - this.plot.position.top)) * (axes.x.scale.max - axes.x.scale.min) - (axes.x.type === 'category' ? 0.5 : 0),
-			y: axes.y.scale.min + (x / (this.plot.position.right - this.plot.position.left)) * (axes.y.scale.max - axes.y.scale.min)
+			x:
+				axes.x.scale.min +
+				(y / (this.plot.position.bottom - this.plot.position.top)) * (axes.x.scale.max - axes.x.scale.min) -
+				(axes.x.type === 'category' ? 0.5 : 0),
+			y:
+				axes.y.scale.min +
+				(x / (this.plot.position.right - this.plot.position.left)) * (axes.y.scale.max - axes.y.scale.min)
 		};
 	}
 
@@ -2517,9 +2620,20 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 		}
 		return point;
-	};
+	}
 
-	getEllipseSegmentPoints(xc, yc, xInnerRadius, yInnerRadius, xOuterRadius, yOuterRadius, rotation, startAngle, endAngle, count) {
+	getEllipseSegmentPoints(
+		xc,
+		yc,
+		xInnerRadius,
+		yInnerRadius,
+		xOuterRadius,
+		yOuterRadius,
+		rotation,
+		startAngle,
+		endAngle,
+		count
+	) {
 		const step = (endAngle - startAngle) / count;
 		const points = [];
 
@@ -2558,12 +2672,21 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 		while (this.getValue(ref, index, value)) {
 			if (value.x !== undefined && value.y !== undefined) {
-				const angle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
+				const angle = (Math.abs(value.y) / pieInfo.sum) * (pieInfo.endAngle - pieInfo.startAngle);
 				switch (serie.type) {
 				case 'doughnut': {
-					points = this.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, pieInfo.xInnerRadius,
+					points = this.getEllipseSegmentPoints(
+						pieInfo.xc,
+						pieInfo.yc,
+						pieInfo.xInnerRadius,
 						pieInfo.yInnerRadius,
-						pieInfo.xOuterRadius, pieInfo.yOuterRadius, 0, currentAngle, currentAngle + angle, 36);
+						pieInfo.xOuterRadius,
+						pieInfo.yOuterRadius,
+						0,
+						currentAngle,
+						currentAngle + angle,
+						36
+					);
 					if (MathUtils.isPointInPolygon(points, pt)) {
 						value.series = serie;
 						value.index = seriesIndex;
@@ -2581,8 +2704,18 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					break;
 				}
 				case 'pie':
-					points = this.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, 0, 0,
-						pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle, currentAngle + angle, 36);
+					points = this.getEllipseSegmentPoints(
+						pieInfo.xc,
+						pieInfo.yc,
+						0,
+						0,
+						pieInfo.xRadius,
+						pieInfo.yRadius,
+						0,
+						currentAngle,
+						currentAngle + angle,
+						36
+					);
 					if (MathUtils.isPointInPolygon(points, pt)) {
 						value.series = serie;
 						value.index = seriesIndex;
@@ -2637,7 +2770,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		}
 		return pt;
 	}
-
 
 	isSeriesHitCartesian(serie, ref, index, plotRect, pt, dataPoints) {
 		if (!ref) {
@@ -2695,12 +2827,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			case 'state':
 				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
 				if (this.chart.period) {
-					const ptNext = {x: 0, y: 0};
+					const ptNext = { x: 0, y: 0 };
 					this.getPlotPoint(axes, ref, info, value, pointIndex, 1, ptNext);
 					dataRect.set(
 						plotRect.left + x * plotRect.width + barInfo.offset,
 						plotRect.bottom - y * plotRect.height,
-						plotRect.left + (ptNext.x * plotRect.width) + barInfo.offset + barWidth - barInfo.margin,
+						plotRect.left + ptNext.x * plotRect.width + barInfo.offset + barWidth - barInfo.margin,
 						plotRect.bottom - y * plotRect.height - barInfo.height * plotRect.height
 					);
 				} else {
@@ -2779,14 +2911,14 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		return false;
 	}
 
-	isSeriesLabelHit(serie, ref, index, plotRect, pt, dataPoints) {
+	isSeriesLabelHit(serie, ref, index, plotRect, pt) {
 		if (!ref || !JSG.graphics || !serie.dataLabel.visible) {
 			return false;
 		}
 
 		const axes = this.getAxes(serie);
 		let pointIndex = 0;
-		const ptValue = {x: 0, y: 0};
+		const ptValue = { x: 0, y: 0 };
 		const barWidth = this.getBarWidth(axes, serie, plotRect);
 		const legendData = this.getLegend();
 		const info = {
@@ -2812,12 +2944,19 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			pieInfo,
 			currentAngle: pieInfo ? pieInfo.startAngle : 0
 		};
-		const labelAngle = serie.dataLabel.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(
-			-serie.dataLabel.format.fontRotation);
+		const labelAngle =
+			serie.dataLabel.format.fontRotation === undefined
+				? 0
+				: JSG.MathUtils.toRadians(-serie.dataLabel.format.fontRotation);
 		let ptCopy;
 
-		this.setFont(JSG.graphics, serie.dataLabel.format, 'serieslabel', 'middle',
-			TextFormatAttributes.TextAlignment.CENTER);
+		this.setFont(
+			JSG.graphics,
+			serie.dataLabel.format,
+			'serieslabel',
+			'middle',
+			TextFormatAttributes.TextAlignment.CENTER
+		);
 
 		while (this.getValue(ref, pointIndex, value)) {
 			info.index = pointIndex;
@@ -2852,7 +2991,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			// 	iRadius = (int)(dOuterCircle / dMax * dSize);
 			// } else {
 			const maxArea = radiusMax * radiusMax * Math.PI;
-			const objectArea = value / axis.cMaxData * maxArea;
+			const objectArea = (value / axis.cMaxData) * maxArea;
 			return Math.sqrt(objectArea / Math.PI);
 			// }
 		}
@@ -2870,38 +3009,50 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					width: 0,
 					height: 0
 				};
-				label.forEach(txt => {
-					const textS = this.measureText(params.graphics, params.graphics.getCoordinateSystem(),
+				label.forEach((txt) => {
+					const textS = this.measureText(
+						params.graphics,
+						params.graphics.getCoordinateSystem(),
 						params.serie.dataLabel.format,
-						'serieslabel', txt, true);
+						'serieslabel',
+						txt,
+						true
+					);
 					textSize.width = Math.max(textS.width, textSize.width);
 					textSize.height += textS.height;
 				});
 				textSize.height += (label.length - 1) * 50;
 			} else {
-				textSize = this.measureText(params.graphics, params.graphics.getCoordinateSystem(),
+				textSize = this.measureText(
+					params.graphics,
+					params.graphics.getCoordinateSystem(),
 					params.serie.dataLabel.format,
-					'serieslabel', label, true);
+					'serieslabel',
+					label,
+					true
+				);
 			}
 			textSize.height += margin;
 			textSize.width += margin;
 			textSize.widthRot = textSize.width;
 			textSize.heightRot = textSize.height;
-			const labelAngle = params.serie.dataLabel.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(
-				-params.serie.dataLabel.format.fontRotation);
+			const labelAngle =
+				params.serie.dataLabel.format.fontRotation === undefined
+					? 0
+					: JSG.MathUtils.toRadians(-params.serie.dataLabel.format.fontRotation);
 			if (labelAngle) {
-				textSize.widthRot = Math.abs(Math.sin(labelAngle) * textSize.height) + Math.abs(
-					Math.cos(labelAngle) * textSize.width);
-				textSize.heightRot = Math.abs(Math.sin(labelAngle) * textSize.width) + Math.abs(
-					Math.cos(labelAngle) * textSize.height);
+				textSize.widthRot =
+					Math.abs(Math.sin(labelAngle) * textSize.height) + Math.abs(Math.cos(labelAngle) * textSize.width);
+				textSize.heightRot =
+					Math.abs(Math.sin(labelAngle) * textSize.width) + Math.abs(Math.cos(labelAngle) * textSize.height);
 			}
 
 			return textSize;
 		};
 
 		if (this.isCircular()) {
-			const angle = Math.abs(
-				value.y) / params.pieInfo.sum * (params.pieInfo.endAngle - params.pieInfo.startAngle);
+			const angle =
+				(Math.abs(value.y) / params.pieInfo.sum) * (params.pieInfo.endAngle - params.pieInfo.startAngle);
 			const textAngle = params.currentAngle + angle / 2;
 			let xInnerRadius;
 			let yInnerRadius;
@@ -2954,23 +3105,36 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				switch (params.serie.dataLabel.position) {
 				case 'beforestart':
 				case 'start':
-					labelRect.set(labelRect.left + xOff - textSize.width / 2,
+					labelRect.set(
+						labelRect.left + xOff - textSize.width / 2,
 						labelRect.top + yOff - textSize.height / 2,
-						labelRect.right + xOff + textSize.width / 2, labelRect.bottom + yOff + textSize.height / 2);
+						labelRect.right + xOff + textSize.width / 2,
+						labelRect.bottom + yOff + textSize.height / 2
+					);
 					break;
 				case 'center':
-					labelRect.set(labelRect.left - textSize.width / 2, labelRect.top - textSize.height / 2,
-						labelRect.right + textSize.width / 2, labelRect.bottom + textSize.height / 2);
+					labelRect.set(
+						labelRect.left - textSize.width / 2,
+						labelRect.top - textSize.height / 2,
+						labelRect.right + textSize.width / 2,
+						labelRect.bottom + textSize.height / 2
+					);
 					break;
 				case 'end':
-					labelRect.set(labelRect.left - xOff - textSize.width / 2,
+					labelRect.set(
+						labelRect.left - xOff - textSize.width / 2,
 						labelRect.top - yOff - textSize.height / 2,
-						labelRect.right - xOff + textSize.width / 2, labelRect.bottom - yOff + textSize.height / 2);
+						labelRect.right - xOff + textSize.width / 2,
+						labelRect.bottom - yOff + textSize.height / 2
+					);
 					break;
 				case 'behindend':
-					labelRect.set(labelRect.left + xOff - textSize.width / 2,
+					labelRect.set(
+						labelRect.left + xOff - textSize.width / 2,
 						labelRect.top + yOff - textSize.height / 2,
-						labelRect.right + xOff + textSize.width / 2, labelRect.bottom + yOff + textSize.height / 2);
+						labelRect.right + xOff + textSize.width / 2,
+						labelRect.bottom + yOff + textSize.height / 2
+					);
 					break;
 				default:
 					break;
@@ -2990,16 +3154,36 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 			case 'column':
 			case 'area':
-				barInfo = this.getBarInfo(params.axes, params.serie, params.seriesIndex, index, value.y,
-					params.barWidth);
-				labelRect.set(pt.x + barInfo.offset, pt.y, pt.x + barInfo.offset + params.barWidth - barInfo.margin,
-					pt.y - barInfo.height * params.plotRect.height);
+				barInfo = this.getBarInfo(
+					params.axes,
+					params.serie,
+					params.seriesIndex,
+					index,
+					value.y,
+					params.barWidth
+				);
+				labelRect.set(
+					pt.x + barInfo.offset,
+					pt.y,
+					pt.x + barInfo.offset + params.barWidth - barInfo.margin,
+					pt.y - barInfo.height * params.plotRect.height
+				);
 				break;
 			case 'bar':
-				barInfo = this.getBarInfo(params.axes, params.serie, params.seriesIndex, index, value.y,
-					params.barWidth);
-				labelRect.set(pt.x + barInfo.height * params.plotRect.width, pt.y + barInfo.offset, pt.x,
-					pt.y + barInfo.offset + params.barWidth - barInfo.margin);
+				barInfo = this.getBarInfo(
+					params.axes,
+					params.serie,
+					params.seriesIndex,
+					index,
+					value.y,
+					params.barWidth
+				);
+				labelRect.set(
+					pt.x + barInfo.height * params.plotRect.width,
+					pt.y + barInfo.offset,
+					pt.x,
+					pt.y + barInfo.offset + params.barWidth - barInfo.margin
+				);
 				break;
 			default:
 				return undefined;
@@ -3013,20 +3197,36 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					if (params.serie.type === 'profile' || params.serie.type === 'bar') {
 						offset = (textSize.widthRot - textSize.width) / 2;
 						if (params.axes.y.invert) {
-							labelRect.set(labelRect.left + textSize.width + offset, center.y - textSize.height / 2,
-								labelRect.left + offset, center.y + textSize.height / 2);
+							labelRect.set(
+								labelRect.left + textSize.width + offset,
+								center.y - textSize.height / 2,
+								labelRect.left + offset,
+								center.y + textSize.height / 2
+							);
 						} else {
-							labelRect.set(labelRect.left - textSize.width - offset, center.y - textSize.height / 2,
-								labelRect.left - offset, center.y + textSize.height / 2);
+							labelRect.set(
+								labelRect.left - textSize.width - offset,
+								center.y - textSize.height / 2,
+								labelRect.left - offset,
+								center.y + textSize.height / 2
+							);
 						}
 					} else {
 						offset = (textSize.heightRot - textSize.height) / 2;
 						if (params.axes.y.invert) {
-							labelRect.set(center.x - textSize.width / 2, labelRect.bottom - textSize.height - offset,
-								center.x + textSize.width / 2, labelRect.bottom - offset);
+							labelRect.set(
+								center.x - textSize.width / 2,
+								labelRect.bottom - textSize.height - offset,
+								center.x + textSize.width / 2,
+								labelRect.bottom - offset
+							);
 						} else {
-							labelRect.set(center.x - textSize.width / 2, labelRect.bottom + offset,
-								center.x + textSize.width / 2, labelRect.bottom + textSize.height + offset);
+							labelRect.set(
+								center.x - textSize.width / 2,
+								labelRect.bottom + offset,
+								center.x + textSize.width / 2,
+								labelRect.bottom + textSize.height + offset
+							);
 						}
 					}
 					break;
@@ -3034,45 +3234,81 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					if (params.serie.type === 'profile' || params.serie.type === 'bar') {
 						offset = (textSize.widthRot - textSize.width) / 2;
 						if (params.axes.y.invert) {
-							labelRect.set(labelRect.left - textSize.width - offset, center.y - textSize.height / 2,
-								labelRect.left - offset, center.y + textSize.height / 2);
+							labelRect.set(
+								labelRect.left - textSize.width - offset,
+								center.y - textSize.height / 2,
+								labelRect.left - offset,
+								center.y + textSize.height / 2
+							);
 						} else {
-							labelRect.set(labelRect.left + offset, center.y - textSize.height / 2,
-								labelRect.left + textSize.width + offset, center.y + textSize.height / 2);
+							labelRect.set(
+								labelRect.left + offset,
+								center.y - textSize.height / 2,
+								labelRect.left + textSize.width + offset,
+								center.y + textSize.height / 2
+							);
 						}
 					} else {
 						offset = (textSize.heightRot - textSize.height) / 2;
 						if (params.axes.y.invert) {
-							labelRect.set(center.x - textSize.width / 2, labelRect.bottom + offset,
-								center.x + textSize.width / 2, labelRect.bottom + textSize.height + offset);
+							labelRect.set(
+								center.x - textSize.width / 2,
+								labelRect.bottom + offset,
+								center.x + textSize.width / 2,
+								labelRect.bottom + textSize.height + offset
+							);
 						} else {
-							labelRect.set(center.x - textSize.width / 2, labelRect.bottom - textSize.height - offset,
-								center.x + textSize.width / 2, labelRect.bottom - offset);
+							labelRect.set(
+								center.x - textSize.width / 2,
+								labelRect.bottom - textSize.height - offset,
+								center.x + textSize.width / 2,
+								labelRect.bottom - offset
+							);
 						}
 					}
 					break;
 				case 'center':
-					labelRect.set(center.x - textSize.width / 2, center.y - textSize.height / 2,
-						center.x + textSize.width / 2, center.y + textSize.height / 2);
+					labelRect.set(
+						center.x - textSize.width / 2,
+						center.y - textSize.height / 2,
+						center.x + textSize.width / 2,
+						center.y + textSize.height / 2
+					);
 					break;
 				case 'end':
 					if (params.serie.type === 'profile' || params.serie.type === 'bar') {
 						offset = (textSize.widthRot - textSize.width) / 2;
 						if (params.axes.y.invert) {
-							labelRect.set(labelRect.right + offset, center.y - textSize.height / 2,
-								labelRect.right + textSize.width + offset, center.y + textSize.height / 2);
+							labelRect.set(
+								labelRect.right + offset,
+								center.y - textSize.height / 2,
+								labelRect.right + textSize.width + offset,
+								center.y + textSize.height / 2
+							);
 						} else {
-							labelRect.set(labelRect.right - textSize.width - offset, center.y - textSize.height / 2,
-								labelRect.right - offset, center.y + textSize.height / 2);
+							labelRect.set(
+								labelRect.right - textSize.width - offset,
+								center.y - textSize.height / 2,
+								labelRect.right - offset,
+								center.y + textSize.height / 2
+							);
 						}
 					} else {
 						offset = (textSize.heightRot - textSize.height) / 2;
 						if (params.axes.y.invert) {
-							labelRect.set(center.x - textSize.width / 2, labelRect.top - textSize.height - offset,
-								center.x + textSize.width / 2, labelRect.top - offset);
+							labelRect.set(
+								center.x - textSize.width / 2,
+								labelRect.top - textSize.height - offset,
+								center.x + textSize.width / 2,
+								labelRect.top - offset
+							);
 						} else {
-							labelRect.set(center.x - textSize.width / 2, labelRect.top + offset,
-								center.x + textSize.width / 2, labelRect.top + textSize.height + offset);
+							labelRect.set(
+								center.x - textSize.width / 2,
+								labelRect.top + offset,
+								center.x + textSize.width / 2,
+								labelRect.top + textSize.height + offset
+							);
 						}
 					}
 					break;
@@ -3080,20 +3316,36 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					if (params.serie.type === 'profile' || params.serie.type === 'bar') {
 						offset = (textSize.widthRot - textSize.width) / 2;
 						if (params.axes.y.invert) {
-							labelRect.set(labelRect.right - textSize.width - offset, center.y - textSize.height / 2,
-								labelRect.right - offset, center.y + textSize.height / 2);
+							labelRect.set(
+								labelRect.right - textSize.width - offset,
+								center.y - textSize.height / 2,
+								labelRect.right - offset,
+								center.y + textSize.height / 2
+							);
 						} else {
-							labelRect.set(labelRect.right + offset, center.y - textSize.height / 2,
-								labelRect.right + textSize.width + offset, center.y + textSize.height / 2);
+							labelRect.set(
+								labelRect.right + offset,
+								center.y - textSize.height / 2,
+								labelRect.right + textSize.width + offset,
+								center.y + textSize.height / 2
+							);
 						}
 					} else {
 						offset = (textSize.heightRot - textSize.height) / 2;
 						if (params.axes.y.invert) {
-							labelRect.set(center.x - textSize.width / 2, labelRect.top + offset + textSize.height,
-								center.x + textSize.width / 2, labelRect.top + offset);
+							labelRect.set(
+								center.x - textSize.width / 2,
+								labelRect.top + offset + textSize.height,
+								center.x + textSize.width / 2,
+								labelRect.top + offset
+							);
 						} else {
-							labelRect.set(center.x - textSize.width / 2, labelRect.top - textSize.height - offset,
-								center.x + textSize.width / 2, labelRect.top - offset);
+							labelRect.set(
+								center.x - textSize.width / 2,
+								labelRect.top - textSize.height - offset,
+								center.x + textSize.width / 2,
+								labelRect.top - offset
+							);
 						}
 					}
 					break;
@@ -3265,7 +3517,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		const markers = type.indexOf('marker') === -1 ? false : 'rect';
 		let line = true;
 
-		this.chart.formula = new Expression(0, selection.toStringByIndex(0, {item: sheet, useName: true}));
+		this.chart.formula = new Expression(0, selection.toStringByIndex(0, { item: sheet, useName: true }));
 		this.chart.stacked = type.indexOf('stacked') !== -1;
 		this.chart.relative = type.indexOf('100') !== -1;
 
@@ -3345,7 +3597,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		}
 
 		this.series = [];
-		this.updateSeriesFromRange(viewer, sheet, selection, type, line, markers, cmdChart, cmdAxis, cmdLegend, true)
+		this.updateSeriesFromRange(viewer, sheet, selection, type, line, markers, cmdChart, cmdAxis, cmdLegend, true);
 	}
 
 	updateFormulas(viewer, formula, cmdChart) {
@@ -3358,13 +3610,23 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		const range = JSG.CellRange.parse(formula, sheet, true);
 		if (range) {
 			range.shiftFromSheet();
-			const selection = new JSG.Selection(sheet)
+			const selection = new JSG.Selection(sheet);
 			selection.add(range);
 			this.chart.formula = new JSG.Expression(0, formula);
 			this.chart.coharentData = true;
 
-			this.updateSeriesFromRange(viewer, sheet, selection, type, line, markers,
-				cmdChart, undefined, undefined, false);
+			this.updateSeriesFromRange(
+				viewer,
+				sheet,
+				selection,
+				type,
+				line,
+				markers,
+				cmdChart,
+				undefined,
+				undefined,
+				false
+			);
 		}
 	}
 
@@ -3412,7 +3674,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		const data = range.getSheet().getDataProvider();
 		let time = true;
 		let formula;
-		let allTime = false;
 		const cmp = new CompoundCommand();
 
 		// check for TIMEAGGREGATES and INFLUX.SELECT
@@ -3436,8 +3697,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 						time = false;
 					}
 				});
-			} else {
-				allTime = true;
 			}
 			if (time) {
 				const cmd = this.prepareCommand('series');
@@ -3448,7 +3707,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					if (expr && values && values.time) {
 						const source = new CellRange(taRange.getSheet(), pos.x, pos.y);
 						source.shiftToSheet();
-						const ref = source.toString({item: sheet, useName: true});
+						const ref = source.toString({ item: sheet, useName: true });
 						let xValue = cell.xvalue;
 						if (selection.getSize() > 1) {
 							const rangeX = selection.getAt(1);
@@ -3469,8 +3728,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 										i += 1;
 										for (; i < fields.length; i += 1) {
 											const radius = fields[i];
-											if (values[radius].length && (Numbers.isNumber(
-												values[radius][0]) || type === 'state')) {
+											if (
+												values[radius].length &&
+												(Numbers.isNumber(values[radius][0]) || type === 'state')
+											) {
 												formula = `SERIES("${xValue}","${key}",${ref},"${xValue}","${key}","${radius}")`;
 												break;
 											}
@@ -3486,7 +3747,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 							if (type === 'scatter' || type === 'bubble') {
 								this.xAxes[0].type = 'time';
 							} else {
-								this.xAxes[0].format.localCulture =  `time;en`;
+								this.xAxes[0].format.localCulture = `time;en`;
 								this.xAxes[0].format.numberFormat = 'h:mm:ss';
 							}
 						}
@@ -3602,7 +3863,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				if (seriesLabels) {
 					tmpRange.set(column, row, column, row);
 					tmpRange.shiftToSheet();
-					refName = tmpRange.toString({item: sheet, useName: true});
+					refName = tmpRange.toString({ item: sheet, useName: true });
 					formula += `${refName},`;
 				} else {
 					formula += ',';
@@ -3615,7 +3876,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 						tmpRange.set(range._x1 + (seriesLabels ? 1 : 0), range._y1, range._x2, range._y1);
 					}
 					tmpRange.shiftToSheet();
-					refName = tmpRange.toString({item: sheet, useName: true});
+					refName = tmpRange.toString({ item: sheet, useName: true });
 					formula += `${refName},`;
 				} else {
 					formula += ',';
@@ -3628,7 +3889,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				}
 
 				tmpRange.shiftToSheet();
-				refName = tmpRange.toString({item: sheet, useName: true});
+				refName = tmpRange.toString({ item: sheet, useName: true });
 				formula += `${refName}`;
 
 				if (type === 'bubble' || type === 'state') {
@@ -3638,7 +3899,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 						tmpRange.set(column + (seriesLabels ? 1 : 0), row + 1, column + endJ - startJ, row + 1);
 					}
 					tmpRange.shiftToSheet();
-					refName = tmpRange.toString({item: sheet, useName: true});
+					refName = tmpRange.toString({ item: sheet, useName: true });
 					formula += `,${refName}`;
 				}
 
@@ -3800,9 +4061,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				? true
 				: !!Number(reader.getAttribute(object, 'visible'));
 		this.legend.align =
-			reader.getAttribute(object, 'align') === undefined
-				? 'right'
-				: reader.getAttribute(object, 'align');
+			reader.getAttribute(object, 'align') === undefined ? 'right' : reader.getAttribute(object, 'align');
 
 		reader.iterateObjects(object, (subName, subChild) => {
 			switch (subName) {
@@ -3884,7 +4143,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 		const attrFormula = this.getItemAttributes().getAttribute('sheetformula');
 		if (attrFormula) {
-			const formula = attrFormula.getExpression().getFormula().replace('DRAW.CHART', 'DRAW.STREAMCHART');
+			const formula = attrFormula
+				.getExpression()
+				.getFormula()
+				.replace('DRAW.CHART', 'DRAW.STREAMCHART');
 			attrFormula.setExpressionOrValue(new Expression(0, formula));
 		}
 
@@ -3892,7 +4154,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			data: getJSON('data'),
 			title: getJSON('title'),
 			legend: getJSON('legend'),
-			scales: getJSON('scales'),
+			scales: getJSON('scales')
 		};
 	}
 
@@ -3991,7 +4253,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (oldAxis.ticks.fontStyle === 'bold') {
 				newAxis.format.fontStyle = 1;
 			}
-		}
+		};
 
 		migrateAxis(scales.xAxes[0], this.xAxes[0]);
 		migrateAxis(scales.yAxes[0], this.yAxes[0]);
@@ -4009,7 +4271,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				}
 			}
 		});
-
 	}
 
 	read(reader, object) {
@@ -4112,18 +4373,22 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	spreadZoomInfo(viewer) {
 		const items = new Map();
 		const sheet = this.getSheet();
-		GraphUtils.traverseItem(sheet, (item) => {
-			if (item instanceof SheetPlotNode) {
-				item.chartZoom = false;
-				item.series.forEach(({formula}) => {
-					const cell = getTimeCell(item, formula);
-					const cellref = isValuesCell(cell) && getCellReference(item, formula);
-					item.chartZoom = !!cellref;
-					// support multiple items on same reference
-					if (item.chartZoom) items.set(item, cellref);
-				});
-			}
-		}, false);
+		GraphUtils.traverseItem(
+			sheet,
+			(item) => {
+				if (item instanceof SheetPlotNode) {
+					item.chartZoom = false;
+					item.series.forEach(({ formula }) => {
+						const cell = getTimeCell(item, formula);
+						const cellref = isValuesCell(cell) && getCellReference(item, formula);
+						item.chartZoom = !!cellref;
+						// support multiple items on same reference
+						if (item.chartZoom) items.set(item, cellref);
+					});
+				}
+			},
+			false
+		);
 		if (items.size) {
 			const cmd = MarkCellValuesCommand.fromItemCellRefMap(items);
 			viewer.getInteractionHandler().execute(cmd);
@@ -4131,8 +4396,25 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	}
 
 	resetZoom(viewer) {
-		this.setParamValues(viewer, this.xAxes[0].formula,
-			[{index: 4, value: undefined}, {index: 5, value: undefined}]);
+		const group = this.getAxes().x.zoomGroup;
+		const sheet = this.getSheet();
+
+		GraphUtils.traverseItem(
+			sheet,
+			(item) => {
+				if (item instanceof SheetPlotNode) {
+					const groupOther = item.getAxes().x.zoomGroup;
+					if (item === this || (groupOther.length && group === groupOther)) {
+						item.setParamValues(viewer, item.xAxes[0].formula, [
+							{ index: 4, value: undefined },
+							{ index: 5, value: undefined }
+						], item);
+					}
+				}
+			},
+			false
+		);
+
 		this.spreadZoomInfo(viewer);
 	}
 
@@ -4146,19 +4428,19 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 	reAssignAxis(axis, xAxis) {
 		if (xAxis) {
-			this.series.forEach(serie => {
+			this.series.forEach((serie) => {
 				if (serie.xAxis === axis.name) {
 					serie.xAxis = this.xAxes[0].name;
 				}
 			});
 		} else {
-			this.series.forEach(serie => {
+			this.series.forEach((serie) => {
 				if (serie.yAxis === axis.name) {
 					serie.yAxis = this.yAxes[0].name;
 				}
 			});
 		}
-	};
+	}
 
 	getUniqueAxisName(axes) {
 		let array;
@@ -4194,7 +4476,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	isCircular() {
 		return this.series.length && (this.series[0].type === 'pie' || this.series[0].type === 'doughnut');
 	}
-
 
 	static get templates() {
 		return templates;

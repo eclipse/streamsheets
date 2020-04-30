@@ -4,9 +4,9 @@ const opposedLine = (start, end) => {
 	const lengthX = end.x - start.x;
 	const lengthY = end.y - start.y;
 	return {
-		length: Math.sqrt((lengthX ** 2) + (lengthY ** 2)),
+		length: Math.sqrt(lengthX ** 2 + lengthY ** 2),
 		angle: Math.atan2(lengthY, lengthX)
-	}
+	};
 };
 
 const controlPoint = (current, previous, next, reverse) => {
@@ -29,9 +29,7 @@ const controlPoint = (current, previous, next, reverse) => {
 };
 
 export default function SheetPlotViewFactory(JSG, ...args) {
-	const {
-		TextFormatAttributes, FormatAttributes, MathUtils, GraphUtils, Rectangle
-	} = JSG;
+	const { TextFormatAttributes, FormatAttributes, MathUtils, GraphUtils, Rectangle } = JSG;
 
 	JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION = 'graph_show_context_menu_notification';
 	JSG.GRAPH_DOUBLE_CLICK_NOTIFICATION = 'graph_double_click_notification';
@@ -55,9 +53,12 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 		setFormat(graphics, item, format, id) {
 			const lineColor = format.lineColor || item.getTemplate()[id].format.lineColor;
 			const fillColor = format.fillColor || item.getTemplate()[id].format.fillColor;
-			const lineStyle = format.lineStyle === undefined ? item.getTemplate()[id].format.lineStyle : format.lineStyle;
-			const lineWidth = format.lineWidth === undefined ? item.getTemplate()[id].format.lineWidth : format.lineWidth;
-			const fillStyle = format.fillStyle === undefined ? item.getTemplate()[id].format.fillStyle : format.fillStyle;
+			const lineStyle =
+				format.lineStyle === undefined ? item.getTemplate()[id].format.lineStyle : format.lineStyle;
+			const lineWidth =
+				format.lineWidth === undefined ? item.getTemplate()[id].format.lineWidth : format.lineWidth;
+			const fillStyle =
+				format.fillStyle === undefined ? item.getTemplate()[id].format.fillStyle : format.fillStyle;
 
 			const line = this.setLineStyle(graphics, lineStyle);
 			if (line) {
@@ -106,14 +107,14 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			// graphics.rect(rect.x, rect.y, rect.width, rect.height);
 			// graphics.clip();
 
-			const {series} = item;
+			const { series } = item;
 			const plotRect = item.plot.position;
 			const legendData = item.getLegend();
 
 			if (plotRect.height > 0 && plotRect.width > 0) {
 				let drawAxes = false;
 
-				series.forEach((serie, index) => {
+				series.forEach((serie) => {
 					switch (serie.type) {
 					case 'pie':
 					case 'doughnut':
@@ -140,8 +141,15 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 							this.drawCircular(graphics, item, plotRect, serie, index);
 							break;
 						default:
-							lastPoints = this.drawCartesian(graphics, item, plotRect, serie, index, lastPoints,
-								legendData);
+							lastPoints = this.drawCartesian(
+								graphics,
+								item,
+								plotRect,
+								serie,
+								index,
+								lastPoints,
+								legendData
+							);
 							drawAxes = true;
 							break;
 						}
@@ -185,7 +193,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 
 		drawLegend(graphics, plotRect, item, legendData) {
 			const margin = 200;
-			const {legend} = item;
+			const { legend } = item;
 			const cs = graphics.getCoordinateSystem();
 
 			if (!legend.visible) {
@@ -207,9 +215,16 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				graphics.beginPath();
 				if (entry.series) {
 					graphics.setLineWidth(entry.series.format.lineWidth || template.series.linewidth);
-					line = this.setLineStyle(graphics,
-						entry.series.format.lineStyle === undefined ? template.series.linestyle : entry.series.format.lineStyle);
-					fill = (entry.series.format.fillStyle === undefined ? template.series.fillstyle : entry.series.format.fillStyle) > 0;
+					line = this.setLineStyle(
+						graphics,
+						entry.series.format.lineStyle === undefined
+							? template.series.linestyle
+							: entry.series.format.lineStyle
+					);
+					fill =
+						(entry.series.format.fillStyle === undefined
+							? template.series.fillstyle
+							: entry.series.format.fillStyle) > 0;
 					graphics.setLineColor(entry.series.format.lineColor || template.series.getLineForIndex(index));
 					graphics.setFillColor(entry.series.format.fillColor || template.series.getFillForIndex(index));
 					type = entry.series.type;
@@ -240,16 +255,23 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					}
 					graphics.beginPath();
 					graphics.setLineColor(
-						entry.series.marker.lineColor || item.getTemplate().series.getLineForIndex(index));
+						entry.series.marker.lineColor || item.getTemplate().series.getLineForIndex(index)
+					);
 					graphics.setFillColor(
-						entry.series.marker.fillColor || item.getTemplate().series.getFillForIndex(index));
+						entry.series.marker.fillColor || item.getTemplate().series.getFillForIndex(index)
+					);
 					if (entry.series.marker.style !== undefined) {
 						graphics.clearLineDash();
 						graphics.setLineWidth(-1);
-						this.drawMarker(graphics, entry.series, {
-							x: x + margin * 1.5,
-							y: y + textSize.height / 2
-						}, 3);
+						this.drawMarker(
+							graphics,
+							entry.series,
+							{
+								x: x + margin * 1.5,
+								y: y + textSize.height / 2
+							},
+							3
+						);
 						graphics.fill();
 						graphics.stroke();
 					}
@@ -268,7 +290,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 						}
 					}
 
-					graphics.rect(x, y + textSize.height / 10, margin * 3, textSize.height * 9 / 10);
+					graphics.rect(x, y + textSize.height / 10, margin * 3, (textSize.height * 9) / 10);
 					if (fill) {
 						if (entry.series) {
 							this.fill(graphics, entry.series.format);
@@ -294,13 +316,17 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					break;
 				}
 
-				const fontColor =
-					legend.format.fontColor || template.legend.format.fontColor || template.font.color;
+				const fontColor = legend.format.fontColor || template.legend.format.fontColor || template.font.color;
 
 				graphics.setFillColor(fontColor);
-				graphics.fillText(entry.name, x + textPos, y + textSize.height * 1.1 / 2);
+				graphics.fillText(entry.name, x + textPos, y + (textSize.height * 1.1) / 2);
 
-				if (legend.align === 'right' || legend.align === 'middleright' || legend.align === 'left' || legend.align === 'middleleft') {
+				if (
+					legend.align === 'right' ||
+					legend.align === 'middleright' ||
+					legend.align === 'left' ||
+					legend.align === 'middleleft'
+				) {
 					y += textSize.height * 1.3;
 				} else {
 					const size = item.measureText(JSG.graphics, cs, legend.format, 'legend', String(entry.name));
@@ -335,8 +361,8 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			let fi;
 			let xLabelOffset = 0;
 			let yLabelOffset = 0;
-			const labelAngle = axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(
-				-axis.format.fontRotation);
+			const labelAngle =
+				axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-axis.format.fontRotation);
 
 			graphics.beginPath();
 			if (grid) {
@@ -357,13 +383,20 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					} else if (labelAngle < 0) {
 						vAlign = 'top';
 					}
-					item.setFont(graphics, axis.format, 'axis', vAlign, Math.abs(
-						labelAngle) === Math.PI_2 ? TextFormatAttributes.TextAlignment.CENTER : TextFormatAttributes.TextAlignment.RIGHT);
+					item.setFont(
+						graphics,
+						axis.format,
+						'axis',
+						vAlign,
+						Math.abs(labelAngle) === Math.PI_2
+							? TextFormatAttributes.TextAlignment.CENTER
+							: TextFormatAttributes.TextAlignment.RIGHT
+					);
 					textSize = item.measureText(graphics, graphics.getCoordinateSystem(), axis.format, 'axis', 'X');
 					if (labelAngle > 0) {
-						yLabelOffset = Math.cos(labelAngle) * textSize.height / 2;
+						yLabelOffset = (Math.cos(labelAngle) * textSize.height) / 2;
 					} else if (labelAngle < 0) {
-						yLabelOffset = -Math.cos(labelAngle) * textSize.height / 2;
+						yLabelOffset = (-Math.cos(labelAngle) * textSize.height) / 2;
 					}
 					break;
 				case 'right':
@@ -375,13 +408,20 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					} else if (labelAngle < 0) {
 						vAlign = 'bottom';
 					}
-					item.setFont(graphics, axis.format, 'axis', vAlign, Math.abs(
-						labelAngle) === Math.PI_2 ? TextFormatAttributes.TextAlignment.CENTER : TextFormatAttributes.TextAlignment.LEFT);
+					item.setFont(
+						graphics,
+						axis.format,
+						'axis',
+						vAlign,
+						Math.abs(labelAngle) === Math.PI_2
+							? TextFormatAttributes.TextAlignment.CENTER
+							: TextFormatAttributes.TextAlignment.LEFT
+					);
 					textSize = item.measureText(graphics, graphics.getCoordinateSystem(), axis.format, 'axis', 'X');
 					if (labelAngle > 0) {
-						yLabelOffset = -Math.cos(labelAngle) * textSize.height / 2;
+						yLabelOffset = (-Math.cos(labelAngle) * textSize.height) / 2;
 					} else if (labelAngle < 0) {
-						yLabelOffset = Math.cos(labelAngle) * textSize.height / 2;
+						yLabelOffset = (Math.cos(labelAngle) * textSize.height) / 2;
 					}
 					break;
 				case 'top':
@@ -394,7 +434,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					}
 					item.setFont(graphics, axis.format, 'axis', 'bottom', hAlign);
 					textSize = item.measureText(graphics, graphics.getCoordinateSystem(), axis.format, 'axis', 'X');
-					xLabelOffset = -Math.sin(labelAngle) * textSize.height / 2;
+					xLabelOffset = (-Math.sin(labelAngle) * textSize.height) / 2;
 					break;
 				case 'bottom':
 					graphics.moveTo(axis.position.left, axis.position.top);
@@ -406,7 +446,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					}
 					item.setFont(graphics, axis.format, 'axis', 'top', hAlign);
 					textSize = item.measureText(graphics, graphics.getCoordinateSystem(), axis.format, 'axis', 'X');
-					xLabelOffset = Math.sin(labelAngle) * textSize.height / 2;
+					xLabelOffset = (Math.sin(labelAngle) * textSize.height) / 2;
 					break;
 				default:
 					break;
@@ -436,7 +476,10 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			let text;
 
 			while (current.value <= final) {
-				if (axis.type === 'category' && (grid ? current.value > axis.scale.max : current.value >= axis.scale.max)) {
+				if (
+					axis.type === 'category' &&
+					(grid ? current.value > axis.scale.max : current.value >= axis.scale.max)
+				) {
 					break;
 				}
 
@@ -479,13 +522,27 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 						graphics.lineTo(plotRect.right, plot);
 					} else if (axis.invert) {
 						if (last === undefined || plot - width / 2 + 100 > last) {
-							this.drawRotatedText(graphics, `${text}`, axis.position.right - 200, plot, labelAngle,
-								xLabelOffset, yLabelOffset);
+							this.drawRotatedText(
+								graphics,
+								`${text}`,
+								axis.position.right - 200,
+								plot,
+								labelAngle,
+								xLabelOffset,
+								yLabelOffset
+							);
 						}
 						last = plot + width / 2;
 					} else if (last === undefined || plot + width / 2 + 100 < last) {
-						this.drawRotatedText(graphics, `${text}`, axis.position.right - 200, plot, labelAngle,
-							xLabelOffset, yLabelOffset);
+						this.drawRotatedText(
+							graphics,
+							`${text}`,
+							axis.position.right - 200,
+							plot,
+							labelAngle,
+							xLabelOffset,
+							yLabelOffset
+						);
 						last = plot - width / 2;
 					}
 					break;
@@ -496,13 +553,27 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 						graphics.lineTo(plotRect.right, plot);
 					} else if (axis.invert) {
 						if (last === undefined || plot - width / 2 + 100 > last) {
-							this.drawRotatedText(graphics, `${text}`, axis.position.left + 200, plot, labelAngle,
-								xLabelOffset, yLabelOffset);
+							this.drawRotatedText(
+								graphics,
+								`${text}`,
+								axis.position.left + 200,
+								plot,
+								labelAngle,
+								xLabelOffset,
+								yLabelOffset
+							);
 						}
 						last = plot + width / 2;
 					} else if (last === undefined || plot + width / 2 + 100 < last) {
-						this.drawRotatedText(graphics, `${text}`, axis.position.left + 200, plot, labelAngle,
-							xLabelOffset, yLabelOffset);
+						this.drawRotatedText(
+							graphics,
+							`${text}`,
+							axis.position.left + 200,
+							plot,
+							labelAngle,
+							xLabelOffset,
+							yLabelOffset
+						);
 						last = plot - width / 2;
 					}
 					break;
@@ -513,13 +584,27 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 						graphics.lineTo(plot, plotRect.bottom);
 					} else if (axis.invert) {
 						if (last === undefined || plot + width / 2 + 100 < last) {
-							this.drawRotatedText(graphics, `${text}`, plot, axis.position.bottom - 200, labelAngle,
-								xLabelOffset, yLabelOffset);
+							this.drawRotatedText(
+								graphics,
+								`${text}`,
+								plot,
+								axis.position.bottom - 200,
+								labelAngle,
+								xLabelOffset,
+								yLabelOffset
+							);
 						}
 						last = plot - width / 2;
 					} else if (last === undefined || plot - width / 2 + 100 > last) {
-						this.drawRotatedText(graphics, `${text}`, plot, axis.position.bottom - 200, labelAngle,
-							xLabelOffset, yLabelOffset);
+						this.drawRotatedText(
+							graphics,
+							`${text}`,
+							plot,
+							axis.position.bottom - 200,
+							labelAngle,
+							xLabelOffset,
+							yLabelOffset
+						);
 						last = plot + width / 2;
 					}
 					break;
@@ -530,13 +615,27 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 						graphics.lineTo(plot, plotRect.bottom);
 					} else if (axis.invert) {
 						if (last === undefined || plot + width / 2 + 100 < last) {
-							this.drawRotatedText(graphics, `${text}`, plot, axis.position.top + 200, labelAngle,
-								xLabelOffset, yLabelOffset);
+							this.drawRotatedText(
+								graphics,
+								`${text}`,
+								plot,
+								axis.position.top + 200,
+								labelAngle,
+								xLabelOffset,
+								yLabelOffset
+							);
 						}
 						last = plot - width / 2;
 					} else if (last === undefined || plot - width / 2 + 100 > last) {
-						this.drawRotatedText(graphics, `${text}`, plot, axis.position.top + 200, labelAngle,
-							xLabelOffset, yLabelOffset);
+						this.drawRotatedText(
+							graphics,
+							`${text}`,
+							plot,
+							axis.position.top + 200,
+							labelAngle,
+							xLabelOffset,
+							yLabelOffset
+						);
 						last = plot + width / 2;
 					}
 					break;
@@ -598,8 +697,13 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			const fillRect = new Rectangle();
 
 			if (serie.type === 'pie' && item.series.length > 1 && ref.yName) {
-				item.setFont(graphics, item.legend.format, 'legend', 'middle',
-					TextFormatAttributes.TextAlignment.CENTER);
+				item.setFont(
+					graphics,
+					item.legend.format,
+					'legend',
+					'middle',
+					TextFormatAttributes.TextAlignment.CENTER
+				);
 				graphics.fillText(ref.yName, pieInfo.rect.left + pieInfo.rect.width / 2, pieInfo.rect.top - 500);
 			}
 
@@ -607,7 +711,9 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			graphics.setLineWidth(serie.format.lineWidth || item.getTemplate().series.linewidth);
 			const line = this.setLineStyle(graphics, serie.format.lineStyle);
 			graphics.setFillColor(serie.format.fillColor || item.getTemplate().series.getFillForIndex(seriesIndex));
-			const fill = (serie.format.fillStyle === undefined ? item.getTemplate().series.fillstyle : serie.format.fillStyle) > 0;
+			const fill =
+				(serie.format.fillStyle === undefined ? item.getTemplate().series.fillstyle : serie.format.fillStyle) >
+				0;
 
 			let index = 0;
 
@@ -622,17 +728,32 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 							graphics.setLineColor(serie.format.lineColor);
 						}
 						graphics.setFillColor(
-							serie.format.fillColor || item.getTemplate().series.getFillForIndex(index));
-						const angle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
+							serie.format.fillColor || item.getTemplate().series.getFillForIndex(index)
+						);
+						const angle = (Math.abs(value.y) / pieInfo.sum) * (pieInfo.endAngle - pieInfo.startAngle);
 						switch (serie.type) {
 						case 'doughnut': {
 							graphics.beginPath();
-							graphics.ellipse(pieInfo.xc, pieInfo.yc, pieInfo.xOuterRadius, pieInfo.yOuterRadius, 0,
-								currentAngle, currentAngle + angle,
-								false);
-							graphics.ellipse(pieInfo.xc, pieInfo.yc, pieInfo.xInnerRadius, pieInfo.yInnerRadius, 0,
-								currentAngle + angle, currentAngle,
-								true);
+							graphics.ellipse(
+								pieInfo.xc,
+								pieInfo.yc,
+								pieInfo.xOuterRadius,
+								pieInfo.yOuterRadius,
+								0,
+								currentAngle,
+								currentAngle + angle,
+								false
+							);
+							graphics.ellipse(
+								pieInfo.xc,
+								pieInfo.yc,
+								pieInfo.xInnerRadius,
+								pieInfo.yInnerRadius,
+								0,
+								currentAngle + angle,
+								currentAngle,
+								true
+							);
 							if (i) {
 								if (line) {
 									graphics.stroke();
@@ -644,8 +765,16 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 						}
 						case 'pie':
 							graphics.beginPath();
-							graphics.ellipse(pieInfo.xc, pieInfo.yc, pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle,
-								currentAngle + angle, false);
+							graphics.ellipse(
+								pieInfo.xc,
+								pieInfo.yc,
+								pieInfo.xRadius,
+								pieInfo.yRadius,
+								0,
+								currentAngle,
+								currentAngle + angle,
+								false
+							);
 							graphics.lineTo(pieInfo.xc, pieInfo.yc);
 
 							if (i) {
@@ -658,21 +787,40 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 
 							// 3d front
 							if (item.chart.rotation < Math.PI / 2) {
-								if ((currentAngle >= 0 && currentAngle <= Math.PI) || (currentAngle + angle >= 0 && currentAngle + angle <= Math.PI)) {
+								if (
+									(currentAngle >= 0 && currentAngle <= Math.PI) ||
+									(currentAngle + angle >= 0 && currentAngle + angle <= Math.PI)
+								) {
 									graphics.beginPath();
-									graphics.ellipse(pieInfo.xc, pieInfo.yc, pieInfo.xRadius, pieInfo.yRadius, 0,
+									graphics.ellipse(
+										pieInfo.xc,
+										pieInfo.yc,
+										pieInfo.xRadius,
+										pieInfo.yRadius,
+										0,
 										Math.max(0, currentAngle),
-										Math.min(Math.PI, currentAngle + angle), false);
-									const x1 = pieInfo.xc + pieInfo.xRadius * Math.cos(
-										Math.min(Math.PI, currentAngle + angle));
-									let y = pieInfo.yc + pieInfo.height + pieInfo.yRadius * Math.sin(
-										Math.min(Math.PI, currentAngle + angle));
+										Math.min(Math.PI, currentAngle + angle),
+										false
+									);
+									const x1 =
+										pieInfo.xc +
+										pieInfo.xRadius * Math.cos(Math.min(Math.PI, currentAngle + angle));
+									let y =
+										pieInfo.yc +
+										pieInfo.height +
+										pieInfo.yRadius * Math.sin(Math.min(Math.PI, currentAngle + angle));
 									graphics.lineTo(x1, y);
 
-									graphics.ellipse(pieInfo.xc, pieInfo.yc + pieInfo.height, pieInfo.xRadius,
-										pieInfo.yRadius, 0,
+									graphics.ellipse(
+										pieInfo.xc,
+										pieInfo.yc + pieInfo.height,
+										pieInfo.xRadius,
+										pieInfo.yRadius,
+										0,
 										Math.min(Math.PI, currentAngle + angle),
-										Math.max(0, currentAngle), true);
+										Math.max(0, currentAngle),
+										true
+									);
 									const x2 = pieInfo.xc + pieInfo.xRadius * Math.cos(Math.max(0, currentAngle));
 									y = pieInfo.yc + pieInfo.yRadius * Math.sin(Math.max(0, currentAngle));
 									graphics.lineTo(x2, y);
@@ -683,9 +831,14 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 										}
 									} else {
 										fillRect.set(pieInfo.rect.left, y, pieInfo.rect.width, y);
-										graphics.setGradientLinear(fillRect, serie.format.fillColor ||
+										graphics.setGradientLinear(
+											fillRect,
+											serie.format.fillColor ||
 											item.getTemplate().series.getFillForIndex(index),
-											'#333333', 0, 0);
+											'#333333',
+											0,
+											0
+										);
 										if (fill) {
 											this.fill(graphics, serie.format);
 										}
@@ -736,17 +889,19 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			graphics.setLineWidth(serie.format.lineWidth || item.getTemplate().series.linewidth);
 			const line = this.setLineStyle(graphics, serie.format.lineStyle);
 			graphics.setFillColor(serie.format.fillColor || item.getTemplate().series.getFillForIndex(seriesIndex));
-			const fill = (serie.format.fillStyle === undefined ? item.getTemplate().series.fillstyle : serie.format.fillStyle) > 0;
+			const fill =
+				(serie.format.fillStyle === undefined ? item.getTemplate().series.fillstyle : serie.format.fillStyle) >
+				0;
 
 			const barWidth = item.getBarWidth(axes, serie, plotRect);
 			const points = [];
 			let newLine = true;
 			let xFirst;
 			let xLast;
-			const pt = {x: 0, y: 0};
-			const ptPrev = {x: 0, y: 0};
-			const ptNext = {x: 0, y: 0};
-			const ptLast = {x: 0, y: 0};
+			const pt = { x: 0, y: 0 };
+			const ptPrev = { x: 0, y: 0 };
+			const ptNext = { x: 0, y: 0 };
+			const ptLast = { x: 0, y: 0 };
 			const info = {
 				serie,
 				seriesIndex,
@@ -843,7 +998,6 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 								item.getPlotPoint(axes, ref, info, value, index, -1, ptLast);
 								item.toPlot(serie, plotRect, ptLast);
 
-
 								const midX = (ptLast.x + pt.x) / 2;
 								const midY = (ptLast.y + pt.y) / 2;
 								const cpX1 = (midX + ptLast.x) / 2;
@@ -859,10 +1013,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 						if (serie.type === 'area') {
 							if (newLine) {
 								pt.y = item.scaleToAxis(axes.y, 0, undefined, false);
-								graphics.lineTo(
-									xLast,
-									plotRect.bottom - pt.y * plotRect.height
-								);
+								graphics.lineTo(xLast, plotRect.bottom - pt.y * plotRect.height);
 								graphics.lineTo(
 									plotRect.left + xFirst * plotRect.width,
 									plotRect.bottom - pt.y * plotRect.height
@@ -946,7 +1097,10 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				graphics.closePath();
 			}
 
-			if (fill && (serie.type === 'column' || serie.type === 'bar' || serie.type === 'area' || serie.type === 'bubble')) {
+			if (
+				fill &&
+				(serie.type === 'column' || serie.type === 'bar' || serie.type === 'area' || serie.type === 'bubble')
+			) {
 				this.fill(graphics, serie.format);
 			}
 			if (line && serie.type !== 'state') {
@@ -988,7 +1142,6 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				graphics.stroke();
 			}
 
-
 			return points;
 		}
 
@@ -1004,18 +1157,25 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 
 			const barWidth = item.getBarWidth(axes, serie, plotRect);
 			const points = [];
-			const pt = {x: 0, y: 0};
+			const pt = { x: 0, y: 0 };
 			const info = {
 				serie,
 				seriesIndex,
 				categories: axes.y.categories
 			};
 			const pieInfo = item.isCircular() ? item.getPieInfo(ref, serie, plotRect, seriesIndex) : undefined;
-			const labelAngle = serie.dataLabel.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(
-				-serie.dataLabel.format.fontRotation);
+			const labelAngle =
+				serie.dataLabel.format.fontRotation === undefined
+					? 0
+					: JSG.MathUtils.toRadians(-serie.dataLabel.format.fontRotation);
 
-			item.setFont(graphics, serie.dataLabel.format, 'serieslabel', 'middle',
-				TextFormatAttributes.TextAlignment.CENTER);
+			item.setFont(
+				graphics,
+				serie.dataLabel.format,
+				'serieslabel',
+				'middle',
+				TextFormatAttributes.TextAlignment.CENTER
+			);
 			const params = {
 				graphics,
 				serie,
@@ -1030,10 +1190,16 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				pieInfo,
 				currentAngle: pieInfo ? pieInfo.startAngle : 0
 			};
-			const name = serie.dataLabel.format.fontName || item.getTemplate().serieslabel.format.fontName || item.getTemplate().font.name;
-			const size = serie.dataLabel.format.fontSize || item.getTemplate().serieslabel.format.fontSize || item.getTemplate().font.size;
+			const name =
+				serie.dataLabel.format.fontName ||
+				item.getTemplate().serieslabel.format.fontName ||
+				item.getTemplate().font.name;
+			const size =
+				serie.dataLabel.format.fontSize ||
+				item.getTemplate().serieslabel.format.fontSize ||
+				item.getTemplate().font.size;
 			const lineHeight = GraphUtils.getFontMetricsEx(name, size).lineheight + 50;
-			const horizontalChart = (serie.type === 'profile' || serie.type === 'bar');
+			const horizontalChart = serie.type === 'profile' || serie.type === 'bar';
 
 			while (item.getValue(ref, index, value)) {
 				info.index = index;
@@ -1054,8 +1220,13 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 							}
 
 							if (this.drawRect(graphics, labelRect, item, serie.dataLabel.format, 'serieslabel')) {
-								item.setFont(graphics, serie.dataLabel.format, 'serieslabel', 'middle',
-									TextFormatAttributes.TextAlignment.CENTER);
+								item.setFont(
+									graphics,
+									serie.dataLabel.format,
+									'serieslabel',
+									'middle',
+									TextFormatAttributes.TextAlignment.CENTER
+								);
 							}
 							if (labelAngle !== 0) {
 								graphics.rotate(labelAngle);
@@ -1066,10 +1237,10 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 							if (text instanceof Array) {
 								let y = labelRect.top + 75 + lineHeight / 2;
 								text.forEach((part, pi) => {
-									y = center.y - (text.length - 1) * lineHeight / 2 + pi * lineHeight;
-									const p = MathUtils.getRotatedPoint({x: center.x, y}, center, -labelAngle);
+									y = center.y - ((text.length - 1) * lineHeight) / 2 + pi * lineHeight;
+									const p = MathUtils.getRotatedPoint({ x: center.x, y }, center, -labelAngle);
 									this.drawRotatedText(graphics, part, p.x, p.y, labelAngle, 0, 0);
-								})
+								});
 							} else {
 								this.drawRotatedText(graphics, `${text}`, center.x, center.y, labelAngle, 0, 0);
 							}
@@ -1117,13 +1288,11 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 
 		drawMarker(graphics, serie, pos, defaultSize) {
 			const size = (defaultSize || serie.marker.size) * 60;
-			let fill = false;
 
 			switch (serie.marker.style) {
 			case 'circle':
 				graphics.moveTo(pos.x, pos.y);
 				graphics.circle(pos.x, pos.y, size / 2);
-				fill = true;
 				break;
 			case 'cross':
 				graphics.moveTo(pos.x - size / 2, pos.y);
@@ -1139,7 +1308,6 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				break;
 			case 'dash':
 				graphics.rect(pos.x - size / 2, pos.y - size / 6, size, size / 3);
-				fill = true;
 				break;
 			case 'line':
 				graphics.moveTo(pos.x - size / 2, pos.y);
@@ -1147,7 +1315,6 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				break;
 			case 'rect':
 				graphics.rect(pos.x - size / 2, pos.y - size / 2, size, size);
-				fill = true;
 				break;
 			case 'rectRot':
 				graphics.moveTo(pos.x, pos.y - size / 2);
@@ -1155,7 +1322,6 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				graphics.lineTo(pos.x, pos.y + size / 2);
 				graphics.lineTo(pos.x - size / 2, pos.y);
 				graphics.closePath();
-				fill = true;
 				break;
 			case 'star':
 				graphics.moveTo(pos.x - size / 2, pos.y);
@@ -1172,12 +1338,10 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				graphics.lineTo(pos.x + size / 2, pos.y + size / 2);
 				graphics.lineTo(pos.x - size / 2, pos.y + size / 2);
 				graphics.closePath();
-				fill = true;
 				break;
 			default:
 				break;
 			}
-
 		}
 
 		getSelectedFormat() {
@@ -1190,80 +1354,142 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					switch (this.chartSelection.element) {
 					case 'serieslabel':
 						f.setFillColor(
-							data.dataLabel.format.fillColor || template[this.chartSelection.element].format.fillColor);
+							data.dataLabel.format.fillColor ||
+							template[this.chartSelection.element].format.fillColor
+						);
 						f.setFillStyle(
-							data.dataLabel.format.fillStyle === undefined ? template[this.chartSelection.element].format.fillStyle : data.dataLabel.format.fillStyle);
+							data.dataLabel.format.fillStyle === undefined
+								? template[this.chartSelection.element].format.fillStyle
+								: data.dataLabel.format.fillStyle
+						);
 						f.setTransparency(
-							data.dataLabel.format.transparency === undefined ? 100 : data.dataLabel.format.transparency);
+							data.dataLabel.format.transparency === undefined
+								? 100
+								: data.dataLabel.format.transparency
+						);
 						f.setLineColor(
-							data.dataLabel.format.lineColor || template[this.chartSelection.element].format.lineColor);
+							data.dataLabel.format.lineColor ||
+							template[this.chartSelection.element].format.lineColor
+						);
 						f.setLineStyle(
-							data.dataLabel.format.lineStyle === undefined ? template[this.chartSelection.element].format.lineStyle : data.dataLabel.format.lineStyle);
+							data.dataLabel.format.lineStyle === undefined
+								? template[this.chartSelection.element].format.lineStyle
+								: data.dataLabel.format.lineStyle
+						);
 						f.setLineWidth(
-							data.dataLabel.format.lineWidth === undefined ? template[this.chartSelection.element].format.lineWidth : data.dataLabel.format.lineWidth);
+							data.dataLabel.format.lineWidth === undefined
+								? template[this.chartSelection.element].format.lineWidth
+								: data.dataLabel.format.lineWidth
+						);
 						break;
 					case 'plot':
 					case 'title':
 					case 'legend':
-						f.setFillColor(data.format.fillColor || template[this.chartSelection.element].format.fillColor);
+						f.setFillColor(
+							data.format.fillColor || template[this.chartSelection.element].format.fillColor
+						);
 						f.setFillStyle(
-							data.format.fillStyle === undefined ? template[this.chartSelection.element].format.fillStyle : data.format.fillStyle);
+							data.format.fillStyle === undefined
+								? template[this.chartSelection.element].format.fillStyle
+								: data.format.fillStyle
+						);
 						f.setTransparency(data.format.transparency === undefined ? 100 : data.format.transparency);
-						f.setLineColor(data.format.lineColor || template[this.chartSelection.element].format.lineColor);
+						f.setLineColor(
+							data.format.lineColor || template[this.chartSelection.element].format.lineColor
+						);
 						f.setLineStyle(
-							data.format.lineStyle === undefined ? template[this.chartSelection.element].format.lineStyle : data.format.lineStyle);
+							data.format.lineStyle === undefined
+								? template[this.chartSelection.element].format.lineStyle
+								: data.format.lineStyle
+						);
 						f.setLineWidth(
-							data.format.lineWidth === undefined ? template[this.chartSelection.element].format.lineWidth : data.format.lineWidth);
+							data.format.lineWidth === undefined
+								? template[this.chartSelection.element].format.lineWidth
+								: data.format.lineWidth
+						);
 						break;
 					case 'series':
 						f.setFillColor(
-							data.format.fillColor || template.series.getFillForIndex(this.chartSelection.index));
+							data.format.fillColor || template.series.getFillForIndex(this.chartSelection.index)
+						);
 						f.setFillStyle(
-							data.format.fillStyle === undefined ? template.series.fillstyle : data.format.fillStyle);
+							data.format.fillStyle === undefined ? template.series.fillstyle : data.format.fillStyle
+						);
 						f.setTransparency(data.format.transparency === undefined ? 100 : data.format.transparency);
 						f.setLineColor(
-							data.format.lineColor || template.series.getLineForIndex(this.chartSelection.index));
+							data.format.lineColor || template.series.getLineForIndex(this.chartSelection.index)
+						);
 						f.setLineStyle(
-							data.format.lineStyle === undefined ? template.series.linestyle : data.format.lineStyle);
+							data.format.lineStyle === undefined ? template.series.linestyle : data.format.lineStyle
+						);
 						f.setLineWidth(
-							data.format.lineWidth === undefined ? template.series.linewidth : data.format.lineWidth);
+							data.format.lineWidth === undefined ? template.series.linewidth : data.format.lineWidth
+						);
 						break;
 					case 'xAxis':
 					case 'yAxis':
 						f.setFillColor(data.format.fillColor || template.axis.format.fillColor);
 						f.setFillStyle(
-							data.format.fillStyle === undefined ? template.axis.format.fillStyle : data.format.fillStyle);
+							data.format.fillStyle === undefined
+								? template.axis.format.fillStyle
+								: data.format.fillStyle
+						);
 						f.setTransparency(data.format.transparency === undefined ? 100 : data.format.transparency);
 						f.setLineColor(data.format.lineColor || template.axis.format.lineColor);
 						f.setLineStyle(
-							data.format.lineStyle === undefined ? template.axis.format.lineStyle : data.format.lineStyle);
+							data.format.lineStyle === undefined
+								? template.axis.format.lineStyle
+								: data.format.lineStyle
+						);
 						f.setLineWidth(
-							data.format.lineWidth === undefined ? template.axis.format.lineWidth : data.format.lineWidth);
+							data.format.lineWidth === undefined
+								? template.axis.format.lineWidth
+								: data.format.lineWidth
+						);
 						break;
 					case 'xAxisGrid':
 					case 'yAxisGrid':
 						f.setFillColor(data.formatGrid.fillColor || template.axisgrid.format.fillColor);
 						f.setFillStyle(
-							data.formatGrid.fillStyle === undefined ? template.axisgrid.format.fillStyle : data.formatGrid.fillStyle);
+							data.formatGrid.fillStyle === undefined
+								? template.axisgrid.format.fillStyle
+								: data.formatGrid.fillStyle
+						);
 						f.setTransparency(
-							data.formatGrid.transparency === undefined ? 100 : data.formatGrid.transparency);
+							data.formatGrid.transparency === undefined ? 100 : data.formatGrid.transparency
+						);
 						f.setLineColor(data.formatGrid.lineColor || template.axisgrid.format.lineColor);
 						f.setLineStyle(
-							data.formatGrid.lineStyle === undefined ? template.axisgrid.format.lineStyle : data.formatGrid.lineStyle);
+							data.formatGrid.lineStyle === undefined
+								? template.axisgrid.format.lineStyle
+								: data.formatGrid.lineStyle
+						);
 						f.setLineWidth(
-							data.formatGrid.lineWidth === undefined ? template.axisgrid.format.lineWidth : data.formatGrid.lineWidth);
+							data.formatGrid.lineWidth === undefined
+								? template.axisgrid.format.lineWidth
+								: data.formatGrid.lineWidth
+						);
 						break;
 					case 'xAxisTitle':
 					case 'yAxisTitle':
 						f.setFillColor(data.format.fillColor || template.axisTitle.format.fillColor);
 						f.setFillStyle(
-							data.format.fillStyle === undefined ? template.axisTitle.fillStyle : data.format.fillStyle);
+							data.format.fillStyle === undefined
+								? template.axisTitle.fillStyle
+								: data.format.fillStyle
+						);
 						f.setTransparency(data.format.transparency === undefined ? 100 : data.format.transparency);
 						f.setLineColor(data.format.lineColor || template.axisTitle.format.lineColor);
 						f.setLineStyle(
-							data.format.lineStyle === undefined ? template.axisTitle.lineStyle : data.format.lineStyle);
+							data.format.lineStyle === undefined
+								? template.axisTitle.lineStyle
+								: data.format.lineStyle
+						);
 						f.setLineWidth(
-							data.format.lineWidth === undefined ? template.axisTitle.lineWidth : data.format.lineWidth);
+							data.format.lineWidth === undefined
+								? template.axisTitle.lineWidth
+								: data.format.lineWidth
+						);
 						break;
 					default:
 						break;
@@ -1408,11 +1634,10 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 
 			if (expr) {
 				if (expr.getTerm()) {
-					const formula = `=${expr.getTerm().toLocaleString(JSG.getParserLocaleSettings(), {
+					return `=${expr.getTerm().toLocaleString(JSG.getParserLocaleSettings(), {
 						item: sheet,
 						useName: true
 					})}`;
-					return formula;
 				}
 				return String(expr.getValue());
 			}
@@ -1470,7 +1695,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				}
 				value = map.get('transparency');
 				if (value !== undefined) {
-					format.transparency = value
+					format.transparency = value;
 				}
 				value = map.get('fontcolor');
 				if (value) {
@@ -1494,6 +1719,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					format.localCulture = undefined;
 				} else {
 					if (value !== undefined) {
+						format.linkNumberFormat = false;
 						format.numberFormat = map.get('numberformat');
 					}
 					value = map.get('localculture');
@@ -1538,7 +1764,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 		getSheetView() {
 			let sheet = this;
 
-			while (sheet && (sheet.getItem && !sheet.getItem().getCellDescriptors)) {
+			while (sheet && sheet.getItem && !sheet.getItem().getCellDescriptors) {
 				sheet = sheet.getParent();
 			}
 
