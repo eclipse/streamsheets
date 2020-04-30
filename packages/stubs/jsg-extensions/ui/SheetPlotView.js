@@ -1013,11 +1013,9 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 						if (serie.type === 'area') {
 							if (newLine) {
 								pt.y = item.scaleToAxis(axes.y, 0, undefined, false);
-								graphics.lineTo(xLast, plotRect.bottom - pt.y * plotRect.height);
-								graphics.lineTo(
-									plotRect.left + xFirst * plotRect.width,
-									plotRect.bottom - pt.y * plotRect.height
-								);
+								pt.y = plotRect.bottom - pt.y * plotRect.height;
+								graphics.lineTo(xLast, pt.y);
+								graphics.lineTo(xFirst, pt.y);
 								graphics.closePath();
 								if (fill) {
 									this.fill(graphics, serie.format);

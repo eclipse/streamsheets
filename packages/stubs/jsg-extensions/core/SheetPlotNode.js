@@ -2118,7 +2118,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	}
 
 	validate(val, allowString) {
-		if (this.chart.dataMode === 'datazero' || this.chart.stacked) {
+		if (this.chart.dataMode === 'datazero'/* || this.chart.stacked */) {
 			return allowString || Numbers.isNumber(val) ? val : 0;
 		}
 
