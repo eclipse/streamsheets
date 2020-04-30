@@ -16,6 +16,34 @@
 		"password": "fc3fd1db-274e-4eec-b952-7ff4e1270e12"
 	},
 	{
+		"_id": "CONSUMER_MQTT",
+		"id": "CONSUMER_MQTT",
+		"name": "MQTT_Consumer",
+		"className": "ConsumerConfiguration",
+		"connector": {
+			"_id": "CONNECTOR_MQTT",
+			"id": "CONNECTOR_MQTT",
+			"className": "ConnectorConfiguration",
+			"isRef": true
+		},
+		"topics": ["#"],
+		"providerId": "@cedalo/stream-mqtt"
+	},
+	{
+		"_id": "PRODUCER_MQTT",
+		"id": "PRODUCER_MQTT",
+		"name": "MQTT_Producer",
+		"className": "ProducerConfiguration",
+		"connector": {
+			"_id": "CONNECTOR_MQTT",
+			"id": "CONNECTOR_MQTT",
+			"className": "ConnectorConfiguration",
+			"isRef": true
+		},
+		"topic": "",
+		"providerId": "@cedalo/stream-mqtt"
+	},
+	{
 		"_id": "CONNECTOR_MONGODB",
 		"id": "CONNECTOR_MONGODB",
 		"name": "MongoDB_Connector",
@@ -35,6 +63,22 @@
 		"authType": ""
 	},
 	{
+		"id": "PRODUCER_MONGODB",
+		"name": "MongoDB_Producer",
+		"scope": {
+			"id": "root"
+		},
+		"className": "ProducerConfiguration",
+		"connector": {
+			"_id": "CONNECTOR_MONGODB",
+			"id": "CONNECTOR_MONGODB",
+			"className": "ConnectorConfiguration",
+			"isRef": true
+		},
+		"providerId": "@cedalo/stream-mongodb",
+		"collection": ""
+	},
+	{
 		"_id": "CONNECTOR_REST",
 		"id": "CONNECTOR_REST",
 		"name": "HTTP_Connector",
@@ -50,49 +94,64 @@
 		"password": ""
 	},
 	{
-		"_id": "CONSUMER_MQTT",
-		"id": "CONSUMER_MQTT",
-		"name": "MQTT_Consumer",
-		"className": "ConsumerConfiguration",
-		"connector": {
-			"_id": "CONNECTOR_MQTT",
-			"id": "CONNECTOR_MQTT",
-			"className": "ConnectorConfiguration",
-			"isRef": true
-		},
-		"topics": ["test", "test1"],
-		"providerId": "@cedalo/stream-mqtt"
-	},
-	{
-		"_id": "PRODUCER_MQTT",
-		"id": "PRODUCER_MQTT",
-		"name": "MQTT_Producer",
-		"className": "ProducerConfiguration",
-		"connector": {
-			"_id": "CONNECTOR_MQTT",
-			"id": "CONNECTOR_MQTT",
-			"className": "ConnectorConfiguration",
-			"isRef": true
-		},
-		"topic": "",
-		"providerId": "@cedalo/stream-mqtt"
-	},
-	{
-		"_id": "CONNECTOR_FILE_LOCAL",
-		"id": "CONNECTOR_FILE_LOCAL",
-		"name": "File_Connector",
+		"_id": "CONNECTOR_HTTP",
+		"id": "CONNECTOR_HTTP",
+		"name": "HTTP_Client_Connector",
 		"className": "ConnectorConfiguration",
 		"provider": {
-			"_id": "@cedalo/stream-file",
-			"id": "@cedalo/stream-file",
+			"_id": "@cedalo/stream-rest-client",
+			"id": "@cedalo/stream-rest-client",
 			"className": "ProviderConfiguration",
 			"isRef": true
 		},
-		"protocol": "local",
-		"rootDir": ""
+		"baseUrl": "",
+		"userName": "",
+		"password": ""
 	},
 	{
-		"_id": "CONNECTOR_KAFKA",
+		"_id": "PRODUCER_HTTP",
+		"id": "PRODUCER_HTTP",
+		"name": "HTTP_Client_Producer",
+		"className": "ProducerConfiguration",
+		"connector": {
+			"_id": "CONNECTOR_HTTP",
+			"id": "CONNECTOR_HTTP",
+			"className": "ConnectorConfiguration",
+			"isRef": true
+		},
+		"providerId": "@cedalo/stream-rest-client"
+	},
+	{
+		"id": "CONNECTOR_WEBHOOK",
+		"name": "Webhook_Connector",
+		"className": "ConnectorConfiguration",
+		"provider": {
+			"_id": "@cedalo/rest-server",
+			"id": "@cedalo/rest-server",
+			"className": "ProviderConfiguration",
+			"isRef": true
+		},
+		"baseUrl": "cedalo/"
+	},
+	{
+		"_id": "CONSUMER_WEBHOOK",
+		"id": "CONSUMER_WEBHOOK",
+		"name": "Webhook",
+		"className": "ConsumerConfiguration",
+		"connector": {
+			"_id": "CONNECTOR_WEBHOOK",
+			"id": "CONNECTOR_WEBHOOK",
+			"className": "ConnectorConfiguration",
+			"isRef": true
+		},
+		"filter": null,
+		"labelAttribute": null,
+		"idAttribute": null,
+		"providerId": "@cedalo/rest-server",
+		"mimeType": "auto",
+		"topics": ["streamsheet"]
+	},
+	{
 		"id": "CONNECTOR_KAFKA",
 		"name": "Kafka_Connector",
 		"className": "ConnectorConfiguration",
@@ -112,15 +171,19 @@
 		"connectTimeout": 10000
 	},
 	{
-		"_id": "CONNECTOR_EMAIL",
-		"id": "CONNECTOR_EMAIL",
-		"name": "Email_Connector",
-		"className": "ConnectorConfiguration",
-		"provider": {
-			"_id": "@cedalo/stream-mail-pop3",
-			"id": "@cedalo/stream-mail-pop3",
-			"className": "ProviderConfiguration",
+		"id": "PRODUCER_KAFKA",
+		"name": "Kafka_Producer",
+		"disabled": false,
+		"className": "ProducerConfiguration",
+		"connector": {
+			"_id": "CONNECTOR_KAFKA",
+			"id": "CONNECTOR_KAFKA",
+			"className": "ConnectorConfiguration",
 			"isRef": true
-		}
+		},
+		"providerId": "@cedalo/stream-kafka",
+		"mimeType": "auto",
+		"clientId": "",
+		"topic": ""
 	}
 ]
