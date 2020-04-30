@@ -55,7 +55,7 @@ class Connector extends Stream {
 		}
 		this.on(Connector.EVENTS.UPDATE, (/* configDiff */) => {
 			if (this.config.disabled !== true) {
-				this.logger.debug(`Stream ${this.toString()}: Reloading after update`);
+				this.logger.info(`Stream ${this.toString()}: Reloading after update`);
 				this._reload();
 			}
 		});
@@ -148,10 +148,10 @@ class Connector extends Stream {
 		return this._reload(false);
 	}
 
-	async _reload(force = true) {
-		this._connected = false;
+	async _reload(force = false) {
 		this.ready = false;
 		if (this.isConnected) {
+			this._connected = false;
 			await this._dispose(force);
 		}
 		this._connecting = false;
@@ -308,6 +308,7 @@ class Connector extends Stream {
 	}
 
 	async _dispose(force = false) {
+		this.logger.info(`Stream ${this.toString()}: Disposing...`);
 		this._disconnecting = true;
 		this._connecting = false;
 		if (force === true) {
@@ -319,7 +320,9 @@ class Connector extends Stream {
 		});
 		try {
 			this._connected = false;
-			return this.dispose();
+			const res = await this.dispose();
+			this.logger.info(`Stream ${this.toString()}: Disposed succesfully`);
+			return res;
 		} catch (e) {
 			return this.handleError(e);
 		}
