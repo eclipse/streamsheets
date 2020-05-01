@@ -2186,6 +2186,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 						value.x = values[ref.xKey][index];
 					}
 					value.x = this.validate(value.x);
+				}
+				if (values.time && values.time.length > index && index >= 0) {
 					if (values[ref.cKey]) {
 						value.c = values[ref.cKey][index];
 					}
