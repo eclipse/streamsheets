@@ -1436,8 +1436,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 							};
 						}
 						if (axes.x.format.linkNumberFormat && index === 0 && pointIndex === 0 && value.formatX) {
-							axes.x.format.numberFormat = value.formatX.numberFormat;
-							axes.x.format.localCulture = value.formatX.localCulture;
+							axes.x.format.linkedNumberFormat = value.formatX.numberFormat;
+							axes.x.format.linkedLocalCulture = value.formatX.localCulture;
 						}
 						axes.y.categories[pointIndex].values[index] = {
 							x: value.x,
@@ -2081,11 +2081,11 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				if (axis && axis.format.linkNumberFormat) {
 					const tf = ref.x.sheet.getTextFormatAtRC(ref.x.range._x1, ref.x.range._y1 + index);
 					if (tf) {
-						axis.format.localCulture = tf
+						axis.format.linkedLocalCulture = tf
 							.getLocalCulture()
 							.getValue()
 							.toString();
-						axis.format.numberFormat = tf.getNumberFormat().getValue();
+						axis.format.linkedNumberFormat = tf.getNumberFormat().getValue();
 					}
 				}
 			} else if (index <= ref.x.range._x2 - ref.x.range._x1) {
@@ -2096,11 +2096,11 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				if (axis && axis.format.linkNumberFormat) {
 					const tf = ref.x.sheet.getTextFormatAtRC(ref.x.range._x1 + index, ref.x.range._y1);
 					if (tf) {
-						axis.format.localCulture = tf
+						axis.format.linkedLocalCulture = tf
 							.getLocalCulture()
 							.getValue()
 							.toString();
-						axis.format.numberFormat = tf.getNumberFormat().getValue();
+						axis.format.linkedNumberFormat = tf.getNumberFormat().getValue();
 					}
 				}
 			}
@@ -2111,7 +2111,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		}
 
 		if (axis && Numbers.isNumber(label)) {
-			label = this.formatNumber(label, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+			if (axis.format && axis.format.numberFormat) {
+				label = this.formatNumber(label, axis.format);
+			} else {
+				label = this.formatNumber(label,
+					axis.scale.format ? axis.scale.format : {numberFormat: axis.format.linkedNumberFormat, localCulture: axis.format.linkedLocalCulture});
+			}
 		}
 
 		return label;
@@ -2176,30 +2181,19 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (values) {
 				if (this.xAxes[0].type === 'category') {
 					value.x = index;
-				} else {
-					if (values.time) {
-						if (values.time.length > index && values[ref.xKey]) {
-							value.x = values[ref.xKey][index];
-						}
-					} else if (values.length > index) {
-						value.x = values[index].key;
+				} else if (values.time && values.time.length > index && index >= 0) {
+					if (values[ref.xKey]) {
+						value.x = values[ref.xKey][index];
 					}
 					value.x = this.validate(value.x);
-				}
-				if (values.time) {
-					if (values.time.length > index && values[ref.cKey]) {
+					if (values[ref.cKey]) {
 						value.c = values[ref.cKey][index];
 					}
-				}
-				value.x = this.validate(value.x);
-				if (values.time) {
-					if (values.time.length > index && values[ref.yKey]) {
+					value.c = this.validate(value.c);
+					if (values[ref.yKey]) {
 						value.y = this.validate(values[ref.yKey][index]);
 						return true;
 					}
-				} else if (values.length > index) {
-					value.y = this.validate(values[index].value);
-					return true;
 				}
 			}
 
@@ -3678,6 +3672,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 		// check for TIMEAGGREGATES and INFLUX.SELECT
 		if (width <= 2 || height <= 2) {
+			let colSeriesLabels = false;
+			let rowSeriesLabels = false;
 			const taRange = range.copy();
 			taRange.enumerateCells(true, (pos) => {
 				const cell = data.get(pos);
@@ -3686,10 +3682,13 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				}
 			});
 			if (time === false) {
+				time = true;
 				if (width === 2) {
 					taRange._x1 += 1;
+					colSeriesLabels = true;
 				} else if (height === 2) {
 					taRange._y1 += 1;
+					rowSeriesLabels = true;
 				}
 				taRange.enumerateCells(true, (pos) => {
 					const cell = data.get(pos);
@@ -3708,22 +3707,26 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 						const source = new CellRange(taRange.getSheet(), pos.x, pos.y);
 						source.shiftToSheet();
 						const ref = source.toString({ item: sheet, useName: true });
-						let xValue = cell.xvalue;
-						if (selection.getSize() > 1) {
-							const rangeX = selection.getAt(1);
-							const cellX = data.getRC(rangeX.getX1(), rangeX.getY1());
-							if (cellX) {
-								const valX = cellX.getValue();
-								if (valX !== undefined) {
-									xValue = String(valX);
-								}
-							}
+						const xValue = cell.xvalue;
+						let seriesLabel;
+						if (colSeriesLabels) {
+							const labels = new CellRange(taRange.getSheet(), pos.x - 1, pos.y);
+							labels.shiftToSheet();
+							seriesLabel = labels.toString({ item: sheet, useName: true });
+						} else if (rowSeriesLabels) {
+							const labels = new CellRange(taRange.getSheet(), pos.x, pos.y - 1);
+							labels.shiftToSheet();
+							seriesLabel = labels.toString({ item: sheet, useName: true });
 						}
+
 						const fields = Object.keys(values);
 						for (let i = 0; i < fields.length; i += 1) {
 							const key = fields[i];
 							if (key !== xValue && key !== 'time') {
 								if (values[key].length && Numbers.isNumber(values[key][0])) {
+									if (seriesLabel === undefined) {
+										seriesLabel = `"${key}"`;
+									}
 									if (type === 'bubble' || type === 'state') {
 										i += 1;
 										for (; i < fields.length; i += 1) {
@@ -3732,12 +3735,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 												values[radius].length &&
 												(Numbers.isNumber(values[radius][0]) || type === 'state')
 											) {
-												formula = `SERIES("${xValue}","${key}",${ref},"${xValue}","${key}","${radius}")`;
+												formula = `SERIES("${xValue}",${seriesLabel},${ref},"${xValue}","${key}","${radius}")`;
 												break;
 											}
 										}
 									} else {
-										formula = `SERIES("${xValue}","${key}",${ref},"${xValue}","${key}")`;
+										formula = `SERIES("${xValue}",${seriesLabel},${ref},"${xValue}","${key}")`;
 									}
 									createSeries(type, formula, markers, line);
 								}

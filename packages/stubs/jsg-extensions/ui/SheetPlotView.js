@@ -488,11 +488,11 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				if (!grid) {
 					if (axis.type === 'category' && refLabel) {
 						text = item.getLabel(refLabel, axis, Math.floor(current.value));
+					} else if (axis.format && axis.format.numberFormat) {
+						text = item.formatNumber(current.value, axis.format);
 					} else {
-						text = item.formatNumber(
-							current.value,
-							axis.format && axis.format.numberFormat ? axis.format : axis.scale.format
-						);
+						text = item.formatNumber(current.value,
+							axis.scale.format ? axis.scale.format : {numberFormat: axis.format.linkedNumberFormat, localCulture: axis.format.linkedLocalCulture});
 					}
 				}
 
