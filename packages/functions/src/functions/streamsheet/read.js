@@ -85,13 +85,17 @@ const spreadObjectList = (list, cellrange, isHorizontal) => {
 	const iterate = vertical ? cellrange.iterateByCol : cellrange.iterate;
 	let keyidx = 0;
 	let listidx = -1;
+	let value;
 	iterate.call(cellrange, (cell, index, next) => {
 		keyidx = next ? 0 : keyidx + 1;
 		listidx += next ? 1 : 0;
-		if (listidx > list.length) listidx = 0;
-		const isArray = Array.isArray(list[listidx]);
-		// eslint-disable-next-line
-		const value = isArray ? list[listidx][keys[keyidx]] : (listidx === 0 ? keys[keyidx] : list[listidx - 1][keys[keyidx]]);
+		if (listidx > list.length) {
+			value = undefined
+		} else {
+			const isArray = Array.isArray(list[listidx]);
+			// eslint-disable-next-line
+			value = isArray ? list[listidx][keys[keyidx]] : (listidx === 0 ? keys[keyidx] : list[listidx - 1][keys[keyidx]]);
+		}
 		setOrCreateCellAt(index, value, false, sheet);
 	});
 };

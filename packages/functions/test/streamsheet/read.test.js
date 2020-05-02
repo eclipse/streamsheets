@@ -544,7 +544,7 @@ describe('read', () => {
 			expect(sheet.cellAt(SheetIndex.create('C2')).value).toBe(2);
 		});
 		// DL-4033
-		it('should copy an array of objects to larger target range', () => {
+		it('should copy an array of objects to larger target range without repeating data', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			const outbox = sheet.machine.outbox;
 			outbox.put(
@@ -582,32 +582,32 @@ describe('read', () => {
 			expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe('Quantity');
 			expect(sheet.cellAt(SheetIndex.create('C1')).value).toBe('Price');
 			expect(sheet.cellAt(SheetIndex.create('D1')).value).toBe('Lineprice');
-			expect(sheet.cellAt(SheetIndex.create('E1')).value).toBe('Product');
-			expect(sheet.cellAt(SheetIndex.create('F1')).value).toBe('Quantity');
+			expect(sheet.cellAt(SheetIndex.create('E1'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('F1'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('A2')).value).toBe('a');
 			expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe(2);
 			expect(sheet.cellAt(SheetIndex.create('C2')).value).toBe(12);
 			expect(sheet.cellAt(SheetIndex.create('D2')).value).toBe(24);
-			expect(sheet.cellAt(SheetIndex.create('E2')).value).toBe('a');
-			expect(sheet.cellAt(SheetIndex.create('F2')).value).toBe(2);
+			expect(sheet.cellAt(SheetIndex.create('E2'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('F2'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('A3')).value).toBe('b');
 			expect(sheet.cellAt(SheetIndex.create('B3')).value).toBe(2);
 			expect(sheet.cellAt(SheetIndex.create('C3')).value).toBe(13);
 			expect(sheet.cellAt(SheetIndex.create('D3')).value).toBe(26);
-			expect(sheet.cellAt(SheetIndex.create('E3')).value).toBe('b');
-			expect(sheet.cellAt(SheetIndex.create('F3')).value).toBe(2);
+			expect(sheet.cellAt(SheetIndex.create('E3'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('F3'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('A4')).value).toBe('c');
 			expect(sheet.cellAt(SheetIndex.create('B4')).value).toBe(2);
 			expect(sheet.cellAt(SheetIndex.create('C4')).value).toBe(4);
 			expect(sheet.cellAt(SheetIndex.create('D4')).value).toBe(8);
-			expect(sheet.cellAt(SheetIndex.create('E4')).value).toBe('c');
-			expect(sheet.cellAt(SheetIndex.create('F4')).value).toBe(2);
+			expect(sheet.cellAt(SheetIndex.create('E4'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('F4'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('A5')).value).toBe('d');
 			expect(sheet.cellAt(SheetIndex.create('B5')).value).toBe(2);
 			expect(sheet.cellAt(SheetIndex.create('C5')).value).toBe(5);
 			expect(sheet.cellAt(SheetIndex.create('D5')).value).toBe(10);
-			expect(sheet.cellAt(SheetIndex.create('E5')).value).toBe('d');
-			expect(sheet.cellAt(SheetIndex.create('F5')).value).toBe(2);
+			expect(sheet.cellAt(SheetIndex.create('E5'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('F5'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('A6'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('B6'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('C6'))).toBeUndefined();
@@ -720,6 +720,42 @@ describe('read', () => {
 			expect(sheet.cellAt('D2').value).toBe('Scalar');
 			expect(sheet.cellAt('C3').value).toBe('value');
 			expect(sheet.cellAt('D3').value).toBe(1);
+		});
+		// DL-4033 skipped until dictionary behaviour is specified...
+		it.skip('should copy a dictionary of objects to larger target range without repeating data', () => {
+			const sheet = setup({ streamsheetName: 'T1' });
+			const outbox = sheet.machine.outbox;
+			outbox.put(
+				new Message(
+					{
+						cart: {
+							Quantity: 50,
+							Price: 42,
+							Lineprice: 123
+						}
+					},
+					'Session'
+				)
+			);
+			expect(createTerm('read(outboxdata("Session","cart"), A1:D6)', sheet).value).toBe('cart');
+			expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe('Quantity');
+			expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(50);
+			expect(sheet.cellAt(SheetIndex.create('A2')).value).toBe('Price');
+			expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe(42);
+			expect(sheet.cellAt(SheetIndex.create('A3')).value).toBe('Lineprice');
+			expect(sheet.cellAt(SheetIndex.create('B3')).value).toBe(123);
+			expect(sheet.cellAt(SheetIndex.create('C1'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('D1'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('C2'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('D2'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('C3'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('D3'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('C4'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('D4'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('C5'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('D5'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('C6'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('D6'))).toBeUndefined();
 		});
 		it(`should read dictionary and return ${ERROR.NA} if current message has not requested data`, () => {
 			const machine = new Machine();
