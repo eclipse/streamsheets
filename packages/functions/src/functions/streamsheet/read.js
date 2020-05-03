@@ -34,7 +34,7 @@ const setOrCreateCellAt = (index, value, isErrorValue, sheet) => {
 const defValue = type => (type === 'number' ? 0 : (type === 'boolean' ? false : ''));
 
 const getLastValue = (term, type) => {
-	const value = term._lastValue;
+	const value = term ? term._lastValue : undefined;
 	return value != null ? value : defValue(type);
 };
 
@@ -134,11 +134,12 @@ const read = (sheet, ...terms) =>
 		.mapNextArg((returnNA) => toBool(returnNA, false))
 		.validate((data, targetRange) => targetRange && validate(targetRange, ERROR.INVALID_PARAM))
 		.run((data, targetRange, type, isHorizontal, returnNA) => {
+			const readterm = read.term;
 			if (data.value == null || data.isProcessed) {
-				data.value = returnNA ? ERROR.NA : getLastValue(read.term, type);
+				data.value = returnNA ? ERROR.NA : getLastValue(readterm, type);
 			}
 			if (targetRange) {
-				read.term._lastValue = data.value;
+				if (readterm) readterm._lastValue = data.value;
 				copyToCellRange(targetRange, data.value, type, isHorizontal);
 			}
 			// DL-1080: part of this issue specifies that READ() should return number value...
