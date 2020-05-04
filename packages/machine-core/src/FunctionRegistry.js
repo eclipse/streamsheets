@@ -58,8 +58,11 @@ class FunctionRegistry {
 	registerFunctionDefinitions(definitions = []) {
 		if (functionFactory) {
 			const functions = definitions.reduce((fns, def) => {
-				const fn = functionFactory.createFrom(def);
-				if (fn) fns[def.name] = fn;
+				// stream functions do not overwrite already existing (additional) functions
+				if (Functions.additional[def.name] == null) {
+					const fn = functionFactory.createFrom(def);
+					if (fn) fns[def.name] = fn;
+				}
 				return fns;
 			}, {});
 			registerAdditional({ functions });

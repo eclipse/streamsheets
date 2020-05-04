@@ -358,7 +358,7 @@ class FunctionWizard extends Component {
 			this.state.fields.map((field) => {
 				const { value } = field;
 				const { type } = field.paramConfig;
-				if (value === undefined || value === '') {
+				if (value == null || value === '') {
 					return '';
 				}
 				if (isFormula(value, item)) {
@@ -366,9 +366,10 @@ class FunctionWizard extends Component {
 					return isJSONParam(type) && isMultiCellRange(formula, item) ? `JSON(${formula})` : formula;
 				}
 				if (type && type.name === 'boolean') {
-					return !!field.value;
+					// return !!value;
+					return `${value}`.toLowerCase() === 'true';
 				}
-				return quoted(field.value);
+				return quoted(value);
 			})
 		);
 
