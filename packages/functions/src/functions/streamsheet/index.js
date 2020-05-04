@@ -25,7 +25,7 @@ const OUTBOXJSON = require('./outboxjson');
 const PRODUCE = require('./produce');
 const READ = require('./read');
 const REFRESH = require('./refresh');
-const { REQUEST, REQUESTINFO } = require('./request');
+const { requestinternal, REQUEST, REQUESTINFO } = require('./request');
 const { RESPOND } = require('./respond');
 const RETURN = require('./return');
 const SELECT = require('./select');
@@ -43,6 +43,7 @@ module.exports = {
 		...detectchange,
 		...loop,
 		...values,
+		requestinternal,
 		ARRAY,
 		CALC,
 		DELETE,
