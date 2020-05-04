@@ -268,7 +268,7 @@ class MachineControlBar extends React.Component {
 						<CustomTooltip header="Tooltip.ShutdownMachineHeader" message="Tooltip.ShutdownMachineMessage">
 							<IconButton
 								color="inherit"
-								disabled={!this.props.debug}
+								disabled={this.props.debug}
 								onClick={this.onShutdownMachine}
 							>
 								<ShutdownIcon />
