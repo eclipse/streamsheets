@@ -162,6 +162,12 @@ class MoveInteraction extends AbstractInteraction {
 
 	onMouseDrag(event, viewer) {
 		if (this._feedback && !this._keyOffset) {
+
+			// check if selected in content pane
+			if (this._delegate._isFeedbackScrollable(this._feedback, event, viewer)) {
+				return;
+			}
+
 			const position = JSG.ptCache.get().setTo(this.currentLocation);
 			this._moveFeedback(position, event, viewer);
 			JSG.ptCache.release(position);
@@ -208,6 +214,7 @@ class MoveInteraction extends AbstractInteraction {
 				this.getInteractionHandler().handleMouseEvent(event);
 			}
 		}
+		this._delegate.deactivateTimer();
 	}
 
 	willFinish(event, viewer, offset) {
@@ -270,6 +277,7 @@ class MoveInteraction extends AbstractInteraction {
 			viewer.getSelectionView().refresh();
 			activeInteraction._setActiveHandle(viewer.getHandleAt(loc, event));
 		}
+		this._delegate.deactivateTimer();
 	}
 
 	/**
