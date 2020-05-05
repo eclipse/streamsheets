@@ -1,8 +1,6 @@
 import {
 	default as JSG,
 	CellRange,
-	Notification,
-	NotificationCenter,
 	TreeItemsNode,
 	InboxContainer,
 	OutboxContainer,
@@ -49,15 +47,6 @@ export default class StreamSheetView extends WorksheetView {
 		}
 	}
 
-	/**
-	 * Get Feedback for Drag and Drop operation.
-	 *
-	 * @param location Current mouse position relative to graph.
-	 * @param title Text of source ite m
-	 * @param sourceView View of source item
-	 * @param viewer GraphViewer
-	 * @returns {View} View to use for Feedback.
-	 */
 	getFeedback(location, startLocation, title, sourceView, key, event, viewer) {
 		if (sourceView === undefined) {
 			return undefined;
@@ -67,8 +56,7 @@ export default class StreamSheetView extends WorksheetView {
 		let point = new Point(0, 0);
 		const hScrollSize =
 			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
-		const vScrollSize =
-			this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		const vScrollSize = this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
 
 		point.setTo(location);
 		point = this.translateToSheet(point, viewer);
@@ -91,103 +79,87 @@ export default class StreamSheetView extends WorksheetView {
 		const isMessageBox = this.isMessageBox(sourceView, event);
 
 		if (isMessageBox) {
-			label = 'PRODUCE';
-			color = '#1976d2';
-			range = new CellRange(this.getItem(), cell.x, cell.y, cell.x, cell.y);
 			return undefined;
-		} else {
-			inBox = this.isInbox(sourceView, event);
-			if (inBox === undefined) {
-				return undefined;
+		}
+		inBox = this.isInbox(sourceView, event);
+		if (inBox === undefined) {
+			return undefined;
+		}
+
+		const selectedItem = sourceView.getSelectedItem();
+		vertical = event.isPressed(ClientEvent.KeyType.CTRL);
+
+		const treeItems = sourceView.getItem().getSubTreeForItem(selectedItem);
+		treeItems.unshift(selectedItem);
+
+		let skipDepth;
+		const rows = key ? treeItems.length : 1;
+		let displayRows = 0;
+
+		for (let i = 0; i < rows; i += 1) {
+			if (skipDepth !== undefined && skipDepth === treeItems[i].depth) {
+				while (treeItems[i] && treeItems[i].depth >= skipDepth) {
+					i += 1;
+					if (treeItems[i] === undefined) {
+						break;
+					}
+				}
+				if (i >= rows) {
+					break;
+				}
+				skipDepth = undefined;
+			}
+			const itemPath = sourceView.getItem().getItemPath(treeItems[i]);
+			const path = TreeItemsNode.splitPath(itemPath);
+			const activeItem = sourceView
+				.getItem()
+				.getTreeItemAttributes()
+				.getActiveElement()
+				.getValue();
+			let activePath;
+
+			if (activeItem && activeItem.length && itemPath.startsWith(`${activeItem}`)) {
+				activePath = TreeItemsNode.splitPath(activeItem);
 			}
 
-			const selectedItem = sourceView.getSelectedItem();
-			vertical = event.isPressed(ClientEvent.KeyType.CTRL);
+			let pos = inBox ? 1 : 0;
 
-			const treeItems = sourceView.getItem().getSubTreeForItem(selectedItem);
-			treeItems.unshift(selectedItem);
-
-			let skipDepth;
-			const rows = key ? treeItems.length : 1;
-			let displayRows = 0;
-
-			for (let i = 0; i < rows; i += 1) {
-				if (skipDepth !== undefined && skipDepth === treeItems[i].depth) {
-					while (treeItems[i] && treeItems[i].depth >= skipDepth) {
-						i += 1;
-						if (treeItems[i] === undefined) {
+			if (inBox) {
+				if (activePath && activePath.length !== path.length) {
+					for (; pos < activePath.length; pos += 1) {
+						if (activePath[pos] !== path[pos]) {
 							break;
 						}
 					}
-					if (i >= rows) {
-						break;
-					}
-					skipDepth = undefined;
-				}
-				const itemPath = sourceView.getItem().getItemPath(treeItems[i]);
-				const path = TreeItemsNode.splitPath(itemPath);
-				const activeItem = sourceView
-					.getItem()
-					.getTreeItemAttributes()
-					.getActiveElement()
-					.getValue();
-				let activePath;
-
-				if (activeItem && activeItem.length && itemPath.startsWith(`${activeItem}`)) {
-					activePath = TreeItemsNode.splitPath(activeItem);
-				}
-
-				let pos = inBox ? 1 : 0;
-
-				if (inBox) {
-					if (activePath && activePath.length !== path.length) {
-						for (; pos < activePath.length; pos += 1) {
-							if (activePath[pos] !== path[pos]) {
-								break;
-							}
-						}
-						if (pos === activePath.length) {
-							pos += 1;
-							if (skipDepth === undefined) {
-								skipDepth = treeItems[i].depth;
-							}
-						} else {
-							pos = 0;
+					if (pos === activePath.length) {
+						pos += 1;
+						if (skipDepth === undefined) {
+							skipDepth = treeItems[i].depth;
 						}
 					} else {
-						pos = 1;
+						pos = 0;
 					}
-				}
-				displayRows += 1;
-			}
-
-			if (inBox) {
-				if (vertical) {
-					range = new CellRange(
-						this.getItem(),
-						cell.x,
-						cell.y,
-						cell.x + displayRows - 1,
-						cell.y + (key ? 1 : 0)
-					);
 				} else {
-					range = new CellRange(
-						this.getItem(),
-						cell.x,
-						cell.y,
-						cell.x + (key ? 1 : 0),
-						cell.y + displayRows - 1
-					);
+					pos = 1;
 				}
-			} else if (vertical) {
-				range = new CellRange(this.getItem(), cell.x, cell.y - (key ? 1 : 0), cell.x + displayRows - 1, cell.y);
-			} else {
-				range = new CellRange(this.getItem(), cell.x - (key ? 1 : 0), cell.y, cell.x, cell.y + displayRows - 1);
 			}
-
-			label = selectedItem.key;
-			({ color } = selectedItem);
+			displayRows += 1;
 		}
+
+		if (inBox) {
+			if (vertical) {
+				range = new CellRange(this.getItem(), cell.x, cell.y, cell.x + displayRows - 1, cell.y + (key ? 1 : 0));
+			} else {
+				range = new CellRange(this.getItem(), cell.x, cell.y, cell.x + (key ? 1 : 0), cell.y + displayRows - 1);
+			}
+		} else if (vertical) {
+			range = new CellRange(this.getItem(), cell.x, cell.y - (key ? 1 : 0), cell.x + displayRows - 1, cell.y);
+		} else {
+			range = new CellRange(this.getItem(), cell.x - (key ? 1 : 0), cell.y, cell.x, cell.y + displayRows - 1);
+		}
+
+		label = selectedItem.key;
+		({ color } = selectedItem);
 
 		const rect = this.getRangeRect(range);
 		let cellPoint = this.translateFromSheet(new Point(rect.x, rect.y), viewer);
@@ -219,7 +191,7 @@ export default class StreamSheetView extends WorksheetView {
 		return feedback;
 	}
 
-	isMessageBox(sourceView, event) {
+	isMessageBox(sourceView) {
 		return (
 			sourceView
 				.getItem()
@@ -243,7 +215,7 @@ export default class StreamSheetView extends WorksheetView {
 		return undefined;
 	}
 
-	isOutbox(sourceView, event) {
+	isOutbox(sourceView) {
 		return !!this.getOutbox(sourceView);
 	}
 
@@ -302,7 +274,6 @@ export default class StreamSheetView extends WorksheetView {
 			// range.shiftToSheet();
 			//
 			// const messageFormula = this.isOutbox(sourceView, event) ? `OUTBOX("${selection.key}")` : 'INBOX()';
-
 			// NotificationCenter.getInstance().send(
 			// 	new Notification(StreamSheetView.SHEET_DROP_FROM_OUTBOX, {
 			// 		event,
@@ -345,7 +316,6 @@ export default class StreamSheetView extends WorksheetView {
 			const treeItems = sourceView.getItem().getSubTreeForItem(selection);
 			treeItems.unshift(selection);
 
-			let cmd;
 			let skipDepth;
 			const rows = key ? treeItems.length : 1;
 			const targetRangeMemory = [];
@@ -381,7 +351,7 @@ export default class StreamSheetView extends WorksheetView {
 					if (outbox !== undefined) {
 						let sel = outbox.getMessageListItems().getSelectedItem();
 						if (!sel) {
-							sel = this._findSelectedItemByLevel(0);
+							sel = sourceView._findSelectedItemByLevel(0);
 						}
 						if (sel && sel.id) {
 							name = sel.id;
@@ -495,11 +465,6 @@ export default class StreamSheetView extends WorksheetView {
 								.getColumns()
 								.getInitialSection(),
 						valueRange._y1 -
-
-
-
-
-
 							this.getItem()
 								.getRows()
 								.getInitialSection()
