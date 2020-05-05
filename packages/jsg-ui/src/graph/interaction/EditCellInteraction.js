@@ -422,6 +422,7 @@ export default class EditCellInteraction extends EditTextInteraction {
 		const finish = (key) => {
 			const view = this.getWorksheetView();
 			if (this.checkFormula(this._item) === false) {
+				this._newEdit = false;
 				ev.preventDefault();
 				ev.stopPropagation();
 				return;
