@@ -600,22 +600,45 @@ export class CanvasToolBar extends Component {
 			chartsOpen: false
 		});
 
-		const node = new JSG.SheetPlotNode();
-		const attr = node.addAttribute(new BooleanAttribute('showwizard', true));
-		attr.setTransient(true);
-		const sheetView = graphManager.getActiveSheetView();
-		if (sheetView) {
-			const selection = sheetView.getOwnSelection();
-			if (selection) {
-				graphManager.chartSelection = selection.copy();
-				graphManager.chartType = type;
-			}
-		}
+		if (this.isChartSelected()) {
+			const selection = graphManager.getGraphViewer().getSelection();
+			const item  = selection[0].getModel();
+			const cmd = new JSG.CompoundCommand();
+			const cmdChart = item.prepareCommand('chart');
+			const cmdSeries = item.prepareCommand('series');
 
-		graphManager
-			.getGraphViewer()
-			.getInteractionHandler()
-			.setActiveInteraction(new JSG.CreateItemInteraction(node));
+			type = item.setChartType(type);
+
+			item.series.forEach((serie) => {
+				serie.type = type;
+			});
+
+			item.finishCommand(cmdSeries, 'series');
+			item.finishCommand(cmdChart, 'chart');
+			cmd.add(cmdChart);
+			cmd.add(cmdSeries);
+			graphManager
+				.getGraphViewer()
+				.getInteractionHandler()
+				.execute(cmd);
+		} else {
+			const node = new JSG.SheetPlotNode();
+			const attr = node.addAttribute(new BooleanAttribute('showwizard', true));
+			attr.setTransient(true);
+			const sheetView = graphManager.getActiveSheetView();
+			if (sheetView) {
+				const selection = sheetView.getOwnSelection();
+				if (selection) {
+					graphManager.chartSelection = selection.copy();
+					graphManager.chartType = type;
+				}
+			}
+
+			graphManager
+				.getGraphViewer()
+				.getInteractionHandler()
+				.setActiveInteraction(new JSG.CreateItemInteraction(node));
+		}
 		graphManager.getCanvas().focus();
 	};
 
@@ -3809,7 +3832,7 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							style={buttonStyle}
 							onClick={this.onShowCharts}
-							disabled={!this.props.cellSelected}
+							disabled={!this.props.cellSelected && !this.isChartSelected()}
 						>
 							<SvgIcon>
 								<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
