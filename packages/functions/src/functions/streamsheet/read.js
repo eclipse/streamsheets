@@ -45,7 +45,7 @@ const copyDataToCellRange = (range, isErrorValue, sheet, provider) => {
 	iterate.call(range, (cell, index, next) => {
 		nxt += next ? 1 : 0;
 		idx = next ? 0 : idx + 1;
-		const value = !isErrorValue && (nxt < 2 ? provider.indexAt(idx) : provider.valueAt(idx));
+		const value = !isErrorValue && (nxt < 2 ? provider.indexAt(idx) : provider.valueAt(idx, nxt));
 		setOrCreateCellAt(index, value, isErrorValue, sheet);
 	});
 };
@@ -59,7 +59,7 @@ const dictProvider = (dict, vertical) => {
 	return {
 		vertical,
 		indexAt: idx => (idx >= 0 && idx < keys.length ? keys[idx] : undefined),
-		valueAt: idx => (idx >= 0 && idx < keys.length ? dict[keys[idx]] : undefined)
+		valueAt: (idx, col) => (idx >= 0 && col <3 && idx < keys.length ? dict[keys[idx]] : undefined)
 	};
 };
 // DL-1122: spread a list of objects...
@@ -92,9 +92,20 @@ const spreadObjectList = (list, cellrange, isHorizontal) => {
 		if (listidx > list.length) {
 			value = undefined
 		} else {
-			const isArray = Array.isArray(list[listidx]);
+			const curr = list[listidx];
+			const prev = list[listidx - 1] 
+			// const isArray = Array.isArray(list[listidx]);
+			if (Array.isArray(curr)) {
+				value = curr[keys[keyidx]];
+			} else if (listidx === 0) {
+				value = keys[keyidx];
+			} else if(!Array.isArray(prev)) {
+				value = prev[keys[keyidx]];
+			// } else {
+			// 	value = undefined;
+			}
 			// eslint-disable-next-line
-			value = isArray ? list[listidx][keys[keyidx]] : (listidx === 0 ? keys[keyidx] : list[listidx - 1][keys[keyidx]]);
+			// value = isArray ? list[listidx][keys[keyidx]] : (listidx === 0 ? keys[keyidx] : list[listidx - 1][keys[keyidx]]);
 		}
 		setOrCreateCellAt(index, value, false, sheet);
 	});

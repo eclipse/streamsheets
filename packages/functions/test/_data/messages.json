@@ -55,6 +55,89 @@
 			"Positionen": []
 		}
 	},
+	"TEST1": {
+		"metadata": {
+			"ticket": "DL-4033"
+		},
+		"data": [
+			{
+				"Artikelnummer": 1231,
+				"Produktname": "Produkt A",
+				"Preis": 23.43,
+				"Mwst": 0.19,
+				"Gesamtpreis": 4.4517
+			},
+			{
+				"Artikelnummer": 4321,
+				"Produktname": "Produkt B",
+				"Preis": 12.34,
+				"Mwst": 0.19,
+				"Gesamtpreis": 2.3446
+			},
+			{
+				"Artikelnummer": 5443,
+				"Produktname": "Produkt C",
+				"Preis": 12.65,
+				"Mwst": 0.19,
+				"Gesamtpreis": 2.4035
+			},
+			{
+				"Artikelnummer": 1254,
+				"Produktname": "Produkt D",
+				"Preis": 34.54,
+				"Mwst": 0.19,
+				"Gesamtpreis": 6.5626
+			}
+		]
+	},
+	"TEST3": {
+		"metadata": {
+			"ticket": "DL-4033"
+		},
+		"data": [
+			[ "Artikelnummer", "Produktname", "Preis", "Mwst", "Gesamtpreis" ],
+			[ 1231, "Produkt A", 23.43, 0.19, 4.4517 ],
+			[ 4321, "Produkt B", 12.34, 0.19, 2.3446 ],
+			[ 5443, "Produkt C", 12.65, 0.19, 2.4035 ],
+			[ 1254, "Produkt D", 34.54, 0.19, 6.5626 ]
+		]
+	},
+	"TEST5": {
+		"metadata": {
+			"ticket": "DL-4033"
+		},
+		"data": [
+			{ 
+				"": "Umsatz",
+				"Jan": 100,
+				"Feb": 200,
+				"März": 300
+			},
+			{ 
+				"": "Kosten",
+				"Jan": 101,
+				"Feb": 201,
+				"März": 301
+			},
+			{ 
+				"": "Ertrag",
+				"Jan": 102,
+				"Feb": 202,
+				"März": 302
+			}
+		]
+	},
+	"TEST8": {
+		"metadata": {
+			"ticket": "DL-4033"
+		},
+		"data": [
+			[ "", "Umsatz", "Kosten", "Ertrag"],
+			[ "Jan", 100, 101, 102],
+			[ "Feb", 200, 201, 202],
+			[ "März", 300, 301, 302]
+		]
+	},
 	"RECURSIVE": {
 		"data": {
 			"measurements": [
