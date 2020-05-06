@@ -121,7 +121,7 @@ module.exports = class DefaultApp {
 		);
 
 		/* ===== Authentication ===== */
-		app.use(Auth.initialize());
+		app.use(Auth.initialize(this.globalContext));
 		app.use(passport.session());
 
 		/* ===== CORS ===== */
@@ -133,6 +133,7 @@ module.exports = class DefaultApp {
 		app.use('/api/v1.0/services', router);
 		app.use('/api/v1.0/meta', router);
 		app.use('/api/v1.0/config', router);
+		Object.values(this.globalContext.middleware).forEach((mw) => app.use(...mw));
 		/* ===== Graph QL ===== */
 		app.use('/api/v1.0/graphql', (req, res, next) => {
 			passport.authenticate('jwt', { session: false }, async (err, user) => {
