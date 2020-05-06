@@ -64,11 +64,7 @@ export default class CellsView extends NodeView {
 		}
 		graphics.setTransparency(100);
 
-		if (JSG.webComponent === true) {
-			this.drawDataWC(graphics, rect, viewRect);
-		} else {
-			this.drawData(graphics, rect, viewRect);
-		}
+		this.drawDataNew(graphics, rect, viewRect);
 
 		const id = graph.getTopStreamSheetContainerId();
 
@@ -81,19 +77,127 @@ export default class CellsView extends NodeView {
 		}
 	}
 
+	drawDataNew(graphics, rect, viewRect) {
+		const columns = this.getColumns();
+		const rows = this.getRows();
+		const dataProvider = this._wsItem.getDataProvider();
+
+		// get visible matrix
+		const visibleColumnsInfo = this.getVisibleColumnSections(columns, rect, viewRect);
+		const visibleRowsInfo = this.getVisibleRowsSections(rows, columns, rect, viewRect, visibleColumnsInfo);
+
+		if (visibleColumnsInfo.length === 0 || visibleRowsInfo.length === 0) {
+			return;
+		}
+
+		this.setFont(graphics);
+		graphics.setFillColor('#000000');
+		graphics.setTextBaseline('bottom');
+
+		// draw cell content
+		visibleRowsInfo.forEach((rowInfo) => {
+			if (rowInfo.leftCellInfo) {
+				this.drawValue(graphics, dataProvider, rowInfo.leftCellInfo, rowInfo, visibleColumnsInfo);
+			}
+			visibleColumnsInfo.forEach((columnInfo) => {
+				this.drawCellFill(graphics, dataProvider, columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo);
+				this.drawValue(graphics, dataProvider, columnInfo, rowInfo, visibleColumnsInfo);
+			});
+			if (rowInfo.rightCellInfo) {
+				this.drawValue(graphics, dataProvider, rowInfo.rightCellInfo, rowInfo, visibleColumnsInfo);
+			}
+		});
+
+		let last;
+
+		const borders = {
+			grid: []
+		};
+
+		// draw grid
+		visibleColumnsInfo.forEach((columnInfo) => {
+			last = viewRect.y;
+
+			columnInfo.gridSkipBorders.forEach((info, index) => {
+				if (this._wsItem.isGridVisible() && last !== info.y && info.y > last) {
+					borders.grid.push({
+						x1: columnInfo.x,
+						y1: last,
+						x2: columnInfo.x,
+						y2: info.y
+					});
+				}
+				last = info.y + info.height;
+			});
+
+			if (this._wsItem.isGridVisible()) {
+				borders.grid.push({
+					x1: columnInfo.x,
+					y1: last,
+					x2: columnInfo.x,
+					y2: viewRect.y + viewRect.height
+				});
+			}
+		});
+
+		graphics.beginPath();
+		graphics.setLineColor('#CCCCCC');
+		borders.grid.forEach((line) => {
+			graphics.moveTo(line.x1, line.y1);
+			graphics.lineTo(line.x2, line.y2);
+		});
+		graphics.stroke();
+
+		// draw borders
+		visibleColumnsInfo.forEach((columnInfo) => {
+			Object.entries(columnInfo.leftBorders).forEach(([color, value]) => {
+				graphics.setLineColor(color);
+				Object.entries(value).forEach(([y, border]) => {
+					if (columnInfo.skipBorders[y] === undefined) {
+						graphics.beginPath();
+						graphics.setLineWidth(
+							border.borderWidth === 1 || border.borderWidth === undefined
+								? 1
+								: graphics.getCoordinateSystem().deviceToLogX(border.borderWidth)
+						);
+						graphics.setLineStyle(border.style === undefined ? 1 : border.style);
+						graphics.applyLineDash();
+						graphics.moveTo(columnInfo.x, Number(y));
+						graphics.lineTo(columnInfo.x, Number(y) + border.height);
+						graphics.stroke();
+						graphics.clearLineDash();
+					}
+				});
+			});
+		});
+
+		visibleRowsInfo.forEach((rowInfo) => {
+			Object.entries(rowInfo.topBorders).forEach(([color, value]) => {
+				graphics.setLineColor(color);
+				Object.entries(value).forEach(([x, border]) => {
+					graphics.beginPath();
+					graphics.setLineWidth(
+						border.borderWidth === 1 || border.borderWidth === undefined
+							? 1
+							: graphics.getCoordinateSystem().deviceToLogX(border.borderWidth)
+					);
+					graphics.setLineStyle(border.style === undefined ? 1 : border.style);
+					graphics.applyLineDash();
+					graphics.moveTo(Number(x), rowInfo.y);
+					graphics.lineTo(Number(x) + border.width, rowInfo.y);
+					graphics.stroke();
+					graphics.clearLineDash();
+				});
+			});
+		});
+	}
+
 	drawRead(graphics, x, y, rect, clipRect, data, termFunc, column, row, grey) {
 		let fillColor = '#AAAAAA';
 		const value = String(data.getValue());
 
 		termFunc.iterateParams((param, index) => {
 			switch (index) {
-				// case 0: {
-				// 	const keys = TreeItemsNode.splitPath(value);
-				// 	if (keys.length) {
-				// 		value = keys[keys.length - 1];
-				// 	}
-				// 	break;
-				// }
 				case 2:
 					switch (param.value) {
 						case 'String':
@@ -1732,29 +1836,72 @@ export default class CellsView extends NodeView {
 	getStyleProperties(cell, column, row) {
 		let styleproperties = {};
 
-		if (column.section.styleproperties) {
-			styleproperties = Object.assign(styleproperties, column.section.styleproperties);
+		if (JSG.webComponent === true) {
+			if (column.section.styleproperties) {
+				styleproperties = Object.assign(styleproperties, column.section.styleproperties);
+			}
+			if (row.section.styleproperties) {
+				styleproperties = Object.assign(styleproperties, row.section.styleproperties);
+			}
+			if (cell && cell.styleproperties) {
+				styleproperties = Object.assign(styleproperties, cell.styleproperties);
+			}
+		} else {
+			const format = this._wsItem.getFormatAtRC(column.index, row.index);
+			const attr = this._wsItem.getCellAttributesAtRC(column.index, row.index);
+			styleproperties.fillstyle = format.getFillStyle().getValue();
+			if (styleproperties.fillstyle) {
+				styleproperties.fillcolor = format.getFillColor().getValue();
+			}
+			styleproperties.leftborderstyle = attr.getLeftBorderStyle().getValue();
+			if (styleproperties.leftborderstyle) {
+				styleproperties.leftbordercolor = attr.getLeftBorderColor().getValue();
+				styleproperties.leftborderwidth = attr.getLeftBorderWidth().getValue();
+			}
+			styleproperties.topborderstyle = attr.getTopBorderStyle().getValue();
+			if (styleproperties.topborderstyle) {
+				styleproperties.topbordercolor = attr.getTopBorderColor().getValue();
+				styleproperties.topborderwidth = attr.getTopBorderWidth().getValue();
+			}
+			styleproperties.rightborderstyle = attr.getRightBorderStyle().getValue();
+			if (styleproperties.rightborderstyle) {
+				styleproperties.rightbordercolor = attr.getRightBorderColor().getValue();
+				styleproperties.rightborderwidth = attr.getRightBorderWidth().getValue();
+			}
+			styleproperties.bottomborderstyle = attr.getBottomBorderStyle().getValue();
+			if (styleproperties.bottomborderstyle) {
+				styleproperties.bottombordercolor = attr.getBottomBorderColor().getValue();
+				styleproperties.bottomborderwidth = attr.getBottomBorderWidth().getValue();
+			}
 		}
-		if (row.section.styleproperties) {
-			styleproperties = Object.assign(styleproperties, row.section.styleproperties);
-		}
-		if (cell && cell.styleproperties) {
-			styleproperties = Object.assign(styleproperties, cell.styleproperties);
-		}
+
 		return styleproperties;
 	}
 
 	getTextProperties(cell, column, row) {
 		let textproperties = {};
 
-		if (column.section.textproperties) {
-			textproperties = Object.assign(textproperties, column.section.textproperties);
-		}
-		if (row.section.textproperties) {
-			textproperties = Object.assign(textproperties, row.section.textproperties);
-		}
-		if (cell && cell.textproperties) {
-			textproperties = Object.assign(textproperties, cell.textproperties);
+		if (JSG.webComponent === true) {
+			if (column.section.textproperties) {
+				textproperties = Object.assign(textproperties, column.section.textproperties);
+			}
+			if (row.section.textproperties) {
+				textproperties = Object.assign(textproperties, row.section.textproperties);
+			}
+			if (cell && cell.textproperties) {
+				textproperties = Object.assign(textproperties, cell.textproperties);
+			}
+		} else {
+			const tf = this._wsItem.getTextFormatAtRC(column.index, row.index);
+			textproperties.valign = tf.getVerticalAlignment().getValue();
+			textproperties.halign = tf.getHorizontalAlignment().getValue();
+			textproperties.fontsize = tf.getFontSize().getValue();
+			textproperties.fontname = tf.getFontName().getValue();
+			textproperties.fontcolor = tf.getFontColor().getValue();
+			textproperties.fontstyle = tf.getFontStyle().getValue();
+			textproperties.numberformat = tf.getNumberFormat().getValue();
+			textproperties.localculture = tf.getLocalCulture().getValue();
+
 		}
 		return textproperties;
 	}
@@ -1801,7 +1948,7 @@ export default class CellsView extends NodeView {
 			if (rowInfo.grey) {
 				graphics.setTransparency(60);
 			}
-			this.rect(graphics, columnInfo.x, rowInfo.y, columnInfo.width, rowInfo.height, styleproperties.fillcolor);
+			this.rect(graphics, columnInfo.x, rowInfo.y, columnInfo.width + 20, rowInfo.height, styleproperties.fillcolor);
 			if (rowInfo.grey) {
 				graphics.setTransparency(100);
 			}
@@ -2218,121 +2365,6 @@ export default class CellsView extends NodeView {
 		clipRect.clip = clip;
 
 		return clipRect;
-	}
-
-	drawDataWC(graphics, rect, viewRect) {
-		const columns = this.getColumns();
-		const rows = this.getRows();
-		const dataProvider = this._wsItem.getDataProvider();
-
-		// get visible matrix
-		const visibleColumnsInfo = this.getVisibleColumnSections(columns, rect, viewRect);
-		const visibleRowsInfo = this.getVisibleRowsSections(rows, columns, rect, viewRect, visibleColumnsInfo);
-
-		if (visibleColumnsInfo.length === 0 || visibleRowsInfo.length === 0) {
-			return;
-		}
-
-		this.setFont(graphics);
-		graphics.setFillColor('#000000');
-		graphics.setTextBaseline('bottom');
-
-		// draw cell content
-		visibleRowsInfo.forEach((rowInfo) => {
-			if (rowInfo.leftCellInfo) {
-				this.drawValue(graphics, dataProvider, rowInfo.leftCellInfo, rowInfo, visibleColumnsInfo);
-			}
-			visibleColumnsInfo.forEach((columnInfo) => {
-				this.drawCellFill(graphics, dataProvider, columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo);
-				this.drawValue(graphics, dataProvider, columnInfo, rowInfo, visibleColumnsInfo);
-			});
-			if (rowInfo.rightCellInfo) {
-				this.drawValue(graphics, dataProvider, rowInfo.rightCellInfo, rowInfo, visibleColumnsInfo);
-			}
-		});
-
-		let last;
-
-		const borders = {
-			grid: []
-		};
-
-		// draw grid
-		visibleColumnsInfo.forEach((columnInfo) => {
-			last = viewRect.y;
-
-			columnInfo.gridSkipBorders.forEach((info, index) => {
-				if (this._wsItem.isGridVisible() && last !== info.y && info.y > last) {
-					borders.grid.push({
-						x1: columnInfo.x,
-						y1: last,
-						x2: columnInfo.x,
-						y2: info.y
-					});
-				}
-				last = info.y + info.height;
-			});
-
-			if (this._wsItem.isGridVisible()) {
-				borders.grid.push({
-					x1: columnInfo.x,
-					y1: last,
-					x2: columnInfo.x,
-					y2: viewRect.y + viewRect.height
-				});
-			}
-		});
-
-		graphics.beginPath();
-		graphics.setLineColor('#CCCCCC');
-		borders.grid.forEach((line) => {
-			graphics.moveTo(line.x1, line.y1);
-			graphics.lineTo(line.x2, line.y2);
-		});
-		graphics.stroke();
-
-		// draw borders
-		visibleColumnsInfo.forEach((columnInfo) => {
-			Object.entries(columnInfo.leftBorders).forEach(([color, value]) => {
-				graphics.setLineColor(color);
-				Object.entries(value).forEach(([y, border]) => {
-					if (columnInfo.skipBorders[y] === undefined) {
-						graphics.beginPath();
-						graphics.setLineWidth(
-							border.borderWidth === 1 || border.borderWidth === undefined
-								? 1
-								: graphics.getCoordinateSystem().deviceToLogX(border.borderWidth)
-						);
-						graphics.setLineStyle(border.style === undefined ? 1 : border.style);
-						graphics.applyLineDash();
-						graphics.moveTo(columnInfo.x, Number(y));
-						graphics.lineTo(columnInfo.x, Number(y) + border.height);
-						graphics.stroke();
-						graphics.clearLineDash();
-					}
-				});
-			});
-		});
-
-		visibleRowsInfo.forEach((rowInfo) => {
-			Object.entries(rowInfo.topBorders).forEach(([color, value]) => {
-				graphics.setLineColor(color);
-				Object.entries(value).forEach(([x, border]) => {
-					graphics.beginPath();
-					graphics.setLineWidth(
-						border.borderWidth === 1 || border.borderWidth === undefined
-							? 1
-							: graphics.getCoordinateSystem().deviceToLogX(border.borderWidth)
-					);
-					graphics.setLineStyle(border.style === undefined ? 1 : border.style);
-					graphics.applyLineDash();
-					graphics.moveTo(Number(x), rowInfo.y);
-					graphics.lineTo(Number(x) + border.width, rowInfo.y);
-					graphics.stroke();
-					graphics.clearLineDash();
-				});
-			});
-		});
 	}
 
 	getVisibleColumnSections(columns, rect, viewRect) {

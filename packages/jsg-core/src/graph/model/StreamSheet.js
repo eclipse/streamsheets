@@ -943,7 +943,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		NotificationCenter.getInstance().send(
 			new Notification(WorksheetNode.SELECTION_CHANGED_NOTIFICATION, {
 				item: this,
-				updateFinal: true
+				updateFinal: false
 			})
 		);
 	}
