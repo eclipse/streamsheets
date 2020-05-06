@@ -478,7 +478,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			while (current.value <= final) {
 				if (
 					axis.type === 'category' &&
-					(grid ? current.value > axis.scale.max : current.value >= axis.scale.max)
+					(grid || !axis.betweenTicks ? current.value > axis.scale.max : current.value >= axis.scale.max)
 				) {
 					break;
 				}
@@ -898,6 +898,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			let newLine = true;
 			let xFirst;
 			let xLast;
+			let noLast = false;
 			const pt = { x: 0, y: 0 };
 			const ptPrev = { x: 0, y: 0 };
 			const ptNext = { x: 0, y: 0 };
@@ -991,10 +992,11 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 						} else if (newLine) {
 							graphics.moveTo(pt.x, pt.y);
 							newLine = false;
+							noLast = true;
 							xFirst = pt.x;
 							xLast = pt.x;
 						} else {
-							if (serie.smooth) {
+							if (serie.smooth && !item.chart.step) {
 								item.getPlotPoint(axes, ref, info, value, index, -1, ptLast);
 								item.toPlot(serie, plotRect, ptLast);
 
@@ -1004,6 +1006,11 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 								const cpX2 = (midX + pt.x) / 2;
 								graphics.quadraticCurveTo(cpX1, ptLast.y, midX, midY);
 								graphics.quadraticCurveTo(cpX2, pt.y, pt.x, pt.y);
+							} else if (item.chart.step) {
+								item.getPlotPoint(axes, ref, info, value, index, -1, ptLast);
+								item.toPlot(serie, plotRect, ptLast);
+								graphics.lineTo(pt.x, ptLast.y);
+								graphics.lineTo(pt.x, pt.y);
 							} else {
 								graphics.lineTo(pt.x, pt.y);
 							}
@@ -1026,6 +1033,13 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 								graphics.beginPath();
 							}
 							if (item.chart.stacked) {
+								if (item.chart.step && !noLast) {
+									points.push({
+										x: pt.x,
+										y: ptLast.y
+									});
+								}
+								noLast = false;
 								points.push({
 									x: pt.x,
 									y: pt.y
