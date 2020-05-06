@@ -5,6 +5,7 @@ module.exports = class Chart {
 	constructor() {
 		this._period = false;
 		this._stacked = false;
+		this._step = false;
 		this._relative = false;
 		this._dataMode = 'datazero';
 		this.rotation = Math.PI_2;
@@ -37,6 +38,14 @@ module.exports = class Chart {
 		this._stacked = (value === undefined ? false : !!Number(value));
 	}
 
+	get step() {
+		return this._step;
+	}
+
+	set step(value) {
+		this._step = (value === undefined ? false : !!Number(value));
+	}
+
 	get period() {
 		return this._period;
 	}
@@ -63,6 +72,7 @@ module.exports = class Chart {
 		writer.writeAttributeNumber('datainrows', this.dataInRows ? 1 : 0);
 		writer.writeAttributeNumber('stacked', this.stacked ? 1 : 0);
 		writer.writeAttributeNumber('relative', this.relative ? 1 : 0);
+		writer.writeAttributeNumber('step', this.step ? 1 : 0);
 		writer.writeAttributeNumber('period', this.period ? 1 : 0);
 		writer.writeAttributeNumber('tooltips', this.tooltips ? 1 : 0);
 		writer.writeAttributeNumber('rotation', this.rotation);
@@ -77,6 +87,7 @@ module.exports = class Chart {
 		this.dataMode = reader.getAttribute(object, 'datamode');
 		this.stacked = reader.getAttribute(object, 'stacked');
 		this.relative = reader.getAttribute(object, 'relative');
+		this.step = reader.getAttribute(object, 'step');
 		this.period = reader.getAttribute(object, 'period');
 		this.coharentData = reader.getAttributeBoolean(object, 'coharent', true);
 		this.firstCategoryLabels = reader.getAttributeBoolean(object, 'firstcategories', true);

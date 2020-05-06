@@ -187,6 +187,7 @@ export default class ChartSelectionFeedbackView extends View {
 				let index = 0;
 				let x;
 				let y;
+				let last;
 				const value = {};
 				const serie = data;
 				let barInfo;
@@ -295,10 +296,21 @@ export default class ChartSelectionFeedbackView extends View {
 									break;
 								case 'area':
 									barInfo = item.getBarInfo(axes, serie, selection.index, index, value.y, barWidth);
-									rect.set(x - 50, y - 50, 100, 100);
-									graphics.drawMarker(rect, true);
-									rect.set(x - 50, y - barInfo.height * plotRect.height - 50, 100, 100);
-									graphics.drawMarker(rect, true);
+									if (item.chart.step) {
+										if (index < axes.x.scale.max && item.getValue(ref, index + 1, value)) {
+											const xNext = plotRect.left + item.scaleToAxis(axes.x, value.x, undefined, false) * plotRect.width;
+											rect.set(xNext - 50, y - 50, 100, 100);
+											graphics.drawMarker(rect, true);
+											rect.set(xNext - 50, y - barInfo.height * plotRect.height - 50, 100, 100);
+											graphics.drawMarker(rect, true);
+										}
+									}
+									if (!item.chart.step || index < axes.x.scale.max) {
+										rect.set(x - 50, y - 50, 100, 100);
+										graphics.drawMarker(rect, true);
+										rect.set(x - 50, y - barInfo.height * plotRect.height - 50, 100, 100);
+										graphics.drawMarker(rect, true);
+									}
 									break;
 								default:
 									rect.set(x - 50, y - 50, 100, 100);
