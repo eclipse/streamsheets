@@ -39,10 +39,11 @@ describe('outboxdata', () => {
 			expect(OUTBOXDATA(sheet, ...terms)).toBe('[msg-simple][A1][C2]');
 			terms = createParamTerms('msg-simple').concat(createCellRangeTerm('A1:C2', sheet));
 			expect(OUTBOXDATA(sheet, ...terms)).toBe('[msg-simple][A1][B1][C1][A2][B2][C2]');
+			// actually not useful anymore due to changes related to DL-4088: IF col always returns true/false
 			terms = createParamTerms('msg-simple').concat(createCellTerm('IF1', sheet));
-			expect(OUTBOXDATA(sheet, ...terms)).toBe('[msg-simple][IF1]');
+			expect(OUTBOXDATA(sheet, ...terms)).toBe('[msg-simple][true]');
 			terms = createParamTerms('msg-simple').concat(createCellRangeTerm('COMMENT1:C1', sheet));
-			expect(OUTBOXDATA(sheet, ...terms)).toBe('[msg-simple][COMMENT1][IF1][A1][B1][C1]');
+			expect(OUTBOXDATA(sheet, ...terms)).toBe('[msg-simple][COMMENT1][true][A1][B1][C1]');
 		});
 
 		it('should be possible to reference an array index', () => {

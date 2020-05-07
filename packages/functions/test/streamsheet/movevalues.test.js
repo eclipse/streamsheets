@@ -128,7 +128,8 @@ describe('movevalues', () => {
 		// move from neg. column
 		expect(createTerm('movevalues(IF1:IF1, C1:C1)', sheet).value).toBe(true);
 		expect(sheet.cellAt('IF1')).toBeUndefined();
-		expect(sheet.cellAt('C1').value).toBe('IF1');
+		// changed due to DL-4088: IF col always returns true/false
+		expect(sheet.cellAt('C1').value).toBe(true);
 		// move to neg. columns
 		expect(createTerm('movevalues(B2:C2, IF2:IF3)', sheet).value).toBe(true);
 		expect(sheet.cellAt('B2')).toBeUndefined();
