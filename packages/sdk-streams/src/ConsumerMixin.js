@@ -84,7 +84,7 @@ const ConsumerMixin = (Connector) =>
 			// );
 			let msg = {};
 			try {
-				msg = Utils.transformToJSONObject(m, this.config.mimeType);
+				msg = Utils.transformToJSONObject(m, this.config);
 			} catch (err) {
 				msg.error = err.message;
 			}
