@@ -49,10 +49,11 @@ const copyDataToCellRange = (range, isErrorValue, sheet, provider) => {
 		setOrCreateCellAt(index, value, isErrorValue, sheet);
 	});
 };
+// no indices for arrays (DL-4033)
 const arrayProvider = (array, vertical) => ({
 	vertical,
-	indexAt: idx => (idx >= 0 && idx < array.length ? idx : undefined),
-	valueAt: (idx, col) => (idx >= 0 && col < 3 && idx < array.length ? array[idx] : undefined)
+	indexAt: (idx) => (idx >= 0 && idx < array.length ? array[idx] : undefined),
+	valueAt: (/* idx */) => undefined // (idx >= 0 && idx < array.length ? idx : undefined),
 });
 const dictProvider = (dict, vertical) => {
 	const keys = dict ? Object.keys(dict) : [];

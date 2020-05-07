@@ -134,6 +134,12 @@
 		},
 		"data": [ "M1200", "Cedalo MQTT Broker", 1000, 1, 1000]
 	},
+	"TEST3d": {
+		"metadata": {
+			"ticket": "DL-4033"
+		},
+		"data": [[ "M1200", "Cedalo MQTT Broker", 1000, 1, 1000]]
+	},
 	"TEST5": {
 		"metadata": {
 			"ticket": "DL-4033"
