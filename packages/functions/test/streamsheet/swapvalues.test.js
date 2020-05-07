@@ -138,10 +138,10 @@ describe('swapvalues', () => {
 		sheet.forceExecution(true);
 		expect(createTerm('swapvalues(IF1:IF1, C1:C1)', sheet).value).toBe(true);
 		expect(sheet.cellAt('IF1').value).toBe('C1');
-		expect(sheet.cellAt('C1').value).toBe(true);
+		expect(sheet.cellAt('C1').value).toBe('IF1');
 		expect(createTerm('swapvalues(B2:C2, IF2:IF3)', sheet).value).toBe(true);
-		expect(sheet.cellAt('B2').value).toBe(true);
-		expect(sheet.cellAt('C2').value).toBe(true);
+		expect(sheet.cellAt('B2').value).toBe('IF2');
+		expect(sheet.cellAt('C2').value).toBe('IF3');
 		expect(sheet.cellAt('IF2').value).toBe('B2');
 		expect(sheet.cellAt('IF3').value).toBe('C2');
 	});
