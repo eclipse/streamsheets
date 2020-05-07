@@ -52,14 +52,14 @@ const copyDataToCellRange = (range, isErrorValue, sheet, provider) => {
 const arrayProvider = (array, vertical) => ({
 	vertical,
 	indexAt: idx => (idx >= 0 && idx < array.length ? idx : undefined),
-	valueAt: idx => (idx >= 0 && idx < array.length ? array[idx] : undefined)
+	valueAt: (idx, col) => (idx >= 0 && col < 3 && idx < array.length ? array[idx] : undefined)
 });
 const dictProvider = (dict, vertical) => {
 	const keys = dict ? Object.keys(dict) : [];
 	return {
 		vertical,
 		indexAt: idx => (idx >= 0 && idx < keys.length ? keys[idx] : undefined),
-		valueAt: (idx, col) => (idx >= 0 && col <3 && idx < keys.length ? dict[keys[idx]] : undefined)
+		valueAt: (idx, col) => (idx >= 0 && col < 3 && idx < keys.length ? dict[keys[idx]] : undefined)
 	};
 };
 // DL-1122: spread a list of objects...

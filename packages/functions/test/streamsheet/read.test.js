@@ -542,8 +542,9 @@ describe('read', () => {
 			expect(sheet.cellAt(SheetIndex.create('A2')).value).toBe(1);
 			expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(1);
 			expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe(2);
-			expect(sheet.cellAt(SheetIndex.create('C1')).value).toBe(1);
-			expect(sheet.cellAt(SheetIndex.create('C2')).value).toBe(2);
+			// no repeat!!
+			expect(sheet.cellAt(SheetIndex.create('C1'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('C2'))).toBeUndefined();
 		});
 		// DL-4033
 		it('should copy an array of objects to larger target range without repeating data', () => {
@@ -881,7 +882,7 @@ describe('read', () => {
 			const streamsheet = new StreamSheet({ name: 'S1' });
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
-			machine.outbox.put(new Message(Object.assign({}, copy(MESSAGES.TEST3.data)), 'Test3'));
+			machine.outbox.put(new Message(copy(MESSAGES.TEST3.data), 'Test3'));
 			expect(createTerm('read(outboxdata("Test3"), A44:J53,, true)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A44').value).toBe('Artikelnummer');
 			expect(sheet.cellAt('B44').value).toBe('Produktname');
@@ -920,12 +921,38 @@ describe('read', () => {
 			expect(sheet.cellAt('E49')).toBeUndefined();
 			expect(sheet.cellAt('F49')).toBeUndefined();
 		});
+		it('should copy a one line array horizontally to larger cell range', () => {
+			const machine = new Machine();
+			const streamsheet = new StreamSheet({ name: 'S1' });
+			const sheet = streamsheet.sheet;
+			machine.addStreamSheet(streamsheet);
+			machine.outbox.put(new Message(copy(MESSAGES.TEST3c.data), 'Test3c'));
+			expect(createTerm('read(outboxdata("Test3c"), A44:J53,, true)', sheet).value).toBe('Data');
+			expect(sheet.cellAt('A44').value).toBe(0);
+			expect(sheet.cellAt('B44').value).toBe(1);
+			expect(sheet.cellAt('C44').value).toBe(2);
+			expect(sheet.cellAt('D44').value).toBe(3);
+			expect(sheet.cellAt('E44').value).toBe(4);
+			expect(sheet.cellAt('F44')).toBeUndefined();
+			expect(sheet.cellAt('A45').value).toBe('M1200');
+			expect(sheet.cellAt('B45').value).toBe('Cedalo MQTT Broker');
+			expect(sheet.cellAt('C45').value).toBe(1000);
+			expect(sheet.cellAt('D45').value).toBe(1);
+			expect(sheet.cellAt('E45').value).toBe(1000);
+			expect(sheet.cellAt('F45')).toBeUndefined();
+			expect(sheet.cellAt('A46')).toBeUndefined();
+			expect(sheet.cellAt('B46')).toBeUndefined();
+			expect(sheet.cellAt('C46')).toBeUndefined();
+			expect(sheet.cellAt('D46')).toBeUndefined();
+			expect(sheet.cellAt('E46')).toBeUndefined();
+			expect(sheet.cellAt('F46')).toBeUndefined();
+		});
 		it('should copy an array of dictionaries horizontally to larger cell range', () => {
 			const machine = new Machine();
 			const streamsheet = new StreamSheet({ name: 'S1' });
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
-			machine.outbox.put(new Message(Object.assign({}, copy(MESSAGES.TEST5.data)), 'Test5'));
+			machine.outbox.put(new Message(copy(MESSAGES.TEST5.data), 'Test5'));
 			expect(createTerm('read(outboxdata("Test5"), A66:H73,, true)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A66').value).toBe('');
 			expect(sheet.cellAt('B66').value).toBe('Jan');
@@ -958,7 +985,7 @@ describe('read', () => {
 			const streamsheet = new StreamSheet({ name: 'S1' });
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
-			machine.outbox.put(new Message(Object.assign({}, copy(MESSAGES.TEST8.data)), 'Test8'));
+			machine.outbox.put(new Message(copy(MESSAGES.TEST8.data), 'Test8'));
 			expect(createTerm('read(outboxdata("Test8"), A93:H100,, false)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A93').value).toBe('');
 			expect(sheet.cellAt('B93').value).toBe('Jan');
