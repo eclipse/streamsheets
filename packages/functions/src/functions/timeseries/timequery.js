@@ -135,10 +135,12 @@ class QueryStore {
 		}
 	}
 
-	write(cell, range) {
+	write(cell, range, term) {
 		const entries = this.entries;
 		const values = entries.reduce(entriesReduce, { time: [] });
 		if (range) spreadValuesToRange(values, range);
+		// DL-4067: marker support
+		cell.info.marker = term ? term._marker : undefined;
 		cell.info.values = values;
 		cell.info.xvalue = 'time';
 	}
@@ -186,7 +188,7 @@ const timeQuery = (sheet, ...terms) =>
 			if (querystore) {
 				stateListener.registerCallback(sheet, term, querystore.reset);
 				querystore.performQueryOnInterval(timestore);
-				querystore.write(term.cell, range);
+				querystore.write(term.cell, range, term);
 				const size = querystore.entries.length;
 				// eslint-disable-next-line no-nested-ternary
 				return size === 0 ? ERROR.NA : size < querystore.limit ? true : ERROR.LIMIT;
