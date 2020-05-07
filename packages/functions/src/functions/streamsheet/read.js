@@ -91,9 +91,8 @@ const spreadObjectList = (list, cellrange, isHorizontal) => {
 	iterate.call(cellrange, (cell, index, next) => {
 		keyidx = next ? 0 : keyidx + 1;
 		listidx += next ? 1 : 0;
-		if (listidx > list.length) {
-			value = undefined
-		} else {
+		value = undefined;
+		if (listidx <= list.length) {
 			const curr = list[listidx];
 			const prev = list[listidx - 1] 
 			if (Array.isArray(curr)) {

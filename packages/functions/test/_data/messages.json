@@ -153,6 +153,15 @@
 			}
 		]
 	},
+	"TEST7": {
+		"metadata": {
+			"ticket": "DL-4033"
+		},
+		"data": {
+			"0": [ "", "Jan", "Feb", "März"],
+			"1": [ "Umsatz", 100, 200, 300 ]
+		}
+	},
 	"TEST8": {
 		"metadata": {
 			"ticket": "DL-4033"

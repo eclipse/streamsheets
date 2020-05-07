@@ -805,6 +805,26 @@ describe('read', () => {
 			expect(sheet.cellAt('A49')).toBeUndefined();
 			expect(sheet.cellAt('B49')).toBeUndefined();
 		});
+		it('should copy a single dictionary of 2 arrays horizontally to larger cell range', () => {
+			const machine = new Machine();
+			const streamsheet = new StreamSheet({ name: 'S1' });
+			const sheet = streamsheet.sheet;
+			machine.addStreamSheet(streamsheet);
+			machine.outbox.put(new Message(Object.assign({}, copy(MESSAGES.TEST7.data)), 'Test7'));
+			expect(createTerm('read(outboxdata("Test7"), A84:D91,, true)', sheet).value).toBe('Data');
+			expect(sheet.cellAt('A84').value).toBe('');
+			expect(sheet.cellAt('B84').value).toBe('Jan');
+			expect(sheet.cellAt('C84').value).toBe('Feb');
+			expect(sheet.cellAt('D84').value).toBe('März');
+			expect(sheet.cellAt('A85').value).toBe('Umsatz');
+			expect(sheet.cellAt('B85').value).toBe(100);
+			expect(sheet.cellAt('C85').value).toBe(200);
+			expect(sheet.cellAt('D85').value).toBe(300);
+			expect(sheet.cellAt('A86')).toBeUndefined();
+			expect(sheet.cellAt('B86')).toBeUndefined();
+			expect(sheet.cellAt('C86')).toBeUndefined();
+			expect(sheet.cellAt('D86')).toBeUndefined();
+		});
 		it(`should read dictionary and return ${ERROR.NA} if current message has not requested data`, () => {
 			const machine = new Machine();
 			const t1 = new StreamSheet({ name: 'T1' });
