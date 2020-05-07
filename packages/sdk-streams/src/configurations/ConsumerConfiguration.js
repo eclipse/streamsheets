@@ -34,6 +34,9 @@ class ConsumerConfiguration extends BaseConfiguration {
 		if (config.mimeType) {
 			this.mimeType = config.mimeType || 'auto';
 		}
+		if (config.contentEncoding) {
+			this.contentEncoding = config.contentEncoding || 'utf8';
+		}
 		if (this.provider && this.provider.definition) {
 			config = config || {};
 			this.fields = this.fields || {};
@@ -72,7 +75,8 @@ class ConsumerConfiguration extends BaseConfiguration {
 			idAttribute: this.idAttribute || undefined,
 			samplePayloads: this.samplePayloads || undefined,
 			providerId: this.provider.id,
-			mimeType: this.mimeType || 'auto'
+			mimeType: this.mimeType || 'auto',
+			contentEncoding: this.contentEncoding || 'utf8',
 		});
 		if (this.provider && this.provider.definition) {
 			this.provider.definition.consumer.forEach((d) => {
@@ -134,6 +138,14 @@ class ConsumerConfiguration extends BaseConfiguration {
 
 	set mimeType(value) {
 		this._mimeType = value;
+	}
+
+	get contentEncoding() {
+		return this._contentEncoding;
+	}
+
+	set contentEncoding(value) {
+		this._contentEncoding = value;
 	}
 
 	get idAttribute() {
