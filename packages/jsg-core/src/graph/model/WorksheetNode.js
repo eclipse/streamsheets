@@ -723,6 +723,102 @@ module.exports = class WorksheetNode extends ContentNode {
 		return this.getCellAttributesAtRC(pos.x, pos.y, cellInfo);
 	}
 
+	getCellPropertiesAtRC(column, row) {
+		const data = this.getDataProvider();
+		const cell = data.getRC(column, row);
+		const properties = {};
+		let attributes;
+		const addIt = (id, attr) => {
+			const name = id.toLowerCase();
+			if (properties[name] === undefined) {
+				properties[name] = attr.getExpression().getValue();
+			}
+		};
+
+		if (cell !== undefined) {
+			attributes = cell.getAttributes();
+			if (attributes !== undefined) {
+				attributes._value.iterate(addIt);
+			}
+		}
+
+		attributes = this.getRows().getSectionAttributes(row);
+		if (attributes !== undefined) {
+			attributes._value.iterate(addIt);
+		}
+
+		attributes = this.getColumns().getSectionAttributes(column);
+		if (attributes !== undefined) {
+			attributes._value.iterate(addIt);
+		}
+
+		return properties;
+	}
+
+	getFormatPropertiesAtRC(column, row) {
+		const data = this.getDataProvider();
+		const cell = data.getRC(column, row);
+		const properties = {};
+		let attributes;
+		const addIt = (id, attr) => {
+			const name = id.toLowerCase();
+			if (properties[name] === undefined) {
+				properties[name] = attr.getExpression().getValue();
+			}
+		};
+
+		if (cell !== undefined) {
+			attributes = cell.getFormat();
+			if (attributes !== undefined) {
+				attributes._value.iterate(addIt);
+			}
+		}
+
+		attributes = this.getRows().getSectionFormat(row);
+		if (attributes !== undefined) {
+			attributes._value.iterate(addIt);
+		}
+
+		attributes = this.getColumns().getSectionFormat(column);
+		if (attributes !== undefined) {
+			attributes._value.iterate(addIt);
+		}
+
+		return properties;
+	}
+
+	getTextFormatPropertiesAtRC(column, row) {
+		const data = this.getDataProvider();
+		const cell = data.getRC(column, row);
+		const properties = {};
+		let attributes;
+		const addIt = (id, attr) => {
+			const name = id.toLowerCase();
+			if (properties[name] === undefined) {
+				properties[name] = attr.getExpression().getValue();
+			}
+		};
+
+		if (cell !== undefined) {
+			attributes = cell.getTextFormat();
+			if (attributes !== undefined) {
+				attributes._value.iterate(addIt);
+			}
+		}
+
+		attributes = this.getRows().getSectionTextFormat(row);
+		if (attributes !== undefined) {
+			attributes._value.iterate(addIt);
+		}
+
+		attributes = this.getColumns().getSectionTextFormat(column);
+		if (attributes !== undefined) {
+			attributes._value.iterate(addIt);
+		}
+
+		return properties;
+	}
+
 	parseTextToTerm(text, ignoreExpections = true) {
 		try {
 			JSG.FormulaParser.context.separators = JSG.getParserLocaleSettings().separators;

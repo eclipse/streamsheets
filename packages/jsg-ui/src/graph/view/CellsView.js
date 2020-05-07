@@ -97,14 +97,25 @@ export default class CellsView extends NodeView {
 		// draw cell content
 		visibleRowsInfo.forEach((rowInfo) => {
 			if (rowInfo.leftCellInfo) {
-				this.drawValue(graphics, dataProvider, rowInfo.leftCellInfo, rowInfo, visibleColumnsInfo);
+				const data = dataProvider.getRC(rowInfo.leftCellInfo.index, rowInfo.index);
+				if (data !== undefined && data.getExpression() !== undefined) {
+					this.drawValue(graphics, dataProvider, data, rowInfo.leftCellInfo, rowInfo, visibleColumnsInfo, undefined);
+				}
 			}
 			visibleColumnsInfo.forEach((columnInfo) => {
-				this.drawCellFill(graphics, dataProvider, columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo);
-				this.drawValue(graphics, dataProvider, columnInfo, rowInfo, visibleColumnsInfo);
+				const data = dataProvider.getRC(columnInfo.index, rowInfo.index);
+				const cellProperties = this.getCellProperties(data, columnInfo, rowInfo);
+				this.drawCellFill(graphics, data,  columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo, cellProperties);
+				if (data !== undefined && data.getExpression() !== undefined) {
+					this.drawValue(graphics, dataProvider, data, columnInfo, rowInfo, visibleColumnsInfo, cellProperties);
+					this.drawSpecialFunction(graphics, data, columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo);
+				}
 			});
 			if (rowInfo.rightCellInfo) {
-				this.drawValue(graphics, dataProvider, rowInfo.rightCellInfo, rowInfo, visibleColumnsInfo);
+				const data = dataProvider.getRC(rowInfo.rightCellInfo.index, rowInfo.index);
+				if (data !== undefined && data.getExpression() !== undefined) {
+					this.drawValue(graphics, dataProvider, data, rowInfo.rightCellInfo, rowInfo, visibleColumnsInfo, undefined);
+				}
 			}
 		});
 
@@ -1604,8 +1615,14 @@ export default class CellsView extends NodeView {
 
 		if (data.displayFunctionName && term && (term instanceof FuncTerm)) {
 			switch (term.getFuncId()) {
-				case 'BAR':
 				case 'SELECT':
+					result.clip = true;
+					result.forcedAlignment = 0;
+					result.clipSpace = 600;
+					break;
+				case 'BAR':
+					result.value = '';
+					result.formattedValue = '';
 					break;
 				case 'READ':
 				case 'WRITE':
@@ -1614,13 +1631,6 @@ export default class CellsView extends NodeView {
 					result.bold = true;
 					term.iterateParams((param, index) => {
 						switch (index) {
-							case 0: {
-								const keys = TreeItemsNode.splitPath(result.value);
-								if (keys.length) {
-									result.value = keys[keys.length - 1];
-								}
-								break;
-							}
 							case 2:
 								switch (param.value) {
 									case 'String':
@@ -1695,6 +1705,10 @@ export default class CellsView extends NodeView {
 			return result;
 		}
 
+		if (textproperties.fontcolor) {
+			result.color = textproperties.fontcolor;
+		}
+
 		if (typeof result.value === 'boolean') {
 			result.formattedValue = result.value.toString().toUpperCase();
 			availableWidth = Math.max(availableWidth - 200, 0);
@@ -1761,30 +1775,34 @@ export default class CellsView extends NodeView {
 		return result;
 	}
 
-	applyFormatFromKey(dataProvider, data, columnInfo, rowInfo, formattedValue) {
-		const attributes = data.attributes;
-		if (attributes && attributes.key) {
+	applyFormatFromKey(dataProvider, data, columnInfo, rowInfo, formattedValue, cellProperties) {
+		if (cellProperties && cellProperties.key) {
 			const dataNext = dataProvider.getRC(columnInfo.index + 1, rowInfo.index);
 			if (dataNext === undefined) {
 				return;
 			}
-
-			const attributesNext = dataNext.attributes;
-			if (!attributesNext || !attributesNext.key) {
+			const columnInfoTmp = {
+				index: columnInfo.index + 1
+			}
+			let cellPropertiesTmp = this.getCellProperties(dataNext, columnInfoTmp, rowInfo);
+			if (!cellPropertiesTmp || !cellPropertiesTmp.key) {
 				return;
 			}
 
-			formattedValue.level = attributes.level || 0;
+			formattedValue.level = cellProperties.level || 0;
 			formattedValue.alignment = 0;
 			formattedValue.clip = true;
 			formattedValue.color = '#FFFFFF';
 			formattedValue.frame = true;
 
+			const rowInfoTmp = {
+				index: rowInfo.index + 1
+			}
 			let subLevel = 0;
 			let dataSub = dataProvider.getRC(columnInfo.index, rowInfo.index + 1);
 			if (dataSub) {
-				const attributesSub = dataSub.attributes;
-				subLevel = attributesSub && attributesSub.level ? attributesSub.level : 0;
+				cellPropertiesTmp = this.getCellProperties(dataNext, columnInfo, rowInfoTmp);
+				subLevel = cellPropertiesTmp && cellPropertiesTmp.level ? cellPropertiesTmp.level : 0;
 			}
 
 			if (formattedValue.level < subLevel) {
@@ -1793,8 +1811,9 @@ export default class CellsView extends NodeView {
 				for (let i = 1; i < 10; i += 1) {
 					dataSub = dataProvider.getRC(columnInfo.index, rowInfo.index + i);
 					if (dataSub !== undefined) {
-						const attributesSub = dataSub.attributes;
-						const subLevelLoop = attributesSub && attributesSub.level ? attributesSub.level : 0;
+						rowInfoTmp.index = rowInfo.index + i;
+						cellPropertiesTmp = this.getCellProperties(dataNext, columnInfo, rowInfoTmp);
+						const subLevelLoop = cellPropertiesTmp && cellPropertiesTmp.level ? cellPropertiesTmp.level : 0;
 						const val = dataSub.getValue();
 						if (subLevelLoop !== subLevel || Number(val) !== i - 1) {
 							formattedValue.fillColor = '#E17000';
@@ -1834,9 +1853,10 @@ export default class CellsView extends NodeView {
 	}
 
 	getStyleProperties(cell, column, row) {
-		let styleproperties = {};
+		let styleproperties;
 
 		if (JSG.webComponent === true) {
+			styleproperties = {};
 			if (column.section.styleproperties) {
 				styleproperties = Object.assign(styleproperties, column.section.styleproperties);
 			}
@@ -1847,31 +1867,27 @@ export default class CellsView extends NodeView {
 				styleproperties = Object.assign(styleproperties, cell.styleproperties);
 			}
 		} else {
-			const format = this._wsItem.getFormatAtRC(column.index, row.index);
-			const attr = this._wsItem.getCellAttributesAtRC(column.index, row.index);
-			styleproperties.fillstyle = format.getFillStyle().getValue();
-			if (styleproperties.fillstyle) {
-				styleproperties.fillcolor = format.getFillColor().getValue();
-			}
-			styleproperties.leftborderstyle = attr.getLeftBorderStyle().getValue();
+			styleproperties = this._wsItem.getFormatPropertiesAtRC(column.index, row.index);
+			const cellProperties = this._wsItem.getCellPropertiesAtRC(column.index, row.index);
+			styleproperties.leftborderstyle = cellProperties.leftborderstyle;
 			if (styleproperties.leftborderstyle) {
-				styleproperties.leftbordercolor = attr.getLeftBorderColor().getValue();
-				styleproperties.leftborderwidth = attr.getLeftBorderWidth().getValue();
+				styleproperties.leftbordercolor = cellProperties.leftbordercolor;
+				styleproperties.leftborderwidth = cellProperties.leftborderwidth;
 			}
-			styleproperties.topborderstyle = attr.getTopBorderStyle().getValue();
+			styleproperties.topborderstyle = cellProperties.topborderstyle;
 			if (styleproperties.topborderstyle) {
-				styleproperties.topbordercolor = attr.getTopBorderColor().getValue();
-				styleproperties.topborderwidth = attr.getTopBorderWidth().getValue();
+				styleproperties.topbordercolor = cellProperties.topbordercolor;
+				styleproperties.topborderwidth = cellProperties.topborderwidth;
 			}
-			styleproperties.rightborderstyle = attr.getRightBorderStyle().getValue();
+			styleproperties.rightborderstyle = cellProperties.rightborderstyle;
 			if (styleproperties.rightborderstyle) {
-				styleproperties.rightbordercolor = attr.getRightBorderColor().getValue();
-				styleproperties.rightborderwidth = attr.getRightBorderWidth().getValue();
+				styleproperties.rightbordercolor = cellProperties.rightbordercolor;
+				styleproperties.rightborderwidth = cellProperties.rightborderwidth;
 			}
-			styleproperties.bottomborderstyle = attr.getBottomBorderStyle().getValue();
+			styleproperties.bottomborderstyle = cellProperties.bottomborderstyle;
 			if (styleproperties.bottomborderstyle) {
-				styleproperties.bottombordercolor = attr.getBottomBorderColor().getValue();
-				styleproperties.bottomborderwidth = attr.getBottomBorderWidth().getValue();
+				styleproperties.bottombordercolor = cellProperties.bottombordercolor;
+				styleproperties.bottomborderwidth = cellProperties.bottomborderwidth;
 			}
 		}
 
@@ -1879,9 +1895,10 @@ export default class CellsView extends NodeView {
 	}
 
 	getTextProperties(cell, column, row) {
-		let textproperties = {};
+		let textproperties;
 
 		if (JSG.webComponent === true) {
+			textproperties = {};
 			if (column.section.textproperties) {
 				textproperties = Object.assign(textproperties, column.section.textproperties);
 			}
@@ -1892,49 +1909,39 @@ export default class CellsView extends NodeView {
 				textproperties = Object.assign(textproperties, cell.textproperties);
 			}
 		} else {
-			const tf = this._wsItem.getTextFormatAtRC(column.index, row.index);
-			textproperties.valign = tf.getVerticalAlignment().getValue();
-			textproperties.halign = tf.getHorizontalAlignment().getValue();
-			textproperties.fontsize = tf.getFontSize().getValue();
-			textproperties.fontname = tf.getFontName().getValue();
-			textproperties.fontcolor = tf.getFontColor().getValue();
-			textproperties.fontstyle = tf.getFontStyle().getValue();
-			textproperties.numberformat = tf.getNumberFormat().getValue();
-			textproperties.localculture = tf.getLocalCulture().getValue();
-
+			textproperties = this._wsItem.getTextFormatPropertiesAtRC(column.index, row.index);
 		}
 		return textproperties;
 	}
 
-	getCellAttributes(cell, column, row) {
-		let attributes = {};
+	getCellProperties(cell, column, row) {
+		let attributes;
 
-		if (column.section.attributes) {
-			attributes = Object.assign(attributes, column.section.attributes);
-		}
-		if (row.section.attributes) {
-			attributes = Object.assign(attributes, row.section.attributes);
-		}
-		if (cell && cell.attributes) {
-			attributes = Object.assign(attributes, cell.attributes);
+		if (JSG.webComponent === true) {
+			attributes = {};
+			if (column.section.attributes) {
+				attributes = Object.assign(attributes, column.section.attributes);
+			}
+			if (row.section.attributes) {
+				attributes = Object.assign(attributes, row.section.attributes);
+			}
+			if (cell && cell.attributes) {
+				attributes = Object.assign(attributes, cell.attributes);
+			}
+		} else {
+			attributes = this._wsItem.getCellPropertiesAtRC(column.index, row.index);
 		}
 		return attributes;
 	}
 
-	drawCellFill(graphics, dataProvider, columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo) {
-		const data = dataProvider.getRC(columnInfo.index, rowInfo.index);
-		// if (data === undefined) {
-		// 	return;
-		// }
-
+	drawCellFill(graphics, data, columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo, cellProperties) {
 		const styleproperties = this.getStyleProperties(data, columnInfo, rowInfo);
 		if (
 			styleproperties === undefined ||
 			styleproperties.fillcolor === undefined ||
 			Number(styleproperties.fillstyle) !== 1
 		) {
-			const attributes = this.getCellAttributes(data, columnInfo, rowInfo);
-			if (attributes && attributes.key) {
+			if (cellProperties && cellProperties.key) {
 				this.rect(
 					graphics,
 					columnInfo.x + 50,
@@ -2022,12 +2029,140 @@ export default class CellsView extends NodeView {
 		}
 	}
 
-	drawValue(graphics, dataProvider, columnInfo, rowInfo, visibleColumnsInfo) {
-		const data = dataProvider.getRC(columnInfo.index, rowInfo.index);
-		if (data === undefined || data.getExpression() === undefined) {
-			return;
-		}
+	drawSpecialFunction(graphics, data, columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo) {
+		const termFunc = data.getExpression().getTerm();
+		if (termFunc && termFunc instanceof FuncTerm) {
+			switch (termFunc.getFuncId()) {
+			case 'SELECT': {
+				// const value = String(data.getValue());
 
+				// graphics.save();
+				// // graphics.setClip(clipRect);
+				// graphics.setTextAlignment(TextFormatAttributes.TextAlignment.LEFT);
+				// graphics.fillText(value, columnInfo.x + 100, rowInfo.y);
+				// // graphics.restore();
+
+				graphics.setFillColor('#888888');
+
+				const pts = [
+					{x: columnInfo.x + columnInfo.width - 400, y: rowInfo.y + rowInfo.height / 2 - 80},
+					{x: columnInfo.x + columnInfo.width - 150, y: rowInfo.y + rowInfo.height / 2 - 80},
+					{x: columnInfo.x + columnInfo.width - 275, y: rowInfo.y + rowInfo.height / 2 + 80}
+				];
+
+				graphics.fillPolyline(pts, true);
+				graphics.setFillColor('#000000');
+				break;
+			}
+			case 'BAR': {
+				const cellValue = data.getValue();
+				if (cellValue === undefined) {
+					return;
+				}
+				const params = String(cellValue).split(';');
+				let value = 0;
+				let direction = false;
+				let fillColor = '#00FF00';
+				let lineColor;
+				params.forEach((param, index) => {
+					switch (index) {
+					case 0:
+						value = Number(param);
+						if (Number.isNaN(value)) {
+							value = param.length > 0 && param !== 'false' ? 1 : 0;
+						}
+						break;
+					case 1:
+						direction = Number(param);
+						break;
+					case 2:
+						fillColor = param === 'undefined' || param === '' ? '#00FF00' : param;
+						break;
+					case 3:
+						lineColor = param === 'undefined' || param === '' ? undefined : param;
+						break;
+					default:
+						break;
+					}
+				});
+				if (rowInfo.grey) {
+					graphics.setTransparency(60);
+				}
+				if (direction) {
+					this.rect(graphics, columnInfo.x, rowInfo.y + rowInfo.height - rowInfo.height * value, columnInfo.width + 20, rowInfo.height * value,
+						fillColor);
+				} else {
+					this.rect(graphics, columnInfo.x, rowInfo.y, columnInfo.width * value + 20, rowInfo.height,
+						fillColor);
+				}
+				if (rowInfo.grey) {
+					graphics.setTransparency(100);
+				}
+				columnInfo.gridSkipBorders.push({
+					y: rowInfo.y,
+					height: rowInfo.height
+				});
+
+				if (visibleColumnsInfo.length > columnInfo.myIndex + 1) {
+					const borders = visibleColumnsInfo[columnInfo.myIndex + 1].gridSkipBorders;
+					if (borders) {
+						borders.push({
+							y: rowInfo.y,
+							height: rowInfo.height
+						});
+					}
+				}
+
+				if (lineColor !== undefined) {
+					const color = lineColor;
+					if (columnInfo.leftBorders[color] === undefined) {
+						columnInfo.leftBorders[color] = {};
+					}
+					columnInfo.leftBorders[color][rowInfo.y] = {
+						height: rowInfo.height,
+						style: 1,
+						borderWidth: 1
+					};
+					if (rowInfo.topBorders[color] === undefined) {
+						rowInfo.topBorders[color] = {};
+					}
+					rowInfo.topBorders[color][columnInfo.x] = {
+						width: columnInfo.width,
+						style: 1,
+						borderWidth: 1
+					};
+					let borders = visibleColumnsInfo[columnInfo.myIndex + 1].leftBorders;
+					if (borders) {
+						if (borders[color] === undefined) {
+							borders[color] = {};
+						}
+						borders[color][rowInfo.y] = {
+							height: rowInfo.height,
+							style: 1,
+							borderWidth: 1
+						};
+					}
+					borders = visibleRowsInfo[rowInfo.myIndex + 1].topBorders;
+					if (borders) {
+						if (borders[color] === undefined) {
+							borders[color] = {};
+						}
+						borders[color][columnInfo.x] = {
+							width: columnInfo.width,
+							style: 1,
+							borderWidth: 1
+						};
+					}
+				}
+				break;
+			}
+			default:
+				break;
+			}
+		}
+	}
+
+	drawValue(graphics, dataProvider, data, columnInfo, rowInfo, visibleColumnsInfo, cellProperties) {
 		graphics.setFillColor('#000000');
 
 		const textproperties = this.getTextProperties(data, columnInfo, rowInfo);
@@ -2085,7 +2220,9 @@ export default class CellsView extends NodeView {
 			}
 		}
 
-		this.applyFormatFromKey(dataProvider, data, columnInfo, rowInfo, formattedValue);
+		if (cellProperties !== undefined) {
+			this.applyFormatFromKey(dataProvider, data, columnInfo, rowInfo, formattedValue, cellProperties);
+		}
 
 		if (formattedValue.fillColor) {
 			if (rowInfo.grey) {
@@ -2149,6 +2286,9 @@ export default class CellsView extends NodeView {
 		if (alignment === 3) {
 			alignment = formattedValue.alignment === undefined ? 0 : formattedValue.alignment;
 		}
+		if (formattedValue.forcedAlignment) {
+			alignment = formattedValue.forcedAlignment;
+		}
 
 		graphics.setTextAlignment(alignment);
 
@@ -2170,7 +2310,7 @@ export default class CellsView extends NodeView {
 
 		if (formattedValue.clip) {
 			clipX = columnInfo.x;
-			clipWidth = columnInfo.width;
+			clipWidth = columnInfo.width - (formattedValue.clipSpace ? formattedValue.clipSpace : 0);
 		} else {
 			let width = graphics
 				.getCoordinateSystem()
@@ -2208,9 +2348,9 @@ export default class CellsView extends NodeView {
 						case 1:
 							if (
 								(info.x > x &&
-									info.x < x + width &&
+									info.x < x + width / 2 &&
 									(clipInfo.clip === false || info.x < clipInfo.x + clipInfo.width)) ||
-								(info.x <= x && info.x > x - width && (clipInfo.clip === false || info.x > clipInfo.x))
+								(info.x <= x && info.x > x - width / 2 && (clipInfo.clip === false || info.x > clipInfo.x))
 							) {
 								info.skipBorders[rowInfo.y] = rowInfo.height;
 								info.gridSkipBorders.push({
