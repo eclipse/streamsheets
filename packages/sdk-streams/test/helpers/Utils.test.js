@@ -10,21 +10,44 @@ describe('Stream API#Utils', () => {
 
 	it('should transform a Buffer/text to json object and back', () => {
 		const text = Buffer.from('Happy');
-		const jsonObject = Utils.transformToJSONObject(text, 'text/plain');
+		const jsonObject = Utils.transformToJSONObject(text, {
+			mimeType: 'text/plain'
+		});
 		expect(typeof jsonObject === 'object');
 		expect(jsonObject.text === 'Happy');
-		const text_ = Utils.transformFromJSONObject(jsonObject, 'text/plain');
+		const text_ = Utils.transformFromJSONObject(jsonObject, {
+			mimeType: 'text/plain'
+		});
 		expect(text_ === text);
 		expect(text_.length === text.length);
 	});
+
+	it('should transform a Buffer to json object based on contentType', () => {
+		const hexInput = '73747265616d736865657473';
+		const utf8Out = 'streamsheets';
+		const buff = Buffer.from(utf8Out);
+		const jsonObjectHex = Utils.transformToJSONObject(buff, {
+			mimeType: 'text/plain',
+			contentEncoding: 'hex'
+		});
+		expect(typeof jsonObjectHex === 'object');
+		expect(jsonObjectHex.value === hexInput);
+		const jsonObjectUtf8 = Utils.transformToJSONObject(buff, {
+			mimeType: 'text/plain',
+		});
+		expect(typeof jsonObjectHex === 'object');
+		expect(jsonObjectUtf8.value === hexInput);
+	});
+
 	it('should transform a json to json object and back', () => {
 		const json = JSON.stringify({
 			text: 'Happy',
 			num: 3
 		});
 		const jsonObject = Utils.transformToJSONObject(
-			json,
-			'application/json'
+			json,{
+				mimeType: 'application/json'
+			}
 		);
 		expect(typeof jsonObject === 'object');
 		expect(jsonObject.text === 'Happy');
@@ -45,7 +68,9 @@ describe('Stream API#Utils', () => {
 			'    <todo>Work</todo>' +
 			'    <todo>Play</todo>' +
 			'</note>';
-		const jsonObject = Utils.transformToJSONObject(xml, 'application/xml');
+		const jsonObject = Utils.transformToJSONObject(xml, {
+			mimeType: 'application/xml'
+		});
 		expect(typeof jsonObject === 'object');
 		expect(jsonObject.note.title._text === 'Happy');
 		expect(jsonObject.note.num._text === 3);
@@ -65,7 +90,9 @@ describe('Stream API#Utils', () => {
 			'    <todo>Work</todo>' +
 			'    <todo>Play</todo>' +
 			'</note>';
-		const jsonObject = Utils.transformToJSONObject(xml, 'auto');
+		const jsonObject = Utils.transformToJSONObject(xml, {
+			mimeType: 'auto'
+		});
 		expect(typeof jsonObject === 'object');
 		expect(jsonObject.note.title._text === 'Happy');
 		expect(jsonObject.note.num._text === 3);

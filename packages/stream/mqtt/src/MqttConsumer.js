@@ -10,8 +10,9 @@ module.exports = class MqttConsumer extends sdk.ConsumerMixin(MqttConnector) {
 	registerDefaultListeners() {
 		super.registerDefaultListeners();
 		this._client.on('message', (topic, message, packet) => {
-			this.onMessage(topic, message, {
-				userProperties: packet.properties ? packet.properties.userProperties : {}
+			const { payload, properties } = packet;
+			this.onMessage(topic, payload, {
+				userProperties: properties ? properties.userProperties : {}
 			});
 		});
 	}

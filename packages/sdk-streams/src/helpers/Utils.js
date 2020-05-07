@@ -46,11 +46,18 @@ module.exports = class Utils {
 	 * @returns {*}
 	 */
 
-	static transformToJSONObject(message, mimeType = 'application/json') {
+	static transformToJSONObject(message, config) {
+		const {mimeType = 'application/json', contentEncoding = 'utf8'} = config;
+		// TODO: revisit if/when force message to be always of Buffer type
 		if (!message) return message;
-		const msgString = Buffer.isBuffer(message)
-			? message.toString()
-			: message;
+		let msgString = '';
+		if(Buffer.isBuffer(message)) {
+			msgString = Buffer.isBuffer(message)
+					? message.toString(contentEncoding)
+					: message;
+		} else if(typeof message === 'string') {
+			msgString = Buffer.from(message).toString(contentEncoding);
+		}
 		if (typeof msgString === 'object') return msgString;
 		let msg = {};
 		switch (mimeType) {

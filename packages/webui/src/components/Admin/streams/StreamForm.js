@@ -129,6 +129,46 @@ class StreamForm extends Component {
 					}),
 					model.mimeType || 'auto', disabled
 				),
+				!this.isConsumer() ? null :  fc.getSelect(
+						new Field({
+							id: 'contentEncoding',
+							label: {
+								en: 'Content Encoding',
+							},
+							options: [
+								{
+									label: 'utf8',
+									value: 'utf8',
+								},
+								{
+									label: 'hex',
+									value: 'hex',
+								},
+								{
+									label: 'ascii',
+									value: 'ascii',
+								},
+								{
+									label: 'base64',
+									value: 'base64',
+								},
+								{
+									label: 'utf16le',
+									value: 'utf16le',
+								},
+								{
+									label: 'latin1',
+									value: 'latin1',
+								},
+								{
+									label: 'binary',
+									value: 'binary',
+								},
+							],
+							defaultValue: 'utf8',
+						}),
+						model.contentEncoding || 'utf8', disabled
+				),
 				/*
 				!this.isConsumer() ? null : fc.getTextArea(
 					new Field({
