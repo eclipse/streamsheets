@@ -71,7 +71,8 @@ const toObjectList = (data) => {
 		const keys = Object.keys(data);
 		list = keys.reduce((all, key) => {
 			const index = convert.toNumber(key);
-			if (index != null) all.push(data[key]);
+			const value = data[key];
+			if (index != null) all.push(isType.object(value) ? value : [value]);
 			return all;
 		}, []);
 		list = list.length === keys.length ? list : undefined;
@@ -80,7 +81,8 @@ const toObjectList = (data) => {
 };
 const spreadObjectList = (list, cellrange, isHorizontal) => {
 	const sheet = cellrange.sheet;
-	const keys = Object.keys(list[0]);
+	const first = list[0];
+	const keys = Array.isArray(first) || isType.object(first) ? Object.keys(list[0]) : Object.keys(list);
 	const vertical = isHorizontal == null ? cellrange.height >= cellrange.width : !isHorizontal;
 	const iterate = vertical ? cellrange.iterateByCol : cellrange.iterate;
 	let keyidx = 0;
@@ -94,18 +96,13 @@ const spreadObjectList = (list, cellrange, isHorizontal) => {
 		} else {
 			const curr = list[listidx];
 			const prev = list[listidx - 1] 
-			// const isArray = Array.isArray(list[listidx]);
 			if (Array.isArray(curr)) {
 				value = curr[keys[keyidx]];
 			} else if (listidx === 0) {
 				value = keys[keyidx];
 			} else if(!Array.isArray(prev)) {
-				value = prev[keys[keyidx]];
-			// } else {
-			// 	value = undefined;
+				value = isType.object(prev) ? prev[keys[keyidx]] : prev;
 			}
-			// eslint-disable-next-line
-			// value = isArray ? list[listidx][keys[keyidx]] : (listidx === 0 ? keys[keyidx] : list[listidx - 1][keys[keyidx]]);
 		}
 		setOrCreateCellAt(index, value, false, sheet);
 	});
