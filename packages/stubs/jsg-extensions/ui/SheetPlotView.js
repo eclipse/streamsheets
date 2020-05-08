@@ -717,6 +717,42 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 
 			let index = 0;
 
+
+			if (item.chart.rotation < Math.PI / 2 && index === 0) {
+				graphics.beginPath();
+				graphics.moveTo(pieInfo.xc, pieInfo.yc);
+				graphics.lineTo(pieInfo.xc, pieInfo.yc + pieInfo.height);
+				graphics.lineTo(pieInfo.xc + pieInfo.xRadius * Math.cos(pieInfo.startAngle),
+					pieInfo.yc + pieInfo.height + pieInfo.yRadius * Math.sin(pieInfo.startAngle));
+				graphics.lineTo(pieInfo.xc + pieInfo.xRadius * Math.cos(pieInfo.startAngle),
+					pieInfo.yc + pieInfo.yRadius * Math.sin(pieInfo.startAngle));
+				if (serie.format.lineColor === undefined) {
+					graphics.setLineColor('#FFFFFF');
+				} else {
+					graphics.setLineColor(serie.format.lineColor);
+				}
+				graphics.setFillColor(
+					serie.format.fillColor || item.getTemplate().series.getFillForIndex(0)
+				);
+				this.fill(graphics, serie.format);
+				graphics.stroke();
+				graphics.beginPath();
+				graphics.moveTo(pieInfo.xc, pieInfo.yc);
+				graphics.lineTo(pieInfo.xc, pieInfo.yc + pieInfo.height);
+				graphics.lineTo(pieInfo.xc + pieInfo.xRadius * Math.cos(pieInfo.endAngle),
+					pieInfo.yc + pieInfo.height + pieInfo.yRadius * Math.sin(pieInfo.endAngle));
+				graphics.lineTo(pieInfo.xc + pieInfo.xRadius * Math.cos(pieInfo.endAngle),
+					pieInfo.yc + pieInfo.yRadius * Math.sin(pieInfo.endAngle));
+				while (item.getValue(ref, index, value)) {
+					index += 1;
+				}
+				graphics.setFillColor(
+					serie.format.fillColor || item.getTemplate().series.getFillForIndex(index - 1)
+				);
+				this.fill(graphics, serie.format);
+				graphics.stroke();
+			}
+
 			for (let i = 0; i < 2; i += 1) {
 				let currentAngle = pieInfo.startAngle;
 				index = 0;
@@ -776,6 +812,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 								false
 							);
 							graphics.lineTo(pieInfo.xc, pieInfo.yc);
+							graphics.closePath()
 
 							if (i) {
 								if (line) {

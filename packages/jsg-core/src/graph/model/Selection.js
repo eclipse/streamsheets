@@ -399,7 +399,7 @@ module.exports = class Selection {
 		let str = '';
 		const sheet = this.getWorksheet();
 		const x = column + sheet.getColumns().getInitialSection();
-		const y = row + sheet.getRows().getInitialSection();
+		const y = row;
 
 		if (x < 0) {
 			str += sheet.getColumns().getSectionTitle(x - sheet.getColumns().getInitialSection());
@@ -553,7 +553,7 @@ module.exports = class Selection {
 			selection.setActiveCell(
 				new Point(
 					cell.column - sheet.getColumns().getInitialSection(),
-					cell.row - sheet.getRows().getInitialSection()
+					cell.row
 				)
 			);
 		}

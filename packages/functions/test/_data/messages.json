@@ -102,6 +102,44 @@
 			[ 1254, "Produkt D", 34.54, 0.19, 6.5626 ]
 		]
 	},
+	"TEST3a": {
+		"metadata": {
+			"ticket": "DL-4033"
+		},
+		"data":
+			{
+				"0": "Artikelnummer",
+				"1": "Produktname",
+				"2": "Preis",
+				"3": "Mwst",
+				"4": "Gesamtpreis"
+			}
+	},
+	"TEST3b": {
+		"metadata": {
+			"ticket": "DL-4033"
+		},
+		"data":
+			{
+				"0": 1234,
+				"1": 5678,
+				"2": 9012,
+				"3": 3456,
+				"4": 7890
+			}
+	},
+	"TEST3c": {
+		"metadata": {
+			"ticket": "DL-4033"
+		},
+		"data": [ "M1200", "Cedalo MQTT Broker", 1000, 1, 1000]
+	},
+	"TEST3d": {
+		"metadata": {
+			"ticket": "DL-4033"
+		},
+		"data": [[ "M1200", "Cedalo MQTT Broker", 1000, 1, 1000]]
+	},
 	"TEST5": {
 		"metadata": {
 			"ticket": "DL-4033"
@@ -126,6 +164,15 @@
 				"März": 302
 			}
 		]
+	},
+	"TEST7": {
+		"metadata": {
+			"ticket": "DL-4033"
+		},
+		"data": {
+			"0": [ "", "Jan", "Feb", "März"],
+			"1": [ "Umsatz", 100, 200, 300 ]
+		}
 	},
 	"TEST8": {
 		"metadata": {

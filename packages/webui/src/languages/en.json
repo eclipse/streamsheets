@@ -570,6 +570,7 @@
     "Tooltip.FormatVAlignBottomMessage": "The cell content will be displayed at the bottom of the cell.",
     "Tooltip.ShutdownMachineHeader": "Shutdown machine",
     "Tooltip.ShutdownMachineMessage": "Shutdown and remove machine from machine server",
+    "Tooltip.InsertChart": "Select Chart type to create",
     "NumberFormat.General": "General",
     "NumberFormat.Number": "Number",
     "NumberFormat.NumberRounded": "Number (rounded)",

@@ -70,13 +70,7 @@ module.exports = class HeaderNode extends Node {
 	}
 
 	getInitialSection() {
-		return this.getHeaderAttributes()
-			.getInitialSection()
-			.getValue();
-	}
-
-	setInitialSection(index) {
-		return this.getHeaderAttributes().setInitialSection(index);
+		return 0;
 	}
 
 	insertSectionsAt(index, num, max) {

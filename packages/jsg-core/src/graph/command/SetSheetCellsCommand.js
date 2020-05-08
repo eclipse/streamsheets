@@ -85,7 +85,7 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 			}
 			const pos = new Point(
 				res.column - this._graphItem.getColumns().getInitialSection(),
-				res.row - this._graphItem.getRows().getInitialSection()
+				res.row
 			);
 
 			const cell = data.create(pos);

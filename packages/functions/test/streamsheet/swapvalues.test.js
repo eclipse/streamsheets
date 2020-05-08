@@ -131,6 +131,7 @@ describe('swapvalues', () => {
 		expect(sheet.cellAt('B1').value).toBe('C1');
 		expect(sheet.cellAt('C1').value).toBe('B1');
 	});
+	// changed due to DL-4088: IF col always returns true/false
 	it('should be possible to swap with negative columns', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: SHEETS.SIMPLE });
 		// simulate sheet processing...

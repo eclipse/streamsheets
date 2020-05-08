@@ -70,7 +70,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 		this.getFormat().setLineColor('#AAAAAA');
 
 		const columns = this.getColumns();
-		columns.setInitialSection(-2);
 		columns.setSectionSize(0, 0);
 		columns.setSectionSize(1, 700);
 
@@ -943,7 +942,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		NotificationCenter.getInstance().send(
 			new Notification(WorksheetNode.SELECTION_CHANGED_NOTIFICATION, {
 				item: this,
-				updateFinal: true
+				updateFinal: false
 			})
 		);
 	}

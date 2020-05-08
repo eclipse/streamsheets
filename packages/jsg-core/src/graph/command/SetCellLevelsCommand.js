@@ -72,7 +72,7 @@ module.exports = class SetCellLevelsCommand extends AbstractItemCommand {
 			const res = CellRange.refToRC(reference, this._graphItem);
 			const pos = new Point(
 				res.column - this._graphItem.getColumns().getInitialSection(),
-				res.row - this._graphItem.getRows().getInitialSection()
+				res.row
 			);
 			const cell = data.get(pos);
 			if (cell) {

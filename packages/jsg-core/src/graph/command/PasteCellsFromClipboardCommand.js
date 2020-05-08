@@ -67,7 +67,7 @@ module.exports = class PasteCellsFromClipboardCommand extends Command {
 		// sheet and range doesn't really match here?? with shiftToSheet() cell is not found and without ref is wrong
 		const sheet = this._data.range.getSheet();
 		const refAdjust = {
-			row: sheet.getRows().getInitialSection(),
+			row: 0,
 			col: sheet.getColumns().getInitialSection()
 		};
 		data.sourcecells = copycells(this._data.range, this._action, refAdjust);

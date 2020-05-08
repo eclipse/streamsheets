@@ -1799,7 +1799,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (input.max === undefined && input.maxData < 0.0) {
 				max = 0;
 			}
-			if (max - min > max * 0.15 && axis.type !== 'time' && min > 0 && axis.autoZero) {
+			if ((max - min > max * 0.15 || max - min < epsilon) && axis.type !== 'time' && min > 0 && axis.autoZero) {
 				min = 0;
 			}
 			if (input.min !== undefined) {
@@ -1956,7 +1956,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		}
 
 		// deduct height of pie side
-		const height = 700 * Math.cos(this.chart.rotation);
+		// const height = 700 * Math.cos(this.chart.rotation);
+		const height = 700 *(Math.PI_2 - this.chart.rotation) / Math.PI_2 ;
 		rect.bottom -= height;
 
 		const startAngle = this.chart.startAngle - Math.PI_2;
@@ -2814,6 +2815,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					plotRect.left + y * plotRect.width + 200,
 					plotRect.bottom - x * plotRect.height + 200
 				);
+				points.push({
+					x: plotRect.left + x * plotRect.width,
+					y: plotRect.bottom - y * plotRect.height
+				});
 				break;
 			case 'column':
 				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
@@ -2824,26 +2829,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					plotRect.bottom - y * plotRect.height + 100 - barInfo.height * plotRect.height
 				);
 				break;
-			case 'state':
-				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
-				if (this.chart.period) {
-					const ptNext = { x: 0, y: 0 };
-					this.getPlotPoint(axes, ref, info, value, pointIndex, 1, ptNext);
-					dataRect.set(
-						plotRect.left + x * plotRect.width + barInfo.offset,
-						plotRect.bottom - y * plotRect.height,
-						plotRect.left + ptNext.x * plotRect.width + barInfo.offset + barWidth - barInfo.margin,
-						plotRect.bottom - y * plotRect.height - barInfo.height * plotRect.height
-					);
-				} else {
-					dataRect.set(
-						plotRect.left + x * plotRect.width + barInfo.offset,
-						plotRect.bottom - y * plotRect.height,
-						plotRect.left + x * plotRect.width + barInfo.offset + barWidth - barInfo.margin,
-						plotRect.bottom - y * plotRect.height - barInfo.height * plotRect.height
-					);
-				}
-				break;
 			case 'line':
 			case 'scatter':
 			case 'bubble':
@@ -2853,6 +2838,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					plotRect.left + x * plotRect.width + 200,
 					plotRect.bottom - y * plotRect.height + 200
 				);
+				points.push({
+					x: plotRect.left + x * plotRect.width,
+					y: plotRect.bottom - y * plotRect.height
+				});
 				break;
 			case 'area':
 				dataRect.set(
@@ -2908,7 +2897,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 			pointIndex += 1;
 		}
-		if (serie.type === 'area') {
+		switch (serie.type) {
+		case 'area': {
 			const searchPoints = [];
 			points.forEach((point) => {
 				searchPoints.push(point);
@@ -2919,6 +2909,20 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (MathUtils.isPointInPolygon(searchPoints, pt)) {
 				return true;
 			}
+			break;
+		}
+		case 'profile':
+		case 'scatter':
+		case 'line': {
+			for (let i = 0; i < points.length - 1; i += 1) {
+				if (MathUtils.getLinePointDistance(points[i], points[i + 1], pt) < 200) {
+					return true;
+				}
+			}
+			break;
+		}
+		default:
+			break;
 		}
 
 		return false;
