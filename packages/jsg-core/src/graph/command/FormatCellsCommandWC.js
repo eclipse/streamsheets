@@ -205,8 +205,7 @@ module.exports = class FormatCellsCommandWC extends Command {
 						);
 						const rc = CellRange.refToRC(reference, sheet);
 						if (rc) {
-							const row =
-								rc.row - sheet.getRows().getInitialSection();
+							const row = rc.row;
 							const column =
 								rc.column -
 								sheet.getColumns().getInitialSection();

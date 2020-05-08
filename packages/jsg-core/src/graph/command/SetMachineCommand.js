@@ -87,7 +87,7 @@ module.exports = class SetMachineCommand extends AbstractItemCommand {
 					}
 					const pos = new Point(
 						res.column - sheet.getColumns().getInitialSection(),
-						res.row - sheet.getRows().getInitialSection()
+						res.row
 					);
 
 					const cell = data.create(pos);

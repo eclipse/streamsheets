@@ -76,7 +76,7 @@ const applyProperties = (properties, processSheet) => {
 				if (res != null) {
 					const pos = new Point(
 						res.column - processSheet.getColumns().getInitialSection(),
-						res.row - processSheet.getRows().getInitialSection()
+						res.row
 					);
 					const cell = dataProvider.create(pos);
 					cell.properties = property;
@@ -428,7 +428,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 				}
 				const pos = new Point(
 					res.column - processSheet.getColumns().getInitialSection(),
-					res.row - processSheet.getRows().getInitialSection()
+					res.row
 				);
 
 				const cell = dataProvider.create(pos);
@@ -511,7 +511,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 					}
 					const pos = new Point(
 						res.column - processSheet.getColumns().getInitialSection(),
-						res.row - processSheet.getRows().getInitialSection()
+						res.row
 					);
 
 					const cell = psDataProvider.create(pos);

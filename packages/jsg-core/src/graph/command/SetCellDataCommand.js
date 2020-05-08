@@ -43,7 +43,7 @@ module.exports = class SetCellDataCommand extends AbstractItemCommand {
 		}
 		this._pos = new Point(
 			res.column - item.getColumns().getInitialSection(),
-			res.row - item.getRows().getInitialSection()
+			res.row
 		);
 		this._expr = expr;
 		this._calc = calc;
