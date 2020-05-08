@@ -570,6 +570,7 @@
 	"Tooltip.FormatVAlignBottomMessage": "Der Zellinhalt wird am unteren Rand der Zelle angezeigt.",
 	"Tooltip.ShutdownMachineHeader": "Maschine herunterfahren",
     "Tooltip.ShutdownMachineMessage": "Maschine herunterfahren und vom Server entfernen",
+    "Tooltip.InsertChart": "Diagrammtyp auswählen und Diagramm erzeugen",
     "NumberFormat.General": "Standard",
     "NumberFormat.Number": "Zahl",
     "NumberFormat.NumberRounded": "Zahl (gerundet)",
