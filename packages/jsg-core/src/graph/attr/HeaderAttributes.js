@@ -4,7 +4,6 @@ const NumberAttribute = require('./NumberAttribute');
 
 // PREDEFINED ATTRIBUTES:
 const DEFAULTSECTIONSIZE = 'defaultsectionsize';
-const INITIALSECTION = 'initialsection';
 
 // UNIQUE NAME:
 const NAME = 'WorksheetHeader';
@@ -47,7 +46,6 @@ const HeaderAttributes = class HeaderAttributes extends AttributeList {
 
 		// simply add default attributes:
 		addAttribute(new NumberAttribute(ATTR.DEFAULTSECTIONSIZE), 2000);
-		addAttribute(new NumberAttribute(ATTR.INITIALSECTION), 0);
 
 		return attributes.toTemplate(HeaderAttributes.TemplateID);
 	}
@@ -58,14 +56,6 @@ const HeaderAttributes = class HeaderAttributes extends AttributeList {
 
 	setDefaultSectionSize(size) {
 		this.setAttribute(HeaderAttributes.DEFAULTSECTIONSIZE, size);
-	}
-
-	getInitialSection() {
-		return this.getAttribute(HeaderAttributes.INITIALSECTION);
-	}
-
-	setInitialSection(index) {
-		this.setAttribute(HeaderAttributes.INITIALSECTION, index);
 	}
 
 	doSaveParentRef() {
@@ -81,10 +71,6 @@ const HeaderAttributes = class HeaderAttributes extends AttributeList {
 
 	static get DEFAULTSECTIONSIZE() {
 		return DEFAULTSECTIONSIZE;
-	}
-
-	static get INITIALSECTION() {
-		return INITIALSECTION;
 	}
 
 	static get TemplateID() {

@@ -70,7 +70,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 		this.getFormat().setLineColor('#AAAAAA');
 
 		const columns = this.getColumns();
-		columns.setInitialSection(-2);
 		columns.setSectionSize(0, 0);
 		columns.setSectionSize(1, 700);
 

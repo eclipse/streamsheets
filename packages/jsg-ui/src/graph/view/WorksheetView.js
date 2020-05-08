@@ -1576,8 +1576,7 @@ export default class WorksheetView extends ContentNodeView {
 
 					graphics.setFont();
 
-					const formattingResult = this.getCellsView().getFormattedValue(
-						item,
+					const formattingResult = item.getFormattedValue(
 						expr,
 						value,
 						textFormat,
@@ -1615,8 +1614,7 @@ export default class WorksheetView extends ContentNodeView {
 				if (cell && cell.hasContent()) {
 					const textFormat = item.getTextFormatAtRC(columnIndex, rowIndex);
 
-					const formattingResult = this.getCellsView().getFormattedValue(
-						item,
+					const formattingResult = item.getFormattedValue(
 						cell.getExpression(),
 						cell.getValue(),
 						textFormat,

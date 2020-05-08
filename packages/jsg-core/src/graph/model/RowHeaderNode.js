@@ -34,22 +34,6 @@ module.exports = class RowHeaderNode extends HeaderNode {
 		this.setName(`RowHeader${id}`);
 	}
 
-	setInitialSection(index) {
-		const sheet = this.getParent().getParent();
-		const data = sheet.getDataProvider();
-		const initialSection = this.getInitialSection();
-
-		if (index < initialSection) {
-			this.insertSectionsAt(0, initialSection - index);
-			data.insertRowsAt(new CellRange(0, 0, 1, initialSection - index));
-		} else if (index > initialSection) {
-			this.removeSectionsAt(0, index - initialSection);
-			data.removeRowsAt(0, index - initialSection);
-		}
-
-		super.setInitialSection(index);
-	}
-
 	getSections() {
 		if (this.getParent()) {
 			return this.getParent()

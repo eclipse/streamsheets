@@ -90,7 +90,7 @@ export default class SplitterActivator extends InteractionActivator {
 	 * <code>undefined</code>.
 	 */
 	_getControllerAt(location, viewer, dispatcher) {
-		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
+		return viewer.filterFoundControllers(Shape.FindFlags.AREAWITHFRAME, (cont) => {
 			if (!(cont.getModel() instanceof SplitterNode)) {
 				return false;
 			}

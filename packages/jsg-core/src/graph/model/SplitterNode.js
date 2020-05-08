@@ -1,7 +1,7 @@
 const Node = require('./Node');
 const ItemAttributes = require('../attr/ItemAttributes');
 
-const DEFAULT_SIZE = 175;
+const DEFAULT_SIZE = 100;
 
 /**
  * @class SplitterNode
