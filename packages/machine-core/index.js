@@ -1,6 +1,7 @@
 const Cell = require('./src/machine/Cell');
 const Channel = require('./src/ipc/Channel');
 const ChannelRequestHandler = require('./src/ipc/ChannelRequestHandler');
+const MachineTaskMessagingClient = require('./src/ipc/MachineTaskMessagingClient');
 const Streams = require('./src/streams/Streams');
 const Inbox = require('./src/machine/Inbox');
 const LoggerMessagingClient = require('./src/messaging/LoggerClient');
@@ -36,6 +37,7 @@ module.exports = {
 	LoggerMessagingClient,
 	Machine,
 	MachineTaskFile,
+	MachineTaskMessagingClient,
 	Message,
 	Outbox,
 	Sheet,

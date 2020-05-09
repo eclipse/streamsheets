@@ -19,7 +19,7 @@ const registerAdditional = ({ functions = {}, help = {} } = {}) => {
 	Functions.additional = Object.assign(Functions.additional, functions);
 	Functions.additionalHelp = Object.assign(Functions.additionalHelp, help);
 };
-const logError = (err) => logger.info(err.message);
+const logError = (err, mod) => logger.error(`Failed to load module "${mod}"! Reason:\n${err.message}`);
 
 
 const toName = (name) => ({ name });
@@ -48,11 +48,11 @@ class FunctionRegistry {
 	}
 
 	registerCoreFunctionsModule(mod) {
-		requireModule(mod).then(registerCore).catch(logError);
+		requireModule(mod).then(registerCore).catch((err) => logError(err, mod));
 	}
 
 	registerFunctionModule(mod) {
-		requireModule(mod).then(registerAdditional).catch(logError);
+		requireModule(mod).then(registerAdditional).catch((err) => logError(err, mod));
 	}
 
 	registerFunctionDefinitions(definitions = []) {
