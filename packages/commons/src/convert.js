@@ -7,7 +7,8 @@ const TYPES = {
 };
 
 const valueOrDefault = (val, defval) => (val == null && defval != null ? defval : val);
-const isNr = (val) => !isNaN(val) && isFinite(val);
+// note: !isNaN(null) && isFinite(null) evaluates to true!!!
+const isNr = (val) => val != null && !isNaN(val) && isFinite(val);
 
 const toBool = {
 	boolean: (val) => val,
