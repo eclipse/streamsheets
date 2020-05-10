@@ -83,6 +83,7 @@ class Term {
 		if (this.left) this.left.dispose();
 		if (this.right) this.right.dispose();
 		if (this.operand) this.operand.dispose();
+		this.isDisposed = true;
 	}
 
 	hasOperandOfType(type) {
