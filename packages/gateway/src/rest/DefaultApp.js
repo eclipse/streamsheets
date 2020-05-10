@@ -183,7 +183,10 @@ module.exports = class DefaultApp {
 		app.use(Error.logger);
 		app.use(Error.renderer);
 		/* ===== Static ===== */
-		app.use(Express.static(path.join(__dirname, 'public')));
+		const publicPath = path.join(__dirname, '..', '..', '..', 'public');
+		app.use(Express.static(publicPath));
+		const indexHtmlPath = path.join(publicPath, 'index.html')
+		app.use((req, res) => res.sendFile(indexHtmlPath));
 	}
 
 	async start() {

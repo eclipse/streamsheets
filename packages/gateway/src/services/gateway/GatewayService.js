@@ -1,12 +1,11 @@
 const { MessagingService } = require('@cedalo/service-core');
 const { GatewayMessagingProtocol, Topics } = require('@cedalo/protocols');
 const IdGenerator = require('@cedalo/id-generator');
-const { MongoDBConfigurationRepository } = require('@cedalo/repository');
 
 const config = require('../../config');
 const { SocketServer } = require('../../ws/SocketServer');
 
-const startRESTServer = require('../../rest/start');
+const RestServer = require('../../rest/start');
 const MachineServiceMessageRouter = require('./MachineServiceMessageRouter');
 const Auth = require('../../Auth').default;
 
@@ -16,12 +15,10 @@ const licenseInfoEvent = (licenseInfo) => ({
 });
 
 module.exports = class GatewayService extends MessagingService {
-
 	constructor(metadata, globalContext) {
 		super(metadata);
 		this.globalContext = globalContext;
 		this.globalContext.gatewayService = this;
-		this.socketServer = new SocketServer(config.get('socket'), this);
 		this.machineRouter = new MachineServiceMessageRouter(this);
 		this._services = new Map();
 		this._licenseInfo = {};
@@ -62,11 +59,12 @@ module.exports = class GatewayService extends MessagingService {
 	async _preStart() {
 		await super._preStart();
 		await this.prepareJWT();
-		await this.socketServer.start();
 	}
-
+	
 	async _doStart() {
-		await startRESTServer(this.globalContext);
+		this.restServer = await RestServer.start(this.globalContext);
+		this.socketServer = new SocketServer(this, this.restServer);
+		await this.socketServer.start();
 	}
 
 	async _postStart() {
@@ -78,7 +76,6 @@ module.exports = class GatewayService extends MessagingService {
 				const serviceName = topic.substring(topic.lastIndexOf('/') + 1);
 				const serviceInformation = JSON.parse(message.toString());
 				this._updateServices(serviceName, serviceInformation);
-				this.socketServer.broadcast(serviceInformation);
 				this.broadcastEvent(serviceName, serviceInformation);
 			} else if (topic === Topics.LICENSE_INFO) {
 				const licenseInfo = JSON.parse(message.toString());
@@ -87,7 +84,6 @@ module.exports = class GatewayService extends MessagingService {
 			}
 		});
 	}
-
 
 	notifySendMessageToClient() {
 		if (this._messagesCounter) {

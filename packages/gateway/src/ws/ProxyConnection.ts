@@ -9,10 +9,10 @@ import { EventData, RequestContext, Session, WSRequest, WSResponse } from '../st
 import { User } from '../user';
 import { getUserFromWebsocketRequest } from '../utils';
 import ServerConnection from './ServerConnection';
-import { SocketServer } from './SocketServer';
+import { SocketServer, TOKENKEY } from './SocketServer';
 import { StreamWSProxy } from './StreamWSProxy';
 
-const logger = LoggerFactory.createLogger('gateway - ProxyConnection', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
+const logger = LoggerFactory.createLogger('ProxyConnection', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
 
 const OPEN_CONNECTIONS: Set<ProxyConnection> = new Set();
 
@@ -112,7 +112,7 @@ export default class ProxyConnection {
 		ws.on('message', async (message) => {
 			try {
 				const msg = JSON.parse(message.toString());
-				if (msg.type !== 'ping') {
+				if (msg.type !== 'ping' && msg.type !== GatewayMessagingProtocol.MESSAGE_TYPES.CONFIRM_PROCESSED_MACHINE_STEP) {
 					await this.updateConnectionState(ws);
 					msg.session = this.session;
 					if (msg.type === GatewayMessagingProtocol.MESSAGE_TYPES.USER_LOGOUT_MESSAGE_TYPE) {
@@ -151,6 +151,7 @@ export default class ProxyConnection {
 			id,
 			user: {
 				id: user ? user.id : 'anon',
+				username: user ? user.username : 'anon',
 				displayName: user ? [user.firstName, user.lastName].filter((e) => !!e).join(' ') || user.username : '',
 				machineId: this.machineId
 			},
@@ -162,7 +163,7 @@ export default class ProxyConnection {
 			try {
 				const tokenUser = await getUserFromWebsocketRequest(
 					this.request,
-					this.socketserver._config.tokenKey,
+					TOKENKEY,
 					Auth.parseToken.bind(Auth)
 				);
 				await this.socketserver.globalContext.getActor(this.socketserver.globalContext, {user: tokenUser} as Session)

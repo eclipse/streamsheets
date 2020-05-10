@@ -43,7 +43,7 @@ if (typeof fit !== 'undefined') {
 }
 
 const CONFIG = {
-	socketEndpointURL: 'ws://localhost:8088/machineserver-proxy',
+	socketEndpointURL: 'ws://localhost:8080/machineserver-proxy',
 	restEndpointURL: 'http://localhost:8080/api/v1.0',
 	// eslint-disable-next-line
 	token:

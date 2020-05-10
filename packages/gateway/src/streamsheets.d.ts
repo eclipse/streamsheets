@@ -57,6 +57,7 @@ export interface Session {
 	id: string;
 	user: {
 		id: string;
+		username: string;
 		displayName: string;
 		machineId?: string;
 	};

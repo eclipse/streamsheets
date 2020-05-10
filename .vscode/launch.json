@@ -21,7 +21,6 @@
 				"MONGO_DATABASE": "migration",
 				"MONGO_HOST": "localhost",
 				"MONGO_PORT": "27018",
-				"WS_PORT": "8088",
 				"SWAGGER_SPEC_PATH": "${workspaceRoot}/streamsheets/packages/gateway/src/public/swagger-spec/v1.0/gateway.yaml"
             }
 		},
@@ -56,7 +55,6 @@
 				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
 				"MESSAGE_BROKER_USERNAME": "cedalo",
 				"MESSAGE_BROKER_PASSWORD": "r35aJkR!&dz",
-				"WS_PORT": "8088",
 				"HTTP_PORT": "8080",
 				"HTTP_HOST": "0.0.0.0",
 				"GATEWAY_HTTP_PORT": "8080",
@@ -87,7 +85,6 @@
 				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
 				"MESSAGE_BROKER_USERNAME": "cedalo",
 				"MESSAGE_BROKER_PASSWORD": "r35aJkR!&dz",
-				"WS_PORT": "8088",
 				"HTTP_PORT": "8080",
 				"HTTP_HOST": "0.0.0.0",
 				"GATEWAY_HTTP_PORT": "8080",

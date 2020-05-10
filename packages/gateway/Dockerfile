@@ -33,6 +33,6 @@ COPY --from=builder /build/packages/gateway/node_modules ./node_modules
 COPY --from=builder /build/packages/gateway/start.min.js /build/packages/gateway/package.json ./
 COPY --from=builder /build/packages/gateway/config ./config
 
-EXPOSE 8080 8088
+EXPOSE 8080
 
 CMD [ "npm", "run", "start:min" ]

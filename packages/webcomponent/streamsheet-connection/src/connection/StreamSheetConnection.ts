@@ -9,7 +9,7 @@ const DEF_ENDPOINTS = {
 	REST: 'http://localhost:8081/api/v1.0',
 	SOCKET: 'ws://localhost:8081/machineserver-proxy',
 	REST_LOCAL: 'http://localhost:8080/api/v1.0',
-	SOCKET_LOCAL: 'ws://localhost:8088/machineserver-proxy'
+	SOCKET_LOCAL: 'ws://localhost:8080/machineserver-proxy'
 };
 
 type PendingPromise = {

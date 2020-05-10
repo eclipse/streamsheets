@@ -26,7 +26,6 @@ services:
     user: node
     ports:
       - 8080:8080/tcp
-      - 8088:8088/tcp
     expose:
       - 8080
       - 8088
