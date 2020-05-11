@@ -326,7 +326,7 @@
 	"MachineControl.medium": "Medium",
 	"MachineControl.slow": "Slow",
 	"MachineControl.updates": "Updates per Second",
-	"MachineControl.cycleTime": "Define Cycle ({speed} ms) and Update Interval ({interval})",
+	"MachineControl.cycleTime": "Cycle Time ({speed} ms)",
 	"MachineControl.updateInterval": "Update Interval: {interval}",
 	"Register": "Register",
 	"Login": "Login",

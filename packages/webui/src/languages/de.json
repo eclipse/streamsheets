@@ -323,7 +323,7 @@
 	"MachineControl.client": "Client",
 	"MachineControl.server": "Server",
 	"MachineControl.updates": "Aktualisierungen pro Sekunde",
-	"MachineControl.cycleTime": "Zykluszeit ({speed} ms) und Aktualisierungs-Intervall ({interval}) definieren",
+	"MachineControl.cycleTime": "Zykluszeit ({speed} ms)",
 	"MachineControl.updateInterval": "Intervall Aktualisierung: {interval}",
 	"MachineControl.fast": "Schnell",
 	"MachineControl.medium": "Mittel",

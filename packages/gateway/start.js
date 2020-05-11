@@ -14,6 +14,10 @@ const logger = LoggerFactory.createLogger('Gateway Service', process.env.GATEWAY
 
 metadata.version = packageJSON.version;
 
+process.on('unhandledRejection', error => {
+	console.log('unhandledRejection', error.message);
+});
+
 const resolvePlugins = async () => {
 	const moduleDir = path.resolve(process.env.PLUGINS_MODULE_DIR || 'plugins');
 	logger.info(`Looking for plugins in ${moduleDir}`);

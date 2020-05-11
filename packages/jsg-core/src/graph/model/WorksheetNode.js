@@ -723,98 +723,90 @@ module.exports = class WorksheetNode extends ContentNode {
 		return this.getCellAttributesAtRC(pos.x, pos.y, cellInfo);
 	}
 
-	getCellPropertiesAtRC(column, row) {
-		const data = this.getDataProvider();
-		const cell = data.getRC(column, row);
+	getCellPropertiesAtRC(cell, column, row) {
 		const properties = {};
 		let attributes;
-		const addIt = (id, attr) => {
-			const name = id.toLowerCase();
-			if (properties[name] === undefined) {
-				properties[name] = attr.getExpression().getValue();
-			}
-		};
 
 		if (cell !== undefined) {
 			attributes = cell.getAttributes();
 			if (attributes !== undefined) {
-				attributes._value.iterate(addIt);
+				WorksheetNode.getDefinedProperties(attributes, properties)
 			}
 		}
 
 		attributes = this.getRows().getSectionAttributes(row);
 		if (attributes !== undefined) {
-			attributes._value.iterate(addIt);
+			WorksheetNode.getDefinedProperties(attributes, properties)
 		}
 
 		attributes = this.getColumns().getSectionAttributes(column);
 		if (attributes !== undefined) {
-			attributes._value.iterate(addIt);
+			WorksheetNode.getDefinedProperties(attributes, properties)
 		}
+
+		WorksheetNode.getDefinedProperties(this.getDefaultCellAttributes(), properties)
 
 		return properties;
 	}
 
-	getFormatPropertiesAtRC(column, row) {
-		const data = this.getDataProvider();
-		const cell = data.getRC(column, row);
+	getFormatPropertiesAtRC(cell, column, row) {
 		const properties = {};
 		let attributes;
-		const addIt = (id, attr) => {
-			const name = id.toLowerCase();
-			if (properties[name] === undefined) {
-				properties[name] = attr.getExpression().getValue();
-			}
-		};
 
 		if (cell !== undefined) {
 			attributes = cell.getFormat();
 			if (attributes !== undefined) {
-				attributes._value.iterate(addIt);
+				WorksheetNode.getDefinedProperties(attributes, properties)
 			}
 		}
 
 		attributes = this.getRows().getSectionFormat(row);
 		if (attributes !== undefined) {
-			attributes._value.iterate(addIt);
+			WorksheetNode.getDefinedProperties(attributes, properties)
 		}
 
 		attributes = this.getColumns().getSectionFormat(column);
 		if (attributes !== undefined) {
-			attributes._value.iterate(addIt);
+			WorksheetNode.getDefinedProperties(attributes, properties)
 		}
+
+		WorksheetNode.getDefinedProperties(this.getDefaultFormat(), properties);
 
 		return properties;
 	}
 
-	getTextFormatPropertiesAtRC(column, row) {
-		const data = this.getDataProvider();
-		const cell = data.getRC(column, row);
-		const properties = {};
-		let attributes;
+	static getDefinedProperties(attributeList, properties) {
 		const addIt = (id, attr) => {
 			const name = id.toLowerCase();
 			if (properties[name] === undefined) {
 				properties[name] = attr.getExpression().getValue();
 			}
 		};
+		attributeList._value.iterate(addIt);
+	}
+
+	getTextFormatPropertiesAtRC(cell, column, row) {
+		const properties = {};
+		let attributes;
 
 		if (cell !== undefined) {
 			attributes = cell.getTextFormat();
 			if (attributes !== undefined) {
-				attributes._value.iterate(addIt);
+				WorksheetNode.getDefinedProperties(attributes, properties)
 			}
 		}
 
 		attributes = this.getRows().getSectionTextFormat(row);
 		if (attributes !== undefined) {
-			attributes._value.iterate(addIt);
+			WorksheetNode.getDefinedProperties(attributes, properties)
 		}
 
 		attributes = this.getColumns().getSectionTextFormat(column);
 		if (attributes !== undefined) {
-			attributes._value.iterate(addIt);
+			WorksheetNode.getDefinedProperties(attributes, properties)
 		}
+
+		WorksheetNode.getDefinedProperties(this.getDefaultTextFormat(), properties)
 
 		return properties;
 	}

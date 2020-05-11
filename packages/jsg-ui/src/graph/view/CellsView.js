@@ -40,6 +40,7 @@ export default class CellsView extends NodeView {
 		this._wsView = this.getWorksheetView();
 		this._wsItem = this.getWorksheetNode();
 		this._columns = this.getColumns();
+		this._rows = this.getRows();
 		if (!this._wsView || !this._wsItem) {
 			return;
 		}
@@ -78,13 +79,11 @@ export default class CellsView extends NodeView {
 	}
 
 	drawData(graphics, rect, viewRect) {
-		const columns = this.getColumns();
-		const rows = this.getRows();
 		const dataProvider = this._wsItem.getDataProvider();
 
 		// get visible matrix
-		const visibleColumnsInfo = this.getVisibleColumnSections(columns, rect, viewRect);
-		const visibleRowsInfo = this.getVisibleRowsSections(rows, columns, rect, viewRect, visibleColumnsInfo);
+		const visibleColumnsInfo = this.getVisibleColumnSections(rect, viewRect);
+		const visibleRowsInfo = this.getVisibleRowsSections(rect, viewRect, visibleColumnsInfo);
 
 		if (visibleColumnsInfo.length === 0 || visibleRowsInfo.length === 0) {
 			return;
@@ -126,6 +125,7 @@ export default class CellsView extends NodeView {
 			grid: []
 		};
 
+		const sheetHeight = Math.min(this._rows.getSectionPos(this._wsItem.getRowCount()), viewRect.y + viewRect.height);
 		// draw grid
 		if (this._wsItem.isGridVisible()) {
 			visibleColumnsInfo.forEach((columnInfo) => {
@@ -147,7 +147,7 @@ export default class CellsView extends NodeView {
 					x1: columnInfo.x,
 					y1: last,
 					x2: columnInfo.x,
-					y2: viewRect.y + viewRect.height
+					y2: sheetHeight
 				});
 			});
 		}
@@ -302,7 +302,7 @@ export default class CellsView extends NodeView {
 		if (textproperties.fontcolor) {
 			result.color = textproperties.fontcolor;
 		}
-		if (styleProperties && styleProperties.fillcolor) {
+		if (styleProperties && styleProperties.fillstyle === 1 && styleProperties.fillcolor) {
 			result.fillColor = styleProperties.fillcolor;
 		}
 
@@ -464,7 +464,7 @@ export default class CellsView extends NodeView {
 				styleproperties = Object.assign(styleproperties, cell.styleproperties);
 			}
 		} else {
-			styleproperties = this._wsItem.getFormatPropertiesAtRC(column.index, row.index);
+			styleproperties = this._wsItem.getFormatPropertiesAtRC(cell, column.index, row.index);
 			styleproperties.leftborderstyle = cellProperties.leftborderstyle;
 			if (styleproperties.leftborderstyle) {
 				styleproperties.leftbordercolor = cellProperties.leftbordercolor;
@@ -505,7 +505,7 @@ export default class CellsView extends NodeView {
 				textproperties = Object.assign(textproperties, cell.textproperties);
 			}
 		} else {
-			textproperties = this._wsItem.getTextFormatPropertiesAtRC(column.index, row.index);
+			textproperties = this._wsItem.getTextFormatPropertiesAtRC(cell, column.index, row.index);
 		}
 		return textproperties;
 	}
@@ -525,7 +525,7 @@ export default class CellsView extends NodeView {
 				attributes = Object.assign(attributes, cell.attributes);
 			}
 		} else {
-			attributes = this._wsItem.getCellPropertiesAtRC(column.index, row.index);
+			attributes = this._wsItem.getCellPropertiesAtRC(cell, column.index, row.index);
 		}
 		return attributes;
 	}
@@ -750,8 +750,6 @@ export default class CellsView extends NodeView {
 	}
 
 	drawValue(graphics, dataProvider, data, columnInfo, rowInfo, visibleColumnsInfo, styleProperties, cellProperties) {
-		graphics.setFillColor('#000000');
-
 		const textproperties = this.getTextProperties(data, columnInfo, rowInfo);
 		let font = false;
 		if (textproperties) {
@@ -766,9 +764,6 @@ export default class CellsView extends NodeView {
 			if (textproperties.fontstyle) {
 				graphics.setFontStyle(textproperties.fontstyle);
 				font = true;
-			}
-			if (textproperties.fontcolor) {
-				graphics.setFillColor(textproperties.fontcolor);
 			}
 			if (font) {
 				graphics.setFont();
@@ -855,6 +850,10 @@ export default class CellsView extends NodeView {
 		}
 		if (formattedValue.color) {
 			graphics.setFillColor(formattedValue.color);
+		} else if  (textproperties.fontcolor) {
+			graphics.setFillColor(textproperties.fontcolor);
+		} else {
+			graphics.setFillColor('#000000');
 		}
 		if (formattedValue.bold) {
 			graphics.setFontStyle(TextFormatAttributes.FontStyle.BOLD);
@@ -1094,16 +1093,16 @@ export default class CellsView extends NodeView {
 		return clipRect;
 	}
 
-	getVisibleColumnSections(columns, rect, viewRect) {
+	getVisibleColumnSections(rect, viewRect) {
 		let x = rect.x;
 		let width;
 		const info = [];
 
-		columns.enumerateSections((section, index) => {
+		this._columns.enumerateSections((section, index) => {
 			if (x > viewRect.x + viewRect.width) {
 				return false;
 			}
-			width = columns.getSectionSize(index);
+			width = this._columns.getSectionSize(index);
 			if (width && x + width >= viewRect.x) {
 				const colInfo = {
 					section,
@@ -1124,18 +1123,18 @@ export default class CellsView extends NodeView {
 		return info;
 	}
 
-	getVisibleRowsSections(rows, columns, rect, viewRect, visibleColumnsInfo) {
+	getVisibleRowsSections(rect, viewRect, visibleColumnsInfo) {
 		let y = rect.y;
 		let height;
 		const info = [];
 		const dataProvider = this._wsItem.getDataProvider();
 		const columnCnt = this._wsItem.getColumnCount();
 
-		rows.enumerateSections((section, index) => {
+		this._rows.enumerateSections((section, index) => {
 			if (y > viewRect.y + viewRect.height) {
 				return false;
 			}
-			height = rows.getSectionSize(index);
+			height = this._rows.getSectionSize(index);
 			if (height && y + height >= viewRect.y) {
 				const rowInfo = {
 					section,
@@ -1164,10 +1163,10 @@ export default class CellsView extends NodeView {
 						data = dataProvider.getRC(pos, index);
 						if (data !== undefined && data.getValue() !== undefined) {
 							rowInfo.leftCellInfo = {
-								section: columns.getSection(pos),
+								section: this._columns.getSection(pos),
 								index: pos,
-								x: columns.getSectionPos(pos),
-								width: columns.getSectionSize(pos)
+								x: this._columns.getSectionPos(pos),
+								width: this._columns.getSectionSize(pos)
 							};
 							break;
 						}
@@ -1179,10 +1178,10 @@ export default class CellsView extends NodeView {
 						data = dataProvider.getRC(pos, index);
 						if (data !== undefined && data.getValue() !== undefined) {
 							rowInfo.rightCellInfo = {
-								section: columns.getSection(pos),
+								section: this._columns.getSection(pos),
 								index: pos,
-								x: columns.getSectionPos(pos),
-								width: columns.getSectionSize(pos)
+								x: this._columns.getSectionPos(pos),
+								width: this._columns.getSectionSize(pos)
 							};
 							break;
 						}
