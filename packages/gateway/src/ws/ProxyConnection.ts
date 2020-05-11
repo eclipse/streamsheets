@@ -84,9 +84,11 @@ export default class ProxyConnection {
 				if (streamEvent.type === 'response') {
 					return;
 				}
-				this.socketserver.globalContext.getRequestContext(this.socketserver.globalContext, this.session).then((requestContext) => {
-					StreamWSProxy.handleEvent(requestContext, this, streamEvent);
-				});
+				this.socketserver.globalContext
+					.getRequestContext(this.socketserver.globalContext, this.session)
+					.then((requestContext) => {
+						StreamWSProxy.handleEvent(requestContext, this, streamEvent);
+					});
 				return;
 			}
 			let msg = message.toString();
@@ -112,7 +114,10 @@ export default class ProxyConnection {
 		ws.on('message', async (message) => {
 			try {
 				const msg = JSON.parse(message.toString());
-				if (msg.type !== 'ping' && msg.type !== GatewayMessagingProtocol.MESSAGE_TYPES.CONFIRM_PROCESSED_MACHINE_STEP) {
+				if (
+					msg.type !== 'ping' &&
+					msg.type !== GatewayMessagingProtocol.MESSAGE_TYPES.CONFIRM_PROCESSED_MACHINE_STEP
+				) {
 					await this.updateConnectionState(ws);
 					msg.session = this.session;
 					if (msg.type === GatewayMessagingProtocol.MESSAGE_TYPES.USER_LOGOUT_MESSAGE_TYPE) {
@@ -122,7 +127,10 @@ export default class ProxyConnection {
 						});
 					} else if (msg.topic && msg.topic.indexOf('stream') >= 0) {
 						StreamWSProxy.handleRequest(
-							await this.socketserver.globalContext.getRequestContext(this.socketserver.globalContext, this.session),
+							await this.socketserver.globalContext.getRequestContext(
+								this.socketserver.globalContext,
+								this.session
+							),
 							this,
 							msg
 						);
@@ -154,20 +162,18 @@ export default class ProxyConnection {
 				username: user ? user.username : 'anon',
 				displayName: user ? [user.firstName, user.lastName].filter((e) => !!e).join(' ') || user.username : '',
 				machineId: this.machineId
-			},
+			}
 		};
 	}
 
 	async updateConnectionState(ws: WebSocket) {
 		if (ws) {
 			try {
-				const tokenUser = await getUserFromWebsocketRequest(
-					this.request,
-					TOKENKEY,
-					Auth.parseToken.bind(Auth)
-				);
-				await this.socketserver.globalContext.getActor(this.socketserver.globalContext, {user: tokenUser} as Session)
-				this.setUser(tokenUser);
+				const tokenUser = await getUserFromWebsocketRequest(this.request, TOKENKEY, Auth.parseToken.bind(Auth));
+				const user = await this.socketserver.globalContext.getActor(this.socketserver.globalContext, {
+					user: tokenUser
+				} as Session);
+				this.setUser(user);
 				this.machineId = tokenUser.machineId;
 			} catch (err) {
 				logger.warn(err.name);

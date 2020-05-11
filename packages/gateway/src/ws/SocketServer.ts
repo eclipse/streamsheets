@@ -67,16 +67,17 @@ export class SocketServer {
 
 	async handleConnection(ws: WebSocket, request: http.IncomingMessage) {
 		try {
-			const user = await getUserFromWebsocketRequest(request, TOKENKEY, Auth.parseToken.bind(Auth));
+			let tokenUser = await getUserFromWebsocketRequest(request, TOKENKEY, Auth.parseToken.bind(Auth));
+
 			try {
-				await this.globalContext.getActor(this.globalContext, { user } as Session);
+				const user = await this.globalContext.getActor(this.globalContext, { user: tokenUser } as Session);
+				// create & connect new client-connection...
+				this.connectClient(ProxyConnection.create(ws, request, user, this));
+				this.handleUserJoined(ws, user);
 			} catch (error) {
 				await ws.send(JSON.stringify({ error: 'NOT_AUTHENTICATED' }));
 				ws.terminate();
 			}
-			// create & connect new client-connection...
-			this.connectClient(ProxyConnection.create(ws, request, user, this));
-			this.handleUserJoined(ws, user);
 		} catch (err) {
 			ws.terminate();
 			logger.error('unable to connect to server', err);
