@@ -62,12 +62,6 @@ export default class ProxyConnection {
 		this.messagingClient.connect(process.env.MESSAGE_BROKER_URL || 'mqtt://localhost:1883');
 		this.graphserver = new ServerConnection('graphserver', 'graphs');
 		this.machineserver = new ServerConnection('machineserver', 'machines');
-		this.clientsocket.on('message', (message) => {
-			const parsedMessage = JSON.parse(message.toString());
-			if (parsedMessage.type === GatewayMessagingProtocol.MESSAGE_TYPES.CONFIRM_PROCESSED_MACHINE_STEP) {
-				this.machineserver.confirmMachineStep(parsedMessage.machineId);
-			}
-		});
 
 		this.graphserver.eventHandler = (ev) => this.onServerEvent(ev);
 		this.machineserver.eventHandler = (ev) => this.onServerEvent(ev);
@@ -114,10 +108,14 @@ export default class ProxyConnection {
 		ws.on('message', async (message) => {
 			try {
 				const msg = JSON.parse(message.toString());
-				if (
-					msg.type !== 'ping' &&
-					msg.type !== GatewayMessagingProtocol.MESSAGE_TYPES.CONFIRM_PROCESSED_MACHINE_STEP
-				) {
+				if (msg.type === GatewayMessagingProtocol.MESSAGE_TYPES.CONFIRM_PROCESSED_MACHINE_STEP) {
+					this.machineserver.confirmMachineStep(msg.machineId);
+					this.clientsocket.send(JSON.stringify({
+						type: 'response',
+						requestId: msg.requestId || 0,
+						requestType: msg.type
+					}));
+				} else if (msg.type !== 'ping') {
 					await this.updateConnectionState(ws);
 					msg.session = this.session;
 					if (msg.type === GatewayMessagingProtocol.MESSAGE_TYPES.USER_LOGOUT_MESSAGE_TYPE) {
