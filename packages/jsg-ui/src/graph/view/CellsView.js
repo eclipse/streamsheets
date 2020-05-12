@@ -223,33 +223,27 @@ export default class CellsView extends NodeView {
 					result.fillColor = '#AAAAAA';
 					result.color = '#FFFFFF';
 					result.bold = true;
-					term.iterateParams((param, index) => {
-						switch (index) {
-							case 2:
-								switch (param.value) {
-									case 'String':
-										result.fillColor = '#009408';
-										break;
-									case 'Number':
-										result.fillColor = '#497B8D';
-										break;
-									case 'Bool':
-										result.fillColor = '#B1C639';
-										break;
-									case 'Dictionary':
-										result.fillColor = '#E17000';
-										break;
-									case 'Array':
-										result.fillColor = '#2D5B89';
-										break;
-									default:
-										break;
-								}
-								break;
-							default:
-								break;
+					if (term.params && term.params.length > 1 && term.params[2].value) {
+						switch (term.params[2].value) {
+						case 'String':
+							result.fillColor = '#009408';
+							break;
+						case 'Number':
+							result.fillColor = '#497B8D';
+							break;
+						case 'Bool':
+							result.fillColor = '#B1C639';
+							break;
+						case 'Dictionary':
+							result.fillColor = '#E17000';
+							break;
+						case 'Array':
+							result.fillColor = '#2D5B89';
+							break;
+						default:
+							break;
 						}
-					}, this);
+					}
 					break;
 				default:
 					result.value = String(data.getValue());
