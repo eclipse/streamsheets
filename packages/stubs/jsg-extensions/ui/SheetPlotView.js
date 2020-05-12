@@ -128,6 +128,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				this.drawRect(graphics, plotRect, item, item.plot.format, 'plot');
 
 				if (drawAxes) {
+					this.drawValueRanges(graphics, plotRect, item);
 					this.drawAxes(graphics, plotRect, item, true);
 				}
 
@@ -648,6 +649,99 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			if (grid && fi.line) {
 				graphics.stroke();
 			}
+		}
+
+		drawValueRanges(graphics, plotRect, item) {
+			graphics.save();
+			graphics.beginPath();
+			graphics.rect(plotRect.left - 10, plotRect.top - 10, plotRect.width + 20, plotRect.height + 20);
+			graphics.clip();
+
+			item.xAxes.forEach((axis) => {
+				if (axis.visible) {
+					this.drawValueRange(graphics, plotRect, item, axis);
+				}
+			});
+
+			item.yAxes.forEach((axis) => {
+				if (axis.visible) {
+					this.drawValueRange(graphics, plotRect, item, axis);
+				}
+			});
+
+			graphics.restore();
+		}
+
+		drawValueRange(graphics, plotRect, item, axis) {
+			item.setFont(
+				graphics,
+				axis.format,
+				'axis',
+				'bottom',
+				TextFormatAttributes.TextAlignment.LEFT
+			);
+
+			axis.valueRanges.forEach((range) => {
+				let startBegin = item.scaleToAxis(axis, range.from, undefined, true);
+				let startEnd = item.scaleToAxis(axis, range.from + range.width, undefined, true);
+				let endBegin = item.scaleToAxis(axis, range.to, undefined, true);
+				let endEnd = item.scaleToAxis(axis, range.to + range.width, undefined, true);
+				switch (axis.align) {
+				case 'left':
+				case 'right':
+					startBegin = plotRect.bottom - startBegin * plotRect.height;
+					startEnd = plotRect.bottom - startEnd * plotRect.height;
+					endBegin = plotRect.bottom - endBegin * plotRect.height;
+					endEnd = plotRect.bottom - endEnd * plotRect.height;
+					if (range.label) {
+						graphics.setFillColor('#AAAAAA');
+						graphics.fillText(range.label, plotRect.left + 100, startBegin - 100);
+					}
+					graphics.beginPath();
+					if (range.width <= 1) {
+						graphics.setLineColor(range.format.fillColor);
+						graphics.moveTo(plotRect.left, startBegin);
+						graphics.lineTo(plotRect.right, endBegin);
+						graphics.stroke();
+					} else {
+						graphics.setFillColor(range.format.fillColor);
+						graphics.setTransparency(range.format.transparency);
+						graphics.moveTo(plotRect.left, startBegin);
+						graphics.lineTo(plotRect.right, endBegin);
+						graphics.lineTo(plotRect.right, endEnd);
+						graphics.lineTo(plotRect.left, startEnd);
+						graphics.fill();
+						graphics.setTransparency(100);
+					}
+					break;
+				case 'top':
+				case 'bottom':
+					startBegin = plotRect.left + startBegin * plotRect.width;
+					startEnd = plotRect.left + startEnd * plotRect.width;
+					endBegin = plotRect.left + endBegin * plotRect.width;
+					endEnd = plotRect.left + endEnd * plotRect.width;
+					graphics.beginPath();
+					if (range.width <= 1) {
+						graphics.setLineColor(range.format.fillColor);
+						graphics.moveTo(startBegin, plotRect.bottom);
+						graphics.lineTo(endBegin, plotRect.top);
+						graphics.stroke();
+					} else {
+						graphics.setFillColor(range.format.fillColor);
+						graphics.setTransparency(range.format.transparency);
+						graphics.moveTo(startBegin, plotRect.bottom);
+						graphics.lineTo(endBegin, plotRect.top);
+						graphics.lineTo(endEnd, plotRect.top);
+						graphics.lineTo(startEnd, plotRect.bottom);
+						graphics.fill();
+						graphics.setTransparency(100);
+					}
+					break;
+				default:
+					break;
+				}
+			});
+
 		}
 
 		drawRotatedText(graphics, text, x, y, angle, xOffset, yOffset) {
