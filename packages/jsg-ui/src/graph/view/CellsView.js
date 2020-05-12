@@ -315,6 +315,9 @@ export default class CellsView extends NodeView {
 		}
 
 		if (!Numbers.isNumber(result.value) || result.value === undefined) {
+			if (typeof result.value === 'string' && result.value[0] === '#') {
+				result.alignment = 1;
+			}
 			return result;
 		}
 
@@ -359,8 +362,6 @@ export default class CellsView extends NodeView {
 
 		if (Numbers.isNumber(result.value)) {
 			result.alignment = 2;
-		} else if (typeof result.value === 'string' && result.value[0] === '#') {
-			result.alignment = 1;
 		}
 
 		return result;
