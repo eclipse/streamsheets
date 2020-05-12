@@ -198,6 +198,7 @@ const updateCurrentStream = (stream) => {
 	const existing = currentStreams.get(stream.id);
 	if (!existing || existing.timestamp < stream.timestamp) {
 		currentStreams.set(stream.id, stream);
+		logger.info(`update stream: '${stream.name}'`);
 	}
 };
 
@@ -581,7 +582,7 @@ class RegisterStreams extends ARequestHandler {
 		return false;
 	}
 	handle(msg) {
-		logger.info('registerStreams', msg.descriptors);
+		// logger.info('registerStreams', msg.descriptors);
 		const descriptors = msg.descriptors || [];
 		descriptors.forEach((stream) => {
 			updateCurrentStream(stream);

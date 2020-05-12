@@ -7,7 +7,7 @@ const moduleName = (path) => {
 // eslint-disable-next-line
 const requireModule = async (path) => {
 	const mod = require(path);
-	logger.error(`Loaded additional module: '${moduleName(path)}'`);
+	logger.info(`Loaded additional module: '${moduleName(path)}'`);
 	return mod;
 };
 
