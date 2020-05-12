@@ -46,6 +46,7 @@ class Term {
 		this.operand = operand || Operand.UNDEF;
 		this.operator = undefined;
 		this.useBrackets = false;
+		this.isDisposed = false;
 		this._invalid = false;
 	}
 
