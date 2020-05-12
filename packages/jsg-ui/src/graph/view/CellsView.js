@@ -223,7 +223,7 @@ export default class CellsView extends NodeView {
 					result.fillColor = '#AAAAAA';
 					result.color = '#FFFFFF';
 					result.bold = true;
-					if (term.params && term.params.length > 1 && term.params[2].value) {
+					if (term.params && term.params.length > 2 && term.params[2].value) {
 						switch (term.params[2].value) {
 						case 'String':
 							result.fillColor = '#009408';
