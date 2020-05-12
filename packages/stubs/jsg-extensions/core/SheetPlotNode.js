@@ -310,7 +310,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		const result = {
 			width: 200,
 			height: 200,
-			last: 0,
 			lastPos: 0,
 			firstPos: 0
 		};
@@ -327,7 +326,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		};
 
 		if (!axis.position || !axis.scale || !axis.visible) {
-			result.first = 0;
 			return result;
 		}
 
@@ -367,9 +365,9 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			result.width = Math.max(result.width, size.width);
 			result.height = Math.max(result.height, size.height);
 
+			result.lastPos = pos;
 			result.lastWidth = size.width + 200;
 			result.lastHeight = size.height + 200;
-			result.lastPos = pos;
 			if (result.firstWidth === undefined) {
 				result.firstPos = pos;
 				result.firstWidth = result.width + 200;
@@ -381,19 +379,19 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 		axis.textSize.width = Math.max(result.width + 150, 1000);
 		axis.textSize.height = Math.max(result.height + 100, 300);
-		axis.textSize.firstWidth = result.firstWidth;
-		axis.textSize.lastWidth = result.lastWidth;
-		axis.textSize.firstHeight = result.firstHeight;
-		axis.textSize.lastHeight = result.lastHeight;
-		axis.textSize.firstPos = result.firstPos;
-		axis.textSize.lastPos = result.lastPos;
+		if (result.firstPos !== undefined) {
+			axis.textSize.firstWidth = result.firstWidth;
+			axis.textSize.firstHeight = result.firstHeight;
+			axis.textSize.firstPos = result.firstPos;
+		}
+		if (result.lastPos !== undefined) {
+			axis.textSize.lastWidth = result.lastWidth;
+			axis.textSize.lastHeight = result.lastHeight;
+			axis.textSize.lastPos = result.lastPos;
+		}
 
 		result.width += 300;
 		result.height += 300;
-		if (result.first === undefined) {
-			result.firstWidth = 0;
-			result.firstHeight = 0;
-		}
 
 		return result;
 	}
@@ -1580,9 +1578,13 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		let max = axis.maxData;
 		const stepDist = axis.type === 'category' ? 1000 : 1500;
 		const stepDistVert = axis.type === 'category' ? 600 : 1500;
-		const size = axis.isVertical() ? axis.position.height : axis.position.width;
+		let size = axis.isVertical() ? axis.position.height : axis.position.width;
 		const labelAngle =
 			axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-axis.format.fontRotation);
+
+		if (Number.isNaN(size)) {
+			size = 1000;
+		}
 
 		switch (axis.type) {
 		case 'logarithmic':

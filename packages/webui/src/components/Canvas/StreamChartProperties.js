@@ -34,13 +34,14 @@ import { graphManager } from '../../GraphManager';
 import ColorComponent from '../SheetDialogs/ColorComponent';
 import { intl } from '../../helper/IntlGlobalProvider';
 import SvgIcon from '@material-ui/core/SvgIcon';
+import ValueRangesDialog from '../SheetDialogs/ValueRangesDialog';
 
 const markerSizes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export class StreamChartProperties extends Component {
 	static propTypes = {
 		title: PropTypes.string.isRequired,
-		dummy: PropTypes.string
+		dummy: PropTypes.string,
 	};
 
 	static defaultProps = {
@@ -50,6 +51,8 @@ export class StreamChartProperties extends Component {
 	constructor(props) {
 		super(props);
 		this.escFunction = this.escFunction.bind(this);
+
+		this.state.showValueRanges = false;
 	}
 
 	state = {
@@ -433,6 +436,18 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
+	handleEditValueRanges = (state, ranges) => {
+		this.setState({
+			showValueRanges: state
+		})
+		if (ranges !== undefined) {
+			const cmd = this.prepareCommand('axes');
+			const data = this.getData();
+			data.valueRanges = ranges;
+			this.finishCommand(cmd, 'axes');
+		}
+	};
+
 	handleAddAxis = () => {
 		const cmd = this.prepareCommand('axes');
 		const data = this.getData();
@@ -493,14 +508,14 @@ export class StreamChartProperties extends Component {
 	handleSeriesMarkerFillColorChange = (color) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
-		data.marker.fillColor = color;
+		data.marker.fillColor = color.hex;
 		this.finishCommand(cmd, 'series');
 	};
 
 	handleSeriesMarkerLineColorChange = (color) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
-		data.marker.lineColor = color;
+		data.marker.lineColor = color.hex;
 		this.finishCommand(cmd, 'series');
 	};
 
@@ -1391,6 +1406,7 @@ export class StreamChartProperties extends Component {
 					) : null}
 					{selection && (selection.element === 'xAxis' || selection.element === 'yAxis') ? (
 						<div>
+							<ValueRangesDialog open={this.state.showValueRanges} ranges={data.valueRanges} stateHandler={this.handleEditValueRanges} />
 							<FormControl
 								style={{
 									width: '95%',
@@ -1682,6 +1698,19 @@ export class StreamChartProperties extends Component {
 							>
 								<Button style={{}} onClick={this.handleAddAxis} color="primary">
 									<FormattedMessage id="StreamChartProperties.AddAxis" defaultMessage="Add Axis" />
+								</Button>
+							</FormControl>
+							<FormControl
+								style={{
+									width: '95%',
+									margin: '8px'
+								}}
+							>
+								<Button style={{}} onClick={() => this.handleEditValueRanges(true)} color="primary">
+									<FormattedMessage
+										id="StreamChartProperties.EditValueRanges"
+										defaultMessage="Edit Value Ranges"
+									/>
 								</Button>
 							</FormControl>
 						</div>

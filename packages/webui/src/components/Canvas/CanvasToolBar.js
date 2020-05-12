@@ -1787,25 +1787,6 @@ export class CanvasToolBar extends Component {
 			"#5b0f00", "#660000", "#783f04", "#7f6000", "#274e13", "#0c343d", "#1c4587", "#073763", "#20124d", "#4c1130"];
 
 
-		// const colors = [
-		// 	'#D0021B',
-		// 	'#F5A623',
-		// 	'#F8E71C',
-		// 	'#8B572A',
-		// 	'#7ED321',
-		// 	'#417505',
-		// 	'#BD10E0',
-		// 	'#9013FE',
-		// 	'#4A90E2',
-		// 	'#50E3C2',
-		// 	'#B8E986',
-		// 	'#000000',
-		// 	'#4A4A4A',
-		// 	'#9B9B9B',
-		// 	'#CCCCCC',
-		// 	'#FFFFFF']
-		// ;
-
 		colors.push({title: 'None', color: 'transparent'});
 		if (this.isChartSelected()) {
 			colors.push({title: 'Automatic', color: '#FFFFFE'});
@@ -1813,7 +1794,6 @@ export class CanvasToolBar extends Component {
 
 		return colors;
 	}
-
 
 	render() {
 		const canEdit = accessManager.can(RESOURCE_TYPES.MACHINE, RESOURCE_ACTIONS.EDIT);

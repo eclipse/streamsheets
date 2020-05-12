@@ -1,3 +1,6 @@
+
+const Strings = require('../../../commons/Strings');
+
 module.exports = class ChartFormat {
 	constructor(lineColor, lineStyle, lineWidth, fillStyle, fillColor, fontSize, fontStyle, fontColor, transparency) {
 		this.lineColor = lineColor;
@@ -10,6 +13,22 @@ module.exports = class ChartFormat {
 		this.fontColor = fontColor;
 		this.fontRotation = 0;
 		this.transparency = transparency;
+	}
+
+	copy() {
+		const copy = new ChartFormat();
+		copy.lineColor = this.lineColor;
+		copy.lineStyle = this.lineStyle;
+		copy.lineWidth = this.lineWidth;
+		copy.fillColor = this.fillColor;
+		copy.fillStyle = this.fillStyle;
+		copy.fontSize = this.fontSize;
+		copy.fontStyle = this.fontStyle;
+		copy.fontColor = this.fontColor;
+		copy.fontRotation = this.fontRotation;
+		copy.transparency = this.transparency;
+
+		return copy;
 	}
 
 	get lineColor() {
@@ -292,4 +311,22 @@ module.exports = class ChartFormat {
 			}
 		});
 	}
+
+	get fillColorRGBA() {
+		let color = this.fillColor;
+		if (color === undefined || color[0] !== '#') {
+			return {r: 255, g: 255, b: 255, a: 1};
+		}
+
+		color = Strings.cut(color, '#');
+		// cut off a leading #
+		color = parseInt(color, 16);
+		const r = color >> 16;
+		const g = (color >> 8) & 0xff;
+		const b = color & 0xff;
+		const a = this.transparency === undefined ? 1 : this.transparency / 100;
+
+		return { r, g, b, a };
+	}
+
 };
