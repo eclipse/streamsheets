@@ -568,7 +568,7 @@ class RegisterFunctionModules extends ARequestHandler {
 		return false;
 	}
 	handle({ modules = [] }) {
-		logger.info('registerFunctionModules', modules);
+		// logger.info('registerFunctionModules', modules);
 		// first module is always our core-functions module:
 		FunctionRegistry.registerCoreFunctionsModule(modules.shift());
 		modules.forEach((mod) => FunctionRegistry.registerFunctionModule(mod));

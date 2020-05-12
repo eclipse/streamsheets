@@ -1,6 +1,15 @@
 const logger = require('./logger').create({ name: 'FunctionRegistry' });
+
+const moduleName = (path) => {
+	const parts = path.split('/');
+	return parts.length > 1 ? parts[parts.length - 2] : path;
+};
 // eslint-disable-next-line
-const requireModule = async (path) => require(path);
+const requireModule = async (path) => {
+	const mod = require(path);
+	logger.error(`Loaded additional module: '${moduleName(path)}'`);
+	return mod;
+};
 
 
 let functionFactory;
@@ -19,7 +28,7 @@ const registerAdditional = ({ functions = {}, help = {} } = {}) => {
 	Functions.additional = Object.assign(Functions.additional, functions);
 	Functions.additionalHelp = Object.assign(Functions.additionalHelp, help);
 };
-const logError = (err, mod) => logger.error(`Failed to load module "${mod}"! Reason:\n${err.message}`);
+const logError = (err, mod) => logger.error(`Failed to load module: '${moduleName(mod)}'! Reason: ${err.message}`);
 
 
 const toName = (name) => ({ name });
