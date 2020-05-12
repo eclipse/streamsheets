@@ -4,8 +4,8 @@ const moduleName = (path) => {
 	const parts = path.split('/');
 	return parts.length > 1 ? parts[parts.length - 2] : path;
 };
-// eslint-disable-next-line
 const requireModule = async (path) => {
+	// eslint-disable-next-line
 	const mod = require(path);
 	logger.info(`Loaded additional module: '${moduleName(path)}'`);
 	return mod;

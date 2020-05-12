@@ -1,18 +1,118 @@
 {
-	// Use IntelliSense to learn about possible Node.js debug attributes.
-	// Hover to view descriptions of existing attributes.
-	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	// Verwendet IntelliSense zum Ermitteln möglicher Attribute.
+	// Zeigen Sie auf vorhandene Attribute, um die zugehörigen Beschreibungen anzuzeigen.
+	// Weitere Informationen finden Sie unter https://go.microsoft.com/fwlink/?linkid=830387
 	"version": "0.2.0",
+	"compounds": [
+		{
+			"name": "DEV",
+			"internalConsoleOptions": "openOnSessionStart",
+			"configurations": [
+				"Service Gateway",
+				"Service Graphs",
+				"Service Machines",
+				"Service Streams",
+				// "WebUI",
+				// "Service Auth Local",
+				// "Service Persistence Local"
+			]
+		},
+		{
+			"name": "DEV No Streams",
+			"internalConsoleOptions": "openOnSessionStart",
+			"configurations": [
+				"Service Gateway",
+				"Service Graphs",
+				"Service Machines"
+			]
+		},
+		{
+			"name": "DEV Graphs & Gateway Watch",
+			"internalConsoleOptions": "openOnSessionStart",
+			"configurations": [
+				"Gateway Watch",
+				"Service Graphs"
+			]
+		},
+		{
+			"name": "DEV Gateway Watch",
+			"internalConsoleOptions": "openOnSessionStart",
+			"configurations": [
+				"Gateway Watch",
+				"Service Graphs",
+				"Service Machines",
+				"Service Streams",
+			]
+		}
+	],
 	"configurations": [
 		{
-			"type": "chrome",
-			"request": "attach",
-			"name": "Attach to Chrome",
-			"port": 9222,
-			"webRoot": "${workspaceFolder}/packages/webui"
+			"type": "node",
+			"request": "launch",
+			"name": "WebUI3",
+			"cwd": "${workspaceFolder}/packages/webui",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": [
+				"run-script",
+				"start"
+			],
+			"port": 9229,
+			"skipFiles": [
+				"<node_internals>/**"
+			]
 		},
 		{
 			"type": "node",
+			"request": "launch",
+			"name": "WebUI2",
+			"cwd": "${workspaceFolder}/packages/webui",
+			"runtimeExecutable": "yarn",
+			"runtimeArgs": [
+				"workspace",
+				"@cedalo/webui",
+				"start"
+			],
+			"port": 9229,
+			"skipFiles": [
+				"<node_internals>/**"
+			]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "WebUI",
+			"program": "${workspaceRoot}/packages/webui/scripts/start.js",
+			"cwd": "${workspaceFolder}/packages/webui",
+			"skipFiles": [
+				"<node_internals>/**"
+			]
+		},
+		{
+			"type": "chrome",
+			"request": "launch",
+			"name": "Launch WebUI",
+			"url": "http://localhost:3000",
+			"urlFilter": "http://localhost:3000/*",
+			"webRoot": "${workspaceFolder}",
+			"sourceMaps": true,
+			// "sourceMapPathOverrides": {
+			// 	"webpack:///./src/*": "${workspaceFolder}/packages/webui/src/*",
+			// 	// "webpack:///../../src/*": "${workspaceFolder}/packages/webcomponent/streamsheet-connection/src/*"
+			// }
+		},
+		{
+			"type": "chrome",
+			"request": "attach",
+			"name": "Attach to WebUI",
+			"port": 9222,
+			"urlFilter": "http://localhost:3000/*",
+			// "sourceMaps": true,
+			// "webRoot": "${workspaceFolder}"
+			"webRoot": "${workspaceFolder}/packages/webui"
+			// "webRoot": "${workspaceFolder}/packages/webcomponent/demo/dist",
+		},
+		{
+			"type": "chrome",
 			"request": "launch",
 			"name": "Gateway",
 			"program": "${workspaceRoot}/streamsheets/packages/gateway/start.js",
@@ -25,46 +125,37 @@
             }
 		},
 		{
-            "name": "Tests gateway-client",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/streamsheets/packages/gateway-client/node_modules/jest-cli/bin/jest.js",
-            "stopOnEntry": false,
-            "args": ["--runInBand"],
-            "cwd": "${workspaceRoot}/streamsheets/packages/gateway-client/test/client/node/",
-            "preLaunchTask": null,
-            "runtimeExecutable": null,
-            "runtimeArgs": [
-                "--nolazy"
-            ],
-            "env": {
-                "NODE_ENV": "development"
-            },
-            "externalConsole": false,
-            "sourceMaps": false,
-            "outDir": null
+			"type": "node",
+			"request": "launch",
+			"name": "Debug current file",
+			"program": "${file}",
+			// "program": "${workspaceFolder}/app.js"
+			// "console": "integratedTerminal",
 		},
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Gateway Service",
-			"program": "${workspaceRoot}/streamsheets/packages/gateway/start.js",
-			"outFiles": ["${workspaceFolder}/streamsheets/packages/gateway/out/**/*.js"],
+			"name": "Service Gateway",
+			"program": "${workspaceRoot}/packages/gateway/start.js",
+			"outFiles": ["${workspaceRoot}/packages/gateway/out/**/*.js"],
 			"skipFiles": ["<node_internals>/**"],
 			"env": {
+				"MACHINE_DATA_DIR": "${workspaceRoot}/data",
 				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
 				"MESSAGE_BROKER_USERNAME": "cedalo",
 				"MESSAGE_BROKER_PASSWORD": "r35aJkR!&dz",
 				"HTTP_PORT": "8080",
-				"HTTP_HOST": "0.0.0.0",
+				"HTTP_HOST": "localhost",
 				"GATEWAY_HTTP_PORT": "8080",
-				"GATEWAY_HTTP_HOST": "0.0.0.0",
+				"GATEWAY_HTTP_HOST": "localhost",
 				"MONGO_DATABASE": "streamsheets-development",
 				"MONGO_HOST": "localhost",
 				"MONGO_PORT": "27018",
 				"REDIS_HOST": "localhost",
 				"REDIS_PORT": "6379",
-				"SWAGGER_SPEC_PATH": "${workspaceRoot}/streamsheets/packages/gateway/src/public/swagger-spec/v1.0/gateway.yaml"
+				"SWAGGER_SPEC_PATH": "${workspaceRoot}/streamsheets/packages/gateway/src/public/swagger-spec/v1.0/gateway.yaml",
+				"STREAMSHEETS_LOG_LEVEL": "debug",
+				"NODE_ENV": "development"
 			}
 		},
 		{
@@ -73,14 +164,14 @@
 			"name": "Gateway Watch",
 			"runtimeExecutable": "yarn",
 			"runtimeArgs": ["start-gateway:watch"],
-			"program": "${workspaceFolder}/streamsheets/packages/gateway/start.js",
+			"program": "${workspaceRoot}/packages/gateway/start.js",
 			"restart": true,
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "neverOpen",
 			"timeout": 60000,
-			"outFiles": ["${workspaceFolder}/streamsheets/packages/gateway/out/**/*.js"],
+			"outFiles": ["${workspaceRoot}/packages/gateway/out/**/*.js"],
 			"skipFiles": ["<node_internals>/**"],
-			"args": ["|", "bunyan", "-o", "short"],
+			// "args": ["|", "bunyan", "-o", "short"],
 			"env": {
 				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
 				"MESSAGE_BROKER_USERNAME": "cedalo",
@@ -97,15 +188,40 @@
 				"SWAGGER_SPEC_PATH": "${workspaceRoot}/streamsheets/packages/gateway/src/public/swagger-spec/v1.0/gateway.yaml"
 			}
 		},
+
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Machine Service",
-			"program": "${workspaceRoot}/streamsheets/packages/service-machines/start.js",
-			"runtimeArgs": [
-				"--preserve-symlinks"
-			],
+			"name": "Service Graphs",
+			"program": "${workspaceRoot}/packages/service-graphs/start.js",
+			"env": {
+				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
+				"MESSAGE_BROKER_USERNAME": "cedalo",
+				"MESSAGE_BROKER_PASSWORD": "r35aJkR!&dz",
+				"MESSAGE_BROKER_KEEP_ALIVE": "20",
+				"GATEWAY_JWT_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJzZXJ2aWNlLWdyYXBocyIsImlhdCI6MTU0ODI1MzI1NSwiZXhwIjoxNTc5Nzg5MjU1fQ.JRX_4F1FsDPPcQxg58n8WLh5rcbK7jYpBGCA6v-9qyQ",
+				"GATEWAY_SOCKET_ENDPOINT": "ws://localhost:8088/machineserver-proxy",
+				"GATEWAY_HOST": "localhost",
+				"GATEWAY_HTTP_PORT": "8080",
+				"MONGO_DATABASE": "streamsheets-development",
+				"MONGO_HOST": "localhost",
+				"MONGO_PORT": "27018",
+				"REDIS_HOST": "localhost",
+				"REDIS_PORT": "6379",
+				"STREAMSHEETS_LOG_LEVEL": "debug",
+				"NODE_ENV": "development"
+			}
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Service Machines",
+			"program": "${workspaceRoot}/packages/service-machines/start.js",
+			// "runtimeArgs": [
+			// 	"--preserve-symlinks"
+			// ],
 			"autoAttachChildProcesses": true,
+			// "outputCapture": "console",
 			"env": {
 				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
 				"MESSAGE_BROKER_USERNAME": "cedalo",
@@ -114,122 +230,214 @@
 				"MONGO_DATABASE": "streamsheets-development",
 				"MONGO_HOST": "localhost",
 				"MONGO_PORT": "27018",
+				// "MONGO_USERNAME": "cedalo",
+				// "MONGO_PASSWORD": "9fae7f6d-3e35-4af1-a733-c3cda8ca0454",
 				"REDIS_HOST": "localhost",
-				"REDIS_PORT": "6379"
+				"REDIS_PORT": "6379",
+				"STREAMSHEETS_LOG_LEVEL": "debug",
 			}
 		},
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Graph Service",
-			"program": "${workspaceRoot}/streamsheets/packages/service-graphs/start.js",
+			"name": "Service Streams",
+			"program": "${workspaceRoot}/packages/service-streams/start.js",
 			"env": {
 				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
 				"MESSAGE_BROKER_USERNAME": "cedalo",
 				"MESSAGE_BROKER_PASSWORD": "r35aJkR!&dz",
-				"REDIS_HOST": "localhost",
-				"REDIS_PORT": "6379",
-				"GATEWAY_JWT_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJzZXJ2aWNlLWdyYXBocyIsImlhdCI6MTU0ODI1MzI1NSwiZXhwIjoxNTc5Nzg5MjU1fQ.JRX_4F1FsDPPcQxg58n8WLh5rcbK7jYpBGCA6v-9qyQ",
-      			"GATEWAY_HTTP_PORT": "8080",
-      			"GATEWAY_HOST": "localhost",
+				"MESSAGE_BROKER_KEEP_ALIVE": "20",
 				"MONGO_DATABASE": "streamsheets-development",
 				"MONGO_HOST": "localhost",
-				"MONGO_PORT": "27018"
-            }
+				"MONGO_PORT": "27018",
+				"FILE_FEEDER_DEFAULT_ROOT": "/filefeeder",
+				// "MONGO_USERNAME": "cedalo",
+				// "MONGO_PASSWORD": "9fae7f6d-3e35-4af1-a733-c3cda8ca0454",
+				"RESTSERVER_PORT": "8083",
+				// See, https://github.com/ashtuchkin/iconv-lite/wiki/Supported-Encodings for all supported encodings
+				"FILE_FEEDER_ENCODINGS": "win1252,ascii",
+				"STREAMSHEET_MAX_MESSAGE_SIZE": "100000",
+				"REDIS_HOST": "localhost",
+				"REDIS_PORT": "6379",
+				"STREAMSHEETS_LOG_LEVEL": "debug"
+			},
+			"outputCapture": "std"
+		},
+		// **** TESTS ****
+		{
+			"name": "TEST: machine-core (ALL)",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceFolder}/packages/machine-core/node_modules/jest/bin/jest",
+			"cwd": "${workspaceFolder}/packages/machine-core",
+			"args": [
+				"--runInBand",
+				"-i"
+			],
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen"
+			// "stopOnEntry": false,
+			// "preLaunchTask": null,
+			// "runtimeExecutable": null,
+			// "runtimeArgs": [
+			//     "--nolazy"
+			// ],
+			// "env": {
+			//     "NODE_ENV": "development"
+			// },
+			// "externalConsole": false,
+			// "sourceMaps": false,
+			// "outDir": null
+		},
+		{
+			"name": "TEST: parser (ALL)",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceFolder}/packages/parser/node_modules/jest/bin/jest",
+			"cwd": "${workspaceFolder}/packages/parser",
+			"args": [
+				"--runInBand",
+				"-i"
+			],
 		},
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Streams Service",
-			"program": "${workspaceRoot}/streamsheets/packages/service-streams/start.js",
-			"env": {
-				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
-				"MESSAGE_BROKER_USERNAME": "cedalo",
-				"MESSAGE_BROKER_PASSWORD": "r35aJkR!&dz",
-				"MONGO_DATABASE": "streamsheets-development",
-				"MONGO_HOST": "localhost",
-				"MONGO_PORT": "27018",
-				"REDIS_HOST": "localhost",
-				"REDIS_PORT": "6379",
-				// See https://github.com/ashtuchkin/iconv-lite/wiki/Supported-Encodings for all supported encodings
-				"FILE_FEEDER_ENCODINGS": "win1252,ascii",
-				"FILE_FEEDER_DEFAULT_ROOT": "/filefeeder",
-      			"STREAMSHEET_MAX_MESSAGE_SIZE": "100000",
-				"RESTSERVER_PORT": "8083"
-			},
-			"outputCapture": "std"
-		},
-		{
-		  "type": "node",
-		  "request": "launch",
-		  "name": "Jest Current File",
-		  "program": "${workspaceRoot}/streamsheets/packages/rest-server-core/node_modules/jest/bin/jest",
-		  "args": ["${file}"],
-		  "console": "integratedTerminal",
-		  "internalConsoleOptions": "neverOpen"
-		},
-		{
-			"type": "node",
-			"request": "attach",
-			"name": "Gateway Service Docker",
-			"address": "localhost",
-			"port": "9229",
-			"localRoot": "${workspaceRoot}/streamsheets/packages/gateway",
-			"remoteRoot": "app"
-		},
-		{
-			"type": "node",
-			"request": "attach",
-			"name": "Machine Service Docker",
-			"address": "localhost",
-			"port": "9230",
-			"localRoot": "${workspaceRoot}/streamsheets/packages/service-machines",
-			"remoteRoot": "app"
-		},
-		{
-			"type": "node",
-			"request": "attach",
-			"name": "Graph Service Docker",
-			"address": "localhost",
-			"port": "9231",
-			"localRoot": "${workspaceRoot}/streamsheets/packages/service-graphs",
-			"remoteRoot": "app"
-		},
-		{
-			"type": "node",
-			"request": "attach",
-			"name": "Streams Service Docker",
-			"address": "localhost",
-			"port": "9233",
-			"localRoot": "${workspaceRoot}/streamsheets/packages/service-streams",
-			"remoteRoot": "app"
-		},
-		{
-            "name": "Chrome",
-            "type": "chrome",
-            "request": "launch",
-            "url": "http://localhost:3000",
-            "webRoot": "${workspaceRoot}/streamsheets/webui/src"
-        }
-	],
-    "compounds": [
-        {
-            "name": "Streamsheets v1.3",
-            "configurations": [
-				"Gateway Service",
-				"Machine Service",
-				"Graph Service",
-				"Streams Service"
+			"name": "TEST: commons (FILE)",
+			// "console": "integratedTerminal",
+			// "internalConsoleOptions": "neverOpen",
+			"internalConsoleOptions": "openOnSessionStart",
+			"program": "${workspaceFolder}/packages/commons/node_modules/.bin/jest",
+			"cwd": "${workspaceFolder}/packages/commons",
+			"args": [
+				"--config",
+				"${workspaceFolder}/packages/commons/test/jest.config.js",
+				"--forceExit",
+				"--runInBand",
+				"${file}"
 			]
 		},
-        {
-            "name": "Streamsheets v1.3 Docker",
-            "configurations": [
-				"Gateway Service Docker",
-				"Machine Service Docker",
-				"Graph Service Docker",
-				"Streams Service Docker"
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "TEST: functions (FILE)",
+			// "console": "integratedTerminal",
+			// "internalConsoleOptions": "neverOpen",
+			"internalConsoleOptions": "openOnSessionStart",
+			"program": "${workspaceRoot}/packages/functions/node_modules/.bin/jest",
+			"cwd": "${workspaceRoot}/packages/functions",
+			"args": [
+				"--config",
+				"${workspaceRoot}/packages/functions/test/jest.config.js",
+				"--forceExit",
+				"--runInBand",
+				"${file}"
 			]
-		}
-    ]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "TEST: jsg-core (FILE)",
+			"internalConsoleOptions": "openOnSessionStart",
+			"program": "${workspaceFolder}/packages/jsg-core/node_modules/jest/bin/jest",
+			"cwd": "${workspaceFolder}/packages/jsg-core",
+			"args": [
+				"--runInBand",
+				"--bail",
+				"--forceExit",
+				"${file}"
+			]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "TEST: machine-core (FILE)",
+			// "console": "integratedTerminal",
+			// "internalConsoleOptions": "neverOpen",
+			"internalConsoleOptions": "openOnSessionStart",
+			"program": "${workspaceFolder}/packages/machine-core/node_modules/jest/bin/jest",
+			"cwd": "${workspaceFolder}/packages/machine-core",
+			"args": [
+				"--config",
+				"${workspaceFolder}/packages/machine-core/test/jest.config.js",
+				"--forceExit",
+				"--runInBand",
+				"${file}"
+			]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "TEST: number-format (FILE)",
+			"internalConsoleOptions": "openOnSessionStart",
+			"program": "${workspaceFolder}/packages/number-format/node_modules/jest/bin/jest",
+			"cwd": "${workspaceFolder}/packages/number-format",
+			"args": [
+				"--runInBand",
+				"${file}"
+			]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "TEST: opcua-functions (FILE)",
+			// "console": "integratedTerminal",
+			// "internalConsoleOptions": "neverOpen",
+			"internalConsoleOptions": "openOnSessionStart",
+			"program": "${workspaceFolder}/packages/opcua-functions/node_modules/jest/bin/jest",
+			"cwd": "${workspaceFolder}/packages/opcua-functions",
+			"args": [
+				"--config",
+				"${workspaceFolder}/packages/opcua-functions/test/jest.config.js",
+				"--forceExit",
+				"--runInBand",
+				"${file}"
+			]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "TEST: parser (FILE)",
+			"internalConsoleOptions": "openOnSessionStart",
+			"program": "${workspaceFolder}/packages/parser/node_modules/jest/bin/jest",
+			"cwd": "${workspaceFolder}/packages/parser",
+			"args": [
+				"--runInBand",
+				"--bail",
+				"--forceExit",
+				"${file}"
+			]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "TEST: service-machines (FILE)",
+			"internalConsoleOptions": "openOnSessionStart",
+			"program": "${workspaceFolder}/packages/service-machines/node_modules/jest/bin/jest",
+			"cwd": "${workspaceFolder}/packages/service-machines",
+			"args": [
+				"--config",
+				"${workspaceFolder}/packages/service-machines/test/jest.config.js",
+				"--forceExit",
+				"--runInBand",
+				"${file}"
+			]
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "TEST: stream (FILE)",
+			"internalConsoleOptions": "openOnSessionStart",
+			"program": "${workspaceFolder}/packages/stream/influxdb/node_modules/jest/bin/jest",
+			"cwd": "${workspaceFolder}/packages/stream/influxdb",
+			"args": [
+				// "--config",
+				// "${workspaceFolder}/packages/stream/influxdb/test/jest.config.js",
+				"--forceExit",
+				"--runInBand",
+				"${file}"
+			]
+		},
+		// **** ~ TESTS
+	]
 }
