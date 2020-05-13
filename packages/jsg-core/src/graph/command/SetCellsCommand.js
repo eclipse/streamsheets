@@ -115,7 +115,8 @@ module.exports = class SetCellsCommand extends AbstractItemCommand {
 						cellData.formula
 					);
 					cell.setExpression(expr);
-					cell.setValue(cellData.value);
+					// cell.setValue(cellData.value);
+					cell._value = cellData.value;
 				}
 
 				if (cellData.level !== undefined && cell) {
