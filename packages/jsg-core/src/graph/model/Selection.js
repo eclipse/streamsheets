@@ -608,11 +608,22 @@ module.exports = class Selection {
 		writer.writeStartArray('cell');
 
 		this._ranges[0].enumerateCells(false, (pos) => {
-			const cell = data.get(pos);
+			let cell = data.get(pos);
 			if (cell !== undefined) {
 				writer.writeStartElement('cell');
 				writer.writeAttributeNumber('c', pos.x, 0);
 				writer.writeAttributeNumber('r', pos.y, 0);
+
+				if (cell._expr && cell._expr._formula) {
+					cell = cell.copy();
+					cell.evaluate(sheet);
+					let formula = cell._expr.toLocaleString('en', {item: sheet, useName: true, forceName: true});
+					if (formula.length && formula[0] === '=') {
+						formula = formula.substring(1);
+						cell._expr._formula = formula;
+					}
+				}
+
 				cell.save(writer);
 				writer.writeEndElement();
 			}
