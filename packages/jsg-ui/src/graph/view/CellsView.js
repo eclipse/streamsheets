@@ -713,27 +713,31 @@ export default class CellsView extends NodeView {
 						style: 1,
 						borderWidth: 1
 					};
-					let borders = visibleColumnsInfo[columnInfo.myIndex + 1].leftBorders;
-					if (borders) {
-						if (borders[color] === undefined) {
-							borders[color] = {};
+					if (visibleColumnsInfo.length > columnInfo.myIndex + 1) {
+						const borders = visibleColumnsInfo[columnInfo.myIndex + 1].leftBorders;
+						if (borders) {
+							if (borders[color] === undefined) {
+								borders[color] = {};
+							}
+							borders[color][rowInfo.y] = {
+								height: rowInfo.height,
+								style: 1,
+								borderWidth: 1
+							};
 						}
-						borders[color][rowInfo.y] = {
-							height: rowInfo.height,
-							style: 1,
-							borderWidth: 1
-						};
 					}
-					borders = visibleRowsInfo[rowInfo.myIndex + 1].topBorders;
-					if (borders) {
-						if (borders[color] === undefined) {
-							borders[color] = {};
+					if (visibleRowsInfo.length > rowInfo.myIndex + 1) {
+						const borders = visibleRowsInfo[rowInfo.myIndex + 1].topBorders;
+						if (borders) {
+							if (borders[color] === undefined) {
+								borders[color] = {};
+							}
+							borders[color][columnInfo.x] = {
+								width: columnInfo.width,
+								style: 1,
+								borderWidth: 1
+							};
 						}
-						borders[color][columnInfo.x] = {
-							width: columnInfo.width,
-							style: 1,
-							borderWidth: 1
-						};
 					}
 				}
 				break;
