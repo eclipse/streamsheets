@@ -57,7 +57,7 @@ const setDisposeHandler = (term, sheet) => {
 	term.dispose = () => {
 		if (term._stateListener) sheet.machine.off('update', term._stateListener);
 		const proto = Object.getPrototypeOf(term);
-		if (proto) proto.dispose();
+		if (proto) proto.dispose.call(term);
 	};
 };
 

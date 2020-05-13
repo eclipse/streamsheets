@@ -29,7 +29,7 @@ const setDisposeHandler = (term, callingStreamSheet, calledStreamSheet) => {
 			calledStreamSheet.executeCallback = undefined;
 			callingStreamSheet.resumeProcessing();
 			const proto = Object.getPrototypeOf(term);
-			if (proto) proto.dispose();
+			if (proto) proto.dispose.call(term);
 		};
 	}
 };
