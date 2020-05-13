@@ -185,9 +185,19 @@ export default class SheetPlotInteraction extends Interaction {
 					valueEnd = item.scaleFromAxis(axes, ptStart.y > ptEnd.y ? ptEnd : ptStart);
 				}
 
-				if (item.xAxes[0].type === 'category') {
+				switch (item.xAxes[0].type) {
+				case 'category':
 					valueStart.x = Math.max(0, valueStart.x);
+					valueEnd.x = Math.max(valueStart.x + 1, valueEnd.x);
+					break;
+				case 'time':
+					valueEnd.x = Math.max(valueStart.x + 0.0000004, valueEnd.x);
+					break;
+				default:
+					valueEnd.x = Math.max(valueStart.x + 0.0000001, valueEnd.x);
+					break;
 				}
+
 
 				layer.forEach((lview) => {
 					const vitem = lview.chartView.getItem();
