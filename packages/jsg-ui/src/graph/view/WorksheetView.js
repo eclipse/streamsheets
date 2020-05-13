@@ -1244,6 +1244,8 @@ export default class WorksheetView extends ContentNodeView {
 		textarea.value = data;
 		textarea.select();
 
+		JSG.cutMarker = false;
+
 		document.execCommand('Copy');
 		document.body.removeChild(textarea);
 		focus.focus();
@@ -1307,7 +1309,7 @@ export default class WorksheetView extends ContentNodeView {
 					return true;
 				}
 
-				if (data.cut) {
+				if (data.cut && !JSG.cutMarker) {
 					const range = new CellRange(sourceSheet);
 					range.set(data.range.getX1(), data.range.getY1());
 					range.shiftToSheet();
@@ -1339,6 +1341,9 @@ export default class WorksheetView extends ContentNodeView {
 				selection.selectRange(targetRange);
 
 				viewer.getInteractionHandler().execute(cmd);
+				if (data.cut) {
+					JSG.cutMarker = true;
+				}
 			} catch (e) {
 				return false;
 			}
