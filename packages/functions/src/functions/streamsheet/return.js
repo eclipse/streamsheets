@@ -8,7 +8,8 @@ const _return = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withMaxArgs(1)
 		.addMappedArg(() => sheet.streamsheet || ERROR.NO_STREAMSHEET)
-		.mapNextArg(retval => retval && retval.value)
+		.ignoreError()
+		.mapNextArg((retval) => retval && retval.value)
 		.run((streamsheet, retval) => {
 			streamsheet.stopProcessing(retval);
 			return retval != null ? retval : true;
