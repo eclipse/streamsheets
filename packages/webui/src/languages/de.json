@@ -730,6 +730,7 @@
     "DialogValueRanges.color": "Farbe",
     "DialogValueRanges.add": "Zufügen",
     "DialogValueRanges.save": "Speichern",
+    "StreamChart.Type": "Darstellung",
     "StreamChart.TypesCategory": "Kategorien Diagramme",
     "StreamChart.Column": "Säulen",
     "StreamChart.ColumnStacked": "Säulen gestapelt",

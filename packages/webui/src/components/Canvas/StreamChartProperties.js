@@ -491,6 +491,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'series');
 	};
 
+	handleSeriesTypeChange = (event) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.type = event.target.value;
+		this.finishCommand(cmd, 'series');
+	};
+
 	handleSeriesMarkerStyleChange = (event) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
@@ -1717,6 +1724,52 @@ export class StreamChartProperties extends Component {
 					) : null}
 					{selection && selection.element === 'series' ? (
 						<div>
+							{data.type === 'bar' || data.type === 'profile' || data.type === 'line' ||
+							data.type === 'column' || data.type === 'area' ? (
+								<FormControl
+									style={{
+										display: 'inline-flex',
+										margin: '8px',
+										width: '95%'
+									}}
+								>
+									<InputLabel htmlFor="series-marker">
+										<FormattedMessage id="StreamChart.Type" defaultMessage="Series Display Type" />
+									</InputLabel>
+									{data.type === 'bar' || data.type === 'profile' ? (
+										<Select
+											id="series-marker"
+											value={data.type}
+											onChange={this.handleSeriesTypeChange}
+											input={<Input name="series-marker" id="series-marker" />}
+										>
+											<MenuItem value="profile" key={1}>
+												<FormattedMessage id="StreamChart.Profile" defaultMessage="Profile" />
+											</MenuItem>
+											<MenuItem value="bar" key={2}>
+												<FormattedMessage id="StreamChart.Bar" defaultMessage="Bar" />
+											</MenuItem>
+										</Select>
+									) : (
+										<Select
+											id="series-marker"
+											value={data.type}
+											onChange={this.handleSeriesTypeChange}
+											input={<Input name="series-marker" id="series-marker" />}
+										>
+											<MenuItem value="line" key={1}>
+												<FormattedMessage id="StreamChart.Line" defaultMessage="Line" />
+											</MenuItem>
+											<MenuItem value="column" key={2}>
+												<FormattedMessage id="StreamChart.Column" defaultMessage="Column" />
+											</MenuItem>
+											<MenuItem value="area" key={3}>
+												<FormattedMessage id="StreamChart.Area" defaultMessage="Area" />
+											</MenuItem>
+										</Select>
+									)}
+								</FormControl>
+							) : null}
 							<FormLabel
 								component="legend"
 								style={{
