@@ -15,6 +15,7 @@ const {
 	TextFormatAttributes,
 	Numbers,
 	JSONWriter,
+	ZoomChartCommand,
 	MarkCellValuesCommand,
 	SetPlotDataCommand,
 	CompoundCommand,
@@ -216,6 +217,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		};
 		this.title = new ChartTitle(new Expression('Title', ''));
 		this.series = [new ChartSeries('line', new Expression(0, 'SERIES(B1,A2:A10,B2:B10)'))];
+		this.cellValuesMarker = -1;
 	}
 
 	getExpressionValue(expr) {
@@ -1162,15 +1164,13 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 		});
 
+		let zoomcmd;
 		if (sheet) {
-			if (selection) {
-				const cmd = new JSG.DeleteCellContentCommand(sheet, selection.toStringMulti(), 'all');
-				viewer.getInteractionHandler().execute(cmd);
-			} else if (cellData.length) {
-				const cmd = new JSG.SetCellsCommand(sheet, cellData, false);
-				viewer.getInteractionHandler().execute(cmd);
-			}
+			if (selection) zoomcmd = new JSG.DeleteCellContentCommand(sheet, selection.toStringMulti(), 'all');
+			else if (cellData.length) zoomcmd = new JSG.SetCellsCommand(sheet, cellData, false);
 		}
+		// eslint-disable-next-line consistent-return
+		return zoomcmd;
 	}
 
 	getParamFormat(term, index) {
@@ -4430,13 +4430,15 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 	isZoomed(serie) {
 		const cell = getTimeCell(this, serie.formula);
-		this.chartZoom = this.chartZoom && cell && cell.valuesMarker !== this.cellValuesMarker;
+		this.chartZoom =
+			this.chartZoom && this.cellValuesMarker !== -1 && cell && cell.valuesMarker !== this.cellValuesMarker;
 		return !this.chartZoom;
 	}
 
-	spreadZoomInfo(viewer) {
+	spreadZoomInfo(viewer, zoomcmds) {
 		const items = new Map();
 		const sheet = this.getSheet();
+		this.cellValuesMarker = -1;
 		GraphUtils.traverseItem(
 			sheet,
 			(item) => {
@@ -4446,7 +4448,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 						const cell = getTimeCell(item, formula);
 						const cellref = isValuesCell(cell) && getCellReference(item, formula);
 						item.chartZoom = !!cellref;
-
 						// support multiple items on same reference
 						if (item.chartZoom) items.set(item, cellref);
 					});
@@ -4455,15 +4456,18 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			},
 			false
 		);
-		if (items.size) {
-			const cmd = MarkCellValuesCommand.fromItemCellRefMap(items);
-			viewer.getInteractionHandler().execute(cmd);
+		if (items.size || zoomcmds.length) {
+			const zoomchart  = new ZoomChartCommand();
+			zoomcmds.forEach((cmd) => zoomchart.add(cmd));
+			if (items.size) zoomchart.add(MarkCellValuesCommand.fromItemCellRefMap(items));
+			viewer.getInteractionHandler().execute(zoomchart);
 		}
 	}
 
 	resetZoom(viewer) {
 		const group = this.getAxes().x.zoomGroup;
 		const sheet = this.getSheet();
+		const zoomcmds = [];
 
 		GraphUtils.traverseItem(
 			sheet,
@@ -4471,18 +4475,19 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				if (item instanceof SheetPlotNode) {
 					const groupOther = item.getAxes().x.zoomGroup;
 					if (item === this || (groupOther.length && group === groupOther)) {
-						item.setParamValues(viewer, item.xAxes[0].formula, [
+						const cmd = item.setParamValues(viewer, item.xAxes[0].formula, [
 							{ index: 4, value: undefined },
 							{ index: 5, value: undefined }
 						], item);
 						item.chartZoomTimestamp = undefined;
+						if (cmd) zoomcmds.push(cmd);
 					}
 				}
 			},
 			false
 		);
 
-		this.spreadZoomInfo(viewer);
+		this.spreadZoomInfo(viewer, zoomcmds);
 	}
 
 	isAddLabelAllowed() {

@@ -176,6 +176,7 @@ JSG.DetachCommand = require('./src/graph/command/DetachCommand');
 JSG.InternalDeleteItemCommand = require('./src/graph/command/InternalDeleteItemCommand');
 JSG.DeleteEdgeCommand = require('./src/graph/command/DeleteEdgeCommand');
 JSG.MarkCellValuesCommand = require('./src/graph/command/MarkCellValuesCommand');
+JSG.ZoomChartCommand = require('./src/graph/command/ZoomChartCommand');
 JSG.DeleteNodeCommand = require('./src/graph/command/DeleteNodeCommand');
 JSG.DeleteItemCommand = require('./src/graph/command/DeleteItemCommand');
 JSG.PasteItemsCommand = require('./src/graph/command/PasteItemsCommand');

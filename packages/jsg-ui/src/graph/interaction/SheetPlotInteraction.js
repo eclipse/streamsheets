@@ -198,16 +198,17 @@ export default class SheetPlotInteraction extends Interaction {
 					break;
 				}
 
-
+				const zoomcmds = [];
 				layer.forEach((lview) => {
 					const vitem = lview.chartView.getItem();
-					vitem.setParamValues(viewer, vitem.xAxes[0].formula, [
+					const cmd = vitem.setParamValues(viewer, vitem.xAxes[0].formula, [
 						{ index: 4, value: valueStart.x },
 						{ index: 5, value: valueEnd.x }
 					], item);
+					if (cmd) zoomcmds.push(cmd);
 				});
 
-				item.spreadZoomInfo(viewer);
+				item.spreadZoomInfo(viewer, zoomcmds);
 
 				viewer.getGraph().markDirty();
 				event.doRepaint = true;

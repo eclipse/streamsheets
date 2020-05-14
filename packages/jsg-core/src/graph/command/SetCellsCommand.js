@@ -2,6 +2,7 @@ const AbstractItemCommand = require('./AbstractItemCommand');
 const Point = require('../../geometry/Point');
 const Expression = require('../expr/Expression');
 const CellRange = require('../model/CellRange');
+const { getSheetFromItem } = require('./utils');
 
 const cellsFromResponse = ({ machineserver }) =>
 	machineserver ? machineserver.cells : {};
@@ -52,6 +53,11 @@ module.exports = class SetCellsCommand extends AbstractItemCommand {
 		this._oldCellDescriptors = data.undo.cellDescriptors;
 		return cmd;
 	}
+
+	get sheet() {
+		return getSheetFromItem(this._graphItem);
+	}
+
 
 	toObject() {
 		const data = super.toObject();
