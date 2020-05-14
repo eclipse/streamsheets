@@ -43,17 +43,25 @@ export default class SheetSliderView extends NodeView {
 			textFormat.removeFromGraphics(graphics);
 		}
 
-		let min = item.getAttributeValueAtPath('min');
-		let max = item.getAttributeValueAtPath('max');
-		let step = item.getAttributeValueAtPath('step');
+		let min = Number(item.getAttributeValueAtPath('min'));
+		let max = Number(item.getAttributeValueAtPath('max'));
+		let step = Number(item.getAttributeValueAtPath('step'));
 		const marker = item.getAttributeValueAtPath('marker');
 		const style = item.getAttributeValueAtPath('style');
-		if (max === min) {
-			min -= 0.5;
-			max += 0.5;
+		if (Number.isNaN(min)) {
+			min = 0;
+		}
+		if (Number.isNaN(max)) {
+			max = 100;
+		}
+		if (Number.isNaN(step)) {
+			min = 10;
+		}
+		if (max <= min) {
+			max = min + 100;
 		}
 		if (step <= 0) {
-			step = 0.1;
+			step = 1;
 		}
 		const range = max - min;
 

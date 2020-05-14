@@ -730,6 +730,7 @@
     "DialogValueRanges.color": "Color",
     "DialogValueRanges.add": "Add",
     "DialogValueRanges.save": "Save",
+    "StreamChart.Type": "Display as",
     "StreamChart.TypesCategory": "Category Charts",
     "StreamChart.Column": "Column",
     "StreamChart.ColumnStacked": "Column Stacked",
