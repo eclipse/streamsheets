@@ -310,8 +310,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		const result = {
 			width: 200,
 			height: 200,
-			lastPos: 0,
-			firstPos: 0
 		};
 
 		axis.textSize = {
@@ -1283,10 +1281,15 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		return legend;
 	}
 
-	getVisibleSeries() {
+	getVisibleSeries(type) {
 		let cnt = 0;
+
+		if (type === undefined && this.series.length) {
+			type = this.series[0].type;
+		}
+
 		this.series.forEach((serie) => {
-			if (serie.visible) {
+			if (serie.visible && type === serie.type) {
 				cnt += 1;
 			}
 		});
@@ -1294,12 +1297,16 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		return cnt;
 	}
 
-	getVisibleSeriesIndex(index) {
+	getVisibleSeriesIndex(type, index) {
 		let cnt = 0;
+
+		if (type === undefined && this.series.length) {
+			type = this.series[0].type;
+		}
 
 		for (let i = 0; i < index; i += 1) {
 			const serie = this.series[i];
-			if (serie.visible) {
+			if (serie.visible && type === serie.type) {
 				cnt += 1;
 			}
 		}
@@ -1762,7 +1769,17 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					}
 				} else {
 					timeStep = 'millisecond';
-					if (diff < 0.05 / 86400) {
+					if (diff < 0.003 / 86400) {
+						step = 1;
+					} else if (diff < 0.007 / 86400) {
+						step = 5;
+					} else if (diff < 0.01 / 86400) {
+						step = 10;
+					} else if (diff < 0.02 / 86400) {
+						step = 20;
+					} else if (diff < 0.03 / 86400) {
+						step = 50;
+					} else if (diff < 0.1 / 86400) {
 						step = 100;
 					} else {
 						step = 500;
@@ -1922,8 +1939,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		let rect;
 		let pointIndex = 0;
 		const value = {};
-		const seriesCnt = this.getVisibleSeries();
-		const visibleIndex = this.getVisibleSeriesIndex(index);
+		const seriesCnt = this.getVisibleSeries(serie.type);
+		const visibleIndex = this.getVisibleSeriesIndex(serie.type, index);
 
 		let sum = 0;
 		while (this.getValue(ref, pointIndex, value)) {
@@ -2020,8 +2037,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		let height;
 		const margin = this.chart.stacked || serie.type === 'state' ? 0 : 150;
-		const seriesCnt = this.getVisibleSeries();
-		const visibleSeriesIndex = this.getVisibleSeriesIndex(seriesIndex);
+		const seriesCnt = this.getVisibleSeries(serie.type);
+		const visibleSeriesIndex = this.getVisibleSeriesIndex(serie.type, seriesIndex);
 
 		if (this.chart.relative) {
 			const neg = axes.y.categories[index].neg;
@@ -2043,7 +2060,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	}
 
 	getBarWidth(axes, serie, plotRect) {
-		const seriesCnt = this.getVisibleSeries();
+		const seriesCnt = this.getVisibleSeries(serie.type);
 		if (axes.x.type === 'category') {
 			let barWidth;
 			if (serie.type === 'bar') {
