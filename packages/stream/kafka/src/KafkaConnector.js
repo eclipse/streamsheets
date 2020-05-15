@@ -1,8 +1,10 @@
 const { Connector } = require('@cedalo/sdk-streams');
-const { Kafka, logLevel } = require('kafkajs');
+const { Kafka, logLevel, CompressionTypes, CompressionCodecs } = require('kafkajs');
+const SnappyCodec = require('kafkajs-snappy')
 const Utils = require('./Utils');
 const KSQLHelper = require('./KSQLHelper');
 
+CompressionCodecs[CompressionTypes.Snappy] = SnappyCodec
 module.exports = class KafkaConnector extends Connector {
 	constructor(config) {
 		super(config);
