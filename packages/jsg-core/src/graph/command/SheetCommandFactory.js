@@ -18,6 +18,9 @@ const AddTreeItemCommand = require('./AddTreeItemCommand');
 const DeleteTreeItemCommand = require('./DeleteTreeItemCommand');
 const PasteTreeItemCommand = require('./PasteTreeItemCommand');
 const SetHeaderSectionSizeCommand = require('./SetHeaderSectionSizeCommand');
+const SetHeaderSectionLevelCommand = require('./SetHeaderSectionLevelCommand');
+const CreateHeaderLevelsFromRangeCommand = require('./CreateHeaderLevelsFromRangeCommand');
+const SetHeaderSectionOutlineFlagCommand = require('./SetHeaderSectionOutlineFlagCommand');
 const PasteCellsFromClipboardCommand = require('./PasteCellsFromClipboardCommand');
 const DeleteCellContentCommand = require('./DeleteCellContentCommand');
 const InsertCellsCommand = require('./InsertCellsCommand');
@@ -68,6 +71,9 @@ const Registry = {
 	'command.DeleteTreeItemCommand': DeleteTreeItemCommand,
 	'command.PasteTreeItemCommand': PasteTreeItemCommand,
 	'command.SetHeaderSectionSizeCommand': SetHeaderSectionSizeCommand,
+	'command.SetHeaderSectionLevelCommand': SetHeaderSectionLevelCommand,
+	'command.CreateHeaderLevelsFromRangeCommand': CreateHeaderLevelsFromRangeCommand,
+	'command.SetHeaderSectionOutlineFlagCommand': SetHeaderSectionOutlineFlagCommand,
 	'command.PasteCellsFromClipboardCommand': PasteCellsFromClipboardCommand,
 	'command.DeleteCellContentCommand': DeleteCellContentCommand,
 	'command.InsertCellsCommand': InsertCellsCommand,

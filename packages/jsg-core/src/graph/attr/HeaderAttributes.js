@@ -1,9 +1,11 @@
 const AttributeList = require('./AttributeList');
 const NumberAttribute = require('./NumberAttribute');
+const StringAttribute = require('./StringAttribute');
 
 
 // PREDEFINED ATTRIBUTES:
 const DEFAULTSECTIONSIZE = 'defaultsectionsize';
+const OUTLINEDIRECTION = 'outlinedirection';
 
 // UNIQUE NAME:
 const NAME = 'WorksheetHeader';
@@ -46,6 +48,7 @@ const HeaderAttributes = class HeaderAttributes extends AttributeList {
 
 		// simply add default attributes:
 		addAttribute(new NumberAttribute(ATTR.DEFAULTSECTIONSIZE), 2000);
+		addAttribute(new StringAttribute(ATTR.OUTLINEDIRECTION), 'above');
 
 		return attributes.toTemplate(HeaderAttributes.TemplateID);
 	}
@@ -56,6 +59,14 @@ const HeaderAttributes = class HeaderAttributes extends AttributeList {
 
 	setDefaultSectionSize(size) {
 		this.setAttribute(HeaderAttributes.DEFAULTSECTIONSIZE, size);
+	}
+
+	getOutlineDirection() {
+		return this.getAttribute(HeaderAttributes.OUTLINEDIRECTION);
+	}
+
+	setOutlineDirection(direction) {
+		this.setAttribute(HeaderAttributes.OUTLINEDIRECTION, direction);
 	}
 
 	doSaveParentRef() {
@@ -71,6 +82,10 @@ const HeaderAttributes = class HeaderAttributes extends AttributeList {
 
 	static get DEFAULTSECTIONSIZE() {
 		return DEFAULTSECTIONSIZE;
+	}
+
+	static get OUTLINEDIRECTION() {
+		return OUTLINEDIRECTION;
 	}
 
 	static get TemplateID() {

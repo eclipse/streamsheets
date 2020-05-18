@@ -35,11 +35,14 @@ export default class HeaderView extends NodeView {
 		return new Point(0, 0);
 	}
 
-	setFont(graphics) {
+	handleOutlineMouseDown(location, viewer) {
+	}
+
+	setFont(graphics, size, color, style = 0) {
 		graphics.setFontName('Verdana');
-		graphics.setFontStyle(0);
-		graphics.setFontSize(9);
-		graphics.setFillColor('#333333');
+		graphics.setFontStyle(style);
+		graphics.setFontSize(size);
+		graphics.setFillColor(color);
 		graphics.setTextAlign(JSG.TextFormatAttributes.TextAlignment.CENTER);
 		graphics.setTextBaseline('middle');
 		graphics.setFont();

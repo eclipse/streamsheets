@@ -14,6 +14,9 @@ import {
 	CellAttributes,
 	DeleteCellContentCommand,
 	SetCellLevelsCommand,
+	SetHeaderSectionLevelCommand,
+	CreateHeaderLevelsFromRangeCommand,
+	SetAttributeAtPathCommand,
 	ExpressionHelper,
 	SetSelectionCommand,
 	NotificationCenter,
@@ -22,11 +25,15 @@ import {
 	Point,
 	Rectangle,
 	Utils,
+	AttributeUtils,
 	Numbers,
 	Dictionary,
 	JSONWriter,
 	JSONReader,
-	TextFormatAttributes, PasteItemsCommand
+	RowHeaderNode,
+	ColumnHeaderNode,
+	TextFormatAttributes,
+	PasteItemsCommand
 } from '@cedalo/jsg-core';
 import { FuncTerm, Locale, Term, BinaryOperator } from '@cedalo/parser';
 import { NumberFormatter } from '@cedalo/number-format';
@@ -52,7 +59,9 @@ const HitCode = {
 	REFERENCERESIZE: 9,
 	SELECTIONEXTEND: 10,
 	ROWSIZEHIDDEN: 11,
-	COLUMNSIZEHIDDEN: 12
+	COLUMNSIZEHIDDEN: 12,
+	COLUMNOUTLINE: 13,
+	ROWOUTLINE: 14
 };
 
 /**
@@ -316,52 +325,25 @@ export default class WorksheetView extends ContentNodeView {
 				}
 				doDefault();
 				break;
-			case 'g':
-				/* scribble to create png from range
-				if (event.event.ctrlKey) {
-					const canvas = document.createElement('canvas');
-					const graph = item.getGraph();
-					const rect = this.getRangeRect(this.getOwnSelection().getAt(0));
-
-					canvas.id = 'canvaspng';
-
-					const editor = new GraphEditor(canvas);
-					const tmpViewer = editor.getGraphViewer();
-					const graphics = tmpViewer.getGraphicSystem().getGraphics();
-					const cs = graphics.getCoordinateSystem();
-
-					canvas.width = cs.logToDeviceX(rect.width);
-					canvas.height = cs.logToDeviceX(rect.height);
-
-					tmpViewer.setControllerFactory(GraphControllerFactory.getInstance());
-					tmpViewer.getScrollPanel().getViewPanel().setBoundsMargin(0);
-					tmpViewer.getScrollPanel().setScrollBarsMode(JSG.ScrollBarMode.HIDDEN);
-					editor.setGraph(graph);
-					editor.setZoom(1);
-
-					const p = new Point(rect.x, rect.y);
-					this.translateFromSheet(p, viewer);
-					rect.x = p.x;
-					rect.y = p.y;
-
-					graphics._context2D.fillStyle = '#FFFFFF';
-					graphics._context2D.fillRect(0, 0, canvas.width, canvas.height);
-					graphics.translate(-rect.x, -rect.y);
-
-					tmpViewer.getGraphView().drawSubViews(
-						graphics,
-						new Rectangle(rect.x, rect.y, rect.width, rect.height)
-					);
-
-					const image = canvas.toDataURL();
-
-					editor.destroy();
-
-					const w = window.open('about:blank','image from canvas');
-					w.document.write(`<img src='${image}' alt='from canvas'/>`);
-					event.consume();
+			case 'o':
+				if (event.event.altKey) {
+					const cmd = new CreateHeaderLevelsFromRangeCommand(this.getItem().getRows(),
+						this.getOwnSelection().getRanges());
+					viewer.getInteractionHandler().execute(cmd);
 					return true;
-				} */
+				}
+				doDefault();
+				break;
+			case 'g':
+				if (event.event.altKey) {
+					const header = event.event.ctrlKey ? item.getRows() : item.getColumns();
+					const old = header.getHeaderAttributes().getOutlineDirection().getValue();
+					const path = AttributeUtils.createPath(JSG.HeaderAttributes.NAME,
+						JSG.HeaderAttributes.OUTLINEDIRECTION);
+					const cmd = new SetAttributeAtPathCommand(header, path, old === 'above' ? 'below' : 'above');
+					viewer.getInteractionHandler().execute(cmd);
+					return true;
+				}
 				doDefault();
 				break;
 			case '#':
@@ -432,14 +414,19 @@ export default class WorksheetView extends ContentNodeView {
 			case 'ArrowUp':
 				currentCell = getCurrentActiveCell();
 				if (currentCell) {
-					this.updateSelectionFromEvent(
-						event.event.key,
-						event.event.shiftKey,
-						event.event.ctrlKey,
-						selection
-					);
-					this.notifySelectionChange(viewer);
-					return true;
+					if (event.event.altKey) {
+						this.changeHeaderLevel(viewer, event.event.key);
+						return true;
+					} else {
+						this.updateSelectionFromEvent(
+							event.event.key,
+							event.event.shiftKey,
+							event.event.ctrlKey,
+							selection
+						);
+						this.notifySelectionChange(viewer);
+						return true;
+					}
 				}
 				break;
 			case 'Enter':
@@ -855,13 +842,19 @@ export default class WorksheetView extends ContentNodeView {
 			if (colHeight && point.y < colHeight) {
 				cv = this.getColumnHeaderView();
 				if (cv) {
+					const size = cv.getItem().getSizeAsPoint()
 					if (point.x - rowWidth < cv.getItem().getWidth() + JSG.findRadius / 2) {
-						const section = cv.getSectionSplit(point.x);
-						if (section !== undefined) {
-							const size = cv.getItem().getSectionSize(section);
-							return size ? WorksheetView.HitCode.COLUMNSIZE : WorksheetView.HitCode.COLUMNSIZEHIDDEN;
+						if (point.y < size.y - ColumnHeaderNode.HEIGHT) {
+							return WorksheetView.HitCode.COLUMNOUTLINE;
+						} else {
+							const section = cv.getSectionSplit(point.x);
+							if (section !== undefined) {
+								return cv.getItem().getSectionSize(section) ?
+									WorksheetView.HitCode.COLUMNSIZE :
+									WorksheetView.HitCode.COLUMNSIZEHIDDEN;
+							}
+							return WorksheetView.HitCode.COLUMN;
 						}
-						return WorksheetView.HitCode.COLUMN;
 					}
 				}
 			}
@@ -869,13 +862,19 @@ export default class WorksheetView extends ContentNodeView {
 			if (rowWidth && point.x < rowWidth) {
 				cv = this.getRowHeaderView();
 				if (cv) {
-					if (point.y - colHeight < cv.getItem().getHeight() + JSG.findRadius / 2) {
-						const section = cv.getSectionSplit(point.y);
-						if (section !== undefined) {
-							const size = cv.getItem().getSectionSize(section);
-							return size ? WorksheetView.HitCode.ROWSIZE : WorksheetView.HitCode.ROWSIZEHIDDEN;
+					const size = cv.getItem().getSizeAsPoint()
+					if (point.y - colHeight < size.y + JSG.findRadius / 2) {
+						if (point.x < size.x - RowHeaderNode.WIDTH) {
+							return WorksheetView.HitCode.ROWOUTLINE;
+						} else {
+							const section = cv.getSectionSplit(point.y);
+							if (section !== undefined) {
+								return cv.getItem().getSectionSize(section) ?
+									WorksheetView.HitCode.ROWSIZE :
+									WorksheetView.HitCode.ROWSIZEHIDDEN;
+							}
+							return WorksheetView.HitCode.ROW;
 						}
-						return WorksheetView.HitCode.ROW;
 					}
 				}
 			}
@@ -1160,6 +1159,14 @@ export default class WorksheetView extends ContentNodeView {
 
 		viewer.getInteractionHandler().execute(new InsertCellsCommand(range, type));
 		this.notify();
+	}
+
+	changeHeaderLevel(viewer, key) {
+		const cmd = new SetHeaderSectionLevelCommand(key === 'ArrowRight' || key === 'ArrowLeft' ?
+			this.getItem().getRows() :
+			this.getItem().getColumns(), this.getOwnSelection().getRanges(), key);
+
+		viewer.getInteractionHandler().execute(cmd);
 	}
 
 	changeLevel(viewer, down) {

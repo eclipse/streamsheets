@@ -48,7 +48,11 @@ module.exports = class RowHeaderNode extends HeaderNode {
 	}
 
 	getInternalWidth() {
-		return this.isItemVisible() === false ? 0 : RowHeaderNode.WIDTH;
+		if (this.isItemVisible() === false) {
+			return 0;
+		}
+
+		return RowHeaderNode.WIDTH + this.getMaxLevel() * 600;
 	}
 
 	getSectionFromReference(ref) {

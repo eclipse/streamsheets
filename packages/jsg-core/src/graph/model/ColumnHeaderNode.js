@@ -79,7 +79,11 @@ module.exports = class ColumnHeaderNode extends HeaderNode {
 	}
 
 	getInternalHeight() {
-		return this.isItemVisible() === false ? 0 : ColumnHeaderNode.HEIGHT;
+		if (this.isItemVisible() === false) {
+			return 0;
+		}
+
+		return ColumnHeaderNode.HEIGHT + this.getMaxLevel() * 600;
 	}
 
 	getSectionFromReference(ref) {

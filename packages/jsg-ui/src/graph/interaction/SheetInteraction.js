@@ -162,6 +162,16 @@ export default class SheetInteraction extends Interaction {
 		viewer.clearSelection();
 
 		switch (this._hitCode) {
+			case WorksheetView.HitCode.ROWOUTLINE: {
+				const cell = this.getCell(view, event.location, viewer);
+				view.getRowHeaderView().handleOutlineMouseDown(cell.y, viewer);
+				break;
+			}
+			case WorksheetView.HitCode.COLUMNOUTLINE: {
+				const cell = this.getCell(view, event.location, viewer);
+				view.getColumnHeaderView().handleOutlineMouseDown(cell.x, viewer);
+				break;
+			}
 			case WorksheetView.HitCode.COLUMNSIZE:
 			case WorksheetView.HitCode.COLUMNSIZEHIDDEN:
 				this._section = view.getSection(this._hitCode, event.location, viewer);
