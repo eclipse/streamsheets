@@ -264,7 +264,7 @@ export default class CellsView extends NodeView {
 	}
 
 	getFormattedValue(graphics, data, textproperties, styleProperties, availableWidth) {
-		let result = {
+		const result = {
 			value: data.getValue(),
 			formattedValue: data.getValue(),
 			type: 'general',
