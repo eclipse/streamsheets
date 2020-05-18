@@ -326,7 +326,12 @@ export default class CellsView extends NodeView {
 		const type = localCulture.split(';');
 
 		try {
-			result = NumberFormatter.formatNumber(numberFormat, result.value, type[0]);
+			const newResult = NumberFormatter.formatNumber(numberFormat, result.value, type[0]);
+			result.formattedValue = newResult.formattedValue;
+			result.value = newResult.value;
+			if (newResult.color !== null) {
+				result.color = newResult.color;
+			}
 		} catch (e) {
 			result.formattedValue = defaultCellErrorValue;
 		}
@@ -346,8 +351,13 @@ export default class CellsView extends NodeView {
 				let decimals = decPart ? decPart.length - 1 : 0;
 
 				while (decimals > 0 && width > availableWidth) {
-					result.value = MathUtils.roundTo(result.value, decimals);
-					result = NumberFormatter.formatNumber('General', result.value, 'general');
+					const newResult = NumberFormatter.formatNumber('General', MathUtils.roundTo(result.value, decimals), 'general');
+					result.formattedValue = newResult.formattedValue;
+					result.value = newResult.value;
+					if (newResult.color !== null) {
+						result.color = newResult.color;
+					}
+
 					width = graphics
 						.getCoordinateSystem()
 						.deviceToLogX(graphics.measureText(result.formattedValue).width, true);
@@ -393,7 +403,7 @@ export default class CellsView extends NodeView {
 			let subLevel = 0;
 			let dataSub = dataProvider.getRC(columnInfo.index, rowInfo.index + 1);
 			if (dataSub) {
-				cellPropertiesTmp = this.getCellProperties(dataNext, columnInfo, rowInfoTmp);
+				cellPropertiesTmp = this.getCellProperties(dataSub, columnInfo, rowInfoTmp);
 				subLevel = cellPropertiesTmp && cellPropertiesTmp.level ? cellPropertiesTmp.level : 0;
 			}
 
@@ -417,9 +427,12 @@ export default class CellsView extends NodeView {
 				}
 			} else {
 				const value = dataNext.getValue();
-				const type = typeof value;
-				// draw fill based on cell value type
-				switch (type) {
+				if (value === '{ JSON Object }') {
+					formattedValue.fillColor = '#E17000';
+				} else {
+					const type = typeof value;
+					// draw fill based on cell value type
+					switch (type) {
 					case 'string':
 						formattedValue.fillColor = '#009408';
 						break;
@@ -432,6 +445,7 @@ export default class CellsView extends NodeView {
 					default:
 						formattedValue.fillColor = '#009408';
 						break;
+					}
 				}
 			}
 		}
@@ -545,7 +559,7 @@ export default class CellsView extends NodeView {
 			if (rowInfo.grey) {
 				graphics.setTransparency(60);
 			}
-			this.rect(graphics, columnInfo.x, rowInfo.y, columnInfo.width + 20, rowInfo.height, styleproperties.fillcolor);
+			this.rect(graphics, columnInfo.x, rowInfo.y, columnInfo.width + 20, rowInfo.height + 20, styleproperties.fillcolor);
 			if (rowInfo.grey) {
 				graphics.setTransparency(100);
 			}
