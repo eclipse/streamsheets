@@ -1,6 +1,6 @@
 const { functions } = require('../utils');
 const { description } = require('./utils');
-const { Cell, SheetParser, StreamSheet } = require('../..');
+const { Cell, Machine, SheetParser, StreamSheet } = require('../..');
 const { Term } = require('@cedalo/parser');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
@@ -112,6 +112,23 @@ describe('Cell', () => {
 				value: 10,
 				formula: '2*5'
 			})).toBeTruthy();
+		});
+		// DL-4113:
+		it(`should return ${Cell.VALUE_REPLACEMENT} for json values`, async () => {
+			const sheet1 = new StreamSheet().sheet.load({
+				cells: { 
+					A1: 'key', B1: 42,
+					A2: {formula: 'json(A1:B1)'},
+					A3: {formula: 'A2'}
+				}
+			});
+			const machine = new Machine();
+			machine.addStreamSheet(sheet1.streamsheet);
+			await machine.step();
+			const json = sheet1.toJSON();
+			expect(json.cells).toBeDefined();
+			expect(json.cells.A2.value).toBe(Cell.VALUE_REPLACEMENT);
+			expect(json.cells.A3.value).toBe(Cell.VALUE_REPLACEMENT);
 		});
 	});
 	describe('update', () => {

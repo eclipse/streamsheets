@@ -31,7 +31,11 @@ const evaluate = (cell, newValue) => {
 	if (cell.col === -1 && FunctionErrors.isError(cell._value)) cell._value = false;
 };
 
-const valueDescription = (value) => (isType.object(value) ? value.toString() : value); // == null ? 0 : value);
+// DL-4113 prevent displaying values like [object Object]...
+const valueDescription = (value) => {
+	const descr = isType.object(value) ? value.toString() : value;
+	return descr === '[object Object]' ? CELL_VALUE_REPLACEMENT : descr;
+};
 
 const refStrings = (references) => references.map((r) => r.toString());
 const registerCell = (term, cell) => {
@@ -49,18 +53,6 @@ const setTerm = (newTerm, cell) => {
 		registerCell(cell._term, cell);
 		cell._references = refStrings(newTerm.findReferences());
 	}
-};
-
-// to fix displayed value of sheet-functions which are used in cell directly instead
-// as parameter of other functions. To prevent displayed values like [object Object]...
-const adjustValueOf = (cell) => {
-	let value = cell._value;
-	const term = cell._term;
-	const type = typeof value;
-	// treatment for references => those have a proper toString()...
-	if (type === 'object' && (!term || !term.hasOperandOfType(Operand.TYPE.REFERENCE))) value = CELL_VALUE_REPLACEMENT;
-	else if (type === 'function') value = CELL_VALUE_REPLACEMENT;
-	return value;
 };
 
 const displayName = (term) => term && term.func && term.func.displayName;
@@ -92,7 +84,7 @@ class Cell {
 			descr.type = 'unit';
 			descr.value = term.toString();
 		}
-		descr.info = { ...this.info, displayName:  displayName(term)};
+		descr.info = { ...this.info, displayName: displayName(term)};
 		// TODO: move level to cell properties
 		descr.level = this.level;
 		const references = this._references && refStrings(this._references);
@@ -157,8 +149,7 @@ class Cell {
 	}
 
 	get cellValue() {
-		// return this._cellValue != null ? this._cellValue : this._value;
-		return this._cellValue != null ? this._cellValue : adjustValueOf(this);
+		return this._cellValue != null ? this._cellValue : this._value;
 	}
 
 	get value() {
