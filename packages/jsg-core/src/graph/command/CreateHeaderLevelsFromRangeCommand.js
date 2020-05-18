@@ -35,6 +35,7 @@ module.exports = class CreateHeaderLevelsFromRangeCommand extends AbstractItemCo
 	redo() {
 		let i;
 
+		this._graphItem.getHeaderAttributes().setOutlineDirection('above');
 		// identify type of change
 		this._ranges.forEach((range) => {
 			for (i = range._y1; i <= range._y2; i += 1) {

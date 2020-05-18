@@ -1720,6 +1720,18 @@ export class StreamChartProperties extends Component {
 									/>
 								</Button>
 							</FormControl>
+							<FormLabel
+								component="legend"
+								style={{
+									padding: '2px',
+									border: 'grey 1px solid',
+									margin: '7px 7px 7px 7px',
+									fontSize: '9pt',
+									lineHeight: '1.5'
+								}}
+							>
+								<FormattedMessage id="StreamChartProperties.AxisHint" defaultMessage="Axis Hint" />
+							</FormLabel>
 						</div>
 					) : null}
 					{selection && selection.element === 'series' ? (
@@ -2273,8 +2285,10 @@ export class StreamChartProperties extends Component {
 					<FormLabel
 						component="legend"
 						style={{
+							padding: '2px',
+							border: 'grey 1px solid',
+							fontSize: '9pt',
 							margin: '7px 7px 7px 7px',
-							fontSize: '7pt',
 							lineHeight: '1.5'
 						}}
 					>

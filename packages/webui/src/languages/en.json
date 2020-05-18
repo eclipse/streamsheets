@@ -720,6 +720,7 @@
     "StreamChartProperties.LinkNumberFormat": "Link Numberformat to Cell",
     "StreamChartProperties.ZoomGroup": "Chart Group Name",
     "StreamChartProperties.ShowAllSeries": "Show all Series",
+    "StreamChartProperties.AxisHint": "To change the minimum, maximum oder step value, please select the axis and edit the 'AXIS' formula parameters in the edit bar",
     "StreamChartProperties.FormatHint": "Please use the toolbar for line, fill and font settings",
     "StreamChartProperties.EditValueRanges": "Edit Value Ranges",
     "DialogValueRanges.title": "Edit Value Ranges",

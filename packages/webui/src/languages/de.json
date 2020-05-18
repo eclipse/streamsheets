@@ -720,6 +720,7 @@
     "StreamChartProperties.LinkNumberFormat": "Zahlenformat aus Zelle übernehmen",
     "StreamChartProperties.ZoomGroup": "Name der Diagrammgruppe",
     "StreamChartProperties.ShowAllSeries": "Alle Datenreihen anzeigen",
+    "StreamChartProperties.AxisHint": "Zum Ändern von Minimum, Maximum oder Schrittweite, bitte die Achse anklicken und den entsprechenden Parameter der 'AXIS' Formel in der Bearbeitungsleiste ändern",
     "StreamChartProperties.FormatHint": "Einstellungen für Linien, Muster und Schriften bitte über die Toolbar vornehmen",
     "StreamChartProperties.EditValueRanges": "Wertebereiche bearbeiten",
     "DialogValueRanges.title": "Wertebereiche bearbeiten",
