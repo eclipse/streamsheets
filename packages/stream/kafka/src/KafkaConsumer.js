@@ -71,7 +71,9 @@ module.exports = class KafkaConsumer extends ConsumerMixin(KafkaConnector) {
 							// this.logger.debug(JSON.stringify(message));
 							// this.config.offset = message.offset;
 							// this.logger.debug(message.offset);
-							this.onMessage(topic, message.value, { key, partition, offset, headers, timestamp });
+							this.onMessage(topic, message.value, {
+								transportDetails: { key: key && key.toString(), partition, offset, headers, timestamp }
+							});
 							// this.save();
 						}
 					});
