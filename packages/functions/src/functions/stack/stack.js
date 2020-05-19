@@ -8,10 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const StackHelper = require('./stackhelper');
-const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
+const StackHelper = require('./stackhelper');
+const stackupsert = require('./stackupsert');
 
 const ERROR = FunctionErrors.code;
 
@@ -105,10 +106,31 @@ const sort = (sheet, ...terms) =>
 		.reduce((...ranges) => checkRangeHeight(ranges))
 		.run((stackrange, sortrange) => StackHelper.sort(stackrange, sortrange));
 
+const upsert = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.withMinArgs(3)
+		.withMaxArgs(7)
+		.mapNextArg((stackrange) => getCellRangeFromTerm(stackrange, sheet) || ERROR.VALUE)
+		.mapNextArg((sourcerange) => getCellRangeFromTerm(sourcerange, sheet) || ERROR.VALUE)
+		.mapNextArg((criteriarange) => getCellRangeFromTerm(criteriarange, sheet) || ERROR.VALUE)
+		.mapNextArg((addNotFound) => toBoolean(addNotFound, true))
+		.mapNextArg((addToBottom) => toBoolean(addToBottom, true))
+		.mapNextArg((unique) => toBoolean(unique, false))
+		.mapNextArg((targetrange) => getTargetRange(targetrange, sheet))
+		.run((stackrange, sourcerange, criteriarange, addNotFound, addToBottom, unique, targetrange) => {
+			const dropped =
+				stackupsert(stackrange, sourcerange, criteriarange, addNotFound, addToBottom, unique, targetrange);
+			if (targetrange && dropped) StackHelper.copyRowsToTarget(stackrange, targetrange, dropped);
+			return true;
+		});
+
+
 module.exports = {
 	STACKADD: add,
 	STACKDROP: drop,
 	STACKFIND: find,
 	STACKROTATE: rotate,
-	STACKSORT: sort
+	STACKSORT: sort,
+	STACKUPSERT: upsert
 };

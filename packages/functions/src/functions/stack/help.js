@@ -44,7 +44,7 @@ module.exports = {
 			de: {
 				argumentList: 'StackBereich,Suchkriterien,Zielbereich,Löschen,Einzigartig',
 				description:
-					'Diese Funktion nutzt die Suchkriterien, um  einen Bereich von dem Stackbereich in der Zielbereich zu kopieren.'
+					'Diese Funktion nutzt die Suchkriterien, um einen Bereich von dem Stackbereich in der Zielbereich zu kopieren.'
 			}
 		},
 		STACKROTATE: {
@@ -65,6 +65,16 @@ module.exports = {
 			de: {
 				argumentList: 'StackBereich,Sortierbereich',
 				description: 'Diese Funktion sortiert den Stack nach den Sortierkriterien.'
+			}
+		},
+		STACKUPSERT: {
+			en: {
+				argumentList: 'StackRange,SourceRange,CriteriaRange,AddIfNotFound,Direction,Unique,TargetRange',
+				description: 'This function adds and updates rows in StackRange depending on specified Source- and CriteriaRange.'
+			},
+			de: {
+				argumentList: 'StackBereich,Quellbereich,Suchkriterien,HinzufügenWennNichtGefunden,Richtung,Einzigartig,Zielbereich',
+				description: 'Diese Funktion ergänzt und aktualisiert Zeilen im Stackbereich anhand des Quellbereichs und der spezifizierten Suchkriterien.'
 			}
 		}
 	}

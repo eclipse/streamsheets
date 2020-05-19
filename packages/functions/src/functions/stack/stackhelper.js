@@ -116,8 +116,9 @@ const insert = (sheet, stackrange, row, rowIndex, match) => {
 		return stop;
 	});
 };
-const addAtTop = (sheet, stackrange, rows, match) => {
+const addAtTop = (stackrange, rows, match) => {
 	const dropped = [];
+	const sheet = stackrange.sheet;
 	const top = stackrange.start.row + 1;
 	rows.forEach((row) => {
 		if (!isEmptyRowAt(top, stackrange)) {
@@ -128,8 +129,9 @@ const addAtTop = (sheet, stackrange, rows, match) => {
 	});
 	return dropped;
 };
-const addAtBottom = (sheet, stackrange, rows, match) => {
+const addAtBottom = (stackrange, rows, match) => {
 	const dropped = [];
+	const sheet = stackrange.sheet;
 	rows.forEach((row) => {
 		let rowIndex = getLastEmptyRow(stackrange);
 		if (rowIndex < 0) {
@@ -141,14 +143,12 @@ const addAtBottom = (sheet, stackrange, rows, match) => {
 	});
 	return dropped;
 };
-// row is an array of cells => returns row which will drop out...
 const add = (cellrange, sourcerange, atBottom = true) => {
 	// eslint-disable-next-line no-use-before-define
-	const match = srcIdx2trgtIdx(sourcerange, cellrange);
+	const match = matchKeys(sourcerange, cellrange);
 	const rows = rowsFromRange(sourcerange);
-	const sheet = cellrange.sheet;
 	rows.shift();
-	return atBottom ? addAtBottom(sheet, cellrange, rows, match) : addAtTop(sheet, cellrange, rows, match);
+	return atBottom ? addAtBottom(cellrange, rows, match) : addAtTop(cellrange, rows, match);
 };
 
 const clear = (sheet, range) => {
@@ -161,25 +161,23 @@ const clear = (sheet, range) => {
 	});
 };
 
-const srcIdx2trgtIdx = (cellrange, targetrange) => {
-	// index matcher stackrange -> targetrange:
-	const target = {};
-	targetrange.iterateRowAt(targetrange.start.row, (cell, index) => {
-		if (cell) {
-			target[`${cell.value}`] = index.col;
-		}
-	});
+const matchKeys = (fromrange, torange) => {
 	const match = [];
-	cellrange.iterateRowAt(cellrange.start.row, (cell) => {
+	const target = {};
+	torange.iterateRowAt(torange.start.row, (cell, index) => {
+		if (cell) target[`${cell.value}`] = index.col;
+	});
+	fromrange.iterateRowAt(fromrange.start.row, (cell) => {
 		match.push(cell ? target[`${cell.value}`] : null);
 	});
 	return match;
 };
 
+
 const copyRowsToTarget = (cellrange, targetrange, rows) => {
 	const targetsheet = targetrange.sheet;
 	clear(targetsheet, targetrange);
-	const match = srcIdx2trgtIdx(cellrange, targetrange);
+	const match = matchKeys(cellrange, targetrange);
 	const startidx = targetrange.start.row + 1;
 	rows.forEach((row, index) => {
 		const rowidx = startidx + index;
@@ -388,17 +386,16 @@ const sort = (cellrange, sortrange) => {
 	return true;
 };
 
+const getCriteriaCell = (rowidx, colidx, criteriarange) =>
+	colidx != null && sharedidx.set(rowidx, colidx) ? criteriarange.sheet.cellAt(sharedidx) : null;
 // row matches criteriarange...
 const matchRow = (row, criteriarange, indexMatch) => {
 	let doMatch = false;
-	const sheet = criteriarange.sheet;
 	const endrow = criteriarange.end.row;
-	const getCriteriaCell = (rowidx, criteriaidx) =>
-		criteriaidx != null && sharedidx.set(rowidx, criteriaidx) ? sheet.cellAt(sharedidx) : null;
 	const notMatchCellCriteria = (cell, index) => {
 		const rowidx = notMatchCellCriteria.rowidx;
 		const criteriaidx = indexMatch[index];
-		const criteriacell = getCriteriaCell(rowidx, criteriaidx);
+		const criteriacell = getCriteriaCell(rowidx, criteriaidx, criteriarange);
 		const cellvalue = cell ? cell.value : undefined;
 		const criteriavalue = criteriacell ? criteriacell.value : undefined;
 		return criteriavalue != null && criteriavalue !== cellvalue;
@@ -410,22 +407,20 @@ const matchRow = (row, criteriarange, indexMatch) => {
 	}
 	return doMatch;
 };
-const isUniqueInRows = (rows, unique) =>
-	!unique
-		? () => true
-		: (pivotrow) =>
-				!rows.some((row) =>
-					row.every((col, index) => {
-						const pivot = pivotrow[index];
-						return col == null ? pivot == null : pivot != null && col.value === pivot.value;
-					})
-				);
+
+const isUniqueInRows = (rows) => (pivotrow) =>
+	!rows.some((row) =>
+		row.every((cell, index) => {
+			const pivotcell = pivotrow[index];
+			return cell == null ? pivotcell == null : pivotcell != null && cell.value === pivotcell.value;
+		})
+	);
 
 const find = (cellrange, criteriarange, droprows = false, unique = false) => {
 	const sheet = cellrange.sheet;
 	const rows = [];
-	const isUnique = isUniqueInRows(rows, unique);
-	const indexMatch = srcIdx2trgtIdx(cellrange, criteriarange);
+	const isUnique = unique ? isUniqueInRows(rows) : () => true;
+	const indexMatch = matchKeys(cellrange, criteriarange);
 	const filteredrows = [];
 	const endrow = cellrange.end.row;
 	for (let rowidx = cellrange.start.row + 1; rowidx <= endrow; rowidx += 1) {
@@ -456,9 +451,14 @@ const find = (cellrange, criteriarange, droprows = false, unique = false) => {
 
 module.exports = {
 	add,
+	addAtBottom,
+	addAtTop,
 	copyRowsToTarget,
 	drop,
 	find,
+	isUniqueInRows,
+	matchKeys,
+	matchRow,
 	rotate,
 	sort
 };

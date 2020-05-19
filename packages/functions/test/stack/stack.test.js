@@ -1389,4 +1389,292 @@ describe('stack functions', () => {
 			expect(aSheet.cellAt('C5').value).toBe(25);
 		});
 	});
+	describe('stack upsert', () => {
+		it(`should return ${ERROR.ARGS}if called with to few or to many arguments`, () => {
+			expect(createTerm('stackupsert()', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,true,true,true,A4:B4,true)', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,,,,,true)', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,,,,)', sheet).value).toBe(true);
+		});
+		it(`should return ${ERROR.VALUE}if called with wrong arguments`, () => {
+			expect(createTerm('stackupsert(,,)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(42,A2:B2,A3:B3)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(A1:B1,"hello",A3:B3)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,"world")', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,"world")', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,true,"world")', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,true,true,"world")', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,true,true,true,"world")', sheet).value).toBe(ERROR.VALUE);
+		});
+		it('should add values from source range to stack range if not exist', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT });
+			expect(sheet.cellAt('K1')).toBeUndefined();
+			expect(sheet.cellAt('A14')).toBeUndefined();
+			pipe(insert('K1', 'stackupsert(A30:E32,C1:G2,A25:B26)'), step)(sheet);
+			expect(sheet.cellAt('K1').value).toBe(true);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(1);
+			expect(sheet.cellAt('D31').value).toBe(42);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+			// next row should be empty!
+			expect(sheet.cellAt('A32')).toBeUndefined();
+		});
+		it('should add values from source range to top of stack range if not exist', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT });
+			// add one row to stack range:
+			pipe(insert('K1', 'stackupsert(A30:E32,C1:G2,A25:B26)'), step)(sheet);
+			expect(sheet.cellAt('K1').value).toBe(true);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			// add another row before 
+			pipe(insert('K1', 'stackupsert(A30:E32,C15:G16,D25:D26,true,false)'), step)(sheet);
+			expect(sheet.cellAt('K1').value).toBe(true);
+			expect(sheet.cellAt('A31').value).toBe(13);
+			expect(sheet.cellAt('A32').value).toBe(23);
+		});
+		it('should not add source row to stack range if addNotFound parameter is false', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT });
+			// add one row to stack range:
+			pipe(insert('K1', 'stackupsert(A30:E32,C1:G2,A25:B26, false)'), step)(sheet);
+			expect(sheet.cellAt('A31')).toBeUndefined();
+			pipe(insert('K1', 'stackupsert(A30:E32,C1:G2,A25:B26, true)'), step)(sheet);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('A32')).toBeUndefined();
+			pipe(insert('K1', 'stackupsert(A30:E32,C15:G16,D25:D26,false,false)'), step)(sheet);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('A32')).toBeUndefined();
+			// add another row before 
+			pipe(insert('K1', 'stackupsert(A30:E32,C15:G16,D25:D26,true,false)'), step)(sheet);
+			expect(sheet.cellAt('A31').value).toBe(13);
+			expect(sheet.cellAt('A32').value).toBe(23);
+			expect(sheet.cellAt('A33')).toBeUndefined();
+		});
+		it('should add multiple rows if not exist', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT });
+			// add all rows with same "Mwst"
+			pipe(insert('K1', 'stackupsert(A30:E33,C15:G17,A25:A26)'), step)(sheet);
+			expect(sheet.cellAt('B31').value).toBe("1234-B");
+			expect(sheet.cellAt('B32').value).toBe(1234);
+			expect(sheet.cellAt('A33')).toBeUndefined();
+		});
+		it('should update multiple rows', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT });
+			// add all rows with same "Mwst"
+			pipe(insert('K1', 'stackupsert(A30:E33,C15:G17,A25:A26)'), step)(sheet);
+			expect(sheet.cellAt('A31').value).toBe(13);
+			expect(sheet.cellAt('B31').value).toBe("1234-B");
+			expect(sheet.cellAt('C31').value).toBe(1);
+			expect(sheet.cellAt('D31').value).toBe(42);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+			expect(sheet.cellAt('A32').value).toBe(23);
+			expect(sheet.cellAt('B32').value).toBe(1234);
+			expect(sheet.cellAt('C32').value).toBe(2);
+			expect(sheet.cellAt('D32').value).toBe(23);
+			expect(sheet.cellAt('E32').value).toBe(0.19);
+			expect(sheet.cellAt('A33')).toBeUndefined();
+			// doing this again should update all added rows and overwrite certain cell values!
+			step(sheet);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(4);
+			expect(sheet.cellAt('D31').value).toBe(42);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+			expect(sheet.cellAt('A32').value).toBe(23);
+			expect(sheet.cellAt('B32').value).toBe(1234);
+			expect(sheet.cellAt('C32').value).toBe(5);
+			expect(sheet.cellAt('D32').value).toBe(23);
+			expect(sheet.cellAt('E32').value).toBe(0.19);
+			expect(sheet.cellAt('A33')).toBeUndefined();
+		});
+		it('should update only cells specified in source range', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT });
+			// init
+			pipe(insert('K1', 'stackupsert(A30:E33,C15:G17,A25:A26)'), step)(sheet);
+			expect(sheet.cellAt('A31').value).toBe(13);
+			expect(sheet.cellAt('B31').value).toBe("1234-B");
+			expect(sheet.cellAt('C31').value).toBe(1);
+			expect(sheet.cellAt('D31').value).toBe(42);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+			expect(sheet.cellAt('A32').value).toBe(23);
+			expect(sheet.cellAt('B32').value).toBe(1234);
+			expect(sheet.cellAt('C32').value).toBe(2);
+			expect(sheet.cellAt('D32').value).toBe(23);
+			expect(sheet.cellAt('E32').value).toBe(0.19);
+			expect(sheet.cellAt('A33')).toBeUndefined();
+			// update using  a smaller source-range
+			pipe(insert('K1', 'stackupsert(A30:E33,E15:F17,A25:A26)'), step)(sheet);
+			expect(sheet.cellAt('A31').value).toBe(13);
+			expect(sheet.cellAt('B31').value).toBe("1234-B");
+			expect(sheet.cellAt('C31').value).toBe(4);
+			expect(sheet.cellAt('D31').value).toBe(42);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+			expect(sheet.cellAt('A32').value).toBe(23);
+			expect(sheet.cellAt('B32').value).toBe(1234);
+			expect(sheet.cellAt('C32').value).toBe(5);
+			expect(sheet.cellAt('D32').value).toBe(23);
+			expect(sheet.cellAt('E32').value).toBe(0.19);
+			expect(sheet.cellAt('A33')).toBeUndefined();
+		});
+		it('should not add values from source range to stack range if they exist already ', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT });
+			pipe(insert('K1', 'stackupsert(A30:E32,C1:G2,A25:B26)'), step)(sheet);
+			expect(sheet.cellAt('K1').value).toBe(true);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			// step should not add again
+			step(sheet);
+			expect(createTerm('getstep()', sheet).value).toBe(2);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('A32')).toBeUndefined();
+			step(sheet);
+			step(sheet);
+			step(sheet);
+			expect(createTerm('getstep()', sheet).value).toBe(5);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('A32')).toBeUndefined();
+		});
+		it('should be possible to increase existing values in stack range', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT });
+			// init stack:
+			pipe(insert('K1', 'stackupsert(A30:E32,C1:G2,A25:B26)'), step)(sheet);
+			// increase "Anzahl"
+			pipe(insert('K1', 'stackupsert(A30:E32,C3:G4,A25:B26)'), step)(sheet);
+			expect(sheet.cellAt('K1').value).toBe(true);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(2);
+			expect(sheet.cellAt('D31').value).toBe(42);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+			// once again
+			step(sheet);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(3);
+			expect(sheet.cellAt('D31').value).toBe(42);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+		});
+		it('should be possible to decrease existing values in stack range', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT });
+			// init stack:
+			pipe(insert('K1', 'stackupsert(A30:E32,C1:G2,A25:B26)'), step)(sheet);
+			// decrease "Preis"
+			pipe(insert('K1', 'stackupsert(A30:E32,C5:G6,A25:B26)'), step)(sheet);
+			expect(sheet.cellAt('K1').value).toBe(true);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(1);
+			expect(sheet.cellAt('D31').value).toBe(41);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+			// once again
+			step(sheet);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(1);
+			expect(sheet.cellAt('D31').value).toBe(40);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+		});
+		it('should be possible initialize non existing values in stack range', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT });
+			// init stack:
+			pipe(insert('K1', 'stackupsert(A30:E32,C7:G8,A25:B26)'), step)(sheet);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(1);
+			expect(sheet.cellAt('D31').value).toBe(23);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+			// overwrite with other source row:
+			pipe(insert('K1', 'stackupsert(A30:E32,C1:G2,A25:B26)'), step)(sheet);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(1);
+			expect(sheet.cellAt('D31').value).toBe(42);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+			// re-init should not change "Preis"
+			pipe(insert('K1', 'stackupsert(A30:E32,C7:G8,A25:B26)'), step)(sheet);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(1);
+			expect(sheet.cellAt('D31').value).toBe(42);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+		});
+		it('should be possible to apply values from formula', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT });
+			// init stack with formula source row:
+			pipe(insert('K1', 'stackupsert(A30:E32,C9:G10,A25:B26)'), step)(sheet);
+			// apply formula source row:
+			expect(sheet.cellAt('A31').value.toFixed(2)).toBe('27.37');
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(1);
+			expect(sheet.cellAt('D31').value).toBe(23);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+			// once again
+			step(sheet);
+			expect(sheet.cellAt('A31').value.toFixed(2)).toBe('54.74');
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(2);
+			expect(sheet.cellAt('D31').value).toBe(23);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+		});
+		it('should respect order of reference cells in formula', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT });
+			// init stack with formula source row:
+			pipe(insert('K1', 'stackupsert(A30:E32,C11:G12,A25:B26)'), step)(sheet);
+			// apply formula source row:
+			expect(sheet.cellAt('A31').value).toBe(0);
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(1);
+			expect(sheet.cellAt('D31').value).toBe(23);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+			// once again
+			step(sheet);
+			expect(sheet.cellAt('A31').value.toFixed(2)).toBe('27.37');
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(2);
+			expect(sheet.cellAt('D31').value).toBe(23);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+		});
+		it('should be allowed to reference cells outside source range in formula', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT });
+			// init stack with formula source row:
+			pipe(insert('K1', 'stackupsert(A30:E32,C13:G14,A25:B26)'), step)(sheet);
+			// apply formula source row:
+			expect(sheet.cellAt('A31').value.toFixed(2)).toBe('40.37');
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(1);
+			expect(sheet.cellAt('D31').value).toBe(23);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+			// once again
+			step(sheet);
+			expect(sheet.cellAt('A31').value.toFixed(2)).toBe('67.74');
+			expect(sheet.cellAt('B31').value).toBe(1234);
+			expect(sheet.cellAt('C31').value).toBe(2);
+			expect(sheet.cellAt('D31').value).toBe(23);
+			expect(sheet.cellAt('E31').value).toBe(0.19);
+		});
+		it('should copy dropped rows to target range if specified', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT });
+			// init
+			pipe(insert('K1', 'stackupsert(A30:E31,C1:G2,B25:B26)'), step)(sheet);
+			expect(sheet.cellAt('K1').value).toBe(true);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('A32')).toBeUndefined();
+			// add another row => should dropped old one...
+			pipe(insert('K1', 'stackupsert(A30:E31,C15:G16,D25:D26,,,,A40:E42)'), step)(sheet);
+			expect(sheet.cellAt('A31').value).toBe(13);
+			expect(sheet.cellAt('A41').value).toBe(1234);
+			expect(sheet.cellAt('B41').value).toBe(23);
+			expect(sheet.cellAt('C41').value).toBe(1);
+			expect(sheet.cellAt('D41').value).toBe(42);
+			expect(sheet.cellAt('E41').value).toBe(0.19);
+			expect(sheet.cellAt('A42')).toBeUndefined();
+			// add another row => should dropped old one...
+			pipe(insert('K1', 'stackupsert(A30:E31,C1:G2,B25:B26,true,false,,A40:E42)'), step)(sheet);
+			expect(sheet.cellAt('A31').value).toBe(23);
+			expect(sheet.cellAt('A41').value).toBe('1234-B');
+			expect(sheet.cellAt('B41').value).toBe(13);
+			expect(sheet.cellAt('C41').value).toBe(1);
+			expect(sheet.cellAt('D41').value).toBe(42);
+			expect(sheet.cellAt('E41').value).toBe(0.19);
+			expect(sheet.cellAt('A42')).toBeUndefined();
+		});
+	});
 });

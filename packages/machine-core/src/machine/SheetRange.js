@@ -185,8 +185,8 @@ class SheetRange {
 	}
 
 	reduce(callback, start) {
-		this.iterate((cell, index) => {
-			start = callback(start, cell, index);
+		this.iterate((cell, index, nextrow) => {
+			start = callback(start, cell, index, nextrow);
 		});
 		return start;
 	}

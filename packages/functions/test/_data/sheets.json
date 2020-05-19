@@ -80,5 +80,28 @@
     "C14": 9, "D14":1,
     "C15": 9, "D15":1,
     "C16": 9, "D16":1
+  },
+  "STACKUPSERT": {
+    "C1": "Artikelnr", "D1": "Anzahl", "E1": "Preis", "F1": "Mwst", "G1": "Total",
+    "C2": 1234, "D2": 1, "E2": 42, "F2": 0.19, "G2": 23,
+    "C3": "Artikelnr", "D3": "Anzahl", "E3": "Preis", "F3": "Mwst", "G3": "Total",
+    "C4": 1234, "D4": "+1", "E4": 42, "F4": 0.19, "G4": 23,
+    "C5": "Artikelnr", "D5": "Anzahl", "E5": "Preis", "F5": "Mwst", "G5": "Total",
+    "C6": 1234, "D6": 1, "E6": "-1", "F6": 0.19, "G6": 23,
+    "C7": "Artikelnr", "D7": "Anzahl", "E7": "Preis", "F7": "Mwst", "G7": "Total",
+    "C8": 1234, "D8": 1, "E8": "=23", "F8": 0.19, "G8": 23,
+    "C9": "Artikelnr", "D9": "Anzahl", "E9": "Preis", "F9": "Mwst", "G9": "Total",
+    "C10": 1234, "D10": "+1", "E10": "=23", "F10": 0.19, "G10": { "formula": "D10*E10*(1+F10)" },
+    "C11": "Artikelnr", "D11": "Total", "E11": "Anzahl", "F11": "Preis", "G11": "Mwst",
+    "C12": 1234, "D12": { "formula": "E12*F12*(1+G12)" }, "E12": "+1", "F12": "=23", "G12": 0.19,
+    "C13": "Artikelnr", "D13": "Anzahl", "E13": "Preis", "F13": "Mwst", "G13": "Total", "K13": "Bonus",
+    "C14": 1234, "D14": "+1", "E14": "=23", "F14": 0.19, "G14": { "formula": "D14*E14*(1+F14)+K14" }, "K14": 13,
+    "C15": "Artikelnr", "D15": "Preis", "E15": "Anzahl", "F15": "Mwst", "G15": "Total",
+    "C16": "1234-B", "D16": "=42", "E16": "+1", "F16": 0.19, "G16": 13,
+    "C17": 1234, "D17": "=23", "E17": "+2", "F17": 0.19, "G17": 23,
+    "A25": "Mwst", "B25": "Artikelnr", "C25": "Mwst", "D25": "Artikelnr",
+    "A26": 0.19, "B26": 1234, "C26": 0.07, "D26": "1234-B",
+    "A30": "Total", "B30": "Artikelnr", "C30": "Anzahl", "D30": "Preis", "E30": "Mwst",
+    "A40": "Artikelnr", "B40": "Total", "C40": "Anzahl", "D40": "Preis", "E40": "Mwst"
   }
 }
