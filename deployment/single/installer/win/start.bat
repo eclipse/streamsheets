@@ -23,7 +23,7 @@ If "%1"=="update" (
 			-v streamsheets-data:/var/lib/mongodb ^
 			--name streamsheets ^
 			--network streamsheets ^
-			cedalo/streamsheets:1.5
+			cedalo/streamsheets:1.6-milestone
 	) ELSE (
 		echo "Starting Streamsheets Docker container"
 		docker start streamsheets -a
