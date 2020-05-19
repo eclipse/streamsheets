@@ -69,7 +69,8 @@ export default class ChartSelectionFeedbackView extends View {
 			}
 
 			let pos;
-			let current = item.getAxisStart(axis);
+			const ref = item.getDataSourceInfoAxis(axis);
+			let current = item.getAxisStart(ref, axis);
 			const final = item.getAxisEnd(axis);
 
 			while (current.value <= final) {
@@ -98,7 +99,7 @@ export default class ChartSelectionFeedbackView extends View {
 					break;
 				}
 
-				current = item.incrementScale(axis, current);
+				current = item.incrementScale(ref, axis, current);
 			}
 			}
 			break;

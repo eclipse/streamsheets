@@ -674,6 +674,7 @@
     "StreamChartProperties.Invert": "Invertieren",
     "StreamChartProperties.Degrees": "Grad",
     "StreamChartProperties.AutoZero": "Automatisch bei 0 beginnen",
+    "StreamChartProperties.EmptyCategories": "Leere Kategorien ausblenden",
     "StreamChartProperties.UpdateZoom": "Vergrößerung an laufende Zeit anpassen",
     "StreamChartProperties.AllowZoom": "Vergrößerung mit Maus erlauben",
     "StreamChartProperties.AxisPosition": "Position",

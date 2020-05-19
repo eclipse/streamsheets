@@ -401,6 +401,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
+	handleAxisEmptyCategories = (event, state) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.hideEmptyCategories = state;
+		this.finishCommand(cmd, 'axes');
+	};
+
 	handleAxisNumberformatLinkChange = (event, state) => {
 		const cmd = this.prepareCommand('axes');
 		const data = this.getData();
@@ -1571,35 +1578,53 @@ export class StreamChartProperties extends Component {
 											/>
 										}
 									/>
+									{data.type === 'category' ? (
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={data.hideEmptyCategories}
+													onChange={(event, state) => this.handleAxisEmptyCategories(event, state)}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.EmptyCategories"
+													defaultMessage="Hide empty Categories"
+												/>
+											}
+										/>
+									) : (
+
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={data.autoZero}
+													onChange={(event, state) => this.handleAxisAutoZeroChange(event, state)}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.AutoZero"
+													defaultMessage="Start at Zero automatically"
+												/>
+											}
+										/>
+									)}
 									<FormControlLabel
-										control={
-											<Checkbox
-												checked={data.autoZero}
-												onChange={(event, state) => this.handleAxisAutoZeroChange(event, state)}
-											/>
-										}
-										label={
-											<FormattedMessage
-												id="StreamChartProperties.AutoZero"
-												defaultMessage="Start at Zero automatically"
-											/>
-										}
-									/>
-									<FormControlLabel
-										control={
-											<Checkbox
-												checked={data.format.linkNumberFormat}
-												onChange={(event, state) =>
-													this.handleAxisNumberformatLinkChange(event, state)
-												}
-											/>
-										}
-										label={
-											<FormattedMessage
-												id="StreamChartProperties.LinkNumberFormat"
-												defaultMessage="Link Numberformat to Cell"
-											/>
-										}
+									control={
+										<Checkbox
+											checked={data.format.linkNumberFormat}
+											onChange={(event, state) =>
+												this.handleAxisNumberformatLinkChange(event, state)
+											}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.LinkNumberFormat"
+											defaultMessage="Link Numberformat to Cell"
+										/>
+									}
 									/>
 									<FormControlLabel
 										control={
