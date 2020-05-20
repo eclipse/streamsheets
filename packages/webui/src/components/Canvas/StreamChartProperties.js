@@ -401,13 +401,6 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
-	handleAxisEmptyCategories = (event, state) => {
-		const cmd = this.prepareCommand('axes');
-		const data = this.getData();
-		data.hideEmptyCategories = state;
-		this.finishCommand(cmd, 'axes');
-	};
-
 	handleAxisNumberformatLinkChange = (event, state) => {
 		const cmd = this.prepareCommand('axes');
 		const data = this.getData();
@@ -1578,22 +1571,7 @@ export class StreamChartProperties extends Component {
 											/>
 										}
 									/>
-									{data.type === 'category' ? (
-										<FormControlLabel
-											control={
-												<Checkbox
-													checked={data.hideEmptyCategories}
-													onChange={(event, state) => this.handleAxisEmptyCategories(event, state)}
-												/>
-											}
-											label={
-												<FormattedMessage
-													id="StreamChartProperties.EmptyCategories"
-													defaultMessage="Hide empty Categories"
-												/>
-											}
-										/>
-									) : (
+									{data.type === 'category' ? null : (
 
 										<FormControlLabel
 											control={

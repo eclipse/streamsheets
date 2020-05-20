@@ -107,13 +107,13 @@ module.exports.Functions = {
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.updateGraphItem(scope, terms, 'knob', false) : ERROR.NOT_AVAILABLE;
 	},
-	SERIES: (scope) => {
+	SERIES: () => {
 		return OK.TRUE;
 	},
-	SERIESTIME: (scope) => {
+	SERIESTIME: () => {
 		return OK.TRUE;
 	},
-	AXIS: (scope) => {
+	AXIS: () => {
 		return OK.TRUE;
 	},
 	CLASSIFYPOINT: (scope, ...terms) => {

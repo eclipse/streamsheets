@@ -24,7 +24,6 @@ module.exports = class ChartAxis {
 		this.zoomGroup = '';
 		this.autoZero = true;
 		this.betweenTicks = false;
-		this.hideEmptyCategories = false;
 		this.valueRanges = [];
 	}
 
@@ -45,7 +44,6 @@ module.exports = class ChartAxis {
 		writer.writeAttributeNumber('updatezoom', this.updateZoom ? 1 : 0);
 		writer.writeAttributeNumber('invert', this.invert ? 1 : 0);
 		writer.writeAttributeNumber('betweenticks', this.betweenTicks ? 1 : 0);
-		writer.writeAttributeNumber('hideEmptyCategories', this.hideEmptyCategories ? 1 : 0);
 		writer.writeAttributeString('zoomgroup', this.zoomGroup);
 		writer.writeAttributeString('position', this.position.toString());
 		this.formula.save('formula', writer);
@@ -81,7 +79,6 @@ module.exports = class ChartAxis {
 		this.allowZoom = reader.getAttributeBoolean(object, 'allowzoom', true);
 		this.updateZoom = reader.getAttributeBoolean(object, 'updatezoom', false);
 		this.betweenTicks = reader.getAttributeBoolean(object, 'betweenticks', false);
-		this.hideEmptyCategories = reader.getAttributeBoolean(object, 'hideEmptyCategories', false);
 		this.invert = reader.getAttributeBoolean(object, 'invert', false);
 		this.valueRanges = [];
 

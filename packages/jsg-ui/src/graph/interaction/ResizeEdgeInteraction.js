@@ -44,6 +44,10 @@ class ResizeEdgeInteraction extends AbstractInteraction {
 		super.deactivate(viewer);
 	}
 
+	doShowPortHighlights() {
+		return true;
+	}
+
 	/**
 	 * Checks if either start or end point of resized Edge is dragged.
 	 *

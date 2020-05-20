@@ -888,6 +888,10 @@ class Interaction {
 		return p;
 	}
 
+	doShowPortHighlights() {
+		return false;
+	}
+
 	/**
 	 * SnapType constants.
 	 * <b>Note:</b> for API internal usage only!

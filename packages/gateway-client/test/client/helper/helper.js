@@ -1,9 +1,6 @@
 'use strict';
 
-const JSG = require('@cedalo/jsg-core');
 const {
-	MachineGraph,
-	StreamSheetsContainer,
 	Graph,
 	JSONReader,
 	JSONWriter
