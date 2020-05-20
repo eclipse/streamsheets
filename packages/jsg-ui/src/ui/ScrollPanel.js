@@ -3,8 +3,8 @@ import {
 	NotificationCenter,
 	default as JSG,
 } from '@cedalo/jsg-core';
-import ScrollView from '../ui/scrollview/ScrollView';
-import RangeModel from '../ui/scrollview/RangeModel';
+import ScrollView from "./scrollview/ScrollView";
+import RangeModel from "./scrollview/RangeModel";
 import Scale from './Scale';
 import MouseEvent from './events/MouseEvent';
 

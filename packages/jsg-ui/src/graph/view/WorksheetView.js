@@ -23,8 +23,6 @@ import {
 	Notification,
 	Expression,
 	Point,
-	Rectangle,
-	Utils,
 	AttributeUtils,
 	Numbers,
 	Dictionary,
@@ -35,7 +33,7 @@ import {
 	TextFormatAttributes,
 	PasteItemsCommand
 } from '@cedalo/jsg-core';
-import { FuncTerm, Locale, Term, BinaryOperator } from '@cedalo/parser';
+import { FuncTerm, Locale } from '@cedalo/parser';
 import { NumberFormatter } from '@cedalo/number-format';
 import CellSelectionFeedbackView from '../feedback/CellSelectionFeedbackView';
 import CellEditor from './CellEditor';
@@ -72,7 +70,6 @@ const HitCode = {
  *
  * @class WorksheetView
  * @extends ContentNodeView
- * @param {WorkbookNode} item The corresponding WorkbookNode model.
  * @constructor
  */
 export default class WorksheetView extends ContentNodeView {
@@ -417,16 +414,15 @@ export default class WorksheetView extends ContentNodeView {
 					if (event.event.altKey) {
 						this.changeHeaderLevel(viewer, event.event.key);
 						return true;
-					} else {
-						this.updateSelectionFromEvent(
-							event.event.key,
-							event.event.shiftKey,
-							event.event.ctrlKey,
-							selection
-						);
-						this.notifySelectionChange(viewer);
-						return true;
 					}
+					this.updateSelectionFromEvent(
+						event.event.key,
+						event.event.shiftKey,
+						event.event.ctrlKey,
+						selection
+					);
+					this.notifySelectionChange(viewer);
+					return true;
 				}
 				break;
 			case 'Enter':
@@ -695,7 +691,7 @@ export default class WorksheetView extends ContentNodeView {
 	/**
 	 *
 	 * @method getCellRect
-	 * @param {Point} Cell position.
+	 * @param {Point} cell position.
 	 * @returns {Rect} Cell rect in logical units.
 	 */
 	getCellRect(cell) {
@@ -846,15 +842,14 @@ export default class WorksheetView extends ContentNodeView {
 					if (point.x - rowWidth < cv.getItem().getWidth() + JSG.findRadius / 2) {
 						if (point.y < size.y - ColumnHeaderNode.HEIGHT) {
 							return WorksheetView.HitCode.COLUMNOUTLINE;
-						} else {
-							const section = cv.getSectionSplit(point.x);
-							if (section !== undefined) {
-								return cv.getItem().getSectionSize(section) ?
-									WorksheetView.HitCode.COLUMNSIZE :
-									WorksheetView.HitCode.COLUMNSIZEHIDDEN;
-							}
-							return WorksheetView.HitCode.COLUMN;
 						}
+						const section = cv.getSectionSplit(point.x);
+						if (section !== undefined) {
+							return cv.getItem().getSectionSize(section) ?
+								WorksheetView.HitCode.COLUMNSIZE :
+								WorksheetView.HitCode.COLUMNSIZEHIDDEN;
+						}
+						return WorksheetView.HitCode.COLUMN;
 					}
 				}
 			}
@@ -866,15 +861,14 @@ export default class WorksheetView extends ContentNodeView {
 					if (point.y - colHeight < size.y + JSG.findRadius / 2) {
 						if (point.x < size.x - RowHeaderNode.WIDTH) {
 							return WorksheetView.HitCode.ROWOUTLINE;
-						} else {
-							const section = cv.getSectionSplit(point.y);
-							if (section !== undefined) {
-								return cv.getItem().getSectionSize(section) ?
-									WorksheetView.HitCode.ROWSIZE :
-									WorksheetView.HitCode.ROWSIZEHIDDEN;
-							}
-							return WorksheetView.HitCode.ROW;
 						}
+						const section = cv.getSectionSplit(point.y);
+						if (section !== undefined) {
+							return cv.getItem().getSectionSize(section) ?
+								WorksheetView.HitCode.ROWSIZE :
+								WorksheetView.HitCode.ROWSIZEHIDDEN;
+						}
+						return WorksheetView.HitCode.ROW;
 					}
 				}
 			}
@@ -1437,8 +1431,6 @@ export default class WorksheetView extends ContentNodeView {
 
 		const attributesMap = new Dictionary();
 		attributesMap.put(CellAttributes.LEVEL, 0);
-		const range = new CellRange(item);
-		const ranges = [range];
 
 		const jsonMeasure = (model, rows) => {
 			Object.keys(model).forEach((key) => {

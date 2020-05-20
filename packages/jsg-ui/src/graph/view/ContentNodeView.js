@@ -2,7 +2,7 @@ import { default as JSG, Point, Event, Rectangle, FormatAttributes } from '@ceda
 import NodeView from './NodeView';
 import ViewPanel from '../../ui/scrollview/ViewPanel';
 import ScrollView from '../../ui/scrollview/ScrollView';
-import GraphItemView from '../../graph/view/GraphItemView';
+import GraphItemView from "./GraphItemView";
 
 //--------------------------------------------------------------------------------------------------
 // OWN VIEWPANEL CLASS

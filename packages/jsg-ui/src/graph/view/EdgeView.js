@@ -1,5 +1,5 @@
 import { BoundingBox, default as JSG } from '@cedalo/jsg-core';
-import GraphItemView from '../../graph/view/GraphItemView';
+import GraphItemView from "./GraphItemView";
 
 /**
  * This view is for an {{#crossLink "Edge"}}{{/crossLink}} model. Although it

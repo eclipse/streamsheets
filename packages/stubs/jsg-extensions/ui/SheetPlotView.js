@@ -457,18 +457,9 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				}
 			}
 
-			let current = item.getAxisStart(axis);
+			const refLabel = item.getDataSourceInfoAxis(axis);
+			let current = item.getAxisStart(refLabel, axis);
 			const final = item.getAxisEnd(axis);
-
-			let refLabel;
-			if (axis.type === 'category') {
-				item.series.forEach((series) => {
-					if (series.xAxis === axis.name) {
-						refLabel = item.getDataSourceInfo(series.formula);
-					}
-				});
-			}
-
 			const cs = graphics.getCoordinateSystem();
 			let last;
 			let width = 0;
@@ -644,7 +635,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					break;
 				}
 
-				current = item.incrementScale(axis, current);
+				current = item.incrementScale(refLabel, axis, current);
 			}
 			if (grid && fi.line) {
 				graphics.stroke();

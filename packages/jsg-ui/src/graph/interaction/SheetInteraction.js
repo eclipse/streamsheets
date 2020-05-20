@@ -470,7 +470,9 @@ export default class SheetInteraction extends Interaction {
 				target.setY1(cell.y);
 			}
 			return target;
-		} else if (cellEditor && cellEditor.rangeResize !== undefined) {
+		}
+
+		if (cellEditor && cellEditor.rangeResize !== undefined) {
 			const target = selRange.copy();
 			switch (cellEditor.rangeResize) {
 				case 0:

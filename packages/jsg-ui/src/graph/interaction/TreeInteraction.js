@@ -138,9 +138,7 @@ export default class TreeInteraction extends Interaction {
 			}
 			case 'i':
 				// CTRL + i for dummy data
-				if (event.event.shiftKey) {
-					console.log(view.getItem().getJson());
-				} else if (event.event.ctrlKey) {
+				if (event.event.ctrlKey) {
 					const json = {
 						Type: 'Stammdaten',
 						Artikelart: 'Wein',
