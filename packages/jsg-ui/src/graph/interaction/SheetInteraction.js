@@ -290,7 +290,7 @@ export default class SheetInteraction extends Interaction {
 
 					let optionsCnt = 0;
 
-					const option = document.createElement('option');
+					let option = document.createElement('option');
 					option.value = '';
 					option.hidden = true;
 					option.disabled = true;
@@ -308,7 +308,7 @@ export default class SheetInteraction extends Interaction {
 								if (optCell) {
 									const value = optCell.getValue();
 									if (value !== undefined) {
-										const option = document.createElement('option');
+										option = document.createElement('option');
 										optionsCnt += 1;
 										option.value = value;
 										option.text = value;
