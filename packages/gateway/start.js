@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const { LoggerFactory } = require('@cedalo/logger');
 const GatewayService = require('./src/services/gateway/GatewayService');
 const initializer = require('./src/initializer');

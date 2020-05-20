@@ -1,5 +1,4 @@
 const { RETURN } = require('../../src/functions/streamsheet').functions;
-const { FunctionErrors } = require('@cedalo/error-codes');
 const { Machine, SheetIndex, StreamSheet } = require('@cedalo/machine-core');
 
 let sheet;

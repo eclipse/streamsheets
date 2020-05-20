@@ -1,3 +1,5 @@
+/* global WebSocket */
+
 'use strict';
 
 const BaseGatewayClient = require('../base/BaseGatewayClient');

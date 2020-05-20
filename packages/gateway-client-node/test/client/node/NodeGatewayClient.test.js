@@ -13,12 +13,12 @@ const {
 	Point
 } = require('@cedalo/jsg-core');
 
-const shortid = {
-	// Mocking shortid method
-	generate() {
-		return Math.random();
-	}
-}
+// const shortid = {
+// 	// Mocking shortid method
+// 	generate() {
+// 		return Math.random();
+// 	}
+// }
 
 const CONFIG = require('../config/config.json');
 
@@ -90,8 +90,8 @@ describe('GatewayClient', () => {
 	describe('off()', () => {
 		it.only('should unregister a listener for an event', (done) => {
 			const client = new GatewayClient({ name: 'Test gateway client' });
-			const listener1 = (event) => {};
-			const listener2 = (event) => {};
+			const listener1 = () => {};
+			const listener2 = () => {};
 			client.on('example', listener1);
 			client.on('example', listener2);
 			expect(client._eventListeners.get('example').length).toBe(2);
@@ -670,6 +670,7 @@ describe('GatewayClient', () => {
 			])
 				.then(() => client1.loadMachine(TEMPLATE_ID))
 				.then((response) => {
+					// eslint-disable-next-line no-console
 					console.error(response);
 					const machineId = response.machineserver.machine.id;
 					const graphId = response.graphserver.graph.id;

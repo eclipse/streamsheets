@@ -1,6 +1,5 @@
 'use strict';
 
-const JSG = require('@cedalo/jsg-core');
 const { Graph, JSONReader, JSONWriter } = require('@cedalo/jsg-core');
 
 const graphToJSON = (graph) => {

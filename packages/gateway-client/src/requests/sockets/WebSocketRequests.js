@@ -649,7 +649,7 @@ class StartMachineWebSocketRequest extends WebSocketRequest {
 
 class StartMachinesWebSocketRequest extends WebSocketRequest {
 	constructor(ws) {
-		super(ws, START_MACHINES_MESSDSReloadSocketRequestAGE_TYPE);
+		super(ws, START_MACHINES_MESSAGE_TYPE);
 	}
 
 	_getConfig() {
