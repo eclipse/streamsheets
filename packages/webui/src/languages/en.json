@@ -631,6 +631,7 @@
     "StreamChartProperties.DataZero": "Display as zero",
     "StreamChartProperties.DataIgnore": "Connect existing data points",
     "StreamChartProperties.DataInterrupt": "Interrupt line",
+    "StreamChartProperties.HideEmpty": "Hide Categories",
     "StreamChartProperties.Visible": "Visible",
     "StreamChartProperties.title": "Title",
     "StreamChartProperties.legend": "Legend",

@@ -755,6 +755,13 @@ export class StreamChartProperties extends Component {
 											defaultMessage="Interrupt line"
 										/>
 									</MenuItem>
+									{item.xAxes[0].type === 'category' ? (
+									<MenuItem value="hideempty" key={4}>
+										<FormattedMessage
+											id="StreamChartProperties.HideEmpty"
+											defaultMessage="Hide empty Categories"
+										/>
+									</MenuItem>) : null}
 								</Select>
 							</FormControl>
 							<FormControl

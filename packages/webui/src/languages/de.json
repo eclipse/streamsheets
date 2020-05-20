@@ -631,6 +631,7 @@
     "StreamChartProperties.DataZero": "Als Null darstellen",
     "StreamChartProperties.DataIgnore": "Vorhandene Werte verbinden",
     "StreamChartProperties.DataInterrupt": "Linie unterbrechen",
+    "StreamChartProperties.HideEmpty": "Kategorien ausblenden",
     "StreamChartProperties.Visible": "Sichtbar",
     "StreamChartProperties.title": "Titel",
     "StreamChartProperties.legend": "Legende",
