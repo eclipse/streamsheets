@@ -290,6 +290,16 @@ export default class SheetInteraction extends Interaction {
 
 					let optionsCnt = 0;
 
+					const option = document.createElement('option');
+					option.value = '';
+					option.hidden = true;
+					option.disabled = true;
+					option.text = 'selectanoption';
+					option.selected = true;
+					option.style.paddingTop = '5px';
+					option.style.paddingBottom = '5px';
+					selectList.appendChild(option);
+
 					if (termFunc.params.length) {
 						if (termFunc.params[0].operand && termFunc.params[0].operand._range) {
 							const options = termFunc.params[0].operand._range;
@@ -302,7 +312,7 @@ export default class SheetInteraction extends Interaction {
 										optionsCnt += 1;
 										option.value = value;
 										option.text = value;
-										option.selected = cell.getValue() === value;
+										// option.selected = cell.getValue() === value;
 										option.style.paddingTop = '5px';
 										option.style.paddingBottom = '5px';
 										selectList.appendChild(option);
