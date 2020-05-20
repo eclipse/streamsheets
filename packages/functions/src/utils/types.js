@@ -89,7 +89,8 @@ const asJSONWithFields = (value, config) => {
 			}
 		}
 		return record;
-	} else if (typeof value === 'string') {
+	}
+	if (typeof value === 'string') {
 		try {
 			const parsedValue = JSON.parse(value);
 			if (Array.isArray(parsedValue) || typeof parsedValue === 'object') {

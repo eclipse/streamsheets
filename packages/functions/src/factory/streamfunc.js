@@ -42,7 +42,8 @@ const validateValue = (value, config) => {
 const toValue = (term, config, sheet) => {
 	if (!config.type) {
 		return term;
-	} else if (isBoxFuncTerm(term)) {
+	}
+	if (isBoxFuncTerm(term)) {
 		// TODO check machine is present
 		const messageValue = messageFromBox(getMachine(sheet), sheet, term, false);
 		if (FunctionErrors.isError(messageValue)) return messageValue;
