@@ -49,23 +49,23 @@ class Scale extends Widget {
 
 		const nc = NotificationCenter.getInstance();
 		nc.register(this, ScrollPanel.SCROLL_NOTIFICATION);
-		nc.register(this, Scale.ZOOM_NOTIFICATION);
-		nc.register(this, GraphSettings.DISPLAY_MODE_NOTIFICATION);
+		nc.register(this, NotificationCenter.ZOOM_NOTIFICATION);
+		nc.register(this, NotificationCenter.DISPLAY_MODE_NOTIFICATION);
 	}
 
 	destroy() {
 		const nc = NotificationCenter.getInstance();
 		nc.unregister(this, ScrollPanel.SCROLL_NOTIFICATION);
-		nc.unregister(this, Scale.ZOOM_NOTIFICATION);
-		nc.unregister(this, GraphSettings.DISPLAY_MODE_NOTIFICATION);
+		nc.unregister(this, NotificationCenter.ZOOM_NOTIFICATION);
+		nc.unregister(this, NotificationCenter.DISPLAY_MODE_NOTIFICATION);
 	}
 
 
 	onNotification(notification) {
 		switch (notification.name) {
 		case ScrollPanel.SCROLL_NOTIFICATION:
-		case Scale.ZOOM_NOTIFICATION:
-		case GraphSettings.DISPLAY_MODE_NOTIFICATION:
+		case NotificationCenter.ZOOM_NOTIFICATION:
+		case NotificationCenter.DISPLAY_MODE_NOTIFICATION:
 			this._repaint = true;
 			break;
 		}
@@ -329,10 +329,6 @@ class Scale extends Widget {
 			steps.minor = steps.major + context.minorStep;
 		}
 		return steps;
-	}
-
-	static get ZOOM_NOTIFICATION() {
-		return 'grapheditor.zoom.notification';
 	}
 }
 

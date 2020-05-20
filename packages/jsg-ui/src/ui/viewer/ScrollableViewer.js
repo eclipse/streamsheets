@@ -479,7 +479,7 @@ class ScrollableViewer extends GraphViewer {
 
 		if (this.areNotificationsEnabled()) {
 			NotificationCenter.getInstance().send(
-				new Notification(GraphEditor.ZOOM_NOTIFICATION, this));
+				new Notification(NotificationCenter.ZOOM_NOTIFICATION, this));
 		}
 	}
 

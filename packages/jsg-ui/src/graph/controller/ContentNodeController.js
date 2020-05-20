@@ -5,7 +5,6 @@ import StreamSheetView from '../view/StreamSheetView';
 import WorksheetView from '../view/WorksheetView';
 import ContentPaneView from '../view/ContentPaneView';
 import ContentNodeView from '../view/ContentNodeView';
-import GraphEditor from '../../ui/GraphEditor';
 
 class ContentPaneController extends GraphItemController {
 	createFeedback() {
@@ -87,12 +86,12 @@ class ContentNodeController extends NodeController {
 		this._setContentPaneController(new ContentPaneController(contentPane));
 		this.getView().layout();
 		// we have to relayout ScrollView on zoom so:
-		NotificationCenter.getInstance().register(this, GraphEditor.ZOOM_NOTIFICATION, 'onZoom');
+		NotificationCenter.getInstance().register(this, NotificationCenter.ZOOM_NOTIFICATION, 'onZoom');
 	}
 
 	deactivate() {
 		super.deactivate();
-		NotificationCenter.getInstance().unregister(this, GraphEditor.ZOOM_NOTIFICATION);
+		NotificationCenter.getInstance().unregister(this, NotificationCenter.ZOOM_NOTIFICATION);
 	}
 
 	onZoom(notification) {

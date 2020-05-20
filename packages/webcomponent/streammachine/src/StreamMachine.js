@@ -227,13 +227,13 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 
 		window.addEventListener('resize', () => this.rescaleCanvas());
 
-		NotificationCenter.getInstance().register(this, JSG.GraphEditor.ZOOM_NOTIFICATION, 'onZoom');
+		NotificationCenter.getInstance().register(this, NotificationCenter.ZOOM_NOTIFICATION, 'onZoom');
 
 		this.triggerRescale();
 	}
 
 	disconnectedCallback() {
-		NotificationCenter.getInstance().unregister(this, JSG.GraphEditor.ZOOM_NOTIFICATION);
+		NotificationCenter.getInstance().unregister(this, NotificationCenter.ZOOM_NOTIFICATION);
 		if (this.graphEditor) {
 			this.graphEditor.destroy();
 			this.graphEditor = undefined;
