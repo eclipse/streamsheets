@@ -180,6 +180,16 @@ const NotificationCenter = (() => {
 
 	return {
 		/**
+		 * A global notification send on scroll events.
+		 *
+		 * @property SCROLL_NOTIFICATION
+		 * @type {String}
+		 * @static
+		 */
+		SCROLL_NOTIFICATION() {
+			return 'scrollpanel.scroll.notification';
+		},
+		/**
 		 * A global notification send on zoom level change.</br>
 		 * Refer to {{#crossLink "GraphEditor/setZoom:method"}}{{/crossLink}} for more information about zoom change and
 		 * to {{#crossLink "NotificationCenter"}}{{/crossLink}} for more information about

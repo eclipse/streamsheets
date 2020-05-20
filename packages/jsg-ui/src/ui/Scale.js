@@ -5,10 +5,8 @@ import {
 	NotificationCenter,
 	FormatAttributes,
 	Rectangle,
-	GraphSettings,
 	default as JSG
 } from '@cedalo/jsg-core';
-import ScrollPanel from './ScrollPanel';
 import Widget from './Widget';
 import RangeModel from './scrollview/RangeModel';
 import ScalableGraphics from './graphics/ScalableGraphics';
@@ -48,14 +46,14 @@ class Scale extends Widget {
 		this.getFormat().setLineStyle(FormatAttributes.LineStyle.NONE);
 
 		const nc = NotificationCenter.getInstance();
-		nc.register(this, ScrollPanel.SCROLL_NOTIFICATION);
+		nc.register(this, NotificationCenter.SCROLL_NOTIFICATION);
 		nc.register(this, NotificationCenter.ZOOM_NOTIFICATION);
 		nc.register(this, NotificationCenter.DISPLAY_MODE_NOTIFICATION);
 	}
 
 	destroy() {
 		const nc = NotificationCenter.getInstance();
-		nc.unregister(this, ScrollPanel.SCROLL_NOTIFICATION);
+		nc.unregister(this, NotificationCenter.SCROLL_NOTIFICATION);
 		nc.unregister(this, NotificationCenter.ZOOM_NOTIFICATION);
 		nc.unregister(this, NotificationCenter.DISPLAY_MODE_NOTIFICATION);
 	}
@@ -63,7 +61,7 @@ class Scale extends Widget {
 
 	onNotification(notification) {
 		switch (notification.name) {
-		case ScrollPanel.SCROLL_NOTIFICATION:
+		case NotificationCenter.SCROLL_NOTIFICATION:
 		case NotificationCenter.ZOOM_NOTIFICATION:
 		case NotificationCenter.DISPLAY_MODE_NOTIFICATION:
 			this._repaint = true;

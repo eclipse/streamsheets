@@ -17,7 +17,6 @@ import {
 import WorksheetView from '../view/WorksheetView';
 import CellEditor from '../view/CellEditor';
 import EditTextInteraction from './EditTextInteraction';
-import SheetInteraction from './SheetInteraction';
 import KeyEvent from '../../ui/events/KeyEvent';
 import Cursor from '../../ui/Cursor';
 
@@ -251,8 +250,6 @@ export default class EditCellInteraction extends EditTextInteraction {
 
 		this._controller = controller;
 		this._item = controller.getModel();
-		this._interaction = new SheetInteraction();
-		this._interaction.setInteractionHandler(this.getInteractionHandler());
 		this._newEdit = !(event.event.key === undefined || event.event.key === 'F2');
 
 		const canvas = viewer.getCanvas();

@@ -37,7 +37,7 @@ class Handler {
 			// notify one more time to signal pan stop... TODO should we use own (pan-)notifications? -> attention: we
 			// get scroll notifications too!!
 			NotificationCenter.getInstance().send(
-				new Notification(ScrollPanel.SCROLL_NOTIFICATION,
+				new Notification(NotificationCenter.SCROLL_NOTIFICATION,
 					this.viewer.getScrollPanel()));
 		}
 		this.isDragging = false;

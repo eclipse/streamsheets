@@ -1263,6 +1263,8 @@ export default class SheetInteraction extends Interaction {
 		const interaction = this.activateInteraction(new EditCellInteraction(), this);
 		interaction.setController(this._controller);
 		interaction.startEdit(this._controller, event, viewer);
+		interaction._interaction = new SheetInteraction();
+		interaction._interaction.setInteractionHandler(this.getInteractionHandler());
 		event.hasActivated = true;
 
 		return interaction;
