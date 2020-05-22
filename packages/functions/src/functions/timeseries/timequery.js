@@ -170,6 +170,10 @@ const getStoreTerm = (term) => {
 	term = getTargetTerm(term);
 	return term.name && term.name.toLowerCase() === 'timestore' ? term : undefined;
 };
+const setXValue = (term) => {
+	const cell = term && term.cell;
+	if (cell) cell.setCellInfo('xvalue', 'time');
+};
 
 const timeQuery = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -181,6 +185,7 @@ const timeQuery = (sheet, ...terms) =>
 		.mapNextArg((interval) => getInterval(interval))
 		.mapNextArg((range) => getRange(range))
 		.mapNextArg((limit) => getLimit(limit))
+		.beforeRun(() => setXValue(timeQuery.term))
 		.run((storeterm, queryjson, interval, range, limit) => {
 			const term = timeQuery.term;
 			const timestore = storeterm._timestore;
