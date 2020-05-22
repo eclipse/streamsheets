@@ -1,7 +1,7 @@
 // eslint-disable-next-line
 const GatewayClientWorker = require('./GatewayClientWorker');
 
-const logger = console;
+// const logger = console;
 
 const deletePendingRequest = (requestId, requests) => {
 	const request = requests.get(requestId);

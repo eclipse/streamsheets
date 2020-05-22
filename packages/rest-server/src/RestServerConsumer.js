@@ -46,6 +46,7 @@ module.exports = class RestServerConsumer extends ConsumerMixin(RestServerConnec
 			this._restServer.on(config.testTopic, (message) => {
 				const { metadata } = message;
 				if (metadata.topic === config.testTopic && message.example === config.message.example) {
+					// eslint-disable-next-line no-console
 					console.log(`receiving at: ${metadata.topic}`);
 					return res(true);
 				}

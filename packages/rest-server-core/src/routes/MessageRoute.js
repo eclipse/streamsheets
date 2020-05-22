@@ -72,7 +72,7 @@ module.exports = class MessageRoute {
 				})
 				.catch((error) => {
 					switch (error.type) {
-					case 'authorization': 
+					case 'authorization':
 						response.status(401).send('Authorization Required');
 						break;
 					default:
@@ -89,10 +89,9 @@ module.exports = class MessageRoute {
 		let parts = /\/v1.0\/(.*)/i.exec(path);
 		if (parts) {
 			return parts.length >= 2 ? parts[1] : '';
-		} else {
-			// new API,e.g., /request/cedalo/tests
-			parts = /\/(.*)/i.exec(path);
-			return parts.length >= 2 ? parts[1] : '';
 		}
+		// new API,e.g., /request/cedalo/tests
+		parts = /\/(.*)/i.exec(path);
+		return parts.length >= 2 ? parts[1] : '';
 	}
 };
