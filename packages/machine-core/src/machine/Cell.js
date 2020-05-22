@@ -173,6 +173,10 @@ class Cell {
 		return this;
 	}
 
+	setCellInfo(key, value) {
+		this._info[key] = value;
+	}
+
 	// called instead of evaluate after load. should fix references without changing value!
 	// with evaluate() e.g. A1+1 would become 2 instead of 1 !!!!
 	update() {
