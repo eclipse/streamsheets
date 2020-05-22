@@ -1427,7 +1427,16 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					let cMin = Number.MAX_VALUE;
 					let cMax = -Number.MAX_VALUE;
 					let valid = false;
+					serie.xHasString = false;
 
+					while (this.getValue(ref, pointIndex, value)) {
+						if (typeof value.x === 'string' && value.x.length) {
+							serie.xHasString = true;
+						}
+						pointIndex += 1;
+					}
+
+					pointIndex = 0;
 					while (this.getValue(ref, pointIndex, value)) {
 						if (Numbers.isNumber(value.x)) {
 							xMin = Math.min(value.x, xMin);
@@ -1520,10 +1529,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		this.xAxes.forEach((axis) => {
 			axis.minData = undefined;
 			axis.maxData = undefined;
+			axis.xHasString = false;
 			this.series.forEach((series) => {
 				if (series.visible && series.xAxis === axis.name) {
 					axis.minData = axis.minData === undefined ? series.xMin : Math.min(series.xMin, axis.minData);
 					axis.maxData = axis.maxData === undefined ? series.xMax : Math.max(series.xMax, axis.maxData);
+					axis.xHasString = series.xHasString || axis.xHasString;
 					if (series.type === 'bubble') {
 						axis.minData -= (axis.maxData - axis.minData) * 0.08;
 						axis.maxData += (axis.maxData - axis.minData) * 0.08;
@@ -1531,7 +1542,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				}
 			});
 			axis.valueCategories = [];
-			if (axis.type === 'category' && axis.hideEmptyCategories) {
+			if (axis.type === 'category' && this.chart._dataMode === 'hideempty') {
 				for (let i = 0; i <= axis.maxData; i+= 1) {
 					axis.valueCategories[i] = this.hasCategoryValue(axis, i);
 				}
@@ -2081,7 +2092,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		const seriesCnt = this.getVisibleSeries(serie.type);
 		if (axes.x.type === 'category') {
 			let barWidth;
-			const empty = axes.x.hideEmptyCategories ? this.getEmptyCategoryCount(axes.x) : 0;
+			const empty = this.chart._dataMode === 'hideempty' ? this.getEmptyCategoryCount(axes.x) : 0;
 			const value0 = -axes.x.scale.min / (axes.x.scale.max - axes.x.scale.min - empty);
 			const value1 = (1 - axes.x.scale.min) / (axes.x.scale.max - axes.x.scale.min - empty);
 			if (serie.type === 'bar') {
@@ -2249,7 +2260,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		} else if (ref.x) {
 			value.formatX = {};
 			value.x = this.getValueFromRange(ref.x.range, ref.x.sheet, index, value.formatX, true);
-			if (!Numbers.isNumber(value.x)) {
+			// if there is a text in the x values range
+			if (this.xAxes[0].xHasString) {
 				value.x = index + 1;
 			}
 		} else {
@@ -2324,7 +2336,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (!grid && axis.betweenTicks) {
 				value += 0.5;
 			}
-			if (axis.hideEmptyCategories) {
+			if (this.chart._dataMode === 'hideempty') {
 				const empty = this.getEmptyCategoryCount(axis);
 				value -= this.getEmptyCategoryCountIndex(axis, value);
 				value = (value - axis.scale.min) / (axis.scale.max - axis.scale.min - empty);
@@ -2377,7 +2389,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			break;
 		}
 
-		const empty = axes.x.hideEmptyCategories ? this.getEmptyCategoryCount(axes.x) : 0;
+		const empty = this.chart._dataMode === 'hideempty' ? this.getEmptyCategoryCount(axes.x) : 0;
 		let ret;
 
 		if (axes.x.align === 'bottom' || axes.x.align === 'top') {
@@ -2400,7 +2412,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			};
 		}
 
-		ret.x += axes.x.hideEmptyCategories ? this.getEmptyCategoryCountIndex(axes.x, ret.x) : 0;
+		ret.x += this.chart._dataMode === 'hideempty' ? this.getEmptyCategoryCountIndex(axes.x, ret.x) : 0;
 		ret.x -= (axes.x.betweenTicks ? 0.5 : 0);
 
 		return ret;
@@ -2449,7 +2461,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		}
 		case 'category':
 			while (start.value <= axis.scale.max) {
-				if (!axis.hideEmptyCategories || axis.valueCategories[start.value] !== false) {
+				if (!this.chart._dataMode === 'hideempty' || axis.valueCategories[start.value] !== false) {
 					break;
 				}
 				start.value = MathUtils.roundTo(start.value + axis.scale.step, 0);
@@ -2586,7 +2598,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		case 'category':
 			while (valueInfo.value <= axis.scale.max) {
 				valueInfo.value = MathUtils.roundTo(valueInfo.value + axis.scale.step, 0);
-				if (!axis.hideEmptyCategories || axis.valueCategories[valueInfo.value] !== false) {
+				if (!this.chart._dataMode === 'hideempty' || axis.valueCategories[valueInfo.value] !== false) {
 					break;
 				}
 			}

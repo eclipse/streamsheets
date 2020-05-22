@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const { decode } = require('../utils/utils');
 const trycatch = require('../utils/trycatch');
 const logger = require('../utils/logger').create({
@@ -657,6 +658,7 @@ class SetSheetCellsRequestHandler extends RequestHandler {
 		);
 	}
 }
+
 
 class DeleteCellsCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId, undo) {

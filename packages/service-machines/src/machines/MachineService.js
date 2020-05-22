@@ -161,7 +161,7 @@ module.exports = class MachineService extends MessagingService {
 			this._loadRunningMachines();
 		}
 	}
-	
+
 	async _handleResponseMessage(topic, message) {
 		switch (topic) {
 			case Topics.SERVICES_MACHINES_OUTPUT:
@@ -176,8 +176,8 @@ module.exports = class MachineService extends MessagingService {
 		switch (topic) {
 			case Topics.SERVICES_PERSISTENCE_INPUT:
 				switch (message.type) {
-					// eslint-disable-next-line no-case-declarations
 					case MachineServerMessagingProtocol.MESSAGE_TYPES.UPDATE_MACHINE_IMAGE_MESSAGE_TYPE:
+						// eslint-disable-next-line no-case-declarations
 						const { machineId, previewImage } = message;
 						if (previewImage !== null && typeof previewImage !== 'undefined') {
 							await RepositoryManager.machineRepository.updateMachinePreviewImage(
@@ -191,8 +191,8 @@ module.exports = class MachineService extends MessagingService {
 							type: 'response'
 						});
 						break;
-					// eslint-disable-next-line no-case-declarations
 					case MachineServerMessagingProtocol.MESSAGE_TYPES.UPDATE_MACHINE_TITLE_IMAGE_MESSAGE_TYPE:
+						// eslint-disable-next-line no-case-declarations
 						const { titleImage } = message;
 						if (titleImage !== null && typeof titleImage !== 'undefined') {
 							await RepositoryManager.machineRepository.updateMachineTitleImage(

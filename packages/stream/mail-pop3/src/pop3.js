@@ -13,6 +13,7 @@ const create = async (config) => {
 		try {
 			const connection = await client.connect();
 			await connection.login(username, password);
+			// eslint-disable-next-line no-console
 			connection.on('error', (e) => { console.error(e); });
 			state.connection = connection;
 			return connection;

@@ -5,7 +5,7 @@ const create = (conf = {}) => {
 	err.code = err.code || -1;
 	err.name = err.name || '';
 	err.message = err.message || '';
-	err.index = err.index;
+	// err.index = err.index;
 	return err;
 };
 

@@ -100,7 +100,8 @@ class Provider {
 		}
 		if (config.className === ConsumerConfiguration.name) {
 			return this.provideConsumer(config);
-		} else if (config.className === ProducerConfiguration.name) {
+		}
+		if (config.className === ProducerConfiguration.name) {
 			return this.provideProducer(config);
 		}
 		return this.handleError(

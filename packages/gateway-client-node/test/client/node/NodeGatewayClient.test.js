@@ -42,6 +42,7 @@ const MACHINE_SERVER_AND_GRAPH_SERVER_NOT_CONNECTED = 'MACHINE_SERVER_AND_GRAPH_
 
 const TEMPLATE_ID = 'sim_machine';
 
+// eslint-disable-next-line
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
 
 describe('GatewayClient', () => {
