@@ -845,10 +845,12 @@ module.exports = class StreamSheet extends WorksheetNode {
 						break;
 					}
 					case 'bezier':
-						break;
 					case 'polygon':
+						if (drawItem.close !== undefined) {
+							node.getItemAttributes().setClosed(drawItem.close);
+						}
 						if (drawItem.range && drawItem.range !== '') {
-							const pointRange = CellRange.parse(drawItem.range, this, false);
+							const pointRange = CellRange.parse(drawItem.range, this);
 							const data = this.getDataProvider();
 							if (pointRange === undefined || pointRange.getWidth() !== 2) {
 								break;
@@ -877,18 +879,16 @@ module.exports = class StreamSheet extends WorksheetNode {
 								coors.push(coor);
 							}
 							shape.setCoordinates(coors);
-						}
-						if (drawItem.close !== undefined) {
-							node.getItemAttributes().setClosed(drawItem.close);
+							node.evaluate();
+							if (drawItem.type === 'bezier') {
+								shape._cpToCoordinates = [];
+								shape._cpFromCoordinates = [];
+								shape.getBezierPoints(shape.getPoints());
+							}
 						}
 						break;
 					case 'plot':
 						break;
-					// case 'chart':
-					// 	node.setDataRangeString(drawItem.range ? `=${drawItem.range}` : '');
-					// 	node.setFormatDataRangeString(drawItem.formatrange ? `=${drawItem.formatrange}` : '');
-					// 	node.setChartType(drawItem.charttype);
-					// 	break;
 					case 'checkbox':
 					case 'button':
 						this.setFontFormat(node.getTextFormat(), drawItem.font);

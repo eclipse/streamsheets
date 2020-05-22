@@ -126,6 +126,18 @@ module.exports = {
 				description: 'Erzeugt ein Polygon mit den angegebenen Koordinaten'
 			}
 		},
+		'DRAW.BEZIER': {
+			en: {
+				argumentList:
+					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,PointRange,Close',
+				description: 'Creates a bezier within the given drawing using proportional coordinates'
+			},
+			de: {
+				argumentList:
+					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,PunkteBereich,Schließen',
+				description: 'Erzeugt eine Bezier Kurve mit den angegebenen Koordinaten'
+			}
+		},
 		'DRAW.RECTANGLE': {
 			en: {
 				argumentList:

@@ -38,6 +38,7 @@ module.exports = {
 		'DRAW.PLOT': Functions['DRAW.PLOT'],
 		'DRAW.STREAMCHART': Functions['DRAW.STREAMCHART'],
 		'DRAW.POLYGON': Functions['DRAW.POLYGON'],
+		'DRAW.BEZIER': Functions['DRAW.BEZIER'],
 		'DRAW.RECTANGLE': Functions['DRAW.RECTANGLE'],
 		'DRAW.SLIDER': Functions['DRAW.SLIDER'],
 		EVENTS,
