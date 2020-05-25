@@ -638,6 +638,7 @@
     "StreamChartProperties.tooltips": "Tooltips",
     "StreamChartProperties.Rotation": "Rotation",
     "StreamChartProperties.InvalidAngle": "Angle must be between 0 and 90 degrees!",
+    "StreamChartProperties.InvalidAngleAxis": "Angle must be between -90 and 90 degrees!",
     "StreamChartProperties.DoughnutHole": "Doughnut Hole",
     "StreamChartProperties.InvalidDoughnutHole": "The hole value must be between 0 and 80 percent!",
     "StreamChartProperties.StartAngle": "Pie Start",

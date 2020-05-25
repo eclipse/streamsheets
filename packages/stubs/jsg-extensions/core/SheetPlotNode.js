@@ -1182,7 +1182,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 	isTimeBasedCell(cell) {
 		// if and only if cell has time values...
-		return cell && cell._info && cell._info.values && cell._info.values.time != null ? cell : undefined;
+		return cell && cell._info && cell._info.xvalue ? cell : undefined;
 	}
 
 	isTimeBasedRange(sheet, range) {
@@ -2172,7 +2172,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 		}
 
-		return label;
+		return label || '';
 	}
 
 	validate(val, allowString) {
@@ -3874,24 +3874,23 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				const cmd = this.prepareCommand('series');
 				taRange.enumerateCells(true, (pos) => {
 					const cell = data.get(pos);
-					const expr = cell.getExpression();
-					const values = cell.values;
-					if (expr && values && values.time) {
-						const source = new CellRange(taRange.getSheet(), pos.x, pos.y);
-						source.shiftToSheet();
-						const ref = source.toString({ item: sheet, useName: true });
-						const xValue = cell.xvalue;
-						let seriesLabel;
-						if (colSeriesLabels) {
-							const labels = new CellRange(taRange.getSheet(), pos.x - 1, pos.y);
-							labels.shiftToSheet();
-							seriesLabel = labels.toString({ item: sheet, useName: true });
-						} else if (rowSeriesLabels) {
-							const labels = new CellRange(taRange.getSheet(), pos.x, pos.y - 1);
-							labels.shiftToSheet();
-							seriesLabel = labels.toString({ item: sheet, useName: true });
-						}
+					const source = new CellRange(taRange.getSheet(), pos.x, pos.y);
+					source.shiftToSheet();
+					const ref = source.toString({ item: sheet, useName: true });
+					const xValue = cell.xvalue;
+					let seriesLabel;
+					if (colSeriesLabels) {
+						const labels = new CellRange(taRange.getSheet(), pos.x - 1, pos.y);
+						labels.shiftToSheet();
+						seriesLabel = labels.toString({ item: sheet, useName: true });
+					} else if (rowSeriesLabels) {
+						const labels = new CellRange(taRange.getSheet(), pos.x, pos.y - 1);
+						labels.shiftToSheet();
+						seriesLabel = labels.toString({ item: sheet, useName: true });
+					}
 
+					const values = cell.values;
+					if (values && values.time) {
 						const fields = Object.keys(values);
 						for (let i = 0; i < fields.length; i += 1) {
 							const key = fields[i];
@@ -3919,13 +3918,16 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 								}
 							}
 						}
-						if (xValue === 'time') {
-							if (type === 'scatter' || type === 'bubble') {
-								this.xAxes[0].type = 'time';
-							} else {
-								this.xAxes[0].format.localCulture = `time;en`;
-								this.xAxes[0].format.numberFormat = 'h:mm:ss';
-							}
+					} else {
+						formula = `SERIESTIME("${xValue}",,${ref},"${xValue}","value")`;
+						createSeries(type, formula, markers, line);
+					}
+					if (xValue === 'time') {
+						if (type === 'scatter' || type === 'bubble') {
+							this.xAxes[0].type = 'time';
+						} else {
+							this.xAxes[0].format.localCulture = `time;en`;
+							this.xAxes[0].format.numberFormat = 'h:mm:ss';
 						}
 					}
 				});

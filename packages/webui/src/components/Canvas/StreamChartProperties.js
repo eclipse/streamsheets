@@ -624,6 +624,11 @@ export class StreamChartProperties extends Component {
 
 	isHorizontalChart() {
 		const item = this.state.plotView.getItem();
+
+		if (item.series.length === 0) {
+			return false;
+		}
+
 		const serie = item.series[0];
 
 		return serie.type === 'bar' || serie.type === 'profile';
@@ -1488,6 +1493,17 @@ export class StreamChartProperties extends Component {
 										)
 									}}
 									value={data.format.fontRotation === undefined ? 0 : data.format.fontRotation}
+									error={data.format.fontRotation > 90 || data.format.fontRotation < -90}
+									helperText={
+										data.format.fontRotation > 90 || data.format.fontRotation < -90 ? (
+											<FormattedMessage
+												id="StreamChartProperties.InvalidAngleAxis"
+												defaultMessage="Angle must be between -90 and 90 degrees!"
+											/>
+										) : (
+											''
+										)
+									}
 									onChange={(event) => this.handleAxisLabelRotationChange(event)}
 									type="number"
 									margin="normal"

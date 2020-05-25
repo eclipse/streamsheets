@@ -1172,23 +1172,27 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					case 'column':
 						if (value.x !== undefined && value.y !== undefined) {
 							barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
-							graphics.rect(
-								pt.x + barInfo.offset,
-								pt.y,
-								barWidth - barInfo.margin,
-								-barInfo.height * plotRect.height
-							);
+							if (barInfo.height) {
+								graphics.rect(
+									pt.x + barInfo.offset,
+									pt.y,
+									barWidth - barInfo.margin,
+									-barInfo.height * plotRect.height
+								);
+							}
 						}
 						break;
 					case 'bar':
 						if (value.x !== undefined && value.y !== undefined) {
 							barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
-							graphics.rect(
-								pt.x,
-								pt.y + barInfo.offset,
-								barInfo.height * plotRect.width,
-								barWidth - barInfo.margin
-							);
+							if (barInfo.height) {
+								graphics.rect(
+									pt.x,
+									pt.y + barInfo.offset,
+									barInfo.height * plotRect.width,
+									barWidth - barInfo.margin
+								);
+							}
 						}
 						break;
 					default:
