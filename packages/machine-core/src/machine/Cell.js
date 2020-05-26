@@ -33,8 +33,8 @@ const evaluate = (cell, newValue) => {
 
 // DL-4113 prevent displaying values like [object Object]...
 const valueDescription = (value) => {
-	const descr = isType.object(value) ? value.toString() : value;
-	return descr === '[object Object]' ? CELL_VALUE_REPLACEMENT : descr;
+	const descr = isType.object(value) ? value.toString() : `${value}`;
+	return descr.startsWith('[object Object]') ? CELL_VALUE_REPLACEMENT : descr;
 };
 
 const refStrings = (references) => references.map((r) => r.toString());
