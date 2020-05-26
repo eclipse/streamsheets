@@ -24,8 +24,16 @@ const evaluate = (cell, newValue) => {
 		cell._cellValue = undefined;
 	} else {
 		const term = cell._term;
-		cell._value = term ? checkTermValue(term) : checkNaN(cell._value);
-		cell._cellValue = term && term.cellValue != null ? checkNaN(term.cellValue) : undefined;
+		if (term) {
+			// if term cellValue marks an error => cell value returns an error (DL-4131)
+			const cellValue = term.cellValue;
+			const error = FunctionErrors.isError(cellValue);
+			cell._value = error || checkTermValue(term);
+			cell._cellValue = error || (cellValue != null ? checkNaN(term.cellValue) : undefined);
+		} else {
+			cell._value = checkNaN(cell._value);
+			cell._cellValue = undefined;
+		}
 	}
 	// DL-4088: treat error as false for if columns => should we generally return only true/false for IF
 	if (cell.col === -1 && FunctionErrors.isError(cell._value)) cell._value = false;
@@ -33,8 +41,11 @@ const evaluate = (cell, newValue) => {
 
 // DL-4113 prevent displaying values like [object Object]...
 const valueDescription = (value) => {
-	const descr = isType.object(value) ? value.toString() : `${value}`;
-	return descr.startsWith('[object Object]') ? CELL_VALUE_REPLACEMENT : descr;
+	if (isType.object(value)) {
+		const descr = value.toString();
+		return descr.startsWith('[object Object]') ? CELL_VALUE_REPLACEMENT : descr;
+	}
+	return value;
 };
 
 const refStrings = (references) => references.map((r) => r.toString());
