@@ -91,6 +91,11 @@ export default class SheetActivator extends InteractionActivator {
 					break;
 				}
 				default:
+					if (event.event.type === 'panstart') {
+						const interaction = this.activateInteraction(new SheetInteraction(), dispatcher);
+						interaction._controller = this._controller;
+						// interaction._hitCode = this._hitCode;
+					}
 					break;
 			}
 			event.isConsumed = true;

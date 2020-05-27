@@ -1021,7 +1021,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 			type = 'streamchart';
 		}
 
-		const graph = this.getGraph();
 		let formula = `DRAW.${type.toUpperCase()}("${item.getId()}",`;
 
 		if (item.getParent() instanceof CellsNode) {
@@ -1092,10 +1091,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 		formula += ')';
 
-		// const attr = new Attribute('sheetformula', new Expression(0, formula));
-		// item.getItemAttributes().addAttribute(attr);
-		// attr.evaluate(item);
-		//
 		return formula;
 	}
 

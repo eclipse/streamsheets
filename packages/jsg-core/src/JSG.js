@@ -331,7 +331,6 @@ JSG.debug = {
 	DRAW_ITEM_CENTER: false,
 	DUMP_CACHE_COUNTS: false,
 	DUMP_CACHE_SIZE: false,
-	USE_DOC_DISPATCHER: true,
 	LOG_CACHE_WARNINGS: false,
 
 	log(message, flag = this._isActive) {

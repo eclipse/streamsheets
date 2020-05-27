@@ -179,7 +179,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 			if (!event.isClicked(MouseEvent.ButtonType.RIGHT)) {
 				interaction.onMouseDown(event, viewer);
 			}
-			if (view.chartSelection === undefined && hit.element !== 'series' && hit.element !== 'plot') {
+			if (view.chartSelection === undefined && !interaction.isPlotHit(event, viewer)) {
 				const interactionHandler = viewer.getInteractionHandler();
 				interactionHandler.setActiveInteraction(interactionHandler.getDefaultInteraction());
 			} else {

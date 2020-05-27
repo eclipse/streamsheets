@@ -51,6 +51,10 @@ export default class SheetInteraction extends Interaction {
 		this._dragTimer = undefined;
 	}
 
+	isUsingPan() {
+		return true;
+	}
+
 	deactivate(viewer) {
 		super.deactivate(viewer);
 
@@ -1311,6 +1315,26 @@ export default class SheetInteraction extends Interaction {
 
 	static get SHEET_SHOW_CONTEXT_MENU_NOTIFICATION() {
 		return SHEET_SHOW_CONTEXT_MENU_NOTIFICATION;
+	}
+
+	onPanEnd(event, viewer) {
+		this._ptPanStart = undefined;
+	}
+
+	onPan(event, viewer) {
+		const view = this._controller.getView();
+		const scrollView = view.getScrollView();
+		const cs = viewer.getCoordinateSystem();
+		const pt = new Point(0, 0);
+
+		if (!this._ptPanStart) {
+			this._ptPanStart = view.getScrollView().getScrollPosition();
+		}
+
+		pt.x = this._ptPanStart.x - cs.deviceToLogXNoZoom(event.event.deltaX);
+		pt.y = this._ptPanStart.y - cs.deviceToLogYNoZoom(event.event.deltaY);
+
+		scrollView.setScrollPositionTo(pt);
 	}
 
 	onPaste(event, viewer) {

@@ -13,15 +13,6 @@ export default class SheetPlotInteraction extends Interaction {
 		super();
 
 		this._controller = undefined;
-		this._feedback = undefined;
-	}
-
-	deactivate(viewer) {
-		viewer.removeInteractionFeedback(this._feedback);
-
-		this._feedback = undefined;
-
-		super.deactivate(viewer);
 	}
 
 	onKeyDown(event, viewer, dispatcher) {
@@ -213,6 +204,7 @@ export default class SheetPlotInteraction extends Interaction {
 				viewer.getGraph().markDirty();
 				event.doRepaint = true;
 			}
+			view.endPoint = undefined;
 		}
 
 		super.onMouseUp(event, viewer);

@@ -33,20 +33,18 @@ class GestureEvent extends ClientEvent {
 		// }
 
 		switch (type) {
-		case GestureEvent.GestureEventType.DRAGSTART:
 		case GestureEvent.GestureEventType.TAPDOWN:
 			if (gesture.pointers.length > 1) {
 				return undefined;
 			}
 			event.type = MouseEvent.MouseEventType.DOWN;
 			break;
-		case GestureEvent.GestureEventType.DRAG:
+		case GestureEvent.GestureEventType.TOUCHMOVE:
 			if (gesture.pointers.length > 1) {
 				return undefined;
 			}
 			event.type = MouseEvent.MouseEventType.MOVE;
 			break;
-		case GestureEvent.GestureEventType.DRAGEND:
 		case GestureEvent.GestureEventType.TAPUP:
 			if (gesture.pointers.length > 1) {
 				return undefined;
@@ -109,9 +107,9 @@ class GestureEvent extends ClientEvent {
 
 			ClientEvent.windowLocation.set(touch.pageX, touch.pageY);
 		} else {
-			this.location.set(event.event.changedTouches[0].clientX - event.canvasRect.left - root.scrollLeft,
-				event.event.changedTouches[0].clientY - event.canvasRect.top - root.scrollTop);
-			ClientEvent.windowLocation.set(event.event.changedTouches[0].pageX, event.event.changedTouches[0].pageY);
+			event.location.set(event.event.changedPointers[0].clientX - event.canvasRect.left - root.scrollLeft,
+				event.event.changedPointers[0].clientY - event.canvasRect.top - root.scrollTop);
+			ClientEvent.windowLocation.set(event.event.changedPointers[0].pageX, event.event.changedPointers[0].pageY);
 		}
 
 		// touch event consumes all others:
@@ -174,15 +172,6 @@ class GestureEvent extends ClientEvent {
 		let str;
 
 		switch (type) {
-		case GestureEvent.GestureEventType.DRAGSTART:
-			str = 'drag_start';
-			break;
-		case GestureEvent.GestureEventType.DRAG:
-			str = 'drag';
-			break;
-		case GestureEvent.GestureEventType.DRAGEND:
-			str = 'drag_end';
-			break;
 		case GestureEvent.GestureEventType.TAPDOWN:
 			str = 'tapdown';
 			break;
@@ -194,15 +183,6 @@ class GestureEvent extends ClientEvent {
 			break;
 		case GestureEvent.GestureEventType.CANCEL:
 			str = 'cancel';
-			break;
-		case GestureEvent.GestureEventType.TRANSFORMSTART:
-			str = 'transform_start';
-			break;
-		case GestureEvent.GestureEventType.TRANSFORM:
-			str = 'transform';
-			break;
-		case GestureEvent.GestureEventType.TRANSFORMEND:
-			str = 'transform_end';
 			break;
 		case GestureEvent.GestureEventType.PINCHSTART:
 			str = 'pinch_start';
@@ -265,36 +245,6 @@ class GestureEvent extends ClientEvent {
 			 * @property {Number} CANCEL
 			 */
 			CANCEL: 2 ** 10,
-			/**
-			 * Gesture drag start event.
-			 * @property {Number} DRAGSTART
-			 */
-			DRAGSTART: 2 ** 11,
-			/**
-			 * Gesture drag event.
-			 * @property {Number} DRAG
-			 */
-			DRAG: 2 ** 12,
-			/**
-			 * Gesture drag end event.
-			 * @property {Number} DRAGEND
-			 */
-			DRAGEND: 2 ** 13,
-			/**
-			 * Gesture transform start event.
-			 * @property {Number} TRANSFORMSTART
-			 */
-			TRANSFORMSTART: 2 ** 14,
-			/**
-			 * Gesture transform event.
-			 * @property {Number} TRANSFORM
-			 */
-			TRANSFORM: 2 ** 15,
-			/**
-			 * Gesture transform end event.
-			 * @property {Number} TRANSFORMEND
-			 */
-			TRANSFORMEND: 2 ** 16,
 			/**
 			 * Tap down event.
 			 * @property {Number} TAPDOWN
@@ -369,7 +319,9 @@ class GestureEvent extends ClientEvent {
 			 * General touch event.
 			 * @property {Number} TOUCH
 			 */
-			TOUCH: 2 ** 31
+			TOUCH: 2 ** 31,
+			// just so simulate move
+			TOUCHMOVE: 2 ** 32
 		};
 	}
 };
