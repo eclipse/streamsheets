@@ -57,33 +57,25 @@ module.exports = class KafkaConsumer extends ConsumerMixin(KafkaConnector) {
 				this.logger.error(e);
 			}
 		}
-		const stopics = this.topics.map(async (t) => {
-			try {
-				if (t) {
-					this.logger.debug(`topic: ${t}`);
-					await this._consumer.subscribe({ topic: t });
-					await this._consumer.run({
-						autoCommitThreshold: 100,
-						eachMessage: async ({ topic, partition, message }) => {
-							const { headers, offset, timestamp, key } = message;
-							//   const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`
-							//   this.logger.debug(`- ${prefix} ${message.key}#${message.value}`);
-							// this.logger.debug(JSON.stringify(message));
-							// this.config.offset = message.offset;
-							// this.logger.debug(message.offset);
-							this.onMessage(topic, message.value, {
-								transportDetails: { key: key && key.toString(), partition, offset, headers, timestamp }
-							});
-							// this.save();
-						}
-					});
-				}
-			} catch (e) {
-				this.handleError(e);
-			}
-		});
+		const pendingSubscribes = this.topics.filter((t) => !!t).map((t) => this._consumer.subscribe({ topic: t }));
 
-		return Promise.all(stopics);
+		try {
+			await Promise.all(pendingSubscribes);
+			await this._consumer.run({
+				autoCommitThreshold: 100,
+				eachMessage: async ({ topic, partition, message }) => {
+					const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`;
+					this.logger.debug(`- ${prefix} ${message.key}#${message.value}`);
+					// this.logger.debug(JSON.stringify(message));
+					// this.config.offset = message.offset;
+					// this.logger.debug(message.offset);
+					this.onMessage(topic, message.value);
+					// this.save();
+				}
+			});
+		} catch (e) {
+			this.handleError(e);
+		}
 	}
 
 	async setOffsetCommandRun() {
