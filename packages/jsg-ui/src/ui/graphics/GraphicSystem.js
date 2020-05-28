@@ -48,21 +48,10 @@ class GraphicSystem {
 		}
 
 		this.graphics = new ScalableGraphics(this.canvas, cs);
-		// this.root = new View();
 
 		// paint-repaint context:
 		this._context = {
 			isPainting: false
-		};
-
-		const cancelInteraction = (event) => {
-			if (this.interactionHandler) {
-				const interaction = this.interactionHandler.getActiveInteraction();
-				if (interaction instanceof CreateItemInteraction) {
-					interaction.cancelInteraction(event, this.interactionHandler.viewer);
-					this.paint();
-				}
-			}
 		};
 
 		const setTouchMode = (flag) => {
@@ -71,8 +60,6 @@ class GraphicSystem {
 			JSG.portFindRadius = flag ? 400 : 200;
 			SelectionStyle.MARKER_SIZE = 200;
 			SelectionStyle.ROTATE_MARKER_DISTANCE = 800;
-			// SelectionStyle.MARKER_SIZE = flag ? 450 : 200;
-			// SelectionStyle.ROTATE_MARKER_DISTANCE = flag ? 1200 : 800;
 		};
 
 		const notifyPasteEvent = (ev) => {
@@ -93,9 +80,9 @@ class GraphicSystem {
 		};
 
 		const notifyGestureEvent = (ev) => {
-			ev.location.x = this.graphics.getCoordinateSystem().deviceToLogX(ev.location.x);
-			ev.location.y = this.graphics.getCoordinateSystem().deviceToLogY(ev.location.y);
-
+			// ev.location.x = this.graphics.getCoordinateSystem().deviceToLogX(ev.location.x);
+			// ev.location.y = this.graphics.getCoordinateSystem().deviceToLogY(ev.location.y);
+			//
 			setTouchMode(ev.gesture.pointerType === 'touch');
 
 			if (this.interactionHandler) {
@@ -127,10 +114,11 @@ class GraphicSystem {
 		};
 
 		const onTouchCancel = (event) => {
-			const me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.CANCEL);
-
-			notifyGestureEvent(me);
-			this.paint();
+			const me = this.createGestureEvent(event, GestureEvent.GestureEventType.CANCEL);
+			if (me) {
+				notifyGestureEvent(me);
+				this.paint();
+			}
 		}
 
 		const onTouchHold = (event) => {
@@ -145,25 +133,23 @@ class GraphicSystem {
 				return;
 			}
 
-			let me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.TOUCHMOVE);
+			let me = this.createGestureEvent(event, GestureEvent.GestureEventType.TOUCHMOVE);
 			if (me) {
 				notifyGestureEvent(me);
 			}
 
 			if (!this._press && this.interactionHandler) {
 				const interaction = this.interactionHandler.getActiveInteraction();
-				if (interaction && interaction.isUsingPan()) {
-					me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.PANSTART);
-					if (me) {
-						notifyGestureEvent(me);
-						this.paint();
-					}
+				me = this.createGestureEvent(event, GestureEvent.GestureEventType.PANSTART);
+				if (me && interaction && interaction.isUsingPan(me, this.interactionHandler.viewer)) {
+					notifyGestureEvent(me);
+					this.paint();
 					return;
 				}
 			}
 
 			if (!this._press) {
-				me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.TAPDOWN);
+				me = this.createGestureEvent(event, GestureEvent.GestureEventType.TAPDOWN);
 				if (me) {
 					notifyGestureEvent(me);
 					this.paint();
@@ -178,17 +164,15 @@ class GraphicSystem {
 
 			if (!this._press && this.interactionHandler) {
 				const interaction = this.interactionHandler.getActiveInteraction();
-				if (interaction && interaction.isUsingPan()) {
-					const me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.PAN);
-					if (me) {
-						notifyGestureEvent(me);
-						this.paint();
-					}
+				const me = this.createGestureEvent(event, GestureEvent.GestureEventType.PAN);
+				if (me && interaction && interaction.isUsingPan(me, this.interactionHandler.viewer)) {
+					notifyGestureEvent(me);
+					this.paint();
 					return;
 				}
 			}
 
-			const me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.TOUCHMOVE);
+			const me = this.createGestureEvent(event, GestureEvent.GestureEventType.TOUCHMOVE);
 			if (me) {
 				notifyGestureEvent(me);
 				this.paint();
@@ -202,21 +186,19 @@ class GraphicSystem {
 
 			if (!this._press && this.interactionHandler) {
 				const interaction = this.interactionHandler.getActiveInteraction();
-				if (interaction && interaction.isUsingPan()) {
-					const me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.PANEND);
-					if (me) {
-						notifyGestureEvent(me);
-						this.paint();
-					}
+				const me = this.createGestureEvent(event, GestureEvent.GestureEventType.PANEND);
+				if (me && interaction && interaction.isUsingPan(me, this.interactionHandler.viewer)) {
+					notifyGestureEvent(me);
+					this.paint();
 					return;
 				}
 			}
 
-			const me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.TAPUP);
+			const me = this.createGestureEvent(event, GestureEvent.GestureEventType.TAPUP);
 			if (me) {
 				notifyGestureEvent(me);
+				this.paint();
 			}
-			this.paint();
 			this._press = false;
 		}
 
@@ -224,17 +206,16 @@ class GraphicSystem {
 			if (event.pointerType === 'mouse') {
 				return;
 			}
-			let me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.TOUCHMOVE);
+			let me = this.createGestureEvent(event, GestureEvent.GestureEventType.TOUCHMOVE);
 			if (me) {
 				notifyGestureEvent(me);
 			}
-			me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.TAPDOWN);
+			me = this.createGestureEvent(event, GestureEvent.GestureEventType.TAPDOWN);
 			if (me) {
 				notifyGestureEvent(me);
+				this.paint();
 			}
 			this._press = true;
-
-			this.paint();
 		}
 
 		const onTouchTap = (event) => {
@@ -242,15 +223,15 @@ class GraphicSystem {
 				return;
 			}
 			if (event.tapCount === 1) {
-				let me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.TOUCHMOVE);
+				let me = this.createGestureEvent(event, GestureEvent.GestureEventType.TOUCHMOVE);
 				if (me) {
 					notifyGestureEvent(me);
 				}
-				me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.TAPDOWN);
+				me = this.createGestureEvent(event, GestureEvent.GestureEventType.TAPDOWN);
 				if (me) {
 					notifyGestureEvent(me);
 				}
-				me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.TAPUP);
+				me = this.createGestureEvent(event, GestureEvent.GestureEventType.TAPUP);
 				if (me) {
 					notifyGestureEvent(me);
 				}
@@ -265,29 +246,35 @@ class GraphicSystem {
 				return;
 			}
 			if (event.tapCount === 2) {
-				const me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.DBLTAP);
+				const me = this.createGestureEvent(event, GestureEvent.GestureEventType.DBLTAP);
 				if (me) {
 					notifyGestureEvent(me);
 				}
 			}
 		}
 
+		const onTouchPinchStart = () => {}
+
 		const onTouchPinch = (event) => {
-			// let me;
-			//
-			// if (this.currentEvent === GestureEvent.GestureEventType.PINCH) {
-			// 	JSG.debug.log('Pinch');
-			// 	me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.PINCH);
-			// } else if (this.currentEvent === 0) {
-			// 	JSG.debug.log('PinchStart');
-			// 	this.currentEvent = GestureEvent.GestureEventType.PINCH;
-			// 	me = GestureEvent.fromEvent(this, event, GestureEvent.GestureEventType.PINCHSTART);
-			// }
-			//
-			// if (me) {
-			// 	notifyGestureEvent(me);
-			// 	this.paint();
-			// }
+			if (event.pointerType === 'mouse') {
+				return;
+			}
+
+			if (!this._pinStartZoom) {
+				this._pinStartZoom = this.interactionHandler.viewer.getZoom();
+			}
+			const zoom = this._pinStartZoom * event.scale;
+			if (zoom >= 0.5 && zoom <= 2) {
+				this.interactionHandler.viewer.setZoom(zoom);
+			}
+		}
+
+		const onTouchPinchEnd = (event) => {
+			if (event.pointerType === 'mouse') {
+				return;
+			}
+
+			this._pinStartZoom = undefined;
 		}
 
 		const onDragEnter = (event) => {
@@ -351,7 +338,7 @@ class GraphicSystem {
 			// right-click to show a context-menu is handled by onContextMenu!!
 			notifyMouseEvent(me);
 			this.paint();
-			// }
+
 			if (!me.keepFocus) {
 				this.canvas.focus();
 			}
@@ -381,8 +368,6 @@ class GraphicSystem {
 				notifyMouseEvent(me);
 				this.paint();
 			}
-
-			// cancelInteraction(me);
 		};
 
 		const onMouseGet = () => {
@@ -459,7 +444,9 @@ class GraphicSystem {
 		handler.on('tap', onTouchTap);
 		handler.on('doubletap', onTouchDoubleTap);
 		// handler.on('hold', onTouchHold);
-		handler.on('pinch', onTouchPinch);
+		handler.on('pinchstart', onTouchPinchStart);
+		handler.on('pinchmove', onTouchPinch);
+		handler.on('pinchend', onTouchPinchEnd);
 		handler.on('press', onTouchPress);
 
 		handler.get('pan').set({ direction: Hammer.DIRECTION_ALL });
@@ -497,6 +484,9 @@ class GraphicSystem {
 				handler.off('panstart', onTouchPanStart);
 				handler.off('panmove', onTouchPan);
 				handler.off('panend', onTouchPanEnd);
+				handler.off('pinchstart', onTouchPinchStart);
+				handler.off('pinchmove', onTouchPinch);
+				handler.off('pinchend', onTouchPinchEnd);
 				handler.off('tap', onTouchTap);
 				handler.off('doubletap', onTouchDoubleTap);
 				// handler.off('hold', onTouchHold);
@@ -542,16 +532,6 @@ class GraphicSystem {
 	 */
 	getGraphics() {
 		return this.graphics;
-	}
-
-	/**
-	 * Returns the current graphics context. This is the native canvas context2D object.
-	 *
-	 * @method getGraphicsContext
-	 * @return The graphics 2D Canvas context.
-	 */
-	getGraphicsContext() {
-		return this.graphics.getContext();
 	}
 
 	/**
@@ -701,6 +681,15 @@ class GraphicSystem {
 		const me = MouseEvent.fromEvent(this.canvas,  event, type);
 		me.cs = this.graphics.getCoordinateSystem();
 		me.location.set(me.cs.deviceToLogX(me.location.x), me.cs.deviceToLogY(me.location.y));
+		return me;
+	}
+
+	createGestureEvent( event, type) {
+		const me = GestureEvent.fromEvent(this, event, type);
+		if (me) {
+			me.cs = this.graphics.getCoordinateSystem();
+			me.location.set(me.cs.deviceToLogX(me.location.x), me.cs.deviceToLogY(me.location.y));
+		}
 		return me;
 	}
 

@@ -1351,6 +1351,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			};
 
 			result.format = this.getParamFormat(term, 0);
+			result.minZoom = result.minZoom === '' ? undefined : result.minZoom;
+			result.maxZoom = result.maxZoom === '' ? undefined : result.maxZoom;
 
 			if (result.minZoom !== undefined && this.getAllowZoom(axis)) {
 				result.min = result.minZoom;
@@ -1416,7 +1418,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (serie.visible) {
 				const ref = this.getDataSourceInfo(serie.formula);
 				const axes = this.getAxes(serie);
-				axes.x.betweenTicks = serie.type === 'bar' || serie.type === 'column' || serie.type === 'state';
+				axes.x.betweenTicks = (serie.type === 'bar' || serie.type === 'column' || serie.type === 'state') && axes.x.type === 'category';
 				if (ref) {
 					let pointIndex = 0;
 					const value = {};
@@ -1432,10 +1434,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					while (this.getValue(ref, pointIndex, value)) {
 						if (typeof value.x === 'string' && value.x.length) {
 							serie.xHasString = true;
+							break;
 						}
 						pointIndex += 1;
 					}
 
+					axes.x.xHasString = serie.xHasString;
 					pointIndex = 0;
 					while (this.getValue(ref, pointIndex, value)) {
 						if (Numbers.isNumber(value.x)) {

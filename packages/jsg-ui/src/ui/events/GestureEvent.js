@@ -45,6 +45,9 @@ class GestureEvent extends ClientEvent {
 			}
 			event.type = MouseEvent.MouseEventType.MOVE;
 			break;
+		case GestureEvent.GestureEventType.TOUCHMOVESINGLE:
+			event.type = MouseEvent.MouseEventType.MOVE;
+			break;
 		case GestureEvent.GestureEventType.TAPUP:
 			if (gesture.pointers.length > 1) {
 				return undefined;
@@ -321,7 +324,8 @@ class GestureEvent extends ClientEvent {
 			 */
 			TOUCH: 2 ** 31,
 			// just so simulate move
-			TOUCHMOVE: 2 ** 32
+			TOUCHMOVE: 2 ** 32,
+			TOUCHMOVESINGLE: 2 ** 33
 		};
 	}
 };

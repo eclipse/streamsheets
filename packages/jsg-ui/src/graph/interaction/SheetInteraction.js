@@ -51,8 +51,14 @@ export default class SheetInteraction extends Interaction {
 		this._dragTimer = undefined;
 	}
 
-	isUsingPan() {
-		return true;
+	isUsingPan(event, viewer) {
+		if (!this._controller) {
+			return undefined;
+		}
+
+		const view = this._controller.getView();
+		const cell = this.getCell(view, event.location, viewer);
+		return cell && cell.x !== -1 && cell.y !== -1;
 	}
 
 	deactivate(viewer) {
@@ -1319,6 +1325,14 @@ export default class SheetInteraction extends Interaction {
 
 	onPanEnd(event, viewer) {
 		this._ptPanStart = undefined;
+	}
+
+	onPinch(event, viewer) {
+		if (!this._pinStartZoom) {
+			this._pinStartZoom = viewer.getZoom();
+		}
+		viewer.setZoom(this._pinStartZoom + event.event.scale);
+		console.log(event.event.scale);
 	}
 
 	onPan(event, viewer) {
