@@ -83,7 +83,7 @@ export default class JsonTree extends React.Component {
 		const graphEditor = this.initGraphEditor();
 		JSG.NotificationCenter.getInstance().register(
 			this,
-			JSG.GraphEditor.ZOOM_NOTIFICATION,
+			JSG.NotificationCenter.ZOOM_NOTIFICATION,
 			'onZoom',
 		);
 		const nc = JSG.NotificationCenter.getInstance();

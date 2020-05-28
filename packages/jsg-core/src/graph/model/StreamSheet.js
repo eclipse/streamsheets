@@ -70,7 +70,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 		this.getFormat().setLineColor('#AAAAAA');
 
 		const columns = this.getColumns();
-		columns.setInitialSection(-2);
 		columns.setSectionSize(0, 0);
 		columns.setSectionSize(1, 700);
 
@@ -846,10 +845,12 @@ module.exports = class StreamSheet extends WorksheetNode {
 						break;
 					}
 					case 'bezier':
-						break;
 					case 'polygon':
+						if (drawItem.close !== undefined) {
+							node.getItemAttributes().setClosed(drawItem.close);
+						}
 						if (drawItem.range && drawItem.range !== '') {
-							const pointRange = CellRange.parse(drawItem.range, this, false);
+							const pointRange = CellRange.parse(drawItem.range, this);
 							const data = this.getDataProvider();
 							if (pointRange === undefined || pointRange.getWidth() !== 2) {
 								break;
@@ -878,18 +879,16 @@ module.exports = class StreamSheet extends WorksheetNode {
 								coors.push(coor);
 							}
 							shape.setCoordinates(coors);
-						}
-						if (drawItem.close !== undefined) {
-							node.getItemAttributes().setClosed(drawItem.close);
+							node.evaluate();
+							if (drawItem.type === 'bezier') {
+								shape._cpToCoordinates = [];
+								shape._cpFromCoordinates = [];
+								shape.getBezierPoints(shape.getPoints());
+							}
 						}
 						break;
 					case 'plot':
 						break;
-					// case 'chart':
-					// 	node.setDataRangeString(drawItem.range ? `=${drawItem.range}` : '');
-					// 	node.setFormatDataRangeString(drawItem.formatrange ? `=${drawItem.formatrange}` : '');
-					// 	node.setChartType(drawItem.charttype);
-					// 	break;
 					case 'checkbox':
 					case 'button':
 						this.setFontFormat(node.getTextFormat(), drawItem.font);
@@ -943,7 +942,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		NotificationCenter.getInstance().send(
 			new Notification(WorksheetNode.SELECTION_CHANGED_NOTIFICATION, {
 				item: this,
-				updateFinal: true
+				updateFinal: false
 			})
 		);
 	}
@@ -1022,7 +1021,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 			type = 'streamchart';
 		}
 
-		const graph = this.getGraph();
 		let formula = `DRAW.${type.toUpperCase()}("${item.getId()}",`;
 
 		if (item.getParent() instanceof CellsNode) {
@@ -1093,10 +1091,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 		formula += ')';
 
-		// const attr = new Attribute('sheetformula', new Expression(0, formula));
-		// item.getItemAttributes().addAttribute(attr);
-		// attr.evaluate(item);
-		//
 		return formula;
 	}
 

@@ -96,13 +96,19 @@ module.exports = class DeleteCellContentCommand extends AbstractItemCommand {
 		return data;
 	}
 
+	get sheet() {
+		return this._ranges[0].getSheet();
+	}
+
 	undo() {
 		const data = this._ranges[0].getSheet().getDataProvider();
 
 		this._ranges.forEach((range) => {
 			range.enumerateCells(false, (pos) => {
 				const cell = this._oldCells.get(pos);
-				data.setTo(pos, cell.copy());
+				if (cell) {
+					data.setTo(pos, cell.copy());
+				}
 			});
 		});
 

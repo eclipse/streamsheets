@@ -397,7 +397,6 @@ module.exports = class CellRange {
 
 	enumerateShifted(callback) {
 		const data = this.getSheet().getDataProvider();
-		const rInit = this._worksheet.getRows().getInitialSection();
 		const cInit = this._worksheet.getColumns().getInitialSection();
 		let i;
 		let j;
@@ -405,7 +404,7 @@ module.exports = class CellRange {
 		/* eslint-disable no-mixed-operators */
 		for (i = 0; i < this.getWidth(); i += 1) {
 			for (j = 0; j < this.getHeight(); j += 1) {
-				const cell = data.getRC(this._x1 + i - cInit, this._y1 + j - rInit);
+				const cell = data.getRC(this._x1 + i - cInit, this._y1 + j);
 				callback(cell, i, j);
 			}
 		}
@@ -537,8 +536,6 @@ module.exports = class CellRange {
 	shiftToSheet() {
 		this._x1 += this._worksheet.getColumns().getInitialSection();
 		this._x2 += this._worksheet.getColumns().getInitialSection();
-		this._y1 += this._worksheet.getRows().getInitialSection();
-		this._y2 += this._worksheet.getRows().getInitialSection();
 
 		return this;
 	}
@@ -546,8 +543,6 @@ module.exports = class CellRange {
 	shiftFromSheet() {
 		this._x1 -= this._worksheet.getColumns().getInitialSection();
 		this._x2 -= this._worksheet.getColumns().getInitialSection();
-		this._y1 -= this._worksheet.getRows().getInitialSection();
-		this._y2 -= this._worksheet.getRows().getInitialSection();
 
 		return this;
 	}
@@ -744,7 +739,7 @@ module.exports = class CellRange {
 			rowVal = rowVal * 10 + reference.charCodeAt(i) - 48;
 		}
 
-		row = rowVal > sheet.getRows().getInitialSection() ? rowVal : 1;
+		row = rowVal;
 		if (neg) {
 			row = -row;
 		}

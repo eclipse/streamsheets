@@ -57,7 +57,7 @@ const setDisposeHandler = (term, sheet) => {
 	term.dispose = () => {
 		if (term._stateListener) sheet.machine.off('update', term._stateListener);
 		const proto = Object.getPrototypeOf(term);
-		if (proto) proto.dispose();
+		if (proto) proto.dispose.call(term);
 	};
 };
 
@@ -171,6 +171,10 @@ const getAggregator = (term, settings) => {
 	}
 	return term._timeaggregator;
 };
+const setXValue = (term) => {
+	const cell = term && term.cell;
+	if (cell) cell.setCellInfo('xvalue', 'time');
+};
 
 
 const timeaggregate = (sheet, ...terms) =>
@@ -188,6 +192,7 @@ const timeaggregate = (sheet, ...terms) =>
 		.mapNextArg(doSort => doSort != null ? convert.toBoolean(doSort.value) : false)
 		.mapNextArg(limit => convert.toNumberStrict(limit != null ? limit.value || DEF_LIMIT: DEF_LIMIT, ERROR.VALUE))
 		.validate((v, p, m, t, interval) =>	((interval != null && interval < MIN_INTERVAL) ? ERROR.VALUE : undefined))
+		.beforeRun(() => setXValue(timeaggregate.term))
 		.run((val, period, method, timestamp, interval, targetrange, sorted, limit) => {
 			period *= 1000; // in ms
 			interval = interval != null ? interval * 1000 : -1;

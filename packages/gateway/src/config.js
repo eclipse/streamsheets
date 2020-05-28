@@ -40,26 +40,6 @@ const config = convict({
 			default: false
 		}
 	},
-	socket: {
-		port: {
-			doc: 'The port to bind.',
-			format: 'port',
-			default: 8088,
-			env: 'WS_PORT',
-			arg: 'WS_PORT'
-		},
-		host: {
-			doc: 'The port to bind.',
-			format: 'url',
-			default: '0.0.0.0',
-			env: 'WS_HOST',
-			arg: 'WS_HOST'
-		},
-		secure: {
-			format: 'Boolean',
-			default: false
-		}
-	},
 	auth: {
 		jwtSecret: {
 			format: String,

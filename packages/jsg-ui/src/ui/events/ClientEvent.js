@@ -103,12 +103,8 @@ class ClientEvent {
 	 * @return {Boolean} <code>true</code> if Event location is inside canvas bounds, <code>false</code> otherwise.
 	 */
 	isInCanvas() {
-		if (JSG.debug.USE_DOC_DISPATCHER) {
-			return (this.event.target.tagName.toLowerCase() === 'canvas') ?
-				this.event.target.id === this.canvasId : false;
-		}
-
-		return this.event.target.tagName.toLowerCase() === 'canvas';
+		return (this.event.target.tagName.toLowerCase() === 'canvas') ?
+			this.event.target.id === this.canvasId : false;
 	}
 
 

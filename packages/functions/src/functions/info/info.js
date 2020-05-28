@@ -1,6 +1,7 @@
 const {	runFunction, values: { isEven } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { isType } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 
@@ -20,7 +21,7 @@ const iferror = (sheet, ...terms) =>
 
 const iserr = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withMaxArgs(1)
+		.withArgCount(1)
 		.run(() => {
 			const value = terms.length ? terms[0].value : null;
 			return value !== ERROR.NA && !!FunctionErrors.isError(value);
@@ -28,7 +29,7 @@ const iserr = (sheet, ...terms) =>
 
 const iserror = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withMaxArgs(1)
+		.withArgCount(1)
 		.run(() => {
 			const value = terms.length ? terms[0].value : null;
 			return !!FunctionErrors.isError(value);
@@ -36,7 +37,7 @@ const iserror = (sheet, ...terms) =>
 
 const isna = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withMaxArgs(1)
+		.withArgCount(1)
 		.run(() => {
 			const value = terms.length ? terms[0].value : null;
 			return value === ERROR.NA;
@@ -44,15 +45,22 @@ const isna = (sheet, ...terms) =>
 
 const iseven = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withMaxArgs(1)
+		.withArgCount(1)
 		.mapNextArg((term) => (term ? convert.toNumber(term.value, ERROR.VALUE) : ERROR.VALUE))
 		.run((value) => isEven(Math.floor(value)));
 
+const isobject = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withArgCount(1)
+		.mapNextArg((term) => isType.object(term.value))
+		.run((value) => !isEven(Math.floor(value)));
+
 const isodd = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withMaxArgs(1)
+		.withArgCount(1)
 		.mapNextArg((term) => (term ? convert.toNumber(term.value, ERROR.VALUE) : ERROR.VALUE))
 		.run((value) => !isEven(Math.floor(value)));
+
 
 const na = (sheet, ...terms) =>	runFunction(sheet, terms).withArgCount(0).run(() => ERROR.NA);
 
@@ -62,6 +70,7 @@ module.exports = {
 	ISERROR: iserror,
 	ISEVEN: iseven,
 	ISNA: isna,
+	ISOBJECT: isobject,
 	ISODD: isodd,
 	NA: na
 };

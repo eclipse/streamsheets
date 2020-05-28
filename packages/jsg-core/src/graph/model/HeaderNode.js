@@ -70,13 +70,7 @@ module.exports = class HeaderNode extends Node {
 	}
 
 	getInitialSection() {
-		return this.getHeaderAttributes()
-			.getInitialSection()
-			.getValue();
-	}
-
-	setInitialSection(index) {
-		return this.getHeaderAttributes().setInitialSection(index);
+		return 0;
 	}
 
 	insertSectionsAt(index, num, max) {
@@ -116,10 +110,60 @@ module.exports = class HeaderNode extends Node {
 		const data = this._sectionData[index];
 
 		if (data) {
+			if (data._parent !== undefined) {
+				let parent = this._sectionData[data._parent];
+				while (parent) {
+					if (parent && parent._closed) {
+						return 0;
+					}
+					parent = parent._parent === undefined ? undefined : this._sectionData[parent._parent];
+				}
+			}
 			return data._visible ? data._size : 0;
 		}
 
 		return this.getDefaultSectionSize();
+	}
+
+	setSectionClosed(index, closed) {
+		if (closed === undefined && this._sectionData[index] === undefined) {
+			return;
+		}
+
+		const section = this.getOrCreateSectionAt(index);
+		if (section !== undefined) {
+			section._closed = closed ? true : undefined;
+			if (!section._closed) {
+				const direction = this.getHeaderAttributes().getOutlineDirection().getValue();
+				const max = this.getSections();
+				let parent;
+
+				if (direction === 'above') {
+					for (let i = index + 1; i < max; i += 1) {
+						parent = this.getSectionParent(i);
+						if (parent === index) {
+							this.setSectionVisible(i,true);
+						}
+					}
+				} else {
+					for (let i = index - 1; i >= 0; i -= 1) {
+						parent = this.getSectionParent(i);
+						if (parent === index) {
+							this.setSectionVisible(i,true);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	getSectionClosed(index) {
+		const data = this._sectionData[index];
+
+		if (data) {
+			return data._closed === true;
+		}
+		return false;
 	}
 
 	setSectionSize(index, size) {
@@ -127,6 +171,38 @@ module.exports = class HeaderNode extends Node {
 		if (section !== undefined) {
 			section._size = size < 0 ? 0 : size;
 			section._visible = size > 0;
+			if (section._parent) {
+				const data = this._sectionData[section._parent];
+				if (data && data._closed) {
+					data._closed = undefined;
+				}
+			}
+		}
+	}
+
+	getSectionLevel(index) {
+		const data = this._sectionData[index];
+
+		return data ? data.level : 0;
+	}
+
+	setSectionLevel(index, level) {
+		const section = this.getOrCreateSectionAt(index);
+		if (section !== undefined) {
+			section.level = Math.max(0, level);
+		}
+	}
+
+	getSectionParent(index) {
+		const data = this._sectionData[index];
+
+		return data ? data.parent : undefined;
+	}
+
+	setSectionParent(index, parent) {
+		const section = this.getOrCreateSectionAt(index);
+		if (section !== undefined) {
+			section.parent = parent;
 		}
 	}
 
@@ -134,6 +210,15 @@ module.exports = class HeaderNode extends Node {
 		const section = this.getOrCreateSectionAt(index);
 		if (section !== undefined) {
 			section.setVisible(visible);
+			if (visible && section.getSize() === 0) {
+				section.setSize(this.getDefaultSectionSize());
+			}
+			if (section._parent !== undefined) {
+				const data = this._sectionData[section._parent];
+				if (data && data._closed) {
+					data._closed = undefined;
+				}
+			}
 		}
 	}
 
@@ -291,30 +376,22 @@ module.exports = class HeaderNode extends Node {
 		}
 	}
 
-	enumerateSectionsStartEnd(start, end, callback) {
-		const defSection = new HeaderSection();
-		let section;
-		let i;
-		let ret;
-		const n = this.getSections();
+	getMaxLevel() {
+		let level = 0;
 
-		defSection.setSize(this.getDefaultSectionSize());
+		this._sectionData.forEach((section) => {
+			level = Math.max(section.level, level);
+		})
 
-		for (i = start; i < end; i += 1) {
-			section = this._sectionData[i];
-			if (section) {
-				ret = callback(section, i);
-			} else {
-				ret = callback(defSection, i);
-			}
-			if (ret === false) {
-				break;
-			}
-		}
+		return level;
 	}
 
 	saveCondensed(writer, name) {
+		this.updateParents();
 		writer.writeStartElement(name);
+
+		writer.writeAttributeString('outline', this.getHeaderAttributes().getOutlineDirection().getValue());
+
 		writer.writeStartArray('section');
 
 		this._sectionData.forEach((data, index) => {
@@ -350,6 +427,7 @@ module.exports = class HeaderNode extends Node {
 
 		if (reader.version >= 1) {
 			sections = object;
+			this.getHeaderAttributes().setOutlineDirection(reader.getAttributeString(object, 'outline', 'above'));
 		} else {
 			super.read(reader, object);
 			sections = reader.getObject(object, 'sections');
@@ -401,6 +479,120 @@ module.exports = class HeaderNode extends Node {
 				section.properties = props;
 			}
 		});
+	}
+
+	updateOutlineOpen(index, direction) {
+		const max = this.getSections();
+		const level = this.getSectionLevel(index);
+		let lev;
+		let size = 0;
+
+		if (direction === 'above') {
+			lev = this.getSectionLevel(index + 1);
+			if (lev > level) {
+				let iSub = index + 1;
+				size = 0;
+				while (iSub < max && lev > level) {
+					if (this.getSectionParent(iSub) === index) {
+						size += this.getSectionSize(iSub);
+					}
+					lev = this.getSectionLevel(iSub);
+					iSub += 1;
+				}
+
+				const closed = size ? undefined : true
+				let data = this._sectionData[index];
+				if (closed || data) {
+					data = this.getOrCreateSectionAt(index);
+					data._closed = closed;
+				}
+			}
+		} else {
+			if (!index) {
+				return;
+			}
+			lev = this.getSectionLevel(index - 1);
+			if (lev > level) {
+				let iSub = index - 1;
+				size = 0;
+				while (iSub > 0 && lev > level) {
+					if (this.getSectionParent(iSub) === index) {
+						size += this.getSectionSize(iSub);
+					}
+					lev = this.getSectionLevel(iSub);
+					iSub -= 1;
+				}
+
+				const closed = size ? undefined : true
+				let data = this._sectionData[index];
+				if (closed || data) {
+					data = this.getOrCreateSectionAt(index);
+					data._closed = closed;
+				}
+			}
+		}
+	}
+
+	updateParents() {
+		let level;
+		let lastLevel = 0;
+		let j;
+		const parent = [];
+		const direction = this.getHeaderAttributes().getOutlineDirection().getValue();
+		const max = this._sectionData.length + 1;
+
+		if (direction === 'above') {
+			for (let i = 0; i < max; i += 1) {
+				level = this.getSectionLevel(i);
+				if (i === 0 && level > 0) {
+					this.setSectionLevel(i, 0);
+				}
+				parent[level] = i;
+				if (level) {
+					j = level - 1;
+					while (j > 0 && parent[j] === undefined) {
+						j -= 1;
+					}
+					this.setSectionParent(i, i === parent[j] ? undefined : parent[j]);
+				} else if (this.getSectionParent(i) !== undefined) {
+					this.setSectionParent(i, undefined);
+				}
+				j = lastLevel;
+				while (j > level) {
+					parent[j] = undefined;
+					j -= 1;
+				}
+				lastLevel = level;
+			}
+		} else {
+			for (let i = max; i >= 0; i -= 1) {
+				level = this.getSectionLevel(i);
+				parent[level] = i;
+				if (level) {
+					j = level - 1;
+					while (j > 0 && parent[j] === undefined) {
+						j -= 1;
+					}
+					this.setSectionParent(i, i === parent[j] ? undefined : parent[j]);
+				} else if (this.getSectionParent(i) !== undefined) {
+					this.setSectionParent(i, undefined);
+				}
+				j = lastLevel;
+				while (j > level) {
+					parent[j] = undefined;
+					j -= 1;
+				}
+				lastLevel = level;
+			}
+		}
+
+		for (let i = 0; i < max; i += 1) {
+			if (this.getSectionSize(i)) {
+				this.updateOutlineOpen(i, direction);
+			}
+		}
+
+		return false;
 	}
 
 	getInternalSize() {

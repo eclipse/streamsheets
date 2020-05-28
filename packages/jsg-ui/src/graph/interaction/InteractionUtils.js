@@ -10,9 +10,6 @@ import {
 } from '@cedalo/jsg-core';
 import NodeController from '../controller/NodeController';
 import Interaction from './Interaction';
-import ResizeEdgeInteraction from './ResizeEdgeInteraction';
-import ResizeEditEdgeInteraction from './ResizeEditEdgeInteraction';
-import CreateEdgeInteraction from './CreateEdgeInteraction';
 import LayerId from '../view/LayerId';
 import PositionFeedbackView from '../view/PositionFeedbackView';
 import SnapFeedbackView from '../view/SnapFeedbackView';
@@ -431,9 +428,7 @@ class InteractionUtils {
 		}
 		if (!show) {
 			// check kind of interaction
-			show = interaction instanceof CreateEdgeInteraction;
-			show = show || interaction instanceof ResizeEdgeInteraction;
-			show = show || interaction instanceof ResizeEditEdgeInteraction;
+			show = interaction.doShowPortHighlights();
 			// console.log(interaction);
 		}
 		return show;

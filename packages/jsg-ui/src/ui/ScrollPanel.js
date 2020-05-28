@@ -3,8 +3,8 @@ import {
 	NotificationCenter,
 	default as JSG,
 } from '@cedalo/jsg-core';
-import ScrollView from '../ui/scrollview/ScrollView';
-import RangeModel from '../ui/scrollview/RangeModel';
+import ScrollView from "./scrollview/ScrollView";
+import RangeModel from "./scrollview/RangeModel";
 import Scale from './Scale';
 import MouseEvent from './events/MouseEvent';
 
@@ -12,11 +12,6 @@ import MouseEvent from './events/MouseEvent';
  * The ScrollPanel is the main editor panel to display the current {{#crossLink
  * "GraphView"}}{{/crossLink}}. It adds a horizontal and a vertical {{#crossLink
  * "Scale"}}{{/crossLink}} to the base ScrollView.</br>
- *
- * A ScrollPanel sends following notification: </br>
- * <ul>
- *    <li>{{#crossLink "ScrollPanel/SCROLL_NOTIFICATION:property"}}{{/crossLink}}</li>
- * </ul>
  *
  * @class ScrollPanel
  * @extends ScrollView
@@ -141,7 +136,7 @@ class ScrollPanel extends ScrollView {
 		super.onRangeChange(range, type);
 		if (type === RangeModel.CHANGED_VALUE) {
 			NotificationCenter.getInstance().send(
-				new Notification(ScrollPanel.SCROLL_NOTIFICATION, this));
+				new Notification(NotificationCenter.SCROLL_NOTIFICATION, this));
 		}
 	}
 
@@ -158,17 +153,6 @@ class ScrollPanel extends ScrollView {
 			rangemodel.setRange(rangemodel.getMin(), newvalue + rangemodel.getExtent());
 		}
 		super.setRangeValue(rangemodel, newvalue);
-	}
-
-	/**
-	 * A global notification send on scroll events.
-	 *
-	 * @property SCROLL_NOTIFICATION
-	 * @type {String}
-	 * @static
-	 */
-	static get SCROLL_NOTIFICATION() {
-		return 'scrollpanel.scroll.notification';
 	}
 }
 

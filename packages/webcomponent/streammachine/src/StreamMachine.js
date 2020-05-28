@@ -1,4 +1,5 @@
-'use strict';
+/* global window */
+
 
 import JSG from '@cedalo/jsg-ui';
 import MachineElement from './MachineElement';
@@ -18,11 +19,9 @@ const {
 	BoundingBox,
 	MarqueeActivator,
 	ImageDropActivator,
-	MachineContainerAttributes,
 	MoveActivator,
 	PanActivator,
 	NotificationCenter,
-	Notification,
 	PinchActivator,
 	ReshapeActivator,
 	ResizeActivator,
@@ -76,7 +75,7 @@ const applyProperties = (properties, processSheet) => {
 				if (res != null) {
 					const pos = new Point(
 						res.column - processSheet.getColumns().getInitialSection(),
-						res.row - processSheet.getRows().getInitialSection()
+						res.row
 					);
 					const cell = dataProvider.create(pos);
 					cell.properties = property;
@@ -228,13 +227,13 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 
 		window.addEventListener('resize', () => this.rescaleCanvas());
 
-		NotificationCenter.getInstance().register(this, JSG.GraphEditor.ZOOM_NOTIFICATION, 'onZoom');
+		NotificationCenter.getInstance().register(this, NotificationCenter.ZOOM_NOTIFICATION, 'onZoom');
 
 		this.triggerRescale();
 	}
 
 	disconnectedCallback() {
-		NotificationCenter.getInstance().unregister(this, JSG.GraphEditor.ZOOM_NOTIFICATION);
+		NotificationCenter.getInstance().unregister(this, NotificationCenter.ZOOM_NOTIFICATION);
 		if (this.graphEditor) {
 			this.graphEditor.destroy();
 			this.graphEditor = undefined;
@@ -269,7 +268,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 	set state(val) {
 		if (val && this._state !== val) {
 			this._state = val;
-			this.dispatchEvent(new CustomEvent('state', { detail: { machineId: this.machineId, state: val } }));
+			// this.dispatchEvent(new CustomEvent('state', { detail: { machineId: this.machineId, state: val } }));
 		}
 	}
 
@@ -351,10 +350,9 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 		sheet._graphEditor = this.graphEditor;
 		return sheet ? new StreamSheet(sheet) : undefined;
 	}
-	// eslint-disable-next-line no-empty-function
-	get machine() {
 
-	}
+	// eslint-disable-next-line no-empty-function,getter-return
+	get machine() {}
 
 	set machine(data) {
 		this._machineId = data.id;
@@ -428,7 +426,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 				}
 				const pos = new Point(
 					res.column - processSheet.getColumns().getInitialSection(),
-					res.row - processSheet.getRows().getInitialSection()
+					res.row
 				);
 
 				const cell = dataProvider.create(pos);
@@ -511,7 +509,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 					}
 					const pos = new Point(
 						res.column - processSheet.getColumns().getInitialSection(),
-						res.row - processSheet.getRows().getInitialSection()
+						res.row
 					);
 
 					const cell = psDataProvider.create(pos);
@@ -533,7 +531,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 		this.updateOutbox(data.outbox);
 	}
 
-	// eslint-disable-next-line no-empty-function
+	// eslint-disable-next-line no-empty-function,getter-return
 	get value() {
 	}
 
@@ -564,7 +562,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 	getInbox(sheetId) {
 		const processSheetContainer = this.graph.getStreamSheetContainerById(sheetId);
 		if (!processSheetContainer) {
-			console.error(`No process sheet container found for streamsheet '${sheetId}'.`);
+			// console.error(`No process sheet container found for streamsheet '${sheetId}'.`);
 		}
 		return processSheetContainer
 			? processSheetContainer.getInboxContainer()
@@ -640,7 +638,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 		return !!messageBox;
 	}
 
-	addNewMessage(messageBox, message, metadata, execute = true) {
+	addNewMessage(messageBox, message, metadata) {
 		const treeItemsNode = messageBox.getMessageListItems();
 		metadata = metadata || {};
 
@@ -665,7 +663,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 		}
 	}
 
-	updateMessage(messageBox, message, metadata, execute = true) {
+	updateMessage(messageBox, message, metadata) {
 		const treeItemsNode = messageBox.getMessageListItems();
 		const selectedItem = treeItemsNode.getTreeItemById(metadata.id);
 		if (selectedItem !== undefined) {
@@ -861,6 +859,7 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 			.then((response) => this.handleCommandResponse(response));
 	}
 
+	// eslint-disable-next-line no-unused-vars
 	handleCommandResponse(response) {
 		// const commandName = response.machineserver && response.machineserver.command;
 		// const machineDescriptor = response.machineserver && response.machineserver.machineDescriptor;

@@ -164,13 +164,6 @@ class GraphListener /* extends EventListener */ {
  * be
  * called to free used resources.
  *
- * </br>
- * A GraphEditor sends following notifications: </br>
- * <ul>
- *    <li>{{#crossLink "GraphEditor/ZOOM_NOTIFICATION:property"}}{{/crossLink}}</li>
- *    <li>{{#crossLink "GraphEditor/DISPLAY_MODE_NOTIFICATION:property"}}{{/crossLink}}</li>
- * </ul>
- *
  * @class GraphEditor
  * @constructor
  * @param {canvas | String} canvasArg Id of the canvas element to be used or the canvas element itself.
@@ -812,7 +805,7 @@ class GraphEditor {
 			this.layout();
 			NotificationCenter.getInstance().send(
 				new Notification(
-					GraphEditor.DISPLAY_MODE_NOTIFICATION,
+					NotificationCenter.DISPLAY_MODE_NOTIFICATION,
 					this
 				)
 			);
@@ -990,33 +983,6 @@ class GraphEditor {
 		this._graphicSystem = undefined;
 		this._graphListener = undefined;
 		this._interactionHandler = undefined;
-	}
-	// SENDS FOLLOWING NOTIFICATIONS:
-	/**
-	 * A global notification send on display mode change.</br>
-	 * Refer to {{#crossLink "GraphEditor/setDisplayMode:method"}}{{/crossLink}} for more information about display
-	 * mode change and to {{#crossLink "NotificationCenter"}}{{/crossLink}} for more information
-	 * about notifications.
-	 *
-	 * @property DISPLAY_MODE_NOTIFICATION
-	 * @type {String}
-	 * @static
-	 */
-	static get DISPLAY_MODE_NOTIFICATION() {
-		return 'grapheditor.dplmode.notification';
-	}
-	/**
-	 * A global notification send on zoom level change.</br>
-	 * Refer to {{#crossLink "GraphEditor/setZoom:method"}}{{/crossLink}} for more information about zoom change and
-	 * to {{#crossLink "NotificationCenter"}}{{/crossLink}} for more information about
-	 * notifications.
-	 *
-	 * @property ZOOM_NOTIFICATION
-	 * @type {String}
-	 * @static
-	 */
-	static get ZOOM_NOTIFICATION() {
-		return 'grapheditor.zoom.notification';
 	}
 
 	// Zoom commands

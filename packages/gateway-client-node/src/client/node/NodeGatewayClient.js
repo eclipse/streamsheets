@@ -10,7 +10,7 @@ module.exports = class NodeGatewayClient extends BaseGatewayClient {
 	}
 
 	_connectSocketServer(url) {
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve) => {
 			const ws = new WebSocket(url);
 			ws.on('open', () => this._handleOpenedSocketConnection().then(() => resolve(ws)));
 			ws.on('message', message => this._handleSocketMessage(message));
@@ -18,5 +18,4 @@ module.exports = class NodeGatewayClient extends BaseGatewayClient {
 			ws.on('close', event => this._handleSocketClose(event));
 		});
 	}
-
 };

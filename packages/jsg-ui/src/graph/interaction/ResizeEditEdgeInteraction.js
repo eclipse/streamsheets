@@ -42,6 +42,10 @@ class ResizeEditEdgeInteraction extends AbstractInteraction {
 		viewer.clearSelection();
 	}
 
+	doShowPortHighlights() {
+		return true;
+	}
+
 	_setFeedback(event, viewer) {
 		if (this.feedback.length === 0) {
 			const feedback = this._linectrlr.createFeedback();

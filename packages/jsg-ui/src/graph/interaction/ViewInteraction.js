@@ -119,28 +119,6 @@ class ViewInteraction extends Interaction {
 		}
 	}
 
-	// onRotateStart(event, viewer) {
-	// };
-	// onRotate(event, viewer) {
-	// };
-	// onRotateEnd(event, viewer) {
-	// };
-	// onPinchStart(event, viewer) {
-	// };
-	// onPinch(event, viewer) {
-	// };
-	// onPinchEnd(event, viewer) {
-	// };
-	// onPanStart(event, viewer) {
-	// };
-	// onPan(event, viewer) {
-	// };
-	// onPanEnd(event, viewer) {
-	// };
-	//
-	// onHold(event, viewer) {
-	// };
-
 	// DON'T pass event to active interaction => fixes bug that next item is selected on mouse up!!
 	//= > if we include it again, we should do it for certain situations only...
 	// didFinish(event, viewer) {

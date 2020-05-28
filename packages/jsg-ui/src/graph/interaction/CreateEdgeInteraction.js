@@ -39,6 +39,10 @@ class CreateEdgeInteraction extends CreateItemInteraction {
 		this._portFeedback = undefined;
 	}
 
+	doShowPortHighlights() {
+		return true;
+	}
+
 	deactivate(viewer) {
 		this._portFeedback = undefined;
 		super.deactivate(viewer);

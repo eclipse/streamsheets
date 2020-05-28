@@ -128,6 +128,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				this.drawRect(graphics, plotRect, item, item.plot.format, 'plot');
 
 				if (drawAxes) {
+					this.drawValueRanges(graphics, plotRect, item);
 					this.drawAxes(graphics, plotRect, item, true);
 				}
 
@@ -456,18 +457,9 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				}
 			}
 
-			let current = item.getAxisStart(axis);
+			const refLabel = item.getDataSourceInfoAxis(axis);
+			let current = item.getAxisStart(refLabel, axis);
 			const final = item.getAxisEnd(axis);
-
-			let refLabel;
-			if (axis.type === 'category') {
-				item.series.forEach((series) => {
-					if (series.xAxis === axis.name) {
-						refLabel = item.getDataSourceInfo(series.formula);
-					}
-				});
-			}
-
 			const cs = graphics.getCoordinateSystem();
 			let last;
 			let width = 0;
@@ -478,7 +470,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			while (current.value <= final) {
 				if (
 					axis.type === 'category' &&
-					(grid ? current.value > axis.scale.max : current.value >= axis.scale.max)
+					(grid || !axis.betweenTicks ? current.value > axis.scale.max : current.value >= axis.scale.max)
 				) {
 					break;
 				}
@@ -488,11 +480,11 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				if (!grid) {
 					if (axis.type === 'category' && refLabel) {
 						text = item.getLabel(refLabel, axis, Math.floor(current.value));
+					} else if (axis.format && axis.format.numberFormat) {
+						text = item.formatNumber(current.value, axis.format);
 					} else {
-						text = item.formatNumber(
-							current.value,
-							axis.format && axis.format.numberFormat ? axis.format : axis.scale.format
-						);
+						text = item.formatNumber(current.value,
+							axis.scale.format ? axis.scale.format : {numberFormat: axis.format.linkedNumberFormat, localCulture: axis.format.linkedLocalCulture});
 					}
 				}
 
@@ -643,11 +635,104 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					break;
 				}
 
-				current = item.incrementScale(axis, current);
+				current = item.incrementScale(refLabel, axis, current);
 			}
 			if (grid && fi.line) {
 				graphics.stroke();
 			}
+		}
+
+		drawValueRanges(graphics, plotRect, item) {
+			graphics.save();
+			graphics.beginPath();
+			graphics.rect(plotRect.left - 10, plotRect.top - 10, plotRect.width + 20, plotRect.height + 20);
+			graphics.clip();
+
+			item.xAxes.forEach((axis) => {
+				if (axis.visible) {
+					this.drawValueRange(graphics, plotRect, item, axis);
+				}
+			});
+
+			item.yAxes.forEach((axis) => {
+				if (axis.visible) {
+					this.drawValueRange(graphics, plotRect, item, axis);
+				}
+			});
+
+			graphics.restore();
+		}
+
+		drawValueRange(graphics, plotRect, item, axis) {
+			item.setFont(
+				graphics,
+				axis.format,
+				'axis',
+				'bottom',
+				TextFormatAttributes.TextAlignment.LEFT
+			);
+
+			axis.valueRanges.forEach((range) => {
+				let startBegin = item.scaleToAxis(axis, range.from, undefined, true);
+				let startEnd = item.scaleToAxis(axis, range.from + range.width, undefined, true);
+				let endBegin = item.scaleToAxis(axis, range.to, undefined, true);
+				let endEnd = item.scaleToAxis(axis, range.to + range.width, undefined, true);
+				switch (axis.align) {
+				case 'left':
+				case 'right':
+					startBegin = plotRect.bottom - startBegin * plotRect.height;
+					startEnd = plotRect.bottom - startEnd * plotRect.height;
+					endBegin = plotRect.bottom - endBegin * plotRect.height;
+					endEnd = plotRect.bottom - endEnd * plotRect.height;
+					if (range.label) {
+						graphics.setFillColor('#AAAAAA');
+						graphics.fillText(range.label, plotRect.left + 100, startBegin - 100);
+					}
+					graphics.beginPath();
+					if (range.width <= 1) {
+						graphics.setLineColor(range.format.fillColor);
+						graphics.moveTo(plotRect.left, startBegin);
+						graphics.lineTo(plotRect.right, endBegin);
+						graphics.stroke();
+					} else {
+						graphics.setFillColor(range.format.fillColor);
+						graphics.setTransparency(range.format.transparency);
+						graphics.moveTo(plotRect.left, startBegin);
+						graphics.lineTo(plotRect.right, endBegin);
+						graphics.lineTo(plotRect.right, endEnd);
+						graphics.lineTo(plotRect.left, startEnd);
+						graphics.fill();
+						graphics.setTransparency(100);
+					}
+					break;
+				case 'top':
+				case 'bottom':
+					startBegin = plotRect.left + startBegin * plotRect.width;
+					startEnd = plotRect.left + startEnd * plotRect.width;
+					endBegin = plotRect.left + endBegin * plotRect.width;
+					endEnd = plotRect.left + endEnd * plotRect.width;
+					graphics.beginPath();
+					if (range.width <= 1) {
+						graphics.setLineColor(range.format.fillColor);
+						graphics.moveTo(startBegin, plotRect.bottom);
+						graphics.lineTo(endBegin, plotRect.top);
+						graphics.stroke();
+					} else {
+						graphics.setFillColor(range.format.fillColor);
+						graphics.setTransparency(range.format.transparency);
+						graphics.moveTo(startBegin, plotRect.bottom);
+						graphics.lineTo(endBegin, plotRect.top);
+						graphics.lineTo(endEnd, plotRect.top);
+						graphics.lineTo(startEnd, plotRect.bottom);
+						graphics.fill();
+						graphics.setTransparency(100);
+					}
+					break;
+				default:
+					break;
+				}
+			});
+
 		}
 
 		drawRotatedText(graphics, text, x, y, angle, xOffset, yOffset) {
@@ -717,6 +802,42 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 
 			let index = 0;
 
+
+			if (item.chart.rotation < Math.PI / 2 && index === 0) {
+				graphics.beginPath();
+				graphics.moveTo(pieInfo.xc, pieInfo.yc);
+				graphics.lineTo(pieInfo.xc, pieInfo.yc + pieInfo.height);
+				graphics.lineTo(pieInfo.xc + pieInfo.xRadius * Math.cos(pieInfo.startAngle),
+					pieInfo.yc + pieInfo.height + pieInfo.yRadius * Math.sin(pieInfo.startAngle));
+				graphics.lineTo(pieInfo.xc + pieInfo.xRadius * Math.cos(pieInfo.startAngle),
+					pieInfo.yc + pieInfo.yRadius * Math.sin(pieInfo.startAngle));
+				if (serie.format.lineColor === undefined) {
+					graphics.setLineColor('#FFFFFF');
+				} else {
+					graphics.setLineColor(serie.format.lineColor);
+				}
+				graphics.setFillColor(
+					serie.format.fillColor || item.getTemplate().series.getFillForIndex(0)
+				);
+				this.fill(graphics, serie.format);
+				graphics.stroke();
+				graphics.beginPath();
+				graphics.moveTo(pieInfo.xc, pieInfo.yc);
+				graphics.lineTo(pieInfo.xc, pieInfo.yc + pieInfo.height);
+				graphics.lineTo(pieInfo.xc + pieInfo.xRadius * Math.cos(pieInfo.endAngle),
+					pieInfo.yc + pieInfo.height + pieInfo.yRadius * Math.sin(pieInfo.endAngle));
+				graphics.lineTo(pieInfo.xc + pieInfo.xRadius * Math.cos(pieInfo.endAngle),
+					pieInfo.yc + pieInfo.yRadius * Math.sin(pieInfo.endAngle));
+				while (item.getValue(ref, index, value)) {
+					index += 1;
+				}
+				graphics.setFillColor(
+					serie.format.fillColor || item.getTemplate().series.getFillForIndex(index - 1)
+				);
+				this.fill(graphics, serie.format);
+				graphics.stroke();
+			}
+
 			for (let i = 0; i < 2; i += 1) {
 				let currentAngle = pieInfo.startAngle;
 				index = 0;
@@ -776,6 +897,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 								false
 							);
 							graphics.lineTo(pieInfo.xc, pieInfo.yc);
+							graphics.closePath()
 
 							if (i) {
 								if (line) {
@@ -898,6 +1020,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			let newLine = true;
 			let xFirst;
 			let xLast;
+			let noLast = false;
 			const pt = { x: 0, y: 0 };
 			const ptPrev = { x: 0, y: 0 };
 			const ptNext = { x: 0, y: 0 };
@@ -991,10 +1114,11 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 						} else if (newLine) {
 							graphics.moveTo(pt.x, pt.y);
 							newLine = false;
+							noLast = true;
 							xFirst = pt.x;
 							xLast = pt.x;
 						} else {
-							if (serie.smooth) {
+							if (serie.smooth && !item.chart.step) {
 								item.getPlotPoint(axes, ref, info, value, index, -1, ptLast);
 								item.toPlot(serie, plotRect, ptLast);
 
@@ -1004,6 +1128,11 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 								const cpX2 = (midX + pt.x) / 2;
 								graphics.quadraticCurveTo(cpX1, ptLast.y, midX, midY);
 								graphics.quadraticCurveTo(cpX2, pt.y, pt.x, pt.y);
+							} else if (item.chart.step) {
+								item.getPlotPoint(axes, ref, info, value, index, -1, ptLast);
+								item.toPlot(serie, plotRect, ptLast);
+								graphics.lineTo(pt.x, ptLast.y);
+								graphics.lineTo(pt.x, pt.y);
 							} else {
 								graphics.lineTo(pt.x, pt.y);
 							}
@@ -1026,6 +1155,13 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 								graphics.beginPath();
 							}
 							if (item.chart.stacked) {
+								if (item.chart.step && !noLast) {
+									points.push({
+										x: pt.x,
+										y: ptLast.y
+									});
+								}
+								noLast = false;
 								points.push({
 									x: pt.x,
 									y: pt.y
@@ -1036,23 +1172,27 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					case 'column':
 						if (value.x !== undefined && value.y !== undefined) {
 							barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
-							graphics.rect(
-								pt.x + barInfo.offset,
-								pt.y,
-								barWidth - barInfo.margin,
-								-barInfo.height * plotRect.height
-							);
+							if (barInfo.height) {
+								graphics.rect(
+									pt.x + barInfo.offset,
+									pt.y,
+									barWidth - barInfo.margin,
+									-barInfo.height * plotRect.height
+								);
+							}
 						}
 						break;
 					case 'bar':
 						if (value.x !== undefined && value.y !== undefined) {
 							barInfo = item.getBarInfo(axes, serie, seriesIndex, index, value.y, barWidth);
-							graphics.rect(
-								pt.x,
-								pt.y + barInfo.offset,
-								barInfo.height * plotRect.width,
-								barWidth - barInfo.margin
-							);
+							if (barInfo.height) {
+								graphics.rect(
+									pt.x,
+									pt.y + barInfo.offset,
+									barInfo.height * plotRect.width,
+									barWidth - barInfo.margin
+								);
+							}
 						}
 						break;
 					default:

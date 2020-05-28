@@ -41,6 +41,13 @@ module.exports = {
 				description: 'Gibt TRUE zurück, falls der angegebene Wert dem Fehlerwert #NA entspricht'
 			}
 		},
+		ISOBJECT: {
+			en: { argumentList: 'Value', description: 'Returns TRUE if given value represents an object value' },
+			de: {
+				argumentList: 'Wert',
+				description: 'Gibt TRUE zurück, falls der angegebene Wert ein Objekt-Wert ist'
+			}
+		},
 		ISODD: {
 			en: { argumentList: 'Value', description: 'Returns TRUE if given value is an odd number' },
 			de: { argumentList: 'Zahl', description: 'Gibt TRUE zurück, falls die angegebene Zahl ungerade ist' }

@@ -2945,39 +2945,38 @@ class Graphics {
 		let width;
 		const inner = JSG.rectCache.get();
 
-		if (JSG.touchDevice) {
-			if (active) {
-				width = this._lineWidth;
-				inner.setTo(rect);
-				inner.expandBy(this._cs.metricToLogXNoZoom(1000));
+		if (JSG.touchDevice && active) {
+			width = this._lineWidth;
+			inner.setTo(rect);
+			inner.expandBy(this._cs.metricToLogXNoZoom(1000));
 
-				this.setTransparency(20);
-				this.fillEllipse(inner);
+			this.setTransparency(20);
+			this.fillEllipse(inner);
 
-				inner.setTo(rect);
-				inner.reduceBy(this._cs.metricToLogXNoZoom(50));
+			inner.setTo(rect);
+			inner.reduceBy(this._cs.metricToLogXNoZoom(50));
 
-				this.setTransparency(100);
-				this.fillEllipse(inner);
+			this.setTransparency(100);
+			this.fillEllipse(inner);
 
-				inner.setTo(rect);
-				inner.expandBy(this._cs.metricToLogXNoZoom(950));
+			inner.setTo(rect);
+			inner.expandBy(this._cs.metricToLogXNoZoom(950));
 
-				this.setLineWidth(50);
-				this.drawEllipse(inner);
-				this.setLineWidth(width);
-			} else {
-				color = this._fillColor;
-				inner.setTo(rect);
-
-				this.setFillColor('#FFFFFF');
-				this.fillEllipse(rect);
-
-				this.setFillColor(color);
-				inner.reduceBy(this._cs.metricToLogXNoZoom(50));
-				this.fillEllipse(inner);
-				this.drawEllipse(rect);
-			}
+			this.setLineWidth(50);
+			this.drawEllipse(inner);
+			this.setLineWidth(width);
+			// } else {
+			// 	color = this._fillColor;
+			// 	inner.setTo(rect);
+			//
+			// 	this.setFillColor('#FFFFFF');
+			// 	this.fillEllipse(rect);
+			//
+			// 	this.setFillColor(color);
+			// 	inner.reduceBy(this._cs.metricToLogXNoZoom(50));
+			// 	this.fillEllipse(inner);
+			// 	this.drawEllipse(rect);
+			// }
 		} else if (SelectionStyle.FILL) {
 			inner.setTo(rect);
 			inner.expandBy(this._cs.metricToLogXNoZoom(25));

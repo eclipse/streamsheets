@@ -16,7 +16,7 @@ describe('ImageHelper', () => {
 					// console.info('Image saved');
 					done();
 				})
-				.catch((error) => {
+				.catch(() => {
 					// console.error(error);
 					done();
 				});

@@ -1,4 +1,4 @@
-import { FormatAttributes } from '@cedalo/jsg-core';
+import { SetHeaderSectionOutlineFlagCommand, FormatAttributes, RowHeaderNode } from '@cedalo/jsg-core';
 import HeaderView from './HeaderView';
 
 /**
@@ -30,11 +30,15 @@ export default class RowHeaderView extends HeaderView {
 			return;
 		}
 
+		const rectTmp = rect.copy();
+		const itemSize = item.getSizeAsPoint();
+		rectTmp.x = itemSize.x - RowHeaderNode.WIDTH;
+		rectTmp.width = RowHeaderNode.WIDTH;
 		const viewRect = wsView.getViewPort().getVisibleViewRect();
-		let xStart = rect.x;
-		let xEnd = rect.getRight();
-		let yStart = rect.y;
-		let yEnd = rect.y;
+		let xStart = rectTmp.x;
+		let xEnd = rectTmp.getRight();
+		let yStart = rectTmp.y;
+		let yEnd = rectTmp.y;
 
 		graphics.setLineColor('#AAAAAA');
 		graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
@@ -42,18 +46,109 @@ export default class RowHeaderView extends HeaderView {
 		graphics.moveTo(xStart, yStart);
 		graphics.lineTo(xEnd, yEnd);
 
-		this.setFont(graphics);
 
 		let size = 0;
+		let level;
+		let levelNext = 0;
+		let levelPrev = 0;
+		const levelLine = [];
+		const levelMax = item.getMaxLevel();
+		let lastMax = 0;
 		let i;
+		let j;
 		let n;
 		const pix = graphics.getCoordinateSystem().deviceToLogYNoZoom(1);
 
+		if (levelMax) {
+			item.updateParents();
+			this.setFont(graphics, 9, '#777777', 1);
+			const outlineDirection = item.getHeaderAttributes().getOutlineDirection().getValue();
+			if (outlineDirection === 'below') {
+				levelLine[0] = yStart;
+			}
+			graphics.setLineColor('#777777');
+			for (i = 0, n = item.getSections(); i < n; i += 1) {
+				size = item.getSectionSize(i);
+				level = item.getSectionLevel(i);
+
+				if (outlineDirection === 'above') {
+					levelNext = item.getSectionLevel(i + 1);
+					if (levelLine[levelNext] !== undefined && levelNext < level) {
+						for (j = levelNext; j < level; j += 1) {
+							if (levelLine[j] !== undefined) {
+								graphics.moveTo(rect.x + j * 600 + 300, levelLine[j]);
+								graphics.lineTo(rect.x + j * 600 + 300, yStart + size);
+								graphics.lineTo(rect.x + j * 600 + 400, yStart + size);
+								levelLine[j] = undefined;
+							}
+						}
+					}
+					if (levelNext > level) {
+						if (size) {
+							graphics.rect(rect.x + 100 + level * 600, yStart + size / 2 - 200, 400, 400);
+							graphics.fillText(item.getSectionClosed(i) ? '+' : '-', rect.x + level * 600 + 280,
+								yStart + size / 2);
+						}
+						if (item.getSectionClosed(i) || !item.getSectionSize(i)) {
+							levelLine[level] = undefined;
+						} else {
+							levelLine[level] = yStart + size / 2 + 200;
+						}
+					}
+					if (item.getSectionClosed(i) || !item.getSectionSize(i)) {
+						levelLine[level] = undefined;
+					}
+				} else {
+					levelPrev = item.getSectionLevel(i - 1);
+					if (levelPrev > level) {
+						if (size) {
+							graphics.rect(rect.x + 100 + level * 600, yStart + size / 2 - 200, 400, 400);
+							graphics.fillText(item.getSectionClosed(i) ? '+' : '-', rect.x + level * 600 + 280,
+								yStart + size / 2);
+						}
+						if (!item.getSectionClosed(i) && item.getSectionSize(i)) {
+							if (levelLine[level] !== undefined) {
+								graphics.moveTo(rect.x + level * 600 + 300, yStart + size / 2 - 200);
+								graphics.lineTo(rect.x + level * 600 + 300, levelLine[level]);
+								graphics.lineTo(rect.x + level * 600 + 400, levelLine[level]);
+								levelLine[level] = undefined;
+								lastMax = level;
+							}
+						}
+					}
+					if (levelPrev < level) {
+						lastMax = level;
+					}
+						for (j = level; j < levelMax; j += 1) {
+							levelLine[j] = yStart + size;
+						}
+				}
+
+				// graphics.fillText(level, rectTmp.x, yStart + size / 2 + pix);
+				// const par = item.getSectionParent(i);
+				// if (par !== undefined) {
+				// 	graphics.fillText(par, rectTmp.x - 500, yStart + size / 2 + pix);
+				// }
+
+				yStart += size;
+				yEnd = yStart;
+
+				if (yStart > viewRect.getBottom()) {
+					break;
+				}
+			}
+		}
+
+		graphics.stroke();
+		graphics.beginPath();
+		this.setFont(graphics, 9, '#333333');
+		graphics.setLineColor('#AAAAAA');
+		yStart = rectTmp.y;
+
 		for (i = 0, n = item.getSections(); i < n; i += 1) {
 			size = item.getSectionSize(i);
-
 			if (size && yStart >= viewRect.y - size) {
-				graphics.fillText(i + item.getInitialSection() + 1, rect.x + rect.width / 2, yStart + size / 2 + pix);
+				graphics.fillText(i + item.getInitialSection() + 1, rectTmp.x + rectTmp.width / 2, yStart + size / 2 + pix);
 			}
 
 			yStart += size;
@@ -78,10 +173,11 @@ export default class RowHeaderView extends HeaderView {
 			}
 		}
 
-		xStart = rect.getRight();
-		yStart = rect.y;
-		xEnd = rect.getRight();
-		yEnd = rect.getBottom();
+
+		xStart = rectTmp.getRight();
+		yStart = rectTmp.y;
+		xEnd = rectTmp.getRight();
+		yEnd = rectTmp.getBottom();
 
 		graphics.moveTo(xStart, yStart);
 		graphics.lineTo(xEnd, yEnd);
@@ -105,6 +201,7 @@ export default class RowHeaderView extends HeaderView {
 		const ws = wsView.getItem();
 		const selection = wsView.getOwnSelection();
 		let selrect;
+		const itemSize = this.getItem().getSizeAsPoint();
 
 		graphics.setLineColor('#F29536');
 		graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
@@ -112,8 +209,8 @@ export default class RowHeaderView extends HeaderView {
 
 		selection.getRanges().forEach((range) => {
 			selrect = ws.getCellRect(range);
-			selrect.x = 0;
-			selrect.width = this.getItem().getInternalWidth();
+			selrect.x = itemSize.x - RowHeaderNode.WIDTH;
+			selrect.width = RowHeaderNode.WIDTH;
 
 			if (range.isRowRange()) {
 				graphics.setFillColor('#F5CE82');
@@ -138,5 +235,19 @@ export default class RowHeaderView extends HeaderView {
 		sheetPoint.y = pos - sheetPoint.y - columnWidth;
 
 		return item.getSectionSplit(sheetPoint.y);
+	}
+
+	handleOutlineMouseDown(index, viewer) {
+		const item = this.getItem();
+		const closed = item.getSectionClosed(index);
+
+		viewer.getInteractionHandler().execute(
+			new SetHeaderSectionOutlineFlagCommand(
+				item,
+				index,
+				!closed
+			)
+		);
+
 	}
 }

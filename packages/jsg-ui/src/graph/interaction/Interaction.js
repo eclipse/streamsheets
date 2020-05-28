@@ -539,6 +539,10 @@ class Interaction {
 	 */
 	onPanStart(event, viewer) {}
 
+	isUsingPan() {
+		return false;
+	}
+
 	/**
 	 * Called to handle pan action in interaction specifically.</br>
 	 * Default implementation does nothing.
@@ -886,6 +890,10 @@ class Interaction {
 			}
 		}
 		return p;
+	}
+
+	doShowPortHighlights() {
+		return false;
 	}
 
 	/**

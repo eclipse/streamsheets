@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const { decode } = require('../utils/utils');
 const trycatch = require('../utils/trycatch');
 const logger = require('../utils/logger').create({
@@ -658,6 +659,7 @@ class SetSheetCellsRequestHandler extends RequestHandler {
 	}
 }
 
+
 class DeleteCellsCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId, undo) {
 		const cmd = undo ? 'insert' : 'delete';
@@ -835,6 +837,34 @@ class MarkCellValuesCommandRequestHandler {
 		});
 	}
 }
+class ZoomChartCommandRequestHandler {
+	constructor(allHandlers) {
+		this.handlers = allHandlers;
+	}
+	sortCommands(cmd1, cmd2) {
+		// command.MarkCellValuesCommand always first
+		if (cmd1.name === 'command.MarkCellValuesCommand') return -1;
+		if (cmd2.name === 'command.MarkCellValuesCommand') return 1;
+		return 0;
+	}
+
+	async runCommand(cmd, runner, streamsheetId, userId) {
+		try {
+			const handler = this.handlers.get(cmd.name);
+			if (handler) return await handler.handleCommand(cmd, runner, streamsheetId, userId);
+			throw new Error(`No handler for command: ${cmd.name}`);
+		} catch (err) {
+			return err;
+		}
+	}
+	async handleCommand(command, runner, streamsheetId, userId /* , undo */) {
+		command.commands.sort(this.sortCommands);
+		const results = await Promise.all(
+			command.commands.map((cmd) => this.runCommand(cmd, runner, streamsheetId, userId))
+		);
+		return results;
+	}
+}
 
 
 class UpdateSheetNamesCommandRequestHandler {
@@ -912,7 +942,7 @@ class CompoundCommandRequestHandler {
 		const requests = [];
 		command.commands.forEach((cmd) => {
 			const handler = this.handlers.get(cmd.name);
-			if (handler && handler.toRequest) {
+			if (handler && handler.f) {
 				requests.push(handler.toRequest(cmd));
 			}
 		});
@@ -979,7 +1009,7 @@ class CommandRequestHandler extends RequestHandler {
 			[
 				'command.SetCellsCommand',
 				new SetCellsCommandRequestHandler()
-			],			
+			],
 			[
 				'command.SetGraphCellsCommand',
 				new SetGraphCellsCommandRequestHandler()
@@ -1001,6 +1031,11 @@ class CommandRequestHandler extends RequestHandler {
 				new UpdateSheetNamesCommandRequestHandler()
 			]
 		]);
+		// compound commands:
+		this._commandRequestHandlers.set(
+			'command.ZoomChartCommand',
+			new ZoomChartCommandRequestHandler(this._commandRequestHandlers)
+		);
 		// include editable-web-component:
 		// this.compoundCommandHandler = new CompoundCommandRequestHandler(this._commandRequestHandlers);
 	}

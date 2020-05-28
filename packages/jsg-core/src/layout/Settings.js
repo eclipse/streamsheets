@@ -59,7 +59,7 @@ Settings.prototype = {
 	},
 	_has(key) {
 		const base = Object.getPrototypeOf(this);
-		return base.has && base.has(key);
+		return !!(base.has && base.has(key));
 	},
 	/**
 	 * Checks if given key is registered.
@@ -94,11 +94,13 @@ Settings.prototype = {
 	 * @return {Settings} This settings instance as convenience.
 	 */
 	set(key, value) {
-		// check if value is stored in prototype already:
-		if (value === this._get(key)) {
-			delete this._settings[key];
-		} else {
-			this._settings[key] = value;
+		if (key != null) {
+			// check if value is stored in prototype already:
+			if (value === this._get(key)) {
+				delete this._settings[key];
+			} else {
+				this._settings[key] = value;
+			}
 		}
 		return this;
 	},

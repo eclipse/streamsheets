@@ -21,7 +21,7 @@ describe('WebpageHelper', () => {
 					// console.info('Webpage saved');
 					done();
 				})
-				.catch(error => {
+				.catch(() => {
 					// console.error(error);
 					done();
 				});

@@ -139,7 +139,7 @@ class GraphSettings extends AbstractSettings {
 	setDisplayMode(mode) {
 		const state = this._changeSetting(GraphSettings.SettingID.DISPLAY_MODE, mode);
 		NotificationCenter.getInstance().send(
-			new Notification(GraphSettings.DISPLAY_MODE_NOTIFICATION, this)
+			new Notification(NotificationCenter.DISPLAY_MODE_NOTIFICATION, this)
 		);
 		return state;
 	}
@@ -392,7 +392,7 @@ class GraphSettings extends AbstractSettings {
 	setScaleEndless(doIt) {
 		const ret = this._changeSetting(GraphSettings.SettingID.SCALEENDLESS, doIt);
 		NotificationCenter.getInstance().send(
-			new Notification(GraphSettings.DISPLAY_MODE_NOTIFICATION, this)
+			new Notification(NotificationCenter.DISPLAY_MODE_NOTIFICATION, this)
 		);
 		return ret;
 	}
@@ -851,10 +851,6 @@ class GraphSettings extends AbstractSettings {
 		});
 
 		writer.writeEndElement();
-	}
-
-	static get DISPLAY_MODE_NOTIFICATION() {
-		return 'graphsettings.dplmode.notification';
 	}
 
 	/**

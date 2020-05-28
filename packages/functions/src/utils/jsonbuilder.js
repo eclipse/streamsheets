@@ -33,9 +33,10 @@ const addTo = (parent, key, value) => {
 };
 
 const add = (json, path, value) => {
+	if (path.length === 0 && Array.isArray(value)) return value;
 	const parent = createParent(path, json);
 	if (value == null) return ERROR.VALUE;
-	else if (typeof parent !== 'object') return ERROR.INVALID_PATH;
+	if (typeof parent !== 'object') return ERROR.INVALID_PATH;
 	return addTo(parent, path.pop(), value) && json;
 };
 

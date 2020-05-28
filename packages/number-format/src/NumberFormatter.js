@@ -571,7 +571,7 @@ const writeNum /* :SSF_write_num */ = (() => {
 		const idx = fmt.indexOf('E') - fmt.indexOf('.') - 1;
 		if (fmt.match(/^#+0.0E\+0$/)) {
 			if (val === 0) return '0.0E+0';
-			else if (val < 0) return `-.${writeNumExp(fmt, -val)}`;
+			if (val < 0) return `-.${writeNumExp(fmt, -val)}`;
 			let period = fmt.indexOf('.');
 			if (period === -1) period = fmt.indexOf('E');
 			let ee = Math.floor(Math.log(val) * Math.LOG10E) % period;
@@ -817,7 +817,7 @@ const writeNum /* :SSF_write_num */ = (() => {
 		const idx = fmt.indexOf('E') - fmt.indexOf('.') - 1;
 		if (fmt.match(/^#+0.0E\+0$/)) {
 			if (val === 0) return '0.0E+0';
-			else if (val < 0) return `-${writeNumExp2(fmt, -val)}`;
+			if (val < 0) return `-${writeNumExp2(fmt, -val)}`;
 			let period = fmt.indexOf('.');
 			if (period === -1) period = fmt.indexOf('E');
 			let ee = Math.floor(Math.log(val) * Math.LOG10E) % period;

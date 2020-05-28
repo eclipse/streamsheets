@@ -64,7 +64,7 @@ export class CanvasComponent extends Component {
 
 	componentDidMount() {
 		const graphEditor = this.initGraphEditor();
-		JSG.NotificationCenter.getInstance().register(this, JSG.GraphEditor.ZOOM_NOTIFICATION, 'onZoom');
+		JSG.NotificationCenter.getInstance().register(this, JSG.NotificationCenter.ZOOM_NOTIFICATION, 'onZoom');
 		JSG.NotificationCenter.getInstance().register(
 			this,
 			JSG.StreamSheetView.SHEET_DROP_FROM_OUTBOX,
@@ -96,7 +96,7 @@ export class CanvasComponent extends Component {
 
 	componentWillUnmount() {
 		const { canvas } = this;
-		JSG.NotificationCenter.getInstance().unregister(this, JSG.GraphEditor.ZOOM_NOTIFICATION);
+		JSG.NotificationCenter.getInstance().unregister(this, JSG.NotificationCenter.ZOOM_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.StreamSheetView.SHEET_DROP_FROM_OUTBOX);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.ButtonNode.BUTTON_CLICKED_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.GRAPH_DOUBLE_CLICK_NOTIFICATION);

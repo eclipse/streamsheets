@@ -31,12 +31,14 @@ const sum = (sheet, ...terms) =>
 	}, 0);
 
 const dummy = (/* sheet, ...terms */) => true;
+const json = () => ({ key: 'key', value: 42 });
 
 module.exports = {
 	COLUMN: column,
 	CONCAT: concat,
 	COPYVALUES: dummy,
 	INBOXDATA: dummy,
+	JSON: json,
 	OUTBOXDATA: dummy,
 	READ: dummy,
 	ROW: row,

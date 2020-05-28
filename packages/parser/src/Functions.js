@@ -65,20 +65,6 @@ module.exports.Functions = {
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.updateGraphItem(scope, terms, 'bezier', false) : ERROR.NOT_AVAILABLE;
 	},
-	'DRAW.CHART': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'chart', false) : ERROR.NOT_AVAILABLE;
-	},
-	'DRAW.PLOT': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'plot', false) : ERROR.NOT_AVAILABLE;
-	},
 	'DRAW.STREAMCHART': (scope, ...terms) => {
 		if (scope.graphCells === undefined) {
 			return OK.TRUE;
@@ -121,10 +107,13 @@ module.exports.Functions = {
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.updateGraphItem(scope, terms, 'knob', false) : ERROR.NOT_AVAILABLE;
 	},
-	SERIES: (scope) => {
+	SERIES: () => {
 		return OK.TRUE;
 	},
-	AXIS: (scope) => {
+	SERIESTIME: () => {
+		return OK.TRUE;
+	},
+	AXIS: () => {
 		return OK.TRUE;
 	},
 	CLASSIFYPOINT: (scope, ...terms) => {

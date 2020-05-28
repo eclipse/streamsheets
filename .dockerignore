@@ -1,5 +1,10 @@
 *
 !packages/*
+packages/webui/*
+packages/webui-components/*
+packages/jsg-ui/*
+packages/webcomponent/*
+!packages/webui/build
 packages/**/node_modules
 !yarn.lock
 !.yarnrc

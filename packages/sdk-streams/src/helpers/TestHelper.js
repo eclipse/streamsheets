@@ -44,6 +44,7 @@ module.exports = class TestHelper {
 					res({ result: false, consumer, producer });
 				}, timeout);
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error(e);
 				res({ result: false });
 			}

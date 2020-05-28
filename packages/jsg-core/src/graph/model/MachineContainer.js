@@ -165,6 +165,12 @@ module.exports = class MachineContainer extends Node {
 
 			this._outboxContainer.setBoundingBoxTo(box);
 			this._outboxContainer.layout();
+		} else {
+			this._outboxContainer.getBoundingBox(box);
+			box.setLeft(box.getWidth() / 2);
+			box.setTop(0);
+			box.setHeight(0);
+			this._outboxContainer.setBoundingBoxTo(box);
 		}
 
 		JSG.boxCache.release(box);

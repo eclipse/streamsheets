@@ -1,6 +1,7 @@
-const http = require('http');
-const config = require('../config');
-const DefaultApp = require('./DefaultApp');
+import http from 'http';
+import * as config from '../config';
+import DefaultApp from './DefaultApp';
+import { GlobalContext } from '../..';
 // eslint-disable-next-line
 const pkg = require('../../../package.json');
 
@@ -9,12 +10,9 @@ process.title = pkg.name;
 config.basedir = __dirname;
 
 http.globalAgent.maxSockets = 16384;
-http.globalAgent.options.agent = false;
 
-async function start(globalContext) {
+export async function start(globalContext: GlobalContext): Promise<http.Server> {
 	const app = new DefaultApp(pkg, config, globalContext);
 	await app.installMiddlewares();
 	return app.start();
 }
-
-module.exports = start;

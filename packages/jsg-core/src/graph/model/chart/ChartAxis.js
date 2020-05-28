@@ -23,6 +23,8 @@ module.exports = class ChartAxis {
 		this.updateZoom = false;
 		this.zoomGroup = '';
 		this.autoZero = true;
+		this.betweenTicks = false;
+		this.valueRanges = [];
 	}
 
 	isVertical() {
@@ -41,12 +43,26 @@ module.exports = class ChartAxis {
 		writer.writeAttributeNumber('allowzoom', this.allowZoom ? 1 : 0);
 		writer.writeAttributeNumber('updatezoom', this.updateZoom ? 1 : 0);
 		writer.writeAttributeNumber('invert', this.invert ? 1 : 0);
+		writer.writeAttributeNumber('betweenticks', this.betweenTicks ? 1 : 0);
 		writer.writeAttributeString('zoomgroup', this.zoomGroup);
 		writer.writeAttributeString('position', this.position.toString());
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
 		this.formatGrid.save('formatGrid', writer);
 		this.title.save('axistitle', writer);
+
+		writer.writeStartArray('valueranges');
+
+		this.valueRanges.forEach((range) => {
+			writer.writeStartElement('valuerange');
+			writer.writeAttributeString('label', range.label);
+			writer.writeAttributeNumber('from', range.from);
+			writer.writeAttributeNumber('to', range.to);
+			writer.writeAttributeNumber('width', range.width);
+			range.format.save('format', writer);
+			writer.writeEndElement();
+		});
+		writer.writeEndArray('valueranges');
 
 		writer.writeEndElement();
 	}
@@ -62,7 +78,9 @@ module.exports = class ChartAxis {
 		this.autoZero = reader.getAttributeBoolean(object, 'autozero', true);
 		this.allowZoom = reader.getAttributeBoolean(object, 'allowzoom', true);
 		this.updateZoom = reader.getAttributeBoolean(object, 'updatezoom', false);
+		this.betweenTicks = reader.getAttributeBoolean(object, 'betweenticks', false);
 		this.invert = reader.getAttributeBoolean(object, 'invert', false);
+		this.valueRanges = [];
 
 		reader.iterateObjects(object, (subName, subChild) => {
 			switch (subName) {
@@ -82,6 +100,18 @@ module.exports = class ChartAxis {
 				this.title = new ChartTitle(new Expression('Title', ''), false);
 				this.title.read(reader, subChild);
 				break;
+			case 'valueranges': {
+				const range = {};
+				range.label = reader.getAttributeString(subChild, 'label', 'Label');
+				range.from = reader.getAttributeNumber(subChild, 'from', 0);
+				range.to = reader.getAttributeNumber(subChild, 'to', 10);
+				range.width = reader.getAttributeNumber(subChild, 'width', 0);
+				const f = reader.getObject(subChild, 'format');
+				range.format = new ChartFormat();
+				range.format.read(reader, f);
+				this.valueRanges.push(range);
+				break;
+			}
 			}
 		});
 	}

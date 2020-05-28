@@ -1,4 +1,4 @@
-import { FormatAttributes } from '@cedalo/jsg-core';
+import {FormatAttributes, ColumnHeaderNode, RowHeaderNode, SetHeaderSectionOutlineFlagCommand} from '@cedalo/jsg-core';
 
 import HeaderView from './HeaderView';
 
@@ -38,10 +38,7 @@ export default class ColumnHeaderView extends HeaderView {
 		};
 
 		const item = this.getItem();
-		let size = 0;
 		let title;
-		let i;
-		let n;
 		const pixel = graphics.getCoordinateSystem().deviceToLogYNoZoom(1);
 
 		const wsView = this.getWorksheetView();
@@ -49,12 +46,16 @@ export default class ColumnHeaderView extends HeaderView {
 			return;
 		}
 
+		const rectTmp = rect.copy();
+		const itemSize = item.getSizeAsPoint();
+		rectTmp.y = itemSize.y - ColumnHeaderNode.HEIGHT;
+		rectTmp.height = ColumnHeaderNode.HEIGHT;
 		const viewRect = wsView.getViewPort().getVisibleViewRect();
 
-		let xStart = rect.x;
-		let yStart = rect.y;
-		let xEnd = rect.x;
-		let yEnd = rect.getBottom();
+		let xStart = rectTmp.x;
+		let yStart = rectTmp.y;
+		let xEnd = rectTmp.x;
+		let yEnd = rectTmp.getBottom();
 
 		graphics.setLineColor('#AAAAAA');
 		graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
@@ -62,9 +63,101 @@ export default class ColumnHeaderView extends HeaderView {
 		graphics.moveTo(xStart, yStart);
 		graphics.lineTo(xEnd, yEnd);
 
-		this.setFont(graphics);
-
+		let size = 0;
+		let level;
+		let levelNext = 0;
+		let levelPrev = 0;
+		const levelLine = [];
+		const levelMax = item.getMaxLevel();
+		let lastMax = 0;
+		let i;
+		let j;
+		let n;
 		const pix = graphics.getCoordinateSystem().deviceToLogXNoZoom(1);
+
+		if (levelMax) {
+			item.updateParents();
+			this.setFont(graphics, 9, '#777777', 1);
+			const outlineDirection = item.getHeaderAttributes().getOutlineDirection().getValue();
+			if (outlineDirection === 'below') {
+				levelLine[0] = xStart;
+			}
+			graphics.setLineColor('#777777');
+			for (i = 0, n = item.getSections(); i < n; i += 1) {
+				size = item.getSectionSize(i);
+				level = item.getSectionLevel(i);
+
+				if (outlineDirection === 'above') {
+					levelNext = item.getSectionLevel(i + 1);
+					if (levelLine[levelNext] !== undefined && levelNext < level) {
+						for (j = levelNext; j < level; j += 1) {
+							if (levelLine[j] !== undefined) {
+								graphics.moveTo(levelLine[j], rect.y + j * 600 + 300);
+								graphics.lineTo(xStart + size, rect.y + j * 600 + 300);
+								graphics.lineTo(xStart + size, rect.y + j * 600 + 400);
+								levelLine[j] = undefined;
+							}
+						}
+					}
+					if (levelNext > level) {
+						if (size) {
+							graphics.rect(xStart + size / 2 - 200, rect.y + 100 + level * 600, 400, 400);
+							graphics.fillText(item.getSectionClosed(i) ? '+' : '-', xStart + size / 2, rect.y + level * 600 + 300);
+						}
+						if (item.getSectionClosed(i) || !item.getSectionSize(i)) {
+							levelLine[level] = undefined;
+						} else {
+							levelLine[level] = xStart + size / 2 + 200;
+						}
+					}
+					if (item.getSectionClosed(i) || !item.getSectionSize(i)) {
+						levelLine[level] = undefined;
+					}
+				} else {
+					levelPrev = item.getSectionLevel(i - 1);
+					if (levelPrev > level) {
+						if (size) {
+							graphics.rect(xStart + size / 2 - 200,rect.y + 100 + level * 600,  400, 400);
+							graphics.fillText(item.getSectionClosed(i) ? '+' : '-', xStart + size / 2, rect.y + level * 600 + 300);
+						}
+						if (!item.getSectionClosed(i) && item.getSectionSize(i)) {
+							if (levelLine[level] !== undefined) {
+								graphics.moveTo(xStart + size / 2 - 200, rect.y + level * 600 + 300);
+								graphics.lineTo(levelLine[level], rect.y + level * 600 + 300);
+								graphics.lineTo(levelLine[level], rect.y + level * 600 + 400);
+								levelLine[level] = undefined;
+								lastMax = level;
+							}
+						}
+					}
+					if (levelPrev < level) {
+						lastMax = level;
+					}
+					for (j = level; j < levelMax; j += 1) {
+						levelLine[j] = xStart + size;
+					}
+				}
+
+				// graphics.fillText(level, rectTmp.x, yStart + size / 2 + pix);
+				// const par = item.getSectionParent(i);
+				// if (par !== undefined) {
+				// 	graphics.fillText(par, rectTmp.x - 500, yStart + size / 2 + pix);
+				// }
+
+				xStart += size;
+				xEnd = xStart;
+
+				if (xStart > viewRect.getRight()) {
+					break;
+				}
+			}
+		}
+
+		graphics.stroke();
+		graphics.beginPath();
+		this.setFont(graphics, 9, '#333333');
+		graphics.setLineColor('#AAAAAA');
+		xStart = rectTmp.x;
 
 		for (i = 0, n = item.getSections(); i < n; i += 1) {
 			size = item.getSectionSize(i);
@@ -74,7 +167,7 @@ export default class ColumnHeaderView extends HeaderView {
 				if (title === undefined) {
 					title = getCharFromNumber(i + item.getInitialSection() + 1);
 				}
-				graphics.fillText(title, xStart + size / 2, rect.y + rect.height / 2 + pixel);
+				graphics.fillText(title, xStart + size / 2, rectTmp.y + rectTmp.height / 2 + pixel);
 			}
 
 			xStart += size;
@@ -100,10 +193,10 @@ export default class ColumnHeaderView extends HeaderView {
 			}
 		}
 
-		xStart = rect.x;
-		yStart = rect.getBottom();
-		xEnd = rect.getRight();
-		yEnd = rect.getBottom();
+		xStart = rectTmp.x;
+		yStart = rectTmp.getBottom();
+		xEnd = rectTmp.getRight();
+		yEnd = rectTmp.getBottom();
 
 		graphics.moveTo(xStart, yStart);
 		graphics.lineTo(xEnd, yEnd);
@@ -125,6 +218,7 @@ export default class ColumnHeaderView extends HeaderView {
 
 		const ws = wsView.getItem();
 		const selection = wsView.getOwnSelection();
+		const itemSize = this.getItem().getSizeAsPoint();
 
 		graphics.setLineColor('#F29536');
 		graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
@@ -132,8 +226,8 @@ export default class ColumnHeaderView extends HeaderView {
 
 		selection.getRanges().forEach((range) => {
 			const selrect = ws.getCellRect(range);
-			selrect.y = 0;
-			selrect.height = this.getItem().getInternalHeight();
+			selrect.y = itemSize.y - ColumnHeaderNode.HEIGHT;
+			selrect.height = ColumnHeaderNode.HEIGHT;
 
 			if (range.isColumnRange()) {
 				graphics.setFillColor('#F5CE82');
@@ -158,5 +252,19 @@ export default class ColumnHeaderView extends HeaderView {
 		sheetPoint.x = pos - sheetPoint.x - rowWidth;
 
 		return item.getSectionSplit(sheetPoint.x);
+	}
+
+	handleOutlineMouseDown(index, viewer) {
+		const item = this.getItem();
+		const closed = item.getSectionClosed(index);
+
+		viewer.getInteractionHandler().execute(
+			new SetHeaderSectionOutlineFlagCommand(
+				item,
+				index,
+				!closed
+			)
+		);
+
 	}
 }

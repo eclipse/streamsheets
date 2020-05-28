@@ -1,4 +1,7 @@
+/* global HTMLElement */
+
 // TODO review => instead of subclassing StreamMachine from MachineElement it might be better to compose
+
 class MachineElement extends HTMLElement {
 
 	constructor() {

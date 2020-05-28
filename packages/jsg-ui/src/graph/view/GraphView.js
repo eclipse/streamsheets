@@ -18,8 +18,12 @@ import ScrollPanel from '../../ui/ScrollPanel';
 const useCacheOffset = true;
 
 // there is currently no easy and reliable way to determine canvas max area size....
-const determineTileSize = (cs) =>
-	cs.getZoom() < 0.1 ? 256 : JSG.isMobileSafari ? Math.floor(4096 / cs.getDeviceRatio()) : 2500;
+const determineTileSize = (cs) => {
+	return {
+		x: cs.getZoom() < 0.1 ? 256 : JSG.isMobileSafari ? Math.floor(4096 / cs.getDeviceRatio()) : 4100,
+		y: cs.getZoom() < 0.1 ? 256 : JSG.isMobileSafari ? Math.floor(4096 / cs.getDeviceRatio()) : 2100
+	}
+};
 
 class CacheElement {
 	constructor() {
@@ -30,12 +34,13 @@ class CacheElement {
 	getGraphics(cs, tileSize) {
 		const { canvas } = this;
 
-		const size = tileSize * cs.getDeviceRatio();
-		if (size !== canvas.width) {
-			canvas.width = size;
+		const sizeX = tileSize.x * cs.getDeviceRatio();
+		const sizeY = tileSize.y * cs.getDeviceRatio();
+		if (sizeX !== canvas.width) {
+			canvas.width = sizeX;
 		}
-		if (size !== canvas.height) {
-			canvas.height = size;
+		if (sizeY !== canvas.height) {
+			canvas.height = sizeY;
 		}
 
 		return new ScalableGraphics(canvas, cs);
@@ -49,8 +54,6 @@ class Cache {
 		this._yStart = 0;
 		this._xCnt = 0;
 		this._yCnt = 0;
-		this._tileSizeX = 0;
-		this._tileSizeY = 0;
 		this._offset = new Point(2000, 3000);
 	}
 
@@ -188,7 +191,10 @@ class GraphView extends GraphItemView {
 		const cs = graphics.getCoordinateSystem();
 		// const size = Math.ceil(cs.logToDeviceX(Math.max(graphRect.width, graphRect.height)));
 		const tileSize = determineTileSize(cs);
-		const logTileSize = cs.deviceToLogX(tileSize);
+		const logTileSize = {
+			x: cs.deviceToLogX(tileSize.x),
+			y: cs.deviceToLogX(tileSize.y)
+		};
 		const graph = this.getItem();
 		const settings = graph.getSettings();
 		const dplMode = settings.getDisplayMode();
@@ -243,15 +249,15 @@ class GraphView extends GraphItemView {
 		if (useCacheOffset) {
 			bounds.x = this._canvasCache._xStart;
 			bounds.y = this._canvasCache._yStart;
-			bounds.width += logTileSize;
-			bounds.height += logTileSize;
+			bounds.width += logTileSize.x;
+			bounds.height += logTileSize.y;
 		}
 
 		const numYTiles = this._canvasCache._yCnt;
-		const xStart = Math.floor((visibleRect.x - bounds.x) / logTileSize);
-		const yStart = Math.floor((visibleRect.y - bounds.y) / logTileSize);
-		const xEnd = Math.ceil((visibleRect.getRight() - bounds.x) / logTileSize);
-		const yEnd = Math.ceil((visibleRect.getBottom() - bounds.y) / logTileSize);
+		const xStart = Math.floor((visibleRect.x - bounds.x) / logTileSize.x);
+		const yStart = Math.floor((visibleRect.y - bounds.y) / logTileSize.y);
+		const xEnd = Math.ceil((visibleRect.getRight() - bounds.x) / logTileSize.x);
+		const yEnd = Math.ceil((visibleRect.getBottom() - bounds.y) / logTileSize.y);
 		let cachedCanvas;
 		let i;
 		let j;
@@ -262,7 +268,7 @@ class GraphView extends GraphItemView {
 				if (cachedCanvas && cachedCanvas.canvas) {
 					graphics.save();
 					graphics.setClip(clipRect);
-					graphics.drawImage(cachedCanvas.canvas, i * logTileSize + bounds.x, j * logTileSize + bounds.y);
+					graphics.drawImage(cachedCanvas.canvas, i * logTileSize.x + bounds.x, j * logTileSize.y + bounds.y);
 					graphics.restore();
 				}
 			}
@@ -282,18 +288,18 @@ class GraphView extends GraphItemView {
 		// create tiled cache for complete graph, each tile is a canvas element
 		let tileCnt = 0;
 
-		const rect = JSG.rectCache.get().set(graphRect.x, graphRect.y, logTileSize, logTileSize);
+		const rect = JSG.rectCache.get().set(graphRect.x, graphRect.y, logTileSize.x, logTileSize.y);
 		let cacheElement;
 		let graphicsCache;
 
 		if (useCacheOffset) {
 			rect.x = this._canvasCache._offset.x;
 			while (rect.x >= graphRect.x) {
-				rect.x -= logTileSize;
+				rect.x -= logTileSize.x;
 			}
 			rect.y = this._canvasCache._offset.y;
 			while (rect.y >= graphRect.y) {
-				rect.y -= logTileSize;
+				rect.y -= logTileSize.y;
 			}
 			this._canvasCache._xStart = rect.x;
 			this._canvasCache._yStart = rect.y;
@@ -317,7 +323,7 @@ class GraphView extends GraphItemView {
 						cacheElement.redraw = false;
 					}
 				}
-				rect.y += logTileSize;
+				rect.y += logTileSize.y;
 				tileCnt += 1;
 				this._canvasCache._yCnt += 1;
 			}
@@ -326,7 +332,7 @@ class GraphView extends GraphItemView {
 			} else {
 				rect.y = graphRect.y;
 			}
-			rect.x += logTileSize;
+			rect.x += logTileSize.x;
 			this._canvasCache._xCnt += 1;
 		}
 		JSG.rectCache.release(rect);

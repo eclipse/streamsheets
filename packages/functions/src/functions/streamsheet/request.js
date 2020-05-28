@@ -263,7 +263,7 @@ const setDisposeHandler = (funcTerm, reqId, sheet) => {
 		funcTerm.dispose = () => {
 			sheet.getPendingRequests().delete(reqId);
 			const proto = Object.getPrototypeOf(funcTerm);
-			if (proto) proto.dispose();
+			if (proto) proto.dispose.call(funcTerm);
 		};
 	}
 };

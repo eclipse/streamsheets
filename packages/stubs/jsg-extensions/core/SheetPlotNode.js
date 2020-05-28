@@ -15,6 +15,7 @@ const {
 	TextFormatAttributes,
 	Numbers,
 	JSONWriter,
+	ZoomChartCommand,
 	MarkCellValuesCommand,
 	SetPlotDataCommand,
 	CompoundCommand,
@@ -216,6 +217,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		};
 		this.title = new ChartTitle(new Expression('Title', ''));
 		this.series = [new ChartSeries('line', new Expression(0, 'SERIES(B1,A2:A10,B2:B10)'))];
+		this.cellValuesMarker = -1;
 	}
 
 	getExpressionValue(expr) {
@@ -309,10 +311,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	measureAxis(graphics, axis) {
 		const result = {
 			width: 200,
-			height: 200,
-			last: 0,
-			lastPos: 0,
-			firstPos: 0
+			height: 200
 		};
 
 		axis.textSize = {
@@ -327,7 +326,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		};
 
 		if (!axis.position || !axis.scale || !axis.visible) {
-			result.first = 0;
 			return result;
 		}
 
@@ -336,20 +334,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		const cs = graphics.getCoordinateSystem();
 		let pos;
 		let text;
-		let current = this.getAxisStart(axis);
+		const refLabel = this.getDataSourceInfoAxis(axis);
+		let current = this.getAxisStart(refLabel, axis);
 		const final = this.getAxisEnd(axis);
-		let refLabel;
-
-		if (axis.type === 'category') {
-			this.series.forEach((series) => {
-				if (series.xAxis === axis.name) {
-					refLabel = this.getDataSourceInfo(series.formula);
-				}
-			});
-		}
 
 		while (current.value <= final) {
-			if (axis.type === 'category' && current.value >= axis.scale.max) {
+			if (axis.type === 'category' && axis.betweenTicks && current.value >= axis.scale.max) {
 				break;
 			}
 
@@ -367,33 +357,33 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			result.width = Math.max(result.width, size.width);
 			result.height = Math.max(result.height, size.height);
 
+			result.lastPos = pos;
 			result.lastWidth = size.width + 200;
 			result.lastHeight = size.height + 200;
-			result.lastPos = pos;
 			if (result.firstWidth === undefined) {
 				result.firstPos = pos;
 				result.firstWidth = result.width + 200;
 				result.firstHeight = result.height + 200;
 			}
 
-			current = this.incrementScale(axis, current);
+			current = this.incrementScale(refLabel, axis, current);
 		}
 
 		axis.textSize.width = Math.max(result.width + 150, 1000);
 		axis.textSize.height = Math.max(result.height + 100, 300);
-		axis.textSize.firstWidth = result.firstWidth;
-		axis.textSize.lastWidth = result.lastWidth;
-		axis.textSize.firstHeight = result.firstHeight;
-		axis.textSize.lastHeight = result.lastHeight;
-		axis.textSize.firstPos = result.firstPos;
-		axis.textSize.lastPos = result.lastPos;
+		if (result.firstPos !== undefined) {
+			axis.textSize.firstWidth = result.firstWidth;
+			axis.textSize.firstHeight = result.firstHeight;
+			axis.textSize.firstPos = result.firstPos;
+		}
+		if (result.lastPos !== undefined) {
+			axis.textSize.lastWidth = result.lastWidth;
+			axis.textSize.lastHeight = result.lastHeight;
+			axis.textSize.lastPos = result.lastPos;
+		}
 
 		result.width += 300;
 		result.height += 300;
-		if (result.first === undefined) {
-			result.firstWidth = 0;
-			result.firstHeight = 0;
-		}
 
 		return result;
 	}
@@ -1166,15 +1156,13 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 		});
 
+		let zoomcmd;
 		if (sheet) {
-			if (selection) {
-				const cmd = new JSG.DeleteCellContentCommand(sheet, selection.toStringMulti(), 'all');
-				viewer.getInteractionHandler().execute(cmd);
-			} else if (cellData.length) {
-				const cmd = new JSG.SetCellsCommand(sheet, cellData, false);
-				viewer.getInteractionHandler().execute(cmd);
-			}
+			if (selection) zoomcmd = new JSG.DeleteCellContentCommand(sheet, selection.toStringMulti(), 'all');
+			else if (cellData.length) zoomcmd = new JSG.SetCellsCommand(sheet, cellData, false);
 		}
+		// eslint-disable-next-line consistent-return
+		return zoomcmd;
 	}
 
 	getParamFormat(term, index) {
@@ -1194,7 +1182,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 	isTimeBasedCell(cell) {
 		// if and only if cell has time values...
-		return cell && cell._info && cell._info.values && cell._info.values.time != null ? cell : undefined;
+		return cell && cell._info && cell._info.xvalue ? cell : undefined;
 	}
 
 	isTimeBasedRange(sheet, range) {
@@ -1207,6 +1195,21 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 	isTimeBasedChart() {
 		return this.series.length && !!this.getDataSourceInfo(this.series[0].formula).time;
+	}
+
+	getDataSourceInfoAxis(axis) {
+		let ref;
+
+		if (axis.type === 'category') {
+			this.series.some((series) => {
+				if (series.xAxis === axis.name) {
+					ref = this.getDataSourceInfo(series.formula);
+					return true;
+				}
+				return false;
+			});
+		}
+		return ref;
 	}
 
 	getDataSourceInfo(ds) {
@@ -1285,10 +1288,15 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		return legend;
 	}
 
-	getVisibleSeries() {
+	getVisibleSeries(type) {
 		let cnt = 0;
+
+		if (type === undefined && this.series.length) {
+			type = this.series[0].type;
+		}
+
 		this.series.forEach((serie) => {
-			if (serie.visible) {
+			if (serie.visible && type === serie.type) {
 				cnt += 1;
 			}
 		});
@@ -1296,12 +1304,16 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		return cnt;
 	}
 
-	getVisibleSeriesIndex(index) {
+	getVisibleSeriesIndex(type, index) {
 		let cnt = 0;
+
+		if (type === undefined && this.series.length) {
+			type = this.series[0].type;
+		}
 
 		for (let i = 0; i < index; i += 1) {
 			const serie = this.series[i];
-			if (serie.visible) {
+			if (serie.visible && type === serie.type) {
 				cnt += 1;
 			}
 		}
@@ -1339,6 +1351,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			};
 
 			result.format = this.getParamFormat(term, 0);
+			result.minZoom = result.minZoom === '' ? undefined : result.minZoom;
+			result.maxZoom = result.maxZoom === '' ? undefined : result.maxZoom;
 
 			if (result.minZoom !== undefined && this.getAllowZoom(axis)) {
 				result.min = result.minZoom;
@@ -1404,6 +1418,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (serie.visible) {
 				const ref = this.getDataSourceInfo(serie.formula);
 				const axes = this.getAxes(serie);
+				axes.x.betweenTicks = (serie.type === 'bar' || serie.type === 'column' || serie.type === 'state') && axes.x.type === 'category';
 				if (ref) {
 					let pointIndex = 0;
 					const value = {};
@@ -1414,7 +1429,18 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					let cMin = Number.MAX_VALUE;
 					let cMax = -Number.MAX_VALUE;
 					let valid = false;
+					serie.xHasString = false;
 
+					while (this.getValue(ref, pointIndex, value)) {
+						if (typeof value.x === 'string' && value.x.length) {
+							serie.xHasString = true;
+							break;
+						}
+						pointIndex += 1;
+					}
+
+					axes.x.xHasString = serie.xHasString;
+					pointIndex = 0;
 					while (this.getValue(ref, pointIndex, value)) {
 						if (Numbers.isNumber(value.x)) {
 							xMin = Math.min(value.x, xMin);
@@ -1436,8 +1462,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 							};
 						}
 						if (axes.x.format.linkNumberFormat && index === 0 && pointIndex === 0 && value.formatX) {
-							axes.x.format.numberFormat = value.formatX.numberFormat;
-							axes.x.format.localCulture = value.formatX.localCulture;
+							axes.x.format.linkedNumberFormat = value.formatX.numberFormat;
+							axes.x.format.linkedLocalCulture = value.formatX.localCulture;
 						}
 						axes.y.categories[pointIndex].values[index] = {
 							x: value.x,
@@ -1507,16 +1533,24 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		this.xAxes.forEach((axis) => {
 			axis.minData = undefined;
 			axis.maxData = undefined;
+			axis.xHasString = false;
 			this.series.forEach((series) => {
 				if (series.visible && series.xAxis === axis.name) {
 					axis.minData = axis.minData === undefined ? series.xMin : Math.min(series.xMin, axis.minData);
 					axis.maxData = axis.maxData === undefined ? series.xMax : Math.max(series.xMax, axis.maxData);
+					axis.xHasString = series.xHasString || axis.xHasString;
 					if (series.type === 'bubble') {
 						axis.minData -= (axis.maxData - axis.minData) * 0.08;
 						axis.maxData += (axis.maxData - axis.minData) * 0.08;
 					}
 				}
 			});
+			axis.valueCategories = [];
+			if (axis.type === 'category' && this.chart._dataMode === 'hideempty') {
+				for (let i = 0; i <= axis.maxData; i+= 1) {
+					axis.valueCategories[i] = this.hasCategoryValue(axis, i);
+				}
+			}
 			if (axis.minData === undefined) {
 				axis.minData = 0;
 			}
@@ -1579,9 +1613,13 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		let max = axis.maxData;
 		const stepDist = axis.type === 'category' ? 1000 : 1500;
 		const stepDistVert = axis.type === 'category' ? 600 : 1500;
-		const size = axis.isVertical() ? axis.position.height : axis.position.width;
+		let size = axis.isVertical() ? axis.position.height : axis.position.width;
 		const labelAngle =
 			axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-axis.format.fontRotation);
+
+		if (Number.isNaN(size)) {
+			size = 1000;
+		}
 
 		switch (axis.type) {
 		case 'logarithmic':
@@ -1759,7 +1797,17 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					}
 				} else {
 					timeStep = 'millisecond';
-					if (diff < 0.05 / 86400) {
+					if (diff < 0.003 / 86400) {
+						step = 1;
+					} else if (diff < 0.007 / 86400) {
+						step = 5;
+					} else if (diff < 0.01 / 86400) {
+						step = 10;
+					} else if (diff < 0.02 / 86400) {
+						step = 20;
+					} else if (diff < 0.03 / 86400) {
+						step = 50;
+					} else if (diff < 0.1 / 86400) {
 						step = 100;
 					} else {
 						step = 500;
@@ -1798,7 +1846,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (input.max === undefined && input.maxData < 0.0) {
 				max = 0;
 			}
-			if (max - min > max * 0.15 && axis.type !== 'time' && min > 0 && axis.autoZero) {
+			if (
+				(max - min > max * 0.15 || max - min < epsilon) &&
+				axis.type !== 'time' &&
+				min > 0 &&
+				axis.autoZero
+			) {
 				min = 0;
 			}
 			if (input.min !== undefined) {
@@ -1850,7 +1903,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			} else {
 				minLabel = input.min;
 			}
-			// MaxWert der Besch riftung ermitteln
+			// MaxWert der Beschriftung ermitteln
 			if (input.max === undefined) {
 				if (this.chart.relative) {
 					maxLabel = max;
@@ -1872,7 +1925,11 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				input.min = minLabel;
 			}
 			if (input.max === undefined) {
-				input.max = axis.type === 'category' ? max + 1 : maxLabel;
+				if (axis.type === 'category') {
+					input.max = axis.betweenTicks ? max + 1 : max;
+				} else {
+					input.max = maxLabel;
+				}
 			}
 
 			if (input.min >= input.max) {
@@ -1915,8 +1972,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		let rect;
 		let pointIndex = 0;
 		const value = {};
-		const seriesCnt = this.getVisibleSeries();
-		const visibleIndex = this.getVisibleSeriesIndex(index);
+		const seriesCnt = this.getVisibleSeries(serie.type);
+		const visibleIndex = this.getVisibleSeriesIndex(serie.type, index);
 
 		let sum = 0;
 		while (this.getValue(ref, pointIndex, value)) {
@@ -1951,7 +2008,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		}
 
 		// deduct height of pie side
-		const height = 700 * Math.cos(this.chart.rotation);
+		// const height = 700 * Math.cos(this.chart.rotation);
+		const height = (700 * (Math.PI_2 - this.chart.rotation)) / Math.PI_2;
 		rect.bottom -= height;
 
 		const startAngle = this.chart.startAngle - Math.PI_2;
@@ -2012,8 +2070,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	getBarInfo(axes, serie, seriesIndex, index, value, barWidth) {
 		let height;
 		const margin = this.chart.stacked || serie.type === 'state' ? 0 : 150;
-		const seriesCnt = this.getVisibleSeries();
-		const visibleSeriesIndex = this.getVisibleSeriesIndex(seriesIndex);
+		const seriesCnt = this.getVisibleSeries(serie.type);
+		const visibleSeriesIndex = this.getVisibleSeriesIndex(serie.type, seriesIndex);
 
 		if (this.chart.relative) {
 			const neg = axes.y.categories[index].neg;
@@ -2035,17 +2093,16 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	}
 
 	getBarWidth(axes, serie, plotRect) {
-		const seriesCnt = this.getVisibleSeries();
+		const seriesCnt = this.getVisibleSeries(serie.type);
 		if (axes.x.type === 'category') {
 			let barWidth;
+			const empty = this.chart._dataMode === 'hideempty' ? this.getEmptyCategoryCount(axes.x) : 0;
+			const value0 = -axes.x.scale.min / (axes.x.scale.max - axes.x.scale.min - empty);
+			const value1 = (1 - axes.x.scale.min) / (axes.x.scale.max - axes.x.scale.min - empty);
 			if (serie.type === 'bar') {
-				barWidth =
-					this.scaleToAxis(axes.x, 1, undefined, false) * plotRect.height -
-					this.scaleToAxis(axes.x, 0, undefined, false) * plotRect.height;
+				barWidth = (value1 - value0) * plotRect.height;
 			} else {
-				barWidth =
-					this.scaleToAxis(axes.x, 1, undefined, false) * plotRect.width -
-					this.scaleToAxis(axes.x, 0, undefined, false) * plotRect.width;
+				barWidth = (value1 - value0) * plotRect.width;
 			}
 			const fact = serie.type === 'state' ? 1 : 0.7;
 			barWidth = (barWidth * fact) / (this.chart.stacked ? 1 : seriesCnt);
@@ -2056,7 +2113,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	}
 
 	getLabel(ref, axis, index) {
-		let label = index;
+		let label = index + 1;
 
 		if (ref.time) {
 			const values = ref.time.values;
@@ -2081,11 +2138,11 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				if (axis && axis.format.linkNumberFormat) {
 					const tf = ref.x.sheet.getTextFormatAtRC(ref.x.range._x1, ref.x.range._y1 + index);
 					if (tf) {
-						axis.format.localCulture = tf
+						axis.format.linkedLocalCulture = tf
 							.getLocalCulture()
 							.getValue()
 							.toString();
-						axis.format.numberFormat = tf.getNumberFormat().getValue();
+						axis.format.linkedNumberFormat = tf.getNumberFormat().getValue();
 					}
 				}
 			} else if (index <= ref.x.range._x2 - ref.x.range._x1) {
@@ -2096,29 +2153,34 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				if (axis && axis.format.linkNumberFormat) {
 					const tf = ref.x.sheet.getTextFormatAtRC(ref.x.range._x1 + index, ref.x.range._y1);
 					if (tf) {
-						axis.format.localCulture = tf
+						axis.format.linkedLocalCulture = tf
 							.getLocalCulture()
 							.getValue()
 							.toString();
-						axis.format.numberFormat = tf.getNumberFormat().getValue();
+						axis.format.linkedNumberFormat = tf.getNumberFormat().getValue();
 					}
 				}
 			}
 		}
 
-		if (label === undefined) {
-			label = index + 1;
-		}
-
 		if (axis && Numbers.isNumber(label)) {
-			label = this.formatNumber(label, axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+			if (axis.format && axis.format.numberFormat) {
+				label = this.formatNumber(label, axis.format);
+			} else {
+				label = this.formatNumber(
+					label,
+					axis.scale.format
+						? axis.scale.format
+						: { numberFormat: axis.format.linkedNumberFormat, localCulture: axis.format.linkedLocalCulture }
+				);
+			}
 		}
 
-		return label;
+		return label || '';
 	}
 
 	validate(val, allowString) {
-		if (this.chart.dataMode === 'datazero'/* || this.chart.stacked */) {
+		if (this.chart.dataMode === 'datazero' /* || this.chart.stacked */) {
 			return allowString || Numbers.isNumber(val) ? val : 0;
 		}
 
@@ -2135,7 +2197,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					value = cell.getValue();
 				}
 				const tf = sheet.getTextFormatAtRC(range._x1, range._y1 + index);
-				if (tf) {
+				if (tf && format) {
 					format.localCulture = tf
 						.getLocalCulture()
 						.getValue()
@@ -2150,7 +2212,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				value = cell.getValue();
 			}
 			const tf = sheet.getTextFormatAtRC(range._x1 + index, range._y1);
-			if (tf) {
+			if (tf && format) {
 				format.localCulture = tf
 					.getLocalCulture()
 					.getValue()
@@ -2176,30 +2238,21 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (values) {
 				if (this.xAxes[0].type === 'category') {
 					value.x = index;
-				} else {
-					if (values.time) {
-						if (values.time.length > index && values[ref.xKey]) {
-							value.x = values[ref.xKey][index];
-						}
-					} else if (values.length > index) {
-						value.x = values[index].key;
+				} else if (values.time && values.time.length > index && index >= 0) {
+					if (values[ref.xKey]) {
+						value.x = values[ref.xKey][index];
 					}
 					value.x = this.validate(value.x);
 				}
-				if (values.time) {
-					if (values.time.length > index && values[ref.cKey]) {
+				if (values.time && values.time.length > index && index >= 0) {
+					if (values[ref.cKey]) {
 						value.c = values[ref.cKey][index];
 					}
-				}
-				value.x = this.validate(value.x);
-				if (values.time) {
-					if (values.time.length > index && values[ref.yKey]) {
+					value.c = this.validate(value.c);
+					if (values[ref.yKey]) {
 						value.y = this.validate(values[ref.yKey][index]);
 						return true;
 					}
-				} else if (values.length > index) {
-					value.y = this.validate(values[index].value);
-					return true;
 				}
 			}
 
@@ -2210,7 +2263,11 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			value.x = index;
 		} else if (ref.x) {
 			value.formatX = {};
-			value.x = this.getValueFromRange(ref.x.range, ref.x.sheet, index, value.formatX);
+			value.x = this.getValueFromRange(ref.x.range, ref.x.sheet, index, value.formatX, true);
+			// if there is a text in the x values range
+			if (this.xAxes[0].xHasString) {
+				value.x = index + 1;
+			}
 		} else {
 			value.x = index;
 		}
@@ -2280,10 +2337,16 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 		switch (axis.type) {
 		case 'category':
-			if (!grid) {
+			if (!grid && axis.betweenTicks) {
 				value += 0.5;
 			}
-			value = (value - axis.scale.min) / (axis.scale.max - axis.scale.min);
+			if (this.chart._dataMode === 'hideempty') {
+				const empty = this.getEmptyCategoryCount(axis);
+				value -= this.getEmptyCategoryCountIndex(axis, value);
+				value = (value - axis.scale.min) / (axis.scale.max - axis.scale.min - empty);
+			} else {
+				value = (value - axis.scale.min) / (axis.scale.max - axis.scale.min);
+			}
 			break;
 		case 'linear':
 			value = (value - axis.scale.min) / (axis.scale.max - axis.scale.min);
@@ -2330,30 +2393,36 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			break;
 		}
 
+		const empty = this.chart._dataMode === 'hideempty' ? this.getEmptyCategoryCount(axes.x) : 0;
+		let ret;
+
 		if (axes.x.align === 'bottom' || axes.x.align === 'top') {
-			return {
+			ret = {
 				x:
 					axes.x.scale.min +
-					(x / (this.plot.position.right - this.plot.position.left)) * (axes.x.scale.max - axes.x.scale.min) -
-					(axes.x.type === 'category' ? 0.5 : 0),
+					(x / (this.plot.position.right - this.plot.position.left)) * (axes.x.scale.max - axes.x.scale.min - empty),
 				y:
 					axes.y.scale.min +
 					(y / (this.plot.position.bottom - this.plot.position.top)) * (axes.y.scale.max - axes.y.scale.min)
 			};
+		} else {
+			ret = {
+				x:
+					axes.x.scale.min +
+					(y / (this.plot.position.bottom - this.plot.position.top)) * (axes.x.scale.max - axes.x.scale.min - empty),
+				y:
+					axes.y.scale.min +
+					(x / (this.plot.position.right - this.plot.position.left)) * (axes.y.scale.max - axes.y.scale.min)
+			};
 		}
 
-		return {
-			x:
-				axes.x.scale.min +
-				(y / (this.plot.position.bottom - this.plot.position.top)) * (axes.x.scale.max - axes.x.scale.min) -
-				(axes.x.type === 'category' ? 0.5 : 0),
-			y:
-				axes.y.scale.min +
-				(x / (this.plot.position.right - this.plot.position.left)) * (axes.y.scale.max - axes.y.scale.min)
-		};
+		ret.x += this.chart._dataMode === 'hideempty' ? this.getEmptyCategoryCountIndex(axes.x, ret.x) : 0;
+		ret.x -= (axes.x.betweenTicks ? 0.5 : 0);
+
+		return ret;
 	}
 
-	getAxisStart(axis) {
+	getAxisStart(ref, axis) {
 		let start = {
 			value: axis.scale.min
 		};
@@ -2361,7 +2430,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		switch (axis.type) {
 		case 'time':
 			start.value -= 0.0000001;
-			start = this.incrementScale(axis, start);
+			start = this.incrementScale(ref, axis, start);
 			break;
 		case 'logarithmic': {
 			let a = start.value;
@@ -2394,6 +2463,14 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				end: false
 			};
 		}
+		case 'category':
+			while (start.value <= axis.scale.max) {
+				if (!this.chart._dataMode === 'hideempty' || axis.valueCategories[start.value] !== false) {
+					break;
+				}
+				start.value = MathUtils.roundTo(start.value + axis.scale.step, 0);
+			}
+			break;
 		default:
 			break;
 		}
@@ -2405,7 +2482,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		return axis.scale.max;
 	}
 
-	incrementScale(axis, valueInfo) {
+	incrementScale(ref, axis, valueInfo) {
 		let result;
 
 		switch (axis.type) {
@@ -2522,11 +2599,67 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 			valueInfo.value = result;
 			break;
+		case 'category':
+			while (valueInfo.value <= axis.scale.max) {
+				valueInfo.value = MathUtils.roundTo(valueInfo.value + axis.scale.step, 0);
+				if (!this.chart._dataMode === 'hideempty' || axis.valueCategories[valueInfo.value] !== false) {
+					break;
+				}
+			}
+			break;
 		default:
 			valueInfo.value = MathUtils.roundTo(valueInfo.value + axis.scale.step, 12);
 			break;
 		}
 		return valueInfo;
+	}
+
+	getEmptyCategoryCount(axis) {
+		let cnt = 0;
+
+		axis.valueCategories.forEach((value) => {
+			if (value === false) {
+				cnt += 1;
+			}
+		});
+		return cnt;
+	}
+
+	getEmptyCategoryCountIndex(axis, index) {
+		let cnt = 0;
+
+		for (let i = 0; i < index; i+= 1) {
+			if (axis.valueCategories[i] === false) {
+				cnt += 1;
+			}
+		}
+		return cnt;
+	}
+
+	hasCategoryValue(axis, index) {
+		return this.series.some((series) => {
+			if (series.xAxis === axis.name) {
+				const ref = this.getDataSourceInfo(series.formula);
+				if (ref.time) {
+					return true;
+				}
+
+				if (ref.x) {
+					const value = this.getValueFromRange(ref.x.range, ref.x.sheet, index, undefined, true);
+					if (value !== undefined && (Numbers.isNumber(value) || String(value) !== '')) {
+						return true
+					}
+				}
+
+				if (ref.y) {
+					const value = this.getValueFromRange(ref.y.range, ref.y.sheet, index);
+					if (value !== undefined && (Numbers.isNumber(value) || String(value) !== '')) {
+						return true;
+					}
+				}
+			}
+			return false;
+		});
 	}
 
 	getDataFromSelection(selection) {
@@ -2566,7 +2699,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 		let pos;
 		const rect = new ChartRect();
-		let current = this.getAxisStart(axis);
+		const ref = this.getDataSourceInfoAxis(axis);
+		let current = this.getAxisStart(ref, axis);
 		const final = this.getAxisEnd(axis);
 
 		while (current.value <= final) {
@@ -2593,7 +2727,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				return true;
 			}
 
-			current = this.incrementScale(axis, current);
+			current = this.incrementScale(ref, axis, current);
 		}
 		return false;
 	}
@@ -2814,6 +2948,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					plotRect.left + y * plotRect.width + 200,
 					plotRect.bottom - x * plotRect.height + 200
 				);
+				points.push({
+					x: plotRect.left + x * plotRect.width,
+					y: plotRect.bottom - y * plotRect.height
+				});
 				break;
 			case 'column':
 				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
@@ -2824,26 +2962,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					plotRect.bottom - y * plotRect.height + 100 - barInfo.height * plotRect.height
 				);
 				break;
-			case 'state':
-				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
-				if (this.chart.period) {
-					const ptNext = { x: 0, y: 0 };
-					this.getPlotPoint(axes, ref, info, value, pointIndex, 1, ptNext);
-					dataRect.set(
-						plotRect.left + x * plotRect.width + barInfo.offset,
-						plotRect.bottom - y * plotRect.height,
-						plotRect.left + ptNext.x * plotRect.width + barInfo.offset + barWidth - barInfo.margin,
-						plotRect.bottom - y * plotRect.height - barInfo.height * plotRect.height
-					);
-				} else {
-					dataRect.set(
-						plotRect.left + x * plotRect.width + barInfo.offset,
-						plotRect.bottom - y * plotRect.height,
-						plotRect.left + x * plotRect.width + barInfo.offset + barWidth - barInfo.margin,
-						plotRect.bottom - y * plotRect.height - barInfo.height * plotRect.height
-					);
-				}
-				break;
 			case 'line':
 			case 'scatter':
 			case 'bubble':
@@ -2853,6 +2971,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					plotRect.left + x * plotRect.width + 200,
 					plotRect.bottom - y * plotRect.height + 200
 				);
+				points.push({
+					x: plotRect.left + x * plotRect.width,
+					y: plotRect.bottom - y * plotRect.height
+				});
 				break;
 			case 'area':
 				dataRect.set(
@@ -2862,6 +2984,19 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					plotRect.bottom - y * plotRect.height + 200
 				);
 				barInfo = this.getBarInfo(axes, serie, index, pointIndex, value.y, barWidth);
+				if (this.chart.step && pointIndex) {
+					const ptLast = { x: 0, y: 0 };
+					this.getPlotPoint(axes, ref, info, value, pointIndex, -1, ptLast);
+					this.toPlot(serie, plotRect, ptLast);
+					points.push({
+						x: plotRect.left + x * plotRect.width,
+						y: points[points.length - 1].y
+					});
+					prevPoints.push({
+						x: plotRect.left + x * plotRect.width,
+						y: prevPoints[prevPoints.length - 1].y
+					});
+				}
 				points.push({
 					x: plotRect.left + x * plotRect.width,
 					y: plotRect.bottom - y * plotRect.height
@@ -2895,7 +3030,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 			pointIndex += 1;
 		}
-		if (serie.type === 'area') {
+		switch (serie.type) {
+		case 'area': {
 			const searchPoints = [];
 			points.forEach((point) => {
 				searchPoints.push(point);
@@ -2906,6 +3042,20 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (MathUtils.isPointInPolygon(searchPoints, pt)) {
 				return true;
 			}
+			break;
+		}
+		case 'profile':
+		case 'scatter':
+		case 'line': {
+			for (let i = 0; i < points.length - 1; i += 1) {
+				if (MathUtils.getLinePointDistance(points[i], points[i + 1], pt) < 200) {
+					return true;
+				}
+			}
+			break;
+		}
+		default:
+			break;
 		}
 
 		return false;
@@ -3442,58 +3592,60 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 		}
 
-		result = this.xAxes.filter((axis) => axis.position.containsPoint(pt));
-		if (result.length) {
-			return {
-				element: 'xAxis',
-				index: this.xAxes.indexOf(result[0]),
-				data: result[0]
-			};
-		}
+		if (!this.isCircular()) {
+			result = this.xAxes.filter((axis) => axis.position.containsPoint(pt));
+			if (result.length) {
+				return {
+					element: 'xAxis',
+					index: this.xAxes.indexOf(result[0]),
+					data: result[0]
+				};
+			}
 
-		result = this.xAxes.filter((axis) => this.checkAxis(axis, pt, plotRect));
-		if (result.length) {
-			return {
-				element: 'xAxisGrid',
-				index: this.xAxes.indexOf(result[0]),
-				data: result[0]
-			};
-		}
+			result = this.xAxes.filter((axis) => this.checkAxis(axis, pt, plotRect));
+			if (result.length) {
+				return {
+					element: 'xAxisGrid',
+					index: this.xAxes.indexOf(result[0]),
+					data: result[0]
+				};
+			}
 
-		result = this.xAxes.filter((axis) => axis.title.position.containsPoint(pt));
-		if (result.length) {
-			return {
-				element: 'xAxisTitle',
-				index: this.xAxes.indexOf(result[0]),
-				data: result[0].title
-			};
-		}
+			result = this.xAxes.filter((axis) => axis.title.position.containsPoint(pt));
+			if (result.length) {
+				return {
+					element: 'xAxisTitle',
+					index: this.xAxes.indexOf(result[0]),
+					data: result[0].title
+				};
+			}
 
-		result = this.yAxes.filter((axis) => axis.position.containsPoint(pt));
-		if (result.length) {
-			return {
-				element: 'yAxis',
-				index: this.yAxes.indexOf(result[0]),
-				data: result[0]
-			};
-		}
+			result = this.yAxes.filter((axis) => axis.position.containsPoint(pt));
+			if (result.length) {
+				return {
+					element: 'yAxis',
+					index: this.yAxes.indexOf(result[0]),
+					data: result[0]
+				};
+			}
 
-		result = this.yAxes.filter((axis) => this.checkAxis(axis, pt, plotRect));
-		if (result.length) {
-			return {
-				element: 'yAxisGrid',
-				index: this.yAxes.indexOf(result[0]),
-				data: result[0]
-			};
-		}
+			result = this.yAxes.filter((axis) => this.checkAxis(axis, pt, plotRect));
+			if (result.length) {
+				return {
+					element: 'yAxisGrid',
+					index: this.yAxes.indexOf(result[0]),
+					data: result[0]
+				};
+			}
 
-		result = this.yAxes.filter((axis) => axis.title.position.containsPoint(pt));
-		if (result.length) {
-			return {
-				element: 'yAxisTitle',
-				index: this.yAxes.indexOf(result[0]),
-				data: result[0].title
-			};
+			result = this.yAxes.filter((axis) => axis.title.position.containsPoint(pt));
+			if (result.length) {
+				return {
+					element: 'yAxisTitle',
+					index: this.yAxes.indexOf(result[0]),
+					data: result[0].title
+				};
+			}
 		}
 
 		if (this.plot.position.containsPoint(pt)) {
@@ -3515,11 +3667,31 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		const cmdAxis = this.prepareCommand('axes');
 		const cmdLegend = this.prepareCommand('legend');
 		const markers = type.indexOf('marker') === -1 ? false : 'rect';
-		let line = true;
+		const line = type !== 'scattermarker';
 
 		this.chart.formula = new Expression(0, selection.toStringByIndex(0, { item: sheet, useName: true }));
+
+		type = this.setChartType(type);
+
+		this.series = [];
+		this.updateSeriesFromRange(viewer, sheet, selection, type, line, markers, cmdChart, cmdAxis, cmdLegend, true);
+	}
+
+	setChartType(type) {
+		this.chart.rotation = Math.PI_2;
+		this.chart.startAngle = 0;
+		this.chart.endAngle = Math.PI * 2;
+		this.chart.hole = 0.5;
+		this.chart.step = false;
 		this.chart.stacked = type.indexOf('stacked') !== -1;
 		this.chart.relative = type.indexOf('100') !== -1;
+		this.chart.step = type.indexOf('step') !== -1;
+		this.xAxes[0].visible = true;
+		this.yAxes[0].visible = true;
+		this.xAxes[0].type = 'linear';
+		this.yAxes[0].type = 'linear';
+		this.xAxes[0].align = 'bottom';
+		this.yAxes[0].align = 'left';
 
 		switch (type) {
 		case 'pie':
@@ -3573,6 +3745,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			this.xAxes[0].type = 'category';
 			type = 'area';
 			break;
+		case 'linestep':
 		case 'line':
 		case 'linestacked':
 		case 'linestacked100':
@@ -3580,7 +3753,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			type = 'line';
 			break;
 		case 'scattermarker':
-			line = false;
 			type = 'scatter';
 			this.xAxes[0].type = 'linear';
 			break;
@@ -3596,8 +3768,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			break;
 		}
 
-		this.series = [];
-		this.updateSeriesFromRange(viewer, sheet, selection, type, line, markers, cmdChart, cmdAxis, cmdLegend, true);
+		return type;
 	}
 
 	updateFormulas(viewer, formula, cmdChart) {
@@ -3678,6 +3849,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 		// check for TIMEAGGREGATES and INFLUX.SELECT
 		if (width <= 2 || height <= 2) {
+			let colSeriesLabels = false;
+			let rowSeriesLabels = false;
 			const taRange = range.copy();
 			taRange.enumerateCells(true, (pos) => {
 				const cell = data.get(pos);
@@ -3686,10 +3859,13 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				}
 			});
 			if (time === false) {
+				time = true;
 				if (width === 2) {
 					taRange._x1 += 1;
+					colSeriesLabels = true;
 				} else if (height === 2) {
 					taRange._y1 += 1;
+					rowSeriesLabels = true;
 				}
 				taRange.enumerateCells(true, (pos) => {
 					const cell = data.get(pos);
@@ -3702,28 +3878,31 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				const cmd = this.prepareCommand('series');
 				taRange.enumerateCells(true, (pos) => {
 					const cell = data.get(pos);
-					const expr = cell.getExpression();
+					const source = new CellRange(taRange.getSheet(), pos.x, pos.y);
+					source.shiftToSheet();
+					const ref = source.toString({ item: sheet, useName: true });
+					const xValue = cell.xvalue;
+					let seriesLabel;
+					if (colSeriesLabels) {
+						const labels = new CellRange(taRange.getSheet(), pos.x - 1, pos.y);
+						labels.shiftToSheet();
+						seriesLabel = labels.toString({ item: sheet, useName: true });
+					} else if (rowSeriesLabels) {
+						const labels = new CellRange(taRange.getSheet(), pos.x, pos.y - 1);
+						labels.shiftToSheet();
+						seriesLabel = labels.toString({ item: sheet, useName: true });
+					}
+
 					const values = cell.values;
-					if (expr && values && values.time) {
-						const source = new CellRange(taRange.getSheet(), pos.x, pos.y);
-						source.shiftToSheet();
-						const ref = source.toString({ item: sheet, useName: true });
-						let xValue = cell.xvalue;
-						if (selection.getSize() > 1) {
-							const rangeX = selection.getAt(1);
-							const cellX = data.getRC(rangeX.getX1(), rangeX.getY1());
-							if (cellX) {
-								const valX = cellX.getValue();
-								if (valX !== undefined) {
-									xValue = String(valX);
-								}
-							}
-						}
+					if (values && values.time) {
 						const fields = Object.keys(values);
 						for (let i = 0; i < fields.length; i += 1) {
 							const key = fields[i];
 							if (key !== xValue && key !== 'time') {
 								if (values[key].length && Numbers.isNumber(values[key][0])) {
+									if (seriesLabel === undefined) {
+										seriesLabel = `"${key}"`;
+									}
 									if (type === 'bubble' || type === 'state') {
 										i += 1;
 										for (; i < fields.length; i += 1) {
@@ -3732,24 +3911,27 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 												values[radius].length &&
 												(Numbers.isNumber(values[radius][0]) || type === 'state')
 											) {
-												formula = `SERIES("${xValue}","${key}",${ref},"${xValue}","${key}","${radius}")`;
+												formula = `SERIESTIME("${xValue}",${seriesLabel},${ref},"${xValue}","${key}","${radius}")`;
 												break;
 											}
 										}
 									} else {
-										formula = `SERIES("${xValue}","${key}",${ref},"${xValue}","${key}")`;
+										formula = `SERIESTIME("${xValue}",${seriesLabel},${ref},"${xValue}","${key}")`;
 									}
 									createSeries(type, formula, markers, line);
 								}
 							}
 						}
-						if (xValue === 'time') {
-							if (type === 'scatter' || type === 'bubble') {
-								this.xAxes[0].type = 'time';
-							} else {
-								this.xAxes[0].format.localCulture = `time;en`;
-								this.xAxes[0].format.numberFormat = 'h:mm:ss';
-							}
+					} else {
+						formula = `SERIESTIME("${xValue}",,${ref},"${xValue}","value")`;
+						createSeries(type, formula, markers, line);
+					}
+					if (xValue === 'time') {
+						if (type === 'scatter' || type === 'bubble') {
+							this.xAxes[0].type = 'time';
+						} else {
+							this.xAxes[0].format.localCulture = `time;en`;
+							this.xAxes[0].format.numberFormat = 'h:mm:ss';
 						}
 					}
 				});
@@ -3962,7 +4144,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	evaluate() {
 		super.evaluate();
 
-		if (this.getGraph() === undefined) {
+		if (this.getGraph() === undefined || this._isFeedback) {
 			return;
 		}
 
@@ -4366,11 +4548,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 	isZoomed(serie) {
 		const cell = getTimeCell(this, serie.formula);
-		this.chartZoom = this.chartZoom && cell && cell.valuesMarker !== this.cellValuesMarker;
+		this.chartZoom =
+			this.chartZoom && this.cellValuesMarker !== -1 && cell && cell.valuesMarker !== this.cellValuesMarker;
 		return !this.chartZoom;
 	}
 
-	spreadZoomInfo(viewer) {
+	spreadZoomInfo(viewer, zoomcmds) {
 		const items = new Map();
 		const sheet = this.getSheet();
 		GraphUtils.traverseItem(
@@ -4385,19 +4568,24 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 						// support multiple items on same reference
 						if (item.chartZoom) items.set(item, cellref);
 					});
+					this.cellValuesMarker = -1;
+					item.chartZoomTimestamp = new Date(Date.now());
 				}
 			},
 			false
 		);
-		if (items.size) {
-			const cmd = MarkCellValuesCommand.fromItemCellRefMap(items);
-			viewer.getInteractionHandler().execute(cmd);
+		if (items.size || zoomcmds.length) {
+			const zoomchart = new ZoomChartCommand();
+			zoomcmds.forEach((cmd) => zoomchart.add(cmd));
+			if (items.size) zoomchart.add(MarkCellValuesCommand.fromItemCellRefMap(items));
+			viewer.getInteractionHandler().execute(zoomchart);
 		}
 	}
 
 	resetZoom(viewer) {
 		const group = this.getAxes().x.zoomGroup;
 		const sheet = this.getSheet();
+		const zoomcmds = [];
 
 		GraphUtils.traverseItem(
 			sheet,
@@ -4405,17 +4593,24 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				if (item instanceof SheetPlotNode) {
 					const groupOther = item.getAxes().x.zoomGroup;
 					if (item === this || (groupOther.length && group === groupOther)) {
-						item.setParamValues(viewer, item.xAxes[0].formula, [
-							{ index: 4, value: undefined },
-							{ index: 5, value: undefined }
-						], item);
+						const cmd = item.setParamValues(
+							viewer,
+							item.xAxes[0].formula,
+							[
+								{ index: 4, value: undefined },
+								{ index: 5, value: undefined }
+							],
+							item
+						);
+						item.chartZoomTimestamp = undefined;
+						if (cmd) zoomcmds.push(cmd);
 					}
 				}
 			},
 			false
 		);
 
-		this.spreadZoomInfo(viewer);
+		this.spreadZoomInfo(viewer, zoomcmds);
 	}
 
 	isAddLabelAllowed() {

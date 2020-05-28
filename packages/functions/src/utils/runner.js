@@ -70,7 +70,7 @@ class Runner {
 	}
 
 	// adds additional value which is passed to run(), eg: addMappedArg(() => sheet.streamsheet || ERROR.NO_STREAMSHEET)
-	addMappedArg(fn) {
+	addMappedArg(fn) { // REVIEW!
 		if (!this.errorHandler.hasError()) {
 			const res = fn(...this.mappedArgs);
 			this.errorHandler.update(res);
@@ -91,6 +91,7 @@ class Runner {
 		return this;
 	}
 
+	// review: actually not necessary since it can be done on mapNextArg()!
 	remapPrevArg(fn) {
 		if (!this.errorHandler.hasError()) {
 			const term = this.prevArg;
@@ -133,7 +134,15 @@ class Runner {
 		return this;
 	}
 
+	// remove! better use beforeRun()
 	validate(fn) {
+		if (!this.errorHandler.hasError()) {
+			this.errorHandler.update(fn(...this.mappedArgs));
+		}
+		return this;
+	}
+	// under review: name alternatives: apply, prepare, invoke, beforeRun
+	beforeRun(fn) {
 		if (!this.errorHandler.hasError()) {
 			this.errorHandler.update(fn(...this.mappedArgs));
 		}

@@ -50,18 +50,6 @@ module.exports = {
 				description: 'Erzeugt ein Button Objekt'
 			}
 		},
-		'DRAW.CHART': {
-			en: {
-				argumentList:
-					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,ChartType,DataRange,FormatRange',
-				description: 'Creates a chart'
-			},
-			de: {
-				argumentList:
-					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Diagrammtyp,Datenbereich,Formatbereich',
-				description: 'Erzeugt ein Diagramm'
-			}
-		},
 		'DRAW.CHECKBOX': {
 			en: {
 				argumentList:
@@ -136,6 +124,18 @@ module.exports = {
 				argumentList:
 					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,PunkteBereich,Schließen',
 				description: 'Erzeugt ein Polygon mit den angegebenen Koordinaten'
+			}
+		},
+		'DRAW.BEZIER': {
+			en: {
+				argumentList:
+					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,PointRange,Close',
+				description: 'Creates a bezier within the given drawing using proportional coordinates'
+			},
+			de: {
+				argumentList:
+					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,PunkteBereich,Schließen',
+				description: 'Erzeugt eine Bezier Kurve mit den angegebenen Koordinaten'
 			}
 		},
 		'DRAW.RECTANGLE': {
@@ -275,13 +275,25 @@ module.exports = {
 		SERIES: {
 			en: {
 				argumentList:
-					'SeriesTitle,CategoriesOrDataSource,ValuesOrXValues,Values',
-				description: 'Defines series parameters'
+					'SeriesTitle,CategoriesOrXValues,YValues,RadiusOrColorValues',
+				description: 'Defines series parameters for Cell Ranges'
 			},
 			de: {
 				argumentList:
-					'Reihentitel,KategorienOderDatenquelle,WerteOderXWerte,Werte',
-				description: 'Definiert Datenreihen Parameter'
+					'Reihentitel,KategorienOderXWerte,YWerte,RadiusOderFarbwerte',
+				description: 'Definiert Datenreihen Parameter für Zellbereiche'
+			}
+		},
+		SERIESTIME: {
+			en: {
+				argumentList:
+					'SeriesTitleXValues,SeriesTitleYValues,TimeFunction,XValuesField,YValuesField,RadiusColorValuesField',
+				description: 'Defines series parameters for time based functions'
+			},
+			de: {
+				argumentList:
+					'SeriesTitleXValues,SeriesTitleYValues,TimeFunction,XValuesField,YValuesField,RadiusColorValuesField',
+				description: 'Definiert Datenreihen Parameter für Zeitreihenfunktionen'
 			}
 		},
 	}

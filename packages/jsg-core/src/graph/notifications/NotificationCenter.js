@@ -16,6 +16,7 @@ const NotificationCenter = (() => {
 	const defaultFunction = 'onNotification';
 	let enabled = true;
 
+
 	/**
 	 * Returns an Array of entries, i.e. objects with an observer and an optional function.
 	 *
@@ -178,6 +179,42 @@ const NotificationCenter = (() => {
 	});
 
 	return {
+		/**
+		 * A global notification send on scroll events.
+		 *
+		 * @property SCROLL_NOTIFICATION
+		 * @type {String}
+		 * @static
+		 */
+		SCROLL_NOTIFICATION() {
+			return 'scrollpanel.scroll.notification';
+		},
+		/**
+		 * A global notification send on zoom level change.</br>
+		 * Refer to {{#crossLink "GraphEditor/setZoom:method"}}{{/crossLink}} for more information about zoom change and
+		 * to {{#crossLink "NotificationCenter"}}{{/crossLink}} for more information about
+		 * notifications.
+		 *
+		 * @property ZOOM_NOTIFICATION
+		 * @type {String}
+		 * @static
+		 */
+		ZOOM_NOTIFICATION() {
+			return 'grapheditor.zoom.notification';
+		},
+		/**
+		 * A global notification send on display mode change.</br>
+		 * Refer to {{#crossLink "GraphEditor/setDisplayMode:method"}}{{/crossLink}} for more information about display
+		 * mode change and to {{#crossLink "NotificationCenter"}}{{/crossLink}} for more information
+		 * about notifications.
+		 *
+		 * @property DISPLAY_MODE_NOTIFICATION
+		 * @type {String}
+		 * @static
+		 */
+		DISPLAY_MODE_NOTIFICATION() {
+			return 'grapheditor.dplmode.notification';
+		},
 		/**
 		 * Returns the sole share NotificationCenter instance.
 		 *

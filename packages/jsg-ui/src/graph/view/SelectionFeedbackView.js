@@ -1,7 +1,7 @@
 import { default as JSG, FormatAttributes, TextFormatAttributes, BoundingBox, Point, Numbers } from '@cedalo/jsg-core';
 import View from '../../ui/View';
-import NodeSelectionHandler from '../view/selection/NodeSelectionHandler';
-import SelectionStyle from '../view/selection/SelectionStyle';
+import NodeSelectionHandler from "./selection/NodeSelectionHandler";
+import SelectionStyle from "./selection/SelectionStyle";
 
 /**
  * This class is used to visualize feedback during edit operations.

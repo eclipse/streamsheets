@@ -723,6 +723,94 @@ module.exports = class WorksheetNode extends ContentNode {
 		return this.getCellAttributesAtRC(pos.x, pos.y, cellInfo);
 	}
 
+	getCellPropertiesAtRC(cell, column, row) {
+		const properties = {};
+		let attributes;
+
+		if (cell !== undefined) {
+			attributes = cell.getAttributes();
+			if (attributes !== undefined) {
+				WorksheetNode.getDefinedProperties(attributes, properties)
+			}
+		}
+
+		attributes = this.getRows().getSectionAttributes(row);
+		if (attributes !== undefined) {
+			WorksheetNode.getDefinedProperties(attributes, properties)
+		}
+
+		attributes = this.getColumns().getSectionAttributes(column);
+		if (attributes !== undefined) {
+			WorksheetNode.getDefinedProperties(attributes, properties)
+		}
+
+		WorksheetNode.getDefinedProperties(this.getDefaultCellAttributes(), properties)
+
+		return properties;
+	}
+
+	getFormatPropertiesAtRC(cell, column, row) {
+		const properties = {};
+		let attributes;
+
+		if (cell !== undefined) {
+			attributes = cell.getFormat();
+			if (attributes !== undefined) {
+				WorksheetNode.getDefinedProperties(attributes, properties)
+			}
+		}
+
+		attributes = this.getRows().getSectionFormat(row);
+		if (attributes !== undefined) {
+			WorksheetNode.getDefinedProperties(attributes, properties)
+		}
+
+		attributes = this.getColumns().getSectionFormat(column);
+		if (attributes !== undefined) {
+			WorksheetNode.getDefinedProperties(attributes, properties)
+		}
+
+		WorksheetNode.getDefinedProperties(this.getDefaultFormat(), properties);
+
+		return properties;
+	}
+
+	static getDefinedProperties(attributeList, properties) {
+		const addIt = (id, attr) => {
+			const name = id.toLowerCase();
+			if (properties[name] === undefined) {
+				properties[name] = attr.getExpression().getValue();
+			}
+		};
+		attributeList._value.iterate(addIt);
+	}
+
+	getTextFormatPropertiesAtRC(cell, column, row) {
+		const properties = {};
+		let attributes;
+
+		if (cell !== undefined) {
+			attributes = cell.getTextFormat();
+			if (attributes !== undefined) {
+				WorksheetNode.getDefinedProperties(attributes, properties)
+			}
+		}
+
+		attributes = this.getRows().getSectionTextFormat(row);
+		if (attributes !== undefined) {
+			WorksheetNode.getDefinedProperties(attributes, properties)
+		}
+
+		attributes = this.getColumns().getSectionTextFormat(column);
+		if (attributes !== undefined) {
+			WorksheetNode.getDefinedProperties(attributes, properties)
+		}
+
+		WorksheetNode.getDefinedProperties(this.getDefaultTextFormat(), properties)
+
+		return properties;
+	}
+
 	parseTextToTerm(text, ignoreExpections = true) {
 		try {
 			JSG.FormulaParser.context.separators = JSG.getParserLocaleSettings().separators;

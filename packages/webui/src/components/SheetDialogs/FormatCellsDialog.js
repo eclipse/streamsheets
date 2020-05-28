@@ -578,7 +578,6 @@ export class FormatCellsDialog extends React.Component {
 											}
 											color={this.state.fontColor}
 											onChange={this.handleFontColorChange}
-											onClose={this.handleFontColorChange}
 										/>
 									</FormControl>
 								</div>
@@ -772,7 +771,6 @@ export class FormatCellsDialog extends React.Component {
 											}
 											color={this.state.fillColor}
 											onChange={this.handleFillColorChange}
-											onClose={this.handleFillColorChange}
 										/>
 									</FormControl>
 								</div>
@@ -877,7 +875,6 @@ export class FormatCellsDialog extends React.Component {
 											}
 											color={this.state.leftBorderColor}
 											onChange={this.handleLeftBorderColorChange}
-											onClose={this.handleLeftBorderColorChange}
 										/>
 									</FormGroup>
 									<FormGroup
@@ -967,7 +964,6 @@ export class FormatCellsDialog extends React.Component {
 											}
 											color={this.state.topBorderColor}
 											onChange={this.handleTopBorderColorChange}
-											onClose={this.handleTopBorderColorChange}
 										/>
 									</FormGroup>
 									<FormGroup
@@ -1057,7 +1053,6 @@ export class FormatCellsDialog extends React.Component {
 											}
 											color={this.state.rightBorderColor}
 											onChange={this.handleRightBorderColorChange}
-											onClose={this.handleRightBorderColorChange}
 										/>
 									</FormGroup>
 									<FormGroup
@@ -1146,7 +1141,6 @@ export class FormatCellsDialog extends React.Component {
 											}
 											color={this.state.bottomBorderColor}
 											onChange={this.handleBottomBorderColorChange}
-											onClose={this.handleBottomBorderColorChange}
 										/>
 									</FormGroup>
 								</div>

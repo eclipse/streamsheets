@@ -2,7 +2,7 @@ import { default as JSG, TextNode, AddItemCommand, GraphUtils, ItemAttributes } 
 import InteractionActivator from './InteractionActivator';
 import EditTextInteraction from './EditTextInteraction';
 import GraphController from '../controller/GraphController';
-import ActionHandle from '../interaction/ActionHandle';
+import ActionHandle from "./ActionHandle";
 
 /**
  * An InteractionActivator used to activate a {{#crossLink "EditTextInteraction"}}{{/crossLink}}.

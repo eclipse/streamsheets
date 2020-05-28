@@ -1,3 +1,6 @@
+/* global FormData */
+/* eslint-disable no-console */
+
 'use strict';
 
 const HTTPRequest = require('./HTTPRequest');

@@ -49,7 +49,7 @@ class TreeContextComponent extends Component {
 
 	componentDidMount() {
 		document.addEventListener('click', this.handleClick);
-		console.log(JSG.TreeInteraction.TREE_SHOW_CONTEXT_MENU_NOTIFICATION);
+		// console.log(JSG.TreeInteraction.TREE_SHOW_CONTEXT_MENU_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().register(
 			this,
 			JSG.TreeInteraction.TREE_SHOW_CONTEXT_MENU_NOTIFICATION, 'onContextMenu',

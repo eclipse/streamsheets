@@ -46,6 +46,7 @@ class Term {
 		this.operand = operand || Operand.UNDEF;
 		this.operator = undefined;
 		this.useBrackets = false;
+		this.isDisposed = false;
 		this._invalid = false;
 	}
 
@@ -83,6 +84,7 @@ class Term {
 		if (this.left) this.left.dispose();
 		if (this.right) this.right.dispose();
 		if (this.operand) this.operand.dispose();
+		this.isDisposed = true;
 	}
 
 	hasOperandOfType(type) {

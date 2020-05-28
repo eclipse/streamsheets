@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const { LoggerFactory } = require('@cedalo/logger');
 const GatewayService = require('./src/services/gateway/GatewayService');
 const initializer = require('./src/initializer');
@@ -13,6 +14,10 @@ const path = require('path');
 const logger = LoggerFactory.createLogger('Gateway Service', process.env.GATEWAY_SERVICE_LOG_LEVEL);
 
 metadata.version = packageJSON.version;
+
+process.on('unhandledRejection', error => {
+	console.log('unhandledRejection', error.message);
+});
 
 const resolvePlugins = async () => {
 	const moduleDir = path.resolve(process.env.PLUGINS_MODULE_DIR || 'plugins');

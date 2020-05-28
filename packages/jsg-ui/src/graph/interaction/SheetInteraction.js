@@ -51,6 +51,16 @@ export default class SheetInteraction extends Interaction {
 		this._dragTimer = undefined;
 	}
 
+	isUsingPan(event, viewer) {
+		if (!this._controller) {
+			return undefined;
+		}
+
+		const view = this._controller.getView();
+		const cell = this.getCell(view, event.location, viewer);
+		return cell && cell.x !== -1 && cell.y !== -1;
+	}
+
 	deactivate(viewer) {
 		super.deactivate(viewer);
 
@@ -162,6 +172,16 @@ export default class SheetInteraction extends Interaction {
 		viewer.clearSelection();
 
 		switch (this._hitCode) {
+			case WorksheetView.HitCode.ROWOUTLINE: {
+				const cell = this.getCell(view, event.location, viewer);
+				view.getRowHeaderView().handleOutlineMouseDown(cell.y, viewer);
+				break;
+			}
+			case WorksheetView.HitCode.COLUMNOUTLINE: {
+				const cell = this.getCell(view, event.location, viewer);
+				view.getColumnHeaderView().handleOutlineMouseDown(cell.x, viewer);
+				break;
+			}
 			case WorksheetView.HitCode.COLUMNSIZE:
 			case WorksheetView.HitCode.COLUMNSIZEHIDDEN:
 				this._section = view.getSection(this._hitCode, event.location, viewer);
@@ -280,6 +300,16 @@ export default class SheetInteraction extends Interaction {
 
 					let optionsCnt = 0;
 
+					let option = document.createElement('option');
+					option.value = '';
+					option.hidden = true;
+					option.disabled = true;
+					option.text = 'selectanoption';
+					option.selected = true;
+					option.style.paddingTop = '5px';
+					option.style.paddingBottom = '5px';
+					selectList.appendChild(option);
+
 					if (termFunc.params.length) {
 						if (termFunc.params[0].operand && termFunc.params[0].operand._range) {
 							const options = termFunc.params[0].operand._range;
@@ -288,11 +318,11 @@ export default class SheetInteraction extends Interaction {
 								if (optCell) {
 									const value = optCell.getValue();
 									if (value !== undefined) {
-										const option = document.createElement('option');
+										option = document.createElement('option');
 										optionsCnt += 1;
 										option.value = value;
 										option.text = value;
-										option.selected = cell.getValue() === value;
+										// option.selected = cell.getValue() === value;
 										option.style.paddingTop = '5px';
 										option.style.paddingBottom = '5px';
 										selectList.appendChild(option);
@@ -450,7 +480,9 @@ export default class SheetInteraction extends Interaction {
 				target.setY1(cell.y);
 			}
 			return target;
-		} else if (cellEditor && cellEditor.rangeResize !== undefined) {
+		}
+
+		if (cellEditor && cellEditor.rangeResize !== undefined) {
 			const target = selRange.copy();
 			switch (cellEditor.rangeResize) {
 				case 0:
@@ -1241,6 +1273,8 @@ export default class SheetInteraction extends Interaction {
 		const interaction = this.activateInteraction(new EditCellInteraction(), this);
 		interaction.setController(this._controller);
 		interaction.startEdit(this._controller, event, viewer);
+		interaction._interaction = new SheetInteraction();
+		interaction._interaction.setInteractionHandler(this.getInteractionHandler());
 		event.hasActivated = true;
 
 		return interaction;
@@ -1287,6 +1321,34 @@ export default class SheetInteraction extends Interaction {
 
 	static get SHEET_SHOW_CONTEXT_MENU_NOTIFICATION() {
 		return SHEET_SHOW_CONTEXT_MENU_NOTIFICATION;
+	}
+
+	onPanEnd(event, viewer) {
+		this._ptPanStart = undefined;
+	}
+
+	onPinch(event, viewer) {
+		if (!this._pinStartZoom) {
+			this._pinStartZoom = viewer.getZoom();
+		}
+		viewer.setZoom(this._pinStartZoom + event.event.scale);
+		console.log(event.event.scale);
+	}
+
+	onPan(event, viewer) {
+		const view = this._controller.getView();
+		const scrollView = view.getScrollView();
+		const cs = viewer.getCoordinateSystem();
+		const pt = new Point(0, 0);
+
+		if (!this._ptPanStart) {
+			this._ptPanStart = view.getScrollView().getScrollPosition();
+		}
+
+		pt.x = this._ptPanStart.x - cs.deviceToLogXNoZoom(event.event.deltaX);
+		pt.y = this._ptPanStart.y - cs.deviceToLogYNoZoom(event.event.deltaY);
+
+		scrollView.setScrollPositionTo(pt);
 	}
 
 	onPaste(event, viewer) {

@@ -22,8 +22,6 @@ import AbstractInteraction from './AbstractInteraction';
 import GraphItemController from '../controller/GraphItemController';
 import LayerId from '../view/LayerId';
 import KeyEvent from '../../ui/events/KeyEvent';
-import GraphEditor from '../../ui/GraphEditor';
-import ScrollPanel from '../../ui/ScrollPanel';
 import { FloatingToolbar, ToolBreak, ToolButton, ToolColor, ToolList, ToolSeparator } from '../view/FloatingToolbar';
 import Cursor from '../../ui/Cursor';
 
@@ -75,9 +73,9 @@ class EditTextInteraction extends AbstractInteraction {
 	 */
 	activate(viewer) {
 		const nc = NotificationCenter.getInstance();
-		nc.register(this, ScrollPanel.SCROLL_NOTIFICATION);
-		nc.register(this, GraphEditor.ZOOM_NOTIFICATION);
-		nc.register(this, GraphEditor.DISPLAY_MODE_NOTIFICATION);
+		nc.register(this, NotificationCenter.SCROLL_NOTIFICATION);
+		nc.register(this, NotificationCenter.ZOOM_NOTIFICATION);
+		nc.register(this, NotificationCenter.DISPLAY_MODE_NOTIFICATION);
 	}
 
 	/**
@@ -114,9 +112,9 @@ class EditTextInteraction extends AbstractInteraction {
 			}
 
 			const nc = NotificationCenter.getInstance();
-			nc.unregister(this, ScrollPanel.SCROLL_NOTIFICATION);
-			nc.unregister(this, GraphEditor.ZOOM_NOTIFICATION);
-			nc.unregister(this, GraphEditor.DISPLAY_MODE_NOTIFICATION);
+			nc.unregister(this, NotificationCenter.SCROLL_NOTIFICATION);
+			nc.unregister(this, NotificationCenter.ZOOM_NOTIFICATION);
+			nc.unregister(this, NotificationCenter.DISPLAY_MODE_NOTIFICATION);
 
 			super.deactivate(viewer);
 		}
@@ -131,11 +129,11 @@ class EditTextInteraction extends AbstractInteraction {
 	onNotification(notification) {
 		let finish = false;
 		switch (notification.name) {
-			case GraphEditor.ZOOM_NOTIFICATION:
-			case GraphEditor.DISPLAY_MODE_NOTIFICATION:
+			case NotificationCenter.ZOOM_NOTIFICATION:
+			case NotificationCenter.DISPLAY_MODE_NOTIFICATION:
 				finish = true;
 				break;
-			case ScrollPanel.SCROLL_NOTIFICATION:
+			case NotificationCenter.SCROLL_NOTIFICATION:
 				finish = this._notifyFlag;
 				break;
 		}

@@ -5,8 +5,8 @@ import { baseAuth, BaseAuth } from './authorization';
 import { glue, RawAPI } from './glue';
 import { MachineServiceProxy } from './machine';
 import { StreamRepositoryProxy } from './stream';
-import { GlobalContext, RequestContext, Session, GenericGlobalContext } from './streamsheets';
-import { User, createUserRepository } from './user';
+import { GenericGlobalContext, GlobalContext, RequestContext, Session } from './streamsheets';
+import { createUserRepository } from './user';
 const {
 	RepositoryManager,
 	MongoDBGraphRepository,
@@ -106,6 +106,8 @@ export const init = async (config: any, plugins: string[]) => {
 			userRepo: RepositoryManager.userRepository,
 			streamRepo: RepositoryManager.streamRepository,
 			rawAuth: baseAuth,
+			authStrategies: {},
+			middleware: {},
 			rawApi: RawAPI,
 			machineServiceProxy,
 			getActor,

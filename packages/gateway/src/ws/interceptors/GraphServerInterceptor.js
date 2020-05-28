@@ -179,7 +179,7 @@ module.exports = class GraphServerInterceptor extends Interceptor {
 			const reason = !requestMapping
 				? 'Request not handled by graph-server...'
 				: 'Response context contains no machineserver-object...';
-			logger.info(`Ignore response to request: ${message.requestType}(${message.requestId}). ${reason}`);
+			logger.debug(`Ignore response to request: ${message.requestType}(${message.requestId}). ${reason}`);
 		}
 		return context;
 	}

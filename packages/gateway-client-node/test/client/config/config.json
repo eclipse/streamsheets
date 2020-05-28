@@ -1,5 +1,5 @@
 {
-	"socketEndpointURL": "ws://localhost:8088/machineserver-proxy",
+	"socketEndpointURL": "ws://localhost:8080/machineserver-proxy",
 	"restEndpointURL": "http://localhost:8080/api/v1.0",
 	"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJtYWNoaW5lc2VydmVyIiwiaWF0IjoxNTA2NDM4NjE2LCJleHAiOjE1Mzc5NzQ2MTZ9.BV5M3JLrgLf9-WQrgv8WAj2_pRYJi79QMn9Gx8TSlPo"
 }

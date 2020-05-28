@@ -9,10 +9,10 @@ import { EventData, RequestContext, Session, WSRequest, WSResponse } from '../st
 import { User } from '../user';
 import { getUserFromWebsocketRequest } from '../utils';
 import ServerConnection from './ServerConnection';
-import { SocketServer } from './SocketServer';
+import { SocketServer, TOKENKEY } from './SocketServer';
 import { StreamWSProxy } from './StreamWSProxy';
 
-const logger = LoggerFactory.createLogger('gateway - ProxyConnection', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
+const logger = LoggerFactory.createLogger('ProxyConnection', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
 
 const OPEN_CONNECTIONS: Set<ProxyConnection> = new Set();
 
@@ -62,12 +62,6 @@ export default class ProxyConnection {
 		this.messagingClient.connect(process.env.MESSAGE_BROKER_URL || 'mqtt://localhost:1883');
 		this.graphserver = new ServerConnection('graphserver', 'graphs');
 		this.machineserver = new ServerConnection('machineserver', 'machines');
-		this.clientsocket.on('message', (message) => {
-			const parsedMessage = JSON.parse(message.toString());
-			if (parsedMessage.type === GatewayMessagingProtocol.MESSAGE_TYPES.CONFIRM_PROCESSED_MACHINE_STEP) {
-				this.machineserver.confirmMachineStep(parsedMessage.machineId);
-			}
-		});
 
 		this.graphserver.eventHandler = (ev) => this.onServerEvent(ev);
 		this.machineserver.eventHandler = (ev) => this.onServerEvent(ev);
@@ -84,9 +78,11 @@ export default class ProxyConnection {
 				if (streamEvent.type === 'response') {
 					return;
 				}
-				this.socketserver.globalContext.getRequestContext(this.socketserver.globalContext, this.session).then((requestContext) => {
-					StreamWSProxy.handleEvent(requestContext, this, streamEvent);
-				});
+				this.socketserver.globalContext
+					.getRequestContext(this.socketserver.globalContext, this.session)
+					.then((requestContext) => {
+						StreamWSProxy.handleEvent(requestContext, this, streamEvent);
+					});
 				return;
 			}
 			let msg = message.toString();
@@ -112,7 +108,14 @@ export default class ProxyConnection {
 		ws.on('message', async (message) => {
 			try {
 				const msg = JSON.parse(message.toString());
-				if (msg.type !== 'ping') {
+				if (msg.type === GatewayMessagingProtocol.MESSAGE_TYPES.CONFIRM_PROCESSED_MACHINE_STEP) {
+					this.machineserver.confirmMachineStep(msg.machineId);
+					this.clientsocket.send(JSON.stringify({
+						type: 'response',
+						requestId: msg.requestId || 0,
+						requestType: msg.type
+					}));
+				} else if (msg.type !== 'ping') {
 					await this.updateConnectionState(ws);
 					msg.session = this.session;
 					if (msg.type === GatewayMessagingProtocol.MESSAGE_TYPES.USER_LOGOUT_MESSAGE_TYPE) {
@@ -122,7 +125,10 @@ export default class ProxyConnection {
 						});
 					} else if (msg.topic && msg.topic.indexOf('stream') >= 0) {
 						StreamWSProxy.handleRequest(
-							await this.socketserver.globalContext.getRequestContext(this.socketserver.globalContext, this.session),
+							await this.socketserver.globalContext.getRequestContext(
+								this.socketserver.globalContext,
+								this.session
+							),
 							this,
 							msg
 						);
@@ -151,22 +157,21 @@ export default class ProxyConnection {
 			id,
 			user: {
 				id: user ? user.id : 'anon',
+				username: user ? user.username : 'anon',
 				displayName: user ? [user.firstName, user.lastName].filter((e) => !!e).join(' ') || user.username : '',
 				machineId: this.machineId
-			},
+			}
 		};
 	}
 
 	async updateConnectionState(ws: WebSocket) {
 		if (ws) {
 			try {
-				const tokenUser = await getUserFromWebsocketRequest(
-					this.request,
-					this.socketserver._config.tokenKey,
-					Auth.parseToken.bind(Auth)
-				);
-				await this.socketserver.globalContext.getActor(this.socketserver.globalContext, {user: tokenUser} as Session)
-				this.setUser(tokenUser);
+				const tokenUser = await getUserFromWebsocketRequest(this.request, TOKENKEY, Auth.parseToken.bind(Auth));
+				const user = await this.socketserver.globalContext.getActor(this.socketserver.globalContext, {
+					user: tokenUser
+				} as Session);
+				this.setUser(user);
 				this.machineId = tokenUser.machineId;
 			} catch (err) {
 				logger.warn(err.name);

@@ -9,12 +9,15 @@ import { DocumentNode } from 'graphql';
 import { FunctionObject, MappedFunctionObjectObject, PartialApply1All, FunctionObjectObject } from './common';
 import { Interceptor } from './ws/ProxyConnection';
 import { UserRepository } from './user/UserRepository';
+import { Strategy } from 'passport';
 
 export interface GenericGlobalContext<APIS extends { [key: string]: FunctionObject }, AUTH extends FunctionObject> {
 	mongoClient: MongoClient;
 	rawApi: APIS;
 	rawAuth: AUTH;
 	encryption: any;
+	authStrategies: { [key: string]: Strategy };
+	middleware: { [key: string]: any };
 	repositories: any;
 	interceptors: {
 		[key: string]: Interceptor;
@@ -57,6 +60,7 @@ export interface Session {
 	id: string;
 	user: {
 		id: string;
+		username: string;
 		displayName: string;
 		machineId?: string;
 	};

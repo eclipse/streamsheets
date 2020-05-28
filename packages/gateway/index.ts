@@ -1,4 +1,5 @@
 import { AuthError, ErrorCodes, InputError, InternalError, MongoError } from './src/errors';
+import Auth from './src/Auth';
 export * from './src/authorization';
 export * from './src/common';
 export * from './src/context';
@@ -10,5 +11,6 @@ export * from './src/streamsheets';
 export * from './src/user';
 export * from './src/user/Document';
 export * from './src/user/Functional';
+export { Auth };
 export { Interceptor, MessageContext } from './src/ws/ProxyConnection';
 export { AuthError, ErrorCodes, InputError, InternalError, MongoError };

@@ -645,13 +645,13 @@ module.exports = class DataProvider {
 											) {
 												if (insert) {
 													if (
-														refRange._y1 - this._sheet.getRows().getInitialSection() >=
+														refRange._y1 >=
 														range.getY1()
 													) {
 														refRange._y1 += range.getHeight();
 													}
 												} else if (
-													refRange._y1 - this._sheet.getRows().getInitialSection() >
+													refRange._y1 >
 													range.getY1()
 												) {
 													refRange._y1 -= range.getHeight();
@@ -664,7 +664,7 @@ module.exports = class DataProvider {
 													range.getX2()
 											) {
 												if (
-													refRange._y2 - this._sheet.getRows().getInitialSection() >=
+													refRange._y2 >=
 													range.getY1()
 												) {
 													refRange._y2 += insert ? range.getHeight() : -range.getHeight();
@@ -681,9 +681,9 @@ module.exports = class DataProvider {
 										operand._range = undefined;
 									} else {
 										if (
-											refRange.getY1() - this._sheet.getRows().getInitialSection() >=
+											refRange.getY1() >=
 												range.getY1() &&
-											refRange.getY1() - this._sheet.getRows().getInitialSection() <=
+											refRange.getY1() <=
 												range.getY2()
 										) {
 											if (insert) {
@@ -701,9 +701,9 @@ module.exports = class DataProvider {
 											}
 										}
 										if (
-											refRange.getY2() - this._sheet.getRows().getInitialSection() >=
+											refRange.getY2() >=
 												range.getY1() &&
-											refRange.getY2() - this._sheet.getRows().getInitialSection() <=
+											refRange.getY2() <=
 												range.getY2()
 										) {
 											if (
@@ -717,16 +717,16 @@ module.exports = class DataProvider {
 									if (operand._range !== undefined) {
 										if (
 											refRange._x1 < this._sheet.getColumns().getInitialSection() ||
-											refRange._y1 < this._sheet.getRows().getInitialSection() ||
+											refRange._y1 < 0 ||
 											refRange._x2 < this._sheet.getColumns().getInitialSection() ||
-											refRange._y2 < this._sheet.getRows().getInitialSection() ||
+											refRange._y2 < 0 ||
 											refRange._x1 - this._sheet.getColumns().getInitialSection() >=
 												this._sheet.getColumnCount() ||
 											refRange._x2 - this._sheet.getColumns().getInitialSection() >=
 												this._sheet.getColumnCount() ||
-											refRange._y1 - this._sheet.getRows().getInitialSection() >=
+											refRange._y1 >=
 												this._sheet.getRowCount() ||
-											refRange._y2 - this._sheet.getRows().getInitialSection() >=
+											refRange._y2 >=
 												this._sheet.getRowCount()
 										) {
 											operand._range = undefined;
@@ -899,15 +899,14 @@ module.exports = class DataProvider {
 							const rangeSheet = range.getSheet();
 							const targetSheet = targetRange.getSheet();
 							const sourceSheet = sourceRange.getSheet();
-							const initR = rangeSheet.getRows().getInitialSection();
 							const initC = rangeSheet.getColumns().getInitialSection();
 							// if copy or reference is within source range
 							if (
 								data.cut === false ||
 								(range._x1 - initC >= sourceRange._x1 &&
 									range._x2 - initC <= sourceRange._x2 &&
-									range._y1 - initR >= sourceRange._y1 &&
-									range._y2 - initR <= sourceRange._y2)
+									range._y1 >= sourceRange._y1 &&
+									range._y2 <= sourceRange._y2)
 							) {
 								if (sourceSheet === rangeSheet) {
 									if (data.cut) {
@@ -938,13 +937,13 @@ module.exports = class DataProvider {
 								}
 								if (
 									range._x1 < initC ||
-									range._y1 < initR ||
+									range._y1 < 0 ||
 									range._x2 < initC ||
-									range._y2 < initR ||
+									range._y2 < 0 ||
 									range._x1 - initC >= rangeSheet.getColumnCount() ||
 									range._x2 - initC >= rangeSheet.getColumnCount() ||
-									range._y1 - initR >= rangeSheet.getRowCount() ||
-									range._y2 - initR >= rangeSheet.getRowCount()
+									range._y1 >= rangeSheet.getRowCount() ||
+									range._y2 >= rangeSheet.getRowCount()
 								) {
 									operand._range = undefined;
 								}
@@ -975,20 +974,19 @@ module.exports = class DataProvider {
 						} else if (operand._range) {
 							const range = operand._range;
 							const rangeSheet = range.getSheet();
-							const initR = rangeSheet.getRows().getInitialSection();
 							const initC = rangeSheet.getColumns().getInitialSection();
 							if (targetRange.getSheet() === rangeSheet) {
 								if (
 									range._x1 - initC < sourceRange._x1 ||
 									range._x2 - initC > sourceRange._x2 ||
-									range._y1 - initR < sourceRange._y1 ||
-									range._y2 - initR > sourceRange._y2
+									range._y1 < sourceRange._y1 ||
+									range._y2 > sourceRange._y2
 								) {
 									if (
 										range._x1 - initC >= targetRange._x1 &&
 										range._x2 - initC <= targetRange._x2 &&
-										range._y1 - initR >= targetRange._y1 &&
-										range._y2 - initR <= targetRange._y2
+										range._y1 >= targetRange._y1 &&
+										range._y2 <= targetRange._y2
 									) {
 										operand._range = undefined;
 									}

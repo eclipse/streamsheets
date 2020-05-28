@@ -7,8 +7,8 @@ module.exports = class Error {
 		request.app.locals.logger(error.message);
 		next(error);
 	}
-	/* eslint no-unused-vars: "warn" */
-	static renderer(error, request, response /* , next */) {
+	/* eslint-disable-next-line */
+	static renderer(error, request, response , next) {
 		response.charset = 'utf-8';
 		if (error.isSemantic) {
 			logger.error(`Semantic error occured: ${error.code}`);

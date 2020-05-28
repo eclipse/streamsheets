@@ -1,6 +1,4 @@
-import { default as JSG } from '@cedalo/jsg-core';
 import Interaction from './Interaction';
-import InteractionActivator from './InteractionActivator';
 
 /**
  * An interaction subclass to perform a pan gesture.<br/>

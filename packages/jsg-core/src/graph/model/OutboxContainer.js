@@ -43,7 +43,10 @@ module.exports = class OutboxContainer extends MessageContainer {
 
 				if (selectedItem !== undefined) {
 					const messageTree = this.getMessageTreeItems();
-					const collapsed = messageTree.getCollapsedItemPaths();
+					let collapsed = messageTree.getCollapsedItemPaths();
+					if (collapsed.length === 0) {
+						collapsed = messageTree._lastCollapsedState;
+					}
 
 					if (selectedItem._json) {
 						messageTree.setJson(selectedItem._json);

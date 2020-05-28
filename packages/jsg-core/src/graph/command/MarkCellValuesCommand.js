@@ -1,4 +1,5 @@
 const Command = require('./Command');
+const { getSheetFromItem } = require('./utils');
 // const StreamSheet = require('../model/StreamSheet');
 
 const getItems = (graph) => (all, id) => {
@@ -6,11 +7,7 @@ const getItems = (graph) => (all, id) => {
 	if (item) all.push(item);
 	return all;
 };
-const getSheetFromItem = (item) => {
-	let sheet;
-	if (item != null) sheet = item.isStreamSheet ? item : getSheetFromItem(item.getParent());
-	return sheet;
-};
+
 class MarkCellValuesCommand extends Command {
 	static createFromObject(data = {}, { graph }) {
 		const items = data.items.reduce(getItems(graph), []);

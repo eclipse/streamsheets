@@ -27,7 +27,7 @@ beforeEach(() => {
 });
 
 describe('execute', () => {
-	it('should trigger execution from one streamsheet to another', async () => {
+	it('should trigger execution of a streamsheet from another one', async () => {
 		const t1 = machine.getStreamSheetByName('T1');
 		const t2 = machine.getStreamSheetByName('T2');
 		const sheet1 = t1.sheet.load({
@@ -210,11 +210,11 @@ describe('execute', () => {
 		await machine.step();
 		expect(t1.getLoopIndex()).toBe(1);
 		expect(t1.sheet.cellAt('C2').value).toBe(1);
-		expect(t1.sheet.cellAt('A6').value).toBe(2);
+		expect(t1.sheet.cellAt('A6').value).toBe(1);
 		await machine.step();
 		expect(t1.getLoopIndex()).toBe(2);
 		expect(t1.sheet.cellAt('C2').value).toBe(2);
-		expect(t1.sheet.cellAt('A6').value).toBe(3);
+		expect(t1.sheet.cellAt('A6').value).toBe(2);
 		await machine.step();
 		expect(t1.getLoopIndex()).toBe(2);
 		expect(t1.sheet.cellAt('C2').value).toBe(3);
@@ -866,6 +866,54 @@ describe('execute', () => {
 		expect(msg).toBeDefined();
 		expect(msg.data.tests).toBe('tests');
 	});
+	// DL-4035: reading message before and after execute() is called
+	it('should not go to next loop element on execute resume if step is not finished', async () => {
+		const sheet1 = machine.getStreamSheetByName('T1').sheet.load({
+			cells: {
+				A1: { formula: 'read(inboxdata(, , "Kundenname","Vorname"), B1)' },
+				A2: { formula: 'A2+1' },
+				A3: { formula: 'execute("T2")' },
+				A4: { formula: 'A4+1' },
+				A5: { formula: 'read(inboxdata(, , "Kundenname","Vorname"), B5)' },
+				A6: { formula: 'A6+1' },
+			}
+		});
+		const t2 = machine.getStreamSheetByName('T2');
+		t2.trigger = StreamSheetTrigger.create({ type: 'execute', repeat: 'once' });
+		sheet1.streamsheet.inbox.put(new Message(Object.assign({}, MSG.SIMPLE.data)));
+		expect(sheet1.cellAt('A2').value).toBe(1);
+		expect(sheet1.cellAt('A4').value).toBe(1);
+		await machine.step();
+		expect(sheet1.cellAt('B1').value).toBe('Max');
+		expect(sheet1.cellAt('A2').value).toBe(2);
+		expect(sheet1.cellAt('A4').value).toBe(2);
+		expect(sheet1.cellAt('B5').value).toBe('Max');
+		expect(sheet1.cellAt('A6').value).toBe(2);
+	});
+	it('should not go to next loop element if executed after processed', async () => {
+		// analog to above but different execution order, i.e. T2 executes T1 !!!
+		const sheet2 = machine.getStreamSheetByName('T2').sheet.load({
+			cells: {
+				A1: { formula: 'read(inboxdata(, , "Kundenname","Vorname"), B1)' },
+				A2: { formula: 'A2+1' },
+				A3: { formula: 'execute("T1")' },
+				A4: { formula: 'A4+1' },
+				A5: { formula: 'read(inboxdata(, , "Kundenname","Vorname"), B5)' },
+				A6: { formula: 'A6+1' },
+			}
+		});
+		const t1 = machine.getStreamSheetByName('T1');
+		t1.trigger = StreamSheetTrigger.create({ type: 'execute', repeat: 'once' });
+		sheet2.streamsheet.inbox.put(new Message(Object.assign({}, MSG.SIMPLE.data)));
+		expect(sheet2.cellAt('A2').value).toBe(1);
+		expect(sheet2.cellAt('A4').value).toBe(1);
+		await machine.step();
+		expect(sheet2.cellAt('B1').value).toBe('Max');
+		expect(sheet2.cellAt('A2').value).toBe(2);
+		expect(sheet2.cellAt('A4').value).toBe(2);
+		expect(sheet2.cellAt('B5').value).toBe('Max');
+		expect(sheet2.cellAt('A6').value).toBe(2);
+	});
 });
 describe('concatenated execute() usage', () => {
 	// DL-1114
@@ -995,7 +1043,7 @@ describe('concatenated execute() usage', () => {
 		t1.trigger = StreamSheetTrigger.create({ type: 'once' });
 
 		const t2 = new StreamSheet({ name: 'T2' });
-		const sheet2 = t2.sheet.load({ cells: { A2: { formula: 'A2+1' }, B2: { formula: 'execute("T3", 1)' } } });
+		const sheet2 = t2.sheet.load({ cells: { A2: { formula: 'A2+1' }, B2: { formula: 'execute("T3", 1)' }, C2: { formula: 'C2+1' } } });
 		t2.trigger = StreamSheetTrigger.create({ type: 'execute', repeat: 'once' });
 		t2.updateSettings({ loop: { path: '[data][Program]', enabled: true } });
 		t2.inbox.put(new Message({ Program: [{ val: 1 }, { val: 2 }] }));
@@ -1030,6 +1078,7 @@ describe('concatenated execute() usage', () => {
 		expect(sheet1.cellAt('B1').value).toBe(true);
 		expect(sheet2.cellAt('A2').value).toBe(2);
 		expect(sheet2.cellAt('B2').value).toBe(ERROR.NA);
+		expect(sheet2.cellAt('C2').value).toBe(1);
 		expect(sheet3.cellAt('A3').value).toBe(2);
 		expect(sheet3.cellAt('B3').value).toBe(1);
 		await machine.step();
@@ -1038,6 +1087,7 @@ describe('concatenated execute() usage', () => {
 		expect(sheet1.cellAt('B1').value).toBe(true);
 		expect(sheet2.cellAt('A2').value).toBe(2);
 		expect(sheet2.cellAt('B2').value).toBe(ERROR.NA);
+		expect(sheet2.cellAt('C2').value).toBe(1);
 		expect(sheet3.cellAt('A3').value).toBe(3);
 		expect(sheet3.cellAt('B3').value).toBe(2);
 		// will cause T3 to return
@@ -1048,6 +1098,7 @@ describe('concatenated execute() usage', () => {
 		expect(sheet2.cellAt('A2').value).toBe(3);
 		// not true because execute is directly triggered again with next loop element
 		expect(sheet2.cellAt('B2').value).toBe(ERROR.NA);
+		expect(sheet2.cellAt('C2').value).toBe(2);
 		expect(sheet3.cellAt('A3').value).toBe(2);
 		expect(sheet3.cellAt('B3').value).toBe(1);
 		await machine.step();
@@ -1056,6 +1107,7 @@ describe('concatenated execute() usage', () => {
 		expect(sheet1.cellAt('B1').value).toBe(true);
 		expect(sheet2.cellAt('A2').value).toBe(3);
 		expect(sheet2.cellAt('B2').value).toBe(ERROR.NA);
+		expect(sheet2.cellAt('C2').value).toBe(2);
 		expect(sheet3.cellAt('A3').value).toBe(3);
 		expect(sheet3.cellAt('B3').value).toBe(2);
 		// will cause  T3 to return
@@ -1066,6 +1118,7 @@ describe('concatenated execute() usage', () => {
 		expect(sheet2.cellAt('A2').value).toBe(3);
 		// here we get true now, because no loop-element or message left in T2
 		expect(sheet2.cellAt('B2').value).toBe(true);
+		expect(sheet2.cellAt('C2').value).toBe(3);
 		expect(sheet3.cellAt('A3').value).toBe(1);
 		expect(sheet3.cellAt('B3').value).toBe(3);
 		// next step will do nothing since T1 is only triggered once...
@@ -1075,6 +1128,7 @@ describe('concatenated execute() usage', () => {
 		expect(sheet1.cellAt('B1').value).toBe(true);
 		expect(sheet2.cellAt('A2').value).toBe(3);
 		expect(sheet2.cellAt('B2').value).toBe(true);
+		expect(sheet2.cellAt('C2').value).toBe(3);
 		expect(sheet3.cellAt('A3').value).toBe(1);
 		expect(sheet3.cellAt('B3').value).toBe(3);
 	});

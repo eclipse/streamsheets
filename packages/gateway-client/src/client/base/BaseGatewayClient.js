@@ -641,7 +641,7 @@ module.exports = class BaseGatewayClient {
 		return this.socket.unsubscribeGraph(graphId);
 	}
 
-	sendSelection(selection) {
+	sendSelection() {
 		// TODO: implement
 	}
 
@@ -717,7 +717,7 @@ module.exports = class BaseGatewayClient {
 		});
 	}
 
-	_connectSocketServer(url) {
+	_connectSocketServer() {
 		// There are different subclasses for usage in Node.js and in the browser
 		// and they handle connecting to a web socket server differently.
 		return Promise.reject(
@@ -727,14 +727,14 @@ module.exports = class BaseGatewayClient {
 		);
 	}
 
-	_connectRESTServer(url) {
+	_connectRESTServer() {
 		return Promise.resolve();
 	}
 
 	_handleSocketMessage(message) {
 		const parsedMessage = JSON.parse(message);
 		if(parsedMessage.error === 'NOT_AUTHENTICATED'){
-			console.log('redirect event');
+			// console.log('redirect event');
 			this._handleEvent({ type: 'redirect', to: '/login' });
 			return;
 		}

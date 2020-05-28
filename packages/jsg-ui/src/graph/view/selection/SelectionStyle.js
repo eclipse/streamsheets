@@ -5,8 +5,8 @@ let LINE_COLOR = '#777777';
 let MARKER_FILL_COLOR = '#b6dbee';
 let MARKER_FILL_COLOR_DISABLED = '#CCCCCC';
 let MARKER_BORDER_COLOR = '#777777';
-let MARKER_SIZE = JSG.touchDevice ? 450 : 200;
-let ROTATE_MARKER_DISTANCE = JSG.touchDevice ? 1200 : 800;
+let MARKER_SIZE = 200;
+let ROTATE_MARKER_DISTANCE = 800;
 
 /**
  * A simple data class which provides default format styles used by the various

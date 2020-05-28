@@ -13,15 +13,6 @@ export default class SheetPlotInteraction extends Interaction {
 		super();
 
 		this._controller = undefined;
-		this._feedback = undefined;
-	}
-
-	deactivate(viewer) {
-		viewer.removeInteractionFeedback(this._feedback);
-
-		this._feedback = undefined;
-
-		super.deactivate(viewer);
 	}
 
 	onKeyDown(event, viewer, dispatcher) {
@@ -185,23 +176,35 @@ export default class SheetPlotInteraction extends Interaction {
 					valueEnd = item.scaleFromAxis(axes, ptStart.y > ptEnd.y ? ptEnd : ptStart);
 				}
 
-				if (item.xAxes[0].type === 'category') {
+				switch (item.xAxes[0].type) {
+				case 'category':
 					valueStart.x = Math.max(0, valueStart.x);
+					valueEnd.x = Math.max(valueStart.x + 1, valueEnd.x);
+					break;
+				case 'time':
+					valueEnd.x = Math.max(valueStart.x + 0.0000004, valueEnd.x);
+					break;
+				default:
+					valueEnd.x = Math.max(valueStart.x + 0.0000001, valueEnd.x);
+					break;
 				}
 
+				const zoomcmds = [];
 				layer.forEach((lview) => {
 					const vitem = lview.chartView.getItem();
-					vitem.setParamValues(viewer, vitem.xAxes[0].formula, [
+					const cmd = vitem.setParamValues(viewer, vitem.xAxes[0].formula, [
 						{ index: 4, value: valueStart.x },
 						{ index: 5, value: valueEnd.x }
 					], item);
+					if (cmd) zoomcmds.push(cmd);
 				});
 
-				item.spreadZoomInfo(viewer);
+				item.spreadZoomInfo(viewer, zoomcmds);
 
 				viewer.getGraph().markDirty();
 				event.doRepaint = true;
 			}
+			view.endPoint = undefined;
 		}
 
 		super.onMouseUp(event, viewer);

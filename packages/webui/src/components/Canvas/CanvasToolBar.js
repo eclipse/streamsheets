@@ -600,22 +600,45 @@ export class CanvasToolBar extends Component {
 			chartsOpen: false
 		});
 
-		const node = new JSG.SheetPlotNode();
-		const attr = node.addAttribute(new BooleanAttribute('showwizard', true));
-		attr.setTransient(true);
-		const sheetView = graphManager.getActiveSheetView();
-		if (sheetView) {
-			const selection = sheetView.getOwnSelection();
-			if (selection) {
-				graphManager.chartSelection = selection.copy();
-				graphManager.chartType = type;
-			}
-		}
+		if (this.isChartSelected()) {
+			const selection = graphManager.getGraphViewer().getSelection();
+			const item  = selection[0].getModel();
+			const cmd = new JSG.CompoundCommand();
+			const cmdChart = item.prepareCommand('chart');
+			const cmdSeries = item.prepareCommand('series');
 
-		graphManager
-			.getGraphViewer()
-			.getInteractionHandler()
-			.setActiveInteraction(new JSG.CreateItemInteraction(node));
+			type = item.setChartType(type);
+
+			item.series.forEach((serie) => {
+				serie.type = type;
+			});
+
+			item.finishCommand(cmdSeries, 'series');
+			item.finishCommand(cmdChart, 'chart');
+			cmd.add(cmdChart);
+			cmd.add(cmdSeries);
+			graphManager
+				.getGraphViewer()
+				.getInteractionHandler()
+				.execute(cmd);
+		} else {
+			const node = new JSG.SheetPlotNode();
+			const attr = node.addAttribute(new BooleanAttribute('showwizard', true));
+			attr.setTransient(true);
+			const sheetView = graphManager.getActiveSheetView();
+			if (sheetView) {
+				const selection = sheetView.getOwnSelection();
+				if (selection) {
+					graphManager.chartSelection = selection.copy();
+					graphManager.chartType = type;
+				}
+			}
+
+			graphManager
+				.getGraphViewer()
+				.getInteractionHandler()
+				.setActiveInteraction(new JSG.CreateItemInteraction(node));
+		}
 		graphManager.getCanvas().focus();
 	};
 
@@ -1764,25 +1787,6 @@ export class CanvasToolBar extends Component {
 			"#5b0f00", "#660000", "#783f04", "#7f6000", "#274e13", "#0c343d", "#1c4587", "#073763", "#20124d", "#4c1130"];
 
 
-		// const colors = [
-		// 	'#D0021B',
-		// 	'#F5A623',
-		// 	'#F8E71C',
-		// 	'#8B572A',
-		// 	'#7ED321',
-		// 	'#417505',
-		// 	'#BD10E0',
-		// 	'#9013FE',
-		// 	'#4A90E2',
-		// 	'#50E3C2',
-		// 	'#B8E986',
-		// 	'#000000',
-		// 	'#4A4A4A',
-		// 	'#9B9B9B',
-		// 	'#CCCCCC',
-		// 	'#FFFFFF']
-		// ;
-
 		colors.push({title: 'None', color: 'transparent'});
 		if (this.isChartSelected()) {
 			colors.push({title: 'Automatic', color: '#FFFFFE'});
@@ -1790,7 +1794,6 @@ export class CanvasToolBar extends Component {
 
 		return colors;
 	}
-
 
 	render() {
 		const canEdit = accessManager.can(RESOURCE_TYPES.MACHINE, RESOURCE_ACTIONS.EDIT);
@@ -3809,7 +3812,7 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							style={buttonStyle}
 							onClick={this.onShowCharts}
-							disabled={!this.props.cellSelected}
+							disabled={!this.props.cellSelected && !this.isChartSelected()}
 						>
 							<SvgIcon>
 								<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
@@ -3851,13 +3854,13 @@ export class CanvasToolBar extends Component {
 									padding: '3px'
 								}}
 							>
-								<FormattedMessage id="ChartTypesCategory" defaultMessage="Category Charts" />
+								<FormattedMessage id="StreamChart.TypesCategory" defaultMessage="Category Charts" />
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="Chart.Column" defaultMessage="Column" />}
+								title={<FormattedMessage id="StreamChart.Column" defaultMessage="Column" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -3871,7 +3874,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="Chart.ColumnStacked" defaultMessage="Column Stacked" />}
+								title={<FormattedMessage id="StreamChart.ColumnStacked" defaultMessage="Column Stacked" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -3885,7 +3888,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="Chart.ColumnStacked 100" defaultMessage="Column Stacked 100" />}
+								title={<FormattedMessage id="StreamChart.ColumnStacked100" defaultMessage="Column Stacked 100" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -3899,7 +3902,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="Chart.Bar" defaultMessage="Bar" />}
+								title={<FormattedMessage id="StreamChart.Bar" defaultMessage="Bar" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -3913,7 +3916,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="Chart.BarStacked" defaultMessage="Bar Stacked" />}
+								title={<FormattedMessage id="StreamChart.BarStacked" defaultMessage="Bar Stacked" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -3927,7 +3930,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="Chart.BarStacked100" defaultMessage="Bar Stacked 100" />}
+								title={<FormattedMessage id="StreamChart.BarStacked100" defaultMessage="Bar Stacked 100" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -3941,7 +3944,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="Chart.Line" defaultMessage="Line" />}
+								title={<FormattedMessage id="StreamChart.Line" defaultMessage="Line" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -3955,7 +3958,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="Chart.LineStacked" defaultMessage="Line Stacked" />}
+								title={<FormattedMessage id="StreamChart.LineStacked" defaultMessage="Line Stacked" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -3969,7 +3972,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="Chart.LineStacked100" defaultMessage="Line Stacked 100" />}
+								title={<FormattedMessage id="StreamChart.LineStacked100" defaultMessage="Line Stacked 100" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -3983,7 +3986,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="Chart.Area" defaultMessage="Area" />}
+								title={<FormattedMessage id="StreamChart.Area" defaultMessage="Area" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -3997,7 +4000,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="Chart.AreaStacked" defaultMessage="Area Stacked" />}
+								title={<FormattedMessage id="StreamChart.AreaStacked" defaultMessage="Area Stacked" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -4011,7 +4014,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="Chart.AreaStacked100" defaultMessage="Area Stacked 100" />}
+								title={<FormattedMessage id="StreamChart.AreaStacked100" defaultMessage="Area Stacked 100" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -4025,7 +4028,21 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="Chart.Profile" defaultMessage="Profile" />}
+								title={<FormattedMessage id="StreamChart.Step" defaultMessage="Line Step" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('linestep')}
+								>
+									<img alt="" src="images/charts/linestep.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="StreamChart.Profile" defaultMessage="Profile" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -4050,13 +4067,13 @@ export class CanvasToolBar extends Component {
 									padding: '3px'
 								}}
 							>
-								<FormattedMessage id="ChartTypesXY" defaultMessage="XY Charts" />
+								<FormattedMessage id="StreamChart.TypesXY" defaultMessage="XY Charts" />
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamCharts.Scatter" defaultMessage="Scatter" />}
+								title={<FormattedMessage id="StreamChart.Scatter" defaultMessage="Scatter" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -4070,7 +4087,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamCharts.ScatterLineMarker" defaultMessage="Scatter with Line and Markers" />}
+								title={<FormattedMessage id="StreamChart.ScatterLineMarker" defaultMessage="Scatter with Line and Markers" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -4084,7 +4101,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamCharts.ScatterLine" defaultMessage="Scatter with Line" />}
+								title={<FormattedMessage id="StreamChart.ScatterLine" defaultMessage="Scatter with Line" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -4098,7 +4115,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamCharts.Bubble" defaultMessage="Bubble" />}
+								title={<FormattedMessage id="StreamChart.Bubble" defaultMessage="Bubble" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -4123,13 +4140,13 @@ export class CanvasToolBar extends Component {
 									padding: '3px'
 								}}
 							>
-								<FormattedMessage id="StreamChartProperties.PieCharts" defaultMessage="Pie and Doughnut Charts" />
+								<FormattedMessage id="StreamChart.TypesPie" defaultMessage="Pie and Doughnut Charts" />
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamCharts.Pie" defaultMessage="Pie" />}
+								title={<FormattedMessage id="StreamChart.Pie" defaultMessage="Pie" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -4143,7 +4160,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamCharts.HalfPie" defaultMessage="Half Pie" />}
+								title={<FormattedMessage id="StreamChart.HalfPie" defaultMessage="Half Pie" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -4157,7 +4174,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamCharts.3dPie" defaultMessage="3D Pie" />}
+								title={<FormattedMessage id="StreamChart.3dPie" defaultMessage="3D Pie" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
@@ -4171,7 +4188,7 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamCharts.Doughnut" defaultMessage="Doughnut" />}
+								title={<FormattedMessage id="StreamChart.Doughnut" defaultMessage="Doughnut" />}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}

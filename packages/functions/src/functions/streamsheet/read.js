@@ -34,7 +34,7 @@ const setOrCreateCellAt = (index, value, isErrorValue, sheet) => {
 const defValue = type => (type === 'number' ? 0 : (type === 'boolean' ? false : ''));
 
 const getLastValue = (term, type) => {
-	const value = term._lastValue;
+	const value = term ? term._lastValue : undefined;
 	return value != null ? value : defValue(type);
 };
 
@@ -45,21 +45,22 @@ const copyDataToCellRange = (range, isErrorValue, sheet, provider) => {
 	iterate.call(range, (cell, index, next) => {
 		nxt += next ? 1 : 0;
 		idx = next ? 0 : idx + 1;
-		const value = !isErrorValue && (nxt < 2 ? provider.indexAt(idx) : provider.valueAt(idx));
+		const value = !isErrorValue && (nxt < 2 ? provider.indexAt(idx) : provider.valueAt(idx, nxt));
 		setOrCreateCellAt(index, value, isErrorValue, sheet);
 	});
 };
+// no indices for arrays (DL-4033)
 const arrayProvider = (array, vertical) => ({
 	vertical,
-	indexAt: idx => (idx >= 0 && idx < array.length ? idx : undefined),
-	valueAt: idx => (idx >= 0 && idx < array.length ? array[idx] : undefined)
+	indexAt: (idx) => (idx >= 0 && idx < array.length ? array[idx] : undefined),
+	valueAt: (/* idx */) => undefined // (idx >= 0 && idx < array.length ? idx : undefined),
 });
 const dictProvider = (dict, vertical) => {
 	const keys = dict ? Object.keys(dict) : [];
 	return {
 		vertical,
 		indexAt: idx => (idx >= 0 && idx < keys.length ? keys[idx] : undefined),
-		valueAt: idx => (idx >= 0 && idx < keys.length ? dict[keys[idx]] : undefined)
+		valueAt: (idx, col) => (idx >= 0 && col < 3 && idx < keys.length ? dict[keys[idx]] : undefined)
 	};
 };
 // DL-1122: spread a list of objects...
@@ -71,7 +72,8 @@ const toObjectList = (data) => {
 		const keys = Object.keys(data);
 		list = keys.reduce((all, key) => {
 			const index = convert.toNumber(key);
-			if (index != null) all.push(data[key]);
+			const value = data[key];
+			if (index != null) all.push(isType.object(value) ? value : [value]);
 			return all;
 		}, []);
 		list = list.length === keys.length ? list : undefined;
@@ -80,18 +82,28 @@ const toObjectList = (data) => {
 };
 const spreadObjectList = (list, cellrange, isHorizontal) => {
 	const sheet = cellrange.sheet;
-	const keys = Object.keys(list[0]);
+	const first = list[0];
+	const keys = Array.isArray(first) || isType.object(first) ? Object.keys(list[0]) : Object.keys(list);
 	const vertical = isHorizontal == null ? cellrange.height >= cellrange.width : !isHorizontal;
 	const iterate = vertical ? cellrange.iterateByCol : cellrange.iterate;
 	let keyidx = 0;
 	let listidx = -1;
+	let value;
 	iterate.call(cellrange, (cell, index, next) => {
 		keyidx = next ? 0 : keyidx + 1;
 		listidx += next ? 1 : 0;
-		if (listidx > list.length) listidx = 0;
-		const isArray = Array.isArray(list[listidx]);
-		// eslint-disable-next-line
-		const value = isArray ? list[listidx][keys[keyidx]] : (listidx === 0 ? keys[keyidx] : list[listidx - 1][keys[keyidx]]);
+		value = undefined;
+		if (listidx <= list.length) {
+			const curr = list[listidx];
+			const prev = list[listidx - 1] 
+			if (Array.isArray(curr)) {
+				value = curr[keys[keyidx]];
+			} else if (listidx === 0) {
+				value = keys[keyidx];
+			} else if(!Array.isArray(prev)) {
+				value = isType.object(prev) ? prev[keys[keyidx]] : prev;
+			}
+		}
 		setOrCreateCellAt(index, value, false, sheet);
 	});
 };
@@ -130,11 +142,12 @@ const read = (sheet, ...terms) =>
 		.mapNextArg((returnNA) => toBool(returnNA, false))
 		.validate((data, targetRange) => targetRange && validate(targetRange, ERROR.INVALID_PARAM))
 		.run((data, targetRange, type, isHorizontal, returnNA) => {
+			const readterm = read.term;
 			if (data.value == null || data.isProcessed) {
-				data.value = returnNA ? ERROR.NA : getLastValue(read.term, type);
+				data.value = returnNA ? ERROR.NA : getLastValue(readterm, type);
 			}
 			if (targetRange) {
-				read.term._lastValue = data.value;
+				if (readterm) readterm._lastValue = data.value;
 				copyToCellRange(targetRange, data.value, type, isHorizontal);
 			}
 			// DL-1080: part of this issue specifies that READ() should return number value...

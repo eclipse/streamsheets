@@ -14,7 +14,7 @@ module.exports = class KafkaConsumer extends ConsumerMixin(KafkaConnector) {
 
 	get groupId() {
 		let groupId = this.config.groupId;
-		if(!groupId || (groupId && groupId.length<1)) {
+		if (!groupId || (groupId && groupId.length < 1)) {
 			groupId = `my-group${this.config.id}`;
 		}
 		return groupId;
@@ -27,7 +27,7 @@ module.exports = class KafkaConsumer extends ConsumerMixin(KafkaConnector) {
 				groupId: this.groupId,
 				readUncommitted: true,
 				maxBytes: 3485760, // 10485760 (10MB)
-				maxWaitTimeInMs: 300,
+				maxWaitTimeInMs: 300
 				// fromOffset: this.config.offset,
 			});
 			this._consumer.on(this._consumer.events.DISCONNECT, () => {
@@ -57,31 +57,25 @@ module.exports = class KafkaConsumer extends ConsumerMixin(KafkaConnector) {
 				this.logger.error(e);
 			}
 		}
-		const stopics = this.topics.map(async (t) => {
-		  try {
-		    if(t) {
-		      this.logger.debug(`topic: ${t}`);
-              await this._consumer.subscribe({ topic: t });
-              await this._consumer.run({
-                autoCommitThreshold: 100,
-                eachMessage: async ({ topic, partition, message }) => {
-                  const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`
-                  this.logger.debug(`- ${prefix} ${message.key}#${message.value}`);
-                  // this.logger.debug(JSON.stringify(message));
-                  // this.config.offset = message.offset;
-                  // this.logger.debug(message.offset);
-                  this.onMessage(topic, message.value);
-                  // this.save();
-                }
-              });
-            }
-          } catch (e) {
-            this.handleError(e);
-          }
+		const pendingSubscribes = this.topics.filter((t) => !!t).map((t) => this._consumer.subscribe({ topic: t }));
 
-		});
-
-		return Promise.all(stopics);
+		try {
+			await Promise.all(pendingSubscribes);
+			await this._consumer.run({
+				autoCommitThreshold: 100,
+				eachMessage: async ({ topic, partition, message }) => {
+					const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`;
+					this.logger.debug(`- ${prefix} ${message.key}#${message.value}`);
+					// this.logger.debug(JSON.stringify(message));
+					// this.config.offset = message.offset;
+					// this.logger.debug(message.offset);
+					this.onMessage(topic, message.value);
+					// this.save();
+				}
+			});
+		} catch (e) {
+			this.handleError(e);
+		}
 	}
 
 	async setOffsetCommandRun() {
@@ -90,23 +84,22 @@ module.exports = class KafkaConsumer extends ConsumerMixin(KafkaConnector) {
 		await admin.connect();
 		const topicsMeta = await admin.getTopicMetadata({ topics: this.topics });
 		const getTopicPartitions = (topic) => {
-			const topicMeta = topicsMeta.topics.find(t => t.name === topic);
-			if(topicMeta) {
+			const topicMeta = topicsMeta.topics.find((t) => t.name === topic);
+			if (topicMeta) {
 				const { partitions } = topicMeta;
-				return partitions.map(p => p.partitionId);
+				return partitions.map((p) => p.partitionId);
 			}
-			return []
+			return [];
 		};
 		const fns = this.topics.map(async (topic) => {
 			const partitions = getTopicPartitions(topic);
-			const offsets = partitions.map(p => ({partition: p, offset}));
+			const offsets = partitions.map((p) => ({ partition: p, offset }));
 			await admin.setOffsets({
 				groupId: this.groupId,
 				topic,
-				partitions:offsets
+				partitions: offsets
 			});
 			// this._consumer.seek({ topic, partition: 2, offset: 1 });
-
 		});
 		try {
 			await Promise.all(fns);
@@ -117,11 +110,10 @@ module.exports = class KafkaConsumer extends ConsumerMixin(KafkaConnector) {
 	}
 
 	async dispose() {
-		if(this._consumer) {
+		if (this._consumer) {
 			await this._consumer.disconnect();
 		}
 		await super.dispose();
 		this._consumer = null;
 	}
-
 };

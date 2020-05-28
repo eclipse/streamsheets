@@ -346,16 +346,15 @@ class BezierShape extends PolygonShape {
 	 */
 	getBezierPoints(points) {
 		if (points.length > 1) {
+			const closed = this._item.isClosed();
 			this._cpFromPoints.clear();
 			this._cpToPoints.clear();
-			BezierShape.initControlPoints(points, this._cpToPoints, this._cpFromPoints);
+			BezierShape.initControlPoints(points, this._cpToPoints, this._cpFromPoints, closed);
 		}
 	}
 
 	saveContent(writer) {
 		super.saveContent(writer);
-
-		let i;
 
 		writer.writeStartElement('cpfrom');
 		writer.writeStartArray('c');
@@ -518,20 +517,20 @@ class BezierShape extends PolygonShape {
  * @since 1.6.18
  */
 BezierShape.initControlPoints = (() => {
-	function toPoint(obj, point) {
+	const toPoint = (obj, point) => {
 		return obj.toPoint ? obj.toPoint(point) : point.setTo(obj);
-	}
+	};
 
-	function calcBezierPoints(pt, prevpt, nextpt, cpTo, cpFrom) {
+	const calcBezierPoints = (pt, prevpt, nextpt, cpTo, cpFrom) => {
 		const fact = 0.2;
 		const xDiff = (nextpt.x - prevpt.x) * fact;
 		const yDiff = (nextpt.y - prevpt.y) * fact;
 
 		cpTo.set(pt.x + xDiff, pt.y + yDiff);
 		cpFrom.set(pt.x - xDiff, pt.y - yDiff);
-	}
+	};
 
-	function applyBezierPoints(obj, cpTo, cpFrom, cptsTo, cptsFrom) {
+	const applyBezierPoints = (obj, cpTo, cpFrom, cptsTo, cptsFrom) => {
 		if (obj.cpTo && obj.cpFrom) {
 			obj.cpTo.setToPoint(cpTo);
 			obj.cpFrom.setToPoint(cpFrom);
@@ -539,9 +538,9 @@ BezierShape.initControlPoints = (() => {
 			cptsTo.addPoint(cpTo.copy());
 			cptsFrom.addPoint(cpFrom.copy());
 		}
-	}
+	};
 
-	return (coordpts, cptsTo, cptsFrom) => {
+	return (coordpts, cptsTo, cptsFrom, closed) => {
 		// Evaluate control point from points
 		// 1. subtract points p.x(+1) - p.x(-1) and p.y(+1) - p.y(-1)
 		// 2. Ergibt addiert auf Polygonpunkt einen Punkt auf Linie des Lots auf die Winkelhalbierende der umgebenden
@@ -558,8 +557,13 @@ BezierShape.initControlPoints = (() => {
 
 			for (i = 0; i < n; i += 1) {
 				pt = toPoint(coordpts[i], pt);
-				prevpt = i === 0 ? toPoint(pt, prevpt) : toPoint(coordpts[i - 1], prevpt);
-				nextpt = i === last ? toPoint(pt, nextpt) : toPoint(coordpts[i + 1], nextpt);
+				if (closed) {
+					prevpt = i === 0 ? toPoint(coordpts[coordpts.length - 1], prevpt) : toPoint(coordpts[i - 1], prevpt);
+					nextpt = i === last ? toPoint(coordpts[0], nextpt) : toPoint(coordpts[i + 1], nextpt);
+				} else {
+					prevpt = i === 0 ? toPoint(pt, prevpt) : toPoint(coordpts[i - 1], prevpt);
+					nextpt = i === last ? toPoint(pt, nextpt) : toPoint(coordpts[i + 1], nextpt);
+				}
 				calcBezierPoints(pt, prevpt, nextpt, cpTo, cpFrom);
 				applyBezierPoints(coordpts[i], cpTo, cpFrom, cptsTo, cptsFrom);
 			}
