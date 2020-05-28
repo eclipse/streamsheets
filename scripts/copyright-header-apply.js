@@ -4,8 +4,9 @@ const path = require('path');
 const through2 = require('through2');
 
 const INPUT = path.join(__dirname, '..', 'packages');
+const COPYRIGHT_HEADER = fs.readFileSync(path.join(__dirname, 'copyright-header.txt')).toString();
 
-const excludeDirFilter = through2.obj(function(item, enc, next) {
+const excludeDirFilter = through2.obj((item, enc, next) => {
 	if (
 		!item.path.includes('node_modules') // exclude node_modules
 		&& !item.path.includes('coverage') 	// exclude coverage
