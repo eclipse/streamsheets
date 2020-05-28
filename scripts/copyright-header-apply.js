@@ -23,6 +23,6 @@ klaw(INPUT)
 	.on('data', (item) => {
 		const filePath = item.path;
 		if (item.stats.isFile()) {
-			console.log(filePath);
+			console.log(`Adding copyright header to file: ${filePath}`);
 		}
 	});
