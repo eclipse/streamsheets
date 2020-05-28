@@ -18,9 +18,11 @@ const excludeDirFilter = through2.obj(function (item, enc, next) {
 	next();
 });
 
-const prepend = async (filePath, content, encoding) => {
-  const fileContent = await fs.readFile(filePath, encoding);
-  await fs.writeFile(filePath, content + fileContent, encoding);
+const prepend = async (filePath, content) => {
+  const fileContent = fs.readFileSync(filePath).toString();
+  console.log(`${content}\n${fileContent}`);
+  await fs.writeFile(filePath, `${content}\n${fileContent}`);
+  console.log('written');
 }
 
 klaw(INPUT)
