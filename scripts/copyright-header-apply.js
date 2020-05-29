@@ -40,7 +40,7 @@ klaw(INPUT)
 	.on('data', async (item) => {
 		const filePath = item.path;
 		if (item.stats.isFile()) {
-			counter++;
+			counter = counter + 1;
 			console.log(`${counter} Adding copyright header to file: ${filePath}`);
 			prepend(filePath, COPYRIGHT_HEADER);
 		}
