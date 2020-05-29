@@ -27,6 +27,7 @@ module.exports = {
 		'no-restricted-globals': 0,
 		'prefer-object-spread': 0,
 		'spaced-comment': 0,
+		'lines-around-directive': 0,
 		'no-async-promise-executor': 1,
 		'no-else-return': 1,
 		'no-case-declarations': 1,

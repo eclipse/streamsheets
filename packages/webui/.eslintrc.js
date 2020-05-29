@@ -19,6 +19,7 @@ module.exports = {
 		'jsx-a11y/no-static-element-interactions': 0,
 		'react/prefer-stateless-function': 0,
 		'no-debugger': 0,
-		'spaced-comment': 0
+		'spaced-comment': 0,
+		'lines-around-directive': 0
 	}
 };
