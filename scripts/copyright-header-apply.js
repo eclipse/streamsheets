@@ -39,4 +39,7 @@ klaw(INPUT)
 			counter++;
 			console.log(`${counter} Adding copyright header to file: ${filePath}`);
 		}
+	})
+	.on('end', () => {
+		console.log('Finished');
 	});
