@@ -19,10 +19,13 @@ const excludeDirFilter = through2.obj(function (item, enc, next) {
 	next();
 });
 
-const prepend = async (filePath, content) => {
+const prepend = (filePath, content) => {
   const fileContent = fs.readFileSync(filePath).toString();
+//   if (fileContent.indexOf(content) === 0) {
+// 	fileContent = fileContent.substring(0, fileContent.length);
+//   }
   console.log(`${content}\n${fileContent}`);
-  await fs.writeFile(filePath, `${content}\n${fileContent}`);
+  fs.writeFileSync(filePath, `${content}\n${fileContent}`);
   console.log('written');
 }
 
