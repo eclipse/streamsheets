@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable react/forbid-prop-types,react/no-unused-prop-types,jsx-a11y/click-events-have-key-events,react/no-find-dom-node,max-len */
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
