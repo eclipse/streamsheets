@@ -6,11 +6,15 @@ const through2 = require('through2');
 const INPUT = path.join(__dirname, '..', 'packages');
 const COPYRIGHT_HEADER = fs.readFileSync(path.join(__dirname, 'copyright-header.txt')).toString();
 
-const excludeDirectories = ['node_modules', 'coverage', 'swagger']
+const exclude = [
+	'coverage',
+	'node_modules', 
+	'swagger',
+]
 
 const excludeDirFilter = through2.obj(function (item, enc, next) {
 	if (
-		excludeDirectories.every((directory) => !item.path.includes(directory))
+		exclude.every((directory) => !item.path.includes(directory))
 		&& (item.stats.isDirectory()		// include directories
 		|| item.path.endsWith('.js'))		// include JavaScript files
 	) {
@@ -24,9 +28,9 @@ const prepend = (filePath, content) => {
 //   if (fileContent.indexOf(content) === 0) {
 // 	fileContent = fileContent.substring(0, fileContent.length);
 //   }
-  console.log(`${content}\n${fileContent}`);
+//   console.log(`${content}\n${fileContent}`);
   fs.writeFileSync(filePath, `${content}\n${fileContent}`);
-  console.log('written');
+//   console.log('written');
 }
 
 let counter = 0;
@@ -38,6 +42,7 @@ klaw(INPUT)
 		if (item.stats.isFile()) {
 			counter++;
 			console.log(`${counter} Adding copyright header to file: ${filePath}`);
+			prepend(filePath, COPYRIGHT_HEADER);
 		}
 	})
 	.on('end', () => {
