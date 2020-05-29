@@ -6,10 +6,11 @@ const through2 = require('through2');
 const INPUT = path.join(__dirname, '..', 'packages');
 const COPYRIGHT_HEADER = fs.readFileSync(path.join(__dirname, 'copyright-header.txt')).toString();
 
+const excludeDirectories = ['node_modules', 'coverage', 'swagger']
+
 const excludeDirFilter = through2.obj(function (item, enc, next) {
 	if (
-		!item.path.includes('node_modules') // exclude node_modules
-		&& !item.path.includes('coverage') 	// exclude coverage
+		excludeDirectories.every((directory) => !item.path.includes(directory))
 		&& (item.stats.isDirectory()		// include directories
 		|| item.path.endsWith('.js'))		// include JavaScript files
 	) {
