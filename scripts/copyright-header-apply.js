@@ -29,11 +29,14 @@ const prepend = (filePath, content) => {
   console.log('written');
 }
 
+let counter = 0;
+
 klaw(INPUT)
 	.pipe(excludeDirFilter)
-	.on('data', (item) => {
+	.on('data', async (item) => {
 		const filePath = item.path;
 		if (item.stats.isFile()) {
-			console.log(`Adding copyright header to file: ${filePath}`);
+			counter++;
+			console.log(`${counter} Adding copyright header to file: ${filePath}`);
 		}
 	});
