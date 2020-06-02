@@ -58,6 +58,10 @@ module.exports = {
 			en: { argumentList: 'Value', description: 'Rounds a number value down to its nearest integer' },
 			de: { argumentList: 'Zahl', description: 'Rundet eine Zahl zu ihrer nächsten Ganzen Zahl ab' }
 		},
+		LOG: {
+			en: { argumentList: 'Number,Base', description: 'Returns the logarithm of a number to specified base' },
+			de: { argumentList: 'Zahl,Basis', description: 'Gibt den Logarithmus einer Zahl zur angegebenen Basis zurück' }
+		},
 		MOD: {
 			en: {
 				argumentList: 'Number, Divisor',

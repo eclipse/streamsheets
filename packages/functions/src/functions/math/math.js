@@ -95,6 +95,14 @@ const int = (sheet, ...terms) =>
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.run((nr) => Math.floor(nr));
 
+const log = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withMinArgs(1)
+		.withMaxArgs(2)
+		.mapNextArg((nr) => toNumberOrError(nr.value))
+		.mapNextArg((base) => base ? toNumberOrError(base.value) : 10)
+		.run((nr, base) => nr !== 0 && base !== 0 ? Math.log(nr) / Math.log(base) : ERROR.VALUE);
+
 const mod = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(2)
@@ -183,6 +191,7 @@ module.exports = {
 	EVEN: even,
 	FRAC: frac,
 	INT: int,
+	LOG: log,
 	MOD: mod,
 	ODD: odd,
 	POWER: power,
