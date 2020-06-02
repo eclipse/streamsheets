@@ -9,7 +9,7 @@ const COPYRIGHT_HEADER = fs.readFileSync(path.join(__dirname, 'copyright-header.
 const exclude = [
 	'coverage',
 	'node_modules', 
-	'swagger',
+	'swagger'
 ]
 
 const excludeDirFilter = through2.obj(function (item, enc, next) {
@@ -17,6 +17,7 @@ const excludeDirFilter = through2.obj(function (item, enc, next) {
 		exclude.every((directory) => !item.path.includes(directory))
 		&& (item.stats.isDirectory()		// include directories
 		|| item.path.endsWith('.js'))		// include JavaScript files
+		|| item.path.endsWith('.ts'))		// include TypeScript files
 	) {
 		this.push(item);
 	}
