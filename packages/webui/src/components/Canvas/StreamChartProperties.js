@@ -1,13 +1,14 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+
 /* eslint-disable react/prop-types, react/forbid-prop-types */
 /* eslint-disable react/no-unused-state */
 import React, { Component } from 'react';
@@ -276,6 +277,14 @@ export class StreamChartProperties extends Component {
 		const cmd = this.prepareCommand(id);
 		data.visible = state;
 		this.finishCommand(cmd, id);
+	};
+
+	handleUpDownBarsChange = (event, state) => {
+		const cmd = this.prepareCommand('chart');
+		const item = this.state.plotView.getItem();
+		item.chart.upBars.visible = state;
+		item.chart.downBars.visible = state;
+		this.finishCommand(cmd, 'chart');
 	};
 
 	handleTemplateChange = (event) => {
@@ -644,6 +653,18 @@ export class StreamChartProperties extends Component {
 		return serie.type === 'bar' || serie.type === 'profile';
 	}
 
+	isLineChart() {
+		const item = this.state.plotView.getItem();
+
+		if (item.series.length === 0) {
+			return false;
+		}
+
+		const serie = item.series[0];
+
+		return serie.type === 'line' || serie.type === 'profile';
+	}
+
 	getLabel(series) {
 		const item = this.state.plotView.getItem();
 		const ref = item.getDataSourceInfo(series.formula);
@@ -824,6 +845,40 @@ export class StreamChartProperties extends Component {
 											/>
 										}
 									/>
+									{this.isLineChart() ? (
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={item.chart.hiLoLines.visible}
+													onChange={(event, state) =>
+														this.handleVisibleChange(event, state, item.chart.hiLoLines, 'chart')
+													}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.HiLoLines"
+													defaultMessage="High Low Lines"
+												/>
+											}
+										/>
+									) : null}
+									{this.isLineChart() ? (
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={item.chart.upBars.visible}
+													onChange={(event, state) => this.handleUpDownBarsChange(event, state)}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.UpDownBars"
+													defaultMessage="Up Down Bars"
+												/>
+											}
+										/>
+									) : null}
 									<FormControlLabel
 										control={
 											<Checkbox
@@ -1605,7 +1660,6 @@ export class StreamChartProperties extends Component {
 										}
 									/>
 									{data.type === 'category' ? null : (
-
 										<FormControlLabel
 											control={
 												<Checkbox

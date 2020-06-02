@@ -635,6 +635,8 @@
     "StreamChartProperties.Visible": "Visible",
     "StreamChartProperties.title": "Title",
     "StreamChartProperties.legend": "Legend",
+    "StreamChartProperties.UpDownBars": "Up Down Bars",
+    "StreamChartProperties.HiLoLines": "High Low Lines",
     "StreamChartProperties.tooltips": "Tooltips",
     "StreamChartProperties.Rotation": "Rotation",
     "StreamChartProperties.InvalidAngle": "Angle must be between 0 and 90 degrees!",

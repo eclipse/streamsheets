@@ -1,14 +1,16 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+
 const ChartRect = require('./ChartRect');
+const ChartElement = require('./ChartElement');
 const Expression = require('../../expr/Expression');
 
 module.exports = class Chart {
@@ -29,6 +31,9 @@ module.exports = class Chart {
 		this.firstCategoryLabels = true;
 		this.firstSeriesLabels = true;
 		this.dataInRows = true;
+		this.hiLoLines = new ChartElement();
+		this.upBars = new ChartElement();
+		this.downBars = new ChartElement();
 		this.formula = new Expression('');
 	}
 
@@ -90,6 +95,9 @@ module.exports = class Chart {
 		writer.writeAttributeNumber('endangle', this.endAngle);
 		writer.writeAttributeNumber('hole', this.hole);
 		this.formula.save('formula', writer);
+		this.hiLoLines.save('hilolines', writer);
+		this.upBars.save('upbars', writer);
+		this.downBars.save('downbars', writer);
 		writer.writeEndElement();
 	}
 
@@ -115,6 +123,18 @@ module.exports = class Chart {
 			case 'formula':
 				this.formula = new Expression(0);
 				this.formula.read(reader, child);
+				break;
+			case 'hilolines':
+				this.hiLoLines = new ChartElement();
+				this.hiLoLines.read(reader, child);
+				break;
+			case 'upbars':
+				this.upBars = new ChartElement();
+				this.upBars.read(reader, child);
+				break;
+			case 'downbars':
+				this.downBars = new ChartElement();
+				this.downBars.read(reader, child);
 				break;
 			}
 		});
