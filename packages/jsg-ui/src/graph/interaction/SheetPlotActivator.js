@@ -62,7 +62,6 @@ export default class SheetPlotActivator extends InteractionActivator {
 							const cmd = item.prepareCommand('chart');
 							item.chart.downBars.visible = false;
 							finish(cmd, 'chart');
-							break;
 						}
 						break;
 					case 'hilolines':
@@ -70,7 +69,6 @@ export default class SheetPlotActivator extends InteractionActivator {
 							const cmd = item.prepareCommand('chart');
 							item.chart.hiLoLines.visible = false;
 							finish(cmd, 'chart');
-							break;
 						}
 						break;
 					case 'series':
