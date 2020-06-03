@@ -1,14 +1,13 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-// import { TextFormatAttributes, FormatAttributes, MathUtils, GraphUtils, Rectangle } from '@cedalo/jsg-core';
 
 const opposedLine = (start, end) => {
 	const lengthX = end.x - start.x;
@@ -39,7 +38,7 @@ const controlPoint = (current, previous, next, reverse) => {
 };
 
 export default function SheetPlotViewFactory(JSG, ...args) {
-	const { TextFormatAttributes, FormatAttributes, MathUtils, GraphUtils, Rectangle } = JSG;
+	const { ChartRect, TextFormatAttributes, FormatAttributes, MathUtils, GraphUtils, Rectangle, Numbers } = JSG;
 
 	JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION = 'graph_show_context_menu_notification';
 	JSG.GRAPH_DOUBLE_CLICK_NOTIFICATION = 'graph_double_click_notification';
@@ -61,8 +60,8 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 		}
 
 		setFormat(graphics, item, format, id) {
-			const lineColor = format.lineColor || item.getTemplate()[id].format.lineColor;
-			const fillColor = format.fillColor || item.getTemplate()[id].format.fillColor;
+			const lineColor = format.lineColor ? format.lineColor : item.getTemplate()[id].format.lineColor;
+			const fillColor = format.fillColor ? format.fillColor : item.getTemplate()[id].format.fillColor;
 			const lineStyle =
 				format.lineStyle === undefined ? item.getTemplate()[id].format.lineStyle : format.lineStyle;
 			const lineWidth =
@@ -180,6 +179,12 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				}
 			}
 
+			if (item.chart.hiLoLines.visible) {
+				this.drawHiLoLines(graphics, item, plotRect);
+			}
+			if (item.chart.upBars.visible) {
+				this.drawUpDownBars(graphics, item, plotRect);
+			}
 			this.drawLegend(graphics, plotRect, item, legendData);
 			this.drawTitle(graphics, item, item.title, 'title', 0);
 
@@ -1401,6 +1406,134 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			return params.points;
 		}
 
+		drawHiLoLines(graphics, item, plotRect) {
+			let index = 0;
+			const value = {};
+
+			const serie = item.getFirstSerieOfType('line');
+			if (!serie) {
+				return;
+			}
+
+			const ref = item.getDataSourceInfo(serie.formula);
+			const axes = item.getAxes(serie);
+
+			if (!ref || !axes) {
+				return;
+			}
+
+			graphics.beginPath();
+
+			const fi = this.setFormat(graphics, item, item.chart.hiLoLines.format, 'hilolines');
+			if (fi.line === false) {
+				return;
+			}
+
+			const ptLow = {x: 0, y: 0};
+			const ptHigh = {x: 0, y: 0};
+			const info = {
+				serie,
+				seriesIndex: 0,
+				categories: axes.y.categories
+			};
+			let tmp;
+
+			while (item.getValue(ref, index, value)) {
+				info.index = index;
+				if (value.x !== undefined && value.y !== undefined) {
+					ptLow.x = item.scaleToAxis(axes.x, value.x, undefined, false);
+					ptHigh.x = ptLow.x;
+					ptLow.y = undefined;
+					ptHigh.y = undefined;
+					for (let i = 0; i < item.series.length; i += 1) {
+						if (item.series[i].type === 'line' && axes.y.categories[index].values[i] !== undefined) {
+							tmp = axes.y.categories[info.index].values[i].y;
+							if (Numbers.isNumber(tmp)) {
+								ptLow.y = ptLow.y === undefined ? tmp : Math.min(ptLow.y, tmp);
+								ptHigh.y = ptHigh.y === undefined ? tmp : Math.max(ptHigh.y, tmp);
+							}
+						}
+					}
+					if (ptLow.y !== undefined && ptHigh.y !== undefined) {
+						ptLow.y = item.scaleToAxis(axes.y, ptLow.y, info, false);
+						ptHigh.y = item.scaleToAxis(axes.y, ptHigh.y, info, false);
+						item.toPlot(serie, plotRect, ptLow);
+						item.toPlot(serie, plotRect, ptHigh);
+						if (plotRect.containsPoint(ptLow)) {
+							graphics.moveTo(ptLow.x, ptLow.y);
+							graphics.lineTo(ptHigh.x, ptHigh.y);
+						}
+					}
+				}
+				index += 1;
+			}
+			graphics.stroke();
+		}
+
+		drawUpDownBars(graphics, item, plotRect) {
+			let index = 0;
+			const value = {};
+			const indices = item.getFirstLastSerieIndicesOfType('line');
+			if (indices.first === undefined || indices.last === undefined) {
+				return;
+			}
+			const serie = item.series[indices.first];
+
+			const ref = item.getDataSourceInfo(serie.formula);
+			const axes = item.getAxes(serie);
+			if (!ref || !axes) {
+				return;
+			}
+
+			const ptLow = {x: 0, y: 0};
+			const ptHigh = {x: 0, y: 0};
+			const rect = new ChartRect();
+			const info = {
+				serie,
+				seriesIndex: 0,
+				categories: axes.y.categories
+			};
+			let tmp;
+			const barWidth = item.getUpDownBarWidth(axes, plotRect);
+
+			while (item.getValue(ref, index, value)) {
+				info.index = index;
+				if (value.x !== undefined && value.y !== undefined) {
+					ptLow.x = item.scaleToAxis(axes.x, value.x, undefined, false);
+					ptHigh.x = ptLow.x;
+					ptLow.y = undefined;
+					ptHigh.y = undefined;
+					if (axes.y.categories[index].values[indices.first] !== undefined) {
+						tmp = axes.y.categories[info.index].values[indices.first].y;
+						if (Numbers.isNumber(tmp)) {
+							ptLow.y = tmp;
+						}
+					}
+					if (axes.y.categories[index].values[indices.last] !== undefined) {
+						tmp = axes.y.categories[info.index].values[indices.last].y;
+						if (Numbers.isNumber(tmp)) {
+							ptHigh.y = tmp;
+						}
+					}
+					if (ptLow.y !== undefined && ptHigh.y !== undefined) {
+						ptLow.y = item.scaleToAxis(axes.y, ptLow.y, info, false);
+						ptHigh.y = item.scaleToAxis(axes.y, ptHigh.y, info, false);
+						item.toPlot(serie, plotRect, ptLow);
+						item.toPlot(serie, plotRect, ptHigh);
+						if (plotRect.containsPoint(ptLow)) {
+							rect.set(ptHigh.x - barWidth / 2, ptHigh.y, ptHigh.x + barWidth / 2, ptLow.y)
+							if (ptLow.y > ptHigh.y) {
+								this.drawRect(graphics, rect, item, item.chart.upBars.format, 'upbars');
+							} else {
+								this.drawRect(graphics, rect, item, item.chart.downBars.format, 'downbars');
+							}
+						}
+					}
+				}
+				index += 1;
+			}
+		}
+
 		drawTitle(graphics, item, title, id, angle) {
 			if (!title.visible) {
 				return;
@@ -1456,6 +1589,9 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				break;
 			case 'dash':
 				graphics.rect(pos.x - size / 2, pos.y - size / 6, size, size / 3);
+				break;
+			case 'dashright':
+				graphics.rect(pos.x, pos.y - size / 6, size, size / 3);
 				break;
 			case 'line':
 				graphics.moveTo(pos.x - size / 2, pos.y);
@@ -1530,6 +1666,9 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 								: data.dataLabel.format.lineWidth
 						);
 						break;
+					case 'hilolines':
+					case 'upbars':
+					case 'downbars':
 					case 'plot':
 					case 'title':
 					case 'legend':
@@ -1901,6 +2040,11 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					return true;
 				case 'plot':
 					update('plot');
+					return true;
+				case 'hilolines':
+				case 'upbars':
+				case 'downbars':
+					update('chart');
 					return true;
 				default:
 					break;

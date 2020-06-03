@@ -89,9 +89,12 @@ export default class ChartSelectionFeedbackView extends View {
 				{
 					let index = 0;
 					const value = {};
-					const serie = item.series[0];
-
-					if (!serie || serie.type !== 'line') {
+					const serie = item.getFirstSerieOfType('line');
+					if (!serie) {
+						return;
+					}
+					const indices = item.getFirstLastSerieIndicesOfType('line');
+					if (indices.first === undefined || indices.last === undefined) {
 						return;
 					}
 
@@ -124,14 +127,14 @@ export default class ChartSelectionFeedbackView extends View {
 							switch (selection.element) {
 								case 'downbars':
 								case 'upbars':
-									if (axes.y.categories[index].values[0] !== undefined) {
-										tmp = axes.y.categories[info.index].values[0].y;
+									if (axes.y.categories[index].values[indices.first] !== undefined) {
+										tmp = axes.y.categories[info.index].values[indices.first].y;
 										if (Numbers.isNumber(tmp)) {
 											ptLow.y = tmp;
 										}
 									}
-									if (axes.y.categories[index].values[item.series.length - 1] !== undefined) {
-										tmp = axes.y.categories[info.index].values[item.series.length - 1].y;
+									if (axes.y.categories[index].values[indices.last] !== undefined) {
+										tmp = axes.y.categories[info.index].values[indices.last].y;
 										if (Numbers.isNumber(tmp)) {
 											ptHigh.y = tmp;
 										}
@@ -155,8 +158,8 @@ export default class ChartSelectionFeedbackView extends View {
 									}
 									break;
 								case 'hilolines': {
-									for (let i = 0; i <= item.series.length; i += 1) {
-										if (axes.y.categories[index].values[i] !== undefined) {
+									for (let i = 0; i < item.series.length; i += 1) {
+										if (item.series[i].type === 'line' && axes.y.categories[index].values[i] !== undefined) {
 											tmp = axes.y.categories[info.index].values[i].y;
 											if (Numbers.isNumber(tmp)) {
 												ptLow.y = ptLow.y === undefined ? tmp : Math.min(ptLow.y, tmp);

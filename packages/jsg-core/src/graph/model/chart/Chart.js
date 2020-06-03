@@ -79,6 +79,9 @@ module.exports = class Chart {
 
 	save(writer) {
 		writer.writeStartElement('chart');
+		if (this.type) {
+			writer.writeAttributeString('type', this.type);
+		}
 		writer.writeAttributeString('datamode', this.dataMode);
 		writer.writeAttributeString('template', this.template);
 		writer.writeAttributeNumber('coharent', this.coharentData ? 1 : 0);
@@ -102,6 +105,7 @@ module.exports = class Chart {
 	}
 
 	read(reader, object) {
+		this.type = reader.getAttribute(object, 'type') ? reader.getAttribute(object, 'type') : undefined;
 		this.dataMode = reader.getAttribute(object, 'datamode');
 		this.stacked = reader.getAttribute(object, 'stacked');
 		this.relative = reader.getAttribute(object, 'relative');

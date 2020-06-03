@@ -520,7 +520,7 @@ export class StreamChartProperties extends Component {
 	handleSeriesMarkerStyleChange = (event) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
-		data.marker._style = event.target.value;
+		data.marker.style = event.target.value;
 		this.finishCommand(cmd, 'series');
 	};
 
@@ -656,13 +656,7 @@ export class StreamChartProperties extends Component {
 	isLineChart() {
 		const item = this.state.plotView.getItem();
 
-		if (item.series.length === 0) {
-			return false;
-		}
-
-		const serie = item.series[0];
-
-		return serie.type === 'line' || serie.type === 'profile';
+		return !!item.getFirstSerieOfType('line');
 	}
 
 	getLabel(series) {
@@ -1914,10 +1908,13 @@ export class StreamChartProperties extends Component {
 									<MenuItem value="dash" key={5}>
 										<FormattedMessage id="StreamChartProperties.dash" defaultMessage="Dash" />
 									</MenuItem>
-									<MenuItem value="line" key={6}>
+									<MenuItem value="dashright" key={6}>
+										<FormattedMessage id="StreamChartProperties.dashright" defaultMessage="Dash Right" />
+									</MenuItem>
+									<MenuItem value="line" key={7}>
 										<FormattedMessage id="StreamChartProperties.line" defaultMessage="Line" />
 									</MenuItem>
-									<MenuItem value="rect" key={7}>
+									<MenuItem value="rect" key={8}>
 										<FormattedMessage
 											id="StreamChartProperties.rectangle"
 											defaultMessage="Rectangle"

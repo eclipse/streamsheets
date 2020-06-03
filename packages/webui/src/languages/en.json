@@ -694,6 +694,7 @@
     "StreamChartProperties.cross": "Cross",
     "StreamChartProperties.rotatedCross": "Rotated Cross",
     "StreamChartProperties.dash": "Dash",
+    "StreamChartProperties.dashright": "Dash Right",
     "StreamChartProperties.line": "Line",
     "StreamChartProperties.rectangle": "Rectangle",
     "StreamChartProperties.diamond": "Diamond",
@@ -765,5 +766,10 @@
     "StreamChart.TypesState": "Category Charts",
     "StreamChart.StateColumn": "State Column",
     "StreamChart.StateTime": "State Time",
-    "StreamChart.StatePeriod": "State Period"
+    "StreamChart.StatePeriod": "State Period",
+    "StreamChart.TypesStock": "Stock Charts",
+    "StreamChart.HighLowClose": "High Low Close (3 Series needed)",
+    "StreamChart.OpenHighLowClose": "Open High Low Close (4 Series needed)",
+    "StreamChart.VolumeHighLowClose": "Volume High Low Close (4 Series needed)",
+    "StreamChart.VolumeOpenHighLowClose": "Volume Open High Low Close (5 Series needed)"
 }

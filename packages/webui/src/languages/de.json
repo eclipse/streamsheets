@@ -694,6 +694,7 @@
     "StreamChartProperties.cross": "Kreuz",
     "StreamChartProperties.rotatedCross": "Gedrehtes Kreuz",
     "StreamChartProperties.dash": "Strich",
+    "StreamChartProperties.dashright": "Strich Rechts",
     "StreamChartProperties.line": "Linie",
     "StreamChartProperties.rectangle": "Rechteck",
     "StreamChartProperties.diamond": "Karo",
@@ -765,5 +766,10 @@
     "StreamChart.TypesState": "Status Diagramme",
     "StreamChart.StateColumn": "Status Balken",
     "StreamChart.StateTime": "Status Zeitpunkt",
-    "StreamChart.StatePeriod": "Status Perioden"
+    "StreamChart.StatePeriod": "Status Perioden",
+    "StreamChart.TypesStock": "Kurs Diagramme",
+    "StreamChart.HighLowClose": "Höchst-Tief-Schlusskurs (3 Datenreihen)",
+    "StreamChart.OpenHighLowClose": "Eröffnungs-Höchst-Tief-Schlusskurs (4 Datenreihen)",
+    "StreamChart.VolumeHighLowClose": "Volumen-Höchst-Tief-Schlusskurs (4 Datenreihen)",
+    "StreamChart.VolumeOpenHighLowClose": "Volumen-Eröffnungs-Höchst-Tief-Schlusskurs (5 Datenreihen)"
 }

@@ -1,15 +1,15 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const JSG = require('@cedalo/jsg-core');
 
+const JSG = require('@cedalo/jsg-core');
 const { Term, NullTerm } = require('@cedalo/parser');
 const { NumberFormatter } = require('@cedalo/number-format');
 
@@ -84,6 +84,15 @@ const templates = {
 		axisTitle: {
 			format: new ChartFormat('#000000', 0, -1, 0, '#FFFFFF', 9)
 		},
+		hilolines: {
+			format: new ChartFormat('#000000', 1, -1)
+		},
+		upbars: {
+			format: new ChartFormat('#000000', 1, -1, 1, '#FFFFFF')
+		},
+		downbars: {
+			format: new ChartFormat('#000000', 1, -1, 1, '#000000')
+		},
 		series: {
 			format: new ChartFormat(),
 			linewidth: 50,
@@ -155,6 +164,15 @@ const templates = {
 		},
 		axisTitle: {
 			format: new ChartFormat('#FFFFFF', 0, 0, 1, '#000000', 9)
+		},
+		hilolines: {
+			format: new ChartFormat('#FFFFFF', 1, -1)
+		},
+		upbars: {
+			format: new ChartFormat('#FFFFFF', 1, -1, 1, '#FFFFFF')
+		},
+		downbars: {
+			format: new ChartFormat('#FFFFFF', 1, -1, 1, '#000000')
 		},
 		series: {
 			format: new ChartFormat(),
@@ -1286,12 +1304,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		this.series.forEach((series) => {
 			if (series.visible) {
 				const ref = this.getDataSourceInfo(series.formula);
-				if (ref && ref.yName !== undefined) {
-					legend.push({
-						name: ref.yName,
-						series
-					});
-				}
+				legend.push({
+					name: (ref && ref.yName !== undefined) ? ref.yName : '',
+					series
+				});
 			}
 		});
 
@@ -1380,6 +1396,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 						MathUtils.JSDateToExcelDate(this.chartZoomTimestamp);
 				}
 			}
+			// const cmd = vitem.setParamValues(viewer, vitem.xAxes[0].formula, [
+			// 	{ index: 4, value: valueStart.x },
+			// 	{ index: 5, value: valueEnd.x }
+			// ], item);
 
 			this.autoScale(axis, result);
 
@@ -1429,6 +1449,9 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				const ref = this.getDataSourceInfo(serie.formula);
 				const axes = this.getAxes(serie);
 				axes.x.betweenTicks = (serie.type === 'bar' || serie.type === 'column' || serie.type === 'state') && axes.x.type === 'category';
+				if ((this.chart.upBars.visible || this.chart.hiLoLines.visible) && serie.type === 'line') {
+					axes.x.betweenTicks = true;
+				}
 				if (ref) {
 					let pointIndex = 0;
 					const value = {};
@@ -2102,6 +2125,21 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		};
 	}
 
+	getUpDownBarWidth(axes, plotRect) {
+		if (axes.x.type === 'category') {
+			const value0 = -axes.x.scale.min / (axes.x.scale.max - axes.x.scale.min);
+			const value1 = (1 - axes.x.scale.min) / (axes.x.scale.max - axes.x.scale.min);
+			// if (serie.type === 'bar') {
+			// 	barWidth = (value1 - value0) * plotRect.height;
+			// } else {
+			let barWidth = (value1 - value0) * plotRect.width;
+			barWidth *= 0.7;
+			return Math.abs(barWidth - 120);
+		}
+
+		return 400;
+	}
+
 	getBarWidth(axes, serie, plotRect) {
 		const seriesCnt = this.getVisibleSeries(serie.type);
 		if (axes.x.type === 'category') {
@@ -2697,6 +2735,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			return this.legend;
 		case 'plot':
 			return this.plot;
+		case 'hilolines':
+			return this.chart.hiLoLines;
+		case 'upbars':
+			return this.chart.upBars;
+		case 'downbars':
+			return this.chart.downBars;
 		default:
 			return this.chart;
 		}
@@ -3069,6 +3113,119 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		}
 
 		return false;
+	}
+
+	isChartAdditionHit(plotRect, pt) {
+		if (this.chart.hiLoLines.visible === false &&
+			this.chart.upBars.visible === false) {
+			return undefined;
+		}
+
+		let index = 0;
+		const value = {};
+		const serie = this.getFirstSerieOfType('line');
+		if (!serie) {
+			return undefined;
+		}
+		const indices = this.getFirstLastSerieIndicesOfType('line');
+		if (indices.first === undefined || indices.last === undefined) {
+			return undefined;
+		}
+
+		const axes = this.getAxes(serie);
+		const ref = this.getDataSourceInfo(serie.formula);
+		if (!ref || !axes) {
+			return undefined;
+		}
+
+		const ptLow = {x: 0, y: 0};
+		const ptHigh = {x: 0, y: 0};
+		const info = {
+			serie,
+			seriesIndex: 0,
+			categories: axes.y.categories
+		};
+		const hitRect = new ChartRect();
+		const barWidth = this.getUpDownBarWidth(axes, plotRect);
+		let tmp;
+		let x;
+
+		while (this.getValue(ref, index, value)) {
+			info.index = index;
+			if (value.x !== undefined && value.y !== undefined) {
+				x = this.scaleToAxis(axes.x, value.x, undefined, false);
+				ptHigh.x = ptLow.x;
+				ptLow.y = undefined;
+				ptHigh.y = undefined;
+				if (this.chart.upBars.visible) {
+					ptLow.x = x;
+					ptHigh.x = ptLow.x;
+					if (axes.y.categories[index].values[indices.first] !== undefined) {
+						tmp = axes.y.categories[info.index].values[indices.first].y;
+						if (Numbers.isNumber(tmp)) {
+							ptLow.y = tmp;
+						}
+					}
+					if (axes.y.categories[index].values[indices.last] !== undefined) {
+						tmp = axes.y.categories[info.index].values[indices.last].y;
+						if (Numbers.isNumber(tmp)) {
+							ptHigh.y = tmp;
+						}
+					}
+					if (ptLow.y !== undefined && ptHigh.y !== undefined) {
+						ptLow.y = this.scaleToAxis(axes.y, ptLow.y, info, false);
+						ptHigh.y = this.scaleToAxis(axes.y, ptHigh.y, info, false);
+						this.toPlot(serie, plotRect, ptLow);
+						this.toPlot(serie, plotRect, ptHigh);
+						hitRect.set(ptHigh.x - barWidth / 2, ptHigh.y, ptHigh.x + barWidth / 2, ptLow.y)
+						hitRect.sort();
+						if (hitRect.containsPoint(pt)) {
+							if (ptLow.y > ptHigh.y) {
+								return {
+									element: 'upbars',
+									data: this.chart.upBars
+								};
+							}
+							return {
+								element: 'downbars',
+								data: this.chart.downBars
+							};
+						}
+					}
+				}
+				if (this.chart.hiLoLines.visible) {
+					ptLow.x = x;
+					ptHigh.x = ptLow.x;
+					ptLow.y = undefined;
+					ptHigh.y = undefined;
+					for (let i = 0; i < this.series.length; i += 1) {
+						if (this.series[i].type === 'line' && axes.y.categories[index].values[i] !== undefined) {
+							tmp = axes.y.categories[info.index].values[i].y;
+							if (Numbers.isNumber(tmp)) {
+								ptLow.y = ptLow.y === undefined ? tmp : Math.min(ptLow.y, tmp);
+								ptHigh.y = ptHigh.y === undefined ? tmp : Math.max(ptHigh.y, tmp);
+							}
+						}
+					}
+					if (ptLow.y !== undefined && ptHigh.y !== undefined) {
+						ptLow.y = this.scaleToAxis(axes.y, ptLow.y, info, false);
+						ptHigh.y = this.scaleToAxis(axes.y, ptHigh.y, info, false);
+						this.toPlot(serie, plotRect, ptLow);
+						this.toPlot(serie, plotRect, ptHigh);
+						hitRect.set(ptLow.x - 100, ptHigh.y, ptLow.x + 100, ptLow.y);
+						if (hitRect.containsPoint(pt)) {
+							return {
+								element: 'hilolines',
+								data: this.chart.hiLoLines
+							};
+						}
+					}
+				}
+			}
+			index += 1;
+		}
+
+		return undefined;
 	}
 
 	isSeriesLabelHit(serie, ref, index, plotRect, pt) {
@@ -3571,6 +3728,13 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 		}
 
+		if (series === 'yes' && this.plot.position.containsPoint(pt)) {
+			result = this.isChartAdditionHit(plotRect, pt);
+			if (result) {
+				return result;
+			}
+		}
+
 		if (series !== 'no' && this.plot.position.containsPoint(pt)) {
 			const revSeries = [].concat(this.series).reverse();
 			result = revSeries.filter((serie) => {
@@ -3688,6 +3852,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	}
 
 	setChartType(type) {
+		this.chart.type = type;
 		this.chart.rotation = Math.PI_2;
 		this.chart.startAngle = 0;
 		this.chart.endAngle = Math.PI * 2;
@@ -3696,6 +3861,9 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		this.chart.stacked = type.indexOf('stacked') !== -1;
 		this.chart.relative = type.indexOf('100') !== -1;
 		this.chart.step = type.indexOf('step') !== -1;
+		this.chart.hiLoLines.visible = false;
+		this.chart.upBars.visible = false;
+		this.chart.downBars.visible = false;
 		this.xAxes[0].visible = true;
 		this.yAxes[0].visible = true;
 		this.xAxes[0].type = 'linear';
@@ -3781,6 +3949,9 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		return type;
 	}
 
+	setChartTypeForSeries(type) {
+	}
+
 	updateFormulas(viewer, formula, cmdChart) {
 		const sheet = this.getSheet();
 		const series = this.series.length ? this.series[0] : undefined;
@@ -3800,7 +3971,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				viewer,
 				sheet,
 				selection,
-				type,
+				this.chart.type ? this.chart.type : type,
 				line,
 				markers,
 				cmdChart,
@@ -3948,6 +4119,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				if (!initial) {
 					removeOldSeries();
 				}
+				this.setChartTypeForSeries(type);
 				this.finishCommand(cmd, 'series');
 				cmp.add(cmd);
 			}
@@ -4102,6 +4274,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (!initial) {
 				removeOldSeries();
 			}
+			this.setChartTypeForSeries(type);
 			this.finishCommand(cmd, 'series');
 			cmp.add(cmd);
 		}
@@ -4676,6 +4849,42 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		}
 
 		return axis.allowZoom;
+	}
+
+	getFirstSerieOfType(type) {
+		let ret;
+
+		this.series.some((serie) => {
+			if (serie.type === type) {
+				ret = serie;
+				return true;
+			}
+			return false;
+		});
+
+		return ret;
+	}
+
+	getFirstLastSerieIndicesOfType(type) {
+		let first;
+		let last;
+
+		this.series.forEach((serie, index) => {
+			if (serie.type === type) {
+				if (first === undefined) {
+					first = index;
+					last = index;
+				}
+				if (this.series[first].xAxis === serie.xAxis) {
+					last = index;
+				}
+			}
+		});
+
+		return {
+			first,
+			last
+		};
 	}
 
 	isCircular() {

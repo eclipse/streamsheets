@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -51,6 +51,28 @@ export default class SheetPlotActivator extends InteractionActivator {
 			const selection = controller.getView().chartSelection;
 			if (selection) {
 				switch (selection.element) {
+					case 'upbars': {
+						const cmd = item.prepareCommand('chart');
+						item.chart.upBars.visible = false;
+						finish(cmd, 'chart');
+						break;
+					}
+					case 'downbars':
+						{
+							const cmd = item.prepareCommand('chart');
+							item.chart.downBars.visible = false;
+							finish(cmd, 'chart');
+							break;
+						}
+						break;
+					case 'hilolines':
+						{
+							const cmd = item.prepareCommand('chart');
+							item.chart.hiLoLines.visible = false;
+							finish(cmd, 'chart');
+							break;
+						}
+						break;
 					case 'series':
 						switch (event.event.key) {
 							case 'Delete': {
