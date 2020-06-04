@@ -65,6 +65,9 @@ export default class SheetInteraction extends Interaction {
 		if (!this._controller) {
 			return undefined;
 		}
+		if (this._controller.getModel().isProtected()) {
+			return true;
+		}
 
 		const view = this._controller.getView();
 		const cell = this.getCell(view, event.location, viewer);

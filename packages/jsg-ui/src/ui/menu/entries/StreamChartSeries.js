@@ -19,8 +19,6 @@ export default class StreamChartSeries extends ItemMenuEntry {
 		const handled = event.type === 'click';
 		if (handled) {
 			this.createSelection(event, editor, item);
-			// const cmd = new DeleteItemCommand(item);
-			// editor.getInteractionHandler().execute(cmd);
 		}
 		return handled;
 	}
@@ -31,9 +29,17 @@ export default class StreamChartSeries extends ItemMenuEntry {
 		const menu = event.target.parentNode.parentNode;
 		const mouseDown = (ev) => {
 			const divRect = toolBox.getBoundingClientRect();
-			if (ev.clientX <= divRect.left || ev.clientX >= divRect.right ||
+			if (ev.touches && ev.touches.length) {
+				if (ev.touches[0].clientX <= divRect.left || ev.touches[0].clientX >= divRect.right ||
+					ev.touches[0].clientY <= divRect.top || ev.touches[0].clientY >= divRect.bottom) {
+					document.removeEventListener('mousedown', mouseDown, false);
+					document.removeEventListener('touchstart', mouseDown, false);
+					canvas.parentNode.removeChild(toolBox);
+				}
+			} else if (ev.clientX <= divRect.left || ev.clientX >= divRect.right ||
 				ev.clientY <= divRect.top || ev.clientY >= divRect.bottom) {
 				document.removeEventListener('mousedown', mouseDown, false);
+				document.removeEventListener('touchstart', mouseDown, false);
 				canvas.parentNode.removeChild(toolBox);
 			}
 		};
@@ -47,6 +53,7 @@ export default class StreamChartSeries extends ItemMenuEntry {
 		toolBox.style.boxShadow = '0 0px 5px 0 rgba(0, 0, 0, 0.1), 0 0px 5px 0 rgba(0, 0, 0, 0.1)';
 
 		document.addEventListener('mousedown', mouseDown, false);
+		document.addEventListener('touchstart', mouseDown, false);
 
 		const title = document.createElement('p');
 		title.innerHTML = "Show Series";
