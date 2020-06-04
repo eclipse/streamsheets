@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -29,6 +29,7 @@ import GraphControllerFactory from '../graph/controller/GraphControllerFactory';
 import InteractionHandler from '../graph/interaction/InteractionHandler';
 import ReadOnlyInteraction from '../graph/interaction/ReadOnlyInteraction';
 import GraphInteraction from '../graph/interaction/GraphInteraction';
+import ItemMenuHandler from './menu/ItemMenuHandler';
 
 //= =================================================================================================
 // INNER CLASS as an example of a custom graph listener...
@@ -639,6 +640,26 @@ class GraphEditor {
 		}
 	}
 
+	getItemMenuHandler() {
+		if (!this._menuhandler) {
+			this.setItemMenuHandler(new ItemMenuHandler());
+		}
+		return this._menuhandler;
+	}
+
+	// pass <code>undefined</code> to remove a previously added handler...
+	setItemMenuHandler(menuhandler) {
+		// unregister from old menu-handler
+		if (this._menuhandler) {
+			this._menuhandler.registerEditor(undefined);
+		}
+		if (menuhandler) {
+			this._menuhandler = menuhandler;
+			this._menuhandler.registerEditor(this);
+		}
+	}
+
+
 	/**
 	 * Resizes inner canvas and GraphViewer to specified width and height.
 	 *
@@ -975,11 +996,11 @@ class GraphEditor {
 	 */
 	destroy() {
 		this._deregisterGraphListener();
+		this.setItemMenuHandler(undefined);
 		this._graphListener._editor = undefined;
 		this._interactionHandler.dispose();
 
 		// unregister from global ImagePool and LayoutFactory.
-		// Note: Arac-factory seems to need some of below properties to correctly unregister...
 		JSG.imagePool.unregisterEditor(this);
 		JSG.layoutFactory.unregisterEditor(this);
 

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -297,6 +297,10 @@ JSG.init = (jsghome, locale) => {
 	JSG.imagePool.add(
 		`${jsghome}/res/svg/${ImagePool.SVG_MOVE_RIGHT}.svg`,
 		ImagePool.SVG_MOVE_RIGHT
+	);
+	JSG.imagePool.add(
+		`${jsghome}/res/svg/${ImagePool.SVG_FILTER}.svg`,
+		ImagePool.SVG_FILTER
 	);
 	JSG.imagePool.add(
 		`${jsghome}/res/svg/${ImagePool.SVG_CHECKED}.svg`,

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -157,6 +157,11 @@ import ScrollPanel from './src/ui/ScrollPanel';
 import ContentNodeView from './src/graph/view/ContentNodeView';
 import ContentPaneView from './src/graph/view/ContentPaneView';
 import ContentNodeController from './src/graph/controller/ContentNodeController';
+import ItemMenuHandler from './src/ui/menu/ItemMenuHandler';
+import ItemMenuProvider from './src/ui/menu/ItemMenuProvider';
+import ItemMenuEntry from './src/ui/menu/ItemMenuEntry';
+import MenuDelete from './src/ui/menu/entries/MenuDelete';
+import DefaultMenuProvider from './src/ui/menu/DefaultMenuProvider';
 import ViewInteraction from './src/graph/interaction/ViewInteraction';
 import ViewActivator from './src/graph/interaction/ViewActivator';
 import ResizeEditEdgeActivator from './src/graph/interaction/ResizeEditEdgeActivator';
@@ -346,6 +351,11 @@ JSG.ContentPaneView = ContentPaneView;
 JSG.ContentNodeController = ContentNodeController;
 JSG.ViewInteraction = ViewInteraction;
 JSG.ViewActivator = ViewActivator;
+JSG.ItemMenuHandler = ItemMenuHandler;
+JSG.ItemMenuProvider = ItemMenuProvider;
+JSG.ItemMenuEntry = ItemMenuEntry;
+JSG.MenuDelete = MenuDelete;
+JSG.DefaultMenuProvider = DefaultMenuProvider;
 JSG.ResizeEditEdgeActivator = ResizeEditEdgeActivator;
 JSG.EditCellInteraction = EditCellInteraction;
 JSG.EditTreeInteraction = EditTreeInteraction;

@@ -666,7 +666,7 @@ export class StreamChartProperties extends Component {
 			return ref.yName;
 		}
 
-		return String(item.series.indexOf(series));
+		return String(item.series.indexOf(series) + 1);
 	}
 
 	render() {
