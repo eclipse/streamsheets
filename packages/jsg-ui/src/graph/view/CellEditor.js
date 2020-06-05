@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -273,24 +273,27 @@ export default class CellEditor {
 		return candidates
 			.map((info) => {
 				let html;
+				let parameters;
 				html = '<div style="padding: 3px;background-color: #DDDDDD">';
 				if (this.funcInfo === undefined || this.funcInfo.paramIndex === undefined) {
-					html += `<p style="width:315px">${info[0]}(${info[1][JSG.locale].argumentList})</p>`;
+					parameters = `<p style="width:315px">${info[0]}(${info[1][JSG.locale].argumentList})</p>`;
 				} else {
 					const params = info[1][JSG.locale].argumentList.split(',');
-					html += `<p style="width:315px">${info[0]}(`;
+					parameters = `<p style="width:315px">${info[0]}(`;
 					params.forEach((param, paramIndex) => {
 						if (paramIndex === this.funcInfo.paramIndex) {
-							html += `<span style="font-weight: bold">${param}</span>`;
+							parameters  += `<span style="font-weight: bold">${param}</span>`;
 						} else {
-							html += `${param}`;
+							parameters  += `${param}`;
 						}
 						if (paramIndex !== params.length - 1) {
-							html += ', ';
+							parameters  += ', ';
 						}
 					});
-					html += `)</p>`;
+					parameters  += `)</p>`;
 				}
+				parameters = parameters.replace(/,/gi, JSG.getParserLocaleSettings().separators.parameter);
+				html += parameters;
 				html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
 				html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">${JSG.getLocalizedString(
 					'Summary'

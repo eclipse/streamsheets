@@ -13,5 +13,8 @@
   "Delete StreamSheet": "StreamSheet löschen",
   "Maximize StreamSheet": "StreamSheet maximieren",
   "Minimize StreamSheet": "StreamSheet minimieren",
-  "Sheet Settings": "<p style='font-weight: bold;'>Einstellungen Tabelle</p>Festlegen von Tabellennamen und -größe und Anzeigeoptionen<br /> für das Gitternetz oder die Spalten-/Zeilenköpfe."
+  "Sheet Settings": "<p style='font-weight: bold;'>Einstellungen Tabelle</p>Festlegen von Tabellennamen und -größe und Anzeigeoptionen<br /> für das Gitternetz oder die Spalten-/Zeilenköpfe.",
+  "Summary": "Zusammenfassung",
+  "More Info": "Weitere Infos",
+  "Reset Zoom": "Zoom zurücksetzen"
 }
