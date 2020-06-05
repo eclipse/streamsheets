@@ -24,7 +24,7 @@
     "@cedalo/logger": "1.6.2",
     "@cedalo/sdk-streams": "1.6.2",
     "event-stream": "3.3.4",
-    "fs-extra": "7.0.0",
+    "fs-extra": "9.0.0",
     "iconv-lite": "0.4.24"
   },
   "jest": {

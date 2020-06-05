@@ -21,7 +21,7 @@
     "@cedalo/logger": "1.6.2",
     "@cedalo/id-generator": "1.6.2",
     "@cedalo/machine-core": "1.6.2",
-    "fs-extra": "2.0.0",
+    "fs-extra": "9.0.0",
     "lowdb": "0.14.0",
     "mixwith": "0.1.1",
     "mongodb": "3.0.11"
