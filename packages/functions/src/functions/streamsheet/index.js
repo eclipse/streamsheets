@@ -10,6 +10,7 @@
  ********************************************************************************/
 const help = require('./help');
 const colors = require('./colors');
+const CONTINUE = require('./continueAt');
 const counters = require('./counters');
 const detectchange = require('./detectchange');
 const loop = require('./loop');
@@ -21,7 +22,6 @@ const DELETECELLS = require('./deletecells');
 const DICTIONARY = require('./dictionary');
 const EXECUTE = require('./execute');
 const FEEDINBOX = require('./feedinbox');
-const GOTO = require('./goto');
 const INBOX = require('./inbox');
 const INBOXDATA = require('./inboxdata');
 const INBOXJSON = require('./inboxjson');
@@ -57,12 +57,13 @@ module.exports = {
 		requestinternal,
 		ARRAY,
 		CALC,
+		CONTINUE,
 		DELETE,
 		DELETECELLS,
 		DICTIONARY,
 		EXECUTE,
 		FEEDINBOX,
-		GOTO,
+		GOTO: CONTINUE, // DEPRECATED!! => replaced by CONTINUE
 		INBOX,
 		INBOXDATA,
 		INBOXJSON,

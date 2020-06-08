@@ -10,6 +10,7 @@
  ********************************************************************************/
 const State = {
 	ACTIVE: 'active',
+	CONTINUE: 'continue',
 	PAUSED: 'paused',
 	REPEAT: 'repeat',
 	RESUMED: 'resumed',

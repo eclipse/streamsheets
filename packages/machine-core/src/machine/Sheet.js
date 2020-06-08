@@ -578,6 +578,10 @@ module.exports = class Sheet {
 		this.processor.stop(retvalue);
 	}
 
+	continueProcessingAt(cellindex) {
+		return this.processor.continueAt(cellindex);
+	}
+
 	getDrawings() {
 		return this.sheetDrawings;
 	}

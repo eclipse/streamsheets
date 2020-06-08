@@ -152,12 +152,13 @@ class SheetProcessor {
 		sheet.graphCells.evaluating = false;
 	}
 
-	goto(index) {
+	continueAt(index) {
 		const row = Math.max(this._sheet.settings.minrow, index.row);
 		this._cursor.stop = row < this._cursor.r || (index.col < this._cursor.c && row === this._cursor.r);
 		this._cursor.r = row;
 		this._cursor.c = index.col;
 		this._cursor.changed = true;
+		return this._cursor.stop;
 	}
 }
 

@@ -388,6 +388,15 @@ class StreamSheet {
 		}
 	}
 
+	continueProcessingAt(cellindex) {
+		// in case of backward jump it continues in next step otherwise directly...
+		const stopped = this.sheet.continueProcessingAt(cellindex);
+		if (stopped) {
+			this._prevstate = this._state;
+			this._state = State.CONTINUE;
+		}
+	}
+
 	pauseProcessing() {
 		this._prevstate = this._state;
 		this._state = State.PAUSED;
@@ -442,6 +451,8 @@ class StreamSheet {
 				result = this.sheet.startProcessing();
 			} else if (this._state === State.RESUMED) {
 				result = this._resume();
+			} else if (this._state === State.CONTINUE) {
+				result = this._continueProcess();
 			} else {
 				result = this._process(message);
 			}
@@ -460,6 +471,13 @@ class StreamSheet {
 		return result;
 	}
 	_resume() {
+		this._prevstate = this._state;
+		this._state = State.ACTIVE;
+		return this.sheet.startProcessing();
+	}
+
+	_continueProcess() {
+		this._updateStatsOnTrigger();
 		this._prevstate = this._state;
 		this._state = State.ACTIVE;
 		return this.sheet.startProcessing();

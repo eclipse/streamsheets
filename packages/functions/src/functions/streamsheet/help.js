@@ -42,6 +42,10 @@ module.exports = {
 				description: 'Konvertiert einen Farb-String aus seinem Quellformat ins Zielformat'
 			}
 		},
+		CONTINUE: {
+			en: { argumentList: 'Cell', description: 'Continues evaluation at given cell' },
+			de: { argumentList: 'Zelle', description: 'Führt die Berechnung an der angegebenen Zelle fort.' }
+		},
 		COPYVALUES: {
 			en: {
 				argumentList: 'SourceRange,TargetRange',
@@ -147,8 +151,8 @@ module.exports = {
 			de: { argumentList: '', description: 'Ermittelt den aktuellen Streamsheet Schritt.' }
 		},
 		GOTO: {
-			en: { argumentList: 'Cell', description: 'Jumps to the given cell for next cell to evaluate' },
-			de: { argumentList: 'Zelle', description: 'Führt die Berechnung an der angegebenen Zelle fort.' }
+			en: { argumentList: 'Cell', description: 'Deprecated! Please use CONTINUE instead' },
+			de: { argumentList: 'Zelle', description: 'Veraltet! Bitte stattdessen CONTINUE verwenden' }
 		},
 		INBOX: {
 			en: {
