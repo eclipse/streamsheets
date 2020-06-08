@@ -763,7 +763,7 @@
     "StreamChart.HalfPie": "Half Pie",
     "StreamChart.3dPie": "3D Pie",
     "StreamChart.Doughnut": "Doughnut",
-    "StreamChart.TypesState": "Category Charts",
+    "StreamChart.TypesState": "State Charts",
     "StreamChart.StateColumn": "State Column",
     "StreamChart.StateTime": "State Time",
     "StreamChart.StatePeriod": "State Period",
@@ -771,5 +771,7 @@
     "StreamChart.HighLowClose": "High Low Close (3 Series needed)",
     "StreamChart.OpenHighLowClose": "Open High Low Close (4 Series needed)",
     "StreamChart.VolumeHighLowClose": "Volume High Low Close (4 Series needed)",
-    "StreamChart.VolumeOpenHighLowClose": "Volume Open High Low Close (5 Series needed)"
+    "StreamChart.VolumeOpenHighLowClose": "Volume Open High Low Close (5 Series needed)",
+    "StreamChart.TypesOther": "Other Charts",
+    "StreamChart.Funnel": "Funnel"
 }

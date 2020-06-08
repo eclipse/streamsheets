@@ -23,6 +23,10 @@ module.exports = class ChartMarker {
 		return this._size ? this._size : 3;
 	}
 
+	set size(value) {
+		this._size = value;
+	}
+
 	save(name, writer) {
 		if (this.lineColor === undefined && this.fillColor === undefined && this._style === undefined && this._size === undefined) {
 			return;

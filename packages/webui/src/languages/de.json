@@ -771,5 +771,7 @@
     "StreamChart.HighLowClose": "Höchst-Tief-Schlusskurs (3 Datenreihen)",
     "StreamChart.OpenHighLowClose": "Eröffnungs-Höchst-Tief-Schlusskurs (4 Datenreihen)",
     "StreamChart.VolumeHighLowClose": "Volumen-Höchst-Tief-Schlusskurs (4 Datenreihen)",
-    "StreamChart.VolumeOpenHighLowClose": "Volumen-Eröffnungs-Höchst-Tief-Schlusskurs (5 Datenreihen)"
+    "StreamChart.VolumeOpenHighLowClose": "Volumen-Eröffnungs-Höchst-Tief-Schlusskurs (5 Datenreihen)",
+    "StreamChart.TypesOther": "Weitere Diagramme",
+    "StreamChart.Funnel": "Trichter"
 }

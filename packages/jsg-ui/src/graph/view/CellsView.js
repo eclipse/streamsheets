@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -15,12 +15,14 @@ import {
 	default as JSG,
 	CellRange,
 	WorksheetAttributes,
+	SheetReference,
 	Selection,
 	Point,
 	MathUtils,
 	Numbers,
 	TextFormatAttributes,
-	TreeItemsNode,
+	SheetPlotNode,
+	ChartRect,
 	FormatAttributes
 } from '@cedalo/jsg-core';
 
@@ -30,6 +32,7 @@ import { NumberFormatter } from '@cedalo/number-format';
 
 import CellEditor from './CellEditor';
 import NodeView from './NodeView';
+import { createView } from '@cedalo/jsg-extensions/ui';
 import ContentPaneView from './ContentPaneView';
 import ContentNodeView from './ContentNodeView';
 
@@ -225,6 +228,7 @@ export default class CellsView extends NodeView {
 					result.clipSpace = 600;
 					break;
 				case 'BAR':
+				case 'CELLCHART':
 					result.value = '';
 					result.formattedValue = '';
 					break;
@@ -647,6 +651,56 @@ export default class CellsView extends NodeView {
 		const termFunc = data.getExpression().getTerm();
 		if (termFunc && termFunc instanceof FuncTerm) {
 			switch (termFunc.getFuncId()) {
+			case 'CELLCHART': {
+				if (termFunc.params && termFunc.params.length > 0 && termFunc.params[0].value) {
+					const node = new SheetPlotNode();
+					node._parent = this.getItem();
+					const yValues = node.getParamInfo(termFunc, 0);
+					if (yValues) {
+						const view = createView(node);
+						node.evaluate();
+						const range = yValues.range.copy();
+						const selection = new Selection(this.getItem());
+						selection.add(range);
+						// range.shiftFromSheet();
+						const type = (termFunc.params.length > 1 && termFunc.params[1].value) || 'line';
+						node.setSize(columnInfo.width, rowInfo.height);
+						node.createSeriesFromSelection(undefined, this.getItem(), selection, type);
+						node.layout();
+						if (node.series.length) {
+							const serie = node.series[0];
+							if (termFunc.params.length > 2 && termFunc.params[2].value) {
+								serie.format.lineColor = termFunc.params[2].value;
+							}
+							if (termFunc.params.length > 3 && termFunc.params[3].value) {
+								serie.format.fillColor = termFunc.params[3].value;
+							}
+							if (termFunc.params.length > 4 && termFunc.params[4].value) {
+								serie.marker.style = termFunc.params[4].value;
+								serie.marker.size = 2;
+							}
+							if (termFunc.params.length > 5 && termFunc.params[5].value !== undefined) {
+								node.yAxes[0].scale.min = termFunc.params[5].value;
+							}
+							if (termFunc.params.length > 6 && termFunc.params[6].value && node.yAxes[0].scale) {
+								node.yAxes[0].scale.max = termFunc.params[6].value;
+							}
+							const rect = new ChartRect(columnInfo.x, rowInfo.y, columnInfo.x + columnInfo.width,
+								rowInfo.y + rowInfo.height);
+							switch (serie.type) {
+							case 'pie':
+							case 'doughnut':
+								view.drawCircular(graphics, node, rect, serie, 0);
+								break;
+							default:
+								view.drawCartesian(graphics, node, rect, serie, 0);
+								break;
+							}
+						}
+					}
+				}
+				break;
+			}
 			case 'SELECT': {
 				graphics.setFillColor('#888888');
 

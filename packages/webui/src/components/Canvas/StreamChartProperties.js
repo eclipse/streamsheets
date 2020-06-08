@@ -527,7 +527,7 @@ export class StreamChartProperties extends Component {
 	handleSeriesMarkerSizeChange = (event) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
-		data.marker._size = Number(event.target.value);
+		data.marker.size = Number(event.target.value);
 		this.finishCommand(cmd, 'series');
 	};
 
