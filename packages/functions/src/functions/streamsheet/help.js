@@ -352,6 +352,16 @@ module.exports = {
 				description: 'Produziert Daten mithilfe des Producers und dem Producerspezifischen JSON'
 			}
 		},
+		RANGE: {
+			en: {
+				argumentList: 'CellRange',
+				description: 'Creates a flat JSON array from given cell range'
+			},
+			de: {
+				argumentList: 'Zellbereich',
+				description: 'Erzeugt ein flaches JSON Array Objekt aus dem angegebenen Zellbereich'
+			}
+		},
 		READ: {
 			en: {
 				argumentList: 'Key,TargetCellOrRange,Type,Direction,CacheLastValue',

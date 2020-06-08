@@ -51,11 +51,13 @@ const getLastValue = (term, type) => {
 const copyDataToCellRange = (range, isErrorValue, sheet, provider) => {
 	let idx = 0;
 	let nxt = 0;
+	// prepare: DL-4090 might requires to fill target range...
+	// const size = provider.vertical ? range.height : range.width;
 	const iterate = provider.vertical ? range.iterateByCol : range.iterate;
 	iterate.call(range, (cell, index, next) => {
 		nxt += next ? 1 : 0;
 		idx = next ? 0 : idx + 1;
-		const value = !isErrorValue && (nxt < 2 ? provider.indexAt(idx) : provider.valueAt(idx, nxt));
+		const value = !isErrorValue && (nxt < 2 ? provider.indexAt(idx) : provider.valueAt(idx, nxt/* , size */));
 		setOrCreateCellAt(index, value, isErrorValue, sheet);
 	});
 };
@@ -64,6 +66,12 @@ const arrayProvider = (array, vertical) => ({
 	vertical,
 	indexAt: (idx) => (idx >= 0 && idx < array.length ? array[idx] : undefined),
 	valueAt: (/* idx */) => undefined // (idx >= 0 && idx < array.length ? idx : undefined),
+	// prepare: DL-4090 might requires to fill target range... => check dictProvider too!!
+	// valueAt: (idx, nxt, size) => {
+	// 	nxt -= 1;
+	// 	idx += nxt * size;
+	// 	return (idx >= 0 && idx < array.length ? array[idx] : undefined);
+	// }
 });
 const dictProvider = (dict, vertical) => {
 	const keys = dict ? Object.keys(dict) : [];

@@ -519,6 +519,7 @@ describe('read', () => {
 			expect(createTerm('read(inboxdata("T1",,"Warenkorb"), A1:B2, "Array")', sheet).value).toBe('Warenkorb');
 			expect(sheet.cellAt('A1').value).toBe(1);
 			expect(sheet.cellAt('A2').value).toBe(2);
+			// expect(sheet.cellAt('B1').value).toBe(3); <-- DL-4090 might require to fill target range
 			expect(sheet.cellAt('B1')).toBeUndefined();
 			expect(sheet.cellAt('B2')).toBeUndefined();
 		});
@@ -550,6 +551,7 @@ describe('read', () => {
 			expect(createTerm('read(inboxdata("T1",,"Warenkorb"), A1:C2, "Array", false)', sheet).value).toBe('Warenkorb');
 			// no repeat!!
 			expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(1);
+			// expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(3);  <-- DL-4090 might require to fill range
 			expect(sheet.cellAt(SheetIndex.create('B1'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('C1'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('A2')).value).toBe(2);
