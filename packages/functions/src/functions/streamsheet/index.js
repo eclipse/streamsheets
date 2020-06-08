@@ -33,6 +33,7 @@ const OUTBOX = require('./outbox');
 const OUTBOXDATA = require('./outboxdata');
 const OUTBOXJSON = require('./outboxjson');
 const PRODUCE = require('./produce');
+const RANGE = require('./range');
 const READ = require('./read');
 const REFRESH = require('./refresh');
 const { requestinternal, REQUEST, REQUESTINFO } = require('./request');
@@ -74,6 +75,7 @@ module.exports = {
 		OUTBOXDATA,
 		OUTBOXJSON,
 		PRODUCE,
+		RANGE,
 		READ,
 		REFRESH,
 		REQUEST,
