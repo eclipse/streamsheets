@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -27,6 +27,7 @@ module.exports = class ChartSeries {
 		this.dataLabel = new ChartDataLabel();
 		this.xAxis = 'XAxis1';
 		this.yAxis = 'YAxis1';
+		this.barGap = 0.3;
 	}
 
 	copy() {
@@ -60,6 +61,7 @@ module.exports = class ChartSeries {
 		writer.writeAttributeString('yaxis', this.yAxis);
 		writer.writeAttributeNumber('smooth', this.smooth ? 1 : 0);
 		writer.writeAttributeNumber('visible', this.visible ? 1 : 0);
+		writer.writeAttributeNumber('bargap', this.barGap, 2);
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
 		this.marker.save('marker', writer);
@@ -73,6 +75,7 @@ module.exports = class ChartSeries {
 		this.yAxis = reader.getAttributeString(object, 'yaxis', 'YAxis1');
 		this.smooth = reader.getAttributeBoolean(object, 'smooth', false);
 		this.visible = reader.getAttributeBoolean(object, 'visible', true);
+		this.barGap = reader.getAttributeNumber(object, 'bargap', this.type === 'state' ? 0 : 0.3);
 
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {
