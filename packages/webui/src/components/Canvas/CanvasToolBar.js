@@ -614,6 +614,7 @@ export class CanvasToolBar extends Component {
 			const selection = graphManager.getGraphViewer().getSelection();
 			const item  = selection[0].getModel();
 			const cmd = new JSG.CompoundCommand();
+			const cmdAxis = item.prepareCommand('axes');
 			const cmdChart = item.prepareCommand('chart');
 			const cmdSeries = item.prepareCommand('series');
 
@@ -627,7 +628,9 @@ export class CanvasToolBar extends Component {
 
 			item.finishCommand(cmdSeries, 'series');
 			item.finishCommand(cmdChart, 'chart');
+			item.finishCommand(cmdAxis, 'axes');
 			cmd.add(cmdChart);
+			cmd.add(cmdAxis);
 			cmd.add(cmdSeries);
 			graphManager
 				.getGraphViewer()
@@ -3866,7 +3869,7 @@ export class CanvasToolBar extends Component {
 									padding: '3px'
 								}}
 							>
-								<FormattedMessage id="StreamChart.TypesCategory" defaultMessage="Category Charts" />
+								<FormattedMessage id="StreamChart.TypesColumn" defaultMessage="Bar and Column Charts" />
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
@@ -3953,6 +3956,23 @@ export class CanvasToolBar extends Component {
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
+						<GridListTile
+							cols={6}
+							style={{
+								height: '24px'
+							}}
+						>
+							<div
+								style={{
+									backgroundColor: Colors.blue[800],
+									color: 'white',
+									fontSize: '10pt',
+									padding: '3px'
+								}}
+							>
+								<FormattedMessage id="StreamChart.TypesLine" defaultMessage="Line Charts" />
+							</div>
+						</GridListTile>
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
@@ -3998,6 +4018,51 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
+								title={<FormattedMessage id="StreamChart.Step" defaultMessage="Line Step" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('linestep')}
+								>
+									<img alt="" src="images/charts/linestep.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="StreamChart.Profile" defaultMessage="Profile" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('profile')}
+								>
+									<img alt="" src="images/charts/profile.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
+						<GridListTile
+							cols={6}
+							style={{
+								height: '24px'
+							}}
+						>
+							<div
+								style={{
+									backgroundColor: Colors.blue[800],
+									color: 'white',
+									fontSize: '10pt',
+									padding: '3px'
+								}}
+							>
+								<FormattedMessage id="StreamChart.TypesArea" defaultMessage="Area Charts" />
+							</div>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
 								title={<FormattedMessage id="StreamChart.Area" defaultMessage="Area" />}
 							>
 								<IconButton
@@ -4034,34 +4099,6 @@ export class CanvasToolBar extends Component {
 									onClick={() => this.onCreatePlot('areastacked100')}
 								>
 									<img alt="" src="images/charts/areastacked100.png" />
-								</IconButton>
-							</Tooltip>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="StreamChart.Step" defaultMessage="Line Step" />}
-							>
-								<IconButton
-									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
-									onClick={() => this.onCreatePlot('linestep')}
-								>
-									<img alt="" src="images/charts/linestep.png" />
-								</IconButton>
-							</Tooltip>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="StreamChart.Profile" defaultMessage="Profile" />}
-							>
-								<IconButton
-									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
-									onClick={() => this.onCreatePlot('profile')}
-								>
-									<img alt="" src="images/charts/profile.png" />
 								</IconButton>
 							</Tooltip>
 						</GridListTile>

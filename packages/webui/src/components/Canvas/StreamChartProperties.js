@@ -287,6 +287,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'chart');
 	};
 
+	handleVaryByCategoriesChange = (event, state) => {
+		const cmd = this.prepareCommand('chart');
+		const item = this.state.plotView.getItem();
+		item.chart.varyByCategories = state;
+		this.finishCommand(cmd, 'chart');
+	};
+
 	handleTemplateChange = (event) => {
 		const cmd = this.prepareCommand('chart');
 		const data = this.getData();
@@ -643,14 +650,7 @@ export class StreamChartProperties extends Component {
 
 	isHorizontalChart() {
 		const item = this.state.plotView.getItem();
-
-		if (item.series.length === 0) {
-			return false;
-		}
-
-		const serie = item.series[0];
-
-		return serie.type === 'bar' || serie.type === 'profile';
+		return item.isHorizontalChart();
 	}
 
 	isLineChart() {
@@ -839,6 +839,22 @@ export class StreamChartProperties extends Component {
 											/>
 										}
 									/>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={item.chart.seriesLines.visible}
+												onChange={(event, state) =>
+													this.handleVisibleChange(event, state, item.chart.seriesLines, 'chart')
+												}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.SeriesLines"
+												defaultMessage="Series Lines"
+											/>
+										}
+									/>
 									{this.isLineChart() ? (
 										<FormControlLabel
 											control={
@@ -873,6 +889,20 @@ export class StreamChartProperties extends Component {
 											}
 										/>
 									) : null}
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={item.chart.varyByCategories}
+												onChange={(event, state) => this.handleVaryByCategoriesChange(event, state)}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.VaryByCategories"
+												defaultMessage="Vary Color By Category"
+											/>
+										}
+									/>
 									<FormControlLabel
 										control={
 											<Checkbox

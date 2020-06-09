@@ -31,7 +31,9 @@ module.exports = class Chart {
 		this.firstCategoryLabels = true;
 		this.firstSeriesLabels = true;
 		this.dataInRows = true;
+		this.varyByCategories = false;
 		this.hiLoLines = new ChartElement();
+		this.seriesLines = new ChartElement();
 		this.upBars = new ChartElement();
 		this.downBars = new ChartElement();
 		this.formula = new Expression('');
@@ -88,6 +90,7 @@ module.exports = class Chart {
 		writer.writeAttributeNumber('firstcategories', this.firstCategoryLabels ? 1 : 0);
 		writer.writeAttributeNumber('firstseries', this.firstSeriesLabels ? 1 : 0);
 		writer.writeAttributeNumber('datainrows', this.dataInRows ? 1 : 0);
+		writer.writeAttributeNumber('varybycategories', this.varyByCategories ? 1 : 0);
 		writer.writeAttributeNumber('stacked', this.stacked ? 1 : 0);
 		writer.writeAttributeNumber('relative', this.relative ? 1 : 0);
 		writer.writeAttributeNumber('step', this.step ? 1 : 0);
@@ -99,6 +102,7 @@ module.exports = class Chart {
 		writer.writeAttributeNumber('hole', this.hole);
 		this.formula.save('formula', writer);
 		this.hiLoLines.save('hilolines', writer);
+		this.seriesLines.save('serieslines', writer);
 		this.upBars.save('upbars', writer);
 		this.downBars.save('downbars', writer);
 		writer.writeEndElement();
@@ -116,6 +120,7 @@ module.exports = class Chart {
 		this.firstSeriesLabels = reader.getAttributeBoolean(object, 'firstseries', true);
 		this.dataInRows = reader.getAttributeBoolean(object, 'datainrows', true);
 		this.tooltips = reader.getAttributeBoolean(object, 'tooltips', true);
+		this.varyByCategories = reader.getAttributeBoolean(object, 'varybycategories', false);
 		this.rotation = reader.getAttributeNumber(object, 'rotation', 0);
 		this.startAngle = reader.getAttributeNumber(object, 'startangle', 0);
 		this.endAngle = reader.getAttributeNumber(object, 'endangle', Math.PI * 2);
@@ -131,6 +136,10 @@ module.exports = class Chart {
 			case 'hilolines':
 				this.hiLoLines = new ChartElement();
 				this.hiLoLines.read(reader, child);
+				break;
+			case 'serieslines':
+				this.seriesLines = new ChartElement();
+				this.seriesLines.read(reader, child);
 				break;
 			case 'upbars':
 				this.upBars = new ChartElement();
