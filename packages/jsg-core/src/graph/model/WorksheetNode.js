@@ -64,6 +64,12 @@ const dateFormats = [
 
 const SELECTION_CHANGED_NOTIFICATION = 'sheet_selection_changed_notification';
 
+const unquote = (str) => {
+	if (str.startsWith('"')) str = str.substring(1);
+	if (str.endsWith('"')) str = str.substring(0, str.length - 1);
+	return str;
+};
+
 /**
  * Node representing a worksheet. The worksheet con tains additional nodes for the rows,
  * columns, cells and the top left corner.
@@ -994,7 +1000,11 @@ module.exports = class WorksheetNode extends ContentNode {
 			const type = this.getTextFormatAt(cell)
 				.getLocalCulture()
 				.getValue();
+			// DL-3943: check for formula even in text formatted cells
 			if (type === 'text' && !isFormula) {
+				// DL-4076: need text based rules like =42
+				// but because of DL-3943 we have to enter with quotes => remove them here:
+				if (text.charAt(0) === '"' && text.charAt(1) === '=') text = unquote(text);
 				return {
 					expression: ExpressionHelper.createExpressionFromValueTerm(Term.fromString(text))
 				};
