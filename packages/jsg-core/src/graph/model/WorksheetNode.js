@@ -997,14 +997,11 @@ module.exports = class WorksheetNode extends ContentNode {
 
 		const cell = this.getOwnSelection().getActiveCell();
 		if (cell !== undefined) {
-			const type = this.getTextFormatAt(cell)
-				.getLocalCulture()
-				.getValue();
-			// DL-3943: check for formula even in text formatted cells
-			if (type === 'text' && !isFormula) {
-				// DL-4076: need text based rules like =42
-				// but because of DL-3943 we have to enter with quotes => remove them here:
-				if (text.charAt(0) === '"' && text.charAt(1) === '=') text = unquote(text);
+			// DL-4076: text handling like in excel
+			const asText = text.charAt(0) === "'";
+			const type = this.getTextFormatAt(cell).getLocalCulture().getValue();
+			if (type === 'text' || asText) {
+				if (asText) text = text.substring(1);
 				return {
 					expression: ExpressionHelper.createExpressionFromValueTerm(Term.fromString(text))
 				};
