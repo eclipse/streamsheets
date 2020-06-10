@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -1671,7 +1671,22 @@ class Graphics {
 		}
 	}
 
-	/**
+	getImageData(x, y, width, height) {
+		const p = this.transformPoint(x, y, 0);
+
+		return this._context2D.getImageData(p.x, p.y, width, height);
+	}
+
+	putImageData(image, x, y) {
+		if (!this.isContextDefined() || image === undefined) {
+			return;
+		}
+
+		const p = this.transformPoint(x, y, 0);
+		this._context2D.putImageData(image, p.x, p.y);
+	}
+
+		/**
 	 * Draw a rectangular frame.
 	 *
 	 * @method drawRect

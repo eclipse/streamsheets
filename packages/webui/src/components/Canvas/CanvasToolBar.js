@@ -4175,6 +4175,20 @@ export class CanvasToolBar extends Component {
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
+						<GridListTile cols={1}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="StreamChart.Heatmap" defaultMessage="Heatmap" />}
+							>
+								<IconButton
+									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
+									color="inherit"
+									onClick={() => this.onCreatePlot('heatmap')}
+								>
+									<img alt="" src="images/charts/heatmap.png" />
+								</IconButton>
+							</Tooltip>
+						</GridListTile>
 						<GridListTile
 							cols={6}
 							style={{
