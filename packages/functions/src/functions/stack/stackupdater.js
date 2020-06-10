@@ -28,16 +28,9 @@ const operator = (str) => {
 	return set(str);
 };
 
-// client might send string value quoted! TODO: is this the right place to handle it?
-const unquote = (str) => {
-	if (str.startsWith('"')) str = str.substring(1);
-	if (str.endsWith('"')) str = str.substring(0, str.length - 1);
-	return str;
-};
-
 const valueOperator = (cell) => {
 	const value = cell.value;
-	if (value != null) return isType.string(value) ? operator(unquote(value.trim())) : set(value);
+	if (value != null) return isType.string(value) ? operator(value.trim()) : set(value);
 	return noop();
 };
 const formulaOperator = (cell) => {
