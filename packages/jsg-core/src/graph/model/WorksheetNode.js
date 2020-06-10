@@ -64,6 +64,12 @@ const dateFormats = [
 
 const SELECTION_CHANGED_NOTIFICATION = 'sheet_selection_changed_notification';
 
+const unquote = (str) => {
+	if (str.startsWith('"')) str = str.substring(1);
+	if (str.endsWith('"')) str = str.substring(0, str.length - 1);
+	return str;
+};
+
 /**
  * Node representing a worksheet. The worksheet con tains additional nodes for the rows,
  * columns, cells and the top left corner.
@@ -991,10 +997,11 @@ module.exports = class WorksheetNode extends ContentNode {
 
 		const cell = this.getOwnSelection().getActiveCell();
 		if (cell !== undefined) {
-			const type = this.getTextFormatAt(cell)
-				.getLocalCulture()
-				.getValue();
-			if (type === 'text' && !isFormula) {
+			// DL-4076: text handling like in excel
+			const asText = text.charAt(0) === "'";
+			const type = this.getTextFormatAt(cell).getLocalCulture().getValue();
+			if (type === 'text' || asText) {
+				if (asText) text = text.substring(1);
 				return {
 					expression: ExpressionHelper.createExpressionFromValueTerm(Term.fromString(text))
 				};
