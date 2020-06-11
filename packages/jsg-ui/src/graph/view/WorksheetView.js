@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -320,6 +320,63 @@ export default class WorksheetView extends ContentNodeView {
 						this.notifyMessage({ id: 'SheetMessage.jsonRangeInvalid' });
 					}
 					// message
+					event.consume();
+					return true;
+				}
+				doDefault();
+				break;
+			case 'q':
+				// scribble to create png from range
+				if (event.event.ctrlKey) {
+					const canvas = document.createElement('canvas');
+					const graph = item.getGraph();
+					let rect;
+
+					const currentSelection = viewer.getSelectionProvider().getFirstSelection();
+					if (currentSelection) {
+						rect = currentSelection.getModel().getBoundingBox().getBoundingRectangle();
+						rect.y += item.getColumns().getInternalHeight();
+						rect.x += item.getRows().getInternalWidth();
+					} else {
+						rect = this.getRangeRect(this.getOwnSelection().getAt(0));
+					}
+
+					canvas.id = 'canvaspng';
+
+					const editor = new JSG.GraphEditor(canvas);
+					const tmpViewer = editor.getGraphViewer();
+					const graphics = tmpViewer.getGraphicSystem().getGraphics();
+					const cs = graphics.getCoordinateSystem();
+
+					canvas.width = cs.logToDeviceX(rect.width + 30);
+					canvas.height = cs.logToDeviceX(rect.height + 30);
+
+					tmpViewer.setControllerFactory(JSG.GraphControllerFactory.getInstance());
+					tmpViewer.getScrollPanel().getViewPanel().setBoundsMargin(0);
+					tmpViewer.getScrollPanel().setScrollBarsMode(JSG.ScrollBarMode.HIDDEN);
+					editor.setGraph(graph);
+					editor.setZoom(1);
+
+					const p = new Point(rect.x, rect.y);
+					this.translateFromSheet(p, viewer);
+					rect.x = p.x;
+					rect.y = p.y;
+
+					graphics._context2D.fillStyle = '#FFFFFF';
+					graphics._context2D.fillRect(0, 0, canvas.width, canvas.height);
+					graphics.translate(-rect.x, -rect.y);
+
+					tmpViewer.getGraphView().drawSubViews(
+						graphics,
+						new JSG.Rectangle(rect.x, rect.y, rect.width, rect.height)
+					);
+
+					const image = canvas.toDataURL();
+
+					editor.destroy();
+
+					const w = window.open('about:blank','image from canvas');
+					w.document.write(`<img src='${image}' alt='from canvas'/>`);
 					event.consume();
 					return true;
 				}

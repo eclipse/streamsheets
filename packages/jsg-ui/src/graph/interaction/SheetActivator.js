@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -45,6 +45,17 @@ export default class SheetActivator extends InteractionActivator {
 		if (focus && focus.getView() instanceof WorksheetView && focus.getView().hasSelection()) {
 			const interaction = this.activateInteraction(new SheetInteraction(), dispatcher);
 			interaction._controller = focus;
+			interaction._hitCode = WorksheetView.HitCode.SHEET;
+			if (interaction.onKeyDown(event, viewer)) {
+				event.isConsumed = true;
+				event.hasActivated = true;
+			}
+			return;
+		}
+		const view = focus.getParent().getParent().getParent().getView();
+		if (focus && event.event.ctrlKey && event.event.key === 'q' && view instanceof WorksheetView) {
+			const interaction = this.activateInteraction(new SheetInteraction(), dispatcher);
+			interaction._controller = focus.getParent().getParent().getParent();
 			interaction._hitCode = WorksheetView.HitCode.SHEET;
 			if (interaction.onKeyDown(event, viewer)) {
 				event.isConsumed = true;
