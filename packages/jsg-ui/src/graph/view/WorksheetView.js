@@ -332,15 +332,6 @@ export default class WorksheetView extends ContentNodeView {
 					const graph = item.getGraph();
 					let rect;
 
-					const currentSelection = viewer.getSelectionProvider().getFirstSelection();
-					if (currentSelection) {
-						rect = currentSelection.getModel().getBoundingBox().getBoundingRectangle();
-						rect.y += item.getColumns().getInternalHeight();
-						rect.x += item.getRows().getInternalWidth();
-					} else {
-						rect = this.getRangeRect(this.getOwnSelection().getAt(0));
-					}
-
 					canvas.id = 'canvaspng';
 
 					const editor = new JSG.GraphEditor(canvas);
@@ -348,28 +339,42 @@ export default class WorksheetView extends ContentNodeView {
 					const graphics = tmpViewer.getGraphicSystem().getGraphics();
 					const cs = graphics.getCoordinateSystem();
 
-					canvas.width = cs.logToDeviceX(rect.width + 30);
-					canvas.height = cs.logToDeviceX(rect.height + 30);
-
 					tmpViewer.setControllerFactory(JSG.GraphControllerFactory.getInstance());
 					tmpViewer.getScrollPanel().getViewPanel().setBoundsMargin(0);
 					tmpViewer.getScrollPanel().setScrollBarsMode(JSG.ScrollBarMode.HIDDEN);
 					editor.setGraph(graph);
-					editor.setZoom(1);
 
-					const p = new Point(rect.x, rect.y);
-					this.translateFromSheet(p, viewer);
-					rect.x = p.x;
-					rect.y = p.y;
+					const currentSelection = viewer.getSelectionProvider().getFirstSelection();
+					if (currentSelection) {
+						rect = currentSelection.getModel().getBoundingBox().getBoundingRectangle();
+					} else {
+						rect = this.getRangeRect(this.getOwnSelection().getAt(0));
+						const p = new Point(rect.x, rect.y);
+						this.translateFromSheet(p, viewer);
+						rect.x = p.x;
+						rect.y = p.y;
+					}
+
+					canvas.width = cs.logToDeviceX(rect.width + 30);
+					canvas.height = cs.logToDeviceX(rect.height + 30);
+					editor.setZoom(1);
 
 					graphics._context2D.fillStyle = '#FFFFFF';
 					graphics._context2D.fillRect(0, 0, canvas.width, canvas.height);
-					graphics.translate(-rect.x, -rect.y);
 
-					tmpViewer.getGraphView().drawSubViews(
-						graphics,
-						new JSG.Rectangle(rect.x, rect.y, rect.width, rect.height)
-					);
+					if (currentSelection) {
+						currentSelection.getView().drawFill(
+							graphics,
+							currentSelection.getModel().getFormat(),
+							new JSG.Rectangle(0, 0, rect.width, rect.height)
+						);
+					} else {
+						graphics.translate(-rect.x, -rect.y);
+						tmpViewer.getGraphView().drawSubViews(
+							graphics,
+							new JSG.Rectangle(rect.x, rect.y, rect.width, rect.height)
+						);
+					}
 
 					const image = canvas.toDataURL();
 
