@@ -632,6 +632,7 @@ class SetGraphCellsRequestHandler extends RequestHandler {
 	}
 }
 
+// deprecated? corresponding message topic seems to be unused...
 class SetSheetCellsRequestHandler extends RequestHandler {
 	constructor() {
 		super(MachineServerMessagingProtocol.MESSAGE_TYPES.SET_SHEET_CELLS);
@@ -669,7 +670,7 @@ class SetSheetCellsRequestHandler extends RequestHandler {
 	}
 }
 
-
+// TODO: remove undo handling or check it with persistence
 class DeleteCellsCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId, undo) {
 		const cmd = undo ? 'insert' : 'delete';
@@ -678,6 +679,7 @@ class DeleteCellsCommandRequestHandler {
 		return info.range ? runner.request(cmd, userId, info) : {};
 	}
 }
+// TODO: remove undo handling or check it with persistence
 class InsertCellsCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId, undo) {
 		const cmd = undo ? 'delete' : 'insert';
@@ -686,7 +688,7 @@ class InsertCellsCommandRequestHandler {
 		return info.range ? runner.request(cmd, userId, info) : {};
 	}
 }
-
+// TODO: remove undo handling or check it with persistence
 class PasteCellsCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId /* , undo */) {
 		// const { sourceref, targetref, action, fill } = command;
@@ -751,17 +753,16 @@ class SetCellsCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId, undo) {
 		const cellDescriptors = undo ? command.undo.cellDescriptors : command.cells;
 		await this.deleteCells(cellDescriptors, runner, streamsheetId, userId);
-		const result = await this.updateCells(cellDescriptors, runner, streamsheetId, userId);
-		return { cells: descriptorsToCellDescriptorsObject(result.cells) };
+		return this.updateCells(cellDescriptors, runner, streamsheetId, userId);
 	}
 }
 
 class SetCellDataCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId, undo) {
+		let result = {};
 		const { json, expr } = command.undo;
 		if (undo && !json && !expr) {
 			// undo command but cell was empty before
-			let result = {};
 			if (command.reference) {
 				const ranges = command.reference.split(';');
 				const cellranges = ranges.map((range) => fixCellRange(range));
@@ -770,14 +771,15 @@ class SetCellDataCommandRequestHandler {
 					streamsheetId
 				});
 			}
-			return result;
+		} else {
+			const descr = getCellDescriptorFromCommand(command, undo);
+			result = await runner.request('setCellAt', userId, {
+				index: command.reference,
+				celldescr: descr,
+				streamsheetId
+			});
 		}
-		const descr = getCellDescriptorFromCommand(command, undo);
-		return runner.request('setCellAt', userId, {
-			index: command.reference,
-			celldescr: descr,
-			streamsheetId
-		});
+		return result;
 	}
 }
 

@@ -371,26 +371,12 @@ module.exports = class MachineService extends MessagingService {
 	async _handleCommandMessage(message) {
 		const { response } = message;
 		switch (response.command) {
-			case 'command.SetCellDataCommand':
-				logger.info(`PersistenceService: persist cell: ${response.cell}`);
-				await RepositoryManager.machineRepository.updateCell(
-					response.machineId,
-					response.streamsheetId,
-					response.cell
-				);
-				break;
-			case 'command.SetCellsCommand':
-			case 'command.SetCellLevelsCommand':
-				await RepositoryManager.machineRepository.updateCells(
-					response.machineId,
-					response.streamsheetId,
-					response.cells
-				);
-				break;
 			case 'command.DeleteCellsCommand':
 			case 'command.DeleteCellContentCommand':
-				// from  machine-server perspective there is no difference between deletion of cells or only cells content
-				await RepositoryManager.machineRepository.deleteCells(
+			case 'command.SetCellDataCommand':
+			case 'command.SetCellLevelsCommand':
+			case 'command.SetCellsCommand':
+				await RepositoryManager.machineRepository.updateCells(
 					response.machineId,
 					response.streamsheetId,
 					response.cells

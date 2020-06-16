@@ -49,7 +49,15 @@ const rowAt = (index, sheet) => {
 };
 
 const notify = (callback, cell, rowidx, colidx) => cell && callback(cell, rowidx, colidx);
-
+const disableNotifyUpdate = (sheet) => {
+	const onUpdate = sheet.onUpdate;
+	sheet.onUpdate = undefined;
+	return onUpdate;
+};
+const enableNotifyUpdate = (sheet, onUpdate, doNotify = false) => {
+	sheet.onUpdate = onUpdate;
+	if (doNotify) sheet._notifyUpdate();
+};
 const updateLastIndex = (newrow, newcol, lastIndex) => {
 	lastIndex.set(Math.max(newrow, lastIndex.row), Math.max(newcol, lastIndex.col));
 };
@@ -506,6 +514,7 @@ module.exports = class Sheet {
 		const keys = Object.keys(cells);
 		if (keys.length) {
 			const cellindex = SheetIndex.create(1, 0);
+			const onUpdate = disableNotifyUpdate(this);
 			keys.forEach((key) => {
 				cellindex.set(key);
 				const cell = SheetParser.createCell(cells[key], this);
@@ -513,14 +522,13 @@ module.exports = class Sheet {
 					this._doSetCellAt(cellindex, cell);
 				}
 			});
-			this._notifyUpdate();
+			enableNotifyUpdate(this, onUpdate, true);
 		}
 	}
 
 	load(conf = {}) {
 		// prevent event on load:
-		const updateListener = this.onUpdate;
-		this.onUpdate = undefined;
+		const onUpdate = disableNotifyUpdate(this);
 		// settings is used in closure, so never overwrite it!!
 		this.settings = Object.assign(this.settings, DEF_CONF.settings, conf.settings);
 		// include editable-web-component:
@@ -529,7 +537,7 @@ module.exports = class Sheet {
 		this.namedCells.load(this, conf.namedCells);
 		this.graphCells.load(this, conf.graphCells);
 		this.loadCells(conf.cells);
-		this.onUpdate = updateListener;
+		enableNotifyUpdate(this, onUpdate);
 		return this;
 	}
 
