@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -98,7 +98,7 @@ const sortResources = (res, type) => {
 const formatDateString = (s = '') => {
 	if(!Number.isNaN(Date.parse(s))) {
 		const d = new Date(s);
-		return `${d.toLocaleDateString()}:${d.toLocaleTimeString()}`;
+		return `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
 	}
 	return '';
 };
