@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -11,8 +11,8 @@
 import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import IconDesc from '@material-ui/icons/ArrowDropDown';
-import IconAsc from '@material-ui/icons/ArrowDropUp';
+import IconAsc from '@material-ui/icons/ArrowDropDown';
+import IconDesc from '@material-ui/icons/ArrowDropUp';
 import IconSearch from '@material-ui/icons/Search';
 import PropTypes from 'prop-types';
 import React from 'react';

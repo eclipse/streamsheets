@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -25,10 +25,17 @@ const sortResourcesByName = (resources, asc = false) => {
 };
 const sortResourcesByDate = (resources, asc = false) => {
 	const sortedResources = [...resources];
-	const dir = asc ? 1 : -1;
+	const dir = asc ? -1 : 1;
 	sortedResources.sort((a,b) => {
-		const aLastModified = a.lastModified || new Date().toISOString();
-		const bLastModified = b.lastModified || new Date().toISOString();
+		let aLastModified;
+		let bLastModified;
+		if (a.metadata && b.metadata) {
+			aLastModified = a.metadata.lastModified || new Date().toISOString();
+			bLastModified = b.metadata.lastModified || new Date().toISOString();
+		} else {
+			aLastModified = a.lastModified || new Date().toISOString();
+			bLastModified = b.lastModified || new Date().toISOString();
+		}
 		const res = new Date(aLastModified) - new Date(bLastModified);
 		return dir * res;
 	});

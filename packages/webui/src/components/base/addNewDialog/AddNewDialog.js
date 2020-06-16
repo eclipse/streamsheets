@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -11,17 +11,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
 import TextField from '@material-ui/core/TextField';
-import ListItemText from '@material-ui/core/ListItemText';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
 import FormLabel from '@material-ui/core/FormLabel';
 import { FormattedMessage, injectIntl } from 'react-intl';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableRow from '@material-ui/core/TableRow';
 import SortSelector from '../sortSelector/SortSelector';
+import TableSortHeader from './TableSortHeader';
+import Input from '@material-ui/core/Input';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import IconSearch from '@material-ui/icons/Search';
 
 const DEF_TITLE = <FormattedMessage id="Dashboard.Add" defaultMessage="Add" />;
 const PREF_KEY = 'streamsheets-prefs-addnewdialog';
@@ -48,8 +53,9 @@ class AddNewDialog extends React.Component {
 				name: PropTypes.string
 			})
 		).isRequired,
-		getListElement: PropTypes.func,
+		// getListElement: PropTypes.func,
 		open: PropTypes.bool.isRequired,
+		showState: PropTypes.bool,
 		title: PropTypes.element,
 		listTitle: PropTypes.element,
 		onSubmit: PropTypes.func.isRequired,
@@ -66,11 +72,12 @@ class AddNewDialog extends React.Component {
 		isUnique: () => true,
 		isValid: () => true,
 		onUpdateName: (name) => name,
-		getListElement: (resource) => <ListItemText primary={resource.name} />,
+		// getListElement: (resource) => <ListItemText primary={resource.name} />,
 		sortQuery: 'name_asc',
 		filter: '',
 		baseRequired: false,
 		listTitle: DEF_TITLE,
+		showState: false,
 		title: DEF_TITLE
 	};
 
@@ -120,11 +127,30 @@ class AddNewDialog extends React.Component {
 
 	getResources = () => SortSelector.sort(this.props.resources, this.state.sortQuery, this.state.filter);
 
-	handleSort = (event, sortedResources, sortQuery, filter) => {
+	handleTableSort = (event, property) => {
+		const orderBy = property;
+		let order = 'desc';
+
+		const sortObj = SortSelector.parseSortQuery(this.state.sortQuery);
+
+		if (sortObj.sortBy === property && sortObj.sortDir === 'desc') {
+			order = 'asc';
+		}
+
+		// this.setState({ order, orderBy });
+
+		const sortQuery = `${orderBy}_${order}`;
 		persistSortPreferences({ sortQuery });
 		this.setState({
-			filter,
 			sortQuery
+		});
+
+	}
+
+	handleFilter = (event) => {
+		const filter = event.target.value;
+		this.setState({
+			filter,
 		});
 	};
 
@@ -186,6 +212,11 @@ class AddNewDialog extends React.Component {
 		}
 	};
 
+	getFormattedDateString(date) {
+		const dat = new Date(Date.parse(date));
+		return dat.toLocaleString()
+	}
+
 	render() {
 		const { title, listTitle, baseRequired, open, onClose } = this.props;
 		const { selected, name, error, filter } = this.state;
@@ -195,67 +226,118 @@ class AddNewDialog extends React.Component {
 				<DialogTitle>{title}</DialogTitle>
 				<DialogContent
 					style={{
-						height: '545px',
-						minWidth: '500px'
+						height: '480px',
+						minWidth: '600px'
 					}}
 				>
-					<TextField
-						inputRef={(el) => {
-							this.nameRef = el;
-						}}
-						label={<FormattedMessage id="Stream.NameField" defaultMessage="Name" />}
-						id="name"
-						name="name"
-						fullWidth
-						margin="normal"
-						value={name}
-						onChange={this.handleNameChange}
-						error={typeof error === 'string' && error.length > 0}
-						helperText={error}
-					/>
-					<FormLabel
+					<div
 						style={{
-							marginTop: '10px',
-							fontSize: '13px',
-							display: 'block'
+							height: '85px',
 						}}
 					>
-						{listTitle}
-					</FormLabel>
-					<SortSelector
-						onSort={this.handleSort}
-						defaultSortBy={sortObj.sortBy}
-						defaultSortDir={sortObj.sortDir}
-						defaultFilter={filter}
-						sortFields={this.props.sortFields}
-						withFilter
-					/>
-					<List style={{ height: '360px', padding: '0px', overflowY: 'scroll' }}>
-						{!baseRequired && (!filter || (typeof filter === 'string' && filter.length < 1)) ? (
-							<div>
-								<ListItem
-									key="no_stream"
-									selected={selected.id === ''}
-									onClick={this.handleSelection({ id: '' })}
-									button
-								>
-									<ListItemText key="none">
-										<FormattedMessage id="DialogNew.noStream" defaultMessage="None" />
-									</ListItemText>
-								</ListItem>
-							</div>
-						) : null}
-						{this.getResources().map((resource) => (
-							<ListItem
-								key={`${resource.className}-${resource.id}`}
-								button
-								onClick={this.handleSelection(resource)}
-								selected={resource.id === selected.id}
-							>
-								{this.props.getListElement(resource)}
-							</ListItem>
-						))}
-					</List>
+						<TextField
+							inputRef={(el) => {
+								this.nameRef = el;
+							}}
+							label={<FormattedMessage id="Stream.NameField" defaultMessage="Name" />}
+							id="name"
+							name="name"
+							fullWidth
+							margin="normal"
+							value={name}
+							onChange={this.handleNameChange}
+							error={typeof error === 'string' && error.length > 0}
+							helperText={error}
+						/>
+					</div>
+					<div
+						style={{
+							width: '100%',
+							display: 'flex',
+							justifyContent: 'space-between',
+							verticalAlign: 'middle',
+						}}
+					>
+						<FormLabel
+							style={{
+								marginTop: '10px',
+								fontSize: '13px',
+								display: 'inline-block'
+							}}
+						>
+							{listTitle}
+						</FormLabel>
+						<Input
+							onChange={this.handleFilter}
+							style={{ marginBottom: '8px', flexGrow: 0.3 }}
+							startAdornment={
+								<InputAdornment position="start">
+									<IconSearch />
+								</InputAdornment>
+							}
+							defaultValue={filter}
+							type="search"
+						/>
+					</div>
+
+					<div
+						style={{
+							border: '1px solid grey',
+							height: '345px',
+							overflow: 'auto',
+							padding: '5px'
+						}}
+					>
+						<Table>
+							<TableSortHeader
+								showState={this.props.showState}
+								orderBy={sortObj.sortBy}
+								order={sortObj.sortDir}
+								onRequestSort={this.handleTableSort}
+							/>
+							<TableBody>
+								{!baseRequired && (!filter || (typeof filter === 'string' && filter.length < 1)) ? (
+									<TableRow
+										style={ {
+											height: '35px'
+										}}
+										key="no_stream"
+										selected={selected.id === ''}
+										onClick={this.handleSelection({ id: '' })}
+										tabIndex={-1}
+									>
+										<TableCell component="th" scope="row" padding="none">
+											<FormattedMessage id="DialogNew.noStream" defaultMessage="None" />
+										</TableCell>
+										{this.props.showState ? (
+											<TableCell/>
+										) : null}
+										<TableCell/>
+									</TableRow>
+								) : null}
+								{this.getResources().map((resource) => (
+									<TableRow
+										style={ {
+											height: '35px'
+										}}
+										hover
+										onClick={this.handleSelection(resource)}
+										selected={resource.id === selected.id}
+										tabIndex={-1}
+										key={`${resource.className}-${resource.id}`}
+									>
+										<TableCell component="th" scope="row" padding="none">
+											{resource.name}
+										</TableCell>
+										{this.props.showState ? (
+											<TableCell>{resource.state}</TableCell>
+										) : null}
+										<TableCell>{this.getFormattedDateString(resource.lastModified)}</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					</div>
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={this.handleClose}>
