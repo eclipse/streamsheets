@@ -2226,7 +2226,7 @@ export class CanvasToolBar extends Component {
 								fontSize: '16pt'
 							}}
 							onClick={this.onShowHAlign}
-							disabled={!this.props.cellSelected}
+							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
 							{tf && tf.getHorizontalAlignment() && tf.getHorizontalAlignment().getValue() === 3 ? (
 								<FormatAlignJustify nativeColor="#919191" fontSize="inherit" />

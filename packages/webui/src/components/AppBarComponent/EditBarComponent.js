@@ -109,6 +109,9 @@ export class EditBarComponent extends Component {
 					jsgState.graphCellSelected = true;
 				}
 				const attr = item.getAttributeAtPath('showwizard');
+				if (item instanceof JSG.TextNode) {
+					formulaText = Strings.decodeXML(formulaText);
+				}
 				if (item instanceof JSG.SheetPlotNode) {
 				  	if (attr && attr.getValue() === true) {
 						item.createSeriesFromSelection(

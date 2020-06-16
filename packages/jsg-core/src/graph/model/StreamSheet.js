@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -658,10 +658,10 @@ module.exports = class StreamSheet extends WorksheetNode {
 		if (def.fontsize) {
 			format.setFontSize(def.fontsize);
 		}
-		if (def.fontstyle) {
+		if (def.fontstyle !== undefined) {
 			format.setFontStyle(def.fontstyle);
 		}
-		if (def.alignment) {
+		if (def.alignment !== undefined) {
 			format.setHorizontalAlignment(def.alignment);
 		}
 	}
@@ -1147,6 +1147,23 @@ module.exports = class StreamSheet extends WorksheetNode {
 		}
 	}
 
+	getFontFormula(graph, item) {
+		const tf = item.getTextFormat();
+
+		const fontName = tf.getFontName().getValue();
+		const fontSize = tf.getFontSize().getValue();
+		const fontStyle = tf.getFontStyle().getValue();
+		const fontColor = tf.getFontColor().getValue();
+		const align = tf.getHorizontalAlignment().getValue();
+
+		if (fontName === 'Verdana' && fontSize === 9 && fontStyle === 0 && fontColor === '#000000' && align === 1) {
+			return new NullTerm();
+		}
+
+		const formula = `FONTFORMAT("${fontName}",${fontSize},${fontStyle},${fontColor},${align})`;
+		return this.parseTextToTerm(formula);
+	}
+
 	getContainer(item, parent) {
 		if (item instanceof StreamSheet) {
 			return undefined;
@@ -1296,7 +1313,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			});
 			const graph = item.getGraph();
 			formula = this.getLineFormula(graph, item);
-			const force = termFunc.params.length > 7 && (termFunc.params[7] instanceof FuncTerm) && termFunc.params[7].name === 'LINEFORMAT';
+			let force = termFunc.params.length > 7 && (termFunc.params[7] instanceof FuncTerm) && termFunc.params[7].name === 'LINEFORMAT';
 			this.setGraphFunctionParam(termFunc, 7, formula, (formula instanceof FuncTerm) || force);
 			formula = this.getFillFormula(graph, item);
 			this.setGraphFunctionParam(termFunc, 8, formula);
@@ -1323,6 +1340,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 						13,
 						Term.fromString(Strings.encodeXML(item.getText().getValue()))
 					);
+					formula = this.getFontFormula(graph, item);
+					force = termFunc.params.length > 14 && (termFunc.params[14] instanceof FuncTerm) && termFunc.params[14].name === 'FONTFORMAT';
+					this.setGraphFunctionParam(termFunc, 14, formula, (formula instanceof FuncTerm) || force);
 					break;
 			}
 		}
