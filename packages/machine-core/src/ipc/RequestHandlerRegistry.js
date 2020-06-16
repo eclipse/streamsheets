@@ -356,11 +356,11 @@ class DeleteCells extends ARequestHandler {
 			const sheet = streamsheet.sheet;
 			// TODO: tmp. disable/enable update notification to fix Delete-Paste (ctrl+x, ctrl+v)...
 			const updateHandler = disableSheetUpdate(sheet);
-			result.cells = msg.ranges
-				? deleteCellsFromRanges(msg.ranges, sheet)
-				: deleteCellsFromList(msg.indices, sheet);
+			if (msg.ranges) deleteCellsFromRanges(msg.ranges, sheet);
+			else deleteCellsFromList(msg.indices, sheet);
+			// to update all cells in DB
+			result.cells = getSheetCellsAsObject(sheet);
 			enableSheetUpdate(sheet, updateHandler);
-			// result.sheetCells = getSheetCellsAsList(sheet);
 		}
 		return Promise.resolve(result);
 	}
@@ -662,7 +662,8 @@ class SetCellAt extends ARequestHandler {
 				sheet.setCellAt(index, cell);
 				return Promise.resolve({
 					cell: cellDescriptor(cell, index),
-					// sheetCells: getSheetCellsAsList(sheet),
+					// to update all cells in DB
+					cells: getSheetCellsAsObject(sheet),
 					drawings: sheet.getDrawings().toJSON(),
 					graphItems: sheet.getDrawings().toGraphItemsJSON()
 				});
@@ -681,8 +682,7 @@ class SetCells extends ARequestHandler {
 		const sheet = streamsheet && streamsheet.sheet;
 		if (sheet) {
 			sheet.setCells(cells);
-			// return list sheet cells...
-			return Promise.resolve({ cells: getSheetCellsAsList(streamsheet.sheet) });
+			return Promise.resolve({ cells: getSheetCellsAsObject(sheet) });
 		}
 		return Promise.reject(new Error(`Unknown streamsheet id: ${msg.streamsheetId}`));
 	}
