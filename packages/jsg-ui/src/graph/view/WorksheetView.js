@@ -1641,12 +1641,20 @@ export default class WorksheetView extends ContentNodeView {
 
 					const expr = cell.getExpression();
 					let value = cell.getValue();
+					let extraSpace = 0;
 					if (expr) {
 						const termFunc = expr.getTerm();
 						if (cell.displayFunctionName && termFunc && termFunc instanceof FuncTerm) {
 							const fnName = termFunc.getFuncId();
-							if (fnName !== 'READ' || fnName !== 'WRITE') value = fnName;
-							graphics.setFontStyle(TextFormatAttributes.FontStyle.BOLD);
+							if (fnName !== 'READ' && fnName !== 'WRITE' && fnName !== 'SELECT') {
+								value = fnName;
+							}
+							if (fnName !== 'SELECT') {
+								graphics.setFontStyle(TextFormatAttributes.FontStyle.BOLD);
+							}
+							if (fnName === 'SELECT') {
+								extraSpace = 500;
+							}
 						}
 					}
 
@@ -1664,7 +1672,7 @@ export default class WorksheetView extends ContentNodeView {
 								.getCoordinateSystem()
 								.deviceToLogX(graphics.measureText(formattingResult.formattedValue).width, true) + 210;
 						textWidth += attributes.getLevel().getValue() * 150;
-						width = Math.max(textWidth, width);
+						width = Math.max(textWidth, width) + extraSpace;
 					}
 				}
 			}
