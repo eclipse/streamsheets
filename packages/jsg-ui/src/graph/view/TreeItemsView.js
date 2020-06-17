@@ -215,7 +215,8 @@ export default class TreeItemsView extends NodeView {
 
 			itemRectKey.x = rect.x + this._expanderOffset + this._treeItemLeftMargin + indent;
 			itemRectKey.y = rect.y + levelHeight;
-			itemRectKey.width = hasChildren ? this._treeItemWidth * 2 : this._treeItemWidth;
+			itemRectKey.width = this._treeItemWidth;
+			// itemRectKey.width = hasChildren ? this._treeItemWidth * 2 : this._treeItemWidth;
 			itemRectKey.height = this._treeItemHeight;
 
 			const draw = item.disabled === true || model.getHideEnabledItems() === false;
