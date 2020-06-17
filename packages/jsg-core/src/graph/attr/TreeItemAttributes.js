@@ -85,7 +85,7 @@ const TreeItemAttributes = class TreeItemAttributes extends AttributeList {
 		// 	new StringAttribute(ATTR.COLOR_SELECTED_OVERLAY),
 		// 	'#CCE8FF'
 		// );
-		addAttribute(new StringAttribute(ATTR.COLOR_JSON_VALUE), '#dae3f4');
+		addAttribute(new StringAttribute(ATTR.COLOR_JSON_VALUE), '#F0F0F0');
 		addAttribute(new StringAttribute(ATTR.COLOR_JSON_BOOLEAN), '#B1C639');
 		addAttribute(new StringAttribute(ATTR.COLOR_JSON_STRING), '#009408');
 		addAttribute(new StringAttribute(ATTR.COLOR_JSON_NUMBER), '#497B8D');

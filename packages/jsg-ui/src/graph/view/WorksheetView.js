@@ -368,6 +368,10 @@ export default class WorksheetView extends ContentNodeView {
 							currentSelection.getModel().getFormat(),
 							new JSG.Rectangle(0, 0, rect.width, rect.height)
 						);
+						currentSelection.getView().drawSubViews(
+							graphics,
+							new JSG.Rectangle(0, 0, rect.width, rect.height)
+						);
 					} else {
 						graphics.translate(-rect.x, -rect.y);
 						tmpViewer.getGraphView().drawSubViews(

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -67,6 +67,10 @@ module.exports = class MessageContainer extends Node {
 		this.getMessageListItems()
 			.getTreeItemAttributes()
 			.setColorJsonString('#1D89E4');
+		// this.getMessageListItems()
+		// 	.getTreeItemAttributes()
+		// 	.setColorJsonKeyText('#000000');
+			// .setColorJsonString('#1D89E4');
 		this.getMessageListItems()._defaultElementName = 'Message';
 		this.addItem(this._messageList);
 

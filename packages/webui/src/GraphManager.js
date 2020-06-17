@@ -65,6 +65,7 @@ const {
 	TooltipActivator,
 	TreeActivator,
 	TreeItem,
+	MathUtils,
 	ViewActivator,
 	WorksheetNode,
 } = JSG;
@@ -639,12 +640,7 @@ export default class GraphManager {
 		const itemsNode = messageBox.getMessageListItems();
 		const selectedItem = itemsNode.getTreeItemById(metadata.id);
 		if (selectedItem !== undefined) {
-			const item = new TreeItem(metadata.id, 'Message', metadata.id, 0, null);
-
-			item.type = TreeItemsNode.DataType.STRING;
-			item.parent = -1;
-			item._json = JSON.stringify(message);
-
+			const item = this.getMessageTreeItem(message, metadata);
 			const command = new UpdateTreeItemCommand(itemsNode, selectedItem.level, item);
 
 			if (execute) {
@@ -661,15 +657,31 @@ export default class GraphManager {
 		return this.updateMessage(messageBox, message, metadata, false);
 	}
 
-	// eslint-disable-next-line
-	addNewMessage(messageBox, message, metadata, execute = true) {
-		const itemsNode = messageBox.getMessageListItems();
-		metadata = metadata || {};
+	getMessageTreeItem(message, metadata) {
+		let key;
+
+		if (metadata.label && metadata.label.length > 0) {
+			key = metadata.label;
+		} else if (metadata.consumer && metadata.consumer.length > 0) {
+			key = metadata.consumer;
+		} else if (metadata.source && metadata.source.length > 0) {
+			key = metadata.source;
+		} else {
+			key = 'Message';
+		}
+
+		let value = metadata.id;
+		if (metadata.arrivalTime) {
+			const date = MathUtils.excelDateToJSDate(metadata.arrivalTime);
+			value = `${date.toLocaleTimeString()} ${date.getMilliseconds()}`;
+		} else {
+			value = metadata.id;
+		}
 
 		const item = new TreeItem(
 			(metadata.id && metadata.id.length > 0) ? metadata.id : message.id,
-			(metadata.label && metadata.label.length > 0) ? metadata.label : 'Message',
-			(metadata.id && metadata.id.length > 0) ? metadata.id : message.id,
+			key,
+			value,
 			0,
 			null,
 		);
@@ -677,6 +689,17 @@ export default class GraphManager {
 		item.type = TreeItemsNode.DataType.STRING;
 		item.parent = -1;
 		item._json = JSON.stringify(message);
+
+		return item;
+	}
+
+
+	// eslint-disable-next-line
+	addNewMessage(messageBox, message, metadata, execute = true) {
+		const itemsNode = messageBox.getMessageListItems();
+		metadata = metadata || {};
+
+		const item = this.getMessageTreeItem(message, metadata);
 
 		const command = new AddTreeItemCommand(itemsNode, -1, item);
 		command.isVolatile = true;

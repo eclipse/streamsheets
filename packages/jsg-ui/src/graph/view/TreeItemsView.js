@@ -189,7 +189,7 @@ export default class TreeItemsView extends NodeView {
 		const activeItem = this.getActiveItem();
 		this._expanderOffset = this.getItem()._maxDepth ? 300 : 0;
 		this._treeItemWidth =
-			(this._vpRect.width - (model._checkboxes ? 500 : 0) - model._maxDepth * this._indentOffset - 950) /
+			(this._vpRect.width - (model._checkboxes ? 500 : 0) - model._maxDepth * this._indentOffset - this._expanderOffset - 400) /
 			(model.getOnlyKeys() ? 1 : 2);
 
 		const itemRectKey = JSG.rectCache.get();
@@ -211,12 +211,12 @@ export default class TreeItemsView extends NodeView {
 			const isActive = activeItem && item.level === activeItem.level;
 
 			// key rectangle box
-			itemRectKey.set(
-				rect.x + this._expanderOffset + this._treeItemLeftMargin + indent,
-				rect.y + levelHeight,
-				this._treeItemWidth,
-				this._treeItemHeight
-			);
+			const hasChildren = item.type === TreeItemsNode.DataType.ARRAY || item.type === TreeItemsNode.DataType.OBJECT;
+
+			itemRectKey.x = rect.x + this._expanderOffset + this._treeItemLeftMargin + indent;
+			itemRectKey.y = rect.y + levelHeight;
+			itemRectKey.width = hasChildren ? this._treeItemWidth * 2 : this._treeItemWidth;
+			itemRectKey.height = this._treeItemHeight;
 
 			const draw = item.disabled === true || model.getHideEnabledItems() === false;
 
@@ -251,15 +251,15 @@ export default class TreeItemsView extends NodeView {
 
 			// draw key background
 			graphics.setFillColor(item.color);
-			graphics.fillRoundedRectangle(itemRectKey.x, itemRectKey.y, itemRectKey.width, itemRectKey.height, 150, 0, 150, 0);
+			graphics.fillRoundedRectangle(itemRectKey.x, itemRectKey.y, itemRectKey.width, itemRectKey.height, 150, hasChildren ? 150 : 0, 150, hasChildren ? 150 : 0);
 
 			if (isActive) {
 				graphics.drawImage(
 					JSG.imagePool.get('loop'),
-					itemRectKey.getRight() + 200,
-					itemRectKey.y + 50,
-					550,
-					425
+					itemRectKey.getRight() - 650,
+					itemRectKey.y + 100,
+					500,
+					400
 				);
 			}
 
@@ -267,28 +267,30 @@ export default class TreeItemsView extends NodeView {
 			graphics.setFillColor(this._colorScheme.JSON_KEY_TEXT);
 			graphics.fillText(item.key, itemRectKey.x + 100, itemRectKey.y + treeItemHeight);
 
-			if (item.value !== undefined && item.value !== null) {
+			if (!hasChildren) {
 				// draw value rectangle box
-				itemRectValue.set(
-					rect.x + itemRectKey.getRight(),
-					rect.y + levelHeight,
-					this._treeItemWidth,
-					this._treeItemHeight
-				);
+				itemRectValue.x = rect.x + itemRectKey.getRight();
+				itemRectValue.y = rect.y + levelHeight;
+				itemRectValue.width = this._treeItemWidth;
+				itemRectValue.height = this._treeItemHeight;
 
 				graphics.setFillColor(this._colorScheme.JSON_VALUE);
 				graphics.fillRoundedRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height, 0, 150, 0, 150);
 
 				// draw value text
-				graphics.setFillColor('#222222');
-				graphics.fillText(item.value, itemRectValue.x + 100, itemRectValue.y + treeItemHeight);
+				if (item.value !== undefined && item.value !== null) {
+					graphics.setFillColor('#222222');
+					graphics.fillText(item.value, itemRectValue.x + 100, itemRectValue.y + treeItemHeight);
 
-				// overpaint overlapping key text
-				graphics.setFillColor('#FFFFFF');
-				itemRectValue.x += itemRectValue.width;
-				itemRectValue.width = rect.width - itemRectValue.x;
-				graphics.fillRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height);
+					// overpaint overlapping key text
+					graphics.setFillColor('#FFFFFF');
+					itemRectValue.x += itemRectValue.width;
+					itemRectValue.width = rect.width - itemRectValue.x;
+					graphics.fillRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height);
+				}
 			}
+
+			itemRectKey.width = this._treeItemWidth * 2;
 
 			if (item.disabled) {
 				graphics.setFillColor('#FFFFFF');
@@ -303,7 +305,7 @@ export default class TreeItemsView extends NodeView {
 				graphics.setLineColor(focus ? '#444444' : '#777777');
 				itemRectKey.expandBy(20);
 
-				graphics.drawRoundedRectangle(itemRectKey.x, itemRectKey.y, itemRectKey.width, itemRectKey.height, 150, 0, 150, 0);
+				graphics.drawRoundedRectangle(itemRectKey.x, itemRectKey.y, itemRectKey.width, itemRectKey.height, 150, 150, 150, 150);
 
 				graphics.setLineWidth(-1);
 				graphics.setLineStyle(FormatAttributes.LineStyle.NONE);
@@ -617,7 +619,7 @@ export default class TreeItemsView extends NodeView {
 		} else {
 			x = item.depth * this._indentOffset + this._treeItemWidth;
 			y = item.drawlevel * this._depthOffset;
-			const textWidth = item.value.toString().length * 210;
+			const textWidth = item.value === undefined || item.value === null ? 1500 : item.value.toString().length * 210;
 			width = textWidth < this._treeItemWidth ? this._treeItemWidth : textWidth;
 		}
 
@@ -748,7 +750,7 @@ export default class TreeItemsView extends NodeView {
 					div.style.border = 'none';
 					div.style.background = key ? selectedItem.color : view._colorScheme.JSON_VALUE;
 					div.style.color = key ? '#FFFFFF' : '#000000';
-					div.style.fontSize = `${8 * zoom}pt`;
+					div.style.fontSize = `${9 * zoom}pt`;
 					div.style.fontFamily = 'Verdana';
 					div.style.left = `${(cs.logToDeviceX(pos.x, false) + rect.x + 2).toFixed()}px`;
 					div.style.top = `${(cs.logToDeviceX(pos.y, false) + rect.y - 2).toFixed()}px`;

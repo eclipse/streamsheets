@@ -52,14 +52,19 @@ export default class SheetActivator extends InteractionActivator {
 			}
 			return;
 		}
-		const view = focus.getParent().getParent().getParent().getView();
-		if (focus && event.event.ctrlKey && event.event.key === 'q' && view instanceof WorksheetView) {
-			const interaction = this.activateInteraction(new SheetInteraction(), dispatcher);
-			interaction._controller = focus.getParent().getParent().getParent();
-			interaction._hitCode = WorksheetView.HitCode.SHEET;
-			if (interaction.onKeyDown(event, viewer)) {
-				event.isConsumed = true;
-				event.hasActivated = true;
+		if (focus && event.event.ctrlKey && event.event.key === 'q') {
+			let parent = focus.getParent();
+			while (parent && !(parent.getView() instanceof WorksheetView)) {
+				parent = parent.getParent();
+			}
+			if (parent && parent.getView() instanceof WorksheetView) {
+				const interaction = this.activateInteraction(new SheetInteraction(), dispatcher);
+				interaction._controller = parent;
+				interaction._hitCode = WorksheetView.HitCode.SHEET;
+				if (interaction.onKeyDown(event, viewer)) {
+					event.isConsumed = true;
+					event.hasActivated = true;
+				}
 			}
 		}
 	}
