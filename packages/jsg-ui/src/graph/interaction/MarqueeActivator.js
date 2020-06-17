@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -15,6 +15,7 @@ import SelectionVerifier from './SelectionVerifier';
 import GraphController from '../controller/GraphController';
 import ClientEvent from '../../ui/events/ClientEvent';
 import Cursor from '../../ui/Cursor';
+import CellEditor from '../view/CellEditor';
 
 /**
  * An InteractionActivator used to activate a {{#crossLink
@@ -130,7 +131,8 @@ class MarqueeActivator extends InteractionActivator {
 	 *     activator is registered.
 	 */
 	onMouseUp(event, viewer, dispatcher) {
-		if (this.isDisposed === false && event.isInCanvas()) {
+		const cellEditor = CellEditor.getActiveCellEditor();
+		if (cellEditor === undefined && this.isDisposed === false && event.isInCanvas()) {
 			const isNewSelection = this._isNewSelection(event, viewer);
 
 			let controller;
