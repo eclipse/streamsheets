@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -251,7 +251,7 @@ export default class TreeItemsView extends NodeView {
 
 			// draw key background
 			graphics.setFillColor(item.color);
-			graphics.fillRectangle(itemRectKey.x, itemRectKey.y, itemRectKey.width, itemRectKey.height);
+			graphics.fillRoundedRectangle(itemRectKey.x, itemRectKey.y, itemRectKey.width, itemRectKey.height, 150, 0, 150, 0);
 
 			if (isActive) {
 				graphics.drawImage(
@@ -277,9 +277,9 @@ export default class TreeItemsView extends NodeView {
 				);
 
 				graphics.setFillColor(this._colorScheme.JSON_VALUE);
-				graphics.fillRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height);
+				graphics.fillRoundedRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height, 0, 150, 0, 150);
 
-				// darw value text
+				// draw value text
 				graphics.setFillColor('#222222');
 				graphics.fillText(item.value, itemRectValue.x + 100, itemRectValue.y + treeItemHeight);
 
@@ -293,7 +293,7 @@ export default class TreeItemsView extends NodeView {
 			if (item.disabled) {
 				graphics.setFillColor('#FFFFFF');
 				graphics.setTransparency(50);
-				graphics.fillRectangle(itemRectKey.x, itemRectKey.y, itemRectKey.width, itemRectKey.height);
+				graphics.fillRoundedRectangle(itemRectKey.x, itemRectKey.y, itemRectKey.width, itemRectKey.height, 150, 150, 150, 150);
 				graphics.setTransparency(100);
 			}
 
@@ -303,7 +303,7 @@ export default class TreeItemsView extends NodeView {
 				graphics.setLineColor(focus ? '#444444' : '#777777');
 				itemRectKey.expandBy(20);
 
-				graphics.drawRectangle(itemRectKey.x, itemRectKey.y, itemRectKey.width, itemRectKey.height);
+				graphics.drawRoundedRectangle(itemRectKey.x, itemRectKey.y, itemRectKey.width, itemRectKey.height, 150, 0, 150, 0);
 
 				graphics.setLineWidth(-1);
 				graphics.setLineStyle(FormatAttributes.LineStyle.NONE);

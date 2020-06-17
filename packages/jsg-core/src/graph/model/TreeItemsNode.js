@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -48,7 +48,7 @@ module.exports = class TreeItemsNode extends Node {
 		this.getFormat().setLineColor('#AAAAAA');
 		this.getFormat().setFillColor('#FFFFFF');
 
-		this.getTextFormat().setFontSize(8);
+		this.getTextFormat().setFontSize(9);
 		this.getTextFormat().setHorizontalAlignment(TextFormatAttributes.TextAlignment.LEFT);
 
 		this.getItemAttributes().setSelectionMode(ItemAttributes.SelectionMode.NONE);

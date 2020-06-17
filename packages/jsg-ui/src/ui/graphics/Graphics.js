@@ -94,7 +94,7 @@ const BW_FILTER = (() => {
 		let val = def;
 		const { view } = filter;
 		// apply filter only to views which have a model...
-		if (view && (view.getItem && view.getItem())) {
+		if (view && view.getItem && view.getItem()) {
 			val = filter.defaults[type];
 			val = val !== undefined ? val : def;
 		}
@@ -328,18 +328,6 @@ class Graphics {
 		this.rect(r.x, r.y, r.width, r.height);
 	}
 
-	// fillRectangle(r) {
-	// 	this.beginPath();
-	// 	this.rect(r.x, r.y, r.width, r.height);
-	// 	this.fill();
-	// }
-	//
-	// drawRectangle(r) {
-	// 	this.beginPath();
-	// 	this.rect(r.x, r.y, r.width, r.height);
-	// 	this.stroke();
-	// }
-	//
 	drawRectangle(x, y, width, height) {
 		const p1 = this.transformPoint(x, y, 0);
 		width = Math.ceil(width);
@@ -373,6 +361,40 @@ class Graphics {
 		} else {
 			this._context2D.fillRect(p1.x, p1.y, width, height);
 		}
+		this._fillOperation = false;
+	}
+
+	fillRoundedRectangle(x, y, width, height, rlt, rrt, rlb, rrb) {
+		this._fillOperation = true;
+		const p1 = this.transformPoint(x, y, 0);
+		width = Math.ceil(width);
+		height = Math.ceil(height);
+
+		this.beginPath();
+		this._context2D.moveTo(p1.x + rlt, p1.y);
+		this._context2D.arcTo(p1.x + width, p1.y, p1.x + width, p1.y + height, rrt);
+		this._context2D.arcTo(p1.x + width, p1.y + height, p1.x, p1.y + height, rrb);
+		this._context2D.arcTo(p1.x, p1.y + height, p1.x, p1.y, rlb);
+		this._context2D.arcTo(p1.x, p1.y, p1.x + width, p1.y, rlt);
+		this.closePath();
+		this.fill();
+		this._fillOperation = false;
+	}
+
+	drawRoundedRectangle(x, y, width, height, rlt, rrt, rlb, rrb) {
+		this._fillOperation = true;
+		const p1 = this.transformPoint(x, y, 0);
+		width = Math.ceil(width);
+		height = Math.ceil(height);
+
+		this.beginPath();
+		this._context2D.moveTo(p1.x + rlt, p1.y);
+		this._context2D.arcTo(p1.x + width, p1.y, p1.x + width, p1.y + height, rrt);
+		this._context2D.arcTo(p1.x + width, p1.y + height, p1.x, p1.y + height, rrb);
+		this._context2D.arcTo(p1.x, p1.y + height, p1.x, p1.y, rlb);
+		this._context2D.arcTo(p1.x, p1.y, p1.x + width, p1.y, rlt);
+		this.closePath();
+		this.stroke();
 		this._fillOperation = false;
 	}
 
@@ -1686,7 +1708,7 @@ class Graphics {
 		this._context2D.putImageData(image, p.x, p.y);
 	}
 
-		/**
+	/**
 	 * Draw a rectangular frame.
 	 *
 	 * @method drawRect
@@ -2859,6 +2881,11 @@ class Graphics {
 	 * @param {Number} anticlockwise Direction to draw to, false=clockwise, true=counterclockwise.
 	 */
 	arc(x, y, radius, startAngle, endAngle, anticlockwise) {
+		const p = this.transformPoint(x, y, 0);
+		this._context2D.arc(p.x, p.y, radius, startAngle, endAngle, anticlockwise);
+	}
+
+	arcTo(x, y, radius, startAngle, endAngle, anticlockwise) {
 		const p = this.transformPoint(x, y, 0);
 		this._context2D.arc(p.x, p.y, radius, startAngle, endAngle, anticlockwise);
 	}

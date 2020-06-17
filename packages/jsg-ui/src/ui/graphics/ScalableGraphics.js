@@ -79,6 +79,32 @@ class ScalableGraphics extends Graphics {
 		);
 	}
 
+	fillRoundedRectangle(x, y, width, height, rlt, rrt, rlb, rrb) {
+		super.fillRoundedRectangle(
+			this._cs.logToDeviceX(x),
+			this._cs.logToDeviceY(y),
+			this._cs.logToDeviceX(width),
+			this._cs.logToDeviceY(height),
+			this._cs.logToDeviceY(rlt),
+			this._cs.logToDeviceY(rrt),
+			this._cs.logToDeviceY(rlb),
+			this._cs.logToDeviceY(rrb)
+		);
+	}
+
+	drawRoundedRectangle(x, y, width, height, rlt, rrt, rlb, rrb) {
+		super.drawRoundedRectangle(
+			this._cs.logToDeviceX(x),
+			this._cs.logToDeviceY(y),
+			this._cs.logToDeviceX(width),
+			this._cs.logToDeviceY(height),
+			this._cs.logToDeviceY(rlt),
+			this._cs.logToDeviceY(rrt),
+			this._cs.logToDeviceY(rlb),
+			this._cs.logToDeviceY(rrb)
+		);
+	}
+
 	drawRectangle(x, y, width, height) {
 		super.drawRectangle(
 			this._cs.logToDeviceX(x),

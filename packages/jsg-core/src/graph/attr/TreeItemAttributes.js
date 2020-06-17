@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -71,9 +71,20 @@ const TreeItemAttributes = class TreeItemAttributes extends AttributeList {
 
 		// simply add default attributes:
 		addAttribute(new NumberAttribute(ATTR.TREE_ITEM_WIDTH), 2500);
-		addAttribute(new NumberAttribute(ATTR.TREE_ITEM_HEIGHT), 450);
+		addAttribute(new NumberAttribute(ATTR.TREE_ITEM_HEIGHT), 550);
 		addAttribute(new NumberAttribute(ATTR.INDENT_OFFSET), 250);
-		addAttribute(new NumberAttribute(ATTR.DEPTH_OFFSET), 600);
+		addAttribute(new NumberAttribute(ATTR.DEPTH_OFFSET), 700);
+		// addAttribute(new StringAttribute(ATTR.COLOR_JSON_VALUE), '#dae3f4');
+		// addAttribute(new StringAttribute(ATTR.COLOR_JSON_BOOLEAN), '#B1C639');
+		// addAttribute(new StringAttribute(ATTR.COLOR_JSON_STRING), '#009408');
+		// addAttribute(new StringAttribute(ATTR.COLOR_JSON_NUMBER), '#497B8D');
+		// addAttribute(new StringAttribute(ATTR.COLOR_JSON_OBJECT), '#E17000');
+		// addAttribute(new StringAttribute(ATTR.COLOR_JSON_ARRAY), '#2D5B89');
+		// addAttribute(new StringAttribute(ATTR.COLOR_JSON_KEY_TEXT), '#FAFBF7');
+		// addAttribute(
+		// 	new StringAttribute(ATTR.COLOR_SELECTED_OVERLAY),
+		// 	'#CCE8FF'
+		// );
 		addAttribute(new StringAttribute(ATTR.COLOR_JSON_VALUE), '#dae3f4');
 		addAttribute(new StringAttribute(ATTR.COLOR_JSON_BOOLEAN), '#B1C639');
 		addAttribute(new StringAttribute(ATTR.COLOR_JSON_STRING), '#009408');
