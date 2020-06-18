@@ -31,6 +31,7 @@ describe('sum', () => {
 	it('should return the total value of given cells', () => {
 		const sheet = createStreamSheet({ name: 'P1', cells: SHEETS.NUMBERS });
 		expect(createTerm('sum(A1:C3)', sheet).value).toBe(45);
+		expect(createTerm('sum(1,2,3,4)', sheet).value).toBe(10);
 	});
 	it('should return the total value of a single cell', () => {
 		const sheet = createStreamSheet({ name: 'P1', cells: SHEETS.NUMBERS });

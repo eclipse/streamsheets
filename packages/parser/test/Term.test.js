@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -105,7 +105,22 @@ describe('Term', () => {
 			expect(term.value).toBe('hello');
 		});
 	});
-
+	describe('copy', () => {
+		it('should create a fresh context for copied term', () => {
+			const onDispose = () => {};
+			const fnTerm = new FuncTerm();
+			fnTerm.context.addDisposeListener(onDispose);
+			fnTerm.context.state1 = 'state1';
+			fnTerm.context.complexState = { state: 'complex' };
+			const copy = fnTerm.copy();
+			expect(copy).toBeDefined();
+			expect(copy.context).toBeDefined();
+			expect(copy.context.term).toEqual(copy);
+			expect(copy.context.hasDisposeListener(onDispose)).toBe(false);
+			expect(copy.context.state1).toBeUndefined();
+			expect(copy.context.complexState).toBeUndefined();
+		});
+	});
 	describe('toString', () => {
 		it('should return a string which represents term', () => {
 			const term = Parser.parse('-2', DEF_CONTEXT);

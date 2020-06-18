@@ -73,6 +73,10 @@ class SheetProcessor {
 		return result;
 	}
 
+	get isPaused() {
+		return this._cursor.paused;
+	}
+
 	pause() {
 		this._cursor.paused = true;
 	}
