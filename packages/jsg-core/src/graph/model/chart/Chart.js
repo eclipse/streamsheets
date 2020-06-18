@@ -32,6 +32,7 @@ module.exports = class Chart {
 		this.firstSeriesLabels = true;
 		this.dataInRows = true;
 		this.varyByCategories = false;
+		this.varyByThreshold = 'colorchange';
 		this.hiLoLines = new ChartElement();
 		this.seriesLines = new ChartElement();
 		this.upBars = new ChartElement();
@@ -91,6 +92,7 @@ module.exports = class Chart {
 		writer.writeAttributeNumber('firstseries', this.firstSeriesLabels ? 1 : 0);
 		writer.writeAttributeNumber('datainrows', this.dataInRows ? 1 : 0);
 		writer.writeAttributeNumber('varybycategories', this.varyByCategories ? 1 : 0);
+		writer.writeAttributeString('varybythreshold', this.varyByThreshold);
 		writer.writeAttributeNumber('stacked', this.stacked ? 1 : 0);
 		writer.writeAttributeNumber('relative', this.relative ? 1 : 0);
 		writer.writeAttributeNumber('step', this.step ? 1 : 0);
@@ -121,6 +123,7 @@ module.exports = class Chart {
 		this.dataInRows = reader.getAttributeBoolean(object, 'datainrows', true);
 		this.tooltips = reader.getAttributeBoolean(object, 'tooltips', true);
 		this.varyByCategories = reader.getAttributeBoolean(object, 'varybycategories', false);
+		this.varyByThreshold = reader.getAttribute(object, 'varybythreshold', 'colorchange');
 		this.rotation = reader.getAttributeNumber(object, 'rotation', 0);
 		this.startAngle = reader.getAttributeNumber(object, 'startangle', 0);
 		this.endAngle = reader.getAttributeNumber(object, 'endangle', Math.PI * 2);

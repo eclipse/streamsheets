@@ -294,6 +294,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'chart');
 	};
 
+	handleVaryByThresholdChange = (event) => {
+		const cmd = this.prepareCommand('chart');
+		const item = this.state.plotView.getItem();
+		item.chart.varyByThreshold = event.target.value;
+		this.finishCommand(cmd, 'chart');
+	};
+
 	handleTemplateChange = (event) => {
 		const cmd = this.prepareCommand('chart');
 		const data = this.getData();
@@ -892,20 +899,6 @@ export class StreamChartProperties extends Component {
 									<FormControlLabel
 										control={
 											<Checkbox
-												checked={item.chart.varyByCategories}
-												onChange={(event, state) => this.handleVaryByCategoriesChange(event, state)}
-											/>
-										}
-										label={
-											<FormattedMessage
-												id="StreamChartProperties.VaryByCategories"
-												defaultMessage="Vary Color By Category"
-											/>
-										}
-									/>
-									<FormControlLabel
-										control={
-											<Checkbox
 												checked={item.chart.tooltips}
 												onChange={(event, state) => this.handleTooltipsChange(event, state)}
 											/>
@@ -914,6 +907,20 @@ export class StreamChartProperties extends Component {
 											<FormattedMessage
 												id="StreamChartProperties.tooltips"
 												defaultMessage="Tooltips"
+											/>
+										}
+									/>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={item.chart.varyByCategories}
+												onChange={(event, state) => this.handleVaryByCategoriesChange(event, state)}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.VaryByCategories"
+												defaultMessage="Vary Color By Category"
 											/>
 										}
 									/>
@@ -1113,54 +1120,83 @@ export class StreamChartProperties extends Component {
 													defaultMessage="Settings"
 												/>
 											</FormLabel>
-											<FormControlLabel
-												control={
-													<Checkbox
-														checked={item.chart.stacked}
-														onChange={(event, state) =>
-															this.handleChartStackedChange(event, state)
+											<FormGroup>
+												<FormControlLabel
+													control={
+														<Checkbox
+															checked={item.chart.stacked}
+															onChange={(event, state) =>
+																this.handleChartStackedChange(event, state)
+															}
+														/>
+													}
+													label={
+														<FormattedMessage
+															id="StreamChartProperties.Stacked"
+															defaultMessage="Stacked"
+														/>
+													}
+												/>
+												<FormControlLabel
+													control={
+														<Checkbox
+															checked={item.chart.relative}
+															onChange={(event, state) =>
+																this.handleChartHundredPercentChange(event, state)
+															}
+														/>
+													}
+													label={
+														<FormattedMessage
+															id="StreamChartProperties.HundredPercent"
+															defaultMessage="100%"
+														/>
+													}
+												/>
+												{this.isLineChart() ? (
+													<FormControlLabel
+														control={
+															<Checkbox
+																checked={item.chart.step}
+																onChange={(event, state) =>
+																	this.handleChartStepChange(event, state)
+																}
+															/>
 														}
-													/>
-												}
-												label={
-													<FormattedMessage
-														id="StreamChartProperties.Stacked"
-														defaultMessage="Stacked"
-													/>
-												}
-											/>
-											<FormControlLabel
-												control={
-													<Checkbox
-														checked={item.chart.relative}
-														onChange={(event, state) =>
-															this.handleChartHundredPercentChange(event, state)
+														label={
+															<FormattedMessage
+																id="StreamChartProperties.Step"
+																defaultMessage="Step"
+															/>
 														}
-													/>
-												}
-												label={
-													<FormattedMessage
-														id="StreamChartProperties.HundredPercent"
-														defaultMessage="100%"
-													/>
-												}
-											/>
-											<FormControlLabel
-												control={
-													<Checkbox
-														checked={item.chart.step}
-														onChange={(event, state) =>
-															this.handleChartStepChange(event, state)
-														}
-													/>
-												}
-												label={
-													<FormattedMessage
-														id="StreamChartProperties.Step"
-														defaultMessage="Step"
-													/>
-												}
-											/>
+													/>) : null}
+												<FormControl
+													style={{
+														width: '95%',
+														margin: '8px'
+													}}
+												>
+													<InputLabel htmlFor="treshold">
+														<FormattedMessage id="StreamChartProperties.TresholdStyle" defaultMessage="Treshold Style" />
+													</InputLabel>
+													<Select
+														id="tr"
+														value={item.chart.varyByThreshold}
+														onChange={this.handleVaryByThresholdChange}
+														input={<Input name="threshold" id="threshold" />}
+													>
+														<MenuItem value="colorchange" key={1}>
+															<FormattedMessage id="StreamChartProperties.ColorChange" defaultMessage="Color Change" />
+														</MenuItem>
+														<MenuItem value="gradient" key={2}>
+															<FormattedMessage id="StreamChartProperties.Gradient" defaultMessage="Gradient" />
+														</MenuItem>
+														<MenuItem value="segments" key={3}>
+															<FormattedMessage id="StreamChartProperties.Segments" defaultMessage="Segments" />
+														</MenuItem>
+													</Select>
+												</FormControl>
+											</FormGroup>
 										</div>
 									)}
 								</FormGroup>
@@ -1525,10 +1561,10 @@ export class StreamChartProperties extends Component {
 									<FormattedMessage id="StreamChartProperties.axisType" defaultMessage="Axis Type" />
 								</InputLabel>
 								<Select
-									id="chart-type"
+									id="axis-type"
 									value={data.type}
 									onChange={this.handleAxisTypeChange}
-									input={<Input name="chart-type" id="chart-type" />}
+									input={<Input name="axis-type" id="axis-type" />}
 								>
 									{selection.element === 'xAxis' ? (
 										<MenuItem value="category" key={0}>
