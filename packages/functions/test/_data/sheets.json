@@ -103,5 +103,10 @@
     "A26": 0.19, "B26": 1234, "C26": 0.07, "D26": "1234-B",
     "A30": "Total", "B30": "Artikelnr", "C30": "Anzahl", "D30": "Preis", "E30": "Mwst",
     "A40": "Artikelnr", "B40": "Total", "C40": "Anzahl", "D40": "Preis", "E40": "Mwst"
+  },
+  "STACKUPSERT_BUG": {
+    "C7": "ID", "D7": "Anzahl", "E7": "Preis", "F7": "Mwst", "G7": "Total",
+    "C8": 1234, "D8": "+1", "E8": "=23", "F8": 0.19, "G8": { "formula": "D8*E8*(1+F8)" },
+    "L20": "ID", "M20": "Anzahl", "N20": "Preis", "O20": "Mwst", "P20": "Total"
   }
 }
