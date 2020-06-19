@@ -123,13 +123,12 @@ module.exports = class Chart {
 		this.dataInRows = reader.getAttributeBoolean(object, 'datainrows', true);
 		this.tooltips = reader.getAttributeBoolean(object, 'tooltips', true);
 		this.varyByCategories = reader.getAttributeBoolean(object, 'varybycategories', false);
-		this.varyByThreshold = reader.getAttribute(object, 'varybythreshold', 'colorchange');
+		this.varyByThreshold = reader.getAttributeString(object, 'varybythreshold', 'colorchange');
 		this.rotation = reader.getAttributeNumber(object, 'rotation', 0);
 		this.startAngle = reader.getAttributeNumber(object, 'startangle', 0);
 		this.endAngle = reader.getAttributeNumber(object, 'endangle', Math.PI * 2);
 		this.hole = reader.getAttributeNumber(object, 'hole', 0.5);
-		this.template = reader.getAttribute(object, 'template') ?
-			reader.getAttribute(object, 'template') : 'basic';
+		this.template = reader.getAttributeString(object, 'template', 'basic');
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {
 			case 'formula':
