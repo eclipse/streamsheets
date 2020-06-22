@@ -21,9 +21,11 @@ const filter = (functions) => Object.entries(functions).reduce((acc, [name, func
 		return acc;
 	}, {});
 
-const executor = func => function wrappedFunction(sheet, ...terms) {
+const executor = (func) => function wrappedFunction(sheet, ...terms) {
 	let result;
-	func.term = wrappedFunction.term;
+	const term = wrappedFunction.term;
+	func.term = term; // deprecated
+	func.context = term.context;
 	wrappedFunction.displayName = func.displayName;
 	try {
 		result = func(sheet, ...terms);
@@ -32,13 +34,13 @@ const executor = func => function wrappedFunction(sheet, ...terms) {
 		return FunctionErrors.code.FUNC_EXEC;
 	}
 	func.term = undefined;
+	func.context = undefined;
 	return result;
 };
 
 // DL-1253: an identifier can contain an error code. we ignore this and simply use a string term for it
-const createErrorTermFromNode = node => (node.type === 'identifier' && FunctionErrors.isError(node.value)
-	? Term.fromString(node.value)
-	: undefined);
+const createErrorTermFromNode = (node) =>
+	node.type === 'identifier' && FunctionErrors.isError(node.value) ? Term.fromString(node.value) : undefined;
 
 const referenceTerm = (node, context) => {
 	const operand = referenceFromNode(node, context) || createErrorTermFromNode(node);

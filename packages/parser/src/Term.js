@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -11,6 +11,7 @@
 const Locale = require('./Locale');
 const { Operand, StringOperand } = require('./Operand');
 const { Operation } = require('./Operation');
+const TermContext = require('./TermContext');
 
 class Term {
 	static fromNumber(nr) {
@@ -331,6 +332,7 @@ class FuncTerm extends Term {
 	constructor(name) {
 		super();
 		this.name = name;
+		this.context = new TermContext(this);
 		this.func = undefined;
 		this.scope = undefined;
 		this.params = undefined;
@@ -343,6 +345,8 @@ class FuncTerm extends Term {
 	dispose() {
 		super.dispose();
 		if (this.params) this.params.forEach((param) => param.dispose());
+		this.context.dispose();
+		this.context = undefined;
 	}
 
 	setTo(term) {
@@ -350,9 +354,8 @@ class FuncTerm extends Term {
 		this.name = term.name;
 		this.func = term.func;
 		this.scope = term.scope;
-		this.params = term.params
-			? term.params.map((param) => param.copy())
-			: undefined;
+		this.context = term.context.copy(this);
+		this.params = term.params ? term.params.map((param) => param.copy()) : undefined;
 	}
 
 	get value() {

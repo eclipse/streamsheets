@@ -79,16 +79,15 @@ const updateRowValues = (operations, sourcerange, srcindices, stackrow, matcher)
 
 const getRowValues = (index, range) => {
 	const values = [];
-	range.iterateRowAt(index, (cell) => {
-		values.push(cell ? cell.value : undefined);
+	range.iterateRowAt(index, (cell, idx) => {
+		values[idx.col] = cell ? cell.value : undefined;
 	});
 	return values;
 };
 const updateStackRow = (index, stackrange, values) => {
 	const sheet = stackrange.sheet;
-	const startcol = stackrange.start.col;
 	stackrange.iterateRowAt(index, (cell, idx) => {
-		const value = values[idx.col - startcol];
+		const value = values[idx.col];
 		const newcell = value != null ? new Cell(value, Term.fromValue(value)) : undefined;
 		sheet.setCellAt(idx, newcell);
 	});
@@ -109,11 +108,11 @@ const upsert = (stackrange, sourcerange, criteriarange, addNotFound, addToBottom
 			const newrows = [];
 			sourcerows.forEach((rowindex, index) => {
 				const operations = updateOperations[index];
-				newrows.push(
-					setRowValues([], sourcerange, rowindex, operations, matcher).map(
-						(value) => new Cell(value, Term.fromValue(value))
-					)
+				const row = setRowValues([], sourcerange, rowindex, operations, matcher).map(
+					(value) => new Cell(value, Term.fromValue(value))
 				);
+				// addAtTop/Bottom are relative to 0!!
+				newrows.push(row.filter((cell) => cell != null));
 			});
 			return addToBottom ? addAtBottom(stackrange, newrows) : addAtTop(stackrange, newrows);
 		}

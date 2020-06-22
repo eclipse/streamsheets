@@ -9,14 +9,15 @@
  *
  ********************************************************************************/
 const help = require('./help');
+const await_ = require('./await');
 const colors = require('./colors');
-const CONTINUE = require('./continueAt');
 const counters = require('./counters');
 const detectchange = require('./detectchange');
 const loop = require('./loop');
 const values = require('./values');
 const ARRAY = require('./array');
 const CALC = require('./calc');
+const CONTINUE = require('./continueAt');
 const DELETE = require('./delete');
 const DELETECELLS = require('./deletecells');
 const DICTIONARY = require('./dictionary');
@@ -49,6 +50,7 @@ const WRITE = require('./write');
 module.exports = {
 	help,
 	functions: {
+		...await_,
 		...colors,
 		...counters,
 		...detectchange,

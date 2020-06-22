@@ -19,7 +19,27 @@ module.exports = {
 			},
 			de: {
 				argumentList: 'Bereich,Verschachteln,Flach',
-				description: 'Erzeugt ein JSON Array Objekt mit den gegebenen Schlüssel und Werten'
+				description: 'Erzeugt ein JSON Array Objekt mit den gegebenen Schlüssel und Werten'	
+			}
+		},
+		'AWAIT': {
+			en: {
+				argumentList: 'Cell1,Cell2...',
+				description: 'Waits until all specified request cells resolve'
+			},
+			de: {
+				argumentList: 'Zelle1,Zelle2...',
+				description: 'Wartet bis alle Anfragen in den angegebenen Zellen behandelt wurden'
+			}
+		},
+		'AWAIT.ONE': {
+			en: {
+				argumentList: 'Cell1,Cell2...',
+				description: 'Waits until one of specified request cell resolves'
+			},
+			de: {
+				argumentList: 'Zelle1,Zelle2...',
+				description: 'Wartet bis eine Anfragen in den angegebenen Zellen behandelt wurde'
 			}
 		},
 		CALC: {

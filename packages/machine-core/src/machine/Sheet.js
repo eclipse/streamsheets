@@ -170,6 +170,9 @@ module.exports = class Sheet {
 	get isProcessing() {
 		return this.processor._isProcessing || this._forceExecution;
 	}
+	get isPaused() {
+		return this.processor.isPaused;
+	}
 
 	get machine() {
 		return this.streamsheet ? this.streamsheet.machine : undefined;
