@@ -237,6 +237,7 @@ export default class CellsView extends NodeView {
 					result.fillColor = '#AAAAAA';
 					result.color = '#FFFFFF';
 					result.bold = true;
+					result.rounded = term.getFuncId() === 'READ' ? 'left' : 'right';
 					if (term.params && term.params.length > 2 && term.params[2].value) {
 						switch (term.params[2].value) {
 						case 'String':
@@ -261,6 +262,7 @@ export default class CellsView extends NodeView {
 					break;
 				default:
 					result.value = String(data.getValue());
+					result.rounded = 'full';
 					if (result.value === 'true' || result.value[0] !== '#') {
 						result.fillColor = '#1976d2';
 						result.value = term.getFuncId();
@@ -560,14 +562,22 @@ export default class CellsView extends NodeView {
 			Number(styleproperties.fillstyle) !== 1
 		) {
 			if (cellProperties && cellProperties.key) {
-				this.rect(
-					graphics,
+				graphics.setFillColor('#F2F2F2');
+				graphics.fillRoundedRectangle(
 					columnInfo.x + 50,
 					rowInfo.y + 50,
 					columnInfo.width - 100,
 					rowInfo.height - 100,
-					'#F2F2F2'
+					0, 100, 0, 100
 				);
+				// this.rect(
+				// 	graphics,
+				// 	columnInfo.x + 50,
+				// 	rowInfo.y + 50,
+				// 	columnInfo.width - 100,
+				// 	rowInfo.height - 100,
+				// 	'#F2F2F2'
+				// );
 			}
 		} else {
 			if (rowInfo.grey) {
@@ -888,13 +898,32 @@ export default class CellsView extends NodeView {
 				graphics.setTransparency(60);
 			}
 			if (formattedValue.frame) {
-				this.rect(
-					graphics,
+				// this.rect(
+				// 	graphics,
+				// 	columnInfo.x + formattedValue.level * 150 + 50,
+				// 	rowInfo.y + 50,
+				// 	columnInfo.width - formattedValue.level * 150 - 100,
+				// 	rowInfo.height - 100,
+				// 	formattedValue.fillColor
+				// );
+				graphics.setFillColor(formattedValue.fillColor);
+				graphics.fillRoundedRectangle(
 					columnInfo.x + formattedValue.level * 150 + 50,
 					rowInfo.y + 50,
 					columnInfo.width - formattedValue.level * 150 - 100,
 					rowInfo.height - 100,
-					formattedValue.fillColor
+					100, 0, 100, 0
+				);
+			} else if (formattedValue.rounded) {
+				const left = formattedValue.rounded === 'full' || formattedValue.rounded === 'left';
+				const right = formattedValue.rounded === 'full' || formattedValue.rounded === 'right';
+				graphics.setFillColor(formattedValue.fillColor);
+				graphics.fillRoundedRectangle(
+					columnInfo.x,
+					rowInfo.y,
+					columnInfo.width,
+					rowInfo.height,
+					left ? 125 : 0, right ? 125 : 0, left ? 125 : 0, right ? 125: 0
 				);
 			} else {
 				this.rect(
