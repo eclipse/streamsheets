@@ -317,20 +317,23 @@ const transform = {
 	_value: 0,
 	color(val) {
 		this._value = val;
+		this._error = undefined;
 		return this;
 	},
 	from(color) {
 		this._color = colors[color];
 		if (this._color) {
 			this._color = this._color.fromStr(this._value);
-			this._error = this._error || this._color.error;
+			this._error = this._color.error;
 		} else this._error = ERROR.VALUE;	
 		return this;
 	},
 	to(color) {
-		const func = !this._error && this._color[color].bind(this._color);
-		const toColor = func && func();
-		return toColor ? toColor.toString() : this._error || ERROR.INVALID_PARAM;
+		if (!this._error) {
+			const colobj = this._color[color];
+			return colobj ? colobj.bind(this._color)().toString() : ERROR.VALUE;
+		}
+		return this._error;
 	}
 };
 
@@ -341,6 +344,8 @@ const convertcolor = (sheet, ...terms) =>
 		.mapNextArg((fromTerm) => convert.toString(fromTerm.value, ERROR.ARGS))
 		.mapNextArg((toTerm) => convert.toString(toTerm.value, ERROR.ARGS))
 		.run((value, fromColor, toColor) => {
+			toColor = toColor.toLowerCase();
+			fromColor = fromColor.toLowerCase();
 			if (fromColor === toColor) {
 				let color = colors[fromColor];
 				color = color && color.fromStr(value);
