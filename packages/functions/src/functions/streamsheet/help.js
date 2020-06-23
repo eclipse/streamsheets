@@ -64,7 +64,7 @@ module.exports = {
 		},
 		CONTINUE: {
 			en: { argumentList: 'Cell', description: 'Continues evaluation at given cell' },
-			de: { argumentList: 'Zelle', description: 'Führt die Berechnung an der angegebenen Zelle fort.' }
+			de: { argumentList: 'Zelle', description: 'Führt die Berechnung an der angegebenen Zelle fort' }
 		},
 		COPYVALUES: {
 			en: {
@@ -80,19 +80,19 @@ module.exports = {
 			en: {
 				argumentList: 'Start,Step,End,Reset',
 				description:
-					'Increments or decrements a cell value by specified Step amount until optional End is reached. Reset initialize counter to Start again.'
+					'Increments or decrements a cell value by specified Step amount until optional End is reached. Reset initialize counter to Start again'
 			},
 			de: {
 				argumentList: 'Start,Step,End,Reset',
 				description:
-					'Erhöht oder verringert den Start-Wert um Step bis der optionale End Wert erreicht wurde. Reset initialisiert den Zähler wieder mit Start-Wert.'
+					'Erhöht oder verringert den Start-Wert um Step bis der optionale End Wert erreicht wurde. Reset initialisiert den Zähler wieder mit Start-Wert'
 			}
 		},
 		DELETE: {
 			en: { argumentList: 'Key', description: 'Delete a message or message content based on the key' },
 			de: {
 				argumentList: 'Name',
-				description: 'Löscht die angegebenen Nachrichten oder den Inhalt einer Nachricht.'
+				description: 'Löscht die angegebenen Nachrichten oder den Inhalt einer Nachricht'
 			}
 		},
 		DELETECELLS: {
@@ -152,23 +152,23 @@ module.exports = {
 		},
 		GETCYCLE: {
 			en: { argumentList: '', description: 'Returns the current cycle' },
-			de: { argumentList: '', description: 'Ermittelt den aktuellen Zyklus.' }
+			de: { argumentList: '', description: 'Ermittelt den aktuellen Zyklus' }
 		},
 		GETCYCLETIME: {
 			en: { argumentList: '', description: 'Returns the current cycle time' },
-			de: { argumentList: '', description: 'Ermittelt die aktuelle Zykluszeit.' }
+			de: { argumentList: '', description: 'Ermittelt die aktuelle Zykluszeit' }
 		},
 		GETEXECUTESTEP: {
 			en: { argumentList: '', description: 'Returns the current execute step count' },
-			de: { argumentList: '', description: 'Ermittelt den aktuellen Execute Schritt im Streamsheet.' }
+			de: { argumentList: '', description: 'Ermittelt den aktuellen Execute Schritt im Streamsheet' }
 		},
 		GETMACHINESTEP: {
 			en: { argumentList: '', description: 'Returns the current machine step count' },
-			de: { argumentList: '', description: 'Ermittelt den aktuellen Maschinenschritt.' }
+			de: { argumentList: '', description: 'Ermittelt den aktuellen Maschinenschritt' }
 		},
 		GETSTEP: {
 			en: { argumentList: '', description: 'Returns the current step count' },
-			de: { argumentList: '', description: 'Ermittelt den aktuellen Streamsheet Schritt.' }
+			de: { argumentList: '', description: 'Ermittelt den aktuellen Streamsheet Schritt' }
 		},
 		GOTO: {
 			en: { argumentList: 'Cell', description: 'Deprecated! Please use CONTINUE instead' },
@@ -218,14 +218,14 @@ module.exports = {
 			  description: 'Erlaubt Aufrufe in einen REST Dienst'
 			}
 		  },
-		  'HTTP.RESPOND': {
+		'HTTP.RESPOND': {
 			en: {
 			  argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
 			  description: 'Sends data to a Producer that send a data object previously'
 			},
 			de: {
 			  argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
-			  description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId.'
+			  description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId'
 			}
 		  },
 		'KAFKA.QUERY': {
@@ -263,11 +263,11 @@ module.exports = {
 		},
 		LOOPCOUNT: {
 			en: { argumentList: '', description: 'Returns the loop length' },
-			de: { argumentList: '', description: 'Gibt die Anzahl der Loopelemente zurück .' }
+			de: { argumentList: '', description: 'Gibt die Anzahl der Loopelemente zurück ' }
 		},
 		LOOPINDEX: {
 			en: { argumentList: '', description: 'Returns the current loop index' },
-			de: { argumentList: '', description: 'Gibt den aktuellen Loop Index zurück.' }
+			de: { argumentList: '', description: 'Gibt den aktuellen Loop Index zurück' }
 		},
 		'MAIL.SEND': {
 			en: {
@@ -402,21 +402,21 @@ module.exports = {
 		},
 		REPEATINDEX: {
 			en: { argumentList: '', description: 'Returns the current repeat index of the EXECUTE function' },
-			de: { argumentList: '', description: 'Gibt den aktuellen Repeat Index der EXECUTE Funktion zurück.' }
+			de: { argumentList: '', description: 'Gibt den aktuellen Repeat Index der EXECUTE Funktion zurück' }
 		},
 		REQUEST: {
 			en: {
 				argumentList: 'Stream,ParameterJSON,TargetSheet',
-				description: 'Create an asynchronous calls to a REST service.'
+				description: 'Create an asynchronous calls to a REST service'
 			},
-			de: { argumentList: 'Stream,ParameterJSON,ZielSheet', description: 'Erlaubt Aufrufe in einen REST Dienst.' }
+			de: { argumentList: 'Stream,ParameterJSON,ZielSheet', description: 'Erlaubt Aufrufe in einen REST Dienst' }
 		},
 		REQUESTINFO: {
 			en: {
 				argumentList: 'RequestId',
-				description: 'Returns the current status of a previously executed REQUEST function.'
+				description: 'Returns the current status of a previously executed REQUEST function'
 			},
-			de: { argumentList: 'RequestId', description: 'Gibt den Status des letzten REQUEST Aufrufs zurück.' }
+			de: { argumentList: 'RequestId', description: 'Gibt den Status des letzten REQUEST Aufrufs zurück' }
 		},
 		RESPOND: {
 			en: {
@@ -447,7 +447,7 @@ module.exports = {
 			},
 			de: {
 				argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
-				description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId.'
+				description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId'
 			}
 		},
 		RETURN: {
@@ -461,12 +461,12 @@ module.exports = {
 			}
 		},
 		SELECT: {
-			en: { argumentList: 'ListRange,ActualValue', description: 'Display a pick list.' },
-			de: { argumentList: 'Listenbereich,AktuellerWert', description: 'Zeigt eine Auswahlliste an.' }
+			en: { argumentList: 'ListRange,ActualValue', description: 'Display a pick list' },
+			de: { argumentList: 'Listenbereich,AktuellerWert', description: 'Zeigt eine Auswahlliste an' }
 		},
 		SETCYCLETIME: {
 			en: { argumentList: 'Milliseconds', description: 'Define the cycle time' },
-			de: { argumentList: 'Millisekunden', description: 'Setzt den Berechnungsinterval.' }
+			de: { argumentList: 'Millisekunden', description: 'Setzt den Berechnungsinterval' }
 		},
 		SETPHASE: {
 			en: {
@@ -487,6 +487,10 @@ module.exports = {
 				argumentList: 'Bedingung,Wert,Zielzelle,ErsetzeZellFormel',
 				description: 'Wenn die Bedingung TRUE ist, wird der Wert in die Zielzelle geschrieben'
 			}
+		},
+		SLEEP: {
+			en: { argumentList: 'Seconds', description: 'Pause sheet processing' },
+			de: { argumentList: 'Sekunden', description: 'Pausiert die Sheet-Verarbeitung' }
 		},
 		SUBTREE: {
 			en: {
