@@ -50,9 +50,7 @@ const getRequestIDs = (sheet, terms) => {
 const initContext = (sheet, context) => {
 	if (!context._awaitInited) {
 		context._awaitInited = true;
-		context.addDisposeListener(() => {
-			if (sheet.isPaused) sheet.resumeProcessing();
-		});
+		context.addDisposeListener(() => resume(sheet));
 	}
 };
 
