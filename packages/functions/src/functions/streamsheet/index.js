@@ -28,6 +28,7 @@ const INBOXDATA = require('./inboxdata');
 const INBOXJSON = require('./inboxjson');
 const INBOXMETADATA = require('./inboxmetadata');
 const JSON = require('./json');
+const JSONVALUE = require('./jsonvalue');
 const KAFKACOMMAND = require('./kafkacommand');
 const KAFKAQUERY = require('./kafkaquery');
 const OUTBOX = require('./outbox');
@@ -72,6 +73,7 @@ module.exports = {
 		INBOXJSON,
 		INBOXMETADATA,
 		JSON,
+		JSONVALUE,
 		// KAFKA HERE???
 		KAFKACOMMAND,
 		KAFKAQUERY,

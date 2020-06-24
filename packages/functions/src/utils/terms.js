@@ -186,6 +186,11 @@ const getTargetTerm = (term) => {
 	return (target && target.term) || term;
 };
 
+const getJSONFromTerm = (term) => {
+	const value = term && term.value;
+	return value && (Array.isArray(value) || typeof value === 'object') ? value : undefined;
+};
+
 module.exports = {
 	cellFromTerm,
 	getCellFromTerm,
@@ -194,6 +199,7 @@ module.exports = {
 	getCellRangesFromTerm,
 	getCellReferencesFromTerm,
 	// getPendingRequestIdFromTerm,
+	getJSONFromTerm,
 	getRequestIdFromTerm,
 	getTargetTerm,
 	hasValue,

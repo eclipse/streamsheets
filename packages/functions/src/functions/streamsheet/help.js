@@ -214,6 +214,16 @@ module.exports = {
 				description: 'Konvertiert den angebenen Zellbereich oder Text in ein JSON Objekt'
 			}
 		},
+		JSONVALUE: {
+			en: {
+				argumentList: 'JSON,key1,key2...',
+				description: 'Returns the value from JSON object which corresponds to the path specified by given keys'
+			},
+			de: {
+				argumentList: 'JSON,Schlüssel1,Schlüssel2...',
+				description: 'Gibt den, zu dem durch die Schlüssel definerten Pfad, passenden Wert des JSON Objekts zurück'
+			}
+		},
 		'HTTP.REQUEST': {
 			en: {
 				argumentList: 'Producer,URL,Method,Target,ResultKeys,Body,Headers,Timeout',
