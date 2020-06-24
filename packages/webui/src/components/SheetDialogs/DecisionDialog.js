@@ -53,13 +53,13 @@ export default function DecisionDialog() {
 
 	return (
 		<div>
-			<Dialog open={open} onClose={handleClose}>
+			<Dialog open={open} onClose={handleCancel} /* onEscapeKeyDown={handleCancel} */>
 				<DialogTitle>
 					<FormattedMessage id="Warning" defaultMessage="Warning" />
 				</DialogTitle>
 				<DialogContent
 					style={{
-						margin: '20px',
+						margin: '20px'
 					}}
 				>
 					<DialogContentText>
