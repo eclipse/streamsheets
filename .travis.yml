@@ -2,7 +2,7 @@ jobs:
   include:
   - language: node_js
     node_js:
-    - 10.15.0
+    - 12.4.0
     services:
     - docker
     cache:
