@@ -19,10 +19,10 @@ module.exports = {
 			},
 			de: {
 				argumentList: 'Bereich,Verschachteln,Flach',
-				description: 'Erzeugt ein JSON Array Objekt mit den gegebenen Schlüssel und Werten'	
+				description: 'Erzeugt ein JSON Array Objekt mit den gegebenen Schlüssel und Werten'
 			}
 		},
-		'AWAIT': {
+		AWAIT: {
 			en: {
 				argumentList: 'Cell1,Cell2...',
 				description: 'Waits until all specified request cells resolve'
@@ -205,29 +205,35 @@ module.exports = {
 			}
 		},
 		JSON: {
-			en: { argumentList: 'Range', description: 'Converts given cell range to JSON' },
-			de: { argumentList: 'Zellbereich', description: 'Konvertiert den angebenen Zellbereich in ein JSON Objekt' }
+			en: {
+				argumentList: 'RangeOrText,ResultAsText',
+				description: 'Converts given cell range or text to JSON'
+			},
+			de: {
+				argumentList: 'ZellbereichOderText,ErgebnisAlsText',
+				description: 'Konvertiert den angebenen Zellbereich oder Text in ein JSON Objekt'
+			}
 		},
 		'HTTP.REQUEST': {
 			en: {
-			  argumentList: 'Producer,URL,Method,Target,ResultKeys,Body,Headers,Timeout',
-			  description: 'Create an asynchronous calls to a REST service'
+				argumentList: 'Producer,URL,Method,Target,ResultKeys,Body,Headers,Timeout',
+				description: 'Create an asynchronous calls to a REST service'
 			},
 			de: {
-			  argumentList: 'Producer,URL,Methode,Ziel,ResultKeys,Body,Headers,Timeout',
-			  description: 'Erlaubt Aufrufe in einen REST Dienst'
+				argumentList: 'Producer,URL,Methode,Ziel,ResultKeys,Body,Headers,Timeout',
+				description: 'Erlaubt Aufrufe in einen REST Dienst'
 			}
-		  },
+		},
 		'HTTP.RESPOND': {
 			en: {
-			  argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
-			  description: 'Sends data to a Producer that send a data object previously'
+				argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
+				description: 'Sends data to a Producer that send a data object previously'
 			},
 			de: {
-			  argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
-			  description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId'
+				argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
+				description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId'
 			}
-		  },
+		},
 		'KAFKA.QUERY': {
 			en: {
 				argumentList: 'Producer,Query,Target,Timeout',
@@ -326,8 +332,14 @@ module.exports = {
 			de: { argumentList: 'Producer,Collection,Document', description: 'Speichert ein JSON Objekt in MongoDB' }
 		},
 		'MONGO.REPLACE': {
-			en: { argumentList: 'Producer,Collection,Query,Document,Upsert', description: 'Replace a JSON object matching the query in MongoDB' },
-			de: { argumentList: 'Producer,Collection,Query,Document,Upsert', description: 'Ersetzt ein JSON Objekt, dass die Query erfüllt, in MongoDB' }
+			en: {
+				argumentList: 'Producer,Collection,Query,Document,Upsert',
+				description: 'Replace a JSON object matching the query in MongoDB'
+			},
+			de: {
+				argumentList: 'Producer,Collection,Query,Document,Upsert',
+				description: 'Ersetzt ein JSON Objekt, dass die Query erfüllt, in MongoDB'
+			}
 		},
 		MOVEVALUES: {
 			en: {

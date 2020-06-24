@@ -8,8 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
+const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { isType } = require('@cedalo/machine-core');
+const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -60,12 +62,40 @@ const jsonFromRange = (range) => {
 	return toJSON(root, {}).root || {};
 };
 
+const jsonFromString = (str) => {
+	try {
+		return str ? JSON.parse(str) : {};
+	} catch (err) {
+		/* ignore */
+	}
+	return ERROR.VALUE;
+};
+const jsonToString = (json) => {
+	try {
+		return JSON.stringify(json);
+	} catch (err) {
+		/* ignore */
+	}
+	return ERROR.VALUE;
+};
+
+const createRangeFromTerm = (term, sheet) => {
+	const range = getCellRangeFromTerm(term, sheet);
+	return range != null && range.width > 1 ? range : ERROR.INVALID_PARAM;
+};
+
 const json = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withArgCount(1)
-		.mapNextArg(range => getCellRangeFromTerm(range, sheet))
-		.validate((range) => ((range == null || range.width < 2) ? ERROR.INVALID_PARAM : null))
-		.run(range => jsonFromRange(range));
+		.withMinArgs(1)
+		.withMaxArgs(2)
+		.mapNextArg((jsonstr) => isType.string(jsonstr.value) ? jsonstr.value : undefined)
+		.addMappedArg((str) => str == null ? createRangeFromTerm(terms[0], sheet) : str)
+		.mapNextArg((asString) => asString ? convert.toBoolean(asString.value, false) : false)
+		.run((str, range, asString) => {
+			const jsonobj = str != null ? jsonFromString(str) : jsonFromRange(range);
+			// eslint-disable-next-line no-nested-ternary
+			return FunctionErrors.isError(jsonobj) ? jsonobj : (asString ? jsonToString(jsonobj) : jsonobj);
+		});
 
 
 module.exports = json;

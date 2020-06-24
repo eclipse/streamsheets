@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { createTerm } = require('../utilities');
+const { createTerm, createCellAt } = require('../utilities');
 const { Cell, Machine, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
 
 const setup = (transconfig) => {
@@ -240,7 +240,7 @@ describe('json', () => {
 		expect(result.person.emails[0]).toBe('jd@example.org');
 		expect(result.person.emails[1]).toBeUndefined();
 	});
-	it('should create a json with multiplpe dictionaries', () => {
+	it('should create a json with multiple dictionaries', () => {
 		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
 		/* eslint-disable */
 		const sheet = t1.sheet.load({ cells: {
@@ -296,6 +296,60 @@ describe('json', () => {
 		expect(message.data.person.emails).toBeDefined();
 		expect(message.data.person.emails.length).toBe(1);
 		expect(message.data.person.emails[0]).toBe('jd@example.org');
+	});
+	// DL-3977
+	it('should create a JSON from a given string', () => {
+		const sheet = new StreamSheet().sheet;
+		let str = '{\\"name\\": \\"mustermann\\"}';
+		const json = createTerm(`json("${str}")`, sheet).value;
+		expect(json).toBeDefined();
+		expect(json).toEqual({ name: 'mustermann' });
+		str = '{\\"Kunde\\":{\\"Name\\":\\"Peter\\", \\"Alter\\": 55, \\"Adresse\\": { \\"Ort\\": \\"Freiburg\\", \\"Strasse\\": \\"Hauptstrasse\\", \\"Hausnummer\\": 7}}}';
+		expect(createTerm(`json("${str}")`, sheet).value).toEqual({
+			Kunde: {
+				Name: 'Peter',
+				Alter: 55,
+				Adresse: { Ort: 'Freiburg', Strasse: 'Hauptstrasse', Hausnummer: 7 }
+			}
+		});
+		createCellAt('A1', '{ "greet": "hello" }', sheet);
+		createCellAt('A2', { formula: 'json(A1)' }, sheet);
+		expect(sheet.cellAt('A2').value).toEqual({ greet: 'hello' });
+	});
+	it('should create a JSON from a given string with null values', () => {
+		const sheet = new StreamSheet().sheet;
+		const str = '{\\"name\\": null}';
+		const json = createTerm(`json("${str}")`, sheet).value;
+		expect(json).toBeDefined();
+		expect(json).toEqual({ name: null });
+		createCellAt('A1', '{ "Kunde": { "Name": null, "Alter": 42 } }', sheet);
+		createCellAt('A2', { formula: 'json(A1)' }, sheet);
+		expect(sheet.cellAt('A2').value).toEqual({ Kunde: { Name: null, Alter: 42} });
+	});
+	it('should create an empty JSON if given string is empty', () => {
+		const sheet = new StreamSheet().sheet;
+		const json = createTerm('json("")', sheet).value;
+		expect(json).toBeDefined();
+		expect(json).toEqual({});
+		createCellAt('A1', '', sheet);
+		createCellAt('A2', { formula: 'json(A1)' }, sheet);
+		expect(sheet.cellAt('A2').value).toEqual({});
+	});
+	it('should return created json as string if optional parameter is set to true', () => {
+		const sheet = new StreamSheet().sheet;
+		const json = createTerm('json("{}", true)', sheet).value;
+		expect(json).toBeDefined();
+		expect(json).toBe("{}");
+		const str = '{\\"Kunde\\":{\\"Name\\":\\"Peter\\", \\"Alter\\": 55, \\"Adresse\\": { \\"Ort\\": \\"Freiburg\\", \\"Strasse\\": \\"Hauptstrasse\\", \\"Hausnummer\\": 7}}}';
+		const result = '{"Kunde":{"Name":"Peter","Alter":55,"Adresse":{"Ort":"Freiburg","Strasse":"Hauptstrasse","Hausnummer":7}}}';
+		expect(createTerm(`json("${str}", true)`, sheet).value).toBe(result);
+		createCellAt('A1', '{ "Kunde": { "Name": null, "Alter": 42 } }', sheet);
+		createCellAt('A2', { formula: 'json(A1, true)' }, sheet);
+		expect(sheet.cellAt('A2').value).toBe('{"Kunde":{"Name":null,"Alter":42}}');
+		// with range:
+		sheet.load({ cells: { A1: 'a', B1: 'hello', A2: 'b', B2: 'world' } });
+		createCellAt('A4', { formula: 'json(A1:B2, true)' }, sheet);
+		expect(sheet.cellAt('A4').value).toBe('{"a":"hello","b":"world"}');
 	});
 	// DL-1305
 	describe('converting to JSON array', () => {
