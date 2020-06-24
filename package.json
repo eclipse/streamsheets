@@ -28,11 +28,11 @@
 	},
 	"devDependencies": {
 		"eslint": "6.8.0",
-		"fs-extra": "^9.0.0",
+		"fs-extra": "9.0.0",
 		"klaw": "^3.0.0",
 		"prompts": "2.1.0",
 		"rimraf": "2.6.3",
-		"through2": "^3.0.1",
+		"through2": "3.0.1",
 		"yargs": "13.2.2"
 	}
 }
