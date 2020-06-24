@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -9,26 +9,23 @@
  *
  ********************************************************************************/
 /* eslint-disable react/forbid-prop-types,react/no-unused-prop-types,jsx-a11y/click-events-have-key-events,react/no-find-dom-node,max-len */
-import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import Add from '@material-ui/icons/Add';
 import Autorenew from '@material-ui/icons/Autorenew';
-import IconViewList from '@material-ui/icons/ViewList';
-import IconViewGrid from '@material-ui/icons/ViewModule';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'react-intl';
-import ResourceFilter from './ResourceFilter';
 import ResourcesGrid from './ResourcesGrid';
 import ResourcesList from './ResourcesList';
 import SortSelector from '../sortSelector/SortSelector';
 import styles from './styles';
+import Fab from '@material-ui/core/Fab';
+import * as Colors from '@material-ui/core/colors';
 
-const PREF_KEY_LAYOUT = 'streamsheets-prefs-listing-layout';
 const PREF_KEY_SORTQUERY = 'streamsheets-prefs-listing-sortby';
 
-let filterFunction;
+// let filterFunction;
 
 class CombinedResourceListing extends Component {
 	static propTypes = {
@@ -36,6 +33,7 @@ class CombinedResourceListing extends Component {
 		label: PropTypes.object.isRequired,
 		fields: PropTypes.array.isRequired,
 		menuOptions: PropTypes.array,
+		nameFilter: PropTypes.string,
 		resources: PropTypes.array.isRequired,
 		filters: PropTypes.array,
 		onMenuSelect: PropTypes.func,
@@ -47,7 +45,7 @@ class CombinedResourceListing extends Component {
 		handleResourceDetails: PropTypes.func,
 		titleAttribute: PropTypes.string.isRequired,
 		headerBackgroundColor: PropTypes.string,
-		defaultLayout: PropTypes.string,
+		layout: PropTypes.string,
 		images: PropTypes.bool,
 		handleReload: PropTypes.func,
 		onChecked: PropTypes.func,
@@ -55,15 +53,15 @@ class CombinedResourceListing extends Component {
 		checked: PropTypes.arrayOf(PropTypes.string),
 		filterName: PropTypes.bool,
 		disabled: PropTypes.bool,
-		sortQuery: PropTypes.string,
+		sortQuery: PropTypes.string
 	};
 
 	static defaultProps = {
 		type: 'dashboard',
 		disabled: false,
 		headerBackgroundColor: '#8BC34A',
-		defaultLayout: 'grid',
 		handleNew: null,
+		layout: 'grid',
 		images: false,
 		filters: [],
 		handleResourceDetails: undefined,
@@ -74,75 +72,99 @@ class CombinedResourceListing extends Component {
 		onChecked: undefined,
 		checked: [],
 		filterName: false,
+		nameFilter: undefined,
 		menuOptions: [],
 		sortQuery: 'name_asc',
-		onMenuSelect: undefined,
+		onMenuSelect: undefined
 	};
-
-	static getDerivedStateFromProps(nextProps, prevState) {
-		const resources = Array.isArray(nextProps.resources) ? nextProps.resources : [];
-		const sortQuery = localStorage.getItem(PREF_KEY_SORTQUERY) || prevState.sortQuery;
-		const filteredResources = SortSelector.sort(filterFunction(nextProps.enrichResources(resources)), sortQuery);
-		return {
-			...prevState,
-			filteredResources,
-		};
-	}
 
 	constructor(props) {
 		super(props);
-		const resources = Array.isArray(props.resources) ? props.resources : [];
 		const sortQuery = localStorage.getItem(PREF_KEY_SORTQUERY) || props.sortQuery;
 		this.state = {
-			filteredResources: SortSelector.sort(props.enrichResources(resources), props.sortQuery),
-			layout: localStorage.getItem(PREF_KEY_LAYOUT) || props.defaultLayout,
-			sortQuery,
+			filter: '',
+			gridWidth: 0,
+			sortQuery
 		};
 		localStorage.setItem(PREF_KEY_SORTQUERY, sortQuery);
-		filterFunction = (r) => r;
+		// filterFunction = (r) => r;
 	}
 
-	onFilter = (filterFunc) => {
-		const { sortQuery } = this.state;
-		localStorage.setItem(PREF_KEY_SORTQUERY, sortQuery);
-		filterFunction = filterFunc;
-		const resources = this.props.enrichResources(this.props.resources);
-		let filteredResources = filterFunction(resources);
-		filteredResources = SortSelector.sort(resources, sortQuery);
+	componentDidMount() {
+		window.addEventListener('resize', () => this.updateDimensions());
+		const filter = document.getElementById('resFilterField');
+		if (filter) {
+			filter.addEventListener('input', (event) => this.onChangeSearch(event));
+		}
+		this.updateDimensions();
+	}
+
+	componentWillUnmount() {
+		const filter = document.getElementById('resFilterField');
+		if (filter) {
+			filter.removeEventListener('input', this.onChangeSearch);
+		}
+		window.removeEventListener('resize', this.updateDimensions);
+	}
+
+	onChangeSearch(event) {
 		this.setState({
-			filteredResources,
+			filter: event.target.value
 		});
-	};
+	}
+
+	getDimensions() {
+		const refGrid = document.getElementById('coreGrid');
+		if (refGrid) {
+			const style = getComputedStyle(refGrid);
+			const width = parseFloat(style.width);
+			const left = parseFloat(style.marginLeft);
+			const right = parseFloat(style.marginRight);
+			return {
+				width,
+				left,
+				right
+			};
+		}
+
+		return undefined;
+	}
+
+	updateDimensions() {
+		const dims = this.getDimensions();
+		if (dims) {
+			this.setState({
+				gridWidth: dims.width + dims.left + dims.right
+			});
+		}
+	}
 
 	getFilteredResources = () => this.props.resources;
 
 	handleSort = (event, sortedResources, sortQuery) => {
 		this.setState({
-			filteredResources: sortedResources,
-			sortQuery,
+			// filteredResources: sortedResources,
+			sortQuery
 		});
 		localStorage.setItem(PREF_KEY_SORTQUERY, sortQuery);
 	};
 
-	handleLayoutChange = (layout) => {
-		this.setState({ layout });
-		localStorage.setItem(PREF_KEY_LAYOUT, layout);
-	};
-
-
-
 	render() {
-		const { label, handleNew, handleReload, classes, disabled } = this.props;
-		const { filteredResources } = this.state;
-		const showFilter = this.props.filters.length > 0 || this.props.filterName;
+		let dims = this.state.gridWidth;
+		dims = this.getDimensions();
+		const { handleNew, handleReload, disabled } = this.props;
+		const sortQuery = localStorage.getItem(PREF_KEY_SORTQUERY) || this.state.sortQuery;
+		localStorage.setItem(PREF_KEY_SORTQUERY, sortQuery);
+		const resources = this.props.enrichResources(this.props.resources);
+		const filteredResources = SortSelector.sort(resources, sortQuery, this.state.filter);
 		const sortFields = ['name', 'lastModified'];
-		if(filteredResources.length>0) {
-			if(filteredResources[0].state) {
-				sortFields.push('state')
+		if (filteredResources.length > 0) {
+			if (filteredResources[0].state) {
+				sortFields.push('state');
 			}
 		}
-		const sortQuery = localStorage.getItem(PREF_KEY_SORTQUERY) || this.state.sortQuery;
 		const sortObj = SortSelector.parseSortQuery(sortQuery);
+		const width = dims ? dims.width + dims.left + dims.right : 0;
 		return (
 			<div
 				style={{
@@ -150,128 +172,113 @@ class CombinedResourceListing extends Component {
 					padding: '0px',
 					display: 'flex',
 					height: '100%',
-					flexDirection: 'column',
+					flexDirection: 'column'
 				}}
 			>
-				{showFilter ? (
-					<ResourceFilter
-						onUpdateFilter={this.onFilter}
-						filters={this.props.filters}
-						filterName={this.props.filterName}
-					/>
-				) : null}
 				<div
 					style={{
 						background: '#EEEEEE',
 						width: 'inherit',
-						height: 'calc(100% - 64px)',
-						padding: '0px 0px 0px 20px',
+						height: '100%',
+						padding: '0px'
 					}}
 				>
 					<div
 						style={{
 							display: 'flex',
-							justifyContent: 'space-between',
+							justifyContent: 'flex-end',
+							flexFlow: 'row',
+							width: '100%'
 						}}
 					>
-						<div>
-							<h2 style={{marginBottom: '3px'}}>{label}</h2>
-							{ filteredResources.length === 0 ? null: <SortSelector
-								onSort={this.handleSort}
-								getResources={this.getFilteredResources}
-								sortFields={sortFields}
-								withFilter={false}
-								defaultSortBy={sortObj.sortBy}
-								defaultSortDir={sortObj.sortDir}
-							/>
-							}
-						</div>
 						<div
 							style={{
-								marginTop: '8px',
+								height: '40px',
+								marginRight: `${Math.max(0, Math.floor((width - Math.floor(width / 300) * 300) / 2)) +
+									23}px`
 							}}
 						>
-
-							{typeof handleReload === 'undefined' ? null : (
-								<Tooltip
-									enterDelay={300}
-									title={
-										<FormattedMessage
-											id="Tooltip.ReloadStreams"
-											defaultMessage="Reload and validate Streams"
-										/>
-									}
-								>
-									<Button disabled={disabled} className={classes.toolIconDark} onClick={handleReload}>
-										<Autorenew />
-									</Button>
-								</Tooltip>
+							{filteredResources.length === 0 ? null : (
+								<SortSelector
+									onSort={this.handleSort}
+									getResources={this.getFilteredResources}
+									sortFields={sortFields}
+									withFilter={false}
+									defaultSortBy={sortObj.sortBy}
+									defaultSortDir={sortObj.sortDir}
+								/>
 							)}
-							{!handleNew ? null : (
-								<Tooltip
-									enterDelay={300}
-									title={<FormattedMessage id="Tooltip.Add" defaultMessage="Add" />}
-								>
-									<Button
-										className={classes.toolIconDark}
-										onClick={handleNew}
-										disabled={disabled}
-										style={{
-											minWidth: '20px',
-										}}
-									>
-										<Add />
-									</Button>
-								</Tooltip>
-							)}
-							{this.state.layout === 'list' ? (
-								<Tooltip
-									enterDelay={300}
-									title={<FormattedMessage id="Tooltip.ViewGrid" defaultMessage="View Grid" />}
-								>
-									<Button
-										className={classes.toolIconDark}
-										disabled={disabled}
-										onClick={() => this.handleLayoutChange( 'grid' )}
-										style={{
-											minWidth: '20px',
-										}}
-									>
-										<IconViewGrid />
-									</Button>
-								</Tooltip>
-							) : null}
-							{this.state.layout === 'grid' ? (
-								<Tooltip
-									enterDelay={300}
-									title={<FormattedMessage id="Tooltip.ViewList" defaultMessage="View List" />}
-								>
-									<Button
-										className={classes.toolIconDark}
-										disabled={disabled}
-										onClick={() => this.handleLayoutChange('list')}
-										style={{
-											minWidth: '20px',
-										}}
-									>
-										<IconViewList />
-									</Button>
-								</Tooltip>
-							) : null}
 						</div>
-
 					</div>
 					<div
 						style={{
-							height: 'calc(100% - 77px)',
+							height: 'calc(100% - 40px)'
 						}}
 					>
-						{this.state.layout === 'grid' ? (
-							<ResourcesGrid {...this.props} resources={filteredResources} />
+						{this.props.layout === 'grid' ? (
+							<ResourcesGrid {...this.props} gridWidth={width} resources={filteredResources} />
 						) : null}
-						{this.state.layout === 'list' ? (
+						{this.props.layout === 'list' ? (
 							<ResourcesList {...this.props} resources={filteredResources} />
 						) : null}
+						{typeof handleReload === 'undefined' ? null : (
+							<Tooltip
+								enterDelay={300}
+								title={
+									<FormattedMessage
+										id="Tooltip.ReloadStreams"
+										defaultMessage="Reload and validate"
+									/>
+								}
+							>
+								<Fab
+									id="relaod"
+									aria-label="reload"
+									size="medium"
+									disabled={disabled}
+									style={{
+										position: 'absolute',
+										zIndex: 1200,
+										right: '30px',
+										bottom: '85px',
+										backgroundColor: Colors.blue[800]
+									}}
+									onClick={handleReload}
+								>
+									<Autorenew
+										style={{
+											color: '#FFFFFF'
+										}}
+									/>
+								</Fab>
+							</Tooltip>
+						)}
+						{typeof handleNew === 'undefined' ? null : (
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Tooltip.Add" defaultMessage="Add" />}
+							>
+								<Fab
+									id="add"
+									aria-label="add"
+									size="medium"
+									style={{
+										position: 'absolute',
+										zIndex: 1200,
+										right: '30px',
+										bottom: '26px',
+										backgroundColor: Colors.blue[800]
+									}}
+									onClick={handleNew}
+								>
+									<Add
+										style={{
+											color: '#FFFFFF'
+										}}
+									/>
+								</Fab>
+							</Tooltip>
+						)}
 					</div>
 				</div>
 			</div>

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -26,15 +26,25 @@ const styles = {
 	default: {
 		color: 'white',
 		marginTop: '4px',
+		fontSize: '1.2rem',
 	},
 	focus: {
-		color: 'black',
+		color: 'white',
 		marginTop: '4px',
-		backgroundColor: 'white',
+		fontSize: '1.2rem',
+		backgroundColor: 'rgba(255, 255, 255, 0.1)',
 	},
 	underline: {
-		backgroundColor: 'white',
-	},
+		'&::before': {
+			borderColor: 'white',
+		},
+		'&::after': {
+			borderColor: 'white',
+		},
+		"&&&&:hover:before": {
+			borderBottom: "2px solid white"
+		},
+	}
 };
 
 class MachineNameComponent extends React.Component {
@@ -104,6 +114,7 @@ class MachineNameComponent extends React.Component {
 	// }
 	//
 	render() {
+		const { classes } = this.props;
 		return (
 			MachineHelper.isMachineDetailsPage() ?
 				<div>
@@ -133,6 +144,9 @@ class MachineNameComponent extends React.Component {
 								),
 							} : {
 								style: styles[this.state.styles],
+								classes:{
+									underline: classes.underline,
+								}
 							}}
 						/>
 					</Tooltip>

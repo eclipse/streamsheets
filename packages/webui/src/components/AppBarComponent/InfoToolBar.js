@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -16,7 +16,7 @@ import Typography from '@material-ui/core/Typography';
 import MenuIcon from '@material-ui/icons/Menu';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { FormattedMessage } from 'react-intl';
+// import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
@@ -31,7 +31,6 @@ export function InfoToolBar(props) {
 	return (
 		<Toolbar
 			style={{
-				marginRight: 'auto',
 				height: '58px',
 				minHeight: '58px',
 				maxHeight: '58px',
@@ -45,53 +44,44 @@ export function InfoToolBar(props) {
 					</IconButton>
 				</div>
 			</CustomTooltip>
-			<Typography
-				type="title"
-				color="inherit"
-				style={{
-					color: '#FFFFFF',
-					marginLeft: '5px',
-					marginRight: '8px',
-					cursor: 'pointer',
-					fontSize: '1.2rem',
-					whiteSpace: 'nowrap'
-				}}
-			>
-				<FormattedMessage id="Product.title" defaultMessage="Streamsheets" />
-			</Typography>
-			/
-			<CustomTooltip header="Tooltip.MainTitleHeader" message="Tooltip.MainTitleMessage">
-				<Typography
-					type="title"
-					color="inherit"
-					onClick={openDashboard}
-					style={{
-						color: '#FFFFFF',
-						marginLeft: '5px',
-						marginRight: '8px',
-						cursor: 'pointer',
-						fontSize: '1.2rem',
-						whiteSpace: 'nowrap'
-					}}
-				>
-					{title}
-				</Typography>
-			</CustomTooltip>
+			{title ? (
+				<CustomTooltip header="Tooltip.MainTitleHeader" message="Tooltip.MainTitleMessage">
+					<Typography
+						type="title"
+						color="inherit"
+						onClick={openDashboard}
+						style={{
+							color: '#FFFFFF',
+							marginLeft: '5px',
+							marginTop: '2px',
+							marginRight: '8px',
+							cursor: 'pointer',
+							fontSize: '1.2rem',
+							whiteSpace: 'nowrap'
+						}}
+					>
+						{title}
+					</Typography>
+				</CustomTooltip>
+			) : null}
 			<WorkspaceSelect editable={workspaceSelect} setScope={props.setScope} />
-			{MachineHelper.isMachineDetailsPage() && machineId ? <MachineNameComponent disabled={!canEditMachine} /> : null}
+			{MachineHelper.isMachineDetailsPage() && machineId ? (
+				<MachineNameComponent disabled={!canEditMachine} />
+			) : null}
 		</Toolbar>
 	);
 }
 
 InfoToolBar.propTypes = {
 	machineId: PropTypes.string,
-	title: PropTypes.node.isRequired,
+	title: PropTypes.node,
 	toggleDrawer: PropTypes.func.isRequired,
 	openDashboard: PropTypes.func.isRequired
 };
 
 InfoToolBar.defaultProps = {
-	machineId: null
+	machineId: null,
+	title: undefined
 };
 
 function mapStateToProps(state) {

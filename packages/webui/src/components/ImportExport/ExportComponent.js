@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -16,13 +16,12 @@ import Tooltip from '@material-ui/core/Tooltip';
 import ExportIcon from '@material-ui/icons/CloudUpload';
 import { saveAs } from 'file-saver';
 import PropTypes from 'prop-types';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { notifyExportFailed } from '../../actions/actions';
 import gatewayClient from '../../helper/GatewayClient';
 import { useGraphQL } from '../../helper/Hooks';
-import ResourceFilter from '../base/listing/ResourceFilter';
 import { Restricted, NotAllowed } from '../HelperComponent/Restricted';
 import ExportDialog from './ExportDialog';
 import ExportTable from './ExportTable';
@@ -132,7 +131,7 @@ const streamWithConnector = (streams, streamId) => {
 	return stream ? { [stream.id]: true, [stream.connector.id]: true } : {};
 };
 
-const identity = (x) => x;
+// const identity = (x) => x;
 
 const ExportComponent = (props) => {
 	const { scope } = props;
@@ -144,15 +143,54 @@ const ExportComponent = (props) => {
 	const [selectedMachines, setSelectedMachines] = useState(props.initialMachineSelection);
 	const [selectedStreams, setSelectedStreams] = useState({});
 	const [showDialog, setShowDialog] = useState(false);
-	const [filter, setFilter] = useState({ func: identity });
+	const [filter, setFilter] = useState('');
+	// const [filter, setFilter] = useState({ func: identity });
+
+	const onChangeSearch = (event) => {
+		setFilter(event.target.value);
+		// if (filterFunction) {
+		// 	setFilter({ func: filterFunction });
+		// }
+		console.log(event.target.value);
+	}
+
+	useEffect(
+		() => {
+			const filterElem = document.getElementById('resFilterField');
+			if (filterElem) {
+				filterElem.addEventListener('input', (event) => onChangeSearch(event));
+			}
+			console.log("effect");
+		},
+		[selectedMachines]
+	);
+
+	useEffect(() => {
+		return () => {
+			const filterElem = document.getElementById('resFilterField');
+			if (filterElem) {
+				filterElem.removeEventListener('input', onChangeSearch);
+			}
+			console.log("cleaned up");
+		};
+	}, []);
 
 	const sortedStreams = useMemo(() => sort([...streams, ...connectors]), [streams, connectors]);
 	const sortedMachines = useMemo(() => sort(machines), [machines]);
 
-	const filteredStreams = useMemo(() => filter.func(sortedStreams), [filter, sortedStreams]);
-	const filteredMachines = useMemo(() => {
-		return filter.func(sortedMachines);
-	}, [filter, sortedMachines]);
+	const filteredMachines =
+		filter.length > 0
+			? sortedMachines.filter((resource) => resource.name.toLowerCase().includes(filter.toLowerCase()))
+			: sortedMachines;
+	const filteredStreams =
+		filter.length > 0
+			? sortedStreams.filter((resource) => resource.name.toLowerCase().includes(filter.toLowerCase()))
+			: sortedStreams;
+
+	// const filteredStreams = useMemo(() => filter.func(sortedStreams), [filter, sortedStreams]);
+	// const filteredMachines = useMemo(() => {
+	// 	return filter.func(sortedMachines);
+	// }, [filter, sortedMachines]);
 
 	const selectLinkedStreams = (machineId) => {
 		const machine = data.scoped.machines.find((m) => m.id === machineId);
@@ -292,14 +330,6 @@ const ExportComponent = (props) => {
 					>
 						<ExportIcon />
 					</Fab>
-					<ResourceFilter
-						filterName
-						onUpdateFilter={(filterFunction) => {
-							if (filterFunction) {
-								setFilter({ func: filterFunction });
-							}
-						}}
-					/>
 					<div
 						style={{
 							flexGrow: 1,

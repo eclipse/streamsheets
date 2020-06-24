@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -199,7 +199,7 @@ export function MachineDetailPage(props) {
 		);
 	}
 
-	const title = <FormattedMessage id="MainTitle" defaultMessage="Stream Machine" />;
+	// const title = <FormattedMessage id="MainTitle" defaultMessage="Stream Machine" />;
 	return (
 		<MuiThemeProvider theme={theme}>
 			<div
@@ -257,33 +257,41 @@ export function MachineDetailPage(props) {
 								padding: 0,
 								position: 'relative'
 							}}
+							elevation={0}
 						>
 							<div
 								style={{
 									display: 'flex',
 									flexDirection: 'row',
+									justifyContent: 'space-between',
 									height: '58px'
 								}}
 							>
-								<InfoToolBar title={title} canEditMachine={canEditMachine} />
+								<InfoToolBar canEditMachine={canEditMachine} />
 								{!isConnected ? (
 									<div>
 										<FormattedMessage id="ServicesDisconnected" defaultMessage="Disconnected: " />
 										{`${props.meta.disconnectedServices.join(', ')}`}
 									</div>
 								) : null}
-								{canEditMachine ? <MachineControlBar /> : null}
-								<LicenseExpireNotification />
-								<Toolbar
+								<div
 									style={{
-										paddingRight: '5px',
-										minHeight: '58px'
+										display: 'inline-flex',
 									}}
 								>
-									<NotificationsComponent />
-									<HelpButton />
-									<SettingsMenu />
-								</Toolbar>
+									{canEditMachine ? <MachineControlBar /> : null}
+									<LicenseExpireNotification />
+									<Toolbar
+										style={{
+											paddingRight: '5px',
+											minHeight: '58px'
+										}}
+									>
+										<NotificationsComponent />
+										<HelpButton />
+										<SettingsMenu />
+									</Toolbar>
+								</div>
 							</div>
 							{canEditMachine ? (
 								<React.Fragment>

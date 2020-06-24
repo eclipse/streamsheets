@@ -1,61 +1,72 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import TextField from '@material-ui/core/TextField';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
+import IconSearch from '@material-ui/icons/Search';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import Input from '@material-ui/core/Input';
+import { withStyles } from "@material-ui/core/styles";
 
-const createNameFilter = (textToFilter) => (resources) => {
-	if (textToFilter && textToFilter.length > 0) {
-		return resources.filter(
-			(resource) =>
-				resource.name
-					.toLowerCase()
-					.indexOf(textToFilter.toLowerCase()) >= 0,
-		);
+const styles = () => ({
+	root: {
+		width: '30%',
+		color: 'white',
+		margin: '12px',
+	},
+	inputTypeSearch: {
+		"&::-webkit-clear-button": {
+			display: "none",
+		},
+	},
+	underline: {
+		'&::before': {
+			borderColor: 'white',
+		},
+		'&::after': {
+			borderColor: 'white',
+		},
+		"&&&&:hover:before": {
+			borderBottom: "2px solid white"
+		},
 	}
-	return resources;
-};
+});
 
 class FilterName extends React.Component {
-	onTextChange = (text) => {
-		this.props.onUpdateFilter(createNameFilter(text));
-	};
-
 	render() {
+		const { classes } = this.props;
 		return (
-			<TextField
-				fullWidth
+			<Input
 				type="search"
+				id='resFilterField'
 				label={
 					<FormattedMessage
 						id="Dashboard.textFilter"
 						defaultMessage="Filter"
 					/>
 				}
-				onChange={(event) => this.onTextChange(event.target.value)}
-				style={Object.assign({ minWidth: '30pt' }, this.props.styles)}
+				startAdornment={
+					<InputAdornment position="start">
+						<IconSearch />
+					</InputAdornment>
+				}
+				placeholder="Search"
+				classes={{
+					root: classes.root,
+					inputTypeSearch: classes.inputTypeSearch,
+					underline: classes.underline,
+				}}
 			/>
 		);
 	}
 }
 
-FilterName.propTypes = {
-	onUpdateFilter: PropTypes.func.isRequired,
-	// eslint-disable-next-line react/forbid-prop-types
-	styles: PropTypes.object,
-};
-
-FilterName.defaultProps = {
-	styles: {},
-};
-
-export default FilterName;
+export default  withStyles(styles)(FilterName);

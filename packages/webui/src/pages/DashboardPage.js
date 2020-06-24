@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -13,7 +13,7 @@ import AppBar from '@material-ui/core/AppBar';
 import * as Colors from '@material-ui/core/colors';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import Toolbar from '@material-ui/core/Toolbar';
-import React, { useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -39,7 +39,10 @@ import { intl } from '../helper/IntlGlobalProvider';
 import MachineHelper from '../helper/MachineHelper';
 import HelpButton from '../layouts/HelpButton';
 import theme from '../theme';
+import FilterName from '../components/base/listing/FilterName';
+import GridViewButton from '../layouts/GridViewButton';
 
+const PREF_KEY_LAYOUT = 'streamsheets-prefs-listing-layout';
 const DASHBOARD_QUERY = `
 query Machines($scope: ScopeInput!) {
 	scoped(scope: $scope) {
@@ -72,8 +75,8 @@ const useExperimental = (setAppState) => {
 
 export function DashboardPageComponent(props) {
 	const { user, isConnected } = props;
-
 	const scopeId = user ? user.scope.id : null;
+	const [layout, setLayout] = useState(localStorage.getItem(PREF_KEY_LAYOUT));
 
 	useExperimental(props.setAppState);
 
@@ -94,6 +97,10 @@ export function DashboardPageComponent(props) {
 			props.getMachines(DASHBOARD_QUERY, { scope: { id: scopeId } });
 		}
 	}, [scopeId]);
+
+	const updateLayout = (layoutText) => {
+		setLayout(layoutText);
+	};
 
 	document.title = intl.formatMessage({ id: 'TitleDashboard' }, {});
 
@@ -135,11 +142,13 @@ export function DashboardPageComponent(props) {
 							padding: 0,
 							position: 'relative'
 						}}
+						elevation={0}
 					>
 						<div
 							style={{
 								display: 'flex',
 								flexDirection: 'row',
+								justifyContent: 'space-between',
 								height: '58px'
 							}}
 						>
@@ -151,6 +160,7 @@ export function DashboardPageComponent(props) {
 									{`${props.disconnectedServices}`}
 								</div>
 							) : null}
+							<FilterName />
 							<Toolbar
 								style={{
 									paddingRight: '5px',
@@ -158,6 +168,9 @@ export function DashboardPageComponent(props) {
 								}}
 							>
 								<NotificationsComponent />
+								<GridViewButton
+									onUpdateLayout={updateLayout}
+								/>
 								<HelpButton />
 								<SettingsMenu />
 							</Toolbar>
@@ -167,13 +180,13 @@ export function DashboardPageComponent(props) {
 				<div
 					style={{
 						position: 'relative',
-						height: 'calc(100% - 59px)',
+						height: 'calc(100% - 58px)',
 						width: '100%',
 						overflow: 'hidden',
 						backgroundColor: '#EEEEEE'
 					}}
 				>
-					<DashBoardComponent />
+					<DashBoardComponent layout={layout}/>
 				</div>
 			</div>
 		</MuiThemeProvider>

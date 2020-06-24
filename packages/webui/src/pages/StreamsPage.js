@@ -1,14 +1,14 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import React, { useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import AdminContainer from '../components/Admin/AdminContainer';
@@ -16,6 +16,8 @@ import { intl } from '../helper/IntlGlobalProvider';
 import { AdminPageLayout } from '../layouts/AdminPageLayout';
 import * as Actions from '../actions/actions';
 import StreamHelper from '../helper/StreamHelper';
+
+const PREF_KEY_LAYOUT = 'streamsheets-prefs-listing-layout';
 
 const getSelectedPage = (match, streams) => {
 	const parts = match.url.split('/');
@@ -35,11 +37,18 @@ const isEditStreamPage = (match) => {
 
 export const StreamsPageComponent = (props) => {
 	const { scopeId, match, location, streams } = props;
+	const [layout, setLayout] = useState(localStorage.getItem(PREF_KEY_LAYOUT));
+
+	const onUpdateLayout = (text) => {
+		setLayout(text);
+	}
+
 	useEffect(() => {
 		if (scopeId) {
 			props.getDataStores();
 		}
 	}, [scopeId]);
+
 	const getDocumentTitle = () => {
 		switch (match.path) {
 			case '/administration/connectors':
@@ -66,16 +75,18 @@ export const StreamsPageComponent = (props) => {
 			documentTitle={getDocumentTitle()}
 			workspaceSelect={!isEditStreamPage(match)}
 			requireStreams
+			gridButton={!match.path.startsWith('/administration/stream')}
+			onUpdateLayout={onUpdateLayout}
 		>
 			<div
 				style={{
 					position: 'relative',
-					height: 'calc(100% - 59px)',
+					height: '100%',
 					outline: 'none',
 					overflow: 'hidden'
 				}}
 			>
-				<AdminContainer location={location} match={match} />
+				<AdminContainer layout={layout} location={location} match={match} />
 			</div>
 		</AdminPageLayout>
 	);

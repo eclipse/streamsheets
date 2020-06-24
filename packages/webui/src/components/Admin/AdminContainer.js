@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -80,24 +80,24 @@ export class AdminContainer extends Component {
 					) : null}
 					{this.props.location.pathname === '/administration/streams' ? (
 						<RestrictedWrapper right="stream">
-							<Streams />
+							<Streams layout={this.props.layout}/>
 						</RestrictedWrapper>
 					) : null}
 					{this.props.location.pathname === '/administration/consumers' ? (
 						<RestrictedWrapper right="stream">
-							<Consumers />
+							<Consumers layout={this.props.layout} />
 							<StreamDeleteDialog />
 						</RestrictedWrapper>
 					) : null}
 					{this.props.location.pathname === '/administration/producers' ? (
 						<RestrictedWrapper right="stream">
-							<Producers />
+							<Producers layout={this.props.layout} />
 							<StreamDeleteDialog />
 						</RestrictedWrapper>
 					) : null}
 					{this.props.location.pathname === '/administration/connectors' ? (
 						<RestrictedWrapper right="stream">
-							<Connectors />
+							<Connectors layout={this.props.layout} />
 							<StreamDeleteDialog />
 						</RestrictedWrapper>
 					) : null}

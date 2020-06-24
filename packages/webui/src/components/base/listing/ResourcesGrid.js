@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -47,6 +47,7 @@ class ResourcesGrid extends React.Component {
 		icon: PropTypes.element,
 		headerIcons: PropTypes.arrayOf(PropTypes.object),
 		images: PropTypes.bool,
+		gridWidth: PropTypes.number,
 		handleResourceDetails: PropTypes.func,
 		titleAttribute: PropTypes.string.isRequired,
 		headerBackgroundColor: PropTypes.string,
@@ -66,6 +67,7 @@ class ResourcesGrid extends React.Component {
 		styles: DEF_STYLES,
 		onChecked: undefined,
 		checked: [],
+		gridWidth: 0,
 		showControlButtons: true,
 		onMenuSelect: undefined,
 	};
@@ -79,6 +81,7 @@ class ResourcesGrid extends React.Component {
 			activeResource: null,
 			checked: [...props.checked] || [],
 		};
+		this.gridRef = React.createRef();
 	}
 
 	handleChecked = (resourceId) => () => {
@@ -129,6 +132,7 @@ class ResourcesGrid extends React.Component {
 			icon,
 			titleAttribute,
 			headerBackgroundColor,
+			gridWidth,
 			classes,
 			onMenuSelect,
 			onChecked,
@@ -137,6 +141,10 @@ class ResourcesGrid extends React.Component {
 		} = this.props;
 
 		const rStyles = { ...DEF_STYLES, ...this.props.styles };
+		// to force render
+		// let dims = this.state.gridWidth;
+		// dims = this.getDimensions();
+		const width = gridWidth;
 		return (
 			<div
 				style={{
@@ -171,10 +179,20 @@ class ResourcesGrid extends React.Component {
 						}}
 					/>
 				</Popover>
-				<div style={rStyles.wrapper}>
-					<GridList cols={5} spacing={25} cellHeight={150} style={{
-						margin: 0
-					}}>
+				<div
+					style={rStyles.wrapper}
+				>
+					<GridList
+						ref={this.gridRef}
+						cols={5}
+						id='coreGrid'
+						spacing={25}
+						cellHeight={150}
+						style={{
+							marginLeft: `${Math.max(0, Math.floor((width - Math.floor(width / 300) * 300) / 2))}px`,
+							marginRight: `${Math.max(0, Math.floor((width - Math.floor(width / 300) * 300) / 2))}px`,
+						}}
+					>
 						{!resources
 							? null
 							: resources.map((resource) => (

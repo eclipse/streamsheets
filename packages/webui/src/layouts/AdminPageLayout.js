@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -14,7 +14,7 @@ import * as Colors from '@material-ui/core/colors';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import Toolbar from '@material-ui/core/Toolbar';
 import PropTypes from 'prop-types';
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import * as Actions from '../actions/actions';
@@ -36,6 +36,9 @@ import MachineHelper from '../helper/MachineHelper';
 import theme from '../theme';
 import { AdminNavigation } from './AdminNavigation';
 import HelpButton from './HelpButton';
+import GridViewButton from './GridViewButton';
+import FilterName from '../components/base/listing/FilterName';
+
 
 export const AdminPageLayoutComponent = (props) => {
 	const {
@@ -46,7 +49,9 @@ export const AdminPageLayoutComponent = (props) => {
 		children,
 		userLoaded,
 		workspaceSelect,
-		requireStreams
+		requireStreams,
+		gridButton,
+		onUpdateLayout,
 	} = props;
 
 	useEffect(() => {
@@ -100,11 +105,13 @@ export const AdminPageLayoutComponent = (props) => {
 							padding: 0,
 							position: 'relative'
 						}}
+						elevation={0}
 					>
 						<div
 							style={{
 								display: 'flex',
 								flexDirection: 'row',
+								justifyContent: 'space-between',
 								height: '58px'
 							}}
 						>
@@ -135,12 +142,17 @@ export const AdminPageLayoutComponent = (props) => {
 									{`${props.disconnectedServices}`}
 								</div>
 							) : null}
+							{gridButton ? (<FilterName />) : null}
 							<Toolbar
 								style={{
 									paddingRight: '5px',
 									minHeight: '58px'
 								}}
 							>
+								{gridButton ? (
+								<GridViewButton
+									onUpdateLayout={onUpdateLayout}
+								/>) : null}
 								<NotificationsComponent />
 								<HelpButton />
 								<SettingsMenu />
@@ -177,12 +189,14 @@ AdminPageLayoutComponent.propTypes = {
 	connect: PropTypes.func.isRequired,
 	getMe: PropTypes.func.isRequired,
 	requireStreams: PropTypes.bool,
-	workspaceSelect: PropTypes.bool
+	workspaceSelect: PropTypes.bool,
+	gridButton: PropTypes.bool
 };
 
 AdminPageLayoutComponent.defaultProps = {
 	requireStreams: false,
-	workspaceSelect: false
+	workspaceSelect: false,
+	gridButton: false,
 };
 
 function mapStateToProps(state) {

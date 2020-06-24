@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -39,6 +39,7 @@ import { intl } from '../helper/IntlGlobalProvider';
 import MachineHelper from '../helper/MachineHelper';
 import HelpButton from '../layouts/HelpButton';
 import theme from '../theme';
+import FilterName from '../components/base/listing/FilterName';
 
 const useExperimental = (setAppState) => {
 	useEffect(() => setAppState({ experimental: localStorage.getItem('experimental') === 'true' }), []);
@@ -101,11 +102,13 @@ export function ExportPageComponent(props) {
 							padding: 0,
 							position: 'relative'
 						}}
+						elevation={0}
 					>
 						<div
 							style={{
 								display: 'flex',
 								flexDirection: 'row',
+								justifyContent: 'space-between',
 								height: '58px'
 							}}
 						>
@@ -120,6 +123,7 @@ export function ExportPageComponent(props) {
 									{`${props.disconnectedServices}`}
 								</div>
 							) : null}
+							<FilterName />
 							<Toolbar
 								style={{
 									paddingRight: '5px',
@@ -136,7 +140,7 @@ export function ExportPageComponent(props) {
 				<div
 					style={{
 						position: 'relative',
-						height: 'calc(100% - 59px)',
+						height: 'calc(100% - 58px)',
 						width: '100%',
 						overflow: 'hidden',
 						backgroundColor: '#EEEEEE'

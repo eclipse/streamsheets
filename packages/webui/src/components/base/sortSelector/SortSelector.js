@@ -86,9 +86,6 @@ class SortSelector extends React.Component {
 		const { sortBy, direction, filter } = this.state;
 		return (
 			<div style={style.wrapper}>
-				<span style={style.label}>
-					<FormattedMessage id="SortBy.label" defaultMessage="Sort By:" />
-				</span>
 				{sortFields.map((field) => (
 					<SortElement
 						key={field}
@@ -134,7 +131,7 @@ SortSelector.parseSortQuery = (q) => {
 };
 
 SortSelector.DEFAULT_STYLE = {
-	wrapper: { display: 'flex', alignItems: 'center' },
+	wrapper: { display: 'flex', alignItems: 'center', marginTop: '8px' },
 	label: { marginRight: '4px', fontWeight: '120%', fontSize: '10pt' },
 	button: {
 		fontSize: '8pt',
