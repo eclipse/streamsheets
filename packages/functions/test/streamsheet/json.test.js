@@ -8,8 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { createTerm, createCellAt } = require('../utilities');
+const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell, Machine, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { createTerm, createCellAt } = require('../utilities');
+
+const ERROR = FunctionErrors.code;
 
 const setup = (transconfig) => {
 	const machine = new Machine();
@@ -357,6 +360,11 @@ describe('json', () => {
 		sheet.load({ cells: { A1: 'a', B1: 'hello', A2: 'b', B2: 'world' } });
 		createCellAt('A4', { formula: 'json(A1:B2, true)' }, sheet);
 		expect(sheet.cellAt('A4').value).toBe('{"a":"hello","b":"world"}');
+	});
+	it(`should return ${ERROR.VALUE} error if no json could be created`, () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('json(,)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('json(I33)', sheet).value).toBe(ERROR.VALUE);
 	});
 	// DL-1305
 	describe('converting to JSON array', () => {

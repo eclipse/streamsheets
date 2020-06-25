@@ -68,7 +68,7 @@ const jsonFromString = (str) => {
 	} catch (err) {
 		/* ignore */
 	}
-	return ERROR.VALUE;
+	return undefined;
 };
 const jsonToString = (json) => {
 	try {
@@ -76,7 +76,7 @@ const jsonToString = (json) => {
 	} catch (err) {
 		/* ignore */
 	}
-	return ERROR.VALUE;
+	return undefined;
 };
 
 const createRangeFromTerm = (term, sheet) => {
@@ -93,9 +93,12 @@ const json = (sheet, ...terms) =>
 		.addMappedArg((str, range) => (str == null && range == null ? getJSONFromTerm(terms[0]) : undefined))
 		.mapNextArg((asString) => (asString ? convert.toBoolean(asString.value, false) : false))
 		.run((str, range, jsonobj, asString) => {
-			jsonobj = jsonobj || (str != null ? jsonFromString(str) : jsonFromRange(range));
+			if (!jsonobj) {
+				if (str != null) jsonobj = jsonFromString(str);
+				else if (range) jsonobj = jsonFromRange(range);
+			}
 			// eslint-disable-next-line no-nested-ternary
-			return FunctionErrors.isError(jsonobj) ? jsonobj : asString ? jsonToString(jsonobj) : jsonobj;
+			return jsonobj ? (asString ? jsonToString(jsonobj) : jsonobj) : ERROR.VALUE;
 		});
 
 
