@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const AsyncRequest = require('./AsyncRequest');
 const calculate = require('./calculate');
 const common = require('./common');
 const criteria = require('./criteria');
@@ -24,6 +25,7 @@ const validation = require('./validation');
 const values = require('./values');
 
 module.exports = {
+	AsyncRequest,
 	calculate,
 	common,
 	criteria,

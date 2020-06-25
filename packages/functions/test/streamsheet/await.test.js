@@ -11,7 +11,7 @@
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Machine, SheetParser, StreamSheet } = require('@cedalo/machine-core');
 const { createCellAt, createTerm } = require('../utilities');
-const { pendingRequest, runFunction } = require('../../src/utils');
+const { AsyncRequest, runFunction } = require('../../src/utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -20,7 +20,7 @@ const noop = () => {};
 const testRequest = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
-		.run(() => pendingRequest.create2(sheet, testRequest.context, () => new Promise(noop)));
+		.run(() => AsyncRequest.create(sheet, testRequest.context).request(() => new Promise(noop)).reqId());
 SheetParser.context.functions['TEST.REQUEST'] = testRequest;
 
 const resolveRequestAt = (index, sheet) => {
