@@ -11,7 +11,7 @@
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { isType } = require('@cedalo/machine-core');
-const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
+const { runFunction, terms: { getCellRangeFromTerm, getJSONFromTerm } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -81,20 +81,21 @@ const jsonToString = (json) => {
 
 const createRangeFromTerm = (term, sheet) => {
 	const range = getCellRangeFromTerm(term, sheet);
-	return range != null && range.width > 1 ? range : ERROR.INVALID_PARAM;
+	return range != null && range.width > 1 ? range : undefined;
 };
 
 const json = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
-		.mapNextArg((jsonstr) => isType.string(jsonstr.value) ? jsonstr.value : undefined)
-		.addMappedArg((str) => str == null ? createRangeFromTerm(terms[0], sheet) : str)
-		.mapNextArg((asString) => asString ? convert.toBoolean(asString.value, false) : false)
-		.run((str, range, asString) => {
-			const jsonobj = str != null ? jsonFromString(str) : jsonFromRange(range);
+		.mapNextArg((jsonstr) => (isType.string(jsonstr.value) ? jsonstr.value : undefined))
+		.addMappedArg((str) => (str == null ? createRangeFromTerm(terms[0], sheet) : undefined))
+		.addMappedArg((str, range) => (str == null && range == null ? getJSONFromTerm(terms[0]) : undefined))
+		.mapNextArg((asString) => (asString ? convert.toBoolean(asString.value, false) : false))
+		.run((str, range, jsonobj, asString) => {
+			jsonobj = jsonobj || (str != null ? jsonFromString(str) : jsonFromRange(range));
 			// eslint-disable-next-line no-nested-ternary
-			return FunctionErrors.isError(jsonobj) ? jsonobj : (asString ? jsonToString(jsonobj) : jsonobj);
+			return FunctionErrors.isError(jsonobj) ? jsonobj : asString ? jsonToString(jsonobj) : jsonobj;
 		});
 
 

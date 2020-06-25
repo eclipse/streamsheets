@@ -297,7 +297,14 @@ describe('json', () => {
 		expect(message.data.person.emails.length).toBe(1);
 		expect(message.data.person.emails[0]).toBe('jd@example.org');
 	});
-	// DL-3977
+	it('should simply return a passed json value', () => {
+		const sheet = new StreamSheet().sheet;
+		createCellAt('A1', '{ "Kunde": { "Name": "Paul", "Alter": 42 } }', sheet);
+		createCellAt('A2', { formula: 'json(A1)' }, sheet);
+		expect(createTerm('json(A2)', sheet).value).toEqual({ Kunde: { Name: 'Paul', Alter: 42 } });
+		expect(createTerm('json(A2,true)', sheet).value).toBe('{"Kunde":{"Name":"Paul","Alter":42}}');
+	});
+	// DL-3977: string handling
 	it('should create a JSON from a given string', () => {
 		const sheet = new StreamSheet().sheet;
 		let str = '{\\"name\\": \\"mustermann\\"}';
