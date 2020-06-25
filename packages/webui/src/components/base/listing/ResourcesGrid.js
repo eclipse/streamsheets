@@ -18,11 +18,11 @@ import GridListTile from '@material-ui/core/GridListTile';
 import CardContent from '@material-ui/core/CardContent';
 import Card from '@material-ui/core/Card';
 import Typography from '@material-ui/core/Typography';
-import Popover from '@material-ui/core/Popover';
 import Checkbox from '@material-ui/core/Checkbox';
 import styles from './styles';
 import ResourceCardHeader from './ResourceCardHeader';
-import { shorten } from './Utils';
+import * as Colors from '@material-ui/core/colors';
+// import { shorten } from './Utils';
 
 const DEF_STYLES = {
 	wrapper: {
@@ -38,12 +38,11 @@ class ResourcesGrid extends React.Component {
 	static propTypes = {
 		label: PropTypes.object.isRequired,
 		disabled: PropTypes.bool,
-		fields: PropTypes.array.isRequired,
+		// fields: PropTypes.array.isRequired,
 		menuOptions: PropTypes.array.isRequired,
 		resources: PropTypes.array.isRequired,
 		onMenuSelect: PropTypes.func,
 		onResourceOpen: PropTypes.func.isRequired,
-		classes: PropTypes.object.isRequired,
 		icon: PropTypes.element,
 		headerIcons: PropTypes.arrayOf(PropTypes.object),
 		images: PropTypes.bool,
@@ -75,10 +74,6 @@ class ResourcesGrid extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			openImage: false,
-			anchorReference: 'anchorEl',
-			anchorElZoom: null,
-			activeResource: null,
 			checked: [...props.checked] || [],
 		};
 		this.gridRef = React.createRef();
@@ -110,30 +105,33 @@ class ResourcesGrid extends React.Component {
 		event.preventDefault();
 	};
 
-	handleZoom = (event, resource) => {
-		this.setState({
-			anchorElZoom: event.target,
-			openImage: true,
-			activeResource: resource,
-		});
-	};
+	getImageByResource(resource) {
+		if (!resource) {
+			return `url('images/preview.png')`;
+		}
 
-	handleZoomClose = () => {
-		this.setState({ openImage: false });
-	};
+		switch (resource.className) {
+		case 'ConnectorConfiguration':
+			return `url(${resource.titleImage || 'images/connector.png'})`;
+		case 'ConsumerConfiguration':
+			return `url(${resource.titleImage || 'images/consumer.png'})`;
+		case 'ProducerConfiguration':
+			return `url(${resource.titleImage || 'images/producer.png'})`;
+		default:
+			return `url(${resource.titleImage || 'images/preview.png'})`;
+		}
+	}
 
 	render() {
 		const {
 			resources,
 			menuOptions,
-			fields,
+			// fields,
 			label,
-			images,
 			icon,
 			titleAttribute,
 			headerBackgroundColor,
 			gridWidth,
-			classes,
 			onMenuSelect,
 			onChecked,
 			showControlButtons,
@@ -141,9 +139,6 @@ class ResourcesGrid extends React.Component {
 		} = this.props;
 
 		const rStyles = { ...DEF_STYLES, ...this.props.styles };
-		// to force render
-		// let dims = this.state.gridWidth;
-		// dims = this.getDimensions();
 		const width = gridWidth;
 		return (
 			<div
@@ -151,34 +146,6 @@ class ResourcesGrid extends React.Component {
 					height: '100%',
 				}}
 			>
-				<Popover
-					open={this.state.openImage}
-					anchorPosition={{ top: 0, left: 0 }}
-					anchorEl={this.state.anchorElZoom}
-					onClose={this.handleZoomClose}
-					anchorReference={this.state.anchorReference}
-					anchorOrigin={{
-						vertical: 'top',
-						horizontal: 'left',
-					}}
-					transformOrigin={{
-						vertical: 'top',
-						horizontal: 'left',
-					}}
-				>
-					<div
-						style={{
-							width: '500px',
-							height: '500px',
-							// eslint-disable-next-line
-							backgroundImage: `url(${
-								(this.state.activeResource && this.state.activeResource.titleImage) 
-								|| (this.state.activeResource && this.state.activeResource.previewImage) 
-								|| 'images/preview.png'})`,
-							backgroundSize: '100%',
-						}}
-					/>
-				</Popover>
 				<div
 					style={rStyles.wrapper}
 				>
@@ -187,10 +154,10 @@ class ResourcesGrid extends React.Component {
 						cols={5}
 						id='coreGrid'
 						spacing={25}
-						cellHeight={150}
+						// cellHeight={150}
 						style={{
-							marginLeft: `${Math.max(0, Math.floor((width - Math.floor(width / 300) * 300) / 2))}px`,
-							marginRight: `${Math.max(0, Math.floor((width - Math.floor(width / 300) * 300) / 2))}px`,
+							marginLeft: `${Math.max(0, Math.floor((width - Math.floor(width / 330) * 330) / 2))}px`,
+							marginRight: `${Math.max(0, Math.floor((width - Math.floor(width / 330) * 330) / 2))}px`,
 						}}
 					>
 						{!resources
@@ -203,38 +170,21 @@ class ResourcesGrid extends React.Component {
 										cols={1}
 										spacing={5}
 										style={{
-											height: '245px',
-											width: '300px',
+											height: 'auto',
+											width: '330px',
 										}}
 									>
 										<Card
-											elevation={0}
-											className={classes.card}
+											elevation={2}
+											square
+											style={{
+												margin: '3px',
+											}}
 										>
-											<ResourceCardHeader
-												{...this.props}
-												handleClicked={onMenuSelect}
-												resource={resource}
-												onResourceOpen={
-													this.handleOpenClick
-												}
-												titleAttribute={titleAttribute}
-												headerBackgroundColor={
-													headerBackgroundColor
-												}
-												headerIcons={
-													this.props.headerIcons
-												}
-												icon={icon}
-												menuOptions={menuOptions}
-												onMenuSelect={onMenuSelect}
-												titleMaxLength={15}
-												disabled={!showControlButtons || disabled}
-											/>
 											<CardContent
 												style={{
 													cursor: 'pointer',
-													padding: '15px',
+													padding: '0px',
 												}}
 												onContextMenu={(event) =>
 													this.handleContextMenu(
@@ -267,133 +217,115 @@ class ResourcesGrid extends React.Component {
 													</div>
 												)}
 												<div
-													onClick={() =>
-														this.handleOpenClick(
-															resource,
-														)
-													}
 												>
-													{images ? (
-														<div
-															style={{
-																width: '245px',
-																height: '120px',
-																// eslint-disable-next-line
-																backgroundImage: `url(${
-																	resource.titleImage
-																	|| resource.previewImage
-																	|| 'images/preview.png'})`,
-																backgroundSize: '245px 120px',
-																marginBottom:
-																	'10px',
-															}}
-														/>
-													) : null}
-													<Typography
-														// key={field.id}
-														component="div"
-														// title={!value.error ? value : value.error}
+													<div
+														onClick={() =>
+															this.handleOpenClick(
+																resource,
+															)
+														}
+														style={{
+															width: '300px',
+															height: '155px',
+															backgroundImage: this.getImageByResource(resource),
+															backgroundSize: '300px 155px',
+														}}
+													/>
+													<div
+														style={{
+															borderTop: '2px solid lightgrey',
+															display: 'flex',
+															alignItems: 'baseline',
+															justifyContent: 'space-between',
+															padding: '3px 10px 0px 10px',
+														}}
+														onClick={() =>
+															this.handleOpenClick(
+																resource,
+															)
+														}
 													>
-														<table
-															// key={field.id}
-
+														<Typography
+															component="div"
 															style={{
-																lineHeight: '1',
+																textOverflow: 'ellipsis',
 																fontSize: '8pt',
-																tableLayout: 'fixed',
+																fontWeight: 'bold',
+																color: Colors.lightBlue[800],
+																overflow: 'hidden',
+																maxWidth: '200px',
 															}}
 														>
-															<colgroup>
-																<col width="95px" />
-																<col width="10px" />
-																<col width="130px" />
-															</colgroup>
-															<tbody>
-																{fields.map(
-																	(field) => {
-																		let value = jsonpath.query(
-																			resource,
-																			field.key,
-																		);
-																		if (
-																			Array.isArray(
-																				value,
-																			) &&
-																			value.length ===
-																				1
-																		) {
-																			// eslint-disable-next-line prefer-destructuring
-																			value =
-																				value[0];
-																		}
-																		value =
-																			value ||
-																			'';
-																		if (
-																			!(
-																				typeof value ===
-																					'object' &&
-																				value.error
-																			)
-																		) {
-																			value = Array.isArray(
-																				value,
-																			)
-																				? value.join()
-																				: value;
-																		}
-																		value =
-																			typeof value ===
-																				'object' &&
-																			!value.error
-																				? JSON.stringify(
-																						value,
-																				  )
-																				: value;
-																		return value ? (
-																			<tr
-																				key={
-																					field.key
-																				}
-																			>
-																				<th>
-																					{
-																						field.label
-																					}
-																					:
-																				</th>
-																				<td />
-																				<td
-																					style={{
-																						textOverflow: 'ellipsis',
-																						overflow: 'hidden',
-																						maxWidth: '130px',
-																					}}
-																				>
-																					{!value.error ? (
-																						shorten(
-																							value,
-																						)
-																					) : (
-																						<span
-																							style={{
-																								color:
-																									'red',
-																							}}
-																						>
-																							{shorten(
-																								value.error,
-																							)}
-																						</span>
-																					)}
-																				</td>
-																			</tr>
-																		) : null;
-																	},
-																)}
-															</tbody>
-														</table>
-													</Typography>
+															{jsonpath.query(
+																resource,
+																titleAttribute,
+															)}
+														</Typography>
+														<Typography
+															component="div"
+															style={{
+																textOverflow: 'ellipsis',
+																overflow: 'hidden',
+																color: Colors.grey[600],
+																maxWidth: '130px',
+																fontSize: '7pt',
+															}}
+														>
+															{jsonpath.query(
+																resource,
+																'lastModified_formatted',
+															)}
+														</Typography>
+													</div>
+													<div
+														style={{
+															display: 'flex',
+															justifyContent: 'space-between',
+															padding: '0px 10px 0px 10px',
+															height: '45px',
+														}}
+													>
+														<Typography
+															component="div"
+															onClick={() =>
+																this.handleOpenClick(
+																	resource,
+																)
+															}
+															style={{
+																textOverflow: 'ellipsis',
+																overflow: 'hidden',
+																color: Colors.grey[600],
+																maxWidth: '130px',
+																fontSize: '7pt',
+															}}
+														>
+															{jsonpath.query(
+																resource,
+																'description',
+															).length ? jsonpath.query(
+																resource,
+																'description',
+															) : 'This is a description placeholder for commenting on the implemented Service'}
+														</Typography>
+														<ResourceCardHeader
+															{...this.props}
+															handleClicked={onMenuSelect}
+															resource={resource}
+															titleAttribute={titleAttribute}
+															headerBackgroundColor={
+																headerBackgroundColor
+															}
+															headerIcons={
+																this.props.headerIcons
+															}
+															icon={icon}
+															menuOptions={menuOptions}
+															onMenuSelect={onMenuSelect}
+															titleMaxLength={15}
+															disabled={!showControlButtons || disabled}
+														/>
+													</div>
 												</div>
 											</CardContent>
 										</Card>

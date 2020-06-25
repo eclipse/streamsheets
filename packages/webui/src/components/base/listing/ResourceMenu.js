@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -18,12 +18,13 @@ import MenuItem from '@material-ui/core/MenuItem/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { FormattedMessage } from 'react-intl';
+import ListItemText from '@material-ui/core/ListItemText';
 
 const DEF_STYLES = {
 	icon: {
 		width: '25px',
 		height: '30px',
-		color: 'white',
+		color: 'grey',
 		padding: '0px',
 	},
 };
@@ -101,17 +102,18 @@ export default class ResourceMenu extends React.Component {
 							return option === 'divider' ? (
 								<Divider key={option} />
 							) : (
-								<MenuItem key={option} onClick={() => this.handleMenuSelect(index, resourceId)}>
-									{option}
+								<MenuItem dense key={option} onClick={() => this.handleMenuSelect(index, resourceId)}>
+									<ListItemText primary={option} />
 								</MenuItem>
 							);
 						}
 						return (
 							<MenuItem
+								dense
 								key={option.value}
 								onClick={() => this.handleMenuSelect(option.value, resourceId)}
 							>
-								{option.label}
+								<ListItemText primary={option.label} />
 							</MenuItem>
 						);
 					})}

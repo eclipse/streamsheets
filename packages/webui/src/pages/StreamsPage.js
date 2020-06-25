@@ -37,7 +37,8 @@ const isEditStreamPage = (match) => {
 
 export const StreamsPageComponent = (props) => {
 	const { scopeId, match, location, streams } = props;
-	const [layout, setLayout] = useState(localStorage.getItem(PREF_KEY_LAYOUT));
+	const lay = localStorage.getItem(PREF_KEY_LAYOUT);
+	const [layout, setLayout] = useState(lay && lay.length ? lay : 'grid');
 
 	const onUpdateLayout = (text) => {
 		setLayout(text);

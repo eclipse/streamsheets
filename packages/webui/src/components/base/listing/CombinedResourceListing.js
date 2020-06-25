@@ -114,10 +114,15 @@ class CombinedResourceListing extends Component {
 	}
 
 	getDimensions() {
-		const refGrid = document.getElementById('coreGrid');
+		let refGrid = document.getElementById('coreGrid');
+		let offset = 0;
+		if (!refGrid) {
+			refGrid = document.getElementById('combinedResourceList');
+			offset = 20;
+		}
 		if (refGrid) {
 			const style = getComputedStyle(refGrid);
-			const width = parseFloat(style.width);
+			const width = parseFloat(style.width) - offset;
 			const left = parseFloat(style.marginLeft);
 			const right = parseFloat(style.marginRight);
 			return {
@@ -167,6 +172,7 @@ class CombinedResourceListing extends Component {
 		const width = dims ? dims.width + dims.left + dims.right : 0;
 		return (
 			<div
+				id="combinedResourceList"
 				style={{
 					color: '#444444',
 					padding: '0px',
@@ -194,7 +200,7 @@ class CombinedResourceListing extends Component {
 						<div
 							style={{
 								height: '40px',
-								marginRight: `${Math.max(0, Math.floor((width - Math.floor(width / 300) * 300) / 2)) +
+								marginRight: `${Math.max(0, Math.floor((width - Math.floor(width / 330) * 330) / 2)) +
 									23}px`
 							}}
 						>

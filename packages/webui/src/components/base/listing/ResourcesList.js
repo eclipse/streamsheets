@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -22,6 +22,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Checkbox from '@material-ui/core/Checkbox';
 import styles from './styles';
 import ResourceMenu from './ResourceMenu';
+import GridList from '@material-ui/core/GridList';
 
 const MAX_LENGTH = 20;
 
@@ -109,7 +110,10 @@ class ResourcesList extends React.Component {
 		const rStyles = { ...DEF_STYLES, ...this.props.styles };
 		return (
 			<div style={rStyles.wrapper}>
-				<Table style={{ background: 'white', minWidth: '700' }}>
+				<Table
+					style={{ background: 'white', minWidth: '700'
+					}}
+				>
 					<TableHead>
 						<TableRow>
 							{!onChecked ? null : <TableCell>Checked</TableCell>}

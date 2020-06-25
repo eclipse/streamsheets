@@ -76,7 +76,8 @@ const useExperimental = (setAppState) => {
 export function DashboardPageComponent(props) {
 	const { user, isConnected } = props;
 	const scopeId = user ? user.scope.id : null;
-	const [layout, setLayout] = useState(localStorage.getItem(PREF_KEY_LAYOUT));
+	const lay = localStorage.getItem(PREF_KEY_LAYOUT);
+	const [layout, setLayout] = useState(lay && lay.length ? lay : 'grid');
 
 	useExperimental(props.setAppState);
 

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -15,7 +15,6 @@ import CardHeader from '@material-ui/core/CardHeader/CardHeader';
 import LinearProgress from '@material-ui/core/LinearProgress/LinearProgress';
 import ResourceHeaderButton from './ResourceHeaderButton';
 import ResourceMenu from './ResourceMenu';
-import { shorten, jsonPath } from './Utils';
 
 const getState = (state, resource) => {
 	if (typeof state === 'string') {
@@ -46,19 +45,19 @@ class ProgressTimer {
 		return this._failed;
 	}
 
-	start(){
-		if(!this.timerId){
+	start() {
+		if (!this.timerId) {
 			this._failed = false;
-			this.timerId = setTimeout(()=>{
+			this.timerId = setTimeout(() => {
 				this._failed = true;
-				this.comp.setState({progressing: false});
+				this.comp.setState({ progressing: false });
 				this.comp.forceUpdate();
 			}, TIMEOUT_MAX);
 		}
 	}
 
 	stop() {
-		if(this.timerId) {
+		if (this.timerId) {
 			clearTimeout(this.timerId);
 			this.timerId = null;
 		}
@@ -86,7 +85,7 @@ export default class ResourceCardHeader extends React.Component {
 		showState: PropTypes.bool,
 		showProgressing: PropTypes.bool,
 		toggleResourceProgress: PropTypes.func,
-		preventTimeOut: PropTypes.bool,
+		preventTimeOut: PropTypes.bool
 	};
 
 	static defaultProps = {
@@ -108,23 +107,23 @@ export default class ResourceCardHeader extends React.Component {
 	};
 
 	static getDerivedStateFromProps(props, state) {
-		if(props.resource && props.resource.progressing !== state.progressing) {
-			if(props.preventTimeOut && state.timer.failed) {
-				const {toggleResourceProgress, resource} = props;
+		if (props.resource && props.resource.progressing !== state.progressing) {
+			if (props.preventTimeOut && state.timer.failed) {
+				const { toggleResourceProgress, resource } = props;
 				state.timer.reset();
-				if(typeof toggleResourceProgress === 'function') {
+				if (typeof toggleResourceProgress === 'function') {
 					toggleResourceProgress(resource);
 				}
-				return { ...state, progressing: false}
+				return { ...state, progressing: false };
 			}
-			if(props.preventTimeOut) {
-				if(props.resource.progressing === true) {
+			if (props.preventTimeOut) {
+				if (props.resource.progressing === true) {
 					state.timer.start();
 				} else {
 					state.timer.stop();
 				}
 			}
-			return { ...state, progressing: props.resource.progressing}
+			return { ...state, progressing: props.resource.progressing };
 		}
 		return { ...state };
 	}
@@ -133,110 +132,81 @@ export default class ResourceCardHeader extends React.Component {
 		super(props);
 		this.state = {
 			progressing: props.resource.progressing,
-			timer: props.preventTimeOut ? new ProgressTimer(this): undefined,
-		}
+			timer: props.preventTimeOut ? new ProgressTimer(this) : undefined
+		};
 	}
 
 	componentWillUnmount() {
-		if(this.props.preventTimeOut) {
+		if (this.props.preventTimeOut) {
 			this.state.timer.stop();
 		}
 	}
 
-
 	render() {
 		const {
 			headerIcons,
-			headerBackgroundColor,
 			handleClicked,
 			resource,
 			handleOpenMenu,
-			onResourceOpen,
-			titleAttribute,
 			icon,
-			titleMaxLength,
-			showState,
 			menuOptions,
 			onMenuSelect,
 			showProgressing,
 			disabled
 		} = this.props;
-		const {progressing} = this.state;
+		const { progressing } = this.state;
 		const showControls = !showProgressing || !disabled;
-		let title = shorten(jsonPath(resource, titleAttribute) || resource.name,
-			titleMaxLength);
-		if(showState) {
-			title = `${title} (${resource.state})`;
-		}
 		return (
-			<CardHeader
-				style={{
-					padding: '0px 10px',
-					height: '32px',
-					color: 'white',
-					textDecoration: resource.disabled
-						? 'line-through'
-						: 'inherit',
-					backgroundColor: resource.disabled
-						? '#c0c0c0'
-						: headerBackgroundColor,
-				}}
-				avatar={icon}
-				action={
-					<div
-						style={{
-							marginTop: '9px',
-						}}
-					>
-						{headerIcons.length > 0 ? (
-							<div
-								style={{
-									display: 'inline',
-								}}
-							>
-								{showControls &&
-								headerIcons.filter(
-									(h) => ((resource.disabled !== true ||
-										h.onDisabled === resource.disabled) &&
-										!headerIconDisabled(h.disabled, resource))).map((h) => (
-									<ResourceHeaderButton
-										key={`headerbutton-${resource.id}-${h.menuId}`}
-										icon={h.icon}
-										onChange={() => handleClicked(h.menuId,
-											resource.id)}
-										state={getState(h.state, resource)}
-										label={h.label}
-									/>
-								))}
-							</div>
-						) : null}
-						<ResourceMenu
-							handleOpenMenu={handleOpenMenu}
-							menuOptions={menuOptions}
-							resourceId={resource.id}
-							onMenuSelect={onMenuSelect}
-						/>
-					</div>
-				}
-				title={
-					<div
-						style={{
-							cursor: 'pointer',
-							color: 'white',
-							fontWeight: '300',
-							fontSize: '11pt',
-						}}
-						onClick={onResourceOpen ? () => onResourceOpen(resource,
-							true) : null}
-						title={jsonPath(resource, titleAttribute) ||
-						resource.name}
-					>
-						{title}
-						{progressing === true && showProgressing ? <LinearProgress
-							style={{ width: '90%' }}/> : null}
-					</div>
-				}
-			/>
+			<div>
+				<CardHeader
+					style={{
+						padding: '0px 10px',
+						marginTop: '9px',
+						color: 'white',
+						textDecoration: resource.disabled ? 'line-through' : 'inherit',
+						alignSelf: 'center',
+						backgroundColor: 'white'
+					}}
+					avatar={icon}
+					action={
+						<div>
+							{headerIcons.length > 0 ? (
+								<div
+									style={{
+										marginTop: '9px',
+										display: 'inline'
+									}}
+								>
+									{showControls &&
+										headerIcons
+											.filter(
+												(h) =>
+													(resource.disabled !== true ||
+														h.onDisabled === resource.disabled) &&
+													!headerIconDisabled(h.disabled, resource)
+											)
+											.map((h) => (
+												<ResourceHeaderButton
+													key={`headerbutton-${resource.id}-${h.menuId}`}
+													icon={h.icon}
+													onChange={() => handleClicked(h.menuId, resource.id)}
+													state={getState(h.state, resource)}
+													label={h.label}
+												/>
+											))}
+								</div>
+							) : null}
+							<ResourceMenu
+								handleOpenMenu={handleOpenMenu}
+								menuOptions={menuOptions}
+								resourceId={resource.id}
+								onMenuSelect={onMenuSelect}
+							/>
+						</div>
+					}
+				/>
+				{progressing === true && showProgressing ? <LinearProgress style={{ width: '70%', display: 'block', marginLeft: '40px' }} /> : null}
+			</div>
 		);
 	}
 }
