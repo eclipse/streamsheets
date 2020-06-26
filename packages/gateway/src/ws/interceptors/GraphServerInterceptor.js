@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const Interceptor = require('./Interceptor');
 const logger = require('../../utils/logger').create({ name: 'GraphServerInterceptor' });
 
@@ -179,7 +189,7 @@ module.exports = class GraphServerInterceptor extends Interceptor {
 			const reason = !requestMapping
 				? 'Request not handled by graph-server...'
 				: 'Response context contains no machineserver-object...';
-			logger.info(`Ignore response to request: ${message.requestType}(${message.requestId}). ${reason}`);
+			logger.debug(`Ignore response to request: ${message.requestType}(${message.requestId}). ${reason}`);
 		}
 		return context;
 	}

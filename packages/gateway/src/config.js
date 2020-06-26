@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const convict = require('convict');
 const path = require('path');
 const { LoggerFactory } = require('@cedalo/logger');
@@ -34,26 +44,6 @@ const config = convict({
 			default: 'localhost',
 			env: 'GATEWAY_HTTP_HOST',
 			arg: 'GATEWAY_HTTP_HOST'
-		},
-		secure: {
-			format: 'Boolean',
-			default: false
-		}
-	},
-	socket: {
-		port: {
-			doc: 'The port to bind.',
-			format: 'port',
-			default: 8088,
-			env: 'WS_PORT',
-			arg: 'WS_PORT'
-		},
-		host: {
-			doc: 'The port to bind.',
-			format: 'url',
-			default: '0.0.0.0',
-			env: 'WS_HOST',
-			arg: 'WS_HOST'
 		},
 		secure: {
 			format: 'Boolean',

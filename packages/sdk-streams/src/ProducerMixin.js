@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { ERRORS, EVENTS } = require('./Constants');
 const ProducerConfiguration = require('./configurations/ProducerConfiguration');
 const Stream = require('./Stream');
@@ -116,23 +126,10 @@ const ProducerMixin = (Connector) =>
 
 		async update(configDiff) {
 			const { type, $set } = configDiff;
-			const handlers = new Map();
 			try {
-				const definition = this.config.connector.provider.definition;
 				if (type === ProducerConfiguration.NAME) {
 					Object.keys($set).forEach((id) => {
 						this.config[id] = $set[id];
-						if (definition) {
-							const field = definition.producer.find(
-								(def) => def.id === id
-							);
-							if (field && field.onUpdate) {
-								handlers.set(
-									field.onUpdate,
-									this[field.onUpdate].bind(this)
-								);
-							}
-						}
 					});
 					if ($set.filter !== undefined) {
 						this.config.filter = $set.filter;
@@ -144,7 +141,7 @@ const ProducerMixin = (Connector) =>
 						this.config.idAttribute = $set.idAttribute;
 					}
 				}
-				return super.update(configDiff, handlers);
+				return super.update(configDiff);
 			} catch (e) {
 				this.logger.error(e);
 				return false;

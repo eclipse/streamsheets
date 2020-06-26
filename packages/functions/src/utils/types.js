@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const array = require('../functions/streamsheet/array');
 const jsonFunc = require('../functions/streamsheet/json');
 const { isFuncTerm } = require('./terms');
@@ -89,7 +99,8 @@ const asJSONWithFields = (value, config) => {
 			}
 		}
 		return record;
-	} else if (typeof value === 'string') {
+	}
+	if (typeof value === 'string') {
 		try {
 			const parsedValue = JSON.parse(value);
 			if (Array.isArray(parsedValue) || typeof parsedValue === 'object') {

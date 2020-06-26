@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable max-len */
 // import { appStrings } from './i18n';
 import JSG from '@cedalo/jsg-ui';
@@ -541,19 +551,6 @@ const Strings = {
 			description: 'Erzeugt ein Button Objekt',
 		},
 	},
-	'DRAW.CHART': {
-		category: 'drawing',
-		en: {
-			argumentList:
-				'UniqueID,Container,Name,X,Y,Width,Height,Line,Fill,Attributes,Events,Angle,RotCenter,ChartType,DataRange',
-			description: 'Creates a chart',
-		},
-		de: {
-			argumentList:
-				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Diagrammtyp,Datenbereich',
-			description: 'Erzeugt ein Diagramm',
-		},
-	},
 	'DRAW.CHECKBOX': {
 		category: 'drawing',
 		en: {
@@ -895,6 +892,17 @@ const Strings = {
 		de: {
 			argumentList: 'Zahl',
 			description: 'Gibt die Stunde eines Zeitwertes zurück',
+		},
+	},
+	'HTTP.RESPOND': {
+		category: 'streamsheet',
+		en: {
+			argumentList: 'Consumer,DataObjectId,Body,StatusCode,Headers',
+			description: 'Sends data to a Producer that send a data object previously',
+		},
+		de: {
+			argumentList: 'Consumer,DataObjectId,Body,StatusCode,Headers',
+			description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId.',
 		},
 	},
 	IF: {

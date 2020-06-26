@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import {
 	default as JSG,
 	TextNode,
@@ -10,9 +20,6 @@ import {
 } from '@cedalo/jsg-core';
 import NodeController from '../controller/NodeController';
 import Interaction from './Interaction';
-import ResizeEdgeInteraction from './ResizeEdgeInteraction';
-import ResizeEditEdgeInteraction from './ResizeEditEdgeInteraction';
-import CreateEdgeInteraction from './CreateEdgeInteraction';
 import LayerId from '../view/LayerId';
 import PositionFeedbackView from '../view/PositionFeedbackView';
 import SnapFeedbackView from '../view/SnapFeedbackView';
@@ -431,9 +438,7 @@ class InteractionUtils {
 		}
 		if (!show) {
 			// check kind of interaction
-			show = interaction instanceof CreateEdgeInteraction;
-			show = show || interaction instanceof ResizeEdgeInteraction;
-			show = show || interaction instanceof ResizeEditEdgeInteraction;
+			show = interaction.doShowPortHighlights();
 			// console.log(interaction);
 		}
 		return show;

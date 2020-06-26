@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { createDefaultGraph } = require('../../graph/utils');
 const { loadGraphByMachineId } = require('../../graph/loadGraphs');
 const { AddItemCommand, DeleteItemCommand, StreamSheetContainer } = require('@cedalo/jsg-core');
@@ -290,7 +300,7 @@ class GetGraphRequestHandler extends RequestHandler {
 }
 
 class InternalCommandRequestHandler {
-	handleCommand(command, graphWrapper, request) {
+	handleCommand(command, graphWrapper) {
 		return new Promise((resolve /* , reject */) => {
 			const processSheetId = this.getProcessSheetId(command);
 			const result = {};
@@ -353,7 +363,7 @@ class SetNameCommandRequestHandler extends RequestHandler {
 	}
 	handleCommand(command, graphWrapper, request) {
 		logger.debug('Handling selection request');
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve, /* reject */) => {
 			// const processSheet = graphWrapper.graph.getStreamSheetById(command.itemId);
 			// processSheet.setName(command.itemname);
 			resolve(
@@ -369,27 +379,27 @@ class SetNameCommandRequestHandler extends RequestHandler {
 	}
 }
 
-class SetAttributeAtPathCommandRequestHandler extends RequestHandler {
-	constructor() {
-		super('command.SetAttributeAtPathCommand');
-	}
-	handleCommand(command, graphWrapper, request) {
-		logger.debug('Handling selection request');
-		return new Promise((resolve, reject) => {
-			const item = graphWrapper.graph.getItemById(command.itemId);
-			item.setAttributeAtPath(command.path, command.newValue);
-			resolve(
-				this.confirm(request, {
-					graph: {
-						id: graphWrapper.id,
-						graphdef: graphWrapper.getGraphAsJSON(),
-						machineId: graphWrapper.machineId
-					}
-				})
-			);
-		});
-	}
-}
+// class SetAttributeAtPathCommandRequestHandler extends RequestHandler {
+// 	constructor() {
+// 		super('command.SetAttributeAtPathCommand');
+// 	}
+// 	handleCommand(command, graphWrapper, request) {
+// 		logger.debug('Handling selection request');
+// 		return new Promise((resolve, /* reject */) => {
+// 			const item = graphWrapper.graph.getItemById(command.itemId);
+// 			item.setAttributeAtPath(command.path, command.newValue);
+// 			resolve(
+// 				this.confirm(request, {
+// 					graph: {
+// 						id: graphWrapper.id,
+// 						graphdef: graphWrapper.getGraphAsJSON(),
+// 						machineId: graphWrapper.machineId
+// 					}
+// 				})
+// 			);
+// 		});
+// 	}
+// }
 
 class CommandRequestHandler extends RequestHandler {
 	constructor() {

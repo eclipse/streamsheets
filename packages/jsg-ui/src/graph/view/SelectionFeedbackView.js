@@ -1,7 +1,17 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import { default as JSG, FormatAttributes, TextFormatAttributes, BoundingBox, Point, Numbers } from '@cedalo/jsg-core';
 import View from '../../ui/View';
-import NodeSelectionHandler from '../view/selection/NodeSelectionHandler';
-import SelectionStyle from '../view/selection/SelectionStyle';
+import NodeSelectionHandler from "./selection/NodeSelectionHandler";
+import SelectionStyle from "./selection/SelectionStyle";
 
 /**
  * This class is used to visualize feedback during edit operations.

@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { Kafka, logLevel } = require('kafkajs');
 
 module.exports = class KafkaOnlyHandler {
@@ -16,7 +26,7 @@ module.exports = class KafkaOnlyHandler {
 	async connect() {
 		try {
 			this.stream.logger.debug('Connecting with kafka onlywith config:');
-			this.stream.logger.debug(JSON.stringify(this.stream.config));
+			// this.stream.logger.debug(JSON.stringify(this.stream.config));
 			const connectionString = this.stream.config.connector.connectionString ||
 										'localhost:9092';
 			const clientId = this.stream.config.clientId || 'cedalo-kafka-stream';
@@ -47,7 +57,7 @@ module.exports = class KafkaOnlyHandler {
 			await this._consumer.subscribe({ topic });
 			await this._consumer.run({
 				eachMessage: async ({ message }) => {
-					this.stream.logger.debug(JSON.stringify(message));
+					// this.stream.logger.debug(JSON.stringify(message));
 					this.stream.onMessage(topic, message.value);
 				}
 			});

@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import { default as JSG, NotificationCenter, Notification, Shape } from '@cedalo/jsg-core';
 
 import StreamSheetContainerView from '../view/StreamSheetContainerView';
@@ -151,6 +161,9 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 	handleContextMenu(event, viewer, dispatcher) {
 		const controller = this._getControllerAt(event.location, viewer, dispatcher);
 		if (controller) {
+			if (controller.getModel().isProtected()) {
+				return;
+			}
 			if (!controller.isSelected()) {
 				viewer.getSelectionProvider().setSelection([controller]);
 				viewer.getSelectionView().refresh();

@@ -1,14 +1,14 @@
-import {
-	default as JSG,
-	GraphUtils,
-	StreamSheet,
-	CompoundCommand,
-	NumberExpression,
-	Selection,
-	DeleteCellContentCommand,
-	SheetPlotNode,
-	SetCellDataCommand, NotificationCenter, Notification, SetCellsCommand
-} from '@cedalo/jsg-core';
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
+import {GraphUtils, Notification, NotificationCenter, SheetPlotNode, StreamSheet} from '@cedalo/jsg-core';
 
 import Interaction from './Interaction';
 import ChartSelectionFeedbackView from '../feedback/ChartSelectionFeedbackView';
@@ -23,15 +23,6 @@ export default class SheetPlotInteraction extends Interaction {
 		super();
 
 		this._controller = undefined;
-		this._feedback = undefined;
-	}
-
-	deactivate(viewer) {
-		viewer.removeInteractionFeedback(this._feedback);
-
-		this._feedback = undefined;
-
-		super.deactivate(viewer);
 	}
 
 	onKeyDown(event, viewer, dispatcher) {
@@ -76,15 +67,21 @@ export default class SheetPlotInteraction extends Interaction {
 			const layer = viewer.getGraphView().getLayer('chartinfo');
 
 			const item = this._controller.getModel();
-			const children = this._controller.getParent().children;
 			const pt = this.toLocalCoordinate(event, viewer, event.location.copy());
 			const axes = item.getAxes();
+			const group = item.getAxes().x.zoomGroup;
 			const value = item.scaleFromAxis(axes, pt);
 
-			children.forEach((controller) => {
-				if ((controller.getModel() instanceof SheetPlotNode) && controller.getModel().isVisible() && controller.getModel().chart.tooltips) {
-					layer.push(
-						new ChartInfoFeedbackView(controller.getView(), selection, event.location.copy(), value, viewer));
+			const sheetView = this._controller.getView().getSheetView();
+			GraphUtils.traverse(sheetView, (plotView) => {
+				if (plotView.getItem) {
+					const plot = plotView.getItem();
+					if (plot instanceof SheetPlotNode && plot.isVisible()) {
+						const groupOther = plot.getAxes().x.zoomGroup;
+						if (item === plot || (groupOther.length && group === groupOther)) {
+							layer.push(new ChartInfoFeedbackView(plotView, selection, pt, value, viewer));
+						}
+					}
 				}
 			});
 		}
@@ -109,7 +106,9 @@ export default class SheetPlotInteraction extends Interaction {
 
 		if (!view.getItem().isProtected()) {
 			view.chartSelection = selection;
-			NotificationCenter.getInstance().send(new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, view.getItem()));
+			NotificationCenter.getInstance().send(
+				new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, view.getItem())
+			);
 			viewer.setCursor(Cursor.Style.AUTO);
 
 			if (selection) {
@@ -133,7 +132,7 @@ export default class SheetPlotInteraction extends Interaction {
 			if (layer.length >= 1) {
 				layer.forEach((view) => {
 					if (view.chartView.getItem().getId() === item.getId()) {
-						view.endPoint = event.location;
+						view.endPoint = this.toLocalCoordinate(event, viewer, event.location.copy());
 					}
 				});
 			}
@@ -141,8 +140,7 @@ export default class SheetPlotInteraction extends Interaction {
 		}
 	}
 
-	onMouseDoubleClick(event, viewer) {
-	}
+	onMouseDoubleClick(event, viewer) {}
 
 	onMouseUp(event, viewer) {
 		if (this._controller === undefined) {
@@ -157,44 +155,67 @@ export default class SheetPlotInteraction extends Interaction {
 			return;
 		}
 
-		layer.forEach((view) => {
-			if (view.endPoint) {
-				const ptStart = this.toLocalCoordinate(event, viewer, view.point.copy());
-				const ptEnd = this.toLocalCoordinate(event, viewer, view.endPoint.copy());
-				if (Math.abs(ptEnd.x - ptStart.x) > 150) {
-					const item = this._controller.getModel();
-					const axes = item.getAxes();
-					let valueStart;
-					let valueEnd;
-					if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
-						if (axes.x.invert) {
-							valueStart = item.scaleFromAxis(axes, ptStart.x > ptEnd.x ? ptStart : ptEnd);
-							valueEnd = item.scaleFromAxis(axes, ptStart.x > ptEnd.x ? ptEnd : ptStart);
-						} else {
-							valueStart = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptStart : ptEnd);
-							valueEnd = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptEnd : ptStart);
-						}
-					} else if (axes.x.invert) {
-						valueStart = item.scaleFromAxis(axes, ptStart.y < ptEnd.y ? ptStart : ptEnd);
-						valueEnd = item.scaleFromAxis(axes, ptStart.y < ptEnd.y ? ptEnd : ptStart);
+		const views = layer.filter((layerView) => {return layerView.chartView === this._controller.getView()});
+		if (!views.length) {
+			super.onMouseUp(event, viewer);
+			return;
+		}
+
+		const view = views[0];
+		if (view.endPoint) {
+			const ptStart = view.point.copy();
+			const ptEnd = view.endPoint.copy();
+			const item = this._controller.getModel();
+			const axes = item.getAxes();
+			if (Math.abs(ptEnd.x - ptStart.x) > 150) {
+				let valueStart;
+				let valueEnd;
+				if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
+					if (axes.x.invert) {
+						valueStart = item.scaleFromAxis(axes, ptStart.x > ptEnd.x ? ptStart : ptEnd);
+						valueEnd = item.scaleFromAxis(axes, ptStart.x > ptEnd.x ? ptEnd : ptStart);
 					} else {
-						valueStart = item.scaleFromAxis(axes, ptStart.y > ptEnd.y ? ptStart : ptEnd);
-						valueEnd = item.scaleFromAxis(axes, ptStart.y > ptEnd.y ? ptEnd : ptStart);
+						valueStart = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptStart : ptEnd);
+						valueEnd = item.scaleFromAxis(axes, ptStart.x < ptEnd.x ? ptEnd : ptStart);
 					}
-
-					if (item.xAxes[0].type === 'category') {
-						valueStart.x = Math.max(0, valueStart.x);
-					}
-
-					item.setParamValues(viewer, item.xAxes[0].formula,
-						[{index: 4, value: valueStart.x}, {index: 5, value: valueEnd.x}]);
-					item.spreadZoomInfo(viewer);
-
-					viewer.getGraph().markDirty();
-					event.doRepaint = true;
+				} else if (axes.x.invert) {
+					valueStart = item.scaleFromAxis(axes, ptStart.y < ptEnd.y ? ptStart : ptEnd);
+					valueEnd = item.scaleFromAxis(axes, ptStart.y < ptEnd.y ? ptEnd : ptStart);
+				} else {
+					valueStart = item.scaleFromAxis(axes, ptStart.y > ptEnd.y ? ptStart : ptEnd);
+					valueEnd = item.scaleFromAxis(axes, ptStart.y > ptEnd.y ? ptEnd : ptStart);
 				}
+
+				switch (item.xAxes[0].type) {
+				case 'category':
+					valueStart.x = Math.max(0, valueStart.x);
+					valueEnd.x = Math.max(valueStart.x + 1, valueEnd.x);
+					break;
+				case 'time':
+					valueEnd.x = Math.max(valueStart.x + 0.0000004, valueEnd.x);
+					break;
+				default:
+					valueEnd.x = Math.max(valueStart.x + 0.0000001, valueEnd.x);
+					break;
+				}
+
+				const zoomcmds = [];
+				layer.forEach((lview) => {
+					const vitem = lview.chartView.getItem();
+					const cmd = vitem.setParamValues(viewer, vitem.xAxes[0].formula, [
+						{ index: 4, value: valueStart.x },
+						{ index: 5, value: valueEnd.x }
+					], item);
+					if (cmd) zoomcmds.push(cmd);
+				});
+
+				item.spreadZoomInfo(viewer, zoomcmds);
+
+				viewer.getGraph().markDirty();
+				event.doRepaint = true;
 			}
-		});
+			view.endPoint = undefined;
+		}
 
 		super.onMouseUp(event, viewer);
 	}

@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 'use strict';
 
 const HTTPGatewayAPI = require('../apis/HTTPGatewayAPI');
@@ -641,7 +651,7 @@ module.exports = class BaseGatewayClient {
 		return this.socket.unsubscribeGraph(graphId);
 	}
 
-	sendSelection(selection) {
+	sendSelection() {
 		// TODO: implement
 	}
 
@@ -717,7 +727,7 @@ module.exports = class BaseGatewayClient {
 		});
 	}
 
-	_connectSocketServer(url) {
+	_connectSocketServer() {
 		// There are different subclasses for usage in Node.js and in the browser
 		// and they handle connecting to a web socket server differently.
 		return Promise.reject(
@@ -727,12 +737,17 @@ module.exports = class BaseGatewayClient {
 		);
 	}
 
-	_connectRESTServer(url) {
+	_connectRESTServer() {
 		return Promise.resolve();
 	}
 
 	_handleSocketMessage(message) {
 		const parsedMessage = JSON.parse(message);
+		if(parsedMessage.error === 'NOT_AUTHENTICATED'){
+			// console.log('redirect event');
+			this._handleEvent({ type: 'redirect', to: '/login' });
+			return;
+		}
 		if (parsedMessage.type === 'response') {
 			if (this.socket) {
 				this.socket._handleSocketMessage(parsedMessage);

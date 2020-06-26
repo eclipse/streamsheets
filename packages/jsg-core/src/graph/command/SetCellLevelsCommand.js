@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const AbstractItemCommand = require('./AbstractItemCommand');
 const Point = require('../../geometry/Point');
 const CellRange = require('../model/CellRange');
@@ -72,7 +82,7 @@ module.exports = class SetCellLevelsCommand extends AbstractItemCommand {
 			const res = CellRange.refToRC(reference, this._graphItem);
 			const pos = new Point(
 				res.column - this._graphItem.getColumns().getInitialSection(),
-				res.row - this._graphItem.getRows().getInitialSection()
+				res.row
 			);
 			const cell = data.get(pos);
 			if (cell) {

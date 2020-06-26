@@ -1,12 +1,21 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import { GatewayMessagingProtocol } from '@cedalo/protocols';
-import * as http from 'http';
+import http from 'http';
 import WebSocket from 'ws';
 import Auth from '../Auth';
 import { GlobalContext, Session } from '../streamsheets';
 import { User } from '../user';
 import { getUserFromWebsocketRequest } from '../utils';
 import LoggerFactory from '../utils/logger';
-import AuthorizationInterceptor from './interceptors/AuthorizationInterceptor';
 import GraphServerInterceptor from './interceptors/GraphServerInterceptor';
 import InterceptorChain from './interceptors/InterceptorChain';
 import MachineServerInterceptor from './interceptors/MachineServerInterceptor';
@@ -14,40 +23,27 @@ import ProxyConnection from './ProxyConnection';
 
 const logger = LoggerFactory.create({ name: 'SocketServer' });
 
-const DEFAULTS = {
-	host: '0.0.0.0',
-	port: 8088,
-	path: '/machineserver-proxy',
-	tokenKey: 'authToken'
-};
+const PATH = '/machineserver-proxy';
+export const TOKENKEY = 'authToken';
 
 export class SocketServer {
 	private wss: WebSocket.Server | null = null;
-	private wssConfig: WebSocket.ServerOptions;
+	private wssConfig: WebSocket.ServerOptions = {
+		clientTracking: true,
+		path: PATH
+	};
 	private interceptorchain: InterceptorChain;
 	private _gatewayService: any;
+	// private httpServer: http.Server;
 	globalContext: GlobalContext;
-	_config: any;
 
-	constructor(config = DEFAULTS, gatewayService: any) {
-		this._config = Object.assign({}, DEFAULTS, config);
+	constructor(gatewayService: any, httpServer: http.Server) {
 		this._gatewayService = gatewayService;
 		this.globalContext = gatewayService.globalContext;
-		this.wssConfig = {};
-		this.wssConfig.port = this._config.port;
-		this.wssConfig.host = this._config.host;
-		this.wssConfig.path = this._config.path;
-		this.wssConfig.clientTracking = true;
-		this.wssConfig.verifyClient = (info, cb) => {
-			getUserFromWebsocketRequest(info.req, this._config.tokenKey, Auth.parseToken.bind(Auth))
-				.then(() => cb(true))
-				.catch((error: any) => {
-					logger.warn('unable to verify client:', error && error.message ? error.message : error);
-					cb(false, 401, 'Unauthorized');
-				});
-		};
+		this.wssConfig.server = httpServer;
+		// this.httpServer = httpServer;
 		this.interceptorchain = new InterceptorChain();
-		this.interceptorchain.add(new AuthorizationInterceptor());
+		Object.values(this.globalContext.interceptors).forEach((i) => this.interceptorchain.add(i));
 		this.interceptorchain.add(new GraphServerInterceptor());
 		this.interceptorchain.add(new MachineServerInterceptor());
 	}
@@ -57,32 +53,41 @@ export class SocketServer {
 	}
 
 	start() {
-		return this.wss
-			? Promise.resolve(this)
-			: new Promise((resolve, reject) => {
-					this.wss = new WebSocket.Server(this.wssConfig);
-					this.wss.on('error', (error) => {
-						logger.error(error);
-						this.close();
-						reject();
-					});
-					this.wss.on('listening', () => {
-						logger.info('Websocket proxy started. Listening on port:', this.wssConfig.port);
-						resolve(this);
-					});
-					// new connection:
-					this.wss.on('connection', (ws, request) => {
-						this.handleConnection(ws, request);
-					});
-			  });
+		if (!this.wss) {
+			this.wss = new WebSocket.Server(this.wssConfig);
+			// this.httpServer.on('upgrade', (request: http.IncomingMessage, socket: net.Socket, head: Buffer) => {
+			// 	const pathname = request.url ? url.parse(request.url).pathname : '';
+			// 	if (pathname === '/machineserver-proxy') {
+			// 		this.wss?.handleUpgrade(request, socket, head, (ws) =>
+			// 			this.wss?.emit('connection', ws, request)
+			// 		);
+			// 	}
+			// });
+
+			this.wss.on('error', (error) => {
+				logger.error(error);
+				this.close();
+			});
+			// new connection:
+			this.wss.on('connection', (ws, request) => {
+				this.handleConnection(ws, request);
+			});
+		}
 	}
 
 	async handleConnection(ws: WebSocket, request: http.IncomingMessage) {
 		try {
-			const user = await getUserFromWebsocketRequest(request, this._config.tokenKey, Auth.parseToken.bind(Auth));
-			// create & connect new client-connection...
-			this.connectClient(ProxyConnection.create(ws, request, user, this));
-			this.handleUserJoined(ws, user);
+			let tokenUser = await getUserFromWebsocketRequest(request, TOKENKEY, Auth.parseToken.bind(Auth));
+
+			try {
+				const user = await this.globalContext.getActor(this.globalContext, { user: tokenUser } as Session);
+				// create & connect new client-connection...
+				this.connectClient(ProxyConnection.create(ws, request, user, this));
+				this.handleUserJoined(ws, user);
+			} catch (error) {
+				await ws.send(JSON.stringify({ error: 'NOT_AUTHENTICATED' }));
+				ws.terminate();
+			}
 		} catch (err) {
 			ws.terminate();
 			logger.error('unable to connect to server', err);
@@ -90,7 +95,7 @@ export class SocketServer {
 	}
 
 	handleUserJoined(ws: WebSocket, user: User) {
-		logger.debug('user joined', { user });
+		logger.info(`User joined ${user.username}#${user.id}`);
 		if (this.shouldBroadcast(user)) {
 			const message = {
 				type: 'event',
@@ -122,7 +127,7 @@ export class SocketServer {
 	}
 
 	handleUserLeft(session: Session) {
-		logger.info('user left', { user: session.user });
+		logger.info(`User joined ${session.user.username}#${session.user.id}`);
 		if (this.shouldBroadcast(session.user)) {
 			const message = {
 				type: 'event',
@@ -163,15 +168,14 @@ export class SocketServer {
 	}
 
 	broadcast(message: any) {
-		logger.info('Sending a broadcast message to all clients! Review!!');
-		logger.info(message);
+		logger.info(`Broadcasting message '${message.event.type}' to all clients!`);
 		ProxyConnection.openConnections.forEach((connection) => {
 			connection.sendToClient(message);
 		});
 	}
 
 	broadcastExceptForUser(message: any, userId: string) {
-		logger.info('Sending a broadcast message to all clients except user! Review!!');
+		logger.info(`Broadcasting message '${message.event.type}' to all clients expect user!`);
 		ProxyConnection.openConnections.forEach((connection) => {
 			if (connection.user && connection.user.id !== userId) {
 				connection.sendToClient(message);

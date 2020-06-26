@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import {
 	default as JSG,
 	Point,
@@ -26,6 +36,7 @@ import Highlighter from './Highlighter';
 import MoveAlignHelper from './MoveAlignHelper';
 import SnapHelper from './SnapHelper';
 import LayerId from '../view/LayerId';
+import ContentNodeView from '../view/ContentNodeView';
 import Cursor from '../../ui/Cursor';
 
 /**
@@ -348,7 +359,9 @@ class MoveDelegate extends Delegate {
 	highlightTargetController(interaction, event, viewer) {
 		viewer.clearLayer(LayerId.LAYOUTMARKER);
 		viewer.clearLayer(LayerId.TARGETCONTAINER);
-		this._trgtController = this.findTargetController(interaction, event, viewer);
+		if (this._dragTimer === undefined) {
+			this._trgtController = this.findTargetController(interaction, event, viewer);
+		}
 		// move inside target/container
 		if (this._trgtController && !(this._trgtController instanceof GraphController)) {
 			const feedback = interaction.getFeedback();
@@ -412,6 +425,66 @@ class MoveDelegate extends Delegate {
 
 		JSG.boxCache.release(fbbox);
 		return target;
+	}
+
+	activateTimer(viewer, view, offset, vertical) {
+		if (this._dragTimer !== undefined) {
+			return;
+		}
+
+		this._dragTimer = setInterval(() => {
+			const viewport = view.getViewPort();
+			let model;
+			if (vertical) {
+				model = viewport.getVerticalRangeModel();
+			} else {
+				model = viewport.getHorizontalRangeModel();
+			}
+			model.setValue(model._value + offset);
+			viewer.getGraph().markDirty();
+			viewer.getGraphicSystem().paint();
+		}, 300);
+	}
+
+	deactivateTimer() {
+		if (this._dragTimer) {
+			clearInterval(this._dragTimer);
+			this._dragTimer = undefined;
+		}
+	}
+
+	_isFeedbackScrollable(feedback, event, viewer) {
+		const selection = viewer.getSelection()[0];
+		const view = selection.getView();
+		let parent = view.getParent();
+
+		while (parent) {
+			if (parent instanceof ContentNodeView) {
+				const item = parent.getItem();
+				const contentRect = item.getTotalBoundingRect();
+				if (contentRect.containsPoint(event.location)) {
+					this.deactivateTimer();
+				} else if (event.location.x < contentRect.x && event.location.x > contentRect.x - 1000) {
+					this.activateTimer(viewer, parent, -1000, false);
+					return true;
+				} else if (event.location.x > contentRect.getRight() && event.location.x < contentRect.getRight() + 1000) {
+					this.activateTimer(viewer, parent, 1000, false);
+					return true;
+				} else if (event.location.y < contentRect.y && event.location.y > contentRect.y - 1000) {
+					this.activateTimer(viewer, parent, -1000, true);
+					return true;
+				} else if (event.location.y > contentRect.getBottom() && event.location.y < contentRect.getBottom() + 1000) {
+					this.activateTimer(viewer, parent, 1000, true);
+					return true;
+				} else {
+					this.deactivateTimer();
+				}
+				return false;
+			}
+			parent = parent.getParent();
+		}
+
+		return false;
 	}
 
 	/**

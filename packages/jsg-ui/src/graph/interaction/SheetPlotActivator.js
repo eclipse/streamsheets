@@ -1,7 +1,14 @@
-import {
-	default as JSG,
-	SheetPlotNode, NotificationCenter, Notification, Shape, Arrays
-} from '@cedalo/jsg-core';
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
+import { default as JSG, SheetPlotNode, NotificationCenter, Notification, Shape, Arrays } from '@cedalo/jsg-core';
 
 import SheetPlotInteraction from './SheetPlotInteraction';
 import InteractionActivator from './InteractionActivator';
@@ -17,24 +24,13 @@ export default class SheetPlotActivator extends InteractionActivator {
 		return SheetPlotActivator.KEY;
 	}
 
-	/**
-	 * Gets the controller at specified location or <code>undefined</code> if none could be found.
-	 *
-	 * @method _getControllerAt
-	 * @param {Point} location The location, relative to Graph coordinate system, to start look up at.
-	 * @param {InteractionDispatcher} dispatcher The InteractionDispatcher which
-	 * notified this activator.
-	 * @return {GraphItemController} The controller at specified location or
-	 * <code>undefined</code>.
-	 */
 	_getControllerAt(location, viewer) {
 		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
-			return (cont.getModel() instanceof SheetPlotNode) && cont.getModel().isVisible();
+			return cont.getModel() instanceof SheetPlotNode && cont.getModel().isVisible();
 		});
 	}
 
 	onKeyDown(event, viewer) {
-
 		const controller = viewer.getSelectionProvider().getFirstSelection();
 		if (!controller) {
 			return;
@@ -55,111 +51,92 @@ export default class SheetPlotActivator extends InteractionActivator {
 			const selection = controller.getView().chartSelection;
 			if (selection) {
 				switch (selection.element) {
-				case 'series':
-					switch (event.event.key) {
-					case 'Delete': {
-						const cmd = item.prepareCommand('series');
-						JSG.Arrays.remove(item.series, selection.data);
-						finish(cmd, 'series');
-						break;
-					}
-					}
-					break;
-				case 'serieslabel':
-					switch (event.event.key) {
-					case 'Delete': {
-						const cmd = item.prepareCommand('series');
-						selection.data.dataLabel.visible = false;
-						finish(cmd, 'series');
-						break;
-					}
-					}
-					break;
-				case 'legend':
-					switch (event.event.key) {
-					case 'Delete': {
-						const cmd = item.prepareCommand('legend');
-						item.legend.visible = false;
-						finish(cmd, 'legend');
-						break;
-					}
-					}
-					break;
-				case 'title':
-					switch (event.event.key) {
-					case 'Delete': {
-						const cmd = item.prepareCommand('title');
-						item.title.visible = false;
-						finish(cmd, 'title');
-						break;
-					}
-					}
-					break;
-				case 'xAxis':
-				case 'yAxis':
-					switch (event.event.key) {
-					case 'Delete': {
-						const cmd = item.prepareCommand('axes');
-						if (selection.element === 'xAxis' && item.xAxes.length > 1) {
-							item.reAssignAxis(selection.data, true);
-							Arrays.remove(item.xAxes, selection.data);
-						} else if (selection.element === 'yAxis' && item.yAxes.length > 1) {
-							item.reAssignAxis(selection.data, false);
-							Arrays.remove(item.yAxes, selection.data);
+					case 'series':
+						switch (event.event.key) {
+							case 'Delete': {
+								const cmd = item.prepareCommand('series');
+								JSG.Arrays.remove(item.series, selection.data);
+								finish(cmd, 'series');
+								break;
+							}
 						}
-						finish(cmd, 'axes');
 						break;
-					}
-					}
-					break;
-				case 'xAxisGrid':
-				case 'yAxisGrid':
-				case 'xAxisTitle':
-				case 'yAxisTitle':
-					switch (event.event.key) {
-					case 'Delete': {
-						const cmd = item.prepareCommand('axes');
-						if (selection.element === 'xAxisTitle' || selection.element === 'yAxisTitle') {
-							selection.data.visible = false;
-						} else {
-							selection.data.gridVisible = false;
+					case 'serieslabel':
+						switch (event.event.key) {
+							case 'Delete': {
+								const cmd = item.prepareCommand('series');
+								selection.data.dataLabel.visible = false;
+								finish(cmd, 'series');
+								break;
+							}
 						}
-						finish(cmd, 'axes');
 						break;
-					}
-					}
-					break;
+					case 'legend':
+						switch (event.event.key) {
+							case 'Delete': {
+								const cmd = item.prepareCommand('legend');
+								item.legend.visible = false;
+								finish(cmd, 'legend');
+								break;
+							}
+						}
+						break;
+					case 'title':
+						switch (event.event.key) {
+							case 'Delete': {
+								const cmd = item.prepareCommand('title');
+								item.title.visible = false;
+								finish(cmd, 'title');
+								break;
+							}
+						}
+						break;
+					case 'xAxis':
+					case 'yAxis':
+						switch (event.event.key) {
+							case 'Delete': {
+								const cmd = item.prepareCommand('axes');
+								if (selection.element === 'xAxis' && item.xAxes.length > 1) {
+									item.reAssignAxis(selection.data, true);
+									Arrays.remove(item.xAxes, selection.data);
+								} else if (selection.element === 'yAxis' && item.yAxes.length > 1) {
+									item.reAssignAxis(selection.data, false);
+									Arrays.remove(item.yAxes, selection.data);
+								}
+								finish(cmd, 'axes');
+								break;
+							}
+						}
+						break;
+					case 'xAxisGrid':
+					case 'yAxisGrid':
+					case 'xAxisTitle':
+					case 'yAxisTitle':
+						switch (event.event.key) {
+							case 'Delete': {
+								const cmd = item.prepareCommand('axes');
+								if (selection.element === 'xAxisTitle' || selection.element === 'yAxisTitle') {
+									selection.data.visible = false;
+								} else {
+									selection.data.gridVisible = false;
+								}
+								finish(cmd, 'axes');
+								break;
+							}
+						}
+						break;
 				}
 			}
 		}
 	}
 
-	onMouseDoubleClick(event, viewer, dispatcher) {
+	onMouseDoubleClick(event, viewer) {
 		const interaction = this.getInteraction(event, viewer);
 		if (interaction === undefined) {
 			return;
 		}
 
 		const item = interaction._controller.getModel();
-		const selection = interaction.isElementHit(event, viewer);
-		if (selection) {
-			switch (selection.element) {
-			case 'xAxis':
-			case 'yAxis': {
-				const axis = selection.data;
-
-				if (item.getAllowZoom(axis)) {
-					item.setParamValues(viewer, axis.formula,
-						[{ index: 4, value: undefined }, { index: 5, value: undefined }]);
-					item.spreadZoomInfo(viewer);
-
-					viewer.getGraph().markDirty();
-					event.doRepaint = true;
-				}
-				break;
-			}
-			}
-		}
 		if (!item.isProtected()) {
 			NotificationCenter.getInstance().send(
 				new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
@@ -212,7 +189,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 			if (!event.isClicked(MouseEvent.ButtonType.RIGHT)) {
 				interaction.onMouseDown(event, viewer);
 			}
-			if (view.chartSelection === undefined && hit.element !== 'series' && hit.element !== 'plot') {
+			if (view.chartSelection === undefined && !interaction.isPlotHit(event, viewer)) {
 				const interactionHandler = viewer.getInteractionHandler();
 				interactionHandler.setActiveInteraction(interactionHandler.getDefaultInteraction());
 			} else {
@@ -221,7 +198,9 @@ export default class SheetPlotActivator extends InteractionActivator {
 			}
 		} else {
 			view.chartSelection = undefined;
-			NotificationCenter.getInstance().send(new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, interaction._controller.getModel()));
+			NotificationCenter.getInstance().send(
+				new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, interaction._controller.getModel())
+			);
 		}
 		NotificationCenter.getInstance().send(
 			new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
@@ -230,21 +209,19 @@ export default class SheetPlotActivator extends InteractionActivator {
 		);
 	}
 
-	onMouseMove(event, viewer, dispatcher) {
+	onMouseMove(event, viewer) {
 		const interaction = this.getInteraction(event, viewer);
 		if (interaction === undefined) {
 			this.removeInfo(event, viewer);
 			return;
 		}
 		let selection;
-		if (interaction._controller.getModel().chart.tooltips) {
-			if (interaction.isPlotHit(event, viewer)) {
-				selection = interaction.isElementHit(event, viewer, undefined, 'only');
-				interaction.showData(selection, event, viewer);
-				event.doRepaint = true;
-			} else {
-				this.removeInfo(event, viewer);
-			}
+		if (interaction.isPlotHit(event, viewer)) {
+			selection = interaction.isElementHit(event, viewer, undefined, 'only');
+			interaction.showData(selection, event, viewer);
+			event.doRepaint = true;
+		} else {
+			this.removeInfo(event, viewer);
 		}
 
 		selection = interaction.isElementHit(event, viewer, undefined, 'no');
@@ -255,17 +232,17 @@ export default class SheetPlotActivator extends InteractionActivator {
 
 		if (selection) {
 			switch (selection.element) {
-			case 'action':
-				viewer.setCursor(Cursor.Style.EXECUTE);
-				break;
-			case 'series':
-				viewer.setCursor(Cursor.Style.CROSS);
-				break;
-			default:
-				viewer.setCursor(Cursor.Style.AUTO);
-				break;
+				case 'action':
+					viewer.setCursor(Cursor.Style.EXECUTE);
+					break;
+				case 'series':
+					viewer.setCursor(Cursor.Style.CROSS);
+					break;
+				default:
+					viewer.setCursor(Cursor.Style.AUTO);
+					break;
 			}
-		}  else {
+		} else {
 			viewer.setCursor(Cursor.Style.AUTO);
 		}
 	}
@@ -273,6 +250,9 @@ export default class SheetPlotActivator extends InteractionActivator {
 	handleContextMenu(event, viewer, dispatcher) {
 		const controller = this._getControllerAt(event.location, viewer, dispatcher);
 		if (controller) {
+			if (controller.getModel().isProtected()) {
+				return;
+			}
 			if (!controller.isSelected()) {
 				viewer.getSelectionProvider().setSelection([controller]);
 				viewer.getSelectionView().refresh();

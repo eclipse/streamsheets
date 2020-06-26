@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const fs = require('fs');
 const os = require('os');
 const http = require('http');
@@ -13,7 +23,6 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { GraphQLServer } = require('../graphql/GraphQLServer');
-const { getRequestContext } = require('../context');
 // const swaggerMiddleware = require('swagger-express-middleware');
 
 // const pSwaggerMiddleware = util.promisify(swaggerMiddleware);
@@ -122,7 +131,7 @@ module.exports = class DefaultApp {
 		);
 
 		/* ===== Authentication ===== */
-		app.use(Auth.initialize());
+		app.use(Auth.initialize(this.globalContext));
 		app.use(passport.session());
 
 		/* ===== CORS ===== */
@@ -134,12 +143,21 @@ module.exports = class DefaultApp {
 		app.use('/api/v1.0/services', router);
 		app.use('/api/v1.0/meta', router);
 		app.use('/api/v1.0/config', router);
+		Object.values(this.globalContext.middleware).forEach((mw) => app.use(...mw));
 		/* ===== Graph QL ===== */
 		app.use('/api/v1.0/graphql', (req, res, next) => {
-			passport.authenticate('jwt', { session: false }, (err, user) => {
+			passport.authenticate('jwt', { session: false }, async (err, user) => {
 				if (user) {
-					req.user = user;
-					next();
+					try {
+						const actor = await app.locals.globalContext.getActor(app.locals.globalContext, { user });
+						if (!actor) {
+							res.status(403).json({ error: 'Not authenticated' });
+						}
+						req.user = actor;
+						next();
+					} catch (e) {
+						res.status(403).json({ error: 'Not authenticated' });
+					}
 				} else {
 					res.status(403).json({ error: 'Not authenticated' });
 				}
@@ -151,7 +169,7 @@ module.exports = class DefaultApp {
 		GraphQLServer.init(
 			app,
 			'/api/v1.0/graphql',
-			(req) => getRequestContext(this.globalContext, getSession(req)),
+			(req) => this.globalContext.getRequestContext(this.globalContext, getSession(req)),
 			this.globalContext.graphql
 		);
 
@@ -176,7 +194,10 @@ module.exports = class DefaultApp {
 		app.use(Error.logger);
 		app.use(Error.renderer);
 		/* ===== Static ===== */
-		app.use(Express.static(path.join(__dirname, 'public')));
+		const publicPath = path.join(__dirname, '..', '..', '..', 'public');
+		app.use(Express.static(publicPath));
+		const indexHtmlPath = path.join(publicPath, 'index.html')
+		app.use((req, res) => res.sendFile(indexHtmlPath));
 	}
 
 	async start() {

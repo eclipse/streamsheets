@@ -1,4 +1,15 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 
+const Strings = require('../../../commons/Strings');
 
 module.exports = class ChartFormat {
 	constructor(lineColor, lineStyle, lineWidth, fillStyle, fillColor, fontSize, fontStyle, fontColor, transparency) {
@@ -10,7 +21,24 @@ module.exports = class ChartFormat {
 		this.fontSize = fontSize;
 		this.fontStyle = fontStyle;
 		this.fontColor = fontColor;
+		this.fontRotation = 0;
 		this.transparency = transparency;
+	}
+
+	copy() {
+		const copy = new ChartFormat();
+		copy.lineColor = this.lineColor;
+		copy.lineStyle = this.lineStyle;
+		copy.lineWidth = this.lineWidth;
+		copy.fillColor = this.fillColor;
+		copy.fillStyle = this.fillStyle;
+		copy.fontSize = this.fontSize;
+		copy.fontStyle = this.fontStyle;
+		copy.fontColor = this.fontColor;
+		copy.fontRotation = this.fontRotation;
+		copy.transparency = this.transparency;
+
+		return copy;
 	}
 
 	get lineColor() {
@@ -154,6 +182,20 @@ module.exports = class ChartFormat {
 		this.font.size = Number(value);
 	}
 
+	get fontRotation() {
+		return this.font && this.font.rotation ? this.font.rotation : undefined;
+	}
+
+	set fontRotation(value) {
+		if (value === undefined) {
+			return;
+		}
+		if (this.font === undefined) {
+			this.font = {};
+		}
+		this.font.rotation = Number(value);
+	}
+
 	get numberFormat() {
 		return this.font && this.font.number ? this.font.number : undefined;
 	}
@@ -174,6 +216,17 @@ module.exports = class ChartFormat {
 			this.font = {};
 		}
 		this.font.local = value;
+	}
+
+	get linkNumberFormat() {
+		return this.font && this.font.linknumber ? this.font.linknumber : undefined;
+	}
+
+	set linkNumberFormat(value) {
+		if (this.font === undefined) {
+			this.font = {};
+		}
+		this.font.linknumber = value;
 	}
 
 	save(name, writer) {
@@ -224,6 +277,12 @@ module.exports = class ChartFormat {
 			if (this.localCulture) {
 				writer.writeAttributeString('local', this.localCulture);
 			}
+			if (this.linkNumberFormat) {
+				writer.writeAttributeNumber('linknumberformat', this.linkNumberFormat ? 1 : 0);
+			}
+			if (this.fontRotation !== undefined) {
+				writer.writeAttributeNumber('rotation', this.fontRotation, 0);
+			}
 			writer.writeEndElement();
 		}
 		writer.writeEndElement();
@@ -250,6 +309,8 @@ module.exports = class ChartFormat {
 				this.fontName = reader.getAttribute(child, 'name');
 				this.fontSize = reader.getAttribute(child, 'size');
 				this.fontStyle = reader.getAttribute(child, 'style');
+				this.fontRotation = reader.getAttribute(child, 'rotation');
+				this.linkNumberFormat = reader.getAttribute(child, 'linknumberformat');
 				if (reader.getAttribute(child, 'number') !== undefined) {
 					this.numberFormat = reader.getAttribute(child, 'number');
 				}
@@ -260,4 +321,22 @@ module.exports = class ChartFormat {
 			}
 		});
 	}
+
+	get fillColorRGBA() {
+		let color = this.fillColor;
+		if (color === undefined || color[0] !== '#') {
+			return {r: 255, g: 255, b: 255, a: 1};
+		}
+
+		color = Strings.cut(color, '#');
+		// cut off a leading #
+		color = parseInt(color, 16);
+		const r = color >> 16;
+		const g = (color >> 8) & 0xff;
+		const b = color & 0xff;
+		const a = this.transparency === undefined ? 1 : this.transparency / 100;
+
+		return { r, g, b, a };
+	}
+
 };

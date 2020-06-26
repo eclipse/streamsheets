@@ -1,8 +1,20 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { Connector } = require('@cedalo/sdk-streams');
-const { Kafka, logLevel } = require('kafkajs');
+const { Kafka, logLevel, CompressionTypes, CompressionCodecs } = require('kafkajs');
+const SnappyCodec = require('kafkajs-snappy')
 const Utils = require('./Utils');
 const KSQLHelper = require('./KSQLHelper');
 
+CompressionCodecs[CompressionTypes.Snappy] = SnappyCodec
 module.exports = class KafkaConnector extends Connector {
 	constructor(config) {
 		super(config);
@@ -30,7 +42,7 @@ module.exports = class KafkaConnector extends Connector {
 			this._sslOptions = undefined;
 			const getBufferCert = (val) => {
 				if (!val) return '';
-				return new Buffer(Utils.decodeCert(val));
+				return Buffer.from(Utils.decodeCert(val));
 			};
 			if (
 				this.config.connector.auth &&
@@ -75,7 +87,7 @@ module.exports = class KafkaConnector extends Connector {
 	async connectKafka() {
 		try {
 			this.logger.debug('Connecting with kafka only with config:');
-			this.logger.debug(JSON.stringify(this.config));
+			// this.logger.debug(JSON.stringify(this.config));
 			const connectionString =
 				this.config.connector.connectionString || 'localhost:9092';
 			const config = {
@@ -88,15 +100,15 @@ module.exports = class KafkaConnector extends Connector {
 					const prefix = namespace ? `[${namespace}] ` : '';
 					switch (level) {
 						case logLevel.INFO:
-							return this.logger.info(`${prefix}${log.message}`);
+							return this.logger.info(`Stream ${this.toString()}: ${prefix}${log.message}`);
 						case logLevel.ERROR:
-							return this.logger.error(`${prefix}${log.message}`);
+							return this.logger.error(`Stream ${this.toString()}: ${prefix}${log.message}`);
 						case logLevel.WARN:
-							return this.logger.warn(`${prefix}${log.message}`);
+							return this.logger.warn(`Stream ${this.toString()}: ${prefix}${log.message}`);
 						case logLevel.DEBUG:
-							return this.logger.debug(`${prefix}${log.message}`);
+							return this.logger.debug(`Stream ${this.toString()}: ${prefix}${log.message}`);
 						default:
-							return this.logger.info(`${prefix}${log.message}`);
+							return this.logger.info(`Stream ${this.toString()}: ${prefix}${log.message}`);
 					}
 				},
 				ssl: this._sslOptions,
@@ -109,7 +121,6 @@ module.exports = class KafkaConnector extends Connector {
 			this.onClose();
 			this.handleError(e);
 		}
-		this.logger.info('Client connected');
 	}
 
 	async connectZoo() {

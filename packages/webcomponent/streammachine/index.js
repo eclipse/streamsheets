@@ -1,8 +1,17 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 'use strict';
 
 const StreamMachine = require('./src/StreamMachine');
 const { StreamSheet, Selection, CellRange } = require('./src/api/StreamSheets');
-const FunctionStrings = require('./src/FunctionStrings');
 
 module.exports = {
 	StreamMachine,

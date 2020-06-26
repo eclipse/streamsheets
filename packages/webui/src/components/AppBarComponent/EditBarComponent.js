@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable react/prop-types */
 import React, { Component } from 'react';
 import { FuncTerm, Term } from '@cedalo/parser';
@@ -24,7 +34,6 @@ const {
 	Expression,
 	Strings,
 	SelectionProvider,
-	SheetPlotView,
 } = JSG;
 
 /**
@@ -100,11 +109,6 @@ export class EditBarComponent extends Component {
 					jsgState.graphCellSelected = true;
 				}
 				const attr = item.getAttributeAtPath('showwizard');
-				if ((item instanceof JSG.ChartNode) && item.getDataRange() && attr && attr.getValue() === true) {
-					graphManager.getGraphEditor().invalidate();
-					appState.showChartProperties = true;
-					attr.setExpressionOrValue(false);
-				}
 				if (item instanceof JSG.SheetPlotNode) {
 				  	if (attr && attr.getValue() === true) {
 						item.createSeriesFromSelection(
@@ -127,7 +131,6 @@ export class EditBarComponent extends Component {
 				view.moveSheetToTop(graphManager.getGraphViewer());
 			}
 		} else {
-			appState.showChartProperties = false;
 			appState.showStreamChartProperties = false;
 			jsgState.graphCellSelected = false;
 		}
@@ -452,8 +455,14 @@ export class EditBarComponent extends Component {
 				}
 			}
 			const chartView = selection.getFirstSelection().getView();
-			if ((chartView instanceof SheetPlotView) && chartView.hasSelectedFormula()) {
-				cmd = new SetChartFormulaCommand(graphItem, chartView.chartSelection, data.expression);
+			if ((chartView.isNewChart) && chartView.hasSelectedFormula()) {
+				if (chartView.chartSelection.element === 'plot') {
+					const chart = chartView.getItem();
+					const cmdChart = chart.prepareCommand('chart');
+					chart.updateFormulas(graphManager.getGraphViewer(), formula, cmdChart);
+				} else {
+					cmd = new SetChartFormulaCommand(graphItem, chartView.chartSelection, data.expression);
+				}
 			} else {
 				const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
 				cmd = new SetAttributeAtPathCommand(graphItem, path, new Expression(0, formula));

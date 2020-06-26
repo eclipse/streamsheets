@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* global document */
 
 import {
@@ -5,10 +15,8 @@ import {
 	NotificationCenter,
 	FormatAttributes,
 	Rectangle,
-	GraphSettings,
 	default as JSG
 } from '@cedalo/jsg-core';
-import ScrollPanel from './ScrollPanel';
 import Widget from './Widget';
 import RangeModel from './scrollview/RangeModel';
 import ScalableGraphics from './graphics/ScalableGraphics';
@@ -48,24 +56,24 @@ class Scale extends Widget {
 		this.getFormat().setLineStyle(FormatAttributes.LineStyle.NONE);
 
 		const nc = NotificationCenter.getInstance();
-		nc.register(this, ScrollPanel.SCROLL_NOTIFICATION);
-		nc.register(this, Scale.ZOOM_NOTIFICATION);
-		nc.register(this, GraphSettings.DISPLAY_MODE_NOTIFICATION);
+		nc.register(this, NotificationCenter.SCROLL_NOTIFICATION);
+		nc.register(this, NotificationCenter.ZOOM_NOTIFICATION);
+		nc.register(this, NotificationCenter.DISPLAY_MODE_NOTIFICATION);
 	}
 
 	destroy() {
 		const nc = NotificationCenter.getInstance();
-		nc.unregister(this, ScrollPanel.SCROLL_NOTIFICATION);
-		nc.unregister(this, Scale.ZOOM_NOTIFICATION);
-		nc.unregister(this, GraphSettings.DISPLAY_MODE_NOTIFICATION);
+		nc.unregister(this, NotificationCenter.SCROLL_NOTIFICATION);
+		nc.unregister(this, NotificationCenter.ZOOM_NOTIFICATION);
+		nc.unregister(this, NotificationCenter.DISPLAY_MODE_NOTIFICATION);
 	}
 
 
 	onNotification(notification) {
 		switch (notification.name) {
-		case ScrollPanel.SCROLL_NOTIFICATION:
-		case Scale.ZOOM_NOTIFICATION:
-		case GraphSettings.DISPLAY_MODE_NOTIFICATION:
+		case NotificationCenter.SCROLL_NOTIFICATION:
+		case NotificationCenter.ZOOM_NOTIFICATION:
+		case NotificationCenter.DISPLAY_MODE_NOTIFICATION:
 			this._repaint = true;
 			break;
 		}
@@ -329,10 +337,6 @@ class Scale extends Widget {
 			steps.minor = steps.major + context.minorStep;
 		}
 		return steps;
-	}
-
-	static get ZOOM_NOTIFICATION() {
-		return 'grapheditor.zoom.notification';
 	}
 }
 

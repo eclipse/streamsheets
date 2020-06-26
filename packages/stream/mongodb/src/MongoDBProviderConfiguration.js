@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { ProviderConfiguration } = require('@cedalo/sdk-streams');
 const MongoDBFunctions = require('./MongoDBFunctions');
 
@@ -10,7 +20,6 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		this.addConnectorDefinition({
 			id: 'host',
 			label: 'Host(s)',
-			onUpdate: 'reConnect'
 		});
 		this.addConnectorDefinition({
 			id: 'dbName',
@@ -24,7 +33,6 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 			id: 'clusterName',
 			label: 'ReplicaSet',
 			advanced: true,
-			onUpdate: 'reConnect'
 		});
 		this.addConnectorDefinition({
 			id: 'authType',
@@ -61,7 +69,6 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 				}
 			],
 			defaultValue: 'DEFAULT',
-			onUpdate: 'reConnect'
 		});
 		this.addConnectorDefinition({
 			id: 'userName',
@@ -70,7 +77,6 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 				de: 'Benutzername'
 			},
 			advanced: true,
-			onUpdate: 'reConnect'
 		});
 		this.addConnectorDefinition({
 			id: 'password',
@@ -79,7 +85,6 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 				de: 'Kennwort'
 			},
 			advanced: true,
-			onUpdate: 'reConnect',
 			type: ProviderConfiguration.FIELDTYPES.PASSWORD
 		});
 
@@ -100,6 +105,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		this.addFunctionDefinition(
 			this.requestFunction((target, resultKeys, timeout) => ({
 				name: MongoDBFunctions.DELETE,
+				displayName: true,
 				baseFunction: 'request',
 				parameters: [
 					{
@@ -129,6 +135,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		this.addFunctionDefinition(
 			this.requestFunction((target, resultKeys, timeout) => ({
 				name: MongoDBFunctions.QUERY,
+				displayName: true,
 				baseFunction: 'request',
 				parameters: [
 					{
@@ -212,6 +219,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		this.addFunctionDefinition(
 			this.requestFunction((target, resultKeys, timeout) => ({
 				name: MongoDBFunctions.AGGREGATE,
+				displayName: true,
 				baseFunction: 'request',
 				parameters: [
 					{
@@ -238,6 +246,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 		this.addFunctionDefinition(
 			this.requestFunction((target, resultKeys, timeout) => ({
 				name: MongoDBFunctions.COUNT,
+				displayName: true,
 				baseFunction: 'request',
 				parameters: [
 					{
@@ -267,6 +276,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 
 		this.addFunctionDefinition({
 			name: MongoDBFunctions.STORE,
+			displayName: true,
 			baseFunction: 'produce',
 			parameters: [
 				{
@@ -291,6 +301,7 @@ module.exports = class MongoDBProviderConfiguration extends ProviderConfiguratio
 
 		this.addFunctionDefinition({
 			name: MongoDBFunctions.REPLACE,
+			displayName: true,
 			baseFunction: 'produce',
 			parameters: [
 				{

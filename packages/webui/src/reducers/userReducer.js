@@ -1,12 +1,20 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import * as Actions from '../constants/ActionTypes';
 import {accessManager} from '../helper/AccessManager';
 
 const defaulUserState = {
+	rights: [],
 	user: undefined,
 	fetching: false,
-	saving: false,
-	loginPending: false,
-	loginResponse: undefined,
 };
 
 export default function userReducer(state = defaulUserState, action) {
@@ -36,67 +44,33 @@ export default function userReducer(state = defaulUserState, action) {
 			fetching: true,
 		};
 	}
-	case Actions.USER_LOGIN: {
-		return {
-			...state,
-			loginPending: true,
-		};
-	}
 	case Actions.USER_LOGIN_RESPONSE: {
 		const loginResponse = action.response;
 		return {
 			...state,
-			loginPending: false,
-			loginResponse,
 			user: (loginResponse && loginResponse.user && loginResponse.user.username) ?
 				{ ...loginResponse.user } : { ...state.user },
 		};
 	}
-	case Actions.USER_LOGOUT: {
-		return {
-			...state,
-			loginPending: false,
-			// loginResponse: action.response,
-		};
-	}
-	case Actions.USER_SAVE: {
-		return {
-			...state,
-			saving: true,
-		};
-	}
 	case Actions.USER_FETCHED: {
 		const user = (Array.isArray(action.user)) ? action.user[0] : action.user;
+		const scope = user.scopes.find(s => s.id === user.scope.id);
 		return {
 			...state,
+			rights: scope ? scope.rights : [],
 			user: { ...user },
 			fetching: false,
 		};
 	}
-	case Actions.USER_SAVED: {
-		const user = Object.assign({}, action.user);
-		return {
-			...state,
-			user,
-			saving: false,
-		};
-	}
 	case Actions.USER_SET_SCOPE: {
+		const scope = state.user.scopes.find(s => s.id === action.data);
 		return {
 			...state,
+			rights: scope ? scope.rights : [],
 			user: {
 				...state.user,
 				scope: { id: action.data }
 			}
-		};
-	}
-	case Actions.USER_SET: {
-		const user = Object.assign({}, action.user);
-		user.settings.locale = action.user.locale;
-		user.settings.debug = action.user.debug;
-		return {
-			...state,
-			user,
 		};
 	}
 	case Actions.USER_SETTING_SET: {

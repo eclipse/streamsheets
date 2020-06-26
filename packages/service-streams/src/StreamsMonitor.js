@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { Topics, GatewayMessagingProtocol } = require('@cedalo/protocols');
 const {
 	Events,
@@ -9,7 +19,7 @@ const { redis, streamSubscribersKey } = require('./redis');
 
 const logger = LoggerFactory.createLogger(
 	'Streams Service - Streams Manager',
-	process.env.STREAMSHEETS_STREAMSHEETS_STREAMS_SERVICE_LOG_LEVEL
+	process.env.STREAMSHEETS_STREAMS_SERVICE_LOG_LEVEL
 );
 
 const getStreamState = (stream, streamsStatusMap) => {
@@ -212,7 +222,6 @@ module.exports = class StreamsMonitor {
 
 	onError(error, stream) {
 		if (this.streams.has(stream.id)) {
-			logger.error(`${stream.id} onError()`);
 			const err = error
 				? {
 						name: error.name,
@@ -236,7 +245,6 @@ module.exports = class StreamsMonitor {
 
 	onWarning(warning, stream) {
 		if (this.streams.has(stream.id)) {
-			logger.warn(`${stream.id} onWarning()`);
 			const messageWrapper = this._wrapMessage(
 				stream,
 				Events.CONNECTOR.WARNING,
@@ -256,7 +264,6 @@ module.exports = class StreamsMonitor {
 
 	onFeedback(feedback, stream) {
 		if (this.streams.has(stream.id)) {
-			logger.warn(`${stream.id} onFeedback()`);
 			const messageWrapper = this._wrapMessage(
 				stream,
 				Events.CONNECTOR.FEEDBACK,
@@ -287,7 +294,6 @@ module.exports = class StreamsMonitor {
 	}
 
 	onReady(stream) {
-		logger.debug(`${stream.id || stream.config.id} onReady()`);
 		const messageWrapper = this._wrapMessage(
 			stream,
 			Events.CONNECTOR.READY,
@@ -305,7 +311,6 @@ module.exports = class StreamsMonitor {
 	}
 
 	onConnect(stream) {
-		logger.debug(`${stream.id || stream.config.id} onConnect()`);
 		if (stream.config && stream.config.connector) {
 			this.notifyConnector(stream.config.connector, true);
 		}
@@ -320,7 +325,6 @@ module.exports = class StreamsMonitor {
 	}
 
 	onTest(resultOrError, stream) {
-		logger.debug(`${stream.id || stream.config.id} onTested()`);
 		const messageWrapper = this._wrapMessage(
 			stream,
 			Events.CONNECTOR.TEST,

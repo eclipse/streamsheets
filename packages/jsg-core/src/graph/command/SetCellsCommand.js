@@ -1,7 +1,18 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const AbstractItemCommand = require('./AbstractItemCommand');
 const Point = require('../../geometry/Point');
 const Expression = require('../expr/Expression');
 const CellRange = require('../model/CellRange');
+const { getSheetFromItem } = require('./utils');
 
 const cellsFromResponse = ({ machineserver }) =>
 	machineserver ? machineserver.cells : {};
@@ -53,6 +64,11 @@ module.exports = class SetCellsCommand extends AbstractItemCommand {
 		return cmd;
 	}
 
+	get sheet() {
+		return getSheetFromItem(this._graphItem);
+	}
+
+
 	toObject() {
 		const data = super.toObject();
 		data.cells = this._cellDescriptors;
@@ -96,7 +112,7 @@ module.exports = class SetCellsCommand extends AbstractItemCommand {
 				const pos = new Point(
 					res.column -
 						this._graphItem.getColumns().getInitialSection(),
-					res.row - this._graphItem.getRows().getInitialSection()
+					res.row
 				);
 
 				let cell;
@@ -115,7 +131,8 @@ module.exports = class SetCellsCommand extends AbstractItemCommand {
 						cellData.formula
 					);
 					cell.setExpression(expr);
-					cell.setValue(cellData.value);
+					// cell.setValue(cellData.value);
+					cell._value = cellData.value;
 				}
 
 				if (cellData.level !== undefined && cell) {

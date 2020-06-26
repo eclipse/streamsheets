@@ -25,6 +25,7 @@
     "docker-compose": "0.12.0",
     "kafka-node": "3.0.1",
     "kafkajs": "1.9.3",
+    "kafkajs-snappy": "^1.1.0",
     "request": "2.88.0"
   },
   "jest": {

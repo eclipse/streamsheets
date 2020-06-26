@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import {
 	Edge,
 	PortMapper,
@@ -5,7 +15,6 @@ import {
 	ButtonNode,
 	CaptionNode,
 	CellsNode,
-	ChartNode,
 	ColumnHeaderNode,
 	default as JSG,
 	InboxContainer,
@@ -17,8 +26,6 @@ import {
 	SheetHeaderNode,
 	SheetSliderNode,
 	SheetKnobNode,
-	SheetPlotNode,
-	SheetChartStateNode,
 	TreeItemsNode,
 	Dictionary,
 	Arrays,
@@ -36,13 +43,11 @@ import CellsView from '../view/CellsView';
 import ScrollbarView from '../view/ScrollbarView';
 import CaptionView from '../view/CaptionView';
 import ButtonView from '../view/ButtonView';
-import ChartView from '../view/ChartView';
 import TreeItemsView from '../view/TreeItemsView';
 import SheetButtonView from '../view/SheetButtonView';
 import SheetCheckboxView from '../view/SheetCheckboxView';
 import SheetSliderView from '../view/SheetSliderView';
 import SheetKnobView from '../view/SheetKnobView';
-import SheetPlotView from '../view/SheetPlotView';
 import { createView } from '@cedalo/jsg-extensions/ui';
 import NodeView from '../view/NodeView';
 import TextView from '../view/TextView';
@@ -177,9 +182,6 @@ class NodeController extends GraphItemController {
 		if (model instanceof ButtonNode) {
 			return new ButtonView(model);
 		}
-		if (model instanceof ChartNode) {
-			return new ChartView(model);
-		}
 		if (model instanceof TreeItemsNode) {
 			return new TreeItemsView(model);
 		}
@@ -194,9 +196,6 @@ class NodeController extends GraphItemController {
 		}
 		if (model instanceof SheetKnobNode) {
 			return new SheetKnobView(model);
-		}
-		if (model instanceof SheetPlotNode) {
-			return new SheetPlotView(model);
 		}
 		if (model instanceof StreamSheetContainer) {
 			return new StreamSheetContainerView(model);

@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const Strings = require('../commons/Strings');
 
 /**
@@ -59,7 +69,7 @@ Settings.prototype = {
 	},
 	_has(key) {
 		const base = Object.getPrototypeOf(this);
-		return base.has && base.has(key);
+		return !!(base.has && base.has(key));
 	},
 	/**
 	 * Checks if given key is registered.
@@ -94,11 +104,13 @@ Settings.prototype = {
 	 * @return {Settings} This settings instance as convenience.
 	 */
 	set(key, value) {
-		// check if value is stored in prototype already:
-		if (value === this._get(key)) {
-			delete this._settings[key];
-		} else {
-			this._settings[key] = value;
+		if (key != null) {
+			// check if value is stored in prototype already:
+			if (value === this._get(key)) {
+				delete this._settings[key];
+			} else {
+				this._settings[key] = value;
+			}
 		}
 		return this;
 	},

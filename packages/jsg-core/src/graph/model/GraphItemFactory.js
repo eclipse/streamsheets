@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const Coordinate = require('../Coordinate');
 const ReshapeCoordinate = require('../ReshapeCoordinate');
 const RowHeaderNode = require('./RowHeaderNode');
@@ -9,8 +19,6 @@ const SheetButtonNode = require('./SheetButtonNode');
 const SheetCheckboxNode = require('./SheetCheckboxNode');
 const SheetSliderNode = require('./SheetSliderNode');
 const SheetKnobNode = require('./SheetKnobNode');
-const SheetPlotNode = require('./SheetPlotNode');
-const { SheetChartStateNode } = require('@cedalo/jsg-extensions/core');
 const CaptionNode = require('./CaptionNode');
 const CellsNode = require('./CellsNode');
 const HeaderNode = require('./HeaderNode');
@@ -31,7 +39,6 @@ const SplitterNode = require('./SplitterNode');
 const MachineGraph = require('./MachineGraph');
 const TreeNode = require('./TreeNode');
 const TreeItemsNode = require('./TreeItemsNode');
-const ChartNode = require('./ChartNode');
 const RectangleShape = require('./shapes/RectangleShape');
 const BezierShape = require('./shapes/BezierShape');
 const OrthoLineShape = require('./shapes/OrthoLineShape');
@@ -44,6 +51,7 @@ const Graph = require('./Graph');
 const Group = require('./Group');
 const ShapeBuilder = require('./ShapeBuilder');
 const GraphItemProperties = require('../properties/GraphItemProperties');
+const { SheetPlotNode } = require('@cedalo/jsg-extensions/core');
 
 /**
  * The GraphItemFactory is used to create GraphItems by their name. The generic items are handled
@@ -2483,8 +2491,6 @@ class GraphItemFactory {
 				return new PortMapper();
 			case 'text':
 				return new TextNode();
-			case 'chartnode':
-				return new ChartNode();
 			case 'machinegraph':
 				return new MachineGraph();
 			case 'worksheetnode':
@@ -2528,7 +2534,8 @@ class GraphItemFactory {
 			case 'sheetknobnode':
 				return new SheetKnobNode();
 			case 'sheetchartstatenode':
-				return new SheetChartStateNode();
+				return new Node();
+			case 'chartnode':
 			case 'sheetplotnode':
 			case 'streamchart':
 				return new SheetPlotNode();

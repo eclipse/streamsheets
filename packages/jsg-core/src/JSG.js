@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /**
  * A JavaScript Graph Library
  * @author Tensegrity Software GmbH
@@ -331,7 +341,6 @@ JSG.debug = {
 	DRAW_ITEM_CENTER: false,
 	DUMP_CACHE_COUNTS: false,
 	DUMP_CACHE_SIZE: false,
-	USE_DOC_DISPATCHER: true,
 	LOG_CACHE_WARNINGS: false,
 
 	log(message, flag = this._isActive) {

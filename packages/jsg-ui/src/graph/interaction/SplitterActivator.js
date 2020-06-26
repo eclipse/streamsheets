@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import { SplitterNode, ItemAttributes, Shape } from '@cedalo/jsg-core';
 import SplitterInteraction from './SplitterInteraction';
 import StreamSheetContainerView from '../view/StreamSheetContainerView';
@@ -90,7 +100,7 @@ export default class SplitterActivator extends InteractionActivator {
 	 * <code>undefined</code>.
 	 */
 	_getControllerAt(location, viewer, dispatcher) {
-		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
+		return viewer.filterFoundControllers(Shape.FindFlags.AREAWITHFRAME, (cont) => {
 			if (!(cont.getModel() instanceof SplitterNode)) {
 				return false;
 			}

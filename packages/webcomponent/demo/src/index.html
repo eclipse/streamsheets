@@ -14,7 +14,7 @@
                 Logout
             </button>
         </div>
-        <div
+        <!-- <div
             style="width: calc(100% - 30px); display: grid; grid-gap: 50px; grid-template-columns: calc(50% - 25px) calc(50% - 25px); grid-template-rows: calc(50% - 25px) calc(50% - 25px); height: calc(100% - 120px);padding: 25px; background-color: white">
             <stream-machine id="machine1" name="Windrad Neu" style="visibility: hidden"></stream-machine>
             <stream-machine id="machine2" name="Smart Quality Check" viewmode="sheet" viewport="S1" style="visibility: hidden"></stream-machine>
@@ -24,14 +24,34 @@
                 <machine-monitor id="monitor1" name="Windrad Neu"></machine-monitor>
                 <machine-monitor id="monitor2" name="Smart Quality Check"></machine-monitor>
             </div>
-        </div>
-        <login-panel id="login">
-            <streamsheet-connection id="conn1" resturl="http://localhost:8080/api/v1.0" socketurl="ws://localhost:8088/machineserver-proxy">
+        </div> -->
+        <!-- <login-panel id="login">
+            <streamsheet-connection id="conn1" resturl="http://localhost:8080/api/v1.0" socketurl="ws://localhost:8080/machineserver-proxy">
                 <streamsheet-subscribe machines="machine1, machine2, machine3" syncsteps="true"></streamsheet-subscribe>
             </streamsheet-connection>
-            <streamsheet-connection id="conn2" resturl="http://localhost:8080/api/v1.0" socketurl="ws://localhost:8088/machineserver-proxy">
+            <streamsheet-connection id="conn2" resturl="http://localhost:8080/api/v1.0" socketurl="ws://localhost:8080/machineserver-proxy">
                 <streamsheet-subscribe machines="monitor1, monitor2" syncsteps="true"></streamsheet-subscribe>
             </streamsheet-connection>
+        </login-panel> -->
+        <!-- <div
+            style="width: calc(100% - 30px); display: grid; grid-gap: 25px; grid-template-columns: calc(70% - 25px) calc(30% - 25px); grid-template-rows: calc(90% - 25px); height: 100%;padding: 0px; background-color: white">
+            <stream-machine id="machine1" name="t5" style="visibility: hidden"></stream-machine>
+            <div style="display: grid; background: #223D51; grid-row-gap: 10px; grid-template-rows: 30px 90px 90px 1fr; grid-template-columns: 1fr; align-items: center">
+                <div style="grid-row: 1; padding-left: 5px; color: white; font-size: 16pt; font-weight: bold; font-family: Roboto, sans-serif;">Machines Dashboard</div>
+                <machine-monitor id="monitor1" name="t5"></machine-monitor>
+            </div>
+        </div> -->
+        <div
+            style="width: calc(100%); display: grid; grid-gap: 25px; grid-template-columns: calc(100%); grid-template-rows: calc(90% - 25px); height: 100%;padding: 0px; background-color: white">
+            <stream-machine id="machine1" name="t5" style="visibility: hidden"></stream-machine>
+        </div>
+        <login-panel id="login">
+            <streamsheet-connection id="conn1" resturl="http://localhost:8080/api/v1.0" socketurl="ws://localhost:8080/machineserver-proxy">
+                <streamsheet-subscribe machines="machine1" syncsteps="true"></streamsheet-subscribe>
+            </streamsheet-connection>
+            <!-- <streamsheet-connection id="conn2" resturl="http://localhost:8080/api/v1.0" socketurl="ws://localhost:8080/machineserver-proxy">
+                <streamsheet-subscribe machines="monitor1" syncsteps="true"></streamsheet-subscribe>
+            </streamsheet-connection> -->
         </login-panel>
     </div>
     <script>

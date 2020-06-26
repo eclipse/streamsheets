@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import { default as JSG, FormatAttributes } from '@cedalo/jsg-core';
 
 let FILL = false;
@@ -5,8 +15,8 @@ let LINE_COLOR = '#777777';
 let MARKER_FILL_COLOR = '#b6dbee';
 let MARKER_FILL_COLOR_DISABLED = '#CCCCCC';
 let MARKER_BORDER_COLOR = '#777777';
-let MARKER_SIZE = JSG.touchDevice ? 450 : 200;
-let ROTATE_MARKER_DISTANCE = JSG.touchDevice ? 1200 : 800;
+let MARKER_SIZE = 200;
+let ROTATE_MARKER_DISTANCE = 800;
 
 /**
  * A simple data class which provides default format styles used by the various

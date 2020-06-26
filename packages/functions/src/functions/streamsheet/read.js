@@ -1,6 +1,16 @@
-const { sheet: sheetutils, terms: { getCellRangeFromTerm } } = require('../../utils');
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
+const { runFunction, sheet: sheetutils, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { Term } = require('@cedalo/parser');
-const { convert, jsonpath } = require('@cedalo/commons');
+const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell, ErrorTerm, isType } = require('@cedalo/machine-core');
 
@@ -14,23 +24,27 @@ const toString = term => (term ? convert.toString(term.value, '') : '');
 const termFromValue = value => (isType.object(value) ? Term.fromValue(Cell.VALUE_REPLACEMENT) : Term.fromValue(value));
 
 const setOrCreateCellAt = (index, value, isErrorValue, sheet) => {
-	const cell = sheet.cellAt(index, true);
-	// DL-2144: if cell has a formula only set its value, otherwise its term
-	if (cell.hasFormula) {
-		cell.value = value;
-	} else if(isErrorValue) {
-		cell.term = ErrorTerm.fromError(ERROR.NA);
+	if (value != null) {
+		const cell = sheet.cellAt(index, true);
+		// DL-2144: if cell has a formula only set its value, otherwise its term
+		if (cell.hasFormula) {
+			cell.value = value;
+		} else if (isErrorValue) {
+			cell.term = ErrorTerm.fromError(ERROR.NA);
+		} else {
+			cell.term = value != null ? termFromValue(value) : Term.fromValue('');
+		}
 	} else {
-		cell.term = value != null ? termFromValue(value) : Term.fromValue('');
+		// clear target:
+		sheet.setCellAt(index, undefined);
 	}
-	return cell;
 };
 
 // eslint-disable-next-line no-nested-ternary
 const defValue = type => (type === 'number' ? 0 : (type === 'boolean' ? false : ''));
 
 const getLastValue = (term, type) => {
-	const value = term._lastValue;
+	const value = term ? term._lastValue : undefined;
 	return value != null ? value : defValue(type);
 };
 
@@ -41,21 +55,22 @@ const copyDataToCellRange = (range, isErrorValue, sheet, provider) => {
 	iterate.call(range, (cell, index, next) => {
 		nxt += next ? 1 : 0;
 		idx = next ? 0 : idx + 1;
-		const value = !isErrorValue && (nxt < 2 ? provider.indexAt(idx) : provider.valueAt(idx));
+		const value = !isErrorValue && (nxt < 2 ? provider.indexAt(idx) : provider.valueAt(idx, nxt));
 		setOrCreateCellAt(index, value, isErrorValue, sheet);
 	});
 };
+// no indices for arrays (DL-4033)
 const arrayProvider = (array, vertical) => ({
 	vertical,
-	indexAt: idx => (idx >= 0 && idx < array.length ? idx : undefined),
-	valueAt: idx => (idx >= 0 && idx < array.length ? array[idx] : undefined)
+	indexAt: (idx) => (idx >= 0 && idx < array.length ? array[idx] : undefined),
+	valueAt: (/* idx */) => undefined // (idx >= 0 && idx < array.length ? idx : undefined),
 });
 const dictProvider = (dict, vertical) => {
 	const keys = dict ? Object.keys(dict) : [];
 	return {
 		vertical,
 		indexAt: idx => (idx >= 0 && idx < keys.length ? keys[idx] : undefined),
-		valueAt: idx => (idx >= 0 && idx < keys.length ? dict[keys[idx]] : undefined)
+		valueAt: (idx, col) => (idx >= 0 && col < 3 && idx < keys.length ? dict[keys[idx]] : undefined)
 	};
 };
 // DL-1122: spread a list of objects...
@@ -67,7 +82,8 @@ const toObjectList = (data) => {
 		const keys = Object.keys(data);
 		list = keys.reduce((all, key) => {
 			const index = convert.toNumber(key);
-			if (index != null) all.push(data[key]);
+			const value = data[key];
+			if (index != null) all.push(isType.object(value) ? value : [value]);
 			return all;
 		}, []);
 		list = list.length === keys.length ? list : undefined;
@@ -76,17 +92,28 @@ const toObjectList = (data) => {
 };
 const spreadObjectList = (list, cellrange, isHorizontal) => {
 	const sheet = cellrange.sheet;
-	const keys = Object.keys(list[0]);
+	const first = list[0];
+	const keys = Array.isArray(first) || isType.object(first) ? Object.keys(list[0]) : Object.keys(list);
 	const vertical = isHorizontal == null ? cellrange.height >= cellrange.width : !isHorizontal;
 	const iterate = vertical ? cellrange.iterateByCol : cellrange.iterate;
 	let keyidx = 0;
 	let listidx = -1;
+	let value;
 	iterate.call(cellrange, (cell, index, next) => {
 		keyidx = next ? 0 : keyidx + 1;
 		listidx += next ? 1 : 0;
-		const isArray = Array.isArray(list[listidx]);
-		// eslint-disable-next-line
-		const value = isArray ? list[listidx][keys[keyidx]] : (listidx === 0 ? keys[keyidx] : list[listidx - 1][keys[keyidx]]);
+		value = undefined;
+		if (listidx <= list.length) {
+			const curr = list[listidx];
+			const prev = list[listidx - 1] 
+			if (Array.isArray(curr)) {
+				value = curr[keys[keyidx]];
+			} else if (listidx === 0) {
+				value = keys[keyidx];
+			} else if(!Array.isArray(prev)) {
+				value = isType.object(prev) ? prev[keys[keyidx]] : prev;
+			}
+		}
 		setOrCreateCellAt(index, value, false, sheet);
 	});
 };
@@ -110,72 +137,32 @@ const copyToCellRange = (cellrange, data, type, isHorizontal) => {
 };
 
 
-const getInboxMessage = (sheet, streamsheetName, messageId) => {
-	const streamsheet = sheetutils.getStreamSheetByName(streamsheetName, sheet);
-	return streamsheet ? streamsheet.getMessage(messageId) : undefined;
-};
-const getOutboxMessage = (sheet, messageId) => {
-	const machine = sheetutils.getMachine(sheet);
-	const outbox = machine && machine.outbox;
-	return outbox ? outbox.peek(messageId) : undefined;
-};
-// DL-578: special handling for special trigger types in endless mode:
-const isProcessed = (sheet, message) => sheet.streamsheet.isMessageProcessed(message);
-// eslint-disable-next-line
-const messageDataAt = (path, message, metadata) => message ? (metadata ? message.getMetaDataAt(path) : message.getDataAt(path)) : null;
-
-const getData = (sheet, term, path, returnNA) => {
-	const funcname = term.func && term.name;
-	const message = funcname === 'OUTBOXDATA'
-		? getOutboxMessage(sheet, path.shift())
-		: getInboxMessage(sheet, path.shift(), path.shift());
-	// path = path.length ? jsonpath.toString(path) : '';
-	return (isProcessed(sheet, message) && returnNA)
-		? ERROR.NA
-		: messageDataAt(path, message, funcname === 'INBOXMETADATA');
-};
-
-const getLastPathPart = (path, term) => {
-	if (path.length) {
-		const last = jsonpath.last(path);
-		// DL-1080: part of this issue specifies that READ() should return number value...
-		return convert.toNumber(last, last);
-	}
-	const funcname = term.func && term.name;
-	return funcname === 'INBOXMETADATA' ? 'Metadata' : 'Data';
-};
-
-// extract this!!
 const validate = (range, errorcode) =>
 	((!range || FunctionErrors.isError(range) || FunctionErrors.isError(range.sheet)) ? errorcode : undefined);
 
-const read = (sheet, ...terms) => {
-	let error = (!sheet || terms.length < 1) ? ERROR.ARGS : undefined;
-	const pathterm = terms[0];
-	const val = pathterm.value;
-	error = error || FunctionErrors.isError(val);
-	if (!error) {
-		const path = jsonpath.parse(val);
-		const type = toString(terms[2]).toLowerCase();
-		const target = terms[1];
-		const returnNA = toBool(terms[4], false);
-		let data = getData(sheet, pathterm, path, returnNA);
-		// no target cell => we return json value
-		const retval = target ? getLastPathPart(path, pathterm) : data;
-		if (data == null) data = (returnNA ? ERROR.NA : getLastValue(read.term, type));
-		if (target) {
-			const targetrange = getCellRangeFromTerm(target, sheet);
-			error = validate(targetrange, ERROR.INVALID_PARAM);
-			if (!error && targetrange) {
-				const isHorizontal = terms[3] ? !!terms[3].value : undefined;
-				read.term._lastValue = data;
-				copyToCellRange(targetrange, data, type, isHorizontal);
+
+const read = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withMinArgs(1)
+		.withMaxArgs(5)
+		.mapNextArg((pathterm) => sheetutils.readMessageValue(sheet, pathterm))
+		.mapNextArg((target) => target && getCellRangeFromTerm(target, sheet))
+		.mapNextArg((type) => toString(type).toLowerCase())
+		.mapNextArg((isHorizontal) => toBool(isHorizontal, undefined))
+		.mapNextArg((returnNA) => toBool(returnNA, false))
+		.validate((data, targetRange) => targetRange && validate(targetRange, ERROR.INVALID_PARAM))
+		.run((data, targetRange, type, isHorizontal, returnNA) => {
+			const readterm = read.term;
+			if (data.value == null || data.isProcessed) {
+				data.value = returnNA ? ERROR.NA : getLastValue(readterm, type);
 			}
-		}
-		// we ignore any error here and return requested path or json value:
-		return retval;
-	}
-	return error;
-};
+			if (targetRange) {
+				if (readterm) readterm._lastValue = data.value;
+				copyToCellRange(targetRange, data.value, type, isHorizontal);
+			}
+			// DL-1080: part of this issue specifies that READ() should return number value...
+			return convert.toNumber(data.key, data.key);
+		});
+read.displayName = true;
 
 module.exports = read;

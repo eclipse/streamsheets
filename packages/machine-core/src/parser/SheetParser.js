@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const Cell = require('../machine/Cell');
 const { ErrorTerm } = require('./Error');
 const SheetParserContext = require('./SheetParserContext');
@@ -52,9 +62,6 @@ const termFromCellDescriptor = (descr, scope) => {
 			default:
 				term = value != null ? Term.fromString(`${value}`) : undefined;
 		}
-	} else if (term.isUnit) {
-		// to distinguish unit created by value from one created by formula: e.g. 5% & =5%
-		term.formula = descr.formula;
 	}
 	return term;
 };
@@ -105,7 +112,11 @@ const parse = (value, scope, fn) => {
 
 class SheetParser {
 	static parse(formula, scope) {
-		return parse(formula, scope, Parser.parse);
+		const term = parse(formula, scope, Parser.parse);
+		// preserve formula: this is always important to distinguish creation of base values (strings, numbers, units)
+		// via formula. cells with formula might be handled differently DL-4077/4076 OR for units, e.g. 5% & =5%
+		if (term) term.formula = formula;
+		return term;
 	}
 
 	static parseValue(value, scope) {

@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 const cp = require('child_process');
-const path = require('path');
 const argv = require('yargs').argv;
 
 const fromImageTag = argv.fromImageTag || 'latest';

@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const EventEmitter = require('events');
 const IdGenerator = require('@cedalo/id-generator');
 const { logger } = require('@cedalo/logger');
@@ -16,8 +26,6 @@ const {
 const SheetParserContext = require('./SheetParserContext');
 
 JSG.FormulaParser.context = new SheetParserContext();
-
-const prefixStreamName = (name) => `|${name}`;
 
 const findExistingName = (graph, id) =>
 	graph
@@ -100,7 +108,8 @@ module.exports = class GraphManager {
 						graph,
 						new SheetName(name, new Expression(descr.value))
 					);
-				} else if (sheetName.getName() !== name) {
+				}
+				if (sheetName.getName() !== name) {
 					return new SetSheetNameCommand(
 						graph,
 						sheetName,

@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const AttributeUtils = require('../attr/AttributeUtils');
 const CellAttributes = require('../attr/CellAttributes');
 const CellFormatAttributes = require('../attr/CellFormatAttributes');
@@ -12,16 +22,16 @@ const CellTextFormatAttributes = require('../attr/CellTextFormatAttributes');
 module.exports = class HeaderSection {
 	constructor() {
 		this._size = 0;
+		this._level = 0;
 		this._visible = true;
-		this._format = undefined;
-		this._textFormat = undefined;
-		this._attributes = undefined;
 	}
 
 	isDefault(defaultSize) {
 		return (
 			this._size === defaultSize &&
+			this._level === 0 &&
 			this._visible === true &&
+			(this._closed === undefined || this._closed === false) &&
 			this._format === undefined &&
 			this._textFormat === undefined &&
 			this._attributes === undefined
@@ -32,6 +42,7 @@ module.exports = class HeaderSection {
 		const copy = new HeaderSection();
 
 		copy._size = this._size;
+		copy._level = this._level;
 		copy._visible = this._visible;
 		if (this._format) {
 			copy._format = this._format.copy();
@@ -44,6 +55,30 @@ module.exports = class HeaderSection {
 		}
 
 		return copy;
+	}
+
+	get level() {
+		return this._level;
+	}
+
+	set level(value) {
+		this._level = value;
+	}
+
+	get parent() {
+		return this._parent;
+	}
+
+	set parent(value) {
+		this._parent = value;
+	}
+
+	get closed() {
+		return this._closed;
+	}
+
+	set closed(value) {
+		this._closed = value;
 	}
 
 	getSize() {
@@ -119,8 +154,14 @@ module.exports = class HeaderSection {
 	save(writer, index) {
 		writer.writeStartElement('section');
 		writer.writeAttributeNumber('index', index, 0);
+		if (this._level) {
+			writer.writeAttributeNumber('level', this._level, 0);
+		}
 		writer.writeAttributeNumber('size', this._size, 0);
 		writer.writeAttributeNumber('visible', this._visible ? 1 : 0);
+		if (this._closed) {
+			writer.writeAttributeNumber('closed', 1);
+		}
 
 		if (this._format) {
 			this._format.saveCondensed(writer, 'f');
@@ -134,23 +175,6 @@ module.exports = class HeaderSection {
 			this._attributes.saveCondensed(writer, 'a');
 		}
 
-		// if (this._attributes) {
-		// 	writer.writeStartElement('cell');
-		// 	this._attributes.save(writer);
-		// 	writer.writeEndElement();
-		// }
-		//
-		// if (this._format) {
-		// 	writer.writeStartElement('format');
-		// 	this._format.save(writer);
-		// 	writer.writeEndElement();
-		// }
-		// if (this._textFormat) {
-		// 	writer.writeStartElement('textformat');
-		// 	this._textFormat.save(writer);
-		// 	writer.writeEndElement();
-		// }
-
 		writer.writeEndElement();
 	}
 
@@ -159,6 +183,15 @@ module.exports = class HeaderSection {
 		if (ssize !== undefined) {
 			this._size = Number(ssize);
 		}
+		const level = reader.getAttributeNumber(object, 'level', 0);
+		if (level !== undefined) {
+			this._level = level;
+		}
+		const closed = reader.getAttribute(object, 'closed');
+		if (closed !== undefined) {
+			this._closed = true;
+		}
+
 		const visible = reader.getAttribute(object, 'visible');
 		if (visible !== undefined) {
 			this._visible = Number(visible) === 1;

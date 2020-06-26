@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 module.exports = {
 	en: 'Drawing',
 	de: 'Zeichnen',
@@ -48,30 +58,6 @@ module.exports = {
 				argumentList:
 					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Label,Labelschrift,Wert',
 				description: 'Erzeugt ein Button Objekt'
-			}
-		},
-		'DRAW.CHART': {
-			en: {
-				argumentList:
-					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,ChartType,DataRange,FormatRange',
-				description: 'Creates a chart'
-			},
-			de: {
-				argumentList:
-					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Diagrammtyp,Datenbereich,Formatbereich',
-				description: 'Erzeugt ein Diagramm'
-			}
-		},
-		'DRAW.CHARTSTATE': {
-			en: {
-				argumentList:
-					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,Title,TitleFont,ChartType,DataRange,LegendRange,Min,Max,StepType,Step,ScaleFont',
-				description: 'Creates a state chart'
-			},
-			de: {
-				argumentList:
-					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Titel,TitelSchrift,ChartTyp,Datenbereich,Legendenbereich,Minimum,Maximum,SchrittTyp,Schritt,Skalenschrift',
-				description: 'Erzeugt ein Status Diagram'
 			}
 		},
 		'DRAW.CHECKBOX': {
@@ -148,6 +134,18 @@ module.exports = {
 				argumentList:
 					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,PunkteBereich,Schließen',
 				description: 'Erzeugt ein Polygon mit den angegebenen Koordinaten'
+			}
+		},
+		'DRAW.BEZIER': {
+			en: {
+				argumentList:
+					'UniqueID,Container,Name,X,Y,Width,Height,LineFormat,FillFormat,Attributes,Events,Angle,RotCenter,PointRange,Close',
+				description: 'Creates a bezier within the given drawing using proportional coordinates'
+			},
+			de: {
+				argumentList:
+					'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,PunkteBereich,Schließen',
+				description: 'Erzeugt eine Bezier Kurve mit den angegebenen Koordinaten'
 			}
 		},
 		'DRAW.RECTANGLE': {
@@ -287,13 +285,25 @@ module.exports = {
 		SERIES: {
 			en: {
 				argumentList:
-					'SeriesTitle,CategoriesOrDataSource,ValuesOrXValues,Values',
-				description: 'Defines series parameters'
+					'SeriesTitle,CategoriesOrXValues,YValues,RadiusOrColorValues',
+				description: 'Defines series parameters for Cell Ranges'
 			},
 			de: {
 				argumentList:
-					'Reihentitel,KategorienOderDatenquelle,WerteOderXWerte,Werte',
-				description: 'Definiert Datenreihen Parameter'
+					'Reihentitel,KategorienOderXWerte,YWerte,RadiusOderFarbwerte',
+				description: 'Definiert Datenreihen Parameter für Zellbereiche'
+			}
+		},
+		SERIESTIME: {
+			en: {
+				argumentList:
+					'SeriesTitleXValues,SeriesTitleYValues,TimeFunction,XValuesField,YValuesField,RadiusColorValuesField',
+				description: 'Defines series parameters for time based functions'
+			},
+			de: {
+				argumentList:
+					'SeriesTitleXValues,SeriesTitleYValues,TimeFunction,XValuesField,YValuesField,RadiusColorValuesField',
+				description: 'Definiert Datenreihen Parameter für Zeitreihenfunktionen'
 			}
 		},
 	}

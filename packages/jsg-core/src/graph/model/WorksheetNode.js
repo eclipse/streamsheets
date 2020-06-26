@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { NumberFormatter } = require('@cedalo/number-format');
 const { Term, BinaryOperator, Reference, Locale } = require('@cedalo/parser');
 const { parse, isValid } = require('date-fns');
@@ -723,6 +733,94 @@ module.exports = class WorksheetNode extends ContentNode {
 		return this.getCellAttributesAtRC(pos.x, pos.y, cellInfo);
 	}
 
+	getCellPropertiesAtRC(cell, column, row) {
+		const properties = {};
+		let attributes;
+
+		if (cell !== undefined) {
+			attributes = cell.getAttributes();
+			if (attributes !== undefined) {
+				WorksheetNode.getDefinedProperties(attributes, properties)
+			}
+		}
+
+		attributes = this.getRows().getSectionAttributes(row);
+		if (attributes !== undefined) {
+			WorksheetNode.getDefinedProperties(attributes, properties)
+		}
+
+		attributes = this.getColumns().getSectionAttributes(column);
+		if (attributes !== undefined) {
+			WorksheetNode.getDefinedProperties(attributes, properties)
+		}
+
+		WorksheetNode.getDefinedProperties(this.getDefaultCellAttributes(), properties)
+
+		return properties;
+	}
+
+	getFormatPropertiesAtRC(cell, column, row) {
+		const properties = {};
+		let attributes;
+
+		if (cell !== undefined) {
+			attributes = cell.getFormat();
+			if (attributes !== undefined) {
+				WorksheetNode.getDefinedProperties(attributes, properties)
+			}
+		}
+
+		attributes = this.getRows().getSectionFormat(row);
+		if (attributes !== undefined) {
+			WorksheetNode.getDefinedProperties(attributes, properties)
+		}
+
+		attributes = this.getColumns().getSectionFormat(column);
+		if (attributes !== undefined) {
+			WorksheetNode.getDefinedProperties(attributes, properties)
+		}
+
+		WorksheetNode.getDefinedProperties(this.getDefaultFormat(), properties);
+
+		return properties;
+	}
+
+	static getDefinedProperties(attributeList, properties) {
+		const addIt = (id, attr) => {
+			const name = id.toLowerCase();
+			if (properties[name] === undefined) {
+				properties[name] = attr.getExpression().getValue();
+			}
+		};
+		attributeList._value.iterate(addIt);
+	}
+
+	getTextFormatPropertiesAtRC(cell, column, row) {
+		const properties = {};
+		let attributes;
+
+		if (cell !== undefined) {
+			attributes = cell.getTextFormat();
+			if (attributes !== undefined) {
+				WorksheetNode.getDefinedProperties(attributes, properties)
+			}
+		}
+
+		attributes = this.getRows().getSectionTextFormat(row);
+		if (attributes !== undefined) {
+			WorksheetNode.getDefinedProperties(attributes, properties)
+		}
+
+		attributes = this.getColumns().getSectionTextFormat(column);
+		if (attributes !== undefined) {
+			WorksheetNode.getDefinedProperties(attributes, properties)
+		}
+
+		WorksheetNode.getDefinedProperties(this.getDefaultTextFormat(), properties)
+
+		return properties;
+	}
+
 	parseTextToTerm(text, ignoreExpections = true) {
 		try {
 			JSG.FormulaParser.context.separators = JSG.getParserLocaleSettings().separators;
@@ -906,6 +1004,7 @@ module.exports = class WorksheetNode extends ContentNode {
 		if (isFormula) {
 			text = text.substring(1);
 		}
+		// eslint-disable-next-line no-useless-catch
 		try {
 			JSG.FormulaParser.context.separators = JSG.getParserLocaleSettings().separators;
 			if (isFormula) {

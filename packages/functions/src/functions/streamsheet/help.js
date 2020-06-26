@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 module.exports = {
 	en: 'Streamsheet',
 	de: 'Streamsheet',
@@ -174,6 +184,26 @@ module.exports = {
 			en: { argumentList: 'Range', description: 'Converts given cell range to JSON' },
 			de: { argumentList: 'Zellbereich', description: 'Konvertiert den angebenen Zellbereich in ein JSON Objekt' }
 		},
+		'HTTP.REQUEST': {
+			en: {
+			  argumentList: 'Producer,URL,Method,Target,ResultKeys,Body,Headers,Timeout',
+			  description: 'Create an asynchronous calls to a REST service'
+			},
+			de: {
+			  argumentList: 'Producer,URL,Methode,Ziel,ResultKeys,Body,Headers,Timeout',
+			  description: 'Erlaubt Aufrufe in einen REST Dienst'
+			}
+		  },
+		  'HTTP.RESPOND': {
+			en: {
+			  argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
+			  description: 'Sends data to a Producer that send a data object previously'
+			},
+			de: {
+			  argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
+			  description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId.'
+			}
+		  },
 		'KAFKA.QUERY': {
 			en: {
 				argumentList: 'Producer,Query,Target,Timeout',

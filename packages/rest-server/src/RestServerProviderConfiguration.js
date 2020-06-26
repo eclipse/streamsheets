@@ -1,9 +1,19 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { ProviderConfiguration } = require('@cedalo/sdk-streams');
 
 module.exports = class RestServerProviderConfiguration extends ProviderConfiguration {
 	constructor() {
 		super({
-			name: 'REST Server Provider'
+			name: 'HTTP Server Provider'
 		});
 
 		this.canConsume = true;
@@ -11,104 +21,13 @@ module.exports = class RestServerProviderConfiguration extends ProviderConfigura
 
 		this.addConnectorDefinition({
 			id: 'baseUrl',
-			label: 'REST URL'
-		});
-
-		this.addConnectorDefinition({
-			id: 'userName',
-			label: {
-				en: 'User Name',
-				de: 'Benutzername'
-			}
-		});
-
-		this.addConnectorDefinition({
-			id: 'password',
-			label: {
-				en: 'Password',
-				de: 'Kennwort'
-			},
-			type: ProviderConfiguration.FIELDTYPES.PASSWORD
-		});
-
-		this.addConsumerDefinition({
-			id: 'expectResponse',
-			label: {
-				en: 'Expect Response',
-				de: 'Antwort erwarten'
-			},
-			type: ProviderConfiguration.FIELDTYPES.CHECKBOX,
-			defaultValue: false
-		});
-
-		this.addConsumerDefinition({
-			id: 'responseTimeout',
-			label: {
-				en: 'Response Timeout',
-				de: 'Wartezeit auf Antwort'
-			},
-			dependsOnPath: 'expectResponse',
-			defaultValue: 5000
+			label: 'Base URL'
 		});
 
 		this.addConsumerDefinition({
 			id: 'topics',
-			label: 'URL Topics',
+			label: 'URL Paths',
 			type: ProviderConfiguration.FIELDTYPES.TEXTLIST
 		});
-
-		this.addFunctionDefinition(this.respondFunction(requestId => ({
-			name: 'REST.RESPOND',
-			baseFunction: 'respond',
-			parameters: [
-				requestId,
-				{
-					id: 'body',
-					label: {
-						en: 'Body',
-						de: 'Body'
-					},
-					description: '',
-					type: {
-						name: 'union',
-						types: [
-							{ name: 'json' },
-							{ name: 'number' },
-							{ name: 'string' }
-						]
-					},
-					defaultValue: {}
-				},
-				{
-					id: 'statusCode',
-					label: {
-						en: 'Status Code',
-						de: 'Status Code'
-					},
-					description: '',
-					type: {
-						name: 'integer',
-						min: 100,
-						max: 599
-					},
-					defaultValue: 200
-				},
-				{
-					id: 'headers',
-					label: {
-						en: 'Headers',
-						de: 'Headers'
-					},
-					description: '',
-					type: {
-						name: 'json',
-						fieldType: {
-							name: 'string'
-						}
-					},
-					optional: true
-				}
-			]
-		})));
 	}
 };

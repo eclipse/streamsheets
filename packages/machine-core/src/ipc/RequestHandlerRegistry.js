@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const logger = require('../logger').create({ name: 'RequestHandlerRegistry' });
 const {
 	cellDescriptor,
@@ -198,6 +208,7 @@ const updateCurrentStream = (stream) => {
 	const existing = currentStreams.get(stream.id);
 	if (!existing || existing.timestamp < stream.timestamp) {
 		currentStreams.set(stream.id, stream);
+		logger.info(`update stream: '${stream.name}'`);
 	}
 };
 
@@ -568,7 +579,7 @@ class RegisterFunctionModules extends ARequestHandler {
 		return false;
 	}
 	handle({ modules = [] }) {
-		logger.info('registerFunctionModules', modules);
+		// logger.info('registerFunctionModules', modules);
 		// first module is always our core-functions module:
 		FunctionRegistry.registerCoreFunctionsModule(modules.shift());
 		modules.forEach((mod) => FunctionRegistry.registerFunctionModule(mod));
@@ -581,7 +592,7 @@ class RegisterStreams extends ARequestHandler {
 		return false;
 	}
 	handle(msg) {
-		logger.info('registerStreams', msg.descriptors);
+		// logger.info('registerStreams', msg.descriptors);
 		const descriptors = msg.descriptors || [];
 		descriptors.forEach((stream) => {
 			updateCurrentStream(stream);

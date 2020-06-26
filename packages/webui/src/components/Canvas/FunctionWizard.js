@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable react/forbid-prop-types */
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
@@ -358,7 +368,7 @@ class FunctionWizard extends Component {
 			this.state.fields.map((field) => {
 				const { value } = field;
 				const { type } = field.paramConfig;
-				if (value === undefined || value === '') {
+				if (value == null || value === '') {
 					return '';
 				}
 				if (isFormula(value, item)) {
@@ -366,9 +376,10 @@ class FunctionWizard extends Component {
 					return isJSONParam(type) && isMultiCellRange(formula, item) ? `JSON(${formula})` : formula;
 				}
 				if (type && type.name === 'boolean') {
-					return !!field.value;
+					// return !!value;
+					return `${value}`.toLowerCase() === 'true';
 				}
-				return quoted(field.value);
+				return quoted(value);
 			})
 		);
 

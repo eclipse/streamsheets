@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const logger = require('../utils/logger').create({ name: 'MachineService' });
 const { MessagingService, RequestHandlers } = require('@cedalo/service-core');
 const { RepositoryManager, MongoDBMachineRepository } = require('@cedalo/repository');
@@ -161,7 +171,7 @@ module.exports = class MachineService extends MessagingService {
 			this._loadRunningMachines();
 		}
 	}
-	
+
 	async _handleResponseMessage(topic, message) {
 		switch (topic) {
 			case Topics.SERVICES_MACHINES_OUTPUT:
@@ -176,8 +186,8 @@ module.exports = class MachineService extends MessagingService {
 		switch (topic) {
 			case Topics.SERVICES_PERSISTENCE_INPUT:
 				switch (message.type) {
-					// eslint-disable-next-line no-case-declarations
 					case MachineServerMessagingProtocol.MESSAGE_TYPES.UPDATE_MACHINE_IMAGE_MESSAGE_TYPE:
+						// eslint-disable-next-line no-case-declarations
 						const { machineId, previewImage } = message;
 						if (previewImage !== null && typeof previewImage !== 'undefined') {
 							await RepositoryManager.machineRepository.updateMachinePreviewImage(
@@ -191,8 +201,8 @@ module.exports = class MachineService extends MessagingService {
 							type: 'response'
 						});
 						break;
-					// eslint-disable-next-line no-case-declarations
 					case MachineServerMessagingProtocol.MESSAGE_TYPES.UPDATE_MACHINE_TITLE_IMAGE_MESSAGE_TYPE:
+						// eslint-disable-next-line no-case-declarations
 						const { titleImage } = message;
 						if (titleImage !== null && typeof titleImage !== 'undefined') {
 							await RepositoryManager.machineRepository.updateMachineTitleImage(

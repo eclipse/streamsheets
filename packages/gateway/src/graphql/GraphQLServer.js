@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { ApolloServer, gql } = require('apollo-server-express');
 const { resolvers } = require('./resolvers');
 
@@ -99,64 +109,27 @@ const typeDefs = gql`
 		id: ID!
 	}
 
+	type UserScope {
+		id: ID!
+		rights: [String!]!
+		name: String!
+	}
+
 	type User {
 		id: ID!
-		scope: Scope
+		scope: UserScope
+		scopes: [UserScope!]!
 		username: String!
-		email: String!
-		firstName: String
-		lastName: String
+		displayName: String!
 		lastModified: String!
 		admin: Boolean!
 		settings: UserSettings!
 		canDelete: Boolean!
-		role: String!
 		rights: [String!]!
-	}
-
-	input UserInput {
-		username: String!
-		password: String!
-		email: String!
-		role: String!
-		scope: ID
-		firstName: String
-		lastName: String
-	}
-
-	input UpdateUserInput {
-		username: String
-		email: String
-		scope: ID
-		role: String
-		firstName: String
-		lastName: String
 	}
 
 	input UserSettingsInput {
 		locale: Locale
-	}
-
-	type UserFieldErrors {
-		username: String
-		email: String
-		password: String
-	}
-
-	type CreateUserPayload implements MutationResponse {
-		success: Boolean!
-		code: String!
-		message: String!
-		user: User
-		fieldErrors: UserFieldErrors
-	}
-
-	type UpdateUserPayload implements MutationResponse {
-		success: Boolean!
-		code: String!
-		message: String!
-		user: User
-		fieldErrors: UserFieldErrors
 	}
 
 	type UserSettingsFieldErrors {
@@ -173,6 +146,24 @@ const typeDefs = gql`
 
 	type PasswordFieldErrors {
 		password: String
+	}
+
+	input UserInput {
+		username: String!
+		password: String!
+	}
+
+	type UserFieldErrors {
+		username: String
+		password: String
+	}
+
+	type CreateUserPayload implements MutationResponse {
+		success: Boolean!
+		code: String!
+		message: String!
+		user: User
+		fieldErrors: UserFieldErrors
 	}
 
 	type UpdateUserPasswordPayload implements MutationResponse {
@@ -260,23 +251,6 @@ const typeDefs = gql`
 		providers: [String!]!
 	}
 
-	type SelectFormField {
-		id: String!
-		label: String!
-		default: ID!
-		current: ID!
-		options: [SelectFormFieldValues!]!
-	}
-
-	type SelectFormFieldValues {
-		id: ID!
-		name: String!
-	}
-
-	type Form {
-		fields: [SelectFormField!]!
-	}
-
 	type ScopedMutation {
 		import(input: ImportInput!, file: Upload!): ImportResult!
 		cloneMachine(machineId: ID!, newName: String): CloneResult!
@@ -286,19 +260,15 @@ const typeDefs = gql`
 		me: User!
 		user(id: ID!): User
 		users: [User!]!
-		roles: [String!]!
 		scoped(scope: ScopeInput!): ScopedQuery!
 		scopedByMachine(machineId: ID!): ScopedQuery!
-		createUserForm: Form!
-		updateUserForm(userId: ID!): Form!
 	}
 
 	type Mutation {
 		createUser(user: UserInput!): CreateUserPayload!
-		updateUser(id: ID!, user: UpdateUserInput!): UpdateUserPayload!
+		deleteUser(id: ID!): DeleteUserPayload!
 		updateUserSettings(id: ID!, settings: UserSettingsInput!): UpdateUserSettingsPayload!
 		updateUserPassword(id: ID!, newPassword: String!): UpdateUserPasswordPayload!
-		deleteUser(id: ID!): DeleteUserPayload!
 		scoped(scope: ScopeInput): ScopedMutation!
 		scopedByMachine(machineId: ID!): ScopedMutation!
 	}

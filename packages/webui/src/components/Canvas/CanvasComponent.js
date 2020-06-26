@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/prop-types */
 import React, { Component } from 'react';
@@ -19,7 +29,6 @@ import TreeContextMenu from './TreeContextMenu';
 import GraphContextMenu from './GraphContextMenu';
 import SheetDeleteDialog from './SheetDeleteDialog';
 import MachineHelper from '../../helper/MachineHelper';
-import ChartProperties from './ChartProperties';
 import FunctionWizard from './FunctionWizard';
 import { intl } from '../../helper/IntlGlobalProvider';
 import StreamChartProperties from './StreamChartProperties';
@@ -65,7 +74,7 @@ export class CanvasComponent extends Component {
 
 	componentDidMount() {
 		const graphEditor = this.initGraphEditor();
-		JSG.NotificationCenter.getInstance().register(this, JSG.GraphEditor.ZOOM_NOTIFICATION, 'onZoom');
+		JSG.NotificationCenter.getInstance().register(this, JSG.NotificationCenter.ZOOM_NOTIFICATION, 'onZoom');
 		JSG.NotificationCenter.getInstance().register(
 			this,
 			JSG.StreamSheetView.SHEET_DROP_FROM_OUTBOX,
@@ -97,7 +106,7 @@ export class CanvasComponent extends Component {
 
 	componentWillUnmount() {
 		const { canvas } = this;
-		JSG.NotificationCenter.getInstance().unregister(this, JSG.GraphEditor.ZOOM_NOTIFICATION);
+		JSG.NotificationCenter.getInstance().unregister(this, JSG.NotificationCenter.ZOOM_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.StreamSheetView.SHEET_DROP_FROM_OUTBOX);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.ButtonNode.BUTTON_CLICKED_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.GRAPH_DOUBLE_CLICK_NOTIFICATION);
@@ -319,7 +328,6 @@ export class CanvasComponent extends Component {
 					tabIndex="0"
 					//	aria-disabled={this.isAccessDisabled()}
 				/>
-				{viewMode.viewMode !== null || !canEdit ? null : <ChartProperties />}
 				{viewMode.viewMode !== null || !canEdit ? null : <StreamChartProperties title={this.state.chartWizardTitle} dummy={this.state.dummy} />}
 				{viewMode.viewMode !== null || !canEdit ? null : (
 					<Slide direction="left" in={this.props.functionWizardVisible} mountOnEnter unmountOnExit>

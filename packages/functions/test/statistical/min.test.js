@@ -1,10 +1,20 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { StreamSheet } = require('@cedalo/machine-core');
 const { MIN } = require('../../src/functions');
 const SHEETS = require('../_data/sheets.json');
 const { createCellTerm, createCellTerms, createCellRangeTerm, createTerm } = require('../utilities');
 
-ERROR = FunctionErrors.code;
+const ERROR = FunctionErrors.code;
 
 describe('min', () => {
 	it('should return the minimum of given cells', () => {
@@ -84,7 +94,7 @@ describe('minifs', () => {
 		});
 		expect(createTerm('minifs(A2:A7, B2:B7, "b", D2:D7, A8)', sheet).value).toBe(1);
 	});
-	
+
 	it(`should return ${ERROR.VALUE} if criteria ranges has different rows or columns then sum range`, () => {
 		const sheet = new StreamSheet().sheet.loadCells({
 			A2: 1,	B2: 2, C2: 3, D2: 4,

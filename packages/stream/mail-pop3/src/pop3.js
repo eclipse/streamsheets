@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const pop3 = require('./poplib-wrapper');
 
 const create = async (config) => {
@@ -13,6 +23,7 @@ const create = async (config) => {
 		try {
 			const connection = await client.connect();
 			await connection.login(username, password);
+			// eslint-disable-next-line no-console
 			connection.on('error', (e) => { console.error(e); });
 			state.connection = connection;
 			return connection;

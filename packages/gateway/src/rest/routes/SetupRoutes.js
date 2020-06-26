@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const fs = require('fs');
 const path = require('path');
 
@@ -43,7 +53,7 @@ module.exports = class SetupRoutes {
 			try {
 				await request.app.locals.RepositoryManager.populateDatabases(getInitJSON(INIT_DIRECTORY));
 				await configurationRepository.saveSetup(setupToSave);
-				request.app.locals.RepositoryManager.streamRepository.reloadAll();
+				await request.app.locals.RepositoryManager.streamRepository.reloadStreams([]);
 				await response.status(201).json(setupToSave);
 			} catch(error) {
 				await response.status(400).json({

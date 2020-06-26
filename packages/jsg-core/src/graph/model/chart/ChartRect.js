@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 
 
 module.exports = class ChartRect {
@@ -18,6 +28,13 @@ module.exports = class ChartRect {
 
 	get center() {
 		return { x : (this.left + this.right) / 2, y: (this.top + this.bottom) / 2 };
+	}
+
+	translate(x, y) {
+		this.left += x;
+		this.right += x;
+		this.top += y;
+		this.bottom += y;
 	}
 
 	sort() {

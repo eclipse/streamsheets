@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { Field } = require('@cedalo/sdk-streams');
 const kafka = require('kafka-node');
 
@@ -53,34 +63,34 @@ module.exports = class KafkaZookeeperHandler {
 		});
 	}
 
-	async test(config = { payload: { testme: 'testme' }, topic: 'test' }) {
-		return new Promise(async (res, rej) => {
-			await this._addTopics([config.topic]);
-			const fn = (message) => {
-				const { topic, value /* , offset, partition, highWaterOffset, key */} = message;
-				if (topic === config.topic) {
-					try {
-						const msg = JSON.parse(value);
-						res(msg.testme === 'testme');
-					} catch (e) {
-						this.stream.logger.warn(`Failed to parse message to json: ${message}`);
-						rej(e);
-					}
-				}
-			};
-			this._consumer.on('message', fn);
-			try {
-				await this._publish({
-					topic: config.topic,
-					message: config.payload
-				});
-			} catch (e) {
-				return res(false);
-			}
-			setTimeout(async () => res(false), 15000);
-			return false;
-		});
-	}
+	// async test(config = { payload: { testme: 'testme' }, topic: 'test' }) {
+	// 	return new Promise(async (res, rej) => {
+	// 		await this._addTopics([config.topic]);
+	// 		const fn = (message) => {
+	// 			const { topic, value /* , offset, partition, highWaterOffset, key */} = message;
+	// 			if (topic === config.topic) {
+	// 				try {
+	// 					const msg = JSON.parse(value);
+	// 					res(msg.testme === 'testme');
+	// 				} catch (e) {
+	// 					this.stream.logger.warn(`Failed to parse message to json: ${message}`);
+	// 					rej(e);
+	// 				}
+	// 			}
+	// 		};
+	// 		this._consumer.on('message', fn);
+	// 		try {
+	// 			await this._publish({
+	// 				topic: config.topic,
+	// 				message: config.payload
+	// 			});
+	// 		} catch (e) {
+	// 			return res(false);
+	// 		}
+	// 		setTimeout(async () => res(false), 15000);
+	// 		return false;
+	// 	});
+	// }
 
 	async dispose() {
 		await this._disposeClient(this._client);

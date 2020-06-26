@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import { default as JSG, Point } from '@cedalo/jsg-core';
 import AbstractInteraction from './AbstractInteraction';
 import MoveDelegate from './MoveDelegate';
@@ -162,6 +172,12 @@ class MoveInteraction extends AbstractInteraction {
 
 	onMouseDrag(event, viewer) {
 		if (this._feedback && !this._keyOffset) {
+
+			// check if selected in content pane
+			if (this._delegate._isFeedbackScrollable(this._feedback, event, viewer)) {
+				return;
+			}
+
 			const position = JSG.ptCache.get().setTo(this.currentLocation);
 			this._moveFeedback(position, event, viewer);
 			JSG.ptCache.release(position);
@@ -208,6 +224,7 @@ class MoveInteraction extends AbstractInteraction {
 				this.getInteractionHandler().handleMouseEvent(event);
 			}
 		}
+		this._delegate.deactivateTimer();
 	}
 
 	willFinish(event, viewer, offset) {
@@ -270,6 +287,7 @@ class MoveInteraction extends AbstractInteraction {
 			viewer.getSelectionView().refresh();
 			activeInteraction._setActiveHandle(viewer.getHandleAt(loc, event));
 		}
+		this._delegate.deactivateTimer();
 	}
 
 	/**

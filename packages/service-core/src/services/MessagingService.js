@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { logger } = require('@cedalo/logger');
 
 const { MessagingClient } = require('@cedalo/messaging-client');
@@ -44,15 +54,15 @@ module.exports = class MessagingService extends BaseService {
 		}
 	}
 
-	async _handleRequestMessage(topic, message) {
+	async _handleRequestMessage(/* topic, message */) {
 		return Promise.resolve();
 	}
 
-	async _handleResponseMessage(topic, message) {
+	async _handleResponseMessage(/* topic, message */) {
 		return Promise.resolve();
 	}
 
-	async _handleEventMessage(topic, message) {
+	async _handleEventMessage(/* topic, message */) {
 		return Promise.resolve();
 	}
 

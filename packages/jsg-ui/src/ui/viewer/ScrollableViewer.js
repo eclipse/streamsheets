@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /*  global window */
 
 import {
@@ -11,7 +21,6 @@ import ScrollPanel from '../ScrollPanel';
 import GraphViewPanel from '../GraphViewPanel';
 import MouseEvent from '../events/MouseEvent';
 import Cursor from '../Cursor';
-import GraphEditor from '../GraphEditor';
 
 // =====================================================================================================================
 // INTERNAL!! USED TO HANDLE SCROLL RELATED EVENTS FOR SCROLLABLEVIEWER!!
@@ -37,7 +46,7 @@ class Handler {
 			// notify one more time to signal pan stop... TODO should we use own (pan-)notifications? -> attention: we
 			// get scroll notifications too!!
 			NotificationCenter.getInstance().send(
-				new Notification(ScrollPanel.SCROLL_NOTIFICATION,
+				new Notification(NotificationCenter.SCROLL_NOTIFICATION,
 					this.viewer.getScrollPanel()));
 		}
 		this.isDragging = false;
@@ -457,13 +466,13 @@ class ScrollableViewer extends GraphViewer {
 			const yfact = (cs.deviceToLogYNoZoom(
 				this._graphicSystem.getCanvas().height) - 1250) / (pos.bottom - pos.top);
 			switch (factor) {
-			case GraphEditor.ZOOM_FIT:
+			case -1: // GraphEditor.ZOOM_FIT:
 				doZoom(Math.min(xfact, yfact));
 				break;
-			case GraphEditor.ZOOM_FITVERT:
+			case -3: // GraphEditor.ZOOM_FITVERT:
 				doZoom(yfact);
 				break;
-			case GraphEditor.ZOOM_FITHORZ:
+			case -2: // GraphEditor.ZOOM_FITHORZ:
 				doZoom(xfact);
 				break;
 			}
@@ -479,7 +488,7 @@ class ScrollableViewer extends GraphViewer {
 
 		if (this.areNotificationsEnabled()) {
 			NotificationCenter.getInstance().send(
-				new Notification(GraphEditor.ZOOM_NOTIFICATION, this));
+				new Notification(NotificationCenter.ZOOM_NOTIFICATION, this));
 		}
 	}
 

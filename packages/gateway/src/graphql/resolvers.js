@@ -1,17 +1,24 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const path = require('path');
-const { InternalError } = require('../errors');
 const { ArrayUtil } = require('@cedalo/util');
 const graphqlFields = require('graphql-fields');
 const { GraphQLJSONObject } = require('graphql-type-json');
 const fs = require('fs').promises;
+const { Payload } = require('./Payload');
 
 const MACHINE_DATA_DIR = process.env.MACHINE_DATA_DIR || './machinedata';
 
-const INTERNAL_ERROR_PAYLOAD = {
-	success: false,
-	code: 'INTERNAL_ERROR',
-	message: 'An internal server error occured'
-};
+const rights = ['machine.view', 'machine.edit', 'stream', 'database', 'user.view'];
+const rootScope = { id: 'root', name: 'Root', rights };
 
 const streamToBuffer = async (stream) => {
 	return new Promise((resolve) => {
@@ -22,16 +29,6 @@ const streamToBuffer = async (stream) => {
 			resolve(buffer);
 		});
 	});
-};
-
-const Payload = {
-	createFailure: (error) => {
-		if (InternalError.isInternal(error)) {
-			return INTERNAL_ERROR_PAYLOAD;
-		}
-		return { ...error, success: false };
-	},
-	createSuccess: (payload) => ({ ...payload, success: true })
 };
 
 const streamClassNameToType = {
@@ -112,7 +109,6 @@ const resolvers = {
 			}
 		},
 		users: async (obj, args, { api }) => api.user.findAllUsers(),
-		roles: async (obj, args, { auth }) => auth.roles(),
 		scoped: async (obj, args, { auth }) => {
 			if (!auth.isValidScope(args.scope)) {
 				throw new Error('NOT_ALLOWED');
@@ -125,9 +121,7 @@ const resolvers = {
 				throw new Error('NOT_ALLOWED');
 			}
 			return { scope };
-		},
-		createUserForm: async () => ({ fields: [] }),
-		updateUserForm: async () => ({ fields: [] })
+		}
 	},
 	Mutation: {
 		createUser: async (obj, { user }, { api, encryption }) => {
@@ -135,28 +129,12 @@ const resolvers = {
 				const hashedPassword = await encryption.hash(user.password);
 				const createdUser = await api.user.createUser({
 					...user,
-					password: hashedPassword,
-					scope: { id: user.scope || 'root' }
+					password: hashedPassword
 				});
 				return Payload.createSuccess({
 					code: 'USER_CREATED',
 					message: 'User created successfully',
 					user: createdUser
-				});
-			} catch (error) {
-				return Payload.createFailure(error);
-			}
-		},
-		updateUser: async (obj, { id, user }, { api }) => {
-			try {
-				const updatedUser = await api.user.updateUser(id, {
-					...user,
-					scope: user.scope ? { id: user.scope } : undefined
-				});
-				return Payload.createSuccess({
-					code: 'USER_UPDATED',
-					message: 'User updated successfully',
-					user: updatedUser
 				});
 			} catch (error) {
 				return Payload.createFailure(error);
@@ -248,11 +226,6 @@ const resolvers = {
 			}
 		}
 	},
-	User: {
-		admin: async (obj, args, { auth }) => auth.isAdmin(obj),
-		canDelete: async (obj, args, { auth }) => auth.userCan('delete', obj),
-		rights: async (obj, args, { auth }) => auth.rights(obj)
-	},
 	Inbox: {
 		stream: async (obj, args, context, info) => {
 			const additionalFields =
@@ -272,6 +245,14 @@ const resolvers = {
 				  }
 				: null;
 		}
+	},
+	User: {
+		scope: () => rootScope,
+		scopes: () => [rootScope],
+		rights: () => rights,
+		displayName: (user) => user.username,
+		admin: () => true,
+		canDelete: (user) => user.id !== '00000000000000'
 	},
 	Machine: {
 		file: async (obj, args) => {
@@ -318,9 +299,7 @@ const resolvers = {
 			);
 			return ArrayUtil.unique(referencedStreams);
 		},
-		canEdit: async (obj, args, { auth }) => {
-			return auth.machineCan('edit', obj);
-		}
+		canEdit: async () => true
 	},
 	MachineMetadata: {
 		lastModified: (obj) => new Date(obj.lastModified).getTime()

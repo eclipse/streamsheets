@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable */
 import React, { Component } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -49,7 +59,7 @@ class TreeContextComponent extends Component {
 
 	componentDidMount() {
 		document.addEventListener('click', this.handleClick);
-		console.log(JSG.TreeInteraction.TREE_SHOW_CONTEXT_MENU_NOTIFICATION);
+		// console.log(JSG.TreeInteraction.TREE_SHOW_CONTEXT_MENU_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().register(
 			this,
 			JSG.TreeInteraction.TREE_SHOW_CONTEXT_MENU_NOTIFICATION, 'onContextMenu',

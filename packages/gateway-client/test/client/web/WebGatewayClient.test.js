@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 'use strict';
 
 // Events
@@ -21,12 +31,12 @@ const TEMPLATE_ID = 'sim_machine';
 const GatewayClient =
 	typeof module === 'undefined' ? this['@cedalo/gateway-client'] : require('../../..').NodeGatewayClient;
 
-const shortid = {
-	// Mocking shortid method
-	generate() {
-		return Math.random();
-	}
-};
+// const shortid = {
+// 	// Mocking shortid method
+// 	generate() {
+// 		return Math.random();
+// 	}
+// };
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
 
@@ -43,7 +53,7 @@ if (typeof fit !== 'undefined') {
 }
 
 const CONFIG = {
-	socketEndpointURL: 'ws://localhost:8088/machineserver-proxy',
+	socketEndpointURL: 'ws://localhost:8080/machineserver-proxy',
 	restEndpointURL: 'http://localhost:8080/api/v1.0',
 	// eslint-disable-next-line
 	token:
@@ -95,8 +105,8 @@ describe('on()', () => {
 describe('off()', () => {
 	it('should unregister a listener for an event', (done) => {
 		const client = new GatewayClient({ name: 'Test gateway client' });
-		const listener1 = (event) => {};
-		const listener2 = (event) => {};
+		const listener1 = () => {};
+		const listener2 = () => {};
 		client.on('example', listener1);
 		client.on('example', listener2);
 		expect(client._eventListeners.get('example').length).toBe(2);

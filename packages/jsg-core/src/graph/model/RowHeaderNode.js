@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const Point = require('../../geometry/Point');
 const HeaderNode = require('./HeaderNode');
 const CellRange = require('./CellRange');
@@ -34,22 +44,6 @@ module.exports = class RowHeaderNode extends HeaderNode {
 		this.setName(`RowHeader${id}`);
 	}
 
-	setInitialSection(index) {
-		const sheet = this.getParent().getParent();
-		const data = sheet.getDataProvider();
-		const initialSection = this.getInitialSection();
-
-		if (index < initialSection) {
-			this.insertSectionsAt(0, initialSection - index);
-			data.insertRowsAt(new CellRange(0, 0, 1, initialSection - index));
-		} else if (index > initialSection) {
-			this.removeSectionsAt(0, index - initialSection);
-			data.removeRowsAt(0, index - initialSection);
-		}
-
-		super.setInitialSection(index);
-	}
-
 	getSections() {
 		if (this.getParent()) {
 			return this.getParent()
@@ -64,7 +58,11 @@ module.exports = class RowHeaderNode extends HeaderNode {
 	}
 
 	getInternalWidth() {
-		return this.isItemVisible() === false ? 0 : RowHeaderNode.WIDTH;
+		if (this.isItemVisible() === false) {
+			return 0;
+		}
+
+		return RowHeaderNode.WIDTH + this.getMaxLevel() * 600;
 	}
 
 	getSectionFromReference(ref) {

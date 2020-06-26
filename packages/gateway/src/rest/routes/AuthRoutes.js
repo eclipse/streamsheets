@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const httpError = require('http-errors');
 const Auth = require('../../Auth').default;
 const CONFIG = require('../../config').get('auth');
@@ -23,28 +33,19 @@ module.exports = class AuthRoutes {
 	}
 
 	static async login(request, response, next) {
-		const { userRepository } = request.app.locals.RepositoryManager;
-		const { encryption } = request.app.locals;
+		const { login } = request.app.locals.globalContext;
 		switch (request.method) {
 			case 'POST':
-				try {
+				{
 					const { username, password } = request.body;
-					const hash = await userRepository.getPassword(username);
-					const valid = await encryption.verify(hash, password);
-					if (!valid) {
-						logger.info('Login failed: Invalid password');
-						response.status(403).json({ error: 'LOGIN_FAILED' });
-					} else {
-						const user = await userRepository.findUserByUsername(username);
+					try {
+						const user = await login(request.app.locals.globalContext, username, password);
 						const token = Auth.getToken(user);
 						response.status(200).json({ token, user });
-					}
-				} catch (error) {
-					if(error.code === 'USER_NOT_FOUND'){
-						logger.info('Login failed: Invalid username');
-						response.status(403).json({ error: 'LOGIN_FAILED' });
-					} else {
-						logger.error(error);
+					} catch (error) {
+						if (error.message === 'INVALID_CREDENTIALS') {
+							response.status(403).json({ error: 'LOGIN_FAILED' });
+						}
 						response.status(500).end();
 					}
 				}
@@ -63,12 +64,13 @@ module.exports = class AuthRoutes {
 				try {
 					const { pathname } = request.body;
 					const machineId = await validatePath(pathname, sharedMachineRepo);
+					
 					if (machineId) {
+						const machine = await request.app.locals.globalContext.machineRepo.findMachine(machineId);
 						const user = {
 							id: 'sharedmachine',
 							username: 'sharedmachine',
-							role: 'viewer',
-							scope: { id: 'root' },
+							scopes: [{ id: machine.scope.id, role: 'viewer' }],
 							settings: {
 								locale: 'en'
 							},
@@ -80,7 +82,7 @@ module.exports = class AuthRoutes {
 						response.status(403).json({ error: 'LOGIN_FAILED' });
 					}
 				} catch (error) {
-					if(error.code === 'USER_NOT_FOUND'){
+					if (error.code === 'USER_NOT_FOUND') {
 						logger.info('Login failed: Invalid username');
 						response.status(403).json({ error: 'LOGIN_FAILED' });
 					} else {

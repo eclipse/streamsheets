@@ -1,8 +1,15 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { RETURN } = require('../../src/functions/streamsheet').functions;
-const { FunctionErrors } = require('@cedalo/error-codes');
 const { Machine, SheetIndex, StreamSheet } = require('@cedalo/machine-core');
-
-const ERROR = FunctionErrors.code;
 
 let sheet;
 beforeEach(() => {
@@ -53,8 +60,5 @@ describe('return', () => {
 	});
 	it('should do nothing if sheet is not processed', () => {
 		expect(RETURN(sheet)).toBe(true);
-	});
-	it('should return an error on missing arguments', () => {
-		expect(RETURN()).toBe(ERROR.ARGS);
 	});
 });

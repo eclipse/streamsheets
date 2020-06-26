@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const TYPES = {
 	boolean: 1,
 	number: 2,
@@ -7,7 +17,8 @@ const TYPES = {
 };
 
 const valueOrDefault = (val, defval) => (val == null && defval != null ? defval : val);
-const isNr = (val) => !isNaN(val) && isFinite(val);
+// note: !isNaN(null) && isFinite(null) evaluates to true!!!
+const isNr = (val) => val != null && !isNaN(val) && isFinite(val);
 
 const toBool = {
 	boolean: (val) => val,

@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable no-mixed-operators */
 /* global document */
 
@@ -73,10 +83,12 @@ export default class SheetActivator extends InteractionActivator {
 				case WorksheetView.HitCode.SELECTIONEXTEND:
 				case WorksheetView.HitCode.REFERENCEMOVE:
 				case WorksheetView.HitCode.SHEET:
-				case WorksheetView.HitCode.ROW:
 				case WorksheetView.HitCode.COLUMN:
+				case WorksheetView.HitCode.COLUMNOUTLINE:
 				case WorksheetView.HitCode.COLUMNSIZE:
 				case WorksheetView.HitCode.COLUMNSIZEHIDDEN:
+				case WorksheetView.HitCode.ROW:
+				case WorksheetView.HitCode.ROWOUTLINE:
 				case WorksheetView.HitCode.ROWSIZE:
 				case WorksheetView.HitCode.ROWSIZEHIDDEN: {
 					const interaction = this.activateInteraction(new SheetInteraction(), dispatcher);
@@ -89,6 +101,11 @@ export default class SheetActivator extends InteractionActivator {
 					break;
 				}
 				default:
+					if (event.event.type === 'panstart') {
+						const interaction = this.activateInteraction(new SheetInteraction(), dispatcher);
+						interaction._controller = this._controller;
+						// interaction._hitCode = this._hitCode;
+					}
 					break;
 			}
 			event.isConsumed = true;

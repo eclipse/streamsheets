@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable react/forbid-prop-types */
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -578,7 +588,6 @@ export class FormatCellsDialog extends React.Component {
 											}
 											color={this.state.fontColor}
 											onChange={this.handleFontColorChange}
-											onClose={this.handleFontColorChange}
 										/>
 									</FormControl>
 								</div>
@@ -772,7 +781,6 @@ export class FormatCellsDialog extends React.Component {
 											}
 											color={this.state.fillColor}
 											onChange={this.handleFillColorChange}
-											onClose={this.handleFillColorChange}
 										/>
 									</FormControl>
 								</div>
@@ -877,7 +885,6 @@ export class FormatCellsDialog extends React.Component {
 											}
 											color={this.state.leftBorderColor}
 											onChange={this.handleLeftBorderColorChange}
-											onClose={this.handleLeftBorderColorChange}
 										/>
 									</FormGroup>
 									<FormGroup
@@ -967,7 +974,6 @@ export class FormatCellsDialog extends React.Component {
 											}
 											color={this.state.topBorderColor}
 											onChange={this.handleTopBorderColorChange}
-											onClose={this.handleTopBorderColorChange}
 										/>
 									</FormGroup>
 									<FormGroup
@@ -1057,7 +1063,6 @@ export class FormatCellsDialog extends React.Component {
 											}
 											color={this.state.rightBorderColor}
 											onChange={this.handleRightBorderColorChange}
-											onClose={this.handleRightBorderColorChange}
 										/>
 									</FormGroup>
 									<FormGroup
@@ -1146,7 +1151,6 @@ export class FormatCellsDialog extends React.Component {
 											}
 											color={this.state.bottomBorderColor}
 											onChange={this.handleBottomBorderColorChange}
-											onClose={this.handleBottomBorderColorChange}
 										/>
 									</FormGroup>
 								</div>

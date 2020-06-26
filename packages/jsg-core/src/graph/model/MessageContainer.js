@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const JSG = require('../../JSG');
 const Node = require('./Node');
 const FormatAttributes = require('../attr/FormatAttributes');
@@ -38,6 +48,7 @@ module.exports = class MessageContainer extends Node {
 		const button = new ButtonNode();
 		button.getItemAttributes().addAttribute(new StringAttribute('LayoutHorizontal', halign));
 		button.getItemAttributes().addAttribute(new StringAttribute('LayoutVertical', 'center'));
+		button.getItemAttributes().setSnapTo(false);
 		button.getFormat().setFillStyle(FormatAttributes.FillStyle.PATTERN);
 		button.getFormat().setPattern(image);
 		button.setSize(400, 400);
@@ -52,6 +63,7 @@ module.exports = class MessageContainer extends Node {
 		this._messageList = new TreeNode();
 		this._messageList.setHeight(5000);
 		this._messageList.setType('ml');
+		this._messageList.getItemAttributes().setSnapTo(false);
 		this.getMessageListItems()
 			.getTreeItemAttributes()
 			.setColorJsonString('#1D89E4');
@@ -105,6 +117,7 @@ module.exports = class MessageContainer extends Node {
 		this._messageTools.getItemAttributes().setClipChildren(true);
 		this._messageTools.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 		this._messageTools.getItemAttributes().setContainer(false);
+		this._messageTools.getItemAttributes().setSnapTo(false);
 		this._messageTools.setLayout(GridLayout.TYPE);
 		this.addItem(this._messageTools);
 
@@ -112,6 +125,7 @@ module.exports = class MessageContainer extends Node {
 		this._messageEditor = new TreeNode();
 		this._messageEditor.setType('me');
 		this._messageEditor.getTreeItemsNode()._saveCollapsed = true;
+		this._messageEditor.getItemAttributes().setSnapTo(false);
 		this.addItem(this._messageEditor);
 
 		this.addButton(this._messageTools, 't1l', 't1', 'left');

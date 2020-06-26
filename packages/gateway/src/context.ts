@@ -1,4 +1,22 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
+import { LoggerFactory } from '@cedalo/logger';
 import bcrypt from 'bcryptjs';
+import { MongoClient } from 'mongodb';
+import { baseAuth, BaseAuth } from './authorization';
+import { glue, RawAPI } from './glue';
+import { MachineServiceProxy } from './machine';
+import { StreamRepositoryProxy } from './stream';
+import { GenericGlobalContext, GlobalContext, RequestContext, Session } from './streamsheets';
+import { createUserRepository } from './user';
 const {
 	RepositoryManager,
 	MongoDBGraphRepository,
@@ -8,15 +26,6 @@ const {
 	MongoDBConnection
 } = require('@cedalo/repository');
 const { MongoDBStreamsRepository } = require('@cedalo/service-streams');
-import { User } from './user/types';
-const { createUserRepository } = require('./user/UserRepository');
-import { StreamRepositoryProxy } from './stream';
-import glue, { RawAPI } from './glue';
-import { Session, GlobalContext, RequestContext } from './streamsheets';
-import { LoggerFactory } from '@cedalo/logger';
-import { baseAuth } from './authorization';
-import { MachineServiceProxy } from './machine';
-import { MongoClient } from 'mongodb';
 const logger = LoggerFactory.createLogger('gateway - context', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
 
 const encryptionContext = {
@@ -31,9 +40,22 @@ const encryptionContext = {
 	}
 };
 
-export type GatewayPlugin = { apply: (context: GlobalContext) => Promise<GlobalContext> };
+export type GatewayPlugin = { apply: (context: GenericGlobalContext<RawAPI, BaseAuth>) => Promise<GlobalContext> };
 
-const applyPlugins = async (context: GlobalContext, pluginModules: string[]) => {
+const getActor = async (context: RequestContext, session: Session) => {
+	const actor = await context.rawApi.user.findUserBySession(context as RequestContext, session);
+	if (!actor) {
+		throw new Error('User not found!');
+	}
+	return actor;
+};
+
+const getRequestContext = async (globalContext: GlobalContext, session: Session): Promise<RequestContext> => {
+	const actor = await globalContext.getActor(globalContext, session);
+	return (<unknown>glue(globalContext, actor)) as RequestContext;
+};
+
+const applyPlugins = async (context: GenericGlobalContext<RawAPI, BaseAuth>, pluginModules: string[]) => {
 	return pluginModules.reduce(async (prev, mod) => {
 		const currentConfig = await prev;
 		try {
@@ -64,8 +86,13 @@ export const init = async (config: any, plugins: string[]) => {
 		backupRestoreManager,
 		configurationRepository
 	});
-	
+
+	RepositoryManager.streamRepository = new StreamRepositoryProxy();
 	RepositoryManager.userRepository = createUserRepository(mongoClient.db().collection('users'));
+	await RepositoryManager.connectAll(mongoClient);
+	await RepositoryManager.setupAllIndicies();
+
+	const machineServiceProxy = new MachineServiceProxy();
 	// TODO: Remove after creation of admin is possible in setup
 	const users = await RepositoryManager.userRepository.findAllUsers();
 	if (users.length === 0) {
@@ -73,44 +100,50 @@ export const init = async (config: any, plugins: string[]) => {
 		await RepositoryManager.userRepository.createUser({
 			id: '00000000000000',
 			username: 'admin',
-			email: 'admin@cedalo.com',
 			password: pwhash,
-			scope: { id: 'root' },
-			role: 'developer'
+			settings: { locale: 'en' },
+			admin: true
 		});
 	}
-
-	RepositoryManager.streamRepository = new StreamRepositoryProxy();
-	await RepositoryManager.connectAll(mongoClient);
-	await RepositoryManager.setupAllIndicies();
-	const machineServiceProxy = new MachineServiceProxy();
 
 	const context = await applyPlugins(
 		{
 			mongoClient,
+			interceptors: {},
 			repositories: RepositoryManager,
 			encryption: encryptionContext,
-			userRepo: RepositoryManager.userRepository,
 			machineRepo: RepositoryManager.machineRepository,
+			userRepo: RepositoryManager.userRepository,
 			streamRepo: RepositoryManager.streamRepository,
 			rawAuth: baseAuth,
+			authStrategies: {},
+			middleware: {},
 			rawApi: RawAPI,
-			machineServiceProxy
-		},
+			machineServiceProxy,
+			getActor,
+			getRequestContext,
+			login: async (context: GlobalContext, username: string, password: string) => {
+				try {
+					const hash = await context.userRepo.getPassword(username);
+					const valid = await context.encryption.verify(hash, password);
+					if (!valid) {
+						throw new Error('INVALID_CREDENTIALS');
+					}
+					const user = await context.userRepo.findUserByUsername(username);
+					if (!user) {
+						throw new Error('INVALID_CREDENTIALS');
+					}
+					return user;
+				} catch (e) {
+					if (e.code === 'USER_NOT_FOUND') {
+						throw new Error('INVALID_CREDENTIALS');
+					}
+					throw e;
+				}
+			}
+		} as GlobalContext,
 		plugins
 	);
-	return context;
-};
 
-export const getRequestContext = async (globalContext: GlobalContext, session: Session) => {
-	let actor;
-	if((session.user as any).service === 'internal' && !session.user.id) {
-		actor = await globalContext.userRepo.findUser('00000000000000');
-	} else {
-		actor = await globalContext.rawApi.user.findUserBySession(globalContext as RequestContext, session);
-	}
-	if(!actor){
-		throw new Error('User not found!');
-	}
-	return glue(globalContext, actor);
+	return context;
 };

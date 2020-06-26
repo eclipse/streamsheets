@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const events = require('events');
 const IdGenerator = require('@cedalo/id-generator');
 const Consumer = require('./Consumer');
@@ -29,7 +39,6 @@ class Provider {
 		this._id = this._id || IdGenerator.generate();
 		this._consumers = new Map();
 		this._producers = new Map();
-		this._errors = [];
 		this._defConfigConnectorsMap = new Map();
 		this._defConfigConsumersMap = new Map();
 	}
@@ -101,7 +110,8 @@ class Provider {
 		}
 		if (config.className === ConsumerConfiguration.name) {
 			return this.provideConsumer(config);
-		} else if (config.className === ProducerConfiguration.name) {
+		}
+		if (config.className === ProducerConfiguration.name) {
 			return this.provideProducer(config);
 		}
 		return this.handleError(
@@ -316,16 +326,11 @@ class Provider {
 		);
 		this._producers.clear();
 		this._consumers.clear();
-		this._errors = [];
 	}
 
 	clear() {
 		this.consumersList().clear();
 		this.producersList().clear();
-	}
-
-	get errors() {
-		return this._errors;
 	}
 
 	get consumersList() {

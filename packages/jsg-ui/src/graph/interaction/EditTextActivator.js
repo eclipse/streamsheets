@@ -1,8 +1,18 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import { default as JSG, TextNode, AddItemCommand, GraphUtils, ItemAttributes } from '@cedalo/jsg-core';
 import InteractionActivator from './InteractionActivator';
 import EditTextInteraction from './EditTextInteraction';
 import GraphController from '../controller/GraphController';
-import ActionHandle from '../interaction/ActionHandle';
+import ActionHandle from "./ActionHandle";
 
 /**
  * An InteractionActivator used to activate a {{#crossLink "EditTextInteraction"}}{{/crossLink}}.

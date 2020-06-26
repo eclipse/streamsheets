@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import { FunctionObject, PartialApply1All } from '../common';
 import { ID, RequestContext, Scope } from '../streamsheets';
 import { Stream, StreamCommandRequest } from './types';
@@ -10,6 +20,7 @@ export interface StreamApi extends FunctionObject {
 	saveStream(context: RequestContext, scope: Scope, stream: Stream): Promise<any>;
 	deleteStream(context: RequestContext, scope: Scope, id: ID): Promise<any>;
 	reloadStreams(context: RequestContext, scope: Scope, streams: ID[]): Promise<any>;
+	handleStreamEvent(context: RequestContext, event: any): Promise<any | null>;
 }
 export type StreamApiApplied = PartialApply1All<StreamApi>;
 
@@ -101,5 +112,6 @@ export const StreamApi: StreamApi = {
 		if (streams.length > 0) {
 			await streamRepo.reloadStreams(allowedToReload);
 		}
-	}
+	},
+	handleStreamEvent: async ({ actor, auth }: RequestContext, event: any): Promise<any | null> => event
 };

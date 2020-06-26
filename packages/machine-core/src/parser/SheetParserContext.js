@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const logger = require('../logger').create({ name: 'SheetParserContext' });
 const { referenceFromNode } = require('./References');
 const FunctionRegistry = require('../FunctionRegistry');
@@ -14,6 +24,7 @@ const filter = (functions) => Object.entries(functions).reduce((acc, [name, func
 const executor = func => function wrappedFunction(sheet, ...terms) {
 	let result;
 	func.term = wrappedFunction.term;
+	wrappedFunction.displayName = func.displayName;
 	try {
 		result = func(sheet, ...terms);
 	} catch (err) {

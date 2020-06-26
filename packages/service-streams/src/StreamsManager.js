@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable global-require */
 const { LoggerFactory } = require('@cedalo/logger');
 const { Topics } = require('@cedalo/protocols');
@@ -70,13 +80,13 @@ class StreamsManager {
 	}
 
 	reloadStreams(streams) {
-		logger.info(`Starting reload ${streams}`);
 		if (Array.isArray(streams)) {
 			streams.forEach(this.reloadStream.bind(this));
 		}
 	}
 
 	async reloadStream(id) {
+		
 		if (id) {
 			id = id.trim();
 			const stream = this.findStream(id);
@@ -85,6 +95,7 @@ class StreamsManager {
 			}
 			const connector = this.configsManager.findConnector(id);
 			if (connector) {
+				logger.info(`Reload by Connector ${id}`);
 				return this.reloadStreamsByConnectorId(connector.id);
 			}
 			const config = await this.configsManager.loadConfigurationById(id);
@@ -92,7 +103,8 @@ class StreamsManager {
 				config &&
 				config.disabled !== true &&
 				ConfigurationsManager.configIsConsumerOrProducer(config)
-			) {
+				) {
+				logger.info(`Reload Stream ${id}`);
 				return this.loadStream(config);
 			}
 			return false;
@@ -334,11 +346,14 @@ class StreamsManager {
 
 	async loadStream(config) {
 		try {
-			logger.info(`Loading stream: ${config.className} - ${config.name}`);
+			logger.info(`Stream ${config.name}(${config.id}): Loading...`);
 			const mergedConfig = this.configsManager.getDeepConfiguration(
 				config
 			);
 			if (mergedConfig) {
+				if(mergedConfig.disabled || mergedConfig.connector.disabled) {
+					return null;
+				}
 				const providerId =
 					mergedConfig.connector.provider._id ||
 					mergedConfig.connector.provider.id;

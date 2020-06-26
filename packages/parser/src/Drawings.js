@@ -1,7 +1,17 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable no-mixed-operators */
 
 
-const { FuncTerm, NullTerm } = require('./Term');
+const { NullTerm } = require('./Term');
 const { ERROR, OK } = require('./ReturnCodes');
 
 /**
@@ -95,25 +105,6 @@ module.exports = class Drawings {
 				const term = terms[15];
 				item.formatrange = term.toString();
 			}
-			break;
-		case 'chartstate':
-			getRectParams(item);
-			item.text = String(this.getGraphParam(terms, 13, ''));
-			item.font = String(this.getGraphParam(terms, 14, ''));
-			item.charttype = String(this.getGraphParam(terms, 15, 'state'));
-			if (terms.length > 16) {
-				const term = terms[16];
-				item.range = term.toString();
-			}
-			if (terms.length > 17) {
-				const term = terms[17];
-				item.legend = term.toString();
-			}
-			item.min = this.getGraphParam(terms, 18, '');
-			item.max = this.getGraphParam(terms, 19, '');
-			item.stepType = this.getGraphParam(terms, 20, 'minute');
-			item.step = this.getGraphParam(terms, 21, 1);
-			item.scalefont = String(this.getGraphParam(terms, 22, ''));
 			break;
 		case 'polygon':
 		case 'bezier':

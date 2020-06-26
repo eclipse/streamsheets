@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { ConsumerMixin, Message, Connector, Events } = require('@cedalo/sdk-streams');
 const RestServerConnector = require('./RestServerConnector');
 const _ = require('lodash');
@@ -46,6 +56,7 @@ module.exports = class RestServerConsumer extends ConsumerMixin(RestServerConnec
 			this._restServer.on(config.testTopic, (message) => {
 				const { metadata } = message;
 				if (metadata.topic === config.testTopic && message.example === config.message.example) {
+					// eslint-disable-next-line no-console
 					console.log(`receiving at: ${metadata.topic}`);
 					return res(true);
 				}

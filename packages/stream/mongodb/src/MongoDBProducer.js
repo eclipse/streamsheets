@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { ProducerMixin, RequestResponse } = require('@cedalo/sdk-streams');
 const MongoDBConnector = require('./MongoDBConnector');
 const mongodb = require('mongodb');
@@ -98,7 +108,7 @@ module.exports = class MongoDBProducer extends ProducerMixin(MongoDBConnector) {
 		if (query && query._id) {
 			config.query._id = mongodb.ObjectID(query._id);
 		}
-		this.logger.debug(JSON.stringify(config.Data));
+		// this.logger.debug(JSON.stringify(config.Data));
 		let response;
 		switch (config.functionName) {
 			case MongoDBFunctions.QUERY:

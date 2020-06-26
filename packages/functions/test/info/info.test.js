@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { createTerm } = require('../utilities');
 const { StreamSheet } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
@@ -44,7 +54,6 @@ describe('info functions', () => {
 		});
 		it(`should return ${ERROR.VALUE} if given value is not a number`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { A1: null } });
-			expect(createTerm('iseven()', sheet).value).toBe(ERROR.VALUE);
 			expect(createTerm('iseven(A1)', sheet).value).toBe(ERROR.VALUE);
 			expect(createTerm('iseven(1/0)', sheet).value).toBe(ERROR.VALUE);
 			// support this? currently one 12 is used and therefore it will return true...
@@ -53,6 +62,7 @@ describe('info functions', () => {
 		// DL-1375
 		it('shoud return error code for invalid or to much parameters', () => {
 			const sheet = new StreamSheet().sheet;
+			expect(createTerm('iseven()', sheet).value).toBe(ERROR.ARGS);
 			expect(createTerm('iseven(D10, E10)', sheet).value).toBe(ERROR.ARGS);
 			expect(createTerm('iseven(_D10)', sheet).value).toBe(ERROR.NAME);
 			expect(createTerm('iseven(°D10)', sheet).value).toBe(ERROR.NAME);
@@ -83,13 +93,13 @@ describe('info functions', () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { A1: `${ERROR.REF}`, A2: `${ERROR.NA}`, A3: 35 } });
 			expect(createTerm('iserror(A1)', sheet).value).toBe(true);
 			expect(createTerm(`iserror("${ERROR.DIV0}")`, sheet).value).toBe(true);
-			expect(createTerm('iserror()', sheet).value).toBe(false);
 			expect(createTerm('iserror(A2)', sheet).value).toBe(true);
 			expect(createTerm('iserror(A3)', sheet).value).toBe(false);
 		});
 		// DL-1374
 		it('shoud return error code for invalid or to much parameters', () => {
 			const sheet = new StreamSheet().sheet;
+			expect(createTerm('iserror()', sheet).value).toBe(ERROR.ARGS);
 			expect(createTerm('iserror(D10, E10)', sheet).value).toBe(ERROR.ARGS);
 			expect(createTerm('iserror(_D10)', sheet).value).toBe(ERROR.NAME);
 			expect(createTerm('iserror(^D10)', sheet).value).toBe(ERROR.NAME);
@@ -114,6 +124,23 @@ describe('info functions', () => {
 			expect(createTerm('isna(|D10)', sheet).value).toBe(ERROR.NAME);
 		});
 	});
+	// DL-4099
+	describe('isobject', () => {
+		it('should return true for object values', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('isobject(JSON(A1:B1))', sheet).value).toBe(true);
+			expect(createTerm('isobject(ARRAY(A1:B1))', sheet).value).toBe(true);
+			expect(createTerm('isobject(DICTIONARY(A1:B1))', sheet).value).toBe(true);
+		});
+		it('should return false if passed value is not object', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('isobject(true)', sheet).value).toBe(false);
+			expect(createTerm('isobject(false)', sheet).value).toBe(false);
+			expect(createTerm('isobject(42)', sheet).value).toBe(false);
+			expect(createTerm('isobject("object")', sheet).value).toBe(false);
+			expect(createTerm('isobject("")', sheet).value).toBe(false);
+		});
+	});
 	describe('isodd', () => {
 		it('should return true if given number is odd', () => {
 			const sheet = new StreamSheet().sheet;
@@ -131,7 +158,7 @@ describe('info functions', () => {
 		});
 		it(`should return ${ERROR.VALUE} if given value is not a number`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { A1: null } });
-			expect(createTerm('isodd()', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('isodd()', sheet).value).toBe(ERROR.ARGS);
 			expect(createTerm('isodd(A1)', sheet).value).toBe(ERROR.VALUE);
 			expect(createTerm('isodd(1/0)', sheet).value).toBe(ERROR.VALUE);
 			// support this? currently one 11 is used and therefore it will return true...

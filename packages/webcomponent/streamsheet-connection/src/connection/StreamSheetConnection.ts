@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import Credentials from '../Credentials';
 import GatewayClient from './GatewayClient';
 import IMachineJSON from '../IMachineJSON';
@@ -9,7 +19,7 @@ const DEF_ENDPOINTS = {
 	REST: 'http://localhost:8081/api/v1.0',
 	SOCKET: 'ws://localhost:8081/machineserver-proxy',
 	REST_LOCAL: 'http://localhost:8080/api/v1.0',
-	SOCKET_LOCAL: 'ws://localhost:8088/machineserver-proxy'
+	SOCKET_LOCAL: 'ws://localhost:8080/machineserver-proxy'
 };
 
 type PendingPromise = {

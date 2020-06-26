@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const sdk = require('@cedalo/sdk-streams');
 const MqttConnector = require('./MqttConnector');
 const Utils = require('./Utils');
@@ -23,20 +33,20 @@ module.exports = class MqttConsumer extends sdk.ConsumerMixin(MqttConnector) {
 	async initialize() {
 		let pass = true;
 		this.topics.forEach((t) => {
-			const {errors, warnings} = Utils.validateTopicForSubscribe(t);
-			errors.forEach(e => {
+			const { errors, warnings } = Utils.validateTopicForSubscribe(t);
+			errors.forEach((e) => {
 				this.handleError(new Error(e));
 			});
-			warnings.forEach(w => {
+			warnings.forEach((w) => {
 				this.handleWarning(new Error(w));
 			});
-			pass = pass && errors.length<1;
+			pass = pass && errors.length < 1;
 		});
-		if (pass){
+		if (pass) {
 			const options = {
-				properties : {}
+				properties: {}
 			};
-			if(this.hasUserProperties(this.config.userPropertiesSubscribe)) {
+			if (this.hasUserProperties(this.config.userPropertiesSubscribe)) {
 				options.properties.userProperties = this.config.userPropertiesSubscribe;
 			}
 			return new Promise((res, rej) => {
@@ -50,14 +60,5 @@ module.exports = class MqttConsumer extends sdk.ConsumerMixin(MqttConnector) {
 			});
 		}
 		return false;
-	}
-
-	async dispose() {
-		if(this.client) {
-			if(Array.isArray(this.topics) && this.topics.length >0) {
-				this.client.unsubscribe(this.topics);
-			}
-		}
-		return super.dispose();
 	}
 };

@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { RequestHandler } = require('@cedalo/service-core');
 const {
 	StreamsMessagingProtocol: { MESSAGE_TYPES }
@@ -24,7 +34,6 @@ class StreamCommandRequestHandler extends RequestHandler {
 						streamsManager.configsManager.findConnector(streamId);
 					if (stream) {
 						const result = await streamsManager.executeCommand(cmd);
-						logger.debug(result);
 						return resolve(
 							this.confirm(message, {
 								result
@@ -40,7 +49,6 @@ class StreamCommandRequestHandler extends RequestHandler {
 					);
 				}
 				const result = await streamsManager.executeCommand(cmd);
-				logger.debug(result);
 				return resolve(
 					this.confirm(message, {
 						result
@@ -72,7 +80,6 @@ class SaveConfigurationRequestHandler extends RequestHandler {
 				const result = await streamsManager.saveConfiguration(
 					configuration
 				);
-				logger.debug(result);
 				if (result) {
 					return resolve(
 						this.confirm(message, {
@@ -110,7 +117,6 @@ class DeleteConfigurationRequestHandler extends RequestHandler {
 		const { configId } = message;
 		return new Promise(async (resolve, reject) => {
 			const result = await streamsManager.deleteConfiguration(configId);
-			logger.debug(result);
 			if (result) {
 				resolve(
 					this.confirm(message, {
@@ -289,7 +295,6 @@ class UpdateRequestHandler extends RequestHandler {
 		const { config } = message;
 		return new Promise(async (resolve, reject) => {
 			const result = await streamsManager.updateStream(config);
-			logger.debug(result);
 			if (result) {
 				resolve(
 					this.confirm(message, {
@@ -320,7 +325,6 @@ class TestRequestHandler extends RequestHandler {
 		const { config } = message;
 		return new Promise(async (resolve, reject) => {
 			const result = await streamsManager.test(config);
-			logger.debug(result);
 			if (result) {
 				resolve(
 					this.confirm(message, {

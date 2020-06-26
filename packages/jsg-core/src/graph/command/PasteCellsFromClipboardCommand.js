@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const Command = require('./Command');
 const JSONReader = require('../../commons/JSONReader');
 const { copycells, toCellRange } = require('./utils');
@@ -67,7 +77,7 @@ module.exports = class PasteCellsFromClipboardCommand extends Command {
 		// sheet and range doesn't really match here?? with shiftToSheet() cell is not found and without ref is wrong
 		const sheet = this._data.range.getSheet();
 		const refAdjust = {
-			row: sheet.getRows().getInitialSection(),
+			row: 0,
 			col: sheet.getColumns().getInitialSection()
 		};
 		data.sourcecells = copycells(this._data.range, this._action, refAdjust);

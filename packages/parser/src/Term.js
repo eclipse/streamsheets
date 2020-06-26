@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const Locale = require('./Locale');
 const { Operand, StringOperand } = require('./Operand');
 const { Operation } = require('./Operation');
@@ -46,6 +56,7 @@ class Term {
 		this.operand = operand || Operand.UNDEF;
 		this.operator = undefined;
 		this.useBrackets = false;
+		this.isDisposed = false;
 		this._invalid = false;
 	}
 
@@ -83,6 +94,7 @@ class Term {
 		if (this.left) this.left.dispose();
 		if (this.right) this.right.dispose();
 		if (this.operand) this.operand.dispose();
+		this.isDisposed = true;
 	}
 
 	hasOperandOfType(type) {

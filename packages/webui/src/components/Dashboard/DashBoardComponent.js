@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable react/forbid-prop-types,react/no-unused-prop-types */
 /* eslint-disable react/prop-types */
 import { withStyles } from '@material-ui/core/styles';
@@ -290,7 +300,7 @@ function mapStateToProps(state) {
 		streams: state.streams,
 		machine: state.monitor.machine,
 		machines: state.machines.data,
-		rights: state.user.user ? state.user.user.rights : []
+		rights: state.user.rights
 	};
 }
 function mapDispatchToProps(dispatch) {

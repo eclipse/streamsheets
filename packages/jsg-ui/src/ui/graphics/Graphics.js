@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* global document */
 
 import {
@@ -1868,7 +1878,8 @@ class Graphics {
 		if (direction === 'in') {
 			// if lines comes in at this port, switch direction
 			return true;
-		} else if (direction === undefined) {
+		}
+		if (direction === undefined) {
 			// add start point line as outgoint line
 			this._portPointMap.set(key, 'out');
 			// check end point
@@ -2944,39 +2955,38 @@ class Graphics {
 		let width;
 		const inner = JSG.rectCache.get();
 
-		if (JSG.touchDevice) {
-			if (active) {
-				width = this._lineWidth;
-				inner.setTo(rect);
-				inner.expandBy(this._cs.metricToLogXNoZoom(1000));
+		if (JSG.touchDevice && active) {
+			width = this._lineWidth;
+			inner.setTo(rect);
+			inner.expandBy(this._cs.metricToLogXNoZoom(1000));
 
-				this.setTransparency(20);
-				this.fillEllipse(inner);
+			this.setTransparency(20);
+			this.fillEllipse(inner);
 
-				inner.setTo(rect);
-				inner.reduceBy(this._cs.metricToLogXNoZoom(50));
+			inner.setTo(rect);
+			inner.reduceBy(this._cs.metricToLogXNoZoom(50));
 
-				this.setTransparency(100);
-				this.fillEllipse(inner);
+			this.setTransparency(100);
+			this.fillEllipse(inner);
 
-				inner.setTo(rect);
-				inner.expandBy(this._cs.metricToLogXNoZoom(950));
+			inner.setTo(rect);
+			inner.expandBy(this._cs.metricToLogXNoZoom(950));
 
-				this.setLineWidth(50);
-				this.drawEllipse(inner);
-				this.setLineWidth(width);
-			} else {
-				color = this._fillColor;
-				inner.setTo(rect);
-
-				this.setFillColor('#FFFFFF');
-				this.fillEllipse(rect);
-
-				this.setFillColor(color);
-				inner.reduceBy(this._cs.metricToLogXNoZoom(50));
-				this.fillEllipse(inner);
-				this.drawEllipse(rect);
-			}
+			this.setLineWidth(50);
+			this.drawEllipse(inner);
+			this.setLineWidth(width);
+			// } else {
+			// 	color = this._fillColor;
+			// 	inner.setTo(rect);
+			//
+			// 	this.setFillColor('#FFFFFF');
+			// 	this.fillEllipse(rect);
+			//
+			// 	this.setFillColor(color);
+			// 	inner.reduceBy(this._cs.metricToLogXNoZoom(50));
+			// 	this.fillEllipse(inner);
+			// 	this.drawEllipse(rect);
+			// }
 		} else if (SelectionStyle.FILL) {
 			inner.setTo(rect);
 			inner.expandBy(this._cs.metricToLogXNoZoom(25));

@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 module.exports = {
 	extends: ['eslint-config-airbnb-base', 'eslint-config-prettier'].map(require.resolve),
 	rules: {
@@ -16,6 +26,8 @@ module.exports = {
 		'import/order': 0,
 		'no-restricted-globals': 0,
 		'prefer-object-spread': 0,
+		'spaced-comment': 0,
+		'lines-around-directive': 0,
 		'no-async-promise-executor': 1,
 		'no-else-return': 1,
 		'no-case-declarations': 1,

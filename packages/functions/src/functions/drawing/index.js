@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const bar = require('./bar');
 const help = require('./help');
 const { Functions } = require('@cedalo/parser');
@@ -13,6 +23,7 @@ const {
 	FONTFORMAT,
 	LINEFORMAT,
 	SERIES,
+	SERIESTIME,
 	AXIS,
 	ONCLICK,
 	ONDOUBLECLICK,
@@ -29,8 +40,6 @@ module.exports = {
 		BAR: bar,
 		CLASSIFYPOINT,
 		'DRAW.BUTTON': Functions['DRAW.BUTTON'],
-		'DRAW.CHART': Functions['DRAW.CHART'],
-		'DRAW.CHARTSTATE': Functions['DRAW.CHARTSTATE'],
 		'DRAW.CHECKBOX': Functions['DRAW.CHECKBOX'],
 		'DRAW.ELLIPSE': Functions['DRAW.ELLIPSE'],
 		'DRAW.LABEL': Functions['DRAW.LABEL'],
@@ -39,6 +48,7 @@ module.exports = {
 		'DRAW.PLOT': Functions['DRAW.PLOT'],
 		'DRAW.STREAMCHART': Functions['DRAW.STREAMCHART'],
 		'DRAW.POLYGON': Functions['DRAW.POLYGON'],
+		'DRAW.BEZIER': Functions['DRAW.BEZIER'],
 		'DRAW.RECTANGLE': Functions['DRAW.RECTANGLE'],
 		'DRAW.SLIDER': Functions['DRAW.SLIDER'],
 		EVENTS,
@@ -49,6 +59,7 @@ module.exports = {
 		FONTFORMAT,
 		LINEFORMAT,
 		SERIES,
+		SERIESTIME,
 		AXIS,
 		ONCLICK,
 		ONDOUBLECLICK,

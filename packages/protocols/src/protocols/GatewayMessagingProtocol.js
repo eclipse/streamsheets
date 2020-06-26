@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 'use strict';
 
 const MachineServerEvents = require('./MachineServerMessagingProtocol').EVENTS;
@@ -117,6 +127,7 @@ const AUTH_ENTITY_CREATE_MESSAGE_TYPE = 'auth_entity_create';
 const AUTH_ENTITY_DELETE_MESSAGE_TYPE = 'auth_entity_delete';
 const AUTH_ENTITY_UPDATE_MESSAGE_TYPE = 'auth_entity_update';
 const STREAM_CONTROL_EVENT = 'stream_control_event';
+const REDIRECT = 'redirect';
 
 module.exports = {
 	MESSAGE_TYPES: {
@@ -216,6 +227,7 @@ module.exports = {
 		USER_JOINED_EVENT,
 		USER_LEFT_EVENT,
 		STREAMS_RELOAD_EVENT,
-		STREAM_CONTROL_EVENT
+		STREAM_CONTROL_EVENT,
+		REDIRECT
 	}
 };

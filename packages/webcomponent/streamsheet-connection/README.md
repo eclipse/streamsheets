@@ -40,15 +40,15 @@ Currently under (heavy) development. Therefore no stable attributes available ye
 ## Usage
 ### Connecting to an existing streamsheets gateway
 ``` html
-<streamsheet-connection id="conn1" resturl="http://host:8080/api/rest" socketurl="ws://host:8088/socket">
+<streamsheet-connection id="conn1" resturl="http://host:8080/api/rest" socketurl="ws://host:8080/socket">
 </streamsheet-connection>
 <!-- multiple connections to same or different gateways are allowed -->
-<streamsheet-connection id="conn2" resturl="http://host:8080/api/rest" socketurl="ws://host:8088/socket">
+<streamsheet-connection id="conn2" resturl="http://host:8080/api/rest" socketurl="ws://host:8080/socket">
 </streamsheet-connection>
 ```
 Passing user and password to connection:
 ``` html
-<streamsheet-connection id="conn3" resturl="http://host:8080/api/rest" socketurl="ws://host:8088/socket" user="test" password="secret">
+<streamsheet-connection id="conn3" resturl="http://host:8080/api/rest" socketurl="ws://host:8080/socket" user="test" password="secret">
 </streamsheet-connection>
 ```
 
@@ -59,7 +59,7 @@ Assuming that a stream-machine with id `machine1` and a streamsheet-connection w
 ```
 If nested inside streamsheet-connection only machine id is required:
 ``` html
-<streamsheet-connection id="conn1" resturl="http://host:8080/api/rest" socketurl="ws://host:8088/socket">
+<streamsheet-connection id="conn1" resturl="http://host:8080/api/rest" socketurl="ws://host:8080/socket">
 	<streamsheet-subscribe machines="m1"></streamsheet-subscribe>
 </streamsheet-connection>
 ```
@@ -67,7 +67,7 @@ If nested inside streamsheet-connection only machine id is required:
 To subscribe to multiple machines simply specify their IDs in a comma separated list (note that attribute `syncsteps` 
 is set to `true`):
 ``` html
-<streamsheet-connection id="conn1" resturl="http://host:8080/api/rest" socketurl="ws://host:8088/socket">
+<streamsheet-connection id="conn1" resturl="http://host:8080/api/rest" socketurl="ws://host:8080/socket">
 	<streamsheet-subscribe machines="m1, m2, m3" syncsteps="true"></streamsheet-subscribe>
 </streamsheet-connection>
 ```

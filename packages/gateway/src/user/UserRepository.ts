@@ -1,24 +1,44 @@
-import { Collection, FindOneOptions, FindOneAndReplaceOption } from 'mongodb';
-import { User, UserSettings, UserFromRepo, NewUser } from './types';
-import { Authorizer, ID, Scope } from '../streamsheets';
-import { PropType } from '../common';
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
+import {
+	applyUpdate,
+	Authorizer,
+	ErrorCodes,
+	generateId,
+	ID,
+	InputError,
+	InternalError,
+	MongoError,
+	PropType,
+	touch,
+	User,
+	UserSettings
+} from '@cedalo/gateway';
+import { Collection, FindOneAndReplaceOption, FindOneOptions } from 'mongodb';
 
-const { touch, generateId, applyUpdate } = require('./Document');
-const { InternalError, InputError, MongoError, ErrorCodes } = require('../errors');
+export interface NewUser extends User {
+	password: string;
+}
+
+export type UserFromRepo = Required<Pick<User, 'settings' | 'lastModified'>> & User;
 
 export interface UserRepository {
 	findUser(id: ID): Promise<UserFromRepo | null>;
-	findMinimalUser(id: ID): Promise<Pick<User, 'id'> | null>;
 	findUserByUsername(username: string): Promise<UserFromRepo | null>;
-	findByScope(scope: Scope): Promise<Array<UserFromRepo>>;
-	countByScope(scope: Scope): Promise<number>;
 	findAllUsers(): Promise<Array<UserFromRepo>>;
-	createUser(user: User, auth: Authorizer<UserFromRepo>): Promise<UserFromRepo>;
-	updateUser(id: ID, userUpdate: Partial<User>, auth: Authorizer<User>): Promise<UserFromRepo>;
-	updateSettings(id: ID, settingsUpdate: Partial<UserSettings>, auth: Authorizer<User>): Promise<UserFromRepo>;
-	deleteUser(id: ID, auth: Authorizer<User>): Promise<boolean>;
+	createUser(user: User & { password: string }): Promise<UserFromRepo>;
+	deleteUser(id: ID): Promise<boolean>;
 	getPassword(username: string): Promise<string>;
-	updatePassword(id: ID, password: string, auth: Authorizer<User>): Promise<boolean>;
+	updatePassword(id: ID, password: string): Promise<boolean>;
+	updateSettings(id: ID, settingsUpdate: Partial<UserSettings>): Promise<UserFromRepo>;
 }
 
 type InternalUser = Omit<UserFromRepo, 'id' | 'settings'> & {
@@ -57,33 +77,13 @@ const toInternal = (user: Partial<User & NewUser>): PartialInternalUser => {
 	if (user.username !== undefined) {
 		internal.username = user.username;
 	}
-	if (user.email !== undefined) {
-		internal.email = user.email;
-	}
-	if (user.lastName !== undefined) {
-		internal.lastName = user.lastName;
-	}
-	if (user.firstName !== undefined) {
-		internal.firstName = user.firstName;
-	}
 	if (user.password !== undefined) {
 		internal.password = user.password;
 	}
 	if (user.settings !== undefined) {
 		internal.settings = toInternalSettings(user.settings);
 	}
-	if (user.scope !== undefined) {
-		internal.scope = user.scope;
-	}
-	if (user.role !== undefined) {
-		internal.role = user.role;
-	}
 	return internal;
-};
-
-const sanitizeUpdate = (update: Partial<User>) => {
-	const { password = '', ...copy } = { ...update };
-	return copy;
 };
 
 const validateSettings_ = (settings: InternalSettings) => {
@@ -103,12 +103,9 @@ const validateSettings = (settings: InternalSettings) => {
 };
 
 const validate = (user: InternalUser) => {
-	const { username, email, password } = user;
+	const { username, password } = user;
 	const errors = {
 		username: !username ? ErrorCodes.USERNAME_INVALID : undefined,
-		email: !(email && typeof email === 'string' && email.match(/^\S+@\S+\.\S+/))
-			? ErrorCodes.EMAIL_INVALID
-			: undefined,
 		password: !password ? ErrorCodes.PASSWORD_INVALID : undefined,
 		settings: validateSettings_(user.settings)
 	};
@@ -125,34 +122,6 @@ const hidePassword = (options: FindOneOptions | FindOneAndReplaceOption = {}) =>
 });
 
 const beforeWrite = (user: InternalUser) => validate(touch(user));
-
-type UniqueFields = 'username' | 'email';
-
-const findConflict = async (
-	collection: UserCollection,
-	self = '',
-	fields: { [key in UniqueFields]: { value: any; error: string } }
-) => {
-	const existing: PartialInternalUser[] = await collection
-		.find(
-			{ $or: Object.entries(fields).map(([key, { value }]) => ({ [key]: value })), _id: { $ne: self } },
-			{ projection: Object.keys(fields) }
-		)
-		.toArray();
-	const fieldErrors: { [key in UniqueFields]?: string } = existing.reduce(
-		(acc, current) =>
-			Object.assign(
-				{},
-				...Object.entries(fields).map(([key, { value, error }]) => {
-					if (key === 'email' || key === 'username') {
-						return { [key]: acc[key] || value === current[key] ? error : undefined };
-					}
-				})
-			),
-		<{ [key in UniqueFields]?: string }>{}
-	);
-	return fieldErrors;
-};
 
 const defaults = (user: Omit<InternalUser, 'settings'> & { settings: Partial<InternalSettings> }): InternalUser => {
 	const copy = { ...user };
@@ -184,77 +153,22 @@ const UserRepository = {
 		const result = await collection.find({}, hidePassword()).toArray();
 		return result.map(toExternal);
 	},
-	findByScope: async (collection: UserCollection, scope: Scope) => {
-		const result = await collection.find<InternalUser>({ 'scope.id': scope.id }, hidePassword()).toArray();
-		return result.map(toExternal);
-	},
-	countByScope: async (collection: UserCollection, scope: Scope) => {
-		const count = await collection.count({ 'scope.id': scope.id });
-		return count;
-	},
 	createUser: async (collection: UserCollection, user: User, auth: Authorizer<User> = noop) => {
 		try {
 			await auth(user);
 		} catch (error) {
 			throw error;
 		}
-		const userDocument = beforeWrite(defaults(generateId(toInternal(user))));
+		const userDocument = beforeWrite(defaults(generateId(toInternal(user)) as InternalUser));
 		try {
 			await collection.insertOne(userDocument);
 			return toExternal(userDocument);
 		} catch (error) {
 			if (MongoError.isConflict(error)) {
-				const fieldErrors = await findConflict(collection, undefined, {
-					username: {
-						value: userDocument.username,
-						error: ErrorCodes.USERNAME_IN_USE
-					},
-					email: {
-						value: userDocument.email,
-						error: ErrorCodes.EMAIL_IN_USE
-					}
-				});
-				throw InputError.conflict('Username or email already in use', fieldErrors);
-			}
-			throw error;
-		}
-	},
-	updateUser: async (
-		collection: UserCollection,
-		id: ID,
-		userUpdate: Partial<User>,
-		auth: Authorizer<User> = noop
-	) => {
-		let userDocument;
-		try {
-			const dbUser = await collection.findOne({ _id: id });
-			if (!dbUser) {
-				throw InputError.notFound('User does not exist', ErrorCodes.USER_NOT_FOUND);
-			}
-			await auth(toExternal(dbUser));
-			const sanitizedUpdate = toInternal(sanitizeUpdate(userUpdate));
-			const updatedUser = applyUpdate(dbUser, sanitizedUpdate);
-			updatedUser.password = dbUser.password;
-			userDocument = beforeWrite(updatedUser);
-			const result = await collection.findOneAndReplace(
-				{ _id: id },
-				userDocument,
-				hidePassword({ returnOriginal: false })
-			);
-			return toExternal(result.value);
-		} catch (error) {
-			if (MongoError.isConflict(error) && userDocument) {
-				const fieldErrors = await findConflict(collection, id, {
-					username: {
-						value: userDocument.username,
-						error: ErrorCodes.USERNAME_IN_USE
-					},
-					email: {
-						value: userDocument.email,
-						error: ErrorCodes.EMAIL_IN_USE
-					}
-				});
-				throw InputError.conflict('Username or email already in use', fieldErrors);
+				const fieldErrors = {
+					username: ErrorCodes.USERNAME_IN_USE
+				};
+				throw InputError.conflict('Username already in use', fieldErrors);
 			}
 			throw error;
 		}
@@ -326,17 +240,10 @@ export const createUserRepository = (collection: UserCollection): UserRepository
 			},
 			name: 'username',
 			unique: true
-		},
-		{
-			key: {
-				email: 1
-			},
-			name: 'email',
-			unique: true
 		}
 	]);
-	collection.updateMany({ scope: { $exists: false } }, { $set: { scope: { id: 'root' } } });
-	collection.updateMany({ role: { $exists: false } }, { $set: { role: 'developer' } });
+	collection.dropIndex('email').catch(() => {});
+	collection.updateMany({ scopes: { $exists: false } }, { $set: { scopes: [{ id: 'root', role: 'developer' }] } });
 	return Object.entries(UserRepository).reduce(
 		(obj, [name, func]) => ({
 			...obj,

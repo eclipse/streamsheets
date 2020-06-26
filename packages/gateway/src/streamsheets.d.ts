@@ -1,34 +1,65 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import { Authorization, BaseAuth } from './authorization';
-import { API, RawAPI } from './glue';
-import { Actor, UserRepository } from './user';
+import { Api, RawAPI } from './glue';
+import { Actor, User } from './user';
 import { StreamRepositoryProxy } from './stream/StreamRepositoryProxy';
-import { Stream } from './stream/types';
-import { FunctionObject } from './common';
 import { IResolvers } from 'apollo-server-express';
 import { MachineServiceProxy } from './machine';
 import { MongoClient } from 'mongodb';
+import { DocumentNode } from 'graphql';
+import { FunctionObject, MappedFunctionObjectObject, PartialApply1All, FunctionObjectObject } from './common';
+import { Interceptor } from './ws/ProxyConnection';
+import { UserRepository } from './user/UserRepository';
+import { Strategy } from 'passport';
 
-export interface GlobalContext {
-	mongoClient: MongoClient
-	rawApi: typeof RawAPI;
-	rawAuth: BaseAuth;
+export interface GenericGlobalContext<APIS extends { [key: string]: FunctionObject }, AUTH extends FunctionObject> {
+	mongoClient: MongoClient;
+	rawApi: APIS;
+	rawAuth: AUTH;
 	encryption: any;
+	authStrategies: { [key: string]: Strategy };
+	middleware: { [key: string]: any };
 	repositories: any;
-	graphql?: {
-		typeDefs?: string;
-		resolvers?: IResolvers;
+	interceptors: {
+		[key: string]: Interceptor;
 	};
-	userRepo: UserRepository;
+	login: (globalContext: GlobalContext, username: string, password: string) => Promise<User>;
+	graphql?: {
+		[key: string]: {
+			typeDefs?: DocumentNode;
+			resolvers?: IResolvers;
+		};
+	};
 	machineRepo: any;
+	userRepo: UserRepository;
 	streamRepo: StreamRepositoryProxy;
 	machineServiceProxy: MachineServiceProxy;
+	getRequestContext(globalContext: GlobalContext, session: Session): Promise<RequestContext>;
+	getActor(globalContext: GlobalContext, session: Session): Promise<User>;
 }
 
+export interface GlobalContext extends GenericGlobalContext<RawAPI, BaseAuth> {}
+
+export interface GenericRequestContext<APIS extends FunctionObjectObject, AUTH extends FunctionObject>
+	extends GenericGlobalContext<APIS, AUTH> {
+	api: MappedFunctionObjectObject<APIS>;
+	auth: PartialApply1All<AUTH>;
+	actor: Actor;
+}
 export interface RequestContext extends GlobalContext {
-	api: API;
+	api: Api;
 	auth: Authorization;
 	actor: Actor;
-	session: Session;
+	// session: Session;
 }
 
 export interface Scope {
@@ -39,9 +70,9 @@ export interface Session {
 	id: string;
 	user: {
 		id: string;
-		roles: string[];
+		username: string;
 		displayName: string;
-		machineId?: string
+		machineId?: string;
 	};
 }
 

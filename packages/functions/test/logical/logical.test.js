@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { createCellAt, createTerm } = require('../utilities');
 const { StreamSheet } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
@@ -77,6 +87,20 @@ describe('logical functions', () => {
 			expect(createTerm('if(A1,)', sheet).value).toBe(true);
 			expect(createTerm('if(A2,,)', sheet).value).toBe(false);
 			expect(createTerm('if(A2,,,)', sheet).value).toBe(ERROR.ARGS);
+		});
+		// DL-4099
+		it('should return error value if condition has an error value', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('if(NA(),true, false)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('if(NA() > "str1" ,true, false)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('if(23 < NA(),true, false)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('if(NA() == NA(),true, false)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('if("#NA" == NA(),true, false)', sheet).value).toBe(ERROR.NA);
+		});
+		// DL-4099
+		it(`should return ${ERROR.VALUE} if condition is an object itself`, () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('if(JSON(A1:B1),true, false)', sheet).value).toBe(ERROR.VALUE);
 		});
 	});
 	describe('or', () => {

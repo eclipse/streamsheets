@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 export const SET_APP_STATE = 'SET_APP_STATE';
 
 export const STREAM_CONTROL_EVENT = 'STREAM_CONTROL_EVENT';
@@ -113,23 +123,16 @@ export const USERS_REMOVED = 'USERS_REMOVED';
 
 // User profile
 export const USER_FETCH = 'USER_FETCH';
-export const USER_FETCHING = 'USER_FETCHING';
 export const USER_FETCHED = 'USER_FETCHED';
-export const USER_SAVE = 'USER_SAVE';
-export const USER_SAVING = 'USER_SAVING';
-export const USER_SAVED = 'USER_SAVED';
 export const USER_SET_SCOPE = 'USER_SET_SCOPE';
 export const USER_SETTINGS_SAVE = 'USER_SETTINGS_SAVE';
-export const USER_SETTINGS_SAVING = 'USER_SETTINGS_SAVING';
 export const USER_SETTINGS_SAVED = 'USER_SETTINGS_SAVED';
 
-export const USER_SET = 'USER_SET';
 export const USER_SETTING_SET = 'USER_SETTINGS_SET';
 export const USER_LOGIN = 'USER_LOGIN';
 export const USER_LOGIN_PENDING = 'USER_LOGIN_PENDING';
 export const USER_LOGIN_RESPONSE = 'USER_LOGIN_RESPONSE';
 export const USER_LOGOUT = 'USER_LOGOUT';
-export const USER_LOGOUT_RESPONSE = 'USER_LOGOUT_RESPONSE';
 
 export const PERMISSIONS_SET = 'PERMISSIONS_SET';
 

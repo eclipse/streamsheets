@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const Point = require('../../geometry/Point');
 const HeaderNode = require('./HeaderNode');
 const CellRange = require('./CellRange');
@@ -27,20 +37,8 @@ module.exports = class ColumnHeaderNode extends HeaderNode {
 		this.setName(`ColumnHeader${id}`);
 	}
 
-	setInitialSection(index) {
-		const sheet = this.getSheet();
-		const data = sheet.getDataProvider();
-		const initialSection = this.getInitialSection();
-
-		if (index < initialSection) {
-			this.insertSectionsAt(0, initialSection - index);
-			data.insertColumnsAt(new CellRange(0, 0, initialSection - index, 1));
-		} else if (index > initialSection) {
-			this.removeSectionsAt(0, index - initialSection);
-			data.removeColumnsAt(0, index - initialSection);
-		}
-
-		super.setInitialSection(index);
+	getInitialSection() {
+		return -2;
 	}
 
 	getSectionTitle(index) {
@@ -64,7 +62,7 @@ module.exports = class ColumnHeaderNode extends HeaderNode {
 
 	getSectionSize(index) {
 		const sheet = this.getSheet();
-		const formulas = sheet && sheet.isShowFormulas();
+		const formulas = sheet && sheet._showFormulas;
 
 		let size = super.getSectionSize(index);
 
@@ -77,7 +75,7 @@ module.exports = class ColumnHeaderNode extends HeaderNode {
 
 	setSectionSize(index, size) {
 		const sheet = this.getSheet();
-		const formulas = sheet && sheet.isShowFormulas();
+		const formulas = sheet && sheet._showFormulas;
 
 		if (formulas) {
 			size /= 1.5;
@@ -91,7 +89,11 @@ module.exports = class ColumnHeaderNode extends HeaderNode {
 	}
 
 	getInternalHeight() {
-		return this.isItemVisible() === false ? 0 : ColumnHeaderNode.HEIGHT;
+		if (this.isItemVisible() === false) {
+			return 0;
+		}
+
+		return ColumnHeaderNode.HEIGHT + this.getMaxLevel() * 600;
 	}
 
 	getSectionFromReference(ref) {

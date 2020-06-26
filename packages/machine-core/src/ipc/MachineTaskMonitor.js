@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const logger = require('../logger').create({ name: 'MachineTaskMonitor' });
 const MachineTaskOutboxMonitor = require('./MachineTaskOutboxMonitor');
 const MachineTaskStreamSheetMonitor = require('./MachineTaskStreamSheetMonitor');
@@ -36,7 +46,14 @@ const redisApi = () => {
 	let current = Promise.resolve();
 	let next = null;
 	const redis = new Redis(REDIS_PORT, REDIS_HOST);
-
+	const serialize = (obj) => {
+		try {
+			return JSON.stringify(obj);
+		} catch (err) {
+			logger.error('Failed to stringify object for redis!', obj);
+		}
+		return undefined;
+	};
 	const setStep = async (machineId, event) => {
 		const isAlreadyAwaiting = next !== null;
 		next = event;
@@ -46,8 +63,9 @@ const redisApi = () => {
 			} catch (error) {
 				logger.error('Failed to set step in redis', error);
 			} finally {
-				current = redis.set(machineStepKey(machineId), JSON.stringify(next));
+				const serialized = serialize(next);
 				next = null;
+				current = serialized ? redis.set(machineStepKey(machineId), serialized) : Promise.resolve();
 			}
 		}
 	};

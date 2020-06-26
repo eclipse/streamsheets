@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { STREAM_TYPES, EVENTS, ERRORS } = require('./Constants');
 const Field = require('./configurations/Field');
 const Utils = require('./helpers/Utils');
@@ -183,23 +193,10 @@ const ConsumerMixin = (Connector) =>
 
 		async update(configDiff) {
 			const { type, $set } = configDiff;
-			const handlers = new Map();
-			const definition = this.config.connector.provider.definition;
 			if (type === ConsumerConfiguration.NAME) {
 				Object.keys($set).forEach((id) => {
 					if (id !== 'connector' && !id.includes('.')) {
 						this.config[id] = $set[id];
-						if (definition) {
-							const field = definition.consumer.find(
-								(def) => def.id === id
-							);
-							if (field && field.onUpdate) {
-								handlers.set(
-									field.onUpdate,
-									this[field.onUpdate].bind(this)
-								);
-							}
-						}
 					}
 				});
 				if ($set.filter !== undefined) {
@@ -212,7 +209,7 @@ const ConsumerMixin = (Connector) =>
 					this.config.idAttribute = $set.idAttribute;
 				}
 			}
-			return super.update(configDiff, handlers);
+			return super.update(configDiff);
 		}
 	};
 

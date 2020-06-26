@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const ERRORS = {
 	EMPTY_CERTIFICATE: 'EMPTY_CERTIFICATE'
 };
@@ -38,7 +48,7 @@ const decodeCert = (cert) => {
 };
 const getBufferCert = (val) => {
 	if (!val) return '';
-	return new Buffer(decodeCert(val));
+	return Buffer.from(decodeCert(val));
 };
 
 const getTopicValue = (topic) => {
@@ -79,9 +89,9 @@ const validateTopicBasic = (topic) => {
 	if (topic.startsWith('/')) {
 		result.warnings.push(TOPIC_WARNINGS.TOPIC_WITH_LEADING_SLASH);
 	}
-	if (topic.startsWith('#')) {
-		result.warnings.push(TOPIC_WARNINGS.TOPIC_WITH_FILTER_ALL);
-	}
+	// if (topic.startsWith('#')) {
+	// 	result.warnings.push(TOPIC_WARNINGS.TOPIC_WITH_FILTER_ALL);
+	// }
 	if (topic.indexOf(' ') > -1) {
 		result.warnings.push(TOPIC_WARNINGS.TOPIC_WITH_SPACES);
 	}

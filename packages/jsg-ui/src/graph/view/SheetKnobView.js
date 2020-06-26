@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import {
 	default as JSG,
 	SetCellsCommand,
@@ -39,18 +49,26 @@ export default class SheetKnobView extends NodeView {
 			textFormat.removeFromGraphics(graphics);
 		}
 
-		let min = item.getAttributeValueAtPath('min');
-		let max = item.getAttributeValueAtPath('max');
-		let step = item.getAttributeValueAtPath('step');
+		let min = Number(item.getAttributeValueAtPath('min'));
+		let max = Number(item.getAttributeValueAtPath('max'));
+		let step = Number(item.getAttributeValueAtPath('step'));
 		const startAngle = item.getAttributeValueAtPath('start');
 		const endAngle = item.getAttributeValueAtPath('end');
 		const marker = item.getAttributeValueAtPath('marker');
-		if (max === min) {
-			min -= 0.5;
-			max += 0.5;
+		if (Number.isNaN(min)) {
+			min = 0;
+		}
+		if (Number.isNaN(max)) {
+			max = 100;
+		}
+		if (Number.isNaN(step)) {
+			min = 10;
+		}
+		if (max <= min) {
+			max = min + 100;
 		}
 		if (step <= 0) {
-			step = 0.1;
+			step = 1;
 		}
 		const range = max - min;
 

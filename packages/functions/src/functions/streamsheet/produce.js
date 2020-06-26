@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const publishinternal = require('../../utils/publishinternal');
 const { runFunction, sheet: { messageFromBoxOrValue, getMachine } } = require('../../utils');
 const { FunctionErrors } = require('@cedalo/error-codes');
@@ -21,5 +31,6 @@ const produce = (sheet, ...terms) =>
 			return message;
 		})
 		.run((machine, streamTerm, message) => publishinternal(sheet, streamTerm, message));
+produce.displayName = true;
 
 module.exports = produce;

@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const httpError = require('http-errors');
 const auth = require('basic-auth');
 
@@ -72,7 +82,7 @@ module.exports = class MessageRoute {
 				})
 				.catch((error) => {
 					switch (error.type) {
-					case 'authorization': 
+					case 'authorization':
 						response.status(401).send('Authorization Required');
 						break;
 					default:
@@ -85,7 +95,13 @@ module.exports = class MessageRoute {
 	}
 
 	static getTopicFromPath(path) {
-		const parts = /\/v1.0\/(.*)/i.exec(path);
+		// old API,e.g., /api/v1.0/cedalo/tests
+		let parts = /\/v1.0\/(.*)/i.exec(path);
+		if (parts) {
+			return parts.length >= 2 ? parts[1] : '';
+		}
+		// new API,e.g., /request/cedalo/tests
+		parts = /\/(.*)/i.exec(path);
 		return parts.length >= 2 ? parts[1] : '';
 	}
 };

@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable no-empty */
 /* global window sessionStorage localStorage document */
 
@@ -13,8 +23,6 @@ const SheetButtonNode = require('./SheetButtonNode');
 const SheetCheckboxNode = require('./SheetCheckboxNode');
 const SheetSliderNode = require('./SheetSliderNode');
 const SheetKnobNode = require('./SheetKnobNode');
-const SheetPlotNode = require('./SheetPlotNode');
-const { SheetChartStateNode } = require('@cedalo/jsg-extensions/core');
 const Graph = require('./Graph');
 const FormatAttributes = require('../attr/FormatAttributes');
 const TextFormatAttributes = require('../attr/TextFormatAttributes');
@@ -33,13 +41,13 @@ const PolygonShape = require('./shapes/PolygonShape');
 const Expression = require('../expr/Expression');
 const SheetReference = require('../expr/SheetReference');
 const WorksheetNode = require('./WorksheetNode');
-const ChartNode = require('./ChartNode');
 const CellsNode = require('./CellsNode');
 const CellRange = require('./CellRange');
 const NotificationCenter = require('../notifications/NotificationCenter');
 const Notification = require('../notifications/Notification');
 const Coordinate = require('../Coordinate');
 const GraphUtils = require('../GraphUtils');
+const { SheetPlotNode } = require('@cedalo/jsg-extensions/core');
 
 const setSheetCaption = (sheetName, sheetContainer) => {
 	if (sheetContainer) {
@@ -47,11 +55,11 @@ const setSheetCaption = (sheetName, sheetContainer) => {
 			.getStreamSheetContainerAttributes()
 			.getStep()
 			.getValue();
-		sheetContainer.getSheetCaption().setName(`${sheetName} ${JSG.getLocalizedString('Step')} - ${step}`);
+		sheetContainer.getSheetCaption().setName(`${sheetName} - ${JSG.getLocalizedString('Step')} ${step}`);
 	}
 };
 
-let myVideo;
+// let myVideo;
 
 /**
  * Node representing a worksheet. The worksheet contains additional nodes for the rows,
@@ -72,7 +80,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 		this.getFormat().setLineColor('#AAAAAA');
 
 		const columns = this.getColumns();
-		columns.setInitialSection(-2);
 		columns.setSectionSize(0, 0);
 		columns.setSectionSize(1, 700);
 
@@ -690,9 +697,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 					case 'ellipse':
 						node = new Node(new EllipseShape());
 						break;
-					case 'chart':
-						node = new ChartNode();
-						break;
 					case 'polygon':
 						node = new Node(new PolygonShape());
 						break;
@@ -851,10 +855,12 @@ module.exports = class StreamSheet extends WorksheetNode {
 						break;
 					}
 					case 'bezier':
-						break;
 					case 'polygon':
+						if (drawItem.close !== undefined) {
+							node.getItemAttributes().setClosed(drawItem.close);
+						}
 						if (drawItem.range && drawItem.range !== '') {
-							const pointRange = CellRange.parse(drawItem.range, this, false);
+							const pointRange = CellRange.parse(drawItem.range, this);
 							const data = this.getDataProvider();
 							if (pointRange === undefined || pointRange.getWidth() !== 2) {
 								break;
@@ -883,18 +889,15 @@ module.exports = class StreamSheet extends WorksheetNode {
 								coors.push(coor);
 							}
 							shape.setCoordinates(coors);
-						}
-						if (drawItem.close !== undefined) {
-							node.getItemAttributes().setClosed(drawItem.close);
+							node.evaluate();
+							if (drawItem.type === 'bezier') {
+								shape._cpToCoordinates = [];
+								shape._cpFromCoordinates = [];
+								shape.getBezierPoints(shape.getPoints());
+							}
 						}
 						break;
 					case 'plot':
-						// node.setChartType(drawItem.charttype);
-						break;
-					case 'chart':
-						node.setDataRangeString(drawItem.range ? `=${drawItem.range}` : '');
-						node.setFormatDataRangeString(drawItem.formatrange ? `=${drawItem.formatrange}` : '');
-						node.setChartType(drawItem.charttype);
 						break;
 					case 'checkbox':
 					case 'button':
@@ -938,18 +941,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 						node.setAttributeAtPath('end', drawItem.end);
 						node.setAttributeAtPath('formatrange', drawItem.formatrange ? drawItem.formatrange : '');
 						break;
-					case 'chartstate':
-						node.setAttributeAtPath('title', drawItem.text);
-						this.setFontFormat(node.getTextFormat(), drawItem.font);
-						node.setAttributeAtPath('type', drawItem.charttype);
-						node.setAttributeAtPath('range', drawItem.range ? drawItem.range : '');
-						node.setAttributeAtPath('legend', drawItem.legend ? drawItem.legend : '');
-						node.setAttributeAtPath('min', drawItem.min);
-						node.setAttributeAtPath('max', drawItem.max);
-						node.setAttributeAtPath('stepType', drawItem.stepType);
-						node.setAttributeAtPath('step', drawItem.step);
-						node.setAttributeAtPath('scalefont', drawItem.scalefont);
-						break;
 					default:
 						break;
 					}
@@ -961,7 +952,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		NotificationCenter.getInstance().send(
 			new Notification(WorksheetNode.SELECTION_CHANGED_NOTIFICATION, {
 				item: this,
-				updateFinal: true
+				updateFinal: false
 			})
 		);
 	}
@@ -1026,9 +1017,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			return undefined;
 		}
 
-		if (item instanceof JSG.ChartNode) {
-			type = 'chart';
-		} else if (item instanceof JSG.TextNode) {
+		if (item instanceof JSG.TextNode) {
 			type = 'label';
 		} else if (item instanceof JSG.SheetButtonNode) {
 			type = 'button';
@@ -1038,13 +1027,10 @@ module.exports = class StreamSheet extends WorksheetNode {
 			type = 'slider';
 		} else if (item instanceof JSG.SheetKnobNode) {
 			type = 'knob';
-		} else if (item instanceof JSG.SheetChartStateNode) {
-			type = 'chartstate';
 		} else if (item instanceof JSG.SheetPlotNode) {
 			type = 'streamchart';
 		}
 
-		const graph = this.getGraph();
 		let formula = `DRAW.${type.toUpperCase()}("${item.getId()}",`;
 
 		if (item.getParent() instanceof CellsNode) {
@@ -1105,33 +1091,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 					formula += `,,,${attributes},,`;
 					formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
 					break;
-				case 'chartstate': {
-					formula += `,,,,,`;
-					formula += angle === 0 ? ',,"ChartState",,"state"' : `${angle},,"ChartState",,"state"`;
-					const selection = graph.getSheetSelection();
-					if (selection) {
-						const range = selection.toStringByIndex(0, { item: this, useName: true });
-						if (range) {
-							// item.setDataRangeString(`=${range}`);
-							formula += `,${range}`;
-						}
-					}
-					break;
-				}
-				case 'chart': {
-					formula += `,,,${attributes},,`;
-					formula += angle === 0 ? ',,' : `${angle},,`;
-					formula += `"${item.getChartType()}"`;
-					const selection = graph.getSheetSelection();
-					if (selection) {
-						const range = selection.toStringByIndex(0, { item: this, useName: true, forceName: true });
-						if (range) {
-							item.setDataRangeString(`=${range}`);
-							formula += `,${range}`;
-						}
-					}
-					break;
-				}
 				default:
 					if (angle !== 0 || attributes !== '') {
 						formula += `,,,${attributes},,${angle}`;
@@ -1142,10 +1101,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 		formula += ')';
 
-		// const attr = new Attribute('sheetformula', new Expression(0, formula));
-		// item.getItemAttributes().addAttribute(attr);
-		// attr.evaluate(item);
-		//
 		return formula;
 	}
 
@@ -1159,9 +1114,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 					const color = format.getLineColor().getValue();
 					if (color === '#000000') {
 						return new NullTerm();
-					} else {
-						return Term.fromString(color);
 					}
+					return Term.fromString(color);
 				}
 				break;
 			}
@@ -1230,9 +1184,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			return undefined;
 		}
 
-		if (item instanceof JSG.ChartNode) {
-			type = 'chart';
-		} else if (item instanceof SheetButtonNode) {
+		if (item instanceof SheetButtonNode) {
 			type = 'button';
 		} else if (item instanceof SheetCheckboxNode) {
 			type = 'checkbox';
@@ -1242,8 +1194,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 			type = 'knob';
 		} else if (item instanceof SheetPlotNode) {
 			type = 'streamchart';
-		} else if (item instanceof SheetChartStateNode) {
-			type = 'chartstate';
 		} else if (item instanceof JSG.TextNode) {
 			type = 'label';
 		}
@@ -1374,28 +1324,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 						Term.fromString(Strings.encodeXML(item.getText().getValue()))
 					);
 					break;
-				case 'chart': {
-					this.setGraphFunctionParam(termFunc, 13, Term.fromString(item.getChartType()));
-					let range = item.getDataRangeString();
-					if (range && range !== '' && range[0] === '=') {
-						this.setGraphFunctionParam(
-							termFunc,
-							14,
-							new Term(new SheetReference(ws, range.substring(1))),
-							true
-						);
-					}
-					range = item.getFormatDataRangeString();
-					if (range && range !== '' && range[0] === '=') {
-						this.setGraphFunctionParam(
-							termFunc,
-							15,
-							new Term(new SheetReference(ws, range.substring(1))),
-							true
-						);
-					}
-					break;
-				}
 			}
 		}
 

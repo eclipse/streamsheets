@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable no-cond-assign */
 
 import {
@@ -9,7 +19,6 @@ import {
 	NotificationCenter
 } from '@cedalo/jsg-core';
 
-import ScrollPanel from '../../ui/ScrollPanel';
 import GraphController from '../controller/GraphController';
 import LayerId from '../view/LayerId';
 import SnapFeedbackView from '../view/SnapFeedbackView';
@@ -79,7 +88,7 @@ class SnapHelper {
 		if (this.snapToVisible) {
 			this._viewer = viewer;
 			this._setVisibleControllers(viewer);
-			NotificationCenter.getInstance().register(this, ScrollPanel.SCROLL_NOTIFICATION, '_onScroll');
+			NotificationCenter.getInstance().register(this, NotificationCenter.SCROLL_NOTIFICATION, '_onScroll');
 		}
 	}
 
@@ -139,7 +148,7 @@ class SnapHelper {
 	 * @since 3.0
 	 */
 	release(/* viewer */) {
-		NotificationCenter.getInstance().unregister(this, ScrollPanel.SCROLL_NOTIFICATION);
+		NotificationCenter.getInstance().unregister(this, NotificationCenter.SCROLL_NOTIFICATION);
 	}
 	/**
 	 * Checks if snap feature should be applied.

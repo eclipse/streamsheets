@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const AbstractItemCommand = require('./AbstractItemCommand');
 const Point = require('../../geometry/Point');
 const Expression = require('../expr/Expression');
@@ -83,7 +93,7 @@ module.exports = class LoadMachineCommand extends AbstractItemCommand {
 					}
 					const pos = new Point(
 						res.column - sheet.getColumns().getInitialSection(),
-						res.row - sheet.getRows().getInitialSection()
+						res.row
 					);
 
 					const cell = data.create(pos);

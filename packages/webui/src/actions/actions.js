@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import Protocols from '@cedalo/protocols';
 import { push } from 'react-router-redux';
 import JSG from '@cedalo/jsg-ui';
@@ -55,15 +65,8 @@ export const {
 } = StreamActions;
 
 export const {
-	createUser,
-	updateUser,
-	getAllUsers,
-	removeUserByUserId,
-	getUserByUserId,
-	setUser,
 	setUserSettings,
 	saveUserSettings,
-	saveCurrentUser,
 	login,
 	logout,
 } = UserActions;
@@ -429,9 +432,13 @@ export function getMe() {
 					scope {
 						id
 					}
+					scopes {
+						id
+						rights
+						name
+					}
 					username
-					lastName
-					firstName
+					displayName
 					admin
 					settings {
 						locale
@@ -441,10 +448,10 @@ export function getMe() {
 			}`
 		);
 		const user = result.me;
-		const displayName = [user.firstName, user.lastName].filter((e) => !!e).join(' ') || user.username;
+		const { id, displayName, settings  } = user;
 		const urlHash = qs.parse(window.location.hash);
 		const currentScope = urlHash.scope;
-		localStorage.setItem('user', JSON.stringify({ id: user.id, displayName, settings: user.settings }));
+		localStorage.setItem('user', JSON.stringify({ id, displayName, settings }));
 		dispatch({
 			type: ActionTypes.USER_FETCHED,
 			user: { ...user, scope: { id: currentScope || user.scope.id } }
@@ -599,6 +606,9 @@ export function connect() {
 	gatewayClient.on('service', (/* event */) => {
 		getMetaInformationAndDispatch();
 	});
+	gatewayClient.on('redirect', () => {
+		accessManager.logoutUI(true);
+	});
 	const config = {
 		...CONFIG,
 		pathname: store.getState().router.location.pathname,
@@ -679,12 +689,13 @@ export function connect() {
 								// usually when the machine is running very fast
 							}
 						});
-						gatewayClient.confirmProcessedMachineStep(event.machineId || event.srcId);
 						// dispatch(finishedProcessingMachineStep());
 						// const finishedProcessingMachineStepEvent = document.createEvent('Event');
 						// finishedProcessingMachineStepEvent.initEvent('finished_processing_machine_step', true, true);
 						// document.dispatchEvent(finishedProcessingMachineStepEvent);
 						graphManager.setDrawingDisabled(false);
+						// finally confirm:
+						gatewayClient.confirmProcessedMachineStep(event.machineId || event.srcId);
 					} catch (error) {
 						console.error(error);
 					}

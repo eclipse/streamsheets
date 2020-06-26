@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import { RequestContext, Scope, ID } from '../streamsheets';
 import { Machine, Graph } from './types';
 import { LoggerFactory } from '@cedalo/logger';
@@ -7,6 +17,7 @@ export interface MachineApi {
 	findMachine(scope: Scope, machineId: ID): Promise<Machine | null>;
 	findMachines(scope: Scope): Promise<Machine[]>;
 	findMachinesByName(scope: Scope, name: string): Promise<Machine[]>;
+	delete(scope: Scope, id: ID): Promise<any>;
 	load(scope: Scope, id: ID): Promise<any>;
 	unload(scope: Scope, id: ID): Promise<any>;
 	start(scope: Scope, id: ID): Promise<any>;
@@ -21,13 +32,8 @@ export const BaseMachineApi = {
 			return null;
 		}
 		try {
-			const machine: Machine | null = await machineRepo.findMachine(machineId);
-			if (machine) {
-				if (!auth.isInScope(scope, machine)) {
-					return null;
-				}
-				await auth.verifyMachine('view', machine);
-			}
+			const query = scope ? { 'scope.id': scope.id } : null;
+			const machine: Machine | null = await machineRepo.findMachine(machineId, query);
 			return machine;
 		} catch (error) {
 			if (error.code === 'MACHINE_NOT_FOUND') {
@@ -59,26 +65,27 @@ export const BaseMachineApi = {
 		return machines;
 	},
 	saveOrUpdate: async (
-		{ auth, api, machineRepo, repositories }: RequestContext,
+		{ machineRepo, repositories }: RequestContext,
 		scope: Scope,
 		machine: Machine,
 		graph?: Graph
 	) => {
-		const existingMachine = await api.machine.findMachine(scope, machine.id);
-		if (existingMachine) {
-			await auth.verifyMachine('edit', machine);
-		}
 		await machineRepo.saveOrUpdateMachine(machine.id, { ...machine, scope });
 		if (graph) {
 			await repositories.graphRepository.saveOrUpdateGraph(graph.id, graph);
 		}
 	},
-	unload: async ({ auth, machineServiceProxy, api }: RequestContext, scope: Scope, machineId: ID) => {
+	delete: async ({ api, machineRepo, repositories }: RequestContext, scope: Scope, id: ID) => {
+		const machine = await api.machine.findMachine(scope, id);
+		if (machine) {
+			return Promise.all([machineRepo.deleteMachine(id), repositories.graphRepository.deleteGraphByMachineId(id)]);
+		}
+	},
+	unload: async ({ machineServiceProxy, api }: RequestContext, scope: Scope, machineId: ID) => {
 		const machine = await api.machine.findMachine(scope, machineId);
 		if (!machine) {
 			return { unloaded: true };
 		}
-		await auth.verifyMachine('unload', machine);
 		const result = await machineServiceProxy.unload(machineId);
 		return { unloaded: result.unloaded, state: machine.state };
 	},
@@ -89,18 +96,16 @@ export const BaseMachineApi = {
 			return result;
 		}
 	},
-	start: async ({ auth, machineServiceProxy, api }: RequestContext, scope: Scope, machineId: ID) => {
+	start: async ({ machineServiceProxy, api }: RequestContext, scope: Scope, machineId: ID) => {
 		const machine = await api.machine.findMachine(scope, machineId);
 		if (machine) {
-			await auth.verifyMachine('start', machine);
 			const result = await machineServiceProxy.start(machineId);
 			return result;
 		}
 	},
-	pause: async ({ auth, machineServiceProxy, api }: RequestContext, scope: Scope, machineId: ID) => {
+	pause: async ({ machineServiceProxy, api }: RequestContext, scope: Scope, machineId: ID) => {
 		const machine = await api.machine.findMachine(scope, machineId);
 		if (machine) {
-			await auth.verifyMachine('pause', machine);
 			const result = await machineServiceProxy.pause(machineId);
 			return result;
 		}

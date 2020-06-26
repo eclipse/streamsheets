@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import { Event, NotificationCenter, StreamSheet, WorksheetNode } from '@cedalo/jsg-core';
 import NodeController from './NodeController';
 import GraphItemController from './GraphItemController';
@@ -5,7 +15,6 @@ import StreamSheetView from '../view/StreamSheetView';
 import WorksheetView from '../view/WorksheetView';
 import ContentPaneView from '../view/ContentPaneView';
 import ContentNodeView from '../view/ContentNodeView';
-import GraphEditor from '../../ui/GraphEditor';
 
 class ContentPaneController extends GraphItemController {
 	createFeedback() {
@@ -87,12 +96,12 @@ class ContentNodeController extends NodeController {
 		this._setContentPaneController(new ContentPaneController(contentPane));
 		this.getView().layout();
 		// we have to relayout ScrollView on zoom so:
-		NotificationCenter.getInstance().register(this, GraphEditor.ZOOM_NOTIFICATION, 'onZoom');
+		NotificationCenter.getInstance().register(this, NotificationCenter.ZOOM_NOTIFICATION, 'onZoom');
 	}
 
 	deactivate() {
 		super.deactivate();
-		NotificationCenter.getInstance().unregister(this, GraphEditor.ZOOM_NOTIFICATION);
+		NotificationCenter.getInstance().unregister(this, NotificationCenter.ZOOM_NOTIFICATION);
 	}
 
 	onZoom(notification) {

@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell } = require('@cedalo/machine-core');
@@ -135,10 +145,12 @@ class QueryStore {
 		}
 	}
 
-	write(cell, range) {
+	write(cell, range, term) {
 		const entries = this.entries;
 		const values = entries.reduce(entriesReduce, { time: [] });
 		if (range) spreadValuesToRange(values, range);
+		// DL-4067: marker support
+		cell.info.marker = term ? term._marker : undefined;
 		cell.info.values = values;
 		cell.info.xvalue = 'time';
 	}
@@ -168,6 +180,10 @@ const getStoreTerm = (term) => {
 	term = getTargetTerm(term);
 	return term.name && term.name.toLowerCase() === 'timestore' ? term : undefined;
 };
+const setXValue = (term) => {
+	const cell = term && term.cell;
+	if (cell) cell.setCellInfo('xvalue', 'time');
+};
 
 const timeQuery = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -179,6 +195,7 @@ const timeQuery = (sheet, ...terms) =>
 		.mapNextArg((interval) => getInterval(interval))
 		.mapNextArg((range) => getRange(range))
 		.mapNextArg((limit) => getLimit(limit))
+		.beforeRun(() => setXValue(timeQuery.term))
 		.run((storeterm, queryjson, interval, range, limit) => {
 			const term = timeQuery.term;
 			const timestore = storeterm._timestore;
@@ -186,7 +203,7 @@ const timeQuery = (sheet, ...terms) =>
 			if (querystore) {
 				stateListener.registerCallback(sheet, term, querystore.reset);
 				querystore.performQueryOnInterval(timestore);
-				querystore.write(term.cell, range);
+				querystore.write(term.cell, range, term);
 				const size = querystore.entries.length;
 				// eslint-disable-next-line no-nested-ternary
 				return size === 0 ? ERROR.NA : size < querystore.limit ? true : ERROR.LIMIT;

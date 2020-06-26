@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable react/forbid-prop-types, jsx-a11y/click-events-have-key-events */
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -9,7 +19,6 @@ import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { FormattedMessage } from 'react-intl';
 
-const ITEM_HEIGHT = 78;
 const DEF_STYLES = {
 	icon: {
 		width: '25px',
@@ -83,7 +92,6 @@ export default class ResourceMenu extends React.Component {
 					onClose={this.handleClose}
 					PaperProps={{
 						style: {
-							maxHeight: ITEM_HEIGHT * 4.5,
 							width: 'auto',
 						},
 					}}

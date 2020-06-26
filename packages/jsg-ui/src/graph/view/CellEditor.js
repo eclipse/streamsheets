@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* global window document */
 
 import {CellRange, default as JSG, Point, Selection, SheetReference, Strings} from '@cedalo/jsg-core';
@@ -576,6 +586,10 @@ export default class CellEditor {
 			}
 			if (rangeOld) {
 				range._color = rangeOld._color;
+				range._x1R = rangeOld._x1R;
+				range._x2R = rangeOld._x2R;
+				range._y1R = rangeOld._y1R;
+				range._y2R = rangeOld._y2R;
 			}
 			selection.setAt(index, range);
 
@@ -607,6 +621,10 @@ export default class CellEditor {
 				}
 				if (rangeOld) {
 					range._color = rangeOld._color;
+					range._x1R = rangeOld._x1R;
+					range._x2R = rangeOld._x2R;
+					range._y1R = rangeOld._y1R;
+					range._y2R = rangeOld._y2R;
 				}
 				selection.setAt(index, range);
 				view.showCell(cell);

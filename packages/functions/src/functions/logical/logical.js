@@ -1,6 +1,17 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { runFunction, terms: onTerms, values: { isEven } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { isType } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 
@@ -30,13 +41,17 @@ const termValue = (term, defval) => () => {
 	return value != null ? value : defval;
 };
 
+const getCondition = (term) => {
+	const value = term.value;
+	return FunctionErrors.isError(value) || (isType.object(value) ? ERROR.VALUE : !!value);
+};
 const condition = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(2)
 		.withMaxArgs(3)
-		.mapNextArg((cond) => !!(cond.value))
+		.mapNextArg((cond) => getCondition(cond))
 		.mapNextArg((onTrue) => termValue(onTrue, true)) // return a different value?
-		.mapNextArg((onFalse) => termValue(onFalse,false))
+		.mapNextArg((onFalse) => termValue(onFalse, false))
 		.run((cond, onTrue, onFalse) => cond ? onTrue() : onFalse());
 
 const not = (sheet, ...terms) =>

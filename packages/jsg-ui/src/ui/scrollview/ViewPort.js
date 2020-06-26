@@ -1,7 +1,17 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import { default as JSG, Notification, NotificationCenter, Point } from '@cedalo/jsg-core';
 import Widget from '../Widget';
-import RangeModel from '../scrollview/RangeModel';
-import ViewPanel from '../scrollview/ViewPanel';
+import RangeModel from "./RangeModel";
+import ViewPanel from "./ViewPanel";
 
 /**
  * The ViewPort acts like a window to look at the currently visible area of a, usually larger, view. This content view

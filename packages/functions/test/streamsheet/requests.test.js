@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { createCellAt } = require('../utilities');
 const { Machine, Message, SheetIndex, Streams, StreamSheet } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
@@ -18,10 +28,7 @@ Streams.request = (streamId, message) => new Promise((resolve, rejectIt) => {
 	pendingRequest = {
 		message: responseMessage,
 		resolve: () => resolve(responseMessage),
-		reject: (err) => {
-			rejectIt(err);
-			return Promise.reject(err);
-		}
+		reject: (err) => rejectIt(err)
 	};
 });
 
@@ -45,7 +52,8 @@ describe('request', () => {
 	it('should return with request id', async () => {
 		const streamsheet = setupStreamSheet({ A1: { formula: 'request(|test_stream, "hallo", outbox("response"))' } });
 		const sheet = streamsheet.sheet;
-		await sheet.startProcessing();
+		const machine = streamsheet.machine;
+		await machine.step();
 		const reqId = cellAt('A1', sheet).value;
 		expect(reqId).toBeDefined();
 		expect(sheet.getPendingRequests().size).toBe(1);
@@ -54,30 +62,31 @@ describe('request', () => {
 	it('should not request twice with same request id', async () => {
 		const streamsheet = setupStreamSheet({ A1: { formula: 'request(|test_stream, "hallo", outbox("response"))' } });
 		const sheet = streamsheet.sheet;
-		await sheet.startProcessing();
+		const machine = streamsheet.machine;
+		await machine.step();
 		const reqId = cellAt('A1', sheet).value;
 		expect(reqId).toBeDefined();
 		expect(sheet.getPendingRequests().size).toBe(1);
-		sheet.startProcessing();
-		sheet.startProcessing();
-		sheet.startProcessing();
+		await machine.step();
+		await machine.step();
+		await machine.step();
 		expect(sheet.getPendingRequests().size).toBe(1);
 	});
-	it('should store request repsonse to outbox', async () => {
+	it('should store request response to outbox', async () => {
 		const streamsheet = setupStreamSheet({ A1: { formula: 'request(|test_stream, "hallo", outbox("response"))' } });
-		const sheet = streamsheet.sheet;
-		const outbox = streamsheet.machine.outbox;
+		const machine = streamsheet.machine;
+		const outbox = machine.outbox;
 		expect(outbox.size).toBe(0);
-		await sheet.startProcessing();
+		await machine.step();
 		await pendingRequest.resolve(pendingRequest.message.data);
 		expect(outbox.size).toBe(1);
 		expect(outbox.peek('response')).toBeDefined();
 	});
-	it('should store request repsonse to inbox', async () => {
+	it('should store request response to inbox', async () => {
 		const streamsheet = setupStreamSheet({ A1: { formula: 'request(|test_stream, "hallo", inbox())' } });
-		const sheet = streamsheet.sheet;
+		const machine = streamsheet.machine;
 		expect(streamsheet.inbox.size).toBe(0);
-		await sheet.startProcessing();
+		await machine.step();
 		await pendingRequest.resolve(pendingRequest.message.data);
 		expect(streamsheet.inbox.size).toBe(1);
 		expect(streamsheet.inbox.peek().data.value).toBe('hallo');
@@ -86,45 +95,46 @@ describe('request', () => {
 		const streamsheet = setupStreamSheet({
 			A1: { formula: 'request(|test_stream, outboxdata("request"), inbox())' }
 		});
-		const sheet = streamsheet.sheet;
-		const outbox = streamsheet.machine.outbox;
+		const machine = streamsheet.machine;
+		const outbox = machine.outbox;
 		outbox.put(new Message({ text: 'hallo' }, 'request'));
 		expect(streamsheet.inbox.size).toBe(0);
-		await sheet.startProcessing();
+		await machine.step();
 		await pendingRequest.resolve(pendingRequest.message.data);
 		expect(streamsheet.inbox.size).toBe(1);
 		expect(streamsheet.inbox.peek().data.text).toBe('hallo');
 	});
 	it('should create a new request if previous finished', async () => {
 		const streamsheet = setupStreamSheet({ A1: { formula: 'request(|test_stream, "hallo", inbox())' } });
-		const sheet = streamsheet.sheet;
+		const machine = streamsheet.machine;
 		expect(streamsheet.inbox.size).toBe(0);
-		await sheet.startProcessing();
+		await machine.step();
 		await pendingRequest.resolve(pendingRequest.message.data);
 		expect(streamsheet.inbox.size).toBe(1);
 		expect(streamsheet.inbox.peek().data.value).toBe('hallo');
-		await sheet.startProcessing();
+		await machine.step();
 		await pendingRequest.resolve(pendingRequest.message.data);
 		expect(streamsheet.inbox.size).toBe(2);
 	});
 	it('should remove resolved or rejected request on next cycle', async () => {
 		const streamsheet = setupStreamSheet({ A1: { formula: 'request(|test_stream, "hallo", inbox())' } });
 		const sheet = streamsheet.sheet;
+		const machine = streamsheet.machine;
 		expect(streamsheet.inbox.size).toBe(0);
-		await sheet.startProcessing();
+		await machine.step();
 		expect(sheet.getPendingRequests().size).toBe(1);
 		const previousRequestId = sheet
-			.getPendingRequests()
-			.keys()
-			.next();
+		.getPendingRequests()
+		.keys()
+		.next();
 		await pendingRequest.resolve(pendingRequest.message.data);
 		expect(streamsheet.inbox.size).toBe(1);
-		await sheet.startProcessing();
+		await machine.step();
 		expect(sheet.getPendingRequests().size).toBe(1);
 		const currentRequestId = sheet
-			.getPendingRequests()
-			.keys()
-			.next();
+		.getPendingRequests()
+		.keys()
+		.next();
 		expect(currentRequestId).not.toBe(previousRequestId);
 	});
 	it('should remove all pending request on machine stop', async () => {
@@ -132,7 +142,7 @@ describe('request', () => {
 		const sheet = streamsheet.sheet;
 		const machine = streamsheet.machine;
 		expect(streamsheet.inbox.size).toBe(0);
-		await sheet.startProcessing();
+		await machine.step();
 		expect(sheet.getPendingRequests().size).toBe(1);
 		await machine.pause();
 		await machine.stop();
@@ -144,9 +154,9 @@ describe('request', () => {
 	it('should remove pending request if function is replaced', async () => {
 		const streamsheet = setupStreamSheet({ A1: { formula: 'request(|test_stream, "hallo", inbox())' } });
 		const sheet = streamsheet.sheet;
-		// const machine = streamsheet.machine;
+		const machine = streamsheet.machine;
 		expect(streamsheet.inbox.size).toBe(0);
-		await sheet.startProcessing();
+		await machine.step();
 		expect(sheet.getPendingRequests().size).toBe(1);
 		createCellAt('A1', 'A1+1', sheet);
 		expect(sheet.getPendingRequests().size).toBe(0);
@@ -157,17 +167,18 @@ describe('request', () => {
 });
 
 describe('requestinfo', () => {
-	it('should return false for a pending request', () => {
+	it('should return false for a pending request', async () => {
 		const streamsheet = setupStreamSheet({
 			A1: { formula: 'request(|test_stream, "hallo", outbox("response"))' },
 			B1: { formula: 'requestinfo(a1)' }
 		});
 		const sheet = streamsheet.sheet;
-		sheet.startProcessing();
+		const machine = streamsheet.machine;
+		await machine.step();
 		expect(cellAt('B1', sheet).value).toBe(false);
-		sheet.startProcessing();
-		sheet.startProcessing();
-		sheet.startProcessing();
+		await machine.step();
+		await machine.step();
+		await machine.step();
 		expect(cellAt('B1', sheet).value).toBe(false);
 	});
 	it('should return true for a finished request', async () => {
@@ -176,16 +187,17 @@ describe('requestinfo', () => {
 			A2: { formula: 'request(|test_stream, "hallo", outbox("response"))' }
 		});
 		const sheet = streamsheet.sheet;
-		sheet.startProcessing();
+		const machine = streamsheet.machine;
+		await machine.step();
 		expect(cellAt('A1', sheet).value).toBe(false);
-		sheet.startProcessing();
-		sheet.startProcessing();
+		await machine.step();
+		await machine.step();
 		expect(cellAt('A1', sheet).value).toBe(false);
 		await pendingRequest.resolve(pendingRequest.message.data);
-		sheet.startProcessing();
+		await machine.step();
 		expect(cellAt('A1', sheet).value).toBe(true);
 		await pendingRequest.resolve(pendingRequest.message.data);
-		sheet.startProcessing();
+		await machine.step();
 		expect(cellAt('A1', sheet).value).toBe(true);
 	});
 	it(`should return ${ERROR.ERR} for a rejected request`, async () => {
@@ -194,19 +206,20 @@ describe('requestinfo', () => {
 			A2: { formula: 'request(|test_stream, "hallo", outbox("response"))' }
 		});
 		const sheet = streamsheet.sheet;
-		sheet.startProcessing();
+		const machine = streamsheet.machine;
+		await machine.step();
 		expect(cellAt('A1', sheet).value).toBe(false);
 		expect(sheet.getPendingRequests().size).toBe(1);
-		sheet.startProcessing();
-		sheet.startProcessing();
+		await machine.step();
+		await machine.step();
 		expect(cellAt('A1', sheet).value).toBe(false);
 		expect(sheet.getPendingRequests().size).toBe(1);
 		try {
 			await pendingRequest.reject('error');
 		} catch (err) {
-			sheet.startProcessing();
+			await machine.step();
 			expect(cellAt('A1', sheet).value).toBe(ERROR.ERR);
-			// because of requestinfo we cannot remove reqquest, so
+			// because of requestinfo we cannot remove request, so
 			expect(sheet.getPendingRequests().size).toBe(1);
 		}
 	});

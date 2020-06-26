@@ -1,10 +1,21 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const AttributeList = require('./AttributeList');
 const NumberAttribute = require('./NumberAttribute');
+const StringAttribute = require('./StringAttribute');
 
 
 // PREDEFINED ATTRIBUTES:
 const DEFAULTSECTIONSIZE = 'defaultsectionsize';
-const INITIALSECTION = 'initialsection';
+const OUTLINEDIRECTION = 'outlinedirection';
 
 // UNIQUE NAME:
 const NAME = 'WorksheetHeader';
@@ -47,7 +58,7 @@ const HeaderAttributes = class HeaderAttributes extends AttributeList {
 
 		// simply add default attributes:
 		addAttribute(new NumberAttribute(ATTR.DEFAULTSECTIONSIZE), 2000);
-		addAttribute(new NumberAttribute(ATTR.INITIALSECTION), 0);
+		addAttribute(new StringAttribute(ATTR.OUTLINEDIRECTION), 'above');
 
 		return attributes.toTemplate(HeaderAttributes.TemplateID);
 	}
@@ -60,12 +71,12 @@ const HeaderAttributes = class HeaderAttributes extends AttributeList {
 		this.setAttribute(HeaderAttributes.DEFAULTSECTIONSIZE, size);
 	}
 
-	getInitialSection() {
-		return this.getAttribute(HeaderAttributes.INITIALSECTION);
+	getOutlineDirection() {
+		return this.getAttribute(HeaderAttributes.OUTLINEDIRECTION);
 	}
 
-	setInitialSection(index) {
-		this.setAttribute(HeaderAttributes.INITIALSECTION, index);
+	setOutlineDirection(direction) {
+		this.setAttribute(HeaderAttributes.OUTLINEDIRECTION, direction);
 	}
 
 	doSaveParentRef() {
@@ -83,8 +94,8 @@ const HeaderAttributes = class HeaderAttributes extends AttributeList {
 		return DEFAULTSECTIONSIZE;
 	}
 
-	static get INITIALSECTION() {
-		return INITIALSECTION;
+	static get OUTLINEDIRECTION() {
+		return OUTLINEDIRECTION;
 	}
 
 	static get TemplateID() {

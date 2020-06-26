@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable no-bitwise */
 /*
 	Apache SheetJS
@@ -571,7 +581,7 @@ const writeNum /* :SSF_write_num */ = (() => {
 		const idx = fmt.indexOf('E') - fmt.indexOf('.') - 1;
 		if (fmt.match(/^#+0.0E\+0$/)) {
 			if (val === 0) return '0.0E+0';
-			else if (val < 0) return `-.${writeNumExp(fmt, -val)}`;
+			if (val < 0) return `-.${writeNumExp(fmt, -val)}`;
 			let period = fmt.indexOf('.');
 			if (period === -1) period = fmt.indexOf('E');
 			let ee = Math.floor(Math.log(val) * Math.LOG10E) % period;
@@ -817,7 +827,7 @@ const writeNum /* :SSF_write_num */ = (() => {
 		const idx = fmt.indexOf('E') - fmt.indexOf('.') - 1;
 		if (fmt.match(/^#+0.0E\+0$/)) {
 			if (val === 0) return '0.0E+0';
-			else if (val < 0) return `-${writeNumExp2(fmt, -val)}`;
+			if (val < 0) return `-${writeNumExp2(fmt, -val)}`;
 			let period = fmt.indexOf('.');
 			if (period === -1) period = fmt.indexOf('E');
 			let ee = Math.floor(Math.log(val) * Math.LOG10E) % period;

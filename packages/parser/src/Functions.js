@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const { ERROR, OK } = require('./ReturnCodes');
 
 const ExcelDateToJSDate = (serial) => {
@@ -65,33 +75,12 @@ module.exports.Functions = {
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.updateGraphItem(scope, terms, 'bezier', false) : ERROR.NOT_AVAILABLE;
 	},
-	'DRAW.CHART': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'chart', false) : ERROR.NOT_AVAILABLE;
-	},
-	'DRAW.PLOT': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'plot', false) : ERROR.NOT_AVAILABLE;
-	},
 	'DRAW.STREAMCHART': (scope, ...terms) => {
 		if (scope.graphCells === undefined) {
 			return OK.TRUE;
 		}
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.updateGraphItem(scope, terms, 'plot', false) : ERROR.NOT_AVAILABLE;
-	},
-	'DRAW.CHARTSTATE': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'chartstate', false) : ERROR.NOT_AVAILABLE;
 	},
 	'DRAW.LINE': (scope, ...terms) => {
 		if (scope.graphCells === undefined) {
@@ -128,10 +117,13 @@ module.exports.Functions = {
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.updateGraphItem(scope, terms, 'knob', false) : ERROR.NOT_AVAILABLE;
 	},
-	SERIES: (scope) => {
+	SERIES: () => {
 		return OK.TRUE;
 	},
-	AXIS: (scope) => {
+	SERIESTIME: () => {
+		return OK.TRUE;
+	},
+	AXIS: () => {
 		return OK.TRUE;
 	},
 	CLASSIFYPOINT: (scope, ...terms) => {

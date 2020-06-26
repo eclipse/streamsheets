@@ -2,7 +2,8 @@
   "name": "@cedalo/gateway",
   "version": "1.6.2",
   "description": "Gateway server",
-  "main": "start.js",
+  "main": "out/index.js",
+  "types": "index.ts",
   "scripts": {
     "dev": "tsc -w",
     "build": "tsc",
@@ -102,10 +103,10 @@
     "testEnvironment": "node",
     "coverageThreshold": {
       "global": {
-        "branches": 5,
+        "branches": 2,
         "functions": 5,
-        "lines": 30,
-        "statements": 30
+        "lines": 20,
+        "statements": 20
       }
     },
     "preset": "ts-jest/presets/js-with-ts"

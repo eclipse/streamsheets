@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 /* eslint-disable react/no-unused-state,react/prop-types */
 import React from 'react';
 import JSG from '@cedalo/jsg-ui';
@@ -83,7 +93,7 @@ export default class JsonTree extends React.Component {
 		const graphEditor = this.initGraphEditor();
 		JSG.NotificationCenter.getInstance().register(
 			this,
-			JSG.GraphEditor.ZOOM_NOTIFICATION,
+			JSG.NotificationCenter.ZOOM_NOTIFICATION,
 			'onZoom',
 		);
 		const nc = JSG.NotificationCenter.getInstance();

@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import { default as JSG, GraphUtils, Shape } from '@cedalo/jsg-core';
 import Interaction from './Interaction';
 
@@ -118,28 +128,6 @@ class ViewInteraction extends Interaction {
 			this._view.handleKeyEvent(event);
 		}
 	}
-
-	// onRotateStart(event, viewer) {
-	// };
-	// onRotate(event, viewer) {
-	// };
-	// onRotateEnd(event, viewer) {
-	// };
-	// onPinchStart(event, viewer) {
-	// };
-	// onPinch(event, viewer) {
-	// };
-	// onPinchEnd(event, viewer) {
-	// };
-	// onPanStart(event, viewer) {
-	// };
-	// onPan(event, viewer) {
-	// };
-	// onPanEnd(event, viewer) {
-	// };
-	//
-	// onHold(event, viewer) {
-	// };
 
 	// DON'T pass event to active interaction => fixes bug that next item is selected on mouse up!!
 	//= > if we include it again, we should do it for certain situations only...

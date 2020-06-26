@@ -1,9 +1,20 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import passport from 'passport';
 import passportJWT from 'passport-jwt';
 import jwt from 'jsonwebtoken';
 import { LoggerFactory } from '@cedalo/logger';
 import { User } from './user';
 import express from 'express';
+import { GlobalContext } from '..';
 
 const logger = LoggerFactory.createLogger('gateway - Auth', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
 const ExtractJwt = passportJWT.ExtractJwt;
@@ -15,7 +26,14 @@ class Auth {
 		secretOrKey: ''
 	};
 
-	initStrategies() {
+	set jwtSecret(secret: string) {
+		this.jwtOptions = {
+			jwtFromRequest: ExtractJwt.fromAuthHeader(),
+			secretOrKey: secret
+		};
+	}
+
+	initialize(context: GlobalContext): express.Handler {
 		passport.use(
 			'jwt',
 			new JwtStrategy(this.jwtOptions, (jwtPayload, next) => {
@@ -27,17 +45,7 @@ class Auth {
 				}
 			})
 		);
-	}
-
-	set jwtSecret(secret: string) {
-		this.jwtOptions = {
-			jwtFromRequest: ExtractJwt.fromAuthHeader(),
-			secretOrKey: secret
-		};
-	}
-
-	initialize(): express.Handler {
-		this.initStrategies();
+		Object.entries(context.authStrategies).forEach(([name, strategy]) => passport.use(name, strategy));
 		passport.serializeUser((user, done) => {
 			done(null, user);
 		});

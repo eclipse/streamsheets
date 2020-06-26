@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 import { default as JSG } from '@cedalo/jsg-core';
 import { default as Parser } from '@cedalo/parser';
 
@@ -169,7 +179,6 @@ import TreeInteraction from './src/graph/interaction/TreeInteraction';
 import CaptionView from './src/graph/view/CaptionView';
 import ButtonView from './src/graph/view/ButtonView';
 import CellsView from './src/graph/view/CellsView';
-import ChartView from './src/graph/view/ChartView';
 import ColumnHeaderView from './src/graph/view/ColumnHeaderView';
 import HeaderView from './src/graph/view/HeaderView';
 import StreamSheetView from './src/graph/view/StreamSheetView';
@@ -183,7 +192,6 @@ import SheetButtonView from './src/graph/view/SheetButtonView';
 import SheetCheckboxView from './src/graph/view/SheetCheckboxView';
 import SheetSliderView from './src/graph/view/SheetSliderView';
 import SheetKnobView from './src/graph/view/SheetKnobView';
-import SheetPlotView from './src/graph/view/SheetPlotView';
 import { init as initExtensions }  from '@cedalo/jsg-extensions/ui';
 import TreeFeedbackView from './src/graph/feedback/TreeFeedbackView';
 import CellFeedbackView from './src/graph/feedback/CellFeedbackView';
@@ -358,7 +366,6 @@ JSG.TreeInteraction = TreeInteraction;
 JSG.CaptionView = CaptionView;
 JSG.ButtonView = ButtonView;
 JSG.CellsView = CellsView;
-JSG.ChartView = ChartView;
 JSG.ColumnHeaderView = ColumnHeaderView;
 JSG.HeaderView = HeaderView;
 JSG.StreamSheetView = StreamSheetView;
@@ -372,8 +379,6 @@ JSG.SheetButtonView = SheetButtonView;
 JSG.SheetCheckboxView = SheetCheckboxView;
 JSG.SheetSliderView = SheetSliderView;
 JSG.SheetKnobView = SheetKnobView;
-JSG.SheetPlotView = SheetPlotView;
-// JSG.SheetChartStateView = SheetChartStateView;
 JSG.TreeFeedbackView = TreeFeedbackView;
 JSG.CellFeedbackView = CellFeedbackView;
 JSG.CellEditor = CellEditor;

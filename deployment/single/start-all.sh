@@ -6,9 +6,8 @@ docker run \
   -p 8080:8080 \
   -p 8081:8081 \
   -p 8083:8083 \
-  -p 8088:8088 \
   -p 8090:8090 \
   -p 8091:8091 \
   -p 9000:9000 \
   --env-file streamsheets.env \
-  cedalo/streamsheets:1.5
+  cedalo/streamsheets:1.6-milestone

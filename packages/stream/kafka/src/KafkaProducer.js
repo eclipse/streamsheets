@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const {ProducerMixin, RequestResponse} = require('@cedalo/sdk-streams');
 const KafkaConnector = require('./KafkaConnector');
 const KSQLHelper = require('./KSQLHelper');
@@ -18,7 +28,6 @@ module.exports = class KafkaProducer extends ProducerMixin(KafkaConnector) {
 				this.onClose();
 			});
 			const res = await this._producer.connect();
-			this.logger.debug(res);
 			this.logger.info('Producer connected');
 			this.setConnected();
 
@@ -29,10 +38,9 @@ module.exports = class KafkaProducer extends ProducerMixin(KafkaConnector) {
 		}
 		try {
 			if (this.isConnected && this.ksqlRESTUrl) {
-				const res1 = await this.doKSQLCommand({
+				await this.doKSQLCommand({
 					ksqlCommand: 'show topics;show tables;',
 				});
-				this.logger.debug(res1);
 			}
 		} catch (e) {
 			this.handleWarning(e);
@@ -52,7 +60,7 @@ module.exports = class KafkaProducer extends ProducerMixin(KafkaConnector) {
 	async request(config_) {
 		const requestId = config_.Metadata.requestId;
 		const config = config_.Data;
-		this.logger.debug(JSON.stringify(config.Data));
+		// this.logger.debug(JSON.stringify(config.Data));
 		const name = config.functionName;
 		let response;
 		try {
@@ -113,7 +121,9 @@ module.exports = class KafkaProducer extends ProducerMixin(KafkaConnector) {
 	}
 
 	async dispose() {
-		await this._producer.disconnect();
+		if(this._producer) {
+			await this._producer.disconnect();
+		}
 		await super.dispose();
 		this._producer = null;
 	}

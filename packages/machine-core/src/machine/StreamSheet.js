@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const Inbox = require('./Inbox');
 const MessageHandler = require('./MessageHandler');
 const Sheet = require('./Sheet');
@@ -101,6 +111,7 @@ class StreamSheet {
 		});
 		// init:
 		this._state = State.ACTIVE;
+		this._prevstate = State.ACTIVE;
 		this._applyConfig(config);
 		// init & register callbacks:
 		this.onInboxPop = this.onInboxPop.bind(this);
@@ -296,6 +307,7 @@ class StreamSheet {
 		this.stats.repeatsteps = 0;
 		this._msgHandler.reset();
 		this._state = State.ACTIVE;
+		this._prevstate = State.ACTIVE;
 	}
 
 	// called by machine...
@@ -377,18 +389,21 @@ class StreamSheet {
 	}
 
 	pauseProcessing() {
+		this._prevstate = this._state;
 		this._state = State.PAUSED;
 		this.sheet.pauseProcessing();
 	}
 
 	// rename: used to repeat single cell...
 	repeatProcessing() {
+		this._prevstate = this._state;
 		this._state = State.REPEAT;
 		this.sheet.pauseProcessing();
 	}
 
 	resumeProcessing() {
 		if (this._state === State.PAUSED || this._state === State.REPEAT) {
+			this._prevstate = this._state;
 			this._state = State.RESUMED;
 			this.sheet.resumeProcessing();
 			this._doStep();
@@ -407,7 +422,7 @@ class StreamSheet {
 
 	_doStep(data, message) {
 		let result;
-		const prevState = this._state;
+		const prevstate = this._prevstate;
 		const firstTime = !this._trigger.isActive;
 		const forceStep = data && data.cmd === 'force';
 		// DL-3719 workaround to prevent moving loop-index twice in same step
@@ -417,27 +432,26 @@ class StreamSheet {
 		this._trigger.preProcess(data);
 		const skipTrigger = this._skipExecuteTrigger(data);
 		if (forceStep || (!skipTrigger && doTrigger(this))) {
-			let nextLoopElement = this._state === State.ACTIVE;
-			if (nextLoopElement && this._useNextLoopElement) {
+			if (this._state === State.ACTIVE && this._useNextLoopElement) {
 				this._useNextLoopElement = false;
 				this._msgHandler.next();
-				// if (this._msgHandler.isProcessed) this._detachMessage();
 			}
 			// DL-1114 executestep is now updated by execute.js
 			// if (data && data.cmd === 'execute' && this._state !== State.REPEAT) this.stats.executesteps += 1;
 			if (this._state === State.REPEAT) {
 				result = this.sheet.startProcessing();
+			} else if (this._state === State.RESUMED) {
+				result = this._resume();
 			} else {
-				result = this._state === State.RESUMED ? this._resume() : this._process(message);
-				// if still active after process/resume, step to next loop data:
-				// if (this._state === State.ACTIVE) this._msgHandler.next();
-				nextLoopElement = this._state === State.ACTIVE;
+				result = this._process(message);
 			}
 			this._emitter.emit('step', this);
-			// if still active after process/resume, step to next loop data:
-			// if (this._state === State.ACTIVE) this._msgHandler.next();
-			if (!this._nxtResumed && nextLoopElement && (!this._trigger.isEndless || !hasLoop(this._msgHandler))) {
-				this._nxtResumed = prevState === State.RESUMED;
+			// check state transitions to decide if next loop element should be taken  => PLEASE REWRITE COMPLETELY!!
+			const nextLoopElement =
+				this._state === State.ACTIVE &&
+				// note: transition from repeat might processed sheet completely!
+				(this._prevstate !== State.RESUMED || (prevstate === State.REPEAT && !this.sheet.isProcessing));
+			if (nextLoopElement && (!this._trigger.isEndless || !hasLoop(this._msgHandler))) {
 				this._msgHandler.next();
 			}
 		}
@@ -446,6 +460,7 @@ class StreamSheet {
 		return result;
 	}
 	_resume() {
+		this._prevstate = this._state;
 		this._state = State.ACTIVE;
 		return this.sheet.startProcessing();
 	}
@@ -462,6 +477,7 @@ class StreamSheet {
 			this._detachIfProcessed();
 			this._notifyResumeCallback(result);
 		}
+		this._prevstate = this._state;
 	}
 
 	_updateStatsOnTrigger() {

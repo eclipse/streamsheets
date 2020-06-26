@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const sdk = require('@cedalo/sdk-streams');
 
 module.exports = class MqttProviderConfiguration extends sdk.ProviderConfiguration {
@@ -25,7 +35,7 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 		this.addConnectorDefinition({
 			id: 'url',
 			label: 'URL',
-			defaultValue: 'localhost',
+			defaultValue: 'mqtt://localhost',
 			help: 'mqtt://, mqtts://, tcp://,tls://, ws://, wss://'
 		});
 		this.addConnectorDefinition({
@@ -244,6 +254,7 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 
 		const functionDefinition = {
 			name: 'MQTT.PUBLISH',
+			displayName: true,
 			baseFunction: 'produce',
 			parameters: [
 				{
@@ -313,6 +324,7 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 		this.addFunctionDefinition(
 			Object.assign({}, functionDefinition, {
 				name: 'PUBLISH',
+				displayName: true,
 				deprecated: true
 			})
 		);

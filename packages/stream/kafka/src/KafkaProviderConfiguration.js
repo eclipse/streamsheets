@@ -1,3 +1,13 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const sdk = require('@cedalo/sdk-streams');
 const KafkaFunctions = require('./KafkaFunctions');
 
@@ -274,6 +284,7 @@ module.exports = class KafkaProviderConfiguration extends sdk.ProviderConfigurat
 
 		this.addFunctionDefinition({
 			name: 'KAFKA.PUBLISH',
+			displayName: true,
 			baseFunction: 'produce',
 			parameters: [
 				{
@@ -319,6 +330,7 @@ module.exports = class KafkaProviderConfiguration extends sdk.ProviderConfigurat
 
 		this.addFunctionDefinition(this.requestFunction((target, resultKeys, timeout) => ({
 			name: KafkaFunctions.QUERY,
+			displayName: true,
 			baseFunction: 'request',
 			parameters: [
 				{
@@ -340,6 +352,7 @@ module.exports = class KafkaProviderConfiguration extends sdk.ProviderConfigurat
 
 		this.addFunctionDefinition(this.requestFunction((target, resultKeys, timeout) => ({
 			name: KafkaFunctions.COMMAND,
+			displayName: true,
 			baseFunction: 'request',
 			parameters: [
 				{
