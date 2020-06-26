@@ -19,12 +19,16 @@ export default class ResourceHeaderButton extends React.Component {
 		icon: PropTypes.func.isRequired,
 		state: PropTypes.bool,
 		onChange: PropTypes.func,
-		label: PropTypes.object
+		label: PropTypes.object,
+		buttonColor: PropTypes.string,
+		buttonColorDisabled: PropTypes.string
 	};
 
 	static defaultProps = {
 		state: false,
 		label: '',
+		buttonColor: 'white',
+		buttonColorDisabled: 'lightgrey',
 		onChange: () => console.log('state handle'),
 	};
 
@@ -47,7 +51,7 @@ export default class ResourceHeaderButton extends React.Component {
 						style={{
 							// marginTop: '5px',
 							color: state === true
-								? 'lightgrey' : 'grey',
+								? this.props.buttonColorDisabled : this.props.buttonColor,
 							width: '30px',
 							height: '30px',
 							padding: '0px',

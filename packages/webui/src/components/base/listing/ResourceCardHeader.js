@@ -81,6 +81,8 @@ export default class ResourceCardHeader extends React.Component {
 		titleMaxLength: PropTypes.number,
 		menuOptions: PropTypes.array,
 		onMenuSelect: PropTypes.func,
+		buttonColor: PropTypes.string,
+		buttonColorDisabled: PropTypes.string,
 		disabled: PropTypes.bool,
 		showState: PropTypes.bool,
 		showProgressing: PropTypes.bool,
@@ -91,7 +93,7 @@ export default class ResourceCardHeader extends React.Component {
 	static defaultProps = {
 		icon: undefined,
 		headerIcons: [],
-		headerBackgroundColor: 'fff',
+		headerBackgroundColor: '#ffffff',
 		handleOpenMenu: undefined,
 		titleAttribute: 'name',
 		titleMaxLength: undefined,
@@ -99,6 +101,8 @@ export default class ResourceCardHeader extends React.Component {
 		menuOptions: undefined,
 		handleClicked: () => {},
 		onMenuSelect: () => {},
+		buttonColor: 'white',
+		buttonColorDisabled: 'lightgrey',
 		disabled: false,
 		showProgressing: true,
 		showState: false,
@@ -161,15 +165,18 @@ export default class ResourceCardHeader extends React.Component {
 				<CardHeader
 					style={{
 						padding: '0px 10px',
-						marginTop: '9px',
 						color: 'white',
 						textDecoration: resource.disabled ? 'line-through' : 'inherit',
 						alignSelf: 'center',
-						backgroundColor: 'white'
+						backgroundColor: this.props.headerBackgroundColor
 					}}
 					avatar={icon}
 					action={
-						<div>
+						<div
+							style={{
+								marginTop: '4px',
+							}}
+						>
 							{headerIcons.length > 0 ? (
 								<div
 									style={{
@@ -187,6 +194,8 @@ export default class ResourceCardHeader extends React.Component {
 											)
 											.map((h) => (
 												<ResourceHeaderButton
+													buttonColor={this.props.buttonColor}
+													buttonColorDisabled={this.props.buttonColorDisabled}
 													key={`headerbutton-${resource.id}-${h.menuId}`}
 													icon={h.icon}
 													onChange={() => handleClicked(h.menuId, resource.id)}

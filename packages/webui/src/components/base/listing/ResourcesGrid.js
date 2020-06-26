@@ -49,7 +49,6 @@ class ResourcesGrid extends React.Component {
 		gridWidth: PropTypes.number,
 		handleResourceDetails: PropTypes.func,
 		titleAttribute: PropTypes.string.isRequired,
-		headerBackgroundColor: PropTypes.string,
 		styles: PropTypes.object,
 		onChecked: PropTypes.func,
 		checked: PropTypes.arrayOf(PropTypes.string),
@@ -57,7 +56,6 @@ class ResourcesGrid extends React.Component {
 	};
 
 	static defaultProps = {
-		headerBackgroundColor: '#8BC34A',
 		disabled: false,
 		images: false,
 		handleResourceDetails: undefined,
@@ -130,7 +128,6 @@ class ResourcesGrid extends React.Component {
 			label,
 			icon,
 			titleAttribute,
-			headerBackgroundColor,
 			gridWidth,
 			onMenuSelect,
 			onChecked,
@@ -308,23 +305,30 @@ class ResourcesGrid extends React.Component {
 																'description',
 															) : 'This is a description placeholder for commenting on the implemented Service'}
 														</Typography>
-														<ResourceCardHeader
-															{...this.props}
-															handleClicked={onMenuSelect}
-															resource={resource}
-															titleAttribute={titleAttribute}
-															headerBackgroundColor={
-																headerBackgroundColor
-															}
-															headerIcons={
-																this.props.headerIcons
-															}
-															icon={icon}
-															menuOptions={menuOptions}
-															onMenuSelect={onMenuSelect}
-															titleMaxLength={15}
-															disabled={!showControlButtons || disabled}
-														/>
+														<div
+															style={{
+																marginTop: '8px',
+																marginRight: '-8px',
+															}}
+														>
+															<ResourceCardHeader
+																{...this.props}
+																handleClicked={onMenuSelect}
+																resource={resource}
+																titleAttribute={titleAttribute}
+																headerBackgroundColor='#FFFFFF'
+																buttonColor='grey'
+																buttonColorDisabled='lightgrey'
+																headerIcons={
+																	this.props.headerIcons
+																}
+																icon={icon}
+																menuOptions={menuOptions}
+																onMenuSelect={onMenuSelect}
+																titleMaxLength={15}
+																disabled={!showControlButtons || disabled}
+															/>
+														</div>
 													</div>
 												</div>
 											</CardContent>

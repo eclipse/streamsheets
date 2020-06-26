@@ -59,7 +59,7 @@ class CombinedResourceListing extends Component {
 	static defaultProps = {
 		type: 'dashboard',
 		disabled: false,
-		headerBackgroundColor: '#8BC34A',
+		headerBackgroundColor: '#FFFFFF',
 		handleNew: null,
 		layout: 'grid',
 		images: false,
