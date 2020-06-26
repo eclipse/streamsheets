@@ -133,7 +133,7 @@ export const AdminPageLayoutComponent = (props) => {
 								}
 							/> */}
 							<InfoToolBar
-								title={<FormattedMessage id="Administration" defaultMessage="Administration" />}
+								title={documentTitle}
 								workspaceSelect={workspaceSelect}
 							/>
 							{!isMachineEngineConnected ? (
