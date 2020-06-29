@@ -732,6 +732,10 @@
     "StreamChartProperties.AxisHint": "Zum Ändern von Minimum, Maximum oder Schrittweite, bitte die Achse anklicken und den entsprechenden Parameter der 'AXIS' Formel in der Bearbeitungsleiste ändern",
     "StreamChartProperties.FormatHint": "Einstellungen für Linien, Muster und Schriften bitte über die Toolbar vornehmen",
     "StreamChartProperties.EditValueRanges": "Wertebereiche bearbeiten",
+    "StreamChartProperties.SeriesLines": "Series Lines",
+    "StreamChartProperties.VaryByCategories": "Vary Color by Categories",
+    "StreamChartProperties.TresholdStyle": "",
+    "StreamChartProperties.ColorChange": "Farbwechsel",
     "DialogValueRanges.title": "Wertebereiche bearbeiten",
     "DialogValueRanges.label": "Bezeichnung",
     "DialogValueRanges.from": "Von",
@@ -776,5 +780,9 @@
     "StreamChart.VolumeHighLowClose": "Volumen-Höchst-Tief-Schlusskurs (4 Datenreihen)",
     "StreamChart.VolumeOpenHighLowClose": "Volumen-Eröffnungs-Höchst-Tief-Schlusskurs (5 Datenreihen)",
     "StreamChart.TypesOther": "Weitere Diagramme",
-    "StreamChart.Funnel": "Trichter"
+    "StreamChart.Funnel": "Trichter",
+    "StreamChart.TypesColumn": "Säulen-/Balkendiagramme",
+    "StreamChart.TypesLine": "Liniendiagramme",
+    "StreamChart.TypesArea": "Flächendiagramme",
+    "StreamChart.TypesFunnel": "Trichterdiagramme"
 }
