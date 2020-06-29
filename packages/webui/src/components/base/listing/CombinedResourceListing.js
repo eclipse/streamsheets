@@ -31,7 +31,6 @@ class CombinedResourceListing extends Component {
 	static propTypes = {
 		type: PropTypes.string,
 		label: PropTypes.object.isRequired,
-		fields: PropTypes.array.isRequired,
 		menuOptions: PropTypes.array,
 		nameFilter: PropTypes.string,
 		resources: PropTypes.array.isRequired,

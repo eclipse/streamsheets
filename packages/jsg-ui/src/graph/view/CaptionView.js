@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -40,55 +40,55 @@ export default class CaptionView extends NodeView {
 		let width = graphics
 			.getCoordinateSystem()
 			.deviceToLogX(graphics.measureText(item.getName().getValue()).width, true);
-		let icon;
+		// let icon;
+		//
+		// let hideButtons = false;
+		//
+		// const graph = item.getGraph();
+		// if (graph) {
+		// 	const container = graph.getMachineContainer();
+		// 	if (container) {
+		// 		hideButtons = container
+		// 			.getMachineContainerAttributes()
+		// 			.getHideToolbars()
+		// 			.getValue();
+		// 	}
+		// }
 
-		let hideButtons = false;
-
-		const graph = item.getGraph();
-		if (graph) {
-			const container = graph.getMachineContainer();
-			if (container) {
-				hideButtons = container
-					.getMachineContainerAttributes()
-					.getHideToolbars()
-					.getValue();
-			}
-		}
-
-		if (hideButtons === false) {
-			switch (item._icon) {
-				case 'connected':
-					icon = JSG.imagePool.get('statusok');
-					break;
-				case 'disconnected':
-					icon = JSG.imagePool.get('statuserror');
-					break;
-				default:
-					if (item._icon === undefined || item._icon === '') {
-						icon = undefined;
-					} else {
-						icon = JSG.imagePool.get('statuswarning');
-					}
-			}
-			this._iconRect = undefined;
-			if (icon) {
-				if (width > rect.width - 1725) {
+		// if (hideButtons === false) {
+		// 	switch (item._icon) {
+		// 		case 'connected':
+		// 			icon = JSG.imagePool.get('statusok');
+		// 			break;
+		// 		case 'disconnected':
+		// 			icon = JSG.imagePool.get('statuserror');
+		// 			break;
+		// 		default:
+		// 			if (item._icon === undefined || item._icon === '') {
+		// 				icon = undefined;
+		// 			} else {
+		// 				icon = JSG.imagePool.get('statuswarning');
+		// 			}
+		// 	}
+		// 	this._iconRect = undefined;
+		// 	if (icon) {
+				if (width > rect.width - 1025) {
 					const rectEl = rect.copy();
-					rectEl.x = rect.width - 1900;
-					rectEl.width = 1900;
+					rectEl.x = rect.width - 1200;
+					rectEl.width = 1200;
 					graphics.setFillColor(format.getFillColor().getValue());
 					graphics.fillRect(rectEl);
 					graphics.setFillColor('#FFFFFF');
 					graphics.fillText('...', rectEl.x, rect.y + rect.height / 2 + 20);
-					width = rect.width - 1750;
+					// width = rect.width - 1750;
 				}
-
-				const size = graphics.getCoordinateSystem().deviceToLogX(25, true);
-				graphics.drawImage(icon, width + 400, (rect.height - 400) / 2, 400, 400);
-				if (item.getIconLink()) {
-					this._iconRect = new Rectangle(width + 400, 0, rect.height, rect.height);
-				}
-			}
-		}
+		//
+		// 		const size = graphics.getCoordinateSystem().deviceToLogX(25, true);
+		// 		graphics.drawImage(icon, width + 400, (rect.height - 400) / 2, 400, 400);
+		// 		if (item.getIconLink()) {
+		// 			this._iconRect = new Rectangle(width + 400, 0, rect.height, rect.height);
+		// 		}
+		// 	}
+		// }
 	}
 }

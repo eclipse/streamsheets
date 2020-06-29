@@ -220,34 +220,6 @@ class DashBoardComponent extends Component {
 		return (
 			<ImportDropzone>
 				<CombinedResourceListing
-					fields={[
-						{
-							label: this.props.intl.formatMessage({
-								id: 'Dashboard.sheets',
-								defaultMessage: 'Sheets'
-							}),
-							key: 'streamsheets.length'
-						},
-						{
-							// eslint-disable-next-line
-							label: this.props.intl.formatMessage({
-								id: 'Dashboard.streams',
-								defaultMessage: 'Streams'
-							}),
-							key: 'streamsheets[*].inbox.stream.name'
-						},
-						{
-							label: this.props.intl.formatMessage({
-								id: 'Admin.provideOwner',
-								defaultMessage: 'Owner'
-							}),
-							key: 'owner'
-						},
-						{
-							label: <FormattedMessage id="Admin.lastModified" defaultMessage="Last Modified" />,
-							key: 'lastModified_formatted'
-						}
-					]}
 					label={<FormattedMessage id="Dashboard.processes" defaultMessage="Processes" />}
 					images
 					titleAttribute="name"
