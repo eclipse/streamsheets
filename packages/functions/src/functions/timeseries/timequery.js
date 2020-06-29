@@ -211,6 +211,6 @@ const timeQuery = (sheet, ...terms) =>
 			// failed to create store...
 			return ERROR.VALUE;
 		});
-
+timeQuery.displayName = true;
 
 module.exports = timeQuery;

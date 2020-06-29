@@ -131,6 +131,6 @@ const store = (sheet, ...terms) =>
 			stateListener.registerCallback(sheet, term, timestore.reset);
 			return timestore.push(timestamp || localNow(), values);
 		});
-
+store.displayName = true;
 
 module.exports = store;
