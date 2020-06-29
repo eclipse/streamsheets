@@ -386,6 +386,7 @@
   "Admin.newStream": "New Stream",
   "Admin.loading": "Loading...",
   "Admin.emptyName": "Name cannot be empty!",
+  "Admin.invalidName": "Invalid Name!",
   "Admin.duplicateName": "Name already used, please select unique name!",
   "Admin.reload": "Saving, validating and reloading...",
   "Admin.reloadTip": "Reload and validate data sources",
