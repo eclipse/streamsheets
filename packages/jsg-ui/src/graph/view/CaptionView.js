@@ -37,7 +37,7 @@ export default class CaptionView extends NodeView {
 		textFormat.removeFromGraphics(graphics);
 
 		graphics.fillText(item.getName().getValue(), rect.x + 200, rect.y + rect.height / 2 + 20);
-		let width = graphics
+		const width = graphics
 			.getCoordinateSystem()
 			.deviceToLogX(graphics.measureText(item.getName().getValue()).width, true);
 		// let icon;
