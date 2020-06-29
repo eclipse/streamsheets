@@ -15,6 +15,7 @@ import CardHeader from '@material-ui/core/CardHeader/CardHeader';
 import LinearProgress from '@material-ui/core/LinearProgress/LinearProgress';
 import ResourceHeaderButton from './ResourceHeaderButton';
 import ResourceMenu from './ResourceMenu';
+import { shorten, jsonPath } from './Utils';
 
 const getState = (state, resource) => {
 	if (typeof state === 'string') {
@@ -152,7 +153,11 @@ export default class ResourceCardHeader extends React.Component {
 			handleClicked,
 			resource,
 			handleOpenMenu,
+			onResourceOpen,
+			titleAttribute,
 			icon,
+			titleMaxLength,
+			showState,
 			menuOptions,
 			onMenuSelect,
 			showProgressing,
@@ -160,6 +165,11 @@ export default class ResourceCardHeader extends React.Component {
 		} = this.props;
 		const { progressing } = this.state;
 		const showControls = !showProgressing || !disabled;
+		let title = shorten(jsonPath(resource, titleAttribute) || resource.name,
+			titleMaxLength);
+		if (showState) {
+			title = `${title} (${resource.state})`;
+		}
 		return (
 			<div>
 				<CardHeader
@@ -213,8 +223,25 @@ export default class ResourceCardHeader extends React.Component {
 							/>
 						</div>
 					}
+					title={ showState ? (
+						<div
+							style={{
+								cursor: 'pointer',
+								color: 'white',
+								fontWeight: '300',
+								fontSize: '11pt',
+							}}
+							onClick={onResourceOpen ? () => onResourceOpen(resource,
+								true) : null}
+							title={jsonPath(resource, titleAttribute) ||
+							resource.name}
+						>
+							{title}
+							{progressing === true && showProgressing ? <LinearProgress
+								style={{ width: '90%' }}/> : null}
+						</div> ) : null}
 				/>
-				{progressing === true && showProgressing ? <LinearProgress style={{ width: '70%', display: 'block', marginLeft: '40px' }} /> : null}
+				{ !showState && progressing === true && showProgressing ? <LinearProgress style={{ width: '70%', display: 'block', marginLeft: '40px' }} /> : null}
 			</div>
 		);
 	}
