@@ -38,7 +38,6 @@ class ResourcesGrid extends React.Component {
 	static propTypes = {
 		label: PropTypes.object.isRequired,
 		disabled: PropTypes.bool,
-		// fields: PropTypes.array.isRequired,
 		menuOptions: PropTypes.array.isRequired,
 		resources: PropTypes.array.isRequired,
 		onMenuSelect: PropTypes.func,
@@ -124,7 +123,6 @@ class ResourcesGrid extends React.Component {
 		const {
 			resources,
 			menuOptions,
-			// fields,
 			label,
 			icon,
 			titleAttribute,
