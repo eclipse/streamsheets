@@ -26,7 +26,8 @@ import MenuList from '@material-ui/core/MenuList';
 import Popover from '@material-ui/core/Popover';
 import Select from '@material-ui/core/Select';
 import SvgIcon from '@material-ui/core/SvgIcon';
-import Toolbar from '@material-ui/core/Toolbar';
+import AppBar from '@material-ui/core/AppBar';
+// import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
 import BorderAllIcon from '@material-ui/icons/BorderAll';
 import BorderBottomIcon from '@material-ui/icons/BorderBottom';
@@ -1822,9 +1823,10 @@ export class CanvasToolBar extends Component {
 		const tf = this.state.cellTextFormat;
 		const f = this.state.cellFormat;
 		return (
-			<Toolbar
+			<AppBar
+				elevation={0}
+				color="default"
 				style={{
-					backgroundColor: 'white',
 					height: '37px',
 					minHeight: '37px',
 					margin: 0,
@@ -1832,20 +1834,23 @@ export class CanvasToolBar extends Component {
 					position: 'relative',
 					width: '100%',
 					borderBottom: '1px solid #AAAAAA',
-					overflow: 'hidden'
+					borderTop: '1px solid #AAAAAA',
+					overflow: 'hidden',
+					display: 'flex',
+					flexDirection: 'row'
 				}}
 			>
 				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.Undo" defaultMessage="Undo" />}>
 					<div>
 						<IconButton style={buttonStyle} onClick={(e) => this.onUndo(e)} disabled={!this.props.canUndo}>
-							<UndoIcon fontSize="inherit" />
+							<UndoIcon />
 						</IconButton>
 					</div>
 				</Tooltip>
 				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.Redo" defaultMessage="Redo" />}>
 					<div>
 						<IconButton style={buttonStyle} onClick={(e) => this.onRedo(e)} disabled={!this.props.canRedo}>
-							<RedoIcon fontSize="inherit" />
+							<RedoIcon />
 						</IconButton>
 					</div>
 				</Tooltip>
@@ -1868,7 +1873,6 @@ export class CanvasToolBar extends Component {
 						>
 							<SvgIcon>
 								<path
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M21.7,13.35L20.7,14.35L18.65,12.3L19.65,11.3C19.86,11.08 20.21,11.08 20.42,11.3L21.7,12.58C21.92,12.79 21.92,13.14 21.7,13.35M12,18.94L18.07,12.88L20.12,14.93L14.06,21H12V18.94M4,2H18A2,2 0 0,1 20,4V8.17L16.17,12H12V16.17L10.17,18H4A2,2 0 0,1 2,16V4A2,2 0 0,1 4,2M4,6V10H10V6H4M12,6V10H18V6H12M4,12V16H10V12H4Z"
 								/>
@@ -1889,7 +1893,6 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton
-							color="inherit"
 							onClick={() => this.onFormatDecimals(undefined, true)}
 							disabled={!this.props.cellSelected}
 							style={buttonStyle}
@@ -1902,7 +1905,6 @@ export class CanvasToolBar extends Component {
 									fontSize="9pt"
 									dy="0.25em"
 									textAnchor="middle"
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 								>
 									000
 								</text>
@@ -1916,7 +1918,6 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton
-							color="inherit"
 							onClick={this.onFormatPercent}
 							disabled={!this.props.cellSelected}
 							style={buttonStyle}
@@ -1929,7 +1930,6 @@ export class CanvasToolBar extends Component {
 									fontSize="12pt"
 									dy="0.25em"
 									textAnchor="middle"
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 								>
 									%
 								</text>
@@ -1943,14 +1943,12 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton
-							color="inherit"
 							onClick={() => this.onFormatDecimals(false)}
 							disabled={!this.props.cellSelected}
 							style={buttonStyle}
 						>
 							<SvgIcon>
 								<path
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M12,17L15,20V18H21V16H15V14L12,17M9,5A3,3 0 0,1 12,8V11A3,3 0 0,1 9,14A3,3 0 0,1 6,11V8A3,3 0 0,1 9,5M9,7A1,1 0 0,0 8,8V11A1,1 0 0,0 9,12A1,1 0 0,0 10,11V8A1,1 0 0,0 9,7M4,12A1,1 0 0,1 5,13A1,1 0 0,1 4,14A1,1 0 0,1 3,13A1,1 0 0,1 4,12Z"
 								/>
@@ -1964,14 +1962,12 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton
-							color="inherit"
 							onClick={() => this.onFormatDecimals(true)}
 							disabled={!this.props.cellSelected}
 							style={buttonStyle}
 						>
 							<SvgIcon>
 								<path
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M22,17L19,20V18H13V16H19V14L22,17M9,5A3,3 0 0,1 12,8V11A3,3 0 0,1 9,14A3,3 0 0,1 6,11V8A3,3 0 0,1 9,5M9,7A1,1 0 0,0 8,8V11A1,1 0 0,0 9,12A1,1 0 0,0 10,11V8A1,1 0 0,0 9,7M16,5A3,3 0 0,1 19,8V11A3,3 0 0,1 16,14A3,3 0 0,1 13,11V8A3,3 0 0,1 16,5M16,7A1,1 0 0,0 15,8V11A1,1 0 0,0 16,12A1,1 0 0,0 17,11V8A1,1 0 0,0 16,7M4,12A1,1 0 0,1 5,13A1,1 0 0,1 4,14A1,1 0 0,1 3,13A1,1 0 0,1 4,12Z"
 								/>
@@ -1985,7 +1981,6 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton
-							color="inherit"
 							onClick={this.onShowNumberFormat}
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
 							style={{
@@ -1996,7 +1991,6 @@ export class CanvasToolBar extends Component {
 						>
 							<span
 								style={{
-									color: this.props.cellSelected || this.state.graphSelected ? '#757575' : '#CCCCCC',
 									fontWeight: 'bold',
 									fontSize: '10pt'
 								}}
@@ -2005,7 +1999,6 @@ export class CanvasToolBar extends Component {
 							</span>
 							<SvgIcon>
 								<path
-									fill={this.props.cellSelected || this.state.graphSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M7,10L12,15L17,10H7Z"
 								/>
@@ -2135,14 +2128,15 @@ export class CanvasToolBar extends Component {
 								marginLeft: '10px',
 								fontSize: '16pt',
 								width: '34px',
-								height: '34px',
-								padding: '4px 0px 0px 0px',
+								height: '27px',
+								margin: '5px 0px 0px 0px',
+								borderRadius: '0%',
 								backgroundColor:
 									tf &&
 									tf.getFontStyle() &&
 									tf.getFontStyle().getValue() & TextFormatAttributes.FontStyle.BOLD
 										? '#CCCCCC'
-										: 'white'
+										: 'transparent'
 							}}
 							onClick={this.onFormatBold}
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
@@ -2159,15 +2153,16 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							style={{
 								width: '34px',
-								height: '34px',
-								padding: '4px 0px 0px 0px',
+								height: '27px',
+								margin: '5px 0px 0px 0px',
 								fontSize: '16pt',
+								borderRadius: '0%',
 								backgroundColor:
 									tf &&
 									tf.getFontStyle() &&
 									tf.getFontStyle().getValue() & TextFormatAttributes.FontStyle.ITALIC
 										? '#CCCCCC'
-										: 'white'
+										: 'transparent'
 							}}
 							onClick={this.onFormatItalic}
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
@@ -4450,7 +4445,7 @@ export class CanvasToolBar extends Component {
 						</GridListTile>
 					</GridList>
 				</Popover>
-			</Toolbar>
+			</AppBar>
 		);
 	}
 }

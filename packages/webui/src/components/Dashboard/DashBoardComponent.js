@@ -282,7 +282,6 @@ class DashBoardComponent extends Component {
 					onMenuSelect={this.handleMenuSelect}
 					onResourceOpen={this.onResourceOpen}
 					handleNew={this.props.rights.includes('machine.edit') ? this.handleNew : undefined}
-					headerBackgroundColor="#6C6C70"
 					filter={this.props.filter}
 					filters={[FilterMachineStatus]}
 					filterName

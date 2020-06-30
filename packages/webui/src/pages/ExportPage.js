@@ -10,7 +10,6 @@
  ********************************************************************************/
 /* eslint-disable react/prop-types,react/no-unused-state */
 import AppBar from '@material-ui/core/AppBar';
-import * as Colors from '@material-ui/core/colors';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import Toolbar from '@material-ui/core/Toolbar';
 import React, { useEffect } from 'react';
@@ -95,8 +94,8 @@ export function ExportPageComponent(props) {
 					<ServerStatusDialog noStreams noMachines />
 					<ErrorDialog />
 					<AppBar
+						color={props.isMachineEngineConnected ? "primary" : "error"}
 						style={{
-							background: props.isMachineEngineConnected ? Colors.blue[800] : Colors.red[900],
 							display: 'flex',
 							margin: 0,
 							padding: 0,
@@ -113,10 +112,7 @@ export function ExportPageComponent(props) {
 							}}
 						>
 							<LicenseExpireNotification />
-							<InfoToolBar
-								title={<FormattedMessage id="MainTitle" defaultMessage="Stream Machine" />}
-								workspaceSelect
-							/>
+							<InfoToolBar title={<FormattedMessage id="Dashboard.export" defaultMessage="Export" />} workspaceSelect />
 							{!props.isMachineEngineConnected ? (
 								<div>
 									<FormattedMessage id="ServicesDisconnected" defaultMessage="Disconnected: " />
@@ -143,7 +139,6 @@ export function ExportPageComponent(props) {
 						height: 'calc(100% - 58px)',
 						width: '100%',
 						overflow: 'hidden',
-						backgroundColor: '#EEEEEE'
 					}}
 				>
 					<ExportComponent />

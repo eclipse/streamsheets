@@ -2,7 +2,7 @@
   "TitleMachine": "{name}",
   "TitleStreamUnknown": "Streams",
   "TitleStream": "Streams - {streamName}",
-  "TitleDashboard": "Streamsheets - Apps and Services",
+  "TitleDashboard": "Apps and Services",
   "TitlePage": "Streamsheets",
   "TitleConnectors": "Streams - Connectors",
   "TitleConsumers": "Streams - Consumers",
