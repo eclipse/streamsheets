@@ -25,10 +25,10 @@ const getStatus = (sheet, reqId) => {
 	return request ? request.status : 'unknown';
 };
 const setStatus = (sheet, reqId, state) => {
-	const pendingRequests = sheet.getPendingRequests();
-	const pendingReq = pendingRequests.get(reqId);
-	if (pendingReq) pendingReq.status = state;
-	else pendingRequests.set(reqId, { status: state });
+	const allRequests = sheet.getPendingRequests();
+	const request = allRequests.get(reqId);
+	if (request) request.status = state;
+	else allRequests.set(reqId, { status: state });
 };
 
 const remove = (sheet, reqId) => sheet.getPendingRequests().delete(reqId);
@@ -209,7 +209,6 @@ module.exports = {
 	isPending,
 	isResolved,
 	remove,
-	setStatus,
 	STATE,
 	Queue
 };

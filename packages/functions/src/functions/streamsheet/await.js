@@ -10,7 +10,7 @@
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const {	pendingRequest,	runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
+const {	AsyncRequest, runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -63,7 +63,7 @@ const wait = (sheet, ...terms) =>
 			const reqIDs = getRequestIDs(sheet, terms);
 			const error = FunctionErrors.isError(reqIDs);
 			if (!error) {
-				const onePending = reqIDs.some((id) => pendingRequest.isPending(sheet, id));
+				const onePending = reqIDs.some((id) => AsyncRequest.isPending(sheet, id));
 				if (onePending) pause(sheet);
 				else resume(sheet);
 			}
@@ -80,7 +80,7 @@ const waitone = (sheet, ...terms) =>
 			const reqIDs = getRequestIDs(sheet, terms);
 			const error = FunctionErrors.isError(reqIDs);
 			if (!error) {
-				const oneIsResolved = reqIDs.some((id) => pendingRequest.isResolved(sheet, id));
+				const oneIsResolved = reqIDs.some((id) => AsyncRequest.isResolved(sheet, id));
 				if (oneIsResolved) resume(sheet);
 				else pause(sheet);
 			}

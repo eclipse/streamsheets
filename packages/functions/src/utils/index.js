@@ -16,7 +16,6 @@ const Criterion = require('./Criterion');
 const date = require('./date');
 // const excel = require('./excel');
 const jsonbuilder = require('./jsonbuilder');
-const pendingRequest = require('./pendingRequest');
 const runFunction = require('./runner');
 const sheet = require('./sheet');
 const terms = require('./terms');
@@ -33,7 +32,6 @@ module.exports = {
 	date,
 	// excel,
 	jsonbuilder,
-	pendingRequest,
 	runFunction,
 	sheet,
 	terms,
