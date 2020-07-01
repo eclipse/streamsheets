@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const MachineEvents = require('@cedalo/protocols').MachineServerMessagingProtocol.EVENTS;
-const { isNotRunning, isNotStepping, publishIf } = require('./utils');
+const { firstElements, isNotRunning, isNotStepping, publishIf } = require('./utils');
 
 
 const eventmsg = (type, outbox, machine, props) => ({
@@ -45,24 +45,28 @@ class MachineTaskOutboxMonitor {
 	}
 
 	onClear(messages) {
-		const message = eventmsg(MachineEvents.MESSAGE_BOX_CLEAR, this.outbox, this.machine, { messages });
+		const allMsgs = firstElements(100, messages);
+		const message = eventmsg(MachineEvents.MESSAGE_BOX_CLEAR, this.outbox, this.machine, { messages: allMsgs });
 		this.publishEvent(message);
 	}
 
 	onMessagePut(message) {
-		const messages = this.outbox.messages.slice(0);
+		// const messages = this.outbox.messages.slice(0);
+		const messages = firstElements(100, this.outbox.messages);
 		const msg = eventmsg(MachineEvents.MESSAGE_PUT, this.outbox, this.machine, { message, messages });
 		this.publishEvent(msg);
 	}
 
 	onMessagePop(message) {
-		const messages = this.outbox.messages.slice(0);
+		// const messages = this.outbox.messages.slice(0);
+		const messages = firstElements(100, this.outbox.messages);
 		const msg = eventmsg(MachineEvents.MESSAGE_POP, this.outbox, this.machine, { message, messages });
 		this.publishEvent(msg);
 	}
 
 	onMessageChanged(message) {
-		const messages = this.outbox.messages.slice(0);
+		// const messages = this.outbox.messages.slice(0);
+		const messages = firstElements(100, this.outbox.messages);
 		const msg = eventmsg(MachineEvents.MESSAGE_CHANGED, this.outbox, this.machine, { message, messages });
 		this.publishEvent(msg);
 	}

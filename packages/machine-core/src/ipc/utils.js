@@ -103,17 +103,27 @@ const getCellFromReference = (str, sheet) => {
 	return { sheet, cell: sheet ? sheet.cellAt(str) : undefined };
 };
 
+const firstElements = (n, arr) => arr.slice(0, n);
+const lastElements = (n, arr) => {
+	const length = arr.length;
+	if (n > length) n = length;
+	return arr.slice(length - n).reverse();
+};
+
+
 module.exports = {
 	cellDescriptor,
 	cellDescriptorAsObject,
 	collectMachineStats,
+	firstElements,
 	getCellFromReference,
 	getSheetCellsAsList,
 	getSheetCellsAsObject,
 	isNotRunning,
 	isNotStepping,
-	publishIf,
+	lastElements,
 	mapSheetCells,
+	publishIf,
 	reduceSheetCells,
 	updateNamedCellRefs
 };

@@ -12,7 +12,8 @@ const Message = require('./Message');
 const MessageBox = require('./MessageBox');
 
 const DEF_CONF = {
-	max: 100, // -1, to signal no bounds...
+	// max: 100, // -1, to signal no bounds...
+	max: -1, // -1, to signal no bounds...
 	type: 'Outbox'
 };
 

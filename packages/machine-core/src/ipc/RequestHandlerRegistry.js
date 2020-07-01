@@ -12,6 +12,7 @@ const logger = require('../logger').create({ name: 'RequestHandlerRegistry' });
 const {
 	cellDescriptor,
 	collectMachineStats,
+	firstElements,
 	getCellFromReference,
 	getSheetCellsAsList,
 	getSheetCellsAsObject,
@@ -80,7 +81,8 @@ const getDefinition = (machine) => {
 	const def = {};
 	def.machine = machine2json(machine);
 	def.machine.outbox = {
-		messages: machine.outbox.messages.slice(0)
+		// messages: machine.outbox.messages.slice(0)
+		messages: firstElements(100, machine.outbox.messages)
 	};
 	// if definition is requested, e.g. on load, we add default properties...
 	def.machine.defproperties = DEF_SHEET_PROPS;
@@ -809,7 +811,8 @@ class Subscribe extends ARequestHandler {
 				cycletime: this.machine.cycletime,
 				subscribed: false,
 				outbox: {
-					messages: this.machine.outbox.messages.slice(0)
+					// messages: this.machine.outbox.messages.slice(0)
+					messages: firstElements(100, this.machine.outbox.messages)
 				},
 				// tmp. add inbox messages...
 				streamsheets: this.machine.streamsheets.map((streamsheet) => {
