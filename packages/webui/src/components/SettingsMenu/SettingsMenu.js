@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -82,6 +82,7 @@ export class SettingsMenu extends React.Component {
 		super(props);
 		this.state = {
 			experimental: false,
+			theme: localStorage.getItem('theme') ? localStorage.getItem('theme') : 'Default',
 			prevLocale: 'en',
 			tab: 'status'
 		};
@@ -156,6 +157,12 @@ export class SettingsMenu extends React.Component {
 		this.props.setUserSettings({
 			locale,
 		});
+	}
+
+	handleThemeChange(event) {
+		this.setState({theme: event.target.value});
+		localStorage.setItem('theme', event.target.value);
+		location.reload();
 	}
 
 	renderServiceDetails(service) {
@@ -282,7 +289,7 @@ export class SettingsMenu extends React.Component {
 								</div>
 							) : null }
 							{ user && user.settings ? (
-								<div>
+								<div style={{display: 'flex', flexDirection: 'column'}}>
 									<FormControl style={{ marginTop: '20px' }}>
 										<InputLabel htmlFor="language-selection">
 											<FormattedMessage
@@ -293,7 +300,6 @@ export class SettingsMenu extends React.Component {
 										<Select
 											value={this.props.locale}
 											onChange={event => this.handleLanguageChange(event)}
-											fullWidth
 											input={<Input
 												defaultValue={ !this.props.locale ? "en" : undefined }
 												name="language-selection"
@@ -314,6 +320,36 @@ export class SettingsMenu extends React.Component {
 											</MenuItem>
 										</Select>
 									</FormControl>
+									{this.props.experimental ? (
+									<FormControl style={{ marginTop: '20px' }}>
+										<InputLabel htmlFor="theme-selection">
+											<FormattedMessage
+												id="Theme"
+												defaultMessage="Theme"
+											/>
+										</InputLabel>
+										<Select
+											value={this.state.theme}
+											onChange={event => this.handleThemeChange(event)}
+											input={<Input
+												name="theme-selection"
+												id="theme-selection"
+											/>}
+										>
+											<MenuItem value="Default">
+												<FormattedMessage
+													id="Default"
+													defaultMessage="Default"
+												/>
+											</MenuItem>
+											<MenuItem value="Dark">
+												<FormattedMessage
+													id="Dark"
+													defaultMessage="Dark"
+												/>
+											</MenuItem>
+										</Select>
+									</FormControl> ) : null}
 								</div>) : null}
 						</div>
 					</DialogContent>

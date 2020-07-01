@@ -170,12 +170,10 @@ class Consumers extends Component {
 				handleNew={accessManager.canViewUI(accessManager.PERMISSIONS.STREAM_ADD) ? this.handleNew : false}
 				titleAttribute="name"
 				resources={consumers}
-				icon={AdminConstants.GRID_CONFIG.ConsumerConfiguration.icon}
 				menuOptions={options}
 				onFilter={this.onFilter}
 				onMenuSelect={this.handleMenuSelect}
 				onResourceOpen={this.onResourceOpen}
-				headerBackgroundColor="#0CC34A"
 				handleReload={canControl ? this.handleReloadAll(consumers) : undefined}
 				headerIcons={[
 					//					{ icon: IconPlay, menuId: StreamHelper.BUTTONS.START, state: ['dispose']

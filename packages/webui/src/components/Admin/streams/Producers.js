@@ -193,12 +193,10 @@ class Producers extends Component {
 					handleNew={accessManager.canViewUI(accessManager.PERMISSIONS.STREAM_ADD) ? this.handleNew : false}
 					titleAttribute="name"
 					resources={producers}
-					icon={AdminConstants.GRID_CONFIG.ProducerConfiguration.icon}
 					menuOptions={options}
 					onFilter={this.onFilter}
 					onMenuSelect={this.handleMenuSelect}
 					onResourceOpen={this.onResourceOpen}
-					headerBackgroundColor={AdminConstants.GRID_CONFIG.ProducerConfiguration.headerBackgroundColor}
 					handleReload={canControl ? this.handleReloadAll(producers) : undefined}
 					headerIcons={[
 						//	{ icon: IconPlay, menuId: StreamHelper.BUTTONS.START, state: ['dispose'] },

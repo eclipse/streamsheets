@@ -14,7 +14,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import jsonpath from 'jsonpath';
 import Chip from '@material-ui/core/Chip';
-import Table from '@material-ui/core/Table';
+import {Table, Paper} from '@material-ui/core';
 import TableBody from '@material-ui/core/TableBody';
 import TableHead from '@material-ui/core/TableHead';
 import TableCell from '@material-ui/core/TableCell';
@@ -83,7 +83,7 @@ class ResourcesList extends React.Component {
 
 	handleChecked = (resourceId) => () => {
 		const { checked } = this.state;
-		const index = checked.indexOf(resourceId);
+		const index = checked.indexOfw(resourceId);
 		if (index >= 0) {
 			checked.splice(index, 1);
 		} else {
@@ -109,9 +109,12 @@ class ResourcesList extends React.Component {
 		} = this.props;
 		const rStyles = { ...DEF_STYLES, ...this.props.styles };
 		return (
-			<div style={rStyles.wrapper}>
+			<Paper
+				style={rStyles.wrapper}
+				square
+			>
 				<Table
-					style={{ background: 'white', minWidth: '700'
+					style={{ minWidth: '700'
 					}}
 				>
 					<TableHead>
@@ -202,7 +205,7 @@ class ResourcesList extends React.Component {
 							  ))}
 					</TableBody>
 				</Table>
-			</div>
+			</Paper>
 		);
 	}
 }
