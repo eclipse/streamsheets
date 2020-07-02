@@ -60,18 +60,15 @@ const isMessageObject = (json) => json && json.Data && json.Metadata;
 
 const putToMessageBox = (box, message, path) => {
 	const msgId = path.shift();
-	const existingMessage = msgId && box.peek(msgId);
+	const msgExists = msgId && box.peek(msgId);
 	if (message.error) {
 		const errorMessage = new Message(message, msgId);
 		errorMessage.metadata.type = 'response';
 		box.put(errorMessage);
-	} else if (existingMessage && box.setMessageData) {
-		box.setMessageData(existingMessage, message.data);
 	} else {
-		if (msgId) {
-			message.metadata.id = msgId;
-		}
-		box.put(message);
+		if (msgId) message.metadata.id = msgId;
+		if (msgExists) box.replaceMessage(message);
+		else box.put(message);
 	}
 };
 
