@@ -11,7 +11,6 @@
 const {
 	cellDescriptor,
 	cellDescriptorAsObject,
-	firstElements,
 	getSheetCellsAsList,
 	isNotRunning,
 	publishIf,
@@ -256,8 +255,7 @@ class MachineTaskStreamSheetMonitor {
 					messages: streamsheet.inbox.messages.slice(0)
 				},
 				outbox: {
-					// messages: streamsheet.machine.outbox.messages.slice(0)
-					messages: firstElements(100, streamsheet.machine.outbox.messages)
+					messages: streamsheet.machine.outbox.getLastMessages()
 				},
 				drawings: streamsheet.sheet.getDrawings().toJSON(),
 				graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON()

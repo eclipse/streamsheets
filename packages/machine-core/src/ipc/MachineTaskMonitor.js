@@ -12,7 +12,7 @@ const logger = require('../logger').create({ name: 'MachineTaskMonitor' });
 const MachineTaskOutboxMonitor = require('./MachineTaskOutboxMonitor');
 const MachineTaskStreamSheetMonitor = require('./MachineTaskStreamSheetMonitor');
 const MachineTaskMessagingClient = require('./MachineTaskMessagingClient');
-const { collectMachineStats, firstElements } = require('./utils');
+const { collectMachineStats } = require('./utils');
 const State = require('../State');
 const MachineEvents = require('@cedalo/protocols').MachineServerMessagingProtocol.EVENTS;
 const { EventMessage } = require('@cedalo/messages');
@@ -38,7 +38,7 @@ const stepEvent = (monitor) =>
 		stats: monitor.machine.stats,
 		outbox: {
 			// messages: monitor.machine.outbox.messages.slice(0)
-			messages: firstElements(100, monitor.machine.outbox.messages)
+			messages: monitor.machine.outbox.getLastMessages()
 		},
 		streamsheets: Array.from(monitor.streamsheetMonitors.values()).map((mon) => mon.getStreamSheetStepData())
 	});
