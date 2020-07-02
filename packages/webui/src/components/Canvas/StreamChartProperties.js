@@ -18,10 +18,12 @@ import {
 	FormGroup,
 	MenuItem,
 	FormControlLabel,
+	AppBar,
 	IconButton,
 	FormLabel,
 	FormControl,
 	Radio,
+	Paper,
 	Checkbox,
 	InputAdornment,
 	InputLabel,
@@ -686,9 +688,10 @@ export class StreamChartProperties extends Component {
 		const sheetView = this.getSheetView();
 		return (
 			<Slide direction="left" in={this.props.showStreamChartProperties} mountOnEnter unmountOnExit>
-				<div
+				<Paper
+					square
+					elevation={0}
 					style={{
-						backgroundColor: '#FFFFFF',
 						border: '1px solid grey',
 						position: 'absolute',
 						top: '-1px',
@@ -701,22 +704,26 @@ export class StreamChartProperties extends Component {
 						zIndex: '1250'
 					}}
 				>
-					<div
+					<AppBar
+						color='inherit'
+						elevation={0}
 						id={this.props.dummy}
 						style={{
+							backgroundColor: 'dimgrey',
 							width: '100%',
 							height: '48px',
-							backgroundColor: 'grey',
 							display: 'flex',
+							flexDirection: 'row',
+							position: 'relative',
 							justifyContent: 'space-between'
 						}}
 					>
 						<Typography
 							style={{
-								color: 'white',
-								padding: '12px 0px 12px 12px',
+								padding: '12px 0px 12px 8px',
 								display: 'inline-block',
-								fontSize: '12pt'
+								fontSize: '12pt',
+								color: 'white',
 							}}
 						>
 							{this.translateTitle(this.props.title)}
@@ -731,7 +738,12 @@ export class StreamChartProperties extends Component {
 						>
 							<CloseIcon fontSize="inherit" />
 						</IconButton>
-					</div>
+					</AppBar>
+					<div
+						style={{
+							position: 'relative',
+						}}
+					>
 					{!selection ? (
 						<div>
 							<FormControl
@@ -2447,7 +2459,8 @@ export class StreamChartProperties extends Component {
 					>
 						<FormattedMessage id="StreamChartProperties.FormatHint" defaultMessage="Format Hint" />
 					</FormLabel>
-				</div>
+					</div>
+				</Paper>
 			</Slide>
 		);
 	}

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -14,6 +14,7 @@ import React from 'react';
 import Button from '@material-ui/core/Button';
 import Toolbar from '@material-ui/core/Toolbar';
 import Popover from '@material-ui/core/Popover';
+import Typography from '@material-ui/core/Typography';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import Slider from 'rc-slider';
@@ -313,13 +314,13 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
-							{
+							<Typography variant="h6">
 								<FormattedMessage
 									id="MachineControl.cycleTime"
 									defaultMessage="Cycle Time: {speed}ms"
 									values={{ speed: this.state.speed }}
 								/>
-							}
+							</Typography>
 						</GridListTile>
 						<GridListTile cols={1}>
 							<Button
@@ -440,13 +441,13 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
-							{
+							<Typography variant="h6">
 								<FormattedMessage
 									id="MachineControl.updateInterval"
 									defaultMessage="Update Interval: {interval}"
 									values={{ interval: this.state.streamsheetStepInterval }}
 								/>
-							}
+								</Typography>
 						</GridListTile>
 						<GridListTile cols={1}>
 							<Button
@@ -567,7 +568,9 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
-							<FormattedMessage id="MachineControl.updates" defaultMessage="Updates/sec." />
+							<Typography variant="h6">
+								<FormattedMessage id="MachineControl.updates" defaultMessage="Updates/sec." />
+							</Typography>
 						</GridListTile>
 						<GridListTile
 							cols={3}
@@ -577,7 +580,9 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
+							<Typography>
 							<FormattedMessage id="MachineControl.client" defaultMessage="Client" />
+							</Typography>
 						</GridListTile>
 						<GridListTile
 							cols={3}
@@ -587,7 +592,9 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
+							<Typography>
 							<FormattedMessage id="MachineControl.server" defaultMessage="Server" />
+							</Typography>
 						</GridListTile>
 					</GridList>
 					<Gauge

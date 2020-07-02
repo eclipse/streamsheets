@@ -295,17 +295,7 @@ export function MachineDetailPage(props) {
 							{canEditMachine ? (
 								<React.Fragment>
 									<CanvasToolBar />
-									<div
-										style={{
-											position: 'relative',
-											height: '100%',
-											width: '100%',
-											margin: 0,
-											padding: 0
-										}}
-									>
-										<EditBarComponent />
-									</div>
+									<EditBarComponent />
 								</React.Fragment>
 							) : null}
 						</AppBar>

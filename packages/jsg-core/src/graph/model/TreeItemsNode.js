@@ -45,8 +45,8 @@ module.exports = class TreeItemsNode extends Node {
 
 		this.addAttribute(new TreeItemAttributes());
 
-		this.getFormat().setLineColor('#AAAAAA');
-		this.getFormat().setFillColor('#FFFFFF');
+		this.getFormat().setLineColor(JSG.theme.frame);
+		this.getFormat().setFillColor(JSG.theme.fill);
 
 		this.getTextFormat().setFontSize(9);
 		this.getTextFormat().setHorizontalAlignment(TextFormatAttributes.TextAlignment.LEFT);

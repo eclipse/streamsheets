@@ -10,6 +10,7 @@
  ********************************************************************************/
 import createMuiTheme from '@material-ui/core/styles/createMuiTheme';
 import * as Colors from '@material-ui/core/colors/index';
+import JSG from '@cedalo/jsg-ui';
 
 const createDefault = () => {
 	return createMuiTheme({
@@ -24,14 +25,22 @@ const createDefault = () => {
 			wall: {
 				backgroundColor: '#eeeeee',
 			},
+			cellrange: {
+				color: 'white',
+				colorlight: 'rgba(0, 0, 0, 0.54)',
+				underline: 'rgba(0, 0, 0, 0.42)',
+			},
 			typography: {
 				useNextVariants: true,
 				fontSize: 12,
 			},
 			overrides: {
 				MuiAppBar: {
-					root: {
-						background: Colors.blue[800]
+					colorPrimary: {
+						backgroundColor: Colors.blue[800]
+					},
+					colorDefault: {
+						backgroundColor: 'white'
 					},
 				},
 				MuiPaper: {
@@ -81,7 +90,6 @@ const createDefault = () => {
 						color: 'white !important',
 						padding: '10px',
 						fontSize: '130%',
-						textAlign: 'center',
 						justifyContent: 'space-between',
 					},
 				},
@@ -116,6 +124,11 @@ const createDark = () => {
 			},
 			wall: {
 				backgroundColor: '#313131',
+			},
+			cellrange: {
+				color: 'white',
+				colorlight: 'white',
+				underline: 'rgba(255, 255, 255, 0.7)',
 			},
 			typography: {
 				useNextVariants: true,
@@ -168,6 +181,7 @@ const createDark = () => {
 				},
 				MuiDialogTitle: {
 					root: {
+						background: '#212121',
 						padding: '10px',
 						fontSize: '130%',
 						textAlign: 'center',
@@ -189,16 +203,38 @@ const createDark = () => {
 
 const createByName = () => {
 	let theme;
-	const name = localStorage.getItem('theme') ? localStorage.getItem('theme') : 'Default';
+	const name = localStorage.getItem('theme');
 
 	switch (name) {
 	case 'Dark':
 		theme = createDark();
+		JSG.theme = {
+			theme: name,
+			graph: '#333333',
+			tool: theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
+			caption: theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
+			captiontext: '#FFFFFF',
+			frame: '#FFFFFF',
+			splitter: theme.palette.background.paper,
+			header: theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
+			headertext: '#CCCCCC',
+			outline: '#CCCCCC',
+			sheet: '#000000',
+			grid: '#777777',
+			border: '#FFFFFF',
+			text: '#FFFFFF',
+			textlight: '#DDDDDD',
+			fill: '#000000',
+			filllight: '#222222',
+		};
 		break;
 	default:
 		theme = createDefault();
 		break;
 	}
+
+	JSG.FormatAttributes.template = JSG.FormatAttributes.createTemplate();
+	JSG.TextFormatAttributes.template = JSG.TextFormatAttributes.createTemplate();
 
 	return theme;
 }

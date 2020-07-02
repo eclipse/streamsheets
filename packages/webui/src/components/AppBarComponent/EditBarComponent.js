@@ -17,6 +17,7 @@ import { connect } from 'react-redux';
 import { graphManager } from '../../GraphManager';
 import * as Actions from '../../actions/actions';
 import {Notification, NotificationCenter} from '@cedalo/jsg-core';
+import AppBar from '@material-ui/core/AppBar';
 
 const {
 	ItemAttributes,
@@ -504,12 +505,15 @@ export class EditBarComponent extends Component {
 
 	render() {
 		return (
-			<div
+			<AppBar
+				elevation={0}
+				color="default"
 				tabIndex="-1"
 				style={{
 					position: 'relative',
 					margin: 0,
 					fontSize: '9pt',
+					display: 'block',
 					height: '21px'
 				}}
 			>
@@ -522,9 +526,7 @@ export class EditBarComponent extends Component {
 						margin: 0,
 						padding: '3px 3px 0px 3px',
 						display: 'inline-block',
-						color: 'black',
 						position: 'relative',
-						backgroundColor: 'white',
 						zIndex: 101,
 						width: '152px',
 						wordWrap: 'break-word',
@@ -542,9 +544,7 @@ export class EditBarComponent extends Component {
 						margin: 0,
 						padding: '3px 3px 0px 3px',
 						display: 'inline-block',
-						color: 'black',
 						position: 'relative',
-						backgroundColor: 'white',
 						width: '102px',
 						borderLeft: '1px solid #AAAAAA',
 						borderBottom: '1px solid #AAAAAA',
@@ -571,9 +571,7 @@ export class EditBarComponent extends Component {
 						margin: 0,
 						padding: '3px 3px 0px 3px',
 						display: 'inline-block',
-						color: 'black',
 						position: 'relative',
-						backgroundColor: 'white',
 						right: '0px',
 						width: 'calc(100% - 274px)',
 						wordWrap: 'break-word',
@@ -581,10 +579,13 @@ export class EditBarComponent extends Component {
 						borderLeft: '1px solid #AAAAAA',
 						borderBottom: '1px solid #AAAAAA',
 						minHeight: '17px',
+						backgroundColor: JSG.theme.fill,
+						maxHeight: '200px',
+						overflowY: 'auto',
 						verticalAlign: 'top',
 					}}
 				/>
-			</div>
+			</AppBar>
 		);
 	}
 }

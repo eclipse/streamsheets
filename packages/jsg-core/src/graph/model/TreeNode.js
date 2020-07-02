@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -18,7 +18,8 @@ module.exports = class TreeNode extends ContentNode {
 		super();
 
 		// this.addAttribute(new WorksheetAttributes());
-		this.getFormat().setLineColor('#AAAAAA');
+		this.getFormat().setLineColor(JSG.theme.frame);
+		this.getFormat().setFillColor(JSG.theme.fill);
 
 		this.getItemAttributes().setSelectionMode(ItemAttributes.SelectionMode.NONE);
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);

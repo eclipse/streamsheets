@@ -166,7 +166,7 @@ export default class CellsView extends NodeView {
 		}
 
 		graphics.beginPath();
-		graphics.setLineColor('#CCCCCC');
+		graphics.setLineColor(JSG.theme.grid);
 		borders.grid.forEach((line) => {
 			graphics.moveTo(line.x1, line.y1);
 			graphics.lineTo(line.x2, line.y2);
@@ -562,7 +562,7 @@ export default class CellsView extends NodeView {
 			Number(styleproperties.fillstyle) !== 1
 		) {
 			if (cellProperties && cellProperties.key) {
-				graphics.setFillColor('#F2F2F2');
+				graphics.setFillColor(JSG.theme.filllight);
 				graphics.fillRoundedRectangle(
 					columnInfo.x + 50,
 					rowInfo.y + 50,
@@ -959,7 +959,7 @@ export default class CellsView extends NodeView {
 		} else if  (textproperties.fontcolor) {
 			graphics.setFillColor(textproperties.fontcolor);
 		} else {
-			graphics.setFillColor('#000000');
+			graphics.setFillColor(JSG.theme.text);
 		}
 		if (formattedValue.bold) {
 			graphics.setFontStyle(TextFormatAttributes.FontStyle.BOLD);
@@ -1317,7 +1317,7 @@ export default class CellsView extends NodeView {
 		let endY;
 
 		graphics.beginPath();
-		graphics.setLineColor('#CCCCCC');
+		graphics.setLineColor(JSG.theme.grid);
 
 		for (i = 0, n = rows.getSections(); i < n; i += 1) {
 			startY += rows.getSectionSize(i);
@@ -1516,7 +1516,7 @@ export default class CellsView extends NodeView {
 				let user;
 				let selection;
 				if (otherSelectionId[0] === mySelectionId[0]) {
-					color = focus ? '#000000' : '#777777';
+					color = focus ? JSG.theme.text : '#777777';
 				} else {
 					if (otherSelectionId.length > 2) {
 						[, , user] = otherSelectionId;
@@ -1532,7 +1532,7 @@ export default class CellsView extends NodeView {
 
 		const selection = ws.getOwnSelection();
 		if (selection) {
-			this.drawSelection(graphics, ws, wsView, selection, focus ? '#000000' : '#777777', undefined);
+			this.drawSelection(graphics, ws, wsView, selection, focus ? JSG.theme.text : '#777777', undefined);
 		}
 
 		this.setFont(graphics);

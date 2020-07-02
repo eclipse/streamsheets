@@ -156,6 +156,7 @@ export default class TreeItemsView extends NodeView {
 		let cv;
 		const model = this.getItem();
 		const textFormat = model.getTextFormat();
+		const fillColor = model.getFormat().getFillColor().getValue();
 
 		if (model._resetViewport) {
 			this.resetViewport();
@@ -230,7 +231,7 @@ export default class TreeItemsView extends NodeView {
 			}
 			// draw expander
 			if (item.expanded !== null) {
-				graphics.setFillColor('#222222');
+				graphics.setFillColor(JSG.theme.outline);
 				graphics.fillText(
 					item.expanded ? '-' : '+',
 					itemRectKey.x - this._expanderOffset,
@@ -275,16 +276,16 @@ export default class TreeItemsView extends NodeView {
 				itemRectValue.width = this._treeItemWidth;
 				itemRectValue.height = this._treeItemHeight;
 
-				graphics.setFillColor(this._colorScheme.JSON_VALUE);
+				graphics.setFillColor(JSG.theme.filllight);
 				graphics.fillRoundedRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height, 0, 150, 0, 150);
 
 				// draw value text
 				if (item.value !== undefined && item.value !== null) {
-					graphics.setFillColor('#222222');
+					graphics.setFillColor(JSG.theme.textlight);
 					graphics.fillText(item.value, itemRectValue.x + 100, itemRectValue.y + treeItemHeight);
 
 					// overpaint overlapping key text
-					graphics.setFillColor('#FFFFFF');
+					graphics.setFillColor(fillColor);
 					itemRectValue.x += itemRectValue.width;
 					itemRectValue.width = rect.width - itemRectValue.x;
 					graphics.fillRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height);

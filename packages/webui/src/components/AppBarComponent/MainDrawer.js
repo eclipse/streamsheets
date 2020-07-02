@@ -10,7 +10,6 @@
  ********************************************************************************/
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/prop-types */
-import * as Colors from '@material-ui/core/colors';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -30,6 +29,7 @@ import { FormattedMessage } from 'react-intl';
 import * as Actions from '../../actions/actions';
 import { Restricted } from '../HelperComponent/Restricted';
 import { Path } from '../../helper/Path';
+import {withStyles} from '@material-ui/core/styles';
 
 export class MainDrawer extends Component {
 	state = {
@@ -129,7 +129,7 @@ export class MainDrawer extends Component {
 					style={{
 						height: '18px',
 						padding: '20px',
-						backgroundColor: Colors.blue[800]
+						backgroundColor: this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
 					}}
 				>
 					<span
@@ -261,4 +261,4 @@ function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MainDrawer);
+export default withStyles({}, { withTheme: true })(connect(mapStateToProps, mapDispatchToProps)(MainDrawer));

@@ -10,8 +10,8 @@
  ********************************************************************************/
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -20,7 +20,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Avatar from '@material-ui/core/Avatar';
 import * as Colors from '@material-ui/core/colors';
-import { FormattedMessage } from 'react-intl';
+import {FormattedMessage} from 'react-intl';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -47,7 +47,8 @@ import CardHeader from '@material-ui/core/CardHeader';
 import Typography from '@material-ui/core/es/Typography/Typography';
 
 import * as Actions from '../../actions/actions';
-import { graphManager } from '../../GraphManager';
+import {graphManager} from '../../GraphManager';
+import {withStyles} from '@material-ui/core/styles';
 
 const TabContainer = (props) => (
 		<Typography component="div" style={{ padding: 8 * 3 }}>
@@ -233,7 +234,7 @@ export class SettingsMenu extends React.Component {
 							subheader={<address style={{ color: Colors.grey[50] }}>{user ? user.mail : ""}</address>}
 							avatar={<Avatar alt="Remy Sharp" src="images/avatar.png" />}
 							style={{
-								backgroundColor: Colors.blue[800],
+								backgroundColor: this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
 							}}
 						/>
 					</Card>
@@ -393,7 +394,7 @@ export class SettingsMenu extends React.Component {
 									position: 'relative',
 								}}
 							>
-								<Tabs value={tab} onChange={this.handleTabChange}>
+								<Tabs textColor="primary" value={tab} onChange={this.handleTabChange}>
 									<Tab value="status" label={<FormattedMessage
 										id="Info.SystemStatusTitle"
 										defaultMessage="System status and version"
@@ -566,4 +567,4 @@ function mapDispatchToProps(dispatch) {
 	return bindActionCreators(Actions, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SettingsMenu);
+export default withStyles({}, { withTheme: true })(connect(mapStateToProps, mapDispatchToProps)(SettingsMenu));

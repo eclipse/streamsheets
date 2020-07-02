@@ -1,13 +1,14 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const JSG = require('../../JSG');
 const Numbers = require('../../commons/Numbers');
 const Notification = require('../notifications/Notification');
 const NotificationCenter = require('../notifications/NotificationCenter');
@@ -26,7 +27,7 @@ module.exports = class InboxContainer extends MessageContainer {
 
 		this.createItems();
 		this.getMessageTreeItems()._lastCollapsedState.push('[Metadata]');
-		this.getFormat().setLineColor('#AAAAAA');
+		this.getFormat().setLineColor(JSG.theme.frame);
 
 		this._drawEnabled = false;
 	}

@@ -128,7 +128,6 @@ export default class GraphManager {
 	}
 
 	createEditor(canvas) {
-		JSG.bkColorGraph = '#EEEEEE';
 		// NumberFormatter.setCulture(store.getState().locales.locale);
 
 		this._graphEditor = new GraphEditor(canvas);
@@ -640,7 +639,7 @@ export default class GraphManager {
 		const itemsNode = messageBox.getMessageListItems();
 		const selectedItem = itemsNode.getTreeItemById(metadata.id);
 		if (selectedItem !== undefined) {
-			const item = this.getMessageTreeItem(message, metadata);
+			const item = this.getMessageTreeItem(message, metadata, messageBox.getType().getValue());
 			const command = new UpdateTreeItemCommand(itemsNode, selectedItem.level, item);
 
 			if (execute) {
@@ -657,10 +656,12 @@ export default class GraphManager {
 		return this.updateMessage(messageBox, message, metadata, false);
 	}
 
-	getMessageTreeItem(message, metadata) {
+	getMessageTreeItem(message, metadata, target) {
 		let key;
 
-		if (metadata.label && metadata.label.length > 0) {
+		if (target === 'outboxcontainer') {
+			key = metadata.id;
+		} else if (metadata.label && metadata.label.length > 0) {
 			key = metadata.label;
 		} else if (metadata.consumer && metadata.consumer.length > 0) {
 			key = metadata.consumer;
@@ -699,7 +700,7 @@ export default class GraphManager {
 		const itemsNode = messageBox.getMessageListItems();
 		metadata = metadata || {};
 
-		const item = this.getMessageTreeItem(message, metadata);
+		const item = this.getMessageTreeItem(message, metadata, messageBox.getType().getValue());
 
 		const command = new AddTreeItemCommand(itemsNode, -1, item);
 		command.isVolatile = true;

@@ -1,14 +1,14 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-// const JSG = require('../../JSG');
+const JSG = require('../../JSG');
 const AttributeList = require('./AttributeList');
 const NumberAttribute = require('./NumberAttribute');
 const NumberRangeConstraint = require('../expr/NumberRangeConstraint');
@@ -1621,7 +1621,7 @@ class FormatAttributes extends AttributeList {
 
 		addAttribute(
 			new StringAttribute(FormatAttributes.FILLCOLOR),
-			'#FFFFFF'
+			JSG.theme.fill
 		);
 		addAttribute(
 			new NumberAttribute(FormatAttributes.FILLSTYLE),
@@ -1666,7 +1666,7 @@ class FormatAttributes extends AttributeList {
 		);
 		addAttribute(
 			new StringAttribute(FormatAttributes.LINECOLOR),
-			'#000000'
+			JSG.theme.border
 		);
 		addAttribute(
 			new NumberAttribute(FormatAttributes.LINEWIDTH),

@@ -1,14 +1,14 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { SetHeaderSectionOutlineFlagCommand, FormatAttributes, RowHeaderNode } from '@cedalo/jsg-core';
+import { default as JSG, SetHeaderSectionOutlineFlagCommand, FormatAttributes, RowHeaderNode } from '@cedalo/jsg-core';
 import HeaderView from './HeaderView';
 
 /**
@@ -50,7 +50,7 @@ export default class RowHeaderView extends HeaderView {
 		let yStart = rectTmp.y;
 		let yEnd = rectTmp.y;
 
-		graphics.setLineColor('#AAAAAA');
+		graphics.setLineColor(JSG.theme.frame);
 		graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
 		graphics.beginPath();
 		graphics.moveTo(xStart, yStart);
@@ -71,12 +71,12 @@ export default class RowHeaderView extends HeaderView {
 
 		if (levelMax) {
 			item.updateParents();
-			this.setFont(graphics, 9, '#777777', 1);
+			this.setFont(graphics, 9, JSG.theme.headertext, 1);
 			const outlineDirection = item.getHeaderAttributes().getOutlineDirection().getValue();
 			if (outlineDirection === 'below') {
 				levelLine[0] = yStart;
 			}
-			graphics.setLineColor('#777777');
+			graphics.setLineColor(JSG.theme.frame);
 			for (i = 0, n = item.getSections(); i < n; i += 1) {
 				size = item.getSectionSize(i);
 				level = item.getSectionLevel(i);
@@ -151,8 +151,8 @@ export default class RowHeaderView extends HeaderView {
 
 		graphics.stroke();
 		graphics.beginPath();
-		this.setFont(graphics, 9, '#333333');
-		graphics.setLineColor('#AAAAAA');
+		this.setFont(graphics, 9, JSG.theme.headertext);
+		graphics.setLineColor(JSG.theme.frame);
 		yStart = rectTmp.y;
 
 		for (i = 0, n = item.getSections(); i < n; i += 1) {

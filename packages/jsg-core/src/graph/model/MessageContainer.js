@@ -115,8 +115,8 @@ module.exports = class MessageContainer extends Node {
 		// json tools to limit level view
 		this._messageTools = new Node();
 		this._messageTools.setType('tool');
-		this._messageTools.getFormat().setFillColor('#EEEEEE');
-		this._messageTools.getFormat().setLineColor('#AAAAAA');
+		this._messageTools.getFormat().setFillColor(JSG.theme.tool);
+		this._messageTools.getFormat().setLineColor(JSG.theme.frame);
 		this._messageTools.getItemAttributes().setSelectionMode(ItemAttributes.SelectionMode.NONE);
 		this._messageTools.getItemAttributes().setClipChildren(true);
 		this._messageTools.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
@@ -141,11 +141,11 @@ module.exports = class MessageContainer extends Node {
 		this.addButton(this._messageTools, 't3r', 't3', 'right');
 		this.addButton(this._messageTools, 't4r', 't4', 'right');
 
-		this.getFormat().setLineColor('#AAAAAA');
+		this.getFormat().setLineColor(JSG.theme.frame);
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 		this.getItemAttributes().setRotatable(false);
 		this.getItemAttributes().setContainer(false);
-		this.getFormat().setLineColor('#AAAAAA');
+		this.getFormat().setLineColor(JSG.theme.frame);
 		this.getItemAttributes().setSelectionMode(ItemAttributes.SelectionMode.NONE);
 
 		const nc = JSG.NotificationCenter.getInstance();

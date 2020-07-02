@@ -61,7 +61,6 @@ JSG.canvasSupported = !!window.HTMLCanvasElement;
 
 JSG.bkColorHeader = '#F3F3F3';
 JSG.bkColorScroll = '#F3F3F3';
-JSG.bkColorGraph = '#DDDDDD';
 JSG.bkColorButton = '#CCCCCC';
 
 JSG.findRadius = JSG.touchDevice ? 600 : 300;

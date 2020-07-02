@@ -78,7 +78,7 @@ export default class CaptionView extends NodeView {
 					rectEl.width = 1200;
 					graphics.setFillColor(format.getFillColor().getValue());
 					graphics.fillRect(rectEl);
-					graphics.setFillColor('#FFFFFF');
+					graphics.setFillColor(JSG.theme.captiontext);
 					graphics.fillText('...', rectEl.x, rect.y + rect.height / 2 + 20);
 					// width = rect.width - 1750;
 				}
