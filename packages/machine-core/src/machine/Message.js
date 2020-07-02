@@ -15,6 +15,9 @@ const IdGenerator = require('@cedalo/id-generator');
 
 const clear = (obj) => Object.keys(obj).forEach((key) => delete obj[key]);
 const now = () => (Functions.NOW ? Functions.NOW() : Date.now());
+// handle if data is not an object or array
+const ensureDataObject = (data) => (typeof data === 'object' || Array.isArray(data) ? data : { value: data });
+
 
 /**
  * A class representing a message.
@@ -26,7 +29,7 @@ module.exports = class Message {
 	constructor(data = {}, id) {
 		// read only properties...
 		Object.defineProperties(this, {
-			data: { value: data, enumerable: true },
+			data: { value: ensureDataObject(data), enumerable: true },
 			metadata: { value: {}, enumerable: true }
 		});
 		this.metadata.id = id || IdGenerator.generate();
