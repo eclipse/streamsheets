@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { Outbox } = require('../..');
+const { Message, Outbox } = require('../..');
 
 describe('Outbox', () => {
 	describe('creation', () => {
@@ -60,6 +60,69 @@ describe('Outbox', () => {
 			expect(outbox.messages[0]).toBe(msg2);
 			expect(outbox.pop(msg2.id)).toBe(msg2);
 			expect(outbox.messages.length).toBe(0);
+		});
+		it('should be possible to combine message data', () => {
+			const outbox = new Outbox();
+			const msg = new Message({ value: 42 }, 'ID1');
+			outbox.put(msg);
+			expect(outbox.size).toBe(1);
+			outbox.setMessageData('ID1', { key: 'key', value: 23 });
+			// should not add new message
+			expect(outbox.size).toBe(1);
+			const newmsg = outbox.pop();
+			expect(newmsg.id).toBe('ID1');
+			expect(newmsg.data.value).toBe(23);
+			expect(newmsg.data.key).toBe('key');
+		});
+		it('should replace data if old data is an array', () => {
+			const outbox = new Outbox();
+			const msg = new Message([23, 42], 'ID1');
+			outbox.put(msg);
+			expect(outbox.size).toBe(1);
+			expect(Array.isArray(outbox.peek().data)).toBe(true);
+			outbox.setMessageData('ID1', { key: 'key' });
+			// should not add new message
+			expect(outbox.size).toBe(1);
+			const newmsg = outbox.pop();
+			expect(newmsg.id).toBe('ID1');
+			expect(newmsg.data.key).toBe('key');
+			expect(Array.isArray(newmsg.data)).toBe(false);
+		});
+		it('should replace data if new data is an array', () => {
+			const outbox = new Outbox();
+			const msg = new Message({ value: 'hi' }, 'ID1');
+			outbox.put(msg);
+			expect(outbox.size).toBe(1);
+			expect(Array.isArray(outbox.peek().data)).toBe(false);
+			outbox.setMessageData('ID1', [23, 42]);
+			// should not add new message
+			expect(outbox.size).toBe(1);
+			const newmsg = outbox.pop();
+			expect(Array.isArray(newmsg.data)).toBe(true);
+			expect(newmsg.id).toBe('ID1');
+			expect(newmsg.data[0]).toBe(23);
+			expect(newmsg.data[1]).toBe(42);
+			expect(newmsg.data.value).toBeUndefined();
+		});
+		it('should be possible to replace message', () => {
+			const outbox = new Outbox();
+			const msg1 = new Message({ value: 'hello' }, 'ID1');
+			const msg2 = new Message('world', 'ID1');
+			const msg3 = new Message([23, 42], 'ID1');
+			outbox.put(msg1);
+			expect(outbox.size).toBe(1);
+			outbox.replaceMessage(msg2);
+			expect(outbox.size).toBe(1);
+			let newmsg = outbox.peek();
+			expect(newmsg.id).toBe('ID1');
+			expect(newmsg.data.value).toBe('world');
+			outbox.replaceMessage(msg3);
+			expect(outbox.size).toBe(1);
+			newmsg = outbox.peek();
+			expect(newmsg.id).toBe('ID1');
+			expect(newmsg.data[0]).toBe(23);
+			expect(newmsg.data[1]).toBe(42);
+			expect(newmsg.data.value).toBeUndefined();
 		});
 	});
 	describe('event emit', () => {

@@ -160,6 +160,19 @@ class MessageBox {
 		}
 		return message;
 	}
+
+	replaceMessage(newMessage) {
+		const msgId = newMessage.id;
+		const replaced = this.messages.some((msg, index) => {
+			const foundIt = msg.id === msgId;
+			if (foundIt) {
+				this._addTimestamp(newMessage);
+				this.messages[index] = newMessage;
+			}
+			return foundIt;
+		});
+		if (replaced) this._emitter.emit('message_changed', newMessage);
+	}
 }
 
 module.exports = MessageBox;

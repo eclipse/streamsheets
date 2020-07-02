@@ -36,24 +36,15 @@ class Outbox extends MessageBox {
 	}
 
 	setMessageData(msgOrId, newdata) {
-		const message = typeof msgOrId === 'object' ? msgOrId : this.peek(msgOrId, true);
-		if (Array.isArray(newdata)) {
-			// create new message with an array as data and replace old one:
-			const msg = new Message(newdata, message.id);
-			Object.assign(msg.metadata, message.metadata);
-			this._replaceMessageWith(msg);
-		} else {
-			Object.assign(message.data, newdata);
+		const oldmsg = typeof msgOrId === 'object' ? msgOrId : this.peek(msgOrId, true);
+		const newmsg = new Message(newdata, oldmsg.id);
+		// combine metadata
+		Object.assign(newmsg.metadata, oldmsg.metadata);
+		// combine or replace data
+		if (!Array.isArray(oldmsg.data) && !Array.isArray(newmsg.data)) {
+			Object.assign(newmsg.data, Object.assign({}, oldmsg.data, newmsg.data));
 		}
-		// check if newdata != data before sending event...
-		this._emitter.emit('message_changed', message);
-	}
-	_replaceMessageWith(newMessage) {
-		this.messages.some((msg, index) => {
-			const foundIt = msg.id === newMessage.id;
-			if (foundIt) this.messages[index] = newMessage;
-			return foundIt;
-		});
+		this.replaceMessage(newmsg);
 	}
 }
 module.exports = Outbox;
