@@ -12,6 +12,7 @@ const logger = require('../logger').create({ name: 'MessageBox' });
 const EventEmitter = require('events');
 const IdGenerator = require('@cedalo/id-generator');
 const { Functions } = require('@cedalo/parser');
+const { lastElements } = require('../utils/array');
 
 const now = () => (Functions.NOW ? Functions.NOW() : Date.now());
 
@@ -90,6 +91,10 @@ class MessageBox {
 
 	get size() {
 		return this.messages.length;
+	}
+
+	getLastMessages(n = 100) {
+		return lastElements(n, this.messages);
 	}
 
 	on(event, callback) {
