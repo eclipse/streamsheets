@@ -18,6 +18,7 @@ import { graphManager } from '../../GraphManager';
 import * as Actions from '../../actions/actions';
 import {Notification, NotificationCenter} from '@cedalo/jsg-core';
 import AppBar from '@material-ui/core/AppBar';
+import {withStyles} from '@material-ui/core/styles';
 
 const {
 	ItemAttributes,
@@ -579,7 +580,7 @@ export class EditBarComponent extends Component {
 						borderLeft: '1px solid #AAAAAA',
 						borderBottom: '1px solid #AAAAAA',
 						minHeight: '17px',
-						backgroundColor: JSG.theme.fill,
+						backgroundColor: this.props.theme.palette.colorPrimary,
 						maxHeight: '200px',
 						overflowY: 'auto',
 						verticalAlign: 'top',
@@ -601,7 +602,4 @@ function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default connect(
-	mapStateToProps,
-	mapDispatchToProps,
-)(EditBarComponent);
+export default withStyles({}, {withTheme: true})(connect(mapStateToProps, mapDispatchToProps,)(EditBarComponent));
