@@ -20,7 +20,7 @@ const Message = require('./src/machine/Message');
 const Outbox = require('./src/machine/Outbox');
 const Sheet = require('./src/machine/Sheet');
 const SheetIndex = require('./src/machine/SheetIndex');
-const { SheetParser } = require('./src/parser/SheetParser');
+const { ObjectTerm, SheetParser } = require('./src/parser/SheetParser');
 const SheetParserContext = require('./src/parser/SheetParserContext');
 const { ErrorTerm } = require('./src/parser/Error');
 const SheetRange = require('./src/machine/SheetRange');
@@ -49,6 +49,7 @@ module.exports = {
 	MachineTaskFile,
 	MachineTaskMessagingClient,
 	Message,
+	ObjectTerm,
 	Outbox,
 	Sheet,
 	SheetIndex,
