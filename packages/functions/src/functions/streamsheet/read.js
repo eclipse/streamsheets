@@ -8,20 +8,17 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { runFunction, sheet: sheetutils, terms: { getCellRangeFromTerm } } = require('../../utils');
-const { Term } = require('@cedalo/parser');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Cell, ErrorTerm, isType } = require('@cedalo/machine-core');
+const { Cell, ErrorTerm, ObjectTerm, isType } = require('@cedalo/machine-core');
+const { Term } = require('@cedalo/parser');
+const { runFunction, sheet: sheetutils, terms: { getCellRangeFromTerm } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
 const toBool = (term, defval) => term ? convert.toBoolean(term.value, defval) : defval;
-
 const toString = term => (term ? convert.toString(term.value, '') : '');
-
-// DL-3703 for object values we have to use special replacement
-const termFromValue = value => (isType.object(value) ? Term.fromValue(Cell.VALUE_REPLACEMENT) : Term.fromValue(value));
+const termFromValue = (value) => (isType.object(value) ? new ObjectTerm(value) : Term.fromValue(value));
 
 const setOrCreateCellAt = (index, value, isErrorValue, sheet) => {
 	if (value != null) {
@@ -126,18 +123,18 @@ const spreadObjectList = (list, cellrange, isHorizontal) => {
 	});
 };
 const copyToCellRange = (cellrange, data, type, isHorizontal) => {
-	const isError = FunctionErrors.isError(data);
-	if (!isError) {
-		const objlist = (!type || type === 'array') && toObjectList(data);
-		if (objlist) {
-			spreadObjectList(objlist, cellrange, isHorizontal);
-			return;
-		} 
-	}
 	const sheet = cellrange.sheet;
+	const isError = FunctionErrors.isError(data);
 	if (cellrange.width === 1 && cellrange.height === 1) {
 		setOrCreateCellAt(cellrange.start, data, isError, sheet);
 	} else {
+		if (!isError) {
+			const objlist = (!type || type === 'array') && toObjectList(data);
+			if (objlist) {
+				spreadObjectList(objlist, cellrange, isHorizontal);
+				return;
+			} 
+		}
 		const vertical = isHorizontal == null ? cellrange.height >= cellrange.width : !isHorizontal;
 		const provider = Array.isArray(data) ? arrayProvider(data, vertical) : dictProvider(data, vertical);
 		copyDataToCellRange(cellrange, isError, sheet, provider);

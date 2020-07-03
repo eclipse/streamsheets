@@ -1303,6 +1303,27 @@ describe('read', () => {
 			expect(sheet.cellAt('B10').value).toBe(10194);
 			expect(sheet.cellAt('B11').value).toBe('ITS Test Wi-Re');
 		});
+		// DL-4216
+		it('should write cell with json value if an object value is read', () => {
+			const sheet = setup({ streamsheetName: 'T1' });
+			// read array:
+			expect(createTerm('read(inboxdata("T1","msg-simple","Positionen"),B2)', sheet).value).toBe("Positionen");
+			let cell = sheet.cellAt('B2');
+			expect(cell).toBeDefined();
+			expect(cell.description().value).toBe(Cell.VALUE_REPLACEMENT);
+			expect(Array.isArray(cell.value)).toBe(true);
+			expect(cell.value[0]).toEqual({ PosNr: 1, Artikelnr: 1234, Preis: 80.0 });
+			expect(cell.value[1]).toEqual({ PosNr: 2, Artikelnr: 12345, Preis: 59.99 });
+			expect(cell.value[2]).toEqual({ PosNr: 3, Artikelnr: 4535, Preis: 45.32 });
+			// read object:
+			expect(createTerm('read(inboxdata("T1","msg-simple","Kundenname"),B2)', sheet).value).toBe("Kundenname");
+			cell = sheet.cellAt('B2');
+			expect(cell).toBeDefined();
+			expect(cell.description().value).toBe(Cell.VALUE_REPLACEMENT);
+			expect(typeof cell.value).toBe('object');
+			expect(cell.value.Vorname).toBe('Max');
+			expect(cell.value.Nachname).toBe('Mustermann');
+		});
 	});
 
 	describe('process message', () => {
