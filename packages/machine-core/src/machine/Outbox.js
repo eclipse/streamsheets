@@ -14,6 +14,7 @@ const MessageBox = require('./MessageBox');
 const DEF_CONF = {
 	// max: 100, // -1, to signal no bounds...
 	max: -1, // -1, to signal no bounds...
+	reverse: true,
 	type: 'Outbox'
 };
 
@@ -24,6 +25,10 @@ class Outbox extends MessageBox {
 	constructor(cfg = {}) {
 		cfg = Object.assign({}, DEF_CONF, cfg);
 		super(cfg);
+	}
+
+	getFirstMessages(n = 100) {
+		return super.getFirstMessages(n);
 	}
 
 	peek(id, create) {

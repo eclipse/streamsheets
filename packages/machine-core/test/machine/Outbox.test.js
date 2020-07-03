@@ -53,13 +53,39 @@ describe('Outbox', () => {
 			const msg1 = outbox.peek('msg1', true);
 			const msg2 = outbox.peek('msg2', true);
 			expect(outbox.messages.length).toBe(2);
-			expect(outbox.messages[0]).toBe(msg1);
-			expect(outbox.messages[1]).toBe(msg2);
+			// note: reversed order:
+			expect(outbox.messages[0]).toBe(msg2);
+			expect(outbox.messages[1]).toBe(msg1);
 			expect(outbox.pop(msg1.id)).toBe(msg1);
 			expect(outbox.messages.length).toBe(1);
 			expect(outbox.messages[0]).toBe(msg2);
 			expect(outbox.pop(msg2.id)).toBe(msg2);
 			expect(outbox.messages.length).toBe(0);
+		});
+		it('should add new messages in reversed order, i.e. new message on top', () => {
+			const outbox = new Outbox();
+			const msg1 = new Message('hello', 'ID1');
+			const msg2 = new Message('world', 'ID2');
+			const msg3 = new Message('!!!', 'ID3');
+			const msg4 = new Message(42, 'ID4');
+			outbox.put(msg1);
+			outbox.put(msg2);
+			outbox.put(msg3);
+			outbox.put(msg4);
+			expect(outbox.size).toBe(4);
+			expect(outbox.messages[0]).toBe(msg4);
+			expect(outbox.messages[1]).toBe(msg3);
+			expect(outbox.messages[2]).toBe(msg2);
+			expect(outbox.messages[3]).toBe(msg1);
+			outbox.pop();
+			expect(outbox.messages[0]).toBe(msg3);
+			expect(outbox.messages[1]).toBe(msg2);
+			expect(outbox.messages[2]).toBe(msg1);
+			outbox.pop('ID2');
+			expect(outbox.messages[0]).toBe(msg3);
+			expect(outbox.messages[1]).toBe(msg1);
+			outbox.pop('ID3');
+			expect(outbox.messages[0]).toBe(msg1);
 		});
 		it('should be possible to combine message data', () => {
 			const outbox = new Outbox();

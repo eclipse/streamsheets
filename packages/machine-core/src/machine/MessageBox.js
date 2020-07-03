@@ -12,7 +12,7 @@ const logger = require('../logger').create({ name: 'MessageBox' });
 const EventEmitter = require('events');
 const IdGenerator = require('@cedalo/id-generator');
 const { Functions } = require('@cedalo/parser');
-const { lastElements } = require('../utils/array');
+const { firstElements, lastElements } = require('../utils/array');
 
 const now = () => (Functions.NOW ? Functions.NOW() : Date.now());
 
@@ -44,6 +44,7 @@ const match = (data, selector) => {
 
 const DEF_CONF = {
 	max: 100, // -1, to signal no bounds...
+	reverse: false,
 	type: 'MessageBox'
 };
 
@@ -62,6 +63,7 @@ class MessageBox {
 		this._id = config.id;
 		this._type = config.type;
 		this._max = config.max;
+		this._reverse = config.reverse;
 	}
 
 	toJSON() {
@@ -93,7 +95,11 @@ class MessageBox {
 		return this.messages.length;
 	}
 
-	getLastMessages(n = 100) {
+	getFirstMessages(n = 1) {
+		return firstElements(n, this.messages);
+	}
+
+	getLastMessages(n = 1) {
 		return lastElements(n, this.messages);
 	}
 
@@ -133,7 +139,8 @@ class MessageBox {
 		const doIt = force || this.max < 0 || this.messages.length < this.max;
 		this._addTimestamp(message);
 		if (doIt) {
-			this.messages.push(message);
+			if (this._reverse) this.messages.unshift(message);
+			else this.messages.push(message);
 		}
 		logger.debug(`${this.type}: ${doIt ? 'PUT' : 'SKIP'} message ${message.id}`);
 		// review: don't care if message was added -> we want event even for empty or full boxes!
