@@ -183,8 +183,9 @@ describe('delete', () => {
 		expect(outbox.size).toBe(2);
 		expect(DELETE(sheet, createFuncTerm(sheet, 'outbox', createParamTerms('')))).toBe(true);
 		expect(outbox.size).toBe(1);
-		expect(outbox.peek('msg-simple')).toBeUndefined();
-		expect(outbox.peek('msg-simple2')).toBeDefined();
+		// note: reverse order in outbox
+		expect(outbox.peek('msg-simple')).toBeDefined();
+		expect(outbox.peek('msg-simple2')).toBeUndefined();
 		expect(DELETE(sheet, createFuncTerm(sheet, 'outbox', createParamTerms('')))).toBe(true);
 		expect(outbox.size).toBe(0);
 	});
