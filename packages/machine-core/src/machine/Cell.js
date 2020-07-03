@@ -12,7 +12,7 @@ const { isType } = require('../utils');
 const { Operand } = require('@cedalo/parser');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
-const CELL_VALUE_REPLACEMENT = '{ JSON Object }';
+const CELL_VALUE_REPLACEMENT = '{ JSON }';
 
 const isValueType = (term) => {
 	const type = term.operand.type;
