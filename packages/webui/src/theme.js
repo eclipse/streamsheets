@@ -26,7 +26,7 @@ const createDefault = () => {
 				backgroundColor: '#eeeeee',
 			},
 			cellrange: {
-				color: 'white',
+				color: 'black',
 				colorlight: 'rgba(0, 0, 0, 0.54)',
 				underline: 'rgba(0, 0, 0, 0.42)',
 			},

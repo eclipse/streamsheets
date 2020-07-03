@@ -299,12 +299,12 @@ class MachineControlBar extends React.Component {
 				>
 					<GridList
 						cols={7}
-						cellHeight={40}
+						cellHeight={30}
 						spacing={2}
 						style={{
-							width: '390px',
+							width: '300px',
 							margin: '0px',
-							padding: '15px'
+							padding: '8px'
 						}}
 					>
 						<GridListTile
@@ -314,7 +314,7 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
-							<Typography variant="h6">
+							<Typography style={{fontSize: '10pt'}} variant='h6' color="textPrimary">
 								<FormattedMessage
 									id="MachineControl.cycleTime"
 									defaultMessage="Cycle Time: {speed}ms"
@@ -327,7 +327,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(10)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -340,7 +340,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(20)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -353,7 +353,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(50)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -366,7 +366,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(100)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -379,7 +379,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(200)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -392,7 +392,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(500)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -405,7 +405,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(1000)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -413,7 +413,7 @@ class MachineControlBar extends React.Component {
 								1000
 							</Button>
 						</GridListTile>
-						<GridListTile cols={7}>
+						<GridListTile style={{height: '20px'}} cols={7}>
 							<Slider
 								step={1}
 								value={reverseSpeed(this.state.speed)}
@@ -426,12 +426,12 @@ class MachineControlBar extends React.Component {
 					<Divider />
 					<GridList
 						cols={7}
-						cellHeight={40}
+						cellHeight={30}
 						spacing={2}
 						style={{
-							width: '390px',
+							width: '300px',
 							margin: '0px',
-							padding: '15px'
+							padding: '8px'
 						}}
 					>
 						<GridListTile
@@ -441,7 +441,7 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
-							<Typography variant="h6">
+							<Typography style={{fontSize: '10pt'}} variant='h6' color="textPrimary">
 								<FormattedMessage
 									id="MachineControl.updateInterval"
 									defaultMessage="Update Interval: {interval}"
@@ -454,7 +454,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(1)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -467,7 +467,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(2)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -480,7 +480,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(5)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -493,7 +493,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(10)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -506,7 +506,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(20)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -519,7 +519,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(50)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -532,7 +532,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(100)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -540,7 +540,7 @@ class MachineControlBar extends React.Component {
 								100
 							</Button>
 						</GridListTile>
-						<GridListTile cols={7}>
+						<GridListTile style={{height: '20px'}} cols={7}>
 							<Slider
 								step={1}
 								value={reverseUpdateInterval(this.state.streamsheetStepInterval)}
@@ -553,12 +553,12 @@ class MachineControlBar extends React.Component {
 					<Divider />
 					<GridList
 						cols={6}
-						cellHeight={40}
+						cellHeight={25}
 						spacing={1}
 						style={{
 							width: '100%',
 							margin: '0px',
-							paddingTop: '15px'
+							paddingTop: '10px'
 						}}
 					>
 						<GridListTile
@@ -568,7 +568,7 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
-							<Typography variant="h6">
+							<Typography style={{fontSize: '10pt'}} variant='h6' color="textPrimary">
 								<FormattedMessage id="MachineControl.updates" defaultMessage="Updates/sec." />
 							</Typography>
 						</GridListTile>
@@ -580,7 +580,7 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
-							<Typography>
+							<Typography color="textPrimary">
 							<FormattedMessage id="MachineControl.client" defaultMessage="Client" />
 							</Typography>
 						</GridListTile>
@@ -592,29 +592,36 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
-							<Typography>
+							<Typography color="textPrimary">
 							<FormattedMessage id="MachineControl.server" defaultMessage="Server" />
-							</Typography>
+							</Typography >
 						</GridListTile>
 					</GridList>
-					<Gauge
-						value={this.props.clientUpdateRate}
-						min={0}
-						max={25}
-						width={210}
-						height={125}
-						label=""
-						color={getGaugeColor(this.props.clientUpdateRate, 25)}
-					/>
-					<Gauge
-						value={this.props.machineCyclesPerSecond}
-						min={0}
-						max={1000}
-						width={210}
-						height={125}
-						label=""
-						color={getGaugeColor(this.props.machineCyclesPerSecond, 1000)}
-					/>
+					<div
+						style={{
+							height: '140px',
+							marginTop: '-30px',
+						}}
+					>
+						<Gauge
+							value={this.props.clientUpdateRate}
+							min={0}
+							max={25}
+							width={158}
+							height={130}
+							label=""
+							color={getGaugeColor(this.props.clientUpdateRate, 25)}
+						/>
+						<Gauge
+							value={this.props.machineCyclesPerSecond}
+							min={0}
+							max={1000}
+							width={158}
+							height={130}
+							label=""
+							color={getGaugeColor(this.props.machineCyclesPerSecond, 1000)}
+						/>
+					</div>
 				</Popover>
 			</div>
 		);
