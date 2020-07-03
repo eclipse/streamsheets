@@ -45,25 +45,25 @@ class MachineTaskOutboxMonitor {
 	}
 
 	onClear(/* messages */ ) {
-		const messages = this.outbox.getLastMessages();
+		const messages = this.outbox.getFirstMessages();
 		const message = eventmsg(MachineEvents.MESSAGE_BOX_CLEAR, this.outbox, this.machine, { messages });
 		this.publishEvent(message);
 	}
 
 	onMessagePut(message) {
-		const messages = this.outbox.getLastMessages();
+		const messages = this.outbox.getFirstMessages();
 		const msg = eventmsg(MachineEvents.MESSAGE_PUT, this.outbox, this.machine, { message, messages });
 		this.publishEvent(msg);
 	}
 
 	onMessagePop(message) {
-		const messages = this.outbox.getLastMessages();
+		const messages = this.outbox.getFirstMessages();
 		const msg = eventmsg(MachineEvents.MESSAGE_POP, this.outbox, this.machine, { message, messages });
 		this.publishEvent(msg);
 	}
 
 	onMessageChanged(message) {
-		const messages = this.outbox.getLastMessages();
+		const messages = this.outbox.getFirstMessages();
 		const msg = eventmsg(MachineEvents.MESSAGE_CHANGED, this.outbox, this.machine, { message, messages });
 		this.publishEvent(msg);
 	}
