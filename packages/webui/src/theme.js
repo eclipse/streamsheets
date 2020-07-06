@@ -226,6 +226,8 @@ const createByName = () => {
 			textlight: '#DDDDDD',
 			fill: '#000000',
 			filllight: '#222222',
+			feedbackFill: 'rgba(255, 255, 255,0.2)',
+			feedbackBorder: 'rgba(255, 255, 255,0.8)',
 		};
 		break;
 	default:
@@ -235,6 +237,9 @@ const createByName = () => {
 
 	JSG.FormatAttributes.template = JSG.FormatAttributes.createTemplate();
 	JSG.TextFormatAttributes.template = JSG.TextFormatAttributes.createTemplate();
+	JSG.CellAttributes.template = JSG.CellAttributes.createTemplate();
+	JSG.CellFormatAttributes.template = JSG.CellFormatAttributes.createTemplate();
+	JSG.CellTextFormatAttributes.template = JSG.CellTextFormatAttributes.createTemplate();
 
 	return theme;
 }

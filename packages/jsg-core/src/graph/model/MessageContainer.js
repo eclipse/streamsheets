@@ -1,3 +1,4 @@
+
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
@@ -50,7 +51,8 @@ module.exports = class MessageContainer extends Node {
 		button.getItemAttributes().addAttribute(new StringAttribute('LayoutVertical', 'center'));
 		button.getItemAttributes().setSnapTo(false);
 		button.getFormat().setFillStyle(FormatAttributes.FillStyle.PATTERN);
-		button.getFormat().setPattern(image);
+		// button.getFormat().setPattern(image);
+		button.label = image;
 		button.setSize(400, 400);
 		parent.addItem(button);
 		button.setName(name);
@@ -132,14 +134,14 @@ module.exports = class MessageContainer extends Node {
 		this._messageEditor.getItemAttributes().setSnapTo(false);
 		this.addItem(this._messageEditor);
 
-		this.addButton(this._messageTools, 't1l', 't1', 'left');
-		this.addButton(this._messageTools, 't2l', 't2', 'left');
-		this.addButton(this._messageTools, 't3l', 't3', 'left');
-		this.addButton(this._messageTools, 't4l', 't4', 'left');
-		this.addButton(this._messageTools, 't1r', 't1', 'right');
-		this.addButton(this._messageTools, 't2r', 't2', 'right');
-		this.addButton(this._messageTools, 't3r', 't3', 'right');
-		this.addButton(this._messageTools, 't4r', 't4', 'right');
+		this.addButton(this._messageTools, 't1l', '1', 'left');
+		this.addButton(this._messageTools, 't2l', '2', 'left');
+		this.addButton(this._messageTools, 't3l', '3', 'left');
+		this.addButton(this._messageTools, 't4l', '4', 'left');
+		this.addButton(this._messageTools, 't1r', '1', 'right');
+		this.addButton(this._messageTools, 't2r', '2', 'right');
+		this.addButton(this._messageTools, 't3r', '3', 'right');
+		this.addButton(this._messageTools, 't4r', '4', 'right');
 
 		this.getFormat().setLineColor(JSG.theme.frame);
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
