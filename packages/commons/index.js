@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const clone = require('./src/clone');
 const convert = require('./src/convert');
 const jsonpath = require('./src/jsonpath');
 const functions = require('./src/functions');
@@ -17,6 +18,7 @@ const sleep = require('./src/sleep');
 const moduleResolver = require('./src/moduleResolver');
 
 module.exports = {
+	clone,
 	convert,
 	jsonpath,
 	functions,
