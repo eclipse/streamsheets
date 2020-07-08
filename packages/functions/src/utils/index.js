@@ -22,6 +22,7 @@ const terms = require('./terms');
 // const types = require('./types'); // <-- causes circular reference!!
 const validation = require('./validation');
 const values = require('./values');
+const wildcards = require('./wildcards');
 
 module.exports = {
 	AsyncRequest,
@@ -37,5 +38,6 @@ module.exports = {
 	terms,
 	// types,
 	validation,
-	values
+	values,
+	wildcards
 };
