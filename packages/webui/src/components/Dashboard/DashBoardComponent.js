@@ -40,6 +40,7 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import TableSortHeader from '../base/addNewDialog/TableSortHeader';
 import StreamHelper from '../../helper/StreamHelper';
+import StreamDeleteDialog from '../Admin/streams/StreamDeleteDialog';
 
 const styles = (theme) => ({
 	tableRoot: {
@@ -67,12 +68,18 @@ const styles = (theme) => ({
 const cells = [
 	{ id: 'out', numeric: false, disablePadding: true, sort: false, label: '' },
 	{ id: 'name', numeric: false, disablePadding: true, sort: true, label: 'Streams.Name', width: '20%' },
-	{ id: 'provider', numeric: false, disablePadding: true, sort: true, label: 'Streams.Provider', width: '10%'  },
-	{ id: 'topic', numeric: false, disablePadding: true, sort: true, label: 'Streams.Topic', width: '25%' },
-	{ id: 'lastModified', numeric: false, disablePadding: true, sort: true, label: 'Streams.LastModified', width: '10%' },
-	{ id: 'action', numeric: false, disablePadding: true, sort: false, label: 'Streams.Actions' },
+	{ id: 'provider', numeric: false, disablePadding: true, sort: true, label: 'Streams.Provider', width: '10%' },
+	{ id: 'topic', numeric: false, disablePadding: true, sort: true, label: 'Streams.Topic'},
+	{
+		id: 'lastModified',
+		numeric: false,
+		disablePadding: true,
+		sort: true,
+		label: 'Streams.LastModified',
+		width: '10%'
+	},
+	{ id: 'action', numeric: false, disablePadding: true, sort: false, label: 'Streams.Actions', width: '10%' }
 ];
-
 
 const Row = withStyles(styles)((props) => {
 	const { classes, row } = props;
@@ -80,16 +87,31 @@ const Row = withStyles(styles)((props) => {
 
 	return (
 		<React.Fragment>
-			<TableRow style={{ textDecoration: row.disabled ? 'line-through' : 'inherit'}} classes={{ root: classes.tableRoot }}>
+			<TableRow
+				style={{ textDecoration: row.disabled ? 'line-through' : 'inherit' }}
+				classes={{ root: classes.tableRoot }}
+			>
 				<TableCell style={{ width: '20px' }} padding="none" align="left">
-					<IconButton  style={{margin: '0px 5px', padding: '4px'}} aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+					<IconButton
+						style={{ margin: '0px 5px', padding: '4px' }}
+						aria-label="expand row"
+						size="small"
+						onClick={() => setOpen(!open)}
+					>
 						{open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
 					</IconButton>
 				</TableCell>
-				<TableCell onClick={() => setOpen(!open)} style={{ cursor: 'pointer', fontWeight: 'bold' }} padding="none" component="th" scope="row" align="left">
+				<TableCell
+					onClick={() => setOpen(!open)}
+					style={{ cursor: 'pointer', fontWeight: 'bold' }}
+					padding="none"
+					component="th"
+					scope="row"
+					align="left"
+				>
 					{row.name}
 				</TableCell>
-				<TableCell onClick={() => setOpen(!open)}padding="none" align="left">
+				<TableCell onClick={() => setOpen(!open)} padding="none" align="left">
 					{row.provider}
 				</TableCell>
 				<TableCell onClick={() => setOpen(!open)} padding="none" align="left">
@@ -98,21 +120,27 @@ const Row = withStyles(styles)((props) => {
 				<TableCell onClick={() => setOpen(!open)} padding="none" align="left">
 					{row.lastModified}
 				</TableCell>
-				<TableCell padding="none" align="left"
-				>
-					<IconButton style={{padding: '4px'}} size="small"  onClick={() => props.onStreamOpen(row)}>
+				<TableCell padding="none" align="left">
+					<IconButton style={{ padding: '4px' }} size="small" onClick={() => props.onStreamOpen(row)}>
 						<IconEdit />
 					</IconButton>
-					<IconButton style={{padding: '4px'}}  size="small" onClick={() => setOpen(!open)}>
+					<IconButton
+						style={{ padding: '4px' }}
+						size="small"
+						onClick={() => props.onStreamDelete(row, 'connectors')}
+					>
 						<IconDelete />
 					</IconButton>
-					<IconButton style={{padding: '4px'}}  size="small" onClick={() => setOpen(!open)}>
+					<IconButton style={{ padding: '4px' }} size="small" onClick={() => props.onStreamReload(row)}>
 						<IconReload />
 					</IconButton>
 				</TableCell>
 			</TableRow>
 			<TableRow style={{ height: '0px' }}>
-				<TableCell style={{ paddingBottom: open ? '6px' : '0px', paddingTop: '0px', paddingLeft: '40px' }} colSpan={7}>
+				<TableCell
+					style={{ paddingBottom: open ? '6px' : '0px', paddingTop: '0px', paddingLeft: '40px' }}
+					colSpan={7}
+				>
 					<Collapse in={open} timeout="auto" unmountOnExit>
 						<Paper square elevation={1}>
 							<Typography
@@ -139,19 +167,47 @@ const Row = withStyles(styles)((props) => {
 												align="left"
 												onClick={() => props.onStreamOpen(historyRow)}
 											>
-												<img style={{verticalAlign: 'bottom', paddingRight: '6px'}} width={15} height={15} src={StreamHelper.getIconForState(historyRow.state)} alt="state"/>
+												<img
+													style={{ verticalAlign: 'bottom', paddingRight: '6px' }}
+													width={15}
+													height={15}
+													src={StreamHelper.getIconForState(historyRow.state)}
+													alt="state"
+												/>
 												{historyRow.name}
 											</TableCell>
 											<TableCell style={{ width: '11%' }} padding="none" align="left">
 												{historyRow.provider}
 											</TableCell>
-											<TableCell style={{ width: '25.5%' }} padding="none" align="left">
+											<TableCell padding="none" align="left">
 												{historyRow.topic}
 											</TableCell>
 											<TableCell style={{ width: '10%' }} padding="none" align="left">
-											   {historyRow.lastModified}
+												{historyRow.lastModified}
 											</TableCell>
-											<TableCell padding="none" align="left" />
+											<TableCell  style={{ width: '10%' }} padding="none" align="left">
+												<IconButton
+													style={{ padding: '4px' }}
+													size="small"
+													onClick={() => props.onStreamOpen(historyRow)}
+												>
+													<IconEdit />
+												</IconButton>
+												<IconButton
+													style={{ padding: '4px' }}
+													size="small"
+													onClick={() => props.onStreamDelete(historyRow, 'consumers')}
+												>
+													<IconDelete />
+												</IconButton>
+												<IconButton
+													style={{ padding: '4px' }}
+													size="small"
+													onClick={() => props.onStreamReload(historyRow)}
+												>
+													<IconReload />
+												</IconButton>
+											</TableCell>
 										</TableRow>
 									))}
 								</TableBody>
@@ -180,19 +236,47 @@ const Row = withStyles(styles)((props) => {
 												align="left"
 												onClick={() => props.onStreamOpen(historyRow)}
 											>
-												<img style={{verticalAlign: 'bottom', paddingRight: '6px'}} width={15} height={15} src={StreamHelper.getIconForState(historyRow.state)} alt="state"/>
+												<img
+													style={{ verticalAlign: 'bottom', paddingRight: '6px' }}
+													width={15}
+													height={15}
+													src={StreamHelper.getIconForState(historyRow.state)}
+													alt="state"
+												/>
 												{historyRow.name}
 											</TableCell>
 											<TableCell style={{ width: '11%' }} padding="none" align="left">
 												{historyRow.provider}
 											</TableCell>
-											<TableCell style={{ width: '25.5%' }} padding="none" align="left">
+											<TableCell padding="none" align="left">
 												{historyRow.topic}
 											</TableCell>
 											<TableCell style={{ width: '10%' }} padding="none" align="left">
 												{historyRow.lastModified}
 											</TableCell>
-											<TableCell padding="none" align="left" />
+											<TableCell  style={{ width: '10%' }} padding="none" align="left">
+												<IconButton
+													style={{ padding: '4px' }}
+													size="small"
+													onClick={() => props.onStreamOpen(historyRow)}
+												>
+													<IconEdit />
+												</IconButton>
+												<IconButton
+													style={{ padding: '4px' }}
+													size="small"
+													onClick={() => props.onStreamDelete(historyRow, 'producers')}
+												>
+													<IconDelete />
+												</IconButton>
+												<IconButton
+													style={{ padding: '4px' }}
+													size="small"
+													onClick={() => props.onStreamReload(historyRow)}
+												>
+													<IconReload />
+												</IconButton>
+											</TableCell>
 										</TableRow>
 									))}
 								</TableBody>
@@ -216,7 +300,7 @@ class DashBoardComponent extends Component {
 			dialogMachineTitleImageOpen: false,
 			activeTab: 1,
 			streamSortBy: 'name',
-			streamSortOrder: 'asc',
+			streamSortOrder: 'asc'
 		};
 	}
 
@@ -235,7 +319,15 @@ class DashBoardComponent extends Component {
 
 	onStreamOpen = (resource) => {
 		this.props.openStream(resource);
-	}
+	};
+
+	onStreamReload = (/* resource */) => {
+	};
+
+	onStreamDelete = (resource, type) => {
+		this.props.setConfigurationActive(resource.id, type);
+		this.props.setDeleteDialogOpen(true);
+	};
 
 	onCloseDialogMachineTitleImage = () => {
 		this.setState({
@@ -345,11 +437,9 @@ class DashBoardComponent extends Component {
 
 	handleTabChange = (event, value) => {
 		if (value === 1) {
-			this.props.getDataStores().then(() =>
-				this.setState({ activeTab: value })
-			);
+			this.props.getDataStores().then(() => this.setState({ activeTab: value }));
 		} else {
-			this.setState({activeTab: value});
+			this.setState({ activeTab: value });
 		}
 
 		this.props.onUpdateFilter('');
@@ -359,17 +449,13 @@ class DashBoardComponent extends Component {
 		const rows = [];
 
 		if (this.props.streams && this.props.streams.connectors && this.props.streams.connectors.length) {
-			this.props.streams.connectors.forEach(connector => {
+			this.props.streams.connectors.forEach((connector) => {
 				const provider = StreamHelper.getProviderOfConnector(connector, this.props.streams);
 				const consumers = StreamHelper.getConsumersUsingConnector(connector.id, this.props.streams.consumers);
 				const producers = StreamHelper.getProducersUsingConnector(connector.id, this.props.streams.producers);
-				if (
-					connector.name
-						.toLowerCase()
-						.includes(this.props.filter.toLowerCase())
-				) {
+				if (connector.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
 					const row = {
-						id : connector.id,
+						id: connector.id,
 						name: connector.name,
 						provider: provider ? provider.name : connector.provider.id,
 						topic: connector.topic || '',
@@ -377,30 +463,30 @@ class DashBoardComponent extends Component {
 						lastModifiedDate: new Date(connector.lastModified).toISOString(),
 						lastModified: formatDateString(new Date(connector.lastModified).toISOString()),
 						consumers: [],
-						producers: [],
+						producers: []
 					};
-					consumers.forEach(consumer => {
+					consumers.forEach((consumer) => {
 						row.consumers.push({
-							id : consumer.id,
+							id: consumer.id,
 							name: consumer.name,
 							provider: row.provider,
 							topic: consumer.topics ? consumer.topics.toString() : '',
 							lastModifiedDate: new Date(consumer.lastModified).toISOString(),
 							lastModified: formatDateString(new Date(consumer.lastModified).toISOString()),
-							state: StreamHelper.getStreamState(consumer),
+							state: StreamHelper.getStreamState(consumer)
 						});
-					})
-					producers.forEach(producer => {
+					});
+					producers.forEach((producer) => {
 						row.producers.push({
-							id : producer.id,
+							id: producer.id,
 							name: producer.name,
 							provider: row.provider,
 							topic: producer.topics ? producer.topics.toString() : '',
 							lastModifiedDate: new Date(producer.lastModified).toISOString(),
 							lastModified: formatDateString(new Date(producer.lastModified).toISOString()),
-							state: StreamHelper.getStreamState(producer),
+							state: StreamHelper.getStreamState(producer)
 						});
-					})
+					});
 					rows.push(row);
 				}
 			});
@@ -410,26 +496,26 @@ class DashBoardComponent extends Component {
 			const dir = this.state.streamSortOrder === 'asc' ? 1 : -1;
 
 			switch (this.state.streamSortBy) {
-			case 'provider':
-			case 'topic':
-			case 'name': {
-				const aName = a[this.state.streamSortBy] || '';
-				const bName = b[this.state.streamSortBy] || '';
-				if (aName.toLowerCase() > bName.toLowerCase()) {
-					return dir;
-				} else if (aName.toLowerCase() < bName.toLowerCase()) {
-					return -1 * dir;
+				case 'provider':
+				case 'topic':
+				case 'name': {
+					const aName = a[this.state.streamSortBy] || '';
+					const bName = b[this.state.streamSortBy] || '';
+					if (aName.toLowerCase() > bName.toLowerCase()) {
+						return dir;
+					} else if (aName.toLowerCase() < bName.toLowerCase()) {
+						return -1 * dir;
+					}
+					return 0;
 				}
-				return 0;
-			}
-			case 'lastModified': {
-				const aLastModified = a.lastModifiedDate || new Date().toISOString();
-				const bLastModified = b.lastModifiedDate || new Date().toISOString();
-				const res = new Date(aLastModified) - new Date(bLastModified);
-				return dir * res;
-			}
-			default:
-				return 0;
+				case 'lastModified': {
+					const aLastModified = a.lastModifiedDate || new Date().toISOString();
+					const bLastModified = b.lastModifiedDate || new Date().toISOString();
+					const res = new Date(aLastModified) - new Date(bLastModified);
+					return dir * res;
+				}
+				default:
+					return 0;
 			}
 		});
 
@@ -449,8 +535,11 @@ class DashBoardComponent extends Component {
 
 	handleStreamsSort = (event, property) => {
 		const orderBy = property;
-		const order = ((this.state.streamSortBy === property && this.state.streamSortOrder === 'desc') ||
-			this.state.streamSortBy !== property) ? 'asc' : 'desc';
+		const order =
+			(this.state.streamSortBy === property && this.state.streamSortOrder === 'desc') ||
+			this.state.streamSortBy !== property
+				? 'asc'
+				: 'desc';
 
 		if (this.props.streams && this.props.streams.connectors && this.props.streams.connectors.length) {
 			// this.props.streams.connectors.forEach(connector => {
@@ -461,7 +550,7 @@ class DashBoardComponent extends Component {
 			streamSortBy: orderBy,
 			streamSortOrder: order
 		});
-	}
+	};
 
 	render() {
 		const canControl = this.props.rights.includes('machine.edit');
@@ -609,10 +698,11 @@ class DashBoardComponent extends Component {
 					style={{
 						backgroundColor: this.props.theme.palette.background.default,
 						height: 'calc(100% - 49px)',
-						overflowY: 'auto',
+						overflowY: 'auto'
 					}}
 					hidden={this.state.activeTab !== 1}
 				>
+					<StreamDeleteDialog />
 					<Table size="small" aria-label="collapsible table">
 						<TableSortHeader
 							height={48}
@@ -623,7 +713,13 @@ class DashBoardComponent extends Component {
 						/>
 						<TableBody>
 							{this.getRows().map((row) => (
-								<Row key={row.name} row={row} onStreamOpen={(resource) => this.onStreamOpen(resource)}/>
+								<Row
+									key={row.name}
+									row={row}
+									onStreamOpen={(resource) => this.onStreamOpen(resource)}
+									onStreamDelete={(resource, type) => this.onStreamDelete(resource, type)}
+									onStreamReload={(resource) => this.onStreamReload(resource)}
+								/>
 							))}
 						</TableBody>
 					</Table>
