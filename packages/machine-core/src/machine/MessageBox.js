@@ -184,6 +184,7 @@ class MessageBox {
 			return foundIt;
 		});
 		if (replaced) this._emitter.emit('message_changed', newMessage);
+		return replaced;
 	}
 }
 

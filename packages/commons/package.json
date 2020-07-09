@@ -18,7 +18,8 @@
     "url": "https://github.com/cedalo/streamsheets/issues"
   },
   "dependencies": {
-    "@cedalo/logger": "1.6.2"
+    "@cedalo/logger": "1.6.2",
+    "rfdc": "1.1.4"
   },
   "devDependencies": {
     "jest": "21.2.1",
