@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { sleep } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
 const { NullTerm, Term } = require('@cedalo/parser');
@@ -103,6 +104,33 @@ describe('write', () => {
 		expect(sheet.cellAt('A3').value).toBe('2');
 		// expect an array !!
 		expect(msg.data.Messages).toEqual([undefined, undefined, 'Hello2']);
+	});
+	// DL-4229
+	it('should support TTL parameter', async () => {
+		const machine = new Machine();
+		const outbox = machine.outbox;
+ 		const sheet = new StreamSheet().sheet;
+		// set outbox to active so that messages are removed
+		outbox.isActive = true;
+		machine.addStreamSheet(sheet.streamsheet);
+		sheet.loadCells({
+			A1: { formula: 'write(outboxdata("Index","value"),42,,0.005)' },
+			A2: { formula: 'write(outboxdata("Index2","value"),23)' },
+			A3: { formula: 'read(outboxdata("Index","value"),B3,,,TRUE)' },
+			A4: { formula: 'read(outboxdata("Index2","value"),B4)' }
+		});
+		await machine.step();
+		expect(outbox.size).toBe(2);
+		expect(sheet.cellAt('B3').value).toBe(42);
+		expect(sheet.cellAt('B4').value).toBe(23);
+		createCellAt('A1', { formula: 'write(outboxdata("Index3","value"),18)' }, sheet);
+		await machine.step();
+		expect(outbox.size).toBe(3);
+		await sleep(100);
+		await machine.step();
+		expect(outbox.size).toBe(2);
+		expect(sheet.cellAt('B3').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('B4').value).toBe(23);
 	});
 	describe('creation of simple message', () => {
 		it('should add an empty message to outbox', () => {
