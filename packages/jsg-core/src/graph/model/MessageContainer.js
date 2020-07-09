@@ -45,6 +45,11 @@ module.exports = class MessageContainer extends Node {
 		return copy;
 	}
 
+	resetViewports() {
+		this.getMessageTreeItems()._resetViewport = true;
+		this.getMessageListItems()._resetViewport = true;
+	}
+
 	addButton(parent, name, image, halign) {
 		const button = new ButtonNode();
 		button.getItemAttributes().addAttribute(new StringAttribute('LayoutHorizontal', halign));

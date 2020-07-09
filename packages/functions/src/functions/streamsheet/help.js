@@ -388,6 +388,16 @@ module.exports = {
 				description: 'Erzeugt einen JSON Schlüssel mit den gegebenen Werten für den Datenbereich'
 			}
 		},
+		'OUTBOX.GETIDS': {
+			en: {
+				argumentList: 'IdFilterText',
+				description: 'Returns a list of message IDs which match given filter'
+			},
+			de: {
+				argumentList: 'IdFilterText',
+				description: 'Liefert eine Liste von zum Filter passenden Nachrichten IDs zurück'
+			}
+		},
 		PRODUCE: {
 			en: {
 				argumentList: 'Producer,JSONConfiguration',

@@ -387,6 +387,10 @@ export default class GraphManager {
 		command.execute();
 		// this is because baseExecute set drawing disabled to false
 		this.setDrawingDisabled(true);
+		if (stats.steps === 1) {
+			this.getInbox(streamsheetId).resetViewports();
+			this.getOutbox(streamsheetId).resetViewports();
+		}
 		this.updateOutbox(outbox);
 		this.clearInbox(streamsheetId);
 		this.updateInbox(streamsheetId, inbox);
@@ -395,7 +399,6 @@ export default class GraphManager {
 		}
 
 		this.updateStats(streamsheetId, stats);
-		// this.redraw();
 	}
 
 	handleCommandResponse(response) {

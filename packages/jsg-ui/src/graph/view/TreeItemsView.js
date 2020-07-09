@@ -117,6 +117,11 @@ export default class TreeItemsView extends NodeView {
 			treeItem = model[treeItem.parent];
 		}
 
+		const y = treeItem.drawlevel * this._depthOffset;
+ 		this.setVerticalScroll(y);
+	}
+
+	setVerticalScroll(pos) {
 		const contentNode = this.getParent()
 			.getParent()
 			.getParent()
@@ -128,10 +133,9 @@ export default class TreeItemsView extends NodeView {
 			return;
 		}
 
-		const y = treeItem.drawlevel * this._depthOffset;
 		const vmodel = viewport.getVerticalRangeModel();
 
-		vmodel.setValue(vmodel._min + y);
+		vmodel.setValue(vmodel._min + pos);
 	}
 
 	onTreeSelectionChanged(notification) {
@@ -258,7 +262,7 @@ export default class TreeItemsView extends NodeView {
 			if (isActive) {
 				graphics.drawImage(
 					JSG.imagePool.get('loop'),
-					itemRectKey.getRight() - 650,
+					itemRectKey.getRight() + 200,
 					itemRectKey.y + 100,
 					500,
 					400
@@ -390,17 +394,22 @@ export default class TreeItemsView extends NodeView {
 		);
 	}
 
-	resetViewport() {
-		const contentNode = this.getParent()
+	getContentNodeView() {
+		return this.getParent()
 			.getParent()
 			.getParent()
 			.getParent()
 			.getParent();
+	}
+
+	resetViewport() {
+		const contentNode = this.getContentNodeView();
 		const viewport = contentNode.getViewPort();
 
 		if (!viewport) {
 			return false;
 		}
+		contentNode._didScroll = false;
 		viewport.getHorizontalRangeModel().setValue(0);
 		viewport.getVerticalRangeModel().setValue(0);
 
@@ -417,11 +426,12 @@ export default class TreeItemsView extends NodeView {
 			return false;
 		}
 
-		const contentNode = this.getParent()
-			.getParent()
-			.getParent()
-			.getParent()
-			.getParent();
+		const contentNode = this.getContentNodeView();
+
+		if (contentNode._didScroll) {
+			return false;
+		}
+
 		const offset = contentNode.getScrollOffset();
 		const viewport = contentNode.getViewPort();
 

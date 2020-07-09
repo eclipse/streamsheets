@@ -11,6 +11,7 @@
 import { default as JSG, Point, Event, Rectangle, FormatAttributes } from '@cedalo/jsg-core';
 import NodeView from './NodeView';
 import ViewPanel from '../../ui/scrollview/ViewPanel';
+import MouseEvent from '../../ui/events/MouseEvent';
 import ScrollView from '../../ui/scrollview/ScrollView';
 import GraphItemView from "./GraphItemView";
 
@@ -273,6 +274,9 @@ class ContentNodeView extends NodeView {
 			return;
 		}
 
+		if (ev.type === MouseEvent.MouseEventType.DOWN) {
+			this._didScroll = true;
+		}
 		// this.translateFromParent(ev.location); event location is already translated...
 		this._scrollview.handleMouseEvent(ev);
 		if (ev.isConsumed) {

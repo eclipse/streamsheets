@@ -13,6 +13,7 @@ const await_ = require('./await');
 const colors = require('./colors');
 const counters = require('./counters');
 const detectchange = require('./detectchange');
+const outboxgetids = require('./outboxgetids');
 const loop = require('./loop');
 const values = require('./values');
 const ARRAY = require('./array');
@@ -79,6 +80,7 @@ module.exports = {
 		KAFKAQUERY,
 		OUTBOX,
 		OUTBOXDATA,
+		'OUTBOX.GETIDS': outboxgetids,
 		OUTBOXJSON,
 		PRODUCE,
 		RANGE,

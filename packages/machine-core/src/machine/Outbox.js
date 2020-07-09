@@ -9,8 +9,16 @@
  *
  ********************************************************************************/
 const Message = require('./Message');
-const MessageBox = require('./MessageBox');
+const TTLMessageBox = require('./TTLMessageBox');
 
+const getMessage = (id, outbox, ttl) => {
+	let msg = outbox.peek(id);
+	if (!msg) {
+		msg = new Message({}, id);
+		outbox.put(msg, undefined, ttl);
+	}
+	return msg;
+};
 const DEF_CONF = {
 	// max: 100, // -1, to signal no bounds...
 	max: -1, // -1, to signal no bounds...
@@ -21,7 +29,7 @@ const DEF_CONF = {
 /**
  * @type {module.Outbox}
  */
-class Outbox extends MessageBox {
+class Outbox extends TTLMessageBox {
 	constructor(cfg = {}) {
 		cfg = Object.assign({}, DEF_CONF, cfg);
 		super(cfg);
@@ -31,17 +39,8 @@ class Outbox extends MessageBox {
 		return super.getFirstMessages(n);
 	}
 
-	peek(id, create) {
-		let message = super.peek(id);
-		if (!message && create) {
-			message = new Message({}, id);
-			this.put(message);
-		}
-		return message;
-	}
-
-	setMessageData(msgOrId, newdata) {
-		const oldmsg = typeof msgOrId === 'object' ? msgOrId : this.peek(msgOrId, true);
+	setMessageData(msgOrId, newdata, ttl) {
+		const oldmsg = typeof msgOrId === 'object' ? msgOrId : getMessage(msgOrId, this, ttl);
 		const newmsg = new Message(newdata, oldmsg.id);
 		// combine metadata
 		Object.assign(newmsg.metadata, oldmsg.metadata);
@@ -49,7 +48,7 @@ class Outbox extends MessageBox {
 		if (!Array.isArray(oldmsg.data) && !Array.isArray(newmsg.data)) {
 			Object.assign(newmsg.data, Object.assign({}, oldmsg.data, newmsg.data));
 		}
-		this.replaceMessage(newmsg);
+		this.replaceMessage(newmsg, ttl);
 	}
 }
 module.exports = Outbox;
