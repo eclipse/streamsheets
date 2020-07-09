@@ -221,7 +221,8 @@ module.exports = {
 			},
 			de: {
 				argumentList: 'JSON,Schlüssel1,Schlüssel2...',
-				description: 'Gibt den, zu dem durch die Schlüssel definerten Pfad, passenden Wert des JSON Objekts zurück'
+				description:
+					'Gibt den, zu dem durch die Schlüssel definerten Pfad, passenden Wert des JSON Objekts zurück'
 			}
 		},
 		'HTTP.REQUEST': {
@@ -552,10 +553,13 @@ module.exports = {
 			}
 		},
 		WRITE: {
-			en: { argumentList: 'Key,Value,Type', description: 'Adds the key and value to a JSON object' },
+			en: {
+				argumentList: 'Key,Value,Type,TTL',
+				description: 'Adds the key and value to a mesasge in the outbox'
+			},
 			de: {
-				argumentList: 'Schüssel,Value,Typ',
-				description: 'Fügt den Schlüssel und den Wert einem JSON Objekt zu'
+				argumentList: 'Schüssel,Value,Typ,TTL',
+				description: 'Fügt den Schlüssel und den Wert zu einer Nachricht in der Outbox zu'
 			}
 		}
 	}

@@ -16,12 +16,11 @@ const { isType, Message } = require('@cedalo/machine-core');
 const ERROR = FunctionErrors.code;
 const TYPES = ['array', 'boolean', 'dictionary', 'number', 'string'];
 
-const putNewMessage = (id, outbox) => {
+const putNewMessage = (id, outbox, ttl) => {
 	const msg = new Message({}, id);
-	return outbox.put(msg, undefined) ? msg : undefined;
+	return outbox.put(msg, undefined, ttl) ? msg : undefined;
 };
-const messageById = (id, outbox) => (id != null ? outbox.peek(id) || putNewMessage(id, outbox) : undefined);
-
+const messageById = (id, outbox, ttl) => (id != null ? outbox.peek(id) || putNewMessage(id, outbox, ttl) : undefined);
 
 const createNewData = (message, keys, value) => {
 	const newData = message ? Object.assign({}, message.data) : undefined;
@@ -60,30 +59,35 @@ const valueOf = (term, typeStr) => {
 	return value;
 };
 
+const getTTL = (seconds) => {
+	const ttl = convert.toNumber(seconds);
+	return ttl ? ttl * 1000 : undefined;
+};
 
 const write = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(2)
-		.withMaxArgs(3)
+		.withMaxArgs(4)
 		.mapNextArg((path) => jsonpath.parse(path.value))
 		.mapNextArg((valTerm) => valTerm)
 		.mapNextArg((type) => checkType(type ? convert.toString(type.value, '').toLowerCase() : ''))
+		.mapNextArg((ttl) => ttl ? getTTL(ttl.value) : undefined)
 		.addMappedArg((path) => jsonpath.last(path) || terms[0].value)
 		.addMappedArg(() => getOutbox(sheet) || ERROR.OUTBOX)
 		.validate((path) => FunctionErrors.containsError(path) && ERROR.INVALID_PATH)
-		.reduce((path, valTerm, typeStr, retval, outbox) => {
+		.reduce((path, valTerm, typeStr, ttl, retval, outbox) => {
 			const value = valueOf(valTerm, typeStr);
 			if(value != null && !FunctionErrors.isError(value)) {
-				const message = messageById(path.shift(), outbox);
+				const message = messageById(path.shift(), outbox, ttl);
 				const newData = createNewData(message, path, value);
-				return !FunctionErrors.isError(newData) ? [outbox, message, newData, retval] : newData;
+				return !FunctionErrors.isError(newData) ? [outbox, message, newData, ttl, retval] : newData;
 			}
 			return ERROR.TYPE_PARAM;
 		})
-		.defaultReturnValue((outbox, message, newData, retval) => retval)
-		.run((outbox, message, newData, retval) => {
-			outbox.setMessageData(message, newData);
+		.defaultReturnValue((outbox, message, newData, ttl, retval) => retval)
+		.run((outbox, message, newData, ttl, retval) => {
+			outbox.setMessageData(message, newData, ttl);
 			return retval;
 		});
 write.displayName = true;
