@@ -11,12 +11,17 @@
 const { jsonbuilder, runFunction, sheet: { getOutbox } } = require('../../utils');
 const { convert, jsonpath } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { isType } = require('@cedalo/machine-core');
+const { isType, Message } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 const TYPES = ['array', 'boolean', 'dictionary', 'number', 'string'];
 
-const messageById = (id, outbox) => (id ? outbox.peek(id, true) : undefined);
+const putNewMessage = (id, outbox) => {
+	const msg = new Message({}, id);
+	return outbox.put(msg, undefined) ? msg : undefined;
+};
+const messageById = (id, outbox) => (id != null ? outbox.peek(id) || putNewMessage(id, outbox) : undefined);
+
 
 const createNewData = (message, keys, value) => {
 	const newData = message ? Object.assign({}, message.data) : undefined;

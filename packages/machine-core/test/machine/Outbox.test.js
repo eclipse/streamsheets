@@ -11,7 +11,7 @@
 const { Message, Outbox } = require('../..');
 
 describe('Outbox', () => {
-	describe('creation', () => {
+	describe.skip('creation', () => {
 		it('should create an outbox with an id and no messages', () => {
 			const outbox = new Outbox();
 			expect(outbox).toBeDefined();
@@ -20,7 +20,7 @@ describe('Outbox', () => {
 			expect(outbox.messages).toBeDefined();
 		});
 	});
-	describe('message handling', () => {
+	describe.skip('message handling', () => {
 		it('should be possible to add messages', () => {
 			const outbox = new Outbox();
 			outbox.peek('msg1', true);
@@ -151,7 +151,7 @@ describe('Outbox', () => {
 			expect(newmsg.data.value).toBeUndefined();
 		});
 	});
-	describe('event emit', () => {
+	describe.skip('event emit', () => {
 		it('should send event on message add', () => {
 			let counter = 0;
 			const outbox = new Outbox();
@@ -194,5 +194,8 @@ describe('Outbox', () => {
 			outbox.pop('msg3');
 			expect(counter).toBe(0);
 		});
+	});
+	describe('TTL', () => {
+
 	});
 });
