@@ -43,7 +43,6 @@ class CombinedResourceListing extends Component {
 		menuOptions: PropTypes.array,
 		nameFilter: PropTypes.string,
 		resources: PropTypes.array.isRequired,
-		filters: PropTypes.array,
 		onMenuSelect: PropTypes.func,
 		onResourceOpen: PropTypes.func.isRequired,
 		handleNew: PropTypes.func,
@@ -58,7 +57,6 @@ class CombinedResourceListing extends Component {
 		onChecked: PropTypes.func,
 		enrichResources: PropTypes.func,
 		checked: PropTypes.arrayOf(PropTypes.string),
-		filterName: PropTypes.bool,
 		disabled: PropTypes.bool,
 		sortQuery: PropTypes.string
 	};
@@ -69,7 +67,6 @@ class CombinedResourceListing extends Component {
 		handleNew: null,
 		layout: 'grid',
 		images: false,
-		filters: [],
 		handleResourceDetails: undefined,
 		icon: undefined,
 		handleReload: undefined,
@@ -77,7 +74,6 @@ class CombinedResourceListing extends Component {
 		enrichResources: (resources) => resources,
 		onChecked: undefined,
 		checked: [],
-		filterName: false,
 		nameFilter: undefined,
 		menuOptions: [],
 		sortQuery: 'name_asc',
@@ -88,7 +84,6 @@ class CombinedResourceListing extends Component {
 		super(props);
 		const sortQuery = localStorage.getItem(PREF_KEY_SORTQUERY) || props.sortQuery;
 		this.state = {
-			filter: '',
 			gridWidth: 0,
 			sortQuery
 		};
@@ -98,25 +93,11 @@ class CombinedResourceListing extends Component {
 
 	componentDidMount() {
 		window.addEventListener('resize', () => this.updateDimensions());
-		const filter = document.getElementById('resFilterField');
-		if (filter) {
-			filter.addEventListener('input', (event) => this.onChangeSearch(event));
-		}
 		this.updateDimensions();
 	}
 
 	componentWillUnmount() {
-		const filter = document.getElementById('resFilterField');
-		if (filter) {
-			filter.removeEventListener('input', this.onChangeSearch);
-		}
 		window.removeEventListener('resize', this.updateDimensions);
-	}
-
-	onChangeSearch(event) {
-		this.setState({
-			filter: event.target.value
-		});
 	}
 
 	getDimensions() {
@@ -163,11 +144,11 @@ class CombinedResourceListing extends Component {
 	render() {
 		let dims = this.state.gridWidth;
 		dims = this.getDimensions();
-		const { handleNew, handleReload, disabled } = this.props;
+		const { handleNew, handleReload, disabled, filter } = this.props;
 		const sortQuery = localStorage.getItem(PREF_KEY_SORTQUERY) || this.state.sortQuery;
 		localStorage.setItem(PREF_KEY_SORTQUERY, sortQuery);
 		const resources = this.props.enrichResources(this.props.resources);
-		const filteredResources = SortSelector.sort(resources, sortQuery, this.state.filter);
+		const filteredResources = SortSelector.sort(resources, sortQuery, filter);
 		const sortFields = ['name', 'lastModified'];
 		if (filteredResources.length > 0) {
 			if (filteredResources[0].state) {

@@ -171,7 +171,6 @@ class Consumers extends Component {
 				titleAttribute="name"
 				resources={consumers}
 				menuOptions={options}
-				onFilter={this.onFilter}
 				onMenuSelect={this.handleMenuSelect}
 				onResourceOpen={this.onResourceOpen}
 				handleReload={canControl ? this.handleReloadAll(consumers) : undefined}

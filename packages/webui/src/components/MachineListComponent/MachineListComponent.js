@@ -58,7 +58,7 @@ const getPlaceholder = () => (
 
 const getFormattedDateString = (date) => {
 	const dat = new Date(date);
-	return dat.toLocaleString()
+	return dat.toLocaleString(undefined, {year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'});
 };
 
 const buildList = (machines, sortField, sortDir, filter, onItemClick) => {
@@ -167,9 +167,13 @@ function MachineList(props) {
 						padding: '5px'
 					}}
 				>
-					<Table>
+					<Table stickyHeader>
 						<TableSortHeader
-							showState
+							cells={[
+								{ id: 'name', numeric: false, disablePadding: true, label: 'Name', width: '58%' },
+								{ id: 'state', numeric: false, disablePadding: false, label: 'State', width: '14%' },
+								{ id: 'lastModified', numeric: false, disablePadding: false, label: 'LastModified', width: '28%' },
+							]}
 							orderBy={sortField}
 							order={sortDir}
 							onRequestSort={handleTableSort}

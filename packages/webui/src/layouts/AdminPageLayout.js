@@ -36,7 +36,6 @@ import theme from '../theme';
 import { AdminNavigation } from './AdminNavigation';
 import HelpButton from './HelpButton';
 import GridViewButton from './GridViewButton';
-import FilterName from '../components/base/listing/FilterName';
 import Wall from '../components/HelperComponent/Wall';
 
 
@@ -142,7 +141,6 @@ export const AdminPageLayoutComponent = (props) => {
 									{`${props.disconnectedServices}`}
 								</div>
 							) : null}
-							{gridButton ? (<FilterName />) : null}
 							<Toolbar
 								style={{
 									paddingRight: '5px',

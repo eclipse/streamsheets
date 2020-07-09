@@ -53,6 +53,8 @@ class FilterName extends React.Component {
 						defaultMessage="Filter"
 					/>
 				}
+				value={this.props.filter}
+				onChange={(event) => this.props.onUpdateFilter(event.target.value)}
 				startAdornment={
 					<InputAdornment position="start">
 						<IconSearch />

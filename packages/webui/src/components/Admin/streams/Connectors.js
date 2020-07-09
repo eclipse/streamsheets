@@ -60,10 +60,6 @@ class Connectors extends Component {
 		};
 	}
 
-	onFilter = (filter, resources) => (filter && filter.length > 0 ?
-		resources.filter(stream => stream.name.toLowerCase().
-			indexOf(filter.toLowerCase()) >= 0) : resources);
-
 	onResourceOpen = (resource) => {
 		this.props.openStream(resource);
 	};
@@ -184,7 +180,6 @@ class Connectors extends Component {
 				titleAttribute="name"
 				resources={connectors}
 				menuOptions={options}
-				onFilter={this.onFilter}
 				onMenuSelect={this.handleMenuSelect}
 				onResourceOpen={this.onResourceOpen}
 				handleReload={canControl

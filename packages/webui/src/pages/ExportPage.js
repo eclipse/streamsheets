@@ -12,7 +12,7 @@
 import AppBar from '@material-ui/core/AppBar';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import Toolbar from '@material-ui/core/Toolbar';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -46,6 +46,7 @@ const useExperimental = (setAppState) => {
 
 export function ExportPageComponent(props) {
 	const { user, isConnected } = props;
+	const [filter, setFilter] = useState('');
 
 	useExperimental(props.setAppState);
 
@@ -119,7 +120,7 @@ export function ExportPageComponent(props) {
 									{`${props.disconnectedServices}`}
 								</div>
 							) : null}
-							<FilterName />
+							<FilterName filter={filter} onUpdateFilter={setFilter}/>
 							<Toolbar
 								style={{
 									paddingRight: '5px',
@@ -141,7 +142,7 @@ export function ExportPageComponent(props) {
 						overflow: 'hidden',
 					}}
 				>
-					<ExportComponent />
+					<ExportComponent filter={filter} onUpdateFilter={setFilter}/>
 				</div>
 			</div>
 		</MuiThemeProvider>
