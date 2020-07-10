@@ -174,6 +174,26 @@ module.exports = {
 			en: { argumentList: 'Cell', description: 'Deprecated! Please use CONTINUE instead' },
 			de: { argumentList: 'Zelle', description: 'Veraltet! Bitte stattdessen CONTINUE verwenden' }
 		},
+		'HTTP.REQUEST': {
+			en: {
+				argumentList: 'Producer,URL,Method,Target,ResultKeys,Body,Headers,Timeout',
+				description: 'Create an asynchronous calls to a REST service'
+			},
+			de: {
+				argumentList: 'Producer,URL,Methode,Ziel,ResultKeys,Body,Headers,Timeout',
+				description: 'Erlaubt Aufrufe in einen REST Dienst'
+			}
+		},
+		'HTTP.RESPOND': {
+			en: {
+				argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
+				description: 'Sends data to a Producer that send a data object previously'
+			},
+			de: {
+				argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
+				description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId'
+			}
+		},
 		INBOX: {
 			en: {
 				argumentList: 'Streamsheet,Message',
@@ -206,12 +226,12 @@ module.exports = {
 		},
 		JSON: {
 			en: {
-				argumentList: 'RangeOrText,ResultAsText',
-				description: 'Converts given cell range or text to JSON'
+				argumentList: 'RangeOrTextOrMessageElement,ResultAsText',
+				description: 'Converts given cell range, text or message element to JSON'
 			},
 			de: {
-				argumentList: 'ZellbereichOderText,ErgebnisAlsText',
-				description: 'Konvertiert den angebenen Zellbereich oder Text in ein JSON Objekt'
+				argumentList: 'ZellbereichOderTextOderNachrichtelement,ErgebnisAlsText',
+				description: 'Wandelt den angebenen Zellbereich, Text oder Nachrichtenelement in ein JSON Objekt um'
 			}
 		},
 		'JSON.VALUE': {
@@ -223,26 +243,6 @@ module.exports = {
 				argumentList: 'JSON,Schlüssel1,Schlüssel2...',
 				description:
 					'Gibt den, zu dem durch die Schlüssel definerten Pfad, passenden Wert des JSON Objekts zurück'
-			}
-		},
-		'HTTP.REQUEST': {
-			en: {
-				argumentList: 'Producer,URL,Method,Target,ResultKeys,Body,Headers,Timeout',
-				description: 'Create an asynchronous calls to a REST service'
-			},
-			de: {
-				argumentList: 'Producer,URL,Methode,Ziel,ResultKeys,Body,Headers,Timeout',
-				description: 'Erlaubt Aufrufe in einen REST Dienst'
-			}
-		},
-		'HTTP.RESPOND': {
-			en: {
-				argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
-				description: 'Sends data to a Producer that send a data object previously'
-			},
-			de: {
-				argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
-				description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId'
 			}
 		},
 		'KAFKA.QUERY': {

@@ -8,39 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { runFunction, sheet: { getInbox, getOutbox } } = require('../../utils');
-const { convert, jsonpath } = require('@cedalo/commons');
+const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const {	messages: { getMessageInfo, getMessageValue, getMessageValueKey }, runFunction } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
-
-const keyFrom = (path, funcname) => {
-	let key = path[path.length - 1];
-	if (key == null) {
-		// eslint-disable-next-line no-nested-ternary
-		key = funcname === 'INBOXMETADATA'
-			? 'Metadata'
-			: funcname === 'INBOXDATA' || funcname === 'OUTBOXDATA' ? 'Data' : undefined;
-	}
-	return key;
-};
-const messageData = (message, path, funcname) => {
-	if (message) {
-		// path = path.length ? jsonpath.toString(path) : '';
-		const func = funcname === 'INBOXMETADATA' ? message.getMetaDataAt : message.getDataAt;
-		const data = func.call(message, path);
-		return data != null ? data : ERROR.NO_MSG_DATA;
-	}
-	return ERROR.NO_MSG;
-};
-
-const dataFromMessage = (box, path, funcname) => {
-	const msgId = path.shift();
-	const message = box.peek(msgId);
-	return funcname === 'INBOX' || funcname === 'OUTBOX'
-		? message || ERROR.NO_MSG
-		: messageData(message, path, funcname);
-};
 
 const withKey = (key, data) => {
 	// TODO if we want to support returning complete message under its ID:
@@ -53,18 +25,22 @@ const withKey = (key, data) => {
 	return json;
 };
 
+const getMessageInfoOrError = (sheet, term) => {
+	const msginfo = getMessageInfo(sheet, term);
+	return msginfo.message ? msginfo : ERROR.NO_MSG;
+};
 const subtree = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
-		.mapNextArg((term) => term.func && term.name && term.name.toUpperCase())
-		.addMappedArg(() => terms[0].value)
+		.mapNextArg((message) => getMessageInfoOrError(sheet, message))
 		.mapNextArg((includeKey) => convert.toBoolean(includeKey && includeKey.value, false))
-		.run((funcname, val, includeKey) => {
-			const path = jsonpath.parse(val);
-			const messagebox = funcname.startsWith('OUTBOX') ? getOutbox(sheet) : getInbox(sheet, path.shift());
-			const data = dataFromMessage(messagebox, path, funcname);
-			return includeKey ? withKey(keyFrom(path, funcname), data) : data;
+		.run((msginfo, includeKey) => {
+			const value = getMessageValue(msginfo);
+			// eslint-disable-next-line no-nested-ternary
+			return value != null
+				? (includeKey ? withKey(getMessageValueKey(msginfo), value) : value)
+				: ERROR.NO_MSG_DATA;
 		});
 
 
