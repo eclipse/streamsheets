@@ -418,6 +418,13 @@ describe('search', () => {
 		expect(createTerm('search("me", "Search me again")', sheet).value).toBe(8);
 		expect(createTerm('search("E", "Search me again")', sheet).value).toBe(2);
 	});
+	it('should support wildcards in search text', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('search("a*c", "abc")', sheet).value).toBe(1);
+		expect(createTerm('search("a*c", "hello abbbbc")', sheet).value).toBe(7);
+		expect(createTerm('search("a*c", "hello abbbbc abc")', sheet).value).toBe(7);
+		expect(createTerm('search("?a?c", "1abc")', sheet).value).toBe(1);
+	});
 	it('should support an optional start index', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: 'Find me' } });
 		expect(createTerm('search("me", A1, 5)', sheet).value).toBe(6);

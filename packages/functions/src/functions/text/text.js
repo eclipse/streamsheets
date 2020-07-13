@@ -12,9 +12,10 @@ const logger = require('../../logger').create({ name: 'TEXT()' });
 const { getCodePage } = require('../../codepages');
 const { runFunction, terms: onTerms } = require('../../utils');
 const { convert } = require('@cedalo/commons');
-const { NumberFormatter } = require('@cedalo/number-format');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { locale: Locales } = require('@cedalo/machine-core');
+const { NumberFormatter } = require('@cedalo/number-format');
+const { wildcards } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -69,9 +70,26 @@ const subInStr = (str, replacestr, replacement, occurrence) => {
 	return str;
 };
 
-const doFind = (str, instr, atpos) => {
+const getSearchRegExFromContext = (context, str) => {
+	let regex = context.regex;
+	if (!regex) {
+		regex = wildcards.toRegExp(str, 'g');
+		context.regex = regex;
+	}
+	return regex;
+}
+const doFind = (regex, instr, atpos) => {
 	if (atpos > 0) {
-		const index = instr.indexOf(str, atpos - 1);
+		const matches = instr.matchAll(regex);
+		let index = -1;
+		atpos -= 1;
+		// eslint-disable-next-line
+		for (const match of matches) {
+			if (match.index >= atpos) {
+				index = match.index;
+				break;
+			}
+		}
 		return index < 0 ? ERROR.VALUE : index + 1;
 	}
 	return ERROR.VALUE;
@@ -201,7 +219,10 @@ const search = (sheet, ...terms) =>
 		.mapNextArg((str) => convert.toString(str.value, '').toLowerCase())
 		.mapNextArg((instr) => convert.toString(instr.value, '').toLowerCase())
 		.mapNextArg((startAt) => toMinInteger(startAt, 0, 1))
-		.run((str, instr, startAt) => doFind(str, instr, startAt));
+		.run((str, instr, startAt) => {
+			const regex = getSearchRegExFromContext(search.context, str);
+			return doFind(regex, instr, startAt);
+		});
 
 const substitute = (sheet, ...terms) =>
 	runFunction(sheet, terms)
