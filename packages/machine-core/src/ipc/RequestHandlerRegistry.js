@@ -80,7 +80,8 @@ const getDefinition = (machine) => {
 	const def = {};
 	def.machine = machine2json(machine);
 	def.machine.outbox = {
-		messages: machine.outbox.getFirstMessages()
+		messages: machine.outbox.getFirstMessages(),
+		totalSize: machine.outbox.size
 	};
 	// if definition is requested, e.g. on load, we add default properties...
 	def.machine.defproperties = DEF_SHEET_PROPS;
@@ -809,7 +810,8 @@ class Subscribe extends ARequestHandler {
 				cycletime: this.machine.cycletime,
 				subscribed: false,
 				outbox: {
-					messages: this.machine.outbox.getFirstMessages()
+					messages: this.machine.outbox.getFirstMessages(),
+					totalSize: this.machine.outbox.size
 				},
 				// tmp. add inbox messages...
 				streamsheets: this.machine.streamsheets.map((streamsheet) => {

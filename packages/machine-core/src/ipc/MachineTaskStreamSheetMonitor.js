@@ -255,6 +255,7 @@ class MachineTaskStreamSheetMonitor {
 					messages: streamsheet.inbox.messages.slice(0)
 				},
 				outbox: {
+					totalSize: streamsheet.machine.outbox.size,
 					messages: streamsheet.machine.outbox.getFirstMessages()
 				},
 				drawings: streamsheet.sheet.getDrawings().toJSON(),
