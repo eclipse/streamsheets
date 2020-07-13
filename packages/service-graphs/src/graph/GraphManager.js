@@ -162,6 +162,14 @@ module.exports = class GraphManager {
 		);
 	}
 
+	unloadGraphForMachineId(machineId) {
+		let graphId;
+		this._graphWrappers.forEach((graphWrapper, id) => {
+			if (graphWrapper.machineId === machineId) graphId = id;
+		});
+		if (graphId) this.removeGraph(graphId);
+	}
+
 	async executeCommands(graphId, command, options) {
 		logger.debug(JSON.stringify(command));
 		const graphWrapper = this.getGraphWrapper(graphId);
