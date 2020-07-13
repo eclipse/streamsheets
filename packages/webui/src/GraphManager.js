@@ -823,6 +823,8 @@ export default class GraphManager {
 		let id;
 		const outboxContainer = this.getOutbox();
 		const selection = outboxContainer.getMessageListItems().getSelectedItem();
+		const tooltip = intl.formatMessage({ id: 'InboxSettings.messageCount' }, {messageCount: outbox.totalSize});
+		outboxContainer._outboxCaption.setTooltip(tooltip);
 		if (selection) {
 			id = selection.id;
 		}
