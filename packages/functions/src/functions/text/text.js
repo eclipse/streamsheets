@@ -80,16 +80,9 @@ const getSearchRegExFromContext = (context, str) => {
 }
 const doFind = (regex, instr, atpos) => {
 	if (atpos > 0) {
-		const matches = instr.matchAll(regex);
-		let index = -1;
-		atpos -= 1;
-		// eslint-disable-next-line
-		for (const match of matches) {
-			if (match.index >= atpos) {
-				index = match.index;
-				break;
-			}
-		}
+		regex.lastIndex = atpos - 1;
+		const matches = regex.exec(instr);
+		const index =  matches != null ? matches.index : -1;
 		return index < 0 ? ERROR.VALUE : index + 1;
 	}
 	return ERROR.VALUE;
@@ -162,7 +155,10 @@ const find = (sheet, ...terms) =>
 		.mapNextArg((str) => convert.toString(str.value, ''))
 		.mapNextArg((instr) => convert.toString(instr.value, ''))
 		.mapNextArg((startAt) => (startAt ? convert.toNumber(startAt.value, 1) : 1))
-		.run((str, instr, startAt) => doFind(str, instr, startAt));
+		.run((str, instr, startAt) => {
+			const regex = getSearchRegExFromContext(find.context, str);
+			return doFind(regex, instr, startAt);
+		});
 
 const left = (sheet, ...terms) =>
 	runFunction(sheet, terms)
