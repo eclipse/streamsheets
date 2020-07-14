@@ -147,7 +147,7 @@
   "DeleteCellsDialog.deleteRows": "Delete Rows",
   "DeleteCellsDialog.deleteColumns": "Delete Columns",
   "InboxSettings.title": "Streamsheet Settings",
-  "InboxSettings.messageCount": "Total number of messages: {messageCount}",
+  "MessageBox.messageCount": "Total number of messages: {messageCount}",
   "ProcessContainerSettings.stream": "Current Consumer",
   "ProcessContainerSettings.calcStreamsheet": "Calculate Streamsheet",
   "ProcessContainerSettings.title": "Streamsheet Settings",

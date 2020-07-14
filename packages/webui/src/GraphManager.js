@@ -823,7 +823,7 @@ export default class GraphManager {
 		let id;
 		const outboxContainer = this.getOutbox();
 		const selection = outboxContainer.getMessageListItems().getSelectedItem();
-		const tooltip = intl.formatMessage({ id: 'InboxSettings.messageCount' }, {messageCount: outbox.totalSize});
+		const tooltip = intl.formatMessage({ id: 'MessageBox.messageCount' }, {messageCount: outbox.totalSize});
 		outboxContainer._outboxCaption.setTooltip(tooltip);
 		if (selection) {
 			id = selection.id;
@@ -846,7 +846,7 @@ export default class GraphManager {
 	updateInboxTooltip(streamsheetId, totalSize) {
 		const processSheetContainer = this.getStreamSheetContainer(streamsheetId);
 		if (processSheetContainer) {
-			const tip = intl.formatMessage({ id: 'InboxSettings.messageCount' }, {messageCount: totalSize});
+			const tip = intl.formatMessage({ id: 'MessageBox.messageCount' }, {messageCount: totalSize});
 			processSheetContainer.getInboxCaption().setTooltip(tip);
 		}
 	}
