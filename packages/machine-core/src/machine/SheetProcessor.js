@@ -28,7 +28,6 @@ const reset = (cursor, sheetsettings) => {
 	cursor.c = null;
 	cursor.stop = false;
 	cursor.changed = false;
-	cursor.lastUsedRow = 0;
 	cursor.paused = false;
 };
 
@@ -37,7 +36,6 @@ const newCursor = () => ({
 	c: null,
 	stop: false,
 	changed: false,
-	lastUsedRow: 0,
 	paused: false
 });
 
@@ -115,7 +113,6 @@ class SheetProcessor {
 			for (; cursor.c < lastcol && !cursor.stop; ) {
 				const cell = cellAt(cursor.r, cursor.c, sheet);
 				if (cell) {
-					cursor.lastUsedRow = Math.max(cursor.r, cursor.lastUsedRow);
 					cell.evaluate();
 					skipRow = !this._isProcessing || doSkipRow(cell, cursor.c);
 				}
@@ -141,13 +138,6 @@ class SheetProcessor {
 		}
 		// reset cursor if sheet is processed completely
 		if (cursor.r >= last) {
-			// shrink rows and prerows:
-			let { lastUsedRow } = cursor;
-			if (lastUsedRow > sheet._lastInsertIndex.row) {
-				lastUsedRow += 1;
-				sheet._rows.length = lastUsedRow;
-				sheet._prerows.length = lastUsedRow;
-			}
 			reset(cursor, sheet.settings);
 		}
 
