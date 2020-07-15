@@ -175,4 +175,50 @@ describe('continue', () => {
 		expect(sheet.cellAt('A7').value).toBe(4);
 		expect(sheet.cellAt('B8').value).toBe(3);
 	});
+	it('should handle if target cell is not defined yet', async () => {
+		const machine = new Machine();
+		const sheet = new StreamSheet().sheet;
+		machine.addStreamSheet(sheet.streamsheet);
+		sheet.loadCells({
+			A1: { formula: 'A1+1'},
+			A2: { formula: 'if(iseven(A1),continue(A5), "go on")'},
+			A4: { formula: 'A4+1'},
+			A6: { formula: 'A6+1'}
+		})
+		expect(sheet.cellAt('A1').value).toBe(1);
+		expect(sheet.cellAt('A2').value).toBe('go on');
+		expect(sheet.cellAt('A4').value).toBe(1);
+		expect(sheet.cellAt('A6').value).toBe(1);
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(2);
+		expect(sheet.cellAt('A4').value).toBe(1);
+		expect(sheet.cellAt('A6').value).toBe(2);
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(3);
+		expect(sheet.cellAt('A4').value).toBe(2);
+		expect(sheet.cellAt('A6').value).toBe(3);
+	});
+	// DL-4251
+	it('should handle if target cell is undefined and beyond last defined cell', async () => {
+		const machine = new Machine();
+		const sheet = new StreamSheet().sheet;
+		machine.addStreamSheet(sheet.streamsheet);
+		sheet.loadCells({
+			A1: { formula: 'A1+1'},
+			A2: { formula: 'if(iseven(A1),continue(A5), "go on")'},
+			A4: { formula: 'A4+1'}, B4: 'hello'
+		})
+		expect(sheet.cellAt('A1').value).toBe(1);
+		expect(sheet.cellAt('A2').value).toBe('go on');
+		expect(sheet.cellAt('A4').value).toBe(1);
+		expect(sheet.cellAt('B4').value).toBe('hello');
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(2);
+		expect(sheet.cellAt('A4').value).toBe(1);
+		expect(sheet.cellAt('B4').value).toBe('hello');
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(3);
+		expect(sheet.cellAt('A4').value).toBe(2);
+		expect(sheet.cellAt('B4').value).toBe('hello');
+	});
 });
