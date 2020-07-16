@@ -428,27 +428,29 @@ export default class StreamSheetView extends WorksheetView {
 				switch (treeItems[i].type) {
 					case TreeItemsNode.DataType.OBJECT:
 						formula += '';
-						formula += ',"Dictionary")';
+						formula += ',"Dictionary"';
 						break;
 					case TreeItemsNode.DataType.ARRAY:
 						formula += '';
-						formula += ',"Array")';
+						formula += ',"Array"';
 						break;
 					case TreeItemsNode.DataType.STRING:
 						formula += targetRange.toString();
-						formula += ',"String")';
+						formula += ',"String"';
 						break;
 					case TreeItemsNode.DataType.NUMBER:
 						formula += targetRange.toString();
-						formula += ',"Number")';
+						formula += ',"Number"';
 						break;
 					case TreeItemsNode.DataType.BOOLEAN:
 						formula += targetRange.toString();
-						formula += ',"Bool")';
+						formula += ',"Bool"';
 						break;
 					default:
 						break;
 				}
+				// DL-3590: always set last parameter of READ formula on DnD
+				formula += formula.startsWith('READ') ? ',,TRUE)' : ')';
 
 				let cell = {};
 				cell.reference = range.toString();
