@@ -425,7 +425,7 @@ module.exports = {
 				description: 'Reads the values from a JSON object using the given key'
 			},
 			de: {
-				argumentList: 'Schlüssel,ZielzelleOderBereich,Typ,Richtung,FehlerFallsWertFehlt',
+				argumentList: 'Schlüssel,ZielzelleOderBereich,Typ,Richtung,FehlerBeiFehlend',
 				description: 'Kopiert die Werte aus einem JSON Objekt mit dem gegebenen Schlüssel in einen Zellbereich'
 			}
 		},
