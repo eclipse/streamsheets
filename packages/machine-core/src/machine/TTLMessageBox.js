@@ -28,21 +28,18 @@ class TTLMessageBox extends MessageBox {
 		this.timeouts = {};
 		// we postpone message removal on pause/stop state
 		this.pendingPops = [];
-		this._isActive = false;
+		this._keppMessages = true;
 	}
 
-	// get isActive() {
-	// 	return this._isActive;
-	// }
-
-	// set by machine to prevent message removal on pause/stop state
-	set isActive(active) {
-		this._isActive = active;
-		if (active) {
+	// used by machine to prevent message removal on pause/stop state
+	set keepMessages(doIt) {
+		this._keppMessages = doIt;
+		if (!doIt) {
 			this.pendingPops.forEach((id) => this.pop(id));
 			this.pendingPops.length = 0;
 		}
 	}
+
 	_applyConfig(config) {
 		super._applyConfig(config);
 	}
@@ -71,7 +68,7 @@ class TTLMessageBox extends MessageBox {
 	}
 
 	_popIfActive(key) {
-		if (this._isActive) this.pop(key);
+		if (!this._keepMessages) this.pop(key);
 		else this.pendingPops.push(key);
 	}
 	_setExpireTimeout(ttl, key) {

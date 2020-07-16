@@ -406,7 +406,7 @@ class Machine {
 				}
 				this._emitter.emit('willStart', this);
 				this._state = State.RUNNING;
-				this.outbox.isActive = true;
+				this.outbox.keepMessages = false;
 				this.cyclemonitor.counterSecond = 0;
 				this.cyclemonitor.last = Date.now();
 				this.cyclemonitor.lastSecond = Date.now();
@@ -449,7 +449,7 @@ class Machine {
 			// DL-565 reset steps on stop...
 			this.stats.steps = 0;
 			this.stats.cyclesPerSecond = 0;
-			this.outbox.isActive = false;
+			this.outbox.keepMessages = true;
 			this._emitter.emit('didStop', this);
 		}
 	}
@@ -474,7 +474,7 @@ class Machine {
 			this._clearCycle();
 			this._state = State.PAUSED;
 			this.stats.cyclesPerSecond = 0;
-			this.outbox.isActive = false;
+			this.outbox.keepMessages = true;
 			this.streamsheets.forEach((streamsheet) => streamsheet.pause());
 			this._emitter.emit('update', 'state', { new: this._state, old: oldstate });
 			logger.info(`Machine: -> PAUSED machine ${this.id}`);
