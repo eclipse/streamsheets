@@ -421,11 +421,11 @@ module.exports = {
 		},
 		READ: {
 			en: {
-				argumentList: 'Key,TargetCellOrRange,Type,Direction,ReturnErrorHint',
+				argumentList: 'Key,TargetCellOrRange,Type,Direction,NAifMissing',
 				description: 'Reads the values from a JSON object using the given key'
 			},
 			de: {
-				argumentList: 'Schüssel,ZielzelleOderBereich,Typ,Richtung,FehlerHinweis',
+				argumentList: 'Schlüssel,ZielzelleOderBereich,Typ,Richtung,NAfallsWertFehlt',
 				description: 'Kopiert die Werte aus einem JSON Objekt mit dem gegebenen Schlüssel in einen Zellbereich'
 			}
 		},
