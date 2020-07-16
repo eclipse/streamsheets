@@ -421,11 +421,11 @@ module.exports = {
 		},
 		READ: {
 			en: {
-				argumentList: 'Key,TargetCellOrRange,Type,Direction,NAifMissing',
+				argumentList: 'Key,TargetCellOrRange,Type,Direction,ErrorOnMissing',
 				description: 'Reads the values from a JSON object using the given key'
 			},
 			de: {
-				argumentList: 'Schlüssel,ZielzelleOderBereich,Typ,Richtung,NAfallsWertFehlt',
+				argumentList: 'Schlüssel,ZielzelleOderBereich,Typ,Richtung,FehlerFallsWertFehlt',
 				description: 'Kopiert die Werte aus einem JSON Objekt mit dem gegebenen Schlüssel in einen Zellbereich'
 			}
 		},
@@ -558,7 +558,7 @@ module.exports = {
 				description: 'Adds the key and value to a mesasge in the outbox'
 			},
 			de: {
-				argumentList: 'Schüssel,Value,Typ,TTL',
+				argumentList: 'Schlüssel,Value,Typ,TTL',
 				description: 'Fügt den Schlüssel und den Wert zu einer Nachricht in der Outbox zu'
 			}
 		}
