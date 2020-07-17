@@ -316,7 +316,6 @@ const mqttTopicConstraints = (value, config) => {
 	if (value.indexOf('//') > -1
 			|| value.startsWith('#')
 			|| value.length < 1
-			|| value.indexOf('$') > -1
 	) {
 		return ERROR.INVALID_PARAM;
 	}
