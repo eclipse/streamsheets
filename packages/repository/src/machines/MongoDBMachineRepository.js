@@ -67,8 +67,6 @@ const checkAndTransformMachine = (machine) => {
 	return undefined;
 };
 
-const isEmptyCell = (celldescr) =>
-	celldescr.formula == null && celldescr.value == null;
 
 /**
  * An machine repository which stores the machines in a MongoDB.

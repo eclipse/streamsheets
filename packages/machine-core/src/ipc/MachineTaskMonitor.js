@@ -38,7 +38,8 @@ const stepEvent = (monitor) =>
 		stats: monitor.machine.stats,
 		outbox: {
 			// messages: monitor.machine.outbox.messages.slice(0)
-			messages: monitor.machine.outbox.getFirstMessages()
+			messages: monitor.machine.outbox.getFirstMessages(),
+			totalSize: monitor.machine.outbox.size
 		},
 		streamsheets: Array.from(monitor.streamsheetMonitors.values()).map((mon) => mon.getStreamSheetStepData())
 	});

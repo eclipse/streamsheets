@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const MESSAGES = require('../_data/messages.json');
-const { createTerm } = require('../utilities');
+const { createCellAt, createTerm } = require('../utilities');
 const { Cell, Machine, Message, SheetIndex, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
@@ -1247,6 +1247,22 @@ describe('read', () => {
 				expect(t1.sheet.cellAt('B3').value).toBe('Message');
 			});
 		});
+		// DL-3953 & DL-4049
+		it('should always return last part of path even if no target range is specfied', async () => {
+		// it('should return value if no target range is specfied', async () => {
+			const machine = new Machine();
+			const sheet = new StreamSheet().sheet;
+			machine.addStreamSheet(sheet.streamsheet);
+			sheet.streamsheet.inbox.put(new Message({ Timestamp: 1594729931967 }));
+			createCellAt('A1', { formula: 'read(inboxdata(,,"Timestamp"))'}, sheet);
+			await machine.step();
+			// expect(sheet.cellAt('A1').value).toBe(1594729931967);
+			expect(sheet.cellAt('A1').value).toBe('Timestamp');
+			createCellAt('A1', { formula: 'read(inboxdata(,,"Timestamp"),,,,TRUE)'}, sheet);
+			await machine.step();
+			// expect(sheet.cellAt('A1').value).toBe(1594729931967);
+			expect(sheet.cellAt('A1').value).toBe('Timestamp');
+		});
 		// DL-4049
 		it('should read inbox message', () => {
 			const machine = new Machine();
@@ -1323,6 +1339,20 @@ describe('read', () => {
 			expect(typeof cell.value).toBe('object');
 			expect(cell.value.Vorname).toBe('Max');
 			expect(cell.value.Nachname).toBe('Mustermann');
+		});
+		// DL-4239
+		it('should not set last value to target cell if message path has changed', async () => {
+			const machine = new Machine();
+			const sheet = new StreamSheet().sheet;
+			machine.addStreamSheet(sheet.streamsheet);
+			machine.outbox.put(new Message({ value: 42 }, 'Id1'));
+			createCellAt('A1', 'Id1', sheet);
+			createCellAt('A2', { formula: 'read(outboxdata(A1, "value"),B2)' }, sheet);
+			await machine.step();
+			expect(sheet.cellAt('B2').value).toBe(42);
+			createCellAt('A1', 'Unknown-Id', sheet);
+			await machine.step();
+			expect(sheet.cellAt('B2').value).toBe('');
 		});
 	});
 

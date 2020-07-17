@@ -141,6 +141,11 @@ module.exports = class GraphService extends MessagingService {
 					response.machine.id
 				);
 				break;
+			case MachineServerMessagingProtocol.MESSAGE_TYPES.UNLOAD_MACHINE_MESSAGE_TYPE: {
+				const { machine } = response;
+				if (machine) this._graphManager.unloadGraphForMachineId(machine.id);
+				break;
+			}
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_MACHINE_MESSAGE_TYPE:
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE: {
 				const { machine } = response;

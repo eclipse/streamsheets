@@ -1697,5 +1697,27 @@ describe('stack functions', () => {
 			expect(sheet.cellAt('L22')).toBeUndefined();
 			expect(sheet.cellAt('P22')).toBeUndefined();
 		});
+		// additional requirement:
+		it('should support operator values created via formula', () => {
+			sheet.load({ cells: SHEET.STACKUPSERT_FORMULA_OPS });
+			// init stack with formula source row:
+			pipe(insert('J7', 'stackupsert(L20:P22,C7:G8,C7:C8)'), step)(sheet);
+			expect(sheet.cellAt('L21').value).toBe(1234);
+			expect(sheet.cellAt('M21').value).toBe(1);
+			expect(sheet.cellAt('N21').value).toBe(23);
+			expect(sheet.cellAt('O21').value).toBe(0.19);
+			expect(sheet.cellAt('P21').value.toFixed(2)).toBe('27.37');
+			expect(sheet.cellAt('L22')).toBeUndefined();
+			expect(sheet.cellAt('P22')).toBeUndefined();
+			// once again
+			step(sheet);
+			expect(sheet.cellAt('L21').value).toBe(1234);
+			expect(sheet.cellAt('M21').value).toBe(2);
+			expect(sheet.cellAt('N21').value).toBe(23);
+			expect(sheet.cellAt('O21').value).toBe(0.19);
+			expect(sheet.cellAt('P21').value.toFixed(2)).toBe('54.74');
+			expect(sheet.cellAt('L22')).toBeUndefined();
+			expect(sheet.cellAt('P22')).toBeUndefined();
+		});
 	});
 });

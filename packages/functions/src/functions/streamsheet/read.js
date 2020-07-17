@@ -10,9 +10,9 @@
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Cell, ErrorTerm, ObjectTerm, isType } = require('@cedalo/machine-core');
+const { ErrorTerm, ObjectTerm, isType } = require('@cedalo/machine-core');
 const { Term } = require('@cedalo/parser');
-const { runFunction, sheet: sheetutils, terms: { getCellRangeFromTerm } } = require('../../utils');
+const { messages, runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -40,9 +40,13 @@ const setOrCreateCellAt = (index, value, isErrorValue, sheet) => {
 // eslint-disable-next-line no-nested-ternary
 const defValue = type => (type === 'number' ? 0 : (type === 'boolean' ? false : ''));
 
-const getLastValue = (term, type) => {
-	const value = term ? term._lastValue : undefined;
-	return value != null ? value : defValue(type);
+const getLastValue = (context, path, type) => {
+	const { lastValue, lastValuePath } = context;
+	return lastValue != null && lastValuePath === path ? lastValue : defValue(type);
+};
+const setLastValue = (context, path, value) => {
+	context.lastValue = value; 
+	context.lastValuePath = path; 
 };
 
 const copyDataToCellRange = (range, isErrorValue, sheet, provider) => {
@@ -150,23 +154,25 @@ const read = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(5)
-		.mapNextArg((pathterm) => sheetutils.readMessageValue(sheet, pathterm))
+		.mapNextArg((msgTerm) => messages.getMessageInfo(sheet, msgTerm))
 		.mapNextArg((target) => target && getCellRangeFromTerm(target, sheet))
 		.mapNextArg((type) => toString(type).toLowerCase())
 		.mapNextArg((isHorizontal) => toBool(isHorizontal, undefined))
 		.mapNextArg((returnNA) => toBool(returnNA, false))
-		.validate((data, targetRange) => targetRange && validate(targetRange, ERROR.INVALID_PARAM))
-		.run((data, targetRange, type, isHorizontal, returnNA) => {
-			const readterm = read.term;
-			if (data.value == null || data.isProcessed) {
-				data.value = returnNA ? ERROR.NA : getLastValue(readterm, type);
+		.validate((msgInfo, targetRange) => targetRange && validate(targetRange, ERROR.INVALID_PARAM))
+		.run((msgInfo, targetRange, type, isHorizontal, returnNA) => {
+			const context = read.context;
+			const key = messages.getMessageValueKey(msgInfo);
+			let value = messages.getMessageValue(msgInfo);
+			if (value == null || msgInfo.isProcessed) {
+				value = returnNA ? ERROR.NA : getLastValue(context, msgInfo.messageKey, type);
 			}
 			if (targetRange) {
-				if (readterm) readterm._lastValue = data.value;
-				copyToCellRange(targetRange, data.value, type, isHorizontal);
+				setLastValue(context, msgInfo.messageKey, value);
+				copyToCellRange(targetRange, value, type, isHorizontal);
 			}
 			// DL-1080: part of this issue specifies that READ() should return number value...
-			return convert.toNumber(data.key, data.key);
+			return convert.toNumber(key, key);
 		});
 read.displayName = true;
 

@@ -68,7 +68,7 @@ class MachineControlBar extends React.Component {
 
 	constructor(props) {
 		super(props);
-		const streamsheetStepInterval = localStorage.getItem('streamsheetStepInterval');
+		const streamsheetStepInterval = localStorage.getItem('streamSheetStepInterval');
 		this.state = {
 			speedOpen: false,
 			speed: 1000,

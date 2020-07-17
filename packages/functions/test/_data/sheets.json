@@ -108,5 +108,11 @@
     "C7": "ID", "D7": "Anzahl", "E7": "Preis", "F7": "Mwst", "G7": "Total",
     "C8": 1234, "D8": "+1", "E8": "=23", "F8": 0.19, "G8": { "formula": "D8*E8*(1+F8)" },
     "L20": "ID", "M20": "Anzahl", "N20": "Preis", "O20": "Mwst", "P20": "Total"
+  },
+  "STACKUPSERT_FORMULA_OPS": {
+    "D6": 1, "E6": 23,
+    "C7": "ID", "D7": "Anzahl", "E7": "Preis", "F7": "Mwst", "G7": "Total",
+    "C8": 1234, "D8": { "formula": "\"+\"&D6" }, "E8": { "formula": "\"=\"&E6" }, "F8": 0.19, "G8": { "formula": "D8*E8*(1+F8)" },
+    "L20": "ID", "M20": "Anzahl", "N20": "Preis", "O20": "Mwst", "P20": "Total"
   }
 }
