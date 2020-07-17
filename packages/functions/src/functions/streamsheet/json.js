@@ -11,7 +11,12 @@
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { isType } = require('@cedalo/machine-core');
-const { runFunction, terms: { getCellRangeFromTerm, getJSONFromTerm } } = require('../../utils');
+const {
+	messages: { getMessageInfo, getMessageValue },
+	runFunction,
+	terms: { getCellRangeFromTerm, getJSONFromTerm }
+} = require('../../utils');
+
 
 const ERROR = FunctionErrors.code;
 
@@ -62,14 +67,7 @@ const jsonFromRange = (range) => {
 	return toJSON(root, {}).root || {};
 };
 
-const jsonFromString = (str) => {
-	try {
-		return str ? JSON.parse(str) : {};
-	} catch (err) {
-		/* ignore */
-	}
-	return undefined;
-};
+
 const jsonToString = (json) => {
 	try {
 		return JSON.stringify(json);
@@ -84,19 +82,34 @@ const createRangeFromTerm = (term, sheet) => {
 	return range != null && range.width > 1 ? range : undefined;
 };
 
+const str2json = (str) => {
+	try {
+		return str ? JSON.parse(str) : {};
+	} catch (err) {
+		/* ignore */
+	}
+	return undefined;
+};
+const range2json = (term, sheet) => {
+	const range = createRangeFromTerm(term, sheet);
+	return range ? jsonFromRange(range) : undefined;
+};
+const message2json = (term, sheet) => {
+	const msginfo = getMessageInfo(sheet, term);
+	const value = getMessageValue(msginfo);
+	return value;
+};
+
 const json = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
-		.mapNextArg((jsonstr) => (isType.string(jsonstr.value) ? jsonstr.value : undefined))
-		.addMappedArg((str) => (str == null ? createRangeFromTerm(terms[0], sheet) : undefined))
-		.addMappedArg((str, range) => (str == null && range == null ? getJSONFromTerm(terms[0]) : undefined))
+		.mapNextArg((str) => (isType.string(str.value) ? str2json(str.value) : undefined))
+		.remapPrevArg((range, jsonobj) => jsonobj == null ? range2json(range, sheet) : jsonobj)
+		.remapPrevArg((term, jsonobj) => jsonobj == null ? getJSONFromTerm(term) : jsonobj)
+		.remapPrevArg((message, jsonobj) => jsonobj == null ? message2json(message, sheet) : jsonobj)
 		.mapNextArg((asString) => (asString ? convert.toBoolean(asString.value, false) : false))
-		.run((str, range, jsonobj, asString) => {
-			if (!jsonobj) {
-				if (str != null) jsonobj = jsonFromString(str);
-				else if (range) jsonobj = jsonFromRange(range);
-			}
+		.run((jsonobj, asString) => {
 			// eslint-disable-next-line no-nested-ternary
 			return jsonobj ? (asString ? jsonToString(jsonobj) : jsonobj) : ERROR.VALUE;
 		});

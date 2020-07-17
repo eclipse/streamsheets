@@ -8,12 +8,19 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { clone } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Cell, Machine, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { Cell, Machine, Message, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
 const { createTerm, createCellAt } = require('../utilities');
+const MSG = require('../_data/messages.json');
 
 const ERROR = FunctionErrors.code;
 
+const createMessage = (msgjson) => {
+	const message = new Message(clone(msgjson.data));
+	message.metadata = Object.assign(message.metadata, msgjson.metadata);
+	return message;
+};
 const setup = (transconfig) => {
 	const machine = new Machine();
 	const streamsheet = new StreamSheet(transconfig);
@@ -512,6 +519,155 @@ describe('json', () => {
 			expect(result.a[0]).toBe('hello');
 			expect(result.a[1]).toBe('world');
 			expect(result.a[2]).toBe('!');
+		});
+	});
+	// DL-4228
+	describe('using inbox/outbox parameter', () => {
+		it('should convert complete outbox message to json', () => {
+			const machine = new Machine();
+			const streamsheet = new StreamSheet();
+			const sheet = streamsheet.sheet;
+			const msg1 = createMessage(MSG.SIMPLE);
+			const msg2 = createMessage(MSG.SIMPLE2);
+			machine.addStreamSheet(streamsheet);
+			machine.outbox.put(msg1);
+			machine.outbox.put(msg2);
+			createCellAt('A1', { formula: `json(outbox("${msg1.id}"))` }, sheet);
+			createCellAt('B1', { formula: `json(outbox("${msg2.id}"))` }, sheet);
+			let cellval = sheet.cellAt('A1').value;
+			expect(cellval).toBeDefined();
+			expect(cellval.data).toEqual(MSG.SIMPLE.data);
+			expect(cellval.metadata.name).toBe(MSG.SIMPLE.metadata.name);
+			expect(cellval.metadata.sender).toBe(MSG.SIMPLE.metadata.sender);
+			cellval = sheet.cellAt('B1').value;
+			expect(cellval).toBeDefined();
+			expect(cellval.data).toEqual(MSG.SIMPLE2.data);
+			expect(cellval.metadata.name).toBe(MSG.SIMPLE2.metadata.name);
+			expect(cellval.metadata.sender).toBe(MSG.SIMPLE2.metadata.sender);
+		});
+		it('should extract data from a message in outbox', () => {
+			const machine = new Machine();
+			const streamsheet = new StreamSheet();
+			const sheet = streamsheet.sheet;
+			const message = createMessage(MSG.SIMPLE);
+			machine.addStreamSheet(streamsheet);
+			machine.outbox.put(message);
+			createCellAt('A1', { formula: `json(outboxdata("${message.id}","Kundenname","Vorname"))` }, sheet);
+			expect(sheet.cellAt('A1').value).toBe('Max');
+			createCellAt('B1', { formula: `json(outboxdata("${message.id}","Kundenname"))` }, sheet);
+			expect(sheet.cellAt('B1').value).toEqual({ Vorname: 'Max', Nachname: 'Mustermann' });
+			createCellAt('C1', { formula: `json(outboxdata("${message.id}","Positionen"))` }, sheet);
+			expect(sheet.cellAt('C1').value).toEqual(MSG.SIMPLE.data.Positionen);
+		});
+		it('should return a complete specified message from inbox', () => {
+			const streamsheet = new StreamSheet();
+			const sheet = streamsheet.sheet;
+			const message = createMessage(MSG.SIMPLE);
+			streamsheet.inbox.put(createMessage(message));
+			createCellAt('A1', { formula: 'json(inbox(,))' }, sheet);
+			let cellval = sheet.cellAt('A1').value;
+			expect(cellval).toBeDefined();
+			expect(cellval.data).toEqual(MSG.SIMPLE.data);
+			expect(cellval.metadata.name).toBe(MSG.SIMPLE.metadata.name);
+			expect(cellval.metadata.sender).toBe(MSG.SIMPLE.metadata.sender);
+			createCellAt('B1', { formula: `json(inbox(,"${message.id}"))` }, sheet);
+			cellval = sheet.cellAt('B1').value;
+			expect(cellval).toBeDefined();
+			expect(cellval.data).toEqual(MSG.SIMPLE.data);
+			expect(cellval.metadata.name).toBe(MSG.SIMPLE.metadata.name);
+			expect(cellval.metadata.sender).toBe(MSG.SIMPLE.metadata.sender);
+		});
+		it('should extract data from specified message in inbox', () => {
+			const streamsheet = new StreamSheet();
+			const sheet = streamsheet.sheet;
+			const msg1 = createMessage(MSG.SIMPLE);
+			const msg2 = createMessage(MSG.SIMPLE2);
+			streamsheet.inbox.put(msg1);
+			streamsheet.inbox.put(msg2);
+			createCellAt('A1', { formula: `json(inboxdata(,"${msg2.id}","Kundenname","Vorname"))` }, sheet);
+			expect(sheet.cellAt('A1').value).toBe('Anton');
+			createCellAt('B1', { formula: `json(inboxdata(,"${msg2.id}","Kundenname"))` }, sheet);
+			expect(sheet.cellAt('B1').value).toEqual({ Anrede: 'Herr', Vorname: 'Anton', Nachname: 'Mustermann' });
+			createCellAt('C1', { formula: `json(inboxdata(,"${msg2.id}","Kundennummer"))` }, sheet);
+			expect(sheet.cellAt('C1').value).toBe(987654321);
+			createCellAt('D1', { formula: `json(inboxdata(,"${msg2.id}","Positionen"))` }, sheet);
+			expect(sheet.cellAt('D1').value).toEqual([]);
+			createCellAt('A2', { formula: `json(inboxdata(,"${msg1.id}","Kundenname","Vorname"))` }, sheet);
+			expect(sheet.cellAt('A2').value).toBe('Max');
+			createCellAt('B2', { formula: `json(inboxdata(,"${msg1.id}","Kundenname"))` }, sheet);
+			expect(sheet.cellAt('B2').value).toEqual({ Vorname: 'Max', Nachname: 'Mustermann' });
+			createCellAt('C2', { formula: `json(inboxdata(,"${msg1.id}","Positionen"))` }, sheet);
+			expect(sheet.cellAt('C2').value).toEqual(msg1.data.Positionen);
+		});
+		it('should be possible to extract loop element from an inbox message', () => {
+			const streamsheet = new StreamSheet();
+			const sheet = streamsheet.sheet;
+			streamsheet.setLoopPath('[data][Positionen]');
+			streamsheet.inbox.put(createMessage(MSG.SIMPLE));
+			createCellAt('A1', { formula: 'json(inboxdata(,,"Positionen"))' }, sheet);
+			expect(sheet.cellAt('A1').value).toEqual(MSG.SIMPLE.data.Positionen);
+			createCellAt('B1', { formula: 'json(inboxdata(,,"Positionen", "0"))' }, sheet);
+			expect(sheet.cellAt('B1').value).toEqual({ PosNr: 1, Artikelnr: 1234, Preis: 80.00 });
+			createCellAt('C1', { formula: 'json(inboxdata(,,"Positionen", "1"))' }, sheet);
+			expect(sheet.cellAt('C1').value).toEqual({ PosNr: 2, Artikelnr: 12345, Preis: 59.99 });
+			createCellAt('D1', { formula: 'json(inboxdata(,,"Positionen", "2"))' }, sheet);
+			expect(sheet.cellAt('D1').value).toEqual({ PosNr: 3, Artikelnr: 4535, Preis: 45.32 });
+		});
+		it('should extract metadata from specified message in inbox', () => {
+			const streamsheet = new StreamSheet();
+			const sheet = streamsheet.sheet;
+			const msg1 = createMessage(MSG.SIMPLE);
+			const msg2 = createMessage(MSG.SIMPLE2);
+			streamsheet.inbox.put(msg1);
+			streamsheet.inbox.put(msg2);
+			createCellAt('A1', { formula: `json(inboxmetadata(,"${msg2.id}","name"))` }, sheet);
+			expect(sheet.cellAt('A1').value).toBe('SIMPLE2');
+			createCellAt('B1', { formula: `json(inboxmetadata(,"${msg2.id}","sender"))` }, sheet);
+			expect(sheet.cellAt('B1').value).toBe('Cedalo');
+			createCellAt('C1', { formula: `json(inboxmetadata(,"${msg2.id}","Teile"))` }, sheet);
+			expect(sheet.cellAt('C1').value).toEqual(msg2.metadata.Teile);
+			createCellAt('A2', { formula: `json(inboxmetadata(,"${msg1.id}","name"))` }, sheet);
+			expect(sheet.cellAt('A2').value).toBe('SIMPLE');
+			createCellAt('B2', { formula: `json(inboxmetadata(,"${msg1.id}","sender"))` }, sheet);
+			expect(sheet.cellAt('B2').value).toBe('Cedalo');
+		});
+		it('should extract from current message in inbox if no message id was specified', () => {
+			const streamsheet = new StreamSheet();
+			const sheet = streamsheet.sheet;
+			streamsheet.inbox.put(createMessage(MSG.SIMPLE));
+			createCellAt('A1', { formula: 'json(inboxdata(,,"Kundenname","Vorname"))' }, sheet);
+			expect(sheet.cellAt('A1').value).toBe('Max');
+			createCellAt('B1', { formula: 'json(inboxdata(,,"Kundenname"))' }, sheet);
+			expect(sheet.cellAt('B1').value).toEqual({ Vorname: 'Max', Nachname: 'Mustermann' });
+			createCellAt('C1', { formula: 'json(inboxdata(,,"Positionen"))' }, sheet);
+			expect(sheet.cellAt('C1').value).toEqual(MSG.SIMPLE.data.Positionen);
+			createCellAt('D1', { formula: 'json(inboxmetadata(,,"name"))' }, sheet);
+			expect(sheet.cellAt('D1').value).toBe('SIMPLE');
+			createCellAt('E1', { formula: 'json(inboxmetadata(,,"sender"))' }, sheet);
+			expect(sheet.cellAt('E1').value).toBe('Cedalo');
+		});
+	});
+	// DL-4228
+	describe('using inbox parameter', () => {
+
+	});
+	// DL-4228
+	describe('using inboxdata parameter', () => {
+
+	});
+	// DL-4228
+	describe('using inboxmetadata parameter', () => {
+		it(`should return ${ERROR.VALUE} if extracting from an unknown message`, () => {
+			const streamsheet = new StreamSheet();
+			const sheet = streamsheet.sheet;
+			createCellAt('A1', { formula: 'json(inbox(,))' }, sheet);
+			createCellAt('B1', { formula: 'json(inbox(,"123"))' }, sheet);
+			createCellAt('C1', { formula: 'json(inboxdata(,,"Kundenname"))' }, sheet);
+			createCellAt('D1', { formula: 'json(inboxdata(,"1234","Kundenname"))' }, sheet);
+			expect(sheet.cellAt('A1').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('B1').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('C1').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('D1').value).toBe(ERROR.VALUE);
 		});
 	});
 });
