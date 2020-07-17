@@ -29,6 +29,7 @@ const reset = (cursor, sheetsettings) => {
 	cursor.stop = false;
 	cursor.changed = false;
 	cursor.paused = false;
+	cursor.resumed = false;
 };
 
 const newCursor = () => ({
@@ -36,7 +37,8 @@ const newCursor = () => ({
 	c: null,
 	stop: false,
 	changed: false,
-	paused: false
+	paused: false,
+	resumed: false
 });
 
 class SheetProcessor {
@@ -75,13 +77,19 @@ class SheetProcessor {
 		return this._cursor.paused;
 	}
 
+	get isResumed() {
+		return this._cursor.resumed;
+	}
+
 	pause() {
 		this._cursor.paused = true;
+		this._cursor.resumed = false;
 	}
 
 	resume() {
 		// this._cursor.c += 1;
 		this._cursor.paused = false;
+		this._cursor.resumed = true;
 	}
 
 	// optional return value

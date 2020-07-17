@@ -431,6 +431,7 @@ class StreamSheet {
 
 	_doStep(data, message) {
 		let result;
+		const sheet = this.sheet;
 		const prevstate = this._prevstate;
 		const firstTime = !this._trigger.isActive;
 		const forceStep = data && data.cmd === 'force';
@@ -448,11 +449,13 @@ class StreamSheet {
 			// DL-1114 executestep is now updated by execute.js
 			// if (data && data.cmd === 'execute' && this._state !== State.REPEAT) this.stats.executesteps += 1;
 			if (this._state === State.REPEAT) {
-				result = this.sheet.startProcessing();
+				result = sheet.startProcessing();
 			} else if (this._state === State.RESUMED) {
 				result = this._resume();
 			} else if (this._state === State.CONTINUE) {
 				result = this._continueProcess();
+			} else if (sheet.isPaused || sheet.isResumed) {
+				result = this._waitProcess();
 			} else {
 				result = this._process(message);
 			}
@@ -461,7 +464,8 @@ class StreamSheet {
 			const nextLoopElement =
 				this._state === State.ACTIVE &&
 				// note: transition from repeat might processed sheet completely!
-				(this._prevstate !== State.RESUMED || (prevstate === State.REPEAT && !this.sheet.isProcessing));
+				(this._prevstate !== State.RESUMED ||
+					(prevstate === State.REPEAT && !sheet.isProcessing && !sheet.isPaused));
 			if (nextLoopElement && (!this._trigger.isEndless || !hasLoop(this._msgHandler))) {
 				this._msgHandler.next();
 			}
@@ -480,6 +484,10 @@ class StreamSheet {
 		this._updateStatsOnTrigger();
 		this._prevstate = this._state;
 		this._state = State.ACTIVE;
+		return this.sheet.startProcessing();
+	}
+
+	_waitProcess() {
 		return this.sheet.startProcessing();
 	}
 
