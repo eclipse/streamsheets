@@ -27,6 +27,7 @@ import TableSortHeader from './TableSortHeader';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconSearch from '@material-ui/icons/Search';
+import StreamWizard from '../../Dashboard/StreamWizard';
 
 const DEF_TITLE = <FormattedMessage id="Dashboard.Add" defaultMessage="Add" />;
 const PREF_KEY = 'streamsheets-prefs-addnewdialog';
@@ -105,7 +106,9 @@ class AddNewDialog extends React.Component {
 			name: '',
 			helperText: '',
 			sortQuery: getPersistetSortPreferences() || this.props.sortQuery,
-			filter: this.props.filter
+			filter: this.props.filter,
+			editStream: false,
+			showStreamWizard: false,
 		};
 	}
 
@@ -201,6 +204,27 @@ class AddNewDialog extends React.Component {
 		this.props.onClose();
 	};
 
+	handleAddConsumer = () => {
+		this.setState({
+			showStreamWizard: true,
+			activeStep: 'connector',
+			editStream: false,
+		})
+	};
+
+	handleEditConsumer = () => {
+		this.setState({
+			showStreamWizard: true,
+			activeStep: 'consumersettings',
+			editStream: true,
+			row: this.state.selected,
+		})
+	};
+
+	onWizardClose = () => {
+		this.setState({ showStreamWizard: false });
+	};
+
 	handleSubmit = () => {
 		if (this.validateName(this.state.name)) {
 			if (!this.state.selected.id && this.props.baseRequired) {
@@ -219,6 +243,9 @@ class AddNewDialog extends React.Component {
 
 	render() {
 		const { title, listTitle, baseRequired, open, onClose } = this.props;
+		if (!open) {
+			return <div/>;
+		}
 		const { selected, name, error, filter } = this.state;
 		const sortObj = SortSelector.parseSortQuery(this.state.sortQuery);
 		return (
@@ -227,7 +254,8 @@ class AddNewDialog extends React.Component {
 				<DialogContent
 					style={{
 						height: '480px',
-						minWidth: '600px'
+						minWidth: '600px',
+						padding: '5px 24px',
 					}}
 				>
 					<div
@@ -346,14 +374,34 @@ class AddNewDialog extends React.Component {
 						</Table>
 					</div>
 				</DialogContent>
-				<DialogActions>
-					<Button onClick={this.handleClose}>
-						<FormattedMessage id="Cancel" defaultMessage="Cancel" />
-					</Button>
-					<Button onClick={this.handleSubmit}>
-						<FormattedMessage id="DialogNew.add" defaultMessage="Add" />
-					</Button>
+				<DialogActions style={{justifyContent: 'space-between', padding: '0px 7px 4px 11px'}}>
+					<div>
+						<Button onClick={this.handleAddConsumer}>
+							<FormattedMessage id="DialogNew.AddConsumer" defaultMessage="Add Consumer" />
+						</Button>
+						<Button onClick={this.handleEditConsumer} disabled={selected.id === ''}>
+							<FormattedMessage id="DialogNew.EditConsumer" defaultMessage="Edit Consumer" />
+						</Button>
+					</div>
+					<div>
+						<Button onClick={this.handleClose}>
+							<FormattedMessage id="Cancel" defaultMessage="Cancel" />
+						</Button>
+						<Button onClick={this.handleSubmit}>
+							<FormattedMessage id="DialogNew.add" defaultMessage="Add" />
+						</Button>
+					</div>
 				</DialogActions>
+				<StreamWizard
+					onClose={this.onWizardClose}
+					initialStep={this.state.showStreamWizard ? this.state.activeStep : undefined}
+					edit={this.state.editStream}
+					selectedStream={this.state.editStream ? this.state.selected : undefined}
+					connector={undefined}
+					type="consumer"
+					open={this.state.showStreamWizard}
+					streams={this.props.streams}
+				/>
 			</Dialog>
 		);
 	}

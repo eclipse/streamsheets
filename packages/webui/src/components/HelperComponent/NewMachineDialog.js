@@ -69,6 +69,7 @@ export class NewMachineDialog extends Component {
 				showState
 				onClose={this.handleClose}
 				resources={this.props.consumers}
+				streams={this.props.streams}
 				title={<FormattedMessage id="DialogNew.title" defaultMessage="New" />}
 				listTitle={<FormattedMessage id="DialogNew.consumer" defaultMessage="Please select a consumer" />}
 				isUnique={this.isNameUnique}
@@ -86,6 +87,7 @@ function mapStateToProps(state) {
 		open: state.appState.showNewDialog,
 		machines: state.machines.data,
 		consumers: state.streams.consumers.map((s) => ({ ...s, state: StreamHelper.getStreamState(s) })),
+		streams: state.streams,
 		scopeId: state.user.user.scope.id
 	};
 }

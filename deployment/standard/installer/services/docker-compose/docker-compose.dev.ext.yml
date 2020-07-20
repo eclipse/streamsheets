@@ -31,7 +31,7 @@ services:
       - streamsheets
   streamsheets-internal-mongodb:
     # image: cedalo/mongodb-internal
-    image: mongo:3.6
+    image: mongo:4.0
     container_name: streamsheets-internal-database
     # environment:
     #   - MONGO_INITDB_ROOT_USERNAME=admin
