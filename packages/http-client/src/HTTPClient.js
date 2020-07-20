@@ -15,7 +15,7 @@ class HTTPClient {
 	}
 
 	async request(config) {
-		returnaxios.request(config)
+		return axios.request(config)
 
 	}
 
