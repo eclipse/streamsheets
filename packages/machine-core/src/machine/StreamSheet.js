@@ -463,9 +463,10 @@ class StreamSheet {
 			// check state transitions to decide if next loop element should be taken  => PLEASE REWRITE COMPLETELY!!
 			const nextLoopElement =
 				this._state === State.ACTIVE &&
+				// do not take next loop if sheet is waiting...
+				!(sheet.isPaused || sheet.isResumed) &&
 				// note: transition from repeat might processed sheet completely!
-				(this._prevstate !== State.RESUMED ||
-					(prevstate === State.REPEAT && !sheet.isProcessing && !sheet.isPaused));
+				(this._prevstate !== State.RESUMED || (prevstate === State.REPEAT && !sheet.isProcessing));
 			if (nextLoopElement && (!this._trigger.isEndless || !hasLoop(this._msgHandler))) {
 				this._msgHandler.next();
 			}
