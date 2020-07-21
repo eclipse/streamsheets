@@ -392,6 +392,7 @@ class AddNewDialog extends React.Component {
 						</Button>
 					</div>
 				</DialogActions>
+				{this.state.showStreamWizard ? (
 				<StreamWizard
 					onClose={this.onWizardClose}
 					initialStep={this.state.showStreamWizard ? this.state.activeStep : undefined}
@@ -401,7 +402,7 @@ class AddNewDialog extends React.Component {
 					type="consumer"
 					open={this.state.showStreamWizard}
 					streams={this.props.streams}
-				/>
+				/>) : null}
 			</Dialog>
 		);
 	}

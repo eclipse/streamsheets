@@ -108,6 +108,7 @@ class DashBoardComponent extends Component {
 			activeStep: `${type}settings`,
 			editStream: true,
 			row,
+			type,
 		})
 	};
 
@@ -119,6 +120,18 @@ class DashBoardComponent extends Component {
 		this.props.setConfigurationActive(resource.id, type);
 		this.props.setDeleteDialogOpen(true);
 	};
+
+	getConnector() {
+		switch (this.state.type) {
+		case 'connector':
+			return undefined;
+		case 'consumer':
+			return StreamHelper.getConnectorConfig(this.state.row, this.props.streams.connectors)
+		default:
+		}
+
+		return undefined;
+	}
 
 	onCloseDialogMachineTitleImage = () => {
 		this.setState({
@@ -556,16 +569,17 @@ class DashBoardComponent extends Component {
 						}}
 					>
 						<StreamDeleteDialog />
+						{this.state.showStreamWizard ? (
 						<StreamWizard
 							onClose={this.onWizardClose}
 							initialStep={this.state.showStreamWizard ? this.state.activeStep : undefined}
 							edit={this.state.editStream}
 							selectedStream={this.state.row ? this.state.row.resource : undefined}
-							connector={this.state.type === 'connector' ? undefined : this.state.row}
+							connector={this.getConnector()}
 							type={this.state.type}
 							open={this.state.showStreamWizard}
 							streams={this.props.streams}
-						/>
+						/>) : null}
 						<Tooltip
 							enterDelay={300}
 							title={<FormattedMessage id="Tooltip.AddConnector" defaultMessage="Add Connector" />}

@@ -22,6 +22,7 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
+import Typography from '@material-ui/core/Typography';
 import SortSelector from '../base/sortSelector/SortSelector';
 import TableSortHeader from '../base/addNewDialog/TableSortHeader';
 import Input from '@material-ui/core/Input';
@@ -113,7 +114,7 @@ class StreamWizard extends React.Component {
 
 	reset = () => {
 		this.setState({
-			connector: undefined,
+			connector: '',
 			selectedProvider: { id: '' },
 			activeStep: undefined,
 			error: '',
@@ -263,6 +264,25 @@ class StreamWizard extends React.Component {
 		}
 	}
 
+	getStreamInfo() {
+		if (this.state.connector === undefined) {
+			return '';
+		}
+		const provider = this.props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration]
+			.find(p => p.id === this.state.connector.provider.id);
+
+		switch (this.state.activeStep) {
+		case 'connectorname':
+		case 'connectorsettings':
+			return `Provider: ${provider.name}`;
+		case 'consumername':
+		case 'consumersettings':
+			return `Provider: ${provider.name} - Connector ${this.state.connector.name}`;
+		default:
+			return ''
+		}
+	}
+
 	getNextDisabled() {
 		switch (this.state.activeStep) {
 		case 'provider':
@@ -307,6 +327,7 @@ class StreamWizard extends React.Component {
 			// if no connector selected, create new
 			this.setState({
 				activeStep: this.state.connector === '' ? 'provider' : 'consumername',
+				selectedProvider: {id: ''},
 				backDisabled: false,
 				consumer: undefined,
 				step: this.state.step + 1,
@@ -328,6 +349,7 @@ class StreamWizard extends React.Component {
 				backDisabled: false,
 				step: this.state.step + 1,
 			});
+			this.state.connector.name = this.state.connectorName;
 			break;
 		case 'connectorsettings':
 			if (this.props.type === 'consumer') {
@@ -344,11 +366,13 @@ class StreamWizard extends React.Component {
 			const provider = this.props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration]
 					.find(p => p.id === this.state.connector.provider.id);
 
+			const consumer = this.state.consumer === undefined ?
+				new ConsumerConfiguration({}, this.state.connector, new ProviderConfiguration(provider)) : this.state.consumer
+			consumer.name = this.state.connectorName;
 			this.setState({
 				activeStep: 'consumersettings',
 				backDisabled: false,
-				consumer: this.state.consumer === undefined ?
-					new ConsumerConfiguration({}, this.state.connector, new ProviderConfiguration(provider)) : this.state.consumer,
+				consumer,
 				step: this.state.step + 1,
 			});
 			break;
@@ -366,6 +390,7 @@ class StreamWizard extends React.Component {
 			this.setState({
 				activeStep: 'connector',
 				step: this.state.step - 1,
+				connector: '',
 			});
 			break;
 		case 'connectorname':
@@ -396,18 +421,14 @@ class StreamWizard extends React.Component {
 		}
 	};
 
-	handleSubmit = () => {
-	};
-
 	getStreamFields(advanced) {
-
 		let config;
 		if (this.props.edit) {
 			if (!this.props.selectedStream || this.props.selectedStream.id === '') {
 				// no selection
 				return <div />;
 			}
-			// model = this.props.selectedStream;
+			config = StreamHelper.getInstanceFromObject(this.props.selectedStream, this.props.streams);
 		} else {
 			switch (this.state.activeStep) {
 			case 'connectorsettings':
@@ -442,7 +463,7 @@ class StreamWizard extends React.Component {
 		}
 		const {selectedProvider, connector, consumerName, connectorName, error, filter, activeStep} = this.state;
 		const sortObj = SortSelector.parseSortQuery(this.state.sortQuery);
-		const advancedFields = activeStep === 'consumersettings' || activeStep ? this.getStreamFields(true) : undefined;
+		const advancedFields = activeStep === 'consumersettings' || activeStep === 'connectorsettings' ? this.getStreamFields(true) : undefined;
 
 		return (
 			<Dialog open={open} onClose={onClose} maxWidth={false}>
@@ -631,6 +652,9 @@ class StreamWizard extends React.Component {
 								height: '85px'
 							}}
 						>
+							<Typography style={{fontSize: '0.85rem', marginTop: '16px'}}>
+								{this.getStreamInfo()}
+							</Typography>
 							<TextField
 								inputRef={(el) => {
 									this.nameRef = el;
@@ -664,6 +688,9 @@ class StreamWizard extends React.Component {
 					) : null}
 					{activeStep === 'consumersettings' || activeStep === 'connectorsettings' ? (
 						<div>
+							<Typography style={{fontSize: '0.85rem', marginTop: '16px'}}>
+								{this.getStreamInfo()}
+							</Typography>
 							{this.getStreamFields(false)}
 							{/* eslint-disable-next-line no-nested-ternary */}
 							{advancedFields.length ? !this.state.showAdvanced ?
