@@ -1,4 +1,5 @@
 const logger = require('@cedalo/logger').create({ name: 'HTTP Client' });
+const IdGenerator = require('@cedalo/id-generator');
 
 const axios = require('axios');
 
