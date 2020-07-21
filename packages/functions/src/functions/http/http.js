@@ -19,12 +19,12 @@ const ERROR = FunctionErrors.code;
 const asString = (value) => value ? convert.toString(value) : '';
 
 const defaultCallback = (context, response, error) => {
+	context.term.scope.streamsheet.inbox.put(new Message(response.data))
 	const term = context.term;
 	const err = error || response.error;
 	if (term && !term.isDisposed) {
 		term.cellValue = err ? ERROR.RESPONSE : undefined;
 	}
-	console.log(response);
 	return err ? AsyncRequest.STATE.REJECTED : undefined;
 };
 
