@@ -26,11 +26,9 @@ span {
     font-size: 9pt;
 }
 
-/*
-.sketch-picker {
-    box-shadow: none !important;
+div.sketch-picker {
+    background-color: inherit !important;
 }
-*/
 
 @font-face {
     font-family: 'MetaPlusLF';

@@ -8,11 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const asNumber = (val, defval) => {
-	const nr = (typeof val === 'number') ? val : parseInt(val, 10);
-	return !isNaN(nr) && isFinite(nr) ? nr : defval;
-};
-const isNumber = val => asNumber(val) != null;
+const { convert } = require('@cedalo/commons');
+
+const isNumber = (val) => convert.toNumber(val) != null;
 
 const isEven = nr => nr % 2 === 0;
 

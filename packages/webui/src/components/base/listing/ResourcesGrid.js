@@ -258,10 +258,10 @@ class ResourcesGrid extends React.Component {
 														</Typography>
 														<Typography
 															component="div"
+															color="textSecondary"
 															style={{
 																textOverflow: 'ellipsis',
 																overflow: 'hidden',
-																color: Colors.grey[600],
 																maxWidth: '130px',
 																fontSize: '7pt',
 															}}
@@ -282,6 +282,7 @@ class ResourcesGrid extends React.Component {
 													>
 														<Typography
 															component="div"
+															color="textSecondary"
 															onClick={() =>
 																this.handleOpenClick(
 																	resource,
@@ -290,7 +291,6 @@ class ResourcesGrid extends React.Component {
 															style={{
 																textOverflow: 'ellipsis',
 																overflow: 'hidden',
-																color: Colors.grey[600],
 																maxWidth: '130px',
 																fontSize: '7pt',
 															}}
@@ -314,9 +314,6 @@ class ResourcesGrid extends React.Component {
 																handleClicked={onMenuSelect}
 																resource={resource}
 																titleAttribute={titleAttribute}
-																headerBackgroundColor='#FFFFFF'
-																buttonColor='grey'
-																buttonColorDisabled='lightgrey'
 																headerIcons={
 																	this.props.headerIcons
 																}
@@ -340,4 +337,4 @@ class ResourcesGrid extends React.Component {
 	}
 }
 
-export default withStyles(styles)(ResourcesGrid);
+export default withStyles(styles, {withTheme: true})(ResourcesGrid);

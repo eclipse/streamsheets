@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -30,8 +30,9 @@ module.exports = class HeaderNode extends Node {
 
 		this._sectionData = [];
 
-		this.getFormat().setLineColor('#AAAAAA');
-		this.getFormat().setFillColor('#F2F2F2');
+		this.getFormat().setLineColor(JSG.theme.frame);
+		this.getFormat().setFillColor(JSG.theme.header);
+		this.getTextFormat().setFontColor(JSG.theme.text);
 		this.getItemAttributes().setSelectionMode(ItemAttributes.SelectionMode.NONE);
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 		this.getItemAttributes().setContainer(false);
@@ -464,9 +465,6 @@ module.exports = class HeaderNode extends Node {
 					break;
 			}
 		});
-
-		// overwrite old settings
-		this.getFormat().setFillColor('#F2F2F2');
 	}
 
 	assignProperties(data) {

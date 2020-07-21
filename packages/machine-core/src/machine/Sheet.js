@@ -173,6 +173,9 @@ module.exports = class Sheet {
 	get isPaused() {
 		return this.processor.isPaused;
 	}
+	get isResumed() {
+		return this.processor.isResumed;
+	}
 
 	get machine() {
 		return this.streamsheet ? this.streamsheet.machine : undefined;

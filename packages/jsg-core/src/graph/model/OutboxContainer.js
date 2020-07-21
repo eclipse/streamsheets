@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -27,6 +27,7 @@ module.exports = class OutboxContainer extends MessageContainer {
 		this._outboxCaption = new CaptionNode();
 		this._outboxCaption.setName(JSG.getLocalizedString('Outbox'));
 		this._outboxCaption.setType('oc');
+		this.setType('outboxcontainer');
 		this.addItem(this._outboxCaption);
 
 		this._topMargin = 650;

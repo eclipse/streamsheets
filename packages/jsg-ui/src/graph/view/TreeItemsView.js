@@ -117,6 +117,11 @@ export default class TreeItemsView extends NodeView {
 			treeItem = model[treeItem.parent];
 		}
 
+		const y = treeItem.drawlevel * this._depthOffset;
+ 		this.setVerticalScroll(y);
+	}
+
+	setVerticalScroll(pos) {
 		const contentNode = this.getParent()
 			.getParent()
 			.getParent()
@@ -128,10 +133,9 @@ export default class TreeItemsView extends NodeView {
 			return;
 		}
 
-		const y = treeItem.drawlevel * this._depthOffset;
 		const vmodel = viewport.getVerticalRangeModel();
 
-		vmodel.setValue(vmodel._min + y);
+		vmodel.setValue(vmodel._min + pos);
 	}
 
 	onTreeSelectionChanged(notification) {
@@ -156,6 +160,7 @@ export default class TreeItemsView extends NodeView {
 		let cv;
 		const model = this.getItem();
 		const textFormat = model.getTextFormat();
+		const fillColor = model.getFormat().getFillColor().getValue();
 
 		if (model._resetViewport) {
 			this.resetViewport();
@@ -230,7 +235,7 @@ export default class TreeItemsView extends NodeView {
 			}
 			// draw expander
 			if (item.expanded !== null) {
-				graphics.setFillColor('#222222');
+				graphics.setFillColor(JSG.theme.outline);
 				graphics.fillText(
 					item.expanded ? '-' : '+',
 					itemRectKey.x - this._expanderOffset,
@@ -257,7 +262,7 @@ export default class TreeItemsView extends NodeView {
 			if (isActive) {
 				graphics.drawImage(
 					JSG.imagePool.get('loop'),
-					itemRectKey.getRight() - 650,
+					itemRectKey.getRight() + 200,
 					itemRectKey.y + 100,
 					500,
 					400
@@ -275,16 +280,16 @@ export default class TreeItemsView extends NodeView {
 				itemRectValue.width = this._treeItemWidth;
 				itemRectValue.height = this._treeItemHeight;
 
-				graphics.setFillColor(this._colorScheme.JSON_VALUE);
+				graphics.setFillColor(JSG.theme.filllight);
 				graphics.fillRoundedRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height, 0, 150, 0, 150);
 
 				// draw value text
 				if (item.value !== undefined && item.value !== null) {
-					graphics.setFillColor('#222222');
+					graphics.setFillColor(JSG.theme.textlight);
 					graphics.fillText(item.value, itemRectValue.x + 100, itemRectValue.y + treeItemHeight);
 
 					// overpaint overlapping key text
-					graphics.setFillColor('#FFFFFF');
+					graphics.setFillColor(fillColor);
 					itemRectValue.x += itemRectValue.width;
 					itemRectValue.width = rect.width - itemRectValue.x;
 					graphics.fillRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height);
@@ -389,17 +394,22 @@ export default class TreeItemsView extends NodeView {
 		);
 	}
 
-	resetViewport() {
-		const contentNode = this.getParent()
+	getContentNodeView() {
+		return this.getParent()
 			.getParent()
 			.getParent()
 			.getParent()
 			.getParent();
+	}
+
+	resetViewport() {
+		const contentNode = this.getContentNodeView();
 		const viewport = contentNode.getViewPort();
 
 		if (!viewport) {
 			return false;
 		}
+		contentNode._didScroll = false;
 		viewport.getHorizontalRangeModel().setValue(0);
 		viewport.getVerticalRangeModel().setValue(0);
 
@@ -416,11 +426,12 @@ export default class TreeItemsView extends NodeView {
 			return false;
 		}
 
-		const contentNode = this.getParent()
-			.getParent()
-			.getParent()
-			.getParent()
-			.getParent();
+		const contentNode = this.getContentNodeView();
+
+		if (contentNode._didScroll) {
+			return false;
+		}
+
 		const offset = contentNode.getScrollOffset();
 		const viewport = contentNode.getViewPort();
 

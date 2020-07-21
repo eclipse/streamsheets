@@ -128,7 +128,6 @@ export default class GraphManager {
 	}
 
 	createEditor(canvas) {
-		JSG.bkColorGraph = '#EEEEEE';
 		// NumberFormatter.setCulture(store.getState().locales.locale);
 
 		this._graphEditor = new GraphEditor(canvas);
@@ -387,6 +386,13 @@ export default class GraphManager {
 		}
 		command.execute();
 		// this is because baseExecute set drawing disabled to false
+		if (stats.steps === 0) {
+			this.getInbox(streamsheetId).resetViewports();
+			this.getOutbox(streamsheetId).resetViewports();
+			const itemsNode = this.getOutbox().getMessageListItems();
+			this.execute(new RemoveSelectionCommand(itemsNode, 'global'));
+
+		}
 		this.setDrawingDisabled(true);
 		this.updateOutbox(outbox);
 		this.clearInbox(streamsheetId);
@@ -396,7 +402,6 @@ export default class GraphManager {
 		}
 
 		this.updateStats(streamsheetId, stats);
-		// this.redraw();
 	}
 
 	handleCommandResponse(response) {
@@ -640,7 +645,7 @@ export default class GraphManager {
 		const itemsNode = messageBox.getMessageListItems();
 		const selectedItem = itemsNode.getTreeItemById(metadata.id);
 		if (selectedItem !== undefined) {
-			const item = this.getMessageTreeItem(message, metadata);
+			const item = this.getMessageTreeItem(message, metadata, messageBox.getType().getValue());
 			const command = new UpdateTreeItemCommand(itemsNode, selectedItem.level, item);
 
 			if (execute) {
@@ -657,10 +662,12 @@ export default class GraphManager {
 		return this.updateMessage(messageBox, message, metadata, false);
 	}
 
-	getMessageTreeItem(message, metadata) {
+	getMessageTreeItem(message, metadata, target) {
 		let key;
 
-		if (metadata.label && metadata.label.length > 0) {
+		if (target === 'outboxcontainer') {
+			key = metadata.id;
+		} else if (metadata.label && metadata.label.length > 0) {
 			key = metadata.label;
 		} else if (metadata.consumer && metadata.consumer.length > 0) {
 			key = metadata.consumer;
@@ -699,7 +706,7 @@ export default class GraphManager {
 		const itemsNode = messageBox.getMessageListItems();
 		metadata = metadata || {};
 
-		const item = this.getMessageTreeItem(message, metadata);
+		const item = this.getMessageTreeItem(message, metadata, messageBox.getType().getValue());
 
 		const command = new AddTreeItemCommand(itemsNode, -1, item);
 		command.isVolatile = true;
@@ -816,6 +823,8 @@ export default class GraphManager {
 		let id;
 		const outboxContainer = this.getOutbox();
 		const selection = outboxContainer.getMessageListItems().getSelectedItem();
+		const tooltip = intl.formatMessage({ id: 'MessageBox.messageCount' }, {messageCount: outbox.totalSize});
+		outboxContainer._outboxCaption.setTooltip(tooltip);
 		if (selection) {
 			id = selection.id;
 		}
@@ -837,7 +846,7 @@ export default class GraphManager {
 	updateInboxTooltip(streamsheetId, totalSize) {
 		const processSheetContainer = this.getStreamSheetContainer(streamsheetId);
 		if (processSheetContainer) {
-			const tip = intl.formatMessage({ id: 'InboxSettings.messageCount' }, {messageCount: totalSize});
+			const tip = intl.formatMessage({ id: 'MessageBox.messageCount' }, {messageCount: totalSize});
 			processSheetContainer.getInboxCaption().setTooltip(tip);
 		}
 	}

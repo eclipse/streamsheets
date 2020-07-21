@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -42,7 +42,7 @@ class ScrollView extends Widget {
 		super();
 
 		this._cs = cs;
-		this.getFormat().setFillColor(JSG.bkColorGraph);
+		this.getFormat().setFillColor(JSG.theme.graph);
 
 		// ...and a viewport (which is last in event queue...):
 		this._viewport = this.add(new ViewPort());

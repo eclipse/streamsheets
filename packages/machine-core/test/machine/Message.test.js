@@ -33,4 +33,9 @@ describe('Message', () => {
 		expect(arrivaltime).toBeGreaterThan(0);
 		expect(arrivaltime.toString().indexOf('.')).toBeGreaterThan(-1);
 	});
+	it('should convert data if it is no object or array', () => {
+		expect(new Message(true).data.value).toBe(true);
+		expect(new Message(2345).data.value).toBe(2345);
+		expect(new Message('hello').data.value).toBe('hello');
+	});
 });

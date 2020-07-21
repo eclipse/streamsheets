@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -14,6 +14,7 @@ import React from 'react';
 import Button from '@material-ui/core/Button';
 import Toolbar from '@material-ui/core/Toolbar';
 import Popover from '@material-ui/core/Popover';
+import Typography from '@material-ui/core/Typography';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import Slider from 'rc-slider';
@@ -67,7 +68,7 @@ class MachineControlBar extends React.Component {
 
 	constructor(props) {
 		super(props);
-		const streamsheetStepInterval = localStorage.getItem('streamsheetStepInterval');
+		const streamsheetStepInterval = localStorage.getItem('streamSheetStepInterval');
 		this.state = {
 			speedOpen: false,
 			speed: 1000,
@@ -298,12 +299,12 @@ class MachineControlBar extends React.Component {
 				>
 					<GridList
 						cols={7}
-						cellHeight={40}
+						cellHeight={30}
 						spacing={2}
 						style={{
-							width: '390px',
+							width: '300px',
 							margin: '0px',
-							padding: '15px'
+							padding: '8px'
 						}}
 					>
 						<GridListTile
@@ -313,20 +314,20 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
-							{
+							<Typography style={{fontSize: '10pt'}} variant='h6' color="textPrimary">
 								<FormattedMessage
 									id="MachineControl.cycleTime"
 									defaultMessage="Cycle Time: {speed}ms"
 									values={{ speed: this.state.speed }}
 								/>
-							}
+							</Typography>
 						</GridListTile>
 						<GridListTile cols={1}>
 							<Button
 								onClick={this.handleSpeed(10)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -339,7 +340,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(20)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -352,7 +353,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(50)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -365,7 +366,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(100)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -378,7 +379,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(200)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -391,7 +392,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(500)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -404,7 +405,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleSpeed(1000)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -412,7 +413,7 @@ class MachineControlBar extends React.Component {
 								1000
 							</Button>
 						</GridListTile>
-						<GridListTile cols={7}>
+						<GridListTile style={{height: '20px'}} cols={7}>
 							<Slider
 								step={1}
 								value={reverseSpeed(this.state.speed)}
@@ -425,12 +426,12 @@ class MachineControlBar extends React.Component {
 					<Divider />
 					<GridList
 						cols={7}
-						cellHeight={40}
+						cellHeight={30}
 						spacing={2}
 						style={{
-							width: '390px',
+							width: '300px',
 							margin: '0px',
-							padding: '15px'
+							padding: '8px'
 						}}
 					>
 						<GridListTile
@@ -440,20 +441,20 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
-							{
+							<Typography style={{fontSize: '10pt'}} variant='h6' color="textPrimary">
 								<FormattedMessage
 									id="MachineControl.updateInterval"
 									defaultMessage="Update Interval: {interval}"
 									values={{ interval: this.state.streamsheetStepInterval }}
 								/>
-							}
+								</Typography>
 						</GridListTile>
 						<GridListTile cols={1}>
 							<Button
 								onClick={this.handleStreamSheetStepInterval(1)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -466,7 +467,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(2)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -479,7 +480,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(5)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -492,7 +493,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(10)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -505,7 +506,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(20)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -518,7 +519,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(50)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -531,7 +532,7 @@ class MachineControlBar extends React.Component {
 								onClick={this.handleStreamSheetStepInterval(100)}
 								style={{
 									padding: '0px',
-									minWidth: '50px'
+									minWidth: '40px'
 								}}
 								variant="outlined"
 								size="small"
@@ -539,7 +540,7 @@ class MachineControlBar extends React.Component {
 								100
 							</Button>
 						</GridListTile>
-						<GridListTile cols={7}>
+						<GridListTile style={{height: '20px'}} cols={7}>
 							<Slider
 								step={1}
 								value={reverseUpdateInterval(this.state.streamsheetStepInterval)}
@@ -552,12 +553,12 @@ class MachineControlBar extends React.Component {
 					<Divider />
 					<GridList
 						cols={6}
-						cellHeight={40}
+						cellHeight={25}
 						spacing={1}
 						style={{
 							width: '100%',
 							margin: '0px',
-							paddingTop: '15px'
+							paddingTop: '10px'
 						}}
 					>
 						<GridListTile
@@ -567,7 +568,9 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
-							<FormattedMessage id="MachineControl.updates" defaultMessage="Updates/sec." />
+							<Typography style={{fontSize: '10pt'}} variant='h6' color="textPrimary">
+								<FormattedMessage id="MachineControl.updates" defaultMessage="Updates/sec." />
+							</Typography>
 						</GridListTile>
 						<GridListTile
 							cols={3}
@@ -577,7 +580,9 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
+							<Typography color="textPrimary">
 							<FormattedMessage id="MachineControl.client" defaultMessage="Client" />
+							</Typography>
 						</GridListTile>
 						<GridListTile
 							cols={3}
@@ -587,27 +592,36 @@ class MachineControlBar extends React.Component {
 								textAlign: 'center'
 							}}
 						>
+							<Typography color="textPrimary">
 							<FormattedMessage id="MachineControl.server" defaultMessage="Server" />
+							</Typography >
 						</GridListTile>
 					</GridList>
-					<Gauge
-						value={this.props.clientUpdateRate}
-						min={0}
-						max={25}
-						width={210}
-						height={125}
-						label=""
-						color={getGaugeColor(this.props.clientUpdateRate, 25)}
-					/>
-					<Gauge
-						value={this.props.machineCyclesPerSecond}
-						min={0}
-						max={1000}
-						width={210}
-						height={125}
-						label=""
-						color={getGaugeColor(this.props.machineCyclesPerSecond, 1000)}
-					/>
+					<div
+						style={{
+							height: '140px',
+							marginTop: '-30px',
+						}}
+					>
+						<Gauge
+							value={this.props.clientUpdateRate}
+							min={0}
+							max={25}
+							width={158}
+							height={130}
+							label=""
+							color={getGaugeColor(this.props.clientUpdateRate, 25)}
+						/>
+						<Gauge
+							value={this.props.machineCyclesPerSecond}
+							min={0}
+							max={1000}
+							width={158}
+							height={130}
+							label=""
+							color={getGaugeColor(this.props.machineCyclesPerSecond, 1000)}
+						/>
+					</div>
 				</Popover>
 			</div>
 		);

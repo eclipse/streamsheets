@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const AsyncRequest = require('./AsyncRequest');
 const calculate = require('./calculate');
 const common = require('./common');
 const criteria = require('./criteria');
@@ -15,15 +16,17 @@ const Criterion = require('./Criterion');
 const date = require('./date');
 // const excel = require('./excel');
 const jsonbuilder = require('./jsonbuilder');
-const pendingRequest = require('./pendingRequest');
+const messages = require('./messages');
 const runFunction = require('./runner');
 const sheet = require('./sheet');
 const terms = require('./terms');
 // const types = require('./types'); // <-- causes circular reference!!
 const validation = require('./validation');
 const values = require('./values');
+const wildcards = require('./wildcards');
 
 module.exports = {
+	AsyncRequest,
 	calculate,
 	common,
 	criteria,
@@ -31,11 +34,12 @@ module.exports = {
 	date,
 	// excel,
 	jsonbuilder,
-	pendingRequest,
+	messages,
 	runFunction,
 	sheet,
 	terms,
 	// types,
 	validation,
-	values
+	values,
+	wildcards
 };

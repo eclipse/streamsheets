@@ -8,6 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const MachineEvents = require('@cedalo/protocols').MachineServerMessagingProtocol.EVENTS;
+const MachineTaskMessagingClient = require('./MachineTaskMessagingClient');
+const RedisInboxAdapter = require('./RedisInboxAdapter');
 const {
 	cellDescriptor,
 	cellDescriptorAsObject,
@@ -16,9 +19,6 @@ const {
 	publishIf,
 	reduceSheetCells
 } = require('./utils');
-const MachineEvents = require('@cedalo/protocols').MachineServerMessagingProtocol.EVENTS;
-const MachineTaskMessagingClient = require('./MachineTaskMessagingClient');
-const RedisInboxAdapter = require('./RedisInboxAdapter');
 
 class MachineTaskStreamSheetMonitor {
 	constructor(streamsheet) {
@@ -255,7 +255,8 @@ class MachineTaskStreamSheetMonitor {
 					messages: streamsheet.inbox.messages.slice(0)
 				},
 				outbox: {
-					messages: streamsheet.machine.outbox.messages.slice(0)
+					totalSize: streamsheet.machine.outbox.size,
+					messages: streamsheet.machine.outbox.getFirstMessages()
 				},
 				drawings: streamsheet.sheet.getDrawings().toJSON(),
 				graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON()

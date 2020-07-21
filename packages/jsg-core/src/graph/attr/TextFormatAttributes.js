@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -658,7 +658,7 @@ class TextFormatAttributes extends AttributeList {
 
 		addAttribute(new NumberAttribute(TEXTFORMAT.FONTSIZE), 8);
 		addAttribute(new StringAttribute(TEXTFORMAT.FONTNAME), 'Verdana');
-		addAttribute(new StringAttribute(TEXTFORMAT.FONTCOLOR), '#000000');
+		addAttribute(new StringAttribute(TEXTFORMAT.FONTCOLOR), JSG.theme.text);
 		addAttribute(
 			new NumberAttribute(TEXTFORMAT.FONTSTYLE),
 			TEXTFORMAT.FontStyle.NORMAL

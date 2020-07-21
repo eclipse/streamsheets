@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -895,7 +895,6 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 // TODO get or set language
 JSG.init('.', 'de');
 JSG.webComponent = true;
-JSG.bkColorGraph = '#EEEEEE';
 JSG.imagePool.add('res/images/maximize.png', 'maximize');
 JSG.imagePool.add('res/images/minimize.png', 'minimize');
 JSG.imagePool.add('res/images/settings.png', 'settings');

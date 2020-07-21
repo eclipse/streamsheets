@@ -536,7 +536,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 					break;
 				case '':
 					def.type = 'solid';
-					def.color = '#FFFFFF';
+					def.color = JSG.theme.fill;
 					break;
 				default:
 					def.type = 'solid';
@@ -640,7 +640,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		let def = {
 			fontname: 'Verdana',
 			fontsize: 8,
-			fontcolor: '#000000',
+			fontcolor: JSG.theme.text,
 			fontstyle: 0,
 			alignment: 0
 		};
@@ -1112,7 +1112,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 				const width = format.getLineWidth().getValue();
 				if (width === -1 || width === 1) {
 					const color = format.getLineColor().getValue();
-					if (color === '#000000') {
+					if (color === JSG.theme.border) {
 						return new NullTerm();
 					}
 					return Term.fromString(color);
@@ -1135,7 +1135,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		switch (format.getFillStyle().getValue()) {
 			case FormatAttributes.LineStyle.SOLID: {
 				const color = format.getFillColor().getValue();
-				if (color.toUpperCase() !== '#FFFFFF') {
+				if (color.toUpperCase() !== JSG.theme.fill) {
 					return Term.fromString(color);
 				}
 				return new NullTerm();
@@ -1156,7 +1156,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		const fontColor = tf.getFontColor().getValue();
 		const align = tf.getHorizontalAlignment().getValue();
 
-		if (fontName === 'Verdana' && fontSize === 9 && fontStyle === 0 && fontColor === '#000000' && align === 1) {
+		if (fontName === 'Verdana' && fontSize === 9 && fontStyle === 0 && fontColor === JSG.theme.text && align === 1) {
 			return new NullTerm();
 		}
 

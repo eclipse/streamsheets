@@ -70,7 +70,6 @@ export class AdminContainer extends Component {
 							this.props.location.pathname.startsWith('/administration/user/')
 								? 'auto'
 								: 'none',
-						backgroundColor: '#EEEEEE'
 					}}
 				>
 					{this.props.location.pathname === '/administration/database' ? (

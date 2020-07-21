@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -12,18 +12,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import JSG from '@cedalo/jsg-ui';
-import IconButton from '@material-ui/core/IconButton';
+import { IconButton } from '@material-ui/core';
 import OkIcon from '@material-ui/icons/Check';
 import CancelIcon from '@material-ui/icons/Close';
 
 import { graphManager } from '../../GraphManager';
+import {withStyles} from '@material-ui/core/styles';
+import styles from '../base/listing/styles';
 
 const {
 	CellEditor,
 } = JSG;
 
 
-export default class CellRangeComponent extends React.Component {
+class CellRangeComponent extends React.Component {
 	static propTypes = {
 		onChange: PropTypes.func,
 		onBlur: PropTypes.func,
@@ -194,11 +196,12 @@ export default class CellRangeComponent extends React.Component {
 	};
 
 	render() {
+		const { theme } = this.props;
 		return (
 			<div>
 				<label htmlFor="sheet-ref"
 					style={{
-						color: 'rgba(0, 0, 0, 0.54)',
+						color: theme.cellrange.colorlight,
 						fontSize: '9pt',
 						transform: 'translate(0, 1.5px) scale(0.75)',
 					}}>
@@ -215,10 +218,12 @@ export default class CellRangeComponent extends React.Component {
 						style={{
 							padding: '6px 0 7px',
 							fontSize: this.props.fontSize,
-							borderBottom: '1px solid rgba(0, 0, 0, 0.42)',
+							borderBottom: `1px solid ${theme.cellrange.underline}`,
+							// rgba(0, 0, 0, 0.42)',
 							outline: 'none',
 							display: 'inline-block',
 							width: 'calc(100% - 50px)',
+							color: theme.cellrange.color,
 						}}
 						id="sheet-ref"
 						contentEditable
@@ -264,7 +269,7 @@ export default class CellRangeComponent extends React.Component {
 				{this.props.helperText ?
 					<label htmlFor="sheet-ref"
 						   style={{
-							   color: 'rgba(0, 0, 0, 0.54)',
+							   color: theme.cellrange.colorlight,
 							   fontSize: '9pt',
 							   lineHeight: '1.6rem',
 							   transform: 'translate(0, 1.5px) scale(0.75)',
@@ -276,3 +281,4 @@ export default class CellRangeComponent extends React.Component {
 	}
 }
 
+export default withStyles(styles, {withTheme: true})(CellRangeComponent);

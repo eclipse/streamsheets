@@ -8,13 +8,21 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { sleep } = require('@cedalo/commons');
+const { FunctionErrors } = require('@cedalo/error-codes');
+const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
+const { NullTerm, Term } = require('@cedalo/parser');
 const MSG = require('../_data/messages.json');
 const SHEETS = require('../_data/sheets.json');
 const { WRITE } = require('../../src/functions');
-const { createCellTerm, createCellRangeTerm, createFuncTerm, createParamTerms, createTerm } = require('../utilities');
-const { NullTerm, Term } = require('@cedalo/parser');
-const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const {
+	createCellAt,
+	createCellTerm,
+	createCellRangeTerm,
+	createFuncTerm,
+	createParamTerms,
+	createTerm
+} = require('../utilities');
 
 const ERROR = FunctionErrors.code;
 
@@ -73,6 +81,56 @@ describe('write', () => {
 		expect(createTerm('write(outboxdata("out1", "Loop"),"one","String")', sheet).value).toBe('Loop');
 		expect(createTerm('WRITE(OUTBOXDATA("out1","Key1"),,"Dictionary")', sheet).value).toBe('Key1');
 		expect(createTerm('WRITE(OUTBOXDATA("out1","Key1", "Key2"),A1,"String")', sheet).value).toBe('Key2');
+	});
+	// DL-4231
+	it('should be possible to use number as key', async () => {
+		const machine = new Machine();
+		const outbox = machine.outbox;
+ 		const sheet = new StreamSheet().sheet;
+		machine.addStreamSheet(sheet.streamsheet);
+		sheet.loadCells({
+			A1: 1594065440,
+			A2: 'St.Peter',
+			A3: { formula: 'write(outboxdata("Index","Messages",A1 & "_" & A2),"Hello","String")' },
+		});
+		await machine.step();
+		let msg = outbox.peek('Index');
+		expect(sheet.cellAt('A3').value).toBe('1594065440_St.Peter');
+		// expect an object !!
+		expect(msg.data.Messages).toEqual({ '1594065440_St.Peter': 'Hello' });
+		createCellAt('A3', { formula: 'write(outboxdata("Index2","Messages","2"),"Hello2","String")' }, sheet);
+		await machine.step();
+		msg = outbox.peek('Index2');
+		expect(sheet.cellAt('A3').value).toBe('2');
+		// expect an array !!
+		expect(msg.data.Messages).toEqual([undefined, undefined, 'Hello2']);
+	});
+	// DL-4229
+	it('should support TTL parameter', async () => {
+		const machine = new Machine();
+		const outbox = machine.outbox;
+ 		const sheet = new StreamSheet().sheet;
+		// set outbox to active so that messages are removed
+		outbox.isActive = true;
+		machine.addStreamSheet(sheet.streamsheet);
+		sheet.loadCells({
+			A1: { formula: 'write(outboxdata("Index","value"),42,,0.005)' },
+			A2: { formula: 'write(outboxdata("Index2","value"),23)' },
+			A3: { formula: 'read(outboxdata("Index","value"),B3,,,TRUE)' },
+			A4: { formula: 'read(outboxdata("Index2","value"),B4)' }
+		});
+		await machine.step();
+		expect(outbox.size).toBe(2);
+		expect(sheet.cellAt('B3').value).toBe(42);
+		expect(sheet.cellAt('B4').value).toBe(23);
+		createCellAt('A1', { formula: 'write(outboxdata("Index3","value"),18)' }, sheet);
+		await machine.step();
+		expect(outbox.size).toBe(3);
+		await sleep(100);
+		await machine.step();
+		expect(outbox.size).toBe(2);
+		expect(sheet.cellAt('B3').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('B4').value).toBe(23);
 	});
 	describe('creation of simple message', () => {
 		it('should add an empty message to outbox', () => {

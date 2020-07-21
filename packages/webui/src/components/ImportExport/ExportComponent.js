@@ -9,7 +9,6 @@
  *
  ********************************************************************************/
 import Button from '@material-ui/core/Button';
-import * as Colors from '@material-ui/core/colors';
 import Fab from '@material-ui/core/Fab';
 import TableCell from '@material-ui/core/TableCell';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -26,6 +25,8 @@ import { Restricted, NotAllowed } from '../HelperComponent/Restricted';
 import ExportDialog from './ExportDialog';
 import ExportTable from './ExportTable';
 import ImportDropzone from './ImportDropzone';
+import Wall from '../HelperComponent/Wall';
+import Typography from '@material-ui/core/Typography';
 
 const TABLE_QUERY = `
 	query ExportTable($scope: ScopeInput!) {
@@ -300,6 +301,10 @@ const ExportComponent = (props) => {
 				</div>
 			</NotAllowed>
 			<ImportDropzone>
+				<Wall
+					overflow
+					id="combinedResourceList"
+				>
 				<div
 					style={{
 						display: 'flex',
@@ -318,12 +323,11 @@ const ExportComponent = (props) => {
 					)}
 					<Fab
 						variant="round"
-						color="default"
+						color="primary"
 						style={{
 							position: 'absolute',
 							right: '48px',
 							bottom: '48px',
-							backgroundColor: Colors.blue[800],
 							color: 'white'
 						}}
 						onClick={onExportButton}
@@ -349,13 +353,9 @@ const ExportComponent = (props) => {
 									minWidth: '500px'
 								}}
 							>
-								<h2
-									style={{
-										display: 'inline-flex'
-									}}
-								>
-									<FormattedMessage id="Export.List.Machines.Title" defaultMessage="Machines" />
-								</h2>
+								<Typography variant="h5">
+									<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />
+								</Typography>
 								<ExportTable
 									resources={filteredMachines}
 									selected={selectedMachines}
@@ -373,13 +373,9 @@ const ExportComponent = (props) => {
 									minWidth: '500px'
 								}}
 							>
-								<h2
-									style={{
-										display: 'inline-flex'
-									}}
-								>
+								<Typography variant="h5">
 									<FormattedMessage id="Export.List.Streams.Title" defaultMessage="Streams" />
-								</h2>
+								</Typography>
 
 								<ExportTable
 									resources={filteredStreams}
@@ -392,6 +388,7 @@ const ExportComponent = (props) => {
 						</Restricted>
 					</div>
 				</div>
+				</Wall>
 			</ImportDropzone>
 		</Restricted>
 	);

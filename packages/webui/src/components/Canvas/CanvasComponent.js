@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -11,8 +11,7 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/prop-types */
 import React, { Component } from 'react';
-import Button from '@material-ui/core/Button';
-import Slide from '@material-ui/core/Slide';
+import { Button, Typography, Slide } from '@material-ui/core';
 import { connect } from 'react-redux';
 import AddIcon from '@material-ui/icons/Add';
 import * as Colors from '@material-ui/core/colors';
@@ -342,6 +341,7 @@ export class CanvasComponent extends Component {
 						<Fab
 							id="addSheet"
 							aria-label="add"
+							color="primary"
 							size="medium"
 							style={{
 								visibility: this.props.showTools ? 'visible' : 'hidden',
@@ -349,7 +349,6 @@ export class CanvasComponent extends Component {
 								zIndex: 1200,
 								right: '30px',
 								bottom: '26px',
-								backgroundColor: Colors.blue[800],
 							}}
 							onClick={this.onAdd}
 						>
@@ -398,10 +397,12 @@ export class CanvasComponent extends Component {
 								marginTop: '5px',
 							}}
 						>
-							{sheet
-								.getStreamSheet()
-								.getName()
-								.getValue()}
+							<Typography>
+								{sheet
+									.getStreamSheet()
+									.getName()
+									.getValue()}
+							</Typography>
 						</div>
 					</div>
 				))}

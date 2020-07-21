@@ -14,24 +14,15 @@
 import JSG from '@cedalo/jsg-ui';
 import { NumberFormatter } from '@cedalo/number-format';
 import { ToolbarExtensions, ChartExtensions } from '@cedalo/webui-extensions';
-import Button from '@material-ui/core/Button';
-import * as Colors from '@material-ui/core/colors/index';
-import Divider from '@material-ui/core/Divider';
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
-import IconButton from '@material-ui/core/IconButton';
-import Input from '@material-ui/core/Input';
-import MenuItem from '@material-ui/core/MenuItem';
-import MenuList from '@material-ui/core/MenuList';
+import { Button, Divider, GridList, GridListTile, IconButton, Input, MenuItem, MenuList } from '@material-ui/core';
 import Popover from '@material-ui/core/Popover';
 import Select from '@material-ui/core/Select';
 import SvgIcon from '@material-ui/core/SvgIcon';
-import Toolbar from '@material-ui/core/Toolbar';
+import AppBar from '@material-ui/core/AppBar';
 import Tooltip from '@material-ui/core/Tooltip';
 import BorderAllIcon from '@material-ui/icons/BorderAll';
 import BorderBottomIcon from '@material-ui/icons/BorderBottom';
 import BorderClearIcon from '@material-ui/icons/BorderClear';
-import BorderColorIcon from '@material-ui/icons/BorderColor';
 import BorderHorizontalIcon from '@material-ui/icons/BorderHorizontal';
 import BorderInnerIcon from '@material-ui/icons/BorderInner';
 import BorderLeftIcon from '@material-ui/icons/BorderLeft';
@@ -45,8 +36,6 @@ import FormatAlignJustify from '@material-ui/icons/FormatAlignJustify';
 import FormatAlignLeft from '@material-ui/icons/FormatAlignLeft';
 import FormatAlignRight from '@material-ui/icons/FormatAlignRight';
 import BoldIcon from '@material-ui/icons/FormatBold';
-import FillColorIcon from '@material-ui/icons/FormatColorFill';
-import FontColorIcon from '@material-ui/icons/FormatColorText';
 import ItalicIcon from '@material-ui/icons/FormatItalic';
 import MessageIcon from '@material-ui/icons/Message';
 import ToolEllipseIcon from '@material-ui/icons/PanoramaFishEye';
@@ -74,6 +63,7 @@ import { intl } from '../../helper/IntlGlobalProvider';
 import CommandStack from '../../helper/synchronization/CommandStack';
 import { numberFormatTemplates } from '../../languages/NumberFormatTemplates';
 import CustomTooltip from '../base/customTooltip/CustomTooltip';
+import { withStyles } from '@material-ui/core/styles';
 
 const ToolTextIcon = FormatAlignCenter;
 const {
@@ -109,8 +99,31 @@ const buttonStyle = {
 	padding: '4px 0px 0px 0px'
 };
 
-const borderStyle={borderRadius: '0%', padding: '0px 5px', width: '100px', height: '20px' }
+const optionStyle = {
+	padding: '4px'
+};
 
+const borderStyle = { borderRadius: '0%', padding: '0px 5px', width: '100px', height: '20px' };
+
+const styles = {
+	default: {
+		background: 'inherit'
+	},
+	select: {
+		'&:before': {
+			// normal
+			border: 'none'
+		},
+		'&:after': {
+			// focused
+			border: 'none'
+		},
+		'&:hover:not(.Mui-disabled):not(.Mui-focused):not(.Mui-error):before': {
+			// hover
+			border: 'none'
+		}
+	}
+};
 
 const WidthHelper = (props) => {
 	const [currentWidth, setCurrentWidth] = useState(window.outerWidth);
@@ -612,7 +625,7 @@ export class CanvasToolBar extends Component {
 
 		if (this.isChartSelected()) {
 			const selection = graphManager.getGraphViewer().getSelection();
-			const item  = selection[0].getModel();
+			const item = selection[0].getModel();
 			const cmd = new JSG.CompoundCommand();
 			const cmdAxis = item.prepareCommand('axes');
 			const cmdChart = item.prepareCommand('chart');
@@ -1035,7 +1048,7 @@ export class CanvasToolBar extends Component {
 		} else if (color.hex.toUpperCase() === '#FFFFFE') {
 			attributesMap.put(FormatAttributes.FILLCOLOR, 'auto');
 			const f = this.state.cellFormat;
-			const style =  f && f.getFillStyle() ? f.getFillStyle().getValue() : '';
+			const style = f && f.getFillStyle() ? f.getFillStyle().getValue() : '';
 			if (style === FormatAttributes.FillStyle.NONE) {
 				attributesMap.put(FormatAttributes.FILLSTYLE, FormatAttributes.FillStyle.SOLID);
 			}
@@ -1087,11 +1100,11 @@ export class CanvasToolBar extends Component {
 				.getInteractionHandler()
 				.execute(cmd);
 		} else if (
-				graphManager
-					.getGraphEditor()
-					.getSelectionProvider()
-					.hasSelection()
-			) {
+			graphManager
+				.getGraphEditor()
+				.getSelectionProvider()
+				.hasSelection()
+		) {
 			attributesMap.put(FormatAttributes.LINESTYLE, style);
 			graphManager
 				.getGraphEditor()
@@ -1545,20 +1558,19 @@ export class CanvasToolBar extends Component {
 				.getSelectionProvider()
 				.hasSelection()
 		) {
-
 			if (color.hex === 'transparent') {
 				attributesMap.put(FormatAttributes.LINESTYLE, FormatAttributes.LineStyle.NONE);
 			} else if (color.hex.toUpperCase() === '#FFFFFE') {
 				attributesMap.put(FormatAttributes.LINECOLOR, 'auto');
 				const f = this.state.cellFormat;
-				const style =  f && f.getLineStyle() ? f.getLineStyle().getValue() : '';
+				const style = f && f.getLineStyle() ? f.getLineStyle().getValue() : '';
 				if (style === FormatAttributes.LineStyle.NONE) {
 					attributesMap.put(FormatAttributes.LINESTYLE, FormatAttributes.LineStyle.SOLID);
 				}
 			} else {
 				attributesMap.put(FormatAttributes.LINECOLOR, color.hex);
 				const f = this.state.cellFormat;
-				const style =  f && f.getLineStyle() ? f.getLineStyle().getValue() : '';
+				const style = f && f.getLineStyle() ? f.getLineStyle().getValue() : '';
 				if (style === FormatAttributes.LineStyle.NONE) {
 					attributesMap.put(FormatAttributes.LINESTYLE, FormatAttributes.LineStyle.SOLID);
 				}
@@ -1717,7 +1729,7 @@ export class CanvasToolBar extends Component {
 
 	isChartSelected() {
 		const selection = graphManager.getGraphViewer().getSelection();
-		return selection && selection.length && (selection[0].getModel() instanceof SheetPlotNode);
+		return selection && selection.length && selection[0].getModel() instanceof SheetPlotNode;
 	}
 
 	fillColorToRGBAObject(format) {
@@ -1791,20 +1803,92 @@ export class CanvasToolBar extends Component {
 	};
 
 	getPresetColors() {
-		const colors =
-			["#000000", "#434343", "#666666", "#999999", "#b7b7b7", "#cccccc", "#d9d9d9", "#efefef", "#f3f3f3", "#ffffff",
-			"#980000", "#ff0000", "#ff9900", "#ffff00", "#00ff00", "#00ffff", "#4a86e8", "#0000ff", "#9900ff", "#ff00ff",
-			"#e6b8af", "#f4cccc", "#fce5cd", "#fff2cc", "#d9ead3", "#d0e0e3", "#c9daf8", "#cfe2f3", "#d9d2e9", "#ead1dc",
-			"#dd7e6b", "#ea9999", "#f9cb9c", "#ffe599", "#b6d7a8", "#a2c4c9", "#a4c2f4", "#9fc5e8", "#b4a7d6", "#d5a6bd",
-			"#cc4125", "#e06666", "#f6b26b", "#ffd966", "#93c47d", "#76a5af", "#6d9eeb", "#6fa8dc", "#8e7cc3", "#c27ba0",
-			"#a61c00", "#cc0000", "#e69138", "#f1c232", "#6aa84f", "#45818e", "#3c78d8", "#3d85c6", "#674ea7", "#a64d79",
-			"#85200c", "#990000", "#b45f06", "#bf9000", "#38761d", "#134f5c", "#1155cc", "#0b5394", "#351c75", "#741b47",
-			"#5b0f00", "#660000", "#783f04", "#7f6000", "#274e13", "#0c343d", "#1c4587", "#073763", "#20124d", "#4c1130"];
+		const colors = [
+			'#000000',
+			'#434343',
+			'#666666',
+			'#999999',
+			'#b7b7b7',
+			'#cccccc',
+			'#d9d9d9',
+			'#efefef',
+			'#f3f3f3',
+			'#ffffff',
+			'#980000',
+			'#ff0000',
+			'#ff9900',
+			'#ffff00',
+			'#00ff00',
+			'#00ffff',
+			'#4a86e8',
+			'#0000ff',
+			'#9900ff',
+			'#ff00ff',
+			'#e6b8af',
+			'#f4cccc',
+			'#fce5cd',
+			'#fff2cc',
+			'#d9ead3',
+			'#d0e0e3',
+			'#c9daf8',
+			'#cfe2f3',
+			'#d9d2e9',
+			'#ead1dc',
+			'#dd7e6b',
+			'#ea9999',
+			'#f9cb9c',
+			'#ffe599',
+			'#b6d7a8',
+			'#a2c4c9',
+			'#a4c2f4',
+			'#9fc5e8',
+			'#b4a7d6',
+			'#d5a6bd',
+			'#cc4125',
+			'#e06666',
+			'#f6b26b',
+			'#ffd966',
+			'#93c47d',
+			'#76a5af',
+			'#6d9eeb',
+			'#6fa8dc',
+			'#8e7cc3',
+			'#c27ba0',
+			'#a61c00',
+			'#cc0000',
+			'#e69138',
+			'#f1c232',
+			'#6aa84f',
+			'#45818e',
+			'#3c78d8',
+			'#3d85c6',
+			'#674ea7',
+			'#a64d79',
+			'#85200c',
+			'#990000',
+			'#b45f06',
+			'#bf9000',
+			'#38761d',
+			'#134f5c',
+			'#1155cc',
+			'#0b5394',
+			'#351c75',
+			'#741b47',
+			'#5b0f00',
+			'#660000',
+			'#783f04',
+			'#7f6000',
+			'#274e13',
+			'#0c343d',
+			'#1c4587',
+			'#073763',
+			'#20124d',
+			'#4c1130'
+		];
 
-
-		colors.push({title: 'None', color: 'transparent'});
+		colors.push({ title: 'None', color: 'transparent' });
 		if (this.isChartSelected()) {
-			colors.push({title: 'Automatic', color: '#FFFFFE'});
+			colors.push({ title: 'Automatic', color: '#FFFFFE' });
 		}
 
 		return colors;
@@ -1812,6 +1896,7 @@ export class CanvasToolBar extends Component {
 
 	render() {
 		const canEdit = accessManager.can(RESOURCE_TYPES.MACHINE, RESOURCE_ACTIONS.EDIT);
+		const { classes } = this.props;
 		if (!this.isMachinePage(this.props) || !canEdit) {
 			return null;
 		}
@@ -1821,10 +1906,12 @@ export class CanvasToolBar extends Component {
 		}
 		const tf = this.state.cellTextFormat;
 		const f = this.state.cellFormat;
+		const gridTitleColor = this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor;
 		return (
-			<Toolbar
+			<AppBar
+				elevation={0}
+				color="default"
 				style={{
-					backgroundColor: 'white',
 					height: '37px',
 					minHeight: '37px',
 					margin: 0,
@@ -1832,20 +1919,23 @@ export class CanvasToolBar extends Component {
 					position: 'relative',
 					width: '100%',
 					borderBottom: '1px solid #AAAAAA',
-					overflow: 'hidden'
+					borderTop: '1px solid #AAAAAA',
+					overflow: 'hidden',
+					display: 'flex',
+					flexDirection: 'row'
 				}}
 			>
 				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.Undo" defaultMessage="Undo" />}>
 					<div>
 						<IconButton style={buttonStyle} onClick={(e) => this.onUndo(e)} disabled={!this.props.canUndo}>
-							<UndoIcon fontSize="inherit" />
+							<UndoIcon />
 						</IconButton>
 					</div>
 				</Tooltip>
 				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.Redo" defaultMessage="Redo" />}>
 					<div>
 						<IconButton style={buttonStyle} onClick={(e) => this.onRedo(e)} disabled={!this.props.canRedo}>
-							<RedoIcon fontSize="inherit" />
+							<RedoIcon />
 						</IconButton>
 					</div>
 				</Tooltip>
@@ -1868,7 +1958,6 @@ export class CanvasToolBar extends Component {
 						>
 							<SvgIcon>
 								<path
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M21.7,13.35L20.7,14.35L18.65,12.3L19.65,11.3C19.86,11.08 20.21,11.08 20.42,11.3L21.7,12.58C21.92,12.79 21.92,13.14 21.7,13.35M12,18.94L18.07,12.88L20.12,14.93L14.06,21H12V18.94M4,2H18A2,2 0 0,1 20,4V8.17L16.17,12H12V16.17L10.17,18H4A2,2 0 0,1 2,16V4A2,2 0 0,1 4,2M4,6V10H10V6H4M12,6V10H18V6H12M4,12V16H10V12H4Z"
 								/>
@@ -1889,21 +1978,12 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton
-							color="inherit"
 							onClick={() => this.onFormatDecimals(undefined, true)}
 							disabled={!this.props.cellSelected}
 							style={buttonStyle}
 						>
 							<SvgIcon>
-								<text
-									x="12"
-									y="12"
-									fontWeight="bold"
-									fontSize="9pt"
-									dy="0.25em"
-									textAnchor="middle"
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
-								>
+								<text x="12" y="12" fontWeight="bold" fontSize="9pt" dy="0.25em" textAnchor="middle">
 									000
 								</text>
 							</SvgIcon>
@@ -1916,21 +1996,12 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton
-							color="inherit"
 							onClick={this.onFormatPercent}
 							disabled={!this.props.cellSelected}
 							style={buttonStyle}
 						>
 							<SvgIcon>
-								<text
-									x="12"
-									y="12"
-									fontWeight="bold"
-									fontSize="12pt"
-									dy="0.25em"
-									textAnchor="middle"
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
-								>
+								<text x="12" y="12" fontWeight="bold" fontSize="12pt" dy="0.25em" textAnchor="middle">
 									%
 								</text>
 							</SvgIcon>
@@ -1943,14 +2014,12 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton
-							color="inherit"
 							onClick={() => this.onFormatDecimals(false)}
 							disabled={!this.props.cellSelected}
 							style={buttonStyle}
 						>
 							<SvgIcon>
 								<path
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M12,17L15,20V18H21V16H15V14L12,17M9,5A3,3 0 0,1 12,8V11A3,3 0 0,1 9,14A3,3 0 0,1 6,11V8A3,3 0 0,1 9,5M9,7A1,1 0 0,0 8,8V11A1,1 0 0,0 9,12A1,1 0 0,0 10,11V8A1,1 0 0,0 9,7M4,12A1,1 0 0,1 5,13A1,1 0 0,1 4,14A1,1 0 0,1 3,13A1,1 0 0,1 4,12Z"
 								/>
@@ -1964,14 +2033,12 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton
-							color="inherit"
 							onClick={() => this.onFormatDecimals(true)}
 							disabled={!this.props.cellSelected}
 							style={buttonStyle}
 						>
 							<SvgIcon>
 								<path
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M22,17L19,20V18H13V16H19V14L22,17M9,5A3,3 0 0,1 12,8V11A3,3 0 0,1 9,14A3,3 0 0,1 6,11V8A3,3 0 0,1 9,5M9,7A1,1 0 0,0 8,8V11A1,1 0 0,0 9,12A1,1 0 0,0 10,11V8A1,1 0 0,0 9,7M16,5A3,3 0 0,1 19,8V11A3,3 0 0,1 16,14A3,3 0 0,1 13,11V8A3,3 0 0,1 16,5M16,7A1,1 0 0,0 15,8V11A1,1 0 0,0 16,12A1,1 0 0,0 17,11V8A1,1 0 0,0 16,7M4,12A1,1 0 0,1 5,13A1,1 0 0,1 4,14A1,1 0 0,1 3,13A1,1 0 0,1 4,12Z"
 								/>
@@ -1985,18 +2052,17 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton
-							color="inherit"
 							onClick={this.onShowNumberFormat}
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
 							style={{
 								height: '34px',
 								width: '70px',
-								padding: '0px'
+								padding: '0px',
+								marginTop: '1px'
 							}}
 						>
 							<span
 								style={{
-									color: this.props.cellSelected || this.state.graphSelected ? '#757575' : '#CCCCCC',
 									fontWeight: 'bold',
 									fontSize: '10pt'
 								}}
@@ -2005,7 +2071,6 @@ export class CanvasToolBar extends Component {
 							</span>
 							<SvgIcon>
 								<path
-									fill={this.props.cellSelected || this.state.graphSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M7,10L12,15L17,10H7Z"
 								/>
@@ -2081,12 +2146,18 @@ export class CanvasToolBar extends Component {
 						}}
 						id="font-name"
 						value={tf && tf.getFontName() ? tf.getFontName().getValue() : ''}
-						onChange={(event) => this.onFormatFontName(event)}
 						native
+						onChange={(event) => this.onFormatFontName(event)}
 						input={<Input name="font-name" id="font-name" />}
+						className={classes.select}
+						inputProps={{
+							style: { paddingLeft: '5px', paddingTop: '6px' }
+						}}
 					>
-						<option hidden value="" />
-						<option value="Arial">Arial</option>
+						<option style={optionStyle} hidden value="" />
+						<option style={optionStyle} value="Arial">
+							Arial
+						</option>
 						<option value="Courier New">Courier New</option>
 						<option value="Georgia">Georgia</option>
 						<option value="Lucida Console">Lucida Console</option>
@@ -2113,6 +2184,10 @@ export class CanvasToolBar extends Component {
 						onChange={(event) => this.onFormatFontSize(event)}
 						native
 						input={<Input name="font-size" id="font-size" />}
+						className={classes.select}
+						inputProps={{
+							style: { paddingLeft: '5px', paddingTop: '6px' }
+						}}
 					>
 						<option hidden value="" />
 						<option value="6">6</option>
@@ -2135,14 +2210,15 @@ export class CanvasToolBar extends Component {
 								marginLeft: '10px',
 								fontSize: '16pt',
 								width: '34px',
-								height: '34px',
-								padding: '4px 0px 0px 0px',
+								height: '27px',
+								margin: '5px 0px 0px 0px',
+								borderRadius: '0%',
 								backgroundColor:
 									tf &&
 									tf.getFontStyle() &&
 									tf.getFontStyle().getValue() & TextFormatAttributes.FontStyle.BOLD
 										? '#CCCCCC'
-										: 'white'
+										: 'transparent'
 							}}
 							onClick={this.onFormatBold}
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
@@ -2159,15 +2235,16 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							style={{
 								width: '34px',
-								height: '34px',
-								padding: '4px 0px 0px 0px',
+								height: '27px',
+								margin: '5px 0px 0px 0px',
 								fontSize: '16pt',
+								borderRadius: '0%',
 								backgroundColor:
 									tf &&
 									tf.getFontStyle() &&
 									tf.getFontStyle().getValue() & TextFormatAttributes.FontStyle.ITALIC
 										? '#CCCCCC'
-										: 'white'
+										: 'transparent'
 							}}
 							onClick={this.onFormatItalic}
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
@@ -2186,7 +2263,13 @@ export class CanvasToolBar extends Component {
 							onClick={this.onShowFontColor}
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
-							<FontColorIcon fontSize="inherit" />
+							<SvgIcon fontSize="inherit">
+								<path
+									fill={tf && tf.getFontColor() ? tf.getFontColor().getValue() : ''}
+									d="M0 20h24v4H0z"
+								/>
+								<path d="M11 3L5.5 17h2.25l1.12-3h6.25l1.12 3h2.25L13 3h-2zm-1.38 9L12 5.67 14.38 12H9.62z" />
+							</SvgIcon>
 						</IconButton>
 					</div>
 				</Tooltip>
@@ -2200,8 +2283,10 @@ export class CanvasToolBar extends Component {
 				>
 					<SketchPicker
 						style={{
-							boxShadow: 'none !important'
+							boxShadow: 'none !important',
+							backgroundColor: 'inherit'
 						}}
+						classes={{ 'sketch-picker': classes.default }}
 						width={250}
 						disableAlpha
 						presetColors={this.getPresetColors()}
@@ -2229,7 +2314,7 @@ export class CanvasToolBar extends Component {
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
 							{tf && tf.getHorizontalAlignment() && tf.getHorizontalAlignment().getValue() === 3 ? (
-								<FormatAlignJustify nativeColor="#919191" fontSize="inherit" />
+								<FormatAlignJustify fontSize="inherit" />
 							) : null}
 							{tf && tf.getHorizontalAlignment() && tf.getHorizontalAlignment().getValue() === 0 ? (
 								<FormatAlignLeft fontSize="inherit" />
@@ -2242,7 +2327,6 @@ export class CanvasToolBar extends Component {
 							) : null}
 							<SvgIcon>
 								<path
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M7,10L12,15L17,10H7Z"
 								/>
@@ -2264,7 +2348,7 @@ export class CanvasToolBar extends Component {
 					<GridList
 						cols={4}
 						cellHeight={36}
-						spacing={2}
+						spacing={0}
 						style={{
 							width: '160px',
 							margin: '3px'
@@ -2276,7 +2360,7 @@ export class CanvasToolBar extends Component {
 								message="Tooltip.FormatHAlignStandardMessage"
 							>
 								<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatHorizontalAlign(3)}>
-									<FormatAlignJustify nativeColor="#919191" />
+									<FormatAlignJustify />
 								</IconButton>
 							</CustomTooltip>
 						</GridListTile>
@@ -2285,12 +2369,8 @@ export class CanvasToolBar extends Component {
 								header="Tooltip.FormatHAlignLeftHeader"
 								message="Tooltip.FormatHAlignLeftMessage"
 							>
-								<IconButton
-									style={{ padding: '5px' }}
-									color="inherit"
-									onClick={() => this.onFormatHorizontalAlign(0)}
-								>
-									<FormatAlignLeft fontSize="inherit" />
+								<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatHorizontalAlign(0)}>
+									<FormatAlignLeft />
 								</IconButton>
 							</CustomTooltip>
 						</GridListTile>
@@ -2299,12 +2379,8 @@ export class CanvasToolBar extends Component {
 								header="Tooltip.FormatHAlignCenterHeader"
 								message="Tooltip.FormatHAlignCenterMessage"
 							>
-								<IconButton
-									style={{ padding: '5px' }}
-									color="inherit"
-									onClick={() => this.onFormatHorizontalAlign(1)}
-								>
-									<FormatAlignCenter fontSize="inherit" />
+								<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatHorizontalAlign(1)}>
+									<FormatAlignCenter />
 								</IconButton>
 							</CustomTooltip>
 						</GridListTile>
@@ -2313,12 +2389,8 @@ export class CanvasToolBar extends Component {
 								header="Tooltip.FormatHAlignRightHeader"
 								message="Tooltip.FormatHAlignRightMessage"
 							>
-								<IconButton
-									style={{ padding: '5px' }}
-									color="inherit"
-									onClick={() => this.onFormatHorizontalAlign(2)}
-								>
-									<FormatAlignRight fontSize="inherit" />
+								<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatHorizontalAlign(2)}>
+									<FormatAlignRight />
 								</IconButton>
 							</CustomTooltip>
 						</GridListTile>
@@ -2347,7 +2419,6 @@ export class CanvasToolBar extends Component {
 							) : null}
 							<SvgIcon>
 								<path
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 									// eslint-disable-next-line max-len
 									d="M7,10L12,15L17,10H7Z"
 								/>
@@ -2380,12 +2451,8 @@ export class CanvasToolBar extends Component {
 								header="Tooltip.FormatVAlignTopHeader"
 								message="Tooltip.FormatVAlignTopMessage"
 							>
-								<IconButton
-									style={{ padding: '5px' }}
-									color="inherit"
-									onClick={() => this.onFormatVerticalAlign(0)}
-								>
-									<VerticalAlignTop fontSize="inherit" />
+								<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatVerticalAlign(0)}>
+									<VerticalAlignTop />
 								</IconButton>
 							</CustomTooltip>
 						</GridListTile>
@@ -2394,12 +2461,8 @@ export class CanvasToolBar extends Component {
 								header="Tooltip.FormatVAlignCenterHeader"
 								message="Tooltip.FormatVAlignCenterMessage"
 							>
-								<IconButton
-									style={{ padding: '5px' }}
-									color="inherit"
-									onClick={() => this.onFormatVerticalAlign(1)}
-								>
-									<VerticalAlignCenter fontSize="inherit" />
+								<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatVerticalAlign(1)}>
+									<VerticalAlignCenter />
 								</IconButton>
 							</CustomTooltip>
 						</GridListTile>
@@ -2408,12 +2471,8 @@ export class CanvasToolBar extends Component {
 								header="Tooltip.FormatVAlignBottomHeader"
 								message="Tooltip.FormatVAlignBottomMessage"
 							>
-								<IconButton
-									style={{ padding: '5px' }}
-									color="inherit"
-									onClick={() => this.onFormatVerticalAlign(2)}
-								>
-									<VerticalAlignBottom fontSize="inherit" />
+								<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatVerticalAlign(2)}>
+									<VerticalAlignBottom />
 								</IconButton>
 							</CustomTooltip>
 						</GridListTile>
@@ -2436,7 +2495,15 @@ export class CanvasToolBar extends Component {
 							onClick={this.onShowFillColor}
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
-							<FillColorIcon fontSize="inherit" />
+							<SvgIcon fontSize="inherit">
+								<path
+									d="M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15c-.59.59-.59 1.54 0 2.12l5.5 5.5c.29.29.68.44 1.06.44s.77-.15 1.06-.44l5.5-5.5c.59-.58.59-1.53 0-2.12zM5.21 10L10 5.21 14.79 10H5.21zM19 11.5s-2 2.17-2 3.5c0 1.1.9 2 2 2s2-.9 2-2c0-1.33-2-3.5-2-3.5z"
+								/>
+								<path
+									fill={f && f.getFillColor() ? f.getFillColor().getValue() : 'none'}
+									d="M0 20h24v4H0z"
+								/>
+							</SvgIcon>
 						</IconButton>
 					</div>
 				</Tooltip>
@@ -2451,7 +2518,7 @@ export class CanvasToolBar extends Component {
 					<SketchPicker
 						disableAlpha={!this.isChartSelected()}
 						width={250}
-						color={ this.fillColorToRGBAObject(f)}
+						color={this.fillColorToRGBAObject(f)}
 						presetColors={this.getPresetColors()}
 						onChange={this.onFormatFillColor}
 					/>
@@ -2466,7 +2533,15 @@ export class CanvasToolBar extends Component {
 							onClick={this.onShowBorderColor}
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
-							<BorderColorIcon fontSize="inherit" />
+							<SvgIcon fontSize="inherit">
+								<path
+									d="M17.75 7L14 3.25l-10 10V17h3.75l10-10zm2.96-2.96c.39-.39.39-1.02 0-1.41L18.37.29a.9959.9959 0 0 0-1.41 0L15 2.25 18.75 6l1.96-1.96z"
+								/>
+								<path
+									fill={this.getFormatBorderColor()}
+									d="M0 20h24v4H0z"
+								/>
+							</SvgIcon>
 						</IconButton>
 					</div>
 				</Tooltip>
@@ -2517,92 +2592,52 @@ export class CanvasToolBar extends Component {
 						}}
 					>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onFormatBorder('all')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('all')}>
 								<BorderAllIcon fontSize="inherit" />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onFormatBorder('inner')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('inner')}>
 								<BorderInnerIcon fontSize="inherit" />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onFormatBorder('horizontal')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('horizontal')}>
 								<BorderHorizontalIcon fontSize="inherit" />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onFormatBorder('vertical')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('vertical')}>
 								<BorderVerticalIcon fontSize="inherit" />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onFormatBorder('outer')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('outer')}>
 								<BorderOuterIcon fontSize="inherit" />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onFormatBorder('left')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('left')}>
 								<BorderLeftIcon fontSize="inherit" />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onFormatBorder('top')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('top')}>
 								<BorderTopIcon fontSize="inherit" />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onFormatBorder('right')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('right')}>
 								<BorderRightIcon fontSize="inherit" />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onFormatBorder('bottom')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('bottom')}>
 								<BorderBottomIcon fontSize="inherit" />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onFormatBorder('clear')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('clear')}>
 								<BorderClearIcon fontSize="inherit" />
 							</IconButton>
 						</GridListTile>
@@ -2619,9 +2654,7 @@ export class CanvasToolBar extends Component {
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
 							<SvgIcon>
-								<path
-									d="M3,16H8V14H3V16M9.5,16H14.5V14H9.5V16M16,16H21V14H16V16M3,20H5V18H3V20M7,20H9V18H7V20M11,20H13V18H11V20M15,20H17V18H15V20M19,20H21V18H19V20M3,12H11V10H3V12M13,12H21V10H13V12M3,4V8H21V4H3Z"
-								/>
+								<path d="M3,16H8V14H3V16M9.5,16H14.5V14H9.5V16M16,16H21V14H16V16M3,20H5V18H3V20M7,20H9V18H7V20M11,20H13V18H11V20M15,20H17V18H15V20M19,20H21V18H19V20M3,12H11V10H3V12M13,12H21V10H13V12M3,4V8H21V4H3Z" />
 							</SvgIcon>
 						</IconButton>
 					</div>
@@ -2654,9 +2687,9 @@ export class CanvasToolBar extends Component {
 						>
 							<div
 								style={{
-									backgroundColor: Colors.blue[800],
+									backgroundColor: gridTitleColor,
 									color: 'white',
-									fontSize: '10pt',
+									fontSize: '9pt',
 									padding: '3px'
 								}}
 							>
@@ -2670,7 +2703,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={borderStyle}
-									color="inherit"
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.NONE)}
 								>
 									<img alt="" src="lib/res/images/linestylenone.png" />
@@ -2684,7 +2716,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={borderStyle}
-									color="inherit"
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.SOLID)}
 								>
 									<img alt="" src="lib/res/images/linestylesolid.png" />
@@ -2692,13 +2723,9 @@ export class CanvasToolBar extends Component {
 							</Tooltip>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.Dot" defaultMessage="Dot" />}
-							>
+							<Tooltip enterDelay={300} title={<FormattedMessage id="Border.Dot" defaultMessage="Dot" />}>
 								<IconButton
 									style={borderStyle}
-									color="inherit"
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DOT)}
 								>
 									<img alt="" src="lib/res/images/linestyledot.png" />
@@ -2712,7 +2739,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={borderStyle}
-									color="inherit"
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASH)}
 								>
 									<img alt="" src="lib/res/images/linestyledash.png" />
@@ -2726,7 +2752,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={borderStyle}
-									color="inherit"
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOT)}
 								>
 									<img alt="" src="lib/res/images/linestyledashdot.png" />
@@ -2740,7 +2765,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={borderStyle}
-									color="inherit"
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOTDOT)}
 								>
 									<img alt="" src="lib/res/images/linestyledashdotdot.png" />
@@ -2755,9 +2779,9 @@ export class CanvasToolBar extends Component {
 						>
 							<div
 								style={{
-									backgroundColor: Colors.blue[800],
+									backgroundColor: gridTitleColor,
 									color: 'white',
-									fontSize: '10pt',
+									fontSize: '9pt',
 									padding: '3px'
 								}}
 							>
@@ -2769,11 +2793,7 @@ export class CanvasToolBar extends Component {
 								enterDelay={300}
 								title={<FormattedMessage id="Border.Hairline" defaultMessage="Hairline (1px)" />}
 							>
-								<IconButton
-									style={borderStyle}
-									color="inherit"
-									onClick={() => this.onFormatBorderWidth(-1)}
-								>
+								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(-1)}>
 									<img alt="" src="lib/res/images/lineswidth1.png" />
 								</IconButton>
 							</Tooltip>
@@ -2783,11 +2803,7 @@ export class CanvasToolBar extends Component {
 								enterDelay={300}
 								title={<FormattedMessage id="Border.MM025" defaultMessage="0.25 mm" />}
 							>
-								<IconButton
-									style={borderStyle}
-									color="inherit"
-									onClick={() => this.onFormatBorderWidth(25)}
-								>
+								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(25)}>
 									<img alt="" src="lib/res/images/lineswidth025.png" />
 								</IconButton>
 							</Tooltip>
@@ -2797,11 +2813,7 @@ export class CanvasToolBar extends Component {
 								enterDelay={300}
 								title={<FormattedMessage id="Border.MM05" defaultMessage="0.5 mm" />}
 							>
-								<IconButton
-									style={borderStyle}
-									color="inherit"
-									onClick={() => this.onFormatBorderWidth(50)}
-								>
+								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(50)}>
 									<img alt="" src="lib/res/images/lineswidth05.png" />
 								</IconButton>
 							</Tooltip>
@@ -2811,11 +2823,7 @@ export class CanvasToolBar extends Component {
 								enterDelay={300}
 								title={<FormattedMessage id="Border.MM075" defaultMessage="0.75 mm" />}
 							>
-								<IconButton
-									style={borderStyle}
-									color="inherit"
-									onClick={() => this.onFormatBorderWidth(75)}
-								>
+								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(75)}>
 									<img alt="" src="lib/res/images/lineswidth075.png" />
 								</IconButton>
 							</Tooltip>
@@ -2825,11 +2833,7 @@ export class CanvasToolBar extends Component {
 								enterDelay={300}
 								title={<FormattedMessage id="Border.MM100" defaultMessage="1 mm" />}
 							>
-								<IconButton
-									style={borderStyle}
-									color="inherit"
-									onClick={() => this.onFormatBorderWidth(100)}
-								>
+								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(100)}>
 									<img alt="" src="lib/res/images/lineswidth100.png" />
 								</IconButton>
 							</Tooltip>
@@ -2839,11 +2843,7 @@ export class CanvasToolBar extends Component {
 								enterDelay={300}
 								title={<FormattedMessage id="Border.MM200" defaultMessage="2 mm" />}
 							>
-								<IconButton
-									style={borderStyle}
-									color="inherit"
-									onClick={() => this.onFormatBorderWidth(200)}
-								>
+								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(200)}>
 									<img alt="" src="lib/res/images/lineswidth200.png" />
 								</IconButton>
 							</Tooltip>
@@ -2853,11 +2853,7 @@ export class CanvasToolBar extends Component {
 								enterDelay={300}
 								title={<FormattedMessage id="Border.MM300" defaultMessage="3 mm" />}
 							>
-								<IconButton
-									style={borderStyle}
-									color="inherit"
-									onClick={() => this.onFormatBorderWidth(300)}
-								>
+								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(300)}>
 									<img alt="" src="lib/res/images/lineswidth300.png" />
 								</IconButton>
 							</Tooltip>
@@ -2867,11 +2863,7 @@ export class CanvasToolBar extends Component {
 								enterDelay={300}
 								title={<FormattedMessage id="Border.MM400" defaultMessage="4 mm" />}
 							>
-								<IconButton
-									style={borderStyle}
-									color="inherit"
-									onClick={() => this.onFormatBorderWidth(400)}
-								>
+								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(400)}>
 									<img alt="" src="lib/res/images/lineswidth400.png" />
 								</IconButton>
 							</Tooltip>
@@ -2904,19 +2896,10 @@ export class CanvasToolBar extends Component {
 									fontSize="12pt"
 									dy="0.25em"
 									textAnchor="end"
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
 								>
 									f
 								</text>
-								<text
-									x="12"
-									y="12"
-									fontWeight="bold"
-									fontSize="8pt"
-									dy="0.25em"
-									textAnchor="left"
-									fill={this.props.cellSelected ? '#757575' : '#CCCCCC'}
-								>
+								<text x="12" y="12" fontWeight="bold" fontSize="8pt" dy="0.25em" textAnchor="left">
 									(x)
 								</text>
 							</SvgIcon>
@@ -3004,9 +2987,9 @@ export class CanvasToolBar extends Component {
 						>
 							<div
 								style={{
-									backgroundColor: Colors.blue[800],
+									backgroundColor: gridTitleColor,
 									color: 'white',
-									fontSize: '10pt',
+									fontSize: '9pt',
 									padding: '3px'
 								}}
 							>
@@ -3014,7 +2997,7 @@ export class CanvasToolBar extends Component {
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton style={{ padding: '5px' }} color="inherit" onClick={this.onCreateLine}>
+							<IconButton style={{ padding: '5px' }} onClick={this.onCreateLine}>
 								<SvgIcon>
 									<path d="M3.5 22 L22 3.5 L20.5 2 L2 20.5 Z" />
 								</SvgIcon>
@@ -3022,43 +3005,38 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton style={{ padding: '5px' }} color="inherit" onClick={this.onCreateArrow}>
+							<IconButton style={{ padding: '5px' }} onClick={this.onCreateArrow}>
 								<ToolArrowIcon />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton style={{ padding: '5px' }} color="inherit" onClick={this.onCreateRectangle}>
+							<IconButton style={{ padding: '5px' }} onClick={this.onCreateRectangle}>
 								<ToolRectangleIcon />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton style={{ padding: '5px' }} color="inherit" onClick={this.onCreateEllipse}>
+							<IconButton style={{ padding: '5px' }} onClick={this.onCreateEllipse}>
 								<ToolEllipseIcon />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton style={{ padding: '5px' }} color="inherit" onClick={this.onCreateText}>
+							<IconButton style={{ padding: '5px' }} onClick={this.onCreateText}>
 								<ToolTextIcon />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton style={{ padding: '5px' }} color="inherit" onClick={this.onCreatePolyline}>
+							<IconButton style={{ padding: '5px' }} onClick={this.onCreatePolyline}>
 								<ToolPolylineIcon />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('arc')}
-							>
-								<SvgIcon viewBox="-5 -5 32 32">
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('arc')}>
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 32">
 									<path
 										fill="none"
 										strokeWidth="2.5px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M24,12 C24,5.42 18.58,0 12,0 C5.42,0 0,5.42 0,12 C0,18.58 5.42,24 12,24"
 									/>
@@ -3066,18 +3044,13 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('arcclosed')}
-							>
-								<SvgIcon viewBox="-5 -5 32 32">
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('arcclosed')}>
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 32">
 									<path
 										fill="none"
 										strokeWidth="2.5px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M24,12 C24,5.42 18.58,0 12,0 C5.42,0 0,5.42 0,12 C0,18.58 5.42,24 12,24 C12,24 24,12 24,12 Z"
 									/>
@@ -3085,18 +3058,13 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('pie')}
-							>
-								<SvgIcon viewBox="-5 -5 32 32">
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('pie')}>
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 32">
 									<path
 										fill="none"
 										strokeWidth="2.5px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M24,12 C24,5.42 18.58,0 12,0 C5.42,0 0,5.42 0,12 C0,18.58 5.42,24 12,24 C12,24 12,12 12,12 C12,12 24,12 24,12 Z"
 									/>
@@ -3111,9 +3079,9 @@ export class CanvasToolBar extends Component {
 						>
 							<div
 								style={{
-									backgroundColor: Colors.blue[800],
+									backgroundColor: gridTitleColor,
 									color: 'white',
-									fontSize: '10pt',
+									fontSize: '9pt',
 									padding: '3px'
 								}}
 							>
@@ -3121,18 +3089,13 @@ export class CanvasToolBar extends Component {
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('roundRect')}
-							>
-								<SvgIcon viewBox="-5 -5 32 38">
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('roundRect')}>
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M6.6,0 C8.8,0 13.2,0 21.4,0 C25.03,0 28,2.97 28,6.6 C28,8.8 28,13.2 28,15.4 C28,19.03 25.03,22 21.4,22 C13.2,22 8.8,22 6.6,22 C2.97,22 0,19.03 0,15.4 C0,13.2 0,8.8 0,6.6 C0,2.97 2.97,0 6.6,0 Z"
 									/>
@@ -3142,16 +3105,14 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<IconButton
 								style={{ padding: '5px' }}
-								color="inherit"
 								onClick={() => this.onCreateTool('roundRectCornerCut')}
 							>
-								<SvgIcon viewBox="-5 -5 32 38">
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M0,0 C4.4,0 13.2,0 17.01,0 C23.06,0 28.01,4.95 28.01,11 C28.01,8.8 28.01,17.6 28.01,22 C17.6,22 4.4,22 0,22 C0,17.6 0,4.4 0,0 Z"
 									/>
@@ -3161,16 +3122,14 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<IconButton
 								style={{ padding: '5px' }}
-								color="inherit"
 								onClick={() => this.onCreateTool('roundRectCornerCutSame')}
 							>
-								<SvgIcon viewBox="-5 -5 32 38">
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M11,0 C8.8,0 13.2,0 17,0 C23.05,0 28,4.95 28,11 C28,8.8 28,13.2 28,22 C28,22 28,22 28,22 C13.2,22 8.8,22 0,22 C0,22 0,22 0,22 C0,13.2 0,8.8 0,11 C0,4.95 4.95,0 11,0 Z"
 									/>
@@ -3180,16 +3139,14 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<IconButton
 								style={{ padding: '5px' }}
-								color="inherit"
 								onClick={() => this.onCreateTool('roundRectCornerCutDiagonal')}
 							>
-								<SvgIcon viewBox="-5 -5 32 38">
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M0,0 C8.8,0 13.2,0 17.01,0 C23.06,0 28.01,4.95 28.01,11 C28.01,8.8 28.01,13.2 28.01,22 C28.01,22 28.01,22 28.01,22 C13.2,22 8.8,22 11,22 C4.95,22 0,17.05 0,11 C0,13.2 0,8.8 0,0 C0,0 0,0 0,0 Z"
 									/>
@@ -3197,18 +3154,13 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('rectCornerCut')}
-							>
-								<SvgIcon viewBox="-5 -5 32 38">
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('rectCornerCut')}>
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M0,0 L0,22 L28.01,22 L28.01,8.14 L19.87,0 L0,0 Z"
 									/>
@@ -3218,16 +3170,14 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<IconButton
 								style={{ padding: '5px' }}
-								color="inherit"
 								onClick={() => this.onCreateTool('rectCornerCutSame')}
 							>
-								<SvgIcon viewBox="-5 -5 32 38">
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M8.14,0 L0,8.14 L0,22 L0,22 L28.01,22 L28.01,22 L28.01,8.14 L19.87,0 L8.14,0 Z"
 									/>
@@ -3237,16 +3187,14 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<IconButton
 								style={{ padding: '5px' }}
-								color="inherit"
 								onClick={() => this.onCreateTool('rectCornerCutDiagonal')}
 							>
-								<SvgIcon viewBox="-5 -5 32 38">
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M8.2,0 L0,8.2 L0,22 L0,22 L19.8,22 L28,13.8 L28,0 L28,0 L8.2,0 Z"
 									/>
@@ -3254,18 +3202,13 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('trapezoidalTop')}
-							>
-								<SvgIcon viewBox="-5 -5 32 38">
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('trapezoidalTop')}>
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M4.4,0 L23.6,0 L28,22 L0,22 L4.4,0 Z"
 									/>
@@ -3275,16 +3218,14 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<IconButton
 								style={{ padding: '5px' }}
-								color="inherit"
 								onClick={() => this.onCreateTool('trapezoidalBottom')}
 							>
-								<SvgIcon viewBox="-5 -5 32 38">
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M0,0 L28.01,0 L23.61,22 L4.4,22 L0,0 Z"
 									/>
@@ -3294,16 +3235,14 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<IconButton
 								style={{ padding: '5px' }}
-								color="inherit"
 								onClick={() => this.onCreateTool('parallelogrammTopToRight')}
 							>
-								<SvgIcon viewBox="-5 -5 32 38">
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M5.6,0 L28.01,0 L22.41,22 L0,22 L5.6,0 Z"
 									/>
@@ -3313,16 +3252,14 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<IconButton
 								style={{ padding: '5px' }}
-								color="inherit"
 								onClick={() => this.onCreateTool('parallelogrammLeftToBottom')}
 							>
-								<SvgIcon viewBox="-5 -5 32 38">
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M0,4.4 L28.01,0 L28.01,17.6 L0,22 L0,4.4 Z"
 									/>
@@ -3337,9 +3274,9 @@ export class CanvasToolBar extends Component {
 						>
 							<div
 								style={{
-									backgroundColor: Colors.blue[800],
+									backgroundColor: gridTitleColor,
 									color: 'white',
-									fontSize: '10pt',
+									fontSize: '9pt',
 									padding: '3px'
 								}}
 							>
@@ -3347,11 +3284,7 @@ export class CanvasToolBar extends Component {
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('star3')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('star3')}>
 								<SvgIcon>
 									<path
 										// eslint-disable-next-line max-len
@@ -3361,11 +3294,7 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('star4')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('star4')}>
 								<SvgIcon>
 									<path
 										// eslint-disable-next-line max-len
@@ -3375,27 +3304,18 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('star5')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('star5')}>
 								<ToolStar />
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('star6')}
-							>
-								<SvgIcon viewBox="-5 -5 32 32">
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('star6')}>
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 32">
 									<path
 										fill="none"
 										strokeWidth="2px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M12,0 L14.4,7.82 L22.44,6 L16.8,12 L22.44,18 L14.4,16.18 L12,24 L9.6,16.18 L1.56,18 L7.2,12 L1.56,6 L9.6,7.82 L12,0 Z"
 									/>
@@ -3403,18 +3323,13 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('star8')}
-							>
-								<SvgIcon viewBox="-5 -5 32 32">
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('star8')}>
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 32">
 									<path
 										fill="none"
 										strokeWidth="2px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M12,0 L13.82,7.58 L20.52,3.48 L16.42,10.18 L24,12 L16.42,13.82 L20.52,20.52 L13.82,16.42 L12,24 L10.18,16.42 L3.48,20.52 L7.58,13.82 L0,12 L7.58,10.18 L3.48,3.48 L10.18,7.58 L12,0 Z"
 									/>
@@ -3429,9 +3344,9 @@ export class CanvasToolBar extends Component {
 						>
 							<div
 								style={{
-									backgroundColor: Colors.blue[800],
+									backgroundColor: gridTitleColor,
 									color: 'white',
-									fontSize: '10pt',
+									fontSize: '9pt',
 									padding: '3px'
 								}}
 							>
@@ -3439,55 +3354,35 @@ export class CanvasToolBar extends Component {
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('arrowLeft')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('arrowLeft')}>
 								<SvgIcon>
 									<path d="M13,22L3,12L13,2V8H21V16H13V22M6,12L11,17V14H19V10H11V7L6,12Z" />
 								</SvgIcon>
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('arrowRight')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('arrowRight')}>
 								<SvgIcon>
 									<path d="M11,16H3V8H11V2L21,12L11,22V16M13,7V10H5V14H13V17L18,12L13,7Z" />
 								</SvgIcon>
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('arrowUp')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('arrowUp')}>
 								<SvgIcon>
 									<path d="M16,13V21H8V13H2L12,3L22,13H16M7,11H10V19H14V11H17L12,6L7,11Z" />
 								</SvgIcon>
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('arrowDown')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('arrowDown')}>
 								<SvgIcon>
 									<path d="M22,11L12,21L2,11H8V3H16V11H22M12,18L17,13H14V5H10V13H7L12,18Z" />
 								</SvgIcon>
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('arrowDblHorz')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('arrowDblHorz')}>
 								<SvgIcon>
 									<path
 										// eslint-disable-next-line max-len
@@ -3497,11 +3392,7 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('arrowDblVert')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('arrowDblVert')}>
 								<SvgIcon>
 									<path
 										// eslint-disable-next-line max-len
@@ -3511,18 +3402,13 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('arrowTopLeft')}
-							>
-								<SvgIcon viewBox="-5 -5 32 32">
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('arrowTopLeft')}>
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 32">
 									<path
 										fill="none"
 										strokeWidth="2px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										d="M16.8,4.8 L14.4,4.8 L19.2,0 L24,4.8 L21.6,4.8 L21.6,21.6 L4.8,21.6 L4.8,24 L0,19.2 L4.8,14.4 L4.8,16.8 L16.8,16.8 L16.8,4.8 Z"
 										// eslint-disable-next-line max-len
 									/>
@@ -3530,18 +3416,13 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('arrowTopRight')}
-							>
-								<SvgIcon viewBox="-5 -5 32 32">
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('arrowTopRight')}>
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 32">
 									<path
 										fill="none"
 										strokeWidth="2px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M7.2,4.8 L9.6,4.8 L4.8,0 L0,4.8 L2.4,4.8 L2.4,21.6 L19.2,21.6 L19.2,24 L24,19.2 L19.2,14.4 L19.2,16.8 L7.2,16.8 L7.2,4.8 Z"
 									/>
@@ -3556,9 +3437,9 @@ export class CanvasToolBar extends Component {
 						>
 							<div
 								style={{
-									backgroundColor: Colors.blue[800],
+									backgroundColor: gridTitleColor,
 									color: 'white',
-									fontSize: '10pt',
+									fontSize: '9pt',
 									padding: '3px'
 								}}
 							>
@@ -3566,18 +3447,13 @@ export class CanvasToolBar extends Component {
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('callout')}
-							>
-								<SvgIcon viewBox="-5 -5 32 38">
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('callout')}>
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M0,0 L28,0 L28,22 L9.8,22 L2.8,30.8 L4.2,22 L0,22 L0,0 Z"
 									/>
@@ -3585,18 +3461,13 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('calloutline')}
-							>
-								<SvgIcon viewBox="-5 -5 32 38">
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('calloutline')}>
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M0,0 L28,0 L28,22 L7,22 L-0.28,34.32 L7,22 L0,22 L0,0 Z"
 									/>
@@ -3606,16 +3477,14 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<IconButton
 								style={{ padding: '5px' }}
-								color="inherit"
 								onClick={() => this.onCreateTool('calloutroundrect')}
 							>
-								<SvgIcon viewBox="-5 -5 32 38">
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M0,4.4 C0,1.98 1.98,0 4.4,0 C4.4,0 23.6,0 23.6,0 C26.02,0 28,1.98 28,4.4 C28,4.4 28,17.6 28,17.6 C28,20.02 26.02,22 23.6,22 C23.6,22 11.2,22 11.2,22 C11.2,22 2.8,30.8 2.8,30.8 C2.8,30.8 5.6,22 5.6,22 C5.6,22 4.4,22 4.4,22 C1.98,22 0,20.02 0,17.6 C0,17.6 0,4.4 0,4.4 Z"
 									/>
@@ -3625,16 +3494,14 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<IconButton
 								style={{ padding: '5px' }}
-								color="inherit"
 								onClick={() => this.onCreateTool('calloutroundrectline')}
 							>
-								<SvgIcon viewBox="-5 -5 32 38">
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M0,4.4 C0,1.98 1.98,0 4.4,0 C4.4,0 23.6,0 23.6,0 C26.02,0 28,1.98 28,4.4 C28,4.4 28,17.6 28,17.6 C28,20.02 26.02,22 23.6,22 C23.6,22 8.4,22 8.4,22 C8.4,22 2.8,30.8 2.8,30.8 C2.8,30.8 8.4,22 8.4,22 C8.4,22 4.4,22 4.4,22 C1.98,22 0,20.02 0,17.6 C0,17.6 0,4.4 0,4.4 Z"
 									/>
@@ -3642,18 +3509,13 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateTool('calloutround')}
-							>
-								<SvgIcon viewBox="-5 -5 32 38">
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateTool('calloutround')}>
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M11.08,21.76 C18.08,22.93 25.15,19.71 27.33,14.36 C29.52,9.01 26.14,3.15 19.58,0.91 C13.02,-1.33 5.28,0.72 1.78,5.63 C-1.71,10.53 0.11,16.79 5.98,20.01 C5.98,20.01 3.36,30.36 3.36,30.36 C3.36,30.36 11.08,21.76 11.08,21.76 Z"
 									/>
@@ -3663,16 +3525,14 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<IconButton
 								style={{ padding: '5px' }}
-								color="inherit"
 								onClick={() => this.onCreateTool('calloutroundline')}
 							>
-								<SvgIcon viewBox="-5 -5 32 38">
+								<SvgIcon style={{ stroke: 'currentColor' }} viewBox="-5 -5 32 38">
 									<path
 										fill="none"
 										strokeWidth="3px"
 										strokeLinejoin="miter"
 										strokeMiterlimit="5"
-										stroke="black"
 										// eslint-disable-next-line max-len
 										d="M8.31,21.05 C15.33,23.5 23.67,20.98 26.79,15.47 C29.91,9.95 26.7,3.4 19.69,0.95 C12.67,-1.5 4.33,1.02 1.21,6.53 C-1.91,12.05 1.29,18.6 8.31,21.05 C8.31,21.05 2.8,30.8 2.8,30.8 C2.8,30.8 8.31,21.05 8.31,21.05 Z"
 									/>
@@ -3687,9 +3547,9 @@ export class CanvasToolBar extends Component {
 						>
 							<div
 								style={{
-									backgroundColor: Colors.blue[800],
+									backgroundColor: gridTitleColor,
 									color: 'white',
-									fontSize: '10pt',
+									fontSize: '9pt',
 									padding: '3px'
 								}}
 							>
@@ -3697,11 +3557,7 @@ export class CanvasToolBar extends Component {
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateContainer('scale')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateContainer('scale')}>
 								<SvgIcon>
 									<path
 										// eslint-disable-next-line max-len
@@ -3711,35 +3567,23 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateContainer('top')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateContainer('top')}>
 								<SvgIcon>
 									<path d="M5,6.41L6.41,5L17,15.59V9H19V19H9V17H15.59L5,6.41Z" />
 								</SvgIcon>
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateContainer('bottom')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateContainer('bottom')}>
 								<SvgIcon>
 									<path d="M5,17.59L15.59,7H9V5H19V15H17V8.41L6.41,19L5,17.59Z" />
 								</SvgIcon>
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateContainer('matrix2')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateContainer('matrix2')}>
 								<SvgIcon>
-									<path  d="M3,11H11V3H3M3,21H11V13H3M13,21H21V13H13M13,3V11H21V3" />
+									<path d="M3,11H11V3H3M3,21H11V13H3M13,21H21V13H13M13,3V11H21V3" />
 								</SvgIcon>
 							</IconButton>
 						</GridListTile>
@@ -3751,9 +3595,9 @@ export class CanvasToolBar extends Component {
 						>
 							<div
 								style={{
-									backgroundColor: Colors.blue[800],
+									backgroundColor: gridTitleColor,
 									color: 'white',
-									fontSize: '10pt',
+									fontSize: '9pt',
 									padding: '3px'
 								}}
 							>
@@ -3761,11 +3605,7 @@ export class CanvasToolBar extends Component {
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateControl('button')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateControl('button')}>
 								<SvgIcon>
 									<path
 										// eslint-disable-next-line max-len
@@ -3775,11 +3615,7 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateControl('checkbox')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateControl('checkbox')}>
 								<SvgIcon>
 									<path
 										// eslint-disable-next-line max-len
@@ -3789,11 +3625,7 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateControl('slider')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateControl('slider')}>
 								<SvgIcon>
 									<path
 										// eslint-disable-next-line max-len
@@ -3804,11 +3636,7 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<IconButton
-								style={{ padding: '5px' }}
-								color="inherit"
-								onClick={() => this.onCreateControl('knob')}
-							>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateControl('knob')}>
 								<SvgIcon>
 									<path
 										// eslint-disable-next-line max-len
@@ -3863,9 +3691,9 @@ export class CanvasToolBar extends Component {
 						>
 							<div
 								style={{
-									backgroundColor: Colors.blue[800],
+									backgroundColor: gridTitleColor,
 									color: 'white',
-									fontSize: '10pt',
+									fontSize: '9pt',
 									padding: '3px'
 								}}
 							>
@@ -3879,7 +3707,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('column')}
 								>
 									<img alt="" src="images/charts/column.png" />
@@ -3889,11 +3716,12 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamChart.ColumnStacked" defaultMessage="Column Stacked" />}
+								title={
+									<FormattedMessage id="StreamChart.ColumnStacked" defaultMessage="Column Stacked" />
+								}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('columnstacked')}
 								>
 									<img alt="" src="images/charts/columnstacked.png" />
@@ -3903,11 +3731,15 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamChart.ColumnStacked100" defaultMessage="Column Stacked 100" />}
+								title={
+									<FormattedMessage
+										id="StreamChart.ColumnStacked100"
+										defaultMessage="Column Stacked 100"
+									/>
+								}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('columnstacked100')}
 								>
 									<img alt="" src="images/charts/columnstacked100.png" />
@@ -3921,7 +3753,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('bar')}
 								>
 									<img alt="" src="images/charts/bar.png" />
@@ -3935,7 +3766,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('barstacked')}
 								>
 									<img alt="" src="images/charts/barstacked.png" />
@@ -3945,11 +3775,12 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamChart.BarStacked100" defaultMessage="Bar Stacked 100" />}
+								title={
+									<FormattedMessage id="StreamChart.BarStacked100" defaultMessage="Bar Stacked 100" />
+								}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('barstacked100')}
 								>
 									<img alt="" src="images/charts/barstacked100.png" />
@@ -3964,9 +3795,9 @@ export class CanvasToolBar extends Component {
 						>
 							<div
 								style={{
-									backgroundColor: Colors.blue[800],
+									backgroundColor: gridTitleColor,
 									color: 'white',
-									fontSize: '10pt',
+									fontSize: '9pt',
 									padding: '3px'
 								}}
 							>
@@ -3980,7 +3811,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('line')}
 								>
 									<img alt="" src="images/charts/line.png" />
@@ -3994,7 +3824,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('linestacked')}
 								>
 									<img alt="" src="images/charts/linestacked.png" />
@@ -4004,11 +3833,15 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamChart.LineStacked100" defaultMessage="Line Stacked 100" />}
+								title={
+									<FormattedMessage
+										id="StreamChart.LineStacked100"
+										defaultMessage="Line Stacked 100"
+									/>
+								}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('linestacked100')}
 								>
 									<img alt="" src="images/charts/linestacked100.png" />
@@ -4022,7 +3855,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('linestep')}
 								>
 									<img alt="" src="images/charts/linestep.png" />
@@ -4036,7 +3868,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('profile')}
 								>
 									<img alt="" src="images/charts/profile.png" />
@@ -4051,9 +3882,9 @@ export class CanvasToolBar extends Component {
 						>
 							<div
 								style={{
-									backgroundColor: Colors.blue[800],
+									backgroundColor: gridTitleColor,
 									color: 'white',
-									fontSize: '10pt',
+									fontSize: '9pt',
 									padding: '3px'
 								}}
 							>
@@ -4067,7 +3898,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('area')}
 								>
 									<img alt="" src="images/charts/area.png" />
@@ -4081,7 +3911,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('areastacked')}
 								>
 									<img alt="" src="images/charts/areastacked.png" />
@@ -4091,11 +3920,15 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamChart.AreaStacked100" defaultMessage="Area Stacked 100" />}
+								title={
+									<FormattedMessage
+										id="StreamChart.AreaStacked100"
+										defaultMessage="Area Stacked 100"
+									/>
+								}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('areastacked100')}
 								>
 									<img alt="" src="images/charts/areastacked100.png" />
@@ -4110,9 +3943,9 @@ export class CanvasToolBar extends Component {
 						>
 							<div
 								style={{
-									backgroundColor: Colors.blue[800],
+									backgroundColor: gridTitleColor,
 									color: 'white',
-									fontSize: '10pt',
+									fontSize: '9pt',
 									padding: '3px'
 								}}
 							>
@@ -4126,7 +3959,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('scattermarker')}
 								>
 									<img alt="" src="images/charts/scattermarker.png" />
@@ -4136,11 +3968,15 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamChart.ScatterLineMarker" defaultMessage="Scatter with Line and Markers" />}
+								title={
+									<FormattedMessage
+										id="StreamChart.ScatterLineMarker"
+										defaultMessage="Scatter with Line and Markers"
+									/>
+								}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('scatterlinemarker')}
 								>
 									<img alt="" src="images/charts/scatterlinemarker.png" />
@@ -4150,11 +3986,12 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<Tooltip
 								enterDelay={300}
-								title={<FormattedMessage id="StreamChart.ScatterLine" defaultMessage="Scatter with Line" />}
+								title={
+									<FormattedMessage id="StreamChart.ScatterLine" defaultMessage="Scatter with Line" />
+								}
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('scatterline')}
 								>
 									<img alt="" src="images/charts/scatterline.png" />
@@ -4168,7 +4005,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('bubble')}
 								>
 									<img alt="" src="images/charts/bubble.png" />
@@ -4182,7 +4018,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('heatmap')}
 								>
 									<img alt="" src="images/charts/heatmap.png" />
@@ -4197,9 +4032,9 @@ export class CanvasToolBar extends Component {
 						>
 							<div
 								style={{
-									backgroundColor: Colors.blue[800],
+									backgroundColor: gridTitleColor,
 									color: 'white',
-									fontSize: '10pt',
+									fontSize: '9pt',
 									padding: '3px'
 								}}
 							>
@@ -4213,7 +4048,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('pie')}
 								>
 									<img alt="" src="images/charts/pie.png" />
@@ -4227,7 +4061,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('piehalf')}
 								>
 									<img alt="" src="images/charts/halfpie.png" />
@@ -4241,7 +4074,6 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('pie3d')}
 								>
 									<img alt="" src="images/charts/pie3d.png" />
@@ -4255,16 +4087,13 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton
 									style={{ borderRadius: '0%', padding: '0px', width: '40px', height: '40px' }}
-									color="inherit"
 									onClick={() => this.onCreatePlot('doughnut')}
 								>
 									<img alt="" src="images/charts/doughnut.png" />
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
-						<ChartExtensions
-							onCreatePlot={this.onCreatePlot}
-						/>
+						<ChartExtensions titleColor={gridTitleColor} onCreatePlot={this.onCreatePlot} />
 					</GridList>
 				</Popover>
 				<Tooltip
@@ -4272,9 +4101,9 @@ export class CanvasToolBar extends Component {
 					title={<FormattedMessage id="Tooltip.SelectShapes" defaultMessage="Select Shapes" />}
 				>
 					<div>
-						<IconButton onClick={this.onSelectShapes} style={buttonStyle} color="inherit">
+						<IconButton onClick={this.onSelectShapes} style={buttonStyle}>
 							<SvgIcon>
-								<g fill="#444444">
+								<g>
 									<path d="M11,17V19H9V17H11M7,17V19H5V17H7M19,9V11H17V9H19M19,5V7H17V5H19M15,5V7H13V5H15M11,5V7H9V5H11M7,5V7H5V5H7M7,13V15H5V13H7M7,9V11H5V9H7Z" />
 									<path
 										transform="translate(10 10) scale(0.6 0.6)"
@@ -4296,7 +4125,7 @@ export class CanvasToolBar extends Component {
 					<div
 						style={{
 							right: '10px',
-							position: 'absolute',
+							position: 'absolute'
 						}}
 					>
 						<CustomTooltip header="Tooltip.ZoomHeader" message="Tooltip.ZoomMessage">
@@ -4321,7 +4150,6 @@ export class CanvasToolBar extends Component {
 							<IconButton style={buttonStyle} aria-label="Zoom" onClick={this.onAlignSheets}>
 								<SvgIcon>
 									<path
-										fill="#757575"
 										// eslint-disable-next-line max-len
 										d="M3,11H11V3H3M3,21H11V13H3M13,21H21V13H13M13,3V11H21V3"
 									/>
@@ -4450,7 +4278,7 @@ export class CanvasToolBar extends Component {
 						</GridListTile>
 					</GridList>
 				</Popover>
-			</Toolbar>
+			</AppBar>
 		);
 	}
 }
@@ -4475,4 +4303,4 @@ function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CanvasToolBar);
+export default withStyles(styles, { withTheme: true })(connect(mapStateToProps, mapDispatchToProps)(CanvasToolBar));

@@ -8,16 +8,19 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { isType } = require('../utils');
-const { jsonpath } = require('@cedalo/commons');
-const { Functions } = require('@cedalo/parser');
+const { clone, jsonpath } = require('@cedalo/commons');
 const IdGenerator = require('@cedalo/id-generator');
+const { Functions } = require('@cedalo/parser');
+const { isType } = require('../utils');
 
 const clear = (obj) => Object.keys(obj).forEach((key) => delete obj[key]);
 const now = () => (Functions.NOW ? Functions.NOW() : Date.now());
+// handle if data is not an object or array
+const ensureDataObject = (data) => (typeof data === 'object' || Array.isArray(data) ? data : { value: data });
+const cloneData = (data) => clone(data) || data;
 
 /**
- * A class representing a message.
+ * A class representing a message. Deep copies provided data object!!
  *
  * @class Message
  * @public
@@ -26,7 +29,7 @@ module.exports = class Message {
 	constructor(data = {}, id) {
 		// read only properties...
 		Object.defineProperties(this, {
-			data: { value: data, enumerable: true },
+			data: { value: cloneData(ensureDataObject(data)), enumerable: true },
 			metadata: { value: {}, enumerable: true }
 		});
 		this.metadata.id = id || IdGenerator.generate();
@@ -56,8 +59,6 @@ module.exports = class Message {
 		return null;
 	}
 
-	// NOTE: this is NOT a deep copy! => using JSON has probs with Date and possible cyclic references...
-	// => currently no problem, since messages are only read... => make them immutable!!
 	copy() {
 		const msg = new Message(this.data, this.id);
 		Object.assign(msg.metadata, this.metadata);

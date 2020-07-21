@@ -12,7 +12,7 @@ const { isType } = require('../utils');
 const { Operand } = require('@cedalo/parser');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
-const CELL_VALUE_REPLACEMENT = '{ JSON Object }';
+const CELL_VALUE_REPLACEMENT = '{ JSON }';
 
 const isValueType = (term) => {
 	const type = term.operand.type;
@@ -43,6 +43,7 @@ const evaluate = (cell, newValue) => {
 
 // DL-4113 prevent displaying values like [object Object]...
 const valueDescription = (value) => {
+	if (Array.isArray(value)) return CELL_VALUE_REPLACEMENT;
 	if (isType.object(value)) {
 		const descr = value.toString();
 		return descr.startsWith('[object Object]') ? CELL_VALUE_REPLACEMENT : descr;

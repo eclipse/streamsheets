@@ -174,6 +174,26 @@ module.exports = {
 			en: { argumentList: 'Cell', description: 'Deprecated! Please use CONTINUE instead' },
 			de: { argumentList: 'Zelle', description: 'Veraltet! Bitte stattdessen CONTINUE verwenden' }
 		},
+		'HTTP.REQUEST': {
+			en: {
+				argumentList: 'Producer,URL,Method,Target,ResultKeys,Body,Headers,Timeout',
+				description: 'Create an asynchronous calls to a REST service'
+			},
+			de: {
+				argumentList: 'Producer,URL,Methode,Ziel,ResultKeys,Body,Headers,Timeout',
+				description: 'Erlaubt Aufrufe in einen REST Dienst'
+			}
+		},
+		'HTTP.RESPOND': {
+			en: {
+				argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
+				description: 'Sends data to a Producer that send a data object previously'
+			},
+			de: {
+				argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
+				description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId'
+			}
+		},
 		INBOX: {
 			en: {
 				argumentList: 'Streamsheet,Message',
@@ -206,42 +226,23 @@ module.exports = {
 		},
 		JSON: {
 			en: {
-				argumentList: 'RangeOrText,ResultAsText',
-				description: 'Converts given cell range or text to JSON'
+				argumentList: 'RangeOrTextOrMessageElement,ResultAsText',
+				description: 'Converts given cell range, text or message element to JSON'
 			},
 			de: {
-				argumentList: 'ZellbereichOderText,ErgebnisAlsText',
-				description: 'Konvertiert den angebenen Zellbereich oder Text in ein JSON Objekt'
+				argumentList: 'ZellbereichOderTextOderNachrichtelement,ErgebnisAlsText',
+				description: 'Wandelt den angebenen Zellbereich, Text oder Nachrichtenelement in ein JSON Objekt um'
 			}
 		},
-		JSONVALUE: {
+		'JSON.VALUE': {
 			en: {
 				argumentList: 'JSON,key1,key2...',
 				description: 'Returns the value from JSON object which corresponds to the path specified by given keys'
 			},
 			de: {
 				argumentList: 'JSON,Schlüssel1,Schlüssel2...',
-				description: 'Gibt den, zu dem durch die Schlüssel definerten Pfad, passenden Wert des JSON Objekts zurück'
-			}
-		},
-		'HTTP.REQUEST': {
-			en: {
-				argumentList: 'Producer,URL,Method,Target,ResultKeys,Body,Headers,Timeout',
-				description: 'Create an asynchronous calls to a REST service'
-			},
-			de: {
-				argumentList: 'Producer,URL,Methode,Ziel,ResultKeys,Body,Headers,Timeout',
-				description: 'Erlaubt Aufrufe in einen REST Dienst'
-			}
-		},
-		'HTTP.RESPOND': {
-			en: {
-				argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
-				description: 'Sends data to a Producer that send a data object previously'
-			},
-			de: {
-				argumentList: 'Consumer,RequestId,Body,StatusCode,Headers',
-				description: 'Sendet Daten an einen Producer mit Hilfe der DataObjectId'
+				description:
+					'Gibt den, zu dem durch die Schlüssel definerten Pfad, passenden Wert des JSON Objekts zurück'
 			}
 		},
 		'KAFKA.QUERY': {
@@ -388,6 +389,16 @@ module.exports = {
 				description: 'Erzeugt einen JSON Schlüssel mit den gegebenen Werten für den Datenbereich'
 			}
 		},
+		'OUTBOX.GETIDS': {
+			en: {
+				argumentList: 'IdFilterText',
+				description: 'Returns a list of message IDs which match given filter'
+			},
+			de: {
+				argumentList: 'IdFilterText',
+				description: 'Liefert eine Liste von zum Filter passenden Nachrichten IDs zurück'
+			}
+		},
 		PRODUCE: {
 			en: {
 				argumentList: 'Producer,JSONConfiguration',
@@ -410,12 +421,12 @@ module.exports = {
 		},
 		READ: {
 			en: {
-				argumentList: 'Key,TargetCellOrRange,Type,Direction,CacheLastValue',
+				argumentList: 'Key,TargetCellOrRange,Type,Direction,ErrorOnMissing',
 				description: 'Reads the values from a JSON object using the given key'
 			},
 			de: {
-				argumentList: 'Schüssel,ZielzelleOderBereich,Typ,Richtung,LetztenWertMerken',
-				description: 'Kopiert die Werte aus einem JSON Objekt mit dem gegebenen Schlüssel in die Zelle'
+				argumentList: 'Schlüssel,ZielzelleOderBereich,Typ,Richtung,FehlerBeiFehlend',
+				description: 'Kopiert die Werte aus einem JSON Objekt mit dem gegebenen Schlüssel in einen Zellbereich'
 			}
 		},
 		REFRESH: {
@@ -531,6 +542,16 @@ module.exports = {
 				description: 'Tauscht die Werte aus Bereich1 mit denen im Bereich2'
 			}
 		},
+		'TABLE.UPDATE': {
+			en: {
+				argumentList: 'CellRange,Value,RowIndex,ColumnIndex,PushRow,PushColumn',
+				description: 'Creates and updates a defined cell range in a table like manner'
+			},
+			de: {
+				argumentList: 'Zellbereich,Wert,ZeilenIndex,SpaltenIndex,ZeileAnhängen,SpalteAnhängen',
+				description: 'Erzeugt und aktualisiert einen Zellbereich in einer Tabellen-ähnlichen Weise'
+			}
+		},
 		TRIGGERSTEP: {
 			en: {
 				argumentList: '',
@@ -542,10 +563,13 @@ module.exports = {
 			}
 		},
 		WRITE: {
-			en: { argumentList: 'Key,Value,Type', description: 'Adds the key and value to a JSON object' },
+			en: {
+				argumentList: 'Key,Value,Type,TTL',
+				description: 'Adds the key and value to a mesasge in the outbox'
+			},
 			de: {
-				argumentList: 'Schüssel,Value,Typ',
-				description: 'Fügt den Schlüssel und den Wert einem JSON Objekt zu'
+				argumentList: 'Schlüssel,Value,Typ,TTL',
+				description: 'Fügt den Schlüssel und den Wert zu einer Nachricht in der Outbox zu'
 			}
 		}
 	}

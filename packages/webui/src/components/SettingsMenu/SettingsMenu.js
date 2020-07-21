@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -10,8 +10,8 @@
  ********************************************************************************/
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -20,7 +20,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Avatar from '@material-ui/core/Avatar';
 import * as Colors from '@material-ui/core/colors';
-import { FormattedMessage } from 'react-intl';
+import {FormattedMessage} from 'react-intl';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -47,7 +47,8 @@ import CardHeader from '@material-ui/core/CardHeader';
 import Typography from '@material-ui/core/es/Typography/Typography';
 
 import * as Actions from '../../actions/actions';
-import { graphManager } from '../../GraphManager';
+import {graphManager} from '../../GraphManager';
+import {withStyles} from '@material-ui/core/styles';
 
 const TabContainer = (props) => (
 		<Typography component="div" style={{ padding: 8 * 3 }}>
@@ -82,6 +83,7 @@ export class SettingsMenu extends React.Component {
 		super(props);
 		this.state = {
 			experimental: false,
+			theme: localStorage.getItem('theme') ? localStorage.getItem('theme') : 'Default',
 			prevLocale: 'en',
 			tab: 'status'
 		};
@@ -158,6 +160,12 @@ export class SettingsMenu extends React.Component {
 		});
 	}
 
+	handleThemeChange(event) {
+		this.setState({theme: event.target.value});
+		localStorage.setItem('theme', event.target.value);
+		location.reload();
+	}
+
 	renderServiceDetails(service) {
 		return service && service.instances && Object.keys(service.instances).length > 0 ?
 			Object.keys(service.instances).map((key) => {
@@ -226,7 +234,7 @@ export class SettingsMenu extends React.Component {
 							subheader={<address style={{ color: Colors.grey[50] }}>{user ? user.mail : ""}</address>}
 							avatar={<Avatar alt="Remy Sharp" src="images/avatar.png" />}
 							style={{
-								backgroundColor: Colors.blue[800],
+								backgroundColor: this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
 							}}
 						/>
 					</Card>
@@ -282,7 +290,7 @@ export class SettingsMenu extends React.Component {
 								</div>
 							) : null }
 							{ user && user.settings ? (
-								<div>
+								<div style={{display: 'flex', flexDirection: 'column'}}>
 									<FormControl style={{ marginTop: '20px' }}>
 										<InputLabel htmlFor="language-selection">
 											<FormattedMessage
@@ -293,7 +301,6 @@ export class SettingsMenu extends React.Component {
 										<Select
 											value={this.props.locale}
 											onChange={event => this.handleLanguageChange(event)}
-											fullWidth
 											input={<Input
 												defaultValue={ !this.props.locale ? "en" : undefined }
 												name="language-selection"
@@ -314,6 +321,36 @@ export class SettingsMenu extends React.Component {
 											</MenuItem>
 										</Select>
 									</FormControl>
+									{this.props.experimental ? (
+									<FormControl style={{ marginTop: '20px' }}>
+										<InputLabel htmlFor="theme-selection">
+											<FormattedMessage
+												id="Theme"
+												defaultMessage="Theme"
+											/>
+										</InputLabel>
+										<Select
+											value={this.state.theme}
+											onChange={event => this.handleThemeChange(event)}
+											input={<Input
+												name="theme-selection"
+												id="theme-selection"
+											/>}
+										>
+											<MenuItem value="Default">
+												<FormattedMessage
+													id="Default"
+													defaultMessage="Default"
+												/>
+											</MenuItem>
+											<MenuItem value="Dark">
+												<FormattedMessage
+													id="Dark"
+													defaultMessage="Dark"
+												/>
+											</MenuItem>
+										</Select>
+									</FormControl> ) : null}
 								</div>) : null}
 						</div>
 					</DialogContent>
@@ -357,7 +394,7 @@ export class SettingsMenu extends React.Component {
 									position: 'relative',
 								}}
 							>
-								<Tabs value={tab} onChange={this.handleTabChange}>
+								<Tabs textColor="primary" value={tab} onChange={this.handleTabChange}>
 									<Tab value="status" label={<FormattedMessage
 										id="Info.SystemStatusTitle"
 										defaultMessage="System status and version"
@@ -530,4 +567,4 @@ function mapDispatchToProps(dispatch) {
 	return bindActionCreators(Actions, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SettingsMenu);
+export default withStyles({}, { withTheme: true })(connect(mapStateToProps, mapDispatchToProps)(SettingsMenu));

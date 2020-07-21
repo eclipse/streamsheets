@@ -9,7 +9,6 @@
  *
  ********************************************************************************/
 import AppBar from '@material-ui/core/AppBar';
-import * as Colors from '@material-ui/core/colors';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import Toolbar from '@material-ui/core/Toolbar';
 import PropTypes from 'prop-types';
@@ -249,8 +248,8 @@ export function MachineDetailPage(props) {
 							</React.Fragment>
 						) : null}
 						<AppBar
+							color={isConnected ? "primary" : "error"}
 							style={{
-								background: isConnected ? Colors.blue[800] : Colors.red[900],
 								visibility: showTools_ ? 'visible' : 'hidden',
 								display: showTools_ ? 'flex' : 'none',
 								margin: 0,
@@ -296,17 +295,7 @@ export function MachineDetailPage(props) {
 							{canEditMachine ? (
 								<React.Fragment>
 									<CanvasToolBar />
-									<div
-										style={{
-											position: 'relative',
-											height: '100%',
-											width: '100%',
-											margin: 0,
-											padding: 0
-										}}
-									>
-										<EditBarComponent />
-									</div>
+									<EditBarComponent />
 								</React.Fragment>
 							) : null}
 						</AppBar>

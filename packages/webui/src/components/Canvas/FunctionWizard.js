@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -15,6 +15,8 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import Paper from '@material-ui/core/Paper';
+import AppBar from '@material-ui/core/AppBar';
 import Typography from '@material-ui/core/Typography';
 import { Field } from '@cedalo/sdk-streams';
 import JSG from '@cedalo/jsg-ui';
@@ -479,9 +481,10 @@ class FunctionWizard extends Component {
 
 	render() {
 		return (
-			<div
+			<Paper
+				square
+				elevation={0}
 				style={{
-					backgroundColor: '#FFFFFF',
 					border: '1px solid grey',
 					position: 'absolute',
 					top: '-1px',
@@ -493,22 +496,28 @@ class FunctionWizard extends Component {
 					zIndex: '1250'
 				}}
 			>
-				<div
+				<AppBar
+					elevation={0}
 					style={{
 						width: '100%',
 						height: '48px',
-						backgroundColor: 'grey'
+						display: 'flex',
+						backgroundColor: 'dimgrey',
+						flexDirection: 'row',
+						position: 'relative',
 					}}
 				>
 					<Typography
 						style={{
+							padding: '12px 0px 12px 8px',
+							display: 'inline-block',
+							fontSize: '12pt',
 							color: 'white',
-							padding: '15px'
 						}}
 					>
 						Function Wizard
 					</Typography>
-				</div>
+				</AppBar>
 				<Typography component="div" onKeyDown={this.handleKeyPressed}>
 					<FormControl style={styles.formControl}>
 						<InputLabel htmlFor="functionWizard.function">
@@ -565,7 +574,7 @@ class FunctionWizard extends Component {
 						<FormattedMessage id="OK" defaultMessage="OK" />
 					</Button>
 				</Typography>
-			</div>
+			</Paper>
 		);
 	}
 }

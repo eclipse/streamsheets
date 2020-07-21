@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const MESSAGES = require('../_data/messages.json');
-const { createTerm } = require('../utilities');
+const { createCellAt, createTerm } = require('../utilities');
 const { Cell, Machine, Message, SheetIndex, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
@@ -1247,6 +1247,22 @@ describe('read', () => {
 				expect(t1.sheet.cellAt('B3').value).toBe('Message');
 			});
 		});
+		// DL-3953 & DL-4049
+		it('should always return last part of path even if no target range is specfied', async () => {
+		// it('should return value if no target range is specfied', async () => {
+			const machine = new Machine();
+			const sheet = new StreamSheet().sheet;
+			machine.addStreamSheet(sheet.streamsheet);
+			sheet.streamsheet.inbox.put(new Message({ Timestamp: 1594729931967 }));
+			createCellAt('A1', { formula: 'read(inboxdata(,,"Timestamp"))'}, sheet);
+			await machine.step();
+			// expect(sheet.cellAt('A1').value).toBe(1594729931967);
+			expect(sheet.cellAt('A1').value).toBe('Timestamp');
+			createCellAt('A1', { formula: 'read(inboxdata(,,"Timestamp"),,,,TRUE)'}, sheet);
+			await machine.step();
+			// expect(sheet.cellAt('A1').value).toBe(1594729931967);
+			expect(sheet.cellAt('A1').value).toBe('Timestamp');
+		});
 		// DL-4049
 		it('should read inbox message', () => {
 			const machine = new Machine();
@@ -1302,6 +1318,41 @@ describe('read', () => {
 			expect(sheet.cellAt('B9').value).toBe(10);
 			expect(sheet.cellAt('B10').value).toBe(10194);
 			expect(sheet.cellAt('B11').value).toBe('ITS Test Wi-Re');
+		});
+		// DL-4216
+		it('should write cell with json value if an object value is read', () => {
+			const sheet = setup({ streamsheetName: 'T1' });
+			// read array:
+			expect(createTerm('read(inboxdata("T1","msg-simple","Positionen"),B2)', sheet).value).toBe("Positionen");
+			let cell = sheet.cellAt('B2');
+			expect(cell).toBeDefined();
+			expect(cell.description().value).toBe(Cell.VALUE_REPLACEMENT);
+			expect(Array.isArray(cell.value)).toBe(true);
+			expect(cell.value[0]).toEqual({ PosNr: 1, Artikelnr: 1234, Preis: 80.0 });
+			expect(cell.value[1]).toEqual({ PosNr: 2, Artikelnr: 12345, Preis: 59.99 });
+			expect(cell.value[2]).toEqual({ PosNr: 3, Artikelnr: 4535, Preis: 45.32 });
+			// read object:
+			expect(createTerm('read(inboxdata("T1","msg-simple","Kundenname"),B2)', sheet).value).toBe("Kundenname");
+			cell = sheet.cellAt('B2');
+			expect(cell).toBeDefined();
+			expect(cell.description().value).toBe(Cell.VALUE_REPLACEMENT);
+			expect(typeof cell.value).toBe('object');
+			expect(cell.value.Vorname).toBe('Max');
+			expect(cell.value.Nachname).toBe('Mustermann');
+		});
+		// DL-4239
+		it('should not set last value to target cell if message path has changed', async () => {
+			const machine = new Machine();
+			const sheet = new StreamSheet().sheet;
+			machine.addStreamSheet(sheet.streamsheet);
+			machine.outbox.put(new Message({ value: 42 }, 'Id1'));
+			createCellAt('A1', 'Id1', sheet);
+			createCellAt('A2', { formula: 'read(outboxdata(A1, "value"),B2)' }, sheet);
+			await machine.step();
+			expect(sheet.cellAt('B2').value).toBe(42);
+			createCellAt('A1', 'Unknown-Id', sheet);
+			await machine.step();
+			expect(sheet.cellAt('B2').value).toBe('');
 		});
 	});
 

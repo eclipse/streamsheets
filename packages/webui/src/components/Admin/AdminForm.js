@@ -178,6 +178,8 @@ class AdminForm extends Component {
 					{cardHeader || <ResourceCardHeader
 						showProgressing
 						showState={showState}
+						buttonColor="white"
+						buttonColorDisabled="lightGrey"
 						handleClicked={this.handleAction}
 						resource={resource}
 						titleAttribute="name"

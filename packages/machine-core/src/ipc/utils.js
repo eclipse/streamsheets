@@ -103,6 +103,7 @@ const getCellFromReference = (str, sheet) => {
 	return { sheet, cell: sheet ? sheet.cellAt(str) : undefined };
 };
 
+
 module.exports = {
 	cellDescriptor,
 	cellDescriptorAsObject,
@@ -112,8 +113,8 @@ module.exports = {
 	getSheetCellsAsObject,
 	isNotRunning,
 	isNotStepping,
-	publishIf,
 	mapSheetCells,
+	publishIf,
 	reduceSheetCells,
 	updateNamedCellRefs
 };

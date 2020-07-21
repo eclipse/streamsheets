@@ -465,7 +465,7 @@ export class FormatCellsDialog extends React.Component {
 						width: '800px',
 					}}
 				>
-					<Tabs value={tabSelected} onChange={this.handleChange}>
+					<Tabs textColor="primary" value={tabSelected} onChange={this.handleChange}>
 						<Tab label={<FormattedMessage id="FormatCellsDialog.numberFormat" defaultMessage="Number" />} />
 						<Tab label={<FormattedMessage id="FormatCellsDialog.font" defaultMessage="Font" />} />
 						<Tab label={<FormattedMessage id="FormatCellsDialog.cellFormat" defaultMessage="Cell Format" />} />

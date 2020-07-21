@@ -10,7 +10,6 @@
  ********************************************************************************/
 import AppBar from '@material-ui/core/AppBar';
 import Grid from '@material-ui/core/Grid';
-import * as Colors from '@material-ui/core/colors';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import Toolbar from '@material-ui/core/Toolbar';
 import PropTypes from 'prop-types';
@@ -38,6 +37,7 @@ import { AdminNavigation } from './AdminNavigation';
 import HelpButton from './HelpButton';
 import GridViewButton from './GridViewButton';
 import FilterName from '../components/base/listing/FilterName';
+import Wall from '../components/HelperComponent/Wall';
 
 
 export const AdminPageLayoutComponent = (props) => {
@@ -98,8 +98,8 @@ export const AdminPageLayoutComponent = (props) => {
 					<ServerStatusDialog noStreams={!requireStreams} noMachines />
 					<ErrorDialog />
 					<AppBar
+						color={props.isMachineEngineConnected ? "primary" : "error"}
 						style={{
-							background: isMachineEngineConnected ? Colors.blue[800] : Colors.red[900],
 							display: 'flex',
 							margin: 0,
 							padding: 0,
@@ -167,9 +167,11 @@ export const AdminPageLayoutComponent = (props) => {
 					style={{ height: 'calc(100% - 58px)', flexWrap: 'nowrap' }}
 				>
 					<Grid item style={{ width: '200px', borderRight: '1px solid grey' }}>
-						<AdminNavigation selection={page} />
+						<Wall overflow>
+							<AdminNavigation selection={page} />
+						</Wall>
 					</Grid>
-					<Grid item style={{ height: '100%', flexGrow: 1, background: '#EEE', overflow: 'auto'}}>
+					<Grid item style={{ height: '100%', backgroundColor: theme.wall.backgroundColor, flexGrow: 1, overflow: 'auto'}}>
 						{children}
 					</Grid>
 				</Grid>

@@ -183,12 +183,10 @@ class Connectors extends Component {
 					: false}
 				titleAttribute="name"
 				resources={connectors}
-				icon={AdminConstants.GRID_CONFIG.ConnectorConfiguration.icon}
 				menuOptions={options}
 				onFilter={this.onFilter}
 				onMenuSelect={this.handleMenuSelect}
 				onResourceOpen={this.onResourceOpen}
-				headerBackgroundColor={AdminConstants.GRID_CONFIG.ConnectorConfiguration.headerBackgroundColor}
 				handleReload={canControl
 					? this.handleReloadAll(connectors)
 					: undefined}

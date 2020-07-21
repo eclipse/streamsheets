@@ -164,6 +164,7 @@ class SheetDrawings extends Drawings {
 }
 
 module.exports = {
+	ObjectTerm,
 	SheetDrawings,
 	SheetParser
 };

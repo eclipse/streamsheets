@@ -95,9 +95,6 @@ const validateTopicBasic = (topic) => {
 	if (topic.indexOf(' ') > -1) {
 		result.warnings.push(TOPIC_WARNINGS.TOPIC_WITH_SPACES);
 	}
-	if (topic.indexOf('$') > -1) {
-		result.warnings.push(TOPIC_WARNINGS.TOPIC_STARTS_RESERVED);
-	}
 	return result;
 };
 

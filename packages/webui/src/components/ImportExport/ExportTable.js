@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -28,7 +28,7 @@ export default function ExportTable(props) {
 	const numResources = props.resources.length;
 	const numSelected = selectionCount(props.selected);
 	return (
-		<Table style={{ background: 'white', overflowY: 'auto' }}>
+		<Table style={{ overflowY: 'auto' }}>
 			<TableHead>
 				<TableRow>
 					<TableCell padding="checkbox">

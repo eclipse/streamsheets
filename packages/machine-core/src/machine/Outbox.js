@@ -9,50 +9,46 @@
  *
  ********************************************************************************/
 const Message = require('./Message');
-const MessageBox = require('./MessageBox');
+const TTLMessageBox = require('./TTLMessageBox');
 
+const getMessage = (id, outbox, ttl) => {
+	let msg = outbox.peek(id);
+	if (!msg) {
+		msg = new Message({}, id);
+		outbox.put(msg, undefined, ttl);
+	}
+	return msg;
+};
 const DEF_CONF = {
-	max: 100, // -1, to signal no bounds...
+	// max: 100, // -1, to signal no bounds...
+	max: -1, // -1, to signal no bounds...
+	reverse: true,
 	type: 'Outbox'
 };
 
 /**
  * @type {module.Outbox}
  */
-class Outbox extends MessageBox {
+class Outbox extends TTLMessageBox {
 	constructor(cfg = {}) {
 		cfg = Object.assign({}, DEF_CONF, cfg);
 		super(cfg);
 	}
 
-	peek(id, create) {
-		let message = super.peek(id);
-		if (!message && create) {
-			message = new Message({}, id);
-			this.put(message);
-		}
-		return message;
+	getFirstMessages(n = 100) {
+		return super.getFirstMessages(n);
 	}
 
-	setMessageData(msgOrId, newdata) {
-		const message = typeof msgOrId === 'object' ? msgOrId : this.peek(msgOrId, true);
-		if (Array.isArray(newdata)) {
-			// create new message with an array as data and replace old one:
-			const msg = new Message(newdata, message.id);
-			Object.assign(msg.metadata, message.metadata);
-			this._replaceMessageWith(msg);
-		} else {
-			Object.assign(message.data, newdata);
+	setMessageData(msgOrId, newdata, ttl) {
+		const oldmsg = typeof msgOrId === 'object' ? msgOrId : getMessage(msgOrId, this, ttl);
+		const newmsg = new Message(newdata, oldmsg.id);
+		// combine metadata
+		Object.assign(newmsg.metadata, oldmsg.metadata);
+		// combine or replace data
+		if (!Array.isArray(oldmsg.data) && !Array.isArray(newmsg.data)) {
+			Object.assign(newmsg.data, Object.assign({}, oldmsg.data, newmsg.data));
 		}
-		// check if newdata != data before sending event...
-		this._emitter.emit('message_changed', message);
-	}
-	_replaceMessageWith(newMessage) {
-		this.messages.some((msg, index) => {
-			const foundIt = msg.id === newMessage.id;
-			if (foundIt) this.messages[index] = newMessage;
-			return foundIt;
-		});
+		this.replaceMessage(newmsg, ttl);
 	}
 }
 module.exports = Outbox;

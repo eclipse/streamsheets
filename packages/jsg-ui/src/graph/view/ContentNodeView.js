@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -11,6 +11,7 @@
 import { default as JSG, Point, Event, Rectangle, FormatAttributes } from '@cedalo/jsg-core';
 import NodeView from './NodeView';
 import ViewPanel from '../../ui/scrollview/ViewPanel';
+import MouseEvent from '../../ui/events/MouseEvent';
 import ScrollView from '../../ui/scrollview/ScrollView';
 import GraphItemView from "./GraphItemView";
 
@@ -29,7 +30,7 @@ class ContentNodeViewPanel extends ViewPanel {
 	constructor(contentView) {
 		super();
 
-		this.getFormat().setFillColor(JSG.bkColorGraph);
+		this.getFormat().setFillColor(JSG.theme.graph);
 		this.getFormat().setFillStyle(FormatAttributes.FillStyle.SOLID);
 		this._contentView = contentView;
 	}
@@ -273,6 +274,9 @@ class ContentNodeView extends NodeView {
 			return;
 		}
 
+		if (ev.type === MouseEvent.MouseEventType.DOWN) {
+			this._didScroll = true;
+		}
 		// this.translateFromParent(ev.location); event location is already translated...
 		this._scrollview.handleMouseEvent(ev);
 		if (ev.isConsumed) {

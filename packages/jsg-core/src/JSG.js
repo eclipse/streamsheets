@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -353,6 +353,28 @@ JSG.debug = {
 	info(message) {
 		if (this._isActive) ConsoleLogger.info(message);
 	}
+};
+
+JSG.theme = {
+	theme: 'Default',
+	graph: '#DDDDDD',
+	tool: '#EEEEEE',
+	caption: '#1565c0',
+	captiontext: '#FFFFFF',
+	frame: '#AAAAAA',
+	splitter: '#CFD8DC',
+	header: '#F2F2F2',
+	headertext: '#333333',
+	outline: '#777777',
+	sheet: '#FFFFFF',
+	grid: '#CCCCCC',
+	border: '#000000',
+	text: '#000000',
+	textlight: '#222222',
+	fill: '#FFFFFF',
+	filllight: '#F1F1F1',
+	feedbackFill: 'rgba(0,0,0,0.2)',
+	feedbackBorder: 'rgba(0,0,0,0.8)',
 };
 
 module.exports = JSG;
