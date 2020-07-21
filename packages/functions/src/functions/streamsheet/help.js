@@ -542,6 +542,16 @@ module.exports = {
 				description: 'Tauscht die Werte aus Bereich1 mit denen im Bereich2'
 			}
 		},
+		'TABLE.UPDATE': {
+			en: {
+				argumentList: 'CellRange,Value,RowIndex,ColumnIndex,PushRow,PushColumn',
+				description: 'Creates and updates a defined cell range in a table like manner'
+			},
+			de: {
+				argumentList: 'Zellbereich,Wert,ZeilenIndex,SpaltenIndex,ZeileAnhängen,SpalteAnhängen',
+				description: 'Erzeugt und aktualisiert einen Zellbereich in einer Tabellen-ähnlichen Weise'
+			}
+		},
 		TRIGGERSTEP: {
 			en: {
 				argumentList: '',
