@@ -9,8 +9,12 @@
  *
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
-const { AsyncRequest, runFunction } = require('@cedalo/functions').utils;
-const HTTPClient = require('@cedalo/http-client');
+const { AsyncRequest, runFunction } = require('../../utils');
+const { getInstance } = require('@cedalo/http-client');
+const { FunctionErrors } = require('@cedalo/error-codes');
+const { Message } = require('@cedalo/machine-core');
+
+const ERROR = FunctionErrors.code;
 
 const asString = (value) => value ? convert.toString(value) : '';
 
@@ -32,11 +36,11 @@ const request = (sheet, ...terms) =>
 		.mapNextArg((method) => asString(method.value, ERROR.VALUE))
 		.run((url, method) =>
 			AsyncRequest.create(sheet, request.context)
-				.request(() => HTTPClient.request({
+				.request(() => getInstance().request({
 					url,
 					method
 				}))
-				.response(createCallback(range, httpRequestID, sheet))
+				.response(defaultCallback)
 				.reqId()
 		);
 request.displayName =true;
