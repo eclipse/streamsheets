@@ -12,6 +12,7 @@ const database = require('./database');
 const date = require('./date');
 const drawing = require('./drawing');
 const engineering = require('./engineering');
+const http = require('./http');
 const info = require('./info');
 const logical = require('./logical');
 const lookup = require('./lookup');
@@ -28,6 +29,7 @@ module.exports = {
 	...date.functions,
 	...drawing.functions,
 	...engineering.functions,
+	...http.functions,
 	...info.functions,
 	...logical.functions,
 	...lookup.functions,
