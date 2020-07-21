@@ -25,6 +25,7 @@
   "peerDependencies": {
     "@cedalo/commons": "1.6.2",
     "@cedalo/error-codes": "1.6.2",
+    "@cedalo/http-client": "1.6.2",
     "@cedalo/id-generator": "1.6.2",
     "@cedalo/logger": "1.6.2",
     "@cedalo/machine-core": "1.6.2",
