@@ -58,7 +58,21 @@ const get = (sheet, ...terms) =>
 		);
 get.displayName = true;
 
+const post = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withMinArgs(1)
+		.withMaxArgs(1)
+		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.run((url) =>
+			AsyncRequest.create(sheet, request.context)
+				.request(() => getInstance().post(url, {}))
+				.response(defaultCallback)
+				.reqId()
+		);
+post.displayName = true;
+
 module.exports = {
 	'HTTP.REQUEST2': request,
 	'HTTP.GET': get,
+	'HTTP.POST': post
 };
