@@ -1,0 +1,46 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
+const { convert } = require('@cedalo/commons');
+const { AsyncRequest, runFunction } = require('@cedalo/functions').utils;
+const HTTPClient = require('@cedalo/http-client');
+
+const asString = (value) => value ? convert.toString(value) : '';
+
+const defaultCallback = (context, response, error) => {
+	const term = context.term;
+	const err = error || response.error;
+	if (term && !term.isDisposed) {
+		term.cellValue = err ? ERROR.RESPONSE : undefined;
+	}
+	console.log(response);
+	return err ? AsyncRequest.STATE.REJECTED : undefined;
+};
+
+const request = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withMinArgs(2)
+		.withMaxArgs(2)
+		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.mapNextArg((method) => asString(method.value, ERROR.VALUE))
+		.run((url, method) =>
+			AsyncRequest.create(sheet, request.context)
+				.request(() => HTTPClient.request({
+					url,
+					method
+				}))
+				.response(createCallback(range, httpRequestID, sheet))
+				.reqId()
+		);
+request.displayName =true;
+
+module.exports = {
+	'HTTP.REQUEST2': request
+};
