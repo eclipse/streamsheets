@@ -8,6 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const HTTPClient = require('./src/HTTPClient');
+const getInstance = require('./src/HTTPClient');
 
-module.exports = HTTPClient;
+module.exports = getInstance;
