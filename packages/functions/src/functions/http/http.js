@@ -43,8 +43,22 @@ const request = (sheet, ...terms) =>
 				.response(defaultCallback)
 				.reqId()
 		);
-request.displayName =true;
+request.displayName = true;
+
+const get = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withMinArgs(1)
+		.withMaxArgs(1)
+		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.run((url) =>
+			AsyncRequest.create(sheet, request.context)
+				.request(() => getInstance().get(url, {}))
+				.response(defaultCallback)
+				.reqId()
+		);
+get.displayName = true;
 
 module.exports = {
-	'HTTP.REQUEST2': request
+	'HTTP.REQUEST2': request,
+	'HTTP.GET': get,
 };
