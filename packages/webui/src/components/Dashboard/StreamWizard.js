@@ -53,18 +53,7 @@ const styles = () => ({
 
 class StreamWizard extends React.Component {
 	static propTypes = {
-		// getListElement: PropTypes.func,
 		open: PropTypes.bool.isRequired,
-		// onSubmit: PropTypes.func.isRequired,
-		// onClose: PropTypes.func.isRequired,
-		isUnique: PropTypes.func,
-		isValid: PropTypes.func,
-	};
-
-	static defaultProps = {
-		isUnique: () => true,
-		isValid: () => true,
-		// getListElement: (resource) => <ListItemText primary={resource.name} />,
 	};
 
 	constructor(props) {
@@ -100,7 +89,9 @@ class StreamWizard extends React.Component {
 
 	static getDerivedStateFromProps(props, state) {
 		if (state.activeStep === undefined) {
-			return {...state, activeStep: props.initialStep, connector: props.connector};
+			const name = StreamWizard.createUniqueConsumerName(props.connector, props)
+
+			return {...state, activeStep: props.initialStep, connector: props.connector, consumerName: name};
 		}
 		return { ...state };
 	}
@@ -124,6 +115,34 @@ class StreamWizard extends React.Component {
 			showAdvanced: false,
 		});
 	};
+
+	static createUniqueConsumerName(connector, props) {
+		let name;
+
+		if (connector) {
+			if (connector.name.indexOf('Connector') !== -1) {
+				name = connector.name.replace('Connector', 'Consumer')
+			} else {
+				const provider = props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration]
+					.find(p => p.id === connector.provider.id);
+				name = provider.name.replace('Provider', 'Consumer')
+			}
+		} else {
+			name = 'Consumer'
+		}
+
+		let i = 1;
+		let finalName = name;
+
+		while (props.streams[AdminConstants.CONFIG_TYPE.ConsumerConfiguration]
+			// eslint-disable-next-line no-loop-func
+			.find(p => p.name === finalName)) {
+			finalName = name + i;
+			i += 1;
+		}
+
+		return finalName;
+	}
 
 	getProviders = () => SortSelector.sort(this.props.streams.providers, this.state.sortQuery, this.state.filter);
 	getConnectors = () => SortSelector.sort(this.props.streams.connectors, this.state.sortQuery, this.state.filter);
@@ -189,16 +208,18 @@ class StreamWizard extends React.Component {
 		}
 	};
 
+	isNameUnique = (name) => {
+		const equalName = (s) => s.name.toLowerCase() === name.toLowerCase();
+		const { consumers, producers, connectors } = this.props.streams;
+		return !consumers.some(equalName) && !producers.some(equalName) && !connectors.some(equalName);
+	};
+
 	validateName = (name) => {
-		const { isUnique, isValid } = this.props;
 		if (!name || name.length < 1) {
 			return this.ERROR_MESSAGES.EMPTY;
 		}
-		if (!isUnique(name)) {
+		if (!this.isNameUnique(name)) {
 			return this.ERROR_MESSAGES.DUPLICATE;
-		}
-		if (!isValid(name)) {
-			return this.ERROR_MESSAGES.INVALID;
 		}
 		return '';
 	};
@@ -211,14 +232,8 @@ class StreamWizard extends React.Component {
 	};
 
 	handleConnectorSelection = (connector) => () => {
-		let name;
+		const name = StreamWizard.createUniqueConsumerName(connector, this.props)
 
-		if (connector && connector.name.indexOf('Connector') !== -1) {
-			name = connector.name.replace('Connector', 'Consumer')
-		} else {
-			name = 'Consumer'
-
-		}
 		this.setState({
 			connector,
 			consumerName: name,
@@ -681,8 +696,6 @@ class StreamWizard extends React.Component {
 								margin="normal"
 								value={activeStep === 'connectorname' ? this.state.connectorDescription : this.state.consumerDescription}
 								onChange={this.handleDescriptionChange}
-								error={typeof error === 'string' && error.length > 0}
-								helperText={error}
 							/>
 						</div>
 					) : null}

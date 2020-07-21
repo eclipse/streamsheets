@@ -39,9 +39,14 @@ import JSG from '@cedalo/jsg-ui';
 import StreamHelper from '../../helper/StreamHelper';
 import { accessManager } from '../../helper/AccessManager';
 import * as Actions from '../../actions/actions';
-import StreamSelector from '../StreamSelector/StreamSelector';
 import MachineHelper from '../../helper/MachineHelper';
 import { graphManager } from '../../GraphManager';
+import Table from '@material-ui/core/Table';
+import TableSortHeader from '../base/addNewDialog/TableSortHeader';
+import TableBody from '@material-ui/core/TableBody';
+import TableRow from '@material-ui/core/TableRow';
+import TableCell from '@material-ui/core/TableCell';
+import SortSelector from '../base/sortSelector/SortSelector';
 
 const { RESOURCE_ACTIONS } = accessManager;
 const {
@@ -112,6 +117,8 @@ export class InboxSettings extends React.Component {
 		const streams = getStreamsFromProps(props);
 		this.state = {
 			streams,
+			selected: { id: '' },
+			sortQuery: 'name_asc',
 			tabSelected: 0,
 			expanded: 'basic',
 			loopPathError: null,
@@ -274,9 +281,15 @@ export class InboxSettings extends React.Component {
 		return streams.map((s) => {
 			s.state = StreamHelper.getResourceState(s, this.props.streams.statusMap);
 			s.state = StreamHelper.getStatusFor(s.state);
+			s.provider = this.props.streams.providers.find(p => p.id === s.providerId)
 			return s;
 		});
 	};
+
+	getFormattedDateString(date) {
+		const dat = new Date(Date.parse(date));
+		return dat.toLocaleString(undefined, {year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'});
+	}
 
 	getTriggerType = () => {
 		const { type } = this.state.trigger;
@@ -500,10 +513,7 @@ export class InboxSettings extends React.Component {
 		});
 	};
 
-	handleStreamChange = (stream, event) => {
-		const streamId = event.target.value;
-		const streams = this.getStreams();
-		const newStream = streams.find((s) => s.id === streamId);
+	handleStreamChange = (newStream) => {
 		if (newStream) {
 			const streamDesc = {
 				name: newStream.name || 'none',
@@ -526,6 +536,33 @@ export class InboxSettings extends React.Component {
 		}
 	};
 
+	getResources = (streams) => SortSelector.sort(streams, this.state.sortQuery, this.state.filter);
+
+	handleTableSort = (event, property) => {
+		const orderBy = property;
+		let order = 'desc';
+
+		const sortObj = SortSelector.parseSortQuery(this.state.sortQuery);
+
+		if (sortObj.sortBy === property && sortObj.sortDir === 'desc') {
+			order = 'asc';
+		}
+
+		// this.setState({ order, orderBy });
+
+		const sortQuery = `${orderBy}_${order}`;
+		this.setState({
+			sortQuery
+		});
+
+	}
+
+	handleFilter = (event) => {
+		const filter = event.target.value;
+		this.setState({
+			filter,
+		});
+	};
 
 	handleTriggerChange = (event) => {
 		const type = event.target.value;
@@ -544,14 +581,14 @@ export class InboxSettings extends React.Component {
 	};
 
 	render() {
-		const { machine } = this.props;
-		const streams = this.getStreams();
-		if (!this.state.id) {
+		if (!this.state.id || !this.props.open) {
 			return null;
 		}
+		const streams = this.getStreams();
 		const canEdit = MachineHelper.currentMachineCan(RESOURCE_ACTIONS.EDIT);
-		const stream = this.state.inbox.stream ? this.state.inbox.stream : { id: 'none' };
-		const { tabSelected } = this.state;
+		// const stream = this.state.inbox.stream ? this.state.inbox.stream : { id: 'none' };
+		const sortObj = SortSelector.parseSortQuery(this.state.sortQuery);
+		const { tabSelected, selected } = this.state;
 		return (
 			<Dialog open={this.props.open} onClose={() => this.handleClose()} maxWidth={false}>
 				<DialogTitle>
@@ -570,13 +607,46 @@ export class InboxSettings extends React.Component {
 					</Tabs>
 					{tabSelected === 0 &&
 					<TabContainer>
-					<div>
-						<StreamSelector
-							disabled={machine.simulate || !canEdit}
-							streams={streams}
-							onChange={this.handleStreamChange}
-							value={stream}
-						/>
+					<div style={{display: 'flex'}}>
+						<div>
+						<Table>
+							<TableSortHeader
+								cells={[
+									{ id: 'state', numeric: false, disablePadding: false, label: 'State', width: '5%' },
+									{ id: 'name', numeric: false, disablePadding: true, label: 'Name', width: '45%' },
+									{ id: 'provider', numeric: false, disablePadding: true, label: 'Provider', width: '25%' },
+									{ id: 'lastModified', numeric: false, disablePadding: false, label: 'LastModified', width: '25%' },
+								]}
+								orderBy={sortObj.sortBy}
+								order={sortObj.sortDir}
+								onRequestSort={this.handleTableSort}
+							/>
+							<TableBody>
+								{this.getResources(streams).map((resource) => (
+									<TableRow
+										style={ {
+											height: '35px'
+										}}
+										hover
+										onClick={() => this.handleStreamChange(resource)}
+										selected={resource.id === selected.id}
+										tabIndex={-1}
+										key={`${resource.className}-${resource.id}`}
+									>
+										<TableCell>{resource.state}</TableCell>
+										<TableCell component="th" scope="row" padding="none">
+											{resource.name}
+										</TableCell>
+										<TableCell component="th" scope="row" padding="none">
+											{resource.provider.name}
+										</TableCell>
+										<TableCell>{this.getFormattedDateString(resource.lastModified)}</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+						</div>
+						<div>
 						<FormControl
 							disabled={!canEdit}
 							style={{
@@ -804,6 +874,7 @@ export class InboxSettings extends React.Component {
 								disabled={!canEdit}
 							/>
 						</FormGroup>
+						</div>
 					</div>
 					</TabContainer>}
 					{tabSelected === 1 &&
