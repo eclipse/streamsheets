@@ -66,7 +66,7 @@ const redisAPI = (inboxId, scopeId) => {
 
 	const push = async (message) => {
 		const jsonMessage = JSON.stringify(message.toJSON());
-		queue(inboxKey, jsonMessage);
+		return queue(inboxKey, jsonMessage);
 	};
 
 	const clear = async () => redis.del(inboxKey, inboxKeyPending);
