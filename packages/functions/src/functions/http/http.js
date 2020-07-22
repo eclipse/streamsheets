@@ -84,9 +84,24 @@ const put = (sheet, ...terms) =>
 				.reqId()
 		);
 put.displayName = true;
+
+const patch = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.withMinArgs(1)
+		.withMaxArgs(1)
+		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.run((url) =>
+			AsyncRequest.create(sheet, patch.context)
+				.request(() => getInstance().patch(url, '', {}))
+				.response(defaultCallback)
+				.reqId()
+		);
+patch.displayName = true;
 module.exports = {
 	'HTTP.REQUEST2': request,
 	'HTTP.GET': get,
 	'HTTP.POST': post,
 	'HTTP.PUT': put,
+	'HTTP.PATCH': patch,
 };
