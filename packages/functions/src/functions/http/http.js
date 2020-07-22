@@ -129,6 +129,20 @@ const trace = (sheet, ...terms) =>
 				.reqId()
 		);
 trace.displayName = true;
+
+const head = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.withMinArgs(1)
+		.withMaxArgs(1)
+		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.run((url) =>
+			AsyncRequest.create(sheet, head.context)
+				.request(() => getInstance().head(url, {}))
+				.response(defaultCallback)
+				.reqId()
+		);
+head.displayName = true;
 module.exports = {
 	'HTTP.REQUEST2': request,
 	'HTTP.GET': get,
@@ -137,4 +151,5 @@ module.exports = {
 	'HTTP.PATCH': patch,
 	'HTTP.DELETE': deleteFunction,
 	'HTTP.TRACE': trace,
+	'HTTP.HEAD': head,
 };
