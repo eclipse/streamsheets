@@ -98,6 +98,20 @@ const patch = (sheet, ...terms) =>
 				.reqId()
 		);
 patch.displayName = true;
+
+const deleteFunction = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.withMinArgs(1)
+		.withMaxArgs(1)
+		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.run((url) =>
+			AsyncRequest.create(sheet, deleteFunction.context)
+				.request(() => getInstance().delete(url, {}))
+				.response(defaultCallback)
+				.reqId()
+		);
+deleteFunction.displayName = true;
 module.exports = {
 	'HTTP.REQUEST2': request,
 	'HTTP.GET': get,
