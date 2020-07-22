@@ -30,6 +30,7 @@ const defaultCallback = (context, response, error) => {
 
 const request = (sheet, ...terms) =>
 	runFunction(sheet, terms)
+		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(2)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
@@ -47,6 +48,7 @@ request.displayName = true;
 
 const get = (sheet, ...terms) =>
 	runFunction(sheet, terms)
+		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(1)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
@@ -60,6 +62,7 @@ get.displayName = true;
 
 const post = (sheet, ...terms) =>
 	runFunction(sheet, terms)
+		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(1)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
