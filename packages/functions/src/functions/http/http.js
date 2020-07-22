@@ -22,6 +22,15 @@ const defaultCallback = (context, response, error) => {
 	context.term.scope.streamsheet.inbox.put(new Message(response.data))
 	const term = context.term;
 	const err = error || response.error;
+	if (err) {
+		const errorMessage = new Message(err);
+		message.metadata.label = `Error: ${term.name}`;
+		context.term.scope.streamsheet.inbox.put(errorMessage);
+	} else {
+		const message = new Message(response.data);
+		message.metadata.label = `${term.name}`;
+		context.term.scope.streamsheet.inbox.put(message);
+	}
 	if (term && !term.isDisposed) {
 		term.cellValue = err ? ERROR.RESPONSE : undefined;
 	}
