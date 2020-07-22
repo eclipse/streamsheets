@@ -47,6 +47,9 @@ module.exports = class MessageRoute {
 		case 'DELETE':
 			MessageRoute._handleMessage(request, response, {});
 			break;
+		case 'HEAD':
+			MessageRoute._handleMessage(request, response, {});
+			break;
 		default:
 			response.set('allow', 'GET, POST');
 			next(new httpError.MethodNotAllowed());
