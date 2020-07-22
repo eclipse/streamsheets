@@ -34,6 +34,16 @@ module.exports = class MessageRoute {
 			}
 			MessageRoute._handleMessage(request, response, message);
 			break;
+		case 'PUT':
+			message = request.body;
+			if (typeof message === 'string' && message.startsWith('json=')) {
+				message = message.substring(5);
+				message = JSON.parse(decodeURIComponent(message));
+			} else if(message.json) {
+				message = JSON.parse(decodeURIComponent(message.json));
+			}
+			MessageRoute._handleMessage(request, response, message);
+			break;
 		default:
 			response.set('allow', 'GET, POST');
 			next(new httpError.MethodNotAllowed());
