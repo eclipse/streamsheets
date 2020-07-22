@@ -44,6 +44,16 @@ module.exports = class MessageRoute {
 			}
 			MessageRoute._handleMessage(request, response, message);
 			break;
+		case 'PATCH':
+			message = request.body;
+			if (typeof message === 'string' && message.startsWith('json=')) {
+				message = message.substring(5);
+				message = JSON.parse(decodeURIComponent(message));
+			} else if(message.json) {
+				message = JSON.parse(decodeURIComponent(message.json));
+			}
+			MessageRoute._handleMessage(request, response, message);
+			break;
 		case 'DELETE':
 			MessageRoute._handleMessage(request, response, {});
 			break;
@@ -53,8 +63,11 @@ module.exports = class MessageRoute {
 		case 'OPTIONS':
 			MessageRoute._handleMessage(request, response, {});
 			break;
+		case 'TRACE':
+			MessageRoute._handleMessage(request, response, {});
+			break;
 		default:
-			response.set('allow', 'GET, POST, PUT, DELETE, HEAD, OPTIONS');
+			response.set('allow', 'GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE');
 			next(new httpError.MethodNotAllowed());
 			break;
 		}
