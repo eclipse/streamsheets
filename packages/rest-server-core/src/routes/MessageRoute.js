@@ -53,6 +53,7 @@ module.exports = class MessageRoute {
 			requestHandler.handleRequest({
 				topic,
 				message,
+				method: request.method,
 				expectResponse,
 				responseTimeout,
 				user,
