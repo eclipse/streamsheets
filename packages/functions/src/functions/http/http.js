@@ -143,6 +143,21 @@ const head = (sheet, ...terms) =>
 				.reqId()
 		);
 head.displayName = true;
+
+const options = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.withMinArgs(1)
+		.withMaxArgs(1)
+		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.run((url) =>
+			AsyncRequest.create(sheet, options.context)
+				.request(() => getInstance().options(url, {}))
+				.response(defaultCallback)
+				.reqId()
+		);
+options.displayName = true;
+
 module.exports = {
 	'HTTP.REQUEST2': request,
 	'HTTP.GET': get,
@@ -152,4 +167,5 @@ module.exports = {
 	'HTTP.DELETE': deleteFunction,
 	'HTTP.TRACE': trace,
 	'HTTP.HEAD': head,
+	'HTTP.OPTIONS': options
 };
