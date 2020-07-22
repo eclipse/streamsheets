@@ -68,7 +68,7 @@ const post = (sheet, ...terms) =>
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
 		.run((url) =>
 			AsyncRequest.create(sheet, post.context)
-				.request(() => getInstance().post(url, {}))
+				.request(() => getInstance().post(url, '', {}))
 				.response(defaultCallback)
 				.reqId()
 		);
