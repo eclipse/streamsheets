@@ -635,4 +635,99 @@ describe('table.update', () => {
 		expect(validateRowAt(7, range, [1594993340, null, null, null, 'hello4'])).toBe(true);
 		expect(validateRowAt(8, range, [null, null, null, null, null])).toBe(true);
 	});
+
+	// form loom video in DL-
+	it('should move values and column indices to right if insert new column index at left', async () => {
+		const machine = new Machine();
+		const sheet = new StreamSheet().sheet;
+		const range = SheetRange.fromRangeStr('A12:D15', sheet);
+		sheet.loadCells({
+			B3: 1595361360,
+			B4: 'Turbine 1',
+			B7: 1507.2,
+			B10: { formula: 'table.update(A12:D15,B7,B3,B4,-1,-1)' },
+			// predefine table range:
+								B12: 'Turbine 2',	C12:'Turbine 4',	D12: 'Turbine 3',
+			A13: 1595361360,	B13: 1004.8,							D13: 502.4,
+			A14: 1595361340,	B14: 1004.8,		C14: 1507.2,
+			A15: 1595361330,											D15: 1004.8,
+		});
+		machine.removeAllStreamSheets();
+		machine.addStreamSheet(sheet.streamsheet);
+		await machine.step();
+		expect(validateRowAt(12, range, [null, 'Turbine 1', 'Turbine 2', 'Turbine 4'])).toBe(true);
+		expect(validateRowAt(13, range, [1595361360, 1507.2, 1004.8, null])).toBe(true);
+		expect(validateRowAt(14, range, [1595361340, null, 1004.8, 1507.2])).toBe(true);
+		expect(validateRowAt(15, range, [1595361330, null, null, null])).toBe(true);
+		expect(validateRowAt(16, range, [null, null, null, null])).toBe(true);
+	});
+	it('should move values and column indices to left if insert new column index at right', async () => {
+		const machine = new Machine();
+		const sheet = new StreamSheet().sheet;
+		const range = SheetRange.fromRangeStr('A12:D15', sheet);
+		sheet.loadCells({
+			B3: 1595361360,
+			B4: 'Turbine 1',
+			B7: 1507.2,
+			B10: { formula: 'table.update(A12:D15,B7,B3,B4,1,1)' },
+			// predefine table range:
+								B12: 'Turbine 2',	C12:'Turbine 4',	D12: 'Turbine 3',
+			A13: 1595361360,	B13: 1004.8,							D13: 502.4,
+			A14: 1595361340,	B14: 1004.8,		C14: 1507.2,
+			A15: 1595361330,											D15: 1004.8,
+		});
+		machine.removeAllStreamSheets();
+		machine.addStreamSheet(sheet.streamsheet);
+		await machine.step();
+		expect(validateRowAt(12, range, [null, 'Turbine 4', 'Turbine 3', 'Turbine 1'])).toBe(true);
+		expect(validateRowAt(13, range, [1595361360, null, 502.4, 1507.2])).toBe(true);
+		expect(validateRowAt(14, range, [1595361340, 1507.2, null, null])).toBe(true);
+		expect(validateRowAt(15, range, [1595361330, null, 1004.8, null])).toBe(true);
+	});
+	it('should move values and row indices to top if insert new row index at bottom', async () => {
+		const machine = new Machine();
+		const sheet = new StreamSheet().sheet;
+		const range = SheetRange.fromRangeStr('A12:D15', sheet);
+		sheet.loadCells({
+			B3: 1595361320,
+			B4: 'Turbine 1',
+			B7: 1507.2,
+			B10: { formula: 'table.update(A12:D15,B7,B3,B4,1,-1)' },
+			// predefine table range:
+								B12: 'Turbine 2',	C12:'Turbine 4',	D12: 'Turbine 3',
+			A13: 1595361360,	B13: 1004.8,							D13: 502.4,
+			A14: 1595361340,	B14: 1004.8,		C14: 1507.2,
+			A15: 1595361330,											D15: 1004.8,
+		});
+		machine.removeAllStreamSheets();
+		machine.addStreamSheet(sheet.streamsheet);
+		await machine.step();
+		expect(validateRowAt(12, range, [null, 'Turbine 1', 'Turbine 2', 'Turbine 4'])).toBe(true);
+		expect(validateRowAt(13, range, [1595361340, null, 1004.8, 1507.2])).toBe(true);
+		expect(validateRowAt(14, range, [1595361330, null, null, null])).toBe(true);
+		expect(validateRowAt(15, range, [1595361320, 1507.2, null, null])).toBe(true);
+	});
+	it('should move values and row indices to bottom if insert new row index at top', async () => {
+		const machine = new Machine();
+		const sheet = new StreamSheet().sheet;
+		const range = SheetRange.fromRangeStr('A12:D15', sheet);
+		sheet.loadCells({
+			B3: 1595361320,
+			B4: 'Turbine 1',
+			B7: 1507.2,
+			B10: { formula: 'table.update(A12:D15,B7,B3,B4,-1,1)' },
+			// predefine table range:
+								B12: 'Turbine 2',	C12:'Turbine 4',	D12: 'Turbine 3',
+			A13: 1595361360,	B13: 1004.8,							D13: 502.4,
+			A14: 1595361340,	B14: 1004.8,		C14: 1507.2,
+			A15: 1595361330,											D15: 1004.8,
+		});
+		machine.removeAllStreamSheets();
+		machine.addStreamSheet(sheet.streamsheet);
+		await machine.step();
+		expect(validateRowAt(12, range, [null, 'Turbine 4', 'Turbine 3', 'Turbine 1'])).toBe(true);
+		expect(validateRowAt(13, range, [1595361320, null, null, 1507.2])).toBe(true);
+		expect(validateRowAt(14, range, [1595361360, null, 502.4, null])).toBe(true);
+		expect(validateRowAt(15, range, [1595361340, 1507.2, null, null])).toBe(true);
+	});
 });
