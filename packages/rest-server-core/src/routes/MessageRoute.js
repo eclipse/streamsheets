@@ -50,6 +50,9 @@ module.exports = class MessageRoute {
 		case 'HEAD':
 			MessageRoute._handleMessage(request, response, {});
 			break;
+		case 'OPTIONS':
+			MessageRoute._handleMessage(request, response, {});
+			break;
 		default:
 			response.set('allow', 'GET, POST');
 			next(new httpError.MethodNotAllowed());
