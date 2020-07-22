@@ -112,10 +112,29 @@ const deleteFunction = (sheet, ...terms) =>
 				.reqId()
 		);
 deleteFunction.displayName = true;
+
+const trace = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.withMinArgs(1)
+		.withMaxArgs(1)
+		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.run((url) =>
+			AsyncRequest.create(sheet, trace.context)
+				.request(() => getInstance().request({
+					url,
+					method: 'TRACE'
+				}))
+				.response(defaultCallback)
+				.reqId()
+		);
+trace.displayName = true;
 module.exports = {
 	'HTTP.REQUEST2': request,
 	'HTTP.GET': get,
 	'HTTP.POST': post,
 	'HTTP.PUT': put,
 	'HTTP.PATCH': patch,
+	'HTTP.DELETE': deleteFunction,
+	'HTTP.TRACE': trace,
 };
