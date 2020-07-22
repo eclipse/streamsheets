@@ -71,8 +71,22 @@ const post = (sheet, ...terms) =>
 		);
 post.displayName = true;
 
+const put = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.withMinArgs(1)
+		.withMaxArgs(1)
+		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.run((url) =>
+			AsyncRequest.create(sheet, put.context)
+				.request(() => getInstance().put(url, '', {}))
+				.response(defaultCallback)
+				.reqId()
+		);
+put.displayName = true;
 module.exports = {
 	'HTTP.REQUEST2': request,
 	'HTTP.GET': get,
-	'HTTP.POST': post
+	'HTTP.POST': post,
+	'HTTP.PUT': put,
 };
