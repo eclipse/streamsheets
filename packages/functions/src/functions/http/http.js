@@ -51,7 +51,7 @@ const get = (sheet, ...terms) =>
 		.withMaxArgs(1)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
 		.run((url) =>
-			AsyncRequest.create(sheet, request.context)
+			AsyncRequest.create(sheet, get.context)
 				.request(() => getInstance().get(url, {}))
 				.response(defaultCallback)
 				.reqId()
@@ -64,7 +64,7 @@ const post = (sheet, ...terms) =>
 		.withMaxArgs(1)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
 		.run((url) =>
-			AsyncRequest.create(sheet, request.context)
+			AsyncRequest.create(sheet, post.context)
 				.request(() => getInstance().post(url, {}))
 				.response(defaultCallback)
 				.reqId()
