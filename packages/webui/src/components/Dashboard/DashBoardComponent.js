@@ -33,6 +33,9 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Add from '@material-ui/icons/Add';
 import StreamTableRow from './StreamTableRow';
 import StreamWizard from './StreamWizard';
+import GridViewButton from '../../layouts/GridViewButton';
+
+const PREF_KEY_LAYOUT = 'streamsheets-prefs-listing-layout';
 
 const styles = (theme) => ({
 	tableRoot: {
@@ -62,6 +65,7 @@ class DashBoardComponent extends Component {
 			filter: [],
 			editStream: false,
 			type: '',
+			layout: localStorage.getItem(PREF_KEY_LAYOUT),
 		};
 	}
 
@@ -414,6 +418,12 @@ class DashBoardComponent extends Component {
 		});
 	};
 
+	updateLayout(layout) {
+		this.setState({
+			layout,
+		})
+	}
+
 	render() {
 		const canControl = this.props.rights.includes('machine.edit');
 		const canDelete = this.props.rights.includes('machine.edit');
@@ -468,21 +478,32 @@ class DashBoardComponent extends Component {
 		return (
 			<div style={{ height: '100%' }}>
 				<div style={{ backgroundColor: this.props.theme.wall.backgroundColor }}>
-					<Tabs
-						indicatorColor="primary"
-						textColor="primary"
-						value={this.state.activeTab}
-						onChange={this.handleTabChange}
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+						}}
 					>
-						<Tab
-							style={{ fontSize: '11pt' }}
-							label={<FormattedMessage value={0} id="Dashboard" defaultMessage="Apps and Services" />}
-						/>
-						<Tab
-							style={{ fontSize: '11pt' }}
-							label={<FormattedMessage value={1} id="Dashboard.manage" defaultMessage="Streams" />}
-						/>
-					</Tabs>
+						<Tabs
+							indicatorColor="primary"
+							textColor="primary"
+							value={this.state.activeTab}
+							onChange={this.handleTabChange}
+						>
+							<Tab
+								style={{ fontSize: '11pt' }}
+								label={<FormattedMessage value={0} id="Dashboard" defaultMessage="Apps and Services" />}
+							/>
+							<Tab
+								style={{ fontSize: '11pt' }}
+								label={<FormattedMessage value={1} id="Dashboard.manage" defaultMessage="Streams" />}
+							/>
+						</Tabs>
+						<div>
+							{this.state.activeTab === 0 ?
+								<GridViewButton onUpdateLayout={(layout) => this.updateLayout(layout)}/> : null}
+						</div>
+					</div>
 				</div>
 				{this.state.activeTab === 0 ? (
 					<div style={{ height: 'calc(100% - 49px)' }}>
@@ -545,7 +566,7 @@ class DashBoardComponent extends Component {
 										disabled: !canControl
 									}
 								]}
-								layout={this.props.layout}
+								layout={this.state.layout}
 								menuOptions={menuOptions}
 								onMenuSelect={this.handleMenuSelect}
 								onResourceOpen={this.onResourceOpen}

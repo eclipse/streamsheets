@@ -128,13 +128,35 @@ class StreamWizard extends React.Component {
 				name = provider.name.replace('Provider', 'Consumer')
 			}
 		} else {
-			name = 'Consumer'
+			name = ''
 		}
 
 		let i = 1;
 		let finalName = name;
 
 		while (props.streams[AdminConstants.CONFIG_TYPE.ConsumerConfiguration]
+			// eslint-disable-next-line no-loop-func
+			.find(p => p.name === finalName)) {
+			finalName = name + i;
+			i += 1;
+		}
+
+		return finalName;
+	}
+
+	static createUniqueConnectorName(provider, props) {
+		let name;
+
+		if (provider) {
+			name =  StreamWizard.onUpdateName(provider.name.replace('Provider', 'Connector'));
+		} else {
+			name = 'Connector'
+		}
+
+		let i = 1;
+		let finalName = name;
+
+		while (props.streams[AdminConstants.CONFIG_TYPE.ConnectorConfiguration]
 			// eslint-disable-next-line no-loop-func
 			.find(p => p.name === finalName)) {
 			finalName = name + i;
@@ -173,7 +195,7 @@ class StreamWizard extends React.Component {
 	handleNameChange = (event) => {
 		event.preventDefault();
 
-		const newValue = this.onUpdateName(event.target.value);
+		const newValue = StreamWizard.onUpdateName(event.target.value);
 		this.start = event.target.selectionStart;
 		const error = this.validateName(newValue);
 
@@ -190,7 +212,7 @@ class StreamWizard extends React.Component {
 		}
 	};
 
-	onUpdateName = (name) => name.replace(' ', '_').replace(/[^a-zA-Z0-9_]/, '');
+	static onUpdateName = (name) => name.replace(' ', '_').replace(/[^a-zA-Z0-9_]/, '');
 
 	handleDescriptionChange = (event) => {
 		event.preventDefault();
@@ -227,7 +249,6 @@ class StreamWizard extends React.Component {
 	handleProviderSelection = (selectedProvider) => () => {
 		this.setState({
 			selectedProvider,
-			connectorName: this.onUpdateName(selectedProvider.name.replace('Provider', 'Connector')),
 		});
 	};
 
@@ -353,6 +374,7 @@ class StreamWizard extends React.Component {
 				activeStep: 'connectorname',
 				backDisabled: false,
 				connector: StreamHelper.createNewConfiguration('connectors', this.state.selectedProvider, this.props.streams),
+				connectorName: StreamWizard.createUniqueConnectorName(this.state.selectedProvider, this.props),
 				consumer: undefined,
 				step: this.state.step + 1,
 			});
@@ -372,6 +394,9 @@ class StreamWizard extends React.Component {
 					activeStep: 'consumername',
 					backDisabled: false,
 					step: this.state.step + 1,
+					consumerName: this.state.consumerName === '' ?
+						StreamWizard.createUniqueConsumerName(this.state.connector, this.props) :
+						this.state.consumerName,
 				});
 			} else if (this.saveConnector()) {
 				this.handleClose();
@@ -461,6 +486,9 @@ class StreamWizard extends React.Component {
 		}
 
 		const fc = new StreamFieldComponents(this.props.streams);
+
+
+
 
 		return advanced ?
 			fc.getComponents(config).advanced :

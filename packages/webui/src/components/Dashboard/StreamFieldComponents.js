@@ -80,6 +80,38 @@ export default class StreamFieldComponents {
 				}
 			});
 		}
+
+		const mime = this.getSelect(
+			new Field({
+				id: 'mimeType',
+				label: {
+					en: 'Data Format',
+					de: 'Datei Format',
+				},
+				options: [
+					{
+						label: 'Auto',
+						value: 'auto',
+					},
+					{
+						label: 'JSON',
+						value: 'application/json',
+					},
+					{
+						label: 'XML',
+						value: 'application/xml',
+					},
+					{
+						label: 'STRING',
+						value: 'text/plain',
+					},
+				],
+				defaultValue: 'auto',
+			}),
+			configuration.mimeType || 'auto', false
+		);
+		components.advanced.push(mime);
+
 		return components;
 	}
 
@@ -291,6 +323,7 @@ export default class StreamFieldComponents {
 			<FormControl
 				fullWidth
 				style={{
+					display: 'grid',
 					marginTop: '30px',
 				}}
 			>
@@ -391,7 +424,7 @@ export default class StreamFieldComponents {
 				margin="normal"
 				disabled={disabled}
 			>
-				<InputLabel fullWidth htmlFor={field.id} style={styles.label}>{field.getLabel(this.locale)}</InputLabel>
+				<InputLabel htmlFor={field.id} style={styles.label}>{field.getLabel(this.locale)}</InputLabel>
 				<Select
 					multiple={multiple}
 					autoWidth

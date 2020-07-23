@@ -178,7 +178,7 @@ export class InboxSettings extends React.Component {
 					{
 						label: (
 							<FormattedMessage
-								id="ProcessContainerSettings.continuously"
+								id="InboxSettings.continuously"
 								defaultMessage="Continuously"
 							/>
 						),
@@ -188,21 +188,21 @@ export class InboxSettings extends React.Component {
 						// eslint-disable-next-line
 						label: (
 							<FormattedMessage
-								id="ProcessContainerSettings.onDataArrival"
+								id="InboxSettings.onDataArrival"
 								defaultMessage="On Data Arrival"
 							/>
 						),
 						value: 'arrival'
 					},
 					{
-						label: <FormattedMessage id="ProcessContainerSettings.onExecute" defaultMessage="On Execute" />,
+						label: <FormattedMessage id="InboxSettings.onExecute" defaultMessage="On Execute" />,
 						value: 'execute'
 					},
 					{
 						// eslint-disable-next-line
 						label: (
 							<FormattedMessage
-								id="ProcessContainerSettings.onMachineStart"
+								id="InboxSettings.onMachineStart"
 								defaultMessage="On Machine Start"
 							/>
 						),
@@ -212,18 +212,18 @@ export class InboxSettings extends React.Component {
 						// eslint-disable-next-line
 						label: (
 							<FormattedMessage
-								id="ProcessContainerSettings.onMachineStop"
+								id="InboxSettings.onMachineStop"
 								defaultMessage="On Machine Stop"
 							/>
 						),
 						value: 'stop'
 					},
 					{
-						label: <FormattedMessage id="ProcessContainerSettings.onTime" defaultMessage="On Time" />,
+						label: <FormattedMessage id="InboxSettings.onTime" defaultMessage="On Time" />,
 						value: 'time'
 					},
 					{
-						label: <FormattedMessage id="ProcessContainerSettings.onRandom" defaultMessage="On Random" />,
+						label: <FormattedMessage id="InboxSettings.onRandom" defaultMessage="On Random" />,
 						value: 'random'
 					}
 				];
@@ -698,11 +698,11 @@ export class InboxSettings extends React.Component {
 												display: 'inline-block'
 											}}
 										>
-											Please select a Consumer:
+											<FormattedMessage id="InboxSettings.SelectConsumer" defaultMessage="Please select a Consumer:" />
 										</FormLabel>
 										<Input
 											onChange={this.handleFilter}
-											style={{ marginBottom: '8px', flexGrow: 0.3 }}
+											style={{ marginBottom: '8px', width: '35%' }}
 											startAdornment={
 												<InputAdornment position="start">
 													<IconSearch />
@@ -798,7 +798,7 @@ export class InboxSettings extends React.Component {
 									>
 										<InputLabel htmlFor="processSetting.triggerType">
 											<FormattedMessage
-												id="ProcessContainerSettings.calcStreamSheet"
+												id="InboxSettings.calcStreamSheet"
 												defaultMessage="Calculate StreamSheet"
 											/>
 										</InputLabel>
@@ -847,7 +847,7 @@ export class InboxSettings extends React.Component {
 											// eslint-disable-next-line
 											label={
 												<FormattedMessage
-													id="ProcessContainerSettings.repeat"
+													id="InboxSettings.repeat"
 													defaultMessage="Repeat"
 												/>
 											}
@@ -860,7 +860,7 @@ export class InboxSettings extends React.Component {
 												// eslint-disable-next-line
 												label={
 													<FormattedMessage
-														id="ProcessContainerSettings.starTimeDate"
+														id="InboxSettings.starTimeDate"
 														defaultMessage="Start Date"
 													/>
 												}
@@ -884,7 +884,7 @@ export class InboxSettings extends React.Component {
 												// eslint-disable-next-line
 												label={
 													<FormattedMessage
-														id="ProcessContainerSettings.interval"
+														id="InboxSettings.interval"
 														defaultMessage="Interval"
 													/>
 												}
@@ -913,7 +913,7 @@ export class InboxSettings extends React.Component {
 												// eslint-disable-next-line
 												label={
 													<FormattedMessage
-														id="ProcessContainerSettings.unit"
+														id="InboxSettings.unit"
 														defaultMessage="Unit"
 													/>
 												}
@@ -936,31 +936,31 @@ export class InboxSettings extends React.Component {
 											>
 												<MenuItem value="ms" key="ms">
 													<FormattedMessage
-														id="ProcessContainerSettings.ms"
+														id="InboxSettings.ms"
 														defaultMessage="ms"
 													/>
 												</MenuItem>
 												<MenuItem value="s" key="seconds">
 													<FormattedMessage
-														id="ProcessContainerSettings.seconds"
+														id="InboxSettings.seconds"
 														defaultMessage="seconds"
 													/>
 												</MenuItem>
 												<MenuItem value="m" key="minutes">
 													<FormattedMessage
-														id="ProcessContainerSettings.minutes"
+														id="InboxSettings.minutes"
 														defaultMessage="minutes"
 													/>
 												</MenuItem>
 												<MenuItem value="h" key="hours">
 													<FormattedMessage
-														id="ProcessContainerSettings.hours"
+														id="InboxSettings.hours"
 														defaultMessage="hours"
 													/>
 												</MenuItem>
 												<MenuItem value="d" key="days">
 													<FormattedMessage
-														id="ProcessContainerSettings.days"
+														id="InboxSettings.days"
 														defaultMessage="days"
 													/>
 												</MenuItem>
@@ -980,7 +980,7 @@ export class InboxSettings extends React.Component {
 												// eslint-disable-next-line
 												label={
 													<FormattedMessage
-														id="ProcessContainerSettings.loopArrayText"
+														id="InboxSettings.loopArrayText"
 														defaultMessage="Loop"
 													/>
 												}
@@ -990,7 +990,7 @@ export class InboxSettings extends React.Component {
 											// eslint-disable-next-line
 											label={
 												<FormattedMessage
-													id="ProcessContainerSettings.loopArray"
+													id="InboxSettings.loopArray"
 													defaultMessage="Loop Array"
 												/>
 											}
@@ -1020,7 +1020,7 @@ export class InboxSettings extends React.Component {
 											// eslint-disable-next-line
 											label={
 												<FormattedMessage
-													id="ProcessContainerSettings.loopRecursively"
+													id="InboxSettings.loopRecursively"
 													defaultMessage="Recursively"
 												/>
 											}
@@ -1038,7 +1038,7 @@ export class InboxSettings extends React.Component {
 											// eslint-disable-next-line
 											label={
 												<FormattedMessage
-													id="ProcessContainerSettings.hideMessages"
+													id="InboxSettings.hideMessages"
 													defaultMessage="Hide Messages"
 												/>
 											}
@@ -1119,7 +1119,7 @@ export class InboxSettings extends React.Component {
 											helperText={
 												this.state.preferences.sheetColumns > 50 ? (
 													<FormattedMessage
-														id="ProcessContainerSettings.tooManyColumns"
+														id="InboxSettings.tooManyColumns"
 														defaultMessage="Only 50 columns allowed!"
 													/>
 												) : (
@@ -1147,7 +1147,7 @@ export class InboxSettings extends React.Component {
 											helperText={
 												this.state.preferences.sheetRows > 1000 ? (
 													<FormattedMessage
-														id="ProcessContainerSettings.tooManyRows"
+														id="InboxSettings.tooManyRows"
 														defaultMessage="Only 1000 rows allowed!"
 													/>
 												) : (

@@ -178,7 +178,7 @@ class ResourcesGrid extends React.Component {
 										>
 											<CardContent
 												style={{
-													cursor: 'pointer',
+														cursor: 'pointer',
 													padding: '0px',
 												}}
 												onContextMenu={(event) =>

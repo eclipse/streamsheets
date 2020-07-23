@@ -35,7 +35,6 @@ import MachineHelper from '../helper/MachineHelper';
 import theme from '../theme';
 import { AdminNavigation } from './AdminNavigation';
 import HelpButton from './HelpButton';
-import GridViewButton from './GridViewButton';
 import Wall from '../components/HelperComponent/Wall';
 
 
@@ -49,8 +48,6 @@ export const AdminPageLayoutComponent = (props) => {
 		userLoaded,
 		workspaceSelect,
 		requireStreams,
-		gridButton,
-		onUpdateLayout,
 	} = props;
 
 	useEffect(() => {
@@ -147,10 +144,6 @@ export const AdminPageLayoutComponent = (props) => {
 									minHeight: '58px'
 								}}
 							>
-								{gridButton ? (
-								<GridViewButton
-									onUpdateLayout={onUpdateLayout}
-								/>) : null}
 								<NotificationsComponent />
 								<HelpButton />
 								<SettingsMenu />
@@ -190,13 +183,11 @@ AdminPageLayoutComponent.propTypes = {
 	getMe: PropTypes.func.isRequired,
 	requireStreams: PropTypes.bool,
 	workspaceSelect: PropTypes.bool,
-	gridButton: PropTypes.bool
 };
 
 AdminPageLayoutComponent.defaultProps = {
 	requireStreams: false,
 	workspaceSelect: false,
-	gridButton: false,
 };
 
 function mapStateToProps(state) {

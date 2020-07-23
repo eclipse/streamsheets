@@ -39,9 +39,7 @@ import MachineHelper from '../helper/MachineHelper';
 import HelpButton from '../layouts/HelpButton';
 import theme from '../theme';
 import FilterName from '../components/base/listing/FilterName';
-import GridViewButton from '../layouts/GridViewButton';
 
-const PREF_KEY_LAYOUT = 'streamsheets-prefs-listing-layout';
 const DASHBOARD_QUERY = `
 query Machines($scope: ScopeInput!) {
 	scoped(scope: $scope) {
@@ -75,8 +73,6 @@ const useExperimental = (setAppState) => {
 export function DashboardPageComponent(props) {
 	const { user, isConnected } = props;
 	const scopeId = user ? user.scope.id : null;
-	const lay = localStorage.getItem(PREF_KEY_LAYOUT);
-	const [layout, setLayout] = useState(lay && lay.length ? lay : 'grid');
 	const [filter, setFilter] = useState('');
 
 	useExperimental(props.setAppState);
@@ -98,10 +94,6 @@ export function DashboardPageComponent(props) {
 			props.getMachines(DASHBOARD_QUERY, { scope: { id: scopeId } });
 		}
 	}, [scopeId]);
-
-	const updateLayout = (layoutText) => {
-		setLayout(layoutText);
-	};
 
 	document.title = intl.formatMessage({ id: 'TitleDashboard' }, {});
 
@@ -169,9 +161,6 @@ export function DashboardPageComponent(props) {
 								}}
 							>
 								<NotificationsComponent />
-								<GridViewButton
-									onUpdateLayout={updateLayout}
-								/>
 								<HelpButton />
 								<SettingsMenu />
 							</Toolbar>
@@ -186,7 +175,7 @@ export function DashboardPageComponent(props) {
 						overflow: 'hidden',
 					}}
 				>
-					<DashBoardComponent layout={layout} filter={filter} onUpdateFilter={setFilter}/>
+					<DashBoardComponent filter={filter} onUpdateFilter={setFilter}/>
 				</div>
 			</div>
 		</MuiThemeProvider>

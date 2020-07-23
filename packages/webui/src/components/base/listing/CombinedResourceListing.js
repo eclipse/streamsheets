@@ -149,6 +149,8 @@ class CombinedResourceListing extends Component {
 		localStorage.setItem(PREF_KEY_SORTQUERY, sortQuery);
 		const resources = this.props.enrichResources(this.props.resources);
 		const filteredResources = SortSelector.sort(resources, sortQuery, filter);
+		const recentResources = SortSelector.sort(resources, 'lastModified_desc', filter);
+		recentResources.length = 5;
 		const sortFields = ['name', 'lastModified'];
 		if (filteredResources.length > 0) {
 			if (filteredResources[0].state) {
