@@ -46,7 +46,9 @@ import TableSortHeader from '../base/addNewDialog/TableSortHeader';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
-import SortSelector from '../base/sortSelector/SortSelector';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import IconSearch from '@material-ui/icons/Search';
+import StreamWizard from '../Dashboard/StreamWizard';
 
 const { RESOURCE_ACTIONS } = accessManager;
 const {
@@ -55,36 +57,31 @@ const {
 	SetNameCommand,
 	SetAttributeAtPathCommand,
 	CompoundCommand,
-	NotificationCenter,
+	NotificationCenter
 } = JSG;
 
 function TabContainer(props) {
-	return (
-		<Typography component="div">
-			{props.children}
-		</Typography>
-	);
+	return <Typography component="div">{props.children}</Typography>;
 }
 
 TabContainer.propTypes = {
-	children: PropTypes.node.isRequired,
+	children: PropTypes.node.isRequired
 };
-
 
 let triggerTypes;
 
 const styles = {
 	formControl: {
 		marginTop: '10px',
-		marginBottom: '10px',
-	},
+		marginBottom: '10px'
+	}
 };
 const getStreamsFromProps = (props) => {
-	if(props.streams && Array.isArray(props.streams.consumers)) {
+	if (props.streams && Array.isArray(props.streams.consumers)) {
 		return [...props.streams.consumers];
 	}
 	return [];
-}
+};
 
 /**
  * A modal dialog can only be closed by selecting one of the actions.
@@ -103,8 +100,9 @@ export class InboxSettings extends React.Component {
 						stream: {
 							name: stream.name,
 							id: stream.id,
-						},
-					},
+							stream,
+						}
+					}
 				};
 			}
 			return { ...state, streams };
@@ -117,12 +115,16 @@ export class InboxSettings extends React.Component {
 		const streams = getStreamsFromProps(props);
 		this.state = {
 			streams,
-			selected: { id: '' },
-			sortQuery: 'name_asc',
+			streamSortBy: 'name',
+			streamSortOrder: 'asc',
+			editStream: false,
+			showStreamWizard: false,
+			filter: '',
 			tabSelected: 0,
 			expanded: 'basic',
 			loopPathError: null,
 			showAdvanced: false,
+			providerFilter: [],
 			preferences: {
 				showGrid: true,
 				showHeader: true,
@@ -131,8 +133,8 @@ export class InboxSettings extends React.Component {
 				sheetColumns: 52,
 				sheetRows: 100,
 				sheetProtect: false,
-				sheetShowFormulas: false,
-			},
+				sheetShowFormulas: false
+			}
 		};
 		this.handleClose = this.handleClose.bind(this);
 		this.handleSave = this.handleSave.bind(this);
@@ -146,12 +148,32 @@ export class InboxSettings extends React.Component {
 		NotificationCenter.getInstance().unregister(this, ButtonNode.BUTTON_CLICKED_NOTIFICATION);
 	}
 
+	onWizardClose = () => {
+		this.setState({ showStreamWizard: false });
+	};
+
+	handleAddConsumer = () => {
+		this.setState({
+			showStreamWizard: true,
+			activeStep: 'connector',
+			editStream: false,
+		})
+	};
+
+	handleEditConsumer = () => {
+		this.setState({
+			showStreamWizard: true,
+			activeStep: 'consumersettings',
+			editStream: true,
+			row: this.state.selected,
+		})
+	};
+
 	onButtonClicked(notification) {
 		if (notification.object) {
 			const info = notification.object;
 			const item = info.button;
-			if (item && (item.getName().getValue() === 'inboxSettings' ||
-				item.getName().getValue() === 'settings')) {
+			if (item && (item.getName().getValue() === 'inboxSettings' || item.getName().getValue() === 'settings')) {
 				triggerTypes = [
 					{
 						label: (
@@ -160,7 +182,7 @@ export class InboxSettings extends React.Component {
 								defaultMessage="Continuously"
 							/>
 						),
-						value: 'continuously',
+						value: 'continuously'
 					},
 					{
 						// eslint-disable-next-line
@@ -170,11 +192,11 @@ export class InboxSettings extends React.Component {
 								defaultMessage="On Data Arrival"
 							/>
 						),
-						value: 'arrival',
+						value: 'arrival'
 					},
 					{
 						label: <FormattedMessage id="ProcessContainerSettings.onExecute" defaultMessage="On Execute" />,
-						value: 'execute',
+						value: 'execute'
 					},
 					{
 						// eslint-disable-next-line
@@ -184,7 +206,7 @@ export class InboxSettings extends React.Component {
 								defaultMessage="On Machine Start"
 							/>
 						),
-						value: 'start',
+						value: 'start'
 					},
 					{
 						// eslint-disable-next-line
@@ -194,16 +216,16 @@ export class InboxSettings extends React.Component {
 								defaultMessage="On Machine Stop"
 							/>
 						),
-						value: 'stop',
+						value: 'stop'
 					},
 					{
 						label: <FormattedMessage id="ProcessContainerSettings.onTime" defaultMessage="On Time" />,
-						value: 'time',
+						value: 'time'
 					},
 					{
 						label: <FormattedMessage id="ProcessContainerSettings.onRandom" defaultMessage="On Random" />,
-						value: 'random',
-					},
+						value: 'random'
+					}
 				];
 
 				const id = info.container
@@ -211,8 +233,9 @@ export class InboxSettings extends React.Component {
 					.getSheetId()
 					.getValue();
 				const { machine } = this.props;
-				const sheet = info.container.getStreamSheet();
-				this.processSheet = sheet;
+				this.processSheet = info.container.getStreamSheet();
+				const wsAttr = this.processSheet.getWorksheetAttributes();
+				const cAttr = info.container.getStreamSheetContainerAttributes();
 
 				if (machine.streamsheets.length > 0) {
 					const streamsheet = machine.streamsheets.find((t) => t.id === id);
@@ -224,44 +247,16 @@ export class InboxSettings extends React.Component {
 							streamsheetId: streamsheet.id,
 							preferences: {
 								...this.state.preferences,
-								hideMessages: info.container
-									.getStreamSheetContainerAttributes()
-									.getHideMessages()
-									.getValue(),
-								showInbox: info.container
-									.getStreamSheetContainerAttributes()
-									.getInboxVisible()
-									.getValue(),
-								showGrid: sheet
-									.getWorksheetAttributes()
-									.getShowGrid()
-									.getValue(),
-								greyIfRows: sheet
-									.getWorksheetAttributes()
-									.getGreyIfRows()
-									.getValue(),
-								sheetProtect: sheet
-									.getWorksheetAttributes()
-									.getProtected()
-									.getValue(),
-								sheetRows: sheet
-									.getWorksheetAttributes()
-									.getRows()
-									.getValue(),
-								sheetColumns:
-									sheet
-										.getWorksheetAttributes()
-										.getColumns()
-										.getValue() + sheet.getColumns().getInitialSection(),
-								showHeader: sheet
-									.getWorksheetAttributes()
-									.getShowHeader()
-									.getValue(),
-								showFormulas: sheet
-									.getWorksheetAttributes()
-									.getShowFormulas()
-									.getValue(),
-							},
+								hideMessages: cAttr.getHideMessages().getValue(),
+								showInbox: cAttr.getInboxVisible().getValue(),
+								showGrid: wsAttr.getShowGrid().getValue(),
+								greyIfRows: wsAttr.getGreyIfRows().getValue(),
+								sheetProtect: wsAttr.getProtected().getValue(),
+								sheetRows: wsAttr.getRows().getValue(),
+								sheetColumns: wsAttr.getColumns().getValue() - 2,
+								showHeader: wsAttr.getShowHeader().getValue(),
+								showFormulas: wsAttr.getShowFormulas().getValue()
+							}
 						};
 						this.setState(settings);
 					}
@@ -269,8 +264,8 @@ export class InboxSettings extends React.Component {
 
 				this.props.getDataStores().then(() =>
 					this.props.setAppState({
-						showInboxSettings: true,
-					}),
+						showInboxSettings: true
+					})
 				);
 			}
 		}
@@ -281,14 +276,18 @@ export class InboxSettings extends React.Component {
 		return streams.map((s) => {
 			s.state = StreamHelper.getResourceState(s, this.props.streams.statusMap);
 			s.state = StreamHelper.getStatusFor(s.state);
-			s.provider = this.props.streams.providers.find(p => p.id === s.providerId)
+			s.provider = this.props.streams.providers.find((p) => p.id === s.providerId);
 			return s;
 		});
 	};
 
 	getFormattedDateString(date) {
-		const dat = new Date(Date.parse(date));
-		return dat.toLocaleString(undefined, {year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'});
+		const d = new Date(Date.parse(date));
+		return `${d.toLocaleDateString(undefined, {
+			year: '2-digit',
+			month: '2-digit',
+			day: '2-digit'
+		})} ${d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
 	}
 
 	getTriggerType = () => {
@@ -296,12 +295,19 @@ export class InboxSettings extends React.Component {
 		return type === 'start' && this.state.trigger.repeat === 'endless' ? 'continuously' : type;
 	};
 
+	handleFilter = (event) => {
+		const filter = event.target.value;
+		this.setState({
+			filter
+		});
+	};
+
 	handleShowGrid = (event, state) => {
 		this.setState({
 			preferences: {
 				...this.state.preferences,
-				showGrid: state,
-			},
+				showGrid: state
+			}
 		});
 	};
 
@@ -309,8 +315,8 @@ export class InboxSettings extends React.Component {
 		this.setState({
 			preferences: {
 				...this.state.preferences,
-				greyIfRows: state,
-			},
+				greyIfRows: state
+			}
 		});
 	};
 
@@ -318,8 +324,8 @@ export class InboxSettings extends React.Component {
 		this.setState({
 			preferences: {
 				...this.state.preferences,
-				showHeader: state,
-			},
+				showHeader: state
+			}
 		});
 	};
 
@@ -327,8 +333,8 @@ export class InboxSettings extends React.Component {
 		this.setState({
 			preferences: {
 				...this.state.preferences,
-				showFormulas: state,
-			},
+				showFormulas: state
+			}
 		});
 	};
 
@@ -336,8 +342,8 @@ export class InboxSettings extends React.Component {
 		this.setState({
 			preferences: {
 				...this.state.preferences,
-				showInbox: state,
-			},
+				showInbox: state
+			}
 		});
 	};
 
@@ -345,8 +351,8 @@ export class InboxSettings extends React.Component {
 		this.setState({
 			preferences: {
 				...this.state.preferences,
-				sheetProtect: state,
-			},
+				sheetProtect: state
+			}
 		});
 	};
 
@@ -358,8 +364,8 @@ export class InboxSettings extends React.Component {
 		this.setState({
 			preferences: {
 				...this.state.preferences,
-				sheetRows: Number(event.target.value),
-			},
+				sheetRows: Number(event.target.value)
+			}
 		});
 	};
 
@@ -367,78 +373,44 @@ export class InboxSettings extends React.Component {
 		this.setState({
 			preferences: {
 				...this.state.preferences,
-				sheetColumns: Number(event.target.value),
-			},
+				sheetColumns: Number(event.target.value)
+			}
 		});
 	};
 
 	handleSave = () => {
 		const settings = Object.assign({}, { ...this.state });
-		if (!settings.inbox.stream) {
+		if (!settings.inbox.stream || settings.inbox.stream.name === 'none') {
 			settings.inbox.stream = {
-				name: '',
+				name: ''
 			};
-		}
-		if (settings.inbox.stream.name === 'none') {
-			settings.inbox.stream.name = '';
 		}
 		delete settings.streams;
 		delete settings.loopPathError;
+
 		this.props.saveProcessSettings(settings);
+
+		const getWorksheetCommand = (valuePath, value) => {
+			const path = AttributeUtils.createPath(JSG.WorksheetAttributes.NAME, valuePath);
+			return new SetAttributeAtPathCommand(this.processSheet, path, value);
+		};
+		const getContainerCommand = (valuePath, value) => {
+			const path = AttributeUtils.createPath(JSG.StreamSheetContainerAttributes.NAME, valuePath);
+			return new SetAttributeAtPathCommand(this.processSheet.getStreamSheetContainer(), path, value);
+		};
 
 		const cmd = new CompoundCommand();
 		cmd.add(new SetNameCommand(this.processSheet, this.state.name));
+		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.SHOWGRID, this.state.preferences.showGrid));
+		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.SHOWHEADER, this.state.preferences.showHeader));
+		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.SHOWFORMULAS, this.state.preferences.showFormulas));
+		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.PROTECTED, this.state.preferences.sheetProtect));
+		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.GREYIFROWS, this.state.preferences.greyIfRows));
+		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.ROWS, this.state.preferences.sheetRows));
+		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.COLUMNS, this.state.preferences.sheetColumns + 2));
 
-		let path = AttributeUtils.createPath(JSG.WorksheetAttributes.NAME, JSG.WorksheetAttributes.SHOWGRID);
-		cmd.add(new SetAttributeAtPathCommand(this.processSheet, path, this.state.preferences.showGrid));
-
-		path = AttributeUtils.createPath(JSG.WorksheetAttributes.NAME, JSG.WorksheetAttributes.SHOWHEADER);
-		cmd.add(new SetAttributeAtPathCommand(this.processSheet, path, this.state.preferences.showHeader));
-
-		path = AttributeUtils.createPath(JSG.WorksheetAttributes.NAME, JSG.WorksheetAttributes.SHOWFORMULAS);
-		cmd.add(new SetAttributeAtPathCommand(this.processSheet, path, this.state.preferences.showFormulas));
-
-		path = AttributeUtils.createPath(JSG.WorksheetAttributes.NAME, JSG.WorksheetAttributes.PROTECTED);
-		cmd.add(new SetAttributeAtPathCommand(this.processSheet, path, this.state.preferences.sheetProtect));
-
-		path = AttributeUtils.createPath(JSG.WorksheetAttributes.NAME, JSG.WorksheetAttributes.GREYIFROWS);
-		cmd.add(new SetAttributeAtPathCommand(this.processSheet, path, this.state.preferences.greyIfRows));
-
-		path = AttributeUtils.createPath(JSG.WorksheetAttributes.NAME, JSG.WorksheetAttributes.ROWS);
-		cmd.add(new SetAttributeAtPathCommand(this.processSheet, path, this.state.preferences.sheetRows));
-
-		path = AttributeUtils.createPath(JSG.WorksheetAttributes.NAME, JSG.WorksheetAttributes.COLUMNS);
-		cmd.add(
-			new SetAttributeAtPathCommand(
-				this.processSheet,
-				path,
-				this.state.preferences.sheetColumns - this.processSheet.getColumns().getInitialSection(),
-			),
-		);
-
-		path = AttributeUtils.createPath(
-			JSG.StreamSheetContainerAttributes.NAME,
-			JSG.StreamSheetContainerAttributes.HIDEMESSAGES,
-		);
-		cmd.add(
-			new SetAttributeAtPathCommand(
-				this.processSheet.getStreamSheetContainer(),
-				path,
-				this.state.preferences.hideMessages,
-			),
-		);
-
-		path = AttributeUtils.createPath(
-			JSG.StreamSheetContainerAttributes.NAME,
-			JSG.StreamSheetContainerAttributes.INBOXVISIBLE,
-		);
-		cmd.add(
-			new SetAttributeAtPathCommand(
-				this.processSheet.getStreamSheetContainer(),
-				path,
-				this.state.preferences.showInbox,
-			),
-		);
+		cmd.add(getContainerCommand(JSG.StreamSheetContainerAttributes.HIDEMESSAGES, this.state.preferences.hideMessages));
+		cmd.add(getContainerCommand(JSG.StreamSheetContainerAttributes.INBOXVISIBLE, this.state.preferences.showInbox));
 
 		graphManager.synchronizedExecute(cmd);
 
@@ -456,27 +428,23 @@ export class InboxSettings extends React.Component {
 		return path;
 	}
 
-	toggleAdvanced = () => {
-		this.setState({ showAdvanced: !this.state.showAdvanced });
-	};
-
 	handleLoopPathChange = (event) => {
 		const path = event.target.value;
 		try {
 			this.parsePath(path);
 			this.setState({
-				loopPathError: null,
+				loopPathError: null
 			});
 		} catch (e) {
 			this.setState({
-				loopPathError: e.message,
+				loopPathError: e.message
 			});
 		}
 		this.setState({
 			loop: {
 				...this.state.loop,
-				path,
-			},
+				path
+			}
 		});
 	};
 
@@ -498,8 +466,8 @@ export class InboxSettings extends React.Component {
 		this.setState({
 			preferences: {
 				...this.state.hideMessages,
-				hideMessages: state,
-			},
+				hideMessages: state
+			}
 		});
 	};
 
@@ -509,7 +477,7 @@ export class InboxSettings extends React.Component {
 
 	handleChange = (panel) => (event, expanded) => {
 		this.setState({
-			expanded: expanded ? panel : false,
+			expanded: expanded ? panel : false
 		});
 	};
 
@@ -518,51 +486,148 @@ export class InboxSettings extends React.Component {
 			const streamDesc = {
 				name: newStream.name || 'none',
 				id: newStream.id,
-				type: newStream.type,
+				stream: newStream,
 			};
 			this.setState({
 				inbox: {
 					...this.state.inbox,
-					stream: streamDesc,
-				},
+					stream: streamDesc
+				}
 			});
 		} else {
 			this.setState({
 				inbox: {
 					...this.state.inbox,
-					stream: { id: 'none' },
-				},
+					stream: { id: 'none' }
+				}
 			});
 		}
 	};
 
-	getResources = (streams) => SortSelector.sort(streams, this.state.sortQuery, this.state.filter);
+	getHeader() {
+		const fields = [];
+
+		fields.push({ name: 'Admin.#all_provs', selected: this.state.providerFilter.length === 0 });
+
+		this.props.streams.providers.forEach((provider) => {
+			fields.push({ name: provider.name, selected: !this.state.providerFilter.includes(provider.name) });
+		});
+
+		return [
+			{
+				id: 'name',
+				numeric: false,
+				disablePadding: true,
+				label: 'Streams.Name',
+				width: '42%'
+			},
+			{
+				id: 'provider',
+				numeric: false,
+				disablePadding: true,
+				label: 'Streams.Provider',
+				width: '25%',
+				fields
+			},
+			{
+				id: 'lastModified',
+				numeric: false,
+				disablePadding: true,
+				label: 'Streams.LastModified',
+				width: '22%'
+			}
+		];
+	}
+
+	getResources = (streams) => {
+		const result = [];
+
+		streams.forEach((consumer) => {
+			const index = this.state.providerFilter.indexOf(consumer.provider.name);
+			if (index === -1 && consumer.name.toLowerCase().includes(this.state.filter.toLowerCase())) {
+				result.push(consumer);
+			}
+		});
+
+		result.sort((a, b) => {
+			const dir = this.state.streamSortOrder === 'asc' ? 1 : -1;
+
+			switch (this.state.streamSortBy) {
+				case 'provider': {
+					const aName = a[this.state.streamSortBy].name || '';
+					const bName = b[this.state.streamSortBy].name || '';
+					if (aName.toLowerCase() > bName.toLowerCase()) {
+						return dir;
+					} else if (aName.toLowerCase() < bName.toLowerCase()) {
+						return -1 * dir;
+					}
+					return 0;
+				}
+				case 'name': {
+					const aName = a[this.state.streamSortBy] || '';
+					const bName = b[this.state.streamSortBy] || '';
+					if (aName.toLowerCase() > bName.toLowerCase()) {
+						return dir;
+					} else if (aName.toLowerCase() < bName.toLowerCase()) {
+						return -1 * dir;
+					}
+					return 0;
+				}
+				case 'lastModified': {
+					const aLastModified = a.lastModifiedDate || new Date().toISOString();
+					const bLastModified = b.lastModifiedDate || new Date().toISOString();
+					const res = new Date(aLastModified) - new Date(bLastModified);
+					return dir * res;
+				}
+				default:
+					return 0;
+			}
+		});
+
+		return result;
+	};
 
 	handleTableSort = (event, property) => {
 		const orderBy = property;
-		let order = 'desc';
+		const order =
+			(this.state.streamSortBy === property && this.state.streamSortOrder === 'desc') ||
+			this.state.streamSortBy !== property
+				? 'asc'
+				: 'desc';
 
-		const sortObj = SortSelector.parseSortQuery(this.state.sortQuery);
-
-		if (sortObj.sortBy === property && sortObj.sortDir === 'desc') {
-			order = 'asc';
-		}
-
-		// this.setState({ order, orderBy });
-
-		const sortQuery = `${orderBy}_${order}`;
 		this.setState({
-			sortQuery
+			streamSortBy: orderBy,
+			streamSortOrder: order
 		});
-
-	}
+	};
 
 	handleFilter = (event) => {
 		const filter = event.target.value;
 		this.setState({
-			filter,
+			filter
 		});
 	};
+
+	onFieldToggle(field, state) {
+		if (state) {
+			if (field.name === 'Admin.#all_provs') {
+				this.state.providerFilter = [];
+			} else {
+				const index = this.state.providerFilter.indexOf(field.name);
+				if (index !== -1) {
+					this.state.providerFilter.splice(index, 1);
+				}
+			}
+		} else if (field.name === 'Admin.#all_provs') {
+			this.props.streams.providers.forEach((provider) => {
+				this.state.providerFilter.push(provider.name);
+			});
+		} else {
+			this.state.providerFilter.push(field.name);
+		}
+
+		this.setState({ providerFilter: this.state.providerFilter });
+	}
 
 	handleTriggerChange = (event) => {
 		const type = event.target.value;
@@ -586,9 +651,7 @@ export class InboxSettings extends React.Component {
 		}
 		const streams = this.getStreams();
 		const canEdit = MachineHelper.currentMachineCan(RESOURCE_ACTIONS.EDIT);
-		// const stream = this.state.inbox.stream ? this.state.inbox.stream : { id: 'none' };
-		const sortObj = SortSelector.parseSortQuery(this.state.sortQuery);
-		const { tabSelected, selected } = this.state;
+		const { tabSelected, filter } = this.state;
 		return (
 			<Dialog open={this.props.open} onClose={() => this.handleClose()} maxWidth={false}>
 				<DialogTitle>
@@ -597,478 +660,635 @@ export class InboxSettings extends React.Component {
 				<DialogContent
 					style={{
 						height: 'auto',
-						minHeight: '425px',
-						minWidth: '600px',
+						minHeight: '430px',
+						minWidth: '825px',
+						paddingBottom: '0px',
 					}}
 				>
 					<Tabs textColor="primary" value={tabSelected} onChange={this.handleTabChange}>
 						<Tab label={<FormattedMessage id="Stream" defaultMessage="Stream" />} />
 						<Tab label={<FormattedMessage id="Sheet" defaultMessage="Sheet" />} />
 					</Tabs>
-					{tabSelected === 0 &&
-					<TabContainer>
-					<div style={{display: 'flex'}}>
-						<div>
-						<Table>
-							<TableSortHeader
-								cells={[
-									{ id: 'state', numeric: false, disablePadding: false, label: 'State', width: '5%' },
-									{ id: 'name', numeric: false, disablePadding: true, label: 'Name', width: '45%' },
-									{ id: 'provider', numeric: false, disablePadding: true, label: 'Provider', width: '25%' },
-									{ id: 'lastModified', numeric: false, disablePadding: false, label: 'LastModified', width: '25%' },
-								]}
-								orderBy={sortObj.sortBy}
-								order={sortObj.sortDir}
-								onRequestSort={this.handleTableSort}
-							/>
-							<TableBody>
-								{this.getResources(streams).map((resource) => (
-									<TableRow
-										style={ {
-											height: '35px'
-										}}
-										hover
-										onClick={() => this.handleStreamChange(resource)}
-										selected={resource.id === selected.id}
-										tabIndex={-1}
-										key={`${resource.className}-${resource.id}`}
-									>
-										<TableCell>{resource.state}</TableCell>
-										<TableCell component="th" scope="row" padding="none">
-											{resource.name}
-										</TableCell>
-										<TableCell component="th" scope="row" padding="none">
-											{resource.provider.name}
-										</TableCell>
-										<TableCell>{this.getFormattedDateString(resource.lastModified)}</TableCell>
-									</TableRow>
-								))}
-							</TableBody>
-						</Table>
-						</div>
-						<div>
-						<FormControl
-							disabled={!canEdit}
-							style={{
-								marginBottom: '10px',
-								marginTop: '20px',
-							}}
-						>
-							<InputLabel htmlFor="processSetting.triggerType">
-								<FormattedMessage
-									id="ProcessContainerSettings.calcStreamSheet"
-									defaultMessage="Calculate StreamSheet"
-								/>
-							</InputLabel>
-							<Select
+					{tabSelected === 0 && (
+						<TabContainer>
+							<div
 								style={{
-									width: '380px',
-								}}
-								value={this.getTriggerType()}
-								onChange={this.handleTriggerChange}
-								input={<Input name="processSetting.triggerType" id="processSetting.triggerType" />}
-							>
-								<MenuItem value="none" key="none">
-									<em>
-										<FormattedMessage id="Never" defaultMessage="Never" />
-									</em>
-								</MenuItem>
-								{triggerTypes.map((t) => (
-									<MenuItem value={t.value} key={t.value}>
-										{t.label}
-									</MenuItem>
-								))}
-							</Select>
-						</FormControl>
-						<FormGroup
-							style={{
-								marginTop: '10px',
-							}}
-						>
-							<FormControlLabel
-								control={
-									<Checkbox
-										checked={this.state.trigger.repeat === 'endless'}
-										onChange={this.handleRepeatCalculation}
-										disabled={
-											this.state.trigger.type === 'none' ||
-											(this.state.trigger.type === 'start' &&
-												this.state.trigger.repeat === 'endless')
-										}
-									/>
-								}
-								// eslint-disable-next-line
-								label={
-									<FormattedMessage id="ProcessContainerSettings.repeat" defaultMessage="Repeat" />
-								}
-							/>
-						</FormGroup>
-
-						{this.state.trigger.type === 'random' || this.state.trigger.type === 'time' ? (
-							<div>
-								<TextField
-									// eslint-disable-next-line
-									label={
-										<FormattedMessage
-											id="ProcessContainerSettings.starTimeDate"
-											defaultMessage="Start Date"
-										/>
-									}
-									type="datetime-local"
-									defaultValue={this.state.trigger.start}
-									style={{ width: '11rem' }}
-									InputLabelProps={{
-										shrink: true,
-									}}
-									onChange={(event) =>
-										this.setState({
-											trigger: {
-												...this.state.trigger,
-												start: event.target.value,
-											},
-										})
-									}
-									disabled={!canEdit}
-								/>
-								<TextField
-									// eslint-disable-next-line
-									label={
-										<FormattedMessage
-											id="ProcessContainerSettings.interval"
-											defaultMessage="Interval"
-										/>
-									}
-									type="number"
-									defaultValue={this.state.trigger.interval}
-									style={{ width: '9rem' }}
-									InputLabelProps={{
-										shrink: true,
-									}}
-									inputProps={{
-										min: 0,
-										step: 1,
-									}}
-									onChange={(event) =>
-										this.setState({
-											trigger: {
-												...this.state.trigger,
-												interval: event.target.value,
-											},
-										})
-									}
-									disabled={!canEdit}
-								/>
-								<Select
-									value={this.state.trigger.intervalUnit || 'ms'}
-									// eslint-disable-next-line
-									label={
-										<FormattedMessage id="ProcessContainerSettings.unit" defaultMessage="Unit" />
-									}
-									style={{ width: '9rem' }}
-									onChange={(event) =>
-										this.setState({
-											trigger: {
-												...this.state.trigger,
-												intervalUnit: event.target.value,
-											},
-										})
-									}
-									input={
-										<Input name="processSetting.intervalUnit" id="processSetting.intervalUnit" />
-									}
-									disabled={!canEdit}
-								>
-									<MenuItem value="ms" key="ms">
-										<FormattedMessage id="ProcessContainerSettings.ms" defaultMessage="ms" />
-									</MenuItem>
-									<MenuItem value="s" key="seconds">
-										<FormattedMessage
-											id="ProcessContainerSettings.seconds"
-											defaultMessage="seconds"
-										/>
-									</MenuItem>
-									<MenuItem value="m" key="minutes">
-										<FormattedMessage
-											id="ProcessContainerSettings.minutes"
-											defaultMessage="minutes"
-										/>
-									</MenuItem>
-									<MenuItem value="h" key="hours">
-										<FormattedMessage id="ProcessContainerSettings.hours" defaultMessage="hours" />
-									</MenuItem>
-									<MenuItem value="d" key="days">
-										<FormattedMessage id="ProcessContainerSettings.days" defaultMessage="days" />
-									</MenuItem>
-								</Select>
-							</div>
-						) : null}
-						<FormGroup style={styles.formControl}>
-							<div style={{ marginBottom: '5px' }}>
-								<FormControlLabel
-									disabled={!canEdit}
-									control={
-										<Checkbox checked={this.state.loop.enabled} onChange={this.handleLoopEnabled} />
-									}
-									// eslint-disable-next-line
-									label={
-										<FormattedMessage
-											id="ProcessContainerSettings.loopArrayText"
-											defaultMessage="Loop"
-										/>
-									}
-								/>
-								<FormControlLabel
-									control={
-										<Checkbox
-										checked={!!this.state.loop.recursively}
-										onChange={this.handleLoopRecursively}
-										/>
-									}
-									// eslint-disable-next-line
-									label={
-										<FormattedMessage
-										id="ProcessContainerSettings.loopRecursively"
-										defaultMessage="Recursively"
-										/>
-									}
-									disabled={!canEdit || !this.state.loop.enabled}
-								/>
-							</div>
-							<TextField
-								// eslint-disable-next-line
-								label={
-									<FormattedMessage
-										id="ProcessContainerSettings.loopArray"
-										defaultMessage="Loop Array"
-									/>
-								}
-								disabled={!this.state.loop.enabled}
-								margin="normal"
-								fullWidth
-								onChange={this.handleLoopPathChange}
-								error={!!this.state.loopPathError}
-								helperText={this.state.loopPathError}
-								value={this.state.loop.path}
-								style={{
-									marginLeft: '35px',
-									width: '93%',
-									marginTop: '2px',
-								}}
-							/>
-						</FormGroup>
-						<FormGroup>
-							<FormControlLabel
-								control={
-									<Checkbox
-										checked={this.state.preferences.hideMessages}
-										onChange={this.handleHideMessages}
-									/>
-								}
-								// eslint-disable-next-line
-								label={
-									<FormattedMessage
-										id="ProcessContainerSettings.hideMessages"
-										defaultMessage="Hide Messages"
-									/>
-								}
-								disabled={!canEdit}
-							/>
-						</FormGroup>
-						</div>
-					</div>
-					</TabContainer>}
-					{tabSelected === 1 &&
-					<TabContainer>
-						<div
-							style={{
-								marginTop: '20px',
-							}}
-						>
-							<FormGroup
-								style={{
+									display: 'flex'
 								}}
 							>
-								<TextField
-									label={<FormattedMessage id="Name" defaultMessage="Name" />}
-									margin="normal"
-									fullWidth
-									onChange={this.handleSheetName}
-									value={this.state.name}
-									disabled={!canEdit}
-									error={!Reference.isValidIdentifier(this.state.name)}
-									helperText={
-										!Reference.isValidIdentifier(this.state.name) ? (
-											<FormattedMessage
-												id="Reference.InvalidName"
-												defaultMessage="Only alphanumeric characters and the underscore are allowed"
-											/>
-										) : (
-											''
-										)
-									}
-								/>
-								<div>
-									<TextField
-										disabled={!canEdit}
-										style={{
-											marginRight: '20px',
-											width: '100px',
-										}}
-										id="number"
-										label={<FormattedMessage id="Columns" defaultMessage="Columns" />}
-										inputProps={{
-											min: 1,
-											max: 50,
-											step: 1,
-										}}
-										error={this.state.preferences.sheetColumns > 50}
-										helperText={
-											this.state.preferences.sheetColumns > 50 ? (
-												<FormattedMessage
-													id="ProcessContainerSettings.tooManyColumns"
-													defaultMessage="Only 50 columns allowed!"
-												/>
-											) : (
-												''
-											)
-										}
-										value={this.state.preferences.sheetColumns}
-										onChange={(event) => this.handleSheetColumns(event)}
-										type="number"
-										margin="normal"
-									/>
-									<TextField
-										disabled={!canEdit}
-										style={{
-											width: '100px',
-										}}
-										id="number"
-										label={<FormattedMessage id="Rows" defaultMessage="Rows" />}
-										inputProps={{
-											min: 1,
-											max: 1000,
-											step: 1,
-										}}
-										error={this.state.preferences.sheetRows > 1000}
-										helperText={
-											this.state.preferences.sheetRows > 1000 ? (
-												<FormattedMessage
-													id="ProcessContainerSettings.tooManyRows"
-													defaultMessage="Only 1000 rows allowed!"
-												/>
-											) : (
-												''
-											)
-										}
-										value={this.state.preferences.sheetRows}
-										onChange={(event) => this.handleSheetRows(event)}
-										type="number"
-										margin="normal"
-									/>
-								</div>
-								<FormControlLabel
-									disabled={!canEdit}
+								<div
 									style={{
-										marginTop: '15px',
+										width: '450px',
+										marginTop: '20px',
+										marginRight: '25px'
 									}}
-									control={
-										<Checkbox
-											checked={this.state.preferences.sheetProtect}
-											onChange={this.handleSheetProtect}
+								>
+									<div
+										style={{
+											width: '100%',
+											display: 'flex',
+											justifyContent: 'space-between',
+											verticalAlign: 'middle'
+										}}
+									>
+										<FormLabel
+											style={{
+												marginTop: '10px',
+												fontSize: '13px',
+												display: 'inline-block'
+											}}
+										>
+											Please select a Consumer:
+										</FormLabel>
+										<Input
+											onChange={this.handleFilter}
+											style={{ marginBottom: '8px', flexGrow: 0.3 }}
+											startAdornment={
+												<InputAdornment position="start">
+													<IconSearch />
+												</InputAdornment>
+											}
+											defaultValue={filter}
+											type="search"
 										/>
-									}
-									label={<FormattedMessage id="ProtectSheet" defaultMessage="Protect Sheet" />}
-								/>
-							</FormGroup>
-							<FormLabel
-								disabled={!canEdit}
-								style={{
-									marginTop: '20px',
-									display: 'block',
-								}}
-							>
-								<FormattedMessage id="View" defaultMessage="View" />
-							</FormLabel>
+									</div>
+									<div
+										style={{
+											border: '1px solid grey',
+											height: '310px',
+											overflow: 'auto',
+											padding: '5px'
+										}}
+									>
+										<Table>
+											<TableSortHeader
+												cells={this.getHeader()}
+												orderBy={this.state.streamSortBy}
+												order={this.state.streamSortOrder}
+												onRequestSort={this.handleTableSort}
+												onFieldToggle={(field, state) => this.onFieldToggle(field, state)}
+											/>
+											<TableBody>
+												<TableRow
+													style={{
+														height: '35px'
+													}}
+													key="no_stream"
+													hover
+													selected={
+														this.state.inbox.stream === null ||
+														this.state.inbox.stream.id === 'none'
+													}
+													onClick={() => this.handleStreamChange()}
+													tabIndex={-1}
+												>
+													<TableCell component="th" scope="row" padding="none">
+														<FormattedMessage
+															id="DialogNew.noStream"
+															defaultMessage="None"
+														/>
+													</TableCell>
+													<TableCell />
+													<TableCell />
+												</TableRow>
+												{this.getResources(streams).map((resource) => (
+													<TableRow
+														style={{
+															height: '35px'
+														}}
+														hover
+														onClick={() => this.handleStreamChange(resource)}
+														selected={
+															this.state.inbox.stream &&
+															resource.id === this.state.inbox.stream.id
+														}
+														tabIndex={-1}
+														key={`${resource.className}-${resource.id}`}
+													>
+														<TableCell component="th" scope="row" padding="none">
+															<img
+																style={{ verticalAlign: 'bottom', paddingRight: '6px' }}
+																width={15}
+																height={15}
+																src={StreamHelper.getIconForState(resource.state)}
+																alt="state"
+															/>
+
+															{resource.name}
+														</TableCell>
+														<TableCell component="th" scope="row" padding="none">
+															{resource.provider.name}
+														</TableCell>
+														<TableCell padding="none">
+															{this.getFormattedDateString(resource.lastModified)}
+														</TableCell>
+													</TableRow>
+												))}
+											</TableBody>
+										</Table>
+									</div>
+								</div>
+								<div>
+									<FormControl
+										disabled={!canEdit}
+										style={{
+											marginBottom: '10px',
+											marginTop: '25px'
+										}}
+									>
+										<InputLabel htmlFor="processSetting.triggerType">
+											<FormattedMessage
+												id="ProcessContainerSettings.calcStreamSheet"
+												defaultMessage="Calculate StreamSheet"
+											/>
+										</InputLabel>
+										<Select
+											style={{
+												width: '335px'
+											}}
+											value={this.getTriggerType()}
+											onChange={this.handleTriggerChange}
+											input={
+												<Input
+													name="processSetting.triggerType"
+													id="processSetting.triggerType"
+												/>
+											}
+										>
+											<MenuItem value="none" key="none">
+												<em>
+													<FormattedMessage id="Never" defaultMessage="Never" />
+												</em>
+											</MenuItem>
+											{triggerTypes.map((t) => (
+												<MenuItem value={t.value} key={t.value}>
+													{t.label}
+												</MenuItem>
+											))}
+										</Select>
+									</FormControl>
+									<FormGroup
+										style={{
+											marginTop: '10px'
+										}}
+									>
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={this.state.trigger.repeat === 'endless'}
+													onChange={this.handleRepeatCalculation}
+													disabled={
+														this.state.trigger.type === 'none' ||
+														(this.state.trigger.type === 'start' &&
+															this.state.trigger.repeat === 'endless')
+													}
+												/>
+											}
+											// eslint-disable-next-line
+											label={
+												<FormattedMessage
+													id="ProcessContainerSettings.repeat"
+													defaultMessage="Repeat"
+												/>
+											}
+										/>
+									</FormGroup>
+
+									{this.state.trigger.type === 'random' || this.state.trigger.type === 'time' ? (
+										<div>
+											<TextField
+												// eslint-disable-next-line
+												label={
+													<FormattedMessage
+														id="ProcessContainerSettings.starTimeDate"
+														defaultMessage="Start Date"
+													/>
+												}
+												type="datetime-local"
+												defaultValue={this.state.trigger.start}
+												style={{ width: '11rem' }}
+												InputLabelProps={{
+													shrink: true
+												}}
+												onChange={(event) =>
+													this.setState({
+														trigger: {
+															...this.state.trigger,
+															start: event.target.value
+														}
+													})
+												}
+												disabled={!canEdit}
+											/>
+											<TextField
+												// eslint-disable-next-line
+												label={
+													<FormattedMessage
+														id="ProcessContainerSettings.interval"
+														defaultMessage="Interval"
+													/>
+												}
+												type="number"
+												defaultValue={this.state.trigger.interval}
+												style={{ width: '9rem' }}
+												InputLabelProps={{
+													shrink: true
+												}}
+												inputProps={{
+													min: 0,
+													step: 1
+												}}
+												onChange={(event) =>
+													this.setState({
+														trigger: {
+															...this.state.trigger,
+															interval: event.target.value
+														}
+													})
+												}
+												disabled={!canEdit}
+											/>
+											<Select
+												value={this.state.trigger.intervalUnit || 'ms'}
+												// eslint-disable-next-line
+												label={
+													<FormattedMessage
+														id="ProcessContainerSettings.unit"
+														defaultMessage="Unit"
+													/>
+												}
+												style={{ width: '9rem' }}
+												onChange={(event) =>
+													this.setState({
+														trigger: {
+															...this.state.trigger,
+															intervalUnit: event.target.value
+														}
+													})
+												}
+												input={
+													<Input
+														name="processSetting.intervalUnit"
+														id="processSetting.intervalUnit"
+													/>
+												}
+												disabled={!canEdit}
+											>
+												<MenuItem value="ms" key="ms">
+													<FormattedMessage
+														id="ProcessContainerSettings.ms"
+														defaultMessage="ms"
+													/>
+												</MenuItem>
+												<MenuItem value="s" key="seconds">
+													<FormattedMessage
+														id="ProcessContainerSettings.seconds"
+														defaultMessage="seconds"
+													/>
+												</MenuItem>
+												<MenuItem value="m" key="minutes">
+													<FormattedMessage
+														id="ProcessContainerSettings.minutes"
+														defaultMessage="minutes"
+													/>
+												</MenuItem>
+												<MenuItem value="h" key="hours">
+													<FormattedMessage
+														id="ProcessContainerSettings.hours"
+														defaultMessage="hours"
+													/>
+												</MenuItem>
+												<MenuItem value="d" key="days">
+													<FormattedMessage
+														id="ProcessContainerSettings.days"
+														defaultMessage="days"
+													/>
+												</MenuItem>
+											</Select>
+										</div>
+									) : null}
+									<FormGroup style={styles.formControl}>
+										<div style={{ marginBottom: '5px' }}>
+											<FormControlLabel
+												disabled={!canEdit}
+												control={
+													<Checkbox
+														checked={this.state.loop.enabled}
+														onChange={this.handleLoopEnabled}
+													/>
+												}
+												// eslint-disable-next-line
+												label={
+													<FormattedMessage
+														id="ProcessContainerSettings.loopArrayText"
+														defaultMessage="Loop"
+													/>
+												}
+											/>
+										</div>
+										<TextField
+											// eslint-disable-next-line
+											label={
+												<FormattedMessage
+													id="ProcessContainerSettings.loopArray"
+													defaultMessage="Loop Array"
+												/>
+											}
+											disabled={!this.state.loop.enabled}
+											margin="normal"
+											fullWidth
+											onChange={this.handleLoopPathChange}
+											error={!!this.state.loopPathError}
+											helperText={this.state.loopPathError}
+											value={this.state.loop.path}
+											style={{
+												marginLeft: '35px',
+												width: '86%',
+												marginTop: '2px'
+											}}
+										/>
+										<FormControlLabel
+											style={{
+												marginLeft: '20px',
+											}}
+											control={
+												<Checkbox
+													checked={!!this.state.loop.recursively}
+													onChange={this.handleLoopRecursively}
+												/>
+											}
+											// eslint-disable-next-line
+											label={
+												<FormattedMessage
+													id="ProcessContainerSettings.loopRecursively"
+													defaultMessage="Recursively"
+												/>
+											}
+											disabled={!canEdit || !this.state.loop.enabled}
+										/>
+									</FormGroup>
+									<FormGroup>
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={this.state.preferences.hideMessages}
+													onChange={this.handleHideMessages}
+												/>
+											}
+											// eslint-disable-next-line
+											label={
+												<FormattedMessage
+													id="ProcessContainerSettings.hideMessages"
+													defaultMessage="Hide Messages"
+												/>
+											}
+											disabled={!canEdit}
+										/>
+									</FormGroup>
+								</div>
+							</div>
+							{this.state.showStreamWizard ? (
+							<StreamWizard
+								onClose={this.onWizardClose}
+								initialStep={this.state.showStreamWizard ? this.state.activeStep : undefined}
+								edit={this.state.editStream}
+								selectedStream={this.state.editStream ? this.state.inbox.stream.stream : undefined}
+								connector={undefined}
+								type="consumer"
+								open={this.state.showStreamWizard}
+								streams={this.props.streams}
+							/>) : null}
+						</TabContainer>
+					)}
+					{tabSelected === 1 && (
+						<TabContainer>
 							<div
 								style={{
-									display: 'inline-block',
-									width: '48%',
-									marginTop: '10px',
+									display: 'flex',
 								}}
 							>
-								<FormGroup>
-									<FormControlLabel
+								<div
+									style={{
+										marginTop: '35px',
+										marginRight: '40px',
+										width: '40%',
+									}}
+								>
+									<FormLabel
 										disabled={!canEdit}
-										control={
-											<Checkbox
-												checked={this.state.preferences.showGrid}
-												onChange={this.handleShowGrid}
-											/>
-										}
-										label={<FormattedMessage id="ShowGrid" defaultMessage="Show Grid" />}
-									/>
-									<FormControlLabel
+										style={{
+											display: 'block'
+										}}
+									>
+										<FormattedMessage id="Settings" defaultMessage="Settings" />
+									</FormLabel>
+									<FormGroup style={{}}>
+										<TextField
+											label={<FormattedMessage id="Name" defaultMessage="Name" />}
+											margin="normal"
+											fullWidth
+											onChange={this.handleSheetName}
+											value={this.state.name}
+											disabled={!canEdit}
+											error={!Reference.isValidIdentifier(this.state.name)}
+											helperText={
+												!Reference.isValidIdentifier(this.state.name) ? (
+													<FormattedMessage
+														id="Reference.InvalidName"
+														defaultMessage="Only alphanumeric characters and the underscore are allowed"
+													/>
+												) : (
+													''
+												)
+											}
+										/>
+										<TextField
+											disabled={!canEdit}
+											style={{
+												marginRight: '20px',
+												width: '100px'
+											}}
+											id="number"
+											label={<FormattedMessage id="Columns" defaultMessage="Columns" />}
+											inputProps={{
+												min: 1,
+												max: 50,
+												step: 1
+											}}
+											error={this.state.preferences.sheetColumns > 50}
+											helperText={
+												this.state.preferences.sheetColumns > 50 ? (
+													<FormattedMessage
+														id="ProcessContainerSettings.tooManyColumns"
+														defaultMessage="Only 50 columns allowed!"
+													/>
+												) : (
+													''
+												)
+											}
+											value={this.state.preferences.sheetColumns}
+											onChange={(event) => this.handleSheetColumns(event)}
+											type="number"
+											margin="normal"
+										/>
+										<TextField
+											disabled={!canEdit}
+											style={{
+												width: '100px'
+											}}
+											id="number"
+											label={<FormattedMessage id="Rows" defaultMessage="Rows" />}
+											inputProps={{
+												min: 1,
+												max: 1000,
+												step: 1
+											}}
+											error={this.state.preferences.sheetRows > 1000}
+											helperText={
+												this.state.preferences.sheetRows > 1000 ? (
+													<FormattedMessage
+														id="ProcessContainerSettings.tooManyRows"
+														defaultMessage="Only 1000 rows allowed!"
+													/>
+												) : (
+													''
+												)
+											}
+											value={this.state.preferences.sheetRows}
+											onChange={(event) => this.handleSheetRows(event)}
+											type="number"
+											margin="normal"
+										/>
+										<FormControlLabel
+											disabled={!canEdit}
+											style={{
+												marginTop: '15px'
+											}}
+											control={
+												<Checkbox
+													checked={this.state.preferences.sheetProtect}
+													onChange={this.handleSheetProtect}
+												/>
+											}
+											label={
+												<FormattedMessage id="ProtectSheet" defaultMessage="Protect Sheet" />
+											}
+										/>
+									</FormGroup>
+								</div>
+								<div
+									style={{
+										marginTop: '35px',
+										width: '40%',
+									}}
+								>
+									<FormLabel
 										disabled={!canEdit}
-										control={
-											<Checkbox
-												checked={this.state.preferences.showHeader}
-												onChange={this.handleShowHeader}
+										style={{
+											display: 'block'
+										}}
+									>
+										<FormattedMessage id="View" defaultMessage="View" />
+									</FormLabel>
+									<div
+										style={{
+											display: 'inline-block',
+											marginTop: '10px'
+										}}
+									>
+										<FormGroup>
+											<FormControlLabel
+												disabled={!canEdit}
+												control={
+													<Checkbox
+														checked={this.state.preferences.showGrid}
+														onChange={this.handleShowGrid}
+													/>
+												}
+												label={<FormattedMessage id="ShowGrid" defaultMessage="Show Grid" />}
 											/>
-										}
-										label={<FormattedMessage id="ShowHeaders" defaultMessage="Show Headers" />}
-									/>
-									<FormControlLabel
-										disabled={!canEdit}
-										control={
-											<Checkbox
-												checked={this.state.preferences.showFormulas}
-												onChange={this.handleShowFormulas}
+											<FormControlLabel
+												disabled={!canEdit}
+												control={
+													<Checkbox
+														checked={this.state.preferences.showHeader}
+														onChange={this.handleShowHeader}
+													/>
+												}
+												label={
+													<FormattedMessage id="ShowHeaders" defaultMessage="Show Headers" />
+												}
 											/>
-										}
-										label={<FormattedMessage id="ShowFormulas" defaultMessage="Show Formulas" />}
-									/>
-								</FormGroup>
+											<FormControlLabel
+												disabled={!canEdit}
+												control={
+													<Checkbox
+														checked={this.state.preferences.showFormulas}
+														onChange={this.handleShowFormulas}
+													/>
+												}
+												label={
+													<FormattedMessage
+														id="ShowFormulas"
+														defaultMessage="Show Formulas"
+													/>
+												}
+											/>
+										</FormGroup>
+										<FormGroup>
+											<FormControlLabel
+												disabled={!canEdit}
+												control={
+													<Checkbox
+														checked={this.state.preferences.showInbox}
+														onChange={this.handleShowInbox}
+													/>
+												}
+												label={<FormattedMessage id="ShowInbox" defaultMessage="Show Inbox" />}
+											/>
+											<FormControlLabel
+												disabled={!canEdit}
+												control={
+													<Checkbox
+														checked={this.state.preferences.greyIfRows}
+														onChange={this.handleGreyIfRows}
+													/>
+												}
+												label={
+													<FormattedMessage id="GreyIfRows" defaultMessage="Grey IF Rows" />
+												}
+											/>
+										</FormGroup>
+									</div>
+								</div>
 							</div>
-							<div
-								style={{
-									width: '50%',
-									marginTop: '10px',
-									display: 'inline-block',
-								}}
-							>
-								<FormGroup>
-									<FormControlLabel
-										disabled={!canEdit}
-										control={
-											<Checkbox
-												checked={this.state.preferences.showInbox}
-												onChange={this.handleShowInbox}
-											/>
-										}
-										label={<FormattedMessage id="ShowInbox" defaultMessage="Show Inbox" />}
-									/>
-									<FormControlLabel
-										disabled={!canEdit}
-										control={
-											<Checkbox
-												checked={this.state.preferences.greyIfRows}
-												onChange={this.handleGreyIfRows}
-											/>
-										}
-										label={<FormattedMessage id="GreyIfRows" defaultMessage="Grey IF Rows" />}
-									/>
-								</FormGroup>
-							</div>
-						</div>
-					</TabContainer>}
+						</TabContainer>
+					)}
 				</DialogContent>
-				<DialogActions>
-					<Button onClick={this.handleClose} color="primary">
-						<FormattedMessage id="Cancel" defaultMessage="Cancel" />
-					</Button>
-					<Button onClick={this.handleSave} color="primary" autoFocus={canEdit}>
-						<FormattedMessage id="SaveButton" defaultMessage="Save" />
-					</Button>
+				<DialogActions style={{ justifyContent: 'space-between', padding: '0px 7px 4px 11px' }}>
+					{tabSelected === 0 ? (
+						<div>
+							<Button onClick={this.handleAddConsumer}>
+								<FormattedMessage id="DialogNew.AddConsumer" defaultMessage="Add Consumer" />
+							</Button>
+							<Button
+								onClick={this.handleEditConsumer}
+								disabled={this.state.inbox.stream === null || this.state.inbox.stream.id === 'none'}
+							>
+								<FormattedMessage id="DialogNew.EditConsumer" defaultMessage="Edit Consumer" />
+							</Button>
+						</div>
+					) : (
+						<div />
+					)}
+					<div>
+						<Button onClick={this.handleClose}>
+							<FormattedMessage id="Cancel" defaultMessage="Cancel" />
+						</Button>
+						<Button onClick={this.handleSave} autoFocus={canEdit}>
+							<FormattedMessage id="SaveButton" defaultMessage="Save" />
+						</Button>
+					</div>
 				</DialogActions>
 			</Dialog>
 		);
@@ -1079,7 +1299,7 @@ function mapStateToProps(state) {
 	return {
 		open: state.appState.showInboxSettings,
 		streams: state.streams,
-		machine: state.monitor.machine,
+		machine: state.monitor.machine
 	};
 }
 
@@ -1089,10 +1309,7 @@ function mapDispatchToProps(dispatch) {
 
 InboxSettings.propTypes = {
 	saveProcessSettings: PropTypes.func.isRequired,
-	machine: PropTypes.object.isRequired,
+	machine: PropTypes.object.isRequired
 };
 
-export default connect(
-	mapStateToProps,
-	mapDispatchToProps,
-)(InboxSettings);
+export default connect(mapStateToProps, mapDispatchToProps)(InboxSettings);

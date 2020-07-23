@@ -237,8 +237,8 @@ class AddNewDialog extends React.Component {
 	};
 
 	getFormattedDateString(date) {
-		const dat = new Date(Date.parse(date));
-		return dat.toLocaleString(undefined, {year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'});
+		const d = new Date(Date.parse(date));
+		return `${d.toLocaleDateString(undefined, {year: '2-digit', month: '2-digit', day: '2-digit'})} ${d.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'})}`;
 	}
 
 	render() {
