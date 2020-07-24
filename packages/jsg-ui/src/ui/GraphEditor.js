@@ -640,6 +640,10 @@ class GraphEditor {
 		}
 	}
 
+	hasItemMenuHandler() {
+		return !!this._menuhandler;
+	}
+
 	getItemMenuHandler() {
 		if (!this._menuhandler) {
 			this.setItemMenuHandler(new ItemMenuHandler());
