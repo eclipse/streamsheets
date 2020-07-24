@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
-const { AsyncRequest, runFunction } = require('../../utils');
+const { AsyncRequest, runFunction, terms: { hasValue } } = require('../../utils');
 const { getInstance } = require('@cedalo/http-client');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Message } = require('@cedalo/machine-core');
@@ -72,11 +72,13 @@ const post = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.withMaxArgs(1)
+		.withMaxArgs(3)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
-		.run((url) =>
+		.mapNextArg((data) => hasValue(data) ? asString(data.value, ERROR.VALUE) : '')
+		.mapNextArg((config) => hasValue(config) ? asString(config.value, ERROR.VALUE) : {})
+		.run((url, data, config) =>
 			AsyncRequest.create(sheet, post.context)
-				.request(() => getInstance().post(url, '', {}))
+				.request(() => getInstance().post(url, data = '', config = {}))
 				.response(defaultCallback)
 				.reqId()
 		);
