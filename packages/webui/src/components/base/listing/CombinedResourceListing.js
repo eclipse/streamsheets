@@ -29,12 +29,6 @@ const styles = (theme) => ({
 	},
 });
 
-
-
-const PREF_KEY_SORTQUERY = 'streamsheets-prefs-listing-sortby';
-
-// let filterFunction;
-
 class CombinedResourceListing extends Component {
 	static propTypes = {
 		type: PropTypes.string,
@@ -80,20 +74,15 @@ class CombinedResourceListing extends Component {
 		onMenuSelect: undefined
 	};
 
-	constructor(props) {
-		super(props);
-		const sortQuery = localStorage.getItem(PREF_KEY_SORTQUERY) || props.sortQuery;
+	constructor() {
+		super();
 		this.state = {
-			gridWidth: 0,
-			sortQuery
-		};
-		localStorage.setItem(PREF_KEY_SORTQUERY, sortQuery);
-		// filterFunction = (r) => r;
+			dummy: -1,
+		}
 	}
 
 	componentDidMount() {
 		window.addEventListener('resize', () => this.updateDimensions());
-		this.updateDimensions();
 	}
 
 	componentWillUnmount() {
@@ -126,39 +115,17 @@ class CombinedResourceListing extends Component {
 		const dims = this.getDimensions();
 		if (dims) {
 			this.setState({
-				gridWidth: dims.width + dims.left + dims.right
+				dummy: Math.random(),
 			});
 		}
 	}
 
 	getFilteredResources = () => this.props.resources;
 
-	handleSort = (event, sortedResources, sortQuery) => {
-		this.setState({
-			// filteredResources: sortedResources,
-			sortQuery
-		});
-		localStorage.setItem(PREF_KEY_SORTQUERY, sortQuery);
-	};
-
 	render() {
-		let dims = this.state.gridWidth;
-		dims = this.getDimensions();
 		const { handleNew, handleReload, disabled, filter } = this.props;
-		const sortQuery = localStorage.getItem(PREF_KEY_SORTQUERY) || this.state.sortQuery;
-		localStorage.setItem(PREF_KEY_SORTQUERY, sortQuery);
 		const resources = this.props.enrichResources(this.props.resources);
-		const filteredResources = SortSelector.sort(resources, sortQuery, filter);
 		const recentResources = SortSelector.sort(resources, 'lastModified_desc', filter);
-		recentResources.length = 5;
-		const sortFields = ['name', 'lastModified'];
-		if (filteredResources.length > 0) {
-			if (filteredResources[0].state) {
-				sortFields.push('state');
-			}
-		}
-		const sortObj = SortSelector.parseSortQuery(sortQuery);
-		const width = dims ? dims.width + dims.left + dims.right : 0;
 		return (
 			<Wall
 				overflow
@@ -166,41 +133,14 @@ class CombinedResourceListing extends Component {
 			>
 				<div
 					style={{
-						display: 'flex',
-						justifyContent: 'flex-end',
-						flexFlow: 'row',
-						width: '100%'
-					}}
-				>
-					<div
-						style={{
-							height: '40px',
-							marginRight: `${Math.max(0, Math.floor((width - Math.floor(width / 330) * 330) / 2)) +
-								23}px`
-						}}
-					>
-						{filteredResources.length === 0 ? null : (
-							<SortSelector
-								onSort={this.handleSort}
-								getResources={this.getFilteredResources}
-								sortFields={sortFields}
-								withFilter={false}
-								defaultSortBy={sortObj.sortBy}
-								defaultSortDir={sortObj.sortDir}
-							/>
-						)}
-					</div>
-				</div>
-				<div
-					style={{
 						height: 'calc(100% - 40px)'
 					}}
 				>
 					{this.props.layout === 'grid' ? (
-						<ResourcesGrid {...this.props} gridWidth={width} resources={filteredResources} />
+						<ResourcesGrid {...this.props} recent={recentResources} resources={resources} dummy={this.state.dummy}/>
 					) : null}
 					{this.props.layout === 'list' ? (
-						<ResourcesList {...this.props} resources={filteredResources} />
+						<ResourcesList {...this.props} resources={resources} />
 					) : null}
 					{typeof handleReload === 'undefined' ? null : (
 						<Tooltip

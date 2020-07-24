@@ -368,6 +368,7 @@ class DashBoardComponent extends Component {
 
 			switch (this.state.streamSortBy) {
 				case 'provider':
+				case 'url':
 				case 'topic':
 				case 'name': {
 					const aName = a[this.state.streamSortBy] || '';
@@ -506,7 +507,7 @@ class DashBoardComponent extends Component {
 					</div>
 				</div>
 				{this.state.activeTab === 0 ? (
-					<div style={{ height: 'calc(100% - 49px)' }}>
+					<div style={{ height: '100%' }}>
 						<ImportDropzone>
 							<CombinedResourceListing
 								fields={[

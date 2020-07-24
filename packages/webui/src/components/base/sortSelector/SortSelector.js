@@ -99,7 +99,7 @@ class SortSelector extends React.Component {
 				{withFilter === false ? null : (
 					<Input
 						onChange={this.handleFilter}
-						style={{ margin: '8px', flexGrow: 1 }}
+						style={{ flexGrow: 1 }}
 						startAdornment={
 							<InputAdornment position="start">
 								<IconSearch />
@@ -131,7 +131,7 @@ SortSelector.parseSortQuery = (q) => {
 };
 
 SortSelector.DEFAULT_STYLE = {
-	wrapper: { display: 'flex', alignItems: 'center', marginTop: '8px' },
+	wrapper: { display: 'flex', alignItems: 'center' },
 	label: { marginRight: '4px', fontWeight: '120%', fontSize: '10pt' },
 	button: {
 		fontSize: '8pt',
