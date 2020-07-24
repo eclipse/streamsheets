@@ -74,6 +74,9 @@ export default class SheetActivator extends InteractionActivator {
 
 		if (this._controller === undefined) {
 			this.setState(event, viewer, dispatcher);
+			if (viewer.getCanvas()._jsgEditor.hasItemMenuHandler()) {
+				viewer.getCanvas()._jsgEditor.getItemMenuHandler().hideMenu();
+			}
 		}
 
 		if (this._controller) {
