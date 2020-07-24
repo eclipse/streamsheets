@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -44,27 +44,35 @@ class MachineTaskOutboxMonitor {
 		this.outbox.off('message_changed', this.onMessageChanged);
 	}
 
-	onClear(/* messages */ ) {
+	onClear(/* messages */) {
+		const totalSize = this.outbox.size;
 		const messages = this.outbox.getFirstMessages();
-		const message = eventmsg(MachineEvents.MESSAGE_BOX_CLEAR, this.outbox, this.machine, { messages });
+		const message = eventmsg(MachineEvents.MESSAGE_BOX_CLEAR, this.outbox, this.machine, { messages, totalSize });
 		this.publishEvent(message);
 	}
 
 	onMessagePut(message) {
+		const totalSize = this.outbox.size;
 		const messages = this.outbox.getFirstMessages();
-		const msg = eventmsg(MachineEvents.MESSAGE_PUT, this.outbox, this.machine, { message, messages });
+		const msg = eventmsg(MachineEvents.MESSAGE_PUT, this.outbox, this.machine, { message, messages, totalSize });
 		this.publishEvent(msg);
 	}
 
 	onMessagePop(message) {
+		const totalSize = this.outbox.size;
 		const messages = this.outbox.getFirstMessages();
-		const msg = eventmsg(MachineEvents.MESSAGE_POP, this.outbox, this.machine, { message, messages });
+		const msg = eventmsg(MachineEvents.MESSAGE_POP, this.outbox, this.machine, { message, messages, totalSize });
 		this.publishEvent(msg);
 	}
 
 	onMessageChanged(message) {
+		const totalSize = this.outbox.size;
 		const messages = this.outbox.getFirstMessages();
-		const msg = eventmsg(MachineEvents.MESSAGE_CHANGED, this.outbox, this.machine, { message, messages });
+		const msg = eventmsg(MachineEvents.MESSAGE_CHANGED, this.outbox, this.machine, {
+			message,
+			messages,
+			totalSize
+		});
 		this.publishEvent(msg);
 	}
 }

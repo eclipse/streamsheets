@@ -1,5 +1,8 @@
 const { jsonpath } = require('@cedalo/commons');
 
+// TODO: a lot of message handling functions have slightly different requirements... :-( 
+// => COMBINE!! all message handling methods!!
+
 const getStreamSheetByName = (sheet, name) => {
 	if (name) {
 		const machine = sheet.machine;
@@ -17,6 +20,7 @@ const readOutboxMessage = (sheet, messageId) => sheet.machine.outbox.peek(messag
 const getMessageInfo = (sheet, term) => {
 	const path = jsonpath.parse(term.value);
 	const fnName = term.func && term.name && term.name.toUpperCase();
+	const messageKey = `${fnName}-${term.value}`;
 	const isInbox = fnName && fnName.startsWith('INBOX');
 	const isOutbox = fnName && fnName.startsWith('OUTBOX');
 	// eslint-disable-next-line
@@ -24,7 +28,7 @@ const getMessageInfo = (sheet, term) => {
 		? readOutboxMessage(sheet, path.shift())
 		: isInbox ? readInboxMessage(sheet, path.shift(), path.shift())	: undefined;
 	const isProcessed = !!message && sheet.streamsheet.isMessageProcessed(message);
-	return { message, isProcessed, path, fnName };
+	return { message, messageKey, isProcessed, path, fnName };
 };
 
 const isData = (fnName) => fnName && fnName.endsWith('DATA');

@@ -152,7 +152,6 @@
   "InboxSettings.SelectConsumer": "Please select a Consumer:",
   "InboxSettings.stream": "Current Consumer",
   "InboxSettings.calcStreamSheet": "Calculate Streamsheet",
-  "InboxSettings.title": "Streamsheet Settings",
   "InboxSettings.unit": "Unit",
   "InboxSettings.ms": "Milliseconds",
   "InboxSettings.seconds": "Seconds",

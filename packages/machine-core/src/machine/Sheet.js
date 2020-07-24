@@ -173,6 +173,9 @@ module.exports = class Sheet {
 	get isPaused() {
 		return this.processor.isPaused;
 	}
+	get isResumed() {
+		return this.processor.isResumed;
+	}
 
 	get machine() {
 		return this.streamsheet ? this.streamsheet.machine : undefined;
@@ -201,7 +204,7 @@ module.exports = class Sheet {
 	executeFunctions(fns) {
 		// some functions only works if machine runs...
 		const force = this.forceExecution(true);
-		const res = fns.map(fn => fn.value);
+		const res = fns.map((fn) => fn.value);
 		this.forceExecution(force);
 		return res;
 	}
@@ -305,7 +308,7 @@ module.exports = class Sheet {
 		for (let row = cellrange.startrow; row <= cellrange.endrow; row += 1) {
 			for (let col = cellrange.startcol; col <= cellrange.endcol; col += 1) {
 				fromIdx.set(row, col);
-				toIdx.set(fromIdx.row + offset.row, fromIdx.col + offset.col)
+				toIdx.set(fromIdx.row + offset.row, fromIdx.col + offset.col);
 				const cell = this.cellAt(fromIdx.set(row, col));
 				const props = this.properties.getCellProperties(fromIdx.row, fromIdx.col).toDiffsProperties();
 				// properties must be set, even if there is no cell...
@@ -344,7 +347,7 @@ module.exports = class Sheet {
 		for (let row = cellrange.endrow; row >= cellrange.startrow; row -= 1) {
 			for (let col = cellrange.endcol; col >= cellrange.startcol; col -= 1) {
 				fromIdx.set(row, col);
-				toIdx.set(fromIdx.row + offset.row, fromIdx.col + offset.col)
+				toIdx.set(fromIdx.row + offset.row, fromIdx.col + offset.col);
 				const cell = this.cellAt(fromIdx.set(row, col));
 				const props = this.properties.getCellProperties(fromIdx.row, fromIdx.col).toDiffsProperties();
 				// properties must be set, even if there is no cell...
@@ -402,7 +405,7 @@ module.exports = class Sheet {
 			if (action !== 'formats') {
 				removeCells(
 					trgtsheet,
-					{ start: trgtsheet.settings.minrow, end: trgtsheet.settings.maxrow + 1},
+					{ start: trgtsheet.settings.minrow, end: trgtsheet.settings.maxrow + 1 },
 					{ start: trgtCol, end: trgtCol + srcrange.end.col - srcrange.start.col }
 				);
 			}
@@ -465,9 +468,8 @@ module.exports = class Sheet {
 	}
 
 	moveCell(fromIdx, toIdx) {
-		const cell = this.cellAt(fromIdx);
-		const didIt = cell && this.setCellAt(toIdx, cell);
-		return didIt && this._doSetCellAt(fromIdx, undefined, true);
+		this.setCellAt(toIdx, this.cellAt(fromIdx));
+		this._doSetCellAt(fromIdx, undefined, true);
 	}
 
 	// note: inserts cell if none exists at specified index!!

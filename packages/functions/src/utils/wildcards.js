@@ -34,11 +34,15 @@ const MAP = {
 const mapCharacters = (match) => MAP[match] || match;
 const escapeRegExChacraters = (str) => str.replace(ESCAPE_REGEX, '\\$&');
 const mapExcelWildCards = (str) => str.replace(WILDCARDS_REGEX, mapCharacters);
-const boundToStr = (str) => `^${str}$`;
-const toRegStr = pipe(escapeRegExChacraters, mapExcelWildCards, boundToStr);
-const toRegExp = (str) => new RegExp(toRegStr(str));
+const boundRegexStr = (str) => `^${str}$`;
+const toRegExStr = pipe(escapeRegExChacraters, mapExcelWildCards);
+const toBoundedRegExStr = pipe(toRegExStr, boundRegexStr);
+const toRegExp = (str, flags) => new RegExp(toRegExStr(str), flags);
+const toBoundedRegExp = (str) => new RegExp(toBoundedRegExStr(str));
 
 module.exports = {
+	toBoundedRegExp,
+	toBoundedRegExStr,
 	toRegExp,
-	toRegStr
+	toRegExStr
 };

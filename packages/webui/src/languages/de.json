@@ -152,7 +152,6 @@
     "InboxSettings.SelectConsumer": "Bitte wählen Sie einen Konsumenten aus:",
     "InboxSettings.stream": "Aktueller Konsument",
 	"InboxSettings.calcStreamSheet": "Streamsheet berechnen",
-	"InboxSettings.title": "Streamsheet Einstellungen",
 	"InboxSettings.unit": "Einheit",
 	"InboxSettings.interval": "Intervall",
 	"InboxSettings.ms": "Millisekunden",

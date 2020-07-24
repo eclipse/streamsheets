@@ -26,7 +26,7 @@ const getIdRegEx = (context, idFilter) => {
 	if (filterStr != null && (!_filter || _filter.filterStr !== filterStr)) {
 		_filter = {
 			filterStr,
-			regex: wildcards.toRegExp(filterStr)
+			regex: wildcards.toBoundedRegExp(filterStr)
 		};
 		context.idFilter = _filter;
 	}
