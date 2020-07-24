@@ -153,11 +153,12 @@ const head = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.withMaxArgs(1)
+		.withMaxArgs(2)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
-		.run((url) =>
+		.mapNextArg((config) => hasValue(config) ? asString(config.value, ERROR.VALUE) : '')
+		.run((url, config) =>
 			AsyncRequest.create(sheet, head.context)
-				.request(() => getInstance().head(url, {}))
+				.request(() => getInstance().head(url, config = {}))
 				.response(defaultCallback)
 				.reqId()
 		);
