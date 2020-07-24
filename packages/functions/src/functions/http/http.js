@@ -58,11 +58,12 @@ const get = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.withMaxArgs(1)
+		.withMaxArgs(2)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
-		.run((url) =>
+		.mapNextArg((config) => hasValue(config) ? asString(config.value, ERROR.VALUE) : '')
+		.run((url, config) =>
 			AsyncRequest.create(sheet, get.context)
-				.request(() => getInstance().get(url, {}))
+				.request(() => getInstance().get(url, config = {}))
 				.response(defaultCallback)
 				.reqId()
 		);
