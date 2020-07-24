@@ -105,6 +105,19 @@ class ResourcesGrid extends React.Component {
 		event.preventDefault();
 	};
 
+	createDescription(resource) {
+		switch (resource.className) {
+		case 'ConnectorConfiguration':
+			return ``;
+		case 'ConsumerConfiguration':
+			return ``;
+		case 'ProducerConfiguration':
+			return ``;
+		default:
+			return `Contains url(${resource.titleImage || 'images/preview.png'})`;
+		}
+	}
+
 	getImageByResource(resource) {
 		if (!resource) {
 			return `url('images/preview.png')`;
@@ -250,7 +263,7 @@ class ResourcesGrid extends React.Component {
 								>
 									{jsonpath.query(resource, 'description').length
 										? jsonpath.query(resource, 'description')
-										: 'This is a description placeholder for commenting on the implemented Service'}
+										: this.createDescription}
 								</Typography>
 								<div
 									style={{

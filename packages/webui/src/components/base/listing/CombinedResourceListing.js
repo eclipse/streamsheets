@@ -89,28 +89,6 @@ class CombinedResourceListing extends Component {
 		window.removeEventListener('resize', this.updateDimensions);
 	}
 
-	getDimensions() {
-		let refGrid = document.getElementById('coreGrid');
-		let offset = 0;
-		if (!refGrid) {
-			refGrid = document.getElementById('combinedResourceList');
-			offset = 20;
-		}
-		if (refGrid) {
-			const style = getComputedStyle(refGrid);
-			const width = parseFloat(style.width) - offset;
-			const left = parseFloat(style.marginLeft);
-			const right = parseFloat(style.marginRight);
-			return {
-				width,
-				left,
-				right
-			};
-		}
-
-		return undefined;
-	}
-
 	updateDimensions() {
 		const dims = this.getDimensions();
 		if (dims) {
@@ -133,7 +111,7 @@ class CombinedResourceListing extends Component {
 			>
 				<div
 					style={{
-						height: 'calc(100% - 40px)'
+						height: '100%'
 					}}
 				>
 					{this.props.layout === 'grid' ? (

@@ -507,7 +507,7 @@ class DashBoardComponent extends Component {
 					</div>
 				</div>
 				{this.state.activeTab === 0 ? (
-					<div style={{ height: '100%' }}>
+					<div style={{ height: 'calc(100% - 49px)' }}>
 						<ImportDropzone>
 							<CombinedResourceListing
 								fields={[

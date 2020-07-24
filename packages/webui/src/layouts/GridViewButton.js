@@ -33,7 +33,7 @@ export default function GridViewButton(props) {
 					enterDelay={300}
 					title={<FormattedMessage id="Tooltip.ViewGrid" defaultMessage="View Grid" />}
 				>
-					<IconButton color="inherit" aria-label="Menu" onClick={() => handleLayoutChange('grid')}>
+					<IconButton color="primary" aria-label="Menu" onClick={() => handleLayoutChange('grid')}>
 						<IconViewGrid />
 					</IconButton>
 				</Tooltip>
@@ -42,7 +42,7 @@ export default function GridViewButton(props) {
 					enterDelay={300}
 					title={<FormattedMessage id="Tooltip.ViewList" defaultMessage="View List" />}
 				>
-					<IconButton color="inherit" aria-label="Menu" onClick={() => handleLayoutChange('list')}>
+					<IconButton color="primary" aria-label="Menu" onClick={() => handleLayoutChange('list')}>
 						<IconViewList />
 					</IconButton>
 				</Tooltip>
