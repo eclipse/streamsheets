@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -228,12 +228,15 @@ module.exports = class StreamSheetContainer extends Node {
 	}
 
 	setStep(index) {
+		JSG.propertyEventsDisabled = true;
 		this.getStreamSheetContainerAttributes().setStep(index);
+		// do not trigger event, as chart menu will be hidden while running
 		this.getSheetCaption().setName(
 			`${this.getStreamSheet()
 				.getName()
 				.getValue()} - ${JSG.getLocalizedString('Step')} ${index}`
 		);
+		JSG.propertyEventsDisabled = false;
 	}
 
 	setMessage(message) {
