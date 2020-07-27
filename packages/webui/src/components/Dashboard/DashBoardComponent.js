@@ -431,12 +431,6 @@ class DashBoardComponent extends Component {
 		const canView = this.props.rights.includes('machine.view');
 		const canEdit = this.props.rights.includes('machine.edit');
 		const menuOptions = [];
-		if (canView) {
-			menuOptions.push({
-				label: <FormattedMessage id="Dashboard.open" defaultMessage="Open" />,
-				value: Constants.RESOURCE_MENU_IDS.OPEN
-			});
-		}
 		if (canEdit) {
 			menuOptions.push({
 				label: <FormattedMessage id="Copy" defaultMessage="Copy" />,
@@ -459,21 +453,6 @@ class DashBoardComponent extends Component {
 			menuOptions.push({
 				label: <FormattedMessage id="Dashboard.setTitleImage" defaultMessage="Set image" />,
 				value: Constants.RESOURCE_MENU_IDS.SET_TITLE_IMAGE
-			});
-		}
-		if (canControl) {
-			menuOptions.push('divider');
-			menuOptions.push({
-				label: <FormattedMessage id="Dashboard.start" defaultMessage="Start" />,
-				value: Constants.RESOURCE_MENU_IDS.START
-			});
-			menuOptions.push({
-				label: <FormattedMessage id="Dashboard.stop" defaultMessage="Stop" />,
-				value: Constants.RESOURCE_MENU_IDS.STOP
-			});
-			menuOptions.push({
-				label: <FormattedMessage id="Dashboard.pause" defaultMessage="Pause" />,
-				value: Constants.RESOURCE_MENU_IDS.PAUSE
 			});
 		}
 		return (

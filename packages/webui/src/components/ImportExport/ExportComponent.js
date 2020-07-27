@@ -272,7 +272,6 @@ const ExportComponent = (props) => {
 			<ImportDropzone>
 				<Wall
 					overflow
-					id="combinedResourceList"
 				>
 				<div
 					style={{

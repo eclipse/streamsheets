@@ -12,26 +12,19 @@
 import React  from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import jsonpath from 'jsonpath';
-import Chip from '@material-ui/core/Chip';
-import {Table, Paper} from '@material-ui/core';
+import {Table, Paper, IconButton} from '@material-ui/core';
 import TableBody from '@material-ui/core/TableBody';
-import TableHead from '@material-ui/core/TableHead';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import Checkbox from '@material-ui/core/Checkbox';
 import styles from './styles';
 import ResourceMenu from './ResourceMenu';
-import GridList from '@material-ui/core/GridList';
+import TableSortHeader from '../addNewDialog/TableSortHeader';
+import {FormattedMessage} from 'react-intl';
+import {formatDateString} from './Utils';
+import { IconPause, IconPlay, IconStop } from '../../icons';
+import Constants from '../../../constants/Constants';
 
 const MAX_LENGTH = 20;
-
-const DEF_STYLES = {
-	wrapper: {
-		height: '100%',
-		overflowY: 'overlay',
-	},
-};
 
 class ResourcesList extends React.Component {
 	static propTypes = {
@@ -46,14 +39,12 @@ class ResourcesList extends React.Component {
 		handleResourceDetails: PropTypes.func,
 		titleAttribute: PropTypes.string.isRequired,
 		headerBackgroundColor: PropTypes.string,
-		onChecked: PropTypes.func,
 		disabled: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		headerBackgroundColor: '#8BC34A',
 		handleResourceDetails: undefined,
-		onChecked: undefined,
 		disabled: false,
 		icon: undefined,
 		onMenuSelect: undefined,
@@ -64,13 +55,9 @@ class ResourcesList extends React.Component {
 		this.state = {
 			anchorEl: null,
 			resourceId: null,
-			checked: [...props.checked] || [],
+			streamSortBy: 'name',
+			streamSortOrder: 'asc',
 		};
-	}
-
-	jsonPath(resource, key) {
-		const value = jsonpath.query(resource, key);
-		return Array.isArray(value) ? value.join() : value;
 	}
 
 	shorten(value) {
@@ -81,128 +68,185 @@ class ResourcesList extends React.Component {
 		return ret;
 	}
 
-	handleChecked = (resourceId) => () => {
-		const { checked } = this.state;
-		const index = checked.indexOfw(resourceId);
-		if (index >= 0) {
-			checked.splice(index, 1);
-		} else {
-			checked.push(resourceId);
+	getMachines() {
+		const rows = [];
+
+		if (this.props.resources && this.props.resources.length) {
+			this.props.resources.forEach((machine) => {
+				if (machine.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
+					machine.lastModifiedFormatted = formatDateString(new Date(machine.lastModified).toISOString()),
+					rows.push(machine);
+				}
+			});
 		}
-		this.setState({
-			checked,
+
+		rows.sort((a, b) => {
+			const dir = this.state.streamSortOrder === 'asc' ? 1 : -1;
+
+			switch (this.state.streamSortBy) {
+			case 'consumers': {
+				const aName = this.getConsumers(a)
+				const bName = this.getConsumers(b)
+				if (aName.toLowerCase() > bName.toLowerCase()) {
+					return dir;
+				} else if (aName.toLowerCase() < bName.toLowerCase()) {
+					return -1 * dir;
+				}
+				return 0;
+			}
+			case 'name': {
+				const aName = a[this.state.streamSortBy] || '';
+				const bName = b[this.state.streamSortBy] || '';
+				if (aName.toLowerCase() > bName.toLowerCase()) {
+					return dir;
+				} else if (aName.toLowerCase() < bName.toLowerCase()) {
+					return -1 * dir;
+				}
+				return 0;
+			}
+			case 'lastModified': {
+				const aLastModified = a.lastModified || new Date().toISOString();
+				const bLastModified = b.lastModified || new Date().toISOString();
+				const res = new Date(aLastModified) - new Date(bLastModified);
+				return dir * res;
+			}
+			default:
+				return 0;
+			}
 		});
-		this.props.onChecked(resourceId, checked);
+
+		return rows;
+	}
+
+	handleTableSort = (event, property) => {
+		const orderBy = property;
+		const order =
+			(this.state.streamSortBy === property && this.state.streamSortOrder === 'desc') ||
+			this.state.streamSortBy !== property
+				? 'asc'
+				: 'desc';
+
+		this.setState({
+			streamSortBy: orderBy,
+			streamSortOrder: order
+		});
 	};
+
+	handleSelection = () => () => {
+	};
+
+	getConsumers(resource) {
+		if (!resource) {
+			return '';
+		}
+		let desc = '';
+		let cons = '';
+		resource.streamsheets.forEach((sheet) => {
+			if (sheet.inbox.stream) {
+				if (cons.length) {
+					cons += ', ';
+				}
+				cons += sheet.inbox.stream.name
+			}
+		});
+		if (cons.length) {
+			desc += cons;
+		} else {
+			desc += 'No Consumers';
+		}
+
+		return desc;
+	}
 
 	render() {
 		const {
-			resources,
 			menuOptions,
-			fields,
-			label,
 			onMenuSelect,
 			onResourceOpen = () => {},
-			titleAttribute,
-			onChecked,
-			disabled
 		} = this.props;
-		const rStyles = { ...DEF_STYLES, ...this.props.styles };
 		return (
 			<Paper
-				style={rStyles.wrapper}
+				style={{
+					height: '100%',
+					overflowY: 'overlay',
+				}}
 				square
 			>
 				<Table
-					style={{ minWidth: '700'
-					}}
+					style={{ minWidth: '700'}}
 				>
-					<TableHead>
-						<TableRow>
-							{!onChecked ? null : <TableCell>Checked</TableCell>}
-							<TableCell key={"head1"}>Name</TableCell>
-							{fields.map((field, i) => (
-								<TableCell key={i}>{field.label}</TableCell>
-							))}
-							<TableCell />
-						</TableRow>
-					</TableHead>
-
+					<TableSortHeader
+						height={48}
+						cells={[
+							{ id: 'name', numeric: false, disablePadding: false, label: 'Name', width: '25%' },
+							{ id: 'sheets', numeric: false, disablePadding: true, sort: false, label: 'Dashboard.sheets', width: '5%' },
+							{ id: 'consumers', numeric: false, disablePadding: true, label: 'Dashboard.consumers', width: '40%' },
+							{ id: 'lastModified', numeric: false, disablePadding: true, label: 'LastModified', width: '17%' },
+							// { id: 'state', numeric: false, disablePadding: false, label: 'State', width: '14%' },
+							{ id: 'action', numeric: false, disablePadding: true, sort: true, label: 'Streams.Actions', width: '15%', minWidth: '150px' }
+						]}
+						orderBy={this.state.streamSortBy}
+						order={this.state.streamSortOrder}
+						onRequestSort={this.handleTableSort}
+					/>
 					<TableBody>
-						{!resources
-							? null
-							: resources.map((resource) => (
-									<TableRow hover key={`${label}-${resource.id}`} style={{
-										textDecoration: resource.disabled ? 'line-through' : 'inherit',
-										backgroundColor: resource.disabled ? '#c0c0c0' : 'inherit',
-									}}>
-										{!onChecked ? null : (
-											<TableCell>
-												<Checkbox
-													checked={this.state.checked.includes(
-														resource.id,
-													)}
-													disabled={disabled || resource.protected}
-													onChange={this.handleChecked(resource.id)}
-												/>
-											</TableCell>
-										)}
-										<TableCell
-											onClick={() => onResourceOpen(resource)}
-											style={{
-												cursor: 'pointer',
-											}}
-											key="head2"
+						{this.getMachines().map((resource) => (
+							<TableRow
+								style={ {
+									height: '35px'
+								}}
+								hover
+								onClick={this.handleSelection(resource)}
+								tabIndex={-1}
+								key={`${resource.className}-${resource.id}`}
+							>
+								<TableCell component="th" scope="row">
+									{resource.name}
+								</TableCell>
+								<TableCell padding="none">{resource.streamsheets.length}</TableCell>
+								<TableCell padding="none">{this.getConsumers(resource)}</TableCell>
+								<TableCell padding="none">{resource.lastModifiedFormatted}</TableCell>
+								{!menuOptions ? null : (
+									<TableCell padding="none">
+										<IconButton
+											style={{ padding: '4px' }}
+											size="small"
+											disabled={resource.state === 'running'}
+											onClick={() => this.props.onMenuSelect(Constants.RESOURCE_MENU_IDS.START, resource.id)}
 										>
-											<strong>
-												{this.jsonPath(resource, titleAttribute) ||
-													resource.name}
-											</strong>
-										</TableCell>
-										{fields.map((field,i) => {
-											let value = jsonpath.query(resource, field.key);
-											if (Array.isArray(value) && value.length === 1) {
-												// eslint-disable-next-line prefer-destructuring
-												value = value[0];
-											}
-											value = value || '';
-											if (!(typeof value === 'object' && value.error)) {
-												value = Array.isArray(value) ? value.join() : value;
-											}
-											value =
-												typeof value === 'object' && !value.error
-													? JSON.stringify(value)
-													: value;
-											const text = !value.error ? (
-												this.shorten(value)
-											) : (
-												<span style={{ color: 'red' }}>
-													{this.shorten(value.error)}
-												</span>
-											);
-											return (
-												<TableCell key={i} title={value.error || value}>
-													{text}
-												</TableCell>
-											);
-										})}
-										{!menuOptions ? null : (
-											<TableCell>
-												<ResourceMenu
-													handleOpenMenu={onResourceOpen}
-													menuOptions={menuOptions}
-													resourceId={resource.id}
-													onMenuSelect={onMenuSelect}
-													styles={{
-														icon: {
-															color: 'black',
-														},
-													}}
-												/>
-											</TableCell>
-										)}
-									</TableRow>
-							  ))}
+											<IconPlay />
+										</IconButton>
+										<IconButton
+											style={{ padding: '4px' }}
+											size="small"
+											disabled={resource.state !== 'running'}
+											onClick={() => this.props.onMenuSelect(Constants.RESOURCE_MENU_IDS.STOP, resource.id)}
+										>
+											<IconStop />
+										</IconButton>
+										<IconButton
+											style={{ padding: '4px' }}
+											disabled={resource.state !== 'running'}
+											size="small"
+											onClick={() => this.props.onMenuSelect(Constants.RESOURCE_MENU_IDS.PAUSE, resource.id)}
+										>
+											<IconPause />
+										</IconButton>
+										<ResourceMenu
+											handleOpenMenu={onResourceOpen}
+											menuOptions={menuOptions}
+											resourceId={resource.id}
+											onMenuSelect={onMenuSelect}
+											styles={{
+												icon: {
+													color: 'black',
+												},
+											}}
+										/>
+									</TableCell>
+								)}
+							</TableRow>
+						))}
 					</TableBody>
 				</Table>
 			</Paper>

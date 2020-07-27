@@ -11,25 +11,18 @@
 /* eslint-disable react/forbid-prop-types,react/no-unused-prop-types,jsx-a11y/click-events-have-key-events  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import jsonpath from 'jsonpath';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import CardContent from '@material-ui/core/CardContent';
 import Card from '@material-ui/core/Card';
 import Typography from '@material-ui/core/Typography';
-import Checkbox from '@material-ui/core/Checkbox';
-import styles from './styles';
 import ResourceCardHeader from './ResourceCardHeader';
 import * as Colors from '@material-ui/core/colors';
 import SortSelector from '../sortSelector/SortSelector';
+import { FormattedMessage, injectIntl } from 'react-intl';
 // import { shorten } from './Utils';
 
-const DEF_STYLES = {
-	MuiGridList: {
-		marginLeft: 0
-	}
-};
 const PREF_KEY_SORTQUERY = 'streamsheets-prefs-listing-sortby';
 
 class ResourcesGrid extends React.Component {
@@ -43,55 +36,28 @@ class ResourcesGrid extends React.Component {
 		onResourceOpen: PropTypes.func.isRequired,
 		icon: PropTypes.element,
 		headerIcons: PropTypes.arrayOf(PropTypes.object),
-		images: PropTypes.bool,
-		gridWidth: PropTypes.number,
 		handleResourceDetails: PropTypes.func,
 		titleAttribute: PropTypes.string.isRequired,
-		styles: PropTypes.object,
-		onChecked: PropTypes.func,
 		dummy: PropTypes.number,
-		checked: PropTypes.arrayOf(PropTypes.string),
-		showControlButtons: PropTypes.bool
 	};
 
 	static defaultProps = {
 		dummy: -1,
 		disabled: false,
-		images: false,
 		handleResourceDetails: undefined,
 		headerIcons: [],
 		icon: undefined,
-		styles: DEF_STYLES,
-		onChecked: undefined,
-		checked: [],
 		recent: [],
-		gridWidth: 0,
-		showControlButtons: true,
 		onMenuSelect: undefined
 	};
 
 	constructor(props) {
 		super(props);
 		this.state = {
-			checked: [...props.checked] || [],
 			sortQuery: localStorage.getItem(PREF_KEY_SORTQUERY),
 		};
 		this.gridRef = React.createRef();
 	}
-
-	handleChecked = (resourceId) => () => {
-		const checked = [...this.state.checked];
-		const index = checked.indexOf(resourceId);
-		if (index >= 0) {
-			checked.splice(index, 1);
-		} else {
-			checked.push(resourceId);
-		}
-		this.setState({
-			checked
-		});
-		this.props.onChecked(resourceId, checked);
-	};
 
 	handleOpenClick = (resource) => {
 		if (this.props.onResourceOpen) {
@@ -106,6 +72,9 @@ class ResourcesGrid extends React.Component {
 	};
 
 	createDescription(resource) {
+		if (!resource) {
+			return '';
+		}
 		switch (resource.className) {
 		case 'ConnectorConfiguration':
 			return ``;
@@ -114,8 +83,20 @@ class ResourcesGrid extends React.Component {
 		case 'ProducerConfiguration':
 			return ``;
 		default:
-			return `Contains url(${resource.titleImage || 'images/preview.png'})`;
 		}
+		let cons = '';
+		resource.streamsheets.forEach((sheet) => {
+			if (sheet.inbox.stream) {
+				if (cons.length) {
+					cons += ', ';
+				}
+				cons += sheet.inbox.stream.name
+			}
+		});
+		if (!cons.length) {
+		 	cons = this.props.intl.formatMessage({ id: 'Dashboard.noConsumers' }, {});
+		}
+		return this.props.intl.formatMessage({ id: 'Dashboard.description' }, { amount: resource.streamsheets.length, amountext:  resource.streamsheets.length > 1 ? 's' : '', consumers: cons});
 	}
 
 	getImageByResource(resource) {
@@ -142,9 +123,6 @@ class ResourcesGrid extends React.Component {
 			icon,
 			titleAttribute,
 			onMenuSelect,
-			onChecked,
-			showControlButtons,
-			disabled
 		} = this.props;
 		let cnt = 0;
 		const result = [];
@@ -178,24 +156,6 @@ class ResourcesGrid extends React.Component {
 						}}
 						onContextMenu={(event) => this.handleContextMenu(event, resource)}
 					>
-						{!onChecked ? null : (
-							<div
-								style={{
-									float: 'right',
-									position: 'relative',
-									left: '25px',
-									top: '130px'
-								}}
-							>
-								<Checkbox
-									color="default"
-									value="checkedG"
-									checked={this.state.checked.includes(resource.id)}
-									onChange={this.handleChecked(resource.id)}
-									disabled={disabled || resource.protected}
-								/>
-							</div>
-						)}
 						<div>
 							<div
 								onClick={() => this.handleOpenClick(resource)}
@@ -263,7 +223,7 @@ class ResourcesGrid extends React.Component {
 								>
 									{jsonpath.query(resource, 'description').length
 										? jsonpath.query(resource, 'description')
-										: this.createDescription}
+										: this.createDescription(resource)}
 								</Typography>
 								<div
 									style={{
@@ -276,12 +236,10 @@ class ResourcesGrid extends React.Component {
 										handleClicked={onMenuSelect}
 										resource={resource}
 										titleAttribute={titleAttribute}
-										headerIcons={this.props.headerIcons}
 										icon={icon}
 										menuOptions={menuOptions}
 										onMenuSelect={onMenuSelect}
 										titleMaxLength={15}
-										disabled={!showControlButtons || disabled}
 									/>
 								</div>
 							</div>
@@ -297,7 +255,6 @@ class ResourcesGrid extends React.Component {
 
 	handleSort = (event, sortedResources, sortQuery) => {
 		this.setState({
-			// filteredResources: sortedResources,
 			sortQuery
 		});
 		localStorage.setItem(PREF_KEY_SORTQUERY, sortQuery);
@@ -342,7 +299,9 @@ class ResourcesGrid extends React.Component {
 							marginTop: '15px',
 						}}
 					>
-						<Typography variant='body1'>Recently Modified</Typography>
+						<Typography variant='body1'>
+							<FormattedMessage id="Dashboard.recentlyModified" defaultMessage="Recently Modified" />
+						</Typography>
 					</div>,
 					<GridList
 						ref={this.gridRef}
@@ -366,7 +325,9 @@ class ResourcesGrid extends React.Component {
 								marginTop: '5px',
 							}}
 						>
-							<Typography variant='body1'>All Apps and Services</Typography>
+							<Typography variant='body1'>
+								<FormattedMessage id="Dashboard.allApps" defaultMessage="All Apps and Services" />
+							</Typography>
 						</div>
 						<div
 							style={{
@@ -401,4 +362,4 @@ class ResourcesGrid extends React.Component {
 	}
 }
 
-export default withStyles(styles, { withTheme: true })(ResourcesGrid);
+export default injectIntl(ResourcesGrid);

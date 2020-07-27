@@ -27,32 +27,32 @@ import styles from '../Admin/styles';
 // import StreamHelper from '../../helper/StreamHelper';
 import AdminConstants from '../../constants/AdminConstants';
 import MultipleTextField from '../base/multipleTextField/MultipleTextField';
-// import gatewayClient from '../../helper/GatewayClient';
+import gatewayClient from '../../helper/GatewayClient';
 import { AdminField } from '../Admin/AdminField';
 
-// const VALIDATION_QUERY = `
-// 	query ValidateStream($provider: String!, type: String!, streamConfig: JSON!) {
-// 		validateStream(provider: $provider, type: $type, streamConfig: $streamConfig) {
-// 			valid
-// 			fieldErrors
-// 			config
-// 		}
-// 	}
-// `;
+const VALIDATION_QUERY = `
+	query ValidateStream($provider: String!, type: String!, streamConfig: JSON!) {
+		validateStream(provider: $provider, type: $type, streamConfig: $streamConfig) {
+			valid
+			fieldErrors
+			config
+		}
+	}
+`;
 
 
 /**
  * usage: validate('@cedalo/stream-mqtt', 'consumer', {topic: 'test'});
  */
-// const validate = async (provider, type, streamConfig) => {
-// 	try {
-// 		const { validateStream } = await gatewayClient.graphql(VALIDATION_QUERY, { provider, type, streamConfig });
-// 		return validateStream;
-// 	} catch (error) {
-// 		console.error(error);
-// 	}
-// 	return { valid: true, fieldErrors: {}, config: streamConfig };
-// };
+const validate = async (provider, type, streamConfig) => {
+	try {
+		const { validateStream } = await gatewayClient.graphql(VALIDATION_QUERY, { provider, type, streamConfig });
+		return validateStream;
+	} catch (error) {
+		console.error(error);
+	}
+	return { valid: true, fieldErrors: {}, config: streamConfig };
+};
 
 export default class StreamFieldComponents {
 	constructor(props) {
@@ -185,13 +185,13 @@ export default class StreamFieldComponents {
 	}
 
 	async save(model, name) {
-		const { validate, save } = this.props;
-		const res = await validate(model, name, model[name]);
-		if(res.length>0) {
-			this.errorsMap.set(name, res[0]);
-		} else {
-			this.errorsMap.delete(name);
-		}
+		const { save } = this.props;
+		// const res = await validate(model, name, model[name]);
+		// if(res.length>0) {
+		// 	this.errorsMap.set(name, res[0]);
+		// } else {
+		// 	this.errorsMap.delete(name);
+		// }
 		const saveObject = {
 			id: model._id || model.id,
 			type: model.className,
@@ -203,9 +203,11 @@ export default class StreamFieldComponents {
 		save(saveObject, this.props);
 	}
 
-	async unFocus(event) {
-		const { name } = event.target;
-		return this.save(this.model, name);
+	async unFocus() {
+		// const { name } = event.target;
+		validate('@cedalo/stream-mqtt', 'consumer', this.configuration).then(result => {
+			console.log(result);
+		});
 	}
 
 	handler(event) {
@@ -235,7 +237,7 @@ export default class StreamFieldComponents {
 		}
 		// this.model = model;
 		// this.props.handle(model);
-		// this.unFocus(event);
+		this.unFocus(event);
 	}
 
 	onChange = (event) => {

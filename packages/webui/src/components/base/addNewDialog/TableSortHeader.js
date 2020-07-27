@@ -58,7 +58,8 @@ class TableSortHeader extends React.Component {
 						(row) => (
 							<TableCell
 								style={{
-									width: row.width
+									width: row.width,
+									minWidth: row.minWidth,
 								}}
 								key={row.id}
 								align={row.numeric ? 'right' : 'left'}

@@ -398,7 +398,8 @@ class StreamWizard extends React.Component {
 						StreamWizard.createUniqueConsumerName(this.state.connector, this.props) :
 						this.state.consumerName,
 				});
-			} else if (this.saveConnector()) {
+			} else {
+				// this.saveConnector()
 				this.handleClose();
 			}
 			break;

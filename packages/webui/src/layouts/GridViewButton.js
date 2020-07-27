@@ -19,7 +19,7 @@ const PREF_KEY_LAYOUT = 'streamsheets-prefs-listing-layout';
 
 export default function GridViewButton(props) {
 	const { onUpdateLayout } = props;
-	const [ layout, setLayout] = useState(props.layout);
+	const [ layout, setLayout] = useState(localStorage.getItem(PREF_KEY_LAYOUT) || 'grid');
 
 	const handleLayoutChange = (lay) => {
 		setLayout(lay);

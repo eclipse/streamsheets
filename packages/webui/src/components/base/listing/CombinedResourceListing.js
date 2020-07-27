@@ -9,12 +9,9 @@
  *
  ********************************************************************************/
 /* eslint-disable react/forbid-prop-types,react/no-unused-prop-types,jsx-a11y/click-events-have-key-events,react/no-find-dom-node,max-len */
-import { withStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import Add from '@material-ui/icons/Add';
-import Autorenew from '@material-ui/icons/Autorenew';
 import {Fab } from '@material-ui/core';
-// import * as Colors from '@material-ui/core/colors';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -22,12 +19,6 @@ import ResourcesGrid from './ResourcesGrid';
 import ResourcesList from './ResourcesList';
 import SortSelector from '../sortSelector/SortSelector';
 import Wall from '../../HelperComponent/Wall';
-
-const styles = (theme) => ({
-	extendedIcon: {
-		marginRight: theme.spacing.unit,
-	},
-});
 
 class CombinedResourceListing extends Component {
 	static propTypes = {
@@ -48,8 +39,6 @@ class CombinedResourceListing extends Component {
 		layout: PropTypes.string,
 		images: PropTypes.bool,
 		handleReload: PropTypes.func,
-		onChecked: PropTypes.func,
-		enrichResources: PropTypes.func,
 		checked: PropTypes.arrayOf(PropTypes.string),
 		disabled: PropTypes.bool,
 		sortQuery: PropTypes.string
@@ -58,15 +47,13 @@ class CombinedResourceListing extends Component {
 	static defaultProps = {
 		type: 'dashboard',
 		disabled: false,
-		handleNew: null,
+		handleNew: undefined,
 		layout: 'grid',
 		images: false,
 		handleResourceDetails: undefined,
 		icon: undefined,
 		handleReload: undefined,
 		headerIcons: [],
-		enrichResources: (resources) => resources,
-		onChecked: undefined,
 		checked: [],
 		nameFilter: undefined,
 		menuOptions: [],
@@ -90,19 +77,13 @@ class CombinedResourceListing extends Component {
 	}
 
 	updateDimensions() {
-		const dims = this.getDimensions();
-		if (dims) {
-			this.setState({
-				dummy: Math.random(),
-			});
-		}
+		this.setState({
+			dummy: Math.random(),
+		});
 	}
 
-	getFilteredResources = () => this.props.resources;
-
 	render() {
-		const { handleNew, handleReload, disabled, filter } = this.props;
-		const resources = this.props.enrichResources(this.props.resources);
+		const { handleNew, filter, resources } = this.props;
 		const recentResources = SortSelector.sort(resources, 'lastModified_desc', filter);
 		return (
 			<Wall
@@ -120,35 +101,7 @@ class CombinedResourceListing extends Component {
 					{this.props.layout === 'list' ? (
 						<ResourcesList {...this.props} resources={resources} />
 					) : null}
-					{typeof handleReload === 'undefined' ? null : (
-						<Tooltip
-							enterDelay={300}
-							title={
-								<FormattedMessage
-									id="Tooltip.ReloadStreams"
-									defaultMessage="Reload and validate"
-								/>
-							}
-						>
-							<Fab
-								id="reload"
-								aria-label="reload"
-								size="medium"
-								disabled={disabled}
-								color="primary"
-								style={{
-									position: 'absolute',
-									zIndex: 1200,
-									right: '30px',
-									bottom: '85px',
-								}}
-								onClick={handleReload}
-							>
-								<Autorenew />
-							</Fab>
-						</Tooltip>
-					)}
-					{typeof handleNew === 'undefined' ? null : (
+					{handleNew === undefined ? null : (
 						<Tooltip
 							enterDelay={300}
 							title={<FormattedMessage id="Tooltip.Add" defaultMessage="Add" />}
@@ -176,4 +129,4 @@ class CombinedResourceListing extends Component {
 	}
 }
 
-export default withStyles(styles)(CombinedResourceListing);
+export default CombinedResourceListing;
