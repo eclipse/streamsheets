@@ -30,6 +30,8 @@ const typeDefs = gql`
 
 	scalar ImportExportData
 
+	scalar JSON
+
 	type StreamStatus {
 		streamEventType: String
 	}
@@ -227,6 +229,12 @@ const typeDefs = gql`
 		newName: String!
 	}
 
+	type StreamValidationResult {
+		valid: Boolean!
+		fieldErrors: JSON!
+		config: JSON!
+	}
+
 	type ImportResult implements MutationResponse {
 		success: Boolean!
 		code: String!
@@ -262,6 +270,7 @@ const typeDefs = gql`
 		users: [User!]!
 		scoped(scope: ScopeInput!): ScopedQuery!
 		scopedByMachine(machineId: ID!): ScopedQuery!
+		validateStream(provider: String!, type: String!, streamConfig: JSON!): StreamValidationResult
 	}
 
 	type Mutation {

@@ -21,6 +21,7 @@ const STREAM_CONFIG_DELETE = 'stream_config_delete';
 const STREAM_CONFIG_LOAD = 'stream_config_load';
 const STREAM_CONFIG_LOAD_BY_NAME = 'stream_config_load_by_name';
 const STREAMS_CONFIG_LOAD_ALL = 'stream_config_load_all';
+const STREAM_CONFIG_VALIDATE = 'stream_config_validate';
 const STREAM_GET_PROVIDERS = 'stream_get_providers';
 const STREAM_UPDATE = 'stream_update';
 const STREAM_TEST = 'stream_test';
@@ -52,6 +53,7 @@ module.exports = {
 		STREAM_GET_PROVIDERS,
 		STREAM_CONFIG_LOAD_BY_NAME,
 		STREAMS_CONFIG_LOAD_ALL,
+		STREAM_CONFIG_VALIDATE,
 		STREAM_UPDATE,
 		STREAM_TEST,
 		STREAM_LIST,
