@@ -366,6 +366,18 @@ class Provider {
 	off(event, fn) {
 		this._emitter.off(event, fn);
 	}
+
+	validateConsumer(configuration) {
+		throw new Error('Not implemented');
+	}
+
+	validateProducer(configuration) {
+		throw new Error('Not implemented');
+	}
+
+	validateConnector(configuration) {
+		throw new Error('Not implemented');
+	}
 }
 
 Provider.EVENTS = {

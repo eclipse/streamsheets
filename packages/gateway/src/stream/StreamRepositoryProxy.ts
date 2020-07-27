@@ -20,7 +20,8 @@ import {
 	GetStreamRequest,
 	GetStreamByNameRequest,
 	StreamCommandRequest,
-	GetProvidersRequest
+	GetProvidersRequest,
+	ValidateStreamRequest
 } from './types';
 import { ID } from '../streamsheets';
 
@@ -33,8 +34,14 @@ const {
 	STREAM_RELOAD,
 	STREAM_CONFIG_LOAD,
 	STREAM_CONFIG_LOAD_BY_NAME,
-	STREAM_GET_PROVIDERS
+	STREAM_GET_PROVIDERS,
+	STREAM_CONFIG_VALIDATE
 } = StreamsMessagingProtocol.MESSAGE_TYPES;
+
+export interface StreamValidationResult {
+	valid: boolean;
+	fieldErrors: { [key: string]: string };
+}
 
 export class StreamRepositoryProxy {
 	private messagingClient: MessagingClient;
@@ -110,6 +117,18 @@ export class StreamRepositoryProxy {
 			type: STREAM_CONFIG_SAVE,
 			requestId: Math.random(),
 			configuration: stream
+		};
+		const result = await this.requestHelper.doRequestMessage({ message, topic: SERVICES_STREAMS_INPUT });
+		return result;
+	}
+
+	async validateStream(provider: string, streamType: string, config: object): Promise<StreamValidationResult> {
+		const message: Omit<ValidateStreamRequest, 'scope'> = {
+			type: STREAM_CONFIG_VALIDATE,
+			requestId: Math.random(),
+			provider,
+			streamType,
+			configuration: config
 		};
 		const result = await this.requestHelper.doRequestMessage({ message, topic: SERVICES_STREAMS_INPUT });
 		return result;

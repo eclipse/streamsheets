@@ -121,7 +121,8 @@ const resolvers = {
 				throw new Error('NOT_ALLOWED');
 			}
 			return { scope };
-		}
+		},
+		validateStream: async (obj, args, {api}) => api.stream.validateStream(args.provider, args.type, args.streamConfig)
 	},
 	Mutation: {
 		createUser: async (obj, { user }, { api, encryption }) => {
@@ -304,7 +305,8 @@ const resolvers = {
 	MachineMetadata: {
 		lastModified: (obj) => new Date(obj.lastModified).getTime()
 	},
-	ImportExportData: GraphQLJSONObject
+	ImportExportData: GraphQLJSONObject,
+	JSON: GraphQLJSONObject,
 };
 
 module.exports = { resolvers };

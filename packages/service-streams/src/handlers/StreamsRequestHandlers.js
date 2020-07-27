@@ -107,6 +107,23 @@ class SaveConfigurationRequestHandler extends RequestHandler {
 	}
 }
 
+class ValidateConfigurationRequestHandler extends RequestHandler {
+	constructor() {
+		super(MESSAGE_TYPES.STREAM_CONFIG_VALIDATE);
+	}
+
+	async handle(handlerArgs) {
+		const { message, streamsManager } = handlerArgs;
+		const { provider, streamType, configuration } = message;
+		try {
+			const result = streamsManager.validateConfiguration(provider, streamType, configuration);
+			return this.confirm(message, { ...result})
+		} catch (e) {
+			return this.reject(message, {valid: false, error: e})
+		}
+	}
+}
+
 class DeleteConfigurationRequestHandler extends RequestHandler {
 	constructor() {
 		super(MESSAGE_TYPES.STREAM_CONFIG_DELETE);
@@ -373,5 +390,6 @@ module.exports = {
 	TestRequestHandler,
 	LookUpRequestHandler,
 	StreamCommandRequestHandler,
+	ValidateConfigurationRequestHandler,
 	MetaInformationRequestHandler
 };
