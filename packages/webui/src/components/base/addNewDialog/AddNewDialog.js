@@ -28,6 +28,7 @@ import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconSearch from '@material-ui/icons/Search';
 import StreamWizard from '../../Dashboard/StreamWizard';
+import StreamSettings from '../../Dashboard/StreamSettings';
 
 const DEF_TITLE = <FormattedMessage id="Dashboard.Add" defaultMessage="Add" />;
 const PREF_KEY = 'streamsheets-prefs-addnewdialog';
@@ -208,21 +209,18 @@ class AddNewDialog extends React.Component {
 		this.setState({
 			showStreamWizard: true,
 			activeStep: 'connector',
-			editStream: false,
 		})
 	};
 
 	handleEditConsumer = () => {
 		this.setState({
-			showStreamWizard: true,
-			activeStep: 'consumersettings',
 			editStream: true,
 			row: this.state.selected,
 		})
 	};
 
 	onWizardClose = () => {
-		this.setState({ showStreamWizard: false });
+		this.setState({ showStreamWizard: false, editStream: false });
 	};
 
 	handleSubmit = () => {
@@ -395,12 +393,18 @@ class AddNewDialog extends React.Component {
 				{this.state.showStreamWizard ? (
 				<StreamWizard
 					onClose={this.onWizardClose}
-					initialStep={this.state.showStreamWizard ? this.state.activeStep : undefined}
-					edit={this.state.editStream}
-					selectedStream={this.state.editStream ? this.state.selected : undefined}
+					initialStep={this.state.activeStep}
 					connector={undefined}
 					type="consumer"
 					open={this.state.showStreamWizard}
+					streams={this.props.streams}
+				/>) : null}
+				{this.state.editStream ? (
+				<StreamSettings
+					onClose={this.onWizardClose}
+					stream={this.state.selected}
+					type="consumer"
+					open={this.state.editStream}
 					streams={this.props.streams}
 				/>) : null}
 			</Dialog>

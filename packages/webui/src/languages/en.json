@@ -495,6 +495,8 @@
   "Dialog.UnsavedChanges.Title": "Unsaved Changes!",
   "Dialog.UnsavedChanges.Message": "Are you sure you want to leave without saving your changes?",
   "Stream.NameField": "Please enter a name",
+  "Stream.Name": "Name",
+  "Stream.Description": "Descriptiom",
   "Stream.Consumer": "Consumer",
   "Stream.Connector": "Connector",
   "Stream.Queue": "Queue",

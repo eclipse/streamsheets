@@ -34,6 +34,7 @@ import Add from '@material-ui/icons/Add';
 import StreamTableRow from './StreamTableRow';
 import StreamWizard from './StreamWizard';
 import GridViewButton from '../../layouts/GridViewButton';
+import StreamSettings from './StreamSettings';
 
 const PREF_KEY_LAYOUT = 'streamsheets-prefs-listing-layout';
 
@@ -83,13 +84,12 @@ class DashBoardComponent extends Component {
 	};
 
 	onWizardClose = () => {
-		this.setState({ showStreamWizard: false });
+		this.setState({ showStreamWizard: false, editStream: false });
 	};
 
 	onStreamNew = (type, row) => {
 		this.setState({
 			showStreamWizard: true,
-			editStream: false,
 			activeStep: 'consumername',
 			row,
 			type,
@@ -99,7 +99,6 @@ class DashBoardComponent extends Component {
 	onConnectorNew = () => {
 		this.setState({
 			showStreamWizard: true,
-			editStream: false,
 			activeStep: 'provider',
 			row: undefined,
 			type: 'connector',
@@ -108,8 +107,6 @@ class DashBoardComponent extends Component {
 
 	onStreamOpen = (row, type) => {
 		this.setState({
-			showStreamWizard: true,
-			activeStep: `${type}settings`,
 			editStream: true,
 			row,
 			type,
@@ -573,14 +570,20 @@ class DashBoardComponent extends Component {
 						{this.state.showStreamWizard ? (
 						<StreamWizard
 							onClose={this.onWizardClose}
-							initialStep={this.state.showStreamWizard ? this.state.activeStep : undefined}
-							edit={this.state.editStream}
-							selectedStream={this.state.row ? this.state.row.resource : undefined}
+							initialStep={this.state.activeStep}
 							connector={this.getConnector()}
 							type={this.state.type}
 							open={this.state.showStreamWizard}
 							streams={this.props.streams}
 						/>) : null}
+						{this.state.editStream ? (
+							<StreamSettings
+								onClose={this.onWizardClose}
+								stream={this.state.row.resource}
+								type="consumer"
+								open={this.state.editStream}
+								streams={this.props.streams}
+							/>) : null}
 						<Tooltip
 							enterDelay={300}
 							title={<FormattedMessage id="Tooltip.AddConnector" defaultMessage="Add Connector" />}

@@ -49,6 +49,7 @@ import TableCell from '@material-ui/core/TableCell';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconSearch from '@material-ui/icons/Search';
 import StreamWizard from '../Dashboard/StreamWizard';
+import StreamSettings from '../Dashboard/StreamSettings';
 
 const { RESOURCE_ACTIONS } = accessManager;
 const {
@@ -149,21 +150,18 @@ export class InboxSettings extends React.Component {
 	}
 
 	onWizardClose = () => {
-		this.setState({ showStreamWizard: false });
+		this.setState({ showStreamWizard: false, editStream: false });
 	};
 
 	handleAddConsumer = () => {
 		this.setState({
 			showStreamWizard: true,
 			activeStep: 'connector',
-			editStream: false,
 		})
 	};
 
 	handleEditConsumer = () => {
 		this.setState({
-			showStreamWizard: true,
-			activeStep: 'consumersettings',
 			editStream: true,
 			row: this.state.selected,
 		})
@@ -598,13 +596,6 @@ export class InboxSettings extends React.Component {
 		this.setState({
 			streamSortBy: orderBy,
 			streamSortOrder: order
-		});
-	};
-
-	handleFilter = (event) => {
-		const filter = event.target.value;
-		this.setState({
-			filter
 		});
 	};
 
@@ -1048,16 +1039,22 @@ export class InboxSettings extends React.Component {
 								</div>
 							</div>
 							{this.state.showStreamWizard ? (
-							<StreamWizard
-								onClose={this.onWizardClose}
-								initialStep={this.state.showStreamWizard ? this.state.activeStep : undefined}
-								edit={this.state.editStream}
-								selectedStream={this.state.editStream ? this.state.inbox.stream.stream : undefined}
-								connector={undefined}
-								type="consumer"
-								open={this.state.showStreamWizard}
-								streams={this.props.streams}
-							/>) : null}
+								<StreamWizard
+									onClose={this.onWizardClose}
+									initialStep={this.state.activeStep}
+									connector={undefined}
+									type="consumer"
+									open={this.state.showStreamWizard}
+									streams={this.props.streams}
+								/>) : null}
+							{this.state.editStream ? (
+								<StreamSettings
+									onClose={this.onWizardClose}
+									stream={this.state.inbox.stream.stream}
+									type="consumer"
+									open={this.state.editStream}
+									streams={this.props.streams}
+								/>) : null}
 						</TabContainer>
 					)}
 					{tabSelected === 1 && (

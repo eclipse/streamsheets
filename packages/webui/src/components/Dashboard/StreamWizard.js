@@ -714,9 +714,6 @@ class StreamWizard extends React.Component {
 								helperText={error}
 							/>
 							<TextField
-								inputRef={(el) => {
-									this.nameRef = el;
-								}}
 								label={<FormattedMessage id="Stream.DescriptionField" defaultMessage="Please enter a Description" />}
 								id="description"
 								name="description"

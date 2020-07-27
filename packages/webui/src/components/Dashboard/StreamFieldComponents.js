@@ -24,7 +24,7 @@ import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import NamedListInput from '../base/listInput/NamedListInput';
 import styles from '../Admin/styles';
-// import StreamHelper from '../../helper/StreamHelper';
+import StreamHelper from '../../helper/StreamHelper';
 import AdminConstants from '../../constants/AdminConstants';
 import MultipleTextField from '../base/multipleTextField/MultipleTextField';
 import gatewayClient from '../../helper/GatewayClient';
@@ -215,28 +215,27 @@ export default class StreamFieldComponents {
 		const isCheckBox = target.type === 'checkbox';
 		const value = (isCheckBox ? target.checked : target.value);
 		// let  model = { ...this.props.model, connector: { ...this.props.model.connector} };
+		const configuration = this.configuration; // StreamHelper.getInstanceFromObject(model, this.props);
 
 		if (target.name === 'connector.id') {
-			// const newConnector = this.props[AdminConstants.CONFIG_TYPE.ConnectorConfiguration]
-			// 	.filter(a => a.id === value)[0];
-			// model.connector.name = newConnector.name;
-			// model.connector.id = newConnector.id;
-			// model.connector._id = newConnector.id;
-			// const configuration = StreamHelper.getInstanceFromObject(model, this.props);
+			const newConnector = this.props.streams[AdminConstants.CONFIG_TYPE.ConnectorConfiguration]
+				.filter(a => a.id === value)[0];
+			configuration.connector.name = newConnector.name;
+			configuration.connector.id = newConnector.id;
+			configuration.connector._id = newConnector.id;
+			this.configuration = StreamHelper.getInstanceFromObject(configuration, this.props);
 			// model = configuration.toJSON();
+		} else if (configuration.fields && Object.keys(configuration.fields).includes(target.name)) {
+			configuration.setFieldValue(target.name, value);
+			// model = configuration.toJSON();
+			// jp.value(model, target.name, model[target.name]);
 		} else {
-			const configuration = this.configuration; // StreamHelper.getInstanceFromObject(model, this.props);
-			if (configuration.fields && Object.keys(configuration.fields).includes(target.name)) {
-				configuration.setFieldValue(target.name, value);
-				// model = configuration.toJSON();
-				// jp.value(model, target.name, model[target.name]);
-			// } else {
-			// 	model[target.name] = model[target.name] || {};
-			// 	jp.value(model, target.name, value);
-			}
+			configuration[target.name] = configuration[target.name] || {};
+			jp.value(configuration, target.name, value);
 		}
+
 		// this.model = model;
-		// this.props.handle(model);
+		this.props.handleChange(this.configuration);
 		this.unFocus(event);
 	}
 
@@ -295,7 +294,7 @@ export default class StreamFieldComponents {
 	getCheckBox(field, value, disabled = false) {
 		return (<FormControlLabel
 			style={{
-				marginTop: '20px',
+				// marginTop: '20px',
 				display: 'flex',
 			}}
 			disabled={disabled}
