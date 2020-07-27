@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
-const { AsyncRequest, runFunction, terms: { hasValue } } = require('../../utils');
+const { AsyncRequest, runFunction, terms: { getJSONFromTerm, hasValue } } = require('../../utils');
 const { getInstance } = require('@cedalo/http-client');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Message } = require('@cedalo/machine-core');
@@ -18,10 +18,16 @@ const ERROR = FunctionErrors.code;
 
 const asString = (value) => value ? convert.toString(value) : '';
 
+const getJSON = (term) => {
+	const value = term && term.value;
+	return value && (Array.isArray(value) || typeof value === 'object') ? value : undefined;
+};
+
 const defaultCallback = (context, response, error) => {
 	const term = context.term;
 	const err = error || response.error;
 	if (err) {
+		console.log(err);
 		const errorMessage = new Message(err);
 		message.metadata.label = `Error: ${term.name}`;
 		context.term.scope.streamsheet.inbox.put(errorMessage);
@@ -75,14 +81,17 @@ const post = (sheet, ...terms) =>
 		.withMinArgs(1)
 		.withMaxArgs(3)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
-		.mapNextArg((data) => hasValue(data) ? asString(data.value, ERROR.VALUE) : '')
+		.mapNextArg((data) => hasValue(data) ? data.value : '')
 		.mapNextArg((config) => hasValue(config) ? asString(config.value, ERROR.VALUE) : {})
-		.run((url, data, config) =>
-			AsyncRequest.create(sheet, post.context)
+		.run((url, data, config) => {
+			console.log('******************************************')
+			console.log('******************getJSONFromTerm************************')
+			console.log(data);
+			return AsyncRequest.create(sheet, post.context)
 				.request(() => getInstance().post(url, data = '', config = {}))
 				.response(defaultCallback)
 				.reqId()
-		);
+		});
 post.displayName = true;
 
 const put = (sheet, ...terms) =>
