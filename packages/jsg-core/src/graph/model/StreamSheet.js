@@ -733,8 +733,14 @@ module.exports = class StreamSheet extends WorksheetNode {
 				}
 			}
 			if (node) {
-				node.getItemAttributes().addAttribute(new StringAttribute('sheetsource', drawItem.source));
-				const attr = node.getItemAttributes().getAttribute('sheetformula');
+				let attr = node.getItemAttributes().getAttribute('sheetsource');
+				if (!attr) {
+					attr = node.getItemAttributes().addAttribute(new StringAttribute('sheetsource', drawItem.source));
+				}
+				if (attr.getValue() !== drawItem.source) {
+					attr.setExpressionOrValue(drawItem.source);
+				}
+				attr = node.getItemAttributes().getAttribute('sheetformula');
 				if (attr && attr.getExpression()) {
 					if (attr.getExpression().getFormula() !== drawItem.formula) {
 						return;

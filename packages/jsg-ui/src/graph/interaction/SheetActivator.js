@@ -90,6 +90,9 @@ export default class SheetActivator extends InteractionActivator {
 
 		if (this._controller === undefined) {
 			this.setState(event, viewer, dispatcher);
+			if (viewer.getCanvas()._jsgEditor.hasItemMenuHandler()) {
+				viewer.getCanvas()._jsgEditor.getItemMenuHandler().hideMenu();
+			}
 		}
 
 		if (this._controller) {
@@ -117,6 +120,9 @@ export default class SheetActivator extends InteractionActivator {
 					break;
 				}
 				default:
+					if (viewer.getCanvas()._jsgEditor.hasItemMenuHandler()) {
+						viewer.getCanvas()._jsgEditor.getItemMenuHandler().hideMenu();
+					}
 					if (event.event.type === 'panstart') {
 						const interaction = this.activateInteraction(new SheetInteraction(), dispatcher);
 						interaction._controller = this._controller;
