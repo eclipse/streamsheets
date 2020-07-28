@@ -86,6 +86,7 @@ const post = (sheet, ...terms) =>
 		.run((url, data, config) => {
 			console.log('******************************************')
 			console.log('******************getJSONFromTerm************************')
+			data = JSON.parse(data);
 			console.log(data);
 			config = {
 				headers: JSON.parse(config)
