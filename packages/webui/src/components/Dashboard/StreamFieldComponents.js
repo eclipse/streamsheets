@@ -285,6 +285,7 @@ export default class StreamFieldComponents {
 		return <MultipleTextField
 			label={field.getLabel(this.locale)}
 			disabled={disabled}
+			key={field.id}
 			name={field.id}
 			onChange={this.handler}
 			values={value}
@@ -297,6 +298,7 @@ export default class StreamFieldComponents {
 				// marginTop: '20px',
 				display: 'flex',
 			}}
+			key={field.id}
 			disabled={disabled}
 			control={
 				<Checkbox
@@ -319,6 +321,7 @@ export default class StreamFieldComponents {
 			<FormControl
 				disabled={disabled}
 				fullWidth
+				key={field.id}
 				style={{
 					marginTop: '30px',
 				}}
@@ -348,6 +351,7 @@ export default class StreamFieldComponents {
 		return (
 			<FormControl
 				fullWidth
+				key={field.id}
 				style={{
 					display: 'grid',
 					marginTop: '30px',
@@ -372,7 +376,9 @@ export default class StreamFieldComponents {
 	getTextField(field, value, disabled = false) {
 		value = value || '';
 		return (
-			<div>
+			<div
+				key={field.id}
+			>
 				<TextField
 					label={field.getLabel(this.locale)}
 					id={field.id}
@@ -392,7 +398,9 @@ export default class StreamFieldComponents {
 	getNumberField(field, value, disabled = false) {
 		value = value || '';
 		return (
-			<div>
+			<div
+				key={field.id}
+			>
 				<TextField
 					type="number"
 					inputProps={{ min: '0' }}
@@ -415,7 +423,9 @@ export default class StreamFieldComponents {
 	getTextArea(field, value, disabled = false) {
 		value = value || '';
 		return (
-			<div>
+			<div
+				key={field.id}
+			>
 				<TextField
 					label={field.getLabel(this.locale)}
 					multiline
@@ -448,6 +458,7 @@ export default class StreamFieldComponents {
 			<FormControl
 				fullWidth
 				margin="normal"
+				key={field.id}
 				disabled={disabled}
 			>
 				<InputLabel htmlFor={field.id} style={styles.label}>{field.getLabel(this.locale)}</InputLabel>
@@ -477,9 +488,11 @@ export default class StreamFieldComponents {
 	getButton(field, value, disabled = false) {
 		value = value || '';
 		return (
-			<FormControl style={{
-				paddingTop: '20px',
-			}}
+			<FormControl
+				key={field.id}
+				style={{
+					paddingTop: '20px',
+				}}
 			>
 				<Button
 					name={field.id}

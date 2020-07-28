@@ -27,7 +27,6 @@ const PREF_KEY_SORTQUERY = 'streamsheets-prefs-listing-sortby';
 
 class ResourcesGrid extends React.Component {
 	static propTypes = {
-		label: PropTypes.object.isRequired,
 		disabled: PropTypes.bool,
 		menuOptions: PropTypes.array.isRequired,
 		resources: PropTypes.array.isRequired,
@@ -119,7 +118,6 @@ class ResourcesGrid extends React.Component {
 	getTiles(resources, columns) {
 		const {
 			menuOptions,
-			label,
 			icon,
 			titleAttribute,
 			onMenuSelect,
@@ -134,7 +132,7 @@ class ResourcesGrid extends React.Component {
 			cnt += 1;
 			result.push (
 			<GridListTile
-				key={`${label.key || label}-${resource.id}`}
+				key={`${resource.id}`}
 				cols={1}
 				spacing={5}
 				style={{
@@ -295,6 +293,7 @@ class ResourcesGrid extends React.Component {
 				>
 					{recent ? [
 					<div
+						key="rg1"
 						style={{
 							marginTop: '15px',
 						}}
@@ -306,6 +305,7 @@ class ResourcesGrid extends React.Component {
 					<GridList
 						ref={this.gridRef}
 						cols={5}
+						key="recentGrid"
 						id="recentGrid"
 						spacing={25}
 						style={{
@@ -315,6 +315,7 @@ class ResourcesGrid extends React.Component {
 						{!recent ? null : this.getTiles(recent, columns)}
 					</GridList>,
 					<div
+						key="rg2"
 						style={{
 							display: 'flex',
 							justifyContent: 'space-between',
@@ -348,6 +349,7 @@ class ResourcesGrid extends React.Component {
 					<GridList
 						ref={this.gridRef}
 						cols={5}
+						key="coreGrid"
 						id="coreGrid"
 						spacing={25}
 						style={{

@@ -23,7 +23,6 @@ import Wall from '../../HelperComponent/Wall';
 class CombinedResourceListing extends Component {
 	static propTypes = {
 		type: PropTypes.string,
-		label: PropTypes.object.isRequired,
 		fields: PropTypes.array.isRequired,
 		menuOptions: PropTypes.array,
 		nameFilter: PropTypes.string,
@@ -31,7 +30,6 @@ class CombinedResourceListing extends Component {
 		onMenuSelect: PropTypes.func,
 		onResourceOpen: PropTypes.func.isRequired,
 		handleNew: PropTypes.func,
-		classes: PropTypes.object.isRequired,
 		headerIcons: PropTypes.arrayOf(PropTypes.object),
 		icon: PropTypes.element,
 		handleResourceDetails: PropTypes.func,
@@ -87,7 +85,6 @@ class CombinedResourceListing extends Component {
 		const recentResources = SortSelector.sort(resources, 'lastModified_desc', filter);
 		return (
 			<Wall
-				overflow
 				id="combinedResourceList"
 			>
 				<div

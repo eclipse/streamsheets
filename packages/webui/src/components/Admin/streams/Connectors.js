@@ -169,10 +169,6 @@ class Connectors extends Component {
 				type="admin"
 				layout={this.props.layout}
 				fields={fields}
-				label={<FormattedMessage
-					id="Dashboard.connectors"
-					defaultMessage="Connectors"
-				/>}
 				handleNew={accessManager.canViewUI(
 					accessManager.PERMISSIONS.STREAM_ADD)
 					? this.handleNew

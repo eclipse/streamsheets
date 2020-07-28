@@ -184,7 +184,6 @@ class Producers extends Component {
 					type="admin"
 					layout={this.props.layout}
 					fields={fields}
-					label={<FormattedMessage id="Dashboard.producers" defaultMessage="Producers" />}
 					handleNew={accessManager.canViewUI(accessManager.PERMISSIONS.STREAM_ADD) ? this.handleNew : false}
 					titleAttribute="name"
 					resources={producers}

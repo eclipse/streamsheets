@@ -31,7 +31,7 @@ export default class MultipleTextField extends Component {
 	static propTypes = {
 		values: PropTypes.arrayOf(PropTypes.string),
 		onChange: PropTypes.func,
-		label: PropTypes.element,
+		label: PropTypes.oneOf(PropTypes.element, PropTypes.string),
 		name: PropTypes.string,
 		disabled: PropTypes.bool,
 	};
@@ -116,6 +116,7 @@ export default class MultipleTextField extends Component {
 				<Typography variant="subtitle1" style={{marginTop: '10px', marginBottom: '8px'}}>{label}</Typography>
 				{values.map((value, idx) => (
 					<div
+						key={`mtf-${Math.random()}`}
 						style={{
 							marginBottom: '5px',
 						}}
@@ -144,7 +145,7 @@ export default class MultipleTextField extends Component {
 				))}
 				<Button
 					onClick={this.handleAddItem}
-					small
+					size="small"
 					style={{
 						marginTop: '5px',
 					}}

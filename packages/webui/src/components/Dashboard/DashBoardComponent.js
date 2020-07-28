@@ -516,7 +516,6 @@ class DashBoardComponent extends Component {
 										key: 'lastModified_formatted'
 									}
 								]}
-								label={<FormattedMessage id="Dashboard.processes" defaultMessage="Processes" />}
 								images
 								titleAttribute="name"
 								resources={this.getMachines()}

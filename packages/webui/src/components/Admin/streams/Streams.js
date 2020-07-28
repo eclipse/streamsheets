@@ -132,10 +132,6 @@ class Streams extends Component {
 			<CombinedResourceListing
 				type="admin"
 				fields={fields}
-				label={<FormattedMessage
-					id="Dashboard.streams"
-					defaultMessage="Streams"
-				/>}
 				handleNew={accessManager.canViewUI(accessManager.PERMISSIONS.STREAM_ADD) ? this.handleNew : false}
 				titleAttribute="name"
 				resources={consumers}

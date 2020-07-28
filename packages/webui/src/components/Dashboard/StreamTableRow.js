@@ -61,6 +61,7 @@ const StreamTableRow = ((props) => {
 			<TableRow
 				style={{ textDecoration: row.disabled ? 'line-through' : 'inherit' }}
 				classes={{ root: classes.tableRoot }}
+				key={row.id}
 			>
 				<TableCell style={{ width: '20px' }} padding="none" align="left">
 					<IconButton
@@ -110,7 +111,10 @@ const StreamTableRow = ((props) => {
 					</IconButton>
 				</TableCell>
 			</TableRow>
-			<TableRow style={{ height: '0px' }}>
+			<TableRow
+				key={`sub${row.id}`}
+				style={{ height: '0px' }}
+			>
 				<TableCell
 					style={{ paddingBottom: open ? '6px' : '0px', paddingTop: '0px', paddingLeft: '40px' }}
 					colSpan={7}
@@ -136,7 +140,7 @@ const StreamTableRow = ((props) => {
 							<Table size="small" aria-label="purchases">
 								<TableBody>
 									{row.consumers.map((historyRow) => (
-										<TableRow key={historyRow.date}>
+										<TableRow key={historyRow.id}>
 											<TableCell
 												style={{ width: '20px', borderBottom: 'none' }}
 												padding="none"
@@ -215,7 +219,7 @@ const StreamTableRow = ((props) => {
 							<Table size="small" aria-label="purchases">
 								<TableBody>
 									{row.producers.map((historyRow) => (
-										<TableRow key={historyRow.date}>
+										<TableRow key={historyRow.id}>
 											<TableCell
 												style={{ width: '20px', borderBottom: 'none' }}
 												padding="none"

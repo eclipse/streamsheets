@@ -270,9 +270,7 @@ const ExportComponent = (props) => {
 				</div>
 			</NotAllowed>
 			<ImportDropzone>
-				<Wall
-					overflow
-				>
+				<Wall>
 				<div
 					style={{
 						display: 'flex',
