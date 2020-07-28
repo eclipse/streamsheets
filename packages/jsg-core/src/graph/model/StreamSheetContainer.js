@@ -199,19 +199,25 @@ module.exports = class StreamSheetContainer extends Node {
 	}
 
 	setStream(source) {
+		JSG.propertyEventsDisabled = true;
 		this._inboxCaption.setName(`${JSG.getLocalizedString('Inbox')} - ${JSG.getLocalizedString(source)}`);
 		this.getGraph().markDirty();
 		this.getStreamSheetContainerAttributes().setStream(source);
+		JSG.propertyEventsDisabled = false;
 	}
 
 	setStatus(status) {
+		JSG.propertyEventsDisabled = true;
 		this._inboxCaption.setIcon(status);
 		this.getStreamSheetContainerAttributes().setStatus(status);
 		this.getGraph().markDirty();
+		JSG.propertyEventsDisabled = false;
 	}
 
 	setLoopIndex(index) {
+		JSG.propertyEventsDisabled = true;
 		this.getStreamSheetContainerAttributes().setLoopIndex(index);
+		JSG.propertyEventsDisabled = false;
 	}
 
 	setLoopElement(element, enabled) {
