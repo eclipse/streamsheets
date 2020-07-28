@@ -66,10 +66,10 @@ const get = (sheet, ...terms) =>
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
-		.mapNextArg((config) => hasValue(config) ? asString(config.value, ERROR.VALUE) : '')
+		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, config) =>
 			AsyncRequest.create(sheet, get.context)
-				.request(() => getInstance().get(url, config = {}))
+				.request(() => getInstance().get(url, config))
 				.response(defaultCallback)
 				.reqId()
 		);
@@ -88,7 +88,7 @@ const post = (sheet, ...terms) =>
 			console.log('******************getJSONFromTerm************************')
 			console.log(data);
 			return AsyncRequest.create(sheet, post.context)
-				.request(() => getInstance().post(url, data = '', config = {}))
+				.request(() => getInstance().post(url, data, config))
 				.response(defaultCallback)
 				.reqId()
 		});
@@ -101,10 +101,10 @@ const put = (sheet, ...terms) =>
 		.withMaxArgs(3)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
 		.mapNextArg((data) => hasValue(data) ? asString(data.value, ERROR.VALUE) : '')
-		.mapNextArg((config) => hasValue(config) ? asString(config.value, ERROR.VALUE) : {})
+		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, data, config) =>
 			AsyncRequest.create(sheet, put.context)
-				.request(() => getInstance().put(url, data = '', config = {}))
+				.request(() => getInstance().put(url, data, config))
 				.response(defaultCallback)
 				.reqId()
 		);
@@ -117,10 +117,10 @@ const patch = (sheet, ...terms) =>
 		.withMaxArgs(3)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
 		.mapNextArg((data) => hasValue(data) ? asString(data.value, ERROR.VALUE) : '')
-		.mapNextArg((config) => hasValue(config) ? asString(config.value, ERROR.VALUE) : {})
+		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, data, config) =>
 			AsyncRequest.create(sheet, patch.context)
-				.request(() => getInstance().patch(url, data = '', config = {}))
+				.request(() => getInstance().patch(url, data, config))
 				.response(defaultCallback)
 				.reqId()
 		);
@@ -132,10 +132,10 @@ const deleteFunction = (sheet, ...terms) =>
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
-		.mapNextArg((config) => hasValue(config) ? asString(config.value, ERROR.VALUE) : '')
+		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, config) =>
 			AsyncRequest.create(sheet, deleteFunction.context)
-				.request(() => getInstance().delete(url, config = {}))
+				.request(() => getInstance().delete(url, config))
 				.response(defaultCallback)
 				.reqId()
 		);
@@ -164,10 +164,10 @@ const head = (sheet, ...terms) =>
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
-		.mapNextArg((config) => hasValue(config) ? asString(config.value, ERROR.VALUE) : '')
+		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, config) =>
 			AsyncRequest.create(sheet, head.context)
-				.request(() => getInstance().head(url, config = {}))
+				.request(() => getInstance().head(url, config))
 				.response(defaultCallback)
 				.reqId()
 		);
@@ -179,10 +179,10 @@ const options = (sheet, ...terms) =>
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
-		.mapNextArg((config) => hasValue(config) ? asString(config.value, ERROR.VALUE) : '')
+		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, config) =>
 			AsyncRequest.create(sheet, options.context)
-				.request(() => getInstance().options(url, config = {}))
+				.request(() => getInstance().options(url, config))
 				.response(defaultCallback)
 				.reqId()
 		);
