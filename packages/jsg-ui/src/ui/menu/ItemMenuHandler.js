@@ -26,7 +26,7 @@ export default class ItemMenuHandler {
 		if (editor) {
 			nc.register(this, [
 				SelectionProvider.SELECTION_CHANGED_NOTIFICATION,
-				GraphItemController.ITEM_CHANGED_NOTIFICATION,
+				// GraphItemController.ITEM_CHANGED_NOTIFICATION,
 				InteractionHandler.ACTIVE_INTERACTION_NOTIFICATION,
 				NotificationCenter.SCROLL_NOTIFICATION,
 				NotificationCenter.ZOOM_NOTIFICATION,
