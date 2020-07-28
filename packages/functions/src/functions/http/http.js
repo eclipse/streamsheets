@@ -82,11 +82,14 @@ const post = (sheet, ...terms) =>
 		.withMaxArgs(3)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
 		.mapNextArg((data) => hasValue(data) ? data.value : '')
-		.mapNextArg((config) => hasValue(config) ? asString(config.value, ERROR.VALUE) : {})
+		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, data, config) => {
 			console.log('******************************************')
 			console.log('******************getJSONFromTerm************************')
 			console.log(data);
+			config = {
+				headers: JSON.parse(config)
+			}
 			return AsyncRequest.create(sheet, post.context)
 				.request(() => getInstance().post(url, data, config))
 				.response(defaultCallback)
