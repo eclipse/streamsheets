@@ -209,7 +209,6 @@ class AddNewDialog extends React.Component {
 	handleAddConsumer = () => {
 		this.setState({
 			showStreamWizard: true,
-			activeStep: 'connector',
 		})
 	};
 
@@ -393,7 +392,7 @@ class AddNewDialog extends React.Component {
 				{this.state.showStreamWizard ? (
 				<StreamWizard
 					onClose={this.onWizardClose}
-					initialStep={this.state.activeStep}
+					initialStep="connector"
 					connector={undefined}
 					type="consumer"
 					open={this.state.showStreamWizard}

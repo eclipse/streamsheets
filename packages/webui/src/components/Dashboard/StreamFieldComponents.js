@@ -160,32 +160,11 @@ export default class StreamFieldComponents {
 		}
 	}
 
-	// async save(model, name) {
-	// 	const { save } = this.props;
-	// 	// const res = await validate(model, name, model[name]);
-	// 	// if(res.length>0) {
-	// 	// 	this.errorsMap.set(name, res[0]);
-	// 	// } else {
-	// 	// 	this.errorsMap.delete(name);
-	// 	// }
-	// 	const saveObject = {
-	// 		id: model._id || model.id,
-	// 		type: model.className,
-	// 		error: this.errorsMap.size>0,
-	// 		$set: {
-	// 			[name]: jp.value(model, name),
-	// 		},
-	// 	};
-	// 	save(saveObject, this.props);
-	// }
-	//
-
 	handler = (event) => {
 		const { target } = event;
 		const isCheckBox = target.type === 'checkbox';
 		const value = (isCheckBox ? target.checked : target.value);
-		// let  model = { ...this.props.model, connector: { ...this.props.model.connector} };
-		const configuration = this.configuration; // StreamHelper.getInstanceFromObject(model, this.props);
+		const configuration = this.configuration;
 
 		if (target.name === 'connector.id') {
 			const newConnector = this.props.streams[AdminConstants.CONFIG_TYPE.ConnectorConfiguration]
@@ -218,11 +197,6 @@ export default class StreamFieldComponents {
 			className: this.model.className
 		});
 	};
-
-	/* eslint-disable no-unused-vars */
-	toggleInherited(event) {
-		// event.target.disabled = !event.target.disabled;
-	}
 
 	getNamedList(field, value, disabled) {
 		value = (!value || !Array.isArray(value)) ? [] : value;
@@ -281,7 +255,7 @@ export default class StreamFieldComponents {
 
 	getFileTextInput(field, valueObj, disabled) {
 		const pathId = `path${field.id}`;
-		const { path, value } = valueObj;
+		const { path } = valueObj;
 		return (
 			<FormControl
 				disabled={disabled}
@@ -307,24 +281,25 @@ export default class StreamFieldComponents {
 	}
 
 	getFileSecret(field, valueObj, disabled = false) {
-		const pathId = `path${field.id}`;
-		let path = '';
-		let value = '';
-		if (valueObj) {
-			(((((({ path, value } = valueObj))))));
-		}
+		// const pathId = `path${field.id}`;
+		// let path = '';
+		// if (valueObj) {
+		// 	(((((({ path } = valueObj))))));
+		// }
 		return (
 			<FormControl
 				fullWidth
 				key={field.id}
 				style={{
-					display: 'grid',
-					marginTop: '30px',
+					display: 'flex',
+					flexDirection: 'column'
 				}}
 			>
-				<label htmlFor={field.id} style={styles.label}><strong>{field.getLabel(this.locale)}: </strong>
-					<span id={pathId} style={{ fontWeight: 'normal', fontSize: '90%' }}>{path}</span>
-				</label>
+				<InputLabel style={{position: 'relative', marginBottom: '10px'}} htmlFor={field.id}>{field.getLabel(this.locale)}</InputLabel>
+
+				{/*<label htmlFor={field.id} style={styles.label}><strong>{field.getLabel(this.locale)}: </strong>*/}
+				{/*	<span id={pathId} style={{ fontWeight: 'normal', fontSize: '90%' }}>{path}</span>*/}
+				{/*</label>*/}
 				<Input
 					disabled={disabled}
 					type="file"
@@ -354,7 +329,7 @@ export default class StreamFieldComponents {
 					disabled={disabled}
 					helperText={error || field.getHelp(this.locale)}
 					defaultValue={`${value}`}
-					onChange={this.handler}
+					onBlur={this.handler}
 					style={styles.textField}
 				/>
 			</div>
@@ -378,8 +353,6 @@ export default class StreamFieldComponents {
 					disabled={disabled}
 					defaultValue={`${value}`}
 					onChange={this.handler}
-					// "Machine Service 3",
-					onDoubleClick={this.toggleInherited}
 					style={styles.textField}
 				/>
 			</div>
@@ -462,6 +435,7 @@ export default class StreamFieldComponents {
 			>
 				<Button
 					name={field.id}
+					disabled={disabled}
 					value={value}
 					htmlFor={field.id}
 					variant="outlined"

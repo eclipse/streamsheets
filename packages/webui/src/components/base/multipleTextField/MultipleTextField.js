@@ -13,6 +13,7 @@ import PropTypes from 'prop-types';
 import { Button, IconButton, FormHelperText, TextField, Typography } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Clear';
+import { FormattedMessage } from 'react-intl';
 
 const styles = {
 	fab: {
@@ -53,6 +54,15 @@ export default class MultipleTextField extends Component {
 	}
 
 	onChangeData = idx => (event) => {
+		const newValues = this.state.values.map((value, sidx) => {
+			if (idx !== sidx) return value;
+			this.errors[idx] = null;
+			return event.target.value;
+		});
+		this.setState({ values: newValues });
+	};
+
+	onBlur = idx => (event) => {
 		const newValues = this.state.values.map((value, sidx) => {
 			if (idx !== sidx) return value;
 			this.errors[idx] = null;
@@ -125,8 +135,9 @@ export default class MultipleTextField extends Component {
 							disabled={disabled}
 							name={name}
 							error={!!this.errors[idx]}
-							value={value}
-							onChange={this.onChangeData(idx)}
+							defaultValue={value}
+							onBlur={this.onBlur(idx)}
+							// onChange={this.onChangeData(idx)}
 							style={styles.textField}
 						/>
 						<IconButton
@@ -157,7 +168,7 @@ export default class MultipleTextField extends Component {
 							marginBottom: '4px',
 						}}
 					/>
-					Add Topic
+					<FormattedMessage id="Stream.AddTopic" defaultMessage="Add Topic"/>
 				</Button>
 			</div>
 		);

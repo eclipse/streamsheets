@@ -37,7 +37,7 @@ class ResourcesGrid extends React.Component {
 		headerIcons: PropTypes.arrayOf(PropTypes.object),
 		handleResourceDetails: PropTypes.func,
 		titleAttribute: PropTypes.string.isRequired,
-		dummy: PropTypes.number,
+		dummy: PropTypes.number
 	};
 
 	static defaultProps = {
@@ -53,7 +53,7 @@ class ResourcesGrid extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			sortQuery: localStorage.getItem(PREF_KEY_SORTQUERY),
+			sortQuery: localStorage.getItem(PREF_KEY_SORTQUERY)
 		};
 		this.gridRef = React.createRef();
 	}
@@ -75,13 +75,13 @@ class ResourcesGrid extends React.Component {
 			return '';
 		}
 		switch (resource.className) {
-		case 'ConnectorConfiguration':
-			return ``;
-		case 'ConsumerConfiguration':
-			return ``;
-		case 'ProducerConfiguration':
-			return ``;
-		default:
+			case 'ConnectorConfiguration':
+				return ``;
+			case 'ConsumerConfiguration':
+				return ``;
+			case 'ProducerConfiguration':
+				return ``;
+			default:
 		}
 		let cons = '';
 		resource.streamsheets.forEach((sheet) => {
@@ -89,13 +89,20 @@ class ResourcesGrid extends React.Component {
 				if (cons.length) {
 					cons += ', ';
 				}
-				cons += sheet.inbox.stream.name
+				cons += sheet.inbox.stream.name;
 			}
 		});
 		if (!cons.length) {
-		 	cons = this.props.intl.formatMessage({ id: 'Dashboard.noConsumers' }, {});
+			cons = this.props.intl.formatMessage({ id: 'Dashboard.noConsumers' }, {});
 		}
-		return this.props.intl.formatMessage({ id: 'Dashboard.description' }, { amount: resource.streamsheets.length, amountext:  resource.streamsheets.length > 1 ? 's' : '', consumers: cons});
+		return this.props.intl.formatMessage(
+			{ id: 'Dashboard.description' },
+			{
+				amount: resource.streamsheets.length,
+				amountext: resource.streamsheets.length > 1 ? 's' : '',
+				consumers: cons
+			}
+		);
 	}
 
 	getImageByResource(resource) {
@@ -116,12 +123,7 @@ class ResourcesGrid extends React.Component {
 	}
 
 	getTiles(resources, columns) {
-		const {
-			menuOptions,
-			icon,
-			titleAttribute,
-			onMenuSelect,
-		} = this.props;
+		const { menuOptions, icon, titleAttribute, onMenuSelect } = this.props;
 		let cnt = 0;
 		const result = [];
 
@@ -130,121 +132,122 @@ class ResourcesGrid extends React.Component {
 				return true;
 			}
 			cnt += 1;
-			result.push (
-			<GridListTile
-				key={`${resource.id}`}
-				cols={1}
-				spacing={5}
-				style={{
-					height: 'auto',
-					width: '330px'
-				}}
-			>
-				<Card
-					elevation={2}
-					square
+			result.push(
+				<GridListTile
+					key={`${resource.id}`}
+					cols={1}
+					spacing={5}
 					style={{
-						margin: '3px'
+						height: 'auto',
+						width: '330px'
 					}}
 				>
-					<CardContent
+					<Card
+						elevation={2}
+						square
 						style={{
-							cursor: 'pointer',
-							padding: '0px'
+							margin: '3px'
 						}}
-						onContextMenu={(event) => this.handleContextMenu(event, resource)}
 					>
-						<div>
-							<div
-								onClick={() => this.handleOpenClick(resource)}
-								style={{
-									width: '300px',
-									height: '155px',
-									backgroundImage: this.getImageByResource(resource),
-									backgroundSize: '300px 155px'
-								}}
-							/>
-							<div
-								style={{
-									borderTop: '2px solid lightgrey',
-									display: 'flex',
-									alignItems: 'baseline',
-									justifyContent: 'space-between',
-									padding: '3px 10px 0px 10px'
-								}}
-								onClick={() => this.handleOpenClick(resource)}
-							>
-								<Typography
-									component="div"
-									style={{
-										textOverflow: 'ellipsis',
-										fontSize: '8pt',
-										fontWeight: 'bold',
-										color: Colors.lightBlue[800],
-										overflow: 'hidden',
-										maxWidth: '200px'
-									}}
-								>
-									{jsonpath.query(resource, titleAttribute)}
-								</Typography>
-								<Typography
-									component="div"
-									color="textSecondary"
-									style={{
-										textOverflow: 'ellipsis',
-										overflow: 'hidden',
-										maxWidth: '130px',
-										fontSize: '7pt'
-									}}
-								>
-									{jsonpath.query(resource, 'lastModified_formatted')}
-								</Typography>
-							</div>
-							<div
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									padding: '0px 10px 0px 10px',
-									height: '45px'
-								}}
-							>
-								<Typography
-									component="div"
-									color="textSecondary"
+						<CardContent
+							style={{
+								cursor: 'pointer',
+								padding: '0px'
+							}}
+							onContextMenu={(event) => this.handleContextMenu(event, resource)}
+						>
+							<div>
+								<div
 									onClick={() => this.handleOpenClick(resource)}
 									style={{
-										textOverflow: 'ellipsis',
-										overflow: 'hidden',
-										maxWidth: '130px',
-										fontSize: '7pt'
+										width: '300px',
+										height: '155px',
+										backgroundImage: this.getImageByResource(resource),
+										backgroundSize: '300px 155px'
 									}}
-								>
-									{jsonpath.query(resource, 'description').length
-										? jsonpath.query(resource, 'description')
-										: this.createDescription(resource)}
-								</Typography>
+								/>
 								<div
 									style={{
-										marginTop: '8px',
-										marginRight: '-8px'
+										borderTop: '2px solid lightgrey',
+										display: 'flex',
+										alignItems: 'baseline',
+										justifyContent: 'space-between',
+										padding: '3px 10px 0px 10px'
+									}}
+									onClick={() => this.handleOpenClick(resource)}
+								>
+									<Typography
+										component="div"
+										style={{
+											textOverflow: 'ellipsis',
+											fontSize: '8pt',
+											fontWeight: 'bold',
+											color: Colors.lightBlue[800],
+											overflow: 'hidden',
+											maxWidth: '200px'
+										}}
+									>
+										{jsonpath.query(resource, titleAttribute)}
+									</Typography>
+									<Typography
+										component="div"
+										color="textSecondary"
+										style={{
+											textOverflow: 'ellipsis',
+											overflow: 'hidden',
+											maxWidth: '130px',
+											fontSize: '7pt'
+										}}
+									>
+										{jsonpath.query(resource, 'lastModified_formatted')}
+									</Typography>
+								</div>
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'space-between',
+										padding: '0px 10px 0px 10px',
+										height: '45px'
 									}}
 								>
-									<ResourceCardHeader
-										{...this.props}
-										handleClicked={onMenuSelect}
-										resource={resource}
-										titleAttribute={titleAttribute}
-										icon={icon}
-										menuOptions={menuOptions}
-										onMenuSelect={onMenuSelect}
-										titleMaxLength={15}
-									/>
+									<Typography
+										component="div"
+										color="textSecondary"
+										onClick={() => this.handleOpenClick(resource)}
+										style={{
+											textOverflow: 'ellipsis',
+											overflow: 'hidden',
+											maxWidth: '130px',
+											fontSize: '7pt'
+										}}
+									>
+										{jsonpath.query(resource, 'description').length
+											? jsonpath.query(resource, 'description')
+											: this.createDescription(resource)}
+									</Typography>
+									<div
+										style={{
+											marginTop: '8px',
+											marginRight: '-8px'
+										}}
+									>
+										<ResourceCardHeader
+											{...this.props}
+											handleClicked={onMenuSelect}
+											resource={resource}
+											titleAttribute={titleAttribute}
+											icon={icon}
+											menuOptions={menuOptions}
+											onMenuSelect={onMenuSelect}
+											titleMaxLength={15}
+										/>
+									</div>
 								</div>
 							</div>
-						</div>
-					</CardContent>
-				</Card>
-			</GridListTile>)
+						</CardContent>
+					</Card>
+				</GridListTile>
+			);
 			return false;
 		});
 
@@ -259,10 +262,7 @@ class ResourcesGrid extends React.Component {
 	};
 
 	render() {
-		const {
-			recent,
-			resources,
-		} = this.props;
+		const { recent, resources } = this.props;
 
 		const resGrid = document.getElementById('resGrid');
 		let width = resGrid ? resGrid.clientWidth - 1 : 500;
@@ -276,13 +276,18 @@ class ResourcesGrid extends React.Component {
 		const sortFields = ['name', 'lastModified', 'state'];
 		const sortObj = SortSelector.parseSortQuery(sortQuery);
 		const filteredResources = SortSelector.sort(resources, sortQuery, this.props.filter);
-		const columns  = Math.floor(width / 330);
+		const columns = Math.floor(width / 330);
+
+		if (filteredResources.length === 0) {
+			return <div />;
+		}
+
 		return (
 			<div
 				id="resGrid"
 				style={{
 					height: '100%',
-					overflowY: 'auto',
+					overflowY: 'auto'
 				}}
 			>
 				<div
@@ -291,61 +296,70 @@ class ResourcesGrid extends React.Component {
 						marginRight: `${Math.max(0, Math.floor((width - columns * 330) / 2))}px`
 					}}
 				>
-					{recent ? [
-					<div
-						key="rg1"
-						style={{
-							marginTop: '15px',
-						}}
-					>
-						<Typography variant='body1'>
-							<FormattedMessage id="Dashboard.recentlyModified" defaultMessage="Recently Modified" />
-						</Typography>
-					</div>,
-					<GridList
-						ref={this.gridRef}
-						cols={5}
-						key="recentGrid"
-						id="recentGrid"
-						spacing={25}
-						style={{
-							margin: '0px',
-						}}
-					>
-						{!recent ? null : this.getTiles(recent, columns)}
-					</GridList>,
-					<div
-						key="rg2"
-						style={{
-							display: 'flex',
-							justifyContent: 'space-between',
-						}}
-					>
-						<div
-							style={{
-								marginTop: '5px',
-							}}
-						>
-							<Typography variant='body1'>
-								<FormattedMessage id="Dashboard.allApps" defaultMessage="All Apps and Services" />
-							</Typography>
-						</div>
-						<div
-							style={{
-								display: 'flex',
-								flexFlow: 'row',
-							}}
-						>
-							<SortSelector
-								onSort={this.handleSort}
-								getResources={this.getFilteredResources}
-								sortFields={sortFields}
-								withFilter={false}
-								defaultSortBy={sortObj.sortBy}
-								defaultSortDir={sortObj.sortDir}
-							/>
-						</div>
-					</div> ] : null}
+					{recent
+						? [
+								<div
+									key="rg1"
+									style={{
+										marginTop: '15px'
+									}}
+								>
+									<Typography variant="body1">
+										<FormattedMessage
+											id="Dashboard.recentlyModified"
+											defaultMessage="Recently Modified"
+										/>
+									</Typography>
+								</div>,
+								<GridList
+									ref={this.gridRef}
+									cols={5}
+									key="recentGrid"
+									id="recentGrid"
+									spacing={25}
+									style={{
+										margin: '0px'
+									}}
+								>
+									{!recent ? null : this.getTiles(recent, columns)}
+								</GridList>,
+								<div
+									key="rg2"
+									style={{
+										display: 'flex',
+										justifyContent: 'space-between'
+									}}
+								>
+									<div
+										style={{
+											marginTop: '5px'
+										}}
+									>
+										<Typography variant="body1">
+											<FormattedMessage
+												id="Dashboard.allApps"
+												defaultMessage="All Apps and Services"
+											/>
+										</Typography>
+									</div>
+									<div
+										style={{
+											display: 'flex',
+											flexFlow: 'row'
+										}}
+									>
+										<SortSelector
+											onSort={this.handleSort}
+											getResources={this.getFilteredResources}
+											sortFields={sortFields}
+											withFilter={false}
+											defaultSortBy={sortObj.sortBy}
+											defaultSortDir={sortObj.sortDir}
+										/>
+									</div>
+								</div>
+						  ]
+						: null}
 					<GridList
 						ref={this.gridRef}
 						cols={5}
@@ -353,7 +367,7 @@ class ResourcesGrid extends React.Component {
 						id="coreGrid"
 						spacing={25}
 						style={{
-							margin: '0px',
+							margin: '0px'
 						}}
 					>
 						{!resources ? null : this.getTiles(filteredResources)}

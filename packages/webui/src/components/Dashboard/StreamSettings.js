@@ -26,10 +26,8 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import {
 	Field
-	// 	ConsumerConfiguration, ProviderConfiguration,
 } from '@cedalo/sdk-streams';
 import { bindActionCreators } from 'redux';
-// import jp from 'jsonpath';
 import * as Actions from '../../actions/actions';
 import { connect } from 'react-redux';
 import gatewayClient from '../../helper/GatewayClient';
@@ -86,10 +84,6 @@ class StreamSettings extends React.Component {
 				id: 'Admin.emptyName',
 				defaultMessage: 'Name cannot be empty'
 			}),
-			INVALID: this.props.intl.formatMessage({
-				id: 'Admin.invalidName',
-				defaultMessage: 'Invalid Name'
-			})
 		};
 		this.state = {
 			stream: undefined,
@@ -147,8 +141,7 @@ class StreamSettings extends React.Component {
 	handleDescriptionChange = (event) => {
 		event.preventDefault();
 
-		const newValue = event.target.value;
-		this.state.stream.description = newValue;
+		this.state.stream.description = event.target.value;
 
 		this.setState({
 			stream: this.state.stream
@@ -197,15 +190,6 @@ class StreamSettings extends React.Component {
 		}
 	};
 
-	async saveSettings() {
-		const newConfiguration = this.state.stream;
-		newConfiguration.name = this.state.name;
-
-		const resp = await this.props.saveConfiguration(newConfiguration);
-
-		return !resp.error && resp.response && !resp.response.result.error;
-	}
-
 	getProvider() {
 		if (this.state.stream === undefined) {
 			return undefined;
@@ -221,13 +205,13 @@ class StreamSettings extends React.Component {
 		return provider ? `Provider: ${provider ? provider.name : ''}` : '';
 	}
 
-	getStreamFields(fc, advanced, errors) {
+	getStreamFields(fc, advanced) {
 		if (!this.props.stream) {
 			// no selection
 			return <div />;
 		}
 
-		return advanced ? fc.getComponents(this.state.stream, !this.props.canEdit, errors).advanced : fc.getComponents(this.state.stream, !this.props.canEdit, errors).main;
+		return advanced ? fc.getComponents(this.state.stream, !this.props.canEdit).advanced : fc.getComponents(this.state.stream, !this.props.canEdit).main;
 	}
 
 	getConnectorFields(fc) {
@@ -273,8 +257,6 @@ class StreamSettings extends React.Component {
 		const modelProps = {
 			locale: this.props.intl.locale,
 			handleChange: this.onUpdateConfiguration,
-			// validate: this.validate,
-			// save: this.onSaveConfiguration,
 			...this.props,
 		};
 

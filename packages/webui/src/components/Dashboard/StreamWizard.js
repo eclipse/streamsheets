@@ -43,6 +43,30 @@ import {
 import {bindActionCreators} from 'redux';
 import * as Actions from '../../actions/actions';
 import {connect} from 'react-redux';
+import gatewayClient from '../../helper/GatewayClient';
+
+const VALIDATION_QUERY = `
+	query ValidateStream($provider: String!, $type: String!, $streamConfig: JSON!) {
+		validateStream(provider: $provider, type: $type, streamConfig: $streamConfig) {
+			valid
+			fieldErrors
+			config
+		}
+	}
+`;
+
+/**
+ * usage: validate('@cedalo/stream-mqtt', 'consumer', {topic: 'test'});
+ */
+const validate = async (provider, type, streamConfig) => {
+	try {
+		const { validateStream } = await gatewayClient.graphql(VALIDATION_QUERY, { provider, type, streamConfig });
+		return validateStream;
+	} catch (error) {
+		console.error(error);
+	}
+	return { valid: true, fieldErrors: {}, config: streamConfig };
+};
 
 const styles = () => ({
 	progress: {
@@ -73,7 +97,9 @@ class StreamWizard extends React.Component {
 			})
 		};
 		this.state = {
-			connector: '',
+			connector: undefined,
+			fieldErrors: undefined,
+			newConnector: true,
 			selectedProvider: { id: '' },
 			activeStep: undefined,
 			error: '',
@@ -83,6 +109,7 @@ class StreamWizard extends React.Component {
 			filter: '',
 			step: 1,
 			showAdvanced: false,
+			validating: false,
 		};
 	}
 
@@ -104,7 +131,9 @@ class StreamWizard extends React.Component {
 
 	reset = () => {
 		this.setState({
-			connector: '',
+			connector: undefined,
+			newConnector: true,
+			fieldErrors: undefined,
 			selectedProvider: { id: '' },
 			activeStep: undefined,
 			error: '',
@@ -112,6 +141,7 @@ class StreamWizard extends React.Component {
 			consumerName: '',
 			step: 1,
 			showAdvanced: false,
+			validating: false,
 		});
 	};
 
@@ -256,6 +286,7 @@ class StreamWizard extends React.Component {
 
 		this.setState({
 			connector,
+			newConnector: connector === undefined,
 			consumerName: name,
 		});
 	};
@@ -270,33 +301,27 @@ class StreamWizard extends React.Component {
 		this.props.onClose();
 	};
 
-	async saveConnector() {
-		// newConfiguration.owner = user.userId;
-		const newConfiguration = this.state.connector;
-		newConfiguration.name = this.state.connectorName;
+	getSteps() {
+		const steps = [];
 
-		const resp = await this.props.saveConfiguration(newConfiguration);
-
-		return (!resp.error && resp.response && !resp.response.result.error);
-	}
-
-	getStepTitle() {
-		switch (this.state.activeStep) {
-		case 'provider':
-			return `Step ${this.state.step}: Select Provider`;
-		case 'connector':
-			return `Step ${this.state.step}: Select or create Connector`;
-		case 'connectorname':
-			return `Step ${this.state.step}: Assign Connector Name and Description`;
-		case 'connectorsettings':
-			return `Step ${this.state.step}: Define Connector Settings`;
-		case 'consumername':
-			return `Step ${this.state.step}: Assign Consumer Name and Description`;
-		case 'consumersettings':
-			return `Step ${this.state.step}: Define Consumer Settings`;
-		default:
-			return ''
+		if (this.props.type === 'consumer') {
+			if (this.props.initialStep === 'connector') {
+				steps.push('connector');
+				if (this.state.newConnector) {
+					steps.push('provider');
+					steps.push('connectorname');
+					steps.push('connectorsettings');
+				}
+			}
+			steps.push('consumername');
+			steps.push('consumersettings');
+		} else {
+			steps.push('provider');
+			steps.push('connectorname');
+			steps.push('connectorsettings');
 		}
+
+		return steps;
 	}
 
 	getStreamInfo() {
@@ -323,37 +348,24 @@ class StreamWizard extends React.Component {
 		case 'provider':
 			return this.state.selectedProvider.id === '';
 		case 'connector':
-			return this.state.connector === undefined;
+			return false;
 		case 'connectorname':
 			return this.state.error !== '';
 		case 'connectorsettings':
-			return false;
+			return this.state.validating;
 		case 'consumername':
 			return this.state.error !== '';
 		case 'consumersettings':
-			return false;
+			return this.state.validating;
 		default:
 			return ''
 		}
 	}
 
 	getBackDisabled() {
-		switch (this.state.activeStep) {
-		case 'provider':
-			return false;
-		case 'connector':
-			return true;
-		case 'connectorname':
-			return this.state.type === 'connector';
-		case 'connectorsettings':
-			return false;
-		case 'consumername':
-			return this.state.initialStep === 'consumername';
-		case 'consumersettings':
-			return false;
-		default:
-			return ''
-		}
+		const steps = this.getSteps();
+
+		return (this.state.activeStep === steps[0]);
 	}
 
 	handleNext = () => {
@@ -361,7 +373,7 @@ class StreamWizard extends React.Component {
 		case 'connector':
 			// if no connector selected, create new
 			this.setState({
-				activeStep: this.state.connector === '' ? 'provider' : 'consumername',
+				activeStep: this.state.connector === undefined ? 'provider' : 'consumername',
 				selectedProvider: {id: ''},
 				backDisabled: false,
 				consumer: undefined,
@@ -387,21 +399,39 @@ class StreamWizard extends React.Component {
 			});
 			this.state.connector.name = this.state.connectorName;
 			break;
-		case 'connectorsettings':
-			if (this.props.type === 'consumer') {
-				this.setState({
-					activeStep: 'consumername',
-					backDisabled: false,
-					step: this.state.step + 1,
-					consumerName: this.state.consumerName === '' ?
-						StreamWizard.createUniqueConsumerName(this.state.connector, this.props) :
-						this.state.consumerName,
+		case 'connectorsettings': {
+
+			const model = this.state.connector;
+			const provider = this.state.connector.provider;
+
+			if (provider) {
+				this.setState({validating: true})
+				validate(provider.id, 'connector', model).then(result => {
+					if (result.valid) {
+						this.setState({fieldErrors: undefined})
+						if (this.props.type === 'consumer') {
+							this.setState({
+								activeStep: 'consumername',
+								backDisabled: false,
+								step: this.state.step + 1,
+								consumerName: this.state.consumerName === '' ?
+									StreamWizard.createUniqueConsumerName(this.state.connector, this.props) :
+									this.state.consumerName,
+							});
+							this.setState({validating: false})
+						} else {
+							const validModel = result.config;
+							this.props.saveConfiguration(validModel);
+							this.handleClose();
+						}
+					} else {
+						this.setState({fieldErrors: result.fieldErrors})
+					}
 				});
-			} else {
-				// this.saveConnector()
-				this.handleClose();
 			}
+
 			break;
+		}
 		case 'consumername': {
 			const provider = this.props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration]
 					.find(p => p.id === this.state.connector.provider.id);
@@ -417,9 +447,29 @@ class StreamWizard extends React.Component {
 			});
 			break;
 		}
-		case 'consumersettings':
+		case 'consumersettings': {
+			const model = this.state.consumer;
+			const provider = this.state.consumer.provider;
+
+			if (provider) {
+				this.setState({validating: true})
+				validate(provider.id, 'consumer', model).then(result => {
+					if (result.valid) {
+						this.setState({fieldErrors: undefined})
+						const validModel = result.config;
+						if (this.props.initialStep === 'connector') {
+							this.props.saveConfiguration(this.state.connector);
+						}
+						this.props.saveConfiguration(validModel);
+						this.handleClose();
+					} else {
+						this.setState({fieldErrors: result.fieldErrors})
+					}
+				});
+			}
 			this.handleClose();
 			break;
+		}
 		default:
 		}
 	};
@@ -430,7 +480,7 @@ class StreamWizard extends React.Component {
 			this.setState({
 				activeStep: 'connector',
 				step: this.state.step - 1,
-				connector: '',
+				connector: undefined,
 			});
 			break;
 		case 'connectorname':
@@ -462,77 +512,82 @@ class StreamWizard extends React.Component {
 	};
 
 	getProgress() {
-		return [<Fab
-			variant="extended"
-			size="small"
-			color="primary"
-			aria-label="add"
-			style={{
-				boxShadow: 'none',
-				width: '160px',
-				lineHeight: 'normal',
-			}}
-		>
-			Provider
-		</Fab>,
-		<div
-			style = {{
-				height: '20px',
-				width: '1px',
-				borderLeft: '1px solid grey',
-				marginLeft: '80px',
-			}}
-		/>,
-		<Fab
-			variant="extended"
-			size="small"
-			color="primary"
-			aria-label="add"
-			style={{
-				boxShadow: 'none',
-				width: '160px',
-				lineHeight: 'normal',
-			}}
-		>
-			{'Consumer'}
-			<br/>
-			{'Name'}
-		</Fab>];
-	}
-
-	getStreamFields(advanced) {
-		let config;
-		if (this.props.edit) {
-			if (!this.props.selectedStream || this.props.selectedStream.id === '') {
-				// no selection
-				return <div />;
-			}
-			config = StreamHelper.getInstanceFromObject(this.props.selectedStream, this.props.streams);
-		} else {
-			switch (this.state.activeStep) {
-			case 'connectorsettings':
-				config = this.state.connector;
-				break;
-			case 'consumersettings':
-				config = this.state.consumer;
-				break;
-			case 'producersettings':
-				config = this.state.producer;
-				break;
-			default:
-				return null;
-			}
+		const addButton = (label, color) => {
+			return <Fab
+				variant="extended"
+				size="small"
+				color={color}
+				aria-label="add"
+				style={{
+					boxShadow: 'none',
+					width: '140px',
+					lineHeight: 'normal',
+				}}
+			>
+				{this.props.intl.formatMessage({
+					id: `StreamStep.${label}`,
+					defaultMessage: 'Step'
+				})}
+			</Fab>
+		};
+		const addLine = () => {
+			return <div
+				style = {{
+					height: '20px',
+					width: '1px',
+					borderLeft: '1px solid grey',
+					marginLeft: '70px',
+				}}
+			/>
 		}
 
-		const fc = new StreamFieldComponents(this.props.streams);
+		const elements = [];
 
+		const steps = this.getSteps();
 
+		steps.forEach(step => {
+			elements.push(addButton(step, this.state.activeStep === step ? 'primary' : 'default'));
+			elements.push(addLine());
+		});
+		elements.push(addButton('finish', 'default'));
 
+		return elements;
+	}
+
+	getStreamFields(fc, advanced) {
+		let config;
+
+		switch (this.state.activeStep) {
+		case 'connectorsettings':
+			config = this.state.connector;
+			break;
+		case 'consumersettings':
+			config = this.state.consumer;
+			break;
+		case 'producersettings':
+			config = this.state.producer;
+			break;
+		default:
+			return null;
+		}
 
 		return advanced ?
-			fc.getComponents(config).advanced :
-			fc.getComponents(config).main
+			fc.getComponents(config, false).advanced :
+			fc.getComponents(config, false).main
 	}
+
+	onUpdateConfiguration = (config) => {
+		switch (this.state.activeStep) {
+		case 'connectorsettings':
+			this.setState({ connector: config, fieldErrors: undefined, validating: false });
+			break;
+		case 'consumersettings':
+			this.setState({ consumer: config, fieldErrors: undefined , validating: false});
+			break;
+		default:
+		}
+	};
+
 
 	toggleAdvanced = () => {
 		this.setState({ showAdvanced: !this.state.showAdvanced });
@@ -543,13 +598,22 @@ class StreamWizard extends React.Component {
 		if (!open) {
 			return <div/>
 		}
-		const {selectedProvider, connector, consumerName, connectorName, error, filter, activeStep} = this.state;
+		const {selectedProvider, connector, consumerName, connectorName, error, filter, activeStep, fieldErrors} = this.state;
 		const sortObj = SortSelector.parseSortQuery(this.state.sortQuery);
-		const advancedFields = activeStep === 'consumersettings' || activeStep === 'connectorsettings' ? this.getStreamFields(true) : undefined;
+		const modelProps = {
+			locale: this.props.intl.locale,
+			handleChange: this.onUpdateConfiguration,
+			...this.props,
+		};
+
+		const fc = new StreamFieldComponents(modelProps, fieldErrors);
+		const advancedFields = activeStep === 'consumersettings' || activeStep === 'connectorsettings' ? this.getStreamFields(fc,true) : undefined;
 
 		return (
 			<Dialog open={open} onClose={onClose} maxWidth={false}>
-				<DialogTitle>{this.getStepTitle()}</DialogTitle>
+				<DialogTitle>
+					<FormattedMessage id="Stream.Wizard" defaultMessage="Stream Wizard"/>
+				</DialogTitle>
 				<DialogContent
 					style={{
 						height: '480px',
@@ -564,9 +628,12 @@ class StreamWizard extends React.Component {
 					<div
 						style={{
 							minWidth: '180px',
-							marginTop: '20px',
+							marginTop: '10px',
 						}}
 					>
+						<Typography style={{fontSize: '0.85rem', marginBottom: '12px', marginTop: '6px'}}>
+							<FormattedMessage id="Stream.Steps" defaultMessage="Steps"/>
+						</Typography>
 						{this.getProgress()}
 					</div>
 					<div
@@ -580,7 +647,7 @@ class StreamWizard extends React.Component {
 								<div
 									style={{
 										width: '100%',
-										marginTop: '20px',
+										marginTop: '10px',
 										display: 'flex',
 										justifyContent: 'space-between',
 										verticalAlign: 'middle'
@@ -593,7 +660,7 @@ class StreamWizard extends React.Component {
 											display: 'inline-block'
 										}}
 									>
-										List of Connectors
+										<FormattedMessage id="Stream.ListConnectors" defaultMessage="List"/>
 									</FormLabel>
 									<Input
 										onChange={this.handleFilter}
@@ -637,13 +704,13 @@ class StreamWizard extends React.Component {
 													height: '35px'
 												}}
 												hover
-												onClick={this.handleConnectorSelection('')}
-												selected={connector === ''}
+												onClick={this.handleConnectorSelection()}
+												selected={connector === undefined}
 												tabIndex={-1}
 												key="connector-new"
 											>
 												<TableCell component="th" scope="row" padding="none">
-													Create new Connector...
+													<FormattedMessage id="Stream.CreateNewConnector" defaultMessage="Create"/>
 												</TableCell>
 											</TableRow>
 											{this.getConnectors().map((resource) => (
@@ -686,7 +753,7 @@ class StreamWizard extends React.Component {
 										display: 'inline-block'
 									}}
 								>
-									Providers
+									<FormattedMessage id="Stream.ListProviders" defaultMessage="Providers"/>
 								</FormLabel>
 								<Input
 									onChange={this.handleFilter}
@@ -783,21 +850,21 @@ class StreamWizard extends React.Component {
 					) : null}
 					{activeStep === 'consumersettings' || activeStep === 'connectorsettings' ? (
 						<div>
-							<Typography style={{fontSize: '0.85rem', marginTop: '16px'}}>
+							<Typography style={{fontSize: '0.85rem', marginTop: '16px', marginBottom: '10px'}}>
 								{this.getStreamInfo()}
 							</Typography>
-							{this.getStreamFields(false)}
+							{this.getStreamFields(fc, false)}
 							{/* eslint-disable-next-line no-nested-ternary */}
 							{advancedFields.length ? !this.state.showAdvanced ?
 								<Button style={{marginTop:'15px', border: 'none'}} variant="outlined" size="small" fullWidth
 										onClick={this.toggleAdvanced}>
 									<ExpandMore/>
-									<FormattedMessage id="ShowExtendedSettings" defaultMessage="Show Extended Settings"/>
+									<FormattedMessage id="Stream.ShowExtendedSettings" defaultMessage="Show Extended Settings"/>
 								</Button> :
 								<Button style={{marginTop:'15px', border: 'none'}} variant="outlined" size="small" fullWidth
 										onClick={this.toggleAdvanced}>
 									<ExpandLess/>
-									<FormattedMessage id="HideExtendedSettings" defaultMessage="Hide Extended Settings"/>
+									<FormattedMessage id="Stream.HideExtendedSettings" defaultMessage="Hide Extended Settings"/>
 								</Button> : null
 							}
 							{this.state.showAdvanced ? advancedFields : null}
@@ -812,10 +879,10 @@ class StreamWizard extends React.Component {
 					</Button>
 					<Button size="small" onClick={this.handleBack} disabled={this.getBackDisabled()}>
 						{<KeyboardArrowLeft />}
-						Back
+						<FormattedMessage id="Setup.Back" defaultMessage="Back"/>
 					</Button>
 					<Button size="small" onClick={this.handleNext} disabled={this.getNextDisabled()}>
-						Next
+						<FormattedMessage id="Setup.Next" defaultMessage="Next"/>
 						{<KeyboardArrowRight />}
 					</Button>
 				</DialogActions>

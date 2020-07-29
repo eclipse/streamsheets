@@ -431,6 +431,9 @@ export class FormatCellsDialog extends React.Component {
 	};
 
 	render() {
+		if (!this.props.open) {
+			return <div/>;
+		}
 		const styles = {
 			negativered: {
 				color: 'red',

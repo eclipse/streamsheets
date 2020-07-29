@@ -19,7 +19,7 @@ import TableRow from '@material-ui/core/TableRow';
 import styles from './styles';
 import ResourceMenu from './ResourceMenu';
 import TableSortHeader from '../addNewDialog/TableSortHeader';
-import {FormattedMessage} from 'react-intl';
+import {injectIntl} from 'react-intl';
 import {formatDateString} from './Utils';
 import { IconPause, IconPlay, IconStop } from '../../icons';
 import Constants from '../../../constants/Constants';
@@ -140,7 +140,6 @@ class ResourcesList extends React.Component {
 		if (!resource) {
 			return '';
 		}
-		let desc = '';
 		let cons = '';
 		resource.streamsheets.forEach((sheet) => {
 			if (sheet.inbox.stream) {
@@ -150,13 +149,11 @@ class ResourcesList extends React.Component {
 				cons += sheet.inbox.stream.name
 			}
 		});
-		if (cons.length) {
-			desc += cons;
-		} else {
-			desc += 'No Consumers';
+		if (!cons.length) {
+			cons = this.props.intl.formatMessage({ id: 'Dashboard.NoneConsumers' }, {});
 		}
 
-		return desc;
+		return cons;
 	}
 
 	render() {
@@ -248,4 +245,4 @@ class ResourcesList extends React.Component {
 	}
 }
 
-export default withStyles(styles)(ResourcesList);
+export default injectIntl(withStyles(styles)(ResourcesList));
