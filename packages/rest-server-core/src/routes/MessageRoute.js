@@ -11,6 +11,27 @@
 const httpError = require('http-errors');
 const auth = require('basic-auth');
 
+const buildMessage = (payload) => {
+	let message = {};
+	if (typeof payload === 'string' && payload.startsWith('json=')) {
+		// backward compatibility: special JSON payload beginning with "json="
+		message = payload.substring(5);
+		message = JSON.parse(decodeURIComponent(payload));
+	} else if(payload.json) {
+		// TODO: backward compatibility: deprecate?
+		message = JSON.parse(decodeURIComponent(payload.json));
+	} else if (typeof payload === 'object') {
+		// real JSON payload
+		message = payload;
+	} else if (typeof payload === 'string') {
+		// string payload
+		message = {
+			data: payload
+		}
+	}
+	return message;
+}
+
 module.exports = class MessageRoute {
 	static handleMessage(request, response, next) {
 		let message = {};
@@ -25,33 +46,15 @@ module.exports = class MessageRoute {
 			MessageRoute._handleMessage(request, response, message);
 			break;
 		case 'POST':
-			message = request.body;
-			if (typeof message === 'string' && message.startsWith('json=')) {
-				message = message.substring(5);
-				message = JSON.parse(decodeURIComponent(message));
-			} else if(message.json) {
-				message = JSON.parse(decodeURIComponent(message.json));
-			}
+			message = buildMessage(request.body);
 			MessageRoute._handleMessage(request, response, message);
 			break;
 		case 'PUT':
-			message = request.body;
-			if (typeof message === 'string' && message.startsWith('json=')) {
-				message = message.substring(5);
-				message = JSON.parse(decodeURIComponent(message));
-			} else if(message.json) {
-				message = JSON.parse(decodeURIComponent(message.json));
-			}
+			message = buildMessage(request.body);
 			MessageRoute._handleMessage(request, response, message);
 			break;
 		case 'PATCH':
-			message = request.body;
-			if (typeof message === 'string' && message.startsWith('json=')) {
-				message = message.substring(5);
-				message = JSON.parse(decodeURIComponent(message));
-			} else if(message.json) {
-				message = JSON.parse(decodeURIComponent(message.json));
-			}
+			message = buildMessage(request.body);
 			MessageRoute._handleMessage(request, response, message);
 			break;
 		case 'DELETE':
