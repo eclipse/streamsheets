@@ -29,6 +29,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import IconSearch from '@material-ui/icons/Search';
 import StreamWizard from '../../Dashboard/StreamWizard';
 import StreamSettings from '../../Dashboard/StreamSettings';
+import StreamHelper from '../../../helper/StreamHelper';
 
 const DEF_TITLE = <FormattedMessage id="Dashboard.Add" defaultMessage="Add" />;
 const PREF_KEY = 'streamsheets-prefs-addnewdialog';
@@ -316,11 +317,7 @@ class AddNewDialog extends React.Component {
 					>
 						<Table>
 							<TableSortHeader
-								cells={this.props.showState ? [
-									{ id: 'name', numeric: false, disablePadding: true, label: 'Name', width: '58%' },
-									{ id: 'state', numeric: false, disablePadding: false, label: 'State', width: '14%' },
-									{ id: 'lastModified', numeric: false, disablePadding: false, label: 'LastModified', width: '28%' },
-								] : [
+								cells={[
 									{ id: 'name', numeric: false, disablePadding: true, label: 'Name', width: '72%' },
 									{ id: 'lastModified', numeric: false, disablePadding: false, label: 'LastModified', width: '28%' },
 								]}
@@ -342,9 +339,6 @@ class AddNewDialog extends React.Component {
 										<TableCell component="th" scope="row" padding="none">
 											<FormattedMessage id="DialogNew.noStream" defaultMessage="None" />
 										</TableCell>
-										{this.props.showState ? (
-											<TableCell/>
-										) : null}
 										<TableCell/>
 									</TableRow>
 								) : null}
@@ -360,11 +354,17 @@ class AddNewDialog extends React.Component {
 										key={`${resource.className}-${resource.id}`}
 									>
 										<TableCell component="th" scope="row" padding="none">
+											{this.props.showState ? (
+											<img
+												style={{ verticalAlign: 'bottom', paddingRight: '6px' }}
+												width={15}
+												height={15}
+												src={StreamHelper.getIconForState(resource.state)}
+												alt="state"
+											/>
+											) : null}
 											{resource.name}
 										</TableCell>
-										{this.props.showState ? (
-											<TableCell>{resource.state}</TableCell>
-										) : null}
 										<TableCell>{this.getFormattedDateString(resource.lastModified)}</TableCell>
 									</TableRow>
 								))}

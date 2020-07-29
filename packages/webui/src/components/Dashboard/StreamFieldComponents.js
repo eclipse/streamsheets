@@ -27,48 +27,24 @@ import styles from '../Admin/styles';
 import StreamHelper from '../../helper/StreamHelper';
 import AdminConstants from '../../constants/AdminConstants';
 import MultipleTextField from '../base/multipleTextField/MultipleTextField';
-import gatewayClient from '../../helper/GatewayClient';
 import { AdminField } from '../Admin/AdminField';
 
-const VALIDATION_QUERY = `
-	query ValidateStream($provider: String!, type: String!, streamConfig: JSON!) {
-		validateStream(provider: $provider, type: $type, streamConfig: $streamConfig) {
-			valid
-			fieldErrors
-			config
-		}
-	}
-`;
-
-
-/**
- * usage: validate('@cedalo/stream-mqtt', 'consumer', {topic: 'test'});
- */
-const validate = async (provider, type, streamConfig) => {
-	try {
-		const { validateStream } = await gatewayClient.graphql(VALIDATION_QUERY, { provider, type, streamConfig });
-		return validateStream;
-	} catch (error) {
-		console.error(error);
-	}
-	return { valid: true, fieldErrors: {}, config: streamConfig };
-};
-
 export default class StreamFieldComponents {
-	constructor(props) {
+	constructor(props, fieldErrors) {
 		this.props = { ...props };
 		this.locale = this.props.locale || 'en';
-		this.errorsMap = new Map();
 
-		this.handler = this.handler.bind(this);
-		this.unFocus = this.unFocus.bind(this);
-		this.save = this.save.bind(this);
+		this.state = {
+			fieldErrors
+		};
+
 		this.onStreamCommand = this.onStreamCommand.bind(this);
 	}
 
 	getComponents(configuration, disabled = false) {
 		const { definition } = configuration.provider;
 		let fields = [];
+		const errors = this.state.fieldErrors;
 
 		this.configuration = configuration;
 
@@ -94,7 +70,7 @@ export default class StreamFieldComponents {
 				if (field.isShow(configuration)) {
 					const value = configuration.fields[field.id];
 					field.value = value;
-					const component = this.getComponent(field, value, !!field.disabled || disabled);
+					const component = this.getComponent(field, value, !!field.disabled || disabled, errors ? errors[field.id] : undefined);
 					if (component) {
 						if(field.advanced === true) {
 							components.advanced.push(component);
@@ -140,10 +116,10 @@ export default class StreamFieldComponents {
 		return components;
 	}
 
-	getComponent(field, value, disabled) {
+	getComponent(field, value, disabled, error) {
 		switch (field.type || Field.TYPES.TEXT) {
 		case Field.TYPES.TEXT: {
-			return this.getTextField(field, field.value, disabled);
+			return this.getTextField(field, field.value, disabled, error);
 		}
 		case Field.TYPES.SELECT: {
 			return this.getSelect(field, field.value, disabled, undefined);
@@ -179,38 +155,32 @@ export default class StreamFieldComponents {
 			return <AdminField field={field} locale={this.locale} onChange={this.onChange} value={value} disabled={disabled} />
 		}
 		default: {
-			return this.getTextField(field, field.value, disabled);
+			return this.getTextField(field, field.value, disabled, error);
 		}
 		}
 	}
 
-	async save(model, name) {
-		const { save } = this.props;
-		// const res = await validate(model, name, model[name]);
-		// if(res.length>0) {
-		// 	this.errorsMap.set(name, res[0]);
-		// } else {
-		// 	this.errorsMap.delete(name);
-		// }
-		const saveObject = {
-			id: model._id || model.id,
-			type: model.className,
-			error: this.errorsMap.size>0,
-			$set: {
-				[name]: jp.value(model, name),
-			},
-		};
-		save(saveObject, this.props);
-	}
+	// async save(model, name) {
+	// 	const { save } = this.props;
+	// 	// const res = await validate(model, name, model[name]);
+	// 	// if(res.length>0) {
+	// 	// 	this.errorsMap.set(name, res[0]);
+	// 	// } else {
+	// 	// 	this.errorsMap.delete(name);
+	// 	// }
+	// 	const saveObject = {
+	// 		id: model._id || model.id,
+	// 		type: model.className,
+	// 		error: this.errorsMap.size>0,
+	// 		$set: {
+	// 			[name]: jp.value(model, name),
+	// 		},
+	// 	};
+	// 	save(saveObject, this.props);
+	// }
+	//
 
-	async unFocus() {
-		// const { name } = event.target;
-		validate('@cedalo/stream-mqtt', 'consumer', this.configuration).then(result => {
-			console.log(result);
-		});
-	}
-
-	handler(event) {
+	handler = (event) => {
 		const { target } = event;
 		const isCheckBox = target.type === 'checkbox';
 		const value = (isCheckBox ? target.checked : target.value);
@@ -220,28 +190,23 @@ export default class StreamFieldComponents {
 		if (target.name === 'connector.id') {
 			const newConnector = this.props.streams[AdminConstants.CONFIG_TYPE.ConnectorConfiguration]
 				.filter(a => a.id === value)[0];
-			configuration.connector.name = newConnector.name;
-			configuration.connector.id = newConnector.id;
-			configuration.connector._id = newConnector.id;
-			this.configuration = StreamHelper.getInstanceFromObject(configuration, this.props);
-			// model = configuration.toJSON();
+			configuration.connector = StreamHelper.getInstanceFromObject(newConnector, this.props.streams);
 		} else if (configuration.fields && Object.keys(configuration.fields).includes(target.name)) {
 			configuration.setFieldValue(target.name, value);
-			// model = configuration.toJSON();
-			// jp.value(model, target.name, model[target.name]);
+			const fieldErrors = this.state.fieldErrors;
+			if (fieldErrors && fieldErrors[target.name] !== undefined) {
+				fieldErrors[target.name] = undefined;
+			}
 		} else {
 			configuration[target.name] = configuration[target.name] || {};
 			jp.value(configuration, target.name, value);
 		}
 
-		// this.model = model;
 		this.props.handleChange(this.configuration);
-		this.unFocus(event);
 	}
 
 	onChange = (event) => {
 		this.handler(event);
-		// this.unFocus(event);
 	};
 
 	onStreamCommand = (event, field) => {
@@ -373,7 +338,7 @@ export default class StreamFieldComponents {
 			</FormControl>);
 	}
 
-	getTextField(field, value, disabled = false) {
+	getTextField(field, value, disabled = false, error) {
 		value = value || '';
 		return (
 			<div
@@ -384,9 +349,10 @@ export default class StreamFieldComponents {
 					id={field.id}
 					name={field.id}
 					fullWidth
+					error={error}
 					margin="normal"
 					disabled={disabled}
-					helperText={field.getHelp(this.locale)}
+					helperText={error || field.getHelp(this.locale)}
 					defaultValue={`${value}`}
 					onChange={this.handler}
 					style={styles.textField}

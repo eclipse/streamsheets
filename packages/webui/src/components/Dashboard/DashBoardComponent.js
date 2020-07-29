@@ -579,7 +579,7 @@ class DashBoardComponent extends Component {
 							<StreamSettings
 								onClose={this.onWizardClose}
 								stream={this.state.row.resource}
-								type="consumer"
+								type={this.state.type}
 								open={this.state.editStream}
 								streams={this.props.streams}
 							/>) : null}

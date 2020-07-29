@@ -15,20 +15,12 @@ import PropTypes from 'prop-types';
 import React from 'react';
 // import { FormattedMessage, injectIntl } from 'react-intl';
 import { IconEdit, IconDelete, IconReload } from '../icons';
-import {
-	Paper,
-	Typography,
-	IconButton,
-	Table,
-	TableBody,
-	TableRow,
-	TableCell,
-	Collapse
-} from '@material-ui/core';
+import { Paper, Typography, IconButton, Table, TableBody, TableRow, TableCell, Collapse } from '@material-ui/core';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import AddCircle from '@material-ui/icons/AddCircleOutline';
 import StreamHelper from '../../helper/StreamHelper';
+import { FormattedMessage } from 'react-intl';
 
 const styles = () => ({
 	typoRoot: {
@@ -45,11 +37,10 @@ const styles = () => ({
 		borderBottom: `1px solid #e0e0e0`,
 		paddingBottom: '0px',
 		paddingTop: '4px'
-	},
+	}
 });
 
-
-const StreamTableRow = ((props) => {
+const StreamTableRow = (props) => {
 	const { classes, row } = props;
 	const [open, setOpen] = React.useState(false);
 	const handleClick = (type) => {
@@ -59,7 +50,10 @@ const StreamTableRow = ((props) => {
 	return (
 		<React.Fragment>
 			<TableRow
-				style={{ textDecoration: row.disabled ? 'line-through' : 'inherit' }}
+				style={{
+					textDecoration: row.disabled ? 'line-through' : 'inherit',
+					height: '40px'
+				}}
 				classes={{ root: classes.tableRoot }}
 				key={row.id}
 			>
@@ -83,20 +77,24 @@ const StreamTableRow = ((props) => {
 				>
 					{row.name}
 				</TableCell>
-				<TableCell onClick={() => setOpen(!open)} padding="none" align="left">
+				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!open)} padding="none" align="left">
 					{row.provider}
 				</TableCell>
-				<TableCell onClick={() => setOpen(!open)} padding="none" align="left">
+				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!open)} padding="none" align="left">
 					{row.url}
 				</TableCell>
-				<TableCell onClick={() => setOpen(!open)} padding="none" align="left">
+				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!open)} padding="none" align="left">
 					{row.topic}
 				</TableCell>
-				<TableCell onClick={() => setOpen(!open)} padding="none" align="left">
+				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!open)} padding="none" align="left">
 					{row.lastModified}
 				</TableCell>
 				<TableCell padding="none" align="left">
-					<IconButton style={{ padding: '4px' }} size="small" onClick={() => props.onStreamOpen(row, 'connector')}>
+					<IconButton
+						style={{ padding: '4px' }}
+						size="small"
+						onClick={() => props.onStreamOpen(row, 'connector')}
+					>
 						<IconEdit />
 					</IconButton>
 					<IconButton
@@ -111,19 +109,14 @@ const StreamTableRow = ((props) => {
 					</IconButton>
 				</TableCell>
 			</TableRow>
-			<TableRow
-				key={`sub${row.id}`}
-				style={{ height: '0px' }}
-			>
+			<TableRow key={`sub${row.id}`} style={{ height: '0px' }}>
 				<TableCell
 					style={{ paddingBottom: open ? '6px' : '0px', paddingTop: '0px', paddingLeft: '40px' }}
 					colSpan={7}
 				>
 					<Collapse in={open} timeout="auto" unmountOnExit>
 						<Paper square elevation={1}>
-							<div
-								className={classes.sectionRoot}
-							>
+							<div className={classes.sectionRoot}>
 								<Typography
 									classes={{ root: classes.typoRoot }}
 									color="textSecondary"
@@ -131,9 +124,13 @@ const StreamTableRow = ((props) => {
 									gutterBottom
 									component="div"
 								>
-									Consumers
+									<FormattedMessage id="Dashboard.consumers" defaultMessage="Consumers" />
 								</Typography>
-								<IconButton style={{padding: '2px'}} size="small" onClick={() => handleClick('consumer')}>
+								<IconButton
+									style={{ padding: '2px' }}
+									size="small"
+									onClick={() => handleClick('consumer')}
+								>
 									<AddCircle />
 								</IconButton>
 							</div>
@@ -173,7 +170,7 @@ const StreamTableRow = ((props) => {
 											<TableCell style={{ width: '10%' }} padding="none" align="left">
 												{historyRow.lastModified}
 											</TableCell>
-											<TableCell  style={{ width: '10%' }} padding="none" align="left">
+											<TableCell style={{ width: '10%' }} padding="none" align="left">
 												<IconButton
 													style={{ padding: '4px' }}
 													size="small"
@@ -200,9 +197,7 @@ const StreamTableRow = ((props) => {
 									))}
 								</TableBody>
 							</Table>
-							<div
-								className={classes.sectionRoot}
-							>
+							<div className={classes.sectionRoot}>
 								<Typography
 									classes={{ root: classes.typoRoot }}
 									color="textSecondary"
@@ -210,9 +205,13 @@ const StreamTableRow = ((props) => {
 									gutterBottom
 									component="div"
 								>
-									Producers
+									<FormattedMessage id="Dashboard.producers" defaultMessage="Producers" />
 								</Typography>
-								<IconButton style={{padding: '2px'}} size="small" onClick={() => handleClick('producer')}>
+								<IconButton
+									style={{ padding: '2px' }}
+									size="small"
+									onClick={() => handleClick('producer')}
+								>
 									<AddCircle />
 								</IconButton>
 							</div>
@@ -252,7 +251,7 @@ const StreamTableRow = ((props) => {
 											<TableCell style={{ width: '10%' }} padding="none" align="left">
 												{historyRow.lastModified}
 											</TableCell>
-											<TableCell  style={{ width: '10%' }} padding="none" align="left">
+											<TableCell style={{ width: '10%' }} padding="none" align="left">
 												<IconButton
 													style={{ padding: '4px' }}
 													size="small"
@@ -285,10 +284,10 @@ const StreamTableRow = ((props) => {
 			</TableRow>
 		</React.Fragment>
 	);
-});
+};
 
 StreamTableRow.propTypes = {
 	row: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(StreamTableRow)
+export default withStyles(styles)(StreamTableRow);

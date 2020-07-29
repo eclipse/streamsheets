@@ -18,7 +18,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import Typography from '@material-ui/core/Typography';
-import SortSelector from '../base/sortSelector/SortSelector';
 import { withStyles } from '@material-ui/core/styles';
 import AdminConstants from '../../constants/AdminConstants';
 import StreamFieldComponents from './StreamFieldComponents';
@@ -30,8 +29,34 @@ import {
 	// 	ConsumerConfiguration, ProviderConfiguration,
 } from '@cedalo/sdk-streams';
 import { bindActionCreators } from 'redux';
+// import jp from 'jsonpath';
 import * as Actions from '../../actions/actions';
 import { connect } from 'react-redux';
+import gatewayClient from '../../helper/GatewayClient';
+
+const VALIDATION_QUERY = `
+	query ValidateStream($provider: String!, $type: String!, $streamConfig: JSON!) {
+		validateStream(provider: $provider, type: $type, streamConfig: $streamConfig) {
+			valid
+			fieldErrors
+			config
+		}
+	}
+`;
+
+/**
+ * usage: validate('@cedalo/stream-mqtt', 'consumer', {topic: 'test'});
+ */
+const validate = async (provider, type, streamConfig) => {
+	try {
+		const { validateStream } = await gatewayClient.graphql(VALIDATION_QUERY, { provider, type, streamConfig });
+		return validateStream;
+	} catch (error) {
+		console.error(error);
+	}
+	return { valid: true, fieldErrors: {}, config: streamConfig };
+};
+
 
 const styles = () => ({
 	progress: {
@@ -69,6 +94,7 @@ class StreamSettings extends React.Component {
 		this.state = {
 			stream: undefined,
 			error: '',
+			fieldErrors: undefined,
 			name: '',
 			description: '',
 			showAdvanced: false
@@ -93,14 +119,13 @@ class StreamSettings extends React.Component {
 	reset = () => {
 		this.setState({
 			error: '',
+			fieldErrors: undefined,
 			name: '',
 			description: '',
 			stream: undefined,
 			showAdvanced: false
 		});
 	};
-
-	getConnectors = () => SortSelector.sort(this.props.streams.connectors, this.state.sortQuery, this.state.filter);
 
 	handleNameChange = (event) => {
 		event.preventDefault();
@@ -146,20 +171,30 @@ class StreamSettings extends React.Component {
 		return '';
 	};
 
-	handleConnectorSelection = (connector) => () => {
-		this.setState({
-			connector
-		});
-	};
-
 	handleCancel = () => {
 		this.reset();
 		this.props.onClose();
 	};
 
 	handleClose = () => {
-		this.reset();
-		this.props.onClose();
+		const model = this.state.stream.toJSON();
+		const provider = this.getProvider();
+
+		if (provider) {
+			validate(provider.id, this.props.type, model).then(result => {
+				if (result.valid) {
+					const validModel = result.config;
+					this.setState({fieldErrors: undefined})
+					const config = StreamHelper.getInstanceFromObject(validModel, this.props.streams);
+					this.props.saveConfiguration(config);
+					this.reset();
+					this.props.onClose();
+				} else {
+					this.setState({fieldErrors: result.fieldErrors})
+					console.log(result);
+				}
+			});
+		}
 	};
 
 	async saveSettings() {
@@ -171,24 +206,28 @@ class StreamSettings extends React.Component {
 		return !resp.error && resp.response && !resp.response.result.error;
 	}
 
-	getProviderInfo() {
+	getProvider() {
 		if (this.state.stream === undefined) {
-			return '';
+			return undefined;
 		}
-		const provider = this.props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration].find(
+		return this.props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration].find(
 			(p) => p.id === this.state.stream.provider.id
 		);
-
-		return `Provider: ${provider ? provider.name : ''}`;
 	}
 
-	getStreamFields(fc, advanced) {
+	getProviderInfo() {
+		const provider = this.getProvider();
+
+		return provider ? `Provider: ${provider ? provider.name : ''}` : '';
+	}
+
+	getStreamFields(fc, advanced, errors) {
 		if (!this.props.stream) {
 			// no selection
 			return <div />;
 		}
 
-		return advanced ? fc.getComponents(this.state.stream).advanced : fc.getComponents(this.state.stream).main;
+		return advanced ? fc.getComponents(this.state.stream, !this.props.canEdit, errors).advanced : fc.getComponents(this.state.stream, !this.props.canEdit, errors).main;
 	}
 
 	getConnectorFields(fc) {
@@ -229,21 +268,21 @@ class StreamSettings extends React.Component {
 		if (!open) {
 			return <div />;
 		}
-		const { error, stream } = this.state;
+		const { error, stream, fieldErrors } = this.state;
 
 		const modelProps = {
-			locale: this.props.locale,
+			locale: this.props.intl.locale,
 			handleChange: this.onUpdateConfiguration,
 			// validate: this.validate,
 			// save: this.onSaveConfiguration,
 			...this.props,
 		};
 
-		const fc = new StreamFieldComponents(modelProps);
+		const fc = new StreamFieldComponents(modelProps, fieldErrors);
 
 		return (
 			<Dialog open={open} onClose={onClose} maxWidth={false}>
-				<DialogTitle>Stream Settings</DialogTitle>
+				<DialogTitle><FormattedMessage id="Stream.SettingsTitle" defaultMessage="Stream Settings" /></DialogTitle>
 				<DialogContent
 					style={{
 						height: '480px',
@@ -281,8 +320,8 @@ class StreamSettings extends React.Component {
 							}}
 							label={
 								<FormattedMessage
-									id="Stream.DescriptionField"
-									defaultMessage="Please enter a Description"
+									id="Stream.Description"
+									defaultMessage="Description"
 								/>
 							}
 							id="description"
@@ -316,7 +355,7 @@ class StreamSettings extends React.Component {
 								onClick={this.toggleAdvanced}
 							>
 								<ExpandLess />
-								<FormattedMessage id="HideExtendedSettings" defaultMessage="Hide Extended Settings" />
+								<FormattedMessage id="Stream.HideExtendedSettings" defaultMessage="Hide Extended Settings" />
 							</Button>
 						) : (
 							<Button
@@ -327,7 +366,7 @@ class StreamSettings extends React.Component {
 								onClick={this.toggleAdvanced}
 							>
 								<ExpandMore />
-								<FormattedMessage id="ShowExtendedSettings" defaultMessage="Show Extended Settings" />
+								<FormattedMessage id="Stream.ShowExtendedSettings" defaultMessage="Show Extended Settings" />
 							</Button>
 						)}
 						{this.state.showAdvanced ? this.getStreamFields(fc, true) : null}

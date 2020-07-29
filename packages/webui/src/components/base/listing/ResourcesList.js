@@ -132,7 +132,8 @@ class ResourcesList extends React.Component {
 		});
 	};
 
-	handleSelection = () => () => {
+	handleSelection = (resource) => {
+		this.props.onResourceOpen(resource, true);
 	};
 
 	getConsumers(resource) {
@@ -162,7 +163,6 @@ class ResourcesList extends React.Component {
 		const {
 			menuOptions,
 			onMenuSelect,
-			onResourceOpen = () => {},
 		} = this.props;
 		return (
 			<Paper
@@ -193,19 +193,19 @@ class ResourcesList extends React.Component {
 						{this.getMachines().map((resource) => (
 							<TableRow
 								style={ {
-									height: '35px'
+									height: '40px',
+									cursor: 'pointer',
 								}}
 								hover
-								onClick={this.handleSelection(resource)}
 								tabIndex={-1}
 								key={`${resource.className}-${resource.id}`}
 							>
-								<TableCell component="th" scope="row">
+								<TableCell onClick={() => this.handleSelection(resource)} component="th" scope="row">
 									{resource.name}
 								</TableCell>
-								<TableCell padding="none">{resource.streamsheets.length}</TableCell>
-								<TableCell padding="none">{this.getConsumers(resource)}</TableCell>
-								<TableCell padding="none">{resource.lastModifiedFormatted}</TableCell>
+								<TableCell onClick={() => this.handleSelection(resource)} padding="none">{resource.streamsheets.length}</TableCell>
+								<TableCell onClick={() => this.handleSelection(resource)} padding="none">{this.getConsumers(resource)}</TableCell>
+								<TableCell onClick={() => this.handleSelection(resource)} padding="none">{resource.lastModifiedFormatted}</TableCell>
 								{!menuOptions ? null : (
 									<TableCell padding="none">
 										<IconButton
@@ -233,15 +233,9 @@ class ResourcesList extends React.Component {
 											<IconPause />
 										</IconButton>
 										<ResourceMenu
-											handleOpenMenu={onResourceOpen}
 											menuOptions={menuOptions}
 											resourceId={resource.id}
 											onMenuSelect={onMenuSelect}
-											styles={{
-												icon: {
-													color: 'black',
-												},
-											}}
 										/>
 									</TableCell>
 								)}

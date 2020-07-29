@@ -10,7 +10,7 @@
  ********************************************************************************/
 // import PropTypes from 'prop-types';
 import React from 'react';
-import { FormattedMessage } from 'react-intl';
+import {injectIntl} from 'react-intl';
 import IconSearch from '@material-ui/icons/Search';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Input from '@material-ui/core/Input';
@@ -47,12 +47,6 @@ class FilterName extends React.Component {
 			<Input
 				type="search"
 				id='resFilterField'
-				label={
-					<FormattedMessage
-						id="Dashboard.textFilter"
-						defaultMessage="Filter"
-					/>
-				}
 				value={this.props.filter}
 				onChange={(event) => this.props.onUpdateFilter(event.target.value)}
 				startAdornment={
@@ -60,7 +54,7 @@ class FilterName extends React.Component {
 						<IconSearch />
 					</InputAdornment>
 				}
-				placeholder="Search"
+				placeholder={this.props.intl.formatMessage({ id: 'Dashboard.filter' }, {})}
 				classes={{
 					root: classes.root,
 					inputTypeSearch: classes.inputTypeSearch,
@@ -71,4 +65,4 @@ class FilterName extends React.Component {
 	}
 }
 
-export default  withStyles(styles)(FilterName);
+export default injectIntl(withStyles(styles)(FilterName));

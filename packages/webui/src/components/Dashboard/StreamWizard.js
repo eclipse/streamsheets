@@ -16,6 +16,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
+import Fab from '@material-ui/core/Fab';
 import FormLabel from '@material-ui/core/FormLabel';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import Table from '@material-ui/core/Table';
@@ -31,8 +32,6 @@ import IconSearch from '@material-ui/icons/Search';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import { withStyles } from '@material-ui/core/styles';
-// import StreamForm from '../Admin/streams/StreamForm';
-// import AdminForm from '../Admin/AdminForm';
 import AdminConstants from '../../constants/AdminConstants';
 import StreamFieldComponents from './StreamFieldComponents';
 import StreamHelper from '../../helper/StreamHelper';
@@ -462,6 +461,45 @@ class StreamWizard extends React.Component {
 		}
 	};
 
+	getProgress() {
+		return [<Fab
+			variant="extended"
+			size="small"
+			color="primary"
+			aria-label="add"
+			style={{
+				boxShadow: 'none',
+				width: '160px',
+				lineHeight: 'normal',
+			}}
+		>
+			Provider
+		</Fab>,
+		<div
+			style = {{
+				height: '20px',
+				width: '1px',
+				borderLeft: '1px solid grey',
+				marginLeft: '80px',
+			}}
+		/>,
+		<Fab
+			variant="extended"
+			size="small"
+			color="primary"
+			aria-label="add"
+			style={{
+				boxShadow: 'none',
+				width: '160px',
+				lineHeight: 'normal',
+			}}
+		>
+			{'Consumer'}
+			<br/>
+			{'Name'}
+		</Fab>];
+	}
+
 	getStreamFields(advanced) {
 		let config;
 		if (this.props.edit) {
@@ -515,9 +553,27 @@ class StreamWizard extends React.Component {
 				<DialogContent
 					style={{
 						height: '480px',
-						minWidth: '600px'
+						minWidth: '700px'
 					}}
 				>
+					<div
+						style={{
+							display: 'flex',
+						}}
+					>
+					<div
+						style={{
+							minWidth: '180px',
+							marginTop: '20px',
+						}}
+					>
+						{this.getProgress()}
+					</div>
+					<div
+						style={{
+							width: '100%',
+						}}
+					>
 					{activeStep === 'connector' ? (
 						<div>
 							<div>
@@ -617,7 +673,7 @@ class StreamWizard extends React.Component {
 							<div
 								style={{
 									width: '100%',
-									marginTop: '20px',
+									marginTop: '10px',
 									display: 'flex',
 									justifyContent: 'space-between',
 									verticalAlign: 'middle'
@@ -747,6 +803,8 @@ class StreamWizard extends React.Component {
 							{this.state.showAdvanced ? advancedFields : null}
 						</div>
 					) : null}
+					</div>
+					</div>
 				</DialogContent>
 				<DialogActions>
 					<Button color="primary" onClick={() => this.handleCancel()}>

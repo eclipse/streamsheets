@@ -31,7 +31,7 @@ export default class MultipleTextField extends Component {
 	static propTypes = {
 		values: PropTypes.arrayOf(PropTypes.string),
 		onChange: PropTypes.func,
-		label: PropTypes.oneOf(PropTypes.element, PropTypes.string),
+		label: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
 		name: PropTypes.string,
 		disabled: PropTypes.bool,
 	};
