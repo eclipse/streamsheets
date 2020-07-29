@@ -145,17 +145,17 @@ const trace = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.withMaxArgs(1)
+		.withMaxArgs(2)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
-		.run((url) =>
-			AsyncRequest.create(sheet, trace.context)
-				.request(() => getInstance().request({
-					url,
-					method: 'TRACE'
-				}))
+		.mapNextArg((config) => hasValue(config) ? config.value : {})
+		.run((url, config) => {
+			config.url = url;
+			config.method = 'TRACE';
+			return AsyncRequest.create(sheet, request.context)
+				.request(() => getInstance().request(config))
 				.response(defaultCallback)
-				.reqId()
-		);
+				.reqId();
+		});
 trace.displayName = true;
 
 const head = (sheet, ...terms) =>
