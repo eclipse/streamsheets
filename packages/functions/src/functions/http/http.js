@@ -84,12 +84,8 @@ const post = (sheet, ...terms) =>
 		.mapNextArg((data) => hasValue(data) ? data.value : '')
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, data, config) => {
-			console.log('******************************************')
-			console.log('******************getJSONFromTerm************************')
-			data = JSON.parse(data);
-			console.log(data);
-			config = {
-				headers: JSON.parse(config)
+			if (typeof data === 'object') {
+				// handle JSON
 			}
 			return AsyncRequest.create(sheet, post.context)
 				.request(() => getInstance().post(url, data, config))
