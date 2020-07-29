@@ -35,6 +35,8 @@ import StreamTableRow from './StreamTableRow';
 import StreamWizard from './StreamWizard';
 import GridViewButton from '../../layouts/GridViewButton';
 import StreamSettings from './StreamSettings';
+import IconButton from '@material-ui/core/IconButton';
+import SvgIcon from '@material-ui/core/SvgIcon';
 
 const PREF_KEY_LAYOUT = 'streamsheets-prefs-listing-layout';
 
@@ -416,6 +418,14 @@ class DashBoardComponent extends Component {
 		});
 	};
 
+	handleExport = () => {
+		this.props.openExport();
+	};
+
+	handleImport = () => {
+		this.props.showStartImportDialog();
+	};
+
 	updateLayout(layout) {
 		this.setState({
 			layout,
@@ -476,7 +486,31 @@ class DashBoardComponent extends Component {
 								label={<FormattedMessage value={1} id="Dashboard.manage" defaultMessage="Streams" />}
 							/>
 						</Tabs>
-						<div>
+						<div style={{display: 'flex'}}>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Import.Button.Import" defaultMessage="Import" />}
+							>
+								<IconButton color="primary" aria-label="Menu" onClick={this.handleImport}>
+									<SvgIcon>
+										<path
+											d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"
+										/>
+									</SvgIcon>
+								</IconButton>
+							</Tooltip>
+							<Tooltip
+								enterDelay={300}
+								title={<FormattedMessage id="Dashboard.export" defaultMessage="Export" />}
+							>
+								<IconButton color="primary" aria-label="Menu" onClick={this.handleExport}>
+									<SvgIcon>
+										<path
+											d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"
+										/>
+									</SvgIcon>
+								</IconButton>
+							</Tooltip>
 							{this.state.activeTab === 0 ?
 								<GridViewButton onUpdateLayout={(layout) => this.updateLayout(layout)}/> : null}
 						</div>

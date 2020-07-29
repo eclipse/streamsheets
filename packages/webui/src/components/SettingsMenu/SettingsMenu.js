@@ -30,7 +30,6 @@ import Select from '@material-ui/core/Select';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Button from '@material-ui/core/Button';
-import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import Menu from '@material-ui/core/Menu';
@@ -40,15 +39,18 @@ import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableBody from '@material-ui/core/TableBody';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Table from '@material-ui/core/Table';
 import Tooltip from '@material-ui/core/Tooltip';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import Typography from '@material-ui/core/es/Typography/Typography';
+import { ExitToApp, Security, Info, Settings, Assignment} from '@material-ui/icons';
 
 import * as Actions from '../../actions/actions';
 import {graphManager} from '../../GraphManager';
 import {withStyles} from '@material-ui/core/styles';
+import {Path} from '../../helper/Path';
 
 const TabContainer = (props) => (
 		<Typography component="div" style={{ padding: 8 * 3 }}>
@@ -98,6 +100,13 @@ export class SettingsMenu extends React.Component {
 			openMoreSettingMenu: false,
 		});
 		this.props.setAppState({ openPreferences: true });
+	};
+
+	handleOpenAdmin = () => {
+		this.props.setAppState({
+			drawerOpen: false
+		});
+		window.open(Path.users());
 	};
 
 	handlePreferencesCancel = () => {
@@ -239,16 +248,34 @@ export class SettingsMenu extends React.Component {
 						/>
 					</Card>
 					<MenuItem onClick={this.showPreferencesDialog}>
-						<ListItemText primary={<FormattedMessage id="UserPreferences" defaultMessage="User Preferences" />} />
+						<ListItemIcon>
+							<Settings />
+						</ListItemIcon>
+						<FormattedMessage id="UserPreferences" defaultMessage="User Preferences" />
+					</MenuItem>
+					<MenuItem onClick={this.handleOpenAdmin}>
+						<ListItemIcon>
+							<Security />
+						</ListItemIcon>
+						<FormattedMessage id="Administration" defaultMessage="Administration" />
 					</MenuItem>
 					<MenuItem onClick={this.showHelpDialog}>
-						<ListItemText primary={<FormattedMessage id="Info" defaultMessage="Info" />} />
+						<ListItemIcon>
+							<Info />
+						</ListItemIcon>
+						<FormattedMessage id="Info" defaultMessage="Info" />
 					</MenuItem>
 					<MenuItem onClick={this.showLicenseAgreement}>
-						<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicense" defaultMessage="Download license" />} />
+						<ListItemIcon>
+							<Assignment />
+						</ListItemIcon>
+						<FormattedMessage id="Setup.LicenseAgreement.DownloadLicense" defaultMessage="Download license" />
 					</MenuItem>
 					<MenuItem onClick={this.logout}>
-						<ListItemText primary={<FormattedMessage id="Logout" defaultMessage="Logout" />} />
+						<ListItemIcon>
+							<ExitToApp />
+						</ListItemIcon>
+						<FormattedMessage id="Logout" defaultMessage="Logout" />
 					</MenuItem>
 				</Menu>
 				<Dialog

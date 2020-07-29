@@ -16,7 +16,6 @@ import { connect } from 'react-redux';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import Divider from '@material-ui/core/Divider';
 import DeleteIcon from '@material-ui/icons/Delete';
-import AdminAppIcon from '@material-ui/icons/Security';
 import DashboardIcon from '@material-ui/icons/ViewList';
 import NewIcon from '@material-ui/icons/NoteAdd';
 import CloneIcon from '@material-ui/icons/FileCopy';
@@ -28,7 +27,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { FormattedMessage } from 'react-intl';
 import * as Actions from '../../actions/actions';
 import { Restricted } from '../HelperComponent/Restricted';
-import { Path } from '../../helper/Path';
 import {withStyles} from '@material-ui/core/styles';
 
 export class MainDrawer extends Component {
@@ -81,13 +79,6 @@ export class MainDrawer extends Component {
 		});
 	};
 
-	handleOpenAdmin = () => {
-		this.setAppState({
-			drawerOpen: false
-		});
-		window.open(Path.administration());
-	};
-
 	handleSaveAs = () => {
 		this.setAppState({
 			drawerOpen: false,
@@ -100,10 +91,6 @@ export class MainDrawer extends Component {
 		this.setAppState({
 			drawerOpen: false
 		});
-	};
-
-	handleAdminMenu = () => {
-		this.setState({ adminOpen: !this.state.adminOpen });
 	};
 
 	showSettingsDialog = () => {
@@ -184,8 +171,6 @@ export class MainDrawer extends Component {
 						<ListItemIcon>
 							<SvgIcon>
 								<path
-									fill="#757575"
-									// eslint-disable-next-line max-len
 									d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"
 								/>
 							</SvgIcon>
@@ -198,8 +183,6 @@ export class MainDrawer extends Component {
 						<ListItemIcon>
 							<SvgIcon>
 								<path
-									fill="#757575"
-									// eslint-disable-next-line max-len
 									d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"
 								/>
 							</SvgIcon>
@@ -219,19 +202,13 @@ export class MainDrawer extends Component {
 					</div>
 				) : null}
 				<Divider />
-				<MenuItem onClick={this.handleOpenDashboard}>
-					<ListItemIcon>
-						<DashboardIcon />
-					</ListItemIcon>
-					<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />
-				</MenuItem>
-				<MenuItem onClick={this.handleOpenAdmin}>
-					<ListItemIcon>
-						<AdminAppIcon />
-					</ListItemIcon>
-					<FormattedMessage id="Administration" defaultMessage="Administration" />
-				</MenuItem>
-				{this.props.isMachineDetailPage ? (
+				{this.props.isMachineDetailPage ? [
+					<MenuItem onClick={this.handleOpenDashboard}>
+						<ListItemIcon>
+							<DashboardIcon />
+						</ListItemIcon>
+						<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />
+					</MenuItem>,
 					<MenuItem onClick={this.handleOpenPreview}>
 						<ListItemIcon>
 							<SvgIcon>
@@ -244,7 +221,7 @@ export class MainDrawer extends Component {
 						</ListItemIcon>
 						<FormattedMessage id="UserPreview" defaultMessage="User Preview" />
 					</MenuItem>
-				) : null}
+				] : null}
 			</Drawer>
 		);
 	}
