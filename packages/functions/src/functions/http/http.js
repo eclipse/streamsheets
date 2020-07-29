@@ -100,14 +100,14 @@ const put = (sheet, ...terms) =>
 		.withMinArgs(1)
 		.withMaxArgs(3)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
-		.mapNextArg((data) => hasValue(data) ? asString(data.value, ERROR.VALUE) : '')
+		.mapNextArg((data) => hasValue(data) ? data.value : '')
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
-		.run((url, data, config) =>
-			AsyncRequest.create(sheet, put.context)
+		.run((url, data, config) => {
+			return AsyncRequest.create(sheet, put.context)
 				.request(() => getInstance().put(url, data, config))
 				.response(defaultCallback)
 				.reqId()
-		);
+		});
 put.displayName = true;
 
 const patch = (sheet, ...terms) =>
