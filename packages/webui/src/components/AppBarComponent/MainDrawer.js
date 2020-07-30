@@ -8,11 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-/* eslint-disable react/no-unused-state */
-/* eslint-disable react/prop-types */
-import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import React, {Component} from 'react';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import Divider from '@material-ui/core/Divider';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -24,16 +22,12 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import MenuItem from '@material-ui/core/MenuItem';
 import Drawer from '@material-ui/core/Drawer';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import { FormattedMessage } from 'react-intl';
+import {FormattedMessage} from 'react-intl';
 import * as Actions from '../../actions/actions';
-import { Restricted } from '../HelperComponent/Restricted';
-import { withStyles } from '@material-ui/core/styles';
+import {Restricted} from '../HelperComponent/Restricted';
+import {withStyles} from '@material-ui/core/styles';
 
 export class MainDrawer extends Component {
-	state = {
-		adminOpen: false
-	};
-
 	setAppState(state) {
 		this.props.setAppState(state);
 	}
@@ -202,32 +196,27 @@ export class MainDrawer extends Component {
 					</div>
 				) : null}
 				<Divider />
-				{this.props.isMachineDetailPage || this.props.isAdminPage
-					? (
-							<MenuItem onClick={this.handleOpenDashboard}>
-								<ListItemIcon>
-									<DashboardIcon />
-								</ListItemIcon>
-								<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />
-							</MenuItem>
-					)
-					: null}
-				{this.props.isMachineDetailPage
-					? (
-						<MenuItem onClick={this.handleOpenPreview}>
-							<ListItemIcon>
-								<SvgIcon>
-									<path
-										fill="#757575"
-										// eslint-disable-next-line max-len
-										d="M12 5.5L10 8H14L12 5.5M18 10V14L20.5 12L18 10M6 10L3.5 12L6 14V10M14 16H10L12 18.5L14 16M21 3H3C1.9 3 1 3.9 1 5V19C1 20.1 1.9 21 3 21H21C22.1 21 23 20.1 23 19V5C23 3.9 22.1 3 21 3M21 19H3V5H21V19Z"
-									/>
-								</SvgIcon>
-							</ListItemIcon>
-							<FormattedMessage id="UserPreview" defaultMessage="User Preview" />
-						</MenuItem>
-					)
-					: null}
+				{this.props.isMachineDetailPage || this.props.isAdminPage ? (
+					<MenuItem onClick={this.handleOpenDashboard}>
+						<ListItemIcon>
+							<DashboardIcon />
+						</ListItemIcon>
+						<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />
+					</MenuItem>
+				) : null}
+				{this.props.isMachineDetailPage ? (
+					<MenuItem onClick={this.handleOpenPreview}>
+						<ListItemIcon>
+							<SvgIcon>
+								<path
+									// eslint-disable-next-line max-len
+									d="M12 5.5L10 8H14L12 5.5M18 10V14L20.5 12L18 10M6 10L3.5 12L6 14V10M14 16H10L12 18.5L14 16M21 3H3C1.9 3 1 3.9 1 5V19C1 20.1 1.9 21 3 21H21C22.1 21 23 20.1 23 19V5C23 3.9 22.1 3 21 3M21 19H3V5H21V19Z"
+								/>
+							</SvgIcon>
+						</ListItemIcon>
+						<FormattedMessage id="UserPreview" defaultMessage="User Preview" />
+					</MenuItem>
+				) : null}
 			</Drawer>
 		);
 	}
@@ -240,6 +229,7 @@ function mapStateToProps(state) {
 		user: state.user
 	};
 }
+
 function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }

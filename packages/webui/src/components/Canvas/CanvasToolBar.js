@@ -1732,6 +1732,17 @@ export class CanvasToolBar extends Component {
 		return selection && selection.length && selection[0].getModel() instanceof SheetPlotNode;
 	}
 
+	isChartElementSelected() {
+		const selection = graphManager.getGraphViewer().getSelection();
+		if (selection && selection.length) {
+			const cont = selection[0];
+			if (cont.getModel() instanceof SheetPlotNode) {
+				return cont.getView().chartSelection !== undefined;
+			}
+		}
+		return false;
+	}
+
 	fillColorToRGBAObject(format) {
 		let color = format && format.getFillColor() ? format.getFillColor().getValue() : '#FFFFFF';
 		if (color.length && color[0] !== '#') {
@@ -1887,7 +1898,7 @@ export class CanvasToolBar extends Component {
 		];
 
 		colors.push({ title: 'None', color: 'transparent' });
-		if (this.isChartSelected()) {
+		if (this.isChartElementSelected()) {
 			colors.push({ title: 'Automatic', color: '#FFFFFE' });
 		}
 
@@ -2705,7 +2716,9 @@ export class CanvasToolBar extends Component {
 									style={borderStyle}
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.NONE)}
 								>
-									<img alt="" src="lib/res/images/linestylenone.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="50" y="14" fontWeight="bold" fontSize="9pt" dy="0.25em" textAnchor="middle">None</text>
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2718,7 +2731,9 @@ export class CanvasToolBar extends Component {
 									style={borderStyle}
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.SOLID)}
 								>
-									<img alt="" src="lib/res/images/linestylesolid.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<path d="M5,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>

@@ -357,6 +357,7 @@ JSG.debug = {
 
 JSG.theme = {
 	theme: 'Default',
+	chart: 'basic',
 	graph: '#DDDDDD',
 	tool: '#EEEEEE',
 	caption: '#1565c0',

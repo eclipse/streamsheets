@@ -209,6 +209,7 @@ const createByName = () => {
 	case 'Dark':
 		theme = createDark();
 		JSG.theme = {
+			chart: 'dark',
 			theme: name,
 			graph: '#333333',
 			tool: theme.overrides.MuiAppBar.colorPrimary.backgroundColor,

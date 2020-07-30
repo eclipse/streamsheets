@@ -32,6 +32,7 @@ const Strings = require('../../commons/Strings');
 const JSONReader = require('../../commons/JSONReader');
 const JSONWriter = require('../../commons/JSONWriter');
 const Attribute = require('../attr/Attribute');
+const AttributeUtils = require('../attr/AttributeUtils');
 const StringAttribute = require('../attr/StringAttribute');
 const NumberExpression = require('../expr/NumberExpression');
 const LineShape = require('./shapes/LineShape');
@@ -494,6 +495,12 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 	setLineFormat(node, formatJSON) {
 		if (formatJSON === undefined || formatJSON === '') {
+			let path = AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINECOLOR);
+			node.removeAttributeAtPath(path);
+			path = AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINESTYLE);
+			node.removeAttributeAtPath(path);
+			path = AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINEWIDTH);
+			node.removeAttributeAtPath(path);
 			return;
 		}
 
@@ -520,6 +527,10 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 	setFillFormat(node, formatJSON, name) {
 		if (formatJSON === undefined || formatJSON === '') {
+			let path = AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.FILLCOLOR);
+			node.removeAttributeAtPath(path);
+			path = AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.FILLSTYLE);
+			node.removeAttributeAtPath(path);
 			return;
 		}
 
