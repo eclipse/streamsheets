@@ -53,6 +53,7 @@ const parseCSV = async (input) => {
 
 const parserMap = new Map();
 parserMap.set('xml', parseXML);
+parserMap.set('svg', parseXML);
 // parserMap.set('json', parseJSON);
 // parserMap.set('css', parseCSS);
 parserMap.set('csv', parseCSV);
