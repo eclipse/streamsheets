@@ -30,7 +30,8 @@
     "@cedalo/logger": "1.6.2",
     "@cedalo/machine-core": "1.6.2",
     "@cedalo/number-format": "1.6.2",
-    "@cedalo/parser": "1.6.2"
+    "@cedalo/parser": "1.6.2",
+    "@cedalo/parsers": "1.6.2"
   },
   "jest": {
     "collectCoverage": false,
