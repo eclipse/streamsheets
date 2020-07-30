@@ -9,7 +9,20 @@
  *
  ********************************************************************************/
 
+const csv = require('csv-parse');
+const parseCSV = async (input) => {
+	return new Promise((resolve, reject) => {
+		csv(input, (error, output) => {
+			if (error) {
+				reject(error);
+			} else {
+				resolve(output);
+			}
+		});
+	});
+};
 const parserMap = new Map();
+parserMap.set('csv', parseCSV);
 const parse = async (content, mimeType) => {
 	const extension = mime.extension(mimeType);
 	const result = {
