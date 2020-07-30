@@ -103,9 +103,7 @@ export class SettingsMenu extends React.Component {
 	};
 
 	handleOpenAdmin = () => {
-		this.props.setAppState({
-			drawerOpen: false
-		});
+		this.props.setAppState({ openMoreSettingMenu: false });
 		window.open(Path.users());
 	};
 
@@ -253,12 +251,13 @@ export class SettingsMenu extends React.Component {
 						</ListItemIcon>
 						<FormattedMessage id="UserPreferences" defaultMessage="User Preferences" />
 					</MenuItem>
+					{this.props.isAdminPage ? null : (
 					<MenuItem onClick={this.handleOpenAdmin}>
 						<ListItemIcon>
 							<Security />
 						</ListItemIcon>
 						<FormattedMessage id="Administration" defaultMessage="Administration" />
-					</MenuItem>
+					</MenuItem>)}
 					<MenuItem onClick={this.showHelpDialog}>
 						<ListItemIcon>
 							<Info />

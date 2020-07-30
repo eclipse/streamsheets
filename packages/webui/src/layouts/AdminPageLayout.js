@@ -87,7 +87,7 @@ export const AdminPageLayoutComponent = (props) => {
 					<StartImportDialog />
 					<NewMachineDialog />
 					<OpenDialog />
-					<MainDrawer />
+					<MainDrawer isAdminPage />
 					<AlertDialog />
 					<DecisionDialog />
 					<RequestStatusDialog />
@@ -112,7 +112,7 @@ export const AdminPageLayoutComponent = (props) => {
 							}}
 						>
 							{/* <Snackbar
-								anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+								anchorOrigin={{ vertical: 'top', horizontal: 'center' } }
 								key="daysLeft"
 								open={daysLeft < 20}
 								ContentProps={{
@@ -146,7 +146,7 @@ export const AdminPageLayoutComponent = (props) => {
 							>
 								<NotificationsComponent />
 								<HelpButton />
-								<SettingsMenu />
+								<SettingsMenu isAdminPage />
 							</Toolbar>
 						</div>
 					</AppBar>

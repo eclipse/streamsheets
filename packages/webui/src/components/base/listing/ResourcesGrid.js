@@ -272,7 +272,7 @@ class ResourcesGrid extends React.Component {
 			width -= 20;
 		}
 
-		const sortQuery = localStorage.getItem(PREF_KEY_SORTQUERY) || this.state.sortQuery;
+		const sortQuery = localStorage.getItem(PREF_KEY_SORTQUERY) || this.state.sortQuery || 'name_asc';
 		const sortFields = ['name', 'lastModified', 'state'];
 		const sortObj = SortSelector.parseSortQuery(sortQuery);
 		const filteredResources = SortSelector.sort(resources, sortQuery, this.props.filter);

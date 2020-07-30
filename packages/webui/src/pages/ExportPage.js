@@ -88,7 +88,7 @@ export function ExportPageComponent(props) {
 					<OpenDialog />
 					<SaveAsDialog />
 					<MachineDeleteDialog />
-					<MainDrawer />
+					<MainDrawer isAdminPage />
 					<AlertDialog />
 					<DecisionDialog />
 					<RequestStatusDialog />

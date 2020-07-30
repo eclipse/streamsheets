@@ -2049,6 +2049,7 @@ export class StreamChartProperties extends Component {
 										/>
 									}
 									width={110}
+									labelFontSize='1rem'
 									transparent
 									color={
 										data.marker.fillColor ||
@@ -2065,6 +2066,7 @@ export class StreamChartProperties extends Component {
 								}}
 							>
 								<ColorComponent
+									labelFontSize='1rem'
 									label={
 										<FormattedMessage
 											id="StreamChartProperties.LineColor"

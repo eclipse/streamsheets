@@ -15,13 +15,6 @@ import { FormattedMessage } from 'react-intl';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import Database from './security/Database';
-import Connectors from './streams/Connectors';
-import Consumers from './streams/Consumers';
-import NewStreamDialog from './streams/NewStreamDialog';
-import Producers from './streams/Producers';
-import StreamDeleteDialog from './streams/StreamDeleteDialog';
-import StreamFormContainer from './streams/StreamFormContainer';
-import Streams from './streams/Streams';
 import { PluginExtensions } from '@cedalo/webui-extensions';
 import { Restricted, NotAllowed } from '../HelperComponent/Restricted';
 
@@ -77,41 +70,10 @@ export class AdminContainer extends Component {
 							<Database />
 						</RestrictedWrapper>
 					) : null}
-					{this.props.location.pathname === '/administration/streams' ? (
-						<RestrictedWrapper right="stream">
-							<Streams layout={this.props.layout}/>
-						</RestrictedWrapper>
-					) : null}
-					{this.props.location.pathname === '/administration/consumers' ? (
-						<RestrictedWrapper right="stream">
-							<Consumers layout={this.props.layout} />
-							<StreamDeleteDialog />
-						</RestrictedWrapper>
-					) : null}
-					{this.props.location.pathname === '/administration/producers' ? (
-						<RestrictedWrapper right="stream">
-							<Producers layout={this.props.layout} />
-							<StreamDeleteDialog />
-						</RestrictedWrapper>
-					) : null}
-					{this.props.location.pathname === '/administration/connectors' ? (
-						<RestrictedWrapper right="stream">
-							<Connectors layout={this.props.layout} />
-							<StreamDeleteDialog />
-						</RestrictedWrapper>
-					) : null}
-					{this.props.location.pathname.startsWith('/administration/stream/') ? (
-						<RestrictedWrapper right="stream">
-							<StreamFormContainer match={this.props.match} />
-						</RestrictedWrapper>
-					) : null}
 					{this.props.location.pathname.startsWith('/administration/plugins/') ? (
 						<PluginExtensions location={this.props.location} />
 					) : null}
 				</div>
-				<Restricted oneOf={['stream']}>
-					<NewStreamDialog />
-				</Restricted>
 			</div>
 		);
 	}

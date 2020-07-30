@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import AdminContainer from '../components/Admin/AdminContainer';
@@ -33,7 +33,7 @@ const isEditStreamPage = (match) => {
 	const parts = match.url.split('/');
 	const relevantPart = parts[parts.indexOf('administration') + 1];
 	return relevantPart.indexOf('stream') !== -1;
-}
+};
 
 export const StreamsPageComponent = (props) => {
 	const { scopeId, match, location, streams } = props;
@@ -42,7 +42,7 @@ export const StreamsPageComponent = (props) => {
 
 	const onUpdateLayout = (text) => {
 		setLayout(text);
-	}
+	};
 
 	useEffect(() => {
 		if (scopeId) {
@@ -58,6 +58,8 @@ export const StreamsPageComponent = (props) => {
 				return intl.formatMessage({ id: 'TitleConsumers' }, {});
 			case '/administration/producers':
 				return intl.formatMessage({ id: 'TitleProducers' }, {});
+			case '/administration/database':
+				return intl.formatMessage({ id: 'Administration' }, {});
 			default:
 				if (match.path.startsWith('/administration/stream')) {
 					const configuration = StreamHelper.getConfiguration(streams, match.params.configId);

@@ -481,10 +481,11 @@ class DashBoardComponent extends Component {
 								style={{ fontSize: '11pt' }}
 								label={<FormattedMessage value={0} id="Dashboard" defaultMessage="Apps and Services" />}
 							/>
+							{this.props.rights.includes('stream') ? (
 							<Tab
 								style={{ fontSize: '11pt' }}
 								label={<FormattedMessage value={1} id="Dashboard.manage" defaultMessage="Streams" />}
-							/>
+							/>) : null}
 						</Tabs>
 						<div style={{display: 'flex'}}>
 							<Tooltip
@@ -520,36 +521,6 @@ class DashBoardComponent extends Component {
 					<div style={{ height: 'calc(100% - 49px)' }}>
 						<ImportDropzone>
 							<CombinedResourceListing
-								fields={[
-									{
-										label: this.props.intl.formatMessage({
-											id: 'Dashboard.sheets',
-											defaultMessage: 'Sheets'
-										}),
-										key: 'streamsheets.length'
-									},
-									{
-										// eslint-disable-next-line
-										label: this.props.intl.formatMessage({
-											id: 'Dashboard.streams',
-											defaultMessage: 'Streams'
-										}),
-										key: 'streamsheets[*].inbox.stream.name'
-									},
-									{
-										label: this.props.intl.formatMessage({
-											id: 'Admin.provideOwner',
-											defaultMessage: 'Owner'
-										}),
-										key: 'owner'
-									},
-									{
-										label: (
-											<FormattedMessage id="Admin.lastModified" defaultMessage="Last Modified" />
-										),
-										key: 'lastModified_formatted'
-									}
-								]}
 								images
 								titleAttribute="name"
 								resources={this.getMachines()}
@@ -577,7 +548,6 @@ class DashBoardComponent extends Component {
 									}
 								]}
 								layout={this.state.layout}
-								menuOptions={menuOptions}
 								onMenuSelect={this.handleMenuSelect}
 								onResourceOpen={this.onResourceOpen}
 								handleNew={this.props.rights.includes('machine.edit') ? this.handleNew : undefined}
