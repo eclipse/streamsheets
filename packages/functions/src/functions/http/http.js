@@ -9,10 +9,10 @@
  *
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
-const { AsyncRequest, runFunction, terms: { getJSONFromTerm, hasValue } } = require('../../utils');
+const { AsyncRequest, runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../utils');
+const { addHTTPResponseToInbox, addHTTPResponseToCell, addHTTPResponseToRange } = require('./utils');
 const { getInstance } = require('@cedalo/http-client');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Message } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 
@@ -25,17 +25,12 @@ const getJSON = (term) => {
 
 const defaultCallback = (context, response, error) => {
 	const term = context.term;
+
+	// add to inbox
+	const inbox = context.term.scope.streamsheet.inbox;
+	addHTTPResponseToInbox(response, context, error);
+
 	const err = error || response.error;
-	if (err) {
-		console.log(err);
-		const errorMessage = new Message(err);
-		message.metadata.label = `Error: ${term.name}`;
-		context.term.scope.streamsheet.inbox.put(errorMessage);
-	} else {
-		const message = new Message(response.data);
-		message.metadata.label = `${term.name}`;
-		context.term.scope.streamsheet.inbox.put(message);
-	}
 	if (term && !term.isDisposed) {
 		term.cellValue = err ? ERROR.RESPONSE : undefined;
 	}
