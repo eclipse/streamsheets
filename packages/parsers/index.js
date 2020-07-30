@@ -11,6 +11,7 @@
 
 const marked = require('marked');
 const postcss = require('postcss');
+const esprima = require('esprima');
 const xml2js = require('xml2js');
 const csv = require('csv-parse');
 const mime = require('mime-types');
@@ -21,6 +22,10 @@ const parseMarkdown = async (input) => {
 
 const parseCSS = async (input) => {
 	return postcss.parse(input);
+};
+
+const parseJavaScript = async (input) => {
+	return esprima.parse(input);
 };
 
 const parseXML = async (input) => {
@@ -52,6 +57,7 @@ const parseCSV = async (input) => {
 };
 
 const parserMap = new Map();
+parserMap.set('js', parseJavaScript);
 parserMap.set('xml', parseXML);
 parserMap.set('svg', parseXML);
 // parserMap.set('json', parseJSON);
