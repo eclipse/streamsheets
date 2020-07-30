@@ -9,7 +9,20 @@
  *
  ********************************************************************************/
 
+const xml2js = require('xml2js');
 const csv = require('csv-parse');
+const mime = require('mime-types');
+const parseXML = async (input) => {
+	return new Promise((resolve, reject) => {
+		xml2js.parseString(input, (error, result) => {
+			if (error) {
+				reject(error);
+			} else {
+				resolve(result);
+			}
+		});
+	});
+};
 const parseCSV = async (input) => {
 	return new Promise((resolve, reject) => {
 		csv(input, (error, output) => {
@@ -21,7 +34,9 @@ const parseCSV = async (input) => {
 		});
 	});
 };
+
 const parserMap = new Map();
+parserMap.set('xml', parseXML);
 parserMap.set('csv', parseCSV);
 const parse = async (content, mimeType) => {
 	const extension = mime.extension(mimeType);
