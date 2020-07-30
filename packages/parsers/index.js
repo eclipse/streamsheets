@@ -10,6 +10,7 @@
  ********************************************************************************/
 
 const marked = require('marked');
+const postcss = require('postcss');
 const xml2js = require('xml2js');
 const csv = require('csv-parse');
 const mime = require('mime-types');
