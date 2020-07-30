@@ -9,9 +9,15 @@
  *
  ********************************************************************************/
 
+const marked = require('marked');
 const xml2js = require('xml2js');
 const csv = require('csv-parse');
 const mime = require('mime-types');
+
+const parseMarkdown = async (input) => {
+	return marked.lexer(input);
+};
+
 const parseXML = async (input) => {
 	return new Promise((resolve, reject) => {
 		xml2js.parseString(input, (error, result) => {
@@ -44,6 +50,8 @@ const parserMap = new Map();
 parserMap.set('xml', parseXML);
 // parserMap.set('json', parseJSON);
 parserMap.set('csv', parseCSV);
+parserMap.set('markdown', parseMarkdown);
+
 const parse = async (content, mimeType) => {
 	const extension = mime.extension(mimeType);
 	const result = {
