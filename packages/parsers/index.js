@@ -18,6 +18,10 @@ const parseMarkdown = async (input) => {
 	return marked.lexer(input);
 };
 
+const parseCSS = async (input) => {
+	return postcss.parse(input);
+};
+
 const parseXML = async (input) => {
 	return new Promise((resolve, reject) => {
 		xml2js.parseString(input, (error, result) => {
@@ -49,6 +53,7 @@ const parseCSV = async (input) => {
 const parserMap = new Map();
 parserMap.set('xml', parseXML);
 // parserMap.set('json', parseJSON);
+// parserMap.set('css', parseCSS);
 parserMap.set('csv', parseCSV);
 parserMap.set('markdown', parseMarkdown);
 
