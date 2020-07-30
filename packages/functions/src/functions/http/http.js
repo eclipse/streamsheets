@@ -18,11 +18,6 @@ const ERROR = FunctionErrors.code;
 
 const asString = (value) => value ? convert.toString(value) : '';
 
-const getJSON = (term) => {
-	const value = term && term.value;
-	return value && (Array.isArray(value) || typeof value === 'object') ? value : undefined;
-};
-
 const defaultCallback = (context, response, error) => {
 	const term = context.term;
 
