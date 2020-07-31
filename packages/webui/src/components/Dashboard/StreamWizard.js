@@ -406,7 +406,7 @@ class StreamWizard extends React.Component {
 
 			if (provider) {
 				this.setState({validating: true})
-				validate(provider.id, 'connector', model).then(result => {
+				validate(provider.id, 'connector', model.toJSON()).then(result => {
 					if (result.valid) {
 						this.setState({fieldErrors: undefined})
 						Object.entries(result.fieldUpdates).forEach(([key, value]) => model.setFieldValue(key, value))
@@ -416,7 +416,7 @@ class StreamWizard extends React.Component {
 								backDisabled: false,
 								step: this.state.step + 1,
 								consumerName: this.state.consumerName === '' ?
-									StreamWizard.createUniqueConsumerName(this.state.connector, this.props) :
+									StreamWizard.createUniqueConsumerName(model, this.props) :
 									this.state.consumerName,
 							});
 							this.setState({validating: false})
@@ -453,7 +453,7 @@ class StreamWizard extends React.Component {
 
 			if (provider) {
 				this.setState({validating: true})
-				validate(provider.id, 'consumer', model).then(result => {
+				validate(provider.id, 'consumer', model.toJSON()).then(result => {
 					if (result.valid) {
 						Object.entries(result.fieldUpdates).forEach(([key, value]) => model.setFieldValue(key, value))
 						this.setState({fieldErrors: undefined})

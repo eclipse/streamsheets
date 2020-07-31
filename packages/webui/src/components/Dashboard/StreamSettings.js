@@ -170,16 +170,15 @@ class StreamSettings extends React.Component {
 	};
 
 	handleClose = () => {
-		const model = this.state.stream.toJSON();
+		const model = this.state.stream;
 		const provider = this.getProvider();
 
 		if (provider) {
-			validate(provider.id, this.props.type, model).then(result => {
+			validate(provider.id, this.props.type, model.toJSON()).then(result => {
 				if (result.valid) {
 					Object.entries(result.fieldUpdates).forEach(([key, value]) => model.setFieldValue(key, value))
 					this.setState({fieldErrors: undefined})
-					const config = StreamHelper.getInstanceFromObject(validModel, this.props.streams);
-					this.props.saveConfiguration(config);
+					this.props.saveConfiguration(model);
 					this.reset();
 					this.props.onClose();
 				} else {
