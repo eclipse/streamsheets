@@ -57,7 +57,7 @@ module.exports = class MqttProvider extends sdk.Provider {
 		return {
 			valid: Object.keys(fieldErrors).length === 0,
 			fieldErrors,
-			config: {}
+			fieldUpdates
 		};
 	}
 
