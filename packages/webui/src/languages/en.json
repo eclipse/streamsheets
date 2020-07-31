@@ -496,7 +496,7 @@
   "Stream.NameField": "Please enter a name",
   "Stream.DescriptionField": "Please enter a description",
   "Stream.Name": "Name",
-  "Stream.Description": "Descriptiom",
+  "Stream.Description": "Description",
   "Stream.Consumer": "Consumer",
   "Stream.Connector": "Connector",
   "Stream.CreateNewConnector": "Create New Connector...",
