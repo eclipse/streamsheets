@@ -2717,7 +2717,9 @@ export class CanvasToolBar extends Component {
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.NONE)}
 								>
 									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="50" y="14" fontWeight="bold" fontSize="9pt" dy="0.25em" textAnchor="middle">None</text>
+										<text x="50" y="14" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
+											{intl.formatMessage({ id: "None" }, {})}
+										</text>
 									</svg>
 								</IconButton>
 							</Tooltip>
@@ -2731,7 +2733,7 @@ export class CanvasToolBar extends Component {
 									style={borderStyle}
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.SOLID)}
 								>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 										<path d="M5,14 L95,14" />
 									</svg>
 								</IconButton>
@@ -2743,7 +2745,9 @@ export class CanvasToolBar extends Component {
 									style={borderStyle}
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DOT)}
 								>
-									<img alt="" src="lib/res/images/linestyledot.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<path d="M5,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2756,7 +2760,9 @@ export class CanvasToolBar extends Component {
 									style={borderStyle}
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASH)}
 								>
-									<img alt="" src="lib/res/images/linestyledash.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<path d="M5,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2769,7 +2775,9 @@ export class CanvasToolBar extends Component {
 									style={borderStyle}
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOT)}
 								>
-									<img alt="" src="lib/res/images/linestyledashdot.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<path d="M5,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2782,7 +2790,9 @@ export class CanvasToolBar extends Component {
 									style={borderStyle}
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOTDOT)}
 								>
-									<img alt="" src="lib/res/images/linestyledashdotdot.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<path d="M5,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2809,7 +2819,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.Hairline" defaultMessage="Hairline (1px)" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(-1)}>
-									<img alt="" src="lib/res/images/lineswidth1.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1 px</text>
+										<path stroke="currentColor" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2819,7 +2832,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.MM025" defaultMessage="0.25 mm" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(25)}>
-									<img alt="" src="lib/res/images/lineswidth025.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1/4 mm</text>
+										<path stroke="currentColor" strokeWidth="0.25mm" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2829,7 +2845,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.MM05" defaultMessage="0.5 mm" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(50)}>
-									<img alt="" src="lib/res/images/lineswidth05.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1/2 mm</text>
+										<path stroke="currentColor" strokeWidth="0.5mm" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2839,7 +2858,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.MM075" defaultMessage="0.75 mm" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(75)}>
-									<img alt="" src="lib/res/images/lineswidth075.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">3/4 mm</text>
+										<path stroke="currentColor" strokeWidth="0.75mm" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2849,7 +2871,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.MM100" defaultMessage="1 mm" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(100)}>
-									<img alt="" src="lib/res/images/lineswidth100.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1 mm</text>
+										<path stroke="currentColor" strokeWidth="1mm" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2859,7 +2884,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.MM200" defaultMessage="2 mm" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(200)}>
-									<img alt="" src="lib/res/images/lineswidth200.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">2 mm</text>
+										<path stroke="currentColor" strokeWidth="2mm" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2869,7 +2897,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.MM300" defaultMessage="3 mm" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(300)}>
-									<img alt="" src="lib/res/images/lineswidth300.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">2 mm</text>
+										<path stroke="currentColor" strokeWidth="2mm" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2879,7 +2910,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.MM400" defaultMessage="4 mm" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(400)}>
-									<img alt="" src="lib/res/images/lineswidth400.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">4 mm</text>
+										<path stroke="currentColor" strokeWidth="4mm" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>

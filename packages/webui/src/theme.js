@@ -118,6 +118,9 @@ const createDark = () => {
 	return createMuiTheme({
 			palette: {
 				type: 'dark',
+				primary: {
+					main: '#90caf9',
+				},
 				error: {
 					main: '#FF0022',
 				},

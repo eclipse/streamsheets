@@ -92,7 +92,7 @@ class DashBoardComponent extends Component {
 	onStreamNew = (type, row) => {
 		this.setState({
 			showStreamWizard: true,
-			activeStep: 'consumername',
+			activeStep: type === 'consumer' ? 'consumername' : 'producername',
 			row,
 			type,
 		});
@@ -129,6 +129,7 @@ class DashBoardComponent extends Component {
 		case 'connector':
 			return undefined;
 		case 'consumer':
+		case 'producer':
 			return StreamHelper.getConnectorConfig(this.state.row, this.props.streams.connectors)
 		default:
 		}
@@ -349,7 +350,7 @@ class DashBoardComponent extends Component {
 							id: producer.id,
 							name: producer.name,
 							provider: row.provider,
-							topic: producer.topics ? producer.topics.toString() : '',
+							topic: producer.pubTopic ? producer.pubTopic : '',
 							url: producer.url ? producer.url : '',
 							lastModifiedDate: new Date(producer.lastModified).toISOString(),
 							lastModified: formatDateString(new Date(producer.lastModified).toISOString()),

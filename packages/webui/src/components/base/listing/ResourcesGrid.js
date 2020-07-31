@@ -18,9 +18,9 @@ import CardContent from '@material-ui/core/CardContent';
 import Card from '@material-ui/core/Card';
 import Typography from '@material-ui/core/Typography';
 import ResourceCardHeader from './ResourceCardHeader';
-import * as Colors from '@material-ui/core/colors';
 import SortSelector from '../sortSelector/SortSelector';
 import { FormattedMessage, injectIntl } from 'react-intl';
+import {withStyles} from "@material-ui/core/styles";
 // import { shorten } from './Utils';
 
 const PREF_KEY_SORTQUERY = 'streamsheets-prefs-listing-sortby';
@@ -182,7 +182,7 @@ class ResourcesGrid extends React.Component {
 											textOverflow: 'ellipsis',
 											fontSize: '8pt',
 											fontWeight: 'bold',
-											color: Colors.lightBlue[800],
+											color: this.props.theme.palette.primary.main,
 											overflow: 'hidden',
 											maxWidth: '200px'
 										}}
@@ -301,7 +301,8 @@ class ResourcesGrid extends React.Component {
 								<div
 									key="rg1"
 									style={{
-										marginTop: '15px'
+										marginTop: '15px',
+										marginLeft: '5px',
 									}}
 								>
 									<Typography variant="body1">
@@ -332,7 +333,8 @@ class ResourcesGrid extends React.Component {
 								>
 									<div
 										style={{
-											marginTop: '5px'
+											marginTop: '5px',
+											marginLeft: '5px',
 										}}
 									>
 										<Typography variant="body1">
@@ -378,4 +380,4 @@ class ResourcesGrid extends React.Component {
 	}
 }
 
-export default injectIntl(ResourcesGrid);
+export default injectIntl(withStyles({}, { withTheme: true })( ResourcesGrid));

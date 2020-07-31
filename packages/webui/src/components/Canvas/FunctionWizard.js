@@ -30,6 +30,8 @@ import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
 import { FieldComponent } from './FieldComponents';
+import StreamWizard from "../Dashboard/StreamWizard";
+import StreamSettings from "../Dashboard/StreamSettings";
 
 const { CellEditor } = JSG;
 
@@ -292,7 +294,9 @@ class FunctionWizard extends Component {
 			selectedStream,
 			fields,
 			target,
-			allStreams
+			allStreams,
+			editStream: false,
+			showStreamWizard: false,
 			// selectedTextField: null,
 		};
 	}
@@ -341,6 +345,23 @@ class FunctionWizard extends Component {
 		});
 
 		return functionsByName;
+	};
+
+	handleAddConsumer = () => {
+		this.setState({
+			showStreamWizard: true,
+		})
+	};
+
+	handleEditConsumer = () => {
+		this.setState({
+			editStream: true,
+			row: this.state.selected,
+		})
+	};
+
+	onWizardClose = () => {
+		this.setState({ showStreamWizard: false, editStream: false });
 	};
 
 	getStreams = (providerIds, baseFunction) => {
@@ -489,7 +510,7 @@ class FunctionWizard extends Component {
 					position: 'absolute',
 					top: '-1px',
 					right: '0px',
-					width: '300px',
+					width: '330px',
 					height: '100%',
 					overflowX: 'hidden',
 					overflowY: 'auto',
@@ -555,6 +576,14 @@ class FunctionWizard extends Component {
 							))}
 						</Select>
 					</FormControl>
+					<div>
+						<Button color="primary" onClick={this.handleAddConsumer} style={{ float: 'right' }}>
+							<FormattedMessage id="DialogNew.AddProducer" defaultMessage="Add Producer" />
+						</Button>
+						<Button color="primary" onClick={this.handleEditConsumer} disabled={this.state.selectedStream === undefined} style={{ float: 'right' }}>
+							<FormattedMessage id="DialogNew.EditProducer" defaultMessage="Edit Producer" />
+						</Button>
+					</div>
 					{this.state.fields.map((field) => (
 						<FieldComponent
 							key={field.id}
@@ -567,12 +596,31 @@ class FunctionWizard extends Component {
 							styles={styles}
 						/>
 					))}
-					<Button color="primary" onClick={this.handleCancel} style={{ float: 'right' }}>
-						<FormattedMessage id="Cancel" defaultMessage="Cancel" />
-					</Button>
-					<Button color="primary" onClick={this.handleConfirm} style={{ float: 'right' }} autoFocus>
-						<FormattedMessage id="OK" defaultMessage="OK" />
-					</Button>
+					<div>
+						<Button color="primary" onClick={this.handleCancel} style={{ float: 'right' }}>
+							<FormattedMessage id="Cancel" defaultMessage="Cancel" />
+						</Button>
+						<Button color="primary" onClick={this.handleConfirm} style={{ float: 'right' }} autoFocus>
+							<FormattedMessage id="OK" defaultMessage="OK" />
+						</Button>
+					</div>
+					{this.state.showStreamWizard ? (
+						<StreamWizard
+							onClose={this.onWizardClose}
+							initialStep="connector"
+							connector={undefined}
+							type="producer"
+							open={this.state.showStreamWizard}
+							streams={this.props.streams}
+						/>) : null}
+					{this.state.editStream ? (
+						<StreamSettings
+							onClose={this.onWizardClose}
+							stream={this.state.selectedStream}
+							type="producer"
+							open={this.state.editStream}
+							streams={this.props.streams}
+						/>) : null}
 				</Typography>
 			</Paper>
 		);
