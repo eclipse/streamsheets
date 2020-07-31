@@ -438,7 +438,7 @@ class StreamWizard extends React.Component {
 
 			const consumer = this.state.consumer === undefined ?
 				new ConsumerConfiguration({}, this.state.connector, new ProviderConfiguration(provider)) : this.state.consumer
-			consumer.name = this.state.connectorName;
+			consumer.name = this.state.consumerName;
 			this.setState({
 				activeStep: 'consumersettings',
 				backDisabled: false,
