@@ -39,6 +39,7 @@
     "esprima": "4.0.1",
     "marked": "1.1.1",
     "mime-types": "2.1.27",
+    "pdf2json": "^1.2.0",
     "postcss": "7.0.32",
     "xml2js": "0.4.23"
   }

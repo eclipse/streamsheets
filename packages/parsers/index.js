@@ -75,7 +75,11 @@ const parse = async (content, mimeType) => {
 	};
 	const parserFunction = parserMap.get(extension);
 	if (parserFunction) {
-		result.parsed = await parserFunction(content);
+		try {
+			result.parsed = await parserFunction(content);
+		} catch (error) {
+			result.parsed = error;
+		}
 	}
 	return result;
 };
