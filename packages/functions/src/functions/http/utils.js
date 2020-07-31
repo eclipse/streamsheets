@@ -76,6 +76,17 @@ const addHTTPResponseToInbox = async (response, context, error) => {
 			// ignore parser error
 		}
 		const message = new Message(messageContent);
+		message.metadata.transportDetails = {
+			headers: response.headers,
+			status: response.status,
+			statusText: response.statusText,
+			request: {
+				data: response.config.data,
+				headers: response.config.headers,
+				method: response.config.method,
+				url: response.config.url
+			}
+		}
 		message.metadata.label = messageLabel;
 		inbox.put(message);		
 	}
