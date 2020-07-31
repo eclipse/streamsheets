@@ -10,7 +10,8 @@
  ********************************************************************************/
 
 const marked = require('marked');
-const postcss = require('postcss');
+// const postcss = require('postcss');
+const css = require('css');
 const esprima = require('esprima');
 const xml2js = require('xml2js');
 const csv = require('csv-parse');
@@ -21,7 +22,8 @@ const parseMarkdown = async (input) => {
 };
 
 const parseCSS = async (input) => {
-	return postcss.parse(input);
+	// return postcss.parse(input);
+	return css.parse(input);
 };
 
 const parseJavaScript = async (input) => {
@@ -61,7 +63,7 @@ parserMap.set('js', parseJavaScript);
 parserMap.set('xml', parseXML);
 parserMap.set('svg', parseXML);
 // parserMap.set('json', parseJSON);
-// parserMap.set('css', parseCSS);
+parserMap.set('css', parseCSS);
 parserMap.set('csv', parseCSV);
 parserMap.set('markdown', parseMarkdown);
 
