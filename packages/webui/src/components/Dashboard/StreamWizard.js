@@ -458,9 +458,10 @@ class StreamWizard extends React.Component {
 						Object.entries(result.fieldUpdates).forEach(([key, value]) => model.setFieldValue(key, value))
 						this.setState({fieldErrors: undefined})
 						if (this.props.initialStep === 'connector') {
-							this.props.saveConfiguration(this.state.connector);
+							this.saveConsumerWithConnector(model, this.state.connector);
+						} else {
+							this.props.saveConfiguration(model);
 						}
-						this.props.saveConfiguration(validModel);
 						this.handleClose();
 					} else {
 						this.setState({fieldErrors: result.fieldErrors})
@@ -473,6 +474,13 @@ class StreamWizard extends React.Component {
 		default:
 		}
 	};
+
+	async saveConsumerWithConnector (consumer, connector) {
+		const resp = await this.props.saveConfiguration(connector);
+		if(!resp.error){
+			await this.props.saveConfiguration(consumer);
+		}
+	}
 
 	handleBack = () => {
 		switch (this.state.activeStep) {
