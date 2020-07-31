@@ -57,7 +57,7 @@ const putKeyValuesToRange = (range, data) => {
 	enableSheetUpdate(sheet, onSheetUpdate);
 };
 
-const addHTTPResponseToInbox = async (response, context, error) => {
+const addHTTPResponseToInbox = async (response, context, error, parseResponseBody) => {
 	const inbox = context.term.scope.streamsheet.inbox;
 	if (error) {
 		const errorMessage = new Message(error);
@@ -66,14 +66,16 @@ const addHTTPResponseToInbox = async (response, context, error) => {
 	} else {
 		let messageContent = response.data;
 		let messageLabel = `${context.term.name}`;
-		// TODO: move parsing out of this function
-		const mimeType = response.headers['content-type'];
-		try {
-			// try to parse content using the predefined parsers
-			messageContent = await parse(response.data, mimeType);
-			messageLabel += ` [${messageContent.extension}]`;
-		} catch (error) {
-			// ignore parser error
+		if (parseResponseBody) {
+			// TODO: move parsing out of this function
+			const mimeType = response.headers['content-type'];
+			try {
+				// try to parse content using the predefined parsers
+				messageContent = await parse(response.data, mimeType);
+				messageLabel += ` [${messageContent.extension}]`;
+			} catch (error) {
+				// ignore parser error
+			}
 		}
 		const message = new Message(messageContent);
 		message.metadata.transportDetails = {

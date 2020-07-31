@@ -17,13 +17,14 @@ const { FunctionErrors } = require('@cedalo/error-codes');
 const ERROR = FunctionErrors.code;
 
 const asString = (value) => value ? convert.toString(value) : '';
+const asBoolean = (value) => value ? convert.toBoolean(value) : false;
 
-const defaultCallback = (context, response, error) => {
+const createDefaultCallback = (parse = false) => (context, response, error) => {
 	const term = context.term;
 
 	// add to inbox
 	const inbox = context.term.scope.streamsheet.inbox;
-	addHTTPResponseToInbox(response, context, error);
+	addHTTPResponseToInbox(response, context, error, parse);
 
 	const err = error || response.error;
 	if (term && !term.isDisposed) {
@@ -36,33 +37,36 @@ const request = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(2)
-		.withMaxArgs(2)
+		.withMaxArgs(5)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
 		.mapNextArg((method) => asString(method.value, ERROR.VALUE))
-		.run((url, method) =>
-			AsyncRequest.create(sheet, request.context)
-				.request(() => getInstance().request({
-					url,
-					method
-				}))
-				.response(defaultCallback)
-				.reqId()
-		);
+		.mapNextArg((config) => hasValue(config) ? config.value : {})
+		.mapNextArg((target) => hasValue(target) ? target.value : {})
+		.mapNextArg((parse) => asBoolean(parse.value, ERROR.VALUE))
+		.run((url, method, config, target, parse) => {
+			config.url = url;
+			config.method = method;
+			return AsyncRequest.create(sheet, request.context)
+				.request(() => getInstance().request(config))
+				.response(createDefaultCallback(parse))
+				.reqId();
+		});
 request.displayName = true;
 
 const get = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.withMaxArgs(2)
+		.withMaxArgs(3)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
-		.run((url, config) =>
-			AsyncRequest.create(sheet, get.context)
+		.mapNextArg((parse) => hasValue(parse) ? asBoolean(parse.value, ERROR.VALUE) : false)
+		.run((url, config, parse) => {
+			return AsyncRequest.create(sheet, get.context)
 				.request(() => getInstance().get(url, config))
-				.response(defaultCallback)
+				.response(createDefaultCallback(parse))
 				.reqId()
-		);
+		});
 get.displayName = true;
 
 const post = (sheet, ...terms) =>
@@ -79,7 +83,6 @@ const post = (sheet, ...terms) =>
 			}
 			return AsyncRequest.create(sheet, post.context)
 				.request(() => getInstance().post(url, data, config))
-				.response(defaultCallback)
 				.reqId()
 		});
 post.displayName = true;
@@ -95,7 +98,7 @@ const put = (sheet, ...terms) =>
 		.run((url, data, config) => {
 			return AsyncRequest.create(sheet, put.context)
 				.request(() => getInstance().put(url, data, config))
-				.response(defaultCallback)
+				.response(createDefaultCallback())
 				.reqId()
 		});
 put.displayName = true;
@@ -111,7 +114,7 @@ const patch = (sheet, ...terms) =>
 		.run((url, data, config) => {
 			return AsyncRequest.create(sheet, patch.context)
 				.request(() => getInstance().patch(url, data, config))
-				.response(defaultCallback)
+				.response(createDefaultCallback())
 				.reqId()
 		});
 patch.displayName = true;
@@ -126,7 +129,7 @@ const deleteFunction = (sheet, ...terms) =>
 		.run((url, config) =>
 			AsyncRequest.create(sheet, deleteFunction.context)
 				.request(() => getInstance().delete(url, config))
-				.response(defaultCallback)
+				.response(createDefaultCallback())
 				.reqId()
 		);
 deleteFunction.displayName = true;
@@ -143,7 +146,7 @@ const trace = (sheet, ...terms) =>
 			config.method = 'TRACE';
 			return AsyncRequest.create(sheet, request.context)
 				.request(() => getInstance().request(config))
-				.response(defaultCallback)
+				.response(createDefaultCallback())
 				.reqId();
 		});
 trace.displayName = true;
@@ -158,7 +161,7 @@ const head = (sheet, ...terms) =>
 		.run((url, config) =>
 			AsyncRequest.create(sheet, head.context)
 				.request(() => getInstance().head(url, config))
-				.response(defaultCallback)
+				.response(createDefaultCallback())
 				.reqId()
 		);
 head.displayName = true;
@@ -174,6 +177,7 @@ const options = (sheet, ...terms) =>
 			AsyncRequest.create(sheet, options.context)
 				.request(() => getInstance().options(url, config))
 				.response(defaultCallback)
+				.response(createDefaultCallback())
 				.reqId()
 		);
 options.displayName = true;
