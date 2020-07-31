@@ -50,7 +50,7 @@ const VALIDATION_QUERY = `
 		validateStream(provider: $provider, type: $type, streamConfig: $streamConfig) {
 			valid
 			fieldErrors
-			config
+			fieldUpdates
 		}
 	}
 `;
@@ -65,7 +65,7 @@ const validate = async (provider, type, streamConfig) => {
 	} catch (error) {
 		console.error(error);
 	}
-	return { valid: true, fieldErrors: {}, config: streamConfig };
+	return { valid: true, fieldErrors: {}, fieldUpdates: {} };
 };
 
 const styles = () => ({
@@ -409,6 +409,7 @@ class StreamWizard extends React.Component {
 				validate(provider.id, 'connector', model).then(result => {
 					if (result.valid) {
 						this.setState({fieldErrors: undefined})
+						Object.entries(result.fieldUpdates).forEach(([key, value]) => model.setFieldValue(key, value))
 						if (this.props.type === 'consumer') {
 							this.setState({
 								activeStep: 'consumername',
@@ -420,8 +421,7 @@ class StreamWizard extends React.Component {
 							});
 							this.setState({validating: false})
 						} else {
-							const validModel = result.config;
-							this.props.saveConfiguration(validModel);
+							this.props.saveConfiguration(model);
 							this.handleClose();
 						}
 					} else {
@@ -455,8 +455,8 @@ class StreamWizard extends React.Component {
 				this.setState({validating: true})
 				validate(provider.id, 'consumer', model).then(result => {
 					if (result.valid) {
+						Object.entries(result.fieldUpdates).forEach(([key, value]) => model.setFieldValue(key, value))
 						this.setState({fieldErrors: undefined})
-						const validModel = result.config;
 						if (this.props.initialStep === 'connector') {
 							this.props.saveConfiguration(this.state.connector);
 						}

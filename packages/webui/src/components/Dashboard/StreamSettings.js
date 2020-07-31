@@ -37,7 +37,7 @@ const VALIDATION_QUERY = `
 		validateStream(provider: $provider, type: $type, streamConfig: $streamConfig) {
 			valid
 			fieldErrors
-			config
+			fieldUpdates
 		}
 	}
 `;
@@ -52,7 +52,7 @@ const validate = async (provider, type, streamConfig) => {
 	} catch (error) {
 		console.error(error);
 	}
-	return { valid: true, fieldErrors: {}, config: streamConfig };
+	return { valid: true, fieldErrors: {}, fieldUpdates: {} };
 };
 
 
@@ -176,7 +176,7 @@ class StreamSettings extends React.Component {
 		if (provider) {
 			validate(provider.id, this.props.type, model).then(result => {
 				if (result.valid) {
-					const validModel = result.config;
+					Object.entries(result.fieldUpdates).forEach(([key, value]) => model.setFieldValue(key, value))
 					this.setState({fieldErrors: undefined})
 					const config = StreamHelper.getInstanceFromObject(validModel, this.props.streams);
 					this.props.saveConfiguration(config);

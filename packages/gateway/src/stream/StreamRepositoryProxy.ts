@@ -41,6 +41,7 @@ const {
 export interface StreamValidationResult {
 	valid: boolean;
 	fieldErrors: { [key: string]: string };
+	fieldUpdates: { [key: string]: string };
 }
 
 export class StreamRepositoryProxy {

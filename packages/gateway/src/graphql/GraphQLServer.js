@@ -232,7 +232,7 @@ const typeDefs = gql`
 	type StreamValidationResult {
 		valid: Boolean!
 		fieldErrors: JSON!
-		config: JSON!
+		fieldUpdates: JSON!
 	}
 
 	type ImportResult implements MutationResponse {

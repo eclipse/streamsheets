@@ -29,6 +29,7 @@ module.exports = class MqttProvider extends sdk.Provider {
 
 	validateConsumer(config) {
 		const fieldErrors = {};
+		const fieldUpdates = {};
 
 		// config.topics					do topic validation
 		// config.userPropertiesSubscribe
@@ -39,12 +40,13 @@ module.exports = class MqttProvider extends sdk.Provider {
 		return {
 			valid: Object.keys(fieldErrors).length === 0,
 			fieldErrors,
-			config
+			fieldUpdates
 		};
 	}
 
 	validateProducer(config) {
 		const fieldErrors = {};
+		const fieldUpdates = {};
 
 		// config.pubTopic					not used currenlty
 		// config.userPropertiesProduce
@@ -55,12 +57,12 @@ module.exports = class MqttProvider extends sdk.Provider {
 		return {
 			valid: Object.keys(fieldErrors).length === 0,
 			fieldErrors,
-			config
+			config: {}
 		};
 	}
 
 	validateConnector(config) {
-		const copy = JSON.parse(JSON.stringify(config));
+		const fieldUpdates = {};
 		const fieldErrors = {};
 		const validProtocolVersions = [4, 5];
 		if (!validProtocolVersions.includes(config.protocolVersion)) {
@@ -70,40 +72,44 @@ module.exports = class MqttProvider extends sdk.Provider {
 		}
 
 		const validQoS = [0, 1, 2];
-		if (!validQoS.includes(copy.qos)) {
-			fieldErrors.qos = `Invalid QoS: ${copy.qos}. Allowed values: ${validQoS.join(', ')}`;
+		if (!validQoS.includes(config.qos)) {
+			fieldErrors.qos = `Invalid QoS: ${config.qos}. Allowed values: ${validQoS.join(', ')}`;
 		}
 
 		const validProtocols = ['mqtt:', 'mqtts:', 'tcp:', 'tls:', 'ws:', 'wss:'];
-		let parsedUrl = url.parse(copy.url);
+		let parsedUrl = url.parse(config.url);
+		let currentUrl = config.url;
 		if (!parsedUrl.slashes) {
-			copy.url = `mqtt://${copy.url}`;
+			currentUrl = `mqtt://${currentUrl}`;
 		}
-		parsedUrl = new url.URL(copy.url);
+		parsedUrl = new url.URL(currentUrl);
 		if (!validProtocols.includes(parsedUrl.protocol)) {
 			fieldErrors.url = `Invalid protocol: ${parsedUrl.protocol}. Allowed values: ${validProtocols.join(', ')}`;
 		}
 		if (!parsedUrl.port) {
 			parsedUrl.port = '1883';
 		}
-		copy.url = parsedUrl.toString();
+		currentUrl = parsedUrl.toString();
+		if (currentUrl !== config.url) {
+			fieldUpdates.url = currentUrl;
+		}
 
-		if (typeof copy.retain !== 'boolean') {
-			fieldErrors.retain = `Invalid retain value: ${copy.retain}. Allowed values: 'true', 'false'`;
+		if (typeof config.retain !== 'boolean') {
+			fieldErrors.retain = `Invalid retain value: ${config.retain}. Allowed values: 'true', 'false'`;
 		}
 
 		// Currently not validate:
-		// copy.userName
-		// copy.password
-		// copy.baseTopic
-		// copy.certPath
-		// copy.keyPath
-		// copy.caCert
-		// copy.userPropertiesConnect
+		// config.userName
+		// config.password
+		// config.baseTopic
+		// config.certPath
+		// config.keyPath
+		// config.caCert
+		// config.userPropertiesConnect
 		return {
 			valid: Object.keys(fieldErrors).length === 0,
 			fieldErrors,
-			config: copy
+			fieldUpdates
 		};
 	}
 };
