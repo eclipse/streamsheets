@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -269,7 +269,6 @@ class NumberFormatSettings extends React.Component {
 			numberFormats.push({
 				id: 0,
 				v: value,
-				color: 'black',
 				format: 'General',
 				formattedvalue: NumberFormatter.formatNumber('General', value, 'general'),
 			});
@@ -280,7 +279,7 @@ class NumberFormatSettings extends React.Component {
 				numberFormats.push(numberFormatTemplates.getNegativeNumberTemplates(
 					thousands,
 					Number(decimals),
-					i % 2 ? 'red' : 'black',
+					i % 2 ? 'red' : undefined,
 					value,
 					i,
 					undefined,
@@ -294,7 +293,7 @@ class NumberFormatSettings extends React.Component {
 				numberFormats.push(numberFormatTemplates.getNegativeNumberTemplates(
 					thousands,
 					Number(decimals),
-					i % 2 ? 'red' : 'black',
+					i % 2 ? 'red' : undefined,
 					value,
 					i,
 					currency,
@@ -311,7 +310,6 @@ class NumberFormatSettings extends React.Component {
 					numberFormats.push({
 						id,
 						v: value,
-						color: 'black',
 						format: item.t,
 						formattedvalue: NumberFormatter.formatNumber(item.t, value, 'date'),
 					});
@@ -329,7 +327,6 @@ class NumberFormatSettings extends React.Component {
 					numberFormats.push({
 						id,
 						v: value,
-						color: 'black',
 						format: item.t,
 						formattedvalue: NumberFormatter.formatNumber(item.t, value, 'time'),
 					});
@@ -351,7 +348,6 @@ class NumberFormatSettings extends React.Component {
 					numberFormats.push({
 						id,
 						v: value,
-						color: 'black',
 						format: item.t,
 						formattedvalue: { formattedValue: intl.formatMessage({ id: `Fraction${id}` }, {})}
 						// formattedvalue: NumberFormatter.formatNumber(item.t, value, 'fraction'),
@@ -369,7 +365,6 @@ class NumberFormatSettings extends React.Component {
 			numberFormats.push({
 				id: 0,
 				v: value,
-				color: 'black',
 				format: '@',
 				formattedvalue: NumberFormatter.formatNumber('@', value, 'text'),
 			});
@@ -540,7 +535,12 @@ class NumberFormatSettings extends React.Component {
 		return (
 			<Grid container>
 				<Grid item xs={3}>
-					<MenuList role="menu">
+					<MenuList
+						style={{
+							border: '1px solid grey',
+							marginTop: '9px',
+						}}
+						role="menu">
 						{numberFormatCategories.map(row => (
 							<MenuItem
 								style={styles.menuitem}
@@ -704,10 +704,11 @@ class NumberFormatSettings extends React.Component {
 					this.state.numberFormatCategorySelected !== 8 &&
 					<MenuList
 						style={{
+							border: '1px solid grey',
 							position: 'relative',
 							width: 'auto',
-							overflowY: 'scroll',
-							height: '200px',
+							overflowY: 'auto',
+							height: '227px',
 						}}
 					>
 						{numberFormats.map(row => (
@@ -725,7 +726,7 @@ class NumberFormatSettings extends React.Component {
 							>
 								<div
 									style={{
-										color: row.color !== undefined ? row.color : 'black',
+										color: row.color !== undefined ? row.color : undefined,
 										display: 'flex',
 									}}
 								>

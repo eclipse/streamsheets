@@ -39,7 +39,7 @@ export function InfoToolBar(props) {
 		>
 			<CustomTooltip header="Tooltip.MainMenuHeader" message="Tooltip.MainMenuMessage">
 				<div>
-					<IconButton color="inherit" aria-label="Menu" onClick={toggleDrawer}>
+					<IconButton style={{ color: 'white' }} aria-label="Menu" onClick={toggleDrawer}>
 						<MenuIcon />
 					</IconButton>
 				</div>

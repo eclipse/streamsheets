@@ -13,10 +13,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Popover from '@material-ui/core/Popover';
 import { SketchPicker } from 'react-color';
-// import { intl } from '../../helper/IntlGlobalProvider';
+import {withStyles} from "@material-ui/core/styles";
 
 /* eslint-disable react/forbid-prop-types */
-export default class ColorComponent extends React.Component {
+class ColorComponent extends React.Component {
 	static propTypes = {
 		color: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
 		label: PropTypes.object,
@@ -118,7 +118,7 @@ export default class ColorComponent extends React.Component {
 						display: 'inline-block',
 						width: `${this.props.width}px`,
 						height: '21px',
-						border: 'solid 1px rgba(0, 0, 0, 0.3)',
+						border: `1px solid ${this.props.theme.palette.text.primary}`,
 						padding: '3px',
 						// margin: '4px',
 					}}
@@ -153,3 +153,4 @@ export default class ColorComponent extends React.Component {
 	}
 }
 
+export default withStyles({}, {withTheme: true})(ColorComponent);

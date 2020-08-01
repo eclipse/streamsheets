@@ -47,40 +47,14 @@ import {
 import { graphManager } from '../../GraphManager';
 import ColorComponent from './ColorComponent';
 import NumberFormatSettings from './NumberFormatSettings';
+import {intl} from "../../helper/IntlGlobalProvider";
+import {withStyles} from "@material-ui/core/styles";
 
-
-const LINE_STYLES = [
-	{
-		value: 0,
-		name: 'Ohne',
-		image: 'lib/res/images/linestylenone.png',
-		id: 0,
+const styles = () => ({
+	selectMenu: {
+		padding: '0px',
 	},
-	{
-		value: 1,
-		name: '1',
-		image: 'lib/res/images/linestylesolid.png',
-		id: 1,
-	},
-	{
-		value: 2,
-		name: '2',
-		image: 'lib/res/images/linestyledot.png',
-		id: 2,
-	},
-	{
-		value: 3,
-		name: '3',
-		image: 'lib/res/images/linestyledash.png',
-		id: 3,
-	},
-	{
-		value: 4,
-		name: '4',
-		image: 'lib/res/images/linestyledashdot.png',
-		id: 4,
-	},
-];
+});
 
 function TabContainer(props) {
 	return <Typography component="div">{props.children}</Typography>;
@@ -434,28 +408,28 @@ export class FormatCellsDialog extends React.Component {
 		if (!this.props.open) {
 			return <div/>;
 		}
-		const styles = {
-			negativered: {
-				color: 'red',
-			},
-			color: {
-				width: '106px',
-				height: '14px',
-				borderRadius: '2px',
-				margin: '5px',
-			},
-			popover: {
-				position: 'absolute',
-				zIndex: '200',
-			},
-			cover: {
-				position: 'fixed',
-				top: '0px',
-				right: '0px',
-				bottom: '0px',
-				left: '0px',
-			},
-		};
+		// const styles = {
+		// 	negativered: {
+		// 		color: 'red',
+		// 	},
+		// 	color: {
+		// 		width: '106px',
+		// 		height: '14px',
+		// 		borderRadius: '2px',
+		// 		margin: '5px',
+		// 	},
+		// 	popover: {
+		// 		position: 'absolute',
+		// 		zIndex: '200',
+		// 	},
+		// 	cover: {
+		// 		position: 'fixed',
+		// 		top: '0px',
+		// 		right: '0px',
+		// 		bottom: '0px',
+		// 		left: '0px',
+		// 	},
+		// };
 		const { tabSelected } = this.state;
 		return (
 			<Dialog open={this.props.open} onClose={this.handleCancel} maxWidth={false}>
@@ -464,7 +438,7 @@ export class FormatCellsDialog extends React.Component {
 				</DialogTitle>
 				<DialogContent
 					style={{
-						height: '410px',
+						height: '420px',
 						width: '800px',
 					}}
 				>
@@ -843,43 +817,83 @@ export class FormatCellsDialog extends React.Component {
 												id="left-border-style"
 												value={this.state.leftBorderStyle}
 												onChange={this.handleLeftBorderStyleChange}
+												classes={{selectMenu: this.props.classes.selectMenu}}
 												input={
 													<Input
-														style={{
-															backgroundImage: `url(${
-																this.state.leftBorderStyle === ''
-																	? ''
-																	: LINE_STYLES[this.state.leftBorderStyle].image
-															}`,
-															backgroundRepeat: 'no-repeat',
-															backgroundPositionY: 'center',
-															color: `${
-																this.state.leftBorderStyle ? 'transparent' : '#000000'
-															}`,
-														}}
 														defaultValue="0"
 														name="left-border-style"
 														id="left-border-style"
 													/>
 												}
 											>
-												{LINE_STYLES.map((name) => (
-													<MenuItem
-														style={{
-															backgroundImage: `url(${name.image})`,
-															backgroundRepeat: 'no-repeat',
-															backgroundPositionY: 'center',
-															color: `${name.id ? 'transparent' : '#000000'}`,
-														}}
-														value={name.value}
-														key={name.id}
-													>
-														<FormattedMessage
-															id="None"
-															defaultMessage="None"
-														/>
-													</MenuItem>
-												))}
+												<MenuItem
+													value={0}
+													key="ls1"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<text x="50" y="13" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
+															{intl.formatMessage({ id: "None" }, {})}
+														</text>
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={1}
+													key="ls2"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={2}
+													key="ls3"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={3}
+													key="ls4"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={4}
+													key="ls5"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={5}
+													key="ls6"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
 											</Select>
 										</FormControl>
 										<ColorComponent
@@ -935,43 +949,83 @@ export class FormatCellsDialog extends React.Component {
 												id="top-border-style"
 												value={this.state.topBorderStyle}
 												onChange={this.handleTopBorderStyleChange}
+												classes={{selectMenu: this.props.classes.selectMenu}}
 												input={
 													<Input
-														style={{
-															backgroundImage: `url(${
-																this.state.topBorderStyle === ''
-																	? ''
-																	: LINE_STYLES[this.state.topBorderStyle].image
-															}`,
-															backgroundRepeat: 'no-repeat',
-															backgroundPositionY: 'center',
-															color: `${
-																this.state.topBorderStyle ? 'transparent' : '#000000'
-															}`,
-														}}
 														defaultValue="0"
 														name="top-border-style"
 														id="top-border-style"
 													/>
 												}
 											>
-												{LINE_STYLES.map((name) => (
-													<MenuItem
-														style={{
-															backgroundImage: `url(${name.image})`,
-															backgroundRepeat: 'no-repeat',
-															backgroundPositionY: 'center',
-															color: `${name.id ? 'transparent' : '#000000'}`,
-														}}
-														value={name.value}
-														key={name.id}
-													>
-														<FormattedMessage
-															id="None"
-															defaultMessage="None"
-														/>
-													</MenuItem>
-												))}
+												<MenuItem
+													value={0}
+													key="ls1"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<text x="50" y="13" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
+															{intl.formatMessage({ id: "None" }, {})}
+														</text>
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={1}
+													key="ls2"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={2}
+													key="ls3"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={3}
+													key="ls4"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={4}
+													key="ls5"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={5}
+													key="ls6"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
 											</Select>
 										</FormControl>
 										<ColorComponent
@@ -1025,45 +1079,85 @@ export class FormatCellsDialog extends React.Component {
 											</InputLabel>
 											<Select
 												id="right-border-style"
+												classes={{selectMenu: this.props.classes.selectMenu}}
 												value={this.state.rightBorderStyle}
 												onChange={this.handleRightBorderStyleChange}
 												input={
 													<Input
-														style={{
-															backgroundImage: `url(${
-																this.state.rightBorderStyle === ''
-																	? ''
-																	: LINE_STYLES[this.state.rightBorderStyle].image
-															}`,
-															backgroundRepeat: 'no-repeat',
-															backgroundPositionY: 'center',
-															color: `${
-																this.state.rightBorderStyle ? 'transparent' : '#000000'
-															}`,
-														}}
 														defaultValue="0"
 														name="right-border-style"
 														id="right-border-style"
 													/>
 												}
 											>
-												{LINE_STYLES.map((name) => (
-													<MenuItem
-														style={{
-															backgroundImage: `url(${name.image})`,
-															backgroundRepeat: 'no-repeat',
-															backgroundPositionY: 'center',
-															color: `${name.id ? 'transparent' : '#000000'}`,
-														}}
-														value={name.value}
-														key={name.id}
-													>
-														<FormattedMessage
-															id="None"
-															defaultMessage="None"
-														/>
-													</MenuItem>
-												))}
+												<MenuItem
+													value={0}
+													key="ls1"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<text x="50" y="13" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
+															{intl.formatMessage({ id: "None" }, {})}
+														</text>
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={1}
+													key="ls2"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={2}
+													key="ls3"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={3}
+													key="ls4"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={4}
+													key="ls5"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={5}
+													key="ls6"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
 											</Select>
 										</FormControl>
 										<ColorComponent
@@ -1119,42 +1213,82 @@ export class FormatCellsDialog extends React.Component {
 												id="bottom-border-style"
 												value={this.state.bottomBorderStyle}
 												onChange={this.handleBottomBorderStyleChange}
+												classes={{selectMenu: this.props.classes.selectMenu}}
 												input={
 													<Input
-														style={{
-															backgroundImage: `url(${
-																this.state.bottomBorderStyle === ''
-																	? ''
-																	: LINE_STYLES[this.state.bottomBorderStyle].image
-															}`,
-															backgroundRepeat: 'no-repeat',
-															backgroundPositionY: 'center',
-															color: `${
-																this.state.bottomBorderStyle ? 'transparent' : '#000000'
-															}`,
-														}}
 														name="bottom-border-style"
 														id="bottom-border-style"
 													/>
 												}
 											>
-												{LINE_STYLES.map((name) => (
-													<MenuItem
-														style={{
-															backgroundImage: `url(${name.image})`,
-															backgroundRepeat: 'no-repeat',
-															backgroundPositionY: 'center',
-															color: `${name.id ? 'transparent' : '#000000'}`,
-														}}
-														value={name.value}
-														key={name.id}
-													>
-														<FormattedMessage
-															id="None"
-															defaultMessage="None"
-														/>
-													</MenuItem>
-												))}
+												<MenuItem
+													value={0}
+													key="ls1"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<text x="50" y="13" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
+															{intl.formatMessage({ id: "None" }, {})}
+														</text>
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={1}
+													key="ls2"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={2}
+													key="ls3"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={3}
+													key="ls4"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={4}
+													key="ls5"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
+												<MenuItem
+													value={5}
+													key="ls6"
+													style={{
+														padding: '3px 16px',
+													}}
+												>
+													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+														<path d="M5,13 L95,13" />
+													</svg>
+												</MenuItem>
 											</Select>
 										</FormControl>
 										<ColorComponent
@@ -1222,4 +1356,4 @@ export class FormatCellsDialog extends React.Component {
 	}
 }
 
-export default FormatCellsDialog;
+export default withStyles(styles)(FormatCellsDialog);

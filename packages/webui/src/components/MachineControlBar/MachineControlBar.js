@@ -203,6 +203,7 @@ class MachineControlBar extends React.Component {
 								<IconButton
 									aria-label="Stop"
 									color="inherit"
+									style={{ color: `rgba(255, 255, 255, ${this.props.disabled || this.props.machineState === 'stopped' ? 0.3 : 1})` }}
 									disabled={this.props.disabled || this.props.machineState === 'stopped'}
 									onClick={this.onStopMachine}
 								>
@@ -219,6 +220,8 @@ class MachineControlBar extends React.Component {
 										this.props.machineState === 'stopped' ||
 										this.props.machineState === 'paused'
 									}
+									style={{ color: `rgba(255, 255, 255, ${this.props.disabled || this.props.machineState === 'stopped'  ||
+										this.props.machineState === 'paused' ? 0.3 : 1})` }}
 									onClick={this.onPauseMachine}
 								>
 									<PauseIcon />
@@ -229,6 +232,7 @@ class MachineControlBar extends React.Component {
 							<div>
 								<IconButton
 									color="inherit"
+									style={{ color: `rgba(255, 255, 255, ${this.props.disabled || this.props.machineState === 'running' ? 0.3 : 1})` }}
 									disabled={this.props.disabled || this.props.machineState === 'running'}
 									onClick={this.onStart}
 								>
@@ -240,6 +244,7 @@ class MachineControlBar extends React.Component {
 							<div>
 								<IconButton
 									color="inherit"
+									style={{ color: `rgba(255, 255, 255, ${this.props.disabled || this.props.machineState === 'running' ? 0.3 : 1})` }}
 									disabled={this.props.disabled || this.props.machineState === 'running'}
 									onClick={this.onStepMachine}
 								>
@@ -264,7 +269,11 @@ class MachineControlBar extends React.Component {
 									display: 'inline'
 								}}
 							>
-								<IconButton color="inherit" onClick={this.onShowSpeed}>
+								<IconButton
+									color="inherit"
+									onClick={this.onShowSpeed}
+									style={{ color: 'white' }}
+								>
 									<SpeedIcon />
 								</IconButton>
 							</div>
