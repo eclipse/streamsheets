@@ -72,8 +72,23 @@ const javascript = (sheet, ...terms) =>
 				.reqId();
 		});
 javascript.displayName = true;
+
+const markdown = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.withMinArgs(1)
+		.withMaxArgs(1)
+		.mapNextArg((string) => asString(string.value, ERROR.VALUE))
+		.run((string) => {
+			return AsyncRequest.create(sheet, markdown.context)
+				.request(() => parseMarkdown(string))
+				.response(createDefaultCallback())
+				.reqId();
+		});
+markdown.displayName = true;
 module.exports = {
 	'PARSE.CSS': css,
 	'PARSE.CSV': csv,
 	'PARSE.JAVASCRIPT': javascript,
+	'PARSE.MARKDOWN': markdown,
 };
