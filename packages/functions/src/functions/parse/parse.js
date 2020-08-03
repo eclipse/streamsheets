@@ -100,10 +100,25 @@ const svg = (sheet, ...terms) =>
 				.reqId();
 		});
 svg.displayName = true;
+
+const xml = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.withMinArgs(1)
+		.withMaxArgs(1)
+		.mapNextArg((string) => asString(string.value, ERROR.VALUE))
+		.run((string) => {
+			return AsyncRequest.create(sheet, xml.context)
+				.request(() => parseXML(string))
+				.response(createDefaultCallback())
+				.reqId();
+		});
+xml.displayName = true;
 module.exports = {
 	'PARSE.CSS': css,
 	'PARSE.CSV': csv,
 	'PARSE.JAVASCRIPT': javascript,
 	'PARSE.MARKDOWN': markdown,
 	'PARSE.SVG': svg,
+	'PARSE.XML': xml,
 };
