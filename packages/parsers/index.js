@@ -15,6 +15,7 @@ const css = require('css');
 const esprima = require('esprima');
 const xml2js = require('xml2js');
 const csv = require('csv-parse');
+const yaml = require('js-yaml');
 const mime = require('mime-types');
 
 const parseMarkdown = async (input) => {
@@ -58,6 +59,12 @@ const parseCSV = async (input) => {
 	});
 };
 
+const parseYAML = (input) => {
+	return new Promise((resolve, reject) => {
+		const result = yaml.safeLoad(input);
+		resolve(result);
+	});
+}
 const parserMap = new Map();
 parserMap.set('js', parseJavaScript);
 parserMap.set('xml', parseXML);
@@ -65,6 +72,7 @@ parserMap.set('svg', parseXML);
 // parserMap.set('json', parseJSON);
 parserMap.set('css', parseCSS);
 parserMap.set('csv', parseCSV);
+parserMap.set('yaml', parseYAML);
 parserMap.set('markdown', parseMarkdown);
 
 const parse = async (content, mimeType) => {
