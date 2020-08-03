@@ -38,6 +38,7 @@
     "csv-parse": "4.11.1",
     "esprima": "4.0.1",
     "js-yaml": "^3.14.0",
+    "markdown-it": "^11.0.0",
     "marked": "1.1.1",
     "mime-types": "2.1.27",
     "pdf2json": "^1.2.0",
