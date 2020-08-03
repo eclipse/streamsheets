@@ -9,18 +9,14 @@
  *
  ********************************************************************************/
 
-const marked = require('marked');
 // const postcss = require('postcss');
 const css = require('css');
 const esprima = require('esprima');
 const xml2js = require('xml2js');
 const csv = require('csv-parse');
 const yaml = require('js-yaml');
+const markdown = require('markdown-it');
 const mime = require('mime-types');
-
-const parseMarkdown = async (input) => {
-	return marked.lexer(input);
-};
 
 const parseCSS = async (input) => {
 	// return postcss.parse(input);
@@ -62,6 +58,14 @@ const parseCSV = async (input) => {
 const parseYAML = (input) => {
 	return new Promise((resolve, reject) => {
 		const result = yaml.safeLoad(input);
+		resolve(result);
+	});
+}
+
+const md = new markdown();
+const parseMarkdown = (input) => {
+	return new Promise((resolve, reject) => {
+		const result = md.parse(input);
 		resolve(result);
 	});
 }
