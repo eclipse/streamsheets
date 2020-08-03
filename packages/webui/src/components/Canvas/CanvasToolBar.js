@@ -99,10 +99,6 @@ const buttonStyle = {
 	padding: '4px 0px 0px 0px'
 };
 
-const optionStyle = {
-	padding: '4px'
-};
-
 const borderStyle = { borderRadius: '0%', padding: '0px 5px', width: '100px', height: '20px' };
 
 const styles = {
@@ -2146,74 +2142,60 @@ export class CanvasToolBar extends Component {
 						margin: '0px 8px 0px 0px'
 					}}
 				/>
-				<Tooltip
-					enterDelay={300}
-					title={<FormattedMessage id="Tooltip.FormatFont" defaultMessage="Font Name" />}
+				<Select
+					style={{
+						width: '120px',
+						fontSize: '0.85rem'
+					}}
+					id="font-name"
+					value={tf && tf.getFontName() ? tf.getFontName().getValue() : ''}
+					onChange={(event) => this.onFormatFontName(event)}
+					input={<Input name="font-name" id="font-name" />}
+					className={classes.select}
+					inputProps={{
+						style: { paddingLeft: '5px', paddingTop: '6px' }
+					}}
 				>
-					<Select
-						style={{
-							width: '120px',
-							fontSize: '0.85rem'
-						}}
-						id="font-name"
-						value={tf && tf.getFontName() ? tf.getFontName().getValue() : ''}
-						native
-						onChange={(event) => this.onFormatFontName(event)}
-						input={<Input name="font-name" id="font-name" />}
-						className={classes.select}
-						inputProps={{
-							style: { paddingLeft: '5px', paddingTop: '6px' }
-						}}
-					>
-						<option style={optionStyle} hidden value="" />
-						<option style={optionStyle} value="Arial">
-							Arial
-						</option>
-						<option value="Courier New">Courier New</option>
-						<option value="Georgia">Georgia</option>
-						<option value="Lucida Console">Lucida Console</option>
-						<option value="Lucida Sans">Lucida Sans</option>
-						{/* <option value="MetaPlusLF">MetaPlusLF</option> */}
-						<option value="Palatino">Palatino</option>
-						<option value="Tahoma">Tahoma</option>
-						<option value="Trebuchet MS">Trebuchet MS</option>
-						<option value="Verdana">Verdana</option>
-					</Select>
-				</Tooltip>
-				<Tooltip
-					enterDelay={300}
-					title={<FormattedMessage id="Tooltip.FormatSize" defaultMessage="Font Size" />}
+					{/*<option style={optionStyle} hidden value="" />*/}
+					<MenuItem dense value="Arial" key="s1">Arial</MenuItem>
+					<MenuItem dense value="Courier New" key="s2">Courier New</MenuItem>
+					<MenuItem dense value="Georgia" key="s3">Georgia</MenuItem>
+					<MenuItem dense value="Lucida Console" key="s4">Lucida Console</MenuItem>
+					<MenuItem dense value="Lucida Sans" key="s5">Lucida Sans</MenuItem>
+					<MenuItem dense value="Palatino" key="s6">Palatino</MenuItem>
+					<MenuItem dense value="Tahoma" key="s7">Tahoma</MenuItem>
+					<MenuItem dense value="Trebuchet MS" key="s8">Trebuchet MS</MenuItem>
+					<MenuItem dense value="Tahoma" key="s9">Tahoma</MenuItem>
+					<MenuItem dense value="Verdana" key="s10">Verdana</MenuItem>
+					{/* <option value="MetaPlusLF">MetaPlusLF</option> */}
+				</Select>
+				<Select
+					style={{
+						width: '50px',
+						marginLeft: '10px',
+						fontSize: '0.85rem'
+					}}
+					id="font-size"
+					value={tf && tf.getFontSize() ? tf.getFontSize().getValue() : ''}
+					onChange={(event) => this.onFormatFontSize(event)}
+					input={<Input name="font-size" id="font-size" />}
+					className={classes.select}
+					inputProps={{
+						style: { paddingLeft: '5px', paddingTop: '6px' }
+					}}
 				>
-					<Select
-						style={{
-							width: '50px',
-							marginLeft: '10px',
-							fontSize: '0.85rem'
-						}}
-						id="font-size"
-						value={tf && tf.getFontSize() ? tf.getFontSize().getValue() : ''}
-						onChange={(event) => this.onFormatFontSize(event)}
-						native
-						input={<Input name="font-size" id="font-size" />}
-						className={classes.select}
-						inputProps={{
-							style: { paddingLeft: '5px', paddingTop: '6px' }
-						}}
-					>
-						<option hidden value="" />
-						<option value="6">6</option>
-						<option value="7">7</option>
-						<option value="8">8</option>
-						<option value="9">9</option>
-						<option value="10">10</option>
-						<option value="11">11</option>
-						<option value="12">12</option>
-						<option value="14">14</option>
-						<option value="18">18</option>
-						<option value="24">24</option>
-						<option value="36">36</option>
-					</Select>
-				</Tooltip>
+					<MenuItem dense value="6" key="fs1">6</MenuItem>
+					<MenuItem dense value="7" key="fs2">7</MenuItem>
+					<MenuItem dense value="8" key="fs3">8</MenuItem>
+					<MenuItem dense value="9" key="fs4">9</MenuItem>
+					<MenuItem dense value="10" key="fs5">10</MenuItem>
+					<MenuItem dense value="11" key="fs6">11</MenuItem>
+					<MenuItem dense value="12" key="fs7">12</MenuItem>
+					<MenuItem dense value="14" key="fs8">14</MenuItem>
+					<MenuItem dense value="18" key="fs9">18</MenuItem>
+					<MenuItem dense value="24" key="fs10">24</MenuItem>
+					<MenuItem dense value="36" key="fs11">36</MenuItem>
+				</Select>
 				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.FormatBold" defaultMessage="Bold" />}>
 					<div>
 						<IconButton

@@ -117,7 +117,7 @@ class MachineNameComponent extends React.Component {
 		const { classes } = this.props;
 		return (
 			MachineHelper.isMachineDetailsPage() ?
-				<div>
+				<div style={{width: '75%'}}>
 					<Tooltip
 						enterDelay={300}
 						title={
@@ -128,6 +128,7 @@ class MachineNameComponent extends React.Component {
 					>
 						<TextField
 							error={/* !this.verifyName(this.state.machine.name) || */ !this.props.monitor.machineNameSaved}
+							fullWidth
 							id="machine-name"
 							disabled={!!this.props.disabled}
 							value={this.state.machine.name || ''}

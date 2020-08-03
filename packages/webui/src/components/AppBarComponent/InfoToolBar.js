@@ -34,7 +34,8 @@ export function InfoToolBar(props) {
 				height: '58px',
 				minHeight: '58px',
 				maxHeight: '58px',
-				paddingLeft: '5px'
+				paddingLeft: '5px',
+				width: props.width,
 			}}
 		>
 			<CustomTooltip header="Tooltip.MainMenuHeader" message="Tooltip.MainMenuMessage">
@@ -75,13 +76,15 @@ export function InfoToolBar(props) {
 InfoToolBar.propTypes = {
 	machineId: PropTypes.string,
 	title: PropTypes.node,
+	width: PropTypes.string,
 	toggleDrawer: PropTypes.func.isRequired,
 	openDashboard: PropTypes.func.isRequired
 };
 
 InfoToolBar.defaultProps = {
 	machineId: null,
-	title: undefined
+	title: undefined,
+	width: undefined
 };
 
 function mapStateToProps(state) {

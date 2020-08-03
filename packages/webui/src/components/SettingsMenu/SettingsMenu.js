@@ -234,14 +234,17 @@ export class SettingsMenu extends React.Component {
 					<Card
 						style={{
 							marginTop: '-8px',
+							outline: 'none',
 						}}
 					>
 						<CardHeader
 							title={<div style={{ color: Colors.grey[50] }}>{ displayName}</div>}
 							subheader={<address style={{ color: Colors.grey[50] }}>{user ? user.mail : ""}</address>}
 							avatar={<Avatar alt="Remy Sharp" src="images/avatar.png" />}
+							disabled
 							style={{
 								backgroundColor: this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
+								outline: 'none',
 							}}
 						/>
 					</Card>

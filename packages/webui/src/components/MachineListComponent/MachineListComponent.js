@@ -103,8 +103,8 @@ function MachineList(props) {
 	// const { onItemClick } = props;
 	const { data, loading } = useGraphQL(QUERY, { scope: { id: props.scopeId } }, [props.scopeId]);
 	const { onItemClick } = props;
-	const [sortField, setSortField] = useState('name');
-	const [sortDir, setSortDir] = useState('asc');
+	const [sortField, setSortField] = useState('lastModified');
+	const [sortDir, setSortDir] = useState('desc');
 	const [filter, setFilter] = useState('');
 	const handleTableSort = (event, property) => {
 		setSortField(property);

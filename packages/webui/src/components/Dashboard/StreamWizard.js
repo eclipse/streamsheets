@@ -662,11 +662,12 @@ class StreamWizard extends React.Component {
 				<Fab
 					variant="extended"
 					size="small"
+					disabled={color !== 'primary'}
 					color={color}
 					aria-label="add"
 					style={{
 						boxShadow: 'none',
-						width: '140px',
+						width: '196px',
 						lineHeight: 'normal'
 					}}
 				>
@@ -684,7 +685,7 @@ class StreamWizard extends React.Component {
 						height: '20px',
 						width: '1px',
 						borderLeft: '1px solid grey',
-						marginLeft: '70px'
+						marginLeft: '98px'
 					}}
 				/>
 			);
@@ -788,7 +789,7 @@ class StreamWizard extends React.Component {
 					>
 						<div
 							style={{
-								minWidth: '180px',
+								minWidth: '220px',
 								marginTop: '10px'
 							}}
 						>
@@ -1076,7 +1077,10 @@ class StreamWizard extends React.Component {
 						<FormattedMessage id="Setup.Back" defaultMessage="Back" />
 					</Button>
 					<Button size="small" onClick={this.handleNext} disabled={this.getNextDisabled()}>
-						<FormattedMessage id="Setup.Next" defaultMessage="Next" />
+						{(this.props.type === 'connector' && this.state.activeStep === 'connectorsettings') ||
+						(this.props.type !== 'connector' && this.state.activeStep === 'consumersettings') ?
+						<FormattedMessage id="StreamStep.finish" defaultMessage="Finish" /> :
+						<FormattedMessage id="Setup.Next" defaultMessage="Next" />}
 						{<KeyboardArrowRight />}
 					</Button>
 				</DialogActions>
