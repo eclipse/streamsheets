@@ -61,7 +61,7 @@ const addHTTPResponseToInbox = async (response, context, error, parseResponseBod
 	const inbox = context.term.scope.streamsheet.inbox;
 	if (error) {
 		const errorMessage = new Message(error);
-		message.metadata.label = `Error: ${context.term.name}`;
+		errorMessage.metadata.label = `Error: ${context.term.name}`;
 		inbox.put(errorMessage);
 	} else {
 		let messageContent = response.data;
