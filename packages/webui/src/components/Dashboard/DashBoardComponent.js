@@ -68,7 +68,7 @@ class DashBoardComponent extends Component {
 			filter: [],
 			editStream: false,
 			type: '',
-			layout: localStorage.getItem(PREF_KEY_LAYOUT),
+			layout: localStorage.getItem(PREF_KEY_LAYOUT) || 'grid',
 		};
 	}
 
