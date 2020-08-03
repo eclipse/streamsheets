@@ -44,6 +44,21 @@ const css = (sheet, ...terms) =>
 				.reqId();
 		});
 css.displayName = true;
+
+const csv = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.withMinArgs(1)
+		.withMaxArgs(1)
+		.mapNextArg((string) => asString(string.value, ERROR.VALUE))
+		.run((string) => {
+			return AsyncRequest.create(sheet, csv.context)
+				.request(() => parseCSV(string))
+				.response(createDefaultCallback())
+				.reqId();
+		});
+csv.displayName = true;
 module.exports = {
 	'PARSE.CSS': css,
+	'PARSE.CSV': csv,
 };
