@@ -114,6 +114,21 @@ const xml = (sheet, ...terms) =>
 				.reqId();
 		});
 xml.displayName = true;
+
+const yaml = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.withMinArgs(1)
+		.withMaxArgs(1)
+		.mapNextArg((string) => asString(string.value, ERROR.VALUE))
+		.run((string) => {
+			return AsyncRequest.create(sheet, yaml.context)
+				.request(() => parseYAML(string))
+				.response(createDefaultCallback())
+				.reqId();
+		});
+yaml.displayName = true;
+
 module.exports = {
 	'PARSE.CSS': css,
 	'PARSE.CSV': csv,
@@ -121,4 +136,5 @@ module.exports = {
 	'PARSE.MARKDOWN': markdown,
 	'PARSE.SVG': svg,
 	'PARSE.XML': xml,
+	'PARSE.YAML': yaml
 };
