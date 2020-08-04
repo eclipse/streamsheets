@@ -54,10 +54,12 @@ const host = createURLFunction((url) => url.host);
 const hostname = createURLFunction((url) => url.hostname);
 const origin = createURLFunction((url) => url.origin);
 const password = createURLFunction((url) => url.password);
+const pathname = createURLFunction((url) => url.pathname);
 module.exports = {
 	'URL.HASH': hash,
 	'URL.HOST': host,
 	'URL.HOSTNAME': hostname,
 	'URL.ORIGIN': origin,
 	'URL.PASSWORD': password,
+	'URL.PATHNAME': pathname,
 };
