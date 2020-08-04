@@ -58,6 +58,8 @@ const pathname = createURLFunction((url) => url.pathname);
 const port = createURLFunction((url) => url.port);
 const protocol = createURLFunction((url) => url.protocol);
 const query = createURLFunction((url) => url.search);
+const username = createURLFunction((url) => url.username);
+
 module.exports = {
 	'URL.HASH': hash,
 	'URL.HOST': host,
@@ -68,4 +70,5 @@ module.exports = {
 	'URL.PORT': port,
 	'URL.PROTOCOL': protocol,
 	'URL.QUERY': query,
+	'URL.USERNAME': username
 };
