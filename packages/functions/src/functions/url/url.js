@@ -48,5 +48,8 @@ const createURLFunction = (getter) => {
 	f.displayName = true;
 	return f;
 }
+
+const hash = createURLFunction((url) => url.hash);
 module.exports = {
+	'URL.HASH': hash,
 };
