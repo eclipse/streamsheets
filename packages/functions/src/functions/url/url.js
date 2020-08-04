@@ -56,6 +56,7 @@ const origin = createURLFunction((url) => url.origin);
 const password = createURLFunction((url) => url.password);
 const pathname = createURLFunction((url) => url.pathname);
 const port = createURLFunction((url) => url.port);
+const protocol = createURLFunction((url) => url.protocol);
 module.exports = {
 	'URL.HASH': hash,
 	'URL.HOST': host,
@@ -64,4 +65,5 @@ module.exports = {
 	'URL.PASSWORD': password,
 	'URL.PATHNAME': pathname,
 	'URL.PORT': port,
+	'URL.PROTOCOL': protocol,
 };
