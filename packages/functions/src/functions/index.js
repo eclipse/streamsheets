@@ -18,11 +18,13 @@ const logical = require('./logical');
 const lookup = require('./lookup');
 const math = require('./math');
 // const olap = require('./olap');
+const parse = require('./parse');
 const stack = require('./stack');
 const statistical = require('./statistical');
 const streamsheet = require('./streamsheet');
 const text = require('./text');
 const timeseries = require('./timeseries');
+const url = require('./url');
 
 module.exports = {
 	...database.functions,
@@ -35,9 +37,11 @@ module.exports = {
 	...lookup.functions,
 	...math.functions,
 	// ...olap.functions,
+	...parse.functions,
 	...stack.functions,
 	...statistical.functions,
 	...streamsheet.functions,
 	...text.functions,
-	...timeseries.functions
+	...timeseries.functions,
+	...url.functions
 };
