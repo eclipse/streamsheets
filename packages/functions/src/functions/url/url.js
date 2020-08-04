@@ -50,6 +50,8 @@ const createURLFunction = (getter) => {
 }
 
 const hash = createURLFunction((url) => url.hash);
+const host = createURLFunction((url) => url.host);
 module.exports = {
 	'URL.HASH': hash,
+	'URL.HOST': host,
 };
