@@ -51,7 +51,9 @@ const createURLFunction = (getter) => {
 
 const hash = createURLFunction((url) => url.hash);
 const host = createURLFunction((url) => url.host);
+const hostname = createURLFunction((url) => url.hostname);
 module.exports = {
 	'URL.HASH': hash,
 	'URL.HOST': host,
+	'URL.HOSTNAME': hostname,
 };
