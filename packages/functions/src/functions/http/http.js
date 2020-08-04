@@ -13,6 +13,7 @@ const { AsyncRequest, runFunction, terms: { getCellRangeFromTerm, hasValue } } =
 const { addHTTPResponseToInbox, addHTTPResponseToCell, addHTTPResponseToRange } = require('./utils');
 const { getInstance } = require('@cedalo/http-client');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { SheetRange } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 
