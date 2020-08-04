@@ -19,7 +19,7 @@ const ERROR = FunctionErrors.code;
 const asString = (value) => value ? convert.toString(value) : '';
 const asBoolean = (value) => value ? convert.toBoolean(value) : false;
 
-const createDefaultCallback = (parse = false) => (context, response, error) => {
+const createDefaultCallback = (parse = false, target) => (context, response, error) => {
 	const term = context.term;
 
 	// add to inbox
@@ -57,14 +57,15 @@ const get = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.withMaxArgs(3)
+		.withMaxArgs(4)
 		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
+		.mapNextArg((target) => hasValue(target) ? target.value : {})
 		.mapNextArg((parse) => hasValue(parse) ? asBoolean(parse.value, ERROR.VALUE) : false)
-		.run((url, config, parse) => {
+		.run((url, config, target, parse) => {
 			return AsyncRequest.create(sheet, get.context)
 				.request(() => getInstance().get(url, config))
-				.response(createDefaultCallback(parse))
+				.response(createDefaultCallback(parse, target))
 				.reqId()
 		});
 get.displayName = true;
@@ -83,6 +84,7 @@ const post = (sheet, ...terms) =>
 			}
 			return AsyncRequest.create(sheet, post.context)
 				.request(() => getInstance().post(url, data, config))
+				.response(createDefaultCallback())
 				.reqId()
 		});
 post.displayName = true;
