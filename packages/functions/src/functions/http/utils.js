@@ -110,7 +110,7 @@ const addHTTPResponseToCell = (response, range) => {
 const addHTTPResponseToRange = async (response, range, context, error) => {
 	const mimeType = response.headers['content-type'];
 	const result = await parse(response.data, mimeType);
-	putKeyValuesToRange(range, result.ast);
+	putKeyValuesToRange(range, result.parsed || result);
 }
 
 module.exports = {
