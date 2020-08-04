@@ -15,7 +15,7 @@ module.exports = {
 		'PARSE.CSS': {
 			en: {
 				argumentList: 'string',
-				description: 'Parses string as CSS'
+				description: 'Parses a string to CSS'
 			},
 			de: {
 				argumentList: 'Zeichenkette',
@@ -26,7 +26,7 @@ module.exports = {
 		'PARSE.CSV': {
 			en: {
 				argumentList: 'string',
-				description: 'Parses string as CSV'
+				description: 'Parses a string to CSV'
 			},
 			de: {
 				argumentList: 'Zeichenkette',
@@ -37,7 +37,7 @@ module.exports = {
 		'PARSE.JAVASCRIPT': {
 			en: {
 				argumentList: 'string',
-				description: 'Parses string as JavaScript'
+				description: 'Parses a string to JavaScript'
 			},
 			de: {
 				argumentList: 'Zeichenkette',
@@ -48,7 +48,7 @@ module.exports = {
 		'PARSE.MARKDOWN': {
 			en: {
 				argumentList: 'string',
-				description: 'Parses string as Markdown'
+				description: 'Parses a string to Markdown'
 			},
 			de: {
 				argumentList: 'Zeichenkette',
@@ -59,7 +59,7 @@ module.exports = {
 		'PARSE.SVG': {
 			en: {
 				argumentList: 'string',
-				description: 'Parses string as SVG'
+				description: 'Parses a string to SVG'
 			},
 			de: {
 				argumentList: 'Zeichenkette',
@@ -70,7 +70,7 @@ module.exports = {
 		'PARSE.XML': {
 			en: {
 				argumentList: 'string',
-				description: 'Parses string as XML'
+				description: 'Parses a string to XML'
 			},
 			de: {
 				argumentList: 'Zeichenkette',
@@ -81,7 +81,7 @@ module.exports = {
 		'PARSE.YAML': {
 			en: {
 				argumentList: 'string',
-				description: 'Parses string as YAML'
+				description: 'Parses a string to YAML'
 			},
 			de: {
 				argumentList: 'Zeichenkette',
