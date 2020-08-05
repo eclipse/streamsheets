@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -17,10 +17,13 @@ import {
 	FormatAttributes,
 	AddImageCommand,
 	AddItemCommand,
-	GraphUtils
+	GraphUtils, Shape
 } from '@cedalo/jsg-core';
 import InteractionActivator from './InteractionActivator';
 import ClientEvent from '../../ui/events/ClientEvent';
+import ConnectionController from "../controller/ConnectionController";
+import PortController from "../controller/PortController";
+import GraphController from "../controller/GraphController";
 
 /**
  * An InteractionActivator used to activate a {{#crossLink "LinkInteraction"}}{{/crossLink}}.
@@ -34,15 +37,36 @@ class ImageDropActivator extends InteractionActivator {
 		return ImageDropActivator.KEY;
 	}
 
-	_condition(controller) {
-		const model = controller.getModel();
-		return model.isVisible() && model.isContainer();
+	_findParentControllerAt(location, viewer) {
+		const constraint = (controller) => {
+			const model = controller.getModel();
+			if (this._node) {
+				if (
+					!JSG.graphItemFactory.isValidSubItem(
+						this._node,
+						model.getType().getValue(),
+						model
+					)
+				) {
+					return false;
+				}
+			}
+
+
+			return (
+				model.isVisible() && model.isContainer() && !model.isProtected() &&
+				!(controller instanceof ConnectionController) &&
+				!(controller instanceof PortController) &&
+				!(controller instanceof GraphController)
+			);
+		};
+
+		if (viewer.getDefaultController()) {
+			return viewer.getDefaultController();
+		}
+		return viewer.findControllerAt(location, Shape.FindFlags.AREA, constraint);
 	}
 
-	_getControllerAt(location, dispatcher) {
-		const controller = dispatcher.getControllerAt(location, undefined, this._condition);
-		return controller;
-	}
 
 	/**
 	 * Returns the position of given event relative to given canvas.
@@ -97,25 +121,13 @@ class ImageDropActivator extends InteractionActivator {
 	}
 
 	onDrop(event, viewer, dispatcher) {
-		let controller = this._getControllerAt(event.location, dispatcher);
-		if (controller === undefined) {
-			controller = viewer.getGraphController();
-		}
+		const node = new Node(new JSG.RectangleShape());
+		this._node = node;
+		const controller = this._findParentControllerAt(event.location.copy(), viewer);
+		// if (controller === undefined) {
+		// 	controller = viewer.getGraphController();
+		// }
 		if (controller) {
-			const node = new Node(new JSG.RectangleShape());
-			if (
-				!JSG.graphItemFactory.isValidSubItem(
-					node,
-					controller
-						.getModel()
-						.getType()
-						.getValue(),
-					controller.getModel()
-				)
-			) {
-				return;
-			}
-
 			const { files } = event.event.dataTransfer;
 			// Array of all files
 			const cs = viewer.getCoordinateSystem();

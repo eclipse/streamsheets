@@ -47,6 +47,13 @@ const StreamTableRow = (props) => {
 		props.onStreamNew(type, row);
 	};
 
+	if (row.open) {
+		setOpen(true);
+		row.open = undefined;
+		return (<div/>);
+	}
+	const openConnector = open;
+
 	return (
 		<React.Fragment>
 			<TableRow
@@ -64,11 +71,11 @@ const StreamTableRow = (props) => {
 						size="small"
 						onClick={() => setOpen(!open)}
 					>
-						{open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+						{openConnector ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
 					</IconButton>
 				</TableCell>
 				<TableCell
-					onClick={() => setOpen(!open)}
+					onClick={() => setOpen(!openConnector)}
 					style={{ cursor: 'pointer', fontWeight: 'bold' }}
 					padding="none"
 					component="th"
@@ -77,16 +84,16 @@ const StreamTableRow = (props) => {
 				>
 					{row.name}
 				</TableCell>
-				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!open)} padding="none" align="left">
+				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!openConnector)} padding="none" align="left">
 					{row.provider}
 				</TableCell>
-				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!open)} padding="none" align="left">
+				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!openConnector)} padding="none" align="left">
 					{row.url}
 				</TableCell>
-				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!open)} padding="none" align="left">
+				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!openConnector)} padding="none" align="left">
 					{row.topic}
 				</TableCell>
-				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!open)} padding="none" align="left">
+				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!openConnector)} padding="none" align="left">
 					{row.lastModified}
 				</TableCell>
 				<TableCell padding="none" align="left">
@@ -111,10 +118,10 @@ const StreamTableRow = (props) => {
 			</TableRow>
 			<TableRow key={`sub${row.id}`} style={{ height: '0px' }}>
 				<TableCell
-					style={{ paddingBottom: open ? '6px' : '0px', paddingTop: '0px', paddingLeft: '40px' }}
+					style={{ paddingBottom: openConnector ? '6px' : '0px', paddingTop: '0px', paddingLeft: '40px' }}
 					colSpan={7}
 				>
-					<Collapse in={open} timeout="auto" unmountOnExit>
+					<Collapse in={openConnector} timeout="auto" unmountOnExit>
 						<Paper square elevation={1}>
 							<div className={classes.sectionRoot}>
 								<Typography

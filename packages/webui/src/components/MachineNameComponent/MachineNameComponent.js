@@ -117,7 +117,7 @@ class MachineNameComponent extends React.Component {
 		const { classes } = this.props;
 		return (
 			MachineHelper.isMachineDetailsPage() ?
-				<div style={{width: '75%'}}>
+				<div style={{width: `${Math.min(75, this.state.machine.name.length * 1.7)}%`}}>
 					<Tooltip
 						enterDelay={300}
 						title={

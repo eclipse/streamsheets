@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -257,30 +257,20 @@ module.exports = class Drawings {
 
 		if (this.checkParam(terms, 0)) {
 			result.color = String(terms[0].value);
-		} else {
-			result.color = '#000000';
 		}
 		if (this.checkParam(terms, 1)) {
 			result.style = Number(terms[1].value);
-		} else {
-			result.style = 1;
 		}
 		if (this.checkParam(terms, 2)) {
 			result.width = Number(terms[2].value);
-		} else {
-			result.width = 1;
 		}
 
 		if (this.checkParam(terms, 3)) {
 			result.startArrow = Number(terms[3].value);
-		} else {
-			result.startArrow = 0;
 		}
 
 		if (this.checkParam(terms, 4)) {
 			result.endArrow = Number(terms[4].value);
-		} else {
-			result.endArrow = 0;
 		}
 
 		return JSON.stringify(result);
@@ -291,28 +281,18 @@ module.exports = class Drawings {
 
 		if (this.checkParam(terms, 0)) {
 			result.fontname = String(terms[0].value);
-		} else {
-			result.fontname = 'Verdana';
 		}
 		if (this.checkParam(terms, 1)) {
 			result.fontsize = Number(terms[1].value);
-		} else {
-			result.fontsize = 8;
 		}
 		if (this.checkParam(terms, 2)) {
 			result.fontstyle = Number(terms[2].value);
-		} else {
-			result.fontstyle = 0;
 		}
 		if (this.checkParam(terms, 3)) {
 			result.fontcolor = String(terms[3].value);
-		} else {
-			result.fontcolor = '#000000';
 		}
 		if (this.checkParam(terms, 4)) {
 			result.alignment = Number(terms[4].value);
-		} else {
-			result.alignment = 0;
 		}
 
 		return JSON.stringify(result);
@@ -384,13 +364,6 @@ module.exports = class Drawings {
 		result.type = 'pattern';
 		if (this.checkParam(terms, 0)) {
 			result.image = String(terms[0].value);
-		} else {
-			result.image = '';
-		}
-		if (this.checkParam(terms, 1)) {
-			result.style = Number(terms[1].value);
-		} else {
-			result.style = 0;
 		}
 
 		return JSON.stringify(result);

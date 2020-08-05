@@ -494,35 +494,34 @@ module.exports = class StreamSheet extends WorksheetNode {
 	}
 
 	setLineFormat(node, formatJSON) {
-		if (formatJSON === undefined || formatJSON === '') {
-			let path = AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINECOLOR);
-			node.removeAttributeAtPath(path);
-			path = AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINESTYLE);
-			node.removeAttributeAtPath(path);
-			path = AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINEWIDTH);
-			node.removeAttributeAtPath(path);
-			return;
-		}
-
 		const format = node.getFormat();
-		let def = {
-			style: FormatAttributes.FillStyle.SOLID,
-			width: FormatAttributes.LineStyle.HAIRLINE,
-			color: '#000000',
-			startArrow: 0,
-			endArrow: 0
-		};
+		let def = {};
 
 		try {
 			def = JSON.parse(formatJSON);
 		} catch (e) {
 			def.style = formatJSON.toUpperCase() === 'NONE' ? 0 : 1;
-			def.color = formatJSON;
+			def.color = formatJSON && formatJSON.length ? formatJSON : undefined;
 		}
 
-		format.setLineColor(def.color);
-		format.setLineWidth(def.width);
-		format.setLineStyle(def.style);
+		if (def.color) {
+			format.setLineColor(def.color);
+		} else {
+			const path = AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINECOLOR);
+			node.removeAttributeAtPath(path);
+		}
+		if (def.width !== undefined) {
+			format.setLineWidth(def.width);
+		} else {
+			const path = AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINEWIDTH);
+			node.removeAttributeAtPath(path);
+		}
+		if (def.style !== undefined) {
+			format.setLineStyle(def.style);
+		} else {
+			const path = AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINESTYLE);
+			node.removeAttributeAtPath(path);
+		}
 	}
 
 	setFillFormat(node, formatJSON, name) {
@@ -556,79 +555,71 @@ module.exports = class StreamSheet extends WorksheetNode {
 			}
 		}
 		switch (def.type) {
-			// case 'video':
-			// 	if (typeof window !== 'undefined') {
-			// 		if (myVideo === undefined) {
-			// 			myVideo = document.createElement("video"); // create a video element
-			// 			document.body.append(myVideo);
-			// 			myVideo.src = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-			// 			// the video will now begin to load.
-			// 			// As some additional info is needed we will place the video in a
-			// 			// containing object for convenience
-			// 			myVideo.autoplay = true; // ensure that the video does not auto play
-			// 			myVideo.loop = true; // set the video to loop.
-			// 			myVideo.muted = true;
-			// 			myVideo.style.position = 'absolute';
-			// 			myVideo.style.top = '0px';
-			// 			myVideo.style.left = '0px';
-			// 			myVideo.style.width = '300px';
-			// 			myVideo.style.height = '200px';
-			// 			myVideo.style.zIndex = '20000';
-			// 			node.myVideo = myVideo;
-			// 		}
-			// 	}
-			// 	break;
 			case 'pattern': {
-				let pattern = def.image.length ? def.image : JSG.ImagePool.IMG_NOTAVAIL;
-				format.setFillStyle(FormatAttributes.FillStyle.PATTERN);
+				if (def.image) {
+					let pattern = def.image.length ? def.image : JSG.ImagePool.IMG_NOTAVAIL;
+					format.setFillStyle(FormatAttributes.FillStyle.PATTERN);
 
-				if (pattern) {
-					try {
-						const qr = pattern.indexOf('qrcode:');
-						if (window && qr !== -1) {
-							const text = pattern.slice(7);
-							pattern = window.QRCode.generatePNG(text, {
-								ecclevel: 'M',
-								format: 'html',
-								fillcolor: '#FFFFFF',
-								textcolor: '#373737',
-								margin: 4,
-								modulesize: 8
-							});
-						}
-
-						const uri = pattern.indexOf('data:image') !== -1;
-						if (uri) {
-							const id = `dataimage${name}`;
-							JSG.imagePool.set(pattern, id);
-							format.setPattern(id);
-						} else {
-							const parts = pattern.split('?');
-							if (parts.length > 1) {
-								JSG.imagePool.update(parts[0], parts[1]);
-								format.setPattern(parts[0]);
-							} else {
-								format.setPattern(pattern);
+					if (pattern) {
+						try {
+							const qr = pattern.indexOf('qrcode:');
+							if (window && qr !== -1) {
+								const text = pattern.slice(7);
+								pattern = window.QRCode.generatePNG(text, {
+									ecclevel: 'M',
+									format: 'html',
+									fillcolor: '#FFFFFF',
+									textcolor: '#373737',
+									margin: 4,
+									modulesize: 8
+								});
 							}
 
+							const uri = pattern.indexOf('data:image') !== -1;
+							if (uri) {
+								const id = `dataimage${name}`;
+								JSG.imagePool.set(pattern, id);
+								format.setPattern(id);
+							} else {
+								const parts = pattern.split('?');
+								if (parts.length > 1) {
+									JSG.imagePool.update(parts[0], parts[1]);
+									format.setPattern(parts[0]);
+								} else {
+									format.setPattern(pattern);
+								}
+
+							}
+						} catch (e) {
 						}
-					} catch (e) {
 					}
 				}
 				break;
 			}
 			case 'gradient':
 				format.setFillStyle(FormatAttributes.FillStyle.GRADIENT);
-				format.setGradientType(def.style);
-				format.setFillColor(def.startcolor);
-				format.setGradientColor(def.endcolor);
+				if (def.style !== undefined) {
+					format.setGradientType(def.style);
+				}
+				if (def.startcolor) {
+					format.setFillColor(def.startcolor);
+				}
+				if (def.endcolor) {
+					format.setGradientColor(def.endcolor);
+				}
 				switch (def.style) {
 					case 0:
-						format.setGradientAngle(def.angle);
+						if (def.angle !== undefined) {
+							format.setGradientAngle(def.angle);
+						}
 						break;
 					case 1:
-						format.setGradientOffsetX(def.xOffset);
-						format.setGradientOffsetY(def.yOffset);
+						if (def.xOffset !== undefined) {
+							format.setGradientOffsetX(def.xOffset);
+						}
+						if (def.yOffset !== undefined) {
+							format.setGradientOffsetY(def.yOffset);
+						}
 						break;
 				}
 				break;
@@ -637,24 +628,16 @@ module.exports = class StreamSheet extends WorksheetNode {
 				break;
 			case 'solid':
 			default:
-				format.setFillColor(def.color);
+				if (def.color) {
+					format.setFillColor(def.color);
+				}
 				format.setFillStyle(FormatAttributes.FillStyle.SOLID);
 				break;
 		}
 	}
 
-	setFontFormat(format, fontJSON) {
-		if (fontJSON === undefined || fontJSON === '') {
-			return;
-		}
-
-		let def = {
-			fontname: 'Verdana',
-			fontsize: 8,
-			fontcolor: JSG.theme.text,
-			fontstyle: 0,
-			alignment: 0
-		};
+	setFontFormat(node, format, fontJSON) {
+		let def = {};
 
 		try {
 			def = JSON.parse(fontJSON);
@@ -662,18 +645,33 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 		if (def.fontcolor) {
 			format.setFontColor(def.fontcolor);
+		} else {
+			const path = AttributeUtils.createPath(TextFormatAttributes.NAME, TextFormatAttributes.FONTCOLOR);
+			node.removeAttributeAtPath(path);
 		}
 		if (def.fontname) {
 			format.setFontName(def.fontname);
+		} else {
+			const path = AttributeUtils.createPath(TextFormatAttributes.NAME, TextFormatAttributes.FONTNAME);
+			node.removeAttributeAtPath(path);
 		}
-		if (def.fontsize) {
+		if (def.fontsize !== undefined) {
 			format.setFontSize(def.fontsize);
+		} else {
+			const path = AttributeUtils.createPath(TextFormatAttributes.NAME, TextFormatAttributes.FONTSIZE);
+			node.removeAttributeAtPath(path);
 		}
 		if (def.fontstyle !== undefined) {
 			format.setFontStyle(def.fontstyle);
+		} else {
+			const path = AttributeUtils.createPath(TextFormatAttributes.NAME, TextFormatAttributes.FONTSTYLE);
+			node.removeAttributeAtPath(path);
 		}
 		if (def.alignment !== undefined) {
 			format.setHorizontalAlignment(def.alignment);
+		} else {
+			const path = AttributeUtils.createPath(TextFormatAttributes.NAME, TextFormatAttributes.HORIZONTALALIGN);
+			node.removeAttributeAtPath(path);
 		}
 	}
 
@@ -868,7 +866,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 						if (drawItem.parent === '') {
 							node.associate(false);
 						}
-						this.setFontFormat(node.getTextFormat(), drawItem.font);
+						this.setFontFormat(node, node.getTextFormat(), drawItem.font);
 						break;
 					}
 					case 'bezier':
@@ -918,7 +916,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 						break;
 					case 'checkbox':
 					case 'button':
-						this.setFontFormat(node.getTextFormat(), drawItem.font);
+						this.setFontFormat(node, node.getTextFormat(), drawItem.font);
 						node.setAttributeAtPath('title', drawItem.text);
 						// to prevent flickering
 						if (node._targetValue === undefined || node._targetValue === drawItem.value) {
@@ -927,7 +925,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 						}
 						break;
 					case 'slider':
-						this.setFontFormat(node.getTextFormat(), drawItem.font);
+						this.setFontFormat(node, node.getTextFormat(), drawItem.font);
 						node.setAttributeAtPath('scalefont', drawItem.scalefont);
 						node.setAttributeAtPath('title', drawItem.text);
 						// to prevent flickering
@@ -942,7 +940,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 						node.setAttributeAtPath('formatrange', drawItem.formatrange ? drawItem.formatrange : '');
 						break;
 					case 'knob':
-						this.setFontFormat(node.getTextFormat(), drawItem.font);
+						this.setFontFormat(node, node.getTextFormat(), drawItem.font);
 						node.setAttributeAtPath('scalefont', drawItem.scalefont);
 						node.setAttributeAtPath('title', drawItem.text);
 						// to prevent flickering
@@ -1084,6 +1082,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 				attributes = `ATTRIBUTES(,"${containerType}")`;
 				break;
 			}
+			const lineFormula = this.getLineFormula(item);
+			const fillFormula = this.getFillFormula(item);
 			switch (type) {
 				case 'label':
 					formula += `,,,${attributes},,`;
@@ -1109,8 +1109,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 					formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
 					break;
 				default:
-					if (angle !== 0 || attributes !== '') {
-						formula += `,,,${attributes},,${angle}`;
+					if (angle !== 0 || attributes !== '' || lineFormula !== '' || fillFormula !== '') {
+						formula += `,${lineFormula || ''},${fillFormula || ''},${attributes},,${angle}`;
 					}
 					break;
 			}
@@ -1121,50 +1121,87 @@ module.exports = class StreamSheet extends WorksheetNode {
 		return formula;
 	}
 
-	getLineFormula(graph, item) {
+	getLineFormula(item) {
 		const format = item.getFormat();
+
+		const color = format.getLineColor().getValue();
+		const style = format.getLineStyle().getValue();
+		const width = format.getLineWidth().getValue();
+
+		if (color === JSG.theme.color && style === FormatAttributes.LineStyle.SOLID && (width === 1 || width === -1)) {
+			return undefined;
+		}
 
 		switch (format.getLineStyle().getValue()) {
 			case FormatAttributes.LineStyle.SOLID: {
-				const width = format.getLineWidth().getValue();
 				if (width === -1 || width === 1) {
-					const color = format.getLineColor().getValue();
 					if (color === JSG.theme.border) {
-						return new NullTerm();
+						return undefined;
 					}
-					return Term.fromString(color);
+					return `"${color}"`;
 				}
 				break;
 			}
 			case FormatAttributes.LineStyle.NONE:
-				return Term.fromString('None');
+				return `"None"`;
 			default:
 				break;
 		}
 
-		const formula = `LINEFORMAT("${format.getLineColor().getValue()}",${format.getLineStyle().getValue()},${format.getLineWidth().getValue()})`;
-		return this.parseTextToTerm(formula);
+		const sep = JSG.getParserLocaleSettings().separators.parameter;
+
+		let formula = 'LINEFORMAT(';
+		formula += format.getLineColor().getValue() === JSG.theme.border ? '' : `"${format.getLineColor().getValue()}"`;
+		formula += format.getLineStyle().getValue() === 0 ? sep : `${sep}${format.getLineStyle().getValue()}`;
+		formula += format.getLineWidth().getValue() === -1 ? ')' : `${sep}${format.getLineWidth().getValue()})`;
+
+		return formula;
 	}
 
-	getFillFormula(graph, item) {
+	getLineTerm(item) {
+		const formula = this.getLineFormula(item);
+		return formula ? this.parseTextToTerm(formula) : new NullTerm();
+	}
+
+	getFillFormula(item) {
 		const format = item.getFormat();
 
 		switch (format.getFillStyle().getValue()) {
-			case FormatAttributes.LineStyle.SOLID: {
+			case FormatAttributes.FillStyle.SOLID: {
 				const color = format.getFillColor().getValue();
 				if (color.toUpperCase() !== JSG.theme.fill) {
-					return Term.fromString(color);
+					return `"${color}"`;
 				}
-				return new NullTerm();
+				return undefined;
 			}
 			case FormatAttributes.FillStyle.NONE:
-				return Term.fromString('None');
+				return `"None"`;
+			case FormatAttributes.FillStyle.PATTERN:
+				return `FILLPATTERN("${format.getPattern().getValue()}")`;
+			case FormatAttributes.FillStyle.GRADIENT: {
+				const color = format.getFillColor().getValue();
+				const grColor = format.getGradientColor().getValue();
+				const sep = JSG.getParserLocaleSettings().separators.parameter;
+				switch (format.getGradientType().getValue()) {
+					case 0:
+						return `FILLLINEARGRADIENT("${color}"${sep}"${grColor}"${sep}${format.getGradientAngle().getValue()})`;
+					case 1:
+						return `FILLRADIALGRADIENT("${color}"${sep}"${grColor}"${sep}${format.getGradientOffsetX().getValue()}${sep}${format.getGradientOffsetY().getValue()})`;
+					default:
+				}
+				return undefined;
+			}
 			default:
-				return new NullTerm();
+				return undefined;
 		}
 	}
 
-	getFontFormula(graph, item) {
+	getFillTerm(item) {
+		const formula = this.getFillFormula(item);
+		return formula ? this.parseTextToTerm(formula) : new NullTerm();
+	}
+
+	getFontFormula(item) {
 		const tf = item.getTextFormat();
 
 		const fontName = tf.getFontName().getValue();
@@ -1173,11 +1210,19 @@ module.exports = class StreamSheet extends WorksheetNode {
 		const fontColor = tf.getFontColor().getValue();
 		const align = tf.getHorizontalAlignment().getValue();
 
-		if (fontName === 'Verdana' && fontSize === 9 && fontStyle === 0 && fontColor === JSG.theme.text && align === 1) {
+		if (fontName === 'Verdana' && fontSize === 8 && fontStyle === 0 && fontColor === JSG.theme.text && align === 1) {
 			return new NullTerm();
 		}
 
-		const formula = `FONTFORMAT("${fontName}",${fontSize},${fontStyle},${fontColor},${align})`;
+		const sep = JSG.getParserLocaleSettings().separators.parameter;
+
+		let formula = 'FONTFORMAT(';
+		formula += tf.getFontName().getValue() === 'Verdana' ? '' : `"${tf.getFontName().getValue()}"`;
+		formula += tf.getFontSize().getValue() === 8 ? sep : `${sep}${tf.getFontSize().getValue()}`;
+		formula += tf.getFontStyle().getValue() === 0 ? sep : `${sep}${tf.getFontStyle().getValue()}`;
+		formula += tf.getFontColor().getValue() === JSG.theme.text ? sep : `${sep}"${tf.getFontColor().getValue()}"`;
+		formula += tf.getHorizontalAlignment().getValue() === 1 ? sep : `${sep}${tf.getHorizontalAlignment().getValue()}`;
+
 		return this.parseTextToTerm(formula);
 	}
 
@@ -1328,12 +1373,12 @@ module.exports = class StreamSheet extends WorksheetNode {
 					}
 				}
 			});
-			const graph = item.getGraph();
-			formula = this.getLineFormula(graph, item);
+			formula = this.getLineTerm(item);
 			let force = termFunc.params.length > 7 && (termFunc.params[7] instanceof FuncTerm) && termFunc.params[7].name === 'LINEFORMAT';
 			this.setGraphFunctionParam(termFunc, 7, formula, (formula instanceof FuncTerm) || force);
-			formula = this.getFillFormula(graph, item);
-			this.setGraphFunctionParam(termFunc, 8, formula);
+			formula = this.getFillTerm(item);
+			force = termFunc.params.length > 8 && (termFunc.params[8] instanceof FuncTerm) && termFunc.params[8].name.indexOf('FILL') !== -1;
+			this.setGraphFunctionParam(termFunc, 8, formula, (formula instanceof FuncTerm) || force);
 			this.setGraphFunctionParam(termFunc, 11, angle ? Term.fromNumber(angle) : new NullTerm());
 			switch (type) {
 				case 'knob':
@@ -1357,7 +1402,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 						13,
 						Term.fromString(Strings.encodeXML(item.getText().getValue()))
 					);
-					formula = this.getFontFormula(graph, item);
+					formula = this.getFontFormula(item);
 					force = termFunc.params.length > 14 && (termFunc.params[14] instanceof FuncTerm) && termFunc.params[14].name === 'FONTFORMAT';
 					this.setGraphFunctionParam(termFunc, 14, formula, (formula instanceof FuncTerm) || force);
 					break;

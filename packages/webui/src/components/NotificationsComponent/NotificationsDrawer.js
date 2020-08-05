@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -10,7 +10,7 @@
  ********************************************************************************/
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { injectIntl } from 'react-intl';
+import {FormattedMessage, injectIntl} from 'react-intl';
 import * as Colors from '@material-ui/core/colors';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -54,26 +54,31 @@ class NotificationsDrawer extends React.Component {
 						width: '100%',
 						height: '48px',
 						backgroundColor: 'grey',
+						display: 'flex',
+						justifyContent: 'space-between',
 					}}
 				>
 					<Typography
 						variant="h6"
 						style={{
 							color: 'white',
-							padding: '15px',
+							padding: '10px 15px',
 						}}
 					>
-						Notifications
-						{ notifications.length < 1 ? null : (
-							<IconButton
-								aria-label="Clean"
-								onClick={this.handleClear}
-								style={{ float: 'right' }}
-							>
-								<ClearIcon />
-							</IconButton>
-						) }
+						<FormattedMessage id="Notification.list.subheader" defaultMessage="Notifications" />
 					</Typography>
+					{ notifications.length < 1 ? null : (
+						<IconButton
+							aria-label="Clean"
+							onClick={this.handleClear}
+							style={{
+								float: 'right',
+								color: 'white',
+							}}
+						>
+							<ClearIcon />
+						</IconButton>
+					) }
 				</div>
 				<div>
 					<List>
@@ -82,16 +87,18 @@ class NotificationsDrawer extends React.Component {
 								<ListItemText
 									primary={notification.title || 'System'}
 									secondary={
-										<p style={{ maxWidth: '250px' }}>
-											<span style={{ color: Colors.grey[900] }}>
-												{DateTimeHelper.formatTimestamp(notification.timestamp)}
-											</span> --
-											{notification.message}
-										</p>
+										<React.Fragment>
+											<div style={{ maxWidth: '250px' }}>
+												<span style={{ color: Colors.grey[900], maxWidth: '250px'  }}>
+													{DateTimeHelper.formatTimestamp(notification.timestamp)}
+												</span> --
+												{notification.message}
+											</div>
+										</React.Fragment>
 									}
 								/>
 							</ListItem>,
-							<Divider inset />,
+							<Divider variant="inset" />,
 						]) }
 
 					</List>

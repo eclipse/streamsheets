@@ -311,6 +311,15 @@ class DashBoardComponent extends Component {
 
 	getRows() {
 		const rows = [];
+		const filter = (connector, consumers, producers) => {
+			if (this.props.filter.length === 0) {
+				return 1;
+			}
+			let result = connector.name.toLowerCase().includes(this.props.filter.toLowerCase()) ? 1 : 0;
+			result = consumers.some((consumer) => consumer.name.toLowerCase().includes(this.props.filter.toLowerCase())) ? 2 : result;
+			result = producers.some((producer) => producer.name.toLowerCase().includes(this.props.filter.toLowerCase())) ? 2 : result;
+			return result;
+		};
 
 		if (this.props.streams && this.props.streams.connectors && this.props.streams.connectors.length) {
 			this.props.streams.connectors.forEach((connector) => {
@@ -318,7 +327,8 @@ class DashBoardComponent extends Component {
 				const consumers = StreamHelper.getConsumersUsingConnector(connector.id, this.props.streams.consumers);
 				const producers = StreamHelper.getProducersUsingConnector(connector.id, this.props.streams.producers);
 				const index = this.state.filter.indexOf(provider.name);
-				if (index === -1 && connector.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
+				const result = filter(connector, consumers, producers)
+				if (index === -1 && result) {
 					const row = {
 						id: connector.id,
 						name: connector.name,
@@ -330,33 +340,38 @@ class DashBoardComponent extends Component {
 						lastModified: formatDateString(new Date(connector.lastModified).toISOString()),
 						resource: connector,
 						consumers: [],
-						producers: []
+						producers: [],
+						open: result === 2,
 					};
 					consumers.forEach((consumer) => {
-						row.consumers.push({
-							id: consumer.id,
-							name: consumer.name,
-							provider: row.provider,
-							topic: consumer.topics ? consumer.topics.toString() : '',
-							url: consumer.url ? consumer.url : '',
-							lastModifiedDate: new Date(consumer.lastModified).toISOString(),
-							lastModified: formatDateString(new Date(consumer.lastModified).toISOString()),
-							resource: consumer,
-							state: StreamHelper.getStreamState(consumer)
-						});
+						if (consumer.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
+							row.consumers.push({
+								id: consumer.id,
+								name: consumer.name,
+								provider: row.provider,
+								topic: consumer.topics ? consumer.topics.toString() : '',
+								url: consumer.url ? consumer.url : '',
+								lastModifiedDate: new Date(consumer.lastModified).toISOString(),
+								lastModified: formatDateString(new Date(consumer.lastModified).toISOString()),
+								resource: consumer,
+								state: StreamHelper.getStreamState(consumer)
+							});
+						}
 					});
 					producers.forEach((producer) => {
-						row.producers.push({
-							id: producer.id,
-							name: producer.name,
-							provider: row.provider,
-							topic: producer.pubTopic ? producer.pubTopic : '',
-							url: producer.url ? producer.url : '',
-							lastModifiedDate: new Date(producer.lastModified).toISOString(),
-							lastModified: formatDateString(new Date(producer.lastModified).toISOString()),
-							resource: producer,
-							state: StreamHelper.getStreamState(producer)
-						});
+						if (producer.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
+							row.producers.push({
+								id: producer.id,
+								name: producer.name,
+								provider: row.provider,
+								topic: producer.pubTopic ? producer.pubTopic : '',
+								url: producer.url ? producer.url : '',
+								lastModifiedDate: new Date(producer.lastModified).toISOString(),
+								lastModified: formatDateString(new Date(producer.lastModified).toISOString()),
+								resource: producer,
+								state: StreamHelper.getStreamState(producer)
+							});
+						}
 					});
 					rows.push(row);
 				}

@@ -2201,33 +2201,13 @@ class Graphics {
 
 		const cr = this._cs.metricToLogX(this._lineCorner);
 		if (cr) {
-			if (this._fillStyle === FormatAttributes.FillStyle.PATTERN) {
-				const bpoints = [];
-				const cpTo = [];
-				const cpFrom = [];
+			const bpoints = [];
+			const cpTo = [];
+			const cpFrom = [];
 
-				this.getRoundedPolygonBezier(cpTo, cpFrom, bpoints, points, true, cr);
-				this.fillBezier(cpTo, bpoints, cpFrom);
-				JSG.ptCache.releaseBulk();
-			} else {
-				const pts = this.getRoundedPoints(points, this._lineCorner * 2);
-				let pt;
-				const len = pts.length;
-				for (let i = 0; i < len; i += 1) {
-					pt = pts[i];
-					if (i === 0) {
-						this.beginPath();
-						this.moveTo(pt[0].x, pt[0].y);
-					} else {
-						this.lineTo(pt[0].x, pt[0].y);
-					}
-					if (this._lineCorner > 0) {
-						this.quadraticCurveTo(pt[1].x, pt[1].y, pt[2].x, pt[2].y);
-					}
-				}
-				this.closePath();
-				this._context2D.fill();
-			}
+			this.getRoundedPolygonBezier(cpTo, cpFrom, bpoints, points, true, cr);
+			this.fillBezier(cpTo, bpoints, cpFrom);
+			JSG.ptCache.releaseBulk();
 		} else {
 			let i;
 			let n;

@@ -202,7 +202,7 @@ module.exports = {
 		},
 		FILLPATTERN: {
 			en: { argumentList: 'DataURI', description: 'Creates a pattern fill definition' },
-			de: { argumentList: 'DataURI,Stil', description: 'Erzeugt eine Musterfülldefinition' }
+			de: { argumentList: 'DataURI', description: 'Erzeugt eine Musterfülldefinition' }
 		},
 		FILLRADIALGRADIENT: {
 			en: {

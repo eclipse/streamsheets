@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -334,9 +334,15 @@ class EditTextInteraction extends AbstractInteraction {
 		div.style.lineHeight = textFormat.getLineHeight().getValue();
 		const color = textFormat.getFontColor().getValue();
 		// if font is white it will be invisible, use black font in this case
-		if (color !== '#FFFFFF') {
+		if (color === '#FFFFFF' && JSG.theme.fill === '#FFFFFF') {
+			div.style.color = '#000000';
+		} else 	if (color === '#000000' && JSG.theme.fill === '#000000') {
+			div.style.color = '#FFFFFF';
+		} else {
 			div.style.color = color;
 		}
+
+
 		div.style.textAlign = this._item.getTextAlign();
 
 		// padding around text

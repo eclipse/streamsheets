@@ -232,6 +232,8 @@ export class SettingsMenu extends React.Component {
 					onClose={() => this.props.setAppState({ anchorEl: null, openMoreSettingMenu: false })}
 				>
 					<Card
+						square
+						elevation={0}
 						style={{
 							marginTop: '-8px',
 							outline: 'none',
