@@ -15,7 +15,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import ExportIcon from '@material-ui/icons/CloudUpload';
 import { saveAs } from 'file-saver';
 import PropTypes from 'prop-types';
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { notifyExportFailed } from '../../actions/actions';
@@ -135,7 +135,7 @@ const streamWithConnector = (streams, streamId) => {
 // const identity = (x) => x;
 
 const ExportComponent = (props) => {
-	const { scope } = props;
+	const { scope, filter } = props;
 	const { data /* errors, loading */ } = useGraphQL(TABLE_QUERY, { scope }, [scope.id]);
 	const streams = data ? data.scoped.streams : [];
 	const connectors = data ? data.scoped.connectors : [];
@@ -144,37 +144,6 @@ const ExportComponent = (props) => {
 	const [selectedMachines, setSelectedMachines] = useState(props.initialMachineSelection);
 	const [selectedStreams, setSelectedStreams] = useState({});
 	const [showDialog, setShowDialog] = useState(false);
-	const [filter, setFilter] = useState('');
-	// const [filter, setFilter] = useState({ func: identity });
-
-	const onChangeSearch = (event) => {
-		setFilter(event.target.value);
-		// if (filterFunction) {
-		// 	setFilter({ func: filterFunction });
-		// }
-		console.log(event.target.value);
-	}
-
-	useEffect(
-		() => {
-			const filterElem = document.getElementById('resFilterField');
-			if (filterElem) {
-				filterElem.addEventListener('input', (event) => onChangeSearch(event));
-			}
-			console.log("effect");
-		},
-		[selectedMachines]
-	);
-
-	useEffect(() => {
-		return () => {
-			const filterElem = document.getElementById('resFilterField');
-			if (filterElem) {
-				filterElem.removeEventListener('input', onChangeSearch);
-			}
-			console.log("cleaned up");
-		};
-	}, []);
 
 	const sortedStreams = useMemo(() => sort([...streams, ...connectors]), [streams, connectors]);
 	const sortedMachines = useMemo(() => sort(machines), [machines]);
@@ -301,10 +270,7 @@ const ExportComponent = (props) => {
 				</div>
 			</NotAllowed>
 			<ImportDropzone>
-				<Wall
-					overflow
-					id="combinedResourceList"
-				>
+				<Wall>
 				<div
 					style={{
 						display: 'flex',

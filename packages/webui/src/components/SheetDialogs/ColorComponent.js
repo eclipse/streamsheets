@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -13,14 +13,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Popover from '@material-ui/core/Popover';
 import { SketchPicker } from 'react-color';
-// import { intl } from '../../helper/IntlGlobalProvider';
+import {withStyles} from "@material-ui/core/styles";
 
 /* eslint-disable react/forbid-prop-types */
-export default class ColorComponent extends React.Component {
+class ColorComponent extends React.Component {
 	static propTypes = {
 		color: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
 		label: PropTypes.object,
 		width: PropTypes.number,
+		labelFontSize: PropTypes.string,
 		transparent: PropTypes.bool,
 		disableAlpha: PropTypes.bool,
 		onChange: PropTypes.func.isRequired,
@@ -28,6 +29,7 @@ export default class ColorComponent extends React.Component {
 
 	static defaultProps = {
 		width: 100,
+		labelFontSize: '0.75rem',
 		label: undefined,
 		transparent: false,
 		disableAlpha: true,
@@ -104,8 +106,7 @@ export default class ColorComponent extends React.Component {
 				{this.state.label ? (
 				<div
 					style={{
-						color: 'rgba(0, 0, 0, 0.54)',
-						fontSize: '1rem',
+						fontSize: this.props.labelFontSize,
 						transform: 'scale(0.75)',
 						transformOrigin: 'left top',
 					}}
@@ -117,7 +118,7 @@ export default class ColorComponent extends React.Component {
 						display: 'inline-block',
 						width: `${this.props.width}px`,
 						height: '21px',
-						border: 'solid 1px rgba(0, 0, 0, 0.3)',
+						border: `1px solid ${this.props.theme.palette.text.primary}`,
 						padding: '3px',
 						// margin: '4px',
 					}}
@@ -152,3 +153,4 @@ export default class ColorComponent extends React.Component {
 	}
 }
 
+export default withStyles({}, {withTheme: true})(ColorComponent);

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -155,7 +155,6 @@ class Database extends Component {
 											marginTop: '10px',
 											width: '200px',
 											marginBottom: '10px',
-											backgroundColor: 'rgb(255, 255, 255)'
 										}}
 									>
 										<Button variant="outlined" onClick={this.props.backup}>
@@ -167,7 +166,6 @@ class Database extends Component {
 											marginTop: '10px',
 											width: '200px',
 											marginBottom: '10px',
-											backgroundColor: 'rgb(255, 255, 255)'
 										}}
 									>
 										<Button variant="outlined" onClick={() => this.dropzoneRef.current.open()}>

@@ -75,6 +75,13 @@ export interface GetProvidersRequest extends BaseStreamWSRequest {
 	type: 'stream_get_providers';
 }
 
+export interface ValidateStreamRequest extends BaseStreamWSRequest {
+	type: 'stream_config_validate';
+	provider: string;
+	streamType: string;
+	configuration: any;
+}
+
 export interface StreamCommandResponse extends BaseStreamWSResponse {
 	requestType: 'stream_command';
 	response: {

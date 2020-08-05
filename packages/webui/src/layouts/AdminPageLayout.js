@@ -35,8 +35,6 @@ import MachineHelper from '../helper/MachineHelper';
 import theme from '../theme';
 import { AdminNavigation } from './AdminNavigation';
 import HelpButton from './HelpButton';
-import GridViewButton from './GridViewButton';
-import FilterName from '../components/base/listing/FilterName';
 import Wall from '../components/HelperComponent/Wall';
 
 
@@ -50,8 +48,6 @@ export const AdminPageLayoutComponent = (props) => {
 		userLoaded,
 		workspaceSelect,
 		requireStreams,
-		gridButton,
-		onUpdateLayout,
 	} = props;
 
 	useEffect(() => {
@@ -91,7 +87,7 @@ export const AdminPageLayoutComponent = (props) => {
 					<StartImportDialog />
 					<NewMachineDialog />
 					<OpenDialog />
-					<MainDrawer />
+					<MainDrawer isAdminPage />
 					<AlertDialog />
 					<DecisionDialog />
 					<RequestStatusDialog />
@@ -116,7 +112,7 @@ export const AdminPageLayoutComponent = (props) => {
 							}}
 						>
 							{/* <Snackbar
-								anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+								anchorOrigin={{ vertical: 'top', horizontal: 'center' } }
 								key="daysLeft"
 								open={daysLeft < 20}
 								ContentProps={{
@@ -142,20 +138,15 @@ export const AdminPageLayoutComponent = (props) => {
 									{`${props.disconnectedServices}`}
 								</div>
 							) : null}
-							{gridButton ? (<FilterName />) : null}
 							<Toolbar
 								style={{
 									paddingRight: '5px',
 									minHeight: '58px'
 								}}
 							>
-								{gridButton ? (
-								<GridViewButton
-									onUpdateLayout={onUpdateLayout}
-								/>) : null}
 								<NotificationsComponent />
 								<HelpButton />
-								<SettingsMenu />
+								<SettingsMenu isAdminPage />
 							</Toolbar>
 						</div>
 					</AppBar>
@@ -167,7 +158,7 @@ export const AdminPageLayoutComponent = (props) => {
 					style={{ height: 'calc(100% - 58px)', flexWrap: 'nowrap' }}
 				>
 					<Grid item style={{ width: '200px', borderRight: '1px solid grey' }}>
-						<Wall overflow>
+						<Wall>
 							<AdminNavigation selection={page} />
 						</Wall>
 					</Grid>
@@ -192,13 +183,11 @@ AdminPageLayoutComponent.propTypes = {
 	getMe: PropTypes.func.isRequired,
 	requireStreams: PropTypes.bool,
 	workspaceSelect: PropTypes.bool,
-	gridButton: PropTypes.bool
 };
 
 AdminPageLayoutComponent.defaultProps = {
 	requireStreams: false,
 	workspaceSelect: false,
-	gridButton: false,
 };
 
 function mapStateToProps(state) {

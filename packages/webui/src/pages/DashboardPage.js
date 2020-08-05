@@ -10,7 +10,6 @@
  ********************************************************************************/
 /* eslint-disable react/prop-types,react/no-unused-state */
 import AppBar from '@material-ui/core/AppBar';
-// import * as Colors from '@material-ui/core/colors';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import Toolbar from '@material-ui/core/Toolbar';
 import React, {useEffect, useState} from 'react';
@@ -40,9 +39,7 @@ import MachineHelper from '../helper/MachineHelper';
 import HelpButton from '../layouts/HelpButton';
 import theme from '../theme';
 import FilterName from '../components/base/listing/FilterName';
-import GridViewButton from '../layouts/GridViewButton';
 
-const PREF_KEY_LAYOUT = 'streamsheets-prefs-listing-layout';
 const DASHBOARD_QUERY = `
 query Machines($scope: ScopeInput!) {
 	scoped(scope: $scope) {
@@ -76,8 +73,7 @@ const useExperimental = (setAppState) => {
 export function DashboardPageComponent(props) {
 	const { user, isConnected } = props;
 	const scopeId = user ? user.scope.id : null;
-	const lay = localStorage.getItem(PREF_KEY_LAYOUT);
-	const [layout, setLayout] = useState(lay && lay.length ? lay : 'grid');
+	const [filter, setFilter] = useState('');
 
 	useExperimental(props.setAppState);
 
@@ -98,10 +94,6 @@ export function DashboardPageComponent(props) {
 			props.getMachines(DASHBOARD_QUERY, { scope: { id: scopeId } });
 		}
 	}, [scopeId]);
-
-	const updateLayout = (layoutText) => {
-		setLayout(layoutText);
-	};
 
 	document.title = intl.formatMessage({ id: 'TitleDashboard' }, {});
 
@@ -154,14 +146,14 @@ export function DashboardPageComponent(props) {
 							}}
 						>
 							<LicenseExpireNotification />
-							<InfoToolBar title={<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />} workspaceSelect />
+							<InfoToolBar title={<FormattedMessage id="MainTitle" defaultMessage="Streamsheets" />} workspaceSelect />
 							{!props.isMachineEngineConnected ? (
 								<div>
 									<FormattedMessage id="ServicesDisconnected" defaultMessage="Disconnected: " />
 									{`${props.disconnectedServices}`}
 								</div>
 							) : null}
-							<FilterName />
+							<FilterName filter={filter} onUpdateFilter={setFilter}/>
 							<Toolbar
 								style={{
 									paddingRight: '5px',
@@ -169,9 +161,6 @@ export function DashboardPageComponent(props) {
 								}}
 							>
 								<NotificationsComponent />
-								<GridViewButton
-									onUpdateLayout={updateLayout}
-								/>
 								<HelpButton />
 								<SettingsMenu />
 							</Toolbar>
@@ -186,7 +175,7 @@ export function DashboardPageComponent(props) {
 						overflow: 'hidden',
 					}}
 				>
-					<DashBoardComponent layout={layout}/>
+					<DashBoardComponent filter={filter} onUpdateFilter={setFilter}/>
 				</div>
 			</div>
 		</MuiThemeProvider>

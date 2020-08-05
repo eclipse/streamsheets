@@ -86,7 +86,6 @@ class StreamsManager {
 	}
 
 	async reloadStream(id) {
-		
 		if (id) {
 			id = id.trim();
 			const stream = this.findStream(id);
@@ -99,11 +98,7 @@ class StreamsManager {
 				return this.reloadStreamsByConnectorId(connector.id);
 			}
 			const config = await this.configsManager.loadConfigurationById(id);
-			if (
-				config &&
-				config.disabled !== true &&
-				ConfigurationsManager.configIsConsumerOrProducer(config)
-				) {
+			if (config && config.disabled !== true && ConfigurationsManager.configIsConsumerOrProducer(config)) {
 				logger.info(`Reload Stream ${id}`);
 				return this.loadStream(config);
 			}
@@ -173,6 +168,26 @@ class StreamsManager {
 			};
 		}
 		return stream[cmdId](value);
+	}
+
+	validateConfiguration(providerId, streamType, configuration) {
+		const provider = this.providers.get(providerId);
+		if (!provider) {
+			throw Error(`Invalid provider: ${providerId}`);
+		}
+
+		switch (streamType) {
+			case 'consumer':
+				return provider.validateConsumer(configuration);
+			case 'producer':
+				return provider.validateProducer(configuration);
+			case 'connector':
+				return provider.validateConnector(configuration);
+			default:
+				throw Error(
+					`Invalid streamType: '${streamType}'. Allowed values: 'consumer', 'producer', 'connector'`
+				);
+		}
 	}
 
 	async executeCommand(cmd) {

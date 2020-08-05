@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -10,34 +10,29 @@
  ********************************************************************************/
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import TextField from '@material-ui/core/TextField';
-import Fab from '@material-ui/core/Fab';
+import { Button, IconButton, FormHelperText, TextField, Typography } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
-import DeleteIcon from '@material-ui/icons/Delete';
-import FormHelperText from '@material-ui/core/FormHelperText';
+import DeleteIcon from '@material-ui/icons/Clear';
+import { FormattedMessage } from 'react-intl';
 
 const styles = {
-	fieldSet: {
-		margin: '20px 0px'
-	},
-	legend: {
-	},
 	fab: {
 		width: '25px',
 		height: '20px',
 		minHeight: '25px',
-		marginTop: '15px',
+		marginTop: '5px',
 		marginLeft: '10px',
 	},
 	textField: {
-		width: 'calc(100% - 40px)',
+		width: 'calc(60%)',
+		marginLeft: '10px',
 	},
 };
 export default class MultipleTextField extends Component {
 	static propTypes = {
 		values: PropTypes.arrayOf(PropTypes.string),
 		onChange: PropTypes.func,
-		label: PropTypes.element,
+		label: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
 		name: PropTypes.string,
 		disabled: PropTypes.bool,
 	};
@@ -59,6 +54,15 @@ export default class MultipleTextField extends Component {
 	}
 
 	onChangeData = idx => (event) => {
+		const newValues = this.state.values.map((value, sidx) => {
+			if (idx !== sidx) return value;
+			this.errors[idx] = null;
+			return event.target.value;
+		});
+		this.setState({ values: newValues });
+	};
+
+	onBlur = idx => (event) => {
 		const newValues = this.state.values.map((value, sidx) => {
 			if (idx !== sidx) return value;
 			this.errors[idx] = null;
@@ -116,45 +120,57 @@ export default class MultipleTextField extends Component {
 		const { label, name, disabled } = this.props;
 		const { values } = this.state;
 		return (
-			<fieldset style={styles.fieldSet}>
-				<legend style={styles.legend}>{label}</legend>
+			<div style={{
+				marginTop: '15px',
+			}}>
+				<Typography variant="subtitle1" style={{marginTop: '10px', marginBottom: '8px'}}>{label}</Typography>
 				{values.map((value, idx) => (
-					<div>
+					<div
+						key={`mtf-${Math.random()}`}
+						style={{
+							marginBottom: '5px',
+						}}
+					>
 						<TextField
 							disabled={disabled}
 							name={name}
 							error={!!this.errors[idx]}
-							value={value}
-							onChange={this.onChangeData(idx)}
+							defaultValue={value}
+							onBlur={this.onBlur(idx)}
+							// onChange={this.onChangeData(idx)}
 							style={styles.textField}
 						/>
-						<Fab
+						<IconButton
 							size="small"
 							onClick={this.handleRemoveItem(idx)}
 							aria-label="Add"
 							style={styles.fab}
 						>
 							<DeleteIcon/>
-						</Fab>
+						</IconButton>
 						{this.errors[idx]
 							?
 							<FormHelperText>{this.errors[idx]}</FormHelperText>
 							: null}
 					</div>
 				))}
-				<Fab
-					size="small"
+				<Button
 					onClick={this.handleAddItem}
-					aria-label="Remove"
+					size="small"
 					style={{
-						...styles.fab,
-						marginTop: '10px',
+						marginTop: '5px',
 					}}
-
 				>
-					<AddIcon/>
-				</Fab>
-			</fieldset>
+					<AddIcon
+						style={{
+							fontSize: '20px',
+							marginRight: '5px',
+							marginBottom: '4px',
+						}}
+					/>
+					<FormattedMessage id="Stream.AddTopic" defaultMessage="Add Topic"/>
+				</Button>
+			</div>
 		);
 	}
 }

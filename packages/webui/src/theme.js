@@ -118,6 +118,9 @@ const createDark = () => {
 	return createMuiTheme({
 			palette: {
 				type: 'dark',
+				primary: {
+					main: '#90caf9',
+				},
 				error: {
 					main: '#FF0022',
 				},
@@ -209,6 +212,7 @@ const createByName = () => {
 	case 'Dark':
 		theme = createDark();
 		JSG.theme = {
+			chart: 'dark',
 			theme: name,
 			graph: '#333333',
 			tool: theme.overrides.MuiAppBar.colorPrimary.backgroundColor,

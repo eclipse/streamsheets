@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -51,7 +51,6 @@ class TreeContextComponent extends Component {
 			type: '',
 			top: '0px',
 			left: '0px',
-			samplePayloads: [],
 			anchorEl: null,
 			sheetId: null,
 		};
@@ -96,8 +95,6 @@ class TreeContextComponent extends Component {
 		const maxTop = window.innerHeight - popHeight > 0 ? window.innerHeight - popHeight : 0;
 		const top = data.object.event.event.offsetY > maxTop ? maxTop : data.object.event.event.offsetY;
 
-		// prepare payloads
-		let samplePayloads = [];
 		let sheetId = null;
 		let stream = null;
 		let streamsheet = null;
@@ -117,18 +114,8 @@ class TreeContextComponent extends Component {
 							streamsheetId: streamsheet.id,
 						};
 					}
-					if (streamsheet) {
-						const inboxStream = streamsheet.inbox.stream;
-						if(inboxStream && inboxStream.id) {
-							stream = this.props.streams.consumers.find(s => s.id === inboxStream.id);
-							if(stream && stream.samplePayloads) {
-								({ samplePayloads } = stream);
-							}
-						}
-					}
 				}
 			}
-
 		}
 
 		this.setState({
@@ -139,7 +126,6 @@ class TreeContextComponent extends Component {
 			selectedPath: controller.getModel().getSelectedItemPath(),
 			left: `${left}px`,
 			top: `${top}px`,
-			samplePayloads,
 			sheetId,
 			streamsheetSettings,
 			stream
@@ -166,31 +152,6 @@ class TreeContextComponent extends Component {
 			controller.getView().deleteTreeItem(undefined, graphManager.getGraphEditor().getGraphViewer());
 			// TODO delete on server (at least for inbox)
 		}
-	};
-
-	handlePayloadsClick = (event) => {
-		this.setState({
-			anchorEl: event.currentTarget,
-		});
-	};
-
-	handlePayloadsClose = (payload) => {
-		const { sheetId, stream } = this.state;
-		const random = new Date().getUTCMilliseconds().toString();
-		try {
-			const message = {
-				id: `${payload.name}-${random}`,
-				Metadata: {
-					stream: stream.name,
-				},
-				Data: payload.data,
-			};
-			graphManager.addInboxMessage(sheetId, message);
-			graphManager.redraw();
-		} catch(e) {
-			console.warn(e);
-		}
-		this.setState({ anchorEl: null });
 	};
 
 	onSetLoop = () => {
@@ -268,24 +229,6 @@ class TreeContextComponent extends Component {
 						</ListItemIcon>
 						<ListItemText primary={<FormattedMessage id="DeleteAll" defaultMessage="Delete All" />} />
 					</MenuItem>
-					<Divider
-						style={{
-							display: [(this.state.type === 'ibml' || this.state.type === 'obml') ? 'flex' : 'none'],
-						}}
-					/>
-					<MenuItem
-						onClick={this.handlePayloadsClick}
-						disabled={this.state.samplePayloads.length<1}
-						dense
-						style={{
-							display: [(this.state.type === 'ibml' || this.state.type === 'obml') ? 'flex' : 'none'],
-						}}
-					>
-						<ListItemIcon>
-							<InsertCells style={styles.menuItem} />
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="InsertSample" defaultMessage="Insert Sample" />} />
-					</MenuItem>
 					<MenuItem
 						onClick={this.onSetLoop}
 						dense
@@ -316,35 +259,6 @@ class TreeContextComponent extends Component {
 						/>
 					</MenuItem>
 				</MenuList>
-				{ this.state.samplePayloads && Array.isArray(this.state.samplePayloads) && this.state.samplePayloads.length > 0 ? (
-						<Popover
-								open={Boolean(this.state.anchorEl)}
-								anchorEl={this.state.anchorEl}
-								onClose={this.handleClose}
-								anchorOrigin={{
-									vertical: 'bottom',
-									horizontal: 'center',
-								}}
-								transformOrigin={{
-									vertical: 'top',
-									horizontal: 'center',
-								}}
-						>
-							<MenuList
-									PaperProps={{
-										style: {
-											width: 200,
-										},
-									}}
-							>
-								{this.state.samplePayloads.map(p => (
-										<MenuItem key={p.name} onClick={(event) => this.handlePayloadsClose(p, event)}>
-											{p.name}
-										</MenuItem>
-								))}
-							</MenuList>
-						</Popover>): null
-				}
 			</Paper>
 		);
 	}

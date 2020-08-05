@@ -27,6 +27,9 @@ import TableSortHeader from './TableSortHeader';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconSearch from '@material-ui/icons/Search';
+import StreamWizard from '../../Dashboard/StreamWizard';
+import StreamSettings from '../../Dashboard/StreamSettings';
+import StreamHelper from '../../../helper/StreamHelper';
 
 const DEF_TITLE = <FormattedMessage id="Dashboard.Add" defaultMessage="Add" />;
 const PREF_KEY = 'streamsheets-prefs-addnewdialog';
@@ -105,7 +108,9 @@ class AddNewDialog extends React.Component {
 			name: '',
 			helperText: '',
 			sortQuery: getPersistetSortPreferences() || this.props.sortQuery,
-			filter: this.props.filter
+			filter: this.props.filter,
+			editStream: false,
+			showStreamWizard: false,
 		};
 	}
 
@@ -201,6 +206,23 @@ class AddNewDialog extends React.Component {
 		this.props.onClose();
 	};
 
+	handleAddConsumer = () => {
+		this.setState({
+			showStreamWizard: true,
+		})
+	};
+
+	handleEditConsumer = () => {
+		this.setState({
+			editStream: true,
+			row: this.state.selected,
+		})
+	};
+
+	onWizardClose = () => {
+		this.setState({ showStreamWizard: false, editStream: false });
+	};
+
 	handleSubmit = () => {
 		if (this.validateName(this.state.name)) {
 			if (!this.state.selected.id && this.props.baseRequired) {
@@ -213,12 +235,15 @@ class AddNewDialog extends React.Component {
 	};
 
 	getFormattedDateString(date) {
-		const dat = new Date(Date.parse(date));
-		return dat.toLocaleString()
+		const d = new Date(Date.parse(date));
+		return `${d.toLocaleDateString(undefined, {year: '2-digit', month: '2-digit', day: '2-digit'})} ${d.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'})}`;
 	}
 
 	render() {
 		const { title, listTitle, baseRequired, open, onClose } = this.props;
+		if (!open) {
+			return <div/>;
+		}
 		const { selected, name, error, filter } = this.state;
 		const sortObj = SortSelector.parseSortQuery(this.state.sortQuery);
 		return (
@@ -227,7 +252,8 @@ class AddNewDialog extends React.Component {
 				<DialogContent
 					style={{
 						height: '480px',
-						minWidth: '600px'
+						minWidth: '600px',
+						padding: '5px 24px',
 					}}
 				>
 					<div
@@ -290,7 +316,10 @@ class AddNewDialog extends React.Component {
 					>
 						<Table>
 							<TableSortHeader
-								showState={this.props.showState}
+								cells={[
+									{ id: 'name', numeric: false, disablePadding: true, label: 'Name', width: '72%' },
+									{ id: 'lastModified', numeric: false, disablePadding: false, label: 'LastModified', width: '28%' },
+								]}
 								orderBy={sortObj.sortBy}
 								order={sortObj.sortDir}
 								onRequestSort={this.handleTableSort}
@@ -309,9 +338,6 @@ class AddNewDialog extends React.Component {
 										<TableCell component="th" scope="row" padding="none">
 											<FormattedMessage id="DialogNew.noStream" defaultMessage="None" />
 										</TableCell>
-										{this.props.showState ? (
-											<TableCell/>
-										) : null}
 										<TableCell/>
 									</TableRow>
 								) : null}
@@ -327,11 +353,17 @@ class AddNewDialog extends React.Component {
 										key={`${resource.className}-${resource.id}`}
 									>
 										<TableCell component="th" scope="row" padding="none">
+											{this.props.showState ? (
+											<img
+												style={{ verticalAlign: 'bottom', paddingRight: '6px' }}
+												width={15}
+												height={15}
+												src={StreamHelper.getIconForState(resource.state)}
+												alt="state"
+											/>
+											) : null}
 											{resource.name}
 										</TableCell>
-										{this.props.showState ? (
-											<TableCell>{resource.state}</TableCell>
-										) : null}
 										<TableCell>{this.getFormattedDateString(resource.lastModified)}</TableCell>
 									</TableRow>
 								))}
@@ -339,14 +371,41 @@ class AddNewDialog extends React.Component {
 						</Table>
 					</div>
 				</DialogContent>
-				<DialogActions>
-					<Button onClick={this.handleClose}>
-						<FormattedMessage id="Cancel" defaultMessage="Cancel" />
-					</Button>
-					<Button onClick={this.handleSubmit}>
-						<FormattedMessage id="DialogNew.add" defaultMessage="Add" />
-					</Button>
+				<DialogActions style={{justifyContent: 'space-between', padding: '0px 7px 4px 11px'}}>
+					<div>
+						<Button onClick={this.handleAddConsumer}>
+							<FormattedMessage id="DialogNew.AddConsumer" defaultMessage="Add Consumer" />
+						</Button>
+						<Button onClick={this.handleEditConsumer} disabled={selected.id === ''}>
+							<FormattedMessage id="DialogNew.EditConsumer" defaultMessage="Edit Consumer" />
+						</Button>
+					</div>
+					<div>
+						<Button onClick={this.handleClose}>
+							<FormattedMessage id="Cancel" defaultMessage="Cancel" />
+						</Button>
+						<Button onClick={this.handleSubmit}>
+							<FormattedMessage id="DialogNew.add" defaultMessage="Add" />
+						</Button>
+					</div>
 				</DialogActions>
+				{this.state.showStreamWizard ? (
+				<StreamWizard
+					onClose={this.onWizardClose}
+					initialStep="connector"
+					connector={undefined}
+					type="consumer"
+					open={this.state.showStreamWizard}
+					streams={this.props.streams}
+				/>) : null}
+				{this.state.editStream ? (
+				<StreamSettings
+					onClose={this.onWizardClose}
+					stream={this.state.selected}
+					type="consumer"
+					open={this.state.editStream}
+					streams={this.props.streams}
+				/>) : null}
 			</Dialog>
 		);
 	}

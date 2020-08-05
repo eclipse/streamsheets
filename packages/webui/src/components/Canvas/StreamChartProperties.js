@@ -1518,7 +1518,6 @@ export class StreamChartProperties extends Component {
 												>
 													<SvgIcon>
 														<path
-															fill="#757575"
 															d="M15,20H9V12H4.16L12,4.16L19.84,12H15V20Z"
 														/>
 													</SvgIcon>
@@ -1533,7 +1532,6 @@ export class StreamChartProperties extends Component {
 												>
 													<SvgIcon>
 														<path
-															fill="#757575"
 															d="M9,4H15V12H19.84L12,19.84L4.16,12H9V4Z"
 														/>
 													</SvgIcon>
@@ -2049,6 +2047,7 @@ export class StreamChartProperties extends Component {
 										/>
 									}
 									width={110}
+									labelFontSize='1rem'
 									transparent
 									color={
 										data.marker.fillColor ||
@@ -2065,6 +2064,7 @@ export class StreamChartProperties extends Component {
 								}}
 							>
 								<ColorComponent
+									labelFontSize='1rem'
 									label={
 										<FormattedMessage
 											id="StreamChartProperties.LineColor"

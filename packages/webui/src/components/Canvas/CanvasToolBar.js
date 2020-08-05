@@ -99,10 +99,6 @@ const buttonStyle = {
 	padding: '4px 0px 0px 0px'
 };
 
-const optionStyle = {
-	padding: '4px'
-};
-
 const borderStyle = { borderRadius: '0%', padding: '0px 5px', width: '100px', height: '20px' };
 
 const styles = {
@@ -1732,6 +1728,17 @@ export class CanvasToolBar extends Component {
 		return selection && selection.length && selection[0].getModel() instanceof SheetPlotNode;
 	}
 
+	isChartElementSelected() {
+		const selection = graphManager.getGraphViewer().getSelection();
+		if (selection && selection.length) {
+			const cont = selection[0];
+			if (cont.getModel() instanceof SheetPlotNode) {
+				return cont.getView().chartSelection !== undefined;
+			}
+		}
+		return false;
+	}
+
 	fillColorToRGBAObject(format) {
 		let color = format && format.getFillColor() ? format.getFillColor().getValue() : '#FFFFFF';
 		if (color.length && color[0] !== '#') {
@@ -1887,7 +1894,7 @@ export class CanvasToolBar extends Component {
 		];
 
 		colors.push({ title: 'None', color: 'transparent' });
-		if (this.isChartSelected()) {
+		if (this.isChartElementSelected()) {
 			colors.push({ title: 'Automatic', color: '#FFFFFE' });
 		}
 
@@ -2135,74 +2142,60 @@ export class CanvasToolBar extends Component {
 						margin: '0px 8px 0px 0px'
 					}}
 				/>
-				<Tooltip
-					enterDelay={300}
-					title={<FormattedMessage id="Tooltip.FormatFont" defaultMessage="Font Name" />}
+				<Select
+					style={{
+						width: '120px',
+						fontSize: '0.85rem'
+					}}
+					id="font-name"
+					value={tf && tf.getFontName() ? tf.getFontName().getValue() : ''}
+					onChange={(event) => this.onFormatFontName(event)}
+					input={<Input name="font-name" id="font-name" />}
+					className={classes.select}
+					inputProps={{
+						style: { paddingLeft: '5px', paddingTop: '6px' }
+					}}
 				>
-					<Select
-						style={{
-							width: '120px',
-							fontSize: '0.85rem'
-						}}
-						id="font-name"
-						value={tf && tf.getFontName() ? tf.getFontName().getValue() : ''}
-						native
-						onChange={(event) => this.onFormatFontName(event)}
-						input={<Input name="font-name" id="font-name" />}
-						className={classes.select}
-						inputProps={{
-							style: { paddingLeft: '5px', paddingTop: '6px' }
-						}}
-					>
-						<option style={optionStyle} hidden value="" />
-						<option style={optionStyle} value="Arial">
-							Arial
-						</option>
-						<option value="Courier New">Courier New</option>
-						<option value="Georgia">Georgia</option>
-						<option value="Lucida Console">Lucida Console</option>
-						<option value="Lucida Sans">Lucida Sans</option>
-						{/* <option value="MetaPlusLF">MetaPlusLF</option> */}
-						<option value="Palatino">Palatino</option>
-						<option value="Tahoma">Tahoma</option>
-						<option value="Trebuchet MS">Trebuchet MS</option>
-						<option value="Verdana">Verdana</option>
-					</Select>
-				</Tooltip>
-				<Tooltip
-					enterDelay={300}
-					title={<FormattedMessage id="Tooltip.FormatSize" defaultMessage="Font Size" />}
+					{/*<option style={optionStyle} hidden value="" />*/}
+					<MenuItem dense value="Arial" key="s1">Arial</MenuItem>
+					<MenuItem dense value="Courier New" key="s2">Courier New</MenuItem>
+					<MenuItem dense value="Georgia" key="s3">Georgia</MenuItem>
+					<MenuItem dense value="Lucida Console" key="s4">Lucida Console</MenuItem>
+					<MenuItem dense value="Lucida Sans" key="s5">Lucida Sans</MenuItem>
+					<MenuItem dense value="Palatino" key="s6">Palatino</MenuItem>
+					<MenuItem dense value="Tahoma" key="s7">Tahoma</MenuItem>
+					<MenuItem dense value="Trebuchet MS" key="s8">Trebuchet MS</MenuItem>
+					<MenuItem dense value="Tahoma" key="s9">Tahoma</MenuItem>
+					<MenuItem dense value="Verdana" key="s10">Verdana</MenuItem>
+					{/* <option value="MetaPlusLF">MetaPlusLF</option> */}
+				</Select>
+				<Select
+					style={{
+						width: '50px',
+						marginLeft: '10px',
+						fontSize: '0.85rem'
+					}}
+					id="font-size"
+					value={tf && tf.getFontSize() ? tf.getFontSize().getValue() : ''}
+					onChange={(event) => this.onFormatFontSize(event)}
+					input={<Input name="font-size" id="font-size" />}
+					className={classes.select}
+					inputProps={{
+						style: { paddingLeft: '5px', paddingTop: '6px' }
+					}}
 				>
-					<Select
-						style={{
-							width: '50px',
-							marginLeft: '10px',
-							fontSize: '0.85rem'
-						}}
-						id="font-size"
-						value={tf && tf.getFontSize() ? tf.getFontSize().getValue() : ''}
-						onChange={(event) => this.onFormatFontSize(event)}
-						native
-						input={<Input name="font-size" id="font-size" />}
-						className={classes.select}
-						inputProps={{
-							style: { paddingLeft: '5px', paddingTop: '6px' }
-						}}
-					>
-						<option hidden value="" />
-						<option value="6">6</option>
-						<option value="7">7</option>
-						<option value="8">8</option>
-						<option value="9">9</option>
-						<option value="10">10</option>
-						<option value="11">11</option>
-						<option value="12">12</option>
-						<option value="14">14</option>
-						<option value="18">18</option>
-						<option value="24">24</option>
-						<option value="36">36</option>
-					</Select>
-				</Tooltip>
+					<MenuItem dense value="6" key="fs1">6</MenuItem>
+					<MenuItem dense value="7" key="fs2">7</MenuItem>
+					<MenuItem dense value="8" key="fs3">8</MenuItem>
+					<MenuItem dense value="9" key="fs4">9</MenuItem>
+					<MenuItem dense value="10" key="fs5">10</MenuItem>
+					<MenuItem dense value="11" key="fs6">11</MenuItem>
+					<MenuItem dense value="12" key="fs7">12</MenuItem>
+					<MenuItem dense value="14" key="fs8">14</MenuItem>
+					<MenuItem dense value="18" key="fs9">18</MenuItem>
+					<MenuItem dense value="24" key="fs10">24</MenuItem>
+					<MenuItem dense value="36" key="fs11">36</MenuItem>
+				</Select>
 				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.FormatBold" defaultMessage="Bold" />}>
 					<div>
 						<IconButton
@@ -2705,7 +2698,11 @@ export class CanvasToolBar extends Component {
 									style={borderStyle}
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.NONE)}
 								>
-									<img alt="" src="lib/res/images/linestylenone.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="50" y="14" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
+											{intl.formatMessage({ id: "None" }, {})}
+										</text>
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2718,7 +2715,9 @@ export class CanvasToolBar extends Component {
 									style={borderStyle}
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.SOLID)}
 								>
-									<img alt="" src="lib/res/images/linestylesolid.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<path d="M5,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2728,7 +2727,9 @@ export class CanvasToolBar extends Component {
 									style={borderStyle}
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DOT)}
 								>
-									<img alt="" src="lib/res/images/linestyledot.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<path d="M5,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2741,7 +2742,9 @@ export class CanvasToolBar extends Component {
 									style={borderStyle}
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASH)}
 								>
-									<img alt="" src="lib/res/images/linestyledash.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<path d="M5,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2754,7 +2757,9 @@ export class CanvasToolBar extends Component {
 									style={borderStyle}
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOT)}
 								>
-									<img alt="" src="lib/res/images/linestyledashdot.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<path d="M5,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2767,7 +2772,9 @@ export class CanvasToolBar extends Component {
 									style={borderStyle}
 									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOTDOT)}
 								>
-									<img alt="" src="lib/res/images/linestyledashdotdot.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<path d="M5,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2794,7 +2801,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.Hairline" defaultMessage="Hairline (1px)" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(-1)}>
-									<img alt="" src="lib/res/images/lineswidth1.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1 px</text>
+										<path stroke="currentColor" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2804,7 +2814,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.MM025" defaultMessage="0.25 mm" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(25)}>
-									<img alt="" src="lib/res/images/lineswidth025.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1/4 mm</text>
+										<path stroke="currentColor" strokeWidth="0.25mm" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2814,7 +2827,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.MM05" defaultMessage="0.5 mm" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(50)}>
-									<img alt="" src="lib/res/images/lineswidth05.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1/2 mm</text>
+										<path stroke="currentColor" strokeWidth="0.5mm" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2824,7 +2840,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.MM075" defaultMessage="0.75 mm" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(75)}>
-									<img alt="" src="lib/res/images/lineswidth075.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">3/4 mm</text>
+										<path stroke="currentColor" strokeWidth="0.75mm" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2834,7 +2853,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.MM100" defaultMessage="1 mm" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(100)}>
-									<img alt="" src="lib/res/images/lineswidth100.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1 mm</text>
+										<path stroke="currentColor" strokeWidth="1mm" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2844,7 +2866,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.MM200" defaultMessage="2 mm" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(200)}>
-									<img alt="" src="lib/res/images/lineswidth200.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">2 mm</text>
+										<path stroke="currentColor" strokeWidth="2mm" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2854,7 +2879,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.MM300" defaultMessage="3 mm" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(300)}>
-									<img alt="" src="lib/res/images/lineswidth300.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">2 mm</text>
+										<path stroke="currentColor" strokeWidth="2mm" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>
@@ -2864,7 +2892,10 @@ export class CanvasToolBar extends Component {
 								title={<FormattedMessage id="Border.MM400" defaultMessage="4 mm" />}
 							>
 								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(400)}>
-									<img alt="" src="lib/res/images/lineswidth400.png" />
+									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">4 mm</text>
+										<path stroke="currentColor" strokeWidth="4mm" d="M42,14 L95,14" />
+									</svg>
 								</IconButton>
 							</Tooltip>
 						</GridListTile>

@@ -11,6 +11,7 @@
 import { FunctionObject, PartialApply1All } from '../common';
 import { ID, RequestContext, Scope } from '../streamsheets';
 import { Stream, StreamCommandRequest } from './types';
+import { StreamValidationResult } from './StreamRepositoryProxy';
 
 export interface StreamApi extends FunctionObject {
 	findById(context: RequestContext, scope: Scope, id: ID): Promise<Stream | null>;
@@ -21,6 +22,7 @@ export interface StreamApi extends FunctionObject {
 	deleteStream(context: RequestContext, scope: Scope, id: ID): Promise<any>;
 	reloadStreams(context: RequestContext, scope: Scope, streams: ID[]): Promise<any>;
 	handleStreamEvent(context: RequestContext, event: any): Promise<any | null>;
+	validateStream(context: RequestContext, provider: string, type: string, config: object): Promise<StreamValidationResult>;
 }
 export type StreamApiApplied = PartialApply1All<StreamApi>;
 
@@ -112,6 +114,10 @@ export const StreamApi: StreamApi = {
 		if (streams.length > 0) {
 			await streamRepo.reloadStreams(allowedToReload);
 		}
+	},
+	validateStream: async ({ streamRepo }, provider: string, type: string, config: object) => {
+		const result = await streamRepo.validateStream(provider, type, config);
+		return result;
 	},
 	handleStreamEvent: async ({ actor, auth }: RequestContext, event: any): Promise<any | null> => event
 };

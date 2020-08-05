@@ -9,18 +9,16 @@
  *
  ********************************************************************************/
 import React from 'react';
-import PropTypes from 'prop-types';
 import { withTheme } from '@material-ui/core/styles';
 
-function WithTheme(props) {
+function Wall(props) {
 	const { theme } = props;
-	const { overflow } = props;
 
 	const styles = {
 		root: {
 			backgroundColor: theme.wall.backgroundColor,
-			overflowY: overflow ? 'overflowY' : 'inherit',
-			height: overflow ? '100%' : 'inherit',
+			overflowY: 'overflowY',
+			height: '100%',
 		},
 	};
 
@@ -32,14 +30,5 @@ function WithTheme(props) {
 	);
 }
 
-WithTheme.propTypes = {
-	theme: PropTypes.object.isRequired,
-	overflow: PropTypes.bool,
-};
-
-WithTheme.defaultProps = {
-	overflow: false,
-};
-
-export default withTheme()(WithTheme); // Let's get the theme as a property
+export default withTheme()(Wall); // Let's get the theme as a property
 

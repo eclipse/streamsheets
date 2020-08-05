@@ -266,7 +266,7 @@ export function MachineDetailPage(props) {
 									height: '58px'
 								}}
 							>
-								<InfoToolBar canEditMachine={canEditMachine} />
+								<InfoToolBar canEditMachine={canEditMachine} width="33%"/>
 								{!isConnected ? (
 									<div>
 										<FormattedMessage id="ServicesDisconnected" defaultMessage="Disconnected: " />

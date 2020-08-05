@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -11,10 +11,6 @@
 import React from 'react';
 import jp from 'jsonpath';
 import {
-	ProviderConfiguration,
-	ConsumerConfiguration,
-	ConnectorConfiguration,
-	ProducerConfiguration,
 	Field,
 } from '@cedalo/sdk-streams';
 import TextField from '@material-ui/core/TextField';
@@ -26,68 +22,55 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
-import NamedListInput from '../../base/listInput/NamedListInput';
-import styles from '../styles';
-import StreamHelper from '../../../helper/StreamHelper';
-import AdminConstants from '../../../constants/AdminConstants';
-import MultipleTextField from '../../base/multipleTextField/MultipleTextField';
-import { AdminField } from '../AdminField';
+import NamedListInput from '../base/listInput/NamedListInput';
+import styles from '../Admin/styles';
+import StreamHelper from '../../helper/StreamHelper';
+import AdminConstants from '../../constants/AdminConstants';
+import MultipleTextField from '../base/multipleTextField/MultipleTextField';
+import { AdminField } from '../Admin/AdminField';
 
-export default class FieldComponents {
-	constructor(props, model) {
-		this.id = null;
+export default class StreamFieldComponents {
+	constructor(props, fieldErrors) {
 		this.props = { ...props };
-		this.model = this.props.model;
 		this.locale = this.props.locale || 'en';
-		this.handler = this.handler.bind(this);
-		this.unFocus = this.unFocus.bind(this);
-		this.save = this.save.bind(this);
-		this.handleFileRead = this.handleFileRead.bind(this);
+
+		this.state = {
+			fieldErrors
+		};
+
 		this.onStreamCommand = this.onStreamCommand.bind(this);
-		this.savedConfiguration = {...model};
-		this.model = {...model};
-		this.errorsMap = new Map();
 	}
 
-	getComponents(model, disabled = false) {
-		this.id = model.id;
-		const provider = StreamHelper.getProviderForModel(model, this.props);
-		const providerConfiguration = new ProviderConfiguration(provider);
-		let configuration;
-		if (model.className === 'ConnectorConfiguration') {
-			configuration = new ConnectorConfiguration(model, providerConfiguration);
-		} else if (model.className === AdminConstants.CONFIG_CLASS.ConsumerConfiguration) {
-			configuration = new ConsumerConfiguration(
-				model,
-				new ConnectorConfiguration(model.connector), providerConfiguration,
-			);
-		} else if (model.className === 'ProducerConfiguration') {
-			configuration = new ProducerConfiguration(
-				model,
-				new ConnectorConfiguration(model.connector), providerConfiguration,
-			);
-		}
-		const { definition } = providerConfiguration;
+	getComponents(configuration, disabled = false) {
+		const { definition } = configuration.provider;
 		let fields = [];
-		if (configuration.className === AdminConstants.CONFIG_CLASS.ConsumerConfiguration) {
+		const errors = this.state.fieldErrors;
+
+		this.configuration = configuration;
+
+		switch (configuration.className) {
+		case AdminConstants.CONFIG_CLASS.ConsumerConfiguration:
 			fields = [...definition.consumer];
-			model.connector = StreamHelper.getConfiguration(this.props, model.connector.id);
-		} else if (configuration.className === 'ProducerConfiguration') {
+			break;
+		case AdminConstants.CONFIG_CLASS.ProducerConfiguration:
 			fields = [...definition.producer];
-			model.connector = StreamHelper.getConfiguration(this.props, model.connector.id);
-		} else if (configuration.className === 'ConnectorConfiguration') {
+			break;
+		case AdminConstants.CONFIG_CLASS.ConnectorConfiguration:
 			fields = [...definition.connector];
+			break;
+		default:
 		}
+
 		const components = {
 			main: [],
 			advanced: []
 		};
 		if (fields && Array.isArray(fields)) {
 			fields.forEach((field) => {
-				if (field.isShow(model)) {
+				if (field.isShow(configuration)) {
 					const value = configuration.fields[field.id];
 					field.value = value;
-					const component = this.getComponent(field, value, !!field.disabled || disabled);
+					const component = this.getComponent(field, value, !!field.disabled || disabled, errors ? errors[field.id] : undefined);
 					if (component) {
 						if(field.advanced === true) {
 							components.advanced.push(component);
@@ -98,13 +81,45 @@ export default class FieldComponents {
 				}
 			});
 		}
+
+		const mime = this.getSelect(
+			new Field({
+				id: 'mimeType',
+				label: {
+					en: 'Data Format',
+					de: 'Datei Format',
+				},
+				options: [
+					{
+						label: 'Auto',
+						value: 'auto',
+					},
+					{
+						label: 'JSON',
+						value: 'application/json',
+					},
+					{
+						label: 'XML',
+						value: 'application/xml',
+					},
+					{
+						label: 'STRING',
+						value: 'text/plain',
+					},
+				],
+				defaultValue: 'auto',
+			}),
+			configuration.mimeType || 'auto', false
+		);
+		components.advanced.push(mime);
+
 		return components;
 	}
 
-	getComponent(field, value, disabled) {
+	getComponent(field, value, disabled, error) {
 		switch (field.type || Field.TYPES.TEXT) {
 		case Field.TYPES.TEXT: {
-			return this.getTextField(field, field.value, disabled);
+			return this.getTextField(field, field.value, disabled, error);
 		}
 		case Field.TYPES.SELECT: {
 			return this.getSelect(field, field.value, disabled, undefined);
@@ -140,67 +155,37 @@ export default class FieldComponents {
 			return <AdminField field={field} locale={this.locale} onChange={this.onChange} value={value} disabled={disabled} />
 		}
 		default: {
-			return this.getTextField(field, field.value, disabled);
+			return this.getTextField(field, field.value, disabled, error);
 		}
 		}
 	}
 
-	async save(model, name) {
-		const { validate, save } = this.props;
-		const res = await validate(model, name, model[name]);
-		if(res.length>0) {
-			this.errorsMap.set(name, res[0]);
-		} else {
-			this.errorsMap.delete(name);
-		}
-		const saveObject = {
-			id: model._id || model.id,
-			type: model.className,
-			error: this.errorsMap.size>0,
-			$set: {
-				[name]: jp.value(model, name),
-			},
-		};
-		save(saveObject, this.props);
-	}
-
-	async unFocus(event) {
-		const { name } = event.target;
-		return this.save(this.model, name);
-	}
-
-	handler(event) {
+	handler = (event) => {
 		const { target } = event;
 		const isCheckBox = target.type === 'checkbox';
 		const value = (isCheckBox ? target.checked : target.value);
-		let  model = { ...this.props.model, connector: { ...this.props.model.connector} };
+		const configuration = this.configuration;
+
 		if (target.name === 'connector.id') {
-			const newConnector = this.props[AdminConstants.CONFIG_TYPE.ConnectorConfiguration]
+			const newConnector = this.props.streams[AdminConstants.CONFIG_TYPE.ConnectorConfiguration]
 				.filter(a => a.id === value)[0];
-			model.connector.name = newConnector.name;
-			model.connector.id = newConnector.id;
-			model.connector._id = newConnector.id;
-			const configuration = StreamHelper.getInstanceFromObject(model, this.props);
-			model = configuration.toJSON();
-		} else {
-			const configuration = StreamHelper.getInstanceFromObject(model, this.props);
-			if (configuration.fields && Object.keys(configuration.fields).includes(target.name)) {
-				configuration.setFieldValue(target.name, value);
-				model = configuration.toJSON();
-				jp.value(model, target.name, model[target.name]);
-			} else {
-				model[target.name] = model[target.name] || {};
-				jp.value(model, target.name, value);
+			configuration.connector = StreamHelper.getInstanceFromObject(newConnector, this.props.streams);
+		} else if (configuration.fields && Object.keys(configuration.fields).includes(target.name)) {
+			configuration.setFieldValue(target.name, value);
+			const fieldErrors = this.state.fieldErrors;
+			if (fieldErrors && fieldErrors[target.name] !== undefined) {
+				fieldErrors[target.name] = undefined;
 			}
+		} else {
+			configuration[target.name] = configuration[target.name] || {};
+			jp.value(configuration, target.name, value);
 		}
-		this.model = model;
-		this.props.handle(model);
-		this.unFocus(event);
+
+		this.props.handleChange(this.configuration);
 	}
 
 	onChange = (event) => {
 		this.handler(event);
-		this.unFocus(event);
 	};
 
 	onStreamCommand = (event, field) => {
@@ -208,57 +193,10 @@ export default class FieldComponents {
 			cmdType: 'custom',
 			value: event.target.value,
 			cmdId: field.id,
-			streamId: this.id,
+			streamId: this.model.id,
 			className: this.model.className
 		});
 	};
-
-	/* eslint-disable no-unused-vars */
-	toggleInherited(event) {
-		// event.target.disabled = !event.target.disabled;
-	}
-
-	async handleFileRead(event) {
-		const { model } = { ...this.props };
-		const { save, validate } = { ...this.props };
-		const file = event.target.files[0];
-		const name = `${event.target.name}`;
-		// if (file.type.endsWith('ca-cert')) {
-		if (file) {
-			this.props.handle(model);
-			const reader = new FileReader();
-			reader.onload = async () => {
-				// convert appropriate for json
-				let newValue = reader.result.replace(/(\r\n|\n|\r)/gm, '\\n');
-				if (newValue.lastIndexOf('\\n') === newValue.length - 2) {
-					newValue = newValue.slice(0, -2);
-				}
-				const valueObj = {
-					path: file.name,
-					value: newValue,
-				};
-				try {
-					jp.value(model, name, valueObj);
-				} catch (e) {
-					model[name] = model[name] || {};
-					jp.value(model, name, valueObj);
-				}
-				this.props.handle(model);
-				const res = await validate(model, name, newValue);
-				if (res.length === 0) {
-					const saveObject = {
-						id: model._id || model.id,
-						type: model.className,
-						$set: {
-							[name]: valueObj,
-						},
-					};
-					save(saveObject, this.props);
-				}
-			};
-			reader.readAsText(file);
-		}
-	}
 
 	getNamedList(field, value, disabled) {
 		value = (!value || !Array.isArray(value)) ? [] : value;
@@ -286,6 +224,7 @@ export default class FieldComponents {
 		return <MultipleTextField
 			label={field.getLabel(this.locale)}
 			disabled={disabled}
+			key={field.id}
 			name={field.id}
 			onChange={this.handler}
 			values={value}
@@ -295,9 +234,10 @@ export default class FieldComponents {
 	getCheckBox(field, value, disabled = false) {
 		return (<FormControlLabel
 			style={{
-				marginTop: '20px',
+				// marginTop: '20px',
 				display: 'flex',
 			}}
+			key={field.id}
 			disabled={disabled}
 			control={
 				<Checkbox
@@ -315,11 +255,12 @@ export default class FieldComponents {
 
 	getFileTextInput(field, valueObj, disabled) {
 		const pathId = `path${field.id}`;
-		const { path, value } = valueObj;
+		const { path } = valueObj;
 		return (
 			<FormControl
 				disabled={disabled}
 				fullWidth
+				key={field.id}
 				style={{
 					marginTop: '30px',
 				}}
@@ -340,22 +281,25 @@ export default class FieldComponents {
 	}
 
 	getFileSecret(field, valueObj, disabled = false) {
-		const pathId = `path${field.id}`;
-		let path = '';
-		let value = '';
-		if (valueObj) {
-			(((((({ path, value } = valueObj))))));
-		}
+		// const pathId = `path${field.id}`;
+		// let path = '';
+		// if (valueObj) {
+		// 	(((((({ path } = valueObj))))));
+		// }
 		return (
 			<FormControl
 				fullWidth
+				key={field.id}
 				style={{
-					marginTop: '30px',
+					display: 'flex',
+					flexDirection: 'column'
 				}}
 			>
-				<label htmlFor={field.id} style={styles.label}><strong>{field.getLabel(this.locale)}: </strong>
-					<span id={pathId} style={{ fontWeight: 'normal', fontSize: '90%' }}>{path}</span>
-				</label>
+				<InputLabel style={{position: 'relative', marginBottom: '10px'}} htmlFor={field.id}>{field.getLabel(this.locale)}</InputLabel>
+
+				{/*<label htmlFor={field.id} style={styles.label}><strong>{field.getLabel(this.locale)}: </strong>*/}
+				{/*	<span id={pathId} style={{ fontWeight: 'normal', fontSize: '90%' }}>{path}</span>*/}
+				{/*</label>*/}
 				<Input
 					disabled={disabled}
 					type="file"
@@ -369,20 +313,23 @@ export default class FieldComponents {
 			</FormControl>);
 	}
 
-	getTextField(field, value, disabled = false) {
+	getTextField(field, value, disabled = false, error) {
 		value = value || '';
 		return (
-			<div>
+			<div
+				key={field.id}
+			>
 				<TextField
 					label={field.getLabel(this.locale)}
 					id={field.id}
 					name={field.id}
 					fullWidth
+					error={error}
 					margin="normal"
 					disabled={disabled}
-					helperText={field.getHelp(this.locale)}
+					helperText={error || field.getHelp(this.locale)}
 					defaultValue={`${value}`}
-					onChange={this.handler}
+					onBlur={this.handler}
 					style={styles.textField}
 				/>
 			</div>
@@ -392,7 +339,9 @@ export default class FieldComponents {
 	getNumberField(field, value, disabled = false) {
 		value = value || '';
 		return (
-			<div>
+			<div
+				key={field.id}
+			>
 				<TextField
 					type="number"
 					inputProps={{ min: '0' }}
@@ -404,8 +353,6 @@ export default class FieldComponents {
 					disabled={disabled}
 					defaultValue={`${value}`}
 					onChange={this.handler}
-					// "Machine Service 3",
-					onDoubleClick={this.toggleInherited}
 					style={styles.textField}
 				/>
 			</div>
@@ -415,7 +362,9 @@ export default class FieldComponents {
 	getTextArea(field, value, disabled = false) {
 		value = value || '';
 		return (
-			<div>
+			<div
+				key={field.id}
+			>
 				<TextField
 					label={field.getLabel(this.locale)}
 					multiline
@@ -448,9 +397,10 @@ export default class FieldComponents {
 			<FormControl
 				fullWidth
 				margin="normal"
+				key={field.id}
 				disabled={disabled}
 			>
-				<InputLabel fullWidth htmlFor={field.id} style={styles.label}>{field.getLabel(this.locale)}</InputLabel>
+				<InputLabel htmlFor={field.id} style={styles.label}>{field.getLabel(this.locale)}</InputLabel>
 				<Select
 					multiple={multiple}
 					autoWidth
@@ -477,12 +427,15 @@ export default class FieldComponents {
 	getButton(field, value, disabled = false) {
 		value = value || '';
 		return (
-			<FormControl style={{
-				paddingTop: '20px',
-			}}
+			<FormControl
+				key={field.id}
+				style={{
+					paddingTop: '20px',
+				}}
 			>
 				<Button
 					name={field.id}
+					disabled={disabled}
 					value={value}
 					htmlFor={field.id}
 					variant="outlined"

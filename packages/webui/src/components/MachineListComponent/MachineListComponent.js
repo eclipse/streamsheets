@@ -57,8 +57,8 @@ const getPlaceholder = () => (
 );
 
 const getFormattedDateString = (date) => {
-	const dat = new Date(date);
-	return dat.toLocaleString()
+	const d = new Date(date);
+	return `${d.toLocaleDateString(undefined, {year: '2-digit', month: '2-digit', day: '2-digit'})} ${d.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'})}`;
 };
 
 const buildList = (machines, sortField, sortDir, filter, onItemClick) => {
@@ -103,8 +103,8 @@ function MachineList(props) {
 	// const { onItemClick } = props;
 	const { data, loading } = useGraphQL(QUERY, { scope: { id: props.scopeId } }, [props.scopeId]);
 	const { onItemClick } = props;
-	const [sortField, setSortField] = useState('name');
-	const [sortDir, setSortDir] = useState('asc');
+	const [sortField, setSortField] = useState('lastModified');
+	const [sortDir, setSortDir] = useState('desc');
 	const [filter, setFilter] = useState('');
 	const handleTableSort = (event, property) => {
 		setSortField(property);
@@ -167,9 +167,13 @@ function MachineList(props) {
 						padding: '5px'
 					}}
 				>
-					<Table>
+					<Table stickyHeader>
 						<TableSortHeader
-							showState
+							cells={[
+								{ id: 'name', numeric: false, disablePadding: true, label: 'Name', width: '58%' },
+								{ id: 'state', numeric: false, disablePadding: false, label: 'State', width: '14%' },
+								{ id: 'lastModified', numeric: false, disablePadding: false, label: 'LastModified', width: '28%' },
+							]}
 							orderBy={sortField}
 							order={sortDir}
 							onRequestSort={handleTableSort}
