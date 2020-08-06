@@ -30,6 +30,7 @@ import IconSearch from '@material-ui/icons/Search';
 import StreamWizard from '../../Dashboard/StreamWizard';
 import StreamSettings from '../../Dashboard/StreamSettings';
 import StreamHelper from '../../../helper/StreamHelper';
+import AdminConstants from "../../../constants/AdminConstants";
 
 const DEF_TITLE = <FormattedMessage id="Dashboard.Add" defaultMessage="Add" />;
 const PREF_KEY = 'streamsheets-prefs-addnewdialog';
@@ -213,14 +214,27 @@ class AddNewDialog extends React.Component {
 	};
 
 	handleEditConsumer = () => {
+		const consumer = this.props.streams[AdminConstants.CONFIG_TYPE.ConsumerConfiguration].find(
+			(p) => p.id === this.state.selected.id
+		);
+
 		this.setState({
 			editStream: true,
-			row: this.state.selected,
+			row: consumer,
 		})
 	};
 
-	onWizardClose = () => {
-		this.setState({ showStreamWizard: false, editStream: false });
+	onWizardClose = (consumer) => {
+		if (consumer) {
+			this.scroll = `stream-${consumer.id}`;
+			this.setState({
+				selected: consumer
+			});
+		}
+		this.setState({
+			showStreamWizard: false,
+			editStream: false,
+		});
 	};
 
 	handleSubmit = () => {
@@ -246,6 +260,15 @@ class AddNewDialog extends React.Component {
 		}
 		const { selected, name, error, filter } = this.state;
 		const sortObj = SortSelector.parseSortQuery(this.state.sortQuery);
+
+		if (this.scroll) {
+			const sel = document.getElementById(this.scroll);
+			if (sel && sel.scrollIntoView) {
+				sel.scrollIntoView(true);
+				this.scroll = undefined;
+			}
+		}
+
 		return (
 			<Dialog open={open} onClose={onClose} maxWidth={false}>
 				<DialogTitle>{title}</DialogTitle>
@@ -350,6 +373,7 @@ class AddNewDialog extends React.Component {
 										onClick={this.handleSelection(resource)}
 										selected={resource.id === selected.id}
 										tabIndex={-1}
+										id={`stream-${resource.id}`}
 										key={`${resource.className}-${resource.id}`}
 									>
 										<TableCell component="th" scope="row" padding="none">

@@ -348,7 +348,7 @@ class StreamWizard extends React.Component {
 
 	handleClose = () => {
 		this.reset();
-		this.props.onClose();
+		this.props.onClose(this.props.type === 'consumer' ? this.state.consumer : undefined);
 	};
 
 	getSteps() {
@@ -386,8 +386,13 @@ class StreamWizard extends React.Component {
 	}
 
 	getStreamInfo() {
+		const title = this.props.intl.formatMessage({
+			id: 'Stream.Wizard',
+			defaultMessage: 'Stream Wizard'
+		});
+
 		if (this.state.connector === undefined) {
-			return '';
+			return title;
 		}
 		const provider = this.props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration].find(
 			(p) => p.id === this.state.connector.provider.id
@@ -396,14 +401,14 @@ class StreamWizard extends React.Component {
 		switch (this.state.activeStep) {
 			case 'connectorname':
 			case 'connectorsettings':
-				return `Provider: ${provider.name}`;
+				return `${title} - Provider: ${provider.name}`;
 			case 'producername':
 			case 'producersettings':
 			case 'consumername':
 			case 'consumersettings':
-				return `Provider: ${provider.name} - Connector ${this.state.connector.name}`;
+				return `${title} - Provider: ${provider.name} - Connector ${this.state.connector.name}`;
 			default:
-				return '';
+				return title;
 		}
 	}
 
@@ -554,7 +559,6 @@ class StreamWizard extends React.Component {
 						}
 					});
 				}
-				this.handleClose();
 				break;
 			}
 			case 'producername': {
@@ -598,7 +602,6 @@ class StreamWizard extends React.Component {
 							}
 						});
 					}
-					this.handleClose();
 					break;
 				}
 			default:
@@ -654,6 +657,30 @@ class StreamWizard extends React.Component {
 				break;
 			default:
 		}
+	};
+
+	getStepDesciption() {
+		switch (this.state.activeStep) {
+			case 'connector':
+				return <FormattedMessage id="StreamStep.connectorDesc" defaultMessage="Steps" />;
+			case 'provider':
+				return <FormattedMessage id="StreamStep.providerDesc" defaultMessage="Steps" />;
+			case 'connectorname':
+				return <FormattedMessage id="StreamStep.connectorNameDesc" defaultMessage="Steps" />;
+			case 'consumername':
+				return <FormattedMessage id="StreamStep.consumerNameDesc" defaultMessage="Steps" />;
+			case 'producername':
+				return <FormattedMessage id="StreamStep.producerNameDesc" defaultMessage="Steps" />;
+			case 'consumersettings':
+				return <FormattedMessage id="StreamStep.consumerSettingsDesc" defaultMessage="Steps" />;
+			case 'producersettings':
+				return <FormattedMessage id="StreamStep.producerSettingsDesc" defaultMessage="Steps" />;
+			case 'connectorsettings':
+				return <FormattedMessage id="StreamStep.connectorSettingsDesc" defaultMessage="Steps" />;
+			default:
+		}
+
+		return null;
 	};
 
 	getProgress() {
@@ -774,7 +801,7 @@ class StreamWizard extends React.Component {
 		return (
 			<Dialog open={open} onClose={onClose} maxWidth={false}>
 				<DialogTitle>
-					<FormattedMessage id="Stream.Wizard" defaultMessage="Stream Wizard" />
+					{this.getStreamInfo()}
 				</DialogTitle>
 				<DialogContent
 					style={{
@@ -793,16 +820,20 @@ class StreamWizard extends React.Component {
 								marginTop: '10px'
 							}}
 						>
-							<Typography style={{ fontSize: '0.85rem', marginBottom: '12px', marginTop: '6px' }}>
+							<Typography style={{ fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '12px', marginTop: '6px' }}>
 								<FormattedMessage id="Stream.Steps" defaultMessage="Steps" />
 							</Typography>
 							{this.getProgress()}
 						</div>
 						<div
 							style={{
-								width: '100%'
+								width: '100%',
+								marginTop: '10px'
 							}}
 						>
+							<Typography style={{ fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '12px', marginTop: '6px' }}>
+								{this.getStepDesciption()}
+							</Typography>
 							{activeStep === 'connector' ? (
 								<div>
 									<div>
@@ -984,9 +1015,6 @@ class StreamWizard extends React.Component {
 										height: '85px'
 									}}
 								>
-									<Typography style={{ fontSize: '0.85rem', marginTop: '16px' }}>
-										{this.getStreamInfo()}
-									</Typography>
 									<TextField
 										inputRef={(el) => {
 											this.nameRef = el;
@@ -1024,11 +1052,9 @@ class StreamWizard extends React.Component {
 							) : null}
 							{activeStep === 'consumersettings' || activeStep === 'connectorsettings'  || activeStep === 'producersettings'? (
 								<div>
-									<Typography
-										style={{ fontSize: '0.85rem', marginTop: '16px', marginBottom: '10px' }}
-									>
-										{this.getStreamInfo()}
-									</Typography>
+									<div
+										style={{marginBottom: '10px' }}
+									/>
 									{this.getStreamFields(fc, false)}
 									{/* eslint-disable-next-line no-nested-ternary */}
 									{advancedFields.length ? (

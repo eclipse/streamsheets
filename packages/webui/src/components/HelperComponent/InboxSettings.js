@@ -149,7 +149,11 @@ export class InboxSettings extends React.Component {
 		NotificationCenter.getInstance().unregister(this, ButtonNode.BUTTON_CLICKED_NOTIFICATION);
 	}
 
-	onWizardClose = () => {
+	onWizardClose = (consumer) => {
+		if (consumer) {
+			this.scroll = `stream-${consumer.id}`;
+			this.handleStreamChange(consumer);
+		}
 		this.setState({ showStreamWizard: false, editStream: false });
 	};
 
@@ -479,7 +483,7 @@ export class InboxSettings extends React.Component {
 		});
 	};
 
-	handleStreamChange = (newStream) => {
+	handleStreamChange = (newStream, callback) => {
 		if (newStream) {
 			const streamDesc = {
 				name: newStream.name || 'none',
@@ -491,7 +495,7 @@ export class InboxSettings extends React.Component {
 					...this.state.inbox,
 					stream: streamDesc
 				}
-			});
+			}, callback);
 		} else {
 			this.setState({
 				inbox: {
@@ -643,6 +647,15 @@ export class InboxSettings extends React.Component {
 		const streams = this.getStreams();
 		const canEdit = MachineHelper.currentMachineCan(RESOURCE_ACTIONS.EDIT);
 		const { tabSelected, filter } = this.state;
+
+		if (this.scroll) {
+			const sel = document.getElementById(this.scroll);
+			if (sel && sel.scrollIntoView) {
+				sel.scrollIntoView(true);
+				this.scroll = undefined;
+			}
+		}
+
 		return (
 			<Dialog open={this.props.open} onClose={() => this.handleClose()} maxWidth={false}>
 				<DialogTitle>
@@ -754,6 +767,7 @@ export class InboxSettings extends React.Component {
 															resource.id === this.state.inbox.stream.id
 														}
 														tabIndex={-1}
+														id={`stream-${resource.id}`}
 														key={`${resource.className}-${resource.id}`}
 													>
 														<TableCell component="th" scope="row" padding="none">
