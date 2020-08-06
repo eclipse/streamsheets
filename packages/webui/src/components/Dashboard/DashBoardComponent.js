@@ -540,6 +540,7 @@ class DashBoardComponent extends Component {
 								images
 								titleAttribute="name"
 								resources={this.getMachines()}
+								menuOptions={menuOptions}
 								headerIcons={[
 									{
 										icon: IconStop,

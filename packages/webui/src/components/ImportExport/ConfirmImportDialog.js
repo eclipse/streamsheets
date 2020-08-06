@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -108,10 +108,10 @@ export const ConfirmImportDialog = (props) => {
 			</DialogContent>
 			{props.children}
 			<DialogActions>
-				<Button onClick={props.onCancel}>
+				<Button color="primary" onClick={props.onCancel}>
 					<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 				</Button>
-				<Button onClick={props.onConfirm}>
+				<Button color="primary" onClick={props.onConfirm}>
 					<FormattedMessage id="Import.Button.Import" defaultMessage="Import" />
 				</Button>
 			</DialogActions>

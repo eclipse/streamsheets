@@ -373,18 +373,18 @@ class AddNewDialog extends React.Component {
 				</DialogContent>
 				<DialogActions style={{justifyContent: 'space-between', padding: '0px 7px 4px 11px'}}>
 					<div>
-						<Button onClick={this.handleAddConsumer}>
+						<Button color="primary" onClick={this.handleAddConsumer}>
 							<FormattedMessage id="DialogNew.AddConsumer" defaultMessage="Add Consumer" />
 						</Button>
-						<Button onClick={this.handleEditConsumer} disabled={selected.id === ''}>
+						<Button color="primary" onClick={this.handleEditConsumer} disabled={selected.id === ''}>
 							<FormattedMessage id="DialogNew.EditConsumer" defaultMessage="Edit Consumer" />
 						</Button>
 					</div>
 					<div>
-						<Button onClick={this.handleClose}>
+						<Button color="primary" onClick={this.handleClose}>
 							<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 						</Button>
-						<Button onClick={this.handleSubmit}>
+						<Button color="primary" onClick={this.handleSubmit}>
 							<FormattedMessage id="DialogNew.add" defaultMessage="Add" />
 						</Button>
 					</div>

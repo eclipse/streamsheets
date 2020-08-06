@@ -357,7 +357,7 @@ class StreamSettings extends React.Component {
 					<Button color="primary" onClick={() => this.handleCancel()}>
 						<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 					</Button>
-					<Button size="small" onClick={this.handleClose} disabled={false}>
+					<Button color="primary" size="small" onClick={this.handleClose} disabled={false}>
 						<FormattedMessage id="OK" defaultMessage="OK" />
 					</Button>
 				</DialogActions>

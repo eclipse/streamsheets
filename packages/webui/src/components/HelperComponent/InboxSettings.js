@@ -1265,10 +1265,11 @@ export class InboxSettings extends React.Component {
 				<DialogActions style={{ justifyContent: 'space-between', padding: '0px 7px 4px 11px' }}>
 					{tabSelected === 0 ? (
 						<div>
-							<Button onClick={this.handleAddConsumer}>
+							<Button color="primary" onClick={this.handleAddConsumer}>
 								<FormattedMessage id="DialogNew.AddConsumer" defaultMessage="Add Consumer" />
 							</Button>
 							<Button
+								color="primary"
 								onClick={this.handleEditConsumer}
 								disabled={this.state.inbox.stream === null || this.state.inbox.stream.id === 'none'}
 							>
@@ -1279,10 +1280,10 @@ export class InboxSettings extends React.Component {
 						<div />
 					)}
 					<div>
-						<Button onClick={this.handleClose}>
+						<Button color="primary" onClick={this.handleClose}>
 							<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 						</Button>
-						<Button onClick={this.handleSave} autoFocus={canEdit}>
+						<Button color="primary" onClick={this.handleSave} autoFocus={canEdit}>
 							<FormattedMessage id="SaveButton" defaultMessage="Save" />
 						</Button>
 					</div>

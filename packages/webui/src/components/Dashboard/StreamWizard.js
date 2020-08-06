@@ -1072,11 +1072,11 @@ class StreamWizard extends React.Component {
 					<Button color="primary" onClick={() => this.handleCancel()}>
 						<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 					</Button>
-					<Button size="small" onClick={this.handleBack} disabled={this.getBackDisabled()}>
+					<Button color="primary" size="small" onClick={this.handleBack} disabled={this.getBackDisabled()}>
 						{<KeyboardArrowLeft />}
 						<FormattedMessage id="Setup.Back" defaultMessage="Back" />
 					</Button>
-					<Button size="small" onClick={this.handleNext} disabled={this.getNextDisabled()}>
+					<Button color="primary" size="small" onClick={this.handleNext} disabled={this.getNextDisabled()}>
 						{(this.props.type === 'connector' && this.state.activeStep === 'connectorsettings') ||
 						(this.props.type !== 'connector' && this.state.activeStep === 'consumersettings') ?
 						<FormattedMessage id="StreamStep.finish" defaultMessage="Finish" /> :

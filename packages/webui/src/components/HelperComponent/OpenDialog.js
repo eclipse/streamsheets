@@ -49,7 +49,7 @@ export function OpenDialog(props) {
 				<MachineListComponent onItemClick={handleClose} />
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={handleCancel}>
+				<Button color="primary" onClick={handleCancel}>
 					<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 				</Button>
 			</DialogActions>
