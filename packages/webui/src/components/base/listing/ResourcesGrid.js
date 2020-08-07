@@ -262,7 +262,7 @@ class ResourcesGrid extends React.Component {
 	};
 
 	render() {
-		const { recent, resources } = this.props;
+		const { resources } = this.props;
 
 		const resGrid = document.getElementById('resGrid');
 		let width = resGrid ? resGrid.clientWidth - 1 : 500;
@@ -275,8 +275,10 @@ class ResourcesGrid extends React.Component {
 		const sortQuery = localStorage.getItem(PREF_KEY_SORTQUERY) || this.state.sortQuery || 'name_asc';
 		const sortFields = ['name', 'lastModified', 'state'];
 		const sortObj = SortSelector.parseSortQuery(sortQuery);
-		const filteredResources = SortSelector.sort(resources, sortQuery, this.props.filter);
+		const filteredResources = SortSelector.sort(resources, sortQuery, '');
 		const columns = Math.floor(width / 330);
+
+		const recent = resources.length < columns || this.props.filter.length ? undefined : this.props.recent;
 
 		if (filteredResources.length === 0) {
 			return <div />;

@@ -332,7 +332,7 @@ class DashBoardComponent extends Component {
 					const row = {
 						id: connector.id,
 						name: connector.name,
-						provider: provider ? provider.name : connector.provider.id,
+						provider,
 						topic: connector.baseTopic || '',
 						url: connector.baseUrl || connector.url || '',
 						disabled: !!connector.disabled,
@@ -343,36 +343,40 @@ class DashBoardComponent extends Component {
 						producers: [],
 						open: result === 2,
 					};
-					consumers.forEach((consumer) => {
-						if (consumer.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
-							row.consumers.push({
-								id: consumer.id,
-								name: consumer.name,
-								provider: row.provider,
-								topic: consumer.topics ? consumer.topics.toString() : '',
-								url: consumer.url ? consumer.url : '',
-								lastModifiedDate: new Date(consumer.lastModified).toISOString(),
-								lastModified: formatDateString(new Date(consumer.lastModified).toISOString()),
-								resource: consumer,
-								state: StreamHelper.getStreamState(consumer)
-							});
-						}
-					});
-					producers.forEach((producer) => {
-						if (producer.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
-							row.producers.push({
-								id: producer.id,
-								name: producer.name,
-								provider: row.provider,
-								topic: producer.pubTopic ? producer.pubTopic : '',
-								url: producer.url ? producer.url : '',
-								lastModifiedDate: new Date(producer.lastModified).toISOString(),
-								lastModified: formatDateString(new Date(producer.lastModified).toISOString()),
-								resource: producer,
-								state: StreamHelper.getStreamState(producer)
-							});
-						}
-					});
+					if (provider.canConsume) {
+						consumers.forEach((consumer) => {
+							if (consumer.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
+								row.consumers.push({
+									id: consumer.id,
+									name: consumer.name,
+									provider: row.provider,
+									topic: consumer.topics ? consumer.topics.toString() : '',
+									url: consumer.url ? consumer.url : '',
+									lastModifiedDate: new Date(consumer.lastModified).toISOString(),
+									lastModified: formatDateString(new Date(consumer.lastModified).toISOString()),
+									resource: consumer,
+									state: StreamHelper.getStreamState(consumer)
+								});
+							}
+						});
+					}
+					if (provider.canProduce) {
+						producers.forEach((producer) => {
+							if (producer.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
+								row.producers.push({
+									id: producer.id,
+									name: producer.name,
+									provider: row.provider,
+									topic: producer.pubTopic ? producer.pubTopic : '',
+									url: producer.url ? producer.url : '',
+									lastModifiedDate: new Date(producer.lastModified).toISOString(),
+									lastModified: formatDateString(new Date(producer.lastModified).toISOString()),
+									resource: producer,
+									state: StreamHelper.getStreamState(producer)
+								});
+							}
+						});
+					}
 					rows.push(row);
 				}
 			});

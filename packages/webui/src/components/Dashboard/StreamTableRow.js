@@ -85,7 +85,7 @@ const StreamTableRow = (props) => {
 					{row.name}
 				</TableCell>
 				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!openConnector)} padding="none" align="left">
-					{row.provider}
+					{row.provider.name}
 				</TableCell>
 				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!openConnector)} padding="none" align="left">
 					{row.url}
@@ -123,6 +123,8 @@ const StreamTableRow = (props) => {
 				>
 					<Collapse in={openConnector} timeout="auto" unmountOnExit>
 						<Paper square elevation={1}>
+							{ row.provider.canConsume ? (
+								<React.Fragment>
 							<div className={classes.sectionRoot}>
 								<Typography
 									classes={{ root: classes.typoRoot }}
@@ -171,7 +173,7 @@ const StreamTableRow = (props) => {
 												{historyRow.name}
 											</TableCell>
 											<TableCell style={{ width: '10%' }} padding="none" align="left">
-												{historyRow.provider}
+												{historyRow.provider.name}
 											</TableCell>
 											<TableCell style={{ width: '15%' }} padding="none" align="left">
 												{historyRow.url}
@@ -209,6 +211,9 @@ const StreamTableRow = (props) => {
 									))}
 								</TableBody>
 							</Table>
+								</React.Fragment>) : null}
+							{ row.provider.canProduce ? (
+								<React.Fragment>
 							<div className={classes.sectionRoot}>
 								<Typography
 									classes={{ root: classes.typoRoot }}
@@ -257,7 +262,7 @@ const StreamTableRow = (props) => {
 												{historyRow.name}
 											</TableCell>
 											<TableCell style={{ width: '15%' }} padding="none" align="left">
-												{historyRow.provider}
+												{historyRow.provider.name}
 											</TableCell>
 											<TableCell style={{ width: '10%' }} padding="none" align="left">
 												{historyRow.url}
@@ -295,6 +300,7 @@ const StreamTableRow = (props) => {
 									))}
 								</TableBody>
 							</Table>
+								</React.Fragment>) : null}
 						</Paper>
 					</Collapse>
 				</TableCell>

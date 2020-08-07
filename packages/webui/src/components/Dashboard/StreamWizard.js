@@ -871,7 +871,7 @@ class StreamWizard extends React.Component {
 										<div
 											style={{
 												border: '1px solid grey',
-												height: '407px',
+												height: '380px',
 												overflow: 'auto',
 												padding: '5px'
 											}}
@@ -967,7 +967,7 @@ class StreamWizard extends React.Component {
 									<div
 										style={{
 											border: '1px solid grey',
-											height: '407px',
+											height: '380px',
 											overflow: 'auto',
 											padding: '5px'
 										}}

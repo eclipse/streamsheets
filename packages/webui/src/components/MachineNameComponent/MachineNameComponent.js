@@ -110,14 +110,19 @@ class MachineNameComponent extends React.Component {
 
 	// verifyName(name) {
 	// 	const referenceIdentifierRegEx = /^[\w]+$/;
-	// 	return referenceIdentifierRegEx.test(name);
+	// 	return referenceIdentifierRegEx.test(name );
 	// }
 	//
 	render() {
 		const { classes } = this.props;
 		return (
 			MachineHelper.isMachineDetailsPage() ?
-				<div style={{width: `${Math.min(75, this.state.machine.name.length * 1.7)}%`}}>
+				<div
+					style={{
+						width: `${Math.min(100, this.state.machine.name.length * 2)}%`,
+						minWidth: '200px'
+					}}
+				>
 					<Tooltip
 						enterDelay={300}
 						title={
@@ -128,8 +133,8 @@ class MachineNameComponent extends React.Component {
 					>
 						<TextField
 							error={/* !this.verifyName(this.state.machine.name) || */ !this.props.monitor.machineNameSaved}
-							fullWidth
 							id="machine-name"
+							fullWidth
 							disabled={!!this.props.disabled}
 							value={this.state.machine.name || ''}
 							onBlur={this.handleSaveMachineName}

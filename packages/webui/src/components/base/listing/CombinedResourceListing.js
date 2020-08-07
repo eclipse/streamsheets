@@ -19,6 +19,7 @@ import ResourcesGrid from './ResourcesGrid';
 import ResourcesList from './ResourcesList';
 import SortSelector from '../sortSelector/SortSelector';
 import Wall from '../../HelperComponent/Wall';
+import {formatDateString} from "./Utils";
 
 class CombinedResourceListing extends Component {
 	static propTypes = {
@@ -79,9 +80,33 @@ class CombinedResourceListing extends Component {
 		});
 	}
 
+	filterMachines() {
+		const machines = [];
+
+		if (this.props.resources && this.props.resources.length) {
+			this.props.resources.forEach((machine) => {
+				if (machine.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
+					machine.lastModifiedFormatted = formatDateString(new Date(machine.lastModified).toISOString());
+					machines.push(machine);
+				} else {
+					machine.streamsheets.forEach((sheet) => {
+						if (sheet.inbox.stream && sheet.inbox.stream.name && sheet.inbox.stream.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
+							machine.lastModifiedFormatted = formatDateString(new Date(machine.lastModified).toISOString());
+							machines.push(machine);
+						}
+					});
+				}
+			});
+		}
+
+		return machines;
+	}
+
+
 	render() {
-		const { handleNew, filter, resources } = this.props;
-		const recentResources = SortSelector.sort(resources, 'lastModified_desc', filter);
+		const { handleNew, resources } = this.props;
+		const filteredMachines = this.filterMachines(resources);
+		const recentResources = SortSelector.sort(filteredMachines, 'lastModified_desc', '');
 		return (
 			<Wall
 				id="combinedResourceList"
@@ -92,10 +117,10 @@ class CombinedResourceListing extends Component {
 					}}
 				>
 					{this.props.layout === 'grid' ? (
-						<ResourcesGrid {...this.props} recent={recentResources} resources={resources} dummy={this.state.dummy}/>
+						<ResourcesGrid {...this.props} recent={recentResources} resources={filteredMachines} dummy={this.state.dummy}/>
 					) : null}
 					{this.props.layout === 'list' ? (
-						<ResourcesList {...this.props} resources={resources} />
+						<ResourcesList {...this.props} resources={filteredMachines} />
 					) : null}
 					{handleNew === undefined ? null : (
 						<Tooltip

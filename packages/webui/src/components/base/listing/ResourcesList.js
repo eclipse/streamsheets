@@ -71,12 +71,9 @@ class ResourcesList extends React.Component {
 	getMachines() {
 		const rows = [];
 
-		if (this.props.resources && this.props.resources.length) {
+		if (this.props.resources) {
 			this.props.resources.forEach((machine) => {
-				if (machine.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
-					machine.lastModifiedFormatted = formatDateString(new Date(machine.lastModified).toISOString()),
-					rows.push(machine);
-				}
+				rows.push(machine);
 			});
 		}
 

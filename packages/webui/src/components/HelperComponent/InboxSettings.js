@@ -50,6 +50,9 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import IconSearch from '@material-ui/icons/Search';
 import StreamWizard from '../Dashboard/StreamWizard';
 import StreamSettings from '../Dashboard/StreamSettings';
+import Popover from "@material-ui/core/Popover";
+import IconButton from "@material-ui/core/IconButton";
+import ArrowDropDown from "@material-ui/icons/ArrowDropDown";
 
 const { RESOURCE_ACTIONS } = accessManager;
 const {
@@ -115,6 +118,7 @@ export class InboxSettings extends React.Component {
 		super(props);
 		const streams = getStreamsFromProps(props);
 		this.state = {
+			anchorEl: null,
 			streams,
 			streamSortBy: 'name',
 			streamSortOrder: 'asc',
@@ -494,14 +498,16 @@ export class InboxSettings extends React.Component {
 				inbox: {
 					...this.state.inbox,
 					stream: streamDesc
-				}
+				},
+				anchorEl: null,
 			}, callback);
 		} else {
 			this.setState({
 				inbox: {
 					...this.state.inbox,
 					stream: { id: 'none' }
-				}
+				},
+				anchorEl: null,
 			});
 		}
 	};
@@ -640,6 +646,18 @@ export class InboxSettings extends React.Component {
 		this.setState({ tabSelected: value });
 	};
 
+	handleConsumerClose = () => {
+		this.setState({
+			anchorEl: null,
+		});
+	};
+
+	handleConsumerClick = (event) => {
+		this.setState({
+			anchorEl: event.currentTarget
+		});
+	};
+
 	render() {
 		if (!this.state.id || !this.props.open) {
 			return null;
@@ -664,8 +682,8 @@ export class InboxSettings extends React.Component {
 				<DialogContent
 					style={{
 						height: 'auto',
-						minHeight: '430px',
-						minWidth: '825px',
+						minHeight: '440px',
+						minWidth: '550px',
 						paddingBottom: '0px',
 					}}
 				>
@@ -675,130 +693,178 @@ export class InboxSettings extends React.Component {
 					</Tabs>
 					{tabSelected === 0 && (
 						<TabContainer>
-							<div
-								style={{
-									display: 'flex'
-								}}
-							>
+							<FormGroup>
 								<div
 									style={{
-										width: '450px',
-										marginTop: '20px',
-										marginRight: '25px'
+										display: 'flex',
+										marginBottom: '10px',
+										marginTop: '25px'
 									}}
+								>
+										<TextField
+											style={{
+												width: '65%',
+												cursor: 'pointer',
+											}}
+											id="ibconsumerselect"
+											onClick={this.handleConsumerClick}
+											label={
+												<FormattedMessage id="InboxSettings.SelectConsumer" defaultMessage="Please select a Consumer:" />
+											}
+											inputProps={{
+												readOnly: true,
+												style: { cursor: 'pointer' },											}}
+											value={this.state.inbox.stream === null || this.state.inbox.stream.id === 'none' ? 'None' : this.state.inbox.stream.name}
+											disabled={!canEdit}
+										/>
+									<IconButton
+										disabled={!canEdit}
+										style={{
+											padding: '0px',
+											height: '25px',
+											position: 'relative',
+											left: '-23px',
+											top: '19px',
+										}}
+										size="small"
+										onClick={this.handleConsumerClick}>
+										<ArrowDropDown />
+									</IconButton>
+										<Button
+											color="primary"
+											onClick={this.handleEditConsumer}
+											disabled={!canEdit || this.state.inbox.stream === null || this.state.inbox.stream.id === 'none'}
+										>
+											<FormattedMessage id="DialogNew.EditConsumer" defaultMessage="Edit Consumer" />
+										</Button>
+								</div>
+								<Popover
+									open={Boolean(this.state.anchorEl)}
+									anchorEl={document.getElementById('ibconsumerselect')}
+									anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+									transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+									onClose={this.handleConsumerClose}
 								>
 									<div
 										style={{
-											width: '100%',
-											display: 'flex',
-											justifyContent: 'space-between',
-											verticalAlign: 'middle'
+											width: '450px',
+											margin: '20px',
 										}}
 									>
-										<FormLabel
+										<div
 											style={{
-												marginTop: '10px',
-												fontSize: '13px',
-												display: 'inline-block'
+												width: '100%',
+												display: 'flex',
+												justifyContent: 'space-between',
+												verticalAlign: 'middle'
 											}}
 										>
-											<FormattedMessage id="InboxSettings.SelectConsumer" defaultMessage="Please select a Consumer:" />
-										</FormLabel>
-										<Input
-											onChange={this.handleFilter}
-											style={{ marginBottom: '8px', width: '35%' }}
-											startAdornment={
-												<InputAdornment position="start">
-													<IconSearch />
-												</InputAdornment>
-											}
-											defaultValue={filter}
-											type="search"
-										/>
-									</div>
-									<div
-										style={{
-											border: '1px solid grey',
-											height: '310px',
-											overflow: 'auto',
-											padding: '5px'
-										}}
-									>
-										<Table>
-											<TableSortHeader
-												cells={this.getHeader()}
-												orderBy={this.state.streamSortBy}
-												order={this.state.streamSortOrder}
-												onRequestSort={this.handleTableSort}
-												onFieldToggle={(field, state) => this.onFieldToggle(field, state)}
+											<FormLabel
+												style={{
+													marginTop: '10px',
+													fontSize: '13px',
+													display: 'inline-block'
+												}}
+											>
+												<FormattedMessage id="InboxSettings.SelectConsumer" defaultMessage="Please select a Consumer:" />
+											</FormLabel>
+											<Input
+												onChange={this.handleFilter}
+												style={{ marginBottom: '8px', width: '35%' }}
+												startAdornment={
+													<InputAdornment position="start">
+														<IconSearch />
+													</InputAdornment>
+												}
+												defaultValue={filter}
+												type="search"
 											/>
-											<TableBody>
-												<TableRow
-													style={{
-														height: '35px'
-													}}
-													key="no_stream"
-													hover
-													selected={
-														this.state.inbox.stream === null ||
-														this.state.inbox.stream.id === 'none'
-													}
-													onClick={() => this.handleStreamChange()}
-													tabIndex={-1}
-												>
-													<TableCell component="th" scope="row" padding="none">
-														<FormattedMessage
-															id="DialogNew.noStream"
-															defaultMessage="None"
-														/>
-													</TableCell>
-													<TableCell />
-													<TableCell />
-												</TableRow>
-												{this.getResources(streams).map((resource) => (
+										</div>
+										<div
+											style={{
+												border: '1px solid grey',
+												height: '310px',
+												overflow: 'auto',
+												padding: '5px'
+											}}
+										>
+											<Table>
+												<TableSortHeader
+													cells={this.getHeader()}
+													orderBy={this.state.streamSortBy}
+													order={this.state.streamSortOrder}
+													onRequestSort={this.handleTableSort}
+													onFieldToggle={(field, state) => this.onFieldToggle(field, state)}
+												/>
+												<TableBody>
 													<TableRow
 														style={{
-															height: '35px'
+															height: '35px',
+															cursor: 'pointer',
 														}}
+														key="no_stream"
 														hover
-														onClick={() => this.handleStreamChange(resource)}
 														selected={
-															this.state.inbox.stream &&
-															resource.id === this.state.inbox.stream.id
+															this.state.inbox.stream === null ||
+															this.state.inbox.stream.id === 'none'
 														}
+														onClick={() => this.handleStreamChange()}
 														tabIndex={-1}
-														id={`stream-${resource.id}`}
-														key={`${resource.className}-${resource.id}`}
 													>
 														<TableCell component="th" scope="row" padding="none">
-															<img
-																style={{ verticalAlign: 'bottom', paddingRight: '6px' }}
-																width={15}
-																height={15}
-																src={StreamHelper.getIconForState(resource.state)}
-																alt="state"
+															<FormattedMessage
+																id="DialogNew.noStream"
+																defaultMessage="None"
 															/>
-
-															{resource.name}
 														</TableCell>
-														<TableCell component="th" scope="row" padding="none">
-															{resource.provider.name}
-														</TableCell>
-														<TableCell padding="none">
-															{this.getFormattedDateString(resource.lastModified)}
-														</TableCell>
+														<TableCell />
+														<TableCell />
 													</TableRow>
-												))}
-											</TableBody>
-										</Table>
+													{this.getResources(streams).map((resource) => (
+														<TableRow
+															style={{
+																height: '35px',
+																cursor: 'pointer',
+															}}
+															hover
+															onClick={() => this.handleStreamChange(resource)}
+															selected={
+																this.state.inbox.stream &&
+																resource.id === this.state.inbox.stream.id
+															}
+															tabIndex={-1}
+															id={`stream-${resource.id}`}
+															key={`${resource.className}-${resource.id}`}
+														>
+															<TableCell component="th" scope="row" padding="none">
+																<img
+																	style={{ verticalAlign: 'bottom', paddingRight: '6px' }}
+																	width={15}
+																	height={15}
+																	src={StreamHelper.getIconForState(resource.state)}
+																	alt="state"
+																/>
+
+																{resource.name}
+															</TableCell>
+															<TableCell component="th" scope="row" padding="none">
+																{resource.provider.name}
+															</TableCell>
+															<TableCell padding="none">
+																{this.getFormattedDateString(resource.lastModified)}
+															</TableCell>
+														</TableRow>
+													))}
+												</TableBody>
+											</Table>
+										</div>
 									</div>
-								</div>
-								<div>
+								</Popover>
 									<FormControl
 										disabled={!canEdit}
 										style={{
 											marginBottom: '10px',
-											marginTop: '25px'
+											marginTop: '0px'
 										}}
 									>
 										<InputLabel htmlFor="processSetting.triggerType">
@@ -809,7 +875,7 @@ export class InboxSettings extends React.Component {
 										</InputLabel>
 										<Select
 											style={{
-												width: '335px'
+												width: '65%'
 											}}
 											value={this.getTriggerType()}
 											onChange={this.handleTriggerChange}
@@ -1008,7 +1074,7 @@ export class InboxSettings extends React.Component {
 											value={this.state.loop.path}
 											style={{
 												marginLeft: '35px',
-												width: '86%',
+												width: '59%',
 												marginTop: '2px'
 											}}
 										/>
@@ -1050,8 +1116,7 @@ export class InboxSettings extends React.Component {
 											disabled={!canEdit}
 										/>
 									</FormGroup>
-								</div>
-							</div>
+							</FormGroup>
 							{this.state.showStreamWizard ? (
 								<StreamWizard
 									onClose={this.onWizardClose}
@@ -1276,18 +1341,13 @@ export class InboxSettings extends React.Component {
 						</TabContainer>
 					)}
 				</DialogContent>
-				<DialogActions style={{ justifyContent: 'space-between', padding: '0px 7px 4px 11px' }}>
+				<DialogActions style={{ justifyContent: 'space-between', padding: '0px 13px 4px 11px' }}>
 					{tabSelected === 0 ? (
 						<div>
-							<Button color="primary" onClick={this.handleAddConsumer}>
-								<FormattedMessage id="DialogNew.AddConsumer" defaultMessage="Add Consumer" />
-							</Button>
 							<Button
-								color="primary"
-								onClick={this.handleEditConsumer}
-								disabled={this.state.inbox.stream === null || this.state.inbox.stream.id === 'none'}
-							>
-								<FormattedMessage id="DialogNew.EditConsumer" defaultMessage="Edit Consumer" />
+								disabled={!canEdit}
+								color="primary" onClick={this.handleAddConsumer}>
+								<FormattedMessage id="DialogNew.AddConsumer" defaultMessage="Add Consumer" />
 							</Button>
 						</div>
 					) : (
