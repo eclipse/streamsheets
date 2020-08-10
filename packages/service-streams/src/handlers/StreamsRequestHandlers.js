@@ -163,7 +163,7 @@ class LoadAllConfigurationsRequestHandler extends RequestHandler {
 		try {
 			const streams = await streamsManager.configsManager.loadConfigurations();
 			const streamsWithStatus = streams.map((stream) => {
-				stream.status = streamsManager.streamsMonitor.streamsStatusMap.get(stream.id);
+				stream.state = streamsManager.streamsMonitor.getStreamState(stream.id);
 				return stream;
 			});
 			const result = {

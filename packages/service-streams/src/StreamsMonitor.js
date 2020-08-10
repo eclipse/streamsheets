@@ -11,7 +11,6 @@
 const { Topics, GatewayMessagingProtocol } = require('@cedalo/protocols');
 const {
 	Events,
-	ConsumerConfiguration,
 } = require('@cedalo/sdk-streams');
 const { LoggerFactory } = require('@cedalo/logger');
 const { createAndConnect } = require('@cedalo/messaging-client');
