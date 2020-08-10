@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -78,6 +78,19 @@ class MoveActivator extends InteractionActivator {
 		this._moveThreshold = viewer
 			.getCoordinateSystem()
 			.metricToLogXNoZoom(MoveActivator.THRESHOLD);
+		let controller = viewer.filterFoundControllers(Shape.FindFlags.AUTOMATIC);
+		if (controller) {
+			const model = controller.getModel();
+			if (
+				model.getParent() &&
+				!(model instanceof TextNode && model.isAssociated()) &&
+				model.getParent().isSelectParentFirst()
+			) {
+				controller = controller.getParent();
+			}
+		}
+
+		this._controller = controller;
 	}
 
 	/**
@@ -95,33 +108,20 @@ class MoveActivator extends InteractionActivator {
 			// activate if we got a move handle:
 			if (this._isMoveHandle(dispatcher.getActiveHandle())) {
 				this._activateOnDrag(event, viewer, dispatcher);
-			} else {
-				// check controller under mouse...
-				let controller = viewer.filterFoundControllers(Shape.FindFlags.AUTOMATIC);
-				if (controller) {
-					const model = controller.getModel();
-					if (
-						model.getParent() &&
-						!(model instanceof TextNode && model.isAssociated()) &&
-						model.getParent().isSelectParentFirst()
-					) {
-						controller = controller.getParent();
-					}
-				}
-				// const controller = dispatcher.getControllerAt(event.location);
+			} else if (this._controller) {
 				// temporarily remove protection to allow reordering for MatrixLayout
-				if (this._isOrderItem(controller)) {
-					controller.getModel().getGraph().overrideProtection = true;
+				if (this._isOrderItem(this._controller)) {
+					this._controller.getModel().getGraph().overrideProtection = true;
 				}
-				if (this._doMoveWithoutHandle(controller)) {
-					if (!controller.isSelected()) {
+				if (this._doMoveWithoutHandle(this._controller)) {
+					if (!this._controller.isSelected()) {
 						viewer.clearSelection();
-						viewer.select(controller);
+						viewer.select(this._controller);
 					}
 					this._activateOnDrag(event, viewer, dispatcher);
 				}
-				if (this._isOrderItem(controller)) {
-					controller.getModel().getGraph().overrideProtection = false;
+				if (this._isOrderItem(this._controller)) {
+					this._controller.getModel().getGraph().overrideProtection = false;
 				}
 			}
 		}

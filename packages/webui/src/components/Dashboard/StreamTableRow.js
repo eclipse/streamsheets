@@ -148,7 +148,7 @@ const StreamTableRow = (props) => {
 									{row.consumers.map((historyRow) => (
 										<TableRow
 											style={{
-												textDecoration: row.disabled ? 'line-through' : 'inherit',
+												textDecoration: row.disabled || historyRow.disabled ? 'line-through' : 'inherit',
 											}}
 											key={historyRow.id}
 										>
@@ -237,7 +237,7 @@ const StreamTableRow = (props) => {
 									{row.producers.map((historyRow) => (
 										<TableRow
 											style={{
-												textDecoration: row.disabled ? 'line-through' : 'inherit',
+												textDecoration: row.disabled || historyRow.disabled ? 'line-through' : 'inherit',
 											}}
 											key={historyRow.id}
 										>
