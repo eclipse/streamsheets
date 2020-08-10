@@ -457,12 +457,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 	setDrawAttributes(node, formatJSON) {
 		const attr = node.getItemAttributes();
-		let def = {
-			visible: true,
-			clip: false,
-			selectable: true,
-			container: 'top'
-		};
+		let def = {};
 
 		if (formatJSON !== undefined && formatJSON !== '' && !Numbers.isNumber(formatJSON)) {
 			try {
@@ -470,15 +465,29 @@ module.exports = class StreamSheet extends WorksheetNode {
 			} catch (e) {}
 		}
 
-		attr.setClipChildren(def.clip);
-		if (!this._editing) {
-			attr.setVisible(def.visible);
+		if (def.clip !== undefined) {
+			attr.setClipChildren(def.clip);
 		}
-		attr.setSelectionMode(def.selectable ? 4 : 0);
-		attr.setScaleType(def.container === 'none' ? 'top' : def.container);
-		attr.setContainer(def.container !== 'none');
 
-		return def;
+		if (!this._editing) {
+			if (def.visible !== undefined) {
+				attr.setVisible(def.visible);
+			} else {
+				attr.setVisible(true);
+			}
+		}
+
+		if (def.selectable !== undefined) {
+			attr.setSelectionMode(def.selectable ? 4 : 0);
+		}
+
+		if (def.container !== undefined) {
+			attr.setScaleType(def.container === 'none' ? 'top' : def.container);
+		}
+
+		if (def.container !== undefined) {
+			attr.setContainer(def.container !== 'none');
+		}
 	}
 
 	setEvents(node, eventJSON) {

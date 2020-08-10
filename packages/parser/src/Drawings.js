@@ -227,26 +227,18 @@ module.exports = class Drawings {
 		// visible
 		if (this.checkParam(terms, 0)) {
 			result.visible = terms[0].value;
-		} else {
-			result.visible = true;
 		}
 		// container
 		if (this.checkParam(terms, 1)) {
 			result.container = String(terms[1].value);
-		} else {
-			result.container = 'top';
 		}
 		// clip
 		if (this.checkParam(terms, 2)) {
 			result.clip = !!terms[2].value;
-		} else {
-			result.clip = false;
 		}
 		// selectable
 		if (this.checkParam(terms, 3)) {
 			result.selectable = !!terms[3].value;
-		} else {
-			result.selectable = true;
 		}
 
 		return JSON.stringify(result);

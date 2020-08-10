@@ -689,12 +689,15 @@ class StreamWizard extends React.Component {
 				<Fab
 					variant="extended"
 					size="small"
-					disabled={color !== 'primary'}
-					color={color}
+					disabled
+					disableRipple
+					disableFocusRipple
 					aria-label="add"
 					style={{
 						boxShadow: 'none',
+						color: color === 'primary' ? 'white' : undefined,
 						width: '196px',
+						backgroundColor: color === 'primary' ? this.props.theme.palette.primary.main : undefined,
 						lineHeight: 'normal'
 					}}
 				>

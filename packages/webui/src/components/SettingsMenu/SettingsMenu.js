@@ -45,7 +45,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import Typography from '@material-ui/core/es/Typography/Typography';
-import { ExitToApp, Security, Info, Settings, Assignment} from '@material-ui/icons';
+import {Assignment, ExitToApp, Info, Security, Settings} from '@material-ui/icons';
 
 import * as Actions from '../../actions/actions';
 import {graphManager} from '../../GraphManager';

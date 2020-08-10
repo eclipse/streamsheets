@@ -217,7 +217,7 @@ export default class CellsView extends NodeView {
 		});
 	}
 
-	getFormattedValueFromFunction(data, result) {
+	getFormattedValueFromFunction(graphics, data, result, availableWidth) {
 		const term = data.getExpression().getTerm();
 
 		if (data.displayFunctionName && term && (term instanceof FuncTerm)) {
@@ -226,6 +226,24 @@ export default class CellsView extends NodeView {
 					result.clip = true;
 					result.forcedAlignment = 0;
 					result.clipSpace = 600;
+
+					if (typeof result.value === 'string') {
+						let width = graphics
+							.getCoordinateSystem()
+							.deviceToLogX(graphics.measureText(result.value).width, true);
+						const eWidth = graphics
+							.getCoordinateSystem()
+							.deviceToLogX(graphics.measureText('...').width, true);
+						if (width + 150 > availableWidth - result.clipSpace && result.formattedValue.length) {
+							while (width + eWidth + 150 > availableWidth - result.clipSpace && result.formattedValue.length) {
+								result.formattedValue = result.formattedValue.slice(0, result.formattedValue.length - 1)
+								width = graphics
+									.getCoordinateSystem()
+									.deviceToLogX(graphics.measureText(result.formattedValue).width, true);
+							}
+							result.formattedValue += '...';
+						}
+					}
 					break;
 				case 'BAR':
 				case 'CELLCHART':
@@ -305,7 +323,7 @@ export default class CellsView extends NodeView {
 			return result;
 		}
 
-		if (this.getFormattedValueFromFunction(data, result)) {
+		if (this.getFormattedValueFromFunction(graphics, data, result, availableWidth)) {
 			return result;
 		}
 

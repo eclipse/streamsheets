@@ -54,17 +54,19 @@ class MarqueeActivator extends InteractionActivator {
 	 *     activator is registered.
 	 */
 	onMouseDown(event, viewer, dispatcher) {
+		let controller;
 		if (this.isDisposed === false && !dispatcher.getActiveHandle()) {
 			this._marqueeThreshold = viewer
 				.getCoordinateSystem()
 				.metricToLogXNoZoom(MarqueeActivator.THRESHOLD);
 			// specify AREA to ignore selectParentFirst setting! in possible controller...
-			let controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, this._condition);
+			controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, this._condition);
 			controller = this._checkParent(controller);
 			if (controller === undefined || controller instanceof GraphController) {
 				viewer.clearSelection();
 			}
 		}
+		this._controller = controller;
 	}
 
 	/**
@@ -110,8 +112,8 @@ class MarqueeActivator extends InteractionActivator {
 			.setTo(dispatcher.currentLocation)
 			.subtract(dispatcher.startLocation);
 		if (threshold.length() > this._marqueeThreshold) {
-			const controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, this._condition);
-			if (!controller || !controller.getModel().isProtected()) {
+			// const controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, this._condition);
+			if (!this._controller || !this._controller.getModel().isProtected()) {
 				viewer.clearSelection();
 				const interaction = this.activateInteraction(new MarqueeInteraction(), dispatcher);
 				interaction.onMouseDrag(event, viewer);
