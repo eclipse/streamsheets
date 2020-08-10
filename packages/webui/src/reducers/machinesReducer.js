@@ -68,7 +68,7 @@ export default function machinesReducer(state = defaultMachinesState, action) {
 			});
 			return { ...state, data: machines };
 		}
-		return { ...state };
+		return state;
 	}
 	default:
 		return state;

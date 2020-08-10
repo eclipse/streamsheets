@@ -119,9 +119,8 @@ class DashBoardComponent extends Component {
 		this.props.reloadAllStreams([resource.name]);
 	};
 
-	onStreamDelete = (resource, type) => {
-		this.props.setConfigurationActive(resource.id, type);
-		this.props.setDeleteDialogOpen(true);
+	onStreamDelete = (resource) => {
+		this.props.setDeleteDialogOpen(true, resource.id);
 	};
 
 	getConnector() {

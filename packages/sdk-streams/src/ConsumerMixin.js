@@ -49,7 +49,6 @@ const ConsumerMixin = (Connector) =>
 						this.logger.debug(
 							`Stream ${this.toString()} initialize() done`
 						);
-						this._emitter.emit(Connector.EVENTS.READY);
 					} catch (err) {
 						this.handleError(
 							err,
@@ -59,24 +58,6 @@ const ConsumerMixin = (Connector) =>
 					}
 				}
 			});
-			if (typeof this.test === 'function' && process.env.DL_CONSUMER_TEST) {
-				this.on(Connector.EVENTS.READY, async () => {
-					try {
-						this.logger.info(
-							`Starting test() for ${this.config.name}`
-						);
-						const result = await this._test();
-						if (!result) {
-							throw new Error(ERRORS.FAILEDTOTEST);
-						}
-						this.logger.info(`test() for ${this.config.name} pass`);
-						this._emitter.emit(Connector.EVENTS.TEST, result);
-					} catch (error) {
-						this._emitter.emit(Connector.EVENTS.TEST, error);
-						this.handleError(error, ERRORS.FAILEDTOTEST, this);
-					}
-				});
-			}
 		}
 
 		async _respond(config) {

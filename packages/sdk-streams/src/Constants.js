@@ -27,14 +27,11 @@ const EVENTS = {
 	CONNECTOR: {
 		ERROR: 'connector_error',
 		WARNING: 'connector_warning',
-		READY: 'ready',
 		OFFLINE: 'offline',
 		CONNECT: 'connect',
 		CLOSE: 'close',
 		DISPOSED: 'dispose',
-		TEST: 'test',
 		UPDATE: 'update',
-		FEEDBACK: 'feedback',
 		PERSIST: 'persist'
 	},
 	CONSUMER: {
