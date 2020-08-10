@@ -10,4 +10,4 @@ docker run \
   -p 8091:8091 \
   -p 9000:9000 \
   --env-file streamsheets.env \
-  cedalo/streamsheets:1.6-milestone
+  cedalo/streamsheets:2.0-milestone
