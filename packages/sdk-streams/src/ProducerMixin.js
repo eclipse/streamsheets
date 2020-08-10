@@ -39,7 +39,6 @@ const ProducerMixin = (Connector) =>
 						this.logger.debug(
 							`Connector ${this.toString()} initialize() done`
 						);
-						this._emitter.emit(ProducerMixin.EVENTS.READY);
 						return true;
 					} catch (err) {
 						return this.handleError(
@@ -51,24 +50,6 @@ const ProducerMixin = (Connector) =>
 				}
 				return false;
 			});
-			if (typeof this.test === 'function' && process.env.DL_CONSUMER_TEST) {
-				this.on(ProducerMixin.EVENTS.READY, async () => {
-					try {
-						this.logger.info(
-							`Starting test() for ${this.config.name}`
-						);
-						const result = await this._test();
-						if (!result) {
-							throw new Error(ERRORS.FAILEDTOTEST);
-						}
-						this.logger.info(`test() for ${this.config.name} pass`);
-						this._emitter.emit(ProducerMixin.EVENTS.TEST, result);
-					} catch (error) {
-						this._emitter.emit(ProducerMixin.EVENTS.TEST, error);
-						this.handleError(error, ERRORS.FAILEDTOTEST, this);
-					}
-				});
-			}
 		}
 
 		// Lifecycle

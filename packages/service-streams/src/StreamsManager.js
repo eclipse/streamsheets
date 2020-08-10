@@ -29,8 +29,8 @@ class StreamsManager {
 		this.repo = config.repo;
 		this._started = false;
 		this._messagingClient = null;
-		this.managerHandler = new StreamsManagerHandler();
 		this.streamsMonitor = new StreamsMonitor();
+		this.managerHandler = new StreamsManagerHandler(this.streamsMonitor);
 		this.configsManager = new ConfigurationsManager(config);
 		this.providersManager = new ProvidersManager({
 			repo: this.repo,

@@ -96,7 +96,6 @@ class Provider {
 				connector
 			}
 		}
-		config = await this.beforeProvide(Object.assign({}, config));
 		if (
 			(config.className === ConsumerConfiguration.name ||
 				config.className === ProducerConfiguration.name) &&
@@ -146,9 +145,6 @@ class Provider {
 		}
 		try {
 			this.producersMap.set(producer.id, producer);
-			producer.on(Connector.EVENTS.READY, async () => {
-				await this.afterProvide(producer);
-			});
 			producer.on(Connector.EVENTS.CONNECT, async (p) => {
 				if (p.type !== Connector.TYPE.CONSUMER) {
 					this.producersMap.set(p.id, p);
@@ -199,9 +195,6 @@ class Provider {
 		}
 		try {
 			this.consumersMap.set(consumer.id, consumer);
-			consumer.on(Connector.EVENTS.READY, async () => {
-				await this.afterProvide(consumer);
-			});
 			// consumer.on(Connector.EVENTS.CONNECT, async (f) => {
 				// if (f.config.className === ConsumerConfiguration.NAME) {
 					// this.consumersMap.set(f.id, f);
@@ -229,14 +222,6 @@ class Provider {
 
 	removeConsumerById(id) {
 		this._consumers.delete(id);
-	}
-
-	async beforeProvide(config) {
-		return config;
-	}
-
-	async afterProvide(consumer) {
-		return consumer;
 	}
 
 	set name(name) {

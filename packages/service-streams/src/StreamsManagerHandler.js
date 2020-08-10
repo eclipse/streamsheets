@@ -18,33 +18,14 @@ const logger = LoggerFactory.createLogger(
 	process.env.STREAMSHEETS_STREAMS_SERVICE_LOG_LEVEL
 );
 module.exports = class StreamsManagerHandler {
-	constructor() {
+	constructor(monitor) {
+		this._monitor = monitor;
 		this._messagingClient = null;
 		this.handleProviderError = this.handleProviderError.bind(this);
 	}
 
 	async init() {
 		this._messagingClient = await createAndConnect();
-	}
-
-	onError(error) {
-		const messageWrapper = {
-			type: 'event',
-			event: {
-				type: GatewayMessagingProtocol.EVENTS.STREAM_CONTROL_EVENT,
-				streamEventType: 'MANAGER_ERROR',
-				data: {
-					timestamp: new Date(),
-					error
-				}
-			}
-		};
-		this._messagingClient.publish(
-			`${Topics.SERVICES_STREAMS_EVENTS}/error`,
-			messageWrapper
-		);
-		logger.error(`handle provider error${error.message}`);
-		logger.error(error);
 	}
 
 	handleProviderError(error, stream) {
@@ -58,7 +39,8 @@ module.exports = class StreamsManagerHandler {
 					stream: {
 						id: stream.id,
 						name: stream.name,
-						scope: stream.scope
+						scope: stream.scope,
+						state: this._monitor.getStreamState(stream.id)
 					},
 					error: {
 						name: error.name,
@@ -86,7 +68,8 @@ module.exports = class StreamsManagerHandler {
 					stream: {
 						id: stream.id,
 						name: stream.name,
-						scope: stream.scope
+						scope: stream.scope,
+						state: this._monitor.getStreamState(stream.id)
 					},
 					notification
 				}
@@ -116,11 +99,12 @@ module.exports = class StreamsManagerHandler {
 						stream: {
 							id: config.id,
 							name: config.name,
-							scope: config.scope
+							scope: config.scope,
+							state: this._monitor.getStreamState(config.id)
 						},
 						isStream:
 							config.className === ConsumerConfiguration.name,
-						config
+						config: {...config, state: this._monitor.getStreamState(config.id)}
 					}
 				}
 			};

@@ -280,8 +280,6 @@ export class InboxSettings extends React.Component {
 	getStreams = () => {
 		const { streams } = this.state;
 		return streams.map((s) => {
-			s.state = StreamHelper.getResourceState(s, this.props.streams.statusMap);
-			s.state = StreamHelper.getStatusFor(s.state);
 			s.provider = this.props.streams.providers.find((p) => p.id === s.providerId);
 			return s;
 		});

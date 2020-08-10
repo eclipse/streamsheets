@@ -9,8 +9,7 @@
  *
  ********************************************************************************/
 /* eslint-disable react/no-did-mount-set-state */
-import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import fetch from 'isomorphic-fetch';
@@ -23,45 +22,11 @@ import PrivateRoute from './components/Auth/PrivateRoute';
 import { history } from './store';
 import './App.css';
 import ConfigManager from './helper/ConfigManager';
-import { DashboardPage, ExportPage, StreamsPage } from './pages';
+import { DashboardPage, ExportPage } from './pages';
 import { RoutesExtensions, UserTablePage, CreateUserPage, UpdateUserPage } from '@cedalo/webui-extensions';
-import * as Actions from './actions/actions';
-import MachineHelper from './helper/MachineHelper';
 import { Path } from './helper/Path';
 
 const GATEWAY_CONFIG = ConfigManager.config.gatewayClientConfig;
-
-const DefaultAdminRouteRedirect = connect(
-	({ user, monitor, meta }) => ({
-		rights: user.rights,
-		hasUser: !!user.user,
-		isConnected: MachineHelper.isMachineEngineConnected(monitor, meta)
-	}),
-	{
-		getMe: Actions.getMe,
-		connect: Actions.connect
-	}
-)((props) => {
-	const { rights, isConnected, hasUser } = props;
-	useEffect(() => {
-		if (!isConnected) {
-			props.connect();
-		}
-	}, [isConnected]);
-
-	useEffect(() => {
-		if (isConnected && !hasUser) {
-			props.getMe();
-		}
-	}, [isConnected]);
-	if (!hasUser) {
-		return null;
-	}
-	if (rights.includes('stream')) {
-		return <Redirect to={Path.connectors()} />;
-	}
-	return <Redirect to={Path.users()} />;
-});
 
 const isLicenseAccepted = (setup) => setup.licenseAgreement && setup.licenseAgreement.accepted;
 const isSetupCompleted = (setup) => setup && isLicenseAccepted(setup);
@@ -103,11 +68,7 @@ class App extends React.Component {
 							<Route exact path="/" render={() => <Redirect to="/dashboard" />} />
 							{process.env.REACT_APP_HIDE_ADMIN ? null : (
 								<React.Fragment>
-									<Route exact path="/administration" component={DefaultAdminRouteRedirect} />
-									<PrivateRoute path="/administration/connectors" component={StreamsPage} />
-									<PrivateRoute path="/administration/database" component={StreamsPage} />
-									<Route path="/administration/consumers" component={StreamsPage} />
-									<Route path="/administration/producers" component={StreamsPage} />
+									<Route exact path="/administration" render={() => <Redirect to={Path.users()} />} />
 									{/* <PrivateRoute path="/administration/plugins/" component={DefaultLayout} /> */}
 									<PrivateRoute exact path="/administration/users" component={UserTablePage} />
 									<PrivateRoute exact path="/administration/users/new" component={CreateUserPage} />
@@ -125,7 +86,6 @@ class App extends React.Component {
 							<PrivateRoute path="/export" component={ExportPage} />
 							<PrivateRoute path="/machines/:machineId" component={MachineDetailPage} />
 							<Route path="/machines/:machineId/:userId/:token" component={MachineDetailPage} />
-							<PrivateRoute path="/administration/stream/:configId" component={StreamsPage} />
 						</div>
 					)}
 				</div>

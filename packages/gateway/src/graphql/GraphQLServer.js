@@ -32,14 +32,10 @@ const typeDefs = gql`
 
 	scalar JSON
 
-	type StreamStatus {
-		streamEventType: String
-	}
-
 	type StreamLegacy {
 		id: ID!
 		name: String!
-		status: StreamStatus
+		state: String!
 		disabled: Boolean!
 		className: String!
 		lastModified: Float!

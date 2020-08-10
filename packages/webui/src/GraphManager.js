@@ -120,9 +120,7 @@ export default class GraphManager {
 	getStreamStatus(stream) {
 		if(stream && stream.id
 		) {
-			const state = StreamHelper.getResourceState(stream,
-				this._streamsStatusMap);
-			return StreamHelper.getStatusFor(state);
+			return StreamHelper.getStreamState(stream);
 		}
 		return undefined;
 	}

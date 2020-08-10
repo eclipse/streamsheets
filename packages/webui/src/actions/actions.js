@@ -46,22 +46,11 @@ window.onbeforeunload = () => {
 };
 
 export const {
-	fetchAllConfigurationsByType,
 	saveConfiguration,
 	reloadAllStreams,
-	undoStream,
-	createNewConfiguration,
-	updateConfiguration,
-	setConfigurationActive,
 	deleteActiveConfiguration,
-	toggleDialogAddConfiguration,
 	setDeleteDialogOpen,
-	controlEventsReset,
 	executeStreamCommand,
-	toggleStreamProgress,
-	setConfiguration,
-	setConfigurationSaved,
-	setInitialConfiguration,
 } = StreamActions;
 
 export const {
@@ -384,27 +373,6 @@ function handleStreamControlEvent(event) {
 	store.dispatch({
 		type: ActionTypes.STREAM_CONTROL_EVENT,
 		event,
-	});
-}
-
-export function timeoutStreamControlEvent(stream) {
-	store.dispatch({
-		type: ActionTypes.STREAM_CONTROL_EVENT,
-		event: {
-			streamEventType: 'dispose',
-			data: {
-				stream: {
-					name: stream.name,
-					id: stream.id,
-				},
-				config: {
-					...stream,
-					status: {
-						streamEventType: 'dispose',
-					},
-				},
-			},
-		},
 	});
 }
 

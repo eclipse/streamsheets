@@ -13,8 +13,6 @@ const { MessagingService } = require('@cedalo/service-core');
 const { Topics } = require('@cedalo/protocols');
 const MongoDBStreamsRepository = require('./persistence/MongoDBStreamsRepository');
 const StreamsManager = require('./StreamsManager');
-const StreamsManagerHandler = require('./StreamsManagerHandler');
-const StreamsMonitor = require('./StreamsMonitor');
 const StreamsRequestHandlers = require('./handlers/StreamsRequestHandlers');
 const { RequestHandlers } = require('@cedalo/service-core');
 
@@ -39,8 +37,6 @@ module.exports = class StreamsService extends MessagingService {
 		// TODO: init manager after receiving license info
 		this._streamsManager = new StreamsManager({
 			repo: this.repo,
-			streamsMonitor: new StreamsMonitor(this),
-			streamsManagerHandler: new StreamsManagerHandler(this),
 		});
 		this.finishStart();
 		// return this._streamsManager.start(); // keep for starting alone
