@@ -18,7 +18,7 @@ then
 		-v streamsheets-data:/var/lib/mongodb \
 		--name streamsheets \
 		--network streamsheets \
-		cedalo/streamsheets:1.6-milestone
+		cedalo/streamsheets:2.0-milestone
 else
 	echo "Starting Streamsheets Docker container"
 	docker start streamsheets -a
