@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/service-streams",
-  "version": "1.6.2",
+  "version": "2.0.0",
   "description": "Streams Service",
   "main": "index.js",
   "scripts": {
