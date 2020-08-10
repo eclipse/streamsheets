@@ -147,7 +147,7 @@ class StreamDeleteDialog extends React.Component {
 	};
 
 	render() {
-		const { deleteDialogOpen } = this.props;
+		const { open } = this.props;
 		const stream = StreamHelper.getActiveConfiguration(this.props);
 		if(!stream)
 			return null;
@@ -155,7 +155,7 @@ class StreamDeleteDialog extends React.Component {
 		return (
 				<div>
 					<Dialog
-							open={deleteDialogOpen}
+							open={open}
 					>
 						<DialogTitle>
 							<FormattedMessage
@@ -206,8 +206,8 @@ class StreamDeleteDialog extends React.Component {
 }
 function mapStateToProps(state) {
 	return {
-		deleteDialogOpen: state.appState.deleteDialogOpen,
-		activeConfigurationId: state.streams.activeConfigurationId,
+		open: state.appState.streamDeleteDialog.open,
+		activeConfigurationId: state.appState.streamDeleteDialog.configId,
 		providers: state.streams.providers,
 		connectors: state.streams.connectors,
 		consumers: state.streams.consumers,

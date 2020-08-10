@@ -12,6 +12,18 @@ const flatten = (arrays) => [].concat(...arrays);
 
 const unique = (array) => [...new Set(array)];
 
+const updateWhere = (array, update, f, upsert = true) => {
+	let isNew = true;
+	const updatedArray = array.map((e) => {
+		if(f(e)){
+			isNew = false;
+			return update;
+		}
+		return e;
+	})
+	return isNew && upsert ? [...updatedArray, update] : updatedArray;
+}
+
 const intersperse = (array, separator) => {
 	const applyWithIndex = typeof separator === 'function';
 	return array.reduce((acc, element, index) => {
@@ -33,6 +45,7 @@ const partition = (array, keyF) =>
 module.exports = {
 	flatten,
 	unique,
+	updateWhere,
 	intersperse,
 	partition
 };

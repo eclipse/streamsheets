@@ -144,9 +144,7 @@ export function MachineDetailPage(props) {
 						name
 						id
 						className
-						status {
-							streamEventType
-						}
+						state
 					}
 					machine(id: $machineId) {
 						canEdit

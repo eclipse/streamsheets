@@ -151,8 +151,6 @@ export default function notificationsReducer(state = defaultNotificationsState, 
 					};
 					NotificationCenter.showNotification(notification);
 					addNotification(notification, state);
-					state.savePending = false;
-					state.reloadStreamsPending = false;
 					break;
 				default:
 			}
