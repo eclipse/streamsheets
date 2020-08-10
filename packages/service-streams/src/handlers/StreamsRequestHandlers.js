@@ -332,36 +332,6 @@ class UpdateRequestHandler extends RequestHandler {
 	}
 }
 
-class TestRequestHandler extends RequestHandler {
-	constructor() {
-		super(MESSAGE_TYPES.STREAM_TEST);
-	}
-
-	handle(handlerArgs) {
-		const { message, streamsManager } = handlerArgs;
-		const { config } = message;
-		return new Promise(async (resolve, reject) => {
-			const result = await streamsManager.test(config);
-			if (result) {
-				resolve(
-					this.confirm(message, {
-						result
-					})
-				);
-			} else {
-				reject(
-					this.reject(
-						config,
-						`Failed to test() with config '${JSON.stringify(
-							config
-						)}'!`
-					)
-				);
-			}
-		});
-	}
-}
-
 class MetaInformationRequestHandler extends RequestHandler {
 	constructor() {
 		super(MESSAGE_TYPES.META_INFORMATION_MESSAGE_TYPE);
@@ -387,7 +357,6 @@ module.exports = {
 	GetProvidersRequestHandler,
 	ReloadAllRequestHandler,
 	UpdateRequestHandler,
-	TestRequestHandler,
 	LookUpRequestHandler,
 	StreamCommandRequestHandler,
 	ValidateConfigurationRequestHandler,

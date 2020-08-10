@@ -22,25 +22,6 @@ const logger = LoggerFactory.createLogger(
 	process.env.STREAMSHEETS_STREAMS_SERVICE_LOG_LEVEL
 );
 
-const getStreamState = (stream, streamsStatusMap) => {
-	const status = streamsStatusMap.get(stream.id);
-	const signal = status.streamEventType.toLowerCase();
-	switch (signal) {
-		case 'ready':
-			return 'connected';
-		case 'connect':
-			return 'connected';
-		case 'dispose':
-			return 'disconnected';
-		case 'warning':
-			return 'connected'; // 'connected with warning'
-		case 'feedback':
-			return 'connected'; // 'message from stream';
-		default:
-			return 'disconnected';
-	}
-};
-
 const getStreamType = (stream) => {
 	let type = '';
 	switch (stream.config.className) {
@@ -84,6 +65,21 @@ module.exports = class StreamsMonitor {
 		this.streams = new Map();
 		this.streamsStatusMap = new Map();
 	}
+
+	getStreamState(streamId) {
+		const status = this.streamsStatusMap.get(streamId);
+		const signal = status ? status.streamEventType.toLowerCase() : '';
+		switch (signal) {
+			case 'connect':
+				return 'connected';
+			case 'dispose':
+				return 'disconnected';
+			case 'warning':
+				return 'connected'; // 'connected with warning'
+			default:
+				return 'disconnected';
+		}
+	};
 
 	async init() {
 		this._messagingClient = await createAndConnect();
@@ -132,10 +128,6 @@ module.exports = class StreamsMonitor {
 		if(this.streams.has(stream.id)) {
 			this.removeStream(this.streams.get(stream.id));
 		}
-		stream.on(Events.CONNECTOR.TEST, (resultOrError) =>
-			this.onTest(resultOrError, stream)
-		);
-		stream.on(Events.CONNECTOR.READY, () => this.onReady(stream));
 		stream.on(Events.CONNECTOR.CONNECT, () => this.onConnect(stream));
 		stream.on(Events.CONNECTOR.ERROR, (error) =>
 			this.onError(error, stream)
@@ -143,15 +135,8 @@ module.exports = class StreamsMonitor {
 		stream.on(Events.CONNECTOR.WARNING, (warning) =>
 			this.onWarning(warning, stream)
 		);
-		stream.on(Events.CONNECTOR.FEEDBACK, (feedback) =>
-			this.onFeedback(feedback, stream)
-		);
 		stream.on(Events.CONNECTOR.DISPOSED, () => this.onDisposed(stream));
-		if (stream.config.className === 'ProducerConfiguration') {
-			// stream.on(Events.PRODUCER.PRODUCE, message => this.onPublish(message, stream));
-			// stream.on(Events.PRODUCER.RESPOND, message => this.onRespond(message, stream));
-			// stream.on(Events.PRODUCER.REQUEST, message => this.onRequest(message, stream));
-		} else {
+		if (stream.config.className !== 'ProducerConfiguration') {
 			stream.on(Events.CONSUMER.MESSAGE, (topic, message) =>
 				this.onMessage(topic, message, stream)
 			);
@@ -175,51 +160,6 @@ module.exports = class StreamsMonitor {
 		redis.queueAll(streamSubscribersKey(stream.id, stream.config.scope.id), jsonMessage);
 	}
 
-	onPublish(message, stream) {
-		const messageWrapper = {
-			type: 'event',
-			event: {
-				type: 'event',
-				streamEventType: Events.PRODUCER.PRODUCE,
-				data: message
-			}
-		};
-		this._messagingClient.publish(
-			`${Topics.SERVICES_STREAMS_EVENTS}/${stream.id}/publish`,
-			messageWrapper
-		);
-	}
-
-	onRequest(message, stream) {
-		const messageWrapper = {
-			type: 'event',
-			event: {
-				type: 'event',
-				streamEventType: Events.PRODUCER.REQUEST,
-				data: message
-			}
-		};
-		this._messagingClient.publish(
-			`${Topics.SERVICES_STREAMS_EVENTS}/${stream.id}/request`,
-			messageWrapper
-		);
-	}
-
-	onRespond(message, stream) {
-		const messageWrapper = {
-			type: 'event',
-			event: {
-				type: 'event',
-				streamEventType: Events.PRODUCER.RESPOND,
-				data: message
-			}
-		};
-		this._messagingClient.publish(
-			`${Topics.SERVICES_STREAMS_EVENTS}/${stream.id}/respond`,
-			messageWrapper
-		);
-	}
-
 	onError(error, stream) {
 		if (this.streams.has(stream.id)) {
 			const err = error
@@ -233,9 +173,6 @@ module.exports = class StreamsMonitor {
 				Events.CONNECTOR.ERROR,
 				{ error: err }
 			);
-			if (stream.config && stream.config.connector) {
-				this.notifyConnector(stream.config.connector, false);
-			}
 			this._messagingClient.publish(
 				`${Topics.SERVICES_STREAMS_EVENTS}/${stream.id}/error`,
 				messageWrapper
@@ -262,58 +199,7 @@ module.exports = class StreamsMonitor {
 		}
 	}
 
-	onFeedback(feedback, stream) {
-		if (this.streams.has(stream.id)) {
-			const messageWrapper = this._wrapMessage(
-				stream,
-				Events.CONNECTOR.FEEDBACK,
-				{
-					feedback
-				}
-			);
-			this._messagingClient.publish(
-				`${Topics.SERVICES_STREAMS_EVENTS}/${stream.id}/feedback`,
-				messageWrapper
-			);
-		}
-	}
-
-	notifyConnector(connector, connected = false) {
-		if (connected) {
-			this.onConnect({
-				config: connector
-			});
-		} else {
-			this.onDisposed({
-				config: connector
-			});
-		}
-		logger.debug(
-			`${connector.name} connector notified() connected: ${connected}`
-		);
-	}
-
-	onReady(stream) {
-		const messageWrapper = this._wrapMessage(
-			stream,
-			Events.CONNECTOR.READY,
-			{
-				config: stream.config,
-				isStream:
-					stream.config.className === ConsumerConfiguration.name
-			}
-		);
-		this._messagingClient.publish(
-			`${Topics.SERVICES_STREAMS_EVENTS}/${stream.id}/ready`,
-			messageWrapper,
-			{ qos: 1 }
-		);
-	}
-
 	onConnect(stream) {
-		if (stream.config && stream.config.connector) {
-			this.notifyConnector(stream.config.connector, true);
-		}
 		const messageWrapper = this._wrapMessage(
 			stream,
 			Events.CONNECTOR.CONNECT
@@ -324,23 +210,8 @@ module.exports = class StreamsMonitor {
 		);
 	}
 
-	onTest(resultOrError, stream) {
-		const messageWrapper = this._wrapMessage(
-			stream,
-			Events.CONNECTOR.TEST,
-			{ resultOrError }
-		);
-		this._messagingClient.publish(
-			`${Topics.SERVICES_STREAMS_EVENTS}/${stream.id}/test`,
-			messageWrapper
-		);
-	}
-
 	onDisposed(stream) {
 		logger.debug(`${stream.id || stream.config.id} onDisposed()`);
-		if (stream.config && stream.config.connector) {
-			this.notifyConnector(stream.config.connector, false);
-		}
 		const messageWrapper = this._wrapMessage(
 			stream,
 			Events.CONNECTOR.DISPOSED,
@@ -354,14 +225,8 @@ module.exports = class StreamsMonitor {
 
 	_wrapMessage(stream, streamEventType, payload = {}) {
 		this.streamsStatusMap.set(stream.id, { streamEventType, payload });
-		if (stream.config.connector) {
-			this.streamsStatusMap.set(stream.config.connector.id, {
-				streamEventType,
-				payload
-			});
-		}
 		const type = getStreamType(stream);
-		const state = getStreamState(stream, this.streamsStatusMap);
+		const state = this.getStreamState(stream.id);
 		return {
 			type: 'event',
 			event: {

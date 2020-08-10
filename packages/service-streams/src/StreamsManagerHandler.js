@@ -27,26 +27,6 @@ module.exports = class StreamsManagerHandler {
 		this._messagingClient = await createAndConnect();
 	}
 
-	onError(error) {
-		const messageWrapper = {
-			type: 'event',
-			event: {
-				type: GatewayMessagingProtocol.EVENTS.STREAM_CONTROL_EVENT,
-				streamEventType: 'MANAGER_ERROR',
-				data: {
-					timestamp: new Date(),
-					error
-				}
-			}
-		};
-		this._messagingClient.publish(
-			`${Topics.SERVICES_STREAMS_EVENTS}/error`,
-			messageWrapper
-		);
-		logger.error(`handle provider error${error.message}`);
-		logger.error(error);
-	}
-
 	handleProviderError(error, stream) {
 		const messageWrapper = {
 			type: 'event',

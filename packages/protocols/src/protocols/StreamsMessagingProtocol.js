@@ -24,7 +24,6 @@ const STREAMS_CONFIG_LOAD_ALL = 'stream_config_load_all';
 const STREAM_CONFIG_VALIDATE = 'stream_config_validate';
 const STREAM_GET_PROVIDERS = 'stream_get_providers';
 const STREAM_UPDATE = 'stream_update';
-const STREAM_TEST = 'stream_test';
 const STREAM_LIST = 'stream_list';
 const STREAM_RELOAD = 'stream_reload';
 const STREAM_RELOAD_ALL = 'stream_reload_all';
@@ -55,7 +54,6 @@ module.exports = {
 		STREAMS_CONFIG_LOAD_ALL,
 		STREAM_CONFIG_VALIDATE,
 		STREAM_UPDATE,
-		STREAM_TEST,
 		STREAM_LIST,
 		STREAM_RELOAD,
 		STREAM_RELOAD_ALL,
