@@ -22,8 +22,8 @@
     "smtp-server": "3.4.6"
   },
   "dependencies": {
-    "@cedalo/logger": "1.6.2",
-    "@cedalo/sdk-streams": "1.6.2",
+    "@cedalo/logger": "2.0.0",
+    "@cedalo/sdk-streams": "2.0.0",
     "mailparser": "2.7.1",
     "poplib": "0.1.7"
   },

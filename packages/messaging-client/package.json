@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/messaging-client",
   "dependencies": {
-    "@cedalo/id-generator": "1.6.2",
-    "@cedalo/logger": "1.6.2",
+    "@cedalo/id-generator": "2.0.0",
+    "@cedalo/logger": "2.0.0",
     "mqtt": "3.0.0"
   },
   "devDependencies": {

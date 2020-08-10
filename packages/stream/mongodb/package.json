@@ -23,7 +23,7 @@
 		"mongodb-memory-server": "5.2.11"
 	},
 	"dependencies": {
-		"@cedalo/sdk-streams": "1.6.2",
+		"@cedalo/sdk-streams": "2.0.0",
 		"mongodb": "3.0.11"
 	},
 	"jest": {
