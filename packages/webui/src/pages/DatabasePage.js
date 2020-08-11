@@ -9,9 +9,10 @@
  *
  ********************************************************************************/
 import React from 'react';
-import Database from '../components/Admin/security/Database';
-import { Restricted, NotAllowed } from '../components/HelperComponent/Restricted';
 import { FormattedMessage } from 'react-intl';
+import Database from '../components/Admin/security/Database';
+import { NotAllowed, Restricted } from '../components/HelperComponent/Restricted';
+import { intl } from '../helper/IntlGlobalProvider';
 import { AdminPageLayout } from '../layouts/AdminPageLayout';
 
 const RestrictedWrapper = (props) => (
@@ -35,7 +36,7 @@ const RestrictedWrapper = (props) => (
 );
 
 export const DatabasePage = () => (
-	<AdminPageLayout page="database" documentTitle={<FormattedMessage id="Administration" default="Administration" />}>
+	<AdminPageLayout page="database" documentTitle={intl.formatMessage({ id: 'Administration' })}>
 		<div
 			style={{
 				position: 'relative',
