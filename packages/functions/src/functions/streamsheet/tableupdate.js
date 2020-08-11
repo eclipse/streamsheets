@@ -12,7 +12,7 @@ const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell, SheetIndex } = require('@cedalo/machine-core');
 const { Term } = require('@cedalo/parser');
-const {	runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../utils');
+const {	aggregations, runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 const sharedidx = SheetIndex.create(1, 0);
@@ -223,22 +223,45 @@ const getCellRange = (term, sheet) => {
 	return range && (range.width > 1 || range.height > 1) ? range : undefined;
 };
 
+const getAggregationType = (value) => {
+	const nr = convert.toNumber(value);
+	return nr != null && aggregations.hasMethod(nr) ? nr : ERROR.VALUE;
+};
+
+const aggregateValue = (value, aggregationType, context) => {
+	if (context.aggregationType !== aggregationType) {
+		context.aggregationType = aggregationType;
+		context.aggregate = aggregations.createMethod(aggregationType);
+	}
+	return context.aggregate(value);
+};
+
+const initContext = (context) => {
+	if (context.aggregationType == null) {
+		context.aggregationType = 0;
+		context.aggregate = aggregations.createMethod(0);
+	}
+};
+
 const tableupdate = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(2)
-		.withMaxArgs(6)
+		.withMaxArgs(7)
 		.mapNextArg((stackrange) => getCellRange(stackrange, sheet) || ERROR.VALUE)
 		.mapNextArg((valueterm) => errorIfNull(valueterm.value))
 		.mapNextArg((rowindex) => (rowindex ? toNumberOrString(rowindex.value) : ''))
 		.mapNextArg((colindex) => (colindex ? toNumberOrString(colindex.value) : ''))
 		.mapNextArg((pushrow) => (hasValue(pushrow) ? convert.toNumber(pushrow.value, ERROR.VALUE) : 0))
 		.mapNextArg((pushcolumn) => (hasValue(pushcolumn) ? convert.toNumber(pushcolumn.value, ERROR.VALUE) : 0))
-		.run((range, value, rowindex, colindex, pushrow, pushcolumn) => {
+		.mapNextArg((aggrType) => (hasValue(aggrType) ? getAggregationType(aggrType.value) : 0))
+		.beforeRun(() => initContext(tableupdate.context))
+		.run((range, value, rowindex, colindex, pushrow, pushcolumn, aggregationType) => {
 			const row = getOrAddRowIndex(range, rowindex, pushrow);
 			const col = getOrAddColumnIndex(range, colindex, pushcolumn);
+			// never change top-left
 			if (row != null && row > range.start.row && col != null && col > range.start.col) {
-				// never change top-left
+				value = aggregateValue(value, aggregationType, tableupdate.context);
 				sharedidx.set(row, col);
 				sheet.setCellAt(sharedidx, new Cell(value, Term.fromValue(value)));
 			}
