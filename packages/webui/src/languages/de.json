@@ -64,6 +64,7 @@
 	"Warning": "Warnung",
 	"Cut": "Ausschneiden",
 	"Copy": "Kopieren",
+	"CopyText": "Text kopieren",
 	"Paste": "Einfügen",
 	"PasteContent": "Inhalte einfügen...",
 	"PasteOverwrite": "Der Zielbereich enthält Werte! Möchten Sie diese überschreiben?",

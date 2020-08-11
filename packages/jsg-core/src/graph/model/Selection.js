@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -643,5 +643,27 @@ module.exports = class Selection {
 		writer.writeEndElement();
 
 		writer.writeEndElement();
+	}
+
+	saveText() {
+		const sheet = this.getWorksheet().getDataProvider();
+		let text = '';
+		const range = this._ranges[0];
+
+		for (let i = range.getY1(); i <= range.getY2(); i += 1) {
+			const row = sheet.getRow(i);
+			if (row) {
+				for (let j = range.getX1(); j <= range.getX2(); j += 1) {
+					const cell = row[j];
+					if (cell && cell.getValue()) {
+						text += String(cell.getValue());
+					}
+					text += '\t';
+				}
+			}
+			text += '\r';
+		}
+
+		return text;
 	}
 };
