@@ -580,7 +580,7 @@ export class EditBarComponent extends Component {
 						borderLeft: '1px solid #AAAAAA',
 						borderBottom: '1px solid #AAAAAA',
 						minHeight: '17px',
-						backgroundColor: this.props.theme.palette.colorPrimary,
+						backgroundColor: this.props.theme.overrides.MuiAppBar.colorDefault.backgroundColor,
 						maxHeight: '200px',
 						overflowY: 'auto',
 						verticalAlign: 'top',

@@ -141,7 +141,10 @@ const createDark = () => {
 				MuiAppBar: {
 					colorPrimary: {
 						backgroundColor: '#212121',
-					}
+					},
+					colorDefault: {
+						backgroundColor: '#212121'
+					},
 				},
 				MuiPaper: {
 					root: {
@@ -187,7 +190,6 @@ const createDark = () => {
 						background: '#212121',
 						padding: '10px',
 						fontSize: '130%',
-						textAlign: 'center',
 						justifyContent: 'space-between',
 					},
 				},
