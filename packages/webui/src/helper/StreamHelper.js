@@ -224,26 +224,17 @@ export default class StreamHelper {
 				return new ProviderConfiguration(model);
 			}
 			case ConnectorConfiguration.name: {
-				if (model.isRef) {
-					return new ConnectorConfiguration(model);
-				}
 				const connectorModel = props.connectors.find(a => a.id === model.id);
 				const provider = StreamHelper.getProviderOfConnector(connectorModel, props);
 				return new ConnectorConfiguration(model, provider);
 			}
 			case ConsumerConfiguration.name: {
-				if (model.isRef) {
-					return new ConsumerConfiguration(model);
-				}
 				const connector = StreamHelper.getInstanceFromObject(model.connector, props);
 				const connectorModel = props.connectors.find(a => a.id === connector.id);
 				const provider = StreamHelper.getProviderOfConnector(connectorModel, props);
 				return new ConsumerConfiguration(model, connector, provider);
 			}
 			case ProducerConfiguration.name: {
-				if (model.isRef) {
-					return new ProducerConfiguration(model);
-				}
 				const connector = StreamHelper.getInstanceFromObject(model.connector, props);
 				const connectorModel = props.connectors.find(a => a.id === connector.id);
 				const provider = StreamHelper.getProviderOfConnector(connectorModel, props);
