@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const aggregations = require('./aggregations');
 const AsyncRequest = require('./AsyncRequest');
 const calculate = require('./calculate');
 const common = require('./common');
@@ -26,6 +27,7 @@ const values = require('./values');
 const wildcards = require('./wildcards');
 
 module.exports = {
+	aggregations,
 	AsyncRequest,
 	calculate,
 	common,
