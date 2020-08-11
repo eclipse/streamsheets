@@ -235,36 +235,30 @@ class StreamWizard extends React.Component {
 		return finalName;
 	}
 
-	getProviders = () => {
-		const providers = [];
+	getRelevantProviders = () => {
+		switch (this.props.type) {
+			case 'consumer':
+				return this.props.streams.providers.filter((p) => p.canConsume);
+			case 'procuder':
+				return this.props.streams.providers.filter((p) => p.canProduce);
+			default:
+				return this.props.streams.providers;
+		}
+	};
 
-		this.props.streams.providers.forEach(provider => {
-			if (this.props.type === 'connector' ||
-				(this.props.type === 'consumer' && provider.canConsume) ||
-				(this.props.type === 'producer' && provider.canProduce)) {
-				providers.push(provider);
-			}
-		});
-		return SortSelector.sort(providers, this.state.sortQuery, this.state.filter);
-	}
+	getRelevantConnectors = () => {
+		switch (this.props.type) {
+			case 'consumer':
+				return this.props.streams.connectors.filter((c) => this.providerMap[c.provider.id].canConsume);
+			case 'procuder':
+				return this.props.streams.connectors.filter((c) => this.providerMap[c.provider.id].canProduce);
+			default:
+				return this.props.streams.connectors;
+		}
+	};
 
-	getConnectors = () => {
-		const connectors = [];
-
-		this.props.streams.connectors.forEach(connector => {
-			const provider = this.props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration].find(
-				(p) => p.id === connector.provider.id
-			);
-
-			if (provider &&
-				((this.props.type === 'consumer' && provider.canConsume) ||
-				(this.props.type === 'producer' && provider.canProduce))) {
-				connectors.push(connector);
-			}
-		});
-
-		return SortSelector.sort(connectors, this.state.sortQuery, this.state.filter);
-	}
+	getProviders = () => SortSelector.sort(this.getRelevantProviders(), this.state.sortQuery, this.state.filter);
+	getConnectors = () => SortSelector.sort(this.getRelevantConnectors(), this.state.sortQuery, this.state.filter);
 
 	handleTableSort = (event, property) => {
 		const orderBy = property;
