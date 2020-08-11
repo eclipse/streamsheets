@@ -788,14 +788,12 @@ export function openDashboard(currentMachineId) {
 				return gatewayClient
 					.updateMachineImage(currentMachineId, previewImage)
 					.then(() => dispatch(push(Path.dashboard())))
-					.then(() => _getDataStores(dispatch))
 					.then(() => {
 						reloadDashboard();
 					});
 			}
 			return Promise.resolve()
 				.then(() => dispatch(push(Path.dashboard())))
-				.then(() => _getDataStores(dispatch))
 				.then(() => {
 					reloadDashboard();
 				});

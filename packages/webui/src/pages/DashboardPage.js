@@ -92,6 +92,7 @@ export function DashboardPageComponent(props) {
 	useEffect(() => {
 		if (scopeId) {
 			props.getMachines(DASHBOARD_QUERY, { scope: { id: scopeId } });
+			props.getDataStores();
 		}
 	}, [scopeId]);
 

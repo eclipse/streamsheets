@@ -72,10 +72,6 @@ class DashBoardComponent extends Component {
 		};
 	}
 
-	componentDidMount() {
-		this.props.getDataStores();
-	}
-
 	onResourceOpen = (resource, newWindow) => {
 		const path = Path.machine(resource.id);
 		if (newWindow) {
@@ -246,12 +242,7 @@ class DashBoardComponent extends Component {
 	};
 
 	handleTabChange = (event, value) => {
-		if (value === 1) {
-			this.props.getDataStores().then(() => this.setState({ activeTab: value }));
-		} else {
-			this.setState({ activeTab: value });
-		}
-
+		this.setState({ activeTab: value });
 		this.props.onUpdateFilter('');
 	};
 
