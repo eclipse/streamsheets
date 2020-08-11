@@ -94,6 +94,7 @@ class StreamWizard extends React.Component {
 				defaultMessage: 'Invalid Name'
 			})
 		};
+		this.providerMap = Object.fromEntries(this.props.streams.providers.map((p) => [p.id, p]));
 		this.state = {
 			connector: undefined,
 			fieldErrors: undefined,
