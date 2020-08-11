@@ -471,6 +471,7 @@ class StreamWizard extends React.Component {
 					step: this.state.step + 1
 				});
 				this.state.connector.name = this.state.connectorName;
+				this.state.connector.description = this.state.connectorDescription;
 				break;
 			case 'connectorsettings': {
 				const model = this.state.connector;
@@ -528,6 +529,7 @@ class StreamWizard extends React.Component {
 						? new ConsumerConfiguration({}, this.state.connector, new ProviderConfiguration(provider))
 						: this.state.consumer;
 				consumer.name = this.state.streamName;
+				consumer.description = this.state.streamDescription;
 				this.setState({
 					activeStep: 'consumersettings',
 					backDisabled: false,
@@ -571,6 +573,7 @@ class StreamWizard extends React.Component {
 							? new ProducerConfiguration({}, this.state.connector, new ProviderConfiguration(provider))
 							: this.state.producer;
 					producer.name = this.state.streamName;
+					producer.description = this.state.streamDescription;
 					this.setState({
 						activeStep: 'producersettings',
 						backDisabled: false,
