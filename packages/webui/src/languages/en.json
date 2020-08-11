@@ -64,6 +64,7 @@
   "Warning": "Warning",
   "Cut": "Cut",
   "Copy": "Copy",
+  "CopyText": "Copy as Text",
   "Paste": "Paste",
   "PasteContent": "Paste Content...",
   "PasteOverwrite": "The target range contains values! Do you want to overwrite these?",
