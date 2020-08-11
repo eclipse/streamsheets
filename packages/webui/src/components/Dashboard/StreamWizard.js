@@ -235,8 +235,36 @@ class StreamWizard extends React.Component {
 		return finalName;
 	}
 
-	getProviders = () => SortSelector.sort(this.props.streams.providers, this.state.sortQuery, this.state.filter);
-	getConnectors = () => SortSelector.sort(this.props.streams.connectors, this.state.sortQuery, this.state.filter);
+	getProviders = () => {
+		const providers = [];
+
+		this.props.streams.providers.forEach(provider => {
+			if (this.props.type === 'connector' ||
+				(this.props.type === 'consumer' && provider.canConsume) ||
+				(this.props.type === 'producer' && provider.canProduce)) {
+				providers.push(provider);
+			}
+		});
+		return SortSelector.sort(providers, this.state.sortQuery, this.state.filter);
+	}
+
+	getConnectors = () => {
+		const connectors = [];
+
+		this.props.streams.connectors.forEach(connector => {
+			const provider = this.props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration].find(
+				(p) => p.id === connector.provider.id
+			);
+
+			if (provider &&
+				((this.props.type === 'consumer' && provider.canConsume) ||
+				(this.props.type === 'producer' && provider.canProduce))) {
+				connectors.push(connector);
+			}
+		});
+
+		return SortSelector.sort(connectors, this.state.sortQuery, this.state.filter);
+	}
 
 	handleTableSort = (event, property) => {
 		const orderBy = property;
