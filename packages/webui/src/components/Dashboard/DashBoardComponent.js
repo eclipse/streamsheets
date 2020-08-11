@@ -85,7 +85,10 @@ class DashBoardComponent extends Component {
 		}
 	};
 
-	onWizardClose = () => {
+	onWizardClose = (connector) => {
+		if (connector) {
+			this.newConnectorName = connector.name;
+		}
 		this.setState({ showStreamWizard: false, editStream: false });
 	};
 
@@ -326,7 +329,11 @@ class DashBoardComponent extends Component {
 				const consumers = StreamHelper.getConsumersUsingConnector(connector.id, this.props.streams.consumers);
 				const producers = StreamHelper.getProducersUsingConnector(connector.id, this.props.streams.producers);
 				const index = this.state.filter.indexOf(provider.name);
-				const result = filter(connector, consumers, producers)
+				let result = filter(connector, consumers, producers)
+				if (this.newConnectorName !== undefined && connector.name === this.newConnectorName) {
+					result = 2;
+					this.newConnectorName = undefined;
+				}
 				if (index === -1 && result) {
 					const row = {
 						id: connector.id,

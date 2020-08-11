@@ -119,6 +119,13 @@ class StreamWizard extends React.Component {
 				activeStep: props.initialStep,
 				newConnector: props.initialStep === 'connector',
 				connector: props.connector,
+				fieldErrors: undefined,
+				selectedProvider: { id: '' },
+				error: '',
+				connectorName: '',
+				step: 1,
+				showAdvanced: false,
+				validating: false,
 				streamName: props.type === 'consumer' ?
 					StreamWizard.createUniqueConsumerName(props.connector, props) :
 					StreamWizard.createUniqueProducerName(props.connector, props)
@@ -133,22 +140,6 @@ class StreamWizard extends React.Component {
 			this.nameRef.selectionEnd = this.start;
 		}
 	}
-
-	reset = () => {
-		this.setState({
-			connector: undefined,
-			newConnector: true,
-			fieldErrors: undefined,
-			selectedProvider: { id: '' },
-			activeStep: undefined,
-			error: '',
-			connectorName: '',
-			streamName: '',
-			step: 1,
-			showAdvanced: false,
-			validating: false
-		});
-	};
 
 	static createUniqueConsumerName(connector, props) {
 		let name;
@@ -365,13 +356,21 @@ class StreamWizard extends React.Component {
 	};
 
 	handleCancel = () => {
-		this.reset();
 		this.props.onClose();
 	};
 
 	handleClose = () => {
-		this.reset();
-		this.props.onClose(this.props.type === 'consumer' ? this.state.consumer : undefined);
+		switch (this.props.type) {
+			case 'consumer':
+				this.props.onClose(this.state.consumer);
+				break;
+			case 'connector':
+				this.props.onClose(this.state.connector);
+				break;
+			default:
+				this.props.onClose();
+				break;
+		}
 	};
 
 	getSteps() {
