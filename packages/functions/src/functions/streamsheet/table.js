@@ -268,4 +268,24 @@ const tableupdate = (sheet, ...terms) =>
 			return true;
 		});
 
-module.exports = tableupdate;
+const tableget = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.withArgCount(3)
+		.mapNextArg((stackrange) => getCellRange(stackrange, sheet) || ERROR.VALUE)
+		.mapNextArg((rowindex) => toNumberOrString(rowindex.value))
+		.mapNextArg((colindex) => toNumberOrString(colindex.value))
+		.run((range, rowindex, colindex) => {
+			const row = getRowIndex(range, rowindex);
+			const col = getColumnIndex(range, colindex);
+			if (row != null && col != null) {
+				const cell = sheet.cellAt(sharedidx.set(row, col));
+				return cell ? cell.value : ERROR.NA;
+			}
+			return ERROR.NA;
+		});
+
+module.exports = {
+	'TABLE.GET': tableget,
+	'TABLE.UPDATE': tableupdate
+};
