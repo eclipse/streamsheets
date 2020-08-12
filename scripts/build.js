@@ -20,7 +20,6 @@ if (!argv.name) {
 }
 
 const tags = toArray(argv.tag);
-console.log(argv.tag);
 
 const push = argv.push;
 

@@ -48,6 +48,7 @@
 		"id": "CONNECTOR_MONGODB",
 		"name": "MongoDB_Connector",
 		"className": "ConnectorConfiguration",
+		"disabled": false,
 		"provider": {
 			"_id": "@cedalo/stream-mongodb",
 			"id": "@cedalo/stream-mongodb",
