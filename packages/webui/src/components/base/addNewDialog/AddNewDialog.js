@@ -228,7 +228,7 @@ class AddNewDialog extends React.Component {
 		if (consumer) {
 			this.scroll = `stream-${consumer.id}`;
 			this.setState({
-				selected: consumer
+				selected: consumer.toJSON()
 			});
 		}
 		this.setState({
