@@ -48,6 +48,7 @@
 		"id": "CONNECTOR_MONGODB",
 		"name": "MongoDB_Connector",
 		"className": "ConnectorConfiguration",
+		"disabled": false,
 		"provider": {
 			"_id": "@cedalo/stream-mongodb",
 			"id": "@cedalo/stream-mongodb",
@@ -69,6 +70,7 @@
 			"id": "root"
 		},
 		"className": "ProducerConfiguration",
+		"disabled": false,
 		"connector": {
 			"_id": "CONNECTOR_MONGODB",
 			"id": "CONNECTOR_MONGODB",
@@ -139,6 +141,7 @@
 	{
 		"id": "CONNECTOR_KAFKA",
 		"name": "Kafka_Connector",
+		"disabled": false,
 		"className": "ConnectorConfiguration",
 		"provider": {
 			"_id": "@cedalo/stream-kafka",
