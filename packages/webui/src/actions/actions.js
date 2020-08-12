@@ -370,10 +370,13 @@ function handleStreamsReloaded(event) {
 }
 
 function handleStreamControlEvent(event) {
-	store.dispatch({
-		type: ActionTypes.STREAM_CONTROL_EVENT,
-		event,
-	});
+	const user = store.getState().user.user;
+	if (user && event.data.stream && user.scope.id === event.data.stream.scope.id) {
+		store.dispatch({
+			type: ActionTypes.STREAM_CONTROL_EVENT,
+			event
+		});
+	}
 }
 
 function _getDataStores(dispatch) {
@@ -785,14 +788,12 @@ export function openDashboard(currentMachineId) {
 				return gatewayClient
 					.updateMachineImage(currentMachineId, previewImage)
 					.then(() => dispatch(push(Path.dashboard())))
-					.then(() => _getDataStores(dispatch))
 					.then(() => {
 						reloadDashboard();
 					});
 			}
 			return Promise.resolve()
 				.then(() => dispatch(push(Path.dashboard())))
-				.then(() => _getDataStores(dispatch))
 				.then(() => {
 					reloadDashboard();
 				});

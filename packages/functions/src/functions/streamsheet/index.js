@@ -15,7 +15,7 @@ const counters = require('./counters');
 const detectchange = require('./detectchange');
 const outboxgetids = require('./outboxgetids');
 const loop = require('./loop');
-const tableupdate = require('./tableupdate');
+const table = require('./table');
 const values = require('./values');
 const ARRAY = require('./array');
 const CALC = require('./calc');
@@ -59,6 +59,7 @@ module.exports = {
 		...counters,
 		...detectchange,
 		...loop,
+		...table,
 		...values,
 		requestinternal,
 		ARRAY,
@@ -96,7 +97,6 @@ module.exports = {
 		SETPHASE,
 		SLEEP,
 		SUBTREE,
-		'TABLE.UPDATE': tableupdate,
 		TRIGGERSTEP,
 		WRITE
 	}
