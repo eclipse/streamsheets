@@ -3,7 +3,9 @@
 /* eslint-disable no-console */
 const cp = require('child_process');
 const path = require('path');
-const argv = require('yargs').argv;
+const argv = require('yargs').option('tag', {
+	string: true
+}).argv;
 
 const toArray = (something) => (Array.isArray(something) ? something : [something]);
 
