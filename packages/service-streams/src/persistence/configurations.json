@@ -141,6 +141,7 @@
 	{
 		"id": "CONNECTOR_KAFKA",
 		"name": "Kafka_Connector",
+		"disabled": false,
 		"className": "ConnectorConfiguration",
 		"provider": {
 			"_id": "@cedalo/stream-kafka",
