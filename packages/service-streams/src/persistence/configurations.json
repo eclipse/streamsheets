@@ -70,6 +70,7 @@
 			"id": "root"
 		},
 		"className": "ProducerConfiguration",
+		"disabled": false,
 		"connector": {
 			"_id": "CONNECTOR_MONGODB",
 			"id": "CONNECTOR_MONGODB",
