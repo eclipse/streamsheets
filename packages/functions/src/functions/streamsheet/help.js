@@ -542,13 +542,24 @@ module.exports = {
 				description: 'Tauscht die Werte aus Bereich1 mit denen im Bereich2'
 			}
 		},
+		'TABLE.GET': {
+			en: {
+				argumentList: 'CellRange,RowIndex,ColumnIndex',
+				description: 'Gets the value from the table cell at specified index'
+			},
+			de: {
+				argumentList: 'Zellbereich,ZeilenIndex,SpaltenIndex',
+				description: 'Liefert den Wert der Tabellenzelle zum angegebenen Index'
+			}
+		},
 		'TABLE.UPDATE': {
 			en: {
-				argumentList: 'CellRange,Value,RowIndex,ColumnIndex,PushRow,PushColumn',
+				argumentList: 'CellRange,Value,RowIndex,ColumnIndex,PushRow,PushColumn,AggregationMethod',
 				description: 'Creates and updates a defined cell range in a table like manner'
 			},
 			de: {
-				argumentList: 'Zellbereich,Wert,ZeilenIndex,SpaltenIndex,ZeileAnhängen,SpalteAnhängen',
+				argumentList:
+					'Zellbereich,Wert,ZeilenIndex,SpaltenIndex,ZeileAnhängen,SpalteAnhängen,AggregationsMethode',
 				description: 'Erzeugt und aktualisiert einen Zellbereich in einer Tabellen-ähnlichen Weise'
 			}
 		},

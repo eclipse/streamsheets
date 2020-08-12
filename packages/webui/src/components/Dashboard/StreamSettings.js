@@ -89,8 +89,6 @@ class StreamSettings extends React.Component {
 			stream: undefined,
 			error: '',
 			fieldErrors: undefined,
-			name: '',
-			description: '',
 			showAdvanced: false
 		};
 	}
@@ -114,8 +112,6 @@ class StreamSettings extends React.Component {
 		this.setState({
 			error: '',
 			fieldErrors: undefined,
-			name: '',
-			description: '',
 			stream: undefined,
 			showAdvanced: false
 		});

@@ -14,9 +14,6 @@ import {
 	ConsumerConfiguration,
 	ProducerConfiguration,
 } from '@cedalo/sdk-streams';
-import statusok from '../resources/statusok.png';
-import statuswarning from '../resources/statuswarning.png';
-import statuserror from '../resources/statuserror.png';
 import ConfigManager from '../helper/ConfigManager';
 import gatewayClient from '../helper/GatewayClient';
 import AdminConstants from '../constants/AdminConstants';
@@ -42,14 +39,14 @@ export default class StreamHelper {
 	static getIconForState(state) {
 		switch (state) {
 			case 'connected':
-				return statusok;
+				return "resources/connected.svg";
 			case 'disconnected':
-				return statuserror;
+				return 'resources/disconnected.svg';
 			default:
 				if (state === undefined || state === '') {
 					return null;
 				}
-				return statuswarning;
+				return 'resources/connected.svg';
 		}
 	}
 
@@ -227,26 +224,17 @@ export default class StreamHelper {
 				return new ProviderConfiguration(model);
 			}
 			case ConnectorConfiguration.name: {
-				if (model.isRef) {
-					return new ConnectorConfiguration(model);
-				}
 				const connectorModel = props.connectors.find(a => a.id === model.id);
 				const provider = StreamHelper.getProviderOfConnector(connectorModel, props);
 				return new ConnectorConfiguration(model, provider);
 			}
 			case ConsumerConfiguration.name: {
-				if (model.isRef) {
-					return new ConsumerConfiguration(model);
-				}
 				const connector = StreamHelper.getInstanceFromObject(model.connector, props);
 				const connectorModel = props.connectors.find(a => a.id === connector.id);
 				const provider = StreamHelper.getProviderOfConnector(connectorModel, props);
 				return new ConsumerConfiguration(model, connector, provider);
 			}
 			case ProducerConfiguration.name: {
-				if (model.isRef) {
-					return new ProducerConfiguration(model);
-				}
 				const connector = StreamHelper.getInstanceFromObject(model.connector, props);
 				const connectorModel = props.connectors.find(a => a.id === connector.id);
 				const provider = StreamHelper.getProviderOfConnector(connectorModel, props);

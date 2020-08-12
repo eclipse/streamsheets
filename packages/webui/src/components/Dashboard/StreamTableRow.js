@@ -122,7 +122,7 @@ const StreamTableRow = (props) => {
 					colSpan={7}
 				>
 					<Collapse in={openConnector} timeout="auto" unmountOnExit>
-						<Paper square elevation={1}>
+						<Paper square elevation={1} style={{maxHeight: 'none'}}>
 							{ row.provider.canConsume ? (
 								<React.Fragment>
 							<div className={classes.sectionRoot}>

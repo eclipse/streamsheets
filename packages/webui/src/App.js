@@ -25,6 +25,7 @@ import ConfigManager from './helper/ConfigManager';
 import { DashboardPage, ExportPage } from './pages';
 import { RoutesExtensions, UserTablePage, CreateUserPage, UpdateUserPage } from '@cedalo/webui-extensions';
 import { Path } from './helper/Path';
+import { DatabasePage } from './pages/DatabasePage';
 
 const GATEWAY_CONFIG = ConfigManager.config.gatewayClientConfig;
 
@@ -77,6 +78,7 @@ class App extends React.Component {
 										path="/administration/users/:userId([^\/]{4,})"
 										component={UpdateUserPage}
 									/>
+									<PrivateRoute path="/administration/database" component={DatabasePage} />
 								</React.Fragment>
 							)}
 

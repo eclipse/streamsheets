@@ -22,7 +22,6 @@ import Paper from '@material-ui/core/Paper';
 import DeleteIcon from '@material-ui/icons/Delete';
 import InsertCells from '@material-ui/icons/FormatIndentIncrease';
 import DeleteCells from '@material-ui/icons/FormatIndentDecrease';
-import InsertFunctionIcon from '@material-ui/icons/Functions';
 import HideIcon from '@material-ui/icons/VerticalAlignCenter';
 import ShowIcon from '@material-ui/icons/FormatLineSpacing';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -116,6 +115,13 @@ class ContextComponent extends Component {
 		if (sheetView) {
 			sheetView.copyCells(false);
 			graphManager.getGraphEditor().invalidate();
+		}
+	};
+
+	onCopyText = () => {
+		const sheetView = graphManager.getActiveSheetView();
+		if (sheetView) {
+			sheetView.copyText();
 		}
 	};
 
@@ -250,11 +256,6 @@ class ContextComponent extends Component {
 		this.props.setAppState({ showFormatCellsDialog: true });
 	};
 
-	onInsertFunction = () => {
-		// eslint-disable-next-line react/prop-types
-		this.props.setAppState({ showPasteFunctionsDialog: true });
-	};
-
 	handleClick = (event) => {
 		const { context } = this.state;
 		const wasOutside = !(event.target.contains === this.sheetmenu);
@@ -300,6 +301,16 @@ class ContextComponent extends Component {
 							<IconCopy style={styles.menuItem} />
 						</ListItemIcon>
 						<ListItemText primary={<FormattedMessage id="Copy" defaultMessage="Copy" />} />
+
+					</MenuItem>
+					<MenuItem
+						onClick={this.onCopyText}
+						dense
+					>
+						<ListItemIcon>
+							<IconCopy style={styles.menuItem} />
+						</ListItemIcon>
+						<ListItemText primary={<FormattedMessage id="CopyText" defaultMessage="Copy as Text" />} />
 
 					</MenuItem>
 					<MenuItem
@@ -349,18 +360,6 @@ class ContextComponent extends Component {
 							<DeleteCells style={styles.menuItem} />
 						</ListItemIcon>
 						<ListItemText primary={<FormattedMessage id="DeleteCells" defaultMessage="Delete Cells" />} />
-					</MenuItem>
-					<Divider />
-					<MenuItem
-						onClick={this.onInsertFunction}
-						dense
-					>
-						<ListItemIcon>
-							<InsertFunctionIcon style={styles.menuItem} />
-						</ListItemIcon>
-						<ListItemText
-							primary={<FormattedMessage id="InsertFunction" defaultMessage="Insert Function" />}
-						/>
 					</MenuItem>
 					<Divider />
 					<MenuItem

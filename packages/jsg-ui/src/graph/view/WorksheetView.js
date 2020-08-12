@@ -1291,6 +1291,19 @@ export default class WorksheetView extends ContentNodeView {
 		this.notify();
 	}
 
+	copyText() {
+		if (this.getOwnSelection().getSize() !== 1) {
+			this.notifyMessage({ id: 'SheetMessage.singleSelection' });
+			return;
+		}
+
+		const text = this.getOwnSelection().saveText();
+
+		this.copyToClipboard(text);
+		this.notify();
+	}
+
+
 	copyToClipboard(data) {
 		if (this.getOwnSelection().getSize() !== 1) {
 			this.notifyMessage({ id: 'SheetMessage.singleSelection' });

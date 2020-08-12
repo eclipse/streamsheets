@@ -72,10 +72,6 @@ class DashBoardComponent extends Component {
 		};
 	}
 
-	componentDidMount() {
-		this.props.getDataStores();
-	}
-
 	onResourceOpen = (resource, newWindow) => {
 		const path = Path.machine(resource.id);
 		if (newWindow) {
@@ -85,7 +81,10 @@ class DashBoardComponent extends Component {
 		}
 	};
 
-	onWizardClose = () => {
+	onWizardClose = (connector) => {
+		if (connector) {
+			this.newConnectorName = connector.name;
+		}
 		this.setState({ showStreamWizard: false, editStream: false });
 	};
 
@@ -243,12 +242,7 @@ class DashBoardComponent extends Component {
 	};
 
 	handleTabChange = (event, value) => {
-		if (value === 1) {
-			this.props.getDataStores().then(() => this.setState({ activeTab: value }));
-		} else {
-			this.setState({ activeTab: value });
-		}
-
+		this.setState({ activeTab: value });
 		this.props.onUpdateFilter('');
 	};
 
@@ -326,7 +320,11 @@ class DashBoardComponent extends Component {
 				const consumers = StreamHelper.getConsumersUsingConnector(connector.id, this.props.streams.consumers);
 				const producers = StreamHelper.getProducersUsingConnector(connector.id, this.props.streams.producers);
 				const index = this.state.filter.indexOf(provider.name);
-				const result = filter(connector, consumers, producers)
+				let result = filter(connector, consumers, producers)
+				if (this.newConnectorName !== undefined && connector.name === this.newConnectorName) {
+					result = 2;
+					this.newConnectorName = undefined;
+				}
 				if (index === -1 && result) {
 					const row = {
 						id: connector.id,

@@ -16,6 +16,7 @@ class ConsumerConfiguration extends BaseConfiguration {
 	constructor(config, connector, provider) {
 		super(config);
 		this.className = ConsumerConfiguration.NAME;
+		this.description = config.description || '';
 		this.connector = connector;
 		this.provider = provider;
 		if (!this.isRef()) {
@@ -69,14 +70,13 @@ class ConsumerConfiguration extends BaseConfiguration {
 	}
 
 	hasField(fieldId) {
-		return !!this.provider.definition.connector.find(
-			(f) => f.id === fieldId
-		);
+		return !!this.provider.definition.connector.find((f) => f.id === fieldId);
 	}
 
 	toJSON() {
 		const json = Object.assign({}, super.toJSON(), {
 			connector: this._connector.toReference(),
+			description: this.description,
 			filter: this.filter || undefined,
 			labelAttribute: this.labelAttribute || undefined,
 			idAttribute: this.idAttribute || undefined,

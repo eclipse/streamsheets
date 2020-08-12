@@ -94,6 +94,7 @@ class StreamWizard extends React.Component {
 				defaultMessage: 'Invalid Name'
 			})
 		};
+		this.providerMap = Object.fromEntries(this.props.streams.providers.map((p) => [p.id, p]));
 		this.state = {
 			connector: undefined,
 			fieldErrors: undefined,
@@ -118,6 +119,13 @@ class StreamWizard extends React.Component {
 				activeStep: props.initialStep,
 				newConnector: props.initialStep === 'connector',
 				connector: props.connector,
+				fieldErrors: undefined,
+				selectedProvider: { id: '' },
+				error: '',
+				connectorName: '',
+				step: 1,
+				showAdvanced: false,
+				validating: false,
 				streamName: props.type === 'consumer' ?
 					StreamWizard.createUniqueConsumerName(props.connector, props) :
 					StreamWizard.createUniqueProducerName(props.connector, props)
@@ -132,22 +140,6 @@ class StreamWizard extends React.Component {
 			this.nameRef.selectionEnd = this.start;
 		}
 	}
-
-	reset = () => {
-		this.setState({
-			connector: undefined,
-			newConnector: true,
-			fieldErrors: undefined,
-			selectedProvider: { id: '' },
-			activeStep: undefined,
-			error: '',
-			connectorName: '',
-			streamName: '',
-			step: 1,
-			showAdvanced: false,
-			validating: false
-		});
-	};
 
 	static createUniqueConsumerName(connector, props) {
 		let name;
@@ -235,8 +227,30 @@ class StreamWizard extends React.Component {
 		return finalName;
 	}
 
-	getProviders = () => SortSelector.sort(this.props.streams.providers, this.state.sortQuery, this.state.filter);
-	getConnectors = () => SortSelector.sort(this.props.streams.connectors, this.state.sortQuery, this.state.filter);
+	getRelevantProviders = () => {
+		switch (this.props.type) {
+			case 'consumer':
+				return this.props.streams.providers.filter((p) => p.canConsume);
+			case 'procuder':
+				return this.props.streams.providers.filter((p) => p.canProduce);
+			default:
+				return this.props.streams.providers;
+		}
+	};
+
+	getRelevantConnectors = () => {
+		switch (this.props.type) {
+			case 'consumer':
+				return this.props.streams.connectors.filter((c) => this.providerMap[c.provider.id].canConsume);
+			case 'procuder':
+				return this.props.streams.connectors.filter((c) => this.providerMap[c.provider.id].canProduce);
+			default:
+				return this.props.streams.connectors;
+		}
+	};
+
+	getProviders = () => SortSelector.sort(this.getRelevantProviders(), this.state.sortQuery, this.state.filter);
+	getConnectors = () => SortSelector.sort(this.getRelevantConnectors(), this.state.sortQuery, this.state.filter);
 
 	handleTableSort = (event, property) => {
 		const orderBy = property;
@@ -342,13 +356,21 @@ class StreamWizard extends React.Component {
 	};
 
 	handleCancel = () => {
-		this.reset();
 		this.props.onClose();
 	};
 
 	handleClose = () => {
-		this.reset();
-		this.props.onClose(this.props.type === 'consumer' ? this.state.consumer : undefined);
+		switch (this.props.type) {
+			case 'consumer':
+				this.props.onClose(this.state.consumer);
+				break;
+			case 'connector':
+				this.props.onClose(this.state.connector);
+				break;
+			default:
+				this.props.onClose();
+				break;
+		}
 	};
 
 	getSteps() {
@@ -471,6 +493,7 @@ class StreamWizard extends React.Component {
 					step: this.state.step + 1
 				});
 				this.state.connector.name = this.state.connectorName;
+				this.state.connector.description = this.state.connectorDescription;
 				break;
 			case 'connectorsettings': {
 				const model = this.state.connector;
@@ -528,6 +551,7 @@ class StreamWizard extends React.Component {
 						? new ConsumerConfiguration({}, this.state.connector, new ProviderConfiguration(provider))
 						: this.state.consumer;
 				consumer.name = this.state.streamName;
+				consumer.description = this.state.streamDescription;
 				this.setState({
 					activeStep: 'consumersettings',
 					backDisabled: false,
@@ -571,6 +595,7 @@ class StreamWizard extends React.Component {
 							? new ProducerConfiguration({}, this.state.connector, new ProviderConfiguration(provider))
 							: this.state.producer;
 					producer.name = this.state.streamName;
+					producer.description = this.state.streamDescription;
 					this.setState({
 						activeStep: 'producersettings',
 						backDisabled: false,
