@@ -927,5 +927,86 @@ describe('table.update', () => {
 			await machine.step();
 			expect(sheet.cellAt('B4').value).toBe(3);
 		});
+		it('should reset aggregation if row or column index change', async () => {
+			const machine = new Machine();
+			const sheet = new StreamSheet().sheet;
+			machine.removeAllStreamSheets();
+			machine.addStreamSheet(sheet.streamsheet);
+			sheet.load({ cells: SHEET.TABLEUPDATE });
+			createCellAt('A1', 1594993370, sheet);
+			createCellAt('B1', 'Turbine 1', sheet);
+			createCellAt('C1', 11, sheet);
+			// sum aggregation:
+			createCellAt('A2', { formula: 'table.update(A3:E8, C1, A1, B1,,,9)'}, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A2').value).toBe(true);
+			expect(sheet.cellAt('B4').value).toBe(11);
+			// change row index:
+			createCellAt('A1', 1594993360, sheet);
+			createCellAt('C1', 21, sheet);
+			await machine.step();
+			expect(sheet.cellAt('B4').value).toBe(11);
+			expect(sheet.cellAt('B5').value).toBe(21);
+			// change column index:
+			createCellAt('B1', 'Turbine 3', sheet);
+			createCellAt('C1', 23, sheet);
+			await machine.step();
+			expect(sheet.cellAt('B4').value).toBe(11);
+			expect(sheet.cellAt('B5').value).toBe(21);
+			expect(sheet.cellAt('D5').value).toBe(23);
+			// change row & column:
+			createCellAt('A1', 1594993340, sheet);
+			createCellAt('B1', 'Turbine 2', sheet);
+			createCellAt('C1', 42, sheet);
+			await machine.step();
+			expect(sheet.cellAt('B4').value).toBe(11);
+			expect(sheet.cellAt('B5').value).toBe(21);
+			expect(sheet.cellAt('D5').value).toBe(23);
+			expect(sheet.cellAt('C7').value).toBe(42);
+			await machine.step();
+			expect(sheet.cellAt('B4').value).toBe(11);
+			expect(sheet.cellAt('B5').value).toBe(21);
+			expect(sheet.cellAt('D5').value).toBe(23);
+			expect(sheet.cellAt('C7').value).toBe(84);
+		});
+		it('should keep aggregation if specified cell moves due to insertion of row or column', async () => {
+			const machine = new Machine();
+			const sheet = new StreamSheet().sheet;
+			machine.removeAllStreamSheets();
+			machine.addStreamSheet(sheet.streamsheet);
+			sheet.load({ cells: SHEET.TABLEUPDATE });
+			createCellAt('A2', { formula: 'table.update(A3:E8, 12, 1594993370, "Turbine 1",,,9)'}, sheet);
+			await machine.step();
+			await machine.step();
+			expect(sheet.cellAt('B4').value).toBe(24);
+			// insert new row:
+			createCellAt('A1', { formula: 'table.update(A3:E8, "new row", 1594993380, "Turbine 1",-1)'}, sheet);
+			await machine.step();
+			await machine.step();
+			expect(sheet.cellAt('B4').value).toBe('new row');
+			expect(sheet.cellAt('B5').value).toBe(48);
+			// insert new column:
+			createCellAt('A1', { formula: 'table.update(A3:E8, "new column", 1594993370, "Turbine 13",,-1)'}, sheet);
+			await machine.step();
+			await machine.step();
+			expect(sheet.cellAt('B5').value).toBe('new column');
+			expect(sheet.cellAt('C5').value).toBe(72);
+			// insert new row and column:
+			createCellAt(
+				'A1',
+				{ formula: 'table.update(A3:E8, "new row & column", 1594993390, "Turbine 113",-1,-1)' },
+				sheet
+			);
+			await machine.step();
+			await machine.step();
+			expect(sheet.cellAt('B4').value).toBe('new row & column');
+			expect(sheet.cellAt('D6').value).toBe(96);
+			// insert new row and column at end
+			createCellAt('A1', { formula: 'table.update(A3:E8, "end", 1594993320, "Turbine End",1,1)' }, sheet);
+			await machine.step();
+			await machine.step();
+			expect(sheet.cellAt('E8').value).toBe('end');
+			expect(sheet.cellAt('C5').value).toBe(120);
+		});
 	});
 });

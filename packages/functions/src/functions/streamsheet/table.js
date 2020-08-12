@@ -236,12 +236,23 @@ const aggregateValue = (value, aggregationType, context) => {
 	return context.aggregate(value);
 };
 
-const initContext = (context) => {
-	if (context.aggregationType == null) {
-		context.aggregationType = 0;
-		context.aggregate = aggregations.createMethod(0);
-	}
-};
+const getAggregationMethod = (type, row, col, context) => {
+	const { aggregationType, rowindex, colindex} = context;
+	if(aggregationType !== type || rowindex !== row || colindex !== col) {
+			context.rowindex = row;
+			context.colindex = col;
+			context.aggregationType = type;
+			context.aggregationMethod = aggregations.createMethod(type);
+		}
+		return context.aggregationMethod;
+}
+
+// const initContext = (context) => {
+// 	if (context.aggregationType == null) {
+// 		context.aggregationType = 0;
+// 		context.aggregate = aggregations.createMethod(0);
+// 	}
+// };
 
 const tableupdate = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -254,14 +265,16 @@ const tableupdate = (sheet, ...terms) =>
 		.mapNextArg((colindex) => (colindex ? toNumberOrString(colindex.value) : ''))
 		.mapNextArg((pushrow) => (hasValue(pushrow) ? convert.toNumber(pushrow.value, ERROR.VALUE) : 0))
 		.mapNextArg((pushcolumn) => (hasValue(pushcolumn) ? convert.toNumber(pushcolumn.value, ERROR.VALUE) : 0))
-		.mapNextArg((aggrType) => (hasValue(aggrType) ? getAggregationType(aggrType.value) : 0))
-		.beforeRun(() => initContext(tableupdate.context))
+		.mapNextArg((aggregationType) => (hasValue(aggregationType) ? getAggregationType(aggregationType.value) : 0))
+		// .beforeRun(() => initContext(tableupdate.context))
 		.run((range, value, rowindex, colindex, pushrow, pushcolumn, aggregationType) => {
 			const row = getOrAddRowIndex(range, rowindex, pushrow);
 			const col = getOrAddColumnIndex(range, colindex, pushcolumn);
 			// never change top-left
 			if (row != null && row > range.start.row && col != null && col > range.start.col) {
-				value = aggregateValue(value, aggregationType, tableupdate.context);
+				// value = aggregateValue(value, aggregationType, tableupdate.context);
+				const aggregate = getAggregationMethod(aggregationType, rowindex, colindex, tableupdate.context);
+				value = aggregate(value); // aggregateValue(value, method);
 				sharedidx.set(row, col);
 				sheet.setCellAt(sharedidx, new Cell(value, Term.fromValue(value)));
 			}
