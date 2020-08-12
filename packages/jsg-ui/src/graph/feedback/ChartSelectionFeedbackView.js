@@ -280,6 +280,7 @@ export default class ChartSelectionFeedbackView extends View {
 							'middle',
 							TextFormatAttributes.TextAlignment.CENTER
 						);
+						graphics.setFillColor(SelectionStyle.MARKER_FILL_COLOR);
 
 						while (item.getValue(ref, index, value)) {
 							info.index = index;

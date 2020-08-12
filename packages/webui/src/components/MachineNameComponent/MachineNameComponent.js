@@ -61,10 +61,8 @@ class MachineNameComponent extends React.Component {
 		this.handleChangeMachineName = this.handleChangeMachineName.bind(this);
 	}
 
-	componentWillReceiveProps(nextProps) {
-		this.setState({
-			machine: nextProps.monitor.machine,
-		});
+	static getDerivedStateFromProps(props, state) {
+		return { ...state, machine: props.monitor.machine };
 	}
 
 	handleFocus() {

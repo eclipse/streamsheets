@@ -474,6 +474,7 @@ export class EditBarComponent extends Component {
 				// this is necessary, to keep changes, otherwise formula will be recreated from graphitem
 				graphItem.setAttributeAtPath(path, new Expression(0, formula));
 				graphItem._noFormulaUpdate = true;
+				graphItem._editBarChange = true;
 			}
 		} else {
 			const ref = item.getOwnSelection().activeCellToString();

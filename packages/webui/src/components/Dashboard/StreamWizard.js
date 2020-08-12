@@ -231,7 +231,7 @@ class StreamWizard extends React.Component {
 		switch (this.props.type) {
 			case 'consumer':
 				return this.props.streams.providers.filter((p) => p.canConsume);
-			case 'procuder':
+			case 'producer':
 				return this.props.streams.providers.filter((p) => p.canProduce);
 			default:
 				return this.props.streams.providers;
@@ -242,7 +242,7 @@ class StreamWizard extends React.Component {
 		switch (this.props.type) {
 			case 'consumer':
 				return this.props.streams.connectors.filter((c) => this.providerMap[c.provider.id].canConsume);
-			case 'procuder':
+			case 'producer':
 				return this.props.streams.connectors.filter((c) => this.providerMap[c.provider.id].canProduce);
 			default:
 				return this.props.streams.connectors;

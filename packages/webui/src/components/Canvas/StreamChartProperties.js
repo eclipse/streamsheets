@@ -652,6 +652,12 @@ export class StreamChartProperties extends Component {
 				return intl.formatMessage({ id: 'StreamChartProperties.Series' }, {});
 			case 'serieslabel':
 				return intl.formatMessage({ id: 'StreamChartProperties.SeriesLabel' }, {});
+			case 'downbars':
+				return intl.formatMessage({ id: 'StreamChartProperties.DownBars' }, {});
+			case 'upbars':
+				return intl.formatMessage({ id: 'StreamChartProperties.UpBars' }, {});
+			case 'hilolines':
+				return intl.formatMessage({ id: 'StreamChartProperties.HiLoLines' }, {});
 			default:
 				return title;
 		}
@@ -1189,7 +1195,7 @@ export class StreamChartProperties extends Component {
 													}}
 												>
 													<InputLabel htmlFor="treshold">
-														<FormattedMessage id="StreamChartProperties.TresholdStyle" defaultMessage="Treshold Style" />
+														<FormattedMessage id="StreamChartProperties.ThresholdStyle" defaultMessage="Treshold Style" />
 													</InputLabel>
 													<Select
 														id="tr"
@@ -1202,9 +1208,6 @@ export class StreamChartProperties extends Component {
 														</MenuItem>
 														<MenuItem value="gradient" key={2}>
 															<FormattedMessage id="StreamChartProperties.Gradient" defaultMessage="Gradient" />
-														</MenuItem>
-														<MenuItem value="segments" key={3}>
-															<FormattedMessage id="StreamChartProperties.Segments" defaultMessage="Segments" />
 														</MenuItem>
 													</Select>
 												</FormControl>

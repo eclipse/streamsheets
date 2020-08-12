@@ -2157,16 +2157,36 @@ export class CanvasToolBar extends Component {
 					}}
 				>
 					{/*<option style={optionStyle} hidden value="" />*/}
-					<MenuItem dense value="Arial" key="s1">Arial</MenuItem>
-					<MenuItem dense value="Courier New" key="s2">Courier New</MenuItem>
-					<MenuItem dense value="Georgia" key="s3">Georgia</MenuItem>
-					<MenuItem dense value="Lucida Console" key="s4">Lucida Console</MenuItem>
-					<MenuItem dense value="Lucida Sans" key="s5">Lucida Sans</MenuItem>
-					<MenuItem dense value="Palatino" key="s6">Palatino</MenuItem>
-					<MenuItem dense value="Tahoma" key="s7">Tahoma</MenuItem>
-					<MenuItem dense value="Trebuchet MS" key="s8">Trebuchet MS</MenuItem>
-					<MenuItem dense value="Tahoma" key="s9">Tahoma</MenuItem>
-					<MenuItem dense value="Verdana" key="s10">Verdana</MenuItem>
+					<MenuItem dense value="Arial" key="s1">
+						Arial
+					</MenuItem>
+					<MenuItem dense value="Courier New" key="s2">
+						Courier New
+					</MenuItem>
+					<MenuItem dense value="Georgia" key="s3">
+						Georgia
+					</MenuItem>
+					<MenuItem dense value="Lucida Console" key="s4">
+						Lucida Console
+					</MenuItem>
+					<MenuItem dense value="Lucida Sans" key="s5">
+						Lucida Sans
+					</MenuItem>
+					<MenuItem dense value="Palatino" key="s6">
+						Palatino
+					</MenuItem>
+					<MenuItem dense value="Tahoma" key="s7">
+						Tahoma
+					</MenuItem>
+					<MenuItem dense value="Trebuchet MS" key="s8">
+						Trebuchet MS
+					</MenuItem>
+					<MenuItem dense value="Tahoma" key="s9">
+						Tahoma
+					</MenuItem>
+					<MenuItem dense value="Verdana" key="s10">
+						Verdana
+					</MenuItem>
 					{/* <option value="MetaPlusLF">MetaPlusLF</option> */}
 				</Select>
 				<Select
@@ -2184,17 +2204,39 @@ export class CanvasToolBar extends Component {
 						style: { paddingLeft: '5px', paddingTop: '6px' }
 					}}
 				>
-					<MenuItem dense value="6" key="fs1">6</MenuItem>
-					<MenuItem dense value="7" key="fs2">7</MenuItem>
-					<MenuItem dense value="8" key="fs3">8</MenuItem>
-					<MenuItem dense value="9" key="fs4">9</MenuItem>
-					<MenuItem dense value="10" key="fs5">10</MenuItem>
-					<MenuItem dense value="11" key="fs6">11</MenuItem>
-					<MenuItem dense value="12" key="fs7">12</MenuItem>
-					<MenuItem dense value="14" key="fs8">14</MenuItem>
-					<MenuItem dense value="18" key="fs9">18</MenuItem>
-					<MenuItem dense value="24" key="fs10">24</MenuItem>
-					<MenuItem dense value="36" key="fs11">36</MenuItem>
+					<MenuItem dense value="6" key="fs1">
+						6
+					</MenuItem>
+					<MenuItem dense value="7" key="fs2">
+						7
+					</MenuItem>
+					<MenuItem dense value="8" key="fs3">
+						8
+					</MenuItem>
+					<MenuItem dense value="9" key="fs4">
+						9
+					</MenuItem>
+					<MenuItem dense value="10" key="fs5">
+						10
+					</MenuItem>
+					<MenuItem dense value="11" key="fs6">
+						11
+					</MenuItem>
+					<MenuItem dense value="12" key="fs7">
+						12
+					</MenuItem>
+					<MenuItem dense value="14" key="fs8">
+						14
+					</MenuItem>
+					<MenuItem dense value="18" key="fs9">
+						18
+					</MenuItem>
+					<MenuItem dense value="24" key="fs10">
+						24
+					</MenuItem>
+					<MenuItem dense value="36" key="fs11">
+						36
+					</MenuItem>
 				</Select>
 				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.FormatBold" defaultMessage="Bold" />}>
 					<div>
@@ -2489,9 +2531,7 @@ export class CanvasToolBar extends Component {
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
 							<SvgIcon fontSize="inherit">
-								<path
-									d="M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15c-.59.59-.59 1.54 0 2.12l5.5 5.5c.29.29.68.44 1.06.44s.77-.15 1.06-.44l5.5-5.5c.59-.58.59-1.53 0-2.12zM5.21 10L10 5.21 14.79 10H5.21zM19 11.5s-2 2.17-2 3.5c0 1.1.9 2 2 2s2-.9 2-2c0-1.33-2-3.5-2-3.5z"
-								/>
+								<path d="M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15c-.59.59-.59 1.54 0 2.12l5.5 5.5c.29.29.68.44 1.06.44s.77-.15 1.06-.44l5.5-5.5c.59-.58.59-1.53 0-2.12zM5.21 10L10 5.21 14.79 10H5.21zM19 11.5s-2 2.17-2 3.5c0 1.1.9 2 2 2s2-.9 2-2c0-1.33-2-3.5-2-3.5z" />
 								<path
 									fill={f && f.getFillColor() ? f.getFillColor().getValue() : 'none'}
 									d="M0 20h24v4H0z"
@@ -2527,13 +2567,8 @@ export class CanvasToolBar extends Component {
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
 							<SvgIcon fontSize="inherit">
-								<path
-									d="M17.75 7L14 3.25l-10 10V17h3.75l10-10zm2.96-2.96c.39-.39.39-1.02 0-1.41L18.37.29a.9959.9959 0 0 0-1.41 0L15 2.25 18.75 6l1.96-1.96z"
-								/>
-								<path
-									fill={this.getFormatBorderColor()}
-									d="M0 20h24v4H0z"
-								/>
+								<path d="M17.75 7L14 3.25l-10 10V17h3.75l10-10zm2.96-2.96c.39-.39.39-1.02 0-1.41L18.37.29a.9959.9959 0 0 0-1.41 0L15 2.25 18.75 6l1.96-1.96z" />
+								<path fill={this.getFormatBorderColor()} d="M0 20h24v4H0z" />
 							</SvgIcon>
 						</IconButton>
 					</div>
@@ -2690,93 +2725,118 @@ export class CanvasToolBar extends Component {
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.None" defaultMessage="None" />}
+							<IconButton
+								style={borderStyle}
+								onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.NONE)}
 							>
-								<IconButton
-									style={borderStyle}
-									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.NONE)}
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
 								>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="50" y="14" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
-											{intl.formatMessage({ id: "None" }, {})}
-										</text>
-									</svg>
-								</IconButton>
-							</Tooltip>
+									<text
+										x="50"
+										y="14"
+										fontWeight="normal"
+										fontSize="9pt"
+										dy="0.25em"
+										textAnchor="middle"
+									>
+										{intl.formatMessage({ id: 'None' }, {})}
+									</text>
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.Solid" defaultMessage="Solid" />}
+							<IconButton
+								style={borderStyle}
+								onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.SOLID)}
 							>
-								<IconButton
-									style={borderStyle}
-									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.SOLID)}
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									stroke="currentColor"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
 								>
-									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<path d="M5,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+									<path d="M5,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip enterDelay={300} title={<FormattedMessage id="Border.Dot" defaultMessage="Dot" />}>
-								<IconButton
-									style={borderStyle}
-									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DOT)}
+							<IconButton
+								style={borderStyle}
+								onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DOT)}
+							>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									stroke="currentColor"
+									strokeDasharray="1,2"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
 								>
-									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<path d="M5,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+									<path d="M5,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.Dash" defaultMessage="Dash" />}
+							<IconButton
+								style={borderStyle}
+								onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASH)}
 							>
-								<IconButton
-									style={borderStyle}
-									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASH)}
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									stroke="currentColor"
+									strokeDasharray="5,5"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
 								>
-									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<path d="M5,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+									<path d="M5,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.DashDot" defaultMessage="Dash Dot" />}
+							<IconButton
+								style={borderStyle}
+								onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOT)}
 							>
-								<IconButton
-									style={borderStyle}
-									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOT)}
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									stroke="currentColor"
+									strokeDasharray="5,5,1,5"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
 								>
-									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<path d="M5,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+									<path d="M5,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.DashDotDot" defaultMessage="Dash Dot Dot" />}
+							<IconButton
+								style={borderStyle}
+								onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOTDOT)}
 							>
-								<IconButton
-									style={borderStyle}
-									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOTDOT)}
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									stroke="currentColor"
+									strokeDasharray="5,5,1,2,1,5"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
 								>
-									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<path d="M5,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+									<path d="M5,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile
 							cols={1}
@@ -2796,108 +2856,132 @@ export class CanvasToolBar extends Component {
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.Hairline" defaultMessage="Hairline (1px)" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(-1)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1 px</text>
-										<path stroke="currentColor" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(-1)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										1 px
+									</text>
+									<path stroke="currentColor" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.MM025" defaultMessage="0.25 mm" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(25)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1/4 mm</text>
-										<path stroke="currentColor" strokeWidth="0.25mm" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(25)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										1/4 mm
+									</text>
+									<path stroke="currentColor" strokeWidth="0.25mm" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.MM05" defaultMessage="0.5 mm" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(50)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1/2 mm</text>
-										<path stroke="currentColor" strokeWidth="0.5mm" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(50)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										1/2 mm
+									</text>
+									<path stroke="currentColor" strokeWidth="0.5mm" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.MM075" defaultMessage="0.75 mm" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(75)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">3/4 mm</text>
-										<path stroke="currentColor" strokeWidth="0.75mm" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(75)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										3/4 mm
+									</text>
+									<path stroke="currentColor" strokeWidth="0.75mm" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.MM100" defaultMessage="1 mm" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(100)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1 mm</text>
-										<path stroke="currentColor" strokeWidth="1mm" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(100)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										1 mm
+									</text>
+									<path stroke="currentColor" strokeWidth="1mm" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.MM200" defaultMessage="2 mm" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(200)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">2 mm</text>
-										<path stroke="currentColor" strokeWidth="2mm" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(200)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										2 mm
+									</text>
+									<path stroke="currentColor" strokeWidth="2mm" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.MM300" defaultMessage="3 mm" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(300)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">2 mm</text>
-										<path stroke="currentColor" strokeWidth="2mm" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(300)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										2 mm
+									</text>
+									<path stroke="currentColor" strokeWidth="2mm" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.MM400" defaultMessage="4 mm" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(400)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">4 mm</text>
-										<path stroke="currentColor" strokeWidth="4mm" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(400)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										4 mm
+									</text>
+									<path stroke="currentColor" strokeWidth="4mm" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 					</GridList>
 				</Popover>
