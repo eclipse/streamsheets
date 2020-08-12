@@ -10,8 +10,8 @@
  ********************************************************************************/
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Machine, SheetIndex, SheetRange, StreamSheet } = require('@cedalo/machine-core');
-const { createCellAt, createTerm } = require('../utilities');
-const SHEET = require('../_data/sheets.json');
+const { createCellAt, createTerm } = require('../../utilities');
+const SHEET = require('../../_data/sheets.json');
 
 const ERROR = FunctionErrors.code;
 
@@ -731,7 +731,7 @@ describe('table.update', () => {
 		expect(validateRowAt(15, range, [1595361340, 1507.2, null, null])).toBe(true);
 	});
 
-	describe('aggregate parameter', () => {
+	describe('aggregation', () => {
 		test('none', async () => {
 			const machine = new Machine();
 			const sheet = new StreamSheet().sheet;
