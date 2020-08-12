@@ -29,6 +29,8 @@ const dockerFileName = argv.dockerfile || 'Dockerfile';
 
 const skipFrontendBuild = argv.skipFrontend;
 
+const skipGatewayBuild = argv.skipGateway;
+
 const baseImageArg = baseImage ? `--build-arg BASE_IMAGE=${baseImage}` : '';
 
 const buildTaggedImageArg = (tag) => `${imageName}:${tag}`;
@@ -43,6 +45,15 @@ try {
 	} else {
 		console.log(`Building frontend`);
 		cp.execSync('yarn workspace @cedalo/webui local-build', {
+			stdio: 'inherit',
+		});
+	}
+
+	if (skipGatewayBuild) {
+		console.log('Skipping gateway build');
+	} else {
+		console.log(`Building gateway`);
+		cp.execSync('yarn workspace @cedalo/gateway build', {
 			stdio: 'inherit',
 		});
 	}
