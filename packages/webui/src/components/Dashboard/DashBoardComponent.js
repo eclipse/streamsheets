@@ -385,7 +385,16 @@ class DashBoardComponent extends Component {
 			const dir = this.state.streamSortOrder === 'asc' ? 1 : -1;
 
 			switch (this.state.streamSortBy) {
-				case 'provider':
+                case 'provider': {
+                    const aName = a.provider.name || '';
+                    const bName = b.provider.name || '';
+                    if (aName.toLowerCase() > bName.toLowerCase()) {
+                        return dir;
+                    } else if (aName.toLowerCase() < bName.toLowerCase()) {
+                        return -1 * dir;
+                    }
+                    return 0;
+                }
 				case 'url':
 				case 'topic':
 				case 'name': {
