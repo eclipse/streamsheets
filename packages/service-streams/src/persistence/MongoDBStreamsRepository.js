@@ -78,7 +78,7 @@ module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepos
 				.map((c) => ({
 					...c,
 					scope: { id: 'root' },
-					providerId: defConnectors.find((conncetor) => conncetor.id === c.connector.id).id
+					providerId: defConnectors.find((conncetor) => conncetor.id === c.connector.id).provider.id
 				}));
 			await this.saveConfigurations([...defConnectors, ...defStreams]);
 		}
