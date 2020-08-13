@@ -67,7 +67,7 @@ export default class StreamFieldComponents {
 		};
 		if (fields && Array.isArray(fields)) {
 			fields.forEach((field) => {
-				if (field.isShow(configuration)) {
+				if (field.isShow(configuration.fields)) {
 					const value = configuration.fields[field.id];
 					field.value = value;
 					const component = this.getComponent(field, value, !!field.disabled || disabled, errors ? errors[field.id] : undefined);
