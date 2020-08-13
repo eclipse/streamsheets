@@ -558,21 +558,21 @@ class DashBoardComponent extends Component {
 										icon: IconStop,
 										menuId: Constants.RESOURCE_MENU_IDS.STOP,
 										state: 'stopped',
-										label: <FormattedMessage id="Tooltip.Stop" defaultMessage="Stop" />,
+										label: <FormattedMessage id="Tooltip.StopHeader" defaultMessage="Stop" />,
 										disabled: !canControl
 									},
 									{
 										icon: IconPause,
 										menuId: Constants.RESOURCE_MENU_IDS.PAUSE,
 										state: 'paused',
-										label: <FormattedMessage id="Tooltip.Pause" defaultMessage="Pause" />,
+										label: <FormattedMessage id="Tooltip.PauseHeader" defaultMessage="Pause" />,
 										disabled: !canControl
 									},
 									{
 										icon: IconPlay,
 										menuId: Constants.RESOURCE_MENU_IDS.START,
 										state: 'running',
-										label: <FormattedMessage id="Tooltip.Start" defaultMessage="Start" />,
+										label: <FormattedMessage id="Tooltip.StartHeader" defaultMessage="Start" />,
 										disabled: !canControl
 									}
 								]}
