@@ -1008,5 +1008,36 @@ describe('table.update', () => {
 			expect(sheet.cellAt('E8').value).toBe('end');
 			expect(sheet.cellAt('C5').value).toBe(120);
 		});
+		it('should aggregate values for each cell separately', async () => {
+			const machine = new Machine();
+			const sheet = new StreamSheet().sheet;
+			machine.removeAllStreamSheets();
+			machine.addStreamSheet(sheet.streamsheet);
+			sheet.load({ cells: SHEET.TABLEUPDATE });
+			createCellAt('A1', 2, sheet);
+			createCellAt('B1', 1594993370, sheet);
+			createCellAt('A2', { formula: 'table.update(A3:E8, A1, B1, "Turbine 1",,,9)'}, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A2').value).toBe(true);
+			expect(sheet.cellAt('B4').value).toBe(2);
+			createCellAt('A1', 20, sheet);
+			createCellAt('B1', 1594993360, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A2').value).toBe(true);
+			expect(sheet.cellAt('B4').value).toBe(2);
+			expect(sheet.cellAt('B5').value).toBe(20);
+			createCellAt('A1', 40, sheet);
+			createCellAt('B1', 1594993370, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A2').value).toBe(true);
+			expect(sheet.cellAt('B4').value).toBe(42);
+			expect(sheet.cellAt('B5').value).toBe(20);
+			createCellAt('A1', 20, sheet);
+			createCellAt('B1', 1594993360, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A2').value).toBe(true);
+			expect(sheet.cellAt('B4').value).toBe(42);
+			expect(sheet.cellAt('B5').value).toBe(40);
+		})
 	});
 });
