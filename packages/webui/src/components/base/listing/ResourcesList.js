@@ -101,6 +101,21 @@ class ResourcesList extends React.Component {
 				}
 				return 0;
 			}
+			case 'action': {
+				const aState = a.state || '';
+				const bState = b.state || '';
+				const stateValues = {
+					'running': 0,
+					'paused': 1,
+					'stopped': 2
+				}
+				if (stateValues[aState] > stateValues[bState]) {
+					return dir;
+				} else if (stateValues[aState] < stateValues[bState]) {
+					return -1 * dir;
+				}
+				return 0;
+			}
 			case 'lastModified': {
 				const aLastModified = a.lastModified || new Date().toISOString();
 				const bLastModified = b.lastModified || new Date().toISOString();
@@ -213,7 +228,7 @@ class ResourcesList extends React.Component {
 										<IconButton
 											style={{ padding: '4px' }}
 											size="small"
-											disabled={resource.state !== 'running'}
+											disabled={resource.state === 'stopped'}
 											onClick={() => this.props.onMenuSelect(Constants.RESOURCE_MENU_IDS.STOP, resource.id)}
 										>
 											<IconStop />
