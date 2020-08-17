@@ -59,6 +59,20 @@ const styles = () => ({
 	}
 });
 
+const StreamSettingsTitle = (props) => {
+	const className = props.stream ? props.stream.className : '';
+	switch (className) {
+		case 'ConnectorConfiguration':
+			return <FormattedMessage id="Stream.SettingsTitle.Connector" defaultMessage="Connector Settings" />;
+		case 'ProducerConfiguration':
+			return <FormattedMessage id="Stream.SettingsTitle.Producer" defaultMessage="Producer Settings" />;
+		case 'ConsumerConfiguration':
+			return <FormattedMessage id="Stream.SettingsTitle.Consumer" defaultMessage="Consumer Settings" />;
+		default:
+			return <FormattedMessage id="Stream.SettingsTitle" defaultMessage="Stream Settings" />;
+	}
+};
+
 class StreamSettings extends React.Component {
 	static propTypes = {
 		open: PropTypes.bool.isRequired,
@@ -259,7 +273,7 @@ class StreamSettings extends React.Component {
 		return (
 			<Dialog open={open} onClose={onClose} maxWidth={false}>
 				<DialogTitle>
-					<FormattedMessage id="Stream.SettingsTitle" defaultMessage="Stream Settings" />
+					<StreamSettingsTitle stream={this.state.stream} />
 				</DialogTitle>
 				<DialogContent
 					style={{
