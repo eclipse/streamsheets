@@ -104,7 +104,7 @@ export class SettingsMenu extends React.Component {
 
 	handleOpenAdmin = () => {
 		this.props.setAppState({ openMoreSettingMenu: false });
-		window.open(Path.users());
+		this.props.openPage(Path.users());
 	};
 
 	handlePreferencesCancel = () => {

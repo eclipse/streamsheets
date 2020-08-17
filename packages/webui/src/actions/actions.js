@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 import Protocols from '@cedalo/protocols';
-import { push } from 'react-router-redux';
+import { goBack, push } from 'react-router-redux';
 import JSG from '@cedalo/jsg-ui';
 import * as messageTypes from '../constants/WebsocketMessageTypes';
 import * as ActionTypes from '../constants/ActionTypes';
@@ -73,6 +73,10 @@ export const { updateMachines, getMachines } = MachineActions;
 
 export function pushPage(page) {
 	return (dispatch) => dispatch(push(page));
+}
+
+export function goBackPage() {
+	return (dispatch) => dispatch(goBack());
 }
 
 const putAppState = (newState) => ({

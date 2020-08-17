@@ -46,7 +46,6 @@ export const AdminPageLayoutComponent = (props) => {
 		isConnected,
 		children,
 		userLoaded,
-		workspaceSelect,
 		requireStreams,
 	} = props;
 
@@ -129,8 +128,8 @@ export const AdminPageLayoutComponent = (props) => {
 								}
 							/> */}
 							<InfoToolBar
-								title={documentTitle}
-								workspaceSelect={workspaceSelect}
+								title={<FormattedMessage id="MainTitle" defaultMessage="Streamsheets" />}
+								hideDrawer
 							/>
 							{!isMachineEngineConnected ? (
 								<div>
@@ -182,12 +181,10 @@ AdminPageLayoutComponent.propTypes = {
 	connect: PropTypes.func.isRequired,
 	getMe: PropTypes.func.isRequired,
 	requireStreams: PropTypes.bool,
-	workspaceSelect: PropTypes.bool,
 };
 
 AdminPageLayoutComponent.defaultProps = {
 	requireStreams: false,
-	workspaceSelect: false,
 };
 
 function mapStateToProps(state) {
