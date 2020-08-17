@@ -8,29 +8,27 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import React from 'react';
-import PropTypes from 'prop-types';
+import { Field } from '@cedalo/sdk-streams';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Dialog from '@material-ui/core/Dialog';
-import { FormattedMessage, injectIntl } from 'react-intl';
-import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
-import AdminConstants from '../../constants/AdminConstants';
-import StreamFieldComponents from './StreamFieldComponents';
-import StreamHelper from '../../helper/StreamHelper';
-import ExpandMore from '@material-ui/icons/ExpandMore';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import ExpandLess from '@material-ui/icons/ExpandLess';
-import {
-	Field
-} from '@cedalo/sdk-streams';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { FormattedMessage, injectIntl } from 'react-intl';
+import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
-import { connect } from 'react-redux';
+import AdminConstants from '../../constants/AdminConstants';
 import gatewayClient from '../../helper/GatewayClient';
+import StreamHelper from '../../helper/StreamHelper';
+import StreamFieldComponents from './StreamFieldComponents';
 
 const VALIDATION_QUERY = `
 	query ValidateStream($provider: String!, $type: String!, $streamConfig: JSON!) {
@@ -54,7 +52,6 @@ const validate = async (provider, type, streamConfig) => {
 	}
 	return { valid: true, fieldErrors: {}, fieldUpdates: {} };
 };
-
 
 const styles = () => ({
 	progress: {
@@ -83,7 +80,7 @@ class StreamSettings extends React.Component {
 			EMPTY: this.props.intl.formatMessage({
 				id: 'Admin.emptyName',
 				defaultMessage: 'Name cannot be empty'
-			}),
+			})
 		};
 		this.state = {
 			stream: undefined,
@@ -170,15 +167,15 @@ class StreamSettings extends React.Component {
 		const provider = this.getProvider();
 
 		if (provider) {
-			validate(provider.id, this.props.type, model.toJSON()).then(result => {
+			validate(provider.id, this.props.type, model.toJSON()).then((result) => {
 				if (result.valid) {
-					Object.entries(result.fieldUpdates).forEach(([key, value]) => model.setFieldValue(key, value))
-					this.setState({fieldErrors: undefined})
+					Object.entries(result.fieldUpdates).forEach(([key, value]) => model.setFieldValue(key, value));
+					this.setState({ fieldErrors: undefined });
 					this.props.saveConfiguration(model);
 					this.reset();
 					this.props.onClose();
 				} else {
-					this.setState({fieldErrors: result.fieldErrors})
+					this.setState({ fieldErrors: result.fieldErrors });
 					console.log(result);
 				}
 			});
@@ -206,7 +203,9 @@ class StreamSettings extends React.Component {
 			return <div />;
 		}
 
-		return advanced ? fc.getComponents(this.state.stream, !this.props.canEdit).advanced : fc.getComponents(this.state.stream, !this.props.canEdit).main;
+		return advanced
+			? fc.getComponents(this.state.stream, !this.props.canEdit).advanced
+			: fc.getComponents(this.state.stream, !this.props.canEdit).main;
 	}
 
 	getConnectorFields(fc) {
@@ -252,14 +251,16 @@ class StreamSettings extends React.Component {
 		const modelProps = {
 			locale: this.props.intl.locale,
 			handleChange: this.onUpdateConfiguration,
-			...this.props,
+			...this.props
 		};
 
 		const fc = new StreamFieldComponents(modelProps, fieldErrors);
 
 		return (
 			<Dialog open={open} onClose={onClose} maxWidth={false}>
-				<DialogTitle><FormattedMessage id="Stream.SettingsTitle" defaultMessage="Stream Settings" /></DialogTitle>
+				<DialogTitle>
+					<FormattedMessage id="Stream.SettingsTitle" defaultMessage="Stream Settings" />
+				</DialogTitle>
 				<DialogContent
 					style={{
 						height: '480px',
@@ -276,7 +277,7 @@ class StreamSettings extends React.Component {
 						<TextField
 							style={{
 								width: '30%',
-								marginRight: '20px',
+								marginRight: '20px'
 							}}
 							inputRef={(el) => {
 								this.nameRef = el;
@@ -295,12 +296,7 @@ class StreamSettings extends React.Component {
 							style={{
 								width: '66%'
 							}}
-							label={
-								<FormattedMessage
-									id="Stream.Description"
-									defaultMessage="Description"
-								/>
-							}
+							label={<FormattedMessage id="Stream.Description" defaultMessage="Description" />}
 							id="description"
 							name="description"
 							disabled={!this.props.canEdit}
@@ -332,7 +328,10 @@ class StreamSettings extends React.Component {
 								onClick={this.toggleAdvanced}
 							>
 								<ExpandLess />
-								<FormattedMessage id="Stream.HideExtendedSettings" defaultMessage="Hide Extended Settings" />
+								<FormattedMessage
+									id="Stream.HideExtendedSettings"
+									defaultMessage="Hide Extended Settings"
+								/>
 							</Button>
 						) : (
 							<Button
@@ -343,7 +342,10 @@ class StreamSettings extends React.Component {
 								onClick={this.toggleAdvanced}
 							>
 								<ExpandMore />
-								<FormattedMessage id="Stream.ShowExtendedSettings" defaultMessage="Show Extended Settings" />
+								<FormattedMessage
+									id="Stream.ShowExtendedSettings"
+									defaultMessage="Show Extended Settings"
+								/>
 							</Button>
 						)}
 						{this.state.showAdvanced ? this.getStreamFields(fc, true) : null}
@@ -366,4 +368,11 @@ function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default injectIntl(withStyles(styles, { withTheme: true })(connect(null, mapDispatchToProps)(StreamSettings)));
+export default injectIntl(
+	withStyles(styles, { withTheme: true })(
+		connect(
+			null,
+			mapDispatchToProps
+		)(StreamSettings)
+	)
+);
