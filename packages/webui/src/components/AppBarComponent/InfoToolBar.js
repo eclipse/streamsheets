@@ -21,7 +21,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import MachineHelper from '../../helper/MachineHelper';
-import CustomTooltip from '../base/customTooltip/CustomTooltip';
 import MachineNameComponent from '../MachineNameComponent/MachineNameComponent';
 import { WorkspaceSelect } from '@cedalo/webui-extensions';
 
@@ -38,32 +37,28 @@ export function InfoToolBar(props) {
 				width: props.width,
 			}}
 		>
-			<CustomTooltip header="Tooltip.MainMenuHeader" message="Tooltip.MainMenuMessage">
-				<div>
-					<IconButton style={{ color: 'white' }} aria-label="Menu" onClick={toggleDrawer}>
-						<MenuIcon />
-					</IconButton>
-				</div>
-			</CustomTooltip>
+			<div>
+				<IconButton style={{ color: 'white' }} aria-label="Menu" onClick={toggleDrawer}>
+					<MenuIcon />
+				</IconButton>
+			</div>
 			{title ? (
-				<CustomTooltip header="Tooltip.MainTitleHeader" message="Tooltip.MainTitleMessage">
-					<Typography
-						type="title"
-						color="inherit"
-						onClick={openDashboard}
-						style={{
-							color: '#FFFFFF',
-							marginLeft: '5px',
-							marginTop: '2px',
-							marginRight: '8px',
-							cursor: 'pointer',
-							fontSize: '1.2rem',
-							whiteSpace: 'nowrap'
-						}}
-					>
-						{title}
-					</Typography>
-				</CustomTooltip>
+				<Typography
+					type="title"
+					color="inherit"
+					onClick={openDashboard}
+					style={{
+						color: '#FFFFFF',
+						marginLeft: '5px',
+						marginTop: '2px',
+						marginRight: '8px',
+						cursor: 'pointer',
+						fontSize: '1.2rem',
+						whiteSpace: 'nowrap'
+					}}
+				>
+					{title}
+				</Typography>
 			) : null}
 			<WorkspaceSelect editable={workspaceSelect} setScope={props.setScope} />
 			{MachineHelper.isMachineDetailsPage() && machineId ? (
