@@ -377,6 +377,7 @@ module.exports.Functions = {
 	ONMOUSEDOWN: (/* scope, ...terms */) => OK.TRUE,
 	ONMOUSEUP: (/* scope, ...terms */) => OK.TRUE,
 	ONVALUECHANGE: (/* scope, ...terms */) => OK.TRUE,
+	SHOWDIALOG: (/* scope, ...terms */) => OK.TRUE,
 
 	IF: (scope, ...terms) => {
 		if (terms.length > 1) {

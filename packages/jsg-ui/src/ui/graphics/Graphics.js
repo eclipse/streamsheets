@@ -2871,6 +2871,10 @@ class Graphics {
 	}
 
 	ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise) {
+		if (radiusX <= 0 || radiusY <= 0) {
+			return;
+		}
+
 		const p = this.transformPoint(x, y, 0);
 		const angle = this.getRotation();
 		this._context2D.ellipse(p.x, p.y, radiusX, radiusY, angle + rotation, startAngle, endAngle, anticlockwise);

@@ -297,6 +297,16 @@ export default class CellsView extends NodeView {
 		return false;
 	}
 
+	replaceLocalField(graphics, data, result) {
+		if (!(typeof result.value === 'string')) {
+			return;
+		}
+
+		if (result.value === '#[LocalDate]') {
+			result.value = MathUtils.JSDateToExcelDate(new Date(Date.now()));
+		}
+	}
+
 	getFormattedValue(graphics, data, textproperties, styleProperties, availableWidth) {
 		const result = {
 			value: data.getValue(),
@@ -322,6 +332,8 @@ export default class CellsView extends NodeView {
 			}
 			return result;
 		}
+
+		this.replaceLocalField(graphics, data, result);
 
 		if (this.getFormattedValueFromFunction(graphics, data, result, availableWidth)) {
 			return result;
