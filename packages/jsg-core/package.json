@@ -31,6 +31,7 @@
     "yargs": "6.6.0"
   },
   "dependencies": {
+    "@cedalo/commons": "2.0.0",
     "@cedalo/parser": "2.0.0",
     "@cedalo/number-format": "2.0.0",
     "@cedalo/jsg-extensions": "2.0.0",

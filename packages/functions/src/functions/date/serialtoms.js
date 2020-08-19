@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const {	date: { serial2ms }, runFunction } = require('../../utils');
-const { convert } = require('@cedalo/commons');
+const { convert, serialnumber: { serial2ms } } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const {	runFunction } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 

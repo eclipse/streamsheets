@@ -13,6 +13,12 @@ const sampleDataSSF = require('./ssf.json');
 const sampleDataEN = require('./samples-en.json');
 const sampleDataDE = require('./samples-de.json');
 
+const formattedMinutes = (value) => {
+	const fmt = 'mm:ss';
+	const formatted = NumberFormatter.formatNumber(fmt, value).formattedValue;;
+	return formatted.split(':')[0];
+};
+
 describe('Test suite for Style Sheet formating.', () => {
 	it('should support localization', () => {
 		const number = 38123.45;
@@ -133,5 +139,58 @@ describe('formatting SSF sample data', () => {
 			const value = data[1][0];
 			expect(() => NumberFormatter.formatNumber(fmt, value)).toThrow();
 		});
+	});
+});
+
+describe('getting seconds, minutes and hours from serial number', () => {
+	it('should return second of given serial time', () => {
+		const fmt = 'ss';
+		// NumberFormatter.formatNumber(fmt, value)
+		expect(NumberFormatter.formatNumber(fmt,0.0).formattedValue).toBe('00');
+		expect(NumberFormatter.formatNumber(fmt,0.00000578).formattedValue).toBe('00'); // max 0
+		expect(NumberFormatter.formatNumber(fmt,0.00000579).formattedValue).toBe('01'); // min 1
+		expect(NumberFormatter.formatNumber(fmt,0.00001234).formattedValue).toBe('01');
+		expect(NumberFormatter.formatNumber(fmt,0.00001736).formattedValue).toBe('01'); // max 1
+		expect(NumberFormatter.formatNumber(fmt,0.00001737).formattedValue).toBe('02'); // min 2
+		expect(NumberFormatter.formatNumber(fmt,0.00065393).formattedValue).toBe('56'); // max 56
+		expect(NumberFormatter.formatNumber(fmt,0.00065394).formattedValue).toBe('57'); // min 57
+		expect(NumberFormatter.formatNumber(fmt,0.00066550).formattedValue).toBe('57'); // max 57
+		expect(NumberFormatter.formatNumber(fmt,0.00066551).formattedValue).toBe('58'); // min 58
+		expect(NumberFormatter.formatNumber(fmt,0.00067708).formattedValue).toBe('58'); // max 58
+		expect(NumberFormatter.formatNumber(fmt,0.00067709).formattedValue).toBe('59'); // min 59
+		expect(NumberFormatter.formatNumber(fmt,0.00068865).formattedValue).toBe('59'); // max 59
+		expect(NumberFormatter.formatNumber(fmt,0.00068866).formattedValue).toBe('00');
+
+		expect(NumberFormatter.formatNumber(fmt,43930.999999).formattedValue).toBe('00');
+	});
+	it('should return minute of given serial time', () => {
+		expect(formattedMinutes(0.00068865)).toBe('00'); // max 0
+		expect(formattedMinutes(0.00068866)).toBe('01');	// min 1
+		expect(formattedMinutes(0.00069444)).toBe('01');
+		expect(formattedMinutes(0.00138310)).toBe('01'); // max 1
+		expect(formattedMinutes(0.00138311)).toBe('02'); // min 2
+		expect(formattedMinutes(0.04096643)).toBe('58'); // max 58
+		expect(formattedMinutes(0.040697361)).toBe('58');
+		expect(formattedMinutes(0.04096644)).toBe('59'); // min 59
+		expect(formattedMinutes(0.040972222)).toBe('59');
+		expect(formattedMinutes(0.04166087)).toBe('59'); // max 59
+		expect(formattedMinutes(0.04166088)).toBe('00');
+
+		expect(formattedMinutes(43930.999999)).toBe('00');
+	});
+	it('should return hour of given serial time', () => {
+		const fmt = 'hh';
+		expect(NumberFormatter.formatNumber(fmt,0.04166087).formattedValue).toBe('00'); // max 0
+		expect(NumberFormatter.formatNumber(fmt,0.04166088).formattedValue).toBe('01'); // min 1
+		expect(NumberFormatter.formatNumber(fmt,0.04236111).formattedValue).toBe('01');
+		expect(NumberFormatter.formatNumber(fmt,0.08332754).formattedValue).toBe('01'); // max 1
+		expect(NumberFormatter.formatNumber(fmt,0.08332755).formattedValue).toBe('02'); // min 2
+		expect(NumberFormatter.formatNumber(fmt,0.95832754).formattedValue).toBe('22'); // max 22
+		expect(NumberFormatter.formatNumber(fmt,0.95832755).formattedValue).toBe('23'); // min 23
+		expect(NumberFormatter.formatNumber(fmt,0.95833333).formattedValue).toBe('23');
+		expect(NumberFormatter.formatNumber(fmt,0.99999421).formattedValue).toBe('23'); // max 23
+		expect(NumberFormatter.formatNumber(fmt,0.99999422).formattedValue).toBe('00');
+
+		expect(NumberFormatter.formatNumber(fmt,43930.999999).formattedValue).toBe('00');
 	});
 });

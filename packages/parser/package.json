@@ -18,6 +18,9 @@
     "url": "https://github.com/cedalo/streamsheets/issues"
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/parser",
+  "dependencies": {
+    "@cedalo/commons": "2.0.0"
+  },
   "devDependencies": {
     "babel-core": "6.24.1",
     "babel-loader": "6.4.1",
