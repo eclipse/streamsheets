@@ -64,8 +64,12 @@ const toSerial = (ms) => {
 	return date + time;
 };
 const ms2serial = (ms) => toSerial(ms);
-const date2serial = (date) => toSerial(date.getTime() - date.getTimezoneOffset() * MIN_IN_MS);
-const now = () => date2serial(new Date());
+const date2serial = (date) => toSerial(date.getTime());
+const now = () => {
+	const today = new Date();
+	// have to add tz offset to represent local time
+	return toSerial(today.getTime() - today.getTimezoneOffset() * MIN_IN_MS);
+};
 
 module.exports = {
 	// returns serial number representing current local(!) time

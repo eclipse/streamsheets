@@ -370,14 +370,13 @@ describe('date2serial', () => {
 	it('should convert a given Date object to serial date number', () => {
 		const date = new Date('2019-02-26T16:29:39');
 		const serial = date2serial(date);
-		expect(serial).toBe(ms2serial(date.getTime() - date.getTimezoneOffset() * 60 * 1000));
-		// expect(year(serial)).toBe(2019);
-		// expect(month(serial)).toBe(2);
-		// expect(day(serial)).toBe(26);
-		// expect(hours(serial)).toBe(16);
-		// expect(minutes(serial)).toBe(29);
-		// expect(seconds(serial)).toBe(39);
-		// expect(milliseconds(serial)).toBe(160);
+		expect(serial).toBe(ms2serial(date.getTime()));
+	});
+	it('should convert a given Date previous to 1970 to serial date number', () => {
+		const date = new Date('1900-04-01');
+		expect(ms2serial(date.getTime())).toBe(92);
+		const serial = date2serial(date);
+		expect(serial).toBe(92);
 	});
 });
 describe('serial2date', () => {
