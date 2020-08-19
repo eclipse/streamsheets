@@ -363,7 +363,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				) {
 					y += textSize.height * 1.3;
 				} else {
-					const size = item.measureText(JSG.graphics, cs, legend.format, 'legend', String(entry.name));
+					const size = item.measureText(graphics, cs, legend.format, 'legend', String(entry.name));
 					x += size.width + margin * 2 + textPos;
 				}
 			});
@@ -814,6 +814,8 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			const pieInfo = item.getPieInfo(ref, serie, plotRect, seriesIndex);
 			const fillRect = new Rectangle();
 
+			graphics.setLineJoin('round');
+
 			if (serie.type === 'pie' && item.series.length > 1 && ref.yName) {
 				item.setFont(
 					graphics,
@@ -1010,6 +1012,8 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					index += 1;
 				}
 			}
+
+			graphics.setLineJoin('miter');
 		}
 
 		drawCartesian(graphics, item, plotRect, serie, seriesIndex, lastPoints, legendData) {
@@ -1496,7 +1500,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					pt.y = item.scaleToAxis(axes.y, value.y, info, false);
 					item.toPlot(serie, plotRect, pt);
 
-					if (horizontalChart || (pt.x >= plotRect.left && pt.x < plotRect.right)) {
+					if (horizontalChart || (pt.x >= plotRect.left && pt.x <= plotRect.right)) {
 						const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
 						const labelRect = item.getLabelRect(pt, value, text, index, params);
 						if (labelRect) {
