@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -86,12 +86,12 @@ class MetricCoordinateSystem extends CoordinateSystem {
 		return y * 2540 / this._dpiY / this.getZoom(ratio);
 	}
 
-	deviceToLogXNoZoom(x) {
-		return x * 2540 / this._dpiX;
+	deviceToLogXNoZoom(x, ratio = false) {
+		return x * 2540 / this._dpiX / (ratio ? this._deviceRatio : 1);
 	}
 
-	deviceToLogYNoZoom(y) {
-		return y * 2540 / this._dpiY;
+	deviceToLogYNoZoom(y, ratio = false) {
+		return y * 2540 / this._dpiY / (ratio ? this._deviceRatio : 1);
 	}
 
 	metricToLogX(x) {
