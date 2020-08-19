@@ -12,6 +12,7 @@ const httpError = require('http-errors');
 const axios = require('axios');
 const FormData = require('form-data');
 const logger = require('../../utils/logger').create({ name: 'Newsletter' });
+const { URLSearchParams } = require('url');
 
 // this URL is fixed and intentionally cannot be changed using environment variables
 const URL = 'https://cedalo.us19.list-manage.com/subscribe/post';
@@ -21,17 +22,30 @@ module.exports = class NewsletterRoutes {
 		switch (request.method) {
 			case 'POST': {
 				const user = request.body;
-				const formData = new FormData();
-				formData.append('u', '4cb1e6d733caee48574fbc0b8');
-				formData.append('id', '57d2a14720');
-				formData.append('MERGE0', user.email);
-				formData.append('MERGE1', user.firstName);
-				formData.append('MERGE2', user.lastName);
+				// const formData = new FormData();
+				// formData.append('u', '4cb1e6d733caee48574fbc0b8');
+				// formData.append('id', 'd0bbeaf7b2');
+				// formData.append('MERGE0', user.email);
+				// formData.append('MERGE1', user.firstName);
+				// formData.append('MERGE2', user.lastName);
+				// const headers = formData.getHeaders();
+
+				const params = new URLSearchParams({
+					u: '4cb1e6d733caee48574fbc0b8',
+					id: 'd0bbeaf7b2',
+					MERGE0: user.email,
+					MERGE1: user.firstName,
+					MERGE2: user.lastName
+				});
+
+				const headers = {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				  };
+
 				axios
-					.create({
-						headers: formData.getHeaders()
+					.post(URL, params.toString(), {
+						headers
 					})
-					.post(URL, formData)
 					.then(() => {
 						response.status(200).json({
 							newsletter: true
