@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -81,17 +81,22 @@ export default class SheetGraphItemEventInteraction extends Interaction {
 				if (sheetEvent.event === name) {
 					const sheet = this.getSheet();
 					if (sheet) {
-						const cmd = new ExecuteFunctionCommand(sheet, sheetEvent.func);
-						viewer.getInteractionHandler().execute(cmd);
-						if (
-							sheet
-								.getGraph()
-								.getMachineContainer()
-								.getMachineState()
-								.getValue() === 0
-						) {
+						if (sheetEvent.func.indexOf('SHOWDIALOG' !== -1)) {
 							event.isConsumed = true;
 							event.hasActivated = true;
+						} else {
+							const cmd = new ExecuteFunctionCommand(sheet, sheetEvent.func);
+							viewer.getInteractionHandler().execute(cmd);
+							if (
+								sheet
+									.getGraph()
+									.getMachineContainer()
+									.getMachineState()
+									.getValue() === 0
+							) {
+								event.isConsumed = true;
+								event.hasActivated = true;
+							}
 						}
 					}
 				}

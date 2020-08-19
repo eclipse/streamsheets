@@ -23,7 +23,6 @@ import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import MachineHelper from '../../helper/MachineHelper';
 import MachineNameComponent from '../MachineNameComponent/MachineNameComponent';
-import { WorkspaceSelect } from '@cedalo/webui-extensions';
 
 export function InfoToolBar(props) {
 	const {
@@ -32,7 +31,6 @@ export function InfoToolBar(props) {
 		openDashboard,
 		goBackPage,
 		title,
-		workspaceSelect,
 		canEditMachine,
 		hideDrawer = false
 	} = props;
@@ -78,7 +76,7 @@ export function InfoToolBar(props) {
 					{title}
 				</Typography>
 			) : null}
-			<WorkspaceSelect editable={workspaceSelect} setScope={props.setScope} />
+			
 			{MachineHelper.isMachineDetailsPage() && machineId ? (
 				<MachineNameComponent disabled={!canEditMachine} />
 			) : null}

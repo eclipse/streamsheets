@@ -23,10 +23,15 @@ import NodeView from './NodeView';
  */
 export default class CaptionView extends NodeView {
 	drawFill(graphics, format, rect) {
-		super.drawFill(graphics, format, rect);
-
+		// super.drawFill(graphics, format, rect);
 		const item = this.getItem();
 		const textFormat = item.getTextFormat();
+
+		const color = item._icon && item._icon === 'disconnected' ? '#ff0022' : format.getFillColor().getValue();
+
+		graphics.setFillColor(color);
+		graphics.fillRect(rect);
+
 
 		textFormat.applyToGraphics(graphics);
 		graphics.setFontSize(10.5);
@@ -76,7 +81,7 @@ export default class CaptionView extends NodeView {
 					const rectEl = rect.copy();
 					rectEl.x = rect.width - 1200;
 					rectEl.width = 1200;
-					graphics.setFillColor(format.getFillColor().getValue());
+					graphics.setFillColor(color);
 					graphics.fillRect(rectEl);
 					graphics.setFillColor(JSG.theme.captiontext);
 					graphics.fillText('...', rectEl.x, rect.y + rect.height / 2 + 20);

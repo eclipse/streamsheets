@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 /* eslint-disable react/prop-types,react/no-unused-state */
+import { WorkspaceSelect } from '@cedalo/webui-extensions';
 import AppBar from '@material-ui/core/AppBar';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -19,6 +20,7 @@ import { bindActionCreators } from 'redux';
 import * as Actions from '../actions/actions';
 import InfoToolBar from '../components/AppBarComponent/InfoToolBar';
 import MainDrawer from '../components/AppBarComponent/MainDrawer';
+import FilterName from '../components/base/listing/FilterName';
 import LicenseExpireNotification from '../components/HelperComponent/LicenseExpireNotification';
 import NewMachineDialog from '../components/HelperComponent/NewMachineDialog';
 import OpenDialog from '../components/HelperComponent/OpenDialog';
@@ -38,7 +40,6 @@ import { intl } from '../helper/IntlGlobalProvider';
 import MachineHelper from '../helper/MachineHelper';
 import HelpButton from '../layouts/HelpButton';
 import theme from '../theme';
-import FilterName from '../components/base/listing/FilterName';
 
 const useExperimental = (setAppState) => {
 	useEffect(() => setAppState({ experimental: localStorage.getItem('experimental') === 'true' }), []);
@@ -113,24 +114,27 @@ export function ExportPageComponent(props) {
 							}}
 						>
 							<LicenseExpireNotification />
-							<InfoToolBar title={<FormattedMessage id="Dashboard.export" defaultMessage="Export" />} workspaceSelect />
-							{!props.isMachineEngineConnected ? (
-								<div>
-									<FormattedMessage id="ServicesDisconnected" defaultMessage="Disconnected: " />
-									{`${props.disconnectedServices}`}
-								</div>
-							) : null}
-							<FilterName filter={filter} onUpdateFilter={setFilter}/>
-							<Toolbar
-								style={{
-									paddingRight: '5px',
-									minHeight: '58px'
-								}}
-							>
-								<NotificationsComponent />
-								<HelpButton />
-								<SettingsMenu />
-							</Toolbar>
+							<div style={{ display: 'flex', flexGrow: 1, alignItems: 'center' }}>
+								<InfoToolBar
+									title={<FormattedMessage id="MainTitle" defaultMessage="Streamsheets" />}
+								/>
+								<WorkspaceSelect editable setScope={props.setScope} />
+							</div>
+							<div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+								<FilterName filter={filter} onUpdateFilter={setFilter} />
+							</div>
+							<div style={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
+								<Toolbar
+									style={{
+										paddingRight: '5px',
+										minHeight: '58px'
+									}}
+								>
+									<NotificationsComponent />
+									<HelpButton />
+									<SettingsMenu />
+								</Toolbar>
+							</div>
 						</div>
 					</AppBar>
 				</div>

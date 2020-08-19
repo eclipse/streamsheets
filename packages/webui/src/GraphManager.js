@@ -19,7 +19,7 @@ import GraphSynchronizationInteractionHandler from './helper/synchronization/Gra
 import store from './store';
 import StreamHelper from './helper/StreamHelper';
 import { intl } from './helper/IntlGlobalProvider';
-import { Path } from './helper/Path';
+// import { Path } from './helper/Path';
 
 
 const {
@@ -918,11 +918,10 @@ export default class GraphManager {
 	updateStream(streamsheetId, stream) {
 		const processSheetContainer = this.getStreamSheetContainer(streamsheetId);
 		if (processSheetContainer) {
-			const status = this.getStreamStatus(stream);
 			const display = `${stream.name || 'None'}`;
 			processSheetContainer.setStream(display);
-			processSheetContainer.setStatus(display === 'None' ? '' : status);
-			processSheetContainer.getInboxCaption().setIconLink(`${window.location.origin}${Path.stream(stream.id)}`);
+			processSheetContainer.setStatus(display === 'None' ? '' : this._streamsStatusMap[stream.id]);
+			// processSheetContainer.getInboxCaption().setIconLink(`${window.location.origin}${Path.stream(stream.id)}`);
 		}
 	}
 

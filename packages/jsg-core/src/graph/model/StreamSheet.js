@@ -656,6 +656,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 			def = JSON.parse(fontJSON);
 		} catch (e) {}
 
+		format.setRichText(false);
+
 		if (def.fontcolor) {
 			format.setFontColor(def.fontcolor);
 		} else {
@@ -1120,7 +1122,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			const fillFormula = this.getFillFormula(item);
 			switch (type) {
 				case 'label':
-					formula += `,,,${attributes},,`;
+					formula += `,${lineFormula || ''},,${attributes},,`;
 					formula += angle === 0 ? ',,' : `${angle},,`;
 
 					formula += `"${item.getText().getValue()}"`;
@@ -1460,8 +1462,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 					break;
 			}
 		}
-
-		item.getTextFormat().setRichText(false);
 
 		formula = expr.toLocaleString('en', { item: ws, useName: true, forceName: true });
 		if (formula.length && formula[0] === '=') {
