@@ -8,9 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { serialnumber: { date2serial, serial2date } } = require('@cedalo/commons');
+
 const JSG = require('../JSG');
 const Point = require('./Point');
-
 
 const distanceSquared = (v, w) => ((v.x - w.x) * (v.x - w.x)) + ((v.y - w.y) * (v.y - w.y));
 const distanceToSegmentSquared = (p, v, w) => {
@@ -657,24 +658,11 @@ class MathUtils {
 	}
 
 	static JSDateToExcelDate(inDate) {
-		return 25569.0 + (inDate.getTime() - inDate.getTimezoneOffset() * 60 * 1000) / (1000 * 60 * 60 * 24);
+		return date2serial(inDate);
 	}
 
 	static excelDateToJSDate(serial) {
-		const utcDays = Math.floor(serial - 25569);
-		const utcValue = utcDays * 86400;
-		const dateInfo = new Date(utcValue * 1000);
-		const fractionalDay = serial - Math.floor(serial) + 0.0000001;
-		let totalSeconds = Math.floor(86400 * fractionalDay);
-		const seconds = totalSeconds % 60;
-
-		totalSeconds -= seconds;
-
-		const hours = Math.floor(totalSeconds / (60 * 60));
-		const minutes = Math.floor(totalSeconds / 60) % 60;
-		const ms = (86400 * fractionalDay - hours * 3600 - minutes * 60 - seconds) * 1000;
-
-		return new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate(), hours, minutes, seconds, ms);
+		return serial2date(serial);
 	}
 }
 

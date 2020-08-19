@@ -52,7 +52,7 @@ describe('date & time functions', () => {
 		});
 	});
 	describe('timevalue', () => {
-		it('should return seraial time number from given string value', () => {
+		it('should return serial time number from given string value', () => {
 			const sheet = new StreamSheet().sheet;
 			expect(createTerm('timevalue("2:24 AM")', sheet).value).toBe(0.10);
 			expect(createTerm('timevalue("22-Aug-2011 6:35 AM")', sheet).value).toBe(0.27430556);

@@ -9,14 +9,28 @@
  *
  ********************************************************************************/
 const {
-	date: { ms2serial, serial2date, time2serial },
+	convert,
+	serialnumber: {
+		now,
+		year,
+		month,
+		day,
+		weekday,
+		hours,
+		minutes,
+		seconds,
+		milliseconds,
+		ms2serial,
+		serial2date
+	}
+} = require('@cedalo/commons');
+const { FunctionErrors } = require('@cedalo/error-codes');
+const { locale } = require('@cedalo/machine-core');
+const {
 	sheet: { getLocale },
 	runFunction,
 	values: { roundNumber }
 } = require('../../utils');
-const { convert } = require('@cedalo/commons');
-const { FunctionErrors } = require('@cedalo/error-codes');
-const { locale } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 const SEC_MS = 1000;
@@ -27,21 +41,21 @@ const isoregex = /^[+-]?(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})
 
 const validateISOFormat = str => str && isoregex.test(str) ? str : ERROR.VALUE;
 
-const timeToSerial = (hours = 0, minutes = 0, seconds = 0) => {
-	const ms = (hours * HOUR_MS) + (minutes * MIN_MS) + (seconds * SEC_MS);
-	return roundNumber(time2serial(ms), 8);
+const timeToSerial = (hrs = 0, mins = 0, secs = 0) => {
+	const ms = (hrs * HOUR_MS) + (mins * MIN_MS) + (secs * SEC_MS);
+	return roundNumber(ms2serial(ms) - 25569, 8);
 };
 const parseTimeStr = (str) => {
 	const timearr = timeregex.exec(str);
 	if (timearr) {
-		let hours = Number(timearr[1]);
-		const minutes = Number(timearr[2]);
-		const seconds = Number(timearr[3]);
+		let hrs = Number(timearr[1]);
+		const mins = Number(timearr[2]);
+		const secs = Number(timearr[3]);
 		const pm = timearr[4];
 		if (pm != null && pm.toLowerCase() === 'pm') {
-			hours += 12;
+			hrs += 12;
 		}
-		return timeToSerial(hours, minutes, seconds);
+		return timeToSerial(hrs, mins, secs);
 	}
 	return ERROR.VALUE;
 };
@@ -55,10 +69,10 @@ const parseTimeStr = (str) => {
 const date = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(3)
-		.mapNextArg(year => convert.toNumber(year.value, ERROR.VALUE))
-		.mapNextArg(month => convert.toNumber(month.value, ERROR.VALUE))
-		.mapNextArg(day => convert.toNumber(day.value, ERROR.VALUE))
-		.run((year, month, day) => Math.round(ms2serial(Date.parse(`${year}-${month}-${day}`))));
+		.mapNextArg(y => convert.toNumber(y.value, ERROR.VALUE))
+		.mapNextArg(m => convert.toNumber(m.value, ERROR.VALUE))
+		.mapNextArg(d => convert.toNumber(d.value, ERROR.VALUE))
+		.run((y, m, d) => Math.round(ms2serial(Date.parse(`${y}-${m}-${d}`))));
 
 const datevalue = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -72,10 +86,10 @@ const datevalue = (sheet, ...terms) =>
 const time = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(3)
-		.mapNextArg(hours => convert.toNumber(hours.value, ERROR.VALUE))
-		.mapNextArg(minutes => convert.toNumber(minutes.value, ERROR.VALUE))
-		.mapNextArg(seconds => convert.toNumber(seconds.value, ERROR.VALUE))
-		.run((hours, minutes, seconds) => timeToSerial(hours, minutes, seconds));
+		.mapNextArg(hrs => convert.toNumber(hrs.value, ERROR.VALUE))
+		.mapNextArg(mins => convert.toNumber(mins.value, ERROR.VALUE))
+		.mapNextArg(secs => convert.toNumber(secs.value, ERROR.VALUE))
+		.run((hrs, mins, secs) => timeToSerial(hrs, mins, secs));
 
 const timevalue = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -98,19 +112,33 @@ const excel2jsontime = (sheet, ...terms) =>
 		.mapNextArg((serial) => convert.toNumber(serial.value, ERROR.VALUE))
 		.run((serial) => serial2date(serial).toJSON());
 
-// REPLACE PARSER FUNCTION, it seems to have not a millisecond resolution:
-const millisecond = (sheet, ...terms) =>
+const serialTo = (fn) => (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withArgCount(1)
+		.withMinArgs(1)
+		.withMaxArgs(2)
 		.mapNextArg((serial) => convert.toNumber(serial.value, ERROR.VALUE))
-		.run((serial) => serial2date(serial).getMilliseconds()); // getUTCMilliseconds());
+		.mapNextArg((roundIt) => (roundIt ? convert.toBoolean(roundIt.value, ERROR.VALUE) : true))
+		.run((serial) => fn(serial));
+
+const serialNow = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withArgCount(0)
+		.run(() => now());
 
 module.exports = {
 	DATE: date,
 	DATEVALUE: datevalue,
 	EXCEL2JSONTIME: excel2jsontime,
 	JSONTIME2EXCEL: jsontime2excel,
-	MILLISECOND: millisecond,
 	TIME: time,
-	TIMEVALUE: timevalue
+	TIMEVALUE: timevalue,
+	NOW: serialNow,
+	YEAR: serialTo(year),
+	MONTH: serialTo(month),
+	DAY: serialTo(day),
+	WEEKDAY: serialTo(weekday),
+	HOUR: serialTo(hours),
+	MINUTE: serialTo(minutes),
+	SECOND: serialTo(seconds),
+	MILLISECOND: serialTo(milliseconds)
 };

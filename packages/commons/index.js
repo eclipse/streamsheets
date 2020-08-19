@@ -14,6 +14,7 @@ const jsonpath = require('./src/jsonpath');
 const functions = require('./src/functions');
 const memoize = require('./src/memoize');
 const requireFile = require('./src/requireFile');
+const serialnumber = require('./src/serialnumber');
 const sleep = require('./src/sleep');
 const moduleResolver = require('./src/moduleResolver');
 
@@ -24,6 +25,7 @@ module.exports = {
 	functions,
 	memoize,
 	requireFile,
+	serialnumber,
 	sleep,
 	moduleResolver
 };
