@@ -23,7 +23,7 @@ module.exports = class NewsletterRoutes {
 				const user = request.body;
 				const formData = new FormData();
 				formData.append('u', '4cb1e6d733caee48574fbc0b8');
-				formData.append('id', '57d2a14720');
+				formData.append('id', 'd0bbeaf7b2');
 				formData.append('MERGE0', user.email);
 				formData.append('MERGE1', user.firstName);
 				formData.append('MERGE2', user.lastName);
