@@ -2677,6 +2677,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 						result = valueInfo.value + 1;
 						break;
 				}
+				if (valueInfo.value === result) {
+					// to prevent endless loop
+					result += 1;
+				}
 				valueInfo.value = result;
 				break;
 			case 'category':
