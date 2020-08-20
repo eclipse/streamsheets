@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -59,7 +59,7 @@ describe('milliseconds', () => {
 		expect(milliseconds(0.95833333)).toBe(0);
 		expect(milliseconds(43930.999999)).toBe(914);
 	});
-})
+});
 describe('seconds', () => {
 	const { seconds } = serialnumber;
 	it('should return seconds of given serial time', () => {
@@ -85,7 +85,7 @@ describe('minutes', () => {
 	const { minutes } = serialnumber;
 	it('should return minutes of given serial time', () => {
 		expect(minutes(0.00068865)).toBe(0); // max 0
-		expect(minutes(0.00068866)).toBe(1);	// min 1
+		expect(minutes(0.00068866)).toBe(1); // min 1
 		expect(minutes(0.00069444)).toBe(1);
 		expect(minutes(0.00138310)).toBe(1); // max 1
 		expect(minutes(0.00138311)).toBe(2); // min 2
@@ -375,6 +375,8 @@ describe('date2serial', () => {
 		expect(serial).toBe(ms2serial(toLocalMilliseconds(date)));
 		expect(date2serial(new Date('01 Feb 2000 00:00'))).toBe(36557);
 		expect(date2serial(new Date('01 Feb 2014 23:59')).toFixed(8)).toBe('41671.99930556');
+		expect(date2serial(new Date('29 Jun 2020 22:36')).toFixed(8)).toBe('44011.94166667');
+		// expect(date2serial(new Date('26 Feb 2019 16:29:39')).toFixed(8)).toBe('43522.68725879');
 	});
 	it('should convert a given Date previous to 1970 to serial date number', () => {
 		expect(date2serial(new Date('01 Apr 1900'))).toBe(92);
@@ -387,29 +389,57 @@ describe('date2serial', () => {
 describe('serial2date', () => {
 	const { serial2date } = serialnumber;
 	it('should convert serial number to JS date object', () => {
-		const serial = 43522.68725879629; // '2019-02-26T16:29:39.160Z'
-		const date = serial2date(serial);
-		// returned date is based on local timezone, so we have to use UTC methods...
-		expect(date.getUTCFullYear()).toBe(2019);
-		expect(date.getUTCMonth() + 1).toBe(2);
-		expect(date.getUTCDate()).toBe(26);
-		expect(date.getUTCHours()).toBe(16);
-		expect(date.getUTCMinutes()).toBe(29);
-		expect(date.getUTCSeconds()).toBe(39);
-		expect(date.getUTCMilliseconds()).toBe(160);
+		// 26 Feb 2019 16:29:39:160
+		const serial = 43522.68725879629;
+		let date = serial2date(serial);
+		expect(date.getFullYear()).toBe(2019);
+		expect(date.getMonth() + 1).toBe(2);
+		expect(date.getDate()).toBe(26);
+		expect(date.getHours()).toBe(16);
+		expect(date.getMinutes()).toBe(29);
+		expect(date.getSeconds()).toBe(39);
+		expect(date.getMilliseconds()).toBe(160);
+		// 29.06.2020 22:36
+		date = serial2date(44011.9416666667);
+		expect(date.getFullYear()).toBe(2020);
+		expect(date.getMonth() + 1).toBe(6);
+		expect(date.getDate()).toBe(29);
+		expect(date.getHours()).toBe(22);
+		expect(date.getMinutes()).toBe(36);
+		expect(date.getSeconds()).toBe(0);
+		expect(date.getMilliseconds()).toBe(0);
+		// 26 Feb 2019 16:29:39:00
+		date = serial2date(43522.687256944446);
+		expect(date.getFullYear()).toBe(2019);
+		expect(date.getMonth() + 1).toBe(2);
+		expect(date.getDate()).toBe(26);
+		expect(date.getHours()).toBe(16);
+		expect(date.getMinutes()).toBe(29);
+		expect(date.getSeconds()).toBe(39);
+		expect(date.getMilliseconds()).toBe(0);
 	});
 });
 describe('usage to convert ms to serial and back', () => {
 	const { ms2serial, serial2ms } = serialnumber;
 	it('should work with our now() function', () => {
-		// serial of 2019-02-26T16:29:39.160Z
-		const serial = 43522.6872587963;
-		expect(ms2serial(serial2ms(serial))).toBe(serial);
+		// serial of 2019-02-26T16:29:39.160
+		const serial = 43522.68725878;
+		expect(ms2serial(serial2ms(serial)).toFixed(8)).toBe(`${serial}`);
 		const nowms = Date.now();
 		expect(serial2ms(ms2serial(nowms))).toBe(nowms);
 	});
-})	
-
+});
+describe('usage to convert with serial2date and date2serial', () => {
+	const { date2serial, serial2date } = serialnumber;
+	it('should convert Date to serial and back', () => {
+		const date = new Date('29 Jun 2020 21:26:34');
+		const serial = date2serial(date);
+		const date2 = serial2date(serial);
+		const serial2 = date2serial(date2);
+		expect(date2).toEqual(date);
+		expect(serial2).toBe(serial);
+	});
+});
 describe('now', () => {
 	const { ms2serial, now } = serialnumber;
 	it('should return current time as serial number', () => {
@@ -418,5 +448,5 @@ describe('now', () => {
 		// Date.now() is in UTC, so add local TZ to it
 		const msNow = toLocalMilliseconds(today);
 		expect(ms2serial(msNow).toFixed(6)).toBe(serialNow.toFixed(6));
-	})
+	});
 });
