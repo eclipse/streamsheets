@@ -59,17 +59,12 @@ const weekday = (serial) => {
 const serial2ms = (serial) => serial2date(serial).getTime();
 
 const toSerial = (ms) => {
-	const date = Math.floor(ms / DAY_IN_MS) + 25569; // 25567 + 2;
-	const time = (ms % DAY_IN_MS) / DAY_IN_MS;
-	return date + time;
-};
+	const serial = ms / DAY_IN_MS + 25569;
+	return serial > 61 ? serial : serial - 1;	
+}
 const ms2serial = (ms) => toSerial(ms);
-const date2serial = (date) => toSerial(date.getTime());
-const now = () => {
-	const today = new Date();
-	// have to add tz offset to represent local time
-	return toSerial(today.getTime() - today.getTimezoneOffset() * MIN_IN_MS);
-};
+const date2serial = (date) => toSerial(date.getTime() - (date.getTimezoneOffset() * MIN_IN_MS));
+const now = () => date2serial(new Date());
 
 module.exports = {
 	// returns serial number representing current local(!) time

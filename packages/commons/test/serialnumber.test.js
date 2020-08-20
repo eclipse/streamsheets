@@ -11,6 +11,8 @@
 
 const { serialnumber } = require('..');
 
+const toLocalMilliseconds = (date) => date.getTime() - date.getTimezoneOffset() * 60 * 1000;
+
 /**
  * NOTE: all expected values are calculated with Excel 16.39 (200713000) on MacOS
  * date values are based to 1900
@@ -368,15 +370,18 @@ describe('serial2ms', () => {
 describe('date2serial', () => {
 	const { date2serial, ms2serial } = serialnumber;
 	it('should convert a given Date object to serial date number', () => {
-		const date = new Date('2019-02-26T16:29:39');
+		const date = new Date('26 Feb 2019 16:29:39');
 		const serial = date2serial(date);
-		expect(serial).toBe(ms2serial(date.getTime()));
+		expect(serial).toBe(ms2serial(toLocalMilliseconds(date)));
+		expect(date2serial(new Date('01 Feb 2000 00:00'))).toBe(36557);
+		expect(date2serial(new Date('01 Feb 2014 23:59')).toFixed(8)).toBe('41671.99930556');
 	});
 	it('should convert a given Date previous to 1970 to serial date number', () => {
-		const date = new Date('1900-04-01');
-		expect(ms2serial(date.getTime())).toBe(92);
-		const serial = date2serial(date);
-		expect(serial).toBe(92);
+		expect(date2serial(new Date('01 Apr 1900'))).toBe(92);
+		expect(date2serial(new Date('01 Apr 1900 02:00:00')).toFixed(6)).toBe('92.083333');
+		expect(date2serial(new Date('26 Mar 1900'))).toBe(86);
+		expect(date2serial(new Date('29 Feb 1900'))).toBe(60);
+		expect(date2serial(new Date('28 Feb 1900'))).toBe(59);
 	});
 });
 describe('serial2date', () => {
@@ -398,7 +403,7 @@ describe('usage to convert ms to serial and back', () => {
 	const { ms2serial, serial2ms } = serialnumber;
 	it('should work with our now() function', () => {
 		// serial of 2019-02-26T16:29:39.160Z
-		const serial = 43522.68725879629;
+		const serial = 43522.6872587963;
 		expect(ms2serial(serial2ms(serial))).toBe(serial);
 		const nowms = Date.now();
 		expect(serial2ms(ms2serial(nowms))).toBe(nowms);
@@ -408,9 +413,10 @@ describe('usage to convert ms to serial and back', () => {
 describe('now', () => {
 	const { ms2serial, now } = serialnumber;
 	it('should return current time as serial number', () => {
-		// Date.now() is in UTC, so add local TZ to it
-		const msNow = Date.now() - (new Date().getTimezoneOffset() * 60 * 1000);
+		const today = new Date();
 		const serialNow = now();
-		expect(ms2serial(msNow)).toBe(serialNow);
+		// Date.now() is in UTC, so add local TZ to it
+		const msNow = toLocalMilliseconds(today);
+		expect(ms2serial(msNow).toFixed(6)).toBe(serialNow.toFixed(6));
 	})
 });
