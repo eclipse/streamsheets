@@ -68,7 +68,8 @@ const buildList = (machines, sortField, sortDir, filter, onItemClick) => {
 		// eslint-disable-next-line jsx-a11y/anchor-is-valid
 			<TableRow
 				style={ {
-					height: '35px'
+					height: '35px',
+					cursor: 'pointer'
 				}}
 				hover
 				onClick={() => onItemClick(machine)}
