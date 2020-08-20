@@ -82,6 +82,7 @@ export default class SheetGraphItemEventInteraction extends Interaction {
 					const sheet = this.getSheet();
 					if (sheet) {
 						if (sheetEvent.func.indexOf('SHOWDIALOG' !== -1)) {
+							NotificationCenter.getInstance().send(new Notification('showFileDialog', this));
 							event.isConsumed = true;
 							event.hasActivated = true;
 						} else {

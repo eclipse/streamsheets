@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -59,7 +59,8 @@ const dateFormats = [
 	'MMM yy',
 	'MMM yyyy',
 	'HH:mm',
-	'HH:mm:ss'
+	'HH:mm:ss',
+	'HH:mm:ss.SSS'
 ];
 
 const SELECTION_CHANGED_NOTIFICATION = 'sheet_selection_changed_notification';
@@ -1072,6 +1073,11 @@ module.exports = class WorksheetNode extends ContentNode {
 								xlDate -= Math.trunc(xlDate);
 								localCulture = `time;${locale}`;
 								numberFormat = 'h:mm:ss';
+								break;
+							case 'HH:mm:ss.SSS':
+								xlDate -= Math.trunc(xlDate);
+								localCulture = `time;${locale}`;
+								numberFormat = 'h:mm:ss.000';
 								break;
 							default:
 								xlDate = Math.floor(xlDate);
