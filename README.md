@@ -100,7 +100,7 @@ docker run -v <PATH>:/streamsheets cedalo/streamsheets-installer:<VERSION>-<PLAT
 
 Example
 ```
-docker run -v ~/streamsheets:/streamsheets cedalo/streamsheets-installer:1.5-linux
+docker run -v ~/streamsheets:/streamsheets cedalo/streamsheets-installer:2.0-linux
 ```
 
 <!-- ### Running from source code
