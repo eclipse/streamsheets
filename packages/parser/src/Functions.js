@@ -373,6 +373,7 @@ module.exports.Functions = {
 	ACOS: (scope, ...terms) => (terms.length ? Math.acos(terms[0].value) : ERROR.ARGS),
 	ASIN: (scope, ...terms) => (terms.length ? Math.asin(terms[0].value) : ERROR.ARGS),
 	ONCLICK: (/* scope, ...terms */) => OK.TRUE,
+	LOCALNOW: (/* scope, ...terms */) => '#[LocalDate]',
 	ONDOUBLECLICK: (/* scope, ...terms */) => OK.TRUE,
 	ONMOUSEDOWN: (/* scope, ...terms */) => OK.TRUE,
 	ONMOUSEUP: (/* scope, ...terms */) => OK.TRUE,

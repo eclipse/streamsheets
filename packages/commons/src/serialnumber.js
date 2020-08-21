@@ -42,7 +42,11 @@ const serial2date = (serial) => {
 	// so, if the serial is 61 or over, we have to subtract 1.
 	// serial must be at least 1
 	else if (serial > 60) serial -= 1;
-	return new Date(offset + Math.round(serial * DAY_IN_MS));
+	const date = new Date(offset + Math.round(serial * DAY_IN_MS));
+	const tz = date.getTimezoneOffset() * MIN_IN_MS;
+	date.setTime(date.getTime() + tz);
+	return date;
+	// return new Date(offset + Math.round(serial * DAY_IN_MS) - tz);
 };
 
 const year = (serial) => serial2date(serial).getFullYear();
@@ -56,20 +60,18 @@ const weekday = (serial) => {
 	return wday < 1 || serial < 1 ? 7 : wday;
 };
   
-const serial2ms = (serial) => serial2date(serial).getTime();
+const serial2ms = (serial) => {
+	const date = serial2date(serial);
+	return date.getTime() - date.getTimezoneOffset() * MIN_IN_MS;
+};
 
 const toSerial = (ms) => {
-	const date = Math.floor(ms / DAY_IN_MS) + 25569; // 25567 + 2;
-	const time = (ms % DAY_IN_MS) / DAY_IN_MS;
-	return date + time;
-};
+	const serial = ms / DAY_IN_MS + 25569;
+	return serial > 61 ? serial : serial - 1;	
+}
 const ms2serial = (ms) => toSerial(ms);
-const date2serial = (date) => toSerial(date.getTime());
-const now = () => {
-	const today = new Date();
-	// have to add tz offset to represent local time
-	return toSerial(today.getTime() - today.getTimezoneOffset() * MIN_IN_MS);
-};
+const date2serial = (date) => toSerial(date.getTime() - (date.getTimezoneOffset() * MIN_IN_MS));
+const now = () => date2serial(new Date());
 
 module.exports = {
 	// returns serial number representing current local(!) time

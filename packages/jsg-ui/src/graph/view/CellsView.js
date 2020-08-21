@@ -303,7 +303,7 @@ export default class CellsView extends NodeView {
 		}
 
 		if (result.value === '#[LocalDate]') {
-			result.value = MathUtils.JSDateToExcelDate(new Date(Date.now()));
+			result.value = MathUtils.JSDateToExcelDate(new Date());
 		}
 	}
 

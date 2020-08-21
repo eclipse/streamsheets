@@ -351,7 +351,8 @@ class AddNewDialog extends React.Component {
 								{!baseRequired && (!filter || (typeof filter === 'string' && filter.length < 1)) ? (
 									<TableRow
 										style={ {
-											height: '35px'
+											height: '35px',
+											cursor: 'pointer'
 										}}
 										key="no_stream"
 										selected={selected.id === ''}
@@ -367,7 +368,8 @@ class AddNewDialog extends React.Component {
 								{this.getResources().map((resource) => (
 									<TableRow
 										style={ {
-											height: '35px'
+											height: '35px',
+											cursor: 'pointer'
 										}}
 										hover
 										onClick={this.handleSelection(resource)}
