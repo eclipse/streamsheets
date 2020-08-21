@@ -35,6 +35,10 @@ describe('StringOperand', () => {
 		// it seems to be a demand that string values are quoted...
 		expect(strop.toString()).toBe('"\\"hello\\""');
 
+		strop = new StringOperand('\\"');
+		expect(strop.value).toBe('"');
+		expect(strop.toString()).toBe('"\\""');
+
 		strop = new StringOperand('hello backslash \\\\');
 		expect(strop.value).toBe('hello backslash \\');
 		expect(strop.toString()).toBe('"hello backslash \\\\"');
@@ -44,4 +48,12 @@ describe('StringOperand', () => {
 		expect(strop.value).toBe('hello backslash abcd');
 		expect(strop.toString()).toBe('"hello backslash \\abcd"');
 	});
+	// it('should only remove backslash for escaped characters', () => {
+	// 	const tabstop = '\t';
+	// 	expect(new StringOperand(tabstop).value).toBe(tabstop);
+	// 	const newline = '\n';
+	// 	expect(new StringOperand(newline).value).toBe(newline);
+	// 	const escape = '\\';
+	// 	expect(new StringOperand(escape).value).toBe(escape);
+	// });
 });

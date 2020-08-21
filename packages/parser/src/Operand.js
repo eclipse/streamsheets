@@ -91,6 +91,8 @@ Operand.UNDEF = new Operand(Operand.TYPE.UNDEF, undefined);
 Operand.UNDEF.copy = () => Operand.UNDEF;
 
 
+// const ESC_REGEX = /\\["|\\|']/g;
+// const replacement = (match) => match.charAt(match.length - 1);
 const ESC_REGEX = /\\(.?)/g;
 class StringOperand extends Operand {
 	constructor(value) {
@@ -98,6 +100,7 @@ class StringOperand extends Operand {
 		// ensure to have a string value:
 		this._value = value != null ? `${value}` : value;
 		this._unescapedValue = value != null ? this._value.replace(ESC_REGEX, '$1') : value;
+		// this._unescapedValue = value != null ? this._value.replace(ESC_REGEX, replacement) : value;
 	}
 
 	get value() {
