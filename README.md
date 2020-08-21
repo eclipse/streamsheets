@@ -16,7 +16,7 @@
 	<a href="https://docs.cedalo.com/installation.html">
 		<img alt="Platform" src="https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20win%20%7C%20rpi%20%7C%20node-blue.svg" target="_blank" />
 	</a>
-	<img alt="Version" src="https://img.shields.io/badge/version-1.5-blue.svg?cacheSeconds=2592000" />
+	<img alt="Version" src="https://img.shields.io/badge/version-2.0-blue.svg?cacheSeconds=2592000" />
 	<img alt="Node.js version" src="https://img.shields.io/badge/node-%3E%3D%208.0.0-blue.svg" />
 	<br/>
 	<a href="https://forum.streamsheets.com">
@@ -91,7 +91,7 @@ There are Docker images available for installing Streamsheets on Linux, macOS, W
 Run the following command to execute the installer for Streamsheets (replace the placeholders accordingly).
 
 * `<PATH>`: path to the installation directory, e.g., "~/streamsheets"
-* `<VERSION>`: version to install, e.g., "1.5"
+* `<VERSION>`: version to install, e.g., "2.0"
 * `<PLATFORM>`: target platform (one of `linux`, `macos`, `rpi`, `win`)
 
 ```
