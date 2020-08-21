@@ -122,7 +122,8 @@ const resolvers = {
 			}
 			return { scope };
 		},
-		validateStream: async (obj, args, {api}) => api.stream.validateStream(args.provider, args.type, args.streamConfig)
+		validateStream: async (obj, args, { api }) =>
+			api.stream.validateStream(args.provider, args.type, args.streamConfig)
 	},
 	Mutation: {
 		createUser: async (obj, { user }, { api, encryption }) => {
@@ -188,6 +189,44 @@ const resolvers = {
 				throw new Error('NOT_ALLOWED');
 			}
 			return { scope };
+		},
+		renameMachineFile: async (obj, args, { machineRepo, auth }) => {
+			const { machineId, oldName, newName } = args;
+			const { scope } = await machineRepo.findMachine(machineId);
+			if (!auth.isValidScope(scope)) {
+				throw new Error('NOT_ALLOWED');
+			}
+			const oldMachineFile = path.join(MACHINE_DATA_DIR, machineId, path.basename(oldName));
+			const newMachineFile = path.join(MACHINE_DATA_DIR, machineId, path.basename(newName));
+			try {
+				await fs.rename(oldMachineFile, newMachineFile);
+				return Payload.createSuccess({
+					code: 'FILE_RENAMED',
+					message: 'File renamed successfully',
+					name: newName,
+					oldName
+				});
+			} catch (error) {
+				return Payload.createFailure(error);
+			}
+		},
+		deleteMachineFile: async (obj, args, { machineRepo, auth }) => {
+			const { machineId, name } = args;
+			const { scope } = await machineRepo.findMachine(machineId);
+			if (!auth.isValidScope(scope)) {
+				throw new Error('NOT_ALLOWED');
+			}
+			const machineFile = path.join(MACHINE_DATA_DIR, machineId, path.basename(name));
+			try {
+				await fs.unlink(machineFile);
+				return Payload.createSuccess({
+					code: 'FILE_DELETED',
+					message: 'File deleted successfully',
+					name
+				});
+			} catch (error) {
+				return Payload.createFailure(error);
+			}
 		}
 	},
 	ScopedMutation: {

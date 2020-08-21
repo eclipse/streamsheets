@@ -244,6 +244,21 @@ const typeDefs = gql`
 		clonedMachine: Machine
 	}
 
+	type RenameMachineFilePayload implements MutationResponse {
+		success: Boolean!
+		code: String!
+		message: String!
+		name: String
+		oldName: String
+	}
+
+	type DeleteMachineFilePayload implements MutationResponse {
+		success: Boolean!
+		code: String!
+		message: String!
+		name: String
+	}
+
 	type ScopedQuery {
 		machine(id: ID!): Machine
 		machines(name: String): [Machine!]!
@@ -276,6 +291,8 @@ const typeDefs = gql`
 		updateUserPassword(id: ID!, newPassword: String!): UpdateUserPasswordPayload!
 		scoped(scope: ScopeInput): ScopedMutation!
 		scopedByMachine(machineId: ID!): ScopedMutation!
+		renameMachineFile(machineId: ID!, oldName: String!, newName: String!): RenameMachineFilePayload!
+		deleteMachineFile(machineId: ID!, name: String!): DeleteMachineFilePayload!
 	}
 `;
 
