@@ -111,7 +111,7 @@ export class FormatCellsDialog extends React.Component {
 
 	componentWillReceiveProps(nextProps) {
 		// You don't have to do this check first, but it can help prevent an unneeded render
-		if (nextProps.open === true) {
+		if (this.props.open === false && nextProps.open === true) {
 			this.updateData();
 			this._attributesMap.clear();
 			this._formatMap.clear();

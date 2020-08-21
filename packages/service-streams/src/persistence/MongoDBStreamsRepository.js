@@ -107,7 +107,7 @@ module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepos
 					)
 			);
 			await this.deleteAllConfigurations();
-			await this.saveConfigurations(withoutOldProviders);
+			await this.saveConfigurations(withoutOldProviders, false);
 		}
 		// TODO: end migration
 	}
@@ -120,7 +120,7 @@ module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepos
 		const addDefConfigs = defaultConfigurations
 			.filter((cfg) => cfg.provider && !knownProviders[cfg.provider.id])
 			.map((c) => ({ ...c, scope: { id: 'root' } }));
-		return Promise.all[addDefConfigs.forEach((config) => this.saveConfiguration(config))];
+		return Promise.all[addDefConfigs.forEach((config) => this.saveConfiguration(config, false))];
 	}
 
 	findAllConfigurations() {
@@ -214,10 +214,12 @@ module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepos
 		return configuration;
 	}
 
-	saveConfiguration(configuration) {
+	saveConfiguration(configuration, touch = true) {
 		// configuration = this.migrateConfiguration(configuration);
 		configuration._id = configuration.id;
-		configuration.lastModified = new Date().toISOString();
+		if(touch) {
+			configuration.lastModified = new Date().toISOString();
+		}
 		return this.upsertDocument(this.collection, { _id: configuration._id }, configuration);
 	}
 
@@ -226,8 +228,8 @@ module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepos
 		return this.updateDocument(this.collection, id, $set);
 	}
 
-	saveConfigurations(configurations) {
-		return Promise.all(configurations.map(async (c) => this.saveConfiguration(c)));
+	saveConfigurations(configurations, touch = true) {
+		return Promise.all(configurations.map(async (c) => this.saveConfiguration(c, touch)));
 	}
 
 	deleteConfiguration(id) {
