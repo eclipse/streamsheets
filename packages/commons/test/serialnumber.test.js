@@ -376,7 +376,7 @@ describe('date2serial', () => {
 		expect(date2serial(new Date('01 Feb 2000 00:00'))).toBe(36557);
 		expect(date2serial(new Date('01 Feb 2014 23:59')).toFixed(8)).toBe('41671.99930556');
 		expect(date2serial(new Date('29 Jun 2020 22:36')).toFixed(8)).toBe('44011.94166667');
-		// expect(date2serial(new Date('26 Feb 2019 16:29:39')).toFixed(8)).toBe('43522.68725879');
+		expect(date2serial(new Date('26 Feb 2019 16:29:39:160')).toFixed(8)).toBe('43522.68725880');
 	});
 	it('should convert a given Date previous to 1970 to serial date number', () => {
 		expect(date2serial(new Date('01 Apr 1900'))).toBe(92);
