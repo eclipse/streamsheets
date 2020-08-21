@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -22,6 +22,13 @@ module.exports = class NewsletterRoutes {
 		switch (request.method) {
 			case 'POST': {
 				const user = request.body;
+				// const formData = new FormData();
+				// formData.append('u', '4cb1e6d733caee48574fbc0b8');
+				// formData.append('id', 'd0bbeaf7b2');
+				// formData.append('MERGE0', user.email);
+				// formData.append('MERGE1', user.firstName);
+				// formData.append('MERGE2', user.lastName);
+				// const headers = formData.getHeaders();
 
 				const params = new URLSearchParams({
 					u: '4cb1e6d733caee48574fbc0b8',
@@ -34,6 +41,7 @@ module.exports = class NewsletterRoutes {
 				const headers = {
 					'Content-Type': 'application/x-www-form-urlencoded'
 				  };
+
 				axios
 					.post(URL, params.toString(), {
 						headers

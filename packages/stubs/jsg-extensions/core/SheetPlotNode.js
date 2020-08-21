@@ -2677,6 +2677,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 						result = valueInfo.value + 1;
 						break;
 				}
+				if (valueInfo.value === result) {
+					// to prevent endless loop
+					result += 1;
+				}
 				valueInfo.value = result;
 				break;
 			case 'category':
@@ -3504,6 +3508,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				case 'profile':
 				case 'scatter':
 				case 'line':
+				case 'area':
 					labelRect.set(pt.x - 100, pt.y - 100, pt.x + 100, pt.y + 100);
 					break;
 				case 'bubble': {
@@ -3512,7 +3517,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					break;
 				}
 				case 'column':
-				case 'area':
 					barInfo = this.getBarInfo(
 						params.axes,
 						params.serie,

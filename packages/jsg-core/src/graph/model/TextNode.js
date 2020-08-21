@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 /* global document NodeFilter window */
+
 
 const { Operand } = require('@cedalo/parser');
 
@@ -27,6 +28,7 @@ const ItemAttributes = require('../attr/ItemAttributes');
 const StringExpression = require('../expr/StringExpression');
 const Point = require('../../geometry/Point');
 const XML = require('../../commons/XML');
+const MathUtils = require('../../geometry/MathUtils');
 
 /**
  * The TextNode class extends a Node with Text capabilities. It contains the text itself and some
@@ -279,6 +281,11 @@ class TextNode extends Node {
 			}
 		}
 
+		if (text === '#[LocalDate]') {
+			const d = new Date();
+			text = `${d.toLocaleDateString(undefined, {year: '2-digit', month: '2-digit', day: '2-digit'})} ${d.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'})}`;
+		}
+
 		this._paras = this._splitParas(text);
 
 		let width = this._sizeText.x;
@@ -494,7 +501,7 @@ class TextNode extends Node {
 				cs.logToDeviceXNoZoom(
 					this.getSize()
 						.getWidth()
-						.getValue()
+						.getValue(), false
 				)
 			);
 			// add border width
@@ -505,8 +512,8 @@ class TextNode extends Node {
 			div.style.maxWidth = '';
 		}
 
-		this._sizeText.x = cs.deviceToLogXNoZoom(div.getBoundingClientRect().width);
-		this._sizeText.y = cs.deviceToLogYNoZoom(div.getBoundingClientRect().height);
+		this._sizeText.x = cs.deviceToLogXNoZoom(div.getBoundingClientRect().width, false);
+		this._sizeText.y = cs.deviceToLogYNoZoom(div.getBoundingClientRect().height, false);
 		// this._sizeText.x = cs.deviceToLogXNoZoom(div.clientWidth);
 		// this._sizeText.y = cs.deviceToLogYNoZoom(div.clientHeight);
 		this._heightLimit = this.getHeightLimit();

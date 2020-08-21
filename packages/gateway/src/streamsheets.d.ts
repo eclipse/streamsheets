@@ -186,6 +186,7 @@ export interface DeleteStreamsheetRequest extends IWSRequest {
 export interface LoadMachineRequest extends IWSRequest {
 	type: 'machine_load';
 	machineId: string;
+	scope?: Scope;
 }
 export interface UnloadMachineRequest extends IWSRequest {
 	type: 'machine_unload';

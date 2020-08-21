@@ -18,9 +18,9 @@ import { withStyles } from "@material-ui/core/styles";
 
 const styles = () => ({
 	root: {
-		width: '30%',
+		width: '90%',
 		color: 'white',
-		margin: '12px',
+		// margin: '12px',
 	},
 	inputTypeSearch: {
 		"&::-webkit-clear-button": {

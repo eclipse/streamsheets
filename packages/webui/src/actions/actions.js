@@ -8,26 +8,27 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import Protocols from '@cedalo/protocols';
-import { push } from 'react-router-redux';
 import JSG from '@cedalo/jsg-ui';
-import * as messageTypes from '../constants/WebsocketMessageTypes';
+import Protocols from '@cedalo/protocols';
+import qs from 'query-string';
+import { goBack, push } from 'react-router-redux';
 import * as ActionTypes from '../constants/ActionTypes';
+import * as messageTypes from '../constants/WebsocketMessageTypes';
 import { graphManager } from '../GraphManager';
-import { intl } from '../helper/IntlGlobalProvider';
+import { accessManager } from '../helper/AccessManager';
 import ConfigManager from '../helper/ConfigManager';
-import store from '../store';
 import gatewayClient from '../helper/GatewayClient';
-import * as StreamActions from './StreamActions';
-import * as UserActions from './UserActions';
+import { intl } from '../helper/IntlGlobalProvider';
+import MachineHelper from '../helper/MachineHelper';
+import { Path } from '../helper/Path';
+import { functionStrings } from '../languages/FunctionStrings';
+import SheetParserContext from '../SheetParserContext';
+import store from '../store';
+import * as BackupRestoreActions from './BackupRestoreActions';
 import * as ImportExportActions from './ImportExportActions';
 import * as MachineActions from './MachineActions';
-import * as BackupRestoreActions from './BackupRestoreActions';
-import SheetParserContext from '../SheetParserContext';
-import { accessManager } from '../helper/AccessManager';
-import { functionStrings } from '../languages/FunctionStrings';
-import qs from 'query-string';
-import { Path } from '../helper/Path';
+import * as StreamActions from './StreamActions';
+import * as UserActions from './UserActions';
 
 const { EVENTS } = Protocols.GatewayMessagingProtocol;
 const CONFIG = ConfigManager.config.gatewayClientConfig;
@@ -73,6 +74,10 @@ export const { updateMachines, getMachines } = MachineActions;
 
 export function pushPage(page) {
 	return (dispatch) => dispatch(push(page));
+}
+
+export function goBackPage() {
+	return (dispatch) => dispatch(goBack());
 }
 
 const putAppState = (newState) => ({
@@ -775,8 +780,14 @@ export function unsubscribe(machineId) {
 }
 
 export function openExport(machineId) {
-	const path = Path.export(machineId);
-	window.open(path);
+	return (dispatch) => {
+		const path = Path.export(machineId);
+		if(MachineHelper.isMachineDetailsPage()){
+			window.open(path);
+		} else {
+			dispatch(push(path))
+		}
+	}
 }
 
 export function openDashboard(currentMachineId) {
