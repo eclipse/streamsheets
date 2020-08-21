@@ -141,7 +141,7 @@ class AsyncRequest {
 	}
 
 	reqId() {
-		return this.context._reqId;
+		return this.context ? this.context._reqId : undefined;
 	}
 
 	request(fn) {
