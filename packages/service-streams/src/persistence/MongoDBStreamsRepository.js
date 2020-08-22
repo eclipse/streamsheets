@@ -217,7 +217,7 @@ module.exports = class MongoDBStreamsRepository extends mix(AbstractStreamsRepos
 	saveConfiguration(configuration, touch = true) {
 		// configuration = this.migrateConfiguration(configuration);
 		configuration._id = configuration.id;
-		if(touch) {
+		if(touch || !configuration.lastModified) {
 			configuration.lastModified = new Date().toISOString();
 		}
 		return this.upsertDocument(this.collection, { _id: configuration._id }, configuration);
