@@ -922,7 +922,8 @@ class StreamWizard extends React.Component {
 												<TableBody>
 													<TableRow
 														style={{
-															height: '35px'
+															height: '35px',
+															cursor: 'pointer',
 														}}
 														hover
 														onClick={this.handleConnectorSelection()}
@@ -940,7 +941,8 @@ class StreamWizard extends React.Component {
 													{this.getConnectors().map((resource) => (
 														<TableRow
 															style={{
-																height: '35px'
+																height: '35px',
+																cursor: 'pointer',
 															}}
 															hover
 															onClick={this.handleConnectorSelection(resource)}
@@ -1019,7 +1021,8 @@ class StreamWizard extends React.Component {
 												{this.getProviders().map((resource) => (
 													<TableRow
 														style={{
-															height: '35px'
+															height: '35px',
+															cursor: 'pointer',
 														}}
 														hover
 														onClick={this.handleProviderSelection(resource)}

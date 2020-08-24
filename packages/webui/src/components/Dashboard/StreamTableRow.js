@@ -61,6 +61,7 @@ const StreamTableRow = (props) => {
 					textDecoration: row.disabled ? 'line-through' : 'inherit',
 					height: '40px'
 				}}
+				hover
 				classes={{ root: classes.tableRoot }}
 				key={row.id}
 			>
@@ -150,6 +151,7 @@ const StreamTableRow = (props) => {
 											style={{
 												textDecoration: row.disabled || historyRow.disabled ? 'line-through' : 'inherit',
 											}}
+											hover
 											key={historyRow.id}
 										>
 											<TableCell
@@ -239,6 +241,7 @@ const StreamTableRow = (props) => {
 											style={{
 												textDecoration: row.disabled || historyRow.disabled ? 'line-through' : 'inherit',
 											}}
+											hover
 											key={historyRow.id}
 										>
 											<TableCell
