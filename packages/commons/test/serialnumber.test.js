@@ -372,18 +372,38 @@ describe('date2serial', () => {
 	it('should convert a given Date object to serial date number', () => {
 		const date = new Date('26 Feb 2019 16:29:39');
 		const serial = date2serial(date);
-		expect(serial).toBe(ms2serial(toLocalMilliseconds(date)));
-		expect(date2serial(new Date('01 Feb 2000 00:00'))).toBe(36557);
-		expect(date2serial(new Date('01 Feb 2014 23:59')).toFixed(8)).toBe('41671.99930556');
-		expect(date2serial(new Date('29 Jun 2020 22:36')).toFixed(8)).toBe('44011.94166667');
-		expect(date2serial(new Date('26 Feb 2019 16:29:39:160')).toFixed(8)).toBe('43522.68725880');
+		// expect(serial).toBe(ms2serial(toLocalMilliseconds(date)));
+		expect(serial).toBe(ms2serial(date.getTime()));
+		expect(date2serial(new Date('01 Feb 2000 00:00:00.000Z'))).toBe(36557);
+		expect(date2serial(new Date('01 Feb 2014 23:59:00.000Z')).toFixed(8)).toBe('41671.99930556');
+		expect(date2serial(new Date('29 Jun 2020 22:36:00.000Z')).toFixed(8)).toBe('44011.94166667');
+		expect(date2serial(new Date('26 Feb 2019 16:29:39.160Z')).toFixed(8)).toBe('43522.68725880');
 	});
 	it('should convert a given Date previous to 1970 to serial date number', () => {
-		expect(date2serial(new Date('01 Apr 1900'))).toBe(92);
-		expect(date2serial(new Date('01 Apr 1900 02:00:00')).toFixed(6)).toBe('92.083333');
-		expect(date2serial(new Date('26 Mar 1900'))).toBe(86);
-		expect(date2serial(new Date('29 Feb 1900'))).toBe(60);
-		expect(date2serial(new Date('28 Feb 1900'))).toBe(59);
+		expect(date2serial(new Date('01 Apr 1900 00:00:00.000Z'))).toBe(92);
+		expect(date2serial(new Date('01 Apr 1900 02:00:00.000Z')).toFixed(6)).toBe('92.083333');
+		expect(date2serial(new Date('26 Mar 1900 00:00:00.000Z'))).toBe(86);
+		expect(date2serial(new Date('29 Feb 1900 00:00:00.000Z'))).toBe(60);
+		expect(date2serial(new Date('28 Feb 1900 00:00:00.000Z'))).toBe(59);
+	});
+});
+describe('dateLocal2serial', () => {
+	const { dateLocal2serial,  ms2serial } = serialnumber;
+	it('should convert a given Date object to serial date number', () => {
+		const date = new Date('26 Feb 2019 16:29:39');
+		const serial = dateLocal2serial(date);
+		expect(serial).toBe(ms2serial(toLocalMilliseconds(date)));
+		expect(dateLocal2serial(new Date('01 Feb 2000'))).toBe(36557);
+		expect(dateLocal2serial(new Date('01 Feb 2014 23:59:00')).toFixed(8)).toBe('41671.99930556');
+		expect(dateLocal2serial(new Date('29 Jun 2020 22:36:00')).toFixed(8)).toBe('44011.94166667');
+		expect(dateLocal2serial(new Date('26 Feb 2019 16:29:39.160')).toFixed(8)).toBe('43522.68725880');
+	});
+	it('should convert a given Date previous to 1970 to serial date number', () => {
+		expect(dateLocal2serial(new Date('01 Apr 1900'))).toBe(92);
+		expect(dateLocal2serial(new Date('01 Apr 1900 02:00:00')).toFixed(6)).toBe('92.083333');
+		expect(dateLocal2serial(new Date('26 Mar 1900 00:00:00'))).toBe(86);
+		expect(dateLocal2serial(new Date('29 Feb 1900 00:00:00'))).toBe(60);
+		expect(dateLocal2serial(new Date('28 Feb 1900 00:00:00'))).toBe(59);
 	});
 });
 describe('serial2date', () => {
@@ -392,31 +412,31 @@ describe('serial2date', () => {
 		// 26 Feb 2019 16:29:39:160
 		const serial = 43522.68725879629;
 		let date = serial2date(serial);
-		expect(date.getFullYear()).toBe(2019);
-		expect(date.getMonth() + 1).toBe(2);
-		expect(date.getDate()).toBe(26);
-		expect(date.getHours()).toBe(16);
-		expect(date.getMinutes()).toBe(29);
-		expect(date.getSeconds()).toBe(39);
-		expect(date.getMilliseconds()).toBe(160);
+		expect(date.getUTCFullYear()).toBe(2019);
+		expect(date.getUTCMonth() + 1).toBe(2);
+		expect(date.getUTCDate()).toBe(26);
+		expect(date.getUTCHours()).toBe(16);
+		expect(date.getUTCMinutes()).toBe(29);
+		expect(date.getUTCSeconds()).toBe(39);
+		expect(date.getUTCMilliseconds()).toBe(160);
 		// 29.06.2020 22:36
 		date = serial2date(44011.9416666667);
-		expect(date.getFullYear()).toBe(2020);
-		expect(date.getMonth() + 1).toBe(6);
-		expect(date.getDate()).toBe(29);
-		expect(date.getHours()).toBe(22);
-		expect(date.getMinutes()).toBe(36);
-		expect(date.getSeconds()).toBe(0);
-		expect(date.getMilliseconds()).toBe(0);
+		expect(date.getUTCFullYear()).toBe(2020);
+		expect(date.getUTCMonth() + 1).toBe(6);
+		expect(date.getUTCDate()).toBe(29);
+		expect(date.getUTCHours()).toBe(22);
+		expect(date.getUTCMinutes()).toBe(36);
+		expect(date.getUTCSeconds()).toBe(0);
+		expect(date.getUTCMilliseconds()).toBe(0);
 		// 26 Feb 2019 16:29:39:00
 		date = serial2date(43522.687256944446);
-		expect(date.getFullYear()).toBe(2019);
-		expect(date.getMonth() + 1).toBe(2);
-		expect(date.getDate()).toBe(26);
-		expect(date.getHours()).toBe(16);
-		expect(date.getMinutes()).toBe(29);
-		expect(date.getSeconds()).toBe(39);
-		expect(date.getMilliseconds()).toBe(0);
+		expect(date.getUTCFullYear()).toBe(2019);
+		expect(date.getUTCMonth() + 1).toBe(2);
+		expect(date.getUTCDate()).toBe(26);
+		expect(date.getUTCHours()).toBe(16);
+		expect(date.getUTCMinutes()).toBe(29);
+		expect(date.getUTCSeconds()).toBe(39);
+		expect(date.getUTCMilliseconds()).toBe(0);
 	});
 });
 describe('usage to convert ms to serial and back', () => {
@@ -432,7 +452,7 @@ describe('usage to convert ms to serial and back', () => {
 describe('usage to convert with serial2date and date2serial', () => {
 	const { date2serial, serial2date } = serialnumber;
 	it('should convert Date to serial and back', () => {
-		const date = new Date('29 Jun 2020 21:26:34');
+		const date = new Date('29 Jun 2020 21:26:34.000Z');
 		const serial = date2serial(date);
 		const date2 = serial2date(serial);
 		const serial2 = date2serial(date2);

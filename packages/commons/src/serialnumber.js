@@ -27,7 +27,6 @@ const minutes = (serial) => Math.floor(toSeconds(serial) / 60) % 60;
 const seconds = (serial) => toSeconds(serial) % 60;
 const milliseconds = (serial) => toMilliseconds(serial) % 1000;
 
-// returns Date based on local timezone!! To get the UTC values use corresponding methods, e.g. getUTCMonth...
 const serial2date = (serial) => {
 // following is based (but refined) on :
 // https://stackoverflow.com/questions/16229494/converting-excel-date-serial-number-to-date-using-javascript/57184486#57184486
@@ -42,11 +41,7 @@ const serial2date = (serial) => {
 	// so, if the serial is 61 or over, we have to subtract 1.
 	// serial must be at least 1
 	else if (serial > 60) serial -= 1;
-	const date = new Date(offset + Math.round(serial * DAY_IN_MS));
-	const tz = date.getTimezoneOffset() * MIN_IN_MS;
-	date.setTime(date.getTime() + tz);
-	return date;
-	// return new Date(offset + Math.round(serial * DAY_IN_MS) - tz);
+	return new Date(offset + Math.round(serial * DAY_IN_MS));
 };
 
 const year = (serial) => serial2date(serial).getFullYear();
@@ -60,18 +55,15 @@ const weekday = (serial) => {
 	return wday < 1 || serial < 1 ? 7 : wday;
 };
   
-const serial2ms = (serial) => {
-	const date = serial2date(serial);
-	return date.getTime() - date.getTimezoneOffset() * MIN_IN_MS;
-};
+const serial2ms = (serial) => serial2date(serial).getTime();
 
-const toSerial = (ms) => {
+const ms2serial = (ms) => {
 	const serial = ms / DAY_IN_MS + 25569;
-	return serial > 61 ? serial : serial - 1;	
-}
-const ms2serial = (ms) => toSerial(ms);
-const date2serial = (date) => toSerial(date.getTime() - (date.getTimezoneOffset() * MIN_IN_MS));
-const now = () => date2serial(new Date());
+	return serial > 61 ? serial : serial - 1;
+};
+const date2serial = (date) => ms2serial(date.getTime());
+const dateLocal2serial = (date) => ms2serial(date.getTime() - (date.getTimezoneOffset() * MIN_IN_MS));
+const now = () => dateLocal2serial(new Date());
 
 module.exports = {
 	// returns serial number representing current local(!) time
@@ -86,6 +78,8 @@ module.exports = {
 	weekday,
 	// converts given JS Date object to serial number (in UTC)
 	date2serial,
+	// converts given local date, i.e. including timezone offset, to serial number (in UTC)
+	dateLocal2serial,
 	// converts given milliseconds to serial number
 	ms2serial,
 	// converts given serial number to JS Date object
