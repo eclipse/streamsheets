@@ -266,6 +266,14 @@ export class CanvasComponent extends Component {
 		const sheets = [];
 		const graph = graphManager.getGraph();
 		if (graph) {
+			const machineContainer = graph.getMachineContainer();
+			if (machineContainer) {
+				const attr = machineContainer.getMachineContainerAttributes();
+				if (attr) {
+					attr.setHideToolbars(canEdit === false);
+				}
+			}
+
 			const container = graph.getStreamSheetsContainer();
 			if (container !== undefined) {
 				let max = false;

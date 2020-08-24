@@ -172,6 +172,7 @@ class ResourcesList extends React.Component {
 		const {
 			menuOptions,
 			onMenuSelect,
+			canEdit,
 		} = this.props;
 		return (
 			<Paper
@@ -215,8 +216,8 @@ class ResourcesList extends React.Component {
 								<TableCell onClick={() => this.handleSelection(resource)} padding="none">{resource.streamsheets.length}</TableCell>
 								<TableCell onClick={() => this.handleSelection(resource)} padding="none">{this.getConsumers(resource)}</TableCell>
 								<TableCell onClick={() => this.handleSelection(resource)} padding="none">{resource.lastModifiedFormatted}</TableCell>
-								{!menuOptions ? null : (
-									<TableCell padding="none">
+								<TableCell padding="none">
+								{!canEdit ? null : [
 										<IconButton
 											style={{ padding: '4px' }}
 											size="small"
@@ -224,7 +225,7 @@ class ResourcesList extends React.Component {
 											onClick={() => this.props.onMenuSelect(Constants.RESOURCE_MENU_IDS.START, resource.id)}
 										>
 											<IconPlay />
-										</IconButton>
+										</IconButton>,
 										<IconButton
 											style={{ padding: '4px' }}
 											size="small"
@@ -232,7 +233,7 @@ class ResourcesList extends React.Component {
 											onClick={() => this.props.onMenuSelect(Constants.RESOURCE_MENU_IDS.STOP, resource.id)}
 										>
 											<IconStop />
-										</IconButton>
+										</IconButton>,
 										<IconButton
 											style={{ padding: '4px' }}
 											disabled={resource.state !== 'running'}
@@ -241,13 +242,15 @@ class ResourcesList extends React.Component {
 										>
 											<IconPause />
 										</IconButton>
+										]}
+									{!menuOptions ? null : (
 										<ResourceMenu
 											menuOptions={menuOptions}
 											resourceId={resource.id}
 											onMenuSelect={onMenuSelect}
 										/>
-									</TableCell>
 								)}
+									</TableCell>
 							</TableRow>
 						))}
 					</TableBody>

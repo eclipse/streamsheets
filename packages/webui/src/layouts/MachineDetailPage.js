@@ -65,7 +65,8 @@ const useExperimental = (setAppState) => {
 };
 
 export function MachineDetailPage(props) {
-	const { locale, machineName, viewMode, searchParams, isConnected, showTools, location } = props;
+	const { locale, machineName, viewMode, searchParams, isConnected, location } = props;
+	let { showTools } = props;
 	// Should be directly on props
 	const machineId = props.match.params.machineId || props.machineId;
 	const { token, userId } = qs.parse(location.search);
@@ -160,6 +161,9 @@ export function MachineDetailPage(props) {
 			setCanEditMachine(scopedByMachine.machine.canEdit);
 			props.receiveStreams({ streams: scopedByMachine.streamsLegacy });
 			props.setScope(scopedByMachine.machine.scope.id);
+			if (scopedByMachine.machine.canEdit === false) {
+				showTools = false;
+			}
 		} catch (error) {
 			console.log(error);
 			console.log(`${error ? error.toString() : ''}`);

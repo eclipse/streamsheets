@@ -516,6 +516,7 @@ class DashBoardComponent extends Component {
 							/>) : null}
 						</Tabs>
 						<div style={{display: 'flex'}}>
+							{ canEdit ?
 							<Tooltip
 								enterDelay={300}
 								title={<FormattedMessage id="Import.Button.Import" defaultMessage="Import" />}
@@ -527,7 +528,7 @@ class DashBoardComponent extends Component {
 										/>
 									</SvgIcon>
 								</IconButton>
-							</Tooltip>
+							</Tooltip> : null}
 							<Tooltip
 								enterDelay={300}
 								title={<FormattedMessage id="Dashboard.export" defaultMessage="Export" />}
@@ -581,6 +582,7 @@ class DashBoardComponent extends Component {
 								onResourceOpen={this.onResourceOpen}
 								handleNew={this.props.rights.includes('machine.edit') ? this.handleNew : undefined}
 								filter={this.props.filter}
+								canEdit={canEdit}
 							/>
 							<ImageUploadDialog
 								open={this.state.dialogMachineTitleImageOpen}

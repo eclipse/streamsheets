@@ -39,10 +39,12 @@ class CombinedResourceListing extends Component {
 		handleReload: PropTypes.func,
 		checked: PropTypes.arrayOf(PropTypes.string),
 		disabled: PropTypes.bool,
+		canEdit: PropTypes.bool,
 		sortQuery: PropTypes.string
 	};
 
 	static defaultProps = {
+		canEdit: true,
 		type: 'dashboard',
 		disabled: false,
 		handleNew: undefined,
