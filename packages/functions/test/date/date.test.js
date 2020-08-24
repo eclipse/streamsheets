@@ -62,7 +62,7 @@ describe('date & time functions', () => {
 	describe('excel2jsontime', () => {
 		it('should convert a serial date number to an ISO-8601 date string', () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('excel2jsontime(41022.76786471065)', sheet).value).toBe('2012-04-23T16:25:43.511Z');
+			expect(createTerm('excel2jsontime(41022.76786471065)', sheet).value).toBe('2012-04-23T18:25:43.511Z');
 			// convert an UTC string
 			const utc = '2019-02-26T16:29:39.160Z';
 			const exceltime = createTerm(`jsontime2excel("${utc}")`, sheet).value;
@@ -72,7 +72,7 @@ describe('date & time functions', () => {
 	describe('jsontime2excel', () => {
 		it('should return a serial date number from given ISO-8601 date string', () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('jsontime2excel("2012-04-23T16:25:43.511Z")', sheet).value).toBe(41022.76786471065);
+			expect(createTerm('jsontime2excel("2012-04-23T18:25:43.511Z")', sheet).value).toBe(41022.76786471065);
 			// convert now() serial time:
 			const now = createTerm('now()', sheet).value;
 			const jsontime = createTerm(`excel2jsontime(${now})`, sheet).value;

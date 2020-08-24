@@ -59,11 +59,6 @@ const parseTimeStr = (str) => {
 	}
 	return ERROR.VALUE;
 };
-const parseISODate = (str) => {
-	const date = new Date(str);
-	date.setTime(date.getTime() - date.getTimezoneOffset() * MIN_MS);
-	return date;
-};
 
 // DL-784: check against german-like date format, e.g. 01.08.2018... more may supported...
 // const convertDateFormat = (str) => {
@@ -107,7 +102,7 @@ const jsontime2excel = (sheet, ...terms) =>
 		.withArgCount(1)
 		.mapNextArg((str) => validateISOFormat(convert.toString(str.value)))
 		.run((str) => {
-			const ms = parseISODate(str).getTime();
+			const ms = Date.parse(str);
 			return !Number.isNaN(ms) ? ms2serial(ms) : ERROR.VALUE;
 		});
 
