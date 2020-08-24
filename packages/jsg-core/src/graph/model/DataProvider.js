@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 /* eslint-disable no-mixed-operators */
-const { serialnumber: { date2serial, serial2date }} = require('@cedalo/commons');
+const { serialnumber: { dateLocal2serial, serial2date }} = require('@cedalo/commons');
 const Point = require('../../geometry/Point');
 const MathUtils = require('../../geometry/MathUtils');
 const NumberExpression = require('../expr/NumberExpression');
@@ -1587,7 +1587,7 @@ module.exports = class DataProvider {
 	}
 
 	JSDateToExcelDate(inDate) {
-		return date2serial(inDate);
+		return dateLocal2serial(inDate);
 	}
 
 	excelDateToJSDate(serial) {

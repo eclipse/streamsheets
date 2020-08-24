@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { serialnumber: { date2serial, serial2date } } = require('@cedalo/commons');
+const { serialnumber: { dateLocal2serial, serial2date } } = require('@cedalo/commons');
 
 const JSG = require('../JSG');
 const Point = require('./Point');
@@ -658,7 +658,7 @@ class MathUtils {
 	}
 
 	static JSDateToExcelDate(inDate) {
-		return date2serial(inDate);
+		return dateLocal2serial(inDate);
 	}
 
 	static excelDateToJSDate(serial) {
