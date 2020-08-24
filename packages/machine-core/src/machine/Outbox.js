@@ -39,6 +39,19 @@ class Outbox extends TTLMessageBox {
 		return super.getFirstMessages(n);
 	}
 
+	setMessageMetadata(msgOrId, newdata, ttl) {
+		const oldmsg = typeof msgOrId === 'object' ? msgOrId : getMessage(msgOrId, this, ttl);
+		const newmsg = new Message({}, oldmsg.id);
+		Object.assign(newmsg.metadata, newdata);
+		// combine data
+		Object.assign(newmsg.data, oldmsg.data);
+		// combine or replace metadata
+		if (!Array.isArray(oldmsg.metadata) && !Array.isArray(newmsg.metadata)) {
+			Object.assign(newmsg.metadata, Object.assign({}, oldmsg.metadata, newmsg.metadata));
+		}
+		this.replaceMessage(newmsg, ttl);
+	}
+
 	setMessageData(msgOrId, newdata, ttl) {
 		const oldmsg = typeof msgOrId === 'object' ? msgOrId : getMessage(msgOrId, this, ttl);
 		const newmsg = new Message(newdata, oldmsg.id);

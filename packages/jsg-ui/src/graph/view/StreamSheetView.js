@@ -351,11 +351,9 @@ export default class StreamSheetView extends WorksheetView {
 						name = sel.id;
 					}
 				}
-				if (altKey) {
-					formula = `WRITE(OUTBOXDATA("${name}"`;
-				} else {
-					formula = `READ(OUTBOXDATA("${name}"`;
-				}
+				const pathfn = itemPath.startsWith('[Metadata]') ? 'OUTBOXMETADATA' : 'OUTBOXDATA';
+				const mainfn = altKey ? 'WRITE' : 'READ';
+				formula = `${mainfn}(${pathfn}("${name}"`;
 			}
 
 			const activeItem = sourceView

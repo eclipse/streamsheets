@@ -15,6 +15,12 @@ const { FunctionErrors } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
 
+const METADATA = {
+	id: 'msg-1',
+	name: 'aMessage',
+	services: ['service1', 'service2']
+};
+
 const copy = (obj) => JSON.parse(JSON.stringify(obj));
 
 const setup = (config) => {
@@ -27,6 +33,15 @@ const setup = (config) => {
 	Object.assign(msg2.metadata, JSON.parse(JSON.stringify(MESSAGES.SIMPLE2.metadata)));
 	streamsheet.inbox.put(msg1);
 	streamsheet.inbox.put(msg2);
+	return streamsheet.sheet;
+};
+const setupOutboxMetadata = () => {
+	const machine = new Machine();
+	const message = new Message({});
+	const streamsheet = new StreamSheet();
+	machine.addStreamSheet(streamsheet);
+	Object.assign(message.metadata, METADATA);
+	machine.outbox.put(message);
 	return streamsheet.sheet;
 };
 
@@ -1119,6 +1134,53 @@ describe('read', () => {
 			expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe('id');
 			expect(sheet.cellAt(SheetIndex.create('C2')).value).toBe('msg-simple2');
 			expect(sheet.cellAt(SheetIndex.create('B3')).value).toBe('arrivalTime');
+		});
+	});
+	describe('read outboxmetadata', () => {
+		it('should read simple metadata properties', () => {
+			const sheet = setupOutboxMetadata();
+			let metadata = createTerm(`read(OUTBOXMETADATA("${METADATA.id}","name"), A1, "String")`, sheet);
+			expect(metadata.value).toBe('name');
+			expect(sheet.cellAt('A1').value).toBe(METADATA.name);
+			metadata = createTerm(`read(OUTBOXMETADATA("${METADATA.id}","id"), A1, "String")`, sheet);
+			expect(metadata.value).toBe('id');
+			expect(sheet.cellAt('A1').value).toBe(METADATA.id);
+		});
+		it('should read list element in metadata', () => {
+			const sheet = setupOutboxMetadata();
+			let metadata = createTerm(`read(OUTBOXMETADATA("${METADATA.id}","services", 0), A1, "String")`, sheet);
+			expect(metadata.value).toBe(0);
+			expect(sheet.cellAt('A1').value).toBe(METADATA.services[0]);
+			metadata = createTerm(`read(OUTBOXMETADATA("${METADATA.id}","services", 1), A1, "String")`, sheet);
+			expect(metadata.value).toBe(1);
+			expect(sheet.cellAt('A1').value).toBe(METADATA.services[1]);
+		});
+		it('should read complete metadata object', () => {
+			const sheet = setupOutboxMetadata();
+			expect(
+				createTerm(`read(OUTBOXMETADATA("${METADATA.id}"),B2:C5, "Dictionary")`, sheet).value
+			).toBe('Metadata');
+			expect(sheet.cellAt('B2').value).toBe('id');
+			expect(sheet.cellAt('C2').value).toBe('msg-1');
+			expect(sheet.cellAt('B3').value).toBe('arrivalTime');
+			expect(sheet.cellAt('B4').value).toBe('name');
+			expect(sheet.cellAt('C4').value).toBe(METADATA.name);
+			expect(sheet.cellAt('B5').value).toBe('services');
+			expect(sheet.cellAt('C5').value).toEqual(METADATA.services);
+		});
+		it('should read complete metadata list', () => {
+			const sheet = setupOutboxMetadata();
+			expect(
+				createTerm(`read(OUTBOXMETADATA("${METADATA.id}","services"),B2, "Array")`, sheet).value
+			).toBe('services');
+			expect(sheet.cellAt('B2').value).toEqual(METADATA.services);
+		});
+		it(`should return ${ERROR.NA} if referenced metadata is not available and parameter is true`, () => {
+			const sheet = setupOutboxMetadata();
+			expect(
+				createTerm(`read(OUTBOXMETADATA("${METADATA.id}","unknown"),B2, "String",,true)`, sheet).value
+			).toBe('unknown');
+			expect(sheet.cellAt('B2').value).toBe(ERROR.NA);
 		});
 	});
 	describe('JIRA bugs :-)', () => {
