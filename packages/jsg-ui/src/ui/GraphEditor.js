@@ -904,8 +904,8 @@ class GraphEditor {
 	_updateLayout() {
 		const cs = this._graphViewer.getCoordinateSystem();
 		this.getGraphViewer().layout(
-			cs.deviceToLogX(this._graphicSystem.getCanvas().width),
-			cs.deviceToLogY(this._graphicSystem.getCanvas().height)
+			cs.deviceToLogX(this._graphicSystem.getCanvas().width, true),
+			cs.deviceToLogY(this._graphicSystem.getCanvas().height, true)
 		);
 	}
 

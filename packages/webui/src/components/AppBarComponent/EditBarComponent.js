@@ -575,7 +575,7 @@ export class EditBarComponent extends Component {
 						display: 'inline-block',
 						position: 'relative',
 						right: '0px',
-						width: 'calc(100% - 274px)',
+						width: 'calc(100% - 275px)',
 						wordWrap: 'break-word',
 						whiteSpace: 'pre-wrap',
 						borderLeft: '1px solid #AAAAAA',
