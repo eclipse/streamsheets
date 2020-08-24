@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { jsonbuilder, runFunction, sheet: { getOutbox } } = require('../../utils');
-const { convert, jsonpath } = require('@cedalo/commons');
+const { clone, convert, jsonpath } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { isType, Message } = require('@cedalo/machine-core');
+const { jsonbuilder, runFunction, sheet: { getOutbox } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 const TYPES = ['array', 'boolean', 'dictionary', 'number', 'string'];
@@ -25,6 +25,11 @@ const messageById = (id, outbox, ttl) => (id != null ? outbox.peek(id) || putNew
 const createNewData = (message, keys, value) => {
 	const newData = message ? Object.assign({}, message.data) : undefined;
 	return newData && (jsonbuilder.add(newData, keys, value) || ERROR.INVALID_PATH);
+};
+const createNewMetadata = (message, keys, value) => {
+	const newData = message ? Object.assign({}, message.metadata) : undefined;
+	const valuecp = clone(value) || value;
+	return newData && (jsonbuilder.add(newData, keys, valuecp) || ERROR.INVALID_PATH);
 };
 
 // eslint-disable-next-line no-nested-ternary
@@ -64,6 +69,8 @@ const getTTL = (seconds) => {
 	return ttl ? ttl * 1000 : undefined;
 };
 
+const isMeta = (term) => term.func && term.name && term.name.toUpperCase().endsWith('METADATA');
+
 const write = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
@@ -75,19 +82,25 @@ const write = (sheet, ...terms) =>
 		.mapNextArg((ttl) => ttl ? getTTL(ttl.value) : undefined)
 		.addMappedArg((path) => jsonpath.last(path) || terms[0].value)
 		.addMappedArg(() => getOutbox(sheet) || ERROR.OUTBOX)
+		.addMappedArg(() => isMeta(terms[0]))
 		.validate((path) => FunctionErrors.containsError(path) && ERROR.INVALID_PATH)
-		.reduce((path, valTerm, typeStr, ttl, retval, outbox) => {
+		.reduce((path, valTerm, typeStr, ttl, retval, outbox, isMetadata) => {
 			const value = valueOf(valTerm, typeStr);
-			if(value != null && !FunctionErrors.isError(value)) {
+			if (value != null && !FunctionErrors.isError(value)) {
 				const message = messageById(path.shift(), outbox, ttl);
-				const newData = createNewData(message, path, value);
-				return !FunctionErrors.isError(newData) ? [outbox, message, newData, ttl, retval] : newData;
+				const newData = isMetadata
+					? createNewMetadata(message, path, value)
+					: createNewData(message, path, value);
+				return !FunctionErrors.isError(newData)
+					? [outbox, message, newData, ttl, retval, isMetadata]
+					: newData;
 			}
 			return ERROR.TYPE_PARAM;
 		})
 		.defaultReturnValue((outbox, message, newData, ttl, retval) => retval)
-		.run((outbox, message, newData, ttl, retval) => {
-			outbox.setMessageData(message, newData, ttl);
+		.run((outbox, message, newData, ttl, retval, isMetadata) => {
+			if (isMetadata) outbox.setMessageMetadata(message, newData, ttl);
+			else outbox.setMessageData(message, newData, ttl);
 			return retval;
 		});
 write.displayName = true;

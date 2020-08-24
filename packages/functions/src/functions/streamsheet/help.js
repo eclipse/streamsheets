@@ -399,6 +399,16 @@ module.exports = {
 				description: 'Liefert eine Liste von zum Filter passenden Nachrichten IDs zurück'
 			}
 		},
+		OUTBOXMETADATA: {
+			en: {
+				argumentList: 'Message,ValuesOrRange',
+				description: 'Creates a JSON key from the given values or range to retrieve metadata'
+			},
+			de: {
+				argumentList: 'Message,WerteOderBereich',
+				description: 'Erzeugt einen JSON Schlüssel mit den gegebenen Werten für Metadaten'
+			}
+		},
 		PRODUCE: {
 			en: {
 				argumentList: 'Producer,JSONConfiguration',

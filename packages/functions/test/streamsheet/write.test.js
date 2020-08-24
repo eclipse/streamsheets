@@ -10,7 +10,7 @@
  ********************************************************************************/
 const { sleep } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
+const { Machine, Message, SheetParser, StreamSheet } = require('@cedalo/machine-core');
 const { NullTerm, Term } = require('@cedalo/parser');
 const MSG = require('../_data/messages.json');
 const SHEETS = require('../_data/sheets.json');
@@ -465,6 +465,57 @@ describe('write', () => {
 			expect(createTerm('write(outboxdata("out1"),"one","StringIt")', sheet).value).toBe(ERROR.INVALID_PARAM);
 			expect(createTerm('write(outboxdata("out1"),"one","arry")', sheet).value).toBe(ERROR.INVALID_PARAM);
 			expect(createTerm('write(outboxdata("out1"),"one","Date")', sheet).value).toBe(ERROR.INVALID_PARAM);
+		});
+	});
+
+	describe('write metadata', () => {
+		it('should be possible to write metadata of an outbox message', async () => {
+			const { machine, streamsheet } = setup();
+			const outbox = machine.outbox;
+			const sheet = streamsheet.sheet;
+			createCellAt('A1', { formula: 'write(OUTBOXMETADATA("out1","Service"), "hello", "String")' }, sheet);
+			expect(sheet.cellAt('A1').value).toBe('Service');
+			await machine.step();
+			const message = outbox.peek('out1');
+			expect(message).toBeDefined();
+			expect(message.metadata.Service).toBe('hello');
+		});
+		it('should be possible to write a json to metadata', async () => {
+			const { machine, streamsheet } = setup();
+			const outbox = machine.outbox;
+			const sheet = streamsheet.sheet;
+			const jsobj = { givenname: 'Max', familyname: 'Mustermann' };
+			SheetParser.context.functions.JS_OBJ = () => jsobj;			
+			createCellAt('A3', { formula: 'write(OUTBOXMETADATA("out1","tags"), JS_OBJ(), "Dictionary")' }, sheet);
+			expect(sheet.cellAt('A3').value).toBe('tags');
+			await machine.step();
+			let message = outbox.peek('out1');
+			expect(message.metadata.tags).toEqual({givenname: 'Max', familyname: 'Mustermann'});
+			// change original:
+			jsobj.givenname = 'John';
+			jsobj.familyname = 'Doe';
+			message = outbox.peek('out1');
+			expect(message.metadata.tags).toEqual({givenname: 'Max', familyname: 'Mustermann'});
+			SheetParser.context.functions.JS_OBJ = undefined;
+		});
+		it('should be possible to write a json to metadata', async () => {
+			const { machine, streamsheet } = setup();
+			const outbox = machine.outbox;
+			const sheet = streamsheet.sheet;
+			const jsarr = ['Max', 'Mustermann'];
+			SheetParser.context.functions.JS_ARR = () => jsarr;			
+			createCellAt('A3', { formula: 'write(OUTBOXMETADATA("out1","tags"), JS_ARR(), "ARRAY")' }, sheet);
+			expect(sheet.cellAt('A3').value).toBe('tags');
+			await machine.step();
+			let message = outbox.peek('out1');
+			expect(message.metadata.tags).toEqual(['Max', 'Mustermann']);
+			// change original:
+			jsarr[0] = 'John';
+			jsarr[1] = 'Doe';
+			message = outbox.peek('out1');
+			expect(message.metadata.tags).toEqual(['Max', 'Mustermann']);
+			SheetParser.context.functions.JS_ARR = undefined;
+
 		});
 	});
 });

@@ -60,6 +60,17 @@ describe('delete', () => {
 		expect(inbox.peek('msg-simple').metadata).toEqual({ id: 'msg-simple' });
 		expect(inbox.peek('msg-simple').data).toEqual(MESSAGES.SIMPLE.data);
 	});
+	it('should clear all metadata from an outbox message', () => {
+		const { sheet, outbox } = setupWithOutbox({ streamsheetName: 'T1' });
+		expect(DELETE(sheet, createFuncTerm(sheet, 'outboxmetadata', createParamTerms('msg-simple2'))))
+			.toBe(true);
+		expect(outbox.peek('msg-simple2').metadata).toEqual({ id: 'msg-simple2' });
+		expect(outbox.peek('msg-simple2').data).toEqual(MESSAGES.SIMPLE2.data);
+		expect(DELETE(sheet, createFuncTerm(sheet, 'outboxmetadata', createParamTerms('msg-simple'))))
+			.toBe(true);
+		expect(outbox.peek('msg-simple').metadata).toEqual({ id: 'msg-simple' });
+		expect(outbox.peek('msg-simple').data).toEqual(MESSAGES.SIMPLE.data);
+	});
 	it('should clear all data from a message in outbox', () => {
 		const { sheet, outbox } = setupWithOutbox({ streamsheetName: 'T1' });
 		expect(DELETE(sheet, createFuncTerm(sheet, 'outboxdata', createParamTerms('msg-simple2')))).toBe(true);
@@ -85,6 +96,17 @@ describe('delete', () => {
 		expect(msg.metadata.sender).toBeDefined();
 		expect(DELETE(sheet, inboxmetadata)).toBe(true);
 		msg = inbox.peek();
+		expect(msg).toBeDefined();
+		expect(msg.metadata.name).toBeDefined();
+		expect(msg.metadata.sender).toBeUndefined();
+	});
+	it('should delete metadata from an outbox message', () => {
+		const { sheet, outbox } = setupWithOutbox({ streamsheetName: 'T1' });
+		const outboxmetadata = createFuncTerm(sheet, 'outboxmetadata', createParamTerms('msg-simple2', 'sender'));
+		let msg = outbox.peek();
+		expect(msg.metadata.sender).toBeDefined();
+		expect(DELETE(sheet, outboxmetadata)).toBe(true);
+		msg = outbox.peek();
 		expect(msg).toBeDefined();
 		expect(msg.metadata.name).toBeDefined();
 		expect(msg.metadata.sender).toBeUndefined();
@@ -213,10 +235,14 @@ describe('delete', () => {
 	it('should return #NO_MSG_DATA if deleting unknown message data or metadata', () => {
 		const sheet = setup({ streamsheetName: 'T1' });
 		const inbox = sheet.streamsheet.inbox;
+		const outbox = sheet.streamsheet.machine.outbox;
+		outbox.put(createMessage(MESSAGES.SIMPLE, 'msg-simple'));
 		expect(inbox.size).toBe(2);
 		expect(DELETE(sheet, createFuncTerm(sheet, 'inboxdata', createParamTerms('T1', '', 'unknown'))))
 			.toBe(ERROR.NO_MSG_DATA);
 		expect(DELETE(sheet, createFuncTerm(sheet, 'inboxmetadata', createParamTerms('T1', '', 'unknown'))))
+			.toBe(ERROR.NO_MSG_DATA);
+		expect(DELETE(sheet, createFuncTerm(sheet, 'outboxmetadata', createParamTerms('msg-simple', 'unknown'))))
 			.toBe(ERROR.NO_MSG_DATA);
 	});
 });
