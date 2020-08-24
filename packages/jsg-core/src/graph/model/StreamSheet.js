@@ -494,6 +494,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 	setEvents(node, eventJSON) {
 		if (eventJSON === undefined || eventJSON === '') {
+			node._sheetEvents = undefined;
 			return;
 		}
 
