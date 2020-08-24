@@ -470,6 +470,11 @@ export class EditBarComponent extends Component {
 				}
 			} else {
 				const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
+
+				if (term) {
+					formula = term.toLocaleString('en', {item, useName: true, forceName: true});
+				}
+
 				cmd = new SetAttributeAtPathCommand(graphItem, path, new Expression(0, formula));
 				// this is necessary, to keep changes, otherwise formula will be recreated from graphitem
 				graphItem.setAttributeAtPath(path, new Expression(0, formula));
