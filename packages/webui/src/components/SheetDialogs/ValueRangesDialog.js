@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -30,6 +30,7 @@ import JSG from '@cedalo/jsg-ui';
 
 // import { graphManager } from '../../GraphManager';
 import ColorComponent from './ColorComponent';
+import {Typography} from "@material-ui/core/es";
 // import { intl } from '../../helper/IntlGlobalProvider';
 
 let uniqueId = 0;
@@ -42,7 +43,8 @@ export default class ValueRangesDialog extends React.Component {
 	static propTypes = {
 		open: PropTypes.bool.isRequired,
 		stateHandler: PropTypes.func.isRequired,
-		ranges: PropTypes.array.isRequired
+		ranges: PropTypes.array.isRequired,
+		sheetView: PropTypes.object.isRequired
 	};
 
 	constructor(props) {
@@ -73,14 +75,12 @@ export default class ValueRangesDialog extends React.Component {
 		ranges.forEach((range) => {
 			const copyRange = {};
 			copyRange.id = uniqueId;
-			copyRange.from = range.from;
-			copyRange.width = range.width;
-			copyRange.to = range.to;
-			copyRange.label = range.label;
+			copyRange.formula = range.formula.copy();
+			copyRange.formula.evaluate(this.props.sheetView.getItem());
 			copyRange.format = range.format.copy();
 			copyRanges.push(copyRange);
 			uniqueId += 1;
-		})
+		});
 
 		return copyRanges;
 	}
@@ -97,33 +97,73 @@ export default class ValueRangesDialog extends React.Component {
 	};
 
 	handleBlur = (event, row, name) => {
+		let formula;
+		let label = this.getParamText(row.formula.getTerm(), 0);
+		let from = this.getParamText(row.formula.getTerm(), 1);
+		let to = this.getParamText(row.formula.getTerm(), 2);
+		let width = this.getParamText(row.formula.getTerm(), 3);
+
+		if (label === undefined) {
+			label = '';
+		}
+		if (from === undefined) {
+			from = 0;
+		}
+		if (to === undefined) {
+			to = 0;
+		}
+		if (width === undefined) {
+			width = 0;
+		}
+
 		switch (name) {
 		case 'label':
-			row.label = event.target.value;
+			formula = new JSG.Expression(0, `VALUERANGE(${event.target.value},${from},${to},${width})`);
 			break;
 		case 'from':
-			row.from = event.target.value;
+			formula = new JSG.Expression(0, `VALUERANGE(${label},${event.target.value},${to},${width})`);
 			break;
 		case 'to':
-			row.to = event.target.value;
+			formula = new JSG.Expression(0, `VALUERANGE(${label},${from},${event.target.value},${width})`);
 			break;
 		case 'width':
-			row.width = event.target.value;
+			formula = new JSG.Expression(0, `VALUERANGE(${label},${from},${to},${event.target.value})`);
 			break;
 		default:
 			break;
 		}
+
+		const item = this.props.sheetView.getItem();
+		const graph = item.getGraph();
+
+		try {
+			JSG.FormulaParser.parse(formula, graph, item)
+			formula.evaluate();
+			row.formula = formula;
+			// eslint-disable-next-line no-empty
+		} catch (e) {
+
+		}
 	};
 
+	getParamText(term, index) {
+		if (term && term.params && term.params.length > index) {
+			return term.params[index].toString({ item: this.props.sheetView.getItem(), useName: true });
+		}
+
+		return undefined;
+	}
+
 	handleAdd = () => {
+		const formula = new JSG.Expression(0, `VALUERANGE("Label",A1,0,0)`);
+		formula.evaluate(this.props.sheetView.getItem());
+
 		this.state.ranges.push({
-			label: 'Label',
-			from: 0,
-			to: 0,
-			width: 0,
+			formula,
 			format: new JSG.ChartFormat(undefined, undefined, undefined, undefined, '#FF0000'),
 			id: uniqueId,
 		});
+
 		uniqueId += 1;
 		this.setState({ranges: this.state.ranges});
 	};
@@ -159,9 +199,21 @@ export default class ValueRangesDialog extends React.Component {
 						width: '815px',
 					}}
 				>
+					<div
+						style={{
+							overflowY: 'auto',
+							border: '1px solid lightgrey',
+							height: '400px',
+							marginTop: '23px',
+						}}
+					>
 					<Table>
 						<TableHead>
-							<TableRow>
+							<TableRow
+								style={{
+									height: '35px',
+								}}
+							>
 								<TableCell
 									style={{
 										padding: '4px 10px 4px 10px',
@@ -205,9 +257,9 @@ export default class ValueRangesDialog extends React.Component {
 							</TableRow>
 						</TableHead>
 						<TableBody>
-							{this.state.ranges && this.state.ranges.map((row) =>
+							{this.state.ranges && this.state.ranges.map((range) =>
 								(
-									<TableRow key={row.id}>
+									<TableRow key={range.id}>
 										<TableCell
 											key={1}
 											style={{
@@ -217,10 +269,10 @@ export default class ValueRangesDialog extends React.Component {
 											<TextField
 												fullWidth
 												margin="dense"
-												defaultValue={row.label}
-												id={`${row.id}&label`}
+												defaultValue={this.getParamText(range.formula.getTerm(), 0)}
+												id={`${range.id}&label`}
 												onChange={this.handleChange}
-												onBlur={(ev) => this.handleBlur(ev, row, 'label')}
+												onBlur={(ev) => this.handleBlur(ev, range, 'label')}
 
 											/>
 										</TableCell>
@@ -233,11 +285,10 @@ export default class ValueRangesDialog extends React.Component {
 											<TextField
 												fullWidth
 												margin="dense"
-												type="number"
-												defaultValue={row.from}
-												id={`${row.id}&from`}
+												defaultValue={this.getParamText(range.formula.getTerm(), 1)}
+												id={`${range.id}&from`}
 												onChange={this.handleChange}
-												onBlur={(ev) => this.handleBlur(ev, row, 'from')}
+												onBlur={(ev) => this.handleBlur(ev, range, 'from')}
 
 											/>
 										</TableCell>
@@ -250,14 +301,13 @@ export default class ValueRangesDialog extends React.Component {
 											<TextField
 												fullWidth
 												margin="dense"
-												id={`${row.id}&to`}
-												type="number"
-												defaultValue={row.to}
+												id={`${range.id}&to`}
+												defaultValue={this.getParamText(range.formula.getTerm(), 2)}
 												onChange={this.handleChange}
-												onBlur={(ev) => this.handleBlur(ev, row, 'to')}
+												onBlur={(ev) => this.handleBlur(ev, range, 'to')}
 												onKeyPress={(ev) => {
 													if (ev.key === 'Enter') {
-														this.handleBlur(ev, row, 'to');
+														this.handleBlur(ev, range, 'to');
 													}
 												}}
 											/>
@@ -271,11 +321,10 @@ export default class ValueRangesDialog extends React.Component {
 											<TextField
 												fullWidth
 												margin="dense"
-												type="number"
-												defaultValue={row.width}
-												id={`${row.id}&width`}
+												defaultValue={this.getParamText(range.formula.getTerm(), 3)}
+												id={`${range.id}&width`}
 												onChange={this.handleChange}
-												onBlur={(ev) => this.handleBlur(ev, row, 'width')}
+												onBlur={(ev) => this.handleBlur(ev, range, 'width')}
 
 											/>
 										</TableCell>
@@ -287,8 +336,8 @@ export default class ValueRangesDialog extends React.Component {
 										>
 											<ColorComponent
 												disableAlpha={false}
-												color={row.format.fillColorRGBA}
-												onChange={(color) => this.onColor(color, row)}
+												color={range.format.fillColorRGBA}
+												onChange={(color) => this.onColor(color, range)}
 											/>
 										</TableCell>
 										<TableCell
@@ -297,7 +346,7 @@ export default class ValueRangesDialog extends React.Component {
 												width: '30px',
 											}}
 										>
-											<IconButton id={row.id} onClick={this.handleDelete(row)}>
+											<IconButton id={range.id} onClick={this.handleDelete(range)}>
 												<DeleteIcon
 													style={{
 														width: '20px',
@@ -311,6 +360,10 @@ export default class ValueRangesDialog extends React.Component {
 							)}
 						</TableBody>
 					</Table>
+					</div>
+					<Typography style={{marginTop: '22px'}}>
+						<FormattedMessage id="DialogValueRanges.hint" defaultMessage="Formula" />
+					</Typography>
 				</DialogContent>
 				<Divider />
 				<DialogActions

@@ -85,6 +85,24 @@ export default class SheetGraphItemEventInteraction extends Interaction {
 							NotificationCenter.getInstance().send(new Notification('showFileDialog', this));
 							event.isConsumed = true;
 							event.hasActivated = true;
+						} else if (sheetEvent.func.indexOf('OPEN.URL') !== -1) {
+							try {
+								const term = JSG.FormulaParser.parse(sheetEvent.func, sheet.getGraph(), sheet)
+								if (term && term.params.length) {
+									const url = term.params[0].value;
+									const sameTab = term.params.length > 1 && term.params[1].value === false;
+									if (sameTab) {
+										window.location.replace(url);
+									} else {
+										window.open(url, '_blank');
+									}
+								}
+								// eslint-disable-next-line no-empty
+							} catch (e) {
+
+							}
+							event.isConsumed = true;
+							event.hasActivated = true;
 						} else {
 							const cmd = new ExecuteFunctionCommand(sheet, sheetEvent.func);
 							viewer.getInteractionHandler().execute(cmd);

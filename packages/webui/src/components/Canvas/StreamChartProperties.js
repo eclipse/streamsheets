@@ -1563,7 +1563,7 @@ export class StreamChartProperties extends Component {
 					) : null}
 					{selection && (selection.element === 'xAxis' || selection.element === 'yAxis') ? (
 						<div>
-							<ValueRangesDialog open={this.state.showValueRanges} ranges={data.valueRanges} stateHandler={this.handleEditValueRanges} />
+							<ValueRangesDialog sheetView={sheetView} open={this.state.showValueRanges} ranges={data.valueRanges} stateHandler={this.handleEditValueRanges} />
 							<FormControl
 								style={{
 									width: '95%',

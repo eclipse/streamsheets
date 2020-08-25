@@ -798,6 +798,7 @@
   "DialogValueRanges.color": "Color",
   "DialogValueRanges.add": "Add",
   "DialogValueRanges.save": "Save",
+  "DialogValueRanges.hint": "You can enter a sheet reference for the value range settings. If you want to provide a static text, please put it in quotes!",
   "StreamChart.Type": "Display as",
   "StreamChart.TypesCategory": "Category Charts",
   "StreamChart.Column": "Column",

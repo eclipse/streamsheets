@@ -113,6 +113,9 @@ module.exports.Functions = {
 	AXIS: () => {
 		return OK.TRUE;
 	},
+	VALUERANGE: () => {
+		return OK.TRUE;
+	},
 	CLASSIFYPOINT: (scope, ...terms) => {
 		const drawings = scope.getDrawings && scope.getDrawings();
 		return drawings ? drawings.ptInPolygon(scope, terms) : ERROR.NOT_AVAILABLE;
@@ -379,6 +382,7 @@ module.exports.Functions = {
 	ONMOUSEUP: (/* scope, ...terms */) => OK.TRUE,
 	ONVALUECHANGE: (/* scope, ...terms */) => OK.TRUE,
 	SHOWDIALOG: (/* scope, ...terms */) => OK.TRUE,
+	'OPEN.URL': (/* scope, ...terms */) => OK.TRUE,
 
 	IF: (scope, ...terms) => {
 		if (terms.length > 1) {
