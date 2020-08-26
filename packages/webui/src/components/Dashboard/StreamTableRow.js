@@ -130,7 +130,7 @@ const StreamTableRow = (props) => {
 								<Typography
 									classes={{ root: classes.typoRoot }}
 									color="textSecondary"
-									variant="body1"
+									variant="body2"
 									gutterBottom
 									component="div"
 								>
@@ -220,7 +220,7 @@ const StreamTableRow = (props) => {
 								<Typography
 									classes={{ root: classes.typoRoot }}
 									color="textSecondary"
-									variant="body1"
+									variant="body2"
 									gutterBottom
 									component="div"
 								>

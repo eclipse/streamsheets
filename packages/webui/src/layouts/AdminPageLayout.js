@@ -10,7 +10,7 @@
  ********************************************************************************/
 import AppBar from '@material-ui/core/AppBar';
 import Grid from '@material-ui/core/Grid';
-import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
+import { MuiThemeProvider } from '@material-ui/core';
 import Toolbar from '@material-ui/core/Toolbar';
 import PropTypes from 'prop-types';
 import React, {useEffect} from 'react';

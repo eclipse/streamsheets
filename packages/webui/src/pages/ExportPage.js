@@ -11,7 +11,7 @@
 /* eslint-disable react/prop-types,react/no-unused-state */
 import { WorkspaceSelect } from '@cedalo/webui-extensions';
 import AppBar from '@material-ui/core/AppBar';
-import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
+import { MuiThemeProvider } from '@material-ui/core';
 import Toolbar from '@material-ui/core/Toolbar';
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';

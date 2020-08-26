@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -28,7 +28,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
+import { MuiThemeProvider } from '@material-ui/core';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
@@ -96,10 +96,10 @@ class SetupPage extends React.Component {
 	onPreviousPage = () => {
 		const newPage = this.state.licenseAgreement.currentPage - 1;
 		if (newPage >= 1) {
-			this.setState({ 
+			this.setState({
 				licenseAgreement: {
 					...this.state.licenseAgreement,
-					currentPage: newPage 
+					currentPage: newPage
 				}
 			});
 		}
@@ -108,7 +108,7 @@ class SetupPage extends React.Component {
 	onNextPage = () => {
 		const newPage = this.state.licenseAgreement.currentPage + 1;
 		if (newPage <= this.state.licenseAgreement.totalPages) {
-			this.setState({ 
+			this.setState({
 				licenseAgreement: {
 					...this.state.licenseAgreement,
 					currentPage: newPage
@@ -149,7 +149,7 @@ class SetupPage extends React.Component {
 								<NextIcon />
 							</Button>
 							<div>
-								<FormattedMessage id="Setup.LicenseAgreement.Page" 
+								<FormattedMessage id="Setup.LicenseAgreement.Page"
 									defaultMessage="Page {currentPage} of {totalPages}"
 									values={{ currentPage, totalPages }} />
 							</div>
@@ -408,7 +408,7 @@ class SetupPage extends React.Component {
 									// 				Reset
 									// 		</Button>
 									// 	</div>
-									// ) : 
+									// ) :
 									(
 										<Grid
 											container

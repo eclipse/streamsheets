@@ -30,5 +30,5 @@ function Wall(props) {
 	);
 }
 
-export default withTheme()(Wall); // Let's get the theme as a property
+export default withTheme(Wall); // Let's get the theme as a property
 

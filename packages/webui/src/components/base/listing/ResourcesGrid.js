@@ -307,7 +307,7 @@ class ResourcesGrid extends React.Component {
 										marginLeft: '5px',
 									}}
 								>
-									<Typography variant="body1">
+									<Typography variant="body2">
 										<FormattedMessage
 											id="Dashboard.recentlyModified"
 											defaultMessage="Recently Modified"
@@ -339,7 +339,7 @@ class ResourcesGrid extends React.Component {
 											marginLeft: '5px',
 										}}
 									>
-										<Typography variant="body1">
+										<Typography variant="body2">
 											<FormattedMessage
 												id="Dashboard.allApps"
 												defaultMessage="All Apps and Services"

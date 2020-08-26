@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -14,7 +14,7 @@ import { connect } from 'react-redux';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
+import { MuiThemeProvider } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
@@ -276,7 +276,7 @@ class LoginPage extends React.Component {
 
 									</form>
 								</CardContent>
-								<CardActions className={classes.actions} disableActionSpacing>
+								<CardActions className={classes.actions} disableSpacing>
 									<IconButton
 										className={classnames(classes.expand, {
 											[classes.expandOpen]: this.state.expanded,

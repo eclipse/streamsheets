@@ -31,7 +31,6 @@ const createDefault = () => {
 				underline: 'rgba(0, 0, 0, 0.42)',
 			},
 			typography: {
-				useNextVariants: true,
 				fontSize: 12,
 			},
 			overrides: {
@@ -134,7 +133,6 @@ const createDark = () => {
 				underline: 'rgba(255, 255, 255, 0.7)',
 			},
 			typography: {
-				useNextVariants: true,
 				fontSize: 12,
 			},
 			overrides: {
