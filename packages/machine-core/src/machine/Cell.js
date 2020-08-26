@@ -108,10 +108,10 @@ class Cell {
 
 	// TODO review - do it explicitly like now or keep it private and do it implicitly?
 	init(row, col) {
+		if (row != null) this.row = row;
+		if (col != null) this.col = col;
 		if (!this._isInited) {
 			const initialval = this._value;
-			if (row != null) this.row = row;
-			if (col != null) this.col = col;
 			evaluate(this);
 			if (initialval != null) {
 				this._value = checkNaN(initialval);

@@ -473,8 +473,8 @@ module.exports = class Sheet {
 	}
 
 	// note: inserts cell if none exists at specified index!!
-	setCellAt(index, cell) {
-		const didIt = this._doSetCellAt(index, cell);
+	setCellAt(index, cell, skipDisposeOld) {
+		const didIt = this._doSetCellAt(index, cell, skipDisposeOld);
 		if (didIt) {
 			// evaluate once?
 			// this.iterate(cell => cell && cell.evaluate());
@@ -482,7 +482,7 @@ module.exports = class Sheet {
 		}
 		return didIt;
 	}
-	_doSetCellAt(index, cell, skipDispose) {
+	_doSetCellAt(index, cell, skipDisposeOld) {
 		const idx = toIndex(index);
 		const row = rowAt(idx, this);
 		let doIt = !!row;
@@ -491,7 +491,7 @@ module.exports = class Sheet {
 			const oldcell = row[colidx];
 			doIt = oldcell !== cell;
 			if (doIt) {
-				if (oldcell && !skipDispose) oldcell.dispose();
+				if (oldcell && !skipDisposeOld) oldcell.dispose();
 				// add cell first...
 				row[colidx] = cell;
 				// ...before init, since it may reference itself
