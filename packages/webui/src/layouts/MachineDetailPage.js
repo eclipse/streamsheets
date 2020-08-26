@@ -59,6 +59,7 @@ import HelpButton from './HelpButton';
 import { ResizeHandler } from './ResizeHandler';
 import { ViewModeHandler, ViewModePropTypes } from './ViewModeHandler';
 import { Path } from '../helper/Path';
+import { DialogExtensions } from '@cedalo/webui-extensions';
 
 const useExperimental = (setAppState) => {
 	useEffect(() => setAppState({ experimental: localStorage.getItem('experimental') === 'true' }), []);
@@ -212,6 +213,7 @@ export function MachineDetailPage(props) {
 				<ViewModeHandler />
 				<ResizeHandler />
 				<GraphLocaleHandler />
+				<DialogExtensions />
 				{viewMode.viewMode === null ? (
 					<div>
 						<ImportDialog />
