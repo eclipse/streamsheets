@@ -562,6 +562,16 @@ module.exports = {
 				description: 'Liefert den Wert der Tabellenzelle zum angegebenen Index'
 			}
 		},
+		'TABLE.ORDERCOLUMN': {
+			en: {
+				argumentList: 'ColumnRange,ReferenceRange',
+				description: 'Orders the columns in column range according to the corresponding columns in reference range'
+			},
+			de: {
+				argumentList: 'Spaltenbereich,Referenzbereich',
+				description: 'Ordnet die Spalten im Spaltenbereich gemäß den korrespondierenden Spalten im Referenzbereich'
+			}
+		},
 		'TABLE.UPDATE': {
 			en: {
 				argumentList: 'CellRange,Value,RowIndex,ColumnIndex,PushRow,PushColumn,AggregationMethod',
