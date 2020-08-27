@@ -181,11 +181,6 @@ export class CanvasToolBar extends Component {
 		);
 		JSG.NotificationCenter.getInstance().register(
 			this,
-			'showFileDialog',
-			'onShowFileDialog'
-		);
-		JSG.NotificationCenter.getInstance().register(
-			this,
 			CommandStack.STACK_CHANGED_NOTIFICATION,
 			'onCommandStackChanged'
 		);
@@ -203,13 +198,8 @@ export class CanvasToolBar extends Component {
 
 	componentWillUnmount() {
 		JSG.NotificationCenter.getInstance().unregister(this, CommandStack.STACK_CHANGED_NOTIFICATION);
-		JSG.NotificationCenter.getInstance().unregister(this, 'showFileDialog');
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.WorksheetNode.SELECTION_CHANGED_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, SelectionProvider.SELECTION_CHANGED_NOTIFICATION);
-	}
-
-	onShowFileDialog() {
-		this.props.setAppState({showMachineDataDialog: true});
 	}
 
 	onSheetSelectionChanged(notification) {
