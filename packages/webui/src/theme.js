@@ -97,14 +97,6 @@ const createDefault = () => {
 						width: 'auto',
 					},
 				},
-				MuiTypography: {
-					title: {
-						color: 'white',
-					},
-					h6: {
-						color: 'white',
-					},
-				},
 				MuiGridListTileBar: {
 					root: {},
 				},
