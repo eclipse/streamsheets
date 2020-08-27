@@ -54,7 +54,7 @@ const resolve = async (request) => {
 	} finally {
 		// remove callback dependencies:
 		request.onResponse = noop;
-		setStatus(sheet, request.reqId(), state);
+		setStatus(sheet, request.reqId(), request.state);
 	}
 };
 // queue to limit max parallel requests:
