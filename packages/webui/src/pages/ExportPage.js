@@ -22,7 +22,7 @@ import InfoToolBar from '../components/AppBarComponent/InfoToolBar';
 import MainDrawer from '../components/AppBarComponent/MainDrawer';
 import FilterName from '../components/base/listing/FilterName';
 import LicenseExpireNotification from '../components/HelperComponent/LicenseExpireNotification';
-import NewMachineDialog from '../components/HelperComponent/NewMachineDialog';
+import NewMachineDialog from '../components/Dialogs/NewMachineDialog';
 import OpenDialog from '../components/HelperComponent/OpenDialog';
 import SaveAsDialog from '../components/HelperComponent/SaveAsDialog';
 import ErrorDialog from '../components/ImportExport/ErrorDialog';

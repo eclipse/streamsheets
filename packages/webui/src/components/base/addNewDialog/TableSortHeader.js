@@ -63,7 +63,6 @@ class TableSortHeader extends React.Component {
 								}}
 								key={row.id}
 								align={row.numeric ? 'right' : 'left'}
-								padding={row.disablePadding ? 'none' : 'default'}
 								sortDirection={orderBy === row.id ? order : false}
 							>
 								{/* eslint-disable-next-line no-nested-ternary */}

@@ -8,41 +8,42 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import React from 'react';
-import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Dialog from '@material-ui/core/Dialog';
-import Paper from '@material-ui/core/Paper';
-import FormLabel from '@material-ui/core/FormLabel';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { FormattedMessage, injectIntl } from 'react-intl';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
-import SortSelector from '../sortSelector/SortSelector';
-import TableSortHeader from './TableSortHeader';
-import Input from '@material-ui/core/Input';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import IconSearch from '@material-ui/icons/Search';
-import {withStyles} from '@material-ui/core/styles';
+import * as Actions from '../../actions/actions';
+import StreamHelper from '../../helper/StreamHelper';
+import { Path } from '../../helper/Path';
+import SortSelector from "../base/sortSelector/SortSelector";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import TextField from "@material-ui/core/TextField";
+import Paper from "@material-ui/core/Paper";
+import FormLabel from "@material-ui/core/FormLabel";
+import Input from "@material-ui/core/Input";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import IconSearch from "@material-ui/icons/Search";
+import TableContainer from "@material-ui/core/TableContainer";
+import Table from "@material-ui/core/Table";
+import TableSortHeader from "../base/addNewDialog/TableSortHeader";
+import TableBody from "@material-ui/core/TableBody";
+import TableRow from "@material-ui/core/TableRow";
+import TableCell from "@material-ui/core/TableCell";
+import DialogActions from "@material-ui/core/DialogActions";
+import Button from "@material-ui/core/Button";
+import StreamWizard from "../Dashboard/StreamWizard";
+import StreamSettings from "../Dashboard/StreamSettings";
+// import AdminConstants from "../../constants/AdminConstants";
+import {withStyles} from "@material-ui/core/styles";
 
-import StreamWizard from '../../Dashboard/StreamWizard';
-import StreamSettings from '../../Dashboard/StreamSettings';
-import StreamHelper from '../../../helper/StreamHelper';
-import AdminConstants from '../../../constants/AdminConstants';
-
-const DEF_TITLE = <FormattedMessage id="Dashboard.Add" defaultMessage="Add" />;
 const PREF_KEY = 'streamsheets-prefs-addnewdialog';
 
-const styles = () => ({
+const styles = (theme) => ({
 	tableRow: {
 		"&$selected, &$selected:hover": {
-			backgroundColor: "rgba(0, 0, 0, 0.04)"
+			backgroundColor: theme.palette.action.hover
 		}
 	},
 	hover: {},
@@ -63,45 +64,11 @@ const persistSortPreferences = (preferences) => {
 	);
 };
 
-class AddNewDialog extends React.Component {
-	static propTypes = {
-		resources: PropTypes.arrayOf(
-			PropTypes.shape({
-				id: PropTypes.string,
-				name: PropTypes.string
-			})
-		).isRequired,
-		// getListElement: PropTypes.func,
-		open: PropTypes.bool.isRequired,
-		showState: PropTypes.bool,
-		title: PropTypes.element,
-		listTitle: PropTypes.element,
-		onSubmit: PropTypes.func.isRequired,
-		onClose: PropTypes.func.isRequired,
-		isUnique: PropTypes.func,
-		isValid: PropTypes.func,
-		onUpdateName: PropTypes.func,
-		sortQuery: PropTypes.string,
-		filter: PropTypes.string,
-		baseRequired: PropTypes.bool
-	};
-
-	static defaultProps = {
-		isUnique: () => true,
-		isValid: () => true,
-		onUpdateName: (name) => name,
-		// getListElement: (resource) => <ListItemText primary={resource.name} />,
-		sortQuery: 'name_asc',
-		filter: '',
-		baseRequired: false,
-		listTitle: DEF_TITLE,
-		showState: false,
-		title: DEF_TITLE
-	};
-
+export class NewMachineDialog extends Component {
 	constructor(props) {
 		super(props);
-		this.nameRef = React.createRef();
+		this.resources = [];
+
 		this.ERROR_MESSAGES = {
 			DUPLICATE: this.props.intl.formatMessage({
 				id: 'Admin.duplicateName',
@@ -116,36 +83,38 @@ class AddNewDialog extends React.Component {
 				defaultMessage: 'Invalid Name'
 			})
 		};
-		this.initialized = false;
 		this.state = {
 			selected: { id: '' },
 			error: '',
 			name: '',
-			helperText: '',
 			sortQuery: getPersistetSortPreferences() || this.props.sortQuery,
 			filter: this.props.filter,
 			editStream: false,
 			showStreamWizard: false
 		};
+
 	}
 
-	componentDidUpdate() {
-		if (this.nameRef && this.start) {
-			this.nameRef.selectionStart = this.start;
-			this.nameRef.selectionEnd = this.start;
-		}
-	}
+	handleClose = () => {
+		this.reset();
+		this.props.setAppState({
+			showNewDialog: false
+		});
+	};
+
+	isNameUnique = (name) => !this.props.machines.find((c) => c.name.toLowerCase() === name.toLowerCase());
+
+	isNameValid = (name) => name.length > 0;
 
 	reset = () => {
 		this.setState({
 			selected: { id: '' },
 			error: '',
 			name: '',
-			helperText: ''
 		});
 	};
 
-	getResources = () => SortSelector.sort(this.props.resources, this.state.sortQuery, this.state.filter);
+	getResources = () => SortSelector.sort(this.props.consumers, this.state.sortQuery, this.state.filter);
 
 	handleTableSort = (event, property) => {
 		const orderBy = property;
@@ -175,14 +144,10 @@ class AddNewDialog extends React.Component {
 
 	handleNameChange = (event) => {
 		event.preventDefault();
-		const { onUpdateName } = this.props;
-		const newValue = onUpdateName(event.target.value);
-		this.start = event.target.selectionStart;
-		this.validateName(newValue);
+		this.validateName(event.target.value);
 	};
 
 	validateName = (name) => {
-		const { isUnique, isValid } = this.props;
 		if (!name || name.length < 1) {
 			this.setState({
 				error: this.ERROR_MESSAGES.EMPTY,
@@ -190,14 +155,14 @@ class AddNewDialog extends React.Component {
 			});
 			return false;
 		}
-		if (!isUnique(name)) {
+		if (!this.isNameUnique(name)) {
 			this.setState({
 				error: this.ERROR_MESSAGES.DUPLICATE,
 				name
 			});
 			return false;
 		}
-		if (!isValid(name)) {
+		if (!this.isNameValid(name)) {
 			this.setState({
 				error: this.ERROR_MESSAGES.INVALID,
 				name
@@ -211,13 +176,17 @@ class AddNewDialog extends React.Component {
 		return true;
 	};
 
+	getFormattedDateString(date) {
+		const d = new Date(Date.parse(date));
+		return `${d.toLocaleDateString(undefined, {
+			year: '2-digit',
+			month: '2-digit',
+			day: '2-digit'
+		})} ${d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
+	}
+
 	handleSelection = (selected) => () => {
 		this.setState({ selected });
-	};
-
-	handleClose = () => {
-		this.reset();
-		this.props.onClose();
 	};
 
 	handleAddConsumer = () => {
@@ -227,13 +196,12 @@ class AddNewDialog extends React.Component {
 	};
 
 	handleEditConsumer = () => {
-		const consumer = this.props.streams[AdminConstants.CONFIG_TYPE.ConsumerConfiguration].find(
-			(p) => p.id === this.state.selected.id
-		);
-
+		// const consumer = this.props.streams[AdminConstants.CONFIG_TYPE.ConsumerConfiguration].find(
+		// 	(p) => p.id === this.state.selected.id
+		// );
+		//
 		this.setState({
 			editStream: true,
-			row: consumer
 		});
 	};
 
@@ -250,29 +218,26 @@ class AddNewDialog extends React.Component {
 		});
 	};
 
+
 	handleSubmit = () => {
 		if (this.validateName(this.state.name)) {
-			if (!this.state.selected.id && this.props.baseRequired) {
-				this.setState({ helperText: 'No selection' });
-			} else if (!this.state.error) {
-				this.props.onSubmit({ ...this.state });
+			if (this.state.selected && !this.state.error) {
+				const query = {
+					scope: this.props.scopeId,
+					machineName: this.state.name
+				};
+				if (this.state.selected && this.state.selected.id) {
+					query.streamId = this.state.selected.id;
+					query.streamName = this.state.selected.name;
+				}
+				window.open(Path.machine('base_machine', query));
 				this.handleClose();
 			}
 		}
 	};
 
-	getFormattedDateString(date) {
-		const d = new Date(Date.parse(date));
-		return `${d.toLocaleDateString(undefined, {
-			year: '2-digit',
-			month: '2-digit',
-			day: '2-digit'
-		})} ${d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
-	}
-
 	render() {
-		const { title, listTitle, baseRequired, open, onClose } = this.props;
-		if (!open) {
+		if (!this.props.open) {
 			return <div />;
 		}
 		const { selected, name, error, filter } = this.state;
@@ -287,8 +252,10 @@ class AddNewDialog extends React.Component {
 		}
 
 		return (
-			<Dialog open={open} onClose={onClose} maxWidth={false}>
-				<DialogTitle>{title}</DialogTitle>
+			<Dialog open={this.props.open} onClose={this.handleClose} maxWidth={false}>
+				<DialogTitle>
+					<FormattedMessage id="DialogNew.title" defaultMessage="New" />
+				</DialogTitle>
 				<DialogContent
 					style={{
 						height: '480px',
@@ -296,9 +263,6 @@ class AddNewDialog extends React.Component {
 					}}
 				>
 					<TextField
-						inputRef={(el) => {
-							this.nameRef = el;
-						}}
 						variant="outlined"
 						label={<FormattedMessage id="Stream.NameField" defaultMessage="Name" />}
 						id="name"
@@ -327,7 +291,7 @@ class AddNewDialog extends React.Component {
 									display: 'inline-block'
 								}}
 							>
-								{listTitle}
+								<FormattedMessage id="DialogNew.consumer" defaultMessage="Please select a consumer" />
 							</FormLabel>
 							<Input
 								onChange={this.handleFilter}
@@ -366,7 +330,7 @@ class AddNewDialog extends React.Component {
 									onRequestSort={this.handleTableSort}
 								/>
 								<TableBody>
-									{!baseRequired && (!filter || (typeof filter === 'string' && filter.length < 1)) ? (
+									{(!filter || (typeof filter === 'string' && filter.length < 1)) ? (
 										<TableRow
 											style={{
 												height: '35px',
@@ -401,15 +365,13 @@ class AddNewDialog extends React.Component {
 											key={`${resource.className}-${resource.id}`}
 										>
 											<TableCell component="th" scope="row">
-												{this.props.showState ? (
-													<img
-														style={{ verticalAlign: 'bottom', paddingRight: '6px' }}
-														width={15}
-														height={15}
-														src={StreamHelper.getIconForState(resource.state)}
-														alt="state"
-													/>
-												) : null}
+												<img
+													style={{ verticalAlign: 'bottom', paddingRight: '6px' }}
+													width={15}
+													height={15}
+													src={StreamHelper.getIconForState(resource.state)}
+													alt="state"
+												/>
 												{resource.name}
 											</TableCell>
 											<TableCell>{this.getFormattedDateString(resource.lastModified)}</TableCell>
@@ -462,4 +424,18 @@ class AddNewDialog extends React.Component {
 	}
 }
 
-export default injectIntl(withStyles(styles)(AddNewDialog));
+function mapStateToProps(state) {
+	return {
+		open: state.appState.showNewDialog,
+		machines: state.machines.data,
+		consumers: state.streams.consumers.map((s) => ({ ...s, state: StreamHelper.getStreamState(s) })),
+		streams: state.streams,
+		scopeId: state.user.user.scope.id
+	};
+}
+
+function mapDispatchToProps(dispatch) {
+	return bindActionCreators({ ...Actions }, dispatch);
+}
+
+export default injectIntl(withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(NewMachineDialog)));

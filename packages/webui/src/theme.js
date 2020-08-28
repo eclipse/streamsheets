@@ -85,11 +85,13 @@ const createDefault = () => {
 				},
 				MuiDialogTitle: {
 					root: {
-						background: Colors.blue[800],
-						color: 'white !important',
-						padding: '10px',
-						fontSize: '130%',
+						// background: Colors.blue[800],
+						// color: 'white !important',
+						// padding: '10px',
+						// fontSize: '130%',
+						// padding: '18px 16px 10px 24px',
 						justifyContent: 'space-between',
+						borderBottom: '1px solid rgba(0, 0, 0, 0.23)',
 					},
 				},
 				MuiDialogContent: {
@@ -100,6 +102,12 @@ const createDefault = () => {
 				MuiGridListTileBar: {
 					root: {},
 				},
+				MuiTableSortLabel: {
+					icon: {
+						fontSize: '0.9rem !important',
+						marginLeft: '2px !important',
+					},
+				}
 			},
 		}
 	);
@@ -177,9 +185,10 @@ const createDark = () => {
 				},
 				MuiDialogTitle: {
 					root: {
-						background: '#212121',
-						padding: '10px',
-						fontSize: '130%',
+						// background: '#212121',
+						// padding: '10px',
+						// fontSize: '130%',
+						borderBottom: '1px solid rgba(255, 255, 255, 0.23);',
 						justifyContent: 'space-between',
 					},
 				},
@@ -191,6 +200,12 @@ const createDark = () => {
 				MuiGridListTileBar: {
 					root: {},
 				},
+				MuiTableSortLabel: {
+					icon: {
+						fontSize: '0.9rem !important',
+						marginLeft: '2px !important',
+					},
+				}
 			},
 		}
 	);

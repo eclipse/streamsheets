@@ -385,7 +385,7 @@ class ContextComponent extends Component {
 								<ShowIcon style={styles.menuItem} />
 							</ListItemIcon>
 							<ListItemText primary={<FormattedMessage id="ShowHeader" defaultMessage="Show" />} />
-						</MenuItem> : null};
+						</MenuItem> : null}
 					{this.state.showHeaderMenus ?
 						<MenuItem
 							onClick={this.onHideHeader}
@@ -395,7 +395,7 @@ class ContextComponent extends Component {
 								<HideIcon style={styles.menuItem} />
 							</ListItemIcon>
 							<ListItemText primary={<FormattedMessage id="HideHeader" defaultMessage="Hide" />} />
-						</MenuItem> : null};
+						</MenuItem> : null}
 					<Divider />
 					<MenuItem
 						onClick={this.onSetPayloadRange}

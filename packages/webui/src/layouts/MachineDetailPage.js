@@ -25,7 +25,7 @@ import CanvasToolBar from '../components/Canvas/CanvasToolBar';
 import InboxSettings from '../components/HelperComponent/InboxSettings';
 import LicenseExpireNotification from '../components/HelperComponent/LicenseExpireNotification';
 import MachineSettingsDialog from '../components/HelperComponent/MachineSettingsDialog';
-import NewMachineDialog from '../components/HelperComponent/NewMachineDialog';
+import NewMachineDialog from '../components/Dialogs/NewMachineDialog';
 import OpenDialog from '../components/HelperComponent/OpenDialog';
 import { Restricted, NotAllowed } from '../components/HelperComponent/Restricted';
 import SaveAsDialog from '../components/HelperComponent/SaveAsDialog';

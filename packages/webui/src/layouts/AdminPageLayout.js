@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import * as Actions from '../actions/actions';
 import InfoToolBar from '../components/AppBarComponent/InfoToolBar';
 import MainDrawer from '../components/AppBarComponent/MainDrawer';
-import NewMachineDialog from '../components/HelperComponent/NewMachineDialog';
+import NewMachineDialog from '../components/Dialogs/NewMachineDialog';
 import OpenDialog from '../components/HelperComponent/OpenDialog';
 import ErrorDialog from '../components/ImportExport/ErrorDialog';
 import ImportDialog from '../components/ImportExport/ImportDialog';
