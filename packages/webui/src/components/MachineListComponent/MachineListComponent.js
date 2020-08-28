@@ -23,7 +23,7 @@ import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconSearch from '@material-ui/icons/Search';
 import Table from '@material-ui/core/Table';
-import TableSortHeader from '../base/addNewDialog/TableSortHeader';
+import TableSortHeader from '../HelperComponent/TableSortHeader';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';

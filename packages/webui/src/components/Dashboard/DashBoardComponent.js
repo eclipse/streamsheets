@@ -26,7 +26,7 @@ import { formatDateString } from '../base/listing/Utils';
 import { ImageUploadDialog } from '@cedalo/webui-extensions';
 import { Path } from '../../helper/Path';
 import { Table, TableBody, Tabs, Tab, Fab } from '@material-ui/core';
-import TableSortHeader from '../base/addNewDialog/TableSortHeader';
+import TableSortHeader from '../HelperComponent/TableSortHeader';
 import StreamHelper from '../../helper/StreamHelper';
 import StreamDeleteDialog from '../Admin/streams/StreamDeleteDialog';
 import Tooltip from '@material-ui/core/Tooltip';

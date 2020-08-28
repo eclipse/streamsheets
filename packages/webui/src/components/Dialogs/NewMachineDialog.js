@@ -27,7 +27,7 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import IconSearch from "@material-ui/icons/Search";
 import TableContainer from "@material-ui/core/TableContainer";
 import Table from "@material-ui/core/Table";
-import TableSortHeader from "../base/addNewDialog/TableSortHeader";
+import TableSortHeader from "../HelperComponent/TableSortHeader";
 import TableBody from "@material-ui/core/TableBody";
 import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
@@ -37,6 +37,8 @@ import StreamWizard from "../Dashboard/StreamWizard";
 import StreamSettings from "../Dashboard/StreamSettings";
 // import AdminConstants from "../../constants/AdminConstants";
 import {withStyles} from "@material-ui/core/styles";
+import {IconButton} from "@material-ui/core";
+import {IconEdit} from "../icons";
 
 const PREF_KEY = 'streamsheets-prefs-addnewdialog';
 
@@ -195,13 +197,14 @@ export class NewMachineDialog extends Component {
 		});
 	};
 
-	handleEditConsumer = () => {
+	handleEditConsumer = (consumer) => {
 		// const consumer = this.props.streams[AdminConstants.CONFIG_TYPE.ConsumerConfiguration].find(
 		// 	(p) => p.id === this.state.selected.id
 		// );
 		//
 		this.setState({
 			editStream: true,
+			editConsumer: consumer,
 		});
 	};
 
@@ -315,7 +318,7 @@ export class NewMachineDialog extends Component {
 											numeric: false,
 											disablePadding: true,
 											label: 'Name',
-											width: '72%'
+											width: '67%'
 										},
 										{
 											id: 'lastModified',
@@ -323,6 +326,14 @@ export class NewMachineDialog extends Component {
 											disablePadding: false,
 											label: 'LastModified',
 											width: '28%'
+										},
+										{
+											id: 'action',
+											numeric: false,
+											disablePadding: false,
+											label: '',
+											sort: false,
+											width: '5%'
 										}
 									]}
 									orderBy={sortObj.sortBy}
@@ -346,6 +357,7 @@ export class NewMachineDialog extends Component {
 											<TableCell component="th" scope="row">
 												<FormattedMessage id="DialogNew.noStream" defaultMessage="None" />
 											</TableCell>
+											<TableCell />
 											<TableCell />
 										</TableRow>
 									) : null}
@@ -375,6 +387,15 @@ export class NewMachineDialog extends Component {
 												{resource.name}
 											</TableCell>
 											<TableCell>{this.getFormattedDateString(resource.lastModified)}</TableCell>
+											<TableCell padding="none" align="left">
+												<IconButton
+													style={{ padding: '4px' }}
+													size="small"
+													onClick={() => this.handleEditConsumer(resource)}
+												>
+													<IconEdit />
+												</IconButton>
+											</TableCell>
 										</TableRow>
 									))}
 								</TableBody>
@@ -386,9 +407,6 @@ export class NewMachineDialog extends Component {
 					<div>
 						<Button color="primary" onClick={this.handleAddConsumer}>
 							<FormattedMessage id="DialogNew.AddConsumer" defaultMessage="Add Consumer" />
-						</Button>
-						<Button color="primary" onClick={this.handleEditConsumer} disabled={selected.id === ''}>
-							<FormattedMessage id="DialogNew.EditConsumer" defaultMessage="Edit Consumer" />
 						</Button>
 					</div>
 					<div>
@@ -413,7 +431,7 @@ export class NewMachineDialog extends Component {
 				{this.state.editStream ? (
 					<StreamSettings
 						onClose={this.onWizardClose}
-						stream={this.state.selected}
+						stream={this.state.editConsumer}
 						type="consumer"
 						open={this.state.editStream}
 						streams={this.props.streams}

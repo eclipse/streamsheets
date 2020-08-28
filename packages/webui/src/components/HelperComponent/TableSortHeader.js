@@ -72,10 +72,10 @@ class TableSortHeader extends React.Component {
 										direction={order}
 										onClick={this.createSortHandler(row.id)}
 									>
-										{this.props.intl.formatMessage({
+										{row.label.length ? this.props.intl.formatMessage({
 													id: row.label,
 													defaultMessage: 'title'
-											  })}
+											  }) : ''}
 									</TableSortLabel>
 								) : row.label ? (
 									this.props.intl.formatMessage({

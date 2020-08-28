@@ -18,7 +18,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import styles from './styles';
 import ResourceMenu from './ResourceMenu';
-import TableSortHeader from '../addNewDialog/TableSortHeader';
+import TableSortHeader from '../../HelperComponent/TableSortHeader';
 import {injectIntl} from 'react-intl';
 import {formatDateString} from './Utils';
 import { IconPause, IconPlay, IconStop } from '../../icons';

@@ -25,7 +25,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
 import SortSelector from '../base/sortSelector/SortSelector';
-import TableSortHeader from '../base/addNewDialog/TableSortHeader';
+import TableSortHeader from '../HelperComponent/TableSortHeader';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconSearch from '@material-ui/icons/Search';

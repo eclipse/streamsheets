@@ -42,7 +42,7 @@ import * as Actions from '../../actions/actions';
 import MachineHelper from '../../helper/MachineHelper';
 import { graphManager } from '../../GraphManager';
 import Table from '@material-ui/core/Table';
-import TableSortHeader from '../base/addNewDialog/TableSortHeader';
+import TableSortHeader from './TableSortHeader';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
