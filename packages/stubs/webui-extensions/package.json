@@ -21,6 +21,7 @@
 		"moment": "^2.20.1",
         "prop-types": "^15.6.0",
 		"react": "^16.2.0",
+		"react-dropzone": "7.0.1",
 		"react-intl": "^2.4.0",
 		"react-redux": "^5.0.6",
 		"redux": "^3.7.2"

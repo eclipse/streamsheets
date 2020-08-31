@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+import DropHandler from './src/components/DropHandler';
 import ImageUploadDialog from './src/components/ImageUploadDialog';
 
 export * from './src/AdminNavigationExtensions';
@@ -17,6 +18,6 @@ export * from './src/PluginExtensions';
 export * from './src/RoutesExtensions';
 export * from './src/ToolbarExtensions';
 export * from './src/WorkspaceSelect';
-export { ImageUploadDialog };
+export { DropHandler, ImageUploadDialog };
 
 export const DialogExtensions = () => null;
