@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -25,21 +25,25 @@ import * as Actions from '../../actions/actions';
 // eslint-disable-next-line react/prefer-stateless-function
 export class SaveAsDialog extends Component {
 	state = {
-		machineCopyName: 'Default Name',
+		machineCopyName: undefined,
 	};
 
-	componentWillReceiveProps(props) {
-		if (props.monitor && props.monitor.machine) {
-			this.setState({
+	static getDerivedStateFromProps(props, state) {
+		if (props.monitor && props.monitor.machine && props.showSaveAsDialog && state.machineCopyName === undefined) {
+			return {
 				machineCopyName: `${props.monitor.machine.name} Copy`,
-			});
+			};
 		}
+		return null;
 	}
 
 	closeSaveAsDialog = () => {
 		this.props.setAppState({
 			showSaveAsDialog: false,
 		});
+		this.setState({
+			machineCopyName: undefined
+		})
 	};
 
 	handleSaveAs = () => {
@@ -50,6 +54,9 @@ export class SaveAsDialog extends Component {
 		this.props.setAppState({
 			showSaveAsDialog: false,
 		});
+		this.setState({
+			machineCopyName: undefined
+		})
 	};
 
 	handleMachineCopyName = (event) => {
@@ -78,6 +85,7 @@ export class SaveAsDialog extends Component {
 					<TextField
 						value={this.state.machineCopyName}
 						onChange={this.handleMachineCopyName}
+						variant="outlined"
 						label={<FormattedMessage
 							id="SaveAsDialog.hint"
 							defaultMessage="Name of the copy"

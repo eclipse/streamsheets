@@ -20,7 +20,7 @@ import * as Actions from '../actions/actions';
 import InfoToolBar from '../components/AppBarComponent/InfoToolBar';
 import MainDrawer from '../components/AppBarComponent/MainDrawer';
 import NewMachineDialog from '../components/Dialogs/NewMachineDialog';
-import OpenDialog from '../components/HelperComponent/OpenDialog';
+import OpenDialog from '../components/Dialogs/OpenDialog';
 import ErrorDialog from '../components/ImportExport/ErrorDialog';
 import ImportDialog from '../components/ImportExport/ImportDialog';
 import StartImportDialog from '../components/ImportExport/StartImportDialog';

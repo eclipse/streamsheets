@@ -523,14 +523,12 @@ export class InboxSettings extends React.Component {
 			{
 				id: 'name',
 				numeric: false,
-				disablePadding: true,
 				label: 'Streams.Name',
 				width: '42%'
 			},
 			{
 				id: 'provider',
 				numeric: false,
-				disablePadding: true,
 				label: 'Streams.Provider',
 				width: '25%',
 				fields
@@ -538,7 +536,6 @@ export class InboxSettings extends React.Component {
 			{
 				id: 'lastModified',
 				numeric: false,
-				disablePadding: true,
 				label: 'Streams.LastModified',
 				width: '22%'
 			}
@@ -745,7 +742,7 @@ export class InboxSettings extends React.Component {
 								>
 									<div
 										style={{
-											width: '450px',
+											width: '500px',
 											margin: '20px',
 										}}
 									>
@@ -780,13 +777,12 @@ export class InboxSettings extends React.Component {
 										</div>
 										<div
 											style={{
-												border: '1px solid grey',
 												height: '310px',
 												overflow: 'auto',
-												padding: '5px'
+												marginTop: '15px'
 											}}
 										>
-											<Table>
+											<Table stickyHeader size="small">
 												<TableSortHeader
 													cells={this.getHeader()}
 													orderBy={this.state.streamSortBy}

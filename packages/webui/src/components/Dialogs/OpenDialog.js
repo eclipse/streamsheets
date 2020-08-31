@@ -19,7 +19,7 @@ import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
-import MachineListComponent from '../MachineListComponent/MachineListComponent';
+import MachineListComponent from '../HelperComponent/MachineListComponent';
 import { Path } from '../../helper/Path';
 
 // eslint-disable-next-line react/prefer-stateless-function
@@ -42,7 +42,7 @@ export function OpenDialog(props) {
 			</DialogTitle>
 			<DialogContent
 				style={{
-					height: '480px',
+					height: '485px',
 					width: '600px'
 				}}
 			>

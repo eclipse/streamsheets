@@ -20,7 +20,6 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import TextField from "@material-ui/core/TextField";
-import Paper from "@material-ui/core/Paper";
 import FormLabel from "@material-ui/core/FormLabel";
 import Input from "@material-ui/core/Input";
 import InputAdornment from "@material-ui/core/InputAdornment";
@@ -278,7 +277,7 @@ export class NewMachineDialog extends Component {
 						error={typeof error === 'string' && error.length > 0}
 						helperText={error}
 					/>
-					<Paper variant="outlined" style={{ padding: '12px', marginTop: '15px' }}>
+					<div style={{ marginTop: '15px' }}>
 						<div
 							style={{
 								width: '100%',
@@ -309,28 +308,25 @@ export class NewMachineDialog extends Component {
 							/>
 						</div>
 
-						<TableContainer style={{ overflowY: 'auto', height: '320px' }}>
+						<TableContainer style={{ overflowY: 'auto', height: '345px', marginTop: '15px' }}>
 							<Table stickyHeader size="small">
 								<TableSortHeader
 									cells={[
 										{
 											id: 'name',
 											numeric: false,
-											disablePadding: true,
 											label: 'Name',
 											width: '67%'
 										},
 										{
 											id: 'lastModified',
 											numeric: false,
-											disablePadding: false,
 											label: 'LastModified',
 											width: '28%'
 										},
 										{
 											id: 'action',
 											numeric: false,
-											disablePadding: false,
 											label: '',
 											sort: false,
 											width: '5%'
@@ -354,7 +350,7 @@ export class NewMachineDialog extends Component {
 											onClick={this.handleSelection({ id: '' })}
 											tabIndex={-1}
 										>
-											<TableCell component="th" scope="row">
+											<TableCell component="th" scope="row" padding="none">
 												<FormattedMessage id="DialogNew.noStream" defaultMessage="None" />
 											</TableCell>
 											<TableCell />
@@ -376,7 +372,7 @@ export class NewMachineDialog extends Component {
 											id={`stream-${resource.id}`}
 											key={`${resource.className}-${resource.id}`}
 										>
-											<TableCell component="th" scope="row">
+											<TableCell component="th" scope="row" padding="none">
 												<img
 													style={{ verticalAlign: 'bottom', paddingRight: '6px' }}
 													width={15}
@@ -386,7 +382,7 @@ export class NewMachineDialog extends Component {
 												/>
 												{resource.name}
 											</TableCell>
-											<TableCell>{this.getFormattedDateString(resource.lastModified)}</TableCell>
+											<TableCell padding="none">{this.getFormattedDateString(resource.lastModified)}</TableCell>
 											<TableCell padding="none" align="left">
 												<IconButton
 													style={{ padding: '4px' }}
@@ -401,7 +397,7 @@ export class NewMachineDialog extends Component {
 								</TableBody>
 							</Table>
 						</TableContainer>
-					</Paper>
+					</div>
 				</DialogContent>
 				<DialogActions style={{ justifyContent: 'space-between', padding: '0px 16px 10px 16px' }}>
 					<div>

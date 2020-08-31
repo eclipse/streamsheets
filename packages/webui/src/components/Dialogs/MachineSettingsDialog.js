@@ -12,7 +12,6 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
@@ -32,18 +31,14 @@ import JSG from '@cedalo/jsg-ui';
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
 
-const {
-	AttributeUtils,
-	SetAttributeAtPathCommand,
-	CompoundCommand,
-} = JSG;
+const { AttributeUtils, SetAttributeAtPathCommand, CompoundCommand } = JSG;
 
 let sheetNames = [];
 
 const FLAG_STYLE = {
 	width: '45px',
 	height: '24px',
-	marginRight: '10px',
+	marginRight: '10px'
 	// display: 'block',
 };
 
@@ -51,7 +46,6 @@ const FLAG_STYLE = {
  * A modal dialog can only be closed by selecting one of the actions.
  */
 export class MachineSettingsDialog extends React.Component {
-
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -59,35 +53,43 @@ export class MachineSettingsDialog extends React.Component {
 			maximizeSheet: 'none',
 			machineLocale: 'de',
 			toolBarVisibleSize: 1000,
-			exposeViaOPCUA: true,
+			exposeViaOPCUA: true
 		};
 	}
 
-	componentWillReceiveProps() {
-		if (!this.props.openSettings) {
-			if (graphManager.getGraph() === undefined) {
-				return;
-			}
-
+	static getDerivedStateFromProps(props, state) {
+		if (!props.openSettings && graphManager.getGraph()) {
 			const container = graphManager.getGraph().getMachineContainer();
 			if (container === undefined) {
-				return;
+				return null;
 			}
 
 			const attr = container.getMachineContainerAttributes();
 
 			sheetNames = [];
-			graphManager.getGraph().getStreamSheetsContainer().enumerateStreamSheetContainers((sheet) => {
-				sheetNames.push(sheet.getStreamSheet().getName().getValue());
-			});
+			graphManager
+				.getGraph()
+				.getStreamSheetsContainer()
+				.enumerateStreamSheetContainers((sheet) => {
+					sheetNames.push(
+						sheet
+							.getStreamSheet()
+							.getName()
+							.getValue()
+					);
+				});
 
-			this.setState({ showOutbox: attr.getOutboxVisible().getValue() });
-			this.setState({ maximizeSheet: attr.getMaximizeSheet().getValue() });
-			this.setState({ toolBarVisibleSize: attr.getHideToolbarThreshold().getValue() });
-			this.setState({ machineLocale: this.props.machine.locale });
-			this.setState({ exposeViaOPCUA: this.props.machine.isOPCUA });
-			// this.setState({ toolBarVisibleSize: this.props.machine.minToolbarPix });s
+			return {
+				...state,
+				showOutbox: attr.getOutboxVisible().getValue(),
+				maximizeSheet: attr.getMaximizeSheet().getValue(),
+				toolBarVisibleSize: attr.getHideToolbarThreshold().getValue(),
+				machineLocale: props.machine.locale,
+				exposeViaOPCUA: props.machine.isOPCUA
+			}
 		}
+
+		return null;
 	}
 
 	handleSettingsCancel = () => {
@@ -96,8 +98,10 @@ export class MachineSettingsDialog extends React.Component {
 	};
 
 	handleSettingsSubmit = () => {
-		if (this.state.machineLocale !== this.props.machine.locale
-			|| this.state.exposeViaOPCUA !== this.props.machine.isOPCUA) {
+		if (
+			this.state.machineLocale !== this.props.machine.locale ||
+			this.state.exposeViaOPCUA !== this.props.machine.isOPCUA
+		) {
 			this.props.updateMachineSettings(this.props.machine.id, {
 				locale: this.state.machineLocale,
 				isOPCUA: this.state.exposeViaOPCUA
@@ -113,25 +117,31 @@ export class MachineSettingsDialog extends React.Component {
 
 		let path = AttributeUtils.createPath(
 			JSG.MachineContainerAttributes.NAME,
-			JSG.MachineContainerAttributes.OUTBOXVISIBLE,
+			JSG.MachineContainerAttributes.OUTBOXVISIBLE
 		);
 		cmd.add(new SetAttributeAtPathCommand(container, path, this.state.showOutbox));
 
 		path = AttributeUtils.createPath(
 			JSG.MachineContainerAttributes.NAME,
-			JSG.MachineContainerAttributes.MAXIMIZESHEET,
+			JSG.MachineContainerAttributes.MAXIMIZESHEET
 		);
 		cmd.add(new SetAttributeAtPathCommand(container, path, this.state.maximizeSheet));
 
 		path = AttributeUtils.createPath(
 			JSG.MachineContainerAttributes.NAME,
-			JSG.MachineContainerAttributes.HIDETOOLBARTHRESHOLD,
+			JSG.MachineContainerAttributes.HIDETOOLBARTHRESHOLD
 		);
 		cmd.add(new SetAttributeAtPathCommand(container, path, this.state.toolBarVisibleSize));
 
 		graphManager.synchronizedExecute(cmd);
-		graphManager.getGraph().getMachineContainer().layout();
-		graphManager.getGraph().getMachineContainer().setRefreshNeeded(true);
+		graphManager
+			.getGraph()
+			.getMachineContainer()
+			.layout();
+		graphManager
+			.getGraph()
+			.getMachineContainer()
+			.setRefreshNeeded(true);
 		graphManager.redraw();
 		graphManager.updateControls();
 	};
@@ -153,7 +163,7 @@ export class MachineSettingsDialog extends React.Component {
 
 	handleToolbar = (event) => {
 		this.setState({ toolBarVisibleSize: Number(event.target.value) });
-	}
+	};
 
 	handleExposeViaOPCUA = (event, state) => {
 		this.setState({ exposeViaOPCUA: state });
@@ -161,9 +171,11 @@ export class MachineSettingsDialog extends React.Component {
 
 	handleKeyPressed = (event) => {
 		switch (event.key) {
-		case 'Enter': return this.handleSettingsSubmit();
-		case 'Escape': return this.handleSettingsCancel();
-		default:
+			case 'Enter':
+				return this.handleSettingsSubmit();
+			case 'Escape':
+				return this.handleSettingsCancel();
+			default:
 		}
 		return false;
 	};
@@ -176,41 +188,38 @@ export class MachineSettingsDialog extends React.Component {
 				onKeyDown={this.handleKeyPressed}
 			>
 				<DialogTitle>
-					<FormattedMessage
-						id="DialogSettings.title"
-						defaultMessage="Process Settings"
-					/>
+					<FormattedMessage id="DialogSettings.title" defaultMessage="Process Settings" />
 				</DialogTitle>
-				<DialogContent style={{
-					minWidth: '500px',
-					minHeight: '100px',
-				}}
+				<DialogContent
+					style={{
+						minWidth: '350px',
+					}}
 				>
 					<div
 						style={{
-							position: 'relative',
+							position: 'relative'
 						}}
 					>
 						<div>
-							<FormGroup
-								style={{
-									margin: '10px',
-								}}
-							>
+							<FormGroup>
 								<FormControl
-									style={{
-										marginTop: '20px',
-										width: '300px',
-										marginBottom: '15px'
-									}}
+									margin="normal"
+									variant="outlined"
 								>
-									<InputLabel htmlFor="language-setting">
+									<InputLabel id="language-settings-label" htmlFor="language-setting">
 										<FormattedMessage id="MachineLanguage" defaultMessage="Language" />
 									</InputLabel>
 									<Select
+										labelId="language-settings-label"
+										label={<FormattedMessage id="MachineLanguage" defaultMessage="Language" />}
 										id="language-setting"
 										value={this.state.machineLocale}
-										onChange={(ev) => this.handleMachineLocaleSelect(ev)}>
+										inputProps={{
+											name: 'language',
+											id: 'language-setting',
+										}}
+										onChange={(ev) => this.handleMachineLocaleSelect(ev)}
+									>
 										<MenuItem key="en" value="en">
 											<img alt="EN" src="images/flags/gb.svg" style={FLAG_STYLE} />
 											English (UK)
@@ -226,9 +235,8 @@ export class MachineSettingsDialog extends React.Component {
 									</Select>
 								</FormControl>
 								<FormControl
-									style={{
-										width: '300px',
-									}}
+									variant="outlined"
+									margin="normal"
 								>
 									<InputLabel htmlFor="maximize-load">
 										<FormattedMessage
@@ -239,66 +247,59 @@ export class MachineSettingsDialog extends React.Component {
 									<Select
 										id="maximize-load"
 										value={this.state.maximizeSheet}
-										onChange={event => this.handleMaximizeChange(event)}
-										input={<Input
-											name="sheet-selection"
-											id="sheet-selection"
+										onChange={(event) => this.handleMaximizeChange(event)}
+									label={
+										<FormattedMessage
+											id="DialogSettings.maximizeOnStart"
+											defaultMessage="Maximized on Load"
 										/>}
 									>
 										<MenuItem key="none" value="none">
-											<FormattedMessage
-												id="Nones"
-												defaultMessage="None"
-											/>
+											<FormattedMessage id="Nones" defaultMessage="None" />
 										</MenuItem>
-										{sheetNames.map((name) =>
+										{sheetNames.map((name) => (
 											<MenuItem key={name} value={name}>
 												{name}
 											</MenuItem>
-										)}
+										))}
 									</Select>
 								</FormControl>
-								<FormControl
-									style={{
-										width: '400px',
-									}}
-								>
+								<FormControl>
 									<TextField
 										id="number"
+										variant="outlined"
 										label={
 											<FormattedMessage
 												id="DialogSettings.toolbarMin"
- 												defaultMessage="Hide Toolbar, if Browser is smaller than Pixels:"
+												defaultMessage="Hide Toolbar, if Browser is smaller than Pixels:"
 											/>
 										}
 										inputProps={{
 											min: 0,
-											max: 10,
-											step: 1,
+											max: 2000,
+											step: 10
 										}}
 										value={this.state.toolBarVisibleSize}
-										onChange={event => this.handleToolbar(event)}
+										onChange={(event) => this.handleToolbar(event)}
 										type="number"
 										margin="normal"
 									/>
 								</FormControl>
 								<FormControlLabel
-									control={<Checkbox
-										checked={this.state.showOutbox}
-										onChange={this.handleShowOutbox}
-									/>}
+									control={
+										<Checkbox checked={this.state.showOutbox} onChange={this.handleShowOutbox} />
+									}
 									label={
-										<FormattedMessage
-											id="DialogSettings.showOutbox"
-											defaultMessage="Show Outbox"
-										/>
+										<FormattedMessage id="DialogSettings.showOutbox" defaultMessage="Show Outbox" />
 									}
 								/>
 								<FormControlLabel
-									control={<Checkbox
-										checked={this.state.exposeViaOPCUA}
-										onChange={this.handleExposeViaOPCUA}
-									/>}
+									control={
+										<Checkbox
+											checked={this.state.exposeViaOPCUA}
+											onChange={this.handleExposeViaOPCUA}
+										/>
+									}
 									label={
 										<FormattedMessage
 											id="DialogSettings.exposeViaOPCUA"
@@ -311,24 +312,11 @@ export class MachineSettingsDialog extends React.Component {
 					</div>
 				</DialogContent>
 				<DialogActions>
-					<Button
-						color="primary"
-						onClick={this.handleSettingsCancel}
-					>
-						<FormattedMessage
-							id="Cancel"
-							defaultMessage="Cancel"
-						/>
+					<Button color="primary" onClick={this.handleSettingsCancel}>
+						<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 					</Button>
-					<Button
-						color="primary"
-						autoFocus
-						onClick={() => this.handleSettingsSubmit()}
-					>
-						<FormattedMessage
-							id="OK"
-							defaultMessage="OK"
-						/>
+					<Button color="primary" autoFocus onClick={() => this.handleSettingsSubmit()}>
+						<FormattedMessage id="OK" defaultMessage="OK" />
 					</Button>
 				</DialogActions>
 			</Dialog>
@@ -339,7 +327,7 @@ export class MachineSettingsDialog extends React.Component {
 function mapStateToProps(state) {
 	return {
 		openSettings: state.appState.openSettings,
-		machine: state.machine,
+		machine: state.machine
 	};
 }
 

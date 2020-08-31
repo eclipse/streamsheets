@@ -23,7 +23,7 @@ import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconSearch from '@material-ui/icons/Search';
 import Table from '@material-ui/core/Table';
-import TableSortHeader from '../HelperComponent/TableSortHeader';
+import TableSortHeader from './TableSortHeader';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
@@ -80,8 +80,8 @@ const buildList = (machines, sortField, sortDir, filter, onItemClick) => {
 				<TableCell component="th" scope="row" padding="none">
 					{machine.name}
 				</TableCell>
-				<TableCell>{machine.state}</TableCell>
-				<TableCell>{getFormattedDateString(machine.metadata.lastModified)}</TableCell>
+				<TableCell padding="none">{machine.state}</TableCell>
+				<TableCell padding="none">{getFormattedDateString(machine.metadata.lastModified)}</TableCell>
 			</TableRow>
 	));
 }
@@ -155,25 +155,23 @@ function MachineList(props) {
 							</InputAdornment>
 						}
 						defaultValue={filter}
-						value={filter}
 						type="search"
 					/>
 				</div>
 
 				<div
 					style={{
-						border: '1px solid grey',
 						height: '410px',
 						overflow: 'auto',
-						padding: '5px'
+						marginTop: '15px'
 					}}
 				>
-					<Table stickyHeader>
+					<Table stickyHeader size="small">
 						<TableSortHeader
 							cells={[
-								{ id: 'name', numeric: false, disablePadding: true, label: 'Name', width: '58%' },
-								{ id: 'state', numeric: false, disablePadding: false, label: 'State', width: '14%' },
-								{ id: 'lastModified', numeric: false, disablePadding: false, label: 'LastModified', width: '28%' },
+								{ id: 'name', numeric: false, label: 'Name', width: '58%' },
+								{ id: 'state', numeric: false, label: 'State', width: '14%' },
+								{ id: 'lastModified', numeric: false, label: 'LastModified', width: '28%' },
 							]}
 							orderBy={sortField}
 							order={sortDir}

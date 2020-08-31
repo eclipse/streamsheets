@@ -12,6 +12,7 @@ import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import TableCell from '@material-ui/core/TableCell';
 import Tooltip from '@material-ui/core/Tooltip';
+import Paper from '@material-ui/core/Paper';
 import ExportIcon from '@material-ui/icons/CloudUpload';
 import { saveAs } from 'file-saver';
 import PropTypes from 'prop-types';
@@ -230,11 +231,14 @@ const ExportComponent = (props) => {
 					>
 						<Button
 							// className={classes.toolIconDark}
+							color="primary"
+							style={{
+								padding: '0px'
+							}}
 							onClick={(event) => {
 								event.stopPropagation();
 								selectLinkedStreams(resource.id);
 							}}
-							variant="contained"
 						>
 							<FormattedMessage id="Export.SelectStreams" defaultMessage="Select Streams" />
 						</Button>
@@ -271,89 +275,99 @@ const ExportComponent = (props) => {
 			</NotAllowed>
 			<ImportDropzone>
 				<Wall>
-				<div
-					style={{
-						display: 'flex',
-						flexFlow: 'column',
-						height: '100%',
-						position: 'relative'
-					}}
-				>
-					{showDialog && (
-						<ExportDialog
-							open
-							onCancel={() => setShowDialog(false)}
-							onConfirm={onConfirmExport}
-							fileName={defaultFileName(sortedMachines, selectedMachines, sortedStreams, selectedStreams)}
-						/>
-					)}
-					<Fab
-						variant="round"
-						color="primary"
-						style={{
-							position: 'absolute',
-							right: '48px',
-							bottom: '48px',
-							color: 'white'
-						}}
-						onClick={onExportButton}
-					>
-						<ExportIcon />
-					</Fab>
 					<div
 						style={{
-							flexGrow: 1,
-							height: 'inherit',
 							display: 'flex',
-							width: '100%',
-							justifyContent: 'space-around',
-							flexWrap: 'wrap',
-							overflowY: 'auto'
+							flexFlow: 'column',
+							height: '100%',
+							position: 'relative',
+							padding: '20px'
 						}}
 					>
-						<Restricted all={['machine.view']}>
-							<div
-								style={{
-									padding: '16px',
-									flexGrow: 1,
-									minWidth: '500px'
-								}}
-							>
-								<Typography variant="h5">
-									<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />
-								</Typography>
-								<ExportTable
-									resources={filteredMachines}
-									selected={selectedMachines}
-									onSelectAll={toggleAllMachines}
-									onSelect={toggleMachine}
-									columns={[selectLinkedStreamsColumn]}
-								/>
-							</div>
-						</Restricted>
-						<Restricted all={['stream']}>
-							<div
-								style={{
-									padding: '16px',
-									flexGrow: 1,
-									minWidth: '500px'
-								}}
-							>
-								<Typography variant="h5">
-									<FormattedMessage id="Export.List.Streams.Title" defaultMessage="Streams" />
-								</Typography>
+						{showDialog && (
+							<ExportDialog
+								open
+								onCancel={() => setShowDialog(false)}
+								onConfirm={onConfirmExport}
+								fileName={defaultFileName(
+									sortedMachines,
+									selectedMachines,
+									sortedStreams,
+									selectedStreams
+								)}
+							/>
+						)}
+						<Fab
+							variant="round"
+							color="primary"
+							style={{
+								position: 'absolute',
+								right: '48px',
+								bottom: '48px',
+								color: 'white'
+							}}
+							onClick={onExportButton}
+						>
+							<ExportIcon />
+						</Fab>
+						<div
+							style={{
+								flexGrow: 1,
+								height: 'inherit',
+								display: 'flex',
+								width: '100%',
+								justifyContent: 'space-around',
+								flexWrap: 'wrap',
+							}}
+						>
+							<Restricted all={['machine.view']}>
+								<Paper
+									style={{
+										padding: '16px',
+										flexGrow: 1,
+										minWidth: '500px',
+										marginRight: '20px',
+										height: 'calc(100% - 70px)',
+									}}
+								>
+									<Typography variant="h5" style={{borderBottom: '1px solid lightgrey',
+										paddingBottom: '10px'}}>
+										<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />
+									</Typography>
+									<ExportTable
+										resources={filteredMachines}
+										selected={selectedMachines}
+										onSelectAll={toggleAllMachines}
+										onSelect={toggleMachine}
+										columns={[selectLinkedStreamsColumn]}
+									/>
+								</Paper>
+							</Restricted>
+							<Restricted all={['stream']}>
+								<Paper
+									style={{
+										padding: '16px',
+										flexGrow: 1,
+										minWidth: '500px',
+										height: 'calc(100% - 70px)',
+									}}
+								>
+									<Typography variant="h5" style={{borderBottom: '1px solid lightgrey',
+										paddingBottom: '10px'}}>
+										<FormattedMessage id="Export.List.Streams.Title" defaultMessage="Streams" />
+									</Typography>
 
-								<ExportTable
-									resources={filteredStreams}
-									selected={selectedStreams}
-									onSelectAll={toggleAllStreams}
-									onSelect={toggleStream}
-									columns={[streamTypeColumn]}
-								/>
-							</div>
-						</Restricted>
+									<ExportTable
+										resources={filteredStreams}
+										selected={selectedStreams}
+										onSelectAll={toggleAllStreams}
+										onSelect={toggleStream}
+										columns={[streamTypeColumn]}
+									/>
+								</Paper>
+							</Restricted>
+						</div>
 					</div>
-				</div>
 				</Wall>
 			</ImportDropzone>
 		</Restricted>
