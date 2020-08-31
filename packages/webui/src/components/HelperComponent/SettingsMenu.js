@@ -13,7 +13,7 @@ import React from 'react';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
-import Input from '@material-ui/core/Input';
+import Divider from '@material-ui/core/Divider';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -51,6 +51,7 @@ import * as Actions from '../../actions/actions';
 import {graphManager} from '../../GraphManager';
 import {withStyles} from '@material-ui/core/styles';
 import {Path} from '../../helper/Path';
+import ListItemText from "@material-ui/core/ListItemText";
 
 const TabContainer = (props) => (
 		<Typography component="div" style={{ padding: 8 * 3 }}>
@@ -250,36 +251,37 @@ export class SettingsMenu extends React.Component {
 							}}
 						/>
 					</Card>
-					<MenuItem onClick={this.showPreferencesDialog}>
+					<MenuItem dense onClick={this.showPreferencesDialog}>
 						<ListItemIcon>
 							<Settings />
 						</ListItemIcon>
-						<FormattedMessage id="UserPreferences" defaultMessage="User Preferences" />
+						<ListItemText primary={<FormattedMessage id="UserPreferences" defaultMessage="User Preferences" />}/>
 					</MenuItem>
 					{this.props.isAdminPage ? null : (
-					<MenuItem onClick={this.handleOpenAdmin}>
+					<MenuItem dense onClick={this.handleOpenAdmin}>
 						<ListItemIcon>
 							<Security />
 						</ListItemIcon>
-						<FormattedMessage id="Administration" defaultMessage="Administration" />
+						<ListItemText primary={<FormattedMessage id="Administration" defaultMessage="Administration" />}/>
 					</MenuItem>)}
-					<MenuItem onClick={this.showHelpDialog}>
+					<MenuItem dense onClick={this.showHelpDialog}>
 						<ListItemIcon>
 							<Info />
 						</ListItemIcon>
-						<FormattedMessage id="Info" defaultMessage="Info" />
+						<ListItemText primary={<FormattedMessage id="Info" defaultMessage="Info" />}/>
 					</MenuItem>
-					<MenuItem onClick={this.showLicenseAgreement}>
+					<MenuItem dense onClick={this.showLicenseAgreement}>
 						<ListItemIcon>
 							<Assignment />
 						</ListItemIcon>
-						<FormattedMessage id="Setup.LicenseAgreement.DownloadLicense" defaultMessage="Download license" />
+						<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicense" defaultMessage="Download license" />}/>
 					</MenuItem>
-					<MenuItem onClick={this.logout}>
+					<Divider />
+					<MenuItem dense onClick={this.logout}>
 						<ListItemIcon>
 							<ExitToApp />
 						</ListItemIcon>
-						<FormattedMessage id="Logout" defaultMessage="Logout" />
+							<ListItemText primary={<FormattedMessage id="Logout" defaultMessage="Logout" />}/>
 					</MenuItem>
 				</Menu>
 				<Dialog
@@ -293,8 +295,7 @@ export class SettingsMenu extends React.Component {
 						/>
 					</DialogTitle>
 					<DialogContent style={{
-						minWidth: '500px',
-						minHeight: '100px',
+						minWidth: '350px',
 					}}
 					>
 						<div
@@ -322,21 +323,31 @@ export class SettingsMenu extends React.Component {
 							) : null }
 							{ user && user.settings ? (
 								<div style={{display: 'flex', flexDirection: 'column'}}>
-									<FormControl style={{ marginTop: '20px' }}>
-										<InputLabel htmlFor="language-selection">
+									<FormControl
+										variant="outlined"
+										margin="normal"
+									>
+										<InputLabel htmlFor="language-selection" id="language-selection-label">
 											<FormattedMessage
 												id="Language"
 												defaultMessage="Language"
 											/>
 										</InputLabel>
 										<Select
+											id="language-selection"
+											labelId="language-settings-label"
 											value={this.props.locale}
 											onChange={event => this.handleLanguageChange(event)}
-											input={<Input
-												defaultValue={ !this.props.locale ? "en" : undefined }
-												name="language-selection"
-												id="language-selection"
-											/>}
+											inputProps={{
+												name: "language-selection",
+												id: "language-selection"
+											}}
+											label={
+												<FormattedMessage
+													id="Language"
+													defaultMessage="Language"
+												/>
+											}
 										>
 											<MenuItem value="en">
 												<FormattedMessage
@@ -352,8 +363,10 @@ export class SettingsMenu extends React.Component {
 											</MenuItem>
 										</Select>
 									</FormControl>
-									{this.props.experimental ? (
-									<FormControl style={{ marginTop: '20px' }}>
+									<FormControl
+										variant="outlined"
+										margin="normal"
+									>
 										<InputLabel htmlFor="theme-selection">
 											<FormattedMessage
 												id="Theme"
@@ -361,12 +374,19 @@ export class SettingsMenu extends React.Component {
 											/>
 										</InputLabel>
 										<Select
+											id="theme-selection"
 											value={this.state.theme}
 											onChange={event => this.handleThemeChange(event)}
-											input={<Input
-												name="theme-selection"
-												id="theme-selection"
-											/>}
+											inputProps={{
+												name: "theme-selection",
+												id: "theme-selection"
+											}}
+											label={
+												<FormattedMessage
+													id="Theme"
+													defaultMessage="Theme"
+												/>
+											}
 										>
 											<MenuItem value="Default">
 												<FormattedMessage
@@ -381,7 +401,7 @@ export class SettingsMenu extends React.Component {
 												/>
 											</MenuItem>
 										</Select>
-									</FormControl> ) : null}
+									</FormControl>
 								</div>) : null}
 						</div>
 					</DialogContent>

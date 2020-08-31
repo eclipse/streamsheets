@@ -27,7 +27,7 @@ import StartImportDialog from '../components/ImportExport/StartImportDialog';
 import NotificationsComponent from '../components/NotificationsComponent/NotificationsComponent';
 import RequestStatusDialog from '../components/RequestStatusDialog/RequestStatusDialog';
 import ServerStatusDialog from '../components/ServerStatusDialog/ServerStatusDialog';
-import SettingsMenu from '../components/SettingsMenu/SettingsMenu';
+import SettingsMenu from '../components/HelperComponent/SettingsMenu';
 import AlertDialog from '../components/SheetDialogs/AlertDialog';
 import DecisionDialog from '../components/SheetDialogs/DecisionDialog';
 import { useDocumentTitle } from '../helper/Hooks';

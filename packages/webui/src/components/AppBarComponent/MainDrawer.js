@@ -19,15 +19,14 @@ import NewIcon from '@material-ui/icons/NoteAdd';
 import CloneIcon from '@material-ui/icons/FileCopy';
 import OpenIcon from '@material-ui/icons/OpenInBrowser';
 import SettingsIcon from '@material-ui/icons/Settings';
+import MenuItem from '@material-ui/core/MenuItem';
 import Drawer from '@material-ui/core/Drawer';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
 import { FormattedMessage } from 'react-intl';
 import * as Actions from '../../actions/actions';
 import { Restricted } from '../HelperComponent/Restricted';
 import { withStyles } from '@material-ui/core/styles';
+import ListItemText from '@material-ui/core/ListItemText';
 
 export class MainDrawer extends Component {
 	setAppState(state) {
@@ -125,112 +124,106 @@ export class MainDrawer extends Component {
 				</div>
 				{this.props.isAdminPage ? null : (
 					<React.Fragment>
-						<List>
-							<Restricted all={['machine.edit']}>
-								<ListItem key="new" button onClick={this.handleNew}>
-									<ListItemIcon>
-										<NewIcon />
-									</ListItemIcon>
-									<ListItemText primary={<FormattedMessage id="New" defaultMessage="New" />} />
-								</ListItem>
-							</Restricted>
-							<Restricted all={['machine.view']}>
-								<ListItem key="open" button onClick={this.handleOpen}>
-									<ListItemIcon>
-										<OpenIcon />
-									</ListItemIcon>
-									<ListItemText primary={<FormattedMessage id="Open" defaultMessage="Open" />} />
-								</ListItem>
-							</Restricted>
-							<Restricted all={['machine.edit']}>
-								{this.props.isMachineDetailPage ? (
-									<ListItem key="save" button onClick={() => this.handleSaveAs()}>
+						<Restricted all={['machine.edit']}>
+							<MenuItem dense onClick={this.handleNew}>
+								<ListItemIcon>
+									<NewIcon />
+								</ListItemIcon>
+								<ListItemText primary={<FormattedMessage id="New" defaultMessage="New" />} />
+							</MenuItem>
+						</Restricted>
+						<Restricted all={['machine.view']}>
+							<MenuItem dense onClick={this.handleOpen}>
+								<ListItemIcon>
+									<OpenIcon />
+								</ListItemIcon>
+								<ListItemText primary={<FormattedMessage id="Open" defaultMessage="Open" />} />
+							</MenuItem>
+						</Restricted>
+						<Restricted all={['machine.edit']}>
+							{this.props.isMachineDetailPage ? (
+								<div>
+									<MenuItem dense onClick={() => this.handleSaveAs()}>
 										<ListItemIcon>
 											<CloneIcon />
 										</ListItemIcon>
 										<ListItemText
 											primary={<FormattedMessage id="SaveCopyAs" defaultMessage="Save Copy As" />}
 										/>
-									</ListItem>
-								) : null}
-							</Restricted>
-							<Restricted all={['machine.edit']}>
-								{this.props.isMachineDetailPage && this.props.canEditMachine ? (
-									<ListItem key="delete" button onClick={() => this.showDeleteMachineDialog()}>
-										<ListItemIcon>
-											<DeleteIcon />
-										</ListItemIcon>
-										<ListItemText
-											primary={<FormattedMessage id="DeleteMenu" defaultMessage="Delete" />}
-										/>
-									</ListItem>
-								) : null}
-							</Restricted>
-						</List>
-						<Divider />
-						<List>
-							<Restricted all={['machine.edit', 'stream']}>
-								<ListItem key="import" button onClick={() => this.handleImport()}>
+									</MenuItem>
+								</div>
+							) : null}
+						</Restricted>
+						<Restricted all={['machine.edit']}>
+							{this.props.isMachineDetailPage && this.props.canEditMachine ? (
+								<MenuItem dense onClick={() => this.showDeleteMachineDialog()}>
 									<ListItemIcon>
-										<SvgIcon>
-											<path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
-										</SvgIcon>
-									</ListItemIcon>
-									<ListItemText primary={<FormattedMessage id="Import" defaultMessage="Import" />} />
-								</ListItem>
-							</Restricted>
-							<Restricted oneOf={['machine.view', 'stream']}>
-								<ListItem key="export" button onClick={() => this.handleExport()}>
-									<ListItemIcon>
-										<SvgIcon>
-											<path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z" />
-										</SvgIcon>
-									</ListItemIcon>
-									<ListItemText primary={<FormattedMessage id="Export" defaultMessage="Export" />} />
-								</ListItem>
-							</Restricted>
-						</List>
-					</React.Fragment>
-				)}
-				{this.props.isMachineDetailPage && this.props.canEditMachine
-					? [
-							<Divider key="div1"/>,
-							<List key="list1">
-								<ListItem key="pref" button onClick={() => this.showSettingsDialog()}>
-									<ListItemIcon>
-										<SettingsIcon />
+										<DeleteIcon />
 									</ListItemIcon>
 									<ListItemText
-										primary={<FormattedMessage id="Preferences" defaultMessage="Preferences" />}
+										primary={<FormattedMessage id="DeleteMenu" defaultMessage="Delete..." />}
 									/>
-								</ListItem>
-							</List>
-					  ]
-					: null}
+								</MenuItem>
+							) : null}
+						</Restricted>
+						<Divider />
+						<Restricted all={['machine.edit', 'stream']}>
+							<MenuItem dense onClick={() => this.handleImport()}>
+								<ListItemIcon>
+									<SvgIcon>
+										<path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
+									</SvgIcon>
+								</ListItemIcon>
+								<ListItemText primary={<FormattedMessage id="Import" defaultMessage="Import" />} />
+							</MenuItem>
+						</Restricted>
+						<Restricted oneOf={['machine.view', 'stream']}>
+							<MenuItem dense onClick={() => this.handleExport()}>
+								<ListItemIcon>
+									<SvgIcon>
+										<path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z" />
+									</SvgIcon>
+								</ListItemIcon>
+								<ListItemText primary={<FormattedMessage id="Export" defaultMessage="Export" />} />
+							</MenuItem>
+						</Restricted>
+					</React.Fragment>
+				)}
+				{this.props.isMachineDetailPage && this.props.canEditMachine ? (
+					<div>
+						<Divider />
+						<MenuItem dense onClick={() => this.showSettingsDialog()}>
+							<ListItemIcon>
+								<SettingsIcon />
+							</ListItemIcon>
+							<ListItemText
+								primary={<FormattedMessage id="Preferences" defaultMessage="Preferences" />}
+							/>
+						</MenuItem>
+					</div>
+				) : null}
 				<Divider />
-				<List>
-					{this.props.isMachineDetailPage || this.props.isAdminPage ? (
-						<ListItem key="dash" button onClick={this.handleOpenDashboard}>
-							<ListItemIcon>
-								<DashboardIcon />
-							</ListItemIcon>
-							<ListItemText primary={<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />} />
-						</ListItem>
-					) : null}
-					{this.props.isMachineDetailPage ? (
-						<ListItem key="prev" button onClick={this.handleOpenPreview}>
-							<ListItemIcon>
-								<SvgIcon>
-									<path
-										// eslint-disable-next-line max-len
-										d="M12 5.5L10 8H14L12 5.5M18 10V14L20.5 12L18 10M6 10L3.5 12L6 14V10M14 16H10L12 18.5L14 16M21 3H3C1.9 3 1 3.9 1 5V19C1 20.1 1.9 21 3 21H21C22.1 21 23 20.1 23 19V5C23 3.9 22.1 3 21 3M21 19H3V5H21V19Z"
-									/>
-								</SvgIcon>
-							</ListItemIcon>
-							<ListItemText primary={<FormattedMessage id="UserPreview" defaultMessage="Preview" />} />
-						</ListItem>
-					) : null}
-				</List>
+				{this.props.isMachineDetailPage || this.props.isAdminPage ? (
+					<MenuItem dense onClick={this.handleOpenDashboard}>
+						<ListItemIcon>
+							<DashboardIcon />
+						</ListItemIcon>
+						<ListItemText primary={<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />} />
+					</MenuItem>
+				) : null}
+				{this.props.isMachineDetailPage ? (
+					<MenuItem dense onClick={this.handleOpenPreview}>
+						<ListItemIcon>
+							<SvgIcon>
+								<path
+									// eslint-disable-next-line max-len
+									d="M12 5.5L10 8H14L12 5.5M18 10V14L20.5 12L18 10M6 10L3.5 12L6 14V10M14 16H10L12 18.5L14 16M21 3H3C1.9 3 1 3.9 1 5V19C1 20.1 1.9 21 3 21H21C22.1 21 23 20.1 23 19V5C23 3.9 22.1 3 21 3M21 19H3V5H21V19Z"
+								/>
+							</SvgIcon>
+						</ListItemIcon>
+						<ListItemText primary={<FormattedMessage id="UserPreview" defaultMessage="User Preview" />} />
+					</MenuItem>
+				) : null}
 			</Drawer>
 		);
 	}

@@ -86,7 +86,7 @@ export class MachineSettingsDialog extends React.Component {
 				toolBarVisibleSize: attr.getHideToolbarThreshold().getValue(),
 				machineLocale: props.machine.locale,
 				exposeViaOPCUA: props.machine.isOPCUA
-			}
+			};
 		}
 
 		return null;
@@ -192,7 +192,7 @@ export class MachineSettingsDialog extends React.Component {
 				</DialogTitle>
 				<DialogContent
 					style={{
-						minWidth: '350px',
+						minWidth: '350px'
 					}}
 				>
 					<div
@@ -202,10 +202,7 @@ export class MachineSettingsDialog extends React.Component {
 					>
 						<div>
 							<FormGroup>
-								<FormControl
-									margin="normal"
-									variant="outlined"
-								>
+								<FormControl margin="normal" variant="outlined">
 									<InputLabel id="language-settings-label" htmlFor="language-setting">
 										<FormattedMessage id="MachineLanguage" defaultMessage="Language" />
 									</InputLabel>
@@ -216,7 +213,7 @@ export class MachineSettingsDialog extends React.Component {
 										value={this.state.machineLocale}
 										inputProps={{
 											name: 'language',
-											id: 'language-setting',
+											id: 'language-setting'
 										}}
 										onChange={(ev) => this.handleMachineLocaleSelect(ev)}
 									>
@@ -234,10 +231,7 @@ export class MachineSettingsDialog extends React.Component {
 										</MenuItem>
 									</Select>
 								</FormControl>
-								<FormControl
-									variant="outlined"
-									margin="normal"
-								>
+								<FormControl variant="outlined" margin="normal">
 									<InputLabel htmlFor="maximize-load">
 										<FormattedMessage
 											id="DialogSettings.maximizeOnStart"
@@ -248,11 +242,12 @@ export class MachineSettingsDialog extends React.Component {
 										id="maximize-load"
 										value={this.state.maximizeSheet}
 										onChange={(event) => this.handleMaximizeChange(event)}
-									label={
-										<FormattedMessage
-											id="DialogSettings.maximizeOnStart"
-											defaultMessage="Maximized on Load"
-										/>}
+										label={
+											<FormattedMessage
+												id="DialogSettings.maximizeOnStart"
+												defaultMessage="Maximized on Load"
+											/>
+										}
 									>
 										<MenuItem key="none" value="none">
 											<FormattedMessage id="Nones" defaultMessage="None" />
