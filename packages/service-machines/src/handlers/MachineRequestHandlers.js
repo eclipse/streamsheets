@@ -1120,6 +1120,23 @@ class MetaInformationRequestHandler extends RequestHandler {
 	}
 }
 
+class MachineActionRequestHandler extends RequestHandler {
+	constructor() {
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.MACHINE_ACTION_MESSAGE_TYPE);
+	}
+
+	async handle(request, machineserver) {
+		logger.info('MachineActionRequestHandler');
+		const { action, machineId } = request;
+		const runner = machineserver.getMachineRunner(machineId);
+		if (runner) {
+			const result = await runner.request('runMachineAction', getUserId(request), action);
+			return this.confirm(request, result);
+		}
+		throw this.reject(request, `No machine found with id '${request.machineId}'.`);
+	}
+}
+
 module.exports = {
 	CommandRequestHandler,
 	AddInboxMessageRequestHandler,
@@ -1130,6 +1147,7 @@ module.exports = {
 	LoadMachineRequestHandler,
 	LoadSubscribeMachineRequestHandler,
 	LoadSheetCellsRequestHandler,
+	MachineActionRequestHandler,
 	MachineUpdateSettingsRequestHandler,
 	MetaInformationRequestHandler,
 	OpenMachineRequestHandler,
