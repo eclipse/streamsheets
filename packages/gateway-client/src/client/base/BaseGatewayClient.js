@@ -659,6 +659,10 @@ module.exports = class BaseGatewayClient {
 		return this.socket.sendCommand(machineId, graphId, command, undo, redo);
 	}
 
+	sendMachineAction(machineId, action) {
+		return this.socket.sendMachineAction(machineId, action);
+	}
+
 	updateNamedCells(machineId, streamsheetId, namedCells) {
 		return this.socket.updateNamedCells(
 			machineId,
