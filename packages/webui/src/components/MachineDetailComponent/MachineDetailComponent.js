@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+import { DropHandler } from '@cedalo/webui-extensions';
 import React from 'react';
 import CanvasComponent from '../Canvas/CanvasComponent';
 import MachineLoadingDialog from './MachineLoadingDialog';
@@ -21,7 +22,9 @@ export default function MachineDetailComponent(props) {
 			}}
 		>
 			<MachineLoadingDialog />
-			<CanvasComponent canEditMachine={props.canEditMachine} />
+			<DropHandler>
+				<CanvasComponent canEditMachine={props.canEditMachine} />
+			</DropHandler>
 		</div>
 	);
 }
