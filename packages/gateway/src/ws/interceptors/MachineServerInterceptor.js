@@ -16,6 +16,7 @@ const { LoadSheetCellsMessage } = require('../messages/Messages');
 const INTERCEPTED_MESSAGE_TYPES = [
 	GatewayMessagingProtocol.MESSAGE_TYPES.ADD_INBOX_MESSAGE,
 	GatewayMessagingProtocol.MESSAGE_TYPES.COMMAND_MESSAGE_TYPE,
+	GatewayMessagingProtocol.MESSAGE_TYPES.MACHINE_ACTION_MESSAGE_TYPE,
 	GatewayMessagingProtocol.MESSAGE_TYPES.CREATE_STREAMSHEET_MESSAGE_TYPE,
 	GatewayMessagingProtocol.MESSAGE_TYPES.DELETE_MACHINE_MESSAGE_TYPE,
 	GatewayMessagingProtocol.MESSAGE_TYPES.DELETE_STREAMSHEET_MESSAGE_TYPE,
