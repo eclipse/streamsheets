@@ -636,9 +636,13 @@ class ReplaceGraphCells extends ARequestHandler {
 	}
 }
 class RunMachineAction extends ARequestHandler {
-	handle(msg) {
-		console.log(msg);
-		return Promise.reject(new Error('not implemented yet!'));
+	async handle({ type, data }) {
+		const action = FunctionRegistry.getAction(type);
+		if (action) {
+			const result = await action(data);
+			return { result };
+		}
+		return Promise.reject(new Error(`Unknown action type: ${type}`));
 	}
 }
 // DL-1156 not used anymore

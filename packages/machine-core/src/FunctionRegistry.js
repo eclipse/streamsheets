@@ -29,12 +29,21 @@ const Functions = {
 	additional: {},
 	additionalHelp: {}
 };
+const Actions = {
+	core: {},
+	additional: {
+		'timescale.action.import': ({ table, data }) => (table && data ? Promise.resolve(true) : Promise.reject()),
+		'timescale.action.listtables': () => Promise.resolve(['table1', 'table2', 'table3'])
+	}
+};
 
-const registerCore = ({ functions = {}, FunctionFactory } = {}) => {
+const registerCore = ({ actions = {}, functions = {}, FunctionFactory } = {}) => {
+	Actions.core = Object.assign(Actions.core, actions);
 	Functions.core = Object.assign(Functions.core, functions);
 	functionFactory = FunctionFactory;
 };
-const registerAdditional = ({ functions = {}, help = {} } = {}) => {
+const registerAdditional = ({ actions = {}, functions = {}, help = {} } = {}) => {
+	Actions.additional = Object.assign(Actions.additional, actions);
 	Functions.additional = Object.assign(Functions.additional, functions);
 	Functions.additionalHelp = Object.assign(Functions.additionalHelp, help);
 };
@@ -46,6 +55,10 @@ const toName = (name) => ({ name });
 class FunctionRegistry {
 	static of() {
 		return new FunctionRegistry();
+	}
+
+	getAction(id = '') {
+		return Actions.core[id] || Actions.additional[id];
 	}
 
 	getFunction(id = '') {
