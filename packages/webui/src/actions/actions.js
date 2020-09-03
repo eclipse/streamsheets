@@ -376,11 +376,15 @@ function handleStreamsReloaded(event) {
 
 function handleStreamControlEvent(event) {
 	const user = store.getState().user.user;
-	if (user && event.data.stream && user.scope.id === event.data.stream.scope.id) {
-		store.dispatch({
-			type: ActionTypes.STREAM_CONTROL_EVENT,
-			event
-		});
+	try {
+		if (user && event.data.stream && (!event.data.stream.scope || user.scope.id === event.data.stream.scope.id)) {
+			store.dispatch({
+				type: ActionTypes.STREAM_CONTROL_EVENT,
+				event
+			});
+		}
+	} catch (error) {
+		console.error('Failed to handle stream event', event, error);
 	}
 }
 

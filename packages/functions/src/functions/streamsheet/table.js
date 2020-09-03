@@ -243,7 +243,7 @@ const tableupdate = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(7)
-		.mapNextArg((stackrange) => getCellRange(stackrange, sheet) || ERROR.VALUE)
+		.mapNextArg((tablerange) => getCellRange(tablerange, sheet) || ERROR.VALUE)
 		.mapNextArg((valueterm) => errorIfNull(valueterm.value))
 		.mapNextArg((rowindex) => (rowindex ? toNumberOrString(rowindex.value) : ''))
 		.mapNextArg((colindex) => (colindex ? toNumberOrString(colindex.value) : ''))
@@ -266,7 +266,7 @@ const tableget = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(3)
-		.mapNextArg((stackrange) => getCellRange(stackrange, sheet) || ERROR.VALUE)
+		.mapNextArg((tablerange) => getCellRange(tablerange, sheet) || ERROR.VALUE)
 		.mapNextArg((rowindex) => toNumberOrString(rowindex.value))
 		.mapNextArg((colindex) => toNumberOrString(colindex.value))
 		.run((range, rowindex, colindex) => {
@@ -279,7 +279,70 @@ const tableget = (sheet, ...terms) =>
 			return ERROR.NA;
 		});
 
+
+const setColumnAt = (colidx, cells, range) => {
+	const sheet = range.sheet;
+	const startrow = range.start.row + 1;
+	cells.forEach((cell, index) => {
+		sharedidx.set(startrow + index, colidx);
+		sheet.setCellAt(sharedidx, cell, true);
+	});
+};
+// NOTE: Array.sort() will add undefined values to the end of sorted array!!
+const sortColumn2 = (colcells, refvalues) => {
+	const indexOf = (cell) => {
+		const idx = refvalues.indexOf(cell.value);
+		return idx < 0 ? refvalues.length : idx;
+	};
+	return colcells.sort((c1, c2) => indexOf(c1) - indexOf(c2));
+};
+const sortColumn = (colcells, refvalues) => {
+// NOTE: do not use Array.sort() since we want to PRESERVE oder of undefined values!
+	const order = colcells.map((cell, index) => {
+		index = cell ? refvalues.indexOf(cell.value) : -1;
+		if (index < 0) index = refvalues.length;
+		return { index, cell };
+	});
+	order.sort((c1, c2) => c1.index - c2.index);
+	return order.map((c) => c.cell);
+};
+const getColumnCellsAsList = (index, range) => {
+	const list = [];
+	range.iterateColAt(index, (cell) => list.push(cell));
+	return list;
+};
+const sortColumnAt = (index, colrange, refrange) => {
+	// preserve column name from being sorted...
+	const cells = getColumnCellsAsList(index.col, colrange).filter((_, idx) => idx !== 0);
+	const refvals = getColumnCellsAsList(index.ref, refrange).map((cell) => cell ? cell.value : cell);
+	const sortedcells = sortColumn(cells, refvals);
+	setColumnAt(index.col, sortedcells, colrange);
+};
+const getColumnIndices = (columnrange, refrange) => {
+	const indices = [];
+	const colnames = [];
+	const startidx = refrange.start.col;
+	refrange.iterateRowAt(refrange.start.row, (cell) => colnames.push(cell ? cell.value : undefined));
+	columnrange.iterateRowAt(columnrange.start.row, (cell, index) => {
+		const colidx = cell ? colnames.indexOf(cell.value) : -1;
+		if (colidx > -1) indices.push({ col: index.col, ref: startidx + colidx});
+	});
+	return indices;
+};
+const tableordercolumn = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.withArgCount(2)
+		.mapNextArg((colrange) => getCellRange(colrange, sheet) || ERROR.VALUE)
+		.mapNextArg((refrange) => getCellRange(refrange, sheet) || ERROR.VALUE)
+		.run((colrange, refrange) => {
+			const indices = getColumnIndices(colrange, refrange);
+			indices.forEach((index) => sortColumnAt(index, colrange, refrange));
+			return true;
+		});
+
 module.exports = {
 	'TABLE.GET': tableget,
+	'TABLE.ORDERCOLUMN': tableordercolumn,
 	'TABLE.UPDATE': tableupdate
 };

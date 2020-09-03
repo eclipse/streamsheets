@@ -54,7 +54,7 @@ const resolve = async (request) => {
 	} finally {
 		// remove callback dependencies:
 		request.onResponse = noop;
-		setStatus(sheet, request.reqId(), state);
+		setStatus(sheet, request.reqId(), request.state);
 	}
 };
 // queue to limit max parallel requests:
@@ -133,6 +133,7 @@ class AsyncRequest {
 		this._init(context);
 	}
 	_init(context) {
+		if (context._reqId) this.sheet.getPendingRequests().delete(context._reqId);
 		if (context._pendreq) context.removeDisposeListener(context._pendreq.onDispose);
 		context._reqId = IdGenerator.generate();
 		context._pendreq = this;
@@ -169,6 +170,7 @@ class AsyncRequest {
 		context.removeDisposeListener(this.onDispose);
 		context._reqId = undefined;
 		context._pendreq = undefined;
+		this.sheet = undefined;
 		this.context = undefined;
 	}
 }
