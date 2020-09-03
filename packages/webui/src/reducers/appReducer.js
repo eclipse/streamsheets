@@ -31,7 +31,8 @@ const defaultState = {
 		hidegrid: null,
 		hideheader: null,
 		view: null,
-		viewMode: null
+		viewMode: null,
+		zoomdisabled: null
 	},
 	showEditNamesDialog: false,
 	formatOpen: false,
