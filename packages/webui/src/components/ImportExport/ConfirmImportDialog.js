@@ -35,7 +35,7 @@ export const ConfirmImportDialog = (props) => {
 				}}
 			>
 				<Grid container direction="column">
-					<Grid item alignItems="center" container direction="row" spacing={8}>
+					<Grid item alignItems="center" container direction="row" spacing={1}>
 						<Grid item>
 							<VersionUpgrade color="error" />
 						</Grid>
@@ -60,7 +60,7 @@ export const ConfirmImportDialog = (props) => {
 									<FormattedMessage id="Import.List.Machines.Title" defaultMessage="Machines" />
 								</Typography>
 							</Grid>
-							<Grid item container spacing={8} alignItems="center">
+							<Grid item container spacing={1} alignItems="center">
 								{ArrayUtil.intersperse(
 									machines.map(({ newName, id }) => (
 										<Grid item sm={12} key={id}>
@@ -88,7 +88,7 @@ export const ConfirmImportDialog = (props) => {
 									<FormattedMessage id="Import.List.Streams.Title" defaultMessage="Streams" />
 								</Typography>
 							</Grid>
-							<Grid item container spacing={8} alignItems="center">
+							<Grid item container spacing={1} alignItems="center">
 								{ArrayUtil.intersperse(
 									streams.map(({ newName, id }) => (
 										<Grid item sm={12} key={id}>

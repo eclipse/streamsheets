@@ -19,6 +19,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { Storage, People, GroupWork } from '@material-ui/icons';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from 'react-router-dom';
+import ListItemText from '@material-ui/core/ListItemText';
 
 export const AdminNavigation = connect(({ user, router }) => ({
 	rights: user.rights,
@@ -31,31 +32,43 @@ export const AdminNavigation = connect(({ user, router }) => ({
 		<List component="nav" style={{ padding: 0 }}>
 			{props.rights.includes('user.view') || props.rights.includes('self.view') ? (
 				<Link style={{ color: 'inherit', textDecoration: 'none' }} to={Path.users()} href={Path.users()}>
-					<MenuItem selected={isSelected('users')}>
+					<MenuItem dense selected={isSelected('users')} style={{height: '50px'}}>
 						<ListItemIcon>
 							<People />
 						</ListItemIcon>
-						<FormattedMessage id="Dashboard.users" defaultMessage="Users" />
+						<ListItemText primary={<FormattedMessage id="Dashboard.users" defaultMessage="Users" />} />
 					</MenuItem>
 				</Link>
 			) : null}
 			{props.rights.includes('workspace') ? (
-				<Link style={{ color: 'inherit', textDecoration: 'none' }} to={Path.workspaces()} href={Path.workspaces()}>
-					<MenuItem selected={isSelected('workspaces')}>
+				<Link
+					style={{ color: 'inherit', textDecoration: 'none' }}
+					to={Path.workspaces()}
+					href={Path.workspaces()}
+				>
+					<MenuItem dense selected={isSelected('workspaces')} style={{height: '50px'}}>
 						<ListItemIcon>
 							<GroupWork />
 						</ListItemIcon>
-						<FormattedMessage id="Dashboard.workspaces" defaultMessage="Workspaces" />
+						<ListItemText
+							primary={<FormattedMessage id="Dashboard.workspaces" defaultMessage="Workspaces" />}
+						/>
 					</MenuItem>
 				</Link>
 			) : null}
 			{props.rights.includes('database') ? (
-				<Link style={{ color: 'inherit', textDecoration: 'none' }} to={Path.database()} href={Path.workspaces()}>
-					<MenuItem selected={isSelected('database')}>
+				<Link
+					style={{ color: 'inherit', textDecoration: 'none' }}
+					to={Path.database()}
+					href={Path.workspaces()}
+				>
+					<MenuItem dense selected={isSelected('database')} style={{height: '50px'}}>
 						<ListItemIcon>
 							<Storage />
 						</ListItemIcon>
-						<FormattedMessage id="Dashboard.database" defaultMessage="Database" />
+						<ListItemText
+							primary={<FormattedMessage id="Dashboard.database" defaultMessage="Database" />}
+						/>
 					</MenuItem>
 				</Link>
 			) : null}

@@ -128,7 +128,7 @@ class SetupPage extends React.Component {
 		switch (step) {
 			case 0:
 				return (
-					<Grid container spacing={8} style={{ height: '100%' }}>
+					<Grid container spacing={1} style={{ height: '100%' }}>
 						<Grid item xs={12}>
 							<Button
 								className={classes.button}
@@ -368,7 +368,7 @@ class SetupPage extends React.Component {
 						textAlign: 'center',
 					}}
 				>
-					<Grid container spacing={8} style={{ height: '100%' }}>
+					<Grid container spacing={1} style={{ height: '100%' }}>
 						<Grid item xs={6}>
 							<Paper style={{ height: '100%', paddingTop: '20px' }}>
 								<Typography variant="h5" component="h2">

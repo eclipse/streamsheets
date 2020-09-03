@@ -400,7 +400,7 @@ const StreamList = withShowable((props) => {
 					  }
 					: null;
 			return (
-				<Grid item container sm={12} key={id} alignItems="center" spacing={8}>
+				<Grid item container sm={12} key={id} alignItems="center" spacing={1}>
 					<Grid
 						item
 						container
@@ -493,7 +493,7 @@ const StreamList = withShowable((props) => {
 					/>
 				</Grid>
 			</Grid>
-			<Grid item container spacing={8} alignItems="center">
+			<Grid item container spacing={1} alignItems="center">
 				{ArrayUtil.intersperse(streamRows, (index) => (
 					<Grid key={`sep-${index}`} item sm={12}>
 						<Divider />
@@ -530,7 +530,7 @@ const MachineList = withShowable((props) => {
 				: null;
 
 		return (
-			<Grid item container sm={12} key={id} alignItems="center" spacing={8}>
+			<Grid item container sm={12} key={id} alignItems="center" spacing={1}>
 				<Grid
 					item
 					container
@@ -587,7 +587,7 @@ const MachineList = withShowable((props) => {
 				</Typography>
 			</Grid>
 
-			<Grid item container spacing={8} alignItems="center">
+			<Grid item container spacing={1} alignItems="center">
 				{ArrayUtil.intersperse(machineRows, (index) => (
 					<Grid key={`sep-${index}`} item sm={12}>
 						<Divider />

@@ -214,8 +214,8 @@ const UserTablePageComponent = (props) => {
 						position: 'relative'
 					}}
 				>
-					<Grid container spacing={32}>
-						<Grid item container spacing={8} justify="space-between">
+					<Grid container spacing={2}>
+						<Grid item container spacing={1} justify="space-between">
 							<Grid item>
 								<Typography variant="h5" gutterBottom>
 									<FormattedMessage id="Admin.Users" defaultMessage="Users" />

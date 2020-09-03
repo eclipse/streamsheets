@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -21,15 +21,15 @@ export default function RegistrationForm(props) {
 	return (
 		<React.Fragment>
 			{
-				props.subscribed ? 
-				<Grid container spacing={8}>
+				props.subscribed ?
+				<Grid container spacing={1}>
 					<Grid item xs={12}>
 						<OkIcon style={{ color: green[800] }} />
 						<div />
 						<FormattedMessage id="Setup.Registration.SubcribedSuccessfully" defaultMessage="You are successfully subscribed to our newsletter." />
 					</Grid>
 				</Grid>
-				: <Grid container spacing={8}>
+				: <Grid container spacing={1}>
 					<Grid item xs={12} sm={6}>
 						<TextField
 							required

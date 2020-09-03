@@ -203,7 +203,7 @@ export default class ValueRangesDialog extends React.Component {
 						style={{
 							overflowY: 'auto',
 							border: '1px solid lightgrey',
-							height: '400px',
+							height: '390px',
 							marginTop: '23px',
 						}}
 					>

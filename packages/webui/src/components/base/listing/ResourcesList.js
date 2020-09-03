@@ -183,17 +183,16 @@ class ResourcesList extends React.Component {
 				square
 			>
 				<Table
-					style={{ minWidth: '700'}}
+					style={{ minWidth: '700px'}}
 				>
 					<TableSortHeader
 						height={48}
 						cells={[
-							{ id: 'name', numeric: false, disablePadding: false, label: 'Name', width: '25%' },
-							{ id: 'sheets', numeric: false, disablePadding: true, sort: false, label: 'Dashboard.sheets', width: '5%' },
-							{ id: 'consumers', numeric: false, disablePadding: true, label: 'Dashboard.consumers', width: '40%' },
-							{ id: 'lastModified', numeric: false, disablePadding: true, label: 'LastModified', width: '17%' },
-							// { id: 'state', numeric: false, disablePadding: false, label: 'State', width: '14%' },
-							{ id: 'action', numeric: false, disablePadding: true, sort: true, label: 'Streams.Actions', width: '15%', minWidth: '150px' }
+							{ id: 'name', numeric: false, padding: true, label: 'Name', width: '25%' },
+							{ id: 'sheets', numeric: false, sort: false, label: 'Dashboard.sheets', width: '7%' },
+							{ id: 'consumers', numeric: false, label: 'Dashboard.consumers', width: '40%' },
+							{ id: 'lastModified', numeric: false, label: 'LastModified', width: '17%' },
+							{ id: 'action', numeric: false, sort: true, label: 'Streams.Actions', width: '15%', minWidth: '150px' }
 						]}
 						orderBy={this.state.streamSortBy}
 						order={this.state.streamSortOrder}
@@ -210,7 +209,7 @@ class ResourcesList extends React.Component {
 								tabIndex={-1}
 								key={`${resource.className}-${resource.id}`}
 							>
-								<TableCell onClick={() => this.handleSelection(resource)} component="th" scope="row">
+								<TableCell onClick={() => this.handleSelection(resource)} padding="default" component="th" scope="row">
 									{resource.name}
 								</TableCell>
 								<TableCell onClick={() => this.handleSelection(resource)} padding="none">{resource.streamsheets.length}</TableCell>

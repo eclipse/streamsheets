@@ -15,7 +15,7 @@ import {
 } from '@cedalo/sdk-streams';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
+// import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import Input from '@material-ui/core/Input';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -184,6 +184,48 @@ export default class StreamFieldComponents {
 		this.props.handleChange(this.configuration);
 	}
 
+	async handleFileRead(event) {
+		const { model } = { ...this.props };
+		const { save, validate } = { ...this.props };
+		const file = event.target.files[0];
+		const name = `${event.target.name}`;
+		// if (file.type.endsWith('ca-cert')) {
+		if (file) {
+			this.props.handle(model);
+			const reader = new FileReader();
+			reader.onload = async () => {
+				// convert appropriate for json
+				let newValue = reader.result.replace(/(\r\n|\n|\r)/gm, '\\n');
+				if (newValue.lastIndexOf('\\n') === newValue.length - 2) {
+					newValue = newValue.slice(0, -2);
+				}
+				const valueObj = {
+					path: file.name,
+					value: newValue,
+				};
+				try {
+					jp.value(model, name, valueObj);
+				} catch (e) {
+					model[name] = model[name] || {};
+					jp.value(model, name, valueObj);
+				}
+				this.props.handle(model);
+				const res = await validate(model, name, newValue);
+				if (res.length === 0) {
+					const saveObject = {
+						id: model._id || model.id,
+						type: model.className,
+						$set: {
+							[name]: valueObj,
+						},
+					};
+					save(saveObject, this.props);
+				}
+			};
+			reader.readAsText(file);
+		}
+	}
+
 	onChange = (event) => {
 		this.handler(event);
 	};
@@ -234,7 +276,7 @@ export default class StreamFieldComponents {
 	getCheckBox(field, value, disabled = false) {
 		return (<FormControlLabel
 			style={{
-				// marginTop: '20px',
+				marginTop: '5px',
 				display: 'flex',
 			}}
 			key={field.id}
@@ -315,19 +357,22 @@ export default class StreamFieldComponents {
 
 	getTextField(field, value, disabled = false, error) {
 		value = value || '';
+		const help = field.getHelp(this.locale);
 		return (
 			<div
 				key={field.id}
 			>
 				<TextField
-					label={field.getLabel(this.locale)}
+					label={`${field.getLabel(this.locale)} ${help ? `(${help})` : ''}`}
+					variant="outlined"
+					size="small"
 					id={field.id}
 					name={field.id}
 					fullWidth
 					error={error}
 					margin="normal"
 					disabled={disabled}
-					helperText={error || field.getHelp(this.locale)}
+					helperText={error}
 					defaultValue={`${value}`}
 					onBlur={this.handler}
 					style={styles.textField}
@@ -344,6 +389,8 @@ export default class StreamFieldComponents {
 			>
 				<TextField
 					type="number"
+					variant="outlined"
+					size="small"
 					inputProps={{ min: '0' }}
 					label={field.getLabel(this.locale)}
 					id={field.id}
@@ -367,6 +414,8 @@ export default class StreamFieldComponents {
 			>
 				<TextField
 					label={field.getLabel(this.locale)}
+					variant="outlined"
+					size="small"
 					multiline
 					rowsMax="4"
 					fullWidth
@@ -394,18 +443,20 @@ export default class StreamFieldComponents {
 		};
 		field.options = field.options || [];
 		return (
-			<FormControl
-				fullWidth
-				margin="normal"
+			<div
 				key={field.id}
-				disabled={disabled}
 			>
-				<InputLabel htmlFor={field.id} style={styles.label}>{field.getLabel(this.locale)}</InputLabel>
-				<Select
+				<TextField
+					select
+					label={field.getLabel(this.locale)}
+					fullWidth
+					margin="normal"
+					disabled={disabled}
+					variant="outlined"
+					size="small"
 					multiple={multiple}
 					autoWidth
 					name={field.id}
-					fullWidth
 					value={value}
 					onChange={this.onChange}
 					input={<Input id={field.id} />}
@@ -419,8 +470,8 @@ export default class StreamFieldComponents {
 								{getOptionLabel(option.label, this.locale)}
 							</MenuItem>
 						))}
-				</Select>
-			</FormControl>
+				</TextField>
+			</div>
 		);
 	}
 

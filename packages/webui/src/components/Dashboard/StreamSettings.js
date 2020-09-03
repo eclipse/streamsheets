@@ -229,21 +229,17 @@ class StreamSettings extends React.Component {
 
 		const alternatives = StreamHelper.getBaseAlternatives(this.props.streams, this.state.stream);
 
-		return (
-			<div style={{ width: 'calc(100% - 150px)' }}>
-				{fc.getSelect(
-					new Field({
-						id: 'connector.id',
-						label: {
-							en: 'Connector',
-							de: 'Konnektor'
-						},
-						options: alternatives
-					}),
-					this.state.stream.connector.id,
-					!this.props.canEdit
-				)}
-			</div>
+		return fc.getSelect(
+			new Field({
+				id: 'connector.id',
+				label: {
+					en: 'Connector',
+					de: 'Konnektor'
+				},
+				options: alternatives
+			}),
+			this.state.stream.connector.id,
+			!this.props.canEdit
 		);
 	}
 
@@ -293,6 +289,8 @@ class StreamSettings extends React.Component {
 								width: '30%',
 								marginRight: '20px'
 							}}
+							variant="outlined"
+							size="small"
 							inputRef={(el) => {
 								this.nameRef = el;
 							}}
@@ -310,6 +308,8 @@ class StreamSettings extends React.Component {
 							style={{
 								width: '66%'
 							}}
+							variant="outlined"
+							size="small"
 							label={<FormattedMessage id="Stream.Description" defaultMessage="Description" />}
 							id="description"
 							name="description"
@@ -382,11 +382,4 @@ function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default injectIntl(
-	withStyles(styles, { withTheme: true })(
-		connect(
-			null,
-			mapDispatchToProps
-		)(StreamSettings)
-	)
-);
+export default injectIntl(withStyles(styles, { withTheme: true })(connect(null, mapDispatchToProps)(StreamSettings)));

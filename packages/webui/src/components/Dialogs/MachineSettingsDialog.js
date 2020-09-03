@@ -12,7 +12,6 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
 import TextField from '@material-ui/core/TextField';
@@ -23,7 +22,6 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import JSG from '@cedalo/jsg-ui';
@@ -36,8 +34,8 @@ const { AttributeUtils, SetAttributeAtPathCommand, CompoundCommand } = JSG;
 let sheetNames = [];
 
 const FLAG_STYLE = {
-	width: '45px',
-	height: '24px',
+	width: '21px',
+	height: '13px',
 	marginRight: '10px'
 	// display: 'block',
 };
@@ -202,19 +200,13 @@ export class MachineSettingsDialog extends React.Component {
 					>
 						<div>
 							<FormGroup>
-								<FormControl margin="normal" variant="outlined">
-									<InputLabel id="language-settings-label" htmlFor="language-setting">
-										<FormattedMessage id="MachineLanguage" defaultMessage="Language" />
-									</InputLabel>
-									<Select
-										labelId="language-settings-label"
+								<FormControl margin="normal">
+									<TextField
 										label={<FormattedMessage id="MachineLanguage" defaultMessage="Language" />}
-										id="language-setting"
+										variant="outlined"
+										size="small"
+										select
 										value={this.state.machineLocale}
-										inputProps={{
-											name: 'language',
-											id: 'language-setting'
-										}}
 										onChange={(ev) => this.handleMachineLocaleSelect(ev)}
 									>
 										<MenuItem key="en" value="en">
@@ -229,18 +221,14 @@ export class MachineSettingsDialog extends React.Component {
 											<img alt="EN-US" src="images/flags/us.svg" style={FLAG_STYLE} />
 											English (US)
 										</MenuItem>
-									</Select>
+									</TextField>
 								</FormControl>
-								<FormControl variant="outlined" margin="normal">
-									<InputLabel htmlFor="maximize-load">
-										<FormattedMessage
-											id="DialogSettings.maximizeOnStart"
-											defaultMessage="Maximized on Load"
-										/>
-									</InputLabel>
-									<Select
-										id="maximize-load"
+								<FormControl margin="normal">
+									<TextField
 										value={this.state.maximizeSheet}
+										variant="outlined"
+										size="small"
+										select
 										onChange={(event) => this.handleMaximizeChange(event)}
 										label={
 											<FormattedMessage
@@ -257,12 +245,13 @@ export class MachineSettingsDialog extends React.Component {
 												{name}
 											</MenuItem>
 										))}
-									</Select>
+									</TextField>
 								</FormControl>
 								<FormControl>
 									<TextField
 										id="number"
 										variant="outlined"
+										size="small"
 										label={
 											<FormattedMessage
 												id="DialogSettings.toolbarMin"

@@ -12,9 +12,7 @@
 import React from 'react';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
-import PropTypes from 'prop-types';
 import Divider from '@material-ui/core/Divider';
-import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -24,17 +22,14 @@ import {FormattedMessage} from 'react-intl';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Select from '@material-ui/core/Select';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import TextField from '@material-ui/core/TextField';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
@@ -53,15 +48,6 @@ import {withStyles} from '@material-ui/core/styles';
 import {Path} from '../../helper/Path';
 import ListItemText from "@material-ui/core/ListItemText";
 
-const TabContainer = (props) => (
-		<Typography component="div" style={{ padding: 8 * 3 }}>
-			{props.children}
-		</Typography>
-	);
-
-TabContainer.propTypes = {
-	children: PropTypes.node.isRequired,
-};
 const VERSION = process.env.REACT_APP_VERSION || 'unknown';
 // const BUILD_NUMBER = process.env.REACT_APP_BUILD_NUMBER || 'unknown';
 
@@ -182,9 +168,7 @@ export class SettingsMenu extends React.Component {
 					key={instance.id}
 				>
 					<TableCell>
-						<Tooltip>
-							<strong>{service.name}</strong>
-						</Tooltip>
+						<strong>{service.name}</strong>
 					</TableCell>
 					<TableCell>{service.version}</TableCell>
 					{/* <TableCell>{service.buildNumber}</TableCell> */}
@@ -204,7 +188,6 @@ export class SettingsMenu extends React.Component {
 
 	render() {
 		const { displayName } = JSON.parse(localStorage.getItem('user')) || {};
-		const { tab } = this.state;
 		const { user } = this.props.user;
 		return (
 			<div
@@ -324,18 +307,14 @@ export class SettingsMenu extends React.Component {
 							{ user && user.settings ? (
 								<div style={{display: 'flex', flexDirection: 'column'}}>
 									<FormControl
-										variant="outlined"
 										margin="normal"
 									>
-										<InputLabel htmlFor="language-selection" id="language-selection-label">
-											<FormattedMessage
-												id="Language"
-												defaultMessage="Language"
-											/>
-										</InputLabel>
-										<Select
+										<TextField
 											id="language-selection"
 											labelId="language-settings-label"
+											variant="outlined"
+											size="small"
+											select
 											value={this.props.locale}
 											onChange={event => this.handleLanguageChange(event)}
 											inputProps={{
@@ -361,21 +340,17 @@ export class SettingsMenu extends React.Component {
 													defaultMessage="German"
 												/>
 											</MenuItem>
-										</Select>
+										</TextField>
 									</FormControl>
 									<FormControl
-										variant="outlined"
 										margin="normal"
 									>
-										<InputLabel htmlFor="theme-selection">
-											<FormattedMessage
-												id="Theme"
-												defaultMessage="Theme"
-											/>
-										</InputLabel>
-										<Select
+										<TextField
 											id="theme-selection"
 											value={this.state.theme}
+											select
+											variant="outlined"
+											size="small"
 											onChange={event => this.handleThemeChange(event)}
 											inputProps={{
 												name: "theme-selection",
@@ -400,7 +375,7 @@ export class SettingsMenu extends React.Component {
 													defaultMessage="Dark"
 												/>
 											</MenuItem>
-										</Select>
+										</TextField>
 									</FormControl>
 								</div>) : null}
 						</div>
@@ -429,8 +404,6 @@ export class SettingsMenu extends React.Component {
 				<Dialog
 					open={this.props.openHelp}
 					onClose={this.handleCloseHelp}
-					fullWidth
-					maxWidth="md"
 				>
 					<DialogTitle>
 						<FormattedMessage
@@ -438,116 +411,79 @@ export class SettingsMenu extends React.Component {
 							defaultMessage="Info"
 						/>
 					</DialogTitle>
-					<DialogContent>
-						<DialogContentText>
-							<div
-								style={{
-									position: 'relative',
-								}}
-							>
-								<Tabs textColor="primary" value={tab} onChange={this.handleTabChange}>
-									<Tab value="status" label={<FormattedMessage
-										id="Info.SystemStatusTitle"
-										defaultMessage="System status and version"
-									/>} wrapped />
-								</Tabs>
-
-								{ tab === 'status' && <TabContainer>
-									<Table>
-										<TableHead>
-											<TableRow>
-												<TableCell>
-													<FormattedMessage
-														id="Product.name.header"
-														defaultMessage="Product name"
-													/>
-												</TableCell>
-												<TableCell>
-													<FormattedMessage
-														id="Version"
-														defaultMessage="Version"
-													/>
-												</TableCell>
-												<TableCell />
-												<TableCell />
-											</TableRow>
-										</TableHead>
-										<TableBody>
-											<TableRow>
-												<TableCell>
-													<strong>
-														<FormattedMessage
-															id="Product.name"
-															defaultMessage="Streamsheets"
-														/>
-													</strong>
-												</TableCell>
-												<TableCell>
-													{VERSION}
-												</TableCell>
-												<TableCell />
-												<TableCell />
-											</TableRow>
-										</TableBody>
-									</Table>
-									<Table>
-										<TableHead>
-											<TableRow>
-												<TableCell>
-													<FormattedMessage
-														id="Component"
-														defaultMessage="Component"
-													/>
-												</TableCell>
-												<TableCell>
-													<FormattedMessage
-														id="Version"
-														defaultMessage="Version"
-													/>
-												</TableCell>
-												{/* <TableCell>
-												<FormattedMessage
-													id="BuildNumber"
-													defaultMessage="BuildNumber"
-												/>
-											</TableCell> */}
-												<TableCell>
-													<FormattedMessage
-														id="Status"
-														defaultMessage="Status"
-													/>
-												</TableCell>
-												{/* <TableCell>
-													<FormattedMessage
-														id="Instances"
-														defaultMessage="Instances"
-													/>
-												</TableCell> */}
-											</TableRow>
-										</TableHead>
-										<TableBody>
-											{/* TODO: make this table more generic to display any number of services */}
-											<TableRow>
-												<TableCell><strong>Web UI</strong></TableCell>
-												<TableCell>{VERSION}</TableCell>
-												{/* <TableCell>{BUILD_NUMBER}</TableCell> */}
-												<TableCell>
-													<CheckCircleIcon style={{color: 'green'}}/>
-												</TableCell>
-												{/* <TableCell>webui</TableCell> */}
-											</TableRow>
-											{
-												this.props.meta.services &&
-												Object.values(this.props.meta.services)
-													.sort((a, b) => a.name && a.name.localeCompare(b.name))
-													.map((service) => this.renderServiceDetails(service)
-												)
-											}
-										</TableBody>
-									</Table>
-								</TabContainer>}
-							</div>
-						</DialogContentText>
+					<DialogContent
+						style={{
+							width: '470px'
+						}}
+					>
+						<Typography variant="h5" style={{marginBottom: '15px', marginTop: '10px'}}>
+							<FormattedMessage
+								id="Product.name"
+								defaultMessage="Streamsheets"
+							/>
+							{" "}
+							<FormattedMessage
+								id="Version"
+								defaultMessage="Version"
+							/>
+							{" "}
+							{VERSION}
+						</Typography>
+						<Table size="small">
+							<TableHead>
+								<TableRow>
+									<TableCell>
+										<FormattedMessage
+											id="Component"
+											defaultMessage="Component"
+										/>
+									</TableCell>
+									<TableCell>
+										<FormattedMessage
+											id="Version"
+											defaultMessage="Version"
+										/>
+									</TableCell>
+									{/* <TableCell>
+									<FormattedMessage
+										id="BuildNumber"
+										defaultMessage="BuildNumber"
+									/>
+								</TableCell> */}
+									<TableCell>
+										<FormattedMessage
+											id="Status"
+											defaultMessage="Status"
+										/>
+									</TableCell>
+									{/* <TableCell>
+										<FormattedMessage
+											id="Instances"
+											defaultMessage="Instances"
+										/>
+									</TableCell> */}
+								</TableRow>
+							</TableHead>
+							<TableBody>
+								{/* TODO: make this table more generic to display any number of services */}
+								<TableRow>
+									<TableCell><strong>Web UI</strong></TableCell>
+									<TableCell>{VERSION}</TableCell>
+									{/* <TableCell>{BUILD_NUMBER}</TableCell> */}
+									<TableCell>
+										<CheckCircleIcon style={{color: 'green'}}/>
+									</TableCell>
+									{/* <TableCell>webui</TableCell> */}
+								</TableRow>
+								{
+									this.props.meta.services &&
+									Object.values(this.props.meta.services)
+										.sort((a, b) => a.name && a.name.localeCompare(b.name))
+										.map((service) => this.renderServiceDetails(service)
+									)
+								}
+							</TableBody>
+						</Table>
 						<FormControlLabel
 							style={{
 								marginTop:'10px',

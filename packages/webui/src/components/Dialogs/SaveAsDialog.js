@@ -86,6 +86,7 @@ export class SaveAsDialog extends Component {
 						value={this.state.machineCopyName}
 						onChange={this.handleMachineCopyName}
 						variant="outlined"
+						size="small"
 						label={<FormattedMessage
 							id="SaveAsDialog.hint"
 							defaultMessage="Name of the copy"

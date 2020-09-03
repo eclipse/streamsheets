@@ -14,7 +14,6 @@ import MaterialIconButton from '@material-ui/core/IconButton';
 import MaterialTextField from '@material-ui/core/TextField';
 import IconReload from '@material-ui/icons/Autorenew';
 
-import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import FormControl from '@material-ui/core/FormControl';
@@ -25,6 +24,7 @@ import { Field } from '@cedalo/sdk-streams';
 import PropTypes from 'prop-types';
 import MultiTextFieldPairs
 	from '../base/multiTextFieldPairs/MultiTextFieldPairs';
+import OutlinedInput from "@material-ui/core/OutlinedInput";
 
 const DEF_FIELD_PROPS = {
 	field: PropTypes.object.isRequired,
@@ -70,9 +70,9 @@ export function PasswordField(props) {
 	};
 
 	return (
-			<FormControl fullWidth>
+			<FormControl fullWidth variant="outlined" size="small" margin="normal">
 				<InputLabel htmlFor={id}>{field.getLabel(locale)}</InputLabel>
-				<Input
+				<OutlinedInput
 					name={name}
 					style={styles}
 					disabled={disabled}
@@ -95,6 +95,7 @@ export function PasswordField(props) {
 							</MaterialIconButton>
 						</InputAdornment>
 					}
+					labelWidth={60}
 				/>
 			</FormControl>
 	);
@@ -207,6 +208,8 @@ export function TextField(props) {
 	return (<TextField
 		label={field.getLabel(locale)}
 		id={field.id}
+		variant="outlined"
+		size="small"
 		name={field.id}
 		fullWidth
 		margin="normal"

@@ -277,28 +277,26 @@ class DashBoardComponent extends Component {
 		});
 
 		return [
-			{ id: 'out', numeric: false, disablePadding: true, sort: false, label: '', width: '58px' },
-			{ id: 'name', numeric: false, disablePadding: true, sort: true, label: 'Streams.Name', width: '12%' },
+			{ id: 'out', numeric: false, sort: false, label: '', width: '58px' },
+			{ id: 'name', numeric: false, sort: true, label: 'Streams.Name', width: '12%' },
 			{
 				id: 'provider',
 				numeric: false,
-				disablePadding: true,
 				sort: true,
 				label: 'Streams.Provider',
 				width: '10%',
 				fields
 			},
-			{ id: 'url', numeric: false, disablePadding: true, sort: true, label: 'Streams.URL', width: '15%' },
-			{ id: 'topic', numeric: false, disablePadding: true, sort: true, label: 'Streams.Topic' },
+			{ id: 'url', numeric: false, sort: true, label: 'Streams.URL', width: '15%' },
+			{ id: 'topic', numeric: false, sort: true, label: 'Streams.Topic' },
 			{
 				id: 'lastModified',
 				numeric: false,
-				disablePadding: true,
 				sort: true,
 				label: 'Streams.LastModified',
 				width: '10%'
 			},
-			{ id: 'action', numeric: false, disablePadding: true, sort: false, label: 'Streams.Actions', width: '10%' }
+			{ id: 'action', numeric: false, sort: false, label: 'Streams.Actions', width: '10%' }
 		];
 	}
 

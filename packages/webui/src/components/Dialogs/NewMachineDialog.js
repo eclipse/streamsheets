@@ -35,21 +35,21 @@ import Button from "@material-ui/core/Button";
 import StreamWizard from "../Dashboard/StreamWizard";
 import StreamSettings from "../Dashboard/StreamSettings";
 // import AdminConstants from "../../constants/AdminConstants";
-import {withStyles} from "@material-ui/core/styles";
+// import {withStyles} from "@material-ui/core/styles";
 import {IconButton} from "@material-ui/core";
 import {IconEdit} from "../icons";
 
 const PREF_KEY = 'streamsheets-prefs-addnewdialog';
 
-const styles = (theme) => ({
-	tableRow: {
-		"&$selected, &$selected:hover": {
-			backgroundColor: theme.palette.action.hover
-		}
-	},
-	hover: {},
-	selected: {}
-});
+// const styles = (theme) => ({
+// 	tableRow: {
+// 		"&$selected, &$selected:hover": {
+// 			backgroundColor: theme.palette.action.hover
+// 		}
+// 	},
+// 	hover: {},
+// 	selected: {}
+// });
 
 const getPersistetSortPreferences = () => {
 	const prefs = JSON.parse(localStorage.getItem(PREF_KEY) || '{}');
@@ -266,9 +266,9 @@ export class NewMachineDialog extends Component {
 				>
 					<TextField
 						variant="outlined"
+						size="small"
 						label={<FormattedMessage id="Stream.NameField" defaultMessage="Name" />}
 						id="name"
-						size="small"
 						name="name"
 						fullWidth
 						margin="normal"
@@ -452,4 +452,5 @@ function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default injectIntl(withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(NewMachineDialog)));
+export default injectIntl(connect(mapStateToProps, mapDispatchToProps)(NewMachineDialog));
+// export default injectIntl(withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(NewMachineDialog)));

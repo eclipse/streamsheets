@@ -133,6 +133,8 @@ export default class MultipleTextField extends Component {
 					>
 						<TextField
 							disabled={disabled}
+							variant="outlined"
+							size="small"
 							name={name}
 							error={!!this.errors[idx]}
 							defaultValue={value}

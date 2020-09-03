@@ -898,21 +898,27 @@ class StreamWizard extends React.Component {
 
 										<div
 											style={{
-												border: '1px solid grey',
+												// border: '1px solid grey',
 												height: '380px',
 												overflow: 'auto',
-												padding: '5px'
+												// padding: '5px'
 											}}
 										>
-											<Table>
+											<Table stickyHeader>
 												<TableSortHeader
 													cells={[
 														{
 															id: 'name',
 															numeric: false,
-															disablePadding: true,
 															label: 'Name',
 															width: '72%'
+														},
+														{
+															id: 'provider',
+															numeric: false,
+															label: 'Streams.Provider',
+															width: '28%',
+															sort: false
 														}
 													]}
 													orderBy={sortObj.sortBy}
@@ -937,6 +943,7 @@ class StreamWizard extends React.Component {
 																defaultMessage="Create"
 															/>
 														</TableCell>
+														<TableCell/>
 													</TableRow>
 													{this.getConnectors().map((resource) => (
 														<TableRow
@@ -952,6 +959,9 @@ class StreamWizard extends React.Component {
 														>
 															<TableCell component="th" scope="row" padding="none">
 																{resource.name}
+															</TableCell>
+															<TableCell component="th" scope="row" padding="none">
+																{this.providerMap[resource.provider.id].name}
 															</TableCell>
 														</TableRow>
 													))}
@@ -996,19 +1006,18 @@ class StreamWizard extends React.Component {
 
 									<div
 										style={{
-											border: '1px solid grey',
+											// border: '1px solid grey',
 											height: '380px',
 											overflow: 'auto',
-											padding: '5px'
+											// padding: '5px'
 										}}
 									>
-										<Table>
+										<Table stickyHeader>
 											<TableSortHeader
 												cells={[
 													{
 														id: 'name',
 														numeric: false,
-														disablePadding: true,
 														label: 'Name',
 														width: '72%'
 													}
@@ -1050,6 +1059,8 @@ class StreamWizard extends React.Component {
 										inputRef={(el) => {
 											this.nameRef = el;
 										}}
+										variant="outlined"
+										size="small"
 										label={<FormattedMessage id="Stream.NameField" defaultMessage="Name" />}
 										id="name"
 										name="name"
@@ -1069,6 +1080,8 @@ class StreamWizard extends React.Component {
 										}
 										id="description"
 										name="description"
+										variant="outlined"
+										size="small"
 										fullWidth
 										multiline
 										margin="normal"

@@ -61,7 +61,7 @@ class TableSortHeader extends React.Component {
 									width: row.width,
 									minWidth: row.minWidth,
 								}}
-								padding="none"
+								padding={row.padding ? "default" : "none"}
 								key={row.id}
 								align={row.numeric ? 'right' : 'left'}
 								sortDirection={orderBy === row.id ? order : false}

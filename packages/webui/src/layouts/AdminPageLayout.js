@@ -35,7 +35,7 @@ import MachineHelper from '../helper/MachineHelper';
 import theme from '../theme';
 import { AdminNavigation } from './AdminNavigation';
 import HelpButton from './HelpButton';
-import Wall from '../components/HelperComponent/Wall';
+// import Wall from '../components/HelperComponent/Wall';
 
 
 export const AdminPageLayoutComponent = (props) => {
@@ -156,10 +156,10 @@ export const AdminPageLayoutComponent = (props) => {
 					alignItems="stretch"
 					style={{ height: 'calc(100% - 58px)', flexWrap: 'nowrap' }}
 				>
-					<Grid item style={{ width: '200px', borderRight: '1px solid grey' }}>
-						<Wall>
+					<Grid item style={{ width: '200px', borderRight: '1px solid lightgrey' }}>
+						<div>
 							<AdminNavigation selection={page} />
-						</Wall>
+						</div>
 					</Grid>
 					<Grid item style={{ height: '100%', backgroundColor: theme.wall.backgroundColor, flexGrow: 1, overflow: 'auto'}}>
 						{children}
