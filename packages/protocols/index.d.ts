@@ -123,6 +123,7 @@ declare module '@cedalo/protocols' {
 			UPDATE_MACHINE_IMAGE_MESSAGE_TYPE: 'update_machine_image';
 			LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE: 'machine_load_subscribe';
 			COMMAND_MESSAGE_TYPE: 'command';
+			MACHINE_ACTION_MESSAGE_TYPE: 'machine_action';
 		};
 
 		static EVENTS: {
