@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 import DropHandler from './src/components/DropHandler';
+import TestDialogExtension from './src/TestDialogExtension';
 import ImageUploadDialog from './src/components/ImageUploadDialog';
 
 export * from './src/AdminNavigationExtensions';
@@ -18,6 +19,6 @@ export * from './src/PluginExtensions';
 export * from './src/RoutesExtensions';
 export * from './src/ToolbarExtensions';
 export * from './src/WorkspaceSelect';
-export { DropHandler, ImageUploadDialog };
+export { DropHandler, ImageUploadDialog, TestDialogExtension };
 
 export const DialogExtensions = () => null;
