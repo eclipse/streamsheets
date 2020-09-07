@@ -9,6 +9,7 @@ import Dialog from '@material-ui/core/Dialog';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListSubheader from '@material-ui/core/ListSubheader';
 import gatewayClient from '@cedalo/webui/src/helper/GatewayClient';
 
 
@@ -31,15 +32,23 @@ const showError = (err) =>
 		/>
 	) : null;
 const showProgressHint = (doIt) => doIt ? <CircularProgress style={{justifySelf: 'center' }}/> : null;
-const showTableList = (doIt, tables, onSelect) => doIt ? (
-	<List>
-	{tables.map((tbl) => (
-		<ListItem key={tbl} button onClick={() => onSelect(tbl)}>
-			<ListItemText primary={tbl} />
-		</ListItem>
-	))}
-</List>
-) : null;
+const showTableList = (doIt, tables, onSelect) =>
+	doIt ? (
+		<List
+			style={{ maxHeight: '250px' }}
+			subheader={
+				<ListSubheader component="div">
+					<FormattedMessage id="Timescale.TableSelect.Tables" defaultMessage="Tables" />
+				</ListSubheader>
+			}
+		>
+			{tables.map((tbl) => (
+				<ListItem key={tbl} button onClick={() => onSelect(tbl)}>
+					<ListItemText primary={tbl} />
+				</ListItem>
+			))}
+		</List>
+	) : null;
 
 const TableSelectDialog = (props) => {
 	const { machineId, open, onSelect, onClose } = props;
@@ -69,13 +78,13 @@ const TableSelectDialog = (props) => {
 					defaultMessage="Please select table for Timescale import"
 				/>
 			</DialogTitle>
-			<DialogContent style={{	marginTop: '20px', textAlign: 'center' }} >
+			<DialogContent style={{	marginTop: '10px', textAlign: 'center' }} >
 				{showError(error)}
 				{showProgressHint(tables.isFetching && !error)}
 				{showTableList(!tables.isFetching && !error, tables.all, onSelect)}
 			</DialogContent>
 			<DialogActions>
-				<Button color="primary" onClick={onClose}>
+				<Button color="primary" onClick={onClose} disabled={tables.isFetching}>
 					<FormattedMessage id="Ok" defaultMessage="Ok" />
 				</Button>
 			</DialogActions>
