@@ -1130,10 +1130,14 @@ class MachineActionRequestHandler extends RequestHandler {
 		const { action, machineId } = request;
 		const runner = machineserver.getMachineRunner(machineId);
 		if (runner) {
-			const result = await runner.request('runMachineAction', getUserId(request), action);
-			return this.confirm(request, result);
+			try {
+				const result = await runner.request('runMachineAction', getUserId(request), action);
+				return this.confirm(request, result);
+			} catch(error) {
+				return this.reject(request, error.message);
+			}
 		}
-		throw this.reject(request, `No machine found with id '${request.machineId}'.`);
+		return this.reject(request, `No machine found with id '${request.machineId}'.`);
 	}
 }
 
