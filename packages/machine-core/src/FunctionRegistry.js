@@ -32,7 +32,8 @@ const Functions = {
 const Actions = {
 	core: {},
 	additional: {
-		'timescale.action.import': ({ table, data }) => (table && data ? Promise.resolve(true) : Promise.reject()),
+		// 'timescale.action.import': ({ table, data }) => (table && data ? Promise.resolve(true) : Promise.reject()),
+		'timescale.action.import': ({ fail }) => (fail ? Promise.reject() : Promise.resolve(true)),
 		'timescale.action.listtables': ({ fail } = {}) => fail
 			? Promise.reject(new Error('No tables found!'))
 			: Promise.resolve([
