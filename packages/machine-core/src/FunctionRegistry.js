@@ -33,7 +33,14 @@ const Actions = {
 	core: {},
 	additional: {
 		'timescale.action.import': ({ table, data }) => (table && data ? Promise.resolve(true) : Promise.reject()),
-		'timescale.action.listtables': () => Promise.resolve(['table1', 'table2', 'table3'])
+		'timescale.action.listtables': ({ fail } = {}) => fail
+			? Promise.reject(new Error('No tables found!'))
+			: Promise.resolve([
+				'table1', 'table2', 'table3', 'table4', 'table5', 'table6', 'table7', 'table8', 'table9',
+				'table11', 'table12', 'table13', 'table14', 'table15', 'table16', 'table17', 'table18', 'table19',
+				'table21', 'table22', 'table23', 'table24', 'table25', 'table26', 'table27', 'table28', 'table29',
+				'table31', 'table32', 'table33', 'table34', 'table35', 'table36', 'table37', 'table38', 'table39',
+		])
 	}
 };
 
