@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/rest-server-core",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A server to consume REST messages and publish events.",
   "main": "index.js",
   "scripts": {
@@ -26,8 +26,8 @@
     "supertest": "3.0.0"
   },
   "dependencies": {
-    "@cedalo/logger": "2.0.0",
-    "@cedalo/id-generator": "2.0.0",
+    "@cedalo/logger": "2.1.0",
+    "@cedalo/id-generator": "2.1.0",
     "basic-auth": "2.0.0",
     "body-parser": "1.18.3",
     "cheerio": "1.0.0-rc.2",

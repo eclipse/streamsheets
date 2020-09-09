@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/jsg-core",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "JavaScript Graph Framework Core Module",
   "main": "index.js",
   "directories": {
@@ -31,10 +31,10 @@
     "yargs": "6.6.0"
   },
   "dependencies": {
-    "@cedalo/commons": "2.0.0",
-    "@cedalo/parser": "2.0.0",
-    "@cedalo/number-format": "2.0.0",
-    "@cedalo/jsg-extensions": "2.0.0",
+    "@cedalo/commons": "2.1.0",
+    "@cedalo/parser": "2.1.0",
+    "@cedalo/number-format": "2.1.0",
+    "@cedalo/jsg-extensions": "2.1.0",
     "date-fns": "^2.0.0-alpha.27",
     "qrjs2": "0.1.6"
   },
