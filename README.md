@@ -54,6 +54,14 @@
 			target="_blank"
 		/>
 	</a>
+	<br/>
+	<a href="https://kelda.io/preview-env/?repo=https://github.com/cedalo/streamsheets.git&composeFiles=deployment/standard/installer/services/docker-compose/docker-compose.prod.yml&port=reverseproxy:8081&env=VERSION=1.4">
+		<img
+			alt="Blimp demo badge"
+			src="https://kelda.io/demo-badge.svg?repo=https://github.com/cedalo/streamsheets.git"
+			target="_blank"
+		/>
+	</a>
 </div>
 
 <br/>
@@ -102,6 +110,18 @@ Example
 ```
 docker run -v ~/streamsheets:/streamsheets cedalo/streamsheets-installer:2.0-linux
 ```
+
+### Temporary demo environment
+
+If you want to play around with Streamsheets without running it locally, you can
+[boot a personal demo copy
+](https://kelda.io/preview-env/?repo=https://github.com/cedalo/streamsheets.git&composeFiles=deployment/standard/installer/services/docker-compose/docker-compose.prod.yml&port=reverseproxy:8081&env=VERSION=1.4)
+from your browser without downloading or setting up anything.
+
+Clicking the
+[link](https://kelda.io/preview-env/?repo=https://github.com/cedalo/streamsheets.git&composeFiles=deployment/standard/installer/services/docker-compose/docker-compose.prod.yml&port=reverseproxy:8081&env=VERSION=1.4)
+boots this repo in the Blimp cloud, and creates a public URL for you to access
+it.
 
 <!-- ### Running from source code
 
