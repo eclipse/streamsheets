@@ -284,6 +284,11 @@ export interface StreamsheetStreamUpdateRequest extends IWSRequest {
 	machineId: string;
 }
 
+export interface MachineActionWebSocketRequest extends IWSRequest {
+	type: 'machine_action';
+	machineId: string;
+}
+
 export interface Command {
 	name: string;
 }
