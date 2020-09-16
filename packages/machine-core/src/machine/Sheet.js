@@ -74,7 +74,7 @@ const boundCells = (rows, prerows, maxcol, maxrow) => {
 	});
 };
 
-const machineState = sheet => sheet.machine && sheet.machine.state;
+const isMachineProcessing = (machine) => machine && (!machine.isIdle && machine.state === State.RUNNING);
 
 const copyCell = (orgcell, action, sheet) => {
 	const value = orgcell.value;
@@ -510,7 +510,8 @@ module.exports = class Sheet {
 		//  => think of removing update listener completely -> can we go with a simple dirty flag?
 		//  => it looks like this was added to handle a sheet refresh on client if a single cell was entered, which
 		//      might causes other cells to change too...
-		if (this.onUpdate && !this.isProcessing && machineState(this) !== State.RUNNING) {
+		// if (this.onUpdate && !this.isProcessing && machineState(this) !== State.RUNNING) {
+		if (this.onUpdate && !this.isProcessing && !isMachineProcessing(this.machine)) {
 			this.onUpdate(cell, indexORname);
 		}
 	}
