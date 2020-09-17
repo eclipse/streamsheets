@@ -18,13 +18,15 @@ const FRACTION_FACTOR = 10 ** 11;
 // denominator is taken from excel TIME("23";"59";"59") result
 const SECONDS_FACTOR = (86400 - 1) / 0.9999884259259;
 
+const roundTo = (floor) => floor ? Math.floor : Math.round;
 const getFraction = (nr) => ((nr * FRACTION_FACTOR) % FRACTION_FACTOR) / FRACTION_FACTOR;
-const toSeconds = (serial) => Math.round(SECONDS_FACTOR * getFraction(serial));
+const toSeconds = (serial, floor) => roundTo(floor)(SECONDS_FACTOR * getFraction(serial));
 const toMilliseconds = (serial) => Math.round(1000 * SECONDS_FACTOR * getFraction(serial));
+// const toMilliseconds = (serial, floor) => roundTo(floor)(1000 * SECONDS_FACTOR * getFraction(serial));
 
-const hours = (serial) => Math.floor(toSeconds(serial) / 3600) % 24;
-const minutes = (serial) => Math.floor(toSeconds(serial) / 60) % 60;
-const seconds = (serial) => toSeconds(serial) % 60;
+const hours = (serial, floor) => Math.floor(toSeconds(serial, floor) / 3600) % 24;
+const minutes = (serial, floor) => Math.floor(toSeconds(serial, floor) / 60) % 60;
+const seconds = (serial, floor) => toSeconds(serial, floor) % 60;
 const milliseconds = (serial) => toMilliseconds(serial) % 1000;
 
 const serial2date = (serial) => {
