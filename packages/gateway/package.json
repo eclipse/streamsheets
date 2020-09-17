@@ -47,7 +47,6 @@
     "cors": "2.8.4",
     "express": "4.16.4",
     "express-session": "1.16.1",
-    "form-data": "2.4.0",
     "graphql": "14.5.8",
     "graphql-fields": "2.0.3",
     "graphql-type-json": "0.3.1",
