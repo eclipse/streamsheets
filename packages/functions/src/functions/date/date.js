@@ -112,13 +112,13 @@ const excel2jsontime = (sheet, ...terms) =>
 		.mapNextArg((serial) => convert.toNumber(serial.value, ERROR.VALUE))
 		.run((serial) => serial2date(serial).toJSON());
 
-const serialTo = (fn) => (sheet, ...terms) =>
+const serialTo = (fn, maxArgs) => (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
-		.withMaxArgs(2)
+		.withMaxArgs(maxArgs)
 		.mapNextArg((serial) => convert.toNumber(serial.value, ERROR.VALUE))
 		.mapNextArg((roundIt) => (roundIt ? convert.toBoolean(roundIt.value, ERROR.VALUE) : true))
-		.run((serial) => fn(serial));
+		.run((serial, roundIt) => fn(serial, !roundIt));
 
 const serialNow = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -133,12 +133,12 @@ module.exports = {
 	TIME: time,
 	TIMEVALUE: timevalue,
 	NOW: serialNow,
-	YEAR: serialTo(year),
-	MONTH: serialTo(month),
-	DAY: serialTo(day),
-	WEEKDAY: serialTo(weekday),
-	HOUR: serialTo(hours),
-	MINUTE: serialTo(minutes),
-	SECOND: serialTo(seconds),
-	MILLISECOND: serialTo(milliseconds)
+	YEAR: serialTo(year, 1),
+	MONTH: serialTo(month, 1),
+	DAY: serialTo(day, 1),
+	WEEKDAY: serialTo(weekday, 1),
+	HOUR: serialTo(hours, 2),
+	MINUTE: serialTo(minutes, 2),
+	SECOND: serialTo(seconds, 2),
+	MILLISECOND: serialTo(milliseconds, 1)
 };

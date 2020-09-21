@@ -65,6 +65,7 @@ export class MainDrawer extends Component {
 
 	handleOpenPreview = () => {
 		window.open(
+			// add "&zoomdisabled" param to disable zoom feature in preview!
 			`${window.location.origin}${window.location.pathname}?viewmode=sheet&hideheader&hidegrid${window.location.hash}`,
 			'newwindow',
 			`width=${window.innerWidth},height=${window.outerHeight - 290}`

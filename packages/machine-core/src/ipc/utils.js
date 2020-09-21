@@ -88,7 +88,7 @@ const getSheetCellsAsObject = (sheet) => {
 const publishIf = (...fns) => (event) => {
 	if(fns.reduce((valid, fn) => valid && fn(), true)) MachineTaskMessagingClient.publishEvent(event);
 };
-const isNotRunning = (machine) => () => machine.state !== State.RUNNING;
+const isNotRunning = (machine) => () => machine.state !== State.RUNNING || machine.isIdle;
 const isNotStepping = (machine) => () => !machine.isManualStep;
 
 

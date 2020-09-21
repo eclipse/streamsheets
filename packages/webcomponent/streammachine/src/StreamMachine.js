@@ -150,7 +150,8 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 			viewMode: this.viewmode,
 			view: this.viewport,
 			hideheader: !this.grid,
-			hidegrid: !this.header
+			hidegrid: !this.header,
+			zoomdisabled: false
 		});
 
 		// config graph as needed for machine app
@@ -768,9 +769,10 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 
 		const viewMode = {
 			viewMode: this._viewMode,
-				view: this._viewPort,
+			view: this._viewPort,
 			hideheader: this._header === 'hidden' ? true : null,
 			hidegrid: this._grid === 'hidden' ? true : null,
+			zoomdisabled: false
 		};
 
 		this.graph.setViewParams(viewMode);

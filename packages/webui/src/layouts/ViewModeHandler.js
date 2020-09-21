@@ -18,6 +18,7 @@ export const ViewModePropTypes = PropTypes.shape({
 	hidegrid: PropTypes.string,
 	viewMode: PropTypes.string,
 	hideheader: PropTypes.string,
+	zoomdisabled: PropTypes.string
 });
 
 function ViewModeHandlerComponent(props) {
@@ -29,7 +30,8 @@ function ViewModeHandlerComponent(props) {
 			view: params.get('view'),
 			hidegrid: params.get('hidegrid'),
 			viewMode: params.get('viewmode'),
-			hideheader: params.get('hideheader')
+			hideheader: params.get('hideheader'),
+			zoomdisabled: params.get('zoomdisabled')
 		};
 		props.setAppState({ viewMode });
 	}

@@ -85,4 +85,22 @@ describe('date & time functions', () => {
 			expect(createTerm('jsontime2excel("2012-4-2T18:25:43.511Z")', sheet).value).toBe(ERROR.VALUE);
 		});
 	});
+
+	describe('rounding of time functions', () => {
+		it('should round by default', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('hour(43930.999999)', sheet).value).toBe(0);
+			expect(createTerm('minute(43930.999999)', sheet).value).toBe(0);
+			expect(createTerm('second(43930.999999)', sheet).value).toBe(0);
+			expect(createTerm('hour(43930.999999,true)', sheet).value).toBe(0);
+			expect(createTerm('minute(43930.999999,true)', sheet).value).toBe(0);
+			expect(createTerm('second(43930.999999,true)', sheet).value).toBe(0);
+		});
+		it('should not round if corresponding parameter is set to false', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('hour(43930.999999,false)', sheet).value).toBe(23);
+			expect(createTerm('minute(43930.999999,false)', sheet).value).toBe(59);
+			expect(createTerm('second(43930.999999,false)', sheet).value).toBe(59);
+		});
+	});
 });
