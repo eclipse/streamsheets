@@ -129,6 +129,17 @@ describe('year', () => {
 		expect(year(25000)).toBe(1968);
 		expect(year(40000)).toBe(2009);
 	});
+	it('should round to nearest number by default', () => {
+		expect(year(43930.999999)).toBe(2020);
+		expect(year(39447.99999422)).toBe(2008);
+		expect(year(38352.99999421)).toBe(2004);
+		expect(year(38352.99999422)).toBe(2005);
+		expect(year(38352.99999422)).toBe(2005);
+	});
+	it('should round to floor if second parameter is true', () => {
+		expect(year(39447.99999422, true)).toBe(2007);
+		expect(year(38352.99999422, true)).toBe(2004);
+	});
 });
 describe('month', () => {
 	const { month } = serialnumber;
@@ -181,6 +192,19 @@ describe('month', () => {
 		expect(month(36831)).toBe(11);
 		expect(month(36860)).toBe(11);
 		expect(month(36861)).toBe(12);
+	});
+	it('should round to nearest number by default', () => {
+		expect(month(43930.999999)).toBe(4);
+		expect(month(39447.99999421)).toBe(12);
+		expect(month(39447.99999422)).toBe(1);
+		expect(month(31,99999421)).toBe(1);
+		expect(month(31.99999422)).toBe(2);
+		expect(month(39447.99999421)).toBe(12);
+		expect(month(39447.99999422)).toBe(1);
+	});
+	it('should round to floor if second parameter is true', () => {
+		expect(month(31.99999422, true)).toBe(1);
+		expect(month(39447.99999422, true)).toBe(12);
 	});
 });
 describe('day', () => {
@@ -251,6 +275,15 @@ describe('day', () => {
 		expect(day(36554)).toBe(29);
 		expect(day(36555)).toBe(30);
 		expect(day(36556)).toBe(31);
+	});
+	it('should round to nearest number by default', () => {
+		expect(day(43930.999999)).toBe(10);
+		expect(day(39447.99999421)).toBe(31);
+		expect(day(39447.99999422)).toBe(1);
+	});
+	it('should round to floor if second parameter is true', () => {
+		expect(day(43930.999999, true)).toBe(9);
+		expect(day(39447.99999422, true)).toBe(31);
 	});
 });
 describe('weekday', () => {
@@ -333,6 +366,15 @@ describe('weekday', () => {
 		expect(weekday(36554)).toBe(7);
 		expect(weekday(36555)).toBe(1);
 		expect(weekday(36556)).toBe(2);
+	});
+	it('should round to nearest number by default', () => {
+		expect(weekday(43930.999999)).toBe(6);
+		expect(weekday(39447.99999421)).toBe(2);
+		expect(weekday(39447.99999422)).toBe(3);
+	});
+	it('should round to floor if second parameter is true', () => {
+		expect(weekday(43930.999999, true)).toBe(5);
+		expect(weekday(39447.99999422, true)).toBe(2);
 	});
 });
 
@@ -437,6 +479,15 @@ describe('serial2date', () => {
 		expect(date.getUTCMinutes()).toBe(29);
 		expect(date.getUTCSeconds()).toBe(39);
 		expect(date.getUTCMilliseconds()).toBe(0);
+		// 09.04.2020 23:59:59:914
+		date = serial2date(43930.999999);
+		expect(date.getUTCDate()).toBe(9);
+		expect(date.getUTCMonth()).toBe(3);
+		expect(date.getUTCFullYear()).toBe(2020);
+		expect(date.getUTCHours()).toBe(23);
+		expect(date.getUTCMinutes()).toBe(59);
+		expect(date.getUTCSeconds()).toBe(59);
+		expect(date.getUTCMilliseconds()).toBe(914);
 	});
 });
 describe('usage to convert ms to serial and back', () => {
