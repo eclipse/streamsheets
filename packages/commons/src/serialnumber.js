@@ -12,9 +12,11 @@
 // js dates ignore leap seconds, i.e. each day corresponds to a fixed number of milliseconds:
 const MIN_IN_MS = 60 * 1000;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const SERIAL_OFFSET_IN_MS = -2209075200000; // equals 31.12.1899 00:00:00.000 UTC which corresponds to serial 0
+// const DAY_THRESHOLD = 0.999994212962962;
 
 const FRACTION_FACTOR = 10 ** 11;
-// nominator covers  00:00:00 - 23.:59:59
+// nominator covers  00:00:00 - 23:59:59
 // denominator is taken from excel TIME("23";"59";"59") result
 const SECONDS_FACTOR = (86400 - 1) / 0.9999884259259;
 
@@ -29,35 +31,31 @@ const minutes = (serial, floor) => Math.floor(toSeconds(serial, floor) / 60) % 6
 const seconds = (serial, floor) => toSeconds(serial, floor) % 60;
 const milliseconds = (serial) => toMilliseconds(serial) % 1000;
 
-const serial2date = (serial) => {
-// following is based (but refined) on :
-// https://stackoverflow.com/questions/16229494/converting-excel-date-serial-number-to-date-using-javascript/57184486#57184486
-	
-	// milliseconds since 1899-31-12T00:00:00Z, corresponds to serial 0.
-	const offset = -2209075200000;
-	// correct serial
+const asMillis = (serial) => {
 	if (serial === 0) serial = 1;
-	// each serial up to 60 corresponds to a valid calendar date.
-	// serial 60 is 1900-02-29. This date does not exist on the calendar.
-	// we choose to interpret serial 60 (as well as 61) both as 1900-03-01
-	// so, if the serial is 61 or over, we have to subtract 1.
-	// serial must be at least 1
 	else if (serial > 60) serial -= 1;
-	return new Date(offset + Math.round(serial * DAY_IN_MS));
+	return SERIAL_OFFSET_IN_MS + serial * DAY_IN_MS;
 };
 
-const year = (serial) => serial2date(serial).getFullYear();
-const month = (serial) => serial2date(serial).getMonth() + 1;
-const day = (serial) => serial2date(serial).getDate();
-const weekday = (serial) => {
-	const wday = serial2date(serial).getDay();
+const serial2RoundedDate = (serial, floor) => {
+	const ms = Math.trunc(asMillis(serial));
+	const roundedMillis = roundTo(floor)(ms / 1000) * 1000;
+	return new Date(roundedMillis);
+};
+// excel rounds day, month and year!
+const year = (serial, floor) => serial2RoundedDate(serial, floor).getUTCFullYear();
+const month = (serial, floor) => serial2RoundedDate(serial, floor).getUTCMonth() + 1;
+const day = (serial, floor) => serial2RoundedDate(serial, floor).getUTCDate();
+const weekday = (serial, floor) => {
+	const wday = serial2RoundedDate(serial, floor).getUTCDay();
 	if (serial > 60) {
 		return wday + 1;
 	}
 	return wday < 1 || serial < 1 ? 7 : wday;
 };
-  
-const serial2ms = (serial) => serial2date(serial).getTime();
+
+const serial2ms = (serial) => Math.round(asMillis(serial));
+const serial2date = (serial) => new Date(serial2ms(serial));
 
 const ms2serial = (ms) => {
 	const serial = ms / DAY_IN_MS + 25569;
