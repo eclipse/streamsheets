@@ -344,8 +344,8 @@ export class NewMachineDialog extends Component {
 												cursor: 'pointer'
 											}}
 											key="no_stream"
-											classes={{ hover: this.props.classes.hover, selected: this.props.classes.selected }}
-											className={this.props.classes.tableRow}
+											// classes={{ hover: this.props.classes.hover, selected: this.props.classes.selected }}
+											// className={this.props.classes.tableRow}
 											selected={selected.id === ''}
 											onClick={this.handleSelection({ id: '' })}
 											tabIndex={-1}
@@ -364,8 +364,8 @@ export class NewMachineDialog extends Component {
 												cursor: 'pointer'
 											}}
 											hover
-											classes={{ hover: this.props.classes.hover, selected: this.props.classes.selected }}
-											className={this.props.classes.tableRow}
+											// classes={{ hover: this.props.classes.hover, selected: this.props.classes.selected }}
+											// className={this.props.classes.tableRow}
 											onClick={this.handleSelection(resource)}
 											selected={resource.id === selected.id}
 											tabIndex={-1}

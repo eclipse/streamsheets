@@ -2104,13 +2104,9 @@ export class CanvasToolBar extends Component {
 								<Divider key={format.id} />
 							) : (
 								<MenuItem
+									dense
 									key={format.id}
 									onClick={() => this.onFormatNumberFormat(format)}
-									style={{
-										fontSize: '10pt',
-										width: '250px',
-										padding: '8px 16px'
-									}}
 								>
 									<div>
 										<div
@@ -2387,7 +2383,7 @@ export class CanvasToolBar extends Component {
 				>
 					<GridList
 						cols={4}
-						cellHeight={36}
+						cellHeight={30}
 						spacing={0}
 						style={{
 							width: '160px',
@@ -2479,7 +2475,7 @@ export class CanvasToolBar extends Component {
 				>
 					<GridList
 						cols={3}
-						cellHeight={36}
+						cellHeight={30}
 						spacing={2}
 						style={{
 							width: '120px',
@@ -2617,7 +2613,7 @@ export class CanvasToolBar extends Component {
 				>
 					<GridList
 						cols={5}
-						cellHeight={36}
+						cellHeight={30}
 						spacing={2}
 						style={{
 							width: '200px',

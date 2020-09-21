@@ -24,9 +24,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -703,6 +701,8 @@ export class InboxSettings extends React.Component {
 											}}
 											id="ibconsumerselect"
 											onClick={this.handleConsumerClick}
+											variant="outlined"
+											size="small"
 											label={
 												<FormattedMessage id="InboxSettings.SelectConsumer" defaultMessage="Please select a Consumer:" />
 											}
@@ -718,14 +718,17 @@ export class InboxSettings extends React.Component {
 											padding: '0px',
 											height: '25px',
 											position: 'relative',
-											left: '-23px',
-											top: '19px',
+											left: '-27px',
+											top: '7px',
 										}}
 										size="small"
 										onClick={this.handleConsumerClick}>
 										<ArrowDropDown />
 									</IconButton>
 										<Button
+											style={{
+												height: '40px'
+											}}
 											color="primary"
 											onClick={this.handleEditConsumer}
 											disabled={!canEdit || this.state.inbox.stream === null || this.state.inbox.stream.id === 'none'}
@@ -856,27 +859,21 @@ export class InboxSettings extends React.Component {
 								</Popover>
 									<FormControl
 										disabled={!canEdit}
-										style={{
-											marginBottom: '10px',
-											marginTop: '0px'
-										}}
 									>
-										<InputLabel htmlFor="processSetting.triggerType">
-											<FormattedMessage
-												id="InboxSettings.calcStreamSheet"
-												defaultMessage="Calculate StreamSheet"
-											/>
-										</InputLabel>
-										<Select
+										<TextField
+											select
+											variant="outlined"
+											size="small"
+											margin="normal"
 											style={{
 												width: '65%'
 											}}
 											value={this.getTriggerType()}
 											onChange={this.handleTriggerChange}
-											input={
-												<Input
-													name="processSetting.triggerType"
-													id="processSetting.triggerType"
+											label={
+												<FormattedMessage
+													id="InboxSettings.calcStreamSheet"
+													defaultMessage="Calculate StreamSheet"
 												/>
 											}
 										>
@@ -890,7 +887,7 @@ export class InboxSettings extends React.Component {
 													{t.label}
 												</MenuItem>
 											))}
-										</Select>
+										</TextField>
 									</FormControl>
 									<FormGroup
 										style={{
@@ -922,7 +919,9 @@ export class InboxSettings extends React.Component {
 									{this.state.trigger.type === 'random' || this.state.trigger.type === 'time' ? (
 										<div>
 											<TextField
-												// eslint-disable-next-line
+												variant="outlined"
+												size="small"
+												margin="normal"
 												label={
 													<FormattedMessage
 														id="InboxSettings.starTimeDate"
@@ -931,7 +930,7 @@ export class InboxSettings extends React.Component {
 												}
 												type="datetime-local"
 												defaultValue={this.state.trigger.start}
-												style={{ width: '11rem' }}
+												style={{ width: '11rem', marginRight: '10px' }}
 												InputLabelProps={{
 													shrink: true
 												}}
@@ -946,7 +945,9 @@ export class InboxSettings extends React.Component {
 												disabled={!canEdit}
 											/>
 											<TextField
-												// eslint-disable-next-line
+												variant="outlined"
+												size="small"
+												margin="normal"
 												label={
 													<FormattedMessage
 														id="InboxSettings.interval"
@@ -955,7 +956,7 @@ export class InboxSettings extends React.Component {
 												}
 												type="number"
 												defaultValue={this.state.trigger.interval}
-												style={{ width: '9rem' }}
+												style={{ width: '4rem', marginRight: '10px' }}
 												InputLabelProps={{
 													shrink: true
 												}}
@@ -973,7 +974,11 @@ export class InboxSettings extends React.Component {
 												}
 												disabled={!canEdit}
 											/>
-											<Select
+											<TextField
+												variant="outlined"
+												size="small"
+												margin="normal"
+												select
 												value={this.state.trigger.intervalUnit || 'ms'}
 												// eslint-disable-next-line
 												label={
@@ -1029,7 +1034,7 @@ export class InboxSettings extends React.Component {
 														defaultMessage="days"
 													/>
 												</MenuItem>
-											</Select>
+											</TextField>
 										</div>
 									) : null}
 									<FormGroup style={styles.formControl}>
@@ -1052,7 +1057,8 @@ export class InboxSettings extends React.Component {
 											/>
 										</div>
 										<TextField
-											// eslint-disable-next-line
+											variant="outlined"
+											size="small"
 											label={
 												<FormattedMessage
 													id="InboxSettings.loopArray"
@@ -1155,6 +1161,8 @@ export class InboxSettings extends React.Component {
 									<FormGroup style={{}}>
 										<TextField
 											label={<FormattedMessage id="Name" defaultMessage="Name" />}
+											variant="outlined"
+											size="small"
 											margin="normal"
 											fullWidth
 											onChange={this.handleSheetName}
@@ -1179,6 +1187,9 @@ export class InboxSettings extends React.Component {
 												width: '100px'
 											}}
 											id="number"
+											variant="outlined"
+											size="small"
+											margin="normal"
 											label={<FormattedMessage id="Columns" defaultMessage="Columns" />}
 											inputProps={{
 												min: 1,
@@ -1199,13 +1210,15 @@ export class InboxSettings extends React.Component {
 											value={this.state.preferences.sheetColumns}
 											onChange={(event) => this.handleSheetColumns(event)}
 											type="number"
-											margin="normal"
 										/>
 										<TextField
 											disabled={!canEdit}
 											style={{
 												width: '100px'
 											}}
+											variant="outlined"
+											size="small"
+											margin="normal"
 											id="number"
 											label={<FormattedMessage id="Rows" defaultMessage="Rows" />}
 											inputProps={{
@@ -1227,7 +1240,6 @@ export class InboxSettings extends React.Component {
 											value={this.state.preferences.sheetRows}
 											onChange={(event) => this.handleSheetRows(event)}
 											type="number"
-											margin="normal"
 										/>
 										<FormControlLabel
 											disabled={!canEdit}
