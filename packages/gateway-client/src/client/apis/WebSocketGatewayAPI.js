@@ -49,6 +49,7 @@ const {
 	UpdateMachineSettingsWebSocketRequest,
 	// General requests
 	CommandWebSocketRequest,
+	MachineActionWebSocketRequest,
 	UserGetSocketRequest,
 	UserSaveSocketRequest,
 	UserSettingGetSocketRequest,
@@ -432,6 +433,15 @@ module.exports = class WebSocketGatewayAPI extends GatewayAPI {
 				command,
 				undo,
 				redo
+			)
+		);
+	}
+	sendMachineAction(machineId, action) {
+		return this.sendRequest(
+			new MachineActionWebSocketRequest(
+				this._ws,
+				machineId,
+				action
 			)
 		);
 	}

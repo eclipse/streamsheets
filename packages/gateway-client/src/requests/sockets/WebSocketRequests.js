@@ -51,6 +51,7 @@ const {
 	UNSUBSCRIBE_MACHINE_MESSAGE_TYPE,
 	// General request types
 	COMMAND_MESSAGE_TYPE,
+	MACHINE_ACTION_MESSAGE_TYPE,
 	USER_GET_MESSAGE_TYPE,
 	USER_SAVE_MESSAGE_TYPE,
 	USER_SETTINGS_GET_MESSAGE_TYPE,
@@ -842,6 +843,23 @@ class CommandWebSocketRequest extends WebSocketRequest {
 	}
 }
 
+class MachineActionWebSocketRequest extends WebSocketRequest {
+	constructor(ws, machineId, action) {
+		super(ws, MACHINE_ACTION_MESSAGE_TYPE);
+		this._machineId = machineId;
+		this._action = action;
+	}
+
+	_getConfig() {
+		return {
+			machineId: this._machineId,
+			action: this._action
+		};
+	}
+}
+
+
+
 module.exports = {
 	// Graph requests
 	LoadGraphWebSocketRequest,
@@ -881,6 +899,7 @@ module.exports = {
 	UnsubscribeMachineWebSocketRequest,
 	// General requests
 	CommandWebSocketRequest,
+	MachineActionWebSocketRequest,
 	UserGetSocketRequest,
 	UserSaveSocketRequest,
 	UserSettingGetSocketRequest,

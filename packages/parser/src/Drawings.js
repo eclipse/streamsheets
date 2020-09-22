@@ -192,33 +192,40 @@ module.exports = class Drawings {
 	}
 
 	getEvents(terms) {
-		let result;
+		const result = [];
 
 		let i = 0;
 		while (this.checkParam(terms, i)) {
-			if (terms[i].name && terms[i].params && terms[i].params.length) {
+			const term = terms[i];
+			const params = term.params;
+			if (term.name && params && params.length) {
 				const event = {
-					event: terms[i].name.toUpperCase(),
-					func: terms[i].params[0].toString(),
+					event: term.name.toUpperCase(),
+					func: params.map((p) => p.toString()).join(',') // legacy support, remove after review
 				};
+				// collect param values for each event functions. note: nested funcs currently not supported!!
+				event.funcsparams = params.reduce((all, param) => {
+					if (param.func) {
+						all[param.name.toUpperCase()] = param.params.map((p) => p.value);
+					}
+					return all;
+				}, {});
 
-				const paramstrs = terms[i].params
-					? terms[i].params.reduce((strings, param) => {
-						strings.push(param.toString());
-						return strings;
-					}, [])
-					: [];
-				event.func = paramstrs.join(',');
+				// const paramstrs = params.reduce((strings, param) => {
+				// 	strings.push(param.toString());
+				// 	return strings;
+				// }, []);
+				// event.func = paramstrs.join(',');
 
-				if (result === undefined) {
-					result = [];
-				}
+				// if (result === undefined) {
+				// 	result = [];
+				// }
 				result.push(event);
 			}
 			i += 1;
 		}
 
-		return result ? JSON.stringify(result) : '';
+		return result.length ? JSON.stringify(result) : '';
 	}
 
 	getAttributes(terms) {

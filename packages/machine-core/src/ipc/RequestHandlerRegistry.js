@@ -635,6 +635,16 @@ class ReplaceGraphCells extends ARequestHandler {
 		return Promise.resolve(result);
 	}
 }
+class RunMachineAction extends ARequestHandler {
+	async handle({ type, data }) {
+		const action = FunctionRegistry.getAction(type);
+		if (action) {
+			const result = await action(data);
+			return { result };
+		}
+		return Promise.reject(new Error(`Unknown action type: ${type}`));
+	}
+}
 // DL-1156 not used anymore
 // handlers.set('selectMessage', (msg) => {
 // 	const streamsheet = machine.getStreamSheet(msg.streamsheetId);
@@ -921,6 +931,7 @@ class RequestHandlerRegistry {
 		registry.handlers.set('registerFunctionModules', new RegisterFunctionModules(machine, monitor));
 		registry.handlers.set('registerStreams', new RegisterStreams(machine, monitor));
 		registry.handlers.set('replaceGraphCells', new ReplaceGraphCells(machine, monitor));
+		registry.handlers.set('runMachineAction', new RunMachineAction(machine, monitor));
 		registry.handlers.set('setCellAt', new SetCellAt(machine, monitor));
 		registry.handlers.set('setCells', new SetCells(machine, monitor));
 		registry.handlers.set('setCellsLevel', new SetCellsLevel(machine, monitor));

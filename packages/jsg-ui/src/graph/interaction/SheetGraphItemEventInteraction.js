@@ -82,7 +82,19 @@ export default class SheetGraphItemEventInteraction extends Interaction {
 					const sheet = this.getSheet();
 					if (sheet) {
 						if (sheetEvent.func.indexOf('SHOWDIALOG') !== -1) {
-							NotificationCenter.getInstance().send(new Notification('showFileDialog', this));
+							const funcsparams = sheetEvent.funcsparams || {};
+							const showParams = funcsparams.SHOWDIALOG;
+							if (showParams) {
+								const [type, ...params] = showParams;
+								const showDialog = `showDialog:${type || 'File'}`;
+								// wrap params in object for future enhancements
+								NotificationCenter.getInstance().send(new Notification(showDialog, { params }));
+								// first params is dialog-type
+								// all others are dialog params
+							} else {
+								// NotificationCenter.getInstance().send(new Notification('showFileDialog', this));
+								NotificationCenter.getInstance().send(new Notification('showDialog:File', this));
+							}
 							event.isConsumed = true;
 							event.hasActivated = true;
 						} else if (sheetEvent.func.indexOf('OPEN.URL') !== -1) {
