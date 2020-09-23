@@ -48,20 +48,20 @@ describe('char', () => {
 		expect(createTerm('char(156, "cp1252")', sheet).value).toBe('œ');
 		expect(createTerm('char(240, "cp1252")', sheet).value).toBe('ð');
 	});
-	it('should support mac/roman as character set', () => {
+	it('should NOT support mac/roman as character set', () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('char(33, "mac")', sheet).value).toBe('!');
-		expect(createTerm('char(65, "mac")', sheet).value).toBe('A');
-		expect(createTerm('char(126, "mac")', sheet).value).toBe('~');
-		expect(createTerm('char(128, "mac")', sheet).value).toBe('Ä');
-		expect(createTerm('char(138, "mac")', sheet).value).toBe('ä');
-		expect(createTerm('char(219, "mac")', sheet).value).toBe('€');
-		expect(createTerm('char(33, "roman")', sheet).value).toBe('!');
-		expect(createTerm('char(65, "roman")', sheet).value).toBe('A');
-		expect(createTerm('char(126, "roman")', sheet).value).toBe('~');
-		expect(createTerm('char(128, "roman")', sheet).value).toBe('Ä');
-		expect(createTerm('char(138, "roman")', sheet).value).toBe('ä');
-		expect(createTerm('char(219, "roman")', sheet).value).toBe('€');
+		expect(createTerm('char(33, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // '!');
+		expect(createTerm('char(65, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'A');
+		expect(createTerm('char(126, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // '~');
+		expect(createTerm('char(128, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'Ä');
+		expect(createTerm('char(138, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'ä');
+		expect(createTerm('char(219, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // '€');
+		expect(createTerm('char(33, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // '!');
+		expect(createTerm('char(65, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'A');
+		expect(createTerm('char(126, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // '~');
+		expect(createTerm('char(128, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'Ä');
+		expect(createTerm('char(138, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'ä');
+		expect(createTerm('char(219, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // '€');
 	});
 	it(`return ${ERROR.VALUE} if given number is not between 1 and 255 or specified value is not a number`, () => {
 		const sheet = new StreamSheet().sheet;
@@ -134,20 +134,20 @@ describe('code', () => {
 		expect(createTerm('code("œ", "cp1252")', sheet).value).toBe(156);
 		expect(createTerm('code("ð", "cp1252")', sheet).value).toBe(240);
 	});
-	it('should support mac/roman as character set', () => {
+	it('should NOT support mac/roman as character set', () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('code("!", "mac")', sheet).value).toBe(33);
-		expect(createTerm('code("A", "mac")', sheet).value).toBe(65);
-		expect(createTerm('code("~", "mac")', sheet).value).toBe(126);
-		expect(createTerm('code("Ä", "mac")', sheet).value).toBe(128);
-		expect(createTerm('code("ä", "mac")', sheet).value).toBe(138);
-		expect(createTerm('code("€", "mac")', sheet).value).toBe(219);
-		expect(createTerm('code("!", "roman")', sheet).value).toBe(33);
-		expect(createTerm('code("A", "roman")', sheet).value).toBe(65);
-		expect(createTerm('code("~", "roman")', sheet).value).toBe(126);
-		expect(createTerm('code("Ä", "roman")', sheet).value).toBe(128);
-		expect(createTerm('code("ä", "roman")', sheet).value).toBe(138);
-		expect(createTerm('code("€", "roman")', sheet).value).toBe(219);
+		expect(createTerm('code("!", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 33);
+		expect(createTerm('code("A", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 65);
+		expect(createTerm('code("~", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 126);
+		expect(createTerm('code("Ä", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 128);
+		expect(createTerm('code("ä", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 138);
+		expect(createTerm('code("€", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 219);
+		expect(createTerm('code("!", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 33);
+		expect(createTerm('code("A", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 65);
+		expect(createTerm('code("~", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 126);
+		expect(createTerm('code("Ä", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 128);
+		expect(createTerm('code("ä", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 138);
+		expect(createTerm('code("€", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 219);
 	});
 	it(`return ${ERROR.VALUE} if given string is empty or not a string`, () => {
 		const sheet = new StreamSheet().sheet;

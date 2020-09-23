@@ -328,6 +328,10 @@ module.exports = class WebWorkerGatewayClientProxy {
 		);
 	}
 
+	sendMachineAction(machineId, action) {
+		return this._proxy('sendMachineAction', machineId, action);
+	}
+
 	/**
 	 * *********************************************
 	 * Administration API
@@ -339,7 +343,7 @@ module.exports = class WebWorkerGatewayClientProxy {
 	}
 
 	loadAllDSConfigurations(scope) {
-		return this._proxy('loadAllDSConfigurations', scope );
+		return this._proxy('loadAllDSConfigurations', scope);
 	}
 
 	deleteDSConfiguration(scope, configId) {
@@ -404,7 +408,7 @@ module.exports = class WebWorkerGatewayClientProxy {
 		} else if (type === 'event') {
 			this._handleEvent(message.event);
 		} else if (request && type === 'error') {
-			request.reject(message.error)
+			request.reject(message.error);
 			// TODO: improve error handling!!
 		}
 	}

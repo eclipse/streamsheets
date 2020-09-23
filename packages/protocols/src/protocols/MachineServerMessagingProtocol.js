@@ -58,6 +58,7 @@ const LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE = 'machine_load_subscribe';
  */
 
 const COMMAND_MESSAGE_TYPE = 'command';
+const MACHINE_ACTION_MESSAGE_TYPE = 'machine_action';
 
 /**
  * ******************************************************************************************
@@ -132,6 +133,7 @@ module.exports = {
 		UNSUBSCRIBE_MACHINE_MESSAGE_TYPE,
 		// General request types
 		COMMAND_MESSAGE_TYPE,
+		MACHINE_ACTION_MESSAGE_TYPE,
 		STREAMSHEET_STREAM_UPDATE_TYPE,
 		UPDATE_MACHINE_IMAGE_MESSAGE_TYPE,
 		UPDATE_MACHINE_TITLE_IMAGE_MESSAGE_TYPE

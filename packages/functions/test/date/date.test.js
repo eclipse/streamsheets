@@ -103,4 +103,54 @@ describe('date & time functions', () => {
 			expect(createTerm('second(43930.999999,false)', sheet).value).toBe(59);
 		});
 	});
+
+	describe('rounding of time functions', () => {
+		it('should round by default', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('hour(43930.999999)', sheet).value).toBe(0);
+			expect(createTerm('minute(43930.999999)', sheet).value).toBe(0);
+			expect(createTerm('second(43930.999999)', sheet).value).toBe(0);
+			expect(createTerm('hour(43930.999999,true)', sheet).value).toBe(0);
+			expect(createTerm('minute(43930.999999,true)', sheet).value).toBe(0);
+			expect(createTerm('second(43930.999999,true)', sheet).value).toBe(0);
+		});
+		it('should not round if corresponding parameter is set to false', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('hour(43930.999999,false)', sheet).value).toBe(23);
+			expect(createTerm('minute(43930.999999,false)', sheet).value).toBe(59);
+			expect(createTerm('second(43930.999999,false)', sheet).value).toBe(59);
+		});
+	});
+	describe('rounding of date functions', () => {
+		it('should round by default', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('day(39447.99999421)', sheet).value).toBe(31);
+			expect(createTerm('day(39447.99999422)', sheet).value).toBe(1);
+
+			expect(createTerm('month(31,99999421)', sheet).value).toBe(1);
+			expect(createTerm('month(31.99999422)', sheet).value).toBe(2);
+			expect(createTerm('month(39447.99999421)', sheet).value).toBe(12);
+			expect(createTerm('month(39447.99999422)', sheet).value).toBe(1);
+
+
+			expect(createTerm('year(39447.99999421)', sheet).value).toBe(2007);
+			expect(createTerm('year(39447.99999422)', sheet).value).toBe(2008);
+			expect(createTerm('year(38352.99999421)', sheet).value).toBe(2004);
+			expect(createTerm('year(38352.99999422)', sheet).value).toBe(2005);
+
+			// JS Date never has a 0 day
+			// expect(createTerm('day(0.99999422)', sheet).value).toBe(1);
+			// expect(createTerm('day(0.99999421)', sheet).value).toBe(0);
+		});
+		it('should not round if corresponding parameter is set to false', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('day(39447.99999422, false)', sheet).value).toBe(31);
+
+			expect(createTerm('month(31.99999422, false)', sheet).value).toBe(1);
+			expect(createTerm('month(39447.99999422, false)', sheet).value).toBe(12);
+
+			expect(createTerm('year(39447.99999422, false)', sheet).value).toBe(2007);
+			expect(createTerm('year(38352.99999422, false)', sheet).value).toBe(2004);
+		});
+	});
 });
