@@ -15,6 +15,7 @@ import { FormattedMessage } from 'react-intl';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import MenuList from '@material-ui/core/MenuList';
+import Icon from '@material-ui/core/Icon';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
@@ -28,13 +29,10 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import JSG from '@cedalo/jsg-ui';
 
-import {
-	IconCopy,
-	IconPaste,
-	IconCut,
-} from '../icons';
+import { IconCopy, IconPaste, IconCut } from '../icons';
 import { graphManager } from '../../GraphManager';
 import * as Actions from '../../actions/actions';
+import CellPayloadDialog from './CellPayloadDialog';
 
 const styles = {
 	menuItem: {
@@ -49,6 +47,7 @@ class ContextComponent extends Component {
 			context: 'false',
 			top: '0px',
 			left: '0px',
+			showCellPayload: false,
 		};
 	}
 
@@ -230,6 +229,19 @@ class ContextComponent extends Component {
 		}
 	};
 
+	showCellPayloadDialog = () => {
+		this.setState({
+			context: false,
+			showCellPayload: true
+		});
+	};
+	hideCellPayloadDialog = () => {
+		this.setState({
+			context: false,
+			showCellPayload: false
+		});
+	};
+
 	onSetPayloadRange = () => {
 		const sheetView = graphManager.getActiveSheetView();
 
@@ -269,6 +281,7 @@ class ContextComponent extends Component {
 
 	render() {
 		return (
+			<React.Fragment>
 			<Paper
 				id="sheetmenu"
 				ref={(ref) => {
@@ -435,8 +448,26 @@ class ContextComponent extends Component {
 							}
 						/>
 					</MenuItem>
+					<MenuItem
+						onClick={this.showCellPayloadDialog}
+						dense
+					>
+						<ListItemIcon>
+							<Icon>
+								<img width="100%" height="100%" src="images/json.png" alt="show payload"/>
+								{/* <img width="100%" height="100%" src="resources/json.svg" alt="show payload"/> */}
+							</Icon>
+						</ListItemIcon>
+						<ListItemText
+							primary={
+								<FormattedMessage id="ShowPayload" defaultMessage="Show Payload" />
+							}
+						/>
+					</MenuItem>
 				</MenuList>
 			</Paper>
+			<CellPayloadDialog open={this.state.showCellPayload} onClose={this.hideCellPayloadDialog} />
+			</React.Fragment>
 		);
 	}
 }

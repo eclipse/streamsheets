@@ -78,6 +78,7 @@
   "FormatCells": "Format Cells...",
   "HideHeader": "Hide",
   "ShowHeader": "Show",
+  "ShowPayload": "Show JSON",
   "SetPayloadRange": "Define JSON Range",
   "RemovePayloadRange": "Delete JSON Range",
   "Function": "Function",
