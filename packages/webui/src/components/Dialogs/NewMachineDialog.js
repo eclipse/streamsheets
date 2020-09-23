@@ -53,7 +53,7 @@ const PREF_KEY = 'streamsheets-prefs-addnewdialog';
 
 const getPersistetSortPreferences = () => {
 	const prefs = JSON.parse(localStorage.getItem(PREF_KEY) || '{}');
-	return prefs.sortQuery || '';
+	return prefs.sortQuery || 'name_asc';
 };
 
 const persistSortPreferences = (preferences) => {
@@ -88,7 +88,7 @@ export class NewMachineDialog extends Component {
 			selected: { id: '' },
 			error: '',
 			name: '',
-			sortQuery: getPersistetSortPreferences() || this.props.sortQuery,
+			sortQuery: getPersistetSortPreferences(),
 			filter: this.props.filter,
 			editStream: false,
 			showStreamWizard: false
