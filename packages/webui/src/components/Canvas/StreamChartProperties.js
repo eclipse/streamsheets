@@ -90,13 +90,20 @@ export class StreamChartProperties extends Component {
 		document.addEventListener('keydown', this.escFunction, false);
 	}
 
-	componentWillReceiveProps(nextProps) {
-		// You don't have to do this check first, but it can help prevent an unneeded render
-		if (nextProps.showStreamChartProperties === true) {
-			this.updateState();
+	static getDerivedStateFromProps(props, state) {
+		if (props.showStreamChartProperties === true) {
+			return {...state, plotView: StreamChartProperties.getPlotView()};
 		}
+		return null;
 	}
 
+	// componentWillReceiveProps(nextProps) {
+	// 	// You don't have to do this check first, but it can help prevent an unneeded render
+	// 	if (nextProps.showStreamChartProperties === true) {
+	// 		this.updateState();
+	// 	}
+	// }
+	//
 	componentWillUnmount() {
 		document.removeEventListener('keydown', this.escFunction, false);
 	}
@@ -115,7 +122,7 @@ export class StreamChartProperties extends Component {
 		return controller ? controller.getView() : undefined;
 	}
 
-	getPlotView() {
+	static getPlotView() {
 		const selection = graphManager.getGraphViewer().getSelection();
 		if (selection === undefined || selection.length !== 1) {
 			return undefined;
@@ -140,7 +147,7 @@ export class StreamChartProperties extends Component {
 	}
 
 	updateState() {
-		const view = this.getPlotView();
+		const view = StreamChartProperties.getPlotView();
 		if (view === undefined) {
 			return;
 		}
@@ -1516,17 +1523,21 @@ export class StreamChartProperties extends Component {
 									</FormGroup>
 								) : (
 									item.series.map((series, index) => (
-										<FormGroup>
+										<FormGroup
+											/* eslint-disable-next-line react/no-array-index-key */
+											key={`s${index}`}
+											style={{
+												borderBottom: '1px solid #CCCCCC',
+											}}
+										>
 											<FormControl
-												/* eslint-disable-next-line react/no-array-index-key */
-												key={`s${index}`}
 												style={{
-													fontSize: '8pt',
-													borderTop: '1px solid #CCCCCC',
-													paddingTop: '7px'
 												}}
 											>
 												<MaterialTextField
+													style={{
+														height: '30px',
+													}}
 													variant="outlined"
 													size="small"
 													margin="normal"
