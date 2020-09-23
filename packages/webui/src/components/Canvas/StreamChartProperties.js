@@ -46,7 +46,7 @@ import ColorComponent from '../SheetDialogs/ColorComponent';
 import { intl } from '../../helper/IntlGlobalProvider';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import ValueRangesDialog from '../SheetDialogs/ValueRangesDialog';
-import MaterialTextField from "@material-ui/core/TextField";
+import MaterialTextField from '@material-ui/core/TextField';
 
 const markerSizes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -1427,9 +1427,11 @@ export class StreamChartProperties extends Component {
 														this.handleChartFormulaBlur(event);
 													}
 												}}
-												value={item.chart.formula.getFormula()
-													? `=${item.chart.formula.getFormula()}`
-													: ''}
+												value={
+													item.chart.formula.getFormula()
+														? `=${item.chart.formula.getFormula()}`
+														: ''
+												}
 												InputProps={{
 													inputComponent: MyInputComponent,
 													inputProps: {
@@ -1438,9 +1440,8 @@ export class StreamChartProperties extends Component {
 														sheetView,
 														value: {},
 														range: item.chart.formula.getFormula()
-																? `=${item.chart.formula.getFormula()}`
-																: ''
-														,
+															? `=${item.chart.formula.getFormula()}`
+															: ''
 													}
 												}}
 											/>
@@ -1536,9 +1537,11 @@ export class StreamChartProperties extends Component {
 															this.handleSeriesFormulaBlur(event, series);
 														}
 													}}
-													value={item.chart.formula.getFormula()
-														? `=${item.chart.formula.getFormula()}`
-														: ''}
+													value={
+														item.chart.formula.getFormula()
+															? `=${item.chart.formula.getFormula()}`
+															: ''
+													}
 													InputProps={{
 														inputComponent: MyInputComponent,
 														inputProps: {
@@ -2034,18 +2037,21 @@ export class StreamChartProperties extends Component {
 										)}
 									</FormControl>
 								) : null}
-								<FormLabel component="legend" style={{marginTop: '8px'}}>
+								<FormLabel component="legend" style={{ marginTop: '8px' }}>
 									<FormattedMessage id="StreamChartProperties.Marker" defaultMessage="Marker" />
 								</FormLabel>
-								<div>
+								<div
+									style={{
+										display: 'inline-flex',
+									}}
+								>
 									<FormControl
 										style={{
-											width: '60%',
-											display: 'inline-flex'
+											width: '50%',
+											marginRight: '10px'
 										}}
 									>
 										<TextField
-											style={{marginRight: '10px'}}
 											variant="outlined"
 											size="small"
 											label={
@@ -2131,7 +2137,7 @@ export class StreamChartProperties extends Component {
 									</FormControl>
 									<FormControl
 										style={{
-											width: '40%',
+											width: '50%'
 										}}
 									>
 										<TextField
@@ -2160,12 +2166,17 @@ export class StreamChartProperties extends Component {
 								</div>
 								<div
 									style={{
-										flexDirection: 'row'
+										display: 'inline-flex',
+										flexDirection: 'row',
 									}}
 								>
 									<FormControl
+										size="small"
+										variant="outlined"
+										margin="normal"
 										style={{
-											width: '45%'
+											width: '50%',
+											marginRight: '10px'
 										}}
 									>
 										<ColorComponent
@@ -2175,7 +2186,6 @@ export class StreamChartProperties extends Component {
 													defaultMessage="Fill Color"
 												/>
 											}
-											width={110}
 											labelFontSize="1rem"
 											transparent
 											color={
@@ -2186,9 +2196,12 @@ export class StreamChartProperties extends Component {
 										/>
 									</FormControl>
 									<FormControl
+										size="small"
+										variant="outlined"
+										margin="normal"
 										style={{
 											display: 'inline-flex',
-											width: '44%'
+											width: '50%'
 										}}
 									>
 										<ColorComponent
@@ -2199,7 +2212,6 @@ export class StreamChartProperties extends Component {
 													defaultMessage="Line Color"
 												/>
 											}
-											width={110}
 											transparent
 											color={
 												data.marker.lineColor || item.getTemplate().series.line[selection.index]
@@ -2208,16 +2220,11 @@ export class StreamChartProperties extends Component {
 										/>
 									</FormControl>
 								</div>
-								<div
-									style={{
-										flexDirection: 'row'
-									}}
-								>
 								{item.xAxes.length > 1 || item.yAxes.length > 1 ? (
 									<FormLabel
 										component="legend"
 										style={{
-											marginTop: '12px',
+											marginTop: '12px'
 										}}
 									>
 										<FormattedMessage
@@ -2226,67 +2233,73 @@ export class StreamChartProperties extends Component {
 										/>
 									</FormLabel>
 								) : null}
-								{item.xAxes.length > 1 ? (
-									<FormControl
-										style={{
-											width: '50%',
-										}}
-									>
-										<TextField
-											style={{marginRight: '15px'}}
-											variant="outlined"
-											size="small"
-											label={
-												<FormattedMessage
-													id="StreamChartProperties.XAxis"
-													defaultMessage="XAxis"
-												/>
-											}
-											select
-											margin="normal"
-											id="templates"
-											value={data.xAxis}
-											onChange={this.handleSeriesXAxisChange}
-											input={<Input name="template" id="template" />}
+								<div
+									style={{
+										display: 'inline-flex',
+										flexDirection: 'row'
+									}}
+								>
+									{item.xAxes.length > 1 ? (
+										<FormControl
+											style={{
+												width: '50%',
+												marginRight: '10px'
+											}}
 										>
-											{item.xAxes.map((axis) => (
-												<MenuItem value={axis.name} key={axis.name}>
-													{axis.name}
-												</MenuItem>
-											))}
-										</TextField>
-									</FormControl>
-								) : null}
-								{item.yAxes.length > 1 ? (
-									<FormControl
-										style={{
-											width: '50%',
-										}}
-									>
-										<TextField
-											variant="outlined"
-											size="small"
-											label={
-												<FormattedMessage
-													id="StreamChartProperties.YAxis"
-													defaultMessage="YAxis"
-												/>
-											}
-											select
-											margin="normal"
-											id="templates"
-											value={data.yAxis}
-											onChange={this.handleSeriesYAxisChange}
-											input={<Input name="template" id="template" />}
+											<TextField
+												variant="outlined"
+												size="small"
+												label={
+													<FormattedMessage
+														id="StreamChartProperties.XAxis"
+														defaultMessage="XAxis"
+													/>
+												}
+												select
+												margin="normal"
+												id="templates"
+												value={data.xAxis}
+												onChange={this.handleSeriesXAxisChange}
+												input={<Input name="template" id="template" />}
+											>
+												{item.xAxes.map((axis) => (
+													<MenuItem value={axis.name} key={axis.name}>
+														{axis.name}
+													</MenuItem>
+												))}
+											</TextField>
+										</FormControl>
+									) : null}
+									{item.yAxes.length > 1 ? (
+										<FormControl
+											style={{
+												width: '50%'
+											}}
 										>
-											{item.yAxes.map((axis) => (
-												<MenuItem value={axis.name} key={axis.name}>
-													{axis.name}
-												</MenuItem>
-											))}
-										</TextField>
-									</FormControl>
-								) : null}
+											<TextField
+												variant="outlined"
+												size="small"
+												label={
+													<FormattedMessage
+														id="StreamChartProperties.YAxis"
+														defaultMessage="YAxis"
+													/>
+												}
+												select
+												margin="normal"
+												id="templates"
+												value={data.yAxis}
+												onChange={this.handleSeriesYAxisChange}
+												input={<Input name="template" id="template" />}
+											>
+												{item.yAxes.map((axis) => (
+													<MenuItem value={axis.name} key={axis.name}>
+														{axis.name}
+													</MenuItem>
+												))}
+											</TextField>
+										</FormControl>
+									) : null}
 								</div>
 								<FormGroup>
 									<FormLabel

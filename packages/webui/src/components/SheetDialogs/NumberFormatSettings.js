@@ -14,14 +14,12 @@ import { FormattedMessage } from 'react-intl';
 import PropTypes from 'prop-types';
 import TextField from '@material-ui/core/TextField';
 import { withStyles } from '@material-ui/core/styles';
-import InputLabel from '@material-ui/core/InputLabel';
 import MenuList from '@material-ui/core/MenuList';
 import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import { NumberFormatter } from '@cedalo/number-format';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -30,10 +28,6 @@ import { graphManager } from '../../GraphManager';
 import { numberFormatTemplates } from '../../languages/NumberFormatTemplates';
 import * as Actions from '../../actions/actions';
 import { intl } from '../../helper/IntlGlobalProvider';
-
-// const {
-// 	Numbers,
-// } = JSG;
 
 let numberFormats = [];
 let numberFormatCategories = [];
@@ -54,7 +48,6 @@ class NumberFormatSettings extends React.Component {
 		handler: PropTypes.func.isRequired,
 		classes: PropTypes.object.isRequired,
 		machine: PropTypes.object.isRequired,
-		// intl: PropTypes.object.isRequired,
 	};
 
 	constructor(props) {
@@ -219,13 +212,15 @@ class NumberFormatSettings extends React.Component {
 			}
 		}
 
-		this.setState({ sampleValue });
-		this.setState({ numberFormatCategorySelected });
-		this.setState({ numberFormatSelected });
-		this.setState({ thousands });
-		this.setState({ decimals });
-		this.setState({ currency });
-		this.setState({ region });
+		this.setState({
+			sampleValue,
+			numberFormatCategorySelected,
+			numberFormatSelected,
+			thousands,
+			decimals,
+			currency,
+			region
+		});
 
 		this.prepareSampleValue(
 			numberFormatCategorySelected,
@@ -375,12 +370,15 @@ class NumberFormatSettings extends React.Component {
 	}
 
 	handleNumberFormatCategoryChange = (key, value) => {
-		this.setState({ numberFormatCategorySelected: key });
-		this.setState({ numberFormatSelected: 0 });
-		this.setState({ thousands: false });
-		this.setState({ decimals: 0 });
-		this.setState({ currency: '€' });
-		this.setState({ region: this.props.machine.locale });
+		this.setState({
+			numberFormatCategorySelected: key,
+			numberFormatSelected: 0,
+			thousands: false,
+			decimals: 0,
+			currency: '€',
+			region: this.props.machine.locale,
+		});
+
 		this.addNumberTemplates(key, value, false, 0, '€', this.props.machine.locale);
 		this.handleNumberFormatRowSelection(key, 0);
 	}
@@ -534,9 +532,10 @@ class NumberFormatSettings extends React.Component {
 	render() {
 		return (
 			<Grid container>
-				<Grid item xs={3}>
+				<Grid item xs={3} >
 					<MenuList
 						style={{
+							height: '342px',
 							border: '1px solid grey',
 							marginTop: '9px',
 						}}
@@ -561,29 +560,24 @@ class NumberFormatSettings extends React.Component {
 						paddingLeft: '15px',
 					}}
 				>
-					<div>
-						<div
-							style={{
-								marginTop: '9px',
-								marginBottom: '10px',
-								padding: '5px',
-								border: '1px solid grey',
-							}}
-						>
-							<FormattedMessage
-								id="FormatCellsDialog.sample"
-								defaultMessage="Sample"
-							/>
-							<span
-								style={{
-									color: this.state.sampleFormattedColor,
-									fontSize: '0.85rem',
-								}}
-							>
-								{this.state.sampleFormatted}
-							</span>
-						</div>
-					</div>
+					<TextField
+						variant="outlined"
+						size="small"
+						margin="normal"
+						label={<FormattedMessage
+							id="FormatCellsDialog.sample"
+							defaultMessage="Sample"
+						/>}
+						fullWidth
+						inputProps={{
+							readOnly: true,
+							style: { color: this.state.sampleFormattedColor},
+						}}
+						style={{
+							marginTop: '8px',
+						}}
+						value={this.state.sampleFormatted}
+					/>
 					<div>
 						{(this.state.numberFormatCategorySelected === 2) &&
 						<FormControl
@@ -594,31 +588,25 @@ class NumberFormatSettings extends React.Component {
 								width: '100px',
 							}}
 						>
-							<InputLabel htmlFor="age-native-simple">
-								<FormattedMessage
+							<TextField
+								variant="outlined"
+								size="small"
+								margin="normal"
+								select
+								label={<FormattedMessage
 									id="FormatCellsDialog.currencySymbol"
 									defaultMessage="Currency Symbol"
-								/>
-							</InputLabel>
-							<Select
-								classes={{
-									select: this.props.classes.label,
-									selectMenu: this.props.classes.label,
-								}}
+								/>}
 								style={{
 									fontSize: '0.85rem',
 								}}
-								native
 								value={this.state.currency}
 								onChange={event => this.handleCurrency(event)}
-								inputProps={{
-									id: 'age-native-simple',
-								}}
 							>
-								<option value="€">€</option>
-								<option value="$">$</option>
-								<option value="£">£</option>
-							</Select>
+								<MenuItem value="€" key="€">€</MenuItem>
+								<MenuItem value="$" key="$">$</MenuItem>
+								<MenuItem value="£" key="£">£</MenuItem>
+							</TextField>
 						</FormControl>}
 						{(this.state.numberFormatCategorySelected === 3 ||
 							this.state.numberFormatCategorySelected === 4) &&
@@ -630,38 +618,45 @@ class NumberFormatSettings extends React.Component {
 									width: '200px',
 								}}
 							>
-								<InputLabel htmlFor="age-native-simple">Region</InputLabel>
-								<Select
-									classes={{
-										select: this.props.classes.label,
-										selectMenu: this.props.classes.label,
-									}}
+								<TextField
+									variant="outlined"
+									size="small"
+									margin="normal"
+									select
+									label="Region"
 									style={{
 										fontSize: '0.85rem',
 									}}
-									native
 									value={this.state.region}
 									onChange={event => this.handleRegion(event)}
-									inputProps={{
-										id: 'age-native-simple',
-									}}
 								>
-									<option value="de">
+									<MenuItem value="de" key="de">
 										{intl.formatMessage({ id: 'Germany' }, { })}
-									</option>
-									<option value="us">
+									</MenuItem>
+									<MenuItem value="us" key="us">
 										{intl.formatMessage({ id: 'EnglishUS' }, { })}
-									</option>
-									<option value="en">
+									</MenuItem>
+									<MenuItem value="en" key="en">
 										{intl.formatMessage({ id: 'EnglishUK' }, { })}
-									</option>
-								</Select>
+									</MenuItem>
+								</TextField>
 							</FormControl>}
 						{(this.state.numberFormatCategorySelected === 1 ||
 							this.state.numberFormatCategorySelected === 2 ||
 							this.state.numberFormatCategorySelected === 5 ||
 							this.state.numberFormatCategorySelected === 7) &&
+						<FormControl
+							style={{
+								marginTop: '0px',
+								marginBottom: '10px',
+								marginRight: '20px',
+								width: '100px',
+							}}
+						>
 							<TextField
+								variant="outlined"
+								size="small"
+								margin="normal"
 								id="number"
 								label={<FormattedMessage id="FormatCellsDialog.decimals" defaultMessage="Decimals" />}
 								inputProps={{
@@ -673,18 +668,13 @@ class NumberFormatSettings extends React.Component {
 								value={this.state.decimals}
 								onChange={event => this.handleDecimals(event)}
 								type="number"
-								style={{
-									width: '100px',
-									marginTop: '0px',
-									marginBottom: '10px',
-									marginRight: '40px',
-								}}
-							/>}
+							/>
+						</FormControl>}
 						{(this.state.numberFormatCategorySelected === 1 ||
 							this.state.numberFormatCategorySelected === 2) &&
 							<FormControlLabel
 								style={{
-									marginTop: '12px',
+									marginTop: '18px',
 								}}
 								classes={{
 									label: this.props.classes.label,

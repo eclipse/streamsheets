@@ -19,12 +19,9 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormLabel from '@material-ui/core/FormLabel';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import Select from '@material-ui/core/Select';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import TextField from '@material-ui/core/TextField';
@@ -52,7 +49,7 @@ import {withStyles} from "@material-ui/core/styles";
 
 const styles = () => ({
 	selectMenu: {
-		padding: '0px',
+		padding: '9px',
 	},
 });
 
@@ -408,28 +405,6 @@ export class FormatCellsDialog extends React.Component {
 		if (!this.props.open) {
 			return <div/>;
 		}
-		// const styles = {
-		// 	negativered: {
-		// 		color: 'red',
-		// 	},
-		// 	color: {
-		// 		width: '106px',
-		// 		height: '14px',
-		// 		borderRadius: '2px',
-		// 		margin: '5px',
-		// 	},
-		// 	popover: {
-		// 		position: 'absolute',
-		// 		zIndex: '200',
-		// 	},
-		// 	cover: {
-		// 		position: 'fixed',
-		// 		top: '0px',
-		// 		right: '0px',
-		// 		bottom: '0px',
-		// 		left: '0px',
-		// 	},
-		// };
 		const { tabSelected } = this.state;
 		return (
 			<Dialog open={this.props.open} onClose={this.handleCancel} maxWidth={false}>
@@ -438,7 +413,7 @@ export class FormatCellsDialog extends React.Component {
 				</DialogTitle>
 				<DialogContent
 					style={{
-						height: '420px',
+						height: '437px',
 						width: '800px',
 					}}
 				>
@@ -472,17 +447,17 @@ export class FormatCellsDialog extends React.Component {
 									}}
 								>
 									<FormControl style={{ width: '200px', marginRight: '20px' }}>
-										<InputLabel htmlFor="font-name">
-											<FormattedMessage
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											label={<FormattedMessage
 												id="FormatCellsDialog.fontName"
 												defaultMessage="Font Name"
-											/>
-										</InputLabel>
-										<Select
-											id="font-name"
+											/>}
 											value={this.state.fontName}
 											onChange={this.handleFontNameChange}
-											input={<Input defaultValue="en" name="font-name" id="font-name" />}
 										>
 											<MenuItem value="Arial" key={1}>
 												Arial
@@ -511,20 +486,20 @@ export class FormatCellsDialog extends React.Component {
 											<MenuItem value="Verdana" key={9}>
 												Verdana
 											</MenuItem>
-										</Select>
+										</TextField>
 									</FormControl>
 									<FormControl style={{ width: '120px', marginRight: '20px' }}>
-										<InputLabel htmlFor="font-size">
-											<FormattedMessage
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											label={<FormattedMessage
 												id="FormatCellsDialog.fontSize"
 												defaultMessage="Font Size"
-											/>
-										</InputLabel>
-										<Select
-											id="font-size"
+											/>}
 											value={this.state.fontSize}
 											onChange={this.handleFontSizeChange}
-											input={<Input defaultValue="en" name="font-size" id="font-size" />}
 										>
 											<MenuItem value="8" key={0}>
 												8
@@ -553,9 +528,9 @@ export class FormatCellsDialog extends React.Component {
 											<MenuItem value="36" key={8}>
 												36
 											</MenuItem>
-										</Select>
+										</TextField>
 									</FormControl>
-									<FormControl>
+									<FormControl size="small" variant="outlined" margin="normal" style={{width: '120px'}}>
 										<ColorComponent
 											label={
 												<FormattedMessage
@@ -621,21 +596,22 @@ export class FormatCellsDialog extends React.Component {
 								</div>
 								<div
 									style={{
-										marginTop: '40px',
+										marginTop: '20px',
 										display: 'flex',
 									}}
 								>
 									<FormControl style={{ width: '200px', marginRight: '20px', marginTop: '20px' }}>
-										<InputLabel htmlFor="HORIZONTAL_ALIGNMENT">
-											<FormattedMessage
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											label={<FormattedMessage
 												id="FormatCellsDialog.horizontalAlignment"
 												defaultMessage="Horizontal Alignment"
-											/>
-										</InputLabel>
-										<Select
+											/>}
 											value={this.state.horizontalAlignment}
 											onChange={this.handleHorizontalAlignmentChange}
-											input={<Input name="HORIZONTAL_ALIGNMENT" id="HORIZONTAL_ALIGNMENT" />}
 										>
 											<MenuItem value={3} key={3}>
 												<FormattedMessage
@@ -661,19 +637,21 @@ export class FormatCellsDialog extends React.Component {
 													defaultMessage="Right"
 												/>
 											</MenuItem>
-										</Select>
+										</TextField>
 									</FormControl>
 									<FormControl style={{ width: '200px', marginRight: '20px', marginTop: '20px' }}>
-										<InputLabel htmlFor="VERTICAL_ALIGNMENT">
-											<FormattedMessage
-												id="FormatCellsDialog.verticalAlignment"
-												defaultMessage="Vertical Alignment"
-											/>
-										</InputLabel>
-										<Select
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											label={
+										<FormattedMessage
+											id="FormatCellsDialog.verticalAlignment"
+											defaultMessage="Vertical Alignment"
+										/>}
 											value={this.state.verticalAlignment}
 											onChange={this.handleVerticalAlignmentChange}
-											input={<Input name="VERTICAL_ALIGNMENT" id="VERTICAL_ALIGNMENT" />}
 										>
 											<MenuItem value={0} key={0}>
 												<FormattedMessage
@@ -693,7 +671,7 @@ export class FormatCellsDialog extends React.Component {
 													defaultMessage="Bottom"
 												/>
 											</MenuItem>
-										</Select>
+										</TextField>
 									</FormControl>
 								</div>
 							</div>
@@ -748,7 +726,7 @@ export class FormatCellsDialog extends React.Component {
 											/>
 										</RadioGroup>
 									</div>
-									<FormControl style={{ marginLeft: '44px' }}>
+									<FormControl size="small" variant="outlined" margin="normal" style={{width: '120px', marginLeft: '44px', marginTop: '0px' }}>
 										<ColorComponent
 											label={
 												<FormattedMessage
@@ -777,13 +755,13 @@ export class FormatCellsDialog extends React.Component {
 									</FormLabel>
 									<FormGroup
 										style={{
-											margin: '10px',
+											marginLeft: '10px',
 											flexDirection: 'row',
 										}}
 									>
 										<FormLabel
 											style={{
-												marginTop: '25px',
+												marginTop: '28px',
 												width: '60px',
 												fontSize: '0.85rem',
 											}}
@@ -791,7 +769,9 @@ export class FormatCellsDialog extends React.Component {
 											<FormattedMessage id="FormatCellsDialog.left" defaultMessage="Left" />
 										</FormLabel>
 										<TextField
-											id="number"
+											variant="outlined"
+											size="small"
+											margin="normal"
 											label={
 												<FormattedMessage id="FormatCellsDialog.width" defaultMessage="Width" />
 											}
@@ -803,127 +783,127 @@ export class FormatCellsDialog extends React.Component {
 											value={this.state.leftBorderWidth}
 											onChange={(event) => this.handleLeftBorderWidthChange(event)}
 											type="number"
-											margin="normal"
 											style={{
 												marginRight: '20px',
-												marginTop: '0px',
 											}}
 										/>
-										<FormControl style={{ width: '120px', marginRight: '20px' }}>
-											<InputLabel htmlFor="left-border-style">
-												<FormattedMessage id="FormatCellsDialog.style" defaultMessage="Style" />
-											</InputLabel>
-											<Select
-												id="left-border-style"
-												value={this.state.leftBorderStyle}
-												onChange={this.handleLeftBorderStyleChange}
-												classes={{selectMenu: this.props.classes.selectMenu}}
-												input={
-													<Input
-														defaultValue="0"
-														name="left-border-style"
-														id="left-border-style"
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											style={{ width: '120px', marginRight: '20px' }}
+											SelectProps={{
+												classes: {selectMenu: this.props.classes.selectMenu}
+											}}
+											label={
+												<FormattedMessage id="FormatCellsDialog.style"
+																  defaultMessage="Style"/>
+											}
+											value={this.state.leftBorderStyle}
+											onChange={this.handleLeftBorderStyleChange}
+										>
+											<MenuItem
+												value={0}
+												key="ls1"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<text x="50" y="8" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
+														{intl.formatMessage({ id: "None" }, {})}
+													</text>
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={1}
+												key="ls2"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={2}
+												key="ls3"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={3}
+												key="ls4"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={4}
+												key="ls5"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={5}
+												key="ls6"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+										</TextField>
+										<FormControl size="small" variant="outlined" margin="normal" style={{width: '120px' }}>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="FormatCellsDialog.borderColor"
+														defaultMessage="Border Color"
 													/>
 												}
-											>
-												<MenuItem
-													value={0}
-													key="ls1"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<text x="50" y="13" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
-															{intl.formatMessage({ id: "None" }, {})}
-														</text>
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={1}
-													key="ls2"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={2}
-													key="ls3"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={3}
-													key="ls4"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={4}
-													key="ls5"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={5}
-													key="ls6"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-											</Select>
+												color={this.state.leftBorderColor}
+												onChange={this.handleLeftBorderColorChange}
+											/>
 										</FormControl>
-										<ColorComponent
-											label={
-												<FormattedMessage
-													id="FormatCellsDialog.borderColor"
-													defaultMessage="Border Color"
-												/>
-											}
-											color={this.state.leftBorderColor}
-											onChange={this.handleLeftBorderColorChange}
-										/>
 									</FormGroup>
 									<FormGroup
 										style={{
-											margin: '10px',
+											marginLeft: '10px',
 											flexDirection: 'row',
 										}}
 									>
 										<FormLabel
 											style={{
-												marginTop: '25px',
+												marginTop: '28px',
 												width: '60px',
 												fontSize: '0.85rem',
 											}}
 										>
-											<FormattedMessage id="FormatCellsDialog.top" defaultMessage="Top:" />
+											<FormattedMessage id="FormatCellsDialog.top" defaultMessage="Top" />
 										</FormLabel>
 										<TextField
-											id="number"
+											variant="outlined"
+											size="small"
+											margin="normal"
 											label={
 												<FormattedMessage id="FormatCellsDialog.width" defaultMessage="Width" />
 											}
@@ -935,127 +915,127 @@ export class FormatCellsDialog extends React.Component {
 											value={this.state.topBorderWidth}
 											onChange={(event) => this.handleTopBorderWidthChange(event)}
 											type="number"
-											margin="normal"
 											style={{
 												marginRight: '20px',
-												marginTop: '0px',
 											}}
 										/>
-										<FormControl style={{ width: '120px', marginRight: '20px' }}>
-											<InputLabel htmlFor="top-border-style">
-												<FormattedMessage id="FormatCellsDialog.style" defaultMessage="Style" />
-											</InputLabel>
-											<Select
-												id="top-border-style"
-												value={this.state.topBorderStyle}
-												onChange={this.handleTopBorderStyleChange}
-												classes={{selectMenu: this.props.classes.selectMenu}}
-												input={
-													<Input
-														defaultValue="0"
-														name="top-border-style"
-														id="top-border-style"
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											style={{ width: '120px', marginRight: '20px' }}
+											SelectProps={{
+												classes: {selectMenu: this.props.classes.selectMenu}
+											}}
+											label={
+												<FormattedMessage id="FormatCellsDialog.style"
+																  defaultMessage="Style"/>
+											}
+											value={this.state.topBorderStyle}
+											onChange={this.handleTopBorderStyleChange}
+										>
+											<MenuItem
+												value={0}
+												key="ls1"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<text x="50" y="8" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
+														{intl.formatMessage({ id: "None" }, {})}
+													</text>
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={1}
+												key="ls2"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={2}
+												key="ls3"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={3}
+												key="ls4"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={4}
+												key="ls5"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={5}
+												key="ls6"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+										</TextField>
+										<FormControl size="small" variant="outlined" margin="normal" style={{width: '120px' }}>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="FormatCellsDialog.borderColor"
+														defaultMessage="Border Color"
 													/>
 												}
-											>
-												<MenuItem
-													value={0}
-													key="ls1"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<text x="50" y="13" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
-															{intl.formatMessage({ id: "None" }, {})}
-														</text>
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={1}
-													key="ls2"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={2}
-													key="ls3"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={3}
-													key="ls4"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={4}
-													key="ls5"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={5}
-													key="ls6"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-											</Select>
+												color={this.state.topBorderColor}
+												onChange={this.handleTopBorderColorChange}
+											/>
 										</FormControl>
-										<ColorComponent
-											label={
-												<FormattedMessage
-													id="FormatCellsDialog.borderColor"
-													defaultMessage="Border Color"
-												/>
-											}
-											color={this.state.topBorderColor}
-											onChange={this.handleTopBorderColorChange}
-										/>
 									</FormGroup>
 									<FormGroup
 										style={{
-											margin: '10px',
+											marginLeft: '10px',
 											flexDirection: 'row',
 										}}
 									>
 										<FormLabel
 											style={{
-												marginTop: '25px',
+												marginTop: '28px',
 												width: '60px',
 												fontSize: '0.85rem',
 											}}
 										>
-											<FormattedMessage id="FormatCellsDialog.right" defaultMessage="Right:" />
+											<FormattedMessage id="FormatCellsDialog.right" defaultMessage="Top" />
 										</FormLabel>
 										<TextField
-											id="number"
+											variant="outlined"
+											size="small"
+											margin="normal"
 											label={
 												<FormattedMessage id="FormatCellsDialog.width" defaultMessage="Width" />
 											}
@@ -1067,127 +1047,127 @@ export class FormatCellsDialog extends React.Component {
 											value={this.state.rightBorderWidth}
 											onChange={(event) => this.handleRightBorderWidthChange(event)}
 											type="number"
-											margin="normal"
 											style={{
 												marginRight: '20px',
-												marginTop: '0px',
 											}}
 										/>
-										<FormControl style={{ width: '120px', marginRight: '20px' }}>
-											<InputLabel htmlFor="right-border-style">
-												<FormattedMessage id="FormatCellsDialog.style" defaultMessage="Style" />
-											</InputLabel>
-											<Select
-												id="right-border-style"
-												classes={{selectMenu: this.props.classes.selectMenu}}
-												value={this.state.rightBorderStyle}
-												onChange={this.handleRightBorderStyleChange}
-												input={
-													<Input
-														defaultValue="0"
-														name="right-border-style"
-														id="right-border-style"
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											style={{ width: '120px', marginRight: '20px' }}
+											SelectProps={{
+												classes: {selectMenu: this.props.classes.selectMenu}
+											}}
+											label={
+												<FormattedMessage id="FormatCellsDialog.style"
+																  defaultMessage="Style"/>
+											}
+											value={this.state.rightBorderStyle}
+											onChange={this.handleRightBorderStyleChange}
+										>
+											<MenuItem
+												value={0}
+												key="ls1"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<text x="50" y="8" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
+														{intl.formatMessage({ id: "None" }, {})}
+													</text>
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={1}
+												key="ls2"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={2}
+												key="ls3"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={3}
+												key="ls4"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={4}
+												key="ls5"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={5}
+												key="ls6"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+										</TextField>
+										<FormControl size="small" variant="outlined" margin="normal" style={{width: '120px' }}>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="FormatCellsDialog.borderColor"
+														defaultMessage="Border Color"
 													/>
 												}
-											>
-												<MenuItem
-													value={0}
-													key="ls1"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<text x="50" y="13" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
-															{intl.formatMessage({ id: "None" }, {})}
-														</text>
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={1}
-													key="ls2"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={2}
-													key="ls3"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={3}
-													key="ls4"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={4}
-													key="ls5"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={5}
-													key="ls6"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-											</Select>
+												color={this.state.rightBorderColor}
+												onChange={this.handleRightBorderColorChange}
+											/>
 										</FormControl>
-										<ColorComponent
-											label={
-												<FormattedMessage
-													id="FormatCellsDialog.borderColor"
-													defaultMessage="Border Color"
-												/>
-											}
-											color={this.state.rightBorderColor}
-											onChange={this.handleRightBorderColorChange}
-										/>
 									</FormGroup>
 									<FormGroup
 										style={{
-											margin: '10px',
+											marginLeft: '10px',
 											flexDirection: 'row',
 										}}
 									>
 										<FormLabel
 											style={{
-												marginTop: '25px',
+												marginTop: '28px',
 												width: '60px',
 												fontSize: '0.85rem',
 											}}
 										>
-											<FormattedMessage id="FormatCellsDialog.bottom" defaultMessage="Bottom:" />
+											<FormattedMessage id="FormatCellsDialog.bottom" defaultMessage="Bottom" />
 										</FormLabel>
 										<TextField
-											id="number"
+											variant="outlined"
+											size="small"
+											margin="normal"
 											label={
 												<FormattedMessage id="FormatCellsDialog.width" defaultMessage="Width" />
 											}
@@ -1199,108 +1179,107 @@ export class FormatCellsDialog extends React.Component {
 											value={this.state.bottomBorderWidth}
 											onChange={(event) => this.handleBottomBorderWidthChange(event)}
 											type="number"
-											margin="normal"
 											style={{
 												marginRight: '20px',
-												marginTop: '0px',
 											}}
 										/>
-										<FormControl style={{ width: '120px', marginRight: '20px' }}>
-											<InputLabel htmlFor="bottom-border-style">
-												<FormattedMessage id="FormatCellsDialog.style" defaultMessage="Style" />
-											</InputLabel>
-											<Select
-												id="bottom-border-style"
-												value={this.state.bottomBorderStyle}
-												onChange={this.handleBottomBorderStyleChange}
-												classes={{selectMenu: this.props.classes.selectMenu}}
-												input={
-													<Input
-														name="bottom-border-style"
-														id="bottom-border-style"
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											style={{ width: '120px', marginRight: '20px' }}
+											SelectProps={{
+												classes: {selectMenu: this.props.classes.selectMenu}
+											}}
+											label={
+												<FormattedMessage id="FormatCellsDialog.style"
+																  defaultMessage="Style"/>
+											}
+											value={this.state.bottomBorderStyle}
+											onChange={this.handleBottomBorderStyleChange}
+										>
+											<MenuItem
+												value={0}
+												key="ls1"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<text x="50" y="8" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
+														{intl.formatMessage({ id: "None" }, {})}
+													</text>
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={1}
+												key="ls2"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={2}
+												key="ls3"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={3}
+												key="ls4"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={4}
+												key="ls5"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={5}
+												key="ls6"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+										</TextField>
+										<FormControl size="small" variant="outlined" margin="normal" style={{width: '120px' }}>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="FormatCellsDialog.borderColor"
+														defaultMessage="Border Color"
 													/>
 												}
-											>
-												<MenuItem
-													value={0}
-													key="ls1"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<text x="50" y="13" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
-															{intl.formatMessage({ id: "None" }, {})}
-														</text>
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={1}
-													key="ls2"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={2}
-													key="ls3"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={3}
-													key="ls4"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={4}
-													key="ls5"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={5}
-													key="ls6"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-											</Select>
+												color={this.state.bottomBorderColor}
+												onChange={this.handleBottomBorderColorChange}
+											/>
 										</FormControl>
-										<ColorComponent
-											label={
-												<FormattedMessage
-													id="FormatCellsDialog.borderColor"
-													defaultMessage="Border Color"
-												/>
-											}
-											color={this.state.bottomBorderColor}
-											onChange={this.handleBottomBorderColorChange}
-										/>
 									</FormGroup>
 								</div>
 							</div>
