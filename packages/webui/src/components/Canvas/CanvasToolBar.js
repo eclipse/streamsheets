@@ -1720,11 +1720,6 @@ export class CanvasToolBar extends Component {
 			return f && f.getLineColor() ? f.getLineColor().getValue() : '';
 		}
 
-		const canvas = graphManager.getCanvas();
-		if (canvas) {
-			canvas.focus();
-		}
-
 		return '';
 	}
 
