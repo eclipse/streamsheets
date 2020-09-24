@@ -15,6 +15,7 @@ declare module '@cedalo/protocols' {
 			CREATE_STREAMSHEET_MESSAGE_TYPE: 'streamsheet_create';
 			GET_MACHINE_MESSAGE_TYPE: 'machine_get';
 			GET_MACHINES_MESSAGE_TYPE: 'machineserver_machines';
+			GET_CELL_RAW_VALUE: 'machine_get_cell_raw_value';
 			DELETE_MACHINE_MESSAGE_TYPE: 'machine_delete';
 			DELETE_STREAMSHEET_MESSAGE_TYPE: 'streamsheet_delete';
 			LOAD_MACHINE_MESSAGE_TYPE: 'machine_load';
@@ -94,6 +95,7 @@ declare module '@cedalo/protocols' {
 			STREAMSHEET_STREAM_UPDATE_TYPE: 'streamsheet_stream_update';
 			GET_MACHINE_MESSAGE_TYPE: 'machine_get';
 			GET_MACHINES_MESSAGE_TYPE: 'machineserver_machines';
+			GET_CELL_RAW_VALUE: 'machine_get_cell_raw_value';
 			DELETE_MACHINE_MESSAGE_TYPE: 'machine_delete';
 			DELETE_STREAMSHEET_MESSAGE_TYPE: 'streamsheet_delete';
 			LOAD_MACHINE_MESSAGE_TYPE: 'machine_load';

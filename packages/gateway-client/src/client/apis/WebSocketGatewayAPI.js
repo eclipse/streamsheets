@@ -24,6 +24,7 @@ const {
 	DeleteStreamSheetWebSocketRequest,
 	GetMachineWebSocketRequest,
 	GetMachinesWebSocketRequest,
+	GetCellRawValueWebSocketRequest,
 	LoadMachineWebSocketRequest,
 	LoadSubscribeMachineWebSocketRequest,
 	PauseMachineWebSocketRequest,
@@ -445,6 +446,10 @@ module.exports = class WebSocketGatewayAPI extends GatewayAPI {
 			)
 		);
 	}
+	getCellRawValue(machineId, streamsheetId, reference) {
+		return this.sendRequest(new GetCellRawValueWebSocketRequest(this._ws, machineId, streamsheetId, reference));
+	}
+
 
 	/**
 	 * ******************************************************************************************
