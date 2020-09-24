@@ -104,7 +104,7 @@ export default class SheetGraphItemEventInteraction extends Interaction {
 									const url = term.params[0].value;
 									const sameTab = term.params.length > 1 && term.params[1].value === false;
 									if (sameTab) {
-										window.location.replace(url);
+										window.location.href = url;
 									} else {
 										window.open(url, '_blank');
 									}
