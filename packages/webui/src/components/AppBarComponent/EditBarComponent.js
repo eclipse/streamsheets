@@ -521,7 +521,7 @@ export class EditBarComponent extends Component {
 					margin: 0,
 					fontSize: '9pt',
 					display: 'block',
-					height: '21px'
+					height: '20px'
 				}}
 			>
 				<span

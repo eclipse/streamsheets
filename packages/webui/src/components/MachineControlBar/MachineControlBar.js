@@ -300,7 +300,7 @@ class MachineControlBar extends React.Component {
 					open={this.state.speedOpen}
 					anchorEl={this.state.anchorEl}
 					anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-					targetOrigin={{ horizontal: 'right', vertical: 'top' }}
+					// targetOrigin={{ horizontal: 'right', vertical: 'top' }}
 					onClose={this.onSpeedClose}
 					style={{
 						overflow: 'hidden'

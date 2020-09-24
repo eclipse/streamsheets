@@ -187,7 +187,7 @@ export function MachineDetailPage(props) {
 	}, [machineName]);
 
 	const showTools_ = viewMode.viewMode === null && showTools;
-	let contentMargin = canEditMachine ? 118 : 58;
+	let contentMargin = canEditMachine ? 115 : 58;
 	contentMargin = showTools_ ? contentMargin : 0;
 	if (!userLoaded) {
 		return (
