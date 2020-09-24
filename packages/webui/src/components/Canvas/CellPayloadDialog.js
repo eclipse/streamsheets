@@ -1,68 +1,18 @@
-// import React from 'react';
-// import React, { useState } from 'react';
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
-// import CheckIcon from '@material-ui/icons/Check';
 import ErrorIcon from '@material-ui/icons/ErrorOutline';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
+// import DialogContentText from '@material-ui/core/DialogContentText';
 import JSG from '@cedalo/jsg-ui';
 import store from '../../store';
 import { graphManager } from '../../GraphManager';
 import gatewayClient from '../../helper/GatewayClient';
 
-// const TEST_JSON = {
-// 	"DeviceID": "123456789",
-// 	"DeviceName": "cedalo-device",
-// 	"Settings": {
-// 		"Interval": true,
-// 		"IntervalCycle": 110
-// 	},
-// 	"Battery": 100,
-// 	"Acceleration": {
-// 		"LinearX": 0,
-// 		"LinearY": 0,
-// 		"LinearZ": 0
-// 	},
-// 	"Proximity": false,
-// 	"Magneticfield": {
-// 		"AxisX": 0,
-// 		"AxisY": 0,
-// 		"AxisZ": 0
-// 	},
-// 	"Orientation": {
-// 		"Yaw": -3,
-// 		"Pitch": -2,
-// 		"Roll": 8
-// 	},
-// 	"Rotation": {
-// 		"RotationRoll": 0,	
-// 		"RotationPitch": 1,	
-// 		"RotationYaw": 0	
-// 	},
-// 	"GPS": {
-// 		"Altitude": 0,
-// 		"Latitude": 0,
-// 		"Longitude": 0
-// 	},
-// 	"Gravity": {
-// 		"GravityX": 8,
-// 		"GravityY": 2,
-// 		"GravityZ": -56
-// 	},
-// 	"Array": [
-// 		"Hello",
-// 		"World",
-// 		"!!"
-// 	]
-// }
-// const fetchPayload2 = () => new Promise((resolve) => {
-// 	setTimeout(() => resolve(TEST_JSON), 2000);
-// });
+
 const getMachineId = () => {
 	const machine = store.getState().monitor.machine;
 	return machine && machine.id;
@@ -90,7 +40,7 @@ const handleResponse = ({ machineserver } = {}) => {
 	if (!machineserver || machineserver.error) {
 		throw new Error('Failed to fetch cell payload data!');
 	}
-	return JSON.parse(machineserver);
+	return JSON.parse(machineserver.rawvalue);
 };
 const fetchPayload = async () =>  {
 	const machineId = getMachineId();
@@ -130,7 +80,8 @@ const payloadContent = (payload) => (payload.error ? showError(payload.error) : 
 
 const getContent = (payload) =>
 	payload ? (
-		<DialogContentText style={{ maxHeight: '400px' }}>{payloadContent(payload)}</DialogContentText>
+		// <DialogContentText style={{ maxHeight: '400px' }}>{payloadContent(payload)}</DialogContentText>
+		<div style={{ maxHeight: '400px' }}>{payloadContent(payload)}</div>
 	) : (
 		<div
 			style={{
