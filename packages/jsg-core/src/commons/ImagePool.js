@@ -314,6 +314,10 @@ class ImagePool extends Dictionary {
 	static get SVG_FILTER() {
 		return 'filter';
 	}
+
+	static get SVG_TABLE() {
+		return 'table';
+	}
 }
 
 module.exports = ImagePool;

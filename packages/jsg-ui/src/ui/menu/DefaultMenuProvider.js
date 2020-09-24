@@ -2,6 +2,7 @@
 
 import ItemMenuProvider from './ItemMenuProvider';
 import StreamChartSeries from './entries/StreamChartSeries';
+import StreamChartData from './entries/StreamChartData';
 
 const MENU_STYLE = 'jsg-item-menu';
 const MENU_ROW_STYLE = 'jsg-item-menu-row';
@@ -34,6 +35,7 @@ export default class DefaultMenuProvider extends ItemMenuProvider {
 	addDefaultEntries() {
 		// this.addEntry(new MenuDelete());
 		this.addEntry(new StreamChartSeries());
+		this.addEntry(new StreamChartData());
 	}
 
 	// adds a MenuEntry to this provider

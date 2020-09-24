@@ -7,8 +7,10 @@ import ItemMenuEntry from '../ItemMenuEntry';
 export default class StreamChartSeries extends ItemMenuEntry {
 	constructor() {
 		super();
-		this.id = 'del';
+		this.id = 'chartseries';
+		this.group = 'series';
 		this.element = JSG.imagePool.get(ImagePool.SVG_FILTER);
+		this.element.style.cursor = 'pointer';
 	}
 
 	isVisible(item) {

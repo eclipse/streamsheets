@@ -52,23 +52,7 @@ class NumberFormatSettings extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = {
-			sampleValue: 0,
-			sampleFormatted: '',
-			sampleFormattedColor: 'black',
-			numberFormatSelected: 0,
-			numberFormatCategorySelected: 0,
-			thousands: false,
-			decimals: 0,
-			currency: '€',
-			region: 'en',
-		};
-	}
-	componentWillMount() {
-		this.updateData();
-	}
 
-	updateData() {
 		numberFormats = [];
 		numberFormatCategories = [];
 
@@ -212,17 +196,7 @@ class NumberFormatSettings extends React.Component {
 			}
 		}
 
-		this.setState({
-			sampleValue,
-			numberFormatCategorySelected,
-			numberFormatSelected,
-			thousands,
-			decimals,
-			currency,
-			region
-		});
-
-		this.prepareSampleValue(
+		const sample = this.prepareSampleValue(
 			numberFormatCategorySelected,
 			numberFormatSelected,
 			sampleValue,
@@ -232,7 +206,19 @@ class NumberFormatSettings extends React.Component {
 			region,
 		);
 
-		// this.props.handler(nf ? nf.getValue() : undefined, set ? set.getValue() : undefined);
+		this.state = {
+			sampleValue,
+			sampleFormatted: sample.sampleFormatted,
+			sampleFormattedColor: sample.sampleFormattedColor,
+			numberFormatSelected,
+			numberFormatCategorySelected,
+			thousands,
+			decimals,
+			currency,
+			region,
+		};
+
+
 	}
 
 	handleNumberFormatRowSelection = (categoryId, key) => {
@@ -240,10 +226,8 @@ class NumberFormatSettings extends React.Component {
 			return;
 		}
 
-		this.setState({ numberFormatSelected: key });
-
 		if (key !== undefined) {
-			this.prepareSampleValue(
+			const sample = this.prepareSampleValue(
 				categoryId,
 				key,
 				this.state.sampleValue,
@@ -252,6 +236,11 @@ class NumberFormatSettings extends React.Component {
 				this.state.currency,
 				this.state.region,
 			);
+			this.setState({
+				numberFormatSelected: key,
+				sampleFormatted: sample.sampleFormatted,
+				sampleFormattedColor: sample.sampleFormattedColor,
+			})
 		}
 	};
 
@@ -384,14 +373,13 @@ class NumberFormatSettings extends React.Component {
 	}
 
 	handleThousand = (event) => {
-		this.setState({ thousands: event.target.checked });
 		this.addNumberTemplates(
 			this.state.numberFormatCategorySelected,
 			this.state.sampleValue,
 			event.target.checked,
 			this.state.decimals, this.state.currency, this.state.region,
 		);
-		this.prepareSampleValue(
+		const sample = this.prepareSampleValue(
 			this.state.numberFormatCategorySelected,
 			this.state.numberFormatSelected,
 			this.state.sampleValue,
@@ -400,17 +388,21 @@ class NumberFormatSettings extends React.Component {
 			this.state.currency,
 			this.state.region,
 		);
+		this.setState({
+			thousands: event.target.checked,
+			sampleFormatted: sample.sampleFormatted,
+			sampleFormattedColor: sample.sampleFormattedColor,
+		})
 	}
 
 	handleDecimals = (event) => {
-		this.setState({ decimals: event.target.value });
 		this.addNumberTemplates(
 			this.state.numberFormatCategorySelected,
 			this.state.sampleValue,
 			this.state.thousands,
 			event.target.value, this.state.currency, this.state.region,
 		);
-		this.prepareSampleValue(
+		const sample = this.prepareSampleValue(
 			this.state.numberFormatCategorySelected,
 			this.state.numberFormatSelected,
 			this.state.sampleValue,
@@ -419,15 +411,19 @@ class NumberFormatSettings extends React.Component {
 			this.state.currency,
 			this.state.region,
 		);
+		this.setState({
+			decimals: event.target.value,
+			sampleFormatted: sample.sampleFormatted,
+			sampleFormattedColor: sample.sampleFormattedColor,
+		})
 	}
 
 	handleCurrency = (event) => {
-		this.setState({ currency: event.target.value });
 		this.addNumberTemplates(
 			this.state.numberFormatCategorySelected, this.state.sampleValue, this.state.thousands,
 			this.state.decimals, event.target.value, this.state.region,
 		);
-		this.prepareSampleValue(
+		const sample = this.prepareSampleValue(
 			this.state.numberFormatCategorySelected,
 			this.state.numberFormatSelected,
 			this.state.sampleValue,
@@ -436,15 +432,19 @@ class NumberFormatSettings extends React.Component {
 			event.target.value,
 			this.state.region,
 		);
+		this.setState({
+			currency: event.target.value,
+			sampleFormatted: sample.sampleFormatted,
+			sampleFormattedColor: sample.sampleFormattedColor,
+		})
 	}
 
 	handleRegion = (event) => {
-		this.setState({ region: event.target.value });
 		this.addNumberTemplates(
 			this.state.numberFormatCategorySelected, this.state.sampleValue, this.state.thousands,
 			this.state.decimals, this.state.currency, event.target.value,
 		);
-		this.prepareSampleValue(
+		const sample = this.prepareSampleValue(
 			this.state.numberFormatCategorySelected,
 			this.state.numberFormatSelected,
 			this.state.sampleValue,
@@ -453,6 +453,11 @@ class NumberFormatSettings extends React.Component {
 			this.state.currency,
 			event.target.value,
 		);
+		this.setState({
+			region: event.target.value,
+			sampleFormatted: sample.sampleFormatted,
+			sampleFormattedColor: sample.sampleFormattedColor,
+		})
 	}
 
 	prepareSampleValue(category, formatId, value, decimals, thousands, currency, region) {
@@ -460,14 +465,13 @@ class NumberFormatSettings extends React.Component {
 		let type;
 
 		if (category === undefined || formatId === undefined) {
-			this.setState({ sampleFormatted: '' });
-			return;
+			return { sampleFormatted: '', sampleFormattedColor: 'black' };
 		}
 
 		const format = numberFormats[formatId];
 		if (format === undefined) {
 			this.setState({ sampleFormatted: '' });
-			return;
+			return { sampleFormatted: '', sampleFormattedColor: 'black' };
 		}
 
 		switch (category) {
@@ -525,8 +529,11 @@ class NumberFormatSettings extends React.Component {
 
 		this.props.handler(format.format, settings);
 		const result = NumberFormatter.formatNumber(format.format, value, type);
-		this.setState({ sampleFormatted: result.formattedValue });
-		this.setState({ sampleFormattedColor: result.color });
+
+		return {
+			sampleFormatted: result.formattedValue,
+		 	sampleFormattedColor: result.color
+		};
 	}
 
 	render() {

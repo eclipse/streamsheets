@@ -14,6 +14,7 @@ export default class ItemMenuEntry {
 		const icon = document.createElement('img');
 		// icon.id = id;
 		icon.src = url;
+		icon.style.cursor = 'pointer';
 		return icon;
 	}
 

@@ -302,6 +302,10 @@ JSG.init = (jsghome, locale) => {
 		ImagePool.SVG_FILTER
 	);
 	JSG.imagePool.add(
+		`${jsghome}/res/svg/${ImagePool.SVG_TABLE}.svg`,
+		ImagePool.SVG_TABLE
+	);
+	JSG.imagePool.add(
 		`${jsghome}/res/svg/${ImagePool.SVG_CHECKED}.svg`,
 		ImagePool.SVG_CHECKED
 	);

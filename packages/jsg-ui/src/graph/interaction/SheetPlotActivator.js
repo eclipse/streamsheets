@@ -160,7 +160,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 		if (!item.isProtected()) {
 			NotificationCenter.getInstance().send(
 				new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
-					event
+					open: true
 				})
 			);
 		}
@@ -223,9 +223,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 			);
 		}
 		NotificationCenter.getInstance().send(
-			new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
-				event
-			})
+			new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION)
 		);
 	}
 
