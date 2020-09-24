@@ -289,6 +289,11 @@ export interface MachineActionWebSocketRequest extends IWSRequest {
 	machineId: string;
 }
 
+export interface GetCellRawValueWebSocketRequest extends IWSRequest {
+	type: 'machine_get_cell_raw_value';
+	machineId: string;
+}
+
 export interface Command {
 	name: string;
 }
@@ -326,6 +331,8 @@ export type WSRequest =
 	| GetMachinesRequest
 	| GetMachineRequest
 	| AddInboxMessageRequest
+	| MachineActionWebSocketRequest
+	| GetCellRawValueWebSocketRequest
 	| LoadSubscribeMachineRequest;
 
 export type ServiceResponse =
