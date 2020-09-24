@@ -421,23 +421,19 @@ class ExecuteFunction extends ARequestHandler {
 	}
 }
 class GetCellRawValue extends ARequestHandler {
-	handle({ streamsheetId, index}) {
-		let error;
+	async handle({ streamsheetId, index }) {
 		const streamsheet = this.machine.getStreamSheet(streamsheetId);
 		const sheet = streamsheet && streamsheet.sheet;
 		if (sheet) {
-			try {
-				const cellindex = SheetIndex.create(index);
-				const cell = sheet.cellAt(cellindex);
-				return cell
-					? Promise.resolve({ rawvalue: JSON.stringify(cell.value) })
-					: Promise.reject(new Error(`No cell found at index: ${cellindex}`));
-			} catch (err) {
-				error = err;
+			const cellindex = SheetIndex.create(index);
+			const cell = sheet.cellAt(cellindex);
+			if (cell) {
+				const rawvalue = JSON.stringify(cell.value);
+				return { rawvalue };
 			}
+			throw new Error(`No cell found at index: ${cellindex}`);
 		}
-		error = error || new Error(`Unknown streamsheet id: ${streamsheetId}`);
-		return Promise.reject(error);
+		throw new Error(`Unknown streamsheet id: ${streamsheetId}`);
 	}
 }
 
