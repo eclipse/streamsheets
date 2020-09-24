@@ -170,7 +170,7 @@ const CellPayloadDialog = (props) => {
 			<DialogContent>{getContent(payload)}</DialogContent>
 			<DialogActions style={{ justifyContent: 'center' }}>
 				<Button color="primary" onClick={onClose}>
-					<FormattedMessage id="Ok" defaultMessage="Ok" />
+					<FormattedMessage id="OK" defaultMessage="Ok" />
 				</Button>
 			</DialogActions>
 		</Dialog>
