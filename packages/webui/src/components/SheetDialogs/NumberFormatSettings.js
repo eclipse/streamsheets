@@ -48,6 +48,8 @@ class NumberFormatSettings extends React.Component {
 		handler: PropTypes.func.isRequired,
 		classes: PropTypes.object.isRequired,
 		machine: PropTypes.object.isRequired,
+		numberFormat: PropTypes.string.isRequired,
+		localCulture: PropTypes.string.isRequired,
 	};
 
 	constructor(props) {
@@ -98,22 +100,15 @@ class NumberFormatSettings extends React.Component {
 			return;
 		}
 
-		const selection = sheetView.getItem().getOwnSelection();
-		const format = selection.retainTextFormat();
-
-		if (format === undefined) {
-			return;
-		}
-
-		const nf = format.getNumberFormat();
-		const set = format.getLocalCulture();
-
+		const nf = props.numberFormat;
+		const settings = props.localCulture;
 		let sampleValue = 123456.654321;
 
+		const selection = sheetView.getItem().getOwnSelection();
 		const cell = sheetView.getItem().getDataProvider().get(selection.getActiveCell());
 		if (cell) {
 			const value = cell.getValue();
-			if (value !== undefined) { // Numbers.isNumber(value)) {
+			if (value !== undefined) {
 				sampleValue = value;
 			}
 		}
@@ -125,75 +120,70 @@ class NumberFormatSettings extends React.Component {
 		let numberFormatCategorySelected;
 		let region;
 
-		if (set) {
-			const settings = set.getValue();
-			const sections = settings.split(';');
-			if (sections.length) {
-				currency = '€';
-				region = this.props.machine.locale;
-				decimals = 0;
-				thousands = false;
-				switch (sections[0]) {
-				case 'general':
-					numberFormatCategorySelected = 0;
-					break;
-				case 'number':
-					numberFormatCategorySelected = 1;
-					decimals = Number(sections[1]);
-					thousands = sections[2] === 'true';
-					break;
-				case 'currency':
-					numberFormatCategorySelected = 2;
-					decimals = Number(sections[1]);
-					thousands = sections[2] === 'true';
-					[,,, currency] = sections;
-					break;
-				case 'date':
-					numberFormatCategorySelected = 3;
-					[, region] = sections;
-					break;
-				case 'time':
-					numberFormatCategorySelected = 4;
-					[, region] = sections;
-					break;
-				case 'percent':
-					numberFormatCategorySelected = 5;
-					decimals = Number(sections[1]);
-					break;
-				case 'fraction':
-					numberFormatCategorySelected = 6;
-					break;
-				case 'science':
-					numberFormatCategorySelected = 7;
-					decimals = Number(sections[1]);
-					break;
-				case 'text':
-					numberFormatCategorySelected = 8;
-					break;
-				default:
-					break;
-				}
+		const sections = settings.split(';');
+		if (sections.length) {
+			currency = '€';
+			region = this.props.machine.locale;
+			decimals = 0;
+			thousands = false;
+			switch (sections[0]) {
+			case 'general':
+				numberFormatCategorySelected = 0;
+				break;
+			case 'number':
+				numberFormatCategorySelected = 1;
+				decimals = Number(sections[1]);
+				thousands = sections[2] === 'true';
+				break;
+			case 'currency':
+				numberFormatCategorySelected = 2;
+				decimals = Number(sections[1]);
+				thousands = sections[2] === 'true';
+				[,,, currency] = sections;
+				break;
+			case 'date':
+				numberFormatCategorySelected = 3;
+				[, region] = sections;
+				break;
+			case 'time':
+				numberFormatCategorySelected = 4;
+				[, region] = sections;
+				break;
+			case 'percent':
+				numberFormatCategorySelected = 5;
+				decimals = Number(sections[1]);
+				break;
+			case 'fraction':
+				numberFormatCategorySelected = 6;
+				break;
+			case 'science':
+				numberFormatCategorySelected = 7;
+				decimals = Number(sections[1]);
+				break;
+			case 'text':
+				numberFormatCategorySelected = 8;
+				break;
+			default:
+				break;
 			}
 		}
 
 		this.addNumberTemplates(numberFormatCategorySelected, sampleValue, thousands, decimals, currency, region);
 
-		if (nf && nf.getValue()) {
-			switch (numberFormatCategorySelected) {
-			case 1:
-			case 2:
-			case 3:
-			case 4:
-			case 6:
-				numberFormats.forEach((fmt, index) => {
-					if (fmt.format === nf.getValue()) {
-						numberFormatSelected = index;
-					}
-				});
-				break;
-			default:
-				break;
-			}
+		switch (numberFormatCategorySelected) {
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 6:
+			numberFormats.forEach((fmt, index) => {
+				if (fmt.format === nf) {
+					numberFormatSelected = index;
+				}
+			});
+			break;
+		default:
+			break;
 		}
 
 		const sample = this.prepareSampleValue(
@@ -217,8 +207,6 @@ class NumberFormatSettings extends React.Component {
 			currency,
 			region,
 		};
-
-
 	}
 
 	handleNumberFormatRowSelection = (categoryId, key) => {
@@ -226,22 +214,20 @@ class NumberFormatSettings extends React.Component {
 			return;
 		}
 
-		if (key !== undefined) {
-			const sample = this.prepareSampleValue(
-				categoryId,
-				key,
-				this.state.sampleValue,
-				this.state.decimals,
-				this.state.thousands,
-				this.state.currency,
-				this.state.region,
-			);
-			this.setState({
-				numberFormatSelected: key,
-				sampleFormatted: sample.sampleFormatted,
-				sampleFormattedColor: sample.sampleFormattedColor,
-			})
-		}
+		const sample = this.prepareSampleValue(
+			categoryId,
+			key,
+			this.state.sampleValue,
+			this.state.decimals,
+			this.state.thousands,
+			this.state.currency,
+			this.state.region,
+		);
+		this.setState({
+			numberFormatSelected: key,
+			sampleFormatted: sample.sampleFormatted,
+			sampleFormattedColor: sample.sampleFormattedColor,
+		})
 	};
 
 	addNumberTemplates(key, value, thousands, decimals, currency, region) {

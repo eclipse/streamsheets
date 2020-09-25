@@ -76,7 +76,7 @@ export class FormatCellsDialog extends React.Component {
 			protected: false,
 			visible: false,
 			numberFormat: '',
-			numberFormatSetting: '',
+			localCulture: '',
 			fillStyle: '0',
 			fillColor: '#FFFFFF',
 			fontColor: '#000000',
@@ -99,114 +99,123 @@ export class FormatCellsDialog extends React.Component {
 			fontName: 'Arial',
 			verticalAlignment: TextFormatAttributes.VerticalTextPosition.TOP,
 			horizontalAlignment: TextFormatAttributes.HorizontalTextPosition.CUSTOM,
+			initialized: false,
+			formatMap: new Dictionary(),
+			textFormatMap: new Dictionary(),
+			attributesMap: new Dictionary(),
 		};
-		this.handleClose = this.handleClose.bind(this);
-		this._formatMap = new Dictionary();
-		this._textFormatMap = new Dictionary();
-		this._attributesMap = new Dictionary();
 	}
 
-	componentWillReceiveProps(nextProps) {
-		// You don't have to do this check first, but it can help prevent an unneeded render
-		if (this.props.open === false && nextProps.open === true) {
-			this.updateData();
-			this._attributesMap.clear();
-			this._formatMap.clear();
-			this._textFormatMap.clear();
-		}
-	}
+	// componentWillReceiveProps(nextProps) {
+	// 	// You don't have to do this check first, but it can help prevent an unneeded render
+	// 	if (this.props.open === false && nextProps.open === true) {
+	// 		this.updateData();
+	// 	}
+	// }
+	//
+	static getDerivedStateFromProps(props, state) {
+		if (props.open) {
+			if (!state.initialized) {
+				const sheetView = graphManager.getActiveSheetView();
+				if (!sheetView) {
+					return null;
+				}
 
-	updateData() {
-		const sheetView = graphManager.getActiveSheetView();
-		if (!sheetView) {
-			return;
-		}
+				const newState = {...state};
 
-		const selection = sheetView.getItem().getOwnSelection();
-		const textFormat = selection.retainTextFormat();
-		const format = selection.retainFormat();
-		const attributes = selection.retainAttributes();
+				const selection = sheetView.getItem().getOwnSelection();
+				const textFormat = selection.retainTextFormat();
+				const format = selection.retainFormat();
+				const attributes = selection.retainAttributes();
 
-		if (attributes !== undefined) {
-			this.setState({
-				visible: attributes.getVisible() ? attributes.getVisible().getValue() : '',
-				protected: attributes.getProtected() ? attributes.getProtected().getValue() : '',
-				leftBorderColor: attributes.getLeftBorderColor() ? attributes.getLeftBorderColor().getValue() : '',
-				leftBorderStyle: attributes.getLeftBorderStyle() ? attributes.getLeftBorderStyle().getValue() : '',
-				leftBorderWidth: attributes.getLeftBorderWidth() ? attributes.getLeftBorderWidth().getValue() : '',
-				topBorderColor: attributes.getTopBorderColor() ? attributes.getTopBorderColor().getValue() : '',
-				topBorderStyle: attributes.getTopBorderStyle() ? attributes.getTopBorderStyle().getValue() : '',
-				topBorderWidth: attributes.getTopBorderWidth() ? attributes.getTopBorderWidth().getValue() : '',
-				rightBorderColor: attributes.getRightBorderColor() ? attributes.getRightBorderColor().getValue() : '',
-				rightBorderStyle: attributes.getRightBorderStyle() ? attributes.getRightBorderStyle().getValue() : '',
-				rightBorderWidth: attributes.getRightBorderWidth() ? attributes.getRightBorderWidth().getValue() : '',
-				bottomBorderColor: attributes.getBottomBorderColor()
-					? attributes.getBottomBorderColor().getValue()
-					: '',
-				bottomBorderStyle: attributes.getBottomBorderStyle()
-					? attributes.getBottomBorderStyle().getValue()
-					: '',
-				bottomBorderWidth: attributes.getBottomBorderWidth()
-					? attributes.getBottomBorderWidth().getValue()
-					: '',
-			});
-		}
+				if (attributes !== undefined) {
+					newState.visible = attributes.getVisible() ? attributes.getVisible().getValue() : '';
+					newState.protected = attributes.getProtected() ? attributes.getProtected().getValue() : '';
+					newState.leftBorderColor = attributes.getLeftBorderColor() ? attributes.getLeftBorderColor().getValue() : '';
+					newState.leftBorderStyle = attributes.getLeftBorderStyle() ? attributes.getLeftBorderStyle().getValue() : '';
+					newState.leftBorderWidth = attributes.getLeftBorderWidth() ? attributes.getLeftBorderWidth().getValue() : '';
+					newState.topBorderColor = attributes.getTopBorderColor() ? attributes.getTopBorderColor().getValue() : '';
+					newState.topBorderStyle = attributes.getTopBorderStyle() ? attributes.getTopBorderStyle().getValue() : '';
+					newState.topBorderWidth = attributes.getTopBorderWidth() ? attributes.getTopBorderWidth().getValue() : '';
+					newState.rightBorderColor = attributes.getRightBorderColor() ? attributes.getRightBorderColor().getValue() : '';
+					newState.rightBorderStyle = attributes.getRightBorderStyle() ? attributes.getRightBorderStyle().getValue() : '';
+					newState.rightBorderWidth = attributes.getRightBorderWidth() ? attributes.getRightBorderWidth().getValue() : '';
+					newState.bottomBorderColor = attributes.getBottomBorderColor()
+							? attributes.getBottomBorderColor().getValue()
+							: '';
+					newState.bottomBorderStyle = attributes.getBottomBorderStyle()
+							? attributes.getBottomBorderStyle().getValue()
+							: '';
+					newState.bottomBorderWidth = attributes.getBottomBorderWidth()
+							? attributes.getBottomBorderWidth().getValue()
+							: '';
+				}
 
-		if (format !== undefined) {
-			this.setState({
-				fillColor: format.getFillColor() ? format.getFillColor().getValue() : '',
-				fillStyle: format.getFillStyle() ? String(format.getFillStyle().getValue()) : '',
-			});
-		}
+				if (format !== undefined) {
+					newState.fillColor = format.getFillColor() ? format.getFillColor().getValue() : '';
+					newState.fillStyle = format.getFillStyle() ? String(format.getFillStyle().getValue()) : '';
+				}
 
-		if (textFormat !== undefined) {
-			/* eslint-disable no-bitwise */
-			this.setState({
-				fontSize: textFormat.getFontSize() ? String(textFormat.getFontSize().getValue()) : '',
-				fontName: textFormat.getFontName() ? textFormat.getFontName().getValue() : '',
-				fontColor: textFormat.getFontColor() ? textFormat.getFontColor().getValue() : '',
-				bold: textFormat.getFontStyle()
-					? (textFormat.getFontStyle().getValue() & TextFormatAttributes.FontStyle.BOLD) === 1
-					: '',
-				italic: textFormat.getFontStyle()
-					? (textFormat.getFontStyle().getValue() & TextFormatAttributes.FontStyle.ITALIC) === 2
-					: '',
-				underline: textFormat.getFontStyle()
-					? (textFormat.getFontStyle().getValue() & TextFormatAttributes.FontStyle.UNDERLINE) === 4
-					: '',
-				verticalAlignment: textFormat.getVerticalAlignment()
-					? textFormat.getVerticalAlignment().getValue()
-					: '',
-				horizontalAlignment: textFormat.getHorizontalAlignment()
-					? textFormat.getHorizontalAlignment().getValue()
-					: '',
-			});
+				if (textFormat !== undefined) {
+					/* eslint-disable no-bitwise */
+					newState.numberFormat = textFormat.getNumberFormat() ? textFormat.getNumberFormat().getValue() : '';
+					newState.localCulture = textFormat.getLocalCulture() ? textFormat.getLocalCulture().getValue() : '';
+					newState.fontSize = textFormat.getFontSize() ? String(textFormat.getFontSize().getValue()) : '';
+					newState.fontName = textFormat.getFontName() ? textFormat.getFontName().getValue() : '';
+					newState.fontColor = textFormat.getFontColor() ? textFormat.getFontColor().getValue() : '';
+					newState.bold = textFormat.getFontStyle()
+							? (textFormat.getFontStyle().getValue() & TextFormatAttributes.FontStyle.BOLD) === 1
+							: '';
+					newState.italic = textFormat.getFontStyle()
+							? (textFormat.getFontStyle().getValue() & TextFormatAttributes.FontStyle.ITALIC) === 2
+							: '';
+					newState.underline = textFormat.getFontStyle()
+							? (textFormat.getFontStyle().getValue() & TextFormatAttributes.FontStyle.UNDERLINE) === 4
+							: '';
+					newState.verticalAlignment = textFormat.getVerticalAlignment()
+							? textFormat.getVerticalAlignment().getValue()
+							: '';
+					newState.horizontalAlignment = textFormat.getHorizontalAlignment()
+							? textFormat.getHorizontalAlignment().getValue()
+							: '';
+				}
+
+				newState.attributesMap.clear();
+				newState.formatMap.clear();
+				newState.textFormatMap.clear();
+				newState.initialized = true;
+				return newState;
+			}
+
+			return null;
 		}
+		return {...state, initialized: false};
+
 	}
 
 	handleVerticalAlignmentChange = (event) => {
 		this.setState({ verticalAlignment: event.target.value });
-		this._textFormatMap.put(TextFormatAttributes.VERTICALALIGN, event.target.value);
+		this.state.textFormatMap.put(TextFormatAttributes.VERTICALALIGN, event.target.value);
 	};
 
 	handleHorizontalAlignmentChange = (event) => {
 		this.setState({ horizontalAlignment: event.target.value });
-		this._textFormatMap.put(TextFormatAttributes.HORIZONTALALIGN, event.target.value);
+		this.state.textFormatMap.put(TextFormatAttributes.HORIZONTALALIGN, event.target.value);
 	};
 
 	handleFontNameChange = (event) => {
 		this.setState({ fontName: event.target.value });
-		this._textFormatMap.put(TextFormatAttributes.FONTNAME, event.target.value);
+		this.state.textFormatMap.put(TextFormatAttributes.FONTNAME, event.target.value);
 	};
 
 	handleFontSizeChange = (event) => {
 		this.setState({ fontSize: String(event.target.value) });
-		this._textFormatMap.put(TextFormatAttributes.FONTSIZE, Number(event.target.value));
+		this.state.textFormatMap.put(TextFormatAttributes.FONTSIZE, Number(event.target.value));
 	};
 
 	handleFontColorChange = (color) => {
 		this.setState({ fontColor: color });
-		this._textFormatMap.put(TextFormatAttributes.FONTCOLOR, color);
+		this.state.textFormatMap.put(TextFormatAttributes.FONTCOLOR, color);
 	};
 
 	handleFontBoldChange = () => (event, state) => {
@@ -218,7 +227,7 @@ export class FormatCellsDialog extends React.Component {
 			: TextFormatAttributes.FontStyle.NORMAL;
 		style += state ? TextFormatAttributes.FontStyle.BOLD : TextFormatAttributes.FontStyle.NORMAL;
 
-		this._textFormatMap.put(TextFormatAttributes.FONTSTYLE, style);
+		this.state.textFormatMap.put(TextFormatAttributes.FONTSTYLE, style);
 	};
 
 	handleFontItalicChange = (event, state) => {
@@ -230,7 +239,7 @@ export class FormatCellsDialog extends React.Component {
 			: TextFormatAttributes.FontStyle.NORMAL;
 		style += state ? TextFormatAttributes.FontStyle.ITALIC : TextFormatAttributes.FontStyle.NORMAL;
 
-		this._textFormatMap.put(TextFormatAttributes.FONTSTYLE, style);
+		this.state.textFormatMap.put(TextFormatAttributes.FONTSTYLE, style);
 	};
 
 	handleFontUnderlineChange = (event, state) => {
@@ -240,98 +249,101 @@ export class FormatCellsDialog extends React.Component {
 		style += this.state.italic ? TextFormatAttributes.FontStyle.ITALIC : TextFormatAttributes.FontStyle.NORMAL;
 		style += state ? TextFormatAttributes.FontStyle.UNDERLINE : TextFormatAttributes.FontStyle.NORMAL;
 
-		this._textFormatMap.put(TextFormatAttributes.FONTSTYLE, style);
+		this.state.textFormatMap.put(TextFormatAttributes.FONTSTYLE, style);
 	};
 
 	handleFillStyleChange = (event, value) => {
 		this.setState({ fillStyle: value });
 
-		this._formatMap.put(FormatAttributes.FILLSTYLE, Number(value));
+		this.state.formatMap.put(FormatAttributes.FILLSTYLE, Number(value));
 	};
 
 	handleFillColorChange = (color) => {
 		this.setState({ fillColor: color });
 		this.setState({ fillStyle: '1' });
 
-		this._formatMap.put(FormatAttributes.FILLSTYLE, 1);
-		this._formatMap.put(FormatAttributes.FILLCOLOR, color);
+		this.state.formatMap.put(FormatAttributes.FILLSTYLE, 1);
+		this.state.formatMap.put(FormatAttributes.FILLCOLOR, color);
 	};
 
 	handleLeftBorderStyleChange = (event) => {
 		this.setState({ leftBorderStyle: Number(event.target.value) });
-		this._attributesMap.put(CellAttributes.LEFTBORDERSTYLE, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.LEFTBORDERSTYLE, Number(event.target.value));
 	};
 
 	handleLeftBorderWidthChange = (event) => {
 		this.setState({ leftBorderWidth: event.target.value });
-		this._attributesMap.put(CellAttributes.LEFTBORDERWIDTH, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.LEFTBORDERWIDTH, Number(event.target.value));
 	};
 
 	handleLeftBorderColorChange = (color) => {
 		this.setState({ leftBorderColor: color });
-		this._attributesMap.put(CellAttributes.LEFTBORDERCOLOR, color);
+		this.state.attributesMap.put(CellAttributes.LEFTBORDERCOLOR, color);
 	};
 
 	handleRightBorderStyleChange = (event) => {
 		this.setState({ rightBorderStyle: Number(event.target.value) });
-		this._attributesMap.put(CellAttributes.RIGHTBORDERSTYLE, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.RIGHTBORDERSTYLE, Number(event.target.value));
 	};
 
 	handleRightBorderWidthChange = (event) => {
 		this.setState({ rightBorderWidth: event.target.value });
-		this._attributesMap.put(CellAttributes.RIGHTBORDERWIDTH, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.RIGHTBORDERWIDTH, Number(event.target.value));
 	};
 
 	handleRightBorderColorChange = (color) => {
 		this.setState({ rightBorderColor: color });
-		this._attributesMap.put(CellAttributes.RIGHTBORDERCOLOR, color);
+		this.state.attributesMap.put(CellAttributes.RIGHTBORDERCOLOR, color);
 	};
 
 	handleTopBorderStyleChange = (event) => {
 		this.setState({ topBorderStyle: Number(event.target.value) });
-		this._attributesMap.put(CellAttributes.TOPBORDERSTYLE, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.TOPBORDERSTYLE, Number(event.target.value));
 	};
 
 	handleTopBorderWidthChange = (event) => {
 		this.setState({ topBorderWidth: event.target.value });
-		this._attributesMap.put(CellAttributes.TOPBORDERWIDTH, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.TOPBORDERWIDTH, Number(event.target.value));
 	};
 
 	handleTopBorderColorChange = (color) => {
 		this.setState({ topBorderColor: color });
-		this._attributesMap.put(CellAttributes.TOPBORDERCOLOR, color);
+		this.state.attributesMap.put(CellAttributes.TOPBORDERCOLOR, color);
 	};
 
 	handleBottomBorderStyleChange = (event) => {
 		this.setState({ bottomBorderStyle: Number(event.target.value) });
-		this._attributesMap.put(CellAttributes.BOTTOMBORDERSTYLE, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.BOTTOMBORDERSTYLE, Number(event.target.value));
 	};
 
 	handleBottomBorderWidthChange = (event) => {
 		this.setState({ bottomBorderWidth: event.target.value });
-		this._attributesMap.put(CellAttributes.BOTTOMBORDERWIDTH, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.BOTTOMBORDERWIDTH, Number(event.target.value));
 	};
 
 	handleBottomBorderColorChange = (color) => {
 		this.setState({ bottomBorderColor: color });
-		this._attributesMap.put(CellAttributes.BOTTOMBORDERCOLOR, color);
+		this.state.attributesMap.put(CellAttributes.BOTTOMBORDERCOLOR, color);
 	};
 
 	handleProtectedChange = (event, state) => {
 		this.setState({ protected: state });
 
-		this._attributesMap.put(CellAttributes.PROTECTED, state);
+		this.state.attributesMap.put(CellAttributes.PROTECTED, state);
 	};
 
 	handleVisibleChange = (event, state) => {
 		this.setState({ visible: state });
 
-		this._attributesMap.put(CellAttributes.VISIBLE, state);
+		this.state.attributesMap.put(CellAttributes.VISIBLE, state);
 	};
 
-	handleNumberFormat = (numberFormat, numberFormatSetting) => {
+	handleNumberFormat = (numberFormat, localCulture) => {
 		this.setState({ numberFormat });
-		this.setState({ numberFormatSetting });
+		this.setState({ localCulture });
+
+		this.state.textFormatMap.put(TextFormatAttributes.NUMBERFORMAT, numberFormat);
+		this.state.textFormatMap.put(TextFormatAttributes.LOCALCULTURE, localCulture);
 	};
 
 	handleClose = () => {
@@ -342,47 +354,40 @@ export class FormatCellsDialog extends React.Component {
 			return;
 		}
 
-		if (this.state.numberFormat) {
-			this._textFormatMap.put(TextFormatAttributes.NUMBERFORMAT, this.state.numberFormat);
-		}
-		if (this.state.numberFormatSetting) {
-			this._textFormatMap.put(TextFormatAttributes.LOCALCULTURE, this.state.numberFormatSetting);
-		}
-
 		const cmds = new CompoundCommand();
 
-		if (this._attributesMap.size()) {
+		if (this.state.attributesMap.size()) {
 			cmds.add(
 				new CellAttributesCommand(
 					sheetView
 						.getItem()
 						.getOwnSelection()
 						.getRanges(),
-					this._attributesMap,
+					this.state.attributesMap,
 				),
 			);
 		}
 
-		if (this._formatMap.size()) {
+		if (this.state.formatMap.size()) {
 			cmds.add(
 				new FormatCellsCommand(
 					sheetView
 						.getItem()
 						.getOwnSelection()
 						.getRanges(),
-					this._formatMap,
+					this.state.formatMap,
 				),
 			);
 		}
 
-		if (this._textFormatMap.size()) {
+		if (this.state.textFormatMap.size()) {
 			cmds.add(
 				new TextFormatCellsCommand(
 					sheetView
 						.getItem()
 						.getOwnSelection()
 						.getRanges(),
-					this._textFormatMap,
+					this.state.textFormatMap,
 				),
 			);
 		}
@@ -430,7 +435,11 @@ export class FormatCellsDialog extends React.Component {
 									margin: '10px',
 								}}
 							>
-								<NumberFormatSettings handler={(f, s) => this.handleNumberFormat(f, s)} />
+								<NumberFormatSettings
+									numberFormat={this.state.numberFormat}
+									localCulture={this.state.localCulture}
+									handler={(f, s) => this.handleNumberFormat(f, s)}
+								/>
 							</div>
 						</TabContainer>
 					)}
