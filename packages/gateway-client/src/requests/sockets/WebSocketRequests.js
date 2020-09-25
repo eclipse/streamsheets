@@ -24,6 +24,7 @@ const {
 	DELETE_STREAMSHEET_MESSAGE_TYPE,
 	GET_MACHINE_MESSAGE_TYPE,
 	GET_MACHINES_MESSAGE_TYPE,
+	GET_CELL_RAW_VALUE,
 	LOAD_MACHINE_MESSAGE_TYPE,
 	UNLOAD_MACHINE_MESSAGE_TYPE,
 	LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE,
@@ -817,6 +818,23 @@ class UpdateMachineSettingsWebSocketRequest extends WebSocketRequest {
 	}
 }
 
+class GetCellRawValueWebSocketRequest extends WebSocketRequest {
+	constructor(ws, machineId, streamsheetId, reference) {
+		super(ws, GET_CELL_RAW_VALUE);
+		this._machineId = machineId;
+		this._streamsheetId = streamsheetId;
+		this._reference = reference;
+	}
+
+	_getConfig() {
+		return {
+			machineId: this._machineId,
+			streamsheetId: this._streamsheetId,
+			reference: this._reference
+		};
+	}
+}
+
 /**
  * ******************************************************************************************
  * General requests
@@ -897,6 +915,7 @@ module.exports = {
 	UndoWebSocketRequest,
 	UnloadMachineWebSocketRequest,
 	UnsubscribeMachineWebSocketRequest,
+	GetCellRawValueWebSocketRequest,
 	// General requests
 	CommandWebSocketRequest,
 	MachineActionWebSocketRequest,

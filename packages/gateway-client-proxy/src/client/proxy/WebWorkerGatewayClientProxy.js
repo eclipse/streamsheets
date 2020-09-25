@@ -297,6 +297,10 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('updateMachineSettings', machineId, settings);
 	}
 
+	getCellRawValue(machineId, streamsheetId, reference) {
+		return this._proxy('getCellRawValue', machineId, streamsheetId, reference);
+	}
+
 	/**
 	 * *********************************************
 	 * General API

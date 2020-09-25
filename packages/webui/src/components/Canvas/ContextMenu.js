@@ -15,6 +15,7 @@ import { FormattedMessage } from 'react-intl';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import MenuList from '@material-ui/core/MenuList';
+import Icon from '@material-ui/core/Icon';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
@@ -28,13 +29,11 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import JSG from '@cedalo/jsg-ui';
 
-import {
-	IconCopy,
-	IconPaste,
-	IconCut,
-} from '../icons';
+import { IconCopy, IconPaste, IconCut } from '../icons';
 import { graphManager } from '../../GraphManager';
 import * as Actions from '../../actions/actions';
+import CellPayloadDialog from './CellPayloadDialog';
+import CellPayloadPopover from './CellPayloadPopover';
 
 const styles = {
 	menuItem: {
@@ -42,6 +41,13 @@ const styles = {
 	},
 };
 
+const getSingleCell = (range) => {
+	if (range.isSingleCell()) {
+		const dataProvider = range.getSheet().getDataProvider();
+		return dataProvider.getRC(range.getX1(), range.getY1());
+	}
+	return undefined;
+};
 class ContextComponent extends Component {
 	constructor(props) {
 		super(props);
@@ -49,7 +55,10 @@ class ContextComponent extends Component {
 			context: 'false',
 			top: '0px',
 			left: '0px',
+			showCellPayload: false,
+			showCellPayloadDisabled: true,
 		};
+		this.sheetmenu = React.createRef();
 	}
 
 	componentDidMount() {
@@ -86,15 +95,18 @@ class ContextComponent extends Component {
 		const top = data.object.event.event.offsetY > maxTop ? maxTop : data.object.event.event.offsetY;
 		let payloadDisabled = true;
 		let showHeaderMenus = false;
+		let showCellPayloadDisabled = true;
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
 			const selection = sheetView.getOwnSelection();
 			if (selection.getSize() === 1) {
 				const range = selection.getAt(0);
+				const singleCell = getSingleCell(range);
 				if (range.getWidth() === 2 && !range.isColumnRange()) {
 					payloadDisabled = false;
 				}
+				showCellPayloadDisabled = !singleCell || singleCell.rawtype !== 'object';
 			}
 			if (!(selection.areRowsSelected() && selection.areColumnsSelected())) {
 				showHeaderMenus = selection.areRowsSelected() || selection.areColumnsSelected();
@@ -104,6 +116,7 @@ class ContextComponent extends Component {
 		this.setState({
 			showHeaderMenus,
 			payloadDisabled,
+			showCellPayloadDisabled,
 			context: 'true',
 			left: `${left}px`,
 			top: `${top}px`,
@@ -230,6 +243,19 @@ class ContextComponent extends Component {
 		}
 	};
 
+	showCellPayloadDialog = () => {
+		this.setState({
+			context: false,
+			showCellPayload: true
+		});
+	};
+	hideCellPayloadDialog = () => {
+		this.setState({
+			context: false,
+			showCellPayload: false
+		});
+	};
+
 	onSetPayloadRange = () => {
 		const sheetView = graphManager.getActiveSheetView();
 
@@ -258,7 +284,7 @@ class ContextComponent extends Component {
 
 	handleClick = (event) => {
 		const { context } = this.state;
-		const wasOutside = !(event.target.contains === this.sheetmenu);
+		const wasOutside = !(event.target.contains === this.sheetmenu.current);
 
 		if (wasOutside && context) {
 			this.setState({
@@ -269,174 +295,174 @@ class ContextComponent extends Component {
 
 	render() {
 		return (
-			<Paper
-				id="sheetmenu"
-				ref={(ref) => {
-					this.sheetmenu = ref;
-				}}
-				style={{
-					display: 'inline-block',
-					position: 'absolute',
-					zIndex: '1500',
-					left: [this.state.left],
-					top: [this.state.top],
-					visibility: [this.state.context ? 'visible' : 'hidden'],
-				}}
-			>
-				<MenuList>
-					<MenuItem
-						onClick={this.onCut}
-						dense
-					>
-						<ListItemIcon>
-							<IconCut style={styles.menuItem} />
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="Cut" defaultMessage="Cut" />} />
-					</MenuItem>
-					<MenuItem
-						onClick={this.onCopy}
-						dense
-					>
-						<ListItemIcon>
-							<IconCopy style={styles.menuItem} />
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="Copy" defaultMessage="Copy" />} />
-
-					</MenuItem>
-					<MenuItem
-						onClick={this.onCopyText}
-						dense
-					>
-						<ListItemIcon>
-							<IconCopy style={styles.menuItem} />
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="CopyText" defaultMessage="Copy as Text" />} />
-
-					</MenuItem>
-					<MenuItem
-						onClick={this.onPaste}
-						dense
-						disabled={JSG.clipSheet === undefined}
-					>
-						<ListItemIcon>
-							<IconPaste style={styles.menuItem} />
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="Paste" defaultMessage="Paste" />} />
-					</MenuItem>
-					<MenuItem
-						onClick={this.onPasteContent}
-						disabled={JSG.clipSheet === undefined}
-						dense
-					>
-						<ListItemIcon>
-							<IconPaste style={styles.menuItem} />
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="PasteContent" defaultMessage="Paste" />} />
-					</MenuItem>
-					<MenuItem
-						onClick={this.onDelete}
-						dense
-					>
-						<ListItemIcon>
-							<DeleteIcon style={styles.menuItem} />
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="DeleteContext" defaultMessage="Delete" />} />
-					</MenuItem>
-					<Divider />
-					<MenuItem
-						onClick={this.onInsertCells}
-						dense
-					>
-						<ListItemIcon>
-							<InsertCells style={styles.menuItem} />
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="InsertCells" defaultMessage="Insert" />} />
-					</MenuItem>
-					<MenuItem
-						onClick={this.onDeleteCells}
-						dense
-					>
-						<ListItemIcon>
-							<DeleteCells style={styles.menuItem} />
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="DeleteCells" defaultMessage="Delete Cells" />} />
-					</MenuItem>
-					<Divider />
-					<MenuItem
-						onClick={this.onFormatCells}
-						dense
-					>
-						<ListItemIcon>
-							<SvgIcon>
-								<path
-									// eslint-disable-next-line max-len
-									d="M21.7,13.35L20.7,14.35L18.65,12.3L19.65,11.3C19.86,11.08 20.21,11.08 20.42,11.3L21.7,12.58C21.92,12.79 21.92,13.14 21.7,13.35M12,18.94L18.07,12.88L20.12,14.93L14.06,21H12V18.94M4,2H18A2,2 0 0,1 20,4V8.17L16.17,12H12V16.17L10.17,18H4A2,2 0 0,1 2,16V4A2,2 0 0,1 4,2M4,6V10H10V6H4M12,6V10H18V6H12M4,12V16H10V12H4Z"
+			<React.Fragment>
+				<Paper
+					id="sheetmenu"
+					ref={this.sheetmenu}
+					style={{
+						display: 'inline-block',
+						position: 'absolute',
+						zIndex: '1500',
+						left: [this.state.left],
+						top: [this.state.top],
+						visibility: [this.state.context ? 'visible' : 'hidden']
+					}}
+				>
+					<MenuList>
+						<MenuItem onClick={this.onCut} dense>
+							<ListItemIcon>
+								<IconCut style={styles.menuItem} />
+							</ListItemIcon>
+							<ListItemText primary={<FormattedMessage id="Cut" defaultMessage="Cut" />} />
+						</MenuItem>
+						<MenuItem onClick={this.onCopy} dense>
+							<ListItemIcon>
+								<IconCopy style={styles.menuItem} />
+							</ListItemIcon>
+							<ListItemText primary={<FormattedMessage id="Copy" defaultMessage="Copy" />} />
+						</MenuItem>
+						<MenuItem onClick={this.onCopyText} dense>
+							<ListItemIcon>
+								<IconCopy style={styles.menuItem} />
+							</ListItemIcon>
+							<ListItemText
+								primary={<FormattedMessage id="CopyText" defaultMessage="Copy as Text" />}
+							/>
+						</MenuItem>
+						<MenuItem onClick={this.onPaste} dense disabled={JSG.clipSheet === undefined}>
+							<ListItemIcon>
+								<IconPaste style={styles.menuItem} />
+							</ListItemIcon>
+							<ListItemText primary={<FormattedMessage id="Paste" defaultMessage="Paste" />} />
+						</MenuItem>
+						<MenuItem onClick={this.onPasteContent} disabled={JSG.clipSheet === undefined} dense>
+							<ListItemIcon>
+								<IconPaste style={styles.menuItem} />
+							</ListItemIcon>
+							<ListItemText
+								primary={<FormattedMessage id="PasteContent" defaultMessage="Paste" />}
+							/>
+						</MenuItem>
+						<MenuItem onClick={this.onDelete} dense>
+							<ListItemIcon>
+								<DeleteIcon style={styles.menuItem} />
+							</ListItemIcon>
+							<ListItemText
+								primary={<FormattedMessage id="DeleteContext" defaultMessage="Delete" />}
+							/>
+						</MenuItem>
+						<Divider />
+						<MenuItem onClick={this.onInsertCells} dense>
+							<ListItemIcon>
+								<InsertCells style={styles.menuItem} />
+							</ListItemIcon>
+							<ListItemText
+								primary={<FormattedMessage id="InsertCells" defaultMessage="Insert" />}
+							/>
+						</MenuItem>
+						<MenuItem onClick={this.onDeleteCells} dense>
+							<ListItemIcon>
+								<DeleteCells style={styles.menuItem} />
+							</ListItemIcon>
+							<ListItemText
+								primary={<FormattedMessage id="DeleteCells" defaultMessage="Delete Cells" />}
+							/>
+						</MenuItem>
+						<Divider />
+						<MenuItem onClick={this.onFormatCells} dense>
+							<ListItemIcon>
+								<SvgIcon>
+									<path
+										// eslint-disable-next-line max-len
+										d="M21.7,13.35L20.7,14.35L18.65,12.3L19.65,11.3C19.86,11.08 20.21,11.08 20.42,11.3L21.7,12.58C21.92,12.79 21.92,13.14 21.7,13.35M12,18.94L18.07,12.88L20.12,14.93L14.06,21H12V18.94M4,2H18A2,2 0 0,1 20,4V8.17L16.17,12H12V16.17L10.17,18H4A2,2 0 0,1 2,16V4A2,2 0 0,1 4,2M4,6V10H10V6H4M12,6V10H18V6H12M4,12V16H10V12H4Z"
+									/>
+								</SvgIcon>
+							</ListItemIcon>
+							<ListItemText
+								primary={<FormattedMessage id="FormatCells" defaultMessage="Format Cells" />}
+							/>
+						</MenuItem>
+						{this.state.showHeaderMenus ? (
+							<MenuItem onClick={this.onShowHeader} dense>
+								<ListItemIcon>
+									<ShowIcon style={styles.menuItem} />
+								</ListItemIcon>
+								<ListItemText
+									primary={<FormattedMessage id="ShowHeader" defaultMessage="Show" />}
 								/>
-							</SvgIcon>
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="FormatCells" defaultMessage="Format Cells" />} />
-					</MenuItem>
-					{this.state.showHeaderMenus ?
+							</MenuItem>
+						) : null}
+						{this.state.showHeaderMenus ? (
+							<MenuItem onClick={this.onHideHeader} dense>
+								<ListItemIcon>
+									<HideIcon style={styles.menuItem} />
+								</ListItemIcon>
+								<ListItemText
+									primary={<FormattedMessage id="HideHeader" defaultMessage="Hide" />}
+								/>
+							</MenuItem>
+						) : null}
+						<Divider />
+						<MenuItem onClick={this.onSetPayloadRange} disabled={this.state.payloadDisabled} dense>
+							<ListItemIcon>
+								<SvgIcon>
+									<path
+										// eslint-disable-next-line max-len
+										d="M11,2A2,2 0 0,1 13,4V20A2,2 0 0,1 11,22H2V2H11M4,10V14H11V10H4M4,16V20H11V16H4M4,4V8H11V4H4M15,11H18V8H20V11H23V13H20V16H18V13H15V11Z"
+									/>
+								</SvgIcon>
+								{/* <PayloadRange style={styles.menuItem} /> */}
+							</ListItemIcon>
+							<ListItemText
+								primary={
+									<FormattedMessage
+										id="SetPayloadRange"
+										defaultMessage="Define Payload Range"
+									/>
+								}
+							/>
+						</MenuItem>
+						<MenuItem onClick={this.onRemovePayloadRange} dense>
+							<ListItemIcon>
+								<SvgIcon>
+									<path
+										// eslint-disable-next-line max-len
+										d="M4,2H11A2,2 0 0,1 13,4V20A2,2 0 0,1 11,22H4A2,2 0 0,1 2,20V4A2,2 0 0,1 4,2M4,10V14H11V10H4M4,16V20H11V16H4M4,4V8H11V4H4M17.59,12L15,9.41L16.41,8L19,10.59L21.59,8L23,9.41L20.41,12L23,14.59L21.59,16L19,13.41L16.41,16L15,14.59L17.59,12Z"
+									/>
+								</SvgIcon>
+							</ListItemIcon>
+							<ListItemText
+								primary={
+									<FormattedMessage
+										id="RemovePayloadRange"
+										defaultMessage="Remove Payload Range"
+									/>
+								}
+							/>
+						</MenuItem>
 						<MenuItem
-							onClick={this.onShowHeader}
+							disabled={this.state.showCellPayloadDisabled}
+							onClick={this.showCellPayloadDialog}
 							dense
 						>
 							<ListItemIcon>
-								<ShowIcon style={styles.menuItem} />
+								<Icon>
+									<img width="95%" height="100%" src="resources/json.svg" alt="show payload" />
+								</Icon>
 							</ListItemIcon>
-							<ListItemText primary={<FormattedMessage id="ShowHeader" defaultMessage="Show" />} />
-						</MenuItem> : null}
-					{this.state.showHeaderMenus ?
-						<MenuItem
-							onClick={this.onHideHeader}
-							dense
-						>
-							<ListItemIcon>
-								<HideIcon style={styles.menuItem} />
-							</ListItemIcon>
-							<ListItemText primary={<FormattedMessage id="HideHeader" defaultMessage="Hide" />} />
-						</MenuItem> : null}
-					<Divider />
-					<MenuItem
-						onClick={this.onSetPayloadRange}
-						disabled={this.state.payloadDisabled}
-						dense
-					>
-						<ListItemIcon>
-							<SvgIcon>
-								<path
-									// eslint-disable-next-line max-len
-									d="M11,2A2,2 0 0,1 13,4V20A2,2 0 0,1 11,22H2V2H11M4,10V14H11V10H4M4,16V20H11V16H4M4,4V8H11V4H4M15,11H18V8H20V11H23V13H20V16H18V13H15V11Z"
-								/>
-							</SvgIcon>
-							{/* <PayloadRange style={styles.menuItem} /> */}
-						</ListItemIcon>
-						<ListItemText
-							primary={
-								<FormattedMessage id="SetPayloadRange" defaultMessage="Define Payload Range" />
-							}
-						/>
-					</MenuItem>
-					<MenuItem
-						onClick={this.onRemovePayloadRange}
-						dense
-					>
-						<ListItemIcon>
-							<SvgIcon>
-								<path
-									// eslint-disable-next-line max-len
-									d="M4,2H11A2,2 0 0,1 13,4V20A2,2 0 0,1 11,22H4A2,2 0 0,1 2,20V4A2,2 0 0,1 4,2M4,10V14H11V10H4M4,16V20H11V16H4M4,4V8H11V4H4M17.59,12L15,9.41L16.41,8L19,10.59L21.59,8L23,9.41L20.41,12L23,14.59L21.59,16L19,13.41L16.41,16L15,14.59L17.59,12Z"
-								/>
-							</SvgIcon>
-						</ListItemIcon>
-						<ListItemText
-							primary={
-								<FormattedMessage id="RemovePayloadRange" defaultMessage="Remove Payload Range" />
-							}
-						/>
-					</MenuItem>
-				</MenuList>
-			</Paper>
+							<ListItemText
+								primary={<FormattedMessage id="ShowPayload" defaultMessage="Show Payload" />}
+							/>
+						</MenuItem>
+					</MenuList>
+				</Paper>
+				<CellPayloadDialog open={false} onClose={this.hideCellPayloadDialog} />
+				<CellPayloadPopover
+					open={this.state.showCellPayload}
+					onClose={this.hideCellPayloadDialog}
+					anchor={this.sheetmenu.current}
+				/>
+			</React.Fragment>
 		);
 	}
 }
