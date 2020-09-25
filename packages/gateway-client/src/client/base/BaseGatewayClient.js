@@ -615,6 +615,10 @@ module.exports = class BaseGatewayClient {
 		return this.socket.updateMachineSettings(machineId, settings);
 	}
 
+	getCellRawValue(machineId, streamsheetId, reference) {
+		return this.socket.getCellRawValue(machineId, streamsheetId, reference);
+	}
+
 	/**
 	 * *********************************************
 	 * General API

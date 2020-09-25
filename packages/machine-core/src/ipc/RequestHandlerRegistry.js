@@ -420,6 +420,23 @@ class ExecuteFunction extends ARequestHandler {
 		return err == null ? Promise.resolve({ result }) : Promise.reject(new Error(err));
 	}
 }
+class GetCellRawValue extends ARequestHandler {
+	async handle({ streamsheetId, index }) {
+		const streamsheet = this.machine.getStreamSheet(streamsheetId);
+		const sheet = streamsheet && streamsheet.sheet;
+		if (sheet) {
+			const cellindex = SheetIndex.create(index);
+			const cell = sheet.cellAt(cellindex);
+			if (cell) {
+				const rawvalue = JSON.stringify(cell.value);
+				return { rawvalue };
+			}
+			throw new Error(`No cell found at index: ${cellindex}`);
+		}
+		throw new Error(`Unknown streamsheet id: ${streamsheetId}`);
+	}
+}
+
 // include editable-web-component:
 // handlers.set('insert', ({ type, range, streamsheetId, cells = [], headerProperties = []}) => {
 // 	let error;
@@ -924,6 +941,7 @@ class RequestHandlerRegistry {
 		registry.handlers.set('deleteCells', new DeleteCells(machine, monitor));
 		registry.handlers.set('deleteMessage', new DeleteMessage(machine, monitor));
 		registry.handlers.set('deleteStreamSheet', new DeleteStreamSheet(machine, monitor));
+		registry.handlers.set('getCellRawValue', new GetCellRawValue(machine, monitor));
 		registry.handlers.set('load', new Load(machine, monitor));
 		registry.handlers.set('loadFunctions', new LoadFunctions(machine, monitor));
 		registry.handlers.set('markRequests', new MarkRequests(machine, monitor));

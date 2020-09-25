@@ -571,6 +571,30 @@ class AddInboxMessageRequestHandler extends RequestHandler {
 	}
 }
 
+class GetCellRawValueRequestHandler extends RequestHandler {
+	constructor() {
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.GET_CELL_RAW_VALUE);
+	}
+
+	async handle(request, machineserver) {
+		const { machineId, reference, streamsheetId } = request;
+		const runner = machineserver.getMachineRunner(machineId);
+		if (runner) {
+			const result = await runner.request('getCellRawValue', getUserId(request), {
+				streamsheetId,
+				index: reference
+			});
+			return this.confirm(request, {
+				machineId,
+				streamsheetId,
+				rawvalue: result.rawvalue
+			});
+		}
+		// no runner, no machine:
+		throw this.reject(request, `No machine found with id '${machineId}'!`);
+	}
+}
+
 class SetNamedCellsRequestHandler extends RequestHandler {
 	constructor() {
 		super(MachineServerMessagingProtocol.MESSAGE_TYPES.SET_NAMED_CELLS);
@@ -1148,6 +1172,7 @@ module.exports = {
 	DeleteMachineRequestHandler,
 	DeleteStreamSheetRequestHandler,
 	GetMachineRequestHandler,
+	GetCellRawValueRequestHandler,
 	LoadMachineRequestHandler,
 	LoadSubscribeMachineRequestHandler,
 	LoadSheetCellsRequestHandler,
