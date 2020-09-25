@@ -32,7 +32,6 @@ import JSG from '@cedalo/jsg-ui';
 import { IconCopy, IconPaste, IconCut } from '../icons';
 import { graphManager } from '../../GraphManager';
 import * as Actions from '../../actions/actions';
-import CellPayloadDialog from './CellPayloadDialog';
 import CellPayloadPopover from './CellPayloadPopover';
 
 const styles = {
@@ -243,13 +242,13 @@ class ContextComponent extends Component {
 		}
 	};
 
-	showCellPayloadDialog = () => {
+	showCellPayloadPopover = () => {
 		this.setState({
 			context: false,
 			showCellPayload: true
 		});
 	};
-	hideCellPayloadDialog = () => {
+	hideCellPayloadPopover = () => {
 		this.setState({
 			context: false,
 			showCellPayload: false
@@ -442,7 +441,7 @@ class ContextComponent extends Component {
 						</MenuItem>
 						<MenuItem
 							disabled={this.state.showCellPayloadDisabled}
-							onClick={this.showCellPayloadDialog}
+							onClick={this.showCellPayloadPopover}
 							dense
 						>
 							<ListItemIcon>
@@ -456,10 +455,9 @@ class ContextComponent extends Component {
 						</MenuItem>
 					</MenuList>
 				</Paper>
-				<CellPayloadDialog open={false} onClose={this.hideCellPayloadDialog} />
 				<CellPayloadPopover
 					open={this.state.showCellPayload}
-					onClose={this.hideCellPayloadDialog}
+					onClose={this.hideCellPayloadPopover}
 					anchor={this.sheetmenu.current}
 				/>
 			</React.Fragment>
