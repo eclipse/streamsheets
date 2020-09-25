@@ -130,6 +130,11 @@ module.exports = class Cell {
 	get displayFunctionName() {
 		return this._info && this._info.displayName;
 	}
+
+	get rawtype() {
+		return this._info && this._info.rawtype;
+	}
+
 	get values() {
 		return this._info ? this._info.values : undefined;
 	}
