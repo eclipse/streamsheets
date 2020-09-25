@@ -41,6 +41,13 @@ const styles = {
 	},
 };
 
+const getSingleCell = (range) => {
+	if (range.isSingleCell()) {
+		const dataProvider = range.getSheet().getDataProvider();
+		return dataProvider.getRC(range.getX1(), range.getY1());
+	}
+	return undefined;
+};
 class ContextComponent extends Component {
 	constructor(props) {
 		super(props);
@@ -49,6 +56,7 @@ class ContextComponent extends Component {
 			top: '0px',
 			left: '0px',
 			showCellPayload: false,
+			showCellPayloadDisabled: true,
 		};
 		this.sheetmenu = React.createRef();
 	}
@@ -87,15 +95,18 @@ class ContextComponent extends Component {
 		const top = data.object.event.event.offsetY > maxTop ? maxTop : data.object.event.event.offsetY;
 		let payloadDisabled = true;
 		let showHeaderMenus = false;
+		let showCellPayloadDisabled = true;
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
 			const selection = sheetView.getOwnSelection();
 			if (selection.getSize() === 1) {
 				const range = selection.getAt(0);
+				const singleCell = getSingleCell(range);
 				if (range.getWidth() === 2 && !range.isColumnRange()) {
 					payloadDisabled = false;
 				}
+				showCellPayloadDisabled = !singleCell || singleCell.rawtype !== 'object';
 			}
 			if (!(selection.areRowsSelected() && selection.areColumnsSelected())) {
 				showHeaderMenus = selection.areRowsSelected() || selection.areColumnsSelected();
@@ -105,6 +116,7 @@ class ContextComponent extends Component {
 		this.setState({
 			showHeaderMenus,
 			payloadDisabled,
+			showCellPayloadDisabled,
 			context: 'true',
 			left: `${left}px`,
 			top: `${top}px`,
@@ -428,11 +440,14 @@ class ContextComponent extends Component {
 								}
 							/>
 						</MenuItem>
-						<MenuItem onClick={this.showCellPayloadDialog} dense>
+						<MenuItem
+							disabled={this.state.showCellPayloadDisabled}
+							onClick={this.showCellPayloadDialog}
+							dense
+						>
 							<ListItemIcon>
 								<Icon>
-									<img width="100%" height="100%" src="images/json.png" alt="show payload" />
-									{/* <img width="100%" height="100%" src="resources/json.svg" alt="show payload"/> */}
+									<img width="95%" height="100%" src="resources/json.svg" alt="show payload" />
 								</Icon>
 							</ListItemIcon>
 							<ListItemText
