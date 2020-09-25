@@ -98,7 +98,7 @@ class Cell {
 			descr.type = 'unit';
 			descr.value = term.toString();
 		}
-		descr.info = { ...this.info, displayName: displayName(term)};
+		descr.info = { ...this.info, displayName: displayName(term), rawtype: typeof this.value };
 		// TODO: move level to cell properties
 		descr.level = this.level;
 		const references = this._references && refStrings(this._references);
