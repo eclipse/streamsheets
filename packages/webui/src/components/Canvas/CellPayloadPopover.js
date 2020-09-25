@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import ErrorIcon from '@material-ui/icons/ErrorOutline';
 import Popover from '@material-ui/core/Popover';
@@ -8,103 +9,17 @@ import store from '../../store';
 import { graphManager } from '../../GraphManager';
 import gatewayClient from '../../helper/GatewayClient';
 
-const TEST_JSON = {
-	"devices": [
-		{
-			"DeviceID": "1",
-			// "DeviceName": "cedalo-device",
-			"DeviceName": "cedalo-device really long name. to test the bounds and to check if we have to set max width",
-			"Settings": {
-				"Interval": true,
-				"IntervalCycle": 110
-			},
-			"Battery": 100,
-			"Acceleration": {
-				"LinearX": 0,
-				"LinearY": 0,
-				"LinearZ": 0
-			},
-			"Proximity": false,
-			"Magneticfield": {
-				"AxisX": 0,
-				"AxisY": 0,
-				"AxisZ": 0
-			},
-			"Orientation": {
-				"Yaw": -3,
-				"Pitch": -2,
-				"Roll": 8
-			},
-			"Rotation": {
-				"RotationRoll": 0,	
-				"RotationPitch": 1,	
-				"RotationYaw": 0	
-			},
-			"GPS": {
-				"Altitude": 0,
-				"Latitude": 0,
-				"Longitude": 0
-			},
-			"Gravity": {
-				"GravityX": 8,
-				"GravityY": 2,
-				"GravityZ": -56
-			},
-			"Array": [
-				"Hello",
-				"World",
-				"!!"
-			]
-		
-		},
-		{
-			"DeviceID": "2",
-			"DeviceName": "cedalo-device",
-			"Settings": {
-				"Interval": true,
-				"IntervalCycle": 110
-			},
-			"Battery": 100,
-			"Acceleration": {
-				"LinearX": 0,
-				"LinearY": 0,
-				"LinearZ": 0
-			},
-			"Proximity": false,
-			"Magneticfield": {
-				"AxisX": 0,
-				"AxisY": 0,
-				"AxisZ": 0
-			},
-			"Orientation": {
-				"Yaw": -3,
-				"Pitch": -2,
-				"Roll": 8
-			},
-			"Rotation": {
-				"RotationRoll": 0,	
-				"RotationPitch": 1,	
-				"RotationYaw": 0	
-			},
-			"GPS": {
-				"Altitude": 0,
-				"Latitude": 0,
-				"Longitude": 0
-			},
-			"Gravity": {
-				"GravityX": 8,
-				"GravityY": 2,
-				"GravityZ": -56
-			},
-			"Array": [
-				"Hello",
-				"World",
-				"!!"
-			]
-		
-		}
-	]
-}
+const styles = {
+	centerItems: {
+		width: '100%',
+		height: '100%',
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		justifyContent: 'center'
+	}
+};
+
 const getMachineId = () => {
 	const machine = store.getState().monitor.machine;
 	return machine && machine.id;
@@ -139,49 +54,33 @@ const handleResponse = ({ machineserver } = {}) => {
 };
 const fetchPayload = async () => {
 	const machineId = getMachineId();
-	const streamsheetId = getSheetId();
+	const sheetId = getSheetId();
 	const reference = getCellReference();
-	if (reference) return TEST_JSON;
-	if (machineId && streamsheetId && !reference) {
-		const response = await gatewayClient.getCellRawValue(machineId, streamsheetId, reference);
+	if (machineId && sheetId && reference) {
+		const response = await gatewayClient.getCellRawValue(machineId, sheetId, reference);
 		return handleResponse(response);
 	}
-	throw new Error(
-		`Required data missing! machineId: ${machineId}, streamsheetId: ${streamsheetId}, reference: ${reference}`
-	);
+	const error = `Required data missing! machine: ${machineId}, streamsheet: ${sheetId}, reference: ${reference}`;
+	throw new Error(error);
 };
 
-const prettyPrint = (json) => <Typography><pre>{JSON.stringify(json, null, 2)}</pre></Typography>
-// const prettyPrint = (json) => <pre><Typography>{JSON.stringify(json, null, 2)}</Typography></pre>
-
-const showError = (error) => (
-	<div
-		style={{
-			margin: '10px',
-			width: '100%',
-			height: '100%',
-			display: 'flex',
-			flexDirection: 'column',
-			alignItems: 'center',
-			justifyContent: 'center'
-		}}
-	>
-		<ErrorIcon style={{ color: 'red', width: '36px', height: '36px', paddingRight: '5px' }} />
-		<Typography style={{ marginTop: '5px' }}>{error}</Typography>
-		{/* <Typography style={{ wordWrap: 'break-word'}}>{error}</Typography> */}
+const prettyPrint = (json) => (
+	<div style={{ padding: '0px 10px', maxWidth: '300px', maxHeight: '400px', overflow: 'auto'}}>
+		<pre>
+			<Typography variant="inherit">{JSON.stringify(json, null, 2)}</Typography>
+		</pre>
 	</div>
 );
-
+const showError = (/* error */) => (
+	<div style={{ ...styles.centerItems }}>
+		<ErrorIcon style={{ color: 'red', width: '36px', height: '36px', marginTop: '15px' }} />
+		<Typography style={{ margin: '10px' }}>
+			<FormattedMessage id="Request.failed" defaultMessage="Request failed" />
+		</Typography>
+	</div>
+);
 const fetchingFeedback = () => (
-	<div
-		style={{
-			width: '100%',
-			height: '100%',
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'center'
-		}}
-	>
+	<div style={{ ...styles.centerItems, width: '125px', height: '150px' }}>
 		<CircularProgress />
 	</div>
 );
@@ -199,6 +98,7 @@ const CellPayloadPopover = (props) => {
 				const pl = await fetchPayload();
 				setPayload({ json: pl });
 			} catch (error) {
+				console.error(error);
 				setPayload({ error: error.message });
 			}
 		};
@@ -213,35 +113,10 @@ const CellPayloadPopover = (props) => {
 			open={open}
 			onClose={onClose}
 			anchorEl={anchor}
-			anchorOrigin={{
-				vertical: 'top',
-				horizontal: 'left'
-			}}
-			transformOrigin={{
-				vertical: 'top',
-				horizontal: 'left'
-			}}
-			// style={{
-			// 	minWidth: '100px',
-			// 	maxWidth: '300px',
-			// 	minHeight: '200px',
-			// 	maxHeight: '400px',
-			// 	overflowX: 'auto',
-			// 	// whiteSpace: 'nowrap'
-			// }}
+			anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+			transformOrigin={{ vertical: 'top', horizontal: 'left' }}
 		>
-			<div
-				style={{
-					minWidth: '100px',
-					maxWidth: '300px',
-					minHeight: '200px',
-					maxHeight: '400px',
-					overflowX: 'auto',
-					// whiteSpace: 'nowrap'
-				}}
-			>
-				{getContent(payload)}
-			</div>
+			{getContent(payload)}
 		</Popover>
 	);
 };
