@@ -244,6 +244,9 @@ class LoginPage extends React.Component {
 									<form name="form">
 										<TextField
 											fullWidth
+											variant="outlined"
+											margin="normal"
+											size="small"
 											hinttext={<FormattedMessage id="Login.userHint" defaultMessage="Login" />}
 											required
 											error={error}
@@ -254,6 +257,9 @@ class LoginPage extends React.Component {
 										<br />
 										<TextField
 											fullWidth
+											variant="outlined"
+											margin="normal"
+											size="small"
 											type="password"
 											hinttext="Enter your Password"
 											required
@@ -290,6 +296,9 @@ class LoginPage extends React.Component {
 									<CardContent>
 										<TextField
 											fullWidth
+											variant="outlined"
+											margin="normal"
+											size="small"
 											type="text"
 											hinttext="Enter the Socket API URL"
 											required
@@ -306,6 +315,9 @@ class LoginPage extends React.Component {
 										<br />
 										<TextField
 											fullWidth
+											variant="outlined"
+											margin="normal"
+											size="small"
 											type="text"
 											hinttext="Enter the REST API URL"
 											required
