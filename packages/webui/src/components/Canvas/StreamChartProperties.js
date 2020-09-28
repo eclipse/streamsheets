@@ -92,7 +92,7 @@ export class StreamChartProperties extends Component {
 
 	static getDerivedStateFromProps(props, state) {
 		if (props.showStreamChartProperties === true) {
-			return {...state, plotView: StreamChartProperties.getPlotView()};
+			return { ...state, plotView: StreamChartProperties.getPlotView() };
 		}
 		return null;
 	}
@@ -1527,16 +1527,13 @@ export class StreamChartProperties extends Component {
 											/* eslint-disable-next-line react/no-array-index-key */
 											key={`s${index}`}
 											style={{
-												borderBottom: '1px solid #CCCCCC',
+												borderBottom: '1px solid #CCCCCC'
 											}}
 										>
-											<FormControl
-												style={{
-												}}
-											>
+											<FormControl style={{}}>
 												<MaterialTextField
 													style={{
-														height: '30px',
+														height: '30px'
 													}}
 													variant="outlined"
 													size="small"
@@ -2048,189 +2045,197 @@ export class StreamChartProperties extends Component {
 										)}
 									</FormControl>
 								) : null}
-								<FormLabel component="legend" style={{ marginTop: '8px' }}>
-									<FormattedMessage id="StreamChartProperties.Marker" defaultMessage="Marker" />
-								</FormLabel>
-								<div
-									style={{
-										display: 'inline-flex',
-									}}
-								>
-									<FormControl
-										style={{
-											width: '50%',
-											marginRight: '10px'
-										}}
-									>
-										<TextField
-											variant="outlined"
-											size="small"
-											label={
-												<FormattedMessage
-													id="StreamChartProperties.Style"
-													defaultMessage="Style"
-												/>
-											}
-											select
-											margin="normal"
-											id="series-marker"
-											value={data.marker.style}
-											onChange={this.handleSeriesMarkerStyleChange}
-											input={<Input name="series-marker" id="series-marker" />}
+								{item.isLineType(data) ? (
+									<div style={{display: 'grid'}}>
+										<FormLabel component="legend" style={{ marginTop: '8px' }}>
+											<FormattedMessage
+												id="StreamChartProperties.Marker"
+												defaultMessage="Marker"
+											/>
+										</FormLabel>
+										<div
+											style={{
+												display: 'inline-flex'
+											}}
 										>
-											<MenuItem value="none" key={1}>
-												<FormattedMessage
-													id="StreamChartProperties.none"
-													defaultMessage="None"
-												/>
-											</MenuItem>
-											<MenuItem value="circle" key={2}>
-												<FormattedMessage
-													id="StreamChartProperties.circle"
-													defaultMessage="Circle"
-												/>
-											</MenuItem>
-											<MenuItem value="cross" key={3}>
-												<FormattedMessage
-													id="StreamChartProperties.cross"
-													defaultMessage="Cross"
-												/>
-											</MenuItem>
-											<MenuItem value="crossRot" key={4}>
-												<FormattedMessage
-													id="StreamChartProperties.rotatedCross"
-													defaultMessage="Rotated Cross"
-												/>
-											</MenuItem>
-											<MenuItem value="dash" key={5}>
-												<FormattedMessage
-													id="StreamChartProperties.dash"
-													defaultMessage="Dash"
-												/>
-											</MenuItem>
-											<MenuItem value="dashright" key={6}>
-												<FormattedMessage
-													id="StreamChartProperties.dashright"
-													defaultMessage="Dash Right"
-												/>
-											</MenuItem>
-											<MenuItem value="line" key={7}>
-												<FormattedMessage
-													id="StreamChartProperties.line"
-													defaultMessage="Line"
-												/>
-											</MenuItem>
-											<MenuItem value="rect" key={8}>
-												<FormattedMessage
-													id="StreamChartProperties.rectangle"
-													defaultMessage="Rectangle"
-												/>
-											</MenuItem>
-											<MenuItem value="rectRot" key={9}>
-												<FormattedMessage
-													id="StreamChartProperties.diamond"
-													defaultMessage="Diamond"
-												/>
-											</MenuItem>
-											<MenuItem value="star" key={10}>
-												<FormattedMessage
-													id="StreamChartProperties.star"
-													defaultMessage="Star"
-												/>
-											</MenuItem>
-											<MenuItem value="triangle" key={11}>
-												<FormattedMessage
-													id="StreamChartProperties.triangle"
-													defaultMessage="Triangle"
-												/>
-											</MenuItem>
-										</TextField>
-									</FormControl>
-									<FormControl
-										style={{
-											width: '50%'
-										}}
-									>
-										<TextField
-											variant="outlined"
-											size="small"
-											label={
-												<FormattedMessage
-													id="StreamChartProperties.MarkerSize"
-													defaultMessage="Size"
-												/>
-											}
-											margin="normal"
-											select
-											id="templates"
-											value={data.marker.size}
-											onChange={this.handleSeriesMarkerSizeChange}
-											input={<Input name="template" id="template" />}
+											<FormControl
+												style={{
+													width: '50%',
+													marginRight: '10px'
+												}}
+											>
+												<TextField
+													variant="outlined"
+													size="small"
+													label={
+														<FormattedMessage
+															id="StreamChartProperties.Style"
+															defaultMessage="Style"
+														/>
+													}
+													select
+													margin="normal"
+													id="series-marker"
+													value={data.marker.style}
+													onChange={this.handleSeriesMarkerStyleChange}
+													input={<Input name="series-marker" id="series-marker" />}
+												>
+													<MenuItem value="none" key={1}>
+														<FormattedMessage
+															id="StreamChartProperties.none"
+															defaultMessage="None"
+														/>
+													</MenuItem>
+													<MenuItem value="circle" key={2}>
+														<FormattedMessage
+															id="StreamChartProperties.circle"
+															defaultMessage="Circle"
+														/>
+													</MenuItem>
+													<MenuItem value="cross" key={3}>
+														<FormattedMessage
+															id="StreamChartProperties.cross"
+															defaultMessage="Cross"
+														/>
+													</MenuItem>
+													<MenuItem value="crossRot" key={4}>
+														<FormattedMessage
+															id="StreamChartProperties.rotatedCross"
+															defaultMessage="Rotated Cross"
+														/>
+													</MenuItem>
+													<MenuItem value="dash" key={5}>
+														<FormattedMessage
+															id="StreamChartProperties.dash"
+															defaultMessage="Dash"
+														/>
+													</MenuItem>
+													<MenuItem value="dashright" key={6}>
+														<FormattedMessage
+															id="StreamChartProperties.dashright"
+															defaultMessage="Dash Right"
+														/>
+													</MenuItem>
+													<MenuItem value="line" key={7}>
+														<FormattedMessage
+															id="StreamChartProperties.line"
+															defaultMessage="Line"
+														/>
+													</MenuItem>
+													<MenuItem value="rect" key={8}>
+														<FormattedMessage
+															id="StreamChartProperties.rectangle"
+															defaultMessage="Rectangle"
+														/>
+													</MenuItem>
+													<MenuItem value="rectRot" key={9}>
+														<FormattedMessage
+															id="StreamChartProperties.diamond"
+															defaultMessage="Diamond"
+														/>
+													</MenuItem>
+													<MenuItem value="star" key={10}>
+														<FormattedMessage
+															id="StreamChartProperties.star"
+															defaultMessage="Star"
+														/>
+													</MenuItem>
+													<MenuItem value="triangle" key={11}>
+														<FormattedMessage
+															id="StreamChartProperties.triangle"
+															defaultMessage="Triangle"
+														/>
+													</MenuItem>
+												</TextField>
+											</FormControl>
+											<FormControl
+												style={{
+													width: '50%'
+												}}
+											>
+												<TextField
+													variant="outlined"
+													size="small"
+													label={
+														<FormattedMessage
+															id="StreamChartProperties.MarkerSize"
+															defaultMessage="Size"
+														/>
+													}
+													margin="normal"
+													select
+													id="templates"
+													value={data.marker.size}
+													onChange={this.handleSeriesMarkerSizeChange}
+													input={<Input name="template" id="template" />}
+												>
+													{Object.values(markerSizes).map((key) => (
+														<MenuItem value={key} key={key}>
+															{key}
+														</MenuItem>
+													))}
+												</TextField>
+											</FormControl>
+										</div>
+										<div
+											style={{
+												display: 'inline-flex',
+												flexDirection: 'row'
+											}}
 										>
-											{Object.values(markerSizes).map((key) => (
-												<MenuItem value={key} key={key}>
-													{key}
-												</MenuItem>
-											))}
-										</TextField>
-									</FormControl>
-								</div>
-								<div
-									style={{
-										display: 'inline-flex',
-										flexDirection: 'row',
-									}}
-								>
-									<FormControl
-										size="small"
-										variant="outlined"
-										margin="normal"
-										style={{
-											width: '50%',
-											marginRight: '10px'
-										}}
-									>
-										<ColorComponent
-											label={
-												<FormattedMessage
-													id="StreamChartProperties.FillColor"
-													defaultMessage="Fill Color"
+											<FormControl
+												size="small"
+												variant="outlined"
+												margin="normal"
+												style={{
+													width: '50%',
+													marginRight: '10px'
+												}}
+											>
+												<ColorComponent
+													label={
+														<FormattedMessage
+															id="StreamChartProperties.FillColor"
+															defaultMessage="Fill Color"
+														/>
+													}
+													labelFontSize="1rem"
+													transparent
+													color={
+														data.marker.fillColor ||
+														item.getTemplate().series.getFillForIndex(selection.index)
+													}
+													onChange={(color) => this.handleSeriesMarkerFillColorChange(color)}
 												/>
-											}
-											labelFontSize="1rem"
-											transparent
-											color={
-												data.marker.fillColor ||
-												item.getTemplate().series.getFillForIndex(selection.index)
-											}
-											onChange={(color) => this.handleSeriesMarkerFillColorChange(color)}
-										/>
-									</FormControl>
-									<FormControl
-										size="small"
-										variant="outlined"
-										margin="normal"
-										style={{
-											display: 'inline-flex',
-											width: '50%'
-										}}
-									>
-										<ColorComponent
-											labelFontSize="1rem"
-											label={
-												<FormattedMessage
-													id="StreamChartProperties.LineColor"
-													defaultMessage="Line Color"
+											</FormControl>
+											<FormControl
+												size="small"
+												variant="outlined"
+												margin="normal"
+												style={{
+													display: 'inline-flex',
+													width: '50%'
+												}}
+											>
+												<ColorComponent
+													labelFontSize="1rem"
+													label={
+														<FormattedMessage
+															id="StreamChartProperties.LineColor"
+															defaultMessage="Line Color"
+														/>
+													}
+													transparent
+													color={
+														data.marker.lineColor ||
+														item.getTemplate().series.line[selection.index]
+													}
+													onChange={(color) => this.handleSeriesMarkerLineColorChange(color)}
 												/>
-											}
-											transparent
-											color={
-												data.marker.lineColor || item.getTemplate().series.line[selection.index]
-											}
-											onChange={(color) => this.handleSeriesMarkerLineColorChange(color)}
-										/>
-									</FormControl>
-								</div>
+											</FormControl>
+										</div>
+									</div>
+								) : null}
 								{item.xAxes.length > 1 || item.yAxes.length > 1 ? (
 									<FormLabel
 										component="legend"
@@ -2325,20 +2330,21 @@ export class StreamChartProperties extends Component {
 											defaultMessage="Settings"
 										/>
 									</FormLabel>
-									<FormControlLabel
-										control={
-											<Checkbox
-												checked={data.smooth}
-												onChange={(event, state) => this.handleSeriesSmoothChange(event, state)}
-											/>
-										}
-										label={
-											<FormattedMessage
-												id="StreamChartProperties.SmoothLine"
-												defaultMessage="Smooth Line"
-											/>
-										}
-									/>
+									{item.isLineType(data) ? (
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={data.smooth}
+													onChange={(event, state) => this.handleSeriesSmoothChange(event, state)}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.SmoothLine"
+													defaultMessage="Smooth Line"
+												/>
+											}
+										/>) : null}
 									<FormControlLabel
 										control={
 											<Checkbox
