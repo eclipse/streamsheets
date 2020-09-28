@@ -32,8 +32,8 @@ module.exports = {
 			}
 		},
 		DAY: {
-			en: { argumentList: 'DateValue', description: 'Returns the day of the time value' },
-			de: { argumentList: 'Datumswert', description: 'Gibt den Tag eines Datumswertes zurück' }
+			en: { argumentList: 'DateValue,Round', description: 'Returns the day of the time value' },
+			de: { argumentList: 'Datumswert,Runden', description: 'Gibt den Tag eines Datumswertes zurück' }
 		},
 		EXCEL2JSONTIME: {
 			en: {
@@ -47,8 +47,8 @@ module.exports = {
 			}
 		},
 		HOUR: {
-			en: { argumentList: 'TimeValue', description: 'Returns the hour of the time value' },
-			de: { argumentList: 'Zeitwert', description: 'Gibt die Stunde eines Zeitwertes zurück' }
+			en: { argumentList: 'TimeValue,Round', description: 'Returns the hour of the time value' },
+			de: { argumentList: 'Zeitwert,Runden', description: 'Gibt die Stunde eines Zeitwertes zurück' }
 		},
 		JSONTIME2EXCEL: {
 			en: {
@@ -61,12 +61,12 @@ module.exports = {
 			}
 		},
 		MINUTE: {
-			en: { argumentList: 'Timevalue', description: 'Returns the minute of the time value' },
-			de: { argumentList: 'Zeitwert', description: 'Gibt die Minute eines Zeitwertes zurück' }
+			en: { argumentList: 'Timevalue,Round', description: 'Returns the minute of the time value' },
+			de: { argumentList: 'Zeitwert,Runden', description: 'Gibt die Minute eines Zeitwertes zurück' }
 		},
 		MONTH: {
-			en: { argumentList: 'DateValue', description: 'Returns the month of the time value' },
-			de: { argumentList: 'Datumswert', description: 'Gibt den Monat eines Zeitwertes zurück' }
+			en: { argumentList: 'DateValue,Round', description: 'Returns the month of the time value' },
+			de: { argumentList: 'Datumswert,Runden', description: 'Gibt den Monat eines Zeitwertes zurück' }
 		},
 		MSTOSERIAL: {
 			en: { argumentList: 'TimeValue', description: 'Converts the given ellapsed milliseconds to a date value' },
@@ -77,8 +77,8 @@ module.exports = {
 			de: { argumentList: '', description: 'Gibt den aktuellen Zeitwert zurück' }
 		},
 		SECOND: {
-			en: { argumentList: 'TimeValue', description: 'Returns the seconds of the time value' },
-			de: { argumentList: 'Zeitwert', description: 'Gibt die Sekunden eines Zeitwertes zurück' }
+			en: { argumentList: 'TimeValue,Round', description: 'Returns the seconds of the time value' },
+			de: { argumentList: 'Zeitwert,Runden', description: 'Gibt die Sekunden eines Zeitwertes zurück' }
 		},
 		SERIALTOMS: {
 			en: { argumentList: 'Date', description: 'Converts the given date to the ellapsed milliseconds' },
@@ -107,12 +107,12 @@ module.exports = {
 			}
 		},
 		WEEKDAY: {
-			en: { argumentList: 'DateValue', description: 'Returns the week day of the time value' },
-			de: { argumentList: 'Datumswert', description: 'Gibt den Wochentag eines Zeitwertes zurück' }
+			en: { argumentList: 'DateValue,Round', description: 'Returns the week day of the time value' },
+			de: { argumentList: 'Datumswert,Runden', description: 'Gibt den Wochentag eines Zeitwertes zurück' }
 		},
 		YEAR: {
-			en: { argumentList: 'DateValue', description: 'Returns the year of the date value' },
-			de: { argumentList: 'Datumswert', description: 'Gibt das Jahr eines Datumswertes zurück' }
+			en: { argumentList: 'DateValue,Round', description: 'Returns the year of the date value' },
+			de: { argumentList: 'Datumswert,Runden', description: 'Gibt das Jahr eines Datumswertes zurück' }
 		}
 	}
 };
