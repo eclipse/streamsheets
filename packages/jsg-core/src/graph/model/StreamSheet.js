@@ -37,6 +37,7 @@ const StringAttribute = require('../attr/StringAttribute');
 const NumberExpression = require('../expr/NumberExpression');
 const LineShape = require('./shapes/LineShape');
 const EllipseShape = require('./shapes/EllipseShape');
+const RectangleShape = require('./shapes/RectangleShape');
 const BezierShape = require('./shapes/BezierShape');
 const PolygonShape = require('./shapes/PolygonShape');
 const Expression = require('../expr/Expression');
@@ -758,6 +759,29 @@ module.exports = class StreamSheet extends WorksheetNode {
 				}
 			}
 			if (node) {
+				switch (drawItem.type) {
+					case 'rectangle':
+						if (node.getShape().getType() !== RectangleShape.TYPE) {
+							node.setShapeTo(new RectangleShape())
+						}
+						break;
+					case 'ellipse':
+						if (node.getShape().getType() !== EllipseShape.TYPE) {
+							node.setShapeTo(new EllipseShape())
+						}
+						break;
+					case 'polygon':
+						if (node.getShape().getType() !== PolygonShape.TYPE) {
+							node.setShapeTo(new PolygonShape())
+						}
+						break;
+					case 'bezier':
+						if (node.getShape().getType() !== BezierShape.TYPE) {
+							node.setShapeTo(new BezierShape())
+						}
+						break;
+				}
+
 				let attr = node.getItemAttributes().getAttribute('sheetsource');
 				if (!attr) {
 					attr = node.getItemAttributes().addAttribute(new StringAttribute('sheetsource', drawItem.source));
@@ -786,7 +810,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 				const eventEnabled = node.disableEvents();
 
-				if (drawItem.type === 'line') {
+				if (drawItem.type === 'line' && (node instanceof Edge)) {
 					let pStart = new Point(drawItem.x, drawItem.y);
 					pStart = this.convertToChildPos(pStart, node.getParent());
 					let pEnd = new Point(drawItem.x2, drawItem.y2);
