@@ -401,8 +401,8 @@ class Graphics {
 	rect(x, y, width, height) {
 		this._fillOperation = true;
 		const p1 = this.transformPoint(x, y, 0);
-		width = Math.ceil(width - 0.5);
-		height = Math.ceil(height - 0.5);
+		// width = Math.ceil(width - 0.5);
+		// height = Math.ceil(height - 0.5);
 
 		const angle = this.getRotation();
 		if (angle) {
