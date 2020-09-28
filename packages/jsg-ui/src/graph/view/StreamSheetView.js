@@ -17,12 +17,13 @@ import {
 	StreamSheet,
 	SetCellsCommand,
 	Point,
-	BoundingBox
+	BoundingBox, Shape
 } from '@cedalo/jsg-core';
 import CellFeedbackView from '../feedback/CellFeedbackView';
 import WorksheetView from './WorksheetView';
 import ClientEvent from '../../ui/events/ClientEvent';
 import ScrollBar from '../../ui/scrollview/ScrollBar';
+import ContentNodeView from "./ContentNodeView";
 
 const SHEET_DROP_FROM_OUTBOX = 'sheet_drop_from_outbox';
 

@@ -41,6 +41,7 @@ import KeyEvent from '../../ui/events/KeyEvent';
 import ClientEvent from '../../ui/events/ClientEvent';
 import ScrollBar from '../../ui/scrollview/ScrollBar';
 import Cursor from '../../ui/Cursor';
+import ContentNodeView from "../view/ContentNodeView";
 
 const SHEET_SHOW_CONTEXT_MENU_NOTIFICATION = 'sheet_show_context_menu_notification';
 
@@ -1316,19 +1317,31 @@ export default class SheetInteraction extends Interaction {
 		if (event.event.ctrlKey) {
 			viewer.setWheelZoom(event);
 		} else {
-			const zDelta = event.getWheelDelta() < 0 ? 1 : -1;
-			const view = this._controller.getView();
-			const scrollView = view.getScrollView();
-			const pt = scrollView.getScrollPosition();
+			const controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => true);
+			if (controller) {
+				let view = controller.getView();
 
-			if (event.event.shiftKey) {
-				pt.x += zDelta * 2000;
-			} else {
-				pt.y += zDelta * 1500;
+				while (view && !(view instanceof ContentNodeView)) {
+					view = view.getParent();
+				}
+
+				if (view === undefined) {
+					return;
+				}
+
+				const zDelta = event.getWheelDelta() < 0 ? 1 : -1;
+				const scrollView = view.getScrollView();
+				const pt = scrollView.getScrollPosition();
+
+				if (event.event.shiftKey) {
+					pt.x += zDelta * 2000;
+				} else {
+					pt.y += zDelta * 1500;
+				}
+				scrollView.setScrollPositionTo(pt);
+
+				this.getInteractionHandler().repaint();
 			}
-			scrollView.setScrollPositionTo(pt);
-
-			this.getInteractionHandler().repaint();
 		}
 	}
 
