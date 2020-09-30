@@ -24,6 +24,8 @@ const messageById = (id, outbox, ttl) => (id != null ? outbox.peek(id) || putNew
 
 const createNewData = (message, keys, value) => {
 	const newData = message ? Object.assign({}, message.data) : undefined;
+	// no path defined => replace data object:
+	if (!keys.length) return isType.object(value) ? value : [value];
 	return newData && (jsonbuilder.add(newData, keys, value) || ERROR.INVALID_PATH);
 };
 const createNewMetadata = (message, keys, value) => {
