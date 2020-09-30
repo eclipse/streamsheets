@@ -19,31 +19,31 @@
 	<img alt="Version" src="https://img.shields.io/badge/version-2.0-blue.svg?cacheSeconds=2592000" />
 	<img alt="Node.js version" src="https://img.shields.io/badge/node-%3E%3D%208.0.0-blue.svg" />
 	<br/>
-	<a href="https://forum.streamsheets.com">
+	<a href="https://forum.cedalo.com">
 		<img
-			alt="Discourse: forum.streamsheets.com"
-			src="https://img.shields.io/discourse/https/forum.streamsheets.com/topics.svg?style=social&logo=discourse"
+			alt="Discourse: forum.cedalo.com"
+			src="https://img.shields.io/discourse/https/forum.cedalo.com/topics.svg?style=social&logo=discourse"
 			target="_blank"
 		/>
 	</a>
-	<a href="https://forum.streamsheets.com">
+	<a href="https://forum.cedalo.com">
 		<img
-			alt="Discourse: forum.streamsheets.com"
-			src="https://img.shields.io/discourse/https/forum.streamsheets.com/users.svg?style=social&logo=discourse"
+			alt="Discourse: forum.cedalo.com"
+			src="https://img.shields.io/discourse/https/forum.cedalo.com/users.svg?style=social&logo=discourse"
 			target="_blank"
 		/>
 	</a>
-	<a href="https://forum.streamsheets.com">
+	<a href="https://forum.cedalo.com">
 		<img
-			alt="Discourse: forum.streamsheets.com"
-			src="https://img.shields.io/discourse/https/forum.streamsheets.com/posts.svg?style=social&logo=discourse"
+			alt="Discourse: forum.cedalo.com"
+			src="https://img.shields.io/discourse/https/forum.cedalo.com/posts.svg?style=social&logo=discourse"
 			target="_blank"
 		/>
 	</a>
-	<!-- <a href="https://forum.streamsheets.com">
+	<!-- <a href="https://forum.cedalo.com">
 		<img
-			alt="Discourse: forum.streamsheets.com"
-			src="https://img.shields.io/discourse/https/forum.streamsheets.com/likes.svg?style=social&logo=discourse"
+			alt="Discourse: forum.cedalo.com"
+			src="https://img.shields.io/discourse/https/forum.cedalo.com/likes.svg?style=social&logo=discourse"
 			target="_blank"
 		/>
 	</a> -->
@@ -72,7 +72,7 @@ If you are new to Streamsheets, you should start with the [introduction guide](h
 alt="Streamsheets" /></a>
 </p>
 
-Also, visit us on our [website](https://cedalo.com/) or check out the [Streamsheets forum](https://forum.streamsheets.com/).
+Also, visit us on our [website](https://cedalo.com/) or check out the [Streamsheets forum](https://forum.cedalo.com/).
 
 ## Table of contents
 
@@ -160,7 +160,7 @@ Streamsheets are maintained by the [Cedalo AG](https://cedalo.com/). Please chec
 
 ### Looking for support?
 
-For questions and support please join our [Forum](https://forum.streamsheets.com), ask a question on [Stack Overflow](https://stackoverflow.com/questions/tagged/streamsheets), or contact us on [Twitter](https://twitter.com/cedalo_com).
+For questions and support please join our [Forum](https://forum.cedalo.com), ask a question on [Stack Overflow](https://stackoverflow.com/questions/tagged/streamsheets), or contact us on [Twitter](https://twitter.com/cedalo_com).
 
 ### Where are the docs?
 
