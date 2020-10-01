@@ -156,7 +156,7 @@ The documentation is divided into several sections:
 
 ### Who maintains Streamsheets?
 
-Streamsheets are maintained by the [Cedalo AG](https://cedalo.com/). Please check out our [team page](https://cedalo.com/en/aboutus/)!
+Streamsheets are maintained by the [Cedalo AG](https://cedalo.com/).
 
 ### Looking for a hosted version of Streamsheets?
 
