@@ -160,7 +160,7 @@ Streamsheets are maintained by the [Cedalo AG](https://cedalo.com/). Please chec
 
 ### Looking for a hosted version of Streamsheets?
 
-If you are interested in a hosted version of Streamsheets on our infrastructure please contact us via: https://cedalo.com/contact.html
+If you are interested in a hosted version of Streamsheets on our infrastructure please [contact us](https://cedalo.com/contact.html)
 
 ### Looking for support?
 
