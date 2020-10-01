@@ -108,7 +108,7 @@ const styles = {
 	select: {
 		'&:before': {
 			// normal
-			border: 'none'
+			border: 'none !important'
 		},
 		'&:after': {
 			// focused
@@ -1739,6 +1739,21 @@ export class CanvasToolBar extends Component {
 		return false;
 	}
 
+	isChartElementWithoutFontSelected() {
+		const selection = graphManager.getGraphViewer().getSelection();
+		if (selection && selection.length) {
+			const cont = selection[0];
+			if (cont.getModel() instanceof SheetPlotNode) {
+				const sel = cont.getView().chartSelection;
+				if (!sel) {
+					return true;
+				}
+				return sel.element === 'point' || sel.element === 'series';
+			}
+		}
+		return false;
+	}
+
 	fillColorToRGBAObject(format) {
 		let color = format && format.getFillColor() ? format.getFillColor().getValue() : '#FFFFFF';
 		if (color.length && color[0] !== '#') {
@@ -1913,6 +1928,7 @@ export class CanvasToolBar extends Component {
 		}
 		const tf = this.state.cellTextFormat;
 		const f = this.state.cellFormat;
+		const noChartFont = this.isChartElementWithoutFontSelected();
 		const gridTitleColor = this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor;
 		return (
 			<AppBar
@@ -2148,6 +2164,7 @@ export class CanvasToolBar extends Component {
 					onChange={(event) => this.onFormatFontName(event)}
 					input={<Input name="font-name" id="font-name" />}
 					className={classes.select}
+					disabled={noChartFont}
 					inputProps={{
 						style: { paddingLeft: '5px', paddingTop: '6px' }
 					}}
@@ -2196,6 +2213,7 @@ export class CanvasToolBar extends Component {
 					onChange={(event) => this.onFormatFontSize(event)}
 					input={<Input name="font-size" id="font-size" />}
 					className={classes.select}
+					disabled={noChartFont}
 					inputProps={{
 						style: { paddingLeft: '5px', paddingTop: '6px' }
 					}}
@@ -2252,7 +2270,7 @@ export class CanvasToolBar extends Component {
 										: 'transparent'
 							}}
 							onClick={this.onFormatBold}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={(!this.props.cellSelected && !this.state.graphSelected) || noChartFont}
 						>
 							<BoldIcon fontSize="inherit" />
 						</IconButton>
@@ -2278,7 +2296,7 @@ export class CanvasToolBar extends Component {
 										: 'transparent'
 							}}
 							onClick={this.onFormatItalic}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={(!this.props.cellSelected && !this.state.graphSelected) || noChartFont}
 						>
 							<ItalicIcon fontSize="inherit" />
 						</IconButton>
@@ -2292,7 +2310,7 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							style={buttonStyle}
 							onClick={this.onShowFontColor}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={(!this.props.cellSelected && !this.state.graphSelected) || noChartFont}
 						>
 							<SvgIcon fontSize="inherit">
 								<path
@@ -2342,7 +2360,7 @@ export class CanvasToolBar extends Component {
 								fontSize: '16pt'
 							}}
 							onClick={this.onShowHAlign}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={(!this.props.cellSelected && !this.state.graphSelected) || this.isChartElementSelected()}
 						>
 							{tf && tf.getHorizontalAlignment() && tf.getHorizontalAlignment().getValue() === 3 ? (
 								<FormatAlignJustify fontSize="inherit" />

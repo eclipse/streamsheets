@@ -681,6 +681,7 @@
   "StreamChartProperties.Legend": "Legend",
   "StreamChartProperties.Grid": "Grid",
   "StreamChartProperties.Series": "Series",
+  "StreamChartProperties.Point": "Data Point",
   "StreamChartProperties.SeriesLabel": "Series Label",
   "StreamChartProperties.DownBars": "Down Bars",
   "StreamChartProperties.UpBars": "Up Bars",

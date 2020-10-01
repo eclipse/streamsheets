@@ -97,13 +97,6 @@ export class StreamChartProperties extends Component {
 		return null;
 	}
 
-	// componentWillReceiveProps(nextProps) {
-	// 	// You don't have to do this check first, but it can help prevent an unneeded render
-	// 	if (nextProps.showStreamChartProperties === true) {
-	// 		this.updateState();
-	// 	}
-	// }
-	//
 	componentWillUnmount() {
 		document.removeEventListener('keydown', this.escFunction, false);
 	}
@@ -557,28 +550,96 @@ export class StreamChartProperties extends Component {
 	handleSeriesMarkerStyleChange = (event) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
-		data.marker.style = event.target.value;
+		const selection = this.state.plotView.chartSelection;
+
+		if (selection.element === 'series') {
+			data.marker.style = event.target.value;
+			data.points.forEach(point => {
+				if (point.marker) {
+					point.marker.style = undefined;
+				}
+			})
+		} else {
+			const item = this.state.plotView.getItem();
+			const point = item.getDataPoint(data, selection);
+			if (!point.marker) {
+				point.marker = new JSG.ChartMarker();
+			}
+			point.marker.style = event.target.value;
+		}
+
 		this.finishCommand(cmd, 'series');
 	};
 
 	handleSeriesMarkerSizeChange = (event) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
-		data.marker.size = Number(event.target.value);
+		const selection = this.state.plotView.chartSelection;
+
+		if (selection.element === 'series') {
+			data.marker.size = Number(event.target.value);
+			data.points.forEach(point => {
+				if (point.marker) {
+					point.marker.size = undefined;
+				}
+			})
+		} else {
+			const item = this.state.plotView.getItem();
+			const point = item.getDataPoint(data, selection);
+			if (!point.marker) {
+				point.marker = new JSG.ChartMarker();
+			}
+			point.marker.size = Number(event.target.value);
+		}
+
 		this.finishCommand(cmd, 'series');
 	};
 
 	handleSeriesMarkerFillColorChange = (color) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
-		data.marker.fillColor = color.hex;
+		const selection = this.state.plotView.chartSelection;
+
+		if (selection.element === 'series') {
+			data.marker.fillColor = color;
+			data.points.forEach(point => {
+				if (point.marker) {
+					point.marker.fillColor = undefined;
+				}
+			})
+		} else {
+			const item = this.state.plotView.getItem();
+			const point = item.getDataPoint(data, selection);
+			if (!point.marker) {
+				point.marker = new JSG.ChartMarker();
+			}
+			point.marker.fillColor = color;
+		}
+
 		this.finishCommand(cmd, 'series');
 	};
 
 	handleSeriesMarkerLineColorChange = (color) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
-		data.marker.lineColor = color.hex;
+		const selection = this.state.plotView.chartSelection;
+
+		if (selection.element === 'series') {
+			data.marker.lineColor = color;
+			data.points.forEach(point => {
+				if (point.marker) {
+					point.marker.lineColor = undefined;
+				}
+			})
+		} else {
+			const item = this.state.plotView.getItem();
+			const point = item.getDataPoint(data, selection);
+			if (!point.marker) {
+				point.marker = new JSG.ChartMarker();
+			}
+			point.marker.lineColor = color;
+		}
+
 		this.finishCommand(cmd, 'series');
 	};
 
@@ -599,17 +660,36 @@ export class StreamChartProperties extends Component {
 	handleSeriesDataLabelsChange = (event, state) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
-		data.dataLabel.visible = state;
-		if (
-			data.dataLabel.visible &&
-			!data.dataLabel.content.x &&
-			!data.dataLabel.content.y &&
-			!data.dataLabel.content.radius &&
-			!data.dataLabel.content.state &&
-			!data.dataLabel.content.series
-		) {
-			data.dataLabel.content.y = true;
+		const selection = this.state.plotView.chartSelection;
+		let dataLabel;
+
+		if (selection.element === 'series') {
+			dataLabel = data.dataLabel;
+			dataLabel.visible = state;
+			if (
+				dataLabel.visible &&
+				!dataLabel.content.x &&
+				!dataLabel.content.y &&
+				!dataLabel.content.radius &&
+				!dataLabel.content.state &&
+				!dataLabel.content.series
+			) {
+				dataLabel.content.y = true;
+			}
+			data.points.forEach(point => {
+				if (point.dataLabel) {
+					point.dataLabel.visible = undefined;
+				}
+			})
+		} else {
+			const item = this.state.plotView.getItem();
+			const point = item.getDataPoint(data, selection);
+			if (!point.dataLabel) {
+				point.dataLabel = new JSG.ChartDataLabel();
+			}
+			point.dataLabel.visible = state;
 		}
+
 		this.finishCommand(cmd, 'series');
 	};
 
@@ -671,6 +751,8 @@ export class StreamChartProperties extends Component {
 				return intl.formatMessage({ id: 'StreamChartProperties.AxisTitle' }, {});
 			case 'series':
 				return intl.formatMessage({ id: 'StreamChartProperties.Series' }, {});
+			case 'point':
+				return intl.formatMessage({ id: 'StreamChartProperties.Point' }, {});
 			case 'serieslabel':
 				return intl.formatMessage({ id: 'StreamChartProperties.SeriesLabel' }, {});
 			case 'downbars':
@@ -693,6 +775,68 @@ export class StreamChartProperties extends Component {
 		const item = this.state.plotView.getItem();
 
 		return !!item.getFirstSerieOfType('line');
+	}
+
+	getMarkerStyle(data) {
+		const selection = this.state.plotView.chartSelection;
+
+		if (selection.element === 'point' && data.points[selection.pointIndex] &&
+			data.points[selection.pointIndex].marker &&
+			data.points[selection.pointIndex].marker._style !== undefined) {
+			return data.points[selection.pointIndex].marker.style;
+		}
+
+		return data.marker.style;
+	}
+
+	getMarkerSize(data) {
+		const selection = this.state.plotView.chartSelection;
+
+		if (selection.element === 'point' && data.points[selection.pointIndex] &&
+			data.points[selection.pointIndex].marker &&
+			data.points[selection.pointIndex].marker._size !== undefined) {
+			return data.points[selection.pointIndex].marker.size;
+		}
+
+		return data.marker.size;
+	}
+
+	getMarkerLineColor(data) {
+		const selection = this.state.plotView.chartSelection;
+
+		if (selection.element === 'point' && data.points[selection.pointIndex] &&
+			data.points[selection.pointIndex].marker &&
+			data.points[selection.pointIndex].marker.lineColor !== undefined) {
+			return data.points[selection.pointIndex].marker.lineColor;
+		}
+
+		const item = this.state.plotView.getItem();
+		return data.marker.lineColor || item.getTemplate().series.getLineForIndex(selection.index);
+	}
+
+	getMarkerFillColor(data) {
+		const selection = this.state.plotView.chartSelection;
+
+		if (selection.element === 'point' && data.points[selection.pointIndex] &&
+			data.points[selection.pointIndex].marker &&
+			data.points[selection.pointIndex].marker.fillColor !== undefined) {
+			return data.points[selection.pointIndex].marker.fillColor;
+		}
+
+		const item = this.state.plotView.getItem();
+		return data.marker.fillColor || item.getTemplate().series.getFillForIndex(selection.index);
+	}
+
+	getDataLabelVisible(data) {
+		const selection = this.state.plotView.chartSelection;
+
+		if (selection.element === 'point' && data.points[selection.pointIndex] &&
+			data.points[selection.pointIndex].dataLabel &&
+			data.points[selection.pointIndex].dataLabel.visible !== undefined) {
+			return data.points[selection.pointIndex].dataLabel.visible;
+		}
+
+		return data.dataLabel.visible === true;
 	}
 
 	getLabel(series) {
@@ -1977,13 +2121,13 @@ export class StreamChartProperties extends Component {
 								</FormLabel>
 							</FormGroup>
 						) : null}
-						{selection && selection.element === 'series' ? (
+						{selection && (selection.element === 'series' || selection.element === 'point') ? (
 							<FormGroup>
-								{data.type === 'bar' ||
+								{selection.element === 'series' && (data.type === 'bar' ||
 								data.type === 'profile' ||
 								data.type === 'line' ||
 								data.type === 'column' ||
-								data.type === 'area' ? (
+								data.type === 'area') ? (
 									<FormControl
 										style={{
 											display: 'inline-flex'
@@ -2028,7 +2172,6 @@ export class StreamChartProperties extends Component {
 												select
 												margin="normal"
 												fullWidth
-												id="series-marker"
 												value={data.type}
 												onChange={this.handleSeriesTypeChange}
 											>
@@ -2076,7 +2219,7 @@ export class StreamChartProperties extends Component {
 													select
 													margin="normal"
 													id="series-marker"
-													value={data.marker.style}
+													value={this.getMarkerStyle(data)}
 													onChange={this.handleSeriesMarkerStyleChange}
 													input={<Input name="series-marker" id="series-marker" />}
 												>
@@ -2164,8 +2307,7 @@ export class StreamChartProperties extends Component {
 													}
 													margin="normal"
 													select
-													id="templates"
-													value={data.marker.size}
+													value={this.getMarkerSize(data)}
 													onChange={this.handleSeriesMarkerSizeChange}
 													input={<Input name="template" id="template" />}
 												>
@@ -2201,10 +2343,7 @@ export class StreamChartProperties extends Component {
 													}
 													labelFontSize="1rem"
 													transparent
-													color={
-														data.marker.fillColor ||
-														item.getTemplate().series.getFillForIndex(selection.index)
-													}
+													color={this.getMarkerFillColor(data)}
 													onChange={(color) => this.handleSeriesMarkerFillColorChange(color)}
 												/>
 											</FormControl>
@@ -2226,17 +2365,14 @@ export class StreamChartProperties extends Component {
 														/>
 													}
 													transparent
-													color={
-														data.marker.lineColor ||
-														item.getTemplate().series.line[selection.index]
-													}
+													color={this.getMarkerLineColor(data)}
 													onChange={(color) => this.handleSeriesMarkerLineColorChange(color)}
 												/>
 											</FormControl>
 										</div>
 									</div>
 								) : null}
-								{item.xAxes.length > 1 || item.yAxes.length > 1 ? (
+								{selection.element === 'series' && (item.xAxes.length > 1 || item.yAxes.length > 1) ? (
 									<FormLabel
 										component="legend"
 										style={{
@@ -2249,6 +2385,7 @@ export class StreamChartProperties extends Component {
 										/>
 									</FormLabel>
 								) : null}
+								{selection.element === 'series' ? (
 								<div
 									style={{
 										display: 'inline-flex',
@@ -2316,7 +2453,7 @@ export class StreamChartProperties extends Component {
 											</TextField>
 										</FormControl>
 									) : null}
-								</div>
+								</div>) : null}
 								<FormGroup>
 									<FormLabel
 										component="legend"
@@ -2330,7 +2467,7 @@ export class StreamChartProperties extends Component {
 											defaultMessage="Settings"
 										/>
 									</FormLabel>
-									{item.isLineType(data) ? (
+									{selection.element === 'series' && item.isLineType(data) ? (
 										<FormControlLabel
 											control={
 												<Checkbox
@@ -2345,6 +2482,7 @@ export class StreamChartProperties extends Component {
 												/>
 											}
 										/>) : null}
+									{selection.element === 'series' ? (
 									<FormControlLabel
 										control={
 											<Checkbox
@@ -2360,11 +2498,11 @@ export class StreamChartProperties extends Component {
 												defaultMessage="Visible"
 											/>
 										}
-									/>
+									/>) : null}
 									<FormControlLabel
 										control={
 											<Checkbox
-												checked={data.dataLabel.visible}
+												checked={this.getDataLabelVisible(data)}
 												onChange={(event, state) =>
 													this.handleSeriesDataLabelsChange(event, state)
 												}

@@ -296,7 +296,7 @@ export default class ChartSelectionFeedbackView extends View {
 								) {
 									const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
 									const drawRect = item.getLabelRect(pt, value, text, index, params);
-									if (drawRect) {
+									if (item.hasDataPointLabel(serie, index) && drawRect) {
 										let markerPt = new Point(drawRect.left, drawRect.top);
 										markerPt = labelAngle
 											? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
@@ -329,6 +329,7 @@ export default class ChartSelectionFeedbackView extends View {
 					}
 				}
 				break;
+			case 'point':
 			case 'series': {
 				const ref = item.getDataSourceInfo(data.formula);
 				if (ref) {
@@ -356,29 +357,32 @@ export default class ChartSelectionFeedbackView extends View {
 							case 'doughnut': {
 								const pieAngle =
 									(Math.abs(value.y) / pieInfo.sum) * (pieInfo.endAngle - pieInfo.startAngle);
-								const points = item.getEllipseSegmentPoints(
-									pieInfo.xc,
-									pieInfo.yc,
-									pieInfo.xInnerRadius,
-									pieInfo.yInnerRadius,
-									pieInfo.xOuterRadius,
-									pieInfo.yOuterRadius,
-									0,
-									currentAngle,
-									currentAngle + pieAngle,
-									2
-								);
-								points.forEach((pt) => {
-									rect.set(pt.x - 50, pt.y - 50, 100, 100);
-									graphics.drawMarker(rect, false);
-								});
+								if (selection.element === 'series' || index === selection.pointIndex) {
+									const points = item.getEllipseSegmentPoints(
+										pieInfo.xc,
+										pieInfo.yc,
+										pieInfo.xInnerRadius,
+										pieInfo.yInnerRadius,
+										pieInfo.xOuterRadius,
+										pieInfo.yOuterRadius,
+										0,
+										currentAngle,
+										currentAngle + pieAngle,
+										2
+									);
+									points.forEach((pt) => {
+										rect.set(pt.x - 50, pt.y - 50, 100, 100);
+										graphics.drawMarker(rect, false);
+									});
+								}
 								currentAngle += pieAngle;
 								break;
 							}
 							case 'pie': {
 								const pieAngle =
 									(Math.abs(value.y) / pieInfo.sum) * (pieInfo.endAngle - pieInfo.startAngle);
-								const points = item.getEllipseSegmentPoints(
+								if (selection.element === 'series' || index === selection.pointIndex) {
+									const points = item.getEllipseSegmentPoints(
 									pieInfo.xc,
 									pieInfo.yc,
 									0,
@@ -390,296 +394,301 @@ export default class ChartSelectionFeedbackView extends View {
 									currentAngle + pieAngle,
 									2
 								);
-								points.forEach((pt) => {
-									rect.set(pt.x - 50, pt.y - 50, 100, 100);
-									graphics.drawMarker(rect, false);
-								});
+									points.forEach((pt) => {
+										rect.set(pt.x - 50, pt.y - 50, 100, 100);
+										graphics.drawMarker(rect, false);
+									});
+								}
 								currentAngle += pieAngle;
 								break;
 							}
 							case 'bar':
 							case 'profile':
 							case 'funnelbar':
-								x =
-									plotRect.bottom -
-									item.scaleToAxis(axes.x, value.x, undefined, false) * plotRect.height;
-								y = plotRect.left + item.scaleToAxis(axes.y, value.y, info, false) * plotRect.width;
-								if (
-									y + 1 >= plotRect.left &&
-									y - 1 <= plotRect.right &&
-									x + 1 >= plotRect.top &&
-									x - 1 <= plotRect.bottom
-								) {
-									const barWidth = item.getBarWidth(axes, data, plotRect);
-									switch (serie.type) {
-										case 'bar':
-											barInfo = item.getBarInfo(
-												axes,
-												serie,
-												selection.index,
-												index,
-												value.y,
-												barWidth
-											);
-											rect.set(y - 50, x + barInfo.offset - 50, 100, 100);
-											graphics.drawMarker(rect, false);
-											rect.set(
-												y - 50,
-												x + barInfo.offset + barWidth - barInfo.margin - 50,
-												100,
-												100
-											);
-											graphics.drawMarker(rect, false);
-											rect.set(
-												y + barInfo.height * plotRect.width - 50,
-												x + barInfo.offset - 50,
-												100,
-												100
-											);
-											graphics.drawMarker(rect, false);
-											rect.set(
-												y + barInfo.height * plotRect.width - 50,
-												x + barInfo.offset + barWidth - barInfo.margin - 50,
-												100,
-												100
-											);
-											graphics.drawMarker(rect, false);
-											break;
-										case 'funnelbar': {
-											barInfo = item.getBarInfo(
-												axes,
-												serie,
-												selection.index,
-												index,
-												value.y,
-												barWidth
-											);
-											const height = Math.abs(barInfo.height * plotRect.width);
-											rect.set(
-												plotRect.centerX - height / 2 - 50,
-												x + barInfo.offset - 50,
-												100,
-												100
-											);
-											graphics.drawMarker(rect, false);
-											rect.set(
-												plotRect.centerX + height / 2 - 50,
-												x + barInfo.offset - 50,
-												100,
-												100
-											);
-											graphics.drawMarker(rect, false);
-											if (index === axes.x.scale.max - 1 || !item.chart.seriesLines.visible) {
+								if (selection.element === 'series' || index === selection.pointIndex) {
+									x =
+										plotRect.bottom -
+										item.scaleToAxis(axes.x, value.x, undefined, false) * plotRect.height;
+									y = plotRect.left + item.scaleToAxis(axes.y, value.y, info, false) * plotRect.width;
+									if (
+										y + 1 >= plotRect.left &&
+										y - 1 <= plotRect.right &&
+										x + 1 >= plotRect.top &&
+										x - 1 <= plotRect.bottom
+									) {
+										const barWidth = item.getBarWidth(axes, data, plotRect);
+										switch (serie.type) {
+											case 'bar':
+												barInfo = item.getBarInfo(
+													axes,
+													serie,
+													selection.index,
+													index,
+													value.y,
+													barWidth
+												);
+												rect.set(y - 50, x + barInfo.offset - 50, 100, 100);
+												graphics.drawMarker(rect, false);
+												rect.set(
+													y - 50,
+													x + barInfo.offset + barWidth - barInfo.margin - 50,
+													100,
+													100
+												);
+												graphics.drawMarker(rect, false);
+												rect.set(
+													y + barInfo.height * plotRect.width - 50,
+													x + barInfo.offset - 50,
+													100,
+													100
+												);
+												graphics.drawMarker(rect, false);
+												rect.set(
+													y + barInfo.height * plotRect.width - 50,
+													x + barInfo.offset + barWidth - barInfo.margin - 50,
+													100,
+													100
+												);
+												graphics.drawMarker(rect, false);
+												break;
+											case 'funnelbar': {
+												barInfo = item.getBarInfo(
+													axes,
+													serie,
+													selection.index,
+													index,
+													value.y,
+													barWidth
+												);
+												const height = Math.abs(barInfo.height * plotRect.width);
 												rect.set(
 													plotRect.centerX - height / 2 - 50,
-													x + barInfo.offset + barWidth - barInfo.margin + 50,
+													x + barInfo.offset - 50,
 													100,
 													100
 												);
 												graphics.drawMarker(rect, false);
 												rect.set(
 													plotRect.centerX + height / 2 - 50,
-													x + barInfo.offset + barWidth - barInfo.margin + 50,
+													x + barInfo.offset - 50,
 													100,
 													100
 												);
 												graphics.drawMarker(rect, false);
+												if (index === axes.x.scale.max - 1 || !item.chart.seriesLines.visible) {
+													rect.set(
+														plotRect.centerX - height / 2 - 50,
+														x + barInfo.offset + barWidth - barInfo.margin + 50,
+														100,
+														100
+													);
+													graphics.drawMarker(rect, false);
+													rect.set(
+														plotRect.centerX + height / 2 - 50,
+														x + barInfo.offset + barWidth - barInfo.margin + 50,
+														100,
+														100
+													);
+													graphics.drawMarker(rect, false);
+												}
+												break;
 											}
-											break;
+											default:
+												rect.set(y - 50, x - 50, 100, 100);
+												graphics.drawMarker(rect, false);
+												break;
 										}
-										default:
-											rect.set(y - 50, x - 50, 100, 100);
-											graphics.drawMarker(rect, false);
-											break;
 									}
 								}
 								break;
 							default:
-								x =
-									plotRect.left +
-									item.scaleToAxis(axes.x, value.x, undefined, false) * plotRect.width;
-								y = plotRect.bottom - item.scaleToAxis(axes.y, value.y, info, false) * plotRect.height;
-								if (
-									x + 1 >= plotRect.left &&
-									x - 1 <= plotRect.right &&
-									y + 1 >= plotRect.top &&
-									y - 1 <= plotRect.bottom
-								) {
-									const barWidth = item.getBarWidth(axes, data, plotRect);
-									switch (serie.type) {
-										case 'column':
-											barInfo = item.getBarInfo(
-												axes,
-												serie,
-												selection.index,
-												index,
-												value.y,
-												barWidth
-											);
-											rect.set(x + barInfo.offset - 50, y - 50, 100, 100);
-											graphics.drawMarker(rect, false);
-											rect.set(
-												x + barInfo.offset + barWidth - barInfo.margin - 50,
-												y - 50,
-												100,
-												100
-											);
-											graphics.drawMarker(rect, false);
-											rect.set(
-												x + barInfo.offset - 50,
-												y - barInfo.height * plotRect.height - 50,
-												100,
-												100
-											);
-											graphics.drawMarker(rect, false);
-											rect.set(
-												x + barInfo.offset + barWidth - barInfo.margin - 50,
-												y - barInfo.height * plotRect.height - 50,
-												100,
-												100
-											);
-											graphics.drawMarker(rect, false);
-											break;
-										case 'funnelcolumn': {
-											barInfo = item.getBarInfo(
-												axes,
-												serie,
-												selection.index,
-												index,
-												value.y,
-												barWidth
-											);
-											const height = Math.abs(barInfo.height * plotRect.height);
-											rect.set(
-												x + barInfo.offset - 50,
-												plotRect.centerY - height / 2 - 50,
-												100,
-												100
-											);
-											graphics.drawMarker(rect, false);
-											rect.set(
-												x + barInfo.offset - 50,
-												plotRect.centerY + height / 2 - 50,
-												100,
-												100
-											);
-											graphics.drawMarker(rect, false);
-											if (index === axes.x.scale.max - 1 || !item.chart.seriesLines.visible) {
+								if (selection.element === 'series' || index === selection.pointIndex) {
+									x =
+										plotRect.left +
+										item.scaleToAxis(axes.x, value.x, undefined, false) * plotRect.width;
+									y = plotRect.bottom - item.scaleToAxis(axes.y, value.y, info, false) * plotRect.height;
+									if (
+										x + 1 >= plotRect.left &&
+										x - 1 <= plotRect.right &&
+										y + 1 >= plotRect.top &&
+										y - 1 <= plotRect.bottom
+									) {
+										const barWidth = item.getBarWidth(axes, data, plotRect);
+										switch (serie.type) {
+											case 'column':
+												barInfo = item.getBarInfo(
+													axes,
+													serie,
+													selection.index,
+													index,
+													value.y,
+													barWidth
+												);
+												rect.set(x + barInfo.offset - 50, y - 50, 100, 100);
+												graphics.drawMarker(rect, false);
 												rect.set(
-													x + barInfo.offset + barWidth - barInfo.margin + 50,
+													x + barInfo.offset + barWidth - barInfo.margin - 50,
+													y - 50,
+													100,
+													100
+												);
+												graphics.drawMarker(rect, false);
+												rect.set(
+													x + barInfo.offset - 50,
+													y - barInfo.height * plotRect.height - 50,
+													100,
+													100
+												);
+												graphics.drawMarker(rect, false);
+												rect.set(
+													x + barInfo.offset + barWidth - barInfo.margin - 50,
+													y - barInfo.height * plotRect.height - 50,
+													100,
+													100
+												);
+												graphics.drawMarker(rect, false);
+												break;
+											case 'funnelcolumn': {
+												barInfo = item.getBarInfo(
+													axes,
+													serie,
+													selection.index,
+													index,
+													value.y,
+													barWidth
+												);
+												const height = Math.abs(barInfo.height * plotRect.height);
+												rect.set(
+													x + barInfo.offset - 50,
 													plotRect.centerY - height / 2 - 50,
 													100,
 													100
 												);
 												graphics.drawMarker(rect, false);
 												rect.set(
-													x + barInfo.offset + barWidth - barInfo.margin + 50,
+													x + barInfo.offset - 50,
 													plotRect.centerY + height / 2 - 50,
 													100,
 													100
 												);
 												graphics.drawMarker(rect, false);
-											}
-											break;
-										}
-										case 'state':
-											barInfo = item.getBarInfo(
-												axes,
-												serie,
-												selection.index,
-												index,
-												value.y,
-												barWidth
-											);
-											if (item.chart.period) {
-												const ptNext = { x: 0, y: 0 };
-												item.getPlotPoint(axes, ref, info, value, index, 1, ptNext);
-												rect.set(x + barInfo.offset - 50, y - 50, 100, 100);
-												graphics.drawMarker(rect, false);
-												rect.set(
-													plotRect.left + ptNext.x * plotRect.width + barInfo.offset - 50,
-													y - 50,
-													100,
-													100
-												);
-												graphics.drawMarker(rect, false);
-												rect.set(
-													x + barInfo.offset - 50,
-													y - barInfo.height * plotRect.height - 50,
-													100,
-													100
-												);
-												graphics.drawMarker(rect, false);
-												rect.set(
-													plotRect.left + ptNext.x * plotRect.width + barInfo.offset - 50,
-													y - barInfo.height * plotRect.height - 50,
-													100,
-													100
-												);
-												graphics.drawMarker(rect, false);
-											} else {
-												rect.set(x + barInfo.offset - 50, y - 50, 100, 100);
-												graphics.drawMarker(rect, false);
-												rect.set(
-													x + barInfo.offset + barWidth - barInfo.margin - 50,
-													y - 50,
-													100,
-													100
-												);
-												graphics.drawMarker(rect, false);
-												rect.set(
-													x + barInfo.offset - 50,
-													y - barInfo.height * plotRect.height - 50,
-													100,
-													100
-												);
-												graphics.drawMarker(rect, false);
-												rect.set(
-													x + barInfo.offset + barWidth - barInfo.margin - 50,
-													y - barInfo.height * plotRect.height - 50,
-													100,
-													100
-												);
-												graphics.drawMarker(rect, false);
-											}
-											break;
-										case 'area':
-											barInfo = item.getBarInfo(
-												axes,
-												serie,
-												selection.index,
-												index,
-												value.y,
-												barWidth
-											);
-											if (item.chart.step) {
-												if (index < axes.x.scale.max && item.getValue(ref, index + 1, value)) {
-													const xNext =
-														plotRect.left +
-														item.scaleToAxis(axes.x, value.x, undefined, false) *
-															plotRect.width;
-													rect.set(xNext - 50, y - 50, 100, 100);
+												if (index === axes.x.scale.max - 1 || !item.chart.seriesLines.visible) {
+													rect.set(
+														x + barInfo.offset + barWidth - barInfo.margin + 50,
+														plotRect.centerY - height / 2 - 50,
+														100,
+														100
+													);
 													graphics.drawMarker(rect, false);
 													rect.set(
-														xNext - 50,
+														x + barInfo.offset + barWidth - barInfo.margin + 50,
+														plotRect.centerY + height / 2 - 50,
+														100,
+														100
+													);
+													graphics.drawMarker(rect, false);
+												}
+												break;
+											}
+											case 'state':
+												barInfo = item.getBarInfo(
+													axes,
+													serie,
+													selection.index,
+													index,
+													value.y,
+													barWidth
+												);
+												if (item.chart.period) {
+													const ptNext = {x: 0, y: 0};
+													item.getPlotPoint(axes, ref, info, value, index, 1, ptNext);
+													rect.set(x + barInfo.offset - 50, y - 50, 100, 100);
+													graphics.drawMarker(rect, false);
+													rect.set(
+														plotRect.left + ptNext.x * plotRect.width + barInfo.offset - 50,
+														y - 50,
+														100,
+														100
+													);
+													graphics.drawMarker(rect, false);
+													rect.set(
+														x + barInfo.offset - 50,
+														y - barInfo.height * plotRect.height - 50,
+														100,
+														100
+													);
+													graphics.drawMarker(rect, false);
+													rect.set(
+														plotRect.left + ptNext.x * plotRect.width + barInfo.offset - 50,
+														y - barInfo.height * plotRect.height - 50,
+														100,
+														100
+													);
+													graphics.drawMarker(rect, false);
+												} else {
+													rect.set(x + barInfo.offset - 50, y - 50, 100, 100);
+													graphics.drawMarker(rect, false);
+													rect.set(
+														x + barInfo.offset + barWidth - barInfo.margin - 50,
+														y - 50,
+														100,
+														100
+													);
+													graphics.drawMarker(rect, false);
+													rect.set(
+														x + barInfo.offset - 50,
+														y - barInfo.height * plotRect.height - 50,
+														100,
+														100
+													);
+													graphics.drawMarker(rect, false);
+													rect.set(
+														x + barInfo.offset + barWidth - barInfo.margin - 50,
 														y - barInfo.height * plotRect.height - 50,
 														100,
 														100
 													);
 													graphics.drawMarker(rect, false);
 												}
-											}
-											if (!item.chart.step || index < axes.x.scale.max) {
+												break;
+											case 'area':
+												barInfo = item.getBarInfo(
+													axes,
+													serie,
+													selection.index,
+													index,
+													value.y,
+													barWidth
+												);
+												if (item.chart.step) {
+													if (index < axes.x.scale.max && item.getValue(ref, index + 1, value)) {
+														const xNext =
+															plotRect.left +
+															item.scaleToAxis(axes.x, value.x, undefined, false) *
+															plotRect.width;
+														rect.set(xNext - 50, y - 50, 100, 100);
+														graphics.drawMarker(rect, false);
+														rect.set(
+															xNext - 50,
+															y - barInfo.height * plotRect.height - 50,
+															100,
+															100
+														);
+														graphics.drawMarker(rect, false);
+													}
+												}
+												if (!item.chart.step || index < axes.x.scale.max) {
+													rect.set(x - 50, y - 50, 100, 100);
+													graphics.drawMarker(rect, false);
+													rect.set(x - 50, y - barInfo.height * plotRect.height - 50, 100, 100);
+													graphics.drawMarker(rect, false);
+												}
+												break;
+											default:
 												rect.set(x - 50, y - 50, 100, 100);
 												graphics.drawMarker(rect, false);
-												rect.set(x - 50, y - barInfo.height * plotRect.height - 50, 100, 100);
-												graphics.drawMarker(rect, false);
-											}
-											break;
-										default:
-											rect.set(x - 50, y - 50, 100, 100);
-											graphics.drawMarker(rect, false);
-											break;
+												break;
+										}
 									}
 								}
 								break;

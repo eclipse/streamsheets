@@ -15,6 +15,7 @@ const Expression = require('../../expr/Expression');
 const ChartFormat = require('./ChartFormat');
 const ChartMarker = require('./ChartMarker');
 const ChartDataLabel = require('./ChartDataLabel');
+const ChartPoint = require('./ChartPoint');
 
 module.exports = class ChartSeries {
 	constructor(type, formula) {
@@ -25,6 +26,7 @@ module.exports = class ChartSeries {
 		this.format = new ChartFormat();
 		this.marker = new ChartMarker();
 		this.dataLabel = new ChartDataLabel();
+		this.points = [];
 		this.xAxis = 'XAxis1';
 		this.yAxis = 'YAxis1';
 		this.barGap = 0.3;
@@ -66,6 +68,13 @@ module.exports = class ChartSeries {
 		this.format.save('format', writer);
 		this.marker.save('marker', writer);
 		this.dataLabel.save('datalabel', writer);
+
+		writer.writeStartArray('points');
+		this.points.forEach((point, index) => {
+			point.save(writer, index);
+		});
+		writer.writeEndArray('points');
+
 		writer.writeEndElement();
 	}
 
@@ -95,6 +104,12 @@ module.exports = class ChartSeries {
 				this.dataLabel = new ChartDataLabel();
 				this.dataLabel.read(reader, child);
 				break;
+			case 'points': {
+				const point = new ChartPoint();
+				const index = point.read(reader, child);
+				this.points[index] = point;
+				break;
+			}
 			}
 		});
 	}

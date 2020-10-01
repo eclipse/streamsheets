@@ -120,11 +120,10 @@ export default class SheetPlotInteraction extends Interaction {
 
 	onMouseDrag(event, viewer) {
 		const graphView = viewer.getGraphView();
-
-		graphView.clearLayer('chartselection');
-
 		const item = this._controller.getModel();
+
 		if (item.getAllowZoom(item.xAxes[0])) {
+			graphView.clearLayer('chartselection');
 			const layer = graphView.getLayer('chartinfo');
 			if (layer === undefined || !layer.length) {
 				return;
