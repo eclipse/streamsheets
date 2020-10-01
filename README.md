@@ -158,6 +158,10 @@ The documentation is divided into several sections:
 
 Streamsheets are maintained by the [Cedalo AG](https://cedalo.com/). Please check out our [team page](https://cedalo.com/en/aboutus/)!
 
+### Looking for a hosted version of Streamsheets?
+
+If you are interested in a hosted version of Streamsheets on our infrastructure please contact us via: https://cedalo.com/contact.html
+
 ### Looking for support?
 
 For questions and support please join our [Forum](https://forum.cedalo.com), ask a question on [Stack Overflow](https://stackoverflow.com/questions/tagged/streamsheets), or contact us on [Twitter](https://twitter.com/cedalo_com).
