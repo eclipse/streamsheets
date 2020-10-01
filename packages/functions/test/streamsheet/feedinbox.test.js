@@ -41,7 +41,8 @@ describe('feedinbox', () => {
 		const msg = t2.inbox.pop();
 		expect(msg).toBeDefined();
 		expect(msg.data).toBeDefined();
-		expect(msg.data.value).toBe('Data');
+		expect(msg.data.length).toBe(1);
+		expect(msg.data[0]).toBe('Data');
 	});
 	// DL-2914
 	it('should create a deep copy of message taken from inbox or outbox', () => {
@@ -166,7 +167,8 @@ describe('feedinbox', () => {
 		const msg = t1.inbox.pop();
 		expect(msg).toBeDefined();
 		expect(msg.data).toBeDefined();
-		expect(msg.data.value).toBe('Data');
+		expect(msg.data.length).toBe(1);
+		expect(msg.data[0]).toBe('Data');
 	});
 	// DL-1834
 	it('should work with inboxdata and inboxmetadata', async () => {

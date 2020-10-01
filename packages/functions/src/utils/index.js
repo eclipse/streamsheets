@@ -11,7 +11,6 @@
 const aggregations = require('./aggregations');
 const AsyncRequest = require('./AsyncRequest');
 const calculate = require('./calculate');
-const common = require('./common');
 const criteria = require('./criteria');
 const Criterion = require('./Criterion');
 const date = require('./date');
@@ -30,7 +29,6 @@ module.exports = {
 	aggregations,
 	AsyncRequest,
 	calculate,
-	common,
 	criteria,
 	Criterion,
 	date,

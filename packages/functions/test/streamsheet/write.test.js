@@ -286,6 +286,24 @@ describe('write', () => {
 			expect(message.data.Messages[0]).toEqual(MSG.SIMPLE.data);
 			expect(message.data.Messages[1]).toEqual(MSG.SIMPLE.data);
 		});
+		// DL-4458
+		it('should copy inboxdata to outbox', () => {
+			const { machine, streamsheet } = setup();
+			const outbox = machine.outbox;
+			const sheet = streamsheet.sheet;
+			streamsheet.inbox.put(new Message(Object.assign({}, MSG.SIMPLE.data)));
+			sheet.processor._isProcessing = true;
+			expect(createTerm('write(outboxdata("out1"),"Data replaced"))', sheet).value).toBe('out1');
+			let out1msg = outbox.pop('out1');
+			expect(out1msg.data).toBeDefined();
+			expect(out1msg.data.length).toBe(1);
+			expect(out1msg.data[0]).toBe('Data replaced');
+			expect(createTerm('write(outboxdata("out1"),read(inboxdata(,)))', sheet).value).toBe('out1');
+			out1msg = outbox.pop('out1');
+			expect(out1msg.data).toBeDefined();
+			expect(out1msg.data.length).toBe(1);
+			expect(out1msg.data[0]).toBe('Data');
+		});
 	});
 	describe('implicit parent creation', () => {
 		it('should create an array parent implicitly', () => {
@@ -467,7 +485,6 @@ describe('write', () => {
 			expect(createTerm('write(outboxdata("out1"),"one","Date")', sheet).value).toBe(ERROR.INVALID_PARAM);
 		});
 	});
-
 	describe('write metadata', () => {
 		it('should be possible to write metadata of an outbox message', async () => {
 			const { machine, streamsheet } = setup();
