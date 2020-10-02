@@ -181,11 +181,6 @@ export class CanvasToolBar extends Component {
 		);
 		JSG.NotificationCenter.getInstance().register(
 			this,
-			CommandStack.STACK_CHANGED_NOTIFICATION,
-			'onCommandStackChanged'
-		);
-		JSG.NotificationCenter.getInstance().register(
-			this,
 			JSG.WorksheetNode.SELECTION_CHANGED_NOTIFICATION,
 			'onSheetSelectionChanged'
 		);

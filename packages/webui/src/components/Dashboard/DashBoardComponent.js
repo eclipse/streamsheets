@@ -277,7 +277,7 @@ class DashBoardComponent extends Component {
 		});
 
 		return [
-			{ id: 'out', numeric: false, sort: false, label: '', width: '58px' },
+			{ id: 'out', numeric: false, sort: false, label: '', width: '40px' },
 			{ id: 'name', numeric: false, sort: true, label: 'Streams.Name', width: '12%' },
 			{
 				id: 'provider',

@@ -119,7 +119,7 @@ const StreamTableRow = (props) => {
 			</TableRow>
 			<TableRow key={`sub${row.id}`} style={{ height: '0px' }}>
 				<TableCell
-					style={{ paddingBottom: openConnector ? '6px' : '0px', paddingTop: '0px', paddingLeft: '40px' }}
+					style={{ paddingBottom: openConnector ? '6px' : '0px', paddingTop: '0px', paddingLeft: '25px' }}
 					colSpan={7}
 				>
 					<Collapse in={openConnector} timeout="auto" unmountOnExit>
@@ -155,7 +155,7 @@ const StreamTableRow = (props) => {
 											key={historyRow.id}
 										>
 											<TableCell
-												style={{ width: '20px', borderBottom: 'none' }}
+												style={{ width: '15px', borderBottom: 'none' }}
 												padding="none"
 												align="left"
 											/>
