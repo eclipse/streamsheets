@@ -73,7 +73,7 @@ class CombinedResourceListing extends Component {
 	}
 
 	componentWillUnmount() {
-		window.removeEventListener('resize', this.updateDimensions);
+		window.removeEventListener('resize', () => this.updateDimensions);
 	}
 
 	updateDimensions() {
