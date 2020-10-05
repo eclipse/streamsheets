@@ -643,10 +643,29 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'series');
 	};
 
+	handlePointSumChange = (event, state) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		const selection = this.state.plotView.chartSelection;
+
+		const item = this.state.plotView.getItem();
+		const point = item.getDataPoint(data, selection);
+		point.pointSum = state ? true : undefined;
+
+		this.finishCommand(cmd, 'series');
+	};
+
 	handleSeriesSmoothChange = (event, state) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
 		data.smooth = state;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesAutoSumChange = (event, state) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.autoSum = state;
 		this.finishCommand(cmd, 'series');
 	};
 
@@ -838,6 +857,18 @@ export class StreamChartProperties extends Component {
 
 		return data.dataLabel.visible === true;
 	}
+
+	getPointSum(data) {
+		const selection = this.state.plotView.chartSelection;
+
+		if (selection.element === 'point' && data.points[selection.pointIndex] &&
+			data.points[selection.pointIndex].pointSum) {
+			return true;
+		}
+
+		return false;
+	}
+
 
 	getLabel(series) {
 		const item = this.state.plotView.getItem();
@@ -2479,6 +2510,38 @@ export class StreamChartProperties extends Component {
 												<FormattedMessage
 													id="StreamChartProperties.SmoothLine"
 													defaultMessage="Smooth Line"
+												/>
+											}
+										/>) : null}
+									{selection.element === 'series' && data.type === 'waterfall' ? (
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={data.autoSum}
+													onChange={(event, state) => this.handleSeriesAutoSumChange(event, state)}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.AutoSum"
+													defaultMessage="Display Sum and Difference automatically"
+												/>
+											}
+										/>) : null}
+									{selection.element === 'point' ? (
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={this.getPointSum(data)}
+													onChange={(event, state) =>
+														this.handlePointSumChange(event, state)
+													}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.PointSum"
+													defaultMessage="Display Sum"
 												/>
 											}
 										/>) : null}

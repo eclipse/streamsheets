@@ -39,12 +39,15 @@ module.exports = class ChartPoint {
 	}
 
 	save(writer, index) {
-		if (!this.format && !this.marker && !this.dataLabel) {
+		if (!this.format && !this.marker && !this.dataLabel && !this.pointSum) {
 			return;
 		}
 
 		writer.writeStartElement('point');
 		writer.writeAttributeNumber('index', index);
+		if (this.pointSum) {
+			writer.writeAttributeNumber('pointsum', 1);
+		}
 		if (this.format) {
 			this.format.save('format', writer);
 		}
@@ -59,6 +62,9 @@ module.exports = class ChartPoint {
 
 	read(reader, object) {
 		const index = reader.getAttributeNumber(object, 'index', 0);
+		if (reader.getAttribute(object, 'pointsum')) {
+			this.pointSum = true;
+		}
 
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {

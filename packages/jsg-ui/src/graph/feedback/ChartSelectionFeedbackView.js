@@ -338,6 +338,7 @@ export default class ChartSelectionFeedbackView extends View {
 					let x;
 					let y;
 					let last;
+					let valueSum = 0;
 					const value = {};
 					const serie = data;
 					let barInfo;
@@ -502,11 +503,26 @@ export default class ChartSelectionFeedbackView extends View {
 								}
 								break;
 							default:
+								if (serie.autoSum && index) {
+									const lastVal = {x: 0, y: 0};
+									item.getValue(ref, index - 1, lastVal);
+									value.y = value.y - (lastVal.y === undefined ? 0 : lastVal.y);
+								}
+								if (serie.points[index] && serie.points[index].pointSum) {
+									valueSum = value.y;
+								} else {
+									valueSum += value.y;
+								}
 								if (selection.element === 'series' || index === selection.pointIndex) {
 									x =
 										plotRect.left +
 										item.scaleToAxis(axes.x, value.x, undefined, false) * plotRect.width;
-									y = plotRect.bottom - item.scaleToAxis(axes.y, value.y, info, false) * plotRect.height;
+									if (serie.type === 'waterfall') {
+										y = item.scaleToAxis(axes.y, valueSum, info, false);
+									} else {
+										y = item.scaleToAxis(axes.y, value.y, info, false);
+									}
+									y = plotRect.bottom - y * plotRect.height;
 									if (
 										x + 1 >= plotRect.left &&
 										x - 1 <= plotRect.right &&
@@ -516,6 +532,7 @@ export default class ChartSelectionFeedbackView extends View {
 										const barWidth = item.getBarWidth(axes, data, plotRect);
 										switch (serie.type) {
 											case 'column':
+											case 'waterfall':
 												barInfo = item.getBarInfo(
 													axes,
 													serie,

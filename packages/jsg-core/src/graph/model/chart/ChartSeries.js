@@ -30,6 +30,7 @@ module.exports = class ChartSeries {
 		this.xAxis = 'XAxis1';
 		this.yAxis = 'YAxis1';
 		this.barGap = 0.3;
+		this.autoSum = false;
 	}
 
 	copy() {
@@ -63,6 +64,7 @@ module.exports = class ChartSeries {
 		writer.writeAttributeString('yaxis', this.yAxis);
 		writer.writeAttributeNumber('smooth', this.smooth ? 1 : 0);
 		writer.writeAttributeNumber('visible', this.visible ? 1 : 0);
+		writer.writeAttributeNumber('autosum', this.autoSum ? 1 : 0);
 		writer.writeAttributeNumber('bargap', this.barGap, 2);
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
@@ -84,6 +86,7 @@ module.exports = class ChartSeries {
 		this.yAxis = reader.getAttributeString(object, 'yaxis', 'YAxis1');
 		this.smooth = reader.getAttributeBoolean(object, 'smooth', false);
 		this.visible = reader.getAttributeBoolean(object, 'visible', true);
+		this.autoSum = reader.getAttributeBoolean(object, 'autosum', false);
 		this.barGap = reader.getAttributeNumber(object, 'bargap', this.type === 'state' ? 0 : 0.3);
 
 		reader.iterateObjects(object, (name, child) => {
