@@ -1228,6 +1228,41 @@ describe('stack functions', () => {
 			expect(sheet.cellAt('B12').value).toBe(STACKRANGE_SHEET.B2);
 			expect(sheet.cellAt('C12').value).toBe(STACKRANGE_SHEET.C2);
 		});
+		// TODO: need to be defined...
+		it.skip('should support multiple sorting fields in one row', () => {
+			// fill stackrange:
+			pipe(insert('K1', 'stackadd(A10:C13,A1:C4)'), step, remove('K1'))(sheet);
+			// sort ascending serial number:
+			pipe(insert('L1', 'stacksort(A10:C13, A54:C55)'), step, remove('L1'))(sheet);
+			expect(false).toBe(true);
+			// expect(sheet.cellAt('A11').value).toBe(STACKRANGE_SHEET.A2);
+			// expect(sheet.cellAt('B11').value).toBe(STACKRANGE_SHEET.B2);
+			// expect(sheet.cellAt('C11').value).toBe(STACKRANGE_SHEET.C2);
+			// expect(sheet.cellAt('A12').value).toBe(STACKRANGE_SHEET.A4);
+			// expect(sheet.cellAt('B12').value).toBe(STACKRANGE_SHEET.B4);
+			// expect(sheet.cellAt('C12').value).toBe(STACKRANGE_SHEET.C4);
+			// expect(sheet.cellAt('A13').value).toBe(STACKRANGE_SHEET.A3);
+			// expect(sheet.cellAt('B13').value).toBe(STACKRANGE_SHEET.B3);
+			// expect(sheet.cellAt('C13').value).toBe(STACKRANGE_SHEET.C3);
+		});
+		
+		// TODO: need to be defined...
+		it.skip('should support multiple sorting fields in different rows', () => {
+			// fill stackrange:
+			pipe(insert('K1', 'stackadd(A10:C13,A1:C4)'), step, remove('K1'))(sheet);
+			// sort ascending serial number:
+			pipe(insert('L1', 'stacksort(A10:C13, A56:C59)'), step, remove('L1'))(sheet);
+			expect(false).toBe(true);
+			// expect(sheet.cellAt('A11').value).toBe(STACKRANGE_SHEET.A2);
+			// expect(sheet.cellAt('B11').value).toBe(STACKRANGE_SHEET.B2);
+			// expect(sheet.cellAt('C11').value).toBe(STACKRANGE_SHEET.C2);
+			// expect(sheet.cellAt('A12').value).toBe(STACKRANGE_SHEET.A4);
+			// expect(sheet.cellAt('B12').value).toBe(STACKRANGE_SHEET.B4);
+			// expect(sheet.cellAt('C12').value).toBe(STACKRANGE_SHEET.C4);
+			// expect(sheet.cellAt('A13').value).toBe(STACKRANGE_SHEET.A3);
+			// expect(sheet.cellAt('B13').value).toBe(STACKRANGE_SHEET.B3);
+			// expect(sheet.cellAt('C13').value).toBe(STACKRANGE_SHEET.C3);
+		});
 		it('should sort stack range in descending order', () => {
 			// fill stackrange:
 			pipe(insert('K1', 'stackadd(A10:C12,A1:C3)'), step, remove('K1'))(sheet);
