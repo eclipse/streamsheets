@@ -15,5 +15,9 @@
   "Minimize StreamSheet": "Minimize Streamsheet",
   "Sheet Settings": "<p style='font-weight: bold;'>Sheet Settings</p>Define Sheet name and size and visual options<br /> like grid oder header visibility.",
   "Summary": "Summary",
-  "More Info": "More Info"
+  "More Info": "More Info",
+  "Reset Zoom": "Reset Zoom",
+  "Increase": "Increase",
+  "Decrease": "Decrease",
+  "Total": "Total"
 }

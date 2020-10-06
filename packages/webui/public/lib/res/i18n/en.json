@@ -13,5 +13,11 @@
   "Delete StreamSheet": "Delete StreamSheet",
   "Maximize StreamSheet": "Maximize StreamSheet",
   "Minimize StreamSheet": "Minimize StreamSheet",
-  "Sheet Settings": "<p style='font-weight: bold;'>Sheet Settings</p>Define Sheet name and size and visual options<br /> like grid oder header visibility."
+  "Sheet Settings": "<p style='font-weight: bold;'>Sheet Settings</p>Define Sheet name and size and visual options<br /> like grid oder header visibility.",
+  "Summary": "Summary",
+  "More Info": "More Info",
+  "Reset Zoom": "Reset Zoom",
+  "Increase": "Increase",
+  "Decrease": "Decrease",
+  "Total": "Total"
 }
