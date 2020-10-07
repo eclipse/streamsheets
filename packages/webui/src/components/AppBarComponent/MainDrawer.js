@@ -27,6 +27,7 @@ import * as Actions from '../../actions/actions';
 import { Restricted } from '../HelperComponent/Restricted';
 import { withStyles } from '@material-ui/core/styles';
 import ListItemText from '@material-ui/core/ListItemText';
+import { MainDrawerExtensions } from '@cedalo/webui-extensions';
 
 export class MainDrawer extends Component {
 	setAppState(state) {
@@ -188,6 +189,7 @@ export class MainDrawer extends Component {
 								<ListItemText primary={<FormattedMessage id="Export" defaultMessage="Export" />} />
 							</MenuItem>
 						</Restricted>
+						<MainDrawerExtensions.ImportSection />
 					</React.Fragment>
 				)}
 				{this.props.isMachineDetailPage && this.props.canEditMachine ? (
@@ -225,6 +227,7 @@ export class MainDrawer extends Component {
 						<ListItemText primary={<FormattedMessage id="UserPreview" defaultMessage="User Preview" />} />
 					</MenuItem>
 				) : null}
+				<MainDrawerExtensions.PreviewSection />
 			</Drawer>
 		);
 	}
