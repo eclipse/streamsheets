@@ -160,7 +160,7 @@ const StreamTableRow = (props) => {
 												align="left"
 											/>
 											<TableCell
-												style={{ cursor: 'pointer', width: '12%' }}
+												style={{ cursor: 'pointer', width: '12%', minWidth: '250px' }}
 												padding="none"
 												align="left"
 												onClick={() => props.onStreamOpen(historyRow, 'consumer')}
@@ -174,7 +174,7 @@ const StreamTableRow = (props) => {
 												/>
 												{historyRow.name}
 											</TableCell>
-											<TableCell style={{ width: '10%' }} padding="none" align="left">
+											<TableCell style={{ width: '10%', minWidth: '170px' }} padding="none" align="left">
 												{historyRow.provider.name}
 											</TableCell>
 											<TableCell style={{ width: '15%' }} padding="none" align="left">
@@ -183,10 +183,10 @@ const StreamTableRow = (props) => {
 											<TableCell padding="none" align="left">
 												{historyRow.topic}
 											</TableCell>
-											<TableCell style={{ width: '10%' }} padding="none" align="left">
+											<TableCell style={{ width: '120px' }} padding="none" align="left">
 												{historyRow.lastModified}
 											</TableCell>
-											<TableCell style={{ width: '10%' }} padding="none" align="left">
+											<TableCell style={{ width: '120px' }} padding="none" align="left">
 												<IconButton
 													style={{ padding: '4px' }}
 													size="small"
@@ -250,7 +250,7 @@ const StreamTableRow = (props) => {
 												align="left"
 											/>
 											<TableCell
-												style={{ cursor: 'pointer', width: '12%' }}
+												style={{ cursor: 'pointer', width: '12%', minWidth: '250px'  }}
 												padding="none"
 												align="left"
 												onClick={() => props.onStreamOpen(historyRow, 'producer')}
@@ -264,19 +264,19 @@ const StreamTableRow = (props) => {
 												/>
 												{historyRow.name}
 											</TableCell>
-											<TableCell style={{ width: '15%' }} padding="none" align="left">
+											<TableCell style={{ width: '10%', minWidth: '170px' }} padding="none" align="left">
 												{historyRow.provider.name}
 											</TableCell>
-											<TableCell style={{ width: '10%' }} padding="none" align="left">
+											<TableCell style={{ width: '15%' }} padding="none" align="left">
 												{historyRow.url}
 											</TableCell>
 											<TableCell padding="none" align="left">
 												{historyRow.topic}
 											</TableCell>
-											<TableCell style={{ width: '10%' }} padding="none" align="left">
+											<TableCell style={{ width: '120px' }} padding="none" align="left">
 												{historyRow.lastModified}
 											</TableCell>
-											<TableCell style={{ width: '10%' }} padding="none" align="left">
+											<TableCell style={{ width: '120px' }} padding="none" align="left">
 												<IconButton
 													style={{ padding: '4px' }}
 													size="small"

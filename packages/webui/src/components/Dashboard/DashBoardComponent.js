@@ -278,13 +278,14 @@ class DashBoardComponent extends Component {
 
 		return [
 			{ id: 'out', numeric: false, sort: false, label: '', width: '40px' },
-			{ id: 'name', numeric: false, sort: true, label: 'Streams.Name', width: '12%' },
+			{ id: 'name', numeric: false, sort: true, label: 'Streams.Name', width: '12%', minWidth: '250px' },
 			{
 				id: 'provider',
 				numeric: false,
 				sort: true,
 				label: 'Streams.Provider',
 				width: '10%',
+				minWidth: '170px',
 				fields
 			},
 			{ id: 'url', numeric: false, sort: true, label: 'Streams.URL', width: '15%' },
@@ -294,9 +295,9 @@ class DashBoardComponent extends Component {
 				numeric: false,
 				sort: true,
 				label: 'Streams.LastModified',
-				width: '10%'
+				width: '120px'
 			},
-			{ id: 'action', numeric: false, sort: false, label: 'Streams.Actions', width: '10%' }
+			{ id: 'action', numeric: false, sort: false, label: 'Streams.Actions', width: '120px' }
 		];
 	}
 
