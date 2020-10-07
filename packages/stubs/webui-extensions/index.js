@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 import ImageUploadDialog from './src/components/ImageUploadDialog';
+import * as MainDrawerExtensions from './src/MainDrawerExtensions'
 
 export * from './src/AdminNavigationExtensions';
 export * from './src/ChartExtensions';
@@ -17,6 +18,6 @@ export * from './src/PluginExtensions';
 export * from './src/RoutesExtensions';
 export * from './src/ToolbarExtensions';
 export * from './src/WorkspaceSelect';
-export { ImageUploadDialog };
+export { ImageUploadDialog, MainDrawerExtensions };
 
 export const DialogExtensions = () => null;
