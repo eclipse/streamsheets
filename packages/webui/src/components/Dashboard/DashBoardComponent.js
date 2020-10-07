@@ -593,7 +593,7 @@ class DashBoardComponent extends Component {
 				{this.state.activeTab === 1 ? (
 					<div
 						style={{
-							backgroundColor: this.props.theme.palette.background.default,
+							backgroundColor: this.props.theme.wall.backgroundColor,
 							height: 'calc(100% - 49px)',
 							overflowY: 'auto'
 						}}

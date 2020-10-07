@@ -33,7 +33,7 @@ const styles = () => ({
 	},
 	sectionRoot: {
 		display: 'flex',
-		margin: '10px 0px 0px 14px',
+		margin: '10px 0px 0px 40px',
 		borderBottom: `1px solid #e0e0e0`,
 		paddingBottom: '0px',
 		paddingTop: '4px'
@@ -119,7 +119,7 @@ const StreamTableRow = (props) => {
 			</TableRow>
 			<TableRow key={`sub${row.id}`} style={{ height: '0px' }}>
 				<TableCell
-					style={{ paddingBottom: openConnector ? '6px' : '0px', paddingTop: '0px', paddingLeft: '25px' }}
+					style={{ paddingBottom: openConnector ? '6px' : '0px', paddingTop: '0px', paddingLeft: '0px', paddingRight: '0px' }}
 					colSpan={7}
 				>
 					<Collapse in={openConnector} timeout="auto" unmountOnExit>
@@ -155,7 +155,7 @@ const StreamTableRow = (props) => {
 											key={historyRow.id}
 										>
 											<TableCell
-												style={{ width: '15px', borderBottom: 'none' }}
+												style={{ width: '40px', borderBottom: 'none' }}
 												padding="none"
 												align="left"
 											/>
@@ -245,7 +245,7 @@ const StreamTableRow = (props) => {
 											key={historyRow.id}
 										>
 											<TableCell
-												style={{ width: '20px', borderBottom: 'none' }}
+												style={{ width: '40px', borderBottom: 'none' }}
 												padding="none"
 												align="left"
 											/>
