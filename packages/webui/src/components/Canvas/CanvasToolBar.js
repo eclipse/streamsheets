@@ -37,7 +37,7 @@ import FormatAlignLeft from '@material-ui/icons/FormatAlignLeft';
 import FormatAlignRight from '@material-ui/icons/FormatAlignRight';
 import BoldIcon from '@material-ui/icons/FormatBold';
 import ItalicIcon from '@material-ui/icons/FormatItalic';
-import MessageIcon from '@material-ui/icons/Message';
+import MessageIcon from '@material-ui/icons/VerticalSplit';
 import ToolEllipseIcon from '@material-ui/icons/PanoramaFishEye';
 import RedoIcon from '@material-ui/icons/Redo';
 import ToolStar from '@material-ui/icons/StarBorder';
@@ -3001,35 +3001,35 @@ export class CanvasToolBar extends Component {
 						margin: '0px 8px'
 					}}
 				/>
-				<Tooltip
-					enterDelay={300}
-					title={<FormattedMessage id="Tooltip.PasteFunction" defaultMessage="PasteFunction" />}
-				>
-					<div>
-						<IconButton
-							style={buttonStyle}
-							onClick={(e) => this.onPasteFunction(e)}
-							disabled={!this.props.cellSelected}
-						>
-							<SvgIcon>
-								<text
-									x="10"
-									y="12"
-									fontStyle="italic"
-									fontWeight="bold"
-									fontSize="12pt"
-									dy="0.25em"
-									textAnchor="end"
-								>
-									f
-								</text>
-								<text x="12" y="12" fontWeight="bold" fontSize="8pt" dy="0.25em" textAnchor="left">
-									(x)
-								</text>
-							</SvgIcon>
-						</IconButton>
-					</div>
-				</Tooltip>
+				{/*<Tooltip*/}
+				{/*	enterDelay={300}*/}
+				{/*	title={<FormattedMessage id="Tooltip.PasteFunction" defaultMessage="PasteFunction" />}*/}
+				{/*>*/}
+				{/*	<div>*/}
+				{/*		<IconButton*/}
+				{/*			style={buttonStyle}*/}
+				{/*			onClick={(e) => this.onPasteFunction(e)}*/}
+				{/*			disabled={!this.props.cellSelected}*/}
+				{/*		>*/}
+				{/*			<SvgIcon>*/}
+				{/*				<text*/}
+				{/*					x="10"*/}
+				{/*					y="12"*/}
+				{/*					fontStyle="italic"*/}
+				{/*					fontWeight="bold"*/}
+				{/*					fontSize="12pt"*/}
+				{/*					dy="0.25em"*/}
+				{/*					textAnchor="end"*/}
+				{/*				>*/}
+				{/*					f*/}
+				{/*				</text>*/}
+				{/*				<text x="12" y="12" fontWeight="bold" fontSize="8pt" dy="0.25em" textAnchor="left">*/}
+				{/*					(x)*/}
+				{/*				</text>*/}
+				{/*			</SvgIcon>*/}
+				{/*		</IconButton>*/}
+				{/*	</div>*/}
+				{/*</Tooltip>*/}
 				<Tooltip
 					enterDelay={300}
 					title={

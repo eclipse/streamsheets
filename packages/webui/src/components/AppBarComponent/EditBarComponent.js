@@ -560,7 +560,7 @@ export class EditBarComponent extends Component {
 						cursor: 'default'
 					}}
 				>
-					F(x)
+					<span style={{fontStyle: 'italic', fontWeight: 'bold', color: 'gray'}}>f</span> (x)
 				</span>
 				<span
 					id="editbarformula"
