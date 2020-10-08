@@ -1,3 +1,3 @@
-export function PreviewSectionExtensions() {
+export function PreviewSection() {
 	return null;
 }
