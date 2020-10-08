@@ -169,6 +169,7 @@ export class MainDrawer extends Component {
 								</MenuItem>
 							) : null}
 						</Restricted>
+						<MainDrawerExtensions.FileSection isMachineDetailPage={isMachineDetailPage} />
 						<Divider />
 						<Restricted all={['machine.edit', 'stream']}>
 							<MenuItem dense onClick={() => this.handleImport()}>
