@@ -4245,7 +4245,7 @@ export class CanvasToolBar extends Component {
 						margin: '0px 8px'
 					}}
 				/>
-				<WidthHelper width={1200}>
+				<WidthHelper width={1250}>
 					<div
 						style={{
 							right: '10px',
