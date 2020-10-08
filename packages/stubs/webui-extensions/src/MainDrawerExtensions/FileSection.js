@@ -1,3 +1,3 @@
-export function FileSection() {
+export default function FileSection() {
 	return null;
 }

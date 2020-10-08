@@ -1,3 +1,3 @@
-export function ImportSection() {
+export default function ImportSection() {
 	return null;
 }
