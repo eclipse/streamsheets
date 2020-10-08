@@ -123,7 +123,7 @@ const StreamTableRow = (props) => {
 					colSpan={7}
 				>
 					<Collapse in={openConnector} timeout="auto" unmountOnExit>
-						<Paper square elevation={1} style={{maxHeight: 'none'}}>
+						<Paper square elevation={1} style={{maxHeight: 'none', maxWidth: 'none'}}>
 							{ row.provider.canConsume ? (
 								<React.Fragment>
 							<div className={classes.sectionRoot}>
@@ -177,7 +177,7 @@ const StreamTableRow = (props) => {
 											<TableCell style={{ width: '10%', minWidth: '170px' }} padding="none" align="left">
 												{historyRow.provider.name}
 											</TableCell>
-											<TableCell style={{ width: '15%' }} padding="none" align="left">
+											<TableCell style={{ width: '20%' }} padding="none" align="left">
 												{historyRow.url}
 											</TableCell>
 											<TableCell padding="none" align="left">
@@ -267,7 +267,7 @@ const StreamTableRow = (props) => {
 											<TableCell style={{ width: '10%', minWidth: '170px' }} padding="none" align="left">
 												{historyRow.provider.name}
 											</TableCell>
-											<TableCell style={{ width: '15%' }} padding="none" align="left">
+											<TableCell style={{ width: '20%' }} padding="none" align="left">
 												{historyRow.url}
 											</TableCell>
 											<TableCell padding="none" align="left">

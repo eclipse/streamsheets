@@ -288,7 +288,7 @@ class DashBoardComponent extends Component {
 				minWidth: '170px',
 				fields
 			},
-			{ id: 'url', numeric: false, sort: true, label: 'Streams.URL', width: '15%' },
+			{ id: 'url', numeric: false, sort: true, label: 'Streams.URL', width: '20%' },
 			{ id: 'topic', numeric: false, sort: true, label: 'Streams.Topic' },
 			{
 				id: 'lastModified',
@@ -596,6 +596,7 @@ class DashBoardComponent extends Component {
 						style={{
 							backgroundColor: this.props.theme.wall.backgroundColor,
 							height: 'calc(100% - 49px)',
+							overflowX: 'auto',
 							overflowY: 'auto'
 						}}
 					>
@@ -637,7 +638,7 @@ class DashBoardComponent extends Component {
 								<Add />
 							</Fab>
 						</Tooltip>
-						<Table size="small" aria-label="collapsible table">
+						<Table size="small" aria-label="collapsible table" style={{minWidth: '1200px'}}>
 							<TableSortHeader
 								height={48}
 								cells={this.getCells()}
