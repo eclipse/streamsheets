@@ -239,6 +239,7 @@ export default class ChartSelectionFeedbackView extends View {
 					if (ref) {
 						const axes = item.getAxes(data);
 						let index = 0;
+						let valueSum = 0;
 						const value = {};
 						const points = [];
 						const prevPoints = [];
@@ -266,7 +267,8 @@ export default class ChartSelectionFeedbackView extends View {
 							points,
 							lastPoints: prevPoints,
 							pieInfo,
-							currentAngle: pieInfo ? pieInfo.startAngle : 0
+							currentAngle: pieInfo ? pieInfo.startAngle : 0,
+							valueSum: 0,
 						};
 						const labelAngle =
 							serie.dataLabel.format.fontRotation === undefined
@@ -285,8 +287,23 @@ export default class ChartSelectionFeedbackView extends View {
 						while (item.getValue(ref, index, value)) {
 							info.index = index;
 							if (value.x !== undefined && value.y !== undefined) {
+								const y = value.y;
 								pt.x = item.scaleToAxis(axes.x, value.x, undefined, false);
-								pt.y = item.scaleToAxis(axes.y, value.y, info, false);
+								if (serie.type === 'waterfall') {
+									if (serie.autoSum && index) {
+										const lastVal = {x: 0, y: 0};
+										item.getValue(ref, index - 1, lastVal);
+										value.y = value.y - (lastVal.y === undefined ? 0 : lastVal.y);
+									}
+									if (serie.points[index] && serie.points[index].pointSum) {
+										valueSum = value.y;
+									} else {
+										valueSum += value.y;
+									}
+									pt.y = item.scaleToAxis(axes.y, valueSum, info, false);
+								} else {
+									pt.y = item.scaleToAxis(axes.y, value.y, info, false);
+								}
 								item.toPlot(serie, plotRect, pt);
 								if (
 									pt.x + 1 >= plotRect.left &&
@@ -295,6 +312,7 @@ export default class ChartSelectionFeedbackView extends View {
 									pt.y - 1 <= plotRect.bottom
 								) {
 									const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
+									value.y = y;
 									const drawRect = item.getLabelRect(pt, value, text, index, params);
 									if (item.hasDataPointLabel(serie, index) && drawRect) {
 										let markerPt = new Point(drawRect.left, drawRect.top);
