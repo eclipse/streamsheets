@@ -47,7 +47,6 @@ import UndoIcon from '@material-ui/icons/Undo';
 import VerticalAlignBottom from '@material-ui/icons/VerticalAlignBottom';
 import VerticalAlignCenter from '@material-ui/icons/VerticalAlignCenter';
 import VerticalAlignTop from '@material-ui/icons/VerticalAlignTop';
-import EditNamesIcon from '@material-ui/icons/ViewList';
 import ZoomIcon from '@material-ui/icons/ZoomIn';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
@@ -3057,7 +3056,12 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton style={buttonStyle} onClick={(e) => this.onEditNames(e)}>
-							<EditNamesIcon fontSize="inherit" />
+							<SvgIcon>
+								<path
+									// eslint-disable-next-line max-len
+									d="M21.4 11.6L12.4 2.6C12 2.2 11.5 2 11 2H4C2.9 2 2 2.9 2 4V11C2 11.5 2.2 12 2.6 12.4L11.6 21.4C12 21.8 12.5 22 13 22C13.5 22 14 21.8 14.4 21.4L21.4 14.4C21.8 14 22 13.5 22 13C22 12.5 21.8 12 21.4 11.6M13 20L4 11V4H11L20 13M6.5 5C7.3 5 8 5.7 8 6.5S7.3 8 6.5 8 5 7.3 5 6.5 5.7 5 6.5 5M10.1 8.9L11.5 7.5L17 13L15.6 14.4L10.1 8.9M7.6 11.4L9 10L13 14L11.6 15.4L7.6 11.4Z"
+								/>
+							</SvgIcon>
 						</IconButton>
 					</div>
 				</Tooltip>
@@ -3074,11 +3078,12 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton style={buttonStyle} onClick={this.onShowTools}>
-							<SvgIcon>
-								<path
-									// eslint-disable-next-line max-len
-									d="M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z"
-								/>
+							<SvgIcon
+								stroke="currentColor"
+								strokeWidth="2.5px"
+							>
+								<rect fillOpacity="0.7" fill="currentColor" x="2" y="2" width="13" height="13" />
+								<circle fill="white" cx="15" cy="15" r={7} />
 							</SvgIcon>
 						</IconButton>
 					</div>
