@@ -3080,10 +3080,10 @@ export class CanvasToolBar extends Component {
 						<IconButton style={buttonStyle} onClick={this.onShowTools}>
 							<SvgIcon
 								stroke="currentColor"
-								strokeWidth="2.5px"
+								strokeWidth="2px"
 							>
-								<rect fillOpacity="0.7" fill="currentColor" x="2" y="2" width="13" height="13" />
-								<circle fill="white" cx="15" cy="15" r={7} />
+								<rect fillOpacity="0.7" fill="currentColor" x="2" y="3" width="12" height="12" />
+								<circle fill="white" cx="14" cy="14" r={7} />
 							</SvgIcon>
 						</IconButton>
 					</div>
