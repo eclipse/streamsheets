@@ -3083,7 +3083,7 @@ export class CanvasToolBar extends Component {
 								strokeWidth="2px"
 							>
 								<rect fillOpacity="0.7" fill="currentColor" x="2" y="3" width="12" height="12" />
-								<circle fill="white" cx="14" cy="14" r={7} />
+								<circle fill="white" cx="14" cy="15" r={7} />
 							</SvgIcon>
 						</IconButton>
 					</div>
