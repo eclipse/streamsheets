@@ -25,6 +25,7 @@ const Streams = require('../streams/Streams');
 const MachineTaskMessagingClient = require('./MachineTaskMessagingClient');
 const { SheetParser } = require('../parser/SheetParser');
 const FunctionRegistry = require('../FunctionRegistry');
+const State = require('../State');
 // const { createPropertiesObject } = require('../utils');
 const DEF_SHEET_PROPS = require('../../defproperties.json');
 
@@ -210,6 +211,14 @@ const updateCurrentStream = (stream) => {
 	if (!existing || existing.timestamp < stream.timestamp) {
 		currentStreams.set(stream.id, stream);
 		logger.info(`update stream: '${stream.name}'`);
+	}
+};
+
+// TODO: change with refactoring of message/communication!! was added to solve DL-4254
+const isSlowRunningMachine = (machine) => machine && machine.state === State.RUNNING && machine.cycletime > 10000;
+const sendSheetUpdateOnSlowMachine = (streamsheet, cell, index) => {
+	if (isSlowRunningMachine(streamsheet.machine)) {
+		streamsheet.notifySheetUpdate(cell, index);
 	}
 };
 
@@ -691,6 +700,7 @@ class SetCellAt extends ARequestHandler {
 				const cell = SheetParser.createCell(msg.celldescr, sheet);
 				const index = SheetIndex.create(msg.index);
 				sheet.setCellAt(index, cell);
+				sendSheetUpdateOnSlowMachine(streamsheet, cell, index);
 				return Promise.resolve({
 					cell: cellDescriptor(cell, index),
 					// to update all cells in DB
@@ -713,6 +723,7 @@ class SetCells extends ARequestHandler {
 		const sheet = streamsheet && streamsheet.sheet;
 		if (sheet) {
 			sheet.setCells(cells);
+			sendSheetUpdateOnSlowMachine(streamsheet);
 			return Promise.resolve({ cells: getSheetCellsAsObject(sheet) });
 		}
 		return Promise.reject(new Error(`Unknown streamsheet id: ${msg.streamsheetId}`));
@@ -729,6 +740,7 @@ class SetCellsLevel extends ARequestHandler {
 				const cell = sheet.cellAt(index, true);
 				cell.level = cellLevels[ref];
 			});
+			sendSheetUpdateOnSlowMachine(streamsheet);
 			return Promise.resolve({ cells: getSheetCellsAsObject(streamsheet.sheet) });
 		}
 		return Promise.reject(new Error(`Unknown streamsheet id: ${msg.streamsheetId}`));

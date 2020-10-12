@@ -573,6 +573,11 @@ class StreamSheet {
 	notify(type, msg) {
 		this._emitter.emit(type, msg, this);
 	}
+
+	// forces sheet_update event:
+	notifySheetUpdate(cell, index) {
+		this._emitter.emit('sheet_update', cell, index);
+	}
 }
 
 module.exports = StreamSheet;
