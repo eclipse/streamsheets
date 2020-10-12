@@ -421,6 +421,9 @@ class ExecuteFunction extends ARequestHandler {
 	}
 }
 class GetCellRawValue extends ARequestHandler {
+	get isModifying() {
+		return false;
+	}
 	async handle({ streamsheetId, index }) {
 		const streamsheet = this.machine.getStreamSheet(streamsheetId);
 		const sheet = streamsheet && streamsheet.sheet;
