@@ -65,7 +65,6 @@ class Machine {
 		this._initialLoadTime = Date.now();
 		this._name = DEF_CONF.name;
 		this._state = DEF_CONF.state;
-		this._idle = false;
 		// a Map keeps its insertion order
 		this._streamsheets = new Map();
 		this._activeStreamSheets = null;
@@ -245,10 +244,6 @@ class Machine {
 
 	get isManualStep() {
 		return this._isManualStep;
-	}
-
-	get isIdle() {
-		return this._idle && this._state === State.RUNNING;
 	}
 
 	get state() {
@@ -518,7 +513,6 @@ class Machine {
 	}
 
 	async cycle(streamsheets) {
-		this._idle = false;
 		this.cyclemonitor.counterSecond += 1;
 		const t0 = Date.now();
 		try {
@@ -551,7 +545,6 @@ class Machine {
 			this.cyclemonitor.counterSecond = 0;
 		}
 		const nextcycle = Math.max(1, cycletime - (t1 - t0) - speedUp);
-		this._idle = true;
 		this.cyclemonitor.id = setTimeout(this.cycle, nextcycle, streamsheets);
 	}
 	_clearCycle() {
