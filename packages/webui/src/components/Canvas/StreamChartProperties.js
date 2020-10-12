@@ -29,7 +29,7 @@ import {
 	Input,
 	Button,
 	TextField,
-	Typography
+	// Typography
 } from '@material-ui/core';
 import { FormattedMessage } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -47,8 +47,26 @@ import { intl } from '../../helper/IntlGlobalProvider';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import ValueRangesDialog from '../SheetDialogs/ValueRangesDialog';
 import MaterialTextField from '@material-ui/core/TextField';
+import {withStyles} from "@material-ui/core/styles";
 
 const markerSizes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+const styles = {
+	icon: {
+		color: 'white'
+	},
+	underline: {
+		'&::before': {
+			borderColor: 'white'
+		},
+		'&::after': {
+			borderColor: 'white'
+		},
+		'&&&&:hover:before': {
+			borderBottom: '2px solid white'
+		}
+	}
+};
 
 function MyInputComponent(props) {
 	const { inputRef, ...other } = props;
@@ -67,7 +85,7 @@ function MyInputComponent(props) {
 
 export class StreamChartProperties extends Component {
 	static propTypes = {
-		title: PropTypes.string.isRequired,
+		// title: PropTypes.string.isRequired,
 		dummy: PropTypes.string
 	};
 
@@ -315,6 +333,51 @@ export class StreamChartProperties extends Component {
 		const item = this.state.plotView.getItem();
 		item.chart.varyByThreshold = event.target.value;
 		this.finishCommand(cmd, 'chart');
+	};
+
+	handleChartSelection = (event) => {
+		const item = this.state.plotView.getItem();
+		const view = this.state.plotView;
+
+		// graphManager.getGraphViewer().getGraphView().clearLayer('chartselection');
+
+		switch (event.target.value) {
+			case 'chart':
+				this.state.plotView.chartSelection = undefined;
+				break;
+			case 'plot':
+				this.state.plotView.chartSelection = {
+					element: 'plot',
+					data: item.plot
+				}
+				break;
+			case 'legend':
+				this.state.plotView.chartSelection = {
+					element: 'legend',
+					data: item.legend
+				}
+				break;
+			case 'title':
+				this.state.plotView.chartSelection = {
+					element: 'title',
+					data: item.title
+				}
+				break;
+			default:
+				break;
+		}
+
+		if (this.state.plotView.chartSelection) {
+			const layer = view.getGraphView().getLayer('chartselection');
+			layer.push(new JSG.ChartSelectionFeedbackView(view));
+		} else {
+			view.getGraphView().clearLayer('chartselection');
+		}
+
+		this.updateState();
+		JSG.NotificationCenter.getInstance().send(
+			new JSG.Notification(JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION, item));
+		graphManager.redraw();
 	};
 
 	handleTemplateChange = (event) => {
@@ -888,6 +951,7 @@ export class StreamChartProperties extends Component {
 		const data = this.getData();
 		const item = this.state.plotView.getItem();
 		const sheetView = this.getSheetView();
+		const classes = this.props.classes;
 		return (
 			<Slide direction="left" in={this.props.showStreamChartProperties} mountOnEnter unmountOnExit>
 				<Paper
@@ -920,16 +984,58 @@ export class StreamChartProperties extends Component {
 							justifyContent: 'space-between'
 						}}
 					>
-						<Typography
+						<TextField
+							size="small"
+							margin="normal"
+							color="secondary"
+							select
+							value={selection ? selection.element : 'chart'}
+							onChange={this.handleChartSelection}
 							style={{
-								padding: '12px 0px 12px 8px',
-								display: 'inline-block',
-								fontSize: '12pt',
-								color: 'white'
+								margin: '13px'
+							}}
+							InputProps={{
+								classes: {
+									underline: classes.underline,
+								},
+								style: {
+									color: 'white',
+								}
+							}}
+							SelectProps={{
+								classes: {
+									icon: classes.icon
+								},
+								style: {
+									color: 'white',
+								}
 							}}
 						>
-							{this.translateTitle(this.props.title)}
-						</Typography>
+							<MenuItem value="chart" key={0}>
+								<FormattedMessage
+									id="StreamChartProperties.Chart"
+									defaultMessage="Chart"
+								/>
+							</MenuItem>
+							<MenuItem value="plot" key={1}>
+								<FormattedMessage
+									id="StreamChartProperties.Plot"
+									defaultMessage="Plot"
+								/>
+							</MenuItem>
+							<MenuItem value="title" key={2}>
+								<FormattedMessage
+									id="StreamChartProperties.Title"
+									defaultMessage="Title"
+								/>
+							</MenuItem>
+							<MenuItem value="legend" key={2}>
+								<FormattedMessage
+									id="StreamChartProperties.Legend"
+									defaultMessage="Legend"
+								/>
+							</MenuItem>
+						</TextField>
 						<IconButton
 							style={{
 								display: 'inline',
@@ -2857,4 +2963,4 @@ function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(StreamChartProperties);
+export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(StreamChartProperties));
