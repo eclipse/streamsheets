@@ -215,7 +215,7 @@ const updateCurrentStream = (stream) => {
 };
 
 // TODO: change with refactoring of message/communication!! was added to solve DL-4254
-const isSlowRunningMachine = (machine) => machine && machine.state === State.RUNNING && machine.cycletime > 10000;
+const isSlowRunningMachine = (machine) => machine && machine.state === State.RUNNING && machine.cycletime > 1500;
 const sendSheetUpdateOnSlowMachine = (streamsheet, cell, index) => {
 	if (isSlowRunningMachine(streamsheet.machine)) {
 		streamsheet.notifySheetUpdate(cell, index);
