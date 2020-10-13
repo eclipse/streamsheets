@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -106,13 +106,14 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 				cell.clearContent();
 			} else {
 				// this is to ensure that temporary values form ui interaction (e.g. slider) are not overwritten
+				const value = cellData.value;
 				if (cell._targetValue !== undefined && cellData.value !== cell._targetValue) {
 					cellData.value = cell._targetValue;
 				}
 				const expr = createExpression(cellData);
 				cell.setExpression(expr);
 				cell.setValue(cellData.value);
-				if (cell._targetValue !== undefined && cellData.value === cell._targetValue) {
+				if (cell._targetValue !== undefined && value === cell._targetValue) {
 					cell._targetValue = undefined;
 				}
 			}
