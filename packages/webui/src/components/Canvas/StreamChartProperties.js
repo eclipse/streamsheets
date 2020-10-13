@@ -335,13 +335,26 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'chart');
 	};
 
+	getSelectionValue() {
+		const selection = this.state.plotView.chartSelection;
+		if (selection === undefined) {
+			return 'chart';
+		}
+
+		switch (selection.element) {
+			case 'series':
+				return `series;${selection.index}`;
+			default:
+				return selection.element;
+		}
+	}
+
 	handleChartSelection = (event) => {
 		const item = this.state.plotView.getItem();
 		const view = this.state.plotView;
+		const data = event.target.value.split(';');
 
-		// graphManager.getGraphViewer().getGraphView().clearLayer('chartselection');
-
-		switch (event.target.value) {
+		switch (data[0]) {
 			case 'chart':
 				this.state.plotView.chartSelection = undefined;
 				break;
@@ -363,6 +376,17 @@ export class StreamChartProperties extends Component {
 					data: item.title
 				}
 				break;
+			case 'series': {
+				const index = Number(data[1]);
+				this.state.plotView.chartSelection = {
+					element: 'series',
+					index,
+					selectionIndex: 0,
+					dataPoints: [],
+					data: item.series[index]
+				}
+				break;
+			}
 			default:
 				break;
 		}
@@ -989,7 +1013,7 @@ export class StreamChartProperties extends Component {
 							margin="normal"
 							color="secondary"
 							select
-							value={selection ? selection.element : 'chart'}
+							value={this.getSelectionValue()}
 							onChange={this.handleChartSelection}
 							style={{
 								margin: '13px'
@@ -1029,12 +1053,21 @@ export class StreamChartProperties extends Component {
 									defaultMessage="Title"
 								/>
 							</MenuItem>
-							<MenuItem value="legend" key={2}>
+							<MenuItem value="legend" key={3}>
 								<FormattedMessage
 									id="StreamChartProperties.Legend"
 									defaultMessage="Legend"
 								/>
 							</MenuItem>
+							{item.series.map((series, index) => (
+								<MenuItem
+									value={`series;${index}`}
+									/* eslint-disable-next-line react/no-array-index-key */
+									key={`s${index}`}
+								>
+									{`${intl.formatMessage({ id: `StreamChartProperties.Series` }, {})} ${this.getLabel(series)}`}
+								</MenuItem>
+							))}
 						</TextField>
 						<IconButton
 							style={{
