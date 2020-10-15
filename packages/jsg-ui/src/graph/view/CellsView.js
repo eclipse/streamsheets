@@ -792,7 +792,7 @@ export default class CellsView extends NodeView {
 					this.rect(graphics, columnInfo.x, rowInfo.y + rowInfo.height - rowInfo.height * value, columnInfo.width + 20, rowInfo.height * value,
 						fillColor);
 				} else {
-					this.rect(graphics, columnInfo.x, rowInfo.y, columnInfo.width * value + 20, rowInfo.height,
+					this.rect(graphics, columnInfo.x, rowInfo.y, columnInfo.width * value + 20, rowInfo.height + 20,
 						fillColor);
 				}
 				if (rowInfo.grey) {
