@@ -22,6 +22,9 @@ module.exports = class ChartSeries {
 		this.type = type;
 		this.smooth = false;
 		this.visible = true;
+		this.innerPoints = true;
+		this.outerPoints = true;
+		this.average = true;
 		this.formula = formula;
 		this.format = new ChartFormat();
 		this.marker = new ChartMarker();
@@ -64,6 +67,9 @@ module.exports = class ChartSeries {
 		writer.writeAttributeString('yaxis', this.yAxis);
 		writer.writeAttributeNumber('smooth', this.smooth ? 1 : 0);
 		writer.writeAttributeNumber('visible', this.visible ? 1 : 0);
+		writer.writeAttributeNumber('innerpoints', this.innerPoints ? 1 : 0);
+		writer.writeAttributeNumber('outerpoints', this.outerPoints ? 1 : 0);
+		writer.writeAttributeNumber('average', this.average ? 1 : 0);
 		writer.writeAttributeNumber('autosum', this.autoSum ? 1 : 0);
 		writer.writeAttributeNumber('bargap', this.barGap, 2);
 		this.formula.save('formula', writer);
@@ -86,6 +92,9 @@ module.exports = class ChartSeries {
 		this.yAxis = reader.getAttributeString(object, 'yaxis', 'YAxis1');
 		this.smooth = reader.getAttributeBoolean(object, 'smooth', false);
 		this.visible = reader.getAttributeBoolean(object, 'visible', true);
+		this.innerPoints = reader.getAttributeBoolean(object, 'innerpoints', true);
+		this.outerPoints = reader.getAttributeBoolean(object, 'outerpoints', true);
+		this.average = reader.getAttributeBoolean(object, 'average', true);
 		this.autoSum = reader.getAttributeBoolean(object, 'autosum', false);
 		this.barGap = reader.getAttributeNumber(object, 'bargap', this.type === 'state' ? 0 : 0.3);
 

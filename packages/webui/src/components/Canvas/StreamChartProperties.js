@@ -756,6 +756,27 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'series');
 	};
 
+	handleSeriesInnerPointsChange = (event, state) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.innerPoints = state;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesOuterPointsChange = (event, state) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.outerPoints = state;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesAverageChange = (event, state) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.average = state;
+		this.finishCommand(cmd, 'series');
+	};
+
 	handleSeriesVisibleChange = (event, state) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
@@ -1068,6 +1089,12 @@ export class StreamChartProperties extends Component {
 									{`${intl.formatMessage({ id: `StreamChartProperties.Series` }, {})} ${this.getLabel(series)}`}
 								</MenuItem>
 							))}
+							<MenuItem hidden disabled value="point" key={4}>
+								<FormattedMessage
+									id="StreamChartProperties.Point"
+									defaultMessage="Point"
+								/>
+							</MenuItem>
 						</TextField>
 						<IconButton
 							style={{
@@ -2652,6 +2679,51 @@ export class StreamChartProperties extends Component {
 												/>
 											}
 										/>) : null}
+									{selection.element === 'series' && data.type === 'boxplot' ? (
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={data.innerPoints}
+													onChange={(event, state) => this.handleSeriesInnerPointsChange(event, state)}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.InnerPoints"
+													defaultMessage="Inner Points"
+												/>
+											}
+										/>) : null}
+									{selection.element === 'series' && data.type === 'boxplot' ? (
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={data.outerPoints}
+													onChange={(event, state) => this.handleSeriesOuterPointsChange(event, state)}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.OuterPoints"
+													defaultMessage="Outer Points"
+												/>
+											}
+										/>) : null}
+									{selection.element === 'series' && data.type === 'boxplot' ? (
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={data.average}
+													onChange={(event, state) => this.handleSeriesAverageChange(event, state)}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.Average"
+													defaultMessage="Average"
+												/>
+											}
+										/>) : null}
 									{selection.element === 'series' && data.type === 'waterfall' ? (
 										<FormControlLabel
 											control={
@@ -2667,7 +2739,7 @@ export class StreamChartProperties extends Component {
 												/>
 											}
 										/>) : null}
-									{selection.element === 'point' ? (
+									{selection.element === 'point' && data.type === 'waterfall' ? (
 										<FormControlLabel
 											control={
 												<Checkbox
