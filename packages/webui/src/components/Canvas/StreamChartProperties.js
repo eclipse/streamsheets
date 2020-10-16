@@ -343,7 +343,9 @@ export class StreamChartProperties extends Component {
 
 		switch (selection.element) {
 			case 'series':
-				return `series;${selection.index}`;
+			case 'xAxis':
+			case 'yAxis':
+				return `${selection.element};${selection.index}`;
 			default:
 				return selection.element;
 		}
@@ -384,6 +386,16 @@ export class StreamChartProperties extends Component {
 					selectionIndex: 0,
 					dataPoints: [],
 					data: item.series[index]
+				}
+				break;
+			}
+			case 'yAxis':
+			case 'xAxis': {
+				const index = Number(data[1]);
+				this.state.plotView.chartSelection = {
+					element: data[0],
+					index,
+					data: data[0] === 'xAxis' ? item.xAxes[index] : item.yAxes[index]
 				}
 				break;
 			}
@@ -1087,6 +1099,24 @@ export class StreamChartProperties extends Component {
 									key={`s${index}`}
 								>
 									{`${intl.formatMessage({ id: `StreamChartProperties.Series` }, {})} ${this.getLabel(series)}`}
+								</MenuItem>
+							))}
+							{item.xAxes.map((axis, index) => (
+								<MenuItem
+									value={`xAxis;${index}`}
+									/* eslint-disable-next-line react/no-array-index-key */
+									key={`x${index}`}
+								>
+									{`${intl.formatMessage({ id: `StreamChartProperties.Axis` }, {})} ${axis.name}`}
+								</MenuItem>
+							))}
+							{item.yAxes.map((axis, index) => (
+								<MenuItem
+									value={`yAxis;${index}`}
+									/* eslint-disable-next-line react/no-array-index-key */
+									key={`y${index}`}
+								>
+									{`${intl.formatMessage({ id: `StreamChartProperties.Axis` }, {})} ${axis.name}`}
 								</MenuItem>
 							))}
 							<MenuItem hidden disabled value="point" key={4}>

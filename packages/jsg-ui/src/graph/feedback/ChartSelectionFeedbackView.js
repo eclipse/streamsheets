@@ -405,6 +405,40 @@ export default class ChartSelectionFeedbackView extends View {
 								100
 							);
 							graphics.drawMarker(rect, false);
+							if (valueSet.length > 3) {
+								y = item.scaleToAxis(axes.y, valueSet[maxIndex].y, info, false);
+								y = plotRect.bottom - y * plotRect.height;
+								rect.set(
+									x + barInfo.offset + (barWidth - barInfo.margin) / 3 - 50,
+									y - 50,
+									100,
+									100
+								);
+								graphics.drawMarker(rect, false);
+								rect.set(
+									x + barInfo.offset + (barWidth - barInfo.margin) * 2 / 3 - 50,
+									y - 50,
+									100,
+									100
+								);
+								graphics.drawMarker(rect, false);
+								y = item.scaleToAxis(axes.y, valueSet[minIndex].y, info, false);
+								y = plotRect.bottom - y * plotRect.height;
+								rect.set(
+									x + barInfo.offset + (barWidth - barInfo.margin) / 3 - 50,
+									y - 50,
+									100,
+									100
+								);
+								graphics.drawMarker(rect, false);
+								rect.set(
+									x + barInfo.offset + (barWidth - barInfo.margin) * 2 / 3 - 50,
+									y - 50,
+									100,
+									100
+								);
+								graphics.drawMarker(rect, false);
+							}
 						});
 
 					} else {
