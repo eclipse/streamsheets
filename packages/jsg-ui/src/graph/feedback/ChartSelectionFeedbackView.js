@@ -16,6 +16,7 @@ import {
 	GraphUtils,
 	Rectangle,
 	TextFormatAttributes,
+	ChartRect,
 	FormatAttributes
 } from '@cedalo/jsg-core';
 
@@ -39,15 +40,18 @@ export default class ChartSelectionFeedbackView extends View {
 	draw(graphics) {
 		const point = new Point(0, 0);
 		const rect = new Rectangle();
+		const drawMarkers = (left, top, right, bottom) => {
+			rect.set(left - 50, top - 50, 100, 100);
+			graphics.drawMarker(rect, false);
+			rect.set(right - 50, top - 50, 100, 100);
+			graphics.drawMarker(rect, false);
+			rect.set(left - 50, bottom - 50, 100, 100);
+			graphics.drawMarker(rect, false);
+			rect.set(right - 50, bottom - 50, 100, 100);
+			graphics.drawMarker(rect, false);
+		};
 		const drawMarkerRect = (sel) => {
-			rect.set(sel.left - 50, sel.top - 50, 100, 100);
-			graphics.drawMarker(rect, false);
-			rect.set(sel.right - 50, sel.top - 50, 100, 100);
-			graphics.drawMarker(rect, false);
-			rect.set(sel.left - 50, sel.bottom - 50, 100, 100);
-			graphics.drawMarker(rect, false);
-			rect.set(sel.right - 50, sel.bottom - 50, 100, 100);
-			graphics.drawMarker(rect, false);
+			drawMarkers(sel.left, sel.top, sel.right, sel.bottom);
 		};
 
 		let angle = 0; // this.chartView.getItem().getAngle().getValue();
@@ -284,65 +288,138 @@ export default class ChartSelectionFeedbackView extends View {
 						);
 						graphics.setFillColor(SelectionStyle.MARKER_FILL_COLOR);
 
-						while (item.getValue(ref, index, value)) {
-							info.index = index;
-							if (value.x !== undefined && value.y !== undefined) {
-								const y = value.y;
-								pt.x = item.scaleToAxis(axes.x, value.x, undefined, false);
-								if (serie.type === 'waterfall') {
-									if (serie.autoSum && index) {
-										const lastVal = {x: 0, y: 0};
-										item.getValue(ref, index - 1, lastVal);
-										value.y = value.y - (lastVal.y === undefined ? 0 : lastVal.y);
+						if (serie.type === 'boxplot') {
+							if (item.hasDataPointLabel(serie, index)) {
+								// collect values for each category
+								const values = item.getBoxPlotValues(ref, axes);
+								const drawMarkersAtValue = (val, x, lbarWidth, id) => {
+									const ptl = {x, y: item.scaleToAxis(axes.y, val, info, false)};
+									item.toPlot(serie, plotRect, ptl);
+									if (ptl.x >= plotRect.left && ptl.x <= plotRect.right) {
+										value.x = 0;
+										value.y = val;
+										value.c = id;
+										const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
+										params.boxBarWidth = lbarWidth;
+										const drawRect = item.getLabelRect(ptl, value, text, index, params);
+										if (drawRect) {
+											let markerPt = new Point(drawRect.left, drawRect.top);
+											markerPt = labelAngle
+												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
+												: markerPt;
+											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+											graphics.drawMarker(rect, false);
+											markerPt.set(drawRect.left, drawRect.bottom);
+											markerPt = labelAngle
+												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
+												: markerPt;
+											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+											graphics.drawMarker(rect, false);
+											markerPt.set(drawRect.right, drawRect.top);
+											markerPt = labelAngle
+												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
+												: markerPt;
+											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+											graphics.drawMarker(rect, false);
+											markerPt.set(drawRect.right, drawRect.bottom);
+											markerPt = labelAngle
+												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
+												: markerPt;
+											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+											graphics.drawMarker(rect, false);
+										}
 									}
-									if (serie.points[index] && serie.points[index].pointSum) {
-										valueSum = value.y;
-									} else {
-										valueSum += value.y;
+								};
+
+								Object.entries(values).forEach(([key, valueSet]) => {
+									const {median, q1, q3, minIndex, maxIndex, average} = item.getBoxPlotFigures(valueSet);
+									// const barInfo = item.getBarInfo(axes, serie, selection.index, valueSet[0].x, q3 - q1, barWidth);
+
+									const x = item.scaleToAxis(axes.x, valueSet[0].x, undefined, false);
+									drawMarkersAtValue(q1, x, barWidth);
+									drawMarkersAtValue(median, x, barWidth);
+									drawMarkersAtValue(q3, x, barWidth);
+									if (valueSet.length > 3) {
+										// draw at whiskers
+										drawMarkersAtValue(valueSet[minIndex].y, x, barWidth / 3, valueSet[minIndex].c);
+										drawMarkersAtValue(valueSet[maxIndex].y, x, barWidth / 3, valueSet[maxIndex].c);
 									}
-									pt.y = item.scaleToAxis(axes.y, valueSum, info, false);
-								} else {
-									pt.y = item.scaleToAxis(axes.y, value.y, info, false);
-								}
-								item.toPlot(serie, plotRect, pt);
-								if (
-									pt.x + 1 >= plotRect.left &&
-									pt.x - 1 <= plotRect.right &&
-									pt.y + 1 >= plotRect.top &&
-									pt.y - 1 <= plotRect.bottom
-								) {
-									const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
-									value.y = y;
-									const drawRect = item.getLabelRect(pt, value, text, index, params);
-									if (item.hasDataPointLabel(serie, index) && drawRect) {
-										let markerPt = new Point(drawRect.left, drawRect.top);
-										markerPt = labelAngle
-											? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
-											: markerPt;
-										rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-										graphics.drawMarker(rect, false);
-										markerPt.set(drawRect.left, drawRect.bottom);
-										markerPt = labelAngle
-											? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
-											: markerPt;
-										rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-										graphics.drawMarker(rect, false);
-										markerPt.set(drawRect.right, drawRect.top);
-										markerPt = labelAngle
-											? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
-											: markerPt;
-										rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-										graphics.drawMarker(rect, false);
-										markerPt.set(drawRect.right, drawRect.bottom);
-										markerPt = labelAngle
-											? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
-											: markerPt;
-										rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-										graphics.drawMarker(rect, false);
+									if (serie.average) {
+										drawMarkersAtValue(average, x, barWidth);
 									}
-								}
+									if (valueSet.length > 3) {
+										valueSet.forEach((val, valIndex) => {
+											if (valIndex !== maxIndex && valIndex !== minIndex) {
+												if ((valIndex > minIndex && valIndex < maxIndex && serie.innerPoints) ||
+													(valIndex < minIndex || valIndex > maxIndex && serie.outerPoints)) {
+													drawMarkersAtValue(val.y, x, 250, val.c);
+												}
+											}
+										});
+									}
+								});
 							}
-							index += 1;
+						} else {
+							while (item.getValue(ref, index, value)) {
+								info.index = index;
+								if (value.x !== undefined && value.y !== undefined) {
+									const y = value.y;
+									pt.x = item.scaleToAxis(axes.x, value.x, undefined, false);
+									if (serie.type === 'waterfall') {
+										if (serie.autoSum && index) {
+											const lastVal = {x: 0, y: 0};
+											item.getValue(ref, index - 1, lastVal);
+											value.y = value.y - (lastVal.y === undefined ? 0 : lastVal.y);
+										}
+										if (serie.points[index] && serie.points[index].pointSum) {
+											valueSum = value.y;
+										} else {
+											valueSum += value.y;
+										}
+										pt.y = item.scaleToAxis(axes.y, valueSum, info, false);
+									} else {
+										pt.y = item.scaleToAxis(axes.y, value.y, info, false);
+									}
+									item.toPlot(serie, plotRect, pt);
+									if (
+										pt.x + 1 >= plotRect.left &&
+										pt.x - 1 <= plotRect.right &&
+										pt.y + 1 >= plotRect.top &&
+										pt.y - 1 <= plotRect.bottom
+									) {
+										const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
+										value.y = y;
+										const drawRect = item.getLabelRect(pt, value, text, index, params);
+										if (item.hasDataPointLabel(serie, index) && drawRect) {
+											let markerPt = new Point(drawRect.left, drawRect.top);
+											markerPt = labelAngle
+												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
+												: markerPt;
+											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+											graphics.drawMarker(rect, false);
+											markerPt.set(drawRect.left, drawRect.bottom);
+											markerPt = labelAngle
+												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
+												: markerPt;
+											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+											graphics.drawMarker(rect, false);
+											markerPt.set(drawRect.right, drawRect.top);
+											markerPt = labelAngle
+												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
+												: markerPt;
+											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+											graphics.drawMarker(rect, false);
+											markerPt.set(drawRect.right, drawRect.bottom);
+											markerPt = labelAngle
+												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
+												: markerPt;
+											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+											graphics.drawMarker(rect, false);
+										}
+									}
+								}
+								index += 1;
+							}
 						}
 					}
 				}
@@ -368,7 +445,6 @@ export default class ChartSelectionFeedbackView extends View {
 
 					if (serie.type === 'boxplot') {
 						const barWidth = item.getBarWidth(axes, serie, plotRect);
-
 						// collect values for each category
 						const values = item.getBoxPlotValues(ref, axes);
 
@@ -382,65 +458,24 @@ export default class ChartSelectionFeedbackView extends View {
 							y = item.scaleToAxis(axes.y, q3, info, false);
 							y = plotRect.bottom - y * plotRect.height;
 
-							rect.set(x + barInfo.offset - 50, y - 50, 100, 100);
-							graphics.drawMarker(rect, false);
-							rect.set(
-								x + barInfo.offset + barWidth - barInfo.margin - 50,
-								y - 50,
-								100,
-								100
-							);
-							graphics.drawMarker(rect, false);
-							rect.set(
-								x + barInfo.offset - 50,
-								y - barInfo.height * plotRect.height - 50,
-								100,
-								100
-							);
-							graphics.drawMarker(rect, false);
-							rect.set(
-								x + barInfo.offset + barWidth - barInfo.margin - 50,
-								y - barInfo.height * plotRect.height - 50,
-								100,
-								100
-							);
-							graphics.drawMarker(rect, false);
+							drawMarkers(x + barInfo.offset,
+								y,
+								x + barInfo.offset + barWidth - barInfo.margin,
+								y - barInfo.height * plotRect.height);
+
 							if (valueSet.length > 3) {
-								y = item.scaleToAxis(axes.y, valueSet[maxIndex].y, info, false);
-								y = plotRect.bottom - y * plotRect.height;
-								rect.set(
-									x + barInfo.offset + (barWidth - barInfo.margin) / 3 - 50,
-									y - 50,
-									100,
-									100
-								);
-								graphics.drawMarker(rect, false);
-								rect.set(
-									x + barInfo.offset + (barWidth - barInfo.margin) * 2 / 3 - 50,
-									y - 50,
-									100,
-									100
-								);
-								graphics.drawMarker(rect, false);
 								y = item.scaleToAxis(axes.y, valueSet[minIndex].y, info, false);
 								y = plotRect.bottom - y * plotRect.height;
-								rect.set(
-									x + barInfo.offset + (barWidth - barInfo.margin) / 3 - 50,
-									y - 50,
-									100,
-									100
+								let y2 = item.scaleToAxis(axes.y, valueSet[maxIndex].y, info, false);
+								y2 = plotRect.bottom - y2 * plotRect.height;
+
+								drawMarkers(x + barInfo.offset + (barWidth - barInfo.margin) / 3,
+									y,
+									x + barInfo.offset + (barWidth - barInfo.margin) * 2 / 3,
+									y2
 								);
-								graphics.drawMarker(rect, false);
-								rect.set(
-									x + barInfo.offset + (barWidth - barInfo.margin) * 2 / 3 - 50,
-									y - 50,
-									100,
-									100
-								);
-								graphics.drawMarker(rect, false);
 							}
 						});
-
 					} else {
 						const pieInfo = item.isCircular()
 							? item.getPieInfo(ref, serie, plotRect, selection.index)
@@ -523,29 +558,13 @@ export default class ChartSelectionFeedbackView extends View {
 														value.y,
 														barWidth
 													);
-													rect.set(y - 50, x + barInfo.offset - 50, 100, 100);
-													graphics.drawMarker(rect, false);
-													rect.set(
-														y - 50,
-														x + barInfo.offset + barWidth - barInfo.margin - 50,
-														100,
-														100
+
+													drawMarkers(y,
+														x + barInfo.offset,
+														y + barInfo.height * plotRect.width,
+														x + barInfo.offset + (barWidth - barInfo.margin) * 2 / 3
 													);
-													graphics.drawMarker(rect, false);
-													rect.set(
-														y + barInfo.height * plotRect.width - 50,
-														x + barInfo.offset - 50,
-														100,
-														100
-													);
-													graphics.drawMarker(rect, false);
-													rect.set(
-														y + barInfo.height * plotRect.width - 50,
-														x + barInfo.offset + barWidth - barInfo.margin - 50,
-														100,
-														100
-													);
-													graphics.drawMarker(rect, false);
+
 													break;
 												case 'funnelbar': {
 													barInfo = item.getBarInfo(
@@ -636,29 +655,13 @@ export default class ChartSelectionFeedbackView extends View {
 														value.y,
 														barWidth
 													);
-													rect.set(x + barInfo.offset - 50, y - 50, 100, 100);
-													graphics.drawMarker(rect, false);
-													rect.set(
-														x + barInfo.offset + barWidth - barInfo.margin - 50,
-														y - 50,
-														100,
-														100
+
+													drawMarkers(
+														x + barInfo.offset,
+														y,
+														x + barInfo.offset + barWidth - barInfo.margin,
+														y - barInfo.height * plotRect.height
 													);
-													graphics.drawMarker(rect, false);
-													rect.set(
-														x + barInfo.offset - 50,
-														y - barInfo.height * plotRect.height - 50,
-														100,
-														100
-													);
-													graphics.drawMarker(rect, false);
-													rect.set(
-														x + barInfo.offset + barWidth - barInfo.margin - 50,
-														y - barInfo.height * plotRect.height - 50,
-														100,
-														100
-													);
-													graphics.drawMarker(rect, false);
 													break;
 												case 'funnelcolumn': {
 													barInfo = item.getBarInfo(
@@ -714,53 +717,20 @@ export default class ChartSelectionFeedbackView extends View {
 													if (item.chart.period) {
 														const ptNext = {x: 0, y: 0};
 														item.getPlotPoint(axes, ref, info, value, index, 1, ptNext);
-														rect.set(x + barInfo.offset - 50, y - 50, 100, 100);
-														graphics.drawMarker(rect, false);
-														rect.set(
-															plotRect.left + ptNext.x * plotRect.width + barInfo.offset - 50,
-															y - 50,
-															100,
-															100
+
+														drawMarkers(
+															x + barInfo.offset,
+															y,
+															plotRect.left + ptNext.x * plotRect.width + barInfo.offset,
+															y - barInfo.height * plotRect.height
 														);
-														graphics.drawMarker(rect, false);
-														rect.set(
-															x + barInfo.offset - 50,
-															y - barInfo.height * plotRect.height - 50,
-															100,
-															100
-														);
-														graphics.drawMarker(rect, false);
-														rect.set(
-															plotRect.left + ptNext.x * plotRect.width + barInfo.offset - 50,
-															y - barInfo.height * plotRect.height - 50,
-															100,
-															100
-														);
-														graphics.drawMarker(rect, false);
 													} else {
-														rect.set(x + barInfo.offset - 50, y - 50, 100, 100);
-														graphics.drawMarker(rect, false);
-														rect.set(
-															x + barInfo.offset + barWidth - barInfo.margin - 50,
-															y - 50,
-															100,
-															100
+														drawMarkers(
+															x + barInfo.offset,
+															y,
+															x + barInfo.offset + barWidth - barInfo.margin,
+															y - barInfo.height * plotRect.height
 														);
-														graphics.drawMarker(rect, false);
-														rect.set(
-															x + barInfo.offset - 50,
-															y - barInfo.height * plotRect.height - 50,
-															100,
-															100
-														);
-														graphics.drawMarker(rect, false);
-														rect.set(
-															x + barInfo.offset + barWidth - barInfo.margin - 50,
-															y - barInfo.height * plotRect.height - 50,
-															100,
-															100
-														);
-														graphics.drawMarker(rect, false);
 													}
 													break;
 												case 'area':

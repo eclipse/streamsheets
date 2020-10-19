@@ -342,6 +342,7 @@ export class StreamChartProperties extends Component {
 		}
 
 		switch (selection.element) {
+			case 'serieslabel':
 			case 'series':
 			case 'xAxis':
 			case 'yAxis':
@@ -382,6 +383,17 @@ export class StreamChartProperties extends Component {
 				const index = Number(data[1]);
 				this.state.plotView.chartSelection = {
 					element: 'series',
+					index,
+					selectionIndex: 0,
+					dataPoints: [],
+					data: item.series[index]
+				}
+				break;
+			}
+			case 'serieslabel': {
+				const index = Number(data[1]);
+				this.state.plotView.chartSelection = {
+					element: 'serieslabel',
 					index,
 					selectionIndex: 0,
 					dataPoints: [],
@@ -796,6 +808,111 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'series');
 	};
 
+	getLabelPositionOptions(serie) {
+		switch (serie.type) {
+			case 'pie':
+				return [
+					<MenuItem value="inner" key={2}>
+						<FormattedMessage
+							id="StreamChartProperties.InsideCircle"
+							defaultMessage="At inner Circle"
+						/>
+					</MenuItem>,
+					<MenuItem value="center" key={3}>
+						<FormattedMessage
+							id="StreamChartProperties.Center"
+							defaultMessage="Center"
+						/>
+					</MenuItem>,
+					<MenuItem value="outer" key={4}>
+						<FormattedMessage
+							id="StreamChartProperties.OutsideCircle"
+							defaultMessage="At outer Circle"
+						/>
+					</MenuItem>,
+				]
+			case 'doughnut':
+				return [
+					<MenuItem value="center" key={3}>
+						<FormattedMessage
+							id="StreamChartProperties.Center"
+							defaultMessage="Center"
+						/>
+					</MenuItem>,
+				]
+			case 'line':
+			case 'profile':
+			case 'scatter':
+			case 'boxplot':
+			case 'bubble':
+				return [
+					<MenuItem value="left" key={1}>
+						<FormattedMessage
+							id="StreamChartProperties.Left"
+							defaultMessage="Left"
+						/>
+					</MenuItem>,
+					<MenuItem value="above" key={2}>
+						<FormattedMessage
+							id="StreamChartProperties.Above"
+							defaultMessage="Above"
+						/>
+					</MenuItem>,
+					<MenuItem value="center" key={3}>
+						<FormattedMessage
+							id="StreamChartProperties.Center"
+							defaultMessage="Center"
+						/>
+					</MenuItem>,
+					<MenuItem value="right" key={4}>
+						<FormattedMessage
+							id="StreamChartProperties.Right"
+							defaultMessage="Right"
+						/>
+					</MenuItem>,
+					<MenuItem value="below" key={5}>
+						<FormattedMessage
+							id="StreamChartProperties.Below"
+							defaultMessage="Below"
+						/>
+					</MenuItem>
+				]
+			default:
+				return [
+					<MenuItem value="beforestart" key={1}>
+						<FormattedMessage
+							id="StreamChartProperties.BeforeStart"
+							defaultMessage="Before Start"
+						/>
+					</MenuItem>,
+					<MenuItem value="start" key={2}>
+						<FormattedMessage
+							id="StreamChartProperties.Start"
+							defaultMessage="At Start"
+						/>
+					</MenuItem>,
+					<MenuItem value="center" key={3}>
+						<FormattedMessage
+							id="StreamChartProperties.Center"
+							defaultMessage="Center"
+						/>
+					</MenuItem>,
+					<MenuItem value="end" key={4}>
+						<FormattedMessage
+							id="StreamChartProperties.End"
+							defaultMessage="At End"
+						/>
+					</MenuItem>,
+					<MenuItem value="behindend" key={5}>
+						<FormattedMessage
+							id="StreamChartProperties.BehindEnd"
+							defaultMessage="Behind End"
+						/>
+					</MenuItem>
+				]
+		}
+	}
+
 	handleSeriesDataLabelsChange = (event, state) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
@@ -809,6 +926,7 @@ export class StreamChartProperties extends Component {
 				dataLabel.visible &&
 				!dataLabel.content.x &&
 				!dataLabel.content.y &&
+				!dataLabel.content.id &&
 				!dataLabel.content.radius &&
 				!dataLabel.content.state &&
 				!dataLabel.content.series
@@ -1092,15 +1210,22 @@ export class StreamChartProperties extends Component {
 									defaultMessage="Legend"
 								/>
 							</MenuItem>
-							{item.series.map((series, index) => (
+							{item.series.map((series, index) => [
 								<MenuItem
 									value={`series;${index}`}
 									/* eslint-disable-next-line react/no-array-index-key */
 									key={`s${index}`}
 								>
 									{`${intl.formatMessage({ id: `StreamChartProperties.Series` }, {})} ${this.getLabel(series)}`}
-								</MenuItem>
-							))}
+								</MenuItem>,
+								series.dataLabel.visible ? (<MenuItem
+									value={`serieslabel;${index}`}
+									/* eslint-disable-next-line react/no-array-index-key */
+									key={`sl${index}`}
+								>
+									{`${intl.formatMessage({ id: `StreamChartProperties.SeriesLabel` }, {})} ${this.getLabel(series)}`}
+								</MenuItem>) : null
+							])}
 							{item.xAxes.map((axis, index) => (
 								<MenuItem
 									value={`xAxis;${index}`}
@@ -2865,7 +2990,7 @@ export class StreamChartProperties extends Component {
 											/>
 										}
 									/>
-									<FormControlLabel
+									{data.type === 'bubble' ? (<FormControlLabel
 										control={
 											<Checkbox
 												checked={data.dataLabel.content.radius}
@@ -2880,8 +3005,8 @@ export class StreamChartProperties extends Component {
 												defaultMessage="Radius"
 											/>
 										}
-									/>
-									<FormControlLabel
+									/>) : null}
+									{data.type === 'state' ? (<FormControlLabel
 										control={
 											<Checkbox
 												checked={data.dataLabel.content.state}
@@ -2893,7 +3018,20 @@ export class StreamChartProperties extends Component {
 										label={
 											<FormattedMessage id="StreamChartProperties.State" defaultMessage="State" />
 										}
-									/>
+									/>) : null}
+									{data.type === 'boxplot' ? (<FormControlLabel
+										control={
+											<Checkbox
+												checked={data.dataLabel.content.id}
+												onChange={(event, state) =>
+													this.handleSeriesDataLabelsContentChange(event, 'id', state)
+												}
+											/>
+										}
+										label={
+											<FormattedMessage id="StreamChartProperties.ID" defaultMessage="ID" />
+										}
+									/>) : null}
 									<FormControlLabel
 										control={
 											<Checkbox
@@ -2929,36 +3067,7 @@ export class StreamChartProperties extends Component {
 										onChange={this.handleSeriesDataLabelsPositionChange}
 										input={<Input name="position" id="position" />}
 									>
-										<MenuItem value="beforestart" key={1}>
-											<FormattedMessage
-												id="StreamChartProperties.BeforeStart"
-												defaultMessage="Below or at inner Circle"
-											/>
-										</MenuItem>
-										<MenuItem value="start" key={2}>
-											<FormattedMessage
-												id="StreamChartProperties.Start"
-												defaultMessage="At bottom or at inner Circle"
-											/>
-										</MenuItem>
-										<MenuItem value="center" key={3}>
-											<FormattedMessage
-												id="StreamChartProperties.Center"
-												defaultMessage="Center"
-											/>
-										</MenuItem>
-										<MenuItem value="end" key={4}>
-											<FormattedMessage
-												id="StreamChartProperties.End"
-												defaultMessage="At top or at outer Circle"
-											/>
-										</MenuItem>
-										<MenuItem value="behindend" key={5}>
-											<FormattedMessage
-												id="StreamChartProperties.BehindEnd"
-												defaultMessage="Above or Outside"
-											/>
-										</MenuItem>
+										{this.getLabelPositionOptions(data)}
 									</TextField>
 								</FormControl>
 								<FormControl>
