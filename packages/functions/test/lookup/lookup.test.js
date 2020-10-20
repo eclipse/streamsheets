@@ -10,7 +10,7 @@
  ********************************************************************************/
 const SHEETS = require('../_data/sheets.json');
 const { createTerm } = require('../utilities');
-const { Cell, Machine, StreamSheet } = require('@cedalo/machine-core');
+const { Cell, ErrorTerm, Machine, StreamSheet } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
@@ -127,6 +127,20 @@ describe('lookup functions', () => {
 			expect(createTerm('index(A1:B3, -1, -1)', sheet).value).toBe(ERROR.VALUE);
 			expect(createTerm('index(A1:C3, 1, -1)', sheet).value).toBe(ERROR.VALUE);
 			expect(createTerm('index(A1:C3, -1, 1)', sheet).value).toBe(ERROR.VALUE);
+		});
+		it('should return error if given one of given coordinates is an error', () => {
+			const sheet = new StreamSheet().sheet;
+			const termWithError = (formula, err1, err2) => {
+				const fnterm = createTerm(formula, sheet);
+				if (err1) fnterm.params[1] = ErrorTerm.fromError(err1);
+				if (err2) fnterm.params[2] = ErrorTerm.fromError(err2);
+				return fnterm;
+			};
+			expect(termWithError(`index(A1:C3, 1, 1)`, ERROR.NA).value).toBe(ERROR.NA);
+			expect(termWithError(`index(A1:C3, 1, 1)`, undefined, ERROR.NA).value).toBe(ERROR.NA);
+			expect(termWithError(`index(A1:C3, 1, 1)`, ERROR.VALUE).value).toBe(ERROR.VALUE);
+			expect(termWithError(`index(A1:C3, 1, 1)`, undefined, ERROR.VALUE).value).toBe(ERROR.VALUE);
+			expect(termWithError(`index(A1:C3, 1, 1)`, ERROR.NA, ERROR.VALUE).value).toBe(ERROR.NA);
 		});
 		it(`should return ${ERROR.REF} if offsets are out of range`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { A1: 1, B1: 2, A2: 3, B2: 4 } });

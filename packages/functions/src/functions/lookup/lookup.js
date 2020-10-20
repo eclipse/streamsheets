@@ -31,6 +31,7 @@ const indexFromOperand = op =>
 	// eslint-disable-next-line no-nested-ternary
 	op.isTypeOf('CellReference') ? op.index : (op.isTypeOf('CellRangeReference') ? op.value.start : undefined);
 
+const toOffset = (value) => FunctionErrors.isError(value) || convert.toNumber(value, 1) - 1;
 
 //
 // == CHOOSE ==
@@ -67,8 +68,8 @@ const index = (sheet, ...terms) =>
 			ranges = getCellRangesFromTerm(ranges, sheet, true);
 			return ranges && ranges.length ? ranges : ERROR.NAME;
 		})
-		.mapNextArg(rowoffset => convert.toNumber(rowoffset.value, 1) - 1)
-		.mapNextArg(coloffset => convert.toNumber(coloffset.value, 1) - 1)
+		.mapNextArg(rowoffset => toOffset(rowoffset.value))
+		.mapNextArg(coloffset => toOffset(coloffset.value))
 		.mapNextArg(areanr => ((areanr && areanr.value != null) ? convert.toNumber(areanr.value, 1) - 1 : 0))
 		.validate((ranges, rowoffset, coloffset, areanr) =>
 			FunctionErrors.ifTrue((rowoffset < 0 || coloffset < 0 || areanr < 0), ERROR.VALUE))
