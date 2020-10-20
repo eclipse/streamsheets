@@ -138,7 +138,10 @@ class SheetProcessor {
 					cursor.c += 1;
 				}
 			}
-			if (!cursor.changed && !cursor.paused) {
+			// check paused state again, might was set from outside cells (DL-4482)
+			if (cursor.paused) {
+				cursor.stop = true;
+			} else if (!cursor.changed) { // && !cursor.paused) {
 				cursor.r += 1;
 				cursor.c = null;
 			}
