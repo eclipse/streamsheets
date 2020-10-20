@@ -11,8 +11,6 @@ ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0
 	GATEWAY_HTTP_PORT=8080 \
 	GATEWAY_HTTP_HOST=localhost \
 	MONGO_DATABASE=streamsheets \
-	MONGO_HOST=localhost \
-	MONGO_PORT=27017 \
 	REDIS_HOST=localhost \
 	REDIS_PORT=6379 \
 	GATEWAY_SERVICE_LOG_LEVEL=info \
@@ -25,6 +23,7 @@ ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0
 	MONGO_USER_DB_URI=mongodb://localhost:27017/userDB \
 	RESTSERVER_PORT=8083 \
 	STREAMSHEETS_LOG_LEVEL=debug \
+	STREAMSHEETS_STREAMS_SERVICE_LOG_LEVEL=info \
 	NODE_ENV=production \
 	STREAMS_SERVICE_START_DELAY=5000
 
@@ -34,17 +33,16 @@ RUN apk --no-cache add g++ make bash curl nginx git gnupg rsync unzip mosquitto 
 COPY deployment/single/services /services
 COPY .yarnrc package.json yarn.lock /streamsheets/
 COPY packages /streamsheets/packages
-RUN cd /streamsheets && yarn install --production --frozen-lockfile --network-timeout 100000
-RUN npm i -g pushstate-server@3.0.1
+RUN cd /streamsheets && yarn install --production --frozen-lockfile
 # TODO: Check if this is really necessary
 COPY packages/gateway/config /config
+COPY packages/webui/build /streamsheets/packages/gateway/public
 COPY deployment/single/wait-for-database.sh wait-for-database.sh
 
 # Create directories for logging
 RUN mkdir -p \
 	/var/log/mosquitto \
 	/var/log/mosquitto-default \
-	/var/log/webui \
 	/var/log/gateway \
 	/var/log/service-graphs \
 	/var/log/service-machines \
@@ -53,10 +51,6 @@ RUN mkdir -p \
 # # TODO: build WebUI in Docker image
 # RUN npm install --global cross-env
 # RUN cd /streamsheets/packages/webui && yarn install --production && npm run build
-
-# License agreement
-RUN cp /streamsheets/packages/webui/licenses/license_personal_DE.pdf /streamsheets/packages/webui/build/license_DE.pdf
-RUN cp /streamsheets/packages/webui/licenses/license_personal_EN.pdf /streamsheets/packages/webui/build/license_EN.pdf
 
 # Mosquitto
 COPY deployment/single/mosquitto etc/mosquitto
@@ -87,8 +81,6 @@ EXPOSE 1883
 EXPOSE 6379
 # Expose nginx port
 EXPOSE 8081
-# Expose Web UI port
-EXPOSE 9000
 # Expose Gateway port
 EXPOSE 8080
 # Expose Streams Service port
