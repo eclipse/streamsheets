@@ -87,6 +87,7 @@ class SheetProcessor {
 	}
 
 	resume() {
+		// we evaluate current cell (which caused pause) again to get its return value!!
 		// this._cursor.c += 1;
 		this._cursor.paused = false;
 		this._cursor.resumed = true;
