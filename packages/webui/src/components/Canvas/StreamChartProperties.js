@@ -808,6 +808,58 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'series');
 	};
 
+	getAxisAlignOptions(selection) {
+		if (this.isGaugeChart()) {
+			return [
+				<MenuItem value="radialoutside" key={1}>
+					<FormattedMessage
+						id="StreamChartProperties.Outside"
+						defaultMessage="Outside"
+					/>
+				</MenuItem>,
+				<MenuItem value="radialinside" key={2}>
+					<FormattedMessage
+						id="StreamChartProperties.Inside"
+						defaultMessage="Inside"
+					/>
+				</MenuItem>
+			];
+		}
+
+		if ((this.isHorizontalChart() && selection.element === 'xAxis') ||
+			(!this.isHorizontalChart() && selection.element === 'yAxis')) {
+			return [
+				<MenuItem value="left" key={1}>
+					<FormattedMessage
+						id="StreamChartProperties.AxisLeft"
+						defaultMessage="Left"
+					/>
+				</MenuItem>,
+				<MenuItem value="right" key={2}>
+					<FormattedMessage
+						id="StreamChartProperties.AxisRight"
+						defaultMessage="Right"
+					/>
+				</MenuItem>
+			];
+		}
+
+		return [
+			<MenuItem value="bottom" key={4}>
+				<FormattedMessage
+					id="StreamChartProperties.AxisBottom"
+					defaultMessage="Bottom"
+				/>
+			</MenuItem>,
+			<MenuItem value="top" key={3}>
+				<FormattedMessage
+					id="StreamChartProperties.AxisTop"
+					defaultMessage="Top"
+				/>
+			</MenuItem>
+		];
+	}
+
 	getLabelPositionOptions(serie) {
 		switch (serie.type) {
 			case 'pie':
@@ -1030,8 +1082,12 @@ export class StreamChartProperties extends Component {
 
 	isLineChart() {
 		const item = this.state.plotView.getItem();
-
 		return !!item.getFirstSerieOfType('line');
+	}
+
+	isGaugeChart() {
+		const item = this.state.plotView.getItem();
+		return !!item.getFirstSerieOfType('gauge');
 	}
 
 	getMarkerStyle(data) {
@@ -2419,38 +2475,7 @@ export class StreamChartProperties extends Component {
 										value={data.align}
 										onChange={this.handleAxisAlignChange}
 									>
-										{(this.isHorizontalChart() && selection.element === 'xAxis') ||
-										(!this.isHorizontalChart() && selection.element === 'yAxis') ? (
-											<MenuItem value="left" key={1}>
-												<FormattedMessage
-													id="StreamChartProperties.AxisLeft"
-													defaultMessage="Left"
-												/>
-											</MenuItem>
-										) : (
-											<MenuItem value="bottom" key={4}>
-												<FormattedMessage
-													id="StreamChartProperties.AxisBottom"
-													defaultMessage="Bottom"
-												/>
-											</MenuItem>
-										)}
-										{(this.isHorizontalChart() && selection.element === 'xAxis') ||
-										(!this.isHorizontalChart() && selection.element === 'yAxis') ? (
-											<MenuItem value="right" key={2}>
-												<FormattedMessage
-													id="StreamChartProperties.AxisRight"
-													defaultMessage="Right"
-												/>
-											</MenuItem>
-										) : (
-											<MenuItem value="top" key={3}>
-												<FormattedMessage
-													id="StreamChartProperties.AxisTop"
-													defaultMessage="Top"
-												/>
-											</MenuItem>
-										)}
+										{this.getAxisAlignOptions(selection)}
 									</TextField>
 								</FormControl>
 								<FormControl>
