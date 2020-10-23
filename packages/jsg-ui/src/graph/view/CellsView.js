@@ -732,6 +732,9 @@ export default class CellsView extends NodeView {
 							case 'doughnut':
 								view.drawCircular(graphics, node, rect, serie, 0);
 								break;
+							case 'boxplot':
+								view.drawBoxPlot(graphics, node, rect, serie, 0);
+								break;
 							default:
 								view.drawCartesian(graphics, node, rect, serie, 0);
 								break;

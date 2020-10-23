@@ -292,16 +292,13 @@ export default class ChartSelectionFeedbackView extends View {
 							if (item.hasDataPointLabel(serie, index)) {
 								// collect values for each category
 								const values = item.getBoxPlotValues(ref, axes);
-								const drawMarkersAtValue = (val, x, lbarWidth, id) => {
-									const ptl = {x, y: item.scaleToAxis(axes.y, val, info, false)};
+								const drawMarkersAtValue = (val, x, lbarWidth) => {
+									const ptl = {x, y: item.scaleToAxis(axes.y, val.y, info, false)};
 									item.toPlot(serie, plotRect, ptl);
 									if (ptl.x >= plotRect.left && ptl.x <= plotRect.right) {
-										value.x = 0;
-										value.y = val;
-										value.c = id;
-										const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
+										const text = item.getDataLabel(val, axes.x, ref, serie, legendData);
 										params.boxBarWidth = lbarWidth;
-										const drawRect = item.getLabelRect(ptl, value, text, index, params);
+										const drawRect = item.getLabelRect(ptl, val, text, index, params);
 										if (drawRect) {
 											let markerPt = new Point(drawRect.left, drawRect.top);
 											markerPt = labelAngle
@@ -333,26 +330,29 @@ export default class ChartSelectionFeedbackView extends View {
 
 								Object.entries(values).forEach(([key, valueSet]) => {
 									const {median, q1, q3, minIndex, maxIndex, average} = item.getBoxPlotFigures(valueSet);
-									// const barInfo = item.getBarInfo(axes, serie, selection.index, valueSet[0].x, q3 - q1, barWidth);
-
 									const x = item.scaleToAxis(axes.x, valueSet[0].x, undefined, false);
-									drawMarkersAtValue(q1, x, barWidth);
-									drawMarkersAtValue(median, x, barWidth);
-									drawMarkersAtValue(q3, x, barWidth);
+									const tmpVal = {x : valueSet[0].x, xLabel: valueSet[0].xLabel, y: q1, formatY: valueSet[0].formatY};
+
+									drawMarkersAtValue(tmpVal, x, barWidth);
+									tmpVal.y = median;
+									drawMarkersAtValue(tmpVal, x, barWidth);
+									tmpVal.y = q3;
+									drawMarkersAtValue(tmpVal, x, barWidth);
 									if (valueSet.length > 3) {
 										// draw at whiskers
-										drawMarkersAtValue(valueSet[minIndex].y, x, barWidth / 3, valueSet[minIndex].c);
-										drawMarkersAtValue(valueSet[maxIndex].y, x, barWidth / 3, valueSet[maxIndex].c);
+										drawMarkersAtValue(valueSet[minIndex], x, barWidth / 3);
+										drawMarkersAtValue(valueSet[maxIndex], x, barWidth / 3);
 									}
 									if (serie.average) {
-										drawMarkersAtValue(average, x, barWidth);
+										tmpVal.y = average;
+										drawMarkersAtValue(tmpVal, x, barWidth);
 									}
 									if (valueSet.length > 3) {
 										valueSet.forEach((val, valIndex) => {
 											if (valIndex !== maxIndex && valIndex !== minIndex) {
 												if ((valIndex > minIndex && valIndex < maxIndex && serie.innerPoints) ||
 													(valIndex < minIndex || valIndex > maxIndex && serie.outerPoints)) {
-													drawMarkersAtValue(val.y, x, 250, val.c);
+													drawMarkersAtValue(val, x, 250);
 												}
 											}
 										});

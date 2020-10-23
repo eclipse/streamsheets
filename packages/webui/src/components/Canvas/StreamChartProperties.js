@@ -1479,15 +1479,45 @@ export class StreamChartProperties extends Component {
 										/>
 									</FormGroup>
 								</FormControl>
+								<FormLabel
+									component="legend"
+									style={{
+										marginTop: '7px',
+										marginBottom: '7px'
+									}}
+								>
+									<FormattedMessage
+										id="StreamChartProperties.Settings"
+										defaultMessage="Settings"
+									/>
+								</FormLabel>
+								{!item.isCircular() ? (
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={item.chart.stacked}
+											onChange={(event, state) =>
+												this.handleChartStackedChange(event, state)
+											}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.Stacked"
+											defaultMessage="Stacked"
+										/>
+									}
+								/>) : null}
 								<FormControl>
 									<FormGroup>
-										{item.isCircular() ? (
+										{item.isCircular() || item.isGauge() ? (
 											<div>
 												<div
 													style={{
 														flexDirection: 'row'
 													}}
 												>
+													{!item.isGauge() ? (
 													<TextField
 														variant="outlined"
 														size="small"
@@ -1532,7 +1562,7 @@ export class StreamChartProperties extends Component {
 														value={JSG.MathUtils.toDegrees(item.chart.rotation, 0)}
 														onChange={(event) => this.handleChartRotationChange(event)}
 														type="number"
-													/>
+													/>) : null}
 													<TextField
 														variant="outlined"
 														size="small"
@@ -1673,35 +1703,7 @@ export class StreamChartProperties extends Component {
 											</div>
 										) : (
 											<div>
-												<FormLabel
-													component="legend"
-													style={{
-														marginTop: '7px',
-														marginBottom: '7px'
-													}}
-												>
-													<FormattedMessage
-														id="StreamChartProperties.Settings"
-														defaultMessage="Settings"
-													/>
-												</FormLabel>
 												<FormGroup>
-													<FormControlLabel
-														control={
-															<Checkbox
-																checked={item.chart.stacked}
-																onChange={(event, state) =>
-																	this.handleChartStackedChange(event, state)
-																}
-															/>
-														}
-														label={
-															<FormattedMessage
-																id="StreamChartProperties.Stacked"
-																defaultMessage="Stacked"
-															/>
-														}
-													/>
 													<FormControlLabel
 														control={
 															<Checkbox
@@ -1736,41 +1738,47 @@ export class StreamChartProperties extends Component {
 															}
 														/>
 													) : null}
-													<FormControl>
-														<TextField
-															variant="outlined"
-															size="small"
-															fullWidth
-															label={
-																<FormattedMessage
-																	id="StreamChartProperties.ThresholdStyle"
-																	defaultMessage="Treshold Style"
-																/>
-															}
-															select
-															margin="normal"
-															id="tr"
-															value={item.chart.varyByThreshold}
-															onChange={this.handleVaryByThresholdChange}
-															input={<Input name="threshold" id="threshold" />}
-														>
-															<MenuItem value="colorchange" key={1}>
-																<FormattedMessage
-																	id="StreamChartProperties.ColorChange"
-																	defaultMessage="Color Change"
-																/>
-															</MenuItem>
-															<MenuItem value="gradient" key={2}>
-																<FormattedMessage
-																	id="StreamChartProperties.Gradient"
-																	defaultMessage="Gradient"
-																/>
-															</MenuItem>
-														</TextField>
-													</FormControl>
 												</FormGroup>
 											</div>
 										)}
+										<FormControl>
+											<TextField
+												variant="outlined"
+												size="small"
+												fullWidth
+												label={
+													<FormattedMessage
+														id="StreamChartProperties.ThresholdStyle"
+														defaultMessage="Treshold Style"
+													/>
+												}
+												select
+												margin="normal"
+												id="tr"
+												value={item.chart.varyByThreshold}
+												onChange={this.handleVaryByThresholdChange}
+												input={<Input name="threshold" id="threshold" />}
+											>
+												<MenuItem value="none" key={0}>
+													<FormattedMessage
+														id="StreamChartProperties.None"
+														defaultMessage="None"
+													/>
+												</MenuItem>
+												<MenuItem value="colorchange" key={1}>
+													<FormattedMessage
+														id="StreamChartProperties.ColorChange"
+														defaultMessage="Color Change"
+													/>
+												</MenuItem>
+												<MenuItem value="gradient" key={2}>
+													<FormattedMessage
+														id="StreamChartProperties.Gradient"
+														defaultMessage="Gradient"
+													/>
+												</MenuItem>
+											</TextField>
+										</FormControl>
 									</FormGroup>
 								</FormControl>
 							</FormGroup>
