@@ -519,6 +519,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
+	handleValueRangesVisibleChange = (event, state) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.valueRangesVisible = state;
+		this.finishCommand(cmd, 'axes');
+	};
+
 	handleAxisLabelRotationChange = (event) => {
 		const cmd = this.prepareCommand('axes');
 		const data = this.getData();
@@ -2344,6 +2351,22 @@ export class StreamChartProperties extends Component {
 												<FormattedMessage
 													id="StreamChartProperties.AxisTitle"
 													defaultMessage="Axis Title"
+												/>
+											}
+										/>
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={data.valueRangesVisible}
+													onChange={(event, state) =>
+														this.handleValueRangesVisibleChange(event, state)
+													}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.ValueRanges"
+													defaultMessage="Value Ranges"
 												/>
 											}
 										/>
