@@ -255,6 +255,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'chart');
 	};
 
+	handleGaugePointerChange = (event) => {
+		const cmd = this.prepareCommand('chart');
+		const data = this.getData();
+		data.gaugePointer = event.target.value;
+		this.finishCommand(cmd, 'chart');
+	};
+
 	handleChartStepChange = (event, state) => {
 		const cmd = this.prepareCommand('chart');
 		const data = this.getData();
@@ -1190,6 +1197,8 @@ export class StreamChartProperties extends Component {
 		const item = this.state.plotView.getItem();
 		const sheetView = this.getSheetView();
 		const classes = this.props.classes;
+		const gauge = item.isGauge();
+		const circular = item.isCircular();
 		return (
 			<Slide direction="left" in={this.props.showStreamChartProperties} mountOnEnter unmountOnExit>
 				<Paper
@@ -1554,7 +1563,7 @@ export class StreamChartProperties extends Component {
 										defaultMessage="Settings"
 									/>
 								</FormLabel>
-								{!item.isCircular() ? (
+								{!circular ? (
 								<FormControlLabel
 									control={
 										<Checkbox
@@ -1571,16 +1580,57 @@ export class StreamChartProperties extends Component {
 										/>
 									}
 								/>) : null}
+								{gauge ? (
+									<TextField
+										variant="outlined"
+										size="small"
+										fullWidth
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.GaugePointer"
+												defaultMessage="Gauge Pointer"
+											/>
+										}
+										select
+										margin="normal"
+										value={item.chart.gaugePointer}
+										onChange={this.handleGaugePointerChange}
+									>
+										<MenuItem value="none" key={0}>
+											<FormattedMessage
+												id="StreamChartProperties.None"
+												defaultMessage="None"
+											/>
+										</MenuItem>
+										<MenuItem value="line" key={1}>
+											<FormattedMessage
+												id="StreamChartProperties.Line"
+												defaultMessage="Line"
+											/>
+										</MenuItem>
+										<MenuItem value="narrowingline" key={2}>
+											<FormattedMessage
+												id="StreamChartProperties.NarrowingLine"
+												defaultMessage="Narrowing Line"
+											/>
+										</MenuItem>
+										<MenuItem value="arrow" key={3}>
+											<FormattedMessage
+												id="StreamChartProperties.Arrow"
+												defaultMessage="Arrow"
+											/>
+										</MenuItem>
+									</TextField> ) : null}
 								<FormControl>
 									<FormGroup>
-										{item.isCircular() || item.isGauge() ? (
+										{circular || gauge ? (
 											<div>
 												<div
 													style={{
 														flexDirection: 'row'
 													}}
 												>
-													{!item.isGauge() ? (
+													{!gauge ? (
 													<TextField
 														variant="outlined"
 														size="small"
@@ -1632,7 +1682,7 @@ export class StreamChartProperties extends Component {
 														margin="normal"
 														style={{
 															width: '135px',
-															marginLeft: '10px'
+															marginLeft: gauge ? '0px' : '10px'
 														}}
 														id="number"
 														label={
