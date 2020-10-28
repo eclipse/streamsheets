@@ -61,7 +61,7 @@ module.exports = class Message {
 
 	copy() {
 		const msg = new Message(this.data, this.id);
-		Object.assign(msg.metadata, this.metadata);
+		Object.assign(msg.metadata, cloneData(this.metadata));
 		return msg;
 	}
 
