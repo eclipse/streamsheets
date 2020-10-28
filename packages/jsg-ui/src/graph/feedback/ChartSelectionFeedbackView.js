@@ -258,6 +258,7 @@ export default class ChartSelectionFeedbackView extends View {
 						const pieInfo = item.isCircular()
 							? item.getPieInfo(ref, serie, plotRect, selection.index)
 							: undefined;
+						const gaugeInfo = item.isGauge() ? item.getGaugeInfo(plotRect) : undefined;
 						const legendData = item.getLegend();
 						const params = {
 							graphics,
@@ -271,6 +272,7 @@ export default class ChartSelectionFeedbackView extends View {
 							points,
 							lastPoints: prevPoints,
 							pieInfo,
+							gaugeInfo,
 							currentAngle: pieInfo ? pieInfo.startAngle : 0,
 							valueSum: 0,
 						};
