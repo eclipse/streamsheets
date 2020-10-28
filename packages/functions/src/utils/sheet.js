@@ -17,7 +17,7 @@ const {
 	isOutboxDataTerm
 } = require('./terms');
 const { Term } = require('@cedalo/parser');
-const { clone, jsonpath } = require('@cedalo/commons');
+const { jsonpath } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell, Message } = require('@cedalo/machine-core');
 
@@ -83,7 +83,7 @@ const getInboxOrOutboxMessage = (path, machine) => {
 const createMessageFromValue = (value) => {
 	let message;
 	if (value != null) {
-		message = FunctionErrors.isError(value) || new Message(typeof value === 'object' ? clone(value) : [value]);
+		message = FunctionErrors.isError(value) || new Message(typeof value === 'object' ? value : [value]);
 	}
 	return message;
 };
