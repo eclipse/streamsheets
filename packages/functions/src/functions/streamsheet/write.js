@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { clone, convert, jsonpath } = require('@cedalo/commons');
+const { convert, jsonpath } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { isType, Message } = require('@cedalo/machine-core');
 const { jsonbuilder, runFunction, sheet: { getOutbox } } = require('../../utils');
@@ -30,8 +30,7 @@ const createNewData = (message, keys, value) => {
 };
 const createNewMetadata = (message, keys, value) => {
 	const newData = message ? Object.assign({}, message.metadata) : undefined;
-	const valuecp = clone(value) || value;
-	return newData && (jsonbuilder.add(newData, keys, valuecp) || ERROR.INVALID_PATH);
+	return newData && (jsonbuilder.add(newData, keys, value) || ERROR.INVALID_PATH);
 };
 
 // eslint-disable-next-line no-nested-ternary
