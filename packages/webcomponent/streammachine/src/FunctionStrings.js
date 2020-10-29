@@ -2142,11 +2142,11 @@ const Strings = {
 	STACKDROP: {
 		category: 'stack',
 		en: {
-			argumentList: 'StackRange,Direction,TargetRange',
+			argumentList: 'StackRange,Position,TargetRange',
 			description: 'This function removes one row from the Stack. All rows below move one row up.',
 		},
 		de: {
-			argumentList: 'Stackbereich,Richtung,Zielbereich',
+			argumentList: 'Stackbereich,Position,Zielbereich',
 			description:
 				'Diese Funktion enfernt eine Zeile aus dem Stack. Die anderen Zeilen werden entsprechend der Richtung bewegt.',
 		},
