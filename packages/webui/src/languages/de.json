@@ -271,7 +271,7 @@
 	"Dashboard.description": "Enthält {amount} Sheet{amountext} und benutzt {consumers}",
 	"Dashboard.noConsumers": "keine Konsumenten",
 	"Dashboard.NoneConsumers": "Keine Konsumenten",
-	"Dashboard.allApps": "Alle Apps",
+	"Dashboard.allApps": "Apps",
 	"Dashboard.recentlyModified": "Zuletzt geändert",
 	"DialogOpen.title": "App laden",
 	"DialogOpen.open": "Apps:",

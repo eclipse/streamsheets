@@ -272,7 +272,7 @@
   "Dashboard.description": "Contains {amount} Sheet{amountext} using {consumers}",
   "Dashboard.noConsumers": "no Consumers",
   "Dashboard.NoneConsumers": "No Consumers",
-  "Dashboard.allApps": "All Apps",
+  "Dashboard.allApps": "Apps",
   "Dashboard.recentlyModified": "Recently Modified",
   "DialogOpen.title": "Load Stream App",
   "DialogOpen.open": "Apps:",
