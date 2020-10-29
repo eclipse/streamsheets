@@ -40,6 +40,7 @@ export default class CellEditor {
 		this.rangeResize = undefined;
 		this.allowNoEqual = false;
 		this.alwaysReplace = false;
+		this.hidden = false;
 		this.editRanges = undefined;
 		this.formulaSheet = sheet;
 		this.viewer = viewer;
@@ -393,6 +394,10 @@ export default class CellEditor {
 	}
 
 	updateFunctionInfo() {
+		if (this.hidden) {
+			return;
+		}
+
 		this.funcs = this.getPotentialFunctionsUnderCursor();
 		if (this.funcs && this.funcs.length) {
 			let html;
@@ -433,6 +438,7 @@ export default class CellEditor {
 						event.preventDefault();
 						event.stopPropagation();
 						this.removeFunctionHelp();
+						this.hidden = true;
 						this.div.focus();
 						this.div._ignoreBlur = false;
 					},
