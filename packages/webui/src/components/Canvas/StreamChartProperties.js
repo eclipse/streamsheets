@@ -28,7 +28,7 @@ import {
 	InputAdornment,
 	Input,
 	Button,
-	TextField,
+	TextField
 	// Typography
 } from '@material-ui/core';
 import { FormattedMessage } from 'react-intl';
@@ -47,7 +47,7 @@ import { intl } from '../../helper/IntlGlobalProvider';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import ValueRangesDialog from '../SheetDialogs/ValueRangesDialog';
 import MaterialTextField from '@material-ui/core/TextField';
-import {withStyles} from "@material-ui/core/styles";
+import { withStyles } from '@material-ui/core/styles';
 
 const markerSizes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -353,6 +353,8 @@ export class StreamChartProperties extends Component {
 			case 'series':
 			case 'xAxis':
 			case 'yAxis':
+			case 'xAxisGrid':
+			case 'yAxisGrid':
 				return `${selection.element};${selection.index}`;
 			default:
 				return selection.element;
@@ -372,19 +374,19 @@ export class StreamChartProperties extends Component {
 				this.state.plotView.chartSelection = {
 					element: 'plot',
 					data: item.plot
-				}
+				};
 				break;
 			case 'legend':
 				this.state.plotView.chartSelection = {
 					element: 'legend',
 					data: item.legend
-				}
+				};
 				break;
 			case 'title':
 				this.state.plotView.chartSelection = {
 					element: 'title',
 					data: item.title
-				}
+				};
 				break;
 			case 'series': {
 				const index = Number(data[1]);
@@ -394,7 +396,7 @@ export class StreamChartProperties extends Component {
 					selectionIndex: 0,
 					dataPoints: [],
 					data: item.series[index]
-				}
+				};
 				break;
 			}
 			case 'serieslabel': {
@@ -405,7 +407,7 @@ export class StreamChartProperties extends Component {
 					selectionIndex: 0,
 					dataPoints: [],
 					data: item.series[index]
-				}
+				};
 				break;
 			}
 			case 'yAxis':
@@ -415,7 +417,17 @@ export class StreamChartProperties extends Component {
 					element: data[0],
 					index,
 					data: data[0] === 'xAxis' ? item.xAxes[index] : item.yAxes[index]
-				}
+				};
+				break;
+			}
+			case 'yAxisGrid':
+			case 'xAxisGrid': {
+				const index = Number(data[1]);
+				this.state.plotView.chartSelection = {
+					element: data[0],
+					index,
+					data: data[0] === 'xAxisGrid' ? item.xAxes[index] : item.yAxes[index]
+				};
 				break;
 			}
 			default:
@@ -431,7 +443,8 @@ export class StreamChartProperties extends Component {
 
 		this.updateState();
 		JSG.NotificationCenter.getInstance().send(
-			new JSG.Notification(JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION, item));
+			new JSG.Notification(JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION, item)
+		);
 		graphManager.redraw();
 	};
 
@@ -679,11 +692,11 @@ export class StreamChartProperties extends Component {
 
 		if (selection.element === 'series') {
 			data.marker.style = event.target.value;
-			data.points.forEach(point => {
+			data.points.forEach((point) => {
 				if (point.marker) {
 					point.marker.style = undefined;
 				}
-			})
+			});
 		} else {
 			const item = this.state.plotView.getItem();
 			const point = item.getDataPoint(data, selection);
@@ -703,11 +716,11 @@ export class StreamChartProperties extends Component {
 
 		if (selection.element === 'series') {
 			data.marker.size = Number(event.target.value);
-			data.points.forEach(point => {
+			data.points.forEach((point) => {
 				if (point.marker) {
 					point.marker.size = undefined;
 				}
-			})
+			});
 		} else {
 			const item = this.state.plotView.getItem();
 			const point = item.getDataPoint(data, selection);
@@ -727,11 +740,11 @@ export class StreamChartProperties extends Component {
 
 		if (selection.element === 'series') {
 			data.marker.fillColor = color;
-			data.points.forEach(point => {
+			data.points.forEach((point) => {
 				if (point.marker) {
 					point.marker.fillColor = undefined;
 				}
-			})
+			});
 		} else {
 			const item = this.state.plotView.getItem();
 			const point = item.getDataPoint(data, selection);
@@ -751,11 +764,11 @@ export class StreamChartProperties extends Component {
 
 		if (selection.element === 'series') {
 			data.marker.lineColor = color;
-			data.points.forEach(point => {
+			data.points.forEach((point) => {
 				if (point.marker) {
 					point.marker.lineColor = undefined;
 				}
-			})
+			});
 		} else {
 			const item = this.state.plotView.getItem();
 			const point = item.getDataPoint(data, selection);
@@ -826,50 +839,34 @@ export class StreamChartProperties extends Component {
 		if (this.isGaugeChart()) {
 			return [
 				<MenuItem value="radialoutside" key={1}>
-					<FormattedMessage
-						id="StreamChartProperties.Outside"
-						defaultMessage="Outside"
-					/>
+					<FormattedMessage id="StreamChartProperties.Outside" defaultMessage="Outside" />
 				</MenuItem>,
 				<MenuItem value="radialinside" key={2}>
-					<FormattedMessage
-						id="StreamChartProperties.Inside"
-						defaultMessage="Inside"
-					/>
+					<FormattedMessage id="StreamChartProperties.Inside" defaultMessage="Inside" />
 				</MenuItem>
 			];
 		}
 
-		if ((this.isHorizontalChart() && selection.element === 'xAxis') ||
-			(!this.isHorizontalChart() && selection.element === 'yAxis')) {
+		if (
+			(this.isHorizontalChart() && selection.element === 'xAxis') ||
+			(!this.isHorizontalChart() && selection.element === 'yAxis')
+		) {
 			return [
 				<MenuItem value="left" key={1}>
-					<FormattedMessage
-						id="StreamChartProperties.AxisLeft"
-						defaultMessage="Left"
-					/>
+					<FormattedMessage id="StreamChartProperties.AxisLeft" defaultMessage="Left" />
 				</MenuItem>,
 				<MenuItem value="right" key={2}>
-					<FormattedMessage
-						id="StreamChartProperties.AxisRight"
-						defaultMessage="Right"
-					/>
+					<FormattedMessage id="StreamChartProperties.AxisRight" defaultMessage="Right" />
 				</MenuItem>
 			];
 		}
 
 		return [
 			<MenuItem value="bottom" key={4}>
-				<FormattedMessage
-					id="StreamChartProperties.AxisBottom"
-					defaultMessage="Bottom"
-				/>
+				<FormattedMessage id="StreamChartProperties.AxisBottom" defaultMessage="Bottom" />
 			</MenuItem>,
 			<MenuItem value="top" key={3}>
-				<FormattedMessage
-					id="StreamChartProperties.AxisTop"
-					defaultMessage="Top"
-				/>
+				<FormattedMessage id="StreamChartProperties.AxisTop" defaultMessage="Top" />
 			</MenuItem>
 		];
 	}
@@ -879,33 +876,21 @@ export class StreamChartProperties extends Component {
 			case 'pie':
 				return [
 					<MenuItem value="inner" key={2}>
-						<FormattedMessage
-							id="StreamChartProperties.InsideCircle"
-							defaultMessage="At inner Circle"
-						/>
+						<FormattedMessage id="StreamChartProperties.InsideCircle" defaultMessage="At inner Circle" />
 					</MenuItem>,
 					<MenuItem value="center" key={3}>
-						<FormattedMessage
-							id="StreamChartProperties.Center"
-							defaultMessage="Center"
-						/>
+						<FormattedMessage id="StreamChartProperties.Center" defaultMessage="Center" />
 					</MenuItem>,
 					<MenuItem value="outer" key={4}>
-						<FormattedMessage
-							id="StreamChartProperties.OutsideCircle"
-							defaultMessage="At outer Circle"
-						/>
-					</MenuItem>,
-				]
+						<FormattedMessage id="StreamChartProperties.OutsideCircle" defaultMessage="At outer Circle" />
+					</MenuItem>
+				];
 			case 'doughnut':
 				return [
 					<MenuItem value="center" key={3}>
-						<FormattedMessage
-							id="StreamChartProperties.Center"
-							defaultMessage="Center"
-						/>
-					</MenuItem>,
-				]
+						<FormattedMessage id="StreamChartProperties.Center" defaultMessage="Center" />
+					</MenuItem>
+				];
 			case 'line':
 			case 'profile':
 			case 'scatter':
@@ -913,69 +898,39 @@ export class StreamChartProperties extends Component {
 			case 'bubble':
 				return [
 					<MenuItem value="left" key={1}>
-						<FormattedMessage
-							id="StreamChartProperties.Left"
-							defaultMessage="Left"
-						/>
+						<FormattedMessage id="StreamChartProperties.Left" defaultMessage="Left" />
 					</MenuItem>,
 					<MenuItem value="above" key={2}>
-						<FormattedMessage
-							id="StreamChartProperties.Above"
-							defaultMessage="Above"
-						/>
+						<FormattedMessage id="StreamChartProperties.Above" defaultMessage="Above" />
 					</MenuItem>,
 					<MenuItem value="center" key={3}>
-						<FormattedMessage
-							id="StreamChartProperties.Center"
-							defaultMessage="Center"
-						/>
+						<FormattedMessage id="StreamChartProperties.Center" defaultMessage="Center" />
 					</MenuItem>,
 					<MenuItem value="right" key={4}>
-						<FormattedMessage
-							id="StreamChartProperties.Right"
-							defaultMessage="Right"
-						/>
+						<FormattedMessage id="StreamChartProperties.Right" defaultMessage="Right" />
 					</MenuItem>,
 					<MenuItem value="below" key={5}>
-						<FormattedMessage
-							id="StreamChartProperties.Below"
-							defaultMessage="Below"
-						/>
+						<FormattedMessage id="StreamChartProperties.Below" defaultMessage="Below" />
 					</MenuItem>
-				]
+				];
 			default:
 				return [
 					<MenuItem value="beforestart" key={1}>
-						<FormattedMessage
-							id="StreamChartProperties.BeforeStart"
-							defaultMessage="Before Start"
-						/>
+						<FormattedMessage id="StreamChartProperties.BeforeStart" defaultMessage="Before Start" />
 					</MenuItem>,
 					<MenuItem value="start" key={2}>
-						<FormattedMessage
-							id="StreamChartProperties.Start"
-							defaultMessage="At Start"
-						/>
+						<FormattedMessage id="StreamChartProperties.Start" defaultMessage="At Start" />
 					</MenuItem>,
 					<MenuItem value="center" key={3}>
-						<FormattedMessage
-							id="StreamChartProperties.Center"
-							defaultMessage="Center"
-						/>
+						<FormattedMessage id="StreamChartProperties.Center" defaultMessage="Center" />
 					</MenuItem>,
 					<MenuItem value="end" key={4}>
-						<FormattedMessage
-							id="StreamChartProperties.End"
-							defaultMessage="At End"
-						/>
+						<FormattedMessage id="StreamChartProperties.End" defaultMessage="At End" />
 					</MenuItem>,
 					<MenuItem value="behindend" key={5}>
-						<FormattedMessage
-							id="StreamChartProperties.BehindEnd"
-							defaultMessage="Behind End"
-						/>
+						<FormattedMessage id="StreamChartProperties.BehindEnd" defaultMessage="Behind End" />
 					</MenuItem>
-				]
+				];
 		}
 	}
 
@@ -999,11 +954,11 @@ export class StreamChartProperties extends Component {
 			) {
 				dataLabel.content.y = true;
 			}
-			data.points.forEach(point => {
+			data.points.forEach((point) => {
 				if (point.dataLabel) {
 					point.dataLabel.visible = undefined;
 				}
-			})
+			});
 		} else {
 			const item = this.state.plotView.getItem();
 			const point = item.getDataPoint(data, selection);
@@ -1107,9 +1062,12 @@ export class StreamChartProperties extends Component {
 	getMarkerStyle(data) {
 		const selection = this.state.plotView.chartSelection;
 
-		if (selection.element === 'point' && data.points[selection.pointIndex] &&
+		if (
+			selection.element === 'point' &&
+			data.points[selection.pointIndex] &&
 			data.points[selection.pointIndex].marker &&
-			data.points[selection.pointIndex].marker._style !== undefined) {
+			data.points[selection.pointIndex].marker._style !== undefined
+		) {
 			return data.points[selection.pointIndex].marker.style;
 		}
 
@@ -1119,9 +1077,12 @@ export class StreamChartProperties extends Component {
 	getMarkerSize(data) {
 		const selection = this.state.plotView.chartSelection;
 
-		if (selection.element === 'point' && data.points[selection.pointIndex] &&
+		if (
+			selection.element === 'point' &&
+			data.points[selection.pointIndex] &&
 			data.points[selection.pointIndex].marker &&
-			data.points[selection.pointIndex].marker._size !== undefined) {
+			data.points[selection.pointIndex].marker._size !== undefined
+		) {
 			return data.points[selection.pointIndex].marker.size;
 		}
 
@@ -1131,9 +1092,12 @@ export class StreamChartProperties extends Component {
 	getMarkerLineColor(data) {
 		const selection = this.state.plotView.chartSelection;
 
-		if (selection.element === 'point' && data.points[selection.pointIndex] &&
+		if (
+			selection.element === 'point' &&
+			data.points[selection.pointIndex] &&
 			data.points[selection.pointIndex].marker &&
-			data.points[selection.pointIndex].marker.lineColor !== undefined) {
+			data.points[selection.pointIndex].marker.lineColor !== undefined
+		) {
 			return data.points[selection.pointIndex].marker.lineColor;
 		}
 
@@ -1144,9 +1108,12 @@ export class StreamChartProperties extends Component {
 	getMarkerFillColor(data) {
 		const selection = this.state.plotView.chartSelection;
 
-		if (selection.element === 'point' && data.points[selection.pointIndex] &&
+		if (
+			selection.element === 'point' &&
+			data.points[selection.pointIndex] &&
 			data.points[selection.pointIndex].marker &&
-			data.points[selection.pointIndex].marker.fillColor !== undefined) {
+			data.points[selection.pointIndex].marker.fillColor !== undefined
+		) {
 			return data.points[selection.pointIndex].marker.fillColor;
 		}
 
@@ -1157,9 +1124,12 @@ export class StreamChartProperties extends Component {
 	getDataLabelVisible(data) {
 		const selection = this.state.plotView.chartSelection;
 
-		if (selection.element === 'point' && data.points[selection.pointIndex] &&
+		if (
+			selection.element === 'point' &&
+			data.points[selection.pointIndex] &&
 			data.points[selection.pointIndex].dataLabel &&
-			data.points[selection.pointIndex].dataLabel.visible !== undefined) {
+			data.points[selection.pointIndex].dataLabel.visible !== undefined
+		) {
 			return data.points[selection.pointIndex].dataLabel.visible;
 		}
 
@@ -1169,14 +1139,16 @@ export class StreamChartProperties extends Component {
 	getPointSum(data) {
 		const selection = this.state.plotView.chartSelection;
 
-		if (selection.element === 'point' && data.points[selection.pointIndex] &&
-			data.points[selection.pointIndex].pointSum) {
+		if (
+			selection.element === 'point' &&
+			data.points[selection.pointIndex] &&
+			data.points[selection.pointIndex].pointSum
+		) {
 			return true;
 		}
 
 		return false;
 	}
-
 
 	getLabel(series) {
 		const item = this.state.plotView.getItem();
@@ -1243,10 +1215,10 @@ export class StreamChartProperties extends Component {
 							}}
 							InputProps={{
 								classes: {
-									underline: classes.underline,
+									underline: classes.underline
 								},
 								style: {
-									color: 'white',
+									color: 'white'
 								}
 							}}
 							SelectProps={{
@@ -1254,33 +1226,21 @@ export class StreamChartProperties extends Component {
 									icon: classes.icon
 								},
 								style: {
-									color: 'white',
+									color: 'white'
 								}
 							}}
 						>
 							<MenuItem value="chart" key={0}>
-								<FormattedMessage
-									id="StreamChartProperties.Chart"
-									defaultMessage="Chart"
-								/>
+								<FormattedMessage id="StreamChartProperties.Chart" defaultMessage="Chart" />
 							</MenuItem>
 							<MenuItem value="plot" key={1}>
-								<FormattedMessage
-									id="StreamChartProperties.Plot"
-									defaultMessage="Plot"
-								/>
+								<FormattedMessage id="StreamChartProperties.Plot" defaultMessage="Plot" />
 							</MenuItem>
 							<MenuItem value="title" key={2}>
-								<FormattedMessage
-									id="StreamChartProperties.Title"
-									defaultMessage="Title"
-								/>
+								<FormattedMessage id="StreamChartProperties.Title" defaultMessage="Title" />
 							</MenuItem>
 							<MenuItem value="legend" key={3}>
-								<FormattedMessage
-									id="StreamChartProperties.Legend"
-									defaultMessage="Legend"
-								/>
+								<FormattedMessage id="StreamChartProperties.Legend" defaultMessage="Legend" />
 							</MenuItem>
 							{item.series.map((series, index) => [
 								<MenuItem
@@ -1288,39 +1248,67 @@ export class StreamChartProperties extends Component {
 									/* eslint-disable-next-line react/no-array-index-key */
 									key={`s${index}`}
 								>
-									{`${intl.formatMessage({ id: `StreamChartProperties.Series` }, {})} ${this.getLabel(series)}`}
+									{`${intl.formatMessage({ id: `StreamChartProperties.Series` }, {})} ${this.getLabel(
+										series
+									)}`}
 								</MenuItem>,
-								series.dataLabel.visible ? (<MenuItem
-									value={`serieslabel;${index}`}
-									/* eslint-disable-next-line react/no-array-index-key */
-									key={`sl${index}`}
-								>
-									{`${intl.formatMessage({ id: `StreamChartProperties.SeriesLabel` }, {})} ${this.getLabel(series)}`}
-								</MenuItem>) : null
+								series.dataLabel.visible ? (
+									<MenuItem
+										value={`serieslabel;${index}`}
+										/* eslint-disable-next-line react/no-array-index-key */
+										key={`sl${index}`}
+									>
+										{`${intl.formatMessage(
+											{ id: `StreamChartProperties.SeriesLabel` },
+											{}
+										)} ${this.getLabel(series)}`}
+									</MenuItem>
+								) : null
 							])}
-							{item.xAxes.map((axis, index) => (
+							{item.xAxes.map((axis, index) => [
+								axis.visible ? (
 								<MenuItem
 									value={`xAxis;${index}`}
 									/* eslint-disable-next-line react/no-array-index-key */
 									key={`x${index}`}
 								>
 									{`${intl.formatMessage({ id: `StreamChartProperties.Axis` }, {})} ${axis.name}`}
-								</MenuItem>
-							))}
-							{item.yAxes.map((axis, index) => (
-								<MenuItem
-									value={`yAxis;${index}`}
-									/* eslint-disable-next-line react/no-array-index-key */
-									key={`y${index}`}
-								>
-									{`${intl.formatMessage({ id: `StreamChartProperties.Axis` }, {})} ${axis.name}`}
-								</MenuItem>
-							))}
+								</MenuItem>) : null,
+								axis.visible && axis.gridVisible ? (
+									<MenuItem
+										value={`xAxisGrid;${index}`}
+										/* eslint-disable-next-line react/no-array-index-key */
+										key={`xg${index}`}
+									>
+										{`${intl.formatMessage({ id: `StreamChartProperties.Grid` }, {})} ${
+											axis.name
+										}`}
+									</MenuItem>
+								) : null
+							])}
+							{item.yAxes.map((axis, index) => [
+								axis.visible ? (
+									<MenuItem
+										value={`yAxis;${index}`}
+										/* eslint-disable-next-line react/no-array-index-key */
+										key={`y${index}`}
+									>
+										{`${intl.formatMessage({ id: `StreamChartProperties.Axis` }, {})} ${axis.name}`}
+									</MenuItem>) : null,
+								axis.visible && axis.gridVisible ? (
+									<MenuItem
+										value={`yAxisGrid;${index}`}
+										/* eslint-disable-next-line react/no-array-index-key */
+										key={`yg${index}`}
+									>
+										{`${intl.formatMessage({ id: `StreamChartProperties.Grid` }, {})} ${
+											axis.name
+										}`}
+									</MenuItem>
+								) : null
+							])}
 							<MenuItem hidden disabled value="point" key={4}>
-								<FormattedMessage
-									id="StreamChartProperties.Point"
-									defaultMessage="Point"
-								/>
+								<FormattedMessage id="StreamChartProperties.Point" defaultMessage="Point" />
 							</MenuItem>
 						</TextField>
 						<IconButton
@@ -1558,28 +1546,24 @@ export class StreamChartProperties extends Component {
 										marginBottom: '7px'
 									}}
 								>
-									<FormattedMessage
-										id="StreamChartProperties.Settings"
-										defaultMessage="Settings"
-									/>
+									<FormattedMessage id="StreamChartProperties.Settings" defaultMessage="Settings" />
 								</FormLabel>
 								{!circular ? (
-								<FormControlLabel
-									control={
-										<Checkbox
-											checked={item.chart.stacked}
-											onChange={(event, state) =>
-												this.handleChartStackedChange(event, state)
-											}
-										/>
-									}
-									label={
-										<FormattedMessage
-											id="StreamChartProperties.Stacked"
-											defaultMessage="Stacked"
-										/>
-									}
-								/>) : null}
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={item.chart.stacked}
+												onChange={(event, state) => this.handleChartStackedChange(event, state)}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.Stacked"
+												defaultMessage="Stacked"
+											/>
+										}
+									/>
+								) : null}
 								{gauge ? (
 									<TextField
 										variant="outlined"
@@ -1597,16 +1581,10 @@ export class StreamChartProperties extends Component {
 										onChange={this.handleGaugePointerChange}
 									>
 										<MenuItem value="none" key={0}>
-											<FormattedMessage
-												id="StreamChartProperties.None"
-												defaultMessage="None"
-											/>
+											<FormattedMessage id="StreamChartProperties.None" defaultMessage="None" />
 										</MenuItem>
 										<MenuItem value="line" key={1}>
-											<FormattedMessage
-												id="StreamChartProperties.Line"
-												defaultMessage="Line"
-											/>
+											<FormattedMessage id="StreamChartProperties.Line" defaultMessage="Line" />
 										</MenuItem>
 										<MenuItem value="narrowingline" key={2}>
 											<FormattedMessage
@@ -1615,12 +1593,10 @@ export class StreamChartProperties extends Component {
 											/>
 										</MenuItem>
 										<MenuItem value="arrow" key={3}>
-											<FormattedMessage
-												id="StreamChartProperties.Arrow"
-												defaultMessage="Arrow"
-											/>
+											<FormattedMessage id="StreamChartProperties.Arrow" defaultMessage="Arrow" />
 										</MenuItem>
-									</TextField> ) : null}
+									</TextField>
+								) : null}
 								<FormControl>
 									<FormGroup>
 										{circular || gauge ? (
@@ -1631,51 +1607,53 @@ export class StreamChartProperties extends Component {
 													}}
 												>
 													{!gauge ? (
-													<TextField
-														variant="outlined"
-														size="small"
-														id="number"
-														margin="normal"
-														style={{
-															width: '135px'
-														}}
-														label={
-															<FormattedMessage
-																id="StreamChartProperties.Rotation"
-																defaultMessage="Rotation"
-															/>
-														}
-														InputProps={{
-															min: 10,
-															max: 90,
-															step: 5,
-															endAdornment: (
-																<InputAdornment position="end">
-																	<FormattedMessage
-																		id="StreamChartProperties.Degrees"
-																		defaultMessage="Degrees"
-																	/>
-																</InputAdornment>
-															)
-														}}
-														error={
-															item.chart.rotation > Math.PI_2 || item.chart.rotation < 0
-														}
-														helperText={
-															item.chart.rotation > Math.PI_2 ||
-															item.chart.rotation < 0 ? (
+														<TextField
+															variant="outlined"
+															size="small"
+															id="number"
+															margin="normal"
+															style={{
+																width: '135px'
+															}}
+															label={
 																<FormattedMessage
-																	id="StreamChartProperties.InvalidAngle"
-																	defaultMessage="Angle must be between 0 and 90 degrees!"
+																	id="StreamChartProperties.Rotation"
+																	defaultMessage="Rotation"
 																/>
-															) : (
-																''
-															)
-														}
-														value={JSG.MathUtils.toDegrees(item.chart.rotation, 0)}
-														onChange={(event) => this.handleChartRotationChange(event)}
-														type="number"
-													/>) : null}
+															}
+															InputProps={{
+																min: 10,
+																max: 90,
+																step: 5,
+																endAdornment: (
+																	<InputAdornment position="end">
+																		<FormattedMessage
+																			id="StreamChartProperties.Degrees"
+																			defaultMessage="Degrees"
+																		/>
+																	</InputAdornment>
+																)
+															}}
+															error={
+																item.chart.rotation > Math.PI_2 ||
+																item.chart.rotation < 0
+															}
+															helperText={
+																item.chart.rotation > Math.PI_2 ||
+																item.chart.rotation < 0 ? (
+																	<FormattedMessage
+																		id="StreamChartProperties.InvalidAngle"
+																		defaultMessage="Angle must be between 0 and 90 degrees!"
+																	/>
+																) : (
+																	''
+																)
+															}
+															value={JSG.MathUtils.toDegrees(item.chart.rotation, 0)}
+															onChange={(event) => this.handleChartRotationChange(event)}
+															type="number"
+														/>
+													) : null}
 													<TextField
 														variant="outlined"
 														size="small"
@@ -2581,11 +2559,12 @@ export class StreamChartProperties extends Component {
 						) : null}
 						{selection && (selection.element === 'series' || selection.element === 'point') ? (
 							<FormGroup>
-								{selection.element === 'series' && (data.type === 'bar' ||
-								data.type === 'profile' ||
-								data.type === 'line' ||
-								data.type === 'column' ||
-								data.type === 'area') ? (
+								{selection.element === 'series' &&
+								(data.type === 'bar' ||
+									data.type === 'profile' ||
+									data.type === 'line' ||
+									data.type === 'column' ||
+									data.type === 'area') ? (
 									<FormControl
 										style={{
 											display: 'inline-flex'
@@ -2647,7 +2626,7 @@ export class StreamChartProperties extends Component {
 									</FormControl>
 								) : null}
 								{item.isLineType(data) ? (
-									<div style={{display: 'grid'}}>
+									<div style={{ display: 'grid' }}>
 										<FormLabel component="legend" style={{ marginTop: '8px' }}>
 											<FormattedMessage
 												id="StreamChartProperties.Marker"
@@ -2844,74 +2823,75 @@ export class StreamChartProperties extends Component {
 									</FormLabel>
 								) : null}
 								{selection.element === 'series' ? (
-								<div
-									style={{
-										display: 'inline-flex',
-										flexDirection: 'row'
-									}}
-								>
-									{item.xAxes.length > 1 ? (
-										<FormControl
-											style={{
-												width: '50%',
-												marginRight: '10px'
-											}}
-										>
-											<TextField
-												variant="outlined"
-												size="small"
-												label={
-													<FormattedMessage
-														id="StreamChartProperties.XAxis"
-														defaultMessage="XAxis"
-													/>
-												}
-												select
-												margin="normal"
-												id="templates"
-												value={data.xAxis}
-												onChange={this.handleSeriesXAxisChange}
-												input={<Input name="template" id="template" />}
+									<div
+										style={{
+											display: 'inline-flex',
+											flexDirection: 'row'
+										}}
+									>
+										{item.xAxes.length > 1 ? (
+											<FormControl
+												style={{
+													width: '50%',
+													marginRight: '10px'
+												}}
 											>
-												{item.xAxes.map((axis) => (
-													<MenuItem value={axis.name} key={axis.name}>
-														{axis.name}
-													</MenuItem>
-												))}
-											</TextField>
-										</FormControl>
-									) : null}
-									{item.yAxes.length > 1 ? (
-										<FormControl
-											style={{
-												width: '50%'
-											}}
-										>
-											<TextField
-												variant="outlined"
-												size="small"
-												label={
-													<FormattedMessage
-														id="StreamChartProperties.YAxis"
-														defaultMessage="YAxis"
-													/>
-												}
-												select
-												margin="normal"
-												id="templates"
-												value={data.yAxis}
-												onChange={this.handleSeriesYAxisChange}
-												input={<Input name="template" id="template" />}
+												<TextField
+													variant="outlined"
+													size="small"
+													label={
+														<FormattedMessage
+															id="StreamChartProperties.XAxis"
+															defaultMessage="XAxis"
+														/>
+													}
+													select
+													margin="normal"
+													id="templates"
+													value={data.xAxis}
+													onChange={this.handleSeriesXAxisChange}
+													input={<Input name="template" id="template" />}
+												>
+													{item.xAxes.map((axis) => (
+														<MenuItem value={axis.name} key={axis.name}>
+															{axis.name}
+														</MenuItem>
+													))}
+												</TextField>
+											</FormControl>
+										) : null}
+										{item.yAxes.length > 1 ? (
+											<FormControl
+												style={{
+													width: '50%'
+												}}
 											>
-												{item.yAxes.map((axis) => (
-													<MenuItem value={axis.name} key={axis.name}>
-														{axis.name}
-													</MenuItem>
-												))}
-											</TextField>
-										</FormControl>
-									) : null}
-								</div>) : null}
+												<TextField
+													variant="outlined"
+													size="small"
+													label={
+														<FormattedMessage
+															id="StreamChartProperties.YAxis"
+															defaultMessage="YAxis"
+														/>
+													}
+													select
+													margin="normal"
+													id="templates"
+													value={data.yAxis}
+													onChange={this.handleSeriesYAxisChange}
+													input={<Input name="template" id="template" />}
+												>
+													{item.yAxes.map((axis) => (
+														<MenuItem value={axis.name} key={axis.name}>
+															{axis.name}
+														</MenuItem>
+													))}
+												</TextField>
+											</FormControl>
+										) : null}
+									</div>
+								) : null}
 								<FormGroup>
 									<FormLabel
 										component="legend"
@@ -2930,7 +2910,9 @@ export class StreamChartProperties extends Component {
 											control={
 												<Checkbox
 													checked={data.smooth}
-													onChange={(event, state) => this.handleSeriesSmoothChange(event, state)}
+													onChange={(event, state) =>
+														this.handleSeriesSmoothChange(event, state)
+													}
 												/>
 											}
 											label={
@@ -2939,13 +2921,16 @@ export class StreamChartProperties extends Component {
 													defaultMessage="Smooth Line"
 												/>
 											}
-										/>) : null}
+										/>
+									) : null}
 									{selection.element === 'series' && data.type === 'boxplot' ? (
 										<FormControlLabel
 											control={
 												<Checkbox
 													checked={data.innerPoints}
-													onChange={(event, state) => this.handleSeriesInnerPointsChange(event, state)}
+													onChange={(event, state) =>
+														this.handleSeriesInnerPointsChange(event, state)
+													}
 												/>
 											}
 											label={
@@ -2954,13 +2939,16 @@ export class StreamChartProperties extends Component {
 													defaultMessage="Inner Points"
 												/>
 											}
-										/>) : null}
+										/>
+									) : null}
 									{selection.element === 'series' && data.type === 'boxplot' ? (
 										<FormControlLabel
 											control={
 												<Checkbox
 													checked={data.outerPoints}
-													onChange={(event, state) => this.handleSeriesOuterPointsChange(event, state)}
+													onChange={(event, state) =>
+														this.handleSeriesOuterPointsChange(event, state)
+													}
 												/>
 											}
 											label={
@@ -2969,13 +2957,16 @@ export class StreamChartProperties extends Component {
 													defaultMessage="Outer Points"
 												/>
 											}
-										/>) : null}
+										/>
+									) : null}
 									{selection.element === 'series' && data.type === 'boxplot' ? (
 										<FormControlLabel
 											control={
 												<Checkbox
 													checked={data.average}
-													onChange={(event, state) => this.handleSeriesAverageChange(event, state)}
+													onChange={(event, state) =>
+														this.handleSeriesAverageChange(event, state)
+													}
 												/>
 											}
 											label={
@@ -2984,13 +2975,16 @@ export class StreamChartProperties extends Component {
 													defaultMessage="Average"
 												/>
 											}
-										/>) : null}
+										/>
+									) : null}
 									{selection.element === 'series' && data.type === 'waterfall' ? (
 										<FormControlLabel
 											control={
 												<Checkbox
 													checked={data.autoSum}
-													onChange={(event, state) => this.handleSeriesAutoSumChange(event, state)}
+													onChange={(event, state) =>
+														this.handleSeriesAutoSumChange(event, state)
+													}
 												/>
 											}
 											label={
@@ -2999,15 +2993,14 @@ export class StreamChartProperties extends Component {
 													defaultMessage="Display Sum and Difference automatically"
 												/>
 											}
-										/>) : null}
+										/>
+									) : null}
 									{selection.element === 'point' && data.type === 'waterfall' ? (
 										<FormControlLabel
 											control={
 												<Checkbox
 													checked={this.getPointSum(data)}
-													onChange={(event, state) =>
-														this.handlePointSumChange(event, state)
-													}
+													onChange={(event, state) => this.handlePointSumChange(event, state)}
 												/>
 											}
 											label={
@@ -3016,24 +3009,26 @@ export class StreamChartProperties extends Component {
 													defaultMessage="Display Sum"
 												/>
 											}
-										/>) : null}
+										/>
+									) : null}
 									{selection.element === 'series' ? (
-									<FormControlLabel
-										control={
-											<Checkbox
-												checked={data.visible}
-												onChange={(event, state) =>
-													this.handleSeriesVisibleChange(event, state)
-												}
-											/>
-										}
-										label={
-											<FormattedMessage
-												id="StreamChartProperties.Visible"
-												defaultMessage="Visible"
-											/>
-										}
-									/>) : null}
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={data.visible}
+													onChange={(event, state) =>
+														this.handleSeriesVisibleChange(event, state)
+													}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.Visible"
+													defaultMessage="Visible"
+												/>
+											}
+										/>
+									) : null}
 									<FormControlLabel
 										control={
 											<Checkbox
@@ -3096,48 +3091,57 @@ export class StreamChartProperties extends Component {
 											/>
 										}
 									/>
-									{data.type === 'bubble' ? (<FormControlLabel
-										control={
-											<Checkbox
-												checked={data.dataLabel.content.radius}
-												onChange={(event, state) =>
-													this.handleSeriesDataLabelsContentChange(event, 'radius', state)
-												}
-											/>
-										}
-										label={
-											<FormattedMessage
-												id="StreamChartProperties.Radius"
-												defaultMessage="Radius"
-											/>
-										}
-									/>) : null}
-									{data.type === 'state' ? (<FormControlLabel
-										control={
-											<Checkbox
-												checked={data.dataLabel.content.state}
-												onChange={(event, state) =>
-													this.handleSeriesDataLabelsContentChange(event, 'state', state)
-												}
-											/>
-										}
-										label={
-											<FormattedMessage id="StreamChartProperties.State" defaultMessage="State" />
-										}
-									/>) : null}
-									{data.type === 'boxplot' ? (<FormControlLabel
-										control={
-											<Checkbox
-												checked={data.dataLabel.content.id}
-												onChange={(event, state) =>
-													this.handleSeriesDataLabelsContentChange(event, 'id', state)
-												}
-											/>
-										}
-										label={
-											<FormattedMessage id="StreamChartProperties.ID" defaultMessage="ID" />
-										}
-									/>) : null}
+									{data.type === 'bubble' ? (
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={data.dataLabel.content.radius}
+													onChange={(event, state) =>
+														this.handleSeriesDataLabelsContentChange(event, 'radius', state)
+													}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.Radius"
+													defaultMessage="Radius"
+												/>
+											}
+										/>
+									) : null}
+									{data.type === 'state' ? (
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={data.dataLabel.content.state}
+													onChange={(event, state) =>
+														this.handleSeriesDataLabelsContentChange(event, 'state', state)
+													}
+												/>
+											}
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.State"
+													defaultMessage="State"
+												/>
+											}
+										/>
+									) : null}
+									{data.type === 'boxplot' ? (
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={data.dataLabel.content.id}
+													onChange={(event, state) =>
+														this.handleSeriesDataLabelsContentChange(event, 'id', state)
+													}
+												/>
+											}
+											label={
+												<FormattedMessage id="StreamChartProperties.ID" defaultMessage="ID" />
+											}
+										/>
+									) : null}
 									<FormControlLabel
 										control={
 											<Checkbox
