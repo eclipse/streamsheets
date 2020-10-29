@@ -460,15 +460,18 @@ export default class CellsView extends NodeView {
 					dataSub = dataProvider.getRC(columnInfo.index, rowInfo.index + i);
 					if (dataSub !== undefined) {
 						rowInfoTmp.index = rowInfo.index + i;
-						cellPropertiesTmp = this.getCellProperties(dataNext, columnInfo, rowInfoTmp);
+						cellPropertiesTmp = this.getCellProperties(dataSub, columnInfo, rowInfoTmp);
 						const subLevelLoop = cellPropertiesTmp && cellPropertiesTmp.level ? cellPropertiesTmp.level : 0;
 						const val = dataSub.getValue();
-						if (subLevelLoop !== subLevel || Number(val) !== i - 1) {
-							formattedValue.fillColor = '#E17000';
+						if (subLevelLoop !== subLevel) {
 							break;
 						}
+						if (Number(val) !== i - 1) {
+							formattedValue.fillColor = '#E17000';
+						}
 					} else {
-						formattedValue.fillColor = '#E17000';
+						break;
+						// formattedValue.fillColor = '#E17000';
 					}
 				}
 			} else {
