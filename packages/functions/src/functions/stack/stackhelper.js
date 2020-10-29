@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { sheet: sheetutils } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { SheetIndex } = require('@cedalo/machine-core');
+const {	criteria: { criterionFromCell }, sheet: sheetutils } = require('../../utils');
 
 
 const sharedrow = [];
@@ -386,26 +386,14 @@ const sort = (cellrange, sortrange) => {
 	return true;
 };
 
-const getCriteriaCell = (rowidx, colidx, criteriarange) =>
-	colidx != null && sharedidx.set(rowidx, colidx) ? criteriarange.sheet.cellAt(sharedidx) : null;
-// row matches criteriarange...
-const matchRow = (row, criteriarange, indexMatch) => {
-	let doMatch = false;
-	const endrow = criteriarange.end.row;
-	const notMatchCellCriteria = (cell, index) => {
-		const rowidx = notMatchCellCriteria.rowidx;
-		const criteriaidx = indexMatch[index];
-		const criteriacell = getCriteriaCell(rowidx, criteriaidx, criteriarange);
+const matchRow = (row, criteria, keysMap) => {
+	const matchCriteria = (criteriarow) => (cell, index) => {
+		const colidx = keysMap[index];
+		const criterion = colidx > -1 ? criteriarow[colidx] : undefined;
 		const cellvalue = cell ? cell.value : undefined;
-		const criteriavalue = criteriacell ? criteriacell.value : undefined;
-		return criteriavalue != null && criteriavalue !== cellvalue;
+		return !criterion || criterion.isFulFilledBy(cellvalue);
 	};
-	for (let rowidx = criteriarange.start.row + 1; rowidx <= endrow; rowidx += 1) {
-		notMatchCellCriteria.rowidx = rowidx;
-		const isFulFilled = !row.some(notMatchCellCriteria);
-		doMatch = doMatch || isFulFilled;
-	}
-	return doMatch;
+	return criteria.some((criteriarow) => row.every(matchCriteria(criteriarow)));
 };
 
 const isUniqueInRows = (rows) => (pivotrow) =>
@@ -415,19 +403,35 @@ const isUniqueInRows = (rows) => (pivotrow) =>
 			return cell == null ? pivotcell == null : pivotcell != null && cell.value === pivotcell.value;
 		})
 	);
+const cell2Criterion = () => {
+	let startrow;
+	return (cell, index) => {
+		if (startrow == null) startrow = index.row;
+		return index.row > startrow ? criterionFromCell(cell) : cell && cell.value;
+	};
+};
+const criteriaFromRange = (range) => range.as2DArray(cell2Criterion());
 
+const mapKeys = (cellrange, criteria) => {
+	const map = [];
+	const criteriakeys = criteria[0];
+	cellrange.iterateRowAt(cellrange.start.row, (cell) => map.push(cell ? criteriakeys.indexOf(cell.value) : -1));
+	return map;
+};
 const find = (cellrange, criteriarange, droprows = false, unique = false) => {
 	const sheet = cellrange.sheet;
 	const rows = [];
 	const isUnique = unique ? isUniqueInRows(rows) : () => true;
-	const indexMatch = matchKeys(cellrange, criteriarange);
+	const criteria = criteriaFromRange(criteriarange);
+	const keysMap = mapKeys(cellrange, criteria);
 	const filteredrows = [];
 	const endrow = cellrange.end.row;
+	criteria.shift();
 	for (let rowidx = cellrange.start.row + 1; rowidx <= endrow; rowidx += 1) {
 		const row = [];
 		// DL-629: stack should work on static values
 		cellrange.iterateRowAt(rowidx, cell => row.push(sheetutils.toStaticCell(cell)));
-		const match = matchRow(row, criteriarange, indexMatch);
+		const match = matchRow(row, criteria, keysMap);
 		if (match && isUnique(row)) {
 			rows.push(row);
 			if (droprows) dropRowAt(rowidx, cellrange);
@@ -454,9 +458,11 @@ module.exports = {
 	addAtBottom,
 	addAtTop,
 	copyRowsToTarget,
+	criteriaFromRange,
 	drop,
 	find,
 	isUniqueInRows,
+	mapKeys,
 	matchKeys,
 	matchRow,
 	rotate,
