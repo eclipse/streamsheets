@@ -78,7 +78,14 @@ const createFromTerms = (terms, sheet) => {
 const equalRangeShapes = (criteria, height, width) =>
 	criteria.every(([cr]) => cr.width === width && cr.height === height);
 
+const criterionFromCell = (cell) => {
+	const term = cell && cell.term;
+	const criterion = term ? convert.toString(term.value) : undefined;
+	return criterion ? Criterion.of(criterion) : Criterion.ALWAYS_FULFILLED();
+};
+
 module.exports = {
+	criterionFromCell,
 	createFromTerms,
 	getValues,
 	getNumbers,
