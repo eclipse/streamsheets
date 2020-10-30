@@ -310,17 +310,11 @@ export class SettingsMenu extends React.Component {
 										margin="normal"
 									>
 										<TextField
-											id="language-selection"
-											labelId="language-settings-label"
 											variant="outlined"
 											size="small"
 											select
 											value={this.props.locale}
 											onChange={event => this.handleLanguageChange(event)}
-											inputProps={{
-												name: "language-selection",
-												id: "language-selection"
-											}}
 											label={
 												<FormattedMessage
 													id="Language"
