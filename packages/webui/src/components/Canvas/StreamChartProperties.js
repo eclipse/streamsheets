@@ -46,7 +46,6 @@ import ColorComponent from '../SheetDialogs/ColorComponent';
 import { intl } from '../../helper/IntlGlobalProvider';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import ValueRangesDialog from '../SheetDialogs/ValueRangesDialog';
-import MaterialTextField from '@material-ui/core/TextField';
 import { withStyles } from '@material-ui/core/styles';
 
 const markerSizes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -474,6 +473,16 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'legend');
 	};
 
+	handleLegendFormulaBlur = (event) => {
+		const item = this.state.plotView.getItem();
+		const formula = event.target.textContent.replace(/^=/, '');
+		const cmdLegend = this.prepareCommand('legend');
+
+		item.legend.formula = new JSG.Expression(0, formula);
+
+		this.finishCommand(cmdLegend, 'legend');
+	};
+
 	handleTitleAlignChange = (event, value) => {
 		const cmd = this.prepareCommand('title');
 		const data = this.getData();
@@ -839,10 +848,10 @@ export class StreamChartProperties extends Component {
 		if (this.isGaugeChart()) {
 			return [
 				<MenuItem value="radialoutside" key={1}>
-					<FormattedMessage id="StreamChartProperties.Outside" defaultMessage="Outside" />
+					<FormattedMessage id="StreamChartProperties.AxisOutside" defaultMessage="Outside" />
 				</MenuItem>,
 				<MenuItem value="radialinside" key={2}>
-					<FormattedMessage id="StreamChartProperties.Inside" defaultMessage="Inside" />
+					<FormattedMessage id="StreamChartProperties.AxisInside" defaultMessage="Inside" />
 				</MenuItem>
 			];
 		}
@@ -886,6 +895,7 @@ export class StreamChartProperties extends Component {
 					</MenuItem>
 				];
 			case 'doughnut':
+			case 'gauge':
 				return [
 					<MenuItem value="center" key={3}>
 						<FormattedMessage id="StreamChartProperties.Center" defaultMessage="Center" />
@@ -1168,6 +1178,9 @@ export class StreamChartProperties extends Component {
 		const data = this.getData();
 		const item = this.state.plotView.getItem();
 		const sheetView = this.getSheetView();
+		if (!sheetView) {
+			return <div/>
+		}
 		const classes = this.props.classes;
 		const gauge = item.isGauge();
 		const circular = item.isCircular();
@@ -1832,44 +1845,74 @@ export class StreamChartProperties extends Component {
 												</FormGroup>
 											</div>
 										)}
-										<FormControl>
-											<TextField
-												variant="outlined"
-												size="small"
-												fullWidth
-												label={
-													<FormattedMessage
-														id="StreamChartProperties.ThresholdStyle"
-														defaultMessage="Treshold Style"
-													/>
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.ThresholdDataRange"
+													defaultMessage="Threshold Data Range"
+												/>
+											}
+											onBlur={(event) => this.handleLegendFormulaBlur(event)}
+											onKeyPress={(event) => {
+												if (event.key === 'Enter') {
+													this.handleLegendFormulaBlur(event);
 												}
-												select
-												margin="normal"
-												id="tr"
-												value={item.chart.varyByThreshold}
-												onChange={this.handleVaryByThresholdChange}
-												input={<Input name="threshold" id="threshold" />}
-											>
-												<MenuItem value="none" key={0}>
-													<FormattedMessage
-														id="StreamChartProperties.None"
-														defaultMessage="None"
-													/>
-												</MenuItem>
-												<MenuItem value="colorchange" key={1}>
-													<FormattedMessage
-														id="StreamChartProperties.ColorChange"
-														defaultMessage="Color Change"
-													/>
-												</MenuItem>
-												<MenuItem value="gradient" key={2}>
-													<FormattedMessage
-														id="StreamChartProperties.Gradient"
-														defaultMessage="Gradient"
-													/>
-												</MenuItem>
-											</TextField>
-										</FormControl>
+											}}
+											value={
+												item.legend.formula.getFormula()
+													? `=${item.legend.formula.getFormula()}`
+													: ''
+											}
+											InputProps={{
+												inputComponent: MyInputComponent,
+												inputProps: {
+													component: CellRangeComponent,
+													onlyReference: false,
+													sheetView,
+													value: {},
+													range: item.legend.formula.getFormula()
+														? `=${item.legend.formula.getFormula()}`
+														: ''
+												}
+											}}
+										/>
+										<TextField
+											variant="outlined"
+											size="small"
+											fullWidth
+											label={
+												<FormattedMessage
+													id="StreamChartProperties.ThresholdStyle"
+													defaultMessage="Treshold Style"
+												/>
+											}
+											select
+											margin="normal"
+											value={item.chart.varyByThreshold}
+											onChange={this.handleVaryByThresholdChange}
+										>
+											<MenuItem value="none" key={0}>
+												<FormattedMessage
+													id="StreamChartProperties.None"
+													defaultMessage="None"
+												/>
+											</MenuItem>
+											<MenuItem value="colorchange" key={1}>
+												<FormattedMessage
+													id="StreamChartProperties.ColorChange"
+													defaultMessage="Color Change"
+												/>
+											</MenuItem>
+											<MenuItem value="gradient" key={2}>
+												<FormattedMessage
+													id="StreamChartProperties.Gradient"
+													defaultMessage="Gradient"
+												/>
+											</MenuItem>
+										</TextField>
 									</FormGroup>
 								</FormControl>
 							</FormGroup>
@@ -2013,7 +2056,7 @@ export class StreamChartProperties extends Component {
 								{item.chart.coharentData ? (
 									<FormGroup>
 										<FormControl>
-											<MaterialTextField
+											<TextField
 												variant="outlined"
 												size="small"
 												margin="normal"
@@ -2126,7 +2169,7 @@ export class StreamChartProperties extends Component {
 											}}
 										>
 											<FormControl style={{}}>
-												<MaterialTextField
+												<TextField
 													style={{
 														height: '30px'
 													}}

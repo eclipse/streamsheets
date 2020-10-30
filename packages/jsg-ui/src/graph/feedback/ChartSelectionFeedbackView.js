@@ -194,6 +194,53 @@ export default class ChartSelectionFeedbackView extends View {
 					}
 				}
 				break;
+			case 'xAxis':
+			case 'yAxis':
+				if (item.isGauge()) {
+					const axis = selection.data;
+					if (!axis.position || !axis.scale) {
+						break;
+					}
+
+					let pos;
+					const ref = item.getDataSourceInfoAxis(axis);
+					let current = item.getAxisStart(ref, axis);
+					const final = item.getAxisEnd(axis);
+					const gaugeInfo = item.getGaugeInfo(plotRect);
+					let inner;
+					let outer;
+					const size = axis.size ? axis.size.width + 150 : 1000;
+
+					while (current.value <= final) {
+						if (axis.type === 'category' && current.value > axis.scale.max) {
+							break;
+						}
+						pos = item.scaleToAxis(axis, current.value, undefined, true);
+
+						if (axis.align === 'radialoutside') {
+							outer = gaugeInfo.xRadius + size;
+							inner = gaugeInfo.xRadius;
+						} else {
+							outer = gaugeInfo.xRadius * item.chart.hole;
+							inner = (gaugeInfo.xRadius - size) * item.chart.hole;
+
+						}
+
+						pos = gaugeInfo.startAngle + pos * gaugeInfo.angle;
+						rect.set(gaugeInfo.xc + Math.cos(pos) * inner - 50,
+							gaugeInfo.yc + Math.sin(pos) * inner - 50, 100, 100);
+						graphics.drawMarker(rect, false);
+
+						rect.set(gaugeInfo.xc + Math.cos(pos) * outer - 50,
+							gaugeInfo.yc + Math.sin(pos) * outer - 50, 100, 100);
+						graphics.drawMarker(rect, false);
+
+						current = item.incrementScale(ref, axis, current);
+					}
+				} else {
+					drawMarkerRect(data.position);
+				}
+				break;
 			case 'xAxisGrid':
 			case 'yAxisGrid':
 				{
@@ -273,7 +320,7 @@ export default class ChartSelectionFeedbackView extends View {
 							? item.getPieInfo(ref, serie, plotRect, selection.index)
 							: undefined;
 						const gaugeInfo = item.isGauge() ? item.getGaugeInfo(plotRect) : undefined;
-						const legendData = item.getLegend();
+						const legendData = item.getThresholds();
 						const params = {
 							graphics,
 							serie,
@@ -847,9 +894,7 @@ export default class ChartSelectionFeedbackView extends View {
 				break;
 			}
 			case 'title':
-			case 'xAxis':
 			case 'xAxisTitle':
-			case 'yAxis':
 			case 'yAxisTitle':
 			case 'plot':
 			case 'legend':
