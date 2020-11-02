@@ -83,6 +83,30 @@ describe('table.update', () => {
 		expect(sheet.cellAt('A1').value).toBe(true);
 		expect(sheet.cellAt('C6').value).toBe(false);
 	});
+	it('should update a cell range within another sheet', async () => {
+		const machine = new Machine();
+		const s1 = new StreamSheet().sheet;
+		const s2 = new StreamSheet().sheet;
+		machine.removeAllStreamSheets();
+		machine.addStreamSheet(s1.streamsheet);
+		machine.addStreamSheet(s2.streamsheet);
+		createCellAt('A3', 1, s1);	// row index
+		createCellAt('A4', 1, s1);	// column index
+		createCellAt('A6', { formula: 'table.update(A8:C10, 10, A3, A4, -1, -1, 9)'}, s1);
+		await machine.step();
+		expect(s1.cellAt('B9').value).toBe(10);
+		// change sheet
+		createCellAt('A6', { formula: 'table.update(S2!A8:C10, 10, A3, A4, -1, -1, 9)'}, s1);
+		await machine.step();
+		expect(s1.cellAt('B9').value).toBe(10);
+		expect(s2.cellAt('B9').value).toBe(10);
+		// different column
+		createCellAt('A4', 2, s1);
+		await machine.step();
+		expect(s1.cellAt('B9').value).toBe(10);
+		expect(s2.cellAt('B9').value).toBe(10);
+		expect(s2.cellAt('C9').value).toBe(10);
+	});
 	it('should not set value if neither row index nor column index is found', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
