@@ -551,31 +551,18 @@ export default class ChartSelectionFeedbackView extends View {
 							switch (serie.type) {
 								case 'gauge': {
 									if (selection.element === 'series' || index === selection.pointIndex) {
+										const radii = item.getGaugeRadius(axes, gaugeInfo, serie, selection.index, index);
+										const section = item.getGaugeSection(axes, gaugeInfo, value, info);
 										if (value.x !== undefined && value.y !== undefined) {
-											if (item.chart.gaugePointer !== 'none') {
-												if (selection.index === 0 && index === 0) {
-													const radii1 = item.getGaugeRadius(axes, gaugeInfo, serie, 0, axes.x.scale.min);
-													const radii2 = item.getGaugeRadius(axes, gaugeInfo, serie, item.series.length - 1, axes.x.scale.max);
-													const points = item.getEllipseSegmentPoints(
-														gaugeInfo.xc,
-														gaugeInfo.yc,
-														radii1.xInnerRadius,
-														radii1.yInnerRadius,
-														radii2.xOuterRadius,
-														radii2.yOuterRadius,
-														0,
-														gaugeInfo.startAngle,
-														gaugeInfo.startAngle + gaugeInfo.angle,
-														2
-													);
-													points.forEach((pt) => {
-														rect.set(pt.x - 50, pt.y - 50, 100, 100);
-														graphics.drawMarker(rect, false);
-													});
-												}
+											if (item.chart.gaugePointer) {
+												const pos = section.currentAngle + section.angle;
+												const pt = {x: gaugeInfo.xc + Math.cos(pos) * radii.pointerRadius,
+													y: gaugeInfo.yc + Math.sin(pos) * radii.pointerRadius};
+												rect.set(pt.x - 50, pt.y - 50, 100, 100);
+												graphics.drawMarker(rect, false);
+												rect.set(gaugeInfo.xc - 50, gaugeInfo.yc - 50, 100, 100);
+												graphics.drawMarker(rect, false);
 											} else {
-												const radii = item.getGaugeRadius(axes, gaugeInfo, serie, selection.index, index);
-												const section = item.getGaugeSection(axes, gaugeInfo, value, info);
 												const points = item.getEllipseSegmentPoints(
 													gaugeInfo.xc,
 													gaugeInfo.yc,
