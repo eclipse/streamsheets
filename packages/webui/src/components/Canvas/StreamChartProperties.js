@@ -244,6 +244,13 @@ export class StreamChartProperties extends Component {
 		this.updateState();
 	};
 
+	handleChartGaugePointerChange = (event, state) => {
+		const cmd = this.prepareCommand('chart');
+		const data = this.getData();
+		data.gaugePointer = state;
+		this.finishCommand(cmd, 'chart');
+	};
+
 	handleChartStackedChange = (event, state) => {
 		const cmd = this.prepareCommand('chart');
 		const data = this.getData();
@@ -251,13 +258,6 @@ export class StreamChartProperties extends Component {
 		if (state === false) {
 			data.relative = false;
 		}
-		this.finishCommand(cmd, 'chart');
-	};
-
-	handleGaugePointerChange = (event) => {
-		const cmd = this.prepareCommand('chart');
-		const data = this.getData();
-		data.gaugePointer = event.target.value;
 		this.finishCommand(cmd, 'chart');
 	};
 
@@ -656,7 +656,11 @@ export class StreamChartProperties extends Component {
 			axis.align = item.xAxes.length % 2 ? 'top' : 'bottom';
 			item.xAxes.push(axis);
 		} else {
-			axis.align = item.yAxes.length % 2 ? 'right' : 'left';
+			if (item.isGauge()) {
+				axis.align = 'radialinside';
+			} else {
+				axis.align = item.yAxes.length % 2 ? 'right' : 'left';
+			}
 			item.yAxes.push(axis);
 		}
 		this.finishCommand(cmd, 'axes');
@@ -691,6 +695,20 @@ export class StreamChartProperties extends Component {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
 		data.type = event.target.value;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesPointerTypeChange = (event) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.pointerType = event.target.value;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesPointerLengthChange = (event) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.pointerLength = event.target.value;
 		this.finishCommand(cmd, 'series');
 	};
 
@@ -1561,6 +1579,22 @@ export class StreamChartProperties extends Component {
 								>
 									<FormattedMessage id="StreamChartProperties.Settings" defaultMessage="Settings" />
 								</FormLabel>
+								{gauge ? (
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={item.chart.gaugePointer}
+												onChange={(event, state) => this.handleChartGaugePointerChange(event, state)}
+											/>
+										}
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.GaugePointer"
+												defaultMessage="Use Pointer for Gauge"
+											/>
+										}
+									/>
+								) : null}
 								{!circular ? (
 									<FormControlLabel
 										control={
@@ -1576,39 +1610,6 @@ export class StreamChartProperties extends Component {
 											/>
 										}
 									/>
-								) : null}
-								{gauge ? (
-									<TextField
-										variant="outlined"
-										size="small"
-										fullWidth
-										label={
-											<FormattedMessage
-												id="StreamChartProperties.GaugePointer"
-												defaultMessage="Gauge Pointer"
-											/>
-										}
-										select
-										margin="normal"
-										value={item.chart.gaugePointer}
-										onChange={this.handleGaugePointerChange}
-									>
-										<MenuItem value="none" key={0}>
-											<FormattedMessage id="StreamChartProperties.None" defaultMessage="None" />
-										</MenuItem>
-										<MenuItem value="line" key={1}>
-											<FormattedMessage id="StreamChartProperties.Line" defaultMessage="Line" />
-										</MenuItem>
-										<MenuItem value="narrowingline" key={2}>
-											<FormattedMessage
-												id="StreamChartProperties.NarrowingLine"
-												defaultMessage="Narrowing Line"
-											/>
-										</MenuItem>
-										<MenuItem value="arrow" key={3}>
-											<FormattedMessage id="StreamChartProperties.Arrow" defaultMessage="Arrow" />
-										</MenuItem>
-									</TextField>
 								) : null}
 								<FormControl>
 									<FormGroup>
@@ -2307,18 +2308,19 @@ export class StreamChartProperties extends Component {
 												defaultMessage="Linear"
 											/>
 										</MenuItem>
+										{gauge === false ? [
 										<MenuItem value="time" key={2}>
 											<FormattedMessage
 												id="StreamChartProperties.axisTypeTime"
 												defaultMessage="Time"
 											/>
-										</MenuItem>
+										</MenuItem>,
 										<MenuItem value="logarithmic" key={3}>
 											<FormattedMessage
 												id="StreamChartProperties.axisTypeLogarithmic"
 												defaultMessage="Logarithmic"
 											/>
-										</MenuItem>
+										</MenuItem>] : null}
 									</TextField>
 								</FormControl>
 								<FormControl>
@@ -2668,6 +2670,67 @@ export class StreamChartProperties extends Component {
 										)}
 									</FormControl>
 								) : null}
+								{gauge && item.chart.gaugePointer ? [
+									<TextField
+										variant="outlined"
+										size="small"
+										fullWidth
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.GaugePointerType"
+												defaultMessage="Gauge Pointer Type"
+											/>
+										}
+										select
+										margin="normal"
+										value={data.pointerType}
+										onChange={this.handleSeriesPointerTypeChange}
+									>
+										<MenuItem value="none" key={0}>
+											<FormattedMessage id="StreamChartProperties.None" defaultMessage="None" />
+										</MenuItem>
+										<MenuItem value="line" key={1}>
+											<FormattedMessage id="StreamChartProperties.Line" defaultMessage="Line" />
+										</MenuItem>
+										<MenuItem value="narrowingline" key={2}>
+											<FormattedMessage
+												id="StreamChartProperties.NarrowingLine"
+												defaultMessage="Narrowing Line"
+											/>
+										</MenuItem>
+										<MenuItem value="arrow" key={3}>
+											<FormattedMessage id="StreamChartProperties.Arrow" defaultMessage="Arrow" />
+										</MenuItem>
+									</TextField>,
+									<TextField
+										variant="outlined"
+										size="small"
+										fullWidth
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.GaugePointerLength"
+												defaultMessage="Gauge Pointer length"
+											/>
+										}
+										select
+										margin="normal"
+										value={data.pointerLength}
+										onChange={this.handleSeriesPointerLengthChange}
+									>
+										<MenuItem value="inner" key={0}>
+											<FormattedMessage id="StreamChartProperties.InnerRadius" defaultMessage="Inner" />
+										</MenuItem>
+										<MenuItem value="center" key={1}>
+											<FormattedMessage id="StreamChartProperties.CenterRadius" defaultMessage="Center" />
+										</MenuItem>
+										<MenuItem value="outer" key={2}>
+											<FormattedMessage
+												id="StreamChartProperties.OuterRadius"
+												defaultMessage="Outer"
+											/>
+										</MenuItem>
+									</TextField>
+									] : null}
 								{item.isLineType(data) ? (
 									<div style={{ display: 'grid' }}>
 										<FormLabel component="legend" style={{ marginTop: '8px' }}>
