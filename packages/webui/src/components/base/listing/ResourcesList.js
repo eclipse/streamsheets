@@ -23,8 +23,10 @@ import {injectIntl} from 'react-intl';
 import {formatDateString} from './Utils';
 import { IconPause, IconPlay, IconStop } from '../../icons';
 import Constants from '../../../constants/Constants';
+import SortSelector from "../sortSelector/SortSelector";
 
 const MAX_LENGTH = 20;
+const PREF_KEY_SORTQUERYLIST = 'streamsheets-prefs-list-sortby';
 
 class ResourcesList extends React.Component {
 	static propTypes = {
@@ -52,11 +54,15 @@ class ResourcesList extends React.Component {
 
 	constructor(props) {
 		super(props);
+
+		const sort = localStorage.getItem(PREF_KEY_SORTQUERYLIST) || 'lastModified_desc';
+		const sortObj = SortSelector.parseSortQuery(sort);
+
 		this.state = {
 			anchorEl: null,
 			resourceId: null,
-			streamSortBy: 'name',
-			streamSortOrder: 'asc',
+			streamSortBy: sortObj.sortBy,
+			streamSortOrder: sortObj.sortDir,
 		};
 	}
 
@@ -142,6 +148,8 @@ class ResourcesList extends React.Component {
 			streamSortBy: orderBy,
 			streamSortOrder: order
 		});
+
+		localStorage.setItem(PREF_KEY_SORTQUERYLIST, `${orderBy}_${order}`);
 	};
 
 	handleSelection = (resource) => {

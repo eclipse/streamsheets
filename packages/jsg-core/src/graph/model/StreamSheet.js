@@ -513,8 +513,10 @@ module.exports = class StreamSheet extends WorksheetNode {
 		try {
 			def = JSON.parse(formatJSON);
 		} catch (e) {
-			def.style = formatJSON.toUpperCase() === 'NONE' ? 0 : 1;
-			def.color = formatJSON && formatJSON.length ? formatJSON : undefined;
+			if (formatJSON) {
+				def.style = formatJSON.toUpperCase() === 'NONE' ? 0 : 1;
+				def.color = formatJSON && formatJSON.length ? formatJSON : undefined;
+			}
 		}
 
 		if (def.color) {
@@ -1448,13 +1450,13 @@ module.exports = class StreamSheet extends WorksheetNode {
 				termFunc.params.length > 7 &&
 				termFunc.params[7] instanceof FuncTerm &&
 				termFunc.params[7].name === 'LINEFORMAT';
-			this.setGraphFunctionParam(termFunc, 7, formula, formula instanceof FuncTerm || force);
+			this.setGraphFunctionParam(termFunc, 7, formula, force);
 			formula = this.getFillTerm(item);
 			force =
 				termFunc.params.length > 8 &&
 				termFunc.params[8] instanceof FuncTerm &&
 				termFunc.params[8].name.indexOf('FILL') !== -1;
-			this.setGraphFunctionParam(termFunc, 8, formula, formula instanceof FuncTerm || force);
+			this.setGraphFunctionParam(termFunc, 8, formula, force);
 			this.setGraphFunctionParam(termFunc, 11, angle ? Term.fromNumber(angle) : new NullTerm());
 			switch (type) {
 				case 'knob':
@@ -1483,7 +1485,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 						termFunc.params.length > 14 &&
 						termFunc.params[14] instanceof FuncTerm &&
 						termFunc.params[14].name === 'FONTFORMAT';
-					this.setGraphFunctionParam(termFunc, 14, formula, formula instanceof FuncTerm || force);
+					this.setGraphFunctionParam(termFunc, 14, formula,force);
+					// this.setGraphFunctionParam(termFunc, 14, formula, formula instanceof FuncTerm || force);
 					break;
 			}
 		}

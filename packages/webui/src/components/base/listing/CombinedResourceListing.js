@@ -17,7 +17,7 @@ import React, { Component } from 'react';
 import { FormattedMessage } from 'react-intl';
 import ResourcesGrid from './ResourcesGrid';
 import ResourcesList from './ResourcesList';
-import SortSelector from '../sortSelector/SortSelector';
+// import SortSelector from '../sortSelector/SortSelector';
 import Wall from '../../HelperComponent/Wall';
 import {formatDateString} from "./Utils";
 
@@ -57,7 +57,7 @@ class CombinedResourceListing extends Component {
 		checked: [],
 		nameFilter: undefined,
 		menuOptions: [],
-		sortQuery: 'name_asc',
+		sortQuery: 'lastModified_desc',
 		onMenuSelect: undefined
 	};
 
@@ -108,7 +108,7 @@ class CombinedResourceListing extends Component {
 	render() {
 		const { handleNew, resources } = this.props;
 		const filteredMachines = this.filterMachines(resources);
-		const recentResources = SortSelector.sort(filteredMachines, 'lastModified_desc', '');
+		// const recentResources = SortSelector.sort(filteredMachines, 'lastModified_desc', '');
 		return (
 			<Wall
 				id="combinedResourceList"
@@ -119,7 +119,7 @@ class CombinedResourceListing extends Component {
 					}}
 				>
 					{this.props.layout === 'grid' ? (
-						<ResourcesGrid {...this.props} recent={recentResources} resources={filteredMachines} dummy={this.state.dummy}/>
+						<ResourcesGrid {...this.props} resources={filteredMachines} dummy={this.state.dummy}/>
 					) : null}
 					{this.props.layout === 'list' ? (
 						<ResourcesList {...this.props} resources={filteredMachines} />

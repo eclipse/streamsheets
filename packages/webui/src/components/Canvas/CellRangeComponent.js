@@ -212,7 +212,7 @@ class CellRangeComponent extends React.Component {
 						// rgba(0, 0, 0, 0.42)',
 						outline: 'none',
 						display: 'inline-block',
-						width: 'calc(100% - 70px)',
+						width: 'calc(100% - 74px)',
 						color: theme.cellrange.color,
 					}}
 					id="sheet-ref"
@@ -245,7 +245,7 @@ class CellRangeComponent extends React.Component {
 				<IconButton
 					id="RefCancel"
 					style={{
-						width: '25px',
+						width: '35px',
 						height: '34px',
 						padding: '5px',
 						display: 'inline',

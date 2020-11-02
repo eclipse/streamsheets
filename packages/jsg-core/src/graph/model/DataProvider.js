@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 /* eslint-disable no-mixed-operators */
-const { serialnumber: { dateLocal2serial, serial2date }} = require('@cedalo/commons');
+const { serialnumber: { date2serial, dateLocal2serial, serial2date } } = require('@cedalo/commons');
 const Point = require('../../geometry/Point');
 const MathUtils = require('../../geometry/MathUtils');
 const NumberExpression = require('../expr/NumberExpression');
@@ -1586,8 +1586,13 @@ module.exports = class DataProvider {
 		});
 	}
 
+	/** NOTE: respects local timezone. usually it is better to use dateToSerial instead */
 	JSDateToExcelDate(inDate) {
 		return dateLocal2serial(inDate);
+	}
+
+	dateToSerial(inDate) {
+		return date2serial(inDate);
 	}
 
 	excelDateToJSDate(serial) {
@@ -1747,7 +1752,8 @@ module.exports = class DataProvider {
 													Math.floor(finalDateVal.getMonth() + section.monthDiff * repeat) /
 														12
 											);
-											val = this.JSDateToExcelDate(dateVal);
+											val = this.dateToSerial(dateVal);
+											// val = this.JSDateToExcelDate(dateVal);
 											repeat += 1;
 										}
 									} else {
@@ -1762,7 +1768,8 @@ module.exports = class DataProvider {
 													Math.floor(firstDateVal.getMonth() - section.monthDiff * repeat) /
 														12
 											);
-											val = this.JSDateToExcelDate(dateVal);
+											val = this.dateToSerial(dateVal);
+											// val = this.JSDateToExcelDate(dateVal);
 											repeat -= 1;
 										}
 									}

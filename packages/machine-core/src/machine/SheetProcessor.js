@@ -87,6 +87,7 @@ class SheetProcessor {
 	}
 
 	resume() {
+		// we evaluate current cell (which caused pause) again to get its return value!!
 		// this._cursor.c += 1;
 		this._cursor.paused = false;
 		this._cursor.resumed = true;
@@ -138,7 +139,10 @@ class SheetProcessor {
 					cursor.c += 1;
 				}
 			}
-			if (!cursor.changed && !cursor.paused) {
+			// check paused state again, might was set from outside cells (DL-4482)
+			if (cursor.paused) {
+				cursor.stop = true;
+			} else if (!cursor.changed) { // && !cursor.paused) {
 				cursor.r += 1;
 				cursor.c = null;
 			}

@@ -194,6 +194,53 @@ export default class ChartSelectionFeedbackView extends View {
 					}
 				}
 				break;
+			case 'xAxis':
+			case 'yAxis':
+				if (item.isGauge()) {
+					const axis = selection.data;
+					if (!axis.position || !axis.scale) {
+						break;
+					}
+
+					let pos;
+					const ref = item.getDataSourceInfoAxis(axis);
+					let current = item.getAxisStart(ref, axis);
+					const final = item.getAxisEnd(axis);
+					const gaugeInfo = item.getGaugeInfo(plotRect);
+					let inner;
+					let outer;
+					const size = axis.size ? axis.size.width + 150 : 1000;
+
+					while (current.value <= final) {
+						if (axis.type === 'category' && current.value > axis.scale.max) {
+							break;
+						}
+						pos = item.scaleToAxis(axis, current.value, undefined, true);
+
+						if (axis.align === 'radialoutside') {
+							outer = gaugeInfo.xRadius + size;
+							inner = gaugeInfo.xRadius;
+						} else {
+							outer = gaugeInfo.xRadius * item.chart.hole;
+							inner = (gaugeInfo.xRadius - size) * item.chart.hole;
+
+						}
+
+						pos = gaugeInfo.startAngle + pos * gaugeInfo.angle;
+						rect.set(gaugeInfo.xc + Math.cos(pos) * inner - 50,
+							gaugeInfo.yc + Math.sin(pos) * inner - 50, 100, 100);
+						graphics.drawMarker(rect, false);
+
+						rect.set(gaugeInfo.xc + Math.cos(pos) * outer - 50,
+							gaugeInfo.yc + Math.sin(pos) * outer - 50, 100, 100);
+						graphics.drawMarker(rect, false);
+
+						current = item.incrementScale(ref, axis, current);
+					}
+				} else {
+					drawMarkerRect(data.position);
+				}
+				break;
 			case 'xAxisGrid':
 			case 'yAxisGrid':
 				{
@@ -206,6 +253,7 @@ export default class ChartSelectionFeedbackView extends View {
 					const ref = item.getDataSourceInfoAxis(axis);
 					let current = item.getAxisStart(ref, axis);
 					const final = item.getAxisEnd(axis);
+					const gaugeInfo = axis.align === 'radialoutside' || axis.align === 'radialinside' ? item.getGaugeInfo(plotRect) : null;
 
 					while (current.value <= final) {
 						if (axis.type === 'category' && current.value > axis.scale.max) {
@@ -214,10 +262,23 @@ export default class ChartSelectionFeedbackView extends View {
 						pos = item.scaleToAxis(axis, current.value, undefined, true);
 
 						switch (axis.align) {
+							case 'radialoutside':
+							case 'radialinside': {
+								pos = gaugeInfo.startAngle + pos * gaugeInfo.angle;
+								rect.set(gaugeInfo.xc + Math.cos(pos) * gaugeInfo.xRadius - 50,
+									gaugeInfo.yc + Math.sin(pos) * gaugeInfo.xRadius - 50, 100, 100);
+								graphics.drawMarker(rect, false);
+
+								const radius = gaugeInfo.xRadius * item.chart.hole;
+
+								rect.set(gaugeInfo.xc + Math.cos(pos) * radius - 50,
+									gaugeInfo.yc + Math.sin(pos) * radius - 50, 100, 100);
+								graphics.drawMarker(rect, false);
+								break;
+							}
 							case 'left':
 							case 'right':
 								pos = plotRect.bottom - pos * plotRect.height;
-								rect.set(plotRect.left, pos - 100, plotRect.right, pos + 100);
 								rect.set(plotRect.left - 50, pos - 50, 100, 100);
 								graphics.drawMarker(rect, false);
 								rect.set(plotRect.right - 50, pos - 50, 100, 100);
@@ -258,7 +319,8 @@ export default class ChartSelectionFeedbackView extends View {
 						const pieInfo = item.isCircular()
 							? item.getPieInfo(ref, serie, plotRect, selection.index)
 							: undefined;
-						const legendData = item.getLegend();
+						const gaugeInfo = item.isGauge() ? item.getGaugeInfo(plotRect) : undefined;
+						const legendData = item.getThresholds();
 						const params = {
 							graphics,
 							serie,
@@ -271,6 +333,7 @@ export default class ChartSelectionFeedbackView extends View {
 							points,
 							lastPoints: prevPoints,
 							pieInfo,
+							gaugeInfo,
 							currentAngle: pieInfo ? pieInfo.startAngle : 0,
 							valueSum: 0,
 						};
@@ -292,16 +355,13 @@ export default class ChartSelectionFeedbackView extends View {
 							if (item.hasDataPointLabel(serie, index)) {
 								// collect values for each category
 								const values = item.getBoxPlotValues(ref, axes);
-								const drawMarkersAtValue = (val, x, lbarWidth, id) => {
-									const ptl = {x, y: item.scaleToAxis(axes.y, val, info, false)};
+								const drawMarkersAtValue = (val, x, lbarWidth) => {
+									const ptl = {x, y: item.scaleToAxis(axes.y, val.y, info, false)};
 									item.toPlot(serie, plotRect, ptl);
 									if (ptl.x >= plotRect.left && ptl.x <= plotRect.right) {
-										value.x = 0;
-										value.y = val;
-										value.c = id;
-										const text = item.getDataLabel(value, axes.x, ref, serie, legendData);
+										const text = item.getDataLabel(val, axes.x, ref, serie, legendData);
 										params.boxBarWidth = lbarWidth;
-										const drawRect = item.getLabelRect(ptl, value, text, index, params);
+										const drawRect = item.getLabelRect(ptl, val, text, index, params);
 										if (drawRect) {
 											let markerPt = new Point(drawRect.left, drawRect.top);
 											markerPt = labelAngle
@@ -333,26 +393,29 @@ export default class ChartSelectionFeedbackView extends View {
 
 								Object.entries(values).forEach(([key, valueSet]) => {
 									const {median, q1, q3, minIndex, maxIndex, average} = item.getBoxPlotFigures(valueSet);
-									// const barInfo = item.getBarInfo(axes, serie, selection.index, valueSet[0].x, q3 - q1, barWidth);
-
 									const x = item.scaleToAxis(axes.x, valueSet[0].x, undefined, false);
-									drawMarkersAtValue(q1, x, barWidth);
-									drawMarkersAtValue(median, x, barWidth);
-									drawMarkersAtValue(q3, x, barWidth);
+									const tmpVal = {x : valueSet[0].x, xLabel: valueSet[0].xLabel, y: q1, formatY: valueSet[0].formatY};
+
+									drawMarkersAtValue(tmpVal, x, barWidth);
+									tmpVal.y = median;
+									drawMarkersAtValue(tmpVal, x, barWidth);
+									tmpVal.y = q3;
+									drawMarkersAtValue(tmpVal, x, barWidth);
 									if (valueSet.length > 3) {
 										// draw at whiskers
-										drawMarkersAtValue(valueSet[minIndex].y, x, barWidth / 3, valueSet[minIndex].c);
-										drawMarkersAtValue(valueSet[maxIndex].y, x, barWidth / 3, valueSet[maxIndex].c);
+										drawMarkersAtValue(valueSet[minIndex], x, barWidth / 3);
+										drawMarkersAtValue(valueSet[maxIndex], x, barWidth / 3);
 									}
 									if (serie.average) {
-										drawMarkersAtValue(average, x, barWidth);
+										tmpVal.y = average;
+										drawMarkersAtValue(tmpVal, x, barWidth);
 									}
 									if (valueSet.length > 3) {
 										valueSet.forEach((val, valIndex) => {
 											if (valIndex !== maxIndex && valIndex !== minIndex) {
 												if ((valIndex > minIndex && valIndex < maxIndex && serie.innerPoints) ||
 													(valIndex < minIndex || valIndex > maxIndex && serie.outerPoints)) {
-													drawMarkersAtValue(val.y, x, 250, val.c);
+													drawMarkersAtValue(val, x, 250);
 												}
 											}
 										});
@@ -481,10 +544,59 @@ export default class ChartSelectionFeedbackView extends View {
 							? item.getPieInfo(ref, serie, plotRect, selection.index)
 							: undefined;
 						let currentAngle = pieInfo ? pieInfo.startAngle : 0;
+						const gaugeInfo = item.isGauge() ? item.getGaugeInfo(plotRect) : undefined;
 
 						while (item.getValue(ref, index, value)) {
 							info.index = index;
 							switch (serie.type) {
+								case 'gauge': {
+									if (selection.element === 'series' || index === selection.pointIndex) {
+										if (value.x !== undefined && value.y !== undefined) {
+											if (item.chart.gaugePointer !== 'none') {
+												if (selection.index === 0 && index === 0) {
+													const radii1 = item.getGaugeRadius(axes, gaugeInfo, serie, 0, axes.x.scale.min);
+													const radii2 = item.getGaugeRadius(axes, gaugeInfo, serie, item.series.length - 1, axes.x.scale.max);
+													const points = item.getEllipseSegmentPoints(
+														gaugeInfo.xc,
+														gaugeInfo.yc,
+														radii1.xInnerRadius,
+														radii1.yInnerRadius,
+														radii2.xOuterRadius,
+														radii2.yOuterRadius,
+														0,
+														gaugeInfo.startAngle,
+														gaugeInfo.startAngle + gaugeInfo.angle,
+														2
+													);
+													points.forEach((pt) => {
+														rect.set(pt.x - 50, pt.y - 50, 100, 100);
+														graphics.drawMarker(rect, false);
+													});
+												}
+											} else {
+												const radii = item.getGaugeRadius(axes, gaugeInfo, serie, selection.index, index);
+												const section = item.getGaugeSection(axes, gaugeInfo, value, info);
+												const points = item.getEllipseSegmentPoints(
+													gaugeInfo.xc,
+													gaugeInfo.yc,
+													radii.xInnerRadius,
+													radii.yInnerRadius,
+													radii.xOuterRadius,
+													radii.yOuterRadius,
+													0,
+													section.currentAngle + (axes.y.invert ? section.angle : 0),
+													section.currentAngle + (axes.y.invert ? 0 : section.angle),
+													2
+												);
+												points.forEach((pt) => {
+													rect.set(pt.x - 50, pt.y - 50, 100, 100);
+													graphics.drawMarker(rect, false);
+												});
+											}
+										}
+									}
+									break;
+								}
 								case 'doughnut': {
 									const pieAngle =
 										(Math.abs(value.y) / pieInfo.sum) * (pieInfo.endAngle - pieInfo.startAngle);
@@ -782,9 +894,7 @@ export default class ChartSelectionFeedbackView extends View {
 				break;
 			}
 			case 'title':
-			case 'xAxis':
 			case 'xAxisTitle':
-			case 'yAxis':
 			case 'yAxisTitle':
 			case 'plot':
 			case 'legend':

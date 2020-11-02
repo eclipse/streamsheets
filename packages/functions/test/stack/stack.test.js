@@ -23,8 +23,8 @@ beforeEach(() => {
 	const streamsheet = new StreamSheet();
 	machine.addStreamSheet(streamsheet);
 	sheet = streamsheet.sheet;
-	sheet.settings.maxrow = 100;
-	sheet.load({ cells: STACKRANGE_SHEET });
+	// sheet.settings.maxrow = 200;
+	sheet.load({ settings: { maxrow: 200 }, cells: STACKRANGE_SHEET });
 });
 
 
@@ -693,6 +693,123 @@ describe('stack functions', () => {
 			// no match...
 			pipe(insert('L1', 'stackfind(A10:C12, A64:C65)'), step, expectAt('L1', false))(sheet);
 		});
+		it('should support > and >= in criteriarange', () => {
+			// fill stackrange:
+			pipe(insert('K1', 'stackadd(A10:C12, A1:C3)'), step, remove('K1'))(sheet);
+			// find at least one row with clicktype
+			createCellAt('A50', 'serialnumber', sheet);
+			createCellAt('A51', '>42', sheet);
+			pipe(insert('L1', 'stackfind(A10:C12, A50:A51)'), step, expectAt('L1', true))(sheet);
+			createCellAt('A51', '>=56', sheet);
+			pipe(insert('L1', 'stackfind(A10:C12, A50:A51)'), step, expectAt('L1', true))(sheet);
+			// print values to sheet:
+			createCellAt('A51', '>42', sheet);
+			remove('A61','B61','C61','A62','B62','C62')(sheet);
+			pipe(insert('L1', 'stackfind(A10:C12, A50:A51,A60:C62)'), step, expectAt('L1', true))(sheet);
+			expect(sheet.cellAt('A61').value).toBe('SINGLE');
+			expect(sheet.cellAt('B61').value).toBe(56);
+			expect(sheet.cellAt('C61').value).toBe('100mV');
+			expect(sheet.cellAt('A62')).toBeUndefined();
+			expect(sheet.cellAt('B62')).toBeUndefined();
+			expect(sheet.cellAt('C62')).toBeUndefined();
+			createCellAt('A51', '>=42', sheet);
+			remove('A61','B61','C61','A62','B62','C62')(sheet);
+			pipe(insert('L1', 'stackfind(A10:C12, A50:A51,A60:C62)'), step, expectAt('L1', true))(sheet);
+			expect(sheet.cellAt('A61').value).toBe('SINGLE');
+			expect(sheet.cellAt('B61').value).toBe(56);
+			expect(sheet.cellAt('C61').value).toBe('100mV');
+			expect(sheet.cellAt('A62').value).toBe('MULTIPLE');
+			expect(sheet.cellAt('B62').value).toBe(42);
+			expect(sheet.cellAt('C62').value).toBe('600mV');
+			// no match...
+			createCellAt('A51', '>80', sheet);
+			pipe(insert('L1', 'stackfind(A10:C12, A50:A51)'), step, expectAt('L1', false))(sheet);
+			createCellAt('A51', '>=57', sheet);
+			pipe(insert('L1', 'stackfind(A10:C12, A50:A51)'), step, expectAt('L1', false))(sheet);
+			// ony number values supported
+			createCellAt('A50', 'batteryvoltage', sheet);
+			createCellAt('A51', '>600mV', sheet);
+			pipe(insert('L1', 'stackfind(A10:C12, A50:A51)'), step, expectAt('L1', false))(sheet);
+		});
+		it('should support < and <= in criteriarange', () => {
+			// fill stackrange:
+			pipe(insert('K1', 'stackadd(A10:C13, A1:C4)'), step, remove('K1'))(sheet);
+			// find at least one row with clicktype
+			createCellAt('D50', 'serialnumber', sheet);
+			createCellAt('D51', '<42', sheet);
+			pipe(insert('L1', 'stackfind(A10:C13, D50:D51)'), step, expectAt('L1', true))(sheet);
+			createCellAt('D51', '<=23', sheet);
+			pipe(insert('L1', 'stackfind(A10:C13, D50:D51)'), step, expectAt('L1', true))(sheet);
+			// print values to sheet:
+			createCellAt('D51', '<42', sheet);
+			remove('A61','B61','C61','A62','B62','C62')(sheet);
+			pipe(insert('L1', 'stackfind(A10:C13, D50:D51,A60:C62)'), step, expectAt('L1', true))(sheet);
+			expect(sheet.cellAt('A61').value).toBe('MULTIPLE');
+			expect(sheet.cellAt('B61').value).toBe(23);
+			expect(sheet.cellAt('C61').value).toBe('800mV');
+			expect(sheet.cellAt('A62')).toBeUndefined();
+			expect(sheet.cellAt('B62')).toBeUndefined();
+			expect(sheet.cellAt('C62')).toBeUndefined();
+			createCellAt('D51', '<=42', sheet);
+			remove('A61','B61','C61','A62','B62','C62')(sheet);
+			pipe(insert('L1', 'stackfind(A10:C13, D50:D51,A60:C62)'), step, expectAt('L1', true))(sheet);
+			expect(sheet.cellAt('A61').value).toBe('MULTIPLE');
+			expect(sheet.cellAt('B61').value).toBe(42);
+			expect(sheet.cellAt('C61').value).toBe('600mV');
+			expect(sheet.cellAt('A62').value).toBe('MULTIPLE');
+			expect(sheet.cellAt('B62').value).toBe(23);
+			expect(sheet.cellAt('C62').value).toBe('800mV');
+			// no match...
+			createCellAt('D51', '<23', sheet);
+			pipe(insert('L1', 'stackfind(A10:C12, D50:D51)'), step, expectAt('L1', false))(sheet);
+			createCellAt('D51', '<=24', sheet);
+			pipe(insert('L1', 'stackfind(A10:C12, D50:D51)'), step, expectAt('L1', false))(sheet);
+			// ony number values supported
+			createCellAt('D50', 'batteryvoltage', sheet);
+			createCellAt('D51', '<600mV', sheet);
+			pipe(insert('L1', 'stackfind(A10:C12, D50:D51)'), step, expectAt('L1', false))(sheet);
+		});
+		it('should support = criteriarange and use it as default', () => {
+			// fill stackrange:
+			pipe(insert('K1', 'stackadd(A10:C13, A1:C4)'), step, remove('K1'))(sheet);
+			// find at least one row with clicktype
+			createCellAt('D50', 'serialnumber', sheet);
+			createCellAt('D51', '=42', sheet);
+			pipe(insert('L1', 'stackfind(A10:C13, D50:D51)'), step, expectAt('L1', true))(sheet);
+			createCellAt('D50', 'clicktype', sheet);
+			createCellAt('D51', '=SINGLE', sheet);
+			pipe(insert('L1', 'stackfind(A10:C13, D50:D51)'), step, expectAt('L1', true))(sheet);
+			// no = will use equal comparison by default
+			createCellAt('D50', 'batteryvoltage', sheet);
+			createCellAt('D51', '600mV', sheet);
+			pipe(insert('L1', 'stackfind(A10:C13, D50:D51)'), step, expectAt('L1', true))(sheet);
+			// print values to sheet:
+			remove('A61','B61','C61','A62','B62','C62')(sheet);
+			pipe(insert('L1', 'stackfind(A10:C13, D50:D51,A60:C62)'), step, expectAt('L1', true))(sheet);
+			expect(sheet.cellAt('A61').value).toBe('MULTIPLE');
+			expect(sheet.cellAt('B61').value).toBe(42);
+			expect(sheet.cellAt('C61').value).toBe('600mV');
+			expect(sheet.cellAt('A62')).toBeUndefined();
+			expect(sheet.cellAt('B62')).toBeUndefined();
+			expect(sheet.cellAt('C62')).toBeUndefined();
+			createCellAt('D50', 'clicktype', sheet);
+			createCellAt('D51', '=MULTIPLE', sheet);
+			remove('A61','B61','C61','A62','B62','C62')(sheet);
+			pipe(insert('L1', 'stackfind(A10:C13, D50:D51,A60:C62)'), step, expectAt('L1', true))(sheet);
+			expect(sheet.cellAt('A61').value).toBe('MULTIPLE');
+			expect(sheet.cellAt('B61').value).toBe(42);
+			expect(sheet.cellAt('C61').value).toBe('600mV');
+			expect(sheet.cellAt('A62').value).toBe('MULTIPLE');
+			expect(sheet.cellAt('B62').value).toBe(23);
+			expect(sheet.cellAt('C62').value).toBe('800mV');
+			// no match...
+			createCellAt('D50', 'serialnumber', sheet);
+			createCellAt('D51', '=423', sheet);
+			pipe(insert('L1', 'stackfind(A10:C13, D50:D51)'), step, expectAt('L1', false))(sheet);
+			createCellAt('D50', 'clicktype', sheet);
+			createCellAt('D51', 'POINTER', sheet);
+			pipe(insert('L1', 'stackfind(A10:C13, D50:D51)'), step, expectAt('L1', false))(sheet);
+		});
 		it('should treat values on same criteriarange row as an AND condition', () => {
 			// fill stackrange:
 			pipe(insert('K1', 'stackadd(A10:C11, A1:C2)'), step, remove('K1'))(sheet);
@@ -734,6 +851,25 @@ describe('stack functions', () => {
 			pipe(insert('L1', 'stackfind(A10:C11, A60:A61)'), step, expectAt('L1', false))(sheet);
 			pipe(insert('L1', 'stackfind(A10:C11, A60:B61)'), step, expectAt('L1', false))(sheet);
 			pipe(insert('L1', 'stackfind(A10:C11, A60:C61)'), step, expectAt('L1', false))(sheet);
+		});
+		it('should support AND and OR with >, >=, <, <=', () => {
+			// fill stackrange:
+			pipe(insert('K1', 'stackadd(A10:C13, A1:C4)'), step, remove('K1'))(sheet);
+			// find at least one row with clicktype
+			createCellAt('D50', 'serialnumber', sheet);
+			createCellAt('E50', 'clicktype', sheet);
+			createCellAt('D51', '>=42', sheet);
+			createCellAt('E51', 'SINGLE', sheet);
+			createCellAt('D52', '<42', sheet);
+			createCellAt('E52', 'MULTIPLE', sheet);
+			remove('A61','B61','C61','A62','B62','C62')(sheet);
+			pipe(insert('L1', 'stackfind(A10:C13, D50:E52,A60:C62)'), step, expectAt('L1', true))(sheet);
+			expect(sheet.cellAt('A61').value).toBe('SINGLE');
+			expect(sheet.cellAt('B61').value).toBe(56);
+			expect(sheet.cellAt('C61').value).toBe('100mV');
+			expect(sheet.cellAt('A62').value).toBe('MULTIPLE');
+			expect(sheet.cellAt('B62').value).toBe(23);
+			expect(sheet.cellAt('C62').value).toBe('800mV');
 		});
 		it('should copy matching row from stackrange to target range if set', () => {
 			// fill stackrange:

@@ -8,8 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { clone } = require('@cedalo/commons');
 const Message = require('./Message');
 const TTLMessageBox = require('./TTLMessageBox');
+
+const cloneData = (data) => clone(data) || data;
 
 const getMessage = (id, outbox, ttl) => {
 	let msg = outbox.peek(id);
@@ -42,12 +45,12 @@ class Outbox extends TTLMessageBox {
 	setMessageMetadata(msgOrId, newdata, ttl) {
 		const oldmsg = typeof msgOrId === 'object' ? msgOrId : getMessage(msgOrId, this, ttl);
 		const newmsg = new Message({}, oldmsg.id);
-		Object.assign(newmsg.metadata, newdata);
+		Object.assign(newmsg.metadata, cloneData(newdata));
 		// combine data
-		Object.assign(newmsg.data, oldmsg.data);
+		Object.assign(newmsg.data, cloneData(oldmsg.data));
 		// combine or replace metadata
 		if (!Array.isArray(oldmsg.metadata) && !Array.isArray(newmsg.metadata)) {
-			Object.assign(newmsg.metadata, Object.assign({}, oldmsg.metadata, newmsg.metadata));
+			Object.assign(newmsg.metadata, Object.assign({}, cloneData(oldmsg.metadata), newmsg.metadata));
 		}
 		this.replaceMessage(newmsg, ttl);
 	}
@@ -56,10 +59,10 @@ class Outbox extends TTLMessageBox {
 		const oldmsg = typeof msgOrId === 'object' ? msgOrId : getMessage(msgOrId, this, ttl);
 		const newmsg = new Message(newdata, oldmsg.id);
 		// combine metadata
-		Object.assign(newmsg.metadata, oldmsg.metadata);
+		Object.assign(newmsg.metadata, cloneData(oldmsg.metadata));
 		// combine or replace data
 		if (!Array.isArray(oldmsg.data) && !Array.isArray(newmsg.data)) {
-			Object.assign(newmsg.data, Object.assign({}, oldmsg.data, newmsg.data));
+			Object.assign(newmsg.data, Object.assign({}, cloneData(oldmsg.data), newmsg.data));
 		}
 		this.replaceMessage(newmsg, ttl);
 	}

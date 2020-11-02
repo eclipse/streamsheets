@@ -10,19 +10,28 @@
 ********************************************************************************/
 const { Cell } = require('@cedalo/machine-core');
 const { Term } = require('@cedalo/parser');
-const { addAtBottom, addAtTop, isUniqueInRows, matchKeys, matchRow } = require('./stackhelper');
 const { createUpdateFunction } = require('./stackupdater');
+const {
+	addAtBottom,
+	addAtTop,
+	criteriaFromRange,
+	isUniqueInRows,
+	mapKeys,
+	matchKeys,
+	matchRow
+} = require('./stackhelper');
 
-const findMatchingRows = (range, criteriarange, unique) => {
+const findMatchingRows = (range, criteria, unique) => {
 	const rows = [];
 	const uniqueRows = [];
 	const endrow = range.end.row;
 	const isUnique = unique ? isUniqueInRows(uniqueRows) : () => true;
-	const keysMatch = matchKeys(range, criteriarange);
+	const keysMap = mapKeys(range, criteria);
+	const criterions = criteria.slice(1);
 	for (let rowidx = range.start.row + 1; rowidx <= endrow; rowidx += 1) {
 		const row = [];
 		range.iterateRowAt(rowidx, (cell) => row.push(cell));
-		const match = matchRow(row, criteriarange, keysMatch);
+		const match = matchRow(row, criterions, keysMap);
 		if (match && isUnique(row)) {
 			rows.push(rowidx);
 			uniqueRows.push(row);
@@ -93,8 +102,9 @@ const updateStackRow = (index, stackrange, values) => {
 	});
 };
 const upsert = (stackrange, sourcerange, criteriarange, addNotFound, addToBottom, unique) => {
-	const stackrows = findMatchingRows(stackrange, criteriarange, unique);
-	const sourcerows = findMatchingRows(sourcerange, criteriarange, unique);
+	const criteria = criteriaFromRange(criteriarange);
+	const stackrows = findMatchingRows(stackrange, criteria, unique);
+	const sourcerows = findMatchingRows(sourcerange, criteria, unique);
 	if (sourcerows.length) {
 		const matcher = matchKeys(sourcerange, stackrange);
 		const updateOperations = createUpdateFunctions(sourcerange, sourcerows);
