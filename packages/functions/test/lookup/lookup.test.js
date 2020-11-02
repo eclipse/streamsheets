@@ -239,6 +239,18 @@ describe('lookup functions', () => {
 			// exact
 			expect(createTerm('match(41, B2:B5, 0)', sheet).value).toBe(4);
 		});
+		it('should not get confused by same values in range', () => {
+			const sheet = new StreamSheet().sheet.load({
+				cells: { A2: 33, A3: 34, A4: 34, A5: 36, A6: 37, A7: 40, A8: 50, A9: 60 }
+			});
+			expect(createTerm('match(50, A2:A9, 1)', sheet).value).toBe(7);
+			sheet.load({cells: { A2: 34, A3: 34, A4: 34, A5: 34, A6: 34, A7: 34, A8: 51, A9: 60 } });
+			expect(createTerm('match(50, A2:A9, 1)', sheet).value).toBe(6);
+			sheet.load({cells: { A2: -32, A3: -32, A4: -31, A5: -10, A6: -9, A7: 1, A8: 0, A9: 1 } });
+			expect(createTerm('match(0, A2:A9, 1)', sheet).value).toBe(5);
+			sheet.load({cells: { A2: -32, A3: -32, A4: -32, A5: -10, A6: -9, A7: 1, A8: 0, A9: 1 } });
+			expect(createTerm('match(0, A2:A9, 1)', sheet).value).toBe(5);
+		});
 		it('should support strings with wildcards', () => {
 			/* eslint-disable */
 			const sheet = new StreamSheet().sheet.load({
