@@ -37,7 +37,7 @@ module.exports = class Chart {
 		this.seriesLines = new ChartElement();
 		this.upBars = new ChartElement();
 		this.downBars = new ChartElement();
-		this.gaugePointer = 'none';
+		this.gaugePointer = false;
 		this.formula = new Expression('');
 	}
 
@@ -94,7 +94,7 @@ module.exports = class Chart {
 		writer.writeAttributeNumber('datainrows', this.dataInRows ? 1 : 0);
 		writer.writeAttributeNumber('varybycategories', this.varyByCategories ? 1 : 0);
 		writer.writeAttributeString('varybythreshold', this.varyByThreshold);
-		writer.writeAttributeString('gaugepointer', this.gaugePointer);
+		writer.writeAttributeString('gaugepointer', this.gaugePointer ? 1 : 0);
 		writer.writeAttributeNumber('stacked', this.stacked ? 1 : 0);
 		writer.writeAttributeNumber('relative', this.relative ? 1 : 0);
 		writer.writeAttributeNumber('step', this.step ? 1 : 0);
@@ -126,7 +126,7 @@ module.exports = class Chart {
 		this.tooltips = reader.getAttributeBoolean(object, 'tooltips', true);
 		this.varyByCategories = reader.getAttributeBoolean(object, 'varybycategories', false);
 		this.varyByThreshold = reader.getAttributeString(object, 'varybythreshold', 'colorchange');
-		this.gaugePointer = reader.getAttributeString(object, 'gaugepointer', 'none');
+		this.gaugePointer = reader.getAttributeBoolean(object, 'gaugepointer', false);
 		this.rotation = reader.getAttributeNumber(object, 'rotation', 0);
 		this.startAngle = reader.getAttributeNumber(object, 'startangle', 0);
 		this.endAngle = reader.getAttributeNumber(object, 'endangle', Math.PI * 2);
