@@ -307,20 +307,23 @@ module.exports = class MongoDBMachineRepository extends mix(
 			.then((resp) => resp.result && resp.result.ok);
 	}
 
-	updateStreamSheet(
-		machineId,
-		streamsheetId,
-		{ cells = {}, namedCells = {}, graphCells = {} } = {}
-	) {
-		const selector = { _id: machineId, 'streamsheets.id': streamsheetId };
-		const update = {};
-		update.$set = {};
-		update.$set['streamsheets.$.sheet.cells'] = deletePropsFromCells(cells);
-		update.$set['streamsheets.$.sheet.namedCells'] = namedCells;
-		update.$set['streamsheets.$.sheet.graphCells'] = graphCells;
+	// streamsheets = [{ id, cells = {}, namedCells = {}, graphCells = {} }, ...]
+	updateStreamSheets(machineId, streamsheets) {
+		const bulkUpdates = streamsheets.map(({ id, cells, namedCells, graphCells } = {}) => {
+			const update = { $set: {} };
+			update.$set['streamsheets.$.sheet.cells'] = deletePropsFromCells(cells);
+			update.$set['streamsheets.$.sheet.namedCells'] = namedCells;
+			update.$set['streamsheets.$.sheet.graphCells'] = graphCells;
+			return {
+				updateOne: {
+					filter: { _id: machineId, 'streamsheets.id': id },
+					update
+				}
+			};
+		}); 
 		return this.db
 			.collection(this.collection)
-			.updateOne(selector, update)
+			.bulkWrite(bulkUpdates)
 			.then((resp) => resp.result && resp.result.ok);
 	}
 	updateSheet(machineId, streamsheetId, sheetdef = {}) {
