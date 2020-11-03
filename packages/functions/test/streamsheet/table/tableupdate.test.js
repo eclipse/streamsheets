@@ -780,18 +780,18 @@ describe('table.update', () => {
 			machine.removeAllStreamSheets();
 			machine.addStreamSheet(sheet.streamsheet);
 			sheet.load({ cells: SHEET.TABLEUPDATE });
-			createCellAt('A1', 2, sheet);
+			createCellAt('A1', 3, sheet);
 			createCellAt('A2', { formula: 'table.update(A3:E8, A1, 1594993370, "Turbine 1",,,1)'}, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A2').value).toBe(true);
-			expect(sheet.cellAt('B4').value).toBe(2);
+			expect(sheet.cellAt('B4').value).toBe(22);
 			createCellAt('A1', 4, sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(3);
+			expect(sheet.cellAt('B4').value).toBe(16);
 			await machine.step();
 			await machine.step();
 			await machine.step();
-			expect(sheet.cellAt('B4').value.toFixed(1)).toBe('3.6');
+			expect(sheet.cellAt('B4').value).toBe(10);
 		});
 		test('count', async () => {
 			const machine = new Machine();
@@ -803,16 +803,16 @@ describe('table.update', () => {
 			createCellAt('A2', { formula: 'table.update(A3:E8, A1, 1594993370, "Turbine 1",,,2)'}, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A2').value).toBe(true);
-			expect(sheet.cellAt('B4').value).toBe(1);
+			expect(sheet.cellAt('B4').value).toBe(2);
 			createCellAt('A1', 1234, sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(2);
+			expect(sheet.cellAt('B4').value).toBe(3);
 			createCellAt('A1', 'hello', sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(2);
+			expect(sheet.cellAt('B4').value).toBe(3);
 			createCellAt('A1', 42, sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(3);
+			expect(sheet.cellAt('B4').value).toBe(4);
 		});
 		test('counta', async () => {
 			const machine = new Machine();
@@ -824,16 +824,16 @@ describe('table.update', () => {
 			createCellAt('A2', { formula: 'table.update(A3:E8, A1, 1594993370, "Turbine 1",,,3)'}, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A2').value).toBe(true);
-			expect(sheet.cellAt('B4').value).toBe(0);
+			expect(sheet.cellAt('B4').value).toBe(1);
 			createCellAt('A1', 1234, sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(1);
+			expect(sheet.cellAt('B4').value).toBe(2);
 			createCellAt('A1', 'hello', sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(1);
+			expect(sheet.cellAt('B4').value).toBe(2);
 			createCellAt('A1', 42, sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(2);
+			expect(sheet.cellAt('B4').value).toBe(3);
 		});
 		test('max', async () => {
 			const machine = new Machine();
@@ -845,7 +845,7 @@ describe('table.update', () => {
 			createCellAt('A2', { formula: 'table.update(A3:E8, A1, 1594993370, "Turbine 1",,,4)'}, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A2').value).toBe(true);
-			expect(sheet.cellAt('B4').value).toBe(2);
+			expect(sheet.cellAt('B4').value).toBe(41);
 			createCellAt('A1', 1234, sheet);
 			await machine.step();
 			expect(sheet.cellAt('B4').value).toBe(1234);
@@ -887,16 +887,16 @@ describe('table.update', () => {
 			createCellAt('A2', { formula: 'table.update(A3:E8, A1, 1594993370, "Turbine 1",,,6)'}, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A2').value).toBe(true);
-			expect(sheet.cellAt('B4').value).toBe(2);
+			expect(sheet.cellAt('B4').value).toBe(82);
 			createCellAt('A1', 3, sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(6);
+			expect(sheet.cellAt('B4').value).toBe(246);
 			createCellAt('A1', 'hello', sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(6);
+			expect(sheet.cellAt('B4').value).toBe(246);
 			createCellAt('A1', -2, sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(-12);
+			expect(sheet.cellAt('B4').value).toBe(-492);
 		});
 		test('stdev.s', async () => {
 			const machine = new Machine();
@@ -904,18 +904,18 @@ describe('table.update', () => {
 			machine.removeAllStreamSheets();
 			machine.addStreamSheet(sheet.streamsheet);
 			sheet.load({ cells: SHEET.TABLEUPDATE });
-			createCellAt('A1', 2, sheet);
+			createCellAt('A1', 41, sheet);
 			createCellAt('A2', { formula: 'table.update(A3:E8, A1, 1594993370, "Turbine 1",,,7)'}, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A2').value).toBe(true);
 			expect(sheet.cellAt('B4').value).toBe(0);
-			createCellAt('A1', 2, sheet);
+			createCellAt('A1',41, sheet);
 			await machine.step();
 			expect(sheet.cellAt('B4').value).toBe(0);
 			createCellAt('A1', 'hello', sheet);
 			await machine.step();
 			expect(sheet.cellAt('B4').value).toBe(0);
-			createCellAt('A1', 2, sheet);
+			createCellAt('A1', 41, sheet);
 			await machine.step();
 			expect(sheet.cellAt('B4').value).toBe(0);
 		});
@@ -940,18 +940,18 @@ describe('table.update', () => {
 			createCellAt('A2', { formula: 'table.update(A3:E8, A1, 1594993370, "Turbine 1",,,9)'}, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A2').value).toBe(true);
-			expect(sheet.cellAt('B4').value).toBe(2);
+			expect(sheet.cellAt('B4').value).toBe(43);
 			createCellAt('A1', 3, sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(5);
+			expect(sheet.cellAt('B4').value).toBe(46);
 			createCellAt('A1', 'hello', sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(5);
+			expect(sheet.cellAt('B4').value).toBe(46);
 			createCellAt('A1', -2, sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(3);
+			expect(sheet.cellAt('B4').value).toBe(44);
 		});
-		it('should reset aggregation if row or column index change', async () => {
+		it('should init aggregation with current cell value if row or column index change', async () => {
 			const machine = new Machine();
 			const sheet = new StreamSheet().sheet;
 			machine.removeAllStreamSheets();
@@ -964,34 +964,34 @@ describe('table.update', () => {
 			createCellAt('A2', { formula: 'table.update(A3:E8, C1, A1, B1,,,9)'}, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A2').value).toBe(true);
-			expect(sheet.cellAt('B4').value).toBe(11);
+			expect(sheet.cellAt('B4').value).toBe(52);
 			// change row index:
 			createCellAt('A1', 1594993360, sheet);
 			createCellAt('C1', 21, sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(11);
-			expect(sheet.cellAt('B5').value).toBe(21);
+			expect(sheet.cellAt('B4').value).toBe(52);
+			expect(sheet.cellAt('B5').value).toBe(72);
 			// change column index:
 			createCellAt('B1', 'Turbine 3', sheet);
 			createCellAt('C1', 23, sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(11);
-			expect(sheet.cellAt('B5').value).toBe(21);
-			expect(sheet.cellAt('D5').value).toBe(23);
+			expect(sheet.cellAt('B4').value).toBe(52);
+			expect(sheet.cellAt('B5').value).toBe(72);
+			expect(sheet.cellAt('D5').value).toBe(76);
 			// change row & column:
 			createCellAt('A1', 1594993340, sheet);
 			createCellAt('B1', 'Turbine 2', sheet);
 			createCellAt('C1', 42, sheet);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(11);
-			expect(sheet.cellAt('B5').value).toBe(21);
-			expect(sheet.cellAt('D5').value).toBe(23);
-			expect(sheet.cellAt('C7').value).toBe(42);
+			expect(sheet.cellAt('B4').value).toBe(52);
+			expect(sheet.cellAt('B5').value).toBe(72);
+			expect(sheet.cellAt('D5').value).toBe(76);
+			expect(sheet.cellAt('C7').value).toBe(114);
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(11);
-			expect(sheet.cellAt('B5').value).toBe(21);
-			expect(sheet.cellAt('D5').value).toBe(23);
-			expect(sheet.cellAt('C7').value).toBe(84);
+			expect(sheet.cellAt('B4').value).toBe(52);
+			expect(sheet.cellAt('B5').value).toBe(72);
+			expect(sheet.cellAt('D5').value).toBe(76);
+			expect(sheet.cellAt('C7').value).toBe(156);
 		});
 		it('should keep aggregation if specified cell moves due to insertion of row or column', async () => {
 			const machine = new Machine();
@@ -1002,19 +1002,19 @@ describe('table.update', () => {
 			createCellAt('A2', { formula: 'table.update(A3:E8, 12, 1594993370, "Turbine 1",,,9)'}, sheet);
 			await machine.step();
 			await machine.step();
-			expect(sheet.cellAt('B4').value).toBe(24);
+			expect(sheet.cellAt('B4').value).toBe(65);
 			// insert new row:
 			createCellAt('A1', { formula: 'table.update(A3:E8, "new row", 1594993380, "Turbine 1",-1)'}, sheet);
 			await machine.step();
 			await machine.step();
 			expect(sheet.cellAt('B4').value).toBe('new row');
-			expect(sheet.cellAt('B5').value).toBe(48);
+			expect(sheet.cellAt('B5').value).toBe(89);
 			// insert new column:
 			createCellAt('A1', { formula: 'table.update(A3:E8, "new column", 1594993370, "Turbine 13",,-1)'}, sheet);
 			await machine.step();
 			await machine.step();
 			expect(sheet.cellAt('B5').value).toBe('new column');
-			expect(sheet.cellAt('C5').value).toBe(72);
+			expect(sheet.cellAt('C5').value).toBe(113);
 			// insert new row and column:
 			createCellAt(
 				'A1',
@@ -1024,13 +1024,13 @@ describe('table.update', () => {
 			await machine.step();
 			await machine.step();
 			expect(sheet.cellAt('B4').value).toBe('new row & column');
-			expect(sheet.cellAt('D6').value).toBe(96);
+			expect(sheet.cellAt('D6').value).toBe(137);
 			// insert new row and column at end
 			createCellAt('A1', { formula: 'table.update(A3:E8, "end", 1594993320, "Turbine End",1,1)' }, sheet);
 			await machine.step();
 			await machine.step();
 			expect(sheet.cellAt('E8').value).toBe('end');
-			expect(sheet.cellAt('C5').value).toBe(120);
+			expect(sheet.cellAt('C5').value).toBe(161);
 		});
 		it('should aggregate values for each cell separately', async () => {
 			const machine = new Machine();
@@ -1043,25 +1043,25 @@ describe('table.update', () => {
 			createCellAt('A2', { formula: 'table.update(A3:E8, A1, B1, "Turbine 1",,,9)'}, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A2').value).toBe(true);
-			expect(sheet.cellAt('B4').value).toBe(2);
+			expect(sheet.cellAt('B4').value).toBe(43);
 			createCellAt('A1', 20, sheet);
 			createCellAt('B1', 1594993360, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A2').value).toBe(true);
-			expect(sheet.cellAt('B4').value).toBe(2);
-			expect(sheet.cellAt('B5').value).toBe(20);
+			expect(sheet.cellAt('B4').value).toBe(43);
+			expect(sheet.cellAt('B5').value).toBe(71);
 			createCellAt('A1', 40, sheet);
 			createCellAt('B1', 1594993370, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A2').value).toBe(true);
-			expect(sheet.cellAt('B4').value).toBe(42);
-			expect(sheet.cellAt('B5').value).toBe(20);
+			expect(sheet.cellAt('B4').value).toBe(83);
+			expect(sheet.cellAt('B5').value).toBe(71);
 			createCellAt('A1', 20, sheet);
 			createCellAt('B1', 1594993360, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A2').value).toBe(true);
-			expect(sheet.cellAt('B4').value).toBe(42);
-			expect(sheet.cellAt('B5').value).toBe(40);
+			expect(sheet.cellAt('B4').value).toBe(83);
+			expect(sheet.cellAt('B5').value).toBe(91);
 		})
 	});
 });
