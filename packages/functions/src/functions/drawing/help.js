@@ -286,6 +286,17 @@ module.exports = {
 					'Führt die angegebene Funktion auf dem Server aus, wenn bei einem Graphikobjekt ein Statuswert geändert wird.'
 			}
 		},
+		'OPEN.URL': {
+			en: {
+				argumentList: 'URL,NewTab',
+				description: 'Allows to open the given URL as a result of a mouse event.'
+			},
+			de: {
+				argumentList: 'URL,NeuerTab',
+				description:
+					'Ermöglicht das Öffnen einer URL als Reaktion auf ein Mausereignis.'
+			}
+		},
 		QRCODE: {
 			en: { argumentList: 'Text', description: 'Create a QRCode key' },
 			de: {
