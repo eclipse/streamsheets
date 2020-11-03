@@ -8,7 +8,7 @@ services:
       - 1883:1883
       - 8081:8081
     volumes:
-      - ./settings/mosquitto:/etc/mosquitto-default-credentials
+      - ../settings/mosquitto:/etc/mosquitto-default-credentials
     networks:
       - streamsheets
     environment:
@@ -21,7 +21,7 @@ services:
     image: andresvidal/rpi3-mongodb3
     container_name: streamsheets-internal-mongod
     volumes:
-      - ./data/mongo:/data/db
+      - ../data/mongo:/data/db
     networks:
       - streamsheets
     expose:
