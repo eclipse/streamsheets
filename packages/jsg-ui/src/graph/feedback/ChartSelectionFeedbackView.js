@@ -67,6 +67,9 @@ export default class ChartSelectionFeedbackView extends View {
 		});
 
 		const selection = this.chartView.chartSelection;
+		if (!selection) {
+			return;
+		}
 		const item = this.chartView.getItem();
 		const data = item.getDataFromSelection(selection);
 		const plotRect = item.plot.position;
