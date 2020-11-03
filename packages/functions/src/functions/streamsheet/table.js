@@ -234,6 +234,8 @@ const aggregateCellValue = (cell, value, aggregationType) => {
 		cell._aggregation = aggregation;
 		aggregation.type = aggregationType;
 		aggregation.method = aggregations.createMethod(aggregationType);
+		// init with current cell value:
+		aggregation.method(cell.value);
 	}
 	cell.term = Term.fromValue(aggregation.method(value));
 };
