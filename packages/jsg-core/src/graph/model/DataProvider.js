@@ -933,16 +933,16 @@ module.exports = class DataProvider {
 								}
 								if (absolute === false || targetSheet === rangeSheet ||
 									(data.cut && absolute && sourceSheet === rangeSheet)) {
-									if (range._x1R || absolute) {
+									if (range._x1R || absolute || (!absolute && data.cut)) {
 										range._x1 += xOff;
 									}
-									if (range._y1R || absolute) {
-										range._y1 += yOff;
+									if (range._y1R || absolute || (!absolute && data.cut)) {
+										range._y1 += yOff || data.cut;
 									}
-									if (range._x2R || absolute) {
+									if (range._x2R || absolute || (!absolute && data.cut)) {
 										range._x2 += xOff;
 									}
-									if (range._y2R || absolute) {
+									if (range._y2R || absolute || (!absolute && data.cut)) {
 										range._y2 += yOff;
 									}
 								}
