@@ -943,9 +943,6 @@ export class StreamChartProperties extends Component {
 				];
 			default:
 				return [
-					<MenuItem value="beforestart" key={1}>
-						<FormattedMessage id="StreamChartProperties.BeforeStart" defaultMessage="Before Start" />
-					</MenuItem>,
 					<MenuItem value="start" key={2}>
 						<FormattedMessage id="StreamChartProperties.Start" defaultMessage="At Start" />
 					</MenuItem>,
@@ -1167,15 +1164,11 @@ export class StreamChartProperties extends Component {
 	getPointSum(data) {
 		const selection = this.state.plotView.chartSelection;
 
-		if (
-			selection.element === 'point' &&
+		return !!(selection.element === 'point' &&
 			data.points[selection.pointIndex] &&
-			data.points[selection.pointIndex].pointSum
-		) {
-			return true;
-		}
+			data.points[selection.pointIndex].pointSum);
 
-		return false;
+
 	}
 
 	getLabel(series) {
