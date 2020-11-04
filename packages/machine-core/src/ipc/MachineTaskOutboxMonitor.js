@@ -27,11 +27,9 @@ class MachineTaskOutboxMonitor {
 		this.outbox = machine.outbox;
 		this.storage = new MessageStorage();
 		this.onClear = this.onClear.bind(this);
-		this.onMachineLoaded = this.onMachineLoaded.bind(this);
 		this.onMessagePut = this.onMessagePut.bind(this);
 		this.onMessagePop = this.onMessagePop.bind(this);
 		this.onMessageChanged = this.onMessageChanged.bind(this);
-		this.machine.on('loaded', this.onMachineLoaded);
 		// this.outbox.on('clear', this.onClear);
 		// this.outbox.on('message_put', this.onMessagePut);
 		// this.outbox.on('message_pop', this.onMessagePop);
@@ -41,7 +39,6 @@ class MachineTaskOutboxMonitor {
 	}
 
 	async dispose() {
-		this.machine.off('loaded', this.onMachineLoaded);
 		this.outbox.off('clear', this.onClear);
 		this.outbox.off('message_put', this.onMessagePut);
 		this.outbox.off('message_pop', this.onMessagePop);
@@ -49,18 +46,12 @@ class MachineTaskOutboxMonitor {
 		return this.storage.close();
 	}
 
-	onClear(/* messages */) {
-		const totalSize = this.outbox.size;
-		const messages = this.outbox.getFirstMessages();
-		const message = eventmsg(MachineEvents.MESSAGE_BOX_CLEAR, this.outbox, this.machine, { messages, totalSize });
-		this.storage.removeAll();
-		this.publishEvent(message);
-	}
-
-	async onMachineLoaded(machine) {
+	async setup() {
 		try {
-			await this.storage.open(machine.id);
+			await this.storage.open(this.machine.id);
 			const messages = await this.storage.getAll();
+			// ensure outbox contains only messages from storage
+			this.outbox.clear();
 			messages.forEach((message) => this.outbox.put(message));
 		} catch(err) {
 			console.log(`Failed to open outbox storage for machine ${this.machine.id}`);
@@ -72,6 +63,14 @@ class MachineTaskOutboxMonitor {
 			this.outbox.on('message_pop', this.onMessagePop);
 			this.outbox.on('message_changed', this.onMessageChanged);	
 		}
+	}
+
+	onClear(/* messages */) {
+		const totalSize = this.outbox.size;
+		const messages = this.outbox.getFirstMessages();
+		const message = eventmsg(MachineEvents.MESSAGE_BOX_CLEAR, this.outbox, this.machine, { messages, totalSize });
+		this.storage.removeAll();
+		this.publishEvent(message);
 	}
 
 	onMessagePut(message) {
