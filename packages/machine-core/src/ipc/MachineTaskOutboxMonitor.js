@@ -10,7 +10,7 @@
  ********************************************************************************/
 const MachineEvents = require('@cedalo/protocols').MachineServerMessagingProtocol.EVENTS;
 const { isNotRunning, isNotStepping, publishIf } = require('./utils');
-
+const MessageStorage = require('../storage/MessageStorage');
 
 const eventmsg = (type, outbox, machine, props) => ({
 	type,
@@ -25,19 +25,23 @@ class MachineTaskOutboxMonitor {
 	constructor(machine) {
 		this.machine = machine;
 		this.outbox = machine.outbox;
+		this.storage = new MessageStorage();
 		this.onClear = this.onClear.bind(this);
+		this.onMachineLoaded = this.onMachineLoaded.bind(this);
 		this.onMessagePut = this.onMessagePut.bind(this);
 		this.onMessagePop = this.onMessagePop.bind(this);
 		this.onMessageChanged = this.onMessageChanged.bind(this);
-		this.outbox.on('clear', this.onClear);
-		this.outbox.on('message_put', this.onMessagePut);
-		this.outbox.on('message_pop', this.onMessagePop);
-		this.outbox.on('message_changed', this.onMessageChanged);
+		this.machine.on('loaded', this.onMachineLoaded);
+		// this.outbox.on('clear', this.onClear);
+		// this.outbox.on('message_put', this.onMessagePut);
+		// this.outbox.on('message_pop', this.onMessagePop);
+		// this.outbox.on('message_changed', this.onMessageChanged);
 		// DL-2293 & DL-3300: we send outbox events only if machine is neither running nor stepping:
 		this.publishEvent = publishIf(isNotRunning(machine), isNotStepping(machine));
 	}
 
 	dispose() {
+		this.machine.off('loaded', this.onMachineLoaded);
 		this.outbox.off('clear', this.onClear);
 		this.outbox.off('message_put', this.onMessagePut);
 		this.outbox.off('message_pop', this.onMessagePop);
@@ -51,10 +55,28 @@ class MachineTaskOutboxMonitor {
 		this.publishEvent(message);
 	}
 
+	async onMachineLoaded(machine) {
+		try {
+			await this.storage.open(machine.id);
+			const messages = await this.storage.getAll();
+			messages.forEach((message) => this.outbox.put(message));
+		} catch(err) {
+			console.log(`Failed to open outbox storage for machine ${this.machine.id}`);
+			console.error(err);
+		} finally {
+			// register all outbox listeners
+			this.outbox.on('clear', this.onClear);
+			this.outbox.on('message_put', this.onMessagePut);
+			this.outbox.on('message_pop', this.onMessagePop);
+			this.outbox.on('message_changed', this.onMessageChanged);	
+		}
+	}
+
 	onMessagePut(message) {
 		const totalSize = this.outbox.size;
 		const messages = this.outbox.getFirstMessages();
 		const msg = eventmsg(MachineEvents.MESSAGE_PUT, this.outbox, this.machine, { message, messages, totalSize });
+		this.storage.add(message);
 		this.publishEvent(msg);
 	}
 
@@ -62,6 +84,7 @@ class MachineTaskOutboxMonitor {
 		const totalSize = this.outbox.size;
 		const messages = this.outbox.getFirstMessages();
 		const msg = eventmsg(MachineEvents.MESSAGE_POP, this.outbox, this.machine, { message, messages, totalSize });
+		this.storage.remove(message);
 		this.publishEvent(msg);
 	}
 
@@ -73,6 +96,7 @@ class MachineTaskOutboxMonitor {
 			messages,
 			totalSize
 		});
+		this.storage.update(message);
 		this.publishEvent(msg);
 	}
 }
