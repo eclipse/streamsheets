@@ -150,7 +150,6 @@ class Machine {
 		// => e.g. if a cell references another cell which was loaded later...
 		this._streamsheets.forEach((streamsheet) => streamsheet.sheet.iterate((cell) => cell.update()));
 
-		this._emitter.emit('loaded', this);
 		// apply loaded state:
 		if (def.state === State.RUNNING) {
 			this.start();
