@@ -40,18 +40,20 @@ class MachineTaskOutboxMonitor {
 		this.publishEvent = publishIf(isNotRunning(machine), isNotStepping(machine));
 	}
 
-	dispose() {
+	async dispose() {
 		this.machine.off('loaded', this.onMachineLoaded);
 		this.outbox.off('clear', this.onClear);
 		this.outbox.off('message_put', this.onMessagePut);
 		this.outbox.off('message_pop', this.onMessagePop);
 		this.outbox.off('message_changed', this.onMessageChanged);
+		return this.storage.close();
 	}
 
 	onClear(/* messages */) {
 		const totalSize = this.outbox.size;
 		const messages = this.outbox.getFirstMessages();
 		const message = eventmsg(MachineEvents.MESSAGE_BOX_CLEAR, this.outbox, this.machine, { messages, totalSize });
+		this.storage.removeAll();
 		this.publishEvent(message);
 	}
 

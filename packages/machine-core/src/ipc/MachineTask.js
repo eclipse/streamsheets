@@ -35,12 +35,17 @@ const monitor = new MachineTaskMonitor(machine, channel);
 const requestHandler = new MachineTaskRequestHandler(monitor, channel);
 MachineTaskMessagingClient.register(machine);
 
-const shutdown = () => {
-	monitor.dispose();
-	requestHandler.dispose();
-	Streams.dispose(machine);
-	MachineTaskMessagingClient.dispose();
-	channel.exit();
+const shutdown = async () => {
+	try {
+		await monitor.dispose();
+		requestHandler.dispose();
+		Streams.dispose(machine);
+		MachineTaskMessagingClient.dispose();
+	} catch (err) {
+		logger.error('Error while shutting down machine!', err);
+	} finally {
+		channel.exit();
+	}
 };
 
 const handleCommand = (message) => {
