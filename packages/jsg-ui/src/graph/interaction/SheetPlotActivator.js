@@ -29,7 +29,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 			return cont.getModel().isVisible();
 		});
 
-		return (controller.getModel() instanceof SheetPlotNode) ? controller : undefined;
+		return (controller && (controller.getModel() instanceof SheetPlotNode)) ? controller : undefined;
 	}
 
 	onKeyDown(event, viewer) {
