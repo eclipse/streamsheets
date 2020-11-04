@@ -109,6 +109,10 @@ class MachineTaskMonitor {
 		return this.outboxMonitor.dispose();
 	}
 
+	async setup() {
+		await this.outboxMonitor.setup();
+	}
+
 	update(props = {}) {
 		if (props.streamsheets) {
 			this.streamsheetMonitors.forEach((monitor) => monitor.update(props.streamsheets));

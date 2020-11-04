@@ -500,19 +500,16 @@ class Load extends ARequestHandler {
 	get isModifying() {
 		return false;
 	}
-	handle({ machineDefinition, functionDefinitions }) {
-		try {
-			this.machine.load(
-				machineDefinition,
-				functionDefinitions,
-				Array.from(currentStreams.values()).filter((stream) => stream.scope && stream.scope.id === machineDefinition.scope.id)
-			);
-			MachineTaskMessagingClient.register(this.machine);
-			machineLoaded = true;
-			return Promise.resolve(getDefinition(this.machine));
-		} catch (err) {
-			return Promise.reject(err);
-		}
+	async handle({ machineDefinition, functionDefinitions }) {
+		this.machine.load(
+			machineDefinition,
+			functionDefinitions,
+			Array.from(currentStreams.values()).filter((stream) => stream.scope && stream.scope.id === machineDefinition.scope.id)
+		);
+		await this.monitor.setup();
+		MachineTaskMessagingClient.register(this.machine);
+		machineLoaded = true;
+		return getDefinition(this.machine);
 	}
 }
 class LoadFunctions extends ARequestHandler {
