@@ -25,9 +25,11 @@ export default class SheetPlotActivator extends InteractionActivator {
 	}
 
 	_getControllerAt(location, viewer) {
-		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
-			return cont.getModel() instanceof SheetPlotNode && cont.getModel().isVisible();
+		const controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
+			return cont.getModel().isVisible();
 		});
+
+		return (controller.getModel() instanceof SheetPlotNode) ? controller : undefined;
 	}
 
 	onKeyDown(event, viewer) {
