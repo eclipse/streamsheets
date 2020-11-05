@@ -10,7 +10,7 @@ const getStorageLocation = async (storageId) => {
 };
 
 
-class MessageStorage {
+class MessageStore {
 
 	constructor() {
 		this.size = 0;
@@ -53,4 +53,4 @@ class MessageStorage {
 	}
 }
 
-module.exports = MessageStorage;
+module.exports = MessageStore;
