@@ -28,6 +28,7 @@ class PersistentOutbox extends Outbox {
 	}
 
 	async load(conf, machine) {
+		super.load(conf);
 		// ensure outbox contains only messages from storage
 		super.clear();
 		await this.store.open(machine.id);
