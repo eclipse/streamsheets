@@ -21,16 +21,11 @@ class PersistentOutbox extends Outbox {
 	}
 
 	async load(conf, machine) {
-		try {
-			await this.store.open(machine.id);
-			const messages = await this.store.getAll();
-			// ensure outbox contains only messages from storage
-			this.clear();
-			messages.forEach((message) => this.put(message));
-		} catch (err) {
-			console.log(`Failed to open outbox storage for machine ${this.machine.id}`);
-			console.error(err);
-		}
+		// ensure outbox contains only messages from storage
+		this.clear();
+		await this.store.open(machine.id);
+		const messages = await this.store.getAll();
+		messages.forEach((message) => this.put(message));
 	}
 
 	async dispose() {
