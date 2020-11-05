@@ -99,18 +99,14 @@ class MachineTaskMonitor {
 		this.machine.on('willStop', this.onMachineWillStop);
 	}
 
-	async dispose() {
+	dispose() {
 		this.machine.off('error', this.onMachineError);
 		this.machine.off('message', this.onMachineMessage);
 		this.machine.off('update', this.onMachineUpdate);
 		this.machine.off('willStop', this.onMachineWillStop);
+		this.outboxMonitor.dispose();
 		this.streamsheetMonitors.forEach((monitor) => monitor.dispose());
 		this.streamsheetMonitors.clear();
-		return this.outboxMonitor.dispose();
-	}
-
-	async setup() {
-		await this.outboxMonitor.setup();
 	}
 
 	update(props = {}) {
