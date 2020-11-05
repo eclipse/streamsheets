@@ -11,6 +11,13 @@
 const Outbox = require('./Outbox');
 const MessageStore = require('../storage/MessageStore');
 
+const isExpired = (message) => message.metadata.expire && message.metadata.expire < Date.now();
+const getExpireTTL = (message) => message.metadata.expire ? message.metadata.expire - Date.now() : -1;
+const setExpireTTL = (message, ttl) => {
+	if (ttl > 0) message.metadata.expire = Date.now() + ttl;
+	return message;
+};
+
 /**
  * @type {module.PersistentOutbox}
  */
@@ -22,10 +29,10 @@ class PersistentOutbox extends Outbox {
 
 	async load(conf, machine) {
 		// ensure outbox contains only messages from storage
-		this.clear();
+		super.clear();
 		await this.store.open(machine.id);
 		const messages = await this.store.getAll();
-		messages.forEach((message) => this.put(message));
+		messages.forEach((message) => (isExpired(message) ? this.store.remove(message) : this.put(message)));
 	}
 
 	async dispose() {
@@ -38,7 +45,8 @@ class PersistentOutbox extends Outbox {
 	}
 
 	put(message, force, ttl) {
-		const didIt = super.put(message, force, ttl);
+		if (ttl == null) ttl = getExpireTTL(message);
+		const didIt = super.put(setExpireTTL(message, ttl), force, ttl);
 		if (didIt) this.store.add(message);
 		return didIt;
 	}
@@ -51,7 +59,7 @@ class PersistentOutbox extends Outbox {
 	}
 
 	replaceMessage(newMessage, ttl) {
-		const replaced = super.replaceMessage(newMessage, ttl);
+		const replaced = super.replaceMessage(setExpireTTL(newMessage), ttl);
 		if (replaced) this.store.update(newMessage);
 		return replaced;
 	}

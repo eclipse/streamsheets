@@ -11,6 +11,7 @@
 const MachineEvents = require('@cedalo/protocols').MachineServerMessagingProtocol.EVENTS;
 const { isNotRunning, isNotStepping, publishIf } = require('./utils');
 
+
 const eventmsg = (type, outbox, machine, props) => ({
 	type,
 	src: 'outbox',
