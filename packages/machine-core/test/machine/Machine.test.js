@@ -18,6 +18,16 @@ const {
 
 const wait = ms => new Promise((resolve) => setTimeout(resolve, ms));
 
+const setupMachine = async () => {
+	const machine = new Machine();
+	const streamsheet = new StreamSheet();
+	await machine.load({ id: '123', name: 'test', state: State.RUNNING });
+	machine.removeAllStreamSheets();
+	streamsheet.load({ type: StreamSheetTrigger.TYPE.TIMER, interval: 3000 });
+	machine.addStreamSheet(streamsheet);
+	return { machine, streamsheet };
+};
+
 describe('Machine', () => {
 	it('should be possible to create a machine with config', async () => {
 		const machine = new Machine();
@@ -127,15 +137,10 @@ describe('Machine', () => {
 		expect(machine.stats.steps).toBeGreaterThanOrEqual(6);
 		await machine.stop();
 	});
-	describe('IO', async () => {
-		const machine = new Machine();
-		const streamsheet = new StreamSheet();
-		await machine.load({ id: '123', name: 'test', state: State.RUNNING });
-		machine.removeAllStreamSheets();
-		streamsheet.load({ type: StreamSheetTrigger.TYPE.TIMER, interval: 3000 });
-		machine.addStreamSheet(streamsheet);
+	describe('IO', () => {
 		describe('toJSON', () => {
-			it('should create a JSON object', () => {
+			it('should create a JSON object', async () => {
+				const { machine, streamsheet } = await setupMachine();
 				const jsonobj = machine.toJSON();
 				expect(jsonobj).toBeDefined();
 				expect(jsonobj.id).toBe('123');
@@ -143,14 +148,11 @@ describe('Machine', () => {
 				expect(jsonobj.state).toBe(State.RUNNING);
 				expect(jsonobj.streamsheets.length).toBe(1);
 				expect(jsonobj.streamsheets[0].id).toBe(streamsheet.id);
-				expect(jsonobj.streamsheets[0].trigger.type).toBe(
-					streamsheet.trigger.type
-				);
-				expect(jsonobj.streamsheets[0].trigger.interval).toBe(
-					streamsheet.trigger.interval
-				);
+				expect(jsonobj.streamsheets[0].trigger.type).toBe(streamsheet.trigger.type);
+				expect(jsonobj.streamsheets[0].trigger.interval).toBe(streamsheet.trigger.interval);
 			});
 			it('should create a Machine instance from given JSON', async () => {
+				const { machine, streamsheet } = await setupMachine();
 				const newMachine = new Machine();
 				await newMachine.load(machine.toJSON());
 				expect(newMachine).toBeDefined();
@@ -161,12 +163,8 @@ describe('Machine', () => {
 				const newStreamSheet = newMachine.getStreamSheet(streamsheet.id);
 				expect(newStreamSheet).toBeDefined();
 				expect(newStreamSheet.id).toBe(streamsheet.id);
-				expect(newStreamSheet.trigger.type).toBe(
-					streamsheet.trigger.type
-				);
-				expect(newStreamSheet.trigger.interval).toBe(
-					streamsheet.trigger.interval
-				);
+				expect(newStreamSheet.trigger.type).toBe(streamsheet.trigger.type);
+				expect(newStreamSheet.trigger.interval).toBe(streamsheet.trigger.interval);
 			});
 			// DL-1076:
 			it('should save & load sheet named cells to & from machine JSON', async () => {
@@ -183,17 +181,13 @@ describe('Machine', () => {
 				const jsonobj = aMachine.toJSON();
 				// check for named cell:
 				expect(jsonobj.streamsheets[0].sheet.namedCells).toBeDefined();
-				expect(
-					jsonobj.streamsheets[0].sheet.namedCells.Name1
-				).toBeDefined();
+				expect(jsonobj.streamsheets[0].sheet.namedCells.Name1).toBeDefined();
 				// store it to string, since this is done by machine communication as well
 				const jsonstr = JSON.stringify(jsonobj);
 				expect(jsonstr).toBeDefined();
 				const copyjson = JSON.parse(jsonstr);
 				expect(copyjson.streamsheets[0].sheet.namedCells).toBeDefined();
-				expect(
-					copyjson.streamsheets[0].sheet.namedCells.Name1
-				).toBeDefined();
+				expect(copyjson.streamsheets[0].sheet.namedCells.Name1).toBeDefined();
 				// new machine to load json:
 				const newMachine = new Machine();
 				await newMachine.load(copyjson);
