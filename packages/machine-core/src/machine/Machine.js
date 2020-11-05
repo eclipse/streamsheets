@@ -14,6 +14,7 @@ const IdGenerator = require('@cedalo/id-generator');
 const logger = require('../logger').create({ name: 'Machine' });
 const State = require('../State');
 const NamedCells = require('./NamedCells');
+const Outbox = require('./Outbox');
 const PersistentOutbox = require('./PersistentOutbox');
 const StreamSheet = require('./StreamSheet');
 const locale = require('../locale');
@@ -49,6 +50,9 @@ const DEF_CONF = {
 		locale: 'en',
 		isOPCUA: false,
 		cycletime: 100
+	},
+	outbox: {
+		persistent: false
 	}
 };
 
@@ -76,7 +80,7 @@ class Machine {
 		// read only properties...
 		Object.defineProperties(this, {
 			stats: { value: { steps: 0 } },
-			outbox: { value: new PersistentOutbox(), enumerable: true },
+			outbox: { value: DEF_CONF.outbox.persistent ? new PersistentOutbox() : new Outbox(), enumerable: true },
 			_emitter: { value: new EventEmitter() },
 			cyclemonitor: {
 				value: {
