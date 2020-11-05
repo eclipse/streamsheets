@@ -14,7 +14,7 @@ const IdGenerator = require('@cedalo/id-generator');
 const logger = require('../logger').create({ name: 'Machine' });
 const State = require('../State');
 const NamedCells = require('./NamedCells');
-const Outbox = require('./Outbox');
+const PersistentOutbox = require('./PersistentOutbox');
 const StreamSheet = require('./StreamSheet');
 const locale = require('../locale');
 const Streams = require('../streams/Streams');
@@ -76,7 +76,7 @@ class Machine {
 		// read only properties...
 		Object.defineProperties(this, {
 			stats: { value: { steps: 0 } },
-			outbox: { value: new Outbox(), enumerable: true },
+			outbox: { value: new PersistentOutbox(), enumerable: true },
 			_emitter: { value: new EventEmitter() },
 			cyclemonitor: {
 				value: {
@@ -113,7 +113,7 @@ class Machine {
 		};
 	}
 
-	load(definition = {}, functionDefinitions = [], currentStreams = []) {
+	async load(definition = {}, functionDefinitions = [], currentStreams = []) {
 		FunctionRegistry.registerFunctionDefinitions(functionDefinitions);
 		const def = Object.assign({}, DEF_CONF, definition);
 		const streamsheets = def.streamsheets || [{}];
@@ -149,6 +149,8 @@ class Machine {
 		// update value of cells to which are not currently valid without changing valid values
 		// => e.g. if a cell references another cell which was loaded later...
 		this._streamsheets.forEach((streamsheet) => streamsheet.sheet.iterate((cell) => cell.update()));
+
+		await this.outbox.load(undefined, this);
 
 		// apply loaded state:
 		if (def.state === State.RUNNING) {
@@ -387,10 +389,11 @@ class Machine {
 		this._emitter.removeListener(event, callback);
 	}
 
-	dispose() {
+	async dispose() {
 		this.stop();
 		this.streamsheets.forEach((streamsheet) => streamsheet.dispose());
 		this._emitter.removeAllListeners('update');
+		return this.outbox.dispose();
 	}
 
 	async start() {
