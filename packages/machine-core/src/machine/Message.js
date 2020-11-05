@@ -8,13 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { clone, jsonpath } = require('@cedalo/commons');
+const { clone, jsonpath, serialnumber } = require('@cedalo/commons');
 const IdGenerator = require('@cedalo/id-generator');
-const { Functions } = require('@cedalo/parser');
 const { isType } = require('../utils');
 
 const clear = (obj) => Object.keys(obj).forEach((key) => delete obj[key]);
-const now = () => (Functions.NOW ? Functions.NOW() : Date.now());
 // handle if data is not an object or array
 const ensureDataObject = (data) => (typeof data === 'object' || Array.isArray(data) ? data : { value: data });
 const cloneData = (data) => clone(data) || data;
@@ -33,7 +31,7 @@ module.exports = class Message {
 			metadata: { value: {}, enumerable: true }
 		});
 		this.metadata.id = id || IdGenerator.generate();
-		this.metadata.arrivalTime = now();
+		this.metadata.arrivalTime = serialnumber.nowUTC();
 	}
 
 	toJSON() {

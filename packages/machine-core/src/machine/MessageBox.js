@@ -8,13 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const logger = require('../logger').create({ name: 'MessageBox' });
 const EventEmitter = require('events');
 const IdGenerator = require('@cedalo/id-generator');
-const { Functions } = require('@cedalo/parser');
+const { serialnumber } = require('@cedalo/commons');
 const { firstElements, lastElements } = require('../utils/array');
+const logger = require('../logger').create({ name: 'MessageBox' });
 
-const now = () => (Functions.NOW ? Functions.NOW() : Date.now());
 
 const messageById = (id, messages) => {
 	let message;
@@ -123,21 +122,9 @@ class MessageBox {
 		}
 	}
 
-	_addTimestamp(message) {
-		// DL-674: change message arrivalTime when put into inbox/outbox.
-		// FIXME
-		if (message.metadata) {
-			message.metadata.arrivalTime = now();
-		}
-		if (message.Metadata) {
-			message.Metadata.arrivalTime = now();
-		}
-		// message.metadata.arrivalTime = now();
-	}
-
 	put(message, force = false) {
 		const doIt = force || this.max < 0 || this.messages.length < this.max;
-		this._addTimestamp(message);
+		if (!message.metadata.arrivalTime) message.metadata.arrivalTime = serialnumber.nowUTC();
 		if (doIt) {
 			if (this._reverse) this.messages.unshift(message);
 			else this.messages.push(message);
@@ -178,7 +165,7 @@ class MessageBox {
 		const replaced = this.messages.some((msg, index) => {
 			const foundIt = msg.id === msgId;
 			if (foundIt) {
-				this._addTimestamp(newMessage);
+				newMessage.metadata.arrivalTime = serialnumber.nowUTC();
 				this.messages[index] = newMessage;
 			}
 			return foundIt;
