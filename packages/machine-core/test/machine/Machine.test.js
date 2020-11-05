@@ -19,9 +19,9 @@ const {
 const wait = ms => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('Machine', () => {
-	it('should be possible to create a machine with config', () => {
+	it('should be possible to create a machine with config', async () => {
 		const machine = new Machine();
-		machine.load({ id: '123', name: 'test', state: State.RUNNING });
+		await machine.load({ id: '123', name: 'test', state: State.RUNNING });
 		expect(machine.id).toBe('123');
 		expect(machine.name).toBe('test');
 		expect(machine.state).toBe(State.RUNNING);
@@ -55,10 +55,10 @@ describe('Machine', () => {
 					.then(() => expect(machine.state).toBe(State.PAUSED))
 			);
 	});
-	it('should send events on settings change', () => {
+	it('should send events on settings change', async () => {
 		const machine = new Machine();
 		const counts = { name: 0, state: 0 };
-		machine.load({ name: 'test' });
+		await machine.load({ name: 'test' });
 		machine.on('update', (...args) => {
 			counts[args[0]] += 1;
 		});
@@ -127,10 +127,10 @@ describe('Machine', () => {
 		expect(machine.stats.steps).toBeGreaterThanOrEqual(6);
 		await machine.stop();
 	});
-	describe('IO', () => {
+	describe('IO', async () => {
 		const machine = new Machine();
 		const streamsheet = new StreamSheet();
-		machine.load({ id: '123', name: 'test', state: State.RUNNING });
+		await machine.load({ id: '123', name: 'test', state: State.RUNNING });
 		machine.removeAllStreamSheets();
 		streamsheet.load({ type: StreamSheetTrigger.TYPE.TIMER, interval: 3000 });
 		machine.addStreamSheet(streamsheet);
@@ -150,9 +150,9 @@ describe('Machine', () => {
 					streamsheet.trigger.interval
 				);
 			});
-			it('should create a Machine instance from given JSON', () => {
+			it('should create a Machine instance from given JSON', async () => {
 				const newMachine = new Machine();
-				newMachine.load(machine.toJSON());
+				await newMachine.load(machine.toJSON());
 				expect(newMachine).toBeDefined();
 				expect(newMachine.id).toBe('123');
 				expect(newMachine.name).toBe('test');
@@ -169,7 +169,7 @@ describe('Machine', () => {
 				);
 			});
 			// DL-1076:
-			it('should save & load sheet named cells to & from machine JSON', () => {
+			it('should save & load sheet named cells to & from machine JSON', async () => {
 				const aMachine = new Machine();
 				const t1 = new StreamSheet();
 				const sheet = t1.sheet;
@@ -196,7 +196,7 @@ describe('Machine', () => {
 				).toBeDefined();
 				// new machine to load json:
 				const newMachine = new Machine();
-				newMachine.load(copyjson);
+				await newMachine.load(copyjson);
 				// check for named cell:
 				const newT1 = newMachine.getStreamSheet(t1.id);
 				expect(newT1).toBeDefined();
