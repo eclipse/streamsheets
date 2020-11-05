@@ -37,10 +37,11 @@ MachineTaskMessagingClient.register(machine);
 
 const shutdown = async () => {
 	try {
-		await monitor.dispose();
+		monitor.dispose();
 		requestHandler.dispose();
 		Streams.dispose(machine);
 		MachineTaskMessagingClient.dispose();
+		await machine.dispose();
 	} catch (err) {
 		logger.error('Error while shutting down machine!', err);
 	} finally {
