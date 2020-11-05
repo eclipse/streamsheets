@@ -501,12 +501,11 @@ class Load extends ARequestHandler {
 		return false;
 	}
 	async handle({ machineDefinition, functionDefinitions }) {
-		this.machine.load(
+		await this.machine.load(
 			machineDefinition,
 			functionDefinitions,
 			Array.from(currentStreams.values()).filter((stream) => stream.scope && stream.scope.id === machineDefinition.scope.id)
 		);
-		await this.monitor.setup();
 		MachineTaskMessagingClient.register(this.machine);
 		machineLoaded = true;
 		return getDefinition(this.machine);
