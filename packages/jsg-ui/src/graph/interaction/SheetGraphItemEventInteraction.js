@@ -13,11 +13,13 @@ import {
 	Notification,
 	NotificationCenter,
 	ExecuteFunctionCommand,
-	StreamSheet
+	StreamSheet,
+	SheetReference,
 } from '@cedalo/jsg-core';
 
 import Interaction from './Interaction';
 import SelectionProvider from '../view/SelectionProvider';
+import StreamSheetView from '../view/StreamSheetView';
 
 export default class SheetGraphItemEventInteraction extends Interaction {
 	constructor() {
@@ -81,7 +83,33 @@ export default class SheetGraphItemEventInteraction extends Interaction {
 				if (sheetEvent.event === name) {
 					const sheet = this.getSheet();
 					if (sheet) {
-						if (sheetEvent.func.indexOf('SHOWDIALOG') !== -1) {
+						if (sheetEvent.func.indexOf('SHOWVALUES') !== -1) {
+							try {
+								const term = JSG.FormulaParser.parse(sheetEvent.func, sheet.getGraph(), sheet);
+								const view = this.getView();
+								if (view && term && term.params.length > 1) {
+									const { operand } = term.params[0];
+									if (operand instanceof SheetReference && operand._range) {
+										const range = operand._range.copy();
+										range.shiftFromSheet();
+										const cell = range._worksheet.getDataProvider().getRC(range._x1, range._y1);
+										if (cell && cell.values) {
+											const operandTarget = term.params[1].operand;
+											if (operandTarget instanceof SheetReference && operandTarget._range) {
+												const rangeTarget = operandTarget._range.copy();
+												rangeTarget.shiftFromSheet();
+												view.handleDataView(range._worksheet, {x: range._x1, y: range._y1}, {x: rangeTarget._x1, y: rangeTarget._y1}, viewer);
+											}
+										}
+									}
+								}
+								// eslint-disable-next-line no-empty
+							} catch (e) {
+
+							}
+							event.isConsumed = true;
+							event.hasActivated = true;
+						} else if (sheetEvent.func.indexOf('SHOWDIALOG') !== -1) {
 							const funcsparams = sheetEvent.funcsparams || {};
 							const showParams = funcsparams.SHOWDIALOG;
 							if (showParams) {
@@ -163,6 +191,15 @@ export default class SheetGraphItemEventInteraction extends Interaction {
 	getSheet() {
 		let sheet = this._controller.getModel().getParent();
 		while (sheet && !(sheet instanceof StreamSheet)) {
+			sheet = sheet.getParent();
+		}
+
+		return sheet;
+	}
+
+	getView() {
+		let sheet = this._controller.getView().getParent();
+		while (sheet && !(sheet instanceof StreamSheetView)) {
 			sheet = sheet.getParent();
 		}
 

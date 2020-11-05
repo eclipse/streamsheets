@@ -401,6 +401,15 @@ export default class GraphManager {
 		}
 
 		this.updateStats(streamsheetId, stats);
+		this.updateDataView();
+	}
+
+	updateDataView() {
+		const graph = this.getGraph();
+		if (graph && graph.dataView) {
+			const data = graph.dataView;
+			data.view.showCellValues(data.viewer, data.cell, data.cellPos, data.cellRect);
+		}
 	}
 
 	handleCommandResponse(response) {
