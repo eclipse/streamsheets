@@ -1,6 +1,17 @@
+/********************************************************************************
+ * Copyright (c) 2020 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 const fs = require('fs-extra');
 const Message = require('../machine/Message');
 const RocksDbClient = require('./RocksDbClient');
+const logger = require('../logger').create({ name: 'MessageStore' });
 
 const getStorageLocation = async (storageId) => {
 	const basedir = process.env.OUTBOX_STORAGE_DIR || '/tmp/streamsheets/outbox';
@@ -9,47 +20,83 @@ const getStorageLocation = async (storageId) => {
 	return location;
 };
 
+const messageFromJSON = (json) => (json ? Message.fromJSON(json) : undefined);
+const returnTrue = () => true;
+const logError = (msg, returnValue = false) => (error) => {
+	logger.error(msg, error);
+	return returnValue;
+};
+const changeSize = (value, store) => () => {
+	if (value) store._size += value;
+	else store._size = 0;
+	return true;
+};
 
 class MessageStore {
-
 	constructor() {
-		this.size = 0;
+		this._size = 0;
 		this.rocksdb = new RocksDbClient();
+		this.incSize = changeSize(1, this);
+		this.decSize = changeSize(-1, this);
+		this.clearSize = changeSize(0, this);
+	}
+
+	get size() {
+		return this._size;
 	}
 
 	async open(storageId) {
-		const location = await getStorageLocation(storageId);
-		// we store complete messages, so set valueEncoding to json
-		return this.rocksdb.open(location, { valueEncoding: 'json' });
+		let isOpen = false;
+		try {
+			const location = await getStorageLocation(storageId);
+			// we store complete messages, so set valueEncoding to json
+			isOpen = (await this.rocksdb.open(location, { valueEncoding: 'json' })).isConnected;
+		} catch (err) {
+			logger.error('Failed to open message store!', err);
+		}
+		return isOpen;
 	}
 	async close() {
-		return this.rocksdb.close();
+		return this.rocksdb.close().then(returnTrue).catch(logError('Failed to close message store!'));
 	}
 
 	async get(messageId) {
-		const json = await this.rocksdb.get(messageId);
-		return Message.fromJSON(json);
+		return this.rocksdb
+			.get(messageId)
+			.then(messageFromJSON)
+			.catch(logError('Failed to get message from message store!', undefined));
 	}
 	async getAll() {
-		const jsons = await this.rocksdb.getAll();
-		return jsons.map((json) => Message.fromJSON(json));
-
+		return this.rocksdb
+			.getAll()
+			.then((jsons) => jsons.map(messageFromJSON))
+			.catch(logError('Failed to get all messages from message store!', []));
 	}
+
 	async remove(message) {
-		await this.rocksdb.del(message.id);
-		this.size -= 1;
+		return this.rocksdb
+			.del(message.id)
+			.then(this.decSize)
+			.catch(logError('Failed to remove message from message store!'));
 	}
 	async removeAll() {
-		await this.rocksdb.delAll();
-		this.size = 0;
+		return this.rocksdb
+			.delAll()
+			.then(this.clearSize)
+			.catch(logError('Failed to remove all messages from message store!'));
 	}
 
 	async add(message) {
-		await this.rocksdb.put(message.id, message.toJSON());
-		this.size += 1;
+		return this.rocksdb
+			.put(message.id, message.toJSON())
+			.then(this.incSize)
+			.catch(logError('Failed to add message to message store!'));
 	}
 	async update(message) {
-		return this.rocksdb.put(message.id, message.toJSON());
+		return this.rocksdb
+			.put(message.id, message.toJSON())
+			.then(returnTrue)
+			.catch(logError('Failed to update message in message store!'));
 	}
 }
 
