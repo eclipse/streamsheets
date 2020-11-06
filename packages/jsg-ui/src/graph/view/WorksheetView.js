@@ -1899,7 +1899,7 @@ export default class WorksheetView extends ContentNodeView {
 		div.style.top = `${pos.y}px`;
 		div.style.minWidth = `${cs.logToDeviceY(cellRect.width, false)}px`;
 		div.style.minHeight = `${cs.logToDeviceY(cellRect.height, false)}px`;
-		div.style.backgroundColor = JSG.theme.filllight;
+		div.style.backgroundColor = JSG.theme.fill;
 		div.style.borderColor = JSG.theme.border;
 		div.style.borderWidth = '1px';
 		div.style.borderStyle = 'solid';
@@ -1910,14 +1910,14 @@ export default class WorksheetView extends ContentNodeView {
 		const rowCount = fields.length && fields[0].length !== undefined && fields[0][1].length !== undefined ? fields[0][1].length : 0;
 
 
-		let html = `<p style="color: white; padding-left: 5px; font-size: 10pt">Result (${rowCount}):</p>`;
+		let html = `<p style="color: ${JSG.theme.text}; padding-left: 5px; font-size: 10pt">Result (${rowCount}):</p>`;
 		html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
-		html +=	'<div style="overflow-y: auto; max-height: 300px"><table style="padding: 5px; color: white"><tr>';
+		html +=	`<div style="overflow-y: auto; max-height: 300px"><table style="padding: 5px; color: ${JSG.theme.text}"><thead><tr>`;
 
 		fields.forEach(([key, entry]) => {
 			html += `<th style="padding: 5px;" >${key}</th>`;
 		});
-		html += '</tr>';
+		html += '</tr></thead>';
 
 		if (rowCount) {
 			fields[0][1].forEach((value, index) => {
@@ -1929,7 +1929,7 @@ export default class WorksheetView extends ContentNodeView {
 						val = `${date.toLocaleTimeString()} ${date.getMilliseconds()}`;
 
 					}
-					html += `<td style="padding: 5px;">${val === null || val === undefined ? '' : val}</td>`;
+					html += `<td style="padding: 5px;text-align: ${Numbers.isNumber(val) ? 'right' : 'left'}">${val === null || val === undefined ? '' : val}</td>`;
 				});
 				html += '</tr>';
 			});
