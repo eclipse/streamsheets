@@ -22,6 +22,8 @@ const setExpireTTL = (message, ttl) => {
  * @type {module.PersistentOutbox}
  */
 class PersistentOutbox extends Outbox {
+
+	// private - call Outbox.create()
 	constructor(cfg = {}) {
 		super(cfg);
 		this.store = new MessageStore();

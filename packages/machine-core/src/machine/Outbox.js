@@ -10,6 +10,8 @@
  ********************************************************************************/
 const { clone } = require('@cedalo/commons');
 const Message = require('./Message');
+const MessageStore = require('../storage/MessageStore');
+// const PersistentOutbox = require('./PersistentOutbox');
 const TTLMessageBox = require('./TTLMessageBox');
 
 const cloneData = (data) => clone(data) || data;
@@ -33,6 +35,13 @@ const DEF_CONF = {
  * @type {module.Outbox}
  */
 class Outbox extends TTLMessageBox {
+
+	static create() {
+		// eslint-disable-next-line no-use-before-define
+		return process.env.OUTBOX_PERSISTENT ? new PersistentOutbox() : new Outbox();
+	}
+
+	// private - call Outbox.create()
 	constructor(cfg = {}) {
 		cfg = Object.assign({}, DEF_CONF, cfg);
 		super(cfg);
@@ -67,4 +76,63 @@ class Outbox extends TTLMessageBox {
 		this.replaceMessage(newmsg, ttl);
 	}
 }
+
+
+const isExpired = (message) => message.metadata.expire && message.metadata.expire < Date.now();
+const getExpireTTL = (message) => message.metadata.expire ? message.metadata.expire - Date.now() : -1;
+const setExpireTTL = (message, ttl) => {
+	if (ttl > 0) message.metadata.expire = Date.now() + ttl;
+	return message;
+};
+
+/**
+ * @type {module.PersistentOutbox}
+ */
+class PersistentOutbox extends Outbox {
+
+	// private - call Outbox.create()
+	constructor(cfg = {}) {
+		super(cfg);
+		this.store = new MessageStore();
+	}
+
+	async load(conf, machine) {
+		super.load(conf);
+		// ensure outbox contains only messages from storage
+		super.clear();
+		await this.store.open(machine.id);
+		const messages = await this.store.getAll();
+		messages.forEach((message) => (isExpired(message) ? this.store.remove(message) : this.put(message)));
+	}
+
+	async dispose() {
+		return this.store.close();
+	}
+
+	clear() {
+		super.clear();
+		this.store.removeAll();
+	}
+
+	put(message, force, ttl) {
+		if (ttl == null) ttl = getExpireTTL(message);
+		const didIt = super.put(setExpireTTL(message, ttl), force, ttl);
+		if (didIt) this.store.add(message);
+		return didIt;
+	}
+
+	// id is optional. if specified message with this id is popped from box, otherwise first message
+	pop(id) {
+		const poppedMsg = super.pop(id);
+		if (poppedMsg) this.store.remove(poppedMsg);
+		return poppedMsg;
+	}
+
+	replaceMessage(newMessage, ttl) {
+		const replaced = super.replaceMessage(setExpireTTL(newMessage), ttl);
+		if (replaced) this.store.update(newMessage);
+		return replaced;
+	}
+}
+
 module.exports = Outbox;
