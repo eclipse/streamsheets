@@ -9,9 +9,9 @@
  *
  ********************************************************************************/
 const { clone } = require('@cedalo/commons');
+const IdGenerator = require('@cedalo/id-generator');
 const Message = require('./Message');
 const MessageStore = require('../storage/MessageStore');
-// const PersistentOutbox = require('./PersistentOutbox');
 const TTLMessageBox = require('./TTLMessageBox');
 
 const cloneData = (data) => clone(data) || data;
@@ -35,10 +35,10 @@ const DEF_CONF = {
  * @type {module.Outbox}
  */
 class Outbox extends TTLMessageBox {
-
 	static create() {
+		const { OUTBOX_PERSISTENT } = process.env;
 		// eslint-disable-next-line no-use-before-define
-		return process.env.OUTBOX_PERSISTENT === 'true' ? new PersistentOutbox() : new Outbox();
+		return OUTBOX_PERSISTENT === 'true' || OUTBOX_PERSISTENT == null ? new PersistentOutbox() : new Outbox();
 	}
 
 	// private - call Outbox.create()
@@ -85,14 +85,13 @@ const setExpireTTL = (message, ttl) => {
 	return message;
 };
 
-/**
- * @type {module.PersistentOutbox}
- */
+
 class PersistentOutbox extends Outbox {
 
 	// private - call Outbox.create()
 	constructor(cfg = {}) {
 		super(cfg);
+		this.storeId = IdGenerator.generate();
 		this.store = new MessageStore();
 	}
 
@@ -100,13 +99,14 @@ class PersistentOutbox extends Outbox {
 		super.load(conf);
 		// ensure outbox contains only messages from storage
 		super.clear();
-		await this.store.open(machine.id);
+		this.storeId = machine.id || this.storeId;
+		await this.store.open(this.storeId);
 		const messages = await this.store.getAll();
 		messages.forEach((message) => (isExpired(message) ? this.store.remove(message) : this.put(message)));
 	}
 
-	async dispose() {
-		return this.store.close();
+	async dispose(deleted) {
+		return this.store.close(this.storeId, deleted);
 	}
 
 	clear() {
@@ -121,7 +121,6 @@ class PersistentOutbox extends Outbox {
 		return didIt;
 	}
 
-	// id is optional. if specified message with this id is popped from box, otherwise first message
 	pop(id) {
 		const poppedMsg = super.pop(id);
 		if (poppedMsg) this.store.remove(poppedMsg);

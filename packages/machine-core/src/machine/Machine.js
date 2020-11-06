@@ -389,11 +389,11 @@ class Machine {
 		this._emitter.removeListener(event, callback);
 	}
 
-	async dispose() {
+	async dispose(deleted) {
 		this.stop();
 		this.streamsheets.forEach((streamsheet) => streamsheet.dispose());
 		this._emitter.removeAllListeners('update');
-		return this.outbox.dispose();
+		return this.outbox.dispose(deleted);
 	}
 
 	async start() {

@@ -13,9 +13,9 @@ const Message = require('../machine/Message');
 const RocksDbClient = require('./RocksDbClient');
 const logger = require('../logger').create({ name: 'MessageStore' });
 
-const getStorageLocation = async (storageId) => {
+const getStoreLocation = async (storeId) => {
 	const basedir = process.env.OUTBOX_STORAGE_DIR || '/tmp/streamsheets/outbox';
-	const location = `${basedir}/${storageId}`;
+	const location = `${basedir}/${storeId}`;
 	await fs.mkdirs(location);
 	return location;
 };
@@ -45,10 +45,10 @@ class MessageStore {
 		return this._size;
 	}
 
-	async open(storageId) {
+	async open(storeId) {
 		let isOpen = false;
 		try {
-			const location = await getStorageLocation(storageId);
+			const location = await getStoreLocation(storeId);
 			// we store complete messages, so set valueEncoding to json
 			isOpen = (await this.rocksdb.open(location, { valueEncoding: 'json' })).isConnected;
 		} catch (err) {
@@ -56,8 +56,13 @@ class MessageStore {
 		}
 		return isOpen;
 	}
-	async close() {
-		return this.rocksdb.close().then(returnTrue).catch(logError('Failed to close message store!'));
+	async close(storeId, deleted) {
+		let res = await this.rocksdb.close().then(returnTrue).catch(logError('Failed to close message store!'));
+		if (deleted) {
+			const location = await getStoreLocation(storeId);
+			res = await fs.remove(location).then(returnTrue).catch(logError('Failed to delete store location!'));
+		}
+		return res;
 	}
 
 	async get(messageId) {

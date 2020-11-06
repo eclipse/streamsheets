@@ -35,13 +35,13 @@ const monitor = new MachineTaskMonitor(machine, channel);
 const requestHandler = new MachineTaskRequestHandler(monitor, channel);
 MachineTaskMessagingClient.register(machine);
 
-const shutdown = async () => {
+const shutdown = async (deleted) => {
 	try {
 		monitor.dispose();
 		requestHandler.dispose();
 		Streams.dispose(machine);
 		MachineTaskMessagingClient.dispose();
-		await machine.dispose();
+		await machine.dispose(deleted);
 	} catch (err) {
 		logger.error('Error while shutting down machine!', err);
 	} finally {
@@ -53,7 +53,7 @@ const handleCommand = (message) => {
 	switch (message.cmd) {
 	case 'shutdown':
 		logger.info(`shutdown machine: ${machine.id}...`);
-		shutdown();
+		shutdown(message.deleted);
 		break;
 	default:
 		logger.error(`Unknown command: ${message.cmd}`);
