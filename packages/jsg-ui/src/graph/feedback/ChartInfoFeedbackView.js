@@ -30,7 +30,10 @@ export default class ChartInfoFeedbackView extends View {
 		GraphUtils.traverseUp(this.chartView, this._graphView, (v) => {
 			v.translateToParent(point);
 			if (v.getItem) {
-				angle += v.getItem().getAngle().getValue();
+				angle += v
+					.getItem()
+					.getAngle()
+					.getValue();
 			}
 			return true;
 		});
@@ -42,7 +45,7 @@ export default class ChartInfoFeedbackView extends View {
 
 		graphics.rotate(-angle);
 		graphics.translate(-point.x, -point.y);
-	};
+	}
 
 	draw2(graphics) {
 		const item = this.chartView.getItem();
@@ -126,19 +129,21 @@ export default class ChartInfoFeedbackView extends View {
 						} else if (axis.type !== 'category' && ref && ref.time && ref.time.xvalue) {
 							label = ref.xName;
 							axis = value.axes.x;
-							label += `: ${item.formatNumber(value.x,
-								axis.format && axis.format.numberFormat ? axis.format : axis.scale.format)}`;
+							label += `: ${item.formatNumber(
+								value.x,
+								axis.format && axis.format.numberFormat ? axis.format : axis.scale.format
+							)}`;
 						} else {
 							axis = value.axes.x;
-							label = item.formatNumber(value.x,
-								axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+							label = item.formatNumber(
+								value.x,
+								axis.format && axis.format.numberFormat ? axis.format : axis.scale.format
+							);
 						}
+					} else if (serie.tooltip === 'text') {
+						label = value.pureY;
 					} else {
-						if (serie.tooltip === 'text') {
-							label = value.pureY;
-						} else {
-							label = item.formatNumber(value.y, 'General');
-						}
+						label = item.formatNumber(value.y, 'General');
 					}
 					if (ref && ref.yName !== undefined && !xValue) {
 						label = `${ref.yName}: ${label}`;
@@ -172,29 +177,49 @@ export default class ChartInfoFeedbackView extends View {
 				let index = 0;
 				let pieAngle = 0;
 				while (item.getValue(ref, index, value) && index <= this.selection.dataPoints[0].pointIndex) {
-					pieAngle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
+					pieAngle = (Math.abs(value.y) / pieInfo.sum) * (pieInfo.endAngle - pieInfo.startAngle);
 					currentAngle += pieAngle;
 					index += 1;
 				}
 				switch (serie.type) {
-				case 'pie': {
-					const points = item.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, 0, 0,
-						pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle - pieAngle, currentAngle, 2);
-					if (points.length) {
-						x = top.x - item.plot.position.left + points[1].x;
-						y = top.y - item.plot.position.top + points[1].y;
+					case 'pie': {
+						const points = item.getEllipseSegmentPoints(
+							pieInfo.xc,
+							pieInfo.yc,
+							0,
+							0,
+							pieInfo.xRadius,
+							pieInfo.yRadius,
+							0,
+							currentAngle - pieAngle,
+							currentAngle,
+							2
+						);
+						if (points.length) {
+							x = top.x - item.plot.position.left + points[1].x;
+							y = top.y - item.plot.position.top + points[1].y;
+						}
+						break;
 					}
-					break;
-				}
-				case 'doughnut': {
-					const points = item.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, pieInfo.xInnerRadius, pieInfo.yInnerRadius,
-						pieInfo.xOuterRadius, pieInfo.yOuterRadius, 0, currentAngle - pieAngle, currentAngle, 2);
-					if (points.length) {
-						x = top.x - item.plot.position.left + points[1].x;
-						y = top.y - item.plot.position.top + points[1].y;
+					case 'doughnut': {
+						const points = item.getEllipseSegmentPoints(
+							pieInfo.xc,
+							pieInfo.yc,
+							pieInfo.xInnerRadius,
+							pieInfo.yInnerRadius,
+							pieInfo.xOuterRadius,
+							pieInfo.yOuterRadius,
+							0,
+							currentAngle - pieAngle,
+							currentAngle,
+							2
+						);
+						if (points.length) {
+							x = top.x - item.plot.position.left + points[1].x;
+							y = top.y - item.plot.position.top + points[1].y;
+						}
+						break;
 					}
-					break;
-				}
 				}
 
 				if (item.getValue(ref, this.selection.dataPoints[0].pointIndex, value)) {
@@ -210,7 +235,11 @@ export default class ChartInfoFeedbackView extends View {
 						axis.categories.forEach((data) => {
 							if (data.values && data.values[0] && data.values[0].x === this.selection.dataPoints[0].x) {
 								data.values.forEach((value) => {
-									if (value.x !== undefined && value.y !== undefined && value.serie.tooltip !== 'hide') {
+									if (
+										value.x !== undefined &&
+										value.y !== undefined &&
+										value.serie.tooltip !== 'hide'
+									) {
 										if (item.chart.relative && value.barSize !== undefined) {
 											value.y = value.barSize;
 										}
@@ -248,8 +277,7 @@ export default class ChartInfoFeedbackView extends View {
 			graphics.beginPath();
 			graphics.setFillColor('#FFFFFF');
 			graphics.setLineColor('#AAAAAA');
-			graphics.rect(x, y, width + margin * 2,
-				margin * 2 + (values.length + 1) * height);
+			graphics.rect(x, y, width + margin * 2, margin * 2 + (values.length + 1) * height);
 			graphics.fill();
 			graphics.stroke();
 
@@ -261,11 +289,11 @@ export default class ChartInfoFeedbackView extends View {
 			values.forEach((value, index) => {
 				const label = getLabel(value, false, circular);
 				if (circular) {
-					graphics.setFillColor(
-						item.getTemplate().series.getFillForIndex(value.index));
+					graphics.setFillColor(item.getTemplate().series.getFillForIndex(value.index));
 				} else {
 					graphics.setFillColor(
-						value.serie.format.lineColor || item.getTemplate().series.getLineForIndex(value.seriesIndex));
+						value.serie.format.lineColor || item.getTemplate().series.getLineForIndex(value.seriesIndex)
+					);
 				}
 				graphics.fillText(label, x + margin, y + height * (index + 1) + margin * 2);
 			});
