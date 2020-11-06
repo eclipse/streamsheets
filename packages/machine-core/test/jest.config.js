@@ -17,5 +17,5 @@ module.exports = {
 	bail: true,
 	collectCoverage: false,
 	verbose: true,
-	setupFiles: ['./test/setup.js']
+	setupFiles: ['./setup.js']
 };
