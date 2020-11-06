@@ -1885,9 +1885,14 @@ export default class WorksheetView extends ContentNodeView {
 		const div = document.createElement('div');
 		const cs = viewer.getCoordinateSystem();
 		const values = cell.values;
+		let scrollTop;
 		const remove = () => {
 			const dataView = this.getFromGraph();
 			if (dataView) {
+				const table = document.getElementById('dataviewtable');
+				if (table) {
+					scrollTop = table.scrollTop;
+				}
 				viewer.getCanvas().parentNode.removeChild(dataView.div);
 				this.deRegisterAtGraph();
 			}
@@ -1909,15 +1914,18 @@ export default class WorksheetView extends ContentNodeView {
 		const fields = Object.entries(values);
 		const rowCount = fields.length && fields[0].length !== undefined && fields[0][1].length !== undefined ? fields[0][1].length : 0;
 
-
 		let html = `<p style="color: ${JSG.theme.text}; padding-left: 5px; font-size: 10pt">Result (${rowCount}):</p>`;
 		html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
-		html +=	`<div style="overflow-y: auto; max-height: 300px"><table style="padding: 5px; color: ${JSG.theme.text}"><thead><tr>`;
+		html +=	`<div id="dataviewtable" style="overflow-y: auto; max-height: 300px">`;
+		html += `<table style="padding: 5px; color: ${JSG.theme.text}"><thead><tr>`;
 
 		fields.forEach(([key, entry]) => {
 			html += `<th style="padding: 5px;" >${key}</th>`;
 		});
 		html += '</tr></thead>';
+
+		html += '<tbody>';
+
 
 		if (rowCount) {
 			fields[0][1].forEach((value, index) => {
@@ -1935,6 +1943,7 @@ export default class WorksheetView extends ContentNodeView {
 			});
 		}
 
+		html += '</tbody>';
 		html += '</table></div>';
 
 		div.innerHTML = html;
@@ -1947,6 +1956,13 @@ export default class WorksheetView extends ContentNodeView {
 			},
 			false
 		);
+
+		if (scrollTop) {
+			const table = document.getElementById('dataviewtable');
+			if (table) {
+				table.scrollTop = scrollTop;
+			}
+		}
 
 		div.focus();
 
