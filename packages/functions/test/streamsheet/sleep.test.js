@@ -184,7 +184,7 @@ describe('sleep', () => {
 	it('should not consume messages if sleep() is replaced', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.loadCells({
@@ -228,7 +228,7 @@ describe('sleep', () => {
 	it('should not consume messages while sleeping', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.loadCells({
@@ -267,7 +267,7 @@ describe('sleep', () => {
 	it('should not loop message while sleeping', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.streamsheet.updateSettings({
