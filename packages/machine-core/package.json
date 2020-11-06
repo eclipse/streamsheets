@@ -55,7 +55,10 @@
         "lines": 20,
         "statements": 20
       }
-    }
+    },
+    "setupFiles": [
+      "./test/setup.js"
+    ]
   },
   "license": "EPL-2.0"
 }
