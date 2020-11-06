@@ -78,6 +78,10 @@ class MessageBox {
 		this._applyConfig(mergedConfig);
 	}
 
+	async dispose() { 
+		return undefined;
+	}
+
 	get id() {
 		return this._id;
 	}
