@@ -36,6 +36,7 @@ module.exports = class ChartSeries {
 		this.autoSum = false;
 		this.pointerType = 'narrowingline';
 		this.pointerLength = 'center';
+		this.tooltip = 'value';
 	}
 
 	copy() {
@@ -76,6 +77,7 @@ module.exports = class ChartSeries {
 		writer.writeAttributeNumber('bargap', this.barGap, 2);
 		writer.writeAttributeString('pointertype', this.pointerType);
 		writer.writeAttributeString('pointerlength', this.pointerLength);
+		writer.writeAttributeString('tooltip', this.tooltip);
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
 		this.marker.save('marker', writer);
@@ -103,6 +105,7 @@ module.exports = class ChartSeries {
 		this.barGap = reader.getAttributeNumber(object, 'bargap', this.type === 'state' ? 0 : 0.3);
 		this.pointerType = reader.getAttributeString(object, 'pointertype', 'narrowingline');
 		this.pointerLength = reader.getAttributeString(object, 'pointerlength', 'center');
+		this.tooltip = reader.getAttributeString(object, 'tooltip', 'value');
 
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {

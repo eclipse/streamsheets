@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -134,7 +134,11 @@ export default class ChartInfoFeedbackView extends View {
 								axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
 						}
 					} else {
-						label = item.formatNumber(value.y, 'General');
+						if (serie.tooltip === 'text') {
+							label = value.pureY;
+						} else {
+							label = item.formatNumber(value.y, 'General');
+						}
 					}
 					if (ref && ref.yName !== undefined && !xValue) {
 						label = `${ref.yName}: ${label}`;
@@ -206,7 +210,7 @@ export default class ChartInfoFeedbackView extends View {
 						axis.categories.forEach((data) => {
 							if (data.values && data.values[0] && data.values[0].x === this.selection.dataPoints[0].x) {
 								data.values.forEach((value) => {
-									if (value.x !== undefined && value.y !== undefined) {
+									if (value.x !== undefined && value.y !== undefined && value.serie.tooltip !== 'hide') {
 										if (item.chart.relative && value.barSize !== undefined) {
 											value.y = value.barSize;
 										}

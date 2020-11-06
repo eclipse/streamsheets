@@ -698,6 +698,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'series');
 	};
 
+	handleSeriesTooltipContentChange = (event) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.tooltip = event.target.value;
+		this.finishCommand(cmd, 'series');
+	};
+
 	handleSeriesPointerTypeChange = (event) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
@@ -2825,6 +2832,12 @@ export class StreamChartProperties extends Component {
 															defaultMessage="Triangle"
 														/>
 													</MenuItem>
+													<MenuItem value="vertical" key={12}>
+														<FormattedMessage
+															id="StreamChartProperties.vertical"
+															defaultMessage="Vertical Line"
+														/>
+													</MenuItem>
 												</TextField>
 											</FormControl>
 											<FormControl
@@ -3144,6 +3157,31 @@ export class StreamChartProperties extends Component {
 											/>
 										}
 									/>
+									<TextField
+										variant="outlined"
+										size="small"
+										fullWidth
+										label={
+											<FormattedMessage
+												id="StreamChartProperties.TooltipContent"
+												defaultMessage="Tooltip Content"
+											/>
+										}
+										select
+										margin="normal"
+										value={data.tooltip}
+										onChange={this.handleSeriesTooltipContentChange}
+									>
+										<MenuItem value="hide" key={0}>
+											<FormattedMessage id="StreamChartProperties.Hide" defaultMessage="Hide" />
+										</MenuItem>
+										<MenuItem value="value" key={1}>
+											<FormattedMessage id="StreamChartProperties.Value" defaultMessage="Value" />
+										</MenuItem>
+										<MenuItem value="text" key={2}>
+											<FormattedMessage id="StreamChartProperties.Text" defaultMessage="Text"/>
+										</MenuItem>
+									</TextField>
 								</FormGroup>
 							</FormGroup>
 						) : null}
