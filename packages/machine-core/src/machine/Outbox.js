@@ -38,7 +38,7 @@ class Outbox extends TTLMessageBox {
 
 	static create() {
 		// eslint-disable-next-line no-use-before-define
-		return process.env.OUTBOX_PERSISTENT ? new PersistentOutbox() : new Outbox();
+		return process.env.OUTBOX_PERSISTENT === 'true' ? new PersistentOutbox() : new Outbox();
 	}
 
 	// private - call Outbox.create()
