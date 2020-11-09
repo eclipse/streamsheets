@@ -31,6 +31,7 @@ module.exports = class Message {
 			metadata: { value: {}, enumerable: true }
 		});
 		this.metadata.id = id || IdGenerator.generate();
+		// DL-333: arrivalTime should be a serial-number
 		this.metadata.arrivalTime = serialnumber.nowUTC();
 	}
 
