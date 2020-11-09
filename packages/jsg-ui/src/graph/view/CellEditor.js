@@ -29,6 +29,8 @@ const RANGE_COLORS = [
 
 let cellEditor;
 let functionInfo;
+let showFuncInfo = localStorage.getItem('funcinfo') !== 'false';
+let showParamInfo = localStorage.getItem('paraminfo') !== 'false';
 
 export default class CellEditor {
 	constructor(div, viewer, sheet) {
@@ -40,7 +42,6 @@ export default class CellEditor {
 		this.rangeResize = undefined;
 		this.allowNoEqual = false;
 		this.alwaysReplace = false;
-		this.hidden = false;
 		this.editRanges = undefined;
 		this.formulaSheet = sheet;
 		this.viewer = viewer;
@@ -102,6 +103,10 @@ export default class CellEditor {
 		if (this.funcDiv) {
 			this.div.parentNode.removeChild(this.funcDiv);
 			this.funcDiv = undefined;
+		}
+		if (this.helpDiv) {
+			this.div.parentNode.removeChild(this.helpDiv);
+			this.helpDiv = undefined;
 		}
 	}
 
@@ -295,16 +300,19 @@ export default class CellEditor {
 				}
 				parameters = parameters.replace(/,/gi, JSG.getParserLocaleSettings().separators.parameter);
 				html += parameters;
-				html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
-				html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">${JSG.getLocalizedString(
-					'Summary'
-				)}</p>`;
-				html += `<p>${info[1][JSG.locale].description}</p>`;
-				html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">`;
-				html += `<a href="https://docs.cedalo.com/functions/${info[1].category}/${info[0]
-					.toLowerCase()
-					.replace(/\./g, '')}.html" target="_blank">`;
-				html += `${JSG.getLocalizedString('More Info')}</a></p>`;
+				html += `<div id="expandFunc" style="width:15px;height:15px;position: absolute; top: 6px; right: 15px; transform: scale(2.0,1.0); font-size: 7pt; color: #777777;cursor: pointer">${showParamInfo ? '&#x2C4' : '&#x2C5'}</div>`;
+				html += `<div id="closeFunc" style="width:13px;height:15px;position: absolute; top: 3px; right: 2px; transform: scale(1.3,1.0); font-size: 11pt; color: #777777;cursor: pointer">x</div>`;
+				if (showParamInfo) {
+					html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">${JSG.getLocalizedString(
+						'Summary'
+					)}</p>`;
+					html += `<p>${info[1][JSG.locale].description}</p>`;
+					html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">`;
+					html += `<a href="https://docs.cedalo.com/functions/${info[1].category}/${info[0]
+						.toLowerCase()
+						.replace(/\./g, '')}.html" target="_blank">`;
+					html += `${JSG.getLocalizedString('More Info')}</a></p>`;
+				}
 				html += '</div>';
 				return html;
 			})
@@ -394,7 +402,42 @@ export default class CellEditor {
 	}
 
 	updateFunctionInfo() {
-		if (this.hidden) {
+		if (showFuncInfo === false) {
+			const y = this.div.offsetTop + 4;
+			if (!this.helpDiv) {
+				this.helpDiv = document.createElement('div');
+				this.helpDiv.style.position = 'absolute';
+				this.helpDiv.style.fontName = 'Verdana';
+				this.helpDiv.style.fontSize = '12pt';
+				this.helpDiv.style.fontWeight = 'bold';
+				this.helpDiv.style.textAlign = 'center';
+				this.helpDiv.style.width = '17px';
+				this.helpDiv.style.height = '18px';
+				this.helpDiv.style.overflowY = 'auto';
+				this.helpDiv.style.color = '#FFFFFF';
+				this.helpDiv.style.cursor = 'pointer';
+				this.helpDiv.style.backgroundColor = '#9bbffd';
+				this.helpDiv.style.border = '1px solid #BBBBBB';
+				this.helpDiv.style.left = `${this.div.offsetLeft - 22}px`;
+				this.helpDiv.style.top = `${y}px`;
+				this.helpDiv.innerText = '?';
+				this.div.parentNode.appendChild(this.helpDiv);
+				this.helpDiv.addEventListener(
+					'mousedown',
+					(event) => {
+						showFuncInfo = true;
+						localStorage.setItem('funcinfo', true);
+						event.preventDefault();
+						event.stopPropagation();
+						this.removeFunctionHelp();
+						this.updateFunctionInfo();
+						this.div.focus();
+						this.div._ignoreBlur = false;
+					},
+					false
+				);
+
+			}
 			return;
 		}
 
@@ -434,11 +477,28 @@ export default class CellEditor {
 				document.getElementById('closeFunc').addEventListener(
 					'mousedown',
 					(event) => {
+						showFuncInfo = false;
+						localStorage.setItem('funcinfo', false);
 						this.div._ignoreBlur = true;
 						event.preventDefault();
 						event.stopPropagation();
 						this.removeFunctionHelp();
-						this.hidden = true;
+						this.updateFunctionInfo();
+						this.div.focus();
+						this.div._ignoreBlur = false;
+					},
+					false
+				);
+				document.getElementById('expandFunc').addEventListener(
+					'mousedown',
+					(event) => {
+						showParamInfo = !showParamInfo;
+						localStorage.setItem('paraminfo', showParamInfo);
+						this.div._ignoreBlur = true;
+						event.preventDefault();
+						event.stopPropagation();
+						this.removeFunctionHelp();
+						this.updateFunctionInfo();
 						this.div.focus();
 						this.div._ignoreBlur = false;
 					},
