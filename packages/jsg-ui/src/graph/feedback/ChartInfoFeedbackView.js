@@ -237,7 +237,8 @@ export default class ChartInfoFeedbackView extends View {
 								data.values.forEach((value) => {
 									if (
 										value.x !== undefined &&
-										value.y !== undefined &&
+										((value.y !== undefined && value.serie.tooltip === 'value') ||
+										(value.pureY !== undefined && value.serie.tooltip === 'text')) &&
 										value.serie.tooltip !== 'hide'
 									) {
 										if (item.chart.relative && value.barSize !== undefined) {
