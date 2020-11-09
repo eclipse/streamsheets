@@ -9,16 +9,16 @@
  *
  ********************************************************************************/
 const EventEmitter = require('events');
+const { convert } = require('@cedalo/commons');
+const IdGenerator = require('@cedalo/id-generator');
+const logger = require('../logger').create({ name: 'Machine' });
 const State = require('../State');
 const NamedCells = require('./NamedCells');
 const Outbox = require('./Outbox');
 const StreamSheet = require('./StreamSheet');
 const locale = require('../locale');
-const logger = require('../logger').create({ name: 'Machine' });
 const Streams = require('../streams/Streams');
 const FunctionRegistry = require('../FunctionRegistry');
-const { convert } = require('@cedalo/commons');
-const IdGenerator = require('@cedalo/id-generator');
 
 // REVIEW: move to streamsheet!
 const defaultStreamSheetName = (streamsheet) => {
@@ -76,7 +76,7 @@ class Machine {
 		// read only properties...
 		Object.defineProperties(this, {
 			stats: { value: { steps: 0 } },
-			outbox: { value: new Outbox(), enumerable: true },
+			outbox: { value: Outbox.create(), enumerable: true },
 			_emitter: { value: new EventEmitter() },
 			cyclemonitor: {
 				value: {
@@ -113,7 +113,7 @@ class Machine {
 		};
 	}
 
-	load(definition = {}, functionDefinitions = [], currentStreams = []) {
+	async load(definition = {}, functionDefinitions = [], currentStreams = []) {
 		FunctionRegistry.registerFunctionDefinitions(functionDefinitions);
 		const def = Object.assign({}, DEF_CONF, definition);
 		const streamsheets = def.streamsheets || [{}];
@@ -149,6 +149,8 @@ class Machine {
 		// update value of cells to which are not currently valid without changing valid values
 		// => e.g. if a cell references another cell which was loaded later...
 		this._streamsheets.forEach((streamsheet) => streamsheet.sheet.iterate((cell) => cell.update()));
+
+		await this.outbox.load(undefined, this);
 
 		// apply loaded state:
 		if (def.state === State.RUNNING) {
@@ -387,10 +389,11 @@ class Machine {
 		this._emitter.removeListener(event, callback);
 	}
 
-	dispose() {
+	async dispose(deleted) {
 		this.stop();
 		this.streamsheets.forEach((streamsheet) => streamsheet.dispose());
 		this._emitter.removeAllListeners('update');
+		return this.outbox.dispose(deleted);
 	}
 
 	async start() {
@@ -400,13 +403,10 @@ class Machine {
 			try {
 				if (this._state === State.STOPPED) {
 					this._activeStreamSheets = null;
-					// clear in- & outbox (DL-204) on start (not stop, user might want to see current messages...)
-					this.outbox.clear();
 					allStreamSheets.forEach((streamsheet) => streamsheet.start());
 				}
 				this._emitter.emit('willStart', this);
 				this._state = State.RUNNING;
-				this.outbox.keepMessages = false;
 				this.cyclemonitor.counterSecond = 0;
 				this.cyclemonitor.last = Date.now();
 				this.cyclemonitor.lastSecond = Date.now();
@@ -449,7 +449,6 @@ class Machine {
 			// DL-565 reset steps on stop...
 			this.stats.steps = 0;
 			this.stats.cyclesPerSecond = 0;
-			this.outbox.keepMessages = true;
 			this._emitter.emit('didStop', this);
 		}
 	}
@@ -474,7 +473,6 @@ class Machine {
 			this._clearCycle();
 			this._state = State.PAUSED;
 			this.stats.cyclesPerSecond = 0;
-			this.outbox.keepMessages = true;
 			this.streamsheets.forEach((streamsheet) => streamsheet.pause());
 			this._emitter.emit('update', 'state', { new: this._state, old: oldstate });
 			logger.info(`Machine: -> PAUSED machine ${this.id}`);

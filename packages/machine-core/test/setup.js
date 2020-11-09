@@ -8,14 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-/**
- * NOTE:
- *  - used to run a single test-file with cli option: --config
- *  - to run ALL tests use $>npm t
- */
-module.exports = {
-	bail: true,
-	collectCoverage: false,
-	verbose: true,
-	setupFiles: ['./setup.js']
-};
+
+ // FOR TESTs we do not use persistent outbox
+ process.env.OUTBOX_PERSISTENT = false;

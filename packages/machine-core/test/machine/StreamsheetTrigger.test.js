@@ -22,9 +22,9 @@ const createStreamSheet = (name, trigger, cells) => {
 	streamsheet.sheet.load({ cells });
 	return streamsheet;
 };
-const createMachine = (conf, ...streamsheets) => {
+const createMachine = async (conf, ...streamsheets) => {
 	const machine = new Machine();
-	machine.load(conf);
+	await machine.load(conf);
 	machine.removeAllStreamSheets();
 	streamsheets.forEach(streamsheet => machine.addStreamSheet(streamsheet));
 	return machine;
@@ -152,7 +152,7 @@ describe('StreamSheetTrigger', () => {
 			const t2 = createStreamSheet('T2',
 				StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_STOP }),
 				{ A1: { formula: 'A1+1' } });
-			const machine = createMachine({ settings: {cycletime: 10000} }, t1, t2);
+			const machine = await createMachine({ settings: {cycletime: 10000} }, t1, t2);
 			await machine.start();
 			await machine.pause();
 			// putMessages(t1, new Message(), new Message(), new Message());
@@ -179,7 +179,7 @@ describe('StreamSheetTrigger', () => {
 			const t3 = createStreamSheet('T3',
 				StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_STOP, repeat: 'endless' }),
 				{ A1: { formula: 'A1+1' } });
-			const machine = createMachine({ settings: {cycletime: 10000} }, t1, t2, t3);
+			const machine = await createMachine({ settings: {cycletime: 10000} }, t1, t2, t3);
 			await machine.start();
 			await machine.pause();
 			// putMessages(t1, new Message(), new Message(), new Message());
@@ -209,9 +209,9 @@ describe('StreamSheetTrigger', () => {
 			expect(t2.sheet.cellAt('A1').value).toBe(2);
 			expect(t3.sheet.cellAt('A1').value).toBe(5);
 		});
-		it('should be possible to remove trigger', () => {
+		it('should be possible to remove trigger', async () => {
 			const t1 = createStreamSheet('T1', StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_STOP }));
-			createMachine({ settings: {cycletime: 10000} }, t1);
+			await createMachine({ settings: {cycletime: 10000} }, t1);
 			expect(t1.trigger).toBeDefined();
 			expect(t1.trigger.type).toBe(StreamSheetTrigger.TYPE.MACHINE_STOP);
 			// remove trigger
@@ -225,7 +225,7 @@ describe('StreamSheetTrigger', () => {
 			const t1 = createStreamSheet('T1',
 				StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_START }),
 				{ A1: { formula: 'A1+1' } });
-			const machine = createMachine({ settings: {cycletime: 10000} }, t1);
+			const machine = await createMachine({ settings: {cycletime: 10000} }, t1);
 			// new REQ.: we allow step for this trigger setting...
 			await machine.step();
 			expect(t1.sheet.cellAt('A1', t1.sheet).value).toBe(2);
@@ -242,7 +242,7 @@ describe('StreamSheetTrigger', () => {
 				StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_START, repeat: 'endless' }),
 				{ A1: { formula: 'A1+1' } }
 			);
-			const machine = createMachine({ settings: {cycletime: 10000} }, t1);
+			const machine = await createMachine({ settings: {cycletime: 10000} }, t1);
 			await machine.start();
 			await machine.pause();
 			expect(t1.sheet.cellAt('A1').value).toBe(2);
@@ -252,9 +252,9 @@ describe('StreamSheetTrigger', () => {
 			await machine.step();
 			expect(t1.sheet.cellAt('A1').value).toBe(5);
 		});
-		it('should be possible to remove trigger', () => {
+		it('should be possible to remove trigger', async () => {
 			const t1 = createStreamSheet('T1', StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_START }));
-			createMachine({ settings: {cycletime: 10000} }, t1);
+			await createMachine({ settings: {cycletime: 10000} }, t1);
 			expect(t1.trigger).toBeDefined();
 			expect(t1.trigger.type).toBe(StreamSheetTrigger.TYPE.MACHINE_START);
 			// remove trigger
@@ -269,7 +269,7 @@ describe('StreamSheetTrigger', () => {
 				{ A1: { formula: 'A1+1' } }
 			);
 			const sheet = t1.sheet;
-			const machine = createMachine({ settings: {cycletime: 50} }, t1);
+			const machine = await createMachine({ settings: {cycletime: 50} }, t1);
 			await machine.start();
 			await wait(250);
 			expect(sheet.cellAt('A1').value).toBe(1);
@@ -305,7 +305,7 @@ describe('StreamSheetTrigger', () => {
 			const inc = () => {
 				stepCounter += 1;
 			};
-			const machine = createMachine({ settings: {cycletime: 50} }, t1);
+			const machine = await createMachine({ settings: {cycletime: 50} }, t1);
 			await machine.start();
 			await wait(100);
 			expect(t1.sheet.cellAt('A1').value).toBe(1);

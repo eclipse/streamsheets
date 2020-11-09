@@ -66,11 +66,11 @@ class MachineTaskRunner {
 	}
 
 	// MACHINE SERVER API:
-	async dispose() {
+	async dispose(deleted) {
 		this.streams.dispose();
 		this.taskObserver.dispose();
 		this.requestHandler.dispose();
-		this.channel.send({ cmd: 'shutdown' });
+		this.channel.send({ cmd: 'shutdown', deleted });
 		if (this.onDispose) this.onDispose();
 	}
 

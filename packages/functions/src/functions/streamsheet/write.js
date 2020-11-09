@@ -85,24 +85,22 @@ const write = (sheet, ...terms) =>
 		.addMappedArg(() => getOutbox(sheet) || ERROR.OUTBOX)
 		.addMappedArg(() => isMeta(terms[0]))
 		.validate((path) => FunctionErrors.containsError(path) && ERROR.INVALID_PATH)
-		.reduce((path, valTerm, typeStr, ttl, retval, outbox, isMetadata) => {
+		.defaultReturnValue((path, valTerm, typeStr, ttl, retval) => retval)
+		.run((path, valTerm, typeStr, ttl, retval, outbox, isMetadata) => {
 			const value = valueOf(valTerm, typeStr);
 			if (value != null && !FunctionErrors.isError(value)) {
 				const message = messageById(path.shift(), outbox, ttl);
 				const newData = isMetadata
 					? createNewMetadata(message, path, value)
 					: createNewData(message, path, value);
-				return !FunctionErrors.isError(newData)
-					? [outbox, message, newData, ttl, retval, isMetadata]
-					: newData;
+				if (!FunctionErrors.isError(newData)) {
+					if (isMetadata) outbox.setMessageMetadata(message, newData, ttl);
+					else outbox.setMessageData(message, newData, ttl);
+					return retval;
+				}
+				return newData;
 			}
 			return ERROR.TYPE_PARAM;
-		})
-		.defaultReturnValue((outbox, message, newData, ttl, retval) => retval)
-		.run((outbox, message, newData, ttl, retval, isMetadata) => {
-			if (isMetadata) outbox.setMessageMetadata(message, newData, ttl);
-			else outbox.setMessageData(message, newData, ttl);
-			return retval;
 		});
 write.displayName = true;
 

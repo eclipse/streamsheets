@@ -281,7 +281,7 @@ describe('await', () => {
 	it('should not consume messages while awaiting and OnMessage trigger', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
 		sheet.streamsheet.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ARRIVAL });
 		machine.addStreamSheet(sheet.streamsheet);
@@ -338,7 +338,7 @@ describe('await', () => {
 	it('should not consume messages while awaiting', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.loadCells({
@@ -403,7 +403,7 @@ describe('await', () => {
 	it('should not loop message while awaiting', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.streamsheet.updateSettings({
@@ -454,7 +454,7 @@ describe('await', () => {
 	it('should not consume messages when await is replaced', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.loadCells({
@@ -813,7 +813,7 @@ describe('await.one', () => {
 	it('should not loop message while awaiting', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.streamsheet.updateSettings({
@@ -888,7 +888,7 @@ describe('await.one', () => {
 	it('should not consume messages if await.one is replaced', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.loadCells({

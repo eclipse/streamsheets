@@ -11,5 +11,8 @@
 const functions = require('../src/functions');
 const { SheetParser } = require('@cedalo/machine-core');
 
+// FOR TESTs we do not use persistent outbox
+process.env.OUTBOX_PERSISTENT = false;
+
 // setup parser and its context...
 Object.assign(SheetParser.context.functions, functions);

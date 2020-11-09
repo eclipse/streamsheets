@@ -145,7 +145,7 @@ class UnloadMachineRequestHandler extends RequestHandler {
 	async handle(request, machineserver) {
 		const machineId = request.machineId;
 		const result = { machine: { id: machineId, unloaded: true } };
-		result.warning = (await machineserver.unloadMachine(machineId))
+		result.warning = (await machineserver.unloadMachine(result))
 			? undefined
 			: `No machine found for id ${request.machineId}.`;
 		return this.confirm(request, result);
@@ -163,7 +163,8 @@ class DeleteMachineRequestHandler extends RequestHandler {
 	async handle(request, machineserver) {
 		const machineId = request.machineId;
 		const result = { machine: { id: machineId, deleted: true } };
-		result.warning = (await machineserver.unloadMachine(machineId))
+		result.warning = (await machineserver.unloadMachine(result
+			))
 			? undefined
 			: `No machine found for id ${request.machineId}.`;
 		return this.confirm(request, result);
