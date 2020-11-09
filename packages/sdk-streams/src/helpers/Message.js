@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 const jp = require('jsonpath');
+const { serialnumber } = require('@cedalo/commons');
 const IdGenerator = require('@cedalo/id-generator');
 const DefaultLogger = require('../DefaultLogger');
 
@@ -52,7 +53,6 @@ const deleteAt = (path, data) => {
 	return delIt;
 };
 const clear = (obj) => Object.keys(obj).forEach((key) => delete obj[key]);
-const now = () => Date.now();
 
 /**
  * A class representing a message.
@@ -68,7 +68,8 @@ module.exports = class Message {
 			metadata: { value: {}, enumerable: true }
 		});
 		this.metadata.id = id || IdGenerator.generate();
-		this.metadata.arrivalTime = now();
+		// DL-333: arrivalTime should be a serial-number
+		this.metadata.arrivalTime = serialnumber.nowUTC();
 	}
 
 	toJSON() {

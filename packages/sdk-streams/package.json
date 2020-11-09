@@ -21,6 +21,7 @@
     "jest-cli": "21.2.1"
   },
   "dependencies": {
+    "@cedalo/commons": "2.0.0",
     "@cedalo/id-generator": "2.0.0",
     "jsonpath": "1.0.0",
     "xml-js": "1.6.7"
