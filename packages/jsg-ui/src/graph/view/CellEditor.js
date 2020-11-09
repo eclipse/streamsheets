@@ -403,7 +403,7 @@ export default class CellEditor {
 
 	updateFunctionInfo() {
 		if (showFuncInfo === false) {
-			const y = this.div.offsetTop + 4;
+			const y = this.div.offsetTop + (this.editBar ? 0 : 4);
 			if (!this.helpDiv) {
 				this.helpDiv = document.createElement('div');
 				this.helpDiv.style.position = 'absolute';
