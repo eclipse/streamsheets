@@ -98,7 +98,7 @@ export default class SheetGraphItemEventInteraction extends Interaction {
 											if (operandTarget instanceof SheetReference && operandTarget._range) {
 												const rangeTarget = operandTarget._range.copy();
 												rangeTarget.shiftFromSheet();
-												view.handleDataView(range._worksheet, {x: range._x1, y: range._y1}, {x: rangeTarget._x1, y: rangeTarget._y1}, viewer);
+												view.handleDataView(range._worksheet, {x: range._x1, y: range._y1}, rangeTarget, viewer);
 											}
 										}
 									}

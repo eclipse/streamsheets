@@ -227,7 +227,13 @@ export default class SheetInteraction extends Interaction {
 				break;
 			case WorksheetView.HitCode.DATAVIEW: {
 				const cellPos = this.getCell(view, event.location, viewer);
-				view.handleDataView(view.getItem(), cellPos, cellPos, viewer);
+				view.handleDataView(view.getItem(), cellPos, new CellRange(
+					view.getItem(),
+					cellPos.x,
+					cellPos.y + 1,
+					cellPos.x,
+					cellPos.y + 1
+				), viewer);
 				break;
 			}
 			case WorksheetView.HitCode.SHEET:
@@ -275,7 +281,7 @@ export default class SheetInteraction extends Interaction {
 					const canvas = viewer.getCanvas();
 					const view = this._controller.getView();
 					const cellRect = view.getCellRect(this._startCell);
-					const pos = view.getDevCellPosition(viewer, this._startCell, cellRect);
+					const pos = view.getDevCellPosition(viewer, {x: this._startCell.x, y: this._startCell.y + 1});
 
 					selectList.id = 'sheetselect';
 					selectList.style.left = `${pos.x}px`;

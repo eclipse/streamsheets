@@ -408,7 +408,7 @@ export default class GraphManager {
 		const graph = this.getGraph();
 		if (graph && graph.dataView) {
 			const data = graph.dataView;
-			data.view.showCellValues(data.viewer, data.cell, data.cellPos, data.cellRect);
+			data.view.showCellValues(data.viewer, data.cell, data.targetRange);
 		}
 	}
 

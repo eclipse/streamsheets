@@ -1808,22 +1808,14 @@ export default class WorksheetView extends ContentNodeView {
 		return value;
 	}
 
-	getDevCellPosition(viewer, cellPos, cellRect) {
+	getDevCellPosition(viewer, cellPos) {
 		const canvas = viewer.getCanvas();
 		const cs = viewer.getCoordinateSystem();
+		const cellRect = this.getCellRect(cellPos);
 		const center = new Point(
-			cellRect.x + cellRect.width / 2,
-			cellRect.y + cellRect.height + cellRect.height / 2
+			cellRect.x,
+			cellRect.y,
 		);
-		const size = new Point(cellRect.width, cellRect.height);
-		const targetRange = new CellRange(
-			this.getItem(),
-			cellPos.x,
-			cellPos.y,
-			cellPos.x,
-			cellPos.y
-		);
-		targetRange.shiftToSheet();
 
 		GraphUtils.traverseUp(this, viewer.getRootView(), (v) => {
 			v.translateToParent(center);
@@ -1831,8 +1823,8 @@ export default class WorksheetView extends ContentNodeView {
 		});
 
 		return {
-			x: (cs.logToDeviceX(center.x, false) - cs.logToDeviceX(size.x / 2, false) + canvas.offsetLeft),
-			y: (cs.logToDeviceY(center.y, false) - cs.logToDeviceY(size.y / 2, false) + canvas.offsetTop)
+			x: (cs.logToDeviceX(center.x, false) + canvas.offsetLeft),
+			y: (cs.logToDeviceY(center.y, false) + canvas.offsetTop)
 		}
 	}
 
@@ -1857,8 +1849,8 @@ export default class WorksheetView extends ContentNodeView {
 			point.y < cellRect.y + 300;
 	}
 
-	handleDataView(sheet, dataCell, cellPos, viewer) {
-		if (cellPos === undefined) {
+	handleDataView(sheet, dataCell, targetRange, viewer) {
+		if (targetRange === undefined) {
 			return;
 		}
 
@@ -1874,14 +1866,13 @@ export default class WorksheetView extends ContentNodeView {
 			return;
 		}
 
-		const cellRect = this.getCellRect(cellPos);
 
-		this.showCellValues(viewer, cell, cellPos, cellRect);
+		this.showCellValues(viewer, cell, targetRange);
 	}
 
-
-	showCellValues(viewer, cell, cellPos, cellRect) {
-		const pos = this.getDevCellPosition(viewer, cellPos, cellRect);
+	showCellValues(viewer, cell, targetRange) {
+		const cellRect = this.getRangeRect(targetRange);
+		const pos = this.getDevCellPosition(viewer, {x: targetRange._x1, y: targetRange._y1});
 		const div = document.createElement('div');
 		const cs = viewer.getCoordinateSystem();
 		const values = cell.values;
@@ -1900,6 +1891,17 @@ export default class WorksheetView extends ContentNodeView {
 
 		remove();
 
+		if (targetRange.getWidth() > 1) {
+			div.style.width = `${cs.logToDeviceY(cellRect.width, false)}px`;
+		}
+
+		let maxHeight = 320;
+
+		if (targetRange.getHeight() > 1) {
+			div.style.height = `${cs.logToDeviceY(cellRect.height, false)}px`;
+			maxHeight = cs.logToDeviceY(cellRect.height, false);
+		}
+
 		div.style.left = `${pos.x}px`;
 		div.style.top = `${pos.y}px`;
 		div.style.minWidth = `${cs.logToDeviceY(cellRect.width, false)}px`;
@@ -1914,9 +1916,9 @@ export default class WorksheetView extends ContentNodeView {
 		const fields = Object.entries(values);
 		const rowCount = fields.length && fields[0].length !== undefined && fields[0][1].length !== undefined ? fields[0][1].length : 0;
 
-		let html = `<p style="color: ${JSG.theme.text}; padding-left: 5px; font-size: 10pt">Result (${rowCount}):</p>`;
+		let html = `<p style="color: ${JSG.theme.text}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">Result (${rowCount}):</p>`;
 		html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
-		html +=	`<div id="dataviewtable" style="overflow-y: auto; max-height: 300px">`;
+		html +=	`<div id="dataviewtable" style="overflow-y: auto; max-height: ${maxHeight - 25}px">`;
 		html += `<table style="padding: 5px; color: ${JSG.theme.text}"><thead><tr>`;
 
 		fields.forEach(([key, entry]) => {
@@ -1966,16 +1968,16 @@ export default class WorksheetView extends ContentNodeView {
 
 		div.focus();
 
-		this.registerAtGraph(viewer, cell, cellPos, cellRect, div);
+		this.registerAtGraph(viewer, cell, targetRange, div);
 	}
 
 	getFromGraph() {
 		return this.getItem().getGraph().dataView;
 	}
 
-	registerAtGraph(viewer, cell, cellPos, cellRect, div) {
+	registerAtGraph(viewer, cell, targetRange, div) {
 		this.getItem().getGraph().dataView = {
-			viewer, cell, cellPos, cellRect, view: this, div
+			viewer, cell, targetRange, view: this, div
 		};
 	}
 

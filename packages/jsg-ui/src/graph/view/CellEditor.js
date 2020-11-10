@@ -402,7 +402,9 @@ export default class CellEditor {
 	}
 
 	updateFunctionInfo() {
-		if (showFuncInfo === false) {
+		this.funcs = this.getPotentialFunctionsUnderCursor();
+
+		if (this.funcs && this.funcs.length === 1 && showFuncInfo === false) {
 			const y = this.div.offsetTop + (this.editBar ? 0 : 4);
 			if (!this.helpDiv) {
 				this.helpDiv = document.createElement('div');
