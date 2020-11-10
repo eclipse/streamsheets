@@ -453,7 +453,7 @@ export default class CellEditor {
 				const y = this.div.offsetTop + this.div.clientHeight + 2;
 				this.funcDiv = document.createElement('div');
 				this.funcDiv.style.position = 'absolute';
-				this.helpDiv.style.fontFamily = 'Roboto, Verdana, Arial, sans-serif';
+				this.funcDiv.style.fontFamily = 'Roboto, Verdana, Arial, sans-serif';
 				this.funcDiv.style.fontSize = '8pt';
 				this.funcDiv.style.width = '350px';
 				this.funcDiv.style.maxHeight = `${this.div.parentNode.clientHeight - y}px`;
