@@ -407,12 +407,12 @@ export default class CellEditor {
 			if (!this.helpDiv) {
 				this.helpDiv = document.createElement('div');
 				this.helpDiv.style.position = 'absolute';
-				this.helpDiv.style.fontName = 'Verdana';
+				this.helpDiv.style.fontFamily = 'Roboto, Verdana, Arial, sans-serif';
 				this.helpDiv.style.fontSize = '12pt';
 				this.helpDiv.style.fontWeight = 'bold';
 				this.helpDiv.style.textAlign = 'center';
 				this.helpDiv.style.width = '17px';
-				this.helpDiv.style.height = '18px';
+				// this.helpDiv.style.height = '18px';
 				this.helpDiv.style.overflowY = 'auto';
 				this.helpDiv.style.color = '#FFFFFF';
 				this.helpDiv.style.cursor = 'pointer';
@@ -453,7 +453,7 @@ export default class CellEditor {
 				const y = this.div.offsetTop + this.div.clientHeight + 2;
 				this.funcDiv = document.createElement('div');
 				this.funcDiv.style.position = 'absolute';
-				this.funcDiv.style.fontName = 'Verdana';
+				this.helpDiv.style.fontFamily = 'Roboto, Verdana, Arial, sans-serif';
 				this.funcDiv.style.fontSize = '8pt';
 				this.funcDiv.style.width = '350px';
 				this.funcDiv.style.maxHeight = `${this.div.parentNode.clientHeight - y}px`;
