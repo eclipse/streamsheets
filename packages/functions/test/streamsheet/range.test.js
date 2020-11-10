@@ -24,13 +24,13 @@ describe('range', () => {
 	});
 	it('should create an array from single cell', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: 42, B2: 'hello' } });
-		expect(createTerm('range(A1)', sheet).value).toEqual([42]);
-		expect(createTerm('range(B2)', sheet).value).toEqual(['hello']);
+		expect(createTerm('range(A1)', sheet).value).toEqual([[42]]);
+		expect(createTerm('range(B2)', sheet).value).toEqual([['hello']]);
 	});
 	it('should create a possible nested array from given cell range', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: SHEETS.SIMPLE });
-		expect(createTerm('range(A1:A1)', sheet).value).toEqual(['A1']);
-		expect(createTerm('range(A1:C1)', sheet).value).toEqual(['A1', 'B1', 'C1']);
+		expect(createTerm('range(A1:A1)', sheet).value).toEqual([['A1']]);
+		expect(createTerm('range(A1:C1)', sheet).value).toEqual([['A1', 'B1', 'C1']]);
 		expect(createTerm('range(A1:C3)', sheet).value).toEqual([
 			['A1', 'B1', 'C1'],
 			['A2', 'B2', 'C2'],
@@ -39,8 +39,8 @@ describe('range', () => {
 	});
 	it('should set undefined cells to null', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: SHEETS.SIMPLE });
-		expect(createTerm('range(E3)', sheet).value).toEqual([null]);
-		expect(createTerm('range(E3:E3)', sheet).value).toEqual([null]);
+		expect(createTerm('range(E3)', sheet).value).toEqual([[null]]);
+		expect(createTerm('range(E3:E3)', sheet).value).toEqual([[null]]);
 		expect(createTerm('range(A1:D2)', sheet).value).toEqual([
 			['A1', 'B1', 'C1', null],
 			['A2', 'B2', 'C2', null]
