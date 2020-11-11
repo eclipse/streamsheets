@@ -551,6 +551,9 @@ export default class ChartSelectionFeedbackView extends View {
 
 						while (item.getValue(ref, index, value)) {
 							info.index = index;
+							if (serie.marker.style === 'vertical' && value.y === undefined) {
+								value.y = 0;
+							}
 							switch (serie.type) {
 								case 'gauge': {
 									if (selection.element === 'series' || index === selection.pointIndex) {
