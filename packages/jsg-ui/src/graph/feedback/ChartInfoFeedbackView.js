@@ -233,18 +233,21 @@ export default class ChartInfoFeedbackView extends View {
 				item.yAxes.forEach((axis) => {
 					if (axis.categories) {
 						axis.categories.forEach((data) => {
-							if (data.values && data.values[0] && data.values[0].x === this.selection.dataPoints[0].x) {
+							// if (data.values && data.values[0] && data.values[0].x === this.selection.dataPoints[0].x) {
+							if (data.values) {
 								data.values.forEach((value) => {
-									if (
-										value.x !== undefined &&
-										((value.y !== undefined && value.serie.tooltip === 'value') ||
-										(value.pureY !== undefined && value.serie.tooltip === 'text')) &&
-										value.serie.tooltip !== 'hide'
-									) {
-										if (item.chart.relative && value.barSize !== undefined) {
-											value.y = value.barSize;
+									if (value.x === this.selection.dataPoints[0].x) {
+										if (
+											value.x !== undefined &&
+											((value.y !== undefined && value.serie.tooltip === 'value') ||
+												(value.pureY !== undefined && value.serie.tooltip === 'text')) &&
+											value.serie.tooltip !== 'hide'
+										) {
+											if (item.chart.relative && value.barSize !== undefined) {
+												value.y = value.barSize;
+											}
+											values.push(value);
 										}
-										values.push(value);
 									}
 								});
 							}
