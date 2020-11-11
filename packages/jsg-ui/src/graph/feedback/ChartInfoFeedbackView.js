@@ -246,7 +246,7 @@ export default class ChartInfoFeedbackView extends View {
 											if (item.chart.relative && value.barSize !== undefined) {
 												value.y = value.barSize;
 											}
-											values.push(value);
+											values[value.seriesIndex] = value;
 										}
 									}
 								});
@@ -262,9 +262,16 @@ export default class ChartInfoFeedbackView extends View {
 				return;
 			}
 
-			width = graphics.measureText(getLabel(values[0], true, circular)).width;
+			let xValue;
+
 			values.forEach((value) => {
-				width = Math.max(width, graphics.measureText(getLabel(value, false, circular)).width);
+				if (!xValue) {
+					xValue = getLabel(value, true, circular);
+					width = Math.max(width, graphics.measureText(xValue).width);
+				}
+				if (value) {
+					width = Math.max(width, graphics.measureText(getLabel(value, false, circular)).width);
+				}
 			});
 
 			width = graphics.getCoordinateSystem().deviceToLogX(width, true);
@@ -287,19 +294,22 @@ export default class ChartInfoFeedbackView extends View {
 
 			graphics.setFillColor('#000000');
 
-			const text = getLabel(values[0], true, circular);
-			graphics.fillText(text, x + margin, y + margin);
+			if (xValue) {
+				graphics.fillText(xValue, x + margin, y + margin);
+			}
 
 			values.forEach((value, index) => {
-				const label = getLabel(value, false, circular);
-				if (circular) {
-					graphics.setFillColor(item.getTemplate().series.getFillForIndex(value.index));
-				} else {
-					graphics.setFillColor(
-						value.serie.format.lineColor || item.getTemplate().series.getLineForIndex(value.seriesIndex)
-					);
+				if (value) {
+					const label = getLabel(value, false, circular);
+					if (circular) {
+						graphics.setFillColor(item.getTemplate().series.getFillForIndex(value.index));
+					} else {
+						graphics.setFillColor(
+							value.serie.format.lineColor || item.getTemplate().series.getLineForIndex(value.seriesIndex)
+						);
+					}
+					graphics.fillText(label, x + margin, y + height * (index + 1) + margin * 2);
 				}
-				graphics.fillText(label, x + margin, y + height * (index + 1) + margin * 2);
 			});
 		}
 	}
