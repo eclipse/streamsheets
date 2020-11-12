@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -159,7 +159,15 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 	}
 
 	handleContextMenu(event, viewer, dispatcher) {
-		const controller = this._getControllerAt(event.location, viewer, dispatcher);
+		let controller;
+
+		if (viewer.isResizeHandle(event)) {
+			controller = viewer.getSelectionProvider().getFirstSelection();
+		}
+
+		if (!controller) {
+			controller = this._getControllerAt(event.location, viewer, dispatcher);
+		}
 		if (controller) {
 			if (controller.getModel().isProtected()) {
 				return;
@@ -169,6 +177,7 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 				viewer.getSelectionView().refresh();
 				event.doRepaint = true;
 			}
+			event.hasActivated = true;
 			NotificationCenter.getInstance().send(
 				new Notification(JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION, {
 					event,
