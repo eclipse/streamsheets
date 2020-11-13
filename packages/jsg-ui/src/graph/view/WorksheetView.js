@@ -1892,7 +1892,7 @@ export default class WorksheetView extends ContentNodeView {
 		remove();
 
 		if (targetRange.getWidth() > 1) {
-			div.style.width = `${cs.logToDeviceY(cellRect.width, false)}px`;
+			div.style.width = `${cs.logToDeviceY(cellRect.width, false) - 1}px`;
 		}
 
 		let maxHeight = 320;
@@ -1904,7 +1904,7 @@ export default class WorksheetView extends ContentNodeView {
 
 		div.style.left = `${pos.x}px`;
 		div.style.top = `${pos.y}px`;
-		div.style.minWidth = `${cs.logToDeviceY(cellRect.width, false)}px`;
+		div.style.minWidth = `${cs.logToDeviceY(cellRect.width, false) - 1}px`;
 		div.style.minHeight = `${cs.logToDeviceY(cellRect.height, false)}px`;
 		div.style.backgroundColor = JSG.theme.fill;
 		div.style.borderColor = JSG.theme.border;
@@ -1919,7 +1919,7 @@ export default class WorksheetView extends ContentNodeView {
 		let html = `<p style="color: ${JSG.theme.text}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">Result (${rowCount}):</p>`;
 		html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
 		html +=	`<div id="dataviewtable" style="overflow-y: auto; max-height: ${maxHeight - 25}px">`;
-		html += `<table style="padding: 5px; color: ${JSG.theme.text}"><thead><tr>`;
+		html += `<table style="padding: 5px; color: ${JSG.theme.text}; width: ${targetRange.getWidth() > 1 ? '100%' : 'inherit'}"><thead><tr>`;
 
 		fields.forEach(([key, entry]) => {
 			html += `<th style="padding: 5px;" >${key}</th>`;
