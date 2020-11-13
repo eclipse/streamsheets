@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -215,7 +215,8 @@ export default class SheetKnobView extends NodeView {
 				break;
 		}
 
-		step = Math.max(step, this.calculateStepSize(range, (size * 2) / width));
+		const scaleSize = Math.max(1000, (endAngle - startAngle) * (tmpRect.width + 500));
+		step = Math.max(step, this.calculateStepSize(range, scaleSize / width));
 
 		graphics.setTextAlignment(JSG.TextFormatAttributes.TextAlignment.CENTER);
 		graphics.setTextBaseline('middle');
@@ -297,23 +298,30 @@ export default class SheetKnobView extends NodeView {
 		graphics.setFont();
 	}
 
-	calculateStepSize(range, targetSteps) {
-		// calculate an initial guess at step size
-		const tempStep = range / targetSteps;
+	calculateStepSize(range, stepCount) {
+		let m;
+		let distLin = range / stepCount;
 
-		// get the magnitude of the step size
-		const mag = Math.floor(Math.log10(tempStep));
-		const magPow = 10 ** mag;
+		if (distLin >= 1) {
+			m = Numbers.digitsBefore(distLin) - 1;
+		} else {
+			m = -Numbers.digitsBehind(distLin);
+		}
+		distLin /= 10 ** m;
+		// 1, 2 oder 5 zuweisen
+		if (distLin > 5) {
+			distLin = 10; // von 5.0
+		} else if (distLin > 2) {
+			distLin = 5; // von 5.0
+		} else if (distLin > 1) {
+			distLin = 2;
+		} else {
+			distLin = 1;
+		}
+		// das ist jetzt der normierte Abstand
+		distLin *= 10 ** m;
 
-		// calculate most significant digit of the new step size
-		let magMsd = tempStep / magPow + 0.5;
-
-		// promote the MSD to either 1, 2, or 5
-		if (magMsd > 5.0) magMsd = 10.0;
-		else if (magMsd > 2.0) magMsd = 5.0;
-		else if (magMsd > 1.0) magMsd = 2.0;
-
-		return magMsd * magPow;
+		return distLin;
 	}
 
 	valueFromLocation(event, viewer) {

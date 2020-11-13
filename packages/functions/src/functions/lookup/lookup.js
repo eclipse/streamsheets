@@ -31,6 +31,7 @@ const indexFromOperand = op =>
 	// eslint-disable-next-line no-nested-ternary
 	op.isTypeOf('CellReference') ? op.index : (op.isTypeOf('CellRangeReference') ? op.value.start : undefined);
 
+const toOffset = (value) => FunctionErrors.isError(value) || convert.toNumber(value, 1) - 1;
 
 //
 // == CHOOSE ==
@@ -67,8 +68,8 @@ const index = (sheet, ...terms) =>
 			ranges = getCellRangesFromTerm(ranges, sheet, true);
 			return ranges && ranges.length ? ranges : ERROR.NAME;
 		})
-		.mapNextArg(rowoffset => convert.toNumber(rowoffset.value, 1) - 1)
-		.mapNextArg(coloffset => convert.toNumber(coloffset.value, 1) - 1)
+		.mapNextArg(rowoffset => toOffset(rowoffset.value))
+		.mapNextArg(coloffset => toOffset(coloffset.value))
 		.mapNextArg(areanr => ((areanr && areanr.value != null) ? convert.toNumber(areanr.value, 1) - 1 : 0))
 		.validate((ranges, rowoffset, coloffset, areanr) =>
 			FunctionErrors.ifTrue((rowoffset < 0 || coloffset < 0 || areanr < 0), ERROR.VALUE))
@@ -132,7 +133,7 @@ const findLargest = (range, pivot) => {
 			const value = cell && cell.value;
 			// eslint-disable-next-line valid-typeof
 			if (value != null && (typeof value === type)) {
-				const isAscending = lastvalue == null || lastvalue < value;
+				const isAscending = lastvalue == null || lastvalue <= value;
 				stop = value > pivot || !isAscending;
 				if (!stop) {
 					lastvalue = value;
@@ -154,7 +155,7 @@ const findSmallest = (range, pivot) => {
 			const value = cell && cell.value;
 			// eslint-disable-next-line valid-typeof
 			if (value != null && (typeof value === type)) {
-				const isDescending = lastvalue == null || value < lastvalue;
+				const isDescending = lastvalue == null || value <= lastvalue;
 				stop = value < pivot || !isDescending;
 				if (!stop) {
 					lastvalue = value;
@@ -185,14 +186,15 @@ const isCellRangeFlat = (range) => range.width > 1 ? range.height === 1 : range.
 const match = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(2)
+		.withMaxArgs(3)
 		.mapNextArg(pivot => pivot.value)
 		.mapNextArg((range) => {
 			const cellrange = getCellRangeFromTerm(range, sheet, true);
 			// eslint-disable-next-line no-nested-ternary
 			return cellrange ? (isCellRangeFlat(cellrange) ? cellrange : ERROR.NA) : ERROR.NAME;
 		})
-		.run((pivot, range) => {
-			const type = term2number(terms[2], 1);
+		.mapNextArg((type) => term2number(type, 1))
+		.run((pivot, range, type) => {
 			// eslint-disable-next-line no-nested-ternary
 			const findInRange = type < 0 ? findSmallest : (type > 0 ? findLargest : findFirstEqual);
 			const idx = findInRange(range, pivot);

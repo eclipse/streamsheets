@@ -346,8 +346,11 @@ class FunctionWizard extends Component {
 		})
 	};
 
-	onWizardClose = () => {
+	onWizardClose = (stream) => {
 		this.setState({ showStreamWizard: false, editStream: false });
+		if (stream) {
+			this.setState({ selectedStream: stream });
+		}
 	};
 
 	getStreams = (providerIds, baseFunction) => {

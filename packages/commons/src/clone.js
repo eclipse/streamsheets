@@ -19,6 +19,7 @@ const rfdcClone = require('rfdc')();
 
 
 const clone = (obj, throwOnError = false) => {
+	if (obj == null) return obj;
 	try {
 		// return v8Clone(obj);
 		// return jsonClone(obj);

@@ -30,7 +30,9 @@
     "@cedalo/protocols": "2.0.0",
     "@cedalo/number-format": "2.0.0",
     "@cedalo/parser": "2.0.0",
+    "fs-extra": "9.0.0",
     "ioredis": "4.6.2",
+    "level-rocksdb": "^4.0.0",
     "moment": "2.22.2",
     "request": "2.88.0"
   },
@@ -53,7 +55,10 @@
         "lines": 20,
         "statements": 20
       }
-    }
+    },
+    "setupFiles": [
+      "./test/setup.js"
+    ]
   },
   "license": "EPL-2.0"
 }

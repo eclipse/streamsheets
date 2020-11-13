@@ -627,7 +627,7 @@ module.exports = class Selection {
 				if (cell._expr && cell._expr._formula) {
 					cell = cell.copy();
 					cell.evaluate(sheet);
-					let formula = cell._expr.toLocaleString('en', {item: sheet, useName: true, forceName: true});
+					let formula = cell._expr.toLocaleString('en', {item: sheet, useName: true, forceName: false});
 					if (formula.length && formula[0] === '=') {
 						formula = formula.substring(1);
 						cell._expr._formula = formula;

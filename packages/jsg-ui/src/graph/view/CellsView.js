@@ -303,7 +303,7 @@ export default class CellsView extends NodeView {
 		}
 
 		if (result.value === '#[LocalDate]') {
-			result.value = MathUtils.JSDateToExcelDate(new Date());
+			result.value = MathUtils.nowAsSerial(); // JSDateToExcelDate(new Date());
 		}
 	}
 
@@ -460,15 +460,18 @@ export default class CellsView extends NodeView {
 					dataSub = dataProvider.getRC(columnInfo.index, rowInfo.index + i);
 					if (dataSub !== undefined) {
 						rowInfoTmp.index = rowInfo.index + i;
-						cellPropertiesTmp = this.getCellProperties(dataNext, columnInfo, rowInfoTmp);
+						cellPropertiesTmp = this.getCellProperties(dataSub, columnInfo, rowInfoTmp);
 						const subLevelLoop = cellPropertiesTmp && cellPropertiesTmp.level ? cellPropertiesTmp.level : 0;
 						const val = dataSub.getValue();
-						if (subLevelLoop !== subLevel || Number(val) !== i - 1) {
-							formattedValue.fillColor = '#E17000';
+						if (subLevelLoop !== subLevel) {
 							break;
 						}
+						if (Number(val) !== i - 1) {
+							formattedValue.fillColor = '#E17000';
+						}
 					} else {
-						formattedValue.fillColor = '#E17000';
+						break;
+						// formattedValue.fillColor = '#E17000';
 					}
 				}
 			} else {
@@ -732,6 +735,9 @@ export default class CellsView extends NodeView {
 							case 'doughnut':
 								view.drawCircular(graphics, node, rect, serie, 0);
 								break;
+							case 'boxplot':
+								view.drawBoxPlot(graphics, node, rect, serie, 0);
+								break;
 							default:
 								view.drawCartesian(graphics, node, rect, serie, 0);
 								break;
@@ -792,7 +798,7 @@ export default class CellsView extends NodeView {
 					this.rect(graphics, columnInfo.x, rowInfo.y + rowInfo.height - rowInfo.height * value, columnInfo.width + 20, rowInfo.height * value,
 						fillColor);
 				} else {
-					this.rect(graphics, columnInfo.x, rowInfo.y, columnInfo.width * value + 20, rowInfo.height,
+					this.rect(graphics, columnInfo.x, rowInfo.y, columnInfo.width * value + 20, rowInfo.height + 20,
 						fillColor);
 				}
 				if (rowInfo.grey) {
@@ -862,6 +868,20 @@ export default class CellsView extends NodeView {
 			}
 			default:
 				break;
+			}
+
+			const values = data.values;
+			if (values) {
+				graphics.setFillColor('#fdbf01');
+
+				const pts = [
+					{x: columnInfo.x + columnInfo.width - 200, y: rowInfo.y},
+					{x: columnInfo.x + columnInfo.width, y: rowInfo.y},
+					{x: columnInfo.x + columnInfo.width, y: rowInfo.y + 200}
+				];
+
+				graphics.fillPolyline(pts, true);
+				graphics.setFillColor('#000000');
 			}
 		}
 	}

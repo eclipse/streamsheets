@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { clone, convert, jsonpath } = require('@cedalo/commons');
+const { convert, jsonpath } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { isType, Message } = require('@cedalo/machine-core');
 const { jsonbuilder, runFunction, sheet: { getOutbox } } = require('../../utils');
@@ -30,8 +30,7 @@ const createNewData = (message, keys, value) => {
 };
 const createNewMetadata = (message, keys, value) => {
 	const newData = message ? Object.assign({}, message.metadata) : undefined;
-	const valuecp = clone(value) || value;
-	return newData && (jsonbuilder.add(newData, keys, valuecp) || ERROR.INVALID_PATH);
+	return newData && (jsonbuilder.add(newData, keys, value) || ERROR.INVALID_PATH);
 };
 
 // eslint-disable-next-line no-nested-ternary
@@ -86,24 +85,22 @@ const write = (sheet, ...terms) =>
 		.addMappedArg(() => getOutbox(sheet) || ERROR.OUTBOX)
 		.addMappedArg(() => isMeta(terms[0]))
 		.validate((path) => FunctionErrors.containsError(path) && ERROR.INVALID_PATH)
-		.reduce((path, valTerm, typeStr, ttl, retval, outbox, isMetadata) => {
+		.defaultReturnValue((path, valTerm, typeStr, ttl, retval) => retval)
+		.run((path, valTerm, typeStr, ttl, retval, outbox, isMetadata) => {
 			const value = valueOf(valTerm, typeStr);
 			if (value != null && !FunctionErrors.isError(value)) {
 				const message = messageById(path.shift(), outbox, ttl);
 				const newData = isMetadata
 					? createNewMetadata(message, path, value)
 					: createNewData(message, path, value);
-				return !FunctionErrors.isError(newData)
-					? [outbox, message, newData, ttl, retval, isMetadata]
-					: newData;
+				if (!FunctionErrors.isError(newData)) {
+					if (isMetadata) outbox.setMessageMetadata(message, newData, ttl);
+					else outbox.setMessageData(message, newData, ttl);
+					return retval;
+				}
+				return newData;
 			}
 			return ERROR.TYPE_PARAM;
-		})
-		.defaultReturnValue((outbox, message, newData, ttl, retval) => retval)
-		.run((outbox, message, newData, ttl, retval, isMetadata) => {
-			if (isMetadata) outbox.setMessageMetadata(message, newData, ttl);
-			else outbox.setMessageData(message, newData, ttl);
-			return retval;
 		});
 write.displayName = true;
 

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { clone, jsonpath } = require('@cedalo/commons');
+const { jsonpath } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Message } = require('@cedalo/machine-core');
 const {	runFunction, sheet: { createMessageFromValue, getMachine, getStreamSheetByName } } = require('../../utils');
@@ -57,7 +57,7 @@ const createMessageFromTerm = (term, machine) => {
 			return data ?  new Message(data) : undefined;
 		}
 		// DL-1275: create new Message which contains passed message under its data property...
-		return message ?  new Message(clone(message.toJSON())) : undefined;
+		return message ?  new Message(message.toJSON()) : undefined;
 	}
 	return createMessageFromValue(value);
 };

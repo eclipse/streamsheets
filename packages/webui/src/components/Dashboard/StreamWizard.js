@@ -367,6 +367,9 @@ class StreamWizard extends React.Component {
 			case 'connector':
 				this.props.onClose(this.state.connector);
 				break;
+			case 'producer':
+				this.props.onClose(this.state.producer);
+				break;
 			default:
 				this.props.onClose();
 				break;

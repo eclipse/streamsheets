@@ -198,13 +198,14 @@ module.exports = class MachineServer {
 	}
 
 	// stops machine and removes it. returns a promise...
-	async unloadMachine(id) {
+	async unloadMachine({ machine }) {
+		const { id, deleted } = machine;
 		const runner = this.getMachineRunner(id);
-		return runner && this._doRemoveMachine(runner);
+		return runner && this._doRemoveMachine(runner, deleted);
 	}
-	async _doRemoveMachine(runner) {
+	async _doRemoveMachine(runner, deleted) {
 		await runner.stop();
-		await runner.dispose();
+		await runner.dispose(deleted);
 		this.machinerunners.delete(runner.id);
 		return true; // always return true => runner might be removed from map during dispose...
 	}

@@ -1,4 +1,4 @@
-const { jsonpath } = require('@cedalo/commons');
+const { clone, jsonpath } = require('@cedalo/commons');
 
 // TODO: a lot of message handling functions have slightly different requirements... :-( 
 // => COMBINE!! all message handling methods!!
@@ -38,7 +38,8 @@ const getMessageValue = (msginfo) => {
 	const { fnName, message, path } = msginfo;
 	if (message) {
 		// eslint-disable-next-line no-nested-ternary
-		return isMeta(fnName) ? message.getMetaDataAt(path) : isData(fnName) ? message.getDataAt(path) : message;
+		const value = isMeta(fnName) ? message.getMetaDataAt(path) : isData(fnName) ? message.getDataAt(path) : message;
+		return clone(value) || value;
 	}
 	return undefined;
 };

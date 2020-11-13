@@ -25,9 +25,11 @@ export default class SheetPlotActivator extends InteractionActivator {
 	}
 
 	_getControllerAt(location, viewer) {
-		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
-			return cont.getModel() instanceof SheetPlotNode && cont.getModel().isVisible();
+		const controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
+			return cont.getModel().isVisible();
 		});
+
+		return (controller && (controller.getModel() instanceof SheetPlotNode)) ? controller : undefined;
 	}
 
 	onKeyDown(event, viewer) {
@@ -40,11 +42,19 @@ export default class SheetPlotActivator extends InteractionActivator {
 			return;
 		}
 
-		const finish = (cmd, key) => {
+		const finish = (cmd, key, deSelect = false) => {
 			item.finishCommand(cmd, key);
 			viewer.getInteractionHandler().execute(cmd);
 			event.consume();
 			event.hasActivated = true;
+
+			if (deSelect) {
+				controller.getView().chartSelection = undefined;
+				NotificationCenter.getInstance().send(
+					new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, item)
+				);
+				viewer.getGraphView().clearLayer('chartselection');
+			}
 		};
 
 		if (controller.getView().chartSelection !== undefined) {
@@ -76,7 +86,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 							case 'Delete': {
 								const cmd = item.prepareCommand('series');
 								JSG.Arrays.remove(item.series, selection.data);
-								finish(cmd, 'series');
+								finish(cmd, 'series', true);
 								break;
 							}
 						}
@@ -123,7 +133,7 @@ export default class SheetPlotActivator extends InteractionActivator {
 									item.reAssignAxis(selection.data, false);
 									Arrays.remove(item.yAxes, selection.data);
 								}
-								finish(cmd, 'axes');
+								finish(cmd, 'axes', true);
 								break;
 							}
 						}

@@ -13,11 +13,17 @@ const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
-
+const pushRow = (row, toArray) => {
+	toArray.push(row);
+	return row;
+};
 const toArray = (range) => {
-	const arr = [];
-	range.iterate((cell) => arr.push(!cell || cell.value == null ? null : cell.value));
-	return arr;
+	let row;
+	return range.reduce((arr, cell, index, nextrow) => {
+		if (nextrow) row = pushRow([], arr);
+		row.push(!cell || cell.value == null ? null : cell.value);
+		return arr;
+	}, []);
 };
 
 const range = (sheet, ...terms) =>

@@ -74,6 +74,7 @@ const {
 export default class GraphManager {
 	constructor(path) {
 		JSG.init(path);
+		JSG.createThreshhold = 150;
 		JSG.setDrawingDisabled(true);
 		JSG.imagePool.add('resources/maximize.png', 'maximize');
 		JSG.imagePool.add('resources/minimize.png', 'minimize');
@@ -400,6 +401,15 @@ export default class GraphManager {
 		}
 
 		this.updateStats(streamsheetId, stats);
+		this.updateDataView();
+	}
+
+	updateDataView() {
+		const graph = this.getGraph();
+		if (graph && graph.dataView) {
+			const data = graph.dataView;
+			data.view.showCellValues(data.viewer, data.cell, data.targetRange);
+		}
 	}
 
 	handleCommandResponse(response) {

@@ -225,6 +225,17 @@ export default class SheetInteraction extends Interaction {
 				this._endCell = this._startCell.copy();
 				this._doSelect(event, viewer, false, true);
 				break;
+			case WorksheetView.HitCode.DATAVIEW: {
+				const cellPos = this.getCell(view, event.location, viewer);
+				view.handleDataView(view.getItem(), cellPos, new CellRange(
+					view.getItem(),
+					cellPos.x,
+					cellPos.y + 1,
+					cellPos.x,
+					cellPos.y + 1
+				), viewer);
+				break;
+			}
 			case WorksheetView.HitCode.SHEET:
 			case WorksheetView.HitCode.ROW:
 			case WorksheetView.HitCode.COLUMN: {
@@ -270,37 +281,11 @@ export default class SheetInteraction extends Interaction {
 					const canvas = viewer.getCanvas();
 					const view = this._controller.getView();
 					const cellRect = view.getCellRect(this._startCell);
-					const center = new Point(
-						cellRect.x + cellRect.width / 2,
-						cellRect.y + cellRect.height + cellRect.height / 2
-					);
-					const size = new Point(cellRect.width, cellRect.height);
-					let targetRange = new CellRange(
-						sheet,
-						this._startCell.x,
-						this._startCell.y,
-						this._startCell.x,
-						this._startCell.y
-					);
-					targetRange.shiftToSheet();
-
-					GraphUtils.traverseUp(this._controller.getView(), viewer.getRootView(), (v) => {
-						v.translateToParent(center);
-						return true;
-					});
-
-					selectList.style.left = `${(
-						cs.logToDeviceX(center.x, false) -
-						cs.logToDeviceX(size.x / 2, false) +
-						canvas.offsetLeft
-					).toFixed()}px`;
-					selectList.style.top = `${(
-						cs.logToDeviceY(center.y, false) -
-						cs.logToDeviceY(size.y / 2, false) +
-						canvas.offsetTop
-					).toFixed()}px`;
+					const pos = view.getDevCellPosition(viewer, {x: this._startCell.x, y: this._startCell.y + 1});
 
 					selectList.id = 'sheetselect';
+					selectList.style.left = `${pos.x}px`;
+					selectList.style.top = `${pos.y}px`;
 					selectList.style.minWidth = `${cs.logToDeviceY(cellRect.width, false)}px`;
 					selectList.style.overflow = '';
 					selectList.style.position = 'absolute';
@@ -353,6 +338,15 @@ export default class SheetInteraction extends Interaction {
 						canvas.parentNode.removeChild(selectList);
 						selectList = undefined;
 					};
+
+					let targetRange = new CellRange(
+						sheet,
+						this._startCell.x,
+						this._startCell.y,
+						this._startCell.x,
+						this._startCell.y
+					);
+					targetRange.shiftToSheet();
 
 					selectList.addEventListener(
 						'change',

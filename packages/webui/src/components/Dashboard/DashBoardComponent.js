@@ -277,26 +277,27 @@ class DashBoardComponent extends Component {
 		});
 
 		return [
-			{ id: 'out', numeric: false, sort: false, label: '', width: '58px' },
-			{ id: 'name', numeric: false, sort: true, label: 'Streams.Name', width: '12%' },
+			{ id: 'out', numeric: false, sort: false, label: '', width: '40px' },
+			{ id: 'name', numeric: false, sort: true, label: 'Streams.Name', width: '12%', minWidth: '250px' },
 			{
 				id: 'provider',
 				numeric: false,
 				sort: true,
 				label: 'Streams.Provider',
 				width: '10%',
+				minWidth: '170px',
 				fields
 			},
-			{ id: 'url', numeric: false, sort: true, label: 'Streams.URL', width: '15%' },
+			{ id: 'url', numeric: false, sort: true, label: 'Streams.URL', width: '20%' },
 			{ id: 'topic', numeric: false, sort: true, label: 'Streams.Topic' },
 			{
 				id: 'lastModified',
 				numeric: false,
 				sort: true,
 				label: 'Streams.LastModified',
-				width: '10%'
+				width: '120px'
 			},
-			{ id: 'action', numeric: false, sort: false, label: 'Streams.Actions', width: '10%' }
+			{ id: 'action', numeric: false, sort: false, label: 'Streams.Actions', width: '120px' }
 		];
 	}
 
@@ -593,8 +594,9 @@ class DashBoardComponent extends Component {
 				{this.state.activeTab === 1 ? (
 					<div
 						style={{
-							backgroundColor: this.props.theme.palette.background.default,
+							backgroundColor: this.props.theme.wall.backgroundColor,
 							height: 'calc(100% - 49px)',
+							overflowX: 'auto',
 							overflowY: 'auto'
 						}}
 					>
@@ -636,7 +638,7 @@ class DashBoardComponent extends Component {
 								<Add />
 							</Fab>
 						</Tooltip>
-						<Table size="small" aria-label="collapsible table">
+						<Table size="small" aria-label="collapsible table" style={{minWidth: '1200px'}}>
 							<TableSortHeader
 								height={48}
 								cells={this.getCells()}

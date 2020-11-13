@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -15,7 +15,6 @@ module.exports = class ChartDataLabel {
 	constructor() {
 		this.format = new ChartFormat();
 		this.format.linkNumberFormat = true;
-		this.visible = false;
 		this.position = 'behindend';
 		this.separator = '&lf';
 		this.content = {'x': false, y: true};
@@ -26,7 +25,9 @@ module.exports = class ChartDataLabel {
 		writer.writeAttributeString('position', this.position);
 		writer.writeAttributeString('separator', this.separator);
 		writer.writeAttributeString('content', JSON.stringify(this.content));
-		writer.writeAttributeNumber('visible', this.visible ? 1 : 0);
+		if (this.visible !== undefined) {
+			writer.writeAttributeNumber('visible', this.visible ? 1 : 0);
+		}
 		this.format.save('format', writer);
 		writer.writeEndElement();
 	}
@@ -34,7 +35,11 @@ module.exports = class ChartDataLabel {
 	read(reader, object) {
 		this.position = reader.getAttributeString(object, 'position', 'behindend');
 		this.separator = reader.getAttributeString(object, 'separator', '&lf');
-		this.visible = reader.getAttributeBoolean(object, 'visible', false);
+		const val = reader.getAttribute(object, 'visible');
+		if (val !== undefined) {
+			this.visible = !!Number(val);
+		}
+
 		try {
 			this.content = JSON.parse(reader.getAttributeString(object, 'content', '{"x":false}, "y":true}'));
 		} catch (e) {

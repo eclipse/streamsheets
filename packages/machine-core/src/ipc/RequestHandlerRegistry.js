@@ -25,6 +25,7 @@ const Streams = require('../streams/Streams');
 const MachineTaskMessagingClient = require('./MachineTaskMessagingClient');
 const { SheetParser } = require('../parser/SheetParser');
 const FunctionRegistry = require('../FunctionRegistry');
+const State = require('../State');
 // const { createPropertiesObject } = require('../utils');
 const DEF_SHEET_PROPS = require('../../defproperties.json');
 
@@ -210,6 +211,14 @@ const updateCurrentStream = (stream) => {
 	if (!existing || existing.timestamp < stream.timestamp) {
 		currentStreams.set(stream.id, stream);
 		logger.info(`update stream: '${stream.name}'`);
+	}
+};
+
+// TODO: change with refactoring of message/communication!! was added to solve DL-4254
+const isSlowRunningMachine = (machine) => machine && machine.state === State.RUNNING && machine.cycletime > 1500;
+const sendSheetUpdateOnSlowMachine = (streamsheet, cell, index) => {
+	if (isSlowRunningMachine(streamsheet.machine)) {
+		streamsheet.notifySheetUpdate(cell, index);
 	}
 };
 
@@ -421,6 +430,9 @@ class ExecuteFunction extends ARequestHandler {
 	}
 }
 class GetCellRawValue extends ARequestHandler {
+	get isModifying() {
+		return false;
+	}
 	async handle({ streamsheetId, index }) {
 		const streamsheet = this.machine.getStreamSheet(streamsheetId);
 		const sheet = streamsheet && streamsheet.sheet;
@@ -488,19 +500,15 @@ class Load extends ARequestHandler {
 	get isModifying() {
 		return false;
 	}
-	handle({ machineDefinition, functionDefinitions }) {
-		try {
-			this.machine.load(
-				machineDefinition,
-				functionDefinitions,
-				Array.from(currentStreams.values()).filter((stream) => stream.scope && stream.scope.id === machineDefinition.scope.id)
-			);
-			MachineTaskMessagingClient.register(this.machine);
-			machineLoaded = true;
-			return Promise.resolve(getDefinition(this.machine));
-		} catch (err) {
-			return Promise.reject(err);
-		}
+	async handle({ machineDefinition, functionDefinitions }) {
+		await this.machine.load(
+			machineDefinition,
+			functionDefinitions,
+			Array.from(currentStreams.values()).filter((stream) => stream.scope && stream.scope.id === machineDefinition.scope.id)
+		);
+		MachineTaskMessagingClient.register(this.machine);
+		machineLoaded = true;
+		return getDefinition(this.machine);
 	}
 }
 class LoadFunctions extends ARequestHandler {
@@ -688,6 +696,7 @@ class SetCellAt extends ARequestHandler {
 				const cell = SheetParser.createCell(msg.celldescr, sheet);
 				const index = SheetIndex.create(msg.index);
 				sheet.setCellAt(index, cell);
+				sendSheetUpdateOnSlowMachine(streamsheet, cell, index);
 				return Promise.resolve({
 					cell: cellDescriptor(cell, index),
 					// to update all cells in DB
@@ -710,6 +719,7 @@ class SetCells extends ARequestHandler {
 		const sheet = streamsheet && streamsheet.sheet;
 		if (sheet) {
 			sheet.setCells(cells);
+			sendSheetUpdateOnSlowMachine(streamsheet);
 			return Promise.resolve({ cells: getSheetCellsAsObject(sheet) });
 		}
 		return Promise.reject(new Error(`Unknown streamsheet id: ${msg.streamsheetId}`));
@@ -726,6 +736,7 @@ class SetCellsLevel extends ARequestHandler {
 				const cell = sheet.cellAt(index, true);
 				cell.level = cellLevels[ref];
 			});
+			sendSheetUpdateOnSlowMachine(streamsheet);
 			return Promise.resolve({ cells: getSheetCellsAsObject(streamsheet.sheet) });
 		}
 		return Promise.reject(new Error(`Unknown streamsheet id: ${msg.streamsheetId}`));

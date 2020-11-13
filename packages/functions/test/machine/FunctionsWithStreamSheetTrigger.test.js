@@ -25,9 +25,9 @@ const createStreamSheet = (name, cells, trigger) => {
 	streamsheet.sheet.load({ cells });
 	return streamsheet;
 };
-const createMachine = (conf, ...streamsheets) => {
+const createMachine = async (conf, ...streamsheets) => {
 	const machine = new Machine();
-	machine.load(conf);
+	await machine.load(conf);
 	machine.removeAllStreamSheets();
 	streamsheets.forEach(streamsheet => machine.addStreamSheet(streamsheet));
 	return machine;
@@ -59,7 +59,7 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE }));
 		const sheet1 = t1.sheet;
 		const sheet2 = t2.sheet;
-		const machine = createMachine({ settings: {cycletime: 20000} }, t1, t2);
+		const machine = await createMachine({ settings: {cycletime: 20000} }, t1, t2);
 		await machine.start();
 		expect(sheet1.cellAt('A1').value).toBe(1);
 		expect(sheet1.cellAt('C1').value).toBe(1);
@@ -82,7 +82,7 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 		const sheet = t1.sheet;
 		const msgA = new Message();
 		const msgB = new Message();
-		const machine = createMachine({ settings: {cycletime: 10000} }, t1);
+		const machine = await createMachine({ settings: {cycletime: 10000} }, t1);
 		expect(t1.trigger.isEndless).toBe(true);
 		await machine.pause();
 		expect(sheet.cellAt('A1').value).toBe(1);
@@ -110,7 +110,7 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 			{ A1: { formula: 'A1+1' }, B1: { formula: 'if(A1>3, return(), false)' } },
 			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ARRIVAL, repeat: 'endless' }));
 		const sheet = t1.sheet;
-		const machine = createMachine({ settings: {cycletime: 50} }, t1);
+		const machine = await createMachine({ settings: {cycletime: 50} }, t1);
 		expect(t1.trigger.isEndless).toBe(true);
 		expect(t1.stats.repeatsteps).toBe(0);
 		expect(sheet.cellAt('A1').value).toBe(1);
@@ -141,7 +141,7 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 				StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE, repeat: 'endless' }));
 			const sheet1 = t1.sheet;
 			const sheet2 = t2.sheet;
-			const machine = createMachine({ settings: {cycletime: 1000} }, t1, t2);
+			const machine = await createMachine({ settings: {cycletime: 1000} }, t1, t2);
 			expect(sheet1.cellAt('A1').value).toBe(true);
 			expect(sheet2.cellAt('A2').value).toBe(0);
 			expect(sheet2.cellAt('B2').value).toBe(true);
@@ -162,7 +162,7 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 				StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE }));
 			const sheet1 = t1.sheet;
 			const sheet2 = t2.sheet;
-			const machine = createMachine({ settings: {cycletime: 1000} }, t1, t2);
+			const machine = await createMachine({ settings: {cycletime: 1000} }, t1, t2);
 			expect(sheet1.cellAt('A1').value).toBe(true);
 			expect(sheet2.cellAt('A2').value).toBe(0);
 			await machine.start();
@@ -179,7 +179,7 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 				StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE, repeat: 'endless' }));
 			const sheet1 = t1.sheet;
 			const sheet2 = t2.sheet;
-			const machine = createMachine({ settings: {cycletime: 10000} }, t1, t2);
+			const machine = await createMachine({ settings: {cycletime: 10000} }, t1, t2);
 			expect(sheet1.cellAt('A1').value).toBe(true);
 			expect(sheet2.cellAt('A2').value).toBe(0);
 			await machine.start();
@@ -203,7 +203,7 @@ describe('OnExecute', () => {
 			{ A1: { formula: 'A1+1' } },
 			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE })
 		);
-		const machine = createMachine({ settings: { cycletime: 10000 } }, t1, t2);
+		const machine = await createMachine({ settings: { cycletime: 10000 } }, t1, t2);
 		// putMessages(t1, new Message(), new Message(), new Message(), new Message());
 		await machine.step();
 		expect(t1.sheet.cellAt('A1').value).toBe(2);
@@ -228,7 +228,7 @@ describe('OnExecute', () => {
 			{ A1: { formula: 'A1+1' } },
 			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE, repeat: 'endless' })
 		);
-		const machine = createMachine({ settings: {cycletime: 10000} }, t1, t2);
+		const machine = await createMachine({ settings: {cycletime: 10000} }, t1, t2);
 		// putMessages(t1, new Message(), new Message(), new Message(), new Message());
 		await machine.step();
 		expect(t1.sheet.cellAt('A1').value).toBe(2);
@@ -253,7 +253,7 @@ describe('OnExecute', () => {
 			{ A1: { formula: 'A1+1' }, B1: { formula: 'if(A1>4, return(true), false)' } },
 			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE, repeat: 'endless' })
 		);
-		const machine = createMachine({ settings: {cycletime: 10000} }, t1, t2);
+		const machine = await createMachine({ settings: {cycletime: 10000} }, t1, t2);
 		// putMessages(t1, new Message(), new Message());
 		await machine.step();
 		expect(t1.sheet.cellAt('A1').value).toBe(2);
@@ -281,9 +281,9 @@ describe('OnExecute', () => {
 		expect(t2.sheet.cellAt('A1').value).toBe(5);
 		expect(t1.sheet.cellAt('B1').value).toBe(true);
 	});
-	it('should be possible to remove trigger', () => {
+	it('should be possible to remove trigger', async () => {
 		const t1 = createStreamSheet('T1', {}, StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE }));
-		createMachine({ settings: {cycletime: 10000} }, t1);
+		await createMachine({ settings: {cycletime: 10000} }, t1);
 		expect(t1.trigger).toBeDefined();
 		expect(t1.trigger.type).toBe(StreamSheetTrigger.TYPE.EXECUTE);
 		// remove trigger
@@ -303,7 +303,7 @@ describe('OnMachineStop with RETURN()', () => {
 		const t3 = createStreamSheet('T3',
 			{ A1: { formula: 'A1+1' }, B1: { formula: 'if(A1>2, return(), false)' }, C1: { formula: 'C1+1' } },
 			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_STOP, repeat: 'endless' }));
-		const machine = createMachine({ settings: {cycletime: 10000} }, t1, t2, t3);
+		const machine = await createMachine({ settings: {cycletime: 10000} }, t1, t2, t3);
 		await machine.start();
 		await machine.pause();
 		// putMessages(t1, new Message(), new Message(), new Message());
@@ -340,7 +340,7 @@ describe('OnMachineStart with RETURN()', () => {
 			{ A1: { formula: 'A1+1' }, B1: { formula: 'if(A1>2, return(), false)' } },
 			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_START, repeat: 'endless' })
 		);
-		const machine = createMachine({ settings: {cycletime: 10000} }, t1);
+		const machine = await createMachine({ settings: {cycletime: 10000} }, t1);
 		await machine.start();
 		await machine.pause();
 		expect(t1.sheet.cellAt('A1').value).toBe(2);
@@ -359,7 +359,7 @@ describe('OnMachineStart with RETURN()', () => {
 			{ B1: { formula: 'return()' } },
 			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_START, repeat: 'endless' })
 		);
-		const machine = createMachine({ settings: {cycletime: 10000} }, t1);
+		const machine = await createMachine({ settings: {cycletime: 10000} }, t1);
 		t1.updateSettings({ loop: { path: '[Data]', enabled: true } });
 		// add some messages
 		t1.inbox.put(createMessage());

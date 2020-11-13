@@ -16,5 +16,8 @@
   "Sheet Settings": "<p style='font-weight: bold;'>Einstellungen Tabelle</p>Festlegen von Tabellennamen und -größe und Anzeigeoptionen<br /> für das Gitternetz oder die Spalten-/Zeilenköpfe.",
   "Summary": "Zusammenfassung",
   "More Info": "Weitere Infos",
-  "Reset Zoom": "Zoom zurücksetzen"
+  "Reset Zoom": "Zoom zurücksetzen",
+  "Increase": "Zunahme",
+  "Decrease": "Abnahme",
+  "Total": "Summe"
 }

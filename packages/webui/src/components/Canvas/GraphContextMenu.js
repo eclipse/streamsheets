@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -26,10 +26,10 @@ import SvgIcon from '@material-ui/core/SvgIcon/SvgIcon';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
+import TimelineIcon from '@material-ui/icons/Timeline';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
-
 
 
 const styles = {
@@ -102,6 +102,40 @@ class GraphContextComponent extends Component {
 		graphManager.synchronizedExecute(new JSG.ChangeItemOrderCommand(item, order, viewer));
 	};
 
+	onEditPoints = () => {
+		const viewer = graphManager.getGraphViewer();
+		if (viewer === undefined) {
+			return;
+		}
+
+		viewer.getInteractionHandler().editSelection();
+	};
+
+	canEditPoints() {
+		const viewer = graphManager.getGraphViewer();
+		if (viewer === undefined) {
+			return false;
+		}
+
+		const selection = viewer.getSelection();
+		if (selection.length !== 1) {
+			return false;
+		}
+
+		const shapeType = selection[0]
+			.getModel()
+			.getShape()
+			.getType();
+
+		switch (shapeType) {
+			case JSG.PolygonShape.TYPE:
+			case JSG.BezierShape.TYPE:
+				return true;
+			default:
+				return false;
+		}
+	}
+
 	onShowChartProperties = () => {
 		// const sheetView = graphManager.getActiveSheetView();
 		// eslint-disable-next-line react/prop-types
@@ -125,6 +159,7 @@ class GraphContextComponent extends Component {
 		}
 		const selection = graphManager.getGraphViewer().getSelection();
 		const item = selection.length ? selection[0].getModel() : undefined;
+		const showEdit = this.canEditPoints();
 
 		return (
 			<Paper
@@ -199,6 +234,17 @@ class GraphContextComponent extends Component {
 					</ListItemIcon>
 					<ListItemText primary={<FormattedMessage id="MoveToBottom" defaultMessage="Move to Bottom" />} />
 				</MenuItem>
+				{showEdit ? <Divider/> : null}
+				{showEdit ? (
+				<MenuItem
+					onClick={() => this.onEditPoints()}
+					dense
+				>
+					<ListItemIcon>
+						<TimelineIcon style={styles.menuItem} />
+					</ListItemIcon>
+					<ListItemText primary={<FormattedMessage id="EditPoints" defaultMessage="Edit Points" />} />
+				</MenuItem>) : null}
 			</Paper>
 		);
 	}

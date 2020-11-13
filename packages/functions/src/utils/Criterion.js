@@ -51,8 +51,10 @@ const criteria = new Map([
 const getCriterion = (str) => {
 	let cutIndex = 2;
 	let criterion = criteria.get(str.substring(0, cutIndex));
-	cutIndex = criterion ? cutIndex : 1;
-	criterion = criteria.get(str.substring(0, cutIndex));
+	if (!criterion) {
+		cutIndex = 1;
+		criterion = criteria.get(str.substring(0, cutIndex));
+	}
 	return criterion && str ? criterion(str.substring(cutIndex).trim()) : undefined;
 };
 
@@ -68,6 +70,9 @@ class Criterion {
 	static ofComparison(str) {
 		const criterion = str != null ? getCriterion(str.trim()) : undefined;
 		return criterion ? new Criterion(criterion) : undefined;
+	}
+	static ALWAYS_FULFILLED() {
+		return new Criterion(() => true);
 	}
 
 	constructor(criterion) {

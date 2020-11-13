@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 /* eslint-disable no-mixed-operators */
-const { serialnumber: { dateLocal2serial, serial2date }} = require('@cedalo/commons');
+const { serialnumber: { date2serial, dateLocal2serial, serial2date } } = require('@cedalo/commons');
 const Point = require('../../geometry/Point');
 const MathUtils = require('../../geometry/MathUtils');
 const NumberExpression = require('../expr/NumberExpression');
@@ -933,16 +933,16 @@ module.exports = class DataProvider {
 								}
 								if (absolute === false || targetSheet === rangeSheet ||
 									(data.cut && absolute && sourceSheet === rangeSheet)) {
-									if (range._x1R || absolute) {
+									if (range._x1R || absolute || (!absolute && data.cut)) {
 										range._x1 += xOff;
 									}
-									if (range._y1R || absolute) {
-										range._y1 += yOff;
+									if (range._y1R || absolute || (!absolute && data.cut)) {
+										range._y1 += yOff || data.cut;
 									}
-									if (range._x2R || absolute) {
+									if (range._x2R || absolute || (!absolute && data.cut)) {
 										range._x2 += xOff;
 									}
-									if (range._y2R || absolute) {
+									if (range._y2R || absolute || (!absolute && data.cut)) {
 										range._y2 += yOff;
 									}
 								}
@@ -1586,8 +1586,13 @@ module.exports = class DataProvider {
 		});
 	}
 
+	/** NOTE: respects local timezone. usually it is better to use dateToSerial instead */
 	JSDateToExcelDate(inDate) {
 		return dateLocal2serial(inDate);
+	}
+
+	dateToSerial(inDate) {
+		return date2serial(inDate);
 	}
 
 	excelDateToJSDate(serial) {
@@ -1747,7 +1752,8 @@ module.exports = class DataProvider {
 													Math.floor(finalDateVal.getMonth() + section.monthDiff * repeat) /
 														12
 											);
-											val = this.JSDateToExcelDate(dateVal);
+											val = this.dateToSerial(dateVal);
+											// val = this.JSDateToExcelDate(dateVal);
 											repeat += 1;
 										}
 									} else {
@@ -1762,7 +1768,8 @@ module.exports = class DataProvider {
 													Math.floor(firstDateVal.getMonth() - section.monthDiff * repeat) /
 														12
 											);
-											val = this.JSDateToExcelDate(dateVal);
+											val = this.dateToSerial(dateVal);
+											// val = this.JSDateToExcelDate(dateVal);
 											repeat -= 1;
 										}
 									}

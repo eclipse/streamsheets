@@ -74,7 +74,7 @@ const boundCells = (rows, prerows, maxcol, maxrow) => {
 	});
 };
 
-const isMachineProcessing = (machine) => machine && (!machine.isIdle && machine.state === State.RUNNING);
+const isMachineProcessing = (machine) => machine && machine.state === State.RUNNING;
 
 const copyCell = (orgcell, action, sheet) => {
 	const value = orgcell.value;

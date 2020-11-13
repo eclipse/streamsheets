@@ -27,6 +27,7 @@ import * as Actions from '../../actions/actions';
 import { Restricted } from '../HelperComponent/Restricted';
 import { withStyles } from '@material-ui/core/styles';
 import ListItemText from '@material-ui/core/ListItemText';
+import { MainDrawerExtensions } from '@cedalo/webui-extensions';
 
 export class MainDrawer extends Component {
 	setAppState(state) {
@@ -105,9 +106,10 @@ export class MainDrawer extends Component {
 
 	render() {
 		const { user } = this.props.user;
+		const { open, isAdminPage, isMachineDetailPage } = this.props;
 		if (!user) return null;
 		return (
-			<Drawer width={300} open={this.props.open} onClose={() => this.setAppState({ drawerOpen: false })}>
+			<Drawer width={300} open={open} onClose={() => this.setAppState({ drawerOpen: false })}>
 				<div
 					style={{
 						height: '18px',
@@ -123,7 +125,7 @@ export class MainDrawer extends Component {
 						<FormattedMessage id="MainTitle" defaultMessage="Stream Machine" />
 					</span>
 				</div>
-				{this.props.isAdminPage ? null : (
+				{isAdminPage ? null : (
 					<React.Fragment>
 						<Restricted all={['machine.edit']}>
 							<MenuItem dense onClick={this.handleNew}>
@@ -142,7 +144,7 @@ export class MainDrawer extends Component {
 							</MenuItem>
 						</Restricted>
 						<Restricted all={['machine.edit']}>
-							{this.props.isMachineDetailPage ? (
+							{isMachineDetailPage ? (
 								<div>
 									<MenuItem dense onClick={() => this.handleSaveAs()}>
 										<ListItemIcon>
@@ -156,7 +158,7 @@ export class MainDrawer extends Component {
 							) : null}
 						</Restricted>
 						<Restricted all={['machine.edit']}>
-							{this.props.isMachineDetailPage && this.props.canEditMachine ? (
+							{isMachineDetailPage && this.props.canEditMachine ? (
 								<MenuItem dense onClick={() => this.showDeleteMachineDialog()}>
 									<ListItemIcon>
 										<DeleteIcon />
@@ -167,6 +169,7 @@ export class MainDrawer extends Component {
 								</MenuItem>
 							) : null}
 						</Restricted>
+						<MainDrawerExtensions.FileSection isMachineDetailPage={isMachineDetailPage} />
 						<Divider />
 						<Restricted all={['machine.edit', 'stream']}>
 							<MenuItem dense onClick={() => this.handleImport()}>
@@ -188,9 +191,10 @@ export class MainDrawer extends Component {
 								<ListItemText primary={<FormattedMessage id="Export" defaultMessage="Export" />} />
 							</MenuItem>
 						</Restricted>
+						<MainDrawerExtensions.ImportSection isMachineDetailPage={isMachineDetailPage} />
 					</React.Fragment>
 				)}
-				{this.props.isMachineDetailPage && this.props.canEditMachine ? (
+				{isMachineDetailPage && this.props.canEditMachine ? (
 					<div>
 						<Divider />
 						<MenuItem dense onClick={() => this.showSettingsDialog()}>
@@ -204,7 +208,7 @@ export class MainDrawer extends Component {
 					</div>
 				) : null}
 				<Divider />
-				{this.props.isMachineDetailPage || this.props.isAdminPage ? (
+				{isMachineDetailPage || isAdminPage ? (
 					<MenuItem dense onClick={this.handleOpenDashboard}>
 						<ListItemIcon>
 							<DashboardIcon />
@@ -212,7 +216,7 @@ export class MainDrawer extends Component {
 						<ListItemText primary={<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />} />
 					</MenuItem>
 				) : null}
-				{this.props.isMachineDetailPage ? (
+				{isMachineDetailPage ? (
 					<MenuItem dense onClick={this.handleOpenPreview}>
 						<ListItemIcon>
 							<SvgIcon>
@@ -225,6 +229,7 @@ export class MainDrawer extends Component {
 						<ListItemText primary={<FormattedMessage id="UserPreview" defaultMessage="User Preview" />} />
 					</MenuItem>
 				) : null}
+				<MainDrawerExtensions.PreviewSection isMachineDetailPage={isMachineDetailPage} />
 			</Drawer>
 		);
 	}

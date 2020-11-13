@@ -234,6 +234,8 @@ const aggregateCellValue = (cell, value, aggregationType) => {
 		cell._aggregation = aggregation;
 		aggregation.type = aggregationType;
 		aggregation.method = aggregations.createMethod(aggregationType);
+		// init with current cell value:
+		aggregation.method(cell.value);
 	}
 	cell.term = Term.fromValue(aggregation.method(value));
 };
@@ -256,7 +258,8 @@ const tableupdate = (sheet, ...terms) =>
 			const col = getOrAddColumnIndex(range, colindex, pushcolumn);
 			// never change top-left
 			if (row != null && row > range.start.row && col != null && col > range.start.col) {
-				const cell = sheet.cellAt(sharedidx.set(row, col), true);
+				const tablesheet = range.sheet || sheet;
+				const cell = tablesheet.cellAt(sharedidx.set(row, col), true);
 				aggregateCellValue(cell, value, aggregationType);
 			}
 			return true;

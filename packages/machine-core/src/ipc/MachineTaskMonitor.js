@@ -33,6 +33,8 @@ const errorEvent = (machine, error) => Object.assign(createMachineEvent(machine,
 const updateEvent = (type, machine, props) => Object.assign(createMachineEvent(machine, 'update', type), props);
 const messageEvent = (type, machine, props) => Object.assign(createMachineEvent(machine, 'message', type), props);
 
+const getStreamsheetsData = (monitor) =>
+	Array.from(monitor.streamsheetMonitors.values()).map((mon) => mon.getStreamSheetStepData());
 const stepEvent = (monitor) =>
 	updateEvent(MachineEvents.MACHINE_STEP_EVENT, monitor.machine, {
 		stats: monitor.machine.stats,
@@ -41,7 +43,7 @@ const stepEvent = (monitor) =>
 			messages: monitor.machine.outbox.getFirstMessages(),
 			totalSize: monitor.machine.outbox.size
 		},
-		streamsheets: Array.from(monitor.streamsheetMonitors.values()).map((mon) => mon.getStreamSheetStepData())
+		streamsheets: getStreamsheetsData(monitor)
 	});
 
 const redisApi = () => {
@@ -163,7 +165,10 @@ class MachineTaskMonitor {
 				event = updateEvent(MachineEvents.MACHINE_STATE_EVENT, machine, {
 					state: machine.state,
 					stats: machine.state === State.STOPPED ? this._statsInfo.stats : undefined,
-					streamsheets: machine.state === State.STOPPED ? this._statsInfo.streamsheets : undefined
+					// never used
+					// streamsheets: machine.state === State.STOPPED ? this._statsInfo.streamsheets : undefined
+					// so use it for saving streamsheets on stop (DL-4530)
+					streamsheets: machine.state === State.STOPPED ? getStreamsheetsData(this) : undefined
 				});
 				break;
 			case 'step': {

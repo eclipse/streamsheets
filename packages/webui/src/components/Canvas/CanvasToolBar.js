@@ -37,7 +37,7 @@ import FormatAlignLeft from '@material-ui/icons/FormatAlignLeft';
 import FormatAlignRight from '@material-ui/icons/FormatAlignRight';
 import BoldIcon from '@material-ui/icons/FormatBold';
 import ItalicIcon from '@material-ui/icons/FormatItalic';
-import MessageIcon from '@material-ui/icons/Message';
+import MessageIcon from '@material-ui/icons/VerticalSplit';
 import ToolEllipseIcon from '@material-ui/icons/PanoramaFishEye';
 import RedoIcon from '@material-ui/icons/Redo';
 import ToolStar from '@material-ui/icons/StarBorder';
@@ -47,7 +47,6 @@ import UndoIcon from '@material-ui/icons/Undo';
 import VerticalAlignBottom from '@material-ui/icons/VerticalAlignBottom';
 import VerticalAlignCenter from '@material-ui/icons/VerticalAlignCenter';
 import VerticalAlignTop from '@material-ui/icons/VerticalAlignTop';
-import EditNamesIcon from '@material-ui/icons/ViewList';
 import ZoomIcon from '@material-ui/icons/ZoomIn';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
@@ -108,7 +107,7 @@ const styles = {
 	select: {
 		'&:before': {
 			// normal
-			border: 'none'
+			border: 'none !important'
 		},
 		'&:after': {
 			// focused
@@ -174,11 +173,6 @@ export class CanvasToolBar extends Component {
 	}
 
 	componentDidMount() {
-		JSG.NotificationCenter.getInstance().register(
-			this,
-			CommandStack.STACK_CHANGED_NOTIFICATION,
-			'onCommandStackChanged'
-		);
 		JSG.NotificationCenter.getInstance().register(
 			this,
 			CommandStack.STACK_CHANGED_NOTIFICATION,
@@ -1739,6 +1733,21 @@ export class CanvasToolBar extends Component {
 		return false;
 	}
 
+	isChartElementWithoutFontSelected() {
+		const selection = graphManager.getGraphViewer().getSelection();
+		if (selection && selection.length) {
+			const cont = selection[0];
+			if (cont.getModel() instanceof SheetPlotNode) {
+				const sel = cont.getView().chartSelection;
+				if (!sel) {
+					return true;
+				}
+				return sel.element === 'point' || sel.element === 'series';
+			}
+		}
+		return false;
+	}
+
 	fillColorToRGBAObject(format) {
 		let color = format && format.getFillColor() ? format.getFillColor().getValue() : '#FFFFFF';
 		if (color.length && color[0] !== '#') {
@@ -1913,6 +1922,7 @@ export class CanvasToolBar extends Component {
 		}
 		const tf = this.state.cellTextFormat;
 		const f = this.state.cellFormat;
+		const noChartFont = this.isChartElementWithoutFontSelected();
 		const gridTitleColor = this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor;
 		return (
 			<AppBar
@@ -2148,6 +2158,7 @@ export class CanvasToolBar extends Component {
 					onChange={(event) => this.onFormatFontName(event)}
 					input={<Input name="font-name" id="font-name" />}
 					className={classes.select}
+					disabled={noChartFont}
 					inputProps={{
 						style: { paddingLeft: '5px', paddingTop: '6px' }
 					}}
@@ -2196,6 +2207,7 @@ export class CanvasToolBar extends Component {
 					onChange={(event) => this.onFormatFontSize(event)}
 					input={<Input name="font-size" id="font-size" />}
 					className={classes.select}
+					disabled={noChartFont}
 					inputProps={{
 						style: { paddingLeft: '5px', paddingTop: '6px' }
 					}}
@@ -2252,7 +2264,7 @@ export class CanvasToolBar extends Component {
 										: 'transparent'
 							}}
 							onClick={this.onFormatBold}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={(!this.props.cellSelected && !this.state.graphSelected) || noChartFont}
 						>
 							<BoldIcon fontSize="inherit" />
 						</IconButton>
@@ -2278,7 +2290,7 @@ export class CanvasToolBar extends Component {
 										: 'transparent'
 							}}
 							onClick={this.onFormatItalic}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={(!this.props.cellSelected && !this.state.graphSelected) || noChartFont}
 						>
 							<ItalicIcon fontSize="inherit" />
 						</IconButton>
@@ -2292,7 +2304,7 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							style={buttonStyle}
 							onClick={this.onShowFontColor}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={(!this.props.cellSelected && !this.state.graphSelected) || noChartFont}
 						>
 							<SvgIcon fontSize="inherit">
 								<path
@@ -2342,7 +2354,7 @@ export class CanvasToolBar extends Component {
 								fontSize: '16pt'
 							}}
 							onClick={this.onShowHAlign}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={(!this.props.cellSelected && !this.state.graphSelected) || this.isChartElementSelected()}
 						>
 							{tf && tf.getHorizontalAlignment() && tf.getHorizontalAlignment().getValue() === 3 ? (
 								<FormatAlignJustify fontSize="inherit" />
@@ -2988,35 +3000,35 @@ export class CanvasToolBar extends Component {
 						margin: '0px 8px'
 					}}
 				/>
-				<Tooltip
-					enterDelay={300}
-					title={<FormattedMessage id="Tooltip.PasteFunction" defaultMessage="PasteFunction" />}
-				>
-					<div>
-						<IconButton
-							style={buttonStyle}
-							onClick={(e) => this.onPasteFunction(e)}
-							disabled={!this.props.cellSelected}
-						>
-							<SvgIcon>
-								<text
-									x="10"
-									y="12"
-									fontStyle="italic"
-									fontWeight="bold"
-									fontSize="12pt"
-									dy="0.25em"
-									textAnchor="end"
-								>
-									f
-								</text>
-								<text x="12" y="12" fontWeight="bold" fontSize="8pt" dy="0.25em" textAnchor="left">
-									(x)
-								</text>
-							</SvgIcon>
-						</IconButton>
-					</div>
-				</Tooltip>
+				{/*<Tooltip*/}
+				{/*	enterDelay={300}*/}
+				{/*	title={<FormattedMessage id="Tooltip.PasteFunction" defaultMessage="PasteFunction" />}*/}
+				{/*>*/}
+				{/*	<div>*/}
+				{/*		<IconButton*/}
+				{/*			style={buttonStyle}*/}
+				{/*			onClick={(e) => this.onPasteFunction(e)}*/}
+				{/*			disabled={!this.props.cellSelected}*/}
+				{/*		>*/}
+				{/*			<SvgIcon>*/}
+				{/*				<text*/}
+				{/*					x="10"*/}
+				{/*					y="12"*/}
+				{/*					fontStyle="italic"*/}
+				{/*					fontWeight="bold"*/}
+				{/*					fontSize="12pt"*/}
+				{/*					dy="0.25em"*/}
+				{/*					textAnchor="end"*/}
+				{/*				>*/}
+				{/*					f*/}
+				{/*				</text>*/}
+				{/*				<text x="12" y="12" fontWeight="bold" fontSize="8pt" dy="0.25em" textAnchor="left">*/}
+				{/*					(x)*/}
+				{/*				</text>*/}
+				{/*			</SvgIcon>*/}
+				{/*		</IconButton>*/}
+				{/*	</div>*/}
+				{/*</Tooltip>*/}
 				<Tooltip
 					enterDelay={300}
 					title={
@@ -3044,7 +3056,12 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton style={buttonStyle} onClick={(e) => this.onEditNames(e)}>
-							<EditNamesIcon fontSize="inherit" />
+							<SvgIcon>
+								<path
+									// eslint-disable-next-line max-len
+									d="M21.4 11.6L12.4 2.6C12 2.2 11.5 2 11 2H4C2.9 2 2 2.9 2 4V11C2 11.5 2.2 12 2.6 12.4L11.6 21.4C12 21.8 12.5 22 13 22C13.5 22 14 21.8 14.4 21.4L21.4 14.4C21.8 14 22 13.5 22 13C22 12.5 21.8 12 21.4 11.6M13 20L4 11V4H11L20 13M6.5 5C7.3 5 8 5.7 8 6.5S7.3 8 6.5 8 5 7.3 5 6.5 5.7 5 6.5 5M10.1 8.9L11.5 7.5L17 13L15.6 14.4L10.1 8.9M7.6 11.4L9 10L13 14L11.6 15.4L7.6 11.4Z"
+								/>
+							</SvgIcon>
 						</IconButton>
 					</div>
 				</Tooltip>
@@ -3061,11 +3078,12 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton style={buttonStyle} onClick={this.onShowTools}>
-							<SvgIcon>
-								<path
-									// eslint-disable-next-line max-len
-									d="M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z"
-								/>
+							<SvgIcon
+								stroke="currentColor"
+								strokeWidth="2px"
+							>
+								<rect fillOpacity="0.7" fill="currentColor" x="2" y="3" width="12" height="12" />
+								<circle fill="white" cx="14" cy="15" r={7} />
 							</SvgIcon>
 						</IconButton>
 					</div>
@@ -4232,7 +4250,7 @@ export class CanvasToolBar extends Component {
 						margin: '0px 8px'
 					}}
 				/>
-				<WidthHelper width={1200}>
+				<WidthHelper width={1250}>
 					<div
 						style={{
 							right: '10px',

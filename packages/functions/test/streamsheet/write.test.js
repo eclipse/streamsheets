@@ -56,6 +56,18 @@ describe('write', () => {
 		expect(WRITE(sheet, outboxdata, Term.fromNumber(42), Term.fromString('Number'))).toBe('KundenNr');
 		expect(outbox.peek('out1').data.KundenNr).toBe(42);
 	});
+	it('should write message to outbox only on sheet calculation', async () => {
+		const { machine, streamsheet } = setup();
+		const outbox = machine.outbox;
+		const sheet = streamsheet.sheet;
+		expect(outbox.size).toBe(0);
+		createCellAt('A10', { formula: 'write(outboxdata("msg1"),JSON(A1:B1))' }, sheet);
+		expect(sheet.cellAt('A10').value).toBe('msg1');
+		expect(outbox.size).toBe(0);
+		await machine.step();
+		expect(outbox.size).toBe(1);
+		expect(outbox.peek('msg1')).toBeDefined();
+	});
 	it('should be possible to create message with loop data', () => {
 		const { machine, streamsheet } = setup();
 		const outbox = machine.outbox;

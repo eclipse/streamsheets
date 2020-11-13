@@ -29,7 +29,7 @@ ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0
 	NODE_ENV=production \
 	STREAMS_SERVICE_START_DELAY=5000
 
-RUN apk --no-cache add g++ make bash curl nginx git gnupg rsync unzip mongodb mosquitto openssl redis supervisor
+RUN apk --no-cache add g++ make bash curl nginx git gnupg linux-headers rsync unzip mongodb mosquitto openssl redis supervisor
 
 # Streamsheets services
 COPY deployment/single/services /services

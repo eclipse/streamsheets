@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  streamsheets:
+    image: cedalo/streamsheets:<VERSION>-rpi
+    container_name: streamsheets
+    ports: 
+      - 1883:1883
+      - 8081:8081
+    volumes:
+      - ../settings/mosquitto:/etc/mosquitto-default-credentials
+    networks:
+      - streamsheets
+    environment:
+      MONGO_DATABASE: streamsheets
+      MONGO_HOST: streamsheets-internal-mongod
+      MONGO_PORT: 27017
+    depends_on:
+      - streamsheets-internal-mongodb
+  streamsheets-internal-mongodb:
+    image: andresvidal/rpi3-mongodb3
+    container_name: streamsheets-internal-mongod
+    volumes:
+      - ../data/mongo:/data/db
+    networks:
+      - streamsheets
+    expose:
+      - 27017
+#    ports:
+#      - 27017:27017
+networks:
+  streamsheets:
+    name: streamsheets

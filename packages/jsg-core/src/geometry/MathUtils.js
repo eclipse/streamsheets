@@ -1,14 +1,14 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { serialnumber: { dateLocal2serial, serial2date } } = require('@cedalo/commons');
+const { serialnumber: { date2serial, dateLocal2serial, now, serial2date } } = require('@cedalo/commons');
 
 const JSG = require('../JSG');
 const Point = require('./Point');
@@ -92,9 +92,31 @@ class MathUtils {
 		return Math.ceil(number - 0.5);
 	}
 
-	static roundTo(number, decimals) {
-		const factor = 10 ** decimals;
-		return Math.round(number * factor) / factor;
+	static roundTo(value, exp) {
+		// If the exp is undefined or zero...
+		if (typeof exp === 'undefined' || +exp === 0) {
+			return Math.round(value);
+		}
+		value = +value;
+		exp = -exp;
+		// If the value is not a number or the exp is not an integer...
+		if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+			return NaN;
+		}
+		// If the value is negative...
+		if (value < 0) {
+			return -MathUtils.roundTo(-value, -exp);
+		}
+		// Shift
+		value = value.toString().split('e');
+		// eslint-disable-next-line prefer-template
+		value = Math.round(+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+		// Shift back
+		value = value.toString().split('e');
+		// eslint-disable-next-line prefer-template
+		return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+		// const factor = 10 ** decimals;
+		// return Math.round(number * factor) / factor;
 	}
 
 	/**
@@ -657,12 +679,20 @@ class MathUtils {
 		return true;
 	}
 
+	/** NOTE: respects local timezone. usually it is better to use dateToSerial instead */
 	static JSDateToExcelDate(inDate) {
 		return dateLocal2serial(inDate);
 	}
 
 	static excelDateToJSDate(serial) {
 		return serial2date(serial);
+	}
+
+	static dateToSerial(date) {
+		return date2serial(date);
+	}
+	static nowAsSerial() {
+		return now();
 	}
 }
 
