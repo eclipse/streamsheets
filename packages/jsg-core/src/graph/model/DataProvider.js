@@ -937,7 +937,7 @@ module.exports = class DataProvider {
 										range._x1 += xOff;
 									}
 									if (range._y1R || absolute || (!absolute && data.cut)) {
-										range._y1 += yOff || data.cut;
+										range._y1 += yOff;
 									}
 									if (range._x2R || absolute || (!absolute && data.cut)) {
 										range._x2 += xOff;
