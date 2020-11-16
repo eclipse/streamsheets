@@ -234,6 +234,16 @@ module.exports = {
 				description: 'Wandelt den angebenen Zellbereich, Text oder Nachrichtenelement in ein JSON Objekt um'
 			}
 		},
+		'JSON.TO.RANGE': {
+			en: {
+				argumentList: 'JSON,CellRange,Type,Direction',
+				description: 'Writes the content of given JSON to specified cell range'
+			},
+			de: {
+				argumentList: 'JSON,Zellbereich,Typ,Richtung',
+				description: 'Schreibt den Inhalt eines JSONs in den angegebenen Zellbereich'
+			}
+		},
 		'JSON.VALUE': {
 			en: {
 				argumentList: 'JSON,key1,key2...',

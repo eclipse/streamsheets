@@ -648,14 +648,6 @@ describe('json', () => {
 		});
 	});
 	// DL-4228
-	describe('using inbox parameter', () => {
-
-	});
-	// DL-4228
-	describe('using inboxdata parameter', () => {
-
-	});
-	// DL-4228
 	describe('using inboxmetadata parameter', () => {
 		it(`should return ${ERROR.VALUE} if extracting from an unknown message`, () => {
 			const streamsheet = new StreamSheet();
