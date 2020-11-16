@@ -282,10 +282,10 @@ export default class CellEditor {
 				let parameters;
 				html = '<div style="padding: 3px;background-color: #DDDDDD">';
 				if (this.funcInfo === undefined || this.funcInfo.paramIndex === undefined) {
-					parameters = `<p style="width:315px">${info[0]}(${info[1][JSG.locale].argumentList})</p>`;
+					parameters = `<p style="width:305px">${info[0]}(${info[1][JSG.locale].argumentList})</p>`;
 				} else {
 					const params = info[1][JSG.locale].argumentList.split(',');
-					parameters = `<p style="width:315px">${info[0]}(`;
+					parameters = `<p style="width:305px">${info[0]}(`;
 					params.forEach((param, paramIndex) => {
 						if (paramIndex === this.funcInfo.paramIndex) {
 							parameters  += `<span style="font-weight: bold">${param}</span>`;

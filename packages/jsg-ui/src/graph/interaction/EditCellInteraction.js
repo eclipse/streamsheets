@@ -51,7 +51,7 @@ export default class EditCellInteraction extends EditTextInteraction {
 	}
 
 	handleBlur(ev) {
-		if ((ev.relatedTarget || ev.relatedTarget.tagName === 'BUTTON') ||
+		if ((ev.relatedTarget && ev.relatedTarget.tagName === 'BUTTON') ||
 			(!this._cellEditor.isReferenceMode() &&
 			this.div !== undefined &&
 			this.div._ignoreBlur !== true &&
