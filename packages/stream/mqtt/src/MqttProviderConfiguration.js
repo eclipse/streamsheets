@@ -146,33 +146,33 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.PASSWORD
 		});
-		this.addConnectorDefinition({
-			id: 'certPath',
-			label: {
-				en: 'Client certificate',
-				de: 'Client Zertifikat (Datei)'
-			},
-			type: sdk.ProviderConfiguration.FIELDTYPES.FILESECRET,
-			advanced: true
-		});
-		this.addConnectorDefinition({
-			id: 'keyPath',
-			label: {
-				en: 'Private key file associated with the client certificate',
-				de: 'Privater Schlüssel für das Client Zertifikat (Datei)'
-			},
-			type: sdk.ProviderConfiguration.FIELDTYPES.FILESECRET,
-			advanced: true
-		});
-		this.addConnectorDefinition({
-			id: 'caCert',
-			label: {
-				en: 'CA certificate file',
-				de: 'CA Zertifikat (Datei)'
-			},
-			type: sdk.ProviderConfiguration.FIELDTYPES.FILESECRET,
-			advanced: true
-		});
+		// this.addConnectorDefinition({
+		// 	id: 'certPath',
+		// 	label: {
+		// 		en: 'Client certificate',
+		// 		de: 'Client Zertifikat (Datei)'
+		// 	},
+		// 	type: sdk.ProviderConfiguration.FIELDTYPES.FILESECRET,
+		// 	advanced: true
+		// });
+		// this.addConnectorDefinition({
+		// 	id: 'keyPath',
+		// 	label: {
+		// 		en: 'Private key file associated with the client certificate',
+		// 		de: 'Privater Schlüssel für das Client Zertifikat (Datei)'
+		// 	},
+		// 	type: sdk.ProviderConfiguration.FIELDTYPES.FILESECRET,
+		// 	advanced: true
+		// });
+		// this.addConnectorDefinition({
+		// 	id: 'caCert',
+		// 	label: {
+		// 		en: 'CA certificate file',
+		// 		de: 'CA Zertifikat (Datei)'
+		// 	},
+		// 	type: sdk.ProviderConfiguration.FIELDTYPES.FILESECRET,
+		// 	advanced: true
+		// });
 		this.addConnectorDefinition({
 			id: 'baseTopic',
 			label: {
