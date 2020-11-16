@@ -35,13 +35,18 @@ export default class ExportDialog extends React.Component {
 
 	handleKeyPressed = (event) => {
 		switch (event.key) {
-			case 'Enter':
-				return this.props.onConfirm(event, `${this.state.fileName}${FILE_EXTENSION}`);
-			case 'Escape':
-				return this.props.onCancel();
+			case 'Enter': {
+				event.preventDefault();
+				this.props.onConfirm(event, `${this.state.fileName}${FILE_EXTENSION}`);
+				break;
+			}
+			case 'Escape': {
+				event.preventDefault();
+				this.props.onCancel();
+				break;
+			}
 			default:
 		}
-		return false;
 	};
 
 	render() {
