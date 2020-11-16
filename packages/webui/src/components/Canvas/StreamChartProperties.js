@@ -1867,6 +1867,7 @@ export class StreamChartProperties extends Component {
 													? `=${item.legend.formula.getFormula()}`
 													: ''
 											}
+											InputLabelProps={{ shrink: true }}
 											InputProps={{
 												inputComponent: MyInputComponent,
 												inputProps: {
@@ -2078,6 +2079,7 @@ export class StreamChartProperties extends Component {
 														? `=${item.chart.formula.getFormula()}`
 														: ''
 												}
+												InputLabelProps={{ shrink: true }}
 												InputProps={{
 													inputComponent: MyInputComponent,
 													inputProps: {
@@ -2189,6 +2191,7 @@ export class StreamChartProperties extends Component {
 															? `=${item.chart.formula.getFormula()}`
 															: ''
 													}
+													InputLabelProps={{ shrink: true }}
 													InputProps={{
 														inputComponent: MyInputComponent,
 														inputProps: {

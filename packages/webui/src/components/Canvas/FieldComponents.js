@@ -103,6 +103,7 @@ export function RangeTextField(props) {
 				onFocus={onFocus}
 				value={_value}
 				onChange={onChange}
+				InputLabelProps={{ shrink: true }}
 				InputProps={{
 					inputComponent: RangeInputComponent,
 					inputProps: {
