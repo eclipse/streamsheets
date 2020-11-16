@@ -8,7 +8,20 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const fs = require('fs-extra');
 const level = require('level-rocksdb');
+const logger = require('../logger').create({ name: 'RocksDBClient' });
+
+// removes any old lock file on open
+const removeLOCK = async (location) => {
+	try {
+		const lockfile = `${location}/LOCK`;
+		const lockfileExists = await fs.pathExists(lockfile);
+		if (lockfileExists) await fs.remove(lockfile);
+	} catch (err) {
+		logger.error('Failed to remove RocksDB lockfile', err);
+	}
+};
 
 const throwNotConnected = () => { throw new Error('RocksDbClient not connected!'); };
 
@@ -23,8 +36,8 @@ class RocksDbClient {
 
 	// location is a directory
 	async open(location, opts) {
-		const db = await level(location, opts);
-		this.db = db;
+		await removeLOCK(location);
+		this.db = await level(location, opts);
 		return this;
 	}
 
