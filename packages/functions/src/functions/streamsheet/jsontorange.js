@@ -107,6 +107,7 @@ const getRange = (term) => {
 };
 const jsontorange = (sheet, ...terms) =>
 	runFunction(sheet, terms)
+		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(4)
 		.mapNextArg((json) => getJSONFromTerm(json) || ERROR.VALUE)
