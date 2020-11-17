@@ -823,6 +823,7 @@
 	"StreamChartProperties.VaryByCategories": "Farbe pro Kategorie",
 	"StreamChartProperties.ThresholdStyle": "Grenzwertdarstellung",
 	"StreamChartProperties.ThresholdDataRange": "Datenbereich Grenzwerte",
+	"StreamChartProperties.NoChange": "Keine",
 	"StreamChartProperties.ColorChange": "Farbwechsel",
 	"StreamChartProperties.Gradient": "Farbverlauf",
 	"DialogValueRanges.title": "Wertebereiche bearbeiten",

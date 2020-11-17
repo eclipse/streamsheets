@@ -824,6 +824,7 @@
   "StreamChartProperties.VaryByCategories": "Vary Color by Categories",
   "StreamChartProperties.ThresholdStyle": "Threshold Style",
   "StreamChartProperties.ThresholdDataRange": "Data Range Thresholds",
+  "StreamChartProperties.NoChange": "No Change",
   "StreamChartProperties.ColorChange": "Color Change",
   "StreamChartProperties.Gradient": "Gradient",
   "DialogValueRanges.title": "Edit Value Ranges",

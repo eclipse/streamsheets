@@ -1086,6 +1086,11 @@ export class StreamChartProperties extends Component {
 		return !!item.getFirstSerieOfType('line');
 	}
 
+	isFunnelChart() {
+		const item = this.state.plotView.getItem();
+		return !!item.getFirstSerieOfType('funnelbar') || !!item.getFirstSerieOfType('funnelcolumn') ;
+	}
+
 	isGaugeChart() {
 		const item = this.state.plotView.getItem();
 		return !!item.getFirstSerieOfType('gauge');
@@ -1476,27 +1481,28 @@ export class StreamChartProperties extends Component {
 												/>
 											}
 										/>
-										<FormControlLabel
-											control={
-												<Checkbox
-													checked={item.chart.seriesLines.visible}
-													onChange={(event, state) =>
-														this.handleVisibleChange(
-															event,
-															state,
-															item.chart.seriesLines,
-															'chart'
-														)
-													}
-												/>
-											}
-											label={
-												<FormattedMessage
-													id="StreamChartProperties.SeriesLines"
-													defaultMessage="Series Lines"
-												/>
-											}
-										/>
+										{this.isFunnelChart() ? (
+											<FormControlLabel
+												control={
+													<Checkbox
+														checked={item.chart.seriesLines.visible}
+														onChange={(event, state) =>
+															this.handleVisibleChange(
+																event,
+																state,
+																item.chart.seriesLines,
+																'chart'
+															)
+														}
+													/>
+												}
+												label={
+													<FormattedMessage
+														id="StreamChartProperties.SeriesLines"
+														defaultMessage="Series Lines"
+													/>
+												}
+											/>) : null}
 										{this.isLineChart() ? (
 											<FormControlLabel
 												control={
@@ -1898,7 +1904,7 @@ export class StreamChartProperties extends Component {
 										>
 											<MenuItem value="none" key={0}>
 												<FormattedMessage
-													id="StreamChartProperties.None"
+													id="StreamChartProperties.NoChange"
 													defaultMessage="None"
 												/>
 											</MenuItem>

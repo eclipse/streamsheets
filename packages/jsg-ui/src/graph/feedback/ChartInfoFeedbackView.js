@@ -115,7 +115,7 @@ export default class ChartInfoFeedbackView extends View {
 				let axis;
 				if (circular) {
 					if (xValue) {
-						label = `${ref.yName}`;
+						label = ref.yName ? `${ref.yName}` : '';
 					} else {
 						axis = value.axes.x;
 						label = item.getLabel(ref, axis, Math.floor(value.x));
