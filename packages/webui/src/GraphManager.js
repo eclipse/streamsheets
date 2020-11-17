@@ -384,14 +384,14 @@ export default class GraphManager {
 			command.add(updateCellsCommand);
 		}
 		command.execute();
-		// this is because baseExecute set drawing disabled to false
-		if (stats.steps === 0) {
-			this.getInbox(streamsheetId).resetViewports();
-			this.getOutbox(streamsheetId).resetViewports();
-			const itemsNode = this.getOutbox().getMessageListItems();
-			this.execute(new RemoveSelectionCommand(itemsNode, 'global'));
+		// if (stats.steps === 0) {
+		// 	this.getInbox(streamsheetId).resetViewports();
+		// 	this.getOutbox(streamsheetId).resetViewports();
+		// 	const itemsNode = this.getOutbox().getMessageListItems();
+		// 	this.execute(new RemoveSelectionCommand(itemsNode, 'global'));
+		// }
 
-		}
+		// this is because baseExecute set drawing disabled to false
 		this.setDrawingDisabled(true);
 		this.updateOutbox(outbox);
 		this.clearInbox(streamsheetId);
@@ -990,8 +990,19 @@ export default class GraphManager {
 		const machineState = runMode
 			? MachineContainerAttributes.MachineState.RUN
 			: MachineContainerAttributes.MachineState.EDIT;
-		this.getGraph().getMachineContainer().setMachineState(machineState);
-		if (!runMode) {
+
+		if (runMode) {
+			this.getGraph().getMachineContainer().setMachineState(machineState);
+			const { machine } = this.graphWrapper;
+			if (machine) {
+				machine.streamsheets.forEach((streamsheet) => {
+					this.getInbox(streamsheet.id).resetViewports();
+				});
+			}
+			this.getOutbox().resetViewports();
+			const itemsNode = this.getOutbox().getMessageListItems();
+			this.execute(new RemoveSelectionCommand(itemsNode, 'global'));
+		} else {
 			this.redraw();
 		}
 	}
