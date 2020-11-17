@@ -1036,7 +1036,7 @@ export class CanvasToolBar extends Component {
 		graphManager.getCanvas().focus();
 	};
 
-	onFormatFillColor = (color) => {
+	onFormatFillColor = (color, event) => {
 		const attributesMap = new Dictionary();
 		if (color.hex === 'transparent') {
 			attributesMap.put(FormatAttributes.FILLSTYLE, FormatAttributes.FillStyle.NONE);
@@ -1075,6 +1075,12 @@ export class CanvasToolBar extends Component {
 				.applyFormatMap(attributesMap);
 		}
 		this.updateState();
+
+		if (event.target && event.target.style.cursor === 'pointer') {
+			this.setState({
+				showFillColor: false
+			});
+		}
 		// graphManager.getCanvas().focus();
 	};
 
@@ -1499,7 +1505,7 @@ export class CanvasToolBar extends Component {
 		}
 	};
 
-	onFormatFontColor = (color) => {
+	onFormatFontColor = (color, event) => {
 		const attributesMap = new Dictionary();
 		attributesMap.put(TextFormatAttributes.FONTCOLOR, color.hex);
 
@@ -1524,9 +1530,15 @@ export class CanvasToolBar extends Component {
 		}
 		this.updateState();
 		graphManager.getCanvas().focus();
+
+		if (event.target && event.target.style.cursor === 'pointer') {
+			this.setState({
+				showFontColor: false
+			});
+		}
 	};
 
-	onFormatBorderColor = (color) => {
+	onFormatBorderColor = (color, event) => {
 		const attributesMap = new Dictionary();
 
 		const sheetView = graphManager.getActiveSheetView();
@@ -1578,6 +1590,12 @@ export class CanvasToolBar extends Component {
 
 		this.updateState();
 		graphManager.getCanvas().focus();
+
+		if (event.target && event.target.style.cursor === 'pointer') {
+			this.setState({
+				showBorderColor: false
+			});
+		}
 	};
 
 	onCommandStackChanged = (notification) => {
@@ -2334,7 +2352,7 @@ export class CanvasToolBar extends Component {
 						disableAlpha
 						presetColors={this.getPresetColors()}
 						color={tf && tf.getFontColor() ? tf.getFontColor().getValue() : ''}
-						onChange={this.onFormatFontColor}
+						onChange={(color, event) => this.onFormatFontColor(color, event)}
 					/>
 				</Popover>
 				<div
@@ -2561,7 +2579,7 @@ export class CanvasToolBar extends Component {
 						width={250}
 						color={this.fillColorToRGBAObject(f)}
 						presetColors={this.getPresetColors()}
-						onChange={this.onFormatFillColor}
+						onChange={(color, event) => this.onFormatFillColor(color, event)}
 					/>
 				</Popover>
 				<Tooltip
@@ -2593,7 +2611,7 @@ export class CanvasToolBar extends Component {
 						disableAlpha
 						width={250}
 						color={this.getFormatBorderColor()}
-						onChange={this.onFormatBorderColor}
+						onChange={(color, event) => this.onFormatBorderColor(color, event)}
 						presetColors={this.getPresetColors()}
 					/>
 				</Popover>
