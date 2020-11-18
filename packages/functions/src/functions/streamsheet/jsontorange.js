@@ -47,6 +47,21 @@ const flattenObject = (obj, result) => {
 };
 // returns a 2D array with keys in first row and values in second => so we can handle it same as range!!
 const flattenJSON = (json) => flattenObject(json, [[], []]);
+const flattenDictionaryList = (list) => {
+	const keys = new Set();
+	const result = [[]];
+	list.forEach((obj) => {
+		const row = []
+		result.push(row);
+		Object.entries(obj).forEach(([key, value]) => {
+			keys.add(key);
+			row.push(value);
+		});
+	});
+	result[0] = Array.from(keys);
+	return result;
+};
+
 
 const mapCol = (direction) => (direction ? (coord) => coord.x : (coord) => coord.y);
 const mapRow = (direction) => (direction ? (coord) => coord.y : (coord) => coord.x);
@@ -119,18 +134,19 @@ const jsontorange = (sheet, ...terms) =>
 			switch (type) {
 				case 'ARRAY':
 				case 'RANGE':
+					direction = !direction;
 					json = ensureRange(json);
-					res = json ? spreadRange(json, range, direction) : ERROR.VALUE;
 					break;
 				case 'DICTIONARY':
 					//dictionary is simply JSON with flipped direction, so
 					direction = !direction;
-					// eslint-disable-next-line no-fallthrough
+					json = Array.isArray(json) ? flattenDictionaryList(json) : flattenJSON(json);
+					break;
 				default:
 					// flatten json to 2D array so we can reuse spreadRange()
 					json = flattenJSON(json);
-					spreadRange(json, range, !direction);
 			}
+			res = json ? spreadRange(json, range, !direction) : ERROR.VALUE;
 			return res;
 		});
 

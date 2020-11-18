@@ -591,49 +591,91 @@ describe('json.to.range', () => {
 	describe('type dictionary', async () => {
 		it('should write dictionary() encoded JSON to specified range horizontally by default', async () => {
 			const { machine, sheet } = setup();
-			sheet.loadCells({ A1: 'v1', B1: 'v2', C1: 'v3', A2: 0, B2: 1, C2: 2 });
-			createCellAt('A4', { formula: 'json.to.range(dictionary(A1:C2,true),A5:C6,"dictionary")' }, sheet);
+			sheet.loadCells({ 
+				A1: 'v1', B1: 'v2', C1: 'v3', D1: 'v4',
+				A2: 0, B2: 1, C2: 2, D2: 3,
+				A3: 4, B3: 5, C3: 6, D3: 7
+			 });
+			createCellAt('A4', { formula: 'json.to.range(dictionary(A1:D3,true),A5:D7,"dictionary")' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('B5').value).toBe('v2');
 			expect(sheet.cellAt('C5').value).toBe('v3');
+			expect(sheet.cellAt('D5').value).toBe('v4');
 			expect(sheet.cellAt('A6').value).toBe(0);
 			expect(sheet.cellAt('B6').value).toBe(1);
 			expect(sheet.cellAt('C6').value).toBe(2);
-			sheet.loadCells({ A1: 'v1', B1: 0, A2: 'v2', B2: 1, A3: 'v3', B3: 2 });
-			createCellAt('A4', { formula: 'json.to.range(dictionary(A1:B3),A5:C6,"dictionary")' }, sheet);
+			expect(sheet.cellAt('D6').value).toBe(3);
+			expect(sheet.cellAt('A7').value).toBe(4);
+			expect(sheet.cellAt('B7').value).toBe(5);
+			expect(sheet.cellAt('C7').value).toBe(6);
+			expect(sheet.cellAt('D7').value).toBe(7);
+			sheet.loadCells({
+				A1: 'v1', B1: 0, C1: 1,
+				A2: 'v2', B2: 2, C2: 3,
+				A3: 'v3', B3: 4, C3: 5,
+				A4: 'v4', B4: 6, C4: 7
+			});
+			createCellAt('A5', { formula: 'json.to.range(dictionary(A1:C4,false),A6:D8,"dictionary")' }, sheet);
 			await machine.step();
-			expect(sheet.cellAt('A4').value).toBe(true);
-			expect(sheet.cellAt('A5').value).toBe('v1');
-			expect(sheet.cellAt('B5').value).toBe('v2');
-			expect(sheet.cellAt('C5').value).toBe('v3');
-			expect(sheet.cellAt('A6').value).toBe(0);
-			expect(sheet.cellAt('B6').value).toBe(1);
-			expect(sheet.cellAt('C6').value).toBe(2);
+			expect(sheet.cellAt('A5').value).toBe(true);
+			expect(sheet.cellAt('A6').value).toBe('v1');
+			expect(sheet.cellAt('B6').value).toBe('v2');
+			expect(sheet.cellAt('C6').value).toBe('v3');
+			expect(sheet.cellAt('D6').value).toBe('v4');
+			expect(sheet.cellAt('A7').value).toBe(0);
+			expect(sheet.cellAt('B7').value).toBe(2);
+			expect(sheet.cellAt('C7').value).toBe(4);
+			expect(sheet.cellAt('D7').value).toBe(6);
+			expect(sheet.cellAt('A8').value).toBe(1);
+			expect(sheet.cellAt('B8').value).toBe(3);
+			expect(sheet.cellAt('C8').value).toBe(5);
+			expect(sheet.cellAt('D8').value).toBe(7);
 		});
 		it('should write dictionary() encoded JSON to specified range vertically', async () => {
 			const { machine, sheet } = setup();
-			sheet.loadCells({ A1: 'v1', B1: 'v2', C1: 'v3', A2: 0, B2: 1, C2: 2 });
-			createCellAt('A4', { formula: 'json.to.range(dictionary(A1:C2,true),A5:B7,"dictionary",false)' }, sheet);
+			sheet.loadCells({ 
+				A1: 'v1', B1: 'v2', C1: 'v3', D1: 'v4',
+				A2: 0, B2: 1, C2: 2, D2: 3,
+				A3: 4, B3: 5, C3: 6, D3: 7
+			 });
+			createCellAt('A4', { formula: 'json.to.range(dictionary(A1:D3,true),A5:C8,"dictionary", false)' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('B5').value).toBe(0);
+			expect(sheet.cellAt('C5').value).toBe(4);
 			expect(sheet.cellAt('A6').value).toBe('v2');
 			expect(sheet.cellAt('B6').value).toBe(1);
+			expect(sheet.cellAt('C6').value).toBe(5);
 			expect(sheet.cellAt('A7').value).toBe('v3');
 			expect(sheet.cellAt('B7').value).toBe(2);
-			sheet.loadCells({ A1: 'v1', B1: 0, A2: 'v2', B2: 1, A3: 'v3', B3: 2 });
-			createCellAt('A4', { formula: 'json.to.range(dictionary(A1:B3),A5:B7,"dictionary",false)' }, sheet);
+			expect(sheet.cellAt('C7').value).toBe(6);
+			expect(sheet.cellAt('A8').value).toBe('v4');
+			expect(sheet.cellAt('B8').value).toBe(3);
+			expect(sheet.cellAt('C8').value).toBe(7);
+			sheet.loadCells({
+				A1: 'v1', B1: 0, C1: 1,
+				A2: 'v2', B2: 2, C2: 3,
+				A3: 'v3', B3: 4, C3: 5,
+				A4: 'v4', B4: 6, C4: 7
+			});
+			createCellAt('A5', { formula: 'json.to.range(dictionary(A1:C4,false),A6:C9,"dictionary",false)' }, sheet);
 			await machine.step();
-			expect(sheet.cellAt('A4').value).toBe(true);
-			expect(sheet.cellAt('A5').value).toBe('v1');
-			expect(sheet.cellAt('B5').value).toBe(0);
-			expect(sheet.cellAt('A6').value).toBe('v2');
-			expect(sheet.cellAt('B6').value).toBe(1);
-			expect(sheet.cellAt('A7').value).toBe('v3');
+			expect(sheet.cellAt('A5').value).toBe(true);
+			expect(sheet.cellAt('A6').value).toBe('v1');
+			expect(sheet.cellAt('B6').value).toBe(0);
+			expect(sheet.cellAt('C6').value).toBe(1);
+			expect(sheet.cellAt('A7').value).toBe('v2');
 			expect(sheet.cellAt('B7').value).toBe(2);
+			expect(sheet.cellAt('C7').value).toBe(3);
+			expect(sheet.cellAt('A8').value).toBe('v3');
+			expect(sheet.cellAt('B8').value).toBe(4);
+			expect(sheet.cellAt('C8').value).toBe(5);
+			expect(sheet.cellAt('A9').value).toBe('v4');
+			expect(sheet.cellAt('B9').value).toBe(6);
+			expect(sheet.cellAt('C9').value).toBe(7);
 		});
 		it('should clear target range if dictionary() encoded JSON is empty', async () => {
 			const { machine, sheet } = setup();
@@ -681,46 +723,77 @@ describe('json.to.range', () => {
 		});
 		it('should create a suitable target range if specified one contains only one cell', async () => {
 			const { machine, sheet } = setup();
-			sheet.loadCells({ A1: 'v1', B1: 'v2', C1: 'v3', A2: 0, B2: 1, C2: 2 });
-			createCellAt('A4', { formula: 'json.to.range(dictionary(A1:C2,true),A5:A5,"dictionary")' }, sheet);
+			sheet.loadCells({ 
+				A1: 'v1', B1: 'v2', C1: 'v3', D1: 'v4',
+				A2: 0, B2: 1, C2: 2, D2: 3,
+				A3: 4, B3: 5, C3: 6, D3: 7
+			 });
+			createCellAt('A4', { formula: 'json.to.range(dictionary(A1:D3,true),A5:A5,"dictionary")' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('B5').value).toBe('v2');
 			expect(sheet.cellAt('C5').value).toBe('v3');
+			expect(sheet.cellAt('D5').value).toBe('v4');
 			expect(sheet.cellAt('A6').value).toBe(0);
 			expect(sheet.cellAt('B6').value).toBe(1);
 			expect(sheet.cellAt('C6').value).toBe(2);
-			sheet.loadCells({ A1: 'v1', B1: 0, A2: 'v2', B2: 1, A3: 'v3', B3: 2 });
-			createCellAt('A4', { formula: 'json.to.range(dictionary(A1:B3),A5:A5,"dictionary")' }, sheet);
-			await machine.step();
-			expect(sheet.cellAt('A4').value).toBe(true);
-			expect(sheet.cellAt('A5').value).toBe('v1');
-			expect(sheet.cellAt('B5').value).toBe('v2');
-			expect(sheet.cellAt('C5').value).toBe('v3');
-			expect(sheet.cellAt('A6').value).toBe(0);
-			expect(sheet.cellAt('B6').value).toBe(1);
-			expect(sheet.cellAt('C6').value).toBe(2);
-			sheet.loadCells({ A1: 'v1', B1: 'v2', C1: 'v3', A2: 0, B2: 1, C2: 2 });
-			createCellAt('A4', { formula: 'json.to.range(dictionary(A1:C2,true),A5:A5,"dictionary",false)' }, sheet);
+			expect(sheet.cellAt('D6').value).toBe(3);
+			expect(sheet.cellAt('A7').value).toBe(4);
+			expect(sheet.cellAt('B7').value).toBe(5);
+			expect(sheet.cellAt('C7').value).toBe(6);
+			expect(sheet.cellAt('D7').value).toBe(7);
+			createCellAt('A4', { formula: 'json.to.range(dictionary(A1:D3,true),A5,"dictionary", false)' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('B5').value).toBe(0);
+			expect(sheet.cellAt('C5').value).toBe(4);
 			expect(sheet.cellAt('A6').value).toBe('v2');
 			expect(sheet.cellAt('B6').value).toBe(1);
+			expect(sheet.cellAt('C6').value).toBe(5);
 			expect(sheet.cellAt('A7').value).toBe('v3');
 			expect(sheet.cellAt('B7').value).toBe(2);
-			sheet.loadCells({ A1: 'v1', B1: 0, A2: 'v2', B2: 1, A3: 'v3', B3: 2 });
-			createCellAt('A4', { formula: 'json.to.range(dictionary(A1:B3),A5:A5,"dictionary",false)' }, sheet);
+			expect(sheet.cellAt('C7').value).toBe(6);
+			expect(sheet.cellAt('A8').value).toBe('v4');
+			expect(sheet.cellAt('B8').value).toBe(3);
+			expect(sheet.cellAt('C8').value).toBe(7);
+			sheet.loadCells({
+				A1: 'v1', B1: 0, C1: 1,
+				A2: 'v2', B2: 2, C2: 3,
+				A3: 'v3', B3: 4, C3: 5,
+				A4: 'v4', B4: 6, C4: 7
+			});
+			createCellAt('A5', { formula: 'json.to.range(dictionary(A1:C4,false),A6,"dictionary")' }, sheet);
 			await machine.step();
-			expect(sheet.cellAt('A4').value).toBe(true);
-			expect(sheet.cellAt('A5').value).toBe('v1');
-			expect(sheet.cellAt('B5').value).toBe(0);
-			expect(sheet.cellAt('A6').value).toBe('v2');
-			expect(sheet.cellAt('B6').value).toBe(1);
-			expect(sheet.cellAt('A7').value).toBe('v3');
+			expect(sheet.cellAt('A5').value).toBe(true);
+			expect(sheet.cellAt('A6').value).toBe('v1');
+			expect(sheet.cellAt('B6').value).toBe('v2');
+			expect(sheet.cellAt('C6').value).toBe('v3');
+			expect(sheet.cellAt('D6').value).toBe('v4');
+			expect(sheet.cellAt('A7').value).toBe(0);
 			expect(sheet.cellAt('B7').value).toBe(2);
+			expect(sheet.cellAt('C7').value).toBe(4);
+			expect(sheet.cellAt('D7').value).toBe(6);
+			expect(sheet.cellAt('A8').value).toBe(1);
+			expect(sheet.cellAt('B8').value).toBe(3);
+			expect(sheet.cellAt('C8').value).toBe(5);
+			expect(sheet.cellAt('D8').value).toBe(7);
+			createCellAt('A5', { formula: 'json.to.range(dictionary(A1:C4,false),A6:A6,"dictionary",false)' }, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A5').value).toBe(true);
+			expect(sheet.cellAt('A6').value).toBe('v1');
+			expect(sheet.cellAt('B6').value).toBe(0);
+			expect(sheet.cellAt('C6').value).toBe(1);
+			expect(sheet.cellAt('A7').value).toBe('v2');
+			expect(sheet.cellAt('B7').value).toBe(2);
+			expect(sheet.cellAt('C7').value).toBe(3);
+			expect(sheet.cellAt('A8').value).toBe('v3');
+			expect(sheet.cellAt('B8').value).toBe(4);
+			expect(sheet.cellAt('C8').value).toBe(5);
+			expect(sheet.cellAt('A9').value).toBe('v4');
+			expect(sheet.cellAt('B9').value).toBe(6);
+			expect(sheet.cellAt('C9').value).toBe(7);
 		});
 	});
 	describe('type range', async () => {
