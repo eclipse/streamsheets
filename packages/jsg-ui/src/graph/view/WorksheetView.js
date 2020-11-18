@@ -1861,12 +1861,6 @@ export default class WorksheetView extends ContentNodeView {
 			return
 		}
 
-		const values = cell.values;
-		if (!values) {
-			return;
-		}
-
-
 		this.showCellValues(viewer, cell, targetRange);
 	}
 
@@ -1913,7 +1907,7 @@ export default class WorksheetView extends ContentNodeView {
 		div.style.position = 'absolute';
 		div.style.fontSize = '8pt';
 
-		const fields = Object.entries(values);
+		const fields = values ? Object.entries(values) : [];
 		const rowCount = fields.length && fields[0].length !== undefined && fields[0][1].length !== undefined ? fields[0][1].length : 0;
 
 		let html = `<p style="color: ${JSG.theme.text}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">Result (${rowCount}):</p>`;

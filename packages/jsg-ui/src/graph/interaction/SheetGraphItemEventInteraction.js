@@ -93,7 +93,7 @@ export default class SheetGraphItemEventInteraction extends Interaction {
 										const range = operand._range.copy();
 										range.shiftFromSheet();
 										const cell = range._worksheet.getDataProvider().getRC(range._x1, range._y1);
-										if (cell && cell.values) {
+										if (cell) {
 											const operandTarget = term.params[1].operand;
 											if (operandTarget instanceof SheetReference && operandTarget._range) {
 												const rangeTarget = operandTarget._range.copy();
