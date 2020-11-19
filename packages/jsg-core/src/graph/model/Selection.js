@@ -655,10 +655,17 @@ module.exports = class Selection {
 			if (row) {
 				for (let j = range.getX1(); j <= range.getX2(); j += 1) {
 					const cell = row[j];
-					if (cell && cell.getValue()) {
-						text += String(cell.getValue());
+					if (cell && cell.getValue() !== undefined) {
+						const expr = cell.getExpression();
+						const textFormat = this.getWorksheet().getTextFormatAtRC(j, i);
+						const formattingResult = this.getWorksheet().getFormattedValue(expr, cell.getValue(), textFormat, false);
+						if (formattingResult.formattedValue !== undefined) {
+							text += formattingResult.formattedValue;
+						}
 					}
-					text += '\t';
+					if (j !== range.getX2()) {
+						text += '\t';
+					}
 				}
 			}
 			text += '\r';
