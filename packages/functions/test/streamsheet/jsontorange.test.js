@@ -119,13 +119,14 @@ describe('json.to.range', () => {
 			});
 			createCellAt('A6', { formula: 'json.to.range(JSON(A1:B3),A7:B9)' }, sheet);
 			await machine.step();
+			// DL-4560: output should conform to read-logic, so:
 			expect(sheet.cellAt('A6').value).toBe(true);
-			expect(sheet.cellAt('A7').value).toBe(0);
-			expect(sheet.cellAt('B7').value).toBe('hello');
-			expect(sheet.cellAt('A8').value).toBe(1);
-			expect(sheet.cellAt('B8').value).toBe('world');
-			expect(sheet.cellAt('A9').value).toBe(2);
-			expect(sheet.cellAt('B9').value).toBe(false);
+			// expect(sheet.cellAt('A7').value).toBe(0);
+			expect(sheet.cellAt('A7').value).toBe('hello');
+			// expect(sheet.cellAt('A8').value).toBe(1);
+			expect(sheet.cellAt('A8').value).toBe('world');
+			// expect(sheet.cellAt('A9').value).toBe(2);
+			expect(sheet.cellAt('A9').value).toBe(false);
 		});
 		it('should support array based json and direction set to false', async () => {
 			const { machine, sheet } = setup();
@@ -136,13 +137,14 @@ describe('json.to.range', () => {
 			});
 			createCellAt('A6', { formula: 'json.to.range(JSON(A1:B3),A7:C8,,false)' }, sheet);
 			await machine.step();
+			// DL-4560: output should conform to read-logic, so:
 			expect(sheet.cellAt('A6').value).toBe(true);
-			expect(sheet.cellAt('A7').value).toBe(0);
-			expect(sheet.cellAt('B7').value).toBe(1);
-			expect(sheet.cellAt('C7').value).toBe(2);
-			expect(sheet.cellAt('A8').value).toBe('hello');
-			expect(sheet.cellAt('B8').value).toBe('world');
-			expect(sheet.cellAt('C8').value).toBe(false);
+			// expect(sheet.cellAt('A7').value).toBe(0);
+			// expect(sheet.cellAt('B7').value).toBe(1);
+			// expect(sheet.cellAt('C7').value).toBe(2);
+			expect(sheet.cellAt('A7').value).toBe('hello');
+			expect(sheet.cellAt('B7').value).toBe('world');
+			expect(sheet.cellAt('C7').value).toBe(false);
 		});
 		it('should support nested objects and arrays', async () => {
 			const { machine, sheet } = setup();
@@ -432,7 +434,7 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('N22').value).toBe('1234-5678-9');
 		});
 	});
-	describe('type array', async () => {
+	describe('type array', () => {
 		it('should write array() encoded JSON horizontally by default', async () => {
 			const { machine, sheet } = setup();
 			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
@@ -588,7 +590,7 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('C6').value).toBe(3);
 		});
 	});
-	describe('type dictionary', async () => {
+	describe('type dictionary', () => {
 		it('should write dictionary() encoded JSON to specified range horizontally by default', async () => {
 			const { machine, sheet } = setup();
 			sheet.loadCells({ 
@@ -796,7 +798,7 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('C9').value).toBe(7);
 		});
 	});
-	describe('type range', async () => {
+	describe('type range', () => {
 		it('should write range() encoded JSON', async () => {
 			const { machine, sheet } = setup();
 			sheet.loadCells({ A1: 'v1', B1: 0, A2: 'v2', B2: 1, A3: 'v3', B3: 2 });
