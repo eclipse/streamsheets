@@ -13,8 +13,10 @@ const AsyncRequest = require('./AsyncRequest');
 const calculate = require('./calculate');
 const criteria = require('./criteria');
 const Criterion = require('./Criterion');
+const arrayspread = require('./arrayspread');
 const date = require('./date');
 // const excel = require('./excel');
+const jsonflatten = require('./jsonflatten');
 const jsonbuilder = require('./jsonbuilder');
 const messages = require('./messages');
 const runFunction = require('./runner');
@@ -27,12 +29,14 @@ const wildcards = require('./wildcards');
 
 module.exports = {
 	aggregations,
+	arrayspread,
 	AsyncRequest,
 	calculate,
 	criteria,
 	Criterion,
 	date,
 	// excel,
+	jsonflatten,
 	jsonbuilder,
 	messages,
 	runFunction,
