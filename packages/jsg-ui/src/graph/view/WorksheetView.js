@@ -1718,7 +1718,7 @@ export default class WorksheetView extends ContentNodeView {
 		let height = item.getRows().getDefaultSectionSize();
 
 		columns.enumerateSections((columnSection, columnIndex) => {
-			const width = columns.getSectionSize(rowIndex);
+			const width = columns.getSectionSize(columnIndex);
 			if (width) {
 				const cell = data.getRC(columnIndex, rowIndex);
 				if (cell && cell.hasContent()) {
