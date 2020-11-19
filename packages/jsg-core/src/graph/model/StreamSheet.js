@@ -62,8 +62,6 @@ const setSheetCaption = (sheetName, sheetContainer) => {
 	}
 };
 
-// let myVideo;
-
 /**
  * Node representing a worksheet. The worksheet contains additional nodes for the rows,
  * columns, cells and the top left corner.
@@ -486,9 +484,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 		if (def.container !== undefined) {
 			attr.setScaleType(def.container === 'none' ? 'top' : def.container);
-		}
-
-		if (def.container !== undefined) {
 			attr.setContainer(def.container !== 'none');
 		}
 	}
@@ -1268,6 +1263,42 @@ module.exports = class StreamSheet extends WorksheetNode {
 		return formula ? this.parseTextToTerm(formula) : new NullTerm();
 	}
 
+	getAttributesFormula(item) {
+		const attr = item.getItemAttributes();
+		const clip = attr.getClipChildren().getValue();
+		const visible = attr.getVisible().getValue();
+		const selectable = attr.getSelectionMode().getValue();
+		const scale = attr.getScaleType().getValue();
+		const container = attr.getContainer().getValue();
+
+		if (clip === false && visible === true && selectable === 4 && scale === 'top' && container === true) {
+			return undefined;
+		}
+
+		const sep = JSG.getParserLocaleSettings().separators.parameter;
+
+		let formula = 'ATTRIBUTES(';
+		formula += visible ? '' : `FALSE`;
+		formula += sep;
+		if (container) {
+			formula += scale === 'top' ? '' : '';
+		} else {
+			formula += 'none';
+		}
+		formula += sep;
+		formula += clip ? 'TRUE' : '';
+		formula += sep;
+		formula += selectable === 4 ? '' : String(selectable);
+		formula += ')';
+
+		return formula;
+	}
+
+	getAttributesTerm(item) {
+		const formula = this.getAttributesFormula(item);
+		return formula ? this.parseTextToTerm(formula) : new NullTerm();
+	}
+
 	getFontFormula(item) {
 		const tf = item.getTextFormat();
 
@@ -1485,10 +1516,24 @@ module.exports = class StreamSheet extends WorksheetNode {
 						termFunc.params.length > 14 &&
 						termFunc.params[14] instanceof FuncTerm &&
 						termFunc.params[14].name === 'FONTFORMAT';
-					this.setGraphFunctionParam(termFunc, 14, formula,force);
+					this.setGraphFunctionParam(termFunc, 14, formula, force);
 					// this.setGraphFunctionParam(termFunc, 14, formula, formula instanceof FuncTerm || force);
 					break;
+				case 'bezier':
+				case 'polygon': {
+					const closed = item.getItemAttributes().getClosed().getValue();
+					this.setGraphFunctionParam(termFunc, 14, closed ? new NullTerm() : Term.fromBoolean(closed));
+					break;
+				}
 			}
+
+			let i = termFunc.params.length - 1;
+			for (; i > 5; i -= 1) {
+				if (!(termFunc.params[i] instanceof NullTerm)) {
+					break;
+				}
+			}
+			termFunc.params.length = i + 1;
 		}
 
 		formula = expr.toLocaleString('en', { item: ws, useName: true, forceName: true });

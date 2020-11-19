@@ -132,6 +132,7 @@ JSG.drawingDisabled = false;
 JSG.DRAW_DISABLED_NOTIFICATION = 'jsg.draw.disabled.notification';
 JSG.LOCALE_CHANGED_NOTIFICATION = 'jsg.locale.changed.notification';
 JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION = 'graph_show_context_menu_notification';
+JSG.EDITPOINTS_SHOW_CONTEXT_MENU_NOTIFICATION = 'editpoints_show_context_menu_notification';
 JSG.GRAPH_DOUBLE_CLICK_NOTIFICATION = 'graph_double_click_notification';
 
 /**

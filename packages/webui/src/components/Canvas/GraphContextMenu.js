@@ -12,11 +12,6 @@
 /* eslint-disable react/forbid-prop-types */
 import JSG from '@cedalo/jsg-ui';
 import Divider from '@material-ui/core/Divider';
-// import {
-// 	// ContentCopy as CopyIcon,
-// 	ContentPaste as PasteIcon,
-// 	// ContentCut as CutIcon,
-// } from '@material-ui/icons';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import MenuItem from '@material-ui/core/MenuItem';

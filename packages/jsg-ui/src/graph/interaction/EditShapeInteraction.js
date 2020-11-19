@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -18,13 +18,14 @@ import {
 	RectangleShape,
 	BezierShape,
 	EllipseShape,
-	PolygonShape
+	PolygonShape, NotificationCenter, Notification
 } from '@cedalo/jsg-core';
 import Interaction from './Interaction';
 import PositionFeedbackView from '../view/PositionFeedbackView';
 import EditShapeView from '../view/EditShapeView';
 import MouseEvent from '../../ui/events/MouseEvent';
 import Cursor from '../../ui/Cursor';
+import {default as JSG} from "../../../../jsg-core";
 
 // INNER CLASS
 /**
@@ -160,7 +161,16 @@ class EditShapeInteraction extends Interaction {
 		}
 	}
 
-	/**
+	handleContextMenu(event, viewer) {
+		event.hasActivated = true;
+		NotificationCenter.getInstance().send(
+			new Notification(JSG.EDITPOINTS_SHOW_CONTEXT_MENU_NOTIFICATION, {
+				event
+			})
+		);
+	}
+
+		/**
 	 * Updates the points managed by corresponding {{#crossLink "EditShapeView"}}{{/crossLink}}.
 	 *
 	 * @method setPointList
@@ -243,6 +253,9 @@ class EditShapeInteraction extends Interaction {
 		this.setCurrentMarker(event, viewer);
 	}
 
+	getCurrentMarker() {
+		return this._marker;
+	}
 	/**
 	 * Sets the currently active marker.
 	 *
