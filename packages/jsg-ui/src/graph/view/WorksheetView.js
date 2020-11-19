@@ -830,6 +830,10 @@ export default class WorksheetView extends ContentNodeView {
 
 		const item = this.getItem();
 		const rect = item.getCellRect(new CellRange(item, cell.x, cell.y));
+		return this.showRect(item, rect);
+	}
+
+	showRect(item, rect) {
 		const offset = this.getScrollOffset();
 		const viewport = this.getViewPort();
 
