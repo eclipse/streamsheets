@@ -739,7 +739,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 				return;
 			}
 			const id = Number(drawItem.sheetname);
-			let node = graph.getItemById(id);
+			let node = this.getItemById(id);
 			if (node === undefined && drawItem.source === 'cell') {
 				if (!JSG.Numbers.isNumber(id)) {
 					return;
@@ -794,6 +794,12 @@ module.exports = class StreamSheet extends WorksheetNode {
 				}
 			}
 			if (node) {
+
+				if (node.lastDrawItem && JSON.stringify(drawItem) === JSON.stringify(node.lastDrawItem)) {
+					return;
+				}
+				node.lastDrawItem = drawItem;
+
 				switch (drawItem.type) {
 					case 'rectangle':
 						if (node.getShape().getType() !== RectangleShape.TYPE) {
