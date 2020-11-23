@@ -709,7 +709,7 @@
 	"StreamChartProperties.InvalidAngle": "Der Winkel muss zwischen 0 und 90 Grad liegen!",
 	"StreamChartProperties.InvalidAngleAxis": "Der Winkel muss zwischen -90 und 90 Grad liegen!",
 	"StreamChartProperties.DoughnutHole": "Innerer Radius",
-	"StreamChartProperties.InvalidDoughnutHole": "Der Wert muss zwischen 0 und 80 liegen!",
+	"StreamChartProperties.InvalidDoughnutHole": "Der Wert muss zwischen 0 und 95 liegen!",
 	"StreamChartProperties.StartAngle": "Startwinkel",
 	"StreamChartProperties.InvalidAngle360": "Der Winkel muss zwischen 0 und 360 Grad liegen!",
 	"StreamChartProperties.EndAngle": "Endwinkel",

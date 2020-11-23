@@ -100,7 +100,8 @@ export class StreamChartProperties extends Component {
 	}
 
 	state = {
-		plotView: undefined
+		plotView: undefined,
+		hole: 0,
 	};
 
 	componentDidMount() {
@@ -109,7 +110,11 @@ export class StreamChartProperties extends Component {
 
 	static getDerivedStateFromProps(props, state) {
 		if (props.showStreamChartProperties === true) {
-			return { ...state, plotView: StreamChartProperties.getPlotView() };
+			const plotView = StreamChartProperties.getPlotView();
+			if (plotView !== state.plotView) {
+				const item = plotView.getItem();
+				return {...state, plotView, hole: item.chart.hole};
+			}
 		}
 		return null;
 	}
@@ -285,11 +290,22 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'chart');
 	};
 
-	handleChartHoleChange = (event) => {
-		const cmd = this.prepareCommand('chart');
+	handleChartHoleBlur = () => {
 		const data = this.getData();
-		data.hole = event.target.value / 100;
-		this.finishCommand(cmd, 'chart');
+
+		this.setState({hole: data.hole});
+	}
+
+	handleChartHoleChange = (event) => {
+		const value = event.target.value;
+
+		if (value >= 0 && value <= 95) {
+			const cmd = this.prepareCommand('chart');
+			const data = this.getData();
+			data.hole = event.target.value / 100;
+			this.finishCommand(cmd, 'chart');
+		}
+		this.setState({hole: value / 100});
 	};
 
 	handleChartStartAngleChange = (event) => {
@@ -1690,26 +1706,27 @@ export class StreamChartProperties extends Component {
 															/>
 														}
 														InputProps={{
-															min: 0,
-															max: 80,
+															min: 1,
+															max: 99,
 															step: 1,
 															endAdornment: (
 																<InputAdornment position="end">%</InputAdornment>
 															)
 														}}
-														error={item.chart.hole > 0.8 || item.chart.hole < 0}
+														error={this.state.hole > 0.95 || this.state.hole < 0}
 														helperText={
-															item.chart.hole > 0.8 || item.chart.hole < 0 ? (
+															this.state.hole > 0.95 || this.state.hole < 0 ? (
 																<FormattedMessage
 																	id="StreamChartProperties.InvalidDoughnutHole"
-																	defaultMessage="The hole value must be between 0 and 80 percent!"
+																	defaultMessage="The hole value must be between 0 and 95 percent!"
 																/>
 															) : (
 																''
 															)
 														}
-														value={item.chart.hole * 100}
+														value={Math.round(this.state.hole * 100)}
 														onChange={(event) => this.handleChartHoleChange(event)}
+														onBlur={(event) => this.handleChartHoleBlur(event)}
 														type="number"
 													/>
 												</div>

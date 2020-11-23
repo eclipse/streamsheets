@@ -710,7 +710,7 @@
   "StreamChartProperties.InvalidAngle": "Angle must be between 0 and 90 degrees!",
   "StreamChartProperties.InvalidAngleAxis": "Angle must be between -90 and 90 degrees!",
   "StreamChartProperties.DoughnutHole": "Inner Radius",
-  "StreamChartProperties.InvalidDoughnutHole": "The hole value must be between 0 and 80 percent!",
+  "StreamChartProperties.InvalidDoughnutHole": "The hole value must be between 0 and 95 percent!",
   "StreamChartProperties.StartAngle": "Start Angle",
   "StreamChartProperties.InvalidAngle360": "Angle must be between 0 and 360 degrees!",
   "StreamChartProperties.EndAngle": "End Angle",
