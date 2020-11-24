@@ -1626,7 +1626,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		return sheetDescriptor;
 	}
 
-	updateOrCreateGraphFormulas() {
+	updateOrCreateGraphFormulas(undo) {
 		const formulas = [];
 		let oldFormula;
 		let formula;
@@ -1643,7 +1643,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 					formula = this.createGraphFunction(item);
 				}
 
-				if (formula && (oldFormula !== formula || item._noFormulaUpdate)) {
+				if (formula && (oldFormula !== formula || item._noFormulaUpdate || undo)) {
 					formulas.push({
 						item,
 						formula

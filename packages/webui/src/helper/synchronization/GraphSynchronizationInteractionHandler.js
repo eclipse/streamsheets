@@ -68,18 +68,18 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 			commandJSON.name !== 'command.SetSelectionCommand' &&
 			commandJSON.name !== 'command.ChangeItemOrderCommand' &&
 			updateGraphItems) {
-			this.updateGraphItems();
+			this.updateGraphItems(false);
 		}
 	}
 
-	updateGraphItems() {
+	updateGraphItems(undo) {
 		const cmp = new CompoundCommand();
 		const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
 
 		cmp.isVolatile = true;
 
 		this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
-			const formulas = container.getStreamSheet().updateOrCreateGraphFormulas();
+			const formulas = container.getStreamSheet().updateOrCreateGraphFormulas(undo);
 			Object.values(formulas).forEach((value) => {
 				if (value.formula) {
 					const cmd = new SetAttributeAtPathCommand(value.item, path, new Expression(0, value.formula), true);
@@ -265,7 +265,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 			}
 		}
 
-		this.updateGraphItems();
+		this.updateGraphItems(true);
 
 		return command;
 	}
@@ -312,7 +312,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 			}
 		}
 
-		this.updateGraphItems();
+		this.updateGraphItems(false);
 
 		return command;
 	}
