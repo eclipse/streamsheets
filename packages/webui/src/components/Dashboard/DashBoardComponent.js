@@ -295,15 +295,16 @@ class DashBoardComponent extends Component {
 				fields
 			},
 			{ id: 'url', numeric: false, sort: true, label: 'Streams.URL', width: '20%' },
-			{ id: 'topic', numeric: false, sort: true, label: 'Streams.Topic' },
+			{ id: 'topic', numeric: false, sort: true, label: 'Streams.Topic'},
 			{
 				id: 'lastModified',
 				numeric: false,
 				sort: true,
 				label: 'Streams.LastModified',
-				width: '120px'
+				width: '120px',
+				minWidth: '120px',
 			},
-			{ id: 'action', numeric: false, sort: false, label: 'Streams.Actions', width: '120px' }
+			{ id: 'action', numeric: false, sort: false, label: 'Streams.Actions', width: '95px', minWidth: '95px' }
 		];
 	}
 

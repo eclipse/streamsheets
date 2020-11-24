@@ -91,7 +91,7 @@ const StreamTableRow = (props) => {
 				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!openConnector)} padding="none" align="left">
 					{row.url}
 				</TableCell>
-				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!openConnector)} padding="none" align="left">
+				<TableCell style={{ cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '1000px'}} onClick={() => setOpen(!openConnector)} padding="none" align="left">
 					{row.topic}
 				</TableCell>
 				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!openConnector)} padding="none" align="left">
@@ -180,13 +180,13 @@ const StreamTableRow = (props) => {
 											<TableCell style={{ width: '20%' }} padding="none" align="left">
 												{historyRow.url}
 											</TableCell>
-											<TableCell padding="none" align="left">
+											<TableCell padding="none" align="left" style={{overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '1000px'}}>
 												{historyRow.topic}
 											</TableCell>
-											<TableCell style={{ width: '120px' }} padding="none" align="left">
+											<TableCell style={{ width: '120px', minWidth: '120px' }} padding="none" align="left">
 												{historyRow.lastModified}
 											</TableCell>
-											<TableCell style={{ width: '120px' }} padding="none" align="left">
+											<TableCell style={{ width: '95px', minWidth: '95px' }} padding="none" align="left">
 												<IconButton
 													style={{ padding: '4px' }}
 													size="small"
@@ -270,13 +270,13 @@ const StreamTableRow = (props) => {
 											<TableCell style={{ width: '20%' }} padding="none" align="left">
 												{historyRow.url}
 											</TableCell>
-											<TableCell padding="none" align="left">
+											<TableCell padding="none" align="left" style={{overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '1000px'}}>
 												{historyRow.topic}
 											</TableCell>
-											<TableCell style={{ width: '120px' }} padding="none" align="left">
+											<TableCell style={{ width: '120px', minWidth: '120px' }} padding="none" align="left">
 												{historyRow.lastModified}
 											</TableCell>
-											<TableCell style={{ width: '120px' }} padding="none" align="left">
+											<TableCell style={{ width: '95px', minWidth: '95px' }} padding="none" align="left">
 												<IconButton
 													style={{ padding: '4px' }}
 													size="small"
