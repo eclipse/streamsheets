@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-duplicate-props */
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
@@ -102,6 +103,9 @@ export class StreamChartProperties extends Component {
 	state = {
 		plotView: undefined,
 		hole: 0,
+		startAngle: 0,
+		endAngle: 0,
+		rotation: 0,
 	};
 
 	componentDidMount() {
@@ -113,7 +117,14 @@ export class StreamChartProperties extends Component {
 			const plotView = StreamChartProperties.getPlotView();
 			if (plotView !== state.plotView) {
 				const item = plotView.getItem();
-				return {...state, plotView, hole: item.chart.hole};
+				return {
+					...state,
+					plotView,
+					hole: item.chart.hole,
+					rotation: item.chart.rotation,
+					startAngle: item.chart.startAngle,
+					endAngle: item.chart.endAngle,
+				};
 			}
 		}
 		return null;
@@ -283,11 +294,22 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'chart');
 	};
 
-	handleChartRotationChange = (event) => {
-		const cmd = this.prepareCommand('chart');
+	handleChartRotationBlur = () => {
 		const data = this.getData();
-		data.rotation = JSG.MathUtils.toRadians(Math.max(10, event.target.value));
-		this.finishCommand(cmd, 'chart');
+
+		this.setState({rotation: data.rotation});
+	}
+
+	handleChartRotationChange = (event) => {
+		const value = Number(event.target.value);
+
+		if (value >= 10 && value <= 90) {
+			const cmd = this.prepareCommand('chart');
+			const data = this.getData();
+			data.rotation = JSG.MathUtils.toRadians(value);
+			this.finishCommand(cmd, 'chart');
+		}
+		this.setState({rotation: JSG.MathUtils.toRadians(value)});
 	};
 
 	handleChartHoleBlur = () => {
@@ -297,30 +319,84 @@ export class StreamChartProperties extends Component {
 	}
 
 	handleChartHoleChange = (event) => {
-		const value = event.target.value;
+		const value = Number(event.target.value);
 
 		if (value >= 0 && value <= 95) {
 			const cmd = this.prepareCommand('chart');
 			const data = this.getData();
-			data.hole = event.target.value / 100;
+			data.hole = value / 100;
 			this.finishCommand(cmd, 'chart');
 		}
 		this.setState({hole: value / 100});
 	};
 
+	checkAngles(startAngle, endAngle, start) {
+
+		if (endAngle - startAngle > Math.PI * 2 ||
+			endAngle - startAngle < JSG.MathUtils.toRadians(5)) {
+			return (
+				<FormattedMessage
+					id="StreamChartProperties.InvalidAngleRange"
+					defaultMessage="The angle range must be between 5 and 360 degrees!"
+				/>);
+		}
+
+		if (start && (startAngle > Math.PI * 2 || startAngle < 0)) {
+			return (
+				<FormattedMessage
+					id="StreamChartProperties.InvalidAngle360"
+					defaultMessage="The start range must be 0 and 360 degrees!"
+				/>);
+		}
+
+		if (!start && (endAngle > Math.PI * 3 || endAngle < 0)) {
+			return (
+				<FormattedMessage
+					id="StreamChartProperties.InvalidAngle540"
+					defaultMessage="The end angle must be 0 and 540 degrees!"
+				/>);
+		}
+
+		return '';
+	}
+
+
 	handleChartStartAngleChange = (event) => {
-		const cmd = this.prepareCommand('chart');
-		const data = this.getData();
-		data.startAngle = Math.min(data.endAngle, JSG.MathUtils.toRadians(event.target.value));
-		this.finishCommand(cmd, 'chart');
+		const value = JSG.MathUtils.toRadians(Number(event.target.value));
+
+		if (this.checkAngles(value, this.state.endAngle, true) === '') {
+			const cmd = this.prepareCommand('chart');
+			const data = this.getData();
+			data.startAngle = value;
+			this.finishCommand(cmd, 'chart');
+		}
+		this.setState({startAngle: value});
 	};
 
-	handleChartEndAngleChange = (event) => {
-		const cmd = this.prepareCommand('chart');
+	handleChartStartAngleBlur = () => {
 		const data = this.getData();
-		data.endAngle = Math.max(data.startAngle, JSG.MathUtils.toRadians(event.target.value));
-		this.finishCommand(cmd, 'chart');
+
+		this.setState({startAngle: data.startAngle});
+	}
+
+	handleChartEndAngleChange = (event) => {
+		const value = JSG.MathUtils.toRadians(Number(event.target.value));
+
+		if (this.checkAngles(this.state.startAngle, value, false) === '') {
+			const cmd = this.prepareCommand('chart');
+			const data = this.getData();
+			data.endAngle = value;
+			this.finishCommand(cmd, 'chart');
+		}
+
+		this.setState({endAngle: value});
 	};
+
+	handleChartEndAngleBlur = () => {
+		const data = this.getData();
+
+		this.setState({endAngle: data.endAngle});
+	}
 
 	handleTooltipsChange = (event, state) => {
 		const cmd = this.prepareCommand('chart');
@@ -1657,10 +1733,12 @@ export class StreamChartProperties extends Component {
 																	defaultMessage="Rotation"
 																/>
 															}
-															InputProps={{
+															inputProps={{
 																min: 10,
 																max: 90,
 																step: 5,
+															}}
+															InputProps={{
 																endAdornment: (
 																	<InputAdornment position="end">
 																		<FormattedMessage
@@ -1671,64 +1749,70 @@ export class StreamChartProperties extends Component {
 																)
 															}}
 															error={
-																item.chart.rotation > Math.PI_2 ||
-																item.chart.rotation < 0
+																this.state.rotation > Math.PI_2 ||
+																this.state.rotation < JSG.MathUtils.toRadians(10)
 															}
 															helperText={
-																item.chart.rotation > Math.PI_2 ||
-																item.chart.rotation < 0 ? (
+																this.state.rotation > Math.PI_2 ||
+																this.state.rotation < JSG.MathUtils.toRadians(10) ? (
 																	<FormattedMessage
 																		id="StreamChartProperties.InvalidAngle"
-																		defaultMessage="Angle must be between 0 and 90 degrees!"
+																		defaultMessage="Angle must be between 10 and 90 degrees!"
 																	/>
 																) : (
 																	''
 																)
 															}
-															value={JSG.MathUtils.toDegrees(item.chart.rotation, 0)}
+															value={JSG.MathUtils.toDegrees(this.state.rotation, 0)}
 															onChange={(event) => this.handleChartRotationChange(event)}
+															onBlur={(event) => this.handleChartRotationBlur(event)}
 															type="number"
 														/>
 													) : null}
-													<TextField
-														variant="outlined"
-														size="small"
-														margin="normal"
-														style={{
-															width: '135px',
-															marginLeft: gauge ? '0px' : '10px'
-														}}
-														id="number"
-														label={
-															<FormattedMessage
-																id="StreamChartProperties.DoughnutHole"
-																defaultMessage="Doughnut Hole (Percent)"
-															/>
-														}
-														InputProps={{
-															min: 1,
-															max: 99,
-															step: 1,
-															endAdornment: (
-																<InputAdornment position="end">%</InputAdornment>
-															)
-														}}
-														error={this.state.hole > 0.95 || this.state.hole < 0}
-														helperText={
-															this.state.hole > 0.95 || this.state.hole < 0 ? (
+
+													{!item.isPie() ? (
+														<TextField
+															variant="outlined"
+															size="small"
+															margin="normal"
+															style={{
+																width: '135px',
+																marginLeft: gauge ? '0px' : '10px'
+															}}
+															id="number"
+															label={
 																<FormattedMessage
-																	id="StreamChartProperties.InvalidDoughnutHole"
-																	defaultMessage="The hole value must be between 0 and 95 percent!"
+																	id="StreamChartProperties.DoughnutHole"
+																	defaultMessage="Doughnut Hole (Percent)"
 																/>
-															) : (
-																''
-															)
-														}
-														value={Math.round(this.state.hole * 100)}
-														onChange={(event) => this.handleChartHoleChange(event)}
-														onBlur={(event) => this.handleChartHoleBlur(event)}
-														type="number"
-													/>
+															}
+															inputProps={{
+																min: 0,
+																max: 99,
+																step: 1,
+															}}
+															InputProps={{
+																endAdornment: (
+																	<InputAdornment position="end">%</InputAdornment>
+																)
+															}}
+															error={this.state.hole > 0.95 || this.state.hole < 0}
+															helperText={
+																this.state.hole > 0.95 || this.state.hole < 0 ? (
+																	<FormattedMessage
+																		id="StreamChartProperties.InvalidDoughnutHole"
+																		defaultMessage="The hole value must be between 0 and 95 percent!"
+																	/>
+																) : (
+																	''
+																)
+															}
+															value={Math.round(this.state.hole * 100)}
+															onChange={(event) => this.handleChartHoleChange(event)}
+															onBlur={(event) => this.handleChartHoleBlur(event)}
+															type="number"
+														/>
+													) : null}
 												</div>
 												<div
 													style={{
@@ -1749,10 +1833,12 @@ export class StreamChartProperties extends Component {
 																defaultMessage="Pie Start"
 															/>
 														}
-														InputProps={{
+														inputProps={{
 															min: 0,
 															max: 360,
 															step: 5,
+														}}
+														InputProps={{
 															endAdornment: (
 																<InputAdornment position="end">
 																	<FormattedMessage
@@ -1763,22 +1849,14 @@ export class StreamChartProperties extends Component {
 															)
 														}}
 														error={
-															item.chart.startAngle > Math.PI * 2 ||
-															item.chart.startAngle < 0
+															this.checkAngles(this.state.startAngle, this.state.endAngle, true) !== ''
 														}
 														helperText={
-															item.chart.startAngle > Math.PI * 2 ||
-															item.chart.startAngle < 0 ? (
-																<FormattedMessage
-																	id="StreamChartProperties.InvalidAngle360"
-																	defaultMessage="Angle must be between 0 and 360 degrees!"
-																/>
-															) : (
-																''
-															)
+															this.checkAngles(this.state.startAngle, this.state.endAngle, true)
 														}
-														value={JSG.MathUtils.toDegrees(item.chart.startAngle, 0)}
+														value={JSG.MathUtils.toDegrees(this.state.startAngle, 0)}
 														onChange={(event) => this.handleChartStartAngleChange(event)}
+														onBlur={(event) => this.handleChartStartAngleBlur(event)}
 														type="number"
 													/>
 													<TextField
@@ -1796,10 +1874,12 @@ export class StreamChartProperties extends Component {
 																defaultMessage="Pie End"
 															/>
 														}
-														InputProps={{
+														inputProps={{
 															min: 0,
 															max: 540,
 															step: 5,
+														}}
+														InputProps={{
 															endAdornment: (
 																<InputAdornment position="end">
 																	<FormattedMessage
@@ -1810,21 +1890,14 @@ export class StreamChartProperties extends Component {
 															)
 														}}
 														error={
-															item.chart.endAngle > Math.PI * 3 || item.chart.endAngle < 0
+															this.checkAngles(this.state.startAngle, this.state.endAngle, false) !== ''
 														}
 														helperText={
-															item.chart.endAngle > Math.PI * 3 ||
-															item.chart.endAngle < 0 ? (
-																<FormattedMessage
-																	id="StreamChartProperties.InvalidAngle540"
-																	defaultMessage="Angle must be between 0 and 540 degrees!"
-																/>
-															) : (
-																''
-															)
+															this.checkAngles(this.state.startAngle, this.state.endAngle, false)
 														}
-														value={JSG.MathUtils.toDegrees(item.chart.endAngle, 0)}
+														value={JSG.MathUtils.toDegrees(this.state.endAngle, 0)}
 														onChange={(event) => this.handleChartEndAngleChange(event)}
+														onBlur={(event) => this.handleChartEndAngleBlur(event)}
 														type="number"
 													/>
 												</div>
@@ -2361,10 +2434,12 @@ export class StreamChartProperties extends Component {
 												defaultMessage="Rotate Labels"
 											/>
 										}
-										InputProps={{
+										inputProps={{
 											min: -90,
 											max: 90,
 											step: 5,
+										}}
+										InputProps={{
 											endAdornment: (
 												<InputAdornment position="end">
 													<FormattedMessage
@@ -3394,10 +3469,12 @@ export class StreamChartProperties extends Component {
 												defaultMessage="Rotate Labels"
 											/>
 										}
-										InputProps={{
+										inputProps={{
 											min: -90,
 											max: 90,
 											step: 5,
+										}}
+										InputProps={{
 											endAdornment: (
 												<InputAdornment position="end">
 													<FormattedMessage
