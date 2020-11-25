@@ -256,28 +256,14 @@ export default class SheetActivator extends InteractionActivator {
 		const controller = this._getControllerAt(event.location, viewer, dispatcher);
 		if (controller) {
 			let view = controller.getView();
-			const zDelta = event.getWheelDelta() < 0 ? 1 : -1;
 
 			while (view && !(view instanceof ContentNodeView)) {
 				view = view.getParent();
 			}
 
-			if (view === undefined) {
-				return;
+			if (view !== undefined) {
+				view.handleMouseWheel(event, viewer);
 			}
-
-			const scrollView = view.getScrollView();
-			const pt = scrollView.getScrollPosition();
-
-			if (event.event.shiftKey) {
-				pt.x += zDelta * 2000;
-			} else {
-				pt.y += zDelta * 1500;
-			}
-
-			scrollView.setScrollPositionTo(pt);
-
-			dispatcher.getInteractionHandler().repaint();
 		}
 	}
 

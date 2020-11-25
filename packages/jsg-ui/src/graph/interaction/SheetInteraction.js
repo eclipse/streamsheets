@@ -1319,22 +1319,9 @@ export default class SheetInteraction extends Interaction {
 					view = view.getParent();
 				}
 
-				if (view === undefined) {
-					return;
+				if (view !== undefined) {
+					view.handleMouseWheel(event, viewer);
 				}
-
-				const zDelta = event.getWheelDelta() < 0 ? 1 : -1;
-				const scrollView = view.getScrollView();
-				const pt = scrollView.getScrollPosition();
-
-				if (event.event.shiftKey) {
-					pt.x += zDelta * 2000;
-				} else {
-					pt.y += zDelta * 1500;
-				}
-				scrollView.setScrollPositionTo(pt);
-
-				this.getInteractionHandler().repaint();
 			}
 		}
 	}
