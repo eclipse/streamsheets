@@ -197,8 +197,8 @@ export class CanvasToolBar extends Component {
 	}
 
 	onSheetSelectionChanged(notification) {
-		const { item } = notification.object;
-		const { updateFinal } = notification.object;
+		const {item} = notification.object;
+		const {updateFinal} = notification.object;
 
 		if (!item || !updateFinal) {
 			return;
@@ -208,7 +208,7 @@ export class CanvasToolBar extends Component {
 			return;
 		}
 
-		this.updateState({ graphSelected: false });
+		this.updateState({graphSelected: false});
 	}
 
 	onGraphSelectionChanged() {
@@ -221,7 +221,7 @@ export class CanvasToolBar extends Component {
 		const conts = selection.filter((controller) => controller.getModel() instanceof JSG.StreamSheetContainer);
 
 		if (conts.length === 0) {
-			this.updateState({ graphSelected: true });
+			this.updateState({graphSelected: true});
 		}
 	}
 
@@ -811,6 +811,31 @@ export class CanvasToolBar extends Component {
 		}
 		graphManager.getCanvas().focus();
 	};
+
+	isNumberFormatAvailable = () => {
+		if (this.props.cellSelected) {
+			return true;
+		}
+
+		if (this.state.graphSelected) {
+			const selection = graphManager.getGraphViewer().getSelection();
+			if (selection && selection.length) {
+				const cont = selection[0];
+				if (cont.getModel() instanceof SheetPlotNode) {
+					const sel = cont.getView().chartSelection;
+					if (!sel) {
+						return false;
+					}
+					return sel.element === 'serieslabel' ||
+						sel.element === 'xAxis' ||
+						sel.element === 'yAxis';
+				}
+			}
+			return false;
+		}
+
+		return false;
+	}
 
 	onFormatNumberFormat = (format) => {
 		const attributesMap = new Dictionary();
@@ -2088,7 +2113,7 @@ export class CanvasToolBar extends Component {
 					<div>
 						<IconButton
 							onClick={this.onShowNumberFormat}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={!this.isNumberFormatAvailable()}
 							style={{
 								height: '34px',
 								width: '70px',
@@ -2372,7 +2397,7 @@ export class CanvasToolBar extends Component {
 								fontSize: '16pt'
 							}}
 							onClick={this.onShowHAlign}
-							disabled={(!this.props.cellSelected && !this.state.graphSelected) || this.isChartElementSelected()}
+							disabled={(!this.props.cellSelected && !this.state.graphSelected) || this.isChartSelected()}
 						>
 							{tf && tf.getHorizontalAlignment() && tf.getHorizontalAlignment().getValue() === 3 ? (
 								<FormatAlignJustify fontSize="inherit" />
