@@ -54,6 +54,7 @@ import Cursor from '../../ui/Cursor';
 
 const SHEET_ACTION_NOTIFICATION = 'sheet_action_notification';
 const SHEET_MESSAGE_NOTIFICATION = 'sheet_message_notification';
+const SHEET_SCROLL_NOTIFICATION = 'sheet_scroll_notification';
 
 const HitCode = {
 	NONE: 0,
@@ -1969,6 +1970,28 @@ export default class WorksheetView extends ContentNodeView {
 		this.registerAtGraph(viewer, cell, targetRange, div);
 	}
 
+	handleMouseWheel(event, viewer) {
+		const zDelta = event.getWheelDelta() < 0 ? 1 : -1;
+		const scrollView = this.getScrollView();
+		const pt = scrollView.getScrollPosition();
+
+		if (event.event.shiftKey) {
+			pt.x += zDelta * 2000;
+		} else {
+			pt.y += zDelta * 1500;
+		}
+
+		scrollView.setScrollPositionTo(pt);
+
+		NotificationCenter.getInstance().send(
+			new Notification(WorksheetView.SHEET_SCROLL_NOTIFICATION, {
+				view: this,
+			})
+		);
+
+		viewer.getInteractionHandler().repaint();
+	}
+
 	getFromGraph() {
 		return this.getItem().getGraph().dataView;
 	}
@@ -1989,6 +2012,10 @@ export default class WorksheetView extends ContentNodeView {
 
 	static get SHEET_MESSAGE_NOTIFICATION() {
 		return SHEET_MESSAGE_NOTIFICATION;
+	}
+
+	static get SHEET_SCROLL_NOTIFICATION() {
+		return SHEET_SCROLL_NOTIFICATION;
 	}
 
 	// TODO: extract as class
