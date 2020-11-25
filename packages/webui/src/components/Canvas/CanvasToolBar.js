@@ -1762,7 +1762,7 @@ export class CanvasToolBar extends Component {
 
 	isChartSelected() {
 		const selection = graphManager.getGraphViewer().getSelection();
-		return selection && selection.length && selection[0].getModel() instanceof SheetPlotNode;
+		return selection && selection.length > 0 && (selection[0].getModel() instanceof SheetPlotNode);
 	}
 
 	isChartElementSelected() {

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -565,14 +565,14 @@ class Expression {
 		return value !== undefined ? value.toString() : '';
 	}
 
-	correctFormula(forItem) {
+	correctFormula(item, forceName = false) {
 		if (this._term !== undefined) {
 			this._formula = this._term.toString(
-				{ item: forItem, useName: true },
+				{ item, useName: true, forceName },
 				true
 			);
 			this._isDirty = true;
-			this.evaluate(forItem);
+			this.evaluate(item);
 		}
 	}
 

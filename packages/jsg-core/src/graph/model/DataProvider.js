@@ -896,7 +896,7 @@ module.exports = class DataProvider {
 	pasteData(data, targetRange, action) {
 		const sourceRange = data.range;
 
-		const updateExpression = (sheet, expr, xOff, yOff, absolute) => {
+		const updateExpression = (sheet, expr, xOff, yOff, absolute, forceName = false) => {
 			expr.evaluate(sheet);
 			const term = expr.getTerm();
 			if (term !== undefined) {
@@ -964,7 +964,7 @@ module.exports = class DataProvider {
 					return true;
 				});
 			}
-			expr.correctFormula(sheet);
+			expr.correctFormula(sheet, forceName);
 		};
 
 		const updateCell = (sheet, cell, xOff, yOff, absolute) => {
@@ -1243,7 +1243,7 @@ module.exports = class DataProvider {
 							const expr = attrFormula.getExpression();
 							if (expr !== undefined && expr.hasFormula()) {
 								invalidateExpression(expr);
-								updateExpression(sheet, expr, targetColumn - sourceColumn, targetRow - sourceRow, true);
+								updateExpression(sheet, expr, targetColumn - sourceColumn, targetRow - sourceRow, true, true);
 								item._noFormulaUpdate = true;
 								item.expressions.forEach(exp => {
 									updateExpression(sheet, exp, targetColumn - sourceColumn, targetRow - sourceRow, true);
