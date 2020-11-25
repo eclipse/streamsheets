@@ -42,9 +42,12 @@ class Outbox extends TTLMessageBox {
 	}
 
 	// private - call Outbox.create()
-	constructor(cfg = {}) {
-		cfg = Object.assign({}, DEF_CONF, cfg);
-		super(cfg);
+	constructor() {
+		super(Object.assign({}, DEF_CONF));
+	}
+
+	load() {
+		super.load(Object.assign({}, DEF_CONF));
 	}
 
 	getFirstMessages(n = 100) {
@@ -89,8 +92,8 @@ const setExpireTTL = (message, ttl) => {
 class PersistentOutbox extends Outbox {
 
 	// private - call Outbox.create()
-	constructor(cfg = {}) {
-		super(cfg);
+	constructor() {
+		super();
 		this.storeId = IdGenerator.generate();
 		this.store = new MessageStore();
 	}
