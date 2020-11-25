@@ -774,6 +774,7 @@ export default class GraphManager {
 							markAsDisabled,
 						);
 						treeItemCommand.isVolatile = true;
+						treeItemCommand._keepFeedback = true;
 						this.execute(treeItemCommand);
 					}
 				}
