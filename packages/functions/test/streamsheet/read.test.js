@@ -951,7 +951,11 @@ describe('read', () => {
 						cart: {
 							Quantity: 50,
 							Price: 42,
-							Lineprice: 123
+							Lineprice: 123,
+							Person: {
+								name: 'Foo',
+								age: 42
+							}
 						}
 					},
 					'Session'
@@ -964,6 +968,8 @@ describe('read', () => {
 			expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe(42);
 			expect(sheet.cellAt(SheetIndex.create('A3')).value).toBe('Lineprice');
 			expect(sheet.cellAt(SheetIndex.create('B3')).value).toBe(123);
+			expect(sheet.cellAt(SheetIndex.create('A4')).value).toBe('Person');
+			expect(sheet.cellAt(SheetIndex.create('B4')).value).toEqual({ name: 'Foo', age: 42 });
 			expect(sheet.cellAt(SheetIndex.create('C1'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('D1'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('C2'))).toBeUndefined();
@@ -972,8 +978,12 @@ describe('read', () => {
 			expect(sheet.cellAt(SheetIndex.create('D3'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('C4'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('D4'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('A5'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('B5'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('C5'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('D5'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('A6'))).toBeUndefined();
+			expect(sheet.cellAt(SheetIndex.create('B6'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('C6'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('D6'))).toBeUndefined();
 		});

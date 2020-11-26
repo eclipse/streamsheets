@@ -18,7 +18,7 @@ const {
 } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
-const TYPES = ['array', 'dictionary', 'json', 'range'];
+const TYPES = ['array', 'dictionary', 'json', 'jsonflat', 'range'];
 
 const ensureRange = (json) => {
 	if (Array.isArray(json)) {
@@ -48,6 +48,7 @@ const jsontorange = (sheet, ...terms) =>
 		.mapNextArg((direction) => (direction ? convert.toBoolean(direction.value, ERROR.VALUE) : true))
 		.run((json, range, type, direction) => {
 			let res = true;
+			let flat = true;
 			const spread = 	range.width === 1 && range.height === 1 ? toRangeGrow : toRange
 			switch (type) {
 				case 'array':
@@ -60,9 +61,12 @@ const jsontorange = (sheet, ...terms) =>
 					//dictionary is simply JSON with flipped direction, so
 					direction = !direction;
 					break;
+				case 'json':
+					flat = false;
+					break;
 				default: /* ignore */
 			}
-			json = toArray2D(json, type, true);
+			json = toArray2D(json, type, flat);
 			res = json ? spread(json, range, !direction) : ERROR.VALUE;
 			return res;
 		});
