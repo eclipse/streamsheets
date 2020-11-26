@@ -30,17 +30,21 @@ const flattenObject = (obj, recursive, result) => {
 const flattenJSON = (json, recursive = true) => flattenObject(json, recursive, [[], []]);
 
 const flattenDictionaryList = (list /*, recursive */) => {
-	const keys = new Set();
+	const key2index = new Map();
 	const result = [[]];
 	list.forEach((obj) => {
 		const row = [];
 		result.push(row);
 		Object.entries(obj).forEach(([key, value]) => {
-			keys.add(key);
-			row.push(value);
+			let index = key2index.get(key);
+			if (index == null) {
+				index = key2index.size;
+				key2index.set(key, index);
+			}
+			row[index] = value;
 		});
 	});
-	result[0] = Array.from(keys);
+	result[0] = Array.from(key2index.keys());
 	return result;
 };
 const flattenDictionary = (dict, recursive = true) =>

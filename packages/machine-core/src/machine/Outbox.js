@@ -50,7 +50,7 @@ class Outbox extends TTLMessageBox {
 		super.load(Object.assign({}, DEF_CONF));
 	}
 
-	getFirstMessages(n = 1000) {
+	getFirstMessages(n = 500) {
 		return super.getFirstMessages(n);
 	}
 
