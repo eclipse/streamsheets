@@ -1968,7 +1968,6 @@ export class StreamChartProperties extends Component {
 												inputComponent: MyInputComponent,
 												inputProps: {
 													component: CellRangeComponent,
-													onlyReference: false,
 													sheetView,
 													value: {},
 													range: item.legend.formula.getFormula()
@@ -2180,7 +2179,6 @@ export class StreamChartProperties extends Component {
 													inputComponent: MyInputComponent,
 													inputProps: {
 														component: CellRangeComponent,
-														onlyReference: false,
 														sheetView,
 														value: {},
 														range: item.chart.formula.getFormula()
@@ -2292,7 +2290,6 @@ export class StreamChartProperties extends Component {
 														inputComponent: MyInputComponent,
 														inputProps: {
 															component: CellRangeComponent,
-															onlyReference: false,
 															sheetView,
 															value: {},
 															range: `=${series.formula.getFormula()}`
