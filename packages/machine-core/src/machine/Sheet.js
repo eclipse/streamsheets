@@ -167,6 +167,9 @@ module.exports = class Sheet {
 		return json;
 	}
 
+	get isFinished() {
+		return this.processor.isFinished;
+	}
 	get isProcessing() {
 		return this.processor._isProcessing || this._forceExecution;
 	}

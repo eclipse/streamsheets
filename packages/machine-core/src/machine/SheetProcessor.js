@@ -73,6 +73,16 @@ class SheetProcessor {
 		return result;
 	}
 
+	get isFinished() {
+		const rows = this._sheet._rows;
+		const lastrow = rows[rows.length - 1];
+		const lastcol = lastrow == null ? 0 : lastrow.length;
+		return (
+			this._cursor.stop ||
+			(this._cursor.r >= rows.length && (this._cursor.c == null || this._cursor.c >= lastcol))
+		);
+	}
+
 	get isPaused() {
 		return this._cursor.paused;
 	}
