@@ -504,6 +504,11 @@ class Machine {
 		this._preventStop = false;
 		this.stats.steps += 1;
 		streamsheets.forEach((streamsheet) => streamsheet.step(manual));
+		// await Promise.all(streamsheets.map(async (streamsheet) => await streamsheet.step(manual)));
+		// for (let i = 0; i < streamsheets.length; i += 1) {
+		// 	await streamsheets[i].step(manual);
+		// }
+		// await streamsheets.reduce(async (res, streamsheet) => { await streamsheet.step(manual);	}, undefined);
 		this._emitter.emit('update', 'step');
 		if (this.doStop) {
 			this.stop();
