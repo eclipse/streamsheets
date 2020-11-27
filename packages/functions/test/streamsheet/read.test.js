@@ -1106,6 +1106,55 @@ describe('read', () => {
 		});
 	});
 
+	// DL-4560
+	describe('copy with specified type JSONFLAT', () => {
+		it('should copy a nested JSON flat to specified range', () => {
+			const sheet = setup({ streamsheetName: 'T1' });
+			const outbox = sheet.machine.outbox;
+			outbox.put(
+				new Message({
+					arr: [
+						'hello',
+						{ title: 'Dr', name: 'Strange' },
+						{
+							person: {
+								name: 'foo',
+								age: 42,
+								phones: ['800-123-4567', { prefix: '+49', number: '1234-5678-9' }]
+							}
+						}
+					]
+				}, 'Session')
+			);
+			expect(createTerm('read(outboxdata("Session","arr"),A1:B12,"jsonflat")', sheet).value).toBe('arr');
+			// flattened keys
+			expect(sheet.cellAt('A1').value).toBe('hello');
+			expect(sheet.cellAt('A2').value).toBe('title');
+			expect(sheet.cellAt('A3').value).toBe('name');
+			expect(sheet.cellAt('A4').value).toBe('person');
+			expect(sheet.cellAt('A5').value).toBe('name');
+			expect(sheet.cellAt('A6').value).toBe('age');
+			expect(sheet.cellAt('A7').value).toBe('phones');
+			expect(sheet.cellAt('A8').value).toBe(0);
+			expect(sheet.cellAt('A9').value).toBe(1);
+			expect(sheet.cellAt('A10').value).toBe('prefix');
+			expect(sheet.cellAt('A11').value).toBe('number');
+			expect(sheet.cellAt('A12')).toBeUndefined();
+			// flattened values
+			expect(sheet.cellAt('B1')).toBeUndefined();
+			expect(sheet.cellAt('B2').value).toBe('Dr');
+			expect(sheet.cellAt('B3').value).toBe('Strange');
+			expect(sheet.cellAt('B4')).toBeUndefined();
+			expect(sheet.cellAt('B5').value).toBe('foo');
+			expect(sheet.cellAt('B6').value).toBe(42);
+			expect(sheet.cellAt('B7')).toBeUndefined();
+			expect(sheet.cellAt('B8').value).toBe('800-123-4567');
+			expect(sheet.cellAt('B9')).toBeUndefined();
+			expect(sheet.cellAt('B10').value).toBe('+49');
+			expect(sheet.cellAt('B11').value).toBe('1234-5678-9');
+			expect(sheet.cellAt('B12')).toBeUndefined();
+		});
+	});
 	describe('read inboxmetadata', () => {
 		it('should read simple metadata properties', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
