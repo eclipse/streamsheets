@@ -48,7 +48,6 @@ const jsontorange = (sheet, ...terms) =>
 		.mapNextArg((direction) => (direction ? convert.toBoolean(direction.value, ERROR.VALUE) : true))
 		.run((json, range, type, direction) => {
 			let res = true;
-			let flat = true;
 			const spread = 	range.width === 1 && range.height === 1 ? toRangeGrow : toRange
 			switch (type) {
 				case 'array':
@@ -62,11 +61,10 @@ const jsontorange = (sheet, ...terms) =>
 					direction = !direction;
 					break;
 				case 'json':
-					flat = false;
 					break;
 				default: /* ignore */
 			}
-			json = toArray2D(json, type, flat);
+			json = toArray2D(json, type);
 			res = json ? spread(json, range, !direction) : ERROR.VALUE;
 			return res;
 		});
