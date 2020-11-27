@@ -29,26 +29,44 @@ const flattenObject = (obj, recursive, result) => {
 // returns a 2D array with keys in first row and values in second => so we can handle it same as range!!
 const flattenJSON = (json, recursive = true) => flattenObject(json, recursive, [[], []]);
 
-const flattenDictionaryList = (list /*, recursive */) => {
+const flattenObjectList = (list) => {
 	const key2index = new Map();
 	const result = [[]];
 	list.forEach((obj) => {
 		const row = [];
 		result.push(row);
-		Object.entries(obj).forEach(([key, value]) => {
-			let index = key2index.get(key);
-			if (index == null) {
-				index = key2index.size;
-				key2index.set(key, index);
-			}
-			row[index] = value;
-		});
+		// ensure value is actually an object
+		if (isType.object(obj)) {
+			Object.entries(obj).forEach(([key, value]) => {
+				let index = key2index.get(key);
+				if (index == null) {
+					index = key2index.size;
+					key2index.set(key, index);
+				}
+				row[index] = value;
+			});
+		} else {
+			// ...otherwise we simply add primitive as key (might not always be a good solution! improve...)
+			key2index.set(obj, key2index.size);
+		}
 	});
 	result[0] = Array.from(key2index.keys());
 	return result;
 };
-const flattenDictionary = (dict, recursive = true) =>
-	Array.isArray(dict) ? flattenDictionaryList(dict) : flattenJSON(dict, recursive);
+const flattenArrayRecursive = (list) => {
+	const result = [[], []];
+	list.forEach((obj) => {
+		if (isType.object(obj)) {
+			const res = flattenJSON(obj);
+			result[0] = result[0].concat(res[0]);
+			result[1] = result[1].concat(res[1]);
+		} else {
+			result[0].push(obj);
+			result[1].push(undefined);
+		}
+	});
+	return result;
+};
 
 // DL-1122: spread a list of objects...
 const toObjectList = (json) => {
@@ -62,37 +80,41 @@ const toObjectList = (json) => {
 	}, []);
 	return list.length === keys.length ? list : undefined;
 };
-const flattenArrayType = (json, recursive) => {
+const flattenArray = (json) => {
 	if (Array.isArray(json)) {
 		const firstEntry = json[0];
 		if (Array.isArray(firstEntry)) return json;
-		return isType.object(firstEntry) ? flattenDictionary(json, recursive) : [json];
+		return isType.object(firstEntry) ? flattenObjectList(json) : [json];
 	}
-	return flattenJSON(json, recursive);
+	return flattenJSON(json, false);
 };
 // create an 2d array from json
-const toArray2D = (json, type, recursive) => {
-// NOTE: no indices for arrays and objects (DL-4033)!!
-	let lists;
+const toArray2D = (json, type /* , recursive */) => {
+	// NOTE: no indices for arrays and objects (DL-4033)!!
 	// create an 2d array from json
-	if (type === 'array') {
-		lists = flattenArrayType(json, recursive);
-	} else if (type === 'dictionary') {
-		// json can contain a list of objects!
-		lists = Array.isArray(json) ? flattenDictionary(json, recursive) : flattenJSON(json, recursive);
-	} else if (Array.isArray(json)) {
-		lists = flattenArrayType(json, recursive);
-	} else if (isType.object(json)) {
-		lists = toObjectList(json);
-		if (lists) {
-			lists = isType.object(lists[0]) && !Array.isArray(lists[0]) ? flattenDictionary(lists, recursive) : lists;
-		} else {
-			lists = flattenJSON(json, recursive);
+	switch (type) {
+		case 'array':
+			return flattenArray(json);
+		case 'dictionary':
+		case 'json':
+			return Array.isArray(json) ? flattenObjectList(json) : flattenJSON(json, false);
+		case 'jsonflat':
+			return Array.isArray(json) ? flattenArrayRecursive(json) : flattenJSON(json, true);
+		default: {
+			// try to figure out:
+			if (Array.isArray(json)) return flattenArray(json);
+			if (isType.object(json)) {
+				const lists = toObjectList(json);
+				if (lists) {
+					return isType.object(lists[0]) && !Array.isArray(lists[0])
+						? flattenObjectList(lists)
+						: lists;
+				}
+				return flattenJSON(json, false);
+			}
+			return flattenJSON(json, false);
 		}
-	} else {
-		lists = flattenJSON(json, recursive);
 	}
-	return lists;
 };
 
 module.exports = {
