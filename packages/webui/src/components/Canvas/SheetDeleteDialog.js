@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -108,7 +108,7 @@ class SheetDeleteDialog extends React.Component {
 						<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 					</Button>
 					<Button color="primary" onClick={this.handleSubmitDeleteSheet}>
-						<FormattedMessage id="OK" defaultMessage="OK" />
+						<FormattedMessage id="Delete" defaultMessage="Delete" />
 					</Button>
 				</DialogActions>
 			</Dialog>

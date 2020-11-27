@@ -132,6 +132,7 @@
   "ShowInbox": "Show Inbox",
   "GreyIfRows": "Paint IF Rows with transparency",
   "DeleteSheetDialog": "Delete Streamsheet",
+  "DeleteSheet": "Delete",
   "DeleteSheetDialog.message": "This action can not be undone. Are you sure, you want to delete the Streamsheet: '{sheet}' ?",
   "DeleteMachineDialog": "Delete App",
   "DeleteMachineDialog.message": "This action can not be undone! Are you sure, you want to delete the machine: '{machine}'?",

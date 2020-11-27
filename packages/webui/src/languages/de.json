@@ -132,6 +132,7 @@
 	"ShowInbox": "Eingang anzeigen",
 	"GreyIfRows": "IF Zeilen mit Transparenz zeichnen",
 	"DeleteSheetDialog": "Streamsheet löschen",
+	"DeleteSheet": "Löschen",
 	"DeleteSheetDialog.message": "Sind sie sicher, dass sie das Streamsheet '{sheet}' löschen wollen?",
 	"DeleteMachineDialog": "App löschen",
 	"DeleteMachineDialog.message": "Dieser Vorgang kann nicht rückgängig gemacht werden. Wollen Sie die App \"{machine}\" wirklich löschen?",
