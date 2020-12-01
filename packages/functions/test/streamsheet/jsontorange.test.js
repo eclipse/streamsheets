@@ -119,14 +119,13 @@ describe('json.to.range', () => {
 			});
 			createCellAt('A6', { formula: 'json.to.range(JSON(A1:B3),A7:B9)' }, sheet);
 			await machine.step();
-			// DL-4560: output should conform to read-logic, so:
 			expect(sheet.cellAt('A6').value).toBe(true);
-			// expect(sheet.cellAt('A7').value).toBe(0);
-			expect(sheet.cellAt('A7').value).toBe('hello');
-			// expect(sheet.cellAt('A8').value).toBe(1);
-			expect(sheet.cellAt('A8').value).toBe('world');
-			// expect(sheet.cellAt('A9').value).toBe(2);
-			expect(sheet.cellAt('A9').value).toBe(false);
+			expect(sheet.cellAt('A7').value).toBe(0);
+			expect(sheet.cellAt('B7').value).toBe('hello');
+			expect(sheet.cellAt('A8').value).toBe(1);
+			expect(sheet.cellAt('B8').value).toBe('world');
+			expect(sheet.cellAt('A9').value).toBe(2);
+			expect(sheet.cellAt('B9').value).toBe(false);
 		});
 		it('should support array based json and direction set to false', async () => {
 			const { machine, sheet } = setup();
@@ -137,14 +136,13 @@ describe('json.to.range', () => {
 			});
 			createCellAt('A6', { formula: 'json.to.range(JSON(A1:B3),A7:C8,,false)' }, sheet);
 			await machine.step();
-			// DL-4560: output should conform to read-logic, so:
 			expect(sheet.cellAt('A6').value).toBe(true);
-			// expect(sheet.cellAt('A7').value).toBe(0);
-			// expect(sheet.cellAt('B7').value).toBe(1);
-			// expect(sheet.cellAt('C7').value).toBe(2);
-			expect(sheet.cellAt('A7').value).toBe('hello');
-			expect(sheet.cellAt('B7').value).toBe('world');
-			expect(sheet.cellAt('C7').value).toBe(false);
+			expect(sheet.cellAt('A7').value).toBe(0);
+			expect(sheet.cellAt('B7').value).toBe(1);
+			expect(sheet.cellAt('C7').value).toBe(2);
+			expect(sheet.cellAt('A8').value).toBe('hello');
+			expect(sheet.cellAt('B8').value).toBe('world');
+			expect(sheet.cellAt('C8').value).toBe(false);
 		});
 		it('should only write first level of nested objects in arrays', async () => {
 			const { machine, sheet } = setup();
@@ -172,28 +170,26 @@ describe('json.to.range', () => {
 					}
 				}
 			] */
-			createCellAt('A20', { formula: 'json.to.range(JSON(A3:B14),A21:C24)' }, sheet);
+			createCellAt('A20', { formula: 'json.to.range(JSON(A3:B14),A21:C23)' }, sheet);
 			await machine.step();
+			// DL-4560: it should preserve indices on type json!
 			expect(sheet.cellAt('A20').value).toBe(true);
-			expect(sheet.cellAt('A21').value).toBe('title');
-			expect(sheet.cellAt('B21').value).toBe('Dr.');
-			expect(sheet.cellAt('C21')).toBeUndefined();
-			expect(sheet.cellAt('A22').value).toBe('name');
-			expect(sheet.cellAt('B22').value).toBe('Strange');
-			expect(sheet.cellAt('C22')).toBeUndefined();
-			expect(sheet.cellAt('A23').value).toBe('person');
-			expect(sheet.cellAt('B23')).toBeUndefined();
-			expect(sheet.cellAt('C23').value).toEqual({
-				name: 'foo',
-				age: 42,
-				phones: ['800-123-4567', { prefix: '+49', number: '1234-5678-9' }]
+			expect(sheet.cellAt('A21').value).toBe(0);
+			expect(sheet.cellAt('B21').value).toEqual({ title: 'Dr.', name: 'Strange' });
+			expect(sheet.cellAt('A22').value).toBe(1);
+			expect(sheet.cellAt('B22').value).toEqual({
+				person: {
+					name: 'foo',
+					age: 42,
+					phones: ['800-123-4567', { prefix: '+49', number: '1234-5678-9' }]
+				}
 			});
-			// all others are undefined:
-			expect(sheet.cellAt('A24')).toBeUndefined();
-			expect(sheet.cellAt('B24')).toBeUndefined();
-			expect(sheet.cellAt('C24')).toBeUndefined();
+			// all others are undefined
+			expect(sheet.cellAt('A23')).toBeUndefined();
+			expect(sheet.cellAt('B23')).toBeUndefined();
+			expect(sheet.cellAt('C23')).toBeUndefined();
 		});
-		it('should only write first level nested objects and direction set to false', async () => {
+		it('should only write first level of nested objects and direction set to false', async () => {
 			const { machine, sheet } = setup();
 			sheet.loadCells({
 				A3: { type: 'number', value: 0, level: 0},
@@ -219,26 +215,24 @@ describe('json.to.range', () => {
 					}
 				}
 			] */
-			createCellAt('A20', { formula: 'json.to.range(JSON(A3:B14),A21:C24,,false)' }, sheet);
+			createCellAt('A20', { formula: 'json.to.range(JSON(A3:B14),A21:C23,,false)' }, sheet);
 			await machine.step();
+			// DL-4560: it should preserve indices on type json!
 			expect(sheet.cellAt('A20').value).toBe(true);
-			expect(sheet.cellAt('A21').value).toBe('title');
-			expect(sheet.cellAt('B21').value).toBe('name');
-			expect(sheet.cellAt('C21').value).toBe('person');
-			expect(sheet.cellAt('A22').value).toBe('Dr.');
-			expect(sheet.cellAt('B22').value).toBe('Strange');
-			expect(sheet.cellAt('C22')).toBeUndefined();
-			expect(sheet.cellAt('A23')).toBeUndefined();
-			expect(sheet.cellAt('B23')).toBeUndefined();
-			expect(sheet.cellAt('C23').value).toEqual({
-				name: 'foo',
-				age: 42,
-				phones: ['800-123-4567', { prefix: '+49', number: '1234-5678-9' }]
+			expect(sheet.cellAt('A21').value).toBe(0);
+			expect(sheet.cellAt('B21').value).toBe(1);
+			expect(sheet.cellAt('A22').value).toEqual({ title: 'Dr.', name: 'Strange' });
+			expect(sheet.cellAt('B22').value).toEqual({
+				person: {
+					name: 'foo',
+					age: 42,
+					phones: ['800-123-4567', { prefix: '+49', number: '1234-5678-9' }]
+				}
 			});
 			// all others are undefined:
-			expect(sheet.cellAt('A24')).toBeUndefined();
-			expect(sheet.cellAt('B24')).toBeUndefined();
-			expect(sheet.cellAt('C24')).toBeUndefined();
+			expect(sheet.cellAt('A23')).toBeUndefined();
+			expect(sheet.cellAt('B23')).toBeUndefined();
+			expect(sheet.cellAt('C23')).toBeUndefined();
 		});
 		it('should support json in which some keys have null values', async () => {
 			const { machine, sheet } = setup();
@@ -318,24 +312,18 @@ describe('json.to.range', () => {
 			] */
 			createCellAt('A20', { formula: 'json.to.range(JSON(A3:B14),A21:A21)' }, sheet);
 			await machine.step();
+			// DL-4560: it should preserve indices on type json!
 			expect(sheet.cellAt('A20').value).toBe(true);
-			expect(sheet.cellAt('A21').value).toBe('title');
-			expect(sheet.cellAt('B21').value).toBe('Dr.');
-			expect(sheet.cellAt('C21')).toBeUndefined();
-			expect(sheet.cellAt('A22').value).toBe('name');
-			expect(sheet.cellAt('B22').value).toBe('Strange');
-			expect(sheet.cellAt('C22')).toBeUndefined();
-			expect(sheet.cellAt('A23').value).toBe('person');
-			expect(sheet.cellAt('B23')).toBeUndefined();
-			expect(sheet.cellAt('C23').value).toEqual({
-				name: 'foo',
-				age: 42,
-				phones: ['800-123-4567', { prefix: '+49', number: '1234-5678-9' }]
+			expect(sheet.cellAt('A21').value).toBe(0);
+			expect(sheet.cellAt('B21').value).toEqual({ title: 'Dr.', name: 'Strange' });
+			expect(sheet.cellAt('A22').value).toBe(1);
+			expect(sheet.cellAt('B22').value).toEqual({
+				person: {
+					name: 'foo',
+					age: 42,
+					phones: ['800-123-4567', { prefix: '+49', number: '1234-5678-9' }]
+				}
 			});
-			// all others are undefined:
-			expect(sheet.cellAt('A24')).toBeUndefined();
-			expect(sheet.cellAt('B24')).toBeUndefined();
-			expect(sheet.cellAt('C24')).toBeUndefined();
 			// no nested with false direction!
 			sheet.loadCells({
 				A3: { type: 'number', value: 0, level: 0},
@@ -363,24 +351,18 @@ describe('json.to.range', () => {
 			] */
 			createCellAt('A20', { formula: 'json.to.range(JSON(A3:B14),A21:A21,,false)' }, sheet);
 			await machine.step();
+			// DL-4560: it should preserve indices on type json!
 			expect(sheet.cellAt('A20').value).toBe(true);
-			expect(sheet.cellAt('A21').value).toBe('title');
-			expect(sheet.cellAt('B21').value).toBe('name');
-			expect(sheet.cellAt('C21').value).toBe('person');
-			expect(sheet.cellAt('A22').value).toBe('Dr.');
-			expect(sheet.cellAt('B22').value).toBe('Strange');
-			expect(sheet.cellAt('C22')).toBeUndefined();
-			expect(sheet.cellAt('A23')).toBeUndefined();
-			expect(sheet.cellAt('B23')).toBeUndefined();
-			expect(sheet.cellAt('C23').value).toEqual({
-				name: 'foo',
-				age: 42,
-				phones: ['800-123-4567', { prefix: '+49', number: '1234-5678-9' }]
+			expect(sheet.cellAt('A21').value).toBe(0);
+			expect(sheet.cellAt('B21').value).toBe(1);
+			expect(sheet.cellAt('A22').value).toEqual({ title: 'Dr.', name: 'Strange' });
+			expect(sheet.cellAt('B22').value).toEqual({
+				person: {
+					name: 'foo',
+					age: 42,
+					phones: ['800-123-4567', { prefix: '+49', number: '1234-5678-9' }]
+				}
 			});
-			// all others are undefined:
-			expect(sheet.cellAt('A24')).toBeUndefined();
-			expect(sheet.cellAt('B24')).toBeUndefined();
-			expect(sheet.cellAt('C24')).toBeUndefined();
 		});
 	});
 	describe('type jsonflat', () => {

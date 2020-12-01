@@ -96,8 +96,9 @@ const toArray2D = (json, type /* , recursive */) => {
 		case 'array':
 			return flattenArray(json);
 		case 'dictionary':
-		case 'json':
 			return Array.isArray(json) ? flattenObjectList(json) : flattenJSON(json, false);
+		case 'json':
+			return flattenJSON(json, false);
 		case 'jsonflat':
 			return Array.isArray(json) ? flattenArrayRecursive(json) : flattenJSON(json, true);
 		default: {

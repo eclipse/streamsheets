@@ -1107,6 +1107,42 @@ describe('read', () => {
 	});
 
 	// DL-4560
+	describe('copy with specified type JSON', () => {
+		it('should preserve indices if writing object list', () => {
+			const sheet = setup({ streamsheetName: 'T1' });
+			const outbox = sheet.machine.outbox;
+			outbox.put(
+				new Message({
+					arr: [
+						'hello',
+						{ title: 'Dr', name: 'Strange' },
+						{
+							person: {
+								name: 'foo',
+								age: 42,
+								phones: ['800-123-4567', { prefix: '+49', number: '1234-5678-9' }]
+							}
+						}
+					]
+				}, 'Session')
+			);
+			expect(createTerm('read(outboxdata("Session","arr"),A1:B12,"json")', sheet).value).toBe('arr');
+			// keys
+			expect(sheet.cellAt('A1').value).toBe(0);
+			expect(sheet.cellAt('A2').value).toBe(1);
+			expect(sheet.cellAt('A3').value).toBe(2);
+			// values:
+			expect(sheet.cellAt('B1').value).toBe('hello');
+			expect(sheet.cellAt('B2').value).toEqual({ title: 'Dr', name: 'Strange' });
+			expect(sheet.cellAt('B3').value).toEqual({
+				person: {
+					name: 'foo',
+					age: 42,
+					phones: ['800-123-4567', { prefix: '+49', number: '1234-5678-9' }]
+				}
+			});
+		});
+	});
 	describe('copy with specified type JSONFLAT', () => {
 		it('should copy a nested JSON flat to specified range', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
