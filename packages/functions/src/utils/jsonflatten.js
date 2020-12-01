@@ -91,7 +91,6 @@ const flattenArray = (json) => {
 // create an 2d array from json
 const toArray2D = (json, type /* , recursive */) => {
 	// NOTE: no indices for arrays and objects (DL-4033)!!
-	// create an 2d array from json
 	switch (type) {
 		case 'array':
 			return flattenArray(json);
