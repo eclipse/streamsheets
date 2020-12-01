@@ -315,6 +315,10 @@ class StreamSheet {
 		this.inbox.subscribe();
 	}
 
+	resume() {
+		/* do nothing */
+	}
+
 	start() {
 		this._detachMessage(this._msgHandler.message);
 		this.inbox.clear();

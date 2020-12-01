@@ -404,6 +404,9 @@ class Machine {
 				if (this._state === State.STOPPED) {
 					this._activeStreamSheets = null;
 					allStreamSheets.forEach((streamsheet) => streamsheet.start());
+				} else {
+					// resume streamsheets:
+					allStreamSheets.forEach((streamsheet) => streamsheet.resume());
 				}
 				this._emitter.emit('willStart', this);
 				this._state = State.RUNNING;
