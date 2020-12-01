@@ -66,7 +66,7 @@ const copyToCellRange = (range, data, type, isHorizontal) => {
 		setCellAt(range.start, data, sheet);
 	} else {
 		// spread array to range, support jsonflat (DL-4560)
-		const lists = type === 'jsonflat' ? toArray2D(data, 'jsonflat') : toArray2D(data, type);
+		const lists = toArray2D(data, type);
 		const horizontally = isHorizontal == null ? range.height < range.width : isHorizontal;
 		toRange(lists, range, horizontally, setCellAt);
 	}
