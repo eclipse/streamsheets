@@ -30,6 +30,7 @@ const reset = (cursor, sheetsettings) => {
 	cursor.changed = false;
 	cursor.paused = false;
 	cursor.resumed = false;
+	cursor.finished = false;
 };
 
 const newCursor = () => ({
@@ -38,7 +39,8 @@ const newCursor = () => ({
 	stop: false,
 	changed: false,
 	paused: false,
-	resumed: false
+	resumed: false,
+	finished: false
 });
 
 class SheetProcessor {
@@ -74,13 +76,8 @@ class SheetProcessor {
 	}
 
 	get isFinished() {
-		const rows = this._sheet._rows;
-		const lastrow = rows[rows.length - 1];
-		const lastcol = lastrow == null ? 0 : lastrow.length;
-		return (
-			this._cursor.stop ||
-			(this._cursor.r >= rows.length && (this._cursor.c == null || this._cursor.c >= lastcol))
-		);
+		// stopped by return or completely processed
+		return this._cursor.stop || this._cursor.finished;
 	}
 
 	get isPaused() {
@@ -124,6 +121,7 @@ class SheetProcessor {
 		let skipRow = false;
 		cursor.stop = false;
 		cursor.changed = false;
+		cursor.finished = false;
 
 		for (; cursor.r < last && this._isProcessing && !cursor.stop; ) {
 			const row = rows[cursor.r];
@@ -161,6 +159,7 @@ class SheetProcessor {
 		// reset cursor if sheet is processed completely
 		if (cursor.r >= last) {
 			reset(cursor, sheet.settings);
+			cursor.finished = true;
 		}
 
 		sheet.graphCells.evaluating = true;
