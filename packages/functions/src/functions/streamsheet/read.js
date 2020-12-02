@@ -21,9 +21,9 @@ const {
 } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
+const TYPES = ['array', 'boolean', 'dictionary', 'json', 'jsontop', 'number', 'range', 'string'];
 
 const toBool = (term, defval) => term ? convert.toBoolean(term.value, defval) : defval;
-const toString = term => (term ? convert.toString(term.value, '') : '');
 const termFromValue = (value) => (isType.object(value) ? new ObjectTerm(value) : Term.fromValue(value));
 
 // eslint-disable-next-line no-nested-ternary
@@ -75,13 +75,19 @@ const copyToCellRange = (range, data, type, isHorizontal) => {
 const validate = (range, errorcode) =>
 	((!range || FunctionErrors.isError(range) || FunctionErrors.isError(range.sheet)) ? errorcode : undefined);
 
+const getType = (term) => {
+	let value = term ? convert.toString(term.value) : undefined;
+	if (value != null) value = value.toLowerCase();
+	// eslint-disable-next-line no-nested-ternary
+	return value == null ? 'json' : TYPES.includes(value) ? value : undefined;
+};
 const read = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(5)
 		.mapNextArg((msgTerm) => messages.getMessageInfo(sheet, msgTerm))
 		.mapNextArg((target) => target && getCellRangeFromTerm(target, sheet))
-		.mapNextArg((type) => toString(type).toLowerCase())
+		.mapNextArg((type) => getType(type) || ERROR.VALUE)
 		.mapNextArg((isHorizontal) => toBool(isHorizontal, undefined))
 		.mapNextArg((returnNA) => toBool(returnNA, false))
 		.validate((msgInfo, targetRange) => targetRange && validate(targetRange, ERROR.INVALID_PARAM))

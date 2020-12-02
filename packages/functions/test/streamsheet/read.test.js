@@ -670,7 +670,7 @@ describe('read', () => {
 					'Session'
 				)
 			);
-			expect(createTerm('read(outboxdata("Session","cart"), A1:F10)', sheet).value).toBe('cart');
+			expect(createTerm('read(outboxdata("Session","cart"),A1:F10,"array")', sheet).value).toBe('cart');
 			expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe('Product');
 			expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe('Quantity');
 			expect(sheet.cellAt(SheetIndex.create('C1')).value).toBe('Price');
@@ -712,7 +712,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST3.data), 'Test3'));
-			expect(createTerm('read(outboxdata("Test3"), A44:J53,, true)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test3"),A44:J53,"array",true)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A44').value).toBe('Artikelnummer');
 			expect(sheet.cellAt('B44').value).toBe('Produktname');
 			expect(sheet.cellAt('C44').value).toBe('Preis');
@@ -796,7 +796,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST3d.data), 'Test3d'));
-			expect(createTerm('read(outboxdata("Test3d"), A44:J53,, true)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test3d"), A44:J53,"array", true)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A44').value).toBe('M1200');
 			expect(sheet.cellAt('B44').value).toBe('Cedalo MQTT Broker');
 			expect(sheet.cellAt('C44').value).toBe(1000);
@@ -816,7 +816,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST3d.data), 'Test3d'));
-			expect(createTerm('read(outboxdata("Test3d"), A44:J53,, false)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test3d"),A44:J53,"array",false)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A44').value).toBe('M1200');
 			expect(sheet.cellAt('A45').value).toBe('Cedalo MQTT Broker');
 			expect(sheet.cellAt('A46').value).toBe(1000);
@@ -836,7 +836,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST5.data), 'Test5'));
-			expect(createTerm('read(outboxdata("Test5"), A66:H73,, true)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test5"),A66:H73,"array",true)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A66').value).toBe('');
 			expect(sheet.cellAt('B66').value).toBe('Jan');
 			expect(sheet.cellAt('C66').value).toBe('Feb');
@@ -869,7 +869,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST8.data), 'Test8'));
-			expect(createTerm('read(outboxdata("Test8"), A93:H100,, false)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test8"),A93:H100,"array",false)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A93').value).toBe('');
 			expect(sheet.cellAt('B93').value).toBe('Jan');
 			expect(sheet.cellAt('C93').value).toBe('Feb');
@@ -960,7 +960,7 @@ describe('read', () => {
 			// only for special triggers like MACHINE_START/STOP and RANDOM or TIMER...
 			t1.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' });
 			const sheet = t1.sheet;
-			const read = createTerm('read(inboxdata(, ,"RawValue"),C1:D3, "Dictionary")', sheet);
+			const read = createTerm('read(inboxdata(, ,"RawValue"),C1:D3,"Dictionary")', sheet);
 			sheet.setCellAt('A1', new Cell(null, read));
 			// add some messages to consume...
 			t1.inbox.put(new Message({
@@ -1024,7 +1024,7 @@ describe('read', () => {
 					'Session'
 				)
 			);
-			expect(createTerm('read(outboxdata("Session","cart"), A1:D6)', sheet).value).toBe('cart');
+			expect(createTerm('read(outboxdata("Session","cart"),A1:D6,"dictionary")', sheet).value).toBe('cart');
 			expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe('Quantity');
 			expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(50);
 			expect(sheet.cellAt(SheetIndex.create('A2')).value).toBe('Price');
@@ -1056,7 +1056,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(Object.assign({}, copy(MESSAGES.TEST3b.data)), 'Test3b'));
-			expect(createTerm('read(outboxdata("Test3b"), A44:J53,, true)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test3b"),A44:J53,"dictionary",true)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A44').value).toBe(1234);
 			expect(sheet.cellAt('A45').value).toBe(5678);
 			expect(sheet.cellAt('A46').value).toBe(9012);
@@ -1082,7 +1082,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(Object.assign({}, copy(MESSAGES.TEST3a.data)), 'Test3a'));
-			expect(createTerm('read(outboxdata("Test3a"), A44:J53,, true)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test3a"),A44:J53,"dictionary",true)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A44').value).toBe('Artikelnummer');
 			expect(sheet.cellAt('B44')).toBeUndefined();
 			expect(sheet.cellAt('A45').value).toBe('Produktname');
@@ -1102,7 +1102,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(Object.assign({}, copy(MESSAGES.TEST7.data)), 'Test7'));
-			expect(createTerm('read(outboxdata("Test7"), A84:D91,, true)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test7"),A84:D91,"dictionary",true)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A84').value).toBe('');
 			expect(sheet.cellAt('B84').value).toBe('Jan');
 			expect(sheet.cellAt('C84').value).toBe('Feb');
@@ -1123,7 +1123,7 @@ describe('read', () => {
 			// only for special triggers like MACHINE_START/STOP and RANDOM or TIMER...
 			t1.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' });
 			const sheet = t1.sheet;
-			const read = createTerm('read(inboxdata(, ,"RawValue"),C1:D3, "Dictionary", ,true)', sheet);
+			const read = createTerm('read(inboxdata(, ,"RawValue"),C1:D3,"Dictionary",,true)', sheet);
 			sheet.setCellAt('A1', new Cell(null, read));
 			// add some messages to consume...
 			t1.inbox.put(new Message({
@@ -1353,7 +1353,7 @@ describe('read', () => {
 					{ Name: 'Wurst', Vorname: 'Hans', Alter: 23 },
 					{ Name: 'Gluck', Vorname: 'Hans', Alter: 42 }], 'out1'));
 
-				const read = createTerm('read(OUTBOXDATA("out1"),A2:C4, , true)', sheet);
+				const read = createTerm('read(OUTBOXDATA("out1"),A2:C4,"dictionary",true)', sheet);
 				sheet.setCellAt('A1', new Cell(null, read));
 				t1.step();
 				expect(sheet.cellAt('A2').value).toBe('Name');
@@ -1366,7 +1366,7 @@ describe('read', () => {
 				expect(sheet.cellAt('B4').value).toBe('Hans');
 				expect(sheet.cellAt('C4').value).toBe(42);
 				// same with vertical align
-				const read2 = createTerm('read(OUTBOXDATA("out1"),A2:C4, , false)', sheet);
+				const read2 = createTerm('read(OUTBOXDATA("out1"),A2:C4,"dictionary",false)', sheet);
 				sheet.setCellAt('A1', new Cell(null, read2));
 				t1.step();
 				expect(sheet.cellAt('A2').value).toBe('Name');
@@ -1390,7 +1390,7 @@ describe('read', () => {
 					1: { Art: 'Kosten', Jan: 69, Feb: 0, Mar: 70 },
 					2: { Art: 'Ertrag', Jan: 6, Feb: 91, Mar: 67 }
 				}));
-				const read = createTerm('read(INBOXDATA(,),A4:D7,, true)', sheet);
+				const read = createTerm('read(INBOXDATA(,),A4:D7,"dictionary",true)', sheet);
 				sheet.setCellAt('A1', new Cell(null, read));
 				t1.step();
 				expect(sheet.cellAt('A4').value).toBe('Art');
@@ -1422,7 +1422,7 @@ describe('read', () => {
 					['Kosten', 69, 0, 70],
 					['Ertrag', 6, 91, 67]
 				]));
-				const read = createTerm('read(INBOXDATA(,),A4:D7,, false)', sheet);
+				const read = createTerm('read(INBOXDATA(,),A4:D7,"dictionary",false)', sheet);
 				sheet.setCellAt('A1', new Cell(null, read));
 				t1.step();
 				expect(sheet.cellAt('A4').value).toBe('Art');

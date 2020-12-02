@@ -95,13 +95,6 @@ const toArray2D = (json, type /* , recursive */) => {
 		case 'array':
 			return flattenArray(json);
 		case 'dictionary':
-			return Array.isArray(json) ? flattenObjectList(json) : flattenJSON(json, false);
-		case 'jsontop':
-			return flattenJSON(json, false);
-		case 'json':
-			return Array.isArray(json) ? flattenArrayRecursive(json) : flattenJSON(json, true);
-		default: {
-			// try to figure out:
 			if (Array.isArray(json)) return flattenArray(json);
 			if (isType.object(json)) {
 				const lists = toObjectList(json);
@@ -110,8 +103,13 @@ const toArray2D = (json, type /* , recursive */) => {
 						? flattenObjectList(lists)
 						: lists;
 				}
-				return flattenJSON(json, false);
 			}
+			return flattenJSON(json, false);			
+		case 'jsontop':
+			return flattenJSON(json, false);
+		case 'json':
+			return Array.isArray(json) ? flattenArrayRecursive(json) : flattenJSON(json, true);
+		default: {
 			return flattenJSON(json, false);
 		}
 	}
