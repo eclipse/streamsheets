@@ -18,7 +18,7 @@ const {
 } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
-const TYPES = ['array', 'dictionary', 'json', 'jsonflat', 'range'];
+const TYPES = ['array', 'dictionary', 'json', 'jsontop', 'range'];
 
 const ensureRange = (json) => {
 	if (Array.isArray(json)) {

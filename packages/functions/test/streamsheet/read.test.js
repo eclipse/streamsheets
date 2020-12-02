@@ -1170,7 +1170,7 @@ describe('read', () => {
 	});
 
 	// DL-4560
-	describe('copy with specified type JSON', () => {
+	describe('copy with specified type JSONTOP', () => {
 		it('should preserve indices if writing object list', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			const outbox = sheet.machine.outbox;
@@ -1189,7 +1189,7 @@ describe('read', () => {
 					]
 				}, 'Session')
 			);
-			expect(createTerm('read(outboxdata("Session","arr"),A1:B12,"json")', sheet).value).toBe('arr');
+			expect(createTerm('read(outboxdata("Session","arr"),A1:B12,"jsontop")', sheet).value).toBe('arr');
 			// keys
 			expect(sheet.cellAt('A1').value).toBe(0);
 			expect(sheet.cellAt('A2').value).toBe(1);
@@ -1206,7 +1206,7 @@ describe('read', () => {
 			});
 		});
 	});
-	describe('copy with specified type JSONFLAT', () => {
+	describe('copy with specified type JSON', () => {
 		it('should copy a nested JSON flat to specified range', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			const outbox = sheet.machine.outbox;
@@ -1225,7 +1225,7 @@ describe('read', () => {
 					]
 				}, 'Session')
 			);
-			expect(createTerm('read(outboxdata("Session","arr"),A1:B12,"jsonflat")', sheet).value).toBe('arr');
+			expect(createTerm('read(outboxdata("Session","arr"),A1:B12,"json")', sheet).value).toBe('arr');
 			// flattened keys
 			expect(sheet.cellAt('A1').value).toBe('hello');
 			expect(sheet.cellAt('A2').value).toBe('title');
