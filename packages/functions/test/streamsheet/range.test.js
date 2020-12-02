@@ -63,10 +63,15 @@ describe('range & read', () => {
 		expect(sheet.cellAt('B6').value).toBe('B1');
 		expect(sheet.cellAt('C6').value).toBe('C1');
 		expect(sheet.cellAt('D6')).toBeUndefined();
-		expect(sheet.cellAt('A7').value).toBe('A2');
-		expect(sheet.cellAt('B7').value).toBe('B2');
-		expect(sheet.cellAt('C7').value).toBe('C2');
+		// all others are undefined now (DL-4614)
+		expect(sheet.cellAt('A7')).toBeUndefined();
+		expect(sheet.cellAt('B7')).toBeUndefined();
+		expect(sheet.cellAt('C7')).toBeUndefined();
 		expect(sheet.cellAt('D7')).toBeUndefined();
+		// expect(sheet.cellAt('A7').value).toBe('A2');
+		// expect(sheet.cellAt('B7').value).toBe('B2');
+		// expect(sheet.cellAt('C7').value).toBe('C2');
+		// expect(sheet.cellAt('D7')).toBeUndefined();
 	});
 	test('read should restore values with null', async () => {
 		const machine = new Machine();
@@ -86,9 +91,14 @@ describe('range & read', () => {
 		expect(sheet.cellAt('D6')).toBeUndefined();
 		expect(sheet.cellAt('E6').value).toBe('E1');
 		expect(sheet.cellAt('A7')).toBeUndefined();
-		expect(sheet.cellAt('B7').value).toBe('B2');
+		// all others are undefined now (DL-4614)
+		expect(sheet.cellAt('B7')).toBeUndefined();
 		expect(sheet.cellAt('C7')).toBeUndefined();
-		expect(sheet.cellAt('D7').value).toBe('D2');
+		expect(sheet.cellAt('D7')).toBeUndefined();
 		expect(sheet.cellAt('E7')).toBeUndefined();
+		// expect(sheet.cellAt('B7').value).toBe('B2');
+		// expect(sheet.cellAt('C7')).toBeUndefined();
+		// expect(sheet.cellAt('D7').value).toBe('D2');
+		// expect(sheet.cellAt('E7')).toBeUndefined();
 	});
 });
