@@ -88,12 +88,21 @@ const flattenArray = (json) => {
 	}
 	return flattenJSON(json, false);
 };
+const ensureRange = (json) => {
+	if (Array.isArray(json)) {
+		const firstEntry = json[0];
+		return firstEntry != null && !Array.isArray(firstEntry) ? [json] : json;
+	}
+	return undefined;
+};
 // create an 2d array from json
 const toArray2D = (json, type /* , recursive */) => {
 	// NOTE: no indices for arrays and objects (DL-4033)!!
 	switch (type) {
-		case 'array':
-			return flattenArray(json);
+		case 'array': {
+			const lists = ensureRange(json);
+			return lists ? [lists[0]] : flattenJSON(json);
+		}
 		case 'dictionary':
 			if (Array.isArray(json)) return flattenArray(json);
 			if (isType.object(json)) {
@@ -109,6 +118,10 @@ const toArray2D = (json, type /* , recursive */) => {
 			return flattenJSON(json, false);
 		case 'json':
 			return Array.isArray(json) ? flattenArrayRecursive(json) : flattenJSON(json, true);
+		case 'range': {
+			const lists = ensureRange(json);
+			return lists ? flattenArray(lists) : flattenJSON(json, false);
+		}
 		default: {
 			return flattenJSON(json, false);
 		}

@@ -20,13 +20,6 @@ const {
 const ERROR = FunctionErrors.code;
 const TYPES = ['array', 'dictionary', 'json', 'jsontop', 'range'];
 
-const ensureRange = (json) => {
-	if (Array.isArray(json)) {
-		const firstEntry = json[0];
-		return firstEntry != null && !Array.isArray(firstEntry) ? [json] : json;
-	}
-	return undefined;
-};
 const getType = (term) => {
 	let value = convert.toString(term.value);
 	if (value != null) value = value.toLowerCase();
@@ -52,8 +45,6 @@ const jsontorange = (sheet, ...terms) =>
 			switch (type) {
 				case 'array':
 				case 'range':
-					type = 'array';
-					json = ensureRange(json);
 					direction = !direction;
 					break;
 				case 'dictionary':
