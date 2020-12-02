@@ -435,6 +435,19 @@ describe('ContinuouslyTrigger', () => {
 		expect(s1.stats.steps).toBe(1);
 		await machine.stop();
 	});
+
+	it.skip('should stop if new trigger is set', () => {
+		expect(false).toBe(true);
+	});
+	it.skip('should stop "repeat until.." if new trigger is set', () => {
+		expect(false).toBe(true);
+	});
+	it.skip('should stop "repeat until.." if machine is stopped', () => {
+		expect(false).toBe(true);
+	});
+	it.skip('should do no "repeat until.." on manual step', () => {
+		expect(false).toBe(true);
+	});
 });
 
 

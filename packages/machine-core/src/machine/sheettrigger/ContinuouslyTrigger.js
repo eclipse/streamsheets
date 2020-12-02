@@ -26,6 +26,7 @@ class ContinuouslyTrigger extends AbstractStreamSheetTrigger {
 	resume() {
 		this.isActive = true;
 		if (this.isEndless) this._repeatStep();
+		else this._trigger();
 	}
 	start() {
 		this.isActive = true;
@@ -41,6 +42,10 @@ class ContinuouslyTrigger extends AbstractStreamSheetTrigger {
 		// we have to stay active
 		this.isActive = true;
 		return true;
+	}
+
+	stopRepeat() {
+		/* currently do nothing */
 	}
 
 	step(manual) {
