@@ -733,19 +733,28 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('B5').value).toBe(0);
 			expect(sheet.cellAt('C5').value).toBe(1);
-			expect(sheet.cellAt('A6').value).toBe('v2');
-			expect(sheet.cellAt('B6').value).toBe(2);
-			expect(sheet.cellAt('C6').value).toBe(3);
+			// all others are undefined now (DL-4614)
+			// expect(sheet.cellAt('A6').value).toBe('v2');
+			// expect(sheet.cellAt('B6').value).toBe(2);
+			// expect(sheet.cellAt('C6').value).toBe(3);
+			expect(sheet.cellAt('A6')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('C6')).toBeUndefined();
 			// read in by column
 			createCellAt('A4', { formula: 'json.to.range(array(A1:C2, false),A5:B7,"array")' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('B5').value).toBe('v2');
-			expect(sheet.cellAt('A6').value).toBe(0);
-			expect(sheet.cellAt('B6').value).toBe(2);
-			expect(sheet.cellAt('A7').value).toBe(1);
-			expect(sheet.cellAt('B7').value).toBe(3);
+			// all others are undefined now (DL-4614)
+			// expect(sheet.cellAt('A6').value).toBe(0);
+			// expect(sheet.cellAt('B6').value).toBe(2);
+			// expect(sheet.cellAt('A7').value).toBe(1);
+			// expect(sheet.cellAt('B7').value).toBe(3);
+			expect(sheet.cellAt('A6')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('A7')).toBeUndefined();
+			expect(sheet.cellAt('B7')).toBeUndefined();
 		});
 		it('should handle objects in array() encoded JSON as simple values', async () => {
 			const { machine, sheet } = setup();
@@ -760,11 +769,17 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('B5').value).toBe(0);
 			expect(sheet.cellAt('C5').value).toBe(1);
-			expect(sheet.cellAt('A6').value).toBe('v2');
-			expect(sheet.cellAt('B6').value).toBe(2);
-			expect(sheet.cellAt('C6').value).toBe(3);
-			expect(sheet.cellAt('A7').value).toBe('v3');
-			expect(sheet.cellAt('B7').value).toEqual({ v1: 0 });
+			// all others are undefined now (DL-4614)
+			expect(sheet.cellAt('A6')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('C6')).toBeUndefined();
+			expect(sheet.cellAt('A7')).toBeUndefined();
+			expect(sheet.cellAt('B7')).toBeUndefined();
+			// expect(sheet.cellAt('A6').value).toBe('v2');
+			// expect(sheet.cellAt('B6').value).toBe(2);
+			// expect(sheet.cellAt('C6').value).toBe(3);
+			// expect(sheet.cellAt('A7').value).toBe('v3');
+			// expect(sheet.cellAt('B7').value).toEqual({ v1: 0 });
 			expect(sheet.cellAt('C7')).toBeUndefined();
 			expect(sheet.cellAt('A8')).toBeUndefined();
 			expect(sheet.cellAt('B8')).toBeUndefined();
@@ -790,19 +805,28 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('A6').value).toBe(0);
 			expect(sheet.cellAt('A7').value).toBe(1);
-			expect(sheet.cellAt('B5').value).toBe('v2');
-			expect(sheet.cellAt('B6').value).toBe(2);
-			expect(sheet.cellAt('B7').value).toBe(3);
+			// all others are undefined now (DL-4614)
+			expect(sheet.cellAt('B5')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('B7')).toBeUndefined();
+			// expect(sheet.cellAt('B5').value).toBe('v2');
+			// expect(sheet.cellAt('B6').value).toBe(2);
+			// expect(sheet.cellAt('B7').value).toBe(3);
 			// read in by column
 			createCellAt('A4', { formula: 'json.to.range(array(A1:C2,false),A5:C6,"array",false)' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('A6').value).toBe('v2');
-			expect(sheet.cellAt('B5').value).toBe(0);
-			expect(sheet.cellAt('B6').value).toBe(2);
-			expect(sheet.cellAt('C5').value).toBe(1);
-			expect(sheet.cellAt('C6').value).toBe(3);
+			// all others are undefined now (DL-4614)
+			expect(sheet.cellAt('B5')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('C5')).toBeUndefined();
+			expect(sheet.cellAt('C6')).toBeUndefined();
+			// expect(sheet.cellAt('B5').value).toBe(0);
+			// expect(sheet.cellAt('B6').value).toBe(2);
+			// expect(sheet.cellAt('C5').value).toBe(1);
+			// expect(sheet.cellAt('C6').value).toBe(3);
 		});
 		it('should clear target range if array() encoded JSON is empty', async () => {
 			const { machine, sheet } = setup();
@@ -824,12 +848,19 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('B5').value).toBe(0);
 			expect(sheet.cellAt('C5')).toBeUndefined();
-			expect(sheet.cellAt('A6').value).toBe('v2');
-			expect(sheet.cellAt('B6').value).toBe(2);
+			// all others are undefined now (DL-4614)
+			expect(sheet.cellAt('A6')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
 			expect(sheet.cellAt('C6')).toBeUndefined();
 			expect(sheet.cellAt('A7')).toBeUndefined();
 			expect(sheet.cellAt('B7')).toBeUndefined();
 			expect(sheet.cellAt('C7')).toBeUndefined();
+			// expect(sheet.cellAt('A6').value).toBe('v2');
+			// expect(sheet.cellAt('B6').value).toBe(2);
+			// expect(sheet.cellAt('C6')).toBeUndefined();
+			// expect(sheet.cellAt('A7')).toBeUndefined();
+			// expect(sheet.cellAt('B7')).toBeUndefined();
+			// expect(sheet.cellAt('C7')).toBeUndefined();
 
 			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
 			createCellAt('A4', { formula: 'json.to.range(array(A1:C2),A5:B6,"array",false)' }, sheet);
@@ -838,12 +869,19 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('A6').value).toBe(0);
 			expect(sheet.cellAt('A7')).toBeUndefined();
-			expect(sheet.cellAt('B5').value).toBe('v2');
-			expect(sheet.cellAt('B6').value).toBe(2);
+			// all others are undefined now (DL-4614)
+			expect(sheet.cellAt('B5')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
 			expect(sheet.cellAt('B7')).toBeUndefined();
 			expect(sheet.cellAt('C5')).toBeUndefined();
 			expect(sheet.cellAt('C6')).toBeUndefined();
 			expect(sheet.cellAt('C7')).toBeUndefined();
+			// expect(sheet.cellAt('B5').value).toBe('v2');
+			// expect(sheet.cellAt('B6').value).toBe(2);
+			// expect(sheet.cellAt('B7')).toBeUndefined();
+			// expect(sheet.cellAt('C5')).toBeUndefined();
+			// expect(sheet.cellAt('C6')).toBeUndefined();
+			// expect(sheet.cellAt('C7')).toBeUndefined();
 		});
 		it('should create a suitable target range if specified one contains only one cell', async () => {
 			const { machine, sheet } = setup();
@@ -854,9 +892,13 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('B5').value).toBe(0);
 			expect(sheet.cellAt('C5').value).toBe(1);
-			expect(sheet.cellAt('A6').value).toBe('v2');
-			expect(sheet.cellAt('B6').value).toBe(2);
-			expect(sheet.cellAt('C6').value).toBe(3);
+			// all others are undefined now (DL-4614)
+			expect(sheet.cellAt('A6')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('C6')).toBeUndefined();
+			// expect(sheet.cellAt('A6').value).toBe('v2');
+			// expect(sheet.cellAt('B6').value).toBe(2);
+			// expect(sheet.cellAt('C6').value).toBe(3);
 			// read in by column
 			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
 			createCellAt('A4', { formula: 'json.to.range(array(A1:C2,false),A5:A5,"array")' }, sheet);
@@ -864,10 +906,15 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('B5').value).toBe('v2');
-			expect(sheet.cellAt('A6').value).toBe(0);
-			expect(sheet.cellAt('B6').value).toBe(2);
-			expect(sheet.cellAt('A7').value).toBe(1);
-			expect(sheet.cellAt('B7').value).toBe(3);
+			// all others are undefined now (DL-4614)
+			expect(sheet.cellAt('A6')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('A7')).toBeUndefined();
+			expect(sheet.cellAt('B7')).toBeUndefined();
+			// expect(sheet.cellAt('A6').value).toBe(0);
+			// expect(sheet.cellAt('B6').value).toBe(2);
+			// expect(sheet.cellAt('A7').value).toBe(1);
+			// expect(sheet.cellAt('B7').value).toBe(3);
 			// again but with direction to false
 			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
 			createCellAt('A4', { formula: 'json.to.range(array(A1:C2),A5:A5,"array",false)' }, sheet);
@@ -876,19 +923,28 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('A6').value).toBe(0);
 			expect(sheet.cellAt('A7').value).toBe(1);
-			expect(sheet.cellAt('B5').value).toBe('v2');
-			expect(sheet.cellAt('B6').value).toBe(2);
-			expect(sheet.cellAt('B7').value).toBe(3);
+			// all others are undefined now (DL-4614)
+			expect(sheet.cellAt('B5')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('B7')).toBeUndefined();
+			// expect(sheet.cellAt('B5').value).toBe('v2');
+			// expect(sheet.cellAt('B6').value).toBe(2);
+			// expect(sheet.cellAt('B7').value).toBe(3);
 			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
 			createCellAt('A4', { formula: 'json.to.range(array(A1:C2,false),A5:A5,"array",false)' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('A6').value).toBe('v2');
-			expect(sheet.cellAt('B5').value).toBe(0);
-			expect(sheet.cellAt('B6').value).toBe(2);
-			expect(sheet.cellAt('C5').value).toBe(1);
-			expect(sheet.cellAt('C6').value).toBe(3);
+			// all others are undefined now (DL-4614)
+			expect(sheet.cellAt('B5')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('C5')).toBeUndefined();
+			expect(sheet.cellAt('C6')).toBeUndefined();
+			// expect(sheet.cellAt('B5').value).toBe(0);
+			// expect(sheet.cellAt('B6').value).toBe(2);
+			// expect(sheet.cellAt('C5').value).toBe(1);
+			// expect(sheet.cellAt('C6').value).toBe(3);
 		});
 	});
 	describe('type dictionary', () => {
