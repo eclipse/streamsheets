@@ -13,18 +13,12 @@ class StreamSheet2 extends StreamSheet {
 	// 	super(conf);
 	// }
 
-	// TODO rename => called by return function
-	stopProcessing(retval) {
-		this.trigger.stop();
-		this.sheet.stopProcessing(retval);
-		if (this.trigger.isEndless) this._msgHandler.next();
-	}
 	// called by sheet functions:
-	execute(message, repetitions, callback) {
-		// TODO: better pass source, i.e. calling, streamsheet instead of callback?
+	execute(message, repetitions, callingSheet) {
 		if (this.trigger.type === StreamSheetTrigger.TYPE.EXECUTE) {
 			// attach message?
-			this.trigger.execute(repetitions, message);
+			if (message) this._attachExecuteMessage(message);
+			this.trigger.execute(repetitions, callingSheet);
 			return true;
 		}
 		return false;
@@ -39,11 +33,25 @@ class StreamSheet2 extends StreamSheet {
 		// }
 		// return doIt;
 	}
+	// TODO maybe rename => called only by return function
+	stopProcessing(retval) {
+		this.trigger.stop();
+		this.sheet.stopProcessing(retval);
+		if (this.trigger.isEndless) {
+			this._msgHandler.next();
+			this.trigger.stopRepeat();
+		}
+	}
+	pauseProcessing() {
+		this.sheet.pauseProcessing();
+		this.trigger.pause();
+	}
+	resumeProcessing() {
+		this.sheet.resumeProcessing();
+		this.trigger.resume();
+	}
 
-	// pauseProcessing() {}
-	// resumeProcessing() {}
-
-	// machine paused:
+	// called by machine:
 	pause() {
 		super.pause();
 		this.trigger.pause();
@@ -85,8 +93,10 @@ class StreamSheet2 extends StreamSheet {
 	// 	return result;
 	// }
 
-	triggerStep(message) {
-		this._attachMessage2(message);
+	// called by trigger
+	triggerStep() {
+		// TODO: should we do this on step() ???
+		this._attachMessage2();
 		const result = this.sheet.startProcessing();
 		if (this.sheet.isFinished) {
 			if (!this.trigger.isEndless) this._msgHandler.next();
@@ -95,6 +105,16 @@ class StreamSheet2 extends StreamSheet {
 		return result;
 	}
 
+	_attachExecuteMessage(message) {
+		// attach or reuse:
+		if (message === this._msgHandler.message && !this._msgHandler.isProcessed) {
+			this._msgHandler.reset();
+		} else {
+			this.stats.messages += 1;
+			this._msgHandler.message = message;
+			this._emitMessageEvent('message_attached', message);
+		}
+	}
 	_attachMessage2(message) {
 		// get new message if old one is processed and a new one exists
 		if (this._msgHandler.isProcessed) {

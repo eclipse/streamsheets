@@ -31,8 +31,7 @@ const functions = {
 				const msgId = msgstr.startsWith('in:') ? msgstr.substr(3) : msgstr.substr(4);
 				message = box.peek(msgId);
 			}
-			// return streamsheet.execute({ message }, repetitions);
-			return streamsheet.execute(message, repetitions);
+			return streamsheet.execute(message, repetitions, sheet.streamsheet);
 		}
 		return true;
 	},

@@ -20,6 +20,8 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 		// only active on execute trigger:
 		this.isActive = false;
 		this._stepId = undefined;
+		this._stopRepeat = false;
+		this._callingSheet = undefined;
 		this._repeatStep = this._repeatStep.bind(this);
 	}
 
@@ -27,11 +29,19 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 		return StreamSheetTrigger.TYPE.EXECUTE;
 	}
 
-	// TODO: remove message parameter
-	execute(repetitions, message) {
+	execute(repetitions, callingSheet) {
 		this.isActive = true;
+		if (this.isEndless) {
+			callingSheet.pauseProcessing();
+			this._callingSheet = callingSheet;
+		}
 		// start calculating
-		this._doExecute(repetitions, message);
+		this._doExecute(repetitions);
+	}
+
+	stopRepeat() {
+		this.isActive = false;
+		this._stopRepeat = true;
 	}
 
 	pause() {
@@ -77,9 +87,9 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 		// }
 		// we are in repeat mode
 	}
-	_doExecute(repeats = 1, message) {
-		for (let i = 0; i < repeats; i += 1) {
-			this._trigger(message);
+	_doExecute(repetitions = 1) {
+		for (let i = 0; this.isActive && i < repetitions; i += 1) {
+			this._trigger();
 		}
 		// if (this._stepId == null) {
 		// 	// (DL-531): reset repeat-steps on first cycle...
@@ -109,10 +119,15 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 			clearTrigger(this);
 		}
 	}
-	// TODO: remove message parameter
-	_trigger(message) {
+	_trigger() {
 		const streamsheet = this._streamsheet;
-		return streamsheet.triggerStep(message);
+		const result = streamsheet.triggerStep();
+		// should we resume callingSheet
+		if (this._stopRepeat && this._callingSheet) {
+			this._stopRepeat = false;
+			this._callingSheet.resumeProcessing();
+		}
+		return result;
 	}
 }
 module.exports = ExecuteTrigger;
