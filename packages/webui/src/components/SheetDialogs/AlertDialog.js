@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -19,7 +19,7 @@ import React, { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { intl } from '../../helper/IntlGlobalProvider';
 import { useJSGNotification } from './JSGHooks';
-		
+
 
 export default function AlertDialog() {
 	const [open, setOpen] = useState(false);
@@ -74,7 +74,7 @@ export default function AlertDialog() {
 					<DialogContentText>{id ? intl.formatMessage({ id }) : message}</DialogContentText>
 				</DialogContent>
 				<DialogActions>
-					<Button autoFocus color="primary" onClick={handleClose}>
+					<Button id="okalert" autoFocus color="primary" onClick={handleClose}>
 						<FormattedMessage id="OK" defaultMessage="OK" />
 					</Button>
 				</DialogActions>
