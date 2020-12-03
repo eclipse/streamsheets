@@ -53,20 +53,6 @@ const flattenObjectList = (list) => {
 	result[0] = Array.from(key2index.keys());
 	return result;
 };
-const flattenArrayRecursive = (list) => {
-	const result = [[], []];
-	list.forEach((obj) => {
-		if (isType.object(obj)) {
-			const res = flattenJSON(obj);
-			result[0] = result[0].concat(res[0]);
-			result[1] = result[1].concat(res[1]);
-		} else {
-			result[0].push(obj);
-			result[1].push(undefined);
-		}
-	});
-	return result;
-};
 
 // DL-1122: spread a list of objects...
 const toObjectList = (json) => {
@@ -117,7 +103,7 @@ const toArray2D = (json, type /* , recursive */) => {
 		case 'jsonroot':
 			return flattenJSON(json, false);
 		case 'json':
-			return Array.isArray(json) ? flattenArrayRecursive(json) : flattenJSON(json, true);
+			return flattenJSON(json,true);
 		case 'range': {
 			const lists = ensureRange(json);
 			return lists ? flattenArray(lists) : flattenJSON(json, false);
