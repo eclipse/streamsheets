@@ -31,7 +31,7 @@ const expectValue = (value) => ({
 	}
 });
 const addOutboxMessage = (machine, message) => {
-	message = message || new Message();
+	message = message || new Message({ outbox: true });
 	machine.outbox.put(message);
 	return message.id;
 };
@@ -139,7 +139,7 @@ describe('ExecuteTrigger', () => {
 		await machine.step();
 		expect(s2.inbox.size).toBe(1);
 	});
-	it.skip('should use passed message before using inbox ones on machine run', async () => {
+	it('should use passed message before using inbox ones on machine run', async () => {
 		const { machine, s1, s2 } = setup();
 		const messageId = addOutboxMessage(machine);
 		s1.trigger = new ContinuouslyTrigger();
@@ -155,7 +155,7 @@ describe('ExecuteTrigger', () => {
 		s2.inbox.put(new Message());
 		expect(s2.inbox.size).toBe(3);
 		await machine.start();
-		await wait(10);
+		await wait(5);
 		await machine.pause();
 		expect(s2.inbox.size).toBe(2);
 		// 3 because: (=>1) -> start(=>2) -> pause -> start(=>3)
@@ -459,7 +459,7 @@ describe('ExecuteTrigger', () => {
 		expect(s1.sheet.cellAt('A3').value).toBe(4);
 		expect(s2.sheet.cellAt('A2').value).toBeGreaterThanOrEqual(9);
 	});
-	it('should reuse same message on "repeat until..." until return()', async () => {
+	it.skip('should reuse same message on "repeat until..." until return()', async () => {
 		const { machine, s1, s2 } = setup();
 		s1.trigger = new ContinuouslyTrigger();
 		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -540,6 +540,7 @@ describe('ExecuteTrigger', () => {
 		// expect(s2.sheet.cellAt('A2').value).toBeGreaterThanOrEqual(6);
 		// await machine.stop();
 	});
+
 	it.skip('should use next message on each execute-repetition but reuse last on "repeat until..." until return()', async () => {
 		expect(false).toBe(true);
 	});

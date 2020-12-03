@@ -25,8 +25,10 @@ class ContinuouslyTrigger extends AbstractStreamSheetTrigger {
 	}
 	resume() {
 		this.isActive = true;
-		if (this.isEndless) this._repeatStep();
-		else this._trigger();
+		// called by machine on start from pause...
+		// no need to repeatStep() or trigger will be done on first step which should be executed immediately by machine cycle
+		// if (this.isEndless) this._repeatStep();
+		// else this._trigger();
 	}
 	start() {
 		this.isActive = true;

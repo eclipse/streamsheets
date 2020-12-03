@@ -15,7 +15,7 @@ const PropertiesManager = require('./PropertiesManager');
 const ReferenceUpdater = require('./ReferenceUpdater');
 const SheetIndex = require('./SheetIndex');
 const SheetRange = require('./SheetRange');
-const SheetProcessor = require('./SheetProcessor');
+const SheetProcessor2 = require('./SheetProcessor2');
 const State = require('../State');
 const { SheetDrawings, SheetParser } = require('../parser/SheetParser');
 const { getSheetCellsAsObject } = require('../ipc/utils');
@@ -139,7 +139,7 @@ module.exports = class Sheet {
 		this.streamsheet = streamsheet;
 		this.namedCells = new NamedCells();
 		this.graphCells = new GraphCells(this);
-		this.processor = new SheetProcessor(this);
+		this.processor = new SheetProcessor2(this);
 		this.sheetDrawings = new SheetDrawings();
 		this.onUpdate = undefined;
 		this.onCellRangeChange = undefined;
@@ -149,6 +149,7 @@ module.exports = class Sheet {
 		this._lastInsertIndex = SheetIndex.create(1, 0);
 		// tmp. => need a better mechanism...
 		this._forceExecution = false;
+		this._isProcessing = false;
 		// properties
 		this.properties = PropertiesManager.of(this, config.properties);
 		// helper functions:
@@ -168,10 +169,23 @@ module.exports = class Sheet {
 	}
 
 	get isFinished() {
-		return this.processor.isFinished;
+		return this.processor.isProcessed;
 	}
+	get isProcessed() {
+		return this.processor.isProcessed;
+	}
+
+	get isReady() {
+		return this.processor.isReady;
+	}
+
+	get isStopped() {
+		return this.processor.isStopped;
+	}
+
 	get isProcessing() {
-		return this.processor._isProcessing || this._forceExecution;
+		// return this.processor.isProcessing || this._forceExecution;
+		return this._isProcessing || this._forceExecution;
 	}
 	get isPaused() {
 		return this.processor.isPaused;
@@ -575,6 +589,23 @@ module.exports = class Sheet {
 				}
 			}
 		}
+	}
+
+	process() {
+		// TODO: remove _lastInsertIndex!!
+		this._lastInsertIndex.set(1, 0);
+		this._isProcessing = true;
+		const result = this.processor.process();
+		this._isProcessing = false;
+		return result;
+		// try {
+		// 	return this.processor.process();
+		// } catch (err) {
+		// 	/* ignore */
+		// } finally {
+		// 	this._isProcessing = false;
+		// }
+		// return undefined;
 	}
 
 	startProcessing() {

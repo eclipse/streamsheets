@@ -9,9 +9,10 @@ class StreamSheet2 extends StreamSheet {
 	// 	executesteps: 0,
 	// 	repeatsteps: 0
 	// }
-	// constructor(conf = {}) {
-	// 	super(conf);
-	// }
+	constructor(conf = {}) {
+		super(conf);
+		this._triggerCounter = 0;
+	}
 
 	// called by sheet functions:
 	execute(message, repetitions, callingSheet) {
@@ -78,7 +79,10 @@ class StreamSheet2 extends StreamSheet {
 		// TODO: here we check if machine is paused or sheet is waiting etc. if not we can go on...
 		try {
 			// this._doStep(manual);
+			// if we stopped on return() we start again...
+			// if (this.sheet.isStopped) this.sheet.startProcessing();
 			this.trigger.step(manual);
+			// if (this.sheet.isProcessing) this.sheet.stopProcessing();
 		} catch (err) {
 			console.error(err);
 		}
@@ -94,22 +98,49 @@ class StreamSheet2 extends StreamSheet {
 	// }
 
 	// called by trigger
-	triggerStep() {
+	triggerStepORG() {
 		// TODO: should we do this on step() ???
 		this._attachMessage2();
 		const result = this.sheet.startProcessing();
-		if (this.sheet.isFinished) {
+		if (this.sheet.isProcessed) {
 			if (!this.trigger.isEndless) this._msgHandler.next();
 			this._detachMessage2();
 		}
 		return result;
 	}
-
+	triggerStep() {
+		this._triggerCounter += 1;
+		if (this.sheet.isReady || this.sheet.isProcessed) this._attachMessage3();
+		const result = this.sheet.process();
+		if (this.sheet.isProcessed) {
+			// on endless we reuse message
+			if (!this.trigger.isEndless) this._msgHandler.next();
+			this._detachMessage2();
+		}
+		return result;
+	}
+	_attachMessage3() {
+		if (this._msgHandler.isProcessed) {
+			let newMessage;
+			const oldMessage = this._msgHandler.message;
+			if (this.inbox.size > 1) {
+				if (oldMessage) this.inbox.pop(oldMessage.id);
+				newMessage = this.inbox.peek();
+			}
+			if (newMessage) {
+				this.stats.messages += 1; // newMessage ? 1 : 0;
+				this._msgHandler.message = newMessage;
+				this._emitMessageEvent('message_attached', newMessage);
+			}
+		}
+	}
 	_attachExecuteMessage(message) {
 		// attach or reuse:
-		if (message === this._msgHandler.message && !this._msgHandler.isProcessed) {
-			this._msgHandler.reset();
-		} else {
+		if (message === this._msgHandler.message && !this._msgHandler.isProcessed) this._msgHandler.reset();
+		else this._attachMessage(message);
+	}
+	_attachMessage(message) {
+		if (message) {
 			this.stats.messages += 1;
 			this._msgHandler.message = message;
 			this._emitMessageEvent('message_attached', message);
