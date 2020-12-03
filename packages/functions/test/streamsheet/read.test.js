@@ -722,11 +722,13 @@ describe('read', () => {
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST3.data), 'Test3'));
 			expect(createTerm('read(outboxdata("Test3"),A44:F45,"array",true)', sheet).value).toBe('Data');
-			expect(sheet.cellAt('A44').value).toBe('Artikelnummer');
-			expect(sheet.cellAt('B44').value).toBe('Produktname');
-			expect(sheet.cellAt('C44').value).toBe('Preis');
-			expect(sheet.cellAt('D44').value).toBe('Mwst');
-			expect(sheet.cellAt('E44').value).toBe('Gesamtpreis');
+			expect(sheet.cellAt('A44').value).toEqual([
+				'Artikelnummer', 'Produktname', 'Preis', 'Mwst', 'Gesamtpreis'
+			]);
+			expect(sheet.cellAt('B44').value).toEqual([1231, 'Produkt A', 23.43, 0.19, 4.4517]);
+			expect(sheet.cellAt('C44').value).toEqual([4321, 'Produkt B', 12.34, 0.19, 2.3446]);
+			expect(sheet.cellAt('D44').value).toEqual([5443, 'Produkt C', 12.65, 0.19, 2.4035]);
+			expect(sheet.cellAt('E44').value).toEqual([1254, 'Produkt D', 34.54, 0.19, 6.5626]);
 			expect(sheet.cellAt('F44')).toBeUndefined();
 			// all others are undefined now (DL-4614)
 			expect(sheet.cellAt('A45')).toBeUndefined();
@@ -735,36 +737,6 @@ describe('read', () => {
 			expect(sheet.cellAt('D45')).toBeUndefined();
 			expect(sheet.cellAt('E45')).toBeUndefined();
 			expect(sheet.cellAt('F45')).toBeUndefined();
-			// expect(sheet.cellAt('A45').value).toBe(1231);
-			// expect(sheet.cellAt('B45').value).toBe('Produkt A');
-			// expect(sheet.cellAt('C45').value).toBe(23.43);
-			// expect(sheet.cellAt('D45').value).toBe(0.19);
-			// expect(sheet.cellAt('E45').value).toBe(4.4517);
-			// expect(sheet.cellAt('F45')).toBeUndefined();
-			// expect(sheet.cellAt('A46').value).toBe(4321);
-			// expect(sheet.cellAt('B46').value).toBe('Produkt B');
-			// expect(sheet.cellAt('C46').value).toBe(12.34);
-			// expect(sheet.cellAt('D46').value).toBe(0.19);
-			// expect(sheet.cellAt('E46').value).toBe(2.3446);
-			// expect(sheet.cellAt('F46')).toBeUndefined();
-			// expect(sheet.cellAt('A47').value).toBe(5443);
-			// expect(sheet.cellAt('B47').value).toBe('Produkt C');
-			// expect(sheet.cellAt('C47').value).toBe(12.65);
-			// expect(sheet.cellAt('D47').value).toBe(0.19);
-			// expect(sheet.cellAt('E47').value).toBe(2.4035);
-			// expect(sheet.cellAt('F47')).toBeUndefined();
-			// expect(sheet.cellAt('A48').value).toBe(1254);
-			// expect(sheet.cellAt('B48').value).toBe('Produkt D');
-			// expect(sheet.cellAt('C48').value).toBe(34.54);
-			// expect(sheet.cellAt('D48').value).toBe(0.19);
-			// expect(sheet.cellAt('E48').value).toBe(6.5626);
-			// expect(sheet.cellAt('F48')).toBeUndefined();
-			// expect(sheet.cellAt('A49')).toBeUndefined();
-			// expect(sheet.cellAt('B49')).toBeUndefined();
-			// expect(sheet.cellAt('C49')).toBeUndefined();
-			// expect(sheet.cellAt('D49')).toBeUndefined();
-			// expect(sheet.cellAt('E49')).toBeUndefined();
-			// expect(sheet.cellAt('F49')).toBeUndefined();
 		});
 		it('should copy a one line array horizontally to larger cell range', () => {
 			const machine = new Machine();
@@ -812,19 +784,11 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST3d.data), 'Test3d'));
-			expect(createTerm('read(outboxdata("Test3d"), A44:J53,"array", true)', sheet).value).toBe('Data');
-			expect(sheet.cellAt('A44').value).toBe('M1200');
-			expect(sheet.cellAt('B44').value).toBe('Cedalo MQTT Broker');
-			expect(sheet.cellAt('C44').value).toBe(1000);
-			expect(sheet.cellAt('D44').value).toBe(1);
-			expect(sheet.cellAt('E44').value).toBe(1000);
-			expect(sheet.cellAt('F44')).toBeUndefined();
+			expect(createTerm('read(outboxdata("Test3d"), A44:B45,"array", true)', sheet).value).toBe('Data');
+			expect(sheet.cellAt('A44').value).toEqual(['M1200', 'Cedalo MQTT Broker', 1000, 1, 1000]);
+			expect(sheet.cellAt('B44')).toBeUndefined();
 			expect(sheet.cellAt('A45')).toBeUndefined();
 			expect(sheet.cellAt('B45')).toBeUndefined();
-			expect(sheet.cellAt('C45')).toBeUndefined();
-			expect(sheet.cellAt('D45')).toBeUndefined();
-			expect(sheet.cellAt('E45')).toBeUndefined();
-			expect(sheet.cellAt('F45')).toBeUndefined();
 		});
 		it('should read an array of a single array as if its only a single array vertically', () => {
 			const machine = new Machine();
@@ -833,18 +797,10 @@ describe('read', () => {
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST3d.data), 'Test3d'));
 			expect(createTerm('read(outboxdata("Test3d"),A44:J53,"array",false)', sheet).value).toBe('Data');
-			expect(sheet.cellAt('A44').value).toBe('M1200');
-			expect(sheet.cellAt('A45').value).toBe('Cedalo MQTT Broker');
-			expect(sheet.cellAt('A46').value).toBe(1000);
-			expect(sheet.cellAt('A47').value).toBe(1);
-			expect(sheet.cellAt('A48').value).toBe(1000);
-			expect(sheet.cellAt('A49')).toBeUndefined();
+			expect(sheet.cellAt('A44').value).toEqual(['M1200', 'Cedalo MQTT Broker', 1000, 1, 1000]);
 			expect(sheet.cellAt('B44')).toBeUndefined();
+			expect(sheet.cellAt('A45')).toBeUndefined();
 			expect(sheet.cellAt('B45')).toBeUndefined();
-			expect(sheet.cellAt('B46')).toBeUndefined();
-			expect(sheet.cellAt('B47')).toBeUndefined();
-			expect(sheet.cellAt('B48')).toBeUndefined();
-			expect(sheet.cellAt('B49')).toBeUndefined();
 		});
 		it('should copy an array of dictionaries horizontally to larger cell range', () => {
 			const machine = new Machine();
@@ -894,37 +850,17 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST8.data), 'Test8'));
-			expect(createTerm('read(outboxdata("Test8"),A93:H100,"array",false)', sheet).value).toBe('Data');
-			expect(sheet.cellAt('A93').value).toBe('');
-			expect(sheet.cellAt('A94').value).toBe('Umsatz');
-			expect(sheet.cellAt('A95').value).toBe('Kosten');
-			expect(sheet.cellAt('A96').value).toBe('Ertrag');
-			// all others are undefined now (DL-4614)
+			expect(createTerm('read(outboxdata("Test8"),A93:B97,"array",false)', sheet).value).toBe('Data');
+			expect(sheet.cellAt('A93').value).toEqual(['', 'Umsatz', 'Kosten', 'Ertrag']);
+			expect(sheet.cellAt('A94').value).toEqual(['Jan', 100, 101, 102]);
+			expect(sheet.cellAt('A95').value).toEqual(['Feb', 200, 201, 202]);
+			expect(sheet.cellAt('A96').value).toEqual(['März', 300, 301, 302]);
+			expect(sheet.cellAt('A97')).toBeUndefined();
 			expect(sheet.cellAt('B93')).toBeUndefined();
 			expect(sheet.cellAt('B94')).toBeUndefined();
 			expect(sheet.cellAt('B95')).toBeUndefined();
 			expect(sheet.cellAt('B96')).toBeUndefined();
-			// expect(sheet.cellAt('B93').value).toBe('Jan');
-			// expect(sheet.cellAt('C93').value).toBe('Feb');
-			// expect(sheet.cellAt('D93').value).toBe('März');
-			// expect(sheet.cellAt('E93')).toBeUndefined();
-			// expect(sheet.cellAt('B94').value).toBe(100);
-			// expect(sheet.cellAt('C94').value).toBe(200);
-			// expect(sheet.cellAt('D94').value).toBe(300);
-			// expect(sheet.cellAt('E94')).toBeUndefined();
-			// expect(sheet.cellAt('B95').value).toBe(101);
-			// expect(sheet.cellAt('C95').value).toBe(201);
-			// expect(sheet.cellAt('D95').value).toBe(301);
-			// expect(sheet.cellAt('E95')).toBeUndefined();
-			// expect(sheet.cellAt('B96').value).toBe(102);
-			// expect(sheet.cellAt('C96').value).toBe(202);
-			// expect(sheet.cellAt('D96').value).toBe(302);
-			// expect(sheet.cellAt('E96')).toBeUndefined();
-			// expect(sheet.cellAt('A97')).toBeUndefined();
-			// expect(sheet.cellAt('B97')).toBeUndefined();
-			// expect(sheet.cellAt('C97')).toBeUndefined();
-			// expect(sheet.cellAt('D97')).toBeUndefined();
-			// expect(sheet.cellAt('E97')).toBeUndefined();
+			expect(sheet.cellAt('B97')).toBeUndefined();
 		});
 	});
 	describe('copy of dictionary data to cell range', () => {
@@ -1200,7 +1136,7 @@ describe('read', () => {
 	});
 
 	// DL-4560
-	describe('copy with specified type jsonroot', () => {
+	describe('copy with specified type JSONROOT', () => {
 		it('should preserve indices if writing object list', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			const outbox = sheet.machine.outbox;
@@ -1343,6 +1279,59 @@ describe('read', () => {
 			expect(sheet.cellAt('B19').value).toBe(202);
 			expect(sheet.cellAt('B20').value).toBe(302);
 			expect(sheet.cellAt('B21')).toBeUndefined();
+		});
+	});
+	describe('copy with specified type ARRAY', () => {
+		it('should simply list values on root level', () => {
+			const sheet = setup({ streamsheetName: 'T1' });
+			const outbox = sheet.machine.outbox;
+			outbox.put(
+				new Message({
+					arr: [
+						'hello',
+						{ title: 'Dr', name: 'Strange' },
+						{
+							person: {
+								name: 'foo',
+								age: 42,
+								phones: ['800-123-4567', { prefix: '+49', number: '1234-5678-9' }]
+							}
+						}
+					]
+				}, 'Session')
+			);
+			expect(createTerm('read(outboxdata("Session","arr"),A1:B4,"array")', sheet).value).toBe('arr');
+			expect(sheet.cellAt('A1').value).toBe('hello');
+			expect(sheet.cellAt('A2').value).toEqual({ title: 'Dr', name: 'Strange' });
+			expect(sheet.cellAt('A3').value).toEqual({
+				person: {
+					name: 'foo',
+					age: 42,
+					phones: ['800-123-4567', { prefix: '+49', number: '1234-5678-9' }]
+				}
+			});
+			expect(sheet.cellAt('A4')).toBeUndefined();
+			expect(sheet.cellAt('B1')).toBeUndefined();
+			expect(sheet.cellAt('B2')).toBeUndefined();
+			expect(sheet.cellAt('B3')).toBeUndefined();
+			expect(sheet.cellAt('B4')).toBeUndefined();
+		});
+		it('should simply list values on root level of 2 2D array', () => {
+			const sheet = setup({ streamsheetName: 'T1' });
+			const outbox = sheet.machine.outbox;
+			outbox.put(
+				new Message([
+					['','Jan','Feb','Mrz'],
+					['Umsatz', 100, 200, 300],
+					['Kosten', 101, 201, 301],
+					['Ertrag', 102, 202,302]
+				], 'Session')
+			);
+			expect(createTerm('read(outboxdata("Session"),A1:A4,"array")', sheet).value).toBe('Data');
+			expect(sheet.cellAt('A1').value).toEqual(['', 'Jan', 'Feb', 'Mrz']);
+			expect(sheet.cellAt('A2').value).toEqual(['Umsatz', 100, 200, 300]);
+			expect(sheet.cellAt('A3').value).toEqual(['Kosten', 101, 201, 301]);
+			expect(sheet.cellAt('A4').value).toEqual(['Ertrag', 102, 202, 302]);
 		});
 	});
 	describe('read inboxmetadata', () => {
