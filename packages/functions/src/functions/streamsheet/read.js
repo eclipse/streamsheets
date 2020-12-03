@@ -21,7 +21,7 @@ const {
 } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
-const TYPES = ['array', 'boolean', 'dictionary', 'json', 'jsontop', 'number', 'range', 'string'];
+const TYPES = ['array', 'boolean', 'dictionary', 'json', 'jsonroot', 'number', 'range', 'string'];
 
 const toBool = (term, defval) => term ? convert.toBoolean(term.value, defval) : defval;
 const termFromValue = (value) => (isType.object(value) ? new ObjectTerm(value) : Term.fromValue(value));

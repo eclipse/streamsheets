@@ -1200,7 +1200,7 @@ describe('read', () => {
 	});
 
 	// DL-4560
-	describe('copy with specified type JSONTOP', () => {
+	describe('copy with specified type jsonroot', () => {
 		it('should preserve indices if writing object list', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			const outbox = sheet.machine.outbox;
@@ -1219,7 +1219,7 @@ describe('read', () => {
 					]
 				}, 'Session')
 			);
-			expect(createTerm('read(outboxdata("Session","arr"),A1:B12,"jsontop")', sheet).value).toBe('arr');
+			expect(createTerm('read(outboxdata("Session","arr"),A1:B12,"jsonroot")', sheet).value).toBe('arr');
 			// keys
 			expect(sheet.cellAt('A1').value).toBe(0);
 			expect(sheet.cellAt('A2').value).toBe(1);

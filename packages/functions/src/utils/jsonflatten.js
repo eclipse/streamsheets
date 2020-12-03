@@ -114,7 +114,7 @@ const toArray2D = (json, type /* , recursive */) => {
 				}
 			}
 			return flattenJSON(json, false);			
-		case 'jsontop':
+		case 'jsonroot':
 			return flattenJSON(json, false);
 		case 'json':
 			return Array.isArray(json) ? flattenArrayRecursive(json) : flattenJSON(json, true);

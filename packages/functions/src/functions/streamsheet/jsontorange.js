@@ -18,7 +18,7 @@ const {
 } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
-const TYPES = ['array', 'dictionary', 'json', 'jsontop', 'range'];
+const TYPES = ['array', 'dictionary', 'json', 'jsonroot', 'range'];
 
 const getType = (term) => {
 	let value = convert.toString(term.value);
