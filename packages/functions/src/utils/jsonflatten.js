@@ -86,24 +86,21 @@ const toArray2D = (json, type /* , recursive */) => {
 	// NOTE: no indices for arrays and objects (DL-4033)!!
 	switch (type) {
 		case 'array': {
-			const lists = ensureRange(json);
-			return lists ? [lists[0]] : flattenJSON(json);
+			return Array.isArray(json) ? [json.map((val) => val)] : flattenJSON(json);
 		}
 		case 'dictionary':
 			if (Array.isArray(json)) return flattenArray(json);
 			if (isType.object(json)) {
 				const lists = toObjectList(json);
 				if (lists) {
-					return isType.object(lists[0]) && !Array.isArray(lists[0])
-						? flattenObjectList(lists)
-						: lists;
+					return isType.object(lists[0]) && !Array.isArray(lists[0]) ? flattenObjectList(lists) : lists;
 				}
 			}
-			return flattenJSON(json, false);			
+			return flattenJSON(json, false);
 		case 'jsonroot':
 			return flattenJSON(json, false);
 		case 'json':
-			return flattenJSON(json,true);
+			return flattenJSON(json, true);
 		case 'range': {
 			const lists = ensureRange(json);
 			return lists ? flattenArray(lists) : flattenJSON(json, false);
