@@ -772,18 +772,18 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST3c.data), 'Test3c'));
-			expect(createTerm('read(outboxdata("Test3c"), A44:J53,, true)', sheet).value).toBe('Data');
-			expect(sheet.cellAt('A44').value).toBe('M1200');
-			expect(sheet.cellAt('B44').value).toBe('Cedalo MQTT Broker');
-			expect(sheet.cellAt('C44').value).toBe(1000);
-			expect(sheet.cellAt('D44').value).toBe(1);
-			expect(sheet.cellAt('E44').value).toBe(1000);
+			expect(createTerm('read(outboxdata("Test3c"), A44:F45,,true)', sheet).value).toBe('Data');
+			expect(sheet.cellAt('A44').value).toBe(0);
+			expect(sheet.cellAt('B44').value).toBe(1);
+			expect(sheet.cellAt('C44').value).toBe(2);
+			expect(sheet.cellAt('D44').value).toBe(3);
+			expect(sheet.cellAt('E44').value).toBe(4);
 			expect(sheet.cellAt('F44')).toBeUndefined();
-			expect(sheet.cellAt('A45')).toBeUndefined();
-			expect(sheet.cellAt('B45')).toBeUndefined();
-			expect(sheet.cellAt('C45')).toBeUndefined();
-			expect(sheet.cellAt('D45')).toBeUndefined();
-			expect(sheet.cellAt('E45')).toBeUndefined();
+			expect(sheet.cellAt('A45').value).toBe('M1200');
+			expect(sheet.cellAt('B45').value).toBe('Cedalo MQTT Broker');
+			expect(sheet.cellAt('C45').value).toBe(1000);
+			expect(sheet.cellAt('D45').value).toBe(1);
+			expect(sheet.cellAt('E45').value).toBe(1000);
 			expect(sheet.cellAt('F45')).toBeUndefined();
 		});
 		it('should copy a one line array vertically to larger cell range', () => {
@@ -792,18 +792,18 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST3c.data), 'Test3c'));
-			expect(createTerm('read(outboxdata("Test3c"), A44:J53,, false)', sheet).value).toBe('Data');
-			expect(sheet.cellAt('A44').value).toBe('M1200');
-			expect(sheet.cellAt('A45').value).toBe('Cedalo MQTT Broker');
-			expect(sheet.cellAt('A46').value).toBe(1000);
-			expect(sheet.cellAt('A47').value).toBe(1);
-			expect(sheet.cellAt('A48').value).toBe(1000);
+			expect(createTerm('read(outboxdata("Test3c"),A44:B49,,false)', sheet).value).toBe('Data');
+			expect(sheet.cellAt('A44').value).toBe(0);
+			expect(sheet.cellAt('A45').value).toBe(1);
+			expect(sheet.cellAt('A46').value).toBe(2);
+			expect(sheet.cellAt('A47').value).toBe(3);
+			expect(sheet.cellAt('A48').value).toBe(4);
 			expect(sheet.cellAt('A49')).toBeUndefined();
-			expect(sheet.cellAt('B44')).toBeUndefined();
-			expect(sheet.cellAt('B45')).toBeUndefined();
-			expect(sheet.cellAt('B46')).toBeUndefined();
-			expect(sheet.cellAt('B47')).toBeUndefined();
-			expect(sheet.cellAt('B48')).toBeUndefined();
+			expect(sheet.cellAt('B44').value).toBe('M1200');
+			expect(sheet.cellAt('B45').value).toBe('Cedalo MQTT Broker');
+			expect(sheet.cellAt('B46').value).toBe(1000);
+			expect(sheet.cellAt('B47').value).toBe(1);
+			expect(sheet.cellAt('B48').value).toBe(1000);
 			expect(sheet.cellAt('B49')).toBeUndefined();
 		});
 		it('should read an array of a single array as if its only a single array horizontally', () => {
@@ -1255,33 +1255,94 @@ describe('read', () => {
 					]
 				}, 'Session')
 			);
-			expect(createTerm('read(outboxdata("Session","arr"),A1:B12,"json")', sheet).value).toBe('arr');
+			expect(createTerm('read(outboxdata("Session","arr"),A1:B14,"json")', sheet).value).toBe('arr');
 			// flattened keys
-			expect(sheet.cellAt('A1').value).toBe('hello');
-			expect(sheet.cellAt('A2').value).toBe('title');
-			expect(sheet.cellAt('A3').value).toBe('name');
-			expect(sheet.cellAt('A4').value).toBe('person');
-			expect(sheet.cellAt('A5').value).toBe('name');
-			expect(sheet.cellAt('A6').value).toBe('age');
-			expect(sheet.cellAt('A7').value).toBe('phones');
-			expect(sheet.cellAt('A8').value).toBe(0);
-			expect(sheet.cellAt('A9').value).toBe(1);
-			expect(sheet.cellAt('A10').value).toBe('prefix');
-			expect(sheet.cellAt('A11').value).toBe('number');
-			expect(sheet.cellAt('A12')).toBeUndefined();
+			expect(sheet.cellAt('A1').value).toBe(0);
+			expect(sheet.cellAt('A2').value).toBe(1);
+			expect(sheet.cellAt('A3').value).toBe('title');
+			expect(sheet.cellAt('A4').value).toBe('name');
+			expect(sheet.cellAt('A5').value).toBe(2);
+			expect(sheet.cellAt('A6').value).toBe('person');
+			expect(sheet.cellAt('A7').value).toBe('name');
+			expect(sheet.cellAt('A8').value).toBe('age');
+			expect(sheet.cellAt('A9').value).toBe('phones');
+			expect(sheet.cellAt('A10').value).toBe(0);
+			expect(sheet.cellAt('A11').value).toBe(1);
+			expect(sheet.cellAt('A12').value).toBe('prefix');
+			expect(sheet.cellAt('A13').value).toBe('number');
+			expect(sheet.cellAt('A14')).toBeUndefined();
+			// flattened values
+			expect(sheet.cellAt('B1').value).toBe('hello');
+			expect(sheet.cellAt('B2')).toBeUndefined();
+			expect(sheet.cellAt('B3').value).toBe('Dr');
+			expect(sheet.cellAt('B4').value).toBe('Strange');
+			expect(sheet.cellAt('B5')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('B7').value).toBe('foo');
+			expect(sheet.cellAt('B8').value).toBe(42);
+			expect(sheet.cellAt('B9')).toBeUndefined();
+			expect(sheet.cellAt('B10').value).toBe('800-123-4567');
+			expect(sheet.cellAt('B11')).toBeUndefined();
+			expect(sheet.cellAt('B12').value).toBe('+49');
+			expect(sheet.cellAt('B13').value).toBe('1234-5678-9');
+			expect(sheet.cellAt('B14')).toBeUndefined();
+		});
+		it('should restore a 2d array with indices', () => {
+			const sheet = setup({ streamsheetName: 'T1' });
+			const outbox = sheet.machine.outbox;
+			outbox.put(
+				new Message([
+					['','Jan','Feb','Mrz'],
+					['Umsatz', 100, 200, 300],
+					['Kosten', 101, 201, 301],
+					['Ertrag', 102, 202,302]
+				], 'Session')
+			);
+			expect(createTerm('read(outboxdata("Session"),A1:B21,"json")', sheet).value).toBe('Data');
+			// flattened keys
+			expect(sheet.cellAt('A1').value).toBe(0);
+			expect(sheet.cellAt('A2').value).toBe(0);
+			expect(sheet.cellAt('A3').value).toBe(1);
+			expect(sheet.cellAt('A4').value).toBe(2);
+			expect(sheet.cellAt('A5').value).toBe(3);
+			expect(sheet.cellAt('A6').value).toBe(1);
+			expect(sheet.cellAt('A7').value).toBe(0);
+			expect(sheet.cellAt('A8').value).toBe(1);
+			expect(sheet.cellAt('A9').value).toBe(2);
+			expect(sheet.cellAt('A10').value).toBe(3);
+			expect(sheet.cellAt('A11').value).toBe(2);
+			expect(sheet.cellAt('A12').value).toBe(0);
+			expect(sheet.cellAt('A13').value).toBe(1);
+			expect(sheet.cellAt('A14').value).toBe(2);
+			expect(sheet.cellAt('A15').value).toBe(3);
+			expect(sheet.cellAt('A16').value).toBe(3);
+			expect(sheet.cellAt('A17').value).toBe(0);
+			expect(sheet.cellAt('A18').value).toBe(1);
+			expect(sheet.cellAt('A19').value).toBe(2);
+			expect(sheet.cellAt('A20').value).toBe(3);
+			expect(sheet.cellAt('A21')).toBeUndefined();
 			// flattened values
 			expect(sheet.cellAt('B1')).toBeUndefined();
-			expect(sheet.cellAt('B2').value).toBe('Dr');
-			expect(sheet.cellAt('B3').value).toBe('Strange');
-			expect(sheet.cellAt('B4')).toBeUndefined();
-			expect(sheet.cellAt('B5').value).toBe('foo');
-			expect(sheet.cellAt('B6').value).toBe(42);
-			expect(sheet.cellAt('B7')).toBeUndefined();
-			expect(sheet.cellAt('B8').value).toBe('800-123-4567');
-			expect(sheet.cellAt('B9')).toBeUndefined();
-			expect(sheet.cellAt('B10').value).toBe('+49');
-			expect(sheet.cellAt('B11').value).toBe('1234-5678-9');
-			expect(sheet.cellAt('B12')).toBeUndefined();
+			expect(sheet.cellAt('B2').value).toBe('');
+			expect(sheet.cellAt('B3').value).toBe('Jan');
+			expect(sheet.cellAt('B4').value).toBe('Feb');
+			expect(sheet.cellAt('B5').value).toBe('Mrz');
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('B7').value).toBe('Umsatz');
+			expect(sheet.cellAt('B8').value).toBe(100);
+			expect(sheet.cellAt('B9').value).toBe(200);
+			expect(sheet.cellAt('B10').value).toBe(300);
+			expect(sheet.cellAt('B11')).toBeUndefined();
+			expect(sheet.cellAt('B12').value).toBe('Kosten');
+			expect(sheet.cellAt('B13').value).toBe(101);
+			expect(sheet.cellAt('B14').value).toBe(201);
+			expect(sheet.cellAt('B15').value).toBe(301);
+			expect(sheet.cellAt('B16')).toBeUndefined();
+			expect(sheet.cellAt('B17').value).toBe('Ertrag');
+			expect(sheet.cellAt('B18').value).toBe(102);
+			expect(sheet.cellAt('B19').value).toBe(202);
+			expect(sheet.cellAt('B20').value).toBe(302);
+			expect(sheet.cellAt('B21')).toBeUndefined();
 		});
 	});
 	describe('read inboxmetadata', () => {
