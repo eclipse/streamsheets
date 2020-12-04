@@ -1212,7 +1212,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 					formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
 					break;
 				default:
-					if (angle !== 0 || attributes !== '' || lineFormula !== '' || fillFormula !== '') {
+					if (angle !== 0 || attributes !== '' || lineFormula !== undefined || fillFormula !== undefined) {
 						formula += `,${lineFormula || ''},${fillFormula || ''},${attributes},,${angle}`;
 					}
 					break;
