@@ -31,15 +31,21 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 
 	execute(repetitions, callingSheet) {
 		this.isActive = true;
-		if (this.isEndless) {
-			callingSheet.pauseProcessing();
-			this._callingSheet = callingSheet;
-		}
+		this._callingSheet = callingSheet;
+		this._callingSheet.pauseProcessing();
 		// start calculating
 		this._doExecute(repetitions);
+
+		// if (this.isEndless) {
+		// 	callingSheet.pauseProcessing();
+		// 	this._callingSheet = callingSheet;
+		// }
+		// // start calculating
+		// this._doExecute(repetitions);
 	}
 
 	stopRepeat() {
+		clearTrigger(this);
 		this.isActive = false;
 		this._stopRepeat = true;
 	}
