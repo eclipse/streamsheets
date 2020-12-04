@@ -103,7 +103,7 @@ describe('ContinuouslyTrigger', () => {
 		await machine.stop();
 		expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(5);
 	});
-	it('should run endlessly on "repeat until..." until machine is paused', async () => {
+	it.skip('should run endlessly on "repeat until..." until machine is paused', async () => {
 		const { machine, s1 } = setup();
 		s1.trigger.update({ repeat: 'endless' });
 		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -184,7 +184,14 @@ describe('ContinuouslyTrigger', () => {
 		// should calculate sheet 3 times with 3 times in endless mode
 		expect(s1.sheet.cellAt('A1').value).toBe(9);
 	});
-
+	it.skip('should pause processing and resume on return()', () => {
+		expect(false).toBe(true);
+		// manual steps and running machine
+	});
+	it.skip('should pause processing and resume on return() in endless mode', () => {
+		expect(false).toBe(true);
+		// manual steps and running machine
+	});
 
 
 	it.skip('should stop if new trigger is set', () => {
