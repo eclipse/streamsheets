@@ -12,6 +12,7 @@
 /* global window sessionStorage localStorage document */
 
 const { Drawings, FuncTerm, Term, NullTerm } = require('@cedalo/parser');
+const qrjs2 = require('qrjs2');
 
 const JSG = require('../../JSG');
 const Point = require('../../geometry/Point');
@@ -1223,87 +1224,128 @@ module.exports = class StreamSheet extends WorksheetNode {
 		return formula;
 	}
 
-	getLineFormula(item) {
+	getLineFormula(item, currentTerm) {
 		const format = item.getFormat();
+		let color = format.getLineColor().getValue();
+		let style = format.getLineStyle().getValue();
+		let width = format.getLineWidth().getValue();
 
-		const color = format.getLineColor().getValue();
-		const style = format.getLineStyle().getValue();
-		const width = format.getLineWidth().getValue();
-
-		if (color === JSG.theme.color && style === FormatAttributes.LineStyle.SOLID && (width === 1 || width === -1)) {
-			return undefined;
-		}
-
-		switch (format.getLineStyle().getValue()) {
-			case FormatAttributes.LineStyle.SOLID: {
-				if (width === -1 || width === 1) {
-					if (color === JSG.theme.border) {
-						return undefined;
-					}
-					return `"${color}"`;
+		if (currentTerm && !currentTerm.isStatic) {
+			if ((currentTerm instanceof FuncTerm) && currentTerm.name === 'LINEFORMAT') {
+				if (currentTerm.params.length > 0 && !currentTerm.params[0].isStatic) {
+					color = currentTerm.params[0].toString();
 				}
-				break;
+				if (currentTerm.params.length > 1 && !currentTerm.params[1].isStatic) {
+					style = currentTerm.params[1].toString();
+				}
+				if (currentTerm.params.length > 2 && !currentTerm.params[2].isStatic) {
+					width = currentTerm.params[2].toString();
+				}
+			} else {
+				return currentTerm.toString();
 			}
-			case FormatAttributes.LineStyle.NONE:
-				return `"None"`;
-			default:
-				break;
+		} else {
+			if (color === JSG.theme.color && style === FormatAttributes.LineStyle.SOLID && (width === 1 || width === -1)) {
+				return undefined;
+			}
+			switch (style) {
+				case FormatAttributes.LineStyle.SOLID: {
+					if (width === -1 || width === 1) {
+						if (color === JSG.theme.border) {
+							return undefined;
+						}
+						return `${color}`;
+					}
+					break;
+				}
+				case FormatAttributes.LineStyle.NONE:
+					return `"None"`;
+				default:
+					break;
+			}
 		}
+
 
 		const sep = JSG.getParserLocaleSettings().separators.parameter;
 
 		let formula = 'LINEFORMAT(';
-		formula += format.getLineColor().getValue() === JSG.theme.border ? '' : `"${format.getLineColor().getValue()}"`;
-		formula += format.getLineStyle().getValue() === 0 ? sep : `${sep}${format.getLineStyle().getValue()}`;
-		formula += format.getLineWidth().getValue() === -1 ? ')' : `${sep}${format.getLineWidth().getValue()})`;
+		formula += color === JSG.theme.border ? '' : `${color}`;
+		formula += style === FormatAttributes.LineStyle.SOLID ? '' : `${sep}${style}`;
+		if (style === FormatAttributes.LineStyle.SOLID && width !== -1) {
+			formula += ',';
+		}
+		formula += width === -1 ? ')' : `${sep}${width})`;
 
 		return formula;
 	}
 
-	getLineTerm(item) {
-		const formula = this.getLineFormula(item);
+	getLineTerm(item, currentTerm) {
+		const formula = this.getLineFormula(item, currentTerm);
 		return formula ? this.parseTextToTerm(formula) : new NullTerm();
 	}
 
-	getFillFormula(item) {
+	getFillFormula(item, currentTerm) {
 		const format = item.getFormat();
+		const style = format.getFillStyle().getValue();
 
-		switch (format.getFillStyle().getValue()) {
-			case FormatAttributes.FillStyle.SOLID: {
-				const color = format.getFillColor().getValue();
-				if (color.toUpperCase() !== JSG.theme.fill) {
-					return `"${color}"`;
+		if (currentTerm && !currentTerm.isStatic) {
+			if (currentTerm instanceof FuncTerm) {
+				switch (currentTerm.name) {
+					case 'FILLPATTERN': {
+						let pattern;
+						if (currentTerm.params.length > 0 && !currentTerm.params[0].isStatic) {
+							pattern = currentTerm.params[0].toString();
+						} else {
+							pattern = `"${format.getPattern().getValue()}"`;
+						}
+						return `FILLPATTERN(${pattern})`;
+					}
+					case 'FILLLINEARGRADIENT':
+					case 'FILLRADIALGRADIENT':
+						return currentTerm.toString();
 				}
-				return undefined;
+			} else {
+				return currentTerm.toString();
 			}
-			case FormatAttributes.FillStyle.NONE:
-				return `"None"`;
-			case FormatAttributes.FillStyle.PATTERN:
-				return `FILLPATTERN("${format.getPattern().getValue()}")`;
-			case FormatAttributes.FillStyle.GRADIENT: {
-				const color = format.getFillColor().getValue();
-				const grColor = format.getGradientColor().getValue();
-				const sep = JSG.getParserLocaleSettings().separators.parameter;
-				switch (format.getGradientType().getValue()) {
-					case 0:
-						return `FILLLINEARGRADIENT("${color}"${sep}"${grColor}"${sep}${format
-							.getGradientAngle()
-							.getValue()})`;
-					case 1:
-						return `FILLRADIALGRADIENT("${color}"${sep}"${grColor}"${sep}${format
-							.getGradientOffsetX()
-							.getValue()}${sep}${format.getGradientOffsetY().getValue()})`;
-					default:
+		} else {
+			switch (style) {
+				case FormatAttributes.FillStyle.SOLID: {
+					const color = format.getFillColor().getValue();
+					if (color.toUpperCase() !== JSG.theme.fill) {
+						return `"${color}"`;
+					}
+					return undefined;
 				}
-				return undefined;
+				case FormatAttributes.FillStyle.NONE:
+					return `"None"`;
+				case FormatAttributes.FillStyle.PATTERN:
+					return `FILLPATTERN("${format.getPattern().getValue()}")`;
+				case FormatAttributes.FillStyle.GRADIENT: {
+					const color = format.getFillColor().getValue();
+					const grColor = format.getGradientColor().getValue();
+					const sep = JSG.getParserLocaleSettings().separators.parameter;
+					switch (format.getGradientType().getValue()) {
+						case 0:
+							return `FILLLINEARGRADIENT("${color}"${sep}"${grColor}"${sep}${format
+								.getGradientAngle()
+								.getValue()})`;
+						case 1:
+							return `FILLRADIALGRADIENT("${color}"${sep}"${grColor}"${sep}${format
+								.getGradientOffsetX()
+								.getValue()}${sep}${format.getGradientOffsetY().getValue()})`;
+						default:
+					}
+					return undefined;
+				}
+				default:
+					return undefined;
 			}
-			default:
-				return undefined;
 		}
+		return undefined;
 	}
 
-	getFillTerm(item) {
-		const formula = this.getFillFormula(item);
+	getFillTerm(item, currentTerm) {
+		const formula = this.getFillFormula(item, currentTerm);
 		return formula ? this.parseTextToTerm(formula) : new NullTerm();
 	}
 
@@ -1520,13 +1562,13 @@ module.exports = class StreamSheet extends WorksheetNode {
 					}
 				}
 			});
-			formula = this.getLineTerm(item);
+			formula = this.getLineTerm(item, termFunc.params[7]);
 			let force =
 				termFunc.params.length > 7 &&
 				termFunc.params[7] instanceof FuncTerm &&
 				termFunc.params[7].name === 'LINEFORMAT';
 			this.setGraphFunctionParam(termFunc, 7, formula, force);
-			formula = this.getFillTerm(item);
+			formula = this.getFillTerm(item, termFunc.params[8]);
 			force =
 				termFunc.params.length > 8 &&
 				termFunc.params[8] instanceof FuncTerm &&
