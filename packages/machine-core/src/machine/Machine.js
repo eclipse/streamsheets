@@ -120,8 +120,8 @@ class Machine {
 		this._id = def.isTemplate ? this._id : def.id || this._id;
 		this._name = def.isTemplate ? defaultMachineName() : def.name;
 		this._scope = def.scope;
-		this.metadata = { ...this.metadata, ...definition.metadata};
-		this._settings = { ...this.settings, ...definition.settings};
+		this.metadata = { ...this.metadata, ...definition.metadata };
+		this._settings = { ...this.settings, ...definition.settings };
 		// first time load named cells so that reference to named cells are resolved on streamsheets load
 		this.namedCells.load(this, def.namedCells);
 		// at least one streamsheet (required by graph-service!!):
@@ -144,7 +144,6 @@ class Machine {
 			Streams.prune(currentStreams.map(({ id }) => id), this._initialLoadTime, this);
 			this.notifyUpdate('namedCells');
 		}, 60000);
-
 
 		// update value of cells to which are not currently valid without changing valid values
 		// => e.g. if a cell references another cell which was loaded later...
@@ -401,20 +400,30 @@ class Machine {
 			const oldstate = this._state;
 			const allStreamSheets = this.streamsheets;
 			try {
-				if (this._state === State.STOPPED) {
-					this._activeStreamSheets = null;
-					allStreamSheets.forEach((streamsheet) => streamsheet.start());
-				} else {
+				const resumed = false; // this._state !== State.STOPPED;
+				if (resumed) {
 					// resume streamsheets:
 					allStreamSheets.forEach((streamsheet) => streamsheet.resume());
+				} else {
+					this._activeStreamSheets = null;
+					allStreamSheets.forEach((streamsheet) => streamsheet.start());
 				}
+				// if (this._state === State.STOPPED) {
+				// 	this._activeStreamSheets = null;
+				// 	allStreamSheets.forEach((streamsheet) => streamsheet.start());
+				// } else {
+				// 	// resume streamsheets:
+				// 	allStreamSheets.forEach((streamsheet) => streamsheet.resume());
+				// }
 				this._emitter.emit('willStart', this);
 				this._state = State.RUNNING;
 				this.cyclemonitor.counterSecond = 0;
 				this.cyclemonitor.last = Date.now();
 				this.cyclemonitor.lastSecond = Date.now();
 				this._emitter.emit('update', 'state', { new: this._state, old: oldstate });
-				this.cycle(allStreamSheets);
+				// this.cycle(allStreamSheets);
+				if (resumed) this._resume(allStreamSheets);
+				else this.cycle(allStreamSheets);
 				this._emitter.emit('didStart', this);
 				logger.info(`Machine: -> STARTED machine ${this.id}`);
 			} catch (err) {
@@ -475,6 +484,7 @@ class Machine {
 			const oldstate = this._state;
 			this._clearCycle();
 			this._state = State.PAUSED;
+			this.cyclemonitor.resumeIn = Date.now() - this.cyclemonitor.last;
 			this.stats.cyclesPerSecond = 0;
 			this.streamsheets.forEach((streamsheet) => streamsheet.pause());
 			this._emitter.emit('update', 'state', { new: this._state, old: oldstate });
@@ -493,7 +503,7 @@ class Machine {
 		// }
 		if (this._state !== State.RUNNING) {
 			try {
-				this._isManualStep = true; 
+				this._isManualStep = true;
 				this._doStep(this.activeStreamSheets, true);
 			} catch (err) {
 				logger.error(`Error while performing manual step on machine ${this.id}!!`, err);
@@ -518,6 +528,10 @@ class Machine {
 		}
 	}
 
+	async _resume(streamsheets) {
+		const t0 = Date.now();
+		this._scheduleNextCycle(t0, t0 + this.cyclemonitor.resumeIn, streamsheets);
+	}
 	async cycle(streamsheets) {
 		this.cyclemonitor.counterSecond += 1;
 		const t0 = Date.now();
