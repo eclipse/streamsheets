@@ -42,19 +42,8 @@ const jsontorange = (sheet, ...terms) =>
 		.run((json, range, type, direction) => {
 			let res = true;
 			const spread = 	range.width === 1 && range.height === 1 ? toRangeGrow : toRange
-			switch (type) {
-				case 'array':
-				case 'range':
-					direction = !direction;
-					break;
-				case 'dictionary':
-					//dictionary is simply JSON with flipped direction, so
-					direction = !direction;
-					break;
-				case 'json':
-					break;
-				default: /* ignore */
-			}
+			//dictionary or range is simply JSON with flipped direction, so
+			if (type === 'dictionary' || type === 'range') direction = !direction;
 			json = toArray2D(json, type);
 			res = json ? spread(json, range, !direction) : ERROR.VALUE;
 			return res;
