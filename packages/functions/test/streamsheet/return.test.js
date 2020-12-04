@@ -24,7 +24,7 @@ beforeEach(() => {
 describe('return', () => {
 	it('should return true on success and no return value', () => {
 		// simulate processing:
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		expect(RETURN(sheet)).toBe(true);
 	});
 	it('should stop current processing', () => {

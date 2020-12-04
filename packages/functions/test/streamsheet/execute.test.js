@@ -36,7 +36,7 @@ beforeEach(() => {
 	machine.addStreamSheet(t2);
 });
 
-describe('execute', () => {
+describe.skip('execute', () => {
 	it('should trigger execution of a streamsheet from another one', async () => {
 		const t1 = machine.getStreamSheetByName('T1');
 		const t2 = machine.getStreamSheetByName('T2');
