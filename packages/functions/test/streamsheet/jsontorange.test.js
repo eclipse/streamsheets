@@ -711,72 +711,21 @@ describe('json.to.range', () => {
 		});
 	});
 	describe('type array', () => {
-		it('should write array() encoded JSON horizontally by default', async () => {
+		it('should write array() encoded JSON vertically by default', async () => {
 			const { machine, sheet } = setup();
 			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
-			createCellAt('A4', { formula: 'json.to.range(array(A1:C1),A5:C5,"array")' }, sheet);
-			await machine.step();
-			expect(sheet.cellAt('A4').value).toBe(true);
-			expect(sheet.cellAt('A5').value).toBe('v1');
-			expect(sheet.cellAt('B5').value).toBe(0);
-			expect(sheet.cellAt('C5').value).toBe(1);
-			createCellAt('A4', { formula: 'json.to.range(array(A1:A2),A5:B5,"array")' }, sheet);
-			await machine.step();
-			expect(sheet.cellAt('A4').value).toBe(true);
-			expect(sheet.cellAt('A5').value).toBe('v1');
-			expect(sheet.cellAt('B5').value).toBe('v2');
-			createCellAt('A4', { formula: 'json.to.range(array(A1:C2),A5:C6,"array")' }, sheet);
-			await machine.step();
-			expect(sheet.cellAt('A4').value).toBe(true);
-			expect(sheet.cellAt('A5').value).toEqual(['v1', 0, 1]);
-			expect(sheet.cellAt('B5').value).toEqual(['v2', 2, 3]);
-			expect(sheet.cellAt('C5')).toBeUndefined();
-			expect(sheet.cellAt('A6')).toBeUndefined();
-			expect(sheet.cellAt('B6')).toBeUndefined();
-			expect(sheet.cellAt('C6')).toBeUndefined();
-			// read in by column
-			createCellAt('A4', { formula: 'json.to.range(array(A1:C2, false),A5:C6,"array")' }, sheet);
-			await machine.step();
-			expect(sheet.cellAt('A4').value).toBe(true);
-			expect(sheet.cellAt('A5').value).toEqual(['v1', 'v2']);
-			expect(sheet.cellAt('B5').value).toEqual([0, 2]);
-			expect(sheet.cellAt('C5').value).toEqual([1, 3]);
-			expect(sheet.cellAt('A6')).toBeUndefined();
-			expect(sheet.cellAt('B6')).toBeUndefined();
-			expect(sheet.cellAt('C6')).toBeUndefined();
-		});
-		it('should handle objects in array() encoded JSON as simple values', async () => {
-			const { machine, sheet } = setup();
-			sheet.loadCells({
-				A1: 'v1', B1: 0, C1: 1,
-				A2: 'v2', B2: 2, C2: 3,
-				A3: 'v3', B3: { formula: 'JSON(A1:B1)' }
-			});
-			createCellAt('A4', { formula: 'json.to.range(array(A1:C3),A5:C6,"array")' }, sheet);
-			await machine.step();
-			expect(sheet.cellAt('A4').value).toBe(true);
-			expect(sheet.cellAt('A5').value).toEqual(['v1', 0, 1]);
-			expect(sheet.cellAt('B5').value).toEqual(['v2', 2, 3]);
-			expect(sheet.cellAt('C5').value).toEqual(['v3', { v1: 0 }, '']);
-			expect(sheet.cellAt('A6')).toBeUndefined();
-			expect(sheet.cellAt('B6')).toBeUndefined();
-			expect(sheet.cellAt('C6')).toBeUndefined();
-		});
-		it('should write array() encoded JSON vertically if direction is set to false', async () => {
-			const { machine, sheet } = setup();
-			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
-			createCellAt('A4', { formula: 'json.to.range(array(A1:C1),A5:A7,"array",false)' }, sheet);
+			createCellAt('A4', { formula: 'json.to.range(array(A1:C1),A5:A7,"array")' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('A6').value).toBe(0);
 			expect(sheet.cellAt('A7').value).toBe(1);
-			createCellAt('A4', { formula: 'json.to.range(array(A1:A2),A5:A6,"array",false)' }, sheet);
+			createCellAt('A4', { formula: 'json.to.range(array(A1:A2),A5:A6,"array")' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toBe('v1');
 			expect(sheet.cellAt('A6').value).toBe('v2');
-			createCellAt('A4', { formula: 'json.to.range(array(A1:C2),A5:B7,"array",false)' }, sheet);
+			createCellAt('A4', { formula: 'json.to.range(array(A1:C2),A5:B7,"array")' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toEqual(['v1', 0, 1]);
@@ -786,7 +735,7 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('B6')).toBeUndefined();
 			expect(sheet.cellAt('B7')).toBeUndefined();
 			// read in by column
-			createCellAt('A4', { formula: 'json.to.range(array(A1:C2,false),A5:B7,"array",false)' }, sheet);
+			createCellAt('A4', { formula: 'json.to.range(array(A1:C2,false),A5:B7,"array")' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toEqual(['v1', 'v2']);
@@ -795,6 +744,54 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('B5')).toBeUndefined();
 			expect(sheet.cellAt('B6')).toBeUndefined();
 			expect(sheet.cellAt('B7')).toBeUndefined();
+		});
+		it('should handle objects in array() encoded JSON as simple values', async () => {
+			const { machine, sheet } = setup();
+			sheet.loadCells({
+				A1: 'v1', B1: 0, C1: 1,
+				A2: 'v2', B2: 2, C2: 3,
+				A3: 'v3', B3: { formula: 'JSON(A1:B1)' }
+			});
+			createCellAt('A4', { formula: 'json.to.range(array(A1:C3),A5:A7,"array")' }, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A4').value).toBe(true);
+			expect(sheet.cellAt('A5').value).toEqual(['v1', 0, 1]);
+			expect(sheet.cellAt('A6').value).toEqual(['v2', 2, 3]);
+			expect(sheet.cellAt('A7').value).toEqual(['v3', { v1: 0 }, '']);
+		});
+		it('should write array() encoded JSON horizontally if direction is set to false', async () => {
+			const { machine, sheet } = setup();
+			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
+			createCellAt('A4', { formula: 'json.to.range(array(A1:C1),A5:C5,"array",false)' }, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A4').value).toBe(true);
+			expect(sheet.cellAt('A5').value).toBe('v1');
+			expect(sheet.cellAt('B5').value).toBe(0);
+			expect(sheet.cellAt('C5').value).toBe(1);
+			createCellAt('A4', { formula: 'json.to.range(array(A1:A2),A5:B5,"array",false)' }, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A4').value).toBe(true);
+			expect(sheet.cellAt('A5').value).toBe('v1');
+			expect(sheet.cellAt('B5').value).toBe('v2');
+			createCellAt('A4', { formula: 'json.to.range(array(A1:C2),A5:C6,"array",false)' }, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A4').value).toBe(true);
+			expect(sheet.cellAt('A5').value).toEqual(['v1', 0, 1]);
+			expect(sheet.cellAt('B5').value).toEqual(['v2', 2, 3]);
+			expect(sheet.cellAt('C5')).toBeUndefined();
+			expect(sheet.cellAt('A6')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('C6')).toBeUndefined();
+			// read in by column
+			createCellAt('A4', { formula: 'json.to.range(array(A1:C2, false),A5:C6,"array",false)' }, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A4').value).toBe(true);
+			expect(sheet.cellAt('A5').value).toEqual(['v1', 'v2']);
+			expect(sheet.cellAt('B5').value).toEqual([0, 2]);
+			expect(sheet.cellAt('C5').value).toEqual([1, 3]);
+			expect(sheet.cellAt('A6')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('C6')).toBeUndefined();
 		});
 		it('should clear target range if array() encoded JSON is empty', async () => {
 			const { machine, sheet } = setup();
@@ -804,31 +801,29 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('A3').value).toBe(true);
 			// bug in array? we get empty strings!!
 			expect(sheet.cellAt('A4').value).toEqual(['','']);
-			expect(sheet.cellAt('B4').value).toEqual(['','']);
-			expect(sheet.cellAt('A5')).toBeUndefined();
+			expect(sheet.cellAt('A5').value).toEqual(['','']);
+			expect(sheet.cellAt('B4')).toBeUndefined();
 			expect(sheet.cellAt('B5')).toBeUndefined();
 		});
 		it('should bound decoding of array() encoded JSON by target range', async () => {
 			const { machine, sheet } = setup();
-			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
-			createCellAt('A4', { formula: 'json.to.range(array(A1:C2),A5:B6,"array")' }, sheet);
+			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3, A3: 'v3', B3: 4, C3: 5 });
+			createCellAt('A4', { formula: 'json.to.range(array(A1:C3),A5:B6,"array")' }, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A4').value).toBe(true);
+			expect(sheet.cellAt('A5').value).toEqual(['v1', 0, 1]);
+			expect(sheet.cellAt('A6').value).toEqual(['v2', 2, 3]);
+			expect(sheet.cellAt('B5')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+
+			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3, A3: 'v3', B3: 4, C3: 5 });
+			createCellAt('A4', { formula: 'json.to.range(array(A1:C2),A5:B6,"array",false)' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toEqual(['v1', 0, 1]);
 			expect(sheet.cellAt('B5').value).toEqual(['v2', 2, 3]);
 			expect(sheet.cellAt('A6')).toBeUndefined();
 			expect(sheet.cellAt('B6')).toBeUndefined();
-
-			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
-			createCellAt('A4', { formula: 'json.to.range(array(A1:C2),A5:B6,"array",false)' }, sheet);
-			await machine.step();
-			expect(sheet.cellAt('A4').value).toBe(true);
-			expect(sheet.cellAt('A5').value).toEqual(['v1', 0, 1]);
-			expect(sheet.cellAt('A6').value).toEqual(['v2', 2, 3]);
-			expect(sheet.cellAt('A7')).toBeUndefined();
-			expect(sheet.cellAt('B5')).toBeUndefined();
-			expect(sheet.cellAt('B6')).toBeUndefined();
-			expect(sheet.cellAt('B7')).toBeUndefined();
 		});
 		it('should create a suitable target range if specified one contains only one cell', async () => {
 			const { machine, sheet } = setup();
@@ -837,35 +832,14 @@ describe('json.to.range', () => {
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toEqual(['v1', 0, 1]);
-			expect(sheet.cellAt('B5').value).toEqual(['v2', 2, 3]);
-			expect(sheet.cellAt('C5')).toBeUndefined();
-			expect(sheet.cellAt('A6')).toBeUndefined();
-			expect(sheet.cellAt('B6')).toBeUndefined();
-			expect(sheet.cellAt('C6')).toBeUndefined();
-			// read in by column
-			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
-			createCellAt('A4', { formula: 'json.to.range(array(A1:C2,false),A5:A5,"array")' }, sheet);
-			await machine.step();
-			expect(sheet.cellAt('A4').value).toBe(true);
-			expect(sheet.cellAt('A5').value).toEqual(['v1', 'v2']);
-			expect(sheet.cellAt('B5').value).toEqual([0, 2]);
-			expect(sheet.cellAt('C5').value).toEqual([1, 3]);
-			expect(sheet.cellAt('A6')).toBeUndefined();
-			expect(sheet.cellAt('B6')).toBeUndefined();
-			expect(sheet.cellAt('C6')).toBeUndefined();
-			// again but with direction to false
-			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
-			createCellAt('A4', { formula: 'json.to.range(array(A1:C2),A5:A5,"array",false)' }, sheet);
-			await machine.step();
-			expect(sheet.cellAt('A4').value).toBe(true);
-			expect(sheet.cellAt('A5').value).toEqual(['v1', 0, 1]);
 			expect(sheet.cellAt('A6').value).toEqual(['v2', 2, 3]);
 			expect(sheet.cellAt('A7')).toBeUndefined();
 			expect(sheet.cellAt('B5')).toBeUndefined();
 			expect(sheet.cellAt('B6')).toBeUndefined();
 			expect(sheet.cellAt('B7')).toBeUndefined();
+			// read in by column
 			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
-			createCellAt('A4', { formula: 'json.to.range(array(A1:C2,false),A5:A5,"array",false)' }, sheet);
+			createCellAt('A4', { formula: 'json.to.range(array(A1:C2,false),A5:A5,"array")' }, sheet);
 			await machine.step();
 			expect(sheet.cellAt('A4').value).toBe(true);
 			expect(sheet.cellAt('A5').value).toEqual(['v1', 'v2']);
@@ -874,6 +848,27 @@ describe('json.to.range', () => {
 			expect(sheet.cellAt('B5')).toBeUndefined();
 			expect(sheet.cellAt('B6')).toBeUndefined();
 			expect(sheet.cellAt('B7')).toBeUndefined();
+			// again but with direction to false
+			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
+			createCellAt('A4', { formula: 'json.to.range(array(A1:C2),A5:A5,"array",false)' }, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A4').value).toBe(true);
+			expect(sheet.cellAt('A5').value).toEqual(['v1', 0, 1]);
+			expect(sheet.cellAt('B5').value).toEqual(['v2', 2, 3]);
+			expect(sheet.cellAt('C5')).toBeUndefined();
+			expect(sheet.cellAt('A6')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('C6')).toBeUndefined();
+			sheet.loadCells({ A1: 'v1', B1: 0, C1: 1, A2: 'v2', B2: 2, C2: 3 });
+			createCellAt('A4', { formula: 'json.to.range(array(A1:C2,false),A5:A5,"array",false)' }, sheet);
+			await machine.step();
+			expect(sheet.cellAt('A4').value).toBe(true);
+			expect(sheet.cellAt('A5').value).toEqual(['v1', 'v2']);
+			expect(sheet.cellAt('B5').value).toEqual([0, 2]);
+			expect(sheet.cellAt('C5').value).toEqual([1, 3]);
+			expect(sheet.cellAt('A6')).toBeUndefined();
+			expect(sheet.cellAt('B6')).toBeUndefined();
+			expect(sheet.cellAt('C6')).toBeUndefined();
 		});
 	});
 	describe('type dictionary', () => {
