@@ -15,7 +15,7 @@ const PropertiesManager = require('./PropertiesManager');
 const ReferenceUpdater = require('./ReferenceUpdater');
 const SheetIndex = require('./SheetIndex');
 const SheetRange = require('./SheetRange');
-const SheetProcessor2 = require('./SheetProcessor2');
+const SheetProcessor = require('./SheetProcessor');
 const State = require('../State');
 const { SheetDrawings, SheetParser } = require('../parser/SheetParser');
 const { getSheetCellsAsObject } = require('../ipc/utils');
@@ -139,7 +139,7 @@ module.exports = class Sheet {
 		this.streamsheet = streamsheet;
 		this.namedCells = new NamedCells();
 		this.graphCells = new GraphCells(this);
-		this.processor = new SheetProcessor2(this);
+		this.processor = new SheetProcessor(this);
 		this.sheetDrawings = new SheetDrawings();
 		this.onUpdate = undefined;
 		this.onCellRangeChange = undefined;
@@ -609,8 +609,13 @@ module.exports = class Sheet {
 	}
 
 	startProcessing() {
+		// TODO: remove _lastInsertIndex!!
 		this._lastInsertIndex.set(1, 0);
-		return this.processor.start();
+		// return this.processor.start();
+		this._isProcessing = true;
+		const result = this.processor.start();
+		this._isProcessing = false;
+		return result;
 	}
 
 	pauseProcessing() {

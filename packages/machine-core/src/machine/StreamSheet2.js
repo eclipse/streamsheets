@@ -1,4 +1,5 @@
 const StreamSheet = require('./StreamSheet');
+const SheetProcessor2 = require('./SheetProcessor2');
 const StreamSheetTrigger = require('./StreamSheetTrigger');
 
 class StreamSheet2 extends StreamSheet {
@@ -12,6 +13,8 @@ class StreamSheet2 extends StreamSheet {
 	constructor(conf = {}) {
 		super(conf);
 		this._triggerCounter = 0;
+		// exchange sheet processor:
+		this.sheet.processor = new SheetProcessor2(this.sheet);
 	}
 
 	// called by sheet functions:
@@ -82,6 +85,7 @@ class StreamSheet2 extends StreamSheet {
 			// this._doStep(manual);
 			// if we stopped on return() we start again...
 			// if (this.sheet.isStopped) this.sheet.startProcessing();
+			this.stats.steps += 1;
 			this.trigger.step(manual);
 			// if (this.sheet.isProcessing) this.sheet.stopProcessing();
 		} catch (err) {
