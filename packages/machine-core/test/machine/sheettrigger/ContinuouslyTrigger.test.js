@@ -33,71 +33,159 @@ const setup = () => {
 	return { machine, s1 };
 };
 describe('ContinuouslyTrigger', () => {
-	it('should process sheet on each machine step', async () => {
+	it('should process sheet on running machine', async () => {
 		const { machine, s1 } = setup();
 		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 		expect(s1.sheet.cellAt('A1').value).toBe(1);
 		await machine.start();
-		await wait(100);
+		await wait(120);
 		await machine.stop();
-		expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(3);
-		const current = s1.sheet.cellAt('A1').value;
-		await machine.step();
-		expect(s1.sheet.cellAt('A1').value).toBe(current + 1);
-		await machine.step();
-		await machine.step();
-		expect(s1.sheet.cellAt('A1').value).toBe(current + 3);
+		expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(4);
+		await machine.start();
+		await wait(120);
+		await machine.stop();
+		expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(7);
 	});
-
-	it('should process sheet on running machine', async () => {
-		expect(false).toBe(true);
-	});	
-	it.skip('should not block other sheets on "repeat until..."', async () => {
+	it('should process sheet on manual steps if machine is stopped', async () => {
+		const { machine, s1 } = setup();
+		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+		expect(s1.sheet.cellAt('A1').value).toBe(1);
+		await machine.step();
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		await machine.step();
+		await machine.step();
+		expect(s1.sheet.cellAt('A1').value).toBe(4);
+	});
+	it('should process sheet on manual steps if machine is paused', async () => {
+		const { machine, s1 } = setup();
+		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+		expect(s1.sheet.cellAt('A1').value).toBe(1);
+		await machine.start();
+		await machine.pause();
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		// now step 3 times
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		expect(s1.sheet.cellAt('A1').value).toBe(5);
+		await machine.start();
+		await wait(120);
+		await machine.stop();
+		expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(7);
+	});
+	it('should process sheet on manual steps if machine is paused in "repeat until...""', async () => {
+		const { machine, s1 } = setup();
+		s1.trigger.update({ repeat: 'endless' });
+		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+		expect(s1.sheet.cellAt('A1').value).toBe(1);
+		await machine.start();
+		await wait(10);
+		await machine.pause();
+		const s1a1 = s1.sheet.cellAt('A1').value;
+		expect(s1a1).toBeGreaterThan(5);
+		// now step 3 times
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		expect(s1.sheet.cellAt('A1').value).toBe(s1a1 + 3);
+		await machine.start();
+		await wait(10);
+		await machine.stop();
+		expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(s1a1 + 3 + 5);
+	});
+	it('should run endlessly on "repeat until..." until machine is stopped', async () => {
+		const { machine, s1 } = setup();
+		s1.trigger.update({ repeat: 'endless' });
+		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+		expect(s1.sheet.cellAt('A1').value).toBe(1);
+		await machine.start();
+		await wait(10);
+		await machine.stop();
+		expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(5);
+	});
+	it('should run endlessly on "repeat until..." until machine is paused', async () => {
+		const { machine, s1 } = setup();
+		s1.trigger.update({ repeat: 'endless' });
+		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+		expect(s1.sheet.cellAt('A1').value).toBe(1);
+		await machine.start();
+		await wait(10);
+		await machine.pause();
+		// step count should stay at 1
+		expect(s1.stats.steps).toBe(1);
+		const current = s1.sheet.cellAt('A1').value;
+		expect(current).toBeGreaterThan(5);
+		// resume from pause:
+		await machine.start();
+		await wait(10);
+		await machine.pause();
+		// step count should stay at 1
+		expect(s1.stats.steps).toBe(1);
+		expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(current + 5);
+		await machine.stop();
+	});
+	it('should not calculate sheet on "repeat until..." if machine is paused', async () => {
+		const { machine, s1 } = setup();
+		s1.trigger.update({ repeat: 'endless' });
+		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+		expect(s1.sheet.cellAt('A1').value).toBe(1);
+		await machine.start();
+		await wait(10);
+		await machine.pause();
+		// step count should stay at 1
+		expect(s1.stats.steps).toBe(1);
+		const current = s1.sheet.cellAt('A1').value;
+		expect(current).toBeGreaterThan(5);
+		await wait(10);
+		// no change while pause:
+		expect(s1.stats.steps).toBe(1);
+		expect(s1.sheet.cellAt('A1').value).toBe(current);
+		await machine.stop();
+		expect(s1.stats.steps).toBe(0);
+		expect(s1.sheet.cellAt('A1').value).toBe(current);
+	});
+	it('should not block other sheets on "repeat until..."', async () => {
 		const { machine, s1 } = setup();
 		const s2 = new StreamSheet2({ name: 'S2' });
 		machine.addStreamSheet(s2);
 		s2.trigger = new ContinuouslyTrigger();
-		s1.trigger.update({ repeat: 'endless' });
-		// s1 will never return!
+		// s2 will never return!
+		s2.trigger.update({ repeat: 'endless' });
 		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 		createCellAt('A2', { formula: 'A2+1' }, s2.sheet);
 		expect(s1.sheet.cellAt('A1').value).toBe(1);
 		expect(s2.sheet.cellAt('A2').value).toBe(1);
 		await machine.start();
-		await wait(200);
+		await wait(120);
 		await machine.pause();
-		expect(s1.stats.steps).toBe(1);
-		// actually it should be much higher than 40!!!
-		expect(s1.stats.repeatsteps).toBeGreaterThan(40);
-		// should have been executed at least 3 times...
-		expectValue(s2.stats.steps).toBeInRange(3, 6);
+		// machine should triggered 3 times...
+		expect(s1.stats.steps).toBe(3);
+		expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(3);
+		// s2 did run in endless mode so...
+		const s2a2 = s2.sheet.cellAt('A2').value;
+		expect(s2a2).toBeGreaterThan(5);	// actually it should be much higher than 5!!!
+		await machine.start();
+		await wait(120);
 		await machine.stop();
+		// machine should triggered again 3 times...
+		expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(6);
+		expect(s2.sheet.cellAt('A2').value).toBeGreaterThan(s2a2 + 5);
 	});
-
-	it.skip('should not calculate sheet on "repeat until..." if machine is paused', async () => {
+	it('should resume processing sheet on return in "repeat until..."', async () => {
 		const { machine, s1 } = setup();
 		s1.trigger.update({ repeat: 'endless' });
-		// s1 will never return!
 		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+		createCellAt('A3', { formula: 'if(mod(A1,3)=0,return(),false)' }, s1.sheet);
 		expect(s1.sheet.cellAt('A1').value).toBe(1);
+		expect(s1.sheet.cellAt('A3').value).toBe(false);
 		await machine.start();
-		await wait(20);
-		await machine.pause();
-		expect(s1.stats.repeatsteps).toBeGreaterThan(10);
-		const repeatsteps = s1.stats.repeatsteps;
-		await wait(50);
-		expect(s1.stats.repeatsteps).toBe(repeatsteps);
-		// a single step:
-		await machine.step();
-		expect(s1.stats.repeatsteps).toBe(repeatsteps + 1);
-		// resume:
-		await machine.start();
-		await wait(5);
-		await machine.pause();
-		expect(s1.stats.repeatsteps).toBeGreaterThan(repeatsteps);
-		expect(s1.stats.steps).toBe(1);
+		await wait(120);
 		await machine.stop();
+		// should calculate sheet 3 times with 3 times in endless mode
+		expect(s1.sheet.cellAt('A1').value).toBe(9);
 	});
+
+
 
 	it.skip('should stop if new trigger is set', () => {
 		expect(false).toBe(true);
