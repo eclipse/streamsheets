@@ -81,24 +81,30 @@ class AbstractStreamSheetTrigger {
 		/* currently do nothing */
 	}
 
-	step(manual) {
-		// if not in repeat mode and not paused:
-		if (this._stepId == null && !this._streamsheet.sheet.isPaused) {
-			if (!manual && this.isEndless) this._startRepeat();
-			else this._streamsheet.cycleStep();
-		}
+	step(/* manual */) {
 	}
 	_startRepeat() {
 		repeatTrigger(this);
 		// on repeat start we do a normal cycle!
-		this._streamsheet.cycleStep();
+		this.doCycleStep();
 	}
 	_repeatStep() {
 		repeatTrigger(this);
 		// trigger step afterwards, because it might clears current scheduled one!!!
+		this.doRepeatStep();
+	}
+	trigger(manual) {
+		if (this._stepId == null && !this._streamsheet.sheet.isPaused) {
+			if (!manual && this.isEndless) this._startRepeat();
+			else this.doCycleStep();
+		}
+	}
+	doCycleStep() {
+		this._streamsheet.cycleStep();
+	}
+	doRepeatStep() {
 		this._streamsheet.repeatStep();
 	}
-
 
 	// DEPRECATED:
 	preProcess() {}
