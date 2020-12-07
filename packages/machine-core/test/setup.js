@@ -16,6 +16,7 @@ jest.mock('../src/streams/StreamMessagingClient');
 // FOR TESTs we do not use persistent outbox
 process.env.OUTBOX_PERSISTENT = false;
 
+
 // some dummy function implementations:
 const functions = {
 	EXECUTE: (sheet, ...terms) => {
@@ -47,6 +48,16 @@ const functions = {
 			sheet.streamsheet.stopProcessing(retval);
 		}
 		return retval;
+	},
+	PAUSE: (sheet /* , ...terms */) => {
+		if (sheet.isProcessing) {
+			sheet.streamsheet.pauseProcessing();
+		}
+	},
+	RESUME: (sheet /* , ...terms */) => {
+		if (sheet.isProcessing) {
+			sheet.streamsheet.resumeProcessing();
+		}
 	}
 };
 
