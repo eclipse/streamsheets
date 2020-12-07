@@ -12,8 +12,19 @@ const sheet = require('./sheet');
 const functions = require('./functions');
 const validate = require('./validate');
 
+const expectValue = (value) => ({
+	toBeInRange: (min, max) => {
+		expect(value).toBeGreaterThanOrEqual(min);
+		expect(value).toBeLessThanOrEqual(max);
+	}
+});
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 module.exports = {
+	expectValue,
 	functions,
 	...sheet,
-	validate
+	validate,
+	wait
 };

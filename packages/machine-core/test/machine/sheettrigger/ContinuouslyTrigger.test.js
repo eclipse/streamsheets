@@ -8,20 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { ContinuouslyTrigger, NoneTrigger, Machine, Message, State, StreamSheet2, StreamSheetTrigger } = require('../../..');
-const { createCellAt } = require('../../utils');
+const { ContinuouslyTrigger, NoneTrigger, Machine, Message, StreamSheet2 } = require('../../..');
+const { createCellAt, wait } = require('../../utils');
 
-const wait = (ms) =>
-	new Promise((resolve) => {
-		setTimeout(resolve, ms);
-	});
-
-const expectValue = (value) => ({
-	toBeInRange: (min, max) => {
-		expect(value).toBeGreaterThanOrEqual(min);
-		expect(value).toBeLessThanOrEqual(max);
-	}
-});
 
 const setup = () => {
 	const machine = new Machine();
