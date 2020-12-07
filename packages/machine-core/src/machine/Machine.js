@@ -400,7 +400,7 @@ class Machine {
 			const oldstate = this._state;
 			const allStreamSheets = this.streamsheets;
 			try {
-				const resumed = false; // this._state !== State.STOPPED;
+				const resumed = this._state !== State.STOPPED;
 				if (resumed) {
 					// resume streamsheets:
 					allStreamSheets.forEach((streamsheet) => streamsheet.resume());
@@ -411,9 +411,6 @@ class Machine {
 				// if (this._state === State.STOPPED) {
 				// 	this._activeStreamSheets = null;
 				// 	allStreamSheets.forEach((streamsheet) => streamsheet.start());
-				// } else {
-				// 	// resume streamsheets:
-				// 	allStreamSheets.forEach((streamsheet) => streamsheet.resume());
 				// }
 				this._emitter.emit('willStart', this);
 				this._state = State.RUNNING;
