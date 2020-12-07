@@ -1334,6 +1334,37 @@ describe('read', () => {
 			expect(sheet.cellAt('A4').value).toEqual(['Ertrag', 102, 202, 302]);
 		});
 	});
+	// DL-4631:
+	describe('copy with specified type bool or boolean', () => {
+		it('should read values of type boolean', () => {
+			const sheet = setup({ streamsheetName: 'T1' });
+			const outbox = sheet.machine.outbox;
+			outbox.put(new Message({ "flag1": true, "flag2": false, "0": false, "1": true }, 'Msg1'));
+			expect(createTerm('read(outboxdata("Msg1", "flag1"),A1,"boolean")', sheet).value).toBe('flag1');
+			expect(createTerm('read(outboxdata("Msg1", "flag2"),A2,"boolean")', sheet).value).toBe('flag2');
+			expect(createTerm('read(outboxdata("Msg1", "0"),A3,"boolean")', sheet).value).toBe(0);
+			expect(createTerm('read(outboxdata("Msg1", "1"),A4,"boolean")', sheet).value).toBe(1);
+			expect(sheet.cellAt('A1').value).toBe(true);
+			expect(sheet.cellAt('A2').value).toBe(false);
+			expect(sheet.cellAt('A3').value).toBe(false);
+			expect(sheet.cellAt('A4').value).toBe(true);
+			expect(true).toBeTruthy();
+		});
+		it('should read values of type bool', () => {
+			const sheet = setup({ streamsheetName: 'T1' });
+			const outbox = sheet.machine.outbox;
+			outbox.put(new Message({ "flag1": true, "flag2": false, "0": false, "1": true }, 'Msg1'));
+			expect(createTerm('read(outboxdata("Msg1", "flag1"),A1,"bool")', sheet).value).toBe('flag1');
+			expect(createTerm('read(outboxdata("Msg1", "flag2"),A2,"bool")', sheet).value).toBe('flag2');
+			expect(createTerm('read(outboxdata("Msg1", "0"),A3,"bool")', sheet).value).toBe(0);
+			expect(createTerm('read(outboxdata("Msg1", "1"),A4,"bool")', sheet).value).toBe(1);
+			expect(sheet.cellAt('A1').value).toBe(true);
+			expect(sheet.cellAt('A2').value).toBe(false);
+			expect(sheet.cellAt('A3').value).toBe(false);
+			expect(sheet.cellAt('A4').value).toBe(true);
+			expect(true).toBeTruthy();
+		});
+	});
 	describe('read inboxmetadata', () => {
 		it('should read simple metadata properties', () => {
 			const sheet = setup({ streamsheetName: 'T1' });

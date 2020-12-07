@@ -21,7 +21,7 @@ const {
 } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
-const TYPES = ['array', 'boolean', 'dictionary', 'json', 'jsonroot', 'number', 'range', 'string'];
+const TYPES = ['array', 'bool', 'boolean', 'dictionary', 'json', 'jsonroot', 'number', 'range', 'string'];
 
 const toBool = (term, defval) => term ? convert.toBoolean(term.value, defval) : defval;
 const termFromValue = (value) => (isType.object(value) ? new ObjectTerm(value) : Term.fromValue(value));
@@ -77,7 +77,7 @@ const validate = (range, errorcode) =>
 
 const getType = (term) => {
 	let value = term ? convert.toString(term.value) : undefined;
-	if (value != null) value = value.toLowerCase();
+	if (value != null) value = value.toLowerCase().trim();
 	// eslint-disable-next-line no-nested-ternary
 	return value == null ? 'json' : TYPES.includes(value) ? value : undefined;
 };
