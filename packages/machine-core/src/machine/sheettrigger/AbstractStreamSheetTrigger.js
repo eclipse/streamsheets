@@ -42,7 +42,9 @@ class AbstractStreamSheetTrigger {
 	}
 
 	// called by streamsheet. signals that it will be removed. trigger should perform clean up here...
-	dispose() {}
+	dispose() {
+		this._streamsheet = undefined;
+	}
 
 	update(config = {}) {
 		this.config = Object.assign(this.config, config);
@@ -68,6 +70,7 @@ class AbstractStreamSheetTrigger {
 	stop() {
 		clearTrigger(this);
 		// const streamsheet = this._streamsheet;
+		// streamsheet.stats.steps = 0;
 		// streamsheet.stats.repeatsteps = 0;
 		// // streamsheet.sheet.stopProcessing(retval);
 		// // we have to stay active
@@ -79,21 +82,21 @@ class AbstractStreamSheetTrigger {
 	}
 
 	step(manual) {
-		if (this._stepId == null) {
-			// repeat steps
-			if (!manual && this.isEndless) this._repeatStep();
-			else this._trigger();
+		// if not in repeat mode and not paused:
+		if (this._stepId == null && !this._streamsheet.sheet.isPaused) {
+			if (!manual && this.isEndless) this._startRepeat();
+			else this._streamsheet.cycleStep();
 		}
-		// we are in repeat mode
+	}
+	_startRepeat() {
+		repeatTrigger(this);
+		// on repeat start we do a normal cycle!
+		this._streamsheet.cycleStep();
 	}
 	_repeatStep() {
 		repeatTrigger(this);
-		// trigger step  afterwards, because it might clears current scheduled one!!!
-		this._trigger();
-	}
-	_trigger() {
-		const streamsheet = this._streamsheet;
-		return streamsheet.triggerStep();
+		// trigger step afterwards, because it might clears current scheduled one!!!
+		this._streamsheet.repeatStep();
 	}
 
 

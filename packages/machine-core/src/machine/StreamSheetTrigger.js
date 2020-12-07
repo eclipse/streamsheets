@@ -117,7 +117,7 @@ class ArrivalTrigger extends StreamSheetTrigger {
 	}
 
 	dispose() {
-		this._unsubscribe(this._streamsheet);
+		if (this._streamsheet) this._unsubscribe(this._streamsheet);
 	}
 
 	preProcess() {
@@ -212,7 +212,7 @@ class MachineTrigger extends StreamSheetTrigger {
 	}
 
 	dispose() {
-		this.unregister(this._streamsheet.machine);
+		if (this._streamsheet) this.unregister(this._streamsheet.machine);
 	}
 
 	unregister(machine) {
@@ -278,7 +278,7 @@ class ExecuteTrigger extends StreamSheetTrigger {
 	}
 
 	dispose() {
-		this.unregister(this._streamsheet.machine);
+		if (this._streamsheet) this.unregister(this._streamsheet.machine);
 	}
 
 	unregister(machine) {
