@@ -347,6 +347,7 @@ class NoneTrigger extends StreamSheetTrigger {
 
 StreamSheetTrigger.TYPE = {
 	ARRIVAL: 'arrival',
+	CONTINUOUSLY: 'continuously',
 	EXECUTE: 'execute',
 	MACHINE_START: 'start',
 	MACHINE_STARTSTOP: 'startstop',
