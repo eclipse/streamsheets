@@ -132,8 +132,9 @@ class StreamSheet2 extends StreamSheet {
 		// }
 
 	// called by trigger
-	repeatStep() {
+	repeatStep(executes) {
 		this.stats.repeatsteps += 1;
+		this.stats.executesteps = executes;
 		this._doStep2();
 	}
 	// called by trigger
