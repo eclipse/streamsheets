@@ -36,7 +36,7 @@ class Cursor {
 		this.r = sheet.settings.minrow;
 		this.sheet = sheet;
 		this.changed = false;
-		// this.processed = false;
+		this.isProcessed = false;
 		// this.state = State.READY;
 	}
 
@@ -48,7 +48,7 @@ class Cursor {
 		this.c = null;
 		this.r = this.sheet.settings.minrow;
 		this.changed = false;
-		this.processed = false;
+		this.isProcessed = false;
 		// this.state = State.READY;
 	}
 
@@ -89,6 +89,15 @@ class SheetProcessor {
 		this._cursor = new Cursor(sheet);
 	}
 
+	done() {
+		this._state = State.READY;
+		this._cursor.r = Number.MAX_SAFE_INTEGER;
+		this._cursor.changed = true;
+		this._cursor.isProcessed = true;
+	}
+	// suspend() {
+
+	// }
 	pause() {
 		this._state = State.PAUSED;
 	}
@@ -99,10 +108,10 @@ class SheetProcessor {
 	// 	if (this._state === State.STOPPED) this._cursor.reset();
 	// 	this._state = State.PROCESSING;
 	// }
-	stop() {
-		// this._state = State.STOPPED;
-		this._state = State.PROCESSED;
-	}
+	// stop() {
+	// 	// this._state = State.STOPPED;
+	// 	this._state = State.PROCESSED;
+	// }
 
 	continueAt(index) {
 		this._cursor.setToIndex(index);
@@ -115,7 +124,8 @@ class SheetProcessor {
 	// 	return this._state === State.STOPPED;
 	// }
 	get isProcessed() {
-		return this._state === State.PROCESSED;
+		// return this._state === State.PROCESSED;
+		return this._cursor.isProcessed;
 	}
 	get isReady() {
 		return this._state === State.READY;
@@ -137,7 +147,7 @@ class SheetProcessor {
 		const last = rows.length;
 		let lastcol = 0;
 		// cursor.processed = false;
-		if (this.isProcessed) {
+		if (!this.isPaused && this.isProcessed) {
 			cursor.reset();
 			this._state = State.READY;
 		}
@@ -174,7 +184,8 @@ class SheetProcessor {
 		if (cursor.r >= last) { // && (cursor.c == null || cursor.c >= lastcol))) {
 			// reset(cursor, sheet.settings);
 			// cursor.reset();
-			this._state = State.PROCESSED;
+			// this._state = State.PROCESSED;
+			cursor.isProcessed = true;
 		}
 		// reset cursor if sheet is processed completely
 		// if (cursor.r >= last) {
