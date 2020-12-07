@@ -1,6 +1,8 @@
+const State = require('../State');
 const StreamSheet = require('./StreamSheet');
 const SheetProcessor2 = require('./SheetProcessor2');
 const StreamSheetTrigger = require('./StreamSheetTrigger');
+
 
 class StreamSheet2 extends StreamSheet {
 	// STATS:
@@ -16,6 +18,23 @@ class StreamSheet2 extends StreamSheet {
 		// exchange sheet processor:
 		this.sheet.processor = new SheetProcessor2(this.sheet);
 	}
+
+	get trigger() {
+		return this._trigger;
+	}
+	set trigger(trigger) {
+		if (this._trigger) {
+			this._trigger.stop();
+			this._trigger.dispose();
+			this._trigger.streamsheet = undefined;
+		}
+		this._trigger = trigger;
+		this._trigger.streamsheet = this;
+		// apply current state if differ from stop
+		if (this.sheet.isPaused) this._trigger.pause();
+		else if (this.machine && this.machine.state === State.RUNNING) this._trigger.resume();
+	}
+
 
 	// called by sheet functions:
 	execute(message, repetitions, callingSheet) {
@@ -62,7 +81,7 @@ class StreamSheet2 extends StreamSheet {
 		this.trigger.pause();
 	}
 	resume() {
-		this.trigger.resume();
+		if (!this.sheet.isPaused) this.trigger.resume();
 	}
 	start() {
 		super.start();
@@ -81,16 +100,14 @@ class StreamSheet2 extends StreamSheet {
 
 	step(manual) {
 		// TODO: here we check if machine is paused or sheet is waiting etc. if not we can go on...
-		try {
-			// this._doStep(manual);
-			// if we stopped on return() we start again...
-			// if (this.sheet.isStopped) this.sheet.startProcessing();
-			this.stats.steps += 1;
-			this.trigger.step(manual);
-			// if (this.sheet.isProcessing) this.sheet.stopProcessing();
-		} catch (err) {
-			console.error(err);
-		}
+
+		// this._doStep(manual);
+		// if we stopped on return() we start again...
+		// if (this.sheet.isStopped) this.sheet.startProcessing();
+		// this.stats.steps += 1;
+		// this.stats.repeatsteps = 0;
+		this.trigger.step(manual);
+		// if (this.sheet.isProcessing) this.sheet.stopProcessing();
 	}
 	// _doStep(manual) {
 	// 	this._attachMessage2();
@@ -103,17 +120,28 @@ class StreamSheet2 extends StreamSheet {
 	// }
 
 	// called by trigger
-	triggerStepORG() {
-		// TODO: should we do this on step() ???
-		this._attachMessage2();
-		const result = this.sheet.startProcessing();
-		if (this.sheet.isProcessed) {
-			if (!this.trigger.isEndless) this._msgHandler.next();
-			this._detachMessage2();
-		}
-		return result;
+	// triggerStepORG() {
+		// 	// TODO: should we do this on step() ???
+		// 	this._attachMessage2();
+	// 	const result = this.sheet.startProcessing();
+	// 	if (this.sheet.isProcessed) {
+		// 		if (!this.trigger.isEndless) this._msgHandler.next();
+		// 		this._detachMessage2();
+		// 	}
+		// 	return result;
+		// }
+
+	// called by trigger
+	repeatStep() {
+		this.stats.repeatsteps += 1;
+		this._doStep2();
 	}
-	triggerStep() {
+	// called by trigger
+	cycleStep() {
+		this.stats.steps += 1;
+		this._doStep2();
+	}
+	_doStep2() {
 		this._triggerCounter += 1;
 		if (this.sheet.isReady || this.sheet.isProcessed) this._attachMessage3();
 		const result = this.sheet.process();
@@ -124,6 +152,19 @@ class StreamSheet2 extends StreamSheet {
 		}
 		return result;
 	}
+	// triggerStep(repeatstep) {
+	// 	this._triggerCounter += 1;
+	// 	if (repeatstep) this.stats.repeatsteps += 1;
+	// 	else this.stats.steps += 1;
+	// 	if (this.sheet.isReady || this.sheet.isProcessed) this._attachMessage3();
+	// 	const result = this.sheet.process();
+	// 	if (this.sheet.isProcessed) {
+	// 		// on endless we reuse message
+	// 		if (!this.trigger.isEndless) this._msgHandler.next();
+	// 		this._detachMessage2();
+	// 	}
+	// 	return result;
+	// }
 	_attachMessage3() {
 		if (this._msgHandler.isProcessed) {
 			let newMessage;
