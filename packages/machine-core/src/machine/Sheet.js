@@ -168,30 +168,27 @@ module.exports = class Sheet {
 		return json;
 	}
 
-	get isFinished() {
-		return this.processor.isProcessed;
+	// get isFinished() {
+	// 	return this.processor.isProcessed;
+	// }
+	get isPaused() {
+		return this.processor.isPaused;
 	}
 	get isProcessed() {
 		return this.processor.isProcessed;
 	}
-
 	get isReady() {
 		return this.processor.isReady;
 	}
-
-	get isStopped() {
-		return this.processor.isStopped;
-	}
-
+	// get isResumed() {
+	// 	return this.processor.isResumed;
+	// }
+	// get isStopped() {
+	// 	return this.processor.isStopped;
+	// }
 	get isProcessing() {
 		// return this.processor.isProcessing || this._forceExecution;
 		return this._isProcessing || this._forceExecution;
-	}
-	get isPaused() {
-		return this.processor.isPaused;
-	}
-	get isResumed() {
-		return this.processor.isResumed;
 	}
 
 	get machine() {
@@ -628,7 +625,8 @@ module.exports = class Sheet {
 
 	// optional return value
 	stopProcessing(retvalue) {
-		this.processor.stop(retvalue);
+		if (this.processor.done) this.processor.done(retvalue);
+		else this.processor.stop(retvalue);
 	}
 
 	continueProcessingAt(cellindex) {
