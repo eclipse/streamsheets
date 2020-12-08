@@ -147,10 +147,7 @@ class ImagePool extends Dictionary {
 
 		const imageOld = this.get(url);
 		if (imageOld) {
-			if (imageOld._loaded === false) {
-				return;
-			}
-			if (imageOld._lastURL === `${url}?${params}`) {
+			if (imageOld._loaded && imageOld._lastURL === `${url}?${params}`) {
 				// / no change
 				return;
 			}
@@ -170,6 +167,10 @@ class ImagePool extends Dictionary {
 			this._views.forEach((view) => {
 				view.invalidate();
 			});
+		};
+
+		image.onerror = () => {
+			image._loaded = false;
 		};
 
 		image.src = `${url}?${params}`;
