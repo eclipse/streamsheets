@@ -29,7 +29,7 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 	}
 
 	step(manual) {
-		if (manual && this.isEndless && !this._isExecuted && this._isActive) {
+		if (manual && this.isEndless && !this._isExecuted) { // && this._isActive) {
 			this.doRepeatStep();
 		}
 	}
@@ -43,12 +43,14 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 		this._doExecute();
 	}
 	_doExecute() {
-		const streamsheet = this._streamsheet;
-		for (let i = 0; i < this._repetitions; i += 1) {
-			streamsheet.stats.executesteps = i + 1;
-			streamsheet.triggerStep();
+		if (!this.isResumed) {
+			const streamsheet = this._streamsheet;
+			for (let i = 0; this._isActive && i < this._repetitions; i += 1) {
+				streamsheet.stats.executesteps = i + 1;
+				streamsheet.triggerStep();
+			}
+			streamsheet.stats.executesteps = 0;
 		}
-		streamsheet.stats.executesteps = 0;
 	}
 
 	stop() {
