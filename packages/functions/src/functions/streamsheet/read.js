@@ -88,7 +88,7 @@ const read = (sheet, ...terms) =>
 		.mapNextArg((msgTerm) => messages.getMessageInfo(sheet, msgTerm))
 		.mapNextArg((target) => target && getCellRangeFromTerm(target, sheet))
 		.mapNextArg((type) => getType(type) || ERROR.VALUE)
-		.mapNextArg((isHorizontal) => toBool(isHorizontal, undefined))
+		.mapNextArg((isHorizontal) => toBool(isHorizontal, false))
 		.mapNextArg((returnNA) => toBool(returnNA, false))
 		.validate((msgInfo, targetRange) => targetRange && validate(targetRange, ERROR.INVALID_PARAM))
 		.run((msgInfo, targetRange, type, isHorizontal, returnNA) => {
