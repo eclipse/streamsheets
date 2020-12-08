@@ -79,7 +79,7 @@ module.exports = {
 		INBOXJSON,
 		INBOXMETADATA,
 		JSON,
-		'JSON.TO.RANGE': jsontorange,
+		'JSON.TORANGE': jsontorange,
 		'JSON.VALUE': JSONVALUE,
 		// KAFKA HERE???
 		KAFKACOMMAND,
