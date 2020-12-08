@@ -40,6 +40,10 @@ class AbstractStreamSheetTrigger {
 		return this.config.repeat === 'endless';
 	}
 
+	get isRepeating() {
+		return !!this._stepId;
+	}
+
 	set streamsheet(streamsheet) {
 		this._streamsheet = streamsheet;
 	}
@@ -61,7 +65,7 @@ class AbstractStreamSheetTrigger {
 	resume() {
 		if (!this.isManualStep && this.isEndless) this._repeatStep();
 		else this._streamsheet.triggerStep();
-		this.isResumed = true;
+		this.isResumed = !this.isRepeating;
 	}
 	start() {
 		// reset stats?
