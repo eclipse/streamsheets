@@ -161,7 +161,7 @@ class StreamSheet {
 	}
 
 	set name(name) {
-		this._name = Reference.isValidIdentifier(name) ? name : (this._name || '');
+		this._name = Reference.isValidIdentifier(name) ? name : this._name || '';
 	}
 
 	get machine() {
@@ -378,6 +378,8 @@ class StreamSheet {
 	triggerStep() {
 		this._doStep();
 	}
+	preStep() {}
+	postStep() {}
 
 	step(manual) {
 		const triggerType = this.trigger.type;
@@ -385,9 +387,10 @@ class StreamSheet {
 		const doIt = manual || this.trigger.isEndless || triggerType !== StreamSheetTrigger.TYPE.ARRIVAL;
 		if (doIt) {
 			// DL-3709: force manual step on ARRIVAL sheet
-			const data = manual === 'force' || (manual === true && triggerType === StreamSheetTrigger.TYPE.ARRIVAL)
-				? { cmd: 'force' }
-				: undefined;
+			const data =
+				manual === 'force' || (manual === true && triggerType === StreamSheetTrigger.TYPE.ARRIVAL)
+					? { cmd: 'force' }
+					: undefined;
 			this._doStep(data);
 		}
 	}
