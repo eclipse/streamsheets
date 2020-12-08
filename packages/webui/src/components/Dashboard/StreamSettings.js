@@ -143,7 +143,7 @@ class StreamSettings extends React.Component {
 		});
 	};
 
-	static onUpdateName = (name) => name.replace(' ', '_').replace(/[^a-zA-Z0-9_]/, '');
+	static onUpdateName = (name) => name.replace(/\W/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
 
 	handleDescriptionChange = (event) => {
 		event.preventDefault();
