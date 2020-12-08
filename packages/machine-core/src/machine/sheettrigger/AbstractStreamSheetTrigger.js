@@ -11,6 +11,7 @@ const repeatTrigger = (trigger) => {
 const DEF_CONF = {
 	repeat: 'once'
 };
+
 // base trigger
 class AbstractStreamSheetTrigger {
 	// review TICKETS:
@@ -20,6 +21,8 @@ class AbstractStreamSheetTrigger {
 	constructor(config = {}) {
 		this.config = Object.assign({}, DEF_CONF, config);
 		// this.isActive = false;
+		this.isResumed = false;
+		this.isManualStep = false;
 		this._stepId = undefined;
 		this._streamsheet = undefined;
 		this._repeatStep = this._repeatStep.bind(this);
@@ -48,41 +51,38 @@ class AbstractStreamSheetTrigger {
 
 	update(config = {}) {
 		this.config = Object.assign(this.config, config);
+		if (!this.isEndless) clearTrigger(this);
 	}
 
 	// CONTROL METHODS
 	pause() {
-		// this.isActive = false;
 		clearTrigger(this);
 	}
 	resume() {
-		if (this.isEndless) this._repeatStep();
-		// this.isActive = true;
-		// called by machine on start from pause...
-		// no need to repeatStep() or trigger will be done on first step which should be executed immediately by machine cycle
-		// else this._trigger();
+		if (!this.isManualStep && this.isEndless) this._repeatStep();
+		else this._streamsheet.triggerStep();
+		this.isResumed = true;
 	}
 	start() {
-		// this.isActive = true;
-		// this._streamsheet.stats.repeatsteps = 0;
 		// reset stats?
 	}
 	stop() {
 		clearTrigger(this);
-		// const streamsheet = this._streamsheet;
-		// streamsheet.stats.steps = 0;
-		// streamsheet.stats.repeatsteps = 0;
-		// // streamsheet.sheet.stopProcessing(retval);
-		// // we have to stay active
-		// this.isActive = true;
 		return true;
 	}
-	stopRepeat() {
-		/* currently do nothing */
+	stopProcessing() {
+		this.stop();
 	}
 
-	step(/* manual */) {
+	preStep(manual) {
+		this.isResumed = false;
+		this.isManualStep = manual;
 	}
+	step(/* manual */) {}
+	postStep(/* manual */) {
+		// this.isResumed = false;
+	}
+
 	_startRepeat() {
 		repeatTrigger(this);
 		// on repeat start we do a normal cycle!
@@ -93,17 +93,19 @@ class AbstractStreamSheetTrigger {
 		// trigger step afterwards, because it might clears current scheduled one!!!
 		this.doRepeatStep();
 	}
-	trigger(manual) {
-		if (this._stepId == null && !this._streamsheet.sheet.isPaused) {
-			if (!manual && this.isEndless) this._startRepeat();
+	trigger() {
+		if (!this.isResumed && this._stepId == null && !this._streamsheet.sheet.isPaused) {
+			if (!this.isManualStep && this.isEndless) this._startRepeat();
 			else this.doCycleStep();
 		}
 	}
 	doCycleStep() {
-		this._streamsheet.cycleStep();
+		this._streamsheet.stats.steps += 1;
+		this._streamsheet.triggerStep();
 	}
 	doRepeatStep() {
-		this._streamsheet.repeatStep();
+		this._streamsheet.stats.repeatsteps += 1;
+		this._streamsheet.triggerStep();
 	}
 
 	// DEPRECATED:

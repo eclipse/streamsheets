@@ -10,7 +10,7 @@
  ********************************************************************************/
 const { SheetParser } = require('../');
 
-// don't get it: if we mock here instead of test it works with above require!!
+// WHY? if we mock here instead of mocking in corresponding test it works with above SheetParser require!!
 jest.mock('../src/streams/StreamMessagingClient');
 
 // FOR TESTs we do not use persistent outbox
@@ -53,12 +53,13 @@ const functions = {
 		if (sheet.isProcessing) {
 			sheet.streamsheet.pauseProcessing();
 		}
-	},
-	RESUME: (sheet /* , ...terms */) => {
-		if (sheet.isProcessing) {
-			sheet.streamsheet.resumeProcessing();
-		}
 	}
+	// ,
+	// RESUME: (sheet /* , ...terms */) => {
+	// 	if (sheet.isProcessing) {
+	// 		sheet.streamsheet.resumeProcessing();
+	// 	}
+	// }
 };
 
 // setup parser and its context...
