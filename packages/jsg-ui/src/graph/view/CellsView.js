@@ -221,7 +221,8 @@ export default class CellsView extends NodeView {
 		const term = data.getExpression().getTerm();
 
 		if (data.displayFunctionName && term && (term instanceof FuncTerm)) {
-			switch (term.getFuncId()) {
+			const funcId = term.getFuncId();
+			switch (funcId) {
 				case 'SELECT':
 					result.clip = true;
 					result.forcedAlignment = 0;
@@ -256,21 +257,27 @@ export default class CellsView extends NodeView {
 					result.color = '#FFFFFF';
 					result.bold = true;
 					result.rounded = term.getFuncId() === 'READ' ? 'left' : 'right';
-					if (term.params && term.params.length > 2 && term.params[2].value) {
-						switch (term.params[2].value) {
-						case 'String':
+					if (term.params && term.params.length > 2) {
+						const value = term.params[2].value;
+						// default for READ is "json" => better pass type with cell in future version!
+						const type = !value && funcId === 'READ' ? 'json' : `${value}`.toLowerCase();
+						switch (type) {
+						case 'string':
 							result.fillColor = '#009408';
 							break;
-						case 'Number':
+						case 'number':
 							result.fillColor = '#497B8D';
 							break;
-						case 'Bool':
+						case 'bool':
+						case 'boolean':
 							result.fillColor = '#B1C639';
 							break;
-						case 'Dictionary':
+						case 'dictionary':
+						case 'json':
+						case 'jsonroot':
 							result.fillColor = '#E17000';
 							break;
-						case 'Array':
+						case 'array':
 							result.fillColor = '#2D5B89';
 							break;
 						default:
