@@ -513,7 +513,9 @@ class Machine {
 	async _doStep(streamsheets, manual) {
 		this._preventStop = false;
 		this.stats.steps += 1;
+		streamsheets.forEach((streamsheet) => streamsheet.preStep(manual));
 		streamsheets.forEach((streamsheet) => streamsheet.step(manual));
+		streamsheets.forEach((streamsheet) => streamsheet.postStep(manual));
 		// await Promise.all(streamsheets.map(async (streamsheet) => await streamsheet.step(manual)));
 		// for (let i = 0; i < streamsheets.length; i += 1) {
 		// 	await streamsheets[i].step(manual);
