@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/stream-mail-pop3",
-  "version": "2.0.0",
+  "version": "2.2.0",
   "description": "DL POP3 feeder",
   "main": "index.js",
   "scripts": {
@@ -22,8 +22,8 @@
     "smtp-server": "3.4.6"
   },
   "dependencies": {
-    "@cedalo/logger": "2.0.0",
-    "@cedalo/sdk-streams": "2.0.0",
+    "@cedalo/logger": "2.2.0",
+    "@cedalo/sdk-streams": "2.2.0",
     "mailparser": "2.7.1",
     "poplib": "0.1.7"
   },

@@ -1,6 +1,6 @@
 {
 	"name": "@cedalo/service-machines-extensions",
-	"version": "2.0.0",
+	"version": "2.2.0",
 	"description": "Service Machines Extensions",
 	"main": "index.js",
 	"repository": {
@@ -13,8 +13,8 @@
 	},
 	"dependencies": {},
 	"peerDependencies": {
-		"@cedalo/commons": "2.0.0",
-		"@cedalo/logger": "2.0.0"
+		"@cedalo/commons": "2.2.0",
+		"@cedalo/logger": "2.2.0"
 	},
 	"license": "EPL-2.0"
 }
