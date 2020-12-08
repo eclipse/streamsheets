@@ -27,7 +27,8 @@ const State = {
 	PROCESSING: 2,
 	PAUSED: 4,
 	PROCESSED: 8,
-	STOPPED: 16
+	RESUMED: 16,
+	STOPPED: 32
 };
 
 class Cursor {
@@ -102,7 +103,7 @@ class SheetProcessor {
 		this._state = State.PAUSED;
 	}
 	resume() {
-		this._state = State.READY;
+		this._state = State.RESUMED;
 	}
 	// start() {
 	// 	if (this._state === State.STOPPED) this._cursor.reset();
@@ -130,7 +131,9 @@ class SheetProcessor {
 	get isReady() {
 		return this._state === State.READY;
 	}
-
+	get isResumed() {
+		return this._state === State.RESUMED;
+	}
 	// get isProcessing() {
 	// 	return this._state === State.PROCESSING;
 	// }
@@ -146,10 +149,11 @@ class SheetProcessor {
 		// we are neither dynamic in rows, nor in columns to prevent endless for-loops if cells are added permanently
 		const last = rows.length;
 		let lastcol = 0;
-		// cursor.processed = false;
 		if (!this.isPaused && this.isProcessed) {
 			cursor.reset();
 			this._state = State.READY;
+		} else if (this.isResumed && cursor.c != null) {
+			cursor.c += 1;
 		}
 
 		for (; cursor.r < last && !this.isProcessed && !this.isPaused; ) {
@@ -164,7 +168,7 @@ class SheetProcessor {
 					if (doSkipRow(cell, cursor.c)) break;	// from inner column-loop
 				}
 				if (cursor.changed) break; // break from inner column-loop...
-				else cursor.c += 1;
+				else if(!this.isPaused) cursor.c += 1;
 			}
 			// cursor was set?
 			if (cursor.changed) {
@@ -174,7 +178,7 @@ class SheetProcessor {
 					cursor.isBackward = false;
 					break;
 				}
-			} else {
+			} else if (!this.isPaused) {
 				// now to next row:
 				cursor.r += 1;
 				cursor.c = null;
