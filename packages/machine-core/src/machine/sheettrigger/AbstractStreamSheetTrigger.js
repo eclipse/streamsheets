@@ -63,9 +63,11 @@ class AbstractStreamSheetTrigger {
 		clearTrigger(this);
 	}
 	resume() {
+		// const paused = this._streamsheet.sheet.isPaused;
 		if (!this.isManualStep && this.isEndless) this._repeatStep();
 		else this._streamsheet.triggerStep();
 		this.isResumed = !this.isRepeating;
+		// this.isResumed = paused && !this.isRepeating;
 	}
 	start() {
 		// reset stats?

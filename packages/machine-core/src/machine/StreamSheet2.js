@@ -59,6 +59,7 @@ class StreamSheet2 extends StreamSheet {
 	stopProcessing(retval) {
 		this.trigger.stopProcessing();
 		this.sheet.stopProcessing(retval);
+		if (this.trigger.isEndless) this._msgHandler.next();
 		// this.trigger.stopRepeat();
 		// if (this.trigger.isEndless) {
 		// 	this._msgHandler.next();
