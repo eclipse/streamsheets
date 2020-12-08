@@ -14,7 +14,6 @@ class StreamSheet2 extends StreamSheet {
 	// }
 	constructor(conf = {}) {
 		super(conf);
-		this._triggerCounter = 0;
 		// exchange sheet processor:
 		this.sheet.processor = new SheetProcessor2(this.sheet);
 	}
@@ -58,9 +57,9 @@ class StreamSheet2 extends StreamSheet {
 	}
 	// TODO maybe rename => called only by return function
 	stopProcessing(retval) {
-		this.trigger.stop();
+		this.trigger.stopProcessing();
 		this.sheet.stopProcessing(retval);
-		this.trigger.stopRepeat();
+		// this.trigger.stopRepeat();
 		// if (this.trigger.isEndless) {
 		// 	this._msgHandler.next();
 		// 	this.trigger.stopRepeat();
@@ -98,16 +97,14 @@ class StreamSheet2 extends StreamSheet {
 		return stopped;
 	}
 
+	preStep(manual) {
+		this.trigger.preStep(manual);
+	}
 	step(manual) {
-		// TODO: here we check if machine is paused or sheet is waiting etc. if not we can go on...
-
-		// this._doStep(manual);
-		// if we stopped on return() we start again...
-		// if (this.sheet.isStopped) this.sheet.startProcessing();
-		// this.stats.steps += 1;
-		// this.stats.repeatsteps = 0;
 		this.trigger.step(manual);
-		// if (this.sheet.isProcessing) this.sheet.stopProcessing();
+	}
+	postStep(manual) {
+		this.trigger.postStep(manual);
 	}
 	// _doStep(manual) {
 	// 	this._attachMessage2();
@@ -132,18 +129,26 @@ class StreamSheet2 extends StreamSheet {
 		// }
 
 	// called by trigger
-	repeatStep(executes) {
-		this.stats.repeatsteps += 1;
-		this.stats.executesteps = executes;
-		this._doStep2();
-	}
-	// called by trigger
-	cycleStep() {
-		this.stats.steps += 1;
-		this._doStep2();
-	}
-	_doStep2() {
-		this._triggerCounter += 1;
+	// repeatStep() {
+	// 	this.stats.repeatsteps += 1;
+	// 	this._doStep2();
+	// }
+	// // called by trigger
+	// cycleStep() {
+	// 	this.stats.steps += 1;
+	// 	this._doStep2();
+	// }
+	// _doStep2() {
+	// 	if (this.sheet.isReady || this.sheet.isProcessed) this._attachMessage3();
+	// 	const result = this.sheet.process();
+	// 	if (this.sheet.isProcessed) {
+	// 		// on endless we reuse message
+	// 		if (!this.trigger.isEndless) this._msgHandler.next();
+	// 		this._detachMessage2();
+	// 	}
+	// 	return result;
+	// }
+	triggerStep() {
 		if (this.sheet.isReady || this.sheet.isProcessed) this._attachMessage3();
 		const result = this.sheet.process();
 		if (this.sheet.isProcessed) {
@@ -154,7 +159,6 @@ class StreamSheet2 extends StreamSheet {
 		return result;
 	}
 	// triggerStep(repeatstep) {
-	// 	this._triggerCounter += 1;
 	// 	if (repeatstep) this.stats.repeatsteps += 1;
 	// 	else this.stats.steps += 1;
 	// 	if (this.sheet.isReady || this.sheet.isProcessed) this._attachMessage3();
