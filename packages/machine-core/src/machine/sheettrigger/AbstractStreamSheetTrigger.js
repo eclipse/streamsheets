@@ -20,7 +20,7 @@ class AbstractStreamSheetTrigger {
 
 	constructor(config = {}) {
 		this.config = Object.assign({}, DEF_CONF, config);
-		// this.isActive = false;
+		this.isActive = false;
 		this.isResumed = false;
 		this.isManualStep = false;
 		this._stepId = undefined;
@@ -64,16 +64,19 @@ class AbstractStreamSheetTrigger {
 	}
 	resume() {
 		// const paused = this._streamsheet.sheet.isPaused;
-		if (!this.isManualStep && this.isEndless) this._repeatStep();
-		else this._streamsheet.triggerStep();
-		this.isResumed = !this.isRepeating;
-		// this.isResumed = paused && !this.isRepeating;
+		if (this.isActive) {
+			if (!this.isManualStep && this.isEndless) this._repeatStep();
+			else this._streamsheet.triggerStep();
+			this.isResumed = !this.isRepeating;
+			// this.isResumed = paused && !this.isRepeating;
+		}
 	}
 	start() {
 		// reset stats?
 	}
 	stop() {
 		clearTrigger(this);
+		this.isActive = false;
 		return true;
 	}
 	stopProcessing() {
@@ -100,6 +103,7 @@ class AbstractStreamSheetTrigger {
 		this.doRepeatStep();
 	}
 	trigger() {
+		this.isActive = true;
 		if (!this.isResumed && this._stepId == null && !this._streamsheet.sheet.isPaused) {
 			if (!this.isManualStep && this.isEndless) this._startRepeat();
 			else this.doCycleStep();
@@ -107,10 +111,12 @@ class AbstractStreamSheetTrigger {
 	}
 	doCycleStep() {
 		this._streamsheet.stats.steps += 1;
+		// if (this.isActive) this._streamsheet.triggerStep();
 		this._streamsheet.triggerStep();
 	}
 	doRepeatStep() {
 		this._streamsheet.stats.repeatsteps += 1;
+		// if (this.isActive) this._streamsheet.triggerStep();
 		this._streamsheet.triggerStep();
 	}
 
