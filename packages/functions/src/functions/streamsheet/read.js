@@ -55,7 +55,7 @@ const setErrorCell = (index, sheet) => {
 	const errTerm = ErrorTerm.fromError(ERROR.NA);
 	cell.term = errTerm;
 };
-const copyToCellRange = (range, data, type, isHorizontal) => {
+const copyToCellRange = (range, data, type, horizontally) => {
 	const sheet = range.sheet;
 	const isError = FunctionErrors.isError(data);
 	// note: DL-4090 might requires to fill target range...
@@ -67,7 +67,6 @@ const copyToCellRange = (range, data, type, isHorizontal) => {
 	} else {
 		// spread array to range, support jsonflat (DL-4560)
 		const lists = toArray2D(data, type);
-		const horizontally = isHorizontal == null ? range.height < range.width : isHorizontal;
 		toRange(lists, range, horizontally, setCellAt);
 	}
 };
@@ -88,10 +87,10 @@ const read = (sheet, ...terms) =>
 		.mapNextArg((msgTerm) => messages.getMessageInfo(sheet, msgTerm))
 		.mapNextArg((target) => target && getCellRangeFromTerm(target, sheet))
 		.mapNextArg((type) => getType(type) || ERROR.VALUE)
-		.mapNextArg((isHorizontal) => toBool(isHorizontal, false))
+		.mapNextArg((direction) => toBool(direction, true))
 		.mapNextArg((returnNA) => toBool(returnNA, false))
 		.validate((msgInfo, targetRange) => targetRange && validate(targetRange, ERROR.INVALID_PARAM))
-		.run((msgInfo, targetRange, type, isHorizontal, returnNA) => {
+		.run((msgInfo, targetRange, type, direction, returnNA) => {
 			const context = read.context;
 			const key = messages.getMessageValueKey(msgInfo);
 			let value = messages.getMessageValue(msgInfo);
@@ -99,8 +98,9 @@ const read = (sheet, ...terms) =>
 				value = returnNA ? ERROR.NA : getLastValue(context, msgInfo.messageKey, type);
 			}
 			if (targetRange) {
+				const horizontally = type === 'dictionary' || type === 'range' ? direction : !direction;;
 				setLastValue(context, msgInfo.messageKey, value);
-				copyToCellRange(targetRange, value, type, isHorizontal);
+				copyToCellRange(targetRange, value, type, horizontally);
 			}
 			// DL-1080: part of this issue specifies that READ() should return number value...
 			return convert.toNumber(key, key);
