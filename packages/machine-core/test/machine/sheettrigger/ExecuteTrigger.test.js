@@ -39,7 +39,7 @@ const setup = ({ switched = false } = {}) => {
 };
 
 describe('ExecuteTrigger', () => {
-	describe.skip('general behaviour', () => {
+	describe('general behaviour', () => {
 		it('should calculate sheet if called by another sheet on manual steps', async () => {
 			const { machine, s1, s2 } = setup();
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -1052,18 +1052,81 @@ describe('ExecuteTrigger', () => {
 			expect(false).toBe(true);
 		});
 	});
-	describe.skip('executesteps counter', () => {
-		it('should count each repetition in executesteps', () => {
-			expect(false).toBe(true);
+	describe('executesteps counter', () => {
+		it('should count each repetition in executesteps', async () => {
+			const { machine, s1, s2 } = setup();
+			createCellAt('A1', { formula: 'execute("S2", 4)' }, s1.sheet);
+			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
+			await machine.start();
+			await wait(30);
+			await machine.pause();
+			expect(s2.stats.steps).toBe(1);
+			expect(s2.stats.executesteps).toBe(4);
+			expect(s1.sheet.cellAt('A1').value).toBe(true);
+			expect(s2.sheet.cellAt('B1').value).toBe(5);
+			await machine.stop();
 		});
-		it.skip('should restart repetition count on each repeat if "repat until...', () => {
-			expect(false).toBe(true);
+		it('should restart repetition count on each execution', async () => {
+			const { machine, s1, s2 } = setup();
+			createCellAt('A1', { formula: 'execute("S2", 4)' }, s1.sheet);
+			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
+			await machine.start();
+			await wait(120);
+			await machine.pause();
+			expect(s2.stats.executesteps).toBe(4);
+			expect(s1.sheet.cellAt('A1').value).toBe(true);
+			expect(s2.sheet.cellAt('B1').value).toBe(13);
+			await machine.stop();
 		});
-		it.skip('should increase step counter on each execution call', () => {
-			expect(false).toBe(true);
+		it('should restart repetition count on each repeat in "repeat until..."', async () => {
+			const { machine, s1, s2 } = setup();
+			s2.trigger.update({ repeat: 'endless' });
+			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+			createCellAt('A2', { formula: 'execute("S2",5)' }, s1.sheet);
+			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
+			createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
+			createCellAt('B4', { formula: 'if(mod(B2,2)=0,return(),false)' }, s2.sheet);
+			await machine.start();
+			await wait(120);
+			await machine.stop();
+			// executesteps count is bound by return each 2 calcs
+			expect(s2.stats.executesteps).toBe(2);
+			expect(s1.sheet.cellAt('A1').value).toBe(4);
+			expect(s1.sheet.cellAt('A2').value).toBe(true);
+			expect(s1.sheet.cellAt('A3').value).toBe(4);
+			expect(s2.sheet.cellAt('B2').value).toBe(6);
+			expect(s2.sheet.cellAt('B4').value).toBe(true);
+		});
+		it('should increase step counter on each execution call', async () => {
+			const { machine, s1, s2 } = setup();
+			createCellAt('A1', { formula: 'execute("S2", 4)' }, s1.sheet);
+			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
+			await machine.start();
+			await wait(120);
+			await machine.pause();
+			expect(s1.stats.steps).toBe(3);
+			expect(s2.stats.steps).toBe(3);
+			expect(s2.stats.executesteps).toBe(4);
+			expect(s1.sheet.cellAt('A1').value).toBe(true);
+			expect(s2.sheet.cellAt('B1').value).toBe(13);
+			await machine.stop();
+		});
+		it('should not increase step counter on each execution call on "repeat until..."', async () => {
+			const { machine, s1, s2 } = setup();
+			s2.trigger.update({ repeat: 'endless' });
+			createCellAt('A1', { formula: 'execute("S2")' }, s1.sheet);
+			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
+			await machine.start();
+			await wait(70);
+			await machine.pause();
+			expect(s1.stats.steps).toBe(1);
+			expect(s2.stats.steps).toBe(1);
+			expect(s2.stats.repeatsteps).toBeGreaterThan(2);
+			expect(s2.stats.executesteps).toBe(1);
+			await machine.stop();
 		});
 	});
-	describe.skip('serialize', () => {
+	describe('serialize', () => {
 		it('should be possible to save trigger settings to JSON', () => {
 			let json = new ExecuteTrigger().toJSON();
 			expect(json).toBeDefined();

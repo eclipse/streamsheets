@@ -45,11 +45,11 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 	_doExecute() {
 		if (!this.isResumed) {
 			const streamsheet = this._streamsheet;
+			streamsheet.stats.executesteps = 0;
 			for (let i = 0; this.isActive && i < this._repetitions; i += 1) {
 				streamsheet.stats.executesteps = i + 1;
 				streamsheet.triggerStep();
 			}
-			streamsheet.stats.executesteps = 0;
 		}
 	}
 
