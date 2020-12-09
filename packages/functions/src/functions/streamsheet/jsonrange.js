@@ -41,11 +41,10 @@ const jsonrange = (sheet, ...terms) =>
 		.mapNextArg((direction) => (direction ? convert.toBoolean(direction.value, ERROR.VALUE) : true))
 		.run((json, range, type, direction) => {
 			let res = true;
-			const spread = 	range.width === 1 && range.height === 1 ? toRangeGrow : toRange
-			//dictionary or range is simply JSON with flipped direction, so
-			if (type === 'dictionary' || type === 'range') direction = !direction;
+			const spread = range.width === 1 && range.height === 1 ? toRangeGrow : toRange;
+			const horizontally = type === 'dictionary' || type === 'range' ? direction : !direction;
 			json = toArray2D(json, type);
-			res = json ? spread(json, range, !direction) : ERROR.VALUE;
+			res = json ? spread(json, range, horizontally) : ERROR.VALUE;
 			return res;
 		});
 
