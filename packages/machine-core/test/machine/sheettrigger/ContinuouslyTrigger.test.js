@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { ContinuouslyTrigger, NoneTrigger, Machine, Message, StreamSheet2 } = require('../../..');
+const { ContinuouslyTrigger, NoneTrigger, Machine, Message, StreamSheet2, TriggerFactory } = require('../../..');
 const { createCellAt, wait } = require('../../utils');
 
 const setup = () => {
@@ -685,12 +685,26 @@ describe('ContinuouslyTrigger', () => {
 			await machine.stop();
 		});
 	});
-	describe.skip('ContinuouslyTrigger IO', () => {
+	describe('serialize', () => {
 		it('should be possible to save trigger settings to JSON', () => {
-			expect(false).toBe(true);
+			let json = new ContinuouslyTrigger().toJSON();
+			expect(json).toBeDefined();
+			expect(json.type).toBe(TriggerFactory.TYPE.CONTINUOUSLY);
+			expect(json.repeat).toBe('once');
+			json = new ContinuouslyTrigger({ repeat: 'endless' }).toJSON();
+			expect(json).toBeDefined();
+			expect(json.type).toBe(TriggerFactory.TYPE.CONTINUOUSLY);
+			expect(json.repeat).toBe('endless');
 		});
 		it('should be possible to restore trigger from JSON', () => {
-			expect(false).toBe(true);
+			let trigger = TriggerFactory.create(new ContinuouslyTrigger().toJSON());
+			expect(trigger).toBeDefined();
+			expect(trigger.type).toBe(TriggerFactory.TYPE.CONTINUOUSLY);
+			expect(trigger.isEndless).toBe(false);
+			trigger = TriggerFactory.create(new ContinuouslyTrigger({ repeat: 'endless' }).toJSON());
+			expect(trigger).toBeDefined();
+			expect(trigger.type).toBe(TriggerFactory.TYPE.CONTINUOUSLY);
+			expect(trigger.isEndless).toBe(true);
 		});
 	});
 });

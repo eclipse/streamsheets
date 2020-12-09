@@ -1,7 +1,7 @@
-const StreamSheetTrigger = require('../StreamSheetTrigger');
+const TriggerFactory = require('./TriggerFactory');
 const AbstractStreamSheetTrigger = require('./AbstractStreamSheetTrigger');
 
-const TYPE_CONF = { type: StreamSheetTrigger.TYPE.CONTINUOUSLY };
+const TYPE_CONF = { type: TriggerFactory.TYPE.CONTINUOUSLY };
 
 class ContinuouslyTrigger extends AbstractStreamSheetTrigger {
 	constructor(cfg = {}) {

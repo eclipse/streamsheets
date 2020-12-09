@@ -1,8 +1,7 @@
-// const State = require('../../State');
-const StreamSheetTrigger = require('../StreamSheetTrigger');
+const TriggerFactory = require('./TriggerFactory');
 const AbstractStreamSheetTrigger = require('./AbstractStreamSheetTrigger');
 
-const TYPE_CONF = { type: StreamSheetTrigger.TYPE.EXECUTE };
+const TYPE_CONF = { type: TriggerFactory.TYPE.EXECUTE };
 
 class ExecuteTrigger extends AbstractStreamSheetTrigger {
 	constructor(cfg = {}) {
