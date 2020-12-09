@@ -169,7 +169,7 @@ class StreamWizard extends React.Component {
 			i += 1;
 		}
 
-		return finalName;
+		return StreamWizard.onUpdateName(finalName);
 	}
 
 	static createUniqueProducerName(connector, props) {
@@ -200,7 +200,7 @@ class StreamWizard extends React.Component {
 			i += 1;
 		}
 
-		return finalName;
+		return StreamWizard.onUpdateName(finalName);
 	}
 
 	static createUniqueConnectorName(provider, props) {
