@@ -28,7 +28,8 @@ class StreamSheet2 extends StreamSheet {
 				trigger.isActive = this._trigger.isActive;
 			}
 			// dispose old trigger:
-			this._trigger.stop();
+			if (this._trigger.isEndless && !trigger.isEndless) this.stopProcessing();
+			else this._trigger.stop();
 			this._trigger.dispose();
 			this._trigger.streamsheet = undefined;
 		}
