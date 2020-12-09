@@ -58,6 +58,7 @@ class StreamSheetTrigger {
 		this.isActive = false;
 		return true;
 	}
+	stopProcessing() {}
 }
 
 class ArrivalTrigger extends StreamSheetTrigger {
