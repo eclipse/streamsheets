@@ -234,7 +234,7 @@ module.exports = {
 				description: 'Wandelt den angebenen Zellbereich, Text oder Nachrichtenelement in ein JSON Objekt um'
 			}
 		},
-		'JSON.TORANGE': {
+		'JSON.RANGE': {
 			en: {
 				argumentList: 'JSON,CellRange,Type,Direction',
 				description: 'Writes the content of given JSON to specified cell range'

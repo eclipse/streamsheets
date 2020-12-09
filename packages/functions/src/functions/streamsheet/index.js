@@ -13,7 +13,7 @@ const await_ = require('./await');
 const colors = require('./colors');
 const counters = require('./counters');
 const detectchange = require('./detectchange');
-const jsontorange = require('./jsontorange');
+const jsontorange = require('./jsonrange');
 const outboxdata = require('./outboxdata');
 const outboxgetids = require('./outboxgetids');
 const loop = require('./loop');
@@ -79,7 +79,7 @@ module.exports = {
 		INBOXJSON,
 		INBOXMETADATA,
 		JSON,
-		'JSON.TORANGE': jsontorange,
+		'JSON.RANGE': jsontorange,
 		'JSON.VALUE': JSONVALUE,
 		// KAFKA HERE???
 		KAFKACOMMAND,

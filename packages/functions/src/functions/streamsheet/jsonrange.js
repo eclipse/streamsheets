@@ -30,7 +30,7 @@ const getRange = (term) => {
 	const range = getCellRangeFromTerm(term);
 	return range == null || range.width > 0 || range.height > 0 ? range : undefined;
 };
-const jsontorange = (sheet, ...terms) =>
+const jsonrange = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(2)
@@ -49,4 +49,4 @@ const jsontorange = (sheet, ...terms) =>
 			return res;
 		});
 
-module.exports = jsontorange;
+module.exports = jsonrange;
