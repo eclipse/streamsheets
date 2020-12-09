@@ -23,6 +23,11 @@ class StreamSheet2 extends StreamSheet {
 	}
 	set trigger(trigger) {
 		if (this._trigger) {
+			if (this._trigger.type === trigger.type) {
+				// same trigger but with maybe different setting...
+				trigger.isActive = this._trigger.isActive;
+			}
+			// dispose old trigger:
 			this._trigger.stop();
 			this._trigger.dispose();
 			this._trigger.streamsheet = undefined;
