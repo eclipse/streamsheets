@@ -1,15 +1,15 @@
 const ContinuouslyTrigger = require('./ContinuouslyTrigger');
-const NoneTrigger = require('./NoneTrigger');
+const NeverTrigger = require('./NeverTrigger');
 
 const TriggerFactory = {
 	TYPE: {
 		ARRIVAL: 'arrival',
-		CONTINUOUSLY: 'continuously',
+		CONTINUOUSLY: ContinuouslyTrigger.TYPE,
 		EXECUTE: 'execute',
 		MACHINE_START: 'start',
 		MACHINE_STARTSTOP: 'startstop',
 		MACHINE_STOP: 'stop',
-		NONE: 'none',
+		NONE: NeverTrigger.TYPE,
 		RANDOM: 'random',
 		TIMER: 'time',
 		// currently for debugging purpose only
@@ -25,10 +25,10 @@ const TriggerFactory = {
 				trigger = new ContinuouslyTrigger(config);
 				break;
 			case TYPE.NONE:
-				trigger = new NoneTrigger(config);
+				trigger = new NeverTrigger(config);
 				break;
 			default:
-				trigger = new NoneTrigger(config);
+				trigger = new NeverTrigger(config);
 				break;
 			// case TriggerFactory.TYPE.TIMER:
 			// case TriggerFactory.TYPE.RANDOM:
@@ -44,7 +44,7 @@ const TriggerFactory = {
 			// 	trigger = new MachineTrigger(config);
 			// 	break;
 			// case TriggerFactory.TYPE.NONE:
-			// 	trigger = new NoneTrigger(config);
+			// 	trigger = new NeverTrigger(config);
 			// 	break;
 			// case TriggerFactory.TYPE.EXECUTE:
 			// 	trigger = new ExecuteTrigger(config);

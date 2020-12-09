@@ -1,9 +1,11 @@
-const TriggerFactory = require('./TriggerFactory');
 const AbstractStreamSheetTrigger = require('./AbstractStreamSheetTrigger');
 
-const TYPE_CONF = { type: TriggerFactory.TYPE.CONTINUOUSLY };
+const TYPE_CONF = Object.freeze({ type: 'continuously' });
 
 class ContinuouslyTrigger extends AbstractStreamSheetTrigger {
+	static get TYPE() {
+		return TYPE_CONF.type;
+	}
 	constructor(cfg = {}) {
 		super(Object.assign(cfg, TYPE_CONF));
 	}
@@ -13,4 +15,5 @@ class ContinuouslyTrigger extends AbstractStreamSheetTrigger {
 		this.trigger(manual);
 	}
 }
+
 module.exports = ContinuouslyTrigger;

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { ContinuouslyTrigger, NoneTrigger, Machine, Message, StreamSheet2, TriggerFactory } = require('../../..');
+const { ContinuouslyTrigger, NeverTrigger, Machine, Message, StreamSheet2, TriggerFactory } = require('../../..');
 const { createCellAt, wait } = require('../../utils');
 
 const setup = () => {
@@ -329,7 +329,7 @@ describe('ContinuouslyTrigger', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			await machine.start();
 			expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(2);
-			s1.trigger = new NoneTrigger();
+			s1.trigger = new NeverTrigger();
 			await wait(70);
 			expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(2);
 			await machine.stop();

@@ -1,11 +1,11 @@
 const ContinuouslyTrigger = require('./ContinuouslyTrigger');
 const ExecuteTrigger = require('./ExecuteTrigger');
-const NoneTrigger = require('./NoneTrigger');
+const NeverTrigger = require('./NeverTrigger');
 const TriggerFactory = require('./TriggerFactory');
 
 module.exports = {
 	ContinuouslyTrigger,
 	ExecuteTrigger,
-	NoneTrigger,
+	NeverTrigger,
 	TriggerFactory
 };
