@@ -1,11 +1,12 @@
 const ContinuouslyTrigger = require('./ContinuouslyTrigger');
+const ExecuteTrigger = require('./ExecuteTrigger');
 const NeverTrigger = require('./NeverTrigger');
 
 const TriggerFactory = {
 	TYPE: {
 		ARRIVAL: 'arrival',
 		CONTINUOUSLY: ContinuouslyTrigger.TYPE,
-		EXECUTE: 'execute',
+		EXECUTE: ExecuteTrigger.TYPE,
 		MACHINE_START: 'start',
 		MACHINE_STARTSTOP: 'startstop',
 		MACHINE_STOP: 'stop',
@@ -23,6 +24,9 @@ const TriggerFactory = {
 		switch (config.type) {
 			case TYPE.CONTINUOUSLY:
 				trigger = new ContinuouslyTrigger(config);
+				break;
+			case TYPE.EXECUTE:
+				trigger = new ExecuteTrigger(config);
 				break;
 			case TYPE.NONE:
 				trigger = new NeverTrigger(config);
