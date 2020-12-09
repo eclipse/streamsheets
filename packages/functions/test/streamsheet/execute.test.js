@@ -206,7 +206,7 @@ describe('execute', () => {
 		t1.sheet.load({
 			cells: {
 				A1: { formula: 'A1+1' },
-				B1: { formula: 'read(inboxdata(,,),B2:C4,"Dictionary")' },
+				B1: { formula: 'read(inboxdata(,,),B2:C4,"Dictionary",false)' },
 				A5: { formula: 'execute("T2", 1)' },
 				A6: { formula: 'loopindex()' }
 			}

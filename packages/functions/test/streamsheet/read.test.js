@@ -73,7 +73,7 @@ describe('read', () => {
 		it('should copy current loop element to cell range', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[data][Positionen]');
-			expect(createTerm('read(inboxdata("T1","msg-simple",),B2:C4,"Dictionary")', sheet).value).toBe(0);
+			expect(createTerm('read(inboxdata("T1","msg-simple",),B2:C4,"Dictionary",false)', sheet).value).toBe(0);
 			expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe('PosNr');
 			expect(sheet.cellAt(SheetIndex.create('C2')).value).toBe(1);
 			expect(sheet.cellAt(SheetIndex.create('B3')).value).toBe('Artikelnr');
@@ -84,7 +84,7 @@ describe('read', () => {
 		it('should copy loop object to a cell range if absolute path is specified', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[data][Positionen]');
-			expect(createTerm('read(inboxdata("T1",,"Positionen", 0),B2:C4,"Dictionary")', sheet).value).toBe(0);
+			expect(createTerm('read(inboxdata("T1",,"Positionen", 0),B2:C4,"Dictionary",false)', sheet).value).toBe(0);
 			expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe('PosNr');
 			expect(sheet.cellAt(SheetIndex.create('C2')).value).toBe(1);
 			expect(sheet.cellAt(SheetIndex.create('B3')).value).toBe('Artikelnr');
@@ -95,7 +95,7 @@ describe('read', () => {
 		it('should copy complete loop object to a cell range', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[data][Positionen]');
-			expect(createTerm('read(inboxdata(,,),B2:C4,"Dictionary")', sheet).value).toBe(0);
+			expect(createTerm('read(inboxdata(,,),B2:C4,"Dictionary",false)', sheet).value).toBe(0);
 			expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe('PosNr');
 			expect(sheet.cellAt(SheetIndex.create('C2')).value).toBe(1);
 			expect(sheet.cellAt(SheetIndex.create('B3')).value).toBe('Artikelnr');
@@ -109,7 +109,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			streamsheet.inbox.put(new Message(Object.assign({}, MESSAGES.SPECIAL_CHARS.data), 'msg'));
 			machine.addStreamSheet(streamsheet);
-			expect(createTerm('read(inboxdata(,),B1:C10,"Dictionary")', sheet).value).toBe('Data');
+			expect(createTerm('read(inboxdata(,),B1:C10,"Dictionary",false)', sheet).value).toBe('Data');
 			expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe('[0:0]');
 			expect(sheet.cellAt(SheetIndex.create('C1')).value).toBe(-0.616);
 			expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe('[0:0].ID');
@@ -531,7 +531,7 @@ describe('read', () => {
 					'Session'
 				)
 			);
-			expect(createTerm('read(outboxdata("Session","cart"),A1:E3,"Dictionary",true)', sheet).value).toBe('cart');
+			expect(createTerm('read(outboxdata("Session","cart"),A1:E3,"Dictionary")', sheet).value).toBe('cart');
 			// keys in first row
 			expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe('s');
 			expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe('Jan');
@@ -580,10 +580,10 @@ describe('read', () => {
 			expect(sheet.cellAt(SheetIndex.create('B5'))).toBeUndefined();
 			expect(sheet.cellAt(SheetIndex.create('C5')).value).toBe('Umsatz');
 		});
-		it('should copy an array in vertical orientation if direction is false', () => {
+		it('should copy an array in vertical orientation by default', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[data][Positionen]');
-			expect(createTerm('read(inboxdata("T1",,"Warenkorb"),A1:B3,"Array",false)', sheet).value).toBe('Warenkorb');
+			expect(createTerm('read(inboxdata("T1",,"Warenkorb"),A1:B3,"Array")', sheet).value).toBe('Warenkorb');
 			expect(sheet.cellAt('A1').value).toBe(1);
 			expect(sheet.cellAt('A2').value).toBe(2);
 			expect(sheet.cellAt('A3').value).toBe(3);
@@ -591,31 +591,21 @@ describe('read', () => {
 			expect(sheet.cellAt('B2')).toBeUndefined();
 			expect(sheet.cellAt('B3')).toBeUndefined();
 		});
-		it('should copy an array in vertical orientation by default', () => {
+		it('should copy an array in vertical orientation if direction is true', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[data][Positionen]');
-			expect(createTerm('read(inboxdata("T1",,"Warenkorb"), A1:B2, "Array")', sheet).value).toBe('Warenkorb');
+			expect(createTerm('read(inboxdata("T1",,"Warenkorb"),A1:B3,"Array",true)', sheet).value).toBe('Warenkorb');
 			expect(sheet.cellAt('A1').value).toBe(1);
 			expect(sheet.cellAt('A2').value).toBe(2);
-			// expect(sheet.cellAt('B1').value).toBe(3); <-- DL-4090 might require to fill target range
+			expect(sheet.cellAt('A3').value).toBe(3);
 			expect(sheet.cellAt('B1')).toBeUndefined();
 			expect(sheet.cellAt('B2')).toBeUndefined();
+			expect(sheet.cellAt('B3')).toBeUndefined();
 		});
-		it('should copy an array in horizontal orientation if direction is true', () => {
+		it('should copy an array in horizontal orientation if direction is false', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[data][Positionen]');
-			expect(createTerm('read(inboxdata("T1",,"Warenkorb"),A1:C2,"Array",true)', sheet).value).toBe('Warenkorb');
-			expect(sheet.cellAt('A1').value).toBe(1);
-			expect(sheet.cellAt('B1').value).toBe(2);
-			expect(sheet.cellAt('C1').value).toBe(3);
-			expect(sheet.cellAt('A2')).toBeUndefined();
-			expect(sheet.cellAt('B2')).toBeUndefined();
-			expect(sheet.cellAt('C2')).toBeUndefined();
-		});
-		it('should copy an array in horizontal orientation', () => {
-			const sheet = setup({ streamsheetName: 'T1' });
-			sheet.streamsheet.setLoopPath('[data][Positionen]');
-			expect(createTerm('read(inboxdata("T1",,"Warenkorb"),A1:C2,"Array",true)', sheet).value).toBe('Warenkorb');
+			expect(createTerm('read(inboxdata("T1",,"Warenkorb"),A1:C2,"Array",false)', sheet).value).toBe('Warenkorb');
 			expect(sheet.cellAt('A1').value).toBe(1);
 			expect(sheet.cellAt('B1').value).toBe(2);
 			expect(sheet.cellAt('C1').value).toBe(3);
@@ -626,7 +616,7 @@ describe('read', () => {
 		it('should copy an array in vertical orientation', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[data][Positionen]');
-			expect(createTerm('read(inboxdata("T1",,"Warenkorb"),A1:C2,"Array",false)', sheet).value).toBe('Warenkorb');
+			expect(createTerm('read(inboxdata("T1",,"Warenkorb"),A1:C2,"Array",true)', sheet).value).toBe('Warenkorb');
 			// no repeat!!
 			expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(1);
 			// expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(3);  <-- DL-4090 might require to fill range
@@ -687,7 +677,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST3.data), 'Test3'));
-			expect(createTerm('read(outboxdata("Test3"),A44:F45,"array",true)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test3"),A44:F45,"array",false)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A44').value).toEqual([
 				'Artikelnummer', 'Produktname', 'Preis', 'Mwst', 'Gesamtpreis'
 			]);
@@ -710,7 +700,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST3c.data), 'Test3c'));
-			expect(createTerm('read(outboxdata("Test3c"), A44:F45,,true)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test3c"),A44:F45,,false)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A44').value).toBe(0);
 			expect(sheet.cellAt('B44').value).toBe(1);
 			expect(sheet.cellAt('C44').value).toBe(2);
@@ -730,7 +720,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST3c.data), 'Test3c'));
-			expect(createTerm('read(outboxdata("Test3c"),A44:B49,,false)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test3c"),A44:B49,,true)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A44').value).toBe(0);
 			expect(sheet.cellAt('A45').value).toBe(1);
 			expect(sheet.cellAt('A46').value).toBe(2);
@@ -750,7 +740,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST3d.data), 'Test3d'));
-			expect(createTerm('read(outboxdata("Test3d"), A44:B45,"array", true)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test3d"),A44:B45,"array",false)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A44').value).toEqual(['M1200', 'Cedalo MQTT Broker', 1000, 1, 1000]);
 			expect(sheet.cellAt('B44')).toBeUndefined();
 			expect(sheet.cellAt('A45')).toBeUndefined();
@@ -762,7 +752,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST3d.data), 'Test3d'));
-			expect(createTerm('read(outboxdata("Test3d"),A44:J53,"array",false)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test3d"),A44:J53,"array")', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A44').value).toEqual(['M1200', 'Cedalo MQTT Broker', 1000, 1, 1000]);
 			expect(sheet.cellAt('B44')).toBeUndefined();
 			expect(sheet.cellAt('A45')).toBeUndefined();
@@ -774,7 +764,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST5.data), 'Test5'));
-			expect(createTerm('read(outboxdata("Test5"),A66:D67,"array",true)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test5"),A66:D67,"array",false)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A66').value).toEqual({ '': 'Umsatz', Jan: 100, Feb: 200, März: 300 });
 			expect(sheet.cellAt('B66').value).toEqual({ '': 'Kosten', Jan: 101, Feb: 201, März: 301 });
 			expect(sheet.cellAt('C66').value).toEqual({ '': 'Ertrag', Jan: 102, Feb: 202, März: 302 });
@@ -791,7 +781,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(copy(MESSAGES.TEST8.data), 'Test8'));
-			expect(createTerm('read(outboxdata("Test8"),A93:B97,"array",false)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test8"),A93:B97,"array")', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A93').value).toEqual(['', 'Umsatz', 'Kosten', 'Ertrag']);
 			expect(sheet.cellAt('A94').value).toEqual(['Jan', 100, 101, 102]);
 			expect(sheet.cellAt('A95').value).toEqual(['Feb', 200, 201, 202]);
@@ -816,15 +806,6 @@ describe('read', () => {
 			expect(sheet.cellAt(SheetIndex.create('B4')).value).toBe('Preis');
 			expect(sheet.cellAt(SheetIndex.create('C4')).value).toBe(80.00);
 		});
-		it('should copy an object in vertical orientation by default', () => {
-			const sheet = setup({ streamsheetName: 'T1' });
-			sheet.streamsheet.setLoopPath('[data][Positionen]');
-			expect(createTerm('read(inboxdata("T1",,"Positionen", 0), B2:C3, "Dictionary")', sheet).value).toBe(0);
-			expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe('PosNr');
-			expect(sheet.cellAt(SheetIndex.create('C2')).value).toBe(1);
-			expect(sheet.cellAt(SheetIndex.create('B3')).value).toBe('Artikelnr');
-			expect(sheet.cellAt(SheetIndex.create('C3')).value).toBe(1234);
-		});
 		it('should copy an object in horizontal orientation if direction is true', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[data][Positionen]');
@@ -836,10 +817,10 @@ describe('read', () => {
 			expect(sheet.cellAt(SheetIndex.create('C3')).value).toBe(12345);
 			expect(sheet.cellAt(SheetIndex.create('D3')).value).toBe(59.99);
 		});
-		it('should copy an object in horizontal orientation', () => {
+		it('should copy an object in horizontal orientation by default', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[data][Positionen]');
-			expect(createTerm('read(inboxdata("T1",,"Positionen", 1),B2:D3,"Dictionary", true)', sheet).value).toBe(1);
+			expect(createTerm('read(inboxdata("T1",,"Positionen",1),B2:D3,"Dictionary")', sheet).value).toBe(1);
 			expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe('PosNr');
 			expect(sheet.cellAt(SheetIndex.create('C2')).value).toBe('Artikelnr');
 			expect(sheet.cellAt(SheetIndex.create('D2')).value).toBe('Preis');
@@ -850,7 +831,7 @@ describe('read', () => {
 		it('should copy an object in vertical orientation', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[data][Positionen]');
-			expect(createTerm('read(inboxdata("T1",,"Positionen", 2),B2:D3,"Dictionary", false)', sheet).value).toBe(2);
+			expect(createTerm('read(inboxdata("T1",,"Positionen",2),B2:D3,"Dictionary",false)', sheet).value).toBe(2);
 			expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe('PosNr');
 			expect(sheet.cellAt(SheetIndex.create('B3')).value).toBe('Artikelnr');
 			expect(sheet.cellAt(SheetIndex.create('C2')).value).toBe(3);
@@ -864,7 +845,7 @@ describe('read', () => {
 			// only for special triggers like MACHINE_START/STOP and RANDOM or TIMER...
 			t1.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' });
 			const sheet = t1.sheet;
-			const read = createTerm('read(inboxdata(, ,"RawValue"),C1:D3,"Dictionary")', sheet);
+			const read = createTerm('read(inboxdata(, ,"RawValue"),C1:D3,"Dictionary",false)', sheet);
 			sheet.setCellAt('A1', new Cell(null, read));
 			// add some messages to consume...
 			t1.inbox.put(new Message({
@@ -928,7 +909,7 @@ describe('read', () => {
 					'Session'
 				)
 			);
-			expect(createTerm('read(outboxdata("Session","cart"),A1:D6,"dictionary")', sheet).value).toBe('cart');
+			expect(createTerm('read(outboxdata("Session","cart"),A1:D6,"dictionary",false)', sheet).value).toBe('cart');
 			expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe('Quantity');
 			expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(50);
 			expect(sheet.cellAt(SheetIndex.create('A2')).value).toBe('Price');
@@ -960,7 +941,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(Object.assign({}, copy(MESSAGES.TEST3b.data)), 'Test3b'));
-			expect(createTerm('read(outboxdata("Test3b"),A44:J53,"dictionary",true)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test3b"),A44:J53,"dictionary")', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A44').value).toBe(1234);
 			expect(sheet.cellAt('A45').value).toBe(5678);
 			expect(sheet.cellAt('A46').value).toBe(9012);
@@ -986,7 +967,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(Object.assign({}, copy(MESSAGES.TEST3a.data)), 'Test3a'));
-			expect(createTerm('read(outboxdata("Test3a"),A44:J53,"dictionary",true)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test3a"),A44:J53,"dictionary")', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A44').value).toBe('Artikelnummer');
 			expect(sheet.cellAt('B44')).toBeUndefined();
 			expect(sheet.cellAt('A45').value).toBe('Produktname');
@@ -1006,7 +987,7 @@ describe('read', () => {
 			const sheet = streamsheet.sheet;
 			machine.addStreamSheet(streamsheet);
 			machine.outbox.put(new Message(Object.assign({}, copy(MESSAGES.TEST7.data)), 'Test7'));
-			expect(createTerm('read(outboxdata("Test7"),A84:D91,"dictionary",true)', sheet).value).toBe('Data');
+			expect(createTerm('read(outboxdata("Test7"),A84:D91,"dictionary")', sheet).value).toBe('Data');
 			expect(sheet.cellAt('A84').value).toBe('');
 			expect(sheet.cellAt('B84').value).toBe('Jan');
 			expect(sheet.cellAt('C84').value).toBe('Feb');
@@ -1027,7 +1008,7 @@ describe('read', () => {
 			// only for special triggers like MACHINE_START/STOP and RANDOM or TIMER...
 			t1.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' });
 			const sheet = t1.sheet;
-			const read = createTerm('read(inboxdata(, ,"RawValue"),C1:D3,"Dictionary",,true)', sheet);
+			const read = createTerm('read(inboxdata(, ,"RawValue"),C1:D3,"Dictionary",false,true)', sheet);
 			sheet.setCellAt('A1', new Cell(null, read));
 			// add some messages to consume...
 			t1.inbox.put(new Message({
@@ -1322,7 +1303,7 @@ describe('read', () => {
 		it('should read complete loop element from metadata', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[metadata][Teile]');
-			expect(createTerm('read(INBOXMETADATA(,"msg-simple2",),B2:C3, "Dictionary")', sheet).value).toBe(0);
+			expect(createTerm('read(INBOXMETADATA(,"msg-simple2",),B2:C3, "Dictionary",false)', sheet).value).toBe(0);
 			expect(sheet.cellAt('B2').value).toBe('Nr');
 			expect(sheet.cellAt('C2').value).toBe(1);
 			expect(sheet.cellAt('B3').value).toBe('Preis');
@@ -1330,14 +1311,14 @@ describe('read', () => {
 		});
 		it('should read complete data object', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
-			expect(createTerm('read(inboxdata(,"msg-simple2"),B2:C3, "Dictionary")', sheet).value).toBe('Data');
+			expect(createTerm('read(inboxdata(,"msg-simple2"),B2:C3, "Dictionary",false)', sheet).value).toBe('Data');
 			expect(sheet.cellAt('B2').value).toBe('Kundenname');
 			expect(sheet.cellAt('B3').value).toBe('Kundennummer');
 			expect(sheet.cellAt('C3').value).toBe(987654321);
 		});
 		it('should read complete metadata object', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
-			expect(createTerm('read(INBOXMETADATA(,"msg-simple2"),B2:C3, "Dictionary")', sheet).value).toBe('Metadata');
+			expect(createTerm('read(INBOXMETADATA(,"msg-simple2"),B2:C3, "Dictionary",false)', sheet).value).toBe('Metadata');
 			expect(sheet.cellAt(SheetIndex.create('B2')).value).toBe('id');
 			expect(sheet.cellAt(SheetIndex.create('C2')).value).toBe('msg-simple2');
 			expect(sheet.cellAt(SheetIndex.create('B3')).value).toBe('arrivalTime');
@@ -1365,7 +1346,7 @@ describe('read', () => {
 		it('should read complete metadata object', () => {
 			const sheet = setupOutboxMetadata();
 			expect(
-				createTerm(`read(OUTBOXMETADATA("${METADATA.id}"),B2:C5, "Dictionary")`, sheet).value
+				createTerm(`read(OUTBOXMETADATA("${METADATA.id}"),B2:C5, "Dictionary",false)`, sheet).value
 			).toBe('Metadata');
 			expect(sheet.cellAt('B2').value).toBe('id');
 			expect(sheet.cellAt('C2').value).toBe('msg-1');
@@ -1402,7 +1383,7 @@ describe('read', () => {
 					{ Name: 'Wurst', Vorname: 'Hans', Alter: 23 },
 					{ Name: 'Gluck', Vorname: 'Hans', Alter: 42 }], 'out1'));
 
-				const read = createTerm('read(OUTBOXDATA("out1"),A2:C4,"dictionary",true)', sheet);
+				const read = createTerm('read(OUTBOXDATA("out1"),A2:C4,"dictionary")', sheet);
 				sheet.setCellAt('A1', new Cell(null, read));
 				t1.step();
 				expect(sheet.cellAt('A2').value).toBe('Name');
@@ -1439,7 +1420,7 @@ describe('read', () => {
 					1: { Art: 'Kosten', Jan: 69, Feb: 0, Mar: 70 },
 					2: { Art: 'Ertrag', Jan: 6, Feb: 91, Mar: 67 }
 				}));
-				const read = createTerm('read(INBOXDATA(,),A4:D7,"dictionary",true)', sheet);
+				const read = createTerm('read(INBOXDATA(,),A4:D7,"dictionary")', sheet);
 				sheet.setCellAt('A1', new Cell(null, read));
 				t1.step();
 				expect(sheet.cellAt('A4').value).toBe('Art');
