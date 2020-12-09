@@ -9,7 +9,6 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 	constructor(cfg = {}) {
 		super(Object.assign(cfg, TYPE_CONF));
 		this._repetitions = 1;
-		this._isActive = false;
 		this._isExecuted = false;
 		this._callingSheet = undefined;
 	}
@@ -21,8 +20,8 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 	}
 
 	execute(repetitions, callingSheet) {
+		this.isActive = true;
 		this._repetitions = Math.max(1, repetitions);
-		this._isActive = true;
 		this._isExecuted = true;
 		this._callingSheet = callingSheet;
 		if (this.isEndless) callingSheet.pauseProcessing();
@@ -30,7 +29,7 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 	}
 
 	step(manual) {
-		if (manual && this.isEndless && !this._isExecuted) { // && this._isActive) {
+		if (manual && this.isEndless && !this._isExecuted) { // && this.isActive) {
 			this.doRepeatStep();
 		}
 	}
@@ -46,7 +45,7 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 	_doExecute() {
 		if (!this.isResumed) {
 			const streamsheet = this._streamsheet;
-			for (let i = 0; this._isActive && i < this._repetitions; i += 1) {
+			for (let i = 0; this.isActive && i < this._repetitions; i += 1) {
 				streamsheet.stats.executesteps = i + 1;
 				streamsheet.triggerStep();
 			}
@@ -55,7 +54,7 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 	}
 
 	stop() {
-		this._isActive = false;
+		this.isActive = false;
 		this._isExecuted = false;
 		return super.stop();
 	}
@@ -64,5 +63,11 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 		// resume calling sheet only in endless mode, otherwise it wasn't paused
 		if (this.isEndless && this._callingSheet) this._callingSheet.resumeProcessing();
 	}
+
+	update(config = {}) {
+		if (this.isEndless && config.repeat !== 'endless') this.stopProcessing();
+		super.update(config);
+	}
+
 }
 module.exports = ExecuteTrigger;
