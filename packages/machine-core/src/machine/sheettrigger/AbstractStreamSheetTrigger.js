@@ -1,8 +1,10 @@
 const clearTrigger = (trigger) => {
-	if (trigger._stepId) {
+	const cleared = !!trigger._stepId;
+	if (cleared) {
 		clearImmediate(trigger._stepId);
 		trigger._stepId = undefined;
 	}
+	return cleared;
 };
 
 const repeatTrigger = (trigger) => {
@@ -55,7 +57,7 @@ class AbstractStreamSheetTrigger {
 
 	update(config = {}) {
 		this.config = Object.assign(this.config, config);
-		if (!this.isEndless) clearTrigger(this);
+		if (!this.isEndless && clearTrigger(this)) this.resume();
 	}
 
 	// CONTROL METHODS
