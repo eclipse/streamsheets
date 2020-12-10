@@ -862,7 +862,7 @@ export default class SheetInteraction extends Interaction {
 		if (this._controller === undefined) {
 			return false;
 		}
-		let controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => true);
+		let controller = viewer.filterFoundControllers(Shape.FindFlags.AUTOMATIC, (cont) => true);
 
 		if (!controller) {
 			return false;
