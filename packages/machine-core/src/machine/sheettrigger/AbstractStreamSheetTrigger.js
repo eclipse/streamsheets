@@ -113,13 +113,13 @@ class AbstractStreamSheetTrigger {
 	}
 	doCycleStep() {
 		this._streamsheet.stats.steps += 1;
-		// if (this.isActive) this._streamsheet.triggerStep();
 		this._streamsheet.triggerStep();
+		this.isActive = this.isEndless || this._streamsheet.sheet.isPaused;
 	}
 	doRepeatStep() {
 		this._streamsheet.stats.repeatsteps += 1;
-		// if (this.isActive) this._streamsheet.triggerStep();
 		this._streamsheet.triggerStep();
+		this.isActive = this.isEndless || this._streamsheet.sheet.isPaused;
 	}
 
 	// DEPRECATED:

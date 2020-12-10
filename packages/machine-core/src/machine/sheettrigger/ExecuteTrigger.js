@@ -29,7 +29,7 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 	}
 
 	step(manual) {
-		if (manual && this.isEndless && !this._isExecuted) { // && this.isActive) {
+		if (manual && this.isActive && this.isEndless && !this._isExecuted) {
 			this.doRepeatStep();
 		}
 	}
@@ -50,6 +50,7 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 				streamsheet.stats.executesteps = i + 1;
 				streamsheet.triggerStep();
 			}
+			this.isActive = this.isEndless || this._streamsheet.sheet.isPaused;
 		}
 	}
 
