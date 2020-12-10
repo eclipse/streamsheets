@@ -355,7 +355,7 @@ class EditTextInteraction extends AbstractInteraction {
 		div.autofocus = true;
 
 		this.div = div;
-		this._richText = textFormat.getRichText().getValue();
+		this._richText = textFormat.getRichText().getValue() && !this.isWorksheetView();
 
 		document.execCommand('defaultParagraphSeparator', null, 'p');
 		canvas.parentNode.appendChild(div);
@@ -1014,14 +1014,21 @@ class EditTextInteraction extends AbstractInteraction {
 		}
 	}
 
-	showTextNode(viewer) {
-
+	isWorksheetView() {
 		let parent = this._controller;
 		while (parent && !(parent.getView() instanceof WorksheetView)) {
 			parent = parent.getParent();
 		}
 		if (parent && parent.getView() instanceof WorksheetView) {
-			const view = parent.getView();
+			return parent.getView();
+		}
+
+		return undefined;
+	}
+
+	showTextNode(viewer) {
+		const view = this.isWorksheetView();
+		if (view) {
 			const box = this._item.getTranslatedBoundingBox(view.getItem().getCells());
 			const rect = box.getBoundingRectangle();
 			view.showRect(view.getItem(), rect);
