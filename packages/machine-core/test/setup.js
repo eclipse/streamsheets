@@ -16,26 +16,35 @@ jest.mock('../src/streams/StreamMessagingClient');
 // FOR TESTs we do not use persistent outbox
 process.env.OUTBOX_PERSISTENT = false;
 
-
 // some dummy function implementations:
-const functions = {
-	EXECUTE: (sheet, ...terms) => {
-		// execute({ message, selector }, callback, repetitions) {
-		if (sheet.isProcessing) {
-			let message;
-			const machine = sheet.machine;
-			const streamsheet = machine.getStreamSheetByName(terms[0].value);
-			const repetitions = terms[1] ? terms[1].value : 1;
-			if (terms[2]) {
-				const msgstr = terms[2].value;
-				const box = msgstr.startsWith('in:') ? sheet.streamsheet.inbox : machine.outbox;
-				const msgId = msgstr.startsWith('in:') ? msgstr.substr(3) : msgstr.substr(4);
-				message = box.peek(msgId);
-			}
-			return streamsheet.execute(message, repetitions, sheet.streamsheet);
+const EXECUTE = (sheet, ...terms) => {
+	// execute({ message, selector }, callback, repetitions) {
+	if (sheet.isProcessing) {
+		let message;
+		const machine = sheet.machine;
+		const context = EXECUTE.context;
+		const streamsheet = machine.getStreamSheetByName(terms[0].value);
+		const repetitions = terms[1] ? terms[1].value : 1;
+		if (terms[2]) {
+			const msgstr = terms[2].value;
+			const box = msgstr.startsWith('in:') ? sheet.streamsheet.inbox : machine.outbox;
+			const msgId = msgstr.startsWith('in:') ? msgstr.substr(3) : msgstr.substr(4);
+			message = box.peek(msgId);
 		}
-		return true;
-	},
+		if (!context.initialized) {
+			context.initialized = true;
+			context.addDisposeListener(() => {
+				streamsheet.cancelExecute();
+				if (sheet.isPaused) sheet.streamsheet.resumeProcessing();
+			});
+		}
+		return streamsheet.execute(message, repetitions, sheet.streamsheet);
+	}
+	return true;
+};
+
+const functions = {
+	EXECUTE,
 	MOD: (sheet, ...terms) => {
 		const val = terms[0] ? terms[0].value : 0;
 		const dividend = terms[1] ? terms[1].value : 1;

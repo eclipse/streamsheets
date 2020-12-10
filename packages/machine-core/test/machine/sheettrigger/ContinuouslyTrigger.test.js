@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { ContinuouslyTrigger, NeverTrigger, Machine, Message, StreamSheet2, TriggerFactory } = require('../../..');
-const { createCellAt, wait } = require('../../utils');
+const { createCellAt, monitorMachine, monitorStreamSheet, wait } = require('../../utils');
 
 const setup = () => {
 	const machine = new Machine();
@@ -397,6 +397,7 @@ describe('ContinuouslyTrigger', () => {
 		});
 		it('should process next message if sheet is processed on machine run', async () => {
 			const { machine, s1 } = setup();
+			const machineMonitor = monitorMachine(machine);
 			await machine.start();
 			await machine.pause();
 			s1.inbox.put(new Message());
@@ -404,7 +405,7 @@ describe('ContinuouslyTrigger', () => {
 			s1.inbox.put(new Message());
 			expect(s1.inbox.size).toBe(3);
 			await machine.start();
-			await wait(120);
+			await machineMonitor.nextSteps(3);
 			await machine.stop();
 			expect(s1.inbox.size).toBe(1);
 		});
@@ -434,6 +435,7 @@ describe('ContinuouslyTrigger', () => {
 		});
 		it('should process next loop element if sheet is processed on machine run', async () => {
 			const { machine, s1 } = setup();
+			const machineMonitor = monitorMachine(machine);
 			s1.updateSettings({ loop: { path: '[data][loop]', enabled: true } });
 			await machine.start();
 			await machine.pause();
@@ -442,13 +444,13 @@ describe('ContinuouslyTrigger', () => {
 			s1.inbox.put(new Message());
 			expect(s1.inbox.size).toBe(3);
 			await machine.start();
-			await wait(120);
+			await machineMonitor.nextSteps(3);
 			await machine.pause();
 			// message is not removed, so still 3 messages and loop index at 2
 			expect(s1.inbox.size).toBe(3);
 			expect(s1.getLoopIndex()).toBe(2);
 			await machine.start();
-			await wait(130);
+			await machineMonitor.nextSteps(3);
 			await machine.pause();
 			expect(s1.inbox.size).toBe(1);
 			expect(s1.getLoopIndex()).toBe(0);
@@ -496,7 +498,7 @@ describe('ContinuouslyTrigger', () => {
 		});
 		it('should reuse same message on "repeat until..." until return() is called on machine run', async () => {
 			const { machine, s1 } = setup();
-			// machine.cycletime = 100;
+			const monitorS1 = monitorStreamSheet(s1);
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'if(mod(A1,2)=0,return(),false)' }, s1.sheet);
@@ -509,15 +511,17 @@ describe('ContinuouslyTrigger', () => {
 			s1.inbox.put(new Message());
 			s1.inbox.put(new Message());
 			expect(s1.inbox.size).toBe(3);
+			expect(s1.stats.steps).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			await machine.start();
-			await wait(machine.cyclemonitor.resumeIn + 160);
+			await monitorS1.isAtStep(4);
+			await wait(10);
 			await machine.pause();
 			expect(s1.stats.steps).toBe(4);
 			// we reuse last message
 			expect(s1.inbox.size).toBe(1);
-			expect(s1.sheet.cellAt('A1').value).toBe(8);
+			expect(s1.sheet.cellAt('A1').value).toBe(10);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			await machine.stop();
 		});
@@ -577,19 +581,22 @@ describe('ContinuouslyTrigger', () => {
 		});
 		it('should reuse same loop element on "repeat until..." until return() is called on machine run', async () => {
 			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
 			s1.trigger.update({ repeat: 'endless' });
 			s1.updateSettings({ loop: { path: '[data][loop]', enabled: true } });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'if(mod(A1,2)=0,return(),false)' }, s1.sheet);
 			await machine.start();
+			await wait(10);
 			await machine.pause();
 			s1.inbox.put(new Message());
 			s1.inbox.put(new Message({ loop: [{ val: 4 }, { val: 5 }] }));
 			await machine.start();
-			await wait(160);
+			await monitorS1.isAtStep(4);
+			await wait(10);	// <-- give endless some time...
 			await machine.pause();
 			expect(s1.stats.steps).toBe(4);
-			expect(s1.sheet.cellAt('A1').value).toBe(8);
+			expect(s1.sheet.cellAt('A1').value).toBe(10);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			// reuse last message and loop element:
 			expect(s1.inbox.size).toBe(1);
