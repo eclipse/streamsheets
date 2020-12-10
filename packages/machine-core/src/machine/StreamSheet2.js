@@ -50,16 +50,12 @@ class StreamSheet2 extends StreamSheet {
 			return true;
 		}
 		return false;
-		// const doIt = this.trigger.type === StreamSheetTrigger.TYPE.EXECUTE;
-		// this.executeCallback = callback;
-		// if (doIt) {
-		// 	const stepdata = { cmd: 'execute' };
-		// 	message = !this._reuseMessage() ? getMessage(message, selector, this.inbox) : undefined;
-		// 	this._doStep(stepdata, message);
-		// } else {
-		// 	this._notifyResumeCallback(false);
-		// }
-		// return doIt;
+	}
+	cancelExecute() {
+		if (this.trigger.type === StreamSheetTrigger.TYPE.EXECUTE) {
+			if (!this.sheet.isProcessed) this.stopProcessing();
+			this.trigger.isActive = false;
+		}
 	}
 	// TODO maybe rename => called only by return function
 	stopProcessing(retval) {
@@ -163,6 +159,7 @@ class StreamSheet2 extends StreamSheet {
 			if (!this.trigger.isEndless) this._msgHandler.next();
 			this._detachMessage2();
 		}
+		this._emitter.emit('step', this);
 		return result;
 	}
 	// triggerStep(repeatstep) {
