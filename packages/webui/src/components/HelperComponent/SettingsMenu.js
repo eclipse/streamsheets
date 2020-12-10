@@ -117,7 +117,8 @@ export class SettingsMenu extends React.Component {
 
 	showLicenseAgreement = () => {
 		const locale = this.props.locale || this.state.prevLocale || 'EN';
-		window.location.href = `/license_${locale.toUpperCase()}.pdf`;
+		// window.location.href = `/license_${locale.toUpperCase()}.pdf`;
+		window.open(`/license_${locale.toUpperCase()}.pdf`);
 	}
 
 	logout = () => {
