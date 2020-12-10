@@ -10,6 +10,7 @@
  ********************************************************************************/
 const sheet = require('./sheet');
 const functions = require('./functions');
+const monitor = require('./monitor');
 const validate = require('./validate');
 
 const expectValue = (value) => ({
@@ -19,11 +20,13 @@ const expectValue = (value) => ({
 	}
 });
 
+
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 module.exports = {
 	expectValue,
 	functions,
+	...monitor,
 	...sheet,
 	validate,
 	wait
