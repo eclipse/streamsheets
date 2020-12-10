@@ -151,7 +151,7 @@ class StreamWizard extends React.Component {
 				const provider = props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration].find(
 					(p) => p.id === connector.provider.id
 				);
-				name = provider.name.replace('Provider', 'Consumer');
+				name = StreamWizard.onUpdateName(provider.name.replace('Provider', 'Consumer'));
 			}
 		} else {
 			name = '';
@@ -169,7 +169,7 @@ class StreamWizard extends React.Component {
 			i += 1;
 		}
 
-		return StreamWizard.onUpdateName(finalName);
+		return finalName;
 	}
 
 	static createUniqueProducerName(connector, props) {
@@ -182,7 +182,7 @@ class StreamWizard extends React.Component {
 				const provider = props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration].find(
 					(p) => p.id === connector.provider.id
 				);
-				name = provider.name.replace('Provider', 'Producer');
+				name = StreamWizard.onUpdateName(provider.name.replace('Provider', 'Producer'));
 			}
 		} else {
 			name = '';
@@ -200,7 +200,7 @@ class StreamWizard extends React.Component {
 			i += 1;
 		}
 
-		return StreamWizard.onUpdateName(finalName);
+		return finalName;
 	}
 
 	static createUniqueConnectorName(provider, props) {
