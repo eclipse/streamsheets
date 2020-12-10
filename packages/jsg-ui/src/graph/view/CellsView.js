@@ -108,6 +108,12 @@ export default class CellsView extends NodeView {
 
 		// draw cell content
 		visibleRowsInfo.forEach((rowInfo) => {
+			visibleColumnsInfo.forEach((columnInfo) => {
+				const data = dataProvider.getRC(columnInfo.index, rowInfo.index);
+				const cellProperties = this.getCellProperties(data, columnInfo, rowInfo);
+				const styleProperties = this.getStyleProperties(data, columnInfo, rowInfo, cellProperties);
+				this.drawCellFill(graphics, data,  columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo, styleProperties, cellProperties);
+			});
 			if (rowInfo.leftCellInfo) {
 				const data = dataProvider.getRC(rowInfo.leftCellInfo.index, rowInfo.index);
 				if (data !== undefined && data.getExpression() !== undefined) {
@@ -116,10 +122,9 @@ export default class CellsView extends NodeView {
 			}
 			visibleColumnsInfo.forEach((columnInfo) => {
 				const data = dataProvider.getRC(columnInfo.index, rowInfo.index);
-				const cellProperties = this.getCellProperties(data, columnInfo, rowInfo);
-				const styleProperties = this.getStyleProperties(data, columnInfo, rowInfo, cellProperties);
-				this.drawCellFill(graphics, data,  columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo, styleProperties, cellProperties);
 				if (data !== undefined && data.getExpression() !== undefined) {
+					const cellProperties = this.getCellProperties(data, columnInfo, rowInfo);
+					const styleProperties = this.getStyleProperties(data, columnInfo, rowInfo, cellProperties);
 					this.drawValue(graphics, dataProvider, data, columnInfo, rowInfo, visibleColumnsInfo, styleProperties, cellProperties);
 					this.drawSpecialFunction(graphics, data, columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo);
 				}
@@ -610,14 +615,6 @@ export default class CellsView extends NodeView {
 					rowInfo.height - 100,
 					0, 100, 0, 100
 				);
-				// this.rect(
-				// 	graphics,
-				// 	columnInfo.x + 50,
-				// 	rowInfo.y + 50,
-				// 	columnInfo.width - 100,
-				// 	rowInfo.height - 100,
-				// 	'#F2F2F2'
-				// );
 			}
 		} else {
 			if (rowInfo.grey) {
@@ -955,14 +952,6 @@ export default class CellsView extends NodeView {
 				graphics.setTransparency(60);
 			}
 			if (formattedValue.frame) {
-				// this.rect(
-				// 	graphics,
-				// 	columnInfo.x + formattedValue.level * 150 + 50,
-				// 	rowInfo.y + 50,
-				// 	columnInfo.width - formattedValue.level * 150 - 100,
-				// 	rowInfo.height - 100,
-				// 	formattedValue.fillColor
-				// );
 				graphics.setFillColor(formattedValue.fillColor);
 				graphics.fillRoundedRectangle(
 					columnInfo.x + formattedValue.level * 150 + 50,
@@ -1078,7 +1067,6 @@ export default class CellsView extends NodeView {
 					clipWidth = clipInfo.width;
 					width = Math.min(width, clipWidth);
 				}
-				// hide borders, which are covered by text TODO: non left aligned
 				visibleColumnsInfo.forEach((info) => {
 					switch (alignment) {
 						case 0:
