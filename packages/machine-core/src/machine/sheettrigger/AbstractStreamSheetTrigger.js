@@ -65,10 +65,11 @@ class AbstractStreamSheetTrigger {
 		clearTrigger(this);
 	}
 	resume() {
-		// const paused = this._streamsheet.sheet.isPaused;
-		if (this.isActive) {
-			if (!this.isManualStep && this.isEndless) this._repeatStep();
-			else this._streamsheet.triggerStep();
+		// do not resume twice if already resumed before
+		if (this.isActive && !this.isResumed) {
+			if (!this.isManualStep && this.isEndless) {
+				if (!this._streamsheet.sheet.isProcessed) this._repeatStep();
+			} else if (!this._streamsheet.sheet.isProcessed) this._streamsheet.triggerStep();
 			this.isResumed = !this.isRepeating;
 			// this.isResumed = paused && !this.isRepeating;
 		}
@@ -103,6 +104,7 @@ class AbstractStreamSheetTrigger {
 		repeatTrigger(this);
 		// trigger step afterwards, because it might clears current scheduled one!!!
 		this.doRepeatStep();
+		// if (!resumed) this.doRepeatStep();
 	}
 	trigger() {
 		this.isActive = true;
@@ -114,12 +116,12 @@ class AbstractStreamSheetTrigger {
 	doCycleStep() {
 		this._streamsheet.stats.steps += 1;
 		this._streamsheet.triggerStep();
-		this.isActive = this.isEndless || this._streamsheet.sheet.isPaused;
+		this.isActive = this._streamsheet.sheet.isPaused;
 	}
 	doRepeatStep() {
 		this._streamsheet.stats.repeatsteps += 1;
 		this._streamsheet.triggerStep();
-		this.isActive = this.isEndless || this._streamsheet.sheet.isPaused;
+		this.isActive = this._streamsheet.sheet.isPaused;
 	}
 
 	// DEPRECATED:
