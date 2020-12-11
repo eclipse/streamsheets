@@ -64,11 +64,12 @@ describe('ContinuouslyTrigger', () => {
 		});
 		it('should process sheet on manual steps if machine is paused in "repeat until..."', async () => {
 			const { machine, s1 } = setup();
+			const machineMonitor = monitorMachine(machine);
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			await machine.start();
-			await wait(10);
+			await machineMonitor.nextSteps(1);
 			await machine.pause();
 			const s1a1 = s1.sheet.cellAt('A1').value;
 			expect(s1a1).toBeGreaterThan(2);
@@ -78,7 +79,7 @@ describe('ContinuouslyTrigger', () => {
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(s1a1 + 3);
 			await machine.start();
-			await wait(10);
+			await machineMonitor.nextSteps(1);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(s1a1 + 3 + 1);
 		});
@@ -127,6 +128,7 @@ describe('ContinuouslyTrigger', () => {
 		});
 		it('should run endlessly on "repeat until..." until machine is paused', async () => {
 			const { machine, s1 } = setup();
+			const machineMonitor = monitorMachine(machine);
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
@@ -139,10 +141,11 @@ describe('ContinuouslyTrigger', () => {
 			expect(current).toBeGreaterThan(2);
 			// resume from pause:
 			await machine.start();
+			await machineMonitor.nextSteps(1);
 			await wait(10);
 			await machine.pause();
-			// step count should stay at 1
-			expect(s1.stats.steps).toBe(1);
+			// step count is increased because old trigger is disposed when new trigger is set... 
+			expect(s1.stats.steps).toBe(2);
 			expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(current + 2);
 			await machine.stop();
 		});
@@ -347,18 +350,19 @@ describe('ContinuouslyTrigger', () => {
 			expect(s1.stats.repeatsteps).toBe(repeatsteps);
 			await machine.stop();
 		});
-		it('should keep "repeat until..." if new trigger is set with same', async () => {
+		it('should keep "repeat until..." if new trigger is set with same settings', async () => {
 			const { machine, s1 } = setup();
+			const machineMonitor = monitorMachine(machine);
 			const newTrigger = new ContinuouslyTrigger();
 			newTrigger.update({ repeat: 'endless' });
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			await machine.start();
-			await wait(10);
+			await machineMonitor.nextSteps(1);
 			s1.trigger = newTrigger;
 			const repeatsteps = s1.stats.repeatsteps;
-			await wait(20);
+			await machineMonitor.nextSteps(2);
 			expect(s1.stats.repeatsteps).toBeGreaterThan(repeatsteps);
 			await machine.stop();
 		});
@@ -521,7 +525,7 @@ describe('ContinuouslyTrigger', () => {
 			expect(s1.stats.steps).toBe(4);
 			// we reuse last message
 			expect(s1.inbox.size).toBe(1);
-			expect(s1.sheet.cellAt('A1').value).toBe(10);
+			expect(s1.sheet.cellAt('A1').value).toBe(8);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			await machine.stop();
 		});
@@ -596,7 +600,7 @@ describe('ContinuouslyTrigger', () => {
 			await wait(10);	// <-- give endless some time...
 			await machine.pause();
 			expect(s1.stats.steps).toBe(4);
-			expect(s1.sheet.cellAt('A1').value).toBe(10);
+			expect(s1.sheet.cellAt('A1').value).toBe(8);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			// reuse last message and loop element:
 			expect(s1.inbox.size).toBe(1);
