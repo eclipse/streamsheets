@@ -1385,39 +1385,64 @@ module.exports = class StreamSheet extends WorksheetNode {
 		return formula ? this.parseTextToTerm(formula) : new NullTerm();
 	}
 
-	getFontFormula(item) {
+	getFontFormula(item, currentTerm) {
 		const tf = item.getTextFormat();
 
-		const fontName = tf.getFontName().getValue();
-		const fontSize = tf.getFontSize().getValue();
-		const fontStyle = tf.getFontStyle().getValue();
-		const fontColor = tf.getFontColor().getValue();
-		const align = tf.getHorizontalAlignment().getValue();
+		let fontName = tf.getFontName().getValue();
+		let fontSize = tf.getFontSize().getValue();
+		let fontStyle = tf.getFontStyle().getValue();
+		let fontColor = tf.getFontColor().getValue();
+		let align = tf.getHorizontalAlignment().getValue();
 
-		if (
-			fontName === 'Verdana' &&
-			fontSize === 8 &&
-			fontStyle === 0 &&
-			fontColor === JSG.theme.text &&
-			align === 1
-		) {
-			return new NullTerm();
-		}
+        if (currentTerm && !currentTerm.isStatic) {
+            if ((currentTerm instanceof FuncTerm) && currentTerm.name === 'FONTFORMAT') {
+                if (currentTerm.params.length > 0 && !currentTerm.params[0].isStatic) {
+                    fontName = currentTerm.params[0].toString();
+                }
+                if (currentTerm.params.length > 1 && !currentTerm.params[1].isStatic) {
+                    fontSize = currentTerm.params[1].toString();
+                }
+                if (currentTerm.params.length > 2 && !currentTerm.params[2].isStatic) {
+                    fontStyle = currentTerm.params[2].toString();
+                }
+                if (currentTerm.params.length > 3 && !currentTerm.params[3].isStatic) {
+                    fontColor = currentTerm.params[3].toString();
+                }
+                if (currentTerm.params.length > 4 && !currentTerm.params[4].isStatic) {
+                    align = currentTerm.params[4].toString();
+                }
+            } else {
+                return currentTerm.toString();
+            }
+        } else if (
+            fontName === 'Verdana' &&
+            fontSize === 8 &&
+            fontStyle === 0 &&
+            fontColor === JSG.theme.text &&
+            align === 1
+        ) {
+            return new NullTerm();
+        }
 
 		const sep = JSG.getParserLocaleSettings().separators.parameter;
 
 		let formula = 'FONTFORMAT(';
-		formula += tf.getFontName().getValue() === 'Verdana' ? '' : `"${tf.getFontName().getValue()}"`;
-		formula += tf.getFontSize().getValue() === 8 ? sep : `${sep}${tf.getFontSize().getValue()}`;
-		formula += tf.getFontStyle().getValue() === 0 ? sep : `${sep}${tf.getFontStyle().getValue()}`;
-		formula += tf.getFontColor().getValue() === JSG.theme.text ? sep : `${sep}"${tf.getFontColor().getValue()}"`;
-		formula +=
-			tf.getHorizontalAlignment().getValue() === 1 ? sep : `${sep}${tf.getHorizontalAlignment().getValue()}`;
+		formula += fontName === 'Verdana' ? '' : `${fontName}`;
+		formula += fontSize === 8 ? sep : `${sep}${fontSize}`;
+		formula += fontStyle === 0 ? sep : `${sep}${fontStyle}`;
+		formula += fontColor === JSG.theme.text ? sep : `${sep}${fontColor}`;
+		formula += align === 1 ? '' : `${sep}${align}`;
+        formula += ')';
 
-		return this.parseTextToTerm(formula);
+		return formula;
 	}
 
-	getContainer(item, parent) {
+    getFontTerm(item, currentTerm) {
+        const formula = this.getFontFormula(item, currentTerm);
+        return formula ? this.parseTextToTerm(formula) : new NullTerm();
+    }
+
+    getContainer(item, parent) {
 		if (item instanceof StreamSheet) {
 			return undefined;
 		}
@@ -1597,13 +1622,12 @@ module.exports = class StreamSheet extends WorksheetNode {
 						13,
 						Term.fromString(Strings.encodeXML(item.getText().getValue()))
 					);
-					formula = this.getFontFormula(item);
-					force =
-						termFunc.params.length > 14 &&
-						termFunc.params[14] instanceof FuncTerm &&
-						termFunc.params[14].name === 'FONTFORMAT';
+                    formula = this.getFontTerm(item, termFunc.params[14]);
+                    force =
+                        termFunc.params.length > 14 &&
+                        termFunc.params[14] instanceof FuncTerm &&
+                        termFunc.params[14].name === 'FONTFORMAT';
 					this.setGraphFunctionParam(termFunc, 14, formula, force);
-					// this.setGraphFunctionParam(termFunc, 14, formula, formula instanceof FuncTerm || force);
 					break;
 				case 'bezier':
 				case 'polygon': {
