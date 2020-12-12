@@ -9,7 +9,8 @@
  *
  ********************************************************************************/
 const fs = require('fs-extra');
-const level = require('level-rocksdb');
+const levelup = require('levelup');
+const leveldown = require('leveldown');
 const logger = require('../logger').create({ name: 'RocksDBClient' });
 
 // removes any old lock file on open
@@ -37,7 +38,7 @@ class RocksDbClient {
 	// location is a directory
 	async open(location, opts) {
 		await removeLOCK(location);
-		this.db = await level(location, opts);
+		this.db = await levelup(leveldown(location), opts);
 		return this;
 	}
 
