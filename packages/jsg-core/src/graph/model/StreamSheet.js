@@ -1215,6 +1215,13 @@ module.exports = class StreamSheet extends WorksheetNode {
 					if (angle !== 0 || attributes !== '' || lineFormula !== undefined || fillFormula !== undefined) {
 						formula += `,${lineFormula || ''},${fillFormula || ''},${attributes},,${angle}`;
 					}
+					if ((type === 'polygon' || type === 'bezier') && !item.isClosed()) {
+						if (angle !== 0 || attributes !== '' || lineFormula !== undefined || fillFormula !== undefined) {
+							formula += ',,,FALSE';
+						} else {
+							formula += ',,,,,,,,FALSE';
+						}
+					}
 					break;
 			}
 		}
