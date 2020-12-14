@@ -9,9 +9,12 @@
  *
  ********************************************************************************/
 // col -1 represents IF col.
-const doSkipRow = (cell, col) => col === -1 && cell.isDefined && !cell.value;
+const checkSkipRow = (cell, cursor) => {
+	if (cursor.c === -1 && cell.isDefined && !cell.value) {
+		cursor.changed = true;
+	}
+};
 
-// const cellAt = (cursor, sheet) => {
 const cellAt = (r, c, sheet) => {
 	const row = c < 0 ? sheet._prerows[r] : sheet._rows[r];
 	const col = c < 0 ? Math.abs(c) - 1 : c;
@@ -24,11 +27,7 @@ const startCol = (sheet, rowidx) => {
 };
 const State = {
 	READY: 1,
-	PROCESSING: 2,
-	PAUSED: 4,
-	PROCESSED: 8,
-	RESUMED: 16,
-	STOPPED: 32
+	PAUSED: 4
 };
 
 class Cursor {
@@ -38,19 +37,13 @@ class Cursor {
 		this.sheet = sheet;
 		this.changed = false;
 		this.isProcessed = false;
-		// this.state = State.READY;
 	}
-
-	// get isProcessing() {
-	// 	return this.state === State.PROCESSING;
-	// }
 
 	reset() {
 		this.c = null;
 		this.r = this.sheet.settings.minrow;
 		this.changed = false;
 		this.isProcessed = false;
-		// this.state = State.READY;
 	}
 
 	setToIndex(index) {
@@ -60,29 +53,8 @@ class Cursor {
 		this.r = row;
 		this.c = index.col;
 		this.changed = true;
-		// return this.isBackward;
 	}
 }
-
-// const reset = (cursor, sheetsettings) => {
-// 	cursor.r = sheetsettings.minrow;
-// 	cursor.c = null;
-// 	cursor.stop = false;
-// 	cursor.changed = false;
-// 	cursor.paused = false;
-// 	cursor.resumed = false;
-// 	cursor.finished = false;
-// };
-
-// const newCursor = () => ({
-// 	r: 0,
-// 	c: null,
-// 	stop: false,
-// 	changed: false,
-// 	paused: false,
-// 	resumed: false,
-// 	finished: false
-// });
 
 class SheetProcessor {
 	constructor(sheet) {
@@ -96,23 +68,14 @@ class SheetProcessor {
 		this._cursor.changed = true;
 		this._cursor.isProcessed = true;
 	}
-	// suspend() {
-
-	// }
+	// suspend() 
 	pause() {
 		this._state = State.PAUSED;
 	}
 	resume() {
-		this._state = State.RESUMED;
+		this._state = State.READY;
+		if (this._cursor.c != null) this._cursor.c += 1;
 	}
-	// start() {
-	// 	if (this._state === State.STOPPED) this._cursor.reset();
-	// 	this._state = State.PROCESSING;
-	// }
-	// stop() {
-	// 	// this._state = State.STOPPED;
-	// 	this._state = State.PROCESSED;
-	// }
 
 	continueAt(index) {
 		this._cursor.setToIndex(index);
@@ -121,26 +84,12 @@ class SheetProcessor {
 	get isPaused() {
 		return this._state === State.PAUSED;
 	}
-	// get isStopped() {
-	// 	return this._state === State.STOPPED;
-	// }
 	get isProcessed() {
-		// return this._state === State.PROCESSED;
 		return this._cursor.isProcessed;
 	}
 	get isReady() {
 		return this._state === State.READY;
 	}
-	get isResumed() {
-		return this._state === State.RESUMED;
-	}
-	// get isProcessing() {
-	// 	return this._state === State.PROCESSING;
-	// }
-
-	// get isFinished() {
-	// 	return this._state === State.STOPPED || this._cursor.processed;
-	// }
 
 	process() {
 		const cursor = this._cursor;
@@ -152,8 +101,6 @@ class SheetProcessor {
 		if (!this.isPaused && this.isProcessed) {
 			cursor.reset();
 			this._state = State.READY;
-		} else if (this.isResumed && cursor.c != null) {
-			cursor.c += 1;
 		}
 
 		for (; cursor.r < last && !this.isProcessed && !this.isPaused; ) {
@@ -165,7 +112,7 @@ class SheetProcessor {
 				if (cell) {
 					cell.evaluate();
 					// should we skip row?
-					if (doSkipRow(cell, cursor.c)) break;	// from inner column-loop
+					checkSkipRow(cell, cursor);
 				}
 				if (cursor.changed) break; // break from inner column-loop...
 				else if(!this.isPaused) cursor.c += 1;
@@ -173,7 +120,7 @@ class SheetProcessor {
 			// cursor was set?
 			if (cursor.changed) {
 				cursor.changed = false;
-				// break from row-loop if it was backward...
+				// break from row-loop if it was backward to prevent endless loop...
 				if (cursor.isBackward) {
 					cursor.isBackward = false;
 					break;
@@ -186,24 +133,8 @@ class SheetProcessor {
 		}
 		// on end of sheet
 		if (cursor.r >= last) { // && (cursor.c == null || cursor.c >= lastcol))) {
-			// reset(cursor, sheet.settings);
-			// cursor.reset();
-			// this._state = State.PROCESSED;
 			cursor.isProcessed = true;
 		}
-		// reset cursor if sheet is processed completely
-		// if (cursor.r >= last) {
-	
-
-		// TODO: check paused state again, might was set from outside cells (DL-4482)
-
-		// if (cursor.paused) {
-		// 	cursor.stop = true;
-		// } else if (!cursor.changed) { // && !cursor.paused) {
-		// 	cursor.r += 1;
-		// 	cursor.c = null;
-		// }
-		// cursor.changed = false;
 
 		sheet.graphCells.evaluating = true;
 		sheet.graphCells._cells.forEach((cell) => cell.evaluate());
