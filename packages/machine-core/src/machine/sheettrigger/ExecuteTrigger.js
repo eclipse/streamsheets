@@ -9,27 +9,35 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 	constructor(cfg = {}) {
 		super(Object.assign(cfg, TYPE_CONF));
 		this._repetitions = 1;
+		// flag to prevent executing twice on manual stepping if this comes before triggering sheet
 		this._isExecuted = false;
+		// flag to indicate that calculation was stopped, e.g. by return()
+		this._isStopped = false;
 		this._callingSheet = undefined;
 	}
 
+	preStep(manual) {
+		super.preStep(manual);
+		this._isStopped = false;
+		this._isExecuted = false;
+	}
 	// use did step to support trigger on manual steps
 	postStep(manual) {
 		super.postStep(manual);
+		this._isStopped = false;
 		this._isExecuted = false;
 	}
 
 	execute(repetitions, callingSheet) {
 		this.isActive = true;
 		this._repetitions = Math.max(1, repetitions);
-		this._isExecuted = true;
 		this._callingSheet = callingSheet;
 		if (this.isEndless) callingSheet.pauseProcessing();
 		this.trigger();
 	}
 
 	step(manual) {
-		if (manual && this.isActive && this.isEndless && !this._isExecuted) {
+		if (manual && !this._isExecuted && this.isActive && this.isEndless) {
 			this.doRepeatStep();
 		}
 	}
@@ -45,22 +53,24 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 	_doExecute() {
 		if (!this.isResumed) {
 			const streamsheet = this._streamsheet;
+			this._isExecuted = true;
 			streamsheet.stats.executesteps = 0;
 			for (let i = 0; this.isActive && i < this._repetitions; i += 1) {
 				streamsheet.stats.executesteps = i + 1;
 				streamsheet.triggerStep();
 			}
-			this.isActive = this.isEndless || this._streamsheet.sheet.isPaused;
+			this.isActive = !this._isStopped && (this.isEndless || this._streamsheet.sheet.isPaused);
 		}
 	}
 
-	stop() {
-		this.isActive = false;
-		this._isExecuted = false;
-		return super.stop();
-	}
+	// stop() {
+	// 	this.isActive = false;
+	// 	// this._isExecuted = false;
+	// 	return super.stop();
+	// }
 	stopProcessing() {
 		super.stopProcessing();
+		this._isStopped = true;
 		// resume calling sheet only in endless mode, otherwise it wasn't paused
 		if (this.isEndless && this._callingSheet) this._callingSheet.resumeProcessing();
 	}
