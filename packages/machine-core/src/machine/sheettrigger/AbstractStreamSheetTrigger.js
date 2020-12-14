@@ -48,6 +48,10 @@ class AbstractStreamSheetTrigger {
 		return !!this._stepId;
 	}
 
+	get sheet() {
+		return this._streamsheet.sheet;
+	}
+
 	set streamsheet(streamsheet) {
 		const { machine, sheet } = streamsheet;
 		this._streamsheet = streamsheet;
@@ -73,21 +77,14 @@ class AbstractStreamSheetTrigger {
 		clearTrigger(this);
 	}
 
-	// pauseProcessing() {
-	// 	clearTrigger(this);
-	// 	this._streamsheet.sheet.pauseProcessing();
-	// }
-	// resumeProcessing() {		
-	// }
-
 	// TODO: remove onUpdate flag
 	resume(onUpdate) {
 		// if (!this.sheet.isPaused) this.trigger.resume();
 		// do not resume twice if already resumed before & check if not paused by function
-		if (this.isActive && !this.isResumed && !this._streamsheet.sheet.isPaused) {
+		if (this.isActive && !this.isResumed && !this.sheet.isPaused) {
 			if (!this.isManualStep && this.isEndless) {
-				if (!this._streamsheet.sheet.isProcessed || onUpdate) this._repeatStep();
-			} else if (!this._streamsheet.sheet.isProcessed || onUpdate) this._streamsheet.triggerStep();
+				if (!this.sheet.isProcessed || onUpdate) this._repeatStep();
+			} else if (!this.sheet.isProcessed || onUpdate) this._streamsheet.triggerStep();
 			this.isResumed = !this.isRepeating;
 		}
 	}
@@ -99,21 +96,21 @@ class AbstractStreamSheetTrigger {
 	stop(onUpdate) {
 		clearTrigger(this);
 		this.isActive = false;
-		if (!onUpdate) this._streamsheet.sheet.stopProcessing();
+		if (!onUpdate) this.sheet.stopProcessing();
 		return true;
 	}
 	stopProcessing(retval) {
 		this.stop();
-		this._streamsheet.sheet.stopProcessing(retval);
+		this.sheet.stopProcessing(retval);
 	}
 	pauseProcessing() {
-		this._streamsheet.sheet.pauseProcessing();
+		this.sheet.pauseProcessing();
 		this.pause();
 		// this.sheet.pauseProcessing();
 		// this.trigger.pause();
 	}
 	resumeProcessing() {
-		this._streamsheet.sheet.resumeProcessing();
+		this.sheet.resumeProcessing();
 		this.resume();
 		// this.sheet.resumeProcessing();
 		// this.trigger.resume();
@@ -141,7 +138,7 @@ class AbstractStreamSheetTrigger {
 	}
 	trigger() {
 		// this.isActive = true;
-		if (!this.isResumed && this._stepId == null && !this._streamsheet.sheet.isPaused) {
+		if (!this.isResumed && this._stepId == null && !this.sheet.isPaused) {
 			if (!this.isManualStep && this.isEndless) this._startRepeat();
 			else this.doCycleStep();
 		}
@@ -149,12 +146,12 @@ class AbstractStreamSheetTrigger {
 	doCycleStep() {
 		this._streamsheet.stats.steps += 1;
 		this._streamsheet.triggerStep();
-		this.isActive = this._streamsheet.sheet.isPaused;
+		this.isActive = this.sheet.isPaused;
 	}
 	doRepeatStep() {
 		this._streamsheet.stats.repeatsteps += 1;
 		this._streamsheet.triggerStep();
-		this.isActive = this._streamsheet.sheet.isPaused;
+		this.isActive = this.sheet.isPaused;
 	}
 
 	// DEPRECATED:
