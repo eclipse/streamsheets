@@ -47,11 +47,7 @@ class StreamSheet2 extends StreamSheet {
 		return false;
 	}
 	cancelExecute() {
-		if (this.trigger.type === StreamSheetTrigger.TYPE.EXECUTE) {
-			// TODO: move this to ExecuteTrigger!!
-			if (!this.sheet.isProcessed) this.stopProcessing();
-			this.trigger.isActive = false;
-		}
+		if (this.trigger.type === StreamSheetTrigger.TYPE.EXECUTE) this.trigger.cancelExecute();
 	}
 	stopProcessing(retval) {
 		this.trigger.stopProcessing(retval);
@@ -63,6 +59,7 @@ class StreamSheet2 extends StreamSheet {
 	resumeProcessing() {
 		this.trigger.resumeProcessing();
 	}
+	// ~
 
 	// called by machine:
 	pause() {
