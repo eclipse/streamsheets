@@ -57,16 +57,14 @@ const monitorStreamSheet = (streamsheet) => {
 	// do not care that callback is never unregistered
 	streamsheet.on('step', stepMonitor);
 	streamsheet.on('message_attached', () => { messages.attached += 1; });
-	streamsheet.on('message_detached', () => { 
-		messages.detached += 1; 
-	});
+	streamsheet.on('message_detached', () => { messages.detached += 1; });
 
 	return {
 		messages,
 		isAtStep: (step) => {
 			return new Promise((resolve) => {
 				stepMonitor.onStep = () => {
-					if (streamsheet.stats.steps >= step) resolve();
+					if (streamsheet.stats.steps >= step && !streamsheet.trigger._stepId) resolve();
 				};
 			});
 		},
