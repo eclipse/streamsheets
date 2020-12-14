@@ -62,8 +62,6 @@ class AbstractStreamSheetTrigger {
 
 	// called by streamsheet. signals that it will be removed. trigger should perform clean up here...
 	dispose() {
-		// if (this._trigger.isEndless && !trigger.isEndless) this.stopProcessing();
-		// else this.stop(true);
 		if (this.sheet.isPaused) this.resumeProcessing();
 		this.stopProcessing();
 		this._streamsheet = undefined;
@@ -81,7 +79,6 @@ class AbstractStreamSheetTrigger {
 
 	// TODO: remove onUpdate flag
 	resume(onUpdate) {
-		// if (!this.sheet.isPaused) this.trigger.resume();
 		// do not resume twice if already resumed before & check if not paused by function
 		if (this.isActive && !this.isResumed && !this.sheet.isPaused) {
 			if (!this.isManualStep && this.isEndless) {
@@ -108,14 +105,10 @@ class AbstractStreamSheetTrigger {
 	pauseProcessing() {
 		this.sheet.pauseProcessing();
 		this.pause();
-		// this.sheet.pauseProcessing();
-		// this.trigger.pause();
 	}
 	resumeProcessing() {
 		this.sheet.resumeProcessing();
 		this.resume();
-		// this.sheet.resumeProcessing();
-		// this.trigger.resume();
 	}
 
 	preStep(manual) {
@@ -136,7 +129,6 @@ class AbstractStreamSheetTrigger {
 		repeatTrigger(this);
 		// trigger step afterwards, because it might clears current scheduled one!!!
 		this.doRepeatStep();
-		// if (!resumed) this.doRepeatStep();
 	}
 	trigger() {
 		// this.isActive = true;

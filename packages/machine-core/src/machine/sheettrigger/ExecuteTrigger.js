@@ -67,11 +67,6 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 		}
 	}
 
-	// stop() {
-	// 	this.isActive = false;
-	// 	// this._isExecuted = false;
-	// 	return super.stop();
-	// }
 	stopProcessing(retval) {
 		super.stopProcessing(retval);
 		this._isStopped = true;
