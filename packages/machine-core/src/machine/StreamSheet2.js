@@ -35,9 +35,10 @@ class StreamSheet2 extends StreamSheet {
 		}
 		this._trigger = trigger;
 		this._trigger.streamsheet = this;
+		// TODO: move following to AbstractSheetTrigger set streamsheet() {}
 		// apply current state if differ from stop
 		if (this.sheet.isPaused) this._trigger.pause();
-		else if (this.machine && this.machine.state === State.RUNNING) this._trigger.resume();
+		else if (this.machine && this.machine.state === State.RUNNING) this._trigger.resume(true);
 	}
 
 
@@ -83,6 +84,7 @@ class StreamSheet2 extends StreamSheet {
 		this.trigger.pause();
 	}
 	resume() {
+		// not paused by function:
 		if (!this.sheet.isPaused) this.trigger.resume();
 	}
 	start() {
