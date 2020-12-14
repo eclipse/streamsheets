@@ -1542,8 +1542,8 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 
 				while (item.getValue(ref, index, value)) {
 					info.index = index;
-					if (serie.marker.style === 'vertical' && value.y === undefined) {
-						value.y = 0;
+					if (serie.marker.style === 'vertical') {
+						value.y = axes.y.scale.min;
 					}
 					if (item.chart.dataMode === 'datainterrupt' || (value.x !== undefined && value.y !== undefined)) {
 						pt.x = item.scaleToAxis(axes.x, value.x, undefined, false);

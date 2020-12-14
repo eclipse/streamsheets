@@ -239,6 +239,25 @@ const createByName = () => {
 			filllight: '#222222',
 			feedbackFill: 'rgba(255, 255, 255,0.2)',
 			feedbackBorder: 'rgba(255, 255, 255,0.8)',
+			scrollBars: {
+				arrow: '#999999',
+				arrowbk: '#555555',
+				range: '#000000',
+				background: '#000000',
+				thumb: '#555555'
+			},
+			rangeColors: [
+				'#d5d5ef',
+				'#efc8d6',
+				'#bae0aa',
+				'#e2aa8a',
+				'#72c2d4',
+				'#cba4d7',
+				'#85deb4',
+				'#f6d8cc',
+				'#fabb69',
+				'#b4cccf'
+			]
 		};
 		break;
 	default:

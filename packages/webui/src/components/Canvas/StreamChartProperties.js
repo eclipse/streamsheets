@@ -1297,6 +1297,7 @@ export class StreamChartProperties extends Component {
 			return <div/>
 		}
 		const classes = this.props.classes;
+		const boxPlot = item.isBoxPlot();
 		const gauge = item.isGauge();
 		const circular = item.isCircular();
 		return (
@@ -1693,7 +1694,7 @@ export class StreamChartProperties extends Component {
 										}
 									/>
 								) : null}
-								{!circular ? (
+								{!circular && !boxPlot ? (
 									<FormControlLabel
 										control={
 											<Checkbox
@@ -1905,22 +1906,24 @@ export class StreamChartProperties extends Component {
 										) : (
 											<div>
 												<FormGroup>
-													<FormControlLabel
-														control={
-															<Checkbox
-																checked={item.chart.relative}
-																onChange={(event, state) =>
-																	this.handleChartHundredPercentChange(event, state)
-																}
-															/>
-														}
-														label={
-															<FormattedMessage
-																id="StreamChartProperties.HundredPercent"
-																defaultMessage="100%"
-															/>
-														}
-													/>
+													{!boxPlot ? (
+														<FormControlLabel
+															control={
+																<Checkbox
+																	checked={item.chart.relative}
+																	onChange={(event, state) =>
+																		this.handleChartHundredPercentChange(event, state)
+																	}
+																/>
+															}
+															label={
+																<FormattedMessage
+																	id="StreamChartProperties.HundredPercent"
+																	defaultMessage="100%"
+																/>
+															}
+														/>
+													) : null}
 													{this.isLineChart() ? (
 														<FormControlLabel
 															control={
