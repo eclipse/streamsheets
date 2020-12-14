@@ -520,7 +520,6 @@ describe('ContinuouslyTrigger', () => {
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			await machine.start();
 			await monitorS1.isAtStep(4);
-			await wait(10);
 			await machine.pause();
 			expect(s1.stats.steps).toBe(4);
 			// we reuse last message
@@ -597,7 +596,6 @@ describe('ContinuouslyTrigger', () => {
 			s1.inbox.put(new Message({ loop: [{ val: 4 }, { val: 5 }] }));
 			await machine.start();
 			await monitorS1.isAtStep(4);
-			await wait(10);	// <-- give endless some time...
 			await machine.pause();
 			expect(s1.stats.steps).toBe(4);
 			expect(s1.sheet.cellAt('A1').value).toBe(8);

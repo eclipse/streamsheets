@@ -182,7 +182,7 @@ describe('ExecuteTrigger', () => {
 			expect(s2.sheet.cellAt('B2').value).toBe(9);
 			expect(s2.sheet.cellAt('B3').value).toBe(true);
 		});
-		it.skip('should pause calling sheet until execute returns in "repeat until..." on manual steps switched sheet order', async () => {
+		it('should pause calling sheet until execute returns in "repeat until..." on manual steps switched sheet order', async () => {
 			const { machine, s1, s2 } = setup({ switched: true });
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -337,7 +337,7 @@ describe('ExecuteTrigger', () => {
 			expect(s2.sheet.cellAt('B2').value).toBe(6);
 			expect(s2.sheet.cellAt('B3').value).toBe(true);
 		});
-		it.skip('should stop repetitions of execute as soon as return() is called in "repeat until..." with manual steps', async () => {
+		it('should stop repetitions of execute as soon as return() is called in "repeat until..." with manual steps', async () => {
 			const { machine, s1, s2 } = setup();
 			s2.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -387,6 +387,7 @@ describe('ExecuteTrigger', () => {
 			// CHAIN: S1 -> S3 -> S2
 			const { machine, s1, s2 } = setup();
 			const s3 = new StreamSheet2();
+			const monitorS2 = monitorStreamSheet(s2);
 			machine.addStreamSheet(s3);
 			s3.trigger = new ExecuteTrigger({ repeat: 'endless' });
 			s2.trigger.update({ repeat: 'endless' });
@@ -400,7 +401,7 @@ describe('ExecuteTrigger', () => {
 			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
 			createCellAt('B2', { formula: 'if(mod(B1,3)=0,return(),false)' }, s2.sheet);
 			await machine.start();
-			await wait(120);
+			await monitorS2.isAtStep(8);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 			expect(s1.sheet.cellAt('A3').value).toBe(4);
@@ -410,7 +411,7 @@ describe('ExecuteTrigger', () => {
 			expect(s3.sheet.cellAt('C2').value).toBe(true);
 			expect(s3.sheet.cellAt('C3').value).toBe(9);
 		});
-		test.skip('chain of execution with several sheets on manual steps', async () => {
+		test('chain of execution with several sheets on manual steps', async () => {
 			// CHAIN: S1 -> S3 -> S2
 			const { machine, s1, s2 } = setup();
 			const s3 = new StreamSheet2();
@@ -552,9 +553,8 @@ describe('ExecuteTrigger', () => {
 			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			await machine.stop();
 		});
-		it.skip('should keep "repeat until..." if new trigger is set with same', async () => {
+		it('should keep "repeat until..." if new trigger is set with same', async () => {
 			const { machine, s1, s2 } = setup();
-			machine.cycletime = 5000;
 			s2.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'execute("S2")' }, s1.sheet);
@@ -959,7 +959,6 @@ describe('ExecuteTrigger', () => {
 			createCellAt('B2', { formula: 'if(mod(B1,2)=0,return(),false)' }, s2.sheet);
 			await machine.start();
 			await monitorS2.isAtStep(4);
-			await wait(10); // <-- give S2 time to return...
 			await machine.stop();
 			expect(s2.sheet.cellAt('B1').value).toBe(8);
 			expect(monitorS2.messages.attached).toBe(4); // <-- executed 3x
@@ -1033,13 +1032,11 @@ describe('ExecuteTrigger', () => {
 			expect(s2.sheet.cellAt('B2').value).toBe(false);
 			await machine.start();
 			await monitorS2.isAtStep(1);
-			await wait(10);
 			await machine.pause();
 			expect(s2.inbox.size).toBe(3);
 			expect(s2.sheet.cellAt('B1').value).toBe(3);
 			await machine.start();
 			await monitorS2.isAtStep(3);
-			await wait(10);
 			await machine.pause();
 			expect(s2.inbox.size).toBe(1);
 			expect(s2.sheet.cellAt('B1').value).toBe(9);
@@ -1163,7 +1160,6 @@ describe('ExecuteTrigger', () => {
 			expect(s2.inbox.size).toBe(4);
 			await machine.start();
 			await monitorS2.isAtStep(2);
-			await wait(10);
 			await machine.pause();
 			expect(s2.inbox.size).toBe(4);
 			expect(s2.getLoopIndex()).toBe(2);
@@ -1174,7 +1170,6 @@ describe('ExecuteTrigger', () => {
 			expect(s2.sheet.cellAt('B2').value).toBe(true);
 			await machine.start();
 			await monitorS2.isAtStep(4);
-			await wait(10);
 			await machine.pause();
 			expect(s2.inbox.size).toBe(3);
 			expect(s2.getLoopIndex()).toBe(1);
@@ -1185,7 +1180,6 @@ describe('ExecuteTrigger', () => {
 			expect(s2.sheet.cellAt('B2').value).toBe(true);
 			await machine.start();
 			await monitorS2.isAtStep(6);
-			await wait(10);
 			await machine.pause();
 			expect(s2.inbox.size).toBe(2);
 			expect(s2.getLoopIndex()).toBe(0);
@@ -1196,7 +1190,6 @@ describe('ExecuteTrigger', () => {
 			expect(s2.sheet.cellAt('B2').value).toBe(true);
 			await machine.start();
 			await monitorS2.isAtStep(8);
-			await wait(10);
 			await machine.pause();
 			// we stay at last message and loop element
 			expect(s2.inbox.size).toBe(1);
@@ -1324,21 +1317,18 @@ describe('ExecuteTrigger', () => {
 			createCellAt('B2', { formula: 'if(mod(B1,3)=0,return(),false)' }, s2.sheet);
 			await machine.start();
 			await monitorS2.isAtStep(1);
-			await wait(10);	// <-- give S2 some time to return
 			await machine.pause();
 			expect(s1.inbox.size).toBe(3);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s2.sheet.cellAt('B1').value).toBe(3);
 			await machine.start();
 			await monitorS2.isAtStep(2);
-			await wait(10);	// <-- give S2 some time to return
 			await machine.pause();
 			expect(s1.inbox.size).toBe(2);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s2.sheet.cellAt('B1').value).toBe(6);
 			await machine.start();
 			await monitorS2.isAtStep(3);
-			await wait(10);	// <-- give S2 some time to return
 			await machine.pause();
 			expect(s1.inbox.size).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
@@ -1346,7 +1336,6 @@ describe('ExecuteTrigger', () => {
 			// stay at last message:
 			await machine.start();
 			await monitorS2.isAtStep(5);
-			await wait(10);	// <-- give S2 some time to return
 			await machine.stop();
 			expect(s1.inbox.size).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(6);
@@ -1430,14 +1419,12 @@ describe('ExecuteTrigger', () => {
 			createCellAt('B2', { formula: 'if(mod(B1,3)=0,return(),false)' }, s2.sheet);
 			await machine.start();
 			await monitorS2.isAtStep(1);
-			await wait(10);	// <-- give S2 some time to return
 			await machine.pause();
 			expect(s1.getLoopIndex()).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s2.sheet.cellAt('B1').value).toBe(3);
 			await machine.start();
 			await monitorS2.isAtStep(2);
-			await wait(10);	// <-- give S2 some time to return
 			await machine.pause();
 			expect(s1.inbox.size).toBe(3);
 			expect(s1.getLoopIndex()).toBe(1);
@@ -1445,7 +1432,6 @@ describe('ExecuteTrigger', () => {
 			expect(s2.sheet.cellAt('B1').value).toBe(6);
 			await machine.start();
 			await monitorS2.isAtStep(3);
-			await wait(10);	// <-- give S2 some time to return
 			await machine.pause();
 			// message is popped of with next step!
 			expect(s1.getLoopIndex()).toBe(0);
@@ -1454,7 +1440,6 @@ describe('ExecuteTrigger', () => {
 			expect(s2.sheet.cellAt('B1').value).toBe(9);
 			await machine.start();
 			await monitorS2.isAtStep(4);
-			await wait(10);	// <-- give S2 some time to return
 			await machine.pause();
 			expect(s1.getLoopIndex()).toBe(0);
 			expect(s1.inbox.size).toBe(1);
@@ -1463,7 +1448,6 @@ describe('ExecuteTrigger', () => {
 			// stay at last message:
 			await machine.start();
 			await monitorS2.isAtStep(6);
-			await wait(10);	// <-- give S2 some time to return
 			await machine.pause();
 			expect(s1.getLoopIndex()).toBe(0);
 			expect(s1.inbox.size).toBe(1);
