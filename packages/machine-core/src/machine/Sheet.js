@@ -168,9 +168,6 @@ module.exports = class Sheet {
 		return json;
 	}
 
-	// get isFinished() {
-	// 	return this.processor.isProcessed;
-	// }
 	get isPaused() {
 		return this.processor.isPaused;
 	}
@@ -180,12 +177,6 @@ module.exports = class Sheet {
 	get isReady() {
 		return this.processor.isReady;
 	}
-	// get isResumed() {
-	// 	return this.processor.isResumed;
-	// }
-	// get isStopped() {
-	// 	return this.processor.isStopped;
-	// }
 	get isProcessing() {
 		// return this.processor.isProcessing || this._forceExecution;
 		return this._isProcessing || this._forceExecution;
@@ -588,21 +579,13 @@ module.exports = class Sheet {
 		}
 	}
 
-	process() {
-		// TODO: remove _lastInsertIndex!!
-		this._lastInsertIndex.set(1, 0);
-		this._isProcessing = true;
-		const result = this.processor.process();
-		this._isProcessing = false;
-		return result;
-		// try {
-		// 	return this.processor.process();
-		// } catch (err) {
-		// 	/* ignore */
-		// } finally {
-		// 	this._isProcessing = false;
-		// }
-		// return undefined;
+	continueProcessingAt(cellindex) {
+		return this.processor.continueAt(cellindex);
+	}
+
+	// optional return value
+	stopProcessing(retvalue) {
+		this.processor.stop(retvalue);
 	}
 
 	startProcessing() {
@@ -623,15 +606,6 @@ module.exports = class Sheet {
 		this.processor.resume();
 	}
 
-	// optional return value
-	stopProcessing(retvalue) {
-		if (this.processor.done) this.processor.done(retvalue);
-		else this.processor.stop(retvalue);
-	}
-
-	continueProcessingAt(cellindex) {
-		return this.processor.continueAt(cellindex);
-	}
 
 	getDrawings() {
 		return this.sheetDrawings;
