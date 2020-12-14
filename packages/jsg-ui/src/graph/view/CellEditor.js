@@ -14,19 +14,6 @@ import {CellRange, default as JSG, Point, Selection, SheetReference, Strings} fr
 
 const { Locale } = require('@cedalo/parser');
 
-const RANGE_COLORS = [
-	'#1718d1',
-	'#a61d4c',
-	'#8cc474',
-	'#f75c02',
-	'#2fb4d2',
-	'#803995',
-	'#00b15b',
-	'#795548',
-	'#fabb69',
-	'#168d9a'
-];
-
 let cellEditor;
 let functionInfo;
 let showFuncInfo = localStorage.getItem('funcinfo') !== 'false';
@@ -139,7 +126,7 @@ export default class CellEditor {
 			if (active === undefined) {
 				active = new Point(0, 0);
 			}
-			ranges.add(new CellRange(this, active.x, active.y), RANGE_COLORS[ranges.getSize() % RANGE_COLORS.length]);
+			ranges.add(new CellRange(this, active.x, active.y), JSG.theme.rangeColors[ranges.getSize() % JSG.theme.rangeColors.length]);
 			ranges.setActiveCell(active.copy());
 			ranges.setActiveRange(ranges.getSize() - 1);
 		}
@@ -534,7 +521,7 @@ export default class CellEditor {
 				if (refRange /* && refRange.getSheet() === this.formulaSheet */) {
 					const copy = refRange.copy();
 					copy.shiftFromSheet();
-					ranges.add(copy, RANGE_COLORS[ranges.getSize() % RANGE_COLORS.length]);
+					ranges.add(copy, JSG.theme.rangeColors[ranges.getSize() % JSG.theme.rangeColors.length]);
 				}
 			}
 			// }
@@ -565,7 +552,7 @@ export default class CellEditor {
 
 			result += formula.slice(0, pos);
 			result += `<span id="range" style="color: ${
-				RANGE_COLORS[index % RANGE_COLORS.length]
+				JSG.theme.rangeColors[index % JSG.theme.rangeColors.length]
 			}">${rangeString}</span>`;
 
 			formula = formula.slice(pos + rangeString.length);
@@ -910,7 +897,7 @@ export default class CellEditor {
 
 			const span = document.createElement('span');
 			span.id = 'range';
-			span.style.color = RANGE_COLORS[index % RANGE_COLORS.length];
+			span.style.color = JSG.theme.rangeColors[index % JSG.theme.rangeColors.length];
 			// set the content of the span
 			const refText = document.createTextNode(text);
 			span.appendChild(refText);

@@ -376,6 +376,18 @@ JSG.theme = {
 	filllight: '#F1F1F1',
 	feedbackFill: 'rgba(0,0,0,0.2)',
 	feedbackBorder: 'rgba(0,0,0,0.8)',
+	rangeColors: [
+		'#1718d1',
+		'#a61d4c',
+		'#8cc474',
+		'#f75c02',
+		'#2fb4d2',
+		'#803995',
+		'#00b15b',
+		'#795548',
+		'#fabb69',
+		'#168d9a'
+	]
 };
 
 module.exports = JSG;
