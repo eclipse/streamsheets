@@ -271,10 +271,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	}
 
 	setFont(graphics, format, id, vertical, horizontal) {
-		const fontColor = format.fontColor || this.getTemplate()[id].format.fontColor || this.getTemplate().font.color;
-		const fontName = format.fontName || this.getTemplate()[id].format.fontName || this.getTemplate().font.name;
-		const fontSize = format.fontSize || this.getTemplate()[id].format.fontSize || this.getTemplate().font.size;
-		const fontStyle = format.fontStyle === undefined ? this.getTemplate()[id].format.fontStyle : format.fontStyle;
+		const tmp = this.getTemplate();
+		const tmpId = tmp[id];
+		const fontColor = format.fontColor || tmpId.format.fontColor || this.getTemplate().font.color;
+		const fontName = format.fontName || tmpId.format.fontName || this.getTemplate().font.name;
+		const fontSize = format.fontSize || tmpId.format.fontSize || tmp.font.size;
+		const fontStyle = format.fontStyle === undefined ? tmpId.format.fontStyle : format.fontStyle;
 
 		graphics.setTextBaseline(vertical);
 		graphics.setFillColor(fontColor);
@@ -1460,6 +1462,26 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		return cnt;
 	}
 
+	getFirstVisibleSeries() {
+		for (let i = 0; i < this.series.length; i += 1) {
+			if (this.series[i].visible) {
+				return i;
+			}
+		}
+
+		return 0;
+	}
+
+	getLastVisibleSeries() {
+		for (let i = this.series.length - 1; i >= 0; i -= 1) {
+			if (this.series[i].visible) {
+				return i;
+			}
+		}
+
+		return this.series.length - 1;
+	}
+
 	getVisibleSeriesIndex(type, index) {
 		let cnt = 0;
 
@@ -2530,7 +2552,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		if (info) {
 			let tmp;
 			let y = 0;
-			if (this.chart.stacked) {
+			if (this.chart.stacked && info.index !== undefined) {
 				if (this.chart.relative) {
 					if (info.categories.length) {
 						const neg = info.categories[info.index].neg;

@@ -376,6 +376,13 @@ JSG.theme = {
 	filllight: '#F1F1F1',
 	feedbackFill: 'rgba(0,0,0,0.2)',
 	feedbackBorder: 'rgba(0,0,0,0.8)',
+	scrollBars: {
+		arrow: '#777777',
+		arrowbk: '#F3F3F3',
+		range: '#F3F3F3',
+		background: '#eeeeee',
+		thumb: '#CCCCCC'
+	},
 	rangeColors: [
 		'#1718d1',
 		'#a61d4c',

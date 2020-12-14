@@ -239,6 +239,13 @@ const createByName = () => {
 			filllight: '#222222',
 			feedbackFill: 'rgba(255, 255, 255,0.2)',
 			feedbackBorder: 'rgba(255, 255, 255,0.8)',
+			scrollBars: {
+				arrow: '#999999',
+				arrowbk: '#555555',
+				range: '#000000',
+				background: '#000000',
+				thumb: '#555555'
+			},
 			rangeColors: [
 				'#d5d5ef',
 				'#efc8d6',
