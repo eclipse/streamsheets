@@ -64,16 +64,25 @@ class AbstractStreamSheetTrigger {
 	pause() {
 		clearTrigger(this);
 	}
-	resume() {
+
+	// pauseProcessing() {
+	// 	clearTrigger(this);
+	// 	this._streamsheet.sheet.pauseProcessing();
+	// }
+	// resumeProcessing() {		
+	// }
+
+	// TODO: remove onUpdate flag
+	resume(onUpdate) {
 		// do not resume twice if already resumed before
 		if (this.isActive && !this.isResumed) {
 			if (!this.isManualStep && this.isEndless) {
-				if (!this._streamsheet.sheet.isProcessed) this._repeatStep();
-			} else if (!this._streamsheet.sheet.isProcessed) this._streamsheet.triggerStep();
+				if (!this._streamsheet.sheet.isProcessed || onUpdate) this._repeatStep();
+			} else if (!this._streamsheet.sheet.isProcessed || onUpdate) this._streamsheet.triggerStep();
 			this.isResumed = !this.isRepeating;
-			// this.isResumed = paused && !this.isRepeating;
 		}
 	}
+
 	start() {
 		// reset stats?
 	}
@@ -107,7 +116,7 @@ class AbstractStreamSheetTrigger {
 		// if (!resumed) this.doRepeatStep();
 	}
 	trigger() {
-		this.isActive = true;
+		// this.isActive = true;
 		if (!this.isResumed && this._stepId == null && !this._streamsheet.sheet.isPaused) {
 			if (!this.isManualStep && this.isEndless) this._startRepeat();
 			else this.doCycleStep();
