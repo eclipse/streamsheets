@@ -5311,6 +5311,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		return this.series.length && this.series[0].type === 'gauge';
 	}
 
+	isBoxPlot() {
+		return this.series.length && this.series[0].type === 'boxplot';
+	}
+
 	isLineType(serie) {
 		return serie.type === 'line' || serie.type === 'profile' || serie.type === 'scatter';
 	}

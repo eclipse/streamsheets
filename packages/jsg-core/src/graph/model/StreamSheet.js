@@ -1261,7 +1261,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 						if (color === JSG.theme.border) {
 							return undefined;
 						}
-						return `${color}`;
+						return `"${color}"`;
 					}
 					break;
 				}
@@ -1338,8 +1338,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 								.getValue()})`;
 						case 1:
 							return `FILLRADIALGRADIENT("${color}"${sep}"${grColor}"${sep}${format
-								.getGradientOffsetX()
-								.getValue()}${sep}${format.getGradientOffsetY().getValue()})`;
+								.getGradientOffsetX().getValue()}${sep}${format.getGradientOffsetY().getValue()})`;
 						default:
 					}
 					return undefined;
