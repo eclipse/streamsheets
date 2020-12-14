@@ -1,4 +1,3 @@
-const State = require('../State');
 const StreamSheet = require('./StreamSheet');
 const SheetProcessor2 = require('./SheetProcessor2');
 const StreamSheetTrigger = require('./StreamSheetTrigger');
@@ -23,22 +22,17 @@ class StreamSheet2 extends StreamSheet {
 	}
 	set trigger(trigger) {
 		if (this._trigger) {
-			if (this._trigger.type === trigger.type) {
-				// same trigger but with maybe different setting...
-				trigger.isActive = this._trigger.isActive;
-			}
+			// same trigger but with maybe different setting...
+			if (this._trigger.type === trigger.type) trigger.isActive = this._trigger.isActive;
 			// dispose old trigger:
+			// TODO: move following to trigger itself:
 			if (this._trigger.isEndless && !trigger.isEndless) this.stopProcessing();
-			else this._trigger.stop();
+			else this._trigger.stop(true);
 			this._trigger.dispose();
-			this._trigger.streamsheet = undefined;
 		}
+		// register new trigger:
 		this._trigger = trigger;
 		this._trigger.streamsheet = this;
-		// TODO: move following to AbstractSheetTrigger set streamsheet() {}
-		// apply current state if differ from stop
-		if (this.sheet.isPaused) this._trigger.pause();
-		else if (this.machine && this.machine.state === State.RUNNING) this._trigger.resume(true);
 	}
 
 
@@ -54,22 +48,20 @@ class StreamSheet2 extends StreamSheet {
 	}
 	cancelExecute() {
 		if (this.trigger.type === StreamSheetTrigger.TYPE.EXECUTE) {
+			// TODO: move this to ExecuteTrigger!!
 			if (!this.sheet.isProcessed) this.stopProcessing();
 			this.trigger.isActive = false;
 		}
 	}
 	stopProcessing(retval) {
-		this.trigger.stopProcessing();
-		this.sheet.stopProcessing(retval);
+		this.trigger.stopProcessing(retval);
 		if (this.trigger.isEndless) this._msgHandler.next();
 	}
 	pauseProcessing() {
-		this.sheet.pauseProcessing();
-		this.trigger.pause();
+		this.trigger.pauseProcessing();
 	}
 	resumeProcessing() {
-		this.sheet.resumeProcessing();
-		this.trigger.resume();
+		this.trigger.resumeProcessing();
 	}
 
 	// called by machine:
@@ -78,8 +70,7 @@ class StreamSheet2 extends StreamSheet {
 		this.trigger.pause();
 	}
 	resume() {
-		// not paused by function:
-		if (!this.sheet.isPaused) this.trigger.resume();
+		this.trigger.resume();
 	}
 	start() {
 		super.start();
@@ -90,7 +81,6 @@ class StreamSheet2 extends StreamSheet {
 		if (stopped) {
 			this.reset();
 			this.inbox.unsubscribe();
-			this.sheet.stopProcessing();
 			this.sheet.getPendingRequests().clear();
 		}
 		return stopped;
@@ -106,6 +96,7 @@ class StreamSheet2 extends StreamSheet {
 		this.trigger.postStep(manual);
 	}
 
+	// TODO: think .. - replace with pre-/postTriggerStep (willTrigger, didTrigger or similar)
 	triggerStep() {
 		if (this.sheet.isReady || this.sheet.isProcessed) this._attachMessage2();
 		const result = this.sheet.startProcessing();

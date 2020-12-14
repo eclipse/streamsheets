@@ -68,8 +68,8 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 	// 	// this._isExecuted = false;
 	// 	return super.stop();
 	// }
-	stopProcessing() {
-		super.stopProcessing();
+	stopProcessing(retval) {
+		super.stopProcessing(retval);
 		this._isStopped = true;
 		// resume calling sheet only in endless mode, otherwise it wasn't paused
 		if (this.isEndless && this._callingSheet) this._callingSheet.resumeProcessing();

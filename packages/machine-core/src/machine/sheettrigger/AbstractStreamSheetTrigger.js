@@ -1,3 +1,5 @@
+const State = require('../../State');
+
 const clearTrigger = (trigger) => {
 	const cleared = !!trigger._stepId;
 	if (cleared) {
@@ -47,11 +49,17 @@ class AbstractStreamSheetTrigger {
 	}
 
 	set streamsheet(streamsheet) {
+		const { machine, sheet } = streamsheet;
 		this._streamsheet = streamsheet;
+		// apply current state if differ from stop
+		if (sheet.isPaused) this.pause();
+		else if (machine && machine.state === State.RUNNING) this.resume(true);
 	}
 
 	// called by streamsheet. signals that it will be removed. trigger should perform clean up here...
 	dispose() {
+		// if (this.isEndless) this.stopProcessing();
+		// else this.stop();
 		this._streamsheet = undefined;
 	}
 
@@ -74,8 +82,9 @@ class AbstractStreamSheetTrigger {
 
 	// TODO: remove onUpdate flag
 	resume(onUpdate) {
-		// do not resume twice if already resumed before
-		if (this.isActive && !this.isResumed) {
+		// if (!this.sheet.isPaused) this.trigger.resume();
+		// do not resume twice if already resumed before & check if not paused by function
+		if (this.isActive && !this.isResumed && !this._streamsheet.sheet.isPaused) {
 			if (!this.isManualStep && this.isEndless) {
 				if (!this._streamsheet.sheet.isProcessed || onUpdate) this._repeatStep();
 			} else if (!this._streamsheet.sheet.isProcessed || onUpdate) this._streamsheet.triggerStep();
@@ -86,13 +95,28 @@ class AbstractStreamSheetTrigger {
 	start() {
 		// reset stats?
 	}
-	stop() {
+	// TODO: remove onUpdate flag
+	stop(onUpdate) {
 		clearTrigger(this);
 		this.isActive = false;
+		if (!onUpdate) this._streamsheet.sheet.stopProcessing();
 		return true;
 	}
-	stopProcessing() {
+	stopProcessing(retval) {
 		this.stop();
+		this._streamsheet.sheet.stopProcessing(retval);
+	}
+	pauseProcessing() {
+		this._streamsheet.sheet.pauseProcessing();
+		this.pause();
+		// this.sheet.pauseProcessing();
+		// this.trigger.pause();
+	}
+	resumeProcessing() {
+		this._streamsheet.sheet.resumeProcessing();
+		this.resume();
+		// this.sheet.resumeProcessing();
+		// this.trigger.resume();
 	}
 
 	preStep(manual) {
