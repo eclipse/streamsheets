@@ -35,6 +35,10 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 		if (this.isEndless) callingSheet.pauseProcessing();
 		this.trigger();
 	}
+	cancelExecute() {
+		if (!this.sheet.isProcessed) this.stopProcessing();
+		this.isActive = false;
+	}
 
 	step(manual) {
 		if (manual && !this._isExecuted && this.isActive && this.isEndless) {
@@ -59,7 +63,7 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 				streamsheet.stats.executesteps = i + 1;
 				streamsheet.triggerStep();
 			}
-			this.isActive = !this._isStopped && (this.isEndless || this._streamsheet.sheet.isPaused);
+			this.isActive = !this._isStopped && (this.isEndless || this.sheet.isPaused);
 		}
 	}
 
