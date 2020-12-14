@@ -24,10 +24,6 @@ class StreamSheet2 extends StreamSheet {
 		if (this._trigger) {
 			// same trigger but with maybe different setting...
 			if (this._trigger.type === trigger.type) trigger.isActive = this._trigger.isActive;
-			// dispose old trigger:
-			// TODO: move following to trigger itself:
-			if (this._trigger.isEndless && !trigger.isEndless) this.stopProcessing();
-			else this._trigger.stop(true);
 			this._trigger.dispose();
 		}
 		// register new trigger:

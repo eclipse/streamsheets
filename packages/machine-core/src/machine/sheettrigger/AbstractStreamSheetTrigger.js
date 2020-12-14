@@ -62,8 +62,10 @@ class AbstractStreamSheetTrigger {
 
 	// called by streamsheet. signals that it will be removed. trigger should perform clean up here...
 	dispose() {
-		// if (this.isEndless) this.stopProcessing();
-		// else this.stop();
+		// if (this._trigger.isEndless && !trigger.isEndless) this.stopProcessing();
+		// else this.stop(true);
+		if (this.sheet.isPaused) this.resumeProcessing();
+		this.stopProcessing();
 		this._streamsheet = undefined;
 	}
 

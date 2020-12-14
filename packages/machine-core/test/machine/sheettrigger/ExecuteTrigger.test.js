@@ -553,26 +553,31 @@ describe('ExecuteTrigger', () => {
 			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			await machine.stop();
 		});
-		it('should keep "repeat until..." if new trigger is set with same', async () => {
+		it('should keep "repeat until..." if new trigger is set with same setting', async () => {
 			const { machine, s1, s2 } = setup();
+			const machineMonitor = monitorMachine(machine);
 			s2.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'execute("S2")' }, s1.sheet);
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 			await machine.start();
-			await wait(10);
+			await machineMonitor.nextSteps(2);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B2').value).toBeGreaterThan(2);
 			s2.trigger = new ExecuteTrigger({ repeat: 'endless' });
 			const s2b2 = s2.sheet.cellAt('B2').value;
-			await wait(20);
+			// await wait(20);
+			await machineMonitor.nextSteps(2);
+			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			expect(s2.sheet.cellAt('B2').value).toBeGreaterThan(s2b2);
-			expect(s1.sheet.cellAt('A3').value).toBe(1);
+			await machineMonitor.nextSteps(2);
+			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			await machine.stop();
 		});
-		it('should not resume on "repeat until.." if new trigger is set and sheet is paused by function', async () => {
+		it('should resume on "repeat until.." if new trigger is set and sheet is paused by function', async () => {
 			const { machine, s1, s2 } = setup();
+			const machineMonitor = monitorMachine(machine);
 			const newTrigger = new ExecuteTrigger({ repeat: 'endless' });
 			s2.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -581,13 +586,16 @@ describe('ExecuteTrigger', () => {
 			createCellAt('B2', { formula: 'pause()' }, s2.sheet);
 			createCellAt('B3', { formula: 'B3+1' }, s2.sheet);
 			await machine.start();
-			await wait(10);
+			await machineMonitor.nextSteps(2);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B3').value).toBe(1);
 			s2.trigger = newTrigger;
-			await wait(20);
-			expect(s2.sheet.cellAt('B3').value).toBe(1);
-			expect(s1.sheet.cellAt('A3').value).toBe(1);
+			await machineMonitor.nextSteps(1);
+			expect(s2.sheet.cellAt('B3').value).toBe(2);
+			expect(s1.sheet.cellAt('A3').value).toBe(2);
+			await machineMonitor.nextSteps(2);
+			expect(s2.sheet.cellAt('B3').value).toBe(2);
+			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			await machine.stop();
 		});
 	});
