@@ -253,16 +253,16 @@ const createByName = () => {
 				thumb: '#555555'
 			},
 			rangeColors: [
-				'#FF3737',
 				'#00B0F0',
 				'#00FF00',
 				'#FFFF00',
 				'#ED7D31',
-				'#FF0066',
 				'#00CC99',
 				'#FF99FF',
 				'#CCFFCC',
-				'#A5A5A5'
+				'#FF3737',
+				'#A5A5A5',
+				'#FF0066',
 			]
 		};
 		break;
