@@ -10,9 +10,8 @@ class ContinuouslyTrigger extends AbstractStreamSheetTrigger {
 		super(Object.assign(cfg, TYPE_CONF));
 	}
 
-	step(manual) {
-		this.isActive = true;
-		this.trigger(manual);
+	step(/* manual */) {
+		this.trigger();
 	}
 }
 

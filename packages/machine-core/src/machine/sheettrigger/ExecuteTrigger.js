@@ -29,7 +29,6 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 	}
 
 	execute(repetitions, callingSheet) {
-		this.isActive = true;
 		this._repetitions = Math.max(1, repetitions);
 		this._callingSheet = callingSheet;
 		if (this.isEndless) callingSheet.pauseProcessing();
