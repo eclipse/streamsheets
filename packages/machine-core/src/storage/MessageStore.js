@@ -20,7 +20,7 @@ const getStoreLocation = async (storeId) => {
 	return location;
 };
 
-const messageFromJSON = (json) => (json ? Message.fromJSON(json) : undefined);
+const messageFromJSON = (json) => (json ? Message.fromJSON(JSON.parse(json)) : undefined);
 const returnTrue = () => true;
 const logError = (msg, returnValue = false) => (error) => {
 	logger.error(msg, error);
@@ -93,13 +93,13 @@ class MessageStore {
 
 	async add(message) {
 		return this.rocksdb
-			.put(message.id, message.toJSON())
+			.put(message.id, JSON.stringify(message.toJSON()))
 			.then(this.incSize)
 			.catch(logError('Failed to add message to message store!'));
 	}
 	async update(message) {
 		return this.rocksdb
-			.put(message.id, message.toJSON())
+			.put(message.id, JSON.stringify(message.toJSON()))
 			.then(returnTrue)
 			.catch(logError('Failed to update message in message store!'));
 	}
