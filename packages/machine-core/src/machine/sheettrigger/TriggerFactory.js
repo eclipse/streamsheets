@@ -2,6 +2,7 @@ const ContinuouslyTrigger = require('./ContinuouslyTrigger');
 const ExecuteTrigger = require('./ExecuteTrigger');
 const MachineTrigger = require('./MachineTrigger');
 const NeverTrigger = require('./NeverTrigger');
+const TimerTrigger = require('./TimerTrigger');
 
 const TYPE = {
 	ARRIVAL: 'arrival',
@@ -11,8 +12,8 @@ const TYPE = {
 	MACHINE_STARTSTOP: MachineTrigger.TYPE_STARTSTOP,
 	MACHINE_STOP: MachineTrigger.TYPE_STOP,
 	NONE: NeverTrigger.TYPE,
-	RANDOM: 'random',
-	TIMER: 'time',
+	RANDOM: TimerTrigger.TYPE_RANDOM,
+	TIMER: TimerTrigger.TYPE_TIME,
 	// currently for debugging purpose only
 	ONCE: 'once',
 	ALWAYS: 'always'
@@ -35,6 +36,10 @@ const TriggerFactory = {
 				break;
 			case TYPE.NONE:
 				trigger = new NeverTrigger(config);
+				break;
+			case TYPE.RANDOM:
+			case TYPE.TIMER:
+				trigger = new TimerTrigger(config);
 				break;
 			default:
 				trigger = new NeverTrigger(config);
