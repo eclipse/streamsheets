@@ -1541,21 +1541,21 @@ describe('ExecuteTrigger', () => {
 		it('should be possible to save trigger settings to JSON', () => {
 			let json = new ExecuteTrigger().toJSON();
 			expect(json).toBeDefined();
-			expect(json.type).toBe(TriggerFactory.TYPE.EXECUTE);
+			expect(json.type).toBe(ExecuteTrigger.TYPE);
 			expect(json.repeat).toBe('once');
 			json = new ExecuteTrigger({ repeat: 'endless' }).toJSON();
 			expect(json).toBeDefined();
-			expect(json.type).toBe(TriggerFactory.TYPE.EXECUTE);
+			expect(json.type).toBe(ExecuteTrigger.TYPE);
 			expect(json.repeat).toBe('endless');
 		});
 		it('should be possible to restore trigger from JSON', () => {
 			let trigger = TriggerFactory.create(new ExecuteTrigger().toJSON());
 			expect(trigger).toBeDefined();
-			expect(trigger.type).toBe(TriggerFactory.TYPE.EXECUTE);
+			expect(trigger.type).toBe(ExecuteTrigger.TYPE);
 			expect(trigger.isEndless).toBe(false);
 			trigger = TriggerFactory.create(new ExecuteTrigger({ repeat: 'endless' }).toJSON());
 			expect(trigger).toBeDefined();
-			expect(trigger.type).toBe(TriggerFactory.TYPE.EXECUTE);
+			expect(trigger.type).toBe(ExecuteTrigger.TYPE);
 			expect(trigger.isEndless).toBe(true);
 		});
 	});

@@ -700,21 +700,21 @@ describe('ContinuouslyTrigger', () => {
 		it('should be possible to save trigger settings to JSON', () => {
 			let json = new ContinuouslyTrigger().toJSON();
 			expect(json).toBeDefined();
-			expect(json.type).toBe(TriggerFactory.TYPE.CONTINUOUSLY);
+			expect(json.type).toBe(ContinuouslyTrigger.TYPE);
 			expect(json.repeat).toBe('once');
 			json = new ContinuouslyTrigger({ repeat: 'endless' }).toJSON();
 			expect(json).toBeDefined();
-			expect(json.type).toBe(TriggerFactory.TYPE.CONTINUOUSLY);
+			expect(json.type).toBe(ContinuouslyTrigger.TYPE);
 			expect(json.repeat).toBe('endless');
 		});
 		it('should be possible to restore trigger from JSON', () => {
 			let trigger = TriggerFactory.create(new ContinuouslyTrigger().toJSON());
 			expect(trigger).toBeDefined();
-			expect(trigger.type).toBe(TriggerFactory.TYPE.CONTINUOUSLY);
+			expect(trigger.type).toBe(ContinuouslyTrigger.TYPE);
 			expect(trigger.isEndless).toBe(false);
 			trigger = TriggerFactory.create(new ContinuouslyTrigger({ repeat: 'endless' }).toJSON());
 			expect(trigger).toBeDefined();
-			expect(trigger.type).toBe(TriggerFactory.TYPE.CONTINUOUSLY);
+			expect(trigger.type).toBe(ContinuouslyTrigger.TYPE);
 			expect(trigger.isEndless).toBe(true);
 		});
 	});
