@@ -41,6 +41,9 @@ const createDefault = () => {
 					colorDefault: {
 						backgroundColor: 'white'
 					},
+					colorEdit: {
+						backgroundColor: 'white'
+					},
 				},
 				MuiPaper: {
 					root: {
@@ -142,6 +145,9 @@ const createDark = () => {
 					},
 					colorDefault: {
 						backgroundColor: '#212121'
+					},
+					colorEdit: {
+						backgroundColor: '#35373b'
 					},
 				},
 				MuiPaper: {
@@ -247,16 +253,16 @@ const createByName = () => {
 				thumb: '#555555'
 			},
 			rangeColors: [
-				'#d5d5ef',
-				'#efc8d6',
-				'#bae0aa',
-				'#e2aa8a',
-				'#72c2d4',
-				'#cba4d7',
-				'#85deb4',
-				'#f6d8cc',
-				'#fabb69',
-				'#b4cccf'
+				'#00B0F0',
+				'#00FF00',
+				'#FFFF00',
+				'#ED7D31',
+				'#00CC99',
+				'#FF99FF',
+				'#CCFFCC',
+				'#FF3737',
+				'#A5A5A5',
+				'#FF0066',
 			]
 		};
 		break;
