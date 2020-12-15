@@ -517,6 +517,7 @@ export class EditBarComponent extends Component {
 				color="default"
 				tabIndex="-1"
 				style={{
+					backgroundColor: this.props.theme.overrides.MuiAppBar.colorEdit.backgroundColor,
 					position: 'relative',
 					margin: 0,
 					fontSize: '9pt',
@@ -586,7 +587,7 @@ export class EditBarComponent extends Component {
 						borderLeft: '1px solid #AAAAAA',
 						borderBottom: '1px solid #AAAAAA',
 						minHeight: '17px',
-						backgroundColor: this.props.theme.overrides.MuiAppBar.colorDefault.backgroundColor,
+						backgroundColor: this.props.theme.overrides.MuiAppBar.colorEdit.backgroundColor,
 						maxHeight: '200px',
 						overflowY: 'auto',
 						verticalAlign: 'top',

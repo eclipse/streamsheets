@@ -41,6 +41,9 @@ const createDefault = () => {
 					colorDefault: {
 						backgroundColor: 'white'
 					},
+					colorEdit: {
+						backgroundColor: 'white'
+					},
 				},
 				MuiPaper: {
 					root: {
@@ -142,6 +145,9 @@ const createDark = () => {
 					},
 					colorDefault: {
 						backgroundColor: '#212121'
+					},
+					colorEdit: {
+						backgroundColor: '#35373b'
 					},
 				},
 				MuiPaper: {
