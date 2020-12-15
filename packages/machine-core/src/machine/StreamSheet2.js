@@ -1,6 +1,6 @@
 const StreamSheet = require('./StreamSheet');
 const SheetProcessor2 = require('./SheetProcessor2');
-const StreamSheetTrigger = require('./StreamSheetTrigger');
+const TriggerFactory = require('./sheettrigger/TriggerFactory');
 
 
 class StreamSheet2 extends StreamSheet {
@@ -21,6 +21,7 @@ class StreamSheet2 extends StreamSheet {
 		return this._trigger;
 	}
 	set trigger(trigger) {
+		if (!trigger) trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.NONE });
 		if (this._trigger) {
 			// same trigger but with maybe different setting...
 			if (this._trigger.type === trigger.type) trigger.isActive = this._trigger.isActive;
@@ -34,7 +35,7 @@ class StreamSheet2 extends StreamSheet {
 
 	// called by sheet functions:
 	execute(message, repetitions, callingSheet) {
-		if (this.trigger.type === StreamSheetTrigger.TYPE.EXECUTE) {
+		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
 			// attach message?
 			if (message) this._attachExecuteMessage(message);
 			this.trigger.execute(repetitions, callingSheet);
@@ -43,7 +44,7 @@ class StreamSheet2 extends StreamSheet {
 		return false;
 	}
 	cancelExecute() {
-		if (this.trigger.type === StreamSheetTrigger.TYPE.EXECUTE) this.trigger.cancelExecute();
+		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) this.trigger.cancelExecute();
 	}
 	stopProcessing(retval) {
 		this.trigger.stopProcessing(retval);
