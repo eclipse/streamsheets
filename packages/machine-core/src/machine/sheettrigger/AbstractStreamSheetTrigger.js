@@ -21,6 +21,8 @@ class AbstractStreamSheetTrigger {
 	// review TICKETS:
 	// DL-654
 	// DL-531: reset repeat-steps on first cycle...
+	// DL-2241
+	// DL-2467
 
 	constructor(config = {}) {
 		this.config = Object.assign({}, DEF_CONF, config);
@@ -63,7 +65,7 @@ class AbstractStreamSheetTrigger {
 	// called by streamsheet. signals that it will be removed. trigger should perform clean up here...
 	dispose() {
 		if (this.sheet.isPaused) this.resumeProcessing();
-		this.stopProcessing();
+		this.stopProcessing(undefined, true);
 		this._streamsheet = undefined;
 	}
 
@@ -98,8 +100,8 @@ class AbstractStreamSheetTrigger {
 		if (!onUpdate) this.sheet.stopProcessing();
 		return true;
 	}
-	stopProcessing(retval) {
-		this.stop();
+	stopProcessing(retval, onDispose) {
+		this.stop(onDispose);
 		this.sheet.stopProcessing(retval);
 	}
 	pauseProcessing() {
@@ -117,7 +119,7 @@ class AbstractStreamSheetTrigger {
 	}
 	step(/* manual */) {}
 	postStep(/* manual */) {
-		// this.isResumed = false;
+		this.isManualStep = false;
 	}
 
 	_startRepeat() {
@@ -131,7 +133,7 @@ class AbstractStreamSheetTrigger {
 		this.doRepeatStep();
 	}
 	trigger() {
-		// this.isActive = true;
+		this.isActive = true;
 		if (!this.isResumed && this._stepId == null && !this.sheet.isPaused) {
 			if (!this.isManualStep && this.isEndless) this._startRepeat();
 			else this.doCycleStep();
