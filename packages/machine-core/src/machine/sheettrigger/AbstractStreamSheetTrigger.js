@@ -93,15 +93,15 @@ class AbstractStreamSheetTrigger {
 	start() {
 		// reset stats?
 	}
-	// TODO: remove onUpdate flag
-	stop(onUpdate) {
+	// TODO: remove all passed flags!!!
+	stop(onUpdate, onProcessing) {
 		clearTrigger(this);
 		this.isActive = false;
 		if (!onUpdate) this.sheet.stopProcessing();
 		return true;
 	}
 	stopProcessing(retval, onDispose) {
-		this.stop(onDispose);
+		this.stop(onDispose, true);
 		this.sheet.stopProcessing(retval);
 	}
 	pauseProcessing() {
