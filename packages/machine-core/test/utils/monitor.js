@@ -68,6 +68,13 @@ const monitorStreamSheet = (streamsheet) => {
 				};
 			});
 		},
+		isAtRepeatStep: (step) => {
+			return new Promise((resolve) => {
+				stepMonitor.onStep = () => {
+					if (streamsheet.stats.repeatsteps >= step) resolve();
+				};
+			});
+		}
 		// nextSteps: (steps = 1) => {
 		// 	lastCycleSteps = streamsheet.stats.steps;
 		// 	return new Promise((resolve) => {
