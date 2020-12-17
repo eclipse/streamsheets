@@ -112,6 +112,7 @@ class StreamSheet {
 		// init:
 		this._state = State.ACTIVE;
 		this._prevstate = State.ACTIVE;
+		this._trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.NONE });
 		this._applyConfig(config);
 		// init & register callbacks:
 		this.onInboxPop = this.onInboxPop.bind(this);

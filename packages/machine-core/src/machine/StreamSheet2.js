@@ -15,6 +15,7 @@ class StreamSheet2 extends StreamSheet {
 		super(conf);
 		// exchange sheet processor:
 		this.sheet.processor = new SheetProcessor2(this.sheet);
+		this.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 	}
 
 	get trigger() {
@@ -22,14 +23,31 @@ class StreamSheet2 extends StreamSheet {
 	}
 	set trigger(trigger) {
 		if (!trigger) trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.NONE });
-		if (this._trigger) {
+		if (trigger.type === this._trigger.type) {
+			// simply update settings:
+			this._trigger.update(trigger.config);
 			// same trigger but with maybe different setting...
-			if (this._trigger.type === trigger.type) trigger.isActive = this._trigger.isActive;
+			// if (this._trigger.type === trigger.type) trigger.isActive = this._trigger.isActive;
+			// this._trigger.dispose();
+		} else {
 			this._trigger.dispose();
+			// register new trigger:
+			this._trigger = trigger;
+			this._trigger.streamsheet = this;
 		}
-		// register new trigger:
-		this._trigger = trigger;
-		this._trigger.streamsheet = this;
+	}
+
+	hasNewMessage() {
+		return this.inbox.size > 1 || !this._msgHandler.isProcessed;
+		// const isEmpty = this.inbox.size <= 1;
+		// const hasMessage = !!this._msgHandler.message;
+		// const isProcessed = this._msgHandler.isProcessed;
+		// return this.inbox.size > 1 || !isProcessed; // || (!this.inbox.isEmpty() && !this._msgHandler.message);
+		// return !this.inbox.isEmpty() && (!isEmpty || !hasMessage || !isProcessed);
+		// NOTE: no message, means we will use next message if inbox is not empty!
+		// return (
+		// 	!this.inbox.isEmpty() && (this.inbox.size > 1 || !this._msgHandler.message || !this._msgHandler.isProcessed)
+		// );
 	}
 
 
@@ -92,7 +110,7 @@ class StreamSheet2 extends StreamSheet {
 
 	// TODO: think .. - replace with pre-/postTriggerStep (willTrigger, didTrigger or similar)
 	triggerStep() {
-		if (this.sheet.isReady || this.sheet.isProcessed) this._attachMessage2();
+		if (this.sheet.isReady || this.sheet.isProcessed) this._attachMessage3();
 		const result = this.sheet.startProcessing();
 		if (this.sheet.isProcessed) {
 			// on endless we reuse message
@@ -117,6 +135,27 @@ class StreamSheet2 extends StreamSheet {
 				this._emitMessageEvent('message_attached', newMessage);
 			}
 		}
+	}
+	_attachMessage3(message) {
+		if (this._msgHandler.isProcessed) {
+			const currmsg = this._msgHandler.message;
+			if (currmsg) {
+				if (currmsg === message) {
+					this._msgHandler.reset();
+				} else if (this.inbox.size > 1) {
+					this.inbox.pop(currmsg.id);
+					this._msgHandler.message = undefined;
+				}
+			}
+		}
+		if (!this._msgHandler.message) {
+			this._attachMessage4(message || this.inbox.peek());
+		}
+	}
+	_attachMessage4(message) {
+		this.stats.messages += message ? 1 : 0;
+		this._msgHandler.message = message;
+		this._emitMessageEvent('message_attached', message);
 	}
 	_attachExecuteMessage(message) {
 		// attach or reuse:
