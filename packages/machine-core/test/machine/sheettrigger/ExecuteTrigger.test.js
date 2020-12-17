@@ -569,13 +569,14 @@ describe('ExecuteTrigger', () => {
 			const s2b2 = s2.sheet.cellAt('B2').value;
 			// await wait(20);
 			await machineMonitor.nextSteps(2);
-			expect(s1.sheet.cellAt('A3').value).toBe(2);
+			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B2').value).toBeGreaterThan(s2b2);
 			await machineMonitor.nextSteps(2);
-			expect(s1.sheet.cellAt('A3').value).toBe(2);
+			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			await machine.stop();
 		});
-		it('should resume on "repeat until.." if new trigger is set and sheet is paused by function', async () => {
+		// it('should resume on "repeat until.." if new trigger is set and sheet is paused by function', async () => {
+		it('should have no effect if new trigger has same settings in "repeat until..." mode and sheet is paused by function', async () => {
 			const { machine, s1, s2 } = setup();
 			const machineMonitor = monitorMachine(machine);
 			const newTrigger = new ExecuteTrigger({ repeat: 'endless' });
@@ -590,12 +591,9 @@ describe('ExecuteTrigger', () => {
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B3').value).toBe(1);
 			s2.trigger = newTrigger;
-			await machineMonitor.nextSteps(1);
-			expect(s2.sheet.cellAt('B3').value).toBe(2);
-			expect(s1.sheet.cellAt('A3').value).toBe(2);
-			await machineMonitor.nextSteps(2);
-			expect(s2.sheet.cellAt('B3').value).toBe(2);
-			expect(s1.sheet.cellAt('A3').value).toBe(2);
+			await machineMonitor.nextSteps(3);
+			expect(s2.sheet.cellAt('B3').value).toBe(1);
+			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			await machine.stop();
 		});
 	});

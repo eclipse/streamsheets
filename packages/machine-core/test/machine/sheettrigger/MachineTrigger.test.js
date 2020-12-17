@@ -113,7 +113,7 @@ describe('MachineTrigger', () => {
 				expect(s1.trigger).toBeDefined();
 				expect(s1.trigger.type).toBe(NeverTrigger.TYPE);
 			});
-			it('should trigger new calculation if machine runs already', async () => {
+			it('should have no effect setting same trigger again', async () => {
 				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_START });
 				const machineMonitor = monitorMachine(machine);
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -122,7 +122,7 @@ describe('MachineTrigger', () => {
 				expect(s1.sheet.cellAt('A1').value).toBe(2);
 				s1.trigger = new MachineTrigger({ type: MachineTrigger.TYPE_START });
 				await machineMonitor.nextSteps(2)
-				expect(s1.sheet.cellAt('A1').value).toBe(3);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
 				await machine.stop();
 			});
 			it('should trigger new calculation if machine runs already in endless mode', async () => {

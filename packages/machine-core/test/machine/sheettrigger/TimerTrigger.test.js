@@ -8,8 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { Machine, StreamSheet2, TimerTrigger, TriggerFactory } = require('../../..');
-const { createCellAt, wait } = require('../../utils');
+const { ContinuouslyTrigger, Machine, StreamSheet2, TimerTrigger, TriggerFactory } = require('../../..');
+const { createCellAt, wait, monitorStreamSheet } = require('../../utils');
 
 const setup = (triggerConfig = {}) => {
 	const machine = new Machine();
@@ -112,11 +112,54 @@ describe('TimerTrigger', () => {
 			});
 		});
 		describe('update trigger', () => {
-			it('should stop interval', () => {
-
+			it('should stop interval if another trigger is set', async () => {
+				const { machine, s1 } = setup({ type: TimerTrigger.TYPE_TIME, interval: 50 });
+				const monitorS1 = monitorStreamSheet(s1);
+				const newTrigger = new ContinuouslyTrigger();
+				machine.cycletime = 5000;
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.start();
+				await monitorS1.isAtStep(3)
+				expect(s1.sheet.cellAt('A1').value).toBe(4);
+				s1.trigger = newTrigger;
+				await wait(100);
+				// still at 4
+				expect(s1.sheet.cellAt('A1').value).toBe(4);
+				// increase machine cycle:
+				machine.cycletime = 10;
+				await wait(100);
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(4);
 			});
-			it('should resume endless at new interval', () => {
-
+			it('should stop interval in "repeat until..." if new trigger is set', async () => {
+				const { machine, s1 } = setup({ type: TimerTrigger.TYPE_TIME, interval: 5000, repeat: 'endless' });
+				const newTrigger = new ContinuouslyTrigger();
+				machine.cycletime = 5000;
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.start();
+				await wait(50);
+				expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(3);
+				s1.trigger = newTrigger;
+				const s1a1 = s1.sheet.cellAt('A1').value;
+				await wait(50);
+				expect(s1.sheet.cellAt('A1').value).toBe(s1a1);
+				await machine.stop();
+			});
+			it('should apply new interval', async () => {
+				const { machine, s1 } = setup({ type: TimerTrigger.TYPE_TIME, interval: 10000 });
+				machine.cycletime = 5000;
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.start();
+				await wait(100);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
+				// update trigger interval
+				s1.trigger.update({ interval: 10 });
+				await wait(100);
+				expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(2);
+				await machine.stop();
 			});
 		});
 		describe('serialize', () => {

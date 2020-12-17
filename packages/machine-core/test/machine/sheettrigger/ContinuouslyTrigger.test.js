@@ -365,7 +365,7 @@ describe('ContinuouslyTrigger', () => {
 			expect(s1.stats.repeatsteps).toBeGreaterThan(repeatsteps);
 			await machine.stop();
 		});
-		it('should pause after resume from "repeat until..." if new trigger is set and sheet is paused by function', async () => {
+		it('should have no effect setting a trigger with same settings in "repeat until..." mode and sheet is paused by function', async () => {
 			const { machine, s1 } = setup();
 			const machineMonitor = monitorMachine(machine);
 			const newTrigger = new ContinuouslyTrigger({ repeat: 'endless' });
@@ -379,12 +379,12 @@ describe('ContinuouslyTrigger', () => {
 			expect(s1.stats.repeatsteps).toBe(0);
 			s1.trigger = newTrigger;
 			await machineMonitor.nextSteps(2);
-			expect(s1.sheet.cellAt('A1').value).toBe(3);
-			expect(s1.stats.repeatsteps).toBe(2);
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.stats.repeatsteps).toBe(0);
 			await machineMonitor.nextSteps(2);
 			await machine.pause();
 			expect(s1.stats.steps).toBe(1);
-			expect(s1.stats.repeatsteps).toBe(2);
+			expect(s1.stats.repeatsteps).toBe(0);
 			await machine.stop();
 		});
 	});
