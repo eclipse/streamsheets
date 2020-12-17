@@ -19,10 +19,12 @@ const DEF_CONF = {
 // base trigger
 class AbstractStreamSheetTrigger {
 	// review TICKETS:
-	// DL-654
+	// DL-508
 	// DL-531: reset repeat-steps on first cycle...
+	// DL-654
 	// DL-2241
 	// DL-2467
+	// DL-3709
 
 	constructor(config = {}) {
 		this.config = Object.assign({}, DEF_CONF, config);

@@ -31,7 +31,7 @@ const clearTriggerInterval = (trigger) => {
 };
 const registerTriggerInterval = (trigger, timeout = 1) => {
 	clearTriggerInterval(trigger);
-	// trigger._intervalId = setInterval(trigger._repeatStep, getInterval(trigger.config));
+	// setInterval doesn't work well with random, so use setTimeout
 	trigger._intervalId = setTimeout(trigger._intervalTrigger, timeout);
 };
 
@@ -43,7 +43,6 @@ const TIMER_DEF = {
 
 
 class TimerTrigger extends AbstractStreamSheetTrigger {
-	// call registered callback on given interval and with random distributed ticks
 	constructor(config) {
 		super(Object.assign({}, TIMER_DEF, config));
 		this._intervalId = undefined;
@@ -51,8 +50,10 @@ class TimerTrigger extends AbstractStreamSheetTrigger {
 	}
 
 	update(config = {}) {
+		const oldInterval = getInterval(this.config);
 		Object.assign(this.config, config);
-		this.startTrigger = config.start;
+		const newInterval = getInterval(this.config);
+		if (newInterval !== oldInterval) registerTriggerInterval(this, newInterval);
 	}
 
 	get interval() {

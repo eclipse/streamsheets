@@ -1,0 +1,123 @@
+const State = require('../../State');
+const AbstractStreamSheetTrigger = require('./AbstractStreamSheetTrigger');
+
+
+const clearTrigger = (trigger) => {
+	if (trigger._triggerId != null) {
+		clearImmediate(trigger._triggerId);
+		trigger._triggerId = undefined;
+	}
+};
+const unsubscribe = (streamsheet, trigger) => {
+	clearTrigger(trigger);
+	if (streamsheet) {
+		streamsheet.inbox.off('message_put', trigger._onMessagePut);
+		// some tests use streamsheet without machine
+		// if (streamsheet.machine) streamsheet.machine.off('didStart', trigger.triggerStep);
+	}
+};
+const subscribe = (streamsheet, trigger) => {
+	if (streamsheet) {
+		streamsheet.inbox.on('message_put', trigger._onMessagePut);
+		// some tests use streamsheet without machine
+		// if (streamsheet.machine) streamsheet.machine.on('didStart', this.triggerStep);
+	}
+	return streamsheet;
+};
+
+
+const TYPE_CONF = Object.freeze({ type: 'arrival' });
+
+class OnMessageTrigger extends AbstractStreamSheetTrigger {
+	static get TYPE() {
+		return TYPE_CONF.type;
+	}
+
+	constructor(cfg = {}) {
+		super(Object.assign(cfg, TYPE_CONF));
+		this._triggerId = undefined;
+		this._inboxTrigger = this._inboxTrigger.bind(this);
+		this._onMessagePut = this._onMessagePut.bind(this);
+	}
+
+	set streamsheet(streamsheet) {
+		unsubscribe(this._streamsheet, this);
+		super.streamsheet = subscribe(streamsheet, this);
+		// start trigger if inbox already has messages...
+		if (streamsheet && !streamsheet.inbox.isEmpty()) this._inboxTrigger();
+	}
+
+
+	dispose() {
+		unsubscribe(this._streamsheet, this);
+		super.dispose();
+	}
+
+	resume() {
+		if (!this._streamsheet.inbox.isEmpty()) this._inboxTrigger();
+	}
+	start() {
+		if (!this._streamsheet.inbox.isEmpty()) this._inboxTrigger();
+	}
+	step(manual) {
+		if (manual) this.trigger();
+	}
+
+	_onMessagePut() {
+		// ignore if we are in our own step cycle or in endless mode (since it uses always current message)...
+		if (!this._triggerId && (!this.isEndless || this._stepId == null)) {
+			this._triggerId = setImmediate(this._inboxTrigger);
+		}
+	}
+	_inboxTrigger() {
+		const machine = this._streamsheet.machine;
+		this._triggerId = undefined;
+		if (machine.state === State.RUNNING) {
+			this.trigger();
+			// trigger a (fake ;-] ) machine step event because client can handle those...
+			machine.notifyUpdate('step'); // <-- NOTE: this is important for EXECUTE-trigger too!!
+			// (DL-508) endless mode reuse current message => prevent trigger ourselves twice (done by machine-cycle)
+			if (!this.isEndless && this._streamsheet.hasNewMessage()) {
+				this._triggerId = setImmediate(this._inboxTrigger);
+			}
+		}
+	}
+
+	// triggerStep() {
+	// 	this.stepId = undefined;
+	// 	const machine = this._streamsheet.machine;
+	// 	if (machine.state === State.RUNNING) {
+	// 		this._streamsheet.triggerStep();
+	// 		// trigger a (fake ;-] ) machine step event because client can handle those...
+	// 		machine.notifyUpdate('step'); // <-- NOTE: this is important for EXECUTE-trigger too!!
+	// 		// (DL-508) endless mode reuse current message => prevent trigger ourselves twice (done by machine-cycle)
+	// 		if (!this.isEndless && this._streamsheet.hasNewMessage()) {
+	// 			this.stepId = setImmediate(this.triggerStep);
+	// 		}
+	// 	}
+	// }
+
+	// constructor(config) {
+	// 	super(config);
+	// 	this.isFulFilled = false;
+	// 	this.stepId = undefined;
+	// 	this.triggerStep = this.triggerStep.bind(this);
+	// 	this._onMessagePut = this._onMessagePut.bind(this);
+	// }
+
+	// preProcess() {
+	// 	this.isFulFilled = this._streamsheet && this._streamsheet.hasNewMessage();
+	// 	this.isActive = this.isActive || this.isFulFilled;
+	// }
+
+	// isTriggered() {
+	// 	return this.isActive && (this.isFulFilled || this.isEndless);
+	// }
+
+	// postProcess() {
+	// 	this.isFulFilled = false;
+	// }
+
+}
+
+module.exports = OnMessageTrigger;
