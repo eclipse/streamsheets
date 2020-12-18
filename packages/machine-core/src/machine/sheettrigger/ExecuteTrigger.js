@@ -18,12 +18,7 @@ class ExecuteTrigger extends AbstractStreamSheetTrigger {
 
 	preStep(manual) {
 		super.preStep(manual);
-		this._isStopped = false;
-		this._isExecuted = false;
-	}
-	// use did step to support trigger on manual steps
-	postStep(manual) {
-		super.postStep(manual);
+		// init flags:
 		this._isStopped = false;
 		this._isExecuted = false;
 	}
