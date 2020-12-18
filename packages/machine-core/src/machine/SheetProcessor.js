@@ -9,9 +9,12 @@
  *
  ********************************************************************************/
 // col -1 represents IF col.
-const doSkipRow = (cell, col) => col === -1 && cell.isDefined && !cell.value;
+const checkSkipRow = (cell, cursor) => {
+	if (cursor.c === -1 && cell.isDefined && !cell.value) {
+		cursor.changed = true;
+	}
+};
 
-// const cellAt = (cursor, sheet) => {
 const cellAt = (r, c, sheet) => {
 	const row = c < 0 ? sheet._prerows[r] : sheet._rows[r];
 	const col = c < 0 ? Math.abs(c) - 1 : c;
@@ -22,158 +25,119 @@ const startCol = (sheet, rowidx) => {
 	const prerow = sheet._prerows[rowidx];
 	return prerow ? -prerow.length : 0;
 };
-
-const reset = (cursor, sheetsettings) => {
-	cursor.r = sheetsettings.minrow;
-	cursor.c = null;
-	cursor.stop = false;
-	cursor.changed = false;
-	cursor.paused = false;
-	cursor.resumed = false;
-	cursor.finished = false;
+const State = {
+	READY: 1,
+	PAUSED: 4
 };
 
-const newCursor = () => ({
-	r: 0,
-	c: null,
-	stop: false,
-	changed: false,
-	paused: false,
-	resumed: false,
-	finished: false
-});
+class Cursor {
+	constructor(sheet) {
+		this.c = null;
+		this.r = sheet.settings.minrow;
+		this.sheet = sheet;
+		this.changed = false;
+		this.isProcessed = false;
+	}
+
+	reset() {
+		this.c = null;
+		this.r = this.sheet.settings.minrow;
+		this.changed = false;
+		this.isProcessed = false;
+	}
+
+	setToIndex(index) {
+		const row = Math.max(this.sheet.settings.minrow, index.row);
+		// save backward jump => to prevent endless loops!
+		this.isBackward = row < this.r || (index.col < this.c && row === this.r);
+		this.r = row;
+		this.c = index.col;
+		this.changed = true;
+	}
+}
 
 class SheetProcessor {
 	constructor(sheet) {
-		this._sheet = sheet;
-		this._isProcessing = false;
-		this._cursor = newCursor();
-		this._cursor.r = sheet.settings.minrow;
-	}
-
-	get sheet() {
-		return this._sheet;
-	}
-
-	set sheet(sheet) {
-		this._sheet = sheet;
-	}
-
-	// getCurrentCell() {
-	// 	return cellAt(this._cursor.r, this._cursor.c, this._sheet);
-	// }
-
-	start() {
-		let result;
-		if (!this._isProcessing) {
-			this._isProcessing = true;
-			this._process(this.sheet);
-			this._isProcessing = false;
-			({ result } = this._cursor);
-			this._cursor.result = null;
-		}
-		return result;
-	}
-
-	get isFinished() {
-		// stopped by return or completely processed
-		return this._cursor.stop || this._cursor.finished;
+		this._state = State.READY;
+		this._cursor = new Cursor(sheet);
 	}
 
 	get isPaused() {
-		return this._cursor.paused;
+		return this._state === State.PAUSED;
 	}
-
-	get isResumed() {
-		return this._cursor.resumed;
+	get isProcessed() {
+		return this._cursor.isProcessed;
+	}
+	get isReady() {
+		return this._state === State.READY;
+	}
+	
+	continueAt(index) {
+		this._cursor.setToIndex(index);
 	}
 
 	pause() {
-		this._cursor.paused = true;
-		this._cursor.resumed = false;
-	}
-
-	resume() {
-		// we evaluate current cell (which caused pause) again to get its return value!!
-		// this._cursor.c += 1;
-		this._cursor.paused = false;
-		this._cursor.resumed = true;
-	}
-
-	// optional return value
-	stop(retvalue) {
-		// reset cursor on stop to start from beginning...
-		// if (!this._cursor.paused) <-- REVIEW: was this because of return-function in repeat mode??
-		reset(this._cursor, this._sheet.settings);
-		this._isProcessing = false;
-		// mark as changed & stopped to break from inner loop without altering row...
-		this._cursor.stop = true;
+		this._state = State.PAUSED;
 		this._cursor.changed = true;
-		this._cursor.result = retvalue;
+	}
+	resume() {
+		this._state = State.READY;
+		if (this._cursor.c != null) this._cursor.c += 1;
 	}
 
-	_process(sheet) {
+	stop() {
+		this._state = State.READY;
+		this._cursor.r = Number.MAX_SAFE_INTEGER;
+		this._cursor.changed = true;
+		this._cursor.isProcessed = true;
+	}
+	start() {
+		const cursor = this._cursor;
+		const sheet = cursor.sheet;
 		const rows = sheet._rows;
 		// we are neither dynamic in rows, nor in columns to prevent endless for-loops if cells are added permanently
 		const last = rows.length;
-		const cursor = this._cursor;
 		let lastcol = 0;
-		let skipRow = false;
-		cursor.stop = false;
-		cursor.changed = false;
-		cursor.finished = false;
+		if (!this.isPaused && this.isProcessed) {
+			cursor.reset();
+			this._state = State.READY;
+		}
 
-		for (; cursor.r < last && this._isProcessing && !cursor.stop; ) {
+		for (; cursor.r < last && !this.isPaused; ) {
 			const row = rows[cursor.r];
 			lastcol = row ? row.length : 0;
 			cursor.c = cursor.c == null ? startCol(sheet, cursor.r) : cursor.c;
-			for (; cursor.c < lastcol && !cursor.stop; ) {
+			for (; cursor.c < lastcol && !this.isPaused; ) {
 				const cell = cellAt(cursor.r, cursor.c, sheet);
 				if (cell) {
 					cell.evaluate();
-					skipRow = !this._isProcessing || doSkipRow(cell, cursor.c);
+					// should we skip row?
+					checkSkipRow(cell, cursor);
 				}
-				if (cursor.paused) {
-					cursor.stop = true;
-				} else if (cursor.changed) {
-					break; // break from inner for...
-				} else if (skipRow) {
-					cursor.r += 1;
-					cursor.c = null;
-					cursor.changed = true;
-					skipRow = false;
+				 // break from inner column-loop if cursor was changed...
+				if (cursor.changed) break;
+				cursor.c += 1;
+			}
+			if (cursor.changed) {
+				cursor.changed = false;
+				// break from row-loop if paused or if jump backward to prevent endless loop...
+				if (cursor.isBackward || this.isPaused) {
+					cursor.isBackward = false;
 					break;
-				} else {
-					cursor.c += 1;
 				}
 			}
-			// check paused state again, might was set from outside cells (DL-4482)
-			if (cursor.paused) {
-				cursor.stop = true;
-			} else if (!cursor.changed) { // && !cursor.paused) {
-				cursor.r += 1;
-				cursor.c = null;
-			}
-			cursor.changed = false;
+			// move to next row:
+			cursor.r += 1;
+			cursor.c = null;
+			
 		}
-		// reset cursor if sheet is processed completely
-		if (cursor.r >= last) {
-			reset(cursor, sheet.settings);
-			cursor.finished = true;
-		}
+		// on end of sheet
+		cursor.isProcessed = cursor.r >= last; // && (cursor.c == null || cursor.c >= lastcol))) {
 
+		// graph cells:
 		sheet.graphCells.evaluating = true;
 		sheet.graphCells._cells.forEach((cell) => cell.evaluate());
 		sheet.graphCells.evaluating = false;
-	}
-
-	continueAt(index) {
-		const row = Math.max(this._sheet.settings.minrow, index.row);
-		this._cursor.stop = row < this._cursor.r || (index.col < this._cursor.c && row === this._cursor.r);
-		this._cursor.r = row;
-		this._cursor.c = index.col;
-		this._cursor.changed = true;
-		return this._cursor.stop;
 	}
 }
 
