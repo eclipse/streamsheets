@@ -26,8 +26,6 @@ const { ErrorTerm } = require('./src/parser/Error');
 const SheetRange = require('./src/machine/SheetRange');
 const State = require('./src/State');
 const StreamSheet = require('./src/machine/StreamSheet');
-const StreamSheet2 = require('./src/machine/StreamSheet2');
-const StreamSheetTrigger = require('./src/machine/StreamSheetTrigger');
 const sheettriggers = require('./src/machine/sheettrigger');
 const { CellRangeReference, CellReference, referenceFromString } = require('./src/parser/References');
 
@@ -62,8 +60,6 @@ module.exports = {
 	State,
 	Streams,
 	StreamSheet,
-	StreamSheet2,
-	StreamSheetTrigger,
 	isType,
 	locale,
 	referenceFromString,
