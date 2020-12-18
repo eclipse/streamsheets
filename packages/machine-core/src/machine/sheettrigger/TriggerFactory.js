@@ -1,4 +1,4 @@
-const ContinuouslyTrigger = require('./ContinuouslyTrigger');
+const ContinuousTrigger = require('./ContinuousTrigger');
 const ExecuteTrigger = require('./ExecuteTrigger');
 const MachineTrigger = require('./MachineTrigger');
 const NeverTrigger = require('./NeverTrigger');
@@ -7,7 +7,7 @@ const TimerTrigger = require('./TimerTrigger');
 
 const TYPE = {
 	ARRIVAL: OnMessageTrigger.TYPE,
-	CONTINUOUSLY: ContinuouslyTrigger.TYPE,
+	CONTINUOUSLY: ContinuousTrigger.TYPE,
 	EXECUTE: ExecuteTrigger.TYPE,
 	MACHINE_START: MachineTrigger.TYPE_START,
 	MACHINE_STOP: MachineTrigger.TYPE_STOP,
@@ -29,7 +29,7 @@ const TriggerFactory = {
 				trigger = new OnMessageTrigger(config);
 				break;
 			case TYPE.CONTINUOUSLY:
-				trigger = new ContinuouslyTrigger(config);
+				trigger = new ContinuousTrigger(config);
 				break;
 			case TYPE.EXECUTE:
 				trigger = new ExecuteTrigger(config);

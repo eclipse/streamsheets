@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { ContinuouslyTrigger, Machine, StreamSheet2, TimerTrigger, TriggerFactory } = require('../../..');
+const { ContinuousTrigger, Machine, StreamSheet2, TimerTrigger, TriggerFactory } = require('../../..');
 const { createCellAt, wait, monitorStreamSheet } = require('../../utils');
 
 const setup = (triggerConfig = {}) => {
@@ -115,7 +115,7 @@ describe('TimerTrigger', () => {
 			it('should stop interval if another trigger is set', async () => {
 				const { machine, s1 } = setup({ type: TimerTrigger.TYPE_TIME, interval: 50 });
 				const monitorS1 = monitorStreamSheet(s1);
-				const newTrigger = new ContinuouslyTrigger();
+				const newTrigger = new ContinuousTrigger();
 				machine.cycletime = 5000;
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
@@ -134,7 +134,7 @@ describe('TimerTrigger', () => {
 			});
 			it('should stop interval in "repeat until..." if new trigger is set', async () => {
 				const { machine, s1 } = setup({ type: TimerTrigger.TYPE_TIME, interval: 5000, repeat: 'endless' });
-				const newTrigger = new ContinuouslyTrigger();
+				const newTrigger = new ContinuousTrigger();
 				machine.cycletime = 5000;
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				expect(s1.sheet.cellAt('A1').value).toBe(1);

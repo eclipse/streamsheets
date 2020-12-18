@@ -2,7 +2,7 @@ const AbstractStreamSheetTrigger = require('./AbstractStreamSheetTrigger');
 
 const TYPE_CONF = Object.freeze({ type: 'continuously' });
 
-class ContinuouslyTrigger extends AbstractStreamSheetTrigger {
+class ContinuousTrigger extends AbstractStreamSheetTrigger {
 	static get TYPE() {
 		return TYPE_CONF.type;
 	}
@@ -15,4 +15,4 @@ class ContinuouslyTrigger extends AbstractStreamSheetTrigger {
 	}
 }
 
-module.exports = ContinuouslyTrigger;
+module.exports = ContinuousTrigger;

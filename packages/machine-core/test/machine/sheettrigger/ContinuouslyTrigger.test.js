@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { ContinuouslyTrigger, NeverTrigger, Machine, Message, StreamSheet2, TriggerFactory } = require('../../..');
+const { ContinuousTrigger, NeverTrigger, Machine, Message, StreamSheet2, TriggerFactory } = require('../../..');
 const { createCellAt, monitorMachine, monitorStreamSheet, wait } = require('../../utils');
 
 const setup = () => {
@@ -17,10 +17,10 @@ const setup = () => {
 	machine.removeAllStreamSheets();
 	machine.addStreamSheet(s1);
 	machine.cycletime = 50;
-	s1.trigger = new ContinuouslyTrigger();
+	s1.trigger = new ContinuousTrigger();
 	return { machine, s1 };
 };
-describe('ContinuouslyTrigger', () => {
+describe('ContinuousTrigger', () => {
 	describe('general behaviour', () => {
 		it('should process sheet on running machine', async () => {
 			const { machine, s1 } = setup();
@@ -275,7 +275,7 @@ describe('ContinuouslyTrigger', () => {
 			const { machine, s1 } = setup();
 			const s2 = new StreamSheet2({ name: 'S2' });
 			machine.addStreamSheet(s2);
-			s2.trigger = new ContinuouslyTrigger();
+			s2.trigger = new ContinuousTrigger();
 			// s2 will never return!
 			s2.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -321,7 +321,7 @@ describe('ContinuouslyTrigger', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			await machine.start();
 			await wait(20);
-			s1.trigger = new ContinuouslyTrigger();
+			s1.trigger = new ContinuousTrigger();
 			await wait(70);
 			expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(3);
 			await machine.stop();
@@ -344,7 +344,7 @@ describe('ContinuouslyTrigger', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			await machine.start();
 			await wait(10);
-			s1.trigger = new ContinuouslyTrigger();
+			s1.trigger = new ContinuousTrigger();
 			const repeatsteps = s1.stats.repeatsteps;
 			await wait(20);
 			expect(s1.stats.repeatsteps).toBe(repeatsteps);
@@ -353,7 +353,7 @@ describe('ContinuouslyTrigger', () => {
 		it('should keep "repeat until..." if new trigger is set with same settings', async () => {
 			const { machine, s1 } = setup();
 			const machineMonitor = monitorMachine(machine);
-			const newTrigger = new ContinuouslyTrigger({ repeat: 'endless' });
+			const newTrigger = new ContinuousTrigger({ repeat: 'endless' });
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
@@ -368,7 +368,7 @@ describe('ContinuouslyTrigger', () => {
 		it('should have no effect setting a trigger with same settings in "repeat until..." mode and sheet is paused by function', async () => {
 			const { machine, s1 } = setup();
 			const machineMonitor = monitorMachine(machine);
-			const newTrigger = new ContinuouslyTrigger({ repeat: 'endless' });
+			const newTrigger = new ContinuousTrigger({ repeat: 'endless' });
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
@@ -698,23 +698,23 @@ describe('ContinuouslyTrigger', () => {
 	});
 	describe('serialize', () => {
 		it('should be possible to save trigger settings to JSON', () => {
-			let json = new ContinuouslyTrigger().toJSON();
+			let json = new ContinuousTrigger().toJSON();
 			expect(json).toBeDefined();
-			expect(json.type).toBe(ContinuouslyTrigger.TYPE);
+			expect(json.type).toBe(ContinuousTrigger.TYPE);
 			expect(json.repeat).toBe('once');
-			json = new ContinuouslyTrigger({ repeat: 'endless' }).toJSON();
+			json = new ContinuousTrigger({ repeat: 'endless' }).toJSON();
 			expect(json).toBeDefined();
-			expect(json.type).toBe(ContinuouslyTrigger.TYPE);
+			expect(json.type).toBe(ContinuousTrigger.TYPE);
 			expect(json.repeat).toBe('endless');
 		});
 		it('should be possible to restore trigger from JSON', () => {
-			let trigger = TriggerFactory.create(new ContinuouslyTrigger().toJSON());
+			let trigger = TriggerFactory.create(new ContinuousTrigger().toJSON());
 			expect(trigger).toBeDefined();
-			expect(trigger.type).toBe(ContinuouslyTrigger.TYPE);
+			expect(trigger.type).toBe(ContinuousTrigger.TYPE);
 			expect(trigger.isEndless).toBe(false);
-			trigger = TriggerFactory.create(new ContinuouslyTrigger({ repeat: 'endless' }).toJSON());
+			trigger = TriggerFactory.create(new ContinuousTrigger({ repeat: 'endless' }).toJSON());
 			expect(trigger).toBeDefined();
-			expect(trigger.type).toBe(ContinuouslyTrigger.TYPE);
+			expect(trigger.type).toBe(ContinuousTrigger.TYPE);
 			expect(trigger.isEndless).toBe(true);
 		});
 	});

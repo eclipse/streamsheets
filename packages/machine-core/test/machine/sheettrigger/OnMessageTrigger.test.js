@@ -8,9 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { OnMessageTrigger, StreamSheet, StreamSheetTrigger } = require('../../..');
-const { ContinuouslyTrigger, NeverTrigger, Machine, Message, StreamSheet2, TriggerFactory } = require('../../..');
-const { createCellAt, monitorMachine, monitorStreamSheet, wait } = require('../../utils');
+const { ContinuousTrigger, Machine, Message, OnMessageTrigger, StreamSheet2, TriggerFactory } = require('../../..');
+const { createCellAt, monitorStreamSheet, wait } = require('../../utils');
 
 const putMessages = (streamsheet, ...messages) => messages.forEach(message => streamsheet.inbox.put(message));
 
@@ -173,7 +172,7 @@ describe('OnMessageTrigger', () => {
 		it('should stop message processing if another trigger is set', async () => {
 			const { machine, s1 } = setup();
 			const monitorS1 = monitorStreamSheet(s1);
-			const newTrigger = new ContinuouslyTrigger();
+			const newTrigger = new ContinuousTrigger();
 			const messages = Array.from({ length: 20 }, () => new Message());
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
@@ -193,7 +192,7 @@ describe('OnMessageTrigger', () => {
 		it('should stop message processing in "repeat until..." if new trigger is set', async () => {
 			const { machine, s1 } = setup();
 			const monitorS1 = monitorStreamSheet(s1);
-			const newTrigger = new ContinuouslyTrigger();
+			const newTrigger = new ContinuousTrigger();
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);

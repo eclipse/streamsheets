@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const {
-	ContinuouslyTrigger,
+	ContinuousTrigger,
 	MachineTrigger,
 	NeverTrigger,
 	Machine,
@@ -90,7 +90,7 @@ describe('MachineTrigger', () => {
 			it('should run an added streamsheet with continuously trigger directly if machine runs already', async () => {
 				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
 				const s2 = new StreamSheet2()
-				s2.trigger = new ContinuouslyTrigger(/* { repeat: 'endless' } */);
+				s2.trigger = new ContinuousTrigger(/* { repeat: 'endless' } */);
 				const monitorS2 = monitorStreamSheet(s2);
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
@@ -155,7 +155,7 @@ describe('MachineTrigger', () => {
 				await machineMonitor.nextSteps(2);
 				expect(s1.sheet.cellAt('A1').value).toBe(2);
 				// DL-2241 when switching to continuously it should run directly...
-				s1.trigger = new ContinuouslyTrigger({ repeat: 'endless' });
+				s1.trigger = new ContinuousTrigger({ repeat: 'endless' });
 				await machineMonitor.nextSteps(2);
 				expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(3);
 				s1.trigger = new MachineTrigger({ type: MachineTrigger.TYPE_STOP });
@@ -199,7 +199,7 @@ describe('MachineTrigger', () => {
 				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
 				const s2 = new StreamSheet2()
 				const monitorS2 = monitorStreamSheet(s2);
-				s2.trigger = new ContinuouslyTrigger();
+				s2.trigger = new ContinuousTrigger();
 				machine.addStreamSheet(s2);
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
@@ -232,7 +232,7 @@ describe('MachineTrigger', () => {
 				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
 				const s2 = new StreamSheet2()
 				const s3 = new StreamSheet2()
-				s2.trigger = new ContinuouslyTrigger();
+				s2.trigger = new ContinuousTrigger();
 				s3.trigger = new MachineTrigger({ type: MachineTrigger.TYPE_STOP, repeat: 'endless' });
 				const monitorS2 = monitorStreamSheet(s2);
 				machine.addStreamSheet(s2);

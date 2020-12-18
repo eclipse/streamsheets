@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const {
-	ContinuouslyTrigger,
+	ContinuousTrigger,
 	ExecuteTrigger,
 	Machine,
 	Message,
@@ -29,8 +29,8 @@ const setup = ({ switched = false } = {}) => {
 	const machine = new Machine();
 	const s1 = new StreamSheet2({ name: 'S1' });
 	const s2 = new StreamSheet2({ name: 'S2' });
-	s1.trigger = switched ? new ExecuteTrigger() : new ContinuouslyTrigger();
-	s2.trigger = switched ? new ContinuouslyTrigger() : new ExecuteTrigger();
+	s1.trigger = switched ? new ExecuteTrigger() : new ContinuousTrigger();
+	s2.trigger = switched ? new ContinuousTrigger() : new ExecuteTrigger();
 	machine.removeAllStreamSheets();
 	machine.addStreamSheet(s1);
 	machine.addStreamSheet(s2);
@@ -976,7 +976,7 @@ describe('ExecuteTrigger', () => {
 		});
 		it('should reuse same message on "repeat until..." until return()', async () => {
 			const { machine, s1, s2 } = setup();
-			s1.trigger = new ContinuouslyTrigger();
+			s1.trigger = new ContinuousTrigger();
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'execute("S2")' }, s1.sheet);
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
