@@ -1,8 +1,8 @@
-const AbstractStreamSheetTrigger = require('./AbstractStreamSheetTrigger');
+const AbstractTrigger = require('./AbstractTrigger');
 
 const TYPE_CONF = { type: 'execute' };
 
-class ExecuteTrigger extends AbstractStreamSheetTrigger {
+class ExecuteTrigger extends AbstractTrigger {
 	static get TYPE() {
 		return TYPE_CONF.type;
 	}

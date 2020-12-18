@@ -1,8 +1,8 @@
-const AbstractStreamSheetTrigger = require('./AbstractStreamSheetTrigger');
+const AbstractTrigger = require('./AbstractTrigger');
 
 const TYPE_CONF = Object.freeze({ type: 'continuously' });
 
-class ContinuousTrigger extends AbstractStreamSheetTrigger {
+class ContinuousTrigger extends AbstractTrigger {
 	static get TYPE() {
 		return TYPE_CONF.type;
 	}

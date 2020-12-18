@@ -16,16 +16,7 @@ const DEF_CONF = {
 	repeat: 'once'
 };
 
-// base trigger
-class AbstractStreamSheetTrigger {
-	// review TICKETS:
-	// DL-508
-	// DL-531: reset repeat-steps on first cycle...
-	// DL-654
-	// DL-2241
-	// DL-2467
-	// DL-3709
-
+class AbstractTrigger {
 	constructor(config = {}) {
 		this.config = Object.assign({}, DEF_CONF, config);
 		this.isActive = false;
@@ -99,19 +90,19 @@ class AbstractStreamSheetTrigger {
 	stop(onUpdate, onProcessing) {
 		clearTrigger(this);
 		this.isActive = false;
-		if (!onUpdate) this.sheet.stopProcessing();
+		if (!onUpdate) this.sheet._stopProcessing();
 		return true;
 	}
 	stopProcessing(retval, onDispose) {
 		this.stop(onDispose, true);
-		this.sheet.stopProcessing(retval);
+		this.sheet._stopProcessing(retval);
 	}
 	pauseProcessing() {
-		this.sheet.pauseProcessing();
+		this.sheet._pauseProcessing();
 		this.pause();
 	}
 	resumeProcessing() {
-		this.sheet.resumeProcessing();
+		this.sheet._resumeProcessing();
 		this.resume();
 	}
 
@@ -162,4 +153,4 @@ class AbstractStreamSheetTrigger {
 	postProcess() {}
 }
 
-module.exports = AbstractStreamSheetTrigger;
+module.exports = AbstractTrigger;

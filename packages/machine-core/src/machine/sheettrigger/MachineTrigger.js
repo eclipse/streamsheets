@@ -1,12 +1,12 @@
 const State = require('../../State');
-const AbstractStreamSheetTrigger = require('./AbstractStreamSheetTrigger');
+const AbstractTrigger = require('./AbstractTrigger');
 
 const preventStop = (doIt, streamsheet) => {
 	const machine = streamsheet && streamsheet.machine;
 	if (machine) machine.preventStop = doIt;
 };
 
-class MachineTrigger extends AbstractStreamSheetTrigger {
+class MachineTrigger extends AbstractTrigger {
 	constructor(config) {
 		super(config);
 		this.isStopFulFilled = false;

@@ -1,4 +1,4 @@
-const AbstractStreamSheetTrigger = require('./AbstractStreamSheetTrigger');
+const AbstractTrigger = require('./AbstractTrigger');
 
 const UNITS = {};
 UNITS.ms = 1;
@@ -42,7 +42,7 @@ const TIMER_DEF = {
 };
 
 
-class TimerTrigger extends AbstractStreamSheetTrigger {
+class TimerTrigger extends AbstractTrigger {
 	constructor(config) {
 		super(Object.assign({}, TIMER_DEF, config));
 		this._intervalId = undefined;

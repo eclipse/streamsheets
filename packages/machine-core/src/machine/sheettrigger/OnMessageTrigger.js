@@ -1,5 +1,5 @@
 const State = require('../../State');
-const AbstractStreamSheetTrigger = require('./AbstractStreamSheetTrigger');
+const AbstractTrigger = require('./AbstractTrigger');
 
 
 const clearTrigger = (trigger) => {
@@ -10,25 +10,17 @@ const clearTrigger = (trigger) => {
 };
 const unsubscribe = (streamsheet, trigger) => {
 	clearTrigger(trigger);
-	if (streamsheet) {
-		streamsheet.inbox.off('message_put', trigger._onMessagePut);
-		// some tests use streamsheet without machine
-		// if (streamsheet.machine) streamsheet.machine.off('didStart', trigger.triggerStep);
-	}
+	if (streamsheet) streamsheet.inbox.off('message_put', trigger._onMessagePut);
 };
 const subscribe = (streamsheet, trigger) => {
-	if (streamsheet) {
-		streamsheet.inbox.on('message_put', trigger._onMessagePut);
-		// some tests use streamsheet without machine
-		// if (streamsheet.machine) streamsheet.machine.on('didStart', this.triggerStep);
-	}
+	if (streamsheet) streamsheet.inbox.on('message_put', trigger._onMessagePut);
 	return streamsheet;
 };
 
 
 const TYPE_CONF = Object.freeze({ type: 'arrival' });
 
-class OnMessageTrigger extends AbstractStreamSheetTrigger {
+class OnMessageTrigger extends AbstractTrigger {
 	static get TYPE() {
 		return TYPE_CONF.type;
 	}
@@ -82,42 +74,6 @@ class OnMessageTrigger extends AbstractStreamSheetTrigger {
 			}
 		}
 	}
-
-	// triggerStep() {
-	// 	this.stepId = undefined;
-	// 	const machine = this._streamsheet.machine;
-	// 	if (machine.state === State.RUNNING) {
-	// 		this._streamsheet.triggerStep();
-	// 		// trigger a (fake ;-] ) machine step event because client can handle those...
-	// 		machine.notifyUpdate('step'); // <-- NOTE: this is important for EXECUTE-trigger too!!
-	// 		// (DL-508) endless mode reuse current message => prevent trigger ourselves twice (done by machine-cycle)
-	// 		if (!this.isEndless && this._streamsheet.hasNewMessage()) {
-	// 			this.stepId = setImmediate(this.triggerStep);
-	// 		}
-	// 	}
-	// }
-
-	// constructor(config) {
-	// 	super(config);
-	// 	this.isFulFilled = false;
-	// 	this.stepId = undefined;
-	// 	this.triggerStep = this.triggerStep.bind(this);
-	// 	this._onMessagePut = this._onMessagePut.bind(this);
-	// }
-
-	// preProcess() {
-	// 	this.isFulFilled = this._streamsheet && this._streamsheet.hasNewMessage();
-	// 	this.isActive = this.isActive || this.isFulFilled;
-	// }
-
-	// isTriggered() {
-	// 	return this.isActive && (this.isFulFilled || this.isEndless);
-	// }
-
-	// postProcess() {
-	// 	this.isFulFilled = false;
-	// }
-
 }
 
 module.exports = OnMessageTrigger;
