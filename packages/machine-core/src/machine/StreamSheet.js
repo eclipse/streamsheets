@@ -8,55 +8,55 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const EventEmitter = require('events');
+const IdGenerator = require('@cedalo/id-generator');
+const { Reference } = require('@cedalo/parser');
 const Inbox = require('./Inbox');
 const MessageHandler = require('./MessageHandler');
 const Sheet = require('./Sheet');
 const State = require('../State');
-const StreamSheetTrigger = require('./StreamSheetTrigger');
-const { Reference } = require('@cedalo/parser');
-const EventEmitter = require('events');
-const IdGenerator = require('@cedalo/id-generator');
+const TriggerFactory = require('./sheettrigger/TriggerFactory');
 
-const getMessage = (message, selector, inbox) => {
-	if (selector) {
-		return inbox.find(selector);
-	}
-	if (message && message !== inbox.peek()) {
-		inbox.put(message);
-	}
-	return message;
-};
+// const getMessage = (message, selector, inbox) => {
+// 	if (selector) {
+// 		return inbox.find(selector);
+// 	}
+// 	if (message && message !== inbox.peek()) {
+// 		inbox.put(message);
+// 	}
+// 	return message;
+// };
 
-const setTrigger = (newTrigger, oldTrigger, streamsheet) => {
-	// DL-1482 no trigger might be wanted...
-	newTrigger = newTrigger || StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.NONE });
-	if (oldTrigger) {
-		// DL-1026 trigger settings might changed during running machine => keep previous active if old one was:
-		newTrigger.isActive = newTrigger.type === oldTrigger.type && oldTrigger.isActive;
-		oldTrigger.streamsheet = undefined;
-	}
-	newTrigger.streamsheet = streamsheet;
-	return newTrigger;
-};
+// const setTrigger = (newTrigger, oldTrigger, streamsheet) => {
+// 	// DL-1482 no trigger might be wanted...
+// 	newTrigger = newTrigger || TriggerFactory.create({ type: TriggerFactory.TYPE.NONE });
+// 	if (oldTrigger) {
+// 		// DL-1026 trigger settings might changed during running machine => keep previous active if old one was:
+// 		newTrigger.isActive = newTrigger.type === oldTrigger.type && oldTrigger.isActive;
+// 		oldTrigger.streamsheet = undefined;
+// 	}
+// 	newTrigger.streamsheet = streamsheet;
+// 	return newTrigger;
+// };
 
 // called on doStep()
-const doTrigger = (streamsheet) => {
-	const streamsheetstate = streamsheet._state;
-	// if we have no machine we were removed from it...
-	const machinestate = streamsheet.machine ? streamsheet.machine.state : undefined;
-	if (!machinestate || streamsheetstate === State.PAUSED) {
-		return false;
-	}
-	return (
-		streamsheet._trigger.isTriggered() ||
-		// on RESUMED or REPEAT we allow step without fulfilling trigger...
-		streamsheetstate === State.RESUMED ||
-		streamsheetstate === State.REPEAT ||
-		// DL-565 allow step without fulfilling trigger only for machine-start trigger...
-		((machinestate === State.STOPPED || machinestate === State.PAUSED) &&
-			streamsheet._trigger.type === StreamSheetTrigger.TYPE.MACHINE_START)
-	);
-};
+// const doTrigger = (streamsheet) => {
+// 	const streamsheetstate = streamsheet._state;
+// 	// if we have no machine we were removed from it...
+// 	const machinestate = streamsheet.machine ? streamsheet.machine.state : undefined;
+// 	if (!machinestate || streamsheetstate === State.PAUSED) {
+// 		return false;
+// 	}
+// 	return (
+// 		streamsheet._trigger.isTriggered() ||
+// 		// on RESUMED or REPEAT we allow step without fulfilling trigger...
+// 		streamsheetstate === State.RESUMED ||
+// 		streamsheetstate === State.REPEAT ||
+// 		// DL-565 allow step without fulfilling trigger only for machine-start trigger...
+// 		((machinestate === State.STOPPED || machinestate === State.PAUSED) &&
+// 			streamsheet._trigger.type === TriggerFactory.TYPE.MACHINE_START)
+// 	);
+// };
 
 // TODO remove!! just to support old commands which send preferences property....
 const valueOr = (value, defval) => (value != null ? value : defval);
@@ -79,8 +79,10 @@ const DEF_CONF = () => ({
 		/* to be defined in inbox */
 	},
 	trigger: {
-		type: StreamSheetTrigger.TYPE.MACHINE_START,
-		repeat: 'endless' // 'once'
+		type: TriggerFactory.TYPE.CONTINUOUSLY,
+		repeat: 'once'
+		// type: TriggerFactory.TYPE.MACHINE_START,
+		// repeat: 'endless' // 'once'
 		/* ... additional properties  to be defined per trigger instance */
 	},
 	loop: {
@@ -112,7 +114,7 @@ class StreamSheet {
 		// init:
 		this._state = State.ACTIVE;
 		this._prevstate = State.ACTIVE;
-		this._trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.NONE });
+		// this._trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.NONE });
 		this._applyConfig(config);
 		// init & register callbacks:
 		this.onInboxPop = this.onInboxPop.bind(this);
@@ -143,7 +145,7 @@ class StreamSheet {
 		this.name = config.name;
 		this._machine = machine;
 		this._msgHandler = new MessageHandler(config.loop);
-		this.trigger = StreamSheetTrigger.create(config.trigger);
+		this.trigger = TriggerFactory.create(config.trigger);
 	}
 
 	load(conf, machine) {
@@ -211,25 +213,50 @@ class StreamSheet {
 		return id ? this.inbox.peek(id) : this._msgHandler.message || this.inbox.peek();
 	}
 
+	// hasNewMessage() {
+	// 	// NOTE: no message, means we will use next message if inbox is not empty!
+	// 	return (
+	// 		!this.inbox.isEmpty() && (this.inbox.size > 1 || !this._msgHandler.message || !this._msgHandler.isProcessed)
+	// 	);
+	// }
 	hasNewMessage() {
-		// NOTE: no message, means we will use next message if inbox is not empty!
-		return (
-			!this.inbox.isEmpty() && (this.inbox.size > 1 || !this._msgHandler.message || !this._msgHandler.isProcessed)
-		);
+		return this.inbox.size > 1 || !this._msgHandler.isProcessed;
 	}
+
 
 	getCurrentLoopPath() {
 		const index = this._trigger.isEndless ? 0 : 1;
 		return this._msgHandler.pathForIndex(this._msgHandler._index - index);
 	}
 
+	// get trigger() {
+	// 	return this._trigger;
+	// }
+
+	// set trigger(trigger) {
+	// 	this._trigger = setTrigger(trigger, this._trigger, this);
+	// }
 	get trigger() {
 		return this._trigger;
 	}
-
 	set trigger(trigger) {
-		this._trigger = setTrigger(trigger, this._trigger, this);
+		// DL-1482 no trigger might be wanted...
+		// DL-1026 trigger settings might changed during running machine => keep previous active if old one was:
+		if (!trigger) trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.NONE });
+		if (this._trigger) {
+			if (trigger.type === this._trigger.type) this._trigger.update(trigger.config);
+			else {
+				this._trigger.dispose();
+				this._trigger = undefined;
+			}
+		}
+		if (!this._trigger) {
+			// register new trigger:
+			this._trigger = trigger;
+			this._trigger.streamsheet = this;
+		}
 	}
+
 
 	// on 'step', 'stepback', 'message'...
 	on(event, callback) {
@@ -276,7 +303,7 @@ class StreamSheet {
 		this.sheet.updateSettings(getSettings(newsettings, this.sheet));
 		if (newsettings.inbox) this.inbox.update(newsettings.inbox);
 		if (newsettings.loop) this._msgHandler.update(newsettings.loop);
-		if (newsettings.trigger) this.trigger = StreamSheetTrigger.create(newsettings.trigger);
+		if (newsettings.trigger) this.trigger = TriggerFactory.create(newsettings.trigger);
 		this._emitter.emit('settings_update', newsettings);
 	}
 
@@ -311,33 +338,61 @@ class StreamSheet {
 		this._prevstate = State.ACTIVE;
 	}
 
-	// called by machine...
+	// called by machine:
 	pause() {
 		this.inbox.subscribe();
+		this.trigger.pause();
 	}
-
 	resume() {
-		/* do nothing */
+		this.trigger.resume();
 	}
-
 	start() {
 		this._detachMessage(this._msgHandler.message);
 		this.inbox.clear();
 		this.inbox.subscribe();
 		this.sheet.getPendingRequests().clear();
+		this.trigger.start();
 	}
-
 	stop() {
 		const stopped = this.trigger.stop();
 		if (stopped) {
 			this.reset();
 			this.inbox.unsubscribe();
-			this.sheet.stopProcessing();
 			this.sheet.getPendingRequests().clear();
 		}
 		return stopped;
 	}
-
+	// pause() {
+	// 	this.inbox.subscribe();
+	// }
+	// resume() {
+	// 	/* do nothing */
+	// }
+	// start() {
+	// 	this._detachMessage(this._msgHandler.message);
+	// 	this.inbox.clear();
+	// 	this.inbox.subscribe();
+	// 	this.sheet.getPendingRequests().clear();
+	// }
+	// stop() {
+	// 	const stopped = this.trigger.stop();
+	// 	if (stopped) {
+	// 		this.reset();
+	// 		this.inbox.unsubscribe();
+	// 		this.sheet._stopProcessing();
+	// 		this.sheet.getPendingRequests().clear();
+	// 	}
+	// 	return stopped;
+	// }
+	preStep(manual) {
+		this.trigger.preStep(manual);
+	}
+	step(manual) {
+		this.trigger.step(manual);
+	}
+	postStep(manual) {
+		this.trigger.postStep(manual);
+	}
 	// DL-1156: disabled
 	// select(message, path) {
 	// 	// DL-1065 (1): ignore selection for running machines...
@@ -352,202 +407,93 @@ class StreamSheet {
 	// 	}
 	// }
 
-	// TODO rename => called by return function
-	stopProcessing(retval) {
-		this.trigger.stop(); // return should deactivate trigger!
-		this.sheet.stopProcessing(retval);
-		const handler = this._msgHandler;
-		if (this._state === State.ACTIVE && this.trigger.isEndless && hasLoop(handler)) {
-			this._useNextLoopElement = true;
+
+	// called by sheet functions:
+	execute(message, repetitions, callingSheet) {
+		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
+			// attach message?
+			if (message) this._attachExecuteMessage(message);
+			this.trigger.execute(repetitions, callingSheet);
+			return true;
 		}
+		return false;
 	}
-
-	execute({ message, selector }, callback) {
-		const doIt = this.trigger.type === StreamSheetTrigger.TYPE.EXECUTE;
-		this.executeCallback = callback;
-		if (doIt) {
-			const stepdata = { cmd: 'execute' };
-			message = !this._reuseMessage() ? getMessage(message, selector, this.inbox) : undefined;
-			this._doStep(stepdata, message);
-		} else {
-			this._notifyResumeCallback(false);
-		}
-		return doIt;
+	cancelExecute() {
+		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) this.trigger.cancelExecute();
 	}
-
-	// called by registered trigger to perform a step outside machine-cycle
-	triggerStep() {
-		this._doStep();
-	}
-	preStep() {}
-	postStep() {}
-
-	step(manual) {
-		const triggerType = this.trigger.type;
-		// DL-1334: exclude arrival trigger on machine cycle step, because it is handled differently
-		const doIt = manual || this.trigger.isEndless || triggerType !== StreamSheetTrigger.TYPE.ARRIVAL;
-		if (doIt) {
-			// DL-3709: force manual step on ARRIVAL sheet
-			const data =
-				manual === 'force' || (manual === true && triggerType === StreamSheetTrigger.TYPE.ARRIVAL)
-					? { cmd: 'force' }
-					: undefined;
-			this._doStep(data);
-		}
-	}
-
 	continueProcessingAt(cellindex) {
 		// in case of backward jump it continues in next step otherwise directly...
-		const stopped = this.sheet.continueProcessingAt(cellindex);
+		const stopped = this.sheet._continueProcessingAt(cellindex);
 		if (stopped) {
 			this._prevstate = this._state;
 			this._state = State.CONTINUE;
 		}
 	}
-
-	pauseProcessing() {
-		this._prevstate = this._state;
-		this._state = State.PAUSED;
-		this.sheet.pauseProcessing();
+	stopProcessing(retval) {
+		this.trigger.stopProcessing(retval);
+		if (this.trigger.isEndless) this._msgHandler.next();
 	}
-
+	pauseProcessing() {
+		this.trigger.pauseProcessing();
+	}
 	// rename: used to repeat single cell...
 	repeatProcessing() {
 		this._prevstate = this._state;
 		this._state = State.REPEAT;
-		this.sheet.pauseProcessing();
-	}
-
+		this.sheet._pauseProcessing();
+	}	
 	resumeProcessing() {
-		if (this._state === State.PAUSED || this._state === State.REPEAT) {
-			this._prevstate = this._state;
-			this._state = State.RESUMED;
-			this.sheet.resumeProcessing();
-			this._doStep();
-		}
+		this.trigger.resumeProcessing();
 	}
+	// ~
 
-	// DL-1114: WORKAROUND until next DEMO finished...
-	_skipExecuteTrigger(data = {}) {
-		// we are executed but wait for an execute to finish!!
-		return (
-			this._state === State.REPEAT &&
-			this.trigger.type === StreamSheetTrigger.TYPE.EXECUTE &&
-			(!data || data.cmd !== 'execute')
-		); // hint: signals that we are called by normal step!
-	}
+	// // TODO rename => called by return function
+	// stopProcessing(retval) {
+	// 	this.trigger.stop(); // return should deactivate trigger!
+	// 	this.sheet._stopProcessing(retval);
+	// 	const handler = this._msgHandler;
+	// 	if (this._state === State.ACTIVE && this.trigger.isEndless && hasLoop(handler)) {
+	// 		this._useNextLoopElement = true;
+	// 	}
+	// }
 
-	_doStep(data, message) {
-		let result;
-		const sheet = this.sheet;
-		const prevstate = this._prevstate;
-		const firstTime = !this._trigger.isActive;
-		const forceStep = data && data.cmd === 'force';
-		// DL-3719 workaround to prevent moving loop-index twice in same step
-		this._nxtResumed = false;
-		// (DL-531): reset repeat-steps on first cycle...
-		if (firstTime) this.stats.repeatsteps = 0;
-		this._trigger.preProcess(data);
-		const skipTrigger = this._skipExecuteTrigger(data);
-		if (forceStep || (!skipTrigger && doTrigger(this))) {
-			if (this._state === State.ACTIVE && this._useNextLoopElement) {
-				this._useNextLoopElement = false;
-				this._msgHandler.next();
-			}
-			// DL-1114 executestep is now updated by execute.js
-			// if (data && data.cmd === 'execute' && this._state !== State.REPEAT) this.stats.executesteps += 1;
-			if (this._state === State.REPEAT) {
-				result = sheet.startProcessing();
-			} else if (this._state === State.RESUMED) {
-				result = this._resume();
-			} else if (this._state === State.CONTINUE) {
-				result = this._continueProcess();
-			} else if (sheet.isPaused || sheet.isResumed) {
-				result = this._waitProcess();
-			} else {
-				result = this._process(message);
-			}
-			this._emitter.emit('step', this);
-			// check state transitions to decide if next loop element should be taken  => PLEASE REWRITE COMPLETELY!!
-			const nextLoopElement =
-				this._state === State.ACTIVE &&
-				// do not take next loop if sheet is waiting...
-				!(sheet.isPaused || sheet.isResumed) &&
-				// note: transition from repeat might processed sheet completely!
-				(this._prevstate !== State.RESUMED || (prevstate === State.REPEAT && !sheet.isProcessing));
-			if (nextLoopElement && (!this._trigger.isEndless || !hasLoop(this._msgHandler))) {
-				this._msgHandler.next();
-			}
+	// execute({ message, selector }, callback) {
+	// 	const doIt = this.trigger.type === TriggerFactory.TYPE.EXECUTE;
+	// 	this.executeCallback = callback;
+	// 	if (doIt) {
+	// 		const stepdata = { cmd: 'execute' };
+	// 		message = !this._reuseMessage() ? getMessage(message, selector, this.inbox) : undefined;
+	// 		this._doStep(stepdata, message);
+	// 	} else {
+	// 		this._notifyResumeCallback(false);
+	// 	}
+	// 	return doIt;
+	// }
+
+	// called by registered trigger to perform a step outside machine-cycle
+	// triggerStep() {
+	// 	this._doStep();
+	// }
+
+	// TODO: think .. - replace with pre-/postTriggerStep (willTrigger, didTrigger or similar)
+	triggerStep() {
+		if (this.sheet.isReady || this.sheet.isProcessed) this._attachNextMessage();
+		this.sheet.getDrawings().removeAll();
+		const result = this.sheet._startProcessing();
+		if (this.sheet.isProcessed) {
+			// on endless we reuse message
+			if (!this.trigger.isEndless) this._msgHandler.next();
+			this._detachMessage();
 		}
-		this._trigger.postProcess(data);
-		this._didStep(result);
+		this._emitter.emit('step', this);
 		return result;
 	}
-	_resume() {
-		this._prevstate = this._state;
-		this._state = State.ACTIVE;
-		return this.sheet.startProcessing();
-	}
-
-	_continueProcess() {
-		this._updateStatsOnTrigger();
-		this._prevstate = this._state;
-		this._state = State.ACTIVE;
-		return this.sheet.startProcessing();
-	}
-
-	_waitProcess() {
-		return this.sheet.startProcessing();
-	}
-
-	_process(message) {
-		this._updateStatsOnTrigger();
-		this._attachNewMessage(message);
-		// JSG-105: delete all drawings before step now:
-		this.sheet.getDrawings().removeAll();
-		return this.sheet.startProcessing();
-	}
-	_didStep(result) {
-		if (this._state !== State.PAUSED) {
-			this._detachIfProcessed();
-			this._notifyResumeCallback(result);
-		}
-		this._prevstate = this._state;
-	}
-
-	_updateStatsOnTrigger() {
-		this.stats.steps += 1;
-		this.stats.repeatsteps += this._trigger.isEndless ? 1 : 0;
-	}
-	_reuseMessage() {
-		const { trigger } = this;
-		return (
-			trigger.isActive &&
-			trigger.isEndless &&
-			(trigger.type === StreamSheetTrigger.TYPE.ARRIVAL || hasLoop(this._msgHandler))
-		);
-	}
-	_detachIfProcessed() {
-		if (this._msgHandler.isProcessed) {
-			// (DL-508) reuse message if endless mode and trigger type arrival:
-			if (this._reuseMessage()) {
-				this._msgHandler.reset();
-			} else {
-				// this._detachMessage(this._msgHandler.message);
-				this._emitMessageEvent('message_detached', this._msgHandler.message);
-			}
-		}
-	}
-	_attachNewMessage(message) {
+	_attachNextMessage(message) {
 		if (this._msgHandler.isProcessed) {
 			const currmsg = this._msgHandler.message;
-			if (currmsg) {
-				if (currmsg === message) {
-					this._msgHandler.reset();
-				} else if (this.inbox.size > 1) {
-					this.inbox.pop(currmsg.id);
-					this._msgHandler.message = undefined;
-				}
+			if (currmsg && this.inbox.size > 1) {
+				this.inbox.pop(currmsg.id);
+				this._msgHandler.message = undefined;
 			}
 		}
 		if (!this._msgHandler.message) {
@@ -559,10 +505,194 @@ class StreamSheet {
 		this._msgHandler.message = message;
 		this._emitMessageEvent('message_attached', message);
 	}
-	_detachMessage(message) {
-		this._msgHandler.message = undefined;
-		this._emitMessageEvent('message_detached', message);
+	_attachExecuteMessage(message) {
+		// attach or reuse:
+		if (message === this._msgHandler.message && !this._msgHandler.isProcessed) this._msgHandler.reset();
+		else this._attachMessage(message);
 	}
+	_detachMessage() {
+		// get mark message as detached if its processed
+		if (this._msgHandler.isProcessed) {
+			// only send event, message will be popped from inbox on attach, so it still can be queried !!
+			this._emitMessageEvent('message_detached', this._msgHandler.message);
+		}
+	}
+
+	// step(manual) {
+	// 	const triggerType = this.trigger.type;
+	// 	// DL-1334: exclude arrival trigger on machine cycle step, because it is handled differently
+	// 	const doIt = manual || this.trigger.isEndless || triggerType !== TriggerFactory.TYPE.ARRIVAL;
+	// 	if (doIt) {
+	// 		// DL-3709: force manual step on ARRIVAL sheet
+	// 		const data =
+	// 			manual === 'force' || (manual === true && triggerType === TriggerFactory.TYPE.ARRIVAL)
+	// 				? { cmd: 'force' }
+	// 				: undefined;
+	// 		this._doStep(data);
+	// 	}
+	// }
+
+	// continueProcessingAt(cellindex) {
+	// 	// in case of backward jump it continues in next step otherwise directly...
+	// 	const stopped = this.sheet._continueProcessingAt(cellindex);
+	// 	if (stopped) {
+	// 		this._prevstate = this._state;
+	// 		this._state = State.CONTINUE;
+	// 	}
+	// }
+
+	// pauseProcessing() {
+	// 	this._prevstate = this._state;
+	// 	this._state = State.PAUSED;
+	// 	this.sheet._pauseProcessing();
+	// }
+
+
+	// resumeProcessing() {
+	// 	if (this._state === State.PAUSED || this._state === State.REPEAT) {
+	// 		this._prevstate = this._state;
+	// 		this._state = State.RESUMED;
+	// 		this.sheet._resumeProcessing();
+	// 		this._doStep();
+	// 	}
+	// }
+
+	// DL-1114: WORKAROUND until next DEMO finished...
+	// _skipExecuteTrigger(data = {}) {
+	// 	// we are executed but wait for an execute to finish!!
+	// 	return (
+	// 		this._state === State.REPEAT &&
+	// 		this.trigger.type === TriggerFactory.TYPE.EXECUTE &&
+	// 		(!data || data.cmd !== 'execute')
+	// 	); // hint: signals that we are called by normal step!
+	// }
+
+	// _doStep(data, message) {
+	// 	let result;
+	// 	const sheet = this.sheet;
+	// 	const prevstate = this._prevstate;
+	// 	const firstTime = !this._trigger.isActive;
+	// 	const forceStep = data && data.cmd === 'force';
+	// 	// DL-3719 workaround to prevent moving loop-index twice in same step
+	// 	this._nxtResumed = false;
+	// 	// (DL-531): reset repeat-steps on first cycle...
+	// 	if (firstTime) this.stats.repeatsteps = 0;
+	// 	this._trigger.preProcess(data);
+	// 	const skipTrigger = this._skipExecuteTrigger(data);
+	// 	if (forceStep || (!skipTrigger && doTrigger(this))) {
+	// 		if (this._state === State.ACTIVE && this._useNextLoopElement) {
+	// 			this._useNextLoopElement = false;
+	// 			this._msgHandler.next();
+	// 		}
+	// 		// DL-1114 executestep is now updated by execute.js
+	// 		// if (data && data.cmd === 'execute' && this._state !== State.REPEAT) this.stats.executesteps += 1;
+	// 		if (this._state === State.REPEAT) {
+	// 			result = sheet._startProcessing();
+	// 		} else if (this._state === State.RESUMED) {
+	// 			result = this._resume();
+	// 		} else if (this._state === State.CONTINUE) {
+	// 			result = this._continueProcess();
+	// 		} else if (sheet.isPaused || sheet.isResumed) {
+	// 			result = this._waitProcess();
+	// 		} else {
+	// 			result = this._process(message);
+	// 		}
+	// 		this._emitter.emit('step', this);
+	// 		// check state transitions to decide if next loop element should be taken  => PLEASE REWRITE COMPLETELY!!
+	// 		const nextLoopElement =
+	// 			this._state === State.ACTIVE &&
+	// 			// do not take next loop if sheet is waiting...
+	// 			!(sheet.isPaused || sheet.isResumed) &&
+	// 			// note: transition from repeat might processed sheet completely!
+	// 			(this._prevstate !== State.RESUMED || (prevstate === State.REPEAT && !sheet.isProcessing));
+	// 		if (nextLoopElement && (!this._trigger.isEndless || !hasLoop(this._msgHandler))) {
+	// 			this._msgHandler.next();
+	// 		}
+	// 	}
+	// 	this._trigger.postProcess(data);
+	// 	this._didStep(result);
+	// 	return result;
+	// }
+	// _resume() {
+	// 	this._prevstate = this._state;
+	// 	this._state = State.ACTIVE;
+	// 	return this.sheet._startProcessing();
+	// }
+
+	// _continueProcess() {
+	// 	this._updateStatsOnTrigger();
+	// 	this._prevstate = this._state;
+	// 	this._state = State.ACTIVE;
+	// 	return this.sheet._startProcessing();
+	// }
+
+	// _waitProcess() {
+	// 	return this.sheet._startProcessing();
+	// }
+
+	// _process(message) {
+	// 	this._updateStatsOnTrigger();
+	// 	this._attachNewMessage(message);
+	// 	// JSG-105: delete all drawings before step now:
+	// 	this.sheet.getDrawings().removeAll();
+	// 	return this.sheet._startProcessing();
+	// }
+	// _didStep(result) {
+	// 	if (this._state !== State.PAUSED) {
+	// 		this._detachIfProcessed();
+	// 		this._notifyResumeCallback(result);
+	// 	}
+	// 	this._prevstate = this._state;
+	// }
+
+	// _updateStatsOnTrigger() {
+	// 	this.stats.steps += 1;
+	// 	this.stats.repeatsteps += this._trigger.isEndless ? 1 : 0;
+	// }
+	// _reuseMessage() {
+	// 	const { trigger } = this;
+	// 	return (
+	// 		trigger.isActive &&
+	// 		trigger.isEndless &&
+	// 		(trigger.type === TriggerFactory.TYPE.ARRIVAL || hasLoop(this._msgHandler))
+	// 	);
+	// }
+	// _detachIfProcessed() {
+	// 	if (this._msgHandler.isProcessed) {
+	// 		// (DL-508) reuse message if endless mode and trigger type arrival:
+	// 		if (this._reuseMessage()) {
+	// 			this._msgHandler.reset();
+	// 		} else {
+	// 			// this._detachMessage(this._msgHandler.message);
+	// 			this._emitMessageEvent('message_detached', this._msgHandler.message);
+	// 		}
+	// 	}
+	// }
+	// _attachNewMessage(message) {
+	// 	if (this._msgHandler.isProcessed) {
+	// 		const currmsg = this._msgHandler.message;
+	// 		if (currmsg) {
+	// 			if (currmsg === message) {
+	// 				this._msgHandler.reset();
+	// 			} else if (this.inbox.size > 1) {
+	// 				this.inbox.pop(currmsg.id);
+	// 				this._msgHandler.message = undefined;
+	// 			}
+	// 		}
+	// 	}
+	// 	if (!this._msgHandler.message) {
+	// 		this._attachMessage(message || this.inbox.peek());
+	// 	}
+	// }
+	// _attachMessage(message) {
+	// 	this.stats.messages += message ? 1 : 0;
+	// 	this._msgHandler.message = message;
+	// 	this._emitMessageEvent('message_attached', message);
+	// }
+	// _detachMessage(message) {
+	// 	this._msgHandler.message = undefined;
+	// 	this._emitMessageEvent('message_detached', message);
+	// }
 
 	_emitMessageEvent(type, message) {
 		if (message) {
@@ -570,12 +700,12 @@ class StreamSheet {
 		}
 	}
 
-	_notifyResumeCallback(retval) {
-		if (this.executeCallback && !this._trigger.isActive && this._state !== State.REPEAT) {
-			this.executeCallback(retval, this);
-			this.executeCallback = undefined;
-		}
-	}
+	// _notifyResumeCallback(retval) {
+	// 	if (this.executeCallback && !this._trigger.isActive && this._state !== State.REPEAT) {
+	// 		this.executeCallback(retval, this);
+	// 		this.executeCallback = undefined;
+	// 	}
+	// }
 
 	// notifies all registered observers which listen to messages of specified type
 	notify(type, msg) {
