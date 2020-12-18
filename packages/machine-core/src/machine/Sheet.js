@@ -579,16 +579,16 @@ module.exports = class Sheet {
 		}
 	}
 
-	continueProcessingAt(cellindex) {
+	// ALL xxxPROCESSING methods should be package private!! because they should be called via StreamSheet to
+	// correctly notify trigger too!
+	_continueProcessingAt(cellindex) {
 		return this.processor.continueAt(cellindex);
 	}
-
 	// optional return value
-	stopProcessing(retvalue) {
+	_stopProcessing(retvalue) {
 		this.processor.stop(retvalue);
 	}
-
-	startProcessing() {
+	_startProcessing() {
 		// TODO: remove _lastInsertIndex!!
 		this._lastInsertIndex.set(1, 0);
 		// return this.processor.start();
@@ -597,12 +597,10 @@ module.exports = class Sheet {
 		this._isProcessing = false;
 		return result;
 	}
-
-	pauseProcessing() {
+	_pauseProcessing() {
 		this.processor.pause();
 	}
-
-	resumeProcessing() {
+	_resumeProcessing() {
 		this.processor.resume();
 	}
 
