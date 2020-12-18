@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { ContinuousTrigger, Machine, StreamSheet2, TimerTrigger, TriggerFactory } = require('../../..');
+const { ContinuousTrigger, Machine, StreamSheet, TimerTrigger, TriggerFactory } = require('../../..');
 const { createCellAt, wait, monitorStreamSheet } = require('../../utils');
 
 const setup = (triggerConfig = {}) => {
 	const machine = new Machine();
-	const s1 = new StreamSheet2({ name: 'S1' });
+	const s1 = new StreamSheet({ name: 'S1' });
 	machine.removeAllStreamSheets();
 	machine.addStreamSheet(s1);
 	machine.cycletime = 50;
@@ -77,7 +77,7 @@ describe('TimerTrigger', () => {
 				await wait(500);
 				// first trigger after specified start date
 				expect(s1.sheet.cellAt('A1').value).toBe(2);
-				await wait(600);
+				await wait(700);
 				await machine.stop();
 				// second trigger on specified interval
 				expect(s1.sheet.cellAt('A1').value).toBe(3);

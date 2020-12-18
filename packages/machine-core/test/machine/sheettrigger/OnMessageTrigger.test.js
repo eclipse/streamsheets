@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { ContinuousTrigger, Machine, Message, OnMessageTrigger, StreamSheet2, TriggerFactory } = require('../../..');
+const { ContinuousTrigger, Machine, Message, OnMessageTrigger, StreamSheet, TriggerFactory } = require('../../..');
 const { createCellAt, monitorStreamSheet, wait } = require('../../utils');
 
 const putMessages = (streamsheet, ...messages) => messages.forEach(message => streamsheet.inbox.put(message));
@@ -28,7 +28,7 @@ const callPerSecond = (func, times = 1) => new Promise((resolve) => {
 
 const setup = () => {
 	const machine = new Machine();
-	const s1 = new StreamSheet2({ name: 'S1' });
+	const s1 = new StreamSheet({ name: 'S1' });
 	machine.removeAllStreamSheets();
 	machine.addStreamSheet(s1);
 	machine.cycletime = 20000;
@@ -93,7 +93,7 @@ describe('OnMessageTrigger', () => {
 		});
 		it('should not prevent calculation of other sheets', async () => {
 			const { machine, s1 } = setup();
-			const s2 = new StreamSheet2();
+			const s2 = new StreamSheet();
 			s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' });
 			machine.addStreamSheet(s2);
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);

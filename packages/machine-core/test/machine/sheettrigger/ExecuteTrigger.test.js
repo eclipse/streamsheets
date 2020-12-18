@@ -14,7 +14,7 @@ const {
 	Machine,
 	Message,
 	NeverTrigger,
-	StreamSheet2,
+	StreamSheet,
 	TriggerFactory
 } = require('../../..');
 const { createCellAt, monitorMachine, monitorStreamSheet, wait } = require('../../utils');
@@ -27,8 +27,8 @@ const addOutboxMessage = (machine, message) => {
 
 const setup = ({ switched = false } = {}) => {
 	const machine = new Machine();
-	const s1 = new StreamSheet2({ name: 'S1' });
-	const s2 = new StreamSheet2({ name: 'S2' });
+	const s1 = new StreamSheet({ name: 'S1' });
+	const s2 = new StreamSheet({ name: 'S2' });
 	s1.trigger = switched ? new ExecuteTrigger() : new ContinuousTrigger();
 	s2.trigger = switched ? new ContinuousTrigger() : new ExecuteTrigger();
 	machine.removeAllStreamSheets();
@@ -386,7 +386,7 @@ describe('ExecuteTrigger', () => {
 		test('chain of execution with several sheets on machine run', async () => {
 			// CHAIN: S1 -> S3 -> S2
 			const { machine, s1, s2 } = setup();
-			const s3 = new StreamSheet2();
+			const s3 = new StreamSheet();
 			const monitorS2 = monitorStreamSheet(s2);
 			machine.addStreamSheet(s3);
 			s3.trigger = new ExecuteTrigger({ repeat: 'endless' });
@@ -414,7 +414,7 @@ describe('ExecuteTrigger', () => {
 		test('chain of execution with several sheets on manual steps', async () => {
 			// CHAIN: S1 -> S3 -> S2
 			const { machine, s1, s2 } = setup();
-			const s3 = new StreamSheet2();
+			const s3 = new StreamSheet();
 			machine.addStreamSheet(s3);
 			s3.trigger = new ExecuteTrigger({ repeat: 'endless' });
 			s2.trigger.update({ repeat: 'endless' });

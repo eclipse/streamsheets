@@ -14,14 +14,14 @@ const {
 	NeverTrigger,
 	Machine,
 	State,
-	StreamSheet2,
+	StreamSheet,
 	TriggerFactory
 } = require('../../..');
 const { createCellAt, monitorMachine, monitorStreamSheet, wait } = require('../../utils');
 
 const setup = (triggerConfig = {}) => {
 	const machine = new Machine();
-	const s1 = new StreamSheet2({ name: 'S1' });
+	const s1 = new StreamSheet({ name: 'S1' });
 	machine.removeAllStreamSheets();
 	machine.addStreamSheet(s1);
 	machine.cycletime = 50;
@@ -89,7 +89,7 @@ describe('MachineTrigger', () => {
 			// DL-2467
 			it('should run an added streamsheet with continuously trigger directly if machine runs already', async () => {
 				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
-				const s2 = new StreamSheet2()
+				const s2 = new StreamSheet()
 				s2.trigger = new ContinuousTrigger(/* { repeat: 'endless' } */);
 				const monitorS2 = monitorStreamSheet(s2);
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -197,7 +197,7 @@ describe('MachineTrigger', () => {
 		describe('general behaviour', () => {
 			it('should execute sheet on machine stop', async () => {
 				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
-				const s2 = new StreamSheet2()
+				const s2 = new StreamSheet()
 				const monitorS2 = monitorStreamSheet(s2);
 				s2.trigger = new ContinuousTrigger();
 				machine.addStreamSheet(s2);
@@ -230,8 +230,8 @@ describe('MachineTrigger', () => {
 			});
 			it('should prevent machine stop in endless mode, but can be cancelled by calling stop again', async () => {
 				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
-				const s2 = new StreamSheet2()
-				const s3 = new StreamSheet2()
+				const s2 = new StreamSheet()
+				const s3 = new StreamSheet()
 				s2.trigger = new ContinuousTrigger();
 				s3.trigger = new MachineTrigger({ type: MachineTrigger.TYPE_STOP, repeat: 'endless' });
 				const monitorS2 = monitorStreamSheet(s2);

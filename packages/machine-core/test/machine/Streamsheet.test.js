@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { celljson } = require('./utils');
-const { SheetIndex, StreamSheet, StreamSheetTrigger } = require('../..');
+const { SheetIndex, StreamSheet, TriggerFactory } = require('../..');
 
 
 describe('StreamSheet', () => {
@@ -54,11 +54,11 @@ describe('StreamSheet', () => {
 			it('should contain settings', () => {
 				const streamsheet = new StreamSheet();
 				// streamsheet.inbox.addStream(new)
-				streamsheet.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.TIMER, interval: 2000 });
+				streamsheet.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.TIMER, interval: 2000 });
 				streamsheet.setLoopPath('Position');
 				streamsheet.sheet.load({ cells: { A1: 'A1', IF1: '-A1' } });
 				const json = streamsheet.toJSON();
-				expect(json.trigger.type).toBe(StreamSheetTrigger.TYPE.TIMER);
+				expect(json.trigger.type).toBe(TriggerFactory.TYPE.TIMER);
 				expect(json.trigger.interval).toBe(2000);
 				expect(json.loop.path).toBe('Position');
 				expect(json.sheet.cells).toBeDefined();
@@ -68,7 +68,7 @@ describe('StreamSheet', () => {
 			it('should create a StreamSheet instance from given JSON', () => {
 				const streamsheet = new StreamSheet();
 				streamsheet.name = 'T1';
-				streamsheet.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.TIMER, interval: 2000 });
+				streamsheet.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.TIMER, interval: 2000 });
 				streamsheet.setLoopPath('Position');
 				streamsheet.sheet.load({ cells: { A1: 'A1', IF1: '-A1' } });
 				const json = streamsheet.toJSON();
@@ -77,7 +77,7 @@ describe('StreamSheet', () => {
 				expect(streamsheet2).toBeDefined();
 				expect(streamsheet2.id).toBe(streamsheet.id);
 				expect(streamsheet2.name).toBe(streamsheet.name);
-				expect(streamsheet2.trigger.type).toBe(StreamSheetTrigger.TYPE.TIMER);
+				expect(streamsheet2.trigger.type).toBe(TriggerFactory.TYPE.TIMER);
 				expect(streamsheet2.trigger.interval).toBe(streamsheet.trigger.interval);
 				expect(streamsheet2.getLoopPath()).toBe(streamsheet.getLoopPath());
 				expect(streamsheet2.sheet.cellAt(SheetIndex.create('A1')).value).toBe('A1');

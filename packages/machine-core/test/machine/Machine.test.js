@@ -13,7 +13,7 @@ const {
 	Machine,
 	StreamSheet,
 	SheetParser,
-	StreamSheetTrigger
+	TriggerFactory
 } = require('../..');
 
 const wait = ms => new Promise((resolve) => setTimeout(resolve, ms));
@@ -23,7 +23,7 @@ const setupMachine = async () => {
 	const streamsheet = new StreamSheet();
 	await machine.load({ id: '123', name: 'test', state: State.RUNNING });
 	machine.removeAllStreamSheets();
-	streamsheet.load({ type: StreamSheetTrigger.TYPE.TIMER, interval: 3000 });
+	streamsheet.load({ type: TriggerFactory.TYPE.TIMER, interval: 3000 });
 	machine.addStreamSheet(streamsheet);
 	return { machine, streamsheet };
 };

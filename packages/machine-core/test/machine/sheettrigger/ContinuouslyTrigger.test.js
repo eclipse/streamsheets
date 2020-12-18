@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { ContinuousTrigger, NeverTrigger, Machine, Message, StreamSheet2, TriggerFactory } = require('../../..');
+const { ContinuousTrigger, NeverTrigger, Machine, Message, StreamSheet, TriggerFactory } = require('../../..');
 const { createCellAt, monitorMachine, monitorStreamSheet, wait } = require('../../utils');
 
 const setup = () => {
 	const machine = new Machine();
-	const s1 = new StreamSheet2({ name: 'S1' });
+	const s1 = new StreamSheet({ name: 'S1' });
 	machine.removeAllStreamSheets();
 	machine.addStreamSheet(s1);
 	machine.cycletime = 50;
@@ -273,7 +273,7 @@ describe('ContinuousTrigger', () => {
 		});
 		it('should not block other sheets on "repeat until..."', async () => {
 			const { machine, s1 } = setup();
-			const s2 = new StreamSheet2({ name: 'S2' });
+			const s2 = new StreamSheet({ name: 'S2' });
 			machine.addStreamSheet(s2);
 			s2.trigger = new ContinuousTrigger();
 			// s2 will never return!
