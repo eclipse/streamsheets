@@ -20,6 +20,7 @@ class AbstractTrigger {
 	constructor(config = {}) {
 		this.config = Object.assign({}, DEF_CONF, config);
 		this.isActive = false;
+		// to prevent 2x resume in same step! => happens with execute in switched order
 		this.isResumed = false;
 		this.isManualStep = false;
 		this._stepId = undefined;
@@ -48,11 +49,11 @@ class AbstractTrigger {
 	}
 
 	set streamsheet(streamsheet) {
-		const { machine, sheet } = streamsheet;
+		// const { machine, sheet } = streamsheet;
 		this._streamsheet = streamsheet;
 		// apply current state if differ from stop
-		if (sheet.isPaused) this.pause();
-		else if (machine && machine.state === State.RUNNING) this.resume(true);
+		// if (sheet.isPaused) this.pause();
+		// else if (machine && machine.state === State.RUNNING) this.resume(true);
 	}
 
 	// called by streamsheet. signals that it will be removed. trigger should perform clean up here...
@@ -73,14 +74,22 @@ class AbstractTrigger {
 	}
 
 	// TODO: remove onUpdate flag
-	resume(onUpdate) {
-		// do not resume twice if already resumed before & check if not paused by function
-		if (this.isActive && !this.isResumed && !this.sheet.isPaused) {
-			if (!this.isManualStep && this.isEndless) {
-				if (!this.sheet.isProcessed || onUpdate) this._repeatStep();
-			} else if (!this.sheet.isProcessed || onUpdate) this._streamsheet.triggerStep();
-			this.isResumed = !this.isRepeating;
+	resume(onUpdate) { // called by machine: from pause to start
+		// if sheet is not paused by function 
+		if (/* this.isActive && */ !this.isResumed && !this.sheet.isPaused) {
+			this.isResumed = true;
+			if (this.isEndless) this._finishRepeatStep();
+			else this._finishStep();
 		}
+		// do not resume twice if already resumed before & check if not paused by function
+		// if (this.isActive && !this.isResumed && !this.sheet.isPaused) {
+		// 	if (!this.isManualStep && this.isEndless) {
+		// 		if (!this.sheet.isProcessed || onUpdate) this._repeatStep();
+		// 	} else if (!this.sheet.isProcessed || onUpdate) {
+		// 		this._streamsheet.triggerStep();
+		// 	}
+		// 	this.isResumed = !this.isRepeating;
+		// }
 	}
 
 	start() {
@@ -90,6 +99,7 @@ class AbstractTrigger {
 	stop(onUpdate, onProcessing) {
 		clearTrigger(this);
 		this.isActive = false;
+		// this._streamsheet.stats.repeatsteps = 0;
 		if (!onUpdate) this.sheet._stopProcessing();
 		return true;
 	}
@@ -99,11 +109,40 @@ class AbstractTrigger {
 	}
 	pauseProcessing() {
 		this.sheet._pauseProcessing();
+		// clearTrigger(this);
 		this.pause();
 	}
 	resumeProcessing() {
-		this.sheet._resumeProcessing();
-		this.resume();
+		if (!this.isResumed) {
+			this.isResumed = true;
+			this.sheet._resumeProcessing();
+			// resume processing should not start e.g. endless mode again!! => might was paused by machine!!!
+			// if (this.sheet.machine.state === State.RUNNING) this.resume();
+			// this.resume();
+
+			if (this.isManualStep) this._finishStep();
+			// machine runs:
+			else if (this.isEndless) this._finishRepeatStep();
+			else this._finishStep();
+		}
+		
+		// if (this.isActive && !this.isResumed && !this.sheet.isPaused) {
+		// 	if (!this.isManualStep && this.isEndless) {
+		// 		if (!this.sheet.isProcessed || onUpdate) this._repeatStep();
+		// 	} else if (!this.sheet.isProcessed || onUpdate) {
+		// 		this._streamsheet.triggerStep();
+		// 	}
+		// 	this.isResumed = !this.isRepeating;
+		// }
+	}
+	_finishStep() {
+		if (!this.sheet.isProcessed) this._streamsheet.triggerStep();
+	}
+	_finishRepeatStep() {
+		if (!this.sheet.isProcessed) {
+			this._streamsheet.triggerStep();
+			repeatTrigger(this);
+		}
 	}
 
 	preStep(manual) {
@@ -127,6 +166,7 @@ class AbstractTrigger {
 	}
 	trigger() {
 		this.isActive = true;
+		// check if isPaused by function!
 		if (!this.isResumed && this._stepId == null && !this.sheet.isPaused) {
 			if (!this.isManualStep && this.isEndless) this._startRepeat();
 			else this.doCycleStep();
@@ -134,6 +174,10 @@ class AbstractTrigger {
 	}
 	doCycleStep() {
 		this._streamsheet.stats.steps += 1;
+		// TODO: count repeats on manual step and endless <-- NO!! if manual step and endless we should call doRepeatStep()!!!
+		// if (this.isManualStep && this.isEndless) this._streamsheet.stats.repeatsteps += 1;
+		// else 
+		// if (!this.sheet.isPaused) this._streamsheet.stats.steps += 1;
 		this._streamsheet.triggerStep();
 		this.isActive = this.sheet.isPaused;
 	}
@@ -144,13 +188,13 @@ class AbstractTrigger {
 	}
 
 	// DEPRECATED:
-	preProcess() {}
+	// preProcess() {}
 
-	isTriggered() {
-		return this.isEndless;
-	}
+	// isTriggered() {
+	// 	return this.isEndless;
+	// }
 
-	postProcess() {}
+	// postProcess() {}
 }
 
 module.exports = AbstractTrigger;
