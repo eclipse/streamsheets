@@ -99,14 +99,11 @@ class SheetProcessor {
 	start() {
 		const cursor = this._cursor;
 		const sheet = cursor.sheet;
-		const rows = sheet._rows;
-		// we are neither dynamic in rows, nor in columns to prevent endless for-loops if cells are added permanently
-		const last = rows.length;
 
-		this._process3();
+		this._process();
 
 		// on end of sheet
-		cursor.isProcessed = cursor.r >= last; // && (cursor.c == null || cursor.c >= lastcol))) {
+		cursor.isProcessed = cursor.r >= sheet._rows.length; // && (cursor.c == null || cursor.c >= lastcol))) {
 
 		// graph cells:
 		sheet.graphCells.evaluating = true;
@@ -115,94 +112,6 @@ class SheetProcessor {
 		return cursor.result;
 	}
 	_process() {
-		const cursor = this._cursor;
-		const sheet = cursor.sheet;
-		const rows = sheet._rows;
-		// we are neither dynamic in rows, nor in columns to prevent endless for-loops if cells are added permanently
-		const last = rows.length;
-		let lastcol = 0;
-		if (!this.isPaused && this.isProcessed) {
-			cursor.reset();
-			this._state = State.READY;
-		}
-
-		for (; cursor.r < last && !this.isPaused; ) {
-			const row = rows[cursor.r];
-			lastcol = row ? row.length : 0;
-			cursor.c = cursor.c == null ? startCol(sheet, cursor.r) : cursor.c;
-			for (; cursor.c < lastcol && !this.isPaused; ) {
-				const cell = cellAt(cursor.r, cursor.c, sheet);
-				if (cell) {
-					cell.evaluate();
-					// should we skip row?
-					checkSkipRow(cell, cursor);
-				}
-				 // break from inner column-loop if cursor was changed...
-				if (cursor.changed) break;
-				cursor.c += 1;
-			}
-			if (cursor.changed) {
-				cursor.changed = false;
-				// break from row-loop if paused or if jump backward to prevent endless loop...
-				if (cursor.isBackward || this.isPaused) {
-					cursor.isBackward = false;
-					break;
-				}
-			}
-			// move to next row:
-			cursor.r += 1;
-			cursor.c = null;
-		}
-	}
-	_process2() {
-		const cursor = this._cursor;
-		const sheet = cursor.sheet;
-		const rows = sheet._rows;
-		// we are neither dynamic in rows, nor in columns to prevent endless for-loops if cells are added permanently
-		const last = rows.length;
-		let lastcol = 0;
-		cursor.result = undefined;
-		if (this.isPaused) {
-			// check at paused cell:
-			const cell = cellAt(cursor.r, cursor.c, sheet);
-			if (cell) cell.evaluate();
-			// if (!this.isPaused && this._cursor.c != null) this._cursor.c += 1;
-		}
-		// not still paused after evaluation:
-		if (!this.isPaused) {
-			// this._state = State.READY;
-			if (this.isProcessed) cursor.reset();
-			for (; cursor.r < last && !this.isPaused; ) {
-				const row = rows[cursor.r];
-				lastcol = row ? row.length : 0;
-				cursor.c = cursor.c == null ? startCol(sheet, cursor.r) : cursor.c;
-				for (; cursor.c < lastcol && !this.isPaused; ) {
-					const cell = cellAt(cursor.r, cursor.c, sheet);
-					if (cell) {
-						cell.evaluate();
-						// should we skip row?
-						checkSkipRow(cell, cursor);
-					}
-					 // break from inner column-loop if cursor was changed...
-					if (cursor.changed) break;
-					cursor.c += 1;
-				}
-				if (cursor.changed) {
-					cursor.changed = false;
-					// break from row-loop if paused or if jump backward to prevent endless loop...
-					if (cursor.isBackward || this.isPaused) {
-						cursor.isBackward = false;
-						break;
-					}
-				} else {
-					// move to next row:
-					cursor.r += 1;
-					cursor.c = null;
-				}
-			}
-		}
-	}
-	_process3() {
 		const cursor = this._cursor;
 		const sheet = cursor.sheet;
 		const rows = sheet._rows;
