@@ -35,7 +35,6 @@ const EXECUTE = (sheet, ...terms) => {
 			context.initialized = true;
 			context.addDisposeListener(() => {
 				streamsheet.cancelExecute();
-				if (sheet.isPaused) sheet.streamsheet.resumeProcessing();
 			});
 		}
 		return !sheet.isPaused ? streamsheet.execute(message, repetitions, sheet.streamsheet) : true;
