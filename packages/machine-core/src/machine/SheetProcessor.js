@@ -64,7 +64,6 @@ class SheetProcessor {
 	constructor(sheet) {
 		this._state = State.READY;
 		this._cursor = new Cursor(sheet);
-		this._hasStepped = false;
 	}
 
 	get isPaused() {
@@ -79,10 +78,6 @@ class SheetProcessor {
 	
 	continueAt(index) {
 		this._cursor.setToIndex(index);
-	}
-
-	preStep() {
-		this._hasStepped = false;
 	}
 
 	pause() {
@@ -214,16 +209,13 @@ class SheetProcessor {
 		// we are neither dynamic in rows, nor in columns to prevent endless for-loops if cells are added permanently
 		const last = rows.length;
 		let lastcol = 0;
-		// FOLLOWING is wrong!! Since it will e.g. execute() for each cell evaluation!!
-		// BUT: how to handle if value in cell reference change?? e.g. sleep(A1) with A1 = 500 and than A1 = 5
+		// check at paused cell to handle change of referenced value, e.g. sleep(A1) with A1 = 500 and than A1 = 5
 		if (this.isPaused) {
 			// check paused cell again because its referenced values might have changed:
 			const cell = cellAt(cursor.r, cursor.c, sheet);
 			if (cell) cell.evaluate();
 			// if (!this.isPaused && this._cursor.c != null) this._cursor.c += 1;
-		}
-		// do nothing if still paused
-		if (!this.isPaused) {
+		} else {
 			if (this.isProcessed) cursor.reset();
 			for (; cursor.r < last && !this.isPaused; ) {
 				const row = rows[cursor.r];
@@ -254,14 +246,6 @@ class SheetProcessor {
 				}
 			}
 		}
-
-
-
-
-		// if (!this.isPaused && this.isProcessed) {
-		// 	cursor.reset();
-		// 	this._state = State.READY;
-		// }
 	}
 }
 
