@@ -109,8 +109,8 @@ class AbstractTrigger {
 	}
 	pauseProcessing() {
 		this.sheet._pauseProcessing();
-		// clearTrigger(this);
-		this.pause();
+		clearTrigger(this);
+		// this.pause();
 	}
 	resumeProcessing() {
 		if (!this.isResumed) {
@@ -166,14 +166,15 @@ class AbstractTrigger {
 	}
 	trigger() {
 		this.isActive = true;
-		// check if isPaused by function!
-		if (!this.isResumed && this._stepId == null && !this.sheet.isPaused) {
-			if (!this.isManualStep && this.isEndless) this._startRepeat();
+		if (!this.isResumed && this._stepId == null) {
+			// if (!this.isResumed && this._stepId == null && !this.sheet.isPaused) {
+			// do not start repetition again if isPaused by function!
+			if (!this.isManualStep && this.isEndless && !this.sheet.isPaused) this._startRepeat();
 			else this.doCycleStep();
 		}
 	}
 	doCycleStep() {
-		this._streamsheet.stats.steps += 1;
+		this._streamsheet.stats.steps += this.sheet.isPaused ? 0 : 1;
 		// TODO: count repeats on manual step and endless <-- NO!! if manual step and endless we should call doRepeatStep()!!!
 		// if (this.isManualStep && this.isEndless) this._streamsheet.stats.repeatsteps += 1;
 		// else 
