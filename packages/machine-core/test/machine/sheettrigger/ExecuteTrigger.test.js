@@ -226,6 +226,7 @@ describe('ExecuteTrigger', () => {
 		});
 		it('should pause calling sheet until execute returns in "repeat until..." on machine run', async () => {
 			const { machine, s1, s2 } = setup();
+			const monitorS2 = monitorStreamSheet(s2);
 			s2.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'execute("S2")' }, s1.sheet);
@@ -233,7 +234,7 @@ describe('ExecuteTrigger', () => {
 			createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 			createCellAt('B3', { formula: 'if(mod(B2,3)=0,return(),false)' }, s2.sheet);
 			await machine.start();
-			await wait(120);
+			await monitorS2.isAtStep(3);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);

@@ -99,21 +99,21 @@ describe('ContinuousTrigger', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			// resume via cell delete
 			createCellAt('A2', undefined, s1.sheet);
-			await machine.step();
+			await machine.step();	// step to resume sheet
 			expect(s1.stats.steps).toBe(2);
-			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			await machine.step();
 			expect(s1.stats.steps).toBe(3);
-			expect(s1.sheet.cellAt('A1').value).toBe(4);
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+			await machine.step();	// step to pause sheet at A2
+			expect(s1.stats.steps).toBe(4);
+			expect(s1.sheet.cellAt('A1').value).toBe(4);
+			await machine.step();
+			await machine.step();
 			await machine.step();
 			expect(s1.stats.steps).toBe(4);
-			expect(s1.sheet.cellAt('A1').value).toBe(5);
-			await machine.step();
-			await machine.step();
-			await machine.step();
-			expect(s1.stats.steps).toBe(4);
-			expect(s1.sheet.cellAt('A1').value).toBe(5);
+			expect(s1.sheet.cellAt('A1').value).toBe(4);
 		});
 		it('should not process sheet on manual run if paused by function', async () => {
 			const { machine, s1 } = setup();
