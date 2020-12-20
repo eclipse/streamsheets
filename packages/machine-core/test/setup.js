@@ -38,7 +38,23 @@ const EXECUTE = (sheet, ...terms) => {
 				if (sheet.isPaused) sheet.streamsheet.resumeProcessing();
 			});
 		}
-		return streamsheet.execute(message, repetitions, sheet.streamsheet);
+		return !sheet.isPaused ? streamsheet.execute(message, repetitions, sheet.streamsheet) : true;
+	}
+	return true;
+};
+const PAUSE = (sheet /* , ...terms */) => {
+	// if (sheet.isProcessing && !sheet.isPaused) {
+	// 	sheet.streamsheet.pauseProcessing();
+	// }
+	if (sheet.isProcessing) {
+		const context = PAUSE.context;
+		if (!context.initialized) {
+			context.initialized = true;
+			context.addDisposeListener(() => {
+				if (sheet.isPaused) sheet.streamsheet.resumeProcessing();
+			});
+		}
+		if (!sheet.isPaused) sheet.streamsheet.pauseProcessing();
 	}
 	return true;
 };
@@ -58,11 +74,7 @@ const functions = {
 		}
 		return retval;
 	},
-	PAUSE: (sheet /* , ...terms */) => {
-		if (sheet.isProcessing) {
-			sheet.streamsheet.pauseProcessing();
-		}
-	}
+	PAUSE
 	// ,
 	// RESUME: (sheet /* , ...terms */) => {
 	// 	if (sheet.isProcessing) {

@@ -60,7 +60,7 @@ describe('ContinuousTrigger', () => {
 			await machine.start();
 			await wait(120);
 			await machine.stop();
-			expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(7);
+			expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(6);
 		});
 		it('should process sheet on manual steps if machine is paused in "repeat until..."', async () => {
 			const { machine, s1 } = setup();
@@ -97,15 +97,23 @@ describe('ContinuousTrigger', () => {
 			await machine.step();
 			expect(s1.stats.steps).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			s1.resumeProcessing();
+			// resume via cell delete
+			createCellAt('A2', undefined, s1.sheet);
 			await machine.step();
 			expect(s1.stats.steps).toBe(2);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			await machine.step();
+			expect(s1.stats.steps).toBe(3);
+			expect(s1.sheet.cellAt('A1').value).toBe(4);
+			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+			await machine.step();
+			expect(s1.stats.steps).toBe(4);
+			expect(s1.sheet.cellAt('A1').value).toBe(5);
 			await machine.step();
 			await machine.step();
-			expect(s1.stats.steps).toBe(2);
-			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			await machine.step();
+			expect(s1.stats.steps).toBe(4);
+			expect(s1.sheet.cellAt('A1').value).toBe(5);
 		});
 		it('should not process sheet on manual run if paused by function', async () => {
 			const { machine, s1 } = setup();
@@ -116,7 +124,8 @@ describe('ContinuousTrigger', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			await wait(70);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			s1.resumeProcessing(); // outside of step! so we have to wait for 2x steps
+			createCellAt('A2', undefined, s1.sheet);
+			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
 			await wait(120);
 			await machine.stop();
 			// will directly pause again, so
@@ -211,7 +220,8 @@ describe('ContinuousTrigger', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			// resume pause function
-			s1.resumeProcessing();
+			createCellAt('A2', undefined, s1.sheet);
+			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
 			await wait(120);
 			expect(machine.stats.steps).toBeGreaterThanOrEqual(4);
 			// only have 3 and 2 because on next tick it will pause again...
@@ -240,7 +250,8 @@ describe('ContinuousTrigger', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			// resume pause function
-			s1.resumeProcessing();
+			createCellAt('A2', undefined, s1.sheet);
+			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
 			await wait(120);
 			expect(machine.stats.steps).toBeGreaterThanOrEqual(4);
 			// only have 3 and 2 because on next tick it will pause again...
