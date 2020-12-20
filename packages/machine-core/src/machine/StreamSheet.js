@@ -442,8 +442,8 @@ class StreamSheet {
 		this._state = State.REPEAT;
 		this.sheet._pauseProcessing();
 	}	
-	resumeProcessing() {
-		this.trigger.resumeProcessing();
+	resumeProcessing(finish) {
+		this.trigger.resumeProcessing(finish);
 	}
 	// ~
 
@@ -477,14 +477,17 @@ class StreamSheet {
 
 	// TODO: think .. - replace with pre-/postTriggerStep (willTrigger, didTrigger or similar)
 	triggerStep() {
+		// track re-entry caused e.g. by resume on sheet._startProcessing()
+		this.triggerStep.processed = false;
 		if (this.sheet.isReady || this.sheet.isProcessed) this._attachNextMessage();
 		this.sheet.getDrawings().removeAll();
 		const result = this.sheet._startProcessing();
-		if (this.sheet.isProcessed) {
+		if (!this.triggerStep.processed) {
+			this.triggerStep.processed = true;
 			// on endless we reuse message
-			if (!this.trigger.isEndless) this._msgHandler.next();
-			this._detachMessage();
+			if (this.sheet.isProcessed && !this.trigger.isEndless) this._msgHandler.next();
 		}
+		this._detachMessage();
 		this._emitter.emit('step', this);
 		return result;
 	}
