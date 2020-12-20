@@ -11,8 +11,8 @@
 // col -1 represents IF col.
 const checkSkipRow = (cell, cursor) => {
 	if (cursor.c === -1 && cell.isDefined && !cell.value) {
-		// cursor.r += 1;
-		// cursor.c = null;
+		cursor.r += 1;
+		cursor.c = null;
 		cursor.changed = true;
 	}
 };
@@ -64,6 +64,7 @@ class SheetProcessor {
 	constructor(sheet) {
 		this._state = State.READY;
 		this._cursor = new Cursor(sheet);
+		this._hasStepped = false;
 	}
 
 	get isPaused() {
@@ -78,6 +79,10 @@ class SheetProcessor {
 	
 	continueAt(index) {
 		this._cursor.setToIndex(index);
+	}
+
+	preStep() {
+		this._hasStepped = false;
 	}
 
 	pause() {
@@ -97,8 +102,22 @@ class SheetProcessor {
 		this._cursor.isProcessed = true;
 	}
 	start() {
-		this._process();
-		return this._cursor.result;
+		const cursor = this._cursor;
+		const sheet = cursor.sheet;
+		const rows = sheet._rows;
+		// we are neither dynamic in rows, nor in columns to prevent endless for-loops if cells are added permanently
+		const last = rows.length;
+
+		this._process3();
+
+		// on end of sheet
+		cursor.isProcessed = cursor.r >= last; // && (cursor.c == null || cursor.c >= lastcol))) {
+
+		// graph cells:
+		sheet.graphCells.evaluating = true;
+		sheet.graphCells._cells.forEach((cell) => cell.evaluate());
+		sheet.graphCells.evaluating = false;
+		return cursor.result;
 	}
 	_process() {
 		const cursor = this._cursor;
@@ -138,15 +157,7 @@ class SheetProcessor {
 			// move to next row:
 			cursor.r += 1;
 			cursor.c = null;
-			
 		}
-		// on end of sheet
-		cursor.isProcessed = cursor.r >= last; // && (cursor.c == null || cursor.c >= lastcol))) {
-
-		// graph cells:
-		sheet.graphCells.evaluating = true;
-		sheet.graphCells._cells.forEach((cell) => cell.evaluate());
-		sheet.graphCells.evaluating = false;
 	}
 	_process2() {
 		const cursor = this._cursor;
@@ -194,15 +205,65 @@ class SheetProcessor {
 					cursor.c = null;
 				}
 			}
-			// on end of sheet
-			cursor.isProcessed = cursor.r >= last; // && (cursor.c == null || cursor.c >= lastcol))) {
-	
-			// graph cells:
-			sheet.graphCells.evaluating = true;
-			sheet.graphCells._cells.forEach((cell) => cell.evaluate());
-			sheet.graphCells.evaluating = false;
 		}
-		return cursor.result;
+	}
+	_process3() {
+		const cursor = this._cursor;
+		const sheet = cursor.sheet;
+		const rows = sheet._rows;
+		// we are neither dynamic in rows, nor in columns to prevent endless for-loops if cells are added permanently
+		const last = rows.length;
+		let lastcol = 0;
+		cursor.hasProcessed = false;
+		// FOLLOWING is wrong!! Since it will e.g. execute() for each cell evaluation!!
+		// BUT: how to handle if value in cell reference change?? e.g. sleep(A1) with A1 = 500 and than A1 = 5
+		if (this.isPaused) {
+			// check paused cell again because its referenced values might have changed:
+			const cell = cellAt(cursor.r, cursor.c, sheet);
+			if (cell) cell.evaluate();
+			// if (!this.isPaused && this._cursor.c != null) this._cursor.c += 1;
+		}
+		// do nothing if still paused
+		if (!this.isPaused) {
+			cursor.hasProcessed = true;
+			if (this.isProcessed) cursor.reset();
+			for (; cursor.r < last && !this.isPaused; ) {
+				const row = rows[cursor.r];
+				lastcol = row ? row.length : 0;
+				cursor.c = cursor.c == null ? startCol(sheet, cursor.r) : cursor.c;
+				for (; cursor.c < lastcol && !this.isPaused; ) {
+					const cell = cellAt(cursor.r, cursor.c, sheet);
+					if (cell) {
+						cell.evaluate();
+						// should we skip row?
+						checkSkipRow(cell, cursor);
+					}
+					 // break from inner column-loop if cursor was changed...
+					if (cursor.changed) break;
+					cursor.c += 1;
+				}
+				if (cursor.changed) {
+					cursor.changed = false;
+					// break from row-loop if paused or if jump backward to prevent endless loop...
+					if (cursor.isBackward || this.isPaused) {
+						cursor.isBackward = false;
+						break;
+					}
+				} else {
+					// move to next row:
+					cursor.r += 1;
+					cursor.c = null;
+				}
+			}
+		}
+
+
+
+
+		// if (!this.isPaused && this.isProcessed) {
+		// 	cursor.reset();
+		// 	this._state = State.READY;
+		// }
 	}
 }
 
