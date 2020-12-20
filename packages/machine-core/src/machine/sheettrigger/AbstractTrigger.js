@@ -112,8 +112,8 @@ class AbstractTrigger {
 		clearTrigger(this);
 		// this.pause();
 	}
-	resumeProcessing() {
-		if (!this.isResumed) {
+	resumeProcessing(doFinish) {
+		if (!this.isResumed && this.sheet.isPaused) {
 			this.isResumed = true;
 			this.sheet._resumeProcessing();
 			// resume processing should not start e.g. endless mode again!! => might was paused by machine!!!
@@ -123,7 +123,7 @@ class AbstractTrigger {
 			if (this.isManualStep) this._finishStep();
 			// machine runs:
 			else if (this.isEndless) this._finishRepeatStep();
-			else this._finishStep();
+			else if (doFinish) this._finishStep();
 		}
 		
 		// if (this.isActive && !this.isResumed && !this.sheet.isPaused) {

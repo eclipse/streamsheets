@@ -32,6 +32,7 @@ class ExecuteTrigger extends AbstractTrigger {
 	cancelExecute() {
 		if (!this.sheet.isProcessed) this.stopProcessing();
 		this.isActive = false;
+		if (this._callingSheet) this._callingSheet.resumeProcessing(true);
 	}
 
 	step(manual) {
@@ -65,7 +66,7 @@ class ExecuteTrigger extends AbstractTrigger {
 		super.stopProcessing(retval);
 		this._isStopped = true;
 		// resume calling sheet only in endless mode, otherwise it wasn't paused
-		if (this.isEndless && this._callingSheet) this._callingSheet.resumeProcessing();
+		if (this.isEndless && this._callingSheet) this._callingSheet.resumeProcessing(true);
 	}
 
 	update(config = {}) {
