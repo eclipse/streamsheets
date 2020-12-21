@@ -8,10 +8,10 @@ class ExecuteTrigger extends AbstractTrigger {
 	}
 	constructor(cfg = {}) {
 		super(Object.assign(cfg, TYPE_CONF));
-		// flag to prevent executing twice on manual stepping if this comes before triggering sheet
-		this._isExecuted = false;
 		// flag to indicate that calculation was stopped, e.g. by return()
 		this._isStopped = false;
+		// flag to prevent executing twice on manual stepping if this comes before triggering sheet
+		this._isExecuted = false;
 		this._resumeFn = undefined;
 	}
 
@@ -39,6 +39,7 @@ class ExecuteTrigger extends AbstractTrigger {
 	}
 
 	doCycleStep() {
+		if (this.isEndless) this._streamsheet.stats.repeatsteps += 1;
 		this._doExecute();
 	}
 	doRepeatStep() {
@@ -51,18 +52,6 @@ class ExecuteTrigger extends AbstractTrigger {
 			this._isExecuted = true;
 			streamsheet.triggerStep();
 			if (!this._isStopped && !this.isEndless && this._resumeFn) this._resumeFn();
-			this.isActive = !this._isStopped && (this.isEndless || this.sheet.isPaused);
-		}
-	}
-	_doExecute2() {
-		if (!this.isResumed) {
-			const streamsheet = this._streamsheet;
-			this._isExecuted = true;
-			streamsheet.stats.executesteps = 0;
-			for (let i = 0; this.isActive && i < this._repetitions; i += 1) {
-				streamsheet.stats.executesteps = i + 1;
-				streamsheet.triggerStep();
-			}
 			this.isActive = !this._isStopped && (this.isEndless || this.sheet.isPaused);
 		}
 	}

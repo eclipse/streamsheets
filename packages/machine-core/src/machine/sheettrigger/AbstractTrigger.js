@@ -157,7 +157,7 @@ class AbstractTrigger {
 	_startRepeat() {
 		repeatTrigger(this);
 		// on repeat start we do a normal cycle!
-		this.doCycleStep();
+		this.doCycleStep(true);
 	}
 	_repeatStep() {
 		repeatTrigger(this);
@@ -173,12 +173,17 @@ class AbstractTrigger {
 			else this.doCycleStep();
 		}
 	}
-	doCycleStep() {
-		this._streamsheet.stats.steps += this.sheet.isPaused ? 0 : 1;
-		// TODO: count repeats on manual step and endless <-- NO!! if manual step and endless we should call doRepeatStep()!!!
-		// if (this.isManualStep && this.isEndless) this._streamsheet.stats.repeatsteps += 1;
-		// else 
-		// if (!this.sheet.isPaused) this._streamsheet.stats.steps += 1;
+	doCycleStep(firstRepeat) {
+		// we come here on manual step for repeating too, so:
+		if (!this.sheet.isPaused) {
+			if (this.isEndless) {
+				this._streamsheet.stats.repeatsteps += 1;
+				if (!this._streamsheet.stats.steps) this._streamsheet.stats.steps = 1;
+				else if (!firstRepeat && !this.isManualStep) this._streamsheet.stats.steps += 1;
+			} else {
+				this._streamsheet.stats.steps += 1;
+			}
+		}
 		this._streamsheet.triggerStep();
 		this.isActive = this.sheet.isPaused;
 	}
