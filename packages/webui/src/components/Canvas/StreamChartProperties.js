@@ -115,7 +115,7 @@ export class StreamChartProperties extends Component {
 	static getDerivedStateFromProps(props, state) {
 		if (props.showStreamChartProperties === true) {
 			const plotView = StreamChartProperties.getPlotView();
-			if (plotView !== state.plotView) {
+			if (plotView && plotView !== state.plotView) {
 				const item = plotView.getItem();
 				return {
 					...state,
