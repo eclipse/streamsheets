@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 const { SheetParser } = require('../');
+const mockedFunctions = require('./_functions');
 
 // WHY? if we mock here instead of mocking in corresponding test it works with above SheetParser require!!
 jest.mock('../src/streams/StreamMessagingClient');
@@ -16,71 +17,5 @@ jest.mock('../src/streams/StreamMessagingClient');
 // FOR TESTs we do not use persistent outbox
 process.env.OUTBOX_PERSISTENT = false;
 
-// some dummy function implementations:
-const EXECUTE = (sheet, ...terms) => {
-	// execute({ message, selector }, callback, repetitions) {
-	if (sheet.isProcessing) {
-		let message;
-		const machine = sheet.machine;
-		const context = EXECUTE.context;
-		const streamsheet = machine.getStreamSheetByName(terms[0].value);
-		const repetitions = terms[1] ? terms[1].value : 1;
-		if (terms[2]) {
-			const msgstr = terms[2].value;
-			const box = msgstr.startsWith('in:') ? sheet.streamsheet.inbox : machine.outbox;
-			const msgId = msgstr.startsWith('in:') ? msgstr.substr(3) : msgstr.substr(4);
-			message = box.peek(msgId);
-		}
-		if (!context.initialized) {
-			context.initialized = true;
-			context.addDisposeListener(() => {
-				streamsheet.cancelExecute();
-			});
-		}
-		return !sheet.isPaused ? streamsheet.execute(message, repetitions, sheet.streamsheet) : true;
-	}
-	return true;
-};
-const PAUSE = (sheet /* , ...terms */) => {
-	// if (sheet.isProcessing && !sheet.isPaused) {
-	// 	sheet.streamsheet.pauseProcessing();
-	// }
-	if (sheet.isProcessing) {
-		const context = PAUSE.context;
-		if (!context.initialized) {
-			context.initialized = true;
-			context.addDisposeListener(() => {
-				if (sheet.isPaused) sheet.streamsheet.resumeProcessing();
-			});
-		}
-		if (!sheet.isPaused) sheet.streamsheet.pauseProcessing();
-	}
-	return true;
-};
-
-const functions = {
-	EXECUTE,
-	MOD: (sheet, ...terms) => {
-		const val = terms[0] ? terms[0].value : 0;
-		const dividend = terms[1] ? terms[1].value : 1;
-		return val % dividend;
-	},
-	RETURN: (sheet, ...terms) => {
-		let retval = true;
-		if (sheet.isProcessing) {
-			retval = terms[0] ? terms[0].value : true;
-			sheet.streamsheet.stopProcessing(retval);
-		}
-		return retval;
-	},
-	PAUSE
-	// ,
-	// RESUME: (sheet /* , ...terms */) => {
-	// 	if (sheet.isProcessing) {
-	// 		sheet.streamsheet.resumeProcessing();
-	// 	}
-	// }
-};
-
 // setup parser and its context...
-Object.assign(SheetParser.context.functions, functions);
+Object.assign(SheetParser.context.functions, mockedFunctions);
