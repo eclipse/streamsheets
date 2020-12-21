@@ -688,7 +688,7 @@ export default class GraphManager {
 		let value = metadata.id;
 		if (metadata.arrivalTime) {
 			const date = MathUtils.excelDateToJSDate(metadata.arrivalTime);
-			value = `${date.toLocaleTimeString()} ${date.getMilliseconds()}`;
+			value = `${date.toLocaleTimeString()}.${date.getMilliseconds().toString().padStart(3,'0')}`;
 		} else {
 			value = metadata.id;
 		}
