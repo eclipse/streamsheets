@@ -600,8 +600,8 @@ module.exports = class Sheet {
 	_pauseProcessing() {
 		this.processor.pause();
 	}
-	_resumeProcessing() {
-		this.processor.resume();
+	_resumeProcessing(retval) {
+		this.processor.resume(retval);
 	}
 
 

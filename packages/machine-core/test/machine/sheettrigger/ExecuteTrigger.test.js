@@ -301,26 +301,30 @@ describe('ExecuteTrigger', () => {
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 			createCellAt('B3', { formula: 'if(mod(B2,3)=0,return(),false)' }, s2.sheet);
+			createCellAt('B4', { formula: 'B4+1' }, s2.sheet);
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			expect(s1.sheet.cellAt('A3').value).toBe(2);
-			expect(s2.sheet.cellAt('B2').value).toBe(3);
+			expect(s2.sheet.cellAt('B2').value).toBe(11);
 			expect(s2.sheet.cellAt('B3').value).toBe(true);
+			expect(s2.sheet.cellAt('B4').value).toBe(8);
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			expect(s1.sheet.cellAt('A3').value).toBe(3);
-			expect(s2.sheet.cellAt('B2').value).toBe(6);
+			expect(s2.sheet.cellAt('B2').value).toBe(21);
 			expect(s2.sheet.cellAt('B3').value).toBe(true);
+			expect(s2.sheet.cellAt('B4').value).toBe(14);
 			await machine.step();
 			await machine.step();
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(6);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			expect(s1.sheet.cellAt('A3').value).toBe(6);
-			expect(s2.sheet.cellAt('B2').value).toBe(15);
+			expect(s2.sheet.cellAt('B2').value).toBe(51);
 			expect(s2.sheet.cellAt('B3').value).toBe(true);
+			expect(s2.sheet.cellAt('B4').value).toBe(34);
 		});
 		it('should stop repetitions of execute as soon as return() is called with machine run', async () => {
 			const { machine, s1, s2 } = setup();
@@ -329,60 +333,78 @@ describe('ExecuteTrigger', () => {
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 			createCellAt('B3', { formula: 'if(mod(B2,3)=0,return(),false)' }, s2.sheet);
+			createCellAt('B4', { formula: 'B4+1' }, s2.sheet);
 			await machine.start();
 			await wait(70);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			expect(s1.sheet.cellAt('A3').value).toBe(3);
-			expect(s2.sheet.cellAt('B2').value).toBe(6);
+			expect(s2.sheet.cellAt('B2').value).toBe(21);
 			expect(s2.sheet.cellAt('B3').value).toBe(true);
+			expect(s2.sheet.cellAt('B4').value).toBe(14);
 		});
 		it('should stop repetitions of execute as soon as return() is called in "repeat until..." with manual steps', async () => {
 			const { machine, s1, s2 } = setup();
 			s2.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-			createCellAt('A2', { formula: 'execute("S2",10)' }, s1.sheet);
+			createCellAt('A2', { formula: 'execute("S2",2)' }, s1.sheet);
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 			createCellAt('B3', { formula: 'if(mod(B2,3)=0,return(),false)' }, s2.sheet);
+			createCellAt('B4', { formula: 'B4+1' }, s2.sheet);
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
-			expect(s1.sheet.cellAt('A3').value).toBe(2);
-			expect(s2.sheet.cellAt('B2').value).toBe(3);
-			expect(s2.sheet.cellAt('B3').value).toBe(true);
-			await machine.step();
-			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('A3').value).toBe(1);
+			expect(s2.sheet.cellAt('B2').value).toBe(2);
+			expect(s2.sheet.cellAt('B3').value).toBe(false);
+			expect(s2.sheet.cellAt('B4').value).toBe(2);
+			await machine.step(); // will resume and directly repeat execute again
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
-			expect(s1.sheet.cellAt('A3').value).toBe(3);
+			expect(s1.sheet.cellAt('A3').value).toBe(1);
+			expect(s2.sheet.cellAt('B2').value).toBe(4);
+			// NOTE: B§ contains true because its value of step and not from repeat which would have been false!!
+			expect(s2.sheet.cellAt('B3').value).toBe(true);
+			expect(s2.sheet.cellAt('B4').value).toBe(3);
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('A3').value).toBe(1);
+			expect(s2.sheet.cellAt('B2').value).toBe(5);
+			expect(s2.sheet.cellAt('B3').value).toBe(false);
+			expect(s2.sheet.cellAt('B4').value).toBe(4);
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			expect(s2.sheet.cellAt('B2').value).toBe(6);
 			expect(s2.sheet.cellAt('B3').value).toBe(true);
+			expect(s2.sheet.cellAt('B4').value).toBe(4);
 			await machine.step();
-			await machine.step();
-			await machine.step();
-			expect(s1.sheet.cellAt('A1').value).toBe(6);
-			expect(s1.sheet.cellAt('A2').value).toBe(true);
-			expect(s1.sheet.cellAt('A3').value).toBe(6);
-			expect(s2.sheet.cellAt('B2').value).toBe(15);
-			expect(s2.sheet.cellAt('B3').value).toBe(true);
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('A3').value).toBe(2);
+			expect(s2.sheet.cellAt('B2').value).toBe(7);
+			expect(s2.sheet.cellAt('B3').value).toBe(false);
+			expect(s2.sheet.cellAt('B4').value).toBe(5);
 		});
 		it('should stop repetitions of execute as soon as return() is called in "repeat until..." with machine run', async () => {
 			const { machine, s1, s2 } = setup();
 			s2.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-			createCellAt('A2', { formula: 'execute("S2",10)' }, s1.sheet);
+			createCellAt('A2', { formula: 'execute("S2",2)' }, s1.sheet);
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 			createCellAt('B3', { formula: 'if(mod(B2,3)=0,return(),false)' }, s2.sheet);
+			createCellAt('B4', { formula: 'B4+1' }, s2.sheet);
 			await machine.start();
 			await wait(70);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			expect(s1.sheet.cellAt('A3').value).toBe(3);
-			expect(s2.sheet.cellAt('B2').value).toBe(6);
+			expect(s2.sheet.cellAt('B2').value).toBe(12);
 			expect(s2.sheet.cellAt('B3').value).toBe(true);
+			expect(s2.sheet.cellAt('B4').value).toBe(8);
 		});
 		test('chain of execution with several sheets on machine run', async () => {
 			// CHAIN: S1 -> S3 -> S2
@@ -649,18 +671,21 @@ describe('ExecuteTrigger', () => {
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			s2.inbox.put(new Message());
 			s2.inbox.put(new Message());
-			s2.inbox.put(new Message());
+			expect(s2.inbox.size).toBe(2);
 			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
-			expect(s2.inbox.size).toBe(3);
 			await machine.step();
+			// inbox messages never used, because we pass message on each repetition 
 			expect(s2.inbox.size).toBe(2);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			expect(s2.sheet.cellAt('B1').value).toBe(4);
-			// a processed message is removed with next step
 			await machine.step();
-			expect(s2.inbox.size).toBe(1);
+			expect(s2.inbox.size).toBe(2);
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('A2').value).toBe(true);
+			expect(s1.sheet.cellAt('A3').value).toBe(3);
+			expect(s2.sheet.cellAt('B1').value).toBe(7);
 		});
 		it('should use passed message before using inbox ones on machine run', async () => {
 			const { machine, s1, s2 } = setup();
@@ -676,10 +701,9 @@ describe('ExecuteTrigger', () => {
 			await machine.pause();
 			s2.inbox.put(new Message());
 			s2.inbox.put(new Message());
-			s2.inbox.put(new Message());
-			s2.inbox.put(new Message());
 			expect(s1.stats.steps).toBe(1);
-			expect(s2.inbox.size).toBe(4);
+			// inbox messages never used, because we pass message on each repetition 
+			expect(s2.inbox.size).toBe(2);
 			expect(s2.machine.outbox.size).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
@@ -690,8 +714,7 @@ describe('ExecuteTrigger', () => {
 			await machine.pause();
 			expect(s1.stats.steps).toBe(2);
 			expect(s2.sheet.cellAt('B1').value).toBe(7);
-			// last used message is popped on next step
-			expect(s2.inbox.size).toBe(3);
+			expect(s2.inbox.size).toBe(2);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			expect(s1.sheet.cellAt('A3').value).toBe(3);
@@ -700,7 +723,6 @@ describe('ExecuteTrigger', () => {
 			await machineMonitor.nextSteps(1);
 			await machine.pause();
 			expect(s1.stats.steps).toBe(3);
-			// last used message is popped on next step
 			expect(s2.inbox.size).toBe(2);
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
@@ -709,7 +731,7 @@ describe('ExecuteTrigger', () => {
 			await machine.start();
 			await machineMonitor.nextSteps(2);
 			await machine.stop();
-			expect(s2.inbox.size).toBe(1);
+			expect(s2.inbox.size).toBe(2);
 		});
 		it('should consume a message on each execute-repetition on manual steps', async () => {
 			const { machine, s1, s2 } = setup();
@@ -866,6 +888,7 @@ describe('ExecuteTrigger', () => {
 			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
 			expect(s2.inbox.size).toBe(3);
 			await machine.step();
+			// inbox messages never used, because we pass message on each repetition 
 			expect(s2.inbox.size).toBe(3);
 			expect(s2.getLoopIndex()).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
@@ -876,8 +899,7 @@ describe('ExecuteTrigger', () => {
 			expect(s2.getLoopIndex()).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 			expect(s2.sheet.cellAt('B1').value).toBe(7);
-			// increase repetitions value => inbox messages must be used:
-			createCellAt('A2', { formula: `execute("S2", 5, "out:${messageId}")` }, s1.sheet);
+			createCellAt('A2', { formula: `execute("S2", 5)`}, s1.sheet); // , "out:${messageId}")` }, s1.sheet);
 			await machine.step();
 			expect(s2.inbox.size).toBe(2);
 			expect(s2.getLoopIndex()).toBe(2);
@@ -907,8 +929,7 @@ describe('ExecuteTrigger', () => {
 			expect(s2.getLoopIndex()).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s2.sheet.cellAt('B1').value).toBe(5);
-			// increase repetitions value => inbox messages must be used:
-			createCellAt('A2', { formula: `execute("S2", 5, "out:${messageId}")` }, s1.sheet);
+			createCellAt('A2', { formula: `execute("S2", 5)` }, s1.sheet); // , "out:${messageId}")` }, s1.sheet);
 			await machine.start();
 			await machineMonitor.nextSteps(1);
 			await machine.pause();
@@ -1490,6 +1511,7 @@ describe('ExecuteTrigger', () => {
 		});
 		it('should restart repetition count on each repeat in "repeat until..."', async () => {
 			const { machine, s1, s2 } = setup();
+			const monitorS2 = monitorStreamSheet(s2);
 			s2.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'execute("S2",5)' }, s1.sheet);
@@ -1497,15 +1519,17 @@ describe('ExecuteTrigger', () => {
 			createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 			createCellAt('B4', { formula: 'if(mod(B2,2)=0,return(),false)' }, s2.sheet);
 			await machine.start();
-			await wait(120);
-			await machine.stop();
-			// executesteps count is bound by return each 2 calcs
-			expect(s2.stats.executesteps).toBe(2);
-			expect(s1.sheet.cellAt('A1').value).toBe(4);
+			await monitorS2.isAtStep(2);
+			await machine.pause();
+			expect(s1.stats.steps).toBe(2);
+			expect(s2.stats.steps).toBe(2);
+			expect(s2.stats.executesteps).toBe(5);
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
-			expect(s1.sheet.cellAt('A3').value).toBe(4);
-			expect(s2.sheet.cellAt('B2').value).toBe(6);
+			expect(s1.sheet.cellAt('A3').value).toBe(3);
+			expect(s2.sheet.cellAt('B2').value).toBe(20);
 			expect(s2.sheet.cellAt('B4').value).toBe(true);
+			await machine.stop();
 		});
 		it('should increase step counter on each execution call', async () => {
 			const { machine, s1, s2 } = setup();

@@ -8,12 +8,11 @@ class ExecuteTrigger extends AbstractTrigger {
 	}
 	constructor(cfg = {}) {
 		super(Object.assign(cfg, TYPE_CONF));
-		this._repetitions = 1;
 		// flag to prevent executing twice on manual stepping if this comes before triggering sheet
 		this._isExecuted = false;
 		// flag to indicate that calculation was stopped, e.g. by return()
 		this._isStopped = false;
-		this._callingSheet = undefined;
+		this._resumeFn = undefined;
 	}
 
 	preStep(manual) {
@@ -23,16 +22,14 @@ class ExecuteTrigger extends AbstractTrigger {
 		this._isExecuted = false;
 	}
 
-	execute(repetitions, callingSheet) {
-		this._repetitions = Math.max(1, repetitions);
-		this._callingSheet = callingSheet;
-		if (this.isEndless) callingSheet.pauseProcessing();
+	execute(resumeFn) {
+		this._resumeFn = resumeFn;
+		this._isStopped = false;
 		this.trigger();
 	}
 	cancelExecute() {
 		if (!this.sheet.isProcessed) this.stopProcessing();
 		this.isActive = false;
-		if (this._callingSheet) this._callingSheet.resumeProcessing(true);
 	}
 
 	step(manual) {
@@ -42,7 +39,6 @@ class ExecuteTrigger extends AbstractTrigger {
 	}
 
 	doCycleStep() {
-		this._streamsheet.stats.steps += 1;
 		this._doExecute();
 	}
 	doRepeatStep() {
@@ -50,6 +46,15 @@ class ExecuteTrigger extends AbstractTrigger {
 		this._doExecute();
 	}
 	_doExecute() {
+		if (!this.isResumed && this.isActive) {
+			const streamsheet = this._streamsheet;
+			this._isExecuted = true;
+			streamsheet.triggerStep();
+			if (!this._isStopped && !this.isEndless && this._resumeFn) this._resumeFn();
+			this.isActive = !this._isStopped && (this.isEndless || this.sheet.isPaused);
+		}
+	}
+	_doExecute2() {
 		if (!this.isResumed) {
 			const streamsheet = this._streamsheet;
 			this._isExecuted = true;
@@ -65,8 +70,7 @@ class ExecuteTrigger extends AbstractTrigger {
 	stopProcessing(retval) {
 		super.stopProcessing(retval);
 		this._isStopped = true;
-		// resume calling sheet only in endless mode, otherwise it wasn't paused
-		if (this.isEndless && this._callingSheet) this._callingSheet.resumeProcessing(true);
+		if (this._resumeFn) this._resumeFn(retval);
 	}
 
 	update(config = {}) {

@@ -409,11 +409,11 @@ class StreamSheet {
 
 
 	// called by sheet functions:
-	execute(message, repetitions, callingSheet) {
+	execute(message, resumeFn) {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
 			// attach message?
 			if (message) this._attachExecuteMessage(message);
-			this.trigger.execute(repetitions, callingSheet);
+			this.trigger.execute(resumeFn);
 			return true;
 		}
 		return false;
@@ -442,8 +442,8 @@ class StreamSheet {
 		this._state = State.REPEAT;
 		this.sheet._pauseProcessing();
 	}	
-	resumeProcessing(finish) {
-		this.trigger.resumeProcessing(finish);
+	resumeProcessing(finish, retval) {
+		this.trigger.resumeProcessing(finish, retval);
 	}
 	// ~
 
