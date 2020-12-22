@@ -2284,15 +2284,14 @@ export class StreamChartProperties extends Component {
 														}
 													}}
 													value={
-														item.chart.formula.getFormula()
-															? `=${item.chart.formula.getFormula()}`
-															: ''
+														`=${series.formula.getFormula()}`
 													}
 													InputLabelProps={{ shrink: true }}
 													InputProps={{
 														inputComponent: MyInputComponent,
 														inputProps: {
 															component: CellRangeComponent,
+															onlyReference: false,
 															sheetView,
 															value: {},
 															range: `=${series.formula.getFormula()}`
