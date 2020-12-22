@@ -25,7 +25,7 @@ const execute = (sheet, ...terms) => {
 	const doExecute = (calledStreamSheet, message) => (context /* , message */) => {
 		context.repetitions -= 1;
 		calledStreamSheet.stats.executesteps += 1;
-		calledStreamSheet.execute(message, context.resumeFn);
+		calledStreamSheet.execute(message, undefined, context.resumeFn);
 	};
 
 	if (sheet.isProcessing) {

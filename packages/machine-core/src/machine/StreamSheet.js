@@ -409,8 +409,9 @@ class StreamSheet {
 
 
 	// called by sheet functions:
-	execute(message, resumeFn) {
+	execute(message, selector, resumeFn) {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
+			if (!message && selector) message = this.inbox.find(selector);
 			// attach message?
 			if (message) this._attachExecuteMessage(message);
 			this.trigger.execute(resumeFn);
