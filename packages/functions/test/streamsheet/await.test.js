@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Machine, Message, SheetParser, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { Machine, Message, SheetParser, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
 const { createCellAt, createTerm } = require('../utilities');
 const { AsyncRequest, runFunction } = require('../../src/utils');
 
@@ -269,13 +269,16 @@ describe('await', () => {
 		expect(sheet.cellAt('A4').value).toBe(true);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(4);
-		expect(sheet.cellAt('A5').value).toBe(3);
+		expect(sheet.cellAt('A5').value).toBe(4);
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(5);
+		expect(sheet.cellAt('A5').value).toBe(4);
 		// replace await
 		createCellAt('A4', 'replaced', sheet);
 		expect(sheet.cellAt('A4').value).toBe('replaced');
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(4);
-		expect(sheet.cellAt('A5').value).toBe(4);
+		expect(sheet.cellAt('A1').value).toBe(5);
+		expect(sheet.cellAt('A5').value).toBe(5);
 	});
 	// DL-4110
 	it('should not consume messages while awaiting and OnMessage trigger', async () => {
@@ -283,7 +286,7 @@ describe('await', () => {
 		const sheet = new StreamSheet().sheet;
 		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
-		sheet.streamsheet.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ARRIVAL });
+		sheet.streamsheet.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.ARRIVAL });
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.loadCells({
 			A1: { formula: 'A1+1' },
@@ -406,10 +409,7 @@ describe('await', () => {
 		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
-		sheet.streamsheet.updateSettings({
-			loop: { path: '[data][Customers]', enabled: true },
-			trigger: { type: 'always' }
-		});
+		sheet.streamsheet.updateSettings({ loop: { path: '[data][Customers]', enabled: true } });
 		sheet.loadCells({
 			A1: { formula: 'A1+1' },
 			A2: { formula: 'read(inboxdata("S1",,,"Name"), B2)' }
@@ -514,7 +514,7 @@ describe('await', () => {
 		expect(sheet.streamsheet.inbox.size).toBe(1);
 	});
 	// postponed or not done at all...
-	// it.skip('should support waiting for requests from another sheet', async () => {
+	// it('should support waiting for requests from another sheet', async () => {
 	// 	const machine = new Machine();
 	// 	const sheet1 = new StreamSheet().sheet;
 	// 	const sheet2 = new StreamSheet().sheet;
@@ -541,7 +541,7 @@ describe('await', () => {
 	// 	// resolveRequestAt('A2', sheet);
 	// 	// await machine.step();
 	// });
-	// it.skip('should support multiple requests in another sheet', async () => {
+	// it('should support multiple requests in another sheet', async () => {
 	// });
 });
 describe('await.one', () => {
@@ -758,13 +758,16 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A4').value).toBe(true);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(4);
-		expect(sheet.cellAt('A5').value).toBe(3);
+		expect(sheet.cellAt('A5').value).toBe(4);
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(5);
+		expect(sheet.cellAt('A5').value).toBe(4);
 		// replace await
 		createCellAt('A4', 'replaced', sheet);
 		expect(sheet.cellAt('A4').value).toBe('replaced');
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(4);
-		expect(sheet.cellAt('A5').value).toBe(4);
+		expect(sheet.cellAt('A1').value).toBe(5);
+		expect(sheet.cellAt('A5').value).toBe(5);
 	});
 	it('should not consume messages while awaiting', async () => {
 		const machine = new Machine();
@@ -816,10 +819,7 @@ describe('await.one', () => {
 		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
-		sheet.streamsheet.updateSettings({
-			loop: { path: '[data][Customers]', enabled: true },
-			trigger: { type: 'always' }
-		});
+		sheet.streamsheet.updateSettings({ loop: { path: '[data][Customers]', enabled: true } });
 		sheet.loadCells({
 			A1: { formula: 'A1+1' },
 			A2: { formula: 'read(inboxdata("S1",,,"Name"), B2)' },
@@ -929,18 +929,23 @@ describe('await.one', () => {
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A4').value).toBe(true);
-		expect(sheet.cellAt('A5').value).toBe(3);
-		expect(sheet.streamsheet.inbox.size).toBe(1);
-		// replace await
-		createCellAt('A4', 'replaced', sheet);
-		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(4);
-		expect(sheet.cellAt('A4').value).toBe('replaced');
 		expect(sheet.cellAt('A5').value).toBe(4);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(5);
+		expect(sheet.cellAt('A4').value).toBe(true);
+		expect(sheet.cellAt('A5').value).toBe(4);
+		expect(sheet.streamsheet.inbox.size).toBe(1);
+		// replace await
+		createCellAt('A4', 'replaced', sheet);
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(5);
+		expect(sheet.cellAt('A4').value).toBe('replaced');
 		expect(sheet.cellAt('A5').value).toBe(5);
+		expect(sheet.streamsheet.inbox.size).toBe(1);
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(6);
+		expect(sheet.cellAt('A5').value).toBe(6);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
 	});
 });

@@ -126,8 +126,7 @@ describe('inboxdata', () => {
 			const streamsheet = new StreamSheet();
 			const sheet = streamsheet.sheet;
 			streamsheet.updateSettings({
-				loop: { path: '[data][measurements]', enabled: true, recursively: true },
-				trigger: { type: 'always' }
+				loop: { path: '[data][measurements]', enabled: true, recursively: true }
 			});
 			streamsheet.inbox.put(new Message(Object.assign({}, MESSAGES.RECURSIVE.data), 'msg-recursive'));
 			sheet.loadCells({ A1: { formula: 'inboxdata(, , ,)' } });
@@ -177,10 +176,7 @@ describe('inboxdata', () => {
 			const machine = new Machine();
 			const streamsheet = new StreamSheet();
 			const sheet = streamsheet.sheet;
-			streamsheet.updateSettings({
-				loop: { path: '[data]', enabled: true, recursively: true },
-				trigger: { type: 'always' }
-			});
+			streamsheet.updateSettings({ loop: { path: '[data]', enabled: true, recursively: true } });
 			streamsheet.inbox.put(new Message(Object.assign({}, MESSAGES.RECURSIVE_NULL), 'msg-recursive'));
 			sheet.loadCells({ A1: { formula: 'inboxdata(, , ,)' } });
 			machine.addStreamSheet(streamsheet);

@@ -35,7 +35,7 @@ describe('continue', () => {
 			A4: { formula: 'A4+1' }
 		};/* eslint-enable */
 		const sheet = new StreamSheet().sheet.load({ cells });
-		sheet.startProcessing();
+		sheet.streamsheet.triggerStep();
 		expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(true);
 		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(1);
 		expect(sheet.cellAt(SheetIndex.create('C1')).value).toBe(1);
@@ -51,7 +51,7 @@ describe('continue', () => {
 		expect(sheet.cellAt(SheetIndex.create('E3')).value).toBe(true);
 		expect(sheet.cellAt(SheetIndex.create('A4')).value).toBe(1);
 		// next step:
-		sheet.startProcessing();
+		sheet.streamsheet.triggerStep();
 		expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(true);
 		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(1);
 		expect(sheet.cellAt(SheetIndex.create('C1')).value).toBe(2);
@@ -76,7 +76,7 @@ describe('continue', () => {
 			IF4: true, A4: { formula: 'A4+1' }
 		};/* eslint-enable */
 		const sheet = new StreamSheet().sheet.load({ cells });
-		sheet.startProcessing();
+		sheet.streamsheet.triggerStep();
 		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(2);
 		expect(sheet.cellAt(SheetIndex.create('C1')).value).toBe(true);
 		expect(sheet.cellAt(SheetIndex.create('IF2')).value).toBe(true);
@@ -87,7 +87,7 @@ describe('continue', () => {
 		expect(sheet.cellAt(SheetIndex.create('C3')).value).toBe(1);
 		expect(sheet.cellAt(SheetIndex.create('A4')).value).toBe(1);
 		// next step:
-		sheet.startProcessing();
+		sheet.streamsheet.triggerStep();
 		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(2);
 		expect(sheet.cellAt(SheetIndex.create('C1')).value).toBe(true);
 		expect(sheet.cellAt(SheetIndex.create('IF2')).value).toBe(true);
@@ -135,8 +135,7 @@ describe('continue', () => {
 		const sheet = setupSheetInbox();
 		const machine = sheet.machine;
 		sheet.streamsheet.updateSettings({
-			loop: { path: '[data][Positionen]', enabled: true },
-			trigger: { type: 'always' }
+			loop: { path: '[data][Positionen]', enabled: true }
 		});
 		sheet.loadCells({
 			A1: { formula: 'A1+1' },

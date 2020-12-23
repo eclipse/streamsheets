@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { createTerm, createCellAt } = require('../utilities');
-const { Cell, Machine, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { Cell, Machine, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
 
 const setup = () => {
 	const machine = new Machine();
@@ -233,7 +233,7 @@ describe('detectchange', () => {
 		const machine = new Machine();
 		machine.addStreamSheet(t1);
 		// sheet._isProcessing = true;
-		t1.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ALWAYS });
+		t1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 		t1.step();
 		expect(sheet.cellAt('A2').value).toBe(5);
 		expect(sheet.cellAt('A1').value).toBe(false);
@@ -420,7 +420,7 @@ describe('edge.detect', () => {
 		const machine = new Machine();
 		machine.addStreamSheet(t1);
 		// sheet._isProcessing = true;
-		t1.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ALWAYS });
+		t1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 		t1.step();
 		expect(sheet.cellAt('A2').value).toBe(5);
 		expect(sheet.cellAt('A1').value).toBe(false);

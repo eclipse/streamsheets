@@ -9,14 +9,10 @@
  *
  ********************************************************************************/
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
-const { createCellAt, createTerm } = require('../utilities');
+const { Machine, Message, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
+const { createCellAt, createTerm, wait } = require('../utilities');
 
 const ERROR = FunctionErrors.code;
-
-const runAfter = (ms, fn) => new Promise((resolve) => {
-	setTimeout(() => resolve(fn()), ms);
-});
 
 
 describe('sleep', () => {
@@ -43,11 +39,13 @@ describe('sleep', () => {
 		expect(sheet.cellAt('A2').value).toBe(1);
 		await machine.step();
 		expect(sheet.cellAt('A2').value).toBe(1);
-		await runAfter(60, async () => { await machine.step(); });
+		await wait(60);
+		await machine.step();
 		expect(sheet.cellAt('A2').value).toBe(2);
 		await machine.step();		// should sleep again
 		expect(sheet.cellAt('A2').value).toBe(2);
-		await runAfter(60, async () => { await machine.step(); });
+		await wait(60);
+		await machine.step();
 		expect(sheet.cellAt('A2').value).toBe(3);
 	});
 	it('should not prevent other sheets from processing', async () => {
@@ -122,10 +120,8 @@ describe('sleep', () => {
 		expect(sheet.cellAt('A2').value).toBe(true);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(4);
-		expect(sheet.cellAt('A3').value).toBe(3);
-		await runAfter(60, async () => {
-			await machine.step();
-		});
+		expect(sheet.cellAt('A3').value).toBe(4);
+		await wait(60);
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A3').value).toBe(4);
 	});
@@ -166,7 +162,7 @@ describe('sleep', () => {
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(500);
 		expect(sheet.cellAt('A3').value).toBe(1);
-		// update reference:
+		// update reference: => resumes => finishes step
 		createCellAt('A1', 0.0001, sheet);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(0.0001);
@@ -272,7 +268,7 @@ describe('sleep', () => {
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.streamsheet.updateSettings({
 			loop: { path: '[data][Customers]', enabled: true },
-			trigger: { type: 'always' }
+			trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY }
 		});
 		sheet.loadCells({
 			A1: { formula: 'read(inboxdata("S1",,,"Name"), B1)' },

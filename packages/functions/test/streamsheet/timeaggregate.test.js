@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Machine, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { Machine, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
 const { createCellAt } = require('../utilities');
 
 // eslint-disable-next-line no-undef
@@ -32,9 +32,7 @@ beforeEach(() => {
 	machine = new Machine();
 	machine.cycletime = 1000;
 	machine.removeAllStreamSheets();
-	machine.addStreamSheet(
-		new StreamSheet({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.MACHINE_START, repeat: 'endless' } })
-	);
+	machine.addStreamSheet(new StreamSheet({ name: 'T1', trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY } }));
 });
 
 describe('timeaggregate', () => {
