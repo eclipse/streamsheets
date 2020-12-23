@@ -100,11 +100,12 @@ class SheetProcessor {
 	start() {
 		const cursor = this._cursor;
 		const sheet = cursor.sheet;
+		const last = sheet._rows.length;
 
 		this._process();
 
 		// on end of sheet
-		cursor.isProcessed = cursor.r >= sheet._rows.length; // && (cursor.c == null || cursor.c >= lastcol))) {
+		cursor.isProcessed = cursor.r >= last; // && (cursor.c == null || cursor.c >= lastcol))) {
 
 		// graph cells:
 		sheet.graphCells.evaluating = true;
