@@ -17,9 +17,17 @@ const Sheet = require('./Sheet');
 const State = require('../State');
 const TriggerFactory = require('./sheettrigger/TriggerFactory');
 
-const getMessage = (message, selector, inbox) => {
+const getMessage = (message, selector, streamsheet) => {
+	const inbox = streamsheet.inbox;
 	if (selector) return inbox.find(selector);
-	if (message && message !== inbox.peek()) inbox.put(message);
+	if (message && message !== inbox.peek()) {
+		const msgHandler = streamsheet._msgHandler;
+		const currmsg = msgHandler.message;
+		if (currmsg && msgHandler.isProcessed) {
+			inbox.pop(currmsg.id);
+		}
+		inbox.put(message);
+	}
 	return message;
 };
 
@@ -407,7 +415,7 @@ class StreamSheet {
 	// called by sheet functions:
 	execute(message, selector, resumeFn) {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
-			message = getMessage(message, selector, this.inbox);
+			message = getMessage(message, selector, this);
 			// attach message?
 			if (message) this._attachExecuteMessage(message);
 			this.trigger.execute(resumeFn);
