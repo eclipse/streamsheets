@@ -263,7 +263,8 @@ const createByName = () => {
 				'#FF3737',
 				'#A5A5A5',
 				'#FF0066',
-			]
+			],
+			ifTransparency: 60,
 		};
 		break;
 	default:

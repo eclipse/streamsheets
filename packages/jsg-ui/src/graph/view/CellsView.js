@@ -929,7 +929,7 @@ export default class CellsView extends NodeView {
 				formattedValue.value === false ||
 				formattedValue.value === 'false';
 			if (this._wsItem._showFormulas === false && columnInfo.width < 1100) {
-				graphics.setTransparency(17);
+				graphics.setTransparency(JSG.theme.ifTransparency);
 				this.rect(
 					graphics,
 					columnInfo.x,
