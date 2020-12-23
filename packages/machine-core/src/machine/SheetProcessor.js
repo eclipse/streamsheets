@@ -100,6 +100,7 @@ class SheetProcessor {
 	start() {
 		const cursor = this._cursor;
 		const sheet = cursor.sheet;
+		// rows might change during processing, but we are not dynamic to prevent endless loop
 		const last = sheet._rows.length;
 
 		this._process();
