@@ -9,8 +9,8 @@ const preventStop = (doIt, streamsheet) => {
 class MachineTrigger extends AbstractTrigger {
 	constructor(config) {
 		super(config);
+		this.doStopEndless = false;
 		this.isStopFulFilled = false;
-		this.stopEndless = false;
 	}
 
 	set streamsheet(streamsheet) {
@@ -19,36 +19,38 @@ class MachineTrigger extends AbstractTrigger {
 		if (machine && machine.state === State.RUNNING) this.start();
 	}
 
-
 	start() {
+		this.doStopEndless = false;
+		this.isStopFulFilled = false;
 		if (this.type === MachineTrigger.TYPE_START) this.trigger();
 	}
 
-	stop(onUpdate) {
-		if (!onUpdate && this.type === MachineTrigger.TYPE_STOP && !this.isStopFulFilled) {
+	stop(onUpdate, onProcessing) {
+		if (!onUpdate && !onProcessing && this.type === MachineTrigger.TYPE_STOP && !this.isStopFulFilled) {
 			this.isStopFulFilled = true;
 			this.trigger();
-			return false;
-		} 
-		if (this.isStopFulFilled) {
-			this.stopEndless = true;
-			this.isStopFulFilled = false;
+			return !this.isEndless;
 		}
-		return super.stop(onUpdate);
+		this.doStopEndless = this.isStopFulFilled;
+		return super.stop(onUpdate, onProcessing);
 	}
 
+	stopProcessing(retval, onDispose) {
+		this.doStopEndless = true;
+		super.stopProcessing(retval, onDispose);
+	}
 	step(manual) {
-		if (manual && (this.type === MachineTrigger.TYPE_START || this.isStopFulFilled)) this.trigger();
-		preventStop(this.isEndless && !this.stopEndless, this._streamsheet);
+		if (manual && this.type === MachineTrigger.TYPE_START) this.trigger();
+		preventStop(this.isEndless && !this.doStopEndless, this._streamsheet);
 	}
 
 	doCycleStep() {
+		preventStop(this.isEndless && !this.doStopEndless, this._streamsheet);
 		super.doCycleStep();
-		preventStop(this.isEndless && !this.stopEndless, this._streamsheet);
 	}
 	doRepeatStep() {
+		preventStop(!this.doStopEndless, this._streamsheet);
 		super.doRepeatStep();
-		preventStop(!this.stopEndless, this._streamsheet);
 	}
 }
 MachineTrigger.TYPE_START = 'start';

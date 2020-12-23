@@ -209,15 +209,14 @@ describe('MachineTrigger', () => {
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
 				expect(s2.sheet.cellAt('B1').value).toBe(3);
 				await machine.stop();
-				expect(machine.state).toBe(State.WILL_STOP);
-				// should triggered once...
-				expect(s1.sheet.cellAt('A1').value).toBe(2);
-				// step manually since machine is paused...
-				await machine.step();
-				// only sheets which are triggered by stop should be processed
-				expect(s1.sheet.cellAt('A1').value).toBe(3);
-				expect(s2.sheet.cellAt('B1').value).toBe(3);
 				expect(machine.state).toBe(State.STOPPED);
+				// should only triggered once...
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
+				// step manually should have no effect for stopped triggered...
+				await machine.step();
+				await machine.step();
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
+				expect(s2.sheet.cellAt('B1').value).toBe(5);
 			});
 			it('should not process sheet on manual steps', async () => {
 				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
@@ -227,6 +226,47 @@ describe('MachineTrigger', () => {
 				await machine.step();
 				await machine.step();
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
+			});
+			it('should process sheet on manual steps once or endlessly until return', async() => {
+				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
+				const s2 = new StreamSheet({ name: 'S2' });
+				machine.addStreamSheet(s2);
+				s2.trigger = new MachineTrigger({ type: MachineTrigger.TYPE_STOP, repeat: 'endless' });
+				s2.sheet.load({
+					cells: {
+						B1: { formula: 'B1+1' }, B2: { formula: 'if(B1>3, return(), false)' }, B3: { formula: 'B3+1' }
+					}
+				});
+				s1.sheet.load({ cells: { A1: { formula: 'A1+1' } } });
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				expect(s2.sheet.cellAt('B1').value).toBe(1);
+				expect(s2.sheet.cellAt('B2').value).toBe(false);
+				expect(s2.sheet.cellAt('B3').value).toBe(1);
+				await machine.start();
+				await machine.pause();
+				await machine.step();
+				await machine.step();
+				// do nothing until stop
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				expect(s2.sheet.cellAt('B1').value).toBe(1);
+				expect(s2.sheet.cellAt('B2').value).toBe(false);
+				expect(s2.sheet.cellAt('B3').value).toBe(1);
+				// trigger stop:
+				await machine.stop();
+				expect(machine.state).toBe(State.WILL_STOP);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
+				expect(s2.sheet.cellAt('B1').value).toBe(2);
+				expect(s2.sheet.cellAt('B2').value).toBe(false);
+				expect(s2.sheet.cellAt('B3').value).toBe(2);
+				// s2 still active:
+				await wait(80);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
+				expect(s2.sheet.cellAt('B1').value).toBe(4);
+				expect(s2.sheet.cellAt('B2').value).toBe(true);
+				expect(s2.sheet.cellAt('B3').value).toBe(3);
+				// stop again to realy stop machine in case of any error...
+				await machine.stop();
+				expect(machine.state).toBe(State.STOPPED);
 			});
 			it('should prevent machine stop in endless mode, but can be cancelled by calling stop again', async () => {
 				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
@@ -263,7 +303,7 @@ describe('MachineTrigger', () => {
 				await wait(100);
 				const s3c1 = s3.sheet.cellAt('C1').value;
 				expect(machine.state).toBe(State.WILL_STOP);
-				expect(s1.sheet.cellAt('A1').value).toBe(5);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
 				expect(s2.sheet.cellAt('B1').value).toBe(5);
 				expect(s3c1).toBeGreaterThan(5);
 				// stop again to really stop machine
@@ -272,9 +312,18 @@ describe('MachineTrigger', () => {
 				await machine.step();
 				await machine.step();
 				// no changes because triggers are stopped/reset too (DL-654)
-				expect(s1.sheet.cellAt('A1').value).toBe(5);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
 				expect(s2.sheet.cellAt('B1').value).toBe(7);
 				expect(s3.sheet.cellAt('C1').value).toBe(s3c1);
+				// start & stop again
+				await machine.start();
+				await machine.stop();
+				expect(machine.state).toBe(State.WILL_STOP);
+				expect(s1.sheet.cellAt('A1').value).toBe(3);
+				await machine.stop();
+				expect(machine.state).toBe(State.STOPPED);
+				expect(s1.sheet.cellAt('A1').value).toBe(3);
+				expect(s3.sheet.cellAt('C1').value).toBeGreaterThan(s3c1);
 			});
 		});
 		describe('update trigger', () => {
