@@ -22,7 +22,7 @@ const setup = () => {
 };
 describe('ContinuousTrigger', () => {
 	describe('general behaviour', () => {
-		it.skip('should process sheet on running machine', async () => {
+		it('should process sheet on running machine', async () => {
 			const { machine, s1 } = setup();
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
@@ -35,7 +35,7 @@ describe('ContinuousTrigger', () => {
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(7);
 		});
-		it.skip('should process sheet on manual steps if machine is stopped', async () => {
+		it('should process sheet on manual steps if machine is stopped', async () => {
 			const { machine, s1 } = setup();
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
@@ -45,7 +45,7 @@ describe('ContinuousTrigger', () => {
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 		});
-		it.skip('should process sheet on manual steps if machine is paused', async () => {
+		it('should process sheet on manual steps if machine is paused', async () => {
 			const { machine, s1 } = setup();
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
@@ -62,7 +62,7 @@ describe('ContinuousTrigger', () => {
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(6);
 		});
-		it.skip('should process sheet on manual steps if machine is paused in "repeat until..."', async () => {
+		it('should process sheet on manual steps if machine is paused in "repeat until..."', async () => {
 			const { machine, s1 } = setup();
 			const machineMonitor = monitorMachine(machine);
 			s1.trigger.update({ repeat: 'endless' });
@@ -83,7 +83,7 @@ describe('ContinuousTrigger', () => {
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(s1a1 + 3 + 1);
 		});
-		it.skip('should not process sheet on manual steps if paused by function', async () => {
+		it('should not process sheet on manual steps if paused by function', async () => {
 			const { machine, s1 } = setup();
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
@@ -115,7 +115,7 @@ describe('ContinuousTrigger', () => {
 			expect(s1.stats.steps).toBe(4);
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 		});
-		it.skip('should not process sheet on manual run if paused by function', async () => {
+		it('should not process sheet on manual run if paused by function', async () => {
 			const { machine, s1 } = setup();
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
@@ -131,7 +131,7 @@ describe('ContinuousTrigger', () => {
 			// will directly pause again, so
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 		});
-		it.skip('should run endlessly on "repeat until..." until machine is stopped', async () => {
+		it('should run endlessly on "repeat until..." until machine is stopped', async () => {
 			const { machine, s1 } = setup();
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -156,14 +156,14 @@ describe('ContinuousTrigger', () => {
 			expect(current).toBeGreaterThan(2);
 			// resume from pause:
 			await machine.start();
-			await machineMonitor.nextSteps(1);
+			await machineMonitor.nextSteps(2);
 			await wait(10);
 			await machine.pause();
-			expect(s1.stats.steps).toBe(1);
+			expect(s1.stats.steps).toBe(2); // 2 because of start()
 			expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(current + 2);
 			await machine.stop();
 		});
-		it.skip('should not calculate sheet on "repeat until..." if machine is paused', async () => {
+		it('should not calculate sheet on "repeat until..." if machine is paused', async () => {
 			const { machine, s1 } = setup();
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -183,7 +183,7 @@ describe('ContinuousTrigger', () => {
 			expect(s1.stats.steps).toBe(0);
 			expect(s1.sheet.cellAt('A1').value).toBe(current);
 		});
-		it.skip('should resume processing sheet on return in "repeat until..."', async () => {
+		it('should resume processing sheet on return in "repeat until..."', async () => {
 			const { machine, s1 } = setup();
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -199,7 +199,7 @@ describe('ContinuousTrigger', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(9);
 			expect(s1.sheet.cellAt('A4').value).toBe(6); // <- A4 is skipped each third time
 		});
-		it.skip('should not resume sheet on machine resume if sheet was paused by function', async () => {
+		it('should not resume sheet on machine resume if sheet was paused by function', async () => {
 			const { machine, s1 } = setup();
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
@@ -228,7 +228,7 @@ describe('ContinuousTrigger', () => {
 			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			await machine.stop();
 		});
-		it.skip('should not resume sheet in "repeat until..." on machine resume if sheet was paused by function', async () => {
+		it('should not resume sheet in "repeat until..." on machine resume if sheet was paused by function', async () => {
 			const { machine, s1 } = setup();
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -258,7 +258,7 @@ describe('ContinuousTrigger', () => {
 			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			await machine.stop();
 		});
-		it.skip('should resume on machine stop and start if process was paused by function', async () => {
+		it('should resume on machine stop and start if process was paused by function', async () => {
 			const { machine, s1 } = setup();
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
@@ -272,7 +272,7 @@ describe('ContinuousTrigger', () => {
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 		});
-		it.skip('should resume on machine stop and start in "repeat until..." if process was paused by function', async () => {
+		it('should resume on machine stop and start in "repeat until..." if process was paused by function', async () => {
 			const { machine, s1 } = setup();
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -287,7 +287,7 @@ describe('ContinuousTrigger', () => {
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 		});
-		it.skip('should not block other sheets on "repeat until..."', async () => {
+		it('should not block other sheets on "repeat until..."', async () => {
 			const { machine, s1 } = setup();
 			const s2 = new StreamSheet({ name: 'S2' });
 			machine.addStreamSheet(s2);
@@ -315,7 +315,7 @@ describe('ContinuousTrigger', () => {
 			expect(s2.sheet.cellAt('A2').value).toBeGreaterThan(s2a2 + 2);
 		});
 	});
-	describe.skip('updating trigger', () => {
+	describe('updating trigger', () => {
 		it('should stop repeat in "repeat until..." if corresponding setting is disabled', async () => {
 			const { machine, s1 } = setup();
 			machine.cycletime = 5000;
@@ -404,7 +404,7 @@ describe('ContinuousTrigger', () => {
 			await machine.stop();
 		});
 	});
-	describe.skip('message processing', () => {
+	describe('message processing', () => {
 		it('should process next message if sheet is processed on manual steps', async () => {
 			const { machine, s1 } = setup();
 			s1.inbox.put(new Message());
@@ -537,7 +537,7 @@ describe('ContinuousTrigger', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			await machine.start();
-			await monitorS1.isAtStep(4);
+			await monitorS1.hasPassedStep(4);
 			await machine.pause();
 			expect(s1.stats.steps).toBe(4);
 			// we reuse last message
@@ -613,7 +613,7 @@ describe('ContinuousTrigger', () => {
 			s1.inbox.put(new Message());
 			s1.inbox.put(new Message({ loop: [{ val: 4 }, { val: 5 }] }));
 			await machine.start();
-			await monitorS1.isAtStep(4);
+			await monitorS1.hasPassedStep(4);
 			await machine.pause();
 			expect(s1.stats.steps).toBe(4);
 			expect(s1.sheet.cellAt('A1').value).toBe(8);
@@ -624,7 +624,7 @@ describe('ContinuousTrigger', () => {
 			await machine.stop();
 		});
 	});
-	describe.skip('counter stats', () => {
+	describe('counter stats', () => {
 		it('should count sheet step on each calculation', async () => {
 			const { machine, s1 } = setup();
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -664,7 +664,7 @@ describe('ContinuousTrigger', () => {
 			expect(s1.stats.steps).toBe(0);
 			expect(s1.stats.repeatsteps).toBe(0);
 		});
-		it('should not count repeat steps in "repeat until..." mode on manual steps (???)', async () => {
+		it('should count repeat and normal steps in "repeat until..." mode on manual steps', async () => {
 			const { machine, s1 } = setup();
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -673,7 +673,7 @@ describe('ContinuousTrigger', () => {
 			await machine.step();
 			await machine.step();
 			await machine.step();
-			expect(s1.stats.steps).toBe(1);
+			expect(s1.stats.steps).toBe(3);
 			expect(s1.stats.repeatsteps).toBe(3);
 		});
 		it('should not count repeat steps in "repeat until..." mode if machine paused', async () => {
@@ -713,7 +713,7 @@ describe('ContinuousTrigger', () => {
 			await machine.stop();
 		});
 	});
-	describe.skip('serialize', () => {
+	describe('serialize', () => {
 		it('should be possible to save trigger settings to JSON', () => {
 			let json = new ContinuousTrigger().toJSON();
 			expect(json).toBeDefined();

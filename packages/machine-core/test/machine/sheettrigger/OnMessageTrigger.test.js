@@ -178,7 +178,7 @@ describe('OnMessageTrigger', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			await machine.start();
 			putMessages(s1, ...messages);
-			await monitorS1.isAtStep(3)
+			await monitorS1.hasPassedStep(3)
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 			s1.trigger = newTrigger;
 			await wait(100);
@@ -198,7 +198,7 @@ describe('OnMessageTrigger', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			await machine.start();
 			putMessages(s1, new Message());
-			await monitorS1.isAtRepeatStep(3)
+			await monitorS1.hasPassedRepeatStep(3)
 			expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(4);
 			s1.trigger = newTrigger;
 			const s1a1 = s1.sheet.cellAt('A1').value;

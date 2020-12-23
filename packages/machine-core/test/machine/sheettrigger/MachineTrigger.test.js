@@ -100,7 +100,7 @@ describe('MachineTrigger', () => {
 				expect(s2.sheet.cellAt('B1').value).toBe(1);
 				// now add streamsheet with continuous trigger...
 				machine.addStreamSheet(s2);
-				await monitorS2.isAtStep(3);
+				await monitorS2.hasPassedStep(3);
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
 				expect(s2.sheet.cellAt('B1').value).toBe(4);
 				await machine.stop();
@@ -204,7 +204,7 @@ describe('MachineTrigger', () => {
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
 				await machine.start();
-				await monitorS2.isAtStep(2);
+				await monitorS2.hasPassedStep(2);
 				await machine.pause();
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
 				expect(s2.sheet.cellAt('B1').value).toBe(3);
@@ -281,7 +281,7 @@ describe('MachineTrigger', () => {
 				createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
 				createCellAt('C1', { formula: 'C1+1' }, s3.sheet);
 				await machine.start();
-				await monitorS2.isAtStep(2);
+				await monitorS2.hasPassedStep(2);
 				await machine.pause();
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
 				expect(s2.sheet.cellAt('B1').value).toBe(3);
