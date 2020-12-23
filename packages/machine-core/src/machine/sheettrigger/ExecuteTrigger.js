@@ -41,13 +41,10 @@ class ExecuteTrigger extends AbstractTrigger {
 
 	doCycleStep() {
 		if (this.isEndless) this._streamsheet.stats.repeatsteps += 1;
-		// we come here on manual step for repeating too, so:
-		// if (!this.sheet.isPaused) {
-		// 	this._streamsheet.stats.steps += 1;
-		// }
 		this._doExecute();
 	}
 	_startRepeat() {
+		// decrease since it is increased on each execute() repetition
 		this._streamsheet.stats.steps -= 1;
 		super._startRepeat();
 	}

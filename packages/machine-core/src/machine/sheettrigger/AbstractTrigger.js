@@ -49,11 +49,7 @@ class AbstractTrigger {
 	}
 
 	set streamsheet(streamsheet) {
-		// const { machine, sheet } = streamsheet;
 		this._streamsheet = streamsheet;
-		// apply current state if differ from stop
-		// if (sheet.isPaused) this.pause();
-		// else if (machine && machine.state === State.RUNNING) this.resume(true);
 	}
 
 	// called by streamsheet. signals that it will be removed. trigger should perform clean up here...
@@ -73,23 +69,13 @@ class AbstractTrigger {
 		clearTrigger(this);
 	}
 
-	// TODO: remove onUpdate flag
-	resume(onUpdate) { // called by machine: from pause to start
+	resume() { // called by machine: from pause to start
 		// if sheet is not paused by function 
-		if (/* this.isActive && */ !this.isResumed && !this.sheet.isPaused) {
+		if (!this.isResumed && !this.sheet.isPaused) {
 			this.isResumed = true;
 			if (this.isEndless) this._finishRepeatStep();
 			else this._finishStep();
 		}
-		// do not resume twice if already resumed before & check if not paused by function
-		// if (this.isActive && !this.isResumed && !this.sheet.isPaused) {
-		// 	if (!this.isManualStep && this.isEndless) {
-		// 		if (!this.sheet.isProcessed || onUpdate) this._repeatStep();
-		// 	} else if (!this.sheet.isProcessed || onUpdate) {
-		// 		this._streamsheet.triggerStep();
-		// 	}
-		// 	this.isResumed = !this.isRepeating;
-		// }
 	}
 
 	start() {
@@ -110,30 +96,15 @@ class AbstractTrigger {
 	pauseProcessing() {
 		this.sheet._pauseProcessing();
 		clearTrigger(this);
-		// this.pause();
 	}
 	resumeProcessing(doFinish, retval) {
 		if (!this.isResumed && this.sheet.isPaused) {
 			this.isResumed = true;
 			this.sheet._resumeProcessing(retval);
-			// resume processing should not start e.g. endless mode again!! => might was paused by machine!!!
-			// if (this.sheet.machine.state === State.RUNNING) this.resume();
-			// this.resume();
-
 			if (this.isManualStep) this._finishStep();
-			// machine runs:
 			else if (this.isEndless) this._finishRepeatStep();
 			else if (doFinish) this._finishStep();
 		}
-		
-		// if (this.isActive && !this.isResumed && !this.sheet.isPaused) {
-		// 	if (!this.isManualStep && this.isEndless) {
-		// 		if (!this.sheet.isProcessed || onUpdate) this._repeatStep();
-		// 	} else if (!this.sheet.isProcessed || onUpdate) {
-		// 		this._streamsheet.triggerStep();
-		// 	}
-		// 	this.isResumed = !this.isRepeating;
-		// }
 	}
 	_finishStep() {
 		if (!this.sheet.isProcessed) this._streamsheet.triggerStep();
@@ -158,7 +129,7 @@ class AbstractTrigger {
 		repeatTrigger(this);
 		this._streamsheet.stats.steps += 1;
 		// on repeat start we do a normal cycle!
-		this.doCycleStep(true);
+		this.doCycleStep();
 	}
 	_repeatStep() {
 		repeatTrigger(this);
@@ -168,13 +139,12 @@ class AbstractTrigger {
 	trigger() {
 		this.isActive = true;
 		if (!this.isResumed && this._stepId == null) {
-			// if (!this.isResumed && this._stepId == null && !this.sheet.isPaused) {
 			// do not start repetition again if isPaused by function!
 			if (!this.isManualStep && this.isEndless && !this.sheet.isPaused) this._startRepeat();
 			else this.doCycleStep();
 		}
 	}
-	doCycleStep(firstRepeat) {
+	doCycleStep() {
 		// we come here on manual step for repeating too, so:
 		if (!this.sheet.isPaused) {
 			if (this.isEndless) {
@@ -192,15 +162,6 @@ class AbstractTrigger {
 		this._streamsheet.triggerStep();
 		this.isActive = this.sheet.isPaused;
 	}
-
-	// DEPRECATED:
-	// preProcess() {}
-
-	// isTriggered() {
-	// 	return this.isEndless;
-	// }
-
-	// postProcess() {}
 }
 
 module.exports = AbstractTrigger;
