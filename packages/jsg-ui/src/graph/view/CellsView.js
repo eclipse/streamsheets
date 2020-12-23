@@ -258,6 +258,7 @@ export default class CellsView extends NodeView {
 					break;
 				case 'READ':
 				case 'WRITE':
+					result.clip = true;
 					result.fillColor = '#AAAAAA';
 					result.color = '#FFFFFF';
 					result.bold = true;
@@ -291,6 +292,7 @@ export default class CellsView extends NodeView {
 					}
 					break;
 				default:
+					result.clip = true;
 					result.value = String(data.getValue());
 					result.rounded = 'full';
 					if (result.value === 'true' || result.value[0] !== '#') {
