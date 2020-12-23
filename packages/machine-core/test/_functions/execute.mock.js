@@ -22,7 +22,7 @@ const execute = (sheet, ...terms) => {
 			context.doExecute(context /* , message */);
 		}
 	};
-	const doExecute = (calledStreamSheet, message) => (context /* , message */) => {
+	const doExecute = (calledStreamSheet /* , message */) => (context, message) => {
 		context.repetitions -= 1;
 		calledStreamSheet.stats.executesteps += 1;
 		calledStreamSheet.execute(message, undefined, context.resumeFn);
@@ -50,10 +50,10 @@ const execute = (sheet, ...terms) => {
 			if (calledStreamSheet.trigger.isEndless) callingStreamSheet.pauseProcessing();
 			context.isResumed = false;
 			context.repetitions = Math.max(1, repetitions);
-			context.doExecute = doExecute(calledStreamSheet, message);
-			calledStreamSheet.stats.steps += 1;
+			context.doExecute = doExecute(calledStreamSheet); // , message);
 			calledStreamSheet.stats.executesteps = 0;
-			context.resumeFn(/* undefined, message */);
+			// pass message only at beginning:
+			context.doExecute(context, message);
 		}
 		return true;
 	}
