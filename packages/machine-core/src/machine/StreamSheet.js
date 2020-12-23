@@ -17,15 +17,11 @@ const Sheet = require('./Sheet');
 const State = require('../State');
 const TriggerFactory = require('./sheettrigger/TriggerFactory');
 
-// const getMessage = (message, selector, inbox) => {
-// 	if (selector) {
-// 		return inbox.find(selector);
-// 	}
-// 	if (message && message !== inbox.peek()) {
-// 		inbox.put(message);
-// 	}
-// 	return message;
-// };
+const getMessage = (message, selector, inbox) => {
+	if (selector) return inbox.find(selector);
+	if (message && message !== inbox.peek()) inbox.put(message);
+	return message;
+};
 
 // const setTrigger = (newTrigger, oldTrigger, streamsheet) => {
 // 	// DL-1482 no trigger might be wanted...
@@ -411,7 +407,7 @@ class StreamSheet {
 	// called by sheet functions:
 	execute(message, selector, resumeFn) {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
-			if (!message && selector) message = this.inbox.find(selector);
+			message = getMessage(message, selector, this.inbox);
 			// attach message?
 			if (message) this._attachExecuteMessage(message);
 			this.trigger.execute(resumeFn);
