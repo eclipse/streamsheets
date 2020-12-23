@@ -99,7 +99,7 @@ class AbstractTrigger {
 	stop(onUpdate, onProcessing) {
 		clearTrigger(this);
 		this.isActive = false;
-		// this._streamsheet.stats.repeatsteps = 0;
+		this._streamsheet.stats.repeatsteps = 0;
 		if (!onUpdate) this.sheet._stopProcessing();
 		return true;
 	}
@@ -156,6 +156,7 @@ class AbstractTrigger {
 
 	_startRepeat() {
 		repeatTrigger(this);
+		this._streamsheet.stats.steps += 1;
 		// on repeat start we do a normal cycle!
 		this.doCycleStep(true);
 	}
@@ -178,8 +179,7 @@ class AbstractTrigger {
 		if (!this.sheet.isPaused) {
 			if (this.isEndless) {
 				this._streamsheet.stats.repeatsteps += 1;
-				if (!this._streamsheet.stats.steps) this._streamsheet.stats.steps = 1;
-				else if (!firstRepeat && !this.isManualStep) this._streamsheet.stats.steps += 1;
+				if (this.isManualStep) this._streamsheet.stats.steps += 1;
 			} else {
 				this._streamsheet.stats.steps += 1;
 			}

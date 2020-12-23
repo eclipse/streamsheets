@@ -25,6 +25,7 @@ class ExecuteTrigger extends AbstractTrigger {
 	execute(resumeFn) {
 		this._resumeFn = resumeFn;
 		this._isStopped = false;
+		this._streamsheet.stats.steps += 1;
 		this.trigger();
 	}
 	cancelExecute() {
@@ -40,8 +41,17 @@ class ExecuteTrigger extends AbstractTrigger {
 
 	doCycleStep() {
 		if (this.isEndless) this._streamsheet.stats.repeatsteps += 1;
+		// we come here on manual step for repeating too, so:
+		// if (!this.sheet.isPaused) {
+		// 	this._streamsheet.stats.steps += 1;
+		// }
 		this._doExecute();
 	}
+	_startRepeat() {
+		this._streamsheet.stats.steps -= 1;
+		super._startRepeat();
+	}
+
 	doRepeatStep() {
 		this._streamsheet.stats.repeatsteps += 1;
 		this._doExecute();
