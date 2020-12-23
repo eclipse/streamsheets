@@ -15,10 +15,10 @@ const {	AsyncRequest, runFunction, terms: { getCellRangeFromTerm } } = require('
 const ERROR = FunctionErrors.code;
 
 const pause = (sheet) => {
-	if (!sheet.isPaused) sheet.pauseProcessing();
+	if (!sheet.isPaused) sheet.streamsheet.pauseProcessing();
 };
 const resume = (sheet) => {
-	if (sheet.isPaused) sheet.resumeProcessing();
+	if (sheet.isPaused) sheet.streamsheet.resumeProcessing();
 };
 
 const addRequestId = (value, allIDs) => {

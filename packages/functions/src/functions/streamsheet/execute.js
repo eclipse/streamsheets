@@ -78,7 +78,6 @@ const execute = (sheet, ...terms) =>
 				context.isResumed = false;
 				context.repetitions = repetitions;
 				context.doExecute = doExecute(calledStreamSheet, selector); // , message);
-				// calledStreamSheet.stats.steps += 1;
 				calledStreamSheet.stats.executesteps = 0;
 				// pass message only at beginning:
 				if (repetitions > 0) context.doExecute(context, message);

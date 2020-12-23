@@ -16,10 +16,10 @@ const ERROR = FunctionErrors.code;
 
 
 const createPauseFn = (sheet) => () => {
-	if (!sheet.isPaused) sheet.pauseProcessing();
+	if (!sheet.isPaused) sheet.streamsheet.pauseProcessing();
 };
 const createResumeFn = (sheet) => () => {
-	if (sheet.isPaused) sheet.resumeProcessing();
+	if (sheet.isPaused) sheet.streamsheet.resumeProcessing();
 };
 const clearResumeTimeout = (context) => {
 	if (context.resumeTimeoutId) {
@@ -29,25 +29,21 @@ const clearResumeTimeout = (context) => {
 };
 const resume = (context) => {
 	clearResumeTimeout(context);
-	context.resumeFn();	
-	context.resumed = true;
+	context.resumeFn();
 };
 const pause = (context, ms) => {
 	clearResumeTimeout(context);
 	context.pauseFn();
 	context.period = ms;
-	context.resumed = false;
 	context.resumeTimeoutId = setTimeout(() => resume(context), ms);
 };
 const doSleep = (context, seconds) => {
 	const ms = seconds * 1000;
 	if (ms < 1) {
 		resume(context);
-		context.resumed = false;
 	} else if (context.hasCell) {
 		if (!context.resumeTimeoutId || ms !== context.period) {
-			if (!context.resumed) pause(context, ms);
-			else context.resumed = false;
+			pause(context, ms);
 		}
 	} else {
 		// triggered outside of sheet, e.g. by button press. so create new timeout
@@ -60,9 +56,8 @@ const initContext = (context, sheet) => {
 		context.initialized = true;
 		context.pauseFn = createPauseFn(sheet);
 		context.resumeFn = createResumeFn(sheet);
-		// flags to handle usage in cell.
+		// flag to handle usage in cell.
 		context.hasCell = !!context.term.cell;
-		context.resumed = false; // pause again in next step, not directly! 
 		context.addDisposeListener((ctxt) => resume(ctxt));
 	}
 };
