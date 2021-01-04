@@ -27,7 +27,6 @@ const DEF_CONF = {
 class AbstractTrigger {
 	constructor(config = {}) {
 		this.config = Object.assign({}, DEF_CONF, config);
-		this.isActive = false;
 		// to prevent 2x resume in same step! => happens with execute in switched order
 		this.isResumed = false;
 		this.isManualStep = false;
@@ -92,7 +91,6 @@ class AbstractTrigger {
 	// TODO: remove all passed flags!!!
 	stop(onUpdate, onProcessing) {
 		clearTrigger(this);
-		this.isActive = false;
 		this._streamsheet.stats.repeatsteps = 0;
 		if (!onUpdate) this.sheet._stopProcessing();
 		return true;
@@ -145,7 +143,6 @@ class AbstractTrigger {
 		this.doRepeatStep();
 	}
 	trigger() {
-		this.isActive = true;
 		if (!this.isResumed && this._stepId == null) {
 			// do not start repetition again if isPaused by function!
 			if (!this.isManualStep && this.isEndless && !this.sheet.isPaused) this._startRepeat();
@@ -163,12 +160,10 @@ class AbstractTrigger {
 			}
 		}
 		this._streamsheet.triggerStep();
-		this.isActive = this.sheet.isPaused;
 	}
 	doRepeatStep() {
 		this._streamsheet.stats.repeatsteps += 1;
 		this._streamsheet.triggerStep();
-		this.isActive = this.sheet.isPaused;
 	}
 }
 

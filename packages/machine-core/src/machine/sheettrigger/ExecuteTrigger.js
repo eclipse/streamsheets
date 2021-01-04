@@ -18,6 +18,7 @@ class ExecuteTrigger extends AbstractTrigger {
 	}
 	constructor(cfg = {}) {
 		super(Object.assign(cfg, TYPE_CONF));
+		this._isActive = false;
 		// flag to indicate that calculation was stopped, e.g. by return()
 		this._isStopped = false;
 		// flag to prevent executing twice on manual stepping if this comes before triggering sheet
@@ -36,17 +37,24 @@ class ExecuteTrigger extends AbstractTrigger {
 		this._resumeFn = resumeFn;
 		this._isStopped = false;
 		this._streamsheet.stats.steps += 1;
+		this._isActive = true;
 		this.trigger();
 	}
 	cancelExecute() {
 		if (!this.sheet.isProcessed) this.stopProcessing();
-		this.isActive = false;
+		this._isActive = false;
 	}
 
 	step(manual) {
-		if (manual && !this._isExecuted && this.isActive && this.isEndless) {
+		if (manual && !this._isExecuted && this._isActive && this.isEndless) {
 			this.doRepeatStep();
 		}
+	}
+
+	// TODO: remove all passed flags!!!
+	stop(onUpdate, onProcessing) {
+		this._isActive = false;
+		return super.stop(onUpdate, onProcessing);
 	}
 
 	doCycleStep() {
@@ -64,12 +72,12 @@ class ExecuteTrigger extends AbstractTrigger {
 		this._doExecute();
 	}
 	_doExecute() {
-		if (!this.isResumed && this.isActive) {
+		if (!this.isResumed && this._isActive) {
 			const streamsheet = this._streamsheet;
 			this._isExecuted = true;
 			streamsheet.triggerStep();
 			if (!this._isStopped && !this.isEndless && this._resumeFn) this._resumeFn();
-			this.isActive = !this._isStopped && (this.isEndless || this.sheet.isPaused);
+			this._isActive = !this._isStopped && (this.isEndless || this.sheet.isPaused);
 		}
 	}
 
