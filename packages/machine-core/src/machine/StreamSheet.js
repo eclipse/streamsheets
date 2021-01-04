@@ -14,7 +14,6 @@ const { Reference } = require('@cedalo/parser');
 const Inbox = require('./Inbox');
 const MessageHandler = require('./MessageHandler');
 const Sheet = require('./Sheet');
-const State = require('../State');
 const TriggerFactory = require('./sheettrigger/TriggerFactory');
 
 const getMessage = (message, selector, streamsheet) => {
@@ -85,8 +84,6 @@ class StreamSheet {
 			_emitter: { value: new EventEmitter() }
 		});
 		// init:
-		this._state = State.ACTIVE;
-		this._prevstate = State.ACTIVE;
 		this._applyConfig(config);
 		// init & register callbacks:
 		this.onInboxPop = this.onInboxPop.bind(this);
@@ -292,8 +289,6 @@ class StreamSheet {
 		this.stats.messages = 0;
 		this.stats.repeatsteps = 0;
 		this._msgHandler.reset();
-		this._state = State.ACTIVE;
-		this._prevstate = State.ACTIVE;
 	}
 
 	// called by machine:
@@ -360,12 +355,7 @@ class StreamSheet {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) this.trigger.cancelExecute();
 	}
 	continueProcessingAt(cellindex) {
-		// in case of backward jump it continues in next step otherwise directly...
-		const stopped = this.sheet._continueProcessingAt(cellindex);
-		if (stopped) {
-			this._prevstate = this._state;
-			this._state = State.CONTINUE;
-		}
+		this.sheet._continueProcessingAt(cellindex);
 	}
 	stopProcessing(retval) {
 		this.trigger.stopProcessing(retval);
@@ -376,8 +366,6 @@ class StreamSheet {
 	}
 	// rename: used to repeat single cell...
 	repeatProcessing() {
-		this._prevstate = this._state;
-		this._state = State.REPEAT;
 		this.sheet._pauseProcessing();
 	}	
 	resumeProcessing(finish, retval) {
