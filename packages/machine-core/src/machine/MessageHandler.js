@@ -129,9 +129,15 @@ class MessageHandler {
 	}
 
 	pathForIndex(index) {
-		const max = this._stack.length - 1;
-		// eslint-disable-next-line no-nested-ternary
-		const key = index < 0 ? this._stack[0].key : index > max ? this._stack[max].key : this._stack[index].key;
+		let key;
+		const stacklength = this._stack.length;
+		if (stacklength) {
+			const max = stacklength - 1;
+			// eslint-disable-next-line no-nested-ternary
+			key = index < 0 ? this._stack[0].key : index > max ? this._stack[max].key : this._stack[index].key;
+		} else {
+			key = '0';
+		}
 		return `${this.path}${key}`;
 	}
 
