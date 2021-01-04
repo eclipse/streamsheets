@@ -58,9 +58,6 @@ const enableNotifyUpdate = (sheet, onUpdate, doNotify = false) => {
 	sheet.onUpdate = onUpdate;
 	if (doNotify) sheet._notifyUpdate();
 };
-const updateLastIndex = (newrow, newcol, lastIndex) => {
-	lastIndex.set(Math.max(newrow, lastIndex.row), Math.max(newcol, lastIndex.col));
-};
 
 const boundCells = (rows, prerows, maxcol, maxrow) => {
 	const maxRowLength = maxrow + 1;
@@ -145,8 +142,6 @@ module.exports = class Sheet {
 		this.onCellRangeChange = undefined;
 		// support request function:
 		this._pendingRequests = new Map(); /* id, promise */
-		// exists only to shrink sheet correctly after processing it. can we do better?
-		this._lastInsertIndex = SheetIndex.create(1, 0);
 		// tmp. => need a better mechanism...
 		this._forceExecution = false;
 		this._isProcessing = false;
@@ -251,7 +246,7 @@ module.exports = class Sheet {
 	}
 	insertColumnsAt(index, count = 1) {
 		const colidx = toColIndex(index);
-		const doIt = colidx >= 0 && this.isInColRange(colidx) && this.isInColRange(this._lastInsertIndex.col + count);
+		const doIt = colidx >= 0 && this.isInColRange(colidx);
 		if (doIt) {
 			// currently only pos. indices are allowed => no prerows adjust necessary
 			this._rows.forEach((row) => row && updateArray(row, colidx, count));
@@ -275,7 +270,7 @@ module.exports = class Sheet {
 	}
 	insertRowsAt(index, count = 1) {
 		const rowidx = toRowIndex(index);
-		const doIt = this.isInRowRange(rowidx) && this.isInRowRange(this._lastInsertIndex.row + count);
+		const doIt = this.isInRowRange(rowidx);
 		if (doIt) {
 			updateArray(this._rows, rowidx, count);
 			updateArray(this._prerows, rowidx, count);
@@ -500,10 +495,7 @@ module.exports = class Sheet {
 				// add cell first...
 				row[colidx] = cell;
 				// ...before init, since it may reference itself
-				if (cell != null) {
-					cell.init(idx.row, idx.col);
-					updateLastIndex(idx.row, colidx, this._lastInsertIndex);
-				}
+				if (cell != null) cell.init(idx.row, idx.col);
 			}
 		}
 		return doIt;
@@ -589,9 +581,6 @@ module.exports = class Sheet {
 		this.processor.stop(retvalue);
 	}
 	_startProcessing() {
-		// TODO: remove _lastInsertIndex!!
-		this._lastInsertIndex.set(1, 0);
-		// return this.processor.start();
 		this._isProcessing = true;
 		this.processor.start();
 		this._isProcessing = false;
