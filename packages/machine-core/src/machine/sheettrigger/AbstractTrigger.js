@@ -62,7 +62,7 @@ class AbstractTrigger {
 	// called by streamsheet. signals that it will be removed. trigger should perform clean up here...
 	dispose() {
 		if (this.sheet.isPaused) this.resumeProcessing();
-		this.stopProcessing(undefined, true);
+		this.stopProcessing();
 		this._streamsheet = undefined;
 	}
 
@@ -88,15 +88,13 @@ class AbstractTrigger {
 	start() {
 		// reset stats?
 	}
-	// TODO: remove all passed flags!!!
-	stop(onProcessing) {
-		clearTrigger(this);
-		this._streamsheet.stats.repeatsteps = 0;
-		this.sheet._stopProcessing();
+	stop() {
+		this.stopProcessing();
 		return true;
 	}
 	stopProcessing(retval) {
-		this.stop(true);
+		clearTrigger(this);
+		this._streamsheet.stats.repeatsteps = 0;
 		this.sheet._stopProcessing(retval);
 	}
 	pauseProcessing() {

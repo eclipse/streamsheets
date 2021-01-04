@@ -35,19 +35,20 @@ class MachineTrigger extends AbstractTrigger {
 		if (this.type === MachineTrigger.TYPE_START) this.trigger();
 	}
 
-	stop(onProcessing) {
-		if (!onProcessing && this.type === MachineTrigger.TYPE_STOP && !this.isStopFulFilled) {
+	stop() {
+		// if (!onProcessing && this.type === MachineTrigger.TYPE_STOP && !this.isStopFulFilled) {
+		if (this.type === MachineTrigger.TYPE_STOP && !this.isStopFulFilled) {
 			this.isStopFulFilled = true;
 			this.trigger();
 			return !this.isEndless;
 		}
 		this.doStopEndless = this.isStopFulFilled;
-		return super.stop(onProcessing);
+		return super.stop();
 	}
 
-	stopProcessing(retval, onDispose) {
+	stopProcessing(retval) {
 		this.doStopEndless = true;
-		super.stopProcessing(retval, onDispose);
+		super.stopProcessing(retval);
 	}
 	step(manual) {
 		if (manual && this.type === MachineTrigger.TYPE_START) this.trigger();

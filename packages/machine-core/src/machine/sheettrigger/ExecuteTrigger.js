@@ -43,18 +43,13 @@ class ExecuteTrigger extends AbstractTrigger {
 	cancelExecute() {
 		if (!this.sheet.isProcessed) this.stopProcessing();
 		this._isActive = false;
+		this._resumeFn = undefined;
 	}
 
 	step(manual) {
 		if (manual && !this._isExecuted && this._isActive && this.isEndless) {
 			this.doRepeatStep();
 		}
-	}
-
-	// TODO: remove all passed flags!!!
-	stop(onProcessing) {
-		this._isActive = false;
-		return super.stop(onProcessing);
 	}
 
 	doCycleStep() {
@@ -83,6 +78,7 @@ class ExecuteTrigger extends AbstractTrigger {
 
 	stopProcessing(retval) {
 		super.stopProcessing(retval);
+		this._isActive = false;
 		this._isStopped = true;
 		if (this._resumeFn) this._resumeFn(retval);
 	}

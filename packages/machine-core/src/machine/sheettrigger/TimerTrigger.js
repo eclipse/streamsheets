@@ -80,9 +80,9 @@ class TimerTrigger extends AbstractTrigger {
 		if (this.config.start) registerTriggerInterval(this, getStartInterval(this.config.start));
 		else this._intervalTrigger();
 	}
-	stop(onProcessing) {
-		if (!onProcessing) clearTriggerInterval(this);
-		return super.stop(onProcessing);
+	stop() {
+		clearTriggerInterval(this);
+		return super.stop();
 	}
 	pause() {
 		clearTriggerInterval(this);
