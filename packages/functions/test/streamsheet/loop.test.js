@@ -30,7 +30,7 @@ const setup = (config) => {
 };
 
 describe('loopcount', () => {
-	it.skip('should return length of loop element', async () => {
+	it('should return length of loop element', async () => {
 		const t1 = setup({
 			name: 'T1',
 			trigger: TriggerFactory.create({ type: TriggerFactory.TYPE.ONCE })
