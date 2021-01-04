@@ -28,7 +28,11 @@ const createExecuteMessage = (term, sheet) => {
 
 const getDefaultReturnValue = (calledStreamSheet) =>
 	calledStreamSheet.trigger.isEndless ? true : !calledStreamSheet.inbox.isEmpty();
-
+const getCellValue = (newValue, oldValue, calledStreamSheet) => {
+	if (newValue != null) return newValue;
+	if (oldValue != null && oldValue !== true) return oldValue;
+	return getDefaultReturnValue(calledStreamSheet);
+};
 const cancelExecute = (calledStreamSheet) => (context) => {
 	calledStreamSheet.cancelExecute();
 	context.repetitions = -1;
@@ -37,7 +41,7 @@ const cancelExecute = (calledStreamSheet) => (context) => {
 const resume = (callingStreamSheet, calledStreamSheet, context) => (retval) => {
 	if (context.repetitions < 1) {
 		context.isResumed = true;
-		context.returnValue = retval != null ? retval : getDefaultReturnValue(calledStreamSheet);
+		context.returnValue = getCellValue(retval, context.term.cell.value, calledStreamSheet);;
 		// we set it directly too:
 		context.term.cell.value = context.returnValue;
 		if (context.repetitions < 0) callingStreamSheet.stopProcessing();
