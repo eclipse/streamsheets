@@ -574,7 +574,7 @@ module.exports = class Sheet {
 	// ALL xxxPROCESSING methods should be package private!! because they should be called via StreamSheet to
 	// correctly notify trigger too!
 	_continueProcessingAt(cellindex) {
-		return this.processor.continueAt(cellindex);
+		this.processor.continueAt(cellindex);
 	}
 	// optional return value
 	_stopProcessing(retvalue) {
