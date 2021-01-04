@@ -49,8 +49,7 @@ describe('return', () => {
 			A2: { formula: 'A2+1' }, B2: { formula: 'B2+1' }, C2: { formula: 'return(B2)' }
 		};/* eslint-enable */
 		sheet.load({ cells });
-		const result = sheet.streamsheet.triggerStep();
-		expect(result).toBe(2);
+		sheet.streamsheet.triggerStep();
 		expect(sheet.isProcessing).toBe(false);
 		expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe('A1');
 		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(2);
