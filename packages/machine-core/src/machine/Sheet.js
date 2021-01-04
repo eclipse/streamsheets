@@ -593,9 +593,8 @@ module.exports = class Sheet {
 		this._lastInsertIndex.set(1, 0);
 		// return this.processor.start();
 		this._isProcessing = true;
-		const result = this.processor.start();
+		this.processor.start();
 		this._isProcessing = false;
-		return result;
 	}
 	_pauseProcessing() {
 		this.processor.pause();

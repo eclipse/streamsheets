@@ -112,7 +112,6 @@ class SheetProcessor {
 		sheet.graphCells.evaluating = true;
 		sheet.graphCells._cells.forEach((cell) => cell.evaluate());
 		sheet.graphCells.evaluating = false;
-		return cursor.result;
 	}
 	_process() {
 		const cursor = this._cursor;

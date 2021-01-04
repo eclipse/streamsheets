@@ -391,7 +391,7 @@ class StreamSheet {
 		this.triggerStep.processed[this.id] = false;
 		if (this.sheet.isReady || this.sheet.isProcessed) this._attachNextMessage();
 		this.sheet.getDrawings().removeAll();
-		const result = this.sheet._startProcessing();
+		this.sheet._startProcessing();
 		if (!this.triggerStep.processed[this.id]) {
 			this.triggerStep.processed[this.id] = true;
 			// on endless we reuse message
@@ -401,7 +401,6 @@ class StreamSheet {
 		}
 		this._detachMessage();
 		this._emitter.emit('step', this);
-		return result;
 	}
 	_attachNextMessage(message) {
 		if (this._msgHandler.isProcessed) {
