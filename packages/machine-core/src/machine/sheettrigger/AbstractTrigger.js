@@ -89,14 +89,14 @@ class AbstractTrigger {
 		// reset stats?
 	}
 	// TODO: remove all passed flags!!!
-	stop(onUpdate, onProcessing) {
+	stop(onProcessing) {
 		clearTrigger(this);
 		this._streamsheet.stats.repeatsteps = 0;
-		if (!onUpdate) this.sheet._stopProcessing();
+		this.sheet._stopProcessing();
 		return true;
 	}
-	stopProcessing(retval, onDispose) {
-		this.stop(onDispose, true);
+	stopProcessing(retval) {
+		this.stop(true);
 		this.sheet._stopProcessing(retval);
 	}
 	pauseProcessing() {

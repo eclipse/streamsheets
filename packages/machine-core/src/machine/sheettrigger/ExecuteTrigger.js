@@ -52,9 +52,9 @@ class ExecuteTrigger extends AbstractTrigger {
 	}
 
 	// TODO: remove all passed flags!!!
-	stop(onUpdate, onProcessing) {
+	stop(onProcessing) {
 		this._isActive = false;
-		return super.stop(onUpdate, onProcessing);
+		return super.stop(onProcessing);
 	}
 
 	doCycleStep() {
