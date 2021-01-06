@@ -513,6 +513,7 @@ class Machine {
 	async _doStep(streamsheets, manual) {
 		this._preventStop = false;
 		this.stats.steps += 1;
+		// preStep & postStep can be removed if machine cycle step is removed!!
 		streamsheets.forEach((streamsheet) => streamsheet.preStep(manual));
 		streamsheets.forEach((streamsheet) => streamsheet.step(manual));
 		streamsheets.forEach((streamsheet) => streamsheet.postStep(manual));

@@ -16,19 +16,6 @@ const MessageHandler = require('./MessageHandler');
 const Sheet = require('./Sheet');
 const TriggerFactory = require('./sheettrigger/TriggerFactory');
 
-const getMessage = (message, selector, streamsheet) => {
-	const inbox = streamsheet.inbox;
-	if (selector) return inbox.find(selector);
-	if (message && message !== inbox.peek()) {
-		const msgHandler = streamsheet._msgHandler;
-		const currmsg = msgHandler.message;
-		if (currmsg && msgHandler.isProcessed) {
-			inbox.pop(currmsg.id);
-		}
-		inbox.put(message);
-	}
-	return message;
-};
 
 // TODO remove!! just to support old commands which send preferences property....
 const valueOr = (value, defval) => (value != null ? value : defval);
@@ -339,11 +326,10 @@ class StreamSheet {
 	// 	}
 	// }
 
-
 	// called by sheet functions:
 	execute(message, selector, resumeFn) {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
-			message = getMessage(message, selector, this);
+			message = selector ? this.inbox.find(selector) : message;
 			// attach message?
 			if (message) this._attachExecuteMessage(message);
 			this.trigger.execute(resumeFn);
@@ -390,7 +376,7 @@ class StreamSheet {
 		this._detachMessage();
 		this._emitter.emit('step', this);
 	}
-	_attachNextMessage(message) {
+	_attachNextMessage() {
 		if (this._msgHandler.isProcessed) {
 			const currmsg = this._msgHandler.message;
 			if (currmsg && this.inbox.size > 1) {
@@ -399,18 +385,27 @@ class StreamSheet {
 			}
 		}
 		if (!this._msgHandler.message) {
-			this._attachMessage(message || this.inbox.peek());
+			this._attachMessage(this.inbox.peek());
 		}
 	}
 	_attachMessage(message) {
-		this.stats.messages += message ? 1 : 0;
 		this._msgHandler.message = message;
-		this._emitMessageEvent('message_attached', message);
+		if (message) {
+			this.stats.messages += 1;
+			this._emitMessageEvent('message_attached', message);
+		}
 	}
 	_attachExecuteMessage(message) {
-		// attach or reuse:
-		if (message === this._msgHandler.message && !this._msgHandler.isProcessed) this._msgHandler.reset();
-		else this._attachMessage(message);
+		// use passed message only if current one is processed otherwise they might pile up quickly (on endless-mode)
+		if (this._msgHandler.isProcessed) {
+			const currmsg = this._msgHandler.message;
+			if (message === currmsg) this._msgHandler.reset();
+			else {
+				if (currmsg) this.inbox.pop(currmsg.id);
+				this.inbox.put(message);
+				this._attachMessage(message);
+			} 
+		}
 	}
 	_detachMessage() {
 		// get mark message as detached if its processed

@@ -621,7 +621,7 @@ describe('ExecuteTrigger', () => {
 		});
 	});
 	describe('message processing', () => {
-		it('should use passed message on manual steps', async () => {
+		it('should reuse passed message on manual steps if its the same', async () => {
 			const { machine, s1, s2 } = setup();
 			const monitorS2 = monitorStreamSheet(s2);
 			const messageId = addOutboxMessage(machine);
@@ -638,14 +638,15 @@ describe('ExecuteTrigger', () => {
 			expect(monitorS2.messages.detached).toBe(1);
 			await machine.step();
 			await machine.step();
-			expect(monitorS2.messages.attached).toBe(3);
+			expect(monitorS2.messages.attached).toBe(1);
+			// although message is reused it is processed & detached
 			expect(monitorS2.messages.detached).toBe(3);
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			expect(s1.sheet.cellAt('A3').value).toBe(4);
 			expect(s2.sheet.cellAt('B1').value).toBe(4);
 		});
-		it('should use passed message on machine run', async () => {
+		it('should reuse passed message on machine run if its same', async () => {
 			const { machine, s1, s2 } = setup();
 			const monitorS2 = monitorStreamSheet(s2);
 			const messageId = addOutboxMessage(machine);
@@ -654,6 +655,56 @@ describe('ExecuteTrigger', () => {
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
 			await machine.start();
+			await wait(70);
+			await machine.stop();
+			expect(monitorS2.messages.attached).toBe(1);
+			// although message is reused it is processed & detached
+			expect(monitorS2.messages.detached).toBe(2);
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('A2').value).toBe(true);
+			expect(s1.sheet.cellAt('A3').value).toBe(3);
+			expect(s2.sheet.cellAt('B1').value).toBe(3);
+		});
+		it('should use passed message on manual steps', async () => {
+			const { machine, s1, s2 } = setup();
+			const monitorS2 = monitorStreamSheet(s2);
+			const messageId1 = addOutboxMessage(machine);
+			const messageId2 = addOutboxMessage(machine);
+			const messageId3 = addOutboxMessage(machine);
+			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+			createCellAt('A2', { formula: `execute("S2", 1, "out:${messageId1}")` }, s1.sheet);
+			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
+			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('A2').value).toBe(true);
+			expect(s1.sheet.cellAt('A3').value).toBe(2);
+			expect(s2.sheet.cellAt('B1').value).toBe(2);
+			expect(monitorS2.messages.attached).toBe(1);
+			expect(monitorS2.messages.detached).toBe(1);
+			createCellAt('A2', { formula: `execute("S2", 1, "out:${messageId2}")` }, s1.sheet);
+			await machine.step();
+			createCellAt('A2', { formula: `execute("S2", 1, "out:${messageId3}")` }, s1.sheet);
+			await machine.step();
+			expect(monitorS2.messages.attached).toBe(3);
+			expect(monitorS2.messages.detached).toBe(3);
+			expect(s1.sheet.cellAt('A1').value).toBe(4);
+			expect(s1.sheet.cellAt('A2').value).toBe(true);
+			expect(s1.sheet.cellAt('A3').value).toBe(4);
+			expect(s2.sheet.cellAt('B1').value).toBe(4);
+			expect(s2.inbox.size).toBe(1);
+		});
+		it('should use passed message on machine run', async () => {
+			const { machine, s1, s2 } = setup();
+			const monitorS2 = monitorStreamSheet(s2);
+			const messageId1 = addOutboxMessage(machine);
+			const messageId2 = addOutboxMessage(machine);
+			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+			createCellAt('A2', { formula: `execute("S2", 1, "out:${messageId1}")` }, s1.sheet);
+			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
+			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
+			await machine.start();
+			createCellAt('A2', { formula: `execute("S2", 1, "out:${messageId2}")` }, s1.sheet);
 			await wait(70);
 			await machine.stop();
 			expect(monitorS2.messages.attached).toBe(2);
@@ -991,7 +1042,7 @@ describe('ExecuteTrigger', () => {
 			await monitorS2.hasPassedStep(4);
 			await machine.stop();
 			expect(s2.sheet.cellAt('B1').value).toBe(8);
-			expect(monitorS2.messages.attached).toBe(4); // <-- executed 3x
+			expect(monitorS2.messages.attached).toBe(1); // <-- executed 3x, but we always pass same message
 			expect(monitorS2.messages.detached).toBe(4); // <-- 3 because we detach old message
 			expect(s2.sheet.cellAt('B1').value).toBe(8);
 			expect(s2.sheet.cellAt('B2').value).toBe(true);
