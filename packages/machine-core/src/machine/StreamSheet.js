@@ -16,6 +16,14 @@ const MessageHandler = require('./MessageHandler');
 const Sheet = require('./Sheet');
 const TriggerFactory = require('./sheettrigger/TriggerFactory');
 
+const markAsProcessed = (fn, id, marked) => {
+	if (!fn.processed) fn.processed = {};
+	fn.processed[id] = marked;
+};
+const isMarkedAsProcessed = (fn, id) => {
+	if (!fn.processed) fn.processed = {};
+	return fn.processed[id];
+};
 
 // TODO remove!! just to support old commands which send preferences property....
 const valueOr = (value, defval) => (value != null ? value : defval);
@@ -361,13 +369,12 @@ class StreamSheet {
 
 	triggerStep() {
 		// track re-entry caused e.g. by resume on sheet._startProcessing()
-		this.triggerStep.processed = this.triggerStep.processed || {};
-		this.triggerStep.processed[this.id] = false;
+		markAsProcessed(this.triggerStep, this.id, false);
 		if (this.sheet.isReady || this.sheet.isProcessed) this._attachNextMessage();
 		this.sheet.getDrawings().removeAll();
 		this.sheet._startProcessing();
-		if (!this.triggerStep.processed[this.id]) {
-			this.triggerStep.processed[this.id] = true;
+		if (!isMarkedAsProcessed(this.triggerStep, this.id)) {
+			markAsProcessed(this.triggerStep, this.id, true);
 			// on endless we reuse message
 			if (this.sheet.isProcessed && !this.trigger.isEndless) {
 				this._msgHandler.next();
