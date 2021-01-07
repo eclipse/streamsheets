@@ -17,7 +17,7 @@ const execute = (sheet, ...terms) => {
 		if (context.repetitions < 1) {
 			context.term.cell.value = retval != null ? retval : true;
 			context.isResumed = true;
-			if (calledStreamSheet.trigger.isEndless) callingStreamSheet.resumeProcessing(true, retval);
+			callingStreamSheet.resumeProcessing(retval);
 		} else {
 			context.doExecute(context /* , message */);
 		}
@@ -47,7 +47,8 @@ const execute = (sheet, ...terms) => {
 			context.addDisposeListener(cancelExecute(calledStreamSheet));
 		}
 		if (!sheet.isPaused) {
-			if (calledStreamSheet.trigger.isEndless) callingStreamSheet.pauseProcessing();
+			// always pause calling sheet, since we do not know how long execute takes (due to pause/sleep functions)
+			callingStreamSheet.pauseProcessing();
 			context.isResumed = false;
 			context.repetitions = Math.max(1, repetitions);
 			context.doExecute = doExecute(calledStreamSheet); // , message);
