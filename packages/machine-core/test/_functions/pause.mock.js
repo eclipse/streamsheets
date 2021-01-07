@@ -8,16 +8,36 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const pause = (sheet /* , ...terms */) => {
+
+ const clearPauseTimeout = (context) => {
+	if (context.timeoutId) {
+		clearTimeout(context.timeoutId);
+		context.timeoutId = undefined;
+	}
+ };
+
+ const resume = (sheet, context) => () => {
+	clearPauseTimeout(context);
+	if (sheet.isPaused) {
+		context.resumeCounter += 1;
+		sheet.streamsheet.resumeProcessing();
+	}
+ };
+
+ const pause = (sheet, ...terms) => {
 	if (sheet.isProcessing) {
 		const context = pause.context;
+		const period = terms[0] && terms[0].value ? terms[0].value * 1000 : 0;
 		if (!context.initialized) {
 			context.initialized = true;
-			context.addDisposeListener(() => {
-				if (sheet.isPaused) sheet.streamsheet.resumeProcessing();
-			});
+			context.resumeCounter = 0;
+			context.addDisposeListener(resume(sheet, context));
 		}
-		if (!sheet.isPaused) sheet.streamsheet.pauseProcessing();
+		if (!sheet.isPaused) {
+			clearPauseTimeout(context);
+			if (period > 0) context.timeoutId = setTimeout(resume(sheet, context), period);
+			sheet.streamsheet.pauseProcessing();
+		}
 	}
 	return true;
 };
