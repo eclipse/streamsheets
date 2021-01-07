@@ -45,7 +45,7 @@ const resume = (callingStreamSheet, calledStreamSheet, context) => (retval) => {
 		// we set it directly too:
 		context.term.cell.value = context.returnValue;
 		if (context.repetitions < 0) callingStreamSheet.stopProcessing();
-		else if (calledStreamSheet.trigger.isEndless) callingStreamSheet.resumeProcessing(true, retval);
+		else callingStreamSheet.resumeProcessing(retval);
 	} else {
 		context.doExecute(context);
 	}
@@ -77,14 +77,14 @@ const execute = (sheet, ...terms) =>
 			const context = execute.context;
 			const callingStreamSheet = sheet.streamsheet;
 			if (!context.isInitialized) initContext(context, callingStreamSheet, calledStreamSheet);
-			if (!sheet.isPaused) {
-				if (calledStreamSheet.trigger.isEndless) callingStreamSheet.pauseProcessing();
+			if (repetitions > 0 && !sheet.isPaused) {
+				callingStreamSheet.pauseProcessing();
 				context.isResumed = false;
 				context.repetitions = repetitions;
 				context.doExecute = doExecute(calledStreamSheet, selector); // , message);
 				calledStreamSheet.stats.executesteps = 0;
 				// pass message only at beginning:
-				if (repetitions > 0) context.doExecute(context, message);
+				context.doExecute(context, message);
 			}
 			// eslint-disable-next-line no-nested-ternary
 			return sheet.isPaused
