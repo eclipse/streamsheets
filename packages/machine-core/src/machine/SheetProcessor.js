@@ -87,6 +87,7 @@ class SheetProcessor {
 	resume(retval) {
 		this._state = State.READY;
 		this._cursor.result = retval;
+		this._cursor.changed = false;
 		if (this._cursor.c != null) this._cursor.c += 1;
 	}
 
