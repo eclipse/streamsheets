@@ -33,11 +33,18 @@ class ExecuteTrigger extends AbstractTrigger {
 		this._isExecuted = false;
 	}
 
+	_finishStep() {
+		super._finishStep();
+		if (this._resumeFn && this.sheet.isProcessed && !this.isEndless) this._resumeFn();
+	}
+
+
 	execute(resumeFn) {
 		this._resumeFn = resumeFn;
 		this._isStopped = false;
 		this._streamsheet.stats.steps += 1;
 		this._isActive = true;
+		this.isResumed = false;
 		this.trigger();
 	}
 	cancelExecute() {
@@ -71,7 +78,7 @@ class ExecuteTrigger extends AbstractTrigger {
 			const streamsheet = this._streamsheet;
 			this._isExecuted = true;
 			streamsheet.triggerStep();
-			if (!this._isStopped && !this.isEndless && this._resumeFn) this._resumeFn();
+			if (!this._isStopped && !this.isEndless && this.sheet.isProcessed && this._resumeFn) this._resumeFn();
 			this._isActive = !this._isStopped && (this.isEndless || this.sheet.isPaused);
 		}
 	}

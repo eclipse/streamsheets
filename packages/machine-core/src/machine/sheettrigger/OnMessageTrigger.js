@@ -75,6 +75,7 @@ class OnMessageTrigger extends AbstractTrigger {
 		const machine = this._streamsheet.machine;
 		this._triggerId = undefined;
 		if (machine.state === State.RUNNING) {
+			this.isResumed = false;
 			this.trigger();
 			// trigger a (fake ;-] ) machine step event because client can handle those...
 			machine.notifyUpdate('step'); // <-- NOTE: this is important for EXECUTE-trigger too!!

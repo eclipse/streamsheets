@@ -105,13 +105,12 @@ class AbstractTrigger {
 		this.sheet._pauseProcessing();
 		clearTrigger(this);
 	}
-	resumeProcessing(doFinish, retval) {
+	resumeProcessing(retval) {
 		if (this.sheet.isPaused) {
 			this.isResumed = true;
 			this.sheet._resumeProcessing(retval);
-			if (this.isManualStep) this._finishStep();
-			else if (this.isEndless) this._finishRepeatStep();
-			else if (doFinish) this._finishStep();
+			if (!this.isManualStep && this.isEndless) this._finishRepeatStep();
+			else this._finishStep();
 		}
 	}
 	_finishStep() {

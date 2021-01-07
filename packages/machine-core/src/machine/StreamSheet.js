@@ -343,6 +343,7 @@ class StreamSheet {
 			this.trigger.execute(resumeFn);
 			return true;
 		}
+		if (resumeFn) resumeFn();
 		return false;
 	}
 	cancelExecute() {
@@ -362,8 +363,8 @@ class StreamSheet {
 	repeatProcessing() {
 		this.sheet._pauseProcessing();
 	}	
-	resumeProcessing(finish, retval) {
-		this.trigger.resumeProcessing(finish, retval);
+	resumeProcessing(retval) {
+		this.trigger.resumeProcessing(retval);
 	}
 	// ~
 
