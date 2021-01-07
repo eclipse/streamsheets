@@ -53,27 +53,25 @@ const wait = ms => new Promise((resolve) => {
 
 describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 	it('should not prevent execution of another sheet via EXECUTE()', async () => {
-		const t1 = createStreamSheet('T1',
-			{ A1: { formula: 'A1+1' }, B1: { formula: 'EXECUTE("T2")' }, C1: { formula: 'C1+1' } });
-		const t2 = createStreamSheet('T2', { A2: { formula: 'A2+1' } },
+		const s1 = createStreamSheet('S1',
+			{ A1: { formula: 'A1+1' }, B1: { formula: 'EXECUTE("S2")' }, C1: { formula: 'C1+1' } });
+		const s2 = createStreamSheet('S2', { B1: { formula: 'B1+1' } },
 			TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE }));
-		const sheet1 = t1.sheet;
-		const sheet2 = t2.sheet;
-		const machine = await createMachine({ settings: {cycletime: 20000} }, t1, t2);
+		const machine = await createMachine({ settings: {cycletime: 200000} }, s1, s2);
 		await machine.start();
-		expect(sheet1.cellAt('A1').value).toBe(1);
-		expect(sheet1.cellAt('C1').value).toBe(1);
-		expect(sheet2.cellAt('A2').value).toBe(1);
-		putMessages(t1, new Message());
+		expect(s1.sheet.cellAt('A1').value).toBe(1);
+		expect(s1.sheet.cellAt('C1').value).toBe(1);
+		expect(s2.sheet.cellAt('B1').value).toBe(1);
+		putMessages(s1, new Message());
 		await wait(100);
-		expect(sheet1.cellAt('A1').value).toBe(2);
-		expect(sheet1.cellAt('C1').value).toBe(2);
-		expect(sheet2.cellAt('A2').value).toBe(2);
-		putMessages(t1, new Message(), new Message(), new Message());
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		expect(s1.sheet.cellAt('C1').value).toBe(2);
+		expect(s2.sheet.cellAt('B1').value).toBe(2);
+		putMessages(s1, new Message(), new Message(), new Message());
 		await wait(100);
-		expect(sheet1.cellAt('A1').value).toBe(5);
-		expect(sheet1.cellAt('C1').value).toBe(5);
-		expect(sheet2.cellAt('A2').value).toBe(5);
+		expect(s1.sheet.cellAt('A1').value).toBe(5);
+		expect(s1.sheet.cellAt('C1').value).toBe(5);
+		expect(s2.sheet.cellAt('B1').value).toBe(5);
 	});
 	it('should consume always same message in endless mode until return, then next message', async () => {
 		const t1 = createStreamSheet('T1',

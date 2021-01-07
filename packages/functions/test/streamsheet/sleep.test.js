@@ -79,14 +79,15 @@ describe('sleep', () => {
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A3').value).toBe(1);
-		sheet.setCellAt('A2', undefined);
+		sheet.setCellAt('A2', undefined); // resumes sheet
 		expect(sheet.cellAt('A2')).toBeUndefined();
-		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A3').value).toBe(2);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A3').value).toBe(3);
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(4);
+		expect(sheet.cellAt('A3').value).toBe(4);
 	});
 	it('should handle replace of sleep term', async () => {
 		const machine = new Machine();
@@ -100,30 +101,32 @@ describe('sleep', () => {
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A3').value).toBe(1);
-		// replace await
+		// replace sleep to resume
 		createCellAt('A2', 'replaced', sheet);
 		expect(sheet.cellAt('A2').value).toBe('replaced');
-		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A3').value).toBe(2);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A3').value).toBe(3);
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(4);
+		expect(sheet.cellAt('A3').value).toBe(4);
 		// sleep again
 		createCellAt('A2', { formula: 'sleep(2)' }, sheet);
 		expect(sheet.cellAt('A2').value).toBe(true);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(4);
-		expect(sheet.cellAt('A3').value).toBe(3);
+		expect(sheet.cellAt('A1').value).toBe(5);
+		expect(sheet.cellAt('A3').value).toBe(4);
 		// replace with another sleep
 		createCellAt('A2', { formula: 'sleep(0.05)' }, sheet);
 		expect(sheet.cellAt('A2').value).toBe(true);
+		expect(sheet.cellAt('A3').value).toBe(5);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(4);
-		expect(sheet.cellAt('A3').value).toBe(4);
-		await wait(60);
-		expect(sheet.cellAt('A1').value).toBe(4);
-		expect(sheet.cellAt('A3').value).toBe(4);
+		expect(sheet.cellAt('A1').value).toBe(6);
+		expect(sheet.cellAt('A3').value).toBe(5);
+		await wait(60); // wait long enough to resume
+		expect(sheet.cellAt('A1').value).toBe(6);
+		expect(sheet.cellAt('A3').value).toBe(6);
 	});
 	it('should not pause sheet processing if seconds is less then 1ms (0.001)', async() => {
 		const machine = new Machine();
@@ -194,31 +197,33 @@ describe('sleep', () => {
 		await machine.step();
 		expect(sheet.cellAt('A4').value).toBe(1);
 		expect(sheet.streamsheet.inbox.size).toBe(3);
-		// replace
+		// replace resumes sheet
 		createCellAt('A2', 'replaced', sheet);
-		await machine.step();
-		expect(sheet.cellAt('A2').value).toBe('replaced');
 		expect(sheet.cellAt('A4').value).toBe(2);
-		expect(sheet.streamsheet.inbox.size).toBe(3);
 		await machine.step();
 		expect(sheet.cellAt('A2').value).toBe('replaced');
 		expect(sheet.cellAt('A4').value).toBe(3);
 		expect(sheet.streamsheet.inbox.size).toBe(2);
-		// restore:
-		createCellAt('A2', { formula: 'sleep(5)' }, sheet);
-		await machine.step();
-		expect(sheet.cellAt('A2').value).toBe(true);
-		expect(sheet.cellAt('A4').value).toBe(3);
-		expect(sheet.streamsheet.inbox.size).toBe(1);
-		// replace again
-		createCellAt('A2', 'replaced', sheet);
 		await machine.step();
 		expect(sheet.cellAt('A2').value).toBe('replaced');
 		expect(sheet.cellAt('A4').value).toBe(4);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
+		// restore:
+		createCellAt('A2', { formula: 'sleep(5)' }, sheet);
+		await machine.step();
+		expect(sheet.cellAt('A2').value).toBe(true);
+		expect(sheet.cellAt('A4').value).toBe(4);
+		expect(sheet.streamsheet.inbox.size).toBe(1);
+		// replace again to resume
+		createCellAt('A2', 'replaced', sheet);
+		expect(sheet.cellAt('A4').value).toBe(5);
 		await machine.step();
 		expect(sheet.cellAt('A2').value).toBe('replaced');
-		expect(sheet.cellAt('A4').value).toBe(5);
+		expect(sheet.cellAt('A4').value).toBe(6);
+		expect(sheet.streamsheet.inbox.size).toBe(1);
+		await machine.step();
+		expect(sheet.cellAt('A2').value).toBe('replaced');
+		expect(sheet.cellAt('A4').value).toBe(7);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
 	});
 	it('should not consume messages while sleeping', async () => {
