@@ -9,15 +9,16 @@
  *
  ********************************************************************************/
 const clearTrigger = (trigger) => {
-	const cleared = !!trigger._stepId;
-	if (cleared) {
+	const clearIt = !!trigger._stepId;
+	if (clearIt) {
 		clearImmediate(trigger._stepId);
 		trigger._stepId = undefined;
 	}
-	return cleared;
+	return clearIt;
 };
 
 const repeatTrigger = (trigger) => {
+	clearTrigger(trigger);
 	trigger._stepId = setImmediate(trigger._repeatStep);
 };
 const DEF_CONF = {
@@ -27,6 +28,8 @@ const DEF_CONF = {
 class AbstractTrigger {
 	constructor(config = {}) {
 		this.config = Object.assign({}, DEF_CONF, config);
+		// to prevent processing on machine resume if sheet is stopped, e.g. by return()
+		this.isStopped = false;
 		// to prevent 2x resume in same step! => happens with execute in switched order
 		this.isResumed = false;
 		this.isManualStep = false;
@@ -76,13 +79,13 @@ class AbstractTrigger {
 		clearTrigger(this);
 	}
 
-	resume() { // called by machine: from pause to start
-		// if sheet is not paused by function 
-		if (!this.isResumed && !this.sheet.isPaused) {
-			this.isResumed = true;
+	resume() { // called by machine resume, i.e. from pause to start
+		// if sheet is not stopped or paused by function 
+		if (!this.isStopped && !this.sheet.isPaused) {
 			if (this.isEndless) this._finishRepeatStep();
 			else this._finishStep();
 		}
+		this.isStopped = false;
 	}
 
 	start() {
@@ -94,6 +97,7 @@ class AbstractTrigger {
 	}
 	stopProcessing(retval) {
 		clearTrigger(this);
+		this.isStopped = true;
 		this._streamsheet.stats.repeatsteps = 0;
 		this.sheet._stopProcessing(retval);
 	}
@@ -102,7 +106,7 @@ class AbstractTrigger {
 		clearTrigger(this);
 	}
 	resumeProcessing(doFinish, retval) {
-		if (!this.isResumed && this.sheet.isPaused) {
+		if (this.sheet.isPaused) {
 			this.isResumed = true;
 			this.sheet._resumeProcessing(retval);
 			if (this.isManualStep) this._finishStep();
@@ -114,10 +118,8 @@ class AbstractTrigger {
 		if (!this.sheet.isProcessed) this._streamsheet.triggerStep();
 	}
 	_finishRepeatStep() {
-		if (!this.sheet.isProcessed) {
-			this._streamsheet.triggerStep();
-			repeatTrigger(this);
-		}
+		if (!this.sheet.isProcessed) this._streamsheet.triggerStep();
+		if (!this.sheet.isPaused) repeatTrigger(this);
 	}
 
 	preStep(manual) {
