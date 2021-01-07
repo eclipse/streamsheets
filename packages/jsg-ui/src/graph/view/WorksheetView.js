@@ -1318,11 +1318,6 @@ export default class WorksheetView extends ContentNodeView {
 
 
 	copyToClipboard(data) {
-		if (this.getOwnSelection().getSize() !== 1) {
-			this.notifyMessage({id: 'SheetMessage.singleSelection'});
-			return;
-		}
-
 		const focus = document.activeElement;
 		const textarea = document.createElement('textarea');
 
@@ -1493,7 +1488,7 @@ export default class WorksheetView extends ContentNodeView {
 					let currentColumn = target.getX1();
 					columns.forEach((column) => {
 						const isFormula = column.charAt(0) === '=';
-						let formula = column;
+						let formula = column.trim();
 
 						if (isFormula) {
 							formula = formula.substring(1);
