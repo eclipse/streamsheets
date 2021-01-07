@@ -65,7 +65,7 @@ describe('ExecuteTrigger', () => {
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 			await machine.start();
-			await wait(120);
+			await wait(130);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
@@ -118,7 +118,7 @@ describe('ExecuteTrigger', () => {
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 			await machine.start();
-			await wait(120);
+			await wait(130);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
@@ -397,7 +397,7 @@ describe('ExecuteTrigger', () => {
 			createCellAt('B3', { formula: 'if(mod(B2,3)=0,return(),false)' }, s2.sheet);
 			createCellAt('B4', { formula: 'B4+1' }, s2.sheet);
 			await machine.start();
-			await wait(70);
+			await wait(80);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
@@ -499,6 +499,25 @@ describe('ExecuteTrigger', () => {
 			expect(s3.sheet.cellAt('C1').value).toBe(6);
 			expect(s3.sheet.cellAt('C3').value).toBe(6);
 			expect(s3.sheet.cellAt('C4').value).toBe(true);
+		});
+		test('DL-1528, derived from ampelbug2', async () => {
+			const { machine, s1, s2 } = setup();
+			const monitorS2 = monitorStreamSheet(s2);
+			s1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' });
+			s2.trigger.update({ repeat: 'endless' });
+			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+			createCellAt('A2', { formula: 'execute("S2")' }, s1.sheet);
+			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
+			createCellAt('B2', { formula: 'if(B1>=10,return(),false)' }, s2.sheet);
+			await machine.start();
+			// wait until s2 got called 5 times
+			await monitorS2.hasPassedStep(5);
+			// s1 is endless and never returns, so stay at 1
+			expect(s1.stats.steps).toBe(1);
+			await machine.stop();
+			expect(s1.sheet.cellAt('A1').value).toBe(6);
+			expect(s2.sheet.cellAt('B1').value).toBe(14);
+			expect(s2.sheet.cellAt('B2').value).toBe(true);
 		});
 	});
 	describe('updating trigger', () => {

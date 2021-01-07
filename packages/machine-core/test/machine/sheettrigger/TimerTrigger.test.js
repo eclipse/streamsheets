@@ -43,7 +43,7 @@ describe('TimerTrigger', () => {
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
 				await machine.start();
-				await wait(170);
+				await wait(180);
 				await machine.stop();
 				// should trigger each 50ms
 				expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(4);

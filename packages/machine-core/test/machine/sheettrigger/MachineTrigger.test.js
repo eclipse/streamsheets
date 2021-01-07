@@ -86,6 +86,15 @@ describe('MachineTrigger', () => {
 				await machine.step();
 				expect(s1.sheet.cellAt('A1').value).toBe(s1a1 + 3);
 			});
+			it('should stop processing if returned from "repeat until..."', async () => {
+				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_START, repeat: 'endless' });
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				createCellAt('A2', { formula: 'if(mod(A1,10)=0,return(), false)' }, s1.sheet);
+				await machine.start();
+				await wait(100);
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1').value).toBe(10);
+			});
 			// DL-2467
 			it('should run an added streamsheet with continuously trigger directly if machine runs already', async () => {
 				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
