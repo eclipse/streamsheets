@@ -72,6 +72,21 @@ describe('ExecuteTrigger', () => {
 			expect(s1.sheet.cellAt('A3').value).toBe(4);
 			expect(s2.sheet.cellAt('B2').value).toBe(4);
 		});
+		it('should pause calling sheet until executed sheet returns on machine run', async () => {
+			const { machine, s1, s2 } = setup();
+			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+			createCellAt('A2', { formula: 'execute("S2")' }, s1.sheet);
+			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
+			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
+			createCellAt('B2', { formula: 'pause(0.1)' }, s2.sheet);
+			await machine.start();
+			await wait(400);
+			await machine.stop();
+			expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(4);
+			expect(s1.sheet.cellAt('A2').value).toBe(true);
+			expect(s1.sheet.cellAt('A3').value).toBeGreaterThanOrEqual(3);
+			expect(s2.sheet.cellAt('B1').value).toBeGreaterThanOrEqual(4);
+		})
 		it('should calculate sheet if called by another sheet on manual steps if machine is paused', async () => {
 			const { machine, s1, s2 } = setup();
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -458,14 +473,14 @@ describe('ExecuteTrigger', () => {
 			expect(s3.sheet.cellAt('C1').value).toBe(2);
 			expect(s3.sheet.cellAt('C3').value).toBe(1);
 			expect(s3.sheet.cellAt('C4').value).toBe(false);
-			await machine.step();
-			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A3').value).toBe(1);
+			await machine.step(); // finish S2 which resumes S3
 			expect(s2.sheet.cellAt('B1').value).toBe(3);
 			expect(s2.sheet.cellAt('B2').value).toBe(true);
 			expect(s3.sheet.cellAt('C1').value).toBe(2);
 			expect(s3.sheet.cellAt('C3').value).toBe(2);
 			expect(s3.sheet.cellAt('C4').value).toBe(false);
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			await machine.step();
 			await machine.step();
 			await machine.step();
@@ -499,6 +514,63 @@ describe('ExecuteTrigger', () => {
 			expect(s3.sheet.cellAt('C1').value).toBe(6);
 			expect(s3.sheet.cellAt('C3').value).toBe(6);
 			expect(s3.sheet.cellAt('C4').value).toBe(true);
+		});
+		test('chain of execution on manual steps', async () => {
+			// setup: 3 streamsheets in following order: S1 -> executes -> S2 -> executes -> S3
+			const { machine, s1, s2 } = setup();
+			const s3 = new StreamSheet({ name: 'S3' });
+			machine.addStreamSheet(s3);
+			s1.trigger.update({ repeat: 'endless' });
+			s1.sheet.load({
+				cells: { A1: { formula: 'A1+1' }, A2: { formula: 'execute("S2", 2)' }, A3: { formula: 'A3+1' } }
+			});
+			s2.sheet.load({
+				cells: { B1: { formula: 'B1+1' }, B2: { formula: 'execute("S3", 3)' }, B3: { formula: 'B3+1' } }
+			});
+			s3.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE });
+			s3.sheet.load({ cells: { C1: { formula: 'C1+1' } } });
+	
+			// initial values:
+			expect(s1.sheet.cellAt('A1').value).toBe(1);
+			expect(s1.sheet.cellAt('A2').value).toBe(true);
+			expect(s1.sheet.cellAt('A3').value).toBe(1);
+			expect(s2.sheet.cellAt('B1').value).toBe(1);
+			expect(s2.sheet.cellAt('B2').value).toBe(true);
+			expect(s2.sheet.cellAt('B3').value).toBe(1);
+			expect(s3.sheet.cellAt('C1').value).toBe(1);
+	
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('A2').value).toBe(true);
+			expect(s1.sheet.cellAt('A3').value).toBe(2);
+			expect(s2.sheet.cellAt('B1').value).toBe(3);
+			expect(s2.sheet.cellAt('B2').value).toBe(true);
+			expect(s2.sheet.cellAt('B3').value).toBe(3);
+			expect(s2.stats.executesteps).toBe(2);
+			expect(s3.sheet.cellAt('C1').value).toBe(7);
+			expect(s3.stats.executesteps).toBe(3);
+			
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('A2').value).toBe(true);
+			expect(s1.sheet.cellAt('A3').value).toBe(3);
+			expect(s2.sheet.cellAt('B1').value).toBe(5);
+			expect(s2.sheet.cellAt('B2').value).toBe(true);
+			expect(s2.sheet.cellAt('B3').value).toBe(5);
+			expect(s2.stats.executesteps).toBe(2);
+			expect(s3.sheet.cellAt('C1').value).toBe(13);
+			expect(s3.stats.executesteps).toBe(3);
+	
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(4);
+			expect(s1.sheet.cellAt('A2').value).toBe(true);
+			expect(s1.sheet.cellAt('A3').value).toBe(4);
+			expect(s2.sheet.cellAt('B1').value).toBe(7);
+			expect(s2.sheet.cellAt('B2').value).toBe(true);
+			expect(s2.sheet.cellAt('B3').value).toBe(7);
+			expect(s2.stats.executesteps).toBe(2);
+			expect(s3.sheet.cellAt('C1').value).toBe(19);
+			expect(s3.stats.executesteps).toBe(3);
 		});
 		test('DL-1528, derived from ampelbug2', async () => {
 			const { machine, s1, s2 } = setup();

@@ -157,6 +157,31 @@ describe('OnMessageTrigger', () => {
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(10);
 		});
+		test('with execute another sheet', async () => {
+			const { machine, s1 } = setup();
+			const s2 = new StreamSheet();
+			s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE });			
+			s1.sheet.load({
+				cells: { A1: { formula: 'A1+1' }, B1: { formula: 'execute("S2")' }, C1: { formula: 'C1+1' } }
+			});
+			s2.sheet.load({ cells: { B2: { formula: 'B2+1' } } });
+			machine.addStreamSheet(s2);
+			machine.cycletime = 2000000;
+			await machine.start();
+			expect(s1.sheet.cellAt('A1').value).toBe(1);
+			expect(s1.sheet.cellAt('C1').value).toBe(1);
+			expect(s2.sheet.cellAt('B2').value).toBe(1);
+			putMessages(s1, new Message());
+			await wait(100);
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('C1').value).toBe(2);
+			expect(s2.sheet.cellAt('B2').value).toBe(2);
+			putMessages(s1, new Message(), new Message(), new Message());
+			await wait(100);
+			expect(s1.sheet.cellAt('A1').value).toBe(5);
+			expect(s1.sheet.cellAt('C1').value).toBe(5);
+			expect(s2.sheet.cellAt('B2').value).toBe(5);
+		});
 	});
 	describe('update trigger', () => {
 		it('should be possible to remove trigger', async () => {
