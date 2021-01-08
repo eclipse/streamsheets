@@ -755,7 +755,7 @@ describe('concatenated execute() usage', () => {
 		expect(s3.stats.executesteps).toBe(3);
 	});
 	// DL-1663
-	it.skip('should not calculate twice if streamsheet is triggered by execute and endless mode in one step', async () => {
+	it('should not calculate twice if streamsheet is triggered by execute and endless mode in one step', async () => {
 		const { machine, s1, s2 } = setup();
 		const s3 = new StreamSheet({ name: 'S3' });
 		s3.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE, repeat: 'endless' });
@@ -766,7 +766,9 @@ describe('concatenated execute() usage', () => {
 		machine.addStreamSheet(s1);
 
 		// setup 3 streamsheets: S1 -> executes S2 -> executes -> S3
-		s1.sheet.load({ cells: { A1: { formula: 'A1+1' }, A2: { formula: 'execute("S2", 1)' } } });
+		s1.sheet.load({
+			cells: { A1: { formula: 'A1+1' }, A2: { formula: 'execute("S2", 1)' }, A3: { formula: 'A3+1' } }
+		});
 		s2.sheet.load({
 			cells: { B1: { formula: 'B1+1' }, B2: { formula: 'execute("S3", 1)' }, B3: { formula: 'B3+1' } }
 		});
@@ -783,6 +785,7 @@ describe('concatenated execute() usage', () => {
 		// initial values:
 		expect(s1.sheet.cellAt('A1').value).toBe(1);
 		expect(s1.sheet.cellAt('A2').value).toBe(true);
+		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(1);
 		expect(s2.sheet.cellAt('B2').value).toBe(true);
 		expect(s2.sheet.cellAt('B3').value).toBe(1);
@@ -793,7 +796,8 @@ describe('concatenated execute() usage', () => {
 		await machine.step();
 		expect(s2.getLoopIndex()).toBe(0);
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
-		expect(s1.sheet.cellAt('A2').value).toBe(true);
+		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.NA);
+		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(2);
 		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.NA);
 		expect(s2.sheet.cellAt('B3').value).toBe(1);
@@ -803,8 +807,9 @@ describe('concatenated execute() usage', () => {
 		expect(s3.sheet.cellAt('D4').value).toBe(true);
 		await machine.step();
 		expect(s2.getLoopIndex()).toBe(0);
-		expect(s1.sheet.cellAt('A1').value).toBe(3);
-		expect(s1.sheet.cellAt('A2').value).toBe(true);
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.NA);
+		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(2);
 		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.NA);
 		expect(s2.sheet.cellAt('B3').value).toBe(1);
@@ -814,8 +819,9 @@ describe('concatenated execute() usage', () => {
 		expect(s3.sheet.cellAt('D4').value).toBe(true);
 		await machine.step();	// <-- return S3
 		expect(s2.getLoopIndex()).toBe(1);
-		expect(s1.sheet.cellAt('A1').value).toBe(4);
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
 		expect(s1.sheet.cellAt('A2').value).toBe(true);
+		expect(s1.sheet.cellAt('A3').value).toBe(2);
 		expect(s2.sheet.cellAt('B1').value).toBe(2);
 		expect(s2.sheet.cellAt('B2').value).toBe(true);
 		expect(s2.sheet.cellAt('B3').value).toBe(2);
@@ -825,8 +831,9 @@ describe('concatenated execute() usage', () => {
 		expect(s3.sheet.cellAt('D4').value).toBe(true);
 		await machine.step();
 		expect(s2.getLoopIndex()).toBe(1);
-		expect(s1.sheet.cellAt('A1').value).toBe(5);
-		expect(s1.sheet.cellAt('A2').value).toBe(true);
+		expect(s1.sheet.cellAt('A1').value).toBe(3);
+		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.NA);
+		expect(s1.sheet.cellAt('A3').value).toBe(2);
 		expect(s2.sheet.cellAt('B1').value).toBe(3);
 		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.NA);
 		expect(s2.sheet.cellAt('B3').value).toBe(2);
@@ -837,8 +844,9 @@ describe('concatenated execute() usage', () => {
 		await machine.step();
 		await machine.step();	// <-- return S3
 		expect(s2.getLoopIndex()).toBe(1);
-		expect(s1.sheet.cellAt('A1').value).toBe(7);
+		expect(s1.sheet.cellAt('A1').value).toBe(3);
 		expect(s1.sheet.cellAt('A2').value).toBe(true);
+		expect(s1.sheet.cellAt('A3').value).toBe(3);
 		expect(s2.sheet.cellAt('B1').value).toBe(3);
 		expect(s2.sheet.cellAt('B2').value).toBe(true);
 		expect(s2.sheet.cellAt('B3').value).toBe(3);

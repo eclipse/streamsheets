@@ -174,7 +174,7 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 			expect(sheet2.cellAt('A2').value).toBe(5);
 		});
 		it('should calculate sheet triggered by execute outside of machine cycle', async () => {
-			const t1 = createStreamSheet('T1', { A1: { formula: 'execute("T2")' } });
+			const t1 = createStreamSheet('T1', { A1: { formula: 'execute("T2")' }, B1: { formula: 'B1+1' } });
 			const t2 = createStreamSheet('T2', { A2: { formula: 'getcycle()' } },
 				TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE, repeat: 'endless' }));
 			const sheet1 = t1.sheet;
@@ -183,12 +183,16 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 			expect(sheet1.cellAt('A1').value).toBe(true);
 			expect(sheet2.cellAt('A2').value).toBe(0);
 			await machine.start();
+			expect(sheet1.cellAt('B1').value).toBe(1);
 			putMessages(t1, new Message());
-			// run for 1 second
 			await wait(500);
-			await machine.stop();
+			// t2 never returns, so in t1:
 			expect(sheet1.cellAt('A1').value).toBe(FunctionErrors.code.NA);
-			// getcycle returns number of steps done in endless mode => so must be far more than 1
+			expect(sheet1.cellAt('B1').value).toBe(1);
+			await machine.stop();
+			expect(sheet1.cellAt('B1').value).toBe(1);
+			expect(sheet1.cellAt('A1').value).toBe(true);
+			// getcycle returns number of steps done in endless mode => so must be much more than 1
 			expect(sheet2.cellAt('A2').value).toBeGreaterThan(1);
 		});
 	});
