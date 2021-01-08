@@ -37,6 +37,8 @@ const applyHotReplace = (replace, streamsheets) => {
 	return replace.add ? streamsheets.concat(replace.add) : streamsheets;
 };
 
+const FILE_VERSION = '2.0.0';
+
 const DEF_CONF = {
 	name: '',
 	state: State.STOPPED,
@@ -150,6 +152,9 @@ class Machine {
 		this._streamsheets.forEach((streamsheet) => streamsheet.sheet.iterate((cell) => cell.update()));
 
 		await this.outbox.load(undefined, this);
+
+		// apply new fileVersion ofter load to allow adjustment on loading
+		if (!this.metadata.fileVersion) this.metadata.fileVersion = FILE_VERSION;
 
 		// apply loaded state:
 		if (def.state === State.RUNNING) {

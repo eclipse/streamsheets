@@ -117,6 +117,12 @@ class StreamSheet {
 		this._applyConfig(config, machine);
 		this.inbox.load(config.inbox);
 		this.sheet.load(config.sheet);
+		// convert old machines to new continuous trigger:
+		if (!machine.metadata.fileVersion) {
+			if (this._trigger.type === TriggerFactory.TYPE.MACHINE_START && this._trigger.isEndless) {
+				this.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
+			}
+		}
 	}
 
 	get id() {
