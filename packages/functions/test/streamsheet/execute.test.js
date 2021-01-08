@@ -52,6 +52,11 @@ const setup = ({ switched = false } = {}) => {
 
 
 describe('execute', () => {
+	it('should return error code of passed message term', () => {
+		const { s1 } = setup();
+		createCellAt('A1', { formula: 'EXECUTE("S2",2,SUBTREE(OUTBOXDATA("Message")))'}, s1.sheet);
+		expect(s1.sheet.cellAt('A1').value).toBe(ERROR.NO_MSG);
+	});
 	it('should trigger execution of a streamsheet from another one', async () => {
 		const { machine, s1, s2 } = setup();
 		const sheet1 = s1.sheet.load({
@@ -693,6 +698,23 @@ describe('execute', () => {
 		expect(s2.sheet.cellAt('A4').value).toBe(2);
 		expect(s2.sheet.cellAt('B5').value).toBe('Max');
 		expect(s2.sheet.cellAt('A6').value).toBe(2);
+	});
+	it('should execute endlessly in "repeat until..." but respect sleep()', async () => {
+		const { machine, s1, s2 } = setup();
+		s2.trigger.update({ repeat: 'endless' });
+		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+		createCellAt('A2', { formula: 'execute("S2")' }, s1.sheet);
+		createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
+		createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
+		createCellAt('B2', { formula: 'sleep(0.1)' }, s2.sheet);
+		await machine.start();
+		await wait(500);
+		await machine.stop();
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		expect(s1.sheet.cellAt('A2').value).toBe(true);
+		expect(s1.sheet.cellAt('A3').value).toBe(1);
+		expect(s2.sheet.cellAt('B1').value).toBeGreaterThan(2);
+		expect(s2.sheet.cellAt('B1').value).toBeLessThan(6);
 	});
 });
 describe('concatenated execute() usage', () => {

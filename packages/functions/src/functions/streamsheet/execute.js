@@ -18,7 +18,7 @@ const ERROR = FunctionErrors.code;
 const createExecuteMessage = (term, sheet) => {
 	const machine = getMachine(sheet);
 	const message = createMessageFromTerm(term, machine);
-	if (message) {
+	if (message && !FunctionErrors.isError(message)) {
 		message.metadata = message.metadata || {};
 		message.metadata.source = sheet.streamsheet.name;
 		message.metadata.trigger = 'EXECUTE';
