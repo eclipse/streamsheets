@@ -404,6 +404,7 @@ describe('ExecuteTrigger', () => {
 		});
 		it('should stop repetitions of execute as soon as return() is called in "repeat until..." with machine run', async () => {
 			const { machine, s1, s2 } = setup();
+			const machineMonitor = monitorMachine(machine);
 			s2.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'execute("S2",2)' }, s1.sheet);
@@ -412,7 +413,8 @@ describe('ExecuteTrigger', () => {
 			createCellAt('B3', { formula: 'if(mod(B2,3)=0,return(),false)' }, s2.sheet);
 			createCellAt('B4', { formula: 'B4+1' }, s2.sheet);
 			await machine.start();
-			await wait(80);
+			await machineMonitor.hasPassedStep(2);
+			await wait(30);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
