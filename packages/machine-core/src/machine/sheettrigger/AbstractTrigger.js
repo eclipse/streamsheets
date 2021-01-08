@@ -50,10 +50,6 @@ class AbstractTrigger {
 		return this.config.repeat === 'endless';
 	}
 
-	get isRepeating() {
-		return !!this._stepId;
-	}
-
 	get sheet() {
 		return this._streamsheet.sheet;
 	}
