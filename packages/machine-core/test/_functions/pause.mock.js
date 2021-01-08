@@ -30,12 +30,14 @@
 		const period = terms[0] && terms[0].value ? terms[0].value * 1000 : 0;
 		if (!context.initialized) {
 			context.initialized = true;
+			context.pauseCounter = 0;
 			context.resumeCounter = 0;
 			context.addDisposeListener(resume(sheet, context));
 		}
 		if (!sheet.isPaused) {
 			clearPauseTimeout(context);
 			if (period > 0) context.timeoutId = setTimeout(resume(sheet, context), period);
+			context.pauseCounter += 1;
 			sheet.streamsheet.pauseProcessing();
 		}
 	}
