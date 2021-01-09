@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const clearTrigger = (trigger) => {
-	const clearIt = !!trigger._stepId;
+	const clearIt = trigger._stepId != null;
 	if (clearIt) {
 		clearImmediate(trigger._stepId);
 		trigger._stepId = undefined;
@@ -98,8 +98,8 @@ class AbstractTrigger {
 		this.sheet._stopProcessing(retval);
 	}
 	pauseProcessing() {
-		this.sheet._pauseProcessing();
 		clearTrigger(this);
+		this.sheet._pauseProcessing();
 	}
 	resumeProcessing(retval) {
 		if (this.sheet.isPaused) {

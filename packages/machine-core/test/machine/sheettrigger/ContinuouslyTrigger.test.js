@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { ContinuousTrigger, NeverTrigger, Machine, Message, StreamSheet, TriggerFactory } = require('../../..');
-const { createCellAt, monitorMachine, monitorStreamSheet, wait } = require('../../utils');
+const { createCellAt, expectValue, monitorMachine, monitorStreamSheet, wait } = require('../../utils');
 
 const setup = () => {
 	const machine = new Machine();
@@ -729,6 +729,17 @@ describe('ContinuousTrigger', () => {
 			expect(s1.stats.steps).toBe(1);
 			expect(s1.stats.repeatsteps).toBe(1);
 			await machine.stop();
+		});
+		it('should not count repeat steps in "repeat until..." mode if paused by function', async () => {
+			const { machine, s1 } = setup();
+			s1.trigger.update({ repeat: 'endless' });
+			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+			createCellAt('A2', { formula: 'pause(0.1)' }, s1.sheet);
+			await machine.start();
+			await wait(500);
+			expectValue(s1.stats.repeatsteps).toBeInRange(3, 6);
+			await machine.stop();
+			expectValue(s1.sheet.cellAt('A1').value).toBeInRange(2, 7);
 		});
 	});
 	describe('serialize', () => {

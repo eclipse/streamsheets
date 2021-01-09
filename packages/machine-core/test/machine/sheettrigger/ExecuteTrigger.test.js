@@ -17,7 +17,7 @@ const {
 	StreamSheet,
 	TriggerFactory
 } = require('../../..');
-const { createCellAt, monitorMachine, monitorStreamSheet, wait } = require('../../utils');
+const { createCellAt, expectValue, monitorMachine, monitorStreamSheet, wait } = require('../../utils');
 
 const addOutboxMessage = (machine, message) => {
 	message = message || new Message({ outbox: true });
@@ -1705,6 +1705,31 @@ describe('ExecuteTrigger', () => {
 			expect(s2.stats.repeatsteps).toBeGreaterThan(2);
 			expect(s2.stats.executesteps).toBe(1);
 			await machine.stop();
+		});
+		it('should not count repeat steps in "repeat until..." mode if paused by function', async () => {
+			const { machine, s2 } = setup();
+			const t1 = new StreamSheet();
+			t1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START });
+			machine.addStreamSheet(t1);
+			machine.cycletime = 50000;
+			s2.trigger.update({ repeat: 'endless' });
+			createCellAt('A1', { formula: 'A1+1' }, t1.sheet);
+			createCellAt('A2', { formula: 'execute("S2")' }, t1.sheet);
+			createCellAt('A3', { formula: 'A3+1' }, t1.sheet);
+			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
+			createCellAt('B2', { formula: 'pause(0.1)' }, s2.sheet);
+			createCellAt('C2', { formula: 'C2+1' }, s2.sheet);
+			createCellAt('B3', { formula: 'B3+1' }, s2.sheet);
+			await machine.start();
+			await wait(500);
+			expectValue(s2.stats.repeatsteps).toBeInRange(3, 6);
+			await machine.stop(); // resumes execute...
+			expect(t1.sheet.cellAt('A1').value).toBe(2);
+			expect(t1.sheet.cellAt('A2').value).toBe(true);
+			expect(t1.sheet.cellAt('A3').value).toBe(2); // because execute resumes on stop
+			expectValue(s2.sheet.cellAt('B1').value).toBeInRange(3, 6);
+			expectValue(s2.sheet.cellAt('C2').value).toBeInRange(3, 6);
+			expectValue(s2.sheet.cellAt('B3').value).toBeInRange(3, 6);
 		});
 	});
 	describe('serialize', () => {

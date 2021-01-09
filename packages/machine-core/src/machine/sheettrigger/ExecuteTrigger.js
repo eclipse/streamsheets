@@ -70,8 +70,11 @@ class ExecuteTrigger extends AbstractTrigger {
 	}
 
 	doRepeatStep() {
-		this._streamsheet.stats.repeatsteps += 1;
-		this._doExecute();
+		this.isResumed = this.isResumed && this.isManualStep;
+		if (!this.isResumed) {
+			this._streamsheet.stats.repeatsteps += 1;
+			this._doExecute();
+		}
 	}
 	_doExecute() {
 		if (!this.isResumed && this._isActive) {
