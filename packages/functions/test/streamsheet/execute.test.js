@@ -714,7 +714,7 @@ describe('execute', () => {
 		expect(s1.sheet.cellAt('A2').value).toBe(true);
 		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBeGreaterThan(2);
-		expect(s2.sheet.cellAt('B1').value).toBeLessThan(6);
+		expect(s2.sheet.cellAt('B1').value).toBeLessThanOrEqual(6);
 	});
 });
 describe('concatenated execute() usage', () => {
