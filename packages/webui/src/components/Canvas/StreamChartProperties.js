@@ -115,7 +115,7 @@ export class StreamChartProperties extends Component {
 	static getDerivedStateFromProps(props, state) {
 		if (props.showStreamChartProperties === true) {
 			const plotView = StreamChartProperties.getPlotView();
-			if (plotView !== state.plotView) {
+			if (plotView && plotView !== state.plotView) {
 				const item = plotView.getItem();
 				return {
 					...state,
@@ -2284,15 +2284,14 @@ export class StreamChartProperties extends Component {
 														}
 													}}
 													value={
-														item.chart.formula.getFormula()
-															? `=${item.chart.formula.getFormula()}`
-															: ''
+														`=${series.formula.getFormula()}`
 													}
 													InputLabelProps={{ shrink: true }}
 													InputProps={{
 														inputComponent: MyInputComponent,
 														inputProps: {
 															component: CellRangeComponent,
+															onlyReference: false,
 															sheetView,
 															value: {},
 															range: `=${series.formula.getFormula()}`

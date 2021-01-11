@@ -258,6 +258,7 @@ export default class CellsView extends NodeView {
 					break;
 				case 'READ':
 				case 'WRITE':
+					result.clip = true;
 					result.fillColor = '#AAAAAA';
 					result.color = '#FFFFFF';
 					result.bold = true;
@@ -291,6 +292,7 @@ export default class CellsView extends NodeView {
 					}
 					break;
 				default:
+					result.clip = true;
 					result.value = String(data.getValue());
 					result.rounded = 'full';
 					if (result.value === 'true' || result.value[0] !== '#') {
@@ -712,7 +714,7 @@ export default class CellsView extends NodeView {
 						// range.shiftFromSheet();
 						const type = (termFunc.params.length > 1 && termFunc.params[1].value) || 'line';
 						node.setSize(columnInfo.width, rowInfo.height);
-						node.createSeriesFromSelection(undefined, this.getItem(), selection, type);
+						node.createSeriesFromSelection(undefined, this.getItem(), selection, String(type));
 						node.layout();
 						if (node.series.length) {
 							const serie = node.series[0];
@@ -738,6 +740,9 @@ export default class CellsView extends NodeView {
 							case 'pie':
 							case 'doughnut':
 								view.drawCircular(graphics, node, rect, serie, 0);
+								break;
+							case 'gauge':
+								view.drawGauge(graphics, node, rect, serie, 0);
 								break;
 							case 'boxplot':
 								view.drawBoxPlot(graphics, node, rect, serie, 0);
@@ -926,7 +931,7 @@ export default class CellsView extends NodeView {
 				formattedValue.value === false ||
 				formattedValue.value === 'false';
 			if (this._wsItem._showFormulas === false && columnInfo.width < 1100) {
-				graphics.setTransparency(17);
+				graphics.setTransparency(JSG.theme.ifTransparency);
 				this.rect(
 					graphics,
 					columnInfo.x,

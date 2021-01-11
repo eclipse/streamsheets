@@ -239,7 +239,8 @@ export default class SheetActivator extends InteractionActivator {
 	 * @param {InteractionDispatcher} dispatcher The InteractionDispatcher
 	 * which notified this activator.
 	 */
-	onMouseUp(event /* , viewer, dispatcher */) {
+	onMouseUp(event, viewer, dispatcher) {
+		this.setState(event, viewer, dispatcher);
 		if (this._controller) {
 			event.isConsumed = true;
 			event.hasActivated = true;

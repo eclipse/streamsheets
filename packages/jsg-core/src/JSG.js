@@ -394,7 +394,8 @@ JSG.theme = {
 		'#795548',
 		'#fabb69',
 		'#168d9a'
-	]
+	],
+	ifTransparency: 17,
 };
 
 module.exports = JSG;

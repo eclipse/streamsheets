@@ -273,13 +273,16 @@ export default class TreeItemsView extends NodeView {
 			graphics.setFillColor(this._colorScheme.JSON_KEY_TEXT);
 			graphics.fillText(item.key, itemRectKey.x + 100, itemRectKey.y + treeItemHeight);
 
-			if (!hasChildren) {
-				// draw value rectangle box
-				itemRectValue.x = rect.x + itemRectKey.getRight();
-				itemRectValue.y = rect.y + levelHeight;
-				itemRectValue.width = this._treeItemWidth;
-				itemRectValue.height = this._treeItemHeight;
+			itemRectValue.x = rect.x + itemRectKey.getRight();
+			itemRectValue.y = rect.y + levelHeight;
+			itemRectValue.width = this._treeItemWidth;
+			itemRectValue.height = this._treeItemHeight;
 
+			if (hasChildren) {
+				graphics.setFillColor(fillColor);
+				graphics.fillRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height);
+			} else {
+				// draw value rectangle box
 				graphics.setFillColor(JSG.theme.filllight);
 				graphics.fillRoundedRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height, 0, 150, 0, 150);
 
