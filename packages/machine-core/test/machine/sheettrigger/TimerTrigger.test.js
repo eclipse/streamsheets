@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { ContinuousTrigger, Machine, StreamSheet, TimerTrigger, TriggerFactory } = require('../../..');
-const { createCellAt, wait, monitorStreamSheet } = require('../../utils');
+const { createCellAt, expectValue, monitorStreamSheet, wait } = require('../../utils');
 
 const setup = (triggerConfig = {}) => {
 	const machine = new Machine();
@@ -46,7 +46,7 @@ describe('TimerTrigger', () => {
 				await wait(180);
 				await machine.stop();
 				// should trigger each 50ms
-				expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(4);
+				expectValue(s1.sheet.cellAt('A1').value).toBeInRange(3, 5);
 			});
 			it('should trigger at defined long interval after machine start', async () => {
 				const { machine, s1 } = setup({ type: TimerTrigger.TYPE_TIME, interval: 1, intervalUnit: 's' });

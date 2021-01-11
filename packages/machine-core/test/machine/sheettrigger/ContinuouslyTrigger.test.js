@@ -232,6 +232,7 @@ describe('ContinuousTrigger', () => {
 		});
 		it('should not resume sheet in "repeat until..." on machine resume if sheet was paused by function', async () => {
 			const { machine, s1 } = setup();
+			const machineMonitor = monitorMachine(machine);
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
@@ -245,7 +246,7 @@ describe('ContinuousTrigger', () => {
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			await machine.start();
 			// wait at least for next tick:
-			await wait(70);
+			await machineMonitor.nextSteps(1);
 			expect(machine.stats.steps).toBe(2);
 			// should still be paused:
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
@@ -253,7 +254,7 @@ describe('ContinuousTrigger', () => {
 			// resume pause function
 			createCellAt('A2', undefined, s1.sheet);
 			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
-			await wait(120);
+			await machineMonitor.nextSteps(2);
 			expect(machine.stats.steps).toBeGreaterThanOrEqual(4);
 			// only have 3 and 2 because on next tick it will pause again...
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
