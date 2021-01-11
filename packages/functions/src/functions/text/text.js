@@ -88,6 +88,14 @@ const doFind = (regex, instr, atpos) => {
 	return ERROR.VALUE;
 };
 
+const convertCase = (caseFn) => (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withArgCount(1)
+		.mapNextArg((txt) => convert.toString(txt.value))
+		.run((txt) => {
+			return txt != null ? caseFn.call(txt) : ERROR.VALUE;
+		});
+
 // printable ASCII characters are in range 32-126 (space - ~) )
 // const CLEAN_REGEX = /[^\x20-\x7E]+/g;
 // eslint-disable-next-line no-control-regex
@@ -173,6 +181,8 @@ const len = (sheet, ...terms) =>
 		.withArgCount(1)
 		.mapNextArg((str) => convert.toString(str.value, ''))
 		.run((str) => str.length);
+
+const lower = convertCase(''.toLowerCase);
 
 const mid = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -275,7 +285,9 @@ const unicode = (sheet, ...terms) =>
 			const chcode = str.length > 0 ? str.charCodeAt(0) : NaN;
 			return isNaN(chcode) ? ERROR.VALUE : chcode;
 		});
-	
+
+const upper = convertCase(''.toUpperCase);
+
 const value = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
@@ -299,6 +311,7 @@ module.exports = {
 	FIND: find,
 	LEFT: left,
 	LEN: len,
+	LOWER: lower,
 	MID: mid,
 	REPLACE: replace,
 	REPT: rept,
@@ -308,5 +321,6 @@ module.exports = {
 	TEXT: text,
 	UNICHAR: unichar,
 	UNICODE: unicode,
+	UPPER: upper,
 	VALUE: value
 };
