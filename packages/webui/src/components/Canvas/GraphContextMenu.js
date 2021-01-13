@@ -136,32 +136,6 @@ class GraphContextComponent extends Component {
 		this.props.setAppState({ showStreamChartProperties: true });
 	};
 
-	onCopyMapNames = () => {
-		const viewer = graphManager.getGraphViewer();
-		if (viewer === undefined) {
-			return;
-		}
-
-		const selection = viewer.getSelection();
-		const item = selection.length ? selection[0].getModel() : undefined;
-		const features = selection[0].getModel().mapData.map.features;
-		let data = '';
-
-		features.forEach(feature => {
-			if (feature.properties[item.mapData.name]) {
-				data += feature.properties[item.mapData.name];
-				data += '\n';
-			}
-		});
-
-		let controller = selection[0].getParent();
-		while (controller && !(controller.getModel() instanceof JSG.StreamSheet)) {
-			controller = controller.getParent();
-		}
-
-		controller.getView().copyToClipboard(data);
-	}
-
 	handleClick = (event) => {
 		const { context } = this.state;
 		const wasOutside = !(event.target.contains === this.sheetmenu);
@@ -208,18 +182,6 @@ class GraphContextComponent extends Component {
 							</ListItemIcon>
 							<ListItemText primary={<FormattedMessage id="EditChart" defaultMessage="Edit Chart" />} />
 						</MenuItem>
-						{item.mapData ? (
-						<MenuItem
-							onClick={this.onCopyMapNames}
-							dense
-						>
-							<ListItemIcon>
-								<SvgIcon style={styles.menuItem} >
-									<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
-								</SvgIcon>
-							</ListItemIcon>
-							<ListItemText primary={<FormattedMessage id="CopyMapNames" defaultMessage="Copy Map Names" />} />
-						</MenuItem>) : null}
 						<Divider/>
 					</MenuList> : null}
 				<MenuItem

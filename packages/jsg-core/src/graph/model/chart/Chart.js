@@ -39,8 +39,6 @@ module.exports = class Chart {
 		this.downBars = new ChartElement();
 		this.gaugePointer = false;
 		this.formula = new Expression('');
-		this.mapItems = new Expression('');
-		this.mapName = 'world.json';
 	}
 
 	get dataMode() {
@@ -106,10 +104,8 @@ module.exports = class Chart {
 		writer.writeAttributeNumber('startangle', this.startAngle);
 		writer.writeAttributeNumber('endangle', this.endAngle);
 		writer.writeAttributeNumber('hole', this.hole);
-		writer.writeAttributeString('mapname', this.mapName);
 
 		this.formula.save('formula', writer);
-		this.mapItems.save('mapitems', writer);
 		this.hiLoLines.save('hilolines', writer);
 		this.seriesLines.save('serieslines', writer);
 		this.upBars.save('upbars', writer);
@@ -137,16 +133,12 @@ module.exports = class Chart {
 		this.endAngle = reader.getAttributeNumber(object, 'endangle', Math.PI * 2);
 		this.hole = reader.getAttributeNumber(object, 'hole', 0.5);
 		this.template = reader.getAttributeString(object, 'template', 'basic');
-		this.mapName = reader.getAttributeString(object, 'mapname', 'world.json');
+
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {
 			case 'formula':
 				this.formula = new Expression(0);
 				this.formula.read(reader, child);
-				break;
-			case 'mapitems':
-				this.mapItems = new Expression(0);
-				this.mapItems.read(reader, child);
 				break;
 			case 'hilolines':
 				this.hiLoLines = new ChartElement();

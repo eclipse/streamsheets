@@ -433,23 +433,6 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'chart');
 	};
 
-	handleChartMapName = (event) => {
-		const cmd = this.prepareCommand('chart');
-		const item = this.state.plotView.getItem();
-		item.chart.mapName = event.target.value;
-		this.finishCommand(cmd, 'chart');
-	};
-
-	handleMapItemsFormulaBlur = (event) => {
-		const item = this.state.plotView.getItem();
-		const formula = event.target.textContent.replace(/^=/, '');
-		const cmd = this.prepareCommand('chart');
-
-		item.chart.mapItems = new JSG.Expression(0, formula);
-
-		this.finishCommand(cmd, 'chart');
-	};
-
 	getSelectionValue() {
 		const selection = this.state.plotView.chartSelection;
 		if (selection === undefined) {
@@ -922,6 +905,62 @@ export class StreamChartProperties extends Component {
 		}
 
 		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesMapName = (event) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.map.name = event.target.value;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesMapDisplayType = (event) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.map.displayType = event.target.value;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleMapItemsFormulaBlur = (event) => {
+		const data = this.getData();
+		const formula = event.target.textContent.replace(/^=/, '');
+		const cmd = this.prepareCommand('series');
+
+		data.map.items = new JSG.Expression(0, formula);
+
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesMapLabelBlur = (event) => {
+		const cmd = this.prepareCommand('series');
+		const data = this.getData();
+		data.map.label = event.target.value;
+		this.finishCommand(cmd, 'series');
+	};
+
+	handleSeriesCopyMapLabels = () => {
+		const data = this.getData();
+		const features = data.map.mapData.features;
+		const names = [];
+
+		features.forEach(feature => {
+			const name = feature.properties[data.map.label];
+			if (name && names.indexOf(name) === -1) {
+				names.push(name);
+			}
+		});
+		names.sort();
+
+		let clipData = '';
+
+		names.forEach(key =>  {
+			clipData += key;
+			clipData += '\n';
+		});
+
+		const sheetView = this.getSheetView();
+		sheetView.copyToClipboard(clipData);
+
 	};
 
 	handlePointSumChange = (event, state) => {
@@ -1981,78 +2020,6 @@ export class StreamChartProperties extends Component {
 												</FormGroup>
 											</div>
 										)}
-										{map ? (
-											<TextField
-												variant="outlined"
-												size="small"
-												fullWidth
-												label={
-													<FormattedMessage
-														id="StreamChartProperties.MapName"
-														defaultMessage="Map Name"
-													/>
-												}
-												select
-												margin="normal"
-												value={item.chart.mapName}
-												onChange={this.handleChartMapName}
-											>
-												<MenuItem value="landkreise.json" key={0}>
-													<FormattedMessage
-														id="StreamChartProperties.MapDLandkreise"
-														defaultMessage="Landkreise Deutschland"
-													/>
-												</MenuItem>
-												<MenuItem value="world.json" key={1}>
-													<FormattedMessage
-														id="StreamChartProperties.MapWorld"
-														defaultMessage="Welt"
-													/>
-												</MenuItem>
-												<MenuItem value="helsinki.json" key={1}>
-													<FormattedMessage
-														id="StreamChartProperties.Helsinki"
-														defaultMessage="Helsinki Straßen"
-													/>
-												</MenuItem>
-											</TextField>
-										) : null}
-										{map ? (
-										<TextField
-											variant="outlined"
-											size="small"
-											margin="normal"
-											label={
-												<FormattedMessage
-													id="StreamChartProperties.MapItems"
-													defaultMessage="Map Elements"
-												/>
-											}
-											onBlur={(event) => this.handleMapItemsFormulaBlur(event)}
-											onKeyPress={(event) => {
-												if (event.key === 'Enter') {
-													this.handleMapItemsFormulaBlur(event);
-												}
-											}}
-											value={
-												item.chart.mapItems.getFormula()
-													? `=${item.chart.mapItems.getFormula()}`
-													: ''
-											}
-											InputLabelProps={{ shrink: true }}
-											InputProps={{
-												inputComponent: MyInputComponent,
-												inputProps: {
-													component: CellRangeComponent,
-													sheetView,
-													value: {},
-													range: item.chart.mapItems.getFormula()
-														? `=${item.chart.mapItems.getFormula()}`
-														: ''
-												}
-											}}
-										/>
-										) : null}
 										<TextField
 											variant="outlined"
 											size="small"
@@ -3278,6 +3245,118 @@ export class StreamChartProperties extends Component {
 												/>
 											}
 										/>
+									) : null}
+									{selection.element === 'series' && data.type === 'map' ? (
+										<React.Fragment>
+											<TextField
+												variant="outlined"
+												size="small"
+												fullWidth
+												label={
+													<FormattedMessage
+														id="StreamChartProperties.MapName"
+														defaultMessage="Map Name"
+													/>
+												}
+												select
+												margin="normal"
+												value={data.map.name}
+												onChange={this.handleSeriesMapName}
+											>
+												<MenuItem value="world.json" key={2}>
+													<FormattedMessage
+														id="StreamChartProperties.MapWorld"
+														defaultMessage="Welt"
+													/>
+												</MenuItem>
+												<MenuItem value="capitals.json" key={5}>
+													<FormattedMessage
+														id="StreamChartProperties.Capitals"
+														defaultMessage="Capitals World"
+													/>
+												</MenuItem>
+												<MenuItem value="landkreise.json" key={0}>
+													<FormattedMessage
+														id="StreamChartProperties.MapDLandkreise"
+														defaultMessage="Landkreise Deutschland"
+													/>
+												</MenuItem>
+												<MenuItem value="helsinki.json" key={3}>
+													<FormattedMessage
+														id="StreamChartProperties.Helsinki"
+														defaultMessage="Helsinki Straßen"
+													/>
+												</MenuItem>
+												<MenuItem value="sheet" key={4}>
+													<FormattedMessage
+														id="StreamChartProperties.MapCustom"
+														defaultMessage="From Sheet"
+													/>
+												</MenuItem>
+											</TextField>
+											<TextField
+												variant="outlined"
+												fullWidth
+												size="small"
+												label={
+													<FormattedMessage
+														id="StreamChartProperties.CategoryName"
+														defaultMessage="Property for Labels"
+													/>
+												}
+												defaultValue={data.map.label}
+												onBlur={(event) => this.handleSeriesMapLabelBlur(event)}
+												margin="normal"
+											/>
+											<FormControl>
+												<Button style={{}} onClick={this.handleSeriesCopyMapLabels} color="primary">
+													<FormattedMessage
+														id="StreamChartProperties.CopyMapLabels"
+														defaultMessage="Copy Map Labels"
+													/>
+												</Button>
+											</FormControl>
+											<TextField
+												variant="outlined"
+												size="small"
+												fullWidth
+												label={
+													<FormattedMessage
+														id="StreamChartProperties.MapDisplayValues"
+														defaultMessage="Display Values"
+													/>
+												}
+												select
+												margin="normal"
+												value={data.map.displayType}
+												onChange={this.handleSeriesMapDisplayType}
+											>
+												<MenuItem value="color" key={0}>
+													<FormattedMessage
+														id="StreamChartProperties.MapDisplayColor"
+														defaultMessage="Color Intensity"
+													/>
+												</MenuItem>
+												<MenuItem value="radius" key={1}>
+													<FormattedMessage
+														id="StreamChartProperties.MapDisplayRadius"
+														defaultMessage="Point Radius"
+													/>
+												</MenuItem>
+												<MenuItem value="piechart" key={2}>
+													<FormattedMessage
+														id="StreamChartProperties.MapDisplayPie"
+														defaultMessage="Pie Chart"
+													/>
+												</MenuItem>
+												<MenuItem value="marker" key={3}>
+													<FormattedMessage
+														id="StreamChartProperties.MapDisplayMarker"
+														defaultMessage="Marker"
+													/>
+												</MenuItem>
+											</TextField>
+										</React.Fragment>
 									) : null}
 									{selection.element === 'series' && data.type === 'boxplot' ? (
 										<FormControlLabel

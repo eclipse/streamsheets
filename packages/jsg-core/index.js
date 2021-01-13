@@ -17,6 +17,7 @@ JSG.ChartRect = require('./src/graph/model/chart/ChartRect');
 JSG.ChartFormat = require('./src/graph/model/chart/ChartFormat');
 JSG.ChartDataLabel = require('./src/graph/model/chart/ChartDataLabel');
 JSG.ChartMarker = require('./src/graph/model/chart/ChartMarker');
+JSG.ChartMap = require('./src/graph/model/chart/ChartMap');
 JSG.Chart = require('./src/graph/model/chart/Chart');
 JSG.ChartTitle = require('./src/graph/model/chart/ChartTitle');
 JSG.ChartSeries = require('./src/graph/model/chart/ChartSeries');
