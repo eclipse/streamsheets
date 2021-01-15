@@ -921,13 +921,10 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'series');
 	};
 
-	handleMapItemsFormulaBlur = (event) => {
-		const data = this.getData();
-		const formula = event.target.textContent.replace(/^=/, '');
+	handleSeriesMapChartType = (event) => {
 		const cmd = this.prepareCommand('series');
-
-		data.map.items = new JSG.Expression(0, formula);
-
+		const data = this.getData();
+		data.map.chartType = event.target.value;
 		this.finishCommand(cmd, 'series');
 	};
 
@@ -2924,9 +2921,9 @@ export class StreamChartProperties extends Component {
 											</TextField>
 									  ]
 									: null}
-								{item.isLineType(data) ? (
+								{item.isLineType(data) || map ? (
 									<div style={{ display: 'grid' }}>
-										<FormLabel component="legend" style={{ marginTop: '8px' }}>
+										<FormLabel style={{ marginTop: '8px' }}>
 											<FormattedMessage
 												id="StreamChartProperties.Marker"
 												defaultMessage="Marker"
@@ -3061,6 +3058,7 @@ export class StreamChartProperties extends Component {
 												</TextField>
 											</FormControl>
 										</div>
+										{!map ? (
 										<div
 											style={{
 												display: 'inline-flex',
@@ -3111,7 +3109,7 @@ export class StreamChartProperties extends Component {
 													onChange={(color) => this.handleSeriesMarkerLineColorChange(color)}
 												/>
 											</FormControl>
-										</div>
+										</div>) : null}
 									</div>
 								) : null}
 								{selection.element === 'series' && (item.xAxes.length > 1 || item.yAxes.length > 1) ? (
@@ -3308,14 +3306,6 @@ export class StreamChartProperties extends Component {
 												onBlur={(event) => this.handleSeriesMapLabelBlur(event)}
 												margin="normal"
 											/>
-											<FormControl>
-												<Button style={{}} onClick={this.handleSeriesCopyMapLabels} color="primary">
-													<FormattedMessage
-														id="StreamChartProperties.CopyMapLabels"
-														defaultMessage="Copy Map Labels"
-													/>
-												</Button>
-											</FormControl>
 											<TextField
 												variant="outlined"
 												size="small"
@@ -3327,35 +3317,104 @@ export class StreamChartProperties extends Component {
 													/>
 												}
 												select
+												SelectProps={{
+													multiple: true,
+													renderValue: (selected) => selected.join(', ')
+												}}
 												margin="normal"
 												value={data.map.displayType}
 												onChange={this.handleSeriesMapDisplayType}
 											>
 												<MenuItem value="color" key={0}>
+													<Checkbox checked={data.map.displayType.indexOf('color') > -1} />
 													<FormattedMessage
 														id="StreamChartProperties.MapDisplayColor"
 														defaultMessage="Color Intensity"
 													/>
 												</MenuItem>
-												<MenuItem value="radius" key={1}>
+												<MenuItem value="line" key={1}>
+													<Checkbox checked={data.map.displayType.indexOf('line') > -1} />
+													<FormattedMessage
+														id="StreamChartProperties.MapDisplayLine"
+														defaultMessage="Line Width"
+													/>
+												</MenuItem>
+												<MenuItem value="radius" key={2}>
+													<Checkbox checked={data.map.displayType.indexOf('radius') > -1} />
 													<FormattedMessage
 														id="StreamChartProperties.MapDisplayRadius"
 														defaultMessage="Point Radius"
 													/>
 												</MenuItem>
-												<MenuItem value="piechart" key={2}>
+												<MenuItem value="chart" key={3}>
+													<Checkbox checked={data.map.displayType.indexOf('chart') > -1} />
 													<FormattedMessage
-														id="StreamChartProperties.MapDisplayPie"
-														defaultMessage="Pie Chart"
+														id="StreamChartProperties.MapDisplayChart"
+														defaultMessage="Chart"
 													/>
 												</MenuItem>
-												<MenuItem value="marker" key={3}>
+												<MenuItem value="marker" key={4}>
+													<Checkbox checked={data.map.displayType.indexOf('marker') > -1} />
 													<FormattedMessage
 														id="StreamChartProperties.MapDisplayMarker"
 														defaultMessage="Marker"
 													/>
 												</MenuItem>
 											</TextField>
+											<TextField
+												variant="outlined"
+												size="small"
+												fullWidth
+												label={
+													<FormattedMessage
+														id="StreamChartProperties.MapChartType"
+														defaultMessage="Chart Type"
+													/>
+												}
+												select
+												margin="normal"
+												value={data.map.chartType}
+												onChange={this.handleSeriesMapChartType}
+											>
+												<MenuItem value="pie" key={0}>
+													<FormattedMessage
+														id="StreamChart.Pie"
+														defaultMessage="Pie"
+													/>
+												</MenuItem>
+												<MenuItem value="doughnut" key={1}>
+													<FormattedMessage
+														id="StreamChart.Doughnut"
+														defaultMessage="Doughnut"
+													/>
+												</MenuItem>
+												<MenuItem value="column" key={2}>
+													<FormattedMessage
+														id="StreamChart.Column"
+														defaultMessage="Column"
+													/>
+												</MenuItem>
+												<MenuItem value="line" key={3}>
+													<FormattedMessage
+														id="StreamChart.Line"
+														defaultMessage="Line"
+													/>
+												</MenuItem>
+												<MenuItem value="area" key={4}>
+													<FormattedMessage
+														id="StreamChart.Area"
+														defaultMessage="Area"
+													/>
+												</MenuItem>
+											</TextField>
+											<FormControl>
+												<Button style={{}} onClick={this.handleSeriesCopyMapLabels} color="primary">
+													<FormattedMessage
+														id="StreamChartProperties.CopyMapLabels"
+														defaultMessage="Copy Map Labels"
+													/>
+												</Button>
+											</FormControl>
 										</React.Fragment>
 									) : null}
 									{selection.element === 'series' && data.type === 'boxplot' ? (

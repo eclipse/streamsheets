@@ -16,14 +16,16 @@ module.exports = class ChartMap {
 		this.items = new Expression('');
 		this.name = 'world.json';
 		this.label = 'name';
-		this.displayType = 'color';
+		this.displayType = ['color'];
+		this.chartType = ['pie'];
 	}
 	save(name, writer) {
 		writer.writeStartElement(name);
 
 		writer.writeAttributeString('name', this.name);
 		writer.writeAttributeString('label', this.label);
-		writer.writeAttributeString('display', this.displayType);
+		writer.writeAttributeString('display', this.displayType.join(';'));
+		writer.writeAttributeString('chart', this.chartType);
 		this.items.save('items', writer);
 
 		writer.writeEndElement();
@@ -32,7 +34,9 @@ module.exports = class ChartMap {
 	read(reader, object) {
 		this.name = reader.getAttributeString(object, 'name', 'world.json');
 		this.label = reader.getAttributeString(object, 'label', 'name');
-		this.displayType = reader.getAttributeString(object, 'displayType', 'color');
+		const displayType = reader.getAttributeString(object, 'display', ['color']);
+		this.displayType = displayType.split(';');
+		this.chartType = reader.getAttributeString(object, 'chart', 'pie');
 
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {

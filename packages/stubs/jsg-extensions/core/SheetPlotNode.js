@@ -2198,7 +2198,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 		}
 
-		if (serie.type === 'pie') {
+		if (serie && serie.type === 'pie') {
 			// calc region, if mulitple pies
 			let columns = Math.max(1, Math.ceil(plotRect.width / (plotRect.height ? plotRect.height : 1000)));
 			columns = Math.min(columns, seriesCnt);

@@ -12,6 +12,8 @@
 /* eslint-disable no-empty */
 /* eslint-disable no-bitwise */
 
+import JSG from "../../../jsg-ui";
+
 const opposedLine = (start, end) => {
 	const lengthX = end.x - start.x;
 	const lengthY = end.y - start.y;
@@ -2547,13 +2549,19 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 		}
 
 		getSheetView() {
-			let sheet = this;
-
-			while (sheet && sheet.getItem && !sheet.getItem().getCellDescriptors) {
-				sheet = sheet.getParent();
+			// let sheet = this;
+			//
+			// while (sheet && sheet.getItem && !sheet.getItem().getCellDescriptors) {
+			// 	sheet = sheet.getParent();
+			// }
+			//
+			// return sheet;
+			let view = this.getParent();
+			while (view && !(view.getItem() instanceof JSG.StreamSheet)) {
+				controller = controller.getParent();
 			}
 
-			return sheet;
+			return controller ? controller.getView() : undefined;
 		}
 
 		lightenDarkenColor(color, amt) {
