@@ -12,8 +12,6 @@
 /* eslint-disable no-empty */
 /* eslint-disable no-bitwise */
 
-import JSG from "../../../jsg-ui";
-
 const opposedLine = (start, end) => {
 	const lengthX = end.x - start.x;
 	const lengthY = end.y - start.y;
