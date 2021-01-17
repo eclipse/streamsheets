@@ -29,7 +29,8 @@ const startCol = (sheet, rowidx) => {
 };
 const State = {
 	READY: 1,
-	PAUSED: 4
+	PAUSED: 4,
+	STOPPED: 8
 };
 
 class Cursor {
@@ -66,6 +67,9 @@ class SheetProcessor {
 		this._cursor = new Cursor(sheet);
 	}
 
+	get isHalted() {
+		return this.isPaused || this.isStopped;
+	}
 	get isPaused() {
 		return this._state === State.PAUSED;
 	}
@@ -74,6 +78,9 @@ class SheetProcessor {
 	}
 	get isReady() {
 		return this._state === State.READY;
+	}
+	get isStopped() {
+		return this._state === State.STOPPED;
 	}
 	
 	continueAt(index) {
@@ -92,7 +99,8 @@ class SheetProcessor {
 	}
 
 	stop(retval) {
-		this._state = State.READY;
+		// this._state = State.READY;
+		this._state = State.STOPPED;
 		this._cursor.r = Number.MAX_SAFE_INTEGER;
 		this._cursor.changed = true;
 		this._cursor.result = retval;
@@ -128,12 +136,15 @@ class SheetProcessor {
 			if (cell) cell.evaluate();
 			// if (!this.isPaused && this._cursor.c != null) this._cursor.c += 1;
 		} else {
+			this._state = State.READY;
 			if (this.isProcessed) cursor.reset();
-			for (; cursor.r < last && !this.isPaused; ) {
+			// for (; cursor.r < last && !this.isPaused; ) {
+			for (; cursor.r < last && !this.isHalted; ) {
 				const row = rows[cursor.r];
 				lastcol = row ? row.length : 0;
 				cursor.c = cursor.c == null ? startCol(sheet, cursor.r) : cursor.c;
-				for (; cursor.c < lastcol && !this.isPaused; ) {
+				// for (; cursor.c < lastcol && !this.isPaused; ) {
+				for (; cursor.c < lastcol && !this.isHalted; ) {
 					const cell = cellAt(cursor.r, cursor.c, sheet);
 					if (cell) {
 						cell.evaluate();
@@ -147,7 +158,7 @@ class SheetProcessor {
 				if (cursor.changed) {
 					cursor.changed = false;
 					// break from row-loop if paused or if jump backward to prevent endless loop...
-					if (cursor.isBackward || this.isPaused) {
+					if (cursor.isBackward || this.isHalted) {
 						cursor.isBackward = false;
 						break;
 					}
