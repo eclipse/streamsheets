@@ -33,30 +33,50 @@ const monitorMachine = (machine) => {
 };
 
 const monitorStreamSheet = (streamsheet) => {
+	const stats = { steps: 0, repeatsteps: 0 };
 	const messages = { attached: 0, detached: 0 };
-	const stepMonitor = () => stepMonitor.onStep();
+	const processedStepsMonitor = () => processedStepsMonitor.onProcessedStep();
+	const stepsMonitor = () => {
+		stepsMonitor.updateStats();
+		stepsMonitor.onStep();
+	}
 
-	stepMonitor.onStep = () => {};
+	stepsMonitor.updateStats = () => {
+		stats.steps = streamsheet.stats.steps;
+		stats.repeatsteps = streamsheet.stats.repeatsteps;
+	};
+	stepsMonitor.onStep = () => {};
+	processedStepsMonitor.onProcessedStep = () => {};
+
 	// do not care that callback is never unregistered
-	streamsheet.on('step', stepMonitor);
+	streamsheet.on('step', stepsMonitor);
+	// streamsheet.on('willStep', willStepsMonitor);
 	streamsheet.on('message_attached', () => { messages.attached += 1; });
-	streamsheet.on('message_detached', () => { messages.detached += 1; });
+	streamsheet.on('message_detached', () => { 
+		messages.detached += 1; 
+	});
 
 	return {
+		stats,
 		messages,
 		// isAtStep: (step) => {
 		hasPassedStep: (step) => {
 			return new Promise((resolve) => {
-				stepMonitor.onStep = () => {
-					if (streamsheet.stats.steps >= step && !streamsheet.trigger._stepId) resolve();
-				};
-			});			
+				if (stats.steps >= step) resolve();
+				stepsMonitor.onStep = () => (streamsheet.stats.steps >= step ? resolve() : null);
+			});
+		},
+		// DOES NOT WORK!!!
+		hasProcessedStep: (step) => {
+			return new Promise((resolve) => {
+				if (streamsheet.stats.steps >= step) resolve();
+				processedStepsMonitor.onProcessedStep = () => (streamsheet.stats.steps >= step ? resolve() : null);
+			});
 		},
 		hasPassedRepeatStep: (step) => {
 			return new Promise((resolve) => {
-				stepMonitor.onStep = () => {
-					if (streamsheet.stats.repeatsteps >= step) resolve();
-				};
+				if (stats.repeatsteps >= step) resolve();
+				stepsMonitor.onStep = () => (streamsheet.stats.repeatsteps >= step ? resolve() : null);
 			});
 		}
 		// nextSteps: (steps = 1) => {
