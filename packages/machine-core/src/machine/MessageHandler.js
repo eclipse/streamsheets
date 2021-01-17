@@ -155,6 +155,11 @@ class MessageHandler {
 		return nxtdata;
 	}
 
+	setProcessed() {
+		this._used = true;
+		this._index = this._stack.length;
+	}
+
 	/** @deprecated */
 	previous() {
 		const prevdata =
