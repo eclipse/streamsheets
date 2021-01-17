@@ -8,53 +8,63 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { Message } = require('../..');
+
 const execute = (sheet, ...terms) => {
 	const cancelExecute = (calledStreamSheet) => (context) => {
 		calledStreamSheet.cancelExecute();
 		context.resumeFn();
 	};
-	const resume = (context, calledStreamSheet, callingStreamSheet) => (retval /*, message */) => {
+	const resume = (context, callingStreamSheet) => (retval /*, message */) => {
 		if (context.repetitions < 1) {
-			context.term.cell.value = retval != null ? retval : true;
 			context.isResumed = true;
+			if (context.term.cell) context.term.cell.value = retval != null ? retval : true;
 			callingStreamSheet.resumeProcessing(retval);
 		} else {
-			context.doExecute(context /* , message */);
+			context.repeatExecute(context, true);
 		}
 	};
-	const doExecute = (calledStreamSheet /* , message */) => (context, message) => {
+	const doExecute = (calledStreamSheet, pace) => (context, isRepeating) => {
+		// context.repeats += 1;
 		context.repetitions -= 1;
-		calledStreamSheet.stats.executesteps += 1;
-		calledStreamSheet.execute(message, undefined, context.resumeFn);
+		// calledStreamSheet.stats.executesteps += 1;
+		const message = context.msgdata ? new Message(context.msgdata) : context.message;
+		// console.log('TRIGGER EXECUTE');
+		calledStreamSheet.execute(context.resumeFn, message, pace, isRepeating); /* , context.repeats); */
 	};
 
 	if (sheet.isProcessing) {
-		let message;
 		const machine = sheet.machine;
 		const context = execute.context;
 		const callingStreamSheet = sheet.streamsheet;
 		const calledStreamSheet = machine.getStreamSheetByName(terms[0].value);
 		const repetitions = terms[1] ? terms[1].value : 1;
+		const pace = terms[3] != null ? !!terms[3].value : null;
 		if (terms[2]) {
-			const msgstr = terms[2].value;
-			const box = msgstr.startsWith('in:') ? callingStreamSheet.inbox : machine.outbox;
-			const msgId = msgstr.startsWith('in:') ? msgstr.substr(3) : msgstr.substr(4);
-			message = box.peek(msgId);
+			const msgdata = terms[2].value;
+			if (typeof msgdata === 'string') {
+				const box = msgdata.startsWith('in:') ? callingStreamSheet.inbox : machine.outbox;
+				const msgId = msgdata.startsWith('in:') ? msgdata.substr(3) : msgdata.substr(4);
+				context.message = box.peek(msgId);
+			} else {
+				context.msgdata = msgdata;
+			}
 		}
 		if (!context.initialized) {
 			context.initialized = true;
-			context.resumeFn = resume(context, calledStreamSheet, callingStreamSheet);
+			context.resumeFn = resume(context, callingStreamSheet);
 			context.addDisposeListener(cancelExecute(calledStreamSheet));
 		}
 		if (!sheet.isPaused) {
 			// always pause calling sheet, since we do not know how long execute takes (due to pause/sleep functions)
 			callingStreamSheet.pauseProcessing();
 			context.isResumed = false;
+			// context.repeats = 0;
 			context.repetitions = Math.max(1, repetitions);
-			context.doExecute = doExecute(calledStreamSheet); // , message);
-			calledStreamSheet.stats.executesteps = 0;
+			context.repeatExecute = doExecute(calledStreamSheet, pace);
+			// calledStreamSheet.stats.executesteps = 0;
 			// pass message only at beginning:
-			context.doExecute(context, message);
+			context.repeatExecute(context);
 		}
 		return true;
 	}

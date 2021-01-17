@@ -10,8 +10,12 @@
  ********************************************************************************/
 const EXECUTE = require('./execute.mock');
 const PAUSE = require('./pause.mock');
+const LOOPINDICES = require('./loopIndices');
 
 module.exports = {
+	ARRAY: (sheet, ...terms) => {
+		return terms.map((term) => term.value);
+	},
 	EXECUTE,
 	MOD: (sheet, ...terms) => {
 		const val = terms[0] ? terms[0].value : 0;
@@ -26,6 +30,7 @@ module.exports = {
 		}
 		return retval;
 	},
+	LOOPINDICES,
 	PAUSE
 	// ,
 	// RESUME: (sheet /* , ...terms */) => {
