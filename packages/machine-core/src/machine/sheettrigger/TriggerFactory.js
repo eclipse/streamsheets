@@ -9,12 +9,17 @@
  *
  ********************************************************************************/
 const ContinuousTrigger = require('./ContinuousTrigger');
+const ContinuousTrigger2 = require('./ContinuousTrigger2');
 const ExecuteTrigger = require('./ExecuteTrigger');
+const ExecuteTrigger2 = require('./ExecuteTrigger2');
 const MachineTrigger = require('./MachineTrigger');
+const MachineTrigger2 = require('./MachineTrigger2');
 const NeverTrigger = require('./NeverTrigger');
 const OneTimeTrigger = require('./OneTimeTrigger');
 const OnMessageTrigger = require('./OnMessageTrigger');
+const OnMessageTrigger2 = require('./OnMessageTrigger2');
 const TimerTrigger = require('./TimerTrigger');
+const TimerTrigger2 = require('./TimerTrigger2');
 
 const TYPE = {
 	ARRIVAL: OnMessageTrigger.TYPE,
@@ -35,17 +40,21 @@ const TriggerFactory = {
 		config.type = config.type || TYPE.ARRIVAL;
 		switch (config.type) {
 			case TYPE.ARRIVAL:
-				trigger = new OnMessageTrigger(config);
+				// trigger = new OnMessageTrigger(config);
+				trigger = new OnMessageTrigger2(config);
 				break;
 			case TYPE.CONTINUOUSLY:
-				trigger = new ContinuousTrigger(config);
+				// trigger = new ContinuousTrigger(config);
+				trigger = new ContinuousTrigger2(config);
 				break;
 			case TYPE.EXECUTE:
-				trigger = new ExecuteTrigger(config);
+				// trigger = new ExecuteTrigger(config);
+				trigger = new ExecuteTrigger2(config);
 				break;
 			case TYPE.MACHINE_START:
 			case TYPE.MACHINE_STOP:
-				trigger = new MachineTrigger(config);
+				// trigger = new MachineTrigger(config);
+				trigger = new MachineTrigger2(config);
 				break;
 			case TYPE.NONE:
 				trigger = new NeverTrigger(config);
@@ -55,7 +64,8 @@ const TriggerFactory = {
 				break;
 			case TYPE.RANDOM:
 			case TYPE.TIMER:
-				trigger = new TimerTrigger(config);
+				// trigger = new TimerTrigger(config);
+				trigger = new TimerTrigger2(config);
 				break;
 			default:
 				trigger = new NeverTrigger(config);

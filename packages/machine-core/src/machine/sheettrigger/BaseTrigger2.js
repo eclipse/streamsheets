@@ -8,34 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const clearTrigger = (trigger) => {
-	const clearIt = trigger._stepId != null;
-	if (clearIt) {
-		clearImmediate(trigger._stepId);
-		trigger._stepId = undefined;
-	}
-	return clearIt;
-};
-
-const repeatTrigger = (trigger) => {
-	clearTrigger(trigger);
-	trigger._stepId = setImmediate(trigger._repeatStep);
-};
 const DEF_CONF = {
 	repeat: 'once'
 };
 
-class AbstractTrigger {
+class BaseTrigger2 {
 	constructor(config = {}) {
 		this.config = Object.assign({}, DEF_CONF, config);
-		// to prevent processing on machine resume if sheet is stopped, e.g. by return()
-		this.isStopped = false;
-		// to prevent 2x resume in same step! => happens with execute in switched order
-		this.isResumed = false;
-		this.isManualStep = false;
-		this._stepId = undefined;
 		this._streamsheet = undefined;
-		this._repeatStep = this._repeatStep.bind(this);
 	}
 
 	toJSON() {
@@ -54,6 +34,10 @@ class AbstractTrigger {
 		return this._streamsheet.sheet;
 	}
 
+	get streamsheet() {
+		return this._streamsheet;
+	}
+
 	set streamsheet(streamsheet) {
 		this._streamsheet = streamsheet;
 	}
@@ -67,12 +51,12 @@ class AbstractTrigger {
 
 	update(config = {}) {
 		this.config = Object.assign(this.config, config);
-		if (!this.isEndless && clearTrigger(this)) this.resume();
+		// if (!this.isEndless && clearTrigger(this)) this.resume();
 	}
 
 	// CONTROL METHODS
 	pause() {
-		clearTrigger(this);
+		// clearTrigger(this);
 	}
 
 	resume() { // called by machine resume, i.e. from pause to start
@@ -113,7 +97,8 @@ class AbstractTrigger {
 		if (!this.sheet.isProcessed) this._streamsheet.triggerStep();
 	}
 	_finishRepeatStep() {
-		if (!this.sheet.isProcessed) this._streamsheet.triggerStep();
+		// if (!this.sheet.isProcessed) this._streamsheet.triggerStep();
+		this._finishStep();
 		if (!this.sheet.isPaused) repeatTrigger(this);
 	}
 
@@ -162,4 +147,4 @@ class AbstractTrigger {
 	}
 }
 
-module.exports = AbstractTrigger;
+module.exports = BaseTrigger2;

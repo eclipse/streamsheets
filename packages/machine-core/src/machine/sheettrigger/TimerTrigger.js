@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const AbstractTrigger = require('./AbstractTrigger');
+const BaseTrigger = require('./BaseTrigger');
 
 const UNITS = {};
 UNITS.ms = 1;
@@ -52,7 +52,7 @@ const TIMER_DEF = {
 };
 
 
-class TimerTrigger extends AbstractTrigger {
+class TimerTrigger extends BaseTrigger {
 	constructor(config) {
 		super(Object.assign({}, TIMER_DEF, config));
 		this._intervalId = undefined;

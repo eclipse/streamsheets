@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const State = require('../../State');
-const AbstractTrigger = require('./AbstractTrigger');
+const BaseTrigger = require('./BaseTrigger');
 
 
 const clearTrigger = (trigger) => {
@@ -30,7 +30,7 @@ const subscribe = (streamsheet, trigger) => {
 
 const TYPE_CONF = Object.freeze({ type: 'arrival' });
 
-class OnMessageTrigger extends AbstractTrigger {
+class OnMessageTrigger extends BaseTrigger {
 	static get TYPE() {
 		return TYPE_CONF.type;
 	}

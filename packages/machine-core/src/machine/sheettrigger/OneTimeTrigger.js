@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const AbstractTrigger = require('./AbstractTrigger');
+const BaseTrigger = require('./BaseTrigger');
 
 const TYPE_CONF = Object.freeze({ type: 'once' });
 
 // FOR DEBUGGING PURPOSE ONLY
-class OneTimeTrigger extends AbstractTrigger {
+class OneTimeTrigger extends BaseTrigger {
 	static get TYPE() {
 		return TYPE_CONF.type;
 	}

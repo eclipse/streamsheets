@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { ContinuousTrigger, Machine, StreamSheet, TimerTrigger, TriggerFactory } = require('../../..');
+const { Machine, StreamSheet, TriggerFactory } = require('../../..');
 const { createCellAt, expectValue, monitorStreamSheet, wait } = require('../../utils');
 
 const setup = (triggerConfig = {}) => {
@@ -17,7 +17,7 @@ const setup = (triggerConfig = {}) => {
 	machine.removeAllStreamSheets();
 	machine.addStreamSheet(s1);
 	machine.cycletime = 50;
-	s1.trigger = new TimerTrigger(triggerConfig);
+	s1.trigger = TriggerFactory.create(triggerConfig);
 	return { machine, s1 };
 };
 describe('TimerTrigger', () => {
@@ -29,7 +29,7 @@ describe('TimerTrigger', () => {
 	describe('trigger type time', () => {
 		describe('general behaviour', () => {
 			it('should process sheet on manual steps', async () => {
-				const { machine, s1 } = setup({ type: TimerTrigger.TYPE_TIME });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.TIMER });
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
 				await machine.step();
@@ -39,7 +39,7 @@ describe('TimerTrigger', () => {
 				expect(s1.sheet.cellAt('A1').value).toBe(4);
 			});
 			it('should trigger at defined intervals after machine start', async () => {
-				const { machine, s1 } = setup({ type: TimerTrigger.TYPE_TIME, interval: 50 });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.TIMER, interval: 50 });
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
 				await machine.start();
@@ -49,7 +49,7 @@ describe('TimerTrigger', () => {
 				expectValue(s1.sheet.cellAt('A1').value).toBeInRange(3, 5);
 			});
 			it('should trigger at defined long interval after machine start', async () => {
-				const { machine, s1 } = setup({ type: TimerTrigger.TYPE_TIME, interval: 1, intervalUnit: 's' });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.TIMER, interval: 1, intervalUnit: 's' });
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
 				await machine.start();
@@ -65,7 +65,7 @@ describe('TimerTrigger', () => {
 			it('should trigger first time after specified start value', async () => {
 				const startDate = new Date(Date.now() + 200).toString();
 				const { machine, s1 } = setup({
-					type: TimerTrigger.TYPE_TIME,
+					type: TriggerFactory.TYPE.TIMER,
 					interval: 1,
 					intervalUnit: 's',
 					start: startDate
@@ -83,7 +83,7 @@ describe('TimerTrigger', () => {
 				expect(s1.sheet.cellAt('A1').value).toBe(3);
 			});
 			it('should ignore machine or interval trigger if running in "repeat until..."', async () => {
-				const { machine, s1 } = setup({ type: TimerTrigger.TYPE_TIME, interval: 5000, repeat: 'endless' });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.TIMER, interval: 5000, repeat: 'endless' });
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
 				await machine.start();
@@ -92,7 +92,7 @@ describe('TimerTrigger', () => {
 				expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(3);
 			});
 			it('should ignore machine or interval trigger if running in "repeat until..." until resumed', async () => {
-				const { machine, s1 } = setup({ type: TimerTrigger.TYPE_TIME, interval: 500, repeat: 'endless' });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.TIMER, interval: 500, repeat: 'endless' });
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				createCellAt('A2', { formula: 'if(mod(A1,5)=0,return(),false)' }, s1.sheet);
 				createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
@@ -113,9 +113,9 @@ describe('TimerTrigger', () => {
 		});
 		describe('update trigger', () => {
 			it('should stop interval if another trigger is set', async () => {
-				const { machine, s1 } = setup({ type: TimerTrigger.TYPE_TIME, interval: 50 });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.TIMER, interval: 50 });
 				const monitorS1 = monitorStreamSheet(s1);
-				const newTrigger = new ContinuousTrigger();
+				const newTrigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 				machine.cycletime = 5000;
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
@@ -133,8 +133,8 @@ describe('TimerTrigger', () => {
 				expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(4);
 			});
 			it('should stop interval in "repeat until..." if new trigger is set', async () => {
-				const { machine, s1 } = setup({ type: TimerTrigger.TYPE_TIME, interval: 5000, repeat: 'endless' });
-				const newTrigger = new ContinuousTrigger();
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.TIMER, interval: 5000, repeat: 'endless' });
+				const newTrigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 				machine.cycletime = 5000;
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
@@ -148,7 +148,7 @@ describe('TimerTrigger', () => {
 				await machine.stop();
 			});
 			it('should apply new interval', async () => {
-				const { machine, s1 } = setup({ type: TimerTrigger.TYPE_TIME, interval: 10000 });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.TIMER, interval: 10000 });
 				machine.cycletime = 5000;
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
@@ -164,41 +164,41 @@ describe('TimerTrigger', () => {
 		});
 		describe('serialize', () => {
 			it('should be possible to save trigger settings to JSON', () => {
-				let json = new TimerTrigger({ type: TimerTrigger.TYPE_TIME }).toJSON();
+				let json = TriggerFactory.create({ type: TriggerFactory.TYPE.TIMER }).toJSON();
 				expect(json).toBeDefined();
-				expect(json.type).toBe(TimerTrigger.TYPE_TIME);
+				expect(json.type).toBe(TriggerFactory.TYPE.TIMER);
 				expect(json.repeat).toBe('once');
 				expect(json.interval).toBe(500);
 				expect(json.intervalUnit).toBe('ms');
-				json = new TimerTrigger({
-					type: TimerTrigger.TYPE_TIME,
+				json = TriggerFactory.create({
+					type: TriggerFactory.TYPE.TIMER,
 					repeat: 'endless',
 					interval: 2,
 					intervalUnit: 's'
 				}).toJSON();
 				expect(json).toBeDefined();
-				expect(json.type).toBe(TimerTrigger.TYPE_TIME);
+				expect(json.type).toBe(TriggerFactory.TYPE.TIMER);
 				expect(json.repeat).toBe('endless');
 				expect(json.interval).toBe(2);
 				expect(json.intervalUnit).toBe('s');
 			});
 			it('should be possible to restore trigger from JSON', () => {
-				let trigger = TriggerFactory.create(new TimerTrigger({ type: TimerTrigger.TYPE_TIME }).toJSON());
+				let trigger = TriggerFactory.create(TriggerFactory.create({ type: TriggerFactory.TYPE.TIMER }).toJSON());
 				expect(trigger).toBeDefined();
-				expect(trigger.type).toBe(TimerTrigger.TYPE_TIME);
+				expect(trigger.type).toBe(TriggerFactory.TYPE.TIMER);
 				expect(trigger.isEndless).toBe(false);
 				expect(trigger.interval).toBe(500);
 				expect(trigger.intervalUnit).toBe('ms');
 				trigger = TriggerFactory.create(
-					new TimerTrigger({
-						type: TimerTrigger.TYPE_TIME,
+					TriggerFactory.create({
+						type: TriggerFactory.TYPE.TIMER,
 						repeat: 'endless',
 						interval: 2,
 						intervalUnit: 's'
 					}).toJSON()
 				);
 				expect(trigger).toBeDefined();
-				expect(trigger.type).toBe(TimerTrigger.TYPE_TIME);
+				expect(trigger.type).toBe(TriggerFactory.TYPE.TIMER);
 				expect(trigger.isEndless).toBe(true);
 				expect(trigger.interval).toBe(2);
 				expect(trigger.intervalUnit).toBe('s');

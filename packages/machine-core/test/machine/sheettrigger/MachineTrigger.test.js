@@ -9,8 +9,8 @@
  *
  ********************************************************************************/
 const {
-	ContinuousTrigger,
-	MachineTrigger,
+	// ContinuousTrigger,
+	// MachineTrigger,
 	NeverTrigger,
 	Machine,
 	State,
@@ -25,14 +25,14 @@ const setup = (triggerConfig = {}) => {
 	machine.removeAllStreamSheets();
 	machine.addStreamSheet(s1);
 	machine.cycletime = 50;
-	s1.trigger = new MachineTrigger(triggerConfig);
+	s1.trigger = TriggerFactory.create(triggerConfig);
 	return { machine, s1 };
 };
 describe('MachineTrigger', () => {
 	describe('machine start trigger', () => {
 		describe('general behaviour', () => {
 			it('should execute sheet on manual steps', async () => {
-				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_START });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				// new REQ.: we allow step for this trigger setting...
 				await machine.step();
@@ -45,7 +45,7 @@ describe('MachineTrigger', () => {
 				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(6);
 			});
 			it('should execute sheet once on machine start', async () => {
-				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_START });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
 				const machineMonitor = monitorMachine(machine);
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				await machine.start();
@@ -54,7 +54,7 @@ describe('MachineTrigger', () => {
 				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(2);
 			});
 			it('should execute sheet on manual steps but only once on machine start', async () => {
-				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_START });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
 				const machineMonitor = monitorMachine(machine);
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				// new REQ.: we allow step for this trigger setting...
@@ -72,7 +72,7 @@ describe('MachineTrigger', () => {
 				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(6);
 			});
 			it('should execute sheet on machine start and repeat in endless mode', async () => {
-				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_START, repeat: 'endless' });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' });
 				const machineMonitor = monitorMachine(machine);
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				await machine.start();
@@ -87,7 +87,7 @@ describe('MachineTrigger', () => {
 				expect(s1.sheet.cellAt('A1').value).toBe(s1a1 + 3);
 			});
 			it('should stop processing if returned from "repeat until..."', async () => {
-				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_START, repeat: 'endless' });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' });
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				createCellAt('A2', { formula: 'if(mod(A1,10)=0,return(), false)' }, s1.sheet);
 				await machine.start();
@@ -97,9 +97,9 @@ describe('MachineTrigger', () => {
 			});
 			// DL-2467
 			it('should run an added streamsheet with continuously trigger directly if machine runs already', async () => {
-				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
 				const s2 = new StreamSheet()
-				s2.trigger = new ContinuousTrigger(/* { repeat: 'endless' } */);
+				s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY /* repeat: 'endless' */ });
 				const monitorS2 = monitorStreamSheet(s2);
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
@@ -117,57 +117,57 @@ describe('MachineTrigger', () => {
 		});
 		describe('update trigger', () => {
 			it('should be possible to remove trigger', async () => {
-				const { s1 } = setup({ type: MachineTrigger.TYPE_START, repeat: 'endless' });
+				const { s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' });
 				s1.trigger = undefined;
 				expect(s1.trigger).toBeDefined();
 				expect(s1.trigger.type).toBe(NeverTrigger.TYPE);
 			});
 			it('should have no effect setting same trigger again', async () => {
-				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_START });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
 				const machineMonitor = monitorMachine(machine);
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				await machine.start();
 				await machineMonitor.nextSteps(2)
 				expect(s1.sheet.cellAt('A1').value).toBe(2);
-				s1.trigger = new MachineTrigger({ type: MachineTrigger.TYPE_START });
+				s1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START });
 				await machineMonitor.nextSteps(2)
 				expect(s1.sheet.cellAt('A1').value).toBe(2);
 				await machine.stop();
 			});
 			it('should trigger new calculation if machine runs already in endless mode', async () => {
-				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_START, repeat: 'endless' });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' });
 				const machineMonitor = monitorMachine(machine);
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				await machine.start();
 				await machineMonitor.nextSteps(2)
 				expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(2);
-				s1.trigger = new MachineTrigger({ type: MachineTrigger.TYPE_START, repeat: 'endless' });
+				s1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' });
 				const s1a1 = s1.sheet.cellAt('A1').value;
 				await machineMonitor.nextSteps(2)
 				expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(s1a1);
 				await machine.stop();
 			});
 			// DL-2241
-			it('should wait for machine start event if machine runs already', async () => {
-				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP, repeat: 'endless' });
+			it('should not wait for machine start event if machine runs already', async () => {
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP, repeat: 'endless' });
 				const machineMonitor = monitorMachine(machine);
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				await machine.start();
 				await machineMonitor.nextSteps(2);
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
-				// now switch trigger:
-				s1.trigger = new MachineTrigger({ type: MachineTrigger.TYPE_START });
+				// now switch trigger -> calc once:
+				s1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START });
 				await machineMonitor.nextSteps(2);
 				expect(s1.sheet.cellAt('A1').value).toBe(2);
 				// stop if we change
-				s1.trigger = new MachineTrigger({ type: MachineTrigger.TYPE_STOP });
+				s1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_STOP });
 				await machineMonitor.nextSteps(2);
 				expect(s1.sheet.cellAt('A1').value).toBe(2);
 				// DL-2241 when switching to continuously it should run directly...
-				s1.trigger = new ContinuousTrigger({ repeat: 'endless' });
+				s1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY, repeat: 'endless' });
 				await machineMonitor.nextSteps(2);
 				expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(3);
-				s1.trigger = new MachineTrigger({ type: MachineTrigger.TYPE_STOP });
+				s1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_STOP });
 				const s1a1 = s1.sheet.cellAt('A1').value;
 				await machineMonitor.nextSteps(2);
 				expect(s1.sheet.cellAt('A1').value).toBe(s1a1);
@@ -177,27 +177,27 @@ describe('MachineTrigger', () => {
 		});
 		describe('serialize', () => {
 			it('should be possible to save trigger settings to JSON', () => {
-				let json = new MachineTrigger({ type: MachineTrigger.TYPE_START }).toJSON();
+				let json = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START }).toJSON();
 				expect(json).toBeDefined();
-				expect(json.type).toBe(MachineTrigger.TYPE_START);
+				expect(json.type).toBe(TriggerFactory.TYPE.MACHINE_START);
 				expect(json.repeat).toBe('once');
-				json = new MachineTrigger({ type: MachineTrigger.TYPE_START, repeat: 'endless' }).toJSON();
+				json = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' }).toJSON();
 				expect(json).toBeDefined();
-				expect(json.type).toBe(MachineTrigger.TYPE_START);
+				expect(json.type).toBe(TriggerFactory.TYPE.MACHINE_START);
 				expect(json.repeat).toBe('endless');
 			});
 			it('should be possible to restore trigger from JSON', () => {
 				let trigger = TriggerFactory.create(
-					new MachineTrigger({ type: MachineTrigger.TYPE_START }).toJSON()
+					TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START }).toJSON()
 				);
 				expect(trigger).toBeDefined();
-				expect(trigger.type).toBe(MachineTrigger.TYPE_START);
+				expect(trigger.type).toBe(TriggerFactory.TYPE.MACHINE_START);
 				expect(trigger.isEndless).toBe(false);
 				trigger = TriggerFactory.create(
-					new MachineTrigger({ type: MachineTrigger.TYPE_START, repeat: 'endless' }).toJSON()
+					TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' }).toJSON()
 				);
 				expect(trigger).toBeDefined();
-				expect(trigger.type).toBe(MachineTrigger.TYPE_START);
+				expect(trigger.type).toBe(TriggerFactory.TYPE.MACHINE_START);
 				expect(trigger.isEndless).toBe(true);
 			});
 		});
@@ -205,10 +205,10 @@ describe('MachineTrigger', () => {
 	describe('machine stop trigger', () => {
 		describe('general behaviour', () => {
 			it('should execute sheet on machine stop', async () => {
-				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
 				const s2 = new StreamSheet()
 				const monitorS2 = monitorStreamSheet(s2);
-				s2.trigger = new ContinuousTrigger();
+				s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 				machine.addStreamSheet(s2);
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
@@ -228,7 +228,7 @@ describe('MachineTrigger', () => {
 				expect(s2.sheet.cellAt('B1').value).toBe(5);
 			});
 			it('should not process sheet on manual steps', async () => {
-				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
 				await machine.step();
@@ -237,10 +237,10 @@ describe('MachineTrigger', () => {
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
 			});
 			it('should process sheet on manual steps once or endlessly until return', async() => {
-				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
 				const s2 = new StreamSheet({ name: 'S2' });
 				machine.addStreamSheet(s2);
-				s2.trigger = new MachineTrigger({ type: MachineTrigger.TYPE_STOP, repeat: 'endless' });
+				s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_STOP, repeat: 'endless' });
 				s2.sheet.load({
 					cells: {
 						B1: { formula: 'B1+1' }, B2: { formula: 'if(B1>3, return(), false)' }, B3: { formula: 'B3+1' }
@@ -278,11 +278,11 @@ describe('MachineTrigger', () => {
 				expect(machine.state).toBe(State.STOPPED);
 			});
 			it('should prevent machine stop in endless mode, but can be cancelled by calling stop again', async () => {
-				const { machine, s1 } = setup({ type: MachineTrigger.TYPE_STOP });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
 				const s2 = new StreamSheet()
 				const s3 = new StreamSheet()
-				s2.trigger = new ContinuousTrigger();
-				s3.trigger = new MachineTrigger({ type: MachineTrigger.TYPE_STOP, repeat: 'endless' });
+				s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
+				s3.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_STOP, repeat: 'endless' });
 				const monitorS2 = monitorStreamSheet(s2);
 				machine.addStreamSheet(s2);
 				machine.addStreamSheet(s3);
@@ -337,9 +337,9 @@ describe('MachineTrigger', () => {
 		});
 		describe('update trigger', () => {
 			it('should be possible to remove trigger', async () => {
-				const { s1 } = setup({ type: MachineTrigger.TYPE_STOP });
+				const { s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
 				expect(s1.trigger).toBeDefined();
-				expect(s1.trigger.type).toBe(MachineTrigger.TYPE_STOP);
+				expect(s1.trigger.type).toBe(TriggerFactory.TYPE.MACHINE_STOP);
 				// remove trigger
 				s1.trigger = undefined;
 				expect(s1.trigger).toBeDefined();
@@ -348,27 +348,27 @@ describe('MachineTrigger', () => {
 		});
 		describe('serialize', () => {
 			it('should be possible to save trigger settings to JSON', () => {
-				let json = new MachineTrigger({ type: MachineTrigger.TYPE_STOP }).toJSON();
+				let json = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_STOP }).toJSON();
 				expect(json).toBeDefined();
-				expect(json.type).toBe(MachineTrigger.TYPE_STOP);
+				expect(json.type).toBe(TriggerFactory.TYPE.MACHINE_STOP);
 				expect(json.repeat).toBe('once');
-				json = new MachineTrigger({ type: MachineTrigger.TYPE_STOP, repeat: 'endless' }).toJSON();
+				json = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_STOP, repeat: 'endless' }).toJSON();
 				expect(json).toBeDefined();
-				expect(json.type).toBe(MachineTrigger.TYPE_STOP);
+				expect(json.type).toBe(TriggerFactory.TYPE.MACHINE_STOP);
 				expect(json.repeat).toBe('endless');
 			});
 			it('should be possible to restore trigger from JSON', () => {
 				let trigger = TriggerFactory.create(
-					new MachineTrigger({ type: MachineTrigger.TYPE_STOP }).toJSON()
+					TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_STOP }).toJSON()
 				);
 				expect(trigger).toBeDefined();
-				expect(trigger.type).toBe(MachineTrigger.TYPE_STOP);
+				expect(trigger.type).toBe(TriggerFactory.TYPE.MACHINE_STOP);
 				expect(trigger.isEndless).toBe(false);
 				trigger = TriggerFactory.create(
-					new MachineTrigger({ type: MachineTrigger.TYPE_STOP, repeat: 'endless' }).toJSON()
+					TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_STOP, repeat: 'endless' }).toJSON()
 				);
 				expect(trigger).toBeDefined();
-				expect(trigger.type).toBe(MachineTrigger.TYPE_STOP);
+				expect(trigger.type).toBe(TriggerFactory.TYPE.MACHINE_STOP);
 				expect(trigger.isEndless).toBe(true);
 			});
 		});

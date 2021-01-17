@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const AbstractTrigger = require('./AbstractTrigger');
+const BaseTrigger = require('./BaseTrigger');
 
 const TYPE_CONF = Object.freeze({ type: 'continuously' });
 
-class ContinuousTrigger extends AbstractTrigger {
+class ContinuousTrigger extends BaseTrigger {
 	static get TYPE() {
 		return TYPE_CONF.type;
 	}

@@ -9,18 +9,19 @@
  *
  ********************************************************************************/
 const State = require('../../State');
-const AbstractTrigger = require('./AbstractTrigger');
+const BaseTrigger = require('./BaseTrigger');
 
 const preventStop = (doIt, streamsheet) => {
 	const machine = streamsheet && streamsheet.machine;
 	if (machine) machine.preventStop = doIt;
 };
 
-class MachineTrigger extends AbstractTrigger {
+class MachineTrigger extends BaseTrigger {
 	constructor(config) {
 		super(config);
 		this.doStopEndless = false;
 		this.isStopFulFilled = false;
+		this.isStartFulFilled = false;
 	}
 
 	set streamsheet(streamsheet) {
@@ -32,7 +33,8 @@ class MachineTrigger extends AbstractTrigger {
 	start() {
 		this.doStopEndless = false;
 		this.isStopFulFilled = false;
-		if (this.type === MachineTrigger.TYPE_START) this.trigger();
+		this.isStartFulFilled = this.type === MachineTrigger.TYPE_START;
+		// if (this.type === MachineTrigger.TYPE_START) this.trigger();
 	}
 
 	stop() {
@@ -51,7 +53,8 @@ class MachineTrigger extends AbstractTrigger {
 		super.stopProcessing(retval);
 	}
 	step(manual) {
-		if (manual && this.type === MachineTrigger.TYPE_START) this.trigger();
+		if ((manual && this.type === MachineTrigger.TYPE_START) || this.isStartFulFilled) this.trigger();
+		this.isStartFulFilled = false;
 		preventStop(this.isEndless && !this.doStopEndless, this._streamsheet);
 	}
 

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { ContinuousTrigger, Machine, Message, OnMessageTrigger, StreamSheet, TriggerFactory } = require('../../..');
+const { Machine, Message, StreamSheet, TriggerFactory } = require('../../..');
 const { createCellAt, monitorStreamSheet, wait } = require('../../utils');
 
 const putMessages = (streamsheet, ...messages) => messages.forEach(message => streamsheet.inbox.put(message));
@@ -32,7 +32,7 @@ const setup = () => {
 	machine.removeAllStreamSheets();
 	machine.addStreamSheet(s1);
 	machine.cycletime = 20000;
-	s1.trigger = new OnMessageTrigger();
+	s1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.ARRIVAL });
 	return { machine, s1 };
 };
 
@@ -44,10 +44,10 @@ describe('OnMessageTrigger', () => {
 			await machine.start();
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			putMessages(s1, new Message());
-			await wait(100);
+			await wait(50);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			putMessages(s1, new Message(), new Message(), new Message());
-			await wait(100);
+			await wait(50);
 			expect(s1.sheet.cellAt('A1').value).toBe(5);
 			await machine.stop();
 		});
@@ -60,6 +60,10 @@ describe('OnMessageTrigger', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			putMessages(s1, new Message(), new Message(), new Message());
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
+			await machine.start();
+			await wait(100);
+			await machine.stop();
+			expect(s1.sheet.cellAt('A1').value).toBe(5);
 		});
 		// DL-3709 new behaviour:
 		it('should support manual step even if inbox has no messages', async () => {
@@ -197,12 +201,13 @@ describe('OnMessageTrigger', () => {
 		it('should stop message processing if another trigger is set', async () => {
 			const { machine, s1 } = setup();
 			const monitorS1 = monitorStreamSheet(s1);
-			const newTrigger = new ContinuousTrigger();
+			const newTrigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 			const messages = Array.from({ length: 20 }, () => new Message());
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
-			await machine.start();
+			await machine.pause();
 			putMessages(s1, ...messages);
+			await machine.start();
 			await monitorS1.hasPassedStep(3)
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 			s1.trigger = newTrigger;
@@ -217,7 +222,7 @@ describe('OnMessageTrigger', () => {
 		it('should stop message processing in "repeat until..." if new trigger is set', async () => {
 			const { machine, s1 } = setup();
 			const monitorS1 = monitorStreamSheet(s1);
-			const newTrigger = new ContinuousTrigger();
+			const newTrigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
@@ -235,23 +240,27 @@ describe('OnMessageTrigger', () => {
 	});
 	describe('serialize', () => {
 		it('should be possible to save trigger settings to JSON', () => {
-			let json = new OnMessageTrigger().toJSON();
+			let json = TriggerFactory.create({ type: TriggerFactory.TYPE.ARRIVAL }).toJSON();
 			expect(json).toBeDefined();
-			expect(json.type).toBe(OnMessageTrigger.TYPE);
+			expect(json.type).toBe(TriggerFactory.TYPE.ARRIVAL);
 			expect(json.repeat).toBe('once');
-			json = new OnMessageTrigger({ repeat: 'endless' }).toJSON();
+			json = TriggerFactory.create({ type: TriggerFactory.TYPE.ARRIVAL, repeat: 'endless' }).toJSON();
 			expect(json).toBeDefined();
-			expect(json.type).toBe(OnMessageTrigger.TYPE);
+			expect(json.type).toBe(TriggerFactory.TYPE.ARRIVAL);
 			expect(json.repeat).toBe('endless');
 		});
 		it('should be possible to restore trigger from JSON', () => {
-			let trigger = TriggerFactory.create(new OnMessageTrigger().toJSON());
+			let trigger = TriggerFactory.create(
+				TriggerFactory.create({ type: TriggerFactory.TYPE.ARRIVAL }).toJSON()
+			);
 			expect(trigger).toBeDefined();
-			expect(trigger.type).toBe(OnMessageTrigger.TYPE);
+			expect(trigger.type).toBe(TriggerFactory.TYPE.ARRIVAL);
 			expect(trigger.isEndless).toBe(false);
-			trigger = TriggerFactory.create(new OnMessageTrigger({ repeat: 'endless' }).toJSON());
+			trigger = TriggerFactory.create(
+				TriggerFactory.create({ type: TriggerFactory.TYPE.ARRIVAL, repeat: 'endless' }).toJSON()
+			);
 			expect(trigger).toBeDefined();
-			expect(trigger.type).toBe(OnMessageTrigger.TYPE);
+			expect(trigger.type).toBe(TriggerFactory.TYPE.ARRIVAL);
 			expect(trigger.isEndless).toBe(true);
 		});
 	});
