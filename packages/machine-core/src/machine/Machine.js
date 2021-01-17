@@ -252,6 +252,10 @@ class Machine {
 		return this._isManualStep;
 	}
 
+	get isRunning() {
+		return this._state === State.RUNNING;
+	}
+
 	get state() {
 		return this._state;
 	}
@@ -406,19 +410,19 @@ class Machine {
 			const allStreamSheets = this.streamsheets;
 			try {
 				const resumed = this._state !== State.STOPPED;
+				this._state = State.RUNNING;
 				if (resumed) {
 					// resume streamsheets:
 					allStreamSheets.forEach((streamsheet) => streamsheet.resume());
 				} else {
 					this._activeStreamSheets = null;
+					this._emitter.emit('willStart', this);
 					allStreamSheets.forEach((streamsheet) => streamsheet.start());
 				}
 				// if (this._state === State.STOPPED) {
 				// 	this._activeStreamSheets = null;
 				// 	allStreamSheets.forEach((streamsheet) => streamsheet.start());
 				// }
-				this._emitter.emit('willStart', this);
-				this._state = State.RUNNING;
 				this.cyclemonitor.counterSecond = 0;
 				this.cyclemonitor.last = Date.now();
 				this.cyclemonitor.lastSecond = Date.now();
@@ -445,7 +449,7 @@ class Machine {
 			const preventStop = !!pendingStreamSheets.length;
 			this._state = preventStop ? State.WILL_STOP : State.STOPPED;
 			this.activeStreamSheets = preventStop ? pendingStreamSheets : null;
-			if (preventStop && prevstate !== State.PAUSED) {
+			if (preventStop /* && prevstate !== State.PAUSED */) {
 				this.cycle(this.activeStreamSheets);
 			}
 			this._didStop();
