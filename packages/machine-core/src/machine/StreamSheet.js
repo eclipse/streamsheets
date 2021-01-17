@@ -148,11 +148,15 @@ class StreamSheet {
 
 	// checks if given message is processed. if no message is passed, check is done against current message
 	isMessageProcessed(message) {
-		const handler = this._msgHandler;
-		if (message == null && this._trigger.isEndless && hasLoop(handler)) {
-			return !handler._message || (handler._used && !(handler._index < handler._stack.length - 1));
-		}
-		return message == null ? handler.isProcessed : message === handler.message && handler.isProcessed;
+		// const handler = this._msgHandler;
+		// if (message == null && this._trigger.isEndless && hasLoop(handler)) {
+		// 	return !handler._message || (handler._used && !(handler._index < handler._stack.length - 1));
+		// }
+		// return message == null ? handler.isProcessed : message === handler.message && handler.isProcessed;
+		return this._msgHandler.isProcessed;
+	}
+	setMessageProcessed() {
+		this._msgHandler.setProcessed();
 	}
 
 	getLoopPath() {
@@ -177,6 +181,10 @@ class StreamSheet {
 
 	isLoopAvailable() {
 		return this._msgHandler.isEnabled && !!this._msgHandler.hasLoop();
+	}
+
+	getCurrentMessage() {
+		return this._msgHandler.message;
 	}
 
 	getMessage(id) {
@@ -301,6 +309,7 @@ class StreamSheet {
 		this.trigger.resume();
 	}
 	start() {
+		// TODO: REVIEW -> why calling detachMessage() here is required...
 		this._detachMessage(this._msgHandler.message);
 		this.inbox.clear();
 		this.inbox.subscribe();
@@ -341,12 +350,12 @@ class StreamSheet {
 	// }
 
 	// called by sheet functions:
-	execute(message, selector, resumeFn) {
+	execute(resumeFn, message, pace, isRepeating) {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
-			message = selector ? this.inbox.find(selector) : message;
+			// message = selector ? this.inbox.find(selector) : message;
 			// attach message?
 			if (message) this._attachExecuteMessage(message);
-			this.trigger.execute(resumeFn);
+			this.trigger.execute(resumeFn, pace, isRepeating);
 			return true;
 		}
 		if (resumeFn) resumeFn();
@@ -386,9 +395,10 @@ class StreamSheet {
 			if (this.sheet.isProcessed && !this.trigger.isEndless) {
 				this._msgHandler.next();
 			}
+			this._detachMessage();
+			this._emitter.emit('step', this);
+			if (this.sheet.isProcessed) this._emitter.emit('processedStep', this);
 		}
-		this._detachMessage();
-		this._emitter.emit('step', this);
 	}
 	_attachNextMessage() {
 		if (this._msgHandler.isProcessed) {
@@ -423,7 +433,7 @@ class StreamSheet {
 	}
 	_detachMessage() {
 		// get mark message as detached if its processed
-		if (this._msgHandler.isProcessed) {
+		if (this._msgHandler.isProcessed && this._msgHandler.message) {
 			// only send event, message will be popped from inbox on attach, so it still can be queried !!
 			this._emitMessageEvent('message_detached', this._msgHandler.message);
 		}
