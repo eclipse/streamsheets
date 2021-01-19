@@ -99,6 +99,7 @@ export default class GraphManager {
 		this._machine = null;
 		// register for command stack changes to update controls and layout app...
 		NotificationCenter.getInstance().register(this, CommandStack.STACK_CHANGED_NOTIFICATION, 'onCommandStackChanged');
+		NotificationCenter.getInstance().register(this, JSG.GRAPH_INVALID_NOTIFICATION, 'redraw');
 	}
 
 	set streamsStatusMap(streamsStatusMap) {
