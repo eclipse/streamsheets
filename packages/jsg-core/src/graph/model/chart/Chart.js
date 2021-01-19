@@ -24,6 +24,7 @@ module.exports = class Chart {
 		this.startAngle = 0;
 		this.endAngle = Math.PI * 2;
 		this.hole = 0.5;
+		this.barMargin = 150;
 		this.template = 'basic';
 		this.tooltips = false;
 		this.margins = new ChartRect(200, 200, 200, 200);

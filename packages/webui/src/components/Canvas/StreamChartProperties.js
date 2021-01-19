@@ -3285,6 +3285,18 @@ export class StreamChartProperties extends Component {
 														defaultMessage="Helsinki Straßen"
 													/>
 												</MenuItem>
+												<MenuItem value="rivers.json" key={1}>
+													<FormattedMessage
+														id="StreamChartProperties.Rivers"
+														defaultMessage="Rivers"
+													/>
+												</MenuItem>
+												<MenuItem value="plan.json" key={6}>
+													<FormattedMessage
+														id="StreamChartProperties.Floor"
+														defaultMessage="Floor Plan"
+													/>
+												</MenuItem>
 												<MenuItem value="sheet" key={4}>
 													<FormattedMessage
 														id="StreamChartProperties.MapCustom"
@@ -3332,6 +3344,13 @@ export class StreamChartProperties extends Component {
 														defaultMessage="Color Intensity"
 													/>
 												</MenuItem>
+												<MenuItem value="cvalue" key={4}>
+													<Checkbox checked={data.map.displayType.indexOf('cvalue') > -1} />
+													<FormattedMessage
+														id="StreamChartProperties.MapDisplayColorValue"
+														defaultMessage="Color Value"
+													/>
+												</MenuItem>
 												<MenuItem value="line" key={1}>
 													<Checkbox checked={data.map.displayType.indexOf('line') > -1} />
 													<FormattedMessage
@@ -3351,13 +3370,6 @@ export class StreamChartProperties extends Component {
 													<FormattedMessage
 														id="StreamChartProperties.MapDisplayChart"
 														defaultMessage="Chart"
-													/>
-												</MenuItem>
-												<MenuItem value="marker" key={4}>
-													<Checkbox checked={data.map.displayType.indexOf('marker') > -1} />
-													<FormattedMessage
-														id="StreamChartProperties.MapDisplayMarker"
-														defaultMessage="Marker"
 													/>
 												</MenuItem>
 											</TextField>

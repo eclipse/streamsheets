@@ -35,7 +35,7 @@ module.exports = class ChartMap {
 		this.name = reader.getAttributeString(object, 'name', 'world.json');
 		this.label = reader.getAttributeString(object, 'label', 'name');
 		const displayType = reader.getAttributeString(object, 'display', ['color']);
-		this.displayType = displayType.split(';');
+		this.displayType = displayType === '' ? [] : displayType.split(';');
 		this.chartType = reader.getAttributeString(object, 'chart', 'pie');
 
 		reader.iterateObjects(object, (name, child) => {
