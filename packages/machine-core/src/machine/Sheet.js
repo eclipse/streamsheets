@@ -166,6 +166,9 @@ module.exports = class Sheet {
 	get isHalted() {
 		return this.processor.isHalted;
 	}
+	// get isInterrupted() {
+	// 	return this.processor.isInterrupted;
+	// }
 	get isPaused() {
 		return this.processor.isPaused;
 	}
@@ -553,6 +556,7 @@ module.exports = class Sheet {
 	loadCells(cells = {}) {
 		this._clearCells();
 		this.setCells(cells);
+		this.processor.reset();
 		return this;
 	}
 
@@ -591,6 +595,9 @@ module.exports = class Sheet {
 		this.processor.start();
 		this._isProcessing = false;
 	}
+	// _interruptProcessing() {
+	// 	this.processor.interrupt();
+	// }
 	_pauseProcessing() {
 		this.processor.pause();
 	}
