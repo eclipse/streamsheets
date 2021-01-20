@@ -22,7 +22,7 @@ const markAsProcessed = (fn, id, marked) => {
 };
 const isMarkedAsProcessed = (fn, id) => {
 	if (!fn.processed) fn.processed = {};
-	return fn.processed[id];
+	return fn.processed[id] === true;
 };
 
 // TODO remove!! just to support old commands which send preferences property....
@@ -39,6 +39,26 @@ const getSettings = (definition, sheet) => {
 };
 
 const hasLoop = (msgHandler) => msgHandler.isEnabled && msgHandler.hasLoop();
+const emitOnce = (emitter) => {
+	let doIt = true;
+	return {
+		set(done) {
+			doIt = done;
+		},
+		reset() {
+			doIt = true;
+		},
+		force() {
+			doIt = true;
+			return this;
+		},
+		event(type, arg) {
+			if (doIt) emitter.emit(type, arg);
+			// if (doIt) console.log(`SEND EVENT ${type} FOR ${arg.name}`);
+			doIt = false;
+		}
+	};
+};
 
 const DEF_CONF = () => ({
 	name: '',
@@ -91,6 +111,8 @@ class StreamSheet {
 		this.sheet.onCellRangeChange = this.onSheetCellRangeChange;
 		this.executeCallback = undefined;
 		this._useNextLoopElement = false;
+		// utility:
+		this.notifyOnce = emitOnce(this._emitter);
 	}
 
 	toJSON() {
@@ -219,6 +241,8 @@ class StreamSheet {
 			// register new trigger:
 			this._trigger = trigger;
 			this._trigger.streamsheet = this;
+			// start if we already run
+			if (this.machine && this.machine.isRunning) this._trigger.start();
 		}
 	}
 
@@ -302,6 +326,7 @@ class StreamSheet {
 
 	// called by machine:
 	pause() {
+		// console.log(`PAUSE ${this.name}`);
 		this.inbox.subscribe();
 		this.trigger.pause();
 	}
@@ -369,9 +394,13 @@ class StreamSheet {
 	}
 	stopProcessing(retval) {
 		this.trigger.stopProcessing(retval);
-		if (this.trigger.isEndless) this._msgHandler.next();
+		if (this.trigger.isEndless) {
+			// console.log('=> NEXT MESSAGE LOOP');
+			this._msgHandler.next();
+		}
 	}
 	pauseProcessing() {
+		// console.log(`PAUSE PROCESSING ${this.name}`);
 		this.trigger.pauseProcessing();
 	}
 	// rename: used to repeat single cell...
@@ -379,14 +408,46 @@ class StreamSheet {
 		this.sheet._pauseProcessing();
 	}	
 	resumeProcessing(retval) {
+		this.notifyOnce.reset();
+		const wasProcessed = this.sheet.isProcessed;
+		// console.log(`RESUME PROCESSING STEP ${this.name}`);
 		this.trigger.resumeProcessing(retval);
+		// need this to catch the case when we resume on last cell
+		if (this.sheet.isProcessed && !wasProcessed) {
+			if (this.sheet.isProcessed && !this.trigger.isEndless) {
+				this._msgHandler.next();
+			}
+
+		// 	console.log(`RESUME PROCESSED STEP ${this.name}`);
+		// 	// this._emitter.emit('processedStep', this);
+			this.notifyOnce.event('processedStep', this);
+		}
+		// console.log(`DONE RESUME PROCESSING STEP ${this.name}`);
 	}
 	// ~
 
-	triggerStep() {
+	process(useNextMessage = true) {
+		// console.log(`TRIGGER STEP ${this.name}`);
+		this.triggerStep(useNextMessage);
+		if (this.sheet.isProcessed) {
+			// console.log(`PROCESSED STEP ${this.name}`);
+			// this._emitter.emit('processedStep', this);
+			this.notifyOnce.force().event('processedStep', this);
+			// this.notifyOnce.event('processedStep', this);
+		}
+		// console.log(`DONE STEP ${this.name}`);
+	}
+
+	triggerStep(useNextMessage) {
 		// track re-entry caused e.g. by resume on sheet._startProcessing()
 		markAsProcessed(this.triggerStep, this.id, false);
-		if (this.sheet.isReady || this.sheet.isProcessed) this._attachNextMessage();
+		// if (this.sheet.isReady || this.sheet.isProcessed) this._attachNextMessage();
+		// console.log('use next message: ',useNextMessage);
+		if (useNextMessage) this._attachNextMessage();
+		// if(this.name === 'S2') {
+		// 	console.log(`sheet is ready? ${this.sheet.isReady}`);
+		// 	console.log(`sheet is processed? ${this.sheet.isProcessed}`);
+		// }
 		this.sheet.getDrawings().removeAll();
 		this.sheet._startProcessing();
 		if (!isMarkedAsProcessed(this.triggerStep, this.id)) {
@@ -397,17 +458,19 @@ class StreamSheet {
 			}
 			this._detachMessage();
 			this._emitter.emit('step', this);
-			if (this.sheet.isProcessed) this._emitter.emit('processedStep', this);
+			// if (this.sheet.isProcessed) this._emitter.emit('processedStep', this);
+		// } else {
+		// 	debugger;
 		}
 	}
 	_attachNextMessage() {
-		if (this._msgHandler.isProcessed) {
+				// if (this._msgHandler.isProcessed) {
 			const currmsg = this._msgHandler.message;
 			if (currmsg && this.inbox.size > 1) {
 				this.inbox.pop(currmsg.id);
 				this._msgHandler.message = undefined;
 			}
-		}
+		// }
 		if (!this._msgHandler.message) {
 			this._attachMessage(this.inbox.peek());
 		}
@@ -415,6 +478,7 @@ class StreamSheet {
 	_attachMessage(message) {
 		this._msgHandler.message = message;
 		if (message) {
+			// console.log('attach message');
 			this.stats.messages += 1;
 			this._emitMessageEvent('message_attached', message);
 		}
@@ -422,6 +486,7 @@ class StreamSheet {
 	_attachExecuteMessage(message) {
 		// use passed message only if current one is processed otherwise they might pile up quickly (on endless-mode)
 		if (this._msgHandler.isProcessed) {
+			// console.log('ATTACH EXECUTE MESSAGE');
 			const currmsg = this._msgHandler.message;
 			if (message === currmsg) this._msgHandler.reset();
 			else {
