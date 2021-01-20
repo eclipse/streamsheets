@@ -1597,7 +1597,7 @@ class Graphics {
 	 * @method createLinearGradient
 	 * @param {Number} x0  The X-coordinate of the center of the inner circle of the gradient .
 	 * @param {Number} y0  The Y-coordinate of the center of the inner circle of the gradient .
-	 * @param {Number} r0  Radius of the inner circel to start from.
+	 * @param {Number} r0  Radius of the inner circle to start from.
 	 * @param {Number} x1  The X-coordinate of the center point of the outer circle of the gradient .
 	 * @param {Number} y1  The Y-coordinate of the center point of the outer circle of the gradient .
 	 * @param {Number} r1  Radius of the outer circle to goto.
@@ -2981,7 +2981,6 @@ class Graphics {
 	 * @param {Boolean} active Flag to indicate if marker should be drawn in active style or not.
 	 */
 	drawMarker(rect, active) {
-		let color;
 		let width;
 		const inner = JSG.rectCache.get();
 
@@ -3005,23 +3004,13 @@ class Graphics {
 			this.setLineWidth(50);
 			this.drawEllipse(inner);
 			this.setLineWidth(width);
-			// } else {
-			// 	color = this._fillColor;
-			// 	inner.setTo(rect);
-			//
-			// 	this.setFillColor('#FFFFFF');
-			// 	this.fillEllipse(rect);
-			//
-			// 	this.setFillColor(color);
-			// 	inner.reduceBy(this._cs.metricToLogXNoZoom(50));
-			// 	this.fillEllipse(inner);
-			// 	this.drawEllipse(rect);
-			// }
 		} else if (SelectionStyle.FILL) {
 			inner.setTo(rect);
 			inner.expandBy(this._cs.metricToLogXNoZoom(25));
-			this.fillEllipse(inner);
-			this.drawEllipse(inner);
+			this.beginPath();
+			this.circle(inner.x + inner.width / 2, inner.y + inner.height / 2, inner.width / 2);
+			this.fill();
+			this.stroke();
 		} else {
 			this.fillEllipse(rect);
 			inner.setTo(rect);

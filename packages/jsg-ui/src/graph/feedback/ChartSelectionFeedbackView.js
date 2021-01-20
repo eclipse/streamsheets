@@ -509,7 +509,54 @@ export default class ChartSelectionFeedbackView extends View {
 						categories: axes.y.categories
 					};
 
-					if (serie.type === 'boxplot') {
+					if (serie.type === 'map') {
+						if (!serie.map.mapData) {
+							return;
+						}
+						const features = serie.map.mapData.features;
+						const mapInfo = item.getMapInfo(plotRect);
+						if (!mapInfo) {
+							return;
+						}
+
+						const dataRect = new ChartRect();
+
+						features.forEach((feature, pointIndex) => {
+							if (selection.element === 'series' || pointIndex === selection.pointIndex) {
+								if (feature.geometry.radius !== undefined) {
+									const ptCenter = item.getFeatureCenter(feature);
+									dataRect.left = mapInfo.xOff + (ptCenter.x - mapInfo.bounds.xMin) * mapInfo.scale;
+									dataRect.top = mapInfo.yOff + (mapInfo.bounds.yMax - ptCenter.y) * mapInfo.scale;
+									dataRect.right = mapInfo.xOff + (ptCenter.x - mapInfo.bounds.xMin) * mapInfo.scale;
+									dataRect.bottom = mapInfo.yOff + (mapInfo.bounds.yMax - ptCenter.y) * mapInfo.scale;
+									dataRect.expand(feature.geometry.radius);
+									drawMarkerRect(dataRect);
+								} else {
+									// else use polygon
+									const lastPt = {};
+									const currentPt = {};
+									rect.width = 100;
+									rect.height = 100;
+									item.enumerateMapCoordinates(feature.geometry, (coordinate, idx, final) => {
+										currentPt.x = mapInfo.xOff + (coordinate[0] - mapInfo.bounds.xMin) * mapInfo.scale - 50;
+										currentPt.y = mapInfo.yOff + (mapInfo.bounds.yMax - coordinate[1]) * mapInfo.scale - 50;
+
+										if (!lastPt.x || final || MathUtils.getLineLength(lastPt, currentPt) > 800) {
+											rect.x = currentPt.x;
+											rect.y = currentPt.y;
+											graphics.drawMarker(rect, false);
+											lastPt.x = currentPt.x;
+											lastPt.y = currentPt.y;
+										}
+										// if (final && idx > 30) {
+										// 	return true;
+										// }
+										return false;
+									});
+								}
+							}
+						});
+					} else if (serie.type === 'boxplot') {
 						const barWidth = item.getBarWidth(axes, serie, plotRect);
 						// collect values for each category
 						const values = item.getBoxPlotValues(ref, axes);

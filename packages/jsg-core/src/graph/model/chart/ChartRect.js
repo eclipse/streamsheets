@@ -86,6 +86,13 @@ module.exports = class ChartRect {
 		return (this.top + this.bottom) / 2;
 	}
 
+	expand(amount) {
+		this.left -= amount;
+		this.top -= amount;
+		this.right += amount;
+		this.bottom += amount;
+	}
+
 	toString() {
 		return `${this.left} ${this.top} ${this.right} ${this.bottom}`;
 	}
