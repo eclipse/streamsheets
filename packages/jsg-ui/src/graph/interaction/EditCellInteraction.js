@@ -51,11 +51,11 @@ export default class EditCellInteraction extends EditTextInteraction {
 	}
 
 	handleBlur(ev) {
-		if (
-			!this._cellEditor.isReferenceMode() &&
+		if ((ev.relatedTarget && ev.relatedTarget.tagName === 'BUTTON' && ev.relatedTarget.id !== 'okalert') ||
+			(!this._cellEditor.isReferenceMode() &&
 			this.div !== undefined &&
 			this.div._ignoreBlur !== true &&
-			(!ev.relatedTarget || ev.relatedTarget.tagName !== 'A')
+			(!ev.relatedTarget || ev.relatedTarget.tagName !== 'A'))
 		) {
 			this.finishInteraction(undefined, this.getViewer());
 		}

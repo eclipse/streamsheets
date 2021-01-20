@@ -99,6 +99,7 @@ export default class GraphManager {
 		this._machine = null;
 		// register for command stack changes to update controls and layout app...
 		NotificationCenter.getInstance().register(this, CommandStack.STACK_CHANGED_NOTIFICATION, 'onCommandStackChanged');
+		NotificationCenter.getInstance().register(this, JSG.GRAPH_INVALID_NOTIFICATION, 'redraw');
 	}
 
 	set streamsStatusMap(streamsStatusMap) {
@@ -384,14 +385,14 @@ export default class GraphManager {
 			command.add(updateCellsCommand);
 		}
 		command.execute();
-		// this is because baseExecute set drawing disabled to false
-		if (stats.steps === 0) {
-			this.getInbox(streamsheetId).resetViewports();
-			this.getOutbox(streamsheetId).resetViewports();
-			const itemsNode = this.getOutbox().getMessageListItems();
-			this.execute(new RemoveSelectionCommand(itemsNode, 'global'));
+		// if (stats.steps === 0) {
+		// 	this.getInbox(streamsheetId).resetViewports();
+		// 	this.getOutbox(streamsheetId).resetViewports();
+		// 	const itemsNode = this.getOutbox().getMessageListItems();
+		// 	this.execute(new RemoveSelectionCommand(itemsNode, 'global'));
+		// }
 
-		}
+		// this is because baseExecute set drawing disabled to false
 		this.setDrawingDisabled(true);
 		this.updateOutbox(outbox);
 		this.clearInbox(streamsheetId);
@@ -688,7 +689,7 @@ export default class GraphManager {
 		let value = metadata.id;
 		if (metadata.arrivalTime) {
 			const date = MathUtils.excelDateToJSDate(metadata.arrivalTime);
-			value = `${date.toLocaleTimeString()} ${date.getMilliseconds()}`;
+			value = `${date.toLocaleTimeString()}.${date.getMilliseconds().toString().padStart(3,'0')}`;
 		} else {
 			value = metadata.id;
 		}
@@ -774,6 +775,7 @@ export default class GraphManager {
 							markAsDisabled,
 						);
 						treeItemCommand.isVolatile = true;
+						treeItemCommand._keepFeedback = true;
 						this.execute(treeItemCommand);
 					}
 				}
@@ -990,8 +992,19 @@ export default class GraphManager {
 		const machineState = runMode
 			? MachineContainerAttributes.MachineState.RUN
 			: MachineContainerAttributes.MachineState.EDIT;
-		this.getGraph().getMachineContainer().setMachineState(machineState);
-		if (!runMode) {
+
+		if (runMode) {
+			this.getGraph().getMachineContainer().setMachineState(machineState);
+			const { machine } = this.graphWrapper;
+			if (machine) {
+				machine.streamsheets.forEach((streamsheet) => {
+					this.getInbox(streamsheet.id).resetViewports();
+				});
+			}
+			this.getOutbox().resetViewports();
+			const itemsNode = this.getOutbox().getMessageListItems();
+			this.execute(new RemoveSelectionCommand(itemsNode, 'global'));
+		} else {
 			this.redraw();
 		}
 	}

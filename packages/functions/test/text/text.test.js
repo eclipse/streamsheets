@@ -307,6 +307,37 @@ describe('len', () => {
 		expect(createTerm('len(_A1)', sheet).value).toBe(ERROR.NAME);
 	});
 });
+describe('lower', () => {
+	it('should convert given text to lowercase', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('lower("HELLO")', sheet).value).toBe('hello');
+		expect(createTerm('lower("hello WORLD")', sheet).value).toBe('hello world');
+		expect(createTerm('lower("world")', sheet).value).toBe('world');
+	});
+	it('should except cell reference', () => {
+		const sheet = new StreamSheet().sheet.loadCells({ A1: 'HELLO', B1: 'jOHn DoE' });;
+		expect(createTerm('lower(A1)', sheet).value).toBe('hello');
+		expect(createTerm('lower(B1)', sheet).value).toBe('john doe');
+	});
+	it('should ignore empty string, numbers or special characters', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('lower("")', sheet).value).toBe('');
+		expect(createTerm('lower("0")', sheet).value).toBe('0');
+		expect(createTerm('lower(123456)', sheet).value).toBe('123456');
+		expect(createTerm('lower("!§$%&/()")', sheet).value).toBe('!§$%&/()');
+	});
+	it(`should return ${ERROR.VALUE} or empty string if referenced cell returns no text`, () => {
+		const sheet = new StreamSheet().sheet.loadCells({ A1: null });;
+		expect(createTerm('lower(A1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('lower(D3)', sheet).value).toBe(ERROR.VALUE);
+	});
+	it(`should return ${ERROR.ARGS} if no text is given`, () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('lower()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('lower(,)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('lower(, "HELLO")', sheet).value).toBe(ERROR.ARGS);
+	});
+});
 describe('mid', () => {
 	it('should return specified number of characters from given string', () => {
 		const sheet = new StreamSheet().sheet.load({
@@ -596,6 +627,37 @@ describe('unicode', () => {
 		expect(createTerm('unicode("")', sheet).value).toBe(ERROR.VALUE);
 		expect(createTerm('unicode(A1)', sheet).value).toBe(ERROR.VALUE);
 		expect(createTerm('unicode()', sheet).value).toBe(ERROR.ARGS);
+	});
+});
+describe('upper', () => {
+	it('should convert given text to uppercase', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('upper("hello")', sheet).value).toBe('HELLO');
+		expect(createTerm('upper("hello WORLD")', sheet).value).toBe('HELLO WORLD');
+		expect(createTerm('upper("WORLD")', sheet).value).toBe('WORLD');
+	});
+	it('should except cell reference', () => {
+		const sheet = new StreamSheet().sheet.loadCells({ A1: 'hello', B1: 'jOHn DoE' });;
+		expect(createTerm('upper(A1)', sheet).value).toBe('HELLO');
+		expect(createTerm('upper(B1)', sheet).value).toBe('JOHN DOE');
+	});
+	it('should ignore empty string, numbers or special characters', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('upper("")', sheet).value).toBe('');
+		expect(createTerm('upper("0")', sheet).value).toBe('0');
+		expect(createTerm('upper(123456)', sheet).value).toBe('123456');
+		expect(createTerm('upper("!§$%&/()")', sheet).value).toBe('!§$%&/()');
+	});
+	it(`should return ${ERROR.VALUE} or empty string if referenced cell returns no text`, () => {
+		const sheet = new StreamSheet().sheet.loadCells({ A1: null });;
+		expect(createTerm('upper(A1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('upper(D3)', sheet).value).toBe(ERROR.VALUE);
+	});
+	it(`should return ${ERROR.ARGS} if no text is given`, () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('upper()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('upper(,)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('upper(, "hello")', sheet).value).toBe(ERROR.ARGS);
 	});
 });
 describe('value', () => {

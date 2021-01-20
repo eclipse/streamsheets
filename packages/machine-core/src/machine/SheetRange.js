@@ -248,6 +248,12 @@ class SheetRange {
 		return stop;
 	}
 
+	toJSON() {
+		return {
+			endIdx: this.endIdx.toString(),
+			startIdx: this.startIdx.toString()
+		};
+	}
 	toString() {
 		return `${this.startIdx.toString()}:${this.endIdx.toString()}`;
 	}

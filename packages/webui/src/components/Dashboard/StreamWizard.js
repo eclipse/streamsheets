@@ -151,7 +151,7 @@ class StreamWizard extends React.Component {
 				const provider = props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration].find(
 					(p) => p.id === connector.provider.id
 				);
-				name = provider.name.replace('Provider', 'Consumer');
+				name = StreamWizard.onUpdateName(provider.name.replace('Provider', 'Consumer'));
 			}
 		} else {
 			name = '';
@@ -182,7 +182,7 @@ class StreamWizard extends React.Component {
 				const provider = props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration].find(
 					(p) => p.id === connector.provider.id
 				);
-				name = provider.name.replace('Provider', 'Producer');
+				name = StreamWizard.onUpdateName(provider.name.replace('Provider', 'Producer'));
 			}
 		} else {
 			name = '';
@@ -300,7 +300,7 @@ class StreamWizard extends React.Component {
 		}
 	};
 
-	static onUpdateName = (name) => name.replace(' ', '_').replace(/[^a-zA-Z0-9_]/, '');
+	static onUpdateName = (name) => name.replace(/\W/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
 
 	handleDescriptionChange = (event) => {
 		event.preventDefault();

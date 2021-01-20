@@ -197,8 +197,8 @@ export class CanvasToolBar extends Component {
 	}
 
 	onSheetSelectionChanged(notification) {
-		const { item } = notification.object;
-		const { updateFinal } = notification.object;
+		const {item} = notification.object;
+		const {updateFinal} = notification.object;
 
 		if (!item || !updateFinal) {
 			return;
@@ -208,7 +208,7 @@ export class CanvasToolBar extends Component {
 			return;
 		}
 
-		this.updateState({ graphSelected: false });
+		this.updateState({graphSelected: false});
 	}
 
 	onGraphSelectionChanged() {
@@ -221,7 +221,7 @@ export class CanvasToolBar extends Component {
 		const conts = selection.filter((controller) => controller.getModel() instanceof JSG.StreamSheetContainer);
 
 		if (conts.length === 0) {
-			this.updateState({ graphSelected: true });
+			this.updateState({graphSelected: true});
 		}
 	}
 
@@ -812,6 +812,31 @@ export class CanvasToolBar extends Component {
 		graphManager.getCanvas().focus();
 	};
 
+	isNumberFormatAvailable = () => {
+		if (this.props.cellSelected) {
+			return true;
+		}
+
+		if (this.state.graphSelected) {
+			const selection = graphManager.getGraphViewer().getSelection();
+			if (selection && selection.length) {
+				const cont = selection[0];
+				if (cont.getModel() instanceof SheetPlotNode) {
+					const sel = cont.getView().chartSelection;
+					if (!sel) {
+						return false;
+					}
+					return sel.element === 'serieslabel' ||
+						sel.element === 'xAxis' ||
+						sel.element === 'yAxis';
+				}
+			}
+			return false;
+		}
+
+		return false;
+	}
+
 	onFormatNumberFormat = (format) => {
 		const attributesMap = new Dictionary();
 
@@ -1036,7 +1061,7 @@ export class CanvasToolBar extends Component {
 		graphManager.getCanvas().focus();
 	};
 
-	onFormatFillColor = (color) => {
+	onFormatFillColor = (color, event) => {
 		const attributesMap = new Dictionary();
 		if (color.hex === 'transparent') {
 			attributesMap.put(FormatAttributes.FILLSTYLE, FormatAttributes.FillStyle.NONE);
@@ -1075,6 +1100,12 @@ export class CanvasToolBar extends Component {
 				.applyFormatMap(attributesMap);
 		}
 		this.updateState();
+
+		if (event.target && event.target.style.cursor === 'pointer') {
+			this.setState({
+				showFillColor: false
+			});
+		}
 		// graphManager.getCanvas().focus();
 	};
 
@@ -1499,7 +1530,7 @@ export class CanvasToolBar extends Component {
 		}
 	};
 
-	onFormatFontColor = (color) => {
+	onFormatFontColor = (color, event) => {
 		const attributesMap = new Dictionary();
 		attributesMap.put(TextFormatAttributes.FONTCOLOR, color.hex);
 
@@ -1524,9 +1555,15 @@ export class CanvasToolBar extends Component {
 		}
 		this.updateState();
 		graphManager.getCanvas().focus();
+
+		if (event.target && event.target.style.cursor === 'pointer') {
+			this.setState({
+				showFontColor: false
+			});
+		}
 	};
 
-	onFormatBorderColor = (color) => {
+	onFormatBorderColor = (color, event) => {
 		const attributesMap = new Dictionary();
 
 		const sheetView = graphManager.getActiveSheetView();
@@ -1578,6 +1615,12 @@ export class CanvasToolBar extends Component {
 
 		this.updateState();
 		graphManager.getCanvas().focus();
+
+		if (event.target && event.target.style.cursor === 'pointer') {
+			this.setState({
+				showBorderColor: false
+			});
+		}
 	};
 
 	onCommandStackChanged = (notification) => {
@@ -1719,7 +1762,7 @@ export class CanvasToolBar extends Component {
 
 	isChartSelected() {
 		const selection = graphManager.getGraphViewer().getSelection();
-		return selection && selection.length && selection[0].getModel() instanceof SheetPlotNode;
+		return selection && selection.length > 0 && (selection[0].getModel() instanceof SheetPlotNode);
 	}
 
 	isChartElementSelected() {
@@ -2070,7 +2113,7 @@ export class CanvasToolBar extends Component {
 					<div>
 						<IconButton
 							onClick={this.onShowNumberFormat}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={!this.isNumberFormatAvailable()}
 							style={{
 								height: '34px',
 								width: '70px',
@@ -2334,7 +2377,7 @@ export class CanvasToolBar extends Component {
 						disableAlpha
 						presetColors={this.getPresetColors()}
 						color={tf && tf.getFontColor() ? tf.getFontColor().getValue() : ''}
-						onChange={this.onFormatFontColor}
+						onChange={(color, event) => this.onFormatFontColor(color, event)}
 					/>
 				</Popover>
 				<div
@@ -2354,7 +2397,7 @@ export class CanvasToolBar extends Component {
 								fontSize: '16pt'
 							}}
 							onClick={this.onShowHAlign}
-							disabled={(!this.props.cellSelected && !this.state.graphSelected) || this.isChartElementSelected()}
+							disabled={(!this.props.cellSelected && !this.state.graphSelected) || this.isChartSelected()}
 						>
 							{tf && tf.getHorizontalAlignment() && tf.getHorizontalAlignment().getValue() === 3 ? (
 								<FormatAlignJustify fontSize="inherit" />
@@ -2561,7 +2604,7 @@ export class CanvasToolBar extends Component {
 						width={250}
 						color={this.fillColorToRGBAObject(f)}
 						presetColors={this.getPresetColors()}
-						onChange={this.onFormatFillColor}
+						onChange={(color, event) => this.onFormatFillColor(color, event)}
 					/>
 				</Popover>
 				<Tooltip
@@ -2593,7 +2636,7 @@ export class CanvasToolBar extends Component {
 						disableAlpha
 						width={250}
 						color={this.getFormatBorderColor()}
-						onChange={this.onFormatBorderColor}
+						onChange={(color, event) => this.onFormatBorderColor(color, event)}
 						presetColors={this.getPresetColors()}
 					/>
 				</Popover>

@@ -98,7 +98,7 @@ export const ImportDialog = connect((state) => ({ importData: state.import.impor
 	return importInfoInput ? <ImportDialogInner {...props} importInfoInput={importInfoInput} /> : null;
 });
 
-const fixStreamName = (name) => name.replace(' ', '_').replace(/[^a-zA-Z0-9_]/, '');
+const fixStreamName = (name) => name.replace(/\W/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
 const isConnector = (stream) => stream.className === 'ConnectorConfiguration';
 const isProducer = (stream) => stream.className === 'ProducerConfiguration';
 const isConsumer = (stream) => stream.className === 'ConsumerConfiguration';

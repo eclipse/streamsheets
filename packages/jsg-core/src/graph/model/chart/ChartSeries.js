@@ -16,6 +16,7 @@ const ChartFormat = require('./ChartFormat');
 const ChartMarker = require('./ChartMarker');
 const ChartDataLabel = require('./ChartDataLabel');
 const ChartPoint = require('./ChartPoint');
+const ChartMap = require('./ChartMap');
 
 module.exports = class ChartSeries {
 	constructor(type, formula) {
@@ -82,6 +83,9 @@ module.exports = class ChartSeries {
 		this.format.save('format', writer);
 		this.marker.save('marker', writer);
 		this.dataLabel.save('datalabel', writer);
+		if (this.map) {
+			this.map.save('map', writer);
+		}
 
 		writer.writeStartArray('points');
 		this.points.forEach((point, index) => {
@@ -124,6 +128,10 @@ module.exports = class ChartSeries {
 			case 'datalabel':
 				this.dataLabel = new ChartDataLabel();
 				this.dataLabel.read(reader, child);
+				break;
+			case 'map':
+				this.map = new ChartMap();
+				this.map.read(reader, child);
 				break;
 			case 'points': {
 				const point = new ChartPoint();

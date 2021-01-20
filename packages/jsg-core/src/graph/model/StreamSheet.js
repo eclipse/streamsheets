@@ -12,6 +12,7 @@
 /* global window sessionStorage localStorage document */
 
 const { Drawings, FuncTerm, Term, NullTerm } = require('@cedalo/parser');
+const qrjs2 = require('qrjs2');
 
 const JSG = require('../../JSG');
 const Point = require('../../geometry/Point');
@@ -61,8 +62,6 @@ const setSheetCaption = (sheetName, sheetContainer) => {
 		sheetContainer.getSheetCaption().setName(`${sheetName} - ${JSG.getLocalizedString('Step')} ${step}`);
 	}
 };
-
-// let myVideo;
 
 /**
  * Node representing a worksheet. The worksheet contains additional nodes for the rows,
@@ -161,7 +160,26 @@ module.exports = class StreamSheet extends WorksheetNode {
 		this._rows.saveCondensed(writer, 'rows');
 		this._columns.saveCondensed(writer, 'columns');
 
-		if (undo === false) {
+		if (undo) {
+			const saveFormula = (item) => {
+				const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
+				if (attrFormula) {
+					const expr = attrFormula.getExpression();
+					if (expr !== undefined && expr.hasFormula()) {
+						writer.writeStartElement('xpr');
+						writer.writeAttributeString('id', String(item.getId()));
+						expr.save('expr', writer, 2);
+						writer.writeEndElement();
+						// item.expressions.forEach(exp => {
+						// });
+					}
+				}
+			};
+
+			writer.writeStartArray('drawformulas');
+			GraphUtils.traverseItem(this.getCells(), (item) => saveFormula(item));
+			writer.writeEndArray('drawformulas');
+		} else {
 			writer.writeStartElement('drawings');
 			this._cells._saveSubItems(writer);
 			writer.writeEndElement();
@@ -230,7 +248,26 @@ module.exports = class StreamSheet extends WorksheetNode {
 									break;
 							}
 						});
-
+						break;
+					case 'drawformulas': {
+						const id = reader.getAttributeNumber(child,'id');
+						if (id !== undefined) {
+							const item = this.getItemById(id);
+							if (item) {
+								const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
+								if (attrFormula) {
+									const expr = attrFormula.getExpression();
+									if (expr) {
+										const obj = reader.getObject(child, 'expr');
+										if (obj) {
+											expr.read(reader, obj);
+											expr.evaluate(item);
+										}
+									}
+								}
+							}
+						}
+					}
 						break;
 					case 'defaultcell': {
 						const cell = reader.getObject(child, 'cell');
@@ -486,9 +523,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 		if (def.container !== undefined) {
 			attr.setScaleType(def.container === 'none' ? 'top' : def.container);
-		}
-
-		if (def.container !== undefined) {
 			attr.setContainer(def.container !== 'none');
 		}
 	}
@@ -706,7 +740,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 				return;
 			}
 			const id = Number(drawItem.sheetname);
-			let node = graph.getItemById(id);
+			let node = this.getItemById(id);
 			if (node === undefined && drawItem.source === 'cell') {
 				if (!JSG.Numbers.isNumber(id)) {
 					return;
@@ -761,6 +795,12 @@ module.exports = class StreamSheet extends WorksheetNode {
 				}
 			}
 			if (node) {
+
+				if (node.lastDrawItem && JSON.stringify(drawItem) === JSON.stringify(node.lastDrawItem)) {
+					return;
+				}
+				node.lastDrawItem = drawItem;
+
 				switch (drawItem.type) {
 					case 'rectangle':
 						if (node.getShape().getType() !== RectangleShape.TYPE) {
@@ -1172,8 +1212,15 @@ module.exports = class StreamSheet extends WorksheetNode {
 					formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
 					break;
 				default:
-					if (angle !== 0 || attributes !== '' || lineFormula !== '' || fillFormula !== '') {
+					if (angle !== 0 || attributes !== '' || lineFormula !== undefined || fillFormula !== undefined) {
 						formula += `,${lineFormula || ''},${fillFormula || ''},${attributes},,${angle}`;
+					}
+					if ((type === 'polygon' || type === 'bezier') && !item.isClosed()) {
+						if (angle !== 0 || attributes !== '' || lineFormula !== undefined || fillFormula !== undefined) {
+							formula += ',,,FALSE';
+						} else {
+							formula += ',,,,,,,,FALSE';
+						}
 					}
 					break;
 			}
@@ -1184,123 +1231,224 @@ module.exports = class StreamSheet extends WorksheetNode {
 		return formula;
 	}
 
-	getLineFormula(item) {
+	getLineFormula(item, currentTerm) {
 		const format = item.getFormat();
+		let color = format.getLineColor().getValue();
+		let style = format.getLineStyle().getValue();
+		let width = format.getLineWidth().getValue();
 
-		const color = format.getLineColor().getValue();
-		const style = format.getLineStyle().getValue();
-		const width = format.getLineWidth().getValue();
-
-		if (color === JSG.theme.color && style === FormatAttributes.LineStyle.SOLID && (width === 1 || width === -1)) {
-			return undefined;
-		}
-
-		switch (format.getLineStyle().getValue()) {
-			case FormatAttributes.LineStyle.SOLID: {
-				if (width === -1 || width === 1) {
-					if (color === JSG.theme.border) {
-						return undefined;
-					}
-					return `"${color}"`;
+		if (currentTerm && !currentTerm.isStatic) {
+			if ((currentTerm instanceof FuncTerm) && currentTerm.name === 'LINEFORMAT') {
+				if (currentTerm.params.length > 0 && !currentTerm.params[0].isStatic) {
+					color = currentTerm.params[0].toString();
 				}
-				break;
+				if (currentTerm.params.length > 1 && !currentTerm.params[1].isStatic) {
+					style = currentTerm.params[1].toString();
+				}
+				if (currentTerm.params.length > 2 && !currentTerm.params[2].isStatic) {
+					width = currentTerm.params[2].toString();
+				}
+			} else {
+				return currentTerm.toString();
 			}
-			case FormatAttributes.LineStyle.NONE:
-				return `"None"`;
-			default:
-				break;
+		} else {
+			if (color === JSG.theme.color && style === FormatAttributes.LineStyle.SOLID && (width === 1 || width === -1)) {
+				return undefined;
+			}
+			switch (style) {
+				case FormatAttributes.LineStyle.SOLID: {
+					if (width === -1 || width === 1) {
+						if (color === JSG.theme.border) {
+							return undefined;
+						}
+						return `"${color}"`;
+					}
+					break;
+				}
+				case FormatAttributes.LineStyle.NONE:
+					return `"None"`;
+				default:
+					break;
+			}
 		}
+
 
 		const sep = JSG.getParserLocaleSettings().separators.parameter;
 
 		let formula = 'LINEFORMAT(';
-		formula += format.getLineColor().getValue() === JSG.theme.border ? '' : `"${format.getLineColor().getValue()}"`;
-		formula += format.getLineStyle().getValue() === 0 ? sep : `${sep}${format.getLineStyle().getValue()}`;
-		formula += format.getLineWidth().getValue() === -1 ? ')' : `${sep}${format.getLineWidth().getValue()})`;
+		formula += color === JSG.theme.border ? '' : `${color}`;
+		formula += style === FormatAttributes.LineStyle.SOLID ? '' : `${sep}${style}`;
+		if (style === FormatAttributes.LineStyle.SOLID && width !== -1) {
+			formula += ',';
+		}
+		formula += width === -1 ? ')' : `${sep}${width})`;
 
 		return formula;
 	}
 
-	getLineTerm(item) {
-		const formula = this.getLineFormula(item);
+	getLineTerm(item, currentTerm) {
+		const formula = this.getLineFormula(item, currentTerm);
 		return formula ? this.parseTextToTerm(formula) : new NullTerm();
 	}
 
-	getFillFormula(item) {
+	getFillFormula(item, currentTerm) {
 		const format = item.getFormat();
+		const style = format.getFillStyle().getValue();
 
-		switch (format.getFillStyle().getValue()) {
-			case FormatAttributes.FillStyle.SOLID: {
-				const color = format.getFillColor().getValue();
-				if (color.toUpperCase() !== JSG.theme.fill) {
-					return `"${color}"`;
+		if (currentTerm && !currentTerm.isStatic) {
+			if (currentTerm instanceof FuncTerm) {
+				switch (currentTerm.name) {
+					case 'FILLPATTERN': {
+						let pattern;
+						if (currentTerm.params.length > 0 && !currentTerm.params[0].isStatic) {
+							pattern = currentTerm.params[0].toString();
+						} else {
+							pattern = `"${format.getPattern().getValue()}"`;
+						}
+						return `FILLPATTERN(${pattern})`;
+					}
+					case 'FILLLINEARGRADIENT':
+					case 'FILLRADIALGRADIENT':
+						return currentTerm.toString();
 				}
-				return undefined;
+			} else {
+				return currentTerm.toString();
 			}
-			case FormatAttributes.FillStyle.NONE:
-				return `"None"`;
-			case FormatAttributes.FillStyle.PATTERN:
-				return `FILLPATTERN("${format.getPattern().getValue()}")`;
-			case FormatAttributes.FillStyle.GRADIENT: {
-				const color = format.getFillColor().getValue();
-				const grColor = format.getGradientColor().getValue();
-				const sep = JSG.getParserLocaleSettings().separators.parameter;
-				switch (format.getGradientType().getValue()) {
-					case 0:
-						return `FILLLINEARGRADIENT("${color}"${sep}"${grColor}"${sep}${format
-							.getGradientAngle()
-							.getValue()})`;
-					case 1:
-						return `FILLRADIALGRADIENT("${color}"${sep}"${grColor}"${sep}${format
-							.getGradientOffsetX()
-							.getValue()}${sep}${format.getGradientOffsetY().getValue()})`;
-					default:
+		} else {
+			switch (style) {
+				case FormatAttributes.FillStyle.SOLID: {
+					const color = format.getFillColor().getValue();
+					if (color.toUpperCase() !== JSG.theme.fill) {
+						return `"${color}"`;
+					}
+					return undefined;
 				}
-				return undefined;
+				case FormatAttributes.FillStyle.NONE:
+					return `"None"`;
+				case FormatAttributes.FillStyle.PATTERN:
+					return `FILLPATTERN("${format.getPattern().getValue()}")`;
+				case FormatAttributes.FillStyle.GRADIENT: {
+					const color = format.getFillColor().getValue();
+					const grColor = format.getGradientColor().getValue();
+					const sep = JSG.getParserLocaleSettings().separators.parameter;
+					switch (format.getGradientType().getValue()) {
+						case 0:
+							return `FILLLINEARGRADIENT("${color}"${sep}"${grColor}"${sep}${format
+								.getGradientAngle()
+								.getValue()})`;
+						case 1:
+							return `FILLRADIALGRADIENT("${color}"${sep}"${grColor}"${sep}${format
+								.getGradientOffsetX().getValue()}${sep}${format.getGradientOffsetY().getValue()})`;
+						default:
+					}
+					return undefined;
+				}
+				default:
+					return undefined;
 			}
-			default:
-				return undefined;
 		}
+		return undefined;
 	}
 
-	getFillTerm(item) {
-		const formula = this.getFillFormula(item);
+	getFillTerm(item, currentTerm) {
+		const formula = this.getFillFormula(item, currentTerm);
 		return formula ? this.parseTextToTerm(formula) : new NullTerm();
 	}
 
-	getFontFormula(item) {
-		const tf = item.getTextFormat();
+	getAttributesFormula(item) {
+		const attr = item.getItemAttributes();
+		const clip = attr.getClipChildren().getValue();
+		const visible = attr.getVisible().getValue();
+		const selectable = attr.getSelectionMode().getValue();
+		const scale = attr.getScaleType().getValue();
+		const container = attr.getContainer().getValue();
 
-		const fontName = tf.getFontName().getValue();
-		const fontSize = tf.getFontSize().getValue();
-		const fontStyle = tf.getFontStyle().getValue();
-		const fontColor = tf.getFontColor().getValue();
-		const align = tf.getHorizontalAlignment().getValue();
-
-		if (
-			fontName === 'Verdana' &&
-			fontSize === 8 &&
-			fontStyle === 0 &&
-			fontColor === JSG.theme.text &&
-			align === 1
-		) {
-			return new NullTerm();
+		if (clip === false && visible === true && selectable === 4 && scale === 'top' && container === true) {
+			return undefined;
 		}
 
 		const sep = JSG.getParserLocaleSettings().separators.parameter;
 
-		let formula = 'FONTFORMAT(';
-		formula += tf.getFontName().getValue() === 'Verdana' ? '' : `"${tf.getFontName().getValue()}"`;
-		formula += tf.getFontSize().getValue() === 8 ? sep : `${sep}${tf.getFontSize().getValue()}`;
-		formula += tf.getFontStyle().getValue() === 0 ? sep : `${sep}${tf.getFontStyle().getValue()}`;
-		formula += tf.getFontColor().getValue() === JSG.theme.text ? sep : `${sep}"${tf.getFontColor().getValue()}"`;
-		formula +=
-			tf.getHorizontalAlignment().getValue() === 1 ? sep : `${sep}${tf.getHorizontalAlignment().getValue()}`;
+		let formula = 'ATTRIBUTES(';
+		formula += visible ? '' : `FALSE`;
+		formula += sep;
+		if (container) {
+			formula += scale === 'top' ? '' : '';
+		} else {
+			formula += 'none';
+		}
+		formula += sep;
+		formula += clip ? 'TRUE' : '';
+		formula += sep;
+		formula += selectable === 4 ? '' : String(selectable);
+		formula += ')';
 
-		return this.parseTextToTerm(formula);
+		return formula;
 	}
 
-	getContainer(item, parent) {
+	getAttributesTerm(item) {
+		const formula = this.getAttributesFormula(item);
+		return formula ? this.parseTextToTerm(formula) : new NullTerm();
+	}
+
+	getFontFormula(item, currentTerm) {
+		const tf = item.getTextFormat();
+
+		let fontName = tf.getFontName().getValue();
+		let fontSize = tf.getFontSize().getValue();
+		let fontStyle = tf.getFontStyle().getValue();
+		let fontColor = tf.getFontColor().getValue();
+		let align = tf.getHorizontalAlignment().getValue();
+
+        if (currentTerm && !currentTerm.isStatic) {
+            if ((currentTerm instanceof FuncTerm) && currentTerm.name === 'FONTFORMAT') {
+                if (currentTerm.params.length > 0 && !currentTerm.params[0].isStatic) {
+                    fontName = currentTerm.params[0].toString();
+                }
+                if (currentTerm.params.length > 1 && !currentTerm.params[1].isStatic) {
+                    fontSize = currentTerm.params[1].toString();
+                }
+                if (currentTerm.params.length > 2 && !currentTerm.params[2].isStatic) {
+                    fontStyle = currentTerm.params[2].toString();
+                }
+                if (currentTerm.params.length > 3 && !currentTerm.params[3].isStatic) {
+                    fontColor = currentTerm.params[3].toString();
+                }
+                if (currentTerm.params.length > 4 && !currentTerm.params[4].isStatic) {
+                    align = currentTerm.params[4].toString();
+                }
+            } else {
+                return currentTerm.toString();
+            }
+        } else if (
+            fontName === 'Verdana' &&
+            fontSize === 8 &&
+            fontStyle === 0 &&
+            fontColor === JSG.theme.text &&
+            align === 1
+        ) {
+            return new NullTerm();
+        }
+
+		const sep = JSG.getParserLocaleSettings().separators.parameter;
+
+		let formula = 'FONTFORMAT(';
+		formula += fontName === 'Verdana' ? '' : `${fontName}`;
+		formula += fontSize === 8 ? sep : `${sep}${fontSize}`;
+		formula += fontStyle === 0 ? sep : `${sep}${fontStyle}`;
+		formula += fontColor === JSG.theme.text ? sep : `${sep}${fontColor}`;
+		formula += align === 1 ? '' : `${sep}${align}`;
+        formula += ')';
+
+		return formula;
+	}
+
+    getFontTerm(item, currentTerm) {
+        const formula = this.getFontFormula(item, currentTerm);
+        return formula ? this.parseTextToTerm(formula) : new NullTerm();
+    }
+
+    getContainer(item, parent) {
 		if (item instanceof StreamSheet) {
 			return undefined;
 		}
@@ -1445,13 +1593,13 @@ module.exports = class StreamSheet extends WorksheetNode {
 					}
 				}
 			});
-			formula = this.getLineTerm(item);
+			formula = this.getLineTerm(item, termFunc.params[7]);
 			let force =
 				termFunc.params.length > 7 &&
 				termFunc.params[7] instanceof FuncTerm &&
 				termFunc.params[7].name === 'LINEFORMAT';
 			this.setGraphFunctionParam(termFunc, 7, formula, force);
-			formula = this.getFillTerm(item);
+			formula = this.getFillTerm(item, termFunc.params[8]);
 			force =
 				termFunc.params.length > 8 &&
 				termFunc.params[8] instanceof FuncTerm &&
@@ -1480,15 +1628,28 @@ module.exports = class StreamSheet extends WorksheetNode {
 						13,
 						Term.fromString(Strings.encodeXML(item.getText().getValue()))
 					);
-					formula = this.getFontFormula(item);
-					force =
-						termFunc.params.length > 14 &&
-						termFunc.params[14] instanceof FuncTerm &&
-						termFunc.params[14].name === 'FONTFORMAT';
-					this.setGraphFunctionParam(termFunc, 14, formula,force);
-					// this.setGraphFunctionParam(termFunc, 14, formula, formula instanceof FuncTerm || force);
+                    formula = this.getFontTerm(item, termFunc.params[14]);
+                    force =
+                        termFunc.params.length > 14 &&
+                        termFunc.params[14] instanceof FuncTerm &&
+                        termFunc.params[14].name === 'FONTFORMAT';
+					this.setGraphFunctionParam(termFunc, 14, formula, force);
 					break;
+				case 'bezier':
+				case 'polygon': {
+					const closed = item.getItemAttributes().getClosed().getValue();
+					this.setGraphFunctionParam(termFunc, 14, closed ? new NullTerm() : Term.fromBoolean(closed));
+					break;
+				}
 			}
+
+			let i = termFunc.params.length - 1;
+			for (; i > 5; i -= 1) {
+				if (!(termFunc.params[i] instanceof NullTerm)) {
+					break;
+				}
+			}
+			termFunc.params.length = i + 1;
 		}
 
 		formula = expr.toLocaleString('en', { item: ws, useName: true, forceName: true });
@@ -1537,7 +1698,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		return sheetDescriptor;
 	}
 
-	updateOrCreateGraphFormulas() {
+	updateOrCreateGraphFormulas(undo) {
 		const formulas = [];
 		let oldFormula;
 		let formula;
@@ -1554,7 +1715,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 					formula = this.createGraphFunction(item);
 				}
 
-				if (formula && (oldFormula !== formula || item._noFormulaUpdate)) {
+				if (formula && (oldFormula !== formula || item._noFormulaUpdate || undo)) {
 					formulas.push({
 						item,
 						formula

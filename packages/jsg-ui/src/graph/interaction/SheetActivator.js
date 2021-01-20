@@ -224,7 +224,8 @@ export default class SheetActivator extends InteractionActivator {
 	 * <code>undefined</code>.
 	 */
 	_getControllerAt(location, viewer, dispatcher) {
-		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => true);
+		return viewer.filterFoundControllers(Shape.FindFlags.AUTOMATIC, (cont) => true);
+		// return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => true);
 	}
 
 	/**
@@ -238,7 +239,8 @@ export default class SheetActivator extends InteractionActivator {
 	 * @param {InteractionDispatcher} dispatcher The InteractionDispatcher
 	 * which notified this activator.
 	 */
-	onMouseUp(event /* , viewer, dispatcher */) {
+	onMouseUp(event, viewer, dispatcher) {
+		this.setState(event, viewer, dispatcher);
 		if (this._controller) {
 			event.isConsumed = true;
 			event.hasActivated = true;
@@ -256,28 +258,14 @@ export default class SheetActivator extends InteractionActivator {
 		const controller = this._getControllerAt(event.location, viewer, dispatcher);
 		if (controller) {
 			let view = controller.getView();
-			const zDelta = event.getWheelDelta() < 0 ? 1 : -1;
 
 			while (view && !(view instanceof ContentNodeView)) {
 				view = view.getParent();
 			}
 
-			if (view === undefined) {
-				return;
+			if (view !== undefined) {
+				view.handleMouseWheel(event, viewer);
 			}
-
-			const scrollView = view.getScrollView();
-			const pt = scrollView.getScrollPosition();
-
-			if (event.event.shiftKey) {
-				pt.x += zDelta * 2000;
-			} else {
-				pt.y += zDelta * 1500;
-			}
-
-			scrollView.setScrollPositionTo(pt);
-
-			dispatcher.getInteractionHandler().repaint();
 		}
 	}
 

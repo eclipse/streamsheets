@@ -108,6 +108,12 @@ export default class CellsView extends NodeView {
 
 		// draw cell content
 		visibleRowsInfo.forEach((rowInfo) => {
+			visibleColumnsInfo.forEach((columnInfo) => {
+				const data = dataProvider.getRC(columnInfo.index, rowInfo.index);
+				const cellProperties = this.getCellProperties(data, columnInfo, rowInfo);
+				const styleProperties = this.getStyleProperties(data, columnInfo, rowInfo, cellProperties);
+				this.drawCellFill(graphics, data,  columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo, styleProperties, cellProperties);
+			});
 			if (rowInfo.leftCellInfo) {
 				const data = dataProvider.getRC(rowInfo.leftCellInfo.index, rowInfo.index);
 				if (data !== undefined && data.getExpression() !== undefined) {
@@ -116,10 +122,9 @@ export default class CellsView extends NodeView {
 			}
 			visibleColumnsInfo.forEach((columnInfo) => {
 				const data = dataProvider.getRC(columnInfo.index, rowInfo.index);
-				const cellProperties = this.getCellProperties(data, columnInfo, rowInfo);
-				const styleProperties = this.getStyleProperties(data, columnInfo, rowInfo, cellProperties);
-				this.drawCellFill(graphics, data,  columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo, styleProperties, cellProperties);
 				if (data !== undefined && data.getExpression() !== undefined) {
+					const cellProperties = this.getCellProperties(data, columnInfo, rowInfo);
+					const styleProperties = this.getStyleProperties(data, columnInfo, rowInfo, cellProperties);
 					this.drawValue(graphics, dataProvider, data, columnInfo, rowInfo, visibleColumnsInfo, styleProperties, cellProperties);
 					this.drawSpecialFunction(graphics, data, columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo);
 				}
@@ -221,7 +226,8 @@ export default class CellsView extends NodeView {
 		const term = data.getExpression().getTerm();
 
 		if (data.displayFunctionName && term && (term instanceof FuncTerm)) {
-			switch (term.getFuncId()) {
+			const funcId = term.getFuncId();
+			switch (funcId) {
 				case 'SELECT':
 					result.clip = true;
 					result.forcedAlignment = 0;
@@ -252,25 +258,32 @@ export default class CellsView extends NodeView {
 					break;
 				case 'READ':
 				case 'WRITE':
+					result.clip = true;
 					result.fillColor = '#AAAAAA';
 					result.color = '#FFFFFF';
 					result.bold = true;
 					result.rounded = term.getFuncId() === 'READ' ? 'left' : 'right';
-					if (term.params && term.params.length > 2 && term.params[2].value) {
-						switch (term.params[2].value) {
-						case 'String':
+					if (term.params && term.params.length > 2) {
+						const value = term.params[2].value;
+						// default for READ is "json" => better pass type with cell in future version!
+						const type = !value && funcId === 'READ' ? 'json' : `${value}`.toLowerCase();
+						switch (type) {
+						case 'string':
 							result.fillColor = '#009408';
 							break;
-						case 'Number':
+						case 'number':
 							result.fillColor = '#497B8D';
 							break;
-						case 'Bool':
+						case 'bool':
+						case 'boolean':
 							result.fillColor = '#B1C639';
 							break;
-						case 'Dictionary':
+						case 'dictionary':
+						case 'json':
+						case 'jsonroot':
 							result.fillColor = '#E17000';
 							break;
-						case 'Array':
+						case 'array':
 							result.fillColor = '#2D5B89';
 							break;
 						default:
@@ -279,6 +292,7 @@ export default class CellsView extends NodeView {
 					}
 					break;
 				default:
+					result.clip = true;
 					result.value = String(data.getValue());
 					result.rounded = 'full';
 					if (result.value === 'true' || result.value[0] !== '#') {
@@ -603,14 +617,6 @@ export default class CellsView extends NodeView {
 					rowInfo.height - 100,
 					0, 100, 0, 100
 				);
-				// this.rect(
-				// 	graphics,
-				// 	columnInfo.x + 50,
-				// 	rowInfo.y + 50,
-				// 	columnInfo.width - 100,
-				// 	rowInfo.height - 100,
-				// 	'#F2F2F2'
-				// );
 			}
 		} else {
 			if (rowInfo.grey) {
@@ -708,7 +714,7 @@ export default class CellsView extends NodeView {
 						// range.shiftFromSheet();
 						const type = (termFunc.params.length > 1 && termFunc.params[1].value) || 'line';
 						node.setSize(columnInfo.width, rowInfo.height);
-						node.createSeriesFromSelection(undefined, this.getItem(), selection, type);
+						node.createSeriesFromSelection(undefined, this.getItem(), selection, String(type));
 						node.layout();
 						if (node.series.length) {
 							const serie = node.series[0];
@@ -734,6 +740,9 @@ export default class CellsView extends NodeView {
 							case 'pie':
 							case 'doughnut':
 								view.drawCircular(graphics, node, rect, serie, 0);
+								break;
+							case 'gauge':
+								view.drawGauge(graphics, node, rect, serie, 0);
 								break;
 							case 'boxplot':
 								view.drawBoxPlot(graphics, node, rect, serie, 0);
@@ -922,7 +931,7 @@ export default class CellsView extends NodeView {
 				formattedValue.value === false ||
 				formattedValue.value === 'false';
 			if (this._wsItem._showFormulas === false && columnInfo.width < 1100) {
-				graphics.setTransparency(17);
+				graphics.setTransparency(JSG.theme.ifTransparency);
 				this.rect(
 					graphics,
 					columnInfo.x,
@@ -948,14 +957,6 @@ export default class CellsView extends NodeView {
 				graphics.setTransparency(60);
 			}
 			if (formattedValue.frame) {
-				// this.rect(
-				// 	graphics,
-				// 	columnInfo.x + formattedValue.level * 150 + 50,
-				// 	rowInfo.y + 50,
-				// 	columnInfo.width - formattedValue.level * 150 - 100,
-				// 	rowInfo.height - 100,
-				// 	formattedValue.fillColor
-				// );
 				graphics.setFillColor(formattedValue.fillColor);
 				graphics.fillRoundedRectangle(
 					columnInfo.x + formattedValue.level * 150 + 50,
@@ -1071,7 +1072,6 @@ export default class CellsView extends NodeView {
 					clipWidth = clipInfo.width;
 					width = Math.min(width, clipWidth);
 				}
-				// hide borders, which are covered by text TODO: non left aligned
 				visibleColumnsInfo.forEach((info) => {
 					switch (alignment) {
 						case 0:

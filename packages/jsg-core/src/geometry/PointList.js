@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -92,16 +92,29 @@ class PointList {
 	 */
 	save(name, writer) {
 		writer.writeStartElement(name);
-		writer.writeStartArray('point');
+		writer.writeStartArray('points');
 
-		this.points.forEach((point) => {
-			writer.writeStartElement('point');
-			writer.writeAttributeNumber('x', point.x, 2);
-			writer.writeAttributeNumber('y', point.y, 2);
-			writer.writeEndElement();
+		this._points.forEach((point) => {
+			point.save('point', writer)
 		});
-		writer.writeEndArray('point');
+		writer.writeEndArray('points');
 		writer.writeEndElement();
+	}
+
+
+	read(reader, object) {
+		this._points = [];
+		reader.iterateObjects(object, (name, child) => {
+			switch (name) {
+				case 'points': {
+					const point = new Point();
+					point.read(reader, child);
+					this._points.push(point);
+					break;
+				}
+			}
+		});
+
 	}
 
 	/**

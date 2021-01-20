@@ -34,6 +34,7 @@ import LayerId from '../view/LayerId';
 import KeyEvent from '../../ui/events/KeyEvent';
 import { FloatingToolbar, ToolBreak, ToolButton, ToolColor, ToolList, ToolSeparator } from '../view/FloatingToolbar';
 import Cursor from '../../ui/Cursor';
+import WorksheetView from "../view/WorksheetView";
 
 /**
  * Interaction that handles the text editing. When activated a contenteditable div is created. While editing
@@ -354,7 +355,7 @@ class EditTextInteraction extends AbstractInteraction {
 		div.autofocus = true;
 
 		this.div = div;
-		this._richText = textFormat.getRichText().getValue();
+		this._richText = textFormat.getRichText().getValue() && !this.isWorksheetView();
 
 		document.execCommand('defaultParagraphSeparator', null, 'p');
 		canvas.parentNode.appendChild(div);
@@ -1013,14 +1014,34 @@ class EditTextInteraction extends AbstractInteraction {
 		}
 	}
 
+	isWorksheetView() {
+		let parent = this._controller;
+		while (parent && !(parent.getView() instanceof WorksheetView)) {
+			parent = parent.getParent();
+		}
+		if (parent && parent.getView() instanceof WorksheetView) {
+			return parent.getView();
+		}
+
+		return undefined;
+	}
+
 	showTextNode(viewer) {
+		const view = this.isWorksheetView();
+		if (view) {
+			const box = this._item.getTranslatedBoundingBox(view.getItem().getCells());
+			const rect = box.getBoundingRectangle();
+			view.showRect(view.getItem(), rect);
+			return;
+		}
+
+		const box = this._item.getTranslatedBoundingBox();
 		const canvas = viewer.getCanvas();
 		const cs = viewer.getCoordinateSystem();
 		const sizeScale = cs.logToDeviceXNoZoom(750);
 		const sizeScroll = cs.logToDeviceXNoZoom(450);
 		const vrect = viewer.getGraphView().getVisibleViewRect();
 		const origin = this.getEditOrigin(viewer);
-		const box = this._item.getTranslatedBoundingBox();
 		const textRect = box.getBoundingRectangle();
 		const panel = viewer.getScrollPanel();
 		const scroll = panel.getScrollPosition(JSG.ptCache.get());

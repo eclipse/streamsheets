@@ -41,6 +41,9 @@ const createDefault = () => {
 					colorDefault: {
 						backgroundColor: 'white'
 					},
+					colorEdit: {
+						backgroundColor: 'white'
+					},
 				},
 				MuiPaper: {
 					root: {
@@ -143,6 +146,9 @@ const createDark = () => {
 					colorDefault: {
 						backgroundColor: '#212121'
 					},
+					colorEdit: {
+						backgroundColor: '#35373b'
+					},
 				},
 				MuiPaper: {
 					root: {
@@ -239,6 +245,26 @@ const createByName = () => {
 			filllight: '#222222',
 			feedbackFill: 'rgba(255, 255, 255,0.2)',
 			feedbackBorder: 'rgba(255, 255, 255,0.8)',
+			scrollBars: {
+				arrow: '#999999',
+				arrowbk: '#555555',
+				range: '#000000',
+				background: '#000000',
+				thumb: '#555555'
+			},
+			rangeColors: [
+				'#00B0F0',
+				'#00FF00',
+				'#FFFF00',
+				'#ED7D31',
+				'#00CC99',
+				'#FF99FF',
+				'#CCFFCC',
+				'#FF3737',
+				'#A5A5A5',
+				'#FF0066',
+			],
+			ifTransparency: 60,
 		};
 		break;
 	default:

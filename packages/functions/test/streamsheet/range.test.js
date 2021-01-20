@@ -55,7 +55,7 @@ describe('range & read', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: SHEETS.SIMPLE });
 		machine.addStreamSheet(sheet.streamsheet);
 		createCellAt('A4', { formula: 'write(outboxdata("out1","range"),range(A1:C2),"Array")'}, sheet);
-		createCellAt('A5', { formula: 'read(outboxdata("out1","range"), A6:C7, "Array")'}, sheet);
+		createCellAt('A5', { formula: 'read(outboxdata("out1","range"),A6:C7,"Range",true)'}, sheet);
 		expect(sheet.cellAt('A4').value).toBe('range');
 		expect(sheet.cellAt('A5').value).toBe('range');
 		await machine.step();
@@ -76,7 +76,7 @@ describe('range & read', () => {
 		} });
 		machine.addStreamSheet(sheet.streamsheet);
 		createCellAt('A4', { formula: 'write(outboxdata("out1","range"),range(A1:E2),"Array")'}, sheet);
-		createCellAt('A5', { formula: 'read(outboxdata("out1","range"), A6:E7, "Array")'}, sheet);
+		createCellAt('A5', { formula: 'read(outboxdata("out1","range"),A6:E7,"Range",true)'}, sheet);
 		expect(sheet.cellAt('A4').value).toBe('range');
 		expect(sheet.cellAt('A5').value).toBe('range');
 		await machine.step();

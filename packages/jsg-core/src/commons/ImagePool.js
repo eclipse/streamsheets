@@ -147,10 +147,11 @@ class ImagePool extends Dictionary {
 
 		const imageOld = this.get(url);
 		if (imageOld) {
-			if (imageOld._loaded === false) {
-				return;
-			}
-			if (imageOld._lastURL === `${url}?${params}`) {
+			// if (imageOld._loaded === false) {
+			// 	return;
+			// }
+
+			if (imageOld._loaded && imageOld._lastURL === `${url}?${params}`) {
 				// / no change
 				return;
 			}
@@ -162,11 +163,11 @@ class ImagePool extends Dictionary {
 		image._lastURL = `${url}?${params}`;
 		image._loaded = false;
 		image._backupImage = imageOld;
-		this.put(url, image);
 
 		image.onload = () => {
 			// invalidate previously registered editors
 			image._loaded = true;
+			this.put(url, image);
 			this._views.forEach((view) => {
 				view.invalidate();
 			});

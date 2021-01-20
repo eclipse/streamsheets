@@ -37,8 +37,10 @@ import GridViewButton from '../../layouts/GridViewButton';
 import StreamSettings from './StreamSettings';
 import IconButton from '@material-ui/core/IconButton';
 import SvgIcon from '@material-ui/core/SvgIcon';
+import SortSelector from '../base/sortSelector/SortSelector';
 
 const PREF_KEY_LAYOUT = 'streamsheets-prefs-listing-layout';
+const PREF_KEY_SORTSTREAMS = 'streamsheets-prefs-streams-sort';
 
 const styles = (theme) => ({
 	tableRoot: {
@@ -58,17 +60,21 @@ const styles = (theme) => ({
 class DashBoardComponent extends Component {
 	constructor(props) {
 		super(props);
+
+		const sort = localStorage.getItem(PREF_KEY_SORTSTREAMS) || 'lastModified_desc';
+		const sortObj = SortSelector.parseSortQuery(sort);
+
 		this.state = {
 			dialogMachineTitleImageOpen: false,
 			activeTab: 0,
-			streamSortBy: 'name',
-			streamSortOrder: 'asc',
+			streamSortBy: sortObj.sortBy,
+			streamSortOrder: sortObj.sortDir,
 			showStreamWizard: false,
 			activeStep: '',
 			filter: [],
 			editStream: false,
 			type: '',
-			layout: localStorage.getItem(PREF_KEY_LAYOUT) || 'grid',
+			layout: localStorage.getItem(PREF_KEY_LAYOUT) || 'grid'
 		};
 	}
 
@@ -93,7 +99,7 @@ class DashBoardComponent extends Component {
 			showStreamWizard: true,
 			activeStep: type === 'consumer' ? 'consumername' : 'producername',
 			row,
-			type,
+			type
 		});
 	};
 
@@ -102,7 +108,7 @@ class DashBoardComponent extends Component {
 			showStreamWizard: true,
 			activeStep: 'provider',
 			row: undefined,
-			type: 'connector',
+			type: 'connector'
 		});
 	};
 
@@ -110,8 +116,8 @@ class DashBoardComponent extends Component {
 		this.setState({
 			editStream: true,
 			row,
-			type,
-		})
+			type
+		});
 	};
 
 	onStreamReload = (resource) => {
@@ -124,12 +130,12 @@ class DashBoardComponent extends Component {
 
 	getConnector() {
 		switch (this.state.type) {
-		case 'connector':
-			return undefined;
-		case 'consumer':
-		case 'producer':
-			return StreamHelper.getConnectorConfig(this.state.row, this.props.streams.connectors)
-		default:
+			case 'connector':
+				return undefined;
+			case 'consumer':
+			case 'producer':
+				return StreamHelper.getConnectorConfig(this.state.row, this.props.streams.connectors);
+			default:
 		}
 
 		return undefined;
@@ -289,111 +295,35 @@ class DashBoardComponent extends Component {
 				fields
 			},
 			{ id: 'url', numeric: false, sort: true, label: 'Streams.URL', width: '20%' },
-			{ id: 'topic', numeric: false, sort: true, label: 'Streams.Topic' },
+			{ id: 'topic', numeric: false, sort: true, label: 'Streams.Topic'},
 			{
 				id: 'lastModified',
 				numeric: false,
 				sort: true,
 				label: 'Streams.LastModified',
-				width: '120px'
+				width: '120px',
+				minWidth: '120px',
 			},
-			{ id: 'action', numeric: false, sort: false, label: 'Streams.Actions', width: '120px' }
+			{ id: 'action', numeric: false, sort: false, label: 'Streams.Actions', width: '95px', minWidth: '95px' }
 		];
 	}
 
-	getRows() {
-		const rows = [];
-		const filter = (connector, consumers, producers) => {
-			if (this.props.filter.length === 0) {
-				return 1;
-			}
-			let result = connector.name.toLowerCase().includes(this.props.filter.toLowerCase()) ? 1 : 0;
-			result = consumers.some((consumer) => consumer.name.toLowerCase().includes(this.props.filter.toLowerCase())) ? 2 : result;
-			result = producers.some((producer) => producer.name.toLowerCase().includes(this.props.filter.toLowerCase())) ? 2 : result;
-			return result;
-		};
-
-		if (this.props.streams && this.props.streams.connectors && this.props.streams.connectors.length) {
-			this.props.streams.connectors.forEach((connector) => {
-				const provider = StreamHelper.getProviderOfConnector(connector, this.props.streams);
-				const consumers = StreamHelper.getConsumersUsingConnector(connector.id, this.props.streams.consumers);
-				const producers = StreamHelper.getProducersUsingConnector(connector.id, this.props.streams.producers);
-				const index = this.state.filter.indexOf(provider.name);
-				let result = filter(connector, consumers, producers)
-				if (this.newConnectorName !== undefined && connector.name === this.newConnectorName) {
-					result = 2;
-					this.newConnectorName = undefined;
-				}
-				if (index === -1 && result) {
-					const row = {
-						id: connector.id,
-						name: connector.name,
-						provider,
-						topic: connector.baseTopic || '',
-						url: connector.baseUrl || connector.url || '',
-						disabled: !!connector.disabled,
-						lastModifiedDate: new Date(connector.lastModified).toISOString(),
-						lastModified: formatDateString(new Date(connector.lastModified).toISOString()),
-						resource: connector,
-						consumers: [],
-						producers: [],
-						open: result === 2,
-					};
-					if (provider.canConsume) {
-						consumers.forEach((consumer) => {
-							if (consumer.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
-								row.consumers.push({
-									id: consumer.id,
-									name: consumer.name,
-									provider: row.provider,
-									disabled: !!consumer.disabled,
-									topic: consumer.topics ? consumer.topics.toString() : '',
-									url: consumer.url ? consumer.url : '',
-									lastModifiedDate: new Date(consumer.lastModified).toISOString(),
-									lastModified: formatDateString(new Date(consumer.lastModified).toISOString()),
-									resource: consumer,
-									state: StreamHelper.getStreamState(consumer)
-								});
-							}
-						});
-					}
-					if (provider.canProduce) {
-						producers.forEach((producer) => {
-							if (producer.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
-								row.producers.push({
-									id: producer.id,
-									name: producer.name,
-									provider: row.provider,
-									disabled: !!producer.disabled,
-									topic: producer.pubTopic ? producer.pubTopic : '',
-									url: producer.url ? producer.url : '',
-									lastModifiedDate: new Date(producer.lastModified).toISOString(),
-									lastModified: formatDateString(new Date(producer.lastModified).toISOString()),
-									resource: producer,
-									state: StreamHelper.getStreamState(producer)
-								});
-							}
-						});
-					}
-					rows.push(row);
-				}
-			});
-		}
-
-		rows.sort((a, b) => {
+	sortElements(data) {
+		data.sort((a, b) => {
 			const dir = this.state.streamSortOrder === 'asc' ? 1 : -1;
 
 			switch (this.state.streamSortBy) {
-                case 'provider': {
-                    const aName = a.provider.name || '';
-                    const bName = b.provider.name || '';
-                    if (aName.toLowerCase() > bName.toLowerCase()) {
-                        return dir;
-                    } else if (aName.toLowerCase() < bName.toLowerCase()) {
-                        return -1 * dir;
-                    }
-                    return 0;
-                }
+				case 'provider': {
+					const aName = a.provider.name || '';
+					const bName = b.provider.name || '';
+					if (aName.toLowerCase() > bName.toLowerCase()) {
+						return dir;
+					} else if (aName.toLowerCase() < bName.toLowerCase()) {
+						return -1 * dir;
+					}
+
+					return 0;
+				}
 				case 'url':
 				case 'topic':
 				case 'name': {
@@ -416,6 +346,94 @@ class DashBoardComponent extends Component {
 					return 0;
 			}
 		});
+	}
+
+	getRows() {
+		const rows = [];
+		const filter = (connector, consumers, producers) => {
+			if (this.props.filter.length === 0) {
+				return 1;
+			}
+			let result = connector.name.toLowerCase().includes(this.props.filter.toLowerCase()) ? 1 : 0;
+			result = consumers.some((consumer) => consumer.name.toLowerCase().includes(this.props.filter.toLowerCase()))
+				? 2
+				: result;
+			result = producers.some((producer) => producer.name.toLowerCase().includes(this.props.filter.toLowerCase()))
+				? 2
+				: result;
+			return result;
+		};
+
+		if (this.props.streams && this.props.streams.connectors && this.props.streams.connectors.length) {
+			this.props.streams.connectors.forEach((connector) => {
+				const provider = StreamHelper.getProviderOfConnector(connector, this.props.streams);
+				const consumers = StreamHelper.getConsumersUsingConnector(connector.id, this.props.streams.consumers);
+				const producers = StreamHelper.getProducersUsingConnector(connector.id, this.props.streams.producers);
+				const index = this.state.filter.indexOf(provider.name);
+				let result = filter(connector, consumers, producers);
+				if (this.newConnectorName !== undefined && connector.name === this.newConnectorName) {
+					result = 2;
+					this.newConnectorName = undefined;
+				}
+				if (index === -1 && result) {
+					const row = {
+						id: connector.id,
+						name: connector.name,
+						provider,
+						topic: connector.baseTopic || '',
+						url: connector.baseUrl || connector.url || '',
+						disabled: !!connector.disabled,
+						lastModifiedDate: new Date(connector.lastModified).toISOString(),
+						lastModified: formatDateString(new Date(connector.lastModified).toISOString()),
+						resource: connector,
+						consumers: [],
+						producers: [],
+						open: result === 2
+					};
+					if (provider.canConsume) {
+						consumers.forEach((consumer) => {
+							if (consumer.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
+								row.consumers.push({
+									id: consumer.id,
+									name: consumer.name,
+									provider: row.provider,
+									disabled: !!consumer.disabled,
+									topic: consumer.topics ? consumer.topics.toString() : '',
+									url: consumer.url ? consumer.url : '',
+									lastModifiedDate: new Date(consumer.lastModified).toISOString(),
+									lastModified: formatDateString(new Date(consumer.lastModified).toISOString()),
+									resource: consumer,
+									state: StreamHelper.getStreamState(consumer)
+								});
+							}
+						});
+						this.sortElements(row.consumers);
+					}
+					if (provider.canProduce) {
+						producers.forEach((producer) => {
+							if (producer.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
+								row.producers.push({
+									id: producer.id,
+									name: producer.name,
+									provider: row.provider,
+									disabled: !!producer.disabled,
+									topic: producer.pubTopic ? producer.pubTopic : '',
+									url: producer.url ? producer.url : '',
+									lastModifiedDate: new Date(producer.lastModified).toISOString(),
+									lastModified: formatDateString(new Date(producer.lastModified).toISOString()),
+									resource: producer,
+									state: StreamHelper.getStreamState(producer)
+								});
+							}
+						});
+						this.sortElements(row.producers);
+					}
+					rows.push(row);
+				}
+			});
+		}
+
+		this.sortElements(rows);
 
 		return rows;
 	}
@@ -439,6 +457,8 @@ class DashBoardComponent extends Component {
 				? 'asc'
 				: 'desc';
 
+		localStorage.setItem(PREF_KEY_SORTSTREAMS, `${orderBy}_${order}`);
+
 		this.setState({
 			streamSortBy: orderBy,
 			streamSortOrder: order
@@ -455,8 +475,8 @@ class DashBoardComponent extends Component {
 
 	updateLayout(layout) {
 		this.setState({
-			layout,
-		})
+			layout
+		});
 	}
 
 	render() {
@@ -495,7 +515,7 @@ class DashBoardComponent extends Component {
 					<div
 						style={{
 							display: 'flex',
-							justifyContent: 'space-between',
+							justifyContent: 'space-between'
 						}}
 					>
 						<Tabs
@@ -509,39 +529,40 @@ class DashBoardComponent extends Component {
 								label={<FormattedMessage value={0} id="Dashboard" defaultMessage="Apps and Services" />}
 							/>
 							{this.props.rights.includes('stream') ? (
-							<Tab
-								style={{ fontSize: '11pt' }}
-								label={<FormattedMessage value={1} id="Dashboard.manage" defaultMessage="Streams" />}
-							/>) : null}
+								<Tab
+									style={{ fontSize: '11pt' }}
+									label={
+										<FormattedMessage value={1} id="Dashboard.manage" defaultMessage="Streams" />
+									}
+								/>
+							) : null}
 						</Tabs>
-						<div style={{display: 'flex'}}>
-							{ canEdit ?
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Import.Button.Import" defaultMessage="Import" />}
-							>
-								<IconButton color="primary" aria-label="Menu" onClick={this.handleImport}>
-									<SvgIcon>
-										<path
-											d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"
-										/>
-									</SvgIcon>
-								</IconButton>
-							</Tooltip> : null}
+						<div style={{ display: 'flex' }}>
+							{canEdit ? (
+								<Tooltip
+									enterDelay={300}
+									title={<FormattedMessage id="Import.Button.Import" defaultMessage="Import" />}
+								>
+									<IconButton color="primary" aria-label="Menu" onClick={this.handleImport}>
+										<SvgIcon>
+											<path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
+										</SvgIcon>
+									</IconButton>
+								</Tooltip>
+							) : null}
 							<Tooltip
 								enterDelay={300}
 								title={<FormattedMessage id="Dashboard.export" defaultMessage="Export" />}
 							>
 								<IconButton color="primary" aria-label="Menu" onClick={this.handleExport}>
 									<SvgIcon>
-										<path
-											d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"
-										/>
+										<path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z" />
 									</SvgIcon>
 								</IconButton>
 							</Tooltip>
-							{this.state.activeTab === 0 ?
-								<GridViewButton onUpdateLayout={(layout) => this.updateLayout(layout)}/> : null}
+							{this.state.activeTab === 0 ? (
+								<GridViewButton onUpdateLayout={(layout) => this.updateLayout(layout)} />
+							) : null}
 						</div>
 					</div>
 				</div>
@@ -602,14 +623,15 @@ class DashBoardComponent extends Component {
 					>
 						<StreamDeleteDialog />
 						{this.state.showStreamWizard ? (
-						<StreamWizard
-							onClose={this.onWizardClose}
-							initialStep={this.state.activeStep}
-							connector={this.getConnector()}
-							type={this.state.type}
-							open={this.state.showStreamWizard}
-							streams={this.props.streams}
-						/>) : null}
+							<StreamWizard
+								onClose={this.onWizardClose}
+								initialStep={this.state.activeStep}
+								connector={this.getConnector()}
+								type={this.state.type}
+								open={this.state.showStreamWizard}
+								streams={this.props.streams}
+							/>
+						) : null}
 						{this.state.editStream ? (
 							<StreamSettings
 								onClose={this.onWizardClose}
@@ -617,7 +639,8 @@ class DashBoardComponent extends Component {
 								type={this.state.type}
 								open={this.state.editStream}
 								streams={this.props.streams}
-							/>) : null}
+							/>
+						) : null}
 						<Tooltip
 							enterDelay={300}
 							title={<FormattedMessage id="Tooltip.AddConnector" defaultMessage="Add Connector" />}
@@ -638,7 +661,7 @@ class DashBoardComponent extends Component {
 								<Add />
 							</Fab>
 						</Tooltip>
-						<Table size="small" aria-label="collapsible table" style={{minWidth: '1200px'}}>
+						<Table size="small" aria-label="collapsible table" style={{ minWidth: '1200px' }}>
 							<TableSortHeader
 								height={48}
 								cells={this.getCells()}

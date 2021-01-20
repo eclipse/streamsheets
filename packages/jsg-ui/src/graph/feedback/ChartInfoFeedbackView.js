@@ -14,20 +14,21 @@ import View from '../../ui/View';
 import SelectionStyle from '../view/selection/SelectionStyle';
 
 export default class ChartInfoFeedbackView extends View {
-	constructor(chartView, selection, point, value) {
+	constructor(chartView, selection, point, value, viewer) {
 		super();
 
 		this.chartView = chartView;
 		this.point = point;
 		this.selection = selection;
 		this.value = value;
+		this.viewer = viewer;
 	}
 
 	draw(graphics) {
 		const point = new Point(0, 0);
 		let angle = 0;
 
-		GraphUtils.traverseUp(this.chartView, this._graphView, (v) => {
+		GraphUtils.traverseUp(this.chartView, this.viewer.getGraphView(), (v) => {
 			v.translateToParent(point);
 			if (v.getItem) {
 				angle += v
@@ -115,7 +116,7 @@ export default class ChartInfoFeedbackView extends View {
 				let axis;
 				if (circular) {
 					if (xValue) {
-						label = `${ref.yName}`;
+						label = ref.yName ? `${ref.yName}` : '';
 					} else {
 						axis = value.axes.x;
 						label = item.getLabel(ref, axis, Math.floor(value.x));

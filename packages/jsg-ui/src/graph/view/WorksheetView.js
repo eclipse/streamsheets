@@ -54,6 +54,7 @@ import Cursor from '../../ui/Cursor';
 
 const SHEET_ACTION_NOTIFICATION = 'sheet_action_notification';
 const SHEET_MESSAGE_NOTIFICATION = 'sheet_message_notification';
+const SHEET_SCROLL_NOTIFICATION = 'sheet_scroll_notification';
 
 const HitCode = {
 	NONE: 0,
@@ -830,6 +831,10 @@ export default class WorksheetView extends ContentNodeView {
 
 		const item = this.getItem();
 		const rect = item.getCellRect(new CellRange(item, cell.x, cell.y));
+		return this.showRect(item, rect);
+	}
+
+	showRect(item, rect) {
 		const offset = this.getScrollOffset();
 		const viewport = this.getViewPort();
 
@@ -1313,11 +1318,6 @@ export default class WorksheetView extends ContentNodeView {
 
 
 	copyToClipboard(data) {
-		if (this.getOwnSelection().getSize() !== 1) {
-			this.notifyMessage({id: 'SheetMessage.singleSelection'});
-			return;
-		}
-
 		const focus = document.activeElement;
 		const textarea = document.createElement('textarea');
 
@@ -1488,7 +1488,7 @@ export default class WorksheetView extends ContentNodeView {
 					let currentColumn = target.getX1();
 					columns.forEach((column) => {
 						const isFormula = column.charAt(0) === '=';
-						let formula = column;
+						let formula = column.trim();
 
 						if (isFormula) {
 							formula = formula.substring(1);
@@ -1718,7 +1718,7 @@ export default class WorksheetView extends ContentNodeView {
 		let height = item.getRows().getDefaultSectionSize();
 
 		columns.enumerateSections((columnSection, columnIndex) => {
-			const width = columns.getSectionSize(rowIndex);
+			const width = columns.getSectionSize(columnIndex);
 			if (width) {
 				const cell = data.getRC(columnIndex, rowIndex);
 				if (cell && cell.hasContent()) {
@@ -1861,12 +1861,6 @@ export default class WorksheetView extends ContentNodeView {
 			return
 		}
 
-		const values = cell.values;
-		if (!values) {
-			return;
-		}
-
-
 		this.showCellValues(viewer, cell, targetRange);
 	}
 
@@ -1913,7 +1907,7 @@ export default class WorksheetView extends ContentNodeView {
 		div.style.position = 'absolute';
 		div.style.fontSize = '8pt';
 
-		const fields = Object.entries(values);
+		const fields = values ? Object.entries(values) : [];
 		const rowCount = fields.length && fields[0].length !== undefined && fields[0][1].length !== undefined ? fields[0][1].length : 0;
 
 		let html = `<p style="color: ${JSG.theme.text}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">Result (${rowCount}):</p>`;
@@ -1971,6 +1965,28 @@ export default class WorksheetView extends ContentNodeView {
 		this.registerAtGraph(viewer, cell, targetRange, div);
 	}
 
+	handleMouseWheel(event, viewer) {
+		const zDelta = event.getWheelDelta() < 0 ? 1 : -1;
+		const scrollView = this.getScrollView();
+		const pt = scrollView.getScrollPosition();
+
+		if (event.event.shiftKey) {
+			pt.x += zDelta * 2000;
+		} else {
+			pt.y += zDelta * 1500;
+		}
+
+		scrollView.setScrollPositionTo(pt);
+
+		NotificationCenter.getInstance().send(
+			new Notification(WorksheetView.SHEET_SCROLL_NOTIFICATION, {
+				view: this,
+			})
+		);
+
+		viewer.getInteractionHandler().repaint();
+	}
+
 	getFromGraph() {
 		return this.getItem().getGraph().dataView;
 	}
@@ -1991,6 +2007,10 @@ export default class WorksheetView extends ContentNodeView {
 
 	static get SHEET_MESSAGE_NOTIFICATION() {
 		return SHEET_MESSAGE_NOTIFICATION;
+	}
+
+	static get SHEET_SCROLL_NOTIFICATION() {
+		return SHEET_SCROLL_NOTIFICATION;
 	}
 
 	// TODO: extract as class

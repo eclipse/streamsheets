@@ -385,6 +385,15 @@ describe('lookup functions', () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { B6: 4, C6: 10, B7: 8, C7: 3, B8: 3, C8: 6 } });
 			expect(createTerm('offset(D3, -3, -3)', sheet).value).toBe(ERROR.REF);
 		});
+		// DL-4705
+		it(`should return ${ERROR.VALUE} if specified target height or width less than 1`, () => {
+			const sheet = new StreamSheet().sheet.load({ cells: { A2: 4 } });
+			expect(createTerm('offset(A2, 1, 1, 0, 0)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('offset(A2, 1, 1, -1, 0)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('offset(A2, 1, 1, 0, -1)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('offset(A2, 1, 1, 0)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('offset(A2, 1, 1, , 0)', sheet).value).toBe(ERROR.VALUE);
+		});
 		it(`should return ${ERROR.ARGS} error if not enough parameters are specified`, () => {
 			const sheet = new StreamSheet().sheet;
 			expect(createTerm('offset()', sheet).value).toBe(ERROR.ARGS);

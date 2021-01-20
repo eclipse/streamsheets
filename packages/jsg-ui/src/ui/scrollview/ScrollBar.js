@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -40,24 +40,23 @@ class ScrollBar extends Widget {
 
 		let direction = isVertical === true ? Arrow.NORTH : Arrow.WEST;
 		this._arrowStart = new Arrow(direction, this);
-		this._arrowStart.getFormat().setFillColor(JSG.bkColorScroll);
+		this._arrowStart.getFormat().setFillColor(JSG.theme.scrollBars.arrowbk);
 		this._arrowStart.getFormat().setLineStyle(FormatAttributes.LineStyle.NONE);
 		this.add(this._arrowStart);
 
 		this._range = new Range(isVertical, this);
-		this._range.getFormat().setFillColor(JSG.bkColorScroll);
-		this._range.getFormat().setLineColor(JSG.bkColorScroll);
+		this._range.getFormat().setFillColor(JSG.theme.scrollBars.range);
 		this._range.getFormat().setLineStyle(FormatAttributes.LineStyle.NONE);
 		this.add(this._range);
 
 		direction = isVertical === true ? Arrow.SOUTH : Arrow.EAST;
 		this._arrowEnd = new Arrow(direction, this);
-		this._arrowEnd.getFormat().setFillColor(JSG.bkColorScroll);
+		this._arrowEnd.getFormat().setFillColor(JSG.theme.scrollBars.arrowbk);
 		this._arrowEnd.getFormat().setLineStyle(FormatAttributes.LineStyle.NONE);
 		this.add(this._arrowEnd);
 
 		this.setVisible(true);
-		this.getFormat().setFillColor('#eeeeee');
+		this.getFormat().setFillColor(JSG.theme.scrollBars.background);
 		this.getFormat().setLineStyle(FormatAttributes.LineStyle.NONE);
 
 		// NEW:

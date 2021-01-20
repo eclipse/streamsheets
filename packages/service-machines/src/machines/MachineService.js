@@ -50,11 +50,11 @@ const toMapObject = (arr, key = 'name') =>
 		return map;
 	}, {}) : {};
 
-const sheetDescriptor = ({ id, cells, names, graphs }) => ({
+const sheetDescriptor = ({ id, cells, names, graphs, namedCells, graphCells }) => ({
 	id,
 	cells: toMapObject(cells, 'reference'),
-	namedCells: toMapObject(names),
-	graphCells: toMapObject(graphs)
+	namedCells: names ? toMapObject(names) : namedCells,
+	graphCells: graphs ? toMapObject(graphs) : graphCells
 });
 
 module.exports = class MachineService extends MessagingService {

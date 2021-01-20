@@ -115,8 +115,10 @@ export class SettingsMenu extends React.Component {
 		this.props.setAppState({ openHelp: true });
 	};
 
-	showLicenseAgreement = (locale) => {
-		window.location.href = `/license_${locale}.pdf`;
+	showLicenseAgreement = () => {
+		const locale = this.props.locale || this.state.prevLocale || 'EN';
+		// window.location.href = `/license_${locale.toUpperCase()}.pdf`;
+		window.open(`/license_${locale.toUpperCase()}.pdf`);
 	}
 
 	logout = () => {

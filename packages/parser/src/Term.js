@@ -31,7 +31,7 @@ class Term {
 		// object, array, null => converted to string...
 		if (typeof val === 'number') {
 			return Term.fromNumber(val);
-		} 
+		}
 		if (typeof val === 'boolean') {
 			return Term.fromBoolean(val);
 		}
@@ -78,7 +78,7 @@ class Term {
 	// returns true if term value is only based on static operands, like string, bool, number...
 	// NOTE: UNDEF operand is treated as static too!!
 	get isStatic() {
-		// check for unary operators which might comes from general parsiing with negative numbers...
+		// check for unary operators which might comes from general parsing with negative numbers...
 		return (
 			!this.operand.isTypeOf(Operand.TYPE.REFERENCE) &&
 			(!this.operator || (this.operator.isTypeOf(Operation.TYPE.UNARY) && this.operator.symbol === '-'))

@@ -613,6 +613,10 @@ class Graphics {
 		return style;
 	}
 
+	getLineStyle(style) {
+		return this._lineStyle;
+	}
+
 	setLineShape(shape) {
 		this._lineShape = shape;
 	}
