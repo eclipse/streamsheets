@@ -664,6 +664,8 @@
 	"Setup.Skip": "Überspringen",
 	"Setup.LicenseAgreement.Download": "Herunterladen",
 	"Setup.LicenseAgreement.DownloadLicense": "AGBs",
+	"Setup.LicenseAgreement.DownloadLicenseDE": "AGBs (Deutsch)",
+	"Setup.LicenseAgreement.DownloadLicenseEN": "AGBs (Englisch)",
 	"Setup.LicenseAgreement.Page": "Seite {currentPage} von {totalPages}",
 	"Setup.LicenseAgreement.PreviousPage": "Vorherige Seite",
 	"Setup.LicenseAgreement.NextPage": "Nächste Seite",

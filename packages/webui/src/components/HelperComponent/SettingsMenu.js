@@ -255,11 +255,17 @@ export class SettingsMenu extends React.Component {
 						</ListItemIcon>
 						<ListItemText primary={<FormattedMessage id="Info" defaultMessage="Info" />}/>
 					</MenuItem>
-					<MenuItem dense onClick={this.showLicenseAgreement}>
+					<MenuItem dense onClick={() => this.showLicenseAgreement('DE')}>
 						<ListItemIcon>
 							<Assignment />
 						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicense" defaultMessage="Download license" />}/>
+						<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicenseDE" defaultMessage="Download license (English)" />}/>
+					</MenuItem>
+					<MenuItem dense onClick={() => this.showLicenseAgreement('EN')}>
+						<ListItemIcon>
+							<Assignment />
+						</ListItemIcon>
+						<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicenseEN" defaultMessage="Download license (German)" />}/>
 					</MenuItem>
 					<Divider />
 					<MenuItem dense onClick={this.logout}>
