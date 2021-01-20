@@ -27,20 +27,29 @@ const startCol = (sheet, rowidx) => {
 	const prerow = sheet._prerows[rowidx];
 	return prerow ? -prerow.length : 0;
 };
+const maxCol = (row) => (row == null ? 0 : row.length - 1);
+
 const State = {
 	READY: 1,
 	PAUSED: 4,
-	STOPPED: 8
+	STOPPED: 8,
+	INTTERUPTED: 16
 };
 
 class Cursor {
 	constructor(sheet) {
-		this.c = null;
-		this.r = sheet.settings.minrow;
 		this.sheet = sheet;
-		this.result = undefined;
-		this.changed = false;
-		this.isProcessed = false;
+		this.reset();
+		// this.c = null;
+		// this.r = sheet.settings.minrow;
+		// this.result = undefined;
+		// this.changed = false;
+		// this.maxRow = this.sheet._rows.length;
+		// this.maxCol = maxCol(this.sheet._rows[this.maxRow - 1]);
+	}
+
+	isProcessed() {
+		return this.c == null ? this.r > this.maxRow : this.r >= this.maxRow && this.c > this.maxCol;
 	}
 
 	reset() {
@@ -48,7 +57,8 @@ class Cursor {
 		this.r = this.sheet.settings.minrow;
 		this.result = undefined;
 		this.changed = false;
-		this.isProcessed = false;
+		this.maxRow = this.sheet._rows.length - 1;
+		this.maxCol = maxCol(this.sheet._rows[this.maxRow]);
 	}
 
 	setToIndex(index) {
@@ -70,11 +80,15 @@ class SheetProcessor {
 	get isHalted() {
 		return this.isPaused || this.isStopped;
 	}
+	// get isInterrupted() {
+	// 	return this._state === State.INTTERUPTED;
+	// }
 	get isPaused() {
 		return this._state === State.PAUSED;
 	}
 	get isProcessed() {
-		return this._cursor.isProcessed;
+		// return this._cursor.isProcessed;
+		return this._cursor.isProcessed();
 	}
 	get isReady() {
 		return this._state === State.READY;
@@ -87,6 +101,13 @@ class SheetProcessor {
 		this._cursor.setToIndex(index);
 	}
 
+	reset() {
+		this._cursor.reset();
+	}
+	// interrupt() {
+	// 	this._state = State.INTTERUPTED;
+	// 	this._cursor.changed = true;
+	// }
 	pause() {
 		this._state = State.PAUSED;
 		this._cursor.changed = true;
@@ -101,21 +122,22 @@ class SheetProcessor {
 	stop(retval) {
 		// this._state = State.READY;
 		this._state = State.STOPPED;
-		this._cursor.r = Number.MAX_SAFE_INTEGER;
+		this._cursor.c = this._cursor.maxCol + 1;
+		this._cursor.r = this._cursor.maxRow + 1;
 		this._cursor.changed = true;
 		this._cursor.result = retval;
-		this._cursor.isProcessed = true;
+		// this._cursor.isProcessed = true;
 	}
 	start() {
 		const cursor = this._cursor;
 		const sheet = cursor.sheet;
 		// rows might change during processing, but we are not dynamic to prevent endless loop
-		const last = sheet._rows.length;
+		// const last = sheet._rows.length;
 
 		this._process();
 
 		// on end of sheet
-		cursor.isProcessed = cursor.r >= last; // && (cursor.c == null || cursor.c >= lastcol))) {
+		// cursor.isProcessed = cursor.r >= last; // && (cursor.c == null || cursor.c >= lastcol))) {
 
 		// graph cells:
 		sheet.graphCells.evaluating = true;
@@ -158,7 +180,7 @@ class SheetProcessor {
 				if (cursor.changed) {
 					cursor.changed = false;
 					// break from row-loop if paused or if jump backward to prevent endless loop...
-					if (cursor.isBackward || this.isHalted) {
+					if (cursor.isBackward || this.isHalted) { // || this.isInterrupted) {
 						cursor.isBackward = false;
 						break;
 					}
