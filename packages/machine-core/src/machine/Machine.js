@@ -61,6 +61,10 @@ const DEF_CONF = {
  * @public
  */
 class Machine {
+	static get DEF_CYCLETIME() {
+		return DEF_CONF.settings.cycletime;
+	}
+
 	constructor() {
 		this._id = IdGenerator.generate();
 		this.namedCells = new NamedCells();
