@@ -102,7 +102,8 @@ class MessageHandler {
 	}
 
 	get isProcessed() {
-		return !this._message || (this._used && !this.hasNext());
+		return !this._message || !this.hasNext();
+		// return !this._message || (this._used && !this.hasNext());
 	}
 
 	get isRecursive() {
