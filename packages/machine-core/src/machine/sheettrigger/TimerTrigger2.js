@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const BaseTrigger2 = require('./BaseTrigger2');
-const { ManualCycle, TimerCycle } = require('./cycles');
+const { ManualStepCycle, RepeatUntilCycle, TimerCycle } = require('./cycles');
 
 const UNITS = {};
 UNITS.ms = 1;
@@ -36,81 +36,41 @@ const getStartInterval = (time) => {
 	return ms > now ? ms - now : 1;
 };
 
-class RepeatUntilCycle extends TimerCycle {
-
-	getCycleTime() {
-		return 1;
+class IntervalCycle extends TimerCycle {
+	activate() {
+		super.activate();
+		this.schedule();
 	}
-
-	onTrigger() {
-		this.trigger.streamsheet.stats.repeatsteps += 1;
-		this.trigger.streamsheet.triggerStep();	
-	}
-}
-class TimeIntervalCycle extends TimerCycle {
-	constructor(trigger, delay) {
-		super(trigger);
-		this.delay = delay;
-	}
-	start() {
-		if (this.delay) {
-			this.id = setTimeout(this.run, this.delay);
-		} else {
-			super.start();
-		}
-	}
-
 	getCycleTime() {
 		return this.trigger.interval * UNITS[this.trigger.intervalUnit];
 	}
-
-	onTrigger() {
+	step() {
 		this.trigger.streamsheet.stats.steps += 1;
 		if (this.trigger.isEndless) {
 			this.trigger.activeCycle = new RepeatUntilCycle(this.trigger, this);
 			this.trigger.activeCycle.run();
 		} else {
-			this.trigger.streamsheet.triggerStep();
+			this.trigger.processSheet();
 		}
 	}
 }
-class RandomIntervalCycle extends TimeIntervalCycle {
+class RandomIntervalCycle extends IntervalCycle {
 	getCycleTime() {
 		const interval = random(2 * this.trigger.interval);
 		return interval * UNITS[this.trigger.intervalUnit];
 	}
 }
-class RepeatUntilManualCycle extends ManualCycle {
-	onTrigger() {
-		if (!this.trigger.sheet.isPaused) {
-			this.trigger.streamsheet.stats.repeatsteps += 1;
-			this.trigger.streamsheet.triggerStep();
-		}
-	}
-}
-class ManualStepCycle extends ManualCycle {
-	step() {
-		this.trigger.streamsheet.stats.steps += 1;
-		if (this.trigger.isEndless) {
-			this.trigger.activeCycle = new RepeatUntilManualCycle(this.trigger, this);
-			this.trigger.activeCycle.step();
-		} else {
-			this.trigger.streamsheet.triggerStep();
-		}
-	}
-}
-
 
 const TIMER_DEF = {
 	interval: 500,
 	intervalUnit: 'ms'
 };
 
-
 class TimerTrigger2 extends BaseTrigger2 {
 	constructor(config = {}) {
 		super(Object.assign({}, TIMER_DEF, config));
-		this._activeCycle = new ManualStepCycle(this);
+		this.delayId = undefined;
+		this.activeCycle = new ManualStepCycle(this);
 	}
 
 	get interval() {
@@ -120,108 +80,54 @@ class TimerTrigger2 extends BaseTrigger2 {
 		return this.config.intervalUnit;
 	}
 
-	get activeCycle() {
-		return this._activeCycle;
-	}
-	set activeCycle(cycle) {
-		this._activeCycle.clear();
-		// TODO: dispose activeCycle?
-		// this._activeCycle.dispose();
-		this._activeCycle = cycle;
-	}
-	get isMachineStopped() {
-		const machine = this.streamsheet.machine;
-		return machine == null || !machine.isRunning;
-	}
-
-	dispose() {
-		this.activeCycle.dispose();
-		super.dispose();
+	clearDelay() {
+		if (this.delayId) {
+			clearTimeout(this.delayId);
+			this.delayId = undefined;
+		}
 	}
 
 	update(config = {}) {
-		Object.assign(this.config, config);
-		this.activeCycle.clear();
-		if (!this.sheet.isPaused) {
-			if (!this.sheet.isProcessed) this.streamsheet.triggerStep();
-			if (!this.isMachineStopped && !this.activeCycle.isManual) {
-				this.activeCycle = this.getIntervalCycle();
-				this.activeCycle.start();
-			}
+		const oldInterval = this.interval;
+		const oldIntervalUnit = this.intervalUnit;
+		super.update(config);
+		if (oldInterval !== this.interval || oldIntervalUnit !== this.intervalUnit) {
+			this.activeCycle.clear();
+			if (!this.isMachineStopped && !this.sheet.isPaused) this.activeCycle.schedule();
 		}
 	}
 
-	// MACHINE CONTROL METHODS
-	updateCycle() {
-		// TODO: not required anymore!! or is it?
+	getManualCycle() {
+		return new ManualStepCycle(this);
 	}
 
-	pause() {
-		// do not pause sheet! its done by functions only...
-		this.activeCycle.pause();
-	}
-
-	resume() {
-		// if we are not still paused by a function...
-		if (!this.sheet.isPaused) {
-			if (this.activeCycle.isManual) {
-				this.activeCycle = this.getIntervalCycle();
-				this.activeCycle.pause();
-			}
-			this.activeCycle.resume();
-			// maybe we have to finish step, if it was resumed during machine pause
-			if (!this.sheet.isProcessed) this.streamsheet.triggerStep();
-		}
+	getTimerCycle() {
+		return this.type === TYPE.TIME ? new IntervalCycle(this) : new RandomIntervalCycle(this);
 	}
 
 	start() {
+		super.start();
 		const delay = this.config.start ? getStartInterval(this.config.start) : undefined;
-		this.activeCycle = this.getIntervalCycle(delay);
-		this.activeCycle.start();
-	}
-
-	stop() {
-		this.stopProcessing();
-		return true;
+		// we run directly or after a specified delay...
+		if (delay) this.delayId = setTimeout(this.activeCycle.run, delay);
+		else this.activeCycle.run();
 	}
 
 	step(manual) {
-		if (manual) {
-			if (!this.activeCycle.isManual) this.activeCycle = new ManualStepCycle(this);
-			this.activeCycle.step();
-		}
+		// only handle manual steps
+		if (manual) super.step();
 	}
-	// ~
 
-	// SHEET CONTROL METHODS
-	pauseProcessing() {
-		this.activeCycle.pause();
-		this.sheet._pauseProcessing();
+	pause() {
+		this.clearDelay();
+		super.pause();
 	}
-	resumeProcessing(retval) {
-		// mark sheet as resumed
-		this.sheet._resumeProcessing(retval);
-		// finish current step
-		if (!this.sheet.isProcessed && (this.activeCycle.isManual || !this.isMachineStopped))
-			this.streamsheet.triggerStep();
-		// resume cycle if machine runs
-		if (!this.isMachineStopped) this.activeCycle.resume();
-	}
-	stopProcessing(retval) {
-		this.activeCycle.stop();
-		// TODO: review
-		// if (!this.activeCycle.isActive) {
-		// 	this.activeCycle.dispose();
-		// 	this.activeCycle = new ManualCycle(this);
-		// }
-		this.sheet._stopProcessing(retval);
-	}
-	// ~
-
-	getIntervalCycle(delay) {
-		return this.type === TYPE.TIME ? new TimeIntervalCycle(this, delay) : new RandomIntervalCycle(this, delay);
+	stop() {
+		this.clearDelay();
+		return super.stop();
 	}
 }
+
 TimerTrigger2.TYPE_RANDOM = TYPE.RANDOM;
 TimerTrigger2.TYPE_TIME = TYPE.TIME;
 

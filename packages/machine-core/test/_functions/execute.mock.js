@@ -19,18 +19,21 @@ const execute = (sheet, ...terms) => {
 		if (context.repetitions < 1) {
 			context.isResumed = true;
 			if (context.term.cell) context.term.cell.value = retval != null ? retval : true;
+			// console.log(`RESUME EXECUTE ${callingStreamSheet.name}`);
 			callingStreamSheet.resumeProcessing(retval);
 		} else {
 			context.repeatExecute(context, true);
 		}
 	};
 	const doExecute = (calledStreamSheet, pace) => (context, isRepeating) => {
-		// context.repeats += 1;
-		context.repetitions -= 1;
-		// calledStreamSheet.stats.executesteps += 1;
-		const message = context.msgdata ? new Message(context.msgdata) : context.message;
-		// console.log('TRIGGER EXECUTE');
-		calledStreamSheet.execute(context.resumeFn, message, pace, isRepeating); /* , context.repeats); */
+		setImmediate(() => {
+			// context.repeats += 1;
+			context.repetitions -= 1;
+			// calledStreamSheet.stats.executesteps += 1;
+			const message = context.msgdata ? new Message(context.msgdata) : context.message;
+			// console.log(`REPEAT EXECUTE OF ${calledStreamSheet.name} ( is processed ${calledStreamSheet.sheet.isProcessed})`);
+			calledStreamSheet.execute(context.resumeFn, message, pace, isRepeating); /* , context.repeats); */
+		});
 	};
 
 	if (sheet.isProcessing) {
@@ -64,6 +67,7 @@ const execute = (sheet, ...terms) => {
 			context.repeatExecute = doExecute(calledStreamSheet, pace);
 			// calledStreamSheet.stats.executesteps = 0;
 			// pass message only at beginning:
+			// console.log(`EXECUTE  ${calledStreamSheet.name}`);
 			context.repeatExecute(context);
 		}
 		return true;

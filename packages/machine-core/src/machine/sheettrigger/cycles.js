@@ -1,82 +1,48 @@
+/********************************************************************************
+ * Copyright (c) 2021 Cedalo AG
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ ********************************************************************************/
 class TriggerCycle {
 	constructor(trigger, parent) {
 		this.trigger = trigger;
 		this.parentcycle = parent;
-		this.run = this.run.bind(this);
 	}
 
-	get isActive() {
-		return false;
-	}
 	get isManual() {
 		return false;
 	}
 
+	dispose() {}
+
 	activate() {
-		// this.trigger.activeCycle = this;
-		// this.schedule();
+		this.trigger.activeCycle = this;
 	}
 
-	// TODO: review
-	dispose() {
-		this.clear();
-		if (this.parentcycle) this.parentcycle.dispose();
-	}
-
-	clear() {
-		return false;
-	}
+	clear() {}
+	
+	run() {}
 
 	schedule() {}
+
+	step() {}
 
 	stop() {
 		this.clear();
 		if (this.parentcycle) this.parentcycle.activate();
 	}
-
-	step() {
-	}
-	// TODO: rename
-	run() {
-		this.onTrigger();
-	}
-	onTrigger() {}
-
-
-	// TODO: review following functions => might not needed
-	pause() {
-		this.isPaused = true;
-		this.clear();
-	}
-	resume() {
-		if (this.isPaused) {
-			this.isPaused = false;
-			this.schedule();
-		}
-	}
-	start() {
-		this.isPaused = false;
-		this.run();
-	}
-	// ~~
 }
 
 class TimerCycle extends TriggerCycle {
 	constructor(trigger, parent) {
 		super(trigger, parent);
 		this.id = undefined;
-	}
-
-	getCycleTime() {
-		return 100;
-	}
-
-	get isActive() {
-		return this.id != null;
-	}
-
-	activate() {
-		this.schedule();
+		this.run = this.run.bind(this);
 	}
 
 	clear() {
@@ -87,14 +53,23 @@ class TimerCycle extends TriggerCycle {
 		}
 		return clearIt;
 	}
+
 	schedule() {
 		this.clear();
 		this.id = setTimeout(this.run, this.getCycleTime());
 	}
 
 	run() {
+		// schedule next cycle;
 		this.schedule();
-		this.onTrigger();
+		this.step();
+	}
+	step() {
+		this.trigger.processSheet();
+	}
+
+	getCycleTime() {
+		return 100;
 	}
 }
 
@@ -102,10 +77,67 @@ class ManualCycle extends TriggerCycle {
 	get isManual() {
 		return true;
 	}
+
+	run() {
+		this.step();
+	}
+}
+
+
+class RepeatUntilCycle extends TimerCycle {
+	getCycleTime() {
+		return 1;
+	}
+
+	run() {
+		this.schedule();
+		this.process();
+	}
+
+	process() {
+		this.trigger.streamsheet.stats.repeatsteps += 1;
+		// console.log('REPEAT UNTIL PROCESS');
+		this.trigger.processSheet();
+	}
+
+	step() {}
+}
+
+class ManualRepeatUntilCycle extends ManualCycle {
+	step() {
+		this.trigger.streamsheet.stats.repeatsteps += 1;
+		this.trigger.processSheet();
+	}	
+}
+class ManualStepCycle extends ManualCycle {
+	step() {
+		this.trigger.streamsheet.stats.steps += 1;
+		if (this.trigger.isEndless) {
+			this.trigger.activeCycle = new ManualRepeatUntilCycle(this.trigger, this);
+			this.trigger.activeCycle.run();
+		} else {
+			// console.log(`STEP ${this.trigger.streamsheet.name}`);
+			this.trigger.processSheet();
+		}
+	}
+}
+
+class NoOpCycle extends TriggerCycle {
+	constructor(trigger, manual) {
+		super(trigger);
+		this._isManual = !!manual;
+	}
+	get isManual() {
+		return this._isManual;
+	}
 }
 
 module.exports = {
 	ManualCycle,
+	ManualStepCycle,
+	NoOpCycle,
+	RepeatUntilCycle,
+	ManualRepeatUntilCycle,
 	TimerCycle,
 	TriggerCycle
 };

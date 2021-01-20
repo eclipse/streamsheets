@@ -71,6 +71,24 @@ describe('MachineTrigger', () => {
 				await machine.step();
 				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(6);
 			});
+			it('should execute sheet on start once and do again after stop & start', async () =>{
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
+				const machineMonitor = monitorMachine(machine);
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.start();
+				await machineMonitor.nextSteps(3);
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(2);
+				// once again after each stop/start
+				await machine.start();
+				await machineMonitor.nextSteps(3);
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(3);
+				await machine.start();
+				await machineMonitor.nextSteps(3);
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(4);
+			});
 			it('should execute sheet on machine start and repeat in endless mode', async () => {
 				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' });
 				const machineMonitor = monitorMachine(machine);
@@ -88,12 +106,37 @@ describe('MachineTrigger', () => {
 			});
 			it('should stop processing if returned from "repeat until..."', async () => {
 				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' });
+				const monitorS1 = monitorStreamSheet(s1);
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-				createCellAt('A2', { formula: 'if(mod(A1,10)=0,return(), false)' }, s1.sheet);
+				createCellAt('A2', { formula: 'if(mod(A1,10)=0,return(23), false)' }, s1.sheet);
 				await machine.start();
 				await wait(100);
 				await machine.stop();
+				expect(monitorS1.stats.steps).toBe(1);
+				expect(s1.sheet.cellAt('A2').value).toBe(23);
 				expect(s1.sheet.cellAt('A1').value).toBe(10);
+			});
+			it('should execute sheet on machine start "repeat until..." return() and do it again after stop & start', async () =>{
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' });
+				const monitorS1 = monitorStreamSheet(s1);
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				createCellAt('A2', { formula: 'if(mod(A1,10)=0,return(23), false)' }, s1.sheet);
+				await machine.start();
+				await wait(100);
+				await machine.stop();
+				expect(monitorS1.stats.steps).toBe(1);
+				expect(s1.sheet.cellAt('A2').value).toBe(23);
+				expect(s1.sheet.cellAt('A1').value).toBe(10);
+				// do it again after each stop/start
+				await machine.start();
+				await wait(100);
+				await machine.stop();
+				await machine.start();
+				await wait(100);
+				await machine.stop();
+				expect(monitorS1.stats.steps).toBe(1);
+				expect(s1.sheet.cellAt('A2').value).toBe(23);
+				expect(s1.sheet.cellAt('A1').value).toBe(30);
 			});
 			// DL-2467
 			it('should run an added streamsheet with continuously trigger directly if machine runs already', async () => {
@@ -202,9 +245,9 @@ describe('MachineTrigger', () => {
 			});
 		});
 	});
-	describe('machine stop trigger', () => {
+	describe.skip('machine stop trigger', () => {
 		describe('general behaviour', () => {
-			it('should execute sheet on machine stop', async () => {
+			it('should execute sheet on machine stop once', async () => {
 				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
 				const s2 = new StreamSheet()
 				const monitorS2 = monitorStreamSheet(s2);
@@ -226,6 +269,23 @@ describe('MachineTrigger', () => {
 				await machine.step();
 				expect(s1.sheet.cellAt('A1').value).toBe(2);
 				expect(s2.sheet.cellAt('B1').value).toBe(5);
+			});
+			it('should execute sheet on stop once and do it again after start & stop', async () =>{
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.start();
+				await machine.pause();
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.stop();
+				expect(machine.state).toBe(State.STOPPED);
+				// should only triggered once...
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
+				// do again several time...
+				await machine.start();
+				await machine.stop();
+				await machine.start();
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1').value).toBe(4);
 			});
 			it('should not process sheet on manual steps', async () => {
 				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });

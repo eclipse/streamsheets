@@ -91,8 +91,21 @@ describe('TimerTrigger', () => {
 				await machine.stop();
 				expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(3);
 			});
+			it('should stop processing in "repeat until..." mode if machine is stopped', async () => {
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.TIMER, interval: 50, repeat: 'endless' });
+				machine.cycletime = 10;
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.start();
+				await wait(50);
+				await machine.stop();
+				const s1A1Value = s1.sheet.cellAt('A1').value;
+				expect(s1A1Value).toBeGreaterThan(3);
+				await wait(50);
+				expect(s1A1Value).toBe(s1A1Value);
+			});
 			it('should ignore machine or interval trigger if running in "repeat until..." until resumed', async () => {
-				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.TIMER, interval: 500, repeat: 'endless' });
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.TIMER, interval: 300, repeat: 'endless' });
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				createCellAt('A2', { formula: 'if(mod(A1,5)=0,return(),false)' }, s1.sheet);
 				createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
@@ -105,7 +118,7 @@ describe('TimerTrigger', () => {
 				await wait(100);
 				expect(s1.sheet.cellAt('A1').value).toBe(5);
 				expect(s1.sheet.cellAt('A3').value).toBe(4);
-				await wait(550);
+				await wait(300);
 				expect(s1.sheet.cellAt('A1').value).toBe(10);
 				expect(s1.sheet.cellAt('A3').value).toBe(8);
 				await machine.stop();

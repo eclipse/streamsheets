@@ -161,7 +161,7 @@ describe('OnMessageTrigger', () => {
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(10);
 		});
-		test('with execute another sheet', async () => {
+		test.skip('with execute another sheet', async () => {
 			const { machine, s1 } = setup();
 			const s2 = new StreamSheet();
 			s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE });			

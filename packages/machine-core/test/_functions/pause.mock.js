@@ -20,6 +20,7 @@
 	clearPauseTimeout(context);
 	if (sheet.isPaused) {
 		context.resumeCounter += 1;
+		// console.log(`RESUME PAUSE OF ${sheet.streamsheet.name}`);
 		sheet.streamsheet.resumeProcessing();
 	}
  };

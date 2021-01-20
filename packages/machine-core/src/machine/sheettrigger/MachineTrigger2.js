@@ -9,89 +9,68 @@
  *
  ********************************************************************************/
 const BaseTrigger2 = require('./BaseTrigger2');
-const { ManualCycle, TimerCycle } = require('./cycles');
-
+const { ManualStepCycle, NoOpCycle, RepeatUntilCycle, TimerCycle } = require('./cycles');
 
 const TYPE = {
 	START: 'start',
 	STOP: 'stop'
 };
 
+const always = (val) => () => val;
+const toggle = (init) => {
+	let _toggle = init;
+	return () => {
+		const doIt = _toggle;
+		_toggle = !_toggle;
+		return doIt;
+	};
+};
+const once = (fn) => {
+	let didIt = false;
+	return (/* ...args */) => {
+		if (!didIt) {
+			didIt = true;
+			fn();
+		}
+	};
+};
 const preventStop = (doIt, streamsheet) => {
 	const machine = streamsheet && streamsheet.machine;
 	if (machine) machine.preventStop = doIt;
 };
-
-class RepeatUntilCycle extends TimerCycle {
-
-	getCycleTime() {
-		return 1;
-	}
-
-	onTrigger() {
-		this.trigger.streamsheet.stats.repeatsteps += 1;
-		this.trigger.streamsheet.triggerStep();	
-	}
-}
-class RepeatUntilOnStopCycle extends RepeatUntilCycle {
-	get isRepeatOnStop() {
+class OnStopRepeatUntilCycle extends RepeatUntilCycle {
+	get isOnStopRepeat() {
 		return true;
 	}
-
-	onTrigger() {
-		super.onTrigger();
+	step() {
 		preventStop(true, this.trigger.streamsheet);
 	}
-	// clear() {
-	// 	super.clear();
-	// 	// preventStop(false, this.trigger.streamsheet);
-	// }
+	process() {
+		super.process();
+		preventStop(true, this.trigger.streamsheet);
+	}
 }
 class MachineCycle extends TimerCycle {
 	constructor(trigger) {
 		super(trigger);
-		this.hasStepped = false;
+		// ensure we call step only once
+		this.step = once(this.step.bind(this));
 	}
-
-	start() {
+	run() {
 		this.step();
 	}
-
 	step() {
 		if (this.trigger.isEndless) {
 			preventStop(true, this.trigger.streamsheet);
 			this.trigger.streamsheet.stats.steps += 1;
 			this.trigger.activeCycle =
-			this.trigger.type === TYPE.STOP
-			? new RepeatUntilOnStopCycle(this.trigger, this)
-			: new RepeatUntilCycle(this.trigger, this);
+				this.trigger.type === TYPE.STOP
+					? new OnStopRepeatUntilCycle(this.trigger, this)
+					: new RepeatUntilCycle(this.trigger, this);
 			this.trigger.activeCycle.run();
-		} else if (!this.hasStepped) {
-			this.hasStepped = true;
+		} else {
 			this.trigger.streamsheet.stats.steps += 1;
-			this.trigger.streamsheet.triggerStep();
-		}
-	}
-}
-class RepeatUntilManualCycle extends ManualCycle {
-	step() {
-		if (!this.trigger.sheet.isPaused) {
-			this.trigger.streamsheet.stats.repeatsteps += 1;
-			this.trigger.streamsheet.triggerStep();
-		}
-	}
-}
-class StepManualCycle extends ManualCycle {
-	step() {
-		// no manual step on STOP trigger:
-		if(this.trigger.type === TYPE.START) {
-			this.trigger.streamsheet.stats.steps += 1;
-			if (this.trigger.isEndless) {
-				this.trigger.activeCycle = new RepeatUntilManualCycle(this.trigger, this);
-				this.trigger.activeCycle.step();
-			} else {
-				this.trigger.streamsheet.triggerStep();
-			}
+			this.trigger.processSheet();
 		}
 	}
 }
@@ -99,138 +78,35 @@ class StepManualCycle extends ManualCycle {
 class MachineTrigger2 extends BaseTrigger2 {
 	constructor(config = {}) {
 		super(config);
-		this.hasStopped = false;
-		this._activeCycle = new StepManualCycle(this);
+		this.runOnStop = this.type === TYPE.STOP ? toggle(true) : always(false);
+		this.activeCycle = this.getManualCycle();
 	}
 
-	get activeCycle() {
-		return this._activeCycle;
-	}
-	set activeCycle(cycle) {
-		this._activeCycle.clear();
-		// TODO: dispose activeCycle?
-		// this._activeCycle.dispose();
-		this._activeCycle = cycle;
+	getManualCycle() {
+		// ignore cycle switch if we are in endless run on stop trigger!
+		if (this.activeCycle.isOnStopRepeat) return this.activeCycle;
+		// allow manual stepping only on start trigger
+		return this.type === TYPE.START ? new ManualStepCycle(this) : new NoOpCycle(this, true);
 	}
 
-	get streamsheet() {
-		return super.streamsheet;
-	}
-
-	set streamsheet(streamsheet) {
-		super.streamsheet = streamsheet;
-		// switch to MachineCycle if machine runs already:
-		if (streamsheet.machine && streamsheet.machine.isRunning && this.type === TYPE.START) {
-			this.activeCycle = new MachineCycle(this);
-		}
-	}
-
-	get isMachineStopped() {
-		const machine = this.streamsheet.machine;
-		return machine == null || !machine.isRunning;
-	}
-
-	dispose() {
-		this.activeCycle.dispose();
-		super.dispose();
-	}
-
-	update(config = {}) {
-		this.config = Object.assign(this.config, config);
-		this.activeCycle.clear();
-		if (!this.sheet.isPaused) {
-			if (!this.sheet.isProcessed) this.streamsheet.triggerStep();
-			if (!this.isMachineStopped && this.isEndless) {
-				// TODO: REVIEW -> have to pass parent cycle!!
-				this.activeCycle = new RepeatUntilCycle(this);
-				this.activeCycle.start();
-			}
-		}
-	}
-
-	// MACHINE CONTROL METHODS
-	updateCycle() {
-		// TODO: not required anymore!! or is it?
-	}
-
-	pause() {
-		this.hasStopped = false;
-		// do not pause sheet! its done by functions only...
-		this.activeCycle.pause();
-	}
-
-	resume() {
-		this.hasStopped = false;
-		// if we are not still paused by a function...
-		if (!this.sheet.isPaused) {
-			if (this.activeCycle.isManual) {
-				// this.activeCycle = new ContinuousCycle(this);
-				this.activeCycle = new StepManualCycle(this);
-				this.activeCycle.pause();
-			}
-			this.activeCycle.resume();
-			// maybe we have to finish step, if it was resumed during machine pause
-			if (!this.sheet.isProcessed) this.streamsheet.triggerStep();
-		}
+	getTimerCycle() {
+		return new MachineCycle(this);
 	}
 
 	start() {
-		this.hasStopped = false;
-		if (this.type === TYPE.START) {
-			this.activeCycle = new MachineCycle(this);
-		}
+		this.activeCycle = this.type === TYPE.START ? this.getTimerCycle() : new NoOpCycle(this, false);
 	}
-
 	stop() {
-		if (this.type === TYPE.STOP && this.activeCycle.isManual) {
-			this.hasStopped = true;
-			this.activeCycle = new MachineCycle(this);
-			if (this.isEndless) {
-				return false;
-			}
-			this.activeCycle.start();
+		if (this.runOnStop()) {
+			this.activeCycle = this.getTimerCycle();
+			return false;
 		}
-		this.stopProcessing();
-		return true;
+		return super.stop();
 	}
 
 	step(manual) {
-		if (manual) {
-			if (!this.activeCycle.isManual) this.activeCycle = new StepManualCycle(this);
-			this.activeCycle.step();
-		} else if (!this.activeCycle.isManual) {
-			this.activeCycle.step();
-			preventStop(this.activeCycle.isRepeatOnStop, this.streamsheet);
-		}
-		// if (manual && !this.activeCycle.isManual) this.activeCycle = new StepManualCycle(this);
-		// else if (!manual && this.activeCycle.isManual) this.activeCycle = new MachineCycle(this);
+		super.step(manual);
 	}
-	// ~
-
-	// SHEET CONTROL METHODS
-	pauseProcessing() {
-		this.activeCycle.pause();
-		this.sheet._pauseProcessing();
-	}
-	resumeProcessing(retval) {
-		// mark sheet as resumed
-		this.sheet._resumeProcessing(retval);
-		// finish current step
-		if (!this.sheet.isProcessed && (this.activeCycle.isManual || !this.isMachineStopped))
-			this.streamsheet.triggerStep();
-		// resume cycle if machine runs
-		if (!this.isMachineStopped) this.activeCycle.resume();
-	}
-	stopProcessing(retval) {
-		this.activeCycle.stop();
-		// TODO: review
-		// if (!this.activeCycle.isActive) {
-		// 	this.activeCycle.dispose();
-		// 	this.activeCycle = new ManualCycle(this);
-		// }
-		this.sheet._stopProcessing(retval);
-	}
-	// ~
 }
 
 MachineTrigger2.TYPE_START = TYPE.START;
