@@ -33,9 +33,13 @@ const monitorMachine = (machine) => {
 };
 
 const monitorStreamSheet = (streamsheet) => {
-	const stats = { steps: 0, repeatsteps: 0 };
+	const stats = { steps: 0, repeatsteps: 0, processedsteps: 0 };
 	const messages = { attached: 0, detached: 0 };
-	const processedStepsMonitor = () => processedStepsMonitor.onProcessedStep();
+	// simply counts steps which marks sheet as fully processed -> never reset
+	const processedStepsMonitor = () => {
+		processedStepsMonitor.updateProcessedSteps();
+		processedStepsMonitor.onProcessedStep();
+	}
 	const stepsMonitor = () => {
 		stepsMonitor.updateStats();
 		stepsMonitor.onStep();
@@ -46,10 +50,14 @@ const monitorStreamSheet = (streamsheet) => {
 		stats.repeatsteps = streamsheet.stats.repeatsteps;
 	};
 	stepsMonitor.onStep = () => {};
+	processedStepsMonitor.updateProcessedSteps = () => { 
+		stats.processedsteps += 1;
+	};
 	processedStepsMonitor.onProcessedStep = () => {};
 
 	// do not care that callback is never unregistered
 	streamsheet.on('step', stepsMonitor);
+	streamsheet.on('processedStep', processedStepsMonitor);
 	// streamsheet.on('willStep', willStepsMonitor);
 	streamsheet.on('message_attached', () => { messages.attached += 1; });
 	streamsheet.on('message_detached', () => { 
@@ -66,11 +74,11 @@ const monitorStreamSheet = (streamsheet) => {
 				stepsMonitor.onStep = () => (streamsheet.stats.steps >= step ? resolve() : null);
 			});
 		},
-		// DOES NOT WORK!!!
+		// !!NOTE: if test has multiple sheets this resolves directly before other sheet resumes or processes!!
 		hasProcessedStep: (step) => {
 			return new Promise((resolve) => {
-				if (streamsheet.stats.steps >= step) resolve();
-				processedStepsMonitor.onProcessedStep = () => (streamsheet.stats.steps >= step ? resolve() : null);
+				if (stats.processedsteps >= step) resolve();
+				processedStepsMonitor.onProcessedStep = () => (stats.processedsteps >= step ? resolve() : null);
 			});
 		},
 		hasPassedRepeatStep: (step) => {
