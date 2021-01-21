@@ -514,7 +514,7 @@ export default class ChartSelectionFeedbackView extends View {
 							return;
 						}
 						const features = serie.map.mapData.features;
-						const mapInfo = item.getMapInfo(plotRect);
+						const mapInfo = item.getMapInfo(plotRect, serie, ref);
 						if (!mapInfo) {
 							return;
 						}

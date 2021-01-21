@@ -28,9 +28,9 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import JSG from '@cedalo/jsg-ui';
 
-// import { graphManager } from '../../GraphManager';
 import ColorComponent from './ColorComponent';
 import {Typography} from "@material-ui/core/es";
+import FormControl from "@material-ui/core/FormControl";
 // import { intl } from '../../helper/IntlGlobalProvider';
 
 let uniqueId = 0;
@@ -155,7 +155,7 @@ export default class ValueRangesDialog extends React.Component {
 	}
 
 	handleAdd = () => {
-		const formula = new JSG.Expression(0, `VALUERANGE("Label",A1,0,0)`);
+		const formula = new JSG.Expression(0, `VALUERANGE("Label",0,0,0)`);
 		formula.evaluate(this.props.sheetView.getItem());
 
 		this.state.ranges.push({
@@ -334,11 +334,19 @@ export default class ValueRangesDialog extends React.Component {
 												padding: '4px 10px 4px 10px',
 											}}
 										>
-											<ColorComponent
-												disableAlpha={false}
-												color={range.format.fillColorRGBA}
-												onChange={(color) => this.onColor(color, range)}
-											/>
+											<FormControl size="small" variant="outlined" margin="normal" style={{width: '120px' }}>
+												<ColorComponent
+													label={
+														<FormattedMessage
+															id="DialogValueRanges.color"
+															defaultMessage="Color"
+														/>
+													}
+													disableAlpha={false}
+													color={range.format.fillColorRGBA}
+													onChange={(color) => this.onColor(color, range)}
+												/>
+											</FormControl>
 										</TableCell>
 										<TableCell
 											key={6}

@@ -54,6 +54,8 @@ export default class ChartInfoFeedbackView extends View {
 		const bottom = new Point(item.plot.position.left, item.plot.position.bottom);
 		const left = new Point(item.plot.position.left, item.plot.position.top);
 		const right = new Point(item.plot.position.right, item.plot.position.top);
+		const circular = item.isCircular();
+		const map = item.isMap();
 
 		graphics.setFillColor(SelectionStyle.MARKER_FILL_COLOR);
 		graphics.setFillStyle(FormatAttributes.FillStyle.SOLID);
@@ -64,7 +66,7 @@ export default class ChartInfoFeedbackView extends View {
 		let x;
 		let y;
 
-		if (!item.isCircular()) {
+		if (circular) {
 			graphics.beginPath();
 			if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
 				x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.width;
@@ -108,7 +110,7 @@ export default class ChartInfoFeedbackView extends View {
 			const space = 400;
 			const margin = 100;
 			const height = 400;
-			const getLabel = (value, xValue, circular) => {
+			const getLabel = (value, xValue) => {
 				const { serie } = value;
 				const ref = item.getDataSourceInfo(serie.formula);
 
@@ -162,7 +164,6 @@ export default class ChartInfoFeedbackView extends View {
 			graphics.setFont();
 
 			const values = [];
-			const circular = item.isCircular();
 			let pieInfo;
 
 			if (circular) {
@@ -182,45 +183,24 @@ export default class ChartInfoFeedbackView extends View {
 					currentAngle += pieAngle;
 					index += 1;
 				}
-				switch (serie.type) {
-					case 'pie': {
-						const points = item.getEllipseSegmentPoints(
-							pieInfo.xc,
-							pieInfo.yc,
-							0,
-							0,
-							pieInfo.xRadius,
-							pieInfo.yRadius,
-							0,
-							currentAngle - pieAngle,
-							currentAngle,
-							2
-						);
-						if (points.length) {
-							x = top.x - item.plot.position.left + points[1].x;
-							y = top.y - item.plot.position.top + points[1].y;
-						}
-						break;
-					}
-					case 'doughnut': {
-						const points = item.getEllipseSegmentPoints(
-							pieInfo.xc,
-							pieInfo.yc,
-							pieInfo.xInnerRadius,
-							pieInfo.yInnerRadius,
-							pieInfo.xOuterRadius,
-							pieInfo.yOuterRadius,
-							0,
-							currentAngle - pieAngle,
-							currentAngle,
-							2
-						);
-						if (points.length) {
-							x = top.x - item.plot.position.left + points[1].x;
-							y = top.y - item.plot.position.top + points[1].y;
-						}
-						break;
-					}
+
+				const points = item.getEllipseSegmentPoints(
+					pieInfo.xc,
+					pieInfo.yc,
+					serie.type === 'pie' ? 0 : pieInfo.xInnerRadius,
+					serie.type === 'pie' ? 0 : pieInfo.yInnerRadius,
+					serie.type === 'pie' ? pieInfo.xRadius : pieInfo.xOuterRadius,
+					serie.type === 'pie' ? pieInfo.xRadius : pieInfo.yOuterRadius,
+					pieInfo.xRadius,
+					pieInfo.yRadius,
+					0,
+					currentAngle - pieAngle,
+					currentAngle,
+					2
+				);
+				if (points.length) {
+					x = top.x - item.plot.position.left + points[1].x;
+					y = top.y - item.plot.position.top + points[1].y;
 				}
 
 				if (item.getValue(ref, this.selection.dataPoints[0].pointIndex, value)) {
@@ -230,6 +210,25 @@ export default class ChartInfoFeedbackView extends View {
 					value.axes = item.getAxes(serie);
 					values.push(value);
 				}
+			} else if (map) {
+				const serie = item.series[this.selection.dataPoints[0].index];
+				const value = {};
+				const features = serie.map.mapData.features;
+				const ref = item.getDataSourceInfo(serie.formula);
+				const mapInfo = item.getMapInfo(plotRect, serie, ref);
+				if (!mapInfo) {
+					return;
+				}
+				value.seriesIndex = this.selection.dataPoints[0].index;
+				value.index = this.selection.dataPoints[0].pointIndex;
+				value.serie = serie;
+				value.axes = item.getAxes(serie);
+				value.x = this.selection.dataPoints[0].x;
+				value.y = this.selection.dataPoints[0].y;
+				values.push(value);
+				const pt = item.getFeatureCenter(features[value.index]);
+				x = mapInfo.xOff + (pt.x - mapInfo.bounds.xMin) * mapInfo.scale;
+				y = mapInfo.yOff + (mapInfo.bounds.yMax - pt.y) * mapInfo.scale;
 			} else {
 				item.yAxes.forEach((axis) => {
 					if (axis.categories) {
