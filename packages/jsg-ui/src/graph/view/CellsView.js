@@ -178,6 +178,8 @@ export default class CellsView extends NodeView {
 		});
 		graphics.stroke();
 
+		graphics.setLineCap('square');
+
 		// draw borders
 		visibleColumnsInfo.forEach((columnInfo) => {
 			Object.entries(columnInfo.leftBorders).forEach(([color, value]) => {
@@ -220,6 +222,7 @@ export default class CellsView extends NodeView {
 				});
 			});
 		});
+		graphics.setLineCap('butt');
 	}
 
 	getFormattedValueFromFunction(graphics, data, result, availableWidth) {
