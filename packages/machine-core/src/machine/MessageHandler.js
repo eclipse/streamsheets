@@ -102,8 +102,8 @@ class MessageHandler {
 	}
 
 	get isProcessed() {
-		return !this._message || !this.hasNext();
-		// return !this._message || (this._used && !this.hasNext());
+		// return !this._message || !this.hasNext();
+		return !this._message || (this._used && !this.hasNext());
 	}
 
 	get isRecursive() {
@@ -148,9 +148,9 @@ class MessageHandler {
 
 	next() {
 		const nxtdata =
-			this.isEnabled && this._hasLoop && this._index < this._stack.length
-				? this._stack[this._index].value
-				: undefined;
+		this.isEnabled && this._hasLoop && this._index < this._stack.length
+		? this._stack[this._index].value
+		: undefined;
 		if (nxtdata !== undefined) this._index = Math.min(this._index + 1, this._stack.length);		
 		this._used = true;
 		return nxtdata;
