@@ -163,17 +163,14 @@ module.exports = class Sheet {
 		return json;
 	}
 
-	get isHalted() {
-		return this.processor.isHalted;
-	}
-	// get isInterrupted() {
-	// 	return this.processor.isInterrupted;
-	// }
 	get isPaused() {
 		return this.processor.isPaused;
 	}
 	get isProcessed() {
 		return this.processor.isProcessed;
+	}
+	get isNotFullyProcessed() {
+		return this.processor.isStarted && !this.processor.isProcessed;
 	}
 	get isProcessing() {
 		// return this.processor.isProcessing || this._forceExecution;
@@ -181,9 +178,6 @@ module.exports = class Sheet {
 	}
 	get isReady() {
 		return this.processor.isReady;
-	}
-	get isStopped() {
-		return this.processor.isStopped;
 	}
 
 	get machine() {
