@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 Cedalo AG
+ * Copyright (c) 2021 Cedalo AG
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 const BaseTrigger = require('./BaseTrigger');
+const { ManualStepCycle, RepeatUntilCycle, TimerCycle } = require('./cycles');
 
 const UNITS = {};
 UNITS.ms = 1;
@@ -16,6 +17,11 @@ UNITS.s = 1000 * UNITS.ms;
 UNITS.m = 60 * UNITS.s;
 UNITS.h = 60 * UNITS.m;
 UNITS.d = 24 * UNITS.h;
+
+const TYPE = {
+	RANDOM: 'random',
+	TIME: 'time'
+};
 
 const parseTime = (time) => {
 	const ms = Date.parse(time);
@@ -29,41 +35,42 @@ const getStartInterval = (time) => {
 	const ms = parseTime(time) || now;
 	return ms > now ? ms - now : 1;
 };
-const getInterval = (config) => {
-	const interval = config.type === 'random' ? random(2 * config.interval) : config.interval;
-	return interval * UNITS[config.intervalUnit];
-};
-const clearTriggerInterval = (trigger) => {
-	if (trigger._intervalId != null) {
-		clearInterval(trigger._intervalId);
-		trigger._intervalId = undefined;
-	}
-};
-const registerTriggerInterval = (trigger, timeout = 1) => {
-	clearTriggerInterval(trigger);
-	// setInterval doesn't work well with random, so use setTimeout
-	trigger._intervalId = setTimeout(trigger._intervalTrigger, timeout);
-};
 
+class IntervalCycle extends TimerCycle {
+	activate() {
+		super.activate();
+		this.schedule();
+	}
+	getCycleTime() {
+		return this.trigger.interval * UNITS[this.trigger.intervalUnit];
+	}
+	step() {
+		this.trigger.streamsheet.stats.steps += 1;
+		if (this.trigger.isEndless) {
+			this.trigger.activeCycle = new RepeatUntilCycle(this.trigger, this);
+			this.trigger.activeCycle.run();
+		} else {
+			this.trigger.processSheet();
+		}
+	}
+}
+class RandomIntervalCycle extends IntervalCycle {
+	getCycleTime() {
+		const interval = random(2 * this.trigger.interval);
+		return interval * UNITS[this.trigger.intervalUnit];
+	}
+}
 
 const TIMER_DEF = {
 	interval: 500,
 	intervalUnit: 'ms'
 };
 
-
 class TimerTrigger extends BaseTrigger {
-	constructor(config) {
+	constructor(config = {}) {
 		super(Object.assign({}, TIMER_DEF, config));
-		this._intervalId = undefined;
-		this._intervalTrigger = this._intervalTrigger.bind(this);
-	}
-
-	update(config = {}) {
-		const oldInterval = getInterval(this.config);
-		Object.assign(this.config, config);
-		const newInterval = getInterval(this.config);
-		if (newInterval !== oldInterval) registerTriggerInterval(this, newInterval);
+		this.delayId = undefined;
+		this.activeCycle = new ManualStepCycle(this);
 	}
 
 	get interval() {
@@ -73,32 +80,55 @@ class TimerTrigger extends BaseTrigger {
 		return this.config.intervalUnit;
 	}
 
-	step(manual) {
-		if (manual) this.trigger();
-	}
-	start() {
-		if (this.config.start) registerTriggerInterval(this, getStartInterval(this.config.start));
-		else this._intervalTrigger();
-	}
-	stop() {
-		clearTriggerInterval(this);
-		return super.stop();
-	}
-	pause() {
-		clearTriggerInterval(this);
-		super.pause();
-	}
-	resume() {
-		registerTriggerInterval(this, getInterval(this.config));
-		super.resume();
+	clearDelay() {
+		if (this.delayId) {
+			clearTimeout(this.delayId);
+			this.delayId = undefined;
+		}
 	}
 
-	_intervalTrigger() {
-		registerTriggerInterval(this, getInterval(this.config));
-		this.trigger();
+	update(config = {}) {
+		const oldInterval = this.interval;
+		const oldIntervalUnit = this.intervalUnit;
+		super.update(config);
+		if (oldInterval !== this.interval || oldIntervalUnit !== this.intervalUnit) {
+			this.activeCycle.clear();
+			if (!this.isMachineStopped && !this.sheet.isPaused) this.activeCycle.schedule();
+		}
+	}
+
+	getManualCycle() {
+		return new ManualStepCycle(this);
+	}
+
+	getTimerCycle() {
+		return this.type === TYPE.TIME ? new IntervalCycle(this) : new RandomIntervalCycle(this);
+	}
+
+	start() {
+		super.start();
+		const delay = this.config.start ? getStartInterval(this.config.start) : undefined;
+		// we run directly or after a specified delay...
+		if (delay) this.delayId = setTimeout(this.activeCycle.run, delay);
+		else this.activeCycle.run();
+	}
+
+	step(manual) {
+		// only handle manual steps
+		if (manual) super.step(manual);
+	}
+
+	pause() {
+		this.clearDelay();
+		super.pause();
+	}
+	stop() {
+		this.clearDelay();
+		return super.stop();
 	}
 }
-TimerTrigger.TYPE_RANDOM = 'random';
-TimerTrigger.TYPE_TIME = 'time';
+
+TimerTrigger.TYPE_RANDOM = TYPE.RANDOM;
+TimerTrigger.TYPE_TIME = TYPE.TIME;
 
 module.exports = TimerTrigger;

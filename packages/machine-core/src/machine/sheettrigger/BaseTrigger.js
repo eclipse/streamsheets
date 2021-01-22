@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 Cedalo AG
+ * Copyright (c) 2021 Cedalo AG
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -8,34 +8,23 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const clearTrigger = (trigger) => {
-	const clearIt = trigger._stepId != null;
-	if (clearIt) {
-		clearImmediate(trigger._stepId);
-		trigger._stepId = undefined;
-	}
-	return clearIt;
-};
+const { NoOpCycle } = require('./cycles');
 
-const repeatTrigger = (trigger) => {
-	clearTrigger(trigger);
-	trigger._stepId = setImmediate(trigger._repeatStep);
-};
+
 const DEF_CONF = {
 	repeat: 'once'
 };
 
+
 class BaseTrigger {
 	constructor(config = {}) {
 		this.config = Object.assign({}, DEF_CONF, config);
-		// to prevent processing on machine resume if sheet is stopped, e.g. by return()
-		// this.isStopped = false;
-		// to prevent 2x resume in same step! => happens with execute in switched order
-		this.isResumed = false;
-		this.isManualStep = false;
-		this._stepId = undefined;
+		this._activeCycle = new NoOpCycle(this, true);
 		this._streamsheet = undefined;
-		this._repeatStep = this._repeatStep.bind(this);
+		// tmp. only:
+		this._isStarted = false;
+		// flag to prevent processing twice on manual stepping if this comes before triggering sheet
+		// this._hasTriggered = false;
 	}
 
 	toJSON() {
@@ -46,12 +35,32 @@ class BaseTrigger {
 		return this.config.type;
 	}
 
+	get activeCycle() {
+		return this._activeCycle;
+	}
+
+	set activeCycle(cycle) {
+		if (cycle !== this._activeCycle) {
+			this._activeCycle.clear();
+			this._activeCycle = cycle;
+		}
+	}
+
 	get isEndless() {
 		return this.config.repeat === 'endless';
 	}
 
+	get isMachineStopped() {
+		const machine = this._streamsheet.machine;
+		return machine == null || !machine.isRunning;
+	}
+
 	get sheet() {
 		return this._streamsheet.sheet;
+	}
+
+	get streamsheet() {
+		return this._streamsheet;
 	}
 
 	set streamsheet(streamsheet) {
@@ -60,108 +69,124 @@ class BaseTrigger {
 
 	// called by streamsheet. signals that it will be removed. trigger should perform clean up here...
 	dispose() {
+		this.activeCycle.dispose();
+		this.activeCycle = new NoOpCycle(this, true);
 		if (this.sheet.isPaused) this.resumeProcessing();
-		this.stopProcessing();
+		// this.stopProcessing();
 		this._streamsheet = undefined;
 	}
 
+	// update only called if config might has changed! we have same trigger
 	update(config = {}) {
+		const hadEndless = this.isEndless;
 		this.config = Object.assign(this.config, config);
-		if (!this.isEndless && clearTrigger(this)) this.resume();
-	}
-
-	// CONTROL METHODS
-	pause() {
-		clearTrigger(this);
-	}
-
-	resume() { // called by machine resume, i.e. from pause to start
-		// if sheet is not stopped or paused by function 
-		// if (!this.isStopped && !this.sheet.isPaused) {
-		if (!this.sheet.isHalted) {
-			if (this.isEndless) this._finishRepeatStep();
-			else this._finishStep();
+		if (hadEndless !== this.isEndless) {
+			// stop running in endless mode
+			this.activeCycle.stop();
 		}
-		// this.isStopped = false;
+	}
+
+	getManualCycle() {
+		return new NoOpCycle(this, true);
+	}
+	getTimerCycle() {
+		return new NoOpCycle(this, false);
+	}
+
+	// MACHINE CONTROL METHODS
+	pause() {
+		// do not pause sheet process => should be done by functions only
+		// this.sheet._pauseProcessing(); // _interruptProcessing();
+		this.activeCycle.clear();
+	}
+
+	resume() {
+		// ignore if sheet is still paused by function
+		if (!this.sheet.isPaused) {
+			// console.log(`RESUME TRIGGER ${this.streamsheet.name}`);
+			// switch to timer cycle:
+			if (this.activeCycle.isManual) this.activeCycle = this.getTimerCycle();
+			// schedule next cycle:
+			this.activeCycle.schedule();
+			// go on with current step:
+			if (this._isStarted  && this.sheet.isNotFullyProcessed) {
+				// console.log(`RESUME ${this.streamsheet.name}`);
+				this.sheet._resumeProcessing();
+				this.processSheet();
+			}
+			this._isStarted = false;
+		}
 	}
 
 	start() {
-		// reset stats?
+		this._isStarted = true;
+		// console.log(`=== START ${this.streamsheet.name} ===`)
+		if (this.activeCycle.isManual) this.activeCycle = this.getTimerCycle();
 	}
+
 	stop() {
-		this.stopProcessing();
+		// console.log(`=== STOP ${this.streamsheet.name} ===`)
+		// clear instead of stop to not trigger possible resume
+		this.activeCycle.clear();
+		this.sheet._stopProcessing();
+		// important! this forces stop/clear if a timer-cycle (e.g. activated parent) is still active...
+		if (!this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
 		return true;
 	}
-	stopProcessing(retval) {
-		clearTrigger(this);
-		// this.isStopped = true;
-		this._streamsheet.stats.repeatsteps = 0;
-		this.sheet._stopProcessing(retval);
+
+	step(manual) {
+		if (manual) {
+			if (!this.activeCycle.isManual) {
+				this.activeCycle = this.getManualCycle();
+			}
+			// sheet might not fully processed due to pause[Processing]/resume[Processing]
+			if (this.sheet.isNotFullyProcessed) {
+				this.processSheet();
+			}
+		} 
+		// if sheet is not paused by function it might be by machine...
+		if (!this.sheet.isPaused && (!this.isMachineStopped || (this.activeCycle.isManual))) { // && !this._hasTriggered))) {
+			// console.log(`STEP ${this.streamsheet.name}`);
+			this.activeCycle.step();
+			// console.log(`DONE STEP ${this.streamsheet.name}`);
+		}
 	}
+	// –
+
+	// SHEET CONTROL METHODS
 	pauseProcessing() {
-		clearTrigger(this);
+		this.activeCycle.clear();
 		this.sheet._pauseProcessing();
 	}
 	resumeProcessing(retval) {
-		if (this.sheet.isPaused) {
-			this.isResumed = true;
-			this.sheet._resumeProcessing(retval);
-			if (!this.isManualStep && this.isEndless) this._finishRepeatStep();
-			else this._finishStep();
+		// mark sheet as resumed and finish current step
+		this.sheet._resumeProcessing(retval);
+		// resume cycle if machine runs
+		if (!this.isMachineStopped || this.activeCycle.isManual) {
+			this.activeCycle.resume();
 		}
 	}
-	_finishStep() {
-		if (!this.sheet.isProcessed) this._streamsheet.triggerStep();
+	stopProcessing(retval) {
+		this.sheet._stopProcessing(retval);
+		this.activeCycle.stop();
 	}
-	_finishRepeatStep() {
-		// if (!this.sheet.isProcessed) this._streamsheet.triggerStep();
-		this._finishStep();
-		if (!this.sheet.isPaused) repeatTrigger(this);
-	}
+	// ~
 
+	// TODO: REVIEW -> which of following methods still needed?
+	processSheet() {
+		const useNextMessage = this._streamsheet.isMessageProcessed() && (this.sheet.isReady || this.sheet.isProcessed);
+		// this._hasTriggered = true;
+		this._streamsheet.process(useNextMessage);
+		// reset if finished
+		// if (this.sheet.isProcessed) {
+		// 	this.sheet.processor.reset();
+		// }
+	}
 	preStep(manual) {
-		this.isResumed = false;
-		this.isManualStep = manual;
+		// this._hasTriggered = false;
 	}
-	step(/* manual */) {}
-	postStep(/* manual */) {
-		this.isManualStep = false;
-	}
-
-	_startRepeat() {
-		repeatTrigger(this);
-		this._streamsheet.stats.steps += 1;
-		// on repeat start we do a normal cycle!
-		this.doCycleStep();
-	}
-	_repeatStep() {
-		repeatTrigger(this);
-		// trigger step afterwards, because it might clears current scheduled one!!!
-		this.doRepeatStep();
-	}
-	trigger() {
-		if (!this.isResumed && this._stepId == null) {
-			// do not start repetition again if isPaused by function!
-			if (!this.isManualStep && this.isEndless && !this.sheet.isPaused) this._startRepeat();
-			else this.doCycleStep();
-		}
-	}
-	doCycleStep() {
-		// we come here on manual step for repeating too, so:
-		if (!this.sheet.isPaused) {
-			if (this.isEndless) {
-				this._streamsheet.stats.repeatsteps += 1;
-				if (this.isManualStep) this._streamsheet.stats.steps += 1;
-			} else {
-				this._streamsheet.stats.steps += 1;
-			}
-		}
-		this._streamsheet.triggerStep();
-	}
-	doRepeatStep() {
-		this._streamsheet.stats.repeatsteps += 1;
-		this._streamsheet.triggerStep();
-	}
+	postStep(/* manual */) {}
+	// ~
 }
 
 module.exports = BaseTrigger;

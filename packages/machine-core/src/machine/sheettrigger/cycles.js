@@ -28,9 +28,19 @@ class TriggerCycle {
 	
 	run() {}
 
+	resume() {
+		this.schedule();
+		// finish current step
+		if (this.trigger.sheet.isNotFullyProcessed) {
+			this.trigger.processSheet();
+		}
+	}
+
 	schedule() {}
 
-	step() {}
+	step() {
+		return undefined;
+	}
 
 	stop() {
 		this.clear();
@@ -100,7 +110,9 @@ class RepeatUntilCycle extends TimerCycle {
 		this.trigger.processSheet();
 	}
 
-	step() {}
+	step() {
+		return undefined;
+	}
 }
 
 class ManualRepeatUntilCycle extends ManualCycle {
