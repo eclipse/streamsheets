@@ -15,8 +15,8 @@ const loopIndices = (sheet /* , ...terms */) => {
 			context.initialized = true;
 			context.result = [];
 		}
-		// const loopIndex = sheet.streamsheet.getLoopIndex();
-		const loopIndex = sheet.streamsheet._msgHandler._index;
+		const loopIndex = sheet.streamsheet.getLoopIndex();
+		// const loopIndex = sheet.streamsheet._msgHandler._index;
 		context.result.push(loopIndex);
 	}
 	return context.result ?  context.result.join(',') : '';
