@@ -180,7 +180,6 @@ class StreamSheet {
 	setMessageProcessed() {
 		this._msgHandler.setProcessed();
 	}
-
 	getLoopPath() {
 		return this._msgHandler.path;
 	}
@@ -356,6 +355,7 @@ class StreamSheet {
 	}
 	step(manual) {
 		this.trigger.step(manual);
+		// console.log(`DONE STEP ${this.name}`);
 	}
 	postStep(manual) {
 		this.trigger.postStep(manual);
@@ -375,12 +375,12 @@ class StreamSheet {
 	// }
 
 	// called by sheet functions:
-	execute(resumeFn, message, pace, isRepeating) {
+	execute(resumeFn, message, pace, repetitions) {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
 			// message = selector ? this.inbox.find(selector) : message;
 			// attach message?
-			if (message) this._attachExecuteMessage(message);
-			this.trigger.execute(resumeFn, pace, isRepeating);
+			// if (message) this._attachExecuteMessage(message);
+			this.trigger.execute(resumeFn, pace, repetitions, message);
 			return true;
 		}
 		if (resumeFn) resumeFn();
@@ -409,18 +409,18 @@ class StreamSheet {
 	}	
 	resumeProcessing(retval) {
 		this.notifyOnce.reset();
-		const wasProcessed = this.sheet.isProcessed;
+		const hasProcessed = this.sheet.isProcessed;
 		// console.log(`RESUME PROCESSING STEP ${this.name}`);
 		this.trigger.resumeProcessing(retval);
 		// need this to catch the case when we resume on last cell
-		if (this.sheet.isProcessed && !wasProcessed) {
+		if (this.sheet.isProcessed && !hasProcessed) {
 			if (this.sheet.isProcessed && !this.trigger.isEndless) {
 				this._msgHandler.next();
 			}
 
 		// 	console.log(`RESUME PROCESSED STEP ${this.name}`);
-		// 	// this._emitter.emit('processedStep', this);
-			this.notifyOnce.event('processedStep', this);
+		// 	// this._emitter.emit('finishedStep', this);
+			this.notifyOnce.event('finishedStep', this);
 		}
 		// console.log(`DONE RESUME PROCESSING STEP ${this.name}`);
 	}
@@ -431,9 +431,9 @@ class StreamSheet {
 		this.triggerStep(useNextMessage);
 		if (this.sheet.isProcessed) {
 			// console.log(`PROCESSED STEP ${this.name}`);
-			// this._emitter.emit('processedStep', this);
-			this.notifyOnce.force().event('processedStep', this);
-			// this.notifyOnce.event('processedStep', this);
+			// this._emitter.emit('finishedStep', this);
+			this.notifyOnce.force().event('finishedStep', this);
+			// this.notifyOnce.event('finishedStep', this);
 		}
 		// console.log(`DONE STEP ${this.name}`);
 	}
@@ -449,6 +449,7 @@ class StreamSheet {
 		// 	console.log(`sheet is processed? ${this.sheet.isProcessed}`);
 		// }
 		this.sheet.getDrawings().removeAll();
+		this._msgHandler._used = !!this._msgHandler.message;
 		this.sheet._startProcessing();
 		if (!isMarkedAsProcessed(this.triggerStep, this.id)) {
 			markAsProcessed(this.triggerStep, this.id, true);
@@ -458,19 +459,19 @@ class StreamSheet {
 			}
 			this._detachMessage();
 			this._emitter.emit('step', this);
-			// if (this.sheet.isProcessed) this._emitter.emit('processedStep', this);
+			// if (this.sheet.isProcessed) this._emitter.emit('finishedStep', this);
 		// } else {
 		// 	debugger;
 		}
 	}
 	_attachNextMessage() {
-				// if (this._msgHandler.isProcessed) {
-			const currmsg = this._msgHandler.message;
-			if (currmsg && this.inbox.size > 1) {
-				this.inbox.pop(currmsg.id);
-				this._msgHandler.message = undefined;
-			}
-		// }
+		// if (this._msgHandler.isProcessed) {
+		const currmsg = this._msgHandler.message;
+		if (currmsg && this.inbox.size > 1) {
+			this.inbox.pop(currmsg.id);
+			this._msgHandler.message = undefined;
+		}
+	// }
 		if (!this._msgHandler.message) {
 			this._attachMessage(this.inbox.peek());
 		}
@@ -488,12 +489,14 @@ class StreamSheet {
 		if (this._msgHandler.isProcessed) {
 			// console.log('ATTACH EXECUTE MESSAGE');
 			const currmsg = this._msgHandler.message;
-			if (message === currmsg) this._msgHandler.reset();
+			if (message === currmsg) {
+				this._msgHandler.reset();
+			} 
 			else {
 				if (currmsg) this.inbox.pop(currmsg.id);
 				this.inbox.put(message);
 				this._attachMessage(message);
-			} 
+			}
 		}
 	}
 	_detachMessage() {
