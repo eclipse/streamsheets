@@ -63,6 +63,7 @@ export default class ChartInfoFeedbackView extends View {
 		graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
 
 		const plotRect = item.plot.position;
+		let mapInfo;
 		let x;
 		let y;
 
@@ -123,6 +124,11 @@ export default class ChartInfoFeedbackView extends View {
 						axis = value.axes.x;
 						label = item.getLabel(ref, axis, Math.floor(value.x));
 						label = `${label}: ${item.formatNumber(value.y, 'General')}`;
+					}
+				} else if (map && xValue) {
+					if (value.x >= 0 && value.x < serie.map.mapData.features.length) {
+						const feature = serie.map.mapData.features[value.x];
+						label = feature.properties[serie.map.label];
 					}
 				} else {
 					if (xValue) {
@@ -215,7 +221,7 @@ export default class ChartInfoFeedbackView extends View {
 				const value = {};
 				const features = serie.map.mapData.features;
 				const ref = item.getDataSourceInfo(serie.formula);
-				const mapInfo = item.getMapInfo(plotRect, serie, ref);
+				mapInfo = item.getMapInfo(plotRect, serie, ref);
 				if (!mapInfo) {
 					return;
 				}

@@ -17,6 +17,8 @@ import {
 	Rectangle,
 	TextFormatAttributes,
 	ChartRect,
+	Selection,
+	CellRange,
 	FormatAttributes
 } from '@cedalo/jsg-core';
 
@@ -520,16 +522,33 @@ export default class ChartSelectionFeedbackView extends View {
 						}
 
 						const dataRect = new ChartRect();
+						const sheet = ref.y.range._worksheet;
+						const sel = new Selection(sheet);
+						sel.setAt(0, new CellRange(sheet, 0, 0));
 
 						features.forEach((feature, pointIndex) => {
 							if (selection.element === 'series' || pointIndex === selection.pointIndex) {
-								if (feature.geometry.radius !== undefined) {
+								if (feature.geometry.type === 'Point' || mapInfo.dispChart) {
+									const mapIndex = item.findMapIndex(feature.properties, serie, mapInfo);
+									let radius;
+									if (mapInfo.dispChart) {
+										if (mapIndex !== -1) {
+											radius = item.getMapRadius(serie, sel, sheet, ref, mapIndex, mapInfo);
+										}
+									} else if (feature.geometry.type === 'Point') {
+										radius = serie.marker.size * 100;
+										if (mapInfo.dispRadius && mapIndex !== -1 && item.getValue(ref, mapIndex, value)) {
+											radius = value.y / item.yAxes[0].scale.max * serie.marker.size * 100;
+										}
+									}
+
+
 									const ptCenter = item.getFeatureCenter(feature);
 									dataRect.left = mapInfo.xOff + (ptCenter.x - mapInfo.bounds.xMin) * mapInfo.scale;
 									dataRect.top = mapInfo.yOff + (mapInfo.bounds.yMax - ptCenter.y) * mapInfo.scale;
 									dataRect.right = mapInfo.xOff + (ptCenter.x - mapInfo.bounds.xMin) * mapInfo.scale;
 									dataRect.bottom = mapInfo.yOff + (mapInfo.bounds.yMax - ptCenter.y) * mapInfo.scale;
-									dataRect.expand(feature.geometry.radius);
+									dataRect.expand(radius);
 									drawMarkerRect(dataRect);
 								} else {
 									// else use polygon
@@ -537,22 +556,34 @@ export default class ChartSelectionFeedbackView extends View {
 									const currentPt = {};
 									rect.width = 100;
 									rect.height = 100;
+									if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
+										graphics.setFillColor('#777777');
+										graphics.setTransparency(70);
+									}
 									item.enumerateMapCoordinates(feature.geometry, (coordinate, idx, final) => {
-										currentPt.x = mapInfo.xOff + (coordinate[0] - mapInfo.bounds.xMin) * mapInfo.scale - 50;
-										currentPt.y = mapInfo.yOff + (mapInfo.bounds.yMax - coordinate[1]) * mapInfo.scale - 50;
+										currentPt.x = mapInfo.xOff + (coordinate[0] - mapInfo.bounds.xMin) * mapInfo.scale;
+										currentPt.y = mapInfo.yOff + (mapInfo.bounds.yMax - coordinate[1]) * mapInfo.scale;
 
-										if (!lastPt.x || final || MathUtils.getLineLength(lastPt, currentPt) > 800) {
-											rect.x = currentPt.x;
-											rect.y = currentPt.y;
+										if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
+											if (idx === 0) {
+												graphics.beginPath();
+												graphics.moveTo(currentPt.x, currentPt.y);
+											} else {
+												graphics.lineTo(currentPt.x, currentPt.y);
+											}
+											if (final) {
+												graphics.fill();
+											}
+										} else if (!lastPt.x || final || MathUtils.getLineLength(lastPt, currentPt) > 800) {
+											rect.x = currentPt.x - 50;
+											rect.y = currentPt.y - 50;
 											graphics.drawMarker(rect, false);
 											lastPt.x = currentPt.x;
 											lastPt.y = currentPt.y;
 										}
-										// if (final && idx > 30) {
-										// 	return true;
-										// }
 										return false;
 									});
+									graphics.setTransparency(100);
 								}
 							}
 						});

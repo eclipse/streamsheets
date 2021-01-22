@@ -3279,6 +3279,12 @@ export class StreamChartProperties extends Component {
 														defaultMessage="Landkreise Deutschland"
 													/>
 												</MenuItem>
+												<MenuItem value="bundeslaender.json" key={7}>
+													<FormattedMessage
+														id="StreamChartProperties.MapDLandBundes"
+														defaultMessage="Bundesländer Deutschland"
+													/>
+												</MenuItem>
 												<MenuItem value="helsinki.json" key={3}>
 													<FormattedMessage
 														id="StreamChartProperties.Helsinki"
