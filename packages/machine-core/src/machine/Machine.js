@@ -19,6 +19,7 @@ const StreamSheet = require('./StreamSheet');
 const locale = require('../locale');
 const Streams = require('../streams/Streams');
 const FunctionRegistry = require('../FunctionRegistry');
+const TaskQueue = require('./TaskQueue');
 
 // REVIEW: move to streamsheet!
 const defaultStreamSheetName = (streamsheet) => {
@@ -514,7 +515,7 @@ class Machine {
 		if (this._state !== State.RUNNING) {
 			try {
 				this._isManualStep = true;
-				this._doStep(this.activeStreamSheets, true);
+				await this._doStep(this.activeStreamSheets, true);
 			} catch (err) {
 				logger.error(`Error while performing manual step on machine ${this.id}!!`, err);
 				this._emitter.emit('error', err);
@@ -526,19 +527,39 @@ class Machine {
 	async _doStep(streamsheets, manual) {
 		this._preventStop = false;
 		this.stats.steps += 1;
-		// preStep & postStep can be removed if machine cycle step is removed!!
-		streamsheets.forEach((streamsheet) => streamsheet.preStep(manual));
-		streamsheets.forEach((streamsheet) => streamsheet.step(manual));
-		streamsheets.forEach((streamsheet) => streamsheet.postStep(manual));
+		if (manual) {
+			// console.log(`*** START MACHINE STEP`);
+			const t0 = Date.now();
+			TaskQueue.reset();
+			await this._doManualStep(streamsheets);
+			await TaskQueue.done();
+			const t1 = Date.now();
+			// console.log(`*** DONE MACHINE STEP took ${t1-t0}ms`);
+		} else {
+			// preStep & postStep can be removed if machine cycle step is removed!!
+			streamsheets.forEach((streamsheet) => streamsheet.preStep(manual));
+			streamsheets.forEach((streamsheet) => streamsheet.step(manual));
+			streamsheets.forEach((streamsheet) => streamsheet.postStep(manual));
+		}
 		// await Promise.all(streamsheets.map(async (streamsheet) => await streamsheet.step(manual)));
 		// for (let i = 0; i < streamsheets.length; i += 1) {
 		// 	await streamsheets[i].step(manual);
 		// }
 		// await streamsheets.reduce(async (res, streamsheet) => { await streamsheet.step(manual);	}, undefined);
+
+		// console.log('*** DONE MACHINE STEP ***', process.version);
+
 		this._emitter.emit('update', 'step');
 		if (this.doStop) {
 			this.stop();
 		}
+	}
+	async _doManualStep(streamsheets) {
+		streamsheets.forEach((streamsheet) => streamsheet.preStep(true));
+		await Promise.all(streamsheets.map((streamsheet) => streamsheet.step(true))).catch((err) =>
+			logger.error('Machine step failed!!', err)
+		);
+		streamsheets.forEach((streamsheet) => streamsheet.postStep(true));
 	}
 
 	async _resume(streamsheets) {
