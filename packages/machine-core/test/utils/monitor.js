@@ -33,12 +33,12 @@ const monitorMachine = (machine) => {
 };
 
 const monitorStreamSheet = (streamsheet) => {
-	const stats = { steps: 0, repeatsteps: 0, processedsteps: 0 };
+	const stats = { steps: 0, repeatsteps: 0, finishedsteps: 0 };
 	const messages = { attached: 0, detached: 0 };
-	// simply counts steps which marks sheet as fully processed -> never reset
-	const processedStepsMonitor = () => {
-		processedStepsMonitor.updateProcessedSteps();
-		processedStepsMonitor.onProcessedStep();
+	// simply counts steps which marks sheet as finished -> never reset
+	const finishedStepsMonitor = () => {
+		finishedStepsMonitor.updateFinishedSteps();
+		finishedStepsMonitor.onFinishedStep();
 	}
 	const stepsMonitor = () => {
 		stepsMonitor.updateStats();
@@ -50,14 +50,14 @@ const monitorStreamSheet = (streamsheet) => {
 		stats.repeatsteps = streamsheet.stats.repeatsteps;
 	};
 	stepsMonitor.onStep = () => {};
-	processedStepsMonitor.updateProcessedSteps = () => { 
-		stats.processedsteps += 1;
+	finishedStepsMonitor.updateFinishedSteps = () => { 
+		stats.finishedsteps += 1;
 	};
-	processedStepsMonitor.onProcessedStep = () => {};
+	finishedStepsMonitor.onFinishedStep = () => {};
 
 	// do not care that callback is never unregistered
 	streamsheet.on('step', stepsMonitor);
-	streamsheet.on('processedStep', processedStepsMonitor);
+	streamsheet.on('finishedStep', finishedStepsMonitor);
 	// streamsheet.on('willStep', willStepsMonitor);
 	streamsheet.on('message_attached', () => { messages.attached += 1; });
 	streamsheet.on('message_detached', () => { 
@@ -75,10 +75,10 @@ const monitorStreamSheet = (streamsheet) => {
 			});
 		},
 		// !!NOTE: if test has multiple sheets this resolves directly before other sheet resumes or processes!!
-		hasProcessedStep: (step) => {
+		hasFinishedStep: (step) => {
 			return new Promise((resolve) => {
-				if (stats.processedsteps >= step) resolve();
-				processedStepsMonitor.onProcessedStep = () => (stats.processedsteps >= step ? resolve() : null);
+				if (stats.finishedsteps >= step) resolve();
+				finishedStepsMonitor.onFinishedStep = () => (stats.finishedsteps >= step ? resolve() : null);
 			});
 		},
 		hasPassedRepeatStep: (step) => {
