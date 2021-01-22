@@ -297,7 +297,7 @@ describe('ContinuousTrigger', () => {
 				expect(s1.sheet.cellAt('A1').value).toBe(2);
 				expect(s1.sheet.cellAt('A3').value).toBe(1);
 				await machine.start(); // resume machine
-				await monitorS1.hasProcessedStep(3);
+				await monitorS1.hasFinishedStep(3);
 				await machine.stop();
 				expect(s1.sheet.cellAt('A1').value).toBe(4);
 				expect(s1.sheet.cellAt('A3').value).toBe(4);
