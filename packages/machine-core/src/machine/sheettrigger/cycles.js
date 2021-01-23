@@ -32,7 +32,7 @@ class TriggerCycle {
 		this.schedule();
 		// finish current step
 		if (this.trigger.sheet.isNotFullyProcessed) {
-			this.trigger.processSheet();
+			this.trigger.processSheet(false);
 		}
 	}
 
