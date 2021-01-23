@@ -11,6 +11,7 @@
 const EXECUTE = require('./execute.mock');
 const PAUSE = require('./pause.mock');
 const LOOPINDICES = require('./loopIndices');
+const MESSAGEIDS = require('./messageids');
 
 module.exports = {
 	ARRAY: (sheet, ...terms) => {
@@ -32,6 +33,7 @@ module.exports = {
 		return retval;
 	},
 	LOOPINDICES,
+	MESSAGEIDS,
 	PAUSE
 	// ,
 	// RESUME: (sheet /* , ...terms */) => {
