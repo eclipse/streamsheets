@@ -409,12 +409,13 @@ class StreamSheet {
 	}	
 	resumeProcessing(retval) {
 		this.notifyOnce.reset();
-		const hasProcessed = this.sheet.isProcessed;
+		this._triggerProcess = false;
+		// const hasProcessed = this.sheet.isProcessed;
 		// console.log(`RESUME PROCESSING STEP ${this.name}`);
 		this.trigger.resumeProcessing(retval);
-		// need this to catch the case when we resume on last cell
-		if (this.sheet.isProcessed && !hasProcessed) {
-			if (this.sheet.isProcessed && !this.trigger.isEndless) {
+		// need this to catch the case when we resume on last cell, but didn't process
+		if (this.sheet.isProcessed && !this._triggerProcess) {
+			if (!this.trigger.isEndless) {
 				this._msgHandler.next();
 			}
 
@@ -428,6 +429,7 @@ class StreamSheet {
 
 	process(useNextMessage = true) {
 		// console.log(`TRIGGER STEP ${this.name}`);
+		this._triggerProcess = true;
 		this.triggerStep(useNextMessage);
 		if (this.sheet.isProcessed) {
 			// console.log(`PROCESSED STEP ${this.name}`);
