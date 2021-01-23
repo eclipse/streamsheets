@@ -16,7 +16,7 @@ const execute = (sheet, ...terms) => {
 		context.resumeFn();
 	};
 	const resumeFromExecute = (context, callingStreamSheet) => (retval) => {
-		// console.log(`RESUME EXECUTE ${callingStreamSheet.name}`);
+		// console.log(`RESUME EXECUTE ${callingStreamSheet.name} retval ${retval}`);
 		if (context.term.cell) context.term.cell.value = retval != null ? retval : true;
 		callingStreamSheet.resumeProcessing(retval);
 		context.repetitions = context.reps;

@@ -124,6 +124,40 @@ describe('TimerTrigger', () => {
 				await machine.stop();
 			});
 		});
+		describe.skip('behaviour on start, stop, pause and step', () => {
+			// do sequence 2 times, before final stop
+			test('start - stop - start - stop', async () => {
+				expect(false).toBe(true);
+			});
+			test('start - pause - start - stop', async () => {
+				expect(false).toBe(true);
+			});
+			test('pause - start - pause - start - stop', async () => {
+			});
+			test('pause - stop - start - stop', async () => {
+				expect(false).toBe(true);
+			});
+			test('stop - start - stop', async () => {
+				expect(false).toBe(true);
+			});
+			test('stop - pause - start - stop', async () => {
+				expect(false).toBe(true);
+			});
+			test('stop - step - start - stop', async () => {
+				expect(false).toBe(true);
+			});
+			test('pause - step - start - stop', async () => {
+				expect(false).toBe(true);
+			});
+			test('step - start - stop', async () => {
+			});
+			test('step - pause - start - stop', async () => {
+				expect(false).toBe(true);
+			});
+			test('step - stop - start - stop', async () => {
+				expect(false).toBe(true);
+			});
+		});
 		describe('update trigger', () => {
 			it('should stop interval if another trigger is set', async () => {
 				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.TIMER, interval: 50 });
