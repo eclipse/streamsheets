@@ -20,11 +20,12 @@ const createQueue = () => {
 	};
 	const nextTick = () => {
 		process.nextTick(() => {
-			const fn = fns[0];
-			if (fn) {
+			const entry = fns[0];
+			if (entry) {
+				const { fn, args = [] } = entry;
 				fns.splice(0, 1);
 				try {
-					fn();
+					fn(...args);
 				} catch (err) {
 					/* currently ignore */
 				}
@@ -39,8 +40,8 @@ const createQueue = () => {
 			fns.length = 0;
 			pending.length = 0;
 		},
-		schedule(fn) {
-			fns.push(fn);
+		schedule(fn, ...args) {
+			fns.push({ fn, args });
 			nextTick();
 		},
 		done() {
