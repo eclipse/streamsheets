@@ -247,11 +247,11 @@ class ExecuteTrigger extends BaseTrigger {
 	}
 
 	constructor(config = {}) {
-		super(config);
+		super(Object.assign({}, config, TYPE_CONF));
 		this.pace = undefined;
 		this.message = undefined;
 		this.retval = undefined;
-		this.resumeFn = undefined
+		this.resumeFn = undefined;
 		this.repetitions = 0;
 		this.activeCycle = new ManualExecuteRepeatCycle(this);
 	}
@@ -294,7 +294,9 @@ class ExecuteTrigger extends BaseTrigger {
 		this.streamsheet.stats.executesteps = 0;
 		if (this.sheet.isProcessed) this.sheet.processor.reset();
 		// called by different sheet, so schedule it
-		TaskQueue.schedule(() => { this.activeCycle.run(); });
+		TaskQueue.schedule(() => {
+			this.activeCycle.run();
+		});
 	}
 	cancelExecute() {
 		if (!this.sheet.isProcessed) this.stopProcessing();
@@ -302,9 +304,10 @@ class ExecuteTrigger extends BaseTrigger {
 		this.activeCyle = this.getManualCycle();
 	}
 	resumeExecute() {
-		// call different sheet, so schedule it
+		// called by different sheet, so schedule it
 		TaskQueue.schedule(this.resumeFn, this.retval);
 		this.retval = undefined;
+		this.resumeFn = undefined;
 	}
 
 	stopProcessing(retval) {
@@ -319,9 +322,9 @@ class ExecuteTrigger extends BaseTrigger {
 	preStep(manual) {
 		// required if stepped (manual) on machine pause (cyclic)
 		if (manual) {
-			if(!this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
+			if (!this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
 			this.activeCycle.hasStepped = false;
-		} 
+		}
 	}
 }
 
