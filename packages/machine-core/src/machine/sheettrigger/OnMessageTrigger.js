@@ -32,6 +32,13 @@ class MessageCycle extends TimerCycle {
 			}
 		}
 	}
+	resume() {
+		super.resume();
+		if (!this.trigger.streamsheet.hasNewMessage()) {
+			this.clear();
+		}
+	}
+
 }
 
 const unsubscribe = (streamsheet, trigger) => {
