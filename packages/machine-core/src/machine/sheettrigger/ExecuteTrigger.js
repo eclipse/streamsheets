@@ -15,47 +15,6 @@ const { ManualStepCycle, ManualRepeatUntilCycle, RepeatUntilCycle, TimerCycle } 
 
 
 const noop = () => {};
-// const maxPace = () => 
-// const getCycleTime = (machine, pace) =>
-// 	// eslint-disable-next-line no-nested-ternary
-// 	(pace == null || pace === true) ? 1 : machine ? machine.cycletime : Machine.DEF_CYCLETIME;
-const oncePerMachineStep = (fn, title) => {
-	let done = false;
-	let result;
-	return ({
-		reset() {
-			done = false;
-		},
-		trigger() {
-			// setImmediate(() => {
-			// process.nextTick(() => {
-			TaskQueue.schedule(() => {
-				if (!done) {
-					// console.log(`*** ONCE: ${title} ***`);
-					done = true;
-					result = fn();
-				} 
-				// else console.log(`*** ONCE CACHE: ${title} ***`);
-				return result;
-			});
-			// return new Promise((resolve) => {
-			// 	if (!done) {
-			// 		console.log(`*** ONCE: ${title} ***`);
-			// 		done = true;
-			// 		result = fn();
-			// 	} else console.log(`*** ONCE CACHE: ${title} ***`);
-			// 	resolve(result);
-			// });
-		}
-	});
-};
-
-const consoleLogTask = (fn, msg) => () => {
-	// console.log(msg);
-	fn();
-};
-
-
 const getPace = (trigger, useMax) => () => {
 	const pace = trigger.pace;
 	const machine = trigger.streamsheet.machine;
@@ -68,20 +27,6 @@ class PacedRepeatUntilCycle extends RepeatUntilCycle {
 		super(trigger, parent);
 		this.getCycleTime = getPace(trigger, (pace) => pace == null || pace === true);
 	}
-
-	// finishOnResume() {
-	// 	return (
-	// 		this.trigger.sheet.isProcessed &&
-	// 		(this.trigger.streamsheet.isMessageProcessed() ||
-	// 		this.trigger.streamsheet.getLoopIndex() === this.trigger.streamsheet.getLoopCount() - 1)
-	// 	);
-	// }
-	// resume() {
-	// 	super.resume();
-	// 	if (this.finishOnResume() || true) {
-	// 		this.stop();
-	// 	}
-	// }
 }
 class PacedMessageLoopCycle extends TimerCycle {
 	constructor(trigger, parent) {
@@ -141,8 +86,10 @@ class PacedMessageLoopCycle extends TimerCycle {
 		);
 	}
 	resume() {
+		const loopIndexBefore = this.trigger.streamsheet.getLoopIndex();
 		super.resume();
-		if (this.finishOnResume()) {
+		const loopIndex = this.trigger.streamsheet.getLoopIndex();
+		if (loopIndex <= loopIndexBefore && this.finishOnResume()) {
 			this.stop();
 		}
 	}
@@ -165,7 +112,7 @@ class PacedExecuteRepeatCycle extends TimerCycle {
 				// console.log(`RESUME FROM ${this.trigger.streamsheet.name}`);
 				this.isActive = false;
 				this.hasExecuted = false;
-				this.trigger.callResumeFn();
+				this.trigger.resumeExecute();
 			} else {
 				// console.log(`SCHEDULE ${this.trigger.streamsheet.name}`);
 				super.schedule();
@@ -243,8 +190,11 @@ class ManualMessageLoopCycle extends ManualStepCycle {
 		);
 	}
 	resume() {
+		// resuming on loop might go to next element, finish only if not
+		const loopIndexBefore = this.trigger.streamsheet.getLoopIndex();
 		super.resume();
-		if (this.finishOnResume()) {
+		const loopIndex = this.trigger.streamsheet.getLoopIndex();
+		if (loopIndex <= loopIndexBefore && this.finishOnResume()) {
 			this.stop();
 		}
 	}
@@ -265,7 +215,7 @@ class ManualExecuteRepeatCycle extends ManualStepCycle {
 		if (this.trigger.sheet.isProcessed && this.trigger.repetitions < 1) {
 			// console.log(`RESUME FROM ${this.trigger.streamsheet.name}`);
 			this.hasExecuted = false;
-			this.trigger.callResumeFn();
+			this.trigger.resumeExecute();
 		} else {
 			// console.log(`SCHEDULE ${this.trigger.streamsheet.name}`);
 			super.schedule();
@@ -298,11 +248,11 @@ class ExecuteTrigger extends BaseTrigger {
 
 	constructor(config = {}) {
 		super(config);
-		// flag to prevent executing twice on manual stepping if this comes before triggering sheet
-		// this._hasExecuted = false;
+		this.pace = undefined;
 		this.message = undefined;
+		this.retval = undefined;
+		this.resumeFn = undefined
 		this.repetitions = 0;
-		this._doExecute = this._doExecute.bind(this);
 		this.activeCycle = new ManualExecuteRepeatCycle(this);
 	}
 
@@ -315,62 +265,55 @@ class ExecuteTrigger extends BaseTrigger {
 		return new PacedExecuteRepeatCycle(this);
 	}
 
+	start() {
+		super.start();
+		// if execute was called by manual step it won't be called again, so start here!
+		if (this.resumeFn) {
+			this.activeCycle.isActive = true;
+			this.activeCycle = new PacedMessageLoopCycle(this, this.activeCycle);
+			this.activeCycle.run();
+			// return this.activeCycle
+		}
+	}
+	stop() {
+		this.resumeFn = undefined;
+		return super.stop();
+	}
 	step(manual) {
 		// only handle manual steps
-		const doExecute = manual && this.callResumeFn; // && !this._hasExecuted;
-		if (doExecute) super.step(manual);
+		// const doExecute = manual && this.isActive; // callResumeFn; // && !this._hasExecuted;
+		// if (doExecute) super.step(manual);
+		// if (this.isActive) super.step(manual);
+		if (manual && this.resumeFn) super.step(manual);
 	}
 	execute(resumeFn, pace, repetitions, message) {
 		this.pace = pace;
 		this.message = message;
 		this.repetitions = repetitions;
-		this.callResumeFn = resumeFn
-			? () => TaskQueue.schedule(consoleLogTask(resumeFn, `RESUME ${this.streamsheet.name}`))
-			: noop;
-		if (this.activeCycle.isManual) {
-			TaskQueue.schedule(() => {
-				// this._doExecute(oncePerMachineStep(resumeFn).trigger, pace, isRepeating);
-				this._doExecute();
-			});
-			// process.nextTick(this._doExecute, oncePerMachineStep(resumeFn).trigger, pace, isRepeating);
-		}
-		else {
-			this.callResumeFn = resumeFn ? () => process.nextTick(resumeFn) : noop;
-			process.nextTick(this._doExecute);
-		} 
-	}
-	_doExecute() {
-		// console.log('EXECUTE');
-		// this.pace = pace;
-		// have to use immediate to not trigger in same cycle!!
-		// this.callResumeFn = resumeFn ? () => process.nextTick(resumeFn) : noop;
-		// this.callResumeFn = resumeFn || noop;
-		// this.callResumeFn = resumeFn ? () => setImmediate(resumeFn) : noop;
-		if (this.sheet.isProcessed) this.sheet.processor.reset();
-
-		// OLD:
-		// if (isRepeating) {
-		// 	this.activeCycle.schedule();
-		// 	this.activeCycle.useNextMessage = true;
-		// } else {
-		// 	this.streamsheet.stats.executesteps = 0;
-		// 	// console.log('EXECUTE RUN');
-		// 	this.activeCycle.run();
-		// }
-
+		this.resumeFn = resumeFn || noop;
 		this.streamsheet.stats.executesteps = 0;
-		this.activeCycle.run();
+		if (this.sheet.isProcessed) this.sheet.processor.reset();
+		// called by different sheet, so schedule it
+		TaskQueue.schedule(() => { this.activeCycle.run(); });
 	}
 	cancelExecute() {
 		if (!this.sheet.isProcessed) this.stopProcessing();
-		this.callResumeFn = undefined;
+		this.resumeFn = undefined;
 		this.activeCyle = this.getManualCycle();
 	}
+	resumeExecute() {
+		// call different sheet, so schedule it
+		TaskQueue.schedule(this.resumeFn, this.retval);
+		this.retval = undefined;
+	}
 
+	stopProcessing(retval) {
+		this.retval = retval;
+		super.stopProcessing(retval);
+	}
 	processSheet(useNextMessage) {
 		if (useNextMessage) this._streamsheet.process(useNextMessage);
 		else super.processSheet();
-		// this._hasTriggered = this._hasExecuted;
 	}
 
 	preStep(manual) {
@@ -379,7 +322,6 @@ class ExecuteTrigger extends BaseTrigger {
 			if(!this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
 			this.activeCycle.hasStepped = false;
 		} 
-		// this._hasExecuted = false;
 	}
 }
 
