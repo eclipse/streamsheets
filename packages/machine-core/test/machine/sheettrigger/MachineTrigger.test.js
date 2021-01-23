@@ -8,15 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const {
-	// ContinuousTrigger,
-	// MachineTrigger,
-	NeverTrigger,
-	Machine,
-	State,
-	StreamSheet,
-	TriggerFactory
-} = require('../../..');
+const { Machine, State, StreamSheet, TriggerFactory } = require('../../..');
 const { createCellAt, monitorMachine, monitorStreamSheet, wait } = require('../../utils');
 
 const setup = (triggerConfig = {}) => {
@@ -158,38 +150,113 @@ describe('MachineTrigger', () => {
 				await machine.stop();
 			});
 		});
-		describe.skip('behaviour on start, stop, pause and step', () => {
-			// do sequence 2 times, before final stop
+		describe('behaviour on start, stop, pause and step', () => {
 			test('start - stop - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.start();
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(2);
+				await machine.start();
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(3);
 			});
 			test('start - pause - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.start();
+				await machine.pause();
+				await machine.start();
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(2);
 			});
 			test('pause - start - pause - start - stop', async () => {
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.pause();
+				await machine.start();
+				await machine.pause();
+				await machine.start();
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(1);
 			});
 			test('pause - stop - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.pause();
+				await machine.stop();
+				await machine.start();
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(2);
 			});
 			test('stop - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.stop();
+				await machine.start();
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(2);
 			});
 			test('stop - pause - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.stop();
+				await machine.pause();
+				await machine.start();
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(1);
 			});
 			test('stop - step - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.stop();
+				await machine.step();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(2);
+				await machine.start();
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(3);
 			});
 			test('pause - step - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.pause();
+				await machine.step();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(2);
+				await machine.start();
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(2);
 			});
 			test('step - start - stop', async () => {
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.step();
+				await machine.step();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(3);
+				await machine.start();
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(4);
 			});
 			test('step - pause - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.step();
+				await machine.step();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(3);
+				await machine.pause();
+				await machine.start();
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(3);
 			});
 			test('step - stop - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.step();
+				await machine.step();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(3);
+				await machine.stop();
+				await machine.start();
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1', s1.sheet).value).toBe(4);
 			});
 		});
 		describe('update trigger', () => {
@@ -197,7 +264,7 @@ describe('MachineTrigger', () => {
 				const { s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' });
 				s1.trigger = undefined;
 				expect(s1.trigger).toBeDefined();
-				expect(s1.trigger.type).toBe(NeverTrigger.TYPE);
+				expect(s1.trigger.type).toBe(TriggerFactory.TYPE.NONE);
 			});
 			it('should have no effect setting same trigger again', async () => {
 				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_START });
@@ -248,7 +315,7 @@ describe('MachineTrigger', () => {
 				const s1a1 = s1.sheet.cellAt('A1').value;
 				await machineMonitor.nextSteps(2);
 				expect(s1.sheet.cellAt('A1').value).toBe(s1a1);
-				s1.trigger = new NeverTrigger();
+				s1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.NONE });
 				await machine.stop();
 			});
 		});
@@ -279,22 +346,25 @@ describe('MachineTrigger', () => {
 			});
 		});
 	});
-	describe.skip('machine stop trigger', () => {
+	describe('machine stop trigger', () => {
 		describe('general behaviour', () => {
 			it('should execute sheet on machine stop once', async () => {
 				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
 				const s2 = new StreamSheet()
+				const monitorS1 = monitorStreamSheet(s1);
 				const monitorS2 = monitorStreamSheet(s2);
+				machine.cycletime = 10;
 				s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 				machine.addStreamSheet(s2);
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
 				await machine.start();
-				await monitorS2.hasPassedStep(2);
+				await monitorS2.hasFinishedStep(2);
 				await machine.pause();
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
 				expect(s2.sheet.cellAt('B1').value).toBe(3);
 				await machine.stop();
+				await monitorS1.hasFinishedStep(1);
 				expect(machine.state).toBe(State.STOPPED);
 				// should only triggered once...
 				expect(s1.sheet.cellAt('A1').value).toBe(2);
@@ -429,38 +499,164 @@ describe('MachineTrigger', () => {
 				expect(s3.sheet.cellAt('C1').value).toBeGreaterThan(s3c1);
 			});
 		});
-		describe.skip('behaviour on start, stop, pause and step', () => {
-			// do sequence 2 times, before final stop
+		describe('behaviour on start, stop, pause and step', () => {
 			test('start - stop - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
+				const monitorS1 = monitorStreamSheet(s1);
+				machine.cycletime = 10;
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.start();
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.stop();
+				await monitorS1.hasFinishedStep(1);
+				expect(machine.state).toBe(State.STOPPED);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
 			});
 			test('start - pause - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
+				const monitorS1 = monitorStreamSheet(s1);
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.start();
+				await machine.pause();
+				await machine.start();
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.stop();
+				await monitorS1.hasFinishedStep(1);
+				expect(machine.state).toBe(State.STOPPED);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
 			});
 			test('pause - start - pause - start - stop', async () => {
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
+				const monitorS1 = monitorStreamSheet(s1);
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.pause();
+				await machine.start();
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.pause();
+				await machine.start();
+				await machine.stop();
+				await monitorS1.hasFinishedStep(1);
+				expect(machine.state).toBe(State.STOPPED);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
 			});
 			test('pause - stop - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
+				const monitorS1 = monitorStreamSheet(s1);
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.pause();
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.stop();
+				await monitorS1.hasFinishedStep(1);
+				expect(machine.state).toBe(State.STOPPED);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
+				await machine.start();
+				await machine.stop();
+				await monitorS1.hasFinishedStep(2);
+				expect(machine.state).toBe(State.STOPPED);
+				expect(s1.sheet.cellAt('A1').value).toBe(3);
 			});
 			test('stop - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
+				const monitorS1 = monitorStreamSheet(s1);
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.stop();
+				// does nothing because we didn't start before
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.start();
+				await machine.stop();
+				await monitorS1.hasFinishedStep(1);
+				expect(machine.state).toBe(State.STOPPED);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
 			});
 			test('stop - pause - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
+				const monitorS1 = monitorStreamSheet(s1);
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.stop();
+				await machine.pause();
+				// does nothing because we didn't start before
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.start();
+				await machine.stop();
+				await monitorS1.hasFinishedStep(1);
+				expect(machine.state).toBe(State.STOPPED);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
 			});
 			test('stop - step - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
+				const monitorS1 = monitorStreamSheet(s1);
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.stop();
+				await machine.step();
+				await machine.step();
+				// does nothing because we didn't start before
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.start();
+				await machine.stop();
+				await monitorS1.hasFinishedStep(1);
+				expect(machine.state).toBe(State.STOPPED);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
 			});
 			test('pause - step - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
+				const monitorS1 = monitorStreamSheet(s1);
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.pause();
+				await machine.step();
+				// does nothing because we didn't start before
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.start();
+				await machine.stop();
+				await monitorS1.hasFinishedStep(1);
+				expect(machine.state).toBe(State.STOPPED);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
 			});
 			test('step - start - stop', async () => {
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
+				const monitorS1 = monitorStreamSheet(s1);
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.step();
+				await machine.step();
+				// steps do nothing
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.start();
+				await machine.stop();
+				await monitorS1.hasFinishedStep(1);
+				expect(machine.state).toBe(State.STOPPED);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
 			});
 			test('step - pause - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
+				const monitorS1 = monitorStreamSheet(s1);
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.step();
+				await machine.pause();
+				// steps & pause do nothing
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.start();
+				await machine.stop();
+				await monitorS1.hasFinishedStep(1);
+				expect(machine.state).toBe(State.STOPPED);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
 			});
 			test('step - stop - start - stop', async () => {
-				expect(false).toBe(true);
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.MACHINE_STOP });
+				const monitorS1 = monitorStreamSheet(s1);
+				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+				await machine.step();
+				await machine.step();
+				// steps & pause do nothing
+				expect(s1.sheet.cellAt('A1').value).toBe(1);
+				await machine.start();
+				await machine.stop();
+				await monitorS1.hasFinishedStep(1);
+				expect(machine.state).toBe(State.STOPPED);
+				expect(s1.sheet.cellAt('A1').value).toBe(2);
+				await machine.start();
+				await machine.stop();
+				await monitorS1.hasFinishedStep(2);
+				expect(machine.state).toBe(State.STOPPED);
+				expect(s1.sheet.cellAt('A1').value).toBe(3);
 			});
 		});
 		describe('update trigger', () => {
@@ -471,7 +667,7 @@ describe('MachineTrigger', () => {
 				// remove trigger
 				s1.trigger = undefined;
 				expect(s1.trigger).toBeDefined();
-				expect(s1.trigger.type).toBe(NeverTrigger.TYPE);
+				expect(s1.trigger.type).toBe(TriggerFactory.TYPE.NONE);
 			});
 		});
 		describe('serialize', () => {

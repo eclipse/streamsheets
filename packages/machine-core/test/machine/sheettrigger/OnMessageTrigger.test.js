@@ -40,19 +40,23 @@ describe('OnMessageTrigger', () => {
 	describe('general behaviour', () => {
 		it('should trigger calculation on message arrival immediately', async () => {
 			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			await machine.start();
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			putMessages(s1, new Message());
-			await wait(50);
+			await monitorS1.hasFinishedStep(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			putMessages(s1, new Message(), new Message(), new Message());
-			await wait(50);
+			await monitorS1.hasFinishedStep(4);
+			expect(s1.sheet.cellAt('A1').value).toBe(5);
+			await wait(100);
 			expect(s1.sheet.cellAt('A1').value).toBe(5);
 			await machine.stop();
 		});
 		it('should not calculate sheet if machine is in pause mode', async () => {
 			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			await machine.pause();
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
@@ -61,7 +65,7 @@ describe('OnMessageTrigger', () => {
 			putMessages(s1, new Message(), new Message(), new Message());
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			await machine.start();
-			await wait(100);
+			await monitorS1.hasFinishedStep(4);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(5);
 		});
@@ -84,13 +88,14 @@ describe('OnMessageTrigger', () => {
 		});
 		it('should calculate as long as messages are in inbox', async () => {
 			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			machine.pause();
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			putMessages(s1, new Message(), new Message(), new Message(), new Message(), new Message());
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			await machine.start();
-			await wait(1000);
+			await monitorS1.hasFinishedStep(5)
 			// note: last message is never popped! (its a requirement)
 			expect(s1.inbox.size).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(6);
@@ -108,7 +113,7 @@ describe('OnMessageTrigger', () => {
 			await machine.start();
 			await callPerSecond(() => putMessages(s1, new Message()), 10);
 			await machine.stop();
-			// we roughly add about 10 messages, so
+			// we roughly added about 10 messages, so
 			expect(s1.sheet.cellAt('A1').value).toBeGreaterThanOrEqual(9);
 			// we cycle twice as fast, so roughly
 			expect(s2.sheet.cellAt('B1').value).toBeGreaterThanOrEqual(18);
@@ -122,11 +127,11 @@ describe('OnMessageTrigger', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			await machine.start();
 			putMessages(s1, new Message());
-			await wait(100);
+			await wait(50);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(10);
 		});
-		it('should calculate always on same message in endless mode', async () => {
+		it('should always calculate with same message in endless mode', async () => {
 			const { machine, s1 } = setup();
 			const message = new Message();
 			s1.trigger.update({ repeat: 'endless' });
@@ -146,6 +151,26 @@ describe('OnMessageTrigger', () => {
 			expect(s1.inbox.peek().id).toBe(message.id);
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 		});
+		it('should always calculate with same loop-element in endless mode', async () => {
+			const { machine, s1 } = setup();
+			const message = new Message([1,2,3]);
+			s1.trigger.update({ repeat: 'endless' });
+			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
+			expect(s1.trigger.isEndless).toBe(true);
+			expect(s1.sheet.cellAt('A1').value).toBe(1);
+			await machine.start();
+			expect(s1.sheet.cellAt('A1').value).toBe(1);
+			putMessages(s1, message);
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.getLoopIndex()).toBe(0);
+			expect(s1.inbox.peek().id).toBe(message.id);
+			putMessages(s1, new Message(), new Message());
+			await wait(20);
+			expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(2);
+			expect(s1.getLoopIndex()).toBe(0);
+			expect(s1.inbox.peek().id).toBe(message.id);
+			await machine.stop();
+		});
 		it('should not calculate sheet twice in endless mode and triggered by arrived message', async () => {
 			const { machine, s1 } = setup();
 			s1.trigger.update({ repeat: 'endless' });
@@ -161,64 +186,272 @@ describe('OnMessageTrigger', () => {
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(10);
 		});
-		test.skip('with execute another sheet', async () => {
+		test('with execute another sheet', async () => {
 			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
 			const s2 = new StreamSheet();
 			s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE });			
 			s1.sheet.load({
-				cells: { A1: { formula: 'A1+1' }, B1: { formula: 'execute("S2")' }, C1: { formula: 'C1+1' } }
+				cells: {
+					A1: { formula: 'A1+1' },
+					B1: { formula: 'messageids()' },
+					C1: { formula: 'execute("S2")' },
+					D1: { formula: 'D1+1' }
+				}
 			});
 			s2.sheet.load({ cells: { B2: { formula: 'B2+1' } } });
 			machine.addStreamSheet(s2);
 			machine.cycletime = 2000000;
 			await machine.start();
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
-			expect(s1.sheet.cellAt('C1').value).toBe(1);
+			expect(s1.sheet.cellAt('D1').value).toBe(1);
 			expect(s2.sheet.cellAt('B2').value).toBe(1);
-			putMessages(s1, new Message());
-			await wait(100);
+			putMessages(s1, new Message({},'1'));
+			await monitorS1.hasFinishedStep(1);
+			expect(s1.inbox.peek().id).toBe('1');
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('C1').value).toBe(2);
+			expect(s1.sheet.cellAt('D1').value).toBe(2);
 			expect(s2.sheet.cellAt('B2').value).toBe(2);
-			putMessages(s1, new Message(), new Message(), new Message());
-			await wait(100);
+			putMessages(s1, new Message({},'2'), new Message({},'3'), new Message({},'4'));
+			await monitorS1.hasFinishedStep(4);
+			expect(s1.sheet.cellAt('B1').value).toBe('1,2,3,4');
 			expect(s1.sheet.cellAt('A1').value).toBe(5);
-			expect(s1.sheet.cellAt('C1').value).toBe(5);
+			expect(s1.sheet.cellAt('D1').value).toBe(5);
 			expect(s2.sheet.cellAt('B2').value).toBe(5);
 		});
 	});
-	describe.skip('behaviour on start, stop, pause and step', () => {
-		// do sequence 2 times, before final stop
+	describe('behaviour on start, stop, pause and step', () => {
 		test('start - stop - start - stop', async () => {
-			expect(false).toBe(true);
+			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
+			machine.cycletime = 2000000;
+			s1.sheet.loadCells({ A1: { formula: 'A1+1' }, B1: { formula: 'messageids()' } });
+			await machine.start();
+			putMessages(s1, new Message({},'1'));
+			await monitorS1.hasFinishedStep(1);
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('B1').value).toBe('1');
+			await machine.stop();
+			putMessages(s1, new Message({},'2'));
+			expect(s1.sheet.cellAt('B1').value).toBe('1');
+			await machine.start();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			putMessages(s1, new Message({},'3'));
+			await monitorS1.hasFinishedStep(2);
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('B1').value).toBe('1,3');
+			await machine.stop();
 		});
 		test('start - pause - start - stop', async () => {
-			expect(false).toBe(true);
+			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
+			machine.cycletime = 2000000;
+			s1.sheet.loadCells({ A1: { formula: 'A1+1' }, B1: { formula: 'messageids()' } });
+			await machine.start();
+			putMessages(s1, new Message({},'1'));
+			await monitorS1.hasFinishedStep(1);
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('B1').value).toBe('1');
+			await machine.pause();
+			putMessages(s1, new Message({},'2'));
+			await machine.start();
+			await monitorS1.hasFinishedStep(2);
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('B1').value).toBe('1,2');
+			putMessages(s1, new Message({},'3'));
+			await monitorS1.hasFinishedStep(3);
+			expect(s1.sheet.cellAt('A1').value).toBe(4);
+			expect(s1.sheet.cellAt('B1').value).toBe('1,2,3');
+			await machine.stop();
 		});
 		test('pause - start - pause - start - stop', async () => {
+			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
+			machine.cycletime = 2000000;
+			s1.sheet.loadCells({ A1: { formula: 'A1+1' }, B1: { formula: 'messageids()' } });
+			await machine.pause();
+			putMessages(s1, new Message({},'1'));
+			await wait(10);
+			expect(s1.sheet.cellAt('A1').value).toBe(1);
+			expect(s1.sheet.cellAt('B1').value).toBe('');
+			await machine.start();
+			putMessages(s1, new Message({},'2'));
+			await monitorS1.hasFinishedStep(2);
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('B1').value).toBe('1,2');
+			await machine.pause();
+			putMessages(s1, new Message({},'3'));
+			await machine.start();
+			await monitorS1.hasFinishedStep(3);
+			expect(s1.sheet.cellAt('A1').value).toBe(4);
+			expect(s1.sheet.cellAt('B1').value).toBe('1,2,3');
+			await machine.stop();
 		});
 		test('pause - stop - start - stop', async () => {
-			expect(false).toBe(true);
+			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
+			machine.cycletime = 2000000;
+			s1.sheet.loadCells({ A1: { formula: 'A1+1' }, B1: { formula: 'messageids()' } });
+			await machine.pause();
+			putMessages(s1, new Message({},'1'));
+			await wait(10);
+			expect(s1.sheet.cellAt('A1').value).toBe(1);
+			expect(s1.sheet.cellAt('B1').value).toBe('');
+			await machine.stop();
+			putMessages(s1, new Message({},'2'));
+			await wait(10);
+			expect(s1.sheet.cellAt('A1').value).toBe(1);
+			expect(s1.sheet.cellAt('B1').value).toBe('');
+			await machine.start();
+			putMessages(s1, new Message({},'3'));
+			await monitorS1.hasFinishedStep(1);
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('B1').value).toBe('3');
+			await machine.stop();
 		});
 		test('stop - start - stop', async () => {
-			expect(false).toBe(true);
+			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
+			machine.cycletime = 2000000;
+			s1.sheet.loadCells({ A1: { formula: 'A1+1' }, B1: { formula: 'messageids()' } });
+			await machine.stop();
+			putMessages(s1, new Message({},'1'));
+			await wait(10);
+			expect(s1.sheet.cellAt('A1').value).toBe(1);
+			expect(s1.sheet.cellAt('B1').value).toBe('');
+			await machine.start();
+			putMessages(s1, new Message({},'2'));
+			await monitorS1.hasFinishedStep(1);
+			await machine.stop();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('B1').value).toBe('2');
 		});
 		test('stop - pause - start - stop', async () => {
-			expect(false).toBe(true);
+			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
+			machine.cycletime = 2000000;
+			s1.sheet.loadCells({ A1: { formula: 'A1+1' }, B1: { formula: 'messageids()' } });
+			await machine.stop();
+			putMessages(s1, new Message({},'1'));
+			await wait(10);
+			expect(s1.sheet.cellAt('A1').value).toBe(1);
+			expect(s1.sheet.cellAt('B1').value).toBe('');
+			await machine.pause();
+			putMessages(s1, new Message({},'2'));
+			await wait(10);
+			expect(s1.sheet.cellAt('A1').value).toBe(1);
+			expect(s1.sheet.cellAt('B1').value).toBe('');
+			await machine.start();
+			putMessages(s1, new Message({},'3'));
+			await monitorS1.hasFinishedStep(3);
+			expect(s1.sheet.cellAt('A1').value).toBe(4);
+			expect(s1.sheet.cellAt('B1').value).toBe('1,2,3');
+			await machine.stop();
 		});
 		test('stop - step - start - stop', async () => {
-			expect(false).toBe(true);
+			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
+			machine.cycletime = 2000000;
+			s1.sheet.loadCells({ A1: { formula: 'A1+1' }, B1: { formula: 'messageids()' } });
+			await machine.stop();
+			putMessages(s1, new Message({},'1'));
+			await wait(10);
+			expect(s1.sheet.cellAt('A1').value).toBe(1);
+			expect(s1.sheet.cellAt('B1').value).toBe('');
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('B1').value).toBe('1');
+			putMessages(s1, new Message({},'2'));
+			await wait(10);
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('B1').value).toBe('1');
+			await machine.start();
+			putMessages(s1, new Message({},'3'));
+			await monitorS1.hasFinishedStep(2);
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('B1').value).toBe('1,3');
+			await machine.stop();
 		});
 		test('pause - step - start - stop', async () => {
-			expect(false).toBe(true);
+			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
+			machine.cycletime = 2000000;
+			s1.sheet.loadCells({ A1: { formula: 'A1+1' }, B1: { formula: 'messageids()' } });
+			await machine.pause();
+			putMessages(s1, new Message({},'1'));
+			await wait(10);
+			expect(s1.sheet.cellAt('A1').value).toBe(1);
+			expect(s1.sheet.cellAt('B1').value).toBe('');
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('B1').value).toBe('1');
+			putMessages(s1, new Message({},'2'));
+			await wait(10);
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('B1').value).toBe('1');
+			await machine.start();
+			putMessages(s1, new Message({},'3'));
+			await monitorS1.hasFinishedStep(3);
+			expect(s1.sheet.cellAt('A1').value).toBe(4);
+			expect(s1.sheet.cellAt('B1').value).toBe('1,2,3');
+			await machine.stop();
 		});
 		test('step - start - stop', async () => {
+			const { machine, s1 } = setup();
+			machine.cycletime = 2000000;
+			s1.sheet.loadCells({ A1: { formula: 'A1+1' }, B1: { formula: 'messageids()' } });
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('B1').value).toBe('');
+			putMessages(s1, new Message({},'1'));
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('B1').value).toBe('1');
+			putMessages(s1, new Message({},'2'), new Message({},'3'));
+			await machine.start();
+			await wait(20);
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('B1').value).toBe('1');
+			await machine.stop();
 		});
 		test('step - pause - start - stop', async () => {
-			expect(false).toBe(true);
+			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
+			machine.cycletime = 2000000;
+			s1.sheet.loadCells({ A1: { formula: 'A1+1' }, B1: { formula: 'messageids()' } });
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('B1').value).toBe('');
+			putMessages(s1, new Message({},'1'));
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('B1').value).toBe('1');
+			await machine.pause();
+			putMessages(s1, new Message({},'2'), new Message({},'3'));
+			await machine.start();
+			await monitorS1.hasFinishedStep(4);
+			expect(s1.sheet.cellAt('A1').value).toBe(5);
+			expect(s1.sheet.cellAt('B1').value).toBe('1,2,3');
+			await machine.stop();
 		});
 		test('step - stop - start - stop', async () => {
-			expect(false).toBe(true);
+			const { machine, s1 } = setup();
+			machine.cycletime = 2000000;
+			s1.sheet.loadCells({ A1: { formula: 'A1+1' }, B1: { formula: 'messageids()' } });
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('B1').value).toBe('');
+			putMessages(s1, new Message({},'1'));
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('B1').value).toBe('1');
+			await machine.stop();
+			putMessages(s1, new Message({},'2'), new Message({},'3'));
+			await machine.start();
+			await wait(20);
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('B1').value).toBe('1');
+			await machine.stop();
 		});
 	});
 	describe('update trigger', () => {
