@@ -151,7 +151,9 @@ class MessageHandler {
 		this.isEnabled && this._hasLoop && this._index < this._stack.length
 		? this._stack[this._index].value
 		: undefined;
-		if (nxtdata !== undefined) this._index = Math.min(this._index + 1, this._stack.length);		
+		// if (nxtdata !== undefined) this._index = Math.min(this._index + 1, this._stack.length);		
+		// have to move index to ensure we process loop elements, even if they have no data...
+		this._index = Math.min(this._index + 1, this._stack.length);		
 		this._used = true;
 		return nxtdata;
 	}
