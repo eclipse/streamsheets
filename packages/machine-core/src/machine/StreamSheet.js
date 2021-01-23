@@ -15,6 +15,7 @@ const Inbox = require('./Inbox');
 const MessageHandler = require('./MessageHandler');
 const Sheet = require('./Sheet');
 const TriggerFactory = require('./sheettrigger/TriggerFactory');
+const TaskQueue = require('./TaskQueue');
 
 const markAsProcessed = (fn, id, marked) => {
 	if (!fn.processed) fn.processed = {};
@@ -377,14 +378,11 @@ class StreamSheet {
 	// called by sheet functions:
 	execute(resumeFn, message, pace, repetitions) {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
-			// message = selector ? this.inbox.find(selector) : message;
-			// attach message?
-			// if (message) this._attachExecuteMessage(message);
 			this.trigger.execute(resumeFn, pace, repetitions, message);
-			return true;
+		} else if (resumeFn) {
+			// called by different sheet, so schedule it
+			TaskQueue.schedule(resumeFn, false);
 		}
-		if (resumeFn) resumeFn();
-		return false;
 	}
 	cancelExecute() {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) this.trigger.cancelExecute();
