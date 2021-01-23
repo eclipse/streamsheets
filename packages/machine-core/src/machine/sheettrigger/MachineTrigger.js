@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const State = require('../../State');
 const BaseTrigger = require('./BaseTrigger');
 const { ManualStepCycle, NoOpCycle, RepeatUntilCycle, TimerCycle } = require('./cycles');
 
@@ -80,6 +81,12 @@ class MachineTrigger extends BaseTrigger {
 		super(config);
 		this.runOnStop = this.type === TYPE.STOP ? toggle(true) : always(false);
 		this.activeCycle = this.getManualCycle();
+	}
+
+	// overwritten to handle type STOP 
+	get isMachineStopped() {
+		const state = this._streamsheet.machine.state;
+		return this.type === TYPE.STOP ? state !== State.WILL_STOP : state !== State.RUNNING;
 	}
 
 	getManualCycle() {
