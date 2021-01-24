@@ -25,7 +25,7 @@ class OneTimeTrigger extends BaseTrigger {
 	step() {
 		if (!this._isTriggered) {
 			this._isTriggered = true;
-			this.trigger();
+			this.processSheet();
 		}
 	}
 }
