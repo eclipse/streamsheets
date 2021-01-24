@@ -9,65 +9,19 @@
  *
  ********************************************************************************/
 const BaseTrigger = require('./BaseTrigger');
+const MessageLoopCycle = require('./MessageLoopCycle');
 const { ManualStepCycle, ManualRepeatUntilCycle, RepeatUntilCycle, TriggerCycle } = require('./cycles');
 
-const stepInMessageLoop = (cycle, trigger, SubCycleClass) => {
-	const isFinished = () => {
-		return (
-			!trigger.sheet.isPaused &&
-			trigger.sheet.isProcessed &&
-			trigger.streamsheet.isMessageProcessed()
-		);
-	}
-	return () => {
-		trigger.useNextMessage = trigger.streamsheet.isMessageProcessed();
-		if (trigger.isEndless) {
-			trigger.streamsheet.stats.steps += 1;
-			trigger.activeCycle = new SubCycleClass(trigger, cycle);
-			trigger.activeCycle.run();
-			trigger.useNextMessage = false;
-		} else {
-			trigger.streamsheet.stats.steps += 1;
-			trigger.processSheet();
-			if (isFinished()) {
-				cycle.stop();
-			}
-		}
+class TriggeredMessageLoopCycle extends MessageLoopCycle.createWithBaseClass(TriggerCycle) {
+	createRepeatUntilCycle() {
+		return new RepeatUntilCycle(this.trigger, this);
 	}
 };
-const resumeInMessageLoop = (cycle, trigger) => {
-	const finishOnResume = () => {
-		return (
-			trigger.sheet.isProcessed &&
-			(trigger.streamsheet.isMessageProcessed() ||
-				trigger.streamsheet.getLoopIndex() === trigger.streamsheet.getLoopCount() - 1)
-		);
-	}
-	return () => {
-		const loopIndexBefore = trigger.streamsheet.getLoopIndex();
-		Object.getPrototypeOf(cycle).resume.call(cycle);
-		const loopIndex = trigger.streamsheet.getLoopIndex();
-		if (loopIndex <= loopIndexBefore && finishOnResume()) {
-			cycle.stop();
-		}
+class ManualMessageLoopCycle extends MessageLoopCycle.createWithBaseClass(ManualStepCycle) {
+	createRepeatUntilCycle() {
+		return new ManualRepeatUntilCycle(this.trigger, this);
 	}
 };
-
-class MessageLoopCycle extends TriggerCycle {
-	constructor(trigger, parentcycle) {
-		super(trigger, parentcycle);
-		this.step = stepInMessageLoop(this, trigger, RepeatUntilCycle);
-		this.resume = resumeInMessageLoop(this, trigger);
-	}
-}
-
-class ManualMessageLoopCycle extends ManualStepCycle {
-	constructor(trigger, parentcycle) {
-		super(trigger, parentcycle);
-		this.step = stepInMessageLoop(this, trigger, ManualRepeatUntilCycle);
-		this.resume = resumeInMessageLoop(this, trigger);
-	}
-}
 
 
 const TYPE_CONF = Object.freeze({ type: 'continuously' });
@@ -88,7 +42,7 @@ class ContinuousTrigger extends BaseTrigger {
 	}
 
 	getTimerCycle() {
-		return new MessageLoopCycle(this);
+		return new TriggeredMessageLoopCycle(this);
 	}
 
 	processSheet(useNextMessage) {

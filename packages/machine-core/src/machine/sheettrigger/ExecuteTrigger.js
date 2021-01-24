@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 const BaseTrigger = require('./BaseTrigger');
+const MessageLoopCycle = require('./MessageLoopCycle');
 const Machine = require('../Machine');
 const TaskQueue = require('../TaskQueue');
 const { ManualStepCycle, ManualRepeatUntilCycle, RepeatUntilCycle, TimerCycle } = require('./cycles');
@@ -21,61 +22,8 @@ const getPace = (trigger, useMax) => () => {
 	// eslint-disable-next-line no-nested-ternary
 	return useMax(pace) ? 1 : machine ? machine.cycletime : Machine.DEF_CYCLETIME;
 };
-// SAME AS IN ContinuousTrigger
-const stepInMessageLoop = (cycle, trigger, SubCycleClass) => {
-	const isFinished = () => {
-		return (
-			!trigger.sheet.isPaused &&
-			trigger.sheet.isProcessed &&
-			trigger.streamsheet.isMessageProcessed()
-		);
-	}
-	return () => {
-		trigger.useNextMessage = trigger.streamsheet.isMessageProcessed();
-		if (trigger.isEndless) {
-			trigger.streamsheet.stats.steps += 1;
-			trigger.activeCycle = new SubCycleClass(trigger, cycle);
-			trigger.activeCycle.run();
-			trigger.useNextMessage = false;
-		} else {
-			trigger.streamsheet.stats.steps += 1;
-			trigger.processSheet();
-			if (isFinished()) {
-				cycle.stop();
-			}
-		}
-	}
-};
-const resumeInMessageLoop = (cycle, trigger) => {
-	const finishOnResume = () => {
-		return (
-			trigger.sheet.isProcessed &&
-			(trigger.streamsheet.isMessageProcessed() ||
-				trigger.streamsheet.getLoopIndex() === trigger.streamsheet.getLoopCount() - 1)
-		);
-	}
-	return () => {
-		const loopIndexBefore = trigger.streamsheet.getLoopIndex();
-		Object.getPrototypeOf(cycle).resume.call(cycle);
-		const loopIndex = trigger.streamsheet.getLoopIndex();
-		if (loopIndex <= loopIndexBefore && finishOnResume()) {
-			cycle.stop();
-		}
-	}
-};
-// ~~
-const activateInMessageLoop = (cycle, trigger) => {
-	const isLastLoopIndex = () => {
-		return trigger.streamsheet._msgHandler._index >= trigger.streamsheet._msgHandler._stack.length - 1;
-	}
-	return () => {
-		Object.getPrototypeOf(cycle).activate.call(cycle);
-		cycle.schedule();
-		if (isLastLoopIndex()) {
-			if (cycle.parentcycle) cycle.parentcycle.activate();
-		}
-	}
-};
+
+
 const activateInExecuteRepeat = (cycle) => () => {
 	Object.getPrototypeOf(cycle).activate.call(cycle);
 	cycle.schedule();
@@ -125,20 +73,20 @@ class PacedRepeatUntilCycle extends RepeatUntilCycle {
 		this.getCycleTime = getPace(trigger, (pace) => pace == null || pace === true);
 	}
 }
-class PacedMessageLoopCycle extends TimerCycle {
+class PacedMessageLoopCycle extends MessageLoopCycle.createWithBaseClass(TimerCycle) {
 	constructor(trigger, parent) {
 		super(trigger, parent);
 		this.useNextMessage = false;
-		this.step = stepInMessageLoop(this, trigger, PacedRepeatUntilCycle);
-		this.resume = resumeInMessageLoop(this, trigger);
-		this.activate = activateInMessageLoop(this, trigger);
-		this.getCycleTime = getPace(trigger, (pace) => pace != null && pace !== false);
+	}
+	createRepeatUntilCycle() {
+		return new PacedRepeatUntilCycle(this.trigger, this);
 	}
 	run(useNextMessage) {
 		this.useNextMessage = useNextMessage;
 		super.run();
 	}
 }
+
 class PacedExecuteRepeatCycle extends TimerCycle {
 	constructor(trigger, parent) {
 		super(trigger, parent);
@@ -151,19 +99,20 @@ class PacedExecuteRepeatCycle extends TimerCycle {
 	}
 }
 
-class ManualMessageLoopCycle extends ManualStepCycle {
+class ManualMessageLoopCycle extends MessageLoopCycle.createWithBaseClass(ManualStepCycle) {
 	constructor(trigger, parent) {
 		super(trigger, parent);
 		this.useNextMessage = false;
-		this.step = stepInMessageLoop(this, trigger, ManualRepeatUntilCycle);
-		this.resume = resumeInMessageLoop(this, trigger);
-		this.activate = activateInMessageLoop(this, trigger);
+	}
+	createRepeatUntilCycle() {
+		return new ManualRepeatUntilCycle(this.trigger, this);
 	}
 	run(useNextMessage) {
 		this.useNextMessage = useNextMessage;
 		super.run();
-	}
+	}	
 }
+
 class ManualExecuteRepeatCycle extends ManualStepCycle {
 	constructor(trigger, parent) {
 		super(trigger, parent);
