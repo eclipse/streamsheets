@@ -176,6 +176,10 @@ class StreamSheet {
 		// 	return !handler._message || (handler._used && !(handler._index < handler._stack.length - 1));
 		// }
 		// return message == null ? handler.isProcessed : message === handler.message && handler.isProcessed;
+		
+		// const handler = this._msgHandler;
+		// return message == null ? handler.isProcessed : message === handler.message && handler.isProcessed;
+		
 		return this._msgHandler.isProcessed;
 	}
 	setMessageProcessed() {
@@ -443,7 +447,10 @@ class StreamSheet {
 		markAsProcessed(this.triggerStep, this.id, false);
 		// if (this.sheet.isReady || this.sheet.isProcessed) this._attachNextMessage();
 		// console.log('use next message: ',useNextMessage);
+
 		if (useNextMessage) this._attachNextMessage();
+		// if (useNextMessage || !this._msgHandler.message) this._attachNextMessage();
+		
 		// if(this.name === 'S2') {
 		// 	console.log(`sheet is ready? ${this.sheet.isReady}`);
 		// 	console.log(`sheet is processed? ${this.sheet.isProcessed}`);
@@ -482,21 +489,6 @@ class StreamSheet {
 			// console.log('attach message');
 			this.stats.messages += 1;
 			this._emitMessageEvent('message_attached', message);
-		}
-	}
-	_attachExecuteMessage(message) {
-		// use passed message only if current one is processed otherwise they might pile up quickly (on endless-mode)
-		if (this._msgHandler.isProcessed) {
-			// console.log('ATTACH EXECUTE MESSAGE');
-			const currmsg = this._msgHandler.message;
-			if (message === currmsg) {
-				this._msgHandler.reset();
-			} 
-			else {
-				if (currmsg) this.inbox.pop(currmsg.id);
-				this.inbox.put(message);
-				this._attachMessage(message);
-			}
 		}
 	}
 	_detachMessage() {

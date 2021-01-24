@@ -21,7 +21,102 @@ const getPace = (trigger, useMax) => () => {
 	// eslint-disable-next-line no-nested-ternary
 	return useMax(pace) ? 1 : machine ? machine.cycletime : Machine.DEF_CYCLETIME;
 };
-
+// SAME AS IN ContinuousTrigger
+const stepInMessageLoop = (cycle, trigger, SubCycleClass) => {
+	const isFinished = () => {
+		return (
+			!trigger.sheet.isPaused &&
+			trigger.sheet.isProcessed &&
+			trigger.streamsheet.isMessageProcessed()
+		);
+	}
+	return () => {
+		trigger.useNextMessage = trigger.streamsheet.isMessageProcessed();
+		if (trigger.isEndless) {
+			trigger.streamsheet.stats.steps += 1;
+			trigger.activeCycle = new SubCycleClass(trigger, cycle);
+			trigger.activeCycle.run();
+			trigger.useNextMessage = false;
+		} else {
+			trigger.streamsheet.stats.steps += 1;
+			trigger.processSheet();
+			if (isFinished()) {
+				cycle.stop();
+			}
+		}
+	}
+};
+const resumeInMessageLoop = (cycle, trigger) => {
+	const finishOnResume = () => {
+		return (
+			trigger.sheet.isProcessed &&
+			(trigger.streamsheet.isMessageProcessed() ||
+				trigger.streamsheet.getLoopIndex() === trigger.streamsheet.getLoopCount() - 1)
+		);
+	}
+	return () => {
+		const loopIndexBefore = trigger.streamsheet.getLoopIndex();
+		Object.getPrototypeOf(cycle).resume.call(cycle);
+		const loopIndex = trigger.streamsheet.getLoopIndex();
+		if (loopIndex <= loopIndexBefore && finishOnResume()) {
+			cycle.stop();
+		}
+	}
+};
+// ~~
+const activateInMessageLoop = (cycle, trigger) => {
+	const isLastLoopIndex = () => {
+		return trigger.streamsheet._msgHandler._index >= trigger.streamsheet._msgHandler._stack.length - 1;
+	}
+	return () => {
+		Object.getPrototypeOf(cycle).activate.call(cycle);
+		cycle.schedule();
+		if (isLastLoopIndex()) {
+			if (cycle.parentcycle) cycle.parentcycle.activate();
+		}
+	}
+};
+const activateInExecuteRepeat = (cycle) => () => {
+	Object.getPrototypeOf(cycle).activate.call(cycle);
+	cycle.schedule();
+	cycle.trigger.streamsheet.setMessageProcessed();	
+};
+const scheduleInExecuteRepeat = (cycle) => () => {
+	if (cycle.isActive) {
+		if (cycle.trigger.sheet.isProcessed && cycle.trigger.repetitions < 1) {
+			cycle.isActive = false;
+			cycle.hasExecuted = false;
+			cycle.trigger.resumeExecute();
+		} else {
+			Object.getPrototypeOf(cycle).schedule.call(cycle);
+		}
+	}
+};
+const attachExecuteMessage = (message, streamsheet) => {
+	// const currmsg = streamsheet._msgHandler.message;
+	// if (message === currmsg) {
+	// 	streamsheet._msgHandler.reset();
+	// } 
+	// else {
+	// 	if (currmsg) streamsheet.inbox.pop(currmsg.id);
+	// 	streamsheet.inbox.put(message);
+	// 	streamsheet._attachMessage(message);
+	// }
+	streamsheet._attachMessage(message);
+};
+const stepExecuteRepeat = (cycle, SubCycleClass) => () => {
+		cycle.isActive = true;
+		cycle.hasStepped = true;
+		cycle.hasExecuted = true;
+		cycle.trigger.repetitions -= 1;
+		cycle.trigger.streamsheet.stats.repeatsteps = 0;
+		cycle.trigger.streamsheet.stats.executesteps += 1;
+		// remove this and add it to streamsheet.execute() if message should only be consumed on first repeat
+		if (cycle.trigger.message) attachExecuteMessage(cycle.trigger.message, cycle.trigger.streamsheet);
+		// if (cycle.trigger.message) cycle.trigger.streamsheet._attachMessage(cycle.trigger.message);
+		cycle.trigger.activeCycle = new SubCycleClass(cycle.trigger, cycle);
+		cycle.trigger.activeCycle.run(cycle.useNextMessage);
+};
 class PacedRepeatUntilCycle extends RepeatUntilCycle {
 	constructor(trigger, parent) {
 		super(trigger, parent);
@@ -32,66 +127,14 @@ class PacedMessageLoopCycle extends TimerCycle {
 	constructor(trigger, parent) {
 		super(trigger, parent);
 		this.useNextMessage = false;
+		this.step = stepInMessageLoop(this, trigger, PacedRepeatUntilCycle);
+		this.resume = resumeInMessageLoop(this, trigger);
+		this.activate = activateInMessageLoop(this, trigger);
 		this.getCycleTime = getPace(trigger, (pace) => pace != null && pace !== false);
-	}
-	isLastLoopIndex() {
-		return this.trigger.streamsheet._msgHandler._index >= this.trigger.streamsheet._msgHandler._stack.length - 1;
-	}
-	activate() {
-		// console.log('ACTIVATE LOOP CYCLE');
-		// console.log(`loop index ${this.trigger.streamsheet._msgHandler._index}`);
-		super.activate();
-		this.schedule();
-		// if (this.isFinished() || this.isLastLoopIndex()) {
-		if (this.isLastLoopIndex()) {
-			// console.log('FINISHED ACTIVATE LOOP CYCLE');
-			if (this.parentcycle) this.parentcycle.activate();
-		}
 	}
 	run(useNextMessage) {
 		this.useNextMessage = useNextMessage;
 		super.run();
-	}
-	isFinished() {
-		return (
-			!this.trigger.sheet.isPaused &&
-			this.trigger.streamsheet.isMessageProcessed() &&
-			this.trigger.sheet.isProcessed 
-			// &&	this.trigger.streamsheet.inbox.size < 2
-		);
-	}
-	step() {
-		if (this.trigger.isEndless) {
-			this.trigger.streamsheet.stats.steps += 1;
-			this.trigger.activeCycle = new PacedRepeatUntilCycle(this.trigger, this);
-			this.trigger.activeCycle.run();
-		// } else if (this.isFinished()) {
-		// 	// console.log('STOP');
-		// 	this.stop();
-		} else {
-			this.trigger.streamsheet.stats.steps += 1;
-			// console.log(`process ${this.trigger.streamsheet.name} ( is processed ${this.trigger.sheet.isProcessed})`);
-			this.trigger.processSheet(this.useNextMessage);
-			if (this.isFinished()) {
-				this.stop();
-			}
-		}
-	}
-	finishOnResume() {
-		// console.log(`FINISH RESUME ${this.trigger.streamsheet.name}: loop=${this.trigger.streamsheet.getLoopIndex()} loopCount= ${this.trigger.streamsheet.getLoopCount()}}`);
-		return (
-			this.trigger.sheet.isProcessed &&
-			(this.trigger.streamsheet.isMessageProcessed() ||
-			this.trigger.streamsheet.getLoopIndex() === this.trigger.streamsheet.getLoopCount() - 1)
-		);
-	}
-	resume() {
-		const loopIndexBefore = this.trigger.streamsheet.getLoopIndex();
-		super.resume();
-		const loopIndex = this.trigger.streamsheet.getLoopIndex();
-		if (loopIndex <= loopIndexBefore && this.finishOnResume()) {
-			this.stop();
-		}
 	}
 }
 class PacedExecuteRepeatCycle extends TimerCycle {
@@ -100,37 +143,9 @@ class PacedExecuteRepeatCycle extends TimerCycle {
 		this.isActive = false;
 		this.useNextMessage = false;
 		this.getCycleTime = getPace(trigger, (pace) => pace != null && pace !== false);
-	}
-	activate() {
-		super.activate();
-		this.schedule();
-		this.trigger.streamsheet.setMessageProcessed();	
-	}
-	schedule() {
-		if (this.isActive) {
-			if (this.trigger.sheet.isProcessed && this.trigger.repetitions < 1) {
-				// console.log(`RESUME FROM ${this.trigger.streamsheet.name}`);
-				this.isActive = false;
-				this.hasExecuted = false;
-				this.trigger.resumeExecute();
-			} else {
-				// console.log(`SCHEDULE ${this.trigger.streamsheet.name}`);
-				super.schedule();
-			}
-		}
-	}
-	step() {
-		// console.log('STEP EXECUTE');
-		this.isActive = true;
-		this.hasStepped = true;
-		this.hasExecuted = true;
-		this.trigger.repetitions -= 1;
-		this.trigger.streamsheet.stats.repeatsteps = 0;
-		this.trigger.streamsheet.stats.executesteps += 1;
-		// remove this and add it to streamsheet.execute() if message should only be consumed on first repeat
-		if (this.trigger.message) this.trigger.streamsheet._attachMessage(this.trigger.message);
-		this.trigger.activeCycle = new PacedMessageLoopCycle(this.trigger, this);
-		this.trigger.activeCycle.run(this.useNextMessage);		
+		this.step = stepExecuteRepeat(this, PacedMessageLoopCycle);
+		this.activate = activateInExecuteRepeat(this);
+		this.schedule = scheduleInExecuteRepeat(this);
 	}
 }
 
@@ -138,104 +153,38 @@ class ManualMessageLoopCycle extends ManualStepCycle {
 	constructor(trigger, parent) {
 		super(trigger, parent);
 		this.useNextMessage = false;
-	}
-	isLastLoopIndex() {
-		return this.trigger.streamsheet._msgHandler._index >= this.trigger.streamsheet._msgHandler._stack.length - 1;
-	}
-	activate() {
-		// console.log('ACTIVATE LOOP CYCLE');
-		// console.log(`loop index ${this.trigger.streamsheet._msgHandler._index}`);
-		super.activate();
-		this.schedule();
-		// if (this.isFinished() || this.isLastLoopIndex()) {
-		if (this.isLastLoopIndex()) {
-			// console.log('FINISHED ACTIVATE LOOP CYCLE');
-			if (this.parentcycle) this.parentcycle.activate();
-		}
+		this.step = stepInMessageLoop(this, trigger, ManualRepeatUntilCycle);
+		this.resume = resumeInMessageLoop(this, trigger);
+		this.activate = activateInMessageLoop(this, trigger);
 	}
 	run(useNextMessage) {
 		this.useNextMessage = useNextMessage;
 		super.run();
 	}
-	isFinished() {
-		return (
-			!this.trigger.sheet.isPaused &&
-			this.trigger.sheet.isProcessed &&
-			this.trigger.streamsheet.isMessageProcessed()
-		);
-	}
-	step() {
-		// 	console.log('MESSAGE LOOP STEP');
-		if (this.trigger.isEndless) {
-			this.trigger.streamsheet.stats.steps += 1;
-			this.trigger.activeCycle = new ManualRepeatUntilCycle(this.trigger, this);
-			this.trigger.activeCycle.run();
-			// } else if (this.isFinished()) {
-			// 	// console.log('STOP');
-			// 	this.stop();
-		} else {
-			this.trigger.streamsheet.stats.steps += 1;
-			// console.log(`process ${this.trigger.streamsheet.name} ( is processed ${this.trigger.sheet.isProcessed})`);
-			this.trigger.processSheet(this.useNextMessage || this.trigger.streamsheet.isMessageProcessed());
-			if (this.isFinished()) {
-				this.stop();
-			}
-		}
-	}
-	finishOnResume() {
-		return (
-			this.trigger.sheet.isProcessed &&
-			(this.trigger.streamsheet.isMessageProcessed() ||
-			this.trigger.streamsheet.getLoopIndex() === this.trigger.streamsheet.getLoopCount() - 1)
-		);
-	}
-	resume() {
-		// resuming on loop might go to next element, finish only if not
-		const loopIndexBefore = this.trigger.streamsheet.getLoopIndex();
-		super.resume();
-		const loopIndex = this.trigger.streamsheet.getLoopIndex();
-		if (loopIndex <= loopIndexBefore && this.finishOnResume()) {
-			this.stop();
-		}
-	}
 }
 class ManualExecuteRepeatCycle extends ManualStepCycle {
 	constructor(trigger, parent) {
 		super(trigger, parent);
+		this.isActive = true;
 		this.hasStepped = false;
 		this.hasExecuted = false;
 		this.useNextMessage = false;
+		this.run = stepExecuteRepeat(this, ManualMessageLoopCycle);
+		this.activate = activateInExecuteRepeat(this);
+		this.schedule = scheduleInExecuteRepeat(this);
 	}
-	activate() {
-		super.activate();
-		this.schedule();
-		this.trigger.streamsheet.setMessageProcessed();	
-	}
-	schedule() {
-		if (this.trigger.sheet.isProcessed && this.trigger.repetitions < 1) {
-			// console.log(`RESUME FROM ${this.trigger.streamsheet.name}`);
-			this.hasExecuted = false;
-			this.trigger.resumeExecute();
-		} else {
-			// console.log(`SCHEDULE ${this.trigger.streamsheet.name}`);
-			super.schedule();
-			// this.run();
-		}
-	}
-	run() {
-		// console.log('STEP EXECUTE');
-		this.hasStepped = true;
-		this.hasExecuted = true;
-		this.trigger.repetitions -= 1;
-		this.trigger.streamsheet.stats.repeatsteps = 0;
-		this.trigger.streamsheet.stats.executesteps += 1;
-		// remove this and add it to streamsheet.execute() if message should only be consumed on first repeat
-		if (this.trigger.message) this.trigger.streamsheet._attachMessage(this.trigger.message);
-		this.trigger.activeCycle = new ManualMessageLoopCycle(this.trigger, this);
-		this.trigger.activeCycle.run(this.useNextMessage);
-	}
+	// schedule() {
+	// 	if (this.trigger.sheet.isProcessed && this.trigger.repetitions < 1) {
+	// 		this.hasExecuted = false;
+	// 		this.trigger.resumeExecute();
+	// 	} else {
+	// 		super.schedule();
+	// 	}
+	// }
 	step() {
-		if (this.hasExecuted && !this.hasStepped) this.run();
+		if (this.hasExecuted && !this.hasStepped) {
+			this.run();
+		}
 	}
 }
 

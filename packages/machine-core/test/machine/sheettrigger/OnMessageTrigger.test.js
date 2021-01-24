@@ -11,6 +11,12 @@
 const { Machine, Message, StreamSheet, TriggerFactory } = require('../../..');
 const { createCellAt, monitorStreamSheet, wait } = require('../../utils');
 
+const createStreamsheet = ({ name, type, repeat }) => {
+	const streamsheet = new StreamSheet({ name });
+	streamsheet.trigger = TriggerFactory.create({ type, repeat });
+	return streamsheet;
+};
+
 const putMessages = (streamsheet, ...messages) => messages.forEach(message => streamsheet.inbox.put(message));
 
 const callPerSecond = (func, times = 1) => new Promise((resolve) => {
@@ -28,11 +34,10 @@ const callPerSecond = (func, times = 1) => new Promise((resolve) => {
 
 const setup = () => {
 	const machine = new Machine();
-	const s1 = new StreamSheet({ name: 'S1' });
+	const s1 = createStreamsheet({ name: 'S1', type: TriggerFactory.TYPE.ARRIVAL });
 	machine.removeAllStreamSheets();
 	machine.addStreamSheet(s1);
 	machine.cycletime = 20000;
-	s1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.ARRIVAL });
 	return { machine, s1 };
 };
 
@@ -102,8 +107,7 @@ describe('OnMessageTrigger', () => {
 		});
 		it('should not prevent calculation of other sheets', async () => {
 			const { machine, s1 } = setup();
-			const s2 = new StreamSheet();
-			s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' });
+			const s2 = createStreamsheet({ name: 'S2', type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' });
 			machine.addStreamSheet(s2);
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
@@ -189,8 +193,7 @@ describe('OnMessageTrigger', () => {
 		test('with execute another sheet', async () => {
 			const { machine, s1 } = setup();
 			const monitorS1 = monitorStreamSheet(s1);
-			const s2 = new StreamSheet();
-			s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE });			
+			const s2 = createStreamsheet({ name: 'S2', type: TriggerFactory.TYPE.EXECUTE });
 			s1.sheet.load({
 				cells: {
 					A1: { formula: 'A1+1' },
@@ -218,6 +221,39 @@ describe('OnMessageTrigger', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(5);
 			expect(s1.sheet.cellAt('D1').value).toBe(5);
 			expect(s2.sheet.cellAt('B2').value).toBe(5);
+		});
+		it.skip('should resume from execute sheet', async () => {
+			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
+			const s2 = createStreamsheet({ name: 'S2', type: TriggerFactory.TYPE.EXECUTE, repeat: 'endless' });
+			machine.addStreamSheet(s2);
+			s1.trigger.update({ repeat: 'endless'});
+			s1.updateSettings({ loop: { path: '[data]', enabled: true } });
+			s1.sheet.loadCells({
+				A1: { formula: 'A1+1' },
+				A2: { formula: 'loopindices()' },
+				A3: { formula: 'messageids()' },
+				A4: { formula: 'execute("S2")' },
+				B4: { formula: 'B4+1' }
+			});
+			s2.sheet.loadCells({
+				B1: { formula: 'B1+1' },
+				B2: { formula: 'if(mod(B1,2)=0,return(),false)' }
+			});
+			await machine.pause();
+			s1.inbox.put(new Message([1, 2, 3], '1'));
+			s1.inbox.put(new Message([4, 5], '2'));
+			s1.inbox.put(new Message({}, '3'));
+			expect(s1.inbox.size).toBe(3);
+			await machine.start();
+			await monitorS1.hasFinishedStep(7);
+			await machine.stop();
+			expect(s1.sheet.cellAt('A1').value).toBe(8);
+			expect(s1.sheet.cellAt('A2').value).toBe('0,1,2,0,1,0,0');
+			expect(s1.sheet.cellAt('A3').value).toBe('1,1,1,2,2,3,3');
+			expect(s1.sheet.cellAt('B4').value).toBe(8);
+			expect(s2.sheet.cellAt('B1').value).toBe(14);
+			expect(s2.sheet.cellAt('B2').value).toBe(true);
 		});
 	});
 	describe('behaviour on start, stop, pause and step', () => {

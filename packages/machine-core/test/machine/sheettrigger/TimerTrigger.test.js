@@ -11,15 +11,24 @@
 const { Machine, StreamSheet, TriggerFactory } = require('../../..');
 const { createCellAt, expectValue, monitorStreamSheet, wait } = require('../../utils');
 
+const createStreamsheet = (config) => {
+	const streamsheet = new StreamSheet({ name: config.name });
+	streamsheet.trigger = TriggerFactory.create(config);
+	return streamsheet;
+};
+
 const setup = (triggerConfig = {}) => {
 	const machine = new Machine();
-	const s1 = new StreamSheet({ name: 'S1' });
+	const s1 = createStreamsheet({ name: 'S1', ...triggerConfig });
+	// const s1 = new StreamSheet({ name: 'S1'});
 	machine.removeAllStreamSheets();
 	machine.addStreamSheet(s1);
 	machine.cycletime = 50;
 	s1.trigger = TriggerFactory.create(triggerConfig);
 	return { machine, s1 };
 };
+
+
 describe('TimerTrigger', () => {
 	// describe('trigger type random', () => {
 	// 	describe('general behaviour', () => {});
@@ -122,6 +131,38 @@ describe('TimerTrigger', () => {
 				expect(s1.sheet.cellAt('A1').value).toBe(10);
 				expect(s1.sheet.cellAt('A3').value).toBe(8);
 				await machine.stop();
+			});
+			it.skip('should resume from execute sheet', async () => {
+				const { machine, s1 } = setup({ type: TriggerFactory.TYPE.TIMER, repeat: 'endless' });
+				const monitorS1 = monitorStreamSheet(s1);
+				const s2 = createStreamsheet({ name: 'S2', type: TriggerFactory.TYPE.EXECUTE, repeat: 'endless' });
+				machine.addStreamSheet(s2);
+				s1.updateSettings({ loop: { path: '[data]', enabled: true } });
+				s1.sheet.loadCells({
+					A1: { formula: 'A1+1' },
+					A2: { formula: 'loopindices()' },
+					A3: { formula: 'messageids()' },
+					A4: { formula: 'execute("S2")' },
+					B4: { formula: 'B4+1' }
+				});
+				s2.sheet.loadCells({
+					B1: { formula: 'B1+1' },
+					B2: { formula: 'if(mod(B1,2)=0,return(),false)' }
+				});
+				await machine.pause();
+				s1.inbox.put(new Message([1, 2, 3], '1'));
+				s1.inbox.put(new Message([4, 5], '2'));
+				s1.inbox.put(new Message({}, '3'));
+				expect(s1.inbox.size).toBe(3);
+				await machine.start();
+				await monitorS1.hasFinishedStep(7);
+				await machine.stop();
+				expect(s1.sheet.cellAt('A1').value).toBe(8);
+				expect(s1.sheet.cellAt('A2').value).toBe('0,1,2,0,1,0,0');
+				expect(s1.sheet.cellAt('A3').value).toBe('1,1,1,2,2,3,3');
+				expect(s1.sheet.cellAt('B4').value).toBe(8);
+				expect(s2.sheet.cellAt('B1').value).toBe(14);
+				expect(s2.sheet.cellAt('B2').value).toBe(true);
 			});
 		});
 		describe('behaviour on start, stop, pause and step', () => {

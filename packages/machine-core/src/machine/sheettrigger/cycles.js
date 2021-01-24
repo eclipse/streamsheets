@@ -117,6 +117,8 @@ class RepeatUntilCycle extends TimerCycle {
 
 class ManualRepeatUntilCycle extends ManualCycle {
 	step() {
+		// in manual we count steps even in endless mode?
+		// this.trigger.streamsheet.stats.steps += 1;
 		this.trigger.streamsheet.stats.repeatsteps += 1;
 		this.trigger.processSheet();
 	}	

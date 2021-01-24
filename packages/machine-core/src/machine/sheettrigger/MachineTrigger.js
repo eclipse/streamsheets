@@ -51,6 +51,7 @@ class OnStopRepeatUntilCycle extends RepeatUntilCycle {
 		preventStop(true, this.trigger.streamsheet);
 	}
 }
+
 class MachineCycle extends TimerCycle {
 	constructor(trigger) {
 		super(trigger);

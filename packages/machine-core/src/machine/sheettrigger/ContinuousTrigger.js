@@ -11,97 +11,61 @@
 const BaseTrigger = require('./BaseTrigger');
 const { ManualStepCycle, ManualRepeatUntilCycle, RepeatUntilCycle, TriggerCycle } = require('./cycles');
 
-
-class MachineCycleWrapper extends TriggerCycle {
-	step() {
-		this.trigger.streamsheet.stats.steps += 1;
-		if (this.trigger.isEndless) {
-			this.trigger.activeCycle = new RepeatUntilCycle(this.trigger, this);
-			this.trigger.activeCycle.run();
-		} else {
-			this.trigger.processSheet();
-		}
-	}
-}
-
-class MessageLoopCycle extends MachineCycleWrapper {
-	isFinished() {
+const stepInMessageLoop = (cycle, trigger, SubCycleClass) => {
+	const isFinished = () => {
 		return (
-			!this.trigger.sheet.isPaused &&
-			this.trigger.sheet.isProcessed &&
-			this.trigger.streamsheet.isMessageProcessed()
+			!trigger.sheet.isPaused &&
+			trigger.sheet.isProcessed &&
+			trigger.streamsheet.isMessageProcessed()
 		);
 	}
-	step() {
-		this.trigger.useNextMessage = this.trigger.streamsheet.isMessageProcessed();
-		if (this.trigger.isEndless) {
-			this.trigger.streamsheet.stats.steps += 1;
-			this.trigger.activeCycle = new RepeatUntilCycle(this.trigger, this);
-			this.trigger.activeCycle.run();
-			this.trigger.useNextMessage = false;
+	return () => {
+		trigger.useNextMessage = trigger.streamsheet.isMessageProcessed();
+		if (trigger.isEndless) {
+			trigger.streamsheet.stats.steps += 1;
+			trigger.activeCycle = new SubCycleClass(trigger, cycle);
+			trigger.activeCycle.run();
+			trigger.useNextMessage = false;
 		} else {
-			this.trigger.streamsheet.stats.steps += 1;
-			this.trigger.processSheet();
-			if (this.isFinished()) {
-				this.stop();
+			trigger.streamsheet.stats.steps += 1;
+			trigger.processSheet();
+			if (isFinished()) {
+				cycle.stop();
 			}
 		}
 	}
-	finishOnResume() {
+};
+const resumeInMessageLoop = (cycle, trigger) => {
+	const finishOnResume = () => {
 		return (
-			this.trigger.sheet.isProcessed &&
-			(this.trigger.streamsheet.isMessageProcessed() ||
-				this.trigger.streamsheet.getLoopIndex() === this.trigger.streamsheet.getLoopCount() - 1)
+			trigger.sheet.isProcessed &&
+			(trigger.streamsheet.isMessageProcessed() ||
+				trigger.streamsheet.getLoopIndex() === trigger.streamsheet.getLoopCount() - 1)
 		);
 	}
-	resume() {
-		const loopIndexBefore = this.trigger.streamsheet.getLoopIndex();
-		super.resume();
-		const loopIndex = this.trigger.streamsheet.getLoopIndex();
-		if (loopIndex <= loopIndexBefore && this.finishOnResume()) {
-			this.stop();
+	return () => {
+		const loopIndexBefore = trigger.streamsheet.getLoopIndex();
+		Object.getPrototypeOf(cycle).resume.call(cycle);
+		const loopIndex = trigger.streamsheet.getLoopIndex();
+		if (loopIndex <= loopIndexBefore && finishOnResume()) {
+			cycle.stop();
 		}
+	}
+};
+
+class MessageLoopCycle extends TriggerCycle {
+	constructor(trigger, parentcycle) {
+		super(trigger, parentcycle);
+		this.step = stepInMessageLoop(this, trigger, RepeatUntilCycle);
+		this.resume = resumeInMessageLoop(this, trigger);
 	}
 }
 
 class ManualMessageLoopCycle extends ManualStepCycle {
-	isFinished() {
-		return (
-			!this.trigger.sheet.isPaused &&
-			this.trigger.sheet.isProcessed &&
-			this.trigger.streamsheet.isMessageProcessed()
-		);
-	}
-	step() {
-		this.trigger.useNextMessage = this.trigger.streamsheet.isMessageProcessed();
-		if (this.trigger.isEndless) {
-			this.trigger.streamsheet.stats.steps += 1;
-			this.trigger.activeCycle = new ManualRepeatUntilCycle(this.trigger, this);
-			this.trigger.activeCycle.run();
-			this.trigger.useNextMessage = false;
-		} else {
-			this.trigger.streamsheet.stats.steps += 1;
-			this.trigger.processSheet();
-			if (this.isFinished()) {
-				this.stop();
-			}
-		}
-	}
-	finishOnResume() {
-		return (
-			this.trigger.sheet.isProcessed &&
-			(this.trigger.streamsheet.isMessageProcessed() ||
-				this.trigger.streamsheet.getLoopIndex() === this.trigger.streamsheet.getLoopCount() - 1)
-		);
-	}
-	resume() {
-		// resuming on loop might go to next element, finish only if not
-		const loopIndexBefore = this.trigger.streamsheet.getLoopIndex();
-		super.resume();
-		const loopIndex = this.trigger.streamsheet.getLoopIndex();
-		if (loopIndex <= loopIndexBefore && this.finishOnResume()) {
-			this.stop();
-		}
+	constructor(trigger, parentcycle) {
+		super(trigger, parentcycle);
+		this.step = stepInMessageLoop(this, trigger, ManualRepeatUntilCycle);
+		this.resume = resumeInMessageLoop(this, trigger);
 	}
 }
 
@@ -116,12 +80,10 @@ class ContinuousTrigger extends BaseTrigger {
 	constructor(config = {}) {
 		super(Object.assign({}, config, TYPE_CONF));
 		this.useNextMessage = true;
-		// this.activeCycle = new ManualStepCycle(this);
 		this.activeCycle = new ManualMessageLoopCycle(this);
 	}
 
 	getManualCycle() {
-		// return new ManualStepCycle(this);
 		return new ManualMessageLoopCycle(this);
 	}
 
@@ -131,12 +93,6 @@ class ContinuousTrigger extends BaseTrigger {
 
 	processSheet(useNextMessage) {
 		if (useNextMessage == null) useNextMessage = this.useNextMessage;
-		// useNextMessage =
-		// 	useNextMessage && this._streamsheet.isMessageProcessed();
-		// 	!this.isEndless &&
-		// 	this._streamsheet.isMessageProcessed() &&
-		// 	(this.sheet.isReady || this.sheet.isProcessed);
-		// // this._hasTriggered = true;
 		this._streamsheet.process(useNextMessage);
 	}
 }
