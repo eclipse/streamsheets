@@ -531,6 +531,7 @@ describe('behaviour on machine run', () => {
 		test('execute sheet and pass message with loop is stopped by return', async () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START});
 			const monitorS2 = monitorStreamSheet(s2);
+			const monitorS1 = monitorStreamSheet(s1);
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
 				A2: 'hello', B2: 'world', C2: '!!!', D2: 23,
@@ -540,7 +541,7 @@ describe('behaviour on machine run', () => {
 			s2.sheet.loadCells({ B1: { formula: 'B1+1' }, B2: { formula: 'if(B1>2,return(42),"waiting")'} });
 			s2.updateSettings({ loop: { path: '[data]', enabled: true } });
 			await machine.start();
-			await wait(100);
+			await monitorS1.hasFinishedStep(1);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A3').value).toBe(42);
