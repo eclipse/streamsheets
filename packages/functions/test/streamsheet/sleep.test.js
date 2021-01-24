@@ -169,16 +169,16 @@ describe('sleep', () => {
 		createCellAt('A1', 0.0001, sheet);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(0.0001);
-		expect(sheet.cellAt('A3').value).toBe(2);
-		await machine.step();
 		expect(sheet.cellAt('A3').value).toBe(3);
 		await machine.step();
 		expect(sheet.cellAt('A3').value).toBe(4);
+		await machine.step();
+		expect(sheet.cellAt('A3').value).toBe(5);
 		// update reference:
 		createCellAt('A1', 0.001, sheet);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(0.001);
-		expect(sheet.cellAt('A3').value).toBe(4);
+		expect(sheet.cellAt('A3').value).toBe(5);
 	});
 	it('should not consume messages if sleep() is replaced', async () => {
 		const machine = new Machine();
@@ -253,9 +253,6 @@ describe('sleep', () => {
 		// update sleep time to resolve...
 		createCellAt('A1', 0.0001, sheet);
 		await machine.step();
-		expect(sheet.cellAt('A4').value).toBe(2);
-		expect(sheet.streamsheet.inbox.size).toBe(3);
-		await machine.step();
 		expect(sheet.cellAt('A4').value).toBe(3);
 		expect(sheet.streamsheet.inbox.size).toBe(2);
 		await machine.step();
@@ -263,6 +260,9 @@ describe('sleep', () => {
 		expect(sheet.streamsheet.inbox.size).toBe(1);
 		await machine.step();
 		expect(sheet.cellAt('A4').value).toBe(5);
+		expect(sheet.streamsheet.inbox.size).toBe(1);
+		await machine.step();
+		expect(sheet.cellAt('A4').value).toBe(6);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
 	});
 	it('should not loop message while sleeping', async () => {
@@ -294,15 +294,7 @@ describe('sleep', () => {
 		expect(sheet.cellAt('B1').value).toBe('Foo');
 		expect(sheet.cellAt('A4').value).toBe(1);
 		createCellAt('A2', 0.0001, sheet);	// resolve
-		await machine.step();
-		expect(sheet.cellAt('B1').value).toBe('Foo');
-		expect(sheet.cellAt('A4').value).toBe(2);
-		createCellAt('A2', 5, sheet);	// sleep
-		await machine.step();
-		expect(sheet.cellAt('B1').value).toBe('Bar');
-		expect(sheet.cellAt('A4').value).toBe(2);
-		createCellAt('A2', 0.0001, sheet);	// resolve
-		await machine.step();
+		await machine.step();	// step will finish resolve & process next step!!
 		expect(sheet.cellAt('B1').value).toBe('Bar');
 		expect(sheet.cellAt('A4').value).toBe(3);
 		createCellAt('A2', 5, sheet);	// sleep
@@ -310,20 +302,28 @@ describe('sleep', () => {
 		expect(sheet.cellAt('B1').value).toBe('Schmidt');
 		expect(sheet.cellAt('A4').value).toBe(3);
 		createCellAt('A2', 0.0001, sheet);	// resolve
-		await machine.step();
-		expect(sheet.cellAt('B1').value).toBe('Schmidt');
-		expect(sheet.cellAt('A4').value).toBe(4);
-		createCellAt('A2', 5, sheet);	// sleep
-		await machine.step();
+		await machine.step();	// step will finish resolve & process next step!!
 		expect(sheet.cellAt('B1').value).toBe('Muller');
-		expect(sheet.cellAt('A4').value).toBe(4);
-		createCellAt('A2', 0.0001, sheet);	// resolve
+		expect(sheet.cellAt('A4').value).toBe(5);
+		createCellAt('A2', 5, sheet);	// sleep
 		await machine.step();
 		expect(sheet.cellAt('B1').value).toBe('Muller');
 		expect(sheet.cellAt('A4').value).toBe(5);
-		await machine.step();
+		createCellAt('A2', 0.0001, sheet);	// resolve
+		await machine.step();	// step will finish resolve & process next step!!
+		expect(sheet.cellAt('B1').value).toBe('Muller');
+		expect(sheet.cellAt('A4').value).toBe(7);
+		createCellAt('A2', 5, sheet);	// sleep
 		await machine.step();
 		expect(sheet.cellAt('B1').value).toBe('Muller');
 		expect(sheet.cellAt('A4').value).toBe(7);
+		createCellAt('A2', 0.0001, sheet);	// resolve
+		await machine.step();	// step will finish resolve & process next step!!
+		expect(sheet.cellAt('B1').value).toBe('Muller');
+		expect(sheet.cellAt('A4').value).toBe(9);
+		await machine.step();
+		await machine.step();
+		expect(sheet.cellAt('B1').value).toBe('Muller');
+		expect(sheet.cellAt('A4').value).toBe(11);
 	});
 });

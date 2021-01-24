@@ -240,7 +240,7 @@ describe('getcycle', () => {
 		await machine.step();
 		expect(GETCYCLE(t1.sheet)).toBe(3);
 	});
-	it('should not increase if sheet is triggered normally', async () => {
+	it('should not increase if sheet is triggered manually', async () => {
 		const t1 = createStreamSheet('T1',
 			TriggerFactory.create({ type: TriggerFactory.TYPE.ARRIVAL }),
 			{ A1: 'A1+1' });
@@ -259,7 +259,7 @@ describe('getcycle', () => {
 		t1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.ONCE });
 		await machine.step();
 		await machine.step();
-		expect(GETCYCLE(t1.sheet)).toBe(0);
+		expect(GETCYCLE(t1.sheet)).toBe(1);
 	});
 	it('should start at 1 on each initial sheet trigger', async () => {
 		const t1 = createStreamSheet('T1',
@@ -274,10 +274,10 @@ describe('getcycle', () => {
 		await machine.step();
 		expect(GETCYCLE(t1.sheet)).toBe(2);
 		await machine.step();
-		expect(GETCYCLE(t1.sheet)).toBe(0);
+		expect(GETCYCLE(t1.sheet)).toBe(3);
 		expect(t1.sheet.cellAt('A1').value).toBe(4);
 		await machine.step();
-		expect(GETCYCLE(t1.sheet)).toBe(1);
+		expect(GETCYCLE(t1.sheet)).toBe(4);
 		expect(t1.sheet.cellAt('A1').value).toBe(5);
 		t1.inbox.put(new Message());
 		await machine.step();
