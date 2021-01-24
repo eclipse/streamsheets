@@ -16,49 +16,13 @@ const execute = (sheet, ...terms) => {
 		context.resumeFn();
 	};
 	const resumeFromExecute = (context, callingStreamSheet) => (retval) => {
-		// console.log(`RESUME EXECUTE ${callingStreamSheet.name} retval ${retval}`);
 		if (context.term.cell) context.term.cell.value = retval != null ? retval : true;
 		callingStreamSheet.resumeProcessing(retval);
-		context.repetitions = context.reps;
 	}
 
-	const resumeOLD = (context, callingStreamSheet) => (retval /*, message */) => {
-		if (context.repetitions < 1) {
-			context.isResumed = true;
-			if (context.term.cell) context.term.cell.value = retval != null ? retval : true;
-			// console.log(`RESUME EXECUTE ${callingStreamSheet.name}`);
-			callingStreamSheet.resumeProcessing(retval);
-		} else {
-			context.repeatExecute(context, true);
-		}
-	};
-	const doExecuteOLD = (calledStreamSheet, pace) => (context, isRepeating) => {
-		context.repetitions -= 1;
+	const doExecute = (calledStreamSheet, pace) => (context) => {
 		const message = context.msgdata ? new Message(context.msgdata) : context.message;
-		// console.log(`REPEAT EXECUTE OF ${calledStreamSheet.name} ( is processed ${calledStreamSheet.sheet.isProcessed})`);
-		calledStreamSheet.execute(context.resumeFn, message, pace, isRepeating); /* , context.repeats); */
-	};
-	const resume = (context, callingStreamSheet) => (retval /*, message */) => {
-		context.isResumed = true;
-		if (context.repetitions < 1) {
-			if (context.term.cell) context.term.cell.value = retval != null ? retval : true;
-			// console.log(`RESUME EXECUTE ${callingStreamSheet.name}`);
-			callingStreamSheet.resumeProcessing(retval);
-			context.repetitions = context.reps;
-		}
-	};
-	const doExecute1 = (calledStreamSheet, pace) => (context, isRepeating) => {
-		if (context.repetitions > 0) {
-			context.repetitions -= 1;
-			const message = context.msgdata ? new Message(context.msgdata) : context.message;
-			// console.log(`REPEAT EXECUTE OF ${calledStreamSheet.name} ( is processed ${calledStreamSheet.sheet.isProcessed})`);
-			calledStreamSheet.execute(context.resumeFn, message, pace, isRepeating); /* , context.repeats); */
-		}
-	};
-	const doExecute = (calledStreamSheet, pace) => (context, isRepeating) => {
-		const message = context.msgdata ? new Message(context.msgdata) : context.message;
-		// console.log(`REPEAT EXECUTE OF ${calledStreamSheet.name} ( is processed ${calledStreamSheet.sheet.isProcessed})`);
-		calledStreamSheet.execute(context.resumeFn, message, pace, context.repetitions); /* , context.repeats); */
+		calledStreamSheet.execute(context.resumeFn, message, pace, context.repetitions);
 	};
 
 	if (sheet.isProcessing) {
@@ -80,25 +44,11 @@ const execute = (sheet, ...terms) => {
 		}
 		if (!context.initialized) {
 			context.initialized = true;
-			context.reps = Math.max(1, repetitions);
-			context.repetitions = context.reps;
+			context.repetitions = Math.max(1, repetitions);
 			context.resumeFn = resumeFromExecute(context, callingStreamSheet);
 			context.repeatExecute = doExecute(calledStreamSheet, pace);
 			context.addDisposeListener(cancelExecute(calledStreamSheet));
 		}
-		// OLD:
-		// if (!sheet.isPaused) {
-		// 	// always pause calling sheet, since we do not know how long execute takes (due to pause/sleep functions)
-		// 	callingStreamSheet.pauseProcessing();
-		// 	context.isResumed = false;
-		// 	// context.repeats = 0;
-		// 	context.repetitions = Math.max(1, repetitions);
-		// 	context.repeatExecute = doExecute(calledStreamSheet, pace);
-		// 	// calledStreamSheet.stats.executesteps = 0;
-		// 	// pass message only at beginning:
-		// 	// console.log(`EXECUTE  ${calledStreamSheet.name}`);
-		// 	context.repeatExecute(context);
-		// }
 		if (!sheet.isPaused) {
 			// always pause calling sheet, since we do not know how long execute takes (due to pause/sleep functions)
 			callingStreamSheet.pauseProcessing();
