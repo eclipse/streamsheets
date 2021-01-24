@@ -93,16 +93,16 @@ const scheduleInExecuteRepeat = (cycle) => () => {
 	}
 };
 const attachExecuteMessage = (message, streamsheet) => {
-	// const currmsg = streamsheet._msgHandler.message;
-	// if (message === currmsg) {
-	// 	streamsheet._msgHandler.reset();
-	// } 
-	// else {
-	// 	if (currmsg) streamsheet.inbox.pop(currmsg.id);
-	// 	streamsheet.inbox.put(message);
-	// 	streamsheet._attachMessage(message);
-	// }
-	streamsheet._attachMessage(message);
+	const currmsg = streamsheet._msgHandler.message;
+	if (message === currmsg) {
+		streamsheet._msgHandler.reset();
+	} 
+	else {
+		if (currmsg) streamsheet.inbox.pop(currmsg.id);
+		streamsheet.inbox.put(message);
+		streamsheet._attachMessage(message);
+	}
+	// streamsheet._attachMessage(message);
 };
 const stepExecuteRepeat = (cycle, SubCycleClass) => () => {
 		cycle.isActive = true;
@@ -112,7 +112,9 @@ const stepExecuteRepeat = (cycle, SubCycleClass) => () => {
 		cycle.trigger.streamsheet.stats.repeatsteps = 0;
 		cycle.trigger.streamsheet.stats.executesteps += 1;
 		// remove this and add it to streamsheet.execute() if message should only be consumed on first repeat
-		if (cycle.trigger.message) attachExecuteMessage(cycle.trigger.message, cycle.trigger.streamsheet);
+		if (cycle.trigger.message /* && cycle.trigger.streamsheet.isMessageProcessed() */) {
+			attachExecuteMessage(cycle.trigger.message, cycle.trigger.streamsheet);
+		}
 		// if (cycle.trigger.message) cycle.trigger.streamsheet._attachMessage(cycle.trigger.message);
 		cycle.trigger.activeCycle = new SubCycleClass(cycle.trigger, cycle);
 		cycle.trigger.activeCycle.run(cycle.useNextMessage);

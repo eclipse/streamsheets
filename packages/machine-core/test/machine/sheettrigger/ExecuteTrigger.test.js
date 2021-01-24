@@ -567,7 +567,8 @@ describe('behaviour on machine run', () => {
 			expect(s1.sheet.cellAt('A3').value).toBe(true);
 			expect(s1.sheet.cellAt('A4').value).toBe(2);
 			expect(s2.sheet.cellAt('B1').value).toBe(5);
-			expect(monitorS2.messages.attached).toBe(4);
+			// message is reused, so only one attached
+			expect(monitorS2.messages.attached).toBe(1);
 			expect(monitorS2.messages.detached).toBe(4);
 		});
 		test('repeated execute and pass message with loop', async () => {
@@ -588,7 +589,8 @@ describe('behaviour on machine run', () => {
 			expect(s1.sheet.cellAt('A3').value).toBe(true);
 			expect(s1.sheet.cellAt('A4').value).toBe(2);
 			expect(s2.sheet.cellAt('B1').value).toBe(5);
-			expect(monitorS2.messages.attached).toBe(2);
+			// message is reused, so only one attached
+			expect(monitorS2.messages.attached).toBe(1);
 			expect(monitorS2.messages.detached).toBe(2);
 		});
 		test('repeated execute and pass message and "repeat until..." return()', async () => {
@@ -616,7 +618,8 @@ describe('behaviour on machine run', () => {
 			expect(s2.sheet.cellAt('B1').value).toBe(8);
 			expect(s2.sheet.cellAt('B2').value).toBe('0,0,0,0,0,0,0');
 			expect(s2.sheet.cellAt('B3').value).toBe(42);
-			expect(monitorS2.messages.attached).toBe(4);
+			// message is reused, so only one attached
+			expect(monitorS2.messages.attached).toBe(1);
 		});
 		test('repeated execute and pass message with loop and "repeat until..." return()', async () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START});
@@ -644,7 +647,8 @@ describe('behaviour on machine run', () => {
 			expect(s2.sheet.cellAt('B1').value).toBe(48);
 			expect(s2.sheet.cellAt('B2').value.startsWith('0,0,1,1,1,2,2,2,3,3,3')).toBeTruthy();
 			expect(s2.sheet.cellAt('B3').value).toBe(42);
-			expect(monitorS2.messages.attached).toBe(4);
+			// message is reused, so only one attached
+			expect(monitorS2.messages.attached).toBe(1);
 		});
 		test('repeated execute with loop and pause function', async () => {
 			const { machine, s1, s2 } = setup();
@@ -840,8 +844,9 @@ describe('behaviour on machine run', () => {
 			await machine.start();
 			await monitorS1.hasFinishedStep(1);
 			await machine.stop();
-			expect(s2.inbox.size).toBe(2);
-			expect(monitorS2.messages.attached).toBe(3);
+			expect(s2.inbox.size).toBe(3);
+			// message is reused, so only one attached
+			expect(monitorS2.messages.attached).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A3').value).toBe(true);
 			expect(s1.sheet.cellAt('A4').value).toBe(2);
@@ -869,8 +874,9 @@ describe('behaviour on machine run', () => {
 			await machine.pause();
 			// finishes repetitions
 			expect(s2.stats.executesteps).toBe(3);
-			expect(monitorS2.messages.attached).toBe(3);
-			expect(s2.inbox.size).toBe(3);
+			// message is reused, so only one attached
+			expect(monitorS2.messages.attached).toBe(1);
+			expect(s2.inbox.size).toBe(4);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A4').value).toBe(2);
 			expect(s2.sheet.cellAt('B1').value).toBe('0,1,0,1,0,1');
@@ -879,8 +885,8 @@ describe('behaviour on machine run', () => {
 			await monitorS1.hasFinishedStep(2);
 			await machine.stop();
 			expect(s2.stats.executesteps).toBe(3);
-			expect(monitorS2.messages.attached).toBe(6);
-			expect(s2.inbox.size).toBe(3);
+			expect(monitorS2.messages.attached).toBe(2);
+			expect(s2.inbox.size).toBe(4);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A4').value).toBe(3);
 			expect(s2.sheet.cellAt('B1').value).toBe('0,1,0,1,0,1,0,1,0,1,0,1');
@@ -1052,23 +1058,28 @@ describe('behaviour on machine run', () => {
 			s2.sheet.loadCells({
 				B1: { formula: 'B1+1' },
 				B2: { formula: 'loopindices()' },
-				B3: 'john', C2: 'doe',
-				B4: { formula: 'execute("S3", 3, array(B2,C2))' },
+				B3: 'john', C3: 'doe',
+				B4: { formula: 'execute("S3", 3, array(B3,C3))' },
 				B5: { formula: 'B5+1' }
 			});
 			s3.sheet.loadCells({ C1: { formula: 'C1+1' }, C2: { formula: 'loopindices()' } });
 			await machine.step();
-			expect(s3.sheet.cellAt('C1').value).toBe(2);
+			await machine.step();
+			expect(s3.sheet.cellAt('C1').value).toBe(3);
+			expect(s3.sheet.cellAt('C2').value).toBe('0,1');
+			// NOTE: start will remove all messages!!!
 			await machine.start();
 			await monitorS1.hasFinishedStep(1);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A4').value).toBe(2);
-			expect(s2.sheet.cellAt('B1').value).toBe(5);
-			expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1');
-			expect(s2.sheet.cellAt('B5').value).toBe(5);
-			expect(s3.sheet.cellAt('C1').value).toBe(25);
-			expect(s3.sheet.cellAt('C2').value.startsWith('0,1,0,1,0,1,0,1,0,1')).toBeTruthy();
+			// first repetition was canceled by start, so only one with 2 loops left
+			expect(s2.sheet.cellAt('B1').value).toBe(4);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,0,1');
+			// if messages are not remove on start: expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1');
+			expect(s2.sheet.cellAt('B5').value).toBe(4);
+			expect(s3.sheet.cellAt('C1').value).toBe(20);
+			expect(s3.sheet.cellAt('C2').value.startsWith('0,1,0,0,1,0,1,0,1,0,1,0,1')).toBeTruthy();
 		});
 		test('chained execution with passed data in "repeat until..." mode', async () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START });
@@ -1689,7 +1700,7 @@ describe('behaviour on manual steps', () => {
 			expect(s2.inbox.size).toBe(2);
 			await machine.step();
 			// always use passed message => never inbox ones...
-			expect(s2.inbox.size).toBe(2);
+			expect(s2.inbox.size).toBe(3);
 			expect(monitorS2.messages.attached).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A3').value).toBe(true);
@@ -1699,7 +1710,7 @@ describe('behaviour on manual steps', () => {
 			await machine.step();
 			await machine.step();
 			// always use passed message => never inbox ones...
-			expect(s2.inbox.size).toBe(2);
+			expect(s2.inbox.size).toBe(3);
 			expect(s1.sheet.cellAt('A1').value).toBe(5);
 			expect(s1.sheet.cellAt('A4').value).toBe(5);
 			expect(s2.sheet.cellAt('B1').value).toBe(5);
@@ -1774,19 +1785,19 @@ describe('behaviour on manual steps', () => {
 			s2.inbox.put(new Message({}, '2'));
 			expect(s2.inbox.size).toBe(2);
 			await machine.step();
-			expect(s2.inbox.size).toBe(2);
+			expect(s2.inbox.size).toBe(3);
 			expect(s2.inbox.peek().id).toBeDefined();
 			expect(s2.stats.executesteps).toBe(1);
 			await machine.step();
-			expect(s2.inbox.size).toBe(2);
+			expect(s2.inbox.size).toBe(3);
 			expect(s2.inbox.peek().id).toBe('1');
 			expect(s2.stats.executesteps).toBe(2);
 			await machine.step();
-			expect(s2.inbox.size).toBe(2);
+			expect(s2.inbox.size).toBe(3);
 			expect(s2.inbox.peek().id).toBe('1');
 			expect(s2.stats.executesteps).toBe(3);
 			await machine.step();
-			expect(s2.inbox.size).toBe(2);
+			expect(s2.inbox.size).toBe(3);
 			expect(s2.inbox.peek().id).toBeDefined();
 			expect(s2.stats.executesteps).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
@@ -1855,26 +1866,26 @@ describe('behaviour on manual steps', () => {
 			// 2 steps to consume passed message
 			await machine.step();
 			await machine.step();
-			expect(s2.inbox.size).toBe(3);
+			expect(s2.inbox.size).toBe(4);
 			expect(s2.stats.executesteps).toBe(1);
 			expect(s2.sheet.cellAt('B1').value).toBe('0,1');
 			// 2 steps to consume passed message
 			await machine.step();
 			await machine.step();
-			expect(s2.inbox.size).toBe(3);
+			expect(s2.inbox.size).toBe(4);
 			expect(s2.stats.executesteps).toBe(2);
 			// expect(s2.sheet.cellAt('B1').value).toBe('0,1,0');
 			expect(s2.sheet.cellAt('B1').value).toBe('0,1,0,1');
 			await machine.step();
 			await machine.step();	// finishes repetitions
-			expect(s2.inbox.size).toBe(3);
+			expect(s2.inbox.size).toBe(4);
 			expect(s2.stats.executesteps).toBe(3);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A4').value).toBe(2);
 			expect(s2.sheet.cellAt('B1').value).toBe('0,1,0,1,0,1');
 			await machine.step();
 			await machine.step();
-			expect(s2.inbox.size).toBe(3);
+			expect(s2.inbox.size).toBe(4);
 			expect(s2.stats.executesteps).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A4').value).toBe(2);
@@ -1991,7 +2002,8 @@ describe('behaviour on manual steps', () => {
 			expect(s2.sheet.cellAt('B2').value).toBe('0,1,1');
 			await machine.step();	// attach passed message
 			expect(s2.stats.executesteps).toBe(2);
-			expect(monitorS2.messages.attached).toBe(2);
+			// message is reused, so only one attached
+			expect(monitorS2.messages.attached).toBe(1);
 			expect(s2.sheet.cellAt('B2').value).toBe('0,1,1,0');
 			await machine.step(); // returns -> next loop element
 			expect(s2.stats.executesteps).toBe(2);
@@ -2004,7 +2016,7 @@ describe('behaviour on manual steps', () => {
 			expect(s1.sheet.cellAt('A4').value).toBe(2);	
 			await machine.step(); 	// from the beginning
 			expect(s2.stats.executesteps).toBe(1);
-			expect(monitorS2.messages.attached).toBe(3);
+			expect(monitorS2.messages.attached).toBe(2);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A4').value).toBe(2);
 			expect(s2.sheet.cellAt('B2').value).toBe('0,1,1,0,0,1,1,0');

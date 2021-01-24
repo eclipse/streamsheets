@@ -177,10 +177,10 @@ class StreamSheet {
 		// }
 		// return message == null ? handler.isProcessed : message === handler.message && handler.isProcessed;
 		
-		// const handler = this._msgHandler;
-		// return message == null ? handler.isProcessed : message === handler.message && handler.isProcessed;
+		const handler = this._msgHandler;
+		return message == null ? handler.isProcessed : message === handler.message && handler.isProcessed;
 		
-		return this._msgHandler.isProcessed;
+		// return this._msgHandler.isProcessed;
 	}
 	setMessageProcessed() {
 		this._msgHandler.setProcessed();
@@ -448,8 +448,8 @@ class StreamSheet {
 		// if (this.sheet.isReady || this.sheet.isProcessed) this._attachNextMessage();
 		// console.log('use next message: ',useNextMessage);
 
-		if (useNextMessage) this._attachNextMessage();
-		// if (useNextMessage || !this._msgHandler.message) this._attachNextMessage();
+		// if (useNextMessage) this._attachNextMessage();
+		if (useNextMessage || !this._msgHandler.message) this._attachNextMessage();
 		
 		// if(this.name === 'S2') {
 		// 	console.log(`sheet is ready? ${this.sheet.isReady}`);
