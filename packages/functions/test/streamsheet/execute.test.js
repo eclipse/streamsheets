@@ -95,19 +95,24 @@ describe('execute', () => {
 		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(1);
 		await machine.step();
 		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(2);
+		expect(sheet1.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.NA);
+		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(1);
+		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(2);
+		await machine.step();
+		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(2);
+		expect(sheet1.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.NA);
+		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(1);
+		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(3);
+		await machine.step();
+		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(2);
 		expect(sheet1.cellAt(SheetIndex.create('A2')).value).toBe(false);
 		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(2);
 		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(4);
 		await machine.step();
 		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(3);
-		expect(sheet1.cellAt(SheetIndex.create('A2')).value).toBe(false);
-		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(3);
-		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(7);
-		await machine.step();
-		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(4);
-		expect(sheet1.cellAt(SheetIndex.create('A2')).value).toBe(false);
-		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(4);
-		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(10);
+		expect(sheet1.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.NA);
+		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(2);
+		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(5);
 	});
 	it('should restart repeated execution after machine stop', async () => {
 		const { machine, s1, s2 } = setup();
@@ -122,18 +127,22 @@ describe('execute', () => {
 		await machine.pause();
 		await machine.step();
 		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(2);
+		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(1);
+		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(2);
+		await machine.step();
+		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(2);
+		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(1);
+		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(3);
+		await machine.step();
+		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(2);
 		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(2);
 		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(4);
-		await machine.step();
-		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(3);
-		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(3);
-		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(7);
 		// now stop and step again...
 		await machine.stop();
 		await machine.step();
-		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(4);
-		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(4);
-		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(10);
+		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(3);
+		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(2);
+		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(5);
 	});
 	// DL-710:
 	it('should go on with next loop element after resume from repeated execute', async () => {
@@ -275,7 +284,6 @@ describe('execute', () => {
 		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(0);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('run');
 		expect(s2.sheet.cellAt(SheetIndex.create('B3')).value).toBe(1);
-		// now s2 resumes and is called directly again (1. repetition) => s1 still waits!!
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
 		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.NA);
@@ -295,9 +303,15 @@ describe('execute', () => {
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
 		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.NA);
 		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(1);
-		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(1);
-		// shows result from first if() and not from second call by repetition
+		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(3);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('hello');
+		expect(s2.sheet.cellAt(SheetIndex.create('B3')).value).toBe(3);
+		await machine.step();
+		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
+		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.NA);
+		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(1);
+		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(1);
+		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('run');
 		expect(s2.sheet.cellAt(SheetIndex.create('B3')).value).toBe(4);
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
@@ -311,8 +325,15 @@ describe('execute', () => {
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
 		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.NA);
 		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(1);
-		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(1);
+		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(3);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('hello');
+		expect(s2.sheet.cellAt(SheetIndex.create('B3')).value).toBe(5);
+		await machine.step();
+		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
+		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.NA);
+		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(1);
+		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(1);
+		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('run');
 		expect(s2.sheet.cellAt(SheetIndex.create('B3')).value).toBe(6);
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
@@ -321,7 +342,7 @@ describe('execute', () => {
 		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(2);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('run');
 		expect(s2.sheet.cellAt(SheetIndex.create('B3')).value).toBe(7);
-		// now s2 resumes => s1 finish step, s2 does nothing
+		// now s2 resumes
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
 		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe('hello');
@@ -435,42 +456,23 @@ describe('execute', () => {
 		await machine.step();	// <-- resumes and directly repeats execute() again
 		expect(s1.sheet.cellAt('A1').value).toBe(ERROR.NA);
 		expect(s1.sheet.cellAt('A2').value).toBe(1);
-		expect(s2.sheet.cellAt('B1').value).toBe(1);
+		expect(s2.sheet.cellAt('B1').value).toBe(2);
 		expect(s2.sheet.cellAt('B2').value).toBe(true);
 		// change A1 resumes S1
 		createCellAt('A1', { formula: 'A1+1', value: 1 }, s1.sheet);
 		expect(s1.sheet.cellAt('A1').value).toBe(1);
-		expect(s1.sheet.cellAt('A2').value).toBe(1);
-		expect(s2.sheet.cellAt('B1').value).toBe(1);
+		expect(s1.sheet.cellAt('A2').value).toBe(2);
+		// last getcycle() value is kept, change it?
+		expect(s2.sheet.cellAt('B1').value).toBe(2);
 		expect(s2.sheet.cellAt('B2').value).toBe(true);
 		// and after next steps:
 		await machine.step();
 		await machine.step();
 		await machine.step();
 		expect(s1.sheet.cellAt('A1').value).toBe(4);
-		expect(s1.sheet.cellAt('A2').value).toBe(4);
-		expect(s2.sheet.cellAt('B1').value).toBe(1);
+		expect(s1.sheet.cellAt('A2').value).toBe(5);
+		expect(s2.sheet.cellAt('B1').value).toBe(2);
 		expect(s2.sheet.cellAt('B2').value).toBe(true);
-	});
-	it('should be possible to select inbox message of triggered streamsheet', async () => {
-		const { machine, s1, s2 } = setup();
-		const selector = '{\\"Kundenname\\":{\\"Vorname\\":\\"Anton\\",\\"Nachname\\":\\"Mustermann\\"}}';
-		s1.sheet.load({ cells: { A1: { formula: `execute("S2",1, ,json("${selector}")))` } } });
-		s2.sheet.load({
-			cells: {
-				B1: { formula: 'read(inboxdata(, , "Kundenname","Vorname"), B2)' },
-				B3: { formula: 'B3+1' }
-			}
-		});
-		const inbox2 = s2.inbox;
-		inbox2.put(new Message(Object.assign({}, MSG.SIMPLE.data)));
-		inbox2.put(new Message(Object.assign({}, MSG.SIMPLE2.data)));
-		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('');
-		expect(s2.sheet.cellAt(SheetIndex.create('B3')).value).toBe(1);
-		await machine.step();
-		expect(s1.sheet.cellAt('A1').value).toBe(true);
-		expect(s2.sheet.cellAt('B2').value).toBe('Anton');
-		expect(s2.sheet.cellAt('B3').value).toBe(2);
 	});
 	it('should be possible to pass data to triggered streamsheet', async () => {
 		const { machine, s1, s2 } = setup();
@@ -549,14 +551,28 @@ describe('execute', () => {
 		expect(s2.sheet.cellAt('B1').value).toBe(1);
 		expect(s2.sheet.cellAt('C2').value).toBe('');
 		expect(s2.stats.executesteps).toBe(0);
-		await machine.step(); // repeats 2x => message is processed completely
+		await machine.step();
+		expect(s1.stats.repeatsteps).toBe(1);
+		expect(s2.stats.executesteps).toBe(1);
+		expect(s2.sheet.cellAt('C2').value).toBe('hello');
+		await machine.step();
+		expect(s1.stats.repeatsteps).toBe(1);
+		expect(s2.stats.executesteps).toBe(1);
+		expect(s2.sheet.cellAt('C2').value).toBe('world');
+		// next repeat execute:
+		await machine.step();
+		expect(s1.stats.repeatsteps).toBe(1);
+		expect(s2.stats.executesteps).toBe(2);
+		expect(s2.sheet.cellAt('C2').value).toBe('hello');
+		await machine.step();
 		expect(s1.stats.repeatsteps).toBe(1);
 		expect(s2.stats.executesteps).toBe(2);
 		expect(s2.sheet.cellAt('C2').value).toBe('world');
+		// S1 is endless, so it begins again
 		await machine.step();
 		expect(s1.stats.repeatsteps).toBe(2);
-		expect(s2.stats.executesteps).toBe(2);
-		expect(s2.sheet.cellAt('C2').value).toBe('world');
+		expect(s2.stats.executesteps).toBe(1);
+		expect(s2.sheet.cellAt('C2').value).toBe('hello');
 	});
 	// DL-1528
 	it('should read next loop element in endless mode only if sheet returns', async () => {
@@ -569,7 +585,7 @@ describe('execute', () => {
 			// A1: { formula: 'repeatindex()' },
 			B1: { formula: 'read(inboxdata(, , , "States", "Ampel1"), C1, "String")' },
 			B2: { formula: 'B2+1' },
-			B3: { formula: 'if(B2>3, return(setvalue(true, 1, B2)), false)' }
+			B3: { formula: 'if(B2>2, return(setvalue(true, 1, B2)), false)' }
 		});
 		s2.inbox.put(new Message({
 			Step1: { Duration: 1000, States: { Ampel1: 'Red' } },
@@ -584,47 +600,48 @@ describe('execute', () => {
 		expect(s2.sheet.cellAt('B2').value).toBe(2);
 		expect(s2.sheet.cellAt('B3').value).toBe(false);
 		expect(s2.sheet.cellAt('C1').value).toBe('Red');
-		await machine.step();
+		await machine.step();	// resumes S2 -> next loop element
 		expect(s2.stats.executesteps).toBe(1);
-		expect(s2.getCurrentLoopPath()).toBe('[Data][Step1]');
-		expect(s2.sheet.cellAt('B2').value).toBe(3);
-		expect(s2.sheet.cellAt('B3').value).toBe(false);
-		expect(s2.sheet.cellAt('C1').value).toBe('Red');
-		await machine.step();	// returns S2 and directly executes it again (repeat)
-		expect(s2.stats.executesteps).toBe(2);
 		expect(s2.getCurrentLoopPath()).toBe('[Data][Step2]');
-		expect(s2.sheet.cellAt('B2').value).toBe(2);
+		expect(s2.sheet.cellAt('B2').value).toBe(1);
 		expect(s2.sheet.cellAt('B3').value).toBe(true);
 		expect(s2.sheet.cellAt('C1').value).toBe('Red');
 		await machine.step();
-		expect(s2.stats.executesteps).toBe(2);
+		expect(s2.stats.executesteps).toBe(1);
 		expect(s2.getCurrentLoopPath()).toBe('[Data][Step2]');
-		expect(s2.sheet.cellAt('B2').value).toBe(3);
+		expect(s2.sheet.cellAt('B2').value).toBe(2);
 		expect(s2.sheet.cellAt('B3').value).toBe(false);
 		expect(s2.sheet.cellAt('C1').value).toBe('Yellow');
-		await machine.step(); // returns S2 and NOT directly executes (NO repeat)
-		expect(s2.stats.executesteps).toBe(2);
+		await machine.step();	// resumes S2 -> next loop element
+		expect(s2.stats.executesteps).toBe(1);
 		expect(s2.getCurrentLoopPath()).toBe('[Data][Step3]');
 		expect(s2.sheet.cellAt('B2').value).toBe(1);
 		expect(s2.sheet.cellAt('B3').value).toBe(true);
 		expect(s2.sheet.cellAt('C1').value).toBe('Yellow');
 		await machine.step();
 		expect(s2.stats.executesteps).toBe(1);
-		// we stay at last message and loop:
 		expect(s2.getCurrentLoopPath()).toBe('[Data][Step3]');
 		expect(s2.sheet.cellAt('B2').value).toBe(2);
 		expect(s2.sheet.cellAt('B3').value).toBe(false);
 		expect(s2.sheet.cellAt('C1').value).toBe('Green');
-		await machine.step();
-		await machine.step(); // returns S2 and directly executes it again (repeat)
-		expect(s2.stats.executesteps).toBe(2);
+		await machine.step();	// resumes S2 -> next repetition
+		expect(s1.sheet.cellAt('A2').value).toBe(1);
+		expect(s2.stats.executesteps).toBe(1);
 		expect(s2.getCurrentLoopPath()).toBe('[Data][Step3]');
-		expect(s2.sheet.cellAt('B2').value).toBe(2);
+		expect(s2.sheet.cellAt('B2').value).toBe(1);
 		expect(s2.sheet.cellAt('B3').value).toBe(true);
 		expect(s2.sheet.cellAt('C1').value).toBe('Green');
 		await machine.step();
-		await machine.step(); // returns S2 and NOT directly executes (NO repeat)
 		expect(s2.stats.executesteps).toBe(2);
+		// S2 has no more messages, so stay at last loop
+		expect(s2.getCurrentLoopPath()).toBe('[Data][Step3]');
+		expect(s2.sheet.cellAt('B2').value).toBe(2);
+		expect(s2.sheet.cellAt('B3').value).toBe(false);
+		expect(s2.sheet.cellAt('C1').value).toBe('Green');
+		await machine.step();	// resumes from last repetition
+		expect(s1.sheet.cellAt('A2').value).toBe(2);
+		expect(s2.stats.executesteps).toBe(2);
+		// S2 has no more messages, so stay at last loop
 		expect(s2.getCurrentLoopPath()).toBe('[Data][Step3]');
 		expect(s2.sheet.cellAt('B2').value).toBe(1);
 		expect(s2.sheet.cellAt('B3').value).toBe(true);
@@ -649,6 +666,7 @@ describe('execute', () => {
 		s2.sheet.load({ cells: { A2: 'tests', B2: 'tests', A4: { formula: 'execute("S1", 1, JSON(A2:B2))' } } });
 		expect(s1.inbox.size).toBe(0);
 		await machine.step();
+		expect(s1.inbox.size).toBe(1);
 		const msg = s1.inbox.peek();
 		expect(msg).toBeDefined();
 		expect(msg.data.tests).toBe('tests');
@@ -711,7 +729,7 @@ describe('execute', () => {
 		await wait(500);
 		await machine.stop();
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
-		expect(s1.sheet.cellAt('A2').value).toBe(true);
+		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.NA);
 		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBeGreaterThan(2);
 		expect(s2.sheet.cellAt('B1').value).toBeLessThanOrEqual(6);
@@ -733,7 +751,6 @@ describe('concatenated execute() usage', () => {
 		});
 		s3.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE });
 		s3.sheet.load({ cells: { C1: { formula: 'C1+1' } } });
-
 		// initial values:
 		expect(s1.sheet.cellAt('A1').value).toBe(1);
 		expect(s1.sheet.cellAt('A2').value).toBe(true);
@@ -742,8 +759,48 @@ describe('concatenated execute() usage', () => {
 		expect(s2.sheet.cellAt('B2').value).toBe(true);
 		expect(s2.sheet.cellAt('B3').value).toBe(1);
 		expect(s3.sheet.cellAt('C1').value).toBe(1);
-
 		await machine.step();
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.NA);
+		expect(s1.sheet.cellAt('A3').value).toBe(1);
+		expect(s2.sheet.cellAt('B1').value).toBe(2);
+		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.NA);
+		expect(s2.sheet.cellAt('B3').value).toBe(1);
+		expect(s2.stats.executesteps).toBe(1);
+		expect(s3.sheet.cellAt('C1').value).toBe(2);
+		expect(s3.stats.executesteps).toBe(1);
+		await machine.step();
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.NA);
+		expect(s1.sheet.cellAt('A3').value).toBe(1);
+		expect(s2.sheet.cellAt('B1').value).toBe(2);
+		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.NA);
+		expect(s2.sheet.cellAt('B3').value).toBe(1);
+		expect(s2.stats.executesteps).toBe(1);
+		expect(s3.sheet.cellAt('C1').value).toBe(3);
+		expect(s3.stats.executesteps).toBe(2);
+		await machine.step();	// S3 called 3x => S2 resumes
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.NA);
+		expect(s1.sheet.cellAt('A3').value).toBe(1);
+		expect(s2.sheet.cellAt('B1').value).toBe(2);
+		expect(s2.sheet.cellAt('B2').value).toBe(false);
+		expect(s2.sheet.cellAt('B3').value).toBe(2);
+		expect(s2.stats.executesteps).toBe(1);
+		expect(s3.sheet.cellAt('C1').value).toBe(4);
+		expect(s3.stats.executesteps).toBe(3);
+		await machine.step();	// S2 next repetition
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.NA);
+		expect(s1.sheet.cellAt('A3').value).toBe(1);
+		expect(s2.sheet.cellAt('B1').value).toBe(3);
+		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.NA);
+		expect(s2.sheet.cellAt('B3').value).toBe(2);
+		expect(s2.stats.executesteps).toBe(2);
+		expect(s3.sheet.cellAt('C1').value).toBe(5);
+		expect(s3.stats.executesteps).toBe(1);
+		await machine.step();
+		await machine.step();	// S3 called 3x => S2 resumes => S1 resumes
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
 		expect(s1.sheet.cellAt('A2').value).toBe(false);
 		expect(s1.sheet.cellAt('A3').value).toBe(2);
@@ -753,31 +810,19 @@ describe('concatenated execute() usage', () => {
 		expect(s2.stats.executesteps).toBe(2);
 		expect(s3.sheet.cellAt('C1').value).toBe(7);
 		expect(s3.stats.executesteps).toBe(3);
-		
-		await machine.step();
+		await machine.step();	// S1 is endless so it starts again
 		expect(s1.sheet.cellAt('A1').value).toBe(3);
-		expect(s1.sheet.cellAt('A2').value).toBe(false);
-		expect(s1.sheet.cellAt('A3').value).toBe(3);
-		expect(s2.sheet.cellAt('B1').value).toBe(5);
-		expect(s2.sheet.cellAt('B2').value).toBe(false);
-		expect(s2.sheet.cellAt('B3').value).toBe(5);
-		expect(s2.stats.executesteps).toBe(2);
-		expect(s3.sheet.cellAt('C1').value).toBe(13);
-		expect(s3.stats.executesteps).toBe(3);
-
-		await machine.step();
-		expect(s1.sheet.cellAt('A1').value).toBe(4);
-		expect(s1.sheet.cellAt('A2').value).toBe(false);
-		expect(s1.sheet.cellAt('A3').value).toBe(4);
-		expect(s2.sheet.cellAt('B1').value).toBe(7);
-		expect(s2.sheet.cellAt('B2').value).toBe(false);
-		expect(s2.sheet.cellAt('B3').value).toBe(7);
-		expect(s2.stats.executesteps).toBe(2);
-		expect(s3.sheet.cellAt('C1').value).toBe(19);
-		expect(s3.stats.executesteps).toBe(3);
+		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.NA);
+		expect(s1.sheet.cellAt('A3').value).toBe(2);
+		expect(s2.sheet.cellAt('B1').value).toBe(4);
+		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.NA);
+		expect(s2.sheet.cellAt('B3').value).toBe(3);
+		expect(s2.stats.executesteps).toBe(1);
+		expect(s3.sheet.cellAt('C1').value).toBe(8);
+		expect(s3.stats.executesteps).toBe(1);
 	});
 	// DL-1663
-	it('should not calculate twice if streamsheet is triggered by execute and endless mode in one step', async () => {
+	it.skip('should not calculate twice if streamsheet is triggered by execute and endless mode in one step', async () => {
 		const { machine, s1, s2 } = setup();
 		const s3 = new StreamSheet({ name: 'S3' });
 		s3.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE, repeat: 'endless' });
@@ -909,18 +954,19 @@ describe('execute stream sheet which has own message stream', () => {
 		// previous message removed from inbox
 		expect(s1.inbox.size).toBe(1);
 		expect(s1.stats.steps).toBe(2);
-		expect(s2.stats.steps).toBe(2);
+		// S2 runs endless so never increase step counter
+		expect(s2.stats.steps).toBe(1);
 		await machine.step();
 		// NOTE: last message is kept
 		expect(s1.inbox.size).toBe(1);
 		expect(s1.stats.steps).toBe(3);
-		expect(s2.stats.steps).toBe(3);
+		expect(s2.stats.steps).toBe(1);
 		await machine.start();
-		expect(s1.stats.steps).toBe(4);
-		expect(s2.stats.steps).toBe(4);
+		expect(s1.stats.steps).toBe(3);
+		expect(s2.stats.steps).toBe(2);
 		await wait(80);
 		expect(s1.stats.steps).toBeGreaterThanOrEqual(4);
-		expect(s2.stats.steps).toBe(4);	// NOTE: in endless mode steps are only increased on manual steps
+		expect(s2.stats.steps).toBe(2);
 		await machine.stop();
 	});
 	it('should use next message if current one is processed with loop', async () => {
@@ -938,33 +984,33 @@ describe('execute stream sheet which has own message stream', () => {
 		await machine.step();
 		expect(s1.inbox.size).toBe(3);
 		expect(s1.stats.steps).toBe(3);
-		expect(s2.stats.steps).toBe(3);
+		expect(s2.stats.steps).toBe(1);
 		await machine.step(); // we pop current message from inbox:
 		expect(s1.inbox.size).toBe(2);
 		expect(s1.stats.steps).toBe(4);
-		expect(s2.stats.steps).toBe(4);
+		expect(s2.stats.steps).toBe(1);
 		await machine.step();
 		await machine.step();
 		expect(s1.inbox.size).toBe(2);
 		expect(s1.stats.steps).toBe(6);
-		expect(s2.stats.steps).toBe(6);
+		expect(s2.stats.steps).toBe(1);
 		await machine.step(); // we pop current message from inbox:
 		expect(s1.inbox.size).toBe(1);
 		expect(s1.stats.steps).toBe(7);
-		expect(s2.stats.steps).toBe(7);
+		expect(s2.stats.steps).toBe(1);
 		await machine.step();
 		await machine.step();
 		await machine.step();
 		// NOTE: last message is kept
 		expect(s1.inbox.size).toBe(1);
 		expect(s1.stats.steps).toBe(10);
-		expect(s2.stats.steps).toBe(10);
+		expect(s2.stats.steps).toBe(1);
 		await machine.step();
 		await machine.step();
 		await machine.step();
 		expect(s1.inbox.size).toBe(1);
 		// no new message, so S1 & S2 both step
 		expect(s1.stats.steps).toBe(13);
-		expect(s2.stats.steps).toBe(13);
+		expect(s2.stats.steps).toBe(1);
 	});
 });
