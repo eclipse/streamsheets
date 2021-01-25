@@ -470,7 +470,7 @@ describe('behaviour on machine run', () => {
 			s2.trigger.update({ repeat: 'endless'});
 			s2.sheet.loadCells({ B1: { formula: 'B1+1' }, B2: { formula: 'if(mod(B1,5)=0,return(42),false)' } });
 			await machine.start();
-			await wait(50);
+			await wait(100);
 			await machine.pause();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A2').value).toBe(42);

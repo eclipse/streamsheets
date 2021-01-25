@@ -61,7 +61,7 @@ const TEST_MSG = new Message({
 }, '1234-567');
 
 
-describe('MessageHandler', () => {
+describe.skip('MessageHandler', () => {
 	it('should be possible to create a MessageHandler', () => {
 		const mh = new MessageHandler();
 		expect(mh).toBeDefined();
