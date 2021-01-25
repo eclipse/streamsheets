@@ -11,7 +11,6 @@
 const { ExecuteTrigger, Machine, Message, StreamSheet, TriggerFactory } = require('../../..');
 const { createCellAt, expectValue, monitorMachine, monitorStreamSheet, wait } = require('../../utils');
 
-// jasmine.DEFAULT_TIMEOUT_INTERVAL = 10 * 60 * 1000;
 
 const createStreamsheet = ({ name, trigger }) => {
 	const streamsheet = new StreamSheet({ name });
