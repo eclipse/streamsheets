@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 const { compose } = require('@cedalo/commons').functions;
+const { ManualCycle, TimerCycle } = require('./cycles');
 
 const Activate = (BaseCycle) =>
 	class extends BaseCycle {
@@ -62,8 +63,50 @@ const Resume = (BaseClass) =>
 			this.postProcess();
 		}
 	};
+
 const MessageLoopCycle = compose(Activate, PostProcess, Resume,	Step);
 
+
+class RepeatUntilCycle extends TimerCycle {
+	getCycleTime() {
+		return 1;
+	}
+	run() {
+		this.schedule();
+		this.process();
+	}
+	process() {
+		this.trigger.streamsheet.stats.repeatsteps += 1;
+		this.trigger.processSheet();
+	}
+	step() {
+		return undefined;
+	}
+}
+class ManualRepeatUntilCycle extends ManualCycle {
+	step() {
+		// in manual we count steps even in endless mode?
+		// this.trigger.streamsheet.stats.steps += 1;
+		this.trigger.streamsheet.stats.repeatsteps += 1;
+		this.trigger.processSheet();
+	}	
+}
+
+class TimerMessageLoopCycle extends MessageLoopCycle(TimerCycle) {
+	getRepeatUntilCycle() {
+		return new RepeatUntilCycle(this.trigger, this);
+	}
+}
+class ManualMessageLoopCycle extends MessageLoopCycle(ManualCycle) {
+	getRepeatUntilCycle() {
+		return new ManualRepeatUntilCycle(this.trigger, this);
+	}
+}
+
+
+
 module.exports = {
+	ManualMessageLoopCycle,
+	TimerMessageLoopCycle,
 	withBaseClass: (BaseCycle) => MessageLoopCycle(BaseCycle)
 };
