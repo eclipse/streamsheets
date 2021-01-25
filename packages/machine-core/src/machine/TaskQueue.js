@@ -22,10 +22,10 @@ const createQueue = () => {
 		process.nextTick(() => {
 			const entry = fns[0];
 			if (entry) {
-				const { fn, args = [] } = entry;
+				const { fn, arg } = entry;
 				fns.splice(0, 1);
 				try {
-					fn(...args);
+					fn(arg);
 				} catch (err) {
 					/* currently ignore */
 				}
@@ -40,8 +40,9 @@ const createQueue = () => {
 			fns.length = 0;
 			pending.length = 0;
 		},
-		schedule(fn, ...args) {
-			fns.push({ fn, args });
+		// currently at most 1 argument is used, if more use rest operator
+		schedule(fn, arg) {
+			fns.push({ fn, arg });
 			nextTick();
 		},
 		done() {
