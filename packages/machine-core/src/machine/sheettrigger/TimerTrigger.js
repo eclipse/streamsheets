@@ -9,7 +9,8 @@
  *
  ********************************************************************************/
 const BaseTrigger = require('./BaseTrigger');
-const { ManualStepCycle, RepeatUntilCycle, TimerCycle } = require('./cycles');
+const { ManualMessageLoopCycle, TimerMessageLoopCycle } = require('./MessageLoopCycle');
+
 
 const UNITS = {};
 UNITS.ms = 1;
@@ -17,6 +18,28 @@ UNITS.s = 1000 * UNITS.ms;
 UNITS.m = 60 * UNITS.s;
 UNITS.h = 60 * UNITS.m;
 UNITS.d = 24 * UNITS.h;
+
+
+class IntervalCycle extends TimerMessageLoopCycle {
+	getCycleTime() {
+		return this.trigger.interval * UNITS[this.trigger.intervalUnit];
+	}
+	postProcess() {
+		super.postProcess();
+		// might stopped, so schedule again:
+		if (this.id == null) this.schedule();
+	}
+};
+
+class RandomIntervalCycle extends IntervalCycle {
+	random(nr) { Math.floor(Math.random() * Math.floor(nr)); }
+	getCycleTime() {
+		const interval = this.random(2 * this.trigger.interval);
+		return interval * UNITS[this.trigger.intervalUnit];
+	}
+};
+
+
 
 const TYPE = {
 	RANDOM: 'random',
@@ -27,50 +50,21 @@ const parseTime = (time) => {
 	const ms = Date.parse(time);
 	return ms == null || isNaN(ms) ? null : ms;
 };
-
-const random = (nr) => Math.floor(Math.random() * Math.floor(nr));
-
 const getStartInterval = (time) => {
 	const now = Date.now();
 	const ms = parseTime(time) || now;
 	return ms > now ? ms - now : 1;
 };
 
-class IntervalCycle extends TimerCycle {
-	activate() {
-		super.activate();
-		this.schedule();
-	}
-	getCycleTime() {
-		return this.trigger.interval * UNITS[this.trigger.intervalUnit];
-	}
-	step() {
-		this.trigger.streamsheet.stats.steps += 1;
-		if (this.trigger.isEndless) {
-			this.trigger.activeCycle = new RepeatUntilCycle(this.trigger, this);
-			this.trigger.activeCycle.run();
-		} else {
-			this.trigger.processSheet();
-		}
-	}
-}
-class RandomIntervalCycle extends IntervalCycle {
-	getCycleTime() {
-		const interval = random(2 * this.trigger.interval);
-		return interval * UNITS[this.trigger.intervalUnit];
-	}
-}
-
 const TIMER_DEF = {
 	interval: 500,
 	intervalUnit: 'ms'
 };
-
 class TimerTrigger extends BaseTrigger {
 	constructor(config = {}) {
 		super(Object.assign({}, TIMER_DEF, config));
 		this.delayId = undefined;
-		this.activeCycle = new ManualStepCycle(this);
+		this.activeCycle = new ManualMessageLoopCycle(this);
 	}
 
 	get interval() {
@@ -98,7 +92,7 @@ class TimerTrigger extends BaseTrigger {
 	}
 
 	getManualCycle() {
-		return new ManualStepCycle(this);
+		return new ManualMessageLoopCycle(this);
 	}
 
 	getTimerCycle() {
