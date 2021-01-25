@@ -173,7 +173,7 @@ class BaseTrigger {
 	// ~
 
 	processSheet() {
-		if (this._streamsheet.messageHandler.isProcessed) this._streamsheet._attachNextMessage();
+		if (this._streamsheet.messageHandler.isProcessed) this._streamsheet.attachNextMessage();
 		this._streamsheet.process();
 	}
 

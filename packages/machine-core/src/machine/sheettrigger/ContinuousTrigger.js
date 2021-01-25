@@ -10,19 +10,14 @@
  ********************************************************************************/
 const BaseTrigger = require('./BaseTrigger');
 const MessageLoopCycle = require('./MessageLoopCycle');
-const { ManualStepCycle, ManualRepeatUntilCycle, RepeatUntilCycle, TriggerCycle } = require('./cycles');
+const { ManualMessageLoopCycle } = require('./MessageLoopCycle');
+const { RepeatUntilCycle, TriggerCycle } = require('./cycles');
 
-class TriggeredMessageLoopCycle extends MessageLoopCycle.withBaseClass(TriggerCycle) {
+class MachineTriggeredMessageLoopCycle extends MessageLoopCycle.withBaseClass(TriggerCycle) {
 	getRepeatUntilCycle() {
 		return new RepeatUntilCycle(this.trigger, this);
 	}
 };
-class ManualMessageLoopCycle extends MessageLoopCycle.withBaseClass(ManualStepCycle) {
-	getRepeatUntilCycle() {
-		return new ManualRepeatUntilCycle(this.trigger, this);
-	}
-};
-
 
 const TYPE_CONF = Object.freeze({ type: 'continuously' });
 
@@ -41,7 +36,7 @@ class ContinuousTrigger extends BaseTrigger {
 	}
 
 	getTimerCycle() {
-		return new TriggeredMessageLoopCycle(this);
+		return new MachineTriggeredMessageLoopCycle(this);
 	}
 }
 
