@@ -39,7 +39,6 @@ const getSettings = (definition, sheet) => {
 	return newsettings;
 };
 
-const hasLoop = (msgHandler) => msgHandler.isEnabled && msgHandler.hasLoop();
 const emitOnce = (emitter) => {
 	let doIt = true;
 	return {
@@ -169,6 +168,9 @@ class StreamSheet {
 		this._trigger.streamsheet = this;
 	}
 
+	get messageHandler() {
+		return this._msgHandler;
+	}
 	// checks if given message is processed. if no message is passed, check is done against current message
 	isMessageProcessed(message) {
 		// const handler = this._msgHandler;
@@ -339,7 +341,7 @@ class StreamSheet {
 	}
 	start() {
 		// TODO: REVIEW -> why calling detachMessage() here is required...
-		this._detachMessage(this._msgHandler.message);
+		this.detachMessage(this._msgHandler.message);
 		this.inbox.clear();
 		this.inbox.subscribe();
 		this.sheet.getPendingRequests().clear();
@@ -396,10 +398,6 @@ class StreamSheet {
 	}
 	stopProcessing(retval) {
 		this.trigger.stopProcessing(retval);
-		if (this.trigger.isEndless) {
-			// console.log('=> NEXT MESSAGE LOOP');
-			this._msgHandler.next();
-		}
 	}
 	pauseProcessing() {
 		// console.log(`PAUSE PROCESSING ${this.name}`);
@@ -417,56 +415,32 @@ class StreamSheet {
 		this.trigger.resumeProcessing(retval);
 		// need this to catch the case when we resume on last cell, but didn't process
 		if (this.sheet.isProcessed && !this._triggerProcess) {
-			if (!this.trigger.isEndless) {
-				this._msgHandler.next();
-			}
-
-		// 	console.log(`RESUME PROCESSED STEP ${this.name}`);
-		// 	// this._emitter.emit('finishedStep', this);
 			this.notifyOnce.event('finishedStep', this);
 		}
 		// console.log(`DONE RESUME PROCESSING STEP ${this.name}`);
 	}
 	// ~
 
-	process(useNextMessage = true) {
+	process() {
 		// console.log(`TRIGGER STEP ${this.name}`);
 		this._triggerProcess = true;
-		this.triggerStep(useNextMessage);
+		this.triggerStep();
 		if (this.sheet.isProcessed) {
-			// console.log(`PROCESSED STEP ${this.name}`);
-			// this._emitter.emit('finishedStep', this);
 			this.notifyOnce.force().event('finishedStep', this);
 			// this.notifyOnce.event('finishedStep', this);
 		}
 		// console.log(`DONE STEP ${this.name}`);
 	}
 
-	triggerStep(useNextMessage) {
+	triggerStep() {
 		// track re-entry caused e.g. by resume on sheet._startProcessing()
 		markAsProcessed(this.triggerStep, this.id, false);
-		// if (this.sheet.isReady || this.sheet.isProcessed) this._attachNextMessage();
-		// console.log('use next message: ',useNextMessage);
-
-		// if (useNextMessage) this._attachNextMessage();
-		if (useNextMessage || !this._msgHandler.message) this._attachNextMessage();
-		
-		// if(this.name === 'S2') {
-		// 	console.log(`sheet is ready? ${this.sheet.isReady}`);
-		// 	console.log(`sheet is processed? ${this.sheet.isProcessed}`);
-		// }
 		this.sheet.getDrawings().removeAll();
-		this._msgHandler._used = !!this._msgHandler.message;
 		this.sheet._startProcessing();
+		this._emitter.emit('step', this);
+
 		if (!isMarkedAsProcessed(this.triggerStep, this.id)) {
 			markAsProcessed(this.triggerStep, this.id, true);
-			// on endless we reuse message
-			if (this.sheet.isProcessed && !this.trigger.isEndless) {
-				this._msgHandler.next();
-			}
-			this._detachMessage();
-			this._emitter.emit('step', this);
-			// if (this.sheet.isProcessed) this._emitter.emit('finishedStep', this);
 		// } else {
 		// 	debugger;
 		}
@@ -480,10 +454,10 @@ class StreamSheet {
 		}
 	// }
 		if (!this._msgHandler.message) {
-			this._attachMessage(this.inbox.peek());
+			this.attachMessage(this.inbox.peek());
 		}
 	}
-	_attachMessage(message) {
+	attachMessage(message) {
 		this._msgHandler.message = message;
 		if (message) {
 			// console.log('attach message');
@@ -491,9 +465,10 @@ class StreamSheet {
 			this._emitMessageEvent('message_attached', message);
 		}
 	}
-	_detachMessage() {
+	detachMessage() {
 		// get mark message as detached if its processed
-		if (this._msgHandler.isProcessed && this._msgHandler.message) {
+		// if (this._msgHandler.isProcessed && this._msgHandler.message) {
+		if (this._msgHandler.message) {
 			// only send event, message will be popped from inbox on attach, so it still can be queried !!
 			this._emitMessageEvent('message_detached', this._msgHandler.message);
 		}
