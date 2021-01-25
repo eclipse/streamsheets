@@ -17,14 +17,6 @@ const Sheet = require('./Sheet');
 const TriggerFactory = require('./sheettrigger/TriggerFactory');
 const TaskQueue = require('./TaskQueue');
 
-const markAsProcessed = (fn, id, marked) => {
-	if (!fn.processed) fn.processed = {};
-	fn.processed[id] = marked;
-};
-const isMarkedAsProcessed = (fn, id) => {
-	if (!fn.processed) fn.processed = {};
-	return fn.processed[id] === true;
-};
 
 // TODO remove!! just to support old commands which send preferences property....
 const valueOr = (value, defval) => (value != null ? value : defval);
@@ -424,28 +416,15 @@ class StreamSheet {
 	process() {
 		// console.log(`TRIGGER STEP ${this.name}`);
 		this._triggerProcess = true;
-		this.triggerStep();
+		this.sheet.getDrawings().removeAll();
+		this.sheet._startProcessing();
+		this._emitter.emit('step', this);		
 		if (this.sheet.isProcessed) {
 			this.notifyOnce.force().event('finishedStep', this);
-			// this.notifyOnce.event('finishedStep', this);
 		}
 		// console.log(`DONE STEP ${this.name}`);
 	}
-
-	triggerStep() {
-		// track re-entry caused e.g. by resume on sheet._startProcessing()
-		markAsProcessed(this.triggerStep, this.id, false);
-		this.sheet.getDrawings().removeAll();
-		this.sheet._startProcessing();
-		this._emitter.emit('step', this);
-
-		if (!isMarkedAsProcessed(this.triggerStep, this.id)) {
-			markAsProcessed(this.triggerStep, this.id, true);
-		// } else {
-		// 	debugger;
-		}
-	}
-	_attachNextMessage() {
+	attachNextMessage() {
 		// if (this._msgHandler.isProcessed) {
 		const currmsg = this._msgHandler.message;
 		if (currmsg && this.inbox.size > 1) {
