@@ -9,58 +9,42 @@
  *
  ********************************************************************************/
 const BaseTrigger = require('./BaseTrigger');
-const { ManualStepCycle, RepeatUntilCycle, TimerCycle } = require('./cycles');
+const RepeatedMessageLoopCycle = require('./RepeatedMessageLoopCycle');
+const { ManualMessageLoopCycle, TimerMessageLoopCycle } = require('./MessageLoopCycle');
+const { ManualCycle, TimerCycle } = require('./cycles');
 
-
-class MessageCycle extends TimerCycle {
-	activate() {
-		super.activate();
-		if (this.trigger.streamsheet.hasNewMessage()) this.run();
-	}
-	getCycleTime() {
-		return 1;
-	}
-	step() {
-		this.trigger.streamsheet.stats.steps += 1;
-		if (this.trigger.isEndless) {
-			this.trigger.activeCycle = new RepeatUntilCycle(this.trigger, this);
-			this.trigger.activeCycle.run();
-		} else {
-			this.trigger.processSheet();
-			if (!this.trigger.streamsheet.hasNewMessage()) {
-				this.clear();
-			}
+const RepeatedOnMessageCycle = (BaseClass) =>
+	class extends RepeatedMessageLoopCycle.withBaseClass(BaseClass) {
+		schedule() {
+			if (this.trigger.streamsheet.hasNewMessage()) super.schedule();
 		}
+	};
+class OnMessageCycle extends RepeatedOnMessageCycle(TimerCycle) {
+	getMessageLoopCycle() {
+		return new TimerMessageLoopCycle(this.trigger, this);
 	}
-	resume() {
-		super.resume();
-		if (!this.trigger.streamsheet.hasNewMessage()) {
-			this.clear();
-		}
+}
+class ManualOnMessageCycle extends RepeatedOnMessageCycle(ManualCycle) {
+	getMessageLoopCycle() {
+		return new ManualMessageLoopCycle(this.trigger, this);
 	}
-
 }
 
+
 const unsubscribe = (streamsheet, trigger) => {
-	// clearTrigger(trigger);
-	if (streamsheet) streamsheet.inbox.off('message_put', trigger._onMessagePut);
+	streamsheet.inbox.off('message_put', trigger._onMessagePut);
 };
 const subscribe = (streamsheet, trigger) => {
-	if (streamsheet) streamsheet.inbox.on('message_put', trigger._onMessagePut);
+	streamsheet.inbox.on('message_put', trigger._onMessagePut);
 	return streamsheet;
 };
 
 
-const TYPE_CONF = Object.freeze({ type: 'arrival' });
-
 class OnMessageTrigger extends BaseTrigger {
-	static get TYPE() {
-		return TYPE_CONF.type;
-	}
-
 	constructor(config = {}) {
 		super(config);
-		this.activeCycle = new ManualStepCycle(this);
+		this.useNextMessage = false;
+		this.activeCycle = new ManualOnMessageCycle(this);
 		this._onMessagePut = this._onMessagePut.bind(this);
 	}
 
@@ -86,22 +70,27 @@ class OnMessageTrigger extends BaseTrigger {
 	}
 
 	getManualCycle() {
-		return new ManualStepCycle(this);
+		return new ManualOnMessageCycle(this);
 	}
 
 	getTimerCycle() {
-		return new MessageCycle(this);
+		return new OnMessageCycle(this);
 	}
 
 	start() {
 		super.start();
-		if(this.streamsheet.hasNewMessage()) this.activeCycle.run();
+		if (this.streamsheet.hasNewMessage()) this.activeCycle.run();
 	}
 
 	step(manual) {
 		// only handle manual steps
 		if (manual) super.step(manual);
 	}
+
+	processSheet() {
+		super.processSheet(this.useNextMessage);
+	}
 }
+OnMessageTrigger.TYPE ='arrival';
 
 module.exports = OnMessageTrigger;
