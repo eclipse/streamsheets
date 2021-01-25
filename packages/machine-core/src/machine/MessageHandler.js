@@ -51,11 +51,11 @@ const createStack = (loop, recursively = false) => {
 class MessageHandler {
 	constructor(cfg = {}) {
 		this.config = Object.assign({}, DEF, cfg);
-		this._index = 0;
-		this._used = false; // REVIEW: to track if a message was used at all, e.g. if it has no loop-element. improve!!
+		this._index = -1;
 		this._hasLoop = false;
 		this._message = undefined;
 		this._stack = [];
+		this._stacklength = 1;
 	}
 
 	toJSON() {
@@ -77,12 +77,12 @@ class MessageHandler {
 
 	get index() {
 		// DL-712: we keep last loop element...
-		const last = this._stack.length - 1;
+		const last = this._stacklength - 1;
 		return Math.max(0, Math.min(this._index, last));
 	}
 
 	get indexKey() {
-		return this._stack.length ? this._stack[this.index].key : '[0]';
+		return this._stacklength ? this._stack[this.index].key : '[0]';
 	}
 
 	get message() {
@@ -91,6 +91,7 @@ class MessageHandler {
 	set message(message) {
 		this._message = message;
 		this.reset();
+		this._index = 0;
 	}
 
 	get isEnabled() {
@@ -102,8 +103,7 @@ class MessageHandler {
 	}
 
 	get isProcessed() {
-		// return !this._message || !this.hasNext();
-		return !this._message || (this._used && !this.hasNext());
+		return !this._message || this._index >= this._stacklength;
 	}
 
 	get isRecursive() {
@@ -122,18 +122,18 @@ class MessageHandler {
 	}
 
 	reset() {
-		this._index = 0;
-		this._used = false;
+		this._index = -1;
 		const loop = getLoopElement(this._message, this.config.path);
 		this._stack = createStack(loop, this.config.recursively);
+		// stacklength should be at least 1 to handle messages without loop!
+		this._stacklength = this._stack.length || 1;
 		this._hasLoop = !!loop;
 	}
 
 	pathForIndex(index) {
 		let key;
-		const stacklength = this._stack.length;
-		if (stacklength) {
-			const max = stacklength - 1;
+		if (this._stacklength) {
+			const max = this._stacklength - 1;
 			// eslint-disable-next-line no-nested-ternary
 			key = index < 0 ? this._stack[0].key : index > max ? this._stack[max].key : this._stack[index].key;
 		} else {
@@ -143,24 +143,16 @@ class MessageHandler {
 	}
 
 	hasNext() {
-		return this.isEnabled && this._hasLoop && this._index < this._stack.length;
+		return this.isEnabled && this._hasLoop && this._index < this._stacklength;
 	}
 
 	next() {
-		const nxtdata =
-		this.isEnabled && this._hasLoop && this._index < this._stack.length
-		? this._stack[this._index].value
-		: undefined;
-		// if (nxtdata !== undefined) this._index = Math.min(this._index + 1, this._stack.length);		
 		// have to move index to ensure we process loop elements, even if they have no data...
-		this._index = Math.min(this._index + 1, this._stack.length);		
-		this._used = true;
-		return nxtdata;
+		this._index = Math.min(this._index + 1, this._stacklength);
 	}
 
 	setProcessed() {
-		this._used = true;
-		this._index = this._stack.length;
+		this._index = this._stacklength;
 	}
 
 	/** @deprecated */
