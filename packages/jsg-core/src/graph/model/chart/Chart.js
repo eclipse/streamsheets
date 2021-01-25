@@ -39,6 +39,8 @@ module.exports = class Chart {
 		this.upBars = new ChartElement();
 		this.downBars = new ChartElement();
 		this.gaugePointer = false;
+		this.mapZoom = false;
+		this.mapZoomFactor = 1;
 		this.formula = new Expression('');
 	}
 
@@ -105,6 +107,7 @@ module.exports = class Chart {
 		writer.writeAttributeNumber('startangle', this.startAngle);
 		writer.writeAttributeNumber('endangle', this.endAngle);
 		writer.writeAttributeNumber('hole', this.hole);
+		writer.writeAttributeNumber('mapzoom', this.mapZoom ? 1 : 0);
 
 		this.formula.save('formula', writer);
 		this.hiLoLines.save('hilolines', writer);
@@ -133,6 +136,7 @@ module.exports = class Chart {
 		this.startAngle = reader.getAttributeNumber(object, 'startangle', 0);
 		this.endAngle = reader.getAttributeNumber(object, 'endangle', Math.PI * 2);
 		this.hole = reader.getAttributeNumber(object, 'hole', 0.5);
+		this.mapZoom = reader.getAttributeBoolean(object, 'mapzoom', false);
 		this.template = reader.getAttributeString(object, 'template', 'basic');
 
 		reader.iterateObjects(object, (name, child) => {

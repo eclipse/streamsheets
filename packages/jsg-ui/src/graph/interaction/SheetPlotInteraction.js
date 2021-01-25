@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import {GraphUtils, Notification, NotificationCenter, SheetPlotNode, StreamSheet} from '@cedalo/jsg-core';
+import {GraphUtils, Point, Notification, NotificationCenter, SheetPlotNode, StreamSheet} from '@cedalo/jsg-core';
 
 import Interaction from './Interaction';
 import ChartSelectionFeedbackView from '../feedback/ChartSelectionFeedbackView';
@@ -116,11 +116,27 @@ export default class SheetPlotInteraction extends Interaction {
 				layer.push(new ChartSelectionFeedbackView(view));
 			}
 		}
+
+		const item = this._controller.getModel();
+		if (item.isMap() && item.chart.mapZoom) {
+			this.mapOffsetStart = this.toLocalCoordinate(event, viewer, event.location.copy());
+			this.mapOldOffset = item.chart.mapOffset ?  item.chart.mapOffset.copy() : new Point(0, 0);
+		}
 	}
 
 	onMouseDrag(event, viewer) {
 		const graphView = viewer.getGraphView();
 		const item = this._controller.getModel();
+
+		if (item.isMap() && item.chart.mapZoom) {
+			const mapOffsetNow = this.toLocalCoordinate(event, viewer, event.location.copy());
+			if (!item.chart.mapOffset) {
+				item.chart.mapOffset = new Point(0, 0);
+			}
+			item.chart.mapOffset.x = this.mapOldOffset.x + mapOffsetNow.x - this.mapOffsetStart.x;
+			item.chart.mapOffset.y = this.mapOldOffset.y + mapOffsetNow.y - this.mapOffsetStart.y;
+			item.getGraph().markDirty();
+		}
 
 		if (item.getAllowZoom(item.xAxes[0])) {
 			graphView.clearLayer('chartselection');

@@ -426,6 +426,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'chart');
 	};
 
+	handleMapZoomChange = (event, state) => {
+		const cmd = this.prepareCommand('chart');
+		const item = this.state.plotView.getItem();
+		item.chart.mapZoom = state;
+		this.finishCommand(cmd, 'chart');
+	};
+
 	handleVaryByThresholdChange = (event) => {
 		const cmd = this.prepareCommand('chart');
 		const item = this.state.plotView.getItem();
@@ -1722,6 +1729,24 @@ export class StreamChartProperties extends Component {
 												/>
 											}
 										/>
+										{map ? (
+											<FormControlLabel
+												control={
+													<Checkbox
+														checked={item.chart.mapZoom}
+														onChange={(event, state) =>
+															this.handleMapZoomChange(event, state)
+														}
+													/>
+												}
+												label={
+													<FormattedMessage
+														id="StreamChartProperties.AllowMapZoom"
+														defaultMessage="Allow Zoom"
+													/>
+												}
+											/>
+										) : null}
 									</FormGroup>
 								</FormControl>
 								<FormLabel
