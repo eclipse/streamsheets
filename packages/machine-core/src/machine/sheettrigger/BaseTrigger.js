@@ -112,7 +112,7 @@ class BaseTrigger {
 			if (this._isStarted  && this.sheet.isNotFullyProcessed) {
 				// console.log(`RESUME ${this.streamsheet.name}`);
 				this.sheet._resumeProcessing();
-				this.processSheet(false);
+				this.processSheet();
 			}
 			this._isStarted = false;
 		}
@@ -141,7 +141,7 @@ class BaseTrigger {
 			}
 			// sheet might not fully processed due to pause[Processing]/resume[Processing]
 			if (this.sheet.isNotFullyProcessed) {
-				this.processSheet(false);
+				this.processSheet();
 			}
 		} 
 		// if sheet is not paused by function it might be by machine...
@@ -172,20 +172,12 @@ class BaseTrigger {
 	}
 	// ~
 
-	// TODO: REVIEW -> which of following methods still needed?
-	processSheet(useNextMessage = true) {
-		useNextMessage =
-			useNextMessage &&
-			!this.isEndless &&
-			this._streamsheet.isMessageProcessed() &&
-			(this.sheet.isReady || this.sheet.isProcessed);
-		// this._hasTriggered = true;
-		this._streamsheet.process(useNextMessage);
-		// reset if finished
-		// if (this.sheet.isProcessed) {
-		// 	this.sheet.processor.reset();
-		// }
+	processSheet() {
+		if (this._streamsheet.messageHandler.isProcessed) this._streamsheet._attachNextMessage();
+		this._streamsheet.process();
 	}
+
+	// TODO: REVIEW -> which of following methods still needed?
 	preStep(manual) {
 		// this._hasTriggered = false;
 	}

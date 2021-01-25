@@ -12,13 +12,13 @@ const BaseTrigger = require('./BaseTrigger');
 const MessageLoopCycle = require('./MessageLoopCycle');
 const { ManualStepCycle, ManualRepeatUntilCycle, RepeatUntilCycle, TriggerCycle } = require('./cycles');
 
-class TriggeredMessageLoopCycle extends MessageLoopCycle.createWithBaseClass(TriggerCycle) {
-	createRepeatUntilCycle() {
+class TriggeredMessageLoopCycle extends MessageLoopCycle.withBaseClass(TriggerCycle) {
+	getRepeatUntilCycle() {
 		return new RepeatUntilCycle(this.trigger, this);
 	}
 };
-class ManualMessageLoopCycle extends MessageLoopCycle.createWithBaseClass(ManualStepCycle) {
-	createRepeatUntilCycle() {
+class ManualMessageLoopCycle extends MessageLoopCycle.withBaseClass(ManualStepCycle) {
+	getRepeatUntilCycle() {
 		return new ManualRepeatUntilCycle(this.trigger, this);
 	}
 };
@@ -33,7 +33,6 @@ class ContinuousTrigger extends BaseTrigger {
 
 	constructor(config = {}) {
 		super(Object.assign({}, config, TYPE_CONF));
-		this.useNextMessage = true;
 		this.activeCycle = new ManualMessageLoopCycle(this);
 	}
 
@@ -43,11 +42,6 @@ class ContinuousTrigger extends BaseTrigger {
 
 	getTimerCycle() {
 		return new TriggeredMessageLoopCycle(this);
-	}
-
-	processSheet(useNextMessage) {
-		if (useNextMessage == null) useNextMessage = this.useNextMessage;
-		this._streamsheet.process(useNextMessage);
 	}
 }
 

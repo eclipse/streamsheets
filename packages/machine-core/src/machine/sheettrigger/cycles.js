@@ -32,7 +32,7 @@ class TriggerCycle {
 		this.schedule();
 		// finish current step
 		if (this.trigger.sheet.isNotFullyProcessed) {
-			this.trigger.processSheet(false);
+			this.trigger.processSheet();
 		}
 	}
 
@@ -106,7 +106,6 @@ class RepeatUntilCycle extends TimerCycle {
 
 	process() {
 		this.trigger.streamsheet.stats.repeatsteps += 1;
-		// console.log('REPEAT UNTIL PROCESS');
 		this.trigger.processSheet();
 	}
 
