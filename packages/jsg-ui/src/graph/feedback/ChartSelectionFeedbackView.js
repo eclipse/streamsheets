@@ -526,6 +526,11 @@ export default class ChartSelectionFeedbackView extends View {
 						const sel = new Selection(sheet);
 						sel.setAt(0, new CellRange(sheet, 0, 0));
 
+						graphics.save();
+						graphics.beginPath();
+						graphics.rect(plotRect.left, plotRect.top, plotRect.width, plotRect.height);
+						graphics.clip();
+
 						features.forEach((feature, pointIndex) => {
 							if (selection.element === 'series' || pointIndex === selection.pointIndex) {
 								if (feature.geometry.type === 'Point' || mapInfo.dispChart) {
@@ -587,6 +592,7 @@ export default class ChartSelectionFeedbackView extends View {
 								}
 							}
 						});
+						graphics.restore();
 					} else if (serie.type === 'boxplot') {
 						const barWidth = item.getBarWidth(axes, serie, plotRect);
 						// collect values for each category

@@ -8,10 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { Point, GraphUtils, FormatAttributes, TextFormatAttributes } from '@cedalo/jsg-core';
+import {Point, GraphUtils, FormatAttributes, TextFormatAttributes, Selection, CellRange} from '@cedalo/jsg-core';
 
 import View from '../../ui/View';
 import SelectionStyle from '../view/selection/SelectionStyle';
+import {createView} from "@cedalo/jsg-extensions/ui";
 
 export default class ChartInfoFeedbackView extends View {
 	constructor(chartView, selection, point, value, viewer) {
@@ -225,16 +226,31 @@ export default class ChartInfoFeedbackView extends View {
 				if (!mapInfo) {
 					return;
 				}
-				value.seriesIndex = this.selection.dataPoints[0].index;
-				value.index = this.selection.dataPoints[0].pointIndex;
-				value.serie = serie;
-				value.axes = item.getAxes(serie);
-				value.x = this.selection.dataPoints[0].x;
-				value.y = this.selection.dataPoints[0].y;
-				values.push(value);
-				const pt = item.getFeatureCenter(features[value.index]);
-				x = mapInfo.xOff + (pt.x - mapInfo.bounds.xMin) * mapInfo.scale;
-				y = mapInfo.yOff + (mapInfo.bounds.yMax - pt.y) * mapInfo.scale;
+
+				const feature = features[this.selection.dataPoints[0].pointIndex];
+				const {geometry} = feature;
+				const index = item.findMapIndex(feature.properties, serie, mapInfo);
+				if (mapInfo.dispChart) {
+					if (index !== -1) {
+						const sheet = ref.y.range._worksheet;
+						const selection = new Selection(sheet);
+						selection.setAt(0, new CellRange(sheet, 0, 0));
+						const view = createView(mapInfo.chartNode);
+						this.chartView.drawMapChart(graphics, view, item, serie, feature, sheet, selection, ref, index, mapInfo, true);
+					}
+					return;
+				} else {
+					value.seriesIndex = this.selection.dataPoints[0].index;
+					value.index = this.selection.dataPoints[0].pointIndex;
+					value.serie = serie;
+					value.axes = item.getAxes(serie);
+					value.x = this.selection.dataPoints[0].x;
+					value.y = this.selection.dataPoints[0].y;
+					values.push(value);
+					const pt = item.getFeatureCenter(features[value.index]);
+					x = mapInfo.xOff + (pt.x - mapInfo.bounds.xMin) * mapInfo.scale;
+					y = mapInfo.yOff + (mapInfo.bounds.yMax - pt.y) * mapInfo.scale;
+				}
 			} else {
 				item.yAxes.forEach((axis) => {
 					if (axis.categories) {

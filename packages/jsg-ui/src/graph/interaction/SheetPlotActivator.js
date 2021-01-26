@@ -219,13 +219,8 @@ export default class SheetPlotActivator extends InteractionActivator {
 			if (!event.isClicked(MouseEvent.ButtonType.RIGHT)) {
 				interaction.onMouseDown(event, viewer);
 			}
-			if (view.chartSelection === undefined && !interaction.isPlotHit(event, viewer)) {
-				const interactionHandler = viewer.getInteractionHandler();
-				interactionHandler.setActiveInteraction(interactionHandler.getDefaultInteraction());
-			} else {
-				event.isConsumed = true;
-				event.hasActivated = true;
-			}
+			event.isConsumed = true;
+			event.hasActivated = true;
 		} else {
 			view.chartSelection = undefined;
 			NotificationCenter.getInstance().send(
