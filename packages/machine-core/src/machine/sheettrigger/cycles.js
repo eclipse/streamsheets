@@ -99,19 +99,11 @@ class RepeatUntilCycle extends TimerCycle {
 		return 1;
 	}
 
-	run() {
-		this.schedule();
-		this.process();
-	}
-
-	process() {
+	step() {
 		this.trigger.streamsheet.stats.repeatsteps += 1;
 		this.trigger.processSheet();
 	}
 
-	step() {
-		return undefined;
-	}
 }
 
 class ManualRepeatUntilCycle extends ManualCycle {
@@ -121,18 +113,6 @@ class ManualRepeatUntilCycle extends ManualCycle {
 		this.trigger.streamsheet.stats.repeatsteps += 1;
 		this.trigger.processSheet();
 	}	
-}
-class ManualStepCycle extends ManualCycle {
-	step() {
-		this.trigger.streamsheet.stats.steps += 1;
-		if (this.trigger.isEndless) {
-			this.trigger.activeCycle = new ManualRepeatUntilCycle(this.trigger, this);
-			this.trigger.activeCycle.run();
-		} else {
-			// console.log(`STEP ${this.trigger.streamsheet.name}`);
-			this.trigger.processSheet();
-		}
-	}
 }
 
 class NoOpCycle extends TriggerCycle {
@@ -147,7 +127,6 @@ class NoOpCycle extends TriggerCycle {
 
 module.exports = {
 	ManualCycle,
-	ManualStepCycle,
 	NoOpCycle,
 	RepeatUntilCycle,
 	ManualRepeatUntilCycle,
