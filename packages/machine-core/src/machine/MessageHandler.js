@@ -51,7 +51,7 @@ const createStack = (loop, recursively = false) => {
 class MessageHandler {
 	constructor(cfg = {}) {
 		this.config = Object.assign({}, DEF, cfg);
-		this._index = -1;
+		this._index = 0;
 		this._hasLoop = false;
 		this._message = undefined;
 		this._stack = [];
@@ -82,7 +82,9 @@ class MessageHandler {
 	}
 
 	get indexKey() {
-		return this._stacklength ? this._stack[this.index].key : '[0]';
+		const index = Math.min(this._index, this._stack.length - 1);
+		return index < 0 ? '[0]' : this._stack[index].key;
+		// return this._index < this._stacklength ? this._stack[this._index].key : (this._stack.length ? '[0]';
 	}
 
 	get message() {
@@ -91,7 +93,6 @@ class MessageHandler {
 	set message(message) {
 		this._message = message;
 		this.reset();
-		this._index = 0;
 	}
 
 	get isEnabled() {
@@ -103,7 +104,11 @@ class MessageHandler {
 	}
 
 	get isProcessed() {
-		return !this._message || this._index >= this._stacklength;
+		return !this._message || this._index >= this._stacklength || (!this.isEnabled && this._index > 0);
+	}
+
+	setProcessed() {
+		this._index = this._stacklength;
 	}
 
 	get isRecursive() {
@@ -122,7 +127,7 @@ class MessageHandler {
 	}
 
 	reset() {
-		this._index = -1;
+		this._index = 0;
 		const loop = getLoopElement(this._message, this.config.path);
 		this._stack = createStack(loop, this.config.recursively);
 		// stacklength should be at least 1 to handle messages without loop!
@@ -142,27 +147,12 @@ class MessageHandler {
 		return `${this.path}${key}`;
 	}
 
-	hasNext() {
-		return this.isEnabled && this._hasLoop && this._index < this._stacklength;
-	}
-
 	next() {
+		const value =
+			!this.isEnabled || this._index >= this._stack.length ? undefined : this._stack[this._index].value;
 		// have to move index to ensure we process loop elements, even if they have no data...
 		this._index = Math.min(this._index + 1, this._stacklength);
-	}
-
-	setProcessed() {
-		this._index = this._stacklength;
-	}
-
-	/** @deprecated */
-	previous() {
-		const prevdata =
-			this.isEnabled && this._hasLoop && this._stack.length > 0 && this._index > 1
-				? this._stack[this._index - 2].value
-				: undefined;
-		if (prevdata !== undefined) this._index = Math.max(this._index - 1, 0);
-		return prevdata;
+		return value;
 	}
 }
 

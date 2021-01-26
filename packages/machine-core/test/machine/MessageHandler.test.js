@@ -61,7 +61,7 @@ const TEST_MSG = new Message({
 }, '1234-567');
 
 
-describe.skip('MessageHandler', () => {
+describe('MessageHandler', () => {
 	it('should be possible to create a MessageHandler', () => {
 		const mh = new MessageHandler();
 		expect(mh).toBeDefined();
@@ -81,21 +81,24 @@ describe.skip('MessageHandler', () => {
 		mh.path = '[data][productdata]';
 		expect(mh.path).toBe('[data][productdata]');
 	});
-	it('should be possible to disable handler', () => {
+	it('should be possible to attach a message', () => {
+		const mh = new MessageHandler();
+		mh.message = TEST_MSG;
+		expect(mh.message).toBe(TEST_MSG);
+	});
+	it('should be possible to disable loop', () => {
 		const mh = new MessageHandler();
 		mh.path = '[data][productdata]';
 		// attach message:
 		mh.message = TEST_MSG;
 		mh.isEnabled = true;
-		expect(mh.next()).toBeDefined();
+		expect(mh.isProcessed).toBeFalsy();
+		mh.next();
+		expect(mh.isProcessed).toBeFalsy();
 		mh.isEnabled = false;
-		expect(mh.next()).toBeUndefined();
-		expect(mh.previous()).toBeUndefined();
-	});
-	it('should be possible to attach a message', () => {
-		const mh = new MessageHandler();
-		mh.message = TEST_MSG;
-		expect(mh.message).toBe(TEST_MSG);
+		expect(mh.isProcessed).toBeTruthy();
+		mh.isEnabled = true;
+		expect(mh.isProcessed).toBeFalsy();
 	});
 	it('should be possible to step through message data', () => {
 		const mh = new MessageHandler({ path: '[data][productdata]', enabled: true });
@@ -123,7 +126,6 @@ describe.skip('MessageHandler', () => {
 		// attach message:
 		mh.message = TEST_MSG;
 		expect(mh.next()).toBeUndefined();
-		expect(mh.previous()).toBeUndefined();
 	});
 	it('should return undefined if no more data is available', () => {
 		const mh = new MessageHandler({ path: '[data][productdata]', enabled: true });
@@ -143,48 +145,6 @@ describe.skip('MessageHandler', () => {
 		expect(lastdata[2]).toBe(0.0075);
 		expect(mh.next()).toBeUndefined();
 		expect(mh.next()).toBeUndefined();
-	});
-	it('should be possible to step back and forth through message data', () => {
-		const mh = new MessageHandler({ path: '[data][productdata]', enabled: true });
-		// attach message:
-		mh.message = TEST_MSG;
-		let prevdata = mh.previous();
-		expect(prevdata).toBeUndefined();
-		let nxtdata = mh.next();
-		expect(nxtdata[0]).toBe('Substanz');
-		expect(nxtdata[1]).toBe('Inhaltsstoff');
-		expect(nxtdata[2]).toBe('Anteil');
-		prevdata = mh.previous();
-		expect(prevdata).toBeUndefined();
-		nxtdata = mh.next();
-		expect(nxtdata[0]).toBe('Wollwaschmittel');
-		expect(nxtdata[1]).toBe('Bleichmittel');
-		expect(nxtdata[2]).toBe(0.355);
-		prevdata = mh.previous();
-		expect(prevdata[0]).toBe('Substanz');
-		expect(prevdata[1]).toBe('Inhaltsstoff');
-		expect(prevdata[2]).toBe('Anteil');
-		nxtdata = mh.next();
-		expect(nxtdata[0]).toBe('Wollwaschmittel');
-		expect(nxtdata[1]).toBe('Bleichmittel');
-		expect(nxtdata[2]).toBe(0.355);
-		mh.next();
-		mh.next();
-		prevdata = mh.previous();
-		expect(prevdata[0]).toBe('Wollwaschmittel');
-		expect(prevdata[1]).toBe('Tenside');
-		expect(prevdata[2]).toBe(0.15);
-		mh.next();
-		mh.next();
-		mh.next();
-		nxtdata = mh.next();
-		expect(nxtdata).toBeDefined();
-		nxtdata = mh.next();
-		expect(nxtdata).toBeUndefined();
-		prevdata = mh.previous();
-		expect(prevdata[0]).toBe('Wollwaschmittel');
-		expect(prevdata[1]).toBe('Enthärter');
-		expect(prevdata[2]).toBe(0.3);
 	});
 	it('should support getting array key for specified index', () => {
 		const mh = new MessageHandler({ path: '[data][measurements]', enabled: true });
@@ -210,45 +170,49 @@ describe.skip('MessageHandler', () => {
 		expect(mh.indexKey).toBe('[temperature]');
 		expect(mh.next()).toEqual([45.4231, 46.4222, 44.2432]);
 	});
-
-	describe('hasNext', () => {
-		it('should return true if more data is available', () => {
-			const mh = new MessageHandler({ path: '[data][productdata]', enabled: true });
-			// attach message:
-			mh.message = TEST_MSG;
-			expect(mh.hasNext()).toBeTruthy();
-			mh.next();
-			expect(mh.hasNext()).toBeTruthy();
-			mh.next();
-			expect(mh.hasNext()).toBeTruthy();
-			mh.previous();
-			mh.previous();
-			mh.previous();
-			expect(mh.hasNext()).toBeTruthy();
-		});
-		it('should return false if no more data is available', () => {
-			const mh = new MessageHandler({ path: '[data][productdata]', enabled: true });
-			// attach message:
-			mh.message = TEST_MSG;
-			expect(mh.hasNext()).toBeTruthy();
-			for (let i = 0; i < TEST_MSG.data.productdata.length; i += 1) {
-				mh.next();
-			}
-			expect(mh.next()).toBeUndefined();
-			expect(mh.hasNext()).toBeFalsy();
-			mh.previous();
-			expect(mh.hasNext()).toBeTruthy();
-			mh.next();
-			expect(mh.hasNext()).toBeFalsy();
-		});
-		it('should return false if loop is disabled', () => {
-			const mh = new MessageHandler({ path: '[data][productdata]', enabled: true });
-			// attach message:
-			mh.message = TEST_MSG;
-			expect(mh.hasNext()).toBeTruthy();
-			mh.isEnabled = false;
-			expect(mh.hasNext()).toBeFalsy();
-		});
+	test('isProcessed returns true if message is completely processed', () => {
+		const mh = new MessageHandler({ path: '[data][measurements]', enabled: true });
+		// attach message:
+		mh.message = TEST_MSG;
+		expect(mh.isProcessed).toBeFalsy();
+		mh.next();
+		expect(mh.isProcessed).toBeFalsy();
+		mh.next();
+		expect(mh.isProcessed).toBeTruthy();
+		mh.next();
+		expect(mh.isProcessed).toBeTruthy();
+	});
+	test('reset() resets MessageHandler with current settings', () => {
+		const mh = new MessageHandler({ path: '[data][measurements]', enabled: true });
+		// attach message:
+		mh.message = TEST_MSG;
+		expect(mh.next()).toBeDefined();
+		expect(mh.next()).toBeDefined();
+		expect(mh.next()).toBeUndefined();
+		expect(mh.isProcessed).toBeTruthy();
+		mh.reset();
+		expect(mh.isProcessed).toBeFalsy();
+		expect(mh.next()).toBeDefined();
+		expect(mh.next()).toBeDefined();
+		expect(mh.next()).toBeUndefined();
+	})
+	test('isProcessed returns true if message is completely processed with disabled loop', () => {
+		const mh = new MessageHandler({ path: '[data][productdata]', enabled: false});
+		// attach message:
+		mh.message = TEST_MSG;
+		// loop is disabled but we need at least one next() to process it!
+		expect(mh.isProcessed).toBeFalsy();
+		mh.next();
+		expect(mh.isProcessed).toBeTruthy();
+	});
+	test('setProcessed() marks MessageHandler as processed', () => {
+		const mh = new MessageHandler({ path: '[data][productdata]', enabled: true});
+		// attach message:
+		mh.message = TEST_MSG;
+		expect(mh.isProcessed).toBeFalsy();
+		mh.setProcessed();
+		expect(mh.isProcessed).toBeTruthy();
+		expect(mh.next()).toBeUndefined();
 	});
 
 	describe('IO', () => {
