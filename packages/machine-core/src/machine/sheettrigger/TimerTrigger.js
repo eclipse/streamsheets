@@ -24,8 +24,8 @@ class IntervalCycle extends TimerMessageLoopCycle {
 	getCycleTime() {
 		return this.trigger.interval * UNITS[this.trigger.intervalUnit];
 	}
-	postProcess() {
-		super.postProcess();
+	postProcessSheet() {
+		super.postProcessSheet();
 		// might stopped, so schedule again:
 		if (this.id == null) this.schedule();
 	}

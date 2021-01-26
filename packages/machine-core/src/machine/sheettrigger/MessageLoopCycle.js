@@ -25,9 +25,9 @@ const Activate = (BaseCycle) =>
 		}
 	};
 
-const PostProcess = (BaseCycle) =>
+const PostProcessSheet = (BaseCycle) =>
 	class extends BaseCycle {
-		postProcess() {
+		postProcessSheet() {
 			if (this.trigger.sheet.isProcessed) this.trigger.streamsheet.messageHandler.next();
 			if (this.trigger.streamsheet.messageHandler.isProcessed) {
 				this.trigger.streamsheet.detachMessage();
@@ -51,7 +51,7 @@ const Step = (BaseCycle) => {
 			} else {
 				this.trigger.streamsheet.stats.steps += 1;
 				this.trigger.processSheet();
-				this.postProcess();
+				this.postProcessSheet();
 			}
 		}
 	};
@@ -60,27 +60,20 @@ const Resume = (BaseClass) =>
 	class extends BaseClass {
 		resume() {
 			super.resume();
-			this.postProcess();
+			this.postProcessSheet();
 		}
 	};
 
-const MessageLoopCycle = compose(Activate, PostProcess, Resume,	Step);
+const MessageLoopCycle = compose(Activate, PostProcessSheet, Resume, Step);
 
 
 class RepeatUntilCycle extends TimerCycle {
 	getCycleTime() {
 		return 1;
 	}
-	run() {
-		this.schedule();
-		this.process();
-	}
-	process() {
+	step() {
 		this.trigger.streamsheet.stats.repeatsteps += 1;
 		this.trigger.processSheet();
-	}
-	step() {
-		return undefined;
 	}
 }
 class ManualRepeatUntilCycle extends ManualCycle {
