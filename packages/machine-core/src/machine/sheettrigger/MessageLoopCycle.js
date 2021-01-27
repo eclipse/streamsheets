@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { compose } = require('@cedalo/commons').functions;
-const { ManualCycle, TimerCycle } = require('./cycles');
+const { ManualCycle, ManualRepeatUntilCycle, RepeatUntilCycle, TimerCycle } = require('./cycles');
 
 const Activate = (BaseCycle) =>
 	class extends BaseCycle {
@@ -67,23 +67,6 @@ const Resume = (BaseClass) =>
 const MessageLoopCycle = compose(Activate, PostProcessSheet, Resume, Step);
 
 
-class RepeatUntilCycle extends TimerCycle {
-	getCycleTime() {
-		return 1;
-	}
-	step() {
-		this.trigger.streamsheet.stats.repeatsteps += 1;
-		this.trigger.processSheet();
-	}
-}
-class ManualRepeatUntilCycle extends ManualCycle {
-	step() {
-		// in manual we count steps even in endless mode?
-		// this.trigger.streamsheet.stats.steps += 1;
-		this.trigger.streamsheet.stats.repeatsteps += 1;
-		this.trigger.processSheet();
-	}	
-}
 
 class TimerMessageLoopCycle extends MessageLoopCycle(TimerCycle) {
 	getRepeatUntilCycle() {
