@@ -9,23 +9,22 @@
  *
  ********************************************************************************/
 
- const clearPauseTimeout = (context) => {
+const clearPauseTimeout = (context) => {
 	if (context.timeoutId) {
 		clearTimeout(context.timeoutId);
 		context.timeoutId = undefined;
 	}
- };
+};
 
- const resume = (sheet, context) => () => {
+const resume = (sheet, context) => () => {
 	clearPauseTimeout(context);
 	if (sheet.isPaused) {
 		context.resumeCounter += 1;
-		// console.log(`RESUME PAUSE OF ${sheet.streamsheet.name}`);
 		sheet.streamsheet.resumeProcessing();
 	}
- };
+};
 
- const pause = (sheet, ...terms) => {
+const pause = (sheet, ...terms) => {
 	if (sheet.isProcessing) {
 		const context = pause.context;
 		const period = terms[0] && terms[0].value ? terms[0].value * 1000 : 0;

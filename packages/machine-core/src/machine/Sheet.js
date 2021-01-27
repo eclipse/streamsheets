@@ -580,7 +580,6 @@ module.exports = class Sheet {
 	_continueProcessingAt(cellindex) {
 		this.processor.continueAt(cellindex);
 	}
-	// optional return value
 	_stopProcessing(retvalue) {
 		this.processor.stop(retvalue);
 	}
@@ -589,9 +588,6 @@ module.exports = class Sheet {
 		this.processor.start();
 		this._isProcessing = false;
 	}
-	// _interruptProcessing() {
-	// 	this.processor.interrupt();
-	// }
 	_pauseProcessing() {
 		this.processor.pause();
 	}

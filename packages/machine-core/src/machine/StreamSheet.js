@@ -392,16 +392,12 @@ class StreamSheet {
 		}
 	}
 	attachNextMessage() {
-		// if (this._msgHandler.isProcessed) {
 		const currmsg = this._msgHandler.message;
 		if (currmsg && this.inbox.size > 1) {
 			this.inbox.pop(currmsg.id);
 			this._msgHandler.message = undefined;
 		}
-	// }
-		if (!this._msgHandler.message) {
-			this.attachMessage(this.inbox.peek());
-		}
+		if (!this._msgHandler.message) this.attachMessage(this.inbox.peek());
 	}
 	attachMessage(message) {
 		this._msgHandler.message = message;

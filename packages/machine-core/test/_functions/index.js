@@ -35,10 +35,4 @@ module.exports = {
 	LOOPINDICES,
 	MESSAGEIDS,
 	PAUSE
-	// ,
-	// RESUME: (sheet /* , ...terms */) => {
-	// 	if (sheet.isProcessing) {
-	// 		sheet.streamsheet.resumeProcessing();
-	// 	}
-	// }
 };
