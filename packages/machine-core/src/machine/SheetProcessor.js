@@ -38,12 +38,6 @@ class Cursor {
 	constructor(sheet) {
 		this.sheet = sheet;
 		this.reset();
-		// this.c = null;
-		// this.r = sheet.settings.minrow;
-		// this.result = undefined;
-		// this.changed = false;
-		// this.maxRow = this.sheet._rows.length;
-		// this.maxCol = maxCol(this.sheet._rows[this.maxRow - 1]);
 	}
 
 	isProcessed() {
@@ -79,7 +73,6 @@ class SheetProcessor {
 		return this._state === State.PAUSED;
 	}
 	get isProcessed() {
-		// return this._cursor.isProcessed;
 		return this._cursor.isProcessed();
 	}
 	get isStarted() {
@@ -114,20 +107,11 @@ class SheetProcessor {
 		this._cursor.r = this._cursor.maxRow + 1;
 		this._cursor.changed = true;
 		this._cursor.result = retval;
-		// this._cursor.isProcessed = true;
 	}
 	start() {
-		const cursor = this._cursor;
-		const sheet = cursor.sheet;
-		// rows might change during processing, but we are not dynamic to prevent endless loop
-		// const last = sheet._rows.length;
-
 		this._process();
-
-		// on end of sheet
-		// cursor.isProcessed = cursor.r >= last; // && (cursor.c == null || cursor.c >= lastcol))) {
-
 		// graph cells:
+		const sheet = this._cursor.sheet;
 		sheet.graphCells.evaluating = true;
 		sheet.graphCells._cells.forEach((cell) => cell.evaluate());
 		sheet.graphCells.evaluating = false;
@@ -143,9 +127,7 @@ class SheetProcessor {
 		if (this.isPaused) {
 			// check paused cell again because its referenced values might have changed:
 			const cell = cellAt(cursor.r, cursor.c, sheet);
-			// TODO: only eval function based cells
 			if (cell) cell.evaluate();
-			// if (!this.isPaused && this._cursor.c != null) this._cursor.c += 1;
 		} else {
 			this._state = State.READY;
 			if (this.isProcessed) cursor.reset();
