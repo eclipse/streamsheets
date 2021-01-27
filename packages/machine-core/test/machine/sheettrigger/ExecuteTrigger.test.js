@@ -213,20 +213,21 @@ describe('behaviour on machine run', () => {
 		});
 		test('execute sheet is not run after machine resume', async () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START });
+			const machineMonitor = monitorMachine(machine);
 			s1.sheet.loadCells({ A1: { formula: 'A1+1' }, A2: { formula: 'execute("S2")' } });
 			s2.sheet.loadCells({ B1: { formula: 'B1+1' } });
 			await machine.start();
-			await wait(10);
+			await machineMonitor.hasFinishedStep(1);
 			await machine.pause();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s2.sheet.cellAt('B1').value).toBe(2);
 			await machine.start();
-			await wait(10);
+			await machineMonitor.hasFinishedStep(2);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s2.sheet.cellAt('B1').value).toBe(2);
 			await machine.start();
-			await wait(10);
+			await machineMonitor.hasFinishedStep(3);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s2.sheet.cellAt('B1').value).toBe(3);
