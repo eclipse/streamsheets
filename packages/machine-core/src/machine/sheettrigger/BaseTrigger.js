@@ -8,8 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const State = require('../../State');
 const { NoOpCycle } = require('./cycles');
-
 
 const DEF_CONF = {
 	repeat: 'once'
@@ -23,8 +23,6 @@ class BaseTrigger {
 		this._streamsheet = undefined;
 		// tmp. only:
 		this._isStarted = false;
-		// flag to prevent processing twice on manual stepping if this comes before triggering sheet
-		// this._hasTriggered = false;
 	}
 
 	toJSON() {
@@ -51,8 +49,13 @@ class BaseTrigger {
 	}
 
 	get isMachineStopped() {
-		const machine = this._streamsheet.machine;
-		return machine == null || !machine.isRunning;
+		const state = this.machine.state;
+		// support streamsheets running on stop()
+		return state !== State.WILL_STOP && state !== State.RUNNING;
+	}
+
+	get machine() {
+		return this._streamsheet.machine;
 	}
 
 	get sheet() {
@@ -124,13 +127,15 @@ class BaseTrigger {
 		if (this.activeCycle.isManual) this.activeCycle = this.getTimerCycle();
 	}
 
-	stop() {
+	stop(/* forced */) {
 		// console.log(`=== STOP ${this.streamsheet.name} ===`)
 		// clear instead of stop to not trigger possible resume
 		this.activeCycle.clear();
 		this.sheet._stopProcessing();
 		// important! this forces stop/clear if a timer-cycle (e.g. activated parent) is still active...
-		if (!this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
+		// if (!this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
+		// reset active cycle to timer cycle to support sheets running on machine stop!!
+		this.activeCycle = this.getTimerCycle();
 		return true;
 	}
 
@@ -143,7 +148,7 @@ class BaseTrigger {
 			if (this.sheet.isNotFullyProcessed) {
 				this.processSheet();
 			}
-		} 
+		}
 		// if sheet is not paused by function it might be by machine...
 		if (!this.sheet.isPaused && (!this.isMachineStopped || (this.activeCycle.isManual))) { // && !this._hasTriggered))) {
 			// console.log(`STEP ${this.streamsheet.name}`);
@@ -176,13 +181,6 @@ class BaseTrigger {
 		if (this._streamsheet.messageHandler.isProcessed) this._streamsheet.attachNextMessage();
 		this._streamsheet.process();
 	}
-
-	// TODO: REVIEW -> which of following methods still needed?
-	preStep(manual) {
-		// this._hasTriggered = false;
-	}
-	postStep(/* manual */) {}
-	// ~
 }
 
 module.exports = BaseTrigger;
