@@ -87,6 +87,10 @@ class ManualRepeatedExecuteCycle extends RepeatedExecuteCycle(ManualCycle) {
 		return new ManualMessageLoopCycle(this.trigger, this);
 	}
 
+	activate() {
+		super.activate();
+		this.hasStepped = false;
+	}
 	run() {
 		this.hasExecuted = true;
 		super.run();
@@ -170,14 +174,6 @@ class ExecuteTrigger extends BaseTrigger {
 	stopProcessing(retval) {
 		this.retval = retval;
 		super.stopProcessing(retval);
-	}
-
-	preStep(manual) {
-		// required if stepped (manual) on machine pause (cyclic)
-		if (manual) {
-			if (!this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
-			this.activeCycle.hasStepped = false;
-		}
 	}
 }
 
