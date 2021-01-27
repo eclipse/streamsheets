@@ -91,7 +91,6 @@ class Machine {
 		});
 		this.metadata.lastModified = Date.now();
 		this.cycle = this.cycle.bind(this);
-		this.notifyStreamSheetStep = this.notifyStreamSheetStep.bind(this);
 	}
 
 	get className() {
@@ -294,7 +293,6 @@ class Machine {
 			streamsheet.machine = this;
 			streamsheet.name = streamsheet.name || defaultStreamSheetName(streamsheet);
 			this._streamsheets.set(streamsheet.id, streamsheet);
-			streamsheet.on('step', this.notifyStreamSheetStep);
 			this._emitter.emit('update', 'streamsheet_added', streamsheet);
 			// reflect state to streamsheet
 			if (this.state === State.PAUSED) {
@@ -370,14 +368,6 @@ class Machine {
 
 	notifyUpdate(type, message) {
 		this._emitter.emit('update', type, message);
-	}
-
-	notifyMessage(type, message) {
-		this._emitter.emit('message', type, message);
-	}
-
-	notifyStreamSheetStep(streamsheet) {
-		this._emitter.emit('streamsheetstep', streamsheet);
 	}
 
 	on(event, callback) {
