@@ -25,8 +25,12 @@ class TriggerCycle {
 	}
 
 	clear() {}
-	
-	run() {}
+
+	run() {
+		// schedule next cycle;
+		this.schedule();
+		this.step();
+	}
 
 	resume() {
 		this.schedule();
@@ -38,9 +42,7 @@ class TriggerCycle {
 
 	schedule() {}
 
-	step() {
-		return undefined;
-	}
+	step() {}
 
 	stop() {
 		this.clear();
@@ -69,11 +71,6 @@ class TimerCycle extends TriggerCycle {
 		this.id = setTimeout(this.run, this.getCycleTime());
 	}
 
-	run() {
-		// schedule next cycle;
-		this.schedule();
-		this.step();
-	}
 	step() {
 		this.trigger.processSheet();
 	}
