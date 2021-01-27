@@ -17,8 +17,8 @@ const Activate = (BaseCycle) =>
 			super.activate();
 			this.schedule();
 			// move to next loop element:
-			this.trigger.streamsheet.messageHandler.next();
-			if (this.trigger.streamsheet.messageHandler.isProcessed) {
+			this.trigger.messageHandler.next();
+			if (this.trigger.messageHandler.isProcessed) {
 				this.trigger.streamsheet.detachMessage();
 				if (this.parentcycle) this.parentcycle.activate();
 			}
@@ -28,8 +28,8 @@ const Activate = (BaseCycle) =>
 const PostProcessSheet = (BaseCycle) =>
 	class extends BaseCycle {
 		postProcessSheet() {
-			if (this.trigger.sheet.isProcessed) this.trigger.streamsheet.messageHandler.next();
-			if (this.trigger.streamsheet.messageHandler.isProcessed) {
+			if (this.trigger.sheet.isProcessed) this.trigger.messageHandler.next();
+			if (this.trigger.messageHandler.isProcessed) {
 				this.trigger.streamsheet.detachMessage();
 				if (!this.trigger.sheet.isPaused) {
 					this.stop();

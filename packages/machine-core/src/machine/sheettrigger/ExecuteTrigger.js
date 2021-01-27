@@ -19,7 +19,7 @@ const { ManualCycle, RepeatUntilCycle, TimerCycle } = require('./cycles');
 const noop = () => {};
 const getPace = (trigger, useMax) => () => {
 	const pace = trigger.pace;
-	const machine = trigger.streamsheet.machine;
+	const machine = trigger.machine;
 	// eslint-disable-next-line no-nested-ternary
 	return useMax(pace) ? 1 : machine ? machine.cycletime : Machine.DEF_CYCLETIME;
 };

@@ -19,13 +19,13 @@ const OneTimeMachineCycle = (BaseClass) =>
 		activate() {
 			super.activate();
 			// finished, so
-			this.trigger.streamsheet.machine.finishedPending(this.trigger.streamsheet);
+			this.trigger.machine.finishedPending(this.trigger.streamsheet);
 		}
 		schedule() {}
 	};
 class OnStopMessageLoopCycle extends TimerMessageLoopCycle {
 	getCycleTime() {
-		return this.trigger.streamsheet.machine.cycletime;
+		return this.trigger.machine.cycletime;
 	}
 }
 class OnStopMachineCycle extends OneTimeMachineCycle(TimerCycle) {
