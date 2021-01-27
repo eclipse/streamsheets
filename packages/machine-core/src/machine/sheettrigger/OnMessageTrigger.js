@@ -43,7 +43,6 @@ const subscribe = (streamsheet, trigger) => {
 class OnMessageTrigger extends BaseTrigger {
 	constructor(config = {}) {
 		super(config);
-		this.useNextMessage = false;
 		this.activeCycle = new ManualOnMessageCycle(this);
 		this._onMessagePut = this._onMessagePut.bind(this);
 	}
@@ -85,10 +84,6 @@ class OnMessageTrigger extends BaseTrigger {
 	step(manual) {
 		// only handle manual steps
 		if (manual) super.step(manual);
-	}
-
-	processSheet() {
-		super.processSheet(this.useNextMessage);
 	}
 }
 OnMessageTrigger.TYPE ='arrival';
