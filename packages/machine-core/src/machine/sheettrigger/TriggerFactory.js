@@ -10,7 +10,8 @@
  ********************************************************************************/
 const ContinuousTrigger = require('./ContinuousTrigger');
 const ExecuteTrigger = require('./ExecuteTrigger');
-const MachineTrigger = require('./MachineTrigger');
+const MachineStartTrigger = require('./MachineStartTrigger');
+const MachineStopTrigger = require('./MachineStopTrigger');
 const NeverTrigger = require('./NeverTrigger');
 const OneTimeTrigger = require('./OneTimeTrigger');
 const OnMessageTrigger = require('./OnMessageTrigger');
@@ -20,8 +21,8 @@ const TYPE = {
 	ARRIVAL: OnMessageTrigger.TYPE,
 	CONTINUOUSLY: ContinuousTrigger.TYPE,
 	EXECUTE: ExecuteTrigger.TYPE,
-	MACHINE_START: MachineTrigger.TYPE_START,
-	MACHINE_STOP: MachineTrigger.TYPE_STOP,
+	MACHINE_START: MachineStopTrigger.TYPE,
+	MACHINE_STOP: MachineStartTrigger.TYPE,
 	NONE: NeverTrigger.TYPE,
 	ONCE: OneTimeTrigger.TYPE,
 	RANDOM: TimerTrigger.TYPE_RANDOM,
@@ -44,8 +45,10 @@ const TriggerFactory = {
 				trigger = new ExecuteTrigger(config);
 				break;
 			case TYPE.MACHINE_START:
+				trigger = new MachineStartTrigger(config);
+				break;
 			case TYPE.MACHINE_STOP:
-				trigger = new MachineTrigger(config);
+				trigger = new MachineStopTrigger(config);
 				break;
 			case TYPE.NONE:
 				trigger = new NeverTrigger(config);

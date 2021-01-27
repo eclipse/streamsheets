@@ -10,7 +10,8 @@
  ********************************************************************************/
 const ContinuousTrigger = require('./ContinuousTrigger');
 const ExecuteTrigger = require('./ExecuteTrigger');
-const MachineTrigger = require('./MachineTrigger');
+const MachineStartTrigger = require('./MachineStartTrigger');
+const MachineStopTrigger = require('./MachineStopTrigger');
 const NeverTrigger = require('./NeverTrigger');
 const OnMessageTrigger = require('./OnMessageTrigger');
 const TimerTrigger = require('./TimerTrigger');
@@ -19,7 +20,8 @@ const TriggerFactory = require('./TriggerFactory');
 module.exports = {
 	ContinuousTrigger,
 	ExecuteTrigger,
-	MachineTrigger,
+	MachineStartTrigger,
+	MachineStopTrigger,
 	NeverTrigger,
 	OnMessageTrigger,
 	TimerTrigger,
