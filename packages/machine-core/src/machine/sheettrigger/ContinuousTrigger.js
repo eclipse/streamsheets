@@ -17,17 +17,11 @@ class MachineTriggeredMessageLoopCycle extends MessageLoopCycle.withBaseClass(Tr
 	getRepeatUntilCycle() {
 		return new RepeatUntilCycle(this.trigger, this);
 	}
-};
-
-const TYPE_CONF = Object.freeze({ type: 'continuously' });
+}
 
 class ContinuousTrigger extends BaseTrigger {
-	static get TYPE() {
-		return TYPE_CONF.type;
-	}
-
 	constructor(config = {}) {
-		super(Object.assign({}, config, TYPE_CONF));
+		super(Object.assign({}, config, { type: ContinuousTrigger.TYPE }));
 		this.activeCycle = new ManualMessageLoopCycle(this);
 	}
 
@@ -39,5 +33,6 @@ class ContinuousTrigger extends BaseTrigger {
 		return new MachineTriggeredMessageLoopCycle(this);
 	}
 }
+ContinuousTrigger.TYPE = 'continuously';
 
 module.exports = ContinuousTrigger;

@@ -42,9 +42,9 @@ class OnStartMachineCycle extends OneTimeMachineCycle(TriggerCycle) {
 	}
 }
 	
-class MachineTrigger extends BaseTrigger {
+class MachineStartTrigger extends BaseTrigger {
 	constructor(config = {}) {
-		super(config);
+		super(Object.assign({}, config, { type: MachineStartTrigger.TYPE }));
 		this.activeCycle = this.getManualCycle();
 	}
 
@@ -59,7 +59,7 @@ class MachineTrigger extends BaseTrigger {
 		this.activeCycle = this.getTimerCycle();
 	}
 }
-MachineTrigger.TYPE = 'start';
+MachineStartTrigger.TYPE = 'start';
 
 
-module.exports = MachineTrigger;
+module.exports = MachineStartTrigger;

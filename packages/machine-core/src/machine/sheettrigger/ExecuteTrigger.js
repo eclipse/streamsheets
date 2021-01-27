@@ -104,15 +104,9 @@ class ManualRepeatedExecuteCycle extends RepeatedExecuteCycle(ManualCycle) {
 	}
 }
 
-const TYPE_CONF = { type: 'execute' };
-
 class ExecuteTrigger extends BaseTrigger {
-	static get TYPE() {
-		return TYPE_CONF.type;
-	}
-
 	constructor(config = {}) {
-		super(Object.assign({}, config, TYPE_CONF));
+		super(Object.assign({}, config, { type: ExecuteTrigger.TYPE }));
 		this.pace = undefined;
 		this.message = undefined;
 		this.retval = undefined;
@@ -171,5 +165,6 @@ class ExecuteTrigger extends BaseTrigger {
 		super.stopProcessing(retval);
 	}
 }
+ExecuteTrigger.TYPE = 'execute';
 
 module.exports = ExecuteTrigger;

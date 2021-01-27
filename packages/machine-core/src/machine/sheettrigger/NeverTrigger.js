@@ -10,17 +10,13 @@
  ********************************************************************************/
 const BaseTrigger = require('./BaseTrigger');
 
-const TYPE_CONF = Object.freeze({ type: 'none' });
-
 class NeverTrigger extends BaseTrigger {
-	static get TYPE() {
-		return TYPE_CONF.type;
-	}
 	constructor(cfg = {}) {
-		super(Object.assign(cfg, TYPE_CONF));
+		super(Object.assign({}, cfg, { type: NeverTrigger.TYPE }));
 	}
 
 	step() {}
 }
+NeverTrigger.TYPE = 'none';
 
 module.exports = NeverTrigger;

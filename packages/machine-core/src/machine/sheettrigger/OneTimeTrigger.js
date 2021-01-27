@@ -10,15 +10,11 @@
  ********************************************************************************/
 const BaseTrigger = require('./BaseTrigger');
 
-const TYPE_CONF = Object.freeze({ type: 'once' });
 
 // FOR DEBUGGING PURPOSE ONLY
 class OneTimeTrigger extends BaseTrigger {
-	static get TYPE() {
-		return TYPE_CONF.type;
-	}
 	constructor(cfg = {}) {
-		super(Object.assign(cfg, TYPE_CONF));
+		super(Object.assign({}, cfg, { type: OneTimeTrigger.TYPE }));
 		this._isTriggered = false;
 	}
 
@@ -29,5 +25,6 @@ class OneTimeTrigger extends BaseTrigger {
 		}
 	}
 }
+OneTimeTrigger.TYPE = 'once';
 
 module.exports = OneTimeTrigger;

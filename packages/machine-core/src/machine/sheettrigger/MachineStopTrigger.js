@@ -36,7 +36,7 @@ class OnStopMachineCycle extends OneTimeMachineCycle(TimerCycle) {
 
 class MachineStopTrigger extends BaseTrigger {
 	constructor(config = {}) {
-		super(Object.assign({}, config));
+		super(Object.assign({}, config, { type: MachineStopTrigger.TYPE }));
 		this.activeCycle = new NoOpCycle(this);
 	}
 

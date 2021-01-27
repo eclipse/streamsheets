@@ -42,7 +42,7 @@ const subscribe = (streamsheet, trigger) => {
 
 class OnMessageTrigger extends BaseTrigger {
 	constructor(config = {}) {
-		super(config);
+		super(Object.assign({}, config, { type: OnMessageTrigger.TYPE }));
 		this.activeCycle = new ManualOnMessageCycle(this);
 		this._onMessagePut = this._onMessagePut.bind(this);
 	}
