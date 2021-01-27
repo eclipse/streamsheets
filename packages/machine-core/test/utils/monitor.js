@@ -9,6 +9,17 @@
  *
  ********************************************************************************/
 const monitorMachine = (machine) => {
+	const stats = { steps: 0 };
+	const stepsMonitor = (evtype) => {
+		stepsMonitor.updateSteps(evtype);
+		stepsMonitor.onStep();
+	};
+	stepsMonitor.updateSteps = (evtype) => {
+		if (evtype === 'step') stats.steps += 1;
+	};
+	stepsMonitor.onStep = () => {};
+
+
 	const stepMonitor = (evtype) => stepMonitor.onStep(evtype);
 	const monitor = (steps, resolve) => (evtype) => {
 		if (evtype === 'step') steps -= 1;
@@ -17,12 +28,19 @@ const monitorMachine = (machine) => {
 	stepMonitor.onStep = () => {};
 	// do not care that callback is never unregistered
 	machine.on('update', stepMonitor);
+	machine.on('update', stepsMonitor);
 	return {
 		hasPassedStep: (step) => {
 			return new Promise((resolve) => {
 				stepMonitor.onStep = () => {
 					if (machine.stats.steps >= step) resolve();
 				};
+			});
+		},
+		hasFinishedStep: (step) => {
+			return new Promise((resolve) => {
+				if (stats.steps >= step) resolve();
+				stepsMonitor.onStep = () => (stats.steps >= step ? resolve() : null);
 			});
 		},
 		nextSteps: (steps = 1) =>
@@ -39,11 +57,11 @@ const monitorStreamSheet = (streamsheet) => {
 	const finishedStepsMonitor = () => {
 		finishedStepsMonitor.updateFinishedSteps();
 		finishedStepsMonitor.onFinishedStep();
-	}
+	};
 	const stepsMonitor = () => {
 		stepsMonitor.updateStats();
 		stepsMonitor.onStep();
-	}
+	};
 
 	stepsMonitor.updateStats = () => {
 		stats.steps = streamsheet.stats.steps;
@@ -67,6 +85,11 @@ const monitorStreamSheet = (streamsheet) => {
 	return {
 		stats,
 		messages,
+		reset: () => {
+			stats.steps = 0;
+			stats.repeatsteps = 0;
+			stats.finishedsteps = 0;
+		},
 		// isAtStep: (step) => {
 		hasPassedStep: (step) => {
 			return new Promise((resolve) => {
@@ -74,11 +97,14 @@ const monitorStreamSheet = (streamsheet) => {
 				stepsMonitor.onStep = () => (streamsheet.stats.steps >= step ? resolve() : null);
 			});
 		},
-		// !!NOTE: if test has multiple sheets this resolves directly before other sheet resumes or processes!!
 		hasFinishedStep: (step) => {
 			return new Promise((resolve) => {
 				if (stats.finishedsteps >= step) resolve();
-				finishedStepsMonitor.onFinishedStep = () => (stats.finishedsteps >= step ? resolve() : null);
+				finishedStepsMonitor.onFinishedStep = () => {
+					if (stats.finishedsteps >= step) {
+						resolve();
+					}
+				}
 			});
 		},
 		hasPassedRepeatStep: (step) => {
@@ -87,18 +113,6 @@ const monitorStreamSheet = (streamsheet) => {
 				stepsMonitor.onStep = () => (streamsheet.stats.repeatsteps >= step ? resolve() : null);
 			});
 		}
-		// nextSteps: (steps = 1) => {
-		// 	lastCycleSteps = streamsheet.stats.steps;
-		// 	return new Promise((resolve) => {
-		// 		stepMonitor.onStep = monitorCycle(steps, resolve);
-		// 	});
-		// },
-		// nextRepeatSteps: (steps = 1) => {
-		// 	lastRepeatSteps = streamsheet.stats.repeatsteps;
-		// 	return new Promise((resolve) => {
-		// 		stepMonitor.onStep = monitorRepeat(steps, resolve);
-		// 	});
-		// }
 	};
 };
 
