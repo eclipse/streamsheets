@@ -10,10 +10,11 @@
  ********************************************************************************/
 const BaseTrigger = require('./BaseTrigger');
 const MessageLoopCycle = require('./MessageLoopCycle');
+const { ManualMessageLoopCycle } = require('./MessageLoopCycle');
 const RepeatedMessageLoopCycle = require('./RepeatedMessageLoopCycle');
 const Machine = require('../Machine');
 const TaskQueue = require('../TaskQueue');
-const { ManualCycle, ManualRepeatUntilCycle, RepeatUntilCycle, TimerCycle } = require('./cycles');
+const { ManualCycle, RepeatUntilCycle, TimerCycle } = require('./cycles');
 
 const noop = () => {};
 const getPace = (trigger, useMax) => () => {
@@ -67,12 +68,6 @@ class PacedRepeatedExecuteCycle extends RepeatedExecuteCycle(TimerCycle) {
 	}
 	getMessageLoopCycle() {
 		return new PacedMessageLoopCycle(this.trigger, this);
-	}
-}
-
-class ManualMessageLoopCycle extends MessageLoopCycle.withBaseClass(ManualCycle) {
-	getRepeatUntilCycle() {
-		return new ManualRepeatUntilCycle(this.trigger, this);
 	}
 }
 
