@@ -101,8 +101,6 @@ class StreamSheet {
 		this.inbox.on('message_pop', this.onInboxPop);
 		this.sheet.onUpdate = this.onSheetUpdate;
 		this.sheet.onCellRangeChange = this.onSheetCellRangeChange;
-		this.executeCallback = undefined;
-		this._useNextLoopElement = false;
 		// utility:
 		this.notifyOnce = emitOnce(this._emitter);
 	}
@@ -298,7 +296,6 @@ class StreamSheet {
 		this.sheet.dispose();
 		this.sheet.onUpdate = undefined;
 		this.sheet.onCellRangeChange = undefined;
-		this.executeCallback = undefined;
 		this.trigger.dispose();
 		this.inbox.dispose();
 		this.inbox.off('clear', this.onInboxClear);
@@ -339,8 +336,8 @@ class StreamSheet {
 		this.sheet.getPendingRequests().clear();
 		this.trigger.start();
 	}
-	stop() {
-		const stopped = this.trigger.stop();
+	stop(forced) {
+		const stopped = this.trigger.stop(forced);
 		if (stopped) {
 			this.reset();
 			this.inbox.unsubscribe();
@@ -349,15 +346,9 @@ class StreamSheet {
 		return stopped;
 	}
 
-	preStep(manual) {
-		this.trigger.preStep(manual);
-	}
 	step(manual) {
 		this.trigger.step(manual);
 		// console.log(`DONE STEP ${this.name}`);
-	}
-	postStep(manual) {
-		this.trigger.postStep(manual);
 	}
 	// DL-1156: disabled
 	// select(message, path) {
