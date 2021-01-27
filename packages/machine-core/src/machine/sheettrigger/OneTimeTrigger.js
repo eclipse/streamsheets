@@ -10,7 +10,6 @@
  ********************************************************************************/
 const BaseTrigger = require('./BaseTrigger');
 
-
 // FOR DEBUGGING PURPOSE ONLY
 class OneTimeTrigger extends BaseTrigger {
 	constructor(cfg = {}) {

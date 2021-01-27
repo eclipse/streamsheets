@@ -27,7 +27,6 @@ const TYPE = {
 	ONCE: OneTimeTrigger.TYPE,
 	RANDOM: TimerTrigger.TYPE_RANDOM,
 	TIMER: TimerTrigger.TYPE_TIME
-	// MACHINE_STARTSTOP: MachineTrigger.TYPE_STARTSTOP,
 };
 const TriggerFactory = {
 	TYPE,

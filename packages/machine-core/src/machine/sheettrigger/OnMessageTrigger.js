@@ -30,7 +30,6 @@ class ManualOnMessageCycle extends RepeatedOnMessageCycle(ManualCycle) {
 	}
 }
 
-
 const unsubscribe = (streamsheet, trigger) => {
 	streamsheet.inbox.off('message_put', trigger._onMessagePut);
 };
@@ -38,7 +37,6 @@ const subscribe = (streamsheet, trigger) => {
 	streamsheet.inbox.on('message_put', trigger._onMessagePut);
 	return streamsheet;
 };
-
 
 class OnMessageTrigger extends BaseTrigger {
 	constructor(config = {}) {
@@ -86,6 +84,6 @@ class OnMessageTrigger extends BaseTrigger {
 		if (manual) super.step(manual);
 	}
 }
-OnMessageTrigger.TYPE ='arrival';
+OnMessageTrigger.TYPE = 'arrival';
 
 module.exports = OnMessageTrigger;

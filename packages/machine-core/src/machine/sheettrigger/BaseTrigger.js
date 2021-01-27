@@ -15,7 +15,6 @@ const DEF_CONF = {
 	repeat: 'once'
 };
 
-
 class BaseTrigger {
 	constructor(config = {}) {
 		this.config = Object.assign({}, DEF_CONF, config);
@@ -76,10 +75,8 @@ class BaseTrigger {
 
 	// called by streamsheet. signals that it will be removed. trigger should perform clean up here...
 	dispose() {
-		this.activeCycle.dispose();
 		this.activeCycle = new NoOpCycle(this, true);
 		if (this.sheet.isPaused) this.resumeProcessing();
-		// this.stopProcessing();
 		this._streamsheet = undefined;
 	}
 
@@ -87,10 +84,8 @@ class BaseTrigger {
 	update(config = {}) {
 		const hadEndless = this.isEndless;
 		this.config = Object.assign(this.config, config);
-		if (hadEndless !== this.isEndless) {
-			// stop running in endless mode
-			this.activeCycle.stop();
-		}
+		// stop running in endless mode
+		if (hadEndless !== this.isEndless) this.activeCycle.stop();
 	}
 
 	getManualCycle() {
@@ -103,7 +98,7 @@ class BaseTrigger {
 	// MACHINE CONTROL METHODS
 	pause() {
 		// do not pause sheet process => should be done by functions only
-		// this.sheet._pauseProcessing(); // _interruptProcessing();
+		// this.sheet._pauseProcessing();
 		this.activeCycle.clear();
 	}
 
@@ -115,7 +110,7 @@ class BaseTrigger {
 			// schedule next cycle:
 			this.activeCycle.schedule();
 			// go on with current step:
-			if (this._isStarted  && this.sheet.isNotFullyProcessed) {
+			if (this._isStarted && this.sheet.isNotFullyProcessed) {
 				this.sheet._resumeProcessing();
 				this.processSheet();
 			}
@@ -132,23 +127,19 @@ class BaseTrigger {
 		// clear instead of stop to not trigger possible resume
 		this.activeCycle.clear();
 		this.sheet._stopProcessing();
-		// reset active cycle to timer cycle to support sheets running on machine stop!!
+		// reset active-cycle to timer-cycle to support sheets running on machine stop!!
 		this.activeCycle = this.getTimerCycle();
 		return true;
 	}
 
 	step(manual) {
 		if (manual) {
-			if (!this.activeCycle.isManual) {
-				this.activeCycle = this.getManualCycle();
-			}
+			if (!this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
 			// sheet might not fully processed due to pause[Processing]/resume[Processing]
-			if (this.sheet.isNotFullyProcessed) {
-				this.processSheet();
-			}
+			if (this.sheet.isNotFullyProcessed) this.processSheet();
 		}
 		// if sheet is not paused by function it might be by machine...
-		if (!this.sheet.isPaused && (!this.isMachineStopped || (this.activeCycle.isManual))) {
+		if (!this.sheet.isPaused && (!this.isMachineStopped || this.activeCycle.isManual)) {
 			this.activeCycle.step();
 		}
 	}
@@ -163,9 +154,7 @@ class BaseTrigger {
 		// mark sheet as resumed and finish current step
 		this.sheet._resumeProcessing(retval);
 		// resume cycle if machine runs
-		if (!this.isMachineStopped || this.activeCycle.isManual) {
-			this.activeCycle.resume();
-		}
+		if (!this.isMachineStopped || this.activeCycle.isManual) this.activeCycle.resume();
 	}
 	stopProcessing(retval) {
 		this.sheet._stopProcessing(retval);

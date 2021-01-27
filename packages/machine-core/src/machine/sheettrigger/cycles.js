@@ -18,8 +18,6 @@ class TriggerCycle {
 		return false;
 	}
 
-	dispose() {}
-
 	activate() {
 		this.trigger.activeCycle = this;
 	}
@@ -27,7 +25,6 @@ class TriggerCycle {
 	clear() {}
 
 	run() {
-		// schedule next cycle;
 		this.schedule();
 		this.step();
 	}
@@ -35,9 +32,7 @@ class TriggerCycle {
 	resume() {
 		this.schedule();
 		// finish current step
-		if (this.trigger.sheet.isNotFullyProcessed) {
-			this.trigger.processSheet();
-		}
+		if (this.trigger.sheet.isNotFullyProcessed) this.trigger.processSheet();
 	}
 
 	schedule() {}
@@ -90,7 +85,6 @@ class ManualCycle extends TriggerCycle {
 	}
 }
 
-
 class RepeatUntilCycle extends TimerCycle {
 	getCycleTime() {
 		return 1;
@@ -100,7 +94,6 @@ class RepeatUntilCycle extends TimerCycle {
 		this.trigger.streamsheet.stats.repeatsteps += 1;
 		this.trigger.processSheet();
 	}
-
 }
 
 class ManualRepeatUntilCycle extends ManualCycle {
@@ -109,7 +102,7 @@ class ManualRepeatUntilCycle extends ManualCycle {
 		// this.trigger.streamsheet.stats.steps += 1;
 		this.trigger.streamsheet.stats.repeatsteps += 1;
 		this.trigger.processSheet();
-	}	
+	}
 }
 
 class NoOpCycle extends TriggerCycle {

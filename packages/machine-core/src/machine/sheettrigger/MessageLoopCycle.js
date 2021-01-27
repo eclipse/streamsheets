@@ -31,9 +31,7 @@ const PostProcessSheet = (BaseCycle) =>
 			if (this.trigger.sheet.isProcessed) this.trigger.messageHandler.next();
 			if (this.trigger.messageHandler.isProcessed) {
 				this.trigger.streamsheet.detachMessage();
-				if (!this.trigger.sheet.isPaused) {
-					this.stop();
-				}
+				if (!this.trigger.sheet.isPaused) this.stop();
 			}
 		}
 	};
@@ -78,8 +76,6 @@ class ManualMessageLoopCycle extends MessageLoopCycle(ManualCycle) {
 		return new ManualRepeatUntilCycle(this.trigger, this);
 	}
 }
-
-
 
 module.exports = {
 	ManualMessageLoopCycle,

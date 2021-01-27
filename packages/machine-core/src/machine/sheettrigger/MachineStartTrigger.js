@@ -13,7 +13,6 @@ const { ManualMessageLoopCycle, TimerMessageLoopCycle } = require('./MessageLoop
 const RepeatedMessageLoopCycle = require('./RepeatedMessageLoopCycle');
 const { TriggerCycle } = require('./cycles');
 
-
 const once = (fn) => {
 	let doIt = true;
 	return (/* ...args */) => {
@@ -41,7 +40,7 @@ class OnStartMachineCycle extends OneTimeMachineCycle(TriggerCycle) {
 		return new OnStartMessageLoopCycle(this.trigger, this);
 	}
 }
-	
+
 class MachineStartTrigger extends BaseTrigger {
 	constructor(config = {}) {
 		super(Object.assign({}, config, { type: MachineStartTrigger.TYPE }));
@@ -60,6 +59,5 @@ class MachineStartTrigger extends BaseTrigger {
 	}
 }
 MachineStartTrigger.TYPE = 'start';
-
 
 module.exports = MachineStartTrigger;

@@ -10,7 +10,6 @@
  ********************************************************************************/
 const { compose } = require('@cedalo/commons').functions;
 
-
 const Activate = (BaseCycle) =>
 	class extends BaseCycle {
 		activate() {

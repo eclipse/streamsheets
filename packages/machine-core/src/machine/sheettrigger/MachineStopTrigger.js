@@ -50,7 +50,7 @@ class MachineStopTrigger extends BaseTrigger {
 	stop(forced) {
 		if (forced) return super.stop(forced);
 		this.activeCycle = this.getTimerCycle();
-		// run after all other streamsheets are stopped...
+		// note: have to run after all other streamsheets are stopped...
 		TaskQueue.schedule(() => this.activeCycle.run());
 		return false;
 	}

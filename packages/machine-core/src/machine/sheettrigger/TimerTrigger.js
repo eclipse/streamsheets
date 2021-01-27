@@ -11,14 +11,12 @@
 const BaseTrigger = require('./BaseTrigger');
 const { ManualMessageLoopCycle, TimerMessageLoopCycle } = require('./MessageLoopCycle');
 
-
 const UNITS = {};
 UNITS.ms = 1;
 UNITS.s = 1000 * UNITS.ms;
 UNITS.m = 60 * UNITS.s;
 UNITS.h = 60 * UNITS.m;
 UNITS.d = 24 * UNITS.h;
-
 
 class IntervalCycle extends TimerMessageLoopCycle {
 	getCycleTime() {
@@ -29,17 +27,17 @@ class IntervalCycle extends TimerMessageLoopCycle {
 		// might stopped, so schedule again:
 		if (this.id == null) this.schedule();
 	}
-};
+}
 
 class RandomIntervalCycle extends IntervalCycle {
-	random(nr) { Math.floor(Math.random() * Math.floor(nr)); }
+	random(nr) {
+		Math.floor(Math.random() * Math.floor(nr));
+	}
 	getCycleTime() {
 		const interval = this.random(2 * this.trigger.interval);
 		return interval * UNITS[this.trigger.intervalUnit];
 	}
-};
-
-
+}
 
 const TYPE = {
 	RANDOM: 'random',
@@ -99,6 +97,11 @@ class TimerTrigger extends BaseTrigger {
 		return this.type === TYPE.TIME ? new IntervalCycle(this) : new RandomIntervalCycle(this);
 	}
 
+	pause() {
+		this.clearDelay();
+		super.pause();
+	}
+
 	start() {
 		super.start();
 		const delay = this.config.start ? getStartInterval(this.config.start) : undefined;
@@ -112,10 +115,6 @@ class TimerTrigger extends BaseTrigger {
 		if (manual) super.step(manual);
 	}
 
-	pause() {
-		this.clearDelay();
-		super.pause();
-	}
 	stop() {
 		this.clearDelay();
 		return super.stop();
