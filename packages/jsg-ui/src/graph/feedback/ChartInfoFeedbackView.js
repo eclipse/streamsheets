@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import {Point, GraphUtils, FormatAttributes, TextFormatAttributes, Selection, CellRange} from '@cedalo/jsg-core';
+import {Point, StringExpression, GraphUtils, FormatAttributes, TextFormatAttributes, Selection, CellRange} from '@cedalo/jsg-core';
 
 import View from '../../ui/View';
 import SelectionStyle from '../view/selection/SelectionStyle';
@@ -229,23 +229,25 @@ export default class ChartInfoFeedbackView extends View {
 
 				const feature = features[this.selection.dataPoints[0].pointIndex];
 				const {geometry} = feature;
-				const index = item.findMapIndex(feature.properties, serie, mapInfo);
+				const index = item.findMapIndex(feature.properties, serie, mapInfo.labels);
+				value.seriesIndex = this.selection.dataPoints[0].index;
+				value.index = this.selection.dataPoints[0].pointIndex;
+				value.serie = serie;
+				value.axes = item.getAxes(serie);
+				value.x = this.selection.dataPoints[0].x;
+				value.y = this.selection.dataPoints[0].y;
 				if (mapInfo.dispChart) {
 					if (index !== -1) {
 						const sheet = ref.y.range._worksheet;
 						const selection = new Selection(sheet);
 						selection.setAt(0, new CellRange(sheet, 0, 0));
 						const view = createView(mapInfo.chartNode);
+						view.getItem().title.formula = new StringExpression(getLabel(value, true, false));
+						view.getItem().title.visible = true;
 						this.chartView.drawMapChart(graphics, view, item, serie, feature, sheet, selection, ref, index, mapInfo, true);
 					}
 					return;
 				} else {
-					value.seriesIndex = this.selection.dataPoints[0].index;
-					value.index = this.selection.dataPoints[0].pointIndex;
-					value.serie = serie;
-					value.axes = item.getAxes(serie);
-					value.x = this.selection.dataPoints[0].x;
-					value.y = this.selection.dataPoints[0].y;
 					values.push(value);
 					const pt = item.getFeatureCenter(features[value.index]);
 					x = mapInfo.xOff + (pt.x - mapInfo.bounds.xMin) * mapInfo.scale;

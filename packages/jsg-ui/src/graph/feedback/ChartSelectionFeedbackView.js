@@ -534,7 +534,7 @@ export default class ChartSelectionFeedbackView extends View {
 						features.forEach((feature, pointIndex) => {
 							if (selection.element === 'series' || pointIndex === selection.pointIndex) {
 								if (feature.geometry.type === 'Point' || mapInfo.dispChart) {
-									const mapIndex = item.findMapIndex(feature.properties, serie, mapInfo);
+									const mapIndex = item.findMapIndex(feature.properties, serie, mapInfo.labels);
 									let radius;
 									if (mapInfo.dispChart) {
 										if (mapIndex !== -1) {

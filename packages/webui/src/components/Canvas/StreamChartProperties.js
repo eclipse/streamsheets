@@ -1543,7 +1543,7 @@ export class StreamChartProperties extends Component {
 										))}
 									</TextField>
 								</FormControl>
-								{!map && !circular && !gauge ? (
+								{!circular && !gauge ? (
 									<FormControl>
 										<TextField
 											variant="outlined"
@@ -1566,19 +1566,34 @@ export class StreamChartProperties extends Component {
 													defaultMessage="Display as zero"
 												/>
 											</MenuItem>
-											<MenuItem value="dataignore" key={2}>
-												<FormattedMessage
-													id="StreamChartProperties.DataIgnore"
-													defaultMessage="Do not display"
-												/>
-											</MenuItem>
-											<MenuItem value="datainterrupt" key={3}>
-												<FormattedMessage
-													id="StreamChartProperties.DataInterrupt"
-													defaultMessage="Interrupt line"
-												/>
-											</MenuItem>
-											{item.xAxes[0].type === 'category' ? (
+											{map ? [
+												<MenuItem value="dataignore" key={2}>
+													<FormattedMessage
+														id="StreamChartProperties.DataHide"
+														defaultMessage="Do not display"
+													/>
+												</MenuItem>,
+												<MenuItem value="datainterrupt" key={3}>
+													<FormattedMessage
+														id="StreamChartProperties.DataGrey"
+														defaultMessage="Gray Area"
+													/>
+												</MenuItem>
+											] : [
+												<MenuItem value="dataignore" key={2}>
+													<FormattedMessage
+														id="StreamChartProperties.DataIgnore"
+														defaultMessage="Do not display"
+													/>
+												</MenuItem>,
+												<MenuItem value="datainterrupt" key={3}>
+													<FormattedMessage
+														id="StreamChartProperties.DataInterrupt"
+														defaultMessage="Interrupt line"
+													/>
+												</MenuItem>
+											]}
+											{item.xAxes[0].type === 'category' && !map ? (
 												<MenuItem value="hideempty" key={4}>
 													<FormattedMessage
 														id="StreamChartProperties.HideEmpty"
