@@ -58,6 +58,10 @@ class BaseTrigger {
 		return this._streamsheet.machine;
 	}
 
+	get messageHandler() {
+		return this._streamsheet.messageHandler;
+	}
+
 	get sheet() {
 		return this._streamsheet.sheet;
 	}

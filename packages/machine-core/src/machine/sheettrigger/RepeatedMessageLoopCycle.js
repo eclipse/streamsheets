@@ -15,7 +15,7 @@ const Activate = (BaseCycle) =>
 	class extends BaseCycle {
 		activate() {
 			super.activate();
-			this.trigger.streamsheet.setMessageProcessed();
+			this.trigger.messageHandler.setProcessed();
 			this.schedule();
 		}
 	};

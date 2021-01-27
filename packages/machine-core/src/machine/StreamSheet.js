@@ -160,22 +160,11 @@ class StreamSheet {
 	get messageHandler() {
 		return this._msgHandler;
 	}
-	// checks if given message is processed. if no message is passed, check is done against current message
-	isMessageProcessed(message) {
-		// const handler = this._msgHandler;
-		// if (message == null && this._trigger.isEndless && hasLoop(handler)) {
-		// 	return !handler._message || (handler._used && !(handler._index < handler._stack.length - 1));
-		// }
-		// return message == null ? handler.isProcessed : message === handler.message && handler.isProcessed;
-		
-		const handler = this._msgHandler;
-		return message == null ? handler.isProcessed : message === handler.message && handler.isProcessed;
-		
-		// return this._msgHandler.isProcessed;
+	// checks if current message is processed. if no message is passed, check is done against current message
+	isMessageProcessed() {
+		return this._msgHandler.isProcessed;
 	}
-	setMessageProcessed() {
-		this._msgHandler.setProcessed();
-	}
+
 	getLoopPath() {
 		return this._msgHandler.path;
 	}
@@ -202,10 +191,6 @@ class StreamSheet {
 
 	getCurrentMessage() {
 		return this._msgHandler.message;
-	}
-
-	getMessage(id) {
-		return id ? this.inbox.peek(id) : this._msgHandler.message || this.inbox.peek();
 	}
 
 	hasNewMessage() {
