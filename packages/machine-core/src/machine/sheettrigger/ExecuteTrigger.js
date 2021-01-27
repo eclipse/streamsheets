@@ -54,6 +54,11 @@ class PacedRepeatUntilCycle extends RepeatUntilCycle {
 	}
 }
 class PacedMessageLoopCycle extends MessageLoopCycle.withBaseClass(TimerCycle) {
+	constructor(trigger, parent) {
+		super(trigger, parent);
+		this.getCycleTime = getPace(trigger, (pace) => pace != null && pace !== false);
+	}
+
 	getRepeatUntilCycle() {
 		return new PacedRepeatUntilCycle(this.trigger, this);
 	}
@@ -147,8 +152,8 @@ class ExecuteTrigger extends BaseTrigger {
 		TaskQueue.schedule(() => this.activeCycle.run());
 	}
 	cancelExecute() {
+		this.resumeExecute();
 		if (!this.sheet.isProcessed) this.stopProcessing();
-		this.resumeFn = undefined;
 		this.activeCyle = this.getManualCycle();
 	}
 	resumeExecute() {

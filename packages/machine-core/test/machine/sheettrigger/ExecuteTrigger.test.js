@@ -793,6 +793,7 @@ describe('behaviour on machine run', () => {
 				B2: { formula: 'loopindices()' },
 				B3: { formula: 'if(mod(B1,2)=0,return(42),false)' }
 			});
+			s2.trigger.update({ repeat: 'endless' });
 			s2.updateSettings({ loop: { path: '[data]', enabled: true } });
 			await machine.pause();
 			s2.inbox.put(new Message(['john','doe','!!!'], '1'));
@@ -808,19 +809,21 @@ describe('behaviour on machine run', () => {
 			expect(s2.inbox.size).toBe(3);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A4').value).toBe(2);
-			expect(s2.sheet.cellAt('B1').value).toBe(4);
-			expect(s2.sheet.cellAt('B2').value).toBe('0,0,1');
+			expect(s2.sheet.cellAt('B1').value).toBe(12);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,1,2,2,0,0,1,1,2,2');
 			expect(monitorS2.messages.detached).toBe(2);
 			await machine.start();
+			// take next 2 messages:
 			await monitorS1.hasFinishedStep(2);
-			// since we are not in endless mode we return after sheet has no messages left
-			expect(s2.sheet.cellAt('B2').value).toBe('0,0,1,0,1,0');
+			expect(s2.sheet.cellAt('B1').value).toBe(18);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,1,2,2,0,0,1,1,2,2,0,0,1,1,0,0');
+			// no more messages left stick with last one
 			await monitorS1.hasFinishedStep(3);
 			await machine.stop();
 			expect(s2.inbox.size).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
-			expect(s2.sheet.cellAt('B1').value).toBe(9);
-			expect(s2.sheet.cellAt('B2').value).toBe('0,0,1,0,1,0,0,0');
+			expect(s2.sheet.cellAt('B1').value).toBe(22);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,1,2,2,0,0,1,1,2,2,0,0,1,1,0,0,0,0,0,0');
 			expect(monitorS2.messages.detached).toBe(6);
 		});
 		test('repeat execute should use passed message and not inbox ones', async () => {
@@ -918,6 +921,115 @@ describe('behaviour on machine run', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(5);
 			expect(s1.sheet.cellAt('A4').value).toBe(5);
 			expect(s2.sheet.cellAt('B1').value).toBe(8);
+		});
+		test('if no pace is given "repeat until..." is done as fast as possible, loop and repeat in machine cycle-time', async () => {
+			const { machine, s1, s2 } = setup();
+			machine.cycletime = 2000;
+			s1.sheet.loadCells({
+				A1: { formula: 'A1+1' },
+				A2: { formula: 'execute("S2",2)' },
+				A4: { formula: 'A4+1' }
+			});
+			s2.sheet.loadCells({
+				B1: { formula: 'B1+1' },
+				B2: { formula: 'loopindices()' },
+				B3: { formula: 'if(mod(B1,6)=0,return(42),false)' }
+			});
+			s2.trigger.update({ repeat: 'endless' });
+			s2.updateSettings({ loop: { path: '[data]', enabled: true } });
+			await machine.pause();
+			s2.inbox.put(new Message([1, 2, 3], '1'));
+			s2.inbox.put(new Message([4, 5, 6], '2'));
+			expect(s2.inbox.size).toBe(2);
+			await machine.start();
+			await wait(100);
+			await machine.stop();
+			// should only calc until first return is fulfilled...
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('A2').value).toBe(true);
+			expect(s1.sheet.cellAt('A4').value).toBe(1);
+			expect(s2.sheet.cellAt('B1').value).toBe(6);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,0,0,0,0');
+		});
+		test('if pace is true "repeat until...", loop and repeat are done as fast as possible', async () => {
+			const { machine, s1, s2 } = setup();
+			machine.cycletime = 2000;
+			s1.sheet.loadCells({
+				A1: { formula: 'A1+1' },
+				A2: { formula: 'execute("S2",2,,true)' },
+				A4: { formula: 'A4+1' }
+			});
+			s2.sheet.loadCells({
+				B1: { formula: 'B1+1' },
+				B2: { formula: 'loopindices()' },
+				B3: { formula: 'if(mod(B1,2)=0,return(42),false)' }
+			});
+			s2.trigger.update({ repeat: 'endless' });
+			s2.updateSettings({ loop: { path: '[data]', enabled: true } });
+			await machine.pause();
+			s2.inbox.put(new Message([1, 2, 3], '1'));
+			s2.inbox.put(new Message([4, 5, 6], '2'));
+			expect(s2.inbox.size).toBe(2);
+			await machine.start();
+			await wait(100);
+			await machine.stop();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('A2').value).toBe(42);
+			expect(s1.sheet.cellAt('A4').value).toBe(2);
+			expect(s2.sheet.cellAt('B1').value).toBe(12);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,1,2,2,0,0,1,1,2,2');
+		});
+		test('if pace is false "repeat until...", loop and repeat are done in machine cycle-time', async () => {
+			const { machine, s1, s2 } = setup();
+			machine.cycletime = 1000;
+			s1.sheet.loadCells({
+				A1: { formula: 'A1+1' },
+				A2: { formula: 'execute("S2",2,,false)' },
+				A4: { formula: 'A4+1' }
+			});
+			s2.sheet.loadCells({
+				B1: { formula: 'B1+1' },
+				B2: { formula: 'loopindices()' },
+				B3: { formula: 'if(mod(B1,2)=0,return(42),false)' }
+			});
+			s2.trigger.update({ repeat: 'endless' });
+			s2.updateSettings({ loop: { path: '[data]', enabled: true } });
+			await machine.pause();
+			s2.inbox.put(new Message([1, 2, 3], '1'));
+			s2.inbox.put(new Message([4, 5, 6], '2'));
+			expect(s2.inbox.size).toBe(2);
+			await machine.start();
+			await wait(100);
+			await machine.stop();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('A2').value).toBe(true);
+			expect(s1.sheet.cellAt('A4').value).toBe(1);
+			expect(s2.sheet.cellAt('B1').value).toBe(2);
+			expect(s2.sheet.cellAt('B2').value).toBe('0');
+			// again but with fast machine cycle:
+			s2.inbox.clear();
+			machine.cycletime = 1;
+			s1.sheet.loadCells({
+				A1: { formula: 'A1+1' },
+				A2: { formula: 'execute("S2",2,,false)' },
+				A4: { formula: 'A4+1' }
+			});
+			s2.sheet.loadCells({
+				B1: { formula: 'B1+1' },
+				B2: { formula: 'loopindices()' },
+				B3: { formula: 'if(mod(B1,2)=0,return(42),false)' }
+			});
+			await machine.pause();
+			s2.inbox.put(new Message([1, 2, 3], '1'));
+			s2.inbox.put(new Message([4, 5, 6], '2'));
+			expect(s2.inbox.size).toBe(2);
+			await machine.start();
+			await wait(100);
+			await machine.stop();
+			expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(2);
+			expect(s1.sheet.cellAt('A4').value).toBeGreaterThanOrEqual(2);
+			expect(s2.sheet.cellAt('B1').value).toBeGreaterThanOrEqual(12);
+			expect(s2.sheet.cellAt('B2').value.startsWith('0,1,1,2,2,0,0,1,1,2,2')).toBeTruthy();
 		});
 	});
 	describe('chained execute', () => {
