@@ -46,7 +46,6 @@ const emitOnce = (emitter) => {
 		},
 		event(type, arg) {
 			if (doIt) emitter.emit(type, arg);
-			// if (doIt) console.log(`SEND EVENT ${type} FOR ${arg.name}`);
 			doIt = false;
 		}
 	};
@@ -321,7 +320,6 @@ class StreamSheet {
 
 	// called by machine:
 	pause() {
-		// console.log(`PAUSE ${this.name}`);
 		this.inbox.subscribe();
 		this.trigger.pause();
 	}
@@ -348,7 +346,6 @@ class StreamSheet {
 
 	step(manual) {
 		this.trigger.step(manual);
-		// console.log(`DONE STEP ${this.name}`);
 	}
 	// DL-1156: disabled
 	// select(message, path) {
@@ -383,7 +380,6 @@ class StreamSheet {
 		this.trigger.stopProcessing(retval);
 	}
 	pauseProcessing() {
-		// console.log(`PAUSE PROCESSING ${this.name}`);
 		this.trigger.pauseProcessing();
 	}
 	// rename: used to repeat single cell...
@@ -393,19 +389,15 @@ class StreamSheet {
 	resumeProcessing(retval) {
 		this.notifyOnce.reset();
 		this._triggerProcess = false;
-		// const hasProcessed = this.sheet.isProcessed;
-		// console.log(`RESUME PROCESSING STEP ${this.name}`);
 		this.trigger.resumeProcessing(retval);
 		// need this to catch the case when we resume on last cell, but didn't process
 		if (this.sheet.isProcessed && !this._triggerProcess) {
 			this.notifyOnce.event('finishedStep', this);
 		}
-		// console.log(`DONE RESUME PROCESSING STEP ${this.name}`);
 	}
 	// ~
 
 	process() {
-		// console.log(`TRIGGER STEP ${this.name}`);
 		this._triggerProcess = true;
 		this.sheet.getDrawings().removeAll();
 		this.sheet._startProcessing();
@@ -413,7 +405,6 @@ class StreamSheet {
 		if (this.sheet.isProcessed) {
 			this.notifyOnce.force().event('finishedStep', this);
 		}
-		// console.log(`DONE STEP ${this.name}`);
 	}
 	attachNextMessage() {
 		// if (this._msgHandler.isProcessed) {
@@ -430,14 +421,11 @@ class StreamSheet {
 	attachMessage(message) {
 		this._msgHandler.message = message;
 		if (message) {
-			// console.log('attach message');
 			this.stats.messages += 1;
 			this._emitMessageEvent('message_attached', message);
 		}
 	}
 	detachMessage() {
-		// get mark message as detached if its processed
-		// if (this._msgHandler.isProcessed && this._msgHandler.message) {
 		if (this._msgHandler.message) {
 			// only send event, message will be popped from inbox on attach, so it still can be queried !!
 			this._emitMessageEvent('message_detached', this._msgHandler.message);

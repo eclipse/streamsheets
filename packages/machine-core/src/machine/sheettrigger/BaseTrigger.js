@@ -106,14 +106,12 @@ class BaseTrigger {
 	resume() {
 		// ignore if sheet is still paused by function
 		if (!this.sheet.isPaused) {
-			// console.log(`RESUME TRIGGER ${this.streamsheet.name}`);
 			// switch to timer cycle:
 			if (this.activeCycle.isManual) this.activeCycle = this.getTimerCycle();
 			// schedule next cycle:
 			this.activeCycle.schedule();
 			// go on with current step:
 			if (this._isStarted  && this.sheet.isNotFullyProcessed) {
-				// console.log(`RESUME ${this.streamsheet.name}`);
 				this.sheet._resumeProcessing();
 				this.processSheet();
 			}
@@ -123,17 +121,13 @@ class BaseTrigger {
 
 	start() {
 		this._isStarted = true;
-		// console.log(`=== START ${this.streamsheet.name} ===`)
 		if (this.activeCycle.isManual) this.activeCycle = this.getTimerCycle();
 	}
 
 	stop(/* forced */) {
-		// console.log(`=== STOP ${this.streamsheet.name} ===`)
 		// clear instead of stop to not trigger possible resume
 		this.activeCycle.clear();
 		this.sheet._stopProcessing();
-		// important! this forces stop/clear if a timer-cycle (e.g. activated parent) is still active...
-		// if (!this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
 		// reset active cycle to timer cycle to support sheets running on machine stop!!
 		this.activeCycle = this.getTimerCycle();
 		return true;
@@ -150,10 +144,8 @@ class BaseTrigger {
 			}
 		}
 		// if sheet is not paused by function it might be by machine...
-		if (!this.sheet.isPaused && (!this.isMachineStopped || (this.activeCycle.isManual))) { // && !this._hasTriggered))) {
-			// console.log(`STEP ${this.streamsheet.name}`);
+		if (!this.sheet.isPaused && (!this.isMachineStopped || (this.activeCycle.isManual))) {
 			this.activeCycle.step();
-			// console.log(`DONE STEP ${this.streamsheet.name}`);
 		}
 	}
 	// –

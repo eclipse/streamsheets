@@ -13,7 +13,6 @@ const createQueue = () => {
 	const pending = [];
 	const notify = () => {
 		if (fns.length < 1) {
-			// console.log('RESOLVE TASK QUEUE: ', pending.length);
 			pending.forEach((resolve) => resolve());
 			pending.length = 0;
 		}
@@ -46,7 +45,6 @@ const createQueue = () => {
 			nextTick();
 		},
 		done() {
-			// console.log('PENDING FUNCTIONS ',fns.length);
 			if (fns.length) {
 				return new Promise((resolve /* , reject */) => pending.push(resolve));
 			}
