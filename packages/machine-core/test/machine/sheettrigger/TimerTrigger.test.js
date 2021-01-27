@@ -495,7 +495,7 @@ describe('TimerTrigger', () => {
 				createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 				expect(s1.sheet.cellAt('A1').value).toBe(1);
 				await machine.start();
-				await monitorS1.hasPassedStep(3)
+				await monitorS1.hasFinishedStep(3)
 				expect(s1.sheet.cellAt('A1').value).toBe(4);
 				s1.trigger = newTrigger;
 				await wait(100);

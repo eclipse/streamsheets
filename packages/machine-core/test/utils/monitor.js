@@ -10,77 +10,51 @@
  ********************************************************************************/
 const monitorMachine = (machine) => {
 	const stats = { steps: 0 };
-	const stepsMonitor = (evtype) => {
-		stepsMonitor.updateSteps(evtype);
-		stepsMonitor.onStep();
+	const monitor = (evtype) => {
+		monitor.updateSteps(evtype);
+		monitor.onStep(evtype);
 	};
-	stepsMonitor.updateSteps = (evtype) => {
-		if (evtype === 'step') stats.steps += 1;
-	};
-	stepsMonitor.onStep = () => {};
-
-
-	const stepMonitor = (evtype) => stepMonitor.onStep(evtype);
-	const monitor = (steps, resolve) => (evtype) => {
-		if (evtype === 'step') steps -= 1;
-		if (steps <= 0) resolve();
-	};
-	stepMonitor.onStep = () => {};
+	monitor.onStep = () => {};
+	monitor.updateSteps = (evtype) => { if(evtype === 'step') stats.steps += 1; };
 	// do not care that callback is never unregistered
-	machine.on('update', stepMonitor);
-	machine.on('update', stepsMonitor);
+	machine.on('update', monitor);
+
 	return {
-		hasPassedStep: (step) => {
-			return new Promise((resolve) => {
-				stepMonitor.onStep = () => {
-					if (machine.stats.steps >= step) resolve();
-				};
-			});
-		},
 		hasFinishedStep: (step) => {
 			return new Promise((resolve) => {
 				if (stats.steps >= step) resolve();
-				stepsMonitor.onStep = () => (stats.steps >= step ? resolve() : null);
+				monitor.onStep = () => (stats.steps >= step ? resolve() : null);
 			});
-		},
-		nextSteps: (steps = 1) =>
-			new Promise((resolve) => {
-				stepMonitor.onStep = monitor(steps, resolve);
-			})
+		}
 	};
 };
 
 const monitorStreamSheet = (streamsheet) => {
 	const stats = { steps: 0, repeatsteps: 0, finishedsteps: 0 };
 	const messages = { attached: 0, detached: 0 };
-	// simply counts steps which marks sheet as finished -> never reset
+
 	const finishedStepsMonitor = () => {
 		finishedStepsMonitor.updateFinishedSteps();
 		finishedStepsMonitor.onFinishedStep();
 	};
+	finishedStepsMonitor.onFinishedStep = () => {};
+	finishedStepsMonitor.updateFinishedSteps = () => { stats.finishedsteps += 1; };
+
 	const stepsMonitor = () => {
 		stepsMonitor.updateStats();
 		stepsMonitor.onStep();
 	};
-
+	stepsMonitor.onStep = () => {};
 	stepsMonitor.updateStats = () => {
 		stats.steps = streamsheet.stats.steps;
 		stats.repeatsteps = streamsheet.stats.repeatsteps;
 	};
-	stepsMonitor.onStep = () => {};
-	finishedStepsMonitor.updateFinishedSteps = () => { 
-		stats.finishedsteps += 1;
-	};
-	finishedStepsMonitor.onFinishedStep = () => {};
 
 	// do not care that callback is never unregistered
 	streamsheet.on('step', stepsMonitor);
 	streamsheet.on('finishedStep', finishedStepsMonitor);
-	// streamsheet.on('willStep', willStepsMonitor);
 	streamsheet.on('message_attached', () => { messages.attached += 1; });
-	streamsheet.on('message_detached', () => { 
-		messages.detached += 1; 
-	});
+	streamsheet.on('message_detached', () => { messages.detached += 1; });
 
 	return {
 		stats,
@@ -89,13 +63,6 @@ const monitorStreamSheet = (streamsheet) => {
 			stats.steps = 0;
 			stats.repeatsteps = 0;
 			stats.finishedsteps = 0;
-		},
-		// isAtStep: (step) => {
-		hasPassedStep: (step) => {
-			return new Promise((resolve) => {
-				if (stats.steps >= step) resolve();
-				stepsMonitor.onStep = () => (streamsheet.stats.steps >= step ? resolve() : null);
-			});
 		},
 		hasFinishedStep: (step) => {
 			return new Promise((resolve) => {

@@ -677,7 +677,7 @@ describe('OnMessageTrigger', () => {
 			await machine.pause();
 			putMessages(s1, ...messages);
 			await machine.start();
-			await monitorS1.hasPassedStep(3)
+			await monitorS1.hasFinishedStep(3)
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 			s1.trigger = newTrigger;
 			await wait(100);
