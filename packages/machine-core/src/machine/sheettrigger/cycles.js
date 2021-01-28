@@ -85,26 +85,6 @@ class ManualCycle extends TriggerCycle {
 	}
 }
 
-class RepeatUntilCycle extends TimerCycle {
-	getCycleTime() {
-		return 1;
-	}
-
-	step() {
-		this.trigger.streamsheet.stats.repeatsteps += 1;
-		this.trigger.processSheet();
-	}
-}
-
-class ManualRepeatUntilCycle extends ManualCycle {
-	step() {
-		// in manual we count steps even in endless mode?
-		// this.trigger.streamsheet.stats.steps += 1;
-		this.trigger.streamsheet.stats.repeatsteps += 1;
-		this.trigger.processSheet();
-	}
-}
-
 class NoOpCycle extends TriggerCycle {
 	constructor(trigger, manual) {
 		super(trigger);
@@ -118,8 +98,6 @@ class NoOpCycle extends TriggerCycle {
 module.exports = {
 	ManualCycle,
 	NoOpCycle,
-	RepeatUntilCycle,
-	ManualRepeatUntilCycle,
 	TimerCycle,
 	TriggerCycle
 };

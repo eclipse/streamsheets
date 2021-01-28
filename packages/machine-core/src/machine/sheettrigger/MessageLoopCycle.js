@@ -9,7 +9,8 @@
  *
  ********************************************************************************/
 const { compose } = require('@cedalo/commons').functions;
-const { ManualCycle, ManualRepeatUntilCycle, RepeatUntilCycle, TimerCycle } = require('./cycles');
+const { ManualRepeatUntilCycle, TimerRepeatUntilCycle } = require('./RepeatUntilCycle');
+const { ManualCycle, TimerCycle } = require('./cycles');
 
 const Activate = (BaseCycle) =>
 	class extends BaseCycle {
@@ -41,13 +42,12 @@ const Step = (BaseCycle) => {
 			throw new Error('Not implemented!');
 		}
 		step() {
+			if (!this.trigger.sheet.isPaused) this.trigger.streamsheet.stats.steps += 1;
 			if (this.trigger.isEndless) {
-				this.trigger.streamsheet.stats.steps += 1;
 				this.trigger.streamsheet.stats.repeatsteps = 0;
 				this.trigger.activeCycle = this.getRepeatUntilCycle();
 				this.trigger.activeCycle.run();
 			} else {
-				this.trigger.streamsheet.stats.steps += 1;
 				this.trigger.processSheet();
 				this.postProcessSheet();
 			}
@@ -68,7 +68,7 @@ const MessageLoopCycle = compose(Activate, PostProcessSheet, Resume, Step);
 
 class TimerMessageLoopCycle extends MessageLoopCycle(TimerCycle) {
 	getRepeatUntilCycle() {
-		return new RepeatUntilCycle(this.trigger, this);
+		return new TimerRepeatUntilCycle(this.trigger, this);
 	}
 }
 class ManualMessageLoopCycle extends MessageLoopCycle(ManualCycle) {

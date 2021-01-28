@@ -11,11 +11,12 @@
 const BaseTrigger = require('./BaseTrigger');
 const MessageLoopCycle = require('./MessageLoopCycle');
 const { ManualMessageLoopCycle } = require('./MessageLoopCycle');
-const { RepeatUntilCycle, TriggerCycle } = require('./cycles');
+const { TimerRepeatUntilCycle } = require('./RepeatUntilCycle');
+const { TriggerCycle } = require('./cycles');
 
 class MachineTriggeredMessageLoopCycle extends MessageLoopCycle.withBaseClass(TriggerCycle) {
 	getRepeatUntilCycle() {
-		return new RepeatUntilCycle(this.trigger, this);
+		return new TimerRepeatUntilCycle(this.trigger, this);
 	}
 }
 
