@@ -20,8 +20,6 @@ class BaseTrigger {
 		this.config = Object.assign({}, DEF_CONF, config);
 		this._activeCycle = new NoOpCycle(this, true);
 		this._streamsheet = undefined;
-		// tmp. only:
-		this._isStarted = false;
 	}
 
 	toJSON() {
@@ -110,16 +108,14 @@ class BaseTrigger {
 			// schedule next cycle:
 			this.activeCycle.schedule();
 			// go on with current step:
-			if (this._isStarted && this.sheet.isNotFullyProcessed) {
+			if (this.sheet.isNotFullyProcessed) {
 				this.sheet._resumeProcessing();
 				this.processSheet();
 			}
-			this._isStarted = false;
 		}
 	}
 
 	start() {
-		this._isStarted = true;
 		if (this.activeCycle.isManual) this.activeCycle = this.getTimerCycle();
 	}
 
