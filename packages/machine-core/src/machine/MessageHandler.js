@@ -77,8 +77,7 @@ class MessageHandler {
 
 	get index() {
 		// DL-712: we keep last loop element...
-		const last = this._stacklength - 1;
-		return Math.max(0, Math.min(this._index, last));
+		return Math.max(0, Math.min(this._index, this._stacklength - 1));
 	}
 
 	get indexKey() {
