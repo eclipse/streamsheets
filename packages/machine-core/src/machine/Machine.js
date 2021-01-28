@@ -387,6 +387,7 @@ class Machine {
 	async start() {
 		if (this._state !== State.RUNNING && this._state !== State.WILL_STOP) {
 			const oldstate = this._state;
+			this._isManualStep = false;
 			try {
 				const resumed = this._state !== State.STOPPED;
 				this._state = State.RUNNING;
@@ -410,6 +411,7 @@ class Machine {
 
 	async stop(forced) {
 		const prevstate = this._state;
+		this._isManualStep = false;
 		forced = forced || prevstate === State.WILL_STOP;
 		if (prevstate !== State.STOPPED) {
 			this._clearCycle();
@@ -444,6 +446,7 @@ class Machine {
 	async pause() {
 		if (this._state !== State.PAUSED && this._state !== State.WILL_STOP) {
 			const oldstate = this._state;
+			this._isManualStep = false;
 			this._clearCycle();
 			this._state = State.PAUSED;
 			this.cyclemonitor.resumeIn = Date.now() - this.cyclemonitor.last;
@@ -463,7 +466,7 @@ class Machine {
 				logger.error(`Error while performing manual step on machine ${this.id}!!`, err);
 				this._emitter.emit('error', err);
 			}
-			this._isManualStep = false;
+			// this._isManualStep = false;
 		}
 	}
 
