@@ -73,7 +73,7 @@ class BaseTrigger {
 
 	// called by streamsheet. signals that it will be removed. trigger should perform clean up here...
 	dispose() {
-		this.activeCycle = new NoOpCycle(this, true);
+		this.activeCycle = this.getManualCycle();
 		if (this.sheet.isPaused) this.resumeProcessing();
 		this._streamsheet = undefined;
 	}
