@@ -41,7 +41,7 @@ class Cursor {
 	}
 
 	isProcessed() {
-		return this.c == null ? this.r > this.maxRow : this.r >= this.maxRow && this.c > this.maxCol;
+		return this.r > this.maxRow || (this.r === this.maxRow && this.c != null && this.c > this.maxCol);
 	}
 
 	reset() {
