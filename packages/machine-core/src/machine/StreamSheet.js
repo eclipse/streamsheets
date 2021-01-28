@@ -189,6 +189,10 @@ class StreamSheet {
 		return this._msgHandler.isEnabled && !!this._msgHandler.hasLoop();
 	}
 
+	getMessageById(id) {
+		return this.inbox.peek(id);
+	}
+
 	getCurrentMessage() {
 		return this._msgHandler.message;
 	}
