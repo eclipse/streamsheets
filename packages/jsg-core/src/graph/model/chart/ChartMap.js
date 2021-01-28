@@ -14,10 +14,10 @@ const Expression = require('../../expr/Expression');
 module.exports = class ChartMap {
 	constructor() {
 		this.items = new Expression('');
-		this.name = 'world.json';
+		this.name = '';
 		this.label = 'name';
 		this.displayType = ['color'];
-		this.chartType = ['pie'];
+		this.chartType = 'pie';
 	}
 	save(name, writer) {
 		writer.writeStartElement(name);
@@ -32,7 +32,7 @@ module.exports = class ChartMap {
 	}
 
 	read(reader, object) {
-		this.name = reader.getAttributeString(object, 'name', 'world.json');
+		this.name = reader.getAttributeString(object, 'name', '');
 		this.label = reader.getAttributeString(object, 'label', 'name');
 		const displayType = reader.getAttributeString(object, 'display', ['color']);
 		this.displayType = displayType === '' ? [] : displayType.split(';');

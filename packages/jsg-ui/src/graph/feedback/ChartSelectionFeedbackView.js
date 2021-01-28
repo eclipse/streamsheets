@@ -533,8 +533,8 @@ export default class ChartSelectionFeedbackView extends View {
 
 						features.forEach((feature, pointIndex) => {
 							if (selection.element === 'series' || pointIndex === selection.pointIndex) {
+								const mapIndex = item.findMapIndex(feature.properties, serie, mapInfo.labels);
 								if (feature.geometry.type === 'Point' || mapInfo.dispChart) {
-									const mapIndex = item.findMapIndex(feature.properties, serie, mapInfo.labels);
 									let radius;
 									if (mapInfo.dispChart) {
 										if (mapIndex !== -1) {
@@ -561,6 +561,9 @@ export default class ChartSelectionFeedbackView extends View {
 									const currentPt = {};
 									rect.width = 100;
 									rect.height = 100;
+									if (item.chart.dataMode === 'dataignore' && mapIndex === -1) {
+										return false;
+									}
 									if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
 										graphics.setFillColor('#777777');
 										graphics.setTransparency(70);

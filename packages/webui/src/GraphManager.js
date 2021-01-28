@@ -90,6 +90,17 @@ export default class GraphManager {
 		JSG.imagePool.add('resources/statuswarning.png', 'statuswarning');
 		JSG.SelectionStyle.MARKER_FILL_COLOR = '#90B5EE';
 		JSG.SelectionStyle.FILL = true;
+
+		const xhr = JSG._createRequest(`maps/mapinfo.json`, {
+			onload(response) {
+				JSG.mapInfo = JSON.parse(response);
+			},
+			onerror() {
+				JSG.debug.logError(`Failed to load map infos`);
+			}
+		});
+		xhr.send();
+
 		this.graphWrapper = {
 			graphdef: null,
 			id: null,

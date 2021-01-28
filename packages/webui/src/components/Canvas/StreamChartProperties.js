@@ -958,8 +958,7 @@ export class StreamChartProperties extends Component {
 		let clipData = '';
 
 		names.forEach(key =>  {
-			clipData += key;
-			clipData += '\n';
+			clipData += `"${key}",\n`;
 		});
 
 		const sheetView = this.getSheetView();
@@ -3301,48 +3300,11 @@ export class StreamChartProperties extends Component {
 												value={data.map.name}
 												onChange={this.handleSeriesMapName}
 											>
-												<MenuItem value="world.json" key={2}>
-													<FormattedMessage
-														id="StreamChartProperties.MapWorld"
-														defaultMessage="Welt"
-													/>
-												</MenuItem>
-												<MenuItem value="capitals.json" key={5}>
-													<FormattedMessage
-														id="StreamChartProperties.Capitals"
-														defaultMessage="Capitals World"
-													/>
-												</MenuItem>
-												<MenuItem value="landkreise.json" key={0}>
-													<FormattedMessage
-														id="StreamChartProperties.MapDLandkreise"
-														defaultMessage="Landkreise Deutschland"
-													/>
-												</MenuItem>
-												<MenuItem value="bundeslaender.json" key={7}>
-													<FormattedMessage
-														id="StreamChartProperties.MapDLandBundes"
-														defaultMessage="Bundesländer Deutschland"
-													/>
-												</MenuItem>
-												<MenuItem value="helsinki.json" key={3}>
-													<FormattedMessage
-														id="StreamChartProperties.Helsinki"
-														defaultMessage="Helsinki Straßen"
-													/>
-												</MenuItem>
-												<MenuItem value="rivers.json" key={1}>
-													<FormattedMessage
-														id="StreamChartProperties.Rivers"
-														defaultMessage="Rivers"
-													/>
-												</MenuItem>
-												<MenuItem value="plan.json" key={6}>
-													<FormattedMessage
-														id="StreamChartProperties.Floor"
-														defaultMessage="Floor Plan"
-													/>
-												</MenuItem>
+												{JSG.mapInfo.maps.map((info) => (
+													<MenuItem value={info.file} key={info.id}>
+														{info.name}
+													</MenuItem>
+												))}
 												<MenuItem value="sheet" key={4}>
 													<FormattedMessage
 														id="StreamChartProperties.MapCustom"

@@ -808,6 +808,7 @@
 	"StreamChartProperties.Right": "Rechts",
 	"StreamChartProperties.Above": "Überhalb",
 	"StreamChartProperties.Below": "Unterhalb",
+	"StreamChartProperties.TooltipContent": "Tooltip Inhalt",
 	"StreamChartProperties.Value": "Wert",
 	"StreamChartProperties.Hide": "Ausblenden",
 	"StreamChartProperties.Text": "Text",

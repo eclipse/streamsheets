@@ -405,7 +405,7 @@
 			"properties": {
 				"CNTR_ID": "AR",
 				"CNTR_NAME": "Argentina",
-				"NAME_ENGL": "Argentina",
+				"name": "Argentina",
 				"ISO3_CODE": "ARG",
 				"FID": "AR"
 			},
@@ -448,7 +448,7 @@
 			"properties": {
 				"CNTR_ID": "AS",
 				"CNTR_NAME": "American Samoa-Sāmoa Amelika",
-				"NAME_ENGL": "American Samoa",
+				"name": "American Samoa",
 				"ISO3_CODE": "ASM",
 				"FID": "AS"
 			},
@@ -574,7 +574,7 @@
 			"properties": {
 				"CNTR_ID": "AT",
 				"CNTR_NAME": "Österreich",
-				"NAME_ENGL": "Austria",
+				"name": "Austria",
 				"ISO3_CODE": "AUT",
 				"FID": "AT"
 			},
@@ -600,7 +600,7 @@
 			"properties": {
 				"CNTR_ID": "AD",
 				"CNTR_NAME": "Andorra",
-				"NAME_ENGL": "Andorra",
+				"name": "Andorra",
 				"ISO3_CODE": "AND",
 				"FID": "AD"
 			},
@@ -708,7 +708,7 @@
 			"properties": {
 				"CNTR_ID": "AE",
 				"CNTR_NAME": "الإمارات العربية المتحدة",
-				"NAME_ENGL": "United Arab Emirates",
+				"name": "United Arab Emirates",
 				"ISO3_CODE": "ARE",
 				"FID": "AE"
 			},
@@ -865,7 +865,7 @@
 			"properties": {
 				"CNTR_ID": "AF",
 				"CNTR_NAME": "افغانستان-افغانستان",
-				"NAME_ENGL": "Afghanistan",
+				"name": "Afghanistan",
 				"ISO3_CODE": "AFG",
 				"FID": "AF"
 			},
@@ -902,7 +902,7 @@
 			"properties": {
 				"CNTR_ID": "AG",
 				"CNTR_NAME": "Antigua and Barbuda",
-				"NAME_ENGL": "Antigua and Barbuda",
+				"name": "Antigua and Barbuda",
 				"ISO3_CODE": "ATG",
 				"FID": "AG"
 			},
@@ -926,7 +926,7 @@
 			"properties": {
 				"CNTR_ID": "AI",
 				"CNTR_NAME": "Anguilla",
-				"NAME_ENGL": "Anguilla",
+				"name": "Anguilla",
 				"ISO3_CODE": "AIA",
 				"FID": "AI"
 			},
@@ -997,7 +997,7 @@
 			"properties": {
 				"CNTR_ID": "AL",
 				"CNTR_NAME": "Shqipëria",
-				"NAME_ENGL": "Albania",
+				"name": "Albania",
 				"ISO3_CODE": "ALB",
 				"FID": "AL"
 			},
@@ -1064,7 +1064,7 @@
 			"properties": {
 				"CNTR_ID": "AM",
 				"CNTR_NAME": "Հայաստան",
-				"NAME_ENGL": "Armenia",
+				"name": "Armenia",
 				"ISO3_CODE": "ARM",
 				"FID": "AM"
 			},
@@ -1230,7 +1230,7 @@
 			"properties": {
 				"CNTR_ID": "AO",
 				"CNTR_NAME": "Angola",
-				"NAME_ENGL": "Angola",
+				"name": "Angola",
 				"ISO3_CODE": "AGO",
 				"FID": "AO"
 			},
@@ -2295,7 +2295,7 @@
 			"properties": {
 				"CNTR_ID": "AU",
 				"CNTR_NAME": "Australia",
-				"NAME_ENGL": "Australia",
+				"name": "Australia",
 				"ISO3_CODE": "AUS",
 				"FID": "AU"
 			},
@@ -2318,7 +2318,7 @@
 			"properties": {
 				"CNTR_ID": "AW",
 				"CNTR_NAME": "Aruba-Aruba",
-				"NAME_ENGL": "Aruba",
+				"name": "Aruba",
 				"ISO3_CODE": "ABW",
 				"FID": "AW"
 			},
@@ -2432,7 +2432,7 @@
 			"properties": {
 				"CNTR_ID": "AZ",
 				"CNTR_NAME": "Azərbaycan",
-				"NAME_ENGL": "Azerbaijan",
+				"name": "Azerbaijan",
 				"ISO3_CODE": "AZE",
 				"FID": "AZ"
 			},
@@ -2514,7 +2514,7 @@
 			"properties": {
 				"CNTR_ID": "BA",
 				"CNTR_NAME": "Bosna I Hercegovina-Bosna I Hercegovina-Босна И Херцеговина",
-				"NAME_ENGL": "Bosnia and Herzegovina",
+				"name": "Bosnia and Herzegovina",
 				"ISO3_CODE": "BIH",
 				"FID": "BA"
 			},
@@ -2540,7 +2540,7 @@
 			"properties": {
 				"CNTR_ID": "BB",
 				"CNTR_NAME": "Barbados",
-				"NAME_ENGL": "Barbados",
+				"name": "Barbados",
 				"ISO3_CODE": "BRB",
 				"FID": "BB"
 			},
@@ -2691,7 +2691,7 @@
 			"properties": {
 				"CNTR_ID": "BD",
 				"CNTR_NAME": "People’S Republic of Bangladesh",
-				"NAME_ENGL": "Bangladesh",
+				"name": "Bangladesh",
 				"ISO3_CODE": "BGD",
 				"FID": "BD"
 			},
@@ -2787,7 +2787,7 @@
 			"properties": {
 				"CNTR_ID": "BE",
 				"CNTR_NAME": "Belgien-Belgique-België",
-				"NAME_ENGL": "Belgium",
+				"name": "Belgium",
 				"ISO3_CODE": "BEL",
 				"FID": "BE"
 			},
@@ -2891,7 +2891,7 @@
 			"properties": {
 				"CNTR_ID": "BF",
 				"CNTR_NAME": "Burkina Faso",
-				"NAME_ENGL": "Burkina Faso",
+				"name": "Burkina Faso",
 				"ISO3_CODE": "BFA",
 				"FID": "BF"
 			},
@@ -3003,7 +3003,7 @@
 			"properties": {
 				"CNTR_ID": "BG",
 				"CNTR_NAME": "България",
-				"NAME_ENGL": "Bulgaria",
+				"name": "Bulgaria",
 				"ISO3_CODE": "BGR",
 				"FID": "BG"
 			},
@@ -3032,7 +3032,7 @@
 			"properties": {
 				"CNTR_ID": "BH",
 				"CNTR_NAME": "مملكة البحرين",
-				"NAME_ENGL": "Bahrain",
+				"name": "Bahrain",
 				"ISO3_CODE": "BHR",
 				"FID": "BH"
 			},
@@ -3080,7 +3080,7 @@
 			"properties": {
 				"CNTR_ID": "BI",
 				"CNTR_NAME": "Burundi-Burundi",
-				"NAME_ENGL": "Burundi",
+				"name": "Burundi",
 				"ISO3_CODE": "BDI",
 				"FID": "BI"
 			},
@@ -3136,7 +3136,7 @@
 			"properties": {
 				"CNTR_ID": "BJ",
 				"CNTR_NAME": "Bénin",
-				"NAME_ENGL": "Benin",
+				"name": "Benin",
 				"ISO3_CODE": "BEN",
 				"FID": "BJ"
 			},
@@ -3160,7 +3160,7 @@
 			"properties": {
 				"CNTR_ID": "BL",
 				"CNTR_NAME": "Saint-Barthélemy",
-				"NAME_ENGL": "Saint Barthélemy",
+				"name": "Saint Barthélemy",
 				"ISO3_CODE": "BLM",
 				"FID": "BL"
 			},
@@ -3183,7 +3183,7 @@
 			"properties": {
 				"CNTR_ID": "BM",
 				"CNTR_NAME": "Bermuda",
-				"NAME_ENGL": "Bermuda",
+				"name": "Bermuda",
 				"ISO3_CODE": "BMU",
 				"FID": "BM"
 			},
@@ -3226,7 +3226,7 @@
 			"properties": {
 				"CNTR_ID": "BN",
 				"CNTR_NAME": "Brunei",
-				"NAME_ENGL": "Brunei",
+				"name": "Brunei",
 				"ISO3_CODE": "BRN",
 				"FID": "BN"
 			},
@@ -3379,7 +3379,7 @@
 			"properties": {
 				"CNTR_ID": "BO",
 				"CNTR_NAME": "Wuliwya-Volívia-Bulivya-Bolivia",
-				"NAME_ENGL": "Bolivia",
+				"name": "Bolivia",
 				"ISO3_CODE": "BOL",
 				"FID": "BO"
 			},
@@ -3417,7 +3417,7 @@
 			"properties": {
 				"CNTR_ID": "BQ",
 				"CNTR_NAME": "Bonaire, Sint Eustatius and Saba",
-				"NAME_ENGL": "Bonaire, Sint Eustatius and Saba",
+				"name": "Bonaire, Sint Eustatius and Saba",
 				"ISO3_CODE": "BES",
 				"FID": "BQ"
 			},
@@ -3970,7 +3970,7 @@
 			"properties": {
 				"CNTR_ID": "BR",
 				"CNTR_NAME": "Brasil",
-				"NAME_ENGL": "Brazil",
+				"name": "Brazil",
 				"ISO3_CODE": "BRA",
 				"FID": "BR"
 			},
@@ -5022,7 +5022,7 @@
 			"properties": {
 				"CNTR_ID": "CN",
 				"CNTR_NAME": "中國",
-				"NAME_ENGL": "China",
+				"name": "China",
 				"ISO3_CODE": "CHN",
 				"FID": "CN"
 			},
@@ -5402,7 +5402,7 @@
 			"properties": {
 				"CNTR_ID": "BS",
 				"CNTR_NAME": "Bahamas",
-				"NAME_ENGL": "Bahamas",
+				"name": "Bahamas",
 				"ISO3_CODE": "BHS",
 				"FID": "BS"
 			},
@@ -5456,7 +5456,7 @@
 			"properties": {
 				"CNTR_ID": "BT",
 				"CNTR_NAME": "Kingdom of Bhutan",
-				"NAME_ENGL": "Bhutan",
+				"name": "Bhutan",
 				"ISO3_CODE": "BTN",
 				"FID": "BT"
 			},
@@ -5479,7 +5479,7 @@
 			"properties": {
 				"CNTR_ID": "BV",
 				"CNTR_NAME": "Bouvetøya",
-				"NAME_ENGL": "Bouvet Island",
+				"name": "Bouvet Island",
 				"ISO3_CODE": "BVT",
 				"FID": "BV"
 			},
@@ -5555,7 +5555,7 @@
 			"properties": {
 				"CNTR_ID": "BW",
 				"CNTR_NAME": "Botswana-Botswana",
-				"NAME_ENGL": "Botswana",
+				"name": "Botswana",
 				"ISO3_CODE": "BWA",
 				"FID": "BW"
 			},
@@ -5686,7 +5686,7 @@
 			"properties": {
 				"CNTR_ID": "BY",
 				"CNTR_NAME": "Беларусь",
-				"NAME_ENGL": "Belarus",
+				"name": "Belarus",
 				"ISO3_CODE": "BLR",
 				"FID": "BY"
 			},
@@ -5763,7 +5763,7 @@
 			"properties": {
 				"CNTR_ID": "BZ",
 				"CNTR_NAME": "Belize",
-				"NAME_ENGL": "Belize",
+				"name": "Belize",
 				"ISO3_CODE": "BLZ",
 				"FID": "BZ"
 			},
@@ -5980,7 +5980,7 @@
 			"properties": {
 				"CNTR_ID": "CO",
 				"CNTR_NAME": "Colombia",
-				"NAME_ENGL": "Colombia",
+				"name": "Colombia",
 				"ISO3_CODE": "COL",
 				"FID": "CO"
 			},
@@ -6003,7 +6003,7 @@
 			"properties": {
 				"CNTR_ID": "CP",
 				"CNTR_NAME": "Île Clipperton",
-				"NAME_ENGL": "Clipperton Island",
+				"name": "Clipperton Island",
 				"ISO3_CODE": "CPT",
 				"FID": "CP"
 			},
@@ -6074,7 +6074,7 @@
 			"properties": {
 				"CNTR_ID": "CR",
 				"CNTR_NAME": "Costa Rica",
-				"NAME_ENGL": "Costa Rica",
+				"name": "Costa Rica",
 				"ISO3_CODE": "CRI",
 				"FID": "CR"
 			},
@@ -6360,7 +6360,7 @@
 			"properties": {
 				"CNTR_ID": "CU",
 				"CNTR_NAME": "Cuba",
-				"NAME_ENGL": "Cuba",
+				"name": "Cuba",
 				"ISO3_CODE": "CUB",
 				"FID": "CU"
 			},
@@ -6498,7 +6498,7 @@
 			"properties": {
 				"CNTR_ID": "CV",
 				"CNTR_NAME": "Cabo Verde",
-				"NAME_ENGL": "Cape Verde",
+				"name": "Cape Verde",
 				"ISO3_CODE": "CPV",
 				"FID": "CV"
 			},
@@ -6528,7 +6528,7 @@
 			"properties": {
 				"CNTR_ID": "CW",
 				"CNTR_NAME": "Curaçao",
-				"NAME_ENGL": "Curaçao",
+				"name": "Curaçao",
 				"ISO3_CODE": "CUW",
 				"FID": "CW"
 			},
@@ -6551,7 +6551,7 @@
 			"properties": {
 				"CNTR_ID": "CX",
 				"CNTR_NAME": "Christmas Island",
-				"NAME_ENGL": "Christmas Island",
+				"name": "Christmas Island",
 				"ISO3_CODE": "CXR",
 				"FID": "CX"
 			},
@@ -6618,7 +6618,7 @@
 			"properties": {
 				"CNTR_ID": "CY",
 				"CNTR_NAME": "Κύπρος-Kıbrıs",
-				"NAME_ENGL": "Cyprus",
+				"name": "Cyprus",
 				"ISO3_CODE": "CYP",
 				"FID": "CY"
 			},
@@ -6717,7 +6717,7 @@
 			"properties": {
 				"CNTR_ID": "CZ",
 				"CNTR_NAME": "Česká Republika",
-				"NAME_ENGL": "Czechia",
+				"name": "Czechia",
 				"ISO3_CODE": "CZE",
 				"FID": "CZ"
 			},
@@ -6858,7 +6858,7 @@
 			"properties": {
 				"CNTR_ID": "CM",
 				"CNTR_NAME": "Cameroon-Cameroun",
-				"NAME_ENGL": "Cameroon",
+				"name": "Cameroon",
 				"ISO3_CODE": "CMR",
 				"FID": "CM"
 			},
@@ -12045,7 +12045,7 @@
 			"properties": {
 				"CNTR_ID": "CA",
 				"CNTR_NAME": "Canada-Canada",
-				"NAME_ENGL": "Canada",
+				"name": "Canada",
 				"ISO3_CODE": "CAN",
 				"FID": "CA"
 			},
@@ -12081,7 +12081,7 @@
 			"properties": {
 				"CNTR_ID": "CC",
 				"CNTR_NAME": "Cocos Keeling Islands",
-				"NAME_ENGL": "Cocos (Keeling) Islands",
+				"name": "Cocos (Keeling) Islands",
 				"ISO3_CODE": "CCK",
 				"FID": "CC"
 			},
@@ -12354,7 +12354,7 @@
 			"properties": {
 				"CNTR_ID": "CD",
 				"CNTR_NAME": "République Démocratique du Congo-Kongo-Kongó-Kongu-Kongo",
-				"NAME_ENGL": "Democratic Republic of The Congo",
+				"name": "Democratic Republic of The Congo",
 				"ISO3_CODE": "COD",
 				"FID": "CD"
 			},
@@ -12516,7 +12516,7 @@
 			"properties": {
 				"CNTR_ID": "CF",
 				"CNTR_NAME": "République Centrafricaine-Ködörösêse Tî Bêafrîka",
-				"NAME_ENGL": "Central African Republic",
+				"name": "Central African Republic",
 				"ISO3_CODE": "CAF",
 				"FID": "CF"
 			},
@@ -12639,7 +12639,7 @@
 			"properties": {
 				"CNTR_ID": "CG",
 				"CNTR_NAME": "Congo-Kongo-Kongó",
-				"NAME_ENGL": "Congo",
+				"name": "Congo",
 				"ISO3_CODE": "COG",
 				"FID": "CG"
 			},
@@ -12741,7 +12741,7 @@
 			"properties": {
 				"CNTR_ID": "CH",
 				"CNTR_NAME": "Schweiz-Suisse-Svizzera-Svizra",
-				"NAME_ENGL": "Switzerland",
+				"name": "Switzerland",
 				"ISO3_CODE": "CHE",
 				"FID": "CH"
 			},
@@ -12841,7 +12841,7 @@
 			"properties": {
 				"CNTR_ID": "CI",
 				"CNTR_NAME": "Côte D’Ivoire",
-				"NAME_ENGL": "Côte D’Ivoire",
+				"name": "Côte D’Ivoire",
 				"ISO3_CODE": "CIV",
 				"FID": "CI"
 			},
@@ -14465,7 +14465,7 @@
 			"properties": {
 				"CNTR_ID": "GL",
 				"CNTR_NAME": "Grønland-Kalaallit Nunaat",
-				"NAME_ENGL": "Greenland",
+				"name": "Greenland",
 				"ISO3_CODE": "GRL",
 				"FID": "GL"
 			},
@@ -14509,7 +14509,7 @@
 			"properties": {
 				"CNTR_ID": "GM",
 				"CNTR_NAME": "Gambia",
-				"NAME_ENGL": "Gambia",
+				"name": "Gambia",
 				"ISO3_CODE": "GMB",
 				"FID": "GM"
 			},
@@ -14666,7 +14666,7 @@
 			"properties": {
 				"CNTR_ID": "GN",
 				"CNTR_NAME": "Guinée",
-				"NAME_ENGL": "Guinea",
+				"name": "Guinea",
 				"ISO3_CODE": "GIN",
 				"FID": "GN"
 			},
@@ -14728,7 +14728,7 @@
 			"properties": {
 				"CNTR_ID": "GQ",
 				"CNTR_NAME": "Guinée Équatoriale-Guinea Ecuatorial",
-				"NAME_ENGL": "Equatorial Guinea",
+				"name": "Equatorial Guinea",
 				"ISO3_CODE": "GNQ",
 				"FID": "GQ"
 			},
@@ -14857,7 +14857,7 @@
 			"properties": {
 				"CNTR_ID": "GS",
 				"CNTR_NAME": "South Georgia and The South Sandwich Islands",
-				"NAME_ENGL": "South Georgia and The South Sandwich Islands",
+				"name": "South Georgia and The South Sandwich Islands",
 				"ISO3_CODE": "SGS",
 				"FID": "GS"
 			},
@@ -14919,7 +14919,7 @@
 			"properties": {
 				"CNTR_ID": "GT",
 				"CNTR_NAME": "Guatemala",
-				"NAME_ENGL": "Guatemala",
+				"name": "Guatemala",
 				"ISO3_CODE": "GTM",
 				"FID": "GT"
 			},
@@ -14948,7 +14948,7 @@
 			"properties": {
 				"CNTR_ID": "GU",
 				"CNTR_NAME": "Guåhan-Guam",
-				"NAME_ENGL": "Guam",
+				"name": "Guam",
 				"ISO3_CODE": "GUM",
 				"FID": "GU"
 			},
@@ -15031,7 +15031,7 @@
 			"properties": {
 				"CNTR_ID": "CK",
 				"CNTR_NAME": "Cook Islands-Kūki 'Āirani",
-				"NAME_ENGL": "Cook Islands",
+				"name": "Cook Islands",
 				"ISO3_CODE": "COK",
 				"FID": "CK"
 			},
@@ -15845,7 +15845,7 @@
 			"properties": {
 				"CNTR_ID": "CL",
 				"CNTR_NAME": "Chile",
-				"NAME_ENGL": "Chile",
+				"name": "Chile",
 				"ISO3_CODE": "CHL",
 				"FID": "CL"
 			},
@@ -16374,7 +16374,7 @@
 			"properties": {
 				"CNTR_ID": "FR",
 				"CNTR_NAME": "France",
-				"NAME_ENGL": "France",
+				"name": "France",
 				"ISO3_CODE": "FRA",
 				"FID": "FR"
 			},
@@ -16687,7 +16687,7 @@
 			"properties": {
 				"CNTR_ID": "HR",
 				"CNTR_NAME": "Hrvatska",
-				"NAME_ENGL": "Croatia",
+				"name": "Croatia",
 				"ISO3_CODE": "HRV",
 				"FID": "HR"
 			},
@@ -16783,7 +16783,7 @@
 			"properties": {
 				"CNTR_ID": "HT",
 				"CNTR_NAME": "Haïti-Ayiti",
-				"NAME_ENGL": "Haiti",
+				"name": "Haiti",
 				"ISO3_CODE": "HTI",
 				"FID": "HT"
 			},
@@ -16878,7 +16878,7 @@
 			"properties": {
 				"CNTR_ID": "HU",
 				"CNTR_NAME": "Magyarország",
-				"NAME_ENGL": "Hungary",
+				"name": "Hungary",
 				"ISO3_CODE": "HUN",
 				"FID": "HU"
 			},
@@ -16973,7 +16973,7 @@
 			"properties": {
 				"CNTR_ID": "IS",
 				"CNTR_NAME": "Ísland",
-				"NAME_ENGL": "Iceland",
+				"name": "Iceland",
 				"ISO3_CODE": "ISL",
 				"FID": "IS"
 			},
@@ -17412,7 +17412,7 @@
 			"properties": {
 				"CNTR_ID": "IT",
 				"CNTR_NAME": "Italia",
-				"NAME_ENGL": "Italy",
+				"name": "Italy",
 				"ISO3_CODE": "ITA",
 				"FID": "IT"
 			},
@@ -17438,7 +17438,7 @@
 			"properties": {
 				"CNTR_ID": "JE",
 				"CNTR_NAME": "Jersey-Jersey",
-				"NAME_ENGL": "Jersey",
+				"name": "Jersey",
 				"ISO3_CODE": "JEY",
 				"FID": "JE"
 			},
@@ -17502,7 +17502,7 @@
 			"properties": {
 				"CNTR_ID": "JM",
 				"CNTR_NAME": "Jamaica",
-				"NAME_ENGL": "Jamaica",
+				"name": "Jamaica",
 				"ISO3_CODE": "JAM",
 				"FID": "JM"
 			},
@@ -17553,7 +17553,7 @@
 			"properties": {
 				"CNTR_ID": "JO",
 				"CNTR_NAME": "الأردن",
-				"NAME_ENGL": "Jordan",
+				"name": "Jordan",
 				"ISO3_CODE": "JOR",
 				"FID": "JO"
 			},
@@ -17649,7 +17649,7 @@
 			"properties": {
 				"CNTR_ID": "KE",
 				"CNTR_NAME": "Kenya-Kenya",
-				"NAME_ENGL": "Kenya",
+				"name": "Kenya",
 				"ISO3_CODE": "KEN",
 				"FID": "KE"
 			},
@@ -17804,7 +17804,7 @@
 			"properties": {
 				"CNTR_ID": "KG",
 				"CNTR_NAME": "Kırgızstan-Кыргызстан",
-				"NAME_ENGL": "Kyrgyzstan",
+				"name": "Kyrgyzstan",
 				"ISO3_CODE": "KGZ",
 				"FID": "KG"
 			},
@@ -18166,7 +18166,7 @@
 			"properties": {
 				"CNTR_ID": "DE",
 				"CNTR_NAME": "Deutschland",
-				"NAME_ENGL": "Germany",
+				"name": "Germany",
 				"ISO3_CODE": "DEU",
 				"FID": "DE"
 			},
@@ -18210,7 +18210,7 @@
 			"properties": {
 				"CNTR_ID": "DJ",
 				"CNTR_NAME": "جيبوتي-Djibouti-Jabuuti",
-				"NAME_ENGL": "Djibouti",
+				"name": "Djibouti",
 				"ISO3_CODE": "DJI",
 				"FID": "DJ"
 			},
@@ -18485,7 +18485,7 @@
 			"properties": {
 				"CNTR_ID": "DK",
 				"CNTR_NAME": "Danmark",
-				"NAME_ENGL": "Denmark",
+				"name": "Denmark",
 				"ISO3_CODE": "DNK",
 				"FID": "DK"
 			},
@@ -18510,7 +18510,7 @@
 			"properties": {
 				"CNTR_ID": "DM",
 				"CNTR_NAME": "Dominica-Dominique",
-				"NAME_ENGL": "Dominica",
+				"name": "Dominica",
 				"ISO3_CODE": "DMA",
 				"FID": "DM"
 			},
@@ -18580,7 +18580,7 @@
 			"properties": {
 				"CNTR_ID": "DO",
 				"CNTR_NAME": "República Dominicana",
-				"NAME_ENGL": "Dominican Republic",
+				"name": "Dominican Republic",
 				"ISO3_CODE": "DOM",
 				"FID": "DO"
 			},
@@ -18772,7 +18772,7 @@
 			"properties": {
 				"CNTR_ID": "DZ",
 				"CNTR_NAME": "الجزائر",
-				"NAME_ENGL": "Algeria",
+				"name": "Algeria",
 				"ISO3_CODE": "DZA",
 				"FID": "DZ"
 			},
@@ -18994,7 +18994,7 @@
 			"properties": {
 				"CNTR_ID": "EC",
 				"CNTR_NAME": "Ikwadur-Ecuador",
-				"NAME_ENGL": "Ecuador",
+				"name": "Ecuador",
 				"ISO3_CODE": "ECU",
 				"FID": "EC"
 			},
@@ -19133,7 +19133,7 @@
 			"properties": {
 				"CNTR_ID": "EE",
 				"CNTR_NAME": "Eesti",
-				"NAME_ENGL": "Estonia",
+				"name": "Estonia",
 				"ISO3_CODE": "EST",
 				"FID": "EE"
 			},
@@ -19251,7 +19251,7 @@
 			"properties": {
 				"CNTR_ID": "EG",
 				"CNTR_NAME": "مصر",
-				"NAME_ENGL": "Egypt",
+				"name": "Egypt",
 				"ISO3_CODE": "EGY",
 				"FID": "EG"
 			},
@@ -19320,7 +19320,7 @@
 			"properties": {
 				"CNTR_ID": "EH",
 				"CNTR_NAME": "الصحراء الغربية",
-				"NAME_ENGL": "Western Sahara",
+				"name": "Western Sahara",
 				"ISO3_CODE": "ESH",
 				"FID": "EH"
 			},
@@ -19453,7 +19453,7 @@
 			"properties": {
 				"CNTR_ID": "ER",
 				"CNTR_NAME": "إريتريا-Eritrea-ኤርትራ",
-				"NAME_ENGL": "Eritrea",
+				"name": "Eritrea",
 				"ISO3_CODE": "ERI",
 				"FID": "ER"
 			},
@@ -19534,7 +19534,7 @@
 			"properties": {
 				"CNTR_ID": "GA",
 				"CNTR_NAME": "Gabon",
-				"NAME_ENGL": "Gabon",
+				"name": "Gabon",
 				"ISO3_CODE": "GAB",
 				"FID": "GA"
 			},
@@ -19560,7 +19560,7 @@
 			"properties": {
 				"CNTR_ID": "GD",
 				"CNTR_NAME": "Grenada",
-				"NAME_ENGL": "Grenada",
+				"name": "Grenada",
 				"ISO3_CODE": "GRD",
 				"FID": "GD"
 			},
@@ -19651,7 +19651,7 @@
 			"properties": {
 				"CNTR_ID": "GE",
 				"CNTR_NAME": "საქართველო",
-				"NAME_ENGL": "Georgia",
+				"name": "Georgia",
 				"ISO3_CODE": "GEO",
 				"FID": "GE"
 			},
@@ -19745,7 +19745,7 @@
 			"properties": {
 				"CNTR_ID": "HN",
 				"CNTR_NAME": "Honduras",
-				"NAME_ENGL": "Honduras",
+				"name": "Honduras",
 				"ISO3_CODE": "HND",
 				"FID": "HN"
 			},
@@ -20659,7 +20659,7 @@
 			"properties": {
 				"CNTR_ID": "EL",
 				"CNTR_NAME": "Ελλάδα",
-				"NAME_ENGL": "Greece",
+				"name": "Greece",
 				"ISO3_CODE": "GRC",
 				"FID": "EL"
 			},
@@ -20804,7 +20804,7 @@
 			"properties": {
 				"CNTR_ID": "KP",
 				"CNTR_NAME": "조선민주주의인민공화국",
-				"NAME_ENGL": "North Korea",
+				"name": "North Korea",
 				"ISO3_CODE": "PRK",
 				"FID": "KP"
 			},
@@ -21239,7 +21239,7 @@
 			"properties": {
 				"CNTR_ID": "ES",
 				"CNTR_NAME": "España",
-				"NAME_ENGL": "Spain",
+				"name": "Spain",
 				"ISO3_CODE": "ESP",
 				"FID": "ES"
 			},
@@ -21361,7 +21361,7 @@
 			"properties": {
 				"CNTR_ID": "ET",
 				"CNTR_NAME": "Federal Democratic Republic of Ethiopia",
-				"NAME_ENGL": "Ethiopia",
+				"name": "Ethiopia",
 				"ISO3_CODE": "ETH",
 				"FID": "ET"
 			},
@@ -21737,7 +21737,7 @@
 			"properties": {
 				"CNTR_ID": "FI",
 				"CNTR_NAME": "Suomi-Finland",
-				"NAME_ENGL": "Finland",
+				"name": "Finland",
 				"ISO3_CODE": "FIN",
 				"FID": "FI"
 			},
@@ -22063,7 +22063,7 @@
 			"properties": {
 				"CNTR_ID": "FJ",
 				"CNTR_NAME": "Fiji-Viti-फ़िजी",
-				"NAME_ENGL": "Fiji",
+				"name": "Fiji",
 				"ISO3_CODE": "FJI",
 				"FID": "FJ"
 			},
@@ -22222,7 +22222,7 @@
 			"properties": {
 				"CNTR_ID": "FK",
 				"CNTR_NAME": "Falkland Islands",
-				"NAME_ENGL": "Falkland Islands",
+				"name": "Falkland Islands",
 				"ISO3_CODE": "FLK",
 				"FID": "FK"
 			},
@@ -22307,7 +22307,7 @@
 			"properties": {
 				"CNTR_ID": "FM",
 				"CNTR_NAME": "Micronesia",
-				"NAME_ENGL": "Micronesia",
+				"name": "Micronesia",
 				"ISO3_CODE": "FSM",
 				"FID": "FM"
 			},
@@ -22400,7 +22400,7 @@
 			"properties": {
 				"CNTR_ID": "FO",
 				"CNTR_NAME": "Færøerne-Føroyar",
-				"NAME_ENGL": "Faroes",
+				"name": "Faroes",
 				"ISO3_CODE": "FRO",
 				"FID": "FO"
 			},
@@ -22436,7 +22436,7 @@
 			"properties": {
 				"CNTR_ID": "GG",
 				"CNTR_NAME": "Guernsey-Guernesey",
-				"NAME_ENGL": "Guernsey",
+				"name": "Guernsey",
 				"ISO3_CODE": "GGY",
 				"FID": "GG"
 			},
@@ -22518,7 +22518,7 @@
 			"properties": {
 				"CNTR_ID": "GH",
 				"CNTR_NAME": "Ghana",
-				"NAME_ENGL": "Ghana",
+				"name": "Ghana",
 				"ISO3_CODE": "GHA",
 				"FID": "GH"
 			},
@@ -22541,7 +22541,7 @@
 			"properties": {
 				"CNTR_ID": "GI",
 				"CNTR_NAME": "Gibraltar",
-				"NAME_ENGL": "Gibraltar",
+				"name": "Gibraltar",
 				"ISO3_CODE": "GIB",
 				"FID": "GI"
 			},
@@ -22657,7 +22657,7 @@
 			"properties": {
 				"CNTR_ID": "GW",
 				"CNTR_NAME": "Guiné-Bissau",
-				"NAME_ENGL": "Guinea-Bissau",
+				"name": "Guinea-Bissau",
 				"ISO3_CODE": "GNB",
 				"FID": "GW"
 			},
@@ -22768,7 +22768,7 @@
 			"properties": {
 				"CNTR_ID": "GY",
 				"CNTR_NAME": "Guyana",
-				"NAME_ENGL": "Guyana",
+				"name": "Guyana",
 				"ISO3_CODE": "GUY",
 				"FID": "GY"
 			},
@@ -22795,7 +22795,7 @@
 			"properties": {
 				"CNTR_ID": "HK",
 				"CNTR_NAME": "香港",
-				"NAME_ENGL": "Hong Kong",
+				"name": "Hong Kong",
 				"ISO3_CODE": "HKG",
 				"FID": "HK"
 			},
@@ -22834,7 +22834,7 @@
 			"properties": {
 				"CNTR_ID": "HM",
 				"CNTR_NAME": "Heard Island and Mcdonald Islands",
-				"NAME_ENGL": "Heard Island and Mcdonald Islands",
+				"name": "Heard Island and Mcdonald Islands",
 				"ISO3_CODE": "HMD",
 				"FID": "HM"
 			},
@@ -23295,7 +23295,7 @@
 			"properties": {
 				"CNTR_ID": "NG",
 				"CNTR_NAME": "Nigeria",
-				"NAME_ENGL": "Nigeria",
+				"name": "Nigeria",
 				"ISO3_CODE": "NGA",
 				"FID": "NG"
 			},
@@ -23464,7 +23464,7 @@
 			"properties": {
 				"CNTR_ID": "NL",
 				"CNTR_NAME": "Nederland",
-				"NAME_ENGL": "Netherlands",
+				"name": "Netherlands",
 				"ISO3_CODE": "NLD",
 				"FID": "NL"
 			},
@@ -23564,7 +23564,7 @@
 			"properties": {
 				"CNTR_ID": "NP",
 				"CNTR_NAME": "नेपाल",
-				"NAME_ENGL": "Nepal",
+				"name": "Nepal",
 				"ISO3_CODE": "NPL",
 				"FID": "NP"
 			},
@@ -23588,7 +23588,7 @@
 			"properties": {
 				"CNTR_ID": "NR",
 				"CNTR_NAME": "Nauru-Naoero",
-				"NAME_ENGL": "Nauru",
+				"name": "Nauru",
 				"ISO3_CODE": "NRU",
 				"FID": "NR"
 			},
@@ -23613,7 +23613,7 @@
 			"properties": {
 				"CNTR_ID": "NU",
 				"CNTR_NAME": "Niue-Niuē",
-				"NAME_ENGL": "Niue",
+				"name": "Niue",
 				"ISO3_CODE": "NIU",
 				"FID": "NU"
 			},
@@ -23651,7 +23651,7 @@
 			"properties": {
 				"CNTR_ID": "KN",
 				"CNTR_NAME": "Saint Kitts and Nevis",
-				"NAME_ENGL": "Saint Kitts and Nevis",
+				"name": "Saint Kitts and Nevis",
 				"ISO3_CODE": "KNA",
 				"FID": "KN"
 			},
@@ -23786,7 +23786,7 @@
 			"properties": {
 				"CNTR_ID": "KH",
 				"CNTR_NAME": "កម្ពុជា",
-				"NAME_ENGL": "Cambodia",
+				"name": "Cambodia",
 				"ISO3_CODE": "KHM",
 				"FID": "KH"
 			},
@@ -23886,7 +23886,7 @@
 			"properties": {
 				"CNTR_ID": "KI",
 				"CNTR_NAME": "Kiribati",
-				"NAME_ENGL": "Kiribati",
+				"name": "Kiribati",
 				"ISO3_CODE": "KIR",
 				"FID": "KI"
 			},
@@ -23932,7 +23932,7 @@
 			"properties": {
 				"CNTR_ID": "KY",
 				"CNTR_NAME": "Cayman Islands",
-				"NAME_ENGL": "Cayman Islands",
+				"name": "Cayman Islands",
 				"ISO3_CODE": "CYM",
 				"FID": "KY"
 			},
@@ -24261,7 +24261,7 @@
 			"properties": {
 				"CNTR_ID": "KZ",
 				"CNTR_NAME": "Қазақстан",
-				"NAME_ENGL": "Kazakhstan",
+				"name": "Kazakhstan",
 				"ISO3_CODE": "KAZ",
 				"FID": "KZ"
 			},
@@ -24398,7 +24398,7 @@
 			"properties": {
 				"CNTR_ID": "LA",
 				"CNTR_NAME": "ປະເທດລາວ",
-				"NAME_ENGL": "Laos",
+				"name": "Laos",
 				"ISO3_CODE": "LAO",
 				"FID": "LA"
 			},
@@ -24440,7 +24440,7 @@
 			"properties": {
 				"CNTR_ID": "LB",
 				"CNTR_NAME": "لبنان",
-				"NAME_ENGL": "Lebanon",
+				"name": "Lebanon",
 				"ISO3_CODE": "LBN",
 				"FID": "LB"
 			},
@@ -24468,7 +24468,7 @@
 			"properties": {
 				"CNTR_ID": "LC",
 				"CNTR_NAME": "Saint Lucia",
-				"NAME_ENGL": "Saint Lucia",
+				"name": "Saint Lucia",
 				"ISO3_CODE": "LCA",
 				"FID": "LC"
 			},
@@ -24491,7 +24491,7 @@
 			"properties": {
 				"CNTR_ID": "LI",
 				"CNTR_NAME": "Liechtenstein",
-				"NAME_ENGL": "Liechtenstein",
+				"name": "Liechtenstein",
 				"ISO3_CODE": "LIE",
 				"FID": "LI"
 			},
@@ -24581,7 +24581,7 @@
 			"properties": {
 				"CNTR_ID": "LK",
 				"CNTR_NAME": "ශ්‍රී ලංකාව-இலங்கை",
-				"NAME_ENGL": "Sri Lanka",
+				"name": "Sri Lanka",
 				"ISO3_CODE": "LKA",
 				"FID": "LK"
 			},
@@ -24758,7 +24758,7 @@
 			"properties": {
 				"CNTR_ID": "PE",
 				"CNTR_NAME": "Piruw-Piruw-Perú",
-				"NAME_ENGL": "Peru",
+				"name": "Peru",
 				"ISO3_CODE": "PER",
 				"FID": "PE"
 			},
@@ -27473,7 +27473,7 @@
 			"properties": {
 				"CNTR_ID": "ID",
 				"CNTR_NAME": "Indonesia",
-				"NAME_ENGL": "Indonesia",
+				"name": "Indonesia",
 				"ISO3_CODE": "IDN",
 				"FID": "ID"
 			},
@@ -27616,7 +27616,7 @@
 			"properties": {
 				"CNTR_ID": "IE",
 				"CNTR_NAME": "Ireland-Éire",
-				"NAME_ENGL": "Ireland",
+				"name": "Ireland",
 				"ISO3_CODE": "IRL",
 				"FID": "IE"
 			},
@@ -27666,7 +27666,7 @@
 			"properties": {
 				"CNTR_ID": "IL",
 				"CNTR_NAME": "إسرائيل-ישראל",
-				"NAME_ENGL": "Israel",
+				"name": "Israel",
 				"ISO3_CODE": "ISR",
 				"FID": "IL"
 			},
@@ -27694,7 +27694,7 @@
 			"properties": {
 				"CNTR_ID": "IM",
 				"CNTR_NAME": "Isle of Man-Ellan Vannin",
-				"NAME_ENGL": "Isle of Man",
+				"name": "Isle of Man",
 				"ISO3_CODE": "IMN",
 				"FID": "IM"
 			},
@@ -27718,7 +27718,7 @@
 			"properties": {
 				"CNTR_ID": "IO",
 				"CNTR_NAME": "British Indian Ocean Territory",
-				"NAME_ENGL": "British Indian Ocean Territory",
+				"name": "British Indian Ocean Territory",
 				"ISO3_CODE": "IOT",
 				"FID": "IO"
 			},
@@ -27826,7 +27826,7 @@
 			"properties": {
 				"CNTR_ID": "IQ",
 				"CNTR_NAME": "العراق-Îraq",
-				"NAME_ENGL": "Iraq",
+				"name": "Iraq",
 				"ISO3_CODE": "IRQ",
 				"FID": "IQ"
 			},
@@ -27926,7 +27926,7 @@
 			"properties": {
 				"CNTR_ID": "NI",
 				"CNTR_NAME": "Nicaragua",
-				"NAME_ENGL": "Nicaragua",
+				"name": "Nicaragua",
 				"ISO3_CODE": "NIC",
 				"FID": "NI"
 			},
@@ -28552,7 +28552,7 @@
 			"properties": {
 				"CNTR_ID": "IN",
 				"CNTR_NAME": "India-भारत",
-				"NAME_ENGL": "India",
+				"name": "India",
 				"ISO3_CODE": "IND",
 				"FID": "IN"
 			},
@@ -28852,7 +28852,7 @@
 			"properties": {
 				"CNTR_ID": "IR",
 				"CNTR_NAME": "ایران",
-				"NAME_ENGL": "Iran",
+				"name": "Iran",
 				"ISO3_CODE": "IRN",
 				"FID": "IR"
 			},
@@ -28905,7 +28905,7 @@
 			"properties": {
 				"CNTR_ID": "KM",
 				"CNTR_NAME": "جزر القمر-Comores-Komori",
-				"NAME_ENGL": "Comoros",
+				"name": "Comoros",
 				"ISO3_CODE": "COM",
 				"FID": "KM"
 			},
@@ -29716,7 +29716,7 @@
 			"properties": {
 				"CNTR_ID": "JP",
 				"CNTR_NAME": "日本",
-				"NAME_ENGL": "Japan",
+				"name": "Japan",
 				"ISO3_CODE": "JPN",
 				"FID": "JP"
 			},
@@ -29933,7 +29933,7 @@
 			"properties": {
 				"CNTR_ID": "KR",
 				"CNTR_NAME": "대한민국",
-				"NAME_ENGL": "South Korea",
+				"name": "South Korea",
 				"ISO3_CODE": "KOR",
 				"FID": "KR"
 			},
@@ -30000,7 +30000,7 @@
 			"properties": {
 				"CNTR_ID": "KW",
 				"CNTR_NAME": "الكويت",
-				"NAME_ENGL": "Kuwait",
+				"name": "Kuwait",
 				"ISO3_CODE": "KWT",
 				"FID": "KW"
 			},
@@ -30405,7 +30405,7 @@
 			"properties": {
 				"CNTR_ID": "PF",
 				"CNTR_NAME": "Polynésie Française",
-				"NAME_ENGL": "French Polynesia",
+				"name": "French Polynesia",
 				"ISO3_CODE": "PYF",
 				"FID": "PF"
 			},
@@ -30629,7 +30629,7 @@
 			"properties": {
 				"CNTR_ID": "PK",
 				"CNTR_NAME": "Pakistan-پاكستان",
-				"NAME_ENGL": "Pakistan",
+				"name": "Pakistan",
 				"ISO3_CODE": "PAK",
 				"FID": "PK"
 			},
@@ -30774,7 +30774,7 @@
 			"properties": {
 				"CNTR_ID": "PL",
 				"CNTR_NAME": "Polska",
-				"NAME_ENGL": "Poland",
+				"name": "Poland",
 				"ISO3_CODE": "POL",
 				"FID": "PL"
 			},
@@ -30809,7 +30809,7 @@
 			"properties": {
 				"CNTR_ID": "PM",
 				"CNTR_NAME": "Saint-Pierre-Et-Miquelon",
-				"NAME_ENGL": "Saint Pierre and Miquelon",
+				"name": "Saint Pierre and Miquelon",
 				"ISO3_CODE": "SPM",
 				"FID": "PM"
 			},
@@ -30833,7 +30833,7 @@
 			"properties": {
 				"CNTR_ID": "PN",
 				"CNTR_NAME": "Pitcairn Islands-Pitkern Ailen",
-				"NAME_ENGL": "Pitcairn Islands",
+				"name": "Pitcairn Islands",
 				"ISO3_CODE": "PCN",
 				"FID": "PN"
 			},
@@ -30892,7 +30892,7 @@
 			"properties": {
 				"CNTR_ID": "LR",
 				"CNTR_NAME": "Liberia",
-				"NAME_ENGL": "Liberia",
+				"name": "Liberia",
 				"ISO3_CODE": "LBR",
 				"FID": "LR"
 			},
@@ -30930,7 +30930,7 @@
 			"properties": {
 				"CNTR_ID": "LS",
 				"CNTR_NAME": "Lesotho-Lesotho",
-				"NAME_ENGL": "Lesotho",
+				"name": "Lesotho",
 				"ISO3_CODE": "LSO",
 				"FID": "LS"
 			},
@@ -31009,7 +31009,7 @@
 			"properties": {
 				"CNTR_ID": "LT",
 				"CNTR_NAME": "Lietuva",
-				"NAME_ENGL": "Lithuania",
+				"name": "Lithuania",
 				"ISO3_CODE": "LTU",
 				"FID": "LT"
 			},
@@ -31041,7 +31041,7 @@
 			"properties": {
 				"CNTR_ID": "LU",
 				"CNTR_NAME": "Luxemburg-Luxembourg-Lëtzebuerg",
-				"NAME_ENGL": "Luxembourg",
+				"name": "Luxembourg",
 				"ISO3_CODE": "LUX",
 				"FID": "LU"
 			},
@@ -31736,7 +31736,7 @@
 			"properties": {
 				"CNTR_ID": "PG",
 				"CNTR_NAME": "Papua New Guinea-Papua Niu Gini-Papua Niugini",
-				"NAME_ENGL": "Papua New Guinea",
+				"name": "Papua New Guinea",
 				"ISO3_CODE": "PNG",
 				"FID": "PG"
 			},
@@ -31773,7 +31773,7 @@
 			"properties": {
 				"CNTR_ID": "MT",
 				"CNTR_NAME": "Malta-Malta",
-				"NAME_ENGL": "Malta",
+				"name": "Malta",
 				"ISO3_CODE": "MLT",
 				"FID": "MT"
 			},
@@ -31838,7 +31838,7 @@
 			"properties": {
 				"CNTR_ID": "MU",
 				"CNTR_NAME": "Mauritius",
-				"NAME_ENGL": "Mauritius",
+				"name": "Mauritius",
 				"ISO3_CODE": "MUS",
 				"FID": "MU"
 			},
@@ -31882,7 +31882,7 @@
 			"properties": {
 				"CNTR_ID": "MV",
 				"CNTR_NAME": "Republic of Maldives",
-				"NAME_ENGL": "Maldives",
+				"name": "Maldives",
 				"ISO3_CODE": "MDV",
 				"FID": "MV"
 			},
@@ -31989,7 +31989,7 @@
 			"properties": {
 				"CNTR_ID": "MW",
 				"CNTR_NAME": "Malawi-Malaŵi",
-				"NAME_ENGL": "Malawi",
+				"name": "Malawi",
 				"ISO3_CODE": "MWI",
 				"FID": "MW"
 			},
@@ -32393,7 +32393,7 @@
 			"properties": {
 				"CNTR_ID": "MX",
 				"CNTR_NAME": "México",
-				"NAME_ENGL": "Mexico",
+				"name": "Mexico",
 				"ISO3_CODE": "MEX",
 				"FID": "MX"
 			},
@@ -32760,7 +32760,7 @@
 			"properties": {
 				"CNTR_ID": "MY",
 				"CNTR_NAME": "Malaysia",
-				"NAME_ENGL": "Malaysia",
+				"name": "Malaysia",
 				"ISO3_CODE": "MYS",
 				"FID": "MY"
 			},
@@ -32963,7 +32963,7 @@
 			"properties": {
 				"CNTR_ID": "MZ",
 				"CNTR_NAME": "Moçambique",
-				"NAME_ENGL": "Mozambique",
+				"name": "Mozambique",
 				"ISO3_CODE": "MOZ",
 				"FID": "MZ"
 			},
@@ -34125,7 +34125,7 @@
 			"properties": {
 				"CNTR_ID": "PH",
 				"CNTR_NAME": "Philippines-Pilipinas",
-				"NAME_ENGL": "Philippines",
+				"name": "Philippines",
 				"ISO3_CODE": "PHL",
 				"FID": "PH"
 			},
@@ -34201,7 +34201,7 @@
 			"properties": {
 				"CNTR_ID": "PR",
 				"CNTR_NAME": "Puerto Rico",
-				"NAME_ENGL": "Puerto Rico",
+				"name": "Puerto Rico",
 				"ISO3_CODE": "PRI",
 				"FID": "PR"
 			},
@@ -34245,7 +34245,7 @@
 			"properties": {
 				"CNTR_ID": "PS",
 				"CNTR_NAME": "فلسطين",
-				"NAME_ENGL": "Palestine",
+				"name": "Palestine",
 				"ISO3_CODE": "PSE",
 				"FID": "PS"
 			},
@@ -34474,7 +34474,7 @@
 			"properties": {
 				"CNTR_ID": "PT",
 				"CNTR_NAME": "Portugal",
-				"NAME_ENGL": "Portugal",
+				"name": "Portugal",
 				"ISO3_CODE": "PRT",
 				"FID": "PT"
 			},
@@ -34532,7 +34532,7 @@
 			"properties": {
 				"CNTR_ID": "PW",
 				"CNTR_NAME": "Palau-Belau",
-				"NAME_ENGL": "Palau",
+				"name": "Palau",
 				"ISO3_CODE": "PLW",
 				"FID": "PW"
 			},
@@ -34628,7 +34628,7 @@
 			"properties": {
 				"CNTR_ID": "PY",
 				"CNTR_NAME": "Paraguay-Paraguái",
-				"NAME_ENGL": "Paraguay",
+				"name": "Paraguay",
 				"ISO3_CODE": "PRY",
 				"FID": "PY"
 			},
@@ -34663,7 +34663,7 @@
 			"properties": {
 				"CNTR_ID": "QA",
 				"CNTR_NAME": "قطر",
-				"NAME_ENGL": "Qatar",
+				"name": "Qatar",
 				"ISO3_CODE": "QAT",
 				"FID": "QA"
 			},
@@ -34783,7 +34783,7 @@
 			"properties": {
 				"CNTR_ID": "RO",
 				"CNTR_NAME": "România",
-				"NAME_ENGL": "Romania",
+				"name": "Romania",
 				"ISO3_CODE": "ROU",
 				"FID": "RO"
 			},
@@ -34891,7 +34891,7 @@
 			"properties": {
 				"CNTR_ID": "RS",
 				"CNTR_NAME": "Србија",
-				"NAME_ENGL": "Serbia",
+				"name": "Serbia",
 				"ISO3_CODE": "SRB",
 				"FID": "RS"
 			},
@@ -35015,7 +35015,7 @@
 			"properties": {
 				"CNTR_ID": "TJ",
 				"CNTR_NAME": "Тоҷикистон",
-				"NAME_ENGL": "Tajikistan",
+				"name": "Tajikistan",
 				"ISO3_CODE": "TJK",
 				"FID": "TJ"
 			},
@@ -35038,7 +35038,7 @@
 			"properties": {
 				"CNTR_ID": "TK",
 				"CNTR_NAME": "Tokelau-Tokelau",
-				"NAME_ENGL": "Tokelau",
+				"name": "Tokelau",
 				"ISO3_CODE": "TKL",
 				"FID": "TK"
 			},
@@ -35104,7 +35104,7 @@
 			"properties": {
 				"CNTR_ID": "TL",
 				"CNTR_NAME": "Timor-Leste-Timor Lorosae",
-				"NAME_ENGL": "Timor-Leste",
+				"name": "Timor-Leste",
 				"ISO3_CODE": "TLS",
 				"FID": "TL"
 			},
@@ -35206,7 +35206,7 @@
 			"properties": {
 				"CNTR_ID": "NA",
 				"CNTR_NAME": "Namibia",
-				"NAME_ENGL": "Namibia",
+				"name": "Namibia",
 				"ISO3_CODE": "NAM",
 				"FID": "NA"
 			},
@@ -35340,7 +35340,7 @@
 			"properties": {
 				"CNTR_ID": "NC",
 				"CNTR_NAME": "Nouvelle-Calédonie",
-				"NAME_ENGL": "New Caledonia",
+				"name": "New Caledonia",
 				"ISO3_CODE": "NCL",
 				"FID": "NC"
 			},
@@ -35451,7 +35451,7 @@
 			"properties": {
 				"CNTR_ID": "NE",
 				"CNTR_NAME": "Niger",
-				"NAME_ENGL": "Niger",
+				"name": "Niger",
 				"ISO3_CODE": "NER",
 				"FID": "NE"
 			},
@@ -35475,7 +35475,7 @@
 			"properties": {
 				"CNTR_ID": "NF",
 				"CNTR_NAME": "Norfolk Island-Norfuk Ailen",
-				"NAME_ENGL": "Norfolk Island",
+				"name": "Norfolk Island",
 				"ISO3_CODE": "NFK",
 				"FID": "NF"
 			},
@@ -35833,7 +35833,7 @@
 			"properties": {
 				"CNTR_ID": "NZ",
 				"CNTR_NAME": "New Zealand-Aotearoa",
-				"NAME_ENGL": "New Zealand",
+				"name": "New Zealand",
 				"ISO3_CODE": "NZL",
 				"FID": "NZ"
 			},
@@ -35967,7 +35967,7 @@
 			"properties": {
 				"CNTR_ID": "OM",
 				"CNTR_NAME": "سلطنة عمان",
-				"NAME_ENGL": "Oman",
+				"name": "Oman",
 				"ISO3_CODE": "OMN",
 				"FID": "OM"
 			},
@@ -36108,7 +36108,7 @@
 			"properties": {
 				"CNTR_ID": "PA",
 				"CNTR_NAME": "Panamá",
-				"NAME_ENGL": "Panama",
+				"name": "Panama",
 				"ISO3_CODE": "PAN",
 				"FID": "PA"
 			},
@@ -36191,7 +36191,7 @@
 			"properties": {
 				"CNTR_ID": "LV",
 				"CNTR_NAME": "Latvija",
-				"NAME_ENGL": "Latvia",
+				"name": "Latvia",
 				"ISO3_CODE": "LVA",
 				"FID": "LV"
 			},
@@ -36310,7 +36310,7 @@
 			"properties": {
 				"CNTR_ID": "LY",
 				"CNTR_NAME": "دولة ليبيا",
-				"NAME_ENGL": "Libya",
+				"name": "Libya",
 				"ISO3_CODE": "LBY",
 				"FID": "LY"
 			},
@@ -36585,7 +36585,7 @@
 			"properties": {
 				"CNTR_ID": "MA",
 				"CNTR_NAME": "المغرب",
-				"NAME_ENGL": "Morocco",
+				"name": "Morocco",
 				"ISO3_CODE": "MAR",
 				"FID": "MA"
 			},
@@ -36610,7 +36610,7 @@
 			"properties": {
 				"CNTR_ID": "MC",
 				"CNTR_NAME": "Monaco",
-				"NAME_ENGL": "Monaco",
+				"name": "Monaco",
 				"ISO3_CODE": "MCO",
 				"FID": "MC"
 			},
@@ -36677,7 +36677,7 @@
 			"properties": {
 				"CNTR_ID": "MD",
 				"CNTR_NAME": "Moldova",
-				"NAME_ENGL": "Moldova",
+				"name": "Moldova",
 				"ISO3_CODE": "MDA",
 				"FID": "MD"
 			},
@@ -36738,7 +36738,7 @@
 			"properties": {
 				"CNTR_ID": "ME",
 				"CNTR_NAME": "Црна Гора",
-				"NAME_ENGL": "Montenegro",
+				"name": "Montenegro",
 				"ISO3_CODE": "MNE",
 				"FID": "ME"
 			},
@@ -36913,7 +36913,7 @@
 			"properties": {
 				"CNTR_ID": "MG",
 				"CNTR_NAME": "Madagascar-Madagasikara",
-				"NAME_ENGL": "Madagascar",
+				"name": "Madagascar",
 				"ISO3_CODE": "MDG",
 				"FID": "MG"
 			},
@@ -36985,7 +36985,7 @@
 			"properties": {
 				"CNTR_ID": "MH",
 				"CNTR_NAME": "Marshall Islands-Aorōkin M̧Ajeļ",
-				"NAME_ENGL": "Marshall Islands",
+				"name": "Marshall Islands",
 				"ISO3_CODE": "MHL",
 				"FID": "MH"
 			},
@@ -37045,7 +37045,7 @@
 			"properties": {
 				"CNTR_ID": "MK",
 				"CNTR_NAME": "Северна Македонија",
-				"NAME_ENGL": "North Macedonia",
+				"name": "North Macedonia",
 				"ISO3_CODE": "MKD",
 				"FID": "MK"
 			},
@@ -37202,7 +37202,7 @@
 			"properties": {
 				"CNTR_ID": "ML",
 				"CNTR_NAME": "Mali",
-				"NAME_ENGL": "Mali",
+				"name": "Mali",
 				"ISO3_CODE": "MLI",
 				"FID": "ML"
 			},
@@ -37600,7 +37600,7 @@
 			"properties": {
 				"CNTR_ID": "MM",
 				"CNTR_NAME": "Myanma",
-				"NAME_ENGL": "Myanmar/Burma",
+				"name": "Myanmar/Burma",
 				"ISO3_CODE": "MMR",
 				"FID": "MM"
 			},
@@ -37827,7 +37827,7 @@
 			"properties": {
 				"CNTR_ID": "MN",
 				"CNTR_NAME": "Монгол Улс",
-				"NAME_ENGL": "Mongolia",
+				"name": "Mongolia",
 				"ISO3_CODE": "MNG",
 				"FID": "MN"
 			},
@@ -37850,7 +37850,7 @@
 			"properties": {
 				"CNTR_ID": "MO",
 				"CNTR_NAME": "澳門-Macau",
-				"NAME_ENGL": "Macau",
+				"name": "Macau",
 				"ISO3_CODE": "MAC",
 				"FID": "MO"
 			},
@@ -37923,7 +37923,7 @@
 			"properties": {
 				"CNTR_ID": "MP",
 				"CNTR_NAME": "Northern Mariana Islands-Notte Mariånas-Northern Mariana Islands",
-				"NAME_ENGL": "Northern Mariana Islands",
+				"name": "Northern Mariana Islands",
 				"ISO3_CODE": "MNP",
 				"FID": "MP"
 			},
@@ -38018,7 +38018,7 @@
 			"properties": {
 				"CNTR_ID": "MR",
 				"CNTR_NAME": "موريتانيا",
-				"NAME_ENGL": "Mauritania",
+				"name": "Mauritania",
 				"ISO3_CODE": "MRT",
 				"FID": "MR"
 			},
@@ -38041,7 +38041,7 @@
 			"properties": {
 				"CNTR_ID": "MS",
 				"CNTR_NAME": "Montserrat",
-				"NAME_ENGL": "Montserrat",
+				"name": "Montserrat",
 				"ISO3_CODE": "MSR",
 				"FID": "MS"
 			},
@@ -42421,7 +42421,7 @@
 			"properties": {
 				"CNTR_ID": "RU",
 				"CNTR_NAME": "Россия",
-				"NAME_ENGL": "Russian Federation",
+				"name": "Russian Federation",
 				"ISO3_CODE": "RUS",
 				"FID": "RU"
 			},
@@ -42471,7 +42471,7 @@
 			"properties": {
 				"CNTR_ID": "RW",
 				"CNTR_NAME": "Rwanda-Rwanda-Rwanda",
-				"NAME_ENGL": "Rwanda",
+				"name": "Rwanda",
 				"ISO3_CODE": "RWA",
 				"FID": "RW"
 			},
@@ -42770,7 +42770,7 @@
 			"properties": {
 				"CNTR_ID": "SA",
 				"CNTR_NAME": "السعودية",
-				"NAME_ENGL": "Saudi Arabia",
+				"name": "Saudi Arabia",
 				"ISO3_CODE": "SAU",
 				"FID": "SA"
 			},
@@ -43093,7 +43093,7 @@
 			"properties": {
 				"CNTR_ID": "SB",
 				"CNTR_NAME": "Solomon Islands",
-				"NAME_ENGL": "Solomon Islands",
+				"name": "Solomon Islands",
 				"ISO3_CODE": "SLB",
 				"FID": "SB"
 			},
@@ -43258,7 +43258,7 @@
 			"properties": {
 				"CNTR_ID": "TM",
 				"CNTR_NAME": "Türkmenistan",
-				"NAME_ENGL": "Turkmenistan",
+				"name": "Turkmenistan",
 				"ISO3_CODE": "TKM",
 				"FID": "TM"
 			},
@@ -43368,7 +43368,7 @@
 			"properties": {
 				"CNTR_ID": "TN",
 				"CNTR_NAME": "تونس",
-				"NAME_ENGL": "Tunisia",
+				"name": "Tunisia",
 				"ISO3_CODE": "TUN",
 				"FID": "TN"
 			},
@@ -43439,7 +43439,7 @@
 			"properties": {
 				"CNTR_ID": "TO",
 				"CNTR_NAME": "Tonga-Tonga",
-				"NAME_ENGL": "Tonga",
+				"name": "Tonga",
 				"ISO3_CODE": "TON",
 				"FID": "TO"
 			},
@@ -43802,7 +43802,7 @@
 			"properties": {
 				"CNTR_ID": "TR",
 				"CNTR_NAME": "Türkiye",
-				"NAME_ENGL": "Turkey",
+				"name": "Turkey",
 				"ISO3_CODE": "TUR",
 				"FID": "TR"
 			},
@@ -43863,7 +43863,7 @@
 			"properties": {
 				"CNTR_ID": "TT",
 				"CNTR_NAME": "Trinidad and Tobago",
-				"NAME_ENGL": "Trinidad and Tobago",
+				"name": "Trinidad and Tobago",
 				"ISO3_CODE": "TTO",
 				"FID": "TT"
 			},
@@ -43897,7 +43897,7 @@
 			"properties": {
 				"CNTR_ID": "TV",
 				"CNTR_NAME": "Tuvalu-Tuvalu",
-				"NAME_ENGL": "Tuvalu",
+				"name": "Tuvalu",
 				"ISO3_CODE": "TUV",
 				"FID": "TV"
 			},
@@ -44085,7 +44085,7 @@
 			"properties": {
 				"CNTR_ID": "TZ",
 				"CNTR_NAME": "Tanzania",
-				"NAME_ENGL": "United Republic of Tanzania",
+				"name": "United Republic of Tanzania",
 				"ISO3_CODE": "TZA",
 				"FID": "TZ"
 			},
@@ -44323,7 +44323,7 @@
 			"properties": {
 				"CNTR_ID": "UA",
 				"CNTR_NAME": "Україна",
-				"NAME_ENGL": "Ukraine",
+				"name": "Ukraine",
 				"ISO3_CODE": "UKR",
 				"FID": "UA"
 			},
@@ -44402,7 +44402,7 @@
 			"properties": {
 				"CNTR_ID": "UG",
 				"CNTR_NAME": "Uganda-Uganda",
-				"NAME_ENGL": "Uganda",
+				"name": "Uganda",
 				"ISO3_CODE": "UGA",
 				"FID": "UG"
 			},
@@ -44446,7 +44446,7 @@
 			"properties": {
 				"CNTR_ID": "UM",
 				"CNTR_NAME": "United States Minor Outlying Islands",
-				"NAME_ENGL": "United States Minor Outlying Islands",
+				"name": "United States Minor Outlying Islands",
 				"ISO3_CODE": "UMI",
 				"FID": "UM"
 			},
@@ -44514,7 +44514,7 @@
 			"properties": {
 				"CNTR_ID": "UY",
 				"CNTR_NAME": "Uruguay",
-				"NAME_ENGL": "Uruguay",
+				"name": "Uruguay",
 				"ISO3_CODE": "URY",
 				"FID": "UY"
 			},
@@ -44702,7 +44702,7 @@
 			"properties": {
 				"CNTR_ID": "UZ",
 				"CNTR_NAME": "Узбекистан",
-				"NAME_ENGL": "Uzbekistan",
+				"name": "Uzbekistan",
 				"ISO3_CODE": "UZB",
 				"FID": "UZ"
 			},
@@ -44726,7 +44726,7 @@
 			"properties": {
 				"CNTR_ID": "VA",
 				"CNTR_NAME": "Stato Della Città Del Vaticano-Status Civitatis Vaticanae",
-				"NAME_ENGL": "Vatican City",
+				"name": "Vatican City",
 				"ISO3_CODE": "VAT",
 				"FID": "VA"
 			},
@@ -44764,7 +44764,7 @@
 			"properties": {
 				"CNTR_ID": "VC",
 				"CNTR_NAME": "Saint Vincent and The Grenadines",
-				"NAME_ENGL": "Saint Vincent and The Grenadines",
+				"name": "Saint Vincent and The Grenadines",
 				"ISO3_CODE": "VCT",
 				"FID": "VC"
 			},
@@ -44837,7 +44837,7 @@
 			"properties": {
 				"CNTR_ID": "SC",
 				"CNTR_NAME": "Sesel-Seychelles-Seychelles",
-				"NAME_ENGL": "Seychelles",
+				"name": "Seychelles",
 				"ISO3_CODE": "SYC",
 				"FID": "SC"
 			},
@@ -45036,7 +45036,7 @@
 			"properties": {
 				"CNTR_ID": "SD",
 				"CNTR_NAME": "السودان-Sudan",
-				"NAME_ENGL": "Sudan",
+				"name": "Sudan",
 				"ISO3_CODE": "SDN",
 				"FID": "SD"
 			},
@@ -45415,7 +45415,7 @@
 			"properties": {
 				"CNTR_ID": "SE",
 				"CNTR_NAME": "Sverige",
-				"NAME_ENGL": "Sweden",
+				"name": "Sweden",
 				"ISO3_CODE": "SWE",
 				"FID": "SE"
 			},
@@ -45452,7 +45452,7 @@
 			"properties": {
 				"CNTR_ID": "SG",
 				"CNTR_NAME": "新加坡-Singapore-Singapura-சிங்கப்பூர்",
-				"NAME_ENGL": "Singapore",
+				"name": "Singapore",
 				"ISO3_CODE": "SGP",
 				"FID": "SG"
 			},
@@ -45506,7 +45506,7 @@
 			"properties": {
 				"CNTR_ID": "SH",
 				"CNTR_NAME": "Saint Helena, Ascension and Tristan Da Cunha",
-				"NAME_ENGL": "Saint Helena, Ascension and Tristan Da Cunha",
+				"name": "Saint Helena, Ascension and Tristan Da Cunha",
 				"ISO3_CODE": "SHN",
 				"FID": "SH"
 			},
@@ -45581,7 +45581,7 @@
 			"properties": {
 				"CNTR_ID": "SI",
 				"CNTR_NAME": "Slovinsko",
-				"NAME_ENGL": "Slovenia",
+				"name": "Slovenia",
 				"ISO3_CODE": "SVN",
 				"FID": "SI"
 			},
@@ -46280,7 +46280,7 @@
 			"properties": {
 				"CNTR_ID": "UK",
 				"CNTR_NAME": "United Kingdom",
-				"NAME_ENGL": "United Kingdom",
+				"name": "United Kingdom",
 				"ISO3_CODE": "GBR",
 				"FID": "UK"
 			},
@@ -46507,7 +46507,7 @@
 			"properties": {
 				"CNTR_ID": "VN",
 				"CNTR_NAME": "Việt Nam",
-				"NAME_ENGL": "Vietnam",
+				"name": "Vietnam",
 				"ISO3_CODE": "VNM",
 				"FID": "VN"
 			},
@@ -46785,7 +46785,7 @@
 			"properties": {
 				"CNTR_ID": "VU",
 				"CNTR_NAME": "Vanuatu-Vanuatu-Vanuatu",
-				"NAME_ENGL": "Vanuatu",
+				"name": "Vanuatu",
 				"ISO3_CODE": "VUT",
 				"FID": "VU"
 			},
@@ -46821,7 +46821,7 @@
 			"properties": {
 				"CNTR_ID": "WF",
 				"CNTR_NAME": "Wallis-Et-Futuna",
-				"NAME_ENGL": "Wallis and Futuna",
+				"name": "Wallis and Futuna",
 				"ISO3_CODE": "WLF",
 				"FID": "WF"
 			},
@@ -46871,7 +46871,7 @@
 			"properties": {
 				"CNTR_ID": "WS",
 				"CNTR_NAME": "Samoa-Sāmoa",
-				"NAME_ENGL": "Samoa",
+				"name": "Samoa",
 				"ISO3_CODE": "WSM",
 				"FID": "WS"
 			},
@@ -46895,7 +46895,7 @@
 			"properties": {
 				"CNTR_ID": "XA",
 				"CNTR_NAME": "Paracel Islands (Disputed Territory)",
-				"NAME_ENGL": "Paracel Islands",
+				"name": "Paracel Islands",
 				"ISO3_CODE": "XA",
 				"FID": "XA"
 			},
@@ -46919,7 +46919,7 @@
 			"properties": {
 				"CNTR_ID": "XB",
 				"CNTR_NAME": "Spratly Islands (Disputed Territory)",
-				"NAME_ENGL": "Spratly Islands",
+				"name": "Spratly Islands",
 				"ISO3_CODE": "XB",
 				"FID": "XB"
 			},
@@ -46970,7 +46970,7 @@
 			"properties": {
 				"CNTR_ID": "XC",
 				"CNTR_NAME": "Aksai Chin (Disputed Territory)",
-				"NAME_ENGL": "Aksai Chin",
+				"name": "Aksai Chin",
 				"ISO3_CODE": "XC",
 				"FID": "XC"
 			},
@@ -47040,7 +47040,7 @@
 			"properties": {
 				"CNTR_ID": "XD",
 				"CNTR_NAME": "Arunashal Pradesh (Disputed Territory)",
-				"NAME_ENGL": "Arunachal Pradesh",
+				"name": "Arunachal Pradesh",
 				"ISO3_CODE": "XD",
 				"FID": "XD"
 			},
@@ -47100,7 +47100,7 @@
 			"properties": {
 				"CNTR_ID": "XE",
 				"CNTR_NAME": "China/India (Disputed Territory)",
-				"NAME_ENGL": "China/India",
+				"name": "China/India",
 				"ISO3_CODE": "XE",
 				"FID": "XE"
 			},
@@ -47132,7 +47132,7 @@
 			"properties": {
 				"CNTR_ID": "XF",
 				"CNTR_NAME": "Hala'Ib Triangle (Disputed Territory)",
-				"NAME_ENGL": "Hala'Ib Triangle",
+				"name": "Hala'Ib Triangle",
 				"ISO3_CODE": "XF",
 				"FID": "XF"
 			},
@@ -47158,7 +47158,7 @@
 			"properties": {
 				"CNTR_ID": "XG",
 				"CNTR_NAME": "Ilemi Triangle (Disputed Territory)",
-				"NAME_ENGL": "Ilemi Triangle",
+				"name": "Ilemi Triangle",
 				"ISO3_CODE": "XG",
 				"FID": "XG"
 			},
@@ -47255,7 +47255,7 @@
 			"properties": {
 				"CNTR_ID": "XH",
 				"CNTR_NAME": "Jammu Kashmir (Disputed Territory)",
-				"NAME_ENGL": "Jammu Kashmir",
+				"name": "Jammu Kashmir",
 				"ISO3_CODE": "XH",
 				"FID": "XH"
 			},
@@ -47349,7 +47349,7 @@
 			"properties": {
 				"CNTR_ID": "XI",
 				"CNTR_NAME": "Kuril Islands (Disputed Territory)",
-				"NAME_ENGL": "Kuril Islands",
+				"name": "Kuril Islands",
 				"ISO3_CODE": "XI",
 				"FID": "XI"
 			},
@@ -47372,7 +47372,7 @@
 			"properties": {
 				"CNTR_ID": "XL",
 				"CNTR_NAME": "Navassa Island (Disputed Territory)",
-				"NAME_ENGL": "Navassa Island",
+				"name": "Navassa Island",
 				"ISO3_CODE": "XL",
 				"FID": "XL"
 			},
@@ -49910,7 +49910,7 @@
 			"properties": {
 				"CNTR_ID": "US",
 				"CNTR_NAME": "United States",
-				"NAME_ENGL": "United States",
+				"name": "United States",
 				"ISO3_CODE": "USA",
 				"FID": "US"
 			},
@@ -49984,7 +49984,7 @@
 			"properties": {
 				"CNTR_ID": "ZW",
 				"CNTR_NAME": "Zimbabwe",
-				"NAME_ENGL": "Zimbabwe",
+				"name": "Zimbabwe",
 				"ISO3_CODE": "ZWE",
 				"FID": "ZW"
 			},
@@ -50241,7 +50241,7 @@
 			"properties": {
 				"CNTR_ID": "VE",
 				"CNTR_NAME": "Venezuela",
-				"NAME_ENGL": "Venezuela",
+				"name": "Venezuela",
 				"ISO3_CODE": "VEN",
 				"FID": "VE"
 			},
@@ -50275,7 +50275,7 @@
 			"properties": {
 				"CNTR_ID": "VG",
 				"CNTR_NAME": "British Virgin Islands",
-				"NAME_ENGL": "British Virgin Islands",
+				"name": "British Virgin Islands",
 				"ISO3_CODE": "VGB",
 				"FID": "VG"
 			},
@@ -50318,7 +50318,7 @@
 			"properties": {
 				"CNTR_ID": "VI",
 				"CNTR_NAME": "Us Virgin Islands",
-				"NAME_ENGL": "Us Virgin Islands",
+				"name": "Us Virgin Islands",
 				"ISO3_CODE": "VIR",
 				"FID": "VI"
 			},
@@ -50820,7 +50820,7 @@
 			"properties": {
 				"CNTR_ID": "SJ",
 				"CNTR_NAME": "Svalbard Og Jan Mayen",
-				"NAME_ENGL": "Svalbard and Jan Mayen",
+				"name": "Svalbard and Jan Mayen",
 				"ISO3_CODE": "SJM",
 				"FID": "SJ"
 			},
@@ -50899,7 +50899,7 @@
 			"properties": {
 				"CNTR_ID": "SK",
 				"CNTR_NAME": "Slovensko",
-				"NAME_ENGL": "Slovakia",
+				"name": "Slovakia",
 				"ISO3_CODE": "SVK",
 				"FID": "SK"
 			},
@@ -50959,7 +50959,7 @@
 			"properties": {
 				"CNTR_ID": "SL",
 				"CNTR_NAME": "Sierra Leone",
-				"NAME_ENGL": "Sierra Leone",
+				"name": "Sierra Leone",
 				"ISO3_CODE": "SLE",
 				"FID": "SL"
 			},
@@ -50982,7 +50982,7 @@
 			"properties": {
 				"CNTR_ID": "SM",
 				"CNTR_NAME": "San Marino",
-				"NAME_ENGL": "San Marino",
+				"name": "San Marino",
 				"ISO3_CODE": "SMR",
 				"FID": "SM"
 			},
@@ -51085,7 +51085,7 @@
 			"properties": {
 				"CNTR_ID": "SN",
 				"CNTR_NAME": "Sénégal",
-				"NAME_ENGL": "Senegal",
+				"name": "Senegal",
 				"ISO3_CODE": "SEN",
 				"FID": "SN"
 			},
@@ -51221,7 +51221,7 @@
 			"properties": {
 				"CNTR_ID": "SO",
 				"CNTR_NAME": "الصومال-Soomaaliya",
-				"NAME_ENGL": "Somalia",
+				"name": "Somalia",
 				"ISO3_CODE": "SOM",
 				"FID": "SO"
 			},
@@ -51293,7 +51293,7 @@
 			"properties": {
 				"CNTR_ID": "SR",
 				"CNTR_NAME": "Suriname",
-				"NAME_ENGL": "Suriname",
+				"name": "Suriname",
 				"ISO3_CODE": "SUR",
 				"FID": "SR"
 			},
@@ -51447,7 +51447,7 @@
 			"properties": {
 				"CNTR_ID": "SS",
 				"CNTR_NAME": "South Sudan",
-				"NAME_ENGL": "South Sudan",
+				"name": "South Sudan",
 				"ISO3_CODE": "SSD",
 				"FID": "SS"
 			},
@@ -51487,7 +51487,7 @@
 			"properties": {
 				"CNTR_ID": "ST",
 				"CNTR_NAME": "São Tomé E Príncipe",
-				"NAME_ENGL": "São Tomé and Príncipe",
+				"name": "São Tomé and Príncipe",
 				"ISO3_CODE": "STP",
 				"FID": "ST"
 			},
@@ -51531,7 +51531,7 @@
 			"properties": {
 				"CNTR_ID": "SV",
 				"CNTR_NAME": "El Salvador",
-				"NAME_ENGL": "El Salvador",
+				"name": "El Salvador",
 				"ISO3_CODE": "SLV",
 				"FID": "SV"
 			},
@@ -51554,7 +51554,7 @@
 			"properties": {
 				"CNTR_ID": "SX",
 				"CNTR_NAME": "Sint-Maarten",
-				"NAME_ENGL": "Sint-Maarten",
+				"name": "Sint-Maarten",
 				"ISO3_CODE": "SXM",
 				"FID": "SX"
 			},
@@ -51632,7 +51632,7 @@
 			"properties": {
 				"CNTR_ID": "SY",
 				"CNTR_NAME": "سوريا",
-				"NAME_ENGL": "Syria",
+				"name": "Syria",
 				"ISO3_CODE": "SYR",
 				"FID": "SY"
 			},
@@ -51664,7 +51664,7 @@
 			"properties": {
 				"CNTR_ID": "SZ",
 				"CNTR_NAME": "Kingdom of Eswatini",
-				"NAME_ENGL": "Eswatini",
+				"name": "Eswatini",
 				"ISO3_CODE": "SWZ",
 				"FID": "SZ"
 			},
@@ -51727,7 +51727,7 @@
 			"properties": {
 				"CNTR_ID": "TC",
 				"CNTR_NAME": "Turks and Caicos Islands",
-				"NAME_ENGL": "Turks and Caicos Islands",
+				"name": "Turks and Caicos Islands",
 				"ISO3_CODE": "TCA",
 				"FID": "TC"
 			},
@@ -51861,7 +51861,7 @@
 			"properties": {
 				"CNTR_ID": "TD",
 				"CNTR_NAME": "تشاد-Tchad",
-				"NAME_ENGL": "Chad",
+				"name": "Chad",
 				"ISO3_CODE": "TCD",
 				"FID": "TD"
 			},
@@ -51994,7 +51994,7 @@
 			"properties": {
 				"CNTR_ID": "TF",
 				"CNTR_NAME": "Terres Australes Et Antarctiques Françaises",
-				"NAME_ENGL": "French Southern and Antarctic Lands",
+				"name": "French Southern and Antarctic Lands",
 				"ISO3_CODE": "ATF",
 				"FID": "TF"
 			},
@@ -52047,7 +52047,7 @@
 			"properties": {
 				"CNTR_ID": "TG",
 				"CNTR_NAME": "Togo",
-				"NAME_ENGL": "Togo",
+				"name": "Togo",
 				"ISO3_CODE": "TGO",
 				"FID": "TG"
 			},
@@ -52322,7 +52322,7 @@
 			"properties": {
 				"CNTR_ID": "TH",
 				"CNTR_NAME": "ประเทศไทย",
-				"NAME_ENGL": "Thailand",
+				"name": "Thailand",
 				"ISO3_CODE": "THA",
 				"FID": "TH"
 			},
@@ -52367,7 +52367,7 @@
 			"properties": {
 				"CNTR_ID": "XM",
 				"CNTR_NAME": "Scarborough Reef (Disputed Territory)",
-				"NAME_ENGL": "Scarborough Reef",
+				"name": "Scarborough Reef",
 				"ISO3_CODE": "XM",
 				"FID": "XM"
 			},
@@ -52402,7 +52402,7 @@
 			"properties": {
 				"CNTR_ID": "XN",
 				"CNTR_NAME": "Senkaku Islands (Disputed Territory)",
-				"NAME_ENGL": "Senkaku Islands",
+				"name": "Senkaku Islands",
 				"ISO3_CODE": "XN",
 				"FID": "XN"
 			},
@@ -52455,7 +52455,7 @@
 			"properties": {
 				"CNTR_ID": "XO",
 				"CNTR_NAME": "Fr Territory (Juan de Nova, Glorioso, Europa, Tromelin, Bassas Da India)",
-				"NAME_ENGL": "Bassas Da India",
+				"name": "Bassas Da India",
 				"ISO3_CODE": "XO",
 				"FID": "XO"
 			},
@@ -52484,7 +52484,7 @@
 			"properties": {
 				"CNTR_ID": "XU",
 				"CNTR_NAME": "Abyei Region (Disputed Territory)",
-				"NAME_ENGL": "Abyei",
+				"name": "Abyei",
 				"ISO3_CODE": "XU",
 				"FID": "XU"
 			},
@@ -52510,7 +52510,7 @@
 			"properties": {
 				"CNTR_ID": "XV",
 				"CNTR_NAME": "Bir Tawil (Disputed Territory)",
-				"NAME_ENGL": "Bir Tawil (Disputed Territory)",
+				"name": "Bir Tawil (Disputed Territory)",
 				"ISO3_CODE": "XV",
 				"FID": "XV"
 			},
@@ -52683,7 +52683,7 @@
 			"properties": {
 				"CNTR_ID": "YE",
 				"CNTR_NAME": "اليمن",
-				"NAME_ENGL": "Yemen",
+				"name": "Yemen",
 				"ISO3_CODE": "YEM",
 				"FID": "YE"
 			},
@@ -52890,7 +52890,7 @@
 			"properties": {
 				"CNTR_ID": "ZA",
 				"CNTR_NAME": "Suid-Afrika-South Africa-Sewula Afrika-Afrika-Borwa-Afrika-Borwa-Ningizimu Afrika-Aforika Borwa-Afrika Dzonga-Afurika Tshipembe-Mzantsi Afrika-Ningizimu Afrika",
-				"NAME_ENGL": "South Africa",
+				"name": "South Africa",
 				"ISO3_CODE": "ZAF",
 				"FID": "ZA"
 			},
@@ -53044,7 +53044,7 @@
 			"properties": {
 				"CNTR_ID": "ZM",
 				"CNTR_NAME": "Zambia",
-				"NAME_ENGL": "Zambia",
+				"name": "Zambia",
 				"ISO3_CODE": "ZMB",
 				"FID": "ZM"
 			},
@@ -53860,7 +53860,7 @@
 			"properties": {
 				"CNTR_ID": "NO",
 				"CNTR_NAME": "Norga-Noreg-Norge",
-				"NAME_ENGL": "Norway",
+				"name": "Norway",
 				"ISO3_CODE": "NOR",
 				"FID": "NO"
 			},
