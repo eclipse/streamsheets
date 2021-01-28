@@ -20,6 +20,7 @@ class OneTimeTrigger extends BaseTrigger {
 	step() {
 		if (!this._isTriggered) {
 			this._isTriggered = true;
+			this.streamsheet.stats.steps += 1;
 			this.processSheet();
 		}
 	}
