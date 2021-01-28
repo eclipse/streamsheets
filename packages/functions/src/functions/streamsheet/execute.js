@@ -37,7 +37,6 @@ const getCellValue = (newValue, oldValue, calledStreamSheet) => {
 };
 const cancelExecute = (calledStreamSheet) => (context) => {
 	calledStreamSheet.cancelExecute();
-	context.repetitions = -1;
 	context.resumeExecute();
 };
 const doResume = (context, callingStreamSheet, calledStreamSheet) => (retval) => {
@@ -65,16 +64,13 @@ const execute = (sheet, ...terms) =>
 			const callingStreamSheet = sheet.streamsheet;
 			if (!context.isInitialized) {
 				context.isInitialized = true;
-				context.repetitions = Math.max(1, repetitions);
 				context.resumeExecute = doResume(context, callingStreamSheet, calledStreamSheet);
 				context.addDisposeListener(cancelExecute(calledStreamSheet));
 			}
 			if (repetitions > 0 && !sheet.isPaused) {
 				callingStreamSheet.pauseProcessing();
 				context.isResumed = false;
-				context.repetitions = repetitions;
-				// execute(resumeFn, message, pace, repetitions) {
-				calledStreamSheet.execute(context.resumeExecute, message, pace, repetitions);
+				calledStreamSheet.execute(Math.max(1, repetitions), message, pace, context.resumeExecute);
 			}
 			// eslint-disable-next-line no-nested-ternary
 			return sheet.isPaused
