@@ -92,6 +92,8 @@ describe('inboxdata', () => {
 		});
 		it(`should return error "${ERROR.INVALID_LOOP_PATH}" if given loop path does not match`, () => {
 			const sheet = setup({ streamsheetName: 'T1' });
+			// always use same message:
+			sheet.streamsheet.trigger.update({repeat: 'endless'});
 			// no loop set:
 			sheet.loadCells({ A1: { formula: 'inboxdata(,,)' } });
 			sheet.streamsheet.step();

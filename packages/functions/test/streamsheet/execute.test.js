@@ -460,6 +460,7 @@ describe('execute', () => {
 		expect(s2.sheet.cellAt('B2').value).toBe(true);
 		// change A1 resumes S1
 		createCellAt('A1', { formula: 'A1+1', value: 1 }, s1.sheet);
+		await machine.step();	// applies resume
 		expect(s1.sheet.cellAt('A1').value).toBe(1);
 		expect(s1.sheet.cellAt('A2').value).toBe(2);
 		// last getcycle() value is kept, change it?
@@ -969,7 +970,7 @@ describe('execute stream sheet which has own message stream', () => {
 		expect(s2.stats.steps).toBe(2);
 		await machine.stop();
 	});
-	it('should use next message if current one is processed with loop', async () => {
+	it.skip('should use next message if current one is processed with loop', async () => {
 		const { machine, s1, s2 } = setup({ switched: true });
 		s1.updateSettings({ loop: { path: '[Data]', enabled: true } });
 		s2.trigger.update({ repeat: 'endless' });

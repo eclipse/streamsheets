@@ -85,7 +85,11 @@ describe('await', () => {
 		expect(sheet.cellAt('A4').value).toBe(1);
 		// now resolve...
 		resolveRequestAt('A2', sheet);
-		await machine.step();	// will wait again...
+		await machine.step();	// resumes
+		expect(sheet.cellAt('A1').value).toBe(2);
+		expect(sheet.cellAt('A3').value).toBe(true);
+		expect(sheet.cellAt('A4').value).toBe(2);
+		await machine.step();	// waits again
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A3').value).toBe(true);
 		expect(sheet.cellAt('A4').value).toBe(2);
@@ -117,6 +121,9 @@ describe('await', () => {
 		expect(sheet.cellAt('A6').value).toBe(1);
 		// resolve last request:
 		resolveRequestAt('A4', sheet);
+		await machine.step();	// resumes
+		expect(sheet.cellAt('A1').value).toBe(2);
+		expect(sheet.cellAt('A6').value).toBe(2);
 		await machine.step();	// will wait again
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A6').value).toBe(2);
@@ -148,6 +155,9 @@ describe('await', () => {
 		expect(sheet.cellAt('A6').value).toBe(1);
 		// resolve last request:
 		resolveRequestAt('A4', sheet);
+		await machine.step();	// resumes
+		expect(sheet.cellAt('A1').value).toBe(2);
+		expect(sheet.cellAt('A6').value).toBe(2);
 		await machine.step();	// will wait again
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A6').value).toBe(2);
@@ -217,6 +227,7 @@ describe('await', () => {
 		expect(sheet.cellAt('A4').value).toBe(1);
 		// delete await to resume
 		sheet.setCellAt('A3', undefined);
+		await machine.step();
 		expect(sheet.cellAt('A3')).toBeUndefined();
 		expect(sheet.cellAt('A4').value).toBe(2);
 		await machine.step();
@@ -242,6 +253,7 @@ describe('await', () => {
 		expect(sheet.cellAt('A5').value).toBe(1);
 		// replace await to resume
 		createCellAt('A4', 'replaced', sheet);
+		await machine.step();
 		expect(sheet.cellAt('A4').value).toBe('replaced');
 		expect(sheet.cellAt('A5').value).toBe(2);
 		await machine.step();
@@ -258,6 +270,7 @@ describe('await', () => {
 		expect(sheet.cellAt('A5').value).toBe(4);
 		// replace by another await
 		createCellAt('A4', { formula: 'await(A3)' }, sheet);
+		await machine.step();
 		expect(sheet.cellAt('A4').value).toBe(true);
 		expect(sheet.cellAt('A5').value).toBe(5);
 		await machine.step();
@@ -268,6 +281,7 @@ describe('await', () => {
 		expect(sheet.cellAt('A5').value).toBe(5);
 		// replace await to resume
 		createCellAt('A4', 'replaced', sheet);
+		await machine.step();
 		expect(sheet.cellAt('A4').value).toBe('replaced');
 		expect(sheet.cellAt('A5').value).toBe(6);
 		await machine.step();
@@ -306,25 +320,25 @@ describe('await', () => {
 		// now resolve...
 		resolveRequestAt('A2', sheet);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(3);
+		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A4').value).toBe(2);
-		expect(sheet.streamsheet.inbox.size).toBe(2);
+		expect(sheet.streamsheet.inbox.size).toBe(3);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A4').value).toBe(2);
 		expect(sheet.streamsheet.inbox.size).toBe(2);
 		resolveRequestAt('A2', sheet);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(4);
+		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A4').value).toBe(3);
-		expect(sheet.streamsheet.inbox.size).toBe(1);
+		expect(sheet.streamsheet.inbox.size).toBe(2);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A4').value).toBe(3);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
 		resolveRequestAt('A2', sheet);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(5);
+		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A4').value).toBe(4);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
 		await machine.step();
@@ -365,10 +379,10 @@ describe('await', () => {
 		// now resolve...
 		resolveRequestAt('A2', sheet);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(3);
+		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A4').value).toBe(2);
-		expect(sheet.streamsheet.inbox.size).toBe(2);
-		expect(sheet.streamsheet.stats.steps).toBe(2);
+		expect(sheet.streamsheet.inbox.size).toBe(3);
+		expect(sheet.streamsheet.stats.steps).toBe(1);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A4').value).toBe(2);
@@ -376,10 +390,10 @@ describe('await', () => {
 		expect(sheet.streamsheet.stats.steps).toBe(2);
 		resolveRequestAt('A2', sheet);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(4);
+		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A4').value).toBe(3);
-		expect(sheet.streamsheet.inbox.size).toBe(1);
-		expect(sheet.streamsheet.stats.steps).toBe(3);
+		expect(sheet.streamsheet.inbox.size).toBe(2);
+		expect(sheet.streamsheet.stats.steps).toBe(2);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A4').value).toBe(3);
@@ -387,10 +401,10 @@ describe('await', () => {
 		expect(sheet.streamsheet.stats.steps).toBe(3);
 		resolveRequestAt('A2', sheet);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(5);
+		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A4').value).toBe(4);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
-		expect(sheet.streamsheet.stats.steps).toBe(4);
+		expect(sheet.streamsheet.stats.steps).toBe(3);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(5);
 		expect(sheet.cellAt('A4').value).toBe(4);
@@ -434,8 +448,8 @@ describe('await', () => {
 		// now resolve...
 		resolveRequestAt('A3', sheet);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(5);
-		expect(sheet.cellAt('B2').value).toBe('Muller');
+		expect(sheet.cellAt('A1').value).toBe(4);
+		expect(sheet.cellAt('B2').value).toBe('Schmidt');
 		// awaiting again...
 		await machine.step();
 		await machine.step();
@@ -469,6 +483,7 @@ describe('await', () => {
 		expect(sheet.streamsheet.inbox.size).toBe(4);
 		// replace await to resume
 		createCellAt('A3', 'replaced', sheet);
+		await machine.step();
 		expect(sheet.cellAt('A4').value).toBe(2);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
@@ -484,6 +499,7 @@ describe('await', () => {
 		expect(sheet.streamsheet.inbox.size).toBe(2);
 		// replace await
 		createCellAt('A3', 'replaced', sheet);
+		await machine.step();
 		expect(sheet.cellAt('A4').value).toBe(4);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(5);
@@ -499,6 +515,7 @@ describe('await', () => {
 		expect(sheet.streamsheet.inbox.size).toBe(1);
 		// replace await
 		createCellAt('A3', 'replaced', sheet);
+		await machine.step();
 		expect(sheet.cellAt('A4').value).toBe(6);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(7);
@@ -564,6 +581,9 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A4').value).toBe(1);
 		// now resolve...
 		resolveRequestAt('A2', sheet);
+		await machine.step();	// resumes
+		expect(sheet.cellAt('A1').value).toBe(2);
+		expect(sheet.cellAt('A4').value).toBe(2);
 		await machine.step();	// will wait again...
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A4').value).toBe(2);
@@ -588,6 +608,9 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A6').value).toBe(1);
 		// resolve one requests:
 		resolveRequestAt('A3', sheet);
+		await machine.step();		// resumes
+		expect(sheet.cellAt('A1').value).toBe(2);
+		expect(sheet.cellAt('A6').value).toBe(2);
 		await machine.step();		// will wait again, since new request if made for resolved one!
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A6').value).toBe(2);
@@ -623,12 +646,15 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A6').value).toBe(1);
 		resolveRequestAt('A2', sheet);
+		await machine.step();	// resumes
 		await machine.step();	// will wait again, since new request if made for resolved one!
-		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A6').value).toBe(2);
 		resolveRequestAt('A3', sheet);
-		await machine.step();		// will wait again, since new request if made for resolved one!
+		await machine.step();	// resumes
+		expect(sheet.cellAt('A1').value).toBe(3);
+		expect(sheet.cellAt('A6').value).toBe(3);
+		await machine.step();	// will wait again, since new request if made for resolved one!
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A6').value).toBe(3);
 		await machine.step();
@@ -638,8 +664,8 @@ describe('await.one', () => {
 		resolveRequestAt('A4', sheet);
 		resolveRequestAt('A3', sheet);
 		resolveRequestAt('A2', sheet);
-		await machine.step();		// will wait again, since new request if made for resolved one!
-		await machine.step();
+		await machine.step();	// resumes
+		await machine.step();	// will wait again, since new request if made for resolved one!
 		expect(sheet.cellAt('A1').value).toBe(5);
 		expect(sheet.cellAt('A6').value).toBe(4);
 	});
@@ -706,6 +732,7 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A4').value).toBe(1);
 		// delete await to resume
 		sheet.setCellAt('A3', undefined);
+		await machine.step();
 		expect(sheet.cellAt('A3')).toBeUndefined();
 		expect(sheet.cellAt('A4').value).toBe(2);
 		await machine.step();
@@ -731,6 +758,7 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A5').value).toBe(1);
 		// replace await to resume
 		createCellAt('A4', 'replaced', sheet);
+		await machine.step();
 		expect(sheet.cellAt('A4').value).toBe('replaced');
 		expect(sheet.cellAt('A5').value).toBe(2);
 		await machine.step();
@@ -747,6 +775,7 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A5').value).toBe(4);
 		// replace by another await
 		createCellAt('A4', { formula: 'await.one(A3)' }, sheet);
+		await machine.step();
 		expect(sheet.cellAt('A4').value).toBe(true);
 		expect(sheet.cellAt('A5').value).toBe(5);
 		await machine.step();
@@ -757,6 +786,7 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A5').value).toBe(5);
 		// replace await
 		createCellAt('A4', 'replaced', sheet);
+		await machine.step();
 		expect(sheet.cellAt('A4').value).toBe('replaced');
 		expect(sheet.cellAt('A5').value).toBe(6);
 		await machine.step();
@@ -788,6 +818,10 @@ describe('await.one', () => {
 		expect(sheet.streamsheet.inbox.size).toBe(3);
 		// resolve one requests:
 		resolveRequestAt('A3', sheet);
+		await machine.step();	// resumes
+		expect(sheet.cellAt('A1').value).toBe(2);
+		expect(sheet.cellAt('A6').value).toBe(2);
+		expect(sheet.streamsheet.inbox.size).toBe(3);
 		await machine.step();	// will wait again, since new request if made for resolved one!
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A6').value).toBe(2);
@@ -801,8 +835,8 @@ describe('await.one', () => {
 		resolveRequestAt('A2', sheet);
 		resolveRequestAt('A3', sheet);
 		resolveRequestAt('A4', sheet);
+		await machine.step();	// resumes
 		await machine.step();	// will wait again, since new request if made for resolved one!
-		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A6').value).toBe(3);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
@@ -838,6 +872,11 @@ describe('await.one', () => {
 		// resolve one requests:
 		resolveRequestAt('A3', sheet);
 		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(2);
+		expect(sheet.cellAt('B2').value).toBe('Foo');
+		expect(sheet.cellAt('A7').value).toBe(2);
+		expect(sheet.streamsheet.stats.steps).toBe(1);
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B2').value).toBe('Bar');
 		expect(sheet.cellAt('A7').value).toBe(2);
@@ -853,6 +892,11 @@ describe('await.one', () => {
 		resolveRequestAt('A4', sheet);
 		resolveRequestAt('A5', sheet);
 		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(3);
+		expect(sheet.cellAt('B2').value).toBe('Bar');
+		expect(sheet.cellAt('A7').value).toBe(3);
+		expect(sheet.streamsheet.stats.steps).toBe(2);
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('B2').value).toBe('Schmidt');
 		expect(sheet.cellAt('A7').value).toBe(3);
@@ -866,6 +910,11 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A7').value).toBe(3);
 		expect(sheet.streamsheet.stats.steps).toBe(3);
 		resolveRequestAt('A5', sheet);
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(4);
+		expect(sheet.cellAt('B2').value).toBe('Schmidt');
+		expect(sheet.cellAt('A7').value).toBe(4);
+		expect(sheet.streamsheet.stats.steps).toBe(3);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(5);
 		expect(sheet.cellAt('B2').value).toBe('Muller');
@@ -902,6 +951,7 @@ describe('await.one', () => {
 		expect(sheet.streamsheet.inbox.size).toBe(4);
 		// replace await to resume
 		createCellAt('A4', 'replaced', sheet);
+		await machine.step();
 		expect(sheet.cellAt('A5').value).toBe(2);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
@@ -922,6 +972,7 @@ describe('await.one', () => {
 		expect(sheet.streamsheet.inbox.size).toBe(1);
 		// replace by another await
 		createCellAt('A4', { formula: 'await.one(A3)' }, sheet);
+		await machine.step();
 		expect(sheet.cellAt('A5').value).toBe(5);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(6);
@@ -935,6 +986,7 @@ describe('await.one', () => {
 		expect(sheet.streamsheet.inbox.size).toBe(1);
 		// replace await
 		createCellAt('A4', 'replaced', sheet);
+		await machine.step();
 		expect(sheet.cellAt('A5').value).toBe(6);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(7);

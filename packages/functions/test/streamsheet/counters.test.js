@@ -277,11 +277,11 @@ describe('getcycle', () => {
 		expect(GETCYCLE(t1.sheet)).toBe(3);
 		expect(t1.sheet.cellAt('A1').value).toBe(4);
 		await machine.step();
-		expect(GETCYCLE(t1.sheet)).toBe(4);
+		expect(GETCYCLE(t1.sheet)).toBe(1);
 		expect(t1.sheet.cellAt('A1').value).toBe(5);
 		t1.inbox.put(new Message());
 		await machine.step();
-		expect(GETCYCLE(t1.sheet)).toBe(0);
+		expect(GETCYCLE(t1.sheet)).toBe(2);
 		expect(t1.sheet.cellAt('A1').value).toBe(6);
 		await machine.step();
 		expect(GETCYCLE(t1.sheet)).toBe(1);
@@ -332,7 +332,7 @@ describe('getexecutestep', () => {
 		t1.step();
 		expect(GETEXECUTESTEP(t2.sheet)).toBe(0);
 	});
-	it('should return increase by 1 after each step', () => {
+	it('should return increase by 1 after each step', async () => {
 		const machine = new Machine();
 		machine.removeAllStreamSheets();
 		const t1 = createStreamSheet('T1',
@@ -341,17 +341,17 @@ describe('getexecutestep', () => {
 		const t2 = createStreamSheet('T2', TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE }));
 		machine.addStreamSheet(t1);
 		machine.addStreamSheet(t2);
-		machine.step();	// <-- will run all 3 repetitions
+		await machine.step();
+		expect(t1.stats.steps).toBe(1);
+		expect(GETEXECUTESTEP(t2.sheet)).toBe(1);
+		await machine.step();
+		expect(t1.stats.steps).toBe(1);
+		expect(GETEXECUTESTEP(t2.sheet)).toBe(2);
+		await machine.step();
 		expect(t1.stats.steps).toBe(1);
 		expect(GETEXECUTESTEP(t2.sheet)).toBe(3);
-		machine.step();
-		expect(t1.stats.steps).toBe(2);
-		expect(GETEXECUTESTEP(t2.sheet)).toBe(3);
-		machine.step();
-		expect(t1.stats.steps).toBe(3);
-		expect(GETEXECUTESTEP(t2.sheet)).toBe(3);
 	});
-	it('should reset if repeat count is processed', () => {
+	it('should reset if repeat count is processed', async () => {
 		const machine = new Machine();
 		machine.removeAllStreamSheets();
 		const t1 = createStreamSheet('T1',
@@ -360,12 +360,14 @@ describe('getexecutestep', () => {
 		const t2 = createStreamSheet('T2', TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE }));
 		machine.addStreamSheet(t1);
 		machine.addStreamSheet(t2);
-		machine.step();	// <-- step will run all 3x repetitions
+		await machine.step();
+		expect(GETEXECUTESTEP(t2.sheet)).toBe(1);
+		await machine.step();
+		expect(GETEXECUTESTEP(t2.sheet)).toBe(2);
+		await machine.step();
 		expect(GETEXECUTESTEP(t2.sheet)).toBe(3);
-		machine.step();
-		expect(GETEXECUTESTEP(t2.sheet)).toBe(3);
-		machine.step();
-		expect(GETEXECUTESTEP(t2.sheet)).toBe(3);
+		await machine.step();
+		expect(GETEXECUTESTEP(t2.sheet)).toBe(1);
 	});
 	it('should return error if no sheet or no streamsheet available', () => {
 		const sheet = new StreamSheet().sheet;

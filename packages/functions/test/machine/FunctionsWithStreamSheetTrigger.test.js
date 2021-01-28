@@ -11,6 +11,7 @@
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Machine, Message, State, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
 
+
 const random = (nr = 10) => Math.floor(Math.random() * Math.floor(nr));
 const createMessage = () => new Message([
 	{ "0": random(), "1": random() },
@@ -54,7 +55,7 @@ const wait = ms => new Promise((resolve) => {
 describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 	it('should not prevent execution of another sheet via EXECUTE()', async () => {
 		const s1 = createStreamSheet('S1',
-			{ A1: { formula: 'A1+1' }, B1: { formula: 'EXECUTE("S2")' }, C1: { formula: 'C1+1' } });
+			{ A1: { formula: 'A1+1' }, B1: { formula: 'EXECUTE("S2",,,true)' }, C1: { formula: 'C1+1' } });
 		const s2 = createStreamSheet('S2', { B1: { formula: 'B1+1' } },
 			TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE }));
 		const machine = await createMachine({ settings: {cycletime: 200000} }, s1, s2);
@@ -122,13 +123,12 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 		expect(t1.stats.repeatsteps).toBe(2);
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B1').value).toBe(false);
-		await machine.step();
-		// return has reset repeatsteps counter:
-		expect(t1.stats.repeatsteps).toBe(0);
+		await machine.step();	// returns
+		expect(t1.stats.repeatsteps).toBe(3);
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('B1').value).toBe(true);
-		await machine.step();	// <-- will directly return because A1>3
-		expect(t1.stats.repeatsteps).toBe(0);
+		await machine.step();	// returns directly
+		expect(t1.stats.repeatsteps).toBe(1);
 		await machine.step();
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(7);
@@ -162,13 +162,12 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 				TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE }));
 			const sheet1 = t1.sheet;
 			const sheet2 = t2.sheet;
-			const machine = await createMachine({ settings: {cycletime: 1000} }, t1, t2);
+			const machine = await createMachine({ settings: {cycletime: 10} }, t1, t2);
 			expect(sheet1.cellAt('A1').value).toBe(true);
 			expect(sheet2.cellAt('A2').value).toBe(0);
 			await machine.start();
 			putMessages(t1, new Message());
-			// run for 1 second
-			await wait(1000);
+			await wait(100);
 			await machine.stop();
 			expect(sheet1.cellAt('A1').value).toBe(false);
 			expect(sheet2.cellAt('A2').value).toBe(5);
@@ -191,7 +190,7 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 			expect(sheet1.cellAt('B1').value).toBe(1);
 			await machine.stop();
 			expect(sheet1.cellAt('B1').value).toBe(1);
-			expect(sheet1.cellAt('A1').value).toBe(true);
+			expect(sheet1.cellAt('A1').value).toBe(FunctionErrors.code.NA);
 			// getcycle returns number of steps done in endless mode => so must be much more than 1
 			expect(sheet2.cellAt('A2').value).toBeGreaterThan(1);
 		});
@@ -305,9 +304,9 @@ describe('OnMachineStop with RETURN()', () => {
 			{ A1: { formula: 'A1+1' } },
 			TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_STOP }));
 		const t3 = createStreamSheet('T3',
-			{ A1: { formula: 'A1+1' }, B1: { formula: 'if(A1>5, return(), false)' }, C1: { formula: 'C1+1' } },
+			{ A1: { formula: 'A1+1' } },
 			TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_STOP, repeat: 'endless' }));
-		const machine = await createMachine({ settings: {cycletime: 10000} }, t1, t2, t3);
+		const machine = await createMachine({ settings: {cycletime: 1000} }, t1, t2, t3);
 		await machine.start();
 		await machine.pause();
 		// putMessages(t1, new Message(), new Message(), new Message());
@@ -316,28 +315,19 @@ describe('OnMachineStop with RETURN()', () => {
 		expect(t1.sheet.cellAt('A1').value).toBe(2);
 		expect(t2.sheet.cellAt('A1').value).toBe(1);
 		expect(t3.sheet.cellAt('A1').value).toBe(1);
-		expect(t3.sheet.cellAt('B1').value).toBe(false);
-		expect(t3.sheet.cellAt('C1').value).toBe(1);
 		await machine.stop();
+		await wait(20);
 		// stop is prevented so:
 		expect(machine.state).toBe(State.WILL_STOP);
+		expect(t1.sheet.cellAt('A1').value).toBe(2);
 		expect(t2.sheet.cellAt('A1').value).toBe(2);
-		expect(t3.sheet.cellAt('A1').value).toBe(2);
-		expect(t3.sheet.cellAt('B1').value).toBe(false);
-		expect(t3.sheet.cellAt('C1').value).toBe(2);
-		// t3 still active and runs outside machine cycle:
-		await wait(80);
-		expect(t2.sheet.cellAt('A1').value).toBe(2);
-		expect(t3.sheet.cellAt('A1').value).toBe(6);
-		expect(t3.sheet.cellAt('B1').value).toBe(true);
-		expect(t3.sheet.cellAt('C1').value).toBe(5);
-		// stop again to really stop machine in case of any error...
+		expect(t3.sheet.cellAt('A1').value).toBeGreaterThan(2);
+		// t3 runs endlessly so stop again to really stop machine...
 		await machine.stop();
 		expect(machine.state).toBe(State.STOPPED);
+		expect(t1.sheet.cellAt('A1').value).toBe(2);
 		expect(t2.sheet.cellAt('A1').value).toBe(2);
-		expect(t3.sheet.cellAt('A1').value).toBe(6);
-		expect(t3.sheet.cellAt('B1').value).toBe(true);
-		expect(t3.sheet.cellAt('C1').value).toBe(5);
+		expect(t3.sheet.cellAt('A1').value).toBeGreaterThan(2);
 	});
 });
 describe('OnMachineStart with RETURN()', () => {
