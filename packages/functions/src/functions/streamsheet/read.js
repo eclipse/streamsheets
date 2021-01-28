@@ -29,9 +29,12 @@ const termFromValue = (value) => (isType.object(value) ? new ObjectTerm(value) :
 // eslint-disable-next-line no-nested-ternary
 const defValue = type => (type === 'number' ? 0 : (type === 'boolean' ? false : ''));
 
-const getLastValue = (context, path, type) => {
+const getLastValue = (context, path, value, type) => {
 	const { lastValue, lastValuePath } = context;
-	return lastValue != null && lastValuePath === path ? lastValue : defValue(type);
+	if (lastValue != null && lastValuePath === path) return lastValue;
+	if (value != null) return value;
+	return defValue(type);
+	// return lastValue != null && lastValuePath === path ? lastValue : defValue(value, type);
 };
 const setLastValue = (context, path, value) => {
 	context.lastValue = value; 
@@ -90,7 +93,7 @@ const read = (sheet, ...terms) =>
 			const key = messages.getMessageValueKey(msgInfo);
 			let value = messages.getMessageValue(msgInfo);
 			if (value == null || msgInfo.isProcessed) {
-				value = returnNA ? ERROR.NA : getLastValue(context, msgInfo.messageKey, type);
+				value = returnNA ? ERROR.NA : getLastValue(context, msgInfo.messageKey, value, type);
 			}
 			if (targetRange) {
 				setLastValue(context, msgInfo.messageKey, value);
