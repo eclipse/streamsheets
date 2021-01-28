@@ -562,7 +562,7 @@ export default class ChartSelectionFeedbackView extends View {
 									rect.width = 100;
 									rect.height = 100;
 									if (item.chart.dataMode === 'dataignore' && mapIndex === -1) {
-										return false;
+										return;
 									}
 									if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
 										graphics.setFillColor('#777777');
