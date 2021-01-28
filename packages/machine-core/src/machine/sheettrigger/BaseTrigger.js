@@ -93,6 +93,12 @@ class BaseTrigger {
 		return new NoOpCycle(this, false);
 	}
 
+	processSheet() {
+		if (this.messageHandler.isProcessed) this._streamsheet.attachNextMessage();
+		this._streamsheet.process();
+	}
+
+
 	// MACHINE CONTROL METHODS
 	pause() {
 		// do not pause sheet process => should be done by functions only
@@ -132,10 +138,10 @@ class BaseTrigger {
 		if (manual) {
 			if (!this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
 			// sheet might not fully processed due to pause[Processing]/resume[Processing]
-			if (this.sheet.isNotFullyProcessed) this.processSheet();
+			// if (this.sheet.isNotFullyProcessed) this.processSheet(); // <-- problem with backward continue which is actually finished process...
 		}
 		// if sheet is not paused by function it might be by machine...
-		if (!this.sheet.isPaused && (!this.isMachineStopped || this.activeCycle.isManual)) {
+		if (!this.isMachineStopped || this.activeCycle.isManual) {
 			this.activeCycle.step();
 		}
 	}
@@ -157,11 +163,6 @@ class BaseTrigger {
 		this.activeCycle.stop();
 	}
 	// ~
-
-	processSheet() {
-		if (this.messageHandler.isProcessed) this._streamsheet.attachNextMessage();
-		this._streamsheet.process();
-	}
 }
 
 module.exports = BaseTrigger;
