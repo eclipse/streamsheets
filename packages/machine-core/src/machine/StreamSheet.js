@@ -161,8 +161,8 @@ class StreamSheet {
 		return this._msgHandler;
 	}
 	// checks if current message is processed. if no message is passed, check is done against current message
-	isMessageProcessed() {
-		return this._msgHandler.isProcessed;
+	isMessageProcessed(message) {
+		return (message == null || message === this._msgHandler.message) && this._msgHandler.isProcessed;
 	}
 
 	getLoopPath() {
@@ -384,8 +384,12 @@ class StreamSheet {
 		// 	this.notifyOnce.event('finishedStep', this);
 		// }
 
+		// TODO: review!!
+
+		this.trigger.resumeProcessing(retval);
+
 		TaskQueue.schedule(() => {
-			this.trigger.resumeProcessing(retval);
+			// this.trigger.resumeProcessing(retval);
 			if ((this.trigger.machine.isManualStep || !this.trigger.isMachineStopped) && this.sheet.isNotFullyProcessed) {
 				// this.trigger.activeCycle.step(); <-- cannot call this, because it will decrease repetitions counter and others...
 				const cycle = this.trigger.activeCycle;

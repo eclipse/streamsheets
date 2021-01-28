@@ -1601,12 +1601,12 @@ describe('behaviour on manual steps', () => {
 			createCellAt('A2', { formula: 'A2+1' }, s1.sheet);
 			await machine.step();	// resumes execute() & finishes step:
 			expect(s1.stats.steps).toBe(1);
-			expect(s1.sheet.cellAt('A2').value).toBe(2);
+			expect(s1.sheet.cellAt('A2').value).toBe(1);
 			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			await machine.step();
 			expect(s1.stats.steps).toBe(2);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
-			expect(s1.sheet.cellAt('A2').value).toBe(3);
+			expect(s1.sheet.cellAt('A2').value).toBe(2);
 			expect(s1.sheet.cellAt('A3').value).toBe(3);
 			expect(s2.sheet.cellAt('B1').value).toBe(4);
 			await machine.step();
@@ -1614,7 +1614,7 @@ describe('behaviour on manual steps', () => {
 			await machine.step();
 			expect(s1.stats.steps).toBe(5);
 			expect(s1.sheet.cellAt('A1').value).toBe(6);
-			expect(s1.sheet.cellAt('A2').value).toBe(6);
+			expect(s1.sheet.cellAt('A2').value).toBe(5);
 			expect(s1.sheet.cellAt('A3').value).toBe(6);
 			expect(s2.sheet.cellAt('B1').value).toBe(4);
 		});
