@@ -154,9 +154,12 @@ class BaseTrigger {
 	}
 	resumeProcessing(retval) {
 		// mark sheet as resumed and finish current step
-		this.sheet._resumeProcessing(retval);
+		// this.sheet._resumeProcessing(retval);
 		// resume cycle if machine runs
-		if (!this.isMachineStopped || this.activeCycle.isManual) this.activeCycle.resume();
+
+		// if (!this.isMachineStopped || this.activeCycle.isManual) this.activeCycle.resume(retval);
+		
+		this.activeCycle.resume(retval);
 	}
 	stopProcessing(retval) {
 		this.sheet._stopProcessing(retval);

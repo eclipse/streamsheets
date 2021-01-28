@@ -29,10 +29,12 @@ class TriggerCycle {
 		this.step();
 	}
 
-	resume() {
-		this.schedule();
-		// finish current step
-		if (this.trigger.sheet.isNotFullyProcessed) this.trigger.processSheet();
+	resume(retval) {
+		if (!this.trigger.isMachineStopped) this.schedule();
+		// mark sheet as resumed
+		this.trigger.sheet._resumeProcessing(retval);
+		// finish current step, if we currently don't process...
+		// if (!this.trigger.sheet.isProcessing && this.trigger.sheet.isNotFullyProcessed)
 	}
 
 	schedule() {}

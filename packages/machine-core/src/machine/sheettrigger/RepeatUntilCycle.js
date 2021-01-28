@@ -16,7 +16,9 @@ const RepeatUntilCycle = (BaseCycle) =>
 			return 1;
 		}
 		step() {
-			if (!this.trigger.sheet.isPaused) this.trigger.streamsheet.stats.repeatsteps += 1;
+			if (!this.trigger.sheet.isPaused && this.trigger.sheet.isProcessed) {
+				this.trigger.streamsheet.stats.repeatsteps += 1;
+			}
 			this.trigger.processSheet();
 		}
 	};

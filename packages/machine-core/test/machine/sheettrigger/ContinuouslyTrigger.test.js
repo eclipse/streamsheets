@@ -557,6 +557,7 @@ describe('behaviour on manual stepping', () => {
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
 		// resume via cell delete
 		createCellAt('A2', undefined, s1.sheet);
+		await machine.step();	// to resume
 		await machine.step();
 		expect(s1.stats.steps).toBe(2);
 		expect(s1.sheet.cellAt('A1').value).toBe(3);

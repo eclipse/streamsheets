@@ -351,9 +351,9 @@ class StreamSheet {
 	// }
 
 	// called by sheet functions:
-	execute(resumeFn, message, pace, repetitions) {
+	execute(repetitions, message, pace, resumeFn) {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
-			this.trigger.execute(resumeFn, pace, repetitions, message);
+			this.trigger.execute(repetitions, message, pace, resumeFn);
 		} else if (resumeFn) {
 			// called by different sheet, so schedule it
 			TaskQueue.schedule(resumeFn, false);
@@ -376,13 +376,26 @@ class StreamSheet {
 		this.sheet._pauseProcessing();
 	}	
 	resumeProcessing(retval) {
-		this.notifyOnce.reset();
-		this._triggerProcess = false;
-		this.trigger.resumeProcessing(retval);
-		// need this to catch the case when we resume on last cell, but didn't process
-		if (this.sheet.isProcessed && !this._triggerProcess) {
-			this.notifyOnce.event('finishedStep', this);
-		}
+		// this.notifyOnce.reset();
+		// this._triggerProcess = false;
+		// this.trigger.resumeProcessing(retval);
+		// // need this to catch the case when we resume on last cell, but didn't process
+		// if (this.sheet.isProcessed && !this._triggerProcess) {
+		// 	this.notifyOnce.event('finishedStep', this);
+		// }
+
+		TaskQueue.schedule(() => {
+			this.trigger.resumeProcessing(retval);
+			if ((this.trigger.machine.isManualStep || !this.trigger.isMachineStopped) && this.sheet.isNotFullyProcessed) {
+				// this.trigger.activeCycle.step(); <-- cannot call this, because it will decrease repetitions counter and others...
+				const cycle = this.trigger.activeCycle;
+				this.trigger.processSheet();
+				// on cycle switch postProcessSheet() was already called...
+				if (this.trigger.activeCycle === cycle) this.trigger.activeCycle.postProcessSheet();
+			} else if (this.sheet.isProcessed) {
+				this.notifyOnce.force().event('finishedStep', this);
+			}
+		});
 	}
 	// ~
 

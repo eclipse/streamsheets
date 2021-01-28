@@ -13,9 +13,9 @@ const { Message } = require('../..');
 const execute = (sheet, ...terms) => {
 	const cancelExecute = (calledStreamSheet) => (context) => {
 		calledStreamSheet.cancelExecute();
-		context.resumeFn();
+		context.resume();
 	};
-	const resumeFromExecute = (context, callingStreamSheet) => (retval) => {
+	const resumeExecute = (context, callingStreamSheet) => (retval) => {
 		if (context.term.cell) context.term.cell.value = retval != null ? retval : true;
 		callingStreamSheet.resumeProcessing(retval);
 	};
@@ -40,13 +40,13 @@ const execute = (sheet, ...terms) => {
 		}
 		if (!context.initialized) {
 			context.initialized = true;
-			context.resumeFn = resumeFromExecute(context, callingStreamSheet);
+			context.resume = resumeExecute(context, callingStreamSheet);
 			context.addDisposeListener(cancelExecute(calledStreamSheet));
 		}
 		if (!sheet.isPaused) {
 			// always pause calling sheet, since we do not know how long execute takes (due to pause/sleep functions)
 			callingStreamSheet.pauseProcessing();
-			calledStreamSheet.execute(context.resumeFn, message, pace, repetitions);
+			calledStreamSheet.execute(repetitions, message, pace, context.resume);
 		}
 
 		return true;

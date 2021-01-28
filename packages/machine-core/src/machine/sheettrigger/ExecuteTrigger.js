@@ -17,6 +17,7 @@ const Machine = require('../Machine');
 const TaskQueue = require('../TaskQueue');
 const { ManualCycle, TimerCycle } = require('./cycles');
 
+
 const noop = () => {};
 const getPace = (trigger, useMax) => () => {
 	const pace = trigger.pace;
@@ -143,7 +144,7 @@ class ExecuteTrigger extends BaseTrigger {
 		// only handle manual steps
 		if (manual && this.resumeFn) super.step(manual);
 	}
-	execute(resumeFn, pace, repetitions, message) {
+	execute(repetitions, message, pace, resumeFn) {
 		this.pace = pace;
 		this.message = message;
 		this.repetitions = repetitions;
@@ -153,15 +154,36 @@ class ExecuteTrigger extends BaseTrigger {
 		TaskQueue.schedule(() => this.activeCycle.run());
 	}
 	cancelExecute() {
-		this.resumeExecute();
-		if (!this.sheet.isProcessed) this.stopProcessing();
+		// this.resumeExecute();
+		this.retval = undefined;
+		this.resumeFn = undefined;
+		// if (!this.sheet.isProcessed) this.stopProcessing();
+		this.stopProcessing();
 		this.activeCyle = this.getManualCycle();
 	}
 	resumeExecute() {
 		// called by different sheet, so schedule it
-		TaskQueue.schedule(this.resumeFn, this.retval);
+		// TaskQueue.schedule(() => {
+		// 	const callingStreamsheet = this.resumeFn(this.retval);
+		// 	if (callingStreamsheet && callingStreamsheet.sheet.isNotFullyProcessed) {
+		// 		// callingStreamsheet.trigger.processSheet();
+		// 		// callingStreamsheet.trigger.activeCycle.postProcessSheet();
+		// 		callingStreamsheet.trigger.activeCycle.step();
+		// 	}
+		// 	this.retval = undefined;
+		// 	this.resumeFn = undefined;
+		// });
+
+		if (this.resumeFn) {
+			this.resumeFn(this.retval);
+			this.resumeFn = undefined;
+		}
 		this.retval = undefined;
-		this.resumeFn = undefined;
+
+	}
+
+	resumeProcessing(retval) {
+		super.resumeProcessing(retval);
 	}
 
 	stopProcessing(retval) {

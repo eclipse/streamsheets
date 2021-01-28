@@ -18,11 +18,12 @@ const Activate = (BaseCycle) =>
 			super.activate();
 			this.schedule();
 			// move to next loop element:
-			this.trigger.messageHandler.next();
-			if (this.trigger.messageHandler.isProcessed) {
-				this.trigger.streamsheet.detachMessage();
-				if (this.parentcycle) this.parentcycle.activate();
-			}
+			// this.trigger.messageHandler.next();
+			// if (this.trigger.messageHandler.isProcessed) {
+			// 	this.trigger.streamsheet.detachMessage();
+			// 	if (this.parentcycle) this.parentcycle.activate();
+			// }
+			this.postProcessSheet();
 		}
 	};
 
@@ -42,7 +43,9 @@ const Step = (BaseCycle) => {
 			throw new Error('Not implemented!');
 		}
 		step() {
-			if (!this.trigger.sheet.isPaused) this.trigger.streamsheet.stats.steps += 1;
+			if (!this.trigger.sheet.isPaused && this.trigger.sheet.isProcessed) {
+				this.trigger.streamsheet.stats.steps += 1;
+			}
 			if (this.trigger.isEndless) {
 				this.trigger.streamsheet.stats.repeatsteps = 0;
 				this.trigger.activeCycle = this.getRepeatUntilCycle();
