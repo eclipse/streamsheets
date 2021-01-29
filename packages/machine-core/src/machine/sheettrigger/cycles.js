@@ -46,7 +46,7 @@ class TriggerCycle {
 		// mark sheet as resumed
 		this.sheet._resumeProcessing(retval);
 		// finish current step, if we currently don't process...
-		// if (!this.trigger.sheet.isProcessing && this.trigger.sheet.isNotFullyProcessed)
+		// if (!this.trigger.sheet.isProcessing && !this.trigger.sheet.isProcessed)
 	}
 
 	schedule() {}

@@ -110,7 +110,7 @@ class BaseTrigger {
 			// schedule next cycle:
 			this.activeCycle.schedule();
 			// go on with current step:
-			if (this.sheet.isNotFullyProcessed) {
+			if (!this.sheet.isProcessed) {
 				this.sheet._resumeProcessing();
 				this.processSheet();
 			}
@@ -134,7 +134,7 @@ class BaseTrigger {
 		if (manual) {
 			if (!this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
 			// sheet might not fully processed due to pause[Processing]/resume[Processing]
-			// if (this.sheet.isNotFullyProcessed) this.processSheet(); // <-- problem with backward continue which is actually finished process...
+			// if (!this.sheet.isProcessed) this.processSheet(); // <-- problem with backward continue which is actually finished process...
 		}
 		// if sheet is not paused by function it might be by machine...
 		if (!this.isMachineStopped || this.activeCycle.isManual) {

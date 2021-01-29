@@ -169,9 +169,6 @@ module.exports = class Sheet {
 	get isProcessed() {
 		return !this.processor.isStarted || this.processor.isProcessed;
 	}
-	get isNotFullyProcessed() {
-		return this.processor.isStarted && !this.processor.isProcessed;
-	}
 	get isProcessing() {
 		// return this.processor.isProcessing || this._forceExecution;
 		return this._isProcessing || this._forceExecution;
