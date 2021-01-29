@@ -35,17 +35,17 @@ const getCellValue = (newValue, oldValue, calledStreamSheet) => {
 	if (oldValue != null && oldValue !== true && !FunctionErrors.isError(oldValue)) return oldValue;
 	return getDefaultReturnValue(calledStreamSheet);
 };
-const cancelExecute = (calledStreamSheet) => (context) => {
-	calledStreamSheet.cancelExecute();
-	context.resumeExecute();
+const cancelExecute = (context) => {
+	context.calledStreamSheet.cancelExecute();
+	context.callingStreamSheet.stopProcessing();
 };
-const doResume = (context, callingStreamSheet, calledStreamSheet) => (retval) => {
+const resumeExecute = (context) => (retval) => {
 	// remove this
 	context.isResumed = true;
-	context.returnValue = getCellValue(retval, context.term.cell.value, calledStreamSheet);
+	context.returnValue = getCellValue(retval, context.term.cell.value, context.calledStreamSheet);
 	// set it directly to cell:
 	context.term.cell.value = context.returnValue;
-	callingStreamSheet.resumeProcessing(retval);
+	context.callingStreamSheet.resumeProcessing(retval);
 };
 
 const execute = (sheet, ...terms) =>
@@ -64,13 +64,16 @@ const execute = (sheet, ...terms) =>
 			const callingStreamSheet = sheet.streamsheet;
 			if (!context.isInitialized) {
 				context.isInitialized = true;
-				context.resumeExecute = doResume(context, callingStreamSheet, calledStreamSheet);
-				context.addDisposeListener(cancelExecute(calledStreamSheet));
+				context.calledStreamSheet = calledStreamSheet;
+				context.callingStreamSheet = callingStreamSheet;
+				context.addDisposeListener(cancelExecute);
 			}
 			if (repetitions > 0 && !sheet.isPaused) {
 				callingStreamSheet.pauseProcessing();
 				context.isResumed = false;
-				calledStreamSheet.execute(Math.max(1, repetitions), message, pace, context.resumeExecute);
+				if (!calledStreamSheet.execute(Math.max(1, repetitions), message, pace, resumeExecute(context))) {
+					return false;
+				}
 			}
 			// eslint-disable-next-line no-nested-ternary
 			return sheet.isPaused
