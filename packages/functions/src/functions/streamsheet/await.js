@@ -20,6 +20,7 @@ const pause = (sheet) => {
 const resume = (sheet) => {
 	if (sheet.isPaused) sheet.streamsheet.resumeProcessing();
 };
+const cancel = (sheet) => () => sheet.streamsheet.stopProcessing();
 
 const addRequestId = (value, allIDs) => {
 	const reqId = convert.toString(value);
@@ -50,7 +51,7 @@ const getRequestIDs = (sheet, terms) => {
 const initContext = (sheet, context) => {
 	if (!context._awaitInited) {
 		context._awaitInited = true;
-		context.addDisposeListener(() => resume(sheet));
+		context.addDisposeListener(cancel(sheet));
 	}
 };
 

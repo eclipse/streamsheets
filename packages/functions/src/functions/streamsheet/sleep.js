@@ -37,6 +37,10 @@ const pause = (context, ms) => {
 	context.period = ms;
 	context.resumeTimeoutId = setTimeout(() => resume(context), ms);
 };
+const cancel = (sheet) => (context) => {
+	clearResumeTimeout(context);
+	sheet.streamsheet.stopProcessing();
+};
 const doSleep = (context, seconds) => {
 	const ms = seconds * 1000;
 	if (ms < 1) {
@@ -58,7 +62,7 @@ const initContext = (context, sheet) => {
 		context.resumeFn = createResumeFn(sheet);
 		// flag to handle usage in cell.
 		context.hasCell = !!context.term.cell;
-		context.addDisposeListener((ctxt) => resume(ctxt));
+		context.addDisposeListener(cancel(sheet));
 	}
 };
 const sleep = (sheet, ...terms) =>
