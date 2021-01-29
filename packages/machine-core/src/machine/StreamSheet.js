@@ -31,25 +31,6 @@ const getSettings = (definition, sheet) => {
 	return newsettings;
 };
 
-const emitOnce = (emitter) => {
-	let doIt = true;
-	return {
-		set(done) {
-			doIt = done;
-		},
-		reset() {
-			doIt = true;
-		},
-		force() {
-			doIt = true;
-			return this;
-		},
-		event(type, arg) {
-			if (doIt) emitter.emit(type, arg);
-			doIt = false;
-		}
-	};
-};
 
 const DEF_CONF = () => ({
 	name: '',
@@ -100,8 +81,6 @@ class StreamSheet {
 		this.inbox.on('message_pop', this.onInboxPop);
 		this.sheet.onUpdate = this.onSheetUpdate;
 		this.sheet.onCellRangeChange = this.onSheetCellRangeChange;
-		// utility:
-		this.notifyOnce = emitOnce(this._emitter);
 	}
 
 	toJSON() {
@@ -376,14 +355,6 @@ class StreamSheet {
 		this.sheet._pauseProcessing();
 	}	
 	resumeProcessing(retval) {
-		// this.notifyOnce.reset();
-		// this._triggerProcess = false;
-		// this.trigger.resumeProcessing(retval);
-		// // need this to catch the case when we resume on last cell, but didn't process
-		// if (this.sheet.isProcessed && !this._triggerProcess) {
-		// 	this.notifyOnce.event('finishedStep', this);
-		// }
-
 		// TODO: review!!
 
 		this.trigger.resumeProcessing(retval);
@@ -397,7 +368,7 @@ class StreamSheet {
 				// on cycle switch postProcessSheet() was already called...
 				if (this.trigger.activeCycle === cycle) this.trigger.activeCycle.postProcessSheet();
 			} else if (this.sheet.isProcessed) {
-				this.notifyOnce.force().event('finishedStep', this);
+				this._emitter.emit('finishedStep', this);
 			}
 		});
 	}
@@ -409,7 +380,7 @@ class StreamSheet {
 		this.sheet._startProcessing();
 		this._emitter.emit('step', this);		
 		if (this.sheet.isProcessed) {
-			this.notifyOnce.force().event('finishedStep', this);
+			this._emitter.emit('finishedStep', this);
 		}
 	}
 	attachNextMessage() {
