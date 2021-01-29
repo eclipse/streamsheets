@@ -15,9 +15,9 @@ const execute = (sheet, ...terms) => {
 		context.calledStreamSheet.cancelExecute();
 		context.callingStreamSheet.stopProcessing();
 	};
-	const resumeExecute = (context, callingStreamSheet) => (retval) => {
+	const resumeExecute = (context) => (retval) => {
 		if (context.term.cell) context.term.cell.value = retval != null ? retval : true;
-		callingStreamSheet.resumeProcessing(retval);
+		context.callingStreamSheet.resumeProcessing(retval);
 	};
 
 	if (sheet.isProcessing) {
@@ -47,7 +47,7 @@ const execute = (sheet, ...terms) => {
 		if (!sheet.isPaused) {
 			// always pause calling sheet, since we do not know how long execute takes (due to pause/sleep functions)
 			callingStreamSheet.pauseProcessing();
-			return calledStreamSheet.execute(repetitions, message, pace, resumeExecute(context, callingStreamSheet));
+			return calledStreamSheet.execute(repetitions, message, pace, resumeExecute(context));
 		}
 
 		return true;
