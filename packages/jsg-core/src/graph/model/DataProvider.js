@@ -917,7 +917,8 @@ module.exports = class DataProvider {
 								(range._x1 - initC >= sourceRange._x1 &&
 									range._x2 - initC <= sourceRange._x2 &&
 									range._y1 >= sourceRange._y1 &&
-									range._y2 <= sourceRange._y2)
+									range._y2 <= sourceRange._y2 &&
+									rangeSheet === sourceSheet)
 							) {
 								if (sourceSheet === rangeSheet) {
 									if (data.cut) {
