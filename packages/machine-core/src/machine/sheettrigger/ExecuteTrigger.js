@@ -168,10 +168,6 @@ class ExecuteTrigger extends BaseTrigger {
 
 	}
 
-	resumeProcessing(retval) {
-		super.resumeProcessing(retval);
-	}
-
 	stopProcessing(retval) {
 		this.retval = retval;
 		super.stopProcessing(retval);
