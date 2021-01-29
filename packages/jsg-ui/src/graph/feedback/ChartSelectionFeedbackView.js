@@ -396,7 +396,7 @@ export default class ChartSelectionFeedbackView extends View {
 									}
 								};
 
-								Object.entries(values).forEach(([key, valueSet]) => {
+								Object.entries(values).forEach(([, valueSet]) => {
 									const {median, q1, q3, minIndex, maxIndex, average} = item.getBoxPlotFigures(valueSet);
 									const x = item.scaleToAxis(axes.x, valueSet[0].x, undefined, false);
 									const tmpVal = {x : valueSet[0].x, xLabel: valueSet[0].xLabel, y: q1, formatY: valueSet[0].formatY};
@@ -437,7 +437,7 @@ export default class ChartSelectionFeedbackView extends View {
 										if (serie.autoSum && index) {
 											const lastVal = {x: 0, y: 0};
 											item.getValue(ref, index - 1, lastVal);
-											value.y = value.y - (lastVal.y === undefined ? 0 : lastVal.y);
+											value.y -= (lastVal.y === undefined ? 0 : lastVal.y);
 										}
 										if (serie.points[index] && serie.points[index].pointSum) {
 											valueSum = value.y;
@@ -500,7 +500,6 @@ export default class ChartSelectionFeedbackView extends View {
 					let index = 0;
 					let x;
 					let y;
-					let last;
 					let valueSum = 0;
 					const value = {};
 					const serie = data;
@@ -601,8 +600,8 @@ export default class ChartSelectionFeedbackView extends View {
 						// collect values for each category
 						const values = item.getBoxPlotValues(ref, axes);
 
-						Object.entries(values).forEach(([key, valueSet]) => {
-							const {median, q1, q3, minIndex, maxIndex } = item.getBoxPlotFigures(valueSet);
+						Object.entries(values).forEach(([, valueSet]) => {
+							const {q1, q3, minIndex, maxIndex } = item.getBoxPlotFigures(valueSet);
 							barInfo = item.getBarInfo(axes, serie, selection.index, valueSet[0].x, q3 - q1, barWidth);
 
 							x = item.scaleToAxis(axes.x, valueSet[0].x, undefined, false);
@@ -812,7 +811,7 @@ export default class ChartSelectionFeedbackView extends View {
 									if (serie.autoSum && index) {
 										const lastVal = {x: 0, y: 0};
 										item.getValue(ref, index - 1, lastVal);
-										value.y = value.y - (lastVal.y === undefined ? 0 : lastVal.y);
+										value.y -= (lastVal.y === undefined ? 0 : lastVal.y);
 									}
 									if (serie.points[index] && serie.points[index].pointSum) {
 										valueSum = value.y;

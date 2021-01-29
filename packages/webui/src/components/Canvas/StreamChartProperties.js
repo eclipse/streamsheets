@@ -1355,6 +1355,7 @@ export class StreamChartProperties extends Component {
 		if (!sheetView) {
 			return <div />;
 		}
+		const sheetItem = sheetView.getItem();
 		const classes = this.props.classes;
 		const boxPlot = item.isBoxPlot();
 		const gauge = item.isGauge();
@@ -2283,11 +2284,7 @@ export class StreamChartProperties extends Component {
 														this.handleChartFormulaBlur(event);
 													}
 												}}
-												value={
-													item.chart.formula.getFormula()
-														? `=${item.chart.formula.getFormula()}`
-														: ''
-												}
+												value={item.chart.formula.toLocaleString(JSG.getParserLocaleSettings(), { item: sheetItem, useName: true })}
 												InputLabelProps={{ shrink: true }}
 												InputProps={{
 													inputComponent: MyInputComponent,
@@ -2295,9 +2292,7 @@ export class StreamChartProperties extends Component {
 														component: CellRangeComponent,
 														sheetView,
 														value: {},
-														range: item.chart.formula.getFormula()
-															? `=${item.chart.formula.getFormula()}`
-															: ''
+														range: item.chart.formula.toLocaleString(JSG.getParserLocaleSettings(), { item: sheetItem, useName: true })
 													}
 												}}
 											/>
@@ -2394,7 +2389,7 @@ export class StreamChartProperties extends Component {
 															this.handleSeriesFormulaBlur(event, series);
 														}
 													}}
-													value={`=${series.formula.getFormula()}`}
+													value={series.formula.toLocaleString(JSG.getParserLocaleSettings(), { item: sheetItem, useName: true })}
 													InputLabelProps={{ shrink: true }}
 													InputProps={{
 														inputComponent: MyInputComponent,
@@ -2403,7 +2398,7 @@ export class StreamChartProperties extends Component {
 															onlyReference: false,
 															sheetView,
 															value: {},
-															range: `=${series.formula.getFormula()}`
+															range: series.formula.toLocaleString(JSG.getParserLocaleSettings(), { item: sheetItem, useName: true })
 														}
 													}}
 												/>
