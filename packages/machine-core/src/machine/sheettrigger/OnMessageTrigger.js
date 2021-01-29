@@ -19,7 +19,7 @@ const RepeatedOnMessageCycle = (BaseClass) =>
 			return 1;
 		}
 		schedule() {
-			if (this.trigger.streamsheet.hasNewMessage()) super.schedule();
+			if (this.streamsheet.hasNewMessage()) super.schedule();
 		}
 	};
 class OnMessageLoopCycle extends TimerMessageLoopCycle {

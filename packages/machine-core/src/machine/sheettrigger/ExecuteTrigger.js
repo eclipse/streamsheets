@@ -154,26 +154,12 @@ class ExecuteTrigger extends BaseTrigger {
 		TaskQueue.schedule(() => this.activeCycle.run());
 	}
 	cancelExecute() {
-		// this.resumeExecute();
 		this.retval = undefined;
 		this.resumeFn = undefined;
-		// if (!this.sheet.isProcessed) this.stopProcessing();
 		this.stopProcessing();
 		this.activeCyle = this.getManualCycle();
 	}
 	resumeExecute() {
-		// called by different sheet, so schedule it
-		// TaskQueue.schedule(() => {
-		// 	const callingStreamsheet = this.resumeFn(this.retval);
-		// 	if (callingStreamsheet && callingStreamsheet.sheet.isNotFullyProcessed) {
-		// 		// callingStreamsheet.trigger.processSheet();
-		// 		// callingStreamsheet.trigger.activeCycle.postProcessSheet();
-		// 		callingStreamsheet.trigger.activeCycle.step();
-		// 	}
-		// 	this.retval = undefined;
-		// 	this.resumeFn = undefined;
-		// });
-
 		if (this.resumeFn) {
 			this.resumeFn(this.retval);
 			this.resumeFn = undefined;
