@@ -59,8 +59,8 @@ const Step = (BaseCycle) => {
 };
 const Resume = (BaseClass) =>
 	class extends BaseClass {
-		resume() {
-			super.resume();
+		resume(retval) {
+			super.resume(retval);
 			this.postProcessSheet();
 		}
 	};
