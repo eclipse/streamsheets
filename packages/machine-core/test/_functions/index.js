@@ -27,7 +27,6 @@ module.exports = {
 		let retval = true;
 		if (sheet.isProcessing) {
 			retval = terms[0] ? terms[0].value : true;
-			// console.log(`RETURN FROM ${sheet.streamsheet.name}`);
 			sheet.streamsheet.stopProcessing(retval);
 		}
 		return retval;

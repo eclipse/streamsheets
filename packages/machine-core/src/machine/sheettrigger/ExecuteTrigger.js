@@ -16,7 +16,6 @@ const RepeatedMessageLoopCycle = require('./RepeatedMessageLoopCycle');
 const Machine = require('../Machine');
 const { ManualCycle, TimerCycle } = require('./cycles');
 
-
 const noop = () => {};
 const getPace = (trigger, useMax) => () => {
 	const pace = trigger.pace;
@@ -143,6 +142,7 @@ class ExecuteTrigger extends BaseTrigger {
 		// only handle manual steps
 		if (manual && this.resumeFn) super.step(manual);
 	}
+
 	execute(repetitions, message, pace, resumeFn) {
 		this.pace = pace;
 		this.message = message;
@@ -163,7 +163,6 @@ class ExecuteTrigger extends BaseTrigger {
 			this.resumeFn = undefined;
 		}
 		this.retval = undefined;
-
 	}
 
 	stopProcessing(retval) {

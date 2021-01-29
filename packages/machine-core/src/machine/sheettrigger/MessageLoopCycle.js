@@ -17,12 +17,6 @@ const Activate = (BaseCycle) =>
 		activate() {
 			super.activate();
 			this.schedule();
-			// move to next loop element:
-			// this.trigger.messageHandler.next();
-			// if (this.trigger.messageHandler.isProcessed) {
-			// 	this.trigger.streamsheet.detachMessage();
-			// 	if (this.parentcycle) this.parentcycle.activate();
-			// }
 			this.postProcessSheet();
 		}
 	};
@@ -66,8 +60,6 @@ const Resume = (BaseClass) =>
 	};
 
 const MessageLoopCycle = compose(Activate, PostProcessSheet, Resume, Step);
-
-
 
 class TimerMessageLoopCycle extends MessageLoopCycle(TimerCycle) {
 	getRepeatUntilCycle() {

@@ -30,4 +30,4 @@ module.exports = {
 	ManualRepeatUntilCycle,
 	TimerRepeatUntilCycle,
 	withBaseClass: (BaseCycle) => RepeatUntilCycle(BaseCycle)
-}
+};

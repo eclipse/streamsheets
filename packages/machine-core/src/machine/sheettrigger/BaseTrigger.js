@@ -94,14 +94,12 @@ class BaseTrigger {
 		this._streamsheet.process();
 	}
 
-
 	// MACHINE CONTROL METHODS
 	pause() {
 		// do not pause sheet process => should be done by functions only
 		// this.sheet._pauseProcessing();
 		this.activeCycle.clear();
 	}
-
 	resume() {
 		// ignore if sheet is still paused by function
 		if (!this.sheet.isPaused) {
@@ -116,11 +114,9 @@ class BaseTrigger {
 			}
 		}
 	}
-
 	start() {
 		if (this.activeCycle.isManual) this.activeCycle = this.getTimerCycle();
 	}
-
 	stop(/* forced */) {
 		// clear instead of stop to not trigger possible resume
 		this.activeCycle.clear();
@@ -129,13 +125,8 @@ class BaseTrigger {
 		this.activeCycle = this.getTimerCycle();
 		return true;
 	}
-
 	step(manual) {
-		if (manual) {
-			if (!this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
-			// sheet might not fully processed due to pause[Processing]/resume[Processing]
-			// if (!this.sheet.isProcessed) this.processSheet(); // <-- problem with backward continue which is actually finished process...
-		}
+		if (manual && !this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
 		// if sheet is not paused by function it might be by machine...
 		if (!this.isMachineStopped || this.activeCycle.isManual) {
 			this.activeCycle.step();
@@ -149,13 +140,18 @@ class BaseTrigger {
 		this.sheet._pauseProcessing();
 	}
 	resumeProcessing(retval) {
-		// mark sheet as resumed and finish current step
-		// this.sheet._resumeProcessing(retval);
-		// resume cycle if machine runs
-
-		// if (!this.isMachineStopped || this.activeCycle.isManual) this.activeCycle.resume(retval);
-		
+		// mark sheet as resumed
 		this.activeCycle.resume(retval);
+		// ...and maybe finish current step
+		const doFinishStep = !this.sheet.isProcessed && (this.machine.isManualStep || !this.isMachineStopped);
+		if (doFinishStep) {
+			// this.trigger.activeCycle.step(); // <-- don't call this! will decrease repetitions counter and others...
+			const cycle = this.activeCycle;
+			this.processSheet();
+			// on cycle switch postProcessSheet() was already called...
+			if (this.activeCycle === cycle) this.activeCycle.postProcessSheet();
+		}
+		return doFinishStep;
 	}
 	stopProcessing(retval) {
 		this.sheet._stopProcessing(retval);

@@ -170,7 +170,6 @@ module.exports = class Sheet {
 		return !this.processor.isStarted || this.processor.isProcessed;
 	}
 	get isProcessing() {
-		// return this.processor.isProcessing || this._forceExecution;
 		return this._isProcessing || this._forceExecution;
 	}
 	get isReady() {

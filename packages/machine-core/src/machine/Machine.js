@@ -262,22 +262,6 @@ class Machine {
 		return Array.from(this._streamsheets.values());
 	}
 
-	// get activeStreamSheets() {
-	// 	return this._activeStreamSheets || this.streamsheets;
-	// }
-
-	// set activeStreamSheets(streamsheets) {
-	// 	this._activeStreamSheets = streamsheets;
-	// }
-
-	// internal property:
-	// get doStop() {
-	// 	return !this._preventStop && this._state === State.WILL_STOP;
-	// }
-	// set preventStop(doIt) {
-	// 	this._preventStop = doIt || this._preventStop;
-	// }
-
 	// name, cycletime, locale...
 	update(props = {}) {
 		this.name = props.name || this.name;
@@ -466,15 +450,11 @@ class Machine {
 				logger.error(`Error while performing manual step on machine ${this.id}!!`, err);
 				this._emitter.emit('error', err);
 			}
-			// this._isManualStep = false;
 		}
 	}
 
 	async _doStep(manual) {
 		this.stats.steps += 1;
-		// // reset should actually not be necessary
-		// TaskQueue.reset();
-
 		// wait for task which are triggered outside any steps, e.g. by cell replace
 		await TaskQueue.done();
 		this._streamsheets.forEach((streamsheet) => streamsheet.step(manual));

@@ -81,7 +81,7 @@ class SheetProcessor {
 	get isReady() {
 		return this._state === State.READY;
 	}
-	
+
 	continueAt(index) {
 		this._cursor.setToIndex(index);
 	}
@@ -110,11 +110,7 @@ class SheetProcessor {
 	}
 	start() {
 		this._process();
-		// graph cells:
-		const sheet = this._cursor.sheet;
-		sheet.graphCells.evaluating = true;
-		sheet.graphCells._cells.forEach((cell) => cell.evaluate());
-		sheet.graphCells.evaluating = false;
+		this._evaluateGraphCells(this._cursor.sheet);
 	}
 	_process() {
 		const cursor = this._cursor;
@@ -142,7 +138,7 @@ class SheetProcessor {
 						// should we skip row?
 						checkSkipRow(cell, cursor);
 					}
-					 // break from inner column-loop if cursor was changed...
+					// break from inner column-loop if cursor was changed...
 					if (cursor.changed) break;
 					cursor.c += 1;
 				}
@@ -160,6 +156,11 @@ class SheetProcessor {
 				}
 			}
 		}
+	}
+	_evaluateGraphCells(sheet) {
+		sheet.graphCells.evaluating = true;
+		sheet.graphCells._cells.forEach((cell) => cell.evaluate());
+		sheet.graphCells.evaluating = false;
 	}
 }
 
