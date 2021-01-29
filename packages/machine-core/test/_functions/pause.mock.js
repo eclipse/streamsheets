@@ -16,13 +16,14 @@ const clearPauseTimeout = (context) => {
 	}
 };
 
-const resume = (sheet, context) => () => {
+const resumeProcessing = (sheet, context) => () => {
 	clearPauseTimeout(context);
 	if (sheet.isPaused) {
 		context.resumeCounter += 1;
 		sheet.streamsheet.resumeProcessing();
 	}
 };
+const stopProcessing = (sheet) => () => sheet.streamsheet.stopProcessing();
 
 const pause = (sheet, ...terms) => {
 	if (sheet.isProcessing) {
@@ -32,11 +33,11 @@ const pause = (sheet, ...terms) => {
 			context.initialized = true;
 			context.pauseCounter = 0;
 			context.resumeCounter = 0;
-			context.addDisposeListener(resume(sheet, context));
+			context.addDisposeListener(stopProcessing(sheet));
 		}
 		if (!sheet.isPaused) {
 			clearPauseTimeout(context);
-			if (period > 0) context.timeoutId = setTimeout(resume(sheet, context), period);
+			if (period > 0) context.timeoutId = setTimeout(resumeProcessing(sheet, context), period);
 			context.pauseCounter += 1;
 			sheet.streamsheet.pauseProcessing();
 		}

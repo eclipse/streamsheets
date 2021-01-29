@@ -147,30 +147,35 @@ describe('behaviour on machine run', () => {
 		});
 		it('should not resume sheet on machine resume if sheet was paused by function', async () => {
 			const { machine, s1 } = setup();
+			const machineMonitor = monitorMachine(machine);
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
 			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			await machine.start();
-			await wait(10);
+			await machineMonitor.hasFinishedStep(1);
 			await machine.pause();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			await machine.start();
-			// wait at least for next tick:
-			await wait(70);
-			expect(machine.stats.steps).toBe(2);
+			await machineMonitor.hasFinishedStep(4);
+			expect(machine.stats.steps).toBe(4);
 			// should still be paused:
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			// resume pause function
 			createCellAt('A2', undefined, s1.sheet);
+			await machineMonitor.hasFinishedStep(5);
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('A2').value).toBe(undefined);
+			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
-			await wait(120);
+			await machineMonitor.hasFinishedStep(7);
 			expect(machine.stats.steps).toBeGreaterThanOrEqual(4);
 			// only have 3 and 2 because on next tick it will pause again...
-			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('A1').value).toBe(4);
+			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			await machine.stop();
 		});
@@ -197,11 +202,13 @@ describe('behaviour on machine run', () => {
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			// resume pause function
 			createCellAt('A2', undefined, s1.sheet);
-			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
-			await machineMonitor.hasFinishedStep(4);
-			expect(machine.stats.steps).toBeGreaterThanOrEqual(4);
-			// only have 3 and 2 because on next tick it will pause again...
+			await machineMonitor.hasFinishedStep(3);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('A3').value).toBe(2);
+			// pause again and run a few steps
+			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+			await machineMonitor.hasFinishedStep(6);
+			expect(s1.sheet.cellAt('A1').value).toBe(4);
 			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			await machine.stop();
 		});
