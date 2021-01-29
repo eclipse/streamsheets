@@ -333,10 +333,10 @@ class StreamSheet {
 	execute(repetitions, message, pace, resumeFn) {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
 			this.trigger.execute(repetitions, message, pace, resumeFn);
-		} else if (resumeFn) {
-			// called by different sheet, so schedule it
-			TaskQueue.schedule(resumeFn, false);
+			return true;
 		}
+		if (resumeFn) resumeFn(false);
+		return false;
 	}
 	cancelExecute() {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) this.trigger.cancelExecute();
@@ -355,20 +355,16 @@ class StreamSheet {
 		this.sheet._pauseProcessing();
 	}	
 	resumeProcessing(retval) {
-		// TODO: review!!
-
-		this.trigger.resumeProcessing(retval);
-
 		TaskQueue.schedule(() => {
-			// this.trigger.resumeProcessing(retval);
-			if ((this.trigger.machine.isManualStep || !this.trigger.isMachineStopped) && this.sheet.isNotFullyProcessed) {
+			this.trigger.resumeProcessing(retval);
+			if (this.sheet.isProcessed) {
+				this._emitter.emit('finishedStep', this);
+			} else if ((this.trigger.machine.isManualStep || !this.trigger.isMachineStopped)) {
 				// this.trigger.activeCycle.step(); <-- cannot call this, because it will decrease repetitions counter and others...
 				const cycle = this.trigger.activeCycle;
 				this.trigger.processSheet();
 				// on cycle switch postProcessSheet() was already called...
 				if (this.trigger.activeCycle === cycle) this.trigger.activeCycle.postProcessSheet();
-			} else if (this.sheet.isProcessed) {
-				this._emitter.emit('finishedStep', this);
 			}
 		});
 	}
