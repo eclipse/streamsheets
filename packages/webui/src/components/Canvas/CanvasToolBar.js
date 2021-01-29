@@ -1291,6 +1291,15 @@ export class CanvasToolBar extends Component {
 						});
 						cmd = new JSG.CellAttributesCommand(selection.getRanges(), attributesMap);
 						break;
+					case 'bottomfat':
+						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
+						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERWIDTH, 3);
+						selection = sheetView.getOwnSelection().copy();
+						selection.getRanges().forEach((range) => {
+							range._y1 = range._y2;
+						});
+						cmd = new JSG.CellAttributesCommand(selection.getRanges(), attributesMap);
+						break;
 					case 'inner': {
 						let copyRanges;
 						cmd = new CompoundCommand();
@@ -1383,8 +1392,12 @@ export class CanvasToolBar extends Component {
 						break;
 					}
 					case 'outer':
+					case 'outerfat':
 						cmd = new CompoundCommand();
 						attributesMap.put(JSG.CellAttributes.LEFTBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
+						if (type === 'outerfat') {
+							attributesMap.put(JSG.CellAttributes.LEFTBORDERWIDTH, 3);
+						}
 						selection = sheetView.getOwnSelection().copy();
 						selection.getRanges().forEach((range) => {
 							range.setWidth(1);
@@ -1392,6 +1405,9 @@ export class CanvasToolBar extends Component {
 						cmd.add(new JSG.CellAttributesCommand(selection.getRanges(), attributesMap));
 						attributesMap.clear();
 						attributesMap.put(JSG.CellAttributes.TOPBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
+						if (type === 'outerfat') {
+							attributesMap.put(JSG.CellAttributes.TOPBORDERWIDTH, 3);
+						}
 						selection = sheetView.getOwnSelection().copy();
 						selection.getRanges().forEach((range) => {
 							range.setHeight(1);
@@ -1399,6 +1415,9 @@ export class CanvasToolBar extends Component {
 						cmd.add(new JSG.CellAttributesCommand(selection.getRanges(), attributesMap));
 						attributesMap.clear();
 						attributesMap.put(JSG.CellAttributes.RIGHTBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
+						if (type === 'outerfat') {
+							attributesMap.put(JSG.CellAttributes.RIGHTBORDERWIDTH, 3);
+						}
 						selection = sheetView.getOwnSelection().copy();
 						selection.getRanges().forEach((range) => {
 							range._x1 = range._x2;
@@ -1406,6 +1425,9 @@ export class CanvasToolBar extends Component {
 						cmd.add(new JSG.CellAttributesCommand(selection.getRanges(), attributesMap));
 						attributesMap.clear();
 						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
+						if (type === 'outerfat') {
+							attributesMap.put(JSG.CellAttributes.BOTTOMBORDERWIDTH, 3);
+						}
 						selection = sheetView.getOwnSelection().copy();
 						selection.getRanges().forEach((range) => {
 							range._y1 = range._y2;
@@ -2662,11 +2684,11 @@ export class CanvasToolBar extends Component {
 					}}
 				>
 					<GridList
-						cols={5}
+						cols={6}
 						cellHeight={30}
 						spacing={2}
 						style={{
-							width: '200px',
+							width: '240px',
 							margin: '4px'
 						}}
 					>
@@ -2718,6 +2740,20 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('clear')}>
 								<BorderClearIcon fontSize="inherit" />
+							</IconButton>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('outerfat')}>
+								<SvgIcon>
+									<path d="M 9 11 L 7 11 L 7 13 L 9 13 M 13 15 L 11 15 L 11 17 L 13 17 M 19 19 L 5 19 L 5 5 L 19 5 M 1.77 22.23 L 22.246 22.322 L 22.276 1.462 L 1.662 1.432 M 17 11 L 15 11 L 15 13 L 17 13 M 13 11 L 11 11 L 11 13 L 13 13 M 13 7 L 11 7 L 11 9 L 13 9 L 13 7 Z" />
+								</SvgIcon>
+							</IconButton>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('bottomfat')}>
+								<SvgIcon>
+									<path d="M 5 15 L 3 15 L 3 17 L 5 17 M 3.027 22.305 L 20.973 22.414 L 21 19 L 3.041 19 M 5 11 L 3 11 L 3 13 L 5 13 M 19 9 L 21 9 L 21 7 L 19 7 M 19 5 L 21 5 L 21 3 L 19 3 M 5 7 L 3 7 L 3 9 L 5 9 M 19 17 L 21 17 L 21 15 L 19 15 M 19 13 L 21 13 L 21 11 L 19 11 M 17 3 L 15 3 L 15 5 L 17 5 M 13 3 L 11 3 L 11 5 L 13 5 M 17 11 L 15 11 L 15 13 L 17 13 M 13 7 L 11 7 L 11 9 L 13 9 M 5 3 L 3 3 L 3 5 L 5 5 M 13 11 L 11 11 L 11 13 L 13 13 M 9 3 L 7 3 L 7 5 L 9 5 M 13 15 L 11 15 L 11 17 L 13 17 M 9 11 L 7 11 L 7 13 L 9 13 L 9 11 Z" />
+								</SvgIcon>
 							</IconButton>
 						</GridListTile>
 					</GridList>
