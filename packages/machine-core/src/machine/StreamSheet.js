@@ -180,7 +180,6 @@ class StreamSheet {
 		return this.inbox.size > 1 || !this._msgHandler.isProcessed;
 	}
 
-
 	getCurrentLoopPath() {
 		const index = this._trigger.isEndless ? 0 : 1;
 		return this._msgHandler.pathForIndex(this._msgHandler._index - index);
@@ -332,7 +331,8 @@ class StreamSheet {
 	// called by sheet functions:
 	execute(repetitions, message, pace, resumeFn) {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
-			this.trigger.execute(repetitions, message, pace, resumeFn);
+			// called by different sheet, so schedule it
+			TaskQueue.schedule(() => this.trigger.execute(repetitions, message, pace, resumeFn));
 			return true;
 		}
 		if (resumeFn) resumeFn(false);
@@ -353,19 +353,13 @@ class StreamSheet {
 	// rename: used to repeat single cell...
 	repeatProcessing() {
 		this.sheet._pauseProcessing();
-	}	
+	}
 	resumeProcessing(retval) {
+		// might be called by different sheet or within own process step, so schedule it:
 		TaskQueue.schedule(() => {
-			this.trigger.resumeProcessing(retval);
-			if (this.sheet.isProcessed) {
-				this._emitter.emit('finishedStep', this);
-			} else if ((this.trigger.machine.isManualStep || !this.trigger.isMachineStopped)) {
-				// this.trigger.activeCycle.step(); <-- cannot call this, because it will decrease repetitions counter and others...
-				const cycle = this.trigger.activeCycle;
-				this.trigger.processSheet();
-				// on cycle switch postProcessSheet() was already called...
-				if (this.trigger.activeCycle === cycle) this.trigger.activeCycle.postProcessSheet();
-			}
+			const hasFinishedStep = this.trigger.resumeProcessing(retval);
+			// have to send finishedStep event if sheet was already finished, e.g. resume on last cell
+			if (!hasFinishedStep && this.sheet.isProcessed) this._emitter.emit('finishedStep', this);
 		});
 	}
 	// ~
@@ -374,7 +368,7 @@ class StreamSheet {
 		this._triggerProcess = true;
 		this.sheet.getDrawings().removeAll();
 		this.sheet._startProcessing();
-		this._emitter.emit('step', this);		
+		this._emitter.emit('step', this);
 		if (this.sheet.isProcessed) {
 			this._emitter.emit('finishedStep', this);
 		}
