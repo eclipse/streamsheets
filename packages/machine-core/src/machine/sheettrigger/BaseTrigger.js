@@ -55,10 +55,6 @@ class BaseTrigger {
 		return this._streamsheet.machine;
 	}
 
-	get messageHandler() {
-		return this._streamsheet.messageHandler;
-	}
-
 	get sheet() {
 		return this._streamsheet.sheet;
 	}
@@ -94,7 +90,7 @@ class BaseTrigger {
 	}
 
 	processSheet() {
-		if (this.messageHandler.isProcessed) this._streamsheet.attachNextMessage();
+		if (this._streamsheet.messageHandler.isProcessed) this._streamsheet.attachNextMessage();
 		this._streamsheet.process();
 	}
 

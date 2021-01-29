@@ -43,8 +43,8 @@ const RepeatedExecuteCycle = (BaseClass) =>
 		}
 		step() {
 			this.trigger.repetitions -= 1;
-			this.trigger.streamsheet.stats.executesteps += 1;
-			if (this.trigger.message) attachExecuteMessage(this.trigger.message, this.trigger.streamsheet);
+			this.streamsheet.stats.executesteps += 1;
+			if (this.trigger.message) attachExecuteMessage(this.trigger.message, this.streamsheet);
 			super.step();
 		}
 	};

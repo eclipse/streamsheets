@@ -18,6 +18,18 @@ class TriggerCycle {
 		return false;
 	}
 
+	get machine() {
+		return this.trigger.machine;
+	}
+
+	get sheet() {
+		return this.trigger.sheet;
+	}
+
+	get streamsheet() {
+		return this.trigger.streamsheet;
+	}
+
 	activate() {
 		this.trigger.activeCycle = this;
 	}
@@ -32,7 +44,7 @@ class TriggerCycle {
 	resume(retval) {
 		if (!this.trigger.isMachineStopped) this.schedule();
 		// mark sheet as resumed
-		this.trigger.sheet._resumeProcessing(retval);
+		this.sheet._resumeProcessing(retval);
 		// finish current step, if we currently don't process...
 		// if (!this.trigger.sheet.isProcessing && this.trigger.sheet.isNotFullyProcessed)
 	}

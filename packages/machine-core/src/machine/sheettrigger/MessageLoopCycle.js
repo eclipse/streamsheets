@@ -30,10 +30,10 @@ const Activate = (BaseCycle) =>
 const PostProcessSheet = (BaseCycle) =>
 	class extends BaseCycle {
 		postProcessSheet() {
-			if (this.trigger.sheet.isProcessed) this.trigger.messageHandler.next();
-			if (this.trigger.messageHandler.isProcessed) {
-				this.trigger.streamsheet.detachMessage();
-				if (!this.trigger.sheet.isPaused) this.stop();
+			if (this.sheet.isProcessed) this.streamsheet.messageHandler.next();
+			if (this.streamsheet.messageHandler.isProcessed) {
+				this.streamsheet.detachMessage();
+				if (!this.sheet.isPaused) this.stop();
 			}
 		}
 	};
@@ -43,11 +43,11 @@ const Step = (BaseCycle) => {
 			throw new Error('Not implemented!');
 		}
 		step() {
-			if (!this.trigger.sheet.isPaused && this.trigger.sheet.isProcessed) {
-				this.trigger.streamsheet.stats.steps += 1;
+			if (!this.sheet.isPaused && this.sheet.isProcessed) {
+				this.streamsheet.stats.steps += 1;
 			}
 			if (this.trigger.isEndless) {
-				this.trigger.streamsheet.stats.repeatsteps = 0;
+				this.streamsheet.stats.repeatsteps = 0;
 				this.trigger.activeCycle = this.getRepeatUntilCycle();
 				this.trigger.activeCycle.run();
 			} else {
