@@ -182,7 +182,7 @@ describe('feedinbox', () => {
 		sheet.loadCells({ A1: { formula: 'feedinbox(INBOXDATA(,), "T2")' } });
 		expect(t1.inbox.size).toBe(1);
 		expect(t2.inbox.size).toBe(0);
-		machine.step();
+		await machine.step();
 		expect(t2.inbox.size).toBe(1);
 		let msg = t2.inbox.pop();
 		expect(msg.data.temperature).toBe(23);

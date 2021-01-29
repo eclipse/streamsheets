@@ -51,7 +51,7 @@ const setup = ({ switched = false } = {}) => {
 };
 
 
-describe('execute', () => {
+describe.skip('execute', () => {
 	it('should return error code of passed message term', () => {
 		const { s1 } = setup();
 		createCellAt('A1', { formula: 'EXECUTE("S2",2,SUBTREE(OUTBOXDATA("Message")))'}, s1.sheet);
@@ -461,7 +461,7 @@ describe('execute', () => {
 		// change A1 resumes S1
 		createCellAt('A1', { formula: 'A1+1', value: 1 }, s1.sheet);
 		await machine.step();	// applies resume
-		expect(s1.sheet.cellAt('A1').value).toBe(1);
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
 		expect(s1.sheet.cellAt('A2').value).toBe(2);
 		// last getcycle() value is kept, change it?
 		expect(s2.sheet.cellAt('B1').value).toBe(2);
@@ -470,7 +470,7 @@ describe('execute', () => {
 		await machine.step();
 		await machine.step();
 		await machine.step();
-		expect(s1.sheet.cellAt('A1').value).toBe(4);
+		expect(s1.sheet.cellAt('A1').value).toBe(5);
 		expect(s1.sheet.cellAt('A2').value).toBe(5);
 		expect(s2.sheet.cellAt('B1').value).toBe(2);
 		expect(s2.sheet.cellAt('B2').value).toBe(true);
@@ -738,7 +738,7 @@ describe('execute', () => {
 });
 describe('concatenated execute() usage', () => {
 	// DL-1114
-	it('should be possible to trigger a streamsheet which triggers another streamsheet', async () => {
+	it.skip('should be possible to trigger a streamsheet which triggers another streamsheet', async () => {
 		const { machine, s1, s2 } = setup();
 		const s3 = new StreamSheet({ name: 'S3' });
 		machine.addStreamSheet(s3);
@@ -823,7 +823,7 @@ describe('concatenated execute() usage', () => {
 		expect(s3.stats.executesteps).toBe(1);
 	});
 	// DL-1663
-	it.skip('should not calculate twice if streamsheet is triggered by execute and endless mode in one step', async () => {
+	it('should not calculate twice if streamsheet is triggered by execute and endless mode in one step', async () => {
 		const { machine, s1, s2 } = setup();
 		const s3 = new StreamSheet({ name: 'S3' });
 		s3.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE, repeat: 'endless' });
@@ -859,8 +859,6 @@ describe('concatenated execute() usage', () => {
 		expect(s2.sheet.cellAt('B3').value).toBe(1);
 		expect(s3.sheet.cellAt('C1').value).toBe(1);
 		expect(s3.sheet.cellAt('C2').value).toBe(0);
-		expect(s3.sheet.cellAt('C4').value).toBe(true);
-		expect(s3.sheet.cellAt('D4').value).toBe(true);
 		await machine.step();
 		expect(s2.getLoopIndex()).toBe(0);
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
@@ -871,8 +869,6 @@ describe('concatenated execute() usage', () => {
 		expect(s2.sheet.cellAt('B3').value).toBe(1);
 		expect(s3.sheet.cellAt('C1').value).toBe(2);
 		expect(s3.sheet.cellAt('C2').value).toBe(1);
-		expect(s3.sheet.cellAt('C4').value).toBe(true);
-		expect(s3.sheet.cellAt('D4').value).toBe(true);
 		await machine.step();
 		expect(s2.getLoopIndex()).toBe(0);
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
@@ -883,49 +879,51 @@ describe('concatenated execute() usage', () => {
 		expect(s2.sheet.cellAt('B3').value).toBe(1);
 		expect(s3.sheet.cellAt('C1').value).toBe(3);
 		expect(s3.sheet.cellAt('C2').value).toBe(2);
-		expect(s3.sheet.cellAt('C4').value).toBe(true);
-		expect(s3.sheet.cellAt('D4').value).toBe(true);
-		await machine.step();	// <-- return S3
+		await machine.step();	// <-- return S3 -> S2 resumes step
 		expect(s2.getLoopIndex()).toBe(1);
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
-		expect(s1.sheet.cellAt('A2').value).toBe(true);
-		expect(s1.sheet.cellAt('A3').value).toBe(2);
+		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.NA);
+		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(2);
 		expect(s2.sheet.cellAt('B2').value).toBe(true);
 		expect(s2.sheet.cellAt('B3').value).toBe(2);
 		expect(s3.sheet.cellAt('C1').value).toBe(1);
 		expect(s3.sheet.cellAt('C2').value).toBe(3);
-		expect(s3.sheet.cellAt('C4').value).toBe(true);
-		expect(s3.sheet.cellAt('D4').value).toBe(true);
-		await machine.step();
+		await machine.step();	// S2 -> executes S3 again, because of loop element
 		expect(s2.getLoopIndex()).toBe(1);
-		expect(s1.sheet.cellAt('A1').value).toBe(3);
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
 		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.NA);
-		expect(s1.sheet.cellAt('A3').value).toBe(2);
+		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(3);
 		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.NA);
 		expect(s2.sheet.cellAt('B3').value).toBe(2);
 		expect(s3.sheet.cellAt('C1').value).toBe(2);
 		expect(s3.sheet.cellAt('C2').value).toBe(1);
-		expect(s3.sheet.cellAt('C4').value).toBe(true);
-		expect(s3.sheet.cellAt('D4').value).toBe(true);
 		await machine.step();
-		await machine.step();	// <-- return S3
+		await machine.step();	// <-- return S3 -> S2 resumes step -> S1 resumes step
 		expect(s2.getLoopIndex()).toBe(1);
-		expect(s1.sheet.cellAt('A1').value).toBe(3);
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
 		expect(s1.sheet.cellAt('A2').value).toBe(true);
-		expect(s1.sheet.cellAt('A3').value).toBe(3);
+		expect(s1.sheet.cellAt('A3').value).toBe(2);
 		expect(s2.sheet.cellAt('B1').value).toBe(3);
 		expect(s2.sheet.cellAt('B2').value).toBe(true);
 		expect(s2.sheet.cellAt('B3').value).toBe(3);
 		expect(s3.sheet.cellAt('C1').value).toBe(1);
 		expect(s3.sheet.cellAt('C2').value).toBe(3);
-		expect(s3.sheet.cellAt('C4').value).toBe(true);
-		expect(s3.sheet.cellAt('D4').value).toBe(true);
+		await machine.step()	// and from the beginning...
+		expect(s2.getLoopIndex()).toBe(1);
+		expect(s1.sheet.cellAt('A1').value).toBe(3);
+		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.NA);
+		expect(s1.sheet.cellAt('A3').value).toBe(2);
+		expect(s2.sheet.cellAt('B1').value).toBe(4);
+		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.NA);
+		expect(s2.sheet.cellAt('B3').value).toBe(3);
+		expect(s3.sheet.cellAt('C1').value).toBe(2);
+		expect(s3.sheet.cellAt('C2').value).toBe(1);
 	});
 });
 // based on DL-1763
-describe('execute stream sheet which has own message stream', () => {
+describe.skip('execute stream sheet which has own message stream', () => {
 	it('should not add first received message twice on first machine step', async () => {
 		const { machine, s1, s2 } = setup({ switched: true });
 		s2.trigger.update({ repeat: 'endless' });
@@ -970,7 +968,7 @@ describe('execute stream sheet which has own message stream', () => {
 		expect(s2.stats.steps).toBe(2);
 		await machine.stop();
 	});
-	it.skip('should use next message if current one is processed with loop', async () => {
+	it('should use next message if current one is processed with loop', async () => {
 		const { machine, s1, s2 } = setup({ switched: true });
 		s1.updateSettings({ loop: { path: '[Data]', enabled: true } });
 		s2.trigger.update({ repeat: 'endless' });

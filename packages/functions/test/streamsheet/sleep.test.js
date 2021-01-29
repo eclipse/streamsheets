@@ -81,13 +81,14 @@ describe('sleep', () => {
 		expect(sheet.cellAt('A3').value).toBe(1);
 		sheet.setCellAt('A2', undefined); // resumes sheet
 		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A2')).toBeUndefined();
 		expect(sheet.cellAt('A3').value).toBe(2);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(3);
+		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A3').value).toBe(3);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(4);
+		expect(sheet.cellAt('A1').value).toBe(5);
 		expect(sheet.cellAt('A3').value).toBe(4);
 	});
 	it('should handle replace of sleep term', async () => {
@@ -105,33 +106,34 @@ describe('sleep', () => {
 		// replace sleep to resume
 		createCellAt('A2', 'replaced', sheet);
 		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A2').value).toBe('replaced');
 		expect(sheet.cellAt('A3').value).toBe(2);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(3);
+		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A3').value).toBe(3);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(4);
+		expect(sheet.cellAt('A1').value).toBe(5);
 		expect(sheet.cellAt('A3').value).toBe(4);
 		// sleep again
 		createCellAt('A2', { formula: 'sleep(2)' }, sheet);
 		expect(sheet.cellAt('A2').value).toBe(true);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(5);
+		expect(sheet.cellAt('A1').value).toBe(6);
 		expect(sheet.cellAt('A3').value).toBe(4);
 		// replace with another sleep
 		createCellAt('A2', { formula: 'sleep(0.05)' }, sheet);
 		expect(sheet.cellAt('A2').value).toBe(true);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(5);
-		expect(sheet.cellAt('A3').value).toBe(5);
+		expect(sheet.cellAt('A1').value).toBe(7);
+		expect(sheet.cellAt('A3').value).toBe(4);
 		await machine.step();
 		await machine.step();
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(6);
-		expect(sheet.cellAt('A3').value).toBe(5);
+		expect(sheet.cellAt('A1').value).toBe(7);
+		expect(sheet.cellAt('A3').value).toBe(4);
 		await wait(60); // wait long enough to resume
-		expect(sheet.cellAt('A3').value).toBe(6);
+		expect(sheet.cellAt('A3').value).toBe(5);
 	});
 	it('should not pause sheet processing if seconds is less then 1ms (0.001)', async() => {
 		const machine = new Machine();

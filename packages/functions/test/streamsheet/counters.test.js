@@ -28,7 +28,7 @@ const createStreamSheet = (name, trigger, cells) => {
 
 
 describe('counter', () => {
-	it('should increment a given value', () => {
+	it('should increment a given value', async () => {
 		const t1 = createStreamSheet('T1',
 			TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY }), {});
 		const sheet = t1.sheet;
@@ -36,16 +36,16 @@ describe('counter', () => {
 		const counter = createTerm('counter(0, 1)', sheet);
 		sheet.setCellAt('A1', new Cell(null, counter));
 		expect(sheet.cellAt('A1').value).toBe(0);
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(1);
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(2);
-		machine.step();
-		machine.step();
-		machine.step();
+		await machine.step();
+		await machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(5);
 	});
-	it('should decrement a given value if step is negative', () => {
+	it('should decrement a given value if step is negative', async () => {
 		const t1 = createStreamSheet('T1',
 			TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY }), {});
 		const sheet = t1.sheet;
@@ -53,16 +53,16 @@ describe('counter', () => {
 		const counter = createTerm('counter(6, -2)', sheet);
 		sheet.setCellAt('A1', new Cell(null, counter));
 		expect(sheet.cellAt('A1').value).toBe(6);
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(4);
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(2);
-		machine.step();
-		machine.step();
-		machine.step();
+		await machine.step();
+		await machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(-4);
 	});
-	it('should work with cell references', () => {
+	it('should work with cell references', async () => {
 		const t1 = createStreamSheet('T1',
 			TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY }), {});
 		const sheet = t1.sheet;
@@ -74,16 +74,16 @@ describe('counter', () => {
 		expect(sheet.cellAt('A1').value).toBe(1);
 		expect(sheet.cellAt('B1').value).toBe(2);
 		expect(sheet.cellAt('A2').value).toBe(1);
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A2').value).toBe(3);
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A2').value).toBe(5);
-		machine.step();
-		machine.step();
-		machine.step();
+		await machine.step();
+		await machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A2').value).toBe(11);
 	});
-	it('should increment a given value until end is reached', () => {
+	it('should increment a given value until end is reached', async () => {
 		const t1 = createStreamSheet('T1',
 			TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY }), {});
 		const sheet = t1.sheet;
@@ -91,17 +91,17 @@ describe('counter', () => {
 		const counter = createTerm('counter(0, 1, 3)', sheet);
 		sheet.setCellAt('A1', new Cell(null, counter));
 		expect(sheet.cellAt('A1').value).toBe(0);
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(1);
-		machine.step();
-		machine.step();
+		await machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
 		// we reached end
-		machine.step();
-		machine.step();
+		await machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
 	});
-	it('should decrement a given value until end is reached', () => {
+	it('should decrement a given value until end is reached', async () => {
 		const t1 = createStreamSheet('T1',
 			TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY }), {});
 		const sheet = t1.sheet;
@@ -109,16 +109,16 @@ describe('counter', () => {
 		const counter = createTerm('counter(4, -2, 0)', sheet);
 		sheet.setCellAt('A1', new Cell(null, counter));
 		expect(sheet.cellAt('A1').value).toBe(4);
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(2);
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(0);
 		// we reached end
-		machine.step();
-		machine.step();
+		await machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(0);
 	});
-	it('should not increase or decrease if given value already reached end', () => {
+	it('should not increase or decrease if given value already reached end', async () => {
 		const t1 = createStreamSheet('T1',
 			TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY }), {});
 		const sheet = t1.sheet;
@@ -130,15 +130,15 @@ describe('counter', () => {
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B1').value).toBe(5);
 		// start values are already above/below end
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B1').value).toBe(5);
-		machine.step();
-		machine.step();
+		await machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B1').value).toBe(5);
 	});
-	it('should not increase or decrease value if reset param is always TRUE', () => {
+	it('should not increase or decrease value if reset param is always TRUE', async () => {
 		const t1 = createStreamSheet('T1',
 			TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY }), {});
 		const sheet = t1.sheet;
@@ -149,17 +149,17 @@ describe('counter', () => {
 		sheet.setCellAt('B1', new Cell(null, counterB));
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B1').value).toBe(10);
-		machine.step();
+		await machine.step();
 		// reset is always true, so we keep start :-)
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B1').value).toBe(10);
-		machine.step();
-		machine.step();
-		machine.step();
+		await machine.step();
+		await machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B1').value).toBe(10);
 	});
-	it('should reset value to start if reset param is TRUE', () => {
+	it('should reset value to start if reset param is TRUE', async () => {
 		const t1 = createStreamSheet('T1',
 			TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY }), {});
 		const sheet = t1.sheet;
@@ -170,18 +170,18 @@ describe('counter', () => {
 		sheet.setCellAt('B1', new Cell(null, counterB));
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B1').value).toBe(10);
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(5);
 		expect(sheet.cellAt('B1').value).toBe(7);
-		machine.step();
+		await machine.step();
 		// should done reset:
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B1').value).toBe(10);
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(5);
 		expect(sheet.cellAt('B1').value).toBe(7);
 	});
-	it('should reset value to start if reset param is TRUE independent of end value', () => {
+	it('should reset value to start if reset param is TRUE independent of end value', async () => {
 		const t1 = createStreamSheet('T1',
 			TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY }), {});
 		const sheet = t1.sheet;
@@ -192,20 +192,20 @@ describe('counter', () => {
 		sheet.setCellAt('B1', new Cell(null, counterB));
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B1').value).toBe(10);
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(5);
 		expect(sheet.cellAt('B1').value).toBe(7);
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(7);
 		expect(sheet.cellAt('B1').value).toBe(4);
-		machine.step();
+		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(7);
 		expect(sheet.cellAt('B1').value).toBe(1);
-		machine.step();
+		await machine.step();
 		// resets counterA
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B1').value).toBe(1);
-		machine.step();
+		await machine.step();
 		// resets counterB
 		expect(sheet.cellAt('A1').value).toBe(5);
 		expect(sheet.cellAt('B1').value).toBe(10);
