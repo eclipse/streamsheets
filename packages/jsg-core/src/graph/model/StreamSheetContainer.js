@@ -89,7 +89,7 @@ module.exports = class StreamSheetContainer extends Node {
 		settingsInboxButton.getFormat().setShadowOffsetX(1);
 		settingsInboxButton.onClick = this.onClick;
 		settingsInboxButton.setEventScope(this);
-		settingsInboxButton.setSize(800, 500);
+		settingsInboxButton.setSize(700, 500);
 		settingsInboxButton.setTooltip(JSG.getLocalizedString('Inbox Settings'));
 		this._inboxCaption.addItem(settingsInboxButton);
 		settingsInboxButton.setName('inboxSettings');
@@ -105,7 +105,7 @@ module.exports = class StreamSheetContainer extends Node {
 		settingsButton.getFormat().setShadowOffsetX(1);
 		settingsButton.onClick = this.onClick;
 		settingsButton.setEventScope(this);
-		settingsButton.setSize(800, 500);
+		settingsButton.setSize(700, 500);
 		settingsButton.setTooltip(JSG.getLocalizedString('Sheet Settings'));
 		this._sheetCaption.addItem(settingsButton);
 		settingsButton.setName('settings');
@@ -119,7 +119,7 @@ module.exports = class StreamSheetContainer extends Node {
 		minimizeButton.getFormat().setShadowOffsetX(1);
 		minimizeButton.onClick = this.onClickMinimize;
 		minimizeButton.setEventScope(this);
-		minimizeButton.setSize(800, 500);
+		minimizeButton.setSize(700, 500);
 		minimizeButton.setTooltip(JSG.getLocalizedString('Minimize StreamSheet'));
 		this._sheetCaption.addItem(minimizeButton);
 		minimizeButton.setName('minimize');
@@ -133,7 +133,7 @@ module.exports = class StreamSheetContainer extends Node {
 		maximizeButton.getFormat().setShadowOffsetX(1);
 		maximizeButton.onClick = this.onClickMaximize;
 		maximizeButton.setEventScope(this);
-		maximizeButton.setSize(800, 500);
+		maximizeButton.setSize(700, 500);
 		maximizeButton.setTooltip(JSG.getLocalizedString('Maximize StreamSheet'));
 		this._sheetCaption.addItem(maximizeButton);
 		maximizeButton.setName('maximize');

@@ -488,7 +488,7 @@
 	"Schema.RemoveVer": "Version löschen",
 	"Schema.Remove": "Schema löschen",
 	"Alert.SheetDelete": "Löschen nicht möglich! Es muss mindestens ein Streamsheet vorhanden sein.",
-	"Alert.SheetMaximum": "Es können maximal 4 Streamsheets angelegt werden!",
+	"Alert.SheetMaximum": "Es können maximal 10 Streamsheets angelegt werden!",
 	"Settings.Debug": "Debug Modus",
 	"Settings.ExperimentalFeatures": "Experimentelle Features",
 	"ToolsContainer": "Container",

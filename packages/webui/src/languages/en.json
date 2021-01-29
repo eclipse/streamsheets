@@ -489,7 +489,7 @@
   "Schema.RemoveVer": "Delete Version",
   "Schema.Remove": "Delete Schema",
   "Alert.SheetDelete": "Cannot delete! There must be at least one Streamsheet.",
-  "Alert.SheetMaximum": "There is a maximum of 4 Streamsheets allowed!",
+  "Alert.SheetMaximum": "There is a maximum of 10 Streamsheets allowed!",
   "Settings.Debug": "Debug Mode",
   "Settings.ExperimentalFeatures": "Experimental Features",
   "ToolsContainer": "Container",

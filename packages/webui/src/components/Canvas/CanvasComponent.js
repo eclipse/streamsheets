@@ -219,7 +219,7 @@ export class CanvasComponent extends Component {
 		const graph = graphManager.getGraph();
 		let cnt = graph.getStreamSheetContainerCount();
 
-		if (cnt > 3) {
+		if (cnt > 9) {
 			JSG.NotificationCenter.getInstance().send(
 				new JSG.Notification(JSG.WorksheetView.SHEET_MESSAGE_NOTIFICATION, {
 					view: this,
