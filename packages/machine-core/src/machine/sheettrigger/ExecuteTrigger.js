@@ -14,7 +14,6 @@ const { ManualMessageLoopCycle } = require('./MessageLoopCycle');
 const { TimerRepeatUntilCycle } = require('./RepeatUntilCycle');
 const RepeatedMessageLoopCycle = require('./RepeatedMessageLoopCycle');
 const Machine = require('../Machine');
-const TaskQueue = require('../TaskQueue');
 const { ManualCycle, TimerCycle } = require('./cycles');
 
 
@@ -150,8 +149,7 @@ class ExecuteTrigger extends BaseTrigger {
 		this.repetitions = repetitions;
 		this.resumeFn = resumeFn || noop;
 		this.streamsheet.stats.executesteps = 0;
-		// called by different sheet, so schedule it
-		TaskQueue.schedule(() => this.activeCycle.run());
+		this.activeCycle.run();
 	}
 	cancelExecute() {
 		this.retval = undefined;
