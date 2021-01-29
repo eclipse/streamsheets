@@ -474,6 +474,9 @@ class Machine {
 		this.stats.steps += 1;
 		// // reset should actually not be necessary
 		// TaskQueue.reset();
+
+		// wait for task which are triggered outside any steps, e.g. by cell replace
+		await TaskQueue.done();
 		this._streamsheets.forEach((streamsheet) => streamsheet.step(manual));
 		await TaskQueue.done();
 		this._emitter.emit('update', 'step');
