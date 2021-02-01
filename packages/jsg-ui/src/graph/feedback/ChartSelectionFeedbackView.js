@@ -39,6 +39,34 @@ export default class ChartSelectionFeedbackView extends View {
 		this.chartView = chartView;
 	}
 
+	drawLabelMarkers(graphics, drawRect, labelAngle) {
+		const rect = new Rectangle();
+		let markerPt = new Point(drawRect.left, drawRect.top);
+		markerPt = labelAngle
+			? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
+			: markerPt;
+		rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+		graphics.drawMarker(rect, false);
+		markerPt.set(drawRect.left, drawRect.bottom);
+		markerPt = labelAngle
+			? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
+			: markerPt;
+		rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+		graphics.drawMarker(rect, false);
+		markerPt.set(drawRect.right, drawRect.top);
+		markerPt = labelAngle
+			? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
+			: markerPt;
+		rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+		graphics.drawMarker(rect, false);
+		markerPt.set(drawRect.right, drawRect.bottom);
+		markerPt = labelAngle
+			? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
+			: markerPt;
+		rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
+		graphics.drawMarker(rect, false);
+	}
+
 	draw(graphics) {
 		const point = new Point(0, 0);
 		const rect = new Rectangle();
@@ -368,30 +396,7 @@ export default class ChartSelectionFeedbackView extends View {
 										params.boxBarWidth = lbarWidth;
 										const drawRect = item.getLabelRect(ptl, val, text, index, params);
 										if (drawRect) {
-											let markerPt = new Point(drawRect.left, drawRect.top);
-											markerPt = labelAngle
-												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
-												: markerPt;
-											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-											graphics.drawMarker(rect, false);
-											markerPt.set(drawRect.left, drawRect.bottom);
-											markerPt = labelAngle
-												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
-												: markerPt;
-											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-											graphics.drawMarker(rect, false);
-											markerPt.set(drawRect.right, drawRect.top);
-											markerPt = labelAngle
-												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
-												: markerPt;
-											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-											graphics.drawMarker(rect, false);
-											markerPt.set(drawRect.right, drawRect.bottom);
-											markerPt = labelAngle
-												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
-												: markerPt;
-											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-											graphics.drawMarker(rect, false);
+											this.drawLabelMarkers(graphics, drawRect, labelAngle);
 										}
 									}
 								};
@@ -427,6 +432,29 @@ export default class ChartSelectionFeedbackView extends View {
 									}
 								});
 							}
+						} else if (serie.type === 'map') {
+							if (serie.map.mapData) {
+								const features = serie.map.mapData.features;
+								const mapInfo = item.getMapInfo(plotRect, serie, ref);
+								if (!mapInfo) {
+									return;
+								}
+								features.forEach((feature) => {
+									index = item.findMapIndex(feature.properties, serie, mapInfo.labels);
+									let text = feature.properties[serie.map.label];
+									if (index !== -1 && item.getValue(ref, index, value)) {
+										value.x = text;
+										text = item.getDataLabel(value, axes.x, ref, serie, legendData);
+									}
+									const pm = item.getFeatureCenter(feature);
+									pm.x = mapInfo.xOff + (pm.x - mapInfo.bounds.xMin) * mapInfo.scale;
+									pm.y = mapInfo.yOff + (mapInfo.bounds.yMax - pm.y) * mapInfo.scale;
+									const drawRect = item.getLabelRect(pm, value, text, index, params);
+									if (item.hasDataPointLabel(serie, index) && drawRect) {
+										this.drawLabelMarkers(graphics, drawRect, labelAngle);
+									}
+								});
+							}
 						} else {
 							while (item.getValue(ref, index, value)) {
 								info.index = index;
@@ -459,30 +487,7 @@ export default class ChartSelectionFeedbackView extends View {
 										value.y = y;
 										const drawRect = item.getLabelRect(pt, value, text, index, params);
 										if (item.hasDataPointLabel(serie, index) && drawRect) {
-											let markerPt = new Point(drawRect.left, drawRect.top);
-											markerPt = labelAngle
-												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
-												: markerPt;
-											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-											graphics.drawMarker(rect, false);
-											markerPt.set(drawRect.left, drawRect.bottom);
-											markerPt = labelAngle
-												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
-												: markerPt;
-											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-											graphics.drawMarker(rect, false);
-											markerPt.set(drawRect.right, drawRect.top);
-											markerPt = labelAngle
-												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
-												: markerPt;
-											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-											graphics.drawMarker(rect, false);
-											markerPt.set(drawRect.right, drawRect.bottom);
-											markerPt = labelAngle
-												? MathUtils.getRotatedPoint(markerPt, drawRect.center, -labelAngle)
-												: markerPt;
-											rect.set(markerPt.x - 50, markerPt.y - 50, 100, 100);
-											graphics.drawMarker(rect, false);
+											this.drawLabelMarkers(graphics, drawRect, labelAngle);
 										}
 									}
 								}
