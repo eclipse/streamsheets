@@ -1923,7 +1923,7 @@ export class CanvasToolBar extends Component {
 		graphManager.getCanvas().focus();
 	};
 
-	getPresetColors() {
+	getPresetColors(color) {
 		const colors = [
 			{title: 'Black', color: '#000000'},
 			{title: 'Tundora', color: '#434343'},
@@ -2011,6 +2011,12 @@ export class CanvasToolBar extends Component {
 		if (this.isChartElementSelected()) {
 			colors.push({ title: 'Automatic', color: '#FFFFFE' });
 		}
+
+		colors.forEach(colorl => {
+			if (colorl.color === color.toLowerCase()) {
+				colorl.title += `${intl.formatMessage({ id: 'Current' }, {})}`;
+			}
+		});
 
 		return colors;
 	}
@@ -2437,7 +2443,7 @@ export class CanvasToolBar extends Component {
 						classes={{ 'sketch-picker': classes.default }}
 						width={250}
 						disableAlpha
-						presetColors={this.getPresetColors()}
+						presetColors={this.getPresetColors(tf && tf.getFontColor() ? tf.getFontColor().getValue() : '')}
 						color={tf && tf.getFontColor() ? tf.getFontColor().getValue() : ''}
 						onChange={(color, event) => this.onFormatFontColor(color, event)}
 					/>
@@ -2665,7 +2671,7 @@ export class CanvasToolBar extends Component {
 						disableAlpha={!this.isChartSelected()}
 						width={250}
 						color={this.fillColorToRGBAObject(f)}
-						presetColors={this.getPresetColors()}
+						presetColors={this.getPresetColors(f && f.getFillColor() ? f.getFillColor().getValue() : '')}
 						onChange={(color, event) => this.onFormatFillColor(color, event)}
 					/>
 				</Popover>
@@ -2699,7 +2705,7 @@ export class CanvasToolBar extends Component {
 						width={250}
 						color={this.getFormatBorderColor()}
 						onChange={(color, event) => this.onFormatBorderColor(color, event)}
-						presetColors={this.getPresetColors()}
+						presetColors={this.getPresetColors(this.getFormatBorderColor())}
 					/>
 				</Popover>
 				<Tooltip
