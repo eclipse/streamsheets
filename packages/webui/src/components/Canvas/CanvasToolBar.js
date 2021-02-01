@@ -1215,6 +1215,14 @@ export class CanvasToolBar extends Component {
 						attributesMap.put(JSG.CellAttributes.TOPBORDERSTYLE, FormatAttributes.LineStyle.NONE);
 						attributesMap.put(JSG.CellAttributes.RIGHTBORDERSTYLE, FormatAttributes.LineStyle.NONE);
 						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERSTYLE, FormatAttributes.LineStyle.NONE);
+						attributesMap.put(JSG.CellAttributes.LEFTBORDERWIDTH, 1);
+						attributesMap.put(JSG.CellAttributes.TOPBORDERWIDTH, 1);
+						attributesMap.put(JSG.CellAttributes.RIGHTBORDERWIDTH, 1);
+						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERWIDTH, 1);
+						attributesMap.put(JSG.CellAttributes.LEFTBORDERCOLOR, JSG.theme.border);
+						attributesMap.put(JSG.CellAttributes.TOPBORDERCOLOR, JSG.theme.border);
+						attributesMap.put(JSG.CellAttributes.RIGHTBORDERCOLOR, JSG.theme.border);
+						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERCOLOR, JSG.theme.border);
 						cmd = new CompoundCommand();
 						cmd.add(new JSG.CellAttributesCommand(selection.getRanges(), attributesMap));
 						selection.getRanges().forEach((range) => {
@@ -1223,6 +1231,14 @@ export class CanvasToolBar extends Component {
 								attributesMap.put(
 									JSG.CellAttributes.BOTTOMBORDERSTYLE,
 									FormatAttributes.LineStyle.NONE
+								);
+								attributesMap.put(
+									JSG.CellAttributes.BOTTOMBORDERWIDTH,
+									1
+								);
+								attributesMap.put(
+									JSG.CellAttributes.BOTTOMBORDERCOLOR,
+									JSG.theme.border
 								);
 
 								rangeCopy = range.copy();
@@ -1233,6 +1249,14 @@ export class CanvasToolBar extends Component {
 							if (range._y2 < range.getSheet().getRowCount()) {
 								attributesMap.clear();
 								attributesMap.put(JSG.CellAttributes.TOPBORDERSTYLE, FormatAttributes.LineStyle.NONE);
+								attributesMap.put(
+									JSG.CellAttributes.TOPBORDERWIDTH,
+									1
+								);
+								attributesMap.put(
+									JSG.CellAttributes.TOPBORDERCOLOR,
+									JSG.theme.border
+								);
 
 								rangeCopy = range.copy();
 								rangeCopy._y1 = rangeCopy._y2 + 1;
@@ -1242,6 +1266,14 @@ export class CanvasToolBar extends Component {
 							if (range._x1) {
 								attributesMap.clear();
 								attributesMap.put(JSG.CellAttributes.RIGHTBORDERSTYLE, FormatAttributes.LineStyle.NONE);
+								attributesMap.put(
+									JSG.CellAttributes.RIGHTBORDERWIDTH,
+									1
+								);
+								attributesMap.put(
+									JSG.CellAttributes.RIGHTBORDERCOLOR,
+									JSG.theme.border
+								);
 
 								rangeCopy = range.copy();
 								rangeCopy._x1 -= 1;
@@ -1251,6 +1283,14 @@ export class CanvasToolBar extends Component {
 							if (range._x2 < range.getSheet().getColumnCount()) {
 								attributesMap.clear();
 								attributesMap.put(JSG.CellAttributes.LEFTBORDERSTYLE, FormatAttributes.LineStyle.NONE);
+								attributesMap.put(
+									JSG.CellAttributes.LEFTBORDERWIDTH,
+									1
+								);
+								attributesMap.put(
+									JSG.CellAttributes.LEFTBORDERCOLOR,
+									JSG.theme.border
+								);
 
 								rangeCopy = range.copy();
 								rangeCopy._x1 = rangeCopy._x2 + 1;
