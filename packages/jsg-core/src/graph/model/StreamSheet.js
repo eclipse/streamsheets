@@ -1444,8 +1444,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 	}
 
     getFontTerm(item, currentTerm) {
-        const formula = this.getFontFormula(item, currentTerm);
-        return formula ? this.parseTextToTerm(formula) : new NullTerm();
+		const formula = this.getFontFormula(item, currentTerm);
+        return formula instanceof NullTerm ? formula : this.parseTextToTerm(formula);
     }
 
     getContainer(item, parent) {
