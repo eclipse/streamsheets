@@ -149,13 +149,15 @@ class ExecuteTrigger extends BaseTrigger {
 		this.repetitions = repetitions;
 		this.resumeFn = resumeFn || noop;
 		this.streamsheet.stats.executesteps = 0;
+		// might be called on manual step, but still on machine one
+		if (this.machine.isManualStep && !this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
 		this.activeCycle.run();
 	}
 	cancelExecute() {
 		this.retval = undefined;
 		this.resumeFn = undefined;
 		this.stopProcessing();
-		this.activeCyle = this.getManualCycle();
+		this.activeCycle = this.getManualCycle();
 	}
 	resumeExecute() {
 		if (this.resumeFn) {
