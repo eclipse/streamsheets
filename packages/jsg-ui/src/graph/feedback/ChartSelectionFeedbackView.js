@@ -439,7 +439,7 @@ export default class ChartSelectionFeedbackView extends View {
 								if (!mapInfo) {
 									return;
 								}
-								features.forEach((feature) => {
+								features.forEach((feature, mapIndex) => {
 									index = item.findMapIndex(feature.properties, serie, mapInfo.labels);
 									let text = feature.properties[serie.map.label];
 									if (index !== -1 && item.getValue(ref, index, value)) {
@@ -450,7 +450,7 @@ export default class ChartSelectionFeedbackView extends View {
 									pm.x = mapInfo.xOff + (pm.x - mapInfo.bounds.xMin) * mapInfo.scale;
 									pm.y = mapInfo.yOff + (mapInfo.bounds.yMax - pm.y) * mapInfo.scale;
 									const drawRect = item.getLabelRect(pm, value, text, index, params);
-									if (item.hasDataPointLabel(serie, index) && drawRect) {
+									if (item.hasDataPointLabel(serie, mapIndex) && drawRect) {
 										this.drawLabelMarkers(graphics, drawRect, labelAngle);
 									}
 								});
