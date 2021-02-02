@@ -51,7 +51,7 @@ const setup = ({ switched = false } = {}) => {
 };
 
 
-describe.skip('execute', () => {
+describe('execute', () => {
 	it('should return error code of passed message term', () => {
 		const { s1 } = setup();
 		createCellAt('A1', { formula: 'EXECUTE("S2",2,SUBTREE(OUTBOXDATA("Message")))'}, s1.sheet);
@@ -183,7 +183,7 @@ describe.skip('execute', () => {
 		const sheet1 = s1.sheet.load({
 			cells: {
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'read(inboxdata(,,),B2:C4,"Dictionary")' },
+				A2: { formula: 'read(inboxdata(,,),B2:C4,"Dictionary",false)' },
 				A3: { formula: 'execute("S2")' },
 				A4: { formula: 'loopindex()' }
 			}
@@ -735,10 +735,55 @@ describe.skip('execute', () => {
 		expect(s2.sheet.cellAt('B1').value).toBeGreaterThan(2);
 		expect(s2.sheet.cellAt('B1').value).toBeLessThanOrEqual(6);
 	});
+	test('repeated execute and pass message with json loop', async () => {
+		const { machine, s1, s2 } = setup();
+		s1.sheet.loadCells({
+			A1: { formula: 'A1+1' },
+			A2: 'A', B2: 23,
+			A3: 'B', B3: 42,
+			A4: { formula: 'execute("S2",2,JSON(A2:B3))' },
+			A5: { formula: 'A5+1' }
+		});
+		s2.sheet.loadCells({ B1: { formula: 'B1+1' }, B2: { formula: 'loopindices()' } });
+		s2.updateSettings({ loop: { path: '[data]', enabled: true } });
+		await machine.step();
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		expect(s1.sheet.cellAt('A5').value).toBe(1);
+		expect(s2.sheet.cellAt('B1').value).toBe(2);
+		expect(s2.sheet.cellAt('B2').value).toBe('0');
+		await machine.step();
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		expect(s1.sheet.cellAt('A5').value).toBe(1);
+		expect(s2.sheet.cellAt('B1').value).toBe(3);
+		expect(s2.sheet.cellAt('B2').value).toBe('0,1');
+		await machine.step();
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		expect(s1.sheet.cellAt('A5').value).toBe(1);
+		expect(s2.sheet.cellAt('B1').value).toBe(4);
+		expect(s2.sheet.cellAt('B2').value).toBe('0,1,0');
+		await machine.step();
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		expect(s1.sheet.cellAt('A5').value).toBe(2);
+		expect(s2.sheet.cellAt('B1').value).toBe(5);
+		expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1');
+		await machine.step();
+		expect(s1.sheet.cellAt('A1').value).toBe(3);
+		expect(s1.sheet.cellAt('A5').value).toBe(2);
+		expect(s2.sheet.cellAt('B1').value).toBe(6);
+		expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1,0');
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		expect(s1.sheet.cellAt('A1').value).toBe(3);
+		expect(s1.sheet.cellAt('A5').value).toBe(3);
+		expect(s2.sheet.cellAt('B1').value).toBe(9);
+		expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1,0,1,0,1');
+	});
+
 });
 describe('concatenated execute() usage', () => {
 	// DL-1114
-	it.skip('should be possible to trigger a streamsheet which triggers another streamsheet', async () => {
+	it('should be possible to trigger a streamsheet which triggers another streamsheet', async () => {
 		const { machine, s1, s2 } = setup();
 		const s3 = new StreamSheet({ name: 'S3' });
 		machine.addStreamSheet(s3);
@@ -923,7 +968,7 @@ describe('concatenated execute() usage', () => {
 	});
 });
 // based on DL-1763
-describe.skip('execute stream sheet which has own message stream', () => {
+describe('execute stream sheet which has own message stream', () => {
 	it('should not add first received message twice on first machine step', async () => {
 		const { machine, s1, s2 } = setup({ switched: true });
 		s2.trigger.update({ repeat: 'endless' });
