@@ -1580,7 +1580,7 @@ export default class WorksheetView extends ContentNodeView {
 			return true;
 		}
 
-		if (json[0] === '{') {
+		if (json[0] === '{' || json[0] === '[') {
 			try {
 				const jsonModel = JSON.parse(json);
 				let rows = target.getHeight();
