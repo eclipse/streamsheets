@@ -13,7 +13,7 @@ const getStreamSheetByName = (sheet, name) => {
 const readInboxMessage = (sheet, streamsheetName, messageId) => {
 	const streamsheet = getStreamSheetByName(sheet, streamsheetName);
 	// note: read current message from streamsheet instead of inbox, since it might not be top in inbox!!
-	return streamsheet ? streamsheet.getMessage(messageId) : undefined;
+	return streamsheet ? streamsheet.getMessageById(messageId) : undefined;
 };
 const readOutboxMessage = (sheet, messageId) => sheet.machine.outbox.peek(messageId);
 

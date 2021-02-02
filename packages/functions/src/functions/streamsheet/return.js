@@ -21,8 +21,9 @@ const _return = (sheet, ...terms) =>
 		.ignoreError()
 		.mapNextArg((retval) => retval && retval.value)
 		.run((streamsheet, retval) => {
+			if (retval == null) retval = true;
 			streamsheet.stopProcessing(retval);
-			return retval != null ? retval : true;
+			return retval;
 		});
 
 module.exports = _return;

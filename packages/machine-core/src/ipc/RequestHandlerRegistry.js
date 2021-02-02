@@ -55,10 +55,10 @@ const machine2json = (machine) => {
 		const _streamsheet = machine.getStreamSheet(streamsheet.id);
 		streamsheet.stats = _streamsheet.stats;
 		streamsheet.sheet.cells = _streamsheet ? getSheetCellsAsList(_streamsheet.sheet) : [];
-		const currmsg = _streamsheet.getMessage();
+		const currmsg = _streamsheet.getCurrentMessage();
 		streamsheet.inbox.currentMessage = {
 			id: currmsg ? currmsg.id : null,
-			isProcessed: _streamsheet.isMessageProcessed(currmsg)
+			isProcessed: _streamsheet.isMessageProcessed()
 		};
 		streamsheet.inbox.messages = _streamsheet.inbox.messages.slice(0);
 		streamsheet.loop.currentPath = _streamsheet.getCurrentLoopPath();
@@ -853,11 +853,11 @@ class Subscribe extends ARequestHandler {
 				},
 				// tmp. add inbox messages...
 				streamsheets: this.machine.streamsheets.map((streamsheet) => {
-					const currmsg = streamsheet.getMessage();
+					const currmsg = streamsheet.getCurrentMessage();
 					const streamsheetCopy = streamsheet.toJSON();
 					streamsheetCopy.inbox.currentMessage = {
 						id: currmsg ? currmsg.id : null,
-						isProcessed: streamsheet.isMessageProcessed(currmsg)
+						isProcessed: streamsheet.isMessageProcessed()
 					};
 					streamsheetCopy.inbox.messages = streamsheet.inbox.messages.slice(0);
 					streamsheetCopy.loop.currentPath = streamsheet.getCurrentLoopPath();

@@ -342,7 +342,7 @@ describe('termAsType', () => {
 			};
 			const streamsheet = setupStreamSheet({ A1: { value: 'TRUE' } });
 			const sheet = streamsheet.sheet;
-			sheet.startProcessing();
+			streamsheet.process();
 			const term = cellAt('A1', sheet);
 			const typedValue = termAsType(term, typeDef);
 			expect(typedValue).toBe(true);
@@ -353,7 +353,7 @@ describe('termAsType', () => {
 			};
 			const streamsheet = setupStreamSheet({ A1: { value: true } });
 			const sheet = streamsheet.sheet;
-			sheet.startProcessing();
+			streamsheet.process();
 			const term = cellAt('A1', sheet);
 			const typedValue = termAsType(term, typeDef);
 			expect(typedValue).toBe(true);
@@ -364,7 +364,7 @@ describe('termAsType', () => {
 			};
 			const streamsheet = setupStreamSheet({ A1: { value: '1' } });
 			const sheet = streamsheet.sheet;
-			sheet.startProcessing();
+			streamsheet.process();
 			const term = cellAt('A1', sheet);
 			const typedValue = termAsType(term, typeDef);
 			expect(typedValue).toBe(true);
@@ -375,7 +375,7 @@ describe('termAsType', () => {
 			};
 			const streamsheet = setupStreamSheet({ A1: { value: 'TRUE' } });
 			const sheet = streamsheet.sheet;
-			sheet.startProcessing();
+			streamsheet.process();
 			const term = cellAt('A1', sheet);
 			const typedValue = termAsType(term, typeDef);
 			expect(typedValue).toBe(true);
@@ -386,7 +386,7 @@ describe('termAsType', () => {
 			};
 			const streamsheet = setupStreamSheet({ A1: { value: true } });
 			const sheet = streamsheet.sheet;
-			sheet.startProcessing();
+			streamsheet.process();
 			const term = cellAt('A1', sheet);
 			const typedValue = termAsType(term, typeDef);
 			expect(typedValue).toBe(true);
@@ -397,7 +397,7 @@ describe('termAsType', () => {
 			};
 			const streamsheet = setupStreamSheet({ A1: { value: '1' } });
 			const sheet = streamsheet.sheet;
-			sheet.startProcessing();
+			streamsheet.process();
 			const term = cellAt('A1', sheet);
 			const typedValue = termAsType(term, typeDef);
 			expect(typedValue).toBe(true);
@@ -408,7 +408,7 @@ describe('termAsType', () => {
 			};
 			const streamsheet = setupStreamSheet({ A1: { value: 'test' } });
 			const sheet = streamsheet.sheet;
-			sheet.startProcessing();
+			streamsheet.process();
 			const term = cellAt('A1', sheet);
 			const typedValue = termAsType(term, typeDef);
 			expect(typedValue).toBe('#INVALID_PARAM');

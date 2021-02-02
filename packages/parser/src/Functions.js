@@ -388,9 +388,8 @@ module.exports.Functions = {
 	IF: (scope, ...terms) => {
 		if (terms.length > 1) {
 			const condition = !!valueOr(terms[0].value, false);
-			const onTrue = valueOr(terms[1].value, true);
-			const onFalse = terms[2] ? valueOr(terms[2].value, null) : null;
-			return condition ? onTrue : onFalse;
+			// eslint-disable-next-line no-nested-ternary
+			return condition ? valueOr(terms[1].value, true) : terms[2] ? valueOr(terms[2].value, null) : null;
 		}
 		return ERROR.ARGS;
 	}

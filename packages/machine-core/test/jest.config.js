@@ -16,6 +16,7 @@
 module.exports = {
 	bail: true,
 	collectCoverage: false,
+	// to show console.logs overwrite in launch config, e.g. add "--verbose=false" to args: []
 	verbose: true,
 	setupFiles: ['./setup.js']
 };

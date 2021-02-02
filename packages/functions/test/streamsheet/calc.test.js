@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { CALC } = require('../../src/functions');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { StreamSheet } = require('@cedalo/machine-core');
+const { CALC } = require('../../src/functions');
 
 const ERROR = FunctionErrors.code;
 

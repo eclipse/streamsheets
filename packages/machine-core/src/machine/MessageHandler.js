@@ -52,10 +52,10 @@ class MessageHandler {
 	constructor(cfg = {}) {
 		this.config = Object.assign({}, DEF, cfg);
 		this._index = 0;
-		this._used = false; // REVIEW: to track if a message was used at all, e.g. if it has no loop-element. improve!!
 		this._hasLoop = false;
 		this._message = undefined;
 		this._stack = [];
+		this._stacklength = 1;
 	}
 
 	toJSON() {
@@ -77,12 +77,13 @@ class MessageHandler {
 
 	get index() {
 		// DL-712: we keep last loop element...
-		const last = this._stack.length - 1;
-		return Math.max(0, Math.min(this._index, last));
+		return Math.max(0, Math.min(this._index, this._stacklength - 1));
 	}
 
 	get indexKey() {
-		return this._stack.length ? this._stack[this.index].key : '[0]';
+		const index = Math.min(this._index, this._stack.length - 1);
+		return index < 0 ? '[0]' : this._stack[index].key;
+		// return this._index < this._stacklength ? this._stack[this._index].key : (this._stack.length ? '[0]';
 	}
 
 	get message() {
@@ -102,7 +103,11 @@ class MessageHandler {
 	}
 
 	get isProcessed() {
-		return !this._message || (this._used && !this.hasNext());
+		return !this._message || this._index >= this._stacklength || (!this.isEnabled && this._index > 0);
+	}
+
+	setProcessed() {
+		this._index = this._stacklength;
 	}
 
 	get isRecursive() {
@@ -122,39 +127,31 @@ class MessageHandler {
 
 	reset() {
 		this._index = 0;
-		this._used = false;
 		const loop = getLoopElement(this._message, this.config.path);
 		this._stack = createStack(loop, this.config.recursively);
+		// stacklength should be at least 1 to handle messages without loop!
+		this._stacklength = this._stack.length || 1;
 		this._hasLoop = !!loop;
 	}
 
 	pathForIndex(index) {
-		const key = index >= 0 && index < this._stack.length ? this._stack[index].key : '0';
+		let key;
+		if (this._stacklength) {
+			const max = this._stacklength - 1;
+			// eslint-disable-next-line no-nested-ternary
+			key = index < 0 ? this._stack[0].key : index > max ? this._stack[max].key : this._stack[index].key;
+		} else {
+			key = '0';
+		}
 		return `${this.path}${key}`;
 	}
 
-	hasNext() {
-		return this.isEnabled && this._hasLoop && this._index < this._stack.length;
-	}
-
 	next() {
-		const nxtdata =
-			this.isEnabled && this._hasLoop && this._index < this._stack.length
-				? this._stack[this._index].value
-				: undefined;
-		if (nxtdata !== undefined) this._index = Math.min(this._index + 1, this._stack.length);		
-		this._used = true;
-		return nxtdata;
-	}
-
-	/** @deprecated */
-	previous() {
-		const prevdata =
-			this.isEnabled && this._hasLoop && this._stack.length > 0 && this._index > 1
-				? this._stack[this._index - 2].value
-				: undefined;
-		if (prevdata !== undefined) this._index = Math.max(this._index - 1, 0);
-		return prevdata;
+		const value =
+			!this.isEnabled || this._index >= this._stack.length ? undefined : this._stack[this._index].value;
+		// have to move index to ensure we process loop elements, even if they have no data...
+		this._index = Math.min(this._index + 1, this._stacklength);
+		return value;
 	}
 }
 

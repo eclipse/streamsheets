@@ -124,12 +124,12 @@ describe('array', () => {
 	});
 
 	// define how to handle cells without any value... => currently we create an empty string!
-	it.skip('should return error code if specified cell is not valid', () => {
+	it('should return error code if specified cell is not valid', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: SHEETS.SIMPLE });
-		expect(ARRAY(sheet, createCellTerm('Z1', sheet))).toBe(ERROR.INVALID_PARAM);
+		expect(ARRAY(sheet, createCellTerm('Z1', sheet))).toEqual(['']);
 	});
-	it.skip('should return empty array if specified cells do not exist', () => {
+	it(`should return ${ERROR.INVALID_PARAM} if specified cell range is empty`, () => {
 		const sheet = new StreamSheet().sheet.load({ cells: SHEETS.SIMPLE });
-		expect(ARRAY(sheet, Term.fromString('D1:E1'))).toEqual([]);
+		expect(ARRAY(sheet, Term.fromString('D1:E1'))).toBe(ERROR.INVALID_PARAM);
 	});
 });

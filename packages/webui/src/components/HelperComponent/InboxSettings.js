@@ -292,11 +292,6 @@ export class InboxSettings extends React.Component {
 		})} ${d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
 	}
 
-	getTriggerType = () => {
-		const { type } = this.state.trigger;
-		return type === 'start' && this.state.trigger.repeat === 'endless' ? 'continuously' : type;
-	};
-
 	handleFilter = (event) => {
 		const filter = event.target.value;
 		this.setState({
@@ -626,12 +621,8 @@ export class InboxSettings extends React.Component {
 	handleTriggerChange = (event) => {
 		const type = event.target.value;
 		const newState = { trigger: { ...this.state.trigger, type } };
-		if (type === 'continuously') {
-			newState.trigger.type = 'start';
-			newState.trigger.repeat = 'endless';
-		} /* if (type === 'start') */ else {
-			newState.trigger.repeat = 'once';
-		}
+		// endlessly should be selected explicitly so:
+		newState.trigger.repeat = 'once';
 		this.setState(newState);
 	};
 
@@ -868,7 +859,7 @@ export class InboxSettings extends React.Component {
 											style={{
 												width: '65%'
 											}}
-											value={this.getTriggerType()}
+											value={this.state.trigger.type}
 											onChange={this.handleTriggerChange}
 											label={
 												<FormattedMessage
@@ -899,11 +890,7 @@ export class InboxSettings extends React.Component {
 												<Checkbox
 													checked={this.state.trigger.repeat === 'endless'}
 													onChange={this.handleRepeatCalculation}
-													disabled={
-														this.state.trigger.type === 'none' ||
-														(this.state.trigger.type === 'start' &&
-															this.state.trigger.repeat === 'endless')
-													}
+													disabled={this.state.trigger.type === 'none'}
 												/>
 											}
 											// eslint-disable-next-line
