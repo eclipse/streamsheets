@@ -1153,8 +1153,34 @@ export class CanvasToolBar extends Component {
 
 		if (sheetView) {
 			const selection = sheetView.getOwnSelection();
-			const cs = JSG.graphics.getCoordinateSystem();
-			width = cs.logToDeviceYNoZoom(width);
+			switch (width) {
+				case -1:
+					width = 1;
+					break;
+				case 25:
+					width = 1.5;
+					break;
+				case 50:
+					width = 2;
+					break;
+				case 75:
+					width = 3;
+					break;
+				case 100:
+					width = 4;
+					break;
+				case 200:
+					width = 8;
+					break;
+				case 300:
+					width = 12;
+					break;
+				case 400:
+					width = 16;
+					break;
+				default:
+					break;
+			}
 			attributesMap.put(JSG.CellAttributes.LEFTBORDERWIDTH, width);
 			attributesMap.put(JSG.CellAttributes.TOPBORDERWIDTH, width);
 			attributesMap.put(JSG.CellAttributes.RIGHTBORDERWIDTH, width);
@@ -1822,6 +1848,89 @@ export class CanvasToolBar extends Component {
 		return '';
 	}
 
+	getFormatBorderStyle() {
+		const sheetView = graphManager.getActiveSheetView();
+		if (sheetView) {
+			const attr = this.state.cellAttributes;
+			if (attr) {
+				let lStyle = attr.getLeftBorderStyle() ? attr.getLeftBorderStyle().getValue() : '';
+				const tStyle = attr.getTopBorderStyle() ? attr.getTopBorderStyle().getValue() : '';
+				const rStyle = attr.getRightBorderStyle() ? attr.getRightBorderStyle().getValue() : '';
+				const bStyle = attr.getBottomBorderStyle() ? attr.getBottomBorderStyle().getValue() : '';
+				if (lStyle !== rStyle || lStyle !== tStyle || lStyle !== bStyle) {
+					lStyle = '';
+				}
+				return lStyle;
+			}
+		} else if (
+			graphManager.getGraphEditor() &&
+			graphManager.getGraphEditor().getGraphViewer() &&
+			graphManager
+				.getGraphEditor()
+				.getSelectionProvider()
+				.hasSelection()
+		) {
+			const f = this.state.cellFormat;
+			return f && f.getLineStyle() ? f.getLineStyle().getValue() : '';
+		}
+
+		return '';
+	}
+
+	getFormatBorderWidth() {
+		const sheetView = graphManager.getActiveSheetView();
+		if (sheetView) {
+			const attr = this.state.cellAttributes;
+			if (attr) {
+				let lWidth = attr.getLeftBorderWidth() ? attr.getLeftBorderWidth().getValue() : '';
+				const tWidth = attr.getTopBorderWidth() ? attr.getTopBorderWidth().getValue() : '';
+				const rWidth = attr.getRightBorderWidth() ? attr.getRightBorderWidth().getValue() : '';
+				const bWidth = attr.getBottomBorderWidth() ? attr.getBottomBorderWidth().getValue() : '';
+				if (lWidth !== rWidth || lWidth !== tWidth || lWidth !== bWidth) {
+					return '';
+				}
+				lWidth = Math.max(1, lWidth);
+				if (lWidth !== 1.5) {
+					// compensate old approach
+					lWidth = Math.round(lWidth);
+				}
+				switch (lWidth) {
+					case 1:
+						return 1;
+					case 1.5:
+						return 25;
+					case 2:
+						return 50;
+					case 3:
+						return 75;
+					case 4:
+						return 100;
+					case 8:
+						return 200;
+					case 12:
+						return 300;
+					case 16:
+						return 400;
+					default:
+						break;
+				}
+
+			}
+		} else if (
+			graphManager.getGraphEditor() &&
+			graphManager.getGraphEditor().getGraphViewer() &&
+			graphManager
+				.getGraphEditor()
+				.getSelectionProvider()
+				.hasSelection()
+		) {
+			const f = this.state.cellFormat;
+			return f && f.getLineWidth() ? f.getLineWidth().getValue() : '';
+		}
+
+		return '';
+	}
+
 	isChartSelected() {
 		const selection = graphManager.getGraphViewer().getSelection();
 		return selection && selection.length > 0 && (selection[0].getModel() instanceof SheetPlotNode);
@@ -2035,6 +2144,8 @@ export class CanvasToolBar extends Component {
 		const f = this.state.cellFormat;
 		const noChartFont = this.isChartElementWithoutFontSelected();
 		const gridTitleColor = this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor;
+		const selBorderStyle = this.getFormatBorderStyle();
+		const selBorderWidth = this.getFormatBorderWidth();
 		return (
 			<AppBar
 				elevation={0}
@@ -2869,6 +2980,8 @@ export class CanvasToolBar extends Component {
 									fill="currentColor"
 									xmlns="http://www.w3.org/2000/svg"
 								>
+									{selBorderStyle === FormatAttributes.LineStyle.NONE ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
 									<text
 										x="50"
 										y="14"
@@ -2895,6 +3008,8 @@ export class CanvasToolBar extends Component {
 									fill="currentColor"
 									xmlns="http://www.w3.org/2000/svg"
 								>
+									{selBorderStyle === FormatAttributes.LineStyle.SOLID ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
 									<path d="M5,14 L95,14" />
 								</svg>
 							</IconButton>
@@ -2913,6 +3028,8 @@ export class CanvasToolBar extends Component {
 									fill="currentColor"
 									xmlns="http://www.w3.org/2000/svg"
 								>
+									{selBorderStyle === FormatAttributes.LineStyle.DOT ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H98 V24 H-98 V-24" /> : null}
 									<path d="M5,14 L95,14" />
 								</svg>
 							</IconButton>
@@ -2931,6 +3048,8 @@ export class CanvasToolBar extends Component {
 									fill="currentColor"
 									xmlns="http://www.w3.org/2000/svg"
 								>
+									{selBorderStyle === FormatAttributes.LineStyle.DASH ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H98 V24 H-98 V-24" /> : null}
 									<path d="M5,14 L95,14" />
 								</svg>
 							</IconButton>
@@ -2949,6 +3068,8 @@ export class CanvasToolBar extends Component {
 									fill="currentColor"
 									xmlns="http://www.w3.org/2000/svg"
 								>
+									{selBorderStyle === FormatAttributes.LineStyle.DASHDOT ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H98 V24 H-98 V-24" /> : null}
 									<path d="M5,14 L95,14" />
 								</svg>
 							</IconButton>
@@ -2967,6 +3088,8 @@ export class CanvasToolBar extends Component {
 									fill="currentColor"
 									xmlns="http://www.w3.org/2000/svg"
 								>
+									{selBorderStyle === FormatAttributes.LineStyle.DASHDOTDOT ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H98 V24 H-98 V-24" /> : null}
 									<path d="M5,14 L95,14" />
 								</svg>
 							</IconButton>
@@ -2997,6 +3120,8 @@ export class CanvasToolBar extends Component {
 									fill="currentColor"
 									xmlns="http://www.w3.org/2000/svg"
 								>
+									{selBorderWidth === -1 || selBorderWidth === 1 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
 									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
 										1 px
 									</text>
@@ -3013,6 +3138,8 @@ export class CanvasToolBar extends Component {
 									fill="currentColor"
 									xmlns="http://www.w3.org/2000/svg"
 								>
+									{selBorderWidth === 25 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
 									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
 										1/4 mm
 									</text>
@@ -3029,6 +3156,8 @@ export class CanvasToolBar extends Component {
 									fill="currentColor"
 									xmlns="http://www.w3.org/2000/svg"
 								>
+									{selBorderWidth === 50 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
 									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
 										1/2 mm
 									</text>
@@ -3045,6 +3174,8 @@ export class CanvasToolBar extends Component {
 									fill="currentColor"
 									xmlns="http://www.w3.org/2000/svg"
 								>
+									{selBorderWidth === 75 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
 									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
 										3/4 mm
 									</text>
@@ -3061,6 +3192,8 @@ export class CanvasToolBar extends Component {
 									fill="currentColor"
 									xmlns="http://www.w3.org/2000/svg"
 								>
+									{selBorderWidth === 100 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
 									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
 										1 mm
 									</text>
@@ -3077,6 +3210,8 @@ export class CanvasToolBar extends Component {
 									fill="currentColor"
 									xmlns="http://www.w3.org/2000/svg"
 								>
+									{selBorderWidth === 200 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
 									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
 										2 mm
 									</text>
@@ -3093,10 +3228,12 @@ export class CanvasToolBar extends Component {
 									fill="currentColor"
 									xmlns="http://www.w3.org/2000/svg"
 								>
+									{selBorderWidth === 300 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
 									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
-										2 mm
+										3 mm
 									</text>
-									<path stroke="currentColor" strokeWidth="2mm" d="M42,14 L95,14" />
+									<path stroke="currentColor" strokeWidth="3mm" d="M42,14 L95,14" />
 								</svg>
 							</IconButton>
 						</GridListTile>
@@ -3109,6 +3246,8 @@ export class CanvasToolBar extends Component {
 									fill="currentColor"
 									xmlns="http://www.w3.org/2000/svg"
 								>
+									{selBorderWidth === 400 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
 									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
 										4 mm
 									</text>
