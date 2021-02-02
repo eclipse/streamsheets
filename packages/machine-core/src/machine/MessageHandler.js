@@ -135,14 +135,13 @@ class MessageHandler {
 	}
 
 	pathForIndex(index) {
-		let key;
+		let entry;
 		if (this._stacklength) {
 			const max = this._stacklength - 1;
 			// eslint-disable-next-line no-nested-ternary
-			key = index < 0 ? this._stack[0].key : index > max ? this._stack[max].key : this._stack[index].key;
-		} else {
-			key = '0';
+			entry = index < 0 ? this._stack[0] : index > max ? this._stack[max] : this._stack[index];
 		}
+		const key = entry ? entry.key : '0';
 		return `${this.path}${key}`;
 	}
 
