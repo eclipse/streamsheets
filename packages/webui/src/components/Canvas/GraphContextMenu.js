@@ -25,6 +25,8 @@ import TimelineIcon from '@material-ui/icons/Timeline';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
+import { IconCopy, IconCut } from '../icons';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 
 const styles = {
@@ -83,6 +85,17 @@ class GraphContextComponent extends Component {
 		});
 	}
 
+	onCopy = () => {
+		graphManager.getGraphEditor().getInteractionHandler().copySelection();
+	};
+
+	onCut = () => {
+		graphManager.getGraphEditor().getInteractionHandler().cutSelection();
+	};
+
+	onDelete = () => {
+		graphManager.getGraphEditor().getInteractionHandler().deleteSelection();
+	};
 
 	onChangeOrder = (order) => {
 		const viewer = graphManager.getGraphViewer();
@@ -184,6 +197,27 @@ class GraphContextComponent extends Component {
 						</MenuItem>
 						<Divider/>
 					</MenuList> : null}
+				<MenuItem onClick={this.onCut} dense>
+					<ListItemIcon>
+						<IconCut style={styles.menuItem} />
+					</ListItemIcon>
+					<ListItemText primary={<FormattedMessage id="Cut" defaultMessage="Cut" />} />
+				</MenuItem>
+				<MenuItem onClick={this.onCopy} dense>
+					<ListItemIcon>
+						<IconCopy style={styles.menuItem} />
+					</ListItemIcon>
+					<ListItemText primary={<FormattedMessage id="Copy" defaultMessage="Copy" />} />
+				</MenuItem>
+				<MenuItem onClick={this.onDelete} dense>
+					<ListItemIcon>
+						<DeleteIcon style={styles.menuItem} />
+					</ListItemIcon>
+					<ListItemText
+						primary={<FormattedMessage id="Delete" defaultMessage="Delete" />}
+					/>
+				</MenuItem>
+				<Divider/>
 				<MenuItem
 					onClick={() => this.onChangeOrder(JSG.ChangeItemOrderCommand.Action.TOTOP)}
 					dense
