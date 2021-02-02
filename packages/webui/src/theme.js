@@ -243,6 +243,7 @@ const createByName = () => {
 			textlight: '#DDDDDD',
 			fill: '#000000',
 			filllight: '#222222',
+			selectionback: '#606060',
 			feedbackFill: 'rgba(255, 255, 255,0.2)',
 			feedbackBorder: 'rgba(255, 255, 255,0.8)',
 			scrollBars: {
