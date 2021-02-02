@@ -101,7 +101,7 @@ const read = (sheet, ...terms) =>
 				value = returnNA ? ERROR.NA : getLastValue(context, msgInfo.messageKey, value, type);
 			}
 			if (targetRange) {
-				const horizontally = type === 'dictionary' || type === 'range' ? direction : !direction;;
+				const horizontally = type === 'dictionary' || type === 'range' ? direction : !direction;
 				setLastValue(context, msgInfo.messageKey, value);
 				copyToCellRange(targetRange, value, type, horizontally);
 			}

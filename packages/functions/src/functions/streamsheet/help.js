@@ -128,11 +128,11 @@ module.exports = {
 		},
 		EXECUTE: {
 			en: {
-				argumentList: 'Streamsheet,Repeat,JSON,Selector',
+				argumentList: 'Streamsheet,Repeat,JSON,Pace',
 				description: 'Triggers the recalculation of another streamsheet'
 			},
 			de: {
-				argumentList: 'Streamsheet,Wiederholen,JSON,Selektor',
+				argumentList: 'Streamsheet,Wiederholen,JSON,Geschwindigkeit',
 				description: 'Aktiviert die Neuberechnung eines andere Streamsheets'
 			}
 		},
