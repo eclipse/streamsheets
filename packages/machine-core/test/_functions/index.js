@@ -18,6 +18,13 @@ module.exports = {
 		return terms.map((term) => term.value);
 	},
 	EXECUTE,
+	JSON: (sheet, ...terms) => {
+		// simply return an object with key value pairs
+		return terms.reduce((obj, curr, index) => {
+			if (index % 2 === 0) obj[curr.value] = terms[index + 1].value;
+			return obj;
+		}, {});
+	},
 	MOD: (sheet, ...terms) => {
 		const val = terms[0] ? terms[0].value : 0;
 		const dividend = terms[1] ? terms[1].value : 1;

@@ -592,6 +592,33 @@ describe('behaviour on machine run', () => {
 			expect(monitorS2.messages.attached).toBe(2);
 			expect(monitorS2.messages.detached).toBe(2);
 		});
+		test('repeated execute and pass message with json loop', async () => {
+			const { machine, s1, s2 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
+			s1.sheet.loadCells({
+				A1: { formula: 'A1+1' },
+				A2: 'A', B2: 23,
+				A3: 'B', B3: 42,
+				A4: { formula: 'execute("S2",2,JSON(A2,B2,A3,B3))' },
+				A5: { formula: 'A5+1' }
+			});
+			s2.sheet.loadCells({ B1: { formula: 'B1+1' }, B2: { formula: 'loopindices()' } });
+			s2.updateSettings({ loop: { path: '[data]', enabled: true } });
+			await machine.start();
+			await monitorS1.hasFinishedStep(1);
+			await machine.stop();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('A5').value).toBe(2);
+			expect(s2.sheet.cellAt('B1').value).toBe(5);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1');
+			await machine.start();
+			await monitorS1.hasFinishedStep(2);
+			await machine.stop();
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('A5').value).toBe(3);
+			expect(s2.sheet.cellAt('B1').value).toBe(9);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1,0,1,0,1');
+		});
 		test('repeated execute and pass message and "repeat until..." return()', async () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START});
 			const monitorS1 = monitorStreamSheet(s1);
@@ -1960,6 +1987,50 @@ describe('behaviour on manual steps', () => {
 			expect(s2.sheet.cellAt('B1').value).toBe('0,1,2,0,1,0,1,0,0,0');
 			expect(s1.sheet.cellAt('A3').value).toBe(3);
 		});
+		test('repeated execute and pass message with json loop', async () => {
+			const { machine, s1, s2 } = setup();
+			s1.sheet.loadCells({
+				A1: { formula: 'A1+1' },
+				A2: 'A', B2: 23,
+				A3: 'B', B3: 42,
+				A4: { formula: 'execute("S2",2,JSON(A2,B2,A3,B3))' },
+				A5: { formula: 'A5+1' }
+			});
+			s2.sheet.loadCells({ B1: { formula: 'B1+1' }, B2: { formula: 'loopindices()' } });
+			s2.updateSettings({ loop: { path: '[data]', enabled: true } });
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('A5').value).toBe(1);
+			expect(s2.sheet.cellAt('B1').value).toBe(2);
+			expect(s2.sheet.cellAt('B2').value).toBe('0');
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('A5').value).toBe(1);
+			expect(s2.sheet.cellAt('B1').value).toBe(3);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1');
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('A5').value).toBe(1);
+			expect(s2.sheet.cellAt('B1').value).toBe(4);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,0');
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('A5').value).toBe(2);
+			expect(s2.sheet.cellAt('B1').value).toBe(5);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1');
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('A5').value).toBe(2);
+			expect(s2.sheet.cellAt('B1').value).toBe(6);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1,0');
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('A5').value).toBe(3);
+			expect(s2.sheet.cellAt('B1').value).toBe(9);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1,0,1,0,1');
+		});
 		test('repeated execute consumes passed message with loop element and none from inbox', async () => {
 			const { machine, s1, s2 } = setup();
 			s1.sheet.loadCells({
@@ -2482,6 +2553,34 @@ describe('behaviour on start, stop, pause and step', () => {
 		expect(s1.sheet.cellAt('A2').value).toBe(true);
 		expect(s1.sheet.cellAt('A3').value).toBe(4);
 		expect(s2.sheet.cellAt('B1').value).toBe(4);
+	});
+	test('start - stop - step with repeated execute and pass message with json loop', async () => {
+		const { machine, s1, s2 } = setup();
+		const monitorS1 = monitorStreamSheet(s1);
+		s1.sheet.loadCells({
+			A1: { formula: 'A1+1' },
+			A2: 'A', B2: 23,
+			A3: 'B', B3: 42,
+			A4: { formula: 'execute("S2",2,JSON(A2,B2,A3,B3))' },
+			A5: { formula: 'A5+1' }
+		});
+		s2.sheet.loadCells({ B1: { formula: 'B1+1' }, B2: { formula: 'loopindices()' } });
+		s2.updateSettings({ loop: { path: '[data]', enabled: true } });
+		await machine.start();
+		await monitorS1.hasFinishedStep(1);
+		await machine.stop();
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		expect(s1.sheet.cellAt('A5').value).toBe(2);
+		expect(s2.sheet.cellAt('B1').value).toBe(5);
+		expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1');
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		expect(s1.sheet.cellAt('A1').value).toBe(3);
+		expect(s1.sheet.cellAt('A5').value).toBe(3);
+		expect(s2.sheet.cellAt('B1').value).toBe(9);
+		expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1,0,1,0,1');
 	});
 	test('pause - start - pause - start - stop', async () => {
 		const { machine, s1, s2 } = setup();
