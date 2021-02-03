@@ -33,6 +33,14 @@ const roundToEvenOrOdd = (nr, doEven) => {
 	return useRounded ? rounded : rounded < 0 ? rounded - 1 : rounded + 1;
 };
 
+// return random integer between min/max inclusive!
+const random = (min, max) => {
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	// eslint-disable-next-line no-mixed-operators
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
 // const roundDecimaals = (nr, decimals) => parseFloat(nr.toFixed(decimals));
 // const getDecimalsCount = (nr) => {
 // 	const nrstr = nr.toString();
@@ -141,18 +149,30 @@ const radians = (sheet, ...terms) =>
 
 const randbetween = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withArgCount(2)
+		.withMinArgs(2)
+		.withMaxArgs(4)
 		.mapNextArg((min) => toNumberOrError(min.value))
 		.mapNextArg((max) => toNumberOrError(max.value))
-		.validate((min, max) => (max < min ? ERROR.VALUE : null))
-		.run((min, max) => {
-			min = Math.ceil(min);
-			max = Math.floor(max);
-			// return random integer between min/max inclusive!
-			// eslint-disable-next-line no-mixed-operators
-			return Math.floor(Math.random() * (max - min + 1)) + min;
+		.mapNextArg((mindelta) => (mindelta ? toNumberOrError(mindelta.value) : undefined))
+		.mapNextArg((maxdelta) => (maxdelta ? toNumberOrError(maxdelta.value) : undefined))
+		.validate((min, max, mindelta, maxdelta) => {
+			if (max < min) return ERROR.VALUE;
+			if (mindelta != null) {
+				// eslint-disable-next-line no-nested-ternary
+				return maxdelta == null ? ERROR.ARGS : maxdelta < mindelta ? ERROR.VALUE : undefined;
+			}
+			return maxdelta != null ? ERROR.ARGS : undefined;
+		})
+		.run((min, max, mindelta, maxdelta) => {
+			if (mindelta == null) return random(min, max);
+			// DL-4731: support delta range for continually increasing/decreasing random numbers
+			const context = randbetween.context;
+			context.lastValue =
+				context.lastValue == null
+					? random(min, max)
+					: Math.max(min, Math.min(max, context.lastValue + random(mindelta, maxdelta)));
+			return context.lastValue;
 		});
-
 const round = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(2)
