@@ -2059,6 +2059,7 @@ export class StreamChartProperties extends Component {
 												</FormGroup>
 											</div>
 										)}
+										{!boxPlot && !map ? [
 										<TextField
 											variant="outlined"
 											size="small"
@@ -2092,7 +2093,7 @@ export class StreamChartProperties extends Component {
 														: ''
 												}
 											}}
-										/>
+										/>,
 										<TextField
 											variant="outlined"
 											size="small"
@@ -2127,6 +2128,7 @@ export class StreamChartProperties extends Component {
 												/>
 											</MenuItem>
 										</TextField>
+											] : null}
 									</FormGroup>
 								</FormControl>
 							</FormGroup>
