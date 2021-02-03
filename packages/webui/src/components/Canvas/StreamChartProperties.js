@@ -1082,6 +1082,7 @@ export class StreamChartProperties extends Component {
 			case 'scatter':
 			case 'boxplot':
 			case 'bubble':
+			case 'map':
 				return [
 					<MenuItem value="left" key={1}>
 						<FormattedMessage id="StreamChartProperties.Left" defaultMessage="Left" />
@@ -1147,6 +1148,7 @@ export class StreamChartProperties extends Component {
 			const point = item.getDataPoint(data, selection);
 			if (!point.dataLabel) {
 				point.dataLabel = new JSG.ChartDataLabel();
+				point.dataLabel.position = data.dataLabel.position;
 			}
 			point.dataLabel.visible = state;
 		}

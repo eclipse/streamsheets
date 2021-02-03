@@ -439,6 +439,9 @@ export default class ChartSelectionFeedbackView extends View {
 								if (!mapInfo) {
 									return;
 								}
+								const sheet = ref.y.range._worksheet;
+								const sheetSelection = new Selection(sheet);
+								sheetSelection.setAt(0, new CellRange(sheet, 0, 0));
 								features.forEach((feature, mapIndex) => {
 									index = item.findMapIndex(feature.properties, serie, mapInfo.labels);
 									let text = feature.properties[serie.map.label];
@@ -446,9 +449,7 @@ export default class ChartSelectionFeedbackView extends View {
 										value.x = text;
 										text = item.getDataLabel(value, axes.x, ref, serie, legendData);
 									}
-									const pm = item.getFeatureCenter(feature);
-									pm.x = mapInfo.xOff + (pm.x - mapInfo.bounds.xMin) * mapInfo.scale;
-									pm.y = mapInfo.yOff + (mapInfo.bounds.yMax - pm.y) * mapInfo.scale;
+									const pm = item.getFeatureCenter(feature, mapInfo, serie, sheetSelection, sheet, ref, index);
 									const drawRect = item.getLabelRect(pm, value, text, index, params);
 									if (item.hasDataPointLabel(serie, mapIndex) && drawRect) {
 										this.drawLabelMarkers(graphics, drawRect, labelAngle);
@@ -538,26 +539,14 @@ export default class ChartSelectionFeedbackView extends View {
 						features.forEach((feature, pointIndex) => {
 							if (selection.element === 'series' || pointIndex === selection.pointIndex) {
 								const mapIndex = item.findMapIndex(feature.properties, serie, mapInfo.labels);
-								if (feature.geometry.type === 'Point' || mapInfo.dispChart) {
-									let radius;
-									if (mapInfo.dispChart) {
-										if (mapIndex !== -1) {
-											radius = item.getMapRadius(serie, sel, sheet, ref, mapIndex, mapInfo);
-										}
-									} else if (feature.geometry.type === 'Point') {
-										radius = serie.marker.size * 100;
-										if (mapInfo.dispRadius && mapIndex !== -1 && item.getValue(ref, mapIndex, value)) {
-											radius = value.y / item.yAxes[0].scale.max * serie.marker.size * 100;
-										}
-									}
+								if (feature.geometry.type === 'Point' || mapInfo.dispChart || mapInfo.dispRadius) {
+									const ptCenter = item.getFeatureCenter(feature, mapInfo, serie, sel, sheet, ref, mapIndex);
 
-
-									const ptCenter = item.getFeatureCenter(feature);
-									dataRect.left = mapInfo.xOff + (ptCenter.x - mapInfo.bounds.xMin) * mapInfo.scale;
-									dataRect.top = mapInfo.yOff + (mapInfo.bounds.yMax - ptCenter.y) * mapInfo.scale;
-									dataRect.right = mapInfo.xOff + (ptCenter.x - mapInfo.bounds.xMin) * mapInfo.scale;
-									dataRect.bottom = mapInfo.yOff + (mapInfo.bounds.yMax - ptCenter.y) * mapInfo.scale;
-									dataRect.expand(radius);
+									dataRect.left = ptCenter.x;
+									dataRect.top = ptCenter.y;
+									dataRect.right = ptCenter.x;
+									dataRect.bottom = ptCenter.y;
+									dataRect.expand(ptCenter.radius);
 									drawMarkerRect(dataRect);
 								} else {
 									// else use polygon

@@ -249,9 +249,10 @@ export default class ChartInfoFeedbackView extends View {
 					return;
 				} else {
 					values.push(value);
-					const pt = item.getFeatureCenter(features[value.index]);
-					x = mapInfo.xOff + (pt.x - mapInfo.bounds.xMin) * mapInfo.scale;
-					y = mapInfo.yOff + (mapInfo.bounds.yMax - pt.y) * mapInfo.scale;
+					const pt = item.getFeatureCenter(features[value.index], mapInfo);
+
+					x = pt.x;
+					y = pt.y;
 				}
 			} else {
 				item.yAxes.forEach((axis) => {

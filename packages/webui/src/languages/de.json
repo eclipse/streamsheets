@@ -807,7 +807,7 @@
 	"StreamChartProperties.BehindEnd": "Am Ende außerhalb",
 	"StreamChartProperties.Left": "Links",
 	"StreamChartProperties.Right": "Rechts",
-	"StreamChartProperties.Above": "Überhalb",
+	"StreamChartProperties.Above": "Oberhalb",
 	"StreamChartProperties.Below": "Unterhalb",
 	"StreamChartProperties.TooltipContent": "Tooltip Inhalt",
 	"StreamChartProperties.Value": "Wert",
