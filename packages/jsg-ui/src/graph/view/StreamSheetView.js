@@ -414,11 +414,13 @@ export default class StreamSheetView extends WorksheetView {
 
 			switch (treeItems[i].type) {
 				case TreeItemsNode.DataType.OBJECT:
-					formula += '';
+					// DL-4107: for READ add cell reference
+					formula += !altKey && rows === 1 ? targetRange.toString() : '';
 					formula += ',"Dictionary"';
 					break;
 				case TreeItemsNode.DataType.ARRAY:
-					formula += '';
+					// DL-4107: for READ add cell reference
+					formula += !altKey && rows === 1 ? targetRange.toString() : '';
 					formula += ',"Array"';
 					break;
 				case TreeItemsNode.DataType.STRING:
