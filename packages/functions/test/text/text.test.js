@@ -8,9 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { createCellAt, createTerm } = require('../utilities');
-const { Machine, StreamSheet } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { Machine, StreamSheet } = require('@cedalo/machine-core');
+const { createCellAt, createTerm } = require('../utilities');
+const {	serialnumber: { ms2serial } } = require('@cedalo/commons');
 
 const ERROR = FunctionErrors.code;
 
@@ -541,6 +542,21 @@ describe('text', () => {
 		expect(createTerm('text(A1, "hh:mm:ss", "DE")', sheet).value).toBe('21:23:12');
 		// DL-1333
 		expect(createTerm('TEXT(A2,"HH:MM:SS")', sheet).value).toBe('00:00:00');
+	});
+	// DL-4732
+	it('should use 12 hours format when converting time value with AM/PM', () => {
+		const sheet = new StreamSheet().sheet;
+		createCellAt('A1', ms2serial(Date.UTC(2021,1,2,0,13)), sheet);
+		expect(createTerm('text(A1, "H:MM AM/PM")', sheet).value).toBe('12:13 AM');
+		createCellAt('A1', ms2serial(Date.UTC(2021,1,2,9,13)), sheet);
+		expect(createTerm('text(A1, "H:MM AM/PM")', sheet).value).toBe('9:13 AM');
+		createCellAt('A1', ms2serial(Date.UTC(2021,1,2,12,13)), sheet);
+		expect(createTerm('text(A1, "H:MM AM/PM")', sheet).value).toBe('12:13 PM');
+		createCellAt('A1', ms2serial(Date.UTC(2021,1,2,21,13)), sheet);
+		expect(createTerm('text(A1, "H:MM AM/PM")', sheet).value).toBe('9:13 PM');
+		createCellAt('A1', ms2serial(Date.UTC(2021,1,2,13,3)), sheet);
+		expect(createTerm('text(A1, "H:MM AM/PM")', sheet).value).toBe('1:03 PM');
+		expect(createTerm('text(44230.5441488079, "H:MM AM/PM")', sheet).value).toBe('1:03 PM');
 	});
 	it('should return an error if no value, format are given', () => {
 		const sheet = new StreamSheet().sheet;
