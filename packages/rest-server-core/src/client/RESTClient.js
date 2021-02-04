@@ -27,7 +27,7 @@ module.exports = class RESTClient {
 				if (error) {
 					reject(error);
 				} else {
-					resolve(body);
+					resolve({ body, headers });
 				}
 			});
 		});
