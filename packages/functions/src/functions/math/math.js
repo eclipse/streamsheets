@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { runFunction, values: { isEven, roundNumber } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { runFunction, values: { isEven, roundNumber } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -168,6 +168,16 @@ const randbetween = (sheet, ...terms) =>
 			if (mindelta == null) return random(min, max);
 			// DL-4731: support delta range for continually increasing/decreasing random numbers
 			const context = randbetween.context;
+			if (!context.isInitialized) {
+				context.isInitialized = true;
+				context.lastValue = null;
+				// have to reset last value on machine start
+				if (sheet.machine) {
+					context.resetLastValue = () => { context.lastValue = null; };
+					context.addDisposeListener((ctxt) => sheet.machine.off('willStart', ctxt.resetLastValue));
+					sheet.machine.on('willStart', context.resetLastValue);
+				}
+			}
 			if (context.lastValue == null) {
 				context.lastValue =
 					initial == null
@@ -178,6 +188,7 @@ const randbetween = (sheet, ...terms) =>
 			}
 			return context.lastValue;
 		});
+
 const round = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(2)

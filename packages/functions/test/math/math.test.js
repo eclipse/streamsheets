@@ -9,8 +9,8 @@
  *
  ********************************************************************************/
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { StreamSheet } = require('@cedalo/machine-core');
-const { createTerm } = require('../utilities');
+const { Machine, StreamSheet } = require('@cedalo/machine-core');
+const { createTerm, createCellAt } = require('../utilities');
 
 const ERROR = FunctionErrors.code;
 
@@ -106,5 +106,23 @@ describe('randbetween', () => {
 			expect(value).toBeLessThanOrEqual(15);
 			expect(value).toBeGreaterThanOrEqual(10);
 		}
+	});
+	it('should reset on machine start', async () => {
+		const machine = new Machine();
+		const streamsheet = new StreamSheet();
+		machine.removeAllStreamSheets();
+		machine.addStreamSheet(streamsheet);
+		const cell = createCellAt('A1', { formula: 'randbetween(10,30,0,1,15)' }, streamsheet.sheet);
+		// perform a few steps to get over 16...
+		for (let i = 0; i < 100; i += 1) {
+			// eslint-disable-next-line no-await-in-loop
+			await machine.step();
+		}
+		const cellValue = cell.value;
+		expect(cellValue).toBeGreaterThan(16);
+		// now start/stop machine to reset:
+		await machine.start();
+		await machine.stop();
+		expect(cell.value).toBeLessThan(cellValue);
 	});
 });
