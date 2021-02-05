@@ -918,6 +918,7 @@ export class StreamChartProperties extends Component {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
 		data.map.name = event.target.value;
+		data.map.mapData = undefined;
 		this.finishCommand(cmd, 'series');
 	};
 
