@@ -9,8 +9,8 @@
  *
  ********************************************************************************/
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { StreamSheet } = require('@cedalo/machine-core');
-const { createTerm } = require('../utilities');
+const { Machine, StreamSheet } = require('@cedalo/machine-core');
+const { createTerm, createCellAt } = require('../utilities');
 
 const ERROR = FunctionErrors.code;
 
@@ -40,8 +40,8 @@ describe('randbetween', () => {
 	it(`should return ${ERROR.ARGS} if called with to less or to many arguments`, () => {
 		const sheet = new StreamSheet().sheet;
 		expect(createTerm('randbetween(10)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('randbetween(10,23,45)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('randbetween(10,23,5,56,67)', sheet).value).toBe(ERROR.ARGS);
+		// expect(createTerm('randbetween(10,23,45)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('randbetween(10,23,5,56,67,34)', sheet).value).toBe(ERROR.ARGS);
 	});
 	it(`should return ${ERROR.VALUE} if called with to wrong parameter values`, () => {
 		const sheet = new StreamSheet().sheet;
@@ -50,6 +50,7 @@ describe('randbetween', () => {
 		expect(createTerm('randbetween(5,"23hi")', sheet).value).toBe(ERROR.VALUE);
 		expect(createTerm('randbetween(10,23,45,)', sheet).value).toBe(ERROR.VALUE);
 		expect(createTerm('randbetween(10,23,45,12)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('randbetween(10,23,12,45,"da")', sheet).value).toBe(ERROR.VALUE);
 	});
 	it('should return an integer within given bounds', () => {
 		const sheet = new StreamSheet().sheet;
@@ -78,10 +79,50 @@ describe('randbetween', () => {
 		let value = term.value;
 		expect(value).toBeGreaterThanOrEqual(10);
 		expect(value).toBeLessThanOrEqual(30);
-		for (let i = 0; i < 1000; i += 1) {
+		for (let i = 0; i < 100; i += 1) {
 			value = term.value;
 			expect(value).toBeGreaterThanOrEqual(10);
 			expect(value).toBeLessThanOrEqual(value);
 		}
+	});
+	it('should return an increasing integer form initial value within given delta bounds', () => {
+		const sheet = new StreamSheet().sheet;
+		let term = createTerm('randbetween(10,30,0,0,15)', sheet);
+		expect(term.value).toBe(15);
+		term = createTerm('randbetween(10,30,0,1,15)', sheet);
+		for (let i = 0; i < 1000; i += 1) {
+			const value = term.value;
+			expect(value).toBeLessThanOrEqual(30);
+			expect(value).toBeGreaterThanOrEqual(15);
+		}
+	});
+	it('should return a decreasing integer form initial value within given delta bounds', () => {
+		const sheet = new StreamSheet().sheet;
+		let term = createTerm('randbetween(10,30,0,0,15)', sheet);
+		expect(term.value).toBe(15);
+		term = createTerm('randbetween(10,30,-1, 0,15)', sheet);
+		for (let i = 0; i < 1000; i += 1) {
+			const value = term.value;
+			expect(value).toBeLessThanOrEqual(15);
+			expect(value).toBeGreaterThanOrEqual(10);
+		}
+	});
+	it('should reset on machine start', async () => {
+		const machine = new Machine();
+		const streamsheet = new StreamSheet();
+		machine.removeAllStreamSheets();
+		machine.addStreamSheet(streamsheet);
+		const cell = createCellAt('A1', { formula: 'randbetween(10,30,0,1,15)' }, streamsheet.sheet);
+		// perform a few steps to get over 16...
+		for (let i = 0; i < 100; i += 1) {
+			// eslint-disable-next-line no-await-in-loop
+			await machine.step();
+		}
+		const cellValue = cell.value;
+		expect(cellValue).toBeGreaterThan(16);
+		// now start/stop machine to reset:
+		await machine.start();
+		await machine.stop();
+		expect(cell.value).toBeLessThan(cellValue);
 	});
 });

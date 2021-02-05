@@ -90,11 +90,11 @@ module.exports = {
 		},
 		RANDBETWEEN: {
 			en: {
-				argumentList: 'Min,Max,MinDelta,MaxDelta',
+				argumentList: 'Min,Max,MinDelta,MaxDelta,InitialValue',
 				description: 'Creates a random value within specified interval, which is optionally in- or decreasing'
 			},
 			de: {
-				argumentList: 'Min,Max,MinDelta,MaxDelta',
+				argumentList: 'Min,Max,MinDelta,MaxDelta,Initialwert',
 				description: 'Erzeugt einen Zufallswert innerhalb eines angegebenen Bereichs, der optional zu- oder abnimmt'
 			}
 		},

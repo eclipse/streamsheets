@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { runFunction, values: { isEven, roundNumber } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { runFunction, values: { isEven, roundNumber } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -150,11 +150,12 @@ const radians = (sheet, ...terms) =>
 const randbetween = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(2)
-		.withMaxArgs(4)
+		.withMaxArgs(5)
 		.mapNextArg((min) => toNumberOrError(min.value))
 		.mapNextArg((max) => toNumberOrError(max.value))
 		.mapNextArg((mindelta) => (mindelta ? toNumberOrError(mindelta.value) : undefined))
 		.mapNextArg((maxdelta) => (maxdelta ? toNumberOrError(maxdelta.value) : undefined))
+		.mapNextArg((initial) => (initial ? toNumberOrError(initial.value) : undefined))
 		.validate((min, max, mindelta, maxdelta) => {
 			if (max < min) return ERROR.VALUE;
 			if (mindelta != null) {
@@ -163,16 +164,31 @@ const randbetween = (sheet, ...terms) =>
 			}
 			return maxdelta != null ? ERROR.ARGS : undefined;
 		})
-		.run((min, max, mindelta, maxdelta) => {
+		.run((min, max, mindelta, maxdelta, initial) => {
 			if (mindelta == null) return random(min, max);
 			// DL-4731: support delta range for continually increasing/decreasing random numbers
 			const context = randbetween.context;
-			context.lastValue =
-				context.lastValue == null
-					? random(min, max)
-					: Math.max(min, Math.min(max, context.lastValue + random(mindelta, maxdelta)));
+			if (!context.isInitialized) {
+				context.isInitialized = true;
+				context.lastValue = null;
+				// have to reset last value on machine start
+				if (sheet.machine) {
+					context.resetLastValue = () => { context.lastValue = null; };
+					context.addDisposeListener((ctxt) => sheet.machine.off('willStart', ctxt.resetLastValue));
+					sheet.machine.on('willStart', context.resetLastValue);
+				}
+			}
+			if (context.lastValue == null) {
+				context.lastValue =
+					initial == null
+						? random(min, max)
+						: Math.max(min, Math.min(max, initial + random(mindelta, maxdelta)));
+			} else {
+				context.lastValue = Math.max(min, Math.min(max, context.lastValue + random(mindelta, maxdelta)));
+			}
 			return context.lastValue;
 		});
+
 const round = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(2)
