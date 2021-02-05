@@ -3339,7 +3339,17 @@ export class StreamChartProperties extends Component {
 												select
 												SelectProps={{
 													multiple: true,
-													renderValue: (selected) => selected.join(', ')
+													renderValue: (selected) => {
+														let result = '';
+														selected.forEach((sel, index) => {
+															result += intl.formatMessage({ id: `StreamChartProperties.MapDisplay${sel}` }, {})
+															if (index < selected.length - 1) {
+																result += ', ';
+															}
+														})
+														return result;
+														// selected.join(', ')
+													}
 												}}
 												margin="normal"
 												value={data.map.displayType}
@@ -3348,35 +3358,35 @@ export class StreamChartProperties extends Component {
 												<MenuItem value="color" key={0}>
 													<Checkbox checked={data.map.displayType.indexOf('color') > -1} />
 													<FormattedMessage
-														id="StreamChartProperties.MapDisplayColor"
+														id="StreamChartProperties.MapDisplaycolor"
 														defaultMessage="Color Intensity"
 													/>
 												</MenuItem>
 												<MenuItem value="cvalue" key={4}>
 													<Checkbox checked={data.map.displayType.indexOf('cvalue') > -1} />
 													<FormattedMessage
-														id="StreamChartProperties.MapDisplayColorValue"
+														id="StreamChartProperties.MapDisplaycvalue"
 														defaultMessage="Color Value"
 													/>
 												</MenuItem>
 												<MenuItem value="line" key={1}>
 													<Checkbox checked={data.map.displayType.indexOf('line') > -1} />
 													<FormattedMessage
-														id="StreamChartProperties.MapDisplayLine"
+														id="StreamChartProperties.MapDisplayline"
 														defaultMessage="Line Width"
 													/>
 												</MenuItem>
 												<MenuItem value="radius" key={2}>
 													<Checkbox checked={data.map.displayType.indexOf('radius') > -1} />
 													<FormattedMessage
-														id="StreamChartProperties.MapDisplayRadius"
+														id="StreamChartProperties.MapDisplayradius"
 														defaultMessage="Point Radius"
 													/>
 												</MenuItem>
 												<MenuItem value="chart" key={3}>
 													<Checkbox checked={data.map.displayType.indexOf('chart') > -1} />
 													<FormattedMessage
-														id="StreamChartProperties.MapDisplayChart"
+														id="StreamChartProperties.MapDisplaychart"
 														defaultMessage="Chart"
 													/>
 												</MenuItem>
