@@ -523,6 +523,7 @@ class Graphics {
 	 */
 	setFillColor(color) {
 		color = this._filter('fillcolor', color);
+		color = color.toLowerCase();
 		if (this._context2D.fillStyle !== color) {
 			this._context2D.fillStyle = color;
 			this._fillColor = color;
@@ -595,6 +596,7 @@ class Graphics {
 	 */
 	setLineColor(color) {
 		color = this._filter('linecolor', color);
+		color = color.toLowerCase();
 		if (this._context2D.strokeStyle !== color) {
 			this._context2D.strokeStyle = color;
 		}

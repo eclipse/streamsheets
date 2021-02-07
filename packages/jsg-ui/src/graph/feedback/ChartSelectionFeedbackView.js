@@ -338,7 +338,11 @@ export default class ChartSelectionFeedbackView extends View {
 						const axes = item.getAxes(data);
 						let index = 0;
 						let valueSum = 0;
-						const value = {};
+						const value = {
+							formatX: {},
+							formatY: {},
+							formatC: {},
+						};
 						const points = [];
 						const prevPoints = [];
 						const pt = { x: 0, y: 0 };
@@ -439,9 +443,6 @@ export default class ChartSelectionFeedbackView extends View {
 								if (!mapInfo) {
 									return;
 								}
-								const sheet = ref.y.range._worksheet;
-								const sheetSelection = new Selection(sheet);
-								sheetSelection.setAt(0, new CellRange(sheet, 0, 0));
 								features.forEach((feature, mapIndex) => {
 									index = item.findMapIndex(feature.properties, serie, mapInfo.labels);
 									let text = feature.properties[serie.map.label];
@@ -449,7 +450,7 @@ export default class ChartSelectionFeedbackView extends View {
 										value.x = text;
 										text = item.getDataLabel(value, axes.x, ref, serie, legendData);
 									}
-									const pm = item.getFeatureCenter(feature, mapInfo, serie, sheetSelection, sheet, ref, index);
+									const pm = item.getFeatureCenter(feature, mapInfo, serie, ref, index);
 									const drawRect = item.getLabelRect(pm, value, text, index, params);
 									if (item.hasDataPointLabel(serie, mapIndex) && drawRect) {
 										this.drawLabelMarkers(graphics, drawRect, labelAngle);
@@ -527,9 +528,6 @@ export default class ChartSelectionFeedbackView extends View {
 						}
 
 						const dataRect = new ChartRect();
-						const sheet = ref.y.range._worksheet;
-						const sel = new Selection(sheet);
-						sel.setAt(0, new CellRange(sheet, 0, 0));
 
 						graphics.save();
 						graphics.beginPath();
@@ -540,7 +538,7 @@ export default class ChartSelectionFeedbackView extends View {
 							if (selection.element === 'series' || pointIndex === selection.pointIndex) {
 								const mapIndex = item.findMapIndex(feature.properties, serie, mapInfo.labels);
 								if (feature.geometry.type === 'Point' || mapInfo.dispChart || mapInfo.dispRadius) {
-									const ptCenter = item.getFeatureCenter(feature, mapInfo, serie, sel, sheet, ref, mapIndex);
+									const ptCenter = item.getFeatureCenter(feature, mapInfo, serie, ref, mapIndex);
 
 									dataRect.left = ptCenter.x;
 									dataRect.top = ptCenter.y;
