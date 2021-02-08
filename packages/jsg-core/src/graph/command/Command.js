@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -182,6 +182,39 @@ class Command {
 	}
 
 	undoFromObject(data) {}
+
+	selectCell(viewer, sheet, cell) {
+		const controller = viewer.getRootController().getControllerByModelId(sheet.getId());
+		if (controller) {
+			const selection = sheet.getOwnSelection();
+			selection.removeAll();
+			selection.add(sheet.getRangeFromPositions(cell));
+			selection.getActiveCell().setTo(cell);
+			const view = controller.getView();
+			view.showCell(cell);
+			view.notifySelectionChange(viewer);
+		}
+	};
+
+	selectRanges(viewer, ranges) {
+		if (!ranges.length) {
+			return;
+		}
+		const sheet = ranges[0].getSheet();
+		const controller = viewer.getRootController().getControllerByModelId(sheet.getId());
+		if (controller) {
+			const selection = sheet.getOwnSelection();
+			selection.removeAll();
+			ranges.forEach(range => {
+				selection.add(range.copy());
+			});
+			const cell = {x: ranges[0]._x1, y: ranges[0]._y1}
+			selection.getActiveCell().setTo(cell);
+			const view = controller.getView();
+			view.showCell(cell);
+			view.notifySelectionChange(viewer);
+		}
+	};
 }
 
 module.exports = Command;
