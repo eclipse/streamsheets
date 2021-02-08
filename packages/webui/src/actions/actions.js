@@ -794,34 +794,22 @@ export function openExport(machineId) {
 	}
 }
 
-export function openDashboard(currentMachineId) {
+export function openDashboard(currentMachineId, newTab = false) {
 	removeSelection();
-	if (currentMachineId) {
-		return (dispatch) => {
+	return async (dispatch) => {
+		if (currentMachineId) {
 			const previewImage = graphManager.getMachineImage(245, 100);
 			if (previewImage) {
-				return gatewayClient
-					.updateMachineImage(currentMachineId, previewImage)
-					.then(() => dispatch(push(Path.dashboard())))
-					.then(() => {
-						reloadDashboard();
-					});
+				await gatewayClient.updateMachineImage(currentMachineId, previewImage);
 			}
-			return Promise.resolve()
-				.then(() => dispatch(push(Path.dashboard())))
-				.then(() => {
-					reloadDashboard();
-				});
-		};
-		// eslint-disable-next-line
-	} else {
-		return (dispatch) =>
-			Promise.resolve()
-				.then(() => dispatch(push(Path.dashboard())))
-				.then(() => {
-					reloadDashboard();
-				});
-	}
+			if (newTab) {
+				window.open(Path.dashboard(), '_blank');
+			} else {
+				await dispatch(push(Path.dashboard()));
+				reloadDashboard();
+			}
+		}
+	};
 }
 
 export function openStream(stream) {
