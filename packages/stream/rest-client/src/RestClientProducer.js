@@ -54,7 +54,6 @@ module.exports = class RestClientProducer extends ProducerMixin(
 				config.Data,
 				connectorConfig
 			);
-			metadata.responseHeaders = headers;
 			metadata.response = {
 				headers,
 				statusCode
