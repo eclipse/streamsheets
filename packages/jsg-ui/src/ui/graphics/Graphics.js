@@ -522,6 +522,9 @@ class Graphics {
 	 *     (#). '#FFFFFF' is defined as a white fill color. and '#000000' would define a black fill color.
 	 */
 	setFillColor(color) {
+		if (color === undefined) {
+			return;
+		}
 		color = this._filter('fillcolor', color);
 		color = color.toLowerCase();
 		if (this._context2D.fillStyle !== color) {
@@ -595,6 +598,9 @@ class Graphics {
 	 *     (#). '#FFFFFF' is defined as a white fill color. and '#000000' would define a black fill color.
 	 */
 	setLineColor(color) {
+		if (color === undefined) {
+			return;
+		}
 		color = this._filter('linecolor', color);
 		color = color.toLowerCase();
 		if (this._context2D.strokeStyle !== color) {
