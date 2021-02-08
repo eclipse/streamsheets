@@ -84,7 +84,7 @@ export class MainDrawer extends Component {
 	};
 
 	handleOpenDashboard = () => {
-		this.props.openDashboard(this.props.machineId);
+		this.props.openDashboard(this.props.machineId, this.props.isMachineDetailPage);
 		this.setAppState({
 			drawerOpen: false
 		});
