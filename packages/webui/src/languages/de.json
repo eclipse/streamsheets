@@ -705,7 +705,7 @@
 	"StreamChartProperties.DataInterrupt": "Linie unterbrechen",
 	"StreamChartProperties.DataHide": "Ausblenden",
 	"StreamChartProperties.DataGrey": "Grau darstellen",
-	"StreamChartProperties.AllowMapZoom": "Karte vergrößern erlauben",
+	"StreamChartProperties.AllowMapZoom": "Kartenzoom erlauben",
 	"StreamChartProperties.MapName": "Karte",
 	"StreamChartProperties.MapCustom": "Aus Worksheet Definition",
 	"StreamChartProperties.HideEmpty": "Kategorien ausblenden",
