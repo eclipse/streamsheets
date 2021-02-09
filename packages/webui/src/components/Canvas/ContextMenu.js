@@ -328,7 +328,7 @@ class ContextComponent extends Component {
 								primary={<FormattedMessage id="CopyText" defaultMessage="Copy as Text" />}
 							/>
 						</MenuItem>
-						<MenuItem onClick={this.onPaste} dense disabled={JSG.clipSheet === undefined}>
+						<MenuItem onClick={this.onPaste} dense disabled={JSG.clipSheet === undefined && JSG.clipXML === undefined}>
 							<ListItemIcon>
 								<IconPaste style={styles.menuItem} />
 							</ListItemIcon>

@@ -108,7 +108,7 @@ export default class CaptionActivator extends InteractionActivator {
 			if (item) {
 				viewer
 					.getInteractionHandler()
-					.execute(new ChangeItemOrderCommand(item, ChangeItemOrderCommand.Action.TOTOP, viewer));
+					.execute(new ChangeItemOrderCommand(item, ChangeItemOrderCommand.Action.TOTOP, viewer, true));
 			}
 			if (this.isOverStatus(event, viewer, controller)) {
 				const link = controller.getModel().getIconLink();

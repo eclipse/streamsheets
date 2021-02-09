@@ -1,3 +1,4 @@
+
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
@@ -186,13 +187,18 @@ class Command {
 	selectCell(viewer, sheet, cell) {
 		const controller = viewer.getRootController().getControllerByModelId(sheet.getId());
 		if (controller) {
+			const processContainer = sheet.getGraph().getStreamSheetsContainer();
+			processContainer.enumerateStreamSheetContainers((container) => {
+				container.getStreamSheet().getOwnSelection().clear();
+			});
+
 			const selection = sheet.getOwnSelection();
 			selection.removeAll();
 			selection.add(sheet.getRangeFromPositions(cell));
-			selection.getActiveCell().setTo(cell);
+			selection.setActiveCell(cell);
 			const view = controller.getView();
 			view.showCell(cell);
-			view.notifySelectionChange(viewer);
+			// view.notifySelectionChange(viewer);
 		}
 	};
 
@@ -203,16 +209,20 @@ class Command {
 		const sheet = ranges[0].getSheet();
 		const controller = viewer.getRootController().getControllerByModelId(sheet.getId());
 		if (controller) {
+			const processContainer = sheet.getGraph().getStreamSheetsContainer();
+			processContainer.enumerateStreamSheetContainers((container) => {
+				container.getStreamSheet().getOwnSelection().clear();
+			});
 			const selection = sheet.getOwnSelection();
 			selection.removeAll();
 			ranges.forEach(range => {
 				selection.add(range.copy());
 			});
 			const cell = {x: ranges[0]._x1, y: ranges[0]._y1}
-			selection.getActiveCell().setTo(cell);
+			selection.setActiveCell(cell);
 			const view = controller.getView();
 			view.showCell(cell);
-			view.notifySelectionChange(viewer);
+			// view.notifySelectionChange(viewer);
 		}
 	};
 }
