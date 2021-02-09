@@ -46,7 +46,9 @@ const compareParamIndex = (idx1, idx2) => {
 };
 const compareInfo = (i1, i2) => {
 	const idx = i1.start - i2.start;
-	return idx === 0 ? compareParamIndex(i1.paramIndex, i2.paramIndex): idx;
+	const endidx = i2.end - i1.end;
+	// eslint-disable-next-line no-nested-ternary
+	return idx === 0 ? (endidx === 0 ? compareParamIndex(i1.paramIndex, i2.paramIndex) : endidx): idx;
 };
 
 module.exports = class Parser {
