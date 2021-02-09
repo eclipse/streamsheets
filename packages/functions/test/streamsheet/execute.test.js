@@ -654,12 +654,12 @@ describe('execute', () => {
 		await machine.step();
 		expect(s1.sheet.cellAt('A1').value).toBe(false);
 	});
-	it('should return false if target trigger is not set correctly', async () => {
+	it(`should return ${ERROR.INVALID_PARAM} if target trigger is not set correctly`, async () => {
 		const { machine, s1, s2 } = setup();
 		s1.sheet.load({ cells: { A1: { formula: 'execute("S2",1,"data")' } } });
 		s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 		await machine.step();
-		expect(s1.sheet.cellAt('A1').value).toBe(false);
+		expect(s1.sheet.cellAt('A1').value).toBe(`${ERROR.INVALID_PARAM}_1`);
 	});
 	// DL-3731:
 	test('check passed message', async () => {
