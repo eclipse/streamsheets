@@ -27,6 +27,7 @@ import {
 import TreeFeedbackView from '../feedback/TreeFeedbackView';
 import NodeView from './NodeView';
 import ContentPaneView from './ContentPaneView';
+import RangeModel from "../../ui/scrollview/RangeModel";
 
 /**
  * This view is for a {{#crossLink "TreeItemsNode"}}{{/crossLink}} model. Although it
@@ -431,18 +432,15 @@ export default class TreeItemsView extends NodeView {
 
 		const model = viewport.getVerticalRangeModel();
 		const numOfItems = item.getVisibleTreeItemCount();
-		const heightOfItem = item
-			.getTreeItemAttributes()
-			.getTreeItemHeight()
-			.getValue();
 		const depthOffset = item
 			.getTreeItemAttributes()
 			.getDepthOffset()
 			.getValue();
 		const boxHeight = Math.max(0,(numOfItems - 2) * depthOffset);
 
-		if (model.getValue() >= boxHeight) {
+		if (model.getValue() && model.getValue() >= boxHeight) {
 			model.setValue(boxHeight);
+			contentNode.getScrollView().layout();
 		}
 
 		contentNode._didScroll = false;
