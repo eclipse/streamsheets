@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { runFunction, sheet: { getMachine } } = require('../../utils');
+const { runFunction, sheet: { getMachine, getStreamSheetByName } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
@@ -65,8 +65,11 @@ const getmachinestep = (sheet, ...terms) =>
 // streamsheet steps
 const getstep = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withArgCount(0)
-		.addMappedArg(() => sheet.streamsheet || ERROR.NO_STREAMSHEET)
+		.withMaxArgs(1)
+		.mapNextArg((streamsheet) => {
+			const _streamsheet = streamsheet ? getStreamSheetByName(streamsheet.value, sheet) : sheet.streamsheet;
+			return _streamsheet || ERROR.NO_STREAMSHEET;
+		})
 		.run((streamsheet) => streamsheet.stats.steps);
 
 const getmachinestepspersecond = (sheet, ...terms) =>
