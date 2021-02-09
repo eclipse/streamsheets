@@ -15,6 +15,16 @@ const SHEET = require('../../_data/sheets.json');
 
 const ERROR = FunctionErrors.code;
 
+const expectRow = (sheet, ...cellrefs) => ({
+	toEqual(list) {
+		expect(cellrefs.length).toBe(list.length);
+		cellrefs.forEach((ref, index) => {
+			const cell = sheet.cellAt(ref);
+			if (cell) expect(cell.value).toBe(list[index]);
+			else expect(list[index] == null).toBeTruthy();
+		});
+	}
+});
 const setupSheet = () => {
 	const machine = new Machine();
 	const sheet = new StreamSheet().sheet;
@@ -24,7 +34,68 @@ const setupSheet = () => {
 	return sheet;
 };
 describe('table.ordercolumn', () => {
-	it('should order table column by criteria column', async () => {
+	// DL-4641: sort complete row
+	it('should order per table row', async () => {
+		const sheet = setupSheet();
+		const machine = sheet.machine;
+		sheet.loadCells({
+			C1: "Name", D1: "Kids",
+			C2: "Mueller", D2: 2,
+			C3: "Meier", D3: 3,
+			C4: "Metzger", D4: 4,
+			C6: "Name", D6: "Kids",
+			C7: "Metzger", D7: 3
+		})
+		createCellAt('A9', { formula: 'table.ordercolumn(C1:D4, C6:C7)'}, sheet);
+		await machine.step();
+		expectRow(sheet, 'C1', 'D1').toEqual(['Name', 'Kids']);
+		expectRow(sheet, 'C2', 'D2').toEqual(['Metzger', 4]);
+		expectRow(sheet, 'C3', 'D3').toEqual(['Mueller', 2]);
+		expectRow(sheet, 'C4', 'D4').toEqual(['Meier', 3]);
+		createCellAt('A9', { formula: 'table.ordercolumn(C1:D4, D6:D7)'}, sheet);
+		await machine.step();
+		expectRow(sheet, 'C1', 'D1').toEqual(['Name', 'Kids']);
+		expectRow(sheet, 'C2', 'D2').toEqual(['Meier', 3]);
+		expectRow(sheet, 'C3', 'D3').toEqual(['Metzger', 4]);
+		expectRow(sheet, 'C4', 'D4').toEqual(['Mueller', 2]);
+	});
+	it('should order per table row and with multiple criteria columns', async () => {
+		const sheet = setupSheet();
+		const machine = sheet.machine;
+		sheet.loadCells({
+			C1: "Name", D1: "Kids",
+			C2: "Mueller", D2: 2,
+			C3: "Meier", D3: 3,
+			C4: "Metzger", D4: 4,
+			E6: "Name", F6: "Kids",
+			E7: "Metzger", F7: 3
+		})
+		createCellAt('A9', { formula: 'table.ordercolumn(C1:D4, E6:F7)'}, sheet);
+		await machine.step();
+		expectRow(sheet, 'C1', 'D1').toEqual(['Name', 'Kids']);
+		expectRow(sheet, 'C2', 'D2').toEqual(['Meier', 3]);
+		expectRow(sheet, 'C3', 'D3').toEqual(['Metzger', 4]);
+		expectRow(sheet, 'C4', 'D4').toEqual(['Mueller', 2]);
+	});
+	it('should not require criteria columns in same order as table once', async () => {
+		const sheet = setupSheet();
+		const machine = sheet.machine;
+		sheet.loadCells({
+			A1: "Name", B1: "Kids",
+			A2: "Mueller", B2: 2,
+			A3: "Meier", B3: 3,
+			A4: "Metzger", B4: 4,
+			A6: "Kids", B6: "Name",
+			A7: 3, B7: "Metzger"
+		})
+		createCellAt('A9', { formula: 'table.ordercolumn(A1:B4, A6:B7)'}, sheet);
+		await machine.step();
+		expectRow(sheet, 'A1', 'B1').toEqual(['Name', 'Kids']);
+		expectRow(sheet, 'A2', 'B2').toEqual(['Metzger', 4]);
+		expectRow(sheet, 'A3', 'B3').toEqual(['Meier', 3]);
+		expectRow(sheet, 'A4', 'B4').toEqual(['Mueller', 2]);
+	});
+	it('should order table row by criteria column', async () => {
 		const sheet = setupSheet();
 		const machine = sheet.machine;
 		// add criteria cells:
@@ -34,24 +105,24 @@ describe('table.ordercolumn', () => {
 		createCellAt('E6', -12, sheet);
 		createCellAt('A9', { formula: 'table.ordercolumn(A3:C8, E3:E6)'}, sheet);
 		await machine.step();
-		expect(sheet.cellAt('A3').value).toBe('Col1');
-		expect(sheet.cellAt('A4').value).toBe(17);
-		expect(sheet.cellAt('A5').value).toBe(0);
-		expect(sheet.cellAt('A6').value).toBe(-12);
-		expect(sheet.cellAt('A7').value).toBe(23);
-		expect(sheet.cellAt('A8').value).toBe(43);
+		expectRow(sheet, 'A3', 'B3', 'C3').toEqual(['Col1', 'Col2', 'Col3']);
+		expectRow(sheet, 'A4', 'B4', 'C4').toEqual([17, '', false]);
+		expectRow(sheet, 'A5', 'B5', 'C5').toEqual([0, 'hi', '']);
+		expectRow(sheet, 'A6', 'B6', 'C6').toEqual([-12, null, 0]);
+		expectRow(sheet, 'A7', 'B7', 'C7').toEqual([23, 'hello', 42]);
+		expectRow(sheet, 'A8', 'B8', 'C8').toEqual([43, 'world', null]);
 		// change criteria
 		createCellAt('E3', 'Col2', sheet);
 		createCellAt('E4', 'hi', sheet);
 		createCellAt('E5', 'world', sheet);
 		createCellAt('E6', null, sheet); // no cell!
 		await machine.step();
-		expect(sheet.cellAt('B3').value).toBe('Col2');
-		expect(sheet.cellAt('B4').value).toBe('hi');
-		expect(sheet.cellAt('B5').value).toBe('world');
-		expect(sheet.cellAt('B6').value).toBe('hello');
-		expect(sheet.cellAt('B7').value).toBe('');
-		expect(sheet.cellAt('B8')).toBeUndefined();
+		expectRow(sheet, 'A3', 'B3', 'C3').toEqual(['Col1', 'Col2', 'Col3']);
+		expectRow(sheet, 'A4', 'B4', 'C4').toEqual([0, 'hi', '']);
+		expectRow(sheet, 'A5', 'B5', 'C5').toEqual([43, 'world', null]);
+		expectRow(sheet, 'A6', 'B6', 'C6').toEqual([17, '', false]);
+		expectRow(sheet, 'A7', 'B7', 'C7').toEqual([-12, null, 0]);
+		expectRow(sheet, 'A8', 'B8', 'C8').toEqual([23, 'hello', 42]);
 	});
 	it('should order multiple table columns by one or several criteria columns', async () => {
 		const sheet = setupSheet();
@@ -66,18 +137,12 @@ describe('table.ordercolumn', () => {
 		createCellAt('F5', 'world', sheet);
 		createCellAt('A9', { formula: 'table.ordercolumn(A3:C8, E3:F6)'}, sheet);
 		await machine.step();
-		expect(sheet.cellAt('A3').value).toBe('Col1');
-		expect(sheet.cellAt('A4').value).toBe(17);
-		expect(sheet.cellAt('A5').value).toBe(0);
-		expect(sheet.cellAt('A6').value).toBe(-12);
-		expect(sheet.cellAt('A7').value).toBe(23);
-		expect(sheet.cellAt('A8').value).toBe(43);
-		expect(sheet.cellAt('B3').value).toBe('Col2');
-		expect(sheet.cellAt('B4').value).toBe('hi');
-		expect(sheet.cellAt('B5').value).toBe('world');
-		expect(sheet.cellAt('B6').value).toBe('hello');
-		expect(sheet.cellAt('B7').value).toBe('');
-		expect(sheet.cellAt('B8')).toBeUndefined();
+		expectRow(sheet, 'A3', 'B3', 'C3').toEqual(['Col1', 'Col2', 'Col3']);
+		expectRow(sheet, 'A4', 'B4', 'C4').toEqual([0, 'hi', '']);
+		expectRow(sheet, 'A5', 'B5', 'C5').toEqual([43, 'world', null]);
+		expectRow(sheet, 'A6', 'B6', 'C6').toEqual([17, '', false]);
+		expectRow(sheet, 'A7', 'B7', 'C7').toEqual([-12, null, 0]);
+		expectRow(sheet, 'A8', 'B8', 'C8').toEqual([23, 'hello', 42]);
 	});
 	it('should ignore undefined cells', async () => {
 		const sheet = setupSheet();
@@ -91,18 +156,12 @@ describe('table.ordercolumn', () => {
 		createCellAt('F4', '', sheet);
 		createCellAt('A9', { formula: 'table.ordercolumn(A3:C8, E3:F6)'}, sheet);
 		await machine.step();
-		expect(sheet.cellAt('C3').value).toBe('Col3');
-		expect(sheet.cellAt('C4').value).toBe('');
-		expect(sheet.cellAt('C5').value).toBe(0);
-		expect(sheet.cellAt('C6').value).toBe(false);
-		expect(sheet.cellAt('C7').value).toBe(42);
-		expect(sheet.cellAt('C8')).toBeUndefined();
-		expect(sheet.cellAt('B3').value).toBe('Col2');
-		expect(sheet.cellAt('B4').value).toBe('');
-		expect(sheet.cellAt('B5').value).toBe('hello');
-		expect(sheet.cellAt('B6').value).toBe('world');
-		expect(sheet.cellAt('B7')).toBeUndefined();
-		expect(sheet.cellAt('B8').value).toBe('hi');
+		expectRow(sheet, 'A3', 'B3', 'C3').toEqual(['Col1', 'Col2', 'Col3']);
+		expectRow(sheet, 'A4', 'B4', 'C4').toEqual([17, '', false]);
+		expectRow(sheet, 'A5', 'B5', 'C5').toEqual([0, 'hi', '']);
+		expectRow(sheet, 'A6', 'B6', 'C6').toEqual([-12, null, 0]);
+		expectRow(sheet, 'A7', 'B7', 'C7').toEqual([23, 'hello', 42]);
+		expectRow(sheet, 'A8', 'B8', 'C8').toEqual([43, 'world', null]);
 	});
 	it('should not change unknown columns!', async () => {
 		const sheet = setupSheet();
@@ -114,19 +173,13 @@ describe('table.ordercolumn', () => {
 		createCellAt('F4', 'hi', sheet);
 		createCellAt('A9', { formula: 'table.ordercolumn(A3:C8, E3:F4)'}, sheet);
 		await machine.step();
-		// check columns unchanged:
-		expect(sheet.cellAt('A3').value).toBe('Col1');
-		expect(sheet.cellAt('A4').value).toBe(23);
-		expect(sheet.cellAt('A5').value).toBe(43);
-		expect(sheet.cellAt('A6').value).toBe(17);
-		expect(sheet.cellAt('A7').value).toBe(-12);
-		expect(sheet.cellAt('A8').value).toBe(0);
-		expect(sheet.cellAt('B3').value).toBe('Col2');
-		expect(sheet.cellAt('B4').value).toBe('hello');
-		expect(sheet.cellAt('B5').value).toBe('world');
-		expect(sheet.cellAt('B6').value).toBe('');
-		expect(sheet.cellAt('B7')).toBeUndefined();
-		expect(sheet.cellAt('B8').value).toBe('hi');
+		// check all columns unchanged:
+		expectRow(sheet, 'A3', 'B3', 'C3').toEqual(['Col1', 'Col2', 'Col3']);
+		expectRow(sheet, 'A4', 'B4', 'C4').toEqual([23, 'hello', 42]);
+		expectRow(sheet, 'A5', 'B5', 'C5').toEqual([43, 'world', null]);
+		expectRow(sheet, 'A6', 'B6', 'C6').toEqual([17, '', false]);
+		expectRow(sheet, 'A7', 'B7', 'C7').toEqual([-12, null, 0]);
+		expectRow(sheet, 'A8', 'B8', 'C8').toEqual([0, 'hi', '']);
 	});
 	it('should not change columns if no corresponding values found', async () => {
 		const sheet = setupSheet();
@@ -140,19 +193,13 @@ describe('table.ordercolumn', () => {
 		createCellAt('F5', 'hello sir', sheet);
 		createCellAt('A9', { formula: 'table.ordercolumn(A3:C8, E3:F5)'}, sheet);
 		await machine.step();
-		// check columns unchanged:
-		expect(sheet.cellAt('A3').value).toBe('Col1');
-		expect(sheet.cellAt('A4').value).toBe(23);
-		expect(sheet.cellAt('A5').value).toBe(43);
-		expect(sheet.cellAt('A6').value).toBe(17);
-		expect(sheet.cellAt('A7').value).toBe(-12);
-		expect(sheet.cellAt('A8').value).toBe(0);
-		expect(sheet.cellAt('B3').value).toBe('Col2');
-		expect(sheet.cellAt('B4').value).toBe('hello');
-		expect(sheet.cellAt('B5').value).toBe('world');
-		expect(sheet.cellAt('B6').value).toBe('');
-		expect(sheet.cellAt('B7')).toBeUndefined();
-		expect(sheet.cellAt('B8').value).toBe('hi');
+		// check all columns unchanged:
+		expectRow(sheet, 'A3', 'B3', 'C3').toEqual(['Col1', 'Col2', 'Col3']);
+		expectRow(sheet, 'A4', 'B4', 'C4').toEqual([23, 'hello', 42]);
+		expectRow(sheet, 'A5', 'B5', 'C5').toEqual([43, 'world', null]);
+		expectRow(sheet, 'A6', 'B6', 'C6').toEqual([17, '', false]);
+		expectRow(sheet, 'A7', 'B7', 'C7').toEqual([-12, null, 0]);
+		expectRow(sheet, 'A8', 'B8', 'C8').toEqual([0, 'hi', '']);
 	});
 	it('should preserve formula of moved cell', async () => {
 		const sheet = setupSheet();
@@ -166,13 +213,13 @@ describe('table.ordercolumn', () => {
 		createCellAt('A9', { formula: 'table.ordercolumn(A3:C8, E3:E5)'}, sheet);
 		await machine.step();
 		// check columns
-		expect(sheet.cellAt('A3').value).toBe('Col1');
-		expect(sheet.cellAt('A4').value).toBe('custom');
-		expect(sheet.cellAt('A5').value).toBe(23);
-		expect(sheet.cellAt('A6').value).toBe(43);
-		expect(sheet.cellAt('A7').value).toBe(-12);
-		expect(sheet.cellAt('A8').value).toBe(0);
-		// change A1
+		expectRow(sheet, 'A3', 'B3', 'C3').toEqual(['Col1', 'Col2', 'Col3']);
+		expectRow(sheet, 'A4', 'B4', 'C4').toEqual(['custom', '', false]);
+		expectRow(sheet, 'A5', 'B5', 'C5').toEqual([23, 'hello', 42]);
+		expectRow(sheet, 'A6', 'B6', 'C6').toEqual([43, 'world', null]);
+		expectRow(sheet, 'A7', 'B7', 'C7').toEqual([-12, null, 0]);
+		expectRow(sheet, 'A8', 'B8', 'C8').toEqual([0, 'hi', '']);
+		// change A1 to check formula still works
 		createCellAt('A1', 'changed', sheet);
 		await machine.step();
 		expect(sheet.cellAt('A4').value).toBe('changed');

@@ -42,7 +42,7 @@ export default class StreamSheetContainerView extends NodeView {
 		if (views !== this.getParent()._subviews.indexOf(this) + 1) {
 			viewer
 				.getInteractionHandler()
-				.execute(new ChangeItemOrderCommand(this.getItem(), ChangeItemOrderCommand.Action.TOTOP, viewer));
+				.execute(new ChangeItemOrderCommand(this.getItem(), ChangeItemOrderCommand.Action.TOTOP, viewer, true));
 		}
 	}
 

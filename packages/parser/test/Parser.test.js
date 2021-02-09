@@ -18,6 +18,14 @@ const validateToString = (expr) => {
 	expect(term.toString()).toBe(expr);
 };
 
+const expectInfo = (info) => ({
+	toContain(obj) {
+		Object.entries(obj).forEach(([key, value]) => {
+			expect(info[key]).toBe(value);
+		});
+	}
+});
+
 describe('parser', () => {
 	describe('parse', () => {
 		// DL-1067
@@ -97,6 +105,19 @@ describe('parser', () => {
 			const infos = Parser.getFormulaInfos('sum(B1)', ctxt);
 			expect(infos).toBeDefined();
 			expect(infos.length).toBe(2);
+			expectInfo(infos[0]).toContain({ start: 0, end: 7, type: 'function', value: 'sum' });
+			expectInfo(infos[1]).toContain({ start: 4, end: 6, type: 'identifier', value: "B1" });
+		});
+		it('should return a sorted list of info objects', () => {
+			const ctxt = new ParserContext();
+			const infos = Parser.getFormulaInfos('sum(12)+sum(34)', ctxt);
+			expect(infos).toBeDefined();
+			expect(infos.length).toBe(5);
+			expectInfo(infos[0]).toContain({ start: 0, end: 15, type: 'binaryop', value: '+' });
+			expectInfo(infos[1]).toContain({ start: 0, end: 7, type: 'function', value: 'sum' });
+			expectInfo(infos[2]).toContain({ start: 4, end: 6, type: 'number', value: "12" });
+			expectInfo(infos[3]).toContain({ start: 8, end: 15, type: 'function', value: 'sum' });
+			expectInfo(infos[4]).toContain({ start: 12, end: 14, type: 'number', value: "34" });
 		});
 		it('should sort returned list by start position', () => {
 			const ctxt = new ParserContext();
@@ -104,6 +125,11 @@ describe('parser', () => {
 			expect(infos.length).toBe(4);
 			const ascending = infos.every((info, index) => index < 1 || info.start > infos[index - 1].start);
 			expect(ascending).toBeTruthy();
+			expectInfo(infos[0]).toContain({ start: 0, end: 15,type: 'function', value: 'sum' });
+			expectInfo(infos[1]).toContain({ start: 4, end: 6, type: 'identifier', value: "B1" });
+			expectInfo(infos[2]).toContain({ start: 7, end: 14, type: 'function', value: 'sum' });
+			expectInfo(infos[3]).toContain({ start: 11, end: 13, type: 'identifier', value: "A1" });
+			console.log('done');
 		});
 		it('should return empty list for empty formula', () => {
 			const ctxt = new ParserContext();

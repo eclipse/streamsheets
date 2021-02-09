@@ -374,6 +374,7 @@ JSG.theme = {
 	textlight: '#222222',
 	fill: '#FFFFFF',
 	filllight: '#F1F1F1',
+	selectionback: '#ebebeb',
 	feedbackFill: 'rgba(0,0,0,0.2)',
 	feedbackBorder: 'rgba(0,0,0,0.8)',
 	scrollBars: {

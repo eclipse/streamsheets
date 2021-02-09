@@ -1598,6 +1598,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			axis.categories = [];
 		});
 
+		const value = {
+			formatX: {},
+			formatY: {}
+		};
 		// evaluate min/max for series
 		this.series.forEach((serie, index) => {
 			serie.xMax = undefined;
@@ -1621,7 +1625,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				}
 				if (ref) {
 					let pointIndex = 0;
-					const value = {};
 					const uniqueLabels = {};
 					let xMin = Number.MAX_VALUE;
 					let xMax = -Number.MAX_VALUE;
@@ -1680,10 +1683,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 						if (axes.x.format.linkNumberFormat && index === 0 && pointIndex === 0) {
 							axes.x.format.linkedNumberFormat = value.formatX ? value.formatX.numberFormat : undefined;
 							axes.x.format.linkedLocalCulture = value.formatX ? value.formatX.localCulture : undefined;
+							value.formatX = undefined;
 						}
 						if (axes.y.format.linkNumberFormat && index === 0 && pointIndex === 0) {
 							axes.y.format.linkedNumberFormat = value.formatY ? value.formatY.numberFormat : undefined;
 							axes.y.format.linkedLocalCulture = value.formatY ? value.formatY.localCulture : undefined;
+							value.formatY = undefined;
 						}
 						axes.y.categories[pointIndex].values[index] = {
 							x: value.x,
@@ -2441,13 +2446,15 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				if (cell) {
 					value = cell.getValue();
 				}
-				const tf = sheet.getTextFormatAtRC(range._x1, range._y1 + index);
-				if (tf && format) {
-					format.localCulture = tf
-						.getLocalCulture()
-						.getValue()
-						.toString();
-					format.numberFormat = tf.getNumberFormat().getValue();
+				if (format) {
+					const tf = sheet.getTextFormatAtRC(range._x1, range._y1 + index);
+					if (tf) {
+						format.localCulture = tf
+							.getLocalCulture()
+							.getValue()
+							.toString();
+						format.numberFormat = tf.getNumberFormat().getValue();
+					}
 				}
 				return this.validate(value, dataMode, allowString);
 			}
@@ -2456,13 +2463,15 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (cell) {
 				value = cell.getValue();
 			}
-			const tf = sheet.getTextFormatAtRC(range._x1 + index, range._y1);
-			if (tf && format) {
-				format.localCulture = tf
-					.getLocalCulture()
-					.getValue()
-					.toString();
-				format.numberFormat = tf.getNumberFormat().getValue();
+			if (format) {
+				const tf = sheet.getTextFormatAtRC(range._x1 + index, range._y1);
+				if (tf) {
+					format.localCulture = tf
+						.getLocalCulture()
+						.getValue()
+						.toString();
+					format.numberFormat = tf.getNumberFormat().getValue();
+				}
 			}
 			return this.validate(value, dataMode, allowString);
 		}
@@ -2521,7 +2530,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		if (this.xAxes[0].type === 'category') {
 			value.x = index;
 		} else if (ref.x) {
-			value.formatX = {};
 			value.x = this.getValueFromRange(ref.x.range, ref.x.sheet, index, dataMode, value.formatX, true);
 			// if there is a text in the x values range
 			if (this.xAxes[0].xHasString) {
@@ -2532,12 +2540,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		}
 
 		if (ref.c) {
-			value.formatC = {};
 			value.c = this.getValueFromRange(ref.c.range, ref.c.sheet, index, dataMode, value.formatC, true);
 		}
 
 		if (ref.y) {
-			value.formatY = {};
 			value.y = this.getValueFromRange(ref.y.range, ref.y.sheet, index, dataMode, value.formatY);
 			value.pureY = this.getValueFromRange(ref.y.range, ref.y.sheet, index, dataMode, value.formatY, true);
 			if (value.y !== '#er') {

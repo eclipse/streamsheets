@@ -226,7 +226,8 @@ export class EditBarComponent extends Component {
 			if (active === undefined || sheet.getId() !== active.getId()) {
 				if (sheet.getOwnSelection().hasSelection()) {
 					const cmd = new RemoveSelectionCommand(sheet, sheet.getSelectionId());
-					cmd._noDraw = true;
+					// cmd._noDraw = true;
+					graphManager.getGraph().markDirty();
 					graphManager.synchronizedExecute(cmd);
 				}
 			}

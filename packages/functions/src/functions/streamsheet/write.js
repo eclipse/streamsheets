@@ -14,7 +14,7 @@ const { isType, Message } = require('@cedalo/machine-core');
 const { jsonbuilder, runFunction, sheet: { getOutbox } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
-const TYPES = ['array', 'boolean', 'dictionary', 'number', 'string'];
+const TYPES = ['array', 'bool', 'boolean', 'dictionary', 'number', 'string'];
 
 const putNewMessage = (id, outbox, ttl) => {
 	const msg = new Message({}, id);

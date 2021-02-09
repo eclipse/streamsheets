@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { GETCYCLE, GETEXECUTESTEP, GETMACHINESTEP, GETSTEP } = require('../../src/functions/streamsheet').functions;
-const { createTerm } = require('../utilities');
+const { createCellAt, createTerm } = require('../utilities');
 const { Cell, Machine, Message, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
@@ -25,7 +25,12 @@ const createStreamSheet = (name, trigger, cells) => {
 	machine.addStreamSheet(streamsheet);
 	return streamsheet;
 };
-
+const step = (times, ...streamsheets) => {
+	while (times > 0) {
+		streamsheets.forEach((streamsheet) => streamsheet.step());
+		times -= 1;
+	}
+};
 
 describe('counter', () => {
 	it('should increment a given value', async () => {
@@ -453,10 +458,38 @@ describe('getstep', () => {
 		t1.step();
 		expect(GETSTEP(t1.sheet)).toBe(1);
 	});
+	it('should be possible to specify streamsheet to get step count from', () => {
+		const s1 = createStreamSheet('S1', TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY }));
+		const s2 = new StreamSheet({ name: 'S2' });
+		s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
+		s1.machine.addStreamSheet(s2);
+		createCellAt('A1', { formula: 'getstep()' }, s1.sheet);
+		createCellAt('A2', { formula: 'getstep("S2")' }, s1.sheet);
+		// NOTE: to not depend on sheet order step each manually
+		// => otherwise it might return S2 step before it actually has run!
+		step(1, s2, s1);
+		expect(s1.sheet.cellAt('A1').value).toBe(1);
+		expect(s1.sheet.cellAt('A2').value).toBe(1);
+		step(2, s2, s1);
+		expect(s1.sheet.cellAt('A1').value).toBe(3);
+		expect(s1.sheet.cellAt('A2').value).toBe(3);
+		s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.ONCE });
+		step(2, s2, s1);
+		expect(s1.sheet.cellAt('A1').value).toBe(5);
+		expect(s1.sheet.cellAt('A2').value).toBe(4);
+		createCellAt('A1', { formula: 'getstep("S1")' }, s1.sheet);
+		step(1, s2, s1);
+		expect(s1.sheet.cellAt('A1').value).toBe(6);
+		expect(s1.sheet.cellAt('A2').value).toBe(4);
+	});
 	it('should return error if no sheet or no streamsheet available', () => {
 		const sheet = new StreamSheet().sheet;
 		expect(GETSTEP()).toBe(ERROR.ARGS);
 		sheet.streamsheet = undefined;
 		expect(GETSTEP(sheet)).toBe(ERROR.NO_STREAMSHEET);
+		const s1 = createStreamSheet('S1', TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY }));
+		createCellAt('A2', { formula: 'getstep("S2")' }, s1.sheet);
+		s1.step();
+		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.NO_STREAMSHEET);
 	});
 });

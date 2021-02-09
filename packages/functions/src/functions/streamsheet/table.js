@@ -283,54 +283,41 @@ const tableget = (sheet, ...terms) =>
 		});
 
 
-const setColumnAt = (colidx, cells, range) => {
-	const sheet = range.sheet;
-	const startrow = range.start.row + 1;
-	cells.forEach((cell, index) => {
-		sharedidx.set(startrow + index, colidx);
-		sheet.setCellAt(sharedidx, cell, true);
+const setRows = (rows, colrange) => {
+	const sheet = colrange.sheet;
+	const startcol = colrange.start.col;
+	const startrow = colrange.start.row + 1;
+	rows.forEach((row, rowidx) => {
+		row.forEach((cell, colidx) => {
+			sharedidx.set(startrow + rowidx, startcol + colidx);
+			sheet.setCellAt(sharedidx, cell, true);
+		});
 	});
 };
-// NOTE: Array.sort() will add undefined values to the end of sorted array!!
-const sortColumn2 = (colcells, refvalues) => {
-	const indexOf = (cell) => {
-		const idx = refvalues.indexOf(cell.value);
-		return idx < 0 ? refvalues.length : idx;
-	};
-	return colcells.sort((c1, c2) => indexOf(c1) - indexOf(c2));
+const indexOf = (row, colindex, values) => {
+	const cell = row[colindex];
+	const index = cell ? values.indexOf(cell.value) : -1;
+	return index < 0 ? values.length : index;
 };
-const sortColumn = (colcells, refvalues) => {
-// NOTE: do not use Array.sort() since we want to PRESERVE oder of undefined values!
-	const order = colcells.map((cell, index) => {
-		index = cell ? refvalues.indexOf(cell.value) : -1;
-		if (index < 0) index = refvalues.length;
-		return { index, cell };
-	});
-	order.sort((c1, c2) => c1.index - c2.index);
-	return order.map((c) => c.cell);
+const compareRows = (colindex, values) => (row1, row2) => {
+	const index1 = indexOf(row1, colindex, values);
+	const index2 = indexOf(row2, colindex, values);
+	return index1 - index2;
 };
-const getColumnCellsAsList = (index, range) => {
+const getValueList = (index, range) => {
 	const list = [];
-	range.iterateColAt(index, (cell) => list.push(cell));
+	range.iterateColAt(index, (cell) => list.push(cell != null ? cell.value : cell));
+	list.shift();
 	return list;
 };
-const sortColumnAt = (index, colrange, refrange) => {
-	// preserve column name from being sorted...
-	const cells = getColumnCellsAsList(index.col, colrange).filter((_, idx) => idx !== 0);
-	const refvals = getColumnCellsAsList(index.ref, refrange).map((cell) => cell ? cell.value : cell);
-	const sortedcells = sortColumn(cells, refvals);
-	setColumnAt(index.col, sortedcells, colrange);
-};
-const getColumnIndices = (columnrange, refrange) => {
-	const indices = [];
-	const colnames = [];
-	const startidx = refrange.start.col;
-	refrange.iterateRowAt(refrange.start.row, (cell) => colnames.push(cell ? cell.value : undefined));
-	columnrange.iterateRowAt(columnrange.start.row, (cell, index) => {
-		const colidx = cell ? colnames.indexOf(cell.value) : -1;
-		if (colidx > -1) indices.push({ col: index.col, ref: startidx + colidx});
+const sortRows = (rows, refrange, nameIndices) => {
+	refrange.iterateRowAt(refrange.start.row, (cell, rangeIdx) => {
+		const nameIndex = cell ? nameIndices[cell.value] : undefined;
+		if (nameIndex != null) {
+			const values = getValueList(rangeIdx.col, refrange);
+			rows.sort(compareRows(nameIndex, values));
+		}
 	});
-	return indices;
 };
 const tableordercolumn = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -339,8 +326,15 @@ const tableordercolumn = (sheet, ...terms) =>
 		.mapNextArg((colrange) => getCellRange(colrange, sheet) || ERROR.VALUE)
 		.mapNextArg((refrange) => getCellRange(refrange, sheet) || ERROR.VALUE)
 		.run((colrange, refrange) => {
-			const indices = getColumnIndices(colrange, refrange);
-			indices.forEach((index) => sortColumnAt(index, colrange, refrange));
+			const rows = colrange.as2DArray();
+			const name2Index = rows[0].reduce((indices, cell, index) => {
+				if (cell) indices[cell.value] = index;
+				return indices;
+			}, {});
+			// remove name header
+			rows.shift();
+			sortRows(rows, refrange, name2Index);
+			setRows(rows, colrange);
 			return true;
 		});
 

@@ -27,6 +27,7 @@ import {
 import TreeFeedbackView from '../feedback/TreeFeedbackView';
 import NodeView from './NodeView';
 import ContentPaneView from './ContentPaneView';
+import RangeModel from "../../ui/scrollview/RangeModel";
 
 /**
  * This view is for a {{#crossLink "TreeItemsNode"}}{{/crossLink}} model. Although it
@@ -166,6 +167,8 @@ export default class TreeItemsView extends NodeView {
 			this.resetViewport();
 			model._resetViewport = false;
 		}
+
+		this.showLastItem();
 
 		if (parent instanceof ContentPaneView) {
 			parent = parent.getParent();
@@ -415,6 +418,32 @@ export default class TreeItemsView extends NodeView {
 		contentNode._didScroll = false;
 		viewport.getHorizontalRangeModel().setValue(0);
 		viewport.getVerticalRangeModel().setValue(0);
+
+		return true;
+	}
+
+	showLastItem() {
+		const item = this.getItem();
+		const contentNode = this.getContentNodeView();
+		const viewport = contentNode.getViewPort();
+		if (!viewport) {
+			return false;
+		}
+
+		const model = viewport.getVerticalRangeModel();
+		const numOfItems = item.getVisibleTreeItemCount();
+		const depthOffset = item
+			.getTreeItemAttributes()
+			.getDepthOffset()
+			.getValue();
+		const boxHeight = Math.max(0,(numOfItems - 2) * depthOffset);
+
+		if (model.getValue() && model.getValue() >= boxHeight) {
+			model.setValue(boxHeight);
+			contentNode.getScrollView().layout();
+		}
+
+		contentNode._didScroll = false;
 
 		return true;
 	}

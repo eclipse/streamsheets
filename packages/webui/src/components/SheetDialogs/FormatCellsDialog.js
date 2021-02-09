@@ -819,8 +819,8 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-													<text x="50" y="8" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
+												<svg width="78" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<text x="50" y="11" fontWeight="normal" fontSize="12pt" dy="0.25em" textAnchor="middle">
 														{intl.formatMessage({ id: "None" }, {})}
 													</text>
 												</svg>
@@ -832,7 +832,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -843,7 +843,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -854,7 +854,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -865,7 +865,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -876,7 +876,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -951,8 +951,8 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-													<text x="50" y="8" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
+												<svg width="78" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<text x="50" y="11" fontWeight="normal" fontSize="12pt" dy="0.25em" textAnchor="middle">
 														{intl.formatMessage({ id: "None" }, {})}
 													</text>
 												</svg>
@@ -964,7 +964,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -975,7 +975,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -986,7 +986,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -997,7 +997,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -1008,7 +1008,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -1083,8 +1083,8 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-													<text x="50" y="8" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
+												<svg width="78" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<text x="50" y="11" fontWeight="normal" fontSize="12pt" dy="0.25em" textAnchor="middle">
 														{intl.formatMessage({ id: "None" }, {})}
 													</text>
 												</svg>
@@ -1096,7 +1096,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -1107,7 +1107,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -1118,7 +1118,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -1129,7 +1129,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -1140,7 +1140,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -1215,8 +1215,8 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-													<text x="50" y="8" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
+												<svg width="78" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<text x="50" y="11" fontWeight="normal" fontSize="12pt" dy="0.25em" textAnchor="middle">
 														{intl.formatMessage({ id: "None" }, {})}
 													</text>
 												</svg>
@@ -1228,7 +1228,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -1239,7 +1239,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -1250,7 +1250,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -1261,7 +1261,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>
@@ -1272,7 +1272,7 @@ export class FormatCellsDialog extends React.Component {
 													padding: '3px 16px',
 												}}
 											>
-												<svg width="80" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 													<path d="M5,9 L75,9" />
 												</svg>
 											</MenuItem>

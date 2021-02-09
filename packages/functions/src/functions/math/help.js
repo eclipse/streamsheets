@@ -60,7 +60,10 @@ module.exports = {
 		},
 		LOG: {
 			en: { argumentList: 'Number,Base', description: 'Returns the logarithm of a number to specified base' },
-			de: { argumentList: 'Zahl,Basis', description: 'Gibt den Logarithmus einer Zahl zur angegebenen Basis zurück' }
+			de: {
+				argumentList: 'Zahl,Basis',
+				description: 'Gibt den Logarithmus einer Zahl zur angegebenen Basis zurück'
+			}
 		},
 		MOD: {
 			en: {
@@ -86,8 +89,14 @@ module.exports = {
 			de: { argumentList: 'Grad', description: 'Konvertiert den Winkel in Radien' }
 		},
 		RANDBETWEEN: {
-			en: { argumentList: 'Min,Max', description: 'Creates a random value within the interval' },
-			de: { argumentList: 'Min,Max', description: 'Erzeugt einen Zufallswert innerhalb der gegebenen Werte' }
+			en: {
+				argumentList: 'Min,Max,MinDelta,MaxDelta,InitialValue',
+				description: 'Creates a random value within specified interval, which is optionally in- or decreasing'
+			},
+			de: {
+				argumentList: 'Min,Max,MinDelta,MaxDelta,Initialwert',
+				description: 'Erzeugt einen Zufallswert innerhalb eines angegebenen Bereichs, der optional zu- oder abnimmt'
+			}
 		},
 		ROUND: {
 			en: { argumentList: 'Value,Decimals', description: 'Rounds the value to the given decimals' },
@@ -131,8 +140,7 @@ module.exports = {
 			},
 			de: {
 				argumentList: 'SummenBereich,Bereich1,Kriterium1,BereichN,KriteriumN',
-				description:
-					'Bestimmt die Summe aller Zellwerte aus dem SummenBereich die sämtliche Kriterien erfüllen'
+				description: 'Bestimmt die Summe aller Zellwerte aus dem SummenBereich die sämtliche Kriterien erfüllen'
 			}
 		},
 		TAN: {
