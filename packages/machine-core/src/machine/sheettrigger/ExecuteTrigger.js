@@ -157,7 +157,7 @@ class ExecuteTrigger extends BaseTrigger {
 		this.retval = undefined;
 		this.resumeFn = undefined;
 		this.stopProcessing();
-		this.activeCycle = this.getManualCycle();
+		this.activeCycle = this.isMachineStopped ? this.getManualCycle() : this.getTimerCycle();
 	}
 	resumeExecute() {
 		if (this.resumeFn) {

@@ -274,6 +274,40 @@ describe('behaviour on machine run', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(6);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 		});
+		test('changing pace parameter in "repeat until..." mode without stopping machine', async () => {
+			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.CONTINUOUSLY });
+			const machineMonitor = monitorMachine(machine);
+			s1.sheet.loadCells({
+				A1: { formula: 'A1+1' },
+				A2: { formula: 'execute("S2",1,true)' },
+				A3: { formula: 'A3+1' }
+			});
+			s2.trigger.update({ repeat: 'endless' });
+			s2.sheet.loadCells({ B1: { formula: 'B1+1' } });
+			await machine.start();
+			await machineMonitor.hasFinishedStep(4);
+			let s2b1 = s2.sheet.cellAt('B1').value;
+			expect(s1.sheet.cellAt('A1').value).toBe(2);
+			expect(s1.sheet.cellAt('A3').value).toBe(1);
+			// s2 run as fast as possible so it actually must be much greater
+			expect(s2b1).toBeGreaterThan(3);
+			// change pace to equal machine cycle
+			createCellAt('A2', { formula: 'execute("S2",1,false)'}, s1.sheet);
+			await machineMonitor.hasFinishedStep(8);
+			expect(s1.sheet.cellAt('A1').value).toBe(3);
+			expect(s1.sheet.cellAt('A3').value).toBe(1);
+			// check that s2 executes again:
+			expect(s2.sheet.cellAt('B1').value).toBeGreaterThan(s2b1 + 1);
+			// and back again to fast as possible
+			createCellAt('A2', { formula: 'execute("S2",1,true)'}, s1.sheet);
+			s2b1 = s2.sheet.cellAt('B1').value;
+			await machineMonitor.hasFinishedStep(12);
+			expect(s1.sheet.cellAt('A1').value).toBe(4);
+			expect(s1.sheet.cellAt('A3').value).toBe(1);
+			// check that s2 executes again:
+			expect(s2.sheet.cellAt('B1').value).toBeGreaterThan(s2b1 + 1);
+			await machine.stop();
+		});
 	});
 	describe('general repeat behaviour', () => {
 		test('repeated execute sheet', async () => {
