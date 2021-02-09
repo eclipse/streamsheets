@@ -72,7 +72,7 @@ const execute = (sheet, ...terms) =>
 				callingStreamSheet.pauseProcessing();
 				context.isResumed = false;
 				if (!calledStreamSheet.execute(Math.max(1, repetitions), message, pace, resumeExecute(context))) {
-					return false;
+					return `${ERROR.INVALID_PARAM}_1`;
 				}
 			}
 			// eslint-disable-next-line no-nested-ternary
