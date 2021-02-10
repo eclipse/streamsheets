@@ -119,6 +119,7 @@ class JSG {
 		return jsg.clipXML;
 	}
 	static set clipXML(val) {
+		JSG.clipSheet = undefined;
 		jsg.clipXML = val;
 	}
 

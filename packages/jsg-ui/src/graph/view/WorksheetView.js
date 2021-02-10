@@ -1292,6 +1292,7 @@ export default class WorksheetView extends ContentNodeView {
 		// to find out whether the internal data is in sync with the system clipboard. This way we can initiate a
 		// paste using internal commands
 
+		JSG.clipXML = undefined;
 		JSG.clipSheet = {
 			data: this.getCopyData(cut),
 			range: this.getOwnSelection()

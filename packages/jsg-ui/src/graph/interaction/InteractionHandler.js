@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -706,8 +706,9 @@ class InteractionHandler {
 	 * @method cutSelection
 	 */
 	cutSelection() {
-		JSG.clipOffset = new Point(0, 0);
-		JSG.clipXML = JSG.copyItems(this.viewer.getSelection());
+		this.copySelection();
+		// JSG.clipOffset = new Point(0, 0);
+		// JSG.clipXML = JSG.copyItems(this.viewer.getSelection());
 
 		const deleteCmd = new CompoundCommand();
 		const selection = this.viewer.getSelection();
