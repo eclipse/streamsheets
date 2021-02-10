@@ -68,7 +68,7 @@ export default class ChartInfoFeedbackView extends View {
 		let x;
 		let y;
 
-		if (circular) {
+		if (!circular) {
 			graphics.beginPath();
 			if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
 				x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.width;
