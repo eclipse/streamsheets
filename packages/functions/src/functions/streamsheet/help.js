@@ -167,8 +167,8 @@ module.exports = {
 			de: { argumentList: '', description: 'Ermittelt den aktuellen Maschinenschritt' }
 		},
 		GETSTEP: {
-			en: { argumentList: '', description: 'Returns the current step count' },
-			de: { argumentList: '', description: 'Ermittelt den aktuellen Streamsheet Schritt' }
+			en: { argumentList: 'SheetName', description: 'Returns the current step count' },
+			de: { argumentList: 'SheetName', description: 'Ermittelt den aktuellen Streamsheet Schritt' }
 		},
 		GOTO: {
 			en: { argumentList: 'Cell', description: 'Deprecated! Please use CONTINUE instead' },
