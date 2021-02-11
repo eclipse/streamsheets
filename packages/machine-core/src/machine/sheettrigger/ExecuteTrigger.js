@@ -17,7 +17,7 @@ const Machine = require('../Machine');
 const { ManualCycle, TimerCycle } = require('./cycles');
 
 // DL-4592: slow it down a bit
-const MAX_PACE = 20;	// in ms
+const MAX_PACE = 1; // 20;	// in ms
 const noop = () => {};
 const getPace = (trigger, useMax) => () => {
 	const pace = trigger.pace;
@@ -121,7 +121,10 @@ class ExecuteTrigger extends BaseTrigger {
 	}
 
 	getManualCycle() {
-		return new ManualRepeatedExecuteCycle(this);
+		const manualCycle = new ManualRepeatedExecuteCycle(this);
+		// if already executed e.g. if switched from pause to manual step
+		manualCycle.hasExecuted = !!this.resumeFn;
+		return manualCycle;
 	}
 
 	getTimerCycle() {
