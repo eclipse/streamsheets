@@ -409,6 +409,42 @@ describe('behaviour on machine run', () => {
 			expect(s1.getLoopIndex()).toBe(0);
 			await machine.stop();
 		});
+		it('should process next loop element if processing sheet is finished by return()', async () => {
+			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
+			machine.cycletime = 10;
+			s1.updateSettings({ loop: { path: '[data][loop]', enabled: true } });
+			s1.sheet.loadCells({
+				A1: { formula: 'messageids()' },
+				A2: { formula: 'loopindices()' },
+				A3: { formula: 'return()' },
+				A4: { formula: 'A4+1' }
+			});
+			await machine.start();
+			await machine.pause();
+			s1.inbox.put(new Message({ loop: [{ val: 1 }, { val: 2 }, { val: 3 }] }, '1'));
+			s1.inbox.put(new Message({ loop: [{ val: 4 }, { val: 5 }] }, '2'));
+			s1.inbox.put(new Message({},'3'));
+			expect(s1.inbox.size).toBe(3);
+			expect(s1.sheet.cellAt('A1').value).toBe('');
+			expect(s1.sheet.cellAt('A2').value).toBe('0');
+			await machine.start();
+			await monitorS1.hasFinishedStep(4);
+			await machine.pause();
+			// message is not removed, so still 3 messages and loop index at 2
+			expect(s1.inbox.size).toBe(3);
+			expect(s1.sheet.cellAt('A1').value).toBe('1,1,1');
+			expect(s1.sheet.cellAt('A2').value).toBe('0,0,1,2');
+			expect(s1.sheet.cellAt('A4').value).toBe(1);
+			await machine.start();
+			await monitorS1.hasFinishedStep(7);
+			await machine.pause();
+			expect(s1.inbox.size).toBe(1);
+			expect(s1.sheet.cellAt('A1').value).toBe('1,1,1,2,2,3');
+			expect(s1.sheet.cellAt('A2').value).toBe('0,0,1,2,0,1,0');
+			expect(s1.sheet.cellAt('A4').value).toBe(1);
+			await machine.stop();
+		});
 		it('should reuse same message on "repeat until..." until return() is called', async () => {
 			const { machine, s1 } = setup();
 			const monitorS1 = monitorStreamSheet(s1);
