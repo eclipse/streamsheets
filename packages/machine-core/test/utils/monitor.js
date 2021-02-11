@@ -15,9 +15,10 @@ const monitorMachine = (machine) => {
 		monitor.onStep(evtype);
 	};
 	monitor.onStep = () => {};
-	monitor.updateSteps = (evtype) => { if(evtype === 'step') stats.steps += 1; };
+	// monitor.updateSteps = (evtype) => { if(evtype === 'step') stats.steps = machine.stats.steps; };
+	monitor.updateSteps = () => { stats.steps = machine.stats.steps; };
 	// do not care that callback is never unregistered
-	machine.on('update', monitor);
+	machine.on('finishedStep', monitor);
 
 	return {
 		hasFinishedStep: (step) => {
