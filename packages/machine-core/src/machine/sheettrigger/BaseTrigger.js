@@ -11,6 +11,11 @@
 const State = require('../../State');
 const { NoOpCycle } = require('./cycles');
 
+const configManualCycle = (manualCycle, activeCycle) => {
+	if (activeCycle.isMessageLoopCycle) return manualCycle.getMessageLoopCycle();
+	return activeCycle.isRepeatUntilCycle ? manualCycle.getMessageLoopCycle().getRepeatUntilCycle() : manualCycle;
+};
+
 const DEF_CONF = {
 	repeat: 'once'
 };
@@ -126,7 +131,9 @@ class BaseTrigger {
 		return true;
 	}
 	step(manual) {
-		if (manual && !this.activeCycle.isManual) this.activeCycle = this.getManualCycle();
+		if (manual && !this.activeCycle.isManual) {
+			this.activeCycle = configManualCycle(this.getManualCycle(), this.activeCycle);
+		}
 		// if sheet is not paused by function it might be by machine...
 		if (!this.isMachineStopped || this.activeCycle.isManual) {
 			this.activeCycle.step();
