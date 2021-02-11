@@ -91,6 +91,8 @@ class Machine {
 		});
 		this.metadata.lastModified = Date.now();
 		this.cycle = this.cycle.bind(this);
+		this._lastEmitStep = 0;
+		this._emitStep = this._emitStep.bind(this);
 	}
 
 	get className() {
@@ -276,6 +278,7 @@ class Machine {
 		} else {
 			streamsheet.machine = this;
 			streamsheet.name = streamsheet.name || defaultStreamSheetName(streamsheet);
+			streamsheet.on('finishedStep', this._emitStep);
 			this._streamsheets.set(streamsheet.id, streamsheet);
 			this._emitter.emit('update', 'streamsheet_added', streamsheet);
 			// reflect state to streamsheet
@@ -289,6 +292,7 @@ class Machine {
 
 	removeStreamSheet(streamsheet) {
 		streamsheet.dispose();
+		streamsheet.off('finishedStep', this._emitStep);
 		streamsheet.machine = undefined;
 		if (this._streamsheets.delete(streamsheet.id)) {
 			this._emitter.emit('update', 'streamsheet_removed', streamsheet);
@@ -455,11 +459,14 @@ class Machine {
 
 	async _doStep(manual) {
 		this.stats.steps += 1;
-		// wait for task which are triggered outside any steps, e.g. by cell replace
+		// wait for tasks which are triggered outside any steps, e.g. by cell replace
 		await TaskQueue.done();
 		this._streamsheets.forEach((streamsheet) => streamsheet.step(manual));
 		await TaskQueue.done();
-		this._emitter.emit('update', 'step');
+		// currently for testing purpose only:
+		this._emitter.emit('finishedStep');
+		// send step event if last emit was too long ago (important if finishedStep is never emit by sheet)
+		if (Date.now() - this._lastEmitStep >= this.cycletime) this._emitStep();
 	}
 
 	async _resume() {
@@ -508,6 +515,11 @@ class Machine {
 		this.metadata.lastModified = timestamp;
 		this.metadata.lastModifiedBy = byUser || this.metadata.lastModifiedBy;
 		this._emitter.emit('update', 'lastModified');
+	}
+
+	_emitStep() {
+		this._emitter.emit('update', 'step');
+		this._lastEmitStep = Date.now();
 	}
 }
 
