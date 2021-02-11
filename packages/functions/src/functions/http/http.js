@@ -9,17 +9,21 @@
  *
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
-const { AsyncRequest, runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../utils');
-const { addHTTPResponseToInbox, addHTTPResponseToCell, addHTTPResponseToRange } = require('./utils');
-const { getInstance } = require('@cedalo/http-client');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { getInstance } = require('@cedalo/http-client');
 const { SheetRange } = require('@cedalo/machine-core');
+const { addHTTPResponseToInbox, addHTTPResponseToCell, addHTTPResponseToRange } = require('./utils');
+const { AsyncRequest, runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
-const asString = (value) => value ? convert.toString(value) : '';
+// const asString = (value) => value ? convert.toString(value) : '';
 const asBoolean = (value) => value ? convert.toBoolean(value) : false;
 
+// TODO: should be possible to send result to
+//		inbox => via INBOX()
+//		cell => cell reference and cell has response-JSON value
+//		cellrange => cellrange reference, simply spread response-JSON to cell range -> nested?
 const createDefaultCallback = (parse = false, target) => (context, response, error) => {
 	const term = context.term;
 
@@ -39,11 +43,11 @@ const request = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(5)
-		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
-		.mapNextArg((method) => asString(method.value, ERROR.VALUE))
+		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
+		.mapNextArg((method) => convert.toString(method.value, ERROR.VALUE))
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.mapNextArg((target) => hasValue(target) ? target.value : {})
-		.mapNextArg((parse) => asBoolean(parse.value, ERROR.VALUE))
+		.mapNextArg((parse) => asBoolean(parse && parse.value))
 		.run((url, method, config, target, parse) => {
 			config.url = url;
 			config.method = method;
@@ -59,10 +63,10 @@ const get = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(4)
-		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.mapNextArg((target) => hasValue(target) ? target.value : {})
-		.mapNextArg((parse) => hasValue(parse) ? asBoolean(parse.value, ERROR.VALUE) : false)
+		.mapNextArg((parse) => asBoolean(parse && parse.value)
 		.run((url, config, target, parse) => {
 			return AsyncRequest.create(sheet, get.context)
 				.request(() => getInstance().get(url, config))
@@ -76,7 +80,7 @@ const post = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(3)
-		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((data) => hasValue(data) ? data.value : '')
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, data, config) => {
@@ -95,7 +99,7 @@ const put = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(3)
-		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((data) => hasValue(data) ? data.value : '')
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, data, config) => {
@@ -111,7 +115,7 @@ const patch = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(3)
-		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((data) => hasValue(data) ? data.value : '')
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, data, config) => {
@@ -127,7 +131,7 @@ const deleteFunction = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(2)
-		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, config) =>
 			AsyncRequest.create(sheet, deleteFunction.context)
@@ -142,7 +146,7 @@ const trace = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(2)
-		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, config) => {
 			config.url = url;
@@ -159,7 +163,7 @@ const head = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(2)
-		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, config) =>
 			AsyncRequest.create(sheet, head.context)
@@ -174,12 +178,11 @@ const options = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(2)
-		.mapNextArg((url) => asString(url.value, ERROR.VALUE))
+		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.run((url, config) =>
 			AsyncRequest.create(sheet, options.context)
 				.request(() => getInstance().options(url, config))
-				.response(defaultCallback)
 				.response(createDefaultCallback())
 				.reqId()
 		);

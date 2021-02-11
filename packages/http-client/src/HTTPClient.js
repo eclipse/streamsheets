@@ -23,8 +23,8 @@ class HTTPClient {
 		if (!config.headers['User-Agent']) {
 			// TODO: get Streamsheets version
 			const productName = process.env.STREAMSHEETS_PRODUCT_NAME || 'Streamsheets';
-			const version = process.env.STREAMSHEETS_VERSION;
-			config.headers['User-Agent'] = `${productName}${version ? '/' + version : ''} (${os.platform()} ${os.release()})`;
+			const version = process.env.STREAMSHEETS_VERSION ? `/${process.env.STREAMSHEETS_VERSION}` : '';
+			config.headers['User-Agent'] = `${productName}${version} (${os.platform()} ${os.release()})`;
 		}
 		return config;
 	}
