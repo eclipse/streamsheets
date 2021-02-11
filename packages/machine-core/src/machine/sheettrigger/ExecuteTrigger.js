@@ -16,12 +16,14 @@ const RepeatedMessageLoopCycle = require('./RepeatedMessageLoopCycle');
 const Machine = require('../Machine');
 const { ManualCycle, TimerCycle } = require('./cycles');
 
+// DL-4592: slow it down a bit
+const MAX_PACE = 20;	// in ms
 const noop = () => {};
 const getPace = (trigger, useMax) => () => {
 	const pace = trigger.pace;
 	const machine = trigger.machine;
 	// eslint-disable-next-line no-nested-ternary
-	return useMax(pace) ? 1 : machine ? machine.cycletime : Machine.DEF_CYCLETIME;
+	return useMax(pace) ? MAX_PACE : machine ? machine.cycletime : Machine.DEF_CYCLETIME;
 };
 
 const attachExecuteMessage = (message, streamsheet) => {
