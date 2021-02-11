@@ -840,6 +840,44 @@ describe('behaviour on machine run', () => {
 			expect(s2.sheet.cellAt('B2').value).toBe('0,1,2,0,1,2,0,1,0,0,0');
 			expect(monitorS2.messages.detached).toBe(6);
 		});
+		test.skip('repeated execute consumes next loop element if processing sheet is finished by return()', async () => {
+			// wait until JIRA discussion is finished
+			const { machine, s1, s2 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
+			const monitorS2 = monitorStreamSheet(s2);
+			s1.sheet.loadCells({
+				A1: { formula: 'A1+1' },
+				A2: { formula: 'execute("S2",2,,true)' },
+				A4: { formula: 'A4+1' }
+			});
+			s2.sheet.loadCells({ 
+				B1: { formula: 'messageids()' },
+				B2: { formula: 'loopindices()' },
+				B3: { formula: 'return()' },
+				B4: { formula: 'A4+1' } });
+			s2.updateSettings({ loop: { path: '[data]', enabled: true } });
+			await machine.pause();
+			s2.inbox.put(new Message(['john','doe','!!!'], '1'));
+			s2.inbox.put(new Message(['hello','world','!!!'], '2'));
+			s2.inbox.put(new Message(['hy','!!!'], '3'));
+			s2.inbox.put(new Message({}, '4'));
+			expect(s2.inbox.size).toBe(4);
+			await machine.start();
+			await monitorS1.hasFinishedStep(1);
+			await machine.pause();
+			expect(s2.inbox.size).toBe(3);
+			expect(s2.sheet.cellAt('B1').value).toBe('1,1,1,2,2,2');
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,2,0,1,2');
+			expect(s2.sheet.cellAt('B4').value).toBe(1);
+			expect(monitorS2.messages.detached).toBe(2);
+			await machine.start();
+			await monitorS1.hasFinishedStep(3);
+			await machine.stop();
+			expect(s2.inbox.size).toBe(1);
+			expect(s2.sheet.cellAt('B1').value).toBe(12);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,2,0,1,2,0,1,0,0,0');
+			expect(monitorS2.messages.detached).toBe(6);
+		});
 		test('repeated execute and consume message with loop from inbox and "repeat until..." return()', async () => {
 			const { machine, s1, s2 } = setup();
 			const monitorS1 = monitorStreamSheet(s1);
@@ -2608,6 +2646,41 @@ describe('behaviour on start, stop, pause and step', () => {
 		expect(s2.sheet.cellAt('B1').value).toBe(5);
 		expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1');
 		await machine.step();
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		expect(s1.sheet.cellAt('A1').value).toBe(3);
+		expect(s1.sheet.cellAt('A5').value).toBe(3);
+		expect(s2.sheet.cellAt('B1').value).toBe(9);
+		expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1,0,1,0,1');
+	});
+	test('start - pause - step with repeated execute and pass message with json loop', async () => {
+		const { machine, s1, s2 } = setup();
+		const monitorS2 = monitorStreamSheet(s2);
+		s1.sheet.loadCells({
+			A1: { formula: 'A1+1' },
+			A2: 'A', B2: 23,
+			A3: 'B', B3: 42,
+			A4: { formula: 'execute("S2",2,JSON(A2,B2,A3,B3))' },
+			A5: { formula: 'A5+1' }
+		});
+		s2.sheet.loadCells({ B1: { formula: 'B1+1' }, B2: { formula: 'loopindices()' } });
+		s2.updateSettings({ loop: { path: '[data]', enabled: true } });
+		await machine.start();
+		await monitorS2.hasFinishedStep(1);
+		await machine.pause();
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		expect(s1.sheet.cellAt('A5').value).toBe(1);
+		expect(s2.sheet.cellAt('B1').value).toBe(2);
+		expect(s2.sheet.cellAt('B2').value).toBe('0');
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		expect(s2.sheet.cellAt('B2').value).toBe('0,1,0,1,0');
+		expect(s1.sheet.cellAt('A1').value).toBe(3);
+		expect(s1.sheet.cellAt('A5').value).toBe(2);
+		expect(s2.sheet.cellAt('B1').value).toBe(6);
 		await machine.step();
 		await machine.step();
 		await machine.step();
