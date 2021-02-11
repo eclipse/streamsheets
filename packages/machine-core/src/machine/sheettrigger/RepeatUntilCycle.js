@@ -12,6 +12,9 @@ const { ManualCycle, TimerCycle } = require('./cycles');
 
 const RepeatUntilCycle = (BaseCycle) =>
 	class extends BaseCycle {
+		get isRepeatUntilCycle() {
+			return true;
+		}
 		getCycleTime() {
 			return 1;
 		}

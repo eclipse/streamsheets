@@ -59,7 +59,17 @@ const Resume = (BaseClass) =>
 		}
 	};
 
-const MessageLoopCycle = compose(Activate, PostProcessSheet, Resume, Step);
+const IsMessageLoop = (BaseClass) =>
+	class extends BaseClass {
+		get isMessageLoopCycle() {
+			return true;
+		}
+
+		getMessageLoopCycle() {
+			return this;
+		}
+	};
+const MessageLoopCycle = compose(Activate, IsMessageLoop, PostProcessSheet, Resume, Step);
 
 class TimerMessageLoopCycle extends MessageLoopCycle(TimerCycle) {
 	getRepeatUntilCycle() {
