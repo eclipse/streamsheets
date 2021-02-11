@@ -180,9 +180,13 @@ class StreamSheet {
 		return this.inbox.size > 1 || !this._msgHandler.isProcessed;
 	}
 
-	getCurrentLoopPath() {
+	getCurrentLoopPath2() {
 		const index = this._trigger.isEndless ? 0 : 1;
 		return this._msgHandler.pathForIndex(this._msgHandler._index - index);
+	}
+	getCurrentLoopPath() {
+		// const index = this.sheet.isProcessed ? 1 : 0;
+		return this._msgHandler.pathForIndex(this._msgHandler.index);
 	}
 
 	get trigger() {
