@@ -81,6 +81,7 @@ class StreamSheet {
 		this.inbox.on('message_pop', this.onInboxPop);
 		this.sheet.onUpdate = this.onSheetUpdate;
 		this.sheet.onCellRangeChange = this.onSheetCellRangeChange;
+		this._loopIndex = 0;
 	}
 
 	toJSON() {
@@ -176,17 +177,12 @@ class StreamSheet {
 		return this._msgHandler.message;
 	}
 
-	hasNewMessage() {
-		return this.inbox.size > 1 || !this._msgHandler.isProcessed;
+	getCurrentLoopPath() {
+		return this._msgHandler.pathForIndex(this._loopIndex);
 	}
 
-	getCurrentLoopPath2() {
-		const index = this._trigger.isEndless ? 0 : 1;
-		return this._msgHandler.pathForIndex(this._msgHandler._index - index);
-	}
-	getCurrentLoopPath() {
-		// const index = this.sheet.isProcessed ? 1 : 0;
-		return this._msgHandler.pathForIndex(this._msgHandler.index);
+	hasNewMessage() {
+		return this.inbox.size > 1 || !this._msgHandler.isProcessed;
 	}
 
 	get trigger() {
@@ -369,7 +365,8 @@ class StreamSheet {
 	// ~
 
 	process() {
-		this._triggerProcess = true;
+		// store current loop index, it might be changed after process
+		this._loopIndex = this._msgHandler.index;
 		this.sheet.getDrawings().removeAll();
 		this.sheet._startProcessing();
 		this._emitter.emit('step', this);
