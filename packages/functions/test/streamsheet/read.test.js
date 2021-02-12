@@ -288,7 +288,7 @@ describe('read', () => {
 			expect(sheet.cellAt('B2').value).toBe('Red');
 			expect(sheet.cellAt('B3').value).toBe('Yellow');
 			await machine.step();	// <-- returns
-			expect(t1.getCurrentLoopPath()).toBe('[Data][Step2]');
+			expect(t1.getCurrentLoopPath()).toBe('[Data][Step1]');
 			expect(sheet.cellAt('A4').value).toBe(0);
 			expect(sheet.cellAt('A5').value).toBe(true);
 			expect(sheet.cellAt('B1').value).toBe(1000);
@@ -303,7 +303,7 @@ describe('read', () => {
 			expect(sheet.cellAt('B3').value).toBe('Red');
 			await machine.step();
 			await machine.step();	// <-- returns
-			expect(t1.getCurrentLoopPath()).toBe('[Data][Step3]');
+			expect(t1.getCurrentLoopPath()).toBe('[Data][Step2]');
 			expect(sheet.cellAt('A4').value).toBe(0);
 			expect(sheet.cellAt('A5').value).toBe(true);
 			expect(sheet.cellAt('B1').value).toBe(1000);
