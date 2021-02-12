@@ -8,19 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { compose } = require('@cedalo/commons').functions;
-
-const Activate = (BaseCycle) =>
+const RepeatedMessageLoopCycle = (BaseCycle) =>
 	class extends BaseCycle {
 		activate() {
 			super.activate();
 			this.streamsheet.messageHandler.setProcessed();
 			this.schedule();
 		}
-	};
-
-const Step = (BaseCycle) =>
-	class extends BaseCycle {
 		getMessageLoopCycle() {
 			throw new Error('Not implemented!');
 		}
@@ -30,8 +24,6 @@ const Step = (BaseCycle) =>
 		}
 	};
 
-const RepeatedMessageLoopCycle = compose(Activate, Step);
-
-module.exports = {
+	module.exports = {
 	withBaseClass: (BaseCycle) => RepeatedMessageLoopCycle(BaseCycle)
 };
