@@ -91,7 +91,7 @@ describe('behaviour on machine run', () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START });
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2")' },
+				A2: { formula: 'execute("S2",1,,1)' },
 				A3: { formula: 'A3+1' }
 			});
 			s2.trigger.update({ repeat: 'endless' });
@@ -109,7 +109,7 @@ describe('behaviour on machine run', () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START });
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",1,1)' },
+				A2: { formula: 'execute("S2",1,,1)' },
 				A3: { formula: 'A3+1' }
 			});
 			s2.trigger.update({ repeat: 'endless' });
@@ -280,7 +280,7 @@ describe('behaviour on machine run', () => {
 			const machineMonitor = monitorMachine(machine);
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",1,1)' },
+				A2: { formula: 'execute("S2",1,,1)' },
 				A3: { formula: 'A3+1' }
 			});
 			s2.trigger.update({ repeat: 'endless' });
@@ -293,14 +293,14 @@ describe('behaviour on machine run', () => {
 			// s2 run as fast as possible so it actually must be much greater
 			expect(s2b1).toBeGreaterThan(3);
 			// change speed to equal machine cycle
-			createCellAt('A2', { formula: 'execute("S2",1,10)'}, s1.sheet);
+			createCellAt('A2', { formula: 'execute("S2",1,,10)'}, s1.sheet);
 			await machineMonitor.hasFinishedStep(8);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			// check that s2 executes again:
 			expect(s2.sheet.cellAt('B1').value).toBeGreaterThan(s2b1 + 1);
 			// and back again to fast as possible
-			createCellAt('A2', { formula: 'execute("S2",1,1)'}, s1.sheet);
+			createCellAt('A2', { formula: 'execute("S2",1,,1)'}, s1.sheet);
 			s2b1 = s2.sheet.cellAt('B1').value;
 			await machineMonitor.hasFinishedStep(12);
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
