@@ -311,7 +311,7 @@ describe('OnMessageTrigger', () => {
 				A1: { formula: 'A1+1' },
 				A2: { formula: 'loopindices()' },
 				A3: { formula: 'messageids()' },
-				A4: { formula: 'execute("S2")' },
+				A4: { formula: 'execute("S2",1,,1)' },
 				B4: { formula: 'B4+1' },
 				B5: { formula: 'return()' }
 			});

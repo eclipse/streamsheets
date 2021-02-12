@@ -26,7 +26,7 @@ const execute = (sheet, ...terms) => {
 		const callingStreamSheet = sheet.streamsheet;
 		const calledStreamSheet = machine.getStreamSheetByName(terms[0].value);
 		const repetitions = terms[1] ? terms[1].value : 1;
-		const pace = terms[3] != null ? !!terms[3].value : null;
+		const speed = terms[3] != null ? !!terms[3].value : null;
 		let message;
 		if (terms[2]) {
 			const msgdata = terms[2].value;
@@ -47,7 +47,7 @@ const execute = (sheet, ...terms) => {
 		if (!sheet.isPaused) {
 			// always pause calling sheet, since we do not know how long execute takes (due to pause/sleep functions)
 			callingStreamSheet.pauseProcessing();
-			return calledStreamSheet.execute(repetitions, message, pace, resumeExecute(context));
+			return calledStreamSheet.execute(repetitions, message, speed, resumeExecute(context));
 		}
 
 		return true;

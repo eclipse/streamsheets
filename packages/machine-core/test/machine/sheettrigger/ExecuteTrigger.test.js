@@ -105,11 +105,11 @@ describe('behaviour on machine run', () => {
 			// s2 run as fast as possible so it must be much greater
 			expect(s2.sheet.cellAt('B1').value).toBeGreaterThan(3);
 		});
-		test('execute sheet in "repeat until..." mode should calculate as fast as possible if last param is true', async () => {
+		test('execute sheet in "repeat until..." mode should calculate as fast as possible if last param is 1ms', async () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START });
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",1,true)' },
+				A2: { formula: 'execute("S2",1,1)' },
 				A3: { formula: 'A3+1' }
 			});
 			s2.trigger.update({ repeat: 'endless' });
@@ -123,12 +123,12 @@ describe('behaviour on machine run', () => {
 			// s2 run as fast as possible so it must be much greater
 			expect(s2.sheet.cellAt('B1').value).toBeGreaterThan(3);
 		});
-		test('execute sheet in "repeat until..." mode should calculate in machine cycle if last param is false', async () => {
+		test('execute sheet in "repeat until..." mode should calculate in machine cycle if last param is undefined', async () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START });
 			machine.cycletime = 50;
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",1,,false)' },
+				A2: { formula: 'execute("S2",1)' },
 				A3: { formula: 'A3+1' }
 			});
 			s2.trigger.update({ repeat: 'endless' });
@@ -234,6 +234,7 @@ describe('behaviour on machine run', () => {
 		});
 		test('execute sheet in "repeat until..." mode after start/pause/start/stop/start/stop', async () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START });
+			machine.cycletime = 2;
 			s1.sheet.loadCells({ A1: { formula: 'A1+1' }, A2: { formula: 'execute("S2")' } });
 			s2.trigger.update({ repeat: 'endless' });
 			s2.sheet.loadCells({ B1: { formula: 'B1+1' }, B2: { formula: 'if(B1>3,return(42),false)' } });
@@ -274,12 +275,12 @@ describe('behaviour on machine run', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(6);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 		});
-		test('changing pace parameter in "repeat until..." mode without stopping machine', async () => {
+		test('changing speed parameter in "repeat until..." mode without stopping machine', async () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.CONTINUOUSLY });
 			const machineMonitor = monitorMachine(machine);
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",1,true)' },
+				A2: { formula: 'execute("S2",1,1)' },
 				A3: { formula: 'A3+1' }
 			});
 			s2.trigger.update({ repeat: 'endless' });
@@ -291,15 +292,15 @@ describe('behaviour on machine run', () => {
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			// s2 run as fast as possible so it actually must be much greater
 			expect(s2b1).toBeGreaterThan(3);
-			// change pace to equal machine cycle
-			createCellAt('A2', { formula: 'execute("S2",1,false)'}, s1.sheet);
+			// change speed to equal machine cycle
+			createCellAt('A2', { formula: 'execute("S2",1,10)'}, s1.sheet);
 			await machineMonitor.hasFinishedStep(8);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			// check that s2 executes again:
 			expect(s2.sheet.cellAt('B1').value).toBeGreaterThan(s2b1 + 1);
 			// and back again to fast as possible
-			createCellAt('A2', { formula: 'execute("S2",1,true)'}, s1.sheet);
+			createCellAt('A2', { formula: 'execute("S2",1,1)'}, s1.sheet);
 			s2b1 = s2.sheet.cellAt('B1').value;
 			await machineMonitor.hasFinishedStep(12);
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
@@ -360,7 +361,7 @@ describe('behaviour on machine run', () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START});
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",4)' },
+				A2: { formula: 'execute("S2",4,,1)' },
 				A3: { formula: 'A3+1' }
 			});
 			s2.trigger.update({ repeat: 'endless' });
@@ -375,7 +376,7 @@ describe('behaviour on machine run', () => {
 			expect(s2.stats.executesteps).toBe(1);
 			await machine.stop();
 		});
-		test('if no pace is specified repeated execute sheet is done in machine cycle', async () => {
+		test('if no speed is specified repeated execute sheet is done in machine cycle', async () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START});
 			machine.cycletime = 1000;
 			s1.sheet.loadCells({
@@ -393,51 +394,12 @@ describe('behaviour on machine run', () => {
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B1').value).toBe(2);
 		});
-		test('if no pace is specified "repeat until..." is done as fast as possible', async () =>{
+		test('if speed parameter is not specified "repeat until..." is done in machine cycle', async () =>{
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START});
-			machine.cycletime = 300;
+			machine.cycletime = 1000;
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
 				A2: { formula: 'execute("S2",4)' },
-				A3: { formula: 'A3+1' }
-			});
-			s2.trigger.update({ repeat: 'endless'});
-			s2.sheet.loadCells({ B1: { formula: 'B1+1' }, B2: { formula: 'if(mod(B1,5)=0,return(42),false)' } });
-			await machine.start();
-			await wait(30);
-			await machine.pause();
-			// stopped before repeats done
-			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A3').value).toBe(1);
-			expect(s2.sheet.cellAt('B1').value).toBe(5);
-			expect(s2.sheet.cellAt('B2').value).toBe(42);
-			expect(s2.stats.executesteps).toBe(1);
-			await machine.stop();
-		});
-		test('if pace parameter is false repeat execute is done in machine cycle', async () =>{
-			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START});
-			machine.cycletime = 1000;
-			s1.sheet.loadCells({
-				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",4,,false)' },
-				A3: { formula: 'A3+1' }
-			});
-			s2.sheet.loadCells({ B1: { formula: 'B1+1' } });
-			await machine.start();
-			await wait(100);
-			await machine.stop();
-			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(true);
-			// repeat is done in machine cycle, so only 1 trigger
-			expect(s1.sheet.cellAt('A3').value).toBe(1);
-			expect(s2.sheet.cellAt('B1').value).toBe(2);
-		});
-		test('if pace parameter is false "repeat until..." are done in machine cycle', async () =>{
-			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START});
-			machine.cycletime = 1000;
-			s1.sheet.loadCells({
-				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",4,,false)' },
 				A3: { formula: 'A3+1' }
 			});
 			s2.trigger.update({ repeat: 'endless'});
@@ -458,7 +420,7 @@ describe('behaviour on machine run', () => {
 			machine.cycletime = 10;
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",3,,false)' },
+				A2: { formula: 'execute("S2",3)' },
 				A3: { formula: 'A3+1' }
 			});
 			s2.sheet.loadCells({ B1: { formula: 'B1+1' }, B2: { formula: 'if(mod(B1,3)=0,return(42),false)' } });
@@ -474,12 +436,12 @@ describe('behaviour on machine run', () => {
 			expect(s2.stats.executesteps).toBe(3);
 			await machine.stop();
 		});
-		test('if pace parameter is true repeat execute is done as fast as possible', async () =>{
+		test('if speed parameter 1ms repeat execute is done as fast as possible', async () =>{
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START});
 			machine.cycletime = 1000;
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",4,,true)' },
+				A2: { formula: 'execute("S2",4,,1)' },
 				A3: { formula: 'A3+1' }
 			});
 			s2.sheet.loadCells({ B1: { formula: 'B1+1' } });
@@ -494,12 +456,12 @@ describe('behaviour on machine run', () => {
 			expect(s2.stats.executesteps).toBe(4);
 			await machine.stop();
 		});
-		test('if pace parameter is true "repeat until..." is done as fast as possible', async () =>{
+		test('if speed parameter is 1ms "repeat until..." is done as fast as possible', async () =>{
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START});
 			machine.cycletime = 1000;
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",4,,true)' },
+				A2: { formula: 'execute("S2",4,,1)' },
 				A3: { formula: 'A3+1' }
 			});
 			s2.trigger.update({ repeat: 'endless'});
@@ -562,7 +524,7 @@ describe('behaviour on machine run', () => {
 			expect(monitorS2.messages.attached).toBe(1);
 			expect(monitorS2.messages.detached).toBe(1);
 		});
-		test('execute sheet and pass message with loop is stopped by return', async () => {
+		test('execute sheet and pass message with loop is NOT stopped by return', async () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START});
 			const monitorS2 = monitorStreamSheet(s2);
 			const monitorS1 = monitorStreamSheet(s1);
@@ -572,7 +534,11 @@ describe('behaviour on machine run', () => {
 				A3: { formula: 'execute("S2",1,array(A2,B2,C2,D2))' },
 				A4: { formula: 'A4+1' }
 			});
-			s2.sheet.loadCells({ B1: { formula: 'B1+1' }, B2: { formula: 'if(B1>2,return(42),"waiting")'} });
+			s2.sheet.loadCells({
+				B1: { formula: 'B1+1' },
+				B2: { formula: 'if(B1>2,return(42),"waiting")' },
+				B3: { formula: 'B3+1' }
+			});
 			s2.updateSettings({ loop: { path: '[data]', enabled: true } });
 			await machine.start();
 			await monitorS1.hasFinishedStep(1);
@@ -580,8 +546,11 @@ describe('behaviour on machine run', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A3').value).toBe(42);
 			expect(s1.sheet.cellAt('A4').value).toBe(2);
-			expect(s2.sheet.cellAt('B1').value).toBe(3);
+			// loop has 4 elements so:
+			expect(s2.sheet.cellAt('B1').value).toBe(5);
 			expect(s2.sheet.cellAt('B2').value).toBe(42);
+			// B3 is only calc 1 time, all other times return() is active
+			expect(s2.sheet.cellAt('B3').value).toBe(2);
 			expect(monitorS2.messages.attached).toBe(1);
 			expect(monitorS2.messages.detached).toBe(1);
 		});
@@ -687,7 +656,7 @@ describe('behaviour on machine run', () => {
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
 				A2: 'hello', B2: 'world', C2: '!!!', D2: 23,
-				A3: { formula: 'execute("S2",4,array(A2,B2,C2,D2),true)' },
+				A3: { formula: 'execute("S2",4,array(A2,B2,C2,D2),1)' },
 				A4: { formula: 'A4+1' }
 			});
 			s2.trigger.update({ repeat: 'endless' });
@@ -714,7 +683,7 @@ describe('behaviour on machine run', () => {
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
 				A2: 'hello', B2: 'world', C2: '!!!',
-				A3: { formula: 'execute("S2",3,array(A2,B2,C2),true)' },
+				A3: { formula: 'execute("S2",3,array(A2,B2,C2),1)' },
 				A4: { formula: 'A4+1' }
 			});
 			s2.sheet.loadCells({
@@ -789,7 +758,7 @@ describe('behaviour on machine run', () => {
 			const monitorS2 = monitorStreamSheet(s2);
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",2,,true)' },
+				A2: { formula: 'execute("S2",2,,1)' },
 				A4: { formula: 'A4+1' }
 			});
 			s2.sheet.loadCells({ B1: { formula: 'B1+1' } });
@@ -812,7 +781,7 @@ describe('behaviour on machine run', () => {
 			const monitorS2 = monitorStreamSheet(s2);
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",2,,true)' },
+				A2: { formula: 'execute("S2",2,,1)' },
 				A4: { formula: 'A4+1' }
 			});
 			s2.sheet.loadCells({ 
@@ -840,14 +809,13 @@ describe('behaviour on machine run', () => {
 			expect(s2.sheet.cellAt('B2').value).toBe('0,1,2,0,1,2,0,1,0,0,0');
 			expect(monitorS2.messages.detached).toBe(6);
 		});
-		test.skip('repeated execute consumes next loop element if processing sheet is finished by return()', async () => {
-			// wait until JIRA discussion is finished
+		test('repeated execute consumes next loop element if processing sheet is finished by return()', async () => {
 			const { machine, s1, s2 } = setup();
 			const monitorS1 = monitorStreamSheet(s1);
 			const monitorS2 = monitorStreamSheet(s2);
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",2,,true)' },
+				A2: { formula: 'execute("S2",2,,1)' },
 				A4: { formula: 'A4+1' }
 			});
 			s2.sheet.loadCells({ 
@@ -874,7 +842,7 @@ describe('behaviour on machine run', () => {
 			await monitorS1.hasFinishedStep(3);
 			await machine.stop();
 			expect(s2.inbox.size).toBe(1);
-			expect(s2.sheet.cellAt('B1').value).toBe(12);
+			expect(s2.sheet.cellAt('B1').value).toBe('1,1,1,2,2,2,3,3,4,4,4');
 			expect(s2.sheet.cellAt('B2').value).toBe('0,1,2,0,1,2,0,1,0,0,0');
 			expect(monitorS2.messages.detached).toBe(6);
 		});
@@ -884,7 +852,7 @@ describe('behaviour on machine run', () => {
 			const monitorS2 = monitorStreamSheet(s2);
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",2,,true)' },
+				A2: { formula: 'execute("S2",2,,1)' },
 				A4: { formula: 'A4+1' }
 			});
 			s2.sheet.loadCells({
@@ -1021,41 +989,12 @@ describe('behaviour on machine run', () => {
 			expect(s1.sheet.cellAt('A4').value).toBe(5);
 			expect(s2.sheet.cellAt('B1').value).toBe(8);
 		});
-		test('if no pace is given "repeat until..." is done as fast as possible, loop and repeat in machine cycle-time', async () => {
+		test('if speed is 1ms "repeat until...", loop and repeat are done as fast as possible', async () => {
 			const { machine, s1, s2 } = setup();
 			machine.cycletime = 2000;
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",2)' },
-				A4: { formula: 'A4+1' }
-			});
-			s2.sheet.loadCells({
-				B1: { formula: 'B1+1' },
-				B2: { formula: 'loopindices()' },
-				B3: { formula: 'if(mod(B1,6)=0,return(42),false)' }
-			});
-			s2.trigger.update({ repeat: 'endless' });
-			s2.updateSettings({ loop: { path: '[data]', enabled: true } });
-			await machine.pause();
-			s2.inbox.put(new Message([1, 2, 3], '1'));
-			s2.inbox.put(new Message([4, 5, 6], '2'));
-			expect(s2.inbox.size).toBe(2);
-			await machine.start();
-			await wait(100);
-			await machine.stop();
-			// should only calc until first return is fulfilled...
-			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(true);
-			expect(s1.sheet.cellAt('A4').value).toBe(1);
-			expect(s2.sheet.cellAt('B1').value).toBe(6);
-			expect(s2.sheet.cellAt('B2').value).toBe('0,0,0,0,0');
-		});
-		test('if pace is true "repeat until...", loop and repeat are done as fast as possible', async () => {
-			const { machine, s1, s2 } = setup();
-			machine.cycletime = 2000;
-			s1.sheet.loadCells({
-				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",2,,true)' },
+				A2: { formula: 'execute("S2",2,,1)' },
 				A4: { formula: 'A4+1' }
 			});
 			s2.sheet.loadCells({
@@ -1078,12 +1017,12 @@ describe('behaviour on machine run', () => {
 			expect(s2.sheet.cellAt('B1').value).toBe(12);
 			expect(s2.sheet.cellAt('B2').value).toBe('0,1,1,2,2,0,0,1,1,2,2');
 		});
-		test('if pace is false "repeat until...", loop and repeat are done in machine cycle-time', async () => {
+		test('if no speed is specified "repeat until...", loop and repeat are done in machine cycle-time', async () => {
 			const { machine, s1, s2 } = setup();
 			machine.cycletime = 1000;
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",2,,false)' },
+				A2: { formula: 'execute("S2",2)' },
 				A4: { formula: 'A4+1' }
 			});
 			s2.sheet.loadCells({
@@ -1110,7 +1049,7 @@ describe('behaviour on machine run', () => {
 			machine.cycletime = 1;
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
-				A2: { formula: 'execute("S2",2,,false)' },
+				A2: { formula: 'execute("S2",2)' },
 				A4: { formula: 'A4+1' }
 			});
 			s2.sheet.loadCells({
@@ -1412,12 +1351,14 @@ describe('behaviour on machine run', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A3').value).toBe('done');
 			expect(s1.sheet.cellAt('A4').value).toBe(2);
-			expect(s2.sheet.cellAt('B1').value).toBe(4);
-			expect(s2.sheet.cellAt('B2').value).toBe('0,0,1');
-			expect(s2.sheet.cellAt('B5').value).toBe('done');
-			expect(s3.sheet.cellAt('C1').value).toBe(18);
-			expect(s3.sheet.cellAt('C2').value).toBe('0,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1');
-			expect(s3.sheet.cellAt('C3').value).toBe(42);
+			// s2 is called 2 (repeats) x 3 (loops):
+			expect(s2.sheet.cellAt('B1').value).toBe(7);
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,2,0,1,2');
+			expect(s2.sheet.cellAt('B5').value).toBe(false);
+			// s3 is called 3 (repeats) x 3 (loops) x 6 (S2):
+			expect(s3.sheet.cellAt('C1').value).toBe(55);
+			expect(s3.sheet.cellAt('C2').value.startsWith('0,1,2,0,1,2,0,1,2,0,1,2,0,1,2')).toBeTruthy();
+			expect(s3.sheet.cellAt('C3').value).toBe(false);
 		});
 		test('chained executed sheets in "repeat until..." mode', async () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START });
@@ -2059,6 +2000,61 @@ describe('behaviour on manual steps', () => {
 			expect(s2.sheet.cellAt('B1').value).toBe('0,1,2,0,1,0,1,0,0,0');
 			expect(s1.sheet.cellAt('A3').value).toBe(3);
 		});
+		test('repeated execute consumes next loop element if processing sheet is finished by return()', async () => {
+			const { machine, s1, s2 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
+			s1.sheet.loadCells({
+				A1: { formula: 'A1+1' },
+				A2: { formula: 'execute("S2",2,,1)' },
+				A4: { formula: 'A4+1' }
+			});
+			s2.sheet.loadCells({ 
+				B1: { formula: 'messageids()' },
+				B2: { formula: 'loopindices()' },
+				B3: { formula: 'return()' },
+				B4: { formula: 'A4+1' } });
+			s2.updateSettings({ loop: { path: '[data]', enabled: true } });
+			await machine.pause();
+			s2.inbox.put(new Message(['john','doe','!!!'], '1'));
+			s2.inbox.put(new Message(['hello','world','!!!'], '2'));
+			s2.inbox.put(new Message(['hy','!!!'], '3'));
+			s2.inbox.put(new Message({}, '4'));
+			expect(s2.inbox.size).toBe(4);
+			await machine.step();
+			expect(s2.sheet.cellAt('B1').value).toBe('1');
+			expect(s2.sheet.cellAt('B2').value).toBe('0');
+			await machine.step();
+			expect(s2.sheet.cellAt('B1').value).toBe('1,1');
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1');
+			await machine.step();
+			expect(s2.sheet.cellAt('B1').value).toBe('1,1,1');
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,2');
+			await machine.step();
+			expect(s2.sheet.cellAt('B1').value).toBe('1,1,1,2');
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,2,0');
+			expect(monitorS1.stats.finishedsteps).toBe(0);
+			await machine.step();
+			await machine.step();
+			expect(s2.sheet.cellAt('B1').value).toBe('1,1,1,2,2,2');
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,2,0,1,2');
+			expect(monitorS1.stats.finishedsteps).toBe(1);
+			await machine.step();
+			expect(s1.sheet.cellAt('A4').value).toBe(2);
+			expect(s2.sheet.cellAt('B1').value).toBe('1,1,1,2,2,2,3');
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,2,0,1,2,0');
+			await machine.step();
+			await machine.step();
+			await machine.step();
+			expect(s2.sheet.cellAt('B1').value).toBe('1,1,1,2,2,2,3,3,4,4');
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,2,0,1,2,0,1,0,0');
+			expect(monitorS1.stats.finishedsteps).toBe(2);
+			await machine.step();
+			await machine.step();
+			// stays at last message...
+			expect(s2.sheet.cellAt('B1').value).toBe('1,1,1,2,2,2,3,3,4,4,4,4');
+			expect(s2.sheet.cellAt('B2').value).toBe('0,1,2,0,1,2,0,1,0,0,0,0');
+			expect(monitorS1.stats.finishedsteps).toBe(3);
+		});
 		test('repeated execute and pass message with json loop', async () => {
 			const { machine, s1, s2 } = setup();
 			s1.sheet.loadCells({
@@ -2282,7 +2278,7 @@ describe('behaviour on manual steps', () => {
 			s1.sheet.loadCells({
 				A1: { formula: 'A1+1' },
 				A2: 'hello', B2: 'world', C2: '!!!',
-				A3: { formula: 'execute("S2",3,array(A2,B2,C2),true)' },
+				A3: { formula: 'execute("S2",3,array(A2,B2,C2),1)' },
 				A4: { formula: 'A4+1' }
 			});
 			s2.sheet.loadCells({
@@ -3040,7 +3036,7 @@ describe('executesteps counter', () => {
 		machine.cycletime = 50000;
 		s1.sheet.loadCells({
 			A1: { formula: 'A1+1' },
-			A2: { formula: 'execute("S2")' },
+			A2: { formula: 'execute("S2",1,,1)' },
 			A3: { formula: 'A3+1' }
 		});
 		s2.trigger.update({ repeat: 'endless' });
@@ -3071,7 +3067,7 @@ describe('updating trigger', () => {
 		machine.cycletime = 5000;
 		s2.trigger.update({ repeat: 'endless' });
 		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-		createCellAt('A2', { formula: 'execute("S2")' }, s1.sheet);
+		createCellAt('A2', { formula: 'execute("S2",1,,1)' }, s1.sheet);
 		createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 		createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 		await machine.start();
@@ -3128,7 +3124,7 @@ describe('updating trigger', () => {
 		machine.cycletime = 5000;
 		s2.trigger.update({ repeat: 'endless' });
 		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-		createCellAt('A2', { formula: 'execute("S2")' }, s1.sheet);
+		createCellAt('A2', { formula: 'execute("S2",1,,1)' }, s1.sheet);
 		createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 		createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 		await machine.start();
@@ -3147,7 +3143,7 @@ describe('updating trigger', () => {
 		const machineMonitor = monitorMachine(machine);
 		s2.trigger.update({ repeat: 'endless' });
 		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-		createCellAt('A2', { formula: 'execute("S2")' }, s1.sheet);
+		createCellAt('A2', { formula: 'execute("S2",1,,1)' }, s1.sheet);
 		createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 		createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 		await machine.start();
