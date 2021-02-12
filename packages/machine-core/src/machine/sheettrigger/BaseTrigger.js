@@ -96,6 +96,7 @@ class BaseTrigger {
 
 	processSheet() {
 		if (this._streamsheet.messageHandler.isProcessed) this._streamsheet.attachNextMessage();
+		// no messageHandler.next() here because of "repeat until..." which uses same loop element 
 		this._streamsheet.process();
 	}
 

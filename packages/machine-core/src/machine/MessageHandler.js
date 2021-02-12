@@ -77,13 +77,12 @@ class MessageHandler {
 
 	get index() {
 		// DL-712: we keep last loop element...
-		return Math.max(0, Math.min(this._index, this._stacklength - 1));
+		return Math.min(this._index, this._stacklength - 1);
 	}
 
 	get indexKey() {
-		const index = Math.min(this._index, this._stack.length - 1);
-		return index < 0 ? '[0]' : this._stack[index].key;
-		// return this._index < this._stacklength ? this._stack[this._index].key : (this._stack.length ? '[0]';
+		const entry = this._stack[this.index];
+		return entry ? entry.key : '[0]';
 	}
 
 	get message() {
@@ -146,11 +145,10 @@ class MessageHandler {
 	}
 
 	next() {
-		const value =
-			!this.isEnabled || this._index >= this._stack.length ? undefined : this._stack[this._index].value;
+		const entry = this.isEnabled && this._stack[this._index];
 		// have to move index to ensure we process loop elements, even if they have no data...
 		this._index = Math.min(this._index + 1, this._stacklength);
-		return value;
+		return entry ? entry.value : undefined;
 	}
 }
 
