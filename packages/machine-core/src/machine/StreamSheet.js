@@ -333,10 +333,10 @@ class StreamSheet {
 	// }
 
 	// called by sheet functions:
-	execute(repetitions, message, pace, resumeFn) {
+	execute(repetitions, message, speed, resumeFn) {
 		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
 			// called by different sheet, so schedule it
-			TaskQueue.schedule(() => this.trigger.execute(repetitions, message, pace, resumeFn));
+			TaskQueue.schedule(() => this.trigger.execute(repetitions, message, speed, resumeFn));
 			return true;
 		}
 		if (resumeFn) resumeFn(false);

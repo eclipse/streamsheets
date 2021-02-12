@@ -13,18 +13,9 @@ const MessageLoopCycle = require('./MessageLoopCycle');
 const { ManualMessageLoopCycle } = require('./MessageLoopCycle');
 const { TimerRepeatUntilCycle } = require('./RepeatUntilCycle');
 const RepeatedMessageLoopCycle = require('./RepeatedMessageLoopCycle');
-const Machine = require('../Machine');
 const { ManualCycle, TimerCycle } = require('./cycles');
 
-// DL-4592: slow it down a bit
-const MAX_PACE = 1; // 20;	// in ms
 const noop = () => {};
-const getPace = (trigger, useMax) => () => {
-	const pace = trigger.pace;
-	const machine = trigger.machine;
-	// eslint-disable-next-line no-nested-ternary
-	return useMax(pace) ? MAX_PACE : machine ? machine.cycletime : Machine.DEF_CYCLETIME;
-};
 
 const attachExecuteMessage = (message, streamsheet) => {
 	const currmsg = streamsheet.messageHandler.message;
@@ -50,26 +41,22 @@ const RepeatedExecuteCycle = (BaseClass) =>
 	};
 
 class PacedRepeatUntilCycle extends TimerRepeatUntilCycle {
-	constructor(trigger, parent) {
-		super(trigger, parent);
-		this.getCycleTime = getPace(trigger, (pace) => pace == null || pace === true);
+	getCycleTime() {
+		return this.trigger.speed;
 	}
 }
 class PacedMessageLoopCycle extends MessageLoopCycle.withBaseClass(TimerCycle) {
-	constructor(trigger, parent) {
-		super(trigger, parent);
-		this.getCycleTime = getPace(trigger, (pace) => pace != null && pace !== false);
+	getCycleTime() {
+		return this.trigger.speed;
 	}
-
 	getRepeatUntilCycle() {
 		return new PacedRepeatUntilCycle(this.trigger, this);
 	}
 }
 
 class PacedRepeatedExecuteCycle extends RepeatedExecuteCycle(TimerCycle) {
-	constructor(trigger, parent) {
-		super(trigger, parent);
-		this.getCycleTime = getPace(trigger, (pace) => pace != null && pace !== false);
+	getCycleTime() {
+		return this.trigger.speed;
 	}
 	getMessageLoopCycle() {
 		return new PacedMessageLoopCycle(this.trigger, this);
@@ -112,7 +99,7 @@ class ManualRepeatedExecuteCycle extends RepeatedExecuteCycle(ManualCycle) {
 class ExecuteTrigger extends BaseTrigger {
 	constructor(config = {}) {
 		super(Object.assign({}, config, { type: ExecuteTrigger.TYPE }));
-		this.pace = undefined;
+		this.speed = undefined;
 		this.message = undefined;
 		this.retval = undefined;
 		this.resumeFn = undefined;
@@ -148,8 +135,9 @@ class ExecuteTrigger extends BaseTrigger {
 		if (manual && this.resumeFn) super.step(manual);
 	}
 
-	execute(repetitions, message, pace, resumeFn) {
-		this.pace = pace;
+	execute(repetitions, message, speed, resumeFn) {
+		// DL-4592: default to machine cycle or use 20in ms
+		this.speed = speed || this.machine.cycletime;
 		this.message = message;
 		this.repetitions = repetitions;
 		this.resumeFn = resumeFn || noop;
