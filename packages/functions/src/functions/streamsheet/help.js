@@ -128,7 +128,7 @@ module.exports = {
 		},
 		EXECUTE: {
 			en: {
-				argumentList: 'Streamsheet,Repeat,JSON,Pace',
+				argumentList: 'Streamsheet,Repeat,JSON,Speed',
 				description: 'Triggers the recalculation of another streamsheet'
 			},
 			de: {

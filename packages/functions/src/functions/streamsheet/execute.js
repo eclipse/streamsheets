@@ -56,8 +56,8 @@ const execute = (sheet, ...terms) =>
 		.mapNextArg((sheetname) => convert.toString(sheetname.value))
 		.mapNextArg((repetitions) => (repetitions ? convert.toNumber(repetitions.value, 1) : 1))
 		.mapNextArg((message) => (message ? createExecuteMessage(message, sheet) : undefined))
-		.mapNextArg((pace) => (pace ? convert.toBoolean(pace.value) : undefined))
-		.run((sheetname, repetitions, message, pace) => {
+		.mapNextArg((speed) => (speed ? convert.toNumber(speed.value) : undefined))
+		.run((sheetname, repetitions, message, speed) => {
 			const calledStreamSheet = getStreamSheetByName(sheetname, sheet);
 			if (!calledStreamSheet) return ERROR.NO_STREAMSHEET;
 			const context = execute.context;
@@ -71,7 +71,7 @@ const execute = (sheet, ...terms) =>
 			if (repetitions > 0 && !sheet.isPaused) {
 				callingStreamSheet.pauseProcessing();
 				context.isResumed = false;
-				if (!calledStreamSheet.execute(Math.max(1, repetitions), message, pace, resumeExecute(context))) {
+				if (!calledStreamSheet.execute(Math.max(1, repetitions), message, speed, resumeExecute(context))) {
 					return `${ERROR.INVALID_PARAM}_1`;
 				}
 			}
