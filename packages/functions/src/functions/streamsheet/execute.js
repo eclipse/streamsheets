@@ -77,7 +77,7 @@ const execute = (sheet, ...terms) =>
 			}
 			// eslint-disable-next-line no-nested-ternary
 			return sheet.isPaused
-				? ERROR.NA
+				? ERROR.WAITING
 				: context.isResumed
 				? context.returnValue
 				: getDefaultReturnValue(calledStreamSheet);
