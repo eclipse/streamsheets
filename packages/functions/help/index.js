@@ -1,13 +1,14 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const crypto = require('../src/functions/crypto/help');
 const database = require('../src/functions/database/help');
 const date = require('../src/functions/date/help');
 const drawing = require('../src/functions/drawing/help');
@@ -24,6 +25,7 @@ const text = require('../src/functions/text/help');
 const timeseries = require('../src/functions/timeseries/help');
 
 module.exports = {
+	crypto,
 	database,
 	date,
 	drawing,
