@@ -223,13 +223,13 @@ export default class SheetPlotActivator extends InteractionActivator {
 			event.hasActivated = true;
 		} else {
 			view.chartSelection = undefined;
-			NotificationCenter.getInstance().send(
-				new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, interaction._controller.getModel())
-			);
 		}
 		NotificationCenter.getInstance().send(
-			new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION)
+			new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, interaction._controller.getModel())
 		);
+		// NotificationCenter.getInstance().send(
+		// 	new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION)
+		// );
 	}
 
 	onMouseMove(event, viewer) {

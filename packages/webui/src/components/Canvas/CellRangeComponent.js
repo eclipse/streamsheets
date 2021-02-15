@@ -12,13 +12,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import JSG from '@cedalo/jsg-ui';
-import { IconButton } from '@material-ui/core';
+import {IconButton, MenuItem, MenuList} from '@material-ui/core';
 import OkIcon from '@material-ui/icons/Check';
 import CancelIcon from '@material-ui/icons/Close';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
 import { graphManager } from '../../GraphManager';
 import {withStyles} from '@material-ui/core/styles';
 import styles from '../base/listing/styles';
+import Popover from "@material-ui/core/Popover";
+// import {intl} from "../../helper/IntlGlobalProvider";
 
 const {
 	CellEditor,
@@ -30,12 +33,10 @@ class CellRangeComponent extends React.Component {
 		onChange: PropTypes.func,
 		onBlur: PropTypes.func,
 		onFocus: PropTypes.func,
-		// required: PropTypes.bool,
-		// label: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
-		// helperText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-		// range: PropTypes.string.isRequired,
 		sheetView: PropTypes.object.isRequired,
 		onlyReference: PropTypes.bool,
+		inputEditorType: PropTypes.string,
+		inputEditorOptions: PropTypes.array,
 		// fontSize: PropTypes.string
 	};
 
@@ -44,9 +45,8 @@ class CellRangeComponent extends React.Component {
 		onBlur: () => {},
 		onFocus: () => {},
 		onlyReference: true,
-		// required: false,
-		// fontSize: '1rem',
-		// helperText: undefined,
+		inputEditorType: 'none',
+		inputEditorOptions: [],
 	};
 
 	constructor(props) {
@@ -54,12 +54,34 @@ class CellRangeComponent extends React.Component {
 		this.state = {
 			focus: false,
 			oldValue: '',
+			inputEditorOpen: false,
 		}
 	}
 
 	onOK = (event) => {
 		this.handleBlur(event);
 	};
+
+	onInputEditor(event) {
+		this.setState({
+			inputEditorOpen: true,
+			anchorEl: event.currentTarget
+		});
+	}
+
+	onCloseInputEditor = () => {
+		this.setState({
+			inputEditorOpen: false
+		});
+	};
+
+	onSelectInput = (option) => {
+		this.state.anchorEl.innerHTML = option;
+		this.setState({
+			inputEditorOpen: false,
+		});
+		this.state.anchorEl.focus();
+	}
 
 	onCancel = (event) => {
 		event.target.innerHTML = this.state.oldValue;
@@ -91,14 +113,11 @@ class CellRangeComponent extends React.Component {
 	};
 
 	handleDoubleClick = () => {
-		const view = this.props.sheetView;
-		if (view === undefined) {
-			return;
-		}
-
 		const cellEditor = CellEditor.getActiveCellEditor();
-		cellEditor.handleDoubleClick();
-		cellEditor.deActivateReferenceMode();
+		if (cellEditor) {
+			cellEditor.handleDoubleClick();
+			cellEditor.deActivateReferenceMode();
+		}
 	};
 
 	handleSelect = () => {
@@ -111,6 +130,10 @@ class CellRangeComponent extends React.Component {
 	};
 
 	handleBlur = (event) => {
+		if (event.relatedTarget && event.relatedTarget.id === 'RefInput') {
+			this.onInputEditor(event);
+			return;
+		}
 		const cancel = event.relatedTarget && event.relatedTarget.id === 'RefCancel';
 		if (!cancel) {
 			this.props.onBlur(event);
@@ -207,12 +230,9 @@ class CellRangeComponent extends React.Component {
 				<div
 					style={{
 						padding: '10.5px 0px 10.5px 14px',
-						// fontSize: this.props.fontSize,
-						// borderBottom: `1px solid ${theme.cellrange.underline}`,
-						// rgba(0, 0, 0, 0.42)',
 						outline: 'none',
 						display: 'inline-block',
-						width: 'calc(100% - 74px)',
+						width: `calc(100% - ${this.props.inputEditorType === 'none' ? '82px' : '116px'})`,
 						color: theme.cellrange.color,
 					}}
 					id="sheet-ref"
@@ -229,10 +249,56 @@ class CellRangeComponent extends React.Component {
 				>
 					{this.props.range ? this.props.range : ''}
 				</div>
+				{this.props.inputEditorType !== 'none' ? [
+					<IconButton
+						id="RefInput"
+						style={{
+							width: '34px',
+							height: '34px',
+							padding: '5px',
+							display: 'inline',
+						}}
+						onClick={this.onInputEditor}
+						disabled={!this.state.focus}
+					>
+						<ArrowDropDownIcon fontSize="inherit" />
+					</IconButton>
+				,
+				<Popover
+					open={this.state.inputEditorOpen}
+					anchorEl={this.state.anchorEl}
+					anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+					transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+					onClose={this.onCloseInputEditor}
+				>
+					<MenuList>
+						{this.props.inputEditorOptions.map((option) =>
+							<MenuItem
+								dense
+								key={option}
+								onClick={() => this.onSelectInput(option)}
+							>
+								<div>
+									<div
+										style={{
+											textAlign: 'left',
+											display: 'inline-block',
+											width: '125px'
+										}}
+									>
+										{option}
+										{/*{intl.formatMessage({ id: format.id }, {})}*/}
+									</div>
+								</div>
+							</MenuItem>
+						)}
+					</MenuList>
+				</Popover>
+				] : null}
 				<IconButton
 					id="RefOK"
 					style={{
-						width: '25px',
+						width: '34px',
 						height: '34px',
 						padding: '5px',
 						display: 'inline',
@@ -245,7 +311,7 @@ class CellRangeComponent extends React.Component {
 				<IconButton
 					id="RefCancel"
 					style={{
-						width: '35px',
+						width: '34px',
 						height: '34px',
 						padding: '5px',
 						display: 'inline',

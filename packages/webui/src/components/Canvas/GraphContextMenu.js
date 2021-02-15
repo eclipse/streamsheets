@@ -164,8 +164,8 @@ class GraphContextComponent extends Component {
 		if (graphManager === undefined || graphManager.getGraphViewer() === undefined) {
 			return <div />;
 		}
-		const selection = graphManager.getGraphViewer().getSelection();
-		const item = selection.length ? selection[0].getModel() : undefined;
+		// const selection = graphManager.getGraphViewer().getSelection();
+		// const item = selection.length ? selection[0].getModel() : undefined;
 		const showEdit = this.canEditPoints();
 
 		return (
@@ -182,21 +182,20 @@ class GraphContextComponent extends Component {
 					visibility: [this.state.context ? 'visible' : 'hidden'],
 				}}
 			>
-				{(item instanceof JSG.SheetPlotNode) ?
-					<MenuList>
-						<MenuItem
-							onClick={this.onShowChartProperties}
-							dense
-						>
-							<ListItemIcon>
-								<SvgIcon style={styles.menuItem} >
-									<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
-								</SvgIcon>
-							</ListItemIcon>
-							<ListItemText primary={<FormattedMessage id="EditChart" defaultMessage="Edit Chart" />} />
-						</MenuItem>
-						<Divider/>
-					</MenuList> : null}
+				<MenuList>
+					<MenuItem
+						onClick={this.onShowChartProperties}
+						dense
+					>
+						<ListItemIcon>
+							<SvgIcon style={styles.menuItem} >
+								<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
+							</SvgIcon>
+						</ListItemIcon>
+						<ListItemText primary={<FormattedMessage id="EditChart" defaultMessage="Edit Chart" />} />
+					</MenuItem>
+					<Divider/>
+				</MenuList>
 				<MenuItem onClick={this.onCut} dense>
 					<ListItemIcon>
 						<IconCut style={styles.menuItem} />

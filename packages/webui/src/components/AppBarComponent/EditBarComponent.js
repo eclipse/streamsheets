@@ -16,7 +16,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { graphManager } from '../../GraphManager';
 import * as Actions from '../../actions/actions';
-import {Notification, NotificationCenter} from '@cedalo/jsg-core';
+// import {Notification, NotificationCenter} from '@cedalo/jsg-core';
 import AppBar from '@material-ui/core/AppBar';
 import {withStyles} from '@material-ui/core/styles';
 
@@ -125,8 +125,8 @@ export class EditBarComponent extends Component {
 						graphManager.getGraphEditor().invalidate();
 						attr.setExpressionOrValue(false);
 					} else if (!item.isProtected()) {
-						NotificationCenter.getInstance().send(
-							new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION));
+						// NotificationCenter.getInstance().send(
+						// 	new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION));
 					}
 				}
 			}

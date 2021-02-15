@@ -1125,6 +1125,7 @@ module.exports = class WorksheetNode extends ContentNode {
 
 		return {
 			expression: expr,
+			term,
 			localCulture,
 			numberFormat
 		};
