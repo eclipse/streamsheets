@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { convert } = require('@cedalo/commons');
+const { convert, serialnumber: { serial2ms } } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const IdGenerator = require('@cedalo/id-generator');
-const {	date: { localNow, serial2ms }, runFunction, terms: { hasValue } } = require('../../utils');
+const {	date: { localNow }, runFunction, terms: { hasValue } } = require('../../utils');
 const toJSON = require('../streamsheet/json');
 const stateListener = require('./stateListener');
 

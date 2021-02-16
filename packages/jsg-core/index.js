@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -15,9 +15,13 @@ module.exports = JSG;
 JSG.ChartAxis = require('./src/graph/model/chart/ChartAxis');
 JSG.ChartRect = require('./src/graph/model/chart/ChartRect');
 JSG.ChartFormat = require('./src/graph/model/chart/ChartFormat');
+JSG.ChartDataLabel = require('./src/graph/model/chart/ChartDataLabel');
+JSG.ChartMarker = require('./src/graph/model/chart/ChartMarker');
+JSG.ChartMap = require('./src/graph/model/chart/ChartMap');
 JSG.Chart = require('./src/graph/model/chart/Chart');
 JSG.ChartTitle = require('./src/graph/model/chart/ChartTitle');
 JSG.ChartSeries = require('./src/graph/model/chart/ChartSeries');
+JSG.ChartPoint = require('./src/graph/model/chart/ChartPoint');
 JSG.SheetReference = require('./src/graph/expr/SheetReference');
 JSG.ObjectFactory = require('./src/ObjectFactory');
 JSG.Math = require('./src/commons/Math');

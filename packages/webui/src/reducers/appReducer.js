@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -20,6 +20,7 @@ const defaultState = {
 	showOpenDialog: false,
 	showInboxSettings: false,
 	showSaveAsDialog: false,
+	showMachineDataDialog: false,
 	showFormatCellsDialog: false,
 	showDeleteCellContentDialog: false,
 	showInsertCellContentDialog: false,
@@ -30,7 +31,8 @@ const defaultState = {
 		hidegrid: null,
 		hideheader: null,
 		view: null,
-		viewMode: null
+		viewMode: null,
+		zoomdisabled: null
 	},
 	showEditNamesDialog: false,
 	formatOpen: false,
@@ -44,7 +46,7 @@ const defaultState = {
 	page: '/',
 	addStreamDialogOpen: false,
 	popupMenuE: null,
-	deleteDialogOpen: false,
+	streamDeleteDialog: { open: false },
 	showDeleteMachineDialog: false,
 	showDeleteSheetDialog: false,
 	adminSelectedPage: 'connectors',
@@ -59,20 +61,11 @@ export default function appReducer(state = defaultState, action) {
 				...state,
 				...action.newState
 			};
-		case 'TOGGLE_ADD_CONFIG_DIALOG': {
-			const { addStreamDialogOpen } = state;
-			const event = action.payload;
-			return {
-				...state,
-				addStreamDialogOpen: !addStreamDialogOpen,
-				popupMenuE: event ? event.currentTarget : null
-			};
-		}
 		case 'SET_DELETE_DIALOG_OPEN': {
-			return { ...state, deleteDialogOpen: action.payload };
+			return { ...state, streamDeleteDialog: action.payload };
 		}
 		case 'DS_DELETE_ACTIVE': {
-			return { ...state, deleteDialogOpen: false };
+			return { ...state, streamDeleteDialog: { open: false} };
 		}
 		case 'ERROR': {
 			return { ...state, error: action.payload };

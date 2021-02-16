@@ -272,14 +272,6 @@ class Connector extends Stream {
 		this._emitter.emit(Connector.EVENTS.WARNING, warning);
 	}
 
-	sendUserFeedback(message, context) {
-		const feedback = {
-			message,
-			context
-		};
-		this._emitter.emit(Connector.EVENTS.FEEDBACK, feedback);
-	}
-
 	persist(c) {
 		this._emitter.emit(Connector.EVENTS.PERSIST, c || this.config);
 	}
@@ -302,19 +294,6 @@ class Connector extends Stream {
 			}, this.config.notifyOnceDelay);
 			this.handleWarning(warning);
 		}
-	}
-
-	async _test(config) {
-		this._emitter.emit(Connector.EVENTS.TEST, config);
-		try {
-			return this.test(config);
-		} catch (e) {
-			return this.handleError(e);
-		}
-	}
-
-	async test() {
-		throw new Error('stream.test() must be implemented by subclass!');
 	}
 
 	async _dispose(force = false) {

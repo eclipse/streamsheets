@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -12,7 +12,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import IconButton from '@material-ui/core/IconButton';
-import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import List from '@material-ui/core/List';
@@ -24,8 +23,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
 import MenuItem from '@material-ui/core/MenuItem';
-import InputLabel from '@material-ui/core/InputLabel';
-import Input from '@material-ui/core/Input';
 import FormControl from '@material-ui/core/FormControl';
 import { FormattedMessage } from 'react-intl';
 import JSG from '@cedalo/jsg-ui';
@@ -222,29 +219,24 @@ export default class PasteFunctionDialog extends React.Component {
 						<FormControl
 							style={{
 								width: '200px',
-								marginLeft: '18px',
-								marginTop: '20px',
+								marginLeft: '13px',
 								marginBottom: '20px',
 							}}
 						>
-							<InputLabel htmlFor="functions-insert">
-								<FormattedMessage
-									id="Category"
-									defaultMessage="Category"
-								/>
-							</InputLabel>
-							<Select
+							<TextField
+								variant="outlined"
+								size="small"
+								margin="normal"
+								select
 								value={this.state.category}
 								onChange={this.handleChange}
-								input={
-									<Input
-										name="functions-insert"
-										id="functions-insert"
-									/>
-								}
+								label={<FormattedMessage
+									id="Category"
+									defaultMessage="Category"
+								/>}
 							>
 								{categories}
-							</Select>
+							</TextField>
 						</FormControl>
 						<FormControl
 							style={{
@@ -254,6 +246,9 @@ export default class PasteFunctionDialog extends React.Component {
 							}}
 						>
 							<TextField
+								variant="outlined"
+								size="small"
+								margin="normal"
 								type="search"
 								label={
 									<FormattedMessage
@@ -277,12 +272,18 @@ export default class PasteFunctionDialog extends React.Component {
 							{tableData.map((row) => (
 								<ListItem
 									key={row.id}
+									style={{
+										width: '98%'
+									}}
 									button
 									onClick={() =>
 										this.handleFunctionSelection(row.id)
 									}
 								>
 									<ListItemText
+										style={{
+											wordBreak: 'break-all',
+										}}
 										primary={`${row.name}(${
 											row.argumentList
 										})`}
@@ -303,7 +304,7 @@ export default class PasteFunctionDialog extends React.Component {
 					</div>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={this.handleCancel}>
+					<Button color="primary"  onClick={this.handleCancel}>
 						<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 					</Button>
 				</DialogActions>

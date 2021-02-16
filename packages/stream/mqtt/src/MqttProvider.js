@@ -86,9 +86,7 @@ module.exports = class MqttProvider extends sdk.Provider {
 		if (!validProtocols.includes(parsedUrl.protocol)) {
 			fieldErrors.url = `Invalid protocol: ${parsedUrl.protocol}. Allowed values: ${validProtocols.join(', ')}`;
 		}
-		if (!parsedUrl.port) {
-			parsedUrl.port = '1883';
-		}
+
 		currentUrl = parsedUrl.toString();
 		if (currentUrl !== config.url) {
 			fieldUpdates.url = currentUrl;

@@ -24,6 +24,7 @@ module.exports = class Chart {
 		this.startAngle = 0;
 		this.endAngle = Math.PI * 2;
 		this.hole = 0.5;
+		this.barMargin = 150;
 		this.template = 'basic';
 		this.tooltips = false;
 		this.margins = new ChartRect(200, 200, 200, 200);
@@ -32,11 +33,14 @@ module.exports = class Chart {
 		this.firstSeriesLabels = true;
 		this.dataInRows = true;
 		this.varyByCategories = false;
-		this.varyByThreshold = 'colorchange';
+		this.varyByThreshold = 'none';
 		this.hiLoLines = new ChartElement();
 		this.seriesLines = new ChartElement();
 		this.upBars = new ChartElement();
 		this.downBars = new ChartElement();
+		this.gaugePointer = false;
+		this.mapZoom = false;
+		this.mapZoomFactor = 1;
 		this.formula = new Expression('');
 	}
 
@@ -93,6 +97,7 @@ module.exports = class Chart {
 		writer.writeAttributeNumber('datainrows', this.dataInRows ? 1 : 0);
 		writer.writeAttributeNumber('varybycategories', this.varyByCategories ? 1 : 0);
 		writer.writeAttributeString('varybythreshold', this.varyByThreshold);
+		writer.writeAttributeString('gaugepointer', this.gaugePointer ? 1 : 0);
 		writer.writeAttributeNumber('stacked', this.stacked ? 1 : 0);
 		writer.writeAttributeNumber('relative', this.relative ? 1 : 0);
 		writer.writeAttributeNumber('step', this.step ? 1 : 0);
@@ -102,6 +107,8 @@ module.exports = class Chart {
 		writer.writeAttributeNumber('startangle', this.startAngle);
 		writer.writeAttributeNumber('endangle', this.endAngle);
 		writer.writeAttributeNumber('hole', this.hole);
+		writer.writeAttributeNumber('mapzoom', this.mapZoom ? 1 : 0);
+
 		this.formula.save('formula', writer);
 		this.hiLoLines.save('hilolines', writer);
 		this.seriesLines.save('serieslines', writer);
@@ -124,11 +131,14 @@ module.exports = class Chart {
 		this.tooltips = reader.getAttributeBoolean(object, 'tooltips', true);
 		this.varyByCategories = reader.getAttributeBoolean(object, 'varybycategories', false);
 		this.varyByThreshold = reader.getAttributeString(object, 'varybythreshold', 'colorchange');
+		this.gaugePointer = reader.getAttributeBoolean(object, 'gaugepointer', false);
 		this.rotation = reader.getAttributeNumber(object, 'rotation', 0);
 		this.startAngle = reader.getAttributeNumber(object, 'startangle', 0);
 		this.endAngle = reader.getAttributeNumber(object, 'endangle', Math.PI * 2);
 		this.hole = reader.getAttributeNumber(object, 'hole', 0.5);
+		this.mapZoom = reader.getAttributeBoolean(object, 'mapzoom', false);
 		this.template = reader.getAttributeString(object, 'template', 'basic');
+
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {
 			case 'formula':

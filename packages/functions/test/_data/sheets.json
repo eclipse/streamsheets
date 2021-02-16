@@ -43,8 +43,12 @@
     "A51": null, "B51": true, "C51": null,
     "A52": "clicktype", "B52": "serialnumber", "C52": "batteryvoltage",
     "A53": null, "B53": null, "C53": false,
-    "A54": "serialnumber", "B54": "batteryvoltage", "C54": "clicktype",
-    "A55": true, "B55": false, "C55": true,
+    "A54": "clicktype", "B54": "serialnumber", "C54": "batteryvoltage",
+    "A55": true, "B55": true, "C55": null,
+    "A56": "serialnumber", "B56": "batteryvoltage", "C56": "clicktype",
+    "A57": true, "B57": null, "C57": null,
+    "A58": null, "B58": false, "C58": null,
+    "A59": null, "B59": null, "C59": false,
     "A60": "clicktype", "B60": "serialnumber", "C60": "batteryvoltage",
     "A61": "SINGLE", "B61": 56, "C61": "100mV",
     "A62": "MULTIPLE", "B62": 42, "C62": "600mV",
@@ -122,5 +126,21 @@
     "A6": 1594993350, "B6": 61, "C6": 62, "D6": 63, "E6": 64,
     "A7": 1594993340, "B7": 71, "C7": 72, "D7": 73, "E7": 74,
     "A8": 1594993330, "B8": 81, "C8": 82, "D8": 83, "E8": 84
+  },
+  "TABLEGET": {
+    "A3": "Time", "B3": "Turbine 1", "C3": "Turbine 2",
+    "A4": 1594993370, "B4": 41, "C4": 42,
+    "A5": 1594993360, "B5": "hello", "C5": "world",
+    "A6": 1594993350, "B6": true, "C6": false,
+    "A7": 1594993340, "B7": "", "C7": 0,
+    "A8": 1594993330, "B8": { "formula": "A10" }
+  },
+  "TABLEORDERCOL": {
+    "A3": "Col1", "B3": "Col2", "C3": "Col3",
+    "A4": 23, "B4": "hello", "C4": 42,
+    "A5": 43, "B5": "world", "C5": null,
+    "A6": 17, "B6": "", "C6": false,
+    "A7": -12, "B7": null, "C7": 0,
+    "A8": 0, "B8": "hi", "C8": ""
   }
 }

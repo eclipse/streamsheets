@@ -8,26 +8,27 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import Protocols from '@cedalo/protocols';
-import { push } from 'react-router-redux';
 import JSG from '@cedalo/jsg-ui';
-import * as messageTypes from '../constants/WebsocketMessageTypes';
+import Protocols from '@cedalo/protocols';
+import qs from 'query-string';
+import { goBack, push } from 'react-router-redux';
 import * as ActionTypes from '../constants/ActionTypes';
+import * as messageTypes from '../constants/WebsocketMessageTypes';
 import { graphManager } from '../GraphManager';
-import { intl } from '../helper/IntlGlobalProvider';
+import { accessManager } from '../helper/AccessManager';
 import ConfigManager from '../helper/ConfigManager';
-import store from '../store';
 import gatewayClient from '../helper/GatewayClient';
-import * as StreamActions from './StreamActions';
-import * as UserActions from './UserActions';
+import { intl } from '../helper/IntlGlobalProvider';
+import MachineHelper from '../helper/MachineHelper';
+import { Path } from '../helper/Path';
+import { functionStrings } from '../languages/FunctionStrings';
+import SheetParserContext from '../SheetParserContext';
+import store from '../store';
+import * as BackupRestoreActions from './BackupRestoreActions';
 import * as ImportExportActions from './ImportExportActions';
 import * as MachineActions from './MachineActions';
-import * as BackupRestoreActions from './BackupRestoreActions';
-import SheetParserContext from '../SheetParserContext';
-import { accessManager } from '../helper/AccessManager';
-import { functionStrings } from '../languages/FunctionStrings';
-import qs from 'query-string';
-import { Path } from '../helper/Path';
+import * as StreamActions from './StreamActions';
+import * as UserActions from './UserActions';
 
 const { EVENTS } = Protocols.GatewayMessagingProtocol;
 const CONFIG = ConfigManager.config.gatewayClientConfig;
@@ -46,22 +47,11 @@ window.onbeforeunload = () => {
 };
 
 export const {
-	fetchAllConfigurationsByType,
 	saveConfiguration,
 	reloadAllStreams,
-	undoStream,
-	createNewConfiguration,
-	updateConfiguration,
-	setConfigurationActive,
 	deleteActiveConfiguration,
-	toggleDialogAddConfiguration,
 	setDeleteDialogOpen,
-	controlEventsReset,
 	executeStreamCommand,
-	toggleStreamProgress,
-	setConfiguration,
-	setConfigurationSaved,
-	setInitialConfiguration,
 } = StreamActions;
 
 export const {
@@ -84,6 +74,10 @@ export const { updateMachines, getMachines } = MachineActions;
 
 export function pushPage(page) {
 	return (dispatch) => dispatch(push(page));
+}
+
+export function goBackPage() {
+	return (dispatch) => dispatch(goBack());
 }
 
 const putAppState = (newState) => ({
@@ -381,31 +375,17 @@ function handleStreamsReloaded(event) {
 }
 
 function handleStreamControlEvent(event) {
-	store.dispatch({
-		type: ActionTypes.STREAM_CONTROL_EVENT,
-		event,
-	});
-}
-
-export function timeoutStreamControlEvent(stream) {
-	store.dispatch({
-		type: ActionTypes.STREAM_CONTROL_EVENT,
-		event: {
-			streamEventType: 'dispose',
-			data: {
-				stream: {
-					name: stream.name,
-					id: stream.id,
-				},
-				config: {
-					...stream,
-					status: {
-						streamEventType: 'dispose',
-					},
-				},
-			},
-		},
-	});
+	const user = store.getState().user.user;
+	try {
+		if (user && event.data.stream && (!event.data.stream.scope || user.scope.id === event.data.stream.scope.id)) {
+			store.dispatch({
+				type: ActionTypes.STREAM_CONTROL_EVENT,
+				event
+			});
+		}
+	} catch (error) {
+		console.error('Failed to handle stream event', event, error);
+	}
 }
 
 function _getDataStores(dispatch) {
@@ -804,40 +784,32 @@ export function unsubscribe(machineId) {
 }
 
 export function openExport(machineId) {
-	const path = Path.export(machineId);
-	window.open(path);
+	return (dispatch) => {
+		const path = Path.export(machineId);
+		if(MachineHelper.isMachineDetailsPage()){
+			window.open(path);
+		} else {
+			dispatch(push(path))
+		}
+	}
 }
 
-export function openDashboard(currentMachineId) {
+export function openDashboard(currentMachineId, newTab = false) {
 	removeSelection();
-	if (currentMachineId) {
-		return (dispatch) => {
+	return async (dispatch) => {
+		if (currentMachineId) {
 			const previewImage = graphManager.getMachineImage(245, 100);
 			if (previewImage) {
-				return gatewayClient
-					.updateMachineImage(currentMachineId, previewImage)
-					.then(() => dispatch(push(Path.dashboard())))
-					.then(() => _getDataStores(dispatch))
-					.then(() => {
-						reloadDashboard();
-					});
+				await gatewayClient.updateMachineImage(currentMachineId, previewImage);
 			}
-			return Promise.resolve()
-				.then(() => dispatch(push(Path.dashboard())))
-				.then(() => _getDataStores(dispatch))
-				.then(() => {
-					reloadDashboard();
-				});
-		};
-		// eslint-disable-next-line
-	} else {
-		return (dispatch) =>
-			Promise.resolve()
-				.then(() => dispatch(push(Path.dashboard())))
-				.then(() => {
-					reloadDashboard();
-				});
-	}
+			if (newTab) {
+				window.open(Path.dashboard(), '_blank');
+			} else {
+				await dispatch(push(Path.dashboard()));
+				reloadDashboard();
+			}
+		}
+	};
 }
 
 export function openStream(stream) {

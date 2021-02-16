@@ -26,11 +26,15 @@ const createSheetRange = (start, end, sheet) => {
 	return range;
 };
 
+// eslint-disable-next-line no-nested-ternary
+const ensureNumberGreater = (nr, error) => (value) => value == null ? value : (value > nr ? value : error);
+const ensureNumberGreaterZero = ensureNumberGreater(0, ERROR.VALUE);
 const term2number = (term, defval) => term ? convert.toNumber(term.value, defval) : defval;
 const indexFromOperand = op => 
 	// eslint-disable-next-line no-nested-ternary
 	op.isTypeOf('CellReference') ? op.index : (op.isTypeOf('CellRangeReference') ? op.value.start : undefined);
 
+const toOffset = (value) => FunctionErrors.isError(value) || convert.toNumber(value, 1) - 1;
 
 //
 // == CHOOSE ==
@@ -67,8 +71,8 @@ const index = (sheet, ...terms) =>
 			ranges = getCellRangesFromTerm(ranges, sheet, true);
 			return ranges && ranges.length ? ranges : ERROR.NAME;
 		})
-		.mapNextArg(rowoffset => convert.toNumber(rowoffset.value, 1) - 1)
-		.mapNextArg(coloffset => convert.toNumber(coloffset.value, 1) - 1)
+		.mapNextArg(rowoffset => toOffset(rowoffset.value))
+		.mapNextArg(coloffset => toOffset(coloffset.value))
 		.mapNextArg(areanr => ((areanr && areanr.value != null) ? convert.toNumber(areanr.value, 1) - 1 : 0))
 		.validate((ranges, rowoffset, coloffset, areanr) =>
 			FunctionErrors.ifTrue((rowoffset < 0 || coloffset < 0 || areanr < 0), ERROR.VALUE))
@@ -132,7 +136,7 @@ const findLargest = (range, pivot) => {
 			const value = cell && cell.value;
 			// eslint-disable-next-line valid-typeof
 			if (value != null && (typeof value === type)) {
-				const isAscending = lastvalue == null || lastvalue < value;
+				const isAscending = lastvalue == null || lastvalue <= value;
 				stop = value > pivot || !isAscending;
 				if (!stop) {
 					lastvalue = value;
@@ -154,7 +158,7 @@ const findSmallest = (range, pivot) => {
 			const value = cell && cell.value;
 			// eslint-disable-next-line valid-typeof
 			if (value != null && (typeof value === type)) {
-				const isDescending = lastvalue == null || value < lastvalue;
+				const isDescending = lastvalue == null || value <= lastvalue;
 				stop = value < pivot || !isDescending;
 				if (!stop) {
 					lastvalue = value;
@@ -185,14 +189,15 @@ const isCellRangeFlat = (range) => range.width > 1 ? range.height === 1 : range.
 const match = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(2)
+		.withMaxArgs(3)
 		.mapNextArg(pivot => pivot.value)
 		.mapNextArg((range) => {
 			const cellrange = getCellRangeFromTerm(range, sheet, true);
 			// eslint-disable-next-line no-nested-ternary
 			return cellrange ? (isCellRangeFlat(cellrange) ? cellrange : ERROR.NA) : ERROR.NAME;
 		})
-		.run((pivot, range) => {
-			const type = term2number(terms[2], 1);
+		.mapNextArg((type) => term2number(type, 1))
+		.run((pivot, range, type) => {
 			// eslint-disable-next-line no-nested-ternary
 			const findInRange = type < 0 ? findSmallest : (type > 0 ? findLargest : findFirstEqual);
 			const idx = findInRange(range, pivot);
@@ -209,15 +214,15 @@ const offset = (sheet, ...terms) =>
 		.mapNextArg(range => getCellRangeFromTerm(range, sheet) || ERROR.NAME)
 		.mapNextArg(row => term2number(row, ERROR.VALUE))
 		.mapNextArg(col => term2number(col, ERROR.VALUE))
-		.mapNextArg(height => term2number(height, -1))
-		.mapNextArg(width => term2number(width, -1))
+		.mapNextArg(height => ensureNumberGreaterZero(term2number(height)))
+		.mapNextArg(width => ensureNumberGreaterZero(term2number(width)))
 		.reduce((range, row, col, height, width) => {
 			const cellindex = range.start;
 			const startidx = SheetIndex.create(cellindex.row + row, cellindex.col + col);
 			const endidx = startidx
 				? SheetIndex.create(
-					startidx.row + (height < 0 ? range.height : height) - 1,
-					startidx.col + (width < 0 ? range.width : width) - 1)
+					startidx.row + (height == null ? range.height : height) - 1,
+					startidx.col + (width == null ? range.width : width) - 1)
 				: null;
 			// check new indices (against sheet of function!!):
 			const error = FunctionErrors.ifTrue(!startidx

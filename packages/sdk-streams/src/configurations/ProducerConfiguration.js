@@ -17,6 +17,7 @@ class ProducerConfiguration extends BaseConfiguration {
 		super(config);
 		this.className = ProducerConfiguration.NAME;
 		this.disabled = true;
+		this.description = config.description || '';
 		this.connector = connector;
 		this.provider = provider;
 		if (!this.isRef()) {
@@ -62,14 +63,13 @@ class ProducerConfiguration extends BaseConfiguration {
 	}
 
 	hasField(fieldId) {
-		return !!this.provider.definition.connector.find(
-			(f) => f.id === fieldId
-		);
+		return !!this.provider.definition.connector.find((f) => f.id === fieldId);
 	}
 
 	toJSON() {
 		const json = Object.assign({}, super.toJSON(), {
 			disabled: this.disabled,
+			description: this.description,
 			connector: this._connector.toReference(),
 			providerId: this.provider.id,
 			samplePayloads: this.samplePayloads || undefined,

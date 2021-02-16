@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -310,7 +310,9 @@ module.exports = class ChartFormat {
 				this.fontSize = reader.getAttribute(child, 'size');
 				this.fontStyle = reader.getAttribute(child, 'style');
 				this.fontRotation = reader.getAttribute(child, 'rotation');
-				this.linkNumberFormat = reader.getAttribute(child, 'linknumberformat');
+				if (reader.getAttribute(child, 'linknumberformat') !== undefined) {
+					this.linkNumberFormat = reader.getAttributeBoolean(child, 'linknumberformat', true);
+				}
 				if (reader.getAttribute(child, 'number') !== undefined) {
 					this.numberFormat = reader.getAttribute(child, 'number');
 				}

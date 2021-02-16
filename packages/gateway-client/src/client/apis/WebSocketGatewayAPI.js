@@ -24,6 +24,7 @@ const {
 	DeleteStreamSheetWebSocketRequest,
 	GetMachineWebSocketRequest,
 	GetMachinesWebSocketRequest,
+	GetCellRawValueWebSocketRequest,
 	LoadMachineWebSocketRequest,
 	LoadSubscribeMachineWebSocketRequest,
 	PauseMachineWebSocketRequest,
@@ -49,6 +50,7 @@ const {
 	UpdateMachineSettingsWebSocketRequest,
 	// General requests
 	CommandWebSocketRequest,
+	MachineActionWebSocketRequest,
 	UserGetSocketRequest,
 	UserSaveSocketRequest,
 	UserSettingGetSocketRequest,
@@ -435,6 +437,19 @@ module.exports = class WebSocketGatewayAPI extends GatewayAPI {
 			)
 		);
 	}
+	sendMachineAction(machineId, action) {
+		return this.sendRequest(
+			new MachineActionWebSocketRequest(
+				this._ws,
+				machineId,
+				action
+			)
+		);
+	}
+	getCellRawValue(machineId, streamsheetId, reference) {
+		return this.sendRequest(new GetCellRawValueWebSocketRequest(this._ws, machineId, streamsheetId, reference));
+	}
+
 
 	/**
 	 * ******************************************************************************************

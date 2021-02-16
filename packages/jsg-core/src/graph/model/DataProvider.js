@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 /* eslint-disable no-mixed-operators */
+const { serialnumber: { date2serial, dateLocal2serial, serial2date } } = require('@cedalo/commons');
 const Point = require('../../geometry/Point');
 const MathUtils = require('../../geometry/MathUtils');
 const NumberExpression = require('../expr/NumberExpression');
@@ -895,7 +896,7 @@ module.exports = class DataProvider {
 	pasteData(data, targetRange, action) {
 		const sourceRange = data.range;
 
-		const updateExpression = (sheet, expr, xOff, yOff, absolute) => {
+		const updateExpression = (sheet, expr, xOff, yOff, absolute, forceName = false) => {
 			expr.evaluate(sheet);
 			const term = expr.getTerm();
 			if (term !== undefined) {
@@ -916,7 +917,8 @@ module.exports = class DataProvider {
 								(range._x1 - initC >= sourceRange._x1 &&
 									range._x2 - initC <= sourceRange._x2 &&
 									range._y1 >= sourceRange._y1 &&
-									range._y2 <= sourceRange._y2)
+									range._y2 <= sourceRange._y2 &&
+									rangeSheet === sourceSheet)
 							) {
 								if (sourceSheet === rangeSheet) {
 									if (data.cut) {
@@ -932,16 +934,16 @@ module.exports = class DataProvider {
 								}
 								if (absolute === false || targetSheet === rangeSheet ||
 									(data.cut && absolute && sourceSheet === rangeSheet)) {
-									if (range._x1R || absolute) {
+									if (range._x1R || absolute || (!absolute && data.cut)) {
 										range._x1 += xOff;
 									}
-									if (range._y1R || absolute) {
+									if (range._y1R || absolute || (!absolute && data.cut)) {
 										range._y1 += yOff;
 									}
-									if (range._x2R || absolute) {
+									if (range._x2R || absolute || (!absolute && data.cut)) {
 										range._x2 += xOff;
 									}
-									if (range._y2R || absolute) {
+									if (range._y2R || absolute || (!absolute && data.cut)) {
 										range._y2 += yOff;
 									}
 								}
@@ -963,7 +965,7 @@ module.exports = class DataProvider {
 					return true;
 				});
 			}
-			expr.correctFormula(sheet);
+			expr.correctFormula(sheet, forceName);
 		};
 
 		const updateCell = (sheet, cell, xOff, yOff, absolute) => {
@@ -1242,7 +1244,7 @@ module.exports = class DataProvider {
 							const expr = attrFormula.getExpression();
 							if (expr !== undefined && expr.hasFormula()) {
 								invalidateExpression(expr);
-								updateExpression(sheet, expr, targetColumn - sourceColumn, targetRow - sourceRow, true);
+								updateExpression(sheet, expr, targetColumn - sourceColumn, targetRow - sourceRow, true, true);
 								item._noFormulaUpdate = true;
 								item.expressions.forEach(exp => {
 									updateExpression(sheet, exp, targetColumn - sourceColumn, targetRow - sourceRow, true);
@@ -1585,25 +1587,17 @@ module.exports = class DataProvider {
 		});
 	}
 
+	/** NOTE: respects local timezone. usually it is better to use dateToSerial instead */
 	JSDateToExcelDate(inDate) {
-		return 25569.0 + (inDate.getTime() - inDate.getTimezoneOffset() * 60 * 1000) / (1000 * 60 * 60 * 24);
+		return dateLocal2serial(inDate);
+	}
+
+	dateToSerial(inDate) {
+		return date2serial(inDate);
 	}
 
 	excelDateToJSDate(serial) {
-		const utcDays = Math.floor(serial - 25569);
-		const utcValue = utcDays * 86400;
-		const dateInfo = new Date(utcValue * 1000);
-		const fractionalDay = serial - Math.floor(serial);// + 0.0000001;
-		let totalSeconds = Math.floor(86400 * fractionalDay);
-		const seconds = totalSeconds % 60;
-
-		totalSeconds -= seconds;
-
-		const hours = Math.floor(totalSeconds / (60 * 60));
-		const minutes = Math.floor(totalSeconds / 60) % 60;
-		const ms = (86400 * fractionalDay - hours * 3600 - minutes * 60 - seconds) * 1000;
-
-		return new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate(), hours, minutes, seconds, ms);
+		return serial2date(serial);
 	}
 
 	getCellValueSeries(source, target) {
@@ -1759,7 +1753,8 @@ module.exports = class DataProvider {
 													Math.floor(finalDateVal.getMonth() + section.monthDiff * repeat) /
 														12
 											);
-											val = this.JSDateToExcelDate(dateVal);
+											val = this.dateToSerial(dateVal);
+											// val = this.JSDateToExcelDate(dateVal);
 											repeat += 1;
 										}
 									} else {
@@ -1774,7 +1769,8 @@ module.exports = class DataProvider {
 													Math.floor(firstDateVal.getMonth() - section.monthDiff * repeat) /
 														12
 											);
-											val = this.JSDateToExcelDate(dateVal);
+											val = this.dateToSerial(dateVal);
+											// val = this.JSDateToExcelDate(dateVal);
 											repeat -= 1;
 										}
 									}

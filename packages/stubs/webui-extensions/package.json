@@ -1,6 +1,6 @@
 {
 	"name": "@cedalo/webui-extensions",
-	"version": "1.6.2",
+	"version": "2.2.0",
 	"description": "Web UI Extensions",
 	"main": "index.js",
 	"repository": {
@@ -14,13 +14,13 @@
 	"dependencies": {
 	},
 	"peerDependencies": {
-		"@cedalo/webui": "1.6.2",
-		"@cedalo/util": "1.6.2",
-		"@material-ui/core": "3.9.2",
-		"@material-ui/icons": "3.0.2",
+		"@cedalo/webui": "2.2.0",
+		"@cedalo/util": "2.2.0",
+		"@material-ui/core": "4.9.11",
+		"@material-ui/icons": "4.9.1",
 		"moment": "^2.20.1",
         "prop-types": "^15.6.0",
-		"react": "^16.2.0",
+		"react": "^16.12.0",
 		"react-intl": "^2.4.0",
 		"react-redux": "^5.0.6",
 		"redux": "^3.7.2"

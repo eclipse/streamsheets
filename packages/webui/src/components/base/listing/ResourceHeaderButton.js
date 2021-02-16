@@ -16,7 +16,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 export default class ResourceHeaderButton extends React.Component {
 	static propTypes = {
-		icon: PropTypes.func.isRequired,
+		icon: PropTypes.object.isRequired,
 		state: PropTypes.bool,
 		onChange: PropTypes.func,
 		label: PropTypes.object,

@@ -14,22 +14,25 @@ import PropTypes from 'prop-types';
 import Popover from '@material-ui/core/Popover';
 import { SketchPicker } from 'react-color';
 import {withStyles} from "@material-ui/core/styles";
+import InputLabel from "@material-ui/core/InputLabel";
+// import {FormattedMessage} from "react-intl";
+import OutlinedInput from "@material-ui/core/OutlinedInput";
+import InputAdornment from "@material-ui/core/InputAdornment";
+// import FormControl from "@material-ui/core/FormControl";
 
 /* eslint-disable react/forbid-prop-types */
 class ColorComponent extends React.Component {
 	static propTypes = {
 		color: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
 		label: PropTypes.object,
-		width: PropTypes.number,
-		labelFontSize: PropTypes.string,
+		// width: PropTypes.number,
 		transparent: PropTypes.bool,
 		disableAlpha: PropTypes.bool,
 		onChange: PropTypes.func.isRequired,
 	}
 
 	static defaultProps = {
-		width: 100,
-		labelFontSize: '0.75rem',
+		// width: 100,
 		label: undefined,
 		transparent: false,
 		disableAlpha: true,
@@ -45,10 +48,14 @@ class ColorComponent extends React.Component {
 		};
 	}
 
-	componentWillReceiveProps(nextProps) {
-		this.setState({ color: nextProps.color });
+	static getDerivedStateFromProps(props, state) {
+		return { ...state, color: props.color };
 	}
 
+	// componentWillReceiveProps(nextProps) {
+	// 	this.setState({ color: nextProps.color });
+	// }
+	//
 	handleColorClick = (event) => {
 		// This prevents ghost click.
 		event.preventDefault();
@@ -102,52 +109,57 @@ class ColorComponent extends React.Component {
 
 	render() {
 		return (
-			<div>
-				{this.state.label ? (
-				<div
-					style={{
-						fontSize: this.props.labelFontSize,
-						transform: 'scale(0.75)',
-						transformOrigin: 'left top',
-					}}
-				>
+			<div style={{ width: "100%"}}>
+				<InputLabel>
 					{this.state.label}
-				</div> ) : null}
-				<div
-					style={{
-						display: 'inline-block',
-						width: `${this.props.width}px`,
-						height: '21px',
-						border: `1px solid ${this.props.theme.palette.text.primary}`,
-						padding: '3px',
-						// margin: '4px',
+				</InputLabel>
+				<OutlinedInput
+					style={{width: '100%', cursor: 'pointer' }}
+					inputProps={{
+						style: { width: '0px', paddingRight: '6px' }
 					}}
-					onClick={this.handleColorClick}
-				>
-					<div
-						style={{
-							width: '100%',
-							height: '100%',
-							borderRadius: '2px',
-							background: this.getBackground(),
-						}}
-					/>
-				</div>
-				<Popover
-					open={this.state.displayPicker}
-					anchorEl={this.state.anchorEl}
-					anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
-					// targetOrigin={{ horizontal: 'left', vertical: 'top' }}
-					onClose={this.handleColorClose}
-				>
-					<SketchPicker
-						disableAlpha={this.props.disableAlpha}
-						width={250}
-						color={this.state.color}
-						presetColors={this.getPresetColors()}
-						onChange={this.handleColorChange}
-					/>
-				</Popover>
+					startAdornment={
+						<InputAdornment style={{ width: "100%" }} position="start">
+							<div style={{ width: "100%" }}>
+								<div
+									style={{
+										display: 'inline-block',
+										width: '100%',
+										// width: `${this.props.width}px`,
+										height: '21px',
+										marginTop: '4px',
+									}}
+									onClick={this.handleColorClick}
+								>
+									<div
+										style={{
+											width: '100%',
+											height: '100%',
+											borderRadius: '2px',
+											background: this.getBackground(),
+										}}
+									/>
+								</div>
+								<Popover
+									open={this.state.displayPicker}
+									anchorEl={this.state.anchorEl}
+									anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+									// targetOrigin={{ horizontal: 'left', vertical: 'top' }}
+									onClose={this.handleColorClose}
+								>
+									<SketchPicker
+										disableAlpha={this.props.disableAlpha}
+										width={250}
+										color={this.state.color}
+										presetColors={this.getPresetColors()}
+										onChange={this.handleColorChange}
+									/>
+								</Popover>
+							</div>
+						</InputAdornment>
+					}
+					labelWidth={70}
+				/>
 			</div>
 		);
 	}

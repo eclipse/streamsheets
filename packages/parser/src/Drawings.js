@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -192,33 +192,40 @@ module.exports = class Drawings {
 	}
 
 	getEvents(terms) {
-		let result;
+		const result = [];
 
 		let i = 0;
 		while (this.checkParam(terms, i)) {
-			if (terms[i].name && terms[i].params && terms[i].params.length) {
+			const term = terms[i];
+			const params = term.params;
+			if (term.name && params && params.length) {
 				const event = {
-					event: terms[i].name.toUpperCase(),
-					func: terms[i].params[0].toString(),
+					event: term.name.toUpperCase(),
+					func: params.map((p) => p.toString()).join(',') // legacy support, remove after review
 				};
+				// collect param values for each event functions. note: nested funcs currently not supported!!
+				event.funcsparams = params.reduce((all, param) => {
+					if (param.func) {
+						all[param.name.toUpperCase()] = param.params.map((p) => p.value);
+					}
+					return all;
+				}, {});
 
-				const paramstrs = terms[i].params
-					? terms[i].params.reduce((strings, param) => {
-						strings.push(param.toString());
-						return strings;
-					}, [])
-					: [];
-				event.func = paramstrs.join(',');
+				// const paramstrs = params.reduce((strings, param) => {
+				// 	strings.push(param.toString());
+				// 	return strings;
+				// }, []);
+				// event.func = paramstrs.join(',');
 
-				if (result === undefined) {
-					result = [];
-				}
+				// if (result === undefined) {
+				// 	result = [];
+				// }
 				result.push(event);
 			}
 			i += 1;
 		}
 
-		return result ? JSON.stringify(result) : '';
+		return result.length ? JSON.stringify(result) : '';
 	}
 
 	getAttributes(terms) {
@@ -227,26 +234,18 @@ module.exports = class Drawings {
 		// visible
 		if (this.checkParam(terms, 0)) {
 			result.visible = terms[0].value;
-		} else {
-			result.visible = true;
 		}
 		// container
 		if (this.checkParam(terms, 1)) {
 			result.container = String(terms[1].value);
-		} else {
-			result.container = 'top';
 		}
 		// clip
 		if (this.checkParam(terms, 2)) {
 			result.clip = !!terms[2].value;
-		} else {
-			result.clip = false;
 		}
 		// selectable
 		if (this.checkParam(terms, 3)) {
 			result.selectable = !!terms[3].value;
-		} else {
-			result.selectable = true;
 		}
 
 		return JSON.stringify(result);
@@ -257,30 +256,20 @@ module.exports = class Drawings {
 
 		if (this.checkParam(terms, 0)) {
 			result.color = String(terms[0].value);
-		} else {
-			result.color = '#000000';
 		}
 		if (this.checkParam(terms, 1)) {
 			result.style = Number(terms[1].value);
-		} else {
-			result.style = 1;
 		}
 		if (this.checkParam(terms, 2)) {
 			result.width = Number(terms[2].value);
-		} else {
-			result.width = 1;
 		}
 
 		if (this.checkParam(terms, 3)) {
 			result.startArrow = Number(terms[3].value);
-		} else {
-			result.startArrow = 0;
 		}
 
 		if (this.checkParam(terms, 4)) {
 			result.endArrow = Number(terms[4].value);
-		} else {
-			result.endArrow = 0;
 		}
 
 		return JSON.stringify(result);
@@ -291,28 +280,18 @@ module.exports = class Drawings {
 
 		if (this.checkParam(terms, 0)) {
 			result.fontname = String(terms[0].value);
-		} else {
-			result.fontname = 'Verdana';
 		}
 		if (this.checkParam(terms, 1)) {
 			result.fontsize = Number(terms[1].value);
-		} else {
-			result.fontsize = 8;
 		}
 		if (this.checkParam(terms, 2)) {
 			result.fontstyle = Number(terms[2].value);
-		} else {
-			result.fontstyle = 0;
 		}
 		if (this.checkParam(terms, 3)) {
 			result.fontcolor = String(terms[3].value);
-		} else {
-			result.fontcolor = '#000000';
 		}
 		if (this.checkParam(terms, 4)) {
 			result.alignment = Number(terms[4].value);
-		} else {
-			result.alignment = 0;
 		}
 
 		return JSON.stringify(result);
@@ -384,13 +363,6 @@ module.exports = class Drawings {
 		result.type = 'pattern';
 		if (this.checkParam(terms, 0)) {
 			result.image = String(terms[0].value);
-		} else {
-			result.image = '';
-		}
-		if (this.checkParam(terms, 1)) {
-			result.style = Number(terms[1].value);
-		} else {
-			result.style = 0;
 		}
 
 		return JSON.stringify(result);

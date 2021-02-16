@@ -18,8 +18,9 @@
 	This product includes software developed at
 	The Apache Software Foundation (http://www.apache.org/).
 */
-
+const { serialnumber: { time2seconds } } = require('@cedalo/commons');
 const Localizer = require('./Localizer');
+
 
 const NumberFormatter = class NumberFormatter {
 	// Sets culture to localize strings for every
@@ -281,7 +282,8 @@ function fixHijri(/* ::date, o */) {
 function parseDateCode(v /* :number */, opts /* :?any */, b2 /* :?boolean */) {
 	if (v > 2958465 || v < 0) return null;
 	let date = v | 0; // eslint-disable-line no-bitwise
-	let time = Math.floor(86400 * (v - date + 0.0000001));
+	// let time = Math.floor(86400 * (v - date + 0.0000001));
+	let time = time2seconds(v);
 	let dow = 0;
 	let dout = [];
 	const out = {
@@ -330,7 +332,7 @@ function parseDateCode(v /* :number */, opts /* :?any */, b2 /* :?boolean */) {
 	out.S = time % 60;
 	time = Math.floor(time / 60);
 	out.M = time % 60;
-	time = Math.floor(time / 60);
+	time = Math.floor(time / 60) % 24;
 	out.H = time;
 	out.q = dow;
 	return out;

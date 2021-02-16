@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -627,7 +627,7 @@ module.exports = class Selection {
 				if (cell._expr && cell._expr._formula) {
 					cell = cell.copy();
 					cell.evaluate(sheet);
-					let formula = cell._expr.toLocaleString('en', {item: sheet, useName: true, forceName: true});
+					let formula = cell._expr.toLocaleString('en', {item: sheet, useName: true, forceName: false});
 					if (formula.length && formula[0] === '=') {
 						formula = formula.substring(1);
 						cell._expr._formula = formula;
@@ -643,5 +643,34 @@ module.exports = class Selection {
 		writer.writeEndElement();
 
 		writer.writeEndElement();
+	}
+
+	saveText() {
+		const sheet = this.getWorksheet().getDataProvider();
+		let text = '';
+		const range = this._ranges[0];
+
+		for (let i = range.getY1(); i <= range.getY2(); i += 1) {
+			const row = sheet.getRow(i);
+			if (row) {
+				for (let j = range.getX1(); j <= range.getX2(); j += 1) {
+					const cell = row[j];
+					if (cell && cell.getValue() !== undefined) {
+						const expr = cell.getExpression();
+						const textFormat = this.getWorksheet().getTextFormatAtRC(j, i);
+						const formattingResult = this.getWorksheet().getFormattedValue(expr, cell.getValue(), textFormat, false);
+						if (formattingResult.formattedValue !== undefined) {
+							text += formattingResult.formattedValue;
+						}
+					}
+					if (j !== range.getX2()) {
+						text += '\t';
+					}
+				}
+			}
+			text += '\r';
+		}
+
+		return text;
 	}
 };

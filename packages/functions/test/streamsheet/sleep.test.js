@@ -9,14 +9,10 @@
  *
  ********************************************************************************/
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Machine, Message, StreamSheet } = require('@cedalo/machine-core');
-const { createCellAt, createTerm } = require('../utilities');
+const { Machine, Message, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
+const { createCellAt, createTerm, wait } = require('../utilities');
 
 const ERROR = FunctionErrors.code;
-
-const runAfter = (ms, fn) => new Promise((resolve) => {
-	setTimeout(() => resolve(fn()), ms);
-});
 
 
 describe('sleep', () => {
@@ -43,11 +39,13 @@ describe('sleep', () => {
 		expect(sheet.cellAt('A2').value).toBe(1);
 		await machine.step();
 		expect(sheet.cellAt('A2').value).toBe(1);
-		await runAfter(60, async () => { await machine.step(); });
+		await wait(60);
+		await machine.step();
 		expect(sheet.cellAt('A2').value).toBe(2);
 		await machine.step();		// should sleep again
 		expect(sheet.cellAt('A2').value).toBe(2);
-		await runAfter(60, async () => { await machine.step(); });
+		await wait(60);
+		await machine.step();
 		expect(sheet.cellAt('A2').value).toBe(3);
 	});
 	it('should not prevent other sheets from processing', async () => {
@@ -81,14 +79,17 @@ describe('sleep', () => {
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A3').value).toBe(1);
-		sheet.setCellAt('A2', undefined);
-		expect(sheet.cellAt('A2')).toBeUndefined();
-		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(2);
-		expect(sheet.cellAt('A3').value).toBe(2);
+		sheet.setCellAt('A2', undefined); // resumes sheet
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
+		expect(sheet.cellAt('A2')).toBeUndefined();
+		expect(sheet.cellAt('A3').value).toBe(2);
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A3').value).toBe(3);
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(5);
+		expect(sheet.cellAt('A3').value).toBe(4);
 	});
 	it('should handle replace of sleep term', async () => {
 		const machine = new Machine();
@@ -102,32 +103,37 @@ describe('sleep', () => {
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A3').value).toBe(1);
-		// replace await
+		// replace sleep to resume
 		createCellAt('A2', 'replaced', sheet);
-		expect(sheet.cellAt('A2').value).toBe('replaced');
-		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(2);
-		expect(sheet.cellAt('A3').value).toBe(2);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
+		expect(sheet.cellAt('A2').value).toBe('replaced');
+		expect(sheet.cellAt('A3').value).toBe(2);
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A3').value).toBe(3);
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(5);
+		expect(sheet.cellAt('A3').value).toBe(4);
 		// sleep again
 		createCellAt('A2', { formula: 'sleep(2)' }, sheet);
 		expect(sheet.cellAt('A2').value).toBe(true);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(4);
-		expect(sheet.cellAt('A3').value).toBe(3);
+		expect(sheet.cellAt('A1').value).toBe(6);
+		expect(sheet.cellAt('A3').value).toBe(4);
 		// replace with another sleep
 		createCellAt('A2', { formula: 'sleep(0.05)' }, sheet);
 		expect(sheet.cellAt('A2').value).toBe(true);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(4);
-		expect(sheet.cellAt('A3').value).toBe(3);
-		await runAfter(60, async () => {
-			await machine.step();
-		});
-		expect(sheet.cellAt('A1').value).toBe(4);
+		expect(sheet.cellAt('A1').value).toBe(7);
 		expect(sheet.cellAt('A3').value).toBe(4);
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		expect(sheet.cellAt('A1').value).toBe(7);
+		expect(sheet.cellAt('A3').value).toBe(4);
+		await wait(60); // wait long enough to resume
+		expect(sheet.cellAt('A3').value).toBe(5);
 	});
 	it('should not pause sheet processing if seconds is less then 1ms (0.001)', async() => {
 		const machine = new Machine();
@@ -166,7 +172,7 @@ describe('sleep', () => {
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(500);
 		expect(sheet.cellAt('A3').value).toBe(1);
-		// update reference:
+		// update reference: => resumes => finishes step
 		createCellAt('A1', 0.0001, sheet);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(0.0001);
@@ -174,17 +180,18 @@ describe('sleep', () => {
 		await machine.step();
 		expect(sheet.cellAt('A3').value).toBe(3);
 		await machine.step();
-		expect(sheet.cellAt('A3').value).toBe(4);
+		await machine.step();
+		expect(sheet.cellAt('A3').value).toBe(5);
 		// update reference:
 		createCellAt('A1', 0.001, sheet);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(0.001);
-		expect(sheet.cellAt('A3').value).toBe(4);
+		expect(sheet.cellAt('A3').value).toBe(5);
 	});
 	it('should not consume messages if sleep() is replaced', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.loadCells({
@@ -198,8 +205,9 @@ describe('sleep', () => {
 		await machine.step();
 		expect(sheet.cellAt('A4').value).toBe(1);
 		expect(sheet.streamsheet.inbox.size).toBe(3);
-		// replace
+		// replace resumes sheet
 		createCellAt('A2', 'replaced', sheet);
+		expect(sheet.cellAt('A4').value).toBe(1);
 		await machine.step();
 		expect(sheet.cellAt('A2').value).toBe('replaced');
 		expect(sheet.cellAt('A4').value).toBe(2);
@@ -214,8 +222,9 @@ describe('sleep', () => {
 		expect(sheet.cellAt('A2').value).toBe(true);
 		expect(sheet.cellAt('A4').value).toBe(3);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
-		// replace again
+		// replace again to resume
 		createCellAt('A2', 'replaced', sheet);
+		expect(sheet.cellAt('A4').value).toBe(3);
 		await machine.step();
 		expect(sheet.cellAt('A2').value).toBe('replaced');
 		expect(sheet.cellAt('A4').value).toBe(4);
@@ -228,7 +237,7 @@ describe('sleep', () => {
 	it('should not consume messages while sleeping', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.loadCells({
@@ -267,12 +276,12 @@ describe('sleep', () => {
 	it('should not loop message while sleeping', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: {cycletime: 10} });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.streamsheet.updateSettings({
 			loop: { path: '[data][Customers]', enabled: true },
-			trigger: { type: 'always' }
+			trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY }
 		});
 		sheet.loadCells({
 			A1: { formula: 'read(inboxdata("S1",,,"Name"), B1)' },
@@ -293,14 +302,9 @@ describe('sleep', () => {
 		expect(sheet.cellAt('B1').value).toBe('Foo');
 		expect(sheet.cellAt('A4').value).toBe(1);
 		createCellAt('A2', 0.0001, sheet);	// resolve
-		await machine.step();
+		await machine.step();	// resumes
 		expect(sheet.cellAt('B1').value).toBe('Foo');
 		expect(sheet.cellAt('A4').value).toBe(2);
-		createCellAt('A2', 5, sheet);	// sleep
-		await machine.step();
-		expect(sheet.cellAt('B1').value).toBe('Bar');
-		expect(sheet.cellAt('A4').value).toBe(2);
-		createCellAt('A2', 0.0001, sheet);	// resolve
 		await machine.step();
 		expect(sheet.cellAt('B1').value).toBe('Bar');
 		expect(sheet.cellAt('A4').value).toBe(3);
@@ -320,9 +324,17 @@ describe('sleep', () => {
 		await machine.step();
 		expect(sheet.cellAt('B1').value).toBe('Muller');
 		expect(sheet.cellAt('A4').value).toBe(5);
+		createCellAt('A2', 5, sheet);	// sleep
+		await machine.step();
+		expect(sheet.cellAt('B1').value).toBe('Muller');
+		expect(sheet.cellAt('A4').value).toBe(5);
+		createCellAt('A2', 0.0001, sheet);	// resolve
+		await machine.step();
+		expect(sheet.cellAt('B1').value).toBe('Muller');
+		expect(sheet.cellAt('A4').value).toBe(6);
 		await machine.step();
 		await machine.step();
 		expect(sheet.cellAt('B1').value).toBe('Muller');
-		expect(sheet.cellAt('A4').value).toBe(7);
+		expect(sheet.cellAt('A4').value).toBe(8);
 	});
 });

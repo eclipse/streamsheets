@@ -13,6 +13,7 @@
 import {
 	default as JSG,
 	GraphUtils,
+	MathUtils,
 	FormatAttributes,
 	CellRange,
 	PasteCellsFromClipboardCommand,
@@ -53,6 +54,7 @@ import Cursor from '../../ui/Cursor';
 
 const SHEET_ACTION_NOTIFICATION = 'sheet_action_notification';
 const SHEET_MESSAGE_NOTIFICATION = 'sheet_message_notification';
+const SHEET_SCROLL_NOTIFICATION = 'sheet_scroll_notification';
 
 const HitCode = {
 	NONE: 0,
@@ -69,7 +71,8 @@ const HitCode = {
 	ROWSIZEHIDDEN: 11,
 	COLUMNSIZEHIDDEN: 12,
 	COLUMNOUTLINE: 13,
-	ROWOUTLINE: 14
+	ROWOUTLINE: 14,
+	DATAVIEW: 15
 };
 
 /**
@@ -262,7 +265,8 @@ export default class WorksheetView extends ContentNodeView {
 		return undefined;
 	}
 
-	onMouseDoubleClick(event, viewer, sourceInteraction) {}
+	onMouseDoubleClick(event, viewer, sourceInteraction) {
+	}
 
 	onKeyDown(event, viewer, sourceInteraction) {
 		const item = this.getItem();
@@ -317,7 +321,7 @@ export default class WorksheetView extends ContentNodeView {
 								return true;
 							}
 						}
-						this.notifyMessage({ id: 'SheetMessage.jsonRangeInvalid' });
+						this.notifyMessage({id: 'SheetMessage.jsonRangeInvalid'});
 					}
 					// message
 					event.consume();
@@ -384,7 +388,7 @@ export default class WorksheetView extends ContentNodeView {
 
 					editor.destroy();
 
-					const w = window.open('about:blank','image from canvas');
+					const w = window.open('about:blank', 'image from canvas');
 					w.document.write(`<img src='${image}' alt='from canvas'/>`);
 					event.consume();
 					return true;
@@ -582,14 +586,14 @@ export default class WorksheetView extends ContentNodeView {
 						if (ctrlKey) {
 							endCell.x = item
 								.getDataProvider()
-								.getNextOrLastUsedCell({ x: range.getX1(), y: range.getY1() }, 'right');
+								.getNextOrLastUsedCell({x: range.getX1(), y: range.getY1()}, 'right');
 						} else {
 							endCell.x = item.getNextSelectableColumn(range.getX1(), range.getY1());
 						}
 					} else if (ctrlKey) {
 						endCell.x = item
 							.getDataProvider()
-							.getNextOrLastUsedCell({ x: range.getX2(), y: range.getY2() }, 'right');
+							.getNextOrLastUsedCell({x: range.getX2(), y: range.getY2()}, 'right');
 					} else {
 						endCell.x = item.getNextSelectableColumn(range.getX2(), range.getY2());
 					}
@@ -624,14 +628,14 @@ export default class WorksheetView extends ContentNodeView {
 						if (ctrlKey) {
 							endCell.x = item
 								.getDataProvider()
-								.getNextOrLastUsedCell({ x: range.getX1(), y: range.getY1() }, 'left');
+								.getNextOrLastUsedCell({x: range.getX1(), y: range.getY1()}, 'left');
 						} else {
 							endCell.x = item.getPreviousSelectableColumn(range.getX1(), range.getY1());
 						}
 					} else if (ctrlKey) {
 						endCell.x = item
 							.getDataProvider()
-							.getNextOrLastUsedCell({ x: range.getX2(), y: range.getY2() }, 'left');
+							.getNextOrLastUsedCell({x: range.getX2(), y: range.getY2()}, 'left');
 					} else {
 						endCell.x = item.getPreviousSelectableColumn(range.getX2(), range.getY2());
 					}
@@ -671,14 +675,14 @@ export default class WorksheetView extends ContentNodeView {
 						if (ctrlKey) {
 							endCell.y = item
 								.getDataProvider()
-								.getNextOrLastUsedCell({ x: range.getX1(), y: range.getY1() }, 'down');
+								.getNextOrLastUsedCell({x: range.getX1(), y: range.getY1()}, 'down');
 						} else {
 							endCell.y = item.getNextSelectableRow(range.getY1(), range.getX1());
 						}
 					} else if (ctrlKey) {
 						endCell.y = item
 							.getDataProvider()
-							.getNextOrLastUsedCell({ x: range.getX2(), y: range.getY2() }, 'down');
+							.getNextOrLastUsedCell({x: range.getX2(), y: range.getY2()}, 'down');
 					} else {
 						endCell.y = item.getNextSelectableRow(range.getY2(), range.getX1());
 					}
@@ -713,14 +717,14 @@ export default class WorksheetView extends ContentNodeView {
 						if (ctrlKey) {
 							endCell.y = item
 								.getDataProvider()
-								.getNextOrLastUsedCell({ x: range.getX1(), y: range.getY1() }, 'up');
+								.getNextOrLastUsedCell({x: range.getX1(), y: range.getY1()}, 'up');
 						} else {
 							endCell.y = item.getPreviousSelectableRow(range.getY1(), range.getX1());
 						}
 					} else if (ctrlKey) {
 						endCell.y = item
 							.getDataProvider()
-							.getNextOrLastUsedCell({ x: range.getX2(), y: range.getY2() }, 'up');
+							.getNextOrLastUsedCell({x: range.getX2(), y: range.getY2()}, 'up');
 					} else {
 						endCell.y = item.getPreviousSelectableRow(range.getY2(), range.getX2());
 					}
@@ -827,6 +831,10 @@ export default class WorksheetView extends ContentNodeView {
 
 		const item = this.getItem();
 		const rect = item.getCellRect(new CellRange(item, cell.x, cell.y));
+		return this.showRect(item, rect);
+	}
+
+	showRect(item, rect) {
 		const offset = this.getScrollOffset();
 		const viewport = this.getViewPort();
 
@@ -1013,6 +1021,8 @@ export default class WorksheetView extends ContentNodeView {
 		const cell = this.getCell(point);
 		if (cell === undefined) {
 			return WorksheetView.HitCode.NONE;
+		} else if (this.isDataView(point, cell, viewer)) {
+			return WorksheetView.HitCode.DATAVIEW;
 		}
 
 		return WorksheetView.HitCode.SHEET;
@@ -1104,6 +1114,9 @@ export default class WorksheetView extends ContentNodeView {
 			case WorksheetView.HitCode.SELECTIONEXTEND:
 				interaction.setCursor(Cursor.Style.CROSSHAIR);
 				break;
+			case WorksheetView.HitCode.DATAVIEW:
+				interaction.setCursor(Cursor.Style.EXECUTE);
+				break;
 			case WorksheetView.HitCode.REFERENCEMOVE: {
 				const cellEditor = CellEditor.getActiveCellEditor();
 				let rangeResize;
@@ -1151,14 +1164,14 @@ export default class WorksheetView extends ContentNodeView {
 		const selection = this.getOwnSelection();
 
 		if (selection.getSize() > 1) {
-			this.notifyMessage({ id: 'SheetMessage.singleSelection' });
+			this.notifyMessage({id: 'SheetMessage.singleSelection'});
 			return;
 		}
 
 		const range = selection.getAt(0);
 
 		if (selection.areColumnsSelected() && (range.getX1() < 2 || range.getX2() < 2)) {
-			this.notifyMessage({ id: 'SheetMessage.nodeletebefore' });
+			this.notifyMessage({id: 'SheetMessage.nodeletebefore'});
 			return;
 		}
 
@@ -1181,7 +1194,7 @@ export default class WorksheetView extends ContentNodeView {
 		const selection = this.getOwnSelection();
 
 		if (selection.getSize() !== 1) {
-			this.notifyMessage({ id: 'SheetMessage.singleSelection' });
+			this.notifyMessage({id: 'SheetMessage.singleSelection'});
 			return;
 		}
 
@@ -1205,23 +1218,23 @@ export default class WorksheetView extends ContentNodeView {
 			case 'rows':
 			case 'cellsvertical':
 				if (used.getY2() + range.getHeight() >= this.getItem().getRowCount()) {
-					this.notifyMessage({ id: 'SheetMessage.space' });
+					this.notifyMessage({id: 'SheetMessage.space'});
 					return;
 				}
 				break;
 			case 'columns':
 				if (range.getX1() < 2 || range.getX2() < 2) {
-					this.notifyMessage({ id: 'SheetMessage.noinsertbefore' });
+					this.notifyMessage({id: 'SheetMessage.noinsertbefore'});
 					return;
 				}
 				if (used.getX2() + range.getWidth() >= this.getItem().getColumnCount()) {
-					this.notifyMessage({ id: 'SheetMessage.space' });
+					this.notifyMessage({id: 'SheetMessage.space'});
 					return;
 				}
 				break;
 			case 'cellshorizontal':
 				if (used.getX2() + range.getWidth() >= this.getItem().getColumnCount()) {
-					this.notifyMessage({ id: 'SheetMessage.space' });
+					this.notifyMessage({id: 'SheetMessage.space'});
 					return;
 				}
 				break;
@@ -1271,7 +1284,7 @@ export default class WorksheetView extends ContentNodeView {
 
 	copyCells(cut) {
 		if (this.getOwnSelection().getSize() !== 1) {
-			this.notifyMessage({ id: 'SheetMessage.singleSelection' });
+			this.notifyMessage({id: 'SheetMessage.singleSelection'});
 			return;
 		}
 
@@ -1279,6 +1292,7 @@ export default class WorksheetView extends ContentNodeView {
 		// to find out whether the internal data is in sync with the system clipboard. This way we can initiate a
 		// paste using internal commands
 
+		JSG.clipXML = undefined;
 		JSG.clipSheet = {
 			data: this.getCopyData(cut),
 			range: this.getOwnSelection()
@@ -1291,12 +1305,20 @@ export default class WorksheetView extends ContentNodeView {
 		this.notify();
 	}
 
-	copyToClipboard(data) {
+	copyText() {
 		if (this.getOwnSelection().getSize() !== 1) {
-			this.notifyMessage({ id: 'SheetMessage.singleSelection' });
+			this.notifyMessage({id: 'SheetMessage.singleSelection'});
 			return;
 		}
 
+		const text = this.getOwnSelection().saveText();
+
+		this.copyToClipboard(text);
+		this.notify();
+	}
+
+
+	copyToClipboard(data) {
 		const focus = document.activeElement;
 		const textarea = document.createElement('textarea');
 
@@ -1330,12 +1352,12 @@ export default class WorksheetView extends ContentNodeView {
 
 	pasteFromClipboard(viewer, target, json, action, fill, overwrite) {
 		if (json === undefined) {
-			this.notifyMessage({ id: 'SheetMessage.noClip' });
+			this.notifyMessage({id: 'SheetMessage.noClip'});
 			return false;
 		}
 
 		if (!this.getOwnSelection().hasSelection()) {
-			this.notifyMessage({ id: 'SheetMessage.noTarget' });
+			this.notifyMessage({id: 'SheetMessage.noTarget'});
 			return false;
 		}
 
@@ -1364,7 +1386,7 @@ export default class WorksheetView extends ContentNodeView {
 					data.range.isRowRange() !== target.isRowRange() ||
 					data.range.isColumnRange() !== target.isColumnRange()
 				) {
-					this.notifyMessage({ id: 'SheetMessage.sourceTarget' });
+					this.notifyMessage({id: 'SheetMessage.sourceTarget'});
 					return true;
 				}
 
@@ -1376,7 +1398,7 @@ export default class WorksheetView extends ContentNodeView {
 					targetRange.getX2() >= targetSheet.getColumnCount() ||
 					targetRange.getY2() >= targetSheet.getRowCount()
 				) {
-					this.notifyMessage({ id: 'SheetMessage.destRange' });
+					this.notifyMessage({id: 'SheetMessage.destRange'});
 					return true;
 				}
 
@@ -1448,7 +1470,7 @@ export default class WorksheetView extends ContentNodeView {
 				return false;
 			}
 
-			return { rows: rowCount, columns: columnCount };
+			return {rows: rowCount, columns: columnCount};
 		};
 
 		const textPaste = () => {
@@ -1467,7 +1489,7 @@ export default class WorksheetView extends ContentNodeView {
 					let currentColumn = target.getX1();
 					columns.forEach((column) => {
 						const isFormula = column.charAt(0) === '=';
-						let formula = column;
+						let formula = column.trim();
 
 						if (isFormula) {
 							formula = formula.substring(1);
@@ -1479,7 +1501,7 @@ export default class WorksheetView extends ContentNodeView {
 							: JSG.FormulaParser.parseValue(formula, item.getGraph(), item);
 						JSG.FormulaParser.context.separators = Locale.EN.separators;
 
-						formula = term ? term.toLocaleString('en', { item, useName: true }) : '';
+						formula = term ? term.toLocaleString('en', {item, useName: true}) : '';
 						const data = isFormula
 							? new Expression(0, formula)
 							: ExpressionHelper.createExpressionFromValueTerm(term);
@@ -1559,14 +1581,14 @@ export default class WorksheetView extends ContentNodeView {
 			return true;
 		}
 
-		if (json[0] === '{') {
+		if (json[0] === '{' || json[0] === '[') {
 			try {
 				const jsonModel = JSON.parse(json);
 				let rows = target.getHeight();
 				if (target.getWidth() === 1 && target.getHeight() === 1) {
 					rows = jsonMeasure(jsonModel, 0);
 					if (target.getY1() + rows > item.getRowCount() || target.getX1() + 1 > item.getColumnCount()) {
-						this.notifyMessage({ id: 'SheetMessage.destRange' });
+						this.notifyMessage({id: 'SheetMessage.destRange'});
 						return false;
 					}
 				}
@@ -1574,7 +1596,7 @@ export default class WorksheetView extends ContentNodeView {
 				jsonPaste(
 					jsonModel,
 					cellData,
-					{ row: target.getY1(), column: target.getX1(), level: 0 },
+					{row: target.getY1(), column: target.getX1(), level: 0},
 					rows + target.getY1()
 				);
 				const selection = target.getSheet().getOwnSelection();
@@ -1603,7 +1625,7 @@ export default class WorksheetView extends ContentNodeView {
 				target.getY1() + size.rows > item.getRowCount() ||
 				target.getX1() + size.columns > item.getColumnCount()
 			) {
-				this.notifyMessage({ id: 'SheetMessage.destRange' });
+				this.notifyMessage({id: 'SheetMessage.destRange'});
 				return false;
 			}
 		}
@@ -1618,12 +1640,13 @@ export default class WorksheetView extends ContentNodeView {
 			return true;
 		}
 
-		this.notifyMessage({ id: 'SheetMessage.noClip' });
+		this.notifyMessage({id: 'SheetMessage.noClip'});
 
 		return false;
 	}
 
-	isTopView() {}
+	isTopView() {
+	}
 
 	getMaxColumnWidth(columnIndex, viewer) {
 		const item = this.getItem();
@@ -1696,7 +1719,7 @@ export default class WorksheetView extends ContentNodeView {
 		let height = item.getRows().getDefaultSectionSize();
 
 		columns.enumerateSections((columnSection, columnIndex) => {
-			const width = columns.getSectionSize(rowIndex);
+			const width = columns.getSectionSize(columnIndex);
 			if (width) {
 				const cell = data.getRC(columnIndex, rowIndex);
 				if (cell && cell.hasContent()) {
@@ -1786,12 +1809,209 @@ export default class WorksheetView extends ContentNodeView {
 		return value;
 	}
 
+	getDevCellPosition(viewer, cellPos) {
+		const canvas = viewer.getCanvas();
+		const cs = viewer.getCoordinateSystem();
+		const cellRect = this.getCellRect(cellPos);
+		const center = new Point(
+			cellRect.x,
+			cellRect.y,
+		);
+
+		GraphUtils.traverseUp(this, viewer.getRootView(), (v) => {
+			v.translateToParent(center);
+			return true;
+		});
+
+		return {
+			x: (cs.logToDeviceX(center.x, false) + canvas.offsetLeft),
+			y: (cs.logToDeviceY(center.y, false) + canvas.offsetTop)
+		}
+	}
+
+	isDataView(point, cellPos) {
+		const data = this.getItem().getDataProvider();
+		const cell = data.get(cellPos);
+
+		if (cell === undefined) {
+			return false;
+		}
+
+		const values = cell.values;
+		if (!values) {
+			return false;
+		}
+
+		const cellRect = this.getCellRect(cellPos);
+
+		return point.x > cellRect.x + cellRect.width - 300 &&
+			point.x < cellRect.x + cellRect.width &&
+			point.y > cellRect.y &&
+			point.y < cellRect.y + 300;
+	}
+
+	handleDataView(sheet, dataCell, targetRange, viewer) {
+		if (targetRange === undefined) {
+			return;
+		}
+
+		const data = sheet.getDataProvider();
+		const cell = data.get(dataCell);
+
+		if (cell === undefined) {
+			return
+		}
+
+		this.showCellValues(viewer, cell, targetRange);
+	}
+
+	showCellValues(viewer, cell, targetRange) {
+		const cellRect = this.getRangeRect(targetRange);
+		const pos = this.getDevCellPosition(viewer, {x: targetRange._x1, y: targetRange._y1});
+		const div = document.createElement('div');
+		const cs = viewer.getCoordinateSystem();
+		const values = cell.values;
+		let scrollTop;
+		const remove = () => {
+			const dataView = this.getFromGraph();
+			if (dataView) {
+				const table = document.getElementById('dataviewtable');
+				if (table) {
+					scrollTop = table.scrollTop;
+				}
+				viewer.getCanvas().parentNode.removeChild(dataView.div);
+				this.deRegisterAtGraph();
+			}
+		};
+
+		remove();
+
+		if (targetRange.getWidth() > 1) {
+			div.style.width = `${cs.logToDeviceY(cellRect.width, false) - 1}px`;
+		}
+
+		let maxHeight = 320;
+
+		if (targetRange.getHeight() > 1) {
+			div.style.height = `${cs.logToDeviceY(cellRect.height, false)}px`;
+			maxHeight = cs.logToDeviceY(cellRect.height, false);
+		}
+
+		div.style.left = `${pos.x}px`;
+		div.style.top = `${pos.y}px`;
+		div.style.minWidth = `${cs.logToDeviceY(cellRect.width, false) - 1}px`;
+		div.style.minHeight = `${cs.logToDeviceY(cellRect.height, false)}px`;
+		div.style.backgroundColor = JSG.theme.fill;
+		div.style.borderColor = JSG.theme.border;
+		div.style.borderWidth = '1px';
+		div.style.borderStyle = 'solid';
+		div.style.position = 'absolute';
+		div.style.fontSize = '8pt';
+
+		const fields = values ? Object.entries(values) : [];
+		const rowCount = fields.length && fields[0].length !== undefined && fields[0][1].length !== undefined ? fields[0][1].length : 0;
+
+		let html = `<p style="color: ${JSG.theme.text}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">Result (${rowCount}):</p>`;
+		html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
+		html +=	`<div id="dataviewtable" style="overflow-y: auto; max-height: ${maxHeight - 25}px">`;
+		html += `<table style="padding: 5px; color: ${JSG.theme.text}; width: ${targetRange.getWidth() > 1 ? '100%' : 'inherit'}"><thead><tr>`;
+
+		fields.forEach(([key, entry]) => {
+			html += `<th style="padding: 5px;" >${key}</th>`;
+		});
+		html += '</tr></thead>';
+
+		html += '<tbody>';
+
+
+		if (rowCount) {
+			fields[0][1].forEach((value, index) => {
+				html += '<tr>';
+				fields.forEach(([key, entry]) => {
+					let val = entry[index];
+					if (key === 'time') {
+						const date = MathUtils.excelDateToJSDate(val);
+						val = `${date.toLocaleTimeString()} ${date.getMilliseconds()}`;
+
+					}
+					html += `<td style="padding: 5px;text-align: ${Numbers.isNumber(val) ? 'right' : 'left'}">${val === null || val === undefined ? '' : val}</td>`;
+				});
+				html += '</tr>';
+			});
+		}
+
+		html += '</tbody>';
+		html += '</table></div>';
+
+		div.innerHTML = html;
+		viewer.getCanvas().parentNode.appendChild(div);
+
+		document.getElementById('closeFunc').addEventListener(
+			'mousedown',
+			(event) => {
+				remove();
+			},
+			false
+		);
+
+		if (scrollTop) {
+			const table = document.getElementById('dataviewtable');
+			if (table) {
+				table.scrollTop = scrollTop;
+			}
+		}
+
+		div.focus();
+
+		this.registerAtGraph(viewer, cell, targetRange, div);
+	}
+
+	handleMouseWheel(event, viewer) {
+		const zDelta = event.getWheelDelta() < 0 ? 1 : -1;
+		const scrollView = this.getScrollView();
+		const pt = scrollView.getScrollPosition();
+
+		if (event.event.shiftKey) {
+			pt.x += zDelta * 2000;
+		} else {
+			pt.y += zDelta * 1500;
+		}
+
+		scrollView.setScrollPositionTo(pt);
+
+		NotificationCenter.getInstance().send(
+			new Notification(WorksheetView.SHEET_SCROLL_NOTIFICATION, {
+				view: this,
+			})
+		);
+
+		viewer.getInteractionHandler().repaint();
+	}
+
+	getFromGraph() {
+		return this.getItem().getGraph().dataView;
+	}
+
+	registerAtGraph(viewer, cell, targetRange, div) {
+		this.getItem().getGraph().dataView = {
+			viewer, cell, targetRange, view: this, div
+		};
+	}
+
+	deRegisterAtGraph() {
+		this.getItem().getGraph().dataView = undefined;
+	}
+
 	static get SHEET_ACTION_NOTIFICATION() {
 		return SHEET_ACTION_NOTIFICATION;
 	}
 
 	static get SHEET_MESSAGE_NOTIFICATION() {
 		return SHEET_MESSAGE_NOTIFICATION;
+	}
+
+	static get SHEET_SCROLL_NOTIFICATION() {
+		return SHEET_SCROLL_NOTIFICATION;
 	}
 
 	// TODO: extract as class

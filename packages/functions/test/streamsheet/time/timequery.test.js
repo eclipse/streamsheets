@@ -925,9 +925,13 @@ describe('timequery', () => {
 			await machine.step();
 			createCellAt('B1', 'hello', sheet);
 			await machine.step();
+			createCellAt('B1', 23, sheet);
+			await machine.step();
+			createCellAt('B1', 42, sheet);
+			await machine.step();
 			query(querycell, timecell)
 			expect(querycell.info.values.v1.length).toBe(1);
-			expect(querycell.info.values.v1[0]).toBe(2);			
+			expect(querycell.info.values.v1[0]).toBe(2);
 		});
 		test('count non zero should count non number values??', async () => {
 			const machine = newMachine({ cycletime: 100 });
@@ -955,10 +959,10 @@ describe('timequery', () => {
 			expect(querycell.info.values).toBeDefined();
 			expect(querycell.info.values.v1.length).toBe(1);
 			expect(querycell.info.values.v2).toEqual([0]);
-			expect(querycell.info.values.v3).toEqual([2]);
-			expect(querycell.info.values.v4).toEqual([2]);
+			expect(querycell.info.values.v3).toEqual([0]);
+			expect(querycell.info.values.v4).toEqual([0]);
 			expect(querycell.info.values.v5).toEqual([0]);
-			expect(querycell.info.values.v6).toEqual([2]);
+			expect(querycell.info.values.v6).toEqual([0]);
 			expect(querycell.info.values.v7).toEqual([0]);
 			expect(querycell.info.values.v8).toEqual([0]);
 			await machine.step();
@@ -967,10 +971,10 @@ describe('timequery', () => {
 			expect(querycell.info.values).toBeDefined();
 			expect(querycell.info.values.v1.length).toBe(2);
 			expect(querycell.info.values.v2).toEqual([0, 0]);
-			expect(querycell.info.values.v3).toEqual([2, 4]);
-			expect(querycell.info.values.v4).toEqual([2, 4]);
+			expect(querycell.info.values.v3).toEqual([0, 0]);
+			expect(querycell.info.values.v4).toEqual([0, 0]);
 			expect(querycell.info.values.v5).toEqual([0, 0]);
-			expect(querycell.info.values.v6).toEqual([2, 4]);
+			expect(querycell.info.values.v6).toEqual([0, 0]);
 			expect(querycell.info.values.v7).toEqual([0, 0]);
 			expect(querycell.info.values.v8).toEqual([0, 0]);
 		});

@@ -8,9 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { createCellAt, createTerm } = require('../utilities');
-const { Machine, StreamSheet } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { Machine, StreamSheet } = require('@cedalo/machine-core');
+const { createCellAt, createTerm } = require('../utilities');
+const {	serialnumber: { ms2serial } } = require('@cedalo/commons');
 
 const ERROR = FunctionErrors.code;
 
@@ -48,20 +49,20 @@ describe('char', () => {
 		expect(createTerm('char(156, "cp1252")', sheet).value).toBe('œ');
 		expect(createTerm('char(240, "cp1252")', sheet).value).toBe('ð');
 	});
-	it('should support mac/roman as character set', () => {
+	it('should NOT support mac/roman as character set', () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('char(33, "mac")', sheet).value).toBe('!');
-		expect(createTerm('char(65, "mac")', sheet).value).toBe('A');
-		expect(createTerm('char(126, "mac")', sheet).value).toBe('~');
-		expect(createTerm('char(128, "mac")', sheet).value).toBe('Ä');
-		expect(createTerm('char(138, "mac")', sheet).value).toBe('ä');
-		expect(createTerm('char(240, "mac")', sheet).value).toBe('');
-		expect(createTerm('char(33, "roman")', sheet).value).toBe('!');
-		expect(createTerm('char(65, "roman")', sheet).value).toBe('A');
-		expect(createTerm('char(126, "roman")', sheet).value).toBe('~');
-		expect(createTerm('char(128, "roman")', sheet).value).toBe('Ä');
-		expect(createTerm('char(138, "roman")', sheet).value).toBe('ä');
-		expect(createTerm('char(240, "roman")', sheet).value).toBe('');
+		expect(createTerm('char(33, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // '!');
+		expect(createTerm('char(65, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'A');
+		expect(createTerm('char(126, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // '~');
+		expect(createTerm('char(128, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'Ä');
+		expect(createTerm('char(138, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'ä');
+		expect(createTerm('char(219, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // '€');
+		expect(createTerm('char(33, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // '!');
+		expect(createTerm('char(65, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'A');
+		expect(createTerm('char(126, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // '~');
+		expect(createTerm('char(128, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'Ä');
+		expect(createTerm('char(138, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'ä');
+		expect(createTerm('char(219, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // '€');
 	});
 	it(`return ${ERROR.VALUE} if given number is not between 1 and 255 or specified value is not a number`, () => {
 		const sheet = new StreamSheet().sheet;
@@ -134,20 +135,20 @@ describe('code', () => {
 		expect(createTerm('code("œ", "cp1252")', sheet).value).toBe(156);
 		expect(createTerm('code("ð", "cp1252")', sheet).value).toBe(240);
 	});
-	it('should support mac/roman as character set', () => {
+	it('should NOT support mac/roman as character set', () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('code("!", "mac")', sheet).value).toBe(33);
-		expect(createTerm('code("A", "mac")', sheet).value).toBe(65);
-		expect(createTerm('code("~", "mac")', sheet).value).toBe(126);
-		expect(createTerm('code("Ä", "mac")', sheet).value).toBe(128);
-		expect(createTerm('code("ä", "mac")', sheet).value).toBe(138);
-		expect(createTerm('code("", "mac")', sheet).value).toBe(240);
-		expect(createTerm('code("!", "roman")', sheet).value).toBe(33);
-		expect(createTerm('code("A", "roman")', sheet).value).toBe(65);
-		expect(createTerm('code("~", "roman")', sheet).value).toBe(126);
-		expect(createTerm('code("Ä", "roman")', sheet).value).toBe(128);
-		expect(createTerm('code("ä", "roman")', sheet).value).toBe(138);
-		expect(createTerm('code("", "roman")', sheet).value).toBe(240);
+		expect(createTerm('code("!", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 33);
+		expect(createTerm('code("A", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 65);
+		expect(createTerm('code("~", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 126);
+		expect(createTerm('code("Ä", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 128);
+		expect(createTerm('code("ä", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 138);
+		expect(createTerm('code("€", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 219);
+		expect(createTerm('code("!", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 33);
+		expect(createTerm('code("A", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 65);
+		expect(createTerm('code("~", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 126);
+		expect(createTerm('code("Ä", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 128);
+		expect(createTerm('code("ä", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 138);
+		expect(createTerm('code("€", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 219);
 	});
 	it(`return ${ERROR.VALUE} if given string is empty or not a string`, () => {
 		const sheet = new StreamSheet().sheet;
@@ -305,6 +306,37 @@ describe('len', () => {
 	it('should return error for invalid parameter', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: 'hello' } });
 		expect(createTerm('len(_A1)', sheet).value).toBe(ERROR.NAME);
+	});
+});
+describe('lower', () => {
+	it('should convert given text to lowercase', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('lower("HELLO")', sheet).value).toBe('hello');
+		expect(createTerm('lower("hello WORLD")', sheet).value).toBe('hello world');
+		expect(createTerm('lower("world")', sheet).value).toBe('world');
+	});
+	it('should except cell reference', () => {
+		const sheet = new StreamSheet().sheet.loadCells({ A1: 'HELLO', B1: 'jOHn DoE' });;
+		expect(createTerm('lower(A1)', sheet).value).toBe('hello');
+		expect(createTerm('lower(B1)', sheet).value).toBe('john doe');
+	});
+	it('should ignore empty string, numbers or special characters', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('lower("")', sheet).value).toBe('');
+		expect(createTerm('lower("0")', sheet).value).toBe('0');
+		expect(createTerm('lower(123456)', sheet).value).toBe('123456');
+		expect(createTerm('lower("!§$%&/()")', sheet).value).toBe('!§$%&/()');
+	});
+	it(`should return ${ERROR.VALUE} or empty string if referenced cell returns no text`, () => {
+		const sheet = new StreamSheet().sheet.loadCells({ A1: null });;
+		expect(createTerm('lower(A1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('lower(D3)', sheet).value).toBe(ERROR.VALUE);
+	});
+	it(`should return ${ERROR.ARGS} if no text is given`, () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('lower()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('lower(,)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('lower(, "HELLO")', sheet).value).toBe(ERROR.ARGS);
 	});
 });
 describe('mid', () => {
@@ -511,6 +543,21 @@ describe('text', () => {
 		// DL-1333
 		expect(createTerm('TEXT(A2,"HH:MM:SS")', sheet).value).toBe('00:00:00');
 	});
+	// DL-4732
+	it('should use 12 hours format when converting time value with AM/PM', () => {
+		const sheet = new StreamSheet().sheet;
+		createCellAt('A1', ms2serial(Date.UTC(2021,1,2,0,13)), sheet);
+		expect(createTerm('text(A1, "H:MM AM/PM")', sheet).value).toBe('12:13 AM');
+		createCellAt('A1', ms2serial(Date.UTC(2021,1,2,9,13)), sheet);
+		expect(createTerm('text(A1, "H:MM AM/PM")', sheet).value).toBe('9:13 AM');
+		createCellAt('A1', ms2serial(Date.UTC(2021,1,2,12,13)), sheet);
+		expect(createTerm('text(A1, "H:MM AM/PM")', sheet).value).toBe('12:13 PM');
+		createCellAt('A1', ms2serial(Date.UTC(2021,1,2,21,13)), sheet);
+		expect(createTerm('text(A1, "H:MM AM/PM")', sheet).value).toBe('9:13 PM');
+		createCellAt('A1', ms2serial(Date.UTC(2021,1,2,13,3)), sheet);
+		expect(createTerm('text(A1, "H:MM AM/PM")', sheet).value).toBe('1:03 PM');
+		expect(createTerm('text(44230.5441488079, "H:MM AM/PM")', sheet).value).toBe('1:03 PM');
+	});
 	it('should return an error if no value, format are given', () => {
 		const sheet = new StreamSheet().sheet;
 		createCellAt('A1', 123456, sheet);
@@ -596,6 +643,37 @@ describe('unicode', () => {
 		expect(createTerm('unicode("")', sheet).value).toBe(ERROR.VALUE);
 		expect(createTerm('unicode(A1)', sheet).value).toBe(ERROR.VALUE);
 		expect(createTerm('unicode()', sheet).value).toBe(ERROR.ARGS);
+	});
+});
+describe('upper', () => {
+	it('should convert given text to uppercase', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('upper("hello")', sheet).value).toBe('HELLO');
+		expect(createTerm('upper("hello WORLD")', sheet).value).toBe('HELLO WORLD');
+		expect(createTerm('upper("WORLD")', sheet).value).toBe('WORLD');
+	});
+	it('should except cell reference', () => {
+		const sheet = new StreamSheet().sheet.loadCells({ A1: 'hello', B1: 'jOHn DoE' });;
+		expect(createTerm('upper(A1)', sheet).value).toBe('HELLO');
+		expect(createTerm('upper(B1)', sheet).value).toBe('JOHN DOE');
+	});
+	it('should ignore empty string, numbers or special characters', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('upper("")', sheet).value).toBe('');
+		expect(createTerm('upper("0")', sheet).value).toBe('0');
+		expect(createTerm('upper(123456)', sheet).value).toBe('123456');
+		expect(createTerm('upper("!§$%&/()")', sheet).value).toBe('!§$%&/()');
+	});
+	it(`should return ${ERROR.VALUE} or empty string if referenced cell returns no text`, () => {
+		const sheet = new StreamSheet().sheet.loadCells({ A1: null });;
+		expect(createTerm('upper(A1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('upper(D3)', sheet).value).toBe(ERROR.VALUE);
+	});
+	it(`should return ${ERROR.ARGS} if no text is given`, () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('upper()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('upper(,)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('upper(, "hello")', sheet).value).toBe(ERROR.ARGS);
 	});
 });
 describe('value', () => {

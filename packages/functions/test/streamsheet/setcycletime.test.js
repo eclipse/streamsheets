@@ -40,11 +40,11 @@ describe('setcycletime', () => {
 		const cells = { A1: { formula: 'A1+1' }, B1: { formula: 'getcycletime()' } };
 		const { sheet, machine } = setup();
 		sheet.load({ cells });
-		sheet.startProcessing();
+		sheet.streamsheet.process();
 		expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
 		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(1000);
 		machine.cycletime = 50;
-		sheet.startProcessing();
+		sheet.streamsheet.process();
 		expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(3);
 		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(50);
 	});

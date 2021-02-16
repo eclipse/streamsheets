@@ -66,12 +66,12 @@ const get = (sheet, ...terms) =>
 		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
 		.mapNextArg((target) => hasValue(target) ? target.value : {})
-		.mapNextArg((parse) => asBoolean(parse && parse.value)
+		.mapNextArg((parse) => asBoolean(parse && parse.value))
 		.run((url, config, target, parse) => {
 			return AsyncRequest.create(sheet, get.context)
 				.request(() => getInstance().get(url, config))
 				.response(createDefaultCallback(parse, target))
-				.reqId()
+				.reqId();
 		});
 get.displayName = true;
 

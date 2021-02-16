@@ -20,6 +20,7 @@ const ADD_INBOX_MESSAGE = 'add_inbox_message';
 const CREATE_STREAMSHEET_MESSAGE_TYPE = 'streamsheet_create';
 const GET_MACHINE_MESSAGE_TYPE = 'machine_get';
 const GET_MACHINES_MESSAGE_TYPE = 'machineserver_machines';
+const GET_CELL_RAW_VALUE = 'machine_get_cell_raw_value';
 const DELETE_MACHINE_MESSAGE_TYPE = 'machine_delete';
 const DELETE_STREAMSHEET_MESSAGE_TYPE = 'streamsheet_delete';
 const LOAD_MACHINE_MESSAGE_TYPE = 'machine_load';
@@ -58,6 +59,7 @@ const LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE = 'machine_load_subscribe';
  */
 
 const COMMAND_MESSAGE_TYPE = 'command';
+const MACHINE_ACTION_MESSAGE_TYPE = 'machine_action';
 
 /**
  * ******************************************************************************************
@@ -105,6 +107,7 @@ module.exports = {
 		DELETE_STREAMSHEET_MESSAGE_TYPE,
 		GET_MACHINE_MESSAGE_TYPE,
 		GET_MACHINES_MESSAGE_TYPE,
+		GET_CELL_RAW_VALUE,
 		LOAD_MACHINE_MESSAGE_TYPE,
 		UNLOAD_MACHINE_MESSAGE_TYPE,
 		LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE,
@@ -132,6 +135,7 @@ module.exports = {
 		UNSUBSCRIBE_MACHINE_MESSAGE_TYPE,
 		// General request types
 		COMMAND_MESSAGE_TYPE,
+		MACHINE_ACTION_MESSAGE_TYPE,
 		STREAMSHEET_STREAM_UPDATE_TYPE,
 		UPDATE_MACHINE_IMAGE_MESSAGE_TYPE,
 		UPDATE_MACHINE_TITLE_IMAGE_MESSAGE_TYPE

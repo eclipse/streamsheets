@@ -128,11 +128,11 @@ module.exports = {
 		},
 		EXECUTE: {
 			en: {
-				argumentList: 'Streamsheet,Repeat,JSON,Selector',
+				argumentList: 'Streamsheet,Repeat,JSON,Speed',
 				description: 'Triggers the recalculation of another streamsheet'
 			},
 			de: {
-				argumentList: 'Streamsheet,Wiederholen,JSON,Selektor',
+				argumentList: 'Streamsheet,Wiederholen,JSON,Geschwindigkeit',
 				description: 'Aktiviert die Neuberechnung eines andere Streamsheets'
 			}
 		},
@@ -167,8 +167,8 @@ module.exports = {
 			de: { argumentList: '', description: 'Ermittelt den aktuellen Maschinenschritt' }
 		},
 		GETSTEP: {
-			en: { argumentList: '', description: 'Returns the current step count' },
-			de: { argumentList: '', description: 'Ermittelt den aktuellen Streamsheet Schritt' }
+			en: { argumentList: 'SheetName', description: 'Returns the current step count' },
+			de: { argumentList: 'SheetName', description: 'Ermittelt den aktuellen Streamsheet Schritt' }
 		},
 		GOTO: {
 			en: { argumentList: 'Cell', description: 'Deprecated! Please use CONTINUE instead' },
@@ -232,6 +232,16 @@ module.exports = {
 			de: {
 				argumentList: 'ZellbereichOderTextOderNachrichtelement,ErgebnisAlsText',
 				description: 'Wandelt den angebenen Zellbereich, Text oder Nachrichtenelement in ein JSON Objekt um'
+			}
+		},
+		'JSON.RANGE': {
+			en: {
+				argumentList: 'JSON,CellRange,Type,Direction',
+				description: 'Writes the content of given JSON to specified cell range'
+			},
+			de: {
+				argumentList: 'JSON,Zellbereich,Typ,Richtung',
+				description: 'Schreibt den Inhalt eines JSONs in den angegebenen Zellbereich'
 			}
 		},
 		'JSON.VALUE': {
@@ -399,6 +409,16 @@ module.exports = {
 				description: 'Liefert eine Liste von zum Filter passenden Nachrichten IDs zurück'
 			}
 		},
+		OUTBOXMETADATA: {
+			en: {
+				argumentList: 'Message,ValuesOrRange',
+				description: 'Creates a JSON key from the given values or range to retrieve metadata'
+			},
+			de: {
+				argumentList: 'Message,WerteOderBereich',
+				description: 'Erzeugt einen JSON Schlüssel mit den gegebenen Werten für Metadaten'
+			}
+		},
 		PRODUCE: {
 			en: {
 				argumentList: 'Producer,JSONConfiguration',
@@ -542,13 +562,34 @@ module.exports = {
 				description: 'Tauscht die Werte aus Bereich1 mit denen im Bereich2'
 			}
 		},
+		'TABLE.GET': {
+			en: {
+				argumentList: 'CellRange,RowIndex,ColumnIndex',
+				description: 'Gets the value from the table cell at specified index'
+			},
+			de: {
+				argumentList: 'Zellbereich,ZeilenIndex,SpaltenIndex',
+				description: 'Liefert den Wert der Tabellenzelle zum angegebenen Index'
+			}
+		},
+		'TABLE.ORDERCOLUMN': {
+			en: {
+				argumentList: 'ColumnRange,ReferenceRange',
+				description: 'Orders the columns in column range according to the corresponding columns in reference range'
+			},
+			de: {
+				argumentList: 'Spaltenbereich,Referenzbereich',
+				description: 'Ordnet die Spalten im Spaltenbereich gemäß den korrespondierenden Spalten im Referenzbereich'
+			}
+		},
 		'TABLE.UPDATE': {
 			en: {
-				argumentList: 'CellRange,Value,RowIndex,ColumnIndex,PushRow,PushColumn',
+				argumentList: 'CellRange,Value,RowIndex,ColumnIndex,PushRow,PushColumn,AggregationMethod',
 				description: 'Creates and updates a defined cell range in a table like manner'
 			},
 			de: {
-				argumentList: 'Zellbereich,Wert,ZeilenIndex,SpaltenIndex,ZeileAnhängen,SpalteAnhängen',
+				argumentList:
+					'Zellbereich,Wert,ZeilenIndex,SpaltenIndex,ZeileAnhängen,SpalteAnhängen,AggregationsMethode',
 				description: 'Erzeugt und aktualisiert einen Zellbereich in einer Tabellen-ähnlichen Weise'
 			}
 		},

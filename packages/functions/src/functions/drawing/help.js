@@ -202,7 +202,7 @@ module.exports = {
 		},
 		FILLPATTERN: {
 			en: { argumentList: 'DataURI', description: 'Creates a pattern fill definition' },
-			de: { argumentList: 'DataURI,Stil', description: 'Erzeugt eine Musterfülldefinition' }
+			de: { argumentList: 'DataURI', description: 'Erzeugt eine Musterfülldefinition' }
 		},
 		FILLRADIALGRADIENT: {
 			en: {
@@ -284,6 +284,17 @@ module.exports = {
 				argumentList: 'Funktion',
 				description:
 					'Führt die angegebene Funktion auf dem Server aus, wenn bei einem Graphikobjekt ein Statuswert geändert wird.'
+			}
+		},
+		'OPEN.URL': {
+			en: {
+				argumentList: 'URL,NewTab',
+				description: 'Allows to open the given URL as a result of a mouse event.'
+			},
+			de: {
+				argumentList: 'URL,NeuerTab',
+				description:
+					'Ermöglicht das Öffnen einer URL als Reaktion auf ein Mausereignis.'
 			}
 		},
 		QRCODE: {

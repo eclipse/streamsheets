@@ -1,3 +1,13 @@
+/********************************************************************************
+* Copyright (c) 2020 Cedalo AG
+*
+* This program and the accompanying materials are made available under the
+* terms of the Eclipse Public License 2.0 which is available at
+* http://www.eclipse.org/legal/epl-2.0.
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+********************************************************************************/
 const rfdcClone = require('rfdc')();
 // is stable in node 12! => so no need for external lib
 // const { deserialize, serialize } = require('v8');
@@ -9,6 +19,7 @@ const rfdcClone = require('rfdc')();
 
 
 const clone = (obj, throwOnError = false) => {
+	if (obj == null) return obj;
 	try {
 		// return v8Clone(obj);
 		// return jsonClone(obj);
@@ -19,37 +30,3 @@ const clone = (obj, throwOnError = false) => {
 	return undefined;
 };
 module.exports = clone;
-
-
-// const testobj = {
-// 	a: 'hello',
-// 	b: undefined,
-// 	c: {
-// 		c1: 'world',
-// 		c2: null,
-// 		c3: {
-// 			c31: '!!!'
-// 		}
-// 	},
-// 	d: ['hello', undefined, 'world', { a: { b: { c: 23 } } }]
-// };
-
-// const measure = (type, cloneIt, N = 1000) => {
-// 	let cp;
-// 	const t0 = Date.now();
-// 	console.log(`measure ${type} clone...`);
-// 	for (let i = 0; i < N; i += 1) {
-// 		cp =  cloneIt(testobj);
-// 	}
-// 	const t1 = Date.now();
-// 	const delta = t1 - t0;
-// 	console.log(`processing ${N} times took:`);
-// 	console.log(`${delta}ms total`);
-// 	console.log(`${delta / N}ms per step in avg`);
-// 	console.log('copy: ', cp);
-// };
-
-// // measure('v8', v8Clone, 100 * 1000);
-// // measure('json', jsonCLone, 1000 * 1000);
-// measure('rfdc', rfdcClone, 1000 * 1000);
-

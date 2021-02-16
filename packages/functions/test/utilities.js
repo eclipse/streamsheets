@@ -44,6 +44,8 @@ const createFuncTerm = (sheet, funcname, params) => {
 
 const createParamTerms = (...params) => params.map(param => Term.fromValue(param));
 
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 module.exports = {
 	createCellAt,
 	createCellTerm,
@@ -51,5 +53,6 @@ module.exports = {
 	createCellRangeTerm,
 	createFuncTerm,
 	createParamTerms,
-	createTerm
+	createTerm,
+	wait
 };

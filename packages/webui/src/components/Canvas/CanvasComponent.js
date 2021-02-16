@@ -26,11 +26,12 @@ import { graphManager } from '../../GraphManager';
 import ContextMenu from './ContextMenu';
 import TreeContextMenu from './TreeContextMenu';
 import GraphContextMenu from './GraphContextMenu';
+import EditPointsContextMenu from './EditPointsContextMenu';
 import SheetDeleteDialog from './SheetDeleteDialog';
 import MachineHelper from '../../helper/MachineHelper';
 import FunctionWizard from './FunctionWizard';
 import { intl } from '../../helper/IntlGlobalProvider';
-import StreamChartProperties from './StreamChartProperties';
+import GraphItemProperties from "./GraphItemProperties";
 // import NotAuthorizedComponent from '../Errors/NotAuthorizedComponent';
 
 export class CanvasComponent extends Component {
@@ -66,7 +67,6 @@ export class CanvasComponent extends Component {
 			graph: null,
 			loaded: false,
 			loading: 1,
-			chartWizardTitle: '',
 			dummy: ''
 		};
 	}
@@ -84,57 +84,19 @@ export class CanvasComponent extends Component {
 			JSG.ButtonNode.BUTTON_CLICKED_NOTIFICATION,
 			'onButtonClicked',
 		);
-		JSG.NotificationCenter.getInstance().register(
-			this,
-			JSG.GRAPH_DOUBLE_CLICK_NOTIFICATION,
-			'onGraphDoubleClicked',
-		);
-		JSG.NotificationCenter.getInstance().register(
-			this,
-			JSG.PLOT_DOUBLE_CLICK_NOTIFICATION,
-			'onPlotDoubleClicked',
-		);
 		/* eslint-disable react/no-did-mount-set-state */
 		this.setState({ graphEditor });
 		/* eslint-enable react/no-did-mount-set-state */
 	}
-
-	// componentWillReceiveProps(props)  {
-	// 	this.state.graphEditor.setZoom(props.config.canvasZoomLevel);
-	// }
 
 	componentWillUnmount() {
 		const { canvas } = this;
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.NotificationCenter.ZOOM_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.StreamSheetView.SHEET_DROP_FROM_OUTBOX);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.ButtonNode.BUTTON_CLICKED_NOTIFICATION);
-		JSG.NotificationCenter.getInstance().unregister(this, JSG.GRAPH_DOUBLE_CLICK_NOTIFICATION);
 		canvas._jsgEditor.destroy();
 		delete canvas._jsgEditor;
 		window.removeEventListener('resize', this.updateDimensions);
-	}
-
-	onGraphDoubleClicked() {
-		this.props.setAppState({ showChartProperties: true });
-	}
-
-	onPlotDoubleClicked(notification) {
-		if (notification.object && notification.object.event.type === JSG.MouseEvent.MouseEventType.DBLCLK) {
-			this.props.setAppState({showStreamChartProperties: true});
-		}
-
-		const viewer = graphManager.getGraphViewer();
-		const controller = viewer.getSelectionProvider().getFirstSelection();
-		if (!controller) {
-			return;
-		}
-
-		if (controller.getView().chartSelection) {
-			this.setState({chartWizardTitle: controller.getView().chartSelection.element});
-		} else {
-			this.setState({chartWizardTitle: "Chart"});
-		}
-		this.setState({dummy: String(Math.random())});
 	}
 
 	onButtonClicked(notification) {
@@ -218,7 +180,7 @@ export class CanvasComponent extends Component {
 		const graph = graphManager.getGraph();
 		let cnt = graph.getStreamSheetContainerCount();
 
-		if (cnt > 3) {
+		if (cnt > 9) {
 			JSG.NotificationCenter.getInstance().send(
 				new JSG.Notification(JSG.WorksheetView.SHEET_MESSAGE_NOTIFICATION, {
 					view: this,
@@ -266,6 +228,14 @@ export class CanvasComponent extends Component {
 		const sheets = [];
 		const graph = graphManager.getGraph();
 		if (graph) {
+			const machineContainer = graph.getMachineContainer();
+			if (machineContainer) {
+				const attr = machineContainer.getMachineContainerAttributes();
+				if (attr) {
+					attr.setHideToolbars(canEdit === false);
+				}
+			}
+
 			const container = graph.getStreamSheetsContainer();
 			if (container !== undefined) {
 				let max = false;
@@ -310,6 +280,7 @@ export class CanvasComponent extends Component {
 						<ContextMenu />
 						<TreeContextMenu />
 						<GraphContextMenu />
+						<EditPointsContextMenu />
 					</React.Fragment>
 				)}
 				<canvas
@@ -327,7 +298,7 @@ export class CanvasComponent extends Component {
 					tabIndex="0"
 					//	aria-disabled={this.isAccessDisabled()}
 				/>
-				{viewMode.viewMode !== null || !canEdit ? null : <StreamChartProperties title={this.state.chartWizardTitle} dummy={this.state.dummy} />}
+				{viewMode.viewMode !== null || !canEdit ? null : <GraphItemProperties dummy={this.state.dummy} />}
 				{viewMode.viewMode !== null || !canEdit ? null : (
 					<Slide direction="left" in={this.props.functionWizardVisible} mountOnEnter unmountOnExit>
 						<FunctionWizard />

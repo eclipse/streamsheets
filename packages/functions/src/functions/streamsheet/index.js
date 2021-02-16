@@ -13,9 +13,11 @@ const await_ = require('./await');
 const colors = require('./colors');
 const counters = require('./counters');
 const detectchange = require('./detectchange');
+const jsontorange = require('./jsonrange');
+const outboxdata = require('./outboxdata');
 const outboxgetids = require('./outboxgetids');
 const loop = require('./loop');
-const tableupdate = require('./tableupdate');
+const table = require('./table');
 const values = require('./values');
 const ARRAY = require('./array');
 const CALC = require('./calc');
@@ -34,7 +36,7 @@ const JSONVALUE = require('./jsonvalue');
 const KAFKACOMMAND = require('./kafkacommand');
 const KAFKAQUERY = require('./kafkaquery');
 const OUTBOX = require('./outbox');
-const OUTBOXDATA = require('./outboxdata');
+// const OUTBOXDATA = require('./outboxdata');
 const OUTBOXJSON = require('./outboxjson');
 const PRODUCE = require('./produce');
 const RANGE = require('./range');
@@ -59,6 +61,8 @@ module.exports = {
 		...counters,
 		...detectchange,
 		...loop,
+		...outboxdata,
+		...table,
 		...values,
 		requestinternal,
 		ARRAY,
@@ -75,12 +79,13 @@ module.exports = {
 		INBOXJSON,
 		INBOXMETADATA,
 		JSON,
+		'JSON.RANGE': jsontorange,
 		'JSON.VALUE': JSONVALUE,
 		// KAFKA HERE???
 		KAFKACOMMAND,
 		KAFKAQUERY,
 		OUTBOX,
-		OUTBOXDATA,
+		// OUTBOXDATA,
 		'OUTBOX.GETIDS': outboxgetids,
 		OUTBOXJSON,
 		PRODUCE,
@@ -96,7 +101,6 @@ module.exports = {
 		SETPHASE,
 		SLEEP,
 		SUBTREE,
-		'TABLE.UPDATE': tableupdate,
 		TRIGGERSTEP,
 		WRITE
 	}

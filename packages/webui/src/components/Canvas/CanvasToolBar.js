@@ -37,7 +37,7 @@ import FormatAlignLeft from '@material-ui/icons/FormatAlignLeft';
 import FormatAlignRight from '@material-ui/icons/FormatAlignRight';
 import BoldIcon from '@material-ui/icons/FormatBold';
 import ItalicIcon from '@material-ui/icons/FormatItalic';
-import MessageIcon from '@material-ui/icons/Message';
+import MessageIcon from '@material-ui/icons/VerticalSplit';
 import ToolEllipseIcon from '@material-ui/icons/PanoramaFishEye';
 import RedoIcon from '@material-ui/icons/Redo';
 import ToolStar from '@material-ui/icons/StarBorder';
@@ -47,7 +47,6 @@ import UndoIcon from '@material-ui/icons/Undo';
 import VerticalAlignBottom from '@material-ui/icons/VerticalAlignBottom';
 import VerticalAlignCenter from '@material-ui/icons/VerticalAlignCenter';
 import VerticalAlignTop from '@material-ui/icons/VerticalAlignTop';
-import EditNamesIcon from '@material-ui/icons/ViewList';
 import ZoomIcon from '@material-ui/icons/ZoomIn';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
@@ -108,7 +107,7 @@ const styles = {
 	select: {
 		'&:before': {
 			// normal
-			border: 'none'
+			border: 'none !important'
 		},
 		'&:after': {
 			// focused
@@ -198,8 +197,8 @@ export class CanvasToolBar extends Component {
 	}
 
 	onSheetSelectionChanged(notification) {
-		const { item } = notification.object;
-		const { updateFinal } = notification.object;
+		const {item} = notification.object;
+		const {updateFinal} = notification.object;
 
 		if (!item || !updateFinal) {
 			return;
@@ -209,7 +208,7 @@ export class CanvasToolBar extends Component {
 			return;
 		}
 
-		this.updateState({ graphSelected: false });
+		this.updateState({graphSelected: false});
 	}
 
 	onGraphSelectionChanged() {
@@ -222,7 +221,7 @@ export class CanvasToolBar extends Component {
 		const conts = selection.filter((controller) => controller.getModel() instanceof JSG.StreamSheetContainer);
 
 		if (conts.length === 0) {
-			this.updateState({ graphSelected: true });
+			this.updateState({graphSelected: true});
 		}
 	}
 
@@ -813,6 +812,31 @@ export class CanvasToolBar extends Component {
 		graphManager.getCanvas().focus();
 	};
 
+	isNumberFormatAvailable = () => {
+		if (this.props.cellSelected) {
+			return true;
+		}
+
+		if (this.state.graphSelected) {
+			const selection = graphManager.getGraphViewer().getSelection();
+			if (selection && selection.length) {
+				const cont = selection[0];
+				if (cont.getModel() instanceof SheetPlotNode) {
+					const sel = cont.getView().chartSelection;
+					if (!sel) {
+						return false;
+					}
+					return sel.element === 'serieslabel' ||
+						sel.element === 'xAxis' ||
+						sel.element === 'yAxis';
+				}
+			}
+			return false;
+		}
+
+		return false;
+	}
+
 	onFormatNumberFormat = (format) => {
 		const attributesMap = new Dictionary();
 
@@ -1037,7 +1061,7 @@ export class CanvasToolBar extends Component {
 		graphManager.getCanvas().focus();
 	};
 
-	onFormatFillColor = (color) => {
+	onFormatFillColor = (color, event) => {
 		const attributesMap = new Dictionary();
 		if (color.hex === 'transparent') {
 			attributesMap.put(FormatAttributes.FILLSTYLE, FormatAttributes.FillStyle.NONE);
@@ -1076,6 +1100,12 @@ export class CanvasToolBar extends Component {
 				.applyFormatMap(attributesMap);
 		}
 		this.updateState();
+
+		if (event.target && event.target.style.cursor === 'pointer') {
+			this.setState({
+				showFillColor: false
+			});
+		}
 		// graphManager.getCanvas().focus();
 	};
 
@@ -1123,8 +1153,34 @@ export class CanvasToolBar extends Component {
 
 		if (sheetView) {
 			const selection = sheetView.getOwnSelection();
-			const cs = JSG.graphics.getCoordinateSystem();
-			width = cs.logToDeviceYNoZoom(width);
+			switch (width) {
+				case -1:
+					width = 1;
+					break;
+				case 25:
+					width = 1.5;
+					break;
+				case 50:
+					width = 2;
+					break;
+				case 75:
+					width = 3;
+					break;
+				case 100:
+					width = 4;
+					break;
+				case 200:
+					width = 8;
+					break;
+				case 300:
+					width = 12;
+					break;
+				case 400:
+					width = 16;
+					break;
+				default:
+					break;
+			}
 			attributesMap.put(JSG.CellAttributes.LEFTBORDERWIDTH, width);
 			attributesMap.put(JSG.CellAttributes.TOPBORDERWIDTH, width);
 			attributesMap.put(JSG.CellAttributes.RIGHTBORDERWIDTH, width);
@@ -1185,6 +1241,14 @@ export class CanvasToolBar extends Component {
 						attributesMap.put(JSG.CellAttributes.TOPBORDERSTYLE, FormatAttributes.LineStyle.NONE);
 						attributesMap.put(JSG.CellAttributes.RIGHTBORDERSTYLE, FormatAttributes.LineStyle.NONE);
 						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERSTYLE, FormatAttributes.LineStyle.NONE);
+						attributesMap.put(JSG.CellAttributes.LEFTBORDERWIDTH, 1);
+						attributesMap.put(JSG.CellAttributes.TOPBORDERWIDTH, 1);
+						attributesMap.put(JSG.CellAttributes.RIGHTBORDERWIDTH, 1);
+						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERWIDTH, 1);
+						attributesMap.put(JSG.CellAttributes.LEFTBORDERCOLOR, JSG.theme.border);
+						attributesMap.put(JSG.CellAttributes.TOPBORDERCOLOR, JSG.theme.border);
+						attributesMap.put(JSG.CellAttributes.RIGHTBORDERCOLOR, JSG.theme.border);
+						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERCOLOR, JSG.theme.border);
 						cmd = new CompoundCommand();
 						cmd.add(new JSG.CellAttributesCommand(selection.getRanges(), attributesMap));
 						selection.getRanges().forEach((range) => {
@@ -1193,6 +1257,14 @@ export class CanvasToolBar extends Component {
 								attributesMap.put(
 									JSG.CellAttributes.BOTTOMBORDERSTYLE,
 									FormatAttributes.LineStyle.NONE
+								);
+								attributesMap.put(
+									JSG.CellAttributes.BOTTOMBORDERWIDTH,
+									1
+								);
+								attributesMap.put(
+									JSG.CellAttributes.BOTTOMBORDERCOLOR,
+									JSG.theme.border
 								);
 
 								rangeCopy = range.copy();
@@ -1203,6 +1275,14 @@ export class CanvasToolBar extends Component {
 							if (range._y2 < range.getSheet().getRowCount()) {
 								attributesMap.clear();
 								attributesMap.put(JSG.CellAttributes.TOPBORDERSTYLE, FormatAttributes.LineStyle.NONE);
+								attributesMap.put(
+									JSG.CellAttributes.TOPBORDERWIDTH,
+									1
+								);
+								attributesMap.put(
+									JSG.CellAttributes.TOPBORDERCOLOR,
+									JSG.theme.border
+								);
 
 								rangeCopy = range.copy();
 								rangeCopy._y1 = rangeCopy._y2 + 1;
@@ -1212,6 +1292,14 @@ export class CanvasToolBar extends Component {
 							if (range._x1) {
 								attributesMap.clear();
 								attributesMap.put(JSG.CellAttributes.RIGHTBORDERSTYLE, FormatAttributes.LineStyle.NONE);
+								attributesMap.put(
+									JSG.CellAttributes.RIGHTBORDERWIDTH,
+									1
+								);
+								attributesMap.put(
+									JSG.CellAttributes.RIGHTBORDERCOLOR,
+									JSG.theme.border
+								);
 
 								rangeCopy = range.copy();
 								rangeCopy._x1 -= 1;
@@ -1221,6 +1309,14 @@ export class CanvasToolBar extends Component {
 							if (range._x2 < range.getSheet().getColumnCount()) {
 								attributesMap.clear();
 								attributesMap.put(JSG.CellAttributes.LEFTBORDERSTYLE, FormatAttributes.LineStyle.NONE);
+								attributesMap.put(
+									JSG.CellAttributes.LEFTBORDERWIDTH,
+									1
+								);
+								attributesMap.put(
+									JSG.CellAttributes.LEFTBORDERCOLOR,
+									JSG.theme.border
+								);
 
 								rangeCopy = range.copy();
 								rangeCopy._x1 = rangeCopy._x2 + 1;
@@ -1255,6 +1351,15 @@ export class CanvasToolBar extends Component {
 						break;
 					case 'bottom':
 						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
+						selection = sheetView.getOwnSelection().copy();
+						selection.getRanges().forEach((range) => {
+							range._y1 = range._y2;
+						});
+						cmd = new JSG.CellAttributesCommand(selection.getRanges(), attributesMap);
+						break;
+					case 'bottomfat':
+						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
+						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERWIDTH, 3);
 						selection = sheetView.getOwnSelection().copy();
 						selection.getRanges().forEach((range) => {
 							range._y1 = range._y2;
@@ -1353,8 +1458,12 @@ export class CanvasToolBar extends Component {
 						break;
 					}
 					case 'outer':
+					case 'outerfat':
 						cmd = new CompoundCommand();
 						attributesMap.put(JSG.CellAttributes.LEFTBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
+						if (type === 'outerfat') {
+							attributesMap.put(JSG.CellAttributes.LEFTBORDERWIDTH, 3);
+						}
 						selection = sheetView.getOwnSelection().copy();
 						selection.getRanges().forEach((range) => {
 							range.setWidth(1);
@@ -1362,6 +1471,9 @@ export class CanvasToolBar extends Component {
 						cmd.add(new JSG.CellAttributesCommand(selection.getRanges(), attributesMap));
 						attributesMap.clear();
 						attributesMap.put(JSG.CellAttributes.TOPBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
+						if (type === 'outerfat') {
+							attributesMap.put(JSG.CellAttributes.TOPBORDERWIDTH, 3);
+						}
 						selection = sheetView.getOwnSelection().copy();
 						selection.getRanges().forEach((range) => {
 							range.setHeight(1);
@@ -1369,6 +1481,9 @@ export class CanvasToolBar extends Component {
 						cmd.add(new JSG.CellAttributesCommand(selection.getRanges(), attributesMap));
 						attributesMap.clear();
 						attributesMap.put(JSG.CellAttributes.RIGHTBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
+						if (type === 'outerfat') {
+							attributesMap.put(JSG.CellAttributes.RIGHTBORDERWIDTH, 3);
+						}
 						selection = sheetView.getOwnSelection().copy();
 						selection.getRanges().forEach((range) => {
 							range._x1 = range._x2;
@@ -1376,6 +1491,9 @@ export class CanvasToolBar extends Component {
 						cmd.add(new JSG.CellAttributesCommand(selection.getRanges(), attributesMap));
 						attributesMap.clear();
 						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
+						if (type === 'outerfat') {
+							attributesMap.put(JSG.CellAttributes.BOTTOMBORDERWIDTH, 3);
+						}
 						selection = sheetView.getOwnSelection().copy();
 						selection.getRanges().forEach((range) => {
 							range._y1 = range._y2;
@@ -1500,7 +1618,7 @@ export class CanvasToolBar extends Component {
 		}
 	};
 
-	onFormatFontColor = (color) => {
+	onFormatFontColor = (color, event) => {
 		const attributesMap = new Dictionary();
 		attributesMap.put(TextFormatAttributes.FONTCOLOR, color.hex);
 
@@ -1525,9 +1643,15 @@ export class CanvasToolBar extends Component {
 		}
 		this.updateState();
 		graphManager.getCanvas().focus();
+
+		if (event.target && event.target.style.cursor === 'pointer') {
+			this.setState({
+				showFontColor: false
+			});
+		}
 	};
 
-	onFormatBorderColor = (color) => {
+	onFormatBorderColor = (color, event) => {
 		const attributesMap = new Dictionary();
 
 		const sheetView = graphManager.getActiveSheetView();
@@ -1579,6 +1703,12 @@ export class CanvasToolBar extends Component {
 
 		this.updateState();
 		graphManager.getCanvas().focus();
+
+		if (event.target && event.target.style.cursor === 'pointer') {
+			this.setState({
+				showBorderColor: false
+			});
+		}
 	};
 
 	onCommandStackChanged = (notification) => {
@@ -1715,9 +1845,87 @@ export class CanvasToolBar extends Component {
 			return f && f.getLineColor() ? f.getLineColor().getValue() : '';
 		}
 
-		const canvas = graphManager.getCanvas();
-		if (canvas) {
-			canvas.focus();
+		return '';
+	}
+
+	getFormatBorderStyle() {
+		const sheetView = graphManager.getActiveSheetView();
+		if (sheetView) {
+			const attr = this.state.cellAttributes;
+			if (attr) {
+				let lStyle = attr.getLeftBorderStyle() ? attr.getLeftBorderStyle().getValue() : '';
+				const tStyle = attr.getTopBorderStyle() ? attr.getTopBorderStyle().getValue() : '';
+				const rStyle = attr.getRightBorderStyle() ? attr.getRightBorderStyle().getValue() : '';
+				const bStyle = attr.getBottomBorderStyle() ? attr.getBottomBorderStyle().getValue() : '';
+				if (lStyle !== rStyle || lStyle !== tStyle || lStyle !== bStyle) {
+					lStyle = '';
+				}
+				return lStyle;
+			}
+		} else if (
+			graphManager.getGraphEditor() &&
+			graphManager.getGraphEditor().getGraphViewer() &&
+			graphManager
+				.getGraphEditor()
+				.getSelectionProvider()
+				.hasSelection()
+		) {
+			const f = this.state.cellFormat;
+			return f && f.getLineStyle() ? f.getLineStyle().getValue() : '';
+		}
+
+		return '';
+	}
+
+	getFormatBorderWidth() {
+		const sheetView = graphManager.getActiveSheetView();
+		if (sheetView) {
+			const attr = this.state.cellAttributes;
+			if (attr) {
+				let lWidth = attr.getLeftBorderWidth() ? attr.getLeftBorderWidth().getValue() : '';
+				const tWidth = attr.getTopBorderWidth() ? attr.getTopBorderWidth().getValue() : '';
+				const rWidth = attr.getRightBorderWidth() ? attr.getRightBorderWidth().getValue() : '';
+				const bWidth = attr.getBottomBorderWidth() ? attr.getBottomBorderWidth().getValue() : '';
+				if (lWidth !== rWidth || lWidth !== tWidth || lWidth !== bWidth) {
+					return '';
+				}
+				lWidth = Math.max(1, lWidth);
+				if (lWidth !== 1.5) {
+					// compensate old approach
+					lWidth = Math.round(lWidth);
+				}
+				switch (lWidth) {
+					case 1:
+						return 1;
+					case 1.5:
+						return 25;
+					case 2:
+						return 50;
+					case 3:
+						return 75;
+					case 4:
+						return 100;
+					case 8:
+						return 200;
+					case 12:
+						return 300;
+					case 16:
+						return 400;
+					default:
+						break;
+				}
+
+			}
+		} else if (
+			graphManager.getGraphEditor() &&
+			graphManager.getGraphEditor().getGraphViewer() &&
+			graphManager
+				.getGraphEditor()
+				.getSelectionProvider()
+				.hasSelection()
+		) {
+			const f = this.state.cellFormat;
+			return f && f.getLineWidth() ? f.getLineWidth().getValue() : '';
 		}
 
 		return '';
@@ -1725,7 +1933,7 @@ export class CanvasToolBar extends Component {
 
 	isChartSelected() {
 		const selection = graphManager.getGraphViewer().getSelection();
-		return selection && selection.length && selection[0].getModel() instanceof SheetPlotNode;
+		return selection && selection.length > 0 && (selection[0].getModel() instanceof SheetPlotNode);
 	}
 
 	isChartElementSelected() {
@@ -1734,6 +1942,21 @@ export class CanvasToolBar extends Component {
 			const cont = selection[0];
 			if (cont.getModel() instanceof SheetPlotNode) {
 				return cont.getView().chartSelection !== undefined;
+			}
+		}
+		return false;
+	}
+
+	isChartElementWithoutFontSelected() {
+		const selection = graphManager.getGraphViewer().getSelection();
+		if (selection && selection.length) {
+			const cont = selection[0];
+			if (cont.getModel() instanceof SheetPlotNode) {
+				const sel = cont.getView().chartSelection;
+				if (!sel) {
+					return true;
+				}
+				return sel.element === 'point' || sel.element === 'series';
 			}
 		}
 		return false;
@@ -1809,94 +2032,100 @@ export class CanvasToolBar extends Component {
 		graphManager.getCanvas().focus();
 	};
 
-	getPresetColors() {
+	getPresetColors(color) {
 		const colors = [
-			'#000000',
-			'#434343',
-			'#666666',
-			'#999999',
-			'#b7b7b7',
-			'#cccccc',
-			'#d9d9d9',
-			'#efefef',
-			'#f3f3f3',
-			'#ffffff',
-			'#980000',
-			'#ff0000',
-			'#ff9900',
-			'#ffff00',
-			'#00ff00',
-			'#00ffff',
-			'#4a86e8',
-			'#0000ff',
-			'#9900ff',
-			'#ff00ff',
-			'#e6b8af',
-			'#f4cccc',
-			'#fce5cd',
-			'#fff2cc',
-			'#d9ead3',
-			'#d0e0e3',
-			'#c9daf8',
-			'#cfe2f3',
-			'#d9d2e9',
-			'#ead1dc',
-			'#dd7e6b',
-			'#ea9999',
-			'#f9cb9c',
-			'#ffe599',
-			'#b6d7a8',
-			'#a2c4c9',
-			'#a4c2f4',
-			'#9fc5e8',
-			'#b4a7d6',
-			'#d5a6bd',
-			'#cc4125',
-			'#e06666',
-			'#f6b26b',
-			'#ffd966',
-			'#93c47d',
-			'#76a5af',
-			'#6d9eeb',
-			'#6fa8dc',
-			'#8e7cc3',
-			'#c27ba0',
-			'#a61c00',
-			'#cc0000',
-			'#e69138',
-			'#f1c232',
-			'#6aa84f',
-			'#45818e',
-			'#3c78d8',
-			'#3d85c6',
-			'#674ea7',
-			'#a64d79',
-			'#85200c',
-			'#990000',
-			'#b45f06',
-			'#bf9000',
-			'#38761d',
-			'#134f5c',
-			'#1155cc',
-			'#0b5394',
-			'#351c75',
-			'#741b47',
-			'#5b0f00',
-			'#660000',
-			'#783f04',
-			'#7f6000',
-			'#274e13',
-			'#0c343d',
-			'#1c4587',
-			'#073763',
-			'#20124d',
-			'#4c1130'
+			{title: 'Black', color: '#000000'},
+			{title: 'Tundora', color: '#434343'},
+			{title: 'Dove Gray', color: '#666666'},
+			{title: 'Dusty Gray', color: '#999999'},
+			{title: 'Nobel', color: '#b7b7b7'},
+			{title: 'Silver', color: '#cccccc'},
+			{title: 'Alto', color: '#d9d9d9'},
+			{title: 'Gallery', color: '#efefef'},
+			{title: 'Concrete', color: '#f3f3f3'},
+			{title: 'White', color: '#ffffff'},
+			{title: 'Dark Red', color: '#980000'},
+			{title: 'Red', color: '#ff0000'},
+			{title: 'Orange', color: '#ff9900'},
+			{title: 'Yellow', color: '#ffff00'},
+			{title: 'Green', color: '#00ff00'},
+			{title: 'Light Blue', color: '#00ffff'},
+			{title: 'Cornflower Blue', color: '#4a86e8'},
+			{title: 'Blue', color: '#0000ff'},
+			{title: 'Electric Violet', color: '#9900ff'},
+			{title: 'Magenta ', color: '#ff00ff'},
+			{title: '#e6b8af', color: '#e6b8af'},
+			{title: '#f4cccc', color: '#f4cccc'},
+			{title: '#fce5cd', color: '#fce5cd'},
+			{title: '#fff2cc', color: '#fff2cc'},
+			{title: '#d9ead3', color: '#d9ead3'},
+			{title: '#d0e0e3', color: '#d0e0e3'},
+			{title: '#c9daf8', color: '#c9daf8'},
+			{title: '#cfe2f3', color: '#cfe2f3'},
+			{title: '#d9d2e9', color: '#d9d2e9'},
+			{title: '#ead1dc', color: '#ead1dc'},
+			{title: '#dd7e6b', color: '#dd7e6b'},
+			{title: '#ea9999', color: '#ea9999'},
+			{title: '#f9cb9c', color: '#f9cb9c'},
+			{title: '#ffe599', color: '#ffe599'},
+			{title: '#b6d7a8', color: '#b6d7a8'},
+			{title: '#a2c4c9', color: '#a2c4c9'},
+			{title: '#a4c2f4', color: '#a4c2f4'},
+			{title: '#9fc5e8', color: '#9fc5e8'},
+			{title: '#b4a7d6', color: '#b4a7d6'},
+			{title: '#d5a6bd', color: '#d5a6bd'},
+			{title: '#cc4125', color: '#cc4125'},
+			{title: '#e06666', color: '#e06666'},
+			{title: '#f6b26b', color: '#f6b26b'},
+			{title: '#ffd966', color: '#ffd966'},
+			{title: '#93c47d', color: '#93c47d'},
+			{title: '#76a5af', color: '#76a5af'},
+			{title: '#6d9eeb', color: '#6d9eeb'},
+			{title: '#6fa8dc', color: '#6fa8dc'},
+			{title: '#8e7cc3', color: '#8e7cc3'},
+			{title: '#c27ba0', color: '#c27ba0'},
+			{title: '#a61c00', color: '#a61c00'},
+			{title: '#cc0000', color: '#cc0000'},
+			{title: '#e69138', color: '#e69138'},
+			{title: '#f1c232', color: '#f1c232'},
+			{title: '#6aa84f', color: '#6aa84f'},
+			{title: '#45818e', color: '#45818e'},
+			{title: '#3c78d8', color: '#3c78d8'},
+			{title: '#3d85c6', color: '#3d85c6'},
+			{title: '#674ea7', color: '#674ea7'},
+			{title: '#a64d79', color: '#a64d79'},
+			{title: '#85200c', color: '#85200c'},
+			{title: '#990000', color: '#990000'},
+			{title: '#b45f06', color: '#b45f06'},
+			{title: '#bf9000', color: '#bf9000'},
+			{title: '#38761d', color: '#38761d'},
+			{title: '#134f5c', color: '#134f5c'},
+			{title: '#1155cc', color: '#1155cc'},
+			{title: '#0b5394', color: '#0b5394'},
+			{title: '#351c75', color: '#351c75'},
+			{title: '#741b47', color: '#741b47'},
+			{title: '#5b0f00', color: '#5b0f00'},
+			{title: '#660000', color: '#660000'},
+			{title: '#783f04', color: '#783f04'},
+			{title: '#7f6000', color: '#7f6000'},
+			{title: '#274e13', color: '#274e13'},
+			{title: '#0c343d', color: '#0c343d'},
+			{title: '#1c4587', color: '#1c4587'},
+			{title: '#073763', color: '#073763'},
+			{title: '#20124d', color: '#20124d'},
+			{title: '#4c1130', color: '#4c1130'}
 		];
 
 		colors.push({ title: 'None', color: 'transparent' });
 		if (this.isChartElementSelected()) {
 			colors.push({ title: 'Automatic', color: '#FFFFFE' });
 		}
+
+		colors.forEach(colorl => {
+			if (colorl.color === color.toLowerCase()) {
+				colorl.title += `${intl.formatMessage({ id: 'Current' }, {})}`;
+			}
+		});
 
 		return colors;
 	}
@@ -1913,7 +2142,10 @@ export class CanvasToolBar extends Component {
 		}
 		const tf = this.state.cellTextFormat;
 		const f = this.state.cellFormat;
+		const noChartFont = this.isChartElementWithoutFontSelected();
 		const gridTitleColor = this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor;
+		const selBorderStyle = this.getFormatBorderStyle();
+		const selBorderWidth = this.getFormatBorderWidth();
 		return (
 			<AppBar
 				elevation={0}
@@ -2060,7 +2292,7 @@ export class CanvasToolBar extends Component {
 					<div>
 						<IconButton
 							onClick={this.onShowNumberFormat}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={!this.isNumberFormatAvailable()}
 							style={{
 								height: '34px',
 								width: '70px',
@@ -2099,13 +2331,9 @@ export class CanvasToolBar extends Component {
 								<Divider key={format.id} />
 							) : (
 								<MenuItem
+									dense
 									key={format.id}
 									onClick={() => this.onFormatNumberFormat(format)}
-									style={{
-										fontSize: '10pt',
-										width: '250px',
-										padding: '8px 16px'
-									}}
 								>
 									<div>
 										<div
@@ -2152,21 +2380,42 @@ export class CanvasToolBar extends Component {
 					onChange={(event) => this.onFormatFontName(event)}
 					input={<Input name="font-name" id="font-name" />}
 					className={classes.select}
+					disabled={noChartFont}
 					inputProps={{
 						style: { paddingLeft: '5px', paddingTop: '6px' }
 					}}
 				>
 					{/*<option style={optionStyle} hidden value="" />*/}
-					<MenuItem dense value="Arial" key="s1">Arial</MenuItem>
-					<MenuItem dense value="Courier New" key="s2">Courier New</MenuItem>
-					<MenuItem dense value="Georgia" key="s3">Georgia</MenuItem>
-					<MenuItem dense value="Lucida Console" key="s4">Lucida Console</MenuItem>
-					<MenuItem dense value="Lucida Sans" key="s5">Lucida Sans</MenuItem>
-					<MenuItem dense value="Palatino" key="s6">Palatino</MenuItem>
-					<MenuItem dense value="Tahoma" key="s7">Tahoma</MenuItem>
-					<MenuItem dense value="Trebuchet MS" key="s8">Trebuchet MS</MenuItem>
-					<MenuItem dense value="Tahoma" key="s9">Tahoma</MenuItem>
-					<MenuItem dense value="Verdana" key="s10">Verdana</MenuItem>
+					<MenuItem dense value="Arial" key="s1">
+						Arial
+					</MenuItem>
+					<MenuItem dense value="Courier New" key="s2">
+						Courier New
+					</MenuItem>
+					<MenuItem dense value="Georgia" key="s3">
+						Georgia
+					</MenuItem>
+					<MenuItem dense value="Lucida Console" key="s4">
+						Lucida Console
+					</MenuItem>
+					<MenuItem dense value="Lucida Sans" key="s5">
+						Lucida Sans
+					</MenuItem>
+					<MenuItem dense value="Palatino" key="s6">
+						Palatino
+					</MenuItem>
+					<MenuItem dense value="Tahoma" key="s7">
+						Tahoma
+					</MenuItem>
+					<MenuItem dense value="Trebuchet MS" key="s8">
+						Trebuchet MS
+					</MenuItem>
+					<MenuItem dense value="Tahoma" key="s9">
+						Tahoma
+					</MenuItem>
+					<MenuItem dense value="Verdana" key="s10">
+						Verdana
+					</MenuItem>
 					{/* <option value="MetaPlusLF">MetaPlusLF</option> */}
 				</Select>
 				<Select
@@ -2180,21 +2429,44 @@ export class CanvasToolBar extends Component {
 					onChange={(event) => this.onFormatFontSize(event)}
 					input={<Input name="font-size" id="font-size" />}
 					className={classes.select}
+					disabled={noChartFont}
 					inputProps={{
 						style: { paddingLeft: '5px', paddingTop: '6px' }
 					}}
 				>
-					<MenuItem dense value="6" key="fs1">6</MenuItem>
-					<MenuItem dense value="7" key="fs2">7</MenuItem>
-					<MenuItem dense value="8" key="fs3">8</MenuItem>
-					<MenuItem dense value="9" key="fs4">9</MenuItem>
-					<MenuItem dense value="10" key="fs5">10</MenuItem>
-					<MenuItem dense value="11" key="fs6">11</MenuItem>
-					<MenuItem dense value="12" key="fs7">12</MenuItem>
-					<MenuItem dense value="14" key="fs8">14</MenuItem>
-					<MenuItem dense value="18" key="fs9">18</MenuItem>
-					<MenuItem dense value="24" key="fs10">24</MenuItem>
-					<MenuItem dense value="36" key="fs11">36</MenuItem>
+					<MenuItem dense value="6" key="fs1">
+						6
+					</MenuItem>
+					<MenuItem dense value="7" key="fs2">
+						7
+					</MenuItem>
+					<MenuItem dense value="8" key="fs3">
+						8
+					</MenuItem>
+					<MenuItem dense value="9" key="fs4">
+						9
+					</MenuItem>
+					<MenuItem dense value="10" key="fs5">
+						10
+					</MenuItem>
+					<MenuItem dense value="11" key="fs6">
+						11
+					</MenuItem>
+					<MenuItem dense value="12" key="fs7">
+						12
+					</MenuItem>
+					<MenuItem dense value="14" key="fs8">
+						14
+					</MenuItem>
+					<MenuItem dense value="18" key="fs9">
+						18
+					</MenuItem>
+					<MenuItem dense value="24" key="fs10">
+						24
+					</MenuItem>
+					<MenuItem dense value="36" key="fs11">
+						36
+					</MenuItem>
 				</Select>
 				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.FormatBold" defaultMessage="Bold" />}>
 					<div>
@@ -2214,7 +2486,7 @@ export class CanvasToolBar extends Component {
 										: 'transparent'
 							}}
 							onClick={this.onFormatBold}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={(!this.props.cellSelected && !this.state.graphSelected) || noChartFont}
 						>
 							<BoldIcon fontSize="inherit" />
 						</IconButton>
@@ -2240,7 +2512,7 @@ export class CanvasToolBar extends Component {
 										: 'transparent'
 							}}
 							onClick={this.onFormatItalic}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={(!this.props.cellSelected && !this.state.graphSelected) || noChartFont}
 						>
 							<ItalicIcon fontSize="inherit" />
 						</IconButton>
@@ -2254,7 +2526,7 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							style={buttonStyle}
 							onClick={this.onShowFontColor}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={(!this.props.cellSelected && !this.state.graphSelected) || noChartFont}
 						>
 							<SvgIcon fontSize="inherit">
 								<path
@@ -2282,9 +2554,9 @@ export class CanvasToolBar extends Component {
 						classes={{ 'sketch-picker': classes.default }}
 						width={250}
 						disableAlpha
-						presetColors={this.getPresetColors()}
+						presetColors={this.getPresetColors(tf && tf.getFontColor() ? tf.getFontColor().getValue() : '')}
 						color={tf && tf.getFontColor() ? tf.getFontColor().getValue() : ''}
-						onChange={this.onFormatFontColor}
+						onChange={(color, event) => this.onFormatFontColor(color, event)}
 					/>
 				</Popover>
 				<div
@@ -2304,7 +2576,7 @@ export class CanvasToolBar extends Component {
 								fontSize: '16pt'
 							}}
 							onClick={this.onShowHAlign}
-							disabled={!this.props.cellSelected && !this.state.graphSelected}
+							disabled={(!this.props.cellSelected && !this.state.graphSelected) || this.isChartSelected()}
 						>
 							{tf && tf.getHorizontalAlignment() && tf.getHorizontalAlignment().getValue() === 3 ? (
 								<FormatAlignJustify fontSize="inherit" />
@@ -2340,7 +2612,7 @@ export class CanvasToolBar extends Component {
 				>
 					<GridList
 						cols={4}
-						cellHeight={36}
+						cellHeight={30}
 						spacing={0}
 						style={{
 							width: '160px',
@@ -2432,7 +2704,7 @@ export class CanvasToolBar extends Component {
 				>
 					<GridList
 						cols={3}
-						cellHeight={36}
+						cellHeight={30}
 						spacing={2}
 						style={{
 							width: '120px',
@@ -2489,9 +2761,7 @@ export class CanvasToolBar extends Component {
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
 							<SvgIcon fontSize="inherit">
-								<path
-									d="M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15c-.59.59-.59 1.54 0 2.12l5.5 5.5c.29.29.68.44 1.06.44s.77-.15 1.06-.44l5.5-5.5c.59-.58.59-1.53 0-2.12zM5.21 10L10 5.21 14.79 10H5.21zM19 11.5s-2 2.17-2 3.5c0 1.1.9 2 2 2s2-.9 2-2c0-1.33-2-3.5-2-3.5z"
-								/>
+								<path d="M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15c-.59.59-.59 1.54 0 2.12l5.5 5.5c.29.29.68.44 1.06.44s.77-.15 1.06-.44l5.5-5.5c.59-.58.59-1.53 0-2.12zM5.21 10L10 5.21 14.79 10H5.21zM19 11.5s-2 2.17-2 3.5c0 1.1.9 2 2 2s2-.9 2-2c0-1.33-2-3.5-2-3.5z" />
 								<path
 									fill={f && f.getFillColor() ? f.getFillColor().getValue() : 'none'}
 									d="M0 20h24v4H0z"
@@ -2512,8 +2782,8 @@ export class CanvasToolBar extends Component {
 						disableAlpha={!this.isChartSelected()}
 						width={250}
 						color={this.fillColorToRGBAObject(f)}
-						presetColors={this.getPresetColors()}
-						onChange={this.onFormatFillColor}
+						presetColors={this.getPresetColors(f && f.getFillColor() ? f.getFillColor().getValue() : '')}
+						onChange={(color, event) => this.onFormatFillColor(color, event)}
 					/>
 				</Popover>
 				<Tooltip
@@ -2527,13 +2797,8 @@ export class CanvasToolBar extends Component {
 							disabled={!this.props.cellSelected && !this.state.graphSelected}
 						>
 							<SvgIcon fontSize="inherit">
-								<path
-									d="M17.75 7L14 3.25l-10 10V17h3.75l10-10zm2.96-2.96c.39-.39.39-1.02 0-1.41L18.37.29a.9959.9959 0 0 0-1.41 0L15 2.25 18.75 6l1.96-1.96z"
-								/>
-								<path
-									fill={this.getFormatBorderColor()}
-									d="M0 20h24v4H0z"
-								/>
+								<path d="M17.75 7L14 3.25l-10 10V17h3.75l10-10zm2.96-2.96c.39-.39.39-1.02 0-1.41L18.37.29a.9959.9959 0 0 0-1.41 0L15 2.25 18.75 6l1.96-1.96z" />
+								<path fill={this.getFormatBorderColor()} d="M0 20h24v4H0z" />
 							</SvgIcon>
 						</IconButton>
 					</div>
@@ -2550,8 +2815,8 @@ export class CanvasToolBar extends Component {
 						disableAlpha
 						width={250}
 						color={this.getFormatBorderColor()}
-						onChange={this.onFormatBorderColor}
-						presetColors={this.getPresetColors()}
+						onChange={(color, event) => this.onFormatBorderColor(color, event)}
+						presetColors={this.getPresetColors(this.getFormatBorderColor())}
 					/>
 				</Popover>
 				<Tooltip
@@ -2576,11 +2841,11 @@ export class CanvasToolBar extends Component {
 					}}
 				>
 					<GridList
-						cols={5}
-						cellHeight={36}
+						cols={6}
+						cellHeight={30}
 						spacing={2}
 						style={{
-							width: '200px',
+							width: '240px',
 							margin: '4px'
 						}}
 					>
@@ -2632,6 +2897,20 @@ export class CanvasToolBar extends Component {
 						<GridListTile cols={1}>
 							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('clear')}>
 								<BorderClearIcon fontSize="inherit" />
+							</IconButton>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('outerfat')}>
+								<SvgIcon>
+									<path d="M 9 11 L 7 11 L 7 13 L 9 13 M 13 15 L 11 15 L 11 17 L 13 17 M 19 19 L 5 19 L 5 5 L 19 5 M 1.77 22.23 L 22.246 22.322 L 22.276 1.462 L 1.662 1.432 M 17 11 L 15 11 L 15 13 L 17 13 M 13 11 L 11 11 L 11 13 L 13 13 M 13 7 L 11 7 L 11 9 L 13 9 L 13 7 Z" />
+								</SvgIcon>
+							</IconButton>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onFormatBorder('bottomfat')}>
+								<SvgIcon>
+									<path d="M 5 15 L 3 15 L 3 17 L 5 17 M 3.027 22.305 L 20.973 22.414 L 21 19 L 3.041 19 M 5 11 L 3 11 L 3 13 L 5 13 M 19 9 L 21 9 L 21 7 L 19 7 M 19 5 L 21 5 L 21 3 L 19 3 M 5 7 L 3 7 L 3 9 L 5 9 M 19 17 L 21 17 L 21 15 L 19 15 M 19 13 L 21 13 L 21 11 L 19 11 M 17 3 L 15 3 L 15 5 L 17 5 M 13 3 L 11 3 L 11 5 L 13 5 M 17 11 L 15 11 L 15 13 L 17 13 M 13 7 L 11 7 L 11 9 L 13 9 M 5 3 L 3 3 L 3 5 L 5 5 M 13 11 L 11 11 L 11 13 L 13 13 M 9 3 L 7 3 L 7 5 L 9 5 M 13 15 L 11 15 L 11 17 L 13 17 M 9 11 L 7 11 L 7 13 L 9 13 L 9 11 Z" />
+								</SvgIcon>
 							</IconButton>
 						</GridListTile>
 					</GridList>
@@ -2690,93 +2969,130 @@ export class CanvasToolBar extends Component {
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.None" defaultMessage="None" />}
+							<IconButton
+								style={borderStyle}
+								onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.NONE)}
 							>
-								<IconButton
-									style={borderStyle}
-									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.NONE)}
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
 								>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="50" y="14" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
-											{intl.formatMessage({ id: "None" }, {})}
-										</text>
-									</svg>
-								</IconButton>
-							</Tooltip>
+									{selBorderStyle === FormatAttributes.LineStyle.NONE ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
+									<text
+										x="50"
+										y="14"
+										fontWeight="normal"
+										fontSize="9pt"
+										dy="0.25em"
+										textAnchor="middle"
+									>
+										{intl.formatMessage({ id: 'None' }, {})}
+									</text>
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.Solid" defaultMessage="Solid" />}
+							<IconButton
+								style={borderStyle}
+								onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.SOLID)}
 							>
-								<IconButton
-									style={borderStyle}
-									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.SOLID)}
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									stroke="currentColor"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
 								>
-									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<path d="M5,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+									{selBorderStyle === FormatAttributes.LineStyle.SOLID ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
+									<path d="M5,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip enterDelay={300} title={<FormattedMessage id="Border.Dot" defaultMessage="Dot" />}>
-								<IconButton
-									style={borderStyle}
-									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DOT)}
+							<IconButton
+								style={borderStyle}
+								onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DOT)}
+							>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									stroke="currentColor"
+									strokeDasharray="1,2"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
 								>
-									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<path d="M5,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+									{selBorderStyle === FormatAttributes.LineStyle.DOT ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H98 V24 H-98 V-24" /> : null}
+									<path d="M5,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.Dash" defaultMessage="Dash" />}
+							<IconButton
+								style={borderStyle}
+								onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASH)}
 							>
-								<IconButton
-									style={borderStyle}
-									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASH)}
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									stroke="currentColor"
+									strokeDasharray="5,5"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
 								>
-									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<path d="M5,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+									{selBorderStyle === FormatAttributes.LineStyle.DASH ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H98 V24 H-98 V-24" /> : null}
+									<path d="M5,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.DashDot" defaultMessage="Dash Dot" />}
+							<IconButton
+								style={borderStyle}
+								onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOT)}
 							>
-								<IconButton
-									style={borderStyle}
-									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOT)}
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									stroke="currentColor"
+									strokeDasharray="5,5,1,5"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
 								>
-									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<path d="M5,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+									{selBorderStyle === FormatAttributes.LineStyle.DASHDOT ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H98 V24 H-98 V-24" /> : null}
+									<path d="M5,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.DashDotDot" defaultMessage="Dash Dot Dot" />}
+							<IconButton
+								style={borderStyle}
+								onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOTDOT)}
 							>
-								<IconButton
-									style={borderStyle}
-									onClick={() => this.onFormatBorderStyle(FormatAttributes.LineStyle.DASHDOTDOT)}
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									stroke="currentColor"
+									strokeDasharray="5,5,1,2,1,5"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
 								>
-									<svg width="100" height="28" viewBox="0 0 100 28" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<path d="M5,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+									{selBorderStyle === FormatAttributes.LineStyle.DASHDOTDOT ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H98 V24 H-98 V-24" /> : null}
+									<path d="M5,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile
 							cols={1}
@@ -2796,108 +3112,148 @@ export class CanvasToolBar extends Component {
 							</div>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.Hairline" defaultMessage="Hairline (1px)" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(-1)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1 px</text>
-										<path stroke="currentColor" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(-1)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									{selBorderWidth === -1 || selBorderWidth === 1 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										1 px
+									</text>
+									<path stroke="currentColor" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.MM025" defaultMessage="0.25 mm" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(25)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1/4 mm</text>
-										<path stroke="currentColor" strokeWidth="0.25mm" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(25)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									{selBorderWidth === 25 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										1/4 mm
+									</text>
+									<path stroke="currentColor" strokeWidth="0.25mm" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.MM05" defaultMessage="0.5 mm" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(50)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1/2 mm</text>
-										<path stroke="currentColor" strokeWidth="0.5mm" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(50)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									{selBorderWidth === 50 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										1/2 mm
+									</text>
+									<path stroke="currentColor" strokeWidth="0.5mm" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.MM075" defaultMessage="0.75 mm" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(75)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">3/4 mm</text>
-										<path stroke="currentColor" strokeWidth="0.75mm" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(75)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									{selBorderWidth === 75 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										3/4 mm
+									</text>
+									<path stroke="currentColor" strokeWidth="0.75mm" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.MM100" defaultMessage="1 mm" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(100)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">1 mm</text>
-										<path stroke="currentColor" strokeWidth="1mm" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(100)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									{selBorderWidth === 100 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										1 mm
+									</text>
+									<path stroke="currentColor" strokeWidth="1mm" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.MM200" defaultMessage="2 mm" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(200)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">2 mm</text>
-										<path stroke="currentColor" strokeWidth="2mm" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(200)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									{selBorderWidth === 200 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										2 mm
+									</text>
+									<path stroke="currentColor" strokeWidth="2mm" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.MM300" defaultMessage="3 mm" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(300)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">2 mm</text>
-										<path stroke="currentColor" strokeWidth="2mm" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(300)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									{selBorderWidth === 300 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										3 mm
+									</text>
+									<path stroke="currentColor" strokeWidth="3mm" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
-							<Tooltip
-								enterDelay={300}
-								title={<FormattedMessage id="Border.MM400" defaultMessage="4 mm" />}
-							>
-								<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(400)}>
-									<svg width="100" height="28" viewBox="0 0 100 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-										<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">4 mm</text>
-										<path stroke="currentColor" strokeWidth="4mm" d="M42,14 L95,14" />
-									</svg>
-								</IconButton>
-							</Tooltip>
+							<IconButton style={borderStyle} onClick={() => this.onFormatBorderWidth(400)}>
+								<svg
+									width="100"
+									height="28"
+									viewBox="0 0 100 28"
+									fill="currentColor"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									{selBorderWidth === 400 ?
+										<path stroke="none" fill={JSG.theme.selectionback} d="M1,1 H99 V24 H-99 V-24" /> : null}
+									<text x="35" y="14" fontWeight="normal" fontSize="8pt" dy="0.25em" textAnchor="end">
+										4 mm
+									</text>
+									<path stroke="currentColor" strokeWidth="4mm" d="M42,14 L95,14" />
+								</svg>
+							</IconButton>
 						</GridListTile>
 					</GridList>
 				</Popover>
@@ -2908,35 +3264,35 @@ export class CanvasToolBar extends Component {
 						margin: '0px 8px'
 					}}
 				/>
-				<Tooltip
-					enterDelay={300}
-					title={<FormattedMessage id="Tooltip.PasteFunction" defaultMessage="PasteFunction" />}
-				>
-					<div>
-						<IconButton
-							style={buttonStyle}
-							onClick={(e) => this.onPasteFunction(e)}
-							disabled={!this.props.cellSelected}
-						>
-							<SvgIcon>
-								<text
-									x="10"
-									y="12"
-									fontStyle="italic"
-									fontWeight="bold"
-									fontSize="12pt"
-									dy="0.25em"
-									textAnchor="end"
-								>
-									f
-								</text>
-								<text x="12" y="12" fontWeight="bold" fontSize="8pt" dy="0.25em" textAnchor="left">
-									(x)
-								</text>
-							</SvgIcon>
-						</IconButton>
-					</div>
-				</Tooltip>
+				{/*<Tooltip*/}
+				{/*	enterDelay={300}*/}
+				{/*	title={<FormattedMessage id="Tooltip.PasteFunction" defaultMessage="PasteFunction" />}*/}
+				{/*>*/}
+				{/*	<div>*/}
+				{/*		<IconButton*/}
+				{/*			style={buttonStyle}*/}
+				{/*			onClick={(e) => this.onPasteFunction(e)}*/}
+				{/*			disabled={!this.props.cellSelected}*/}
+				{/*		>*/}
+				{/*			<SvgIcon>*/}
+				{/*				<text*/}
+				{/*					x="10"*/}
+				{/*					y="12"*/}
+				{/*					fontStyle="italic"*/}
+				{/*					fontWeight="bold"*/}
+				{/*					fontSize="12pt"*/}
+				{/*					dy="0.25em"*/}
+				{/*					textAnchor="end"*/}
+				{/*				>*/}
+				{/*					f*/}
+				{/*				</text>*/}
+				{/*				<text x="12" y="12" fontWeight="bold" fontSize="8pt" dy="0.25em" textAnchor="left">*/}
+				{/*					(x)*/}
+				{/*				</text>*/}
+				{/*			</SvgIcon>*/}
+				{/*		</IconButton>*/}
+				{/*	</div>*/}
+				{/*</Tooltip>*/}
 				<Tooltip
 					enterDelay={300}
 					title={
@@ -2964,7 +3320,12 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton style={buttonStyle} onClick={(e) => this.onEditNames(e)}>
-							<EditNamesIcon fontSize="inherit" />
+							<SvgIcon>
+								<path
+									// eslint-disable-next-line max-len
+									d="M21.4 11.6L12.4 2.6C12 2.2 11.5 2 11 2H4C2.9 2 2 2.9 2 4V11C2 11.5 2.2 12 2.6 12.4L11.6 21.4C12 21.8 12.5 22 13 22C13.5 22 14 21.8 14.4 21.4L21.4 14.4C21.8 14 22 13.5 22 13C22 12.5 21.8 12 21.4 11.6M13 20L4 11V4H11L20 13M6.5 5C7.3 5 8 5.7 8 6.5S7.3 8 6.5 8 5 7.3 5 6.5 5.7 5 6.5 5M10.1 8.9L11.5 7.5L17 13L15.6 14.4L10.1 8.9M7.6 11.4L9 10L13 14L11.6 15.4L7.6 11.4Z"
+								/>
+							</SvgIcon>
 						</IconButton>
 					</div>
 				</Tooltip>
@@ -2981,11 +3342,12 @@ export class CanvasToolBar extends Component {
 				>
 					<div>
 						<IconButton style={buttonStyle} onClick={this.onShowTools}>
-							<SvgIcon>
-								<path
-									// eslint-disable-next-line max-len
-									d="M19,19H5V5H19M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5L13.96,12.29Z"
-								/>
+							<SvgIcon
+								stroke="currentColor"
+								strokeWidth="2px"
+							>
+								<rect fillOpacity="0.7" fill="currentColor" x="2" y="3" width="12" height="12" />
+								<circle fill="white" cx="14" cy="15" r={7} />
 							</SvgIcon>
 						</IconButton>
 					</div>
@@ -4152,7 +4514,7 @@ export class CanvasToolBar extends Component {
 						margin: '0px 8px'
 					}}
 				/>
-				<WidthHelper width={1200}>
+				<WidthHelper width={1250}>
 					<div
 						style={{
 							right: '10px',

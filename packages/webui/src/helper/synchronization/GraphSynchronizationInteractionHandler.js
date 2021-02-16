@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -49,7 +49,9 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 	execute(command, completionFunction, updateGraphItems = true) {
 		this.handleCustomFields(command);
 		super.execute(command, completionFunction);
+
 		const commandJSON = command.toObject('execute');
+
 		if (!this.isSelectionInOutbox(command._graphItem)) {
 			const streamsheetId = this.getStreamSheetId(command);
 			if (streamsheetId) {
@@ -59,33 +61,37 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		Actions.sendCommand(this.graphWrapper.id, commandJSON, this.graphWrapper.machineId)
 			.then((response) => {
 				if (command.handleResponse) command.handleResponse(response);
+				if (commandJSON.name !== 'command.RemoveSelectionCommand' &&
+					commandJSON.name !== 'command.SetSelectionCommand' &&
+					commandJSON.name !== 'command.PasteCellsFromClipboardCommand' &&
+					commandJSON.name !== 'command.ChangeItemOrderCommand' &&
+					updateGraphItems) {
+					this.updateGraphItems(false);
+				}
 			})
 			.catch((err) => {
 				if (command.handleResponse) command.handleResponse(undefined, err);
 			});
 
-		if (commandJSON.name !== 'command.RemoveSelectionCommand' &&
-			commandJSON.name !== 'command.SetSelectionCommand' &&
-			commandJSON.name !== 'command.ChangeItemOrderCommand' &&
-			updateGraphItems) {
-			this.updateGraphItems();
-		}
 	}
 
-	updateGraphItems() {
+	updateGraphItems(undo) {
 		const cmp = new CompoundCommand();
 		const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
 
 		cmp.isVolatile = true;
 
 		this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
-			const formulas = container.getStreamSheet().updateOrCreateGraphFormulas();
+			const formulas = container.getStreamSheet().updateOrCreateGraphFormulas(undo);
 			Object.values(formulas).forEach((value) => {
 				if (value.formula) {
 					const cmd = new SetAttributeAtPathCommand(value.item, path, new Expression(0, value.formula), true);
 					cmd.isVolatile = true;
 					cmp.add(cmd);
 				}
+			});
+			container.getStreamSheet()._addImageCmds.forEach(cmd => {
+				cmp.add(cmd);
 			});
 		});
 
@@ -259,10 +265,11 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 					commandJSON.streamsheetId = streamsheetId;
 				}
 				Actions.sendCommand(this.graphWrapper.id, commandJSON, this.graphWrapper.machineId, true, false);
+				if (commandJSON.name !== 'command.PasteCellsFromClipboardCommand') {
+					this.updateGraphItems(true);
+				}
 			}
 		}
-
-		this.updateGraphItems();
 
 		return command;
 	}
@@ -306,10 +313,12 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 					commandJSON.streamsheetId = streamsheetId;
 				}
 				Actions.sendCommand(this.graphWrapper.id, commandJSON, this.graphWrapper.machineId, false, true);
+				if (commandJSON.name !== 'command.PasteCellsFromClipboardCommand') {
+					this.updateGraphItems(false);
+				}
 			}
 		}
 
-		this.updateGraphItems();
 
 		return command;
 	}

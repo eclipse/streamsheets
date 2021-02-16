@@ -22,6 +22,11 @@ import GraphViewPanel from '../GraphViewPanel';
 import MouseEvent from '../events/MouseEvent';
 import Cursor from '../Cursor';
 
+const isZoomDisabled = (graph) => {
+	const viewParams = graph.getViewParams ? graph.getViewParams() : undefined;
+	return viewParams && viewParams.zoomdisabled;
+};
+
 // =====================================================================================================================
 // INTERNAL!! USED TO HANDLE SCROLL RELATED EVENTS FOR SCROLLABLEVIEWER!!
 class Handler {
@@ -395,6 +400,11 @@ class ScrollableViewer extends GraphViewer {
 	setZoom(factor) {
 		const graph = this.getGraph();
 		const cs = this.getCoordinateSystem();
+
+		if (isZoomDisabled(graph)) {
+			return;
+		}
+
 
 		const translateToScrollPosition = (rect) => ({
 			left: rect.x - 1000,

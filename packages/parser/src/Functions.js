@@ -8,25 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { serialnumber } = require('@cedalo/commons');
 const { ERROR, OK } = require('./ReturnCodes');
 
-const ExcelDateToJSDate = (serial) => {
-	const utcDays = Math.floor(serial - 25569);
-	const utcValue = utcDays * 86400;
-	const dateInfo = new Date(utcValue * 1000);
-	const fractionalDay = (serial - Math.floor(serial)) + 0.0000001;
-	let totalSeconds = Math.floor(86400 * fractionalDay);
-	const seconds = totalSeconds % 60;
-
-
-	totalSeconds -= seconds;
-
-	const hours = Math.floor(totalSeconds / (60 * 60));
-	const minutes = Math.floor(totalSeconds / 60) % 60;
-	const ms = ((86400 * fractionalDay) - (hours * 3600) - (minutes * 60) - seconds) * 1000;
-
-	return new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate(), hours, minutes, seconds, ms);
-};
 
 const valueOr = (value, defVal) => value == null ? defVal : value;
 
@@ -127,6 +111,9 @@ module.exports.Functions = {
 		return '';
 	},
 	AXIS: () => {
+		return OK.TRUE;
+	},
+	VALUERANGE: () => {
 		return OK.TRUE;
 	},
 	CLASSIFYPOINT: (scope, ...terms) => {
@@ -236,86 +223,31 @@ module.exports.Functions = {
 	 * @return {Number} Number of days elapsed. Fractional part represents partial day.
 	 */
 	NOW: () => {
-		const date = Date.now();
-
-		const days = Math.floor(date / 86400000) + 25567 + 2;
-		let ms = ((date - ((new Date()).getTimezoneOffset() * 60000)) % 86400000);
-
-		ms /= 86400000;
-
-		return days + ms;
+		return serialnumber.now();
 	},
 	YEAR: (scope, ...terms) => {
-		if (terms.length !== 1) {
-			return ERROR.ARGS;
-		}
-		const time = terms[0].value;
-		const date = ExcelDateToJSDate(time);
-
-		return date.getFullYear();
+		return terms.length === 1 ? serialnumber.year(terms[0].value) : ERROR.ARGS;
 	},
 	MONTH: (scope, ...terms) => {
-		if (terms.length !== 1) {
-			return ERROR.ARGS;
-		}
-		const time = terms[0].value;
-		const date = ExcelDateToJSDate(time);
-
-		return date.getMonth() + 1;
+		return terms.length === 1 ? serialnumber.month(terms[0].value) : ERROR.ARGS;
 	},
 	DAY: (scope, ...terms) => {
-		if (terms.length !== 1) {
-			return ERROR.ARGS;
-		}
-		const time = terms[0].value;
-		const date = ExcelDateToJSDate(time);
-
-		return date.getDate();
+		return terms.length === 1 ? serialnumber.day(terms[0].value) : ERROR.ARGS;
 	},
 	WEEKDAY: (scope, ...terms) => {
-		if (terms.length !== 1) {
-			return ERROR.ARGS;
-		}
-		const time = terms[0].value;
-		const date = ExcelDateToJSDate(time);
-
-		return date.getDay() + 1;
+		return terms.length === 1 ? serialnumber.weekday(terms[0].value) : ERROR.ARGS;
 	},
 	HOUR: (scope, ...terms) => {
-		if (terms.length !== 1) {
-			return ERROR.ARGS;
-		}
-		const time = terms[0].value;
-		const date = ExcelDateToJSDate(time);
-
-		return date.getHours();
+		return terms.length === 1 ? serialnumber.hours(terms[0].value) : ERROR.ARGS;
 	},
 	MINUTE: (scope, ...terms) => {
-		if (terms.length !== 1) {
-			return ERROR.ARGS;
-		}
-		const time = terms[0].value;
-		const date = ExcelDateToJSDate(time);
-
-		return date.getMinutes();
+		return terms.length === 1 ? serialnumber.minutes(terms[0].value) : ERROR.ARGS;
 	},
 	SECOND: (scope, ...terms) => {
-		if (terms.length !== 1) {
-			return ERROR.ARGS;
-		}
-		const time = terms[0].value;
-		const date = ExcelDateToJSDate(time);
-
-		return date.getSeconds();
+		return terms.length === 1 ? serialnumber.seconds(terms[0].value) : ERROR.ARGS;
 	},
 	MILLISECOND: (scope, ...terms) => {
-		if (terms.length !== 1) {
-			return ERROR.ARGS;
-		}
-		const time = terms[0].value;
-		const date = ExcelDateToJSDate(time);
-
-		return date.getMilliseconds();
+		return terms.length === 1 ? serialnumber.milliseconds(terms[0].value) : ERROR.ARGS;
 	},
 	AND: (scope, ...terms) => !terms.some((term) => {
 		const { value } = term;
@@ -444,17 +376,20 @@ module.exports.Functions = {
 	ACOS: (scope, ...terms) => (terms.length ? Math.acos(terms[0].value) : ERROR.ARGS),
 	ASIN: (scope, ...terms) => (terms.length ? Math.asin(terms[0].value) : ERROR.ARGS),
 	ONCLICK: (/* scope, ...terms */) => OK.TRUE,
+	LOCALNOW: (/* scope, ...terms */) => '#[LocalDate]',
 	ONDOUBLECLICK: (/* scope, ...terms */) => OK.TRUE,
 	ONMOUSEDOWN: (/* scope, ...terms */) => OK.TRUE,
 	ONMOUSEUP: (/* scope, ...terms */) => OK.TRUE,
 	ONVALUECHANGE: (/* scope, ...terms */) => OK.TRUE,
+	SHOWDIALOG: (/* scope, ...terms */) => OK.TRUE,
+	SHOWVALUES: (/* scope, ...terms */) => OK.TRUE,
+	'OPEN.URL': (/* scope, ...terms */) => OK.TRUE,
 
 	IF: (scope, ...terms) => {
 		if (terms.length > 1) {
 			const condition = !!valueOr(terms[0].value, false);
-			const onTrue = valueOr(terms[1].value, true);
-			const onFalse = terms[2] ? valueOr(terms[2].value, null) : null;
-			return condition ? onTrue : onFalse;
+			// eslint-disable-next-line no-nested-ternary
+			return condition ? valueOr(terms[1].value, true) : terms[2] ? valueOr(terms[2].value, null) : null;
 		}
 		return ERROR.ARGS;
 	}

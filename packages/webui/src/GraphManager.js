@@ -19,7 +19,7 @@ import GraphSynchronizationInteractionHandler from './helper/synchronization/Gra
 import store from './store';
 import StreamHelper from './helper/StreamHelper';
 import { intl } from './helper/IntlGlobalProvider';
-import { Path } from './helper/Path';
+// import { Path } from './helper/Path';
 
 
 const {
@@ -74,6 +74,7 @@ const {
 export default class GraphManager {
 	constructor(path) {
 		JSG.init(path);
+		JSG.createThreshhold = 150;
 		JSG.setDrawingDisabled(true);
 		JSG.imagePool.add('resources/maximize.png', 'maximize');
 		JSG.imagePool.add('resources/minimize.png', 'minimize');
@@ -89,6 +90,17 @@ export default class GraphManager {
 		JSG.imagePool.add('resources/statuswarning.png', 'statuswarning');
 		JSG.SelectionStyle.MARKER_FILL_COLOR = '#90B5EE';
 		JSG.SelectionStyle.FILL = true;
+
+		const xhr = JSG._createRequest(`maps/mapinfo.json`, {
+			onload(response) {
+				JSG.mapInfo = JSON.parse(response);
+			},
+			onerror() {
+				JSG.debug.logError(`Failed to load map infos`);
+			}
+		});
+		xhr.send();
+
 		this.graphWrapper = {
 			graphdef: null,
 			id: null,
@@ -98,6 +110,7 @@ export default class GraphManager {
 		this._machine = null;
 		// register for command stack changes to update controls and layout app...
 		NotificationCenter.getInstance().register(this, CommandStack.STACK_CHANGED_NOTIFICATION, 'onCommandStackChanged');
+		NotificationCenter.getInstance().register(this, JSG.GRAPH_INVALID_NOTIFICATION, 'redraw');
 	}
 
 	set streamsStatusMap(streamsStatusMap) {
@@ -120,9 +133,7 @@ export default class GraphManager {
 	getStreamStatus(stream) {
 		if(stream && stream.id
 		) {
-			const state = StreamHelper.getResourceState(stream,
-				this._streamsStatusMap);
-			return StreamHelper.getStatusFor(state);
+			return StreamHelper.getStreamState(stream);
 		}
 		return undefined;
 	}
@@ -385,14 +396,14 @@ export default class GraphManager {
 			command.add(updateCellsCommand);
 		}
 		command.execute();
-		// this is because baseExecute set drawing disabled to false
-		if (stats.steps === 0) {
-			this.getInbox(streamsheetId).resetViewports();
-			this.getOutbox(streamsheetId).resetViewports();
-			const itemsNode = this.getOutbox().getMessageListItems();
-			this.execute(new RemoveSelectionCommand(itemsNode, 'global'));
+		// if (stats.steps === 0) {
+		// 	this.getInbox(streamsheetId).resetViewports();
+		// 	this.getOutbox(streamsheetId).resetViewports();
+		// 	const itemsNode = this.getOutbox().getMessageListItems();
+		// 	this.execute(new RemoveSelectionCommand(itemsNode, 'global'));
+		// }
 
-		}
+		// this is because baseExecute set drawing disabled to false
 		this.setDrawingDisabled(true);
 		this.updateOutbox(outbox);
 		this.clearInbox(streamsheetId);
@@ -402,6 +413,15 @@ export default class GraphManager {
 		}
 
 		this.updateStats(streamsheetId, stats);
+		this.updateDataView();
+	}
+
+	updateDataView() {
+		const graph = this.getGraph();
+		if (graph && graph.dataView) {
+			const data = graph.dataView;
+			data.view.showCellValues(data.viewer, data.cell, data.targetRange);
+		}
 	}
 
 	handleCommandResponse(response) {
@@ -680,7 +700,7 @@ export default class GraphManager {
 		let value = metadata.id;
 		if (metadata.arrivalTime) {
 			const date = MathUtils.excelDateToJSDate(metadata.arrivalTime);
-			value = `${date.toLocaleTimeString()} ${date.getMilliseconds()}`;
+			value = `${date.toLocaleTimeString()}.${date.getMilliseconds().toString().padStart(3,'0')}`;
 		} else {
 			value = metadata.id;
 		}
@@ -766,6 +786,7 @@ export default class GraphManager {
 							markAsDisabled,
 						);
 						treeItemCommand.isVolatile = true;
+						treeItemCommand._keepFeedback = true;
 						this.execute(treeItemCommand);
 					}
 				}
@@ -920,11 +941,10 @@ export default class GraphManager {
 	updateStream(streamsheetId, stream) {
 		const processSheetContainer = this.getStreamSheetContainer(streamsheetId);
 		if (processSheetContainer) {
-			const status = this.getStreamStatus(stream);
 			const display = `${stream.name || 'None'}`;
 			processSheetContainer.setStream(display);
-			processSheetContainer.setStatus(display === 'None' ? '' : status);
-			processSheetContainer.getInboxCaption().setIconLink(`${window.location.origin}${Path.stream(stream.id)}`);
+			processSheetContainer.setStatus(display === 'None' ? '' : this._streamsStatusMap[stream.id]);
+			// processSheetContainer.getInboxCaption().setIconLink(`${window.location.origin}${Path.stream(stream.id)}`);
 		}
 	}
 
@@ -983,8 +1003,19 @@ export default class GraphManager {
 		const machineState = runMode
 			? MachineContainerAttributes.MachineState.RUN
 			: MachineContainerAttributes.MachineState.EDIT;
-		this.getGraph().getMachineContainer().setMachineState(machineState);
-		if (!runMode) {
+
+		if (runMode) {
+			this.getGraph().getMachineContainer().setMachineState(machineState);
+			const { machine } = this.graphWrapper;
+			if (machine) {
+				machine.streamsheets.forEach((streamsheet) => {
+					this.getInbox(streamsheet.id).resetViewports();
+				});
+			}
+			this.getOutbox().resetViewports();
+			const itemsNode = this.getOutbox().getMessageListItems();
+			this.execute(new RemoveSelectionCommand(itemsNode, 'global'));
+		} else {
 			this.redraw();
 		}
 	}

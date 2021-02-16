@@ -9,16 +9,17 @@
  *
  ********************************************************************************/
 const EventEmitter = require('events');
+const { convert } = require('@cedalo/commons');
+const IdGenerator = require('@cedalo/id-generator');
+const logger = require('../logger').create({ name: 'Machine' });
 const State = require('../State');
 const NamedCells = require('./NamedCells');
 const Outbox = require('./Outbox');
 const StreamSheet = require('./StreamSheet');
 const locale = require('../locale');
-const logger = require('../logger').create({ name: 'Machine' });
 const Streams = require('../streams/Streams');
 const FunctionRegistry = require('../FunctionRegistry');
-const { convert } = require('@cedalo/commons');
-const IdGenerator = require('@cedalo/id-generator');
+const TaskQueue = require('./TaskQueue');
 
 // REVIEW: move to streamsheet!
 const defaultStreamSheetName = (streamsheet) => {
@@ -32,10 +33,7 @@ const defaultStreamSheetName = (streamsheet) => {
 
 const defaultMachineName = () => `Machine${new Date().getUTCMilliseconds()}`;
 
-const applyHotReplace = (replace, streamsheets) => {
-	streamsheets = replace.remove ? streamsheets.filter((tr) => !replace.remove.includes(tr)) : streamsheets;
-	return replace.add ? streamsheets.concat(replace.add) : streamsheets;
-};
+const FILE_VERSION = '2.0.0';
 
 const DEF_CONF = {
 	name: '',
@@ -59,6 +57,10 @@ const DEF_CONF = {
  * @public
  */
 class Machine {
+	static get DEF_CYCLETIME() {
+		return DEF_CONF.settings.cycletime;
+	}
+
 	constructor() {
 		this._id = IdGenerator.generate();
 		this.namedCells = new NamedCells();
@@ -67,8 +69,7 @@ class Machine {
 		this._state = DEF_CONF.state;
 		// a Map keeps its insertion order
 		this._streamsheets = new Map();
-		this._activeStreamSheets = null;
-		this._preventStop = false;
+		this._pendingStreamSheets = new Map();
 		// tmp. until event/message handling is improved
 		this._isManualStep = false;
 		this.metadata = { ...DEF_CONF.metadata };
@@ -76,7 +77,7 @@ class Machine {
 		// read only properties...
 		Object.defineProperties(this, {
 			stats: { value: { steps: 0 } },
-			outbox: { value: new Outbox(), enumerable: true },
+			outbox: { value: Outbox.create(), enumerable: true },
 			_emitter: { value: new EventEmitter() },
 			cyclemonitor: {
 				value: {
@@ -90,7 +91,8 @@ class Machine {
 		});
 		this.metadata.lastModified = Date.now();
 		this.cycle = this.cycle.bind(this);
-		this.notifyStreamSheetStep = this.notifyStreamSheetStep.bind(this);
+		this._lastEmitStep = 0;
+		this._emitStep = this._emitStep.bind(this);
 	}
 
 	get className() {
@@ -113,15 +115,15 @@ class Machine {
 		};
 	}
 
-	load(definition = {}, functionDefinitions = [], currentStreams = []) {
+	async load(definition = {}, functionDefinitions = [], currentStreams = []) {
 		FunctionRegistry.registerFunctionDefinitions(functionDefinitions);
 		const def = Object.assign({}, DEF_CONF, definition);
 		const streamsheets = def.streamsheets || [{}];
 		this._id = def.isTemplate ? this._id : def.id || this._id;
 		this._name = def.isTemplate ? defaultMachineName() : def.name;
 		this._scope = def.scope;
-		this.metadata = { ...this.metadata, ...definition.metadata};
-		this._settings = { ...this.settings, ...definition.settings};
+		this.metadata = { ...this.metadata, ...definition.metadata };
+		this._settings = { ...this.settings, ...definition.settings };
 		// first time load named cells so that reference to named cells are resolved on streamsheets load
 		this.namedCells.load(this, def.namedCells);
 		// at least one streamsheet (required by graph-service!!):
@@ -145,10 +147,14 @@ class Machine {
 			this.notifyUpdate('namedCells');
 		}, 60000);
 
-
 		// update value of cells to which are not currently valid without changing valid values
 		// => e.g. if a cell references another cell which was loaded later...
 		this._streamsheets.forEach((streamsheet) => streamsheet.sheet.iterate((cell) => cell.update()));
+
+		await this.outbox.load(undefined, this);
+
+		// apply new fileVersion ofter load to allow adjustment on loading
+		if (!this.metadata.fileVersion) this.metadata.fileVersion = FILE_VERSION;
 
 		// apply loaded state:
 		if (def.state === State.RUNNING) {
@@ -246,29 +252,16 @@ class Machine {
 		return this._isManualStep;
 	}
 
+	get isRunning() {
+		return this._state === State.RUNNING;
+	}
+
 	get state() {
 		return this._state;
 	}
 
 	get streamsheets() {
 		return Array.from(this._streamsheets.values());
-	}
-
-	get activeStreamSheets() {
-		return this._activeStreamSheets || this.streamsheets;
-	}
-
-	set activeStreamSheets(streamsheets) {
-		this._activeStreamSheets = streamsheets;
-	}
-
-	// internal property:
-	get doStop() {
-		return !this._preventStop && this._state === State.WILL_STOP;
-	}
-
-	set preventStop(doIt) {
-		this._preventStop = doIt || this._preventStop;
 	}
 
 	// name, cycletime, locale...
@@ -285,28 +278,21 @@ class Machine {
 		} else {
 			streamsheet.machine = this;
 			streamsheet.name = streamsheet.name || defaultStreamSheetName(streamsheet);
+			streamsheet.on('finishedStep', this._emitStep);
 			this._streamsheets.set(streamsheet.id, streamsheet);
-			streamsheet.on('step', this.notifyStreamSheetStep);
 			this._emitter.emit('update', 'streamsheet_added', streamsheet);
 			// reflect state to streamsheet
 			if (this.state === State.PAUSED) {
 				streamsheet.pause();
 			} else if (this.state === State.RUNNING) {
 				streamsheet.start();
-				// add to cycled streamsheets
-				this.hotReplace = this.hotReplace || { add: [] };
-				this.hotReplace.add.push(streamsheet);
 			}
 		}
 	}
 
 	removeStreamSheet(streamsheet) {
-		// remove from cycled streamsheets
-		if (this.state === State.RUNNING) {
-			this.hotReplace = this.hotReplace || { remove: [] };
-			this.hotReplace.remove.push(streamsheet);
-		}
 		streamsheet.dispose();
+		streamsheet.off('finishedStep', this._emitStep);
 		streamsheet.machine = undefined;
 		if (this._streamsheets.delete(streamsheet.id)) {
 			this._emitter.emit('update', 'streamsheet_removed', streamsheet);
@@ -372,14 +358,6 @@ class Machine {
 		this._emitter.emit('update', type, message);
 	}
 
-	notifyMessage(type, message) {
-		this._emitter.emit('message', type, message);
-	}
-
-	notifyStreamSheetStep(streamsheet) {
-		this._emitter.emit('streamsheetstep', streamsheet);
-	}
-
 	on(event, callback) {
 		this._emitter.on(event, callback);
 	}
@@ -387,31 +365,28 @@ class Machine {
 		this._emitter.removeListener(event, callback);
 	}
 
-	dispose() {
+	async dispose(deleted) {
 		this.stop();
 		this.streamsheets.forEach((streamsheet) => streamsheet.dispose());
 		this._emitter.removeAllListeners('update');
+		return this.outbox.dispose(deleted);
 	}
 
 	async start() {
 		if (this._state !== State.RUNNING && this._state !== State.WILL_STOP) {
 			const oldstate = this._state;
-			const allStreamSheets = this.streamsheets;
+			this._isManualStep = false;
 			try {
-				if (this._state === State.STOPPED) {
-					this._activeStreamSheets = null;
-					// clear in- & outbox (DL-204) on start (not stop, user might want to see current messages...)
-					this.outbox.clear();
-					allStreamSheets.forEach((streamsheet) => streamsheet.start());
-				}
-				this._emitter.emit('willStart', this);
+				const resumed = this._state !== State.STOPPED;
 				this._state = State.RUNNING;
-				this.outbox.keepMessages = false;
+				if (resumed) this._streamsheets.forEach((streamsheet) => streamsheet.resume());
+				else this._streamsheets.forEach((streamsheet) => streamsheet.start());
 				this.cyclemonitor.counterSecond = 0;
 				this.cyclemonitor.last = Date.now();
 				this.cyclemonitor.lastSecond = Date.now();
 				this._emitter.emit('update', 'state', { new: this._state, old: oldstate });
-				this.cycle(allStreamSheets);
+				if (resumed) this._resume();
+				else this.cycle();
 				this._emitter.emit('didStart', this);
 				logger.info(`Machine: -> STARTED machine ${this.id}`);
 			} catch (err) {
@@ -422,59 +397,48 @@ class Machine {
 		}
 	}
 
-	async stop() {
+	async stop(forced) {
 		const prevstate = this._state;
+		this._isManualStep = false;
+		forced = forced || prevstate === State.WILL_STOP;
 		if (prevstate !== State.STOPPED) {
 			this._clearCycle();
-			this._willStop();
-			const pendingStreamSheets = this.activeStreamSheets.filter((streamsheet) => !streamsheet.stop());
-			const preventStop = !!pendingStreamSheets.length;
-			this._state = preventStop ? State.WILL_STOP : State.STOPPED;
-			this.activeStreamSheets = preventStop ? pendingStreamSheets : null;
-			if (preventStop && prevstate !== State.PAUSED) {
-				this.cycle(this.activeStreamSheets);
-			}
-			this._didStop();
+			this._willStop(forced);
+			this._pendingStreamSheets.clear();
+			this._streamsheets.forEach((streamsheet) => {
+				if (!streamsheet.stop(forced)) this._pendingStreamSheets.set(streamsheet.id, streamsheet);
+			});
+			if (!this._pendingStreamSheets.size) this._didStop();
 			logger.info(`Machine: -> ${this._state} machine ${this.id}`);
 			this._emitter.emit('update', 'state', { new: this._state, old: prevstate });
 		}
 	}
-	_willStop() {
-		if (this._state !== State.WILL_STOP) {
-			this._emitter.emit('willStop', this);
+	finishedPending(streamsheet) {
+		if (this._pendingStreamSheets.delete(streamsheet.id) && !this._pendingStreamSheets.size) {
+			this._didStop();
 		}
+	}
+	_willStop() {
+		this._state = State.WILL_STOP;
+		this._emitter.emit('willStop', this);
 	}
 	_didStop() {
-		if (this._state === State.STOPPED) {
-			// DL-565 reset steps on stop...
-			this.stats.steps = 0;
-			this.stats.cyclesPerSecond = 0;
-			this.outbox.keepMessages = true;
-			this._emitter.emit('didStop', this);
-		}
-	}
-
-	forceStop() {
-		const oldstate = this._state;
 		this._state = State.STOPPED;
-		try {
-			this._clearCycle();
-			this.activeStreamSheets.filter((streamsheet) => !streamsheet.stop());
-			this._didStop();
-			logger.info(`Machine: -> ${this._state} machine ${this.id}`);
-		} catch (err) {
-			/* ignore */
-		}
-		this._emitter.emit('update', 'state', { new: this._state, old: oldstate });
+		// DL-565 reset steps on stop...
+		this.stats.steps = 0;
+		this.stats.cyclesPerSecond = 0;
+		// we have no listener for this one -> remove
+		this._emitter.emit('didStop', this);
 	}
 
 	async pause() {
 		if (this._state !== State.PAUSED && this._state !== State.WILL_STOP) {
 			const oldstate = this._state;
+			this._isManualStep = false;
 			this._clearCycle();
 			this._state = State.PAUSED;
+			this.cyclemonitor.resumeIn = Date.now() - this.cyclemonitor.last;
 			this.stats.cyclesPerSecond = 0;
-			this.outbox.keepMessages = true;
 			this.streamsheets.forEach((streamsheet) => streamsheet.pause());
 			this._emitter.emit('update', 'state', { new: this._state, old: oldstate });
 			logger.info(`Machine: -> PAUSED machine ${this.id}`);
@@ -482,57 +446,50 @@ class Machine {
 	}
 
 	async step() {
-		// additional STEPPING state might lead to problems...
-		// if (this._state !== State.RUNNING) {
-		// 	const prevstate = this._state;
-		// 	// keep will stop, as it is transferred to stop...
-		// 	this._state = this._state !== State.WILL_STOP ? State.STEPPING : this._state;
-		// 	this._doStep(this.activeStreamSheets, true);
-		// 	this._state = this._state === State.STEPPING ? prevstate : this._state;
-		// }
 		if (this._state !== State.RUNNING) {
 			try {
-				this._isManualStep = true; 
-				this._doStep(this.activeStreamSheets, true);
+				this._isManualStep = true;
+				await this._doStep(true);
 			} catch (err) {
 				logger.error(`Error while performing manual step on machine ${this.id}!!`, err);
 				this._emitter.emit('error', err);
 			}
-			this._isManualStep = false;
 		}
 	}
 
-	async _doStep(streamsheets, manual) {
-		this._preventStop = false;
+	async _doStep(manual) {
 		this.stats.steps += 1;
-		streamsheets.forEach((streamsheet) => streamsheet.step(manual));
-		this._emitter.emit('update', 'step');
-		if (this.doStop) {
-			this.stop();
-		}
+		// wait for tasks which are triggered outside any steps, e.g. by cell replace
+		await TaskQueue.done();
+		this._streamsheets.forEach((streamsheet) => streamsheet.step(manual));
+		await TaskQueue.done();
+		// currently for testing purpose only:
+		this._emitter.emit('finishedStep');
+		// send step event if last emit was too long ago (important if finishedStep is never emit by sheet)
+		if (Date.now() - this._lastEmitStep >= this.cycletime) this._emitStep();
 	}
 
-	async cycle(streamsheets) {
+	async _resume() {
+		const t0 = Date.now();
+		this._scheduleNextCycle(t0, t0 + this.cyclemonitor.resumeIn);
+	}
+	async cycle() {
 		this.cyclemonitor.counterSecond += 1;
 		const t0 = Date.now();
 		try {
-			if (this.hotReplace) {
-				streamsheets = applyHotReplace(this.hotReplace, streamsheets);
-				this.hotReplace = undefined;
-			}
-			await this._doStep(streamsheets);
+			await this._doStep();
 			if (this._state !== State.STOPPED) {
 				// next cycle
-				this._scheduleNextCycle(t0, Date.now(), streamsheets);
+				this._scheduleNextCycle(t0, Date.now());
 				this.cyclemonitor.last = t0;
 			}
 		} catch (err) {
-			this.forceStop();
+			this.stop(true);
 			logger.error(`Error while performing next cycle on machine ${this.id}!! Stopped machine...`, err);
 			this._emitter.emit('error', err);
 		}
 	}
-	_scheduleNextCycle(t0, t1, streamsheets) {
+	_scheduleNextCycle(t0, t1) {
 		const last = this.cyclemonitor.last;
 		const cycletime = this.cycletime;
 		// if we were called after desired cycletime we try to speed up...
@@ -545,7 +502,7 @@ class Machine {
 			this.cyclemonitor.counterSecond = 0;
 		}
 		const nextcycle = Math.max(1, cycletime - (t1 - t0) - speedUp);
-		this.cyclemonitor.id = setTimeout(this.cycle, nextcycle, streamsheets);
+		this.cyclemonitor.id = setTimeout(this.cycle, nextcycle);
 	}
 	_clearCycle() {
 		if (this.cyclemonitor.id) {
@@ -558,6 +515,11 @@ class Machine {
 		this.metadata.lastModified = timestamp;
 		this.metadata.lastModifiedBy = byUser || this.metadata.lastModifiedBy;
 		this._emitter.emit('update', 'lastModified');
+	}
+
+	_emitStep() {
+		this._emitter.emit('update', 'step');
+		this._lastEmitStep = Date.now();
 	}
 }
 

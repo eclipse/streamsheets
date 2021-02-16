@@ -2,7 +2,7 @@ jobs:
   include:
   - language: node_js
     node_js:
-    - 10.15.0
+    - 12.18.0
     services:
     - docker
     cache:
@@ -19,7 +19,7 @@ jobs:
     - yarn workspace @cedalo/machine-core test
     - yarn workspace @cedalo/gateway test
     - yarn workspace @cedalo/jsg-core test
-    - yarn workspace @cedalo/stream-mongodb test
+    # - yarn workspace @cedalo/stream-mongodb test
     - yarn workspace @cedalo/gateway build
     - yarn workspace @cedalo/webui run local-build
     deploy:

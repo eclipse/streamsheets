@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -49,8 +49,8 @@ export const UpdatePasswordForm = (props) => {
 
 	return (
 		<form>
-			<Grid container spacing={32}>
-				<Grid item container spacing={8} justify="space-between">
+			<Grid container spacing={2}>
+				<Grid item container spacing={1} justify="space-between">
 					<Grid item>
 						<Typography variant="h5" gutterBottom>
 							<FormattedMessage id="Admin.User.changePassword" defaultMessage="Change password" />
@@ -98,7 +98,7 @@ export const UpdatePasswordForm = (props) => {
 						onChange={(event) => onPasswordConfirmationUpdate(event.target.value)}
 					/>
 				</Grid>
-				<Grid container item spacing={16} xs={12} justify="flex-end" direction="row">
+				<Grid container item spacing={2} xs={12} justify="flex-end" direction="row">
 					<Grid item>
 						<Button variant="contained" disabled={disabled} onClick={onCancel}>
 							<FormattedMessage id="Admin.User.buttonCancel" defaultMessage="Cancel" />

@@ -262,7 +262,7 @@ class ResourcesGrid extends React.Component {
 	};
 
 	render() {
-		const { recent, resources } = this.props;
+		const { resources } = this.props;
 
 		const resGrid = document.getElementById('resGrid');
 		let width = resGrid ? resGrid.clientWidth - 1 : 500;
@@ -272,11 +272,13 @@ class ResourcesGrid extends React.Component {
 			width -= 20;
 		}
 
-		const sortQuery = localStorage.getItem(PREF_KEY_SORTQUERY) || this.state.sortQuery || 'name_asc';
+		const sortQuery = localStorage.getItem(PREF_KEY_SORTQUERY) || this.state.sortQuery || 'lastModified_desc';
 		const sortFields = ['name', 'lastModified', 'state'];
 		const sortObj = SortSelector.parseSortQuery(sortQuery);
-		const filteredResources = SortSelector.sort(resources, sortQuery, this.props.filter);
+		const filteredResources = SortSelector.sort(resources, sortQuery, '');
 		const columns = Math.floor(width / 330);
+
+		// const recent = resources.length < columns || this.props.filter.length ? undefined : this.props.recent;
 
 		if (filteredResources.length === 0) {
 			return <div />;
@@ -296,72 +298,43 @@ class ResourcesGrid extends React.Component {
 						marginRight: `${Math.max(0, Math.floor((width - columns * 330) / 2))}px`
 					}}
 				>
-					{recent
-						? [
-								<div
-									key="rg1"
-									style={{
-										marginTop: '15px',
-										marginLeft: '5px',
-									}}
-								>
-									<Typography variant="body1">
-										<FormattedMessage
-											id="Dashboard.recentlyModified"
-											defaultMessage="Recently Modified"
-										/>
-									</Typography>
-								</div>,
-								<GridList
-									ref={this.gridRef}
-									cols={5}
-									key="recentGrid"
-									id="recentGrid"
-									spacing={25}
-									style={{
-										margin: '0px'
-									}}
-								>
-									{!recent ? null : this.getTiles(recent, columns)}
-								</GridList>,
-								<div
-									key="rg2"
-									style={{
-										display: 'flex',
-										justifyContent: 'space-between'
-									}}
-								>
-									<div
-										style={{
-											marginTop: '5px',
-											marginLeft: '5px',
-										}}
-									>
-										<Typography variant="body1">
-											<FormattedMessage
-												id="Dashboard.allApps"
-												defaultMessage="All Apps and Services"
-											/>
-										</Typography>
-									</div>
-									<div
-										style={{
-											display: 'flex',
-											flexFlow: 'row'
-										}}
-									>
-										<SortSelector
-											onSort={this.handleSort}
-											getResources={this.getFilteredResources}
-											sortFields={sortFields}
-											withFilter={false}
-											defaultSortBy={sortObj.sortBy}
-											defaultSortDir={sortObj.sortDir}
-										/>
-									</div>
-								</div>
-						  ]
-						: null}
+					<div
+						key="rg2"
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							marginTop: '15px'
+						}}
+					>
+						<div
+							style={{
+								marginTop: '5px',
+								marginLeft: '5px',
+							}}
+						>
+							<Typography variant="body2" color="textPrimary">
+								<FormattedMessage
+									id="Dashboard.allApps"
+									defaultMessage="All Apps and Services"
+								/>
+							</Typography>
+						</div>
+						<div
+						style={{
+							display: 'flex',
+							flexFlow: 'row'
+						}}
+					>
+						<SortSelector
+							onSort={this.handleSort}
+							getResources={this.getFilteredResources}
+							sortFields={sortFields}
+							withFilter={false}
+							defaultSortBy={sortObj.sortBy}
+							defaultSortDir={sortObj.sortDir}
+						/>
+					</div>
+					</div>
 					<GridList
 						ref={this.gridRef}
 						cols={5}

@@ -38,10 +38,10 @@ class MachineTaskRequestHandler {
 				}
 				handler.handle(msg)
 					.then((result) => this.channel.send({ response: msg.requestId, result }))
-					.catch((error) => this.channel.send({ response: msg.requestId, error }));
+					.catch((error) => this.channel.send({ response: msg.requestId, error: { message: error.message} }));
 			} else {
 				logger.error(`Unknown request ${msg.request}!`);
-				this.channel.send({ response: msg.requestId, error: new Error(`Unknown request ${msg.request}!`) });
+				this.channel.send({ response: msg.requestId, error: { message: `Unknown request ${msg.request}!` } });
 			}
 		}
 	}

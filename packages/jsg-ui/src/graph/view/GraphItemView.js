@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -455,25 +455,6 @@ class GraphItemView extends View {
 			this._shapeRenderer.drawShapeFill(this._item._shape, this._item.isClosed(), graphics);
 			format.removeShadowFromGraphics(graphics);
 		}
-
-		// if (this.getItem().myVideo && !this.videoStarted) {
-		// 	this.videoStarted = true;
-		// 	this.getItem().myVideo.addEventListener('play', () => {
-		// 		const step = () => {
-		// 			const view = this.getGraphView();
-		// 			const p = new Point(rect.x, rect.y);
-		//
-		// 			GraphUtils.traverseDown(view, this, (v) => {
-		// 				v.translateToParent(p);
-		// 				return true;
-		// 			});
-		// 			view.orgGraphics.drawImage(this.getItem().myVideo, p.x, p.y, rect.width, rect.height);
-		// 			requestAnimationFrame(step);
-		// 		};
-		//
-		// 		requestAnimationFrame(step);
-		// 	});
-		// }
 	}
 
 	/**
@@ -556,7 +537,7 @@ class GraphItemView extends View {
 		this._collapseBtn.draw(graphics);
 
 		let deco;
-		const { decorations } = this;
+		const {decorations} = this;
 
 		// eslint-disable-next-line no-restricted-syntax,guard-for-in
 		for (const id in decorations) {
@@ -587,7 +568,7 @@ class GraphItemView extends View {
 		const textY0 = rect.y + rect.height / 2 - 25;
 		const markerY0 = rect.y + (rect.height * 3) / 8 - 1;
 		const markerY1 = rect.y + (rect.height * 5) / 8;
-		const { width } = rect;
+		const {width} = rect;
 		const cs = graphics.getCoordinateSystem();
 		const zoom = cs.getZoom();
 
@@ -605,7 +586,7 @@ class GraphItemView extends View {
 		// draw marker:
 		graphics.beginPath();
 		graphics.setFillColor('#777777');
-		for (; steps.minor < width || steps.major < width; ) {
+		for (; steps.minor < width || steps.major < width;) {
 			if (zoom > 0.4 && (steps.minor > 0 && steps.minor < width)) {
 				graphics.moveTo(steps.minor, markerY0);
 				graphics.lineTo(steps.minor, markerY1);
@@ -623,7 +604,7 @@ class GraphItemView extends View {
 		const textX0 = rect.x + rect.width / 2 - 25;
 		const markerX0 = rect.x + (rect.width * 3) / 8;
 		const markerX1 = rect.x + (rect.width * 5) / 8;
-		const { height } = rect;
+		const {height} = rect;
 		const cs = graphics.getCoordinateSystem();
 		const zoom = cs.getZoom();
 
@@ -638,7 +619,7 @@ class GraphItemView extends View {
 		// draw marker...
 		graphics.beginPath();
 		graphics.setFillColor('#777777');
-		for (; steps.minor < height || steps.major < height; ) {
+		for (; steps.minor < height || steps.major < height;) {
 			if (zoom > 0.4 && (steps.minor > 0 && steps.minor < height)) {
 				graphics.moveTo(markerX0, steps.minor);
 				graphics.lineTo(markerX1, steps.minor);
@@ -657,7 +638,7 @@ class GraphItemView extends View {
 	}
 
 	getNextSteps(value, cs) {
-		const steps = { major: 0, minor: 0 };
+		const steps = {major: 0, minor: 0};
 		steps.major = Math.abs(value) % cs._majorUnit;
 		steps.major = value < 0 ? steps.major : cs._majorUnit - steps.major;
 		if (steps.major > cs._minorUnit) {
@@ -778,9 +759,11 @@ class GraphItemView extends View {
 	 *     created.
 	 * @return {Rectangle} The preferred Rectangle this view needs to draw itself.
 	 */
-	getPreferredBounds(recthint, reuserect) {}
+	getPreferredBounds(recthint, reuserect) {
+	}
 
-	adaptHighlight(highlight) {}
+	adaptHighlight(highlight) {
+	}
 
 	checkMaximumImageDimensions(image) {
 		return true;
@@ -804,6 +787,21 @@ class GraphItemView extends View {
 
 	applyAttributes() {
 		return false;
+	}
+
+	getSelectedPropertyCategory() {
+		return undefined;
+	}
+
+	setSelectedPropertyCategory(data) {
+	}
+
+	getDefaultPropertyCategory() {
+		return 'geometry';
+	}
+
+	isValidPropertyCategory(category) {
+		return category === 'geometry';
 	}
 }
 

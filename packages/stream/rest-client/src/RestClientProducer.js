@@ -50,12 +50,16 @@ module.exports = class RestClientProducer extends ProducerMixin(
 		const { requestId } = config.Metadata;
 		const metadata = { url: config.Data.url, method: config.Data.method };
 		try {
-			const response = await this._restClient.send(
+			const { body, headers, statusCode } = await this._restClient.send(
 				config.Data,
 				connectorConfig
 			);
+			metadata.response = {
+				headers,
+				statusCode
+			}
 			return this.handleResponse(
-				dataResponse(metadata, response, requestId)
+				dataResponse(metadata, body, requestId)
 			);
 		} catch (error) {
 			return this.handleResponse(

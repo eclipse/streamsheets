@@ -19,12 +19,9 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormLabel from '@material-ui/core/FormLabel';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import Select from '@material-ui/core/Select';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import TextField from '@material-ui/core/TextField';
@@ -52,7 +49,7 @@ import {withStyles} from "@material-ui/core/styles";
 
 const styles = () => ({
 	selectMenu: {
-		padding: '0px',
+		padding: '9px',
 	},
 });
 
@@ -79,7 +76,7 @@ export class FormatCellsDialog extends React.Component {
 			protected: false,
 			visible: false,
 			numberFormat: '',
-			numberFormatSetting: '',
+			localCulture: '',
 			fillStyle: '0',
 			fillColor: '#FFFFFF',
 			fontColor: '#000000',
@@ -102,114 +99,123 @@ export class FormatCellsDialog extends React.Component {
 			fontName: 'Arial',
 			verticalAlignment: TextFormatAttributes.VerticalTextPosition.TOP,
 			horizontalAlignment: TextFormatAttributes.HorizontalTextPosition.CUSTOM,
+			initialized: false,
+			formatMap: new Dictionary(),
+			textFormatMap: new Dictionary(),
+			attributesMap: new Dictionary(),
 		};
-		this.handleClose = this.handleClose.bind(this);
-		this._formatMap = new Dictionary();
-		this._textFormatMap = new Dictionary();
-		this._attributesMap = new Dictionary();
 	}
 
-	componentWillReceiveProps(nextProps) {
-		// You don't have to do this check first, but it can help prevent an unneeded render
-		if (nextProps.open === true) {
-			this.updateData();
-			this._attributesMap.clear();
-			this._formatMap.clear();
-			this._textFormatMap.clear();
-		}
-	}
+	// componentWillReceiveProps(nextProps) {
+	// 	// You don't have to do this check first, but it can help prevent an unneeded render
+	// 	if (this.props.open === false && nextProps.open === true) {
+	// 		this.updateData();
+	// 	}
+	// }
+	//
+	static getDerivedStateFromProps(props, state) {
+		if (props.open) {
+			if (!state.initialized) {
+				const sheetView = graphManager.getActiveSheetView();
+				if (!sheetView) {
+					return null;
+				}
 
-	updateData() {
-		const sheetView = graphManager.getActiveSheetView();
-		if (!sheetView) {
-			return;
-		}
+				const newState = {...state};
 
-		const selection = sheetView.getItem().getOwnSelection();
-		const textFormat = selection.retainTextFormat();
-		const format = selection.retainFormat();
-		const attributes = selection.retainAttributes();
+				const selection = sheetView.getItem().getOwnSelection();
+				const textFormat = selection.retainTextFormat();
+				const format = selection.retainFormat();
+				const attributes = selection.retainAttributes();
 
-		if (attributes !== undefined) {
-			this.setState({
-				visible: attributes.getVisible() ? attributes.getVisible().getValue() : '',
-				protected: attributes.getProtected() ? attributes.getProtected().getValue() : '',
-				leftBorderColor: attributes.getLeftBorderColor() ? attributes.getLeftBorderColor().getValue() : '',
-				leftBorderStyle: attributes.getLeftBorderStyle() ? attributes.getLeftBorderStyle().getValue() : '',
-				leftBorderWidth: attributes.getLeftBorderWidth() ? attributes.getLeftBorderWidth().getValue() : '',
-				topBorderColor: attributes.getTopBorderColor() ? attributes.getTopBorderColor().getValue() : '',
-				topBorderStyle: attributes.getTopBorderStyle() ? attributes.getTopBorderStyle().getValue() : '',
-				topBorderWidth: attributes.getTopBorderWidth() ? attributes.getTopBorderWidth().getValue() : '',
-				rightBorderColor: attributes.getRightBorderColor() ? attributes.getRightBorderColor().getValue() : '',
-				rightBorderStyle: attributes.getRightBorderStyle() ? attributes.getRightBorderStyle().getValue() : '',
-				rightBorderWidth: attributes.getRightBorderWidth() ? attributes.getRightBorderWidth().getValue() : '',
-				bottomBorderColor: attributes.getBottomBorderColor()
-					? attributes.getBottomBorderColor().getValue()
-					: '',
-				bottomBorderStyle: attributes.getBottomBorderStyle()
-					? attributes.getBottomBorderStyle().getValue()
-					: '',
-				bottomBorderWidth: attributes.getBottomBorderWidth()
-					? attributes.getBottomBorderWidth().getValue()
-					: '',
-			});
-		}
+				if (attributes !== undefined) {
+					newState.visible = attributes.getVisible() ? attributes.getVisible().getValue() : '';
+					newState.protected = attributes.getProtected() ? attributes.getProtected().getValue() : '';
+					newState.leftBorderColor = attributes.getLeftBorderColor() ? attributes.getLeftBorderColor().getValue() : '';
+					newState.leftBorderStyle = attributes.getLeftBorderStyle() ? attributes.getLeftBorderStyle().getValue() : '';
+					newState.leftBorderWidth = attributes.getLeftBorderWidth() ? attributes.getLeftBorderWidth().getValue() : '';
+					newState.topBorderColor = attributes.getTopBorderColor() ? attributes.getTopBorderColor().getValue() : '';
+					newState.topBorderStyle = attributes.getTopBorderStyle() ? attributes.getTopBorderStyle().getValue() : '';
+					newState.topBorderWidth = attributes.getTopBorderWidth() ? attributes.getTopBorderWidth().getValue() : '';
+					newState.rightBorderColor = attributes.getRightBorderColor() ? attributes.getRightBorderColor().getValue() : '';
+					newState.rightBorderStyle = attributes.getRightBorderStyle() ? attributes.getRightBorderStyle().getValue() : '';
+					newState.rightBorderWidth = attributes.getRightBorderWidth() ? attributes.getRightBorderWidth().getValue() : '';
+					newState.bottomBorderColor = attributes.getBottomBorderColor()
+							? attributes.getBottomBorderColor().getValue()
+							: '';
+					newState.bottomBorderStyle = attributes.getBottomBorderStyle()
+							? attributes.getBottomBorderStyle().getValue()
+							: '';
+					newState.bottomBorderWidth = attributes.getBottomBorderWidth()
+							? attributes.getBottomBorderWidth().getValue()
+							: '';
+				}
 
-		if (format !== undefined) {
-			this.setState({
-				fillColor: format.getFillColor() ? format.getFillColor().getValue() : '',
-				fillStyle: format.getFillStyle() ? String(format.getFillStyle().getValue()) : '',
-			});
-		}
+				if (format !== undefined) {
+					newState.fillColor = format.getFillColor() ? format.getFillColor().getValue() : '';
+					newState.fillStyle = format.getFillStyle() ? String(format.getFillStyle().getValue()) : '';
+				}
 
-		if (textFormat !== undefined) {
-			/* eslint-disable no-bitwise */
-			this.setState({
-				fontSize: textFormat.getFontSize() ? String(textFormat.getFontSize().getValue()) : '',
-				fontName: textFormat.getFontName() ? textFormat.getFontName().getValue() : '',
-				fontColor: textFormat.getFontColor() ? textFormat.getFontColor().getValue() : '',
-				bold: textFormat.getFontStyle()
-					? (textFormat.getFontStyle().getValue() & TextFormatAttributes.FontStyle.BOLD) === 1
-					: '',
-				italic: textFormat.getFontStyle()
-					? (textFormat.getFontStyle().getValue() & TextFormatAttributes.FontStyle.ITALIC) === 2
-					: '',
-				underline: textFormat.getFontStyle()
-					? (textFormat.getFontStyle().getValue() & TextFormatAttributes.FontStyle.UNDERLINE) === 4
-					: '',
-				verticalAlignment: textFormat.getVerticalAlignment()
-					? textFormat.getVerticalAlignment().getValue()
-					: '',
-				horizontalAlignment: textFormat.getHorizontalAlignment()
-					? textFormat.getHorizontalAlignment().getValue()
-					: '',
-			});
+				if (textFormat !== undefined) {
+					/* eslint-disable no-bitwise */
+					newState.numberFormat = textFormat.getNumberFormat() ? textFormat.getNumberFormat().getValue() : '';
+					newState.localCulture = textFormat.getLocalCulture() ? textFormat.getLocalCulture().getValue() : '';
+					newState.fontSize = textFormat.getFontSize() ? String(textFormat.getFontSize().getValue()) : '';
+					newState.fontName = textFormat.getFontName() ? textFormat.getFontName().getValue() : '';
+					newState.fontColor = textFormat.getFontColor() ? textFormat.getFontColor().getValue() : '';
+					newState.bold = textFormat.getFontStyle()
+							? (textFormat.getFontStyle().getValue() & TextFormatAttributes.FontStyle.BOLD) === 1
+							: '';
+					newState.italic = textFormat.getFontStyle()
+							? (textFormat.getFontStyle().getValue() & TextFormatAttributes.FontStyle.ITALIC) === 2
+							: '';
+					newState.underline = textFormat.getFontStyle()
+							? (textFormat.getFontStyle().getValue() & TextFormatAttributes.FontStyle.UNDERLINE) === 4
+							: '';
+					newState.verticalAlignment = textFormat.getVerticalAlignment()
+							? textFormat.getVerticalAlignment().getValue()
+							: '';
+					newState.horizontalAlignment = textFormat.getHorizontalAlignment()
+							? textFormat.getHorizontalAlignment().getValue()
+							: '';
+				}
+
+				newState.attributesMap.clear();
+				newState.formatMap.clear();
+				newState.textFormatMap.clear();
+				newState.initialized = true;
+				return newState;
+			}
+
+			return null;
 		}
+		return {...state, initialized: false};
+
 	}
 
 	handleVerticalAlignmentChange = (event) => {
 		this.setState({ verticalAlignment: event.target.value });
-		this._textFormatMap.put(TextFormatAttributes.VERTICALALIGN, event.target.value);
+		this.state.textFormatMap.put(TextFormatAttributes.VERTICALALIGN, event.target.value);
 	};
 
 	handleHorizontalAlignmentChange = (event) => {
 		this.setState({ horizontalAlignment: event.target.value });
-		this._textFormatMap.put(TextFormatAttributes.HORIZONTALALIGN, event.target.value);
+		this.state.textFormatMap.put(TextFormatAttributes.HORIZONTALALIGN, event.target.value);
 	};
 
 	handleFontNameChange = (event) => {
 		this.setState({ fontName: event.target.value });
-		this._textFormatMap.put(TextFormatAttributes.FONTNAME, event.target.value);
+		this.state.textFormatMap.put(TextFormatAttributes.FONTNAME, event.target.value);
 	};
 
 	handleFontSizeChange = (event) => {
 		this.setState({ fontSize: String(event.target.value) });
-		this._textFormatMap.put(TextFormatAttributes.FONTSIZE, Number(event.target.value));
+		this.state.textFormatMap.put(TextFormatAttributes.FONTSIZE, Number(event.target.value));
 	};
 
 	handleFontColorChange = (color) => {
 		this.setState({ fontColor: color });
-		this._textFormatMap.put(TextFormatAttributes.FONTCOLOR, color);
+		this.state.textFormatMap.put(TextFormatAttributes.FONTCOLOR, color);
 	};
 
 	handleFontBoldChange = () => (event, state) => {
@@ -221,7 +227,7 @@ export class FormatCellsDialog extends React.Component {
 			: TextFormatAttributes.FontStyle.NORMAL;
 		style += state ? TextFormatAttributes.FontStyle.BOLD : TextFormatAttributes.FontStyle.NORMAL;
 
-		this._textFormatMap.put(TextFormatAttributes.FONTSTYLE, style);
+		this.state.textFormatMap.put(TextFormatAttributes.FONTSTYLE, style);
 	};
 
 	handleFontItalicChange = (event, state) => {
@@ -233,7 +239,7 @@ export class FormatCellsDialog extends React.Component {
 			: TextFormatAttributes.FontStyle.NORMAL;
 		style += state ? TextFormatAttributes.FontStyle.ITALIC : TextFormatAttributes.FontStyle.NORMAL;
 
-		this._textFormatMap.put(TextFormatAttributes.FONTSTYLE, style);
+		this.state.textFormatMap.put(TextFormatAttributes.FONTSTYLE, style);
 	};
 
 	handleFontUnderlineChange = (event, state) => {
@@ -243,98 +249,101 @@ export class FormatCellsDialog extends React.Component {
 		style += this.state.italic ? TextFormatAttributes.FontStyle.ITALIC : TextFormatAttributes.FontStyle.NORMAL;
 		style += state ? TextFormatAttributes.FontStyle.UNDERLINE : TextFormatAttributes.FontStyle.NORMAL;
 
-		this._textFormatMap.put(TextFormatAttributes.FONTSTYLE, style);
+		this.state.textFormatMap.put(TextFormatAttributes.FONTSTYLE, style);
 	};
 
 	handleFillStyleChange = (event, value) => {
 		this.setState({ fillStyle: value });
 
-		this._formatMap.put(FormatAttributes.FILLSTYLE, Number(value));
+		this.state.formatMap.put(FormatAttributes.FILLSTYLE, Number(value));
 	};
 
 	handleFillColorChange = (color) => {
 		this.setState({ fillColor: color });
 		this.setState({ fillStyle: '1' });
 
-		this._formatMap.put(FormatAttributes.FILLSTYLE, 1);
-		this._formatMap.put(FormatAttributes.FILLCOLOR, color);
+		this.state.formatMap.put(FormatAttributes.FILLSTYLE, 1);
+		this.state.formatMap.put(FormatAttributes.FILLCOLOR, color);
 	};
 
 	handleLeftBorderStyleChange = (event) => {
 		this.setState({ leftBorderStyle: Number(event.target.value) });
-		this._attributesMap.put(CellAttributes.LEFTBORDERSTYLE, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.LEFTBORDERSTYLE, Number(event.target.value));
 	};
 
 	handleLeftBorderWidthChange = (event) => {
 		this.setState({ leftBorderWidth: event.target.value });
-		this._attributesMap.put(CellAttributes.LEFTBORDERWIDTH, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.LEFTBORDERWIDTH, Number(event.target.value));
 	};
 
 	handleLeftBorderColorChange = (color) => {
 		this.setState({ leftBorderColor: color });
-		this._attributesMap.put(CellAttributes.LEFTBORDERCOLOR, color);
+		this.state.attributesMap.put(CellAttributes.LEFTBORDERCOLOR, color);
 	};
 
 	handleRightBorderStyleChange = (event) => {
 		this.setState({ rightBorderStyle: Number(event.target.value) });
-		this._attributesMap.put(CellAttributes.RIGHTBORDERSTYLE, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.RIGHTBORDERSTYLE, Number(event.target.value));
 	};
 
 	handleRightBorderWidthChange = (event) => {
 		this.setState({ rightBorderWidth: event.target.value });
-		this._attributesMap.put(CellAttributes.RIGHTBORDERWIDTH, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.RIGHTBORDERWIDTH, Number(event.target.value));
 	};
 
 	handleRightBorderColorChange = (color) => {
 		this.setState({ rightBorderColor: color });
-		this._attributesMap.put(CellAttributes.RIGHTBORDERCOLOR, color);
+		this.state.attributesMap.put(CellAttributes.RIGHTBORDERCOLOR, color);
 	};
 
 	handleTopBorderStyleChange = (event) => {
 		this.setState({ topBorderStyle: Number(event.target.value) });
-		this._attributesMap.put(CellAttributes.TOPBORDERSTYLE, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.TOPBORDERSTYLE, Number(event.target.value));
 	};
 
 	handleTopBorderWidthChange = (event) => {
 		this.setState({ topBorderWidth: event.target.value });
-		this._attributesMap.put(CellAttributes.TOPBORDERWIDTH, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.TOPBORDERWIDTH, Number(event.target.value));
 	};
 
 	handleTopBorderColorChange = (color) => {
 		this.setState({ topBorderColor: color });
-		this._attributesMap.put(CellAttributes.TOPBORDERCOLOR, color);
+		this.state.attributesMap.put(CellAttributes.TOPBORDERCOLOR, color);
 	};
 
 	handleBottomBorderStyleChange = (event) => {
 		this.setState({ bottomBorderStyle: Number(event.target.value) });
-		this._attributesMap.put(CellAttributes.BOTTOMBORDERSTYLE, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.BOTTOMBORDERSTYLE, Number(event.target.value));
 	};
 
 	handleBottomBorderWidthChange = (event) => {
 		this.setState({ bottomBorderWidth: event.target.value });
-		this._attributesMap.put(CellAttributes.BOTTOMBORDERWIDTH, Number(event.target.value));
+		this.state.attributesMap.put(CellAttributes.BOTTOMBORDERWIDTH, Number(event.target.value));
 	};
 
 	handleBottomBorderColorChange = (color) => {
 		this.setState({ bottomBorderColor: color });
-		this._attributesMap.put(CellAttributes.BOTTOMBORDERCOLOR, color);
+		this.state.attributesMap.put(CellAttributes.BOTTOMBORDERCOLOR, color);
 	};
 
 	handleProtectedChange = (event, state) => {
 		this.setState({ protected: state });
 
-		this._attributesMap.put(CellAttributes.PROTECTED, state);
+		this.state.attributesMap.put(CellAttributes.PROTECTED, state);
 	};
 
 	handleVisibleChange = (event, state) => {
 		this.setState({ visible: state });
 
-		this._attributesMap.put(CellAttributes.VISIBLE, state);
+		this.state.attributesMap.put(CellAttributes.VISIBLE, state);
 	};
 
-	handleNumberFormat = (numberFormat, numberFormatSetting) => {
+	handleNumberFormat = (numberFormat, localCulture) => {
 		this.setState({ numberFormat });
-		this.setState({ numberFormatSetting });
+		this.setState({ localCulture });
+
+		this.state.textFormatMap.put(TextFormatAttributes.NUMBERFORMAT, numberFormat);
+		this.state.textFormatMap.put(TextFormatAttributes.LOCALCULTURE, localCulture);
 	};
 
 	handleClose = () => {
@@ -345,47 +354,40 @@ export class FormatCellsDialog extends React.Component {
 			return;
 		}
 
-		if (this.state.numberFormat) {
-			this._textFormatMap.put(TextFormatAttributes.NUMBERFORMAT, this.state.numberFormat);
-		}
-		if (this.state.numberFormatSetting) {
-			this._textFormatMap.put(TextFormatAttributes.LOCALCULTURE, this.state.numberFormatSetting);
-		}
-
 		const cmds = new CompoundCommand();
 
-		if (this._attributesMap.size()) {
+		if (this.state.attributesMap.size()) {
 			cmds.add(
 				new CellAttributesCommand(
 					sheetView
 						.getItem()
 						.getOwnSelection()
 						.getRanges(),
-					this._attributesMap,
+					this.state.attributesMap,
 				),
 			);
 		}
 
-		if (this._formatMap.size()) {
+		if (this.state.formatMap.size()) {
 			cmds.add(
 				new FormatCellsCommand(
 					sheetView
 						.getItem()
 						.getOwnSelection()
 						.getRanges(),
-					this._formatMap,
+					this.state.formatMap,
 				),
 			);
 		}
 
-		if (this._textFormatMap.size()) {
+		if (this.state.textFormatMap.size()) {
 			cmds.add(
 				new TextFormatCellsCommand(
 					sheetView
 						.getItem()
 						.getOwnSelection()
 						.getRanges(),
-					this._textFormatMap,
+					this.state.textFormatMap,
 				),
 			);
 		}
@@ -408,28 +410,6 @@ export class FormatCellsDialog extends React.Component {
 		if (!this.props.open) {
 			return <div/>;
 		}
-		// const styles = {
-		// 	negativered: {
-		// 		color: 'red',
-		// 	},
-		// 	color: {
-		// 		width: '106px',
-		// 		height: '14px',
-		// 		borderRadius: '2px',
-		// 		margin: '5px',
-		// 	},
-		// 	popover: {
-		// 		position: 'absolute',
-		// 		zIndex: '200',
-		// 	},
-		// 	cover: {
-		// 		position: 'fixed',
-		// 		top: '0px',
-		// 		right: '0px',
-		// 		bottom: '0px',
-		// 		left: '0px',
-		// 	},
-		// };
 		const { tabSelected } = this.state;
 		return (
 			<Dialog open={this.props.open} onClose={this.handleCancel} maxWidth={false}>
@@ -438,7 +418,7 @@ export class FormatCellsDialog extends React.Component {
 				</DialogTitle>
 				<DialogContent
 					style={{
-						height: '420px',
+						height: '437px',
 						width: '800px',
 					}}
 				>
@@ -455,7 +435,11 @@ export class FormatCellsDialog extends React.Component {
 									margin: '10px',
 								}}
 							>
-								<NumberFormatSettings handler={(f, s) => this.handleNumberFormat(f, s)} />
+								<NumberFormatSettings
+									numberFormat={this.state.numberFormat}
+									localCulture={this.state.localCulture}
+									handler={(f, s) => this.handleNumberFormat(f, s)}
+								/>
 							</div>
 						</TabContainer>
 					)}
@@ -472,17 +456,17 @@ export class FormatCellsDialog extends React.Component {
 									}}
 								>
 									<FormControl style={{ width: '200px', marginRight: '20px' }}>
-										<InputLabel htmlFor="font-name">
-											<FormattedMessage
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											label={<FormattedMessage
 												id="FormatCellsDialog.fontName"
 												defaultMessage="Font Name"
-											/>
-										</InputLabel>
-										<Select
-											id="font-name"
+											/>}
 											value={this.state.fontName}
 											onChange={this.handleFontNameChange}
-											input={<Input defaultValue="en" name="font-name" id="font-name" />}
 										>
 											<MenuItem value="Arial" key={1}>
 												Arial
@@ -511,20 +495,20 @@ export class FormatCellsDialog extends React.Component {
 											<MenuItem value="Verdana" key={9}>
 												Verdana
 											</MenuItem>
-										</Select>
+										</TextField>
 									</FormControl>
 									<FormControl style={{ width: '120px', marginRight: '20px' }}>
-										<InputLabel htmlFor="font-size">
-											<FormattedMessage
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											label={<FormattedMessage
 												id="FormatCellsDialog.fontSize"
 												defaultMessage="Font Size"
-											/>
-										</InputLabel>
-										<Select
-											id="font-size"
+											/>}
 											value={this.state.fontSize}
 											onChange={this.handleFontSizeChange}
-											input={<Input defaultValue="en" name="font-size" id="font-size" />}
 										>
 											<MenuItem value="8" key={0}>
 												8
@@ -553,9 +537,9 @@ export class FormatCellsDialog extends React.Component {
 											<MenuItem value="36" key={8}>
 												36
 											</MenuItem>
-										</Select>
+										</TextField>
 									</FormControl>
-									<FormControl>
+									<FormControl size="small" variant="outlined" margin="normal" style={{width: '120px'}}>
 										<ColorComponent
 											label={
 												<FormattedMessage
@@ -621,21 +605,22 @@ export class FormatCellsDialog extends React.Component {
 								</div>
 								<div
 									style={{
-										marginTop: '40px',
+										marginTop: '20px',
 										display: 'flex',
 									}}
 								>
 									<FormControl style={{ width: '200px', marginRight: '20px', marginTop: '20px' }}>
-										<InputLabel htmlFor="HORIZONTAL_ALIGNMENT">
-											<FormattedMessage
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											label={<FormattedMessage
 												id="FormatCellsDialog.horizontalAlignment"
 												defaultMessage="Horizontal Alignment"
-											/>
-										</InputLabel>
-										<Select
+											/>}
 											value={this.state.horizontalAlignment}
 											onChange={this.handleHorizontalAlignmentChange}
-											input={<Input name="HORIZONTAL_ALIGNMENT" id="HORIZONTAL_ALIGNMENT" />}
 										>
 											<MenuItem value={3} key={3}>
 												<FormattedMessage
@@ -661,19 +646,21 @@ export class FormatCellsDialog extends React.Component {
 													defaultMessage="Right"
 												/>
 											</MenuItem>
-										</Select>
+										</TextField>
 									</FormControl>
 									<FormControl style={{ width: '200px', marginRight: '20px', marginTop: '20px' }}>
-										<InputLabel htmlFor="VERTICAL_ALIGNMENT">
-											<FormattedMessage
-												id="FormatCellsDialog.verticalAlignment"
-												defaultMessage="Vertical Alignment"
-											/>
-										</InputLabel>
-										<Select
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											label={
+										<FormattedMessage
+											id="FormatCellsDialog.verticalAlignment"
+											defaultMessage="Vertical Alignment"
+										/>}
 											value={this.state.verticalAlignment}
 											onChange={this.handleVerticalAlignmentChange}
-											input={<Input name="VERTICAL_ALIGNMENT" id="VERTICAL_ALIGNMENT" />}
 										>
 											<MenuItem value={0} key={0}>
 												<FormattedMessage
@@ -693,7 +680,7 @@ export class FormatCellsDialog extends React.Component {
 													defaultMessage="Bottom"
 												/>
 											</MenuItem>
-										</Select>
+										</TextField>
 									</FormControl>
 								</div>
 							</div>
@@ -748,7 +735,7 @@ export class FormatCellsDialog extends React.Component {
 											/>
 										</RadioGroup>
 									</div>
-									<FormControl style={{ marginLeft: '44px' }}>
+									<FormControl size="small" variant="outlined" margin="normal" style={{width: '120px', marginLeft: '44px', marginTop: '0px' }}>
 										<ColorComponent
 											label={
 												<FormattedMessage
@@ -777,13 +764,13 @@ export class FormatCellsDialog extends React.Component {
 									</FormLabel>
 									<FormGroup
 										style={{
-											margin: '10px',
+											marginLeft: '10px',
 											flexDirection: 'row',
 										}}
 									>
 										<FormLabel
 											style={{
-												marginTop: '25px',
+												marginTop: '28px',
 												width: '60px',
 												fontSize: '0.85rem',
 											}}
@@ -791,7 +778,9 @@ export class FormatCellsDialog extends React.Component {
 											<FormattedMessage id="FormatCellsDialog.left" defaultMessage="Left" />
 										</FormLabel>
 										<TextField
-											id="number"
+											variant="outlined"
+											size="small"
+											margin="normal"
 											label={
 												<FormattedMessage id="FormatCellsDialog.width" defaultMessage="Width" />
 											}
@@ -803,127 +792,127 @@ export class FormatCellsDialog extends React.Component {
 											value={this.state.leftBorderWidth}
 											onChange={(event) => this.handleLeftBorderWidthChange(event)}
 											type="number"
-											margin="normal"
 											style={{
 												marginRight: '20px',
-												marginTop: '0px',
 											}}
 										/>
-										<FormControl style={{ width: '120px', marginRight: '20px' }}>
-											<InputLabel htmlFor="left-border-style">
-												<FormattedMessage id="FormatCellsDialog.style" defaultMessage="Style" />
-											</InputLabel>
-											<Select
-												id="left-border-style"
-												value={this.state.leftBorderStyle}
-												onChange={this.handleLeftBorderStyleChange}
-												classes={{selectMenu: this.props.classes.selectMenu}}
-												input={
-													<Input
-														defaultValue="0"
-														name="left-border-style"
-														id="left-border-style"
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											style={{ width: '120px', marginRight: '20px' }}
+											SelectProps={{
+												classes: {selectMenu: this.props.classes.selectMenu}
+											}}
+											label={
+												<FormattedMessage id="FormatCellsDialog.style"
+																  defaultMessage="Style"/>
+											}
+											value={this.state.leftBorderStyle}
+											onChange={this.handleLeftBorderStyleChange}
+										>
+											<MenuItem
+												value={0}
+												key="ls1"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<text x="50" y="11" fontWeight="normal" fontSize="12pt" dy="0.25em" textAnchor="middle">
+														{intl.formatMessage({ id: "None" }, {})}
+													</text>
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={1}
+												key="ls2"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={2}
+												key="ls3"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={3}
+												key="ls4"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={4}
+												key="ls5"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={5}
+												key="ls6"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+										</TextField>
+										<FormControl size="small" variant="outlined" margin="normal" style={{width: '120px' }}>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="FormatCellsDialog.borderColor"
+														defaultMessage="Border Color"
 													/>
 												}
-											>
-												<MenuItem
-													value={0}
-													key="ls1"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<text x="50" y="13" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
-															{intl.formatMessage({ id: "None" }, {})}
-														</text>
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={1}
-													key="ls2"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={2}
-													key="ls3"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={3}
-													key="ls4"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={4}
-													key="ls5"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={5}
-													key="ls6"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-											</Select>
+												color={this.state.leftBorderColor}
+												onChange={this.handleLeftBorderColorChange}
+											/>
 										</FormControl>
-										<ColorComponent
-											label={
-												<FormattedMessage
-													id="FormatCellsDialog.borderColor"
-													defaultMessage="Border Color"
-												/>
-											}
-											color={this.state.leftBorderColor}
-											onChange={this.handleLeftBorderColorChange}
-										/>
 									</FormGroup>
 									<FormGroup
 										style={{
-											margin: '10px',
+											marginLeft: '10px',
 											flexDirection: 'row',
 										}}
 									>
 										<FormLabel
 											style={{
-												marginTop: '25px',
+												marginTop: '28px',
 												width: '60px',
 												fontSize: '0.85rem',
 											}}
 										>
-											<FormattedMessage id="FormatCellsDialog.top" defaultMessage="Top:" />
+											<FormattedMessage id="FormatCellsDialog.top" defaultMessage="Top" />
 										</FormLabel>
 										<TextField
-											id="number"
+											variant="outlined"
+											size="small"
+											margin="normal"
 											label={
 												<FormattedMessage id="FormatCellsDialog.width" defaultMessage="Width" />
 											}
@@ -935,127 +924,127 @@ export class FormatCellsDialog extends React.Component {
 											value={this.state.topBorderWidth}
 											onChange={(event) => this.handleTopBorderWidthChange(event)}
 											type="number"
-											margin="normal"
 											style={{
 												marginRight: '20px',
-												marginTop: '0px',
 											}}
 										/>
-										<FormControl style={{ width: '120px', marginRight: '20px' }}>
-											<InputLabel htmlFor="top-border-style">
-												<FormattedMessage id="FormatCellsDialog.style" defaultMessage="Style" />
-											</InputLabel>
-											<Select
-												id="top-border-style"
-												value={this.state.topBorderStyle}
-												onChange={this.handleTopBorderStyleChange}
-												classes={{selectMenu: this.props.classes.selectMenu}}
-												input={
-													<Input
-														defaultValue="0"
-														name="top-border-style"
-														id="top-border-style"
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											style={{ width: '120px', marginRight: '20px' }}
+											SelectProps={{
+												classes: {selectMenu: this.props.classes.selectMenu}
+											}}
+											label={
+												<FormattedMessage id="FormatCellsDialog.style"
+																  defaultMessage="Style"/>
+											}
+											value={this.state.topBorderStyle}
+											onChange={this.handleTopBorderStyleChange}
+										>
+											<MenuItem
+												value={0}
+												key="ls1"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<text x="50" y="11" fontWeight="normal" fontSize="12pt" dy="0.25em" textAnchor="middle">
+														{intl.formatMessage({ id: "None" }, {})}
+													</text>
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={1}
+												key="ls2"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={2}
+												key="ls3"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={3}
+												key="ls4"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={4}
+												key="ls5"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={5}
+												key="ls6"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+										</TextField>
+										<FormControl size="small" variant="outlined" margin="normal" style={{width: '120px' }}>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="FormatCellsDialog.borderColor"
+														defaultMessage="Border Color"
 													/>
 												}
-											>
-												<MenuItem
-													value={0}
-													key="ls1"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<text x="50" y="13" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
-															{intl.formatMessage({ id: "None" }, {})}
-														</text>
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={1}
-													key="ls2"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={2}
-													key="ls3"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={3}
-													key="ls4"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={4}
-													key="ls5"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={5}
-													key="ls6"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-											</Select>
+												color={this.state.topBorderColor}
+												onChange={this.handleTopBorderColorChange}
+											/>
 										</FormControl>
-										<ColorComponent
-											label={
-												<FormattedMessage
-													id="FormatCellsDialog.borderColor"
-													defaultMessage="Border Color"
-												/>
-											}
-											color={this.state.topBorderColor}
-											onChange={this.handleTopBorderColorChange}
-										/>
 									</FormGroup>
 									<FormGroup
 										style={{
-											margin: '10px',
+											marginLeft: '10px',
 											flexDirection: 'row',
 										}}
 									>
 										<FormLabel
 											style={{
-												marginTop: '25px',
+												marginTop: '28px',
 												width: '60px',
 												fontSize: '0.85rem',
 											}}
 										>
-											<FormattedMessage id="FormatCellsDialog.right" defaultMessage="Right:" />
+											<FormattedMessage id="FormatCellsDialog.right" defaultMessage="Top" />
 										</FormLabel>
 										<TextField
-											id="number"
+											variant="outlined"
+											size="small"
+											margin="normal"
 											label={
 												<FormattedMessage id="FormatCellsDialog.width" defaultMessage="Width" />
 											}
@@ -1067,127 +1056,127 @@ export class FormatCellsDialog extends React.Component {
 											value={this.state.rightBorderWidth}
 											onChange={(event) => this.handleRightBorderWidthChange(event)}
 											type="number"
-											margin="normal"
 											style={{
 												marginRight: '20px',
-												marginTop: '0px',
 											}}
 										/>
-										<FormControl style={{ width: '120px', marginRight: '20px' }}>
-											<InputLabel htmlFor="right-border-style">
-												<FormattedMessage id="FormatCellsDialog.style" defaultMessage="Style" />
-											</InputLabel>
-											<Select
-												id="right-border-style"
-												classes={{selectMenu: this.props.classes.selectMenu}}
-												value={this.state.rightBorderStyle}
-												onChange={this.handleRightBorderStyleChange}
-												input={
-													<Input
-														defaultValue="0"
-														name="right-border-style"
-														id="right-border-style"
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											style={{ width: '120px', marginRight: '20px' }}
+											SelectProps={{
+												classes: {selectMenu: this.props.classes.selectMenu}
+											}}
+											label={
+												<FormattedMessage id="FormatCellsDialog.style"
+																  defaultMessage="Style"/>
+											}
+											value={this.state.rightBorderStyle}
+											onChange={this.handleRightBorderStyleChange}
+										>
+											<MenuItem
+												value={0}
+												key="ls1"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<text x="50" y="11" fontWeight="normal" fontSize="12pt" dy="0.25em" textAnchor="middle">
+														{intl.formatMessage({ id: "None" }, {})}
+													</text>
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={1}
+												key="ls2"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={2}
+												key="ls3"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={3}
+												key="ls4"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={4}
+												key="ls5"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={5}
+												key="ls6"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+										</TextField>
+										<FormControl size="small" variant="outlined" margin="normal" style={{width: '120px' }}>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="FormatCellsDialog.borderColor"
+														defaultMessage="Border Color"
 													/>
 												}
-											>
-												<MenuItem
-													value={0}
-													key="ls1"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<text x="50" y="13" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
-															{intl.formatMessage({ id: "None" }, {})}
-														</text>
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={1}
-													key="ls2"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={2}
-													key="ls3"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={3}
-													key="ls4"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={4}
-													key="ls5"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={5}
-													key="ls6"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-											</Select>
+												color={this.state.rightBorderColor}
+												onChange={this.handleRightBorderColorChange}
+											/>
 										</FormControl>
-										<ColorComponent
-											label={
-												<FormattedMessage
-													id="FormatCellsDialog.borderColor"
-													defaultMessage="Border Color"
-												/>
-											}
-											color={this.state.rightBorderColor}
-											onChange={this.handleRightBorderColorChange}
-										/>
 									</FormGroup>
 									<FormGroup
 										style={{
-											margin: '10px',
+											marginLeft: '10px',
 											flexDirection: 'row',
 										}}
 									>
 										<FormLabel
 											style={{
-												marginTop: '25px',
+												marginTop: '28px',
 												width: '60px',
 												fontSize: '0.85rem',
 											}}
 										>
-											<FormattedMessage id="FormatCellsDialog.bottom" defaultMessage="Bottom:" />
+											<FormattedMessage id="FormatCellsDialog.bottom" defaultMessage="Bottom" />
 										</FormLabel>
 										<TextField
-											id="number"
+											variant="outlined"
+											size="small"
+											margin="normal"
 											label={
 												<FormattedMessage id="FormatCellsDialog.width" defaultMessage="Width" />
 											}
@@ -1199,108 +1188,107 @@ export class FormatCellsDialog extends React.Component {
 											value={this.state.bottomBorderWidth}
 											onChange={(event) => this.handleBottomBorderWidthChange(event)}
 											type="number"
-											margin="normal"
 											style={{
 												marginRight: '20px',
-												marginTop: '0px',
 											}}
 										/>
-										<FormControl style={{ width: '120px', marginRight: '20px' }}>
-											<InputLabel htmlFor="bottom-border-style">
-												<FormattedMessage id="FormatCellsDialog.style" defaultMessage="Style" />
-											</InputLabel>
-											<Select
-												id="bottom-border-style"
-												value={this.state.bottomBorderStyle}
-												onChange={this.handleBottomBorderStyleChange}
-												classes={{selectMenu: this.props.classes.selectMenu}}
-												input={
-													<Input
-														name="bottom-border-style"
-														id="bottom-border-style"
+										<TextField
+											variant="outlined"
+											size="small"
+											margin="normal"
+											select
+											style={{ width: '120px', marginRight: '20px' }}
+											SelectProps={{
+												classes: {selectMenu: this.props.classes.selectMenu}
+											}}
+											label={
+												<FormattedMessage id="FormatCellsDialog.style"
+																  defaultMessage="Style"/>
+											}
+											value={this.state.bottomBorderStyle}
+											onChange={this.handleBottomBorderStyleChange}
+										>
+											<MenuItem
+												value={0}
+												key="ls1"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 100 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<text x="50" y="11" fontWeight="normal" fontSize="12pt" dy="0.25em" textAnchor="middle">
+														{intl.formatMessage({ id: "None" }, {})}
+													</text>
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={1}
+												key="ls2"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={2}
+												key="ls3"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={3}
+												key="ls4"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={4}
+												key="ls5"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+											<MenuItem
+												value={5}
+												key="ls6"
+												style={{
+													padding: '3px 16px',
+												}}
+											>
+												<svg width="78" height="16" viewBox="0 0 80 16" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M5,9 L75,9" />
+												</svg>
+											</MenuItem>
+										</TextField>
+										<FormControl size="small" variant="outlined" margin="normal" style={{width: '120px' }}>
+											<ColorComponent
+												label={
+													<FormattedMessage
+														id="FormatCellsDialog.borderColor"
+														defaultMessage="Border Color"
 													/>
 												}
-											>
-												<MenuItem
-													value={0}
-													key="ls1"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<text x="50" y="13" fontWeight="normal" fontSize="9pt" dy="0.25em" textAnchor="middle">
-															{intl.formatMessage({ id: "None" }, {})}
-														</text>
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={1}
-													key="ls2"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={2}
-													key="ls3"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="1,2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={3}
-													key="ls4"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={4}
-													key="ls5"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-												<MenuItem
-													value={5}
-													key="ls6"
-													style={{
-														padding: '3px 16px',
-													}}
-												>
-													<svg width="100" height="26" viewBox="0 0 100 26" stroke="currentColor" strokeDasharray="5,5,1,2,1,5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-														<path d="M5,13 L95,13" />
-													</svg>
-												</MenuItem>
-											</Select>
+												color={this.state.bottomBorderColor}
+												onChange={this.handleBottomBorderColorChange}
+											/>
 										</FormControl>
-										<ColorComponent
-											label={
-												<FormattedMessage
-													id="FormatCellsDialog.borderColor"
-													defaultMessage="Border Color"
-												/>
-											}
-											color={this.state.bottomBorderColor}
-											onChange={this.handleBottomBorderColorChange}
-										/>
 									</FormGroup>
 								</div>
 							</div>

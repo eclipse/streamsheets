@@ -145,7 +145,7 @@ class UnloadMachineRequestHandler extends RequestHandler {
 	async handle(request, machineserver) {
 		const machineId = request.machineId;
 		const result = { machine: { id: machineId, unloaded: true } };
-		result.warning = (await machineserver.unloadMachine(machineId))
+		result.warning = (await machineserver.unloadMachine(result))
 			? undefined
 			: `No machine found for id ${request.machineId}.`;
 		return this.confirm(request, result);
@@ -163,7 +163,8 @@ class DeleteMachineRequestHandler extends RequestHandler {
 	async handle(request, machineserver) {
 		const machineId = request.machineId;
 		const result = { machine: { id: machineId, deleted: true } };
-		result.warning = (await machineserver.unloadMachine(machineId))
+		result.warning = (await machineserver.unloadMachine(result
+			))
 			? undefined
 			: `No machine found for id ${request.machineId}.`;
 		return this.confirm(request, result);
@@ -564,6 +565,30 @@ class AddInboxMessageRequestHandler extends RequestHandler {
 				machineId,
 				streamsheetId,
 				message: result.message
+			});
+		}
+		// no runner, no machine:
+		throw this.reject(request, `No machine found with id '${machineId}'!`);
+	}
+}
+
+class GetCellRawValueRequestHandler extends RequestHandler {
+	constructor() {
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.GET_CELL_RAW_VALUE);
+	}
+
+	async handle(request, machineserver) {
+		const { machineId, reference, streamsheetId } = request;
+		const runner = machineserver.getMachineRunner(machineId);
+		if (runner) {
+			const result = await runner.request('getCellRawValue', getUserId(request), {
+				streamsheetId,
+				index: reference
+			});
+			return this.confirm(request, {
+				machineId,
+				streamsheetId,
+				rawvalue: result.rawvalue
 			});
 		}
 		// no runner, no machine:
@@ -1120,6 +1145,27 @@ class MetaInformationRequestHandler extends RequestHandler {
 	}
 }
 
+class MachineActionRequestHandler extends RequestHandler {
+	constructor() {
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.MACHINE_ACTION_MESSAGE_TYPE);
+	}
+
+	async handle(request, machineserver) {
+		logger.info('MachineActionRequestHandler');
+		const { action, machineId } = request;
+		const runner = machineserver.getMachineRunner(machineId);
+		if (runner) {
+			try {
+				const result = await runner.request('runMachineAction', getUserId(request), action);
+				return this.confirm(request, result);
+			} catch(error) {
+				return this.reject(request, error.message);
+			}
+		}
+		return this.reject(request, `No machine found with id '${request.machineId}'.`);
+	}
+}
+
 module.exports = {
 	CommandRequestHandler,
 	AddInboxMessageRequestHandler,
@@ -1127,9 +1173,11 @@ module.exports = {
 	DeleteMachineRequestHandler,
 	DeleteStreamSheetRequestHandler,
 	GetMachineRequestHandler,
+	GetCellRawValueRequestHandler,
 	LoadMachineRequestHandler,
 	LoadSubscribeMachineRequestHandler,
 	LoadSheetCellsRequestHandler,
+	MachineActionRequestHandler,
 	MachineUpdateSettingsRequestHandler,
 	MetaInformationRequestHandler,
 	OpenMachineRequestHandler,

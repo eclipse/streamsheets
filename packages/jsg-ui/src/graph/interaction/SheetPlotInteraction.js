@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import {GraphUtils, Notification, NotificationCenter, SheetPlotNode, StreamSheet} from '@cedalo/jsg-core';
+import {GraphUtils, MathUtils, Point, Notification, NotificationCenter, SheetPlotNode, StreamSheet} from '@cedalo/jsg-core';
 
 import Interaction from './Interaction';
 import ChartSelectionFeedbackView from '../feedback/ChartSelectionFeedbackView';
@@ -98,13 +98,65 @@ export default class SheetPlotInteraction extends Interaction {
 			viewer.select(this._controller);
 		}
 
-		const view = this._controller.getView();
+		this.drag = false;
+		this.offsetStart = this.toLocalCoordinate(event, viewer, event.location.copy());
+
+		const item = this._controller.getModel();
+		if (item.isMap() && item.chart.mapZoom) {
+			this.mapOldOffset = item.chart.mapOffset ?  item.chart.mapOffset.copy() : new Point(0, 0);
+		}
+	}
+
+	onMouseDrag(event, viewer) {
+		const graphView = viewer.getGraphView();
+		const item = this._controller.getModel();
+		const offsetNow = this.toLocalCoordinate(event, viewer, event.location.copy());
+
+		this.drag = MathUtils.getLineLength(this.offsetStart, offsetNow) > 150;
+
+		if (this.drag) {
+			if (item.isMap() && item.chart.mapZoom) {
+				if (!item.chart.mapOffset) {
+					item.chart.mapOffset = new Point(0, 0);
+				}
+				item.chart.mapOffset.x = this.mapOldOffset.x + offsetNow.x - this.offsetStart.x;
+				item.chart.mapOffset.y = this.mapOldOffset.y + offsetNow.y - this.offsetStart.y;
+				item.getGraph().markDirty();
+			}
+
+			if (item.getAllowZoom(item.xAxes[0])) {
+				graphView.clearLayer('chartselection');
+				const layer = graphView.getLayer('chartinfo');
+				if (layer === undefined || !layer.length) {
+					return;
+				}
+				if (layer.length >= 1) {
+					layer.forEach((view) => {
+						if (view.chartView.getItem().getId() === item.getId()) {
+							view.endPoint = this.toLocalCoordinate(event, viewer, event.location.copy());
+						}
+					});
+				}
+				viewer.setCursor(Cursor.Style.CROSS);
+			}
+		}
+	}
+
+	onMouseDoubleClick(event, viewer) {}
+
+	onMouseUp(event, viewer) {
+		if (this._controller === undefined) {
+			super.onMouseUp(event, viewer);
+			return;
+		}
+
+		let view = this._controller.getView();
 		const selection = this.isElementHit(event, viewer, view.chartSelection);
 		if (selection === undefined) {
 			return;
 		}
 
-		if (!view.getItem().isProtected()) {
+		if (!view.getItem().isProtected() && !this.drag) {
 			view.chartSelection = selection;
 			NotificationCenter.getInstance().send(
 				new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, view.getItem())
@@ -116,37 +168,7 @@ export default class SheetPlotInteraction extends Interaction {
 				layer.push(new ChartSelectionFeedbackView(view));
 			}
 		}
-	}
 
-	onMouseDrag(event, viewer) {
-		const graphView = viewer.getGraphView();
-
-		graphView.clearLayer('chartselection');
-
-		const item = this._controller.getModel();
-		if (item.getAllowZoom(item.xAxes[0])) {
-			const layer = graphView.getLayer('chartinfo');
-			if (layer === undefined || !layer.length) {
-				return;
-			}
-			if (layer.length >= 1) {
-				layer.forEach((view) => {
-					if (view.chartView.getItem().getId() === item.getId()) {
-						view.endPoint = this.toLocalCoordinate(event, viewer, event.location.copy());
-					}
-				});
-			}
-			viewer.setCursor(Cursor.Style.CROSS);
-		}
-	}
-
-	onMouseDoubleClick(event, viewer) {}
-
-	onMouseUp(event, viewer) {
-		if (this._controller === undefined) {
-			super.onMouseUp(event, viewer);
-			return;
-		}
 
 		const graphView = viewer.getGraphView();
 		const layer = graphView.getLayer('chartinfo');
@@ -161,7 +183,7 @@ export default class SheetPlotInteraction extends Interaction {
 			return;
 		}
 
-		const view = views[0];
+		view = views[0];
 		if (view.endPoint) {
 			const ptStart = view.point.copy();
 			const ptEnd = view.endPoint.copy();

@@ -89,7 +89,7 @@ describe('request', () => {
 		await machine.step();
 		await pendingRequest.resolve(pendingRequest.message.data);
 		expect(streamsheet.inbox.size).toBe(1);
-		expect(streamsheet.inbox.peek().data.value).toBe('hallo');
+		expect(streamsheet.inbox.peek().data[0]).toBe('hallo');
 	});
 	it('should request with message from outbox', async () => {
 		const streamsheet = setupStreamSheet({
@@ -111,7 +111,7 @@ describe('request', () => {
 		await machine.step();
 		await pendingRequest.resolve(pendingRequest.message.data);
 		expect(streamsheet.inbox.size).toBe(1);
-		expect(streamsheet.inbox.peek().data.value).toBe('hallo');
+		expect(streamsheet.inbox.peek().data[0]).toBe('hallo');
 		await machine.step();
 		await pendingRequest.resolve(pendingRequest.message.data);
 		expect(streamsheet.inbox.size).toBe(2);

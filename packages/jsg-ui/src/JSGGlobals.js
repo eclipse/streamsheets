@@ -66,7 +66,7 @@ JSG.bkColorButton = '#CCCCCC';
 JSG.findRadius = JSG.touchDevice ? 600 : 300;
 JSG.scaledFindRadius = JSG.touchDevice ? 600 : 300;
 JSG.portFindRadius = JSG.touchDevice ? 400 : 200;
-JSG.createThreshhold = 300;
+JSG.createThreshhold = 100;
 JSG.snapRadius = 300;
 JSG.keepFocus = false;
 JSG.canvasCache = true;
@@ -131,6 +131,10 @@ JSG.drawingDisabled = false;
  */
 JSG.DRAW_DISABLED_NOTIFICATION = 'jsg.draw.disabled.notification';
 JSG.LOCALE_CHANGED_NOTIFICATION = 'jsg.locale.changed.notification';
+JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION = 'graph_show_context_menu_notification';
+JSG.EDITPOINTS_SHOW_CONTEXT_MENU_NOTIFICATION = 'editpoints_show_context_menu_notification';
+JSG.GRAPH_DOUBLE_CLICK_NOTIFICATION = 'graph_double_click_notification';
+JSG.GRAPH_INVALID_NOTIFICATION = 'graph_invalid_notification';
 
 /**
  * Localized strings.
@@ -300,6 +304,10 @@ JSG.init = (jsghome, locale) => {
 	JSG.imagePool.add(
 		`${jsghome}/res/svg/${ImagePool.SVG_FILTER}.svg`,
 		ImagePool.SVG_FILTER
+	);
+	JSG.imagePool.add(
+		`${jsghome}/res/svg/${ImagePool.SVG_TABLE}.svg`,
+		ImagePool.SVG_TABLE
 	);
 	JSG.imagePool.add(
 		`${jsghome}/res/svg/${ImagePool.SVG_CHECKED}.svg`,

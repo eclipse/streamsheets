@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -111,8 +111,8 @@ class GraphicSystem {
 		};
 
 		const notifyDragEvent = (ev) => {
-			ev.location.x = this.graphics.getCoordinateSystem().deviceToLogX(ev.location.x);
-			ev.location.y = this.graphics.getCoordinateSystem().deviceToLogY(ev.location.y);
+			// ev.location.x = this.graphics.getCoordinateSystem().deviceToLogX(ev.location.x);
+			// ev.location.y = this.graphics.getCoordinateSystem().deviceToLogY(ev.location.y);
 
 			if (this.interactionHandler) {
 				this.interactionHandler.handleDragEvent(ev);
@@ -288,8 +288,7 @@ class GraphicSystem {
 		}
 
 		const onDragEnter = (event) => {
-			const ev = DragEvent.fromEvent(this.canvas,  event, DragEvent.DragEventType.ENTER);
-			ev.cs = this.graphics.getCoordinateSystem();
+			const ev = this.createDragEvent( event, DragEvent.DragEventType.ENTER);
 			notifyDragEvent(ev);
 		}
 
@@ -297,27 +296,23 @@ class GraphicSystem {
 			if (event.preventDefault) {
 				event.preventDefault();
 			}
-			const ev = DragEvent.fromEvent(this.canvas,  event, DragEvent.DragEventType.OVER);
-			ev.cs = this.graphics.getCoordinateSystem();
+			const ev = this.createDragEvent( event, DragEvent.DragEventType.OVER);
 			notifyDragEvent(ev);
 		}
 
 		const onDragLeave = (event) => {
-			const ev = DragEvent.fromEvent(this.canvas,  event, DragEvent.DragEventType.LEAVE);
-			ev.cs = this.graphics.getCoordinateSystem();
+			const ev = this.createDragEvent( event, DragEvent.DragEventType.LEAVE);
 			notifyDragEvent(ev);
 		}
 
 		const onDragExit = (event) => {
-			const ev = DragEvent.fromEvent(this.canvas,  event, DragEvent.DragEventType.EXIT);
-			ev.cs = this.graphics.getCoordinateSystem();
+			const ev = this.createDragEvent( event, DragEvent.DragEventType.EXIT);
 			notifyDragEvent(ev);
 		}
 
 		const onDrop = (event) => {
-			const ev = DragEvent.fromEvent(this.canvas,  event, DragEvent.DragEventType.DROP);
-			ev.cs = this.graphics.getCoordinateSystem();
-			notifyDragEvent(event);
+			const ev = this.createDragEvent( event, DragEvent.DragEventType.DROP);
+			notifyDragEvent(ev);
 			if (event.preventDefault) {
 				event.preventDefault();
 			}
@@ -692,6 +687,13 @@ class GraphicSystem {
 		me.cs = this.graphics.getCoordinateSystem();
 		me.location.set(me.cs.deviceToLogX(me.location.x), me.cs.deviceToLogY(me.location.y));
 		return me;
+	}
+
+	createDragEvent( event, type) {
+		const de = DragEvent.fromEvent(this.canvas,  event, type);
+		de.cs = this.graphics.getCoordinateSystem();
+		de.location.set(de.cs.deviceToLogX(de.location.x), de.cs.deviceToLogY(de.location.y));
+		return de;
 	}
 
 	createGestureEvent( event, type) {

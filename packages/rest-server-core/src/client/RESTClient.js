@@ -27,7 +27,8 @@ module.exports = class RESTClient {
 				if (error) {
 					reject(error);
 				} else {
-					resolve(body);
+					const { headers, statusCode } = response;
+					resolve({ body, headers, statusCode });
 				}
 			});
 		});

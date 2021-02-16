@@ -48,7 +48,7 @@ const isModule = (file) =>
 
 const resolveFile = (file) => {
 	try {
-		return require.resolve(file);
+		return require.resolve(`${file}`);
 	} catch (err) {
 		logger.error(err.message);
 	}
@@ -66,7 +66,7 @@ module.exports = {
 		const traverseAndResolve = async (moduleDir) => {
 			const files = await readDirFiles(moduleDir).then((fls) => fls.filter((file) => !ignoreDirs.includes(file)));
 			// eslint-disable-next-line
-			for (let file of files) {
+			for (const file of files) {
 				const p = path.resolve(dir, file);
 				const isDir = await isDirectory(p);
 				if (isDir) {

@@ -24,6 +24,7 @@ const {
 	DELETE_STREAMSHEET_MESSAGE_TYPE,
 	GET_MACHINE_MESSAGE_TYPE,
 	GET_MACHINES_MESSAGE_TYPE,
+	GET_CELL_RAW_VALUE,
 	LOAD_MACHINE_MESSAGE_TYPE,
 	UNLOAD_MACHINE_MESSAGE_TYPE,
 	LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE,
@@ -51,6 +52,7 @@ const {
 	UNSUBSCRIBE_MACHINE_MESSAGE_TYPE,
 	// General request types
 	COMMAND_MESSAGE_TYPE,
+	MACHINE_ACTION_MESSAGE_TYPE,
 	USER_GET_MESSAGE_TYPE,
 	USER_SAVE_MESSAGE_TYPE,
 	USER_SETTINGS_GET_MESSAGE_TYPE,
@@ -816,6 +818,23 @@ class UpdateMachineSettingsWebSocketRequest extends WebSocketRequest {
 	}
 }
 
+class GetCellRawValueWebSocketRequest extends WebSocketRequest {
+	constructor(ws, machineId, streamsheetId, reference) {
+		super(ws, GET_CELL_RAW_VALUE);
+		this._machineId = machineId;
+		this._streamsheetId = streamsheetId;
+		this._reference = reference;
+	}
+
+	_getConfig() {
+		return {
+			machineId: this._machineId,
+			streamsheetId: this._streamsheetId,
+			reference: this._reference
+		};
+	}
+}
+
 /**
  * ******************************************************************************************
  * General requests
@@ -841,6 +860,23 @@ class CommandWebSocketRequest extends WebSocketRequest {
 		};
 	}
 }
+
+class MachineActionWebSocketRequest extends WebSocketRequest {
+	constructor(ws, machineId, action) {
+		super(ws, MACHINE_ACTION_MESSAGE_TYPE);
+		this._machineId = machineId;
+		this._action = action;
+	}
+
+	_getConfig() {
+		return {
+			machineId: this._machineId,
+			action: this._action
+		};
+	}
+}
+
+
 
 module.exports = {
 	// Graph requests
@@ -879,8 +915,10 @@ module.exports = {
 	UndoWebSocketRequest,
 	UnloadMachineWebSocketRequest,
 	UnsubscribeMachineWebSocketRequest,
+	GetCellRawValueWebSocketRequest,
 	// General requests
 	CommandWebSocketRequest,
+	MachineActionWebSocketRequest,
 	UserGetSocketRequest,
 	UserSaveSocketRequest,
 	UserSettingGetSocketRequest,

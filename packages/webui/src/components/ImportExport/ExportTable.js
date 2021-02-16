@@ -28,41 +28,44 @@ export default function ExportTable(props) {
 	const numResources = props.resources.length;
 	const numSelected = selectionCount(props.selected);
 	return (
-		<Table style={{ overflowY: 'auto' }}>
-			<TableHead>
-				<TableRow>
-					<TableCell padding="checkbox">
-						<Checkbox
-							indeterminate={numSelected > 0 && numSelected < numResources}
-							checked={numSelected > 0 && numSelected >= numResources}
-							onChange={props.onSelectAll}
-						/>
-					</TableCell>
-					<TableCell>Name</TableCell>
-					{props.columns.map((column) => column.header)}
-				</TableRow>
-			</TableHead>
-			<TableBody>
-				{props.resources.map((resource) => {
-					const isSelected = !!props.selected[resource.id];
-					return (
-						<TableRow
-							onClick={() => props.onSelect(resource.id)}
-							selected={isSelected}
-							role="checkbox"
-							aria-checked={isSelected}
-							key={resource.id}
-						>
-							<TableCell padding="checkbox">
-								<Checkbox checked={isSelected} />
-							</TableCell>
-							<TableCell>{resource.name}</TableCell>
-							{props.columns.map((column) => column.cellCreator(resource))}
-						</TableRow>
-					);
-				})}
-			</TableBody>
-		</Table>
+		<div style={{height: 'calc(100% - 40px)', overflowY: 'auto'}}>
+			<Table stickyHeader size="small">
+				<TableHead>
+					<TableRow>
+						<TableCell padding="checkbox">
+							<Checkbox
+								indeterminate={numSelected > 0 && numSelected < numResources}
+								checked={numSelected > 0 && numSelected >= numResources}
+								onChange={props.onSelectAll}
+							/>
+						</TableCell>
+						<TableCell>Name</TableCell>
+						{props.columns.map((column) => column.header)}
+					</TableRow>
+				</TableHead>
+				<TableBody>
+					{props.resources.map((resource) => {
+						const isSelected = !!props.selected[resource.id];
+						return (
+							<TableRow
+								style={{ height: '35px'}}
+								onClick={() => props.onSelect(resource.id)}
+								selected={isSelected}
+								role="checkbox"
+								aria-checked={isSelected}
+								key={resource.id}
+							>
+								<TableCell padding="checkbox">
+									<Checkbox checked={isSelected} />
+								</TableCell>
+								<TableCell>{resource.name}</TableCell>
+								{props.columns.map((column) => column.cellCreator(resource))}
+							</TableRow>
+						);
+					})}
+				</TableBody>
+			</Table>
+		</div>
 	);
 }
 

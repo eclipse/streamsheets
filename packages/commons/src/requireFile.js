@@ -11,7 +11,7 @@
 const requireFile = (file) => {
 	try {
 		// eslint-disable-next-line
-		return require(file);
+		return require(`${file}`);
 	} catch (err) {
 		/* ignore */
 	}

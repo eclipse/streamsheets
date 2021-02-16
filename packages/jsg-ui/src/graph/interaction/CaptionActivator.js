@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -108,13 +108,15 @@ export default class CaptionActivator extends InteractionActivator {
 			if (item) {
 				viewer
 					.getInteractionHandler()
-					.execute(new ChangeItemOrderCommand(item, ChangeItemOrderCommand.Action.TOTOP, viewer));
+					.execute(new ChangeItemOrderCommand(item, ChangeItemOrderCommand.Action.TOTOP, viewer, true));
 			}
 			if (this.isOverStatus(event, viewer, controller)) {
 				const link = controller.getModel().getIconLink();
-				window.open(link, '_blank');
-				event.isConsumed = true;
-				event.hasActivated = true;
+				if (link) {
+					window.open(link, '_blank');
+					event.isConsumed = true;
+					event.hasActivated = true;
+				}
 			}
 		}
 	}

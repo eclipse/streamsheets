@@ -9,21 +9,23 @@
  *
  ********************************************************************************/
 /* eslint-disable react/prop-types,react/no-unused-state */
+import { WorkspaceSelect } from '@cedalo/webui-extensions';
 import AppBar from '@material-ui/core/AppBar';
-import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
+import { MuiThemeProvider } from '@material-ui/core';
 import Toolbar from '@material-ui/core/Toolbar';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../actions/actions';
 import InfoToolBar from '../components/AppBarComponent/InfoToolBar';
 import MainDrawer from '../components/AppBarComponent/MainDrawer';
+import FilterName from '../components/base/listing/FilterName';
 import DashBoardComponent from '../components/Dashboard/DashBoardComponent';
 import LicenseExpireNotification from '../components/HelperComponent/LicenseExpireNotification';
-import NewMachineDialog from '../components/HelperComponent/NewMachineDialog';
-import OpenDialog from '../components/HelperComponent/OpenDialog';
-import SaveAsDialog from '../components/HelperComponent/SaveAsDialog';
+import NewMachineDialog from '../components/Dialogs/NewMachineDialog';
+import OpenDialog from '../components/Dialogs/OpenDialog';
+import SaveAsDialog from '../components/Dialogs/SaveAsDialog';
 import ErrorDialog from '../components/ImportExport/ErrorDialog';
 import ImportDialog from '../components/ImportExport/ImportDialog';
 import StartImportDialog from '../components/ImportExport/StartImportDialog';
@@ -31,14 +33,13 @@ import MachineDeleteDialog from '../components/MachineControlBar/MachineDeleteDi
 import NotificationsComponent from '../components/NotificationsComponent/NotificationsComponent';
 import RequestStatusDialog from '../components/RequestStatusDialog/RequestStatusDialog';
 import ServerStatusDialog from '../components/ServerStatusDialog/ServerStatusDialog';
-import SettingsMenu from '../components/SettingsMenu/SettingsMenu';
+import SettingsMenu from '../components/HelperComponent/SettingsMenu';
 import AlertDialog from '../components/SheetDialogs/AlertDialog';
 import DecisionDialog from '../components/SheetDialogs/DecisionDialog';
 import { intl } from '../helper/IntlGlobalProvider';
 import MachineHelper from '../helper/MachineHelper';
 import HelpButton from '../layouts/HelpButton';
 import theme from '../theme';
-import FilterName from '../components/base/listing/FilterName';
 
 const DASHBOARD_QUERY = `
 query Machines($scope: ScopeInput!) {
@@ -92,6 +93,7 @@ export function DashboardPageComponent(props) {
 	useEffect(() => {
 		if (scopeId) {
 			props.getMachines(DASHBOARD_QUERY, { scope: { id: scopeId } });
+			props.getDataStores();
 		}
 	}, [scopeId]);
 
@@ -125,10 +127,10 @@ export function DashboardPageComponent(props) {
 					<AlertDialog />
 					<DecisionDialog />
 					<RequestStatusDialog />
-					<ServerStatusDialog noStreams/>
+					<ServerStatusDialog noStreams />
 					<ErrorDialog />
 					<AppBar
-						color={props.isMachineEngineConnected ? "primary" : "error"}
+						color={props.isMachineEngineConnected ? 'primary' : 'error'}
 						style={{
 							display: 'flex',
 							margin: 0,
@@ -146,24 +148,35 @@ export function DashboardPageComponent(props) {
 							}}
 						>
 							<LicenseExpireNotification />
-							<InfoToolBar title={<FormattedMessage id="MainTitle" defaultMessage="Streamsheets" />} workspaceSelect />
+							<div style={{ display: 'flex', flexGrow: 1, alignItems: 'center' }}>
+								<InfoToolBar
+									title={<FormattedMessage id="MainTitle" defaultMessage="Streamsheets" />}
+								/>
+								<WorkspaceSelect editable setScope={props.setScope} />
+							</div>
 							{!props.isMachineEngineConnected ? (
 								<div>
 									<FormattedMessage id="ServicesDisconnected" defaultMessage="Disconnected: " />
 									{`${props.disconnectedServices}`}
 								</div>
 							) : null}
-							<FilterName filter={filter} onUpdateFilter={setFilter}/>
-							<Toolbar
-								style={{
-									paddingRight: '5px',
-									minHeight: '58px'
-								}}
+							<div
+								style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
 							>
-								<NotificationsComponent />
-								<HelpButton />
-								<SettingsMenu />
-							</Toolbar>
+								<FilterName filter={filter} onUpdateFilter={setFilter} />
+							</div>
+							<div style={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
+								<Toolbar
+									style={{
+										paddingRight: '5px',
+										minHeight: '58px'
+									}}
+								>
+									<NotificationsComponent />
+									<HelpButton />
+									<SettingsMenu />
+								</Toolbar>
+							</div>
 						</div>
 					</AppBar>
 				</div>
@@ -172,10 +185,10 @@ export function DashboardPageComponent(props) {
 						position: 'relative',
 						height: 'calc(100% - 58px)',
 						width: '100%',
-						overflow: 'hidden',
+						overflow: 'hidden'
 					}}
 				>
-					<DashBoardComponent filter={filter} onUpdateFilter={setFilter}/>
+					<DashBoardComponent filter={filter} onUpdateFilter={setFilter} />
 				</div>
 			</div>
 		</MuiThemeProvider>

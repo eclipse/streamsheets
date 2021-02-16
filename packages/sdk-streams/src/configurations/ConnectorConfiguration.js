@@ -15,6 +15,7 @@ class ConnectorConfiguration extends BaseConfiguration {
 	constructor(config = {}, provider) {
 		super(config);
 		this.className = ConnectorConfiguration.NAME;
+		this.description = config.description || '';
 		if (!this.isRef()) {
 			if (provider) {
 				if (provider instanceof ProviderConfiguration) {
@@ -67,6 +68,7 @@ class ConnectorConfiguration extends BaseConfiguration {
 		this.provider.definition.connector.forEach((d) => {
 			json[d.id] = this.fields[d.id];
 		});
+		json.description = this.description;
 		return json;
 	}
 

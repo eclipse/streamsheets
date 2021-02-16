@@ -14,21 +14,10 @@ import {CellRange, default as JSG, Point, Selection, SheetReference, Strings} fr
 
 const { Locale } = require('@cedalo/parser');
 
-const RANGE_COLORS = [
-	'#1718d1',
-	'#a61d4c',
-	'#8cc474',
-	'#f75c02',
-	'#2fb4d2',
-	'#803995',
-	'#00b15b',
-	'#795548',
-	'#fabb69',
-	'#168d9a'
-];
-
 let cellEditor;
 let functionInfo;
+let showFuncInfo = localStorage.getItem('funcinfo') !== 'false';
+let showParamInfo = localStorage.getItem('paraminfo') !== 'false';
 
 export default class CellEditor {
 	constructor(div, viewer, sheet) {
@@ -102,6 +91,10 @@ export default class CellEditor {
 			this.div.parentNode.removeChild(this.funcDiv);
 			this.funcDiv = undefined;
 		}
+		if (this.helpDiv) {
+			this.div.parentNode.removeChild(this.helpDiv);
+			this.helpDiv = undefined;
+		}
 	}
 
 	getActiveRangeIndex() {
@@ -133,7 +126,7 @@ export default class CellEditor {
 			if (active === undefined) {
 				active = new Point(0, 0);
 			}
-			ranges.add(new CellRange(this, active.x, active.y), RANGE_COLORS[ranges.getSize() % RANGE_COLORS.length]);
+			ranges.add(new CellRange(this, active.x, active.y), JSG.theme.rangeColors[ranges.getSize() % JSG.theme.rangeColors.length]);
 			ranges.setActiveCell(active.copy());
 			ranges.setActiveRange(ranges.getSize() - 1);
 		}
@@ -276,10 +269,10 @@ export default class CellEditor {
 				let parameters;
 				html = '<div style="padding: 3px;background-color: #DDDDDD">';
 				if (this.funcInfo === undefined || this.funcInfo.paramIndex === undefined) {
-					parameters = `<p style="width:315px">${info[0]}(${info[1][JSG.locale].argumentList})</p>`;
+					parameters = `<p style="width:305px">${info[0]}(${info[1][JSG.locale].argumentList})</p>`;
 				} else {
 					const params = info[1][JSG.locale].argumentList.split(',');
-					parameters = `<p style="width:315px">${info[0]}(`;
+					parameters = `<p style="width:305px">${info[0]}(`;
 					params.forEach((param, paramIndex) => {
 						if (paramIndex === this.funcInfo.paramIndex) {
 							parameters  += `<span style="font-weight: bold">${param}</span>`;
@@ -294,16 +287,19 @@ export default class CellEditor {
 				}
 				parameters = parameters.replace(/,/gi, JSG.getParserLocaleSettings().separators.parameter);
 				html += parameters;
-				html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
-				html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">${JSG.getLocalizedString(
-					'Summary'
-				)}</p>`;
-				html += `<p>${info[1][JSG.locale].description}</p>`;
-				html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">`;
-				html += `<a href="https://docs.cedalo.com/functions/${info[1].category}/${info[0]
-					.toLowerCase()
-					.replace(/\./g, '')}.html" target="_blank">`;
-				html += `${JSG.getLocalizedString('More Info')}</a></p>`;
+				html += `<div id="expandFunc" style="width:15px;height:15px;position: absolute; top: 6px; right: 15px; transform: scale(2.0,1.0); font-size: 7pt; color: #777777;cursor: pointer">${showParamInfo ? '&#x2C4' : '&#x2C5'}</div>`;
+				html += `<div id="closeFunc" style="width:13px;height:15px;position: absolute; top: 3px; right: 2px; transform: scale(1.3,1.0); font-size: 11pt; color: #777777;cursor: pointer">x</div>`;
+				if (showParamInfo) {
+					html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">${JSG.getLocalizedString(
+						'Summary'
+					)}</p>`;
+					html += `<p>${info[1][JSG.locale].description}</p>`;
+					html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">`;
+					html += `<a href="https://docs.cedalo.com/functions/${info[1].category}/${info[0]
+						.toLowerCase()
+						.replace(/\./g, '')}.html" target="_blank">`;
+					html += `${JSG.getLocalizedString('More Info')}</a></p>`;
+				}
 				html += '</div>';
 				return html;
 			})
@@ -394,6 +390,47 @@ export default class CellEditor {
 
 	updateFunctionInfo() {
 		this.funcs = this.getPotentialFunctionsUnderCursor();
+
+		if (this.funcs && this.funcs.length === 1 && showFuncInfo === false) {
+			const y = this.div.offsetTop + (this.editBar ? 0 : 4);
+			if (!this.helpDiv) {
+				this.helpDiv = document.createElement('div');
+				this.helpDiv.style.position = 'absolute';
+				this.helpDiv.style.fontFamily = 'Roboto, Verdana, Arial, sans-serif';
+				this.helpDiv.style.fontSize = '12pt';
+				this.helpDiv.style.fontWeight = 'bold';
+				this.helpDiv.style.textAlign = 'center';
+				this.helpDiv.style.width = '17px';
+				// this.helpDiv.style.height = '18px';
+				this.helpDiv.style.overflowY = 'auto';
+				this.helpDiv.style.color = '#FFFFFF';
+				this.helpDiv.style.cursor = 'pointer';
+				this.helpDiv.style.backgroundColor = '#9bbffd';
+				this.helpDiv.style.border = '1px solid #BBBBBB';
+				this.helpDiv.style.left = `${this.div.offsetLeft - 22}px`;
+				this.helpDiv.style.top = `${y}px`;
+				this.helpDiv.innerText = '?';
+				this.div.parentNode.appendChild(this.helpDiv);
+				this.helpDiv.addEventListener(
+					'mousedown',
+					(event) => {
+						showFuncInfo = true;
+						localStorage.setItem('funcinfo', true);
+						event.preventDefault();
+						event.stopPropagation();
+						this.removeFunctionHelp();
+						this.updateFunctionInfo();
+						this.div.focus();
+						this.div._ignoreBlur = false;
+					},
+					false
+				);
+
+			}
+			return;
+		}
+
+		this.funcs = this.getPotentialFunctionsUnderCursor();
 		if (this.funcs && this.funcs.length) {
 			let html;
 			if (this.funcs.length === 1) {
@@ -405,7 +442,7 @@ export default class CellEditor {
 				const y = this.div.offsetTop + this.div.clientHeight + 2;
 				this.funcDiv = document.createElement('div');
 				this.funcDiv.style.position = 'absolute';
-				this.funcDiv.style.fontName = 'Verdana';
+				this.funcDiv.style.fontFamily = 'Roboto, Verdana, Arial, sans-serif';
 				this.funcDiv.style.fontSize = '8pt';
 				this.funcDiv.style.width = '350px';
 				this.funcDiv.style.maxHeight = `${this.div.parentNode.clientHeight - y}px`;
@@ -429,10 +466,28 @@ export default class CellEditor {
 				document.getElementById('closeFunc').addEventListener(
 					'mousedown',
 					(event) => {
+						showFuncInfo = false;
+						localStorage.setItem('funcinfo', false);
 						this.div._ignoreBlur = true;
 						event.preventDefault();
 						event.stopPropagation();
 						this.removeFunctionHelp();
+						this.updateFunctionInfo();
+						this.div.focus();
+						this.div._ignoreBlur = false;
+					},
+					false
+				);
+				document.getElementById('expandFunc').addEventListener(
+					'mousedown',
+					(event) => {
+						showParamInfo = !showParamInfo;
+						localStorage.setItem('paraminfo', showParamInfo);
+						this.div._ignoreBlur = true;
+						event.preventDefault();
+						event.stopPropagation();
+						this.removeFunctionHelp();
+						this.updateFunctionInfo();
 						this.div.focus();
 						this.div._ignoreBlur = false;
 					},
@@ -466,7 +521,7 @@ export default class CellEditor {
 				if (refRange /* && refRange.getSheet() === this.formulaSheet */) {
 					const copy = refRange.copy();
 					copy.shiftFromSheet();
-					ranges.add(copy, RANGE_COLORS[ranges.getSize() % RANGE_COLORS.length]);
+					ranges.add(copy, JSG.theme.rangeColors[ranges.getSize() % JSG.theme.rangeColors.length]);
 				}
 			}
 			// }
@@ -497,7 +552,7 @@ export default class CellEditor {
 
 			result += formula.slice(0, pos);
 			result += `<span id="range" style="color: ${
-				RANGE_COLORS[index % RANGE_COLORS.length]
+				JSG.theme.rangeColors[index % JSG.theme.rangeColors.length]
 			}">${rangeString}</span>`;
 
 			formula = formula.slice(pos + rangeString.length);
@@ -842,7 +897,7 @@ export default class CellEditor {
 
 			const span = document.createElement('span');
 			span.id = 'range';
-			span.style.color = RANGE_COLORS[index % RANGE_COLORS.length];
+			span.style.color = JSG.theme.rangeColors[index % JSG.theme.rangeColors.length];
 			// set the content of the span
 			const refText = document.createTextNode(text);
 			span.appendChild(refText);

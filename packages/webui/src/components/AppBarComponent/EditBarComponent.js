@@ -16,7 +16,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { graphManager } from '../../GraphManager';
 import * as Actions from '../../actions/actions';
-import {Notification, NotificationCenter} from '@cedalo/jsg-core';
+// import {Notification, NotificationCenter} from '@cedalo/jsg-core';
 import AppBar from '@material-ui/core/AppBar';
 import {withStyles} from '@material-ui/core/styles';
 
@@ -125,8 +125,8 @@ export class EditBarComponent extends Component {
 						graphManager.getGraphEditor().invalidate();
 						attr.setExpressionOrValue(false);
 					} else if (!item.isProtected()) {
-						NotificationCenter.getInstance().send(
-							new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION));
+						// NotificationCenter.getInstance().send(
+						// 	new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION));
 					}
 				}
 			}
@@ -226,7 +226,8 @@ export class EditBarComponent extends Component {
 			if (active === undefined || sheet.getId() !== active.getId()) {
 				if (sheet.getOwnSelection().hasSelection()) {
 					const cmd = new RemoveSelectionCommand(sheet, sheet.getSelectionId());
-					cmd._noDraw = true;
+					// cmd._noDraw = true;
+					graphManager.getGraph().markDirty();
 					graphManager.synchronizedExecute(cmd);
 				}
 			}
@@ -470,10 +471,16 @@ export class EditBarComponent extends Component {
 				}
 			} else {
 				const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
+
+				if (term) {
+					formula = term.toLocaleString('en', {item, useName: true, forceName: true});
+				}
+
 				cmd = new SetAttributeAtPathCommand(graphItem, path, new Expression(0, formula));
 				// this is necessary, to keep changes, otherwise formula will be recreated from graphitem
 				graphItem.setAttributeAtPath(path, new Expression(0, formula));
 				graphItem._noFormulaUpdate = true;
+				graphItem._editBarChange = true;
 			}
 		} else {
 			const ref = item.getOwnSelection().activeCellToString();
@@ -511,11 +518,12 @@ export class EditBarComponent extends Component {
 				color="default"
 				tabIndex="-1"
 				style={{
+					backgroundColor: this.props.theme.overrides.MuiAppBar.colorEdit.backgroundColor,
 					position: 'relative',
 					margin: 0,
 					fontSize: '9pt',
 					display: 'block',
-					height: '21px'
+					height: '20px'
 				}}
 			>
 				<span
@@ -554,7 +562,7 @@ export class EditBarComponent extends Component {
 						cursor: 'default'
 					}}
 				>
-					F(x)
+					<span style={{fontStyle: 'italic', fontWeight: 'bold', color: 'gray'}}>f</span> (x)
 				</span>
 				<span
 					id="editbarformula"
@@ -574,13 +582,13 @@ export class EditBarComponent extends Component {
 						display: 'inline-block',
 						position: 'relative',
 						right: '0px',
-						width: 'calc(100% - 274px)',
+						width: 'calc(100% - 275px)',
 						wordWrap: 'break-word',
 						whiteSpace: 'pre-wrap',
 						borderLeft: '1px solid #AAAAAA',
 						borderBottom: '1px solid #AAAAAA',
 						minHeight: '17px',
-						backgroundColor: this.props.theme.palette.colorPrimary,
+						backgroundColor: this.props.theme.overrides.MuiAppBar.colorEdit.backgroundColor,
 						maxHeight: '200px',
 						overflowY: 'auto',
 						verticalAlign: 'top',

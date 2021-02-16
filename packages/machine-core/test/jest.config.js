@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -9,12 +9,14 @@
  *
  ********************************************************************************/
 /**
- * NOTE: 
+ * NOTE:
  *  - used to run a single test-file with cli option: --config
  *  - to run ALL tests use $>npm t
  */
 module.exports = {
 	bail: true,
 	collectCoverage: false,
-	verbose: true
+	// to show console.logs overwrite in launch config, e.g. add "--verbose=false" to args: []
+	verbose: true,
+	setupFiles: ['./setup.js']
 };

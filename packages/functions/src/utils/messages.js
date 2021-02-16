@@ -1,4 +1,4 @@
-const { jsonpath } = require('@cedalo/commons');
+const { clone, jsonpath } = require('@cedalo/commons');
 
 // TODO: a lot of message handling functions have slightly different requirements... :-( 
 // => COMBINE!! all message handling methods!!
@@ -13,7 +13,7 @@ const getStreamSheetByName = (sheet, name) => {
 const readInboxMessage = (sheet, streamsheetName, messageId) => {
 	const streamsheet = getStreamSheetByName(sheet, streamsheetName);
 	// note: read current message from streamsheet instead of inbox, since it might not be top in inbox!!
-	return streamsheet ? streamsheet.getMessage(messageId) : undefined;
+	return streamsheet ? streamsheet.getMessageById(messageId) : undefined;
 };
 const readOutboxMessage = (sheet, messageId) => sheet.machine.outbox.peek(messageId);
 
@@ -38,7 +38,8 @@ const getMessageValue = (msginfo) => {
 	const { fnName, message, path } = msginfo;
 	if (message) {
 		// eslint-disable-next-line no-nested-ternary
-		return isMeta(fnName) ? message.getMetaDataAt(path) : isData(fnName) ? message.getDataAt(path) : message;
+		const value = isMeta(fnName) ? message.getMetaDataAt(path) : isData(fnName) ? message.getDataAt(path) : message;
+		return clone(value) || value;
 	}
 	return undefined;
 };

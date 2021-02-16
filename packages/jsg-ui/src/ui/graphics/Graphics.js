@@ -401,8 +401,8 @@ class Graphics {
 	rect(x, y, width, height) {
 		this._fillOperation = true;
 		const p1 = this.transformPoint(x, y, 0);
-		width = Math.ceil(width - 0.5);
-		height = Math.ceil(height - 0.5);
+		// width = Math.ceil(width - 0.5);
+		// height = Math.ceil(height - 0.5);
 
 		const angle = this.getRotation();
 		if (angle) {
@@ -522,7 +522,11 @@ class Graphics {
 	 *     (#). '#FFFFFF' is defined as a white fill color. and '#000000' would define a black fill color.
 	 */
 	setFillColor(color) {
+		if (color === undefined) {
+			return;
+		}
 		color = this._filter('fillcolor', color);
+		color = color.toLowerCase();
 		if (this._context2D.fillStyle !== color) {
 			this._context2D.fillStyle = color;
 			this._fillColor = color;
@@ -594,7 +598,11 @@ class Graphics {
 	 *     (#). '#FFFFFF' is defined as a white fill color. and '#000000' would define a black fill color.
 	 */
 	setLineColor(color) {
+		if (color === undefined) {
+			return;
+		}
 		color = this._filter('linecolor', color);
+		color = color.toLowerCase();
 		if (this._context2D.strokeStyle !== color) {
 			this._context2D.strokeStyle = color;
 		}
@@ -611,6 +619,10 @@ class Graphics {
 		style = this._filter('linestyle', style);
 		this._lineStyle = style;
 		return style;
+	}
+
+	getLineStyle(style) {
+		return this._lineStyle;
 	}
 
 	setLineShape(shape) {
@@ -1593,7 +1605,7 @@ class Graphics {
 	 * @method createLinearGradient
 	 * @param {Number} x0  The X-coordinate of the center of the inner circle of the gradient .
 	 * @param {Number} y0  The Y-coordinate of the center of the inner circle of the gradient .
-	 * @param {Number} r0  Radius of the inner circel to start from.
+	 * @param {Number} r0  Radius of the inner circle to start from.
 	 * @param {Number} x1  The X-coordinate of the center point of the outer circle of the gradient .
 	 * @param {Number} y1  The Y-coordinate of the center point of the outer circle of the gradient .
 	 * @param {Number} r1  Radius of the outer circle to goto.
@@ -2201,33 +2213,13 @@ class Graphics {
 
 		const cr = this._cs.metricToLogX(this._lineCorner);
 		if (cr) {
-			if (this._fillStyle === FormatAttributes.FillStyle.PATTERN) {
-				const bpoints = [];
-				const cpTo = [];
-				const cpFrom = [];
+			const bpoints = [];
+			const cpTo = [];
+			const cpFrom = [];
 
-				this.getRoundedPolygonBezier(cpTo, cpFrom, bpoints, points, true, cr);
-				this.fillBezier(cpTo, bpoints, cpFrom);
-				JSG.ptCache.releaseBulk();
-			} else {
-				const pts = this.getRoundedPoints(points, this._lineCorner * 2);
-				let pt;
-				const len = pts.length;
-				for (let i = 0; i < len; i += 1) {
-					pt = pts[i];
-					if (i === 0) {
-						this.beginPath();
-						this.moveTo(pt[0].x, pt[0].y);
-					} else {
-						this.lineTo(pt[0].x, pt[0].y);
-					}
-					if (this._lineCorner > 0) {
-						this.quadraticCurveTo(pt[1].x, pt[1].y, pt[2].x, pt[2].y);
-					}
-				}
-				this.closePath();
-				this._context2D.fill();
-			}
+			this.getRoundedPolygonBezier(cpTo, cpFrom, bpoints, points, true, cr);
+			this.fillBezier(cpTo, bpoints, cpFrom);
+			JSG.ptCache.releaseBulk();
 		} else {
 			let i;
 			let n;
@@ -2891,6 +2883,10 @@ class Graphics {
 	}
 
 	ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise) {
+		if (radiusX <= 0 || radiusY <= 0) {
+			return;
+		}
+
 		const p = this.transformPoint(x, y, 0);
 		const angle = this.getRotation();
 		this._context2D.ellipse(p.x, p.y, radiusX, radiusY, angle + rotation, startAngle, endAngle, anticlockwise);
@@ -2993,7 +2989,6 @@ class Graphics {
 	 * @param {Boolean} active Flag to indicate if marker should be drawn in active style or not.
 	 */
 	drawMarker(rect, active) {
-		let color;
 		let width;
 		const inner = JSG.rectCache.get();
 
@@ -3017,23 +3012,13 @@ class Graphics {
 			this.setLineWidth(50);
 			this.drawEllipse(inner);
 			this.setLineWidth(width);
-			// } else {
-			// 	color = this._fillColor;
-			// 	inner.setTo(rect);
-			//
-			// 	this.setFillColor('#FFFFFF');
-			// 	this.fillEllipse(rect);
-			//
-			// 	this.setFillColor(color);
-			// 	inner.reduceBy(this._cs.metricToLogXNoZoom(50));
-			// 	this.fillEllipse(inner);
-			// 	this.drawEllipse(rect);
-			// }
 		} else if (SelectionStyle.FILL) {
 			inner.setTo(rect);
 			inner.expandBy(this._cs.metricToLogXNoZoom(25));
-			this.fillEllipse(inner);
-			this.drawEllipse(inner);
+			this.beginPath();
+			this.circle(inner.x + inner.width / 2, inner.y + inner.height / 2, inner.width / 2);
+			this.fill();
+			this.stroke();
 		} else {
 			this.fillEllipse(rect);
 			inner.setTo(rect);

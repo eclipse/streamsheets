@@ -1,36 +1,41 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { Point, GraphUtils, FormatAttributes, TextFormatAttributes } from '@cedalo/jsg-core';
+import {Point, StringExpression, GraphUtils, FormatAttributes, TextFormatAttributes, Selection, CellRange} from '@cedalo/jsg-core';
 
 import View from '../../ui/View';
 import SelectionStyle from '../view/selection/SelectionStyle';
+import {createView} from "@cedalo/jsg-extensions/ui";
 
 export default class ChartInfoFeedbackView extends View {
-	constructor(chartView, selection, point, value) {
+	constructor(chartView, selection, point, value, viewer) {
 		super();
 
 		this.chartView = chartView;
 		this.point = point;
 		this.selection = selection;
 		this.value = value;
+		this.viewer = viewer;
 	}
 
 	draw(graphics) {
 		const point = new Point(0, 0);
 		let angle = 0;
 
-		GraphUtils.traverseUp(this.chartView, this._graphView, (v) => {
+		GraphUtils.traverseUp(this.chartView, this.viewer.getGraphView(), (v) => {
 			v.translateToParent(point);
 			if (v.getItem) {
-				angle += v.getItem().getAngle().getValue();
+				angle += v
+					.getItem()
+					.getAngle()
+					.getValue();
 			}
 			return true;
 		});
@@ -42,7 +47,7 @@ export default class ChartInfoFeedbackView extends View {
 
 		graphics.rotate(-angle);
 		graphics.translate(-point.x, -point.y);
-	};
+	}
 
 	draw2(graphics) {
 		const item = this.chartView.getItem();
@@ -50,6 +55,8 @@ export default class ChartInfoFeedbackView extends View {
 		const bottom = new Point(item.plot.position.left, item.plot.position.bottom);
 		const left = new Point(item.plot.position.left, item.plot.position.top);
 		const right = new Point(item.plot.position.right, item.plot.position.top);
+		const circular = item.isCircular();
+		const map = item.isMap();
 
 		graphics.setFillColor(SelectionStyle.MARKER_FILL_COLOR);
 		graphics.setFillStyle(FormatAttributes.FillStyle.SOLID);
@@ -57,10 +64,11 @@ export default class ChartInfoFeedbackView extends View {
 		graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
 
 		const plotRect = item.plot.position;
+		let mapInfo;
 		let x;
 		let y;
 
-		if (!item.isCircular()) {
+		if (!circular) {
 			graphics.beginPath();
 			if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
 				x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.width;
@@ -104,7 +112,7 @@ export default class ChartInfoFeedbackView extends View {
 			const space = 400;
 			const margin = 100;
 			const height = 400;
-			const getLabel = (value, xValue, circular) => {
+			const getLabel = (value, xValue) => {
 				const { serie } = value;
 				const ref = item.getDataSourceInfo(serie.formula);
 
@@ -112,11 +120,16 @@ export default class ChartInfoFeedbackView extends View {
 				let axis;
 				if (circular) {
 					if (xValue) {
-						label = `${ref.yName}`;
+						label = ref.yName ? `${ref.yName}` : '';
 					} else {
 						axis = value.axes.x;
 						label = item.getLabel(ref, axis, Math.floor(value.x));
 						label = `${label}: ${item.formatNumber(value.y, 'General')}`;
+					}
+				} else if (map && xValue) {
+					if (value.x >= 0 && value.x < serie.map.mapData.features.length) {
+						const feature = serie.map.mapData.features[value.x];
+						label = feature.properties[serie.map.label];
 					}
 				} else {
 					if (xValue) {
@@ -126,13 +139,19 @@ export default class ChartInfoFeedbackView extends View {
 						} else if (axis.type !== 'category' && ref && ref.time && ref.time.xvalue) {
 							label = ref.xName;
 							axis = value.axes.x;
-							label += `: ${item.formatNumber(value.x,
-								axis.format && axis.format.numberFormat ? axis.format : axis.scale.format)}`;
+							label += `: ${item.formatNumber(
+								value.x,
+								axis.format && axis.format.numberFormat ? axis.format : axis.scale.format
+							)}`;
 						} else {
 							axis = value.axes.x;
-							label = item.formatNumber(value.x,
-								axis.format && axis.format.numberFormat ? axis.format : axis.scale.format);
+							label = item.formatNumber(
+								value.x,
+								axis.format && axis.format.numberFormat ? axis.format : axis.scale.format
+							);
 						}
+					} else if (serie.tooltip === 'text') {
+						label = value.pureY;
 					} else {
 						label = item.formatNumber(value.y, 'General');
 					}
@@ -152,7 +171,6 @@ export default class ChartInfoFeedbackView extends View {
 			graphics.setFont();
 
 			const values = [];
-			const circular = item.isCircular();
 			let pieInfo;
 
 			if (circular) {
@@ -168,29 +186,28 @@ export default class ChartInfoFeedbackView extends View {
 				let index = 0;
 				let pieAngle = 0;
 				while (item.getValue(ref, index, value) && index <= this.selection.dataPoints[0].pointIndex) {
-					pieAngle = Math.abs(value.y) / pieInfo.sum * (pieInfo.endAngle - pieInfo.startAngle);
+					pieAngle = (Math.abs(value.y) / pieInfo.sum) * (pieInfo.endAngle - pieInfo.startAngle);
 					currentAngle += pieAngle;
 					index += 1;
 				}
-				switch (serie.type) {
-				case 'pie': {
-					const points = item.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, 0, 0,
-						pieInfo.xRadius, pieInfo.yRadius, 0, currentAngle - pieAngle, currentAngle, 2);
-					if (points.length) {
-						x = top.x - item.plot.position.left + points[1].x;
-						y = top.y - item.plot.position.top + points[1].y;
-					}
-					break;
-				}
-				case 'doughnut': {
-					const points = item.getEllipseSegmentPoints(pieInfo.xc, pieInfo.yc, pieInfo.xInnerRadius, pieInfo.yInnerRadius,
-						pieInfo.xOuterRadius, pieInfo.yOuterRadius, 0, currentAngle - pieAngle, currentAngle, 2);
-					if (points.length) {
-						x = top.x - item.plot.position.left + points[1].x;
-						y = top.y - item.plot.position.top + points[1].y;
-					}
-					break;
-				}
+
+				const points = item.getEllipseSegmentPoints(
+					pieInfo.xc,
+					pieInfo.yc,
+					serie.type === 'pie' ? 0 : pieInfo.xInnerRadius,
+					serie.type === 'pie' ? 0 : pieInfo.yInnerRadius,
+					serie.type === 'pie' ? pieInfo.xRadius : pieInfo.xOuterRadius,
+					serie.type === 'pie' ? pieInfo.xRadius : pieInfo.yOuterRadius,
+					pieInfo.xRadius,
+					pieInfo.yRadius,
+					0,
+					currentAngle - pieAngle,
+					currentAngle,
+					2
+				);
+				if (points.length) {
+					x = top.x - item.plot.position.left + points[1].x;
+					y = top.y - item.plot.position.top + points[1].y;
 				}
 
 				if (item.getValue(ref, this.selection.dataPoints[0].pointIndex, value)) {
@@ -200,17 +217,62 @@ export default class ChartInfoFeedbackView extends View {
 					value.axes = item.getAxes(serie);
 					values.push(value);
 				}
+			} else if (map) {
+				const serie = item.series[this.selection.dataPoints[0].index];
+				const value = {};
+				const features = serie.map.mapData.features;
+				const ref = item.getDataSourceInfo(serie.formula);
+				mapInfo = item.getMapInfo(plotRect, serie, ref);
+				if (!mapInfo) {
+					return;
+				}
+
+				const feature = features[this.selection.dataPoints[0].pointIndex];
+				const {geometry} = feature;
+				const index = item.findMapIndex(feature.properties, serie, mapInfo.labels);
+				value.seriesIndex = this.selection.dataPoints[0].index;
+				value.index = this.selection.dataPoints[0].pointIndex;
+				value.serie = serie;
+				value.axes = item.getAxes(serie);
+				value.x = this.selection.dataPoints[0].x;
+				value.y = this.selection.dataPoints[0].y;
+				if (mapInfo.dispChart) {
+					if (index !== -1) {
+						const sheet = ref.y.range._worksheet;
+						const selection = new Selection(sheet);
+						selection.setAt(0, new CellRange(sheet, 0, 0));
+						const view = createView(mapInfo.chartNode);
+						view.getItem().title.formula = new StringExpression(getLabel(value, true, false));
+						view.getItem().title.visible = true;
+						this.chartView.drawMapChart(graphics, view, item, serie, feature, sheet, selection, ref, index, mapInfo, true);
+					}
+					return;
+				} else {
+					values.push(value);
+					const pt = item.getFeatureCenter(features[value.index], mapInfo);
+
+					x = pt.x;
+					y = pt.y;
+				}
 			} else {
 				item.yAxes.forEach((axis) => {
 					if (axis.categories) {
 						axis.categories.forEach((data) => {
-							if (data.values && data.values[0] && data.values[0].x === this.selection.dataPoints[0].x) {
+							// if (data.values && data.values[0] && data.values[0].x === this.selection.dataPoints[0].x) {
+							if (data.values) {
 								data.values.forEach((value) => {
-									if (value.x !== undefined && value.y !== undefined) {
-										if (item.chart.relative && value.barSize !== undefined) {
-											value.y = value.barSize;
+									if (value.x === this.selection.dataPoints[0].x) {
+										if (
+											value.x !== undefined &&
+											((value.y !== undefined && value.serie.tooltip === 'value') ||
+												(value.pureY !== undefined && value.serie.tooltip === 'text')) &&
+											value.serie.tooltip !== 'hide'
+										) {
+											if (item.chart.relative && value.barSize !== undefined) {
+												value.y = value.barSize;
+											}
+											values[value.seriesIndex] = value;
 										}
-										values.push(value);
 									}
 								});
 							}
@@ -225,9 +287,16 @@ export default class ChartInfoFeedbackView extends View {
 				return;
 			}
 
-			width = graphics.measureText(getLabel(values[0], true, circular)).width;
+			let xValue;
+
 			values.forEach((value) => {
-				width = Math.max(width, graphics.measureText(getLabel(value, false, circular)).width);
+				if (!xValue) {
+					xValue = getLabel(value, true, circular);
+					width = Math.max(width, graphics.measureText(xValue).width);
+				}
+				if (value) {
+					width = Math.max(width, graphics.measureText(getLabel(value, false, circular)).width);
+				}
 			});
 
 			width = graphics.getCoordinateSystem().deviceToLogX(width, true);
@@ -244,26 +313,28 @@ export default class ChartInfoFeedbackView extends View {
 			graphics.beginPath();
 			graphics.setFillColor('#FFFFFF');
 			graphics.setLineColor('#AAAAAA');
-			graphics.rect(x, y, width + margin * 2,
-				margin * 2 + (values.length + 1) * height);
+			graphics.rect(x, y, width + margin * 2, margin * 2 + (values.length + 1) * height);
 			graphics.fill();
 			graphics.stroke();
 
 			graphics.setFillColor('#000000');
 
-			const text = getLabel(values[0], true, circular);
-			graphics.fillText(text, x + margin, y + margin);
+			if (xValue) {
+				graphics.fillText(xValue, x + margin, y + margin);
+			}
 
 			values.forEach((value, index) => {
-				const label = getLabel(value, false, circular);
-				if (circular) {
-					graphics.setFillColor(
-						item.getTemplate().series.getFillForIndex(value.index));
-				} else {
-					graphics.setFillColor(
-						value.serie.format.lineColor || item.getTemplate().series.getLineForIndex(value.seriesIndex));
+				if (value) {
+					const label = getLabel(value, false, circular);
+					if (circular) {
+						graphics.setFillColor(item.getTemplate().series.getFillForIndex(value.index));
+					} else {
+						graphics.setFillColor(
+							value.serie.format.lineColor || item.getTemplate().series.getLineForIndex(value.seriesIndex)
+						);
+					}
+					graphics.fillText(label, x + margin, y + height * (index + 1) + margin * 2);
 				}
-				graphics.fillText(label, x + margin, y + height * (index + 1) + margin * 2);
 			});
 		}
 	}

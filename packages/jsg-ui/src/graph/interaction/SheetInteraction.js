@@ -41,6 +41,7 @@ import KeyEvent from '../../ui/events/KeyEvent';
 import ClientEvent from '../../ui/events/ClientEvent';
 import ScrollBar from '../../ui/scrollview/ScrollBar';
 import Cursor from '../../ui/Cursor';
+import ContentNodeView from "../view/ContentNodeView";
 
 const SHEET_SHOW_CONTEXT_MENU_NOTIFICATION = 'sheet_show_context_menu_notification';
 
@@ -224,6 +225,17 @@ export default class SheetInteraction extends Interaction {
 				this._endCell = this._startCell.copy();
 				this._doSelect(event, viewer, false, true);
 				break;
+			case WorksheetView.HitCode.DATAVIEW: {
+				const cellPos = this.getCell(view, event.location, viewer);
+				view.handleDataView(view.getItem(), cellPos, new CellRange(
+					view.getItem(),
+					cellPos.x,
+					cellPos.y + 1,
+					cellPos.x,
+					cellPos.y + 1
+				), viewer);
+				break;
+			}
 			case WorksheetView.HitCode.SHEET:
 			case WorksheetView.HitCode.ROW:
 			case WorksheetView.HitCode.COLUMN: {
@@ -269,37 +281,11 @@ export default class SheetInteraction extends Interaction {
 					const canvas = viewer.getCanvas();
 					const view = this._controller.getView();
 					const cellRect = view.getCellRect(this._startCell);
-					const center = new Point(
-						cellRect.x + cellRect.width / 2,
-						cellRect.y + cellRect.height + cellRect.height / 2
-					);
-					const size = new Point(cellRect.width, cellRect.height);
-					let targetRange = new CellRange(
-						sheet,
-						this._startCell.x,
-						this._startCell.y,
-						this._startCell.x,
-						this._startCell.y
-					);
-					targetRange.shiftToSheet();
-
-					GraphUtils.traverseUp(this._controller.getView(), viewer.getRootView(), (v) => {
-						v.translateToParent(center);
-						return true;
-					});
-
-					selectList.style.left = `${(
-						cs.logToDeviceX(center.x, false) -
-						cs.logToDeviceX(size.x / 2, false) +
-						canvas.offsetLeft
-					).toFixed()}px`;
-					selectList.style.top = `${(
-						cs.logToDeviceY(center.y, false) -
-						cs.logToDeviceY(size.y / 2, false) +
-						canvas.offsetTop
-					).toFixed()}px`;
+					const pos = view.getDevCellPosition(viewer, {x: this._startCell.x, y: this._startCell.y + 1});
 
 					selectList.id = 'sheetselect';
+					selectList.style.left = `${pos.x}px`;
+					selectList.style.top = `${pos.y}px`;
 					selectList.style.minWidth = `${cs.logToDeviceY(cellRect.width, false)}px`;
 					selectList.style.overflow = '';
 					selectList.style.position = 'absolute';
@@ -352,6 +338,15 @@ export default class SheetInteraction extends Interaction {
 						canvas.parentNode.removeChild(selectList);
 						selectList = undefined;
 					};
+
+					let targetRange = new CellRange(
+						sheet,
+						this._startCell.x,
+						this._startCell.y,
+						this._startCell.x,
+						this._startCell.y
+					);
+					targetRange.shiftToSheet();
 
 					selectList.addEventListener(
 						'change',
@@ -867,7 +862,7 @@ export default class SheetInteraction extends Interaction {
 		if (this._controller === undefined) {
 			return false;
 		}
-		let controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => true);
+		let controller = viewer.filterFoundControllers(Shape.FindFlags.AUTOMATIC, (cont) => true);
 
 		if (!controller) {
 			return false;
@@ -1316,19 +1311,18 @@ export default class SheetInteraction extends Interaction {
 		if (event.event.ctrlKey) {
 			viewer.setWheelZoom(event);
 		} else {
-			const zDelta = event.getWheelDelta() < 0 ? 1 : -1;
-			const view = this._controller.getView();
-			const scrollView = view.getScrollView();
-			const pt = scrollView.getScrollPosition();
+			const controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => true);
+			if (controller) {
+				let view = controller.getView();
 
-			if (event.event.shiftKey) {
-				pt.x += zDelta * 2000;
-			} else {
-				pt.y += zDelta * 1500;
+				while (view && !(view instanceof ContentNodeView)) {
+					view = view.getParent();
+				}
+
+				if (view !== undefined) {
+					view.handleMouseWheel(event, viewer);
+				}
 			}
-			scrollView.setScrollPositionTo(pt);
-
-			this.getInteractionHandler().repaint();
 		}
 	}
 

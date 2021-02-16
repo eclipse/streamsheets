@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -42,10 +42,40 @@ export default class StreamSheetContainerView extends NodeView {
 		if (views !== this.getParent()._subviews.indexOf(this) + 1) {
 			viewer
 				.getInteractionHandler()
-				.execute(new ChangeItemOrderCommand(this.getItem(), ChangeItemOrderCommand.Action.TOTOP, viewer));
+				.execute(new ChangeItemOrderCommand(this.getItem(), ChangeItemOrderCommand.Action.TOTOP, viewer, true));
 		}
 	}
 
+	// draw(graphics) {
+	// 	if (!this._item.isVisible()) {
+	// 		return;
+	// 	}
+	//
+	// 	// const rect = this._item.getBoundingBox().getBoundingRectangle();
+	// 	const rect = this._item.getSize().toRectangle(JSG.rectCache.get());
+	// 	// tmprect.x = 0;
+	// 	// tmprect.y = 0;
+	// 	const points = rect.getPoints();
+	//
+	// 	graphics.save(this);
+	// 	this.translateGraphics(graphics);
+	//
+	// 	const cpTo = [];
+	// 	const cpFrom = [];
+	// 	const bpoints = [];
+	// 	graphics.getRoundedPolygonBezier(cpTo, cpFrom, bpoints, points, true, 150);
+	// 	graphics.setClipArea(cpTo,  bpoints, cpFrom);
+	//
+	//
+	// 	const format = this._item.getFormat();
+	//
+	// 	this.drawBorder(graphics, format, rect);
+	// 	this.drawSubViews(graphics);
+	// 	this.drawDecorations(graphics, rect);
+	//
+	// 	graphics.restore();
+	// }
+	//
 	onLocaleChanged() {
 		const item = this.getItem();
 		const graph = item.getGraph();

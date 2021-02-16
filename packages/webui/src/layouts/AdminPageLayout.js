@@ -10,7 +10,7 @@
  ********************************************************************************/
 import AppBar from '@material-ui/core/AppBar';
 import Grid from '@material-ui/core/Grid';
-import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
+import { MuiThemeProvider } from '@material-ui/core';
 import Toolbar from '@material-ui/core/Toolbar';
 import PropTypes from 'prop-types';
 import React, {useEffect} from 'react';
@@ -19,15 +19,15 @@ import { connect } from 'react-redux';
 import * as Actions from '../actions/actions';
 import InfoToolBar from '../components/AppBarComponent/InfoToolBar';
 import MainDrawer from '../components/AppBarComponent/MainDrawer';
-import NewMachineDialog from '../components/HelperComponent/NewMachineDialog';
-import OpenDialog from '../components/HelperComponent/OpenDialog';
+import NewMachineDialog from '../components/Dialogs/NewMachineDialog';
+import OpenDialog from '../components/Dialogs/OpenDialog';
 import ErrorDialog from '../components/ImportExport/ErrorDialog';
 import ImportDialog from '../components/ImportExport/ImportDialog';
 import StartImportDialog from '../components/ImportExport/StartImportDialog';
 import NotificationsComponent from '../components/NotificationsComponent/NotificationsComponent';
 import RequestStatusDialog from '../components/RequestStatusDialog/RequestStatusDialog';
 import ServerStatusDialog from '../components/ServerStatusDialog/ServerStatusDialog';
-import SettingsMenu from '../components/SettingsMenu/SettingsMenu';
+import SettingsMenu from '../components/HelperComponent/SettingsMenu';
 import AlertDialog from '../components/SheetDialogs/AlertDialog';
 import DecisionDialog from '../components/SheetDialogs/DecisionDialog';
 import { useDocumentTitle } from '../helper/Hooks';
@@ -35,7 +35,7 @@ import MachineHelper from '../helper/MachineHelper';
 import theme from '../theme';
 import { AdminNavigation } from './AdminNavigation';
 import HelpButton from './HelpButton';
-import Wall from '../components/HelperComponent/Wall';
+// import Wall from '../components/HelperComponent/Wall';
 
 
 export const AdminPageLayoutComponent = (props) => {
@@ -46,7 +46,6 @@ export const AdminPageLayoutComponent = (props) => {
 		isConnected,
 		children,
 		userLoaded,
-		workspaceSelect,
 		requireStreams,
 	} = props;
 
@@ -129,8 +128,8 @@ export const AdminPageLayoutComponent = (props) => {
 								}
 							/> */}
 							<InfoToolBar
-								title={documentTitle}
-								workspaceSelect={workspaceSelect}
+								title={<FormattedMessage id="MainTitle" defaultMessage="Streamsheets" />}
+								hideDrawer
 							/>
 							{!isMachineEngineConnected ? (
 								<div>
@@ -157,10 +156,10 @@ export const AdminPageLayoutComponent = (props) => {
 					alignItems="stretch"
 					style={{ height: 'calc(100% - 58px)', flexWrap: 'nowrap' }}
 				>
-					<Grid item style={{ width: '200px', borderRight: '1px solid grey' }}>
-						<Wall>
+					<Grid item style={{ width: '200px', borderRight: '1px solid lightgrey' }}>
+						<div>
 							<AdminNavigation selection={page} />
-						</Wall>
+						</div>
 					</Grid>
 					<Grid item style={{ height: '100%', backgroundColor: theme.wall.backgroundColor, flexGrow: 1, overflow: 'auto'}}>
 						{children}
@@ -182,12 +181,10 @@ AdminPageLayoutComponent.propTypes = {
 	connect: PropTypes.func.isRequired,
 	getMe: PropTypes.func.isRequired,
 	requireStreams: PropTypes.bool,
-	workspaceSelect: PropTypes.bool,
 };
 
 AdminPageLayoutComponent.defaultProps = {
 	requireStreams: false,
-	workspaceSelect: false,
 };
 
 function mapStateToProps(state) {

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -12,11 +12,6 @@
 /* eslint-disable react/forbid-prop-types */
 import JSG from '@cedalo/jsg-ui';
 import Divider from '@material-ui/core/Divider';
-// import {
-// 	// ContentCopy as CopyIcon,
-// 	ContentPaste as PasteIcon,
-// 	// ContentCut as CutIcon,
-// } from '@material-ui/icons';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -26,10 +21,12 @@ import SvgIcon from '@material-ui/core/SvgIcon/SvgIcon';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
+import TimelineIcon from '@material-ui/icons/Timeline';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
-
+import { IconCopy, IconCut } from '../icons';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 
 const styles = {
@@ -88,10 +85,20 @@ class GraphContextComponent extends Component {
 		});
 	}
 
+	onCopy = () => {
+		graphManager.getGraphEditor().getInteractionHandler().copySelection();
+	};
+
+	onCut = () => {
+		graphManager.getGraphEditor().getInteractionHandler().cutSelection();
+	};
+
+	onDelete = () => {
+		graphManager.getGraphEditor().getInteractionHandler().deleteSelection();
+	};
 
 	onChangeOrder = (order) => {
 		const viewer = graphManager.getGraphViewer();
-
 		if (viewer === undefined) {
 			return;
 		}
@@ -101,6 +108,40 @@ class GraphContextComponent extends Component {
 
 		graphManager.synchronizedExecute(new JSG.ChangeItemOrderCommand(item, order, viewer));
 	};
+
+	onEditPoints = () => {
+		const viewer = graphManager.getGraphViewer();
+		if (viewer === undefined) {
+			return;
+		}
+
+		viewer.getInteractionHandler().editSelection();
+	};
+
+	canEditPoints() {
+		const viewer = graphManager.getGraphViewer();
+		if (viewer === undefined) {
+			return false;
+		}
+
+		const selection = viewer.getSelection();
+		if (selection.length !== 1) {
+			return false;
+		}
+
+		const shapeType = selection[0]
+			.getModel()
+			.getShape()
+			.getType();
+
+		switch (shapeType) {
+			case JSG.PolygonShape.TYPE:
+			case JSG.BezierShape.TYPE:
+				return true;
+			default:
+				return false;
+		}
+	}
 
 	onShowChartProperties = () => {
 		// const sheetView = graphManager.getActiveSheetView();
@@ -123,8 +164,9 @@ class GraphContextComponent extends Component {
 		if (graphManager === undefined || graphManager.getGraphViewer() === undefined) {
 			return <div />;
 		}
-		const selection = graphManager.getGraphViewer().getSelection();
-		const item = selection.length ? selection[0].getModel() : undefined;
+		// const selection = graphManager.getGraphViewer().getSelection();
+		// const item = selection.length ? selection[0].getModel() : undefined;
+		const showEdit = this.canEditPoints();
 
 		return (
 			<Paper
@@ -140,21 +182,41 @@ class GraphContextComponent extends Component {
 					visibility: [this.state.context ? 'visible' : 'hidden'],
 				}}
 			>
-				{(item instanceof JSG.SheetPlotNode) ?
-					<MenuList>
-						<MenuItem
-							onClick={this.onShowChartProperties}
-							dense
-						>
-							<ListItemIcon>
-								<SvgIcon style={styles.menuItem} >
-									<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
-								</SvgIcon>
-							</ListItemIcon>
-							<ListItemText primary={<FormattedMessage id="EditChart" defaultMessage="Edit Chart" />} />
-						</MenuItem>
-						<Divider/>
-					</MenuList> : null}
+				<MenuList>
+					<MenuItem
+						onClick={this.onShowChartProperties}
+						dense
+					>
+						<ListItemIcon>
+							<SvgIcon style={styles.menuItem} >
+								<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
+							</SvgIcon>
+						</ListItemIcon>
+						<ListItemText primary={<FormattedMessage id="EditChart" defaultMessage="Edit Chart" />} />
+					</MenuItem>
+					<Divider/>
+				</MenuList>
+				<MenuItem onClick={this.onCut} dense>
+					<ListItemIcon>
+						<IconCut style={styles.menuItem} />
+					</ListItemIcon>
+					<ListItemText primary={<FormattedMessage id="Cut" defaultMessage="Cut" />} />
+				</MenuItem>
+				<MenuItem onClick={this.onCopy} dense>
+					<ListItemIcon>
+						<IconCopy style={styles.menuItem} />
+					</ListItemIcon>
+					<ListItemText primary={<FormattedMessage id="Copy" defaultMessage="Copy" />} />
+				</MenuItem>
+				<MenuItem onClick={this.onDelete} dense>
+					<ListItemIcon>
+						<DeleteIcon style={styles.menuItem} />
+					</ListItemIcon>
+					<ListItemText
+						primary={<FormattedMessage id="Delete" defaultMessage="Delete" />}
+					/>
+				</MenuItem>
+				<Divider/>
 				<MenuItem
 					onClick={() => this.onChangeOrder(JSG.ChangeItemOrderCommand.Action.TOTOP)}
 					dense
@@ -199,6 +261,17 @@ class GraphContextComponent extends Component {
 					</ListItemIcon>
 					<ListItemText primary={<FormattedMessage id="MoveToBottom" defaultMessage="Move to Bottom" />} />
 				</MenuItem>
+				{showEdit ? <Divider/> : null}
+				{showEdit ? (
+				<MenuItem
+					onClick={() => this.onEditPoints()}
+					dense
+				>
+					<ListItemIcon>
+						<TimelineIcon style={styles.menuItem} />
+					</ListItemIcon>
+					<ListItemText primary={<FormattedMessage id="EditPoints" defaultMessage="Edit Points" />} />
+				</MenuItem>) : null}
 			</Paper>
 		);
 	}

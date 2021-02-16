@@ -17,8 +17,9 @@ import React, { Component } from 'react';
 import { FormattedMessage } from 'react-intl';
 import ResourcesGrid from './ResourcesGrid';
 import ResourcesList from './ResourcesList';
-import SortSelector from '../sortSelector/SortSelector';
+// import SortSelector from '../sortSelector/SortSelector';
 import Wall from '../../HelperComponent/Wall';
+import {formatDateString} from "./Utils";
 
 class CombinedResourceListing extends Component {
 	static propTypes = {
@@ -38,10 +39,12 @@ class CombinedResourceListing extends Component {
 		handleReload: PropTypes.func,
 		checked: PropTypes.arrayOf(PropTypes.string),
 		disabled: PropTypes.bool,
+		canEdit: PropTypes.bool,
 		sortQuery: PropTypes.string
 	};
 
 	static defaultProps = {
+		canEdit: true,
 		type: 'dashboard',
 		disabled: false,
 		handleNew: undefined,
@@ -54,7 +57,7 @@ class CombinedResourceListing extends Component {
 		checked: [],
 		nameFilter: undefined,
 		menuOptions: [],
-		sortQuery: 'name_asc',
+		sortQuery: 'lastModified_desc',
 		onMenuSelect: undefined
 	};
 
@@ -66,22 +69,46 @@ class CombinedResourceListing extends Component {
 	}
 
 	componentDidMount() {
-		window.addEventListener('resize', () => this.updateDimensions());
+		window.addEventListener('resize', this.updateDimensions);
 	}
 
 	componentWillUnmount() {
 		window.removeEventListener('resize', this.updateDimensions);
 	}
 
-	updateDimensions() {
+	updateDimensions = () => {
 		this.setState({
 			dummy: Math.random(),
 		});
 	}
 
+	filterMachines() {
+		const machines = [];
+
+		if (this.props.resources && this.props.resources.length) {
+			this.props.resources.forEach((machine) => {
+				if (machine.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
+					machine.lastModifiedFormatted = formatDateString(new Date(machine.lastModified).toISOString());
+					machines.push(machine);
+				} else {
+					machine.streamsheets.forEach((sheet) => {
+						if (sheet.inbox.stream && sheet.inbox.stream.name && sheet.inbox.stream.name.toLowerCase().includes(this.props.filter.toLowerCase())) {
+							machine.lastModifiedFormatted = formatDateString(new Date(machine.lastModified).toISOString());
+							machines.push(machine);
+						}
+					});
+				}
+			});
+		}
+
+		return machines;
+	}
+
+
 	render() {
-		const { handleNew, filter, resources } = this.props;
-		const recentResources = SortSelector.sort(resources, 'lastModified_desc', filter);
+		const { handleNew, resources } = this.props;
+		const filteredMachines = this.filterMachines(resources);
+		// const recentResources = SortSelector.sort(filteredMachines, 'lastModified_desc', '');
 		return (
 			<Wall
 				id="combinedResourceList"
@@ -92,10 +119,10 @@ class CombinedResourceListing extends Component {
 					}}
 				>
 					{this.props.layout === 'grid' ? (
-						<ResourcesGrid {...this.props} recent={recentResources} resources={resources} dummy={this.state.dummy}/>
+						<ResourcesGrid {...this.props} resources={filteredMachines} dummy={this.state.dummy}/>
 					) : null}
 					{this.props.layout === 'list' ? (
-						<ResourcesList {...this.props} resources={resources} />
+						<ResourcesList {...this.props} resources={filteredMachines} />
 					) : null}
 					{handleNew === undefined ? null : (
 						<Tooltip

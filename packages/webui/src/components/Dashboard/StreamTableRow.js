@@ -33,7 +33,7 @@ const styles = () => ({
 	},
 	sectionRoot: {
 		display: 'flex',
-		margin: '10px 0px 0px 14px',
+		margin: '10px 0px 0px 40px',
 		borderBottom: `1px solid #e0e0e0`,
 		paddingBottom: '0px',
 		paddingTop: '4px'
@@ -47,6 +47,13 @@ const StreamTableRow = (props) => {
 		props.onStreamNew(type, row);
 	};
 
+	if (row.open) {
+		setOpen(true);
+		row.open = undefined;
+		return (<div/>);
+	}
+	const openConnector = open;
+
 	return (
 		<React.Fragment>
 			<TableRow
@@ -54,6 +61,7 @@ const StreamTableRow = (props) => {
 					textDecoration: row.disabled ? 'line-through' : 'inherit',
 					height: '40px'
 				}}
+				hover
 				classes={{ root: classes.tableRoot }}
 				key={row.id}
 			>
@@ -64,11 +72,11 @@ const StreamTableRow = (props) => {
 						size="small"
 						onClick={() => setOpen(!open)}
 					>
-						{open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+						{openConnector ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
 					</IconButton>
 				</TableCell>
 				<TableCell
-					onClick={() => setOpen(!open)}
+					onClick={() => setOpen(!openConnector)}
 					style={{ cursor: 'pointer', fontWeight: 'bold' }}
 					padding="none"
 					component="th"
@@ -77,16 +85,16 @@ const StreamTableRow = (props) => {
 				>
 					{row.name}
 				</TableCell>
-				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!open)} padding="none" align="left">
-					{row.provider}
+				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!openConnector)} padding="none" align="left">
+					{row.provider.name}
 				</TableCell>
-				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!open)} padding="none" align="left">
+				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!openConnector)} padding="none" align="left">
 					{row.url}
 				</TableCell>
-				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!open)} padding="none" align="left">
+				<TableCell style={{ cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '1000px'}} onClick={() => setOpen(!openConnector)} padding="none" align="left">
 					{row.topic}
 				</TableCell>
-				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!open)} padding="none" align="left">
+				<TableCell style={{ cursor: 'pointer'}} onClick={() => setOpen(!openConnector)} padding="none" align="left">
 					{row.lastModified}
 				</TableCell>
 				<TableCell padding="none" align="left">
@@ -111,16 +119,18 @@ const StreamTableRow = (props) => {
 			</TableRow>
 			<TableRow key={`sub${row.id}`} style={{ height: '0px' }}>
 				<TableCell
-					style={{ paddingBottom: open ? '6px' : '0px', paddingTop: '0px', paddingLeft: '40px' }}
+					style={{ paddingBottom: openConnector ? '6px' : '0px', paddingTop: '0px', paddingLeft: '0px', paddingRight: '0px' }}
 					colSpan={7}
 				>
-					<Collapse in={open} timeout="auto" unmountOnExit>
-						<Paper square elevation={1}>
+					<Collapse in={openConnector} timeout="auto" unmountOnExit>
+						<Paper square elevation={1} style={{maxHeight: 'none', maxWidth: 'none'}}>
+							{ row.provider.canConsume ? (
+								<React.Fragment>
 							<div className={classes.sectionRoot}>
 								<Typography
 									classes={{ root: classes.typoRoot }}
 									color="textSecondary"
-									variant="body1"
+									variant="body2"
 									gutterBottom
 									component="div"
 								>
@@ -137,14 +147,20 @@ const StreamTableRow = (props) => {
 							<Table size="small" aria-label="purchases">
 								<TableBody>
 									{row.consumers.map((historyRow) => (
-										<TableRow key={historyRow.id}>
+										<TableRow
+											style={{
+												textDecoration: row.disabled || historyRow.disabled ? 'line-through' : 'inherit',
+											}}
+											hover
+											key={historyRow.id}
+										>
 											<TableCell
-												style={{ width: '20px', borderBottom: 'none' }}
+												style={{ width: '40px', borderBottom: 'none' }}
 												padding="none"
 												align="left"
 											/>
 											<TableCell
-												style={{ cursor: 'pointer', width: '12%' }}
+												style={{ cursor: 'pointer', width: '12%', minWidth: '250px' }}
 												padding="none"
 												align="left"
 												onClick={() => props.onStreamOpen(historyRow, 'consumer')}
@@ -158,19 +174,19 @@ const StreamTableRow = (props) => {
 												/>
 												{historyRow.name}
 											</TableCell>
-											<TableCell style={{ width: '10%' }} padding="none" align="left">
-												{historyRow.provider}
+											<TableCell style={{ width: '10%', minWidth: '170px' }} padding="none" align="left">
+												{historyRow.provider.name}
 											</TableCell>
-											<TableCell style={{ width: '15%' }} padding="none" align="left">
+											<TableCell style={{ width: '20%' }} padding="none" align="left">
 												{historyRow.url}
 											</TableCell>
-											<TableCell padding="none" align="left">
+											<TableCell padding="none" align="left" style={{overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '1000px'}}>
 												{historyRow.topic}
 											</TableCell>
-											<TableCell style={{ width: '10%' }} padding="none" align="left">
+											<TableCell style={{ width: '120px', minWidth: '120px' }} padding="none" align="left">
 												{historyRow.lastModified}
 											</TableCell>
-											<TableCell style={{ width: '10%' }} padding="none" align="left">
+											<TableCell style={{ width: '95px', minWidth: '95px' }} padding="none" align="left">
 												<IconButton
 													style={{ padding: '4px' }}
 													size="small"
@@ -197,11 +213,14 @@ const StreamTableRow = (props) => {
 									))}
 								</TableBody>
 							</Table>
+								</React.Fragment>) : null}
+							{ row.provider.canProduce ? (
+								<React.Fragment>
 							<div className={classes.sectionRoot}>
 								<Typography
 									classes={{ root: classes.typoRoot }}
 									color="textSecondary"
-									variant="body1"
+									variant="body2"
 									gutterBottom
 									component="div"
 								>
@@ -218,14 +237,20 @@ const StreamTableRow = (props) => {
 							<Table size="small" aria-label="purchases">
 								<TableBody>
 									{row.producers.map((historyRow) => (
-										<TableRow key={historyRow.id}>
+										<TableRow
+											style={{
+												textDecoration: row.disabled || historyRow.disabled ? 'line-through' : 'inherit',
+											}}
+											hover
+											key={historyRow.id}
+										>
 											<TableCell
-												style={{ width: '20px', borderBottom: 'none' }}
+												style={{ width: '40px', borderBottom: 'none' }}
 												padding="none"
 												align="left"
 											/>
 											<TableCell
-												style={{ cursor: 'pointer', width: '12%' }}
+												style={{ cursor: 'pointer', width: '12%', minWidth: '250px'  }}
 												padding="none"
 												align="left"
 												onClick={() => props.onStreamOpen(historyRow, 'producer')}
@@ -239,19 +264,19 @@ const StreamTableRow = (props) => {
 												/>
 												{historyRow.name}
 											</TableCell>
-											<TableCell style={{ width: '15%' }} padding="none" align="left">
-												{historyRow.provider}
+											<TableCell style={{ width: '10%', minWidth: '170px' }} padding="none" align="left">
+												{historyRow.provider.name}
 											</TableCell>
-											<TableCell style={{ width: '10%' }} padding="none" align="left">
+											<TableCell style={{ width: '20%' }} padding="none" align="left">
 												{historyRow.url}
 											</TableCell>
-											<TableCell padding="none" align="left">
+											<TableCell padding="none" align="left" style={{overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '1000px'}}>
 												{historyRow.topic}
 											</TableCell>
-											<TableCell style={{ width: '10%' }} padding="none" align="left">
+											<TableCell style={{ width: '120px', minWidth: '120px' }} padding="none" align="left">
 												{historyRow.lastModified}
 											</TableCell>
-											<TableCell style={{ width: '10%' }} padding="none" align="left">
+											<TableCell style={{ width: '95px', minWidth: '95px' }} padding="none" align="left">
 												<IconButton
 													style={{ padding: '4px' }}
 													size="small"
@@ -278,6 +303,7 @@ const StreamTableRow = (props) => {
 									))}
 								</TableBody>
 							</Table>
+								</React.Fragment>) : null}
 						</Paper>
 					</Collapse>
 				</TableCell>

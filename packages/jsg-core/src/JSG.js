@@ -119,6 +119,7 @@ class JSG {
 		return jsg.clipXML;
 	}
 	static set clipXML(val) {
+		JSG.clipSheet = undefined;
 		jsg.clipXML = val;
 	}
 
@@ -374,8 +375,29 @@ JSG.theme = {
 	textlight: '#222222',
 	fill: '#FFFFFF',
 	filllight: '#F1F1F1',
+	selectionback: '#ebebeb',
 	feedbackFill: 'rgba(0,0,0,0.2)',
 	feedbackBorder: 'rgba(0,0,0,0.8)',
+	scrollBars: {
+		arrow: '#777777',
+		arrowbk: '#F3F3F3',
+		range: '#F3F3F3',
+		background: '#eeeeee',
+		thumb: '#CCCCCC'
+	},
+	rangeColors: [
+		'#1718d1',
+		'#a61d4c',
+		'#8cc474',
+		'#f75c02',
+		'#2fb4d2',
+		'#803995',
+		'#00b15b',
+		'#795548',
+		'#fabb69',
+		'#168d9a'
+	],
+	ifTransparency: 17,
 };
 
 module.exports = JSG;

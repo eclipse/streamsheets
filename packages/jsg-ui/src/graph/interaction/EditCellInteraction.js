@@ -25,6 +25,7 @@ import {
 	GraphUtils
 } from '@cedalo/jsg-core';
 import WorksheetView from '../view/WorksheetView';
+import StreamSheetView from '../view/StreamSheetView';
 import CellEditor from '../view/CellEditor';
 import EditTextInteraction from './EditTextInteraction';
 import KeyEvent from '../../ui/events/KeyEvent';
@@ -50,11 +51,11 @@ export default class EditCellInteraction extends EditTextInteraction {
 	}
 
 	handleBlur(ev) {
-		if (
-			!this._cellEditor.isReferenceMode() &&
+		if ((ev.relatedTarget && ev.relatedTarget.tagName === 'BUTTON' && ev.relatedTarget.id !== 'okalert') ||
+			(!this._cellEditor.isReferenceMode() &&
 			this.div !== undefined &&
 			this.div._ignoreBlur !== true &&
-			(!ev.relatedTarget || ev.relatedTarget.tagName !== 'A')
+			(!ev.relatedTarget || ev.relatedTarget.tagName !== 'A'))
 		) {
 			this.finishInteraction(undefined, this.getViewer());
 		}
@@ -80,16 +81,13 @@ export default class EditCellInteraction extends EditTextInteraction {
 			this._interaction._hitCode = controller.getView().getHitCode(event.location, viewer);
 		}
 
-		let point = event.location.copy();
+		if (this.checkForScrollEvent(event.location, event, viewer)) {
+			return;
+		}
+
 		const view = this.getWorksheetView();
 
-		point = view.translateToSheet(point, viewer);
-
-		if (view.doHandleEventAt(point, event)) {
-			event.keepFocus = true;
-			event.location = point;
-			view.handleMouseEvent(event);
-		} else if (controller) {
+		if (controller) {
 			if (
 				this._cellEditor.isReferenceMode() ||
 				this._interaction._hitCode === WorksheetView.HitCode.REFERENCEMOVE ||
@@ -121,21 +119,41 @@ export default class EditCellInteraction extends EditTextInteraction {
 		}
 	}
 
-	onMouseDrag(event, viewer) {
-		const view = this.getWorksheetView();
+	checkForScrollEvent(point, event, viewer) {
+		const controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => true);
+		if (!controller) {
+			return false;
+		}
 
-		this._interaction.setStartLocation(this.startLocation);
-		this._interaction.setCurrentLocation(this.currentLocation);
-		// this._interaction._controller = this._controller;
+		let view = controller.getView();
+		while (view && !(view instanceof StreamSheetView)) {
+			view = view.getParent();
+		}
+		if (view === undefined) {
+			return false;
+		}
 
-		let point = event.location.copy();
-		point = view.translateToSheet(point, viewer);
+		point = view.translateToSheet(point.copy(), viewer);
 
 		if (view.doHandleEventAt(point, event)) {
 			event.keepFocus = true;
 			event.location = point;
-			view.handleMouseEvent(event);
-		} else if (this._cellEditor.startCell || this._interaction._hitCode === WorksheetView.HitCode.REFERENCEMOVE) {
+			view.handleMouseEvent(event, viewer);
+			return true;
+		}
+
+		return false;
+	}
+
+	onMouseDrag(event, viewer) {
+		this._interaction.setStartLocation(this.startLocation);
+		this._interaction.setCurrentLocation(this.currentLocation);
+
+		if (this.checkForScrollEvent(event.location, event, viewer)) {
+			return;
+		}
+
+		if (this._cellEditor.startCell || this._interaction._hitCode === WorksheetView.HitCode.REFERENCEMOVE) {
 			this._interaction.onMouseDrag(event, viewer);
 		} else {
 			super.onMouseDrag(event, viewer);

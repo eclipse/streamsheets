@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -35,7 +35,7 @@ export const ConfirmImportDialog = (props) => {
 				}}
 			>
 				<Grid container direction="column">
-					<Grid item alignItems="center" container direction="row" spacing={8}>
+					<Grid item alignItems="center" container direction="row" spacing={1}>
 						<Grid item>
 							<VersionUpgrade color="error" />
 						</Grid>
@@ -60,7 +60,7 @@ export const ConfirmImportDialog = (props) => {
 									<FormattedMessage id="Import.List.Machines.Title" defaultMessage="Machines" />
 								</Typography>
 							</Grid>
-							<Grid item container spacing={8} alignItems="center">
+							<Grid item container spacing={1} alignItems="center">
 								{ArrayUtil.intersperse(
 									machines.map(({ newName, id }) => (
 										<Grid item sm={12} key={id}>
@@ -88,7 +88,7 @@ export const ConfirmImportDialog = (props) => {
 									<FormattedMessage id="Import.List.Streams.Title" defaultMessage="Streams" />
 								</Typography>
 							</Grid>
-							<Grid item container spacing={8} alignItems="center">
+							<Grid item container spacing={1} alignItems="center">
 								{ArrayUtil.intersperse(
 									streams.map(({ newName, id }) => (
 										<Grid item sm={12} key={id}>
@@ -108,10 +108,10 @@ export const ConfirmImportDialog = (props) => {
 			</DialogContent>
 			{props.children}
 			<DialogActions>
-				<Button onClick={props.onCancel}>
+				<Button color="primary" onClick={props.onCancel}>
 					<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 				</Button>
-				<Button onClick={props.onConfirm}>
+				<Button color="primary" onClick={props.onConfirm}>
 					<FormattedMessage id="Import.Button.Import" defaultMessage="Import" />
 				</Button>
 			</DialogActions>

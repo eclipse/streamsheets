@@ -11,10 +11,8 @@
 /* eslint-disable react/forbid-prop-types */
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
+import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import AppBar from '@material-ui/core/AppBar';
 import Typography from '@material-ui/core/Typography';
@@ -34,18 +32,6 @@ import StreamWizard from "../Dashboard/StreamWizard";
 import StreamSettings from "../Dashboard/StreamSettings";
 
 const { CellEditor } = JSG;
-
-const styles = {
-	formControl: {
-		margin: '8px',
-		width: '95%'
-		// paddingTop: '10px',
-		// paddingBottom: '10px',
-	},
-	label: {
-		padding: '8px'
-	}
-};
 
 const streamUtils = {
 	prefix: (str) => `|${str}`,
@@ -360,8 +346,11 @@ class FunctionWizard extends Component {
 		})
 	};
 
-	onWizardClose = () => {
+	onWizardClose = (stream) => {
 		this.setState({ showStreamWizard: false, editStream: false });
+		if (stream) {
+			this.setState({ selectedStream: stream });
+		}
 	};
 
 	getStreams = (providerIds, baseFunction) => {
@@ -536,17 +525,18 @@ class FunctionWizard extends Component {
 							color: 'white',
 						}}
 					>
-						Function Wizard
+						<FormattedMessage id="FunctionWizard" defaultMessage="Wizard" />
 					</Typography>
 				</AppBar>
-				<Typography component="div" onKeyDown={this.handleKeyPressed}>
-					<FormControl style={styles.formControl}>
-						<InputLabel htmlFor="functionWizard.function">
-							<FormattedMessage id="Function" defaultMessage="Function" />
-						</InputLabel>
-						<Select
+				<Typography component="div" style={{display: 'flex', flexDirection: 'column', margin: '8px'}} onKeyDown={this.handleKeyPressed}>
+					<FormControl>
+						<TextField
+							margin="normal"
+							variant="outlined"
+							select
+							size="small"
+							label={<FormattedMessage id="Function" defaultMessage="Function" />}
 							fullWidth
-							input={<Input name="functionWizard.function" id="functionWizard.function" />}
 							value={this.state.selectedFunction ? this.state.selectedFunction.config.name : ''}
 							onChange={(event) => this.handleFunctionChange(event)}
 						>
@@ -557,15 +547,16 @@ class FunctionWizard extends Component {
 										{name}
 									</MenuItem>
 								))}
-						</Select>
+						</TextField>
 					</FormControl>
-					<FormControl style={styles.formControl}>
-						<InputLabel htmlFor="functionWizard.stream">
-							<FormattedMessage id="Stream" defaultMessage="Stream" />
-						</InputLabel>
-						<Select
+					<FormControl>
+						<TextField
+							margin="normal"
+							variant="outlined"
+							size="small"
+							select
+							label={<FormattedMessage id="Stream" defaultMessage="Stream" />}
 							fullWidth
-							input={<Input name="functionWizard.stream" id="functionWizard.stream" />}
 							value={this.state.selectedStream ? this.state.selectedStream.id : 'TEST'}
 							onChange={(event) => this.handleStreamChange(event)}
 						>
@@ -574,14 +565,14 @@ class FunctionWizard extends Component {
 									{stream.name}
 								</MenuItem>
 							))}
-						</Select>
+						</TextField>
 					</FormControl>
 					<div>
 						<Button color="primary" onClick={this.handleAddConsumer} style={{ float: 'right' }}>
-							<FormattedMessage id="DialogNew.AddProducer" defaultMessage="Add Producer" />
+							<FormattedMessage id="FunctionWizard.addStream" defaultMessage="Add Producer" />
 						</Button>
 						<Button color="primary" onClick={this.handleEditConsumer} disabled={this.state.selectedStream === undefined} style={{ float: 'right' }}>
-							<FormattedMessage id="DialogNew.EditProducer" defaultMessage="Edit Producer" />
+							<FormattedMessage id="FunctionWizard.editStream" defaultMessage="Edit Producer" />
 						</Button>
 					</div>
 					{this.state.fields.map((field) => (
@@ -593,7 +584,6 @@ class FunctionWizard extends Component {
 							onFocus={(event) => this.handleFieldFocused(field, event)}
 							value={field.value}
 							locale={this.props.locale}
-							styles={styles}
 						/>
 					))}
 					<div>

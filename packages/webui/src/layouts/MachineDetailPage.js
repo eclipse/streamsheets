@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 import AppBar from '@material-ui/core/AppBar';
-import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
+import { MuiThemeProvider } from '@material-ui/core';
 import Toolbar from '@material-ui/core/Toolbar';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
@@ -24,11 +24,11 @@ import MainDrawer from '../components/AppBarComponent/MainDrawer';
 import CanvasToolBar from '../components/Canvas/CanvasToolBar';
 import InboxSettings from '../components/HelperComponent/InboxSettings';
 import LicenseExpireNotification from '../components/HelperComponent/LicenseExpireNotification';
-import MachineSettingsDialog from '../components/HelperComponent/MachineSettingsDialog';
-import NewMachineDialog from '../components/HelperComponent/NewMachineDialog';
-import OpenDialog from '../components/HelperComponent/OpenDialog';
+import MachineSettingsDialog from '../components/Dialogs/MachineSettingsDialog';
+import NewMachineDialog from '../components/Dialogs/NewMachineDialog';
+import OpenDialog from '../components/Dialogs/OpenDialog';
 import { Restricted, NotAllowed } from '../components/HelperComponent/Restricted';
-import SaveAsDialog from '../components/HelperComponent/SaveAsDialog';
+import SaveAsDialog from '../components/Dialogs/SaveAsDialog';
 import ErrorDialog from '../components/ImportExport/ErrorDialog';
 import ImportDialog from '../components/ImportExport/ImportDialog';
 import StartImportDialog from '../components/ImportExport/StartImportDialog';
@@ -38,7 +38,7 @@ import MachineDetailComponent from '../components/MachineDetailComponent/Machine
 import NotificationsComponent from '../components/NotificationsComponent/NotificationsComponent';
 import RequestStatusDialog from '../components/RequestStatusDialog/RequestStatusDialog';
 import ServerStatusDialog from '../components/ServerStatusDialog/ServerStatusDialog';
-import SettingsMenu from '../components/SettingsMenu/SettingsMenu';
+import SettingsMenu from '../components/HelperComponent/SettingsMenu';
 import AlertDialog from '../components/SheetDialogs/AlertDialog';
 import DecisionDialog from '../components/SheetDialogs/DecisionDialog';
 import DeleteCellContentDialog from '../components/SheetDialogs/DeleteCellContentDialog';
@@ -59,13 +59,15 @@ import HelpButton from './HelpButton';
 import { ResizeHandler } from './ResizeHandler';
 import { ViewModeHandler, ViewModePropTypes } from './ViewModeHandler';
 import { Path } from '../helper/Path';
+import { DialogExtensions } from '@cedalo/webui-extensions';
 
 const useExperimental = (setAppState) => {
 	useEffect(() => setAppState({ experimental: localStorage.getItem('experimental') === 'true' }), []);
 };
 
 export function MachineDetailPage(props) {
-	const { locale, machineName, viewMode, searchParams, isConnected, showTools, location } = props;
+	const { locale, machineName, viewMode, searchParams, isConnected, location } = props;
+	let { showTools } = props;
 	// Should be directly on props
 	const machineId = props.match.params.machineId || props.machineId;
 	const { token, userId } = qs.parse(location.search);
@@ -144,9 +146,7 @@ export function MachineDetailPage(props) {
 						name
 						id
 						className
-						status {
-							streamEventType
-						}
+						state
 					}
 					machine(id: $machineId) {
 						canEdit
@@ -162,6 +162,9 @@ export function MachineDetailPage(props) {
 			setCanEditMachine(scopedByMachine.machine.canEdit);
 			props.receiveStreams({ streams: scopedByMachine.streamsLegacy });
 			props.setScope(scopedByMachine.machine.scope.id);
+			if (scopedByMachine.machine.canEdit === false) {
+				showTools = false;
+			}
 		} catch (error) {
 			console.log(error);
 			console.log(`${error ? error.toString() : ''}`);
@@ -184,7 +187,7 @@ export function MachineDetailPage(props) {
 	}, [machineName]);
 
 	const showTools_ = viewMode.viewMode === null && showTools;
-	let contentMargin = canEditMachine ? 118 : 58;
+	let contentMargin = canEditMachine ? 115 : 58;
 	contentMargin = showTools_ ? contentMargin : 0;
 	if (!userLoaded) {
 		return (
@@ -210,6 +213,7 @@ export function MachineDetailPage(props) {
 				<ViewModeHandler />
 				<ResizeHandler />
 				<GraphLocaleHandler />
+				<DialogExtensions />
 				{viewMode.viewMode === null ? (
 					<div>
 						<ImportDialog />

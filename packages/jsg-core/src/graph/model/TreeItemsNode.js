@@ -738,7 +738,8 @@ module.exports = class TreeItemsNode extends Node {
 	getVisibleTreeItemCount() {
 		let cnt = 0;
 		this.getJsonTree().forEach((item) => {
-			if (item.visible) {
+			const draw = item.disabled === true || this.getHideEnabledItems() === false;
+			if (draw && item.visible) {
 				cnt += 1;
 			}
 		});

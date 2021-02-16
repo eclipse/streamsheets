@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/parser",
-  "version": "1.6.2",
+  "version": "2.2.0",
   "description": "Cedalo formula parser",
   "main": "index.js",
   "scripts": {
@@ -18,6 +18,9 @@
     "url": "https://github.com/cedalo/streamsheets/issues"
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/parser",
+  "dependencies": {
+    "@cedalo/commons": "2.2.0"
+  },
   "devDependencies": {
     "babel-core": "6.24.1",
     "babel-loader": "6.4.1",

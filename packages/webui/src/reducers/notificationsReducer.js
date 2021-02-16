@@ -151,8 +151,6 @@ export default function notificationsReducer(state = defaultNotificationsState, 
 					};
 					NotificationCenter.showNotification(notification);
 					addNotification(notification, state);
-					state.savePending = false;
-					state.reloadStreamsPending = false;
 					break;
 				default:
 			}
@@ -190,8 +188,7 @@ export default function notificationsReducer(state = defaultNotificationsState, 
 				streamEventType: action.event.streamEventType,
 				data: action.event.data,
 				error: action.event.data.error ? action.event.data.error.message : undefined,
-				warning: action.event.data.warning ? action.event.data.warning.message : action.event.data.warning,
-				feedback: action.event.data.feedback,
+				warning: action.event.data.warning ? action.event.data.warning.message : action.event.data.warning
 			};
 			notification = {
 				title: e.streamName,
@@ -226,10 +223,6 @@ export default function notificationsReducer(state = defaultNotificationsState, 
 			if (action.event.data.notification && action.event.data.notification.type === 'popUp') {
 				notification = { ...notification, ...action.event.data.notification };
 				NotificationCenter.showWarningNotification(notification);
-				addNotification(notification, state);
-			}
-			if (e.feedback) {
-				notification.message = `${e.feedback.message}: ${JSON.stringify(e.feedback.context || {}, null, 3)}`;
 				addNotification(notification, state);
 			}
 			return {

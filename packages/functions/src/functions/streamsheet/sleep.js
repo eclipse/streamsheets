@@ -14,38 +14,64 @@ const {	runFunction } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
-const pause = (sheet) => {
-	if (!sheet.isPaused) sheet.pauseProcessing();
-	return true;
-};
-const resume = (sheet) => {
-	if (sheet.isPaused) sheet.resumeProcessing();
-	return true;
-};
 
-const doResume = (context, seconds) => {
-	const now = Date.now();
-	const ms = seconds * 1000;
-	if (!context._lastSleep) context._lastSleep = now;
-	const resumeSleep = ms < 1 || now - context._lastSleep > ms;
-	if (resumeSleep) context._lastSleep = undefined;
-	return resumeSleep;
+const createPauseFn = (sheet) => () => {
+	if (!sheet.isPaused) sheet.streamsheet.pauseProcessing();
 };
-
-const initContext = (sheet, context) => {
-	if (!context._sleepInited) {
-		context._sleepInited = true;
-		context.addDisposeListener(() => resume(sheet));
+const createResumeFn = (sheet) => () => {
+	if (sheet.isPaused) sheet.streamsheet.resumeProcessing();
+};
+const clearResumeTimeout = (context) => {
+	if (context.resumeTimeoutId) {
+		clearTimeout(context.resumeTimeoutId);
+		context.resumeTimeoutId = undefined;
 	}
 };
-
+const resume = (context) => {
+	clearResumeTimeout(context);
+	context.resumeFn();
+};
+const pause = (context, ms) => {
+	clearResumeTimeout(context);
+	context.pauseFn();
+	context.period = ms;
+	context.resumeTimeoutId = setTimeout(() => resume(context), ms);
+};
+const cancel = (sheet) => (context) => {
+	clearResumeTimeout(context);
+	sheet.streamsheet.stopProcessing();
+};
+const doSleep = (context, seconds) => {
+	const ms = seconds * 1000;
+	if (ms < 1) {
+		resume(context);
+	} else if (context.hasCell) {
+		if (!context.resumeTimeoutId || ms !== context.period) {
+			pause(context, ms);
+		}
+	} else {
+		// triggered outside of sheet, e.g. by button press. so create new timeout
+		pause(context, ms);
+	}
+	return true;
+};
+const initContext = (context, sheet) => {
+	if (!context.initialized) {
+		context.initialized = true;
+		context.pauseFn = createPauseFn(sheet);
+		context.resumeFn = createResumeFn(sheet);
+		// flag to handle usage in cell.
+		context.hasCell = !!context.term.cell;
+		context.addDisposeListener(cancel(sheet));
+	}
+};
 const sleep = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(1)
 		.mapNextArg((seconds) => convert.toNumberStrict(seconds.value, ERROR.VALUE))
-		.beforeRun(() => initContext(sheet, sleep.context))
-		.run((seconds) => doResume(sleep.context, seconds) ? resume(sheet) : pause(sheet));
+		.beforeRun(() => initContext(sleep.context, sheet))
+		.run((seconds) => doSleep(sleep.context, seconds));
 sleep.displayName = true;
 
 module.exports = sleep;

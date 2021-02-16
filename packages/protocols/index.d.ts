@@ -15,6 +15,7 @@ declare module '@cedalo/protocols' {
 			CREATE_STREAMSHEET_MESSAGE_TYPE: 'streamsheet_create';
 			GET_MACHINE_MESSAGE_TYPE: 'machine_get';
 			GET_MACHINES_MESSAGE_TYPE: 'machineserver_machines';
+			GET_CELL_RAW_VALUE: 'machine_get_cell_raw_value';
 			DELETE_MACHINE_MESSAGE_TYPE: 'machine_delete';
 			DELETE_STREAMSHEET_MESSAGE_TYPE: 'streamsheet_delete';
 			LOAD_MACHINE_MESSAGE_TYPE: 'machine_load';
@@ -78,7 +79,6 @@ declare module '@cedalo/protocols' {
 			STREAM_CONFIG_VALIDATE: 'stream_config_validate';
 			STREAM_GET_PROVIDERS: 'stream_get_providers';
 			STREAM_UPDATE: 'stream_update';
-			STREAM_TEST: 'stream_test';
 			STREAM_LIST: 'stream_list';
 			STREAM_RELOAD: 'stream_reload';
 			STREAM_RELOAD_ALL: 'stream_reload_all';
@@ -95,6 +95,7 @@ declare module '@cedalo/protocols' {
 			STREAMSHEET_STREAM_UPDATE_TYPE: 'streamsheet_stream_update';
 			GET_MACHINE_MESSAGE_TYPE: 'machine_get';
 			GET_MACHINES_MESSAGE_TYPE: 'machineserver_machines';
+			GET_CELL_RAW_VALUE: 'machine_get_cell_raw_value';
 			DELETE_MACHINE_MESSAGE_TYPE: 'machine_delete';
 			DELETE_STREAMSHEET_MESSAGE_TYPE: 'streamsheet_delete';
 			LOAD_MACHINE_MESSAGE_TYPE: 'machine_load';
@@ -124,6 +125,7 @@ declare module '@cedalo/protocols' {
 			UPDATE_MACHINE_IMAGE_MESSAGE_TYPE: 'update_machine_image';
 			LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE: 'machine_load_subscribe';
 			COMMAND_MESSAGE_TYPE: 'command';
+			MACHINE_ACTION_MESSAGE_TYPE: 'machine_action';
 		};
 
 		static EVENTS: {

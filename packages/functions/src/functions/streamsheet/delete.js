@@ -31,7 +31,7 @@ const deleteFromMessageBox = (box, path, funcname) => {
 	const msg = box && box.peek(msgId);
 	const error = msg == null ? ERROR.NO_MSG : undefined;
 	if (!error) {
-		const func = funcname === 'INBOXMETADATA' ? msg.deleteMetaDataAt : msg.deleteDataAt;
+		const func = funcname.endsWith('METADATA') ? msg.deleteMetaDataAt : msg.deleteDataAt;
 		return !func.call(msg, path) ? ERROR.NO_MSG_DATA : undefined;
 	}
 	return error;

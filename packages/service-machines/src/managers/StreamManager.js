@@ -43,7 +43,7 @@ const handleDelete = (event, manager) => {
 };
 
 const TOPICS = [
-	`${Topics.SERVICES_STREAMS_EVENTS}/+/ready`,
+	`${Topics.SERVICES_STREAMS_EVENTS}/+/connect`,
 	`${Topics.SERVICES_STREAMS_EVENTS}/+/update`,
 	`${Topics.SERVICES_STREAMS_EVENTS}/+/dispose`,
 	`${Topics.SERVICES_STREAMS_EVENTS}/+/error`,
@@ -100,7 +100,7 @@ class StreamManager {
 		const action = topic.split('/').pop();
 		const { event } = JSON.parse(message);
 		switch (action) {
-			case 'ready': // this._handleReady(event);	break;
+			case 'connect':
 			case 'update':
 			case 'dispose':
 			case 'error':

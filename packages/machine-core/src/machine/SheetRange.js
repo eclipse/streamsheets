@@ -184,6 +184,24 @@ class SheetRange {
 		});
 	}
 
+	as2DArray(mapfn = (cell) => cell) {
+		const arr = [];
+		const sheet = this._sheet;
+		const endrow = endRow(sheet, this.endIdx.row);
+		const endcol = endCol(sheet, this.endIdx.col);
+		const startcol = startCol(sheet, this.startIdx.col);
+		let cells;
+		for (let row = startRow(sheet, this.startIdx.row); row <= endrow; row += 1) {
+			cells = [];
+			for (let col = startcol; col <= endcol; col += 1) {
+				sharedidx.set(row, col);
+				cells.push(mapfn(sheet.cellAt(sharedidx), sharedidx, !cells.length));
+			}
+			arr.push(cells);
+		}
+		return arr;
+	}
+
 	reduce(callback, start) {
 		this.iterate((cell, index, nextrow) => {
 			start = callback(start, cell, index, nextrow);
@@ -230,6 +248,12 @@ class SheetRange {
 		return stop;
 	}
 
+	toJSON() {
+		return {
+			endIdx: this.endIdx.toString(),
+			startIdx: this.startIdx.toString()
+		};
+	}
 	toString() {
 		return `${this.startIdx.toString()}:${this.endIdx.toString()}`;
 	}

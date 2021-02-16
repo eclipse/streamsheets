@@ -16,34 +16,34 @@
 	<a href="https://docs.cedalo.com/installation.html">
 		<img alt="Platform" src="https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20win%20%7C%20rpi%20%7C%20node-blue.svg" target="_blank" />
 	</a>
-	<img alt="Version" src="https://img.shields.io/badge/version-1.5-blue.svg?cacheSeconds=2592000" />
+	<img alt="Version" src="https://img.shields.io/badge/version-2.1-blue.svg?cacheSeconds=2592000" />
 	<img alt="Node.js version" src="https://img.shields.io/badge/node-%3E%3D%208.0.0-blue.svg" />
 	<br/>
-	<a href="https://forum.streamsheets.com">
+	<a href="https://forum.cedalo.com">
 		<img
-			alt="Discourse: forum.streamsheets.com"
-			src="https://img.shields.io/discourse/https/forum.streamsheets.com/topics.svg?style=social&logo=discourse"
+			alt="Discourse: forum.cedalo.com"
+			src="https://img.shields.io/discourse/https/forum.cedalo.com/topics.svg?style=social&logo=discourse"
 			target="_blank"
 		/>
 	</a>
-	<a href="https://forum.streamsheets.com">
+	<a href="https://forum.cedalo.com">
 		<img
-			alt="Discourse: forum.streamsheets.com"
-			src="https://img.shields.io/discourse/https/forum.streamsheets.com/users.svg?style=social&logo=discourse"
+			alt="Discourse: forum.cedalo.com"
+			src="https://img.shields.io/discourse/https/forum.cedalo.com/users.svg?style=social&logo=discourse"
 			target="_blank"
 		/>
 	</a>
-	<a href="https://forum.streamsheets.com">
+	<a href="https://forum.cedalo.com">
 		<img
-			alt="Discourse: forum.streamsheets.com"
-			src="https://img.shields.io/discourse/https/forum.streamsheets.com/posts.svg?style=social&logo=discourse"
+			alt="Discourse: forum.cedalo.com"
+			src="https://img.shields.io/discourse/https/forum.cedalo.com/posts.svg?style=social&logo=discourse"
 			target="_blank"
 		/>
 	</a>
-	<!-- <a href="https://forum.streamsheets.com">
+	<!-- <a href="https://forum.cedalo.com">
 		<img
-			alt="Discourse: forum.streamsheets.com"
-			src="https://img.shields.io/discourse/https/forum.streamsheets.com/likes.svg?style=social&logo=discourse"
+			alt="Discourse: forum.cedalo.com"
+			src="https://img.shields.io/discourse/https/forum.cedalo.com/likes.svg?style=social&logo=discourse"
 			target="_blank"
 		/>
 	</a> -->
@@ -72,7 +72,7 @@ If you are new to Streamsheets, you should start with the [introduction guide](h
 alt="Streamsheets" /></a>
 </p>
 
-Also, visit us on our [website](https://cedalo.com/) or check out the [Streamsheets forum](https://forum.streamsheets.com/).
+Also, visit us on our [website](https://cedalo.com/) or check out the [Streamsheets forum](https://forum.cedalo.com/).
 
 ## Table of contents
 
@@ -91,7 +91,7 @@ There are Docker images available for installing Streamsheets on Linux, macOS, W
 Run the following command to execute the installer for Streamsheets (replace the placeholders accordingly).
 
 * `<PATH>`: path to the installation directory, e.g., "~/streamsheets"
-* `<VERSION>`: version to install, e.g., "1.5"
+* `<VERSION>`: version to install, e.g., "2.1"
 * `<PLATFORM>`: target platform (one of `linux`, `macos`, `rpi`, `win`)
 
 ```
@@ -100,7 +100,7 @@ docker run -v <PATH>:/streamsheets cedalo/streamsheets-installer:<VERSION>-<PLAT
 
 Example
 ```
-docker run -v ~/streamsheets:/streamsheets cedalo/streamsheets-installer:1.5-linux
+docker run -v ~/streamsheets:/streamsheets cedalo/streamsheets-installer:2.1-linux
 ```
 
 <!-- ### Running from source code
@@ -156,11 +156,15 @@ The documentation is divided into several sections:
 
 ### Who maintains Streamsheets?
 
-Streamsheets are maintained by the [Cedalo AG](https://cedalo.com/). Please check out our [team page](https://cedalo.com/en/aboutus/)!
+Streamsheets are maintained by the [Cedalo AG](https://cedalo.com/).
+
+### Looking for a hosted version of Streamsheets?
+
+If you are interested in a hosted version of Streamsheets on our infrastructure please [contact us](https://cedalo.com/contact.html)
 
 ### Looking for support?
 
-For questions and support please join our [Forum](https://forum.streamsheets.com), ask a question on [Stack Overflow](https://stackoverflow.com/questions/tagged/streamsheets), or contact us on [Twitter](https://twitter.com/cedalo_com).
+For questions and support please join our [Forum](https://forum.cedalo.com), ask a question on [Stack Overflow](https://stackoverflow.com/questions/tagged/streamsheets), or contact us on [Twitter](https://twitter.com/cedalo_com).
 
 ### Where are the docs?
 
@@ -183,6 +187,6 @@ Give a ⭐️ if this project helped you!
 
 ## 📃 License
 
-Copyright (c) 2017-2019 Cedalo AG.
+Copyright (c) 2017-2021 Cedalo AG.
 
 Streamsheets is licensed under the Eclipse Public License - v 2.0. Please see the LICENSE file for details.

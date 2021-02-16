@@ -44,16 +44,17 @@ const updateGraphCells = async (repository, response) => {
 };
 
 const toMapObject = (arr, key = 'name') =>
-	arr.reduce((map, val) => {
+	arr ? arr.reduce((map, val) => {
 		map[val[key]] = val;
 		delete val[key];
 		return map;
-	}, {});
+	}, {}) : {};
 
-const sheetDescriptor = ({ cells, names, graphs }) => ({
+const sheetDescriptor = ({ id, cells, names, graphs, namedCells, graphCells }) => ({
+	id,
 	cells: toMapObject(cells, 'reference'),
-	namedCells: toMapObject(names),
-	graphCells: toMapObject(graphs)
+	namedCells: names ? toMapObject(names) : namedCells,
+	graphCells: graphs ? toMapObject(graphs) : graphCells
 });
 
 module.exports = class MachineService extends MessagingService {
@@ -244,6 +245,14 @@ module.exports = class MachineService extends MessagingService {
 			case MachineServerMessagingProtocol.EVENTS.MACHINE_STATE_EVENT:
 				logger.info(`PersistenceService: persist new machine state: ${event.state}`);
 				await RepositoryManager.machineRepository.updateMachineState(event.srcId, event.state);
+				// DL-4530 if streamsheets property provided we save it
+				if (event.streamsheets) {
+					// map input to match updateStreamSheets:
+					const streamsheets = Object.values(event.streamsheets).map((streamsheet) =>
+						sheetDescriptor(streamsheet)
+					);
+					await RepositoryManager.machineRepository.updateStreamSheets(event.srcId, streamsheets);
+				}
 				break;
 			case MachineServerMessagingProtocol.EVENTS.MACHINE_RENAME_EVENT:
 				logger.info(`PersistenceService: persist new machine name: ${event.name}`);
@@ -304,6 +313,11 @@ module.exports = class MachineService extends MessagingService {
 	async _handleMachineServiceResponseMessage(message) {
 		const { response } = message;
 		switch (message.requestType) {
+			case MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_MACHINE_MESSAGE_TYPE:
+			case MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE:
+				logger.debug('PersistenceService: save machine after load');
+				await RepositoryManager.machineRepository.updateMachine(response.machine.id, response.machine);
+				break;
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.START_MACHINE_MESSAGE_TYPE:
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.PAUSE_MACHINE_MESSAGE_TYPE:
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.STOP_MACHINE_MESSAGE_TYPE:
@@ -332,20 +346,18 @@ module.exports = class MachineService extends MessagingService {
 				logger.debug('PersistenceService: deleting machine');
 				await RepositoryManager.machineRepository.deleteMachine(response.machine.id);
 				break;
-			case MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_SHEET_CELLS:
+			case MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_SHEET_CELLS: {
 				logger.debug('PersistenceService: handle load sheet cells');
+				const { machineId, machineDescriptor } = response;
 				await RepositoryManager.machineRepository.updateMachineNamedCells(
-					response.machineId,
-					toMapObject(response.machineDescriptor.names)
+					machineId,
+					toMapObject(machineDescriptor.names)
 				);
-				Object.values(response.machineDescriptor.sheets).forEach(async (sheet) => {
-					await RepositoryManager.machineRepository.updateStreamSheet(
-						response.machineId,
-						sheet.id,
-						sheetDescriptor(sheet)
-					);
-				});
+				// map input to match updateStreamSheets:
+				const streamsheets = Object.values(machineDescriptor.sheets).map((sheet) => sheetDescriptor(sheet));
+				await RepositoryManager.machineRepository.updateStreamSheets(machineId, streamsheets);
 				break;
+			}
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.SET_GRAPH_CELLS:
 				logger.debug('PersistenceService: handle setting graph-cells');
 				await updateGraphCells(RepositoryManager.machineRepository, response);

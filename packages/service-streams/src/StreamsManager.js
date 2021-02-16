@@ -29,8 +29,8 @@ class StreamsManager {
 		this.repo = config.repo;
 		this._started = false;
 		this._messagingClient = null;
-		this.managerHandler = new StreamsManagerHandler();
 		this.streamsMonitor = new StreamsMonitor();
+		this.managerHandler = new StreamsManagerHandler(this.streamsMonitor);
 		this.configsManager = new ConfigurationsManager(config);
 		this.providersManager = new ProvidersManager({
 			repo: this.repo,
@@ -325,8 +325,9 @@ class StreamsManager {
 		if(stream) {
 			await stream._dispose(true);
 		}
+		const config = this.configsManager.getConfigurationById(configId);
 		this.configsManager.removeConfiguration(configId);
-		const scope = stream && stream.config.scope;
+		const scope = config.scope;
 		this.managerHandler.onConfigDelete(configId, !!stream, scope);
 		return this.repo.deleteConfiguration(configId);
 	}

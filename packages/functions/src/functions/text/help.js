@@ -73,6 +73,10 @@ module.exports = {
 			en: { argumentList: 'Text', description: 'Counts characters in given text' },
 			de: { argumentList: 'Text', description: 'Zählt die Anzahl der Zeichen im Text' }
 		},
+		LOWER: {
+			en: { argumentList: 'Text', description: 'Converts given text to lowercase' },
+			de: { argumentList: 'Text', description: 'Wandelt den übergebenen Text in Kleinbuchstaben um' }
+		},
 		MID: {
 			en: {
 				argumentList: 'Text,Index,Count',
@@ -172,6 +176,10 @@ module.exports = {
 				argumentList: 'Text',
 				description: 'Gibt die unicode-Zahl, die dem 1. Zeichen des übergebenen Textes entspricht, zurück'
 			}
+		},
+		UPPER: {
+			en: { argumentList: 'Text', description: 'Converts given text to uppercase' },
+			de: { argumentList: 'Text', description: 'Wandelt den übergebenen Text in Großbuchstaben um' }
 		},
 		VALUE: {
 			en: {

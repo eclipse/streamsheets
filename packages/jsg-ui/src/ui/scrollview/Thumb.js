@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -25,7 +25,7 @@ class Thumb extends Widget {
 
 		this._isSelected = false;
 		this._startLocation = new Point(0, 0);
-		this.getFormat().setFillColor('#CCCCCC');
+		this.getFormat().setFillColor(JSG.theme.scrollBars.thumb);
 		this.getFormat().setLineStyle(FormatAttributes.LineStyle.NONE);
 	}
 

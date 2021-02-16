@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { createTerm, createCellAt } = require('../utilities');
-const { Cell, Machine, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { Cell, Machine, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
 
 const setup = () => {
 	const machine = new Machine();
@@ -32,7 +32,7 @@ const stepAfter = (ms, machine) => new Promise((resolve) => {
 describe('detectchange', () => {
 	it('should not return FALSE on first run if condition is true', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', true, sheet);
 		const detectchange = createTerm('detectchange(A1, 0, A3, A4)', sheet);
 		step(machine);
@@ -60,7 +60,7 @@ describe('detectchange', () => {
 	});
 	it('returns TRUE if condition result changes from FALSE to TRUE', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', false, sheet);
 		const detectchange = createTerm('detectchange(A1, 0, A3, A4)', sheet);
 		step(machine);
@@ -89,7 +89,7 @@ describe('detectchange', () => {
 	});
 	it('does not matter if period is set to 0 or not set at all', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', false, sheet);
 		const detectchange = createTerm('detectchange(A1, 0, A3, A4)', sheet);
 		step(machine);
@@ -104,7 +104,7 @@ describe('detectchange', () => {
 	});
 	it('should still return TRUE if condition is FALSE but current calculation is in specified period ms ', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', true, sheet);
 		const detectchange = createTerm('detectchange(A1, 40000, A3, A4)', sheet);
 		step(machine);
@@ -124,7 +124,7 @@ describe('detectchange', () => {
 	});
 	it('should return FALSE if condition is FALSE', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', false, sheet);
 		const detectchange = createTerm('detectchange(A1, 0, A3, A4)', sheet);
 		step(machine);
@@ -134,7 +134,7 @@ describe('detectchange', () => {
 	});
 	it('should return FALSE if condition is FALSE and next calculation is in specified period ms ', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', false, sheet);
 		const detectchange = createTerm('detectchange(A1, 4000, A3, A4)', sheet);
 		step(machine);
@@ -144,7 +144,7 @@ describe('detectchange', () => {
 	});
 	it('should return FALSE if condition is TRUE and last result was TRUE', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', true, sheet);
 		const detectchange = createTerm('detectchange(A1, 0, A3, A4)', sheet);
 		step(machine);
@@ -159,7 +159,7 @@ describe('detectchange', () => {
 	});
 	it('should return TRUE after a specified delay', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', false, sheet);
 		const detectchange = createTerm('detectchange(A1, 0, A3, A4, 1000)', sheet);
 		step(machine);
@@ -170,7 +170,7 @@ describe('detectchange', () => {
 	});
 	it('should still return TRUE if condition is FALSE but current calculation is in specified period ms', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', true, sheet);
 		const detectchange = createTerm('detectchange(A1, 40000, A3, A4)', sheet);
 		step(machine);
@@ -191,7 +191,7 @@ describe('detectchange', () => {
 
 	it('should return TRUE after a specified delay and for as long as given period', async () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', false, sheet);
 		const detectchange = createTerm('detectchange(A1, 2000, A3, A4, 1000)', sheet);
 		step(machine);
@@ -208,7 +208,7 @@ describe('detectchange', () => {
 	});
 	it('should return TRUE only once after a specified delay if no period is given', async () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', false, sheet);
 		const detectchange = createTerm('detectchange(A1, 0, A3, A4, 1000)', sheet);
 		step(machine);
@@ -232,8 +232,8 @@ describe('detectchange', () => {
 		} });
 		const machine = new Machine();
 		machine.addStreamSheet(t1);
-		// sheet.processor._isProcessing = true;
-		t1.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ALWAYS });
+		// sheet._isProcessing = true;
+		t1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 		t1.step();
 		expect(sheet.cellAt('A2').value).toBe(5);
 		expect(sheet.cellAt('A1').value).toBe(false);
@@ -263,7 +263,7 @@ describe('detectchange', () => {
 describe('edge.detect', () => {
 	it('should not return FALSE on first run if condition is true', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', true, sheet);
 		const detect = createTerm('edge.detect(A1, 0)', sheet);
 		step(machine);
@@ -281,7 +281,7 @@ describe('edge.detect', () => {
 	});
 	it('returns TRUE if condition result changes from FALSE to TRUE', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', false, sheet);
 		const detect = createTerm('edge.detect(A1, 0)', sheet);
 		step(machine);
@@ -300,7 +300,7 @@ describe('edge.detect', () => {
 	});
 	it('does not matter if period is set to 0 or not set at all', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', false, sheet);
 		const detect = createTerm('edge.detect(A1, 0)', sheet);
 		step(machine);
@@ -311,7 +311,7 @@ describe('edge.detect', () => {
 	});
 	it('should still return TRUE if condition is FALSE but current calculation is in specified period ms ', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', true, sheet);
 		const detect = createTerm('edge.detect(A1, 40000)', sheet);
 		step(machine);
@@ -327,7 +327,7 @@ describe('edge.detect', () => {
 	});
 	it('should return FALSE if condition is FALSE', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', false, sheet);
 		const detect = createTerm('edge.detect(A1)', sheet);
 		step(machine);
@@ -335,7 +335,7 @@ describe('edge.detect', () => {
 	});
 	it('should return FALSE if condition is FALSE and next calculation is in specified period ms ', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', false, sheet);
 		const detect = createTerm('edge.detect(A1, 4000)', sheet);
 		step(machine);
@@ -343,7 +343,7 @@ describe('edge.detect', () => {
 	});
 	it('should return FALSE if condition is TRUE and last result was TRUE', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', true, sheet);
 		const detect = createTerm('edge.detect(A1)', sheet);
 		step(machine);
@@ -355,7 +355,7 @@ describe('edge.detect', () => {
 	});
 	it('should return TRUE after a specified delay', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', false, sheet);
 		const detect = createTerm('edge.detect(A1, , 1000)', sheet);
 		step(machine);
@@ -366,7 +366,7 @@ describe('edge.detect', () => {
 	});
 	it('should still return TRUE if condition is FALSE but current calculation is in specified period ms', () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', true, sheet);
 		const detect = createTerm('edge.detect(A1, 40000)', sheet);
 		step(machine);
@@ -382,7 +382,7 @@ describe('edge.detect', () => {
 	});
 	it('should return TRUE after a specified delay and for as long as given period', async () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', false, sheet);
 		const detect = createTerm('edge.detect(A1, 2000, 1000)', sheet);
 		step(machine);
@@ -397,7 +397,7 @@ describe('edge.detect', () => {
 	});
 	it('should return TRUE only once after a specified delay if no period is given', async () => {
 		const { machine, sheet } = setup();
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		createCellAt('A1', false, sheet);
 		const detect = createTerm('edge.detect(A1, 0, 1000)', sheet);
 		step(machine);
@@ -419,8 +419,8 @@ describe('edge.detect', () => {
 		} });
 		const machine = new Machine();
 		machine.addStreamSheet(t1);
-		// sheet.processor._isProcessing = true;
-		t1.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ALWAYS });
+		// sheet._isProcessing = true;
+		t1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 		t1.step();
 		expect(sheet.cellAt('A2').value).toBe(5);
 		expect(sheet.cellAt('A1').value).toBe(false);

@@ -25,7 +25,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
 import SortSelector from '../base/sortSelector/SortSelector';
-import TableSortHeader from '../base/addNewDialog/TableSortHeader';
+import TableSortHeader from '../HelperComponent/TableSortHeader';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconSearch from '@material-ui/icons/Search';
@@ -94,6 +94,7 @@ class StreamWizard extends React.Component {
 				defaultMessage: 'Invalid Name'
 			})
 		};
+		this.providerMap = Object.fromEntries(this.props.streams.providers.map((p) => [p.id, p]));
 		this.state = {
 			connector: undefined,
 			fieldErrors: undefined,
@@ -118,6 +119,13 @@ class StreamWizard extends React.Component {
 				activeStep: props.initialStep,
 				newConnector: props.initialStep === 'connector',
 				connector: props.connector,
+				fieldErrors: undefined,
+				selectedProvider: { id: '' },
+				error: '',
+				connectorName: '',
+				step: 1,
+				showAdvanced: false,
+				validating: false,
 				streamName: props.type === 'consumer' ?
 					StreamWizard.createUniqueConsumerName(props.connector, props) :
 					StreamWizard.createUniqueProducerName(props.connector, props)
@@ -133,22 +141,6 @@ class StreamWizard extends React.Component {
 		}
 	}
 
-	reset = () => {
-		this.setState({
-			connector: undefined,
-			newConnector: true,
-			fieldErrors: undefined,
-			selectedProvider: { id: '' },
-			activeStep: undefined,
-			error: '',
-			connectorName: '',
-			streamName: '',
-			step: 1,
-			showAdvanced: false,
-			validating: false
-		});
-	};
-
 	static createUniqueConsumerName(connector, props) {
 		let name;
 
@@ -159,7 +151,7 @@ class StreamWizard extends React.Component {
 				const provider = props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration].find(
 					(p) => p.id === connector.provider.id
 				);
-				name = provider.name.replace('Provider', 'Consumer');
+				name = StreamWizard.onUpdateName(provider.name.replace('Provider', 'Consumer'));
 			}
 		} else {
 			name = '';
@@ -190,7 +182,7 @@ class StreamWizard extends React.Component {
 				const provider = props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration].find(
 					(p) => p.id === connector.provider.id
 				);
-				name = provider.name.replace('Provider', 'Producer');
+				name = StreamWizard.onUpdateName(provider.name.replace('Provider', 'Producer'));
 			}
 		} else {
 			name = '';
@@ -235,8 +227,30 @@ class StreamWizard extends React.Component {
 		return finalName;
 	}
 
-	getProviders = () => SortSelector.sort(this.props.streams.providers, this.state.sortQuery, this.state.filter);
-	getConnectors = () => SortSelector.sort(this.props.streams.connectors, this.state.sortQuery, this.state.filter);
+	getRelevantProviders = () => {
+		switch (this.props.type) {
+			case 'consumer':
+				return this.props.streams.providers.filter((p) => p.canConsume);
+			case 'producer':
+				return this.props.streams.providers.filter((p) => p.canProduce);
+			default:
+				return this.props.streams.providers;
+		}
+	};
+
+	getRelevantConnectors = () => {
+		switch (this.props.type) {
+			case 'consumer':
+				return this.props.streams.connectors.filter((c) => this.providerMap[c.provider.id].canConsume);
+			case 'producer':
+				return this.props.streams.connectors.filter((c) => this.providerMap[c.provider.id].canProduce);
+			default:
+				return this.props.streams.connectors;
+		}
+	};
+
+	getProviders = () => SortSelector.sort(this.getRelevantProviders(), this.state.sortQuery, this.state.filter);
+	getConnectors = () => SortSelector.sort(this.getRelevantConnectors(), this.state.sortQuery, this.state.filter);
 
 	handleTableSort = (event, property) => {
 		const orderBy = property;
@@ -286,7 +300,7 @@ class StreamWizard extends React.Component {
 		}
 	};
 
-	static onUpdateName = (name) => name.replace(' ', '_').replace(/[^a-zA-Z0-9_]/, '');
+	static onUpdateName = (name) => name.replace(/\W/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
 
 	handleDescriptionChange = (event) => {
 		event.preventDefault();
@@ -342,13 +356,24 @@ class StreamWizard extends React.Component {
 	};
 
 	handleCancel = () => {
-		this.reset();
 		this.props.onClose();
 	};
 
 	handleClose = () => {
-		this.reset();
-		this.props.onClose();
+		switch (this.props.type) {
+			case 'consumer':
+				this.props.onClose(this.state.consumer);
+				break;
+			case 'connector':
+				this.props.onClose(this.state.connector);
+				break;
+			case 'producer':
+				this.props.onClose(this.state.producer);
+				break;
+			default:
+				this.props.onClose();
+				break;
+		}
 	};
 
 	getSteps() {
@@ -386,8 +411,13 @@ class StreamWizard extends React.Component {
 	}
 
 	getStreamInfo() {
+		const title = this.props.intl.formatMessage({
+			id: 'Stream.Wizard',
+			defaultMessage: 'Stream Wizard'
+		});
+
 		if (this.state.connector === undefined) {
-			return '';
+			return title;
 		}
 		const provider = this.props.streams[AdminConstants.CONFIG_TYPE.ProviderConfiguration].find(
 			(p) => p.id === this.state.connector.provider.id
@@ -396,14 +426,14 @@ class StreamWizard extends React.Component {
 		switch (this.state.activeStep) {
 			case 'connectorname':
 			case 'connectorsettings':
-				return `Provider: ${provider.name}`;
+				return `${title} - Provider: ${provider.name}`;
 			case 'producername':
 			case 'producersettings':
 			case 'consumername':
 			case 'consumersettings':
-				return `Provider: ${provider.name} - Connector ${this.state.connector.name}`;
+				return `${title} - Provider: ${provider.name} - Connector ${this.state.connector.name}`;
 			default:
-				return '';
+				return title;
 		}
 	}
 
@@ -466,6 +496,7 @@ class StreamWizard extends React.Component {
 					step: this.state.step + 1
 				});
 				this.state.connector.name = this.state.connectorName;
+				this.state.connector.description = this.state.connectorDescription;
 				break;
 			case 'connectorsettings': {
 				const model = this.state.connector;
@@ -523,6 +554,7 @@ class StreamWizard extends React.Component {
 						? new ConsumerConfiguration({}, this.state.connector, new ProviderConfiguration(provider))
 						: this.state.consumer;
 				consumer.name = this.state.streamName;
+				consumer.description = this.state.streamDescription;
 				this.setState({
 					activeStep: 'consumersettings',
 					backDisabled: false,
@@ -554,7 +586,6 @@ class StreamWizard extends React.Component {
 						}
 					});
 				}
-				this.handleClose();
 				break;
 			}
 			case 'producername': {
@@ -567,6 +598,7 @@ class StreamWizard extends React.Component {
 							? new ProducerConfiguration({}, this.state.connector, new ProviderConfiguration(provider))
 							: this.state.producer;
 					producer.name = this.state.streamName;
+					producer.description = this.state.streamDescription;
 					this.setState({
 						activeStep: 'producersettings',
 						backDisabled: false,
@@ -598,7 +630,6 @@ class StreamWizard extends React.Component {
 							}
 						});
 					}
-					this.handleClose();
 					break;
 				}
 			default:
@@ -656,18 +687,45 @@ class StreamWizard extends React.Component {
 		}
 	};
 
+	getStepDesciption() {
+		switch (this.state.activeStep) {
+			case 'connector':
+				return <FormattedMessage id="StreamStep.connectorDesc" defaultMessage="Steps" />;
+			case 'provider':
+				return <FormattedMessage id="StreamStep.providerDesc" defaultMessage="Steps" />;
+			case 'connectorname':
+				return <FormattedMessage id="StreamStep.connectorNameDesc" defaultMessage="Steps" />;
+			case 'consumername':
+				return <FormattedMessage id="StreamStep.consumerNameDesc" defaultMessage="Steps" />;
+			case 'producername':
+				return <FormattedMessage id="StreamStep.producerNameDesc" defaultMessage="Steps" />;
+			case 'consumersettings':
+				return <FormattedMessage id="StreamStep.consumerSettingsDesc" defaultMessage="Steps" />;
+			case 'producersettings':
+				return <FormattedMessage id="StreamStep.producerSettingsDesc" defaultMessage="Steps" />;
+			case 'connectorsettings':
+				return <FormattedMessage id="StreamStep.connectorSettingsDesc" defaultMessage="Steps" />;
+			default:
+		}
+
+		return null;
+	};
+
 	getProgress() {
 		const addButton = (label, color) => {
 			return (
 				<Fab
 					variant="extended"
 					size="small"
-					disabled={color !== 'primary'}
-					color={color}
+					disabled
+					disableRipple
+					disableFocusRipple
 					aria-label="add"
 					style={{
 						boxShadow: 'none',
+						color: color === 'primary' ? 'white' : undefined,
 						width: '196px',
+						backgroundColor: color === 'primary' ? this.props.theme.palette.primary.main : undefined,
 						lineHeight: 'normal'
 					}}
 				>
@@ -774,7 +832,7 @@ class StreamWizard extends React.Component {
 		return (
 			<Dialog open={open} onClose={onClose} maxWidth={false}>
 				<DialogTitle>
-					<FormattedMessage id="Stream.Wizard" defaultMessage="Stream Wizard" />
+					{this.getStreamInfo()}
 				</DialogTitle>
 				<DialogContent
 					style={{
@@ -793,16 +851,20 @@ class StreamWizard extends React.Component {
 								marginTop: '10px'
 							}}
 						>
-							<Typography style={{ fontSize: '0.85rem', marginBottom: '12px', marginTop: '6px' }}>
+							<Typography style={{ fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '12px', marginTop: '6px' }}>
 								<FormattedMessage id="Stream.Steps" defaultMessage="Steps" />
 							</Typography>
 							{this.getProgress()}
 						</div>
 						<div
 							style={{
-								width: '100%'
+								width: '100%',
+								marginTop: '10px'
 							}}
 						>
+							<Typography style={{ fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '12px', marginTop: '6px' }}>
+								{this.getStepDesciption()}
+							</Typography>
 							{activeStep === 'connector' ? (
 								<div>
 									<div>
@@ -839,21 +901,27 @@ class StreamWizard extends React.Component {
 
 										<div
 											style={{
-												border: '1px solid grey',
-												height: '407px',
+												// border: '1px solid grey',
+												height: '380px',
 												overflow: 'auto',
-												padding: '5px'
+												// padding: '5px'
 											}}
 										>
-											<Table>
+											<Table stickyHeader>
 												<TableSortHeader
 													cells={[
 														{
 															id: 'name',
 															numeric: false,
-															disablePadding: true,
 															label: 'Name',
 															width: '72%'
+														},
+														{
+															id: 'provider',
+															numeric: false,
+															label: 'Streams.Provider',
+															width: '28%',
+															sort: false
 														}
 													]}
 													orderBy={sortObj.sortBy}
@@ -863,7 +931,8 @@ class StreamWizard extends React.Component {
 												<TableBody>
 													<TableRow
 														style={{
-															height: '35px'
+															height: '35px',
+															cursor: 'pointer',
 														}}
 														hover
 														onClick={this.handleConnectorSelection()}
@@ -877,11 +946,13 @@ class StreamWizard extends React.Component {
 																defaultMessage="Create"
 															/>
 														</TableCell>
+														<TableCell/>
 													</TableRow>
 													{this.getConnectors().map((resource) => (
 														<TableRow
 															style={{
-																height: '35px'
+																height: '35px',
+																cursor: 'pointer',
 															}}
 															hover
 															onClick={this.handleConnectorSelection(resource)}
@@ -891,6 +962,9 @@ class StreamWizard extends React.Component {
 														>
 															<TableCell component="th" scope="row" padding="none">
 																{resource.name}
+															</TableCell>
+															<TableCell component="th" scope="row" padding="none">
+																{this.providerMap[resource.provider.id].name}
 															</TableCell>
 														</TableRow>
 													))}
@@ -935,19 +1009,18 @@ class StreamWizard extends React.Component {
 
 									<div
 										style={{
-											border: '1px solid grey',
-											height: '407px',
+											// border: '1px solid grey',
+											height: '380px',
 											overflow: 'auto',
-											padding: '5px'
+											// padding: '5px'
 										}}
 									>
-										<Table>
+										<Table stickyHeader>
 											<TableSortHeader
 												cells={[
 													{
 														id: 'name',
 														numeric: false,
-														disablePadding: true,
 														label: 'Name',
 														width: '72%'
 													}
@@ -960,7 +1033,8 @@ class StreamWizard extends React.Component {
 												{this.getProviders().map((resource) => (
 													<TableRow
 														style={{
-															height: '35px'
+															height: '35px',
+															cursor: 'pointer',
 														}}
 														hover
 														onClick={this.handleProviderSelection(resource)}
@@ -984,13 +1058,12 @@ class StreamWizard extends React.Component {
 										height: '85px'
 									}}
 								>
-									<Typography style={{ fontSize: '0.85rem', marginTop: '16px' }}>
-										{this.getStreamInfo()}
-									</Typography>
 									<TextField
 										inputRef={(el) => {
 											this.nameRef = el;
 										}}
+										variant="outlined"
+										size="small"
 										label={<FormattedMessage id="Stream.NameField" defaultMessage="Name" />}
 										id="name"
 										name="name"
@@ -1010,6 +1083,8 @@ class StreamWizard extends React.Component {
 										}
 										id="description"
 										name="description"
+										variant="outlined"
+										size="small"
 										fullWidth
 										multiline
 										margin="normal"
@@ -1024,11 +1099,9 @@ class StreamWizard extends React.Component {
 							) : null}
 							{activeStep === 'consumersettings' || activeStep === 'connectorsettings'  || activeStep === 'producersettings'? (
 								<div>
-									<Typography
-										style={{ fontSize: '0.85rem', marginTop: '16px', marginBottom: '10px' }}
-									>
-										{this.getStreamInfo()}
-									</Typography>
+									<div
+										style={{marginBottom: '10px' }}
+									/>
 									{this.getStreamFields(fc, false)}
 									{/* eslint-disable-next-line no-nested-ternary */}
 									{advancedFields.length ? (
@@ -1072,11 +1145,11 @@ class StreamWizard extends React.Component {
 					<Button color="primary" onClick={() => this.handleCancel()}>
 						<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 					</Button>
-					<Button size="small" onClick={this.handleBack} disabled={this.getBackDisabled()}>
+					<Button color="primary" size="small" onClick={this.handleBack} disabled={this.getBackDisabled()}>
 						{<KeyboardArrowLeft />}
 						<FormattedMessage id="Setup.Back" defaultMessage="Back" />
 					</Button>
-					<Button size="small" onClick={this.handleNext} disabled={this.getNextDisabled()}>
+					<Button color="primary" size="small" onClick={this.handleNext} disabled={this.getNextDisabled()}>
 						{(this.props.type === 'connector' && this.state.activeStep === 'connectorsettings') ||
 						(this.props.type !== 'connector' && this.state.activeStep === 'consumersettings') ?
 						<FormattedMessage id="StreamStep.finish" defaultMessage="Finish" /> :

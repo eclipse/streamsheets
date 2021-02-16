@@ -10,7 +10,7 @@
  ********************************************************************************/
 const SHEETS = require('../_data/sheets.json');
 const { createTerm } = require('../utilities');
-const { Cell, Machine, StreamSheet } = require('@cedalo/machine-core');
+const { Cell, ErrorTerm, Machine, StreamSheet } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
@@ -128,6 +128,20 @@ describe('lookup functions', () => {
 			expect(createTerm('index(A1:C3, 1, -1)', sheet).value).toBe(ERROR.VALUE);
 			expect(createTerm('index(A1:C3, -1, 1)', sheet).value).toBe(ERROR.VALUE);
 		});
+		it('should return error if given one of given coordinates is an error', () => {
+			const sheet = new StreamSheet().sheet;
+			const termWithError = (formula, err1, err2) => {
+				const fnterm = createTerm(formula, sheet);
+				if (err1) fnterm.params[1] = ErrorTerm.fromError(err1);
+				if (err2) fnterm.params[2] = ErrorTerm.fromError(err2);
+				return fnterm;
+			};
+			expect(termWithError(`index(A1:C3, 1, 1)`, ERROR.NA).value).toBe(ERROR.NA);
+			expect(termWithError(`index(A1:C3, 1, 1)`, undefined, ERROR.NA).value).toBe(ERROR.NA);
+			expect(termWithError(`index(A1:C3, 1, 1)`, ERROR.VALUE).value).toBe(ERROR.VALUE);
+			expect(termWithError(`index(A1:C3, 1, 1)`, undefined, ERROR.VALUE).value).toBe(ERROR.VALUE);
+			expect(termWithError(`index(A1:C3, 1, 1)`, ERROR.NA, ERROR.VALUE).value).toBe(ERROR.NA);
+		});
 		it(`should return ${ERROR.REF} if offsets are out of range`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { A1: 1, B1: 2, A2: 3, B2: 4 } });
 			expect(createTerm('index(A1:B2, 3, 1)', sheet).value).toBe(ERROR.REF);
@@ -224,6 +238,18 @@ describe('lookup functions', () => {
 			expect(createTerm('match(40, B2:B5, -1)', sheet).value).toBe(ERROR.NA);
 			// exact
 			expect(createTerm('match(41, B2:B5, 0)', sheet).value).toBe(4);
+		});
+		it('should not get confused by same values in range', () => {
+			const sheet = new StreamSheet().sheet.load({
+				cells: { A2: 33, A3: 34, A4: 34, A5: 36, A6: 37, A7: 40, A8: 50, A9: 60 }
+			});
+			expect(createTerm('match(50, A2:A9, 1)', sheet).value).toBe(7);
+			sheet.load({cells: { A2: 34, A3: 34, A4: 34, A5: 34, A6: 34, A7: 34, A8: 51, A9: 60 } });
+			expect(createTerm('match(50, A2:A9, 1)', sheet).value).toBe(6);
+			sheet.load({cells: { A2: -32, A3: -32, A4: -31, A5: -10, A6: -9, A7: 1, A8: 0, A9: 1 } });
+			expect(createTerm('match(0, A2:A9, 1)', sheet).value).toBe(5);
+			sheet.load({cells: { A2: -32, A3: -32, A4: -32, A5: -10, A6: -9, A7: 1, A8: 0, A9: 1 } });
+			expect(createTerm('match(0, A2:A9, 1)', sheet).value).toBe(5);
 		});
 		it('should support strings with wildcards', () => {
 			/* eslint-disable */
@@ -358,6 +384,15 @@ describe('lookup functions', () => {
 		it(`should return ${ERROR.REF} if new reference is not valid`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { B6: 4, C6: 10, B7: 8, C7: 3, B8: 3, C8: 6 } });
 			expect(createTerm('offset(D3, -3, -3)', sheet).value).toBe(ERROR.REF);
+		});
+		// DL-4705
+		it(`should return ${ERROR.VALUE} if specified target height or width less than 1`, () => {
+			const sheet = new StreamSheet().sheet.load({ cells: { A2: 4 } });
+			expect(createTerm('offset(A2, 1, 1, 0, 0)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('offset(A2, 1, 1, -1, 0)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('offset(A2, 1, 1, 0, -1)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('offset(A2, 1, 1, 0)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('offset(A2, 1, 1, , 0)', sheet).value).toBe(ERROR.VALUE);
 		});
 		it(`should return ${ERROR.ARGS} error if not enough parameters are specified`, () => {
 			const sheet = new StreamSheet().sheet;

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -214,8 +214,8 @@ const UserTablePageComponent = (props) => {
 						position: 'relative'
 					}}
 				>
-					<Grid container spacing={32}>
-						<Grid item container spacing={8} justify="space-between">
+					<Grid container spacing={2}>
+						<Grid item container spacing={1} justify="space-between">
 							<Grid item>
 								<Typography variant="h5" gutterBottom>
 									<FormattedMessage id="Admin.Users" defaultMessage="Users" />
@@ -252,7 +252,7 @@ const UserTablePageComponent = (props) => {
 						</Grid>
 						{!state.loading && users.length === 0 && (
 							<Grid item xs={12} style={{ textAlign: 'center' }}>
-								<Typography variant="body1">No Users Found</Typography>
+								<Typography variant="body2">No Users Found</Typography>
 							</Grid>
 						)}
 						{state.loading && (

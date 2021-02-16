@@ -186,6 +186,7 @@ export interface DeleteStreamsheetRequest extends IWSRequest {
 export interface LoadMachineRequest extends IWSRequest {
 	type: 'machine_load';
 	machineId: string;
+	scope?: Scope;
 }
 export interface UnloadMachineRequest extends IWSRequest {
 	type: 'machine_unload';
@@ -283,6 +284,16 @@ export interface StreamsheetStreamUpdateRequest extends IWSRequest {
 	machineId: string;
 }
 
+export interface MachineActionWebSocketRequest extends IWSRequest {
+	type: 'machine_action';
+	machineId: string;
+}
+
+export interface GetCellRawValueWebSocketRequest extends IWSRequest {
+	type: 'machine_get_cell_raw_value';
+	machineId: string;
+}
+
 export interface Command {
 	name: string;
 }
@@ -320,6 +331,8 @@ export type WSRequest =
 	| GetMachinesRequest
 	| GetMachineRequest
 	| AddInboxMessageRequest
+	| MachineActionWebSocketRequest
+	| GetCellRawValueWebSocketRequest
 	| LoadSubscribeMachineRequest;
 
 export type ServiceResponse =

@@ -36,6 +36,7 @@ const reduceCells = (cells) =>
 const deleteProps = (...props) => (obj) => props.forEach((prop) => delete obj[prop]);
 
 const deleteCellProps = deleteProps('reference', 'info');
+const deleteMetadataProps = deleteProps('machineservice');
 const deleteMachineProps = deleteProps('outbox', 'functionDefinitions', 'functionsHelp', 'stats');
 const deleteStreamSheetProps = deleteProps('stats');
 const deleteInboxProps = deleteProps('messages', 'currentMessage');
@@ -56,6 +57,7 @@ const isValid = (machine) => !!(machine && machine.id);
 const checkAndTransformMachine = (machine) => {
 	if (isValid(machine)) {
 		deleteMachineProps(machine);
+		deleteMetadataProps(machine.metadata);
 		machine.streamsheets.forEach(streamsheet => {
 			checkStreamSheetCells(streamsheet);
 			deleteStreamSheetProps(streamsheet);
@@ -307,20 +309,23 @@ module.exports = class MongoDBMachineRepository extends mix(
 			.then((resp) => resp.result && resp.result.ok);
 	}
 
-	updateStreamSheet(
-		machineId,
-		streamsheetId,
-		{ cells = {}, namedCells = {}, graphCells = {} } = {}
-	) {
-		const selector = { _id: machineId, 'streamsheets.id': streamsheetId };
-		const update = {};
-		update.$set = {};
-		update.$set['streamsheets.$.sheet.cells'] = deletePropsFromCells(cells);
-		update.$set['streamsheets.$.sheet.namedCells'] = namedCells;
-		update.$set['streamsheets.$.sheet.graphCells'] = graphCells;
+	// streamsheets = [{ id, cells = {}, namedCells = {}, graphCells = {} }, ...]
+	updateStreamSheets(machineId, streamsheets) {
+		const bulkUpdates = streamsheets.map(({ id, cells, namedCells, graphCells } = {}) => {
+			const update = { $set: {} };
+			update.$set['streamsheets.$.sheet.cells'] = deletePropsFromCells(cells);
+			update.$set['streamsheets.$.sheet.namedCells'] = namedCells;
+			update.$set['streamsheets.$.sheet.graphCells'] = graphCells;
+			return {
+				updateOne: {
+					filter: { _id: machineId, 'streamsheets.id': id },
+					update
+				}
+			};
+		}); 
 		return this.db
 			.collection(this.collection)
-			.updateOne(selector, update)
+			.bulkWrite(bulkUpdates)
 			.then((resp) => resp.result && resp.result.ok);
 	}
 	updateSheet(machineId, streamsheetId, sheetdef = {}) {

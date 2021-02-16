@@ -83,7 +83,7 @@ const getInboxOrOutboxMessage = (path, machine) => {
 const createMessageFromValue = (value) => {
 	let message;
 	if (value != null) {
-		message = FunctionErrors.isError(value) || new Message(typeof value === 'object' ? Object.assign({}, value) : { value });
+		message = FunctionErrors.isError(value) || new Message(typeof value === 'object' ? value : [value]);
 	}
 	return message;
 };

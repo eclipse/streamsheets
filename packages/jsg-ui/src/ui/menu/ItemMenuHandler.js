@@ -1,8 +1,8 @@
 import { default as JSG, GraphUtils, NotificationCenter } from '@cedalo/jsg-core';
 
 import SelectionProvider from '../../graph/view/SelectionProvider';
-import GraphItemController from '../../graph/controller/GraphItemController';
 import InteractionHandler from '../../graph/interaction/InteractionHandler';
+import WorksheetView from "../../graph/view/WorksheetView";
 
 /**
  * An <code>ItemMenuHandler</code> is used to display custom elements next to a {{#crossLink
@@ -29,6 +29,7 @@ export default class ItemMenuHandler {
 				// GraphItemController.ITEM_CHANGED_NOTIFICATION,
 				InteractionHandler.ACTIVE_INTERACTION_NOTIFICATION,
 				NotificationCenter.SCROLL_NOTIFICATION,
+				WorksheetView.SHEET_SCROLL_NOTIFICATION,
 				NotificationCenter.ZOOM_NOTIFICATION,
 				NotificationCenter.DISPLAY_MODE_NOTIFICATION
 			]);

@@ -24,9 +24,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -42,7 +40,7 @@ import * as Actions from '../../actions/actions';
 import MachineHelper from '../../helper/MachineHelper';
 import { graphManager } from '../../GraphManager';
 import Table from '@material-ui/core/Table';
-import TableSortHeader from '../base/addNewDialog/TableSortHeader';
+import TableSortHeader from './TableSortHeader';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
@@ -50,6 +48,9 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import IconSearch from '@material-ui/icons/Search';
 import StreamWizard from '../Dashboard/StreamWizard';
 import StreamSettings from '../Dashboard/StreamSettings';
+import Popover from "@material-ui/core/Popover";
+import IconButton from "@material-ui/core/IconButton";
+import ArrowDropDown from "@material-ui/icons/ArrowDropDown";
 
 const { RESOURCE_ACTIONS } = accessManager;
 const {
@@ -115,6 +116,7 @@ export class InboxSettings extends React.Component {
 		super(props);
 		const streams = getStreamsFromProps(props);
 		this.state = {
+			anchorEl: null,
 			streams,
 			streamSortBy: 'name',
 			streamSortOrder: 'asc',
@@ -149,7 +151,11 @@ export class InboxSettings extends React.Component {
 		NotificationCenter.getInstance().unregister(this, ButtonNode.BUTTON_CLICKED_NOTIFICATION);
 	}
 
-	onWizardClose = () => {
+	onWizardClose = (consumer) => {
+		if (consumer) {
+			this.scroll = `stream-${consumer.id}`;
+			this.handleStreamChange(consumer);
+		}
 		this.setState({ showStreamWizard: false, editStream: false });
 	};
 
@@ -272,8 +278,6 @@ export class InboxSettings extends React.Component {
 	getStreams = () => {
 		const { streams } = this.state;
 		return streams.map((s) => {
-			s.state = StreamHelper.getResourceState(s, this.props.streams.statusMap);
-			s.state = StreamHelper.getStatusFor(s.state);
 			s.provider = this.props.streams.providers.find((p) => p.id === s.providerId);
 			return s;
 		});
@@ -287,11 +291,6 @@ export class InboxSettings extends React.Component {
 			day: '2-digit'
 		})} ${d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
 	}
-
-	getTriggerType = () => {
-		const { type } = this.state.trigger;
-		return type === 'start' && this.state.trigger.repeat === 'endless' ? 'continuously' : type;
-	};
 
 	handleFilter = (event) => {
 		const filter = event.target.value;
@@ -479,7 +478,7 @@ export class InboxSettings extends React.Component {
 		});
 	};
 
-	handleStreamChange = (newStream) => {
+	handleStreamChange = (newStream, callback) => {
 		if (newStream) {
 			const streamDesc = {
 				name: newStream.name || 'none',
@@ -490,14 +489,16 @@ export class InboxSettings extends React.Component {
 				inbox: {
 					...this.state.inbox,
 					stream: streamDesc
-				}
-			});
+				},
+				anchorEl: null,
+			}, callback);
 		} else {
 			this.setState({
 				inbox: {
 					...this.state.inbox,
 					stream: { id: 'none' }
-				}
+				},
+				anchorEl: null,
 			});
 		}
 	};
@@ -515,14 +516,12 @@ export class InboxSettings extends React.Component {
 			{
 				id: 'name',
 				numeric: false,
-				disablePadding: true,
 				label: 'Streams.Name',
 				width: '42%'
 			},
 			{
 				id: 'provider',
 				numeric: false,
-				disablePadding: true,
 				label: 'Streams.Provider',
 				width: '25%',
 				fields
@@ -530,7 +529,6 @@ export class InboxSettings extends React.Component {
 			{
 				id: 'lastModified',
 				numeric: false,
-				disablePadding: true,
 				label: 'Streams.LastModified',
 				width: '22%'
 			}
@@ -623,17 +621,25 @@ export class InboxSettings extends React.Component {
 	handleTriggerChange = (event) => {
 		const type = event.target.value;
 		const newState = { trigger: { ...this.state.trigger, type } };
-		if (type === 'continuously') {
-			newState.trigger.type = 'start';
-			newState.trigger.repeat = 'endless';
-		} /* if (type === 'start') */ else {
-			newState.trigger.repeat = 'once';
-		}
+		// endlessly should be selected explicitly so:
+		newState.trigger.repeat = 'once';
 		this.setState(newState);
 	};
 
 	handleTabChange = (event, value) => {
 		this.setState({ tabSelected: value });
+	};
+
+	handleConsumerClose = () => {
+		this.setState({
+			anchorEl: null,
+		});
+	};
+
+	handleConsumerClick = (event) => {
+		this.setState({
+			anchorEl: event.currentTarget
+		});
 	};
 
 	render() {
@@ -643,6 +649,15 @@ export class InboxSettings extends React.Component {
 		const streams = this.getStreams();
 		const canEdit = MachineHelper.currentMachineCan(RESOURCE_ACTIONS.EDIT);
 		const { tabSelected, filter } = this.state;
+
+		if (this.scroll) {
+			const sel = document.getElementById(this.scroll);
+			if (sel && sel.scrollIntoView) {
+				sel.scrollIntoView(true);
+				this.scroll = undefined;
+			}
+		}
+
 		return (
 			<Dialog open={this.props.open} onClose={() => this.handleClose()} maxWidth={false}>
 				<DialogTitle>
@@ -651,8 +666,8 @@ export class InboxSettings extends React.Component {
 				<DialogContent
 					style={{
 						height: 'auto',
-						minHeight: '430px',
-						minWidth: '825px',
+						minHeight: '440px',
+						minWidth: '550px',
 						paddingBottom: '0px',
 					}}
 				>
@@ -662,147 +677,194 @@ export class InboxSettings extends React.Component {
 					</Tabs>
 					{tabSelected === 0 && (
 						<TabContainer>
-							<div
-								style={{
-									display: 'flex'
-								}}
-							>
+							<FormGroup>
 								<div
 									style={{
-										width: '450px',
-										marginTop: '20px',
-										marginRight: '25px'
+										display: 'flex',
+										marginBottom: '10px',
+										marginTop: '25px'
 									}}
+								>
+										<TextField
+											style={{
+												width: '65%',
+												cursor: 'pointer',
+											}}
+											id="ibconsumerselect"
+											onClick={this.handleConsumerClick}
+											variant="outlined"
+											size="small"
+											label={
+												<FormattedMessage id="InboxSettings.SelectConsumer" defaultMessage="Please select a Consumer:" />
+											}
+											inputProps={{
+												readOnly: true,
+												style: { cursor: 'pointer' },											}}
+											value={this.state.inbox.stream === null || this.state.inbox.stream.id === 'none' ? 'None' : this.state.inbox.stream.name}
+											disabled={!canEdit}
+										/>
+									<IconButton
+										disabled={!canEdit}
+										style={{
+											padding: '0px',
+											height: '25px',
+											position: 'relative',
+											left: '-27px',
+											top: '7px',
+										}}
+										size="small"
+										onClick={this.handleConsumerClick}>
+										<ArrowDropDown />
+									</IconButton>
+										<Button
+											style={{
+												height: '40px'
+											}}
+											color="primary"
+											onClick={this.handleEditConsumer}
+											disabled={!canEdit || this.state.inbox.stream === null || this.state.inbox.stream.id === 'none'}
+										>
+											<FormattedMessage id="DialogNew.EditConsumer" defaultMessage="Edit Consumer" />
+										</Button>
+								</div>
+								<Popover
+									open={Boolean(this.state.anchorEl)}
+									anchorEl={document.getElementById('ibconsumerselect')}
+									anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+									transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+									onClose={this.handleConsumerClose}
 								>
 									<div
 										style={{
-											width: '100%',
-											display: 'flex',
-											justifyContent: 'space-between',
-											verticalAlign: 'middle'
+											width: '500px',
+											margin: '20px',
 										}}
 									>
-										<FormLabel
+										<div
 											style={{
-												marginTop: '10px',
-												fontSize: '13px',
-												display: 'inline-block'
+												width: '100%',
+												display: 'flex',
+												justifyContent: 'space-between',
+												verticalAlign: 'middle'
 											}}
 										>
-											<FormattedMessage id="InboxSettings.SelectConsumer" defaultMessage="Please select a Consumer:" />
-										</FormLabel>
-										<Input
-											onChange={this.handleFilter}
-											style={{ marginBottom: '8px', width: '35%' }}
-											startAdornment={
-												<InputAdornment position="start">
-													<IconSearch />
-												</InputAdornment>
-											}
-											defaultValue={filter}
-											type="search"
-										/>
-									</div>
-									<div
-										style={{
-											border: '1px solid grey',
-											height: '310px',
-											overflow: 'auto',
-											padding: '5px'
-										}}
-									>
-										<Table>
-											<TableSortHeader
-												cells={this.getHeader()}
-												orderBy={this.state.streamSortBy}
-												order={this.state.streamSortOrder}
-												onRequestSort={this.handleTableSort}
-												onFieldToggle={(field, state) => this.onFieldToggle(field, state)}
+											<FormLabel
+												style={{
+													marginTop: '10px',
+													fontSize: '13px',
+													display: 'inline-block'
+												}}
+											>
+												<FormattedMessage id="InboxSettings.SelectConsumer" defaultMessage="Please select a Consumer:" />
+											</FormLabel>
+											<Input
+												onChange={this.handleFilter}
+												style={{ marginBottom: '8px', width: '35%' }}
+												startAdornment={
+													<InputAdornment position="start">
+														<IconSearch />
+													</InputAdornment>
+												}
+												defaultValue={filter}
+												type="search"
 											/>
-											<TableBody>
-												<TableRow
-													style={{
-														height: '35px'
-													}}
-													key="no_stream"
-													hover
-													selected={
-														this.state.inbox.stream === null ||
-														this.state.inbox.stream.id === 'none'
-													}
-													onClick={() => this.handleStreamChange()}
-													tabIndex={-1}
-												>
-													<TableCell component="th" scope="row" padding="none">
-														<FormattedMessage
-															id="DialogNew.noStream"
-															defaultMessage="None"
-														/>
-													</TableCell>
-													<TableCell />
-													<TableCell />
-												</TableRow>
-												{this.getResources(streams).map((resource) => (
+										</div>
+										<div
+											style={{
+												height: '310px',
+												overflow: 'auto',
+												marginTop: '15px'
+											}}
+										>
+											<Table stickyHeader size="small">
+												<TableSortHeader
+													cells={this.getHeader()}
+													orderBy={this.state.streamSortBy}
+													order={this.state.streamSortOrder}
+													onRequestSort={this.handleTableSort}
+													onFieldToggle={(field, state) => this.onFieldToggle(field, state)}
+												/>
+												<TableBody>
 													<TableRow
 														style={{
-															height: '35px'
+															height: '35px',
+															cursor: 'pointer',
 														}}
+														key="no_stream"
 														hover
-														onClick={() => this.handleStreamChange(resource)}
 														selected={
-															this.state.inbox.stream &&
-															resource.id === this.state.inbox.stream.id
+															this.state.inbox.stream === null ||
+															this.state.inbox.stream.id === 'none'
 														}
+														onClick={() => this.handleStreamChange()}
 														tabIndex={-1}
-														key={`${resource.className}-${resource.id}`}
 													>
 														<TableCell component="th" scope="row" padding="none">
-															<img
-																style={{ verticalAlign: 'bottom', paddingRight: '6px' }}
-																width={15}
-																height={15}
-																src={StreamHelper.getIconForState(resource.state)}
-																alt="state"
+															<FormattedMessage
+																id="DialogNew.noStream"
+																defaultMessage="None"
 															/>
-
-															{resource.name}
 														</TableCell>
-														<TableCell component="th" scope="row" padding="none">
-															{resource.provider.name}
-														</TableCell>
-														<TableCell padding="none">
-															{this.getFormattedDateString(resource.lastModified)}
-														</TableCell>
+														<TableCell />
+														<TableCell />
 													</TableRow>
-												))}
-											</TableBody>
-										</Table>
+													{this.getResources(streams).map((resource) => (
+														<TableRow
+															style={{
+																height: '35px',
+																cursor: 'pointer',
+															}}
+															hover
+															onClick={() => this.handleStreamChange(resource)}
+															selected={
+																this.state.inbox.stream &&
+																resource.id === this.state.inbox.stream.id
+															}
+															tabIndex={-1}
+															id={`stream-${resource.id}`}
+															key={`${resource.className}-${resource.id}`}
+														>
+															<TableCell component="th" scope="row" padding="none">
+																<img
+																	style={{ verticalAlign: 'bottom', paddingRight: '6px' }}
+																	width={15}
+																	height={15}
+																	src={StreamHelper.getIconForState(resource.state)}
+																	alt="state"
+																/>
+
+																{resource.name}
+															</TableCell>
+															<TableCell component="th" scope="row" padding="none">
+																{resource.provider.name}
+															</TableCell>
+															<TableCell padding="none">
+																{this.getFormattedDateString(resource.lastModified)}
+															</TableCell>
+														</TableRow>
+													))}
+												</TableBody>
+											</Table>
+										</div>
 									</div>
-								</div>
-								<div>
+								</Popover>
 									<FormControl
 										disabled={!canEdit}
-										style={{
-											marginBottom: '10px',
-											marginTop: '25px'
-										}}
 									>
-										<InputLabel htmlFor="processSetting.triggerType">
-											<FormattedMessage
-												id="InboxSettings.calcStreamSheet"
-												defaultMessage="Calculate StreamSheet"
-											/>
-										</InputLabel>
-										<Select
+										<TextField
+											select
+											variant="outlined"
+											size="small"
+											margin="normal"
 											style={{
-												width: '335px'
+												width: '65%'
 											}}
-											value={this.getTriggerType()}
+											value={this.state.trigger.type}
 											onChange={this.handleTriggerChange}
-											input={
-												<Input
-													name="processSetting.triggerType"
-													id="processSetting.triggerType"
+											label={
+												<FormattedMessage
+													id="InboxSettings.calcStreamSheet"
+													defaultMessage="Calculate StreamSheet"
 												/>
 											}
 										>
@@ -816,7 +878,7 @@ export class InboxSettings extends React.Component {
 													{t.label}
 												</MenuItem>
 											))}
-										</Select>
+										</TextField>
 									</FormControl>
 									<FormGroup
 										style={{
@@ -828,11 +890,7 @@ export class InboxSettings extends React.Component {
 												<Checkbox
 													checked={this.state.trigger.repeat === 'endless'}
 													onChange={this.handleRepeatCalculation}
-													disabled={
-														this.state.trigger.type === 'none' ||
-														(this.state.trigger.type === 'start' &&
-															this.state.trigger.repeat === 'endless')
-													}
+													disabled={this.state.trigger.type === 'none'}
 												/>
 											}
 											// eslint-disable-next-line
@@ -848,7 +906,9 @@ export class InboxSettings extends React.Component {
 									{this.state.trigger.type === 'random' || this.state.trigger.type === 'time' ? (
 										<div>
 											<TextField
-												// eslint-disable-next-line
+												variant="outlined"
+												size="small"
+												margin="normal"
 												label={
 													<FormattedMessage
 														id="InboxSettings.starTimeDate"
@@ -857,7 +917,7 @@ export class InboxSettings extends React.Component {
 												}
 												type="datetime-local"
 												defaultValue={this.state.trigger.start}
-												style={{ width: '11rem' }}
+												style={{ width: '11rem', marginRight: '10px' }}
 												InputLabelProps={{
 													shrink: true
 												}}
@@ -872,7 +932,9 @@ export class InboxSettings extends React.Component {
 												disabled={!canEdit}
 											/>
 											<TextField
-												// eslint-disable-next-line
+												variant="outlined"
+												size="small"
+												margin="normal"
 												label={
 													<FormattedMessage
 														id="InboxSettings.interval"
@@ -881,7 +943,7 @@ export class InboxSettings extends React.Component {
 												}
 												type="number"
 												defaultValue={this.state.trigger.interval}
-												style={{ width: '9rem' }}
+												style={{ width: '4rem', marginRight: '10px' }}
 												InputLabelProps={{
 													shrink: true
 												}}
@@ -899,7 +961,11 @@ export class InboxSettings extends React.Component {
 												}
 												disabled={!canEdit}
 											/>
-											<Select
+											<TextField
+												variant="outlined"
+												size="small"
+												margin="normal"
+												select
 												value={this.state.trigger.intervalUnit || 'ms'}
 												// eslint-disable-next-line
 												label={
@@ -955,7 +1021,7 @@ export class InboxSettings extends React.Component {
 														defaultMessage="days"
 													/>
 												</MenuItem>
-											</Select>
+											</TextField>
 										</div>
 									) : null}
 									<FormGroup style={styles.formControl}>
@@ -978,7 +1044,8 @@ export class InboxSettings extends React.Component {
 											/>
 										</div>
 										<TextField
-											// eslint-disable-next-line
+											variant="outlined"
+											size="small"
 											label={
 												<FormattedMessage
 													id="InboxSettings.loopArray"
@@ -994,7 +1061,7 @@ export class InboxSettings extends React.Component {
 											value={this.state.loop.path}
 											style={{
 												marginLeft: '35px',
-												width: '86%',
+												width: '59%',
 												marginTop: '2px'
 											}}
 										/>
@@ -1036,8 +1103,7 @@ export class InboxSettings extends React.Component {
 											disabled={!canEdit}
 										/>
 									</FormGroup>
-								</div>
-							</div>
+							</FormGroup>
 							{this.state.showStreamWizard ? (
 								<StreamWizard
 									onClose={this.onWizardClose}
@@ -1082,6 +1148,8 @@ export class InboxSettings extends React.Component {
 									<FormGroup style={{}}>
 										<TextField
 											label={<FormattedMessage id="Name" defaultMessage="Name" />}
+											variant="outlined"
+											size="small"
 											margin="normal"
 											fullWidth
 											onChange={this.handleSheetName}
@@ -1106,6 +1174,9 @@ export class InboxSettings extends React.Component {
 												width: '100px'
 											}}
 											id="number"
+											variant="outlined"
+											size="small"
+											margin="normal"
 											label={<FormattedMessage id="Columns" defaultMessage="Columns" />}
 											inputProps={{
 												min: 1,
@@ -1126,13 +1197,15 @@ export class InboxSettings extends React.Component {
 											value={this.state.preferences.sheetColumns}
 											onChange={(event) => this.handleSheetColumns(event)}
 											type="number"
-											margin="normal"
 										/>
 										<TextField
 											disabled={!canEdit}
 											style={{
 												width: '100px'
 											}}
+											variant="outlined"
+											size="small"
+											margin="normal"
 											id="number"
 											label={<FormattedMessage id="Rows" defaultMessage="Rows" />}
 											inputProps={{
@@ -1154,7 +1227,6 @@ export class InboxSettings extends React.Component {
 											value={this.state.preferences.sheetRows}
 											onChange={(event) => this.handleSheetRows(event)}
 											type="number"
-											margin="normal"
 										/>
 										<FormControlLabel
 											disabled={!canEdit}
@@ -1262,27 +1334,23 @@ export class InboxSettings extends React.Component {
 						</TabContainer>
 					)}
 				</DialogContent>
-				<DialogActions style={{ justifyContent: 'space-between', padding: '0px 7px 4px 11px' }}>
+				<DialogActions style={{ justifyContent: 'space-between', padding: '0px 13px 4px 11px' }}>
 					{tabSelected === 0 ? (
 						<div>
-							<Button onClick={this.handleAddConsumer}>
-								<FormattedMessage id="DialogNew.AddConsumer" defaultMessage="Add Consumer" />
-							</Button>
 							<Button
-								onClick={this.handleEditConsumer}
-								disabled={this.state.inbox.stream === null || this.state.inbox.stream.id === 'none'}
-							>
-								<FormattedMessage id="DialogNew.EditConsumer" defaultMessage="Edit Consumer" />
+								disabled={!canEdit}
+								color="primary" onClick={this.handleAddConsumer}>
+								<FormattedMessage id="DialogNew.AddConsumer" defaultMessage="Add Consumer" />
 							</Button>
 						</div>
 					) : (
 						<div />
 					)}
 					<div>
-						<Button onClick={this.handleClose}>
+						<Button color="primary" onClick={this.handleClose}>
 							<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 						</Button>
-						<Button onClick={this.handleSave} autoFocus={canEdit}>
+						<Button color="primary" onClick={this.handleSave} autoFocus={canEdit}>
 							<FormattedMessage id="SaveButton" defaultMessage="Save" />
 						</Button>
 					</div>

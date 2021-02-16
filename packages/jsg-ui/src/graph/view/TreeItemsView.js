@@ -27,6 +27,7 @@ import {
 import TreeFeedbackView from '../feedback/TreeFeedbackView';
 import NodeView from './NodeView';
 import ContentPaneView from './ContentPaneView';
+import RangeModel from "../../ui/scrollview/RangeModel";
 
 /**
  * This view is for a {{#crossLink "TreeItemsNode"}}{{/crossLink}} model. Although it
@@ -167,6 +168,8 @@ export default class TreeItemsView extends NodeView {
 			model._resetViewport = false;
 		}
 
+		this.showLastItem();
+
 		if (parent instanceof ContentPaneView) {
 			parent = parent.getParent();
 			if (parent) {
@@ -273,13 +276,16 @@ export default class TreeItemsView extends NodeView {
 			graphics.setFillColor(this._colorScheme.JSON_KEY_TEXT);
 			graphics.fillText(item.key, itemRectKey.x + 100, itemRectKey.y + treeItemHeight);
 
-			if (!hasChildren) {
-				// draw value rectangle box
-				itemRectValue.x = rect.x + itemRectKey.getRight();
-				itemRectValue.y = rect.y + levelHeight;
-				itemRectValue.width = this._treeItemWidth;
-				itemRectValue.height = this._treeItemHeight;
+			itemRectValue.x = rect.x + itemRectKey.getRight();
+			itemRectValue.y = rect.y + levelHeight;
+			itemRectValue.width = this._treeItemWidth;
+			itemRectValue.height = this._treeItemHeight;
 
+			if (hasChildren) {
+				graphics.setFillColor(fillColor);
+				graphics.fillRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height);
+			} else {
+				// draw value rectangle box
 				graphics.setFillColor(JSG.theme.filllight);
 				graphics.fillRoundedRectangle(itemRectValue.x, itemRectValue.y, itemRectValue.width, itemRectValue.height, 0, 150, 0, 150);
 
@@ -412,6 +418,32 @@ export default class TreeItemsView extends NodeView {
 		contentNode._didScroll = false;
 		viewport.getHorizontalRangeModel().setValue(0);
 		viewport.getVerticalRangeModel().setValue(0);
+
+		return true;
+	}
+
+	showLastItem() {
+		const item = this.getItem();
+		const contentNode = this.getContentNodeView();
+		const viewport = contentNode.getViewPort();
+		if (!viewport) {
+			return false;
+		}
+
+		const model = viewport.getVerticalRangeModel();
+		const numOfItems = item.getVisibleTreeItemCount();
+		const depthOffset = item
+			.getTreeItemAttributes()
+			.getDepthOffset()
+			.getValue();
+		const boxHeight = Math.max(0,(numOfItems - 2) * depthOffset);
+
+		if (model.getValue() && model.getValue() >= boxHeight) {
+			model.setValue(boxHeight);
+			contentNode.getScrollView().layout();
+		}
+
+		contentNode._didScroll = false;
 
 		return true;
 	}

@@ -11,6 +11,7 @@
 /* eslint-disable react/prop-types */
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
+import Paper from '@material-ui/core/Paper';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import FormControl from '@material-ui/core/FormControl';
@@ -26,6 +27,7 @@ import ConfirmDialog from '../../base/confirmDialog/ConfirmDialog';
 import NotAuthorizedComponent from '../../Errors/NotAuthorizedComponent';
 import { NotAllowed, Restricted } from '../../HelperComponent/Restricted';
 import styles from './styles';
+import { Typography } from '@material-ui/core';
 
 const AfterRestoreInfoDialog = (props) => {
 	const { open } = props;
@@ -123,56 +125,85 @@ class Database extends Component {
 						style={{ width: '100%', height: '100%' }}
 					>
 						{({ isDragAccept }) => (
-							<div style={{ width: '100%', height: '100%' }}>
-								{isDragAccept ? (
-									<div
-										style={{
-											position: 'absolute',
-											width: '100%',
-											height: '100%',
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'center',
-											backgroundColor: 'rgba(255, 255, 255, 0.3)',
-											zIndex: 1
-										}}
-									>
-										<ImportIcon
-											style={{
-												color: 'rgba(0, 0, 0, 0.7)',
-												fontSize: '100pt'
-											}}
-										/>
-									</div>
-								) : null}
-								<FormGroup
-									style={{
-										margin: '10px'
-									}}
+							<div style={{ width: '100%', padding: '24px' }}>
+								<Paper
+									style={{ padding: '20px', maxWidth: '700px', margin: 'auto', position: 'relative' }}
 								>
-									<FormControl
+									{isDragAccept ? (
+										<div
+											style={{
+												position: 'absolute',
+												width: '100%',
+												height: '100%',
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'center',
+												backgroundColor: 'rgba(255, 255, 255, 0.3)',
+												zIndex: 1
+											}}
+										>
+											<ImportIcon
+												style={{
+													color: 'rgba(0, 0, 0, 0.7)',
+													fontSize: '100pt'
+												}}
+											/>
+										</div>
+									) : null}
+									<FormGroup
 										style={{
-											marginTop: '10px',
-											width: '200px',
-											marginBottom: '10px',
+											margin: '10px'
 										}}
 									>
-										<Button variant="outlined" onClick={this.props.backup}>
-											<FormattedMessage id="Database.Backup" defaultMessage="Backup database" />
-										</Button>
-									</FormControl>
-									<FormControl
-										style={{
-											marginTop: '10px',
-											width: '200px',
-											marginBottom: '10px',
-										}}
-									>
-										<Button variant="outlined" onClick={() => this.dropzoneRef.current.open()}>
-											<FormattedMessage id="Database.Restore" defaultMessage="Restore database" />
-										</Button>
-									</FormControl>
-								</FormGroup>
+										<div style={{ display: 'flex', flexDirection: 'row' }}>
+											<FormControl
+												style={{
+													marginTop: '10px',
+													width: '250px',
+													marginBottom: '10px'
+												}}
+											>
+												<Button variant="outlined" onClick={this.props.backup}>
+													<FormattedMessage
+														id="Database.Backup"
+														defaultMessage="Backup database"
+													/>
+												</Button>
+											</FormControl>
+											<Typography style={{ alignSelf: 'center', marginLeft: '20px' }}>
+												<FormattedMessage
+													id="Database.BackupHint"
+													defaultMessage="Restore database "
+												/>
+											</Typography>
+										</div>
+										<div style={{ display: 'flex', flexDirection: 'row' }}>
+											<FormControl
+												style={{
+													marginTop: '10px',
+													width: '250px',
+													marginBottom: '10px'
+												}}
+											>
+												<Button
+													variant="outlined"
+													onClick={() => this.dropzoneRef.current.open()}
+												>
+													<FormattedMessage
+														id="Database.Restore"
+														defaultMessage="Restore database"
+													/>
+												</Button>
+											</FormControl>
+											<Typography style={{ alignSelf: 'center', marginLeft: '20px' }}>
+												<FormattedMessage
+													id="Database.RestoreHint"
+													defaultMessage="Restore database "
+												/>
+											</Typography>
+										</div>
+									</FormGroup>
+								</Paper>
 							</div>
 						)}
 					</Dropzone>

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -98,7 +98,7 @@ export const ImportDialog = connect((state) => ({ importData: state.import.impor
 	return importInfoInput ? <ImportDialogInner {...props} importInfoInput={importInfoInput} /> : null;
 });
 
-const fixStreamName = (name) => name.replace(' ', '_').replace(/[^a-zA-Z0-9_]/, '');
+const fixStreamName = (name) => name.replace(/\W/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
 const isConnector = (stream) => stream.className === 'ConnectorConfiguration';
 const isProducer = (stream) => stream.className === 'ProducerConfiguration';
 const isConsumer = (stream) => stream.className === 'ConsumerConfiguration';
@@ -400,7 +400,7 @@ const StreamList = withShowable((props) => {
 					  }
 					: null;
 			return (
-				<Grid item container sm={12} key={id} alignItems="center" spacing={8}>
+				<Grid item container sm={12} key={id} alignItems="center" spacing={1}>
 					<Grid
 						item
 						container
@@ -493,7 +493,7 @@ const StreamList = withShowable((props) => {
 					/>
 				</Grid>
 			</Grid>
-			<Grid item container spacing={8} alignItems="center">
+			<Grid item container spacing={1} alignItems="center">
 				{ArrayUtil.intersperse(streamRows, (index) => (
 					<Grid key={`sep-${index}`} item sm={12}>
 						<Divider />
@@ -530,7 +530,7 @@ const MachineList = withShowable((props) => {
 				: null;
 
 		return (
-			<Grid item container sm={12} key={id} alignItems="center" spacing={8}>
+			<Grid item container sm={12} key={id} alignItems="center" spacing={1}>
 				<Grid
 					item
 					container
@@ -587,7 +587,7 @@ const MachineList = withShowable((props) => {
 				</Typography>
 			</Grid>
 
-			<Grid item container spacing={8} alignItems="center">
+			<Grid item container spacing={1} alignItems="center">
 				{ArrayUtil.intersperse(machineRows, (index) => (
 					<Grid key={`sep-${index}`} item sm={12}>
 						<Divider />
@@ -770,7 +770,7 @@ function ImportDialogInner(props) {
 				</DialogContentText>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={props.closeImportDialog}>
+				<Button color="primary" onClick={props.closeImportDialog}>
 					<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 				</Button>
 			</DialogActions>
@@ -799,7 +799,7 @@ function ImportDialogInner(props) {
 			<DialogActions>
 				{/* {!isImporting && !importDone ? ( */}
 				<React.Fragment>
-					<Button onClick={props.closeImportDialog}>
+					<Button color="primary" onClick={props.closeImportDialog}>
 						<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 					</Button>
 					<Button

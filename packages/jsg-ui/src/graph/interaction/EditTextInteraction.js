@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -34,6 +34,7 @@ import LayerId from '../view/LayerId';
 import KeyEvent from '../../ui/events/KeyEvent';
 import { FloatingToolbar, ToolBreak, ToolButton, ToolColor, ToolList, ToolSeparator } from '../view/FloatingToolbar';
 import Cursor from '../../ui/Cursor';
+import WorksheetView from "../view/WorksheetView";
 
 /**
  * Interaction that handles the text editing. When activated a contenteditable div is created. While editing
@@ -334,9 +335,15 @@ class EditTextInteraction extends AbstractInteraction {
 		div.style.lineHeight = textFormat.getLineHeight().getValue();
 		const color = textFormat.getFontColor().getValue();
 		// if font is white it will be invisible, use black font in this case
-		if (color !== '#FFFFFF') {
+		if (color === '#FFFFFF' && JSG.theme.fill === '#FFFFFF') {
+			div.style.color = '#000000';
+		} else 	if (color === '#000000' && JSG.theme.fill === '#000000') {
+			div.style.color = '#FFFFFF';
+		} else {
 			div.style.color = color;
 		}
+
+
 		div.style.textAlign = this._item.getTextAlign();
 
 		// padding around text
@@ -348,7 +355,7 @@ class EditTextInteraction extends AbstractInteraction {
 		div.autofocus = true;
 
 		this.div = div;
-		this._richText = textFormat.getRichText().getValue();
+		this._richText = textFormat.getRichText().getValue() && !this.isWorksheetView();
 
 		document.execCommand('defaultParagraphSeparator', null, 'p');
 		canvas.parentNode.appendChild(div);
@@ -1007,14 +1014,34 @@ class EditTextInteraction extends AbstractInteraction {
 		}
 	}
 
+	isWorksheetView() {
+		let parent = this._controller;
+		while (parent && !(parent.getView() instanceof WorksheetView)) {
+			parent = parent.getParent();
+		}
+		if (parent && parent.getView() instanceof WorksheetView) {
+			return parent.getView();
+		}
+
+		return undefined;
+	}
+
 	showTextNode(viewer) {
+		const view = this.isWorksheetView();
+		if (view) {
+			const box = this._item.getTranslatedBoundingBox(view.getItem().getCells());
+			const rect = box.getBoundingRectangle();
+			view.showRect(view.getItem(), rect);
+			return;
+		}
+
+		const box = this._item.getTranslatedBoundingBox();
 		const canvas = viewer.getCanvas();
 		const cs = viewer.getCoordinateSystem();
 		const sizeScale = cs.logToDeviceXNoZoom(750);
 		const sizeScroll = cs.logToDeviceXNoZoom(450);
 		const vrect = viewer.getGraphView().getVisibleViewRect();
 		const origin = this.getEditOrigin(viewer);
-		const box = this._item.getTranslatedBoundingBox();
 		const textRect = box.getBoundingRectangle();
 		const panel = viewer.getScrollPanel();
 		const scroll = panel.getScrollPosition(JSG.ptCache.get());

@@ -615,6 +615,10 @@ module.exports = class BaseGatewayClient {
 		return this.socket.updateMachineSettings(machineId, settings);
 	}
 
+	getCellRawValue(machineId, streamsheetId, reference) {
+		return this.socket.getCellRawValue(machineId, streamsheetId, reference);
+	}
+
 	/**
 	 * *********************************************
 	 * General API
@@ -657,6 +661,10 @@ module.exports = class BaseGatewayClient {
 
 	sendCommand(machineId, graphId, command, undo = false, redo = false) {
 		return this.socket.sendCommand(machineId, graphId, command, undo, redo);
+	}
+
+	sendMachineAction(machineId, action) {
+		return this.socket.sendMachineAction(machineId, action);
 	}
 
 	updateNamedCells(machineId, streamsheetId, namedCells) {

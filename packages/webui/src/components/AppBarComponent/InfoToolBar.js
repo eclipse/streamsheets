@@ -14,6 +14,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import MenuIcon from '@material-ui/icons/Menu';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import PropTypes from 'prop-types';
 import React from 'react';
 // import { FormattedMessage } from 'react-intl';
@@ -21,12 +22,20 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import MachineHelper from '../../helper/MachineHelper';
-import CustomTooltip from '../base/customTooltip/CustomTooltip';
 import MachineNameComponent from '../MachineNameComponent/MachineNameComponent';
-import { WorkspaceSelect } from '@cedalo/webui-extensions';
 
 export function InfoToolBar(props) {
-	const { machineId, toggleDrawer, openDashboard, title, workspaceSelect, canEditMachine } = props;
+	const {
+		machineId,
+		toggleDrawer,
+		openDashboard,
+		goBackPage,
+		title,
+		canEditMachine,
+		hideDrawer = false
+	} = props;
+
+	const goBack = () => (history.length > 0 ? openDashboard() : goBackPage());
 
 	return (
 		<Toolbar
@@ -35,37 +44,39 @@ export function InfoToolBar(props) {
 				minHeight: '58px',
 				maxHeight: '58px',
 				paddingLeft: '5px',
-				width: props.width,
+				width: props.width
 			}}
 		>
-			<CustomTooltip header="Tooltip.MainMenuHeader" message="Tooltip.MainMenuMessage">
-				<div>
+			<div>
+				{hideDrawer ? (
+					<IconButton style={{ color: 'white' }} onClick={goBack}>
+						<ArrowBackIcon />
+					</IconButton>
+				) : (
 					<IconButton style={{ color: 'white' }} aria-label="Menu" onClick={toggleDrawer}>
 						<MenuIcon />
 					</IconButton>
-				</div>
-			</CustomTooltip>
+				)}
+			</div>
 			{title ? (
-				<CustomTooltip header="Tooltip.MainTitleHeader" message="Tooltip.MainTitleMessage">
-					<Typography
-						type="title"
-						color="inherit"
-						onClick={openDashboard}
-						style={{
-							color: '#FFFFFF',
-							marginLeft: '5px',
-							marginTop: '2px',
-							marginRight: '8px',
-							cursor: 'pointer',
-							fontSize: '1.2rem',
-							whiteSpace: 'nowrap'
-						}}
-					>
-						{title}
-					</Typography>
-				</CustomTooltip>
+				<Typography
+					type="title"
+					color="inherit"
+					onClick={openDashboard}
+					style={{
+						color: '#FFFFFF',
+						marginLeft: '5px',
+						marginTop: '2px',
+						marginRight: '8px',
+						cursor: 'pointer',
+						fontSize: '1.2rem',
+						whiteSpace: 'nowrap'
+					}}
+				>
+					{title}
+				</Typography>
 			) : null}
-			<WorkspaceSelect editable={workspaceSelect} setScope={props.setScope} />
+			
 			{MachineHelper.isMachineDetailsPage() && machineId ? (
 				<MachineNameComponent disabled={!canEditMachine} />
 			) : null}

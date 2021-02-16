@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import React, {Component} from 'react';
-import {bindActionCreators} from 'redux';
-import {connect} from 'react-redux';
+import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import Divider from '@material-ui/core/Divider';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -22,10 +22,12 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import MenuItem from '@material-ui/core/MenuItem';
 import Drawer from '@material-ui/core/Drawer';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import {FormattedMessage} from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import * as Actions from '../../actions/actions';
-import {Restricted} from '../HelperComponent/Restricted';
-import {withStyles} from '@material-ui/core/styles';
+import { Restricted } from '../HelperComponent/Restricted';
+import { withStyles } from '@material-ui/core/styles';
+import ListItemText from '@material-ui/core/ListItemText';
+import { MainDrawerExtensions } from '@cedalo/webui-extensions';
 
 export class MainDrawer extends Component {
 	setAppState(state) {
@@ -64,6 +66,7 @@ export class MainDrawer extends Component {
 
 	handleOpenPreview = () => {
 		window.open(
+			// add "&zoomdisabled" param to disable zoom feature in preview!
 			`${window.location.origin}${window.location.pathname}?viewmode=sheet&hideheader&hidegrid${window.location.hash}`,
 			'newwindow',
 			`width=${window.innerWidth},height=${window.outerHeight - 290}`
@@ -81,7 +84,7 @@ export class MainDrawer extends Component {
 	};
 
 	handleOpenDashboard = () => {
-		this.props.openDashboard(this.props.machineId);
+		this.props.openDashboard(this.props.machineId, this.props.isMachineDetailPage);
 		this.setAppState({
 			drawerOpen: false
 		});
@@ -103,9 +106,10 @@ export class MainDrawer extends Component {
 
 	render() {
 		const { user } = this.props.user;
+		const { open, isAdminPage, isMachineDetailPage } = this.props;
 		if (!user) return null;
 		return (
-			<Drawer width={300} open={this.props.open} onClose={() => this.setAppState({ drawerOpen: false })}>
+			<Drawer width={300} open={open} onClose={() => this.setAppState({ drawerOpen: false })}>
 				<div
 					style={{
 						height: '18px',
@@ -121,91 +125,99 @@ export class MainDrawer extends Component {
 						<FormattedMessage id="MainTitle" defaultMessage="Stream Machine" />
 					</span>
 				</div>
-				{this.props.isAdminPage ? null : (
+				{isAdminPage ? null : (
 					<React.Fragment>
 						<Restricted all={['machine.edit']}>
-							<MenuItem onClick={this.handleNew}>
+							<MenuItem dense onClick={this.handleNew}>
 								<ListItemIcon>
 									<NewIcon />
 								</ListItemIcon>
-								<FormattedMessage id="New" defaultMessage="New" />
+								<ListItemText primary={<FormattedMessage id="New" defaultMessage="New" />} />
 							</MenuItem>
 						</Restricted>
 						<Restricted all={['machine.view']}>
-							<MenuItem onClick={this.handleOpen}>
+							<MenuItem dense onClick={this.handleOpen}>
 								<ListItemIcon>
 									<OpenIcon />
 								</ListItemIcon>
-								<FormattedMessage id="Open" defaultMessage="Open" />
+								<ListItemText primary={<FormattedMessage id="Open" defaultMessage="Open" />} />
 							</MenuItem>
 						</Restricted>
 						<Restricted all={['machine.edit']}>
-							{this.props.isMachineDetailPage ? (
+							{isMachineDetailPage ? (
 								<div>
-									<MenuItem onClick={() => this.handleSaveAs()}>
+									<MenuItem dense onClick={() => this.handleSaveAs()}>
 										<ListItemIcon>
 											<CloneIcon />
 										</ListItemIcon>
-										<FormattedMessage id="SaveCopyAs" defaultMessage="Save Copy As" />
+										<ListItemText
+											primary={<FormattedMessage id="SaveCopyAs" defaultMessage="Save Copy As" />}
+										/>
 									</MenuItem>
 								</div>
 							) : null}
 						</Restricted>
 						<Restricted all={['machine.edit']}>
-							{this.props.isMachineDetailPage && this.props.canEditMachine ? (
-								<MenuItem onClick={() => this.showDeleteMachineDialog()}>
+							{isMachineDetailPage && this.props.canEditMachine ? (
+								<MenuItem dense onClick={() => this.showDeleteMachineDialog()}>
 									<ListItemIcon>
 										<DeleteIcon />
 									</ListItemIcon>
-									<FormattedMessage id="DeleteMenu" defaultMessage="Delete..." />
+									<ListItemText
+										primary={<FormattedMessage id="DeleteMenu" defaultMessage="Delete..." />}
+									/>
 								</MenuItem>
 							) : null}
 						</Restricted>
+						<MainDrawerExtensions.FileSection isMachineDetailPage={isMachineDetailPage} />
 						<Divider />
 						<Restricted all={['machine.edit', 'stream']}>
-							<MenuItem onClick={() => this.handleImport()}>
+							<MenuItem dense onClick={() => this.handleImport()}>
 								<ListItemIcon>
 									<SvgIcon>
 										<path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
 									</SvgIcon>
 								</ListItemIcon>
-								<FormattedMessage id="Import" defaultMessage="Import" />
+								<ListItemText primary={<FormattedMessage id="Import" defaultMessage="Import" />} />
 							</MenuItem>
 						</Restricted>
 						<Restricted oneOf={['machine.view', 'stream']}>
-							<MenuItem onClick={() => this.handleExport()}>
+							<MenuItem dense onClick={() => this.handleExport()}>
 								<ListItemIcon>
 									<SvgIcon>
 										<path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z" />
 									</SvgIcon>
 								</ListItemIcon>
-								<FormattedMessage id="Export" defaultMessage="Export" />
+								<ListItemText primary={<FormattedMessage id="Export" defaultMessage="Export" />} />
 							</MenuItem>
 						</Restricted>
+						<MainDrawerExtensions.ImportSection isMachineDetailPage={isMachineDetailPage} />
 					</React.Fragment>
 				)}
-				{this.props.isMachineDetailPage && this.props.canEditMachine ? (
+				{isMachineDetailPage && this.props.canEditMachine ? (
 					<div>
 						<Divider />
-						<MenuItem onClick={() => this.showSettingsDialog()}>
+						<MenuItem dense onClick={() => this.showSettingsDialog()}>
 							<ListItemIcon>
 								<SettingsIcon />
 							</ListItemIcon>
-							<FormattedMessage id="Preferences" defaultMessage="Preferences" />
+							<ListItemText
+								primary={<FormattedMessage id="Preferences" defaultMessage="Preferences" />}
+							/>
 						</MenuItem>
 					</div>
 				) : null}
 				<Divider />
-				{this.props.isMachineDetailPage || this.props.isAdminPage ? (
-					<MenuItem onClick={this.handleOpenDashboard}>
+				{isMachineDetailPage || isAdminPage ? (
+					<MenuItem dense onClick={this.handleOpenDashboard}>
 						<ListItemIcon>
 							<DashboardIcon />
 						</ListItemIcon>
-						<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />
+						<ListItemText primary={<FormattedMessage id="Dashboard" defaultMessage="Dashboard" />} />
 					</MenuItem>
 				) : null}
-				{this.props.isMachineDetailPage ? (
-					<MenuItem onClick={this.handleOpenPreview}>
+				{isMachineDetailPage ? (
+					<MenuItem dense onClick={this.handleOpenPreview}>
 						<ListItemIcon>
 							<SvgIcon>
 								<path
@@ -214,9 +226,10 @@ export class MainDrawer extends Component {
 								/>
 							</SvgIcon>
 						</ListItemIcon>
-						<FormattedMessage id="UserPreview" defaultMessage="User Preview" />
+						<ListItemText primary={<FormattedMessage id="UserPreview" defaultMessage="User Preview" />} />
 					</MenuItem>
 				) : null}
+				<MainDrawerExtensions.PreviewSection isMachineDetailPage={isMachineDetailPage} />
 			</Drawer>
 		);
 	}

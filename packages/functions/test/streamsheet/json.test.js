@@ -10,7 +10,7 @@
  ********************************************************************************/
 const { clone } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Cell, Machine, Message, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { Cell, Machine, Message, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
 const { createTerm, createCellAt } = require('../utilities');
 const MSG = require('../_data/messages.json');
 
@@ -30,7 +30,7 @@ const setup = (transconfig) => {
 
 describe('json', () => {
 	it('should create a JSON from a given cell range', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 		const sheet = t1.sheet.load({ cells: { A1: 'a', B1: 'hello', A2: 'b', B2: 'world' } });
 		const json = createTerm('json(A1:B2)', sheet);
 		sheet.setCellAt('C1', new Cell(null, json));
@@ -42,7 +42,7 @@ describe('json', () => {
 		expect(result.c).toBeUndefined();
 	});
 	it('should create an empty JSON if given cell range has no cell', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.MACHINE_START } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.MACHINE_START } });
 		const sheet = t1.sheet; // .load({ cells: { A1: 'a', B1: 'hello', A2: 'b', B2: 'world' } });
 		const json = createTerm('json(A1:B2)', sheet);
 		sheet.setCellAt('C1', new Cell(null, json));
@@ -50,7 +50,7 @@ describe('json', () => {
 		expect(sheet.cellAt('C1').value).toEqual({});
 	});
 	it('should use first cells with key and last non empty cells as value', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 		// eslint-disable-next-line max-len
 		const sheet = t1.sheet.load({ cells: { A1: 'a', B1: 'none', C1: 'hello', C2: 'b', E2: 'world', B3: 21, C3: '!' } });
 		const json = createTerm('json(A1:G5)', sheet);
@@ -63,7 +63,7 @@ describe('json', () => {
 		expect(result[21]).toBe('!');
 	});
 	it('should create values of types string, boolean and number', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 		/* eslint-disable */
 		const sheet = t1.sheet.load({ cells: {
 			A1: 'a', B1: 'hello',
@@ -85,7 +85,7 @@ describe('json', () => {
 		expect(result.e).toBe(true);
 	});
 	it('should create values of type array', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 		/* eslint-disable */
 		const sheet = t1.sheet.load({ cells: {
 			A1: 'a',
@@ -106,7 +106,7 @@ describe('json', () => {
 		expect(result.a[2]).toBe(false);
 	});
 	it('should create values of type array with nested objects', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 		/* eslint-disable */
 		const sheet = t1.sheet.load({ cells: {
 			A1: 'a',
@@ -148,7 +148,7 @@ describe('json', () => {
 		expect(result.a[2].person.phones[1].number).toBe('1234-5678-9');
 	});
 	it('should create values of type dictionary', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 		/* eslint-disable */
 		const sheet = t1.sheet.load({ cells: {
 			A1: 'person',
@@ -167,7 +167,7 @@ describe('json', () => {
 	});
 	// DL-2767
 	it('should support keys without values', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 		/* eslint-disable */
 		const sheet = t1.sheet.load({ cells: {
 			A1: 1,
@@ -196,7 +196,7 @@ describe('json', () => {
 		expect(result[2]).toBe(null);
 	});
 	it('should be possible to create nested dictionaries', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 		/* eslint-disable */
 		const sheet = t1.sheet.load({ cells: {
 			A1: 'person',
@@ -218,7 +218,7 @@ describe('json', () => {
 		expect(result.person.phones.home).toBe('800-123-4567');
 	});
 	it('should be possible to mix arrays and dictionaries', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 		/* eslint-disable */
 		const sheet = t1.sheet.load({ cells: {
 			A1: 'person',
@@ -251,7 +251,7 @@ describe('json', () => {
 		expect(result.person.emails[1]).toBeUndefined();
 	});
 	it('should create a json with multiple dictionaries', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 		/* eslint-disable */
 		const sheet = t1.sheet.load({ cells: {
 			A1: 'A',
@@ -279,7 +279,7 @@ describe('json', () => {
 		expect(result.A.H).toBe(42);
 	});
 	it('can be used as parameter to write()', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 		const outbox = t1.machine.outbox;
 		/* eslint-disable */
 		const sheet = t1.sheet.load({ cells: {
@@ -377,7 +377,7 @@ describe('json', () => {
 	describe('converting to JSON array', () => {
 		// DL-1336: change keys can be numbers...
 		it('should convert to array only if all keys define number values', () => {
-			const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+			const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 			/* eslint-disable */
 			const sheet = t1.sheet.load({ cells: {
 				A1: 'a',
@@ -417,7 +417,7 @@ describe('json', () => {
 			expect(result.a[2]).toBe('!');
 		});
 		it('should convert to array only if all keys are consecutively and starting with 0', () => {
-			const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+			const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 			/* eslint-disable */
 			const sheet = t1.sheet.load({ cells: {
 				A1: 'a',
@@ -499,7 +499,7 @@ describe('json', () => {
 		});
 		// DL-1336: explicitly check
 		it('should create an array too if indices are textual number representation', () => {
-			const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+			const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 			/* eslint-disable */
 			const sheet = t1.sheet.load({ cells: {
 				A1: 'a',
@@ -646,14 +646,6 @@ describe('json', () => {
 			createCellAt('E1', { formula: 'json(inboxmetadata(,,"sender"))' }, sheet);
 			expect(sheet.cellAt('E1').value).toBe('Cedalo');
 		});
-	});
-	// DL-4228
-	describe('using inbox parameter', () => {
-
-	});
-	// DL-4228
-	describe('using inboxdata parameter', () => {
-
 	});
 	// DL-4228
 	describe('using inboxmetadata parameter', () => {

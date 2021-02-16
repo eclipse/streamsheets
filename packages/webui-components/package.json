@@ -1,6 +1,6 @@
 {
 	"name": "@cedalo/webui-components",
-	"version": "1.6.2",
+	"version": "2.2.0",
 	"description": "Web UI Components",
 	"main": "index.js",
 	"repository": {
@@ -14,12 +14,12 @@
 	"dependencies": {
 	},
 	"peerDependencies": {
-		"@material-ui/core": "3.9.2",
-		"@material-ui/icons": "3.0.2",
-		"react": "^16.2.0",
+		"@material-ui/core": "4.9.11",
+		"@material-ui/icons": "4.9.1",
+		"react": "^16.12.0",
 		"react-intl": "^2.4.0",
 		"react-redux": "^5.0.6",
-		"react-router-dom": "^4.2.2",
+		"react-router-dom": "^5.2.0",
 		"redux": "^3.7.2"
 	},
 	"license": "EPL-2.0"

@@ -8,14 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const {
-	common: { deepCopy },
-	runFunction,
-	sheet: { createMessageFromValue, getMachine, getStreamSheetByName }
-} = require('../../utils');
 const { jsonpath } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Message } = require('@cedalo/machine-core');
+const {	runFunction, sheet: { createMessageFromValue, getMachine, getStreamSheetByName } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -30,7 +26,7 @@ const addMetaData = (message, sheet) => {
 // DL-1834 TODO VERY SIMILAR to read.js => extract!!
 const getInboxMessage = (machine, streamsheetName, messageId) => {
 	const streamsheet = machine.getStreamSheetByName(streamsheetName);
-	return streamsheet ? streamsheet.getMessage(messageId) : undefined;
+	return streamsheet ? streamsheet.getMessageById(messageId) : undefined;
 };
 const getOutboxMessage = (machine, messageId) => {
 	const outbox = machine.outbox;
@@ -61,7 +57,7 @@ const createMessageFromTerm = (term, machine) => {
 			return data ?  new Message(data) : undefined;
 		}
 		// DL-1275: create new Message which contains passed message under its data property...
-		return message ?  new Message(deepCopy(message.toJSON())) : undefined;
+		return message ?  new Message(message.toJSON()) : undefined;
 	}
 	return createMessageFromValue(value);
 };

@@ -1,0 +1,344 @@
+{
+  "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Floor1",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.292321, 40.340597],
+          [-73.905103, 40.340597],
+          [-73.905103, 40.737831],
+          [-74.292321, 40.737831],
+          [-74.292321, 40.340597]
+        ]
+      ]
+    },
+    "id": "a9fe777f-a026-4db3-a29e-bd207af651f8"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Room1",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.292321, 40.613851],
+          [-74.144711, 40.613851],
+          [-74.144711, 40.737831],
+          [-74.292321, 40.737831],
+          [-74.292321, 40.613851]
+        ]
+      ]
+    },
+    "id": "cfab6c15-5a1d-4bea-839e-22234f4dc201"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Room2",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.292321, 40.478669],
+          [-74.145398, 40.478669],
+          [-74.145398, 40.613851],
+          [-74.292321, 40.613851],
+          [-74.292321, 40.478669]
+        ]
+      ]
+    },
+    "id": "5ea96946-2359-4592-b804-a1406a1e0a54"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Room3",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.292321, 40.340597],
+          [-74.145398, 40.340597],
+          [-74.145398, 40.479192],
+          [-74.292321, 40.479192],
+          [-74.292321, 40.340597]
+        ]
+      ]
+    },
+    "id": "b536dde1-1b4b-44f8-96eb-4f8828cb9559"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Room4",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.074683, 40.614894],
+          [-73.905103, 40.614894],
+          [-73.905103, 40.737831],
+          [-74.074683, 40.737831],
+          [-74.074683, 40.614894]
+        ]
+      ]
+    },
+    "id": "479faf76-c2bd-445c-bc78-01304ca5cae3"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Room5",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.074683, 40.523064],
+          [-73.905103, 40.523064],
+          [-73.905103, 40.614894],
+          [-74.074683, 40.614894],
+          [-74.074683, 40.523064]
+        ]
+      ]
+    },
+    "id": "c76a1662-bfc5-4dbd-a863-14e404544738"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Room6",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.074683, 40.340597],
+          [-73.905103, 40.340597],
+          [-73.905103, 40.479192],
+          [-74.074683, 40.479192],
+          [-74.074683, 40.340597]
+        ]
+      ]
+    },
+    "id": "078c1fe1-bdc0-4c53-97ca-f9a3084d54d5"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Bed1",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.292321, 40.702439],
+          [-74.200083, 40.702439],
+          [-74.200083, 40.737831],
+          [-74.292321, 40.737831],
+          [-74.292321, 40.702439]
+        ]
+      ]
+    },
+    "id": "62db50a6-c269-4ce7-b834-d27d993f3c07"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Bed2",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.292321, 40.613858],
+          [-74.200083, 40.613858],
+          [-74.200083, 40.652952],
+          [-74.292321, 40.652952],
+          [-74.292321, 40.613858]
+        ]
+      ]
+    },
+    "id": "15cefda5-c9d9-496a-94d6-fa0c4c0c8379"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Bed3",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.000205, 40.70348],
+          [-73.905103, 40.70348],
+          [-73.905103, 40.737831],
+          [-74.000205, 40.737831],
+          [-74.000205, 40.70348]
+        ]
+      ]
+    },
+    "id": "bac74cdb-af87-45b0-8201-c383f7b9fcf9"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Bed4",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.000205, 40.614894],
+          [-73.905103, 40.614894],
+          [-73.905103, 40.65191],
+          [-74.000205, 40.65191],
+          [-74.000205, 40.614894]
+        ]
+      ]
+    },
+    "id": "3944967e-e452-40b9-b423-96c62d1bdda7"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Bed5",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.292321, 40.575784],
+          [-74.20077, 40.575784],
+          [-74.20077, 40.613337],
+          [-74.292321, 40.613337],
+          [-74.292321, 40.575784]
+        ]
+      ]
+    },
+    "id": "8952f3d7-5bde-417a-b5c3-95707d8b4469"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Bed6",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.292321, 40.478669],
+          [-74.201457, 40.478669],
+          [-74.201457, 40.516805],
+          [-74.292321, 40.516805],
+          [-74.292321, 40.478669]
+        ]
+      ]
+    },
+    "id": "0894df40-d2c1-47d6-a4de-dd1343c2ddc2"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Bed7",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.292321, 40.442617],
+          [-74.201457, 40.442617],
+          [-74.201457, 40.478669],
+          [-74.292321, 40.478669],
+          [-74.292321, 40.442617]
+        ]
+      ]
+    },
+    "id": "58f1b130-9a68-4b2f-a1e7-a6ea901f1902"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Bed8",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.292321, 40.39503],
+          [-74.202144, 40.39503],
+          [-74.202144, 40.42641],
+          [-74.292321, 40.42641],
+          [-74.292321, 40.39503]
+        ]
+      ]
+    },
+    "id": "9a3a7aca-9176-4fac-8666-ac615bcbae5a"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Bed9",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.292321, 40.340597],
+          [-74.204891, 40.340597],
+          [-74.204891, 40.373056],
+          [-74.292321, 40.373056],
+          [-74.292321, 40.340597]
+        ]
+      ]
+    },
+    "id": "b2273de8-f862-458b-b158-08bf01d69027"
+  }, {
+    "type": "Feature",
+    "properties": {
+      "shape": "Rectangle",
+      "name": "Bed10",
+      "category": "default"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-74.011882, 40.340597],
+          [-73.966549, 40.340597],
+          [-73.966549, 40.408107],
+          [-74.011882, 40.408107],
+          [-74.011882, 40.340597]
+        ]
+      ]
+    },
+    "id": "cf526bca-7237-43b1-b508-3ec7cb658650"
+  }]
+}

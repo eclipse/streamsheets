@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -86,7 +86,7 @@ class EditBezierShapeView extends EditShapeView {
 		graphics.translate(this._origin.x, this._origin.y);
 		graphics.rotate(this._rotmatrix.getAngle());
 
-		graphics.setLineColor('#000000');
+		graphics.setLineColor(JSG.theme.border);
 		graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
 
 		graphics.beginPath();
@@ -136,7 +136,7 @@ class EditBezierShapeView extends EditShapeView {
 			}
 		}
 
-		graphics.setLineColor('#000000');
+		graphics.setLineColor(JSG.theme.border);
 
 		i = this._isClosed ? 0 : 1;
 		for (i, n = this._cpFromMarkers.length; i < n; i += 1) {

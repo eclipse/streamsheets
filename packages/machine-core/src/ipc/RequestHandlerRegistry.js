@@ -25,6 +25,7 @@ const Streams = require('../streams/Streams');
 const MachineTaskMessagingClient = require('./MachineTaskMessagingClient');
 const { SheetParser } = require('../parser/SheetParser');
 const FunctionRegistry = require('../FunctionRegistry');
+const State = require('../State');
 // const { createPropertiesObject } = require('../utils');
 const DEF_SHEET_PROPS = require('../../defproperties.json');
 
@@ -54,10 +55,10 @@ const machine2json = (machine) => {
 		const _streamsheet = machine.getStreamSheet(streamsheet.id);
 		streamsheet.stats = _streamsheet.stats;
 		streamsheet.sheet.cells = _streamsheet ? getSheetCellsAsList(_streamsheet.sheet) : [];
-		const currmsg = _streamsheet.getMessage();
+		const currmsg = _streamsheet.getCurrentMessage();
 		streamsheet.inbox.currentMessage = {
 			id: currmsg ? currmsg.id : null,
-			isProcessed: _streamsheet.isMessageProcessed(currmsg)
+			isProcessed: _streamsheet.isMessageProcessed()
 		};
 		streamsheet.inbox.messages = _streamsheet.inbox.messages.slice(0);
 		streamsheet.loop.currentPath = _streamsheet.getCurrentLoopPath();
@@ -210,6 +211,14 @@ const updateCurrentStream = (stream) => {
 	if (!existing || existing.timestamp < stream.timestamp) {
 		currentStreams.set(stream.id, stream);
 		logger.info(`update stream: '${stream.name}'`);
+	}
+};
+
+// TODO: change with refactoring of message/communication!! was added to solve DL-4254
+const isSlowRunningMachine = (machine) => machine && machine.state === State.RUNNING && machine.cycletime > 1500;
+const sendSheetUpdateOnSlowMachine = (streamsheet, cell, index) => {
+	if (isSlowRunningMachine(streamsheet.machine)) {
+		streamsheet.notifySheetUpdate(cell, index);
 	}
 };
 
@@ -420,6 +429,26 @@ class ExecuteFunction extends ARequestHandler {
 		return err == null ? Promise.resolve({ result }) : Promise.reject(new Error(err));
 	}
 }
+class GetCellRawValue extends ARequestHandler {
+	get isModifying() {
+		return false;
+	}
+	async handle({ streamsheetId, index }) {
+		const streamsheet = this.machine.getStreamSheet(streamsheetId);
+		const sheet = streamsheet && streamsheet.sheet;
+		if (sheet) {
+			const cellindex = SheetIndex.create(index);
+			const cell = sheet.cellAt(cellindex);
+			if (cell) {
+				const rawvalue = JSON.stringify(cell.value);
+				return { rawvalue };
+			}
+			throw new Error(`No cell found at index: ${cellindex}`);
+		}
+		throw new Error(`Unknown streamsheet id: ${streamsheetId}`);
+	}
+}
+
 // include editable-web-component:
 // handlers.set('insert', ({ type, range, streamsheetId, cells = [], headerProperties = []}) => {
 // 	let error;
@@ -471,19 +500,15 @@ class Load extends ARequestHandler {
 	get isModifying() {
 		return false;
 	}
-	handle({ machineDefinition, functionDefinitions }) {
-		try {
-			this.machine.load(
-				machineDefinition,
-				functionDefinitions,
-				Array.from(currentStreams.values()).filter((stream) => stream.scope && stream.scope.id === machineDefinition.scope.id)
-			);
-			MachineTaskMessagingClient.register(this.machine);
-			machineLoaded = true;
-			return Promise.resolve(getDefinition(this.machine));
-		} catch (err) {
-			return Promise.reject(err);
-		}
+	async handle({ machineDefinition, functionDefinitions }) {
+		await this.machine.load(
+			machineDefinition,
+			functionDefinitions,
+			Array.from(currentStreams.values()).filter((stream) => stream.scope && stream.scope.id === machineDefinition.scope.id)
+		);
+		MachineTaskMessagingClient.register(this.machine);
+		machineLoaded = true;
+		return getDefinition(this.machine);
 	}
 }
 class LoadFunctions extends ARequestHandler {
@@ -635,6 +660,16 @@ class ReplaceGraphCells extends ARequestHandler {
 		return Promise.resolve(result);
 	}
 }
+class RunMachineAction extends ARequestHandler {
+	async handle({ type, data }) {
+		const action = FunctionRegistry.getAction(type);
+		if (action) {
+			const result = await action(data);
+			return { result };
+		}
+		return Promise.reject(new Error(`Unknown action type: ${type}`));
+	}
+}
 // DL-1156 not used anymore
 // handlers.set('selectMessage', (msg) => {
 // 	const streamsheet = machine.getStreamSheet(msg.streamsheetId);
@@ -661,6 +696,7 @@ class SetCellAt extends ARequestHandler {
 				const cell = SheetParser.createCell(msg.celldescr, sheet);
 				const index = SheetIndex.create(msg.index);
 				sheet.setCellAt(index, cell);
+				sendSheetUpdateOnSlowMachine(streamsheet, cell, index);
 				return Promise.resolve({
 					cell: cellDescriptor(cell, index),
 					// to update all cells in DB
@@ -683,6 +719,7 @@ class SetCells extends ARequestHandler {
 		const sheet = streamsheet && streamsheet.sheet;
 		if (sheet) {
 			sheet.setCells(cells);
+			sendSheetUpdateOnSlowMachine(streamsheet);
 			return Promise.resolve({ cells: getSheetCellsAsObject(sheet) });
 		}
 		return Promise.reject(new Error(`Unknown streamsheet id: ${msg.streamsheetId}`));
@@ -699,6 +736,7 @@ class SetCellsLevel extends ARequestHandler {
 				const cell = sheet.cellAt(index, true);
 				cell.level = cellLevels[ref];
 			});
+			sendSheetUpdateOnSlowMachine(streamsheet);
 			return Promise.resolve({ cells: getSheetCellsAsObject(streamsheet.sheet) });
 		}
 		return Promise.reject(new Error(`Unknown streamsheet id: ${msg.streamsheetId}`));
@@ -815,11 +853,11 @@ class Subscribe extends ARequestHandler {
 				},
 				// tmp. add inbox messages...
 				streamsheets: this.machine.streamsheets.map((streamsheet) => {
-					const currmsg = streamsheet.getMessage();
+					const currmsg = streamsheet.getCurrentMessage();
 					const streamsheetCopy = streamsheet.toJSON();
 					streamsheetCopy.inbox.currentMessage = {
 						id: currmsg ? currmsg.id : null,
-						isProcessed: streamsheet.isMessageProcessed(currmsg)
+						isProcessed: streamsheet.isMessageProcessed()
 					};
 					streamsheetCopy.inbox.messages = streamsheet.inbox.messages.slice(0);
 					streamsheetCopy.loop.currentPath = streamsheet.getCurrentLoopPath();
@@ -914,6 +952,7 @@ class RequestHandlerRegistry {
 		registry.handlers.set('deleteCells', new DeleteCells(machine, monitor));
 		registry.handlers.set('deleteMessage', new DeleteMessage(machine, monitor));
 		registry.handlers.set('deleteStreamSheet', new DeleteStreamSheet(machine, monitor));
+		registry.handlers.set('getCellRawValue', new GetCellRawValue(machine, monitor));
 		registry.handlers.set('load', new Load(machine, monitor));
 		registry.handlers.set('loadFunctions', new LoadFunctions(machine, monitor));
 		registry.handlers.set('markRequests', new MarkRequests(machine, monitor));
@@ -921,6 +960,7 @@ class RequestHandlerRegistry {
 		registry.handlers.set('registerFunctionModules', new RegisterFunctionModules(machine, monitor));
 		registry.handlers.set('registerStreams', new RegisterStreams(machine, monitor));
 		registry.handlers.set('replaceGraphCells', new ReplaceGraphCells(machine, monitor));
+		registry.handlers.set('runMachineAction', new RunMachineAction(machine, monitor));
 		registry.handlers.set('setCellAt', new SetCellAt(machine, monitor));
 		registry.handlers.set('setCells', new SetCells(machine, monitor));
 		registry.handlers.set('setCellsLevel', new SetCellsLevel(machine, monitor));
