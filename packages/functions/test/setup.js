@@ -14,5 +14,23 @@ const { SheetParser } = require('@cedalo/machine-core');
 // FOR TESTs we do not use persistent outbox
 process.env.OUTBOX_PERSISTENT = false;
 
+// some simple functions for testing purpose
+const loopIndices = (sheet /* , ...terms */) => {
+	const context = loopIndices.context;
+	if (sheet.isProcessing) {
+		if (!context.initialized) {
+			context.initialized = true;
+			context.result = [];
+		}
+		const loopIndex = sheet.streamsheet.getLoopIndex();
+		context.result.push(loopIndex);
+	}
+	return context.result ? context.result.join(',') : '';
+};
+
+const helperFunctions = {
+	LOOPINDICES: loopIndices
+};
+
 // setup parser and its context...
-Object.assign(SheetParser.context.functions, functions);
+Object.assign(SheetParser.context.functions, functions, helperFunctions);

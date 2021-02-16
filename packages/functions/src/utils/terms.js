@@ -167,7 +167,7 @@ const termAsString = termAs(convert.toString);
 const termAsNumber = termAs(convert.toNumber);
 
 const requestIdCurrentMessage = (sheet) => {
-	const message = sheet.streamsheet.getMessage();
+	const message = sheet.streamsheet.getCurrentMessage();
 	return message && message.metadata && message.metadata.requestId;
 };
 

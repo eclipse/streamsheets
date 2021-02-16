@@ -8,55 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const EventEmitter = require('events');
+const IdGenerator = require('@cedalo/id-generator');
+const { Reference } = require('@cedalo/parser');
 const Inbox = require('./Inbox');
 const MessageHandler = require('./MessageHandler');
 const Sheet = require('./Sheet');
-const State = require('../State');
-const StreamSheetTrigger = require('./StreamSheetTrigger');
-const { Reference } = require('@cedalo/parser');
-const EventEmitter = require('events');
-const IdGenerator = require('@cedalo/id-generator');
+const TriggerFactory = require('./sheettrigger/TriggerFactory');
+const TaskQueue = require('./TaskQueue');
 
-const getMessage = (message, selector, inbox) => {
-	if (selector) {
-		return inbox.find(selector);
-	}
-	if (message && message !== inbox.peek()) {
-		inbox.put(message);
-	}
-	return message;
-};
-
-const setTrigger = (newTrigger, oldTrigger, streamsheet) => {
-	// DL-1482 no trigger might be wanted...
-	newTrigger = newTrigger || StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.NONE });
-	if (oldTrigger) {
-		// DL-1026 trigger settings might changed during running machine => keep previous active if old one was:
-		newTrigger.isActive = newTrigger.type === oldTrigger.type && oldTrigger.isActive;
-		oldTrigger.streamsheet = undefined;
-	}
-	newTrigger.streamsheet = streamsheet;
-	return newTrigger;
-};
-
-// called on doStep()
-const doTrigger = (streamsheet) => {
-	const streamsheetstate = streamsheet._state;
-	// if we have no machine we were removed from it...
-	const machinestate = streamsheet.machine ? streamsheet.machine.state : undefined;
-	if (!machinestate || streamsheetstate === State.PAUSED) {
-		return false;
-	}
-	return (
-		streamsheet._trigger.isTriggered() ||
-		// on RESUMED or REPEAT we allow step without fulfilling trigger...
-		streamsheetstate === State.RESUMED ||
-		streamsheetstate === State.REPEAT ||
-		// DL-565 allow step without fulfilling trigger only for machine-start trigger...
-		((machinestate === State.STOPPED || machinestate === State.PAUSED) &&
-			streamsheet._trigger.type === StreamSheetTrigger.TYPE.MACHINE_START)
-	);
-};
 
 // TODO remove!! just to support old commands which send preferences property....
 const valueOr = (value, defval) => (value != null ? value : defval);
@@ -71,7 +31,6 @@ const getSettings = (definition, sheet) => {
 	return newsettings;
 };
 
-const hasLoop = (msgHandler) => msgHandler.isEnabled && msgHandler.hasLoop();
 
 const DEF_CONF = () => ({
 	name: '',
@@ -79,8 +38,10 @@ const DEF_CONF = () => ({
 		/* to be defined in inbox */
 	},
 	trigger: {
-		type: StreamSheetTrigger.TYPE.MACHINE_START,
-		repeat: 'endless' // 'once'
+		type: TriggerFactory.TYPE.CONTINUOUSLY,
+		repeat: 'once'
+		// type: TriggerFactory.TYPE.MACHINE_START,
+		// repeat: 'endless' // 'once'
 		/* ... additional properties  to be defined per trigger instance */
 	},
 	loop: {
@@ -110,8 +71,6 @@ class StreamSheet {
 			_emitter: { value: new EventEmitter() }
 		});
 		// init:
-		this._state = State.ACTIVE;
-		this._prevstate = State.ACTIVE;
 		this._applyConfig(config);
 		// init & register callbacks:
 		this.onInboxPop = this.onInboxPop.bind(this);
@@ -122,8 +81,7 @@ class StreamSheet {
 		this.inbox.on('message_pop', this.onInboxPop);
 		this.sheet.onUpdate = this.onSheetUpdate;
 		this.sheet.onCellRangeChange = this.onSheetCellRangeChange;
-		this.executeCallback = undefined;
-		this._useNextLoopElement = false;
+		this._loopIndex = 0;
 	}
 
 	toJSON() {
@@ -142,7 +100,7 @@ class StreamSheet {
 		this.name = config.name;
 		this._machine = machine;
 		this._msgHandler = new MessageHandler(config.loop);
-		this.trigger = StreamSheetTrigger.create(config.trigger);
+		this.trigger = TriggerFactory.create(config.trigger);
 	}
 
 	load(conf, machine) {
@@ -150,6 +108,12 @@ class StreamSheet {
 		this._applyConfig(config, machine);
 		this.inbox.load(config.inbox);
 		this.sheet.load(config.sheet);
+		// convert old machines to new continuous trigger:
+		if (machine && !machine.metadata.fileVersion) {
+			if (this._trigger.type === TriggerFactory.TYPE.MACHINE_START && this._trigger.isEndless) {
+				this.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
+			}
+		}
 	}
 
 	get id() {
@@ -161,7 +125,7 @@ class StreamSheet {
 	}
 
 	set name(name) {
-		this._name = Reference.isValidIdentifier(name) ? name : (this._name || '');
+		this._name = Reference.isValidIdentifier(name) ? name : this._name || '';
 	}
 
 	get machine() {
@@ -173,13 +137,12 @@ class StreamSheet {
 		this._trigger.streamsheet = this;
 	}
 
-	// checks if given message is processed. if no message is passed, check is done against current message
+	get messageHandler() {
+		return this._msgHandler;
+	}
+	// checks if current message is processed. if no message is passed, check is done against current message
 	isMessageProcessed(message) {
-		const handler = this._msgHandler;
-		if (message == null && this._trigger.isEndless && hasLoop(handler)) {
-			return !handler._message || (handler._used && !(handler._index < handler._stack.length - 1));
-		}
-		return message == null ? handler.isProcessed : message === handler.message && handler.isProcessed;
+		return (message == null || message === this._msgHandler.message) && this._msgHandler.isProcessed;
 	}
 
 	getLoopPath() {
@@ -206,28 +169,43 @@ class StreamSheet {
 		return this._msgHandler.isEnabled && !!this._msgHandler.hasLoop();
 	}
 
-	getMessage(id) {
-		return id ? this.inbox.peek(id) : this._msgHandler.message || this.inbox.peek();
+	getMessageById(id) {
+		return this.inbox.peek(id);
 	}
 
-	hasNewMessage() {
-		// NOTE: no message, means we will use next message if inbox is not empty!
-		return (
-			!this.inbox.isEmpty() && (this.inbox.size > 1 || !this._msgHandler.message || !this._msgHandler.isProcessed)
-		);
+	getCurrentMessage() {
+		return this._msgHandler.message;
 	}
 
 	getCurrentLoopPath() {
-		const index = this._trigger.isEndless ? 0 : 1;
-		return this._msgHandler.pathForIndex(this._msgHandler._index - index);
+		return this._msgHandler.pathForIndex(this._loopIndex);
+	}
+
+	hasNewMessage() {
+		return this.inbox.size > 1 || !this._msgHandler.isProcessed;
 	}
 
 	get trigger() {
 		return this._trigger;
 	}
-
 	set trigger(trigger) {
-		this._trigger = setTrigger(trigger, this._trigger, this);
+		// DL-1482 no trigger might be wanted...
+		// DL-1026 trigger settings might changed during running machine => keep previous active if old one was:
+		if (!trigger) trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.NONE });
+		if (this._trigger) {
+			if (trigger.type === this._trigger.type) this._trigger.update(trigger.config);
+			else {
+				this._trigger.dispose();
+				this._trigger = undefined;
+			}
+		}
+		if (!this._trigger) {
+			// register new trigger:
+			this._trigger = trigger;
+			this._trigger.streamsheet = this;
+			// start if we already run
+			if (this.machine && this.machine.isRunning) this._trigger.start();
+		}
 	}
 
 	// on 'step', 'stepback', 'message'...
@@ -275,7 +253,7 @@ class StreamSheet {
 		this.sheet.updateSettings(getSettings(newsettings, this.sheet));
 		if (newsettings.inbox) this.inbox.update(newsettings.inbox);
 		if (newsettings.loop) this._msgHandler.update(newsettings.loop);
-		if (newsettings.trigger) this.trigger = StreamSheetTrigger.create(newsettings.trigger);
+		if (newsettings.trigger) this.trigger = TriggerFactory.create(newsettings.trigger);
 		this._emitter.emit('settings_update', newsettings);
 	}
 
@@ -284,7 +262,6 @@ class StreamSheet {
 		this.sheet.dispose();
 		this.sheet.onUpdate = undefined;
 		this.sheet.onCellRangeChange = undefined;
-		this.executeCallback = undefined;
 		this.trigger.dispose();
 		this.inbox.dispose();
 		this.inbox.off('clear', this.onInboxClear);
@@ -306,33 +283,37 @@ class StreamSheet {
 		this.stats.messages = 0;
 		this.stats.repeatsteps = 0;
 		this._msgHandler.reset();
-		this._state = State.ACTIVE;
-		this._prevstate = State.ACTIVE;
 	}
 
-	// called by machine...
+	// called by machine:
 	pause() {
 		this.inbox.subscribe();
+		this.trigger.pause();
 	}
-
+	resume() {
+		this.trigger.resume();
+	}
 	start() {
-		this._detachMessage(this._msgHandler.message);
+		// TODO: REVIEW -> why calling detachMessage() here is required...
+		this.detachMessage(this._msgHandler.message);
 		this.inbox.clear();
 		this.inbox.subscribe();
 		this.sheet.getPendingRequests().clear();
+		this.trigger.start();
 	}
-
-	stop() {
-		const stopped = this.trigger.stop();
+	stop(forced) {
+		const stopped = this.trigger.stop(forced);
 		if (stopped) {
 			this.reset();
 			this.inbox.unsubscribe();
-			this.sheet.stopProcessing();
 			this.sheet.getPendingRequests().clear();
 		}
 		return stopped;
 	}
 
+	step(manual) {
+		this.trigger.step(manual);
+	}
 	// DL-1156: disabled
 	// select(message, path) {
 	// 	// DL-1065 (1): ignore selection for running machines...
@@ -347,225 +328,77 @@ class StreamSheet {
 	// 	}
 	// }
 
-	// TODO rename => called by return function
-	stopProcessing(retval) {
-		this.trigger.stop(); // return should deactivate trigger!
-		this.sheet.stopProcessing(retval);
-		const handler = this._msgHandler;
-		if (this._state === State.ACTIVE && this.trigger.isEndless && hasLoop(handler)) {
-			this._useNextLoopElement = true;
+	// called by sheet functions:
+	execute(repetitions, message, speed, resumeFn) {
+		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) {
+			// called by different sheet, so schedule it
+			TaskQueue.schedule(() => this.trigger.execute(repetitions, message, speed, resumeFn));
+			return true;
 		}
+		if (resumeFn) resumeFn(false);
+		return false;
 	}
-
-	execute({ message, selector }, callback) {
-		const doIt = this.trigger.type === StreamSheetTrigger.TYPE.EXECUTE;
-		this.executeCallback = callback;
-		if (doIt) {
-			const stepdata = { cmd: 'execute' };
-			message = !this._reuseMessage() ? getMessage(message, selector, this.inbox) : undefined;
-			this._doStep(stepdata, message);
-		} else {
-			this._notifyResumeCallback(false);
-		}
-		return doIt;
+	cancelExecute() {
+		if (this.trigger.type === TriggerFactory.TYPE.EXECUTE) this.trigger.cancelExecute();
 	}
-
-	// called by registered trigger to perform a step outside machine-cycle
-	triggerStep() {
-		this._doStep();
-	}
-
-	step(manual) {
-		const triggerType = this.trigger.type;
-		// DL-1334: exclude arrival trigger on machine cycle step, because it is handled differently
-		const doIt = manual || this.trigger.isEndless || triggerType !== StreamSheetTrigger.TYPE.ARRIVAL;
-		if (doIt) {
-			// DL-3709: force manual step on ARRIVAL sheet
-			const data = manual === 'force' || (manual === true && triggerType === StreamSheetTrigger.TYPE.ARRIVAL)
-				? { cmd: 'force' }
-				: undefined;
-			this._doStep(data);
-		}
-	}
-
 	continueProcessingAt(cellindex) {
-		// in case of backward jump it continues in next step otherwise directly...
-		const stopped = this.sheet.continueProcessingAt(cellindex);
-		if (stopped) {
-			this._prevstate = this._state;
-			this._state = State.CONTINUE;
-		}
+		this.sheet._continueProcessingAt(cellindex);
 	}
-
+	stopProcessing(retval) {
+		this.trigger.stopProcessing(retval);
+	}
 	pauseProcessing() {
-		this._prevstate = this._state;
-		this._state = State.PAUSED;
-		this.sheet.pauseProcessing();
+		this.trigger.pauseProcessing();
 	}
-
 	// rename: used to repeat single cell...
 	repeatProcessing() {
-		this._prevstate = this._state;
-		this._state = State.REPEAT;
-		this.sheet.pauseProcessing();
+		this.sheet._pauseProcessing();
 	}
+	resumeProcessing(retval) {
+		// might be called by different sheet or within own process step, so schedule it:
+		TaskQueue.schedule(() => {
+			const hasFinishedStep = this.trigger.resumeProcessing(retval);
+			// have to send finishedStep event if sheet was already finished, e.g. resume on last cell
+			if (!hasFinishedStep && this.sheet.isProcessed) this._emitter.emit('finishedStep', this);
+		});
+	}
+	// ~
 
-	resumeProcessing() {
-		if (this._state === State.PAUSED || this._state === State.REPEAT) {
-			this._prevstate = this._state;
-			this._state = State.RESUMED;
-			this.sheet.resumeProcessing();
-			this._doStep();
-		}
-	}
-
-	// DL-1114: WORKAROUND until next DEMO finished...
-	_skipExecuteTrigger(data = {}) {
-		// we are executed but wait for an execute to finish!!
-		return (
-			this._state === State.REPEAT &&
-			this.trigger.type === StreamSheetTrigger.TYPE.EXECUTE &&
-			(!data || data.cmd !== 'execute')
-		); // hint: signals that we are called by normal step!
-	}
-
-	_doStep(data, message) {
-		let result;
-		const sheet = this.sheet;
-		const prevstate = this._prevstate;
-		const firstTime = !this._trigger.isActive;
-		const forceStep = data && data.cmd === 'force';
-		// DL-3719 workaround to prevent moving loop-index twice in same step
-		this._nxtResumed = false;
-		// (DL-531): reset repeat-steps on first cycle...
-		if (firstTime) this.stats.repeatsteps = 0;
-		this._trigger.preProcess(data);
-		const skipTrigger = this._skipExecuteTrigger(data);
-		if (forceStep || (!skipTrigger && doTrigger(this))) {
-			if (this._state === State.ACTIVE && this._useNextLoopElement) {
-				this._useNextLoopElement = false;
-				this._msgHandler.next();
-			}
-			// DL-1114 executestep is now updated by execute.js
-			// if (data && data.cmd === 'execute' && this._state !== State.REPEAT) this.stats.executesteps += 1;
-			if (this._state === State.REPEAT) {
-				result = sheet.startProcessing();
-			} else if (this._state === State.RESUMED) {
-				result = this._resume();
-			} else if (this._state === State.CONTINUE) {
-				result = this._continueProcess();
-			} else if (sheet.isPaused || sheet.isResumed) {
-				result = this._waitProcess();
-			} else {
-				result = this._process(message);
-			}
-			this._emitter.emit('step', this);
-			// check state transitions to decide if next loop element should be taken  => PLEASE REWRITE COMPLETELY!!
-			const nextLoopElement =
-				this._state === State.ACTIVE &&
-				// do not take next loop if sheet is waiting...
-				!(sheet.isPaused || sheet.isResumed) &&
-				// note: transition from repeat might processed sheet completely!
-				(this._prevstate !== State.RESUMED || (prevstate === State.REPEAT && !sheet.isProcessing));
-			if (nextLoopElement && (!this._trigger.isEndless || !hasLoop(this._msgHandler))) {
-				this._msgHandler.next();
-			}
-		}
-		this._trigger.postProcess(data);
-		this._didStep(result);
-		return result;
-	}
-	_resume() {
-		this._prevstate = this._state;
-		this._state = State.ACTIVE;
-		return this.sheet.startProcessing();
-	}
-
-	_continueProcess() {
-		this._updateStatsOnTrigger();
-		this._prevstate = this._state;
-		this._state = State.ACTIVE;
-		return this.sheet.startProcessing();
-	}
-
-	_waitProcess() {
-		return this.sheet.startProcessing();
-	}
-
-	_process(message) {
-		this._updateStatsOnTrigger();
-		this._attachNewMessage(message);
-		// JSG-105: delete all drawings before step now:
+	process() {
+		// store current loop index, it might be changed after process
+		this._loopIndex = this._msgHandler.index;
 		this.sheet.getDrawings().removeAll();
-		return this.sheet.startProcessing();
-	}
-	_didStep(result) {
-		if (this._state !== State.PAUSED) {
-			this._detachIfProcessed();
-			this._notifyResumeCallback(result);
-		}
-		this._prevstate = this._state;
-	}
-
-	_updateStatsOnTrigger() {
-		this.stats.steps += 1;
-		this.stats.repeatsteps += this._trigger.isEndless ? 1 : 0;
-	}
-	_reuseMessage() {
-		const { trigger } = this;
-		return (
-			trigger.isActive &&
-			trigger.isEndless &&
-			(trigger.type === StreamSheetTrigger.TYPE.ARRIVAL || hasLoop(this._msgHandler))
-		);
-	}
-	_detachIfProcessed() {
-		if (this._msgHandler.isProcessed) {
-			// (DL-508) reuse message if endless mode and trigger type arrival:
-			if (this._reuseMessage()) {
-				this._msgHandler.reset();
-			} else {
-				// this._detachMessage(this._msgHandler.message);
-				this._emitMessageEvent('message_detached', this._msgHandler.message);
-			}
+		this.sheet._startProcessing();
+		this._emitter.emit('step', this);
+		if (this.sheet.isProcessed) {
+			this._emitter.emit('finishedStep', this);
 		}
 	}
-	_attachNewMessage(message) {
-		if (this._msgHandler.isProcessed) {
-			const currmsg = this._msgHandler.message;
-			if (currmsg) {
-				if (currmsg === message) {
-					this._msgHandler.reset();
-				} else if (this.inbox.size > 1) {
-					this.inbox.pop(currmsg.id);
-					this._msgHandler.message = undefined;
-				}
-			}
+	attachNextMessage() {
+		const currmsg = this._msgHandler.message;
+		if (currmsg && this.inbox.size > 1) {
+			this.inbox.pop(currmsg.id);
+			this._msgHandler.message = undefined;
 		}
-		if (!this._msgHandler.message) {
-			this._attachMessage(message || this.inbox.peek());
-		}
+		if (!this._msgHandler.message) this.attachMessage(this.inbox.peek());
 	}
-	_attachMessage(message) {
-		this.stats.messages += message ? 1 : 0;
+	attachMessage(message) {
 		this._msgHandler.message = message;
-		this._emitMessageEvent('message_attached', message);
+		if (message) {
+			this.stats.messages += 1;
+			this._emitMessageEvent('message_attached', message);
+		}
 	}
-	_detachMessage(message) {
-		this._msgHandler.message = undefined;
-		this._emitMessageEvent('message_detached', message);
+	detachMessage() {
+		if (this._msgHandler.message) {
+			// only send event, message will be popped from inbox on attach, so it still can be queried !!
+			this._emitMessageEvent('message_detached', this._msgHandler.message);
+		}
 	}
 
 	_emitMessageEvent(type, message) {
 		if (message) {
 			this._emitter.emit(type, message.id, this);
-		}
-	}
-
-	_notifyResumeCallback(retval) {
-		if (this.executeCallback && !this._trigger.isActive && this._state !== State.REPEAT) {
-			this.executeCallback(retval, this);
-			this.executeCallback = undefined;
 		}
 	}
 

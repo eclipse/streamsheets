@@ -36,6 +36,7 @@ const reduceCells = (cells) =>
 const deleteProps = (...props) => (obj) => props.forEach((prop) => delete obj[prop]);
 
 const deleteCellProps = deleteProps('reference', 'info');
+const deleteMetadataProps = deleteProps('machineservice');
 const deleteMachineProps = deleteProps('outbox', 'functionDefinitions', 'functionsHelp', 'stats');
 const deleteStreamSheetProps = deleteProps('stats');
 const deleteInboxProps = deleteProps('messages', 'currentMessage');
@@ -56,6 +57,7 @@ const isValid = (machine) => !!(machine && machine.id);
 const checkAndTransformMachine = (machine) => {
 	if (isValid(machine)) {
 		deleteMachineProps(machine);
+		deleteMetadataProps(machine.metadata);
 		machine.streamsheets.forEach(streamsheet => {
 			checkStreamSheetCells(streamsheet);
 			deleteStreamSheetProps(streamsheet);

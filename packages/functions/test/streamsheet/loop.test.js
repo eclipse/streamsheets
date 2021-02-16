@@ -11,7 +11,7 @@
 const MESSAGES = require('../_data/messages.json');
 const { createTerm } = require('../utilities');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Cell, Machine, Message, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { Cell, Machine, Message, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 
@@ -30,10 +30,10 @@ const setup = (config) => {
 };
 
 describe('loopcount', () => {
-	it.skip('should return length of loop element', async () => {
+	it('should return length of loop element', async () => {
 		const t1 = setup({
 			name: 'T1',
-			trigger: StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE })
+			trigger: TriggerFactory.create({ type: TriggerFactory.TYPE.ONCE })
 		});
 		const sheet = t1.sheet;
 		const machine = t1.machine;
@@ -55,7 +55,7 @@ describe('loopcount', () => {
 	it('should return 0 if loop element has no length', async () => {
 		const t1 = setup({
 			name: 'T1',
-			trigger: StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_START })
+			trigger: TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START })
 		});
 		const sheet = t1.sheet;
 		const machine = t1.machine;
@@ -80,7 +80,7 @@ describe('loopcount', () => {
 	it(`should return ${ERROR.NA} if no loop is defined`, async () => {
 		const t1 = setup({
 			name: 'T1',
-			trigger: StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE })
+			trigger: TriggerFactory.create({ type: TriggerFactory.TYPE.ONCE })
 		});
 		const sheet = t1.sheet;
 		const machine = t1.machine;
@@ -104,7 +104,7 @@ describe('loopcount', () => {
 	it(`should return ${ERROR.NA} if no loop is active`, async () => {
 		const t1 = setup({
 			name: 'T1',
-			trigger: StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE })
+			trigger: TriggerFactory.create({ type: TriggerFactory.TYPE.ONCE })
 		});
 		const sheet = t1.sheet;
 		const machine = t1.machine;
@@ -130,7 +130,7 @@ describe('loopindex', () => {
 	it('should return current loop index', async () => {
 		const t1 = setup({
 			name: 'T1',
-			trigger: StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_START })
+			trigger: TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START })
 		});
 		const sheet = t1.sheet;
 		const machine = t1.machine;
@@ -154,7 +154,7 @@ describe('loopindex', () => {
 	it(`should return ${ERROR.NA} if no loop is defined`, async () => {
 		const t1 = setup({
 			name: 'T1',
-			trigger: StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE })
+			trigger: TriggerFactory.create({ type: TriggerFactory.TYPE.ONCE })
 		});
 		const sheet = t1.sheet;
 		const machine = t1.machine;
@@ -178,7 +178,7 @@ describe('loopindex', () => {
 	it(`should return ${ERROR.NA} if no loop is active`, async () => {
 		const t1 = setup({
 			name: 'T1',
-			trigger: StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE })
+			trigger: TriggerFactory.create({ type: TriggerFactory.TYPE.ONCE })
 		});
 		const sheet = t1.sheet;
 		const machine = t1.machine;

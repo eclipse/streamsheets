@@ -10,7 +10,7 @@
  ********************************************************************************/
 const { createTerm } = require('../utilities');
 const { Term } = require('@cedalo/parser');
-const { Cell, Machine, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { Cell, Machine, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
 
 const setup = (transconfig) => {
 	const machine = new Machine();
@@ -21,7 +21,7 @@ const setup = (transconfig) => {
 
 describe('setvalue', () => {
 	it('should set a cell value', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY } });
 		const sheet = t1.sheet;
 		let setvalue = createTerm('setvalue(1==1, "hello", C1)', sheet);
 		sheet.setCellAt('A1', new Cell(null, setvalue));
@@ -36,7 +36,7 @@ describe('setvalue', () => {
 		expect(sheet.cellAt('F1').value).toBe('yes');
 	});
 	it('should create corresponding cell if it did not exists before', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY } });
 		const sheet = t1.sheet;
 		const setvalue = createTerm('setvalue(TRUE, "hello", C1)', sheet);
 		expect(sheet.cellAt('C1')).toBeUndefined();
@@ -47,7 +47,7 @@ describe('setvalue', () => {
 	});
 
 	it('should keep formula of target cell if last parameter is FALSE or not given', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY } });
 		const sheet = t1.sheet;
 		const setvalue = createTerm('setvalue(1==1, "hello", C1)', sheet);
 		sheet.setCellAt('D1', new Cell(null, setvalue));
@@ -62,7 +62,7 @@ describe('setvalue', () => {
 		expect(sheet.cellAt('C1').value).toBe(42);
 	});
 	it('can be used to reset a cell value', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY } });
 		const sheet = t1.sheet;
 		const resetvalue = createTerm('setvalue(C1>1, 0, C1)', sheet);
 		sheet.setCellAt('A1', new Cell(null, resetvalue));
@@ -79,7 +79,7 @@ describe('setvalue', () => {
 		expect(sheet.cellAt('C1').value).toBe(1);
 	});
 	it('should overwrite formula of target cell if last parameter is TRUE', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY } });
 		const sheet = t1.sheet;
 		const setvalue = createTerm('setvalue(1==1, "hello", C1, TRUE)', sheet);
 		sheet.setCellAt('D1', new Cell(null, setvalue));
@@ -95,7 +95,7 @@ describe('setvalue', () => {
 		expect(sheet.cellAt('C1').value).toBe('hello');
 	});
 	it('should set the values of a cell range', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY } });
 		const sheet = t1.sheet.load({
 			cells: {
 				A1: { formula: '11 + 12' },
@@ -124,7 +124,7 @@ describe('setvalue', () => {
 		expect(sheet.cellAt('B2').value).toBe('yes');
 	});
 	it('should create cells of range before setting values if they do not exists', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY } });
 		const sheet = t1.sheet;
 		const setvalue = createTerm('setvalue(1==1, "yes", A1:B2)', sheet);
 		expect(sheet.cellAt('A1')).toBeUndefined();
@@ -139,7 +139,7 @@ describe('setvalue', () => {
 		expect(sheet.cellAt('B2').value).toBe('yes');
 	});
 	it('should overwrite formula of cells in range', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY } });
 		const sheet = t1.sheet.load({
 			cells: {
 				A1: { formula: '11 + 12' },
@@ -168,7 +168,7 @@ describe('setvalue', () => {
 		expect(sheet.cellAt('B2').value).toBe('yes');
 	});
 	it('should set the values of a cell list', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY } });
 		const sheet = t1.sheet.load({
 			cells: {
 				A1: { formula: '11 + 12' },
@@ -197,7 +197,7 @@ describe('setvalue', () => {
 		expect(sheet.cellAt('B2').value).toBe('yes');
 	});
 	it('should overwrite formula of cells within list', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY } });
 		const sheet = t1.sheet.load({
 			cells: {
 				A1: { formula: '11 + 12' },
@@ -226,7 +226,7 @@ describe('setvalue', () => {
 		expect(sheet.cellAt('B2').value).toBe('yes');
 	});
 	it('should not set value if no condition is specified', () => {
-		const t1 = setup({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+		const t1 = setup({ name: 'T1', trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY } });
 		const sheet = t1.sheet;
 		const setvalue1 = createTerm('setvalue(, "hello", E2)', sheet);
 		const setvalue2 = createTerm('setvalue(, "world", E2:F2, TRUE)', sheet);

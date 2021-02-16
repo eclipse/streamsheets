@@ -9,14 +9,14 @@
  *
  ********************************************************************************/
 const { sleep } = require('@cedalo/commons');
-const { Machine, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { Machine, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
 
 const newMachine = ({ cycletime = 1000 } = {}) => {
 	const machine = new Machine();
 	machine.cycletime = cycletime;
 	machine.removeAllStreamSheets();
 	machine.addStreamSheet(
-		new StreamSheet({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.MACHINE_START, repeat: 'endless' } })
+		new StreamSheet({ name: 'T1', trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY } })
 	);
 	return machine;
 };

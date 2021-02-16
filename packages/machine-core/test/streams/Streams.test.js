@@ -11,7 +11,7 @@
 const StreamMessagingClient = require('../../src/streams/StreamMessagingClient');
 const { Machine, Streams } = require('../..');
 
-jest.mock('../../src/streams/StreamMessagingClient');
+// jest.mock('../../src/streams/StreamMessagingClient');
 
 const descriptor1 = {
 	id: 'id1',

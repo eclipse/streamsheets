@@ -26,7 +26,7 @@ const addMetaData = (message, sheet) => {
 // DL-1834 TODO VERY SIMILAR to read.js => extract!!
 const getInboxMessage = (machine, streamsheetName, messageId) => {
 	const streamsheet = machine.getStreamSheetByName(streamsheetName);
-	return streamsheet ? streamsheet.getMessage(messageId) : undefined;
+	return streamsheet ? streamsheet.getMessageById(messageId) : undefined;
 };
 const getOutboxMessage = (machine, messageId) => {
 	const outbox = machine.outbox;

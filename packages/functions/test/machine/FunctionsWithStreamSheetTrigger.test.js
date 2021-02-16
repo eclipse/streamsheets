@@ -9,7 +9,8 @@
  *
  ********************************************************************************/
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Machine, Message, State, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { Machine, Message, State, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
+
 
 const random = (nr = 10) => Math.floor(Math.random() * Math.floor(nr));
 const createMessage = () => new Message([
@@ -21,7 +22,7 @@ const createMessage = () => new Message([
 const createStreamSheet = (name, cells, trigger) => {
 	const streamsheet = new StreamSheet();
 	streamsheet.name = name;
-	streamsheet.trigger = trigger || StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ARRIVAL });
+	streamsheet.trigger = trigger || TriggerFactory.create({ type: TriggerFactory.TYPE.ARRIVAL });
 	streamsheet.sheet.load({ cells });
 	return streamsheet;
 };
@@ -53,32 +54,30 @@ const wait = ms => new Promise((resolve) => {
 
 describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 	it('should not prevent execution of another sheet via EXECUTE()', async () => {
-		const t1 = createStreamSheet('T1',
-			{ A1: { formula: 'A1+1' }, B1: { formula: 'EXECUTE("T2")' }, C1: { formula: 'C1+1' } });
-		const t2 = createStreamSheet('T2', { A2: { formula: 'A2+1' } },
-			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE }));
-		const sheet1 = t1.sheet;
-		const sheet2 = t2.sheet;
-		const machine = await createMachine({ settings: {cycletime: 20000} }, t1, t2);
+		const s1 = createStreamSheet('S1',
+			{ A1: { formula: 'A1+1' }, B1: { formula: 'EXECUTE("S2",,,true)' }, C1: { formula: 'C1+1' } });
+		const s2 = createStreamSheet('S2', { B1: { formula: 'B1+1' } },
+			TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE }));
+		const machine = await createMachine({ settings: {cycletime: 200000} }, s1, s2);
 		await machine.start();
-		expect(sheet1.cellAt('A1').value).toBe(1);
-		expect(sheet1.cellAt('C1').value).toBe(1);
-		expect(sheet2.cellAt('A2').value).toBe(1);
-		putMessages(t1, new Message());
+		expect(s1.sheet.cellAt('A1').value).toBe(1);
+		expect(s1.sheet.cellAt('C1').value).toBe(1);
+		expect(s2.sheet.cellAt('B1').value).toBe(1);
+		putMessages(s1, new Message());
 		await wait(100);
-		expect(sheet1.cellAt('A1').value).toBe(2);
-		expect(sheet1.cellAt('C1').value).toBe(2);
-		expect(sheet2.cellAt('A2').value).toBe(2);
-		putMessages(t1, new Message(), new Message(), new Message());
+		expect(s1.sheet.cellAt('A1').value).toBe(2);
+		expect(s1.sheet.cellAt('C1').value).toBe(2);
+		expect(s2.sheet.cellAt('B1').value).toBe(2);
+		putMessages(s1, new Message(), new Message(), new Message());
 		await wait(100);
-		expect(sheet1.cellAt('A1').value).toBe(5);
-		expect(sheet1.cellAt('C1').value).toBe(5);
-		expect(sheet2.cellAt('A2').value).toBe(5);
+		expect(s1.sheet.cellAt('A1').value).toBe(5);
+		expect(s1.sheet.cellAt('C1').value).toBe(5);
+		expect(s2.sheet.cellAt('B1').value).toBe(5);
 	});
 	it('should consume always same message in endless mode until return, then next message', async () => {
 		const t1 = createStreamSheet('T1',
 			{ A1: { formula: 'A1+1' }, B1: { formula: 'if(A1>3, return(), false)' } },
-			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ARRIVAL, repeat: 'endless' }));
+			TriggerFactory.create({ type: TriggerFactory.TYPE.ARRIVAL, repeat: 'endless' }));
 		const sheet = t1.sheet;
 		const msgA = new Message();
 		const msgB = new Message();
@@ -108,7 +107,7 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 	it('should stop calculation in endless mode on return', async () => {
 		const t1 = createStreamSheet('T1',
 			{ A1: { formula: 'A1+1' }, B1: { formula: 'if(A1>3, return(), false)' } },
-			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ARRIVAL, repeat: 'endless' }));
+			TriggerFactory.create({ type: TriggerFactory.TYPE.ARRIVAL, repeat: 'endless' }));
 		const sheet = t1.sheet;
 		const machine = await createMachine({ settings: {cycletime: 50} }, t1);
 		expect(t1.trigger.isEndless).toBe(true);
@@ -117,17 +116,18 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 		await machine.pause();
 		putMessages(t1, new Message());
 		await machine.step();
+		expect(t1.stats.repeatsteps).toBe(1);
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('B1').value).toBe(false);
 		await machine.step();
+		expect(t1.stats.repeatsteps).toBe(2);
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B1').value).toBe(false);
-		await machine.step();
+		await machine.step();	// returns
 		expect(t1.stats.repeatsteps).toBe(3);
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('B1').value).toBe(true);
-		await machine.step();
-		// return has reset repeatsteps counter:
+		await machine.step();	// returns directly
 		expect(t1.stats.repeatsteps).toBe(1);
 		await machine.step();
 		await machine.step();
@@ -138,7 +138,7 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 		it('should calculate sheet triggered by execute', async () => {
 			const t1 = createStreamSheet('T1', { A1: { formula: 'execute("T2")' } });
 			const t2 = createStreamSheet('T2', { A2: { formula: 'getcycle()' }, B2: { formula: 'return(42)' } },
-				StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE, repeat: 'endless' }));
+				TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE, repeat: 'endless' }));
 			const sheet1 = t1.sheet;
 			const sheet2 = t2.sheet;
 			const machine = await createMachine({ settings: {cycletime: 1000} }, t1, t2);
@@ -159,36 +159,39 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 		it('should calculate sheet triggered by execute in machine cycle', async () => {
 			const t1 = createStreamSheet('T1', { A1: { formula: 'execute("T2", 5)' } });
 			const t2 = createStreamSheet('T2', { A2: { formula: 'getexecutestep()' } },
-				StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE }));
+				TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE }));
 			const sheet1 = t1.sheet;
 			const sheet2 = t2.sheet;
-			const machine = await createMachine({ settings: {cycletime: 1000} }, t1, t2);
+			const machine = await createMachine({ settings: {cycletime: 10} }, t1, t2);
 			expect(sheet1.cellAt('A1').value).toBe(true);
 			expect(sheet2.cellAt('A2').value).toBe(0);
 			await machine.start();
 			putMessages(t1, new Message());
-			// run for 1 second
-			await wait(1000);
+			await wait(100);
 			await machine.stop();
 			expect(sheet1.cellAt('A1').value).toBe(false);
 			expect(sheet2.cellAt('A2').value).toBe(5);
 		});
 		it('should calculate sheet triggered by execute outside of machine cycle', async () => {
-			const t1 = createStreamSheet('T1', { A1: { formula: 'execute("T2")' } });
+			const t1 = createStreamSheet('T1', { A1: { formula: 'execute("T2",1,,1)' }, B1: { formula: 'B1+1' } });
 			const t2 = createStreamSheet('T2', { A2: { formula: 'getcycle()' } },
-				StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE, repeat: 'endless' }));
+				TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE, repeat: 'endless' }));
 			const sheet1 = t1.sheet;
 			const sheet2 = t2.sheet;
 			const machine = await createMachine({ settings: {cycletime: 10000} }, t1, t2);
 			expect(sheet1.cellAt('A1').value).toBe(true);
 			expect(sheet2.cellAt('A2').value).toBe(0);
 			await machine.start();
+			expect(sheet1.cellAt('B1').value).toBe(1);
 			putMessages(t1, new Message());
-			// run for 1 second
 			await wait(500);
+			// t2 never returns, so in t1:
+			expect(sheet1.cellAt('A1').value).toBe(FunctionErrors.code.WAITING);
+			expect(sheet1.cellAt('B1').value).toBe(1);
 			await machine.stop();
-			expect(sheet1.cellAt('A1').value).toBe(FunctionErrors.code.NA);
-			// getcycle returns number of steps done in endless mode => so must be far more than 1
+			expect(sheet1.cellAt('B1').value).toBe(1);
+			expect(sheet1.cellAt('A1').value).toBe(FunctionErrors.code.WAITING);
+			// getcycle returns number of steps done in endless mode => so must be much more than 1
 			expect(sheet2.cellAt('A2').value).toBeGreaterThan(1);
 		});
 	});
@@ -197,11 +200,11 @@ describe('OnExecute', () => {
 	it('should execute only if triggered from another streamsheet', async () => {
 		const t1 = createStreamSheet('T1',
 			{ A1: { formula: 'A1+1' }, B1: { formula: 'if(A1==3,execute("T2", 1),false)' } },
-			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' })
+			TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY })
 		);
 		const t2 = createStreamSheet('T2',
 			{ A1: { formula: 'A1+1' } },
-			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE })
+			TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE })
 		);
 		const machine = await createMachine({ settings: { cycletime: 10000 } }, t1, t2);
 		// putMessages(t1, new Message(), new Message(), new Message(), new Message());
@@ -222,11 +225,11 @@ describe('OnExecute', () => {
 	it('should always execute if triggered once and if in endless mode', async () => {
 		const t1 = createStreamSheet('T1',
 			{ A1: { formula: 'A1+1' }, B1: { formula: 'if(A1==3,execute("T2", 1),false)' } },
-			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' })
+			TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY })
 		);
 		const t2 = createStreamSheet('T2',
 			{ A1: { formula: 'A1+1' } },
-			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE, repeat: 'endless' })
+			TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE, repeat: 'endless' })
 		);
 		const machine = await createMachine({ settings: {cycletime: 10000} }, t1, t2);
 		// putMessages(t1, new Message(), new Message(), new Message(), new Message());
@@ -236,37 +239,37 @@ describe('OnExecute', () => {
 		expect(t2.sheet.cellAt('A1').value).toBe(1);
 		await machine.step();
 		expect(t1.sheet.cellAt('A1').value).toBe(3);
-		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.NA);
+		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.WAITING);
 		expect(t2.sheet.cellAt('A1').value).toBe(2);
 		await machine.step();
 		await machine.step();
 		expect(t1.sheet.cellAt('A1').value).toBe(3);
-		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.NA);
+		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.WAITING);
 		expect(t2.sheet.cellAt('A1').value).toBe(4);
 	});
 	it('should always execute if triggered once and in endless mode until return', async () => {
 		const t1 = createStreamSheet('T1',
 			{ A1: { formula: 'A1+1' }, B1: { formula: 'execute("T2")' } },
-			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE })
+			TriggerFactory.create({ type: TriggerFactory.TYPE.ONCE })
 		);
 		const t2 = createStreamSheet('T2',
 			{ A1: { formula: 'A1+1' }, B1: { formula: 'if(A1>4, return(true), false)' } },
-			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE, repeat: 'endless' })
+			TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE, repeat: 'endless' })
 		);
 		const machine = await createMachine({ settings: {cycletime: 10000} }, t1, t2);
 		// putMessages(t1, new Message(), new Message());
 		await machine.step();
 		expect(t1.sheet.cellAt('A1').value).toBe(2);
-		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.NA);
+		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.WAITING);
 		expect(t2.sheet.cellAt('A1').value).toBe(2);
 		await machine.step();
 		expect(t1.sheet.cellAt('A1').value).toBe(2);
-		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.NA);
+		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.WAITING);
 		expect(t2.sheet.cellAt('A1').value).toBe(3);
 		expect(t2.sheet.cellAt('B1').value).toBe(false);
 		await machine.step();
 		expect(t1.sheet.cellAt('A1').value).toBe(2);
-		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.NA);
+		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.WAITING);
 		expect(t2.sheet.cellAt('A1').value).toBe(4);
 		expect(t2.sheet.cellAt('B1').value).toBe(false);
 		await machine.step();
@@ -282,28 +285,28 @@ describe('OnExecute', () => {
 		expect(t1.sheet.cellAt('B1').value).toBe(true);
 	});
 	it('should be possible to remove trigger', async () => {
-		const t1 = createStreamSheet('T1', {}, StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.EXECUTE }));
+		const t1 = createStreamSheet('T1', {}, TriggerFactory.create({ type: TriggerFactory.TYPE.EXECUTE }));
 		await createMachine({ settings: {cycletime: 10000} }, t1);
 		expect(t1.trigger).toBeDefined();
-		expect(t1.trigger.type).toBe(StreamSheetTrigger.TYPE.EXECUTE);
+		expect(t1.trigger.type).toBe(TriggerFactory.TYPE.EXECUTE);
 		// remove trigger
 		t1.trigger = undefined;
 		expect(t1.trigger).toBeDefined();
-		expect(t1.trigger.type).toBe(StreamSheetTrigger.TYPE.NONE);
+		expect(t1.trigger.type).toBe(TriggerFactory.TYPE.NONE);
 	});
 });
 describe('OnMachineStop with RETURN()', () => {
 	it('should prevent machine stop in endless mode until return', async () => {
 		const t1 = createStreamSheet('T1',
 			{ A1: { formula: 'A1+1' } },
-			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE }));
+			TriggerFactory.create({ type: TriggerFactory.TYPE.ONCE }));
 		const t2 = createStreamSheet('T2',
 			{ A1: { formula: 'A1+1' } },
-			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_STOP }));
+			TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_STOP }));
 		const t3 = createStreamSheet('T3',
-			{ A1: { formula: 'A1+1' }, B1: { formula: 'if(A1>2, return(), false)' }, C1: { formula: 'C1+1' } },
-			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_STOP, repeat: 'endless' }));
-		const machine = await createMachine({ settings: {cycletime: 10000} }, t1, t2, t3);
+			{ A1: { formula: 'A1+1' } },
+			TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_STOP, repeat: 'endless' }));
+		const machine = await createMachine({ settings: {cycletime: 1000} }, t1, t2, t3);
 		await machine.start();
 		await machine.pause();
 		// putMessages(t1, new Message(), new Message(), new Message());
@@ -312,33 +315,26 @@ describe('OnMachineStop with RETURN()', () => {
 		expect(t1.sheet.cellAt('A1').value).toBe(2);
 		expect(t2.sheet.cellAt('A1').value).toBe(1);
 		expect(t3.sheet.cellAt('A1').value).toBe(1);
-		expect(t3.sheet.cellAt('B1').value).toBe(false);
-		expect(t3.sheet.cellAt('C1').value).toBe(1);
 		await machine.stop();
+		await wait(20);
 		// stop is prevented so:
-		await machine.step();
 		expect(machine.state).toBe(State.WILL_STOP);
+		expect(t1.sheet.cellAt('A1').value).toBe(2);
 		expect(t2.sheet.cellAt('A1').value).toBe(2);
-		expect(t3.sheet.cellAt('A1').value).toBe(2);
-		expect(t3.sheet.cellAt('B1').value).toBe(false);
-		expect(t3.sheet.cellAt('C1').value).toBe(2);
-		await machine.step();
-		await machine.step();
-		// return should match, so
-		expect(machine.state).toBe(State.STOPPED);
-		expect(t2.sheet.cellAt('A1').value).toBe(2);
-		expect(t3.sheet.cellAt('A1').value).toBe(3);
-		expect(t3.sheet.cellAt('B1').value).toBe(true);
-		expect(t3.sheet.cellAt('C1').value).toBe(2);
-		// stop again to realy stop machine in case of any error...
+		expect(t3.sheet.cellAt('A1').value).toBeGreaterThan(2);
+		// t3 runs endlessly so stop again to really stop machine...
 		await machine.stop();
+		expect(machine.state).toBe(State.STOPPED);
+		expect(t1.sheet.cellAt('A1').value).toBe(2);
+		expect(t2.sheet.cellAt('A1').value).toBe(2);
+		expect(t3.sheet.cellAt('A1').value).toBeGreaterThan(2);
 	});
 });
 describe('OnMachineStart with RETURN()', () => {
 	it('should execute sheet on machine start and repeat in endless mode until return', async () => {
 		const t1 = createStreamSheet('T1',
 			{ A1: { formula: 'A1+1' }, B1: { formula: 'if(A1>2, return(), false)' } },
-			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_START, repeat: 'endless' })
+			TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' })
 		);
 		const machine = await createMachine({ settings: {cycletime: 10000} }, t1);
 		await machine.start();
@@ -357,20 +353,21 @@ describe('OnMachineStart with RETURN()', () => {
 	it('should process sheet on each loop element in endless mode until return', async () => {
 		const t1 = createStreamSheet('T1',
 			{ B1: { formula: 'return()' } },
-			StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.MACHINE_START, repeat: 'endless' })
+			TriggerFactory.create({ type: TriggerFactory.TYPE.MACHINE_START, repeat: 'endless' })
 		);
 		const machine = await createMachine({ settings: {cycletime: 10000} }, t1);
 		t1.updateSettings({ loop: { path: '[Data]', enabled: true } });
 		// add some messages
 		t1.inbox.put(createMessage());
 		t1.inbox.put(createMessage());
-		await machine.step();
-		expect(t1.inbox.size).toBe(2);
 		expect(t1.getLoopIndex()).toBe(0);
-		expect(machine.getStreamSheetByName('T1').stats.steps).toBe(1);
 		await machine.step();
 		expect(t1.inbox.size).toBe(2);
 		expect(t1.getLoopIndex()).toBe(1);
+		expect(machine.getStreamSheetByName('T1').stats.steps).toBe(1);
+		await machine.step();
+		expect(t1.inbox.size).toBe(2);
+		expect(t1.getLoopIndex()).toBe(2);
 		expect(machine.getStreamSheetByName('T1').stats.steps).toBe(2);
 		await machine.step();
 		expect(t1.inbox.size).toBe(2);
@@ -378,7 +375,7 @@ describe('OnMachineStart with RETURN()', () => {
 		expect(machine.getStreamSheetByName('T1').stats.steps).toBe(3);
 		await machine.step();
 		expect(t1.inbox.size).toBe(1);
-		expect(t1.getLoopIndex()).toBe(0);
+		expect(t1.getLoopIndex()).toBe(1);
 		expect(machine.getStreamSheetByName('T1').stats.steps).toBe(4);
 		// steps until last loop element reached
 		await machine.step();

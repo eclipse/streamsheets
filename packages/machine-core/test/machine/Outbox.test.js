@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -11,7 +11,7 @@
 const { Message, Outbox } = require('../..');
 
 describe('Outbox', () => {
-	describe.skip('creation', () => {
+	describe('creation', () => {
 		it('should create an outbox with an id and no messages', () => {
 			const outbox = new Outbox();
 			expect(outbox).toBeDefined();
@@ -20,14 +20,14 @@ describe('Outbox', () => {
 			expect(outbox.messages).toBeDefined();
 		});
 	});
-	describe.skip('message handling', () => {
+	describe('message handling', () => {
 		it('should be possible to add messages', () => {
 			const outbox = new Outbox();
-			outbox.peek('msg1', true);
+			outbox.put(new Message({}, 'msg1'));
 			expect(outbox.size).toBe(1);
-			outbox.peek('msg3', true);
+			outbox.put(new Message({}, 'msg3'));
 			expect(outbox.size).toBe(2);
-			outbox.peek('msg1', true);
+			outbox.replaceMessage(new Message({}, 'msg1'));
 			expect(outbox.size).toBe(2);
 		});
 		it('should be possible to remove messages', () => {
@@ -35,8 +35,10 @@ describe('Outbox', () => {
 			expect(outbox.size).toBe(0);
 			expect(outbox.pop('msg1')).toBeUndefined();
 			expect(outbox.size).toBe(0);
-			const msg1 = outbox.peek('msg1', true);
-			const msg2 = outbox.peek('msg2', true);
+			const msg1 = new Message({}, 'msg1');
+			const msg2 = new Message({}, 'msg2');
+			outbox.put(msg1);
+			outbox.put(msg2);
 			expect(outbox.size).toBe(2);
 			expect(outbox.pop('msg2')).toBe(msg2);
 			expect(outbox.size).toBe(1);
@@ -50,8 +52,10 @@ describe('Outbox', () => {
 			const outbox = new Outbox();
 			expect(outbox.messages).toBeDefined();
 			expect(outbox.messages.length).toBe(0);
-			const msg1 = outbox.peek('msg1', true);
-			const msg2 = outbox.peek('msg2', true);
+			const msg1 = new Message({}, 'msg1');
+			const msg2 = new Message({}, 'msg2');
+			outbox.put(msg1);
+			outbox.put(msg2);
 			expect(outbox.messages.length).toBe(2);
 			// note: reversed order:
 			expect(outbox.messages[0]).toBe(msg2);
@@ -151,24 +155,25 @@ describe('Outbox', () => {
 			expect(newmsg.data.value).toBeUndefined();
 		});
 	});
-	describe.skip('event emit', () => {
+	describe('event emit', () => {
 		it('should send event on message add', () => {
 			let counter = 0;
 			const outbox = new Outbox();
-			outbox.on('message_put', () => { counter += 1; });
-			outbox.peek('msg1', true);
+			outbox.on('message_put', () => {
+				counter += 1;
+			});
+			outbox.put(new Message());
 			expect(counter).toBe(1);
-			outbox.peek('msg2', true);
-			outbox.peek('msg3', true);
-			expect(counter).toBe(3);
-			outbox.peek('msg2', true);
-			outbox.peek('msg3', true);
+			outbox.put(new Message());
+			outbox.put(new Message());
 			expect(counter).toBe(3);
 		});
 		it('should send event on message change', () => {
 			let counter = 0;
 			const outbox = new Outbox();
-			outbox.on('message_changed', () => { counter += 1; });
+			outbox.on('message_changed', () => {
+				counter += 1;
+			});
 			outbox.peek('msg1', true);
 			outbox.setMessageData('msg1', { Kunde: {} });
 			expect(counter).toBe(1);
@@ -179,11 +184,15 @@ describe('Outbox', () => {
 		it('should send event on message delete', () => {
 			let counter = 0;
 			const outbox = new Outbox();
-			outbox.on('message_put', () => { counter += 1; });
-			outbox.on('message_pop', () => { counter -= 1; });
-			outbox.peek('msg1', true);
-			outbox.peek('msg2', true);
-			outbox.peek('msg3', true);
+			outbox.on('message_put', () => {
+				counter += 1;
+			});
+			outbox.on('message_pop', () => {
+				counter -= 1;
+			});
+			outbox.put(new Message({}, 'msg1'));
+			outbox.put(new Message({}, 'msg2'));
+			outbox.put(new Message({}, 'msg3'));
 			expect(counter).toBe(3);
 			outbox.pop('msg2');
 			expect(counter).toBe(2);
@@ -195,7 +204,5 @@ describe('Outbox', () => {
 			expect(counter).toBe(0);
 		});
 	});
-	describe('TTL', () => {
-
-	});
+	describe('TTL', () => {});
 });

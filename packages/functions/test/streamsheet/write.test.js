@@ -39,7 +39,7 @@ describe('write', () => {
 		const { machine, streamsheet } = setup();
 		const outbox = machine.outbox;
 		const sheet = streamsheet.sheet;
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		const outboxdata = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Kunde'));
 		expect(WRITE(sheet, outboxdata, createCellTerm('B1', sheet), Term.fromString('String'))).toBe('Kunde');
 		const message = outbox.peek('out1');
@@ -50,7 +50,7 @@ describe('write', () => {
 		const { machine, streamsheet } = setup();
 		const outbox = machine.outbox;
 		const sheet = streamsheet.sheet;
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		const outboxdata = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'KundenNr'));
 
 		expect(WRITE(sheet, outboxdata, Term.fromNumber(42), Term.fromString('Number'))).toBe('KundenNr');
@@ -72,7 +72,7 @@ describe('write', () => {
 		const { machine, streamsheet } = setup();
 		const outbox = machine.outbox;
 		const sheet = streamsheet.sheet;
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		// create some loop data
 		let outboxdata = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Loop'));
 		expect(WRITE(sheet, outboxdata, new NullTerm(), Term.fromString('Array'))).toBe('Loop');
@@ -149,7 +149,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outkey = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1'));
 			expect(WRITE(sheet, outkey, new NullTerm(), Term.fromString('Dictionary'))).toBe('out1');
 			const message = outbox.pop('out1');
@@ -159,7 +159,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outkey = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Orders'));
 			expect(WRITE(sheet, outkey, new NullTerm(), Term.fromString('Array'))).toBe('Orders');
 			const message = outbox.pop('out1');
@@ -169,7 +169,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outkey = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Orders'));
 			expect(WRITE(sheet, outkey, Term.fromString(''), Term.fromString('Dictionary'))).toBe('Orders');
 			const message = outbox.pop('out1');
@@ -179,7 +179,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outkey = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Kunde'));
 			expect(WRITE(sheet, outkey, Term.fromString('Max'), Term.fromString('String'))).toBe('Kunde');
 			const message = outbox.pop('out1');
@@ -189,7 +189,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outkey = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Index'));
 			expect(WRITE(sheet, outkey, Term.fromNumber(42), Term.fromString('Number'))).toBe('Index');
 			const message = outbox.pop('out1');
@@ -201,7 +201,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			// build a message:
 			const outboxdata = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Pos'));
 			const dictionary = createFuncTerm(sheet, 'dictionary', [createCellRangeTerm('A1:C2', sheet)]);
@@ -219,7 +219,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			// build a message:
 			const outboxdata = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Pos'));
 			const dictionary = createFuncTerm(sheet, 'array', [createCellRangeTerm('A1:A3', sheet)]);
@@ -234,7 +234,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			// build a message:
 			const outboxdata = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Pos'));
 			const dictionary = createFuncTerm(sheet, 'array', [createCellRangeTerm('A1:C3', sheet)]);
@@ -268,7 +268,7 @@ describe('write', () => {
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
 			streamsheet.inbox.put(new Message(Object.assign({}, MSG.SIMPLE.data)));
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outkey = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Pos'));
 			const inboxdata = createFuncTerm(sheet, 'inboxdata', createParamTerms('', '', 'Positionen'));
 			// data is provided by subtree...
@@ -287,7 +287,7 @@ describe('write', () => {
 			streamsheet.name = 'T1';
 			streamsheet.inbox.put(new Message(Object.assign({}, MSG.SIMPLE.data)));
 			streamsheet.inbox.put(new Message(Object.assign({}, MSG.SIMPLE.data)));
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outkey = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Messages'));
 			// data is provided by inboxjson...
 			const data = createFuncTerm(sheet, 'inboxjson', [Term.fromString('T1')]);
@@ -304,7 +304,7 @@ describe('write', () => {
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
 			streamsheet.inbox.put(new Message(Object.assign({}, MSG.SIMPLE.data)));
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			expect(createTerm('write(outboxdata("out1"),"Data replaced"))', sheet).value).toBe('out1');
 			let out1msg = outbox.pop('out1');
 			expect(out1msg.data).toBeDefined();
@@ -322,7 +322,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outkey = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Pos', '0', 'Kunde'));
 			expect(WRITE(sheet, outkey, Term.fromString('Max'), Term.fromString('String'))).toBe('Kunde');
 			// check
@@ -334,7 +334,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			// build a message:
 			expect(createTerm('write(outboxdata("out1","Pos"),,"dictionary")', sheet).value).toBe('Pos');
 			expect(createTerm('write(outboxdata("out1","Pos", "Key1"),"hello","String")', sheet).value).toBe('Key1');
@@ -351,7 +351,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outkey = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Orders'));
 			expect(WRITE(sheet, outkey, null, Term.fromString('array'))).toBe('Orders');
 			const message = outbox.pop('out1');
@@ -361,7 +361,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outkey = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Customer'));
 			expect(WRITE(sheet, outkey, null, Term.fromString('dictionary'))).toBe('Customer');
 			const message = outbox.pop('out1');
@@ -371,7 +371,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outkey = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Path'));
 			expect(WRITE(sheet, outkey, null, Term.fromString('String'))).toBe('Path');
 			const message = outbox.pop('out1');
@@ -381,7 +381,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outkey = createFuncTerm(sheet, 'outboxdata', createParamTerms('out1', 'Pos'));
 			expect(WRITE(sheet, outkey, null, Term.fromString('number'))).toBe('Pos');
 			const message = outbox.pop('out1');
@@ -394,7 +394,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			// build a message:
 			expect(createTerm('write(outboxdata("out1","Pos"),"hello","string")', sheet).value).toBe('Pos');
 			let message = outbox.pop('out1');
@@ -416,7 +416,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			// build a message:
 			expect(createTerm('write(outboxdata("out1","Pos"),"1234","number")', sheet).value).toBe('Pos');
 			let message = outbox.pop('out1');
@@ -441,7 +441,7 @@ describe('write', () => {
 			const { machine, streamsheet } = setup();
 			const outbox = machine.outbox;
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			// build a message:
 			expect(createTerm('write(outboxdata("out1","Pos"),true,"boolean")', sheet).value).toBe('Pos');
 			let message = outbox.pop('out1');
@@ -463,7 +463,7 @@ describe('write', () => {
 		it('should return an error if value cannot convert to specified type', () => {
 			const { streamsheet } = setup();
 			const sheet = streamsheet.sheet;
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			// build a message:
 			expect(createTerm('write(outboxdata("out1","Pos"),json(A1:B2),"array")', sheet).value).toBe(ERROR.TYPE_PARAM);
 			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:C2),"dictionary")', sheet).value).toBe(ERROR.TYPE_PARAM);

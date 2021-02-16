@@ -8,6 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { SheetParser } = require('../');
+const mockedFunctions = require('./_functions');
 
- // FOR TESTs we do not use persistent outbox
- process.env.OUTBOX_PERSISTENT = false;
+// WHY? if we mock here instead of mocking in corresponding test it works with above SheetParser require!!
+jest.mock('../src/streams/StreamMessagingClient');
+
+// FOR TESTs we do not use persistent outbox
+process.env.OUTBOX_PERSISTENT = false;
+
+// setup parser and its context...
+Object.assign(SheetParser.context.functions, mockedFunctions);

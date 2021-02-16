@@ -168,7 +168,7 @@ describe('Sheet', () => {
 					A2: { formula: '?(A2, A2+1, 1)' }
 				}
 			});
-			sheet.startProcessing();
+			sheet._startProcessing();
 			expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(1);
 			expect(sheet.cellAt(SheetIndex.create('A2')).value).toBe(2);
 		});
@@ -184,7 +184,7 @@ describe('Sheet', () => {
 			};
 			/* eslint-enable */
 			const sheet = new Sheet().load({ cells: sheetdef });
-			sheet.startProcessing();
+			sheet._startProcessing();
 			expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(1);
 			expect(sheet.cellAt(SheetIndex.create('A2')).value).toBe(1);
 			expect(sheet.cellAt(SheetIndex.create('A3')).value).toBe(1);
@@ -196,7 +196,7 @@ describe('Sheet', () => {
 			const sheet = new Sheet().load({
 				cells: { IF1: true, A1: { formula: '?(A1, A1+1, 1)' }, IF2: true, A2: { formula: '?(A2, A2+1, 1)' } }
 			});
-			sheet.startProcessing();
+			sheet._startProcessing();
 			expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
 			expect(sheet.cellAt(SheetIndex.create('A2')).value).toBe(2);
 		});
