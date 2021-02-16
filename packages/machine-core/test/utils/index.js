@@ -10,10 +10,26 @@
  ********************************************************************************/
 const sheet = require('./sheet');
 const functions = require('./functions');
+const monitor = require('./monitor');
+const symbols = require('./symbols');
 const validate = require('./validate');
 
+const expectValue = (value) => ({
+	toBeInRange: (min, max) => {
+		expect(value).toBeGreaterThanOrEqual(min);
+		expect(value).toBeLessThanOrEqual(max);
+	}
+});
+
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 module.exports = {
+	expectValue,
 	functions,
+	...monitor,
 	...sheet,
-	validate
+	...symbols,
+	validate,
+	wait
 };

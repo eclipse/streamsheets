@@ -254,7 +254,7 @@ describe('timestore', () => {
 			// after timetamp within period:
 			const msAfter = localNow() + 2 * 60 * 1000;
 			createCellAt('B2', { formula: `mstoserial(${msAfter})` }, sheet);
-			machine.step();
+			await machine.step();
 			expect(sheet.cellAt('A3').value).toBe(true);
 			expect(timestore().size).toBe(3);
 			expect(timestore().values('v1')).toEqual([2, 3, 6]);

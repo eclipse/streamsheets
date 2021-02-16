@@ -21,7 +21,7 @@ describe('goto', () => {
 			A4: { formula: 'A4+1' }
 		};/* eslint-enable */
 		const sheet = new StreamSheet().sheet.load({ cells });
-		sheet.startProcessing();
+		sheet.streamsheet.process();
 		expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(true);
 		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(1);
 		expect(sheet.cellAt(SheetIndex.create('C1')).value).toBe(1);
@@ -37,7 +37,7 @@ describe('goto', () => {
 		expect(sheet.cellAt(SheetIndex.create('E3')).value).toBe(true);
 		expect(sheet.cellAt(SheetIndex.create('A4')).value).toBe(1);
 		// next step:
-		sheet.startProcessing();
+		sheet.streamsheet.process();
 		expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(true);
 		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(1);
 		expect(sheet.cellAt(SheetIndex.create('C1')).value).toBe(2);
@@ -62,7 +62,7 @@ describe('goto', () => {
 			IF4: true, A4: { formula: 'A4+1' }
 		};/* eslint-enable */
 		const sheet = new StreamSheet().sheet.load({ cells });
-		sheet.startProcessing();
+		sheet.streamsheet.process();
 		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(2);
 		expect(sheet.cellAt(SheetIndex.create('C1')).value).toBe(true);
 		expect(sheet.cellAt(SheetIndex.create('IF2')).value).toBe(true);
@@ -73,7 +73,7 @@ describe('goto', () => {
 		expect(sheet.cellAt(SheetIndex.create('C3')).value).toBe(1);
 		expect(sheet.cellAt(SheetIndex.create('A4')).value).toBe(1);
 		// next step:
-		sheet.startProcessing();
+		sheet.streamsheet.process();
 		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(2);
 		expect(sheet.cellAt(SheetIndex.create('C1')).value).toBe(true);
 		expect(sheet.cellAt(SheetIndex.create('IF2')).value).toBe(true);

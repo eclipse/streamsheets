@@ -268,7 +268,7 @@ class MachineTaskStreamSheetMonitor {
 
 	getStreamSheetStepData() {
 		const { streamsheet } = this;
-		const currmsg = streamsheet.getMessage();
+		const currmsg = streamsheet.getCurrentMessage();
 		return {
 			id: streamsheet.id,
 			name: streamsheet.name,
@@ -277,22 +277,12 @@ class MachineTaskStreamSheetMonitor {
 			graphCells: streamsheet.sheet.graphCells.getDescriptors(),
 			drawings: streamsheet.sheet.getDrawings().toJSON(),
 			graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON(),
-			// currentMessage: {
-			// 	id: currmsg ? currmsg.id : null,
-			// 	isProcessed: streamsheet.isMessageProcessed(currmsg)
-			// },
-			// inbox: {
-			// 	totalSize: this.inboxAdapter.totalSize,
-			// 	messages: streamsheet.inbox.messages.slice(0)
-			// },
-			// jsonpath: streamsheet.getCurrentLoopPath(),
-			// loopIndex: streamsheet.getLoopIndexKey(),
 			inbox: {
 				totalSize: this.inboxAdapter.totalSize,
 				messages: streamsheet.inbox.messages.slice(0),
 				currentMessage: {
 					id: currmsg ? currmsg.id : null,
-					isProcessed: streamsheet.isMessageProcessed(currmsg)
+					isProcessed: streamsheet.isMessageProcessed()
 				}
 			},
 			loop: {

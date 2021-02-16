@@ -17,7 +17,7 @@ const ERROR = FunctionErrors.code;
 
 
 describe('table.get', () => {
-	it.skip(`should return ${ERROR.ARGS} error if called without any or too many arguments`, () => {
+	it(`should return ${ERROR.ARGS} error if called without any or too many arguments`, () => {
 		const sheet = new StreamSheet().sheet;
 		expect(createTerm('table.get()', sheet).value).toBe(ERROR.ARGS);
 		expect(createTerm('table.get(,,,)', sheet).value).toBe(ERROR.ARGS);

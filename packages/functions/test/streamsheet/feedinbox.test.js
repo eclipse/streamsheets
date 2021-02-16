@@ -34,7 +34,7 @@ describe('feedinbox', () => {
 	it('should push a new message with data to streamsheet T2', () => {
 		const sheet = setup();
 		const t2 = getStreamSheet('T2', sheet);
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		expect(t2.inbox.size).toBe(0);
 		expect(FEEDINBOX(sheet, Term.fromString('Data'), Term.fromString('T2'))).toBe(true);
 		expect(t2.inbox.size).toBe(1);
@@ -54,7 +54,7 @@ describe('feedinbox', () => {
 		const outmsg = new Message({ test: { value: 42 } });
 		t1.inbox.put(inmsg);
 		t1.machine.outbox.put(outmsg);
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		// feed inbox message
 		expect(createTerm('feedinbox(inbox("",""), "T2")', sheet).value).toBe(true);
 		// get feeded msg from inbox:
@@ -122,7 +122,7 @@ describe('feedinbox', () => {
 		const outmsg = new Message({ pressure: 42.3 });
 		t1.inbox.put(inmsg);
 		t1.machine.outbox.put(outmsg);
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		expect(t1.inbox.size).toBe(1);
 		expect(t1.machine.outbox.size).toBe(1);
 		expect(t2.inbox.size).toBe(0);
@@ -153,14 +153,14 @@ describe('feedinbox', () => {
 		const sheet = setup();
 		const t2 = getStreamSheet('T2', sheet);
 		sheet.machine.removeStreamSheet(t2);
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		expect(FEEDINBOX(sheet, Term.fromString('Data'), Term.fromString('T2'))).toBe(ERROR.NO_STREAMSHEET);
 	});
 	// is allowed now: DL-876
 	it('should be allowed to push a message to own sheet streamsheet', () => {
 		const sheet = setup();
 		const t1 = getStreamSheet('T1', sheet);
-		sheet.processor._isProcessing = true;
+		sheet._isProcessing = true;
 		expect(t1.inbox.size).toBe(0);
 		expect(FEEDINBOX(sheet, Term.fromString('Data'), Term.fromString('T1'))).toBe(true);
 		expect(t1.inbox.size).toBe(1);
@@ -182,7 +182,7 @@ describe('feedinbox', () => {
 		sheet.loadCells({ A1: { formula: 'feedinbox(INBOXDATA(,), "T2")' } });
 		expect(t1.inbox.size).toBe(1);
 		expect(t2.inbox.size).toBe(0);
-		machine.step();
+		await machine.step();
 		expect(t2.inbox.size).toBe(1);
 		let msg = t2.inbox.pop();
 		expect(msg.data.temperature).toBe(23);

@@ -10,7 +10,7 @@
  ********************************************************************************/
 const MESSAGES = require('../_data/messages.json');
 const { createCellAt, createTerm } = require('../utilities');
-const { Cell, Machine, Message, SheetIndex, StreamSheet, StreamSheetTrigger } = require('@cedalo/machine-core');
+const { Cell, Machine, Message, SheetIndex, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
@@ -184,7 +184,7 @@ describe('read', () => {
 			const t1 = new StreamSheet();
 			const sheet = t1.sheet;
 			machine.addStreamSheet(t1);
-			t1.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ALWAYS });
+			t1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 			t1.updateSettings({ loop: { path: '[Data]', enabled: true } });
 			t1.inbox.put(new Message([
 				{ Duration: 1000, States: { Ampel1: 'Red', Ampel2: 'Yellow' } },
@@ -225,7 +225,7 @@ describe('read', () => {
 			const t1 = new StreamSheet();
 			const sheet = t1.sheet;
 			machine.addStreamSheet(t1);
-			t1.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ALWAYS });
+			t1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 			t1.updateSettings({ loop: { path: '[Data]', enabled: true } });
 			t1.inbox.put(new Message({
 				Step1: { Duration: 1000, States: { Ampel1: 'Red', Ampel2: 'Yellow' } },
@@ -261,7 +261,7 @@ describe('read', () => {
 			expect(sheet.cellAt('B6').value).toBe('Red');
 		});
 		// DL-1528
-		it('should read next loop element in endless mode only if sheet returns', () => {
+		it('should read next loop element in endless mode only if sheet returns', async () => {
 			const machine = new Machine();
 			const t1 = new StreamSheet();
 			const sheet = t1.sheet.loadCells({
@@ -272,7 +272,7 @@ describe('read', () => {
 				A5: { formula: 'if(A4>2, return(setvalue(A4>2, 0, A4)), false)' }
 			});
 			machine.addStreamSheet(t1);
-			t1.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' });
+			t1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY, repeat: 'endless' });
 			t1.updateSettings({ loop: { path: '[Data]', enabled: true } });
 			t1.inbox.put(new Message({
 				Step1: { Duration: 1000, States: { Ampel1: 'Red', Ampel2: 'Yellow' } },
@@ -280,45 +280,45 @@ describe('read', () => {
 				Step3: { Duration: 1000, States: { Ampel1: 'RedYellow', Ampel2: 'Red' } },
 				Step4: { Duration: 0, States: { Ampel1: 'Green', Ampel2: 'Red' } }
 			}));
-			t1.step();
+			await machine.step();
 			expect(t1.getCurrentLoopPath()).toBe('[Data][Step1]');
 			expect(sheet.cellAt('A4').value).toBe(2);
 			expect(sheet.cellAt('A5').value).toBe(false);
 			expect(sheet.cellAt('B1').value).toBe(1000);
 			expect(sheet.cellAt('B2').value).toBe('Red');
 			expect(sheet.cellAt('B3').value).toBe('Yellow');
-			t1.step();
+			await machine.step();	// <-- returns
 			expect(t1.getCurrentLoopPath()).toBe('[Data][Step1]');
 			expect(sheet.cellAt('A4').value).toBe(0);
 			expect(sheet.cellAt('A5').value).toBe(true);
 			expect(sheet.cellAt('B1').value).toBe(1000);
 			expect(sheet.cellAt('B2').value).toBe('Red');
 			expect(sheet.cellAt('B3').value).toBe('Yellow');
-			t1.step();
+			await machine.step();
 			expect(t1.getCurrentLoopPath()).toBe('[Data][Step2]');
 			expect(sheet.cellAt('A4').value).toBe(1);
 			expect(sheet.cellAt('A5').value).toBe(false);
 			expect(sheet.cellAt('B1').value).toBe(1000);
 			expect(sheet.cellAt('B2').value).toBe('Red');
 			expect(sheet.cellAt('B3').value).toBe('Red');
-			t1.step();
-			t1.step();
+			await machine.step();
+			await machine.step();	// <-- returns
 			expect(t1.getCurrentLoopPath()).toBe('[Data][Step2]');
 			expect(sheet.cellAt('A4').value).toBe(0);
 			expect(sheet.cellAt('A5').value).toBe(true);
 			expect(sheet.cellAt('B1').value).toBe(1000);
 			expect(sheet.cellAt('B2').value).toBe('Red');
 			expect(sheet.cellAt('B3').value).toBe('Red');
-			t1.step();
+			await machine.step();
 			expect(t1.getCurrentLoopPath()).toBe('[Data][Step3]');
 			expect(sheet.cellAt('A4').value).toBe(1);
 			expect(sheet.cellAt('A5').value).toBe(false);
 			expect(sheet.cellAt('B1').value).toBe(1000);
 			expect(sheet.cellAt('B2').value).toBe('RedYellow');
 			expect(sheet.cellAt('B3').value).toBe('Red');
-			t1.step();
-			t1.step();
-			t1.step();
+			await machine.step();
+			await machine.step();
+			await machine.step();
 			expect(t1.getCurrentLoopPath()).toBe('[Data][Step4]');
 			expect(sheet.cellAt('A4').value).toBe(1);
 			expect(sheet.cellAt('A5').value).toBe(false);
@@ -327,30 +327,30 @@ describe('read', () => {
 			expect(sheet.cellAt('B3').value).toBe('Red');
 		});
 		// DL-578
-		it(`should set target cell to ${ERROR.NA} for processed message and corresponding param is set to true`, () => {
+		it(`should set target cell to ${ERROR.NA} for processed message and corresponding param is set to true`, async () => {
 			const sheet = setup({ streamsheetName: 'T1' });
+			const machine = sheet.machine;
 			const streamsheet = sheet.streamsheet;
-			// only for special triggers like MACHINE_START/STOP and RANDOM or TIMER...
-			streamsheet.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' });
+			streamsheet.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 			// by default we return the value:
 			const read = createTerm('read(inboxdata(,,"Kundenname", "Vorname"), C1, "String")', sheet);
 			const readNA = createTerm('read(inboxdata(,,"Kundenname", "Vorname"), C2, "String",,TRUE)', sheet);
 			sheet.setCellAt('A1', new Cell(null, read));
 			sheet.setCellAt('A2', new Cell(null, readNA));
-			streamsheet.step();
+			await machine.step();
 			expect(sheet.cellAt('A1').value).toBe('Vorname');
 			expect(sheet.cellAt('C1').value).toBe('Max');
 			expect(sheet.cellAt('A2').value).toBe('Vorname');
 			expect(sheet.cellAt('C2').value).toBe('Max');
-			streamsheet.step();
+			await machine.step();
 			expect(sheet.cellAt('A1').value).toBe('Vorname');
 			expect(sheet.cellAt('C1').value).toBe('Anton');
 			expect(sheet.cellAt('A2').value).toBe('Vorname');
 			expect(sheet.cellAt('C2').value).toBe('Anton');
 			// we are in endless mode, so we keep last message, but target value is not available...
-			streamsheet.step();
-			streamsheet.step();
-			streamsheet.step();
+			await machine.step();
+			await machine.step();
+			await machine.step();
 			expect(sheet.cellAt('A1').value).toBe('Vorname');
 			expect(sheet.cellAt('C1').value).toBe('Anton');
 			expect(sheet.cellAt('A2').value).toBe('Vorname');
@@ -360,8 +360,7 @@ describe('read', () => {
 		it(`should set target cell to ${ERROR.NA} if requested message data is not available`, () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			const streamsheet = sheet.streamsheet;
-			// only for special triggers like MACHINE_START/STOP and RANDOM or TIMER...
-			streamsheet.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' });
+			streamsheet.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 			sheet.streamsheet.updateSettings({
 				loop: {
 					enabled: false,
@@ -403,8 +402,7 @@ describe('read', () => {
 		it('should set target cell to last read value or default value if no message or message data is available', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			const streamsheet = sheet.streamsheet;
-			// only for special triggers like MACHINE_START/STOP and RANDOM or TIMER...
-			streamsheet.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' });
+			streamsheet.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 			sheet.streamsheet.updateSettings({
 				loop: {
 					enabled: false,
@@ -472,7 +470,7 @@ describe('read', () => {
 			const msg1 = new Message({ Kunde: { Vorname: 'Max', Nachname: 'Mustermann' } });
 			const msg2 = new Message({ Kunde: { Anrede: 'Herr', Vorname: 'Anton', Nachname: 'Punkt' } });
 			machine.addStreamSheet(t1);
-			t1.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' });
+			t1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 			const read = createTerm('read(inboxdata(, , "Kunde", "Anrede"), C1, "String")', sheet);
 			const readNA = createTerm('read(inboxdata(, , "Kunde", "Anrede"), C2, "String",,TRUE)', sheet);
 			sheet.setCellAt('A1', new Cell(null, read));
@@ -842,8 +840,7 @@ describe('read', () => {
 			const machine = new Machine();
 			const t1 = new StreamSheet({ name: 'T1' });
 			machine.addStreamSheet(t1);
-			// only for special triggers like MACHINE_START/STOP and RANDOM or TIMER...
-			t1.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' });
+			t1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 			const sheet = t1.sheet;
 			const read = createTerm('read(inboxdata(, ,"RawValue"),C1:D3,"Dictionary",false)', sheet);
 			sheet.setCellAt('A1', new Cell(null, read));
@@ -1005,8 +1002,7 @@ describe('read', () => {
 			const machine = new Machine();
 			const t1 = new StreamSheet({ name: 'T1' });
 			machine.addStreamSheet(t1);
-			// only for special triggers like MACHINE_START/STOP and RANDOM or TIMER...
-			t1.trigger = StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' });
+			t1.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 			const sheet = t1.sheet;
 			const read = createTerm('read(inboxdata(, ,"RawValue"),C1:D3,"Dictionary",false,true)', sheet);
 			sheet.setCellAt('A1', new Cell(null, read));
@@ -1376,7 +1372,7 @@ describe('read', () => {
 			it('should read a list of dictionaries and spread it to given range', () => {
 				const machine = new Machine();
 				// eslint-disable-next-line
-				const t1 = new StreamSheet({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+				const t1 = new StreamSheet({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 				const sheet = t1.sheet;
 				machine.addStreamSheet(t1);
 				machine.outbox.put(new Message([
@@ -1412,7 +1408,7 @@ describe('read', () => {
 			it('should read an object of objects from inbox and spread it to given range', () => {
 				const machine = new Machine();
 				// eslint-disable-next-line
-				const t1 = new StreamSheet({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+				const t1 = new StreamSheet({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 				const sheet = t1.sheet;
 				machine.addStreamSheet(t1);
 				t1.inbox.put(new Message({
@@ -1443,7 +1439,7 @@ describe('read', () => {
 			it('should read a list of objects from inbox and spread it to given range', () => {
 				const machine = new Machine();
 				// eslint-disable-next-line
-				const t1 = new StreamSheet({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+				const t1 = new StreamSheet({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 				const sheet = t1.sheet;
 				machine.addStreamSheet(t1);
 				t1.inbox.put(new Message([
@@ -1477,9 +1473,9 @@ describe('read', () => {
 				// create machine with 2 streamsheets:
 				const machine = new Machine();
 				// eslint-disable-next-line
-				const t1 = new StreamSheet({ name: 'T1', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+				const t1 = new StreamSheet({ name: 'T1', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 				// eslint-disable-next-line
-				const t2 = new StreamSheet({ name: 'T2', trigger: { type: StreamSheetTrigger.TYPE.ONCE, repeat: 'endless' } });
+				const t2 = new StreamSheet({ name: 'T2', trigger: { type: TriggerFactory.TYPE.ONCE, repeat: 'endless' } });
 				machine.removeAllStreamSheets();
 				machine.addStreamSheet(t1);
 				machine.addStreamSheet(t2);
@@ -1498,7 +1494,7 @@ describe('read', () => {
 			});
 		});
 		// DL-3953 & DL-4049
-		it('should always return last part of path even if no target range is specfied', async () => {
+		it('should CONTINUOUSLY return last part of path even if no target range is specfied', async () => {
 		// it('should return value if no target range is specfied', async () => {
 			const machine = new Machine();
 			const sheet = new StreamSheet().sheet;
@@ -1630,7 +1626,7 @@ describe('read', () => {
 			machine.addStreamSheet(streamsheet);
 			streamsheet.updateSettings({
 				loop: { path: '[Data][Positionen]', enabled: true },
-				trigger: StreamSheetTrigger.create({ type: StreamSheetTrigger.TYPE.ALWAYS })
+				trigger: { type: TriggerFactory.TYPE.CONTINUOUSLY }
 			});
 			streamsheet.inbox.put(msg);
 			streamsheet.step();

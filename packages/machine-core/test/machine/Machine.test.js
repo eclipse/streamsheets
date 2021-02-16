@@ -13,7 +13,7 @@ const {
 	Machine,
 	StreamSheet,
 	SheetParser,
-	StreamSheetTrigger
+	TriggerFactory
 } = require('../..');
 
 const wait = ms => new Promise((resolve) => setTimeout(resolve, ms));
@@ -23,7 +23,7 @@ const setupMachine = async () => {
 	const streamsheet = new StreamSheet();
 	await machine.load({ id: '123', name: 'test', state: State.RUNNING });
 	machine.removeAllStreamSheets();
-	streamsheet.load({ type: StreamSheetTrigger.TYPE.TIMER, interval: 3000 });
+	streamsheet.load({ type: TriggerFactory.TYPE.TIMER, interval: 3000 });
 	machine.addStreamSheet(streamsheet);
 	return { machine, streamsheet };
 };
@@ -122,7 +122,7 @@ describe('Machine', () => {
 
 	it('should not reset step count on start if machine was paused', async () => {
 		const machine = new Machine();
-		machine.cycletime = 1000;
+		machine.cycletime = 50;
 		expect(machine.stats.steps).toBe(0);
 		await machine.start();
 		await machine.pause();
@@ -132,7 +132,7 @@ describe('Machine', () => {
 		await machine.step();
 		expect(machine.stats.steps).toBe(4);
 		await machine.start();
-		await wait(2000);
+		await wait(120);
 		await machine.pause();
 		expect(machine.stats.steps).toBeGreaterThanOrEqual(6);
 		await machine.stop();

@@ -44,7 +44,7 @@ describe('produce', () => {
 	describe('produce message from outbox', () => {
 		it('should publish outbox message', () => {
 			const sheet = setup();
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outbox = sheet.streamsheet.machine.outbox;
 			outbox.put(new Message({ topic: 'test/topic', message: Object.assign({}, MSG.SIMPLE.data) }, 'out1'));
 			// publish this message...
@@ -57,7 +57,7 @@ describe('produce', () => {
 		});
 		it('should leave published message in outbox', () => {
 			const sheet = setup();
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outbox = sheet.streamsheet.machine.outbox;
 			outbox.put(new Message({ topic: 'test/topic', message: Object.assign({}, MSG.SIMPLE.data) }, 'out1'));
 			expect(outbox.size).toBe(1);
@@ -75,7 +75,7 @@ describe('produce', () => {
 	describe('produce a message from a json string', () => {
 		it('should publish simple string', () => {
 			const sheet = setup();
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const json = Term.fromString('{"message":"Message","topic":"test/topic"}');
 			expect(PRODUCE(sheet, producerRef(sheet), json)).toBe(true);
 			const message = published['test/topic'];
@@ -84,13 +84,13 @@ describe('produce', () => {
 		});
 		it('should require a valid JSON', () => {
 			const sheet = setup();
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const json = Term.fromString('{"message":"Message","topic":"test/topic"');
 			expect(PRODUCE(sheet, producerRef(sheet), json)).toBe(ERROR.INVALID_PARAM);
 		});
 		it('should require a message field', () => {
 			const sheet = setup();
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const json = Term.fromString('{"noMessageField":"Message","topic":"test/topic"');
 			expect(PRODUCE(sheet, producerRef(sheet), json)).toBe(ERROR.INVALID_PARAM);
 		});
@@ -98,7 +98,7 @@ describe('produce', () => {
 	describe.skip('publish json created by dictionary, array or subtree function', () => {
 		it('should publish data specified by dictionary function', () => {
 			const sheet = setup().load({ cells: SHEETS.SIMPLE });
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const topic = Term.fromString('test/topic');
 			// publish data defined by dictionary:
 			const data = createFuncTerm(sheet, 'dictionary', [createCellRangeTerm('A1:C2', sheet)]);
@@ -112,7 +112,7 @@ describe('produce', () => {
 		});
 		it('should publish data specified by array function', () => {
 			const sheet = setup().load({ cells: SHEETS.SIMPLE });
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const topic = Term.fromString('test/topic');
 			// publish data defined by dictionary:
 			const data = createFuncTerm(sheet, 'array', [createCellRangeTerm('B1:C3', sheet)]);
@@ -125,7 +125,7 @@ describe('produce', () => {
 		it('should publish data specified by subtree function', () => {
 			const sheet = setup();
 			sheet.streamsheet.inbox.put(new Message(Object.assign({}, MSG.SIMPLE.data)));
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const topic = Term.fromString('test/topic');
 			// publish data defined by dictionary:
 			const inboxdata = createFuncTerm(sheet, 'inboxdata', createParamTerms('', '', 'Kundenname'));
@@ -141,25 +141,25 @@ describe('produce', () => {
 		it(`should return with ${ERROR.ARGS} if number of parameters are wrong`, () => {
 			expect(PRODUCE()).toBe(ERROR.ARGS);
 			const sheet = setup();
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			expect(PRODUCE(sheet)).toBe(ERROR.ARGS);
 		});
 		it(`should return with ${ERROR.NO_MACHINE} if machine could not be found`, () => {
 			const sheet = setup();
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const msgId = createTerm('OUTBOX("out1")', sheet);
 			sheet.streamsheet.machine = undefined;
 			expect(PRODUCE(sheet, producerRef(sheet), msgId)).toBe(ERROR.NO_MACHINE);
 		});
 		it(`should return with ${ERROR.INVALID_PARAM} if message could not be found`, () => {
 			const sheet = setup();
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const msgId = createTerm('OUTBOX("out1")', sheet);
 			expect(PRODUCE(sheet, producerRef(sheet), msgId)).toBe(ERROR.INVALID_PARAM);
 		});
 		it(`should return with ${ERROR.NO_PRODUCER} if stream could not be resolved`, () => {
 			const sheet = setup();
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const outbox = sheet.streamsheet.machine.outbox;
 			const msgId = createTerm('OUTBOX("out1")', sheet);
 			const streamId = createTerm(`|Unknown`, sheet);
@@ -168,7 +168,7 @@ describe('produce', () => {
 		});
 		it(`should return with ${ERROR.ARGS} if tried to publish null or undefined`, () => {
 			const sheet = setup();
-			sheet.processor._isProcessing = true;
+			sheet._isProcessing = true;
 			const topic = Term.fromString('test/topic');
 			expect(PRODUCE(sheet, producerRef(sheet), Term.fromString(null), topic)).toBe(ERROR.ARGS);
 			expect(published['test/topic']).toBeUndefined();

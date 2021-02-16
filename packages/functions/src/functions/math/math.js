@@ -10,6 +10,7 @@
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { State } = require('@cedalo/machine-core');
 const { runFunction, values: { isEven, roundNumber } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
@@ -173,9 +174,11 @@ const randbetween = (sheet, ...terms) =>
 				context.lastValue = null;
 				// have to reset last value on machine start
 				if (sheet.machine) {
-					context.resetLastValue = () => { context.lastValue = null; };
-					context.addDisposeListener((ctxt) => sheet.machine.off('willStart', ctxt.resetLastValue));
-					sheet.machine.on('willStart', context.resetLastValue);
+					context.resetLastValue = (update, state) => {
+						if (update === 'state' && state.new === State.RUNNING) context.lastValue = null;
+					};
+					context.addDisposeListener((ctxt) => sheet.machine.off('update', ctxt.resetLastValue));
+					sheet.machine.on('update', context.resetLastValue);
 				}
 			}
 			if (context.lastValue == null) {

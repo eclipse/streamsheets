@@ -15,11 +15,12 @@ const {	AsyncRequest, runFunction, terms: { getCellRangeFromTerm } } = require('
 const ERROR = FunctionErrors.code;
 
 const pause = (sheet) => {
-	if (!sheet.isPaused) sheet.pauseProcessing();
+	if (!sheet.isPaused) sheet.streamsheet.pauseProcessing();
 };
 const resume = (sheet) => {
-	if (sheet.isPaused) sheet.resumeProcessing();
+	if (sheet.isPaused) sheet.streamsheet.resumeProcessing();
 };
+const cancel = (sheet) => () => sheet.streamsheet.stopProcessing();
 
 const addRequestId = (value, allIDs) => {
 	const reqId = convert.toString(value);
@@ -50,7 +51,7 @@ const getRequestIDs = (sheet, terms) => {
 const initContext = (sheet, context) => {
 	if (!context._awaitInited) {
 		context._awaitInited = true;
-		context.addDisposeListener(() => resume(sheet));
+		context.addDisposeListener(cancel(sheet));
 	}
 };
 
