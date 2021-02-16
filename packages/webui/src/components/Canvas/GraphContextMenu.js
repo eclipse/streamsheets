@@ -27,12 +27,12 @@ import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
 import { IconCopy, IconCut } from '../icons';
 import DeleteIcon from '@material-ui/icons/Delete';
-
+import SettingsIcon from '@material-ui/icons/Settings';
 
 const styles = {
 	menuItem: {
-		transition: 'none',
-	},
+		transition: 'none'
+	}
 };
 
 class GraphContextComponent extends Component {
@@ -41,20 +41,17 @@ class GraphContextComponent extends Component {
 		this.state = {
 			context: 'false',
 			top: '0px',
-			left: '0px',
+			left: '0px'
 		};
 	}
 
 	componentDidMount() {
 		document.addEventListener('click', this.handleClick);
-		JSG.NotificationCenter.getInstance().register(
-			this,
-			JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION, 'onContextMenu',
-		);
+		JSG.NotificationCenter.getInstance().register(this, JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION, 'onContextMenu');
 
 		/* eslint-disable react/no-did-mount-set-state */
 		this.setState({
-			context: false,
+			context: false
 		});
 
 		/* eslint-enable react/no-did-mount-set-state */
@@ -62,10 +59,7 @@ class GraphContextComponent extends Component {
 
 	componentWillUnmount() {
 		document.removeEventListener('click', this.handleClick);
-		JSG.NotificationCenter.getInstance().unregister(
-			this,
-			JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION,
-		);
+		JSG.NotificationCenter.getInstance().unregister(this, JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION);
 	}
 
 	onContextMenu(data) {
@@ -81,20 +75,29 @@ class GraphContextComponent extends Component {
 		this.setState({
 			context: 'true',
 			left: `${left}px`,
-			top: `${top}px`,
+			top: `${top}px`
 		});
 	}
 
 	onCopy = () => {
-		graphManager.getGraphEditor().getInteractionHandler().copySelection();
+		graphManager
+			.getGraphEditor()
+			.getInteractionHandler()
+			.copySelection();
 	};
 
 	onCut = () => {
-		graphManager.getGraphEditor().getInteractionHandler().cutSelection();
+		graphManager
+			.getGraphEditor()
+			.getInteractionHandler()
+			.cutSelection();
 	};
 
 	onDelete = () => {
-		graphManager.getGraphEditor().getInteractionHandler().deleteSelection();
+		graphManager
+			.getGraphEditor()
+			.getInteractionHandler()
+			.deleteSelection();
 	};
 
 	onChangeOrder = (order) => {
@@ -155,7 +158,7 @@ class GraphContextComponent extends Component {
 
 		if (wasOutside && context) {
 			this.setState({
-				context: false,
+				context: false
 			});
 		}
 	};
@@ -164,8 +167,8 @@ class GraphContextComponent extends Component {
 		if (graphManager === undefined || graphManager.getGraphViewer() === undefined) {
 			return <div />;
 		}
-		// const selection = graphManager.getGraphViewer().getSelection();
-		// const item = selection.length ? selection[0].getModel() : undefined;
+		const selection = graphManager.getGraphViewer().getSelection();
+		const item = selection.length ? selection[0].getModel() : undefined;
 		const showEdit = this.canEditPoints();
 
 		return (
@@ -179,99 +182,95 @@ class GraphContextComponent extends Component {
 					position: 'absolute',
 					left: [this.state.left],
 					top: [this.state.top],
-					visibility: [this.state.context ? 'visible' : 'hidden'],
+					visibility: [this.state.context ? 'visible' : 'hidden']
 				}}
 			>
 				<MenuList>
-					<MenuItem
-						onClick={this.onShowChartProperties}
-						dense
-					>
+					<MenuItem onClick={this.onShowChartProperties} dense>
+						{item instanceof JSG.SheetPlotNode
+							? [
+									<ListItemIcon>
+										<SvgIcon style={styles.menuItem}>
+											<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
+										</SvgIcon>
+									</ListItemIcon>,
+									<ListItemText
+										primary={<FormattedMessage id="EditChart" defaultMessage="Edit Chart" />}
+									/>
+							  ]
+							: [
+									<ListItemIcon>
+										<SettingsIcon style={styles.menuItem} />
+									</ListItemIcon>,
+									<ListItemText
+										primary={<FormattedMessage id="EditGraphItem" defaultMessage="Edit Object" />}
+									/>
+							  ]}
+					</MenuItem>
+					<Divider />
+					<MenuItem onClick={this.onCut} dense>
 						<ListItemIcon>
-							<SvgIcon style={styles.menuItem} >
-								<path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
+							<IconCut style={styles.menuItem} />
+						</ListItemIcon>
+						<ListItemText primary={<FormattedMessage id="Cut" defaultMessage="Cut" />} />
+					</MenuItem>
+					<MenuItem onClick={this.onCopy} dense>
+						<ListItemIcon>
+							<IconCopy style={styles.menuItem} />
+						</ListItemIcon>
+						<ListItemText primary={<FormattedMessage id="Copy" defaultMessage="Copy" />} />
+					</MenuItem>
+					<MenuItem onClick={this.onDelete} dense>
+						<ListItemIcon>
+							<DeleteIcon style={styles.menuItem} />
+						</ListItemIcon>
+						<ListItemText primary={<FormattedMessage id="Delete" defaultMessage="Delete" />} />
+					</MenuItem>
+					<Divider />
+					<MenuItem onClick={() => this.onChangeOrder(JSG.ChangeItemOrderCommand.Action.TOTOP)} dense>
+						<ListItemIcon>
+							<SvgIcon style={styles.menuItem}>
+								<path d="M2,2H11V6H9V4H4V9H6V11H2V2M22,13V22H13V18H15V20H20V15H18V13H22M8,8H16V16H8V8Z" />
 							</SvgIcon>
 						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="EditChart" defaultMessage="Edit Chart" />} />
+						<ListItemText primary={<FormattedMessage id="MoveToTop" defaultMessage="Move to Top" />} />
 					</MenuItem>
-					<Divider/>
+					<MenuItem onClick={() => this.onChangeOrder(JSG.ChangeItemOrderCommand.Action.UP)} dense>
+						<ListItemIcon>
+							<SvgIcon style={styles.menuItem}>
+								<path d="M2,2H16V16H2V2M22,8V22H8V18H10V20H20V10H18V8H22Z" />
+							</SvgIcon>
+						</ListItemIcon>
+						<ListItemText primary={<FormattedMessage id="MoveUp" defaultMessage="Move up" />} />
+					</MenuItem>
+					<MenuItem onClick={() => this.onChangeOrder(JSG.ChangeItemOrderCommand.Action.DOWN)} dense>
+						<ListItemIcon>
+							<SvgIcon style={styles.menuItem}>
+								<path d="M2,2H16V16H2V2M22,8V22H8V18H18V8H22M4,4V14H14V4H4Z" />
+							</SvgIcon>
+						</ListItemIcon>
+						<ListItemText primary={<FormattedMessage id="MoveDown" defaultMessage="Move down" />} />
+					</MenuItem>
+					<MenuItem onClick={() => this.onChangeOrder(JSG.ChangeItemOrderCommand.Action.TOBOTTOM)} dense>
+						<ListItemIcon>
+							<SvgIcon style={styles.menuItem}>
+								<path d="M2,2H11V11H2V2M9,4H4V9H9V4M22,13V22H13V13H22M15,20H20V15H15V20M16,8V11H13V8H16M11,16H8V13H11V16Z" />
+							</SvgIcon>
+						</ListItemIcon>
+						<ListItemText
+							primary={<FormattedMessage id="MoveToBottom" defaultMessage="Move to Bottom" />}
+						/>
+					</MenuItem>
+					{showEdit ? <Divider /> : null}
+					{showEdit ? (
+						<MenuItem onClick={() => this.onEditPoints()} dense>
+							<ListItemIcon>
+								<TimelineIcon style={styles.menuItem} />
+							</ListItemIcon>
+							<ListItemText primary={<FormattedMessage id="EditPoints" defaultMessage="Edit Points" />} />
+						</MenuItem>
+					) : null}
 				</MenuList>
-				<MenuItem onClick={this.onCut} dense>
-					<ListItemIcon>
-						<IconCut style={styles.menuItem} />
-					</ListItemIcon>
-					<ListItemText primary={<FormattedMessage id="Cut" defaultMessage="Cut" />} />
-				</MenuItem>
-				<MenuItem onClick={this.onCopy} dense>
-					<ListItemIcon>
-						<IconCopy style={styles.menuItem} />
-					</ListItemIcon>
-					<ListItemText primary={<FormattedMessage id="Copy" defaultMessage="Copy" />} />
-				</MenuItem>
-				<MenuItem onClick={this.onDelete} dense>
-					<ListItemIcon>
-						<DeleteIcon style={styles.menuItem} />
-					</ListItemIcon>
-					<ListItemText
-						primary={<FormattedMessage id="Delete" defaultMessage="Delete" />}
-					/>
-				</MenuItem>
-				<Divider/>
-				<MenuItem
-					onClick={() => this.onChangeOrder(JSG.ChangeItemOrderCommand.Action.TOTOP)}
-					dense
-				>
-					<ListItemIcon>
-						<SvgIcon style={styles.menuItem} >
-							<path d="M2,2H11V6H9V4H4V9H6V11H2V2M22,13V22H13V18H15V20H20V15H18V13H22M8,8H16V16H8V8Z" />
-						</SvgIcon>
-					</ListItemIcon>
-					<ListItemText primary={<FormattedMessage id="MoveToTop" defaultMessage="Move to Top" />} />
-				</MenuItem>
-				<MenuItem
-					onClick={() => this.onChangeOrder(JSG.ChangeItemOrderCommand.Action.UP)}
-					dense
-				>
-					<ListItemIcon>
-						<SvgIcon style={styles.menuItem} >
-							<path d="M2,2H16V16H2V2M22,8V22H8V18H10V20H20V10H18V8H22Z" />
-						</SvgIcon>
-					</ListItemIcon>
-					<ListItemText primary={<FormattedMessage id="MoveUp" defaultMessage="Move up" />} />
-				</MenuItem>
-				<MenuItem
-					onClick={() => this.onChangeOrder(JSG.ChangeItemOrderCommand.Action.DOWN)}
-					dense
-				>
-					<ListItemIcon>
-						<SvgIcon style={styles.menuItem} >
-							<path d="M2,2H16V16H2V2M22,8V22H8V18H18V8H22M4,4V14H14V4H4Z" />
-						</SvgIcon>
-					</ListItemIcon>
-					<ListItemText primary={<FormattedMessage id="MoveDown" defaultMessage="Move down" />} />
-				</MenuItem>
-				<MenuItem
-					onClick={() => this.onChangeOrder(JSG.ChangeItemOrderCommand.Action.TOBOTTOM)}
-					dense
-				>
-					<ListItemIcon>
-						<SvgIcon style={styles.menuItem} >
-							<path d="M2,2H11V11H2V2M9,4H4V9H9V4M22,13V22H13V13H22M15,20H20V15H15V20M16,8V11H13V8H16M11,16H8V13H11V16Z" />
-						</SvgIcon>
-					</ListItemIcon>
-					<ListItemText primary={<FormattedMessage id="MoveToBottom" defaultMessage="Move to Bottom" />} />
-				</MenuItem>
-				{showEdit ? <Divider/> : null}
-				{showEdit ? (
-				<MenuItem
-					onClick={() => this.onEditPoints()}
-					dense
-				>
-					<ListItemIcon>
-						<TimelineIcon style={styles.menuItem} />
-					</ListItemIcon>
-					<ListItemText primary={<FormattedMessage id="EditPoints" defaultMessage="Edit Points" />} />
-				</MenuItem>) : null}
 			</Paper>
 		);
 	}

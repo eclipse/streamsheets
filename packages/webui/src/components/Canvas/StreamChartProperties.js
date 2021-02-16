@@ -165,7 +165,7 @@ export class StreamChartProperties extends Component {
 
 	escFunction(event) {
 		if (event.keyCode === 27 && event.target && event.target.contentEditable !== 'true') {
-			this.props.setAppState({ showStreamChartProperties: false });
+			// this.props.setAppState({ showStreamChartProperties: false });
 		}
 	}
 
@@ -2258,10 +2258,8 @@ export class StreamChartProperties extends Component {
 								}
 								select
 								fullWidth
-								id="axis-type"
 								value={data.type}
 								onChange={this.handleAxisTypeChange}
-								input={<Input name="axis-type" id="axis-type" />}
 							>
 								{selection.element === 'xAxis' ? (
 									<MenuItem value="category" key={0}>
@@ -2364,6 +2362,7 @@ export class StreamChartProperties extends Component {
 								}
 							}}
 						/>
+                        {data.type === 'time' ? (
 						<TextField
 							variant="outlined"
 							size="small"
@@ -2387,86 +2386,82 @@ export class StreamChartProperties extends Component {
 									component: CellRangeComponent,
 									inputEditorType: 'string',
 									inputEditorOptions: [
-										'year',
-										'quarter',
-										'month',
-										'week',
-										'day',
-										'hour',
-										'minute',
-										'second',
-										'millisecond'
+										{value: 'year', label: 'year'},
+										{value: 'quarter', label: 'quarter'},
+										{value: 'month', label: 'month'},
+										{value: 'week', label: 'week'},
+										{value: 'day', label: 'day'},
+										{value: 'hour', label: 'hour'},
+										{value: 'minute', label: 'minute'},
+										{value: 'second', label: 'second'},
+										{value: 'millisecond', label: 'millisecond'},
 									],
 									sheetView,
 									value: {},
 									range: this.getFormulaParameter(data.formula, 3)
 								}
 							}}
-						/>
-						<FormControl>
-							<TextField
-								variant="outlined"
-								size="small"
-								label={
-									<FormattedMessage
-										id="StreamChartProperties.AxisPosition"
-										defaultMessage="Position"
-									/>
-								}
-								select
-								margin="normal"
-								fullWidth
-								id="axis-position"
-								value={data.align}
-								onChange={this.handleAxisAlignChange}
-							>
-								{this.getAxisAlignOptions(selection)}
-							</TextField>
-						</FormControl>
-						<FormControl>
-							<TextField
-								variant="outlined"
-								fullWidth
-								size="small"
-								id="number"
-								label={
-									<FormattedMessage
-										id="StreamChartProperties.AxisLabelRotation"
-										defaultMessage="Rotate Labels"
-									/>
-								}
-								inputProps={{
-									min: -90,
-									max: 90,
-									step: 5
-								}}
-								InputProps={{
-									endAdornment: (
-										<InputAdornment position="end">
-											<FormattedMessage
-												id="StreamChartProperties.Degrees"
-												defaultMessage="Degrees"
-											/>
-										</InputAdornment>
-									)
-								}}
-								value={data.format.fontRotation === undefined ? 0 : data.format.fontRotation}
-								error={data.format.fontRotation > 90 || data.format.fontRotation < -90}
-								helperText={
-									data.format.fontRotation > 90 || data.format.fontRotation < -90 ? (
-										<FormattedMessage
-											id="StreamChartProperties.InvalidAngleAxis"
-											defaultMessage="Angle must be between -90 and 90 degrees!"
-										/>
-									) : (
-										''
-									)
-								}
-								onChange={(event) => this.handleAxisLabelRotationChange(event)}
-								type="number"
-								margin="normal"
-							/>
-						</FormControl>
+						/>) : null}
+                        <TextField
+                            variant="outlined"
+                            size="small"
+                            label={
+                                <FormattedMessage
+                                    id="StreamChartProperties.AxisPosition"
+                                    defaultMessage="Position"
+                                />
+                            }
+                            select
+                            margin="normal"
+                            fullWidth
+                            id="axis-position"
+                            value={data.align}
+                            onChange={this.handleAxisAlignChange}
+                        >
+                            {this.getAxisAlignOptions(selection)}
+                        </TextField>
+                        <TextField
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            id="number"
+                            label={
+                                <FormattedMessage
+                                    id="StreamChartProperties.AxisLabelRotation"
+                                    defaultMessage="Rotate Labels"
+                                />
+                            }
+                            inputProps={{
+                                min: -90,
+                                max: 90,
+                                step: 5
+                            }}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <FormattedMessage
+                                            id="StreamChartProperties.Degrees"
+                                            defaultMessage="Degrees"
+                                        />
+                                    </InputAdornment>
+                                )
+                            }}
+                            value={data.format.fontRotation === undefined ? 0 : data.format.fontRotation}
+                            error={data.format.fontRotation > 90 || data.format.fontRotation < -90}
+                            helperText={
+                                data.format.fontRotation > 90 || data.format.fontRotation < -90 ? (
+                                    <FormattedMessage
+                                        id="StreamChartProperties.InvalidAngleAxis"
+                                        defaultMessage="Angle must be between -90 and 90 degrees!"
+                                    />
+                                ) : (
+                                    ''
+                                )
+                            }
+                            onChange={(event) => this.handleAxisLabelRotationChange(event)}
+                            type="number"
+                            margin="normal"
+                        />
 						<FormControl>
 							<FormGroup>
 								<FormLabel

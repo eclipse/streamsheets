@@ -795,6 +795,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 				}
 			}
 			if (node) {
+				console.log(`setgraphitems 1 ${JSON.stringify(drawItem)}`);
 
 				if (node.lastDrawItem && JSON.stringify(drawItem) === JSON.stringify(node.lastDrawItem)) {
 					return;
@@ -833,6 +834,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 				}
 				attr = node.getItemAttributes().getAttribute('sheetformula');
 				if (attr && attr.getExpression()) {
+					console.log(`setgraphitems 2 ${attr.getExpression().getFormula()}`);
 					if (attr.getExpression().getFormula() !== drawItem.formula) {
 						return;
 					}
@@ -1716,6 +1718,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 				}
 
 				if (formula && (oldFormula !== formula || item._noFormulaUpdate || undo)) {
+					console.log(`update func ${formula}`);
+
 					formulas.push({
 						item,
 						formula
@@ -1775,5 +1779,19 @@ module.exports = class StreamSheet extends WorksheetNode {
 		});
 
 		return cellDescriptors;
+	}
+
+	replaceTerm(formula, expression, index) {
+		const newExpression = this.textToExpression(String(formula));
+		const term = expression.getTerm();
+
+		if (term && newExpression) {
+			for (let i = term.params.length; i < index; i += 1) {
+				term.params[i] = new NullTerm();
+			}
+
+			term.params[index] = newExpression.term;
+			expression.correctFormula(this, true);
+		}
 	}
 };

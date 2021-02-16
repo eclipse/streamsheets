@@ -3388,7 +3388,7 @@ class GraphItem extends Model {
 		return [
 			{
 				key: 'geometry',
-				label: 'geometry',
+				label: 'GraphItemProperties.Geometry',
 				name: '',
 			}
 		]

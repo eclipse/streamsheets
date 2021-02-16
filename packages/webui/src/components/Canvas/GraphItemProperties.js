@@ -187,7 +187,7 @@ export class GraphItemProperties extends Component {
 
 	escFunction(event) {
 		if (event.keyCode === 27 && event.target && event.target.contentEditable !== 'true') {
-			this.props.setAppState({ showStreamChartProperties: false });
+			// this.props.setAppState({ showStreamChartProperties: false });
 		}
 	}
 
