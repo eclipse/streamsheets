@@ -76,7 +76,6 @@ export class GeometryProperties extends Component {
 		item.setAttributeAtPath(path, new JSG.Expression(0, formula));
 		item._noFormulaUpdate = true;
 		graphManager.getGraphViewer().getInteractionHandler().execute(cmd);
-		console.log(`update ${formula}`);
 		const attr = item.getItemAttributes().getAttribute('sheetformula');
 		if (attr && attr.getExpression()) {
 			console.log(`update 2 ${attr.getExpression().getFormula()}`);

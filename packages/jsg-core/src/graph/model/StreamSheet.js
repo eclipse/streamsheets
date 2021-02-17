@@ -795,8 +795,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 				}
 			}
 			if (node) {
-				console.log(`setgraphitems 1 ${JSON.stringify(drawItem)}`);
-
 				if (node.lastDrawItem && JSON.stringify(drawItem) === JSON.stringify(node.lastDrawItem)) {
 					return;
 				}
@@ -834,7 +832,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 				}
 				attr = node.getItemAttributes().getAttribute('sheetformula');
 				if (attr && attr.getExpression()) {
-					console.log(`setgraphitems 2 ${attr.getExpression().getFormula()}`);
 					if (attr.getExpression().getFormula() !== drawItem.formula) {
 						return;
 					}
@@ -1718,8 +1715,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 				}
 
 				if (formula && (oldFormula !== formula || item._noFormulaUpdate || undo)) {
-					console.log(`update func ${formula}`);
-
 					formulas.push({
 						item,
 						formula
