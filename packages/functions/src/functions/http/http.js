@@ -8,34 +8,110 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { convert } = require('@cedalo/commons');
+const { convert, jsonpath } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { getInstance } = require('@cedalo/http-client');
-const { SheetRange } = require('@cedalo/machine-core');
+const { isType, ErrorTerm, Message, ObjectTerm, SheetRange } = require('@cedalo/machine-core');
+const { Term } = require('@cedalo/parser');
 const { addHTTPResponseToInbox, addHTTPResponseToCell, addHTTPResponseToRange } = require('./utils');
-const { AsyncRequest, runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../utils');
+const {
+	arrayspread: { toRange },
+	jsonflatten: { toArray2D },
+	sheet: sheetutils,
+	terms: { getCellRangeFromTerm, hasValue, isInboxTerm, isOutboxTerm },
+	AsyncRequest,
+	runFunction
+} = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
+const DATA = ['data'];
+const ERRORDATA = ['code', 'message'];
+const METADATA = ['config', 'headers', 'status', 'statusText'];
+const CONFIGDATA = ['headers', 'method', 'url'];
+const addValue = (fromObj) => (toObj, key) => {
+	toObj[key] = fromObj[key];
+	return toObj;
+};
+const extract = (keys, fromObj) => keys.reduce(addValue(fromObj), {});
+
 // const asString = (value) => value ? convert.toString(value) : '';
 const asBoolean = (value) => value ? convert.toBoolean(value) : false;
+// TODO: move to function utils:
+const termFromValue = (value) => (isType.object(value) ? new ObjectTerm(value) : Term.fromValue(value));
 
-// TODO: should be possible to send result to
-//		inbox => via INBOX()
-//		cell => cell reference and cell has response-JSON value
-//		cellrange => cellrange reference, simply spread response-JSON to cell range -> nested?
-const createDefaultCallback = (parse = false, target) => (context, response, error) => {
-	const term = context.term;
 
-	// add to inbox
-	const inbox = context.term.scope.streamsheet.inbox;
-	addHTTPResponseToInbox(response, context, error, parse);
-
-	const err = error || response.error;
-	if (term && !term.isDisposed) {
-		term.cellValue = err ? ERROR.RESPONSE : undefined;
+const createMessage = (resobj, id, requestId) => {
+	const { data, metadata } = resobj;
+	const message = new Message(data, id);
+	// add metadata:
+	Object.assign(message.metadata, metadata);
+	message.metadata.type = 'response';
+	message.metadata.requestId = requestId;
+	return message;
+};
+const addToMessageBox = (box, resobj, msgId) => {
+	if (box) {
+		const message = createMessage(resobj, msgId);
+		if (msgId && box.peek(msgId)) box.replaceMessage(message);
+		else box.put(message);
 	}
-	return err ? AsyncRequest.STATE.REJECTED : undefined;
+};
+// TODO: general? setValueCell() add flag to keep formula? or function? or...?
+const addToCell = (sheet, index, resobj) => {
+	if (resobj == null) sheet.setCellAt(index, undefined);
+	else {
+		const cell = sheet.cellAt(index, true);
+		cell.term = termFromValue(resobj);
+	}
+};
+// TODO: general? spreadValueToCellRange
+const addToCellRange = (range, resobj) => {
+	if (range.width === 1 && range.height === 1) {
+		addToCell(range.sheet, range.start, resobj);
+	} else {
+		const lists = toArray2D(resobj, 'json');
+		toRange(lists, range, false, addToCell);
+	}
+};
+// TODO: general?
+const putToTarget = (sheet, target, resobj) => {
+	if (isOutboxTerm(target)) addToMessageBox(sheet.machine.outbox, resobj);
+	else if (isInboxTerm(target)) {
+		const inboxref = jsonpath(target.value || '');
+		addToMessageBox(sheetutils.getInbox(sheet, inboxref.shift()), resobj, inboxref.shift());
+	} else {
+		const range = getCellRangeFromTerm(target);
+		addToCellRange(range, resobj);
+	}
+};
+const createResult = (obj, dataFields) => {
+	const data = extract(dataFields, obj);
+	const metadata = extract(METADATA, obj);
+	// TODO: review, further split config or remove it from metadata completely
+	if (metadata.config) metadata.config = extract(CONFIGDATA, metadata.config);
+	return { data, metadata };
+};
+// getInstance()
+// 	.get('https://google.de', {})
+// 	.then((response) => {
+// 		const resobj = createResult(response, DATA);
+// 		console.log(resobj);
+// 	})
+// 	.catch((error) => {
+// 		const resobj = createResult(error, DATA);
+// 		console.log(resobj);
+// 	});
+
+// TODO: parse response
+const createDefaultCallback = (sheet, target, parse = false) => (context, response, error) => {
+	const term = context.term;
+	const resobj = error ? createResult(error, ERRORDATA) : createResult(response, DATA);
+	if (target) putToTarget(sheet, target, resobj);
+	if (term && !term.isDisposed) {
+		term.cellValue = error ? ERROR.RESPONSE : undefined;
+	}
+	return error ? AsyncRequest.STATE.REJECTED : undefined;
 };
 
 const request = (sheet, ...terms) =>
@@ -53,7 +129,7 @@ const request = (sheet, ...terms) =>
 			config.method = method;
 			return AsyncRequest.create(sheet, request.context)
 				.request(() => getInstance().request(config))
-				.response(createDefaultCallback(parse))
+				.response(createDefaultCallback(sheet, target, parse))
 				.reqId();
 		});
 request.displayName = true;
@@ -70,7 +146,7 @@ const get = (sheet, ...terms) =>
 		.run((url, config, target, parse) => {
 			return AsyncRequest.create(sheet, get.context)
 				.request(() => getInstance().get(url, config))
-				.response(createDefaultCallback(parse, target))
+				.response(createDefaultCallback(sheet, target, parse))
 				.reqId();
 		});
 get.displayName = true;
@@ -89,7 +165,7 @@ const post = (sheet, ...terms) =>
 			}
 			return AsyncRequest.create(sheet, post.context)
 				.request(() => getInstance().post(url, data, config))
-				.response(createDefaultCallback())
+				.response(createDefaultCallback(sheet))
 				.reqId()
 		});
 post.displayName = true;
@@ -105,7 +181,7 @@ const put = (sheet, ...terms) =>
 		.run((url, data, config) => {
 			return AsyncRequest.create(sheet, put.context)
 				.request(() => getInstance().put(url, data, config))
-				.response(createDefaultCallback())
+				.response(createDefaultCallback(sheet))
 				.reqId()
 		});
 put.displayName = true;
@@ -121,7 +197,7 @@ const patch = (sheet, ...terms) =>
 		.run((url, data, config) => {
 			return AsyncRequest.create(sheet, patch.context)
 				.request(() => getInstance().patch(url, data, config))
-				.response(createDefaultCallback())
+				.response(createDefaultCallback(sheet))
 				.reqId()
 		});
 patch.displayName = true;
@@ -136,7 +212,7 @@ const deleteFunction = (sheet, ...terms) =>
 		.run((url, config) =>
 			AsyncRequest.create(sheet, deleteFunction.context)
 				.request(() => getInstance().delete(url, config))
-				.response(createDefaultCallback())
+				.response(createDefaultCallback(sheet))
 				.reqId()
 		);
 deleteFunction.displayName = true;
@@ -153,7 +229,7 @@ const trace = (sheet, ...terms) =>
 			config.method = 'TRACE';
 			return AsyncRequest.create(sheet, request.context)
 				.request(() => getInstance().request(config))
-				.response(createDefaultCallback())
+				.response(createDefaultCallback(sheet))
 				.reqId();
 		});
 trace.displayName = true;
@@ -168,7 +244,7 @@ const head = (sheet, ...terms) =>
 		.run((url, config) =>
 			AsyncRequest.create(sheet, head.context)
 				.request(() => getInstance().head(url, config))
-				.response(createDefaultCallback())
+				.response(createDefaultCallback(sheet))
 				.reqId()
 		);
 head.displayName = true;
@@ -183,7 +259,7 @@ const options = (sheet, ...terms) =>
 		.run((url, config) =>
 			AsyncRequest.create(sheet, options.context)
 				.request(() => getInstance().options(url, config))
-				.response(createDefaultCallback())
+				.response(createDefaultCallback(sheet))
 				.reqId()
 		);
 options.displayName = true;
