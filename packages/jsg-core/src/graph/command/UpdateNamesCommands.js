@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -53,41 +53,29 @@ class SetGraphCellsCommand extends Command {
 	doAfterUndo() {}
 }
 
-class SetGraphItemsCommand extends AbstractItemCommand {
-	static createFromObject(data = {}, { graph }) {
-		const item = graph.getItemById(data.itemId);
-		return item
-			? new SetGraphItemsCommand(item, data.graphItems).initWithObject(
-					data
-			  )
-			: undefined;
+class SetGraphItemsCommand extends Command {
+	static createFromObject(data = {}) {
+		const { streamsheetIds, graphItems } = data;
+		return new SetGraphItemsCommand(streamsheetIds, graphItems).initWithObject(data);
 	}
 
-	constructor(item, graphItems) {
-		super(item);
-		this._graphItems = graphItems;
-	}
-
-	initWithObject(data) {
-		const cmd = super.initWithObject(data);
-		return cmd;
+	constructor(streamsheetIds = [], graphItems = []) {
+		super();
+		this._streamsheetIds = streamsheetIds.slice();
+		this._graphItems = graphItems.slice();
+		this.isVolatile = true;
 	}
 
 	toObject() {
 		const data = super.toObject();
+		data.streamsheetIds = this._streamsheetIds;
 		data.graphItems = this._graphItems;
 		return data;
 	}
 
 	undo() {}
 
-	redo() {
-		if (this._graphItems) {
-			this._graphItem.setGraphItems(this._graphItems);
-		}
-
-		this._graphItem.getGraph().markDirty();
-	}
+	redo() {}
 
 	doAfterRedo() {}
 

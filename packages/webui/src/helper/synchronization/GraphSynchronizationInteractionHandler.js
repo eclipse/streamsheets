@@ -28,6 +28,7 @@ const {
 	ItemAttributes,
 	CompoundCommand,
 	SetGraphCellsCommand,
+	SetGraphItemsCommand,
 } = JSG;
 
 const SELECTION_TYPE_PROCESS_SHEET = 'process_sheet';
@@ -109,6 +110,18 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 				this.execute(new SetGraphCellsCommand(Array.from(graphCells.keys()), Array.from(graphCells.values())), undefined, false);
 			}
 		}
+
+		// replace all graph cells...
+		const graphs = new Map();
+		this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
+			const sheetId = container.getStreamSheetContainerAttributes().getSheetId().getValue();
+			const descriptors = sheetId && container.getStreamSheet().getCells().subItemsToJSON();
+			if (descriptors) graphs.set(sheetId, descriptors);
+		});
+		if (graphs.size) {
+			this.execute(new SetGraphItemsCommand(Array.from(graphs.keys()), Array.from(graphs.values())), undefined, false);
+		}
+
 	}
 
 	isSelectionInOutbox(graphItem) {
