@@ -111,7 +111,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 			}
 		}
 
-		// replace all graph cells...
+		// filter commands that do not affect graph (SetCellData ...)
 		const graphs = new Map();
 		this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
 			const sheetId = container.getStreamSheetContainerAttributes().getSheetId().getValue();

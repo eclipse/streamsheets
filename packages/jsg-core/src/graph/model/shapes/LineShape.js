@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -49,6 +49,19 @@ class LineShape extends Shape {
 
 	getType() {
 		return LineShape.TYPE;
+	}
+
+	toJSON() {
+		const json = {
+			type: this.getType(),
+			points: [],
+		};
+
+		this._coordinates.forEach((coor) => {
+			json.points.push(coor.toJSON());
+		});
+
+		return json;
 	}
 
 	saveContent(writer) {

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -185,6 +185,27 @@ class ReshapeCoordinate extends Coordinate {
 		return ReshapeType;
 	}
 
+	toJSON() {
+		const json = super.toJSON();
+
+		json.name = this._name;
+		json.xType = this._xtype;
+		json.yType = this._ytype;
+		if (this._xMin) {
+			json.xMin = this._xMin;
+		}
+		if (this._xMax) {
+			json.xMax = this._xMax;
+		}
+		if (this._yMin) {
+			json.yMin = this._yMin;
+		}
+		if (this._yMax) {
+			json.yMax = this._yMax;
+		}
+
+		return json;
+	}
 	/**
 	 * Save the ReshapeCoordinate.
 	 *

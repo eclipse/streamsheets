@@ -3398,6 +3398,7 @@ class GraphItem extends Model {
 		const ret = {
 			id: this._id,
 			parent: this._parent.getId(),
+			type: 'node',
 			x: this.getPin().getX().toJSON(),
 			y: this.getPin().getY().toJSON(),
 			width: this.getWidth().toJSON(),
@@ -3413,6 +3414,13 @@ class GraphItem extends Model {
 
 		if (this._type.getValue() !== '') {
 			ret.type = this.getType().getValue();
+		}
+
+		if (this._reshapeCoordinates.length) {
+			ret.reshape = [];
+			this._reshapeCoordinates.forEach((coordinate) => {
+				ret.reshape.push(coordinate.toJSON());
+			});
 		}
 
 		ret.shape = this._shape.toJSON();
