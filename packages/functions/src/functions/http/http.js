@@ -11,9 +11,8 @@
 const { convert, jsonpath } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { getInstance } = require('@cedalo/http-client');
-const { isType, ErrorTerm, Message, ObjectTerm, SheetRange } = require('@cedalo/machine-core');
+const { isType, Message, ObjectTerm } = require('@cedalo/machine-core');
 const { Term } = require('@cedalo/parser');
-const { addHTTPResponseToInbox, addHTTPResponseToCell, addHTTPResponseToRange } = require('./utils');
 const {
 	arrayspread: { toRange },
 	jsonflatten: { toArray2D },
@@ -27,8 +26,9 @@ const ERROR = FunctionErrors.code;
 
 const DATA = ['data'];
 const ERRORDATA = ['code', 'message'];
-const METADATA = ['config', 'headers', 'status', 'statusText'];
-const CONFIGDATA = ['headers', 'method', 'url'];
+const METADATA = ['headers', 'status', 'statusText'];
+// const METADATA = ['config', 'headers', 'status', 'statusText'];
+// const CONFIGDATA = ['headers', 'method', 'url'];
 const addValue = (fromObj) => (toObj, key) => {
 	toObj[key] = fromObj[key];
 	return toObj;
@@ -58,7 +58,7 @@ const addToMessageBox = (box, resobj, msgId) => {
 	}
 };
 // TODO: general? setValueCell() add flag to keep formula? or function? or...?
-const addToCell = (sheet, index, resobj) => {
+const addToCell = (index, resobj, sheet) => {
 	if (resobj == null) sheet.setCellAt(index, undefined);
 	else {
 		const cell = sheet.cellAt(index, true);
@@ -68,7 +68,7 @@ const addToCell = (sheet, index, resobj) => {
 // TODO: general? spreadValueToCellRange
 const addToCellRange = (range, resobj) => {
 	if (range.width === 1 && range.height === 1) {
-		addToCell(range.sheet, range.start, resobj);
+		addToCell(range.start, resobj, range.sheet);
 	} else {
 		const lists = toArray2D(resobj, 'json');
 		toRange(lists, range, false, addToCell);
@@ -76,10 +76,10 @@ const addToCellRange = (range, resobj) => {
 };
 // TODO: general?
 const putToTarget = (sheet, target, resobj) => {
-	if (isOutboxTerm(target)) addToMessageBox(sheet.machine.outbox, resobj);
-	else if (isInboxTerm(target)) {
-		const inboxref = jsonpath(target.value || '');
-		addToMessageBox(sheetutils.getInbox(sheet, inboxref.shift()), resobj, inboxref.shift());
+	if (isOutboxTerm(target) || isInboxTerm(target)) {
+		const boxref = jsonpath.parse(target.value || '');
+		const msgbox = isInboxTerm(target) ? sheetutils.getInbox(sheet, boxref.shift()) : sheet.machine.outbox;
+		addToMessageBox(msgbox, resobj, boxref.shift());
 	} else {
 		const range = getCellRangeFromTerm(target);
 		addToCellRange(range, resobj);
@@ -89,7 +89,7 @@ const createResult = (obj, dataFields) => {
 	const data = extract(dataFields, obj);
 	const metadata = extract(METADATA, obj);
 	// TODO: review, further split config or remove it from metadata completely
-	if (metadata.config) metadata.config = extract(CONFIGDATA, metadata.config);
+	// if (metadata.config) metadata.config = extract(CONFIGDATA, metadata.config);
 	return { data, metadata };
 };
 // getInstance()
@@ -103,8 +103,14 @@ const createResult = (obj, dataFields) => {
 // 		console.log(resobj);
 // 	});
 
+const defaultCallback = (context, response, error) => {
+	const term = context.term;
+	if (term && !term.isDisposed) term.cellValue = error ? ERROR.RESPONSE : undefined;
+	return error ? AsyncRequest.STATE.REJECTED : undefined;
+};
+
 // TODO: parse response
-const createDefaultCallback = (sheet, target, parse = false) => (context, response, error) => {
+const createRequestCallback = (sheet, target, parse = false) => (context, response, error) => {
 	const term = context.term;
 	const resobj = error ? createResult(error, ERRORDATA) : createResult(response, DATA);
 	if (target) putToTarget(sheet, target, resobj);
@@ -129,7 +135,7 @@ const request = (sheet, ...terms) =>
 			config.method = method;
 			return AsyncRequest.create(sheet, request.context)
 				.request(() => getInstance().request(config))
-				.response(createDefaultCallback(sheet, target, parse))
+				.response(createRequestCallback(sheet, target, parse))
 				.reqId();
 		});
 request.displayName = true;
@@ -141,12 +147,12 @@ const get = (sheet, ...terms) =>
 		.withMaxArgs(4)
 		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((config) => hasValue(config) ? config.value : {})
-		.mapNextArg((target) => hasValue(target) ? target.value : {})
+		.mapNextArg((target) => target)
 		.mapNextArg((parse) => asBoolean(parse && parse.value))
 		.run((url, config, target, parse) => {
 			return AsyncRequest.create(sheet, get.context)
 				.request(() => getInstance().get(url, config))
-				.response(createDefaultCallback(sheet, target, parse))
+				.response(createRequestCallback(sheet, target, parse))
 				.reqId();
 		});
 get.displayName = true;
@@ -165,7 +171,7 @@ const post = (sheet, ...terms) =>
 			}
 			return AsyncRequest.create(sheet, post.context)
 				.request(() => getInstance().post(url, data, config))
-				.response(createDefaultCallback(sheet))
+				.response(defaultCallback)
 				.reqId()
 		});
 post.displayName = true;
@@ -181,7 +187,7 @@ const put = (sheet, ...terms) =>
 		.run((url, data, config) => {
 			return AsyncRequest.create(sheet, put.context)
 				.request(() => getInstance().put(url, data, config))
-				.response(createDefaultCallback(sheet))
+				.response(defaultCallback)
 				.reqId()
 		});
 put.displayName = true;
@@ -197,7 +203,7 @@ const patch = (sheet, ...terms) =>
 		.run((url, data, config) => {
 			return AsyncRequest.create(sheet, patch.context)
 				.request(() => getInstance().patch(url, data, config))
-				.response(createDefaultCallback(sheet))
+				.response(defaultCallback)
 				.reqId()
 		});
 patch.displayName = true;
@@ -212,7 +218,7 @@ const deleteFunction = (sheet, ...terms) =>
 		.run((url, config) =>
 			AsyncRequest.create(sheet, deleteFunction.context)
 				.request(() => getInstance().delete(url, config))
-				.response(createDefaultCallback(sheet))
+				.response(defaultCallback)
 				.reqId()
 		);
 deleteFunction.displayName = true;
@@ -229,7 +235,7 @@ const trace = (sheet, ...terms) =>
 			config.method = 'TRACE';
 			return AsyncRequest.create(sheet, request.context)
 				.request(() => getInstance().request(config))
-				.response(createDefaultCallback(sheet))
+				.response(defaultCallback)
 				.reqId();
 		});
 trace.displayName = true;
@@ -244,7 +250,7 @@ const head = (sheet, ...terms) =>
 		.run((url, config) =>
 			AsyncRequest.create(sheet, head.context)
 				.request(() => getInstance().head(url, config))
-				.response(createDefaultCallback(sheet))
+				.response(defaultCallback)
 				.reqId()
 		);
 head.displayName = true;
@@ -259,7 +265,7 @@ const options = (sheet, ...terms) =>
 		.run((url, config) =>
 			AsyncRequest.create(sheet, options.context)
 				.request(() => getInstance().options(url, config))
-				.response(createDefaultCallback(sheet))
+				.response(defaultCallback)
 				.reqId()
 		);
 options.displayName = true;
