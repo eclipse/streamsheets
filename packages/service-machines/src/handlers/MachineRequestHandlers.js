@@ -815,6 +815,12 @@ class SetGraphCellsCommandRequestHandler {
 		return runner.request('replaceGraphCells', userId, { graphCells, streamsheetIds });
 	}
 }
+class SetGraphItemsCommandRequestHandler {
+	async handleCommand(command, runner, streamsheetId, userId /* , undo */) {
+		const { streamsheetIds, graphItems } = command;
+		return runner.request('replaceGraphItems', userId, { graphItems, streamsheetIds });
+	}
+}
 
 class SetCellLevelsCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId) {
@@ -1050,6 +1056,10 @@ class CommandRequestHandler extends RequestHandler {
 			[
 				'command.SetGraphCellsCommand',
 				new SetGraphCellsCommandRequestHandler()
+			],
+			[
+				'command.SetGraphItemsCommand',
+				new SetGraphItemsCommandRequestHandler()
 			],
 
 			// include editable-web-component:
