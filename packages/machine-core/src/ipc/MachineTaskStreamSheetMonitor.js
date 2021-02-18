@@ -197,7 +197,8 @@ class MachineTaskStreamSheetMonitor {
 				namedCells: sheet.namedCells.getDescriptors(),
 				graphCells: sheet.graphCells.getDescriptors(),
 				drawings: sheet.getDrawings().toJSON(),
-				graphItems: sheet.getDrawings().toGraphItemsJSON()
+				graphItems: sheet.getDrawings().toGraphItemsJSON(),
+				graphItemDescriptors: sheet.getGraphItemDescriptors()
 			}
 		};
 		MachineTaskMessagingClient.publishEvent(event);
@@ -217,7 +218,8 @@ class MachineTaskStreamSheetMonitor {
 			machineId: streamsheet.machine.id,
 			cells,
 			drawings: streamsheet.sheet.getDrawings().toJSON(),
-			graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON()
+			graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON(),
+			graphItemDescriptors: streamsheet.sheet.getGraphItemDescriptors()
 		};
 		MachineTaskMessagingClient.publishEvent(event);
 	}
@@ -259,7 +261,8 @@ class MachineTaskStreamSheetMonitor {
 					messages: streamsheet.machine.outbox.getFirstMessages()
 				},
 				drawings: streamsheet.sheet.getDrawings().toJSON(),
-				graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON()
+				graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON(),
+				graphItemDescriptors: streamsheet.sheet.getGraphItemDescriptors()
 			};
 			this._steps = 0;
 			MachineTaskMessagingClient.publishEvent(event);
@@ -277,6 +280,7 @@ class MachineTaskStreamSheetMonitor {
 			graphCells: streamsheet.sheet.graphCells.getDescriptors(),
 			drawings: streamsheet.sheet.getDrawings().toJSON(),
 			graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON(),
+			graphItemDescriptors: streamsheet.sheet.getGraphItemDescriptors(),
 			inbox: {
 				totalSize: this.inboxAdapter.totalSize,
 				messages: streamsheet.inbox.messages.slice(0),

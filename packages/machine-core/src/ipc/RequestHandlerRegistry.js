@@ -660,6 +660,34 @@ class ReplaceGraphCells extends ARequestHandler {
 		return Promise.resolve(result);
 	}
 }
+class ReplaceGraphItems extends ARequestHandler {
+	handle({ graphItems = [], streamsheetIds = [] }) {
+		// TODO: define what to return to client
+		const result = { streamsheetIds: [], graphItemDescriptors: [] };
+		streamsheetIds.forEach((id/* , index */) => {''
+			const streamsheet = this.machine.getStreamSheet(id);
+			const sheet = streamsheet && streamsheet.sheet;
+			if (sheet) {
+				try {
+					// TODO: graphItems are missing streamsheet id to assign them to different sheets
+					const itemDescriptors = sheet.applyGraphItemDescriptors(graphItems);
+					if (itemDescriptors.length) {
+						result.streamsheetIds.push(id);
+						result.graphItemDescriptors.push(...itemDescriptors);
+						sheet._notifyUpdate();
+					}
+				} catch (err) {
+					// ignore error!
+					logger.warn(`Failed to set graph-items of streamsheet:  ${streamsheet.name}(${id})!`);
+				}
+			} else {
+				// we ignore unknown sheets
+				logger.warn(`Unknown streamsheet with id "${id}" !`);
+			}
+		});
+		return Promise.resolve(result);
+	}
+}
 class RunMachineAction extends ARequestHandler {
 	async handle({ type, data }) {
 		const action = FunctionRegistry.getAction(type);
@@ -960,6 +988,7 @@ class RequestHandlerRegistry {
 		registry.handlers.set('registerFunctionModules', new RegisterFunctionModules(machine, monitor));
 		registry.handlers.set('registerStreams', new RegisterStreams(machine, monitor));
 		registry.handlers.set('replaceGraphCells', new ReplaceGraphCells(machine, monitor));
+		registry.handlers.set('replaceGraphItems', new ReplaceGraphItems(machine, monitor));
 		registry.handlers.set('runMachineAction', new RunMachineAction(machine, monitor));
 		registry.handlers.set('setCellAt', new SetCellAt(machine, monitor));
 		registry.handlers.set('setCells', new SetCells(machine, monitor));

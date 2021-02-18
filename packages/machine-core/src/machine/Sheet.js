@@ -135,6 +135,7 @@ module.exports = class Sheet {
 		this.settings = Object.assign({}, DEF_CONF.settings, config.settings);
 		this.streamsheet = streamsheet;
 		this.namedCells = new NamedCells();
+		this.graphItems = undefined;
 		this.graphCells = new GraphCells(this);
 		this.processor = new SheetProcessor(this);
 		this.sheetDrawings = new SheetDrawings();
@@ -158,6 +159,8 @@ module.exports = class Sheet {
 		json.cells = getSheetCellsAsObject(this);
 		json.namedCells = this.namedCells.getDescriptors();
 		json.graphCells = this.graphCells.getDescriptors();
+		// TODO: persistence for graphItems
+		// json.graphItems = 
 		json.properties = this.properties.toJSON();
 		json.settings = { ...this.settings };
 		return json;
@@ -538,6 +541,8 @@ module.exports = class Sheet {
 		// load names first, they may be referenced by sheet cells...
 		this.namedCells.load(this, conf.namedCells);
 		this.graphCells.load(this, conf.graphCells);
+		// TODO: load/restore graphItems
+		// this.graphItems = 
 		this.loadCells(conf.cells);
 		enableNotifyUpdate(this, onUpdate);
 		return this;
@@ -591,12 +596,20 @@ module.exports = class Sheet {
 		this.processor.resume(retval);
 	}
 
-
 	getDrawings() {
 		return this.sheetDrawings;
 	}
 
 	getPendingRequests() {
 		return this._pendingRequests;
+	}
+
+	// used for update & step events
+	getGraphItemDescriptors() {
+		return [{}]; // TODO: empty descriptor object for testing purpose only
+	}
+	applyGraphItemDescriptors(graphItems) {
+		// TODO: return only applied items or...
+		return this.getGraphItemDescriptors();
 	}
 };
