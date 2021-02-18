@@ -8,8 +8,23 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { isType, ObjectTerm } = require('@cedalo/machine-core');
+const { isType, ObjectTerm, State } = require('@cedalo/machine-core');
 const { Term } = require('@cedalo/parser');
+
+const disableSheetUpdate = (sheet) => {
+	const sheetOnUpdate = sheet.onUpdate;
+	sheet.onUpdate = null;
+	return sheetOnUpdate;
+};
+const enableSheetUpdate = (sheet, sheetOnUpdate) => {
+	const machine = sheet.machine;
+	if (sheetOnUpdate) {
+		sheet.onUpdate = sheetOnUpdate;
+	}
+	if (machine && machine.state !== State.RUNNING) {
+		sheet._notifyUpdate();
+	}
+};
 
 const termFromValue = (value) => (isType.object(value) ? new ObjectTerm(value) : Term.fromValue(value));
 const setCellAt = (index, value, sheet) => {
@@ -39,6 +54,7 @@ const toRangeGrow =  (lists, range, horizontally, setCell) => {
 	const index = range.start.copy();
 	const startcol = index.col;
 	const startrow = index.row;
+	const onSheetUpdate = disableSheetUpdate(sheet);
 	if (setCell == null) setCell = setCellAt;
 	lists.forEach((values, row) => {
 		values.forEach((value, col) => {
@@ -47,12 +63,14 @@ const toRangeGrow =  (lists, range, horizontally, setCell) => {
 			setCell(index, value, sheet);
 		});
 	});
+	enableSheetUpdate(sheet, onSheetUpdate);
 	return true;
 };
 const toRange = (lists, range, horizontally, setCell) => {
 	const coord = { x: -1, y: -1 };
 	const sheet = range.sheet;
 	const getValue = mapValues(lists, horizontally);
+	const onSheetUpdate = disableSheetUpdate(sheet);
 	if (setCell == null) setCell = setCellAt;
 	range.iterate((cell, index, nextrow) => {
 		coord.x += 1;
@@ -63,6 +81,7 @@ const toRange = (lists, range, horizontally, setCell) => {
 		const value = getValue(coord);
 		setCell(index, value, sheet);
 	});
+	enableSheetUpdate(sheet, onSheetUpdate);
 	return true;
 };
 
