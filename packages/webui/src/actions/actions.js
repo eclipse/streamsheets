@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -273,8 +273,8 @@ function handleUserLeftEvent(event) {
 function handleSheetUpdateEvent(event) {
 	const streamsheetId = event.srcId;
 	const { sheet } = event;
-	const { cells, drawings, graphItems, graphCells, namedCells } = sheet;
-	graphManager.updateCellValues(streamsheetId, cells, drawings, graphItems, graphCells, namedCells);
+	const { cells, drawings, graphItems, graphCells, shapes, namedCells } = sheet;
+	graphManager.updateCellValues(streamsheetId, cells, drawings, graphItems, graphCells, shapes, namedCells);
 	graphManager.redraw();
 }
 
@@ -334,6 +334,7 @@ function updateStreamSheetCellValues(streamsheets) {
 			sheet.drawings,
 			sheet.graphItems,
 			sheet.graphCells,
+			sheet.shapes,
 			sheet.namedCells,
 		);
 	});
@@ -343,7 +344,7 @@ function updateStreamSheetCellValues(streamsheets) {
 function handleMachineLocaleChanged(event) {
 	const streamsheets = event.streamsheets || [];
 	streamsheets.forEach((streamsheet) =>
-		graphManager.updateCellValues(streamsheet.id, streamsheet.cells, streamsheet.drawings, streamsheet.graphItems),
+		graphManager.updateCellValues(streamsheet.id, streamsheet.cells, streamsheet.drawings, streamsheet.graphItems, streamsheet.shapes),
 	);
 	graphManager.redraw();
 }
@@ -645,6 +646,7 @@ export function connect() {
 									namedCells,
 									drawings,
 									graphItems,
+									shapes,
 									inbox,
 									loop,
 									stats
@@ -657,6 +659,7 @@ export function connect() {
 									graphCells,
 									drawings,
 									graphItems,
+									shapes,
 									// TODO: improve, outbox does not need to be updated for each streamsheet
 									event.outbox,
 									stats,

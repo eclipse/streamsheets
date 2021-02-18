@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -198,7 +198,7 @@ class MachineTaskStreamSheetMonitor {
 				graphCells: sheet.graphCells.getDescriptors(),
 				drawings: sheet.getDrawings().toJSON(),
 				graphItems: sheet.getDrawings().toGraphItemsJSON(),
-				graphItemDescriptors: sheet.getGraphItemDescriptors()
+				shapes: sheet.getShapes()
 			}
 		};
 		MachineTaskMessagingClient.publishEvent(event);
@@ -219,7 +219,7 @@ class MachineTaskStreamSheetMonitor {
 			cells,
 			drawings: streamsheet.sheet.getDrawings().toJSON(),
 			graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON(),
-			graphItemDescriptors: streamsheet.sheet.getGraphItemDescriptors()
+			shapes: streamsheet.sheet.getShapes()
 		};
 		MachineTaskMessagingClient.publishEvent(event);
 	}
@@ -262,7 +262,7 @@ class MachineTaskStreamSheetMonitor {
 				},
 				drawings: streamsheet.sheet.getDrawings().toJSON(),
 				graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON(),
-				graphItemDescriptors: streamsheet.sheet.getGraphItemDescriptors()
+				shapes: streamsheet.sheet.getShapes()
 			};
 			this._steps = 0;
 			MachineTaskMessagingClient.publishEvent(event);
@@ -280,7 +280,7 @@ class MachineTaskStreamSheetMonitor {
 			graphCells: streamsheet.sheet.graphCells.getDescriptors(),
 			drawings: streamsheet.sheet.getDrawings().toJSON(),
 			graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON(),
-			graphItemDescriptors: streamsheet.sheet.getGraphItemDescriptors(),
+			shapes: streamsheet.sheet.getShapes(),
 			inbox: {
 				totalSize: this.inboxAdapter.totalSize,
 				messages: streamsheet.inbox.messages.slice(0),

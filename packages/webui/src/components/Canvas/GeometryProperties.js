@@ -63,7 +63,6 @@ export class GeometryProperties extends Component {
 		return ws;
 	}
 
-	handleX = () => {};
 	updateFormula(item, expr) {
 		const path = JSG.AttributeUtils.createPath(JSG.ItemAttributes.NAME, "sheetformula");
 		let formula = expr.toLocaleString('en', {item, useName: true, forceName: true});
@@ -111,8 +110,25 @@ export class GeometryProperties extends Component {
 		return '';
 	}
 
+	handleWidth(event) {
+		const item = this.props.view.getItem();
+		const sheet = this.getSheet(item);
+
+		const expr = sheet.textToExpression(String(event.target.textContent), item);
+		const cmd = new JSG.SetSizeCommand(item, new JSG.Size(expr.expression, item.getHeight()));
+		graphManager.synchronizedExecute(cmd);
+	}
+
+	getWidth() {
+		const item = this.props.view.getItem();
+		return item.getWidth().toLocaleString(JSG.getParserLocaleSettings(), {
+			item: this.getSheet(item),
+			useName: true
+		});
+	}
+
 	render() {
-		const sheetView = this.props.view;
+		const sheetView = this.getSheetView();
 		if (!sheetView) {
 			return <div />;
 		}
@@ -192,8 +208,8 @@ export class GeometryProperties extends Component {
 					size="small"
 					margin="normal"
 					label={<FormattedMessage id="GraphItemProperties.Width" defaultMessage="Width" />}
-					onBlur={(event) => this.handleParameter(event, 5)}
-					value={this.getFormula(5)}
+					onBlur={(event) => this.handleWidth(event)}
+					value={this.getWidth()}
 					InputLabelProps={{ shrink: true }}
 					InputProps={{
 						inputComponent: MyInputComponent,
@@ -201,7 +217,7 @@ export class GeometryProperties extends Component {
 							component: CellRangeComponent,
 							sheetView,
 							value: {},
-							range: this.getFormula(5)
+							range: this.getWidth()
 						}
 					}}
 				/>

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -111,6 +111,7 @@ class SheetProcessor {
 	start() {
 		this._process();
 		this._evaluateGraphCells(this._cursor.sheet);
+		this._evaluateShapes(this._cursor.sheet);
 	}
 	_process() {
 		const cursor = this._cursor;
@@ -161,6 +162,14 @@ class SheetProcessor {
 		sheet.graphCells.evaluating = true;
 		sheet.graphCells._cells.forEach((cell) => cell.evaluate());
 		sheet.graphCells.evaluating = false;
+	}
+	_evaluateShapes(sheet) {
+		if (!sheet.shapes) {
+			return;
+		}
+		sheet.shapes.forEach(shape => {
+
+		});
 	}
 }
 

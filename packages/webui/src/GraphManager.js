@@ -379,6 +379,7 @@ export default class GraphManager {
 		graphCells,
 		drawings,
 		graphItems,
+		shapes,
 		outbox,
 		stats,
 		inbox,
@@ -387,7 +388,7 @@ export default class GraphManager {
 		this.updateStreamSheetId(streamsheetId);
 		const updatePathCommand = this.updatePath(streamsheetId, jsonpath);
 		this.updateLoopIndex(streamsheetId, jsonpath);
-		const updateCellsCommand = this.updateCells(streamsheetId, cells, drawings, graphItems, graphCells, namedCells);
+		const updateCellsCommand = this.updateCells(streamsheetId, cells, drawings, graphItems, graphCells, shapes, namedCells);
 		const command = new CompoundCommand();
 		if (updatePathCommand) {
 			command.add(updatePathCommand);
@@ -434,8 +435,9 @@ export default class GraphManager {
 					cells,
 					drawings,
 					graphItems,
+					shapes,
 				} = response.machineserver;
-				this.updateCellValues(streamsheetId, cells, drawings, graphItems);
+				this.updateCellValues(streamsheetId, cells, drawings, graphItems, shapes);
 				this.redraw();
 			}
 		}
@@ -445,8 +447,8 @@ export default class GraphManager {
 		}
 	}
 
-	updateCellValues(streamsheetId, cells, drawings, graphItems, graphCells, namedCells) {
-		const updateCellsCommand = this.updateCells(streamsheetId, cells, drawings, graphItems, graphCells, namedCells);
+	updateCellValues(streamsheetId, cells, drawings, graphItems, graphCells, shapes, namedCells) {
+		const updateCellsCommand = this.updateCells(streamsheetId, cells, drawings, graphItems, graphCells, shapes, namedCells);
 		if (updateCellsCommand) {
 			updateCellsCommand.execute();
 			// to update editbar
@@ -466,10 +468,10 @@ export default class GraphManager {
 		}
 	}
 
-	updateCells(streamsheetId, data, drawings, graphItems, graphCells, namedCells) {
+	updateCells(streamsheetId, data, drawings, graphItems, graphCells, shapes, namedCells) {
 		const processSheet = this.getStreamSheet(streamsheetId);
 		if (processSheet) {
-			const command = new SetSheetCellsCommand(processSheet, data, drawings, graphItems, graphCells, namedCells);
+			const command = new SetSheetCellsCommand(processSheet, data, drawings, graphItems, shapes, graphCells, namedCells);
 			// this.redraw();
 			return command;
 		}

@@ -55,8 +55,8 @@ class SetGraphCellsCommand extends Command {
 
 class SetGraphItemsCommand extends Command {
 	static createFromObject(data = {}) {
-		const { streamsheetIds, graphItems } = data;
-		return new SetGraphItemsCommand(streamsheetIds, graphItems).initWithObject(data);
+		const { streamsheetIds, shapes } = data;
+		return new SetGraphItemsCommand(streamsheetIds, shapes).initWithObject(data);
 	}
 
 	constructor(streamsheetIds = [], graphItems = []) {

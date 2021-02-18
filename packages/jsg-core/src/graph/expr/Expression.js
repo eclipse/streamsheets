@@ -72,6 +72,7 @@ class Expression {
 		this._constraint = new ExpressionConstraint();
 		this._term = undefined;
 		this._value = undefined;
+		this._termValue = undefined; // this is used to store server calculated values
 		this._formula = undefined;
 		this.set(value, formula, term);
 		// performance: we store last item path under which this Expression was evaluated since it marks a kind of
@@ -116,6 +117,7 @@ class Expression {
 			this._constraint !== undefined
 				? this._constraint.copy()
 				: undefined;
+		copy._termValue = this._termValue;
 
 		return copy;
 	}
@@ -193,13 +195,17 @@ class Expression {
 	 */
 	getValue() {
 		if (this._term) {
-			const val = this._term.value;
-			if (val === undefined) {
-				this._term = undefined;
+			if (this._termValue) {
+				this._value = this._termValue;
 			} else {
-				this._value = this._constraint
-					? this._constraint.getValue(val)
-					: val;
+				const val = this._term.value;
+				if (val === undefined) {
+					this._term = undefined;
+				} else {
+					this._value = this._constraint
+						? this._constraint.getValue(val)
+						: val;
+				}
 			}
 		}
 		// return this._value;
@@ -292,6 +298,10 @@ class Expression {
 			}
 		}
 		return false;
+	}
+
+	setTermValue(value) {
+		this._termValue = value;
 	}
 
 	/**
@@ -597,9 +607,9 @@ class Expression {
 			ret.f = Strings.encode(this._formula);
 		}
 		if (this._value !== undefined) {
-			ret.v = Strings.encode(this._value.toString())
+			ret.v = Strings.encode(this.getValue().toString())
 		}
-		const type = typeof this._value;
+		const type = typeof this.getValue();
 
 		if (type[0] !== 'n') {
 			ret.t = type[0];

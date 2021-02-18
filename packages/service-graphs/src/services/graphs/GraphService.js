@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -174,7 +174,7 @@ module.exports = class GraphService extends MessagingService {
 			this._graphManager.handleMachineDescriptorUpdate(event);
 		} else if (event.type === GatewayMessagingProtocol.EVENTS.MACHINE_STEP_EVENT) {
 			event.streamsheets.forEach((streamsheet) => {
-				const { cells, graphCells, id, namedCells, drawings, graphItems } = streamsheet;
+				const { cells, graphCells, id, namedCells, drawings, shapes, graphItems } = streamsheet;
 				this._graphManager.handleStreamSheetStep(
 					event.srcId,
 					id,
@@ -182,7 +182,8 @@ module.exports = class GraphService extends MessagingService {
 					namedCells,
 					graphCells,
 					drawings,
-					graphItems
+					graphItems,
+					shapes,
 				);
 			});
 		} else if (event.type === MachineServerMessagingProtocol.EVENTS.NAMED_CELLS_EVENT) {

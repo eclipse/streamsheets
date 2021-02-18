@@ -980,7 +980,7 @@ module.exports = class WorksheetNode extends ContentNode {
 		return result;
 	}
 
-	textToExpression(text) {
+	textToExpression(text, forItem) {
 		const isFormula = text.charAt(0) === '=';
 		let term;
 		const graph = this.getGraph();
@@ -1099,7 +1099,7 @@ module.exports = class WorksheetNode extends ContentNode {
 			throw e;
 		}
 
-		const formula = term ? term.toLocaleString('en', { item: this, useName: true }) : '';
+		const formula = term ? term.toLocaleString('en', { item: forItem || this, useName: true }) : '';
 		const expr = isFormula ? new Expression(0, formula) : ExpressionHelper.createExpressionFromValueTerm(term);
 
 		if (term) {

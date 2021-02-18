@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -135,7 +135,7 @@ module.exports = class Sheet {
 		this.settings = Object.assign({}, DEF_CONF.settings, config.settings);
 		this.streamsheet = streamsheet;
 		this.namedCells = new NamedCells();
-		this.graphItems = undefined;
+		this.shapes = undefined;
 		this.graphCells = new GraphCells(this);
 		this.processor = new SheetProcessor(this);
 		this.sheetDrawings = new SheetDrawings();
@@ -159,8 +159,7 @@ module.exports = class Sheet {
 		json.cells = getSheetCellsAsObject(this);
 		json.namedCells = this.namedCells.getDescriptors();
 		json.graphCells = this.graphCells.getDescriptors();
-		// TODO: persistence for graphItems
-		// json.graphItems = 
+		json.shapes = this.shapes;
 		json.properties = this.properties.toJSON();
 		json.settings = { ...this.settings };
 		return json;
@@ -542,7 +541,7 @@ module.exports = class Sheet {
 		this.namedCells.load(this, conf.namedCells);
 		this.graphCells.load(this, conf.graphCells);
 		// TODO: load/restore graphItems
-		// this.graphItems = 
+		this.shapes = conf.shapes;
 		this.loadCells(conf.cells);
 		enableNotifyUpdate(this, onUpdate);
 		return this;
@@ -605,11 +604,12 @@ module.exports = class Sheet {
 	}
 
 	// used for update & step events
-	getGraphItemDescriptors() {
-		return [{}]; // TODO: empty descriptor object for testing purpose only
+	getShapes() {
+		return this.shapes;
 	}
-	applyGraphItemDescriptors(graphItems) {
-		// TODO: return only applied items or...
-		return this.getGraphItemDescriptors();
+	applyShapes(graphItems) {
+		this.shapes = graphItems;
+
+		return this.getShapes();
 	}
 };

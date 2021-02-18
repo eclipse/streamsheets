@@ -728,10 +728,20 @@ module.exports = class StreamSheet extends WorksheetNode {
 		}
 	}
 
+	setShapes(shapes) {
+		const graph = this.getGraph();
+		if (!shapes) {
+			return;
+		}
+
+		shapes.forEach(shape => {
+			// assign changes to graphitems
+		});
+	}
+
 	setGraphItems(graphItems) {
 		const graph = this.getGraph();
-
-		if (graph === undefined) {
+		if (graph === undefined || true) {
 			return;
 		}
 

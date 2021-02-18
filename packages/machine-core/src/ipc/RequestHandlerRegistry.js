@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -663,22 +663,22 @@ class ReplaceGraphCells extends ARequestHandler {
 class ReplaceGraphItems extends ARequestHandler {
 	handle({ graphItems = [], streamsheetIds = [] }) {
 		// TODO: define what to return to client
-		const result = { streamsheetIds: [], graphItemDescriptors: [] };
-		streamsheetIds.forEach((id/* , index */) => {''
+		const result = { streamsheetIds: [], graphItems: [] };
+		streamsheetIds.forEach((id , index) => {''
 			const streamsheet = this.machine.getStreamSheet(id);
 			const sheet = streamsheet && streamsheet.sheet;
 			if (sheet) {
 				try {
 					// TODO: graphItems are missing streamsheet id to assign them to different sheets
-					const itemDescriptors = sheet.applyGraphItemDescriptors(graphItems);
+					const itemDescriptors = sheet.applyShapes(graphItems[index]);
 					if (itemDescriptors.length) {
 						result.streamsheetIds.push(id);
-						result.graphItemDescriptors.push(...itemDescriptors);
+						result.graphItems.push(...itemDescriptors);
 						sheet._notifyUpdate();
 					}
 				} catch (err) {
 					// ignore error!
-					logger.warn(`Failed to set graph-items of streamsheet:  ${streamsheet.name}(${id})!`);
+					logger.warn(`Failed to set shapes of streamsheet:  ${streamsheet.name}(${id})!`);
 				}
 			} else {
 				// we ignore unknown sheets
