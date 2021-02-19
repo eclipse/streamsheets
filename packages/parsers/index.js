@@ -15,7 +15,7 @@ const esprima = require('esprima');
 const xml2js = require('xml2js');
 const csv = require('csv-parse');
 const yaml = require('js-yaml');
-const markdown = require('markdown-it');
+const Markdown = require('markdown-it');
 const mime = require('mime-types');
 
 const parseCSS = async (input) => {
@@ -27,7 +27,7 @@ const parseJavaScript = async (input) => {
 	return esprima.parse(input);
 };
 
-const parseXML = async (input) => {
+const parseXML = (input) => {
 	return new Promise((resolve, reject) => {
 		xml2js.parseString(input, (error, result) => {
 			if (error) {
@@ -39,11 +39,11 @@ const parseXML = async (input) => {
 	});
 };
 
-const parseJSON = async (input) => {
-	return JSON.parse(input);
-};
+// const parseJSON = async (input) => {
+// 	return JSON.parse(input);
+// };
 
-const parseCSV = async (input) => {
+const parseCSV = (input) => {
 	return new Promise((resolve, reject) => {
 		csv(input, (error, output) => {
 			if (error) {
@@ -62,7 +62,7 @@ const parseYAML = (input) => {
 	});
 }
 
-const md = new markdown();
+const md = new Markdown();
 const parseMarkdown = (input) => {
 	return new Promise((resolve, reject) => {
 		const result = md.parse(input);
@@ -97,5 +97,11 @@ const parse = async (content, mimeType) => {
 };
 
 module.exports = {
-	parse
+	parse,
+	parseCSS,
+	parseCSV,
+	parseJavaScript,
+	parseMarkdown,
+	parseXML,
+	parseYAML
 };
