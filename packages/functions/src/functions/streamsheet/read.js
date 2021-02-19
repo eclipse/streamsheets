@@ -10,21 +10,19 @@
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { ErrorTerm, ObjectTerm, isType } = require('@cedalo/machine-core');
-const { Term } = require('@cedalo/parser');
+const { ErrorTerm } = require('@cedalo/machine-core');
 const {
 	arrayspread: { toRange },
 	jsonflatten: { toArray2D },
 	messages,
 	runFunction,
-	terms: { getCellRangeFromTerm }
+	terms: { getCellRangeFromTerm, termFromValue }
 } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 const TYPES = ['array', 'bool', 'boolean', 'dictionary', 'json', 'jsonroot', 'number', 'range', 'string'];
 
 const toBool = (term, defval) => term ? convert.toBoolean(term.value, defval) : defval;
-const termFromValue = (value) => (isType.object(value) ? new ObjectTerm(value) : Term.fromValue(value));
 
 // eslint-disable-next-line no-nested-ternary
 const defValue = type => (type === 'number' ? 0 : (type === 'boolean' ? false : ''));
@@ -55,8 +53,7 @@ const setCellAt = (index, value, sheet) => {
 };
 const setErrorCell = (index, sheet) => {
 	const cell = sheet.cellAt(index, true);
-	const errTerm = ErrorTerm.fromError(ERROR.NA);
-	cell.term = errTerm;
+	cell.term = ErrorTerm.fromError(ERROR.NA);
 };
 const copyToCellRange = (range, data, type, horizontally) => {
 	const sheet = range.sheet;
