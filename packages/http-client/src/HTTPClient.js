@@ -56,6 +56,7 @@ class HTTPClient {
 
 	async post(url, data, config) {
 		config = this._checkConfig(config);
+		// axios serialize json data
 		return axios.post(url, data, config)
 	}
 
