@@ -8,8 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { isType, ObjectTerm, State } = require('@cedalo/machine-core');
-const { Term } = require('@cedalo/parser');
+const { termFromValue } = require('./terms');
 
 const disableSheetUpdate = (sheet) => {
 	const sheetOnUpdate = sheet.onUpdate;
@@ -17,16 +16,10 @@ const disableSheetUpdate = (sheet) => {
 	return sheetOnUpdate;
 };
 const enableSheetUpdate = (sheet, sheetOnUpdate) => {
-	const machine = sheet.machine;
-	if (sheetOnUpdate) {
-		sheet.onUpdate = sheetOnUpdate;
-	}
-	if (machine && machine.state !== State.RUNNING) {
-		sheet._notifyUpdate();
-	}
+	if (sheetOnUpdate) sheet.onUpdate = sheetOnUpdate;
+	sheet._notifyUpdate();
 };
 
-const termFromValue = (value) => (isType.object(value) ? new ObjectTerm(value) : Term.fromValue(value));
 const setCellAt = (index, value, sheet) => {
 	// handle empty strings like undefined!
 	if (value == null || value === '') {
