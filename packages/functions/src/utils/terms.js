@@ -10,7 +10,8 @@
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { CellReference, SheetRange } = require('@cedalo/machine-core');
+const { isType, CellReference, ObjectTerm, SheetRange } = require('@cedalo/machine-core');
+const { Term } = require('@cedalo/parser');
 
 const ERROR = FunctionErrors.code;
 
@@ -191,6 +192,9 @@ const getJSONFromTerm = (term) => {
 	return value && (Array.isArray(value) || typeof value === 'object') ? value : undefined;
 };
 
+const termFromValue = (value) => (isType.object(value) ? new ObjectTerm(value) : Term.fromValue(value));
+
+
 module.exports = {
 	cellFromTerm,
 	getCellFromTerm,
@@ -213,5 +217,6 @@ module.exports = {
 	iterateTermValues,
 	iterateAllTermsValues,
 	termAsString,
-	termAsNumber
+	termAsNumber,
+	termFromValue
 };
