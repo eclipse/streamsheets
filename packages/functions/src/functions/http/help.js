@@ -14,22 +14,22 @@ module.exports = {
 	functions: {
 		'HTTP.REQUEST2': {
 			en: {
-				argumentList: 'URL,method,config,parse',
+				argumentList: 'URL,method,config,target',
 				description: 'Executes an HTTP request'
 			},
 			de: {
-				argumentList: 'URL,Methode,Konfiguration,Parsen',
+				argumentList: 'URL,Methode,Konfiguration,Ziel',
 				description:
 					'Führt eine HTTP-Anfrage aus'
 			}
 		}, 
 		'HTTP.GET': {
 			en: {
-				argumentList: 'URL,config,target,parse',
+				argumentList: 'URL,config,target',
 				description: 'Executes an HTTP GET request'
 			},
 			de: {
-				argumentList: 'URL,Konfiguration,Ziel,Parsen',
+				argumentList: 'URL,Konfiguration,Ziel',
 				description:
 					'Führt eine HTTP-Anfrage über die HTTP-Methode GET aus'
 			}

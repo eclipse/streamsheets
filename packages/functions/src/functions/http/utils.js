@@ -1,120 +1,68 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { jsonpath } = require('@cedalo/commons');
+const { Message } = require('@cedalo/machine-core');
+const {
+	arrayspread: { toRange },
+	jsonflatten: { toArray2D },
+	sheet: sheetutils,
+	terms: { getCellRangeFromTerm, isInboxTerm, isOutboxTerm, termFromValue }
+} = require('../../utils');
 
-const { Cell, Message } = require('@cedalo/machine-core');
-const { Term } = require('@cedalo/parser');
-const { parse } = require('@cedalo/parsers');
-
-const disableSheetUpdate = (sheet) => {
-	const sheetOnUpdate = sheet.onUpdate;
-	sheet.onUpdate = null;
-	return sheetOnUpdate;
+const createMessage = (resobj, id, requestId) => {
+	const { data, metadata } = resobj;
+	const message = new Message(data, id);
+	// add metadata:
+	Object.assign(message.metadata, metadata);
+	message.metadata.type = 'response';
+	message.metadata.requestId = requestId;
+	return message;
 };
-const enableSheetUpdate = (sheet, sheetOnUpdate) => {
-	const machine = sheet.machine;
-	if (sheetOnUpdate) {
-		sheet.onUpdate = sheetOnUpdate;
+
+const addToMessageBox = (box, resobj, msgId) => {
+	if (box) {
+		const message = createMessage(resobj, msgId);
+		if (msgId && box.peek(msgId)) box.replaceMessage(message);
+		else box.put(message);
 	}
-	if (machine && machine.state !== State.RUNNING) {
-		sheet._notifyUpdate();
+};
+
+const addToCell = (index, resobj, sheet) => {
+	if (resobj == null) sheet.setCellAt(index, undefined);
+	else {
+		const cell = sheet.cellAt(index, true);
+		cell.term = termFromValue(resobj);
 	}
 };
 
-const putKeyValuesToRange = (range, data) => {
-	const sheet = range.sheet;
-	const entries = Object.entries(data);
-	let rowidx = 0;
-	let colidx = -1;
-	let newCell = null;
-	let value = null;
-	const onSheetUpdate = disableSheetUpdate(sheet);
-	range.iterate((cell, index, nextcol) => {
-		if (nextcol) {
-			rowidx = 0;
-			colidx += 1;
-		}
-		// fix colidx might be larger than available entries (DL-3764)
-		if (colidx < entries.length) {
-			const [key, values] = entries[colidx];
-			if (rowidx === 0) value = key;
-			else if (Array.isArray(values)) value = values[rowidx - 1];
-			else if (rowidx === 1) value = values;
-			else value = null;
-			if (value != null) newCell = new Cell(value, Term.fromValue(value));
-		}
-		sheet.setCellAt(index, newCell);
-		rowidx += 1;
-		newCell = null;
-	});
-	enableSheetUpdate(sheet, onSheetUpdate);
-};
-
-const addHTTPResponseToInbox = async (response, context, error, parseResponseBody) => {
-	const inbox = context.term.scope.streamsheet.inbox;
-	if (error) {
-		const errorMessage = new Message(error);
-		errorMessage.metadata.label = `Error: ${context.term.name}`;
-		inbox.put(errorMessage);
+const addToCellRange = (range, resobj) => {
+	if (range.width === 1 && range.height === 1) {
+		addToCell(range.start, resobj, range.sheet);
 	} else {
-		let messageContent = response.data;
-		let messageLabel = `${context.term.name}`;
-		if (parseResponseBody) {
-			// TODO: move parsing out of this function
-			const mimeType = response.headers['content-type'];
-			try {
-				// try to parse content using the predefined parsers
-				messageContent = await parse(response.data, mimeType);
-				messageLabel += ` [${messageContent.extension}]`;
-			} catch (error) {
-				// ignore parser error
-			}
-		}
-		const message = new Message(messageContent);
-		message.metadata.transportDetails = {
-			headers: response.headers,
-			status: response.status,
-			statusText: response.statusText,
-			request: {
-				data: response.config.data,
-				headers: response.config.headers,
-				method: response.config.method,
-				url: response.config.url
-			}
-		}
-		message.metadata.label = messageLabel;
-		inbox.put(message);		
+		const lists = toArray2D(resobj, 'json');
+		toRange(lists, range, false, addToCell);
 	}
-}
+};
 
-// TODO: should be cell not range
-const addHTTPResponseToCell = (response, range) => {
-	let counter = 0;
-	range.iterate((cell, index) => {
-		if (counter === 0) {
-			sheet.setCellAt(index, new Cell(response.data[path], Term.fromValue(response.data[path])));
-		} else {
-			sheet.setCellAt(index, undefined);
-		}
-		counter++;
-	});
-}
-
-const addHTTPResponseToRange = async (response, range, context, error) => {
-	const mimeType = response.headers['content-type'];
-	const result = await parse(response.data, mimeType);
-	putKeyValuesToRange(range, result.parsed || result);
-}
+const addResultToTarget = (sheet, target, resobj) => {
+	if (isOutboxTerm(target) || isInboxTerm(target)) {
+		const boxref = jsonpath.parse(target.value || '');
+		const msgbox = isInboxTerm(target) ? sheetutils.getInbox(sheet, boxref.shift()) : sheet.machine.outbox;
+		addToMessageBox(msgbox, resobj, boxref.shift());
+	} else {
+		const range = getCellRangeFromTerm(target);
+		addToCellRange(range, resobj);
+	}
+};
 
 module.exports = {
-	addHTTPResponseToInbox,
-	addHTTPResponseToCell,
-	addHTTPResponseToRange
-}
+	addResultToTarget
+};
