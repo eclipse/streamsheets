@@ -669,11 +669,11 @@ class ReplaceGraphItems extends ARequestHandler {
 			const sheet = streamsheet && streamsheet.sheet;
 			if (sheet) {
 				try {
-					// TODO: graphItems are missing streamsheet id to assign them to different sheets
-					const itemDescriptors = sheet.applyShapes(graphItems[index]);
-					if (itemDescriptors.length) {
+					if (sheet.shapes.fromJSON(graphItems[index])) {
+					// if (itemDescriptors.length) {
 						result.streamsheetIds.push(id);
-						result.graphItems.push(...itemDescriptors);
+						sheet.getShapes().evaluate();
+						// result.shapes.push(...itemDescriptors);
 						sheet._notifyUpdate();
 					}
 				} catch (err) {
@@ -723,8 +723,16 @@ class SetCellAt extends ARequestHandler {
 			try {
 				const cell = SheetParser.createCell(msg.celldescr, sheet);
 				const index = SheetIndex.create(msg.index);
-				sheet.setCellAt(index, cell);
+
+				// postpone update to update shapes before updating
+				const sheetOnUpdate = sheet.onUpdate;
+				sheet.onUpdate = null;
+				const didUpdate = sheet.setCellAt(index, cell);
+				sheet.getShapes().evaluate();
+				sheet.onUpdate = sheetOnUpdate;
+				if (didUpdate) sheet._notifyUpdate();
 				sendSheetUpdateOnSlowMachine(streamsheet, cell, index);
+
 				return Promise.resolve({
 					cell: cellDescriptor(cell, index),
 					// to update all cells in DB

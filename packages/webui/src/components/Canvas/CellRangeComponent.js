@@ -125,7 +125,9 @@ class CellRangeComponent extends React.Component {
 		const view = this.props.sheetView;
 		if (view && selection && selection.isCollapsed) {
 			const cellEditor = CellEditor.getActiveCellEditor();
-			cellEditor.focusOffset = selection.focusOffset;
+			if (cellEditor) {
+				cellEditor.focusOffset = selection.focusOffset;
+			}
 		}
 	};
 

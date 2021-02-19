@@ -198,7 +198,7 @@ class MachineTaskStreamSheetMonitor {
 				graphCells: sheet.graphCells.getDescriptors(),
 				drawings: sheet.getDrawings().toJSON(),
 				graphItems: sheet.getDrawings().toGraphItemsJSON(),
-				shapes: sheet.getShapes()
+				shapes: sheet.getShapes().toJSON(),
 			}
 		};
 		MachineTaskMessagingClient.publishEvent(event);
@@ -219,7 +219,7 @@ class MachineTaskStreamSheetMonitor {
 			cells,
 			drawings: streamsheet.sheet.getDrawings().toJSON(),
 			graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON(),
-			shapes: streamsheet.sheet.getShapes()
+			shapes: streamsheet.sheet.getShapes().toJSON(),
 		};
 		MachineTaskMessagingClient.publishEvent(event);
 	}
@@ -262,7 +262,7 @@ class MachineTaskStreamSheetMonitor {
 				},
 				drawings: streamsheet.sheet.getDrawings().toJSON(),
 				graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON(),
-				shapes: streamsheet.sheet.getShapes()
+				shapes: streamsheet.sheet.getShapes().toJSON(),
 			};
 			this._steps = 0;
 			MachineTaskMessagingClient.publishEvent(event);
@@ -280,7 +280,7 @@ class MachineTaskStreamSheetMonitor {
 			graphCells: streamsheet.sheet.graphCells.getDescriptors(),
 			drawings: streamsheet.sheet.getDrawings().toJSON(),
 			graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON(),
-			shapes: streamsheet.sheet.getShapes(),
+			shapes: streamsheet.sheet.getShapes().toJSON(),
 			inbox: {
 				totalSize: this.inboxAdapter.totalSize,
 				messages: streamsheet.inbox.messages.slice(0),

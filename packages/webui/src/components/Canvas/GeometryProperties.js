@@ -92,39 +92,53 @@ export class GeometryProperties extends Component {
 		}
 	};
 
-	getFormula(index) {
+	getFormula(expr) {
 		const item = this.props.view.getItem();
-		const attr = item.getItemAttributes().getAttribute('sheetformula');
+		return expr.toLocaleString(JSG.getParserLocaleSettings(), {
+			item: this.getSheet(item),
+			useName: true
+		});
+	}
 
-		if (attr && attr.getExpression()) {
-			const term = attr.getExpression().getTerm();
-			if (term && term.params && term.params.length > index) {
-				const param = term.params[index];
-				if (param.isStatic) {
-					return `${param.toString()}`;
-				} else {
-					return `=${param.toString()}`;
-				}
-			}
-		}
-		return '';
+	getExpression(item, event) {
+		return this.getSheet(item).textToExpression(String(event.target.textContent), item);
+	}
+
+	handleX(event) {
+		const item = this.props.view.getItem();
+		const expr = this.getExpression(item, event);
+		item.getPin().setX(expr.expression);
+		const cmd = new JSG.SetPinCommand(item, item.getPin());
+		graphManager.synchronizedExecute(cmd);
+	}
+
+	handleY(event) {
+		const item = this.props.view.getItem();
+		const expr = this.getExpression(item, event);
+		item.getPin().setY(expr.expression);
+		const cmd = new JSG.SetPinCommand(item, item.getPin());
+		graphManager.synchronizedExecute(cmd);
 	}
 
 	handleWidth(event) {
 		const item = this.props.view.getItem();
-		const sheet = this.getSheet(item);
-
-		const expr = sheet.textToExpression(String(event.target.textContent), item);
+		const expr = this.getExpression(item, event);
 		const cmd = new JSG.SetSizeCommand(item, new JSG.Size(expr.expression, item.getHeight()));
 		graphManager.synchronizedExecute(cmd);
 	}
 
-	getWidth() {
+	handleHeight(event) {
 		const item = this.props.view.getItem();
-		return item.getWidth().toLocaleString(JSG.getParserLocaleSettings(), {
-			item: this.getSheet(item),
-			useName: true
-		});
+		const expr = this.getExpression(item, event);
+		const cmd = new JSG.SetSizeCommand(item, new JSG.Size(item.getWidth(), expr.expression));
+		graphManager.synchronizedExecute(cmd);
+	}
+
+	handleRotation(event) {
+		const item = this.props.view.getItem();
+		const expr = this.getExpression(item, event);
+		const cmd = new JSG.SetSizeCommand(item, new JSG.Size(expr.expression, item.getHeight()));
+		graphManager.synchronizedExecute(cmd);
 	}
 
 	render() {
@@ -132,6 +146,7 @@ export class GeometryProperties extends Component {
 		if (!sheetView) {
 			return <div />;
 		}
+		const item = this.props.view.getItem();
 		return (
 			<FormGroup>
 				<TextField
@@ -144,8 +159,8 @@ export class GeometryProperties extends Component {
 							defaultMessage="Container"
 						/>
 					}
-					onBlur={(event) => this.handleParameter(event, 2)}
-					value={this.getFormula(1)}
+					// onBlur={(event) => this.handleParameter(event, 2)}
+					value=''
 					InputLabelProps={{ shrink: true }}
 					InputProps={{
 						inputComponent: MyInputComponent,
@@ -153,7 +168,7 @@ export class GeometryProperties extends Component {
 							component: CellRangeComponent,
 							sheetView,
 							value: {},
-							range: this.getFormula(1)
+							range: ''
 						}
 					}}
 				/>
@@ -167,8 +182,8 @@ export class GeometryProperties extends Component {
 							defaultMessage="Horizontal Position"
 						/>
 					}
-					onBlur={(event) => this.handleParameter(event, 3)}
-					value={this.getFormula(3)}
+					onBlur={(event) => this.handleX(event)}
+					value={this.getFormula(item.getPin().getX())}
 					InputLabelProps={{ shrink: true }}
 					InputProps={{
 						inputComponent: MyInputComponent,
@@ -176,7 +191,7 @@ export class GeometryProperties extends Component {
 							component: CellRangeComponent,
 							sheetView,
 							value: {},
-							range: this.getFormula(3)
+							range: this.getFormula(item.getPin().getX()),
 						}
 					}}
 				/>
@@ -190,8 +205,8 @@ export class GeometryProperties extends Component {
 							defaultMessage="Vertical Position"
 						/>
 					}
-					onBlur={(event) => this.handleParameter(event, 4)}
-					value={this.getFormula(4)}
+					onBlur={(event) => this.handleY(event)}
+					value={this.getFormula(item.getPin().getY())}
 					InputLabelProps={{ shrink: true }}
 					InputProps={{
 						inputComponent: MyInputComponent,
@@ -199,7 +214,7 @@ export class GeometryProperties extends Component {
 							component: CellRangeComponent,
 							sheetView,
 							value: {},
-							range: this.getFormula(4)
+							range: this.getFormula(item.getPin().getY()),
 						}
 					}}
 				/>
@@ -209,7 +224,7 @@ export class GeometryProperties extends Component {
 					margin="normal"
 					label={<FormattedMessage id="GraphItemProperties.Width" defaultMessage="Width" />}
 					onBlur={(event) => this.handleWidth(event)}
-					value={this.getWidth()}
+					value={this.getFormula(item.getWidth())}
 					InputLabelProps={{ shrink: true }}
 					InputProps={{
 						inputComponent: MyInputComponent,
@@ -217,7 +232,7 @@ export class GeometryProperties extends Component {
 							component: CellRangeComponent,
 							sheetView,
 							value: {},
-							range: this.getWidth()
+							range: this.getFormula(item.getWidth())
 						}
 					}}
 				/>
@@ -226,8 +241,8 @@ export class GeometryProperties extends Component {
 					size="small"
 					margin="normal"
 					label={<FormattedMessage id="GraphItemProperties.Height" defaultMessage="Height" />}
-					onBlur={(event) => this.handleParameter(event, 6)}
-					value={this.getFormula(6)}
+					onBlur={(event) => this.handleHeight(event)}
+					value={this.getFormula(item.getHeight())}
 					InputLabelProps={{ shrink: true }}
 					InputProps={{
 						inputComponent: MyInputComponent,
@@ -235,7 +250,7 @@ export class GeometryProperties extends Component {
 							component: CellRangeComponent,
 							sheetView,
 							value: {},
-							range: this.getFormula(6)
+							range: this.getFormula(item.getHeight())
 						}
 					}}
 				/>
@@ -244,8 +259,8 @@ export class GeometryProperties extends Component {
 					size="small"
 					margin="normal"
 					label={<FormattedMessage id="GraphItemProperties.Rotation" defaultMessage="Rotation" />}
-					onBlur={(event) => this.handleParameter(event, 11)}
-					value={this.getFormula(11)}
+					onBlur={(event) => this.handleRotation(event)}
+					value={this.getFormula(item.getAngle())}
 					InputLabelProps={{ shrink: true }}
 					InputProps={{
 						inputComponent: MyInputComponent,
@@ -253,7 +268,7 @@ export class GeometryProperties extends Component {
 							component: CellRangeComponent,
 							sheetView,
 							value: {},
-							range: this.getFormula(11)
+							range: this.getFormula(item.getAngle())
 						}
 					}}
 				/>
@@ -264,13 +279,13 @@ export class GeometryProperties extends Component {
 					label={
 						<FormattedMessage id="GraphItemProperties.RotationCenter" defaultMessage="Rotation Center" />
 					}
-					onBlur={(event) => this.handleParameter(event, 12)}
+					// onBlur={(event) => this.handleParameter(event, 12)}
 					onKeyPress={(event) => {
 						if (event.key === 'Enter') {
 							this.handleParameter(event, 12);
 						}
 					}}
-					value={this.getFormula(12)}
+					value=''
 					InputLabelProps={{
 						shrink: true
 					}}
@@ -292,7 +307,7 @@ export class GeometryProperties extends Component {
 							],
 							sheetView,
 							value: {},
-							range: this.getFormula(12)
+							range: ''
 						}
 					}}
 				/>

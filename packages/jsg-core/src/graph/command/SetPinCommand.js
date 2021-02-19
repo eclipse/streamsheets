@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -29,7 +29,7 @@ class SetPinCommand extends AbstractItemCommand {
 		return item
 			? new SetPinCommand(
 					item,
-					new Point(data.pin.x, data.pin.y)
+				readObject('pin', data.pin, new Pin(item))
 			  ).initWithObject(data)
 			: undefined;
 	}
@@ -43,16 +43,12 @@ class SetPinCommand extends AbstractItemCommand {
 
 	initWithObject(data) {
 		const cmd = super.initWithObject(data);
-		cmd._oldPin = readObject(
-			'oldpin',
-			data.oldPin,
-			new Pin(cmd._graphItem)
-		);
+		cmd._oldPin = readObject('oldpin', data.oldPin, new Pin(cmd._graphItem));
 		return cmd;
 	}
 	toObject() {
 		const data = super.toObject();
-		data.pin = this._newPin.getPoint();
+		data.pin = writeJSON('pin', this._newPin);
 		data.oldPin = writeJSON('oldpin', this._oldPin);
 		return data;
 	}
@@ -64,11 +60,7 @@ class SetPinCommand extends AbstractItemCommand {
 	}
 
 	redo() {
-		if (this._newPin instanceof Point) {
-			this._graphItem.getPin().setPointTo(this._newPin);
-		} else {
-			this._graphItem.getPin().setTo(this._newPin);
-		}
+		this._graphItem.getPin().setTo(this._newPin);
 		this._graphItem.getPin().evaluate(this._graphItem);
 	}
 }

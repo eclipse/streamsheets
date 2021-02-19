@@ -729,13 +729,27 @@ module.exports = class StreamSheet extends WorksheetNode {
 	}
 
 	setShapes(shapes) {
+		const assignValue = (expr, obj) => {
+			if (obj.f) {
+				// watch for type
+				expr.setTermValue(Number(obj.v));
+			}
+		};
 		const graph = this.getGraph();
 		if (!shapes) {
 			return;
 		}
 
 		shapes.forEach(shape => {
-			// assign changes to graphitems
+			const id = Number(shape.id);
+			const node = this.getItemById(id);
+			if (node) {
+				assignValue(node.getPin().getX(), shape.x);
+				assignValue(node.getPin().getY(), shape.y);
+				assignValue(node.getWidth(), shape.width);
+				assignValue(node.getHeight(), shape.height);
+				node._update();
+			}
 		});
 	}
 

@@ -11,6 +11,7 @@
 const Cell = require('./Cell');
 const NamedCells = require('./NamedCells');
 const GraphCells = require('./GraphCells');
+const Shapes = require('./Shapes');
 const PropertiesManager = require('./PropertiesManager');
 const ReferenceUpdater = require('./ReferenceUpdater');
 const SheetIndex = require('./SheetIndex');
@@ -135,7 +136,7 @@ module.exports = class Sheet {
 		this.settings = Object.assign({}, DEF_CONF.settings, config.settings);
 		this.streamsheet = streamsheet;
 		this.namedCells = new NamedCells();
-		this.shapes = undefined;
+		this.shapes = new Shapes(this);
 		this.graphCells = new GraphCells(this);
 		this.processor = new SheetProcessor(this);
 		this.sheetDrawings = new SheetDrawings();
@@ -159,7 +160,7 @@ module.exports = class Sheet {
 		json.cells = getSheetCellsAsObject(this);
 		json.namedCells = this.namedCells.getDescriptors();
 		json.graphCells = this.graphCells.getDescriptors();
-		json.shapes = this.shapes;
+		json.shapes = this.shapes.toJSON();
 		json.properties = this.properties.toJSON();
 		json.settings = { ...this.settings };
 		return json;
@@ -540,8 +541,7 @@ module.exports = class Sheet {
 		// load names first, they may be referenced by sheet cells...
 		this.namedCells.load(this, conf.namedCells);
 		this.graphCells.load(this, conf.graphCells);
-		// TODO: load/restore graphItems
-		this.shapes = conf.shapes;
+		this.shapes.fromJSON(conf.shapes);
 		this.loadCells(conf.cells);
 		enableNotifyUpdate(this, onUpdate);
 		return this;
@@ -603,13 +603,7 @@ module.exports = class Sheet {
 		return this._pendingRequests;
 	}
 
-	// used for update & step events
 	getShapes() {
 		return this.shapes;
-	}
-	applyShapes(graphItems) {
-		this.shapes = graphItems;
-
-		return this.getShapes();
 	}
 };

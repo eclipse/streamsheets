@@ -163,13 +163,9 @@ class SheetProcessor {
 		sheet.graphCells._cells.forEach((cell) => cell.evaluate());
 		sheet.graphCells.evaluating = false;
 	}
-	_evaluateShapes(sheet) {
-		if (!sheet.shapes) {
-			return;
-		}
-		sheet.shapes.forEach(shape => {
 
-		});
+	_evaluateShapes(sheet) {
+		sheet.shapes.evaluate();
 	}
 }
 
