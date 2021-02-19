@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -9,124 +9,112 @@
  *
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
-const { AsyncRequest, runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../utils');
-const { addParseResultToInbox } = require('./utils');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors: { code: ERROR } } = require('@cedalo/error-codes');
 const { parseCSS, parseCSV, parseJavaScript, parseMarkdown, parseXML, parseYAML } = require('@cedalo/parsers');
+const { AsyncRequest, runFunction } = require('../../utils');
+const { addParseResultToInbox } = require('./utils');
 
-const ERROR = FunctionErrors.code;
 
-const asString = (value) => value ? convert.toString(value) : '';
-const asBoolean = (value) => value ? convert.toBoolean(value) : false;
+const asString = (value) => (value ? convert.toString(value, ERROR.VALUE) : '');
 
-const createDefaultCallback = () => (context, parseResult, error) => {
+const createDefaultCallback = (sheet) => (context, parseResult, error) => {
 	const term = context.term;
-
-	addParseResultToInbox(parseResult, context, error);
-
-	const err = error || response.error;
-	if (term && !term.isDisposed) {
-		term.cellValue = err ? ERROR.RESPONSE : undefined;
-	}
-	return err ? AsyncRequest.STATE.REJECTED : undefined;
+	const inbox = sheet.streamsheet.inbox;
+	addParseResultToInbox(context, inbox, parseResult, error);
+	if (term && !term.isDisposed) term.cellValue = error ? ERROR.RESPONSE : undefined;
+	return error ? AsyncRequest.STATE.REJECTED : undefined;
 };
+
 
 const css = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
-		.withMinArgs(1)
-		.withMaxArgs(1)
-		.mapNextArg((string) => asString(string.value, ERROR.VALUE))
-		.run((string) => {
-			return AsyncRequest.create(sheet, css.context)
+		.withArgCount(1)
+		.mapNextArg((string) => asString(string.value))
+		.run((string) =>
+			AsyncRequest.create(sheet, css.context)
 				.request(() => parseCSS(string))
-				.response(createDefaultCallback())
-				.reqId();
-		});
+				.response(createDefaultCallback(sheet))
+				.reqId()
+		);
 css.displayName = true;
 
 const csv = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
-		.withMinArgs(1)
-		.withMaxArgs(1)
-		.mapNextArg((string) => asString(string.value, ERROR.VALUE))
-		.run((string) => {
-			return AsyncRequest.create(sheet, csv.context)
+		.withArgCount(1)
+		.mapNextArg((string) => asString(string.value))
+		.run((string) =>
+			AsyncRequest.create(sheet, csv.context)
 				.request(() => parseCSV(string))
-				.response(createDefaultCallback())
-				.reqId();
-		});
+				.response(createDefaultCallback(sheet))
+				.reqId()
+		);
 csv.displayName = true;
 
 const javascript = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
-		.withMinArgs(1)
-		.withMaxArgs(1)
-		.mapNextArg((string) => asString(string.value, ERROR.VALUE))
-		.run((string) => {
-			return AsyncRequest.create(sheet, javascript.context)
+		.withArgCount(1)
+		.mapNextArg((string) => asString(string.value))
+		.run((string) =>
+			AsyncRequest.create(sheet, javascript.context)
 				.request(() => parseJavaScript(string))
-				.response(createDefaultCallback())
-				.reqId();
-		});
+				.response(createDefaultCallback(sheet))
+				.reqId()
+		);
 javascript.displayName = true;
 
 const markdown = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
-		.withMinArgs(1)
-		.withMaxArgs(1)
-		.mapNextArg((string) => asString(string.value, ERROR.VALUE))
-		.run((string) => {
-			return AsyncRequest.create(sheet, markdown.context)
+		.withArgCount(1)
+		.mapNextArg((string) => asString(string.value))
+		.run((string) =>
+			AsyncRequest.create(sheet, markdown.context)
 				.request(() => parseMarkdown(string))
-				.response(createDefaultCallback())
-				.reqId();
-		});
+				.response(createDefaultCallback(sheet))
+				.reqId()
+		);
 markdown.displayName = true;
 
 const svg = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
-		.withMinArgs(1)
-		.withMaxArgs(1)
-		.mapNextArg((string) => asString(string.value, ERROR.VALUE))
-		.run((string) => {
-			return AsyncRequest.create(sheet, svg.context)
+		.withArgCount(1)
+		.mapNextArg((string) => asString(string.value))
+		.run((string) =>
+			AsyncRequest.create(sheet, svg.context)
 				.request(() => parseXML(string))
-				.response(createDefaultCallback())
-				.reqId();
-		});
+				.response(createDefaultCallback(sheet))
+				.reqId()
+		);
 svg.displayName = true;
 
 const xml = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
-		.withMinArgs(1)
-		.withMaxArgs(1)
-		.mapNextArg((string) => asString(string.value, ERROR.VALUE))
-		.run((string) => {
-			return AsyncRequest.create(sheet, xml.context)
+		.withArgCount(1)
+		.mapNextArg((string) => asString(string.value))
+		.run((string) =>
+			AsyncRequest.create(sheet, xml.context)
 				.request(() => parseXML(string))
-				.response(createDefaultCallback())
-				.reqId();
-		});
+				.response(createDefaultCallback(sheet))
+				.reqId()
+		);
 xml.displayName = true;
 
 const yaml = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
-		.withMinArgs(1)
-		.withMaxArgs(1)
-		.mapNextArg((string) => asString(string.value, ERROR.VALUE))
-		.run((string) => {
-			return AsyncRequest.create(sheet, yaml.context)
+		.withArgCount(1)
+		.mapNextArg((string) => asString(string.value))
+		.run((string) =>
+			AsyncRequest.create(sheet, yaml.context)
 				.request(() => parseYAML(string))
-				.response(createDefaultCallback())
-				.reqId();
-		});
+				.response(createDefaultCallback(sheet))
+				.reqId()
+		);
 yaml.displayName = true;
 
 module.exports = {

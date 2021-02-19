@@ -10,15 +10,14 @@
  ********************************************************************************/
 const { Message } = require('@cedalo/machine-core');
 
-const addParseResultToInbox = async (parseResult, context, error) => {
-	const inbox = context.term.scope.streamsheet.inbox;
+const addParseResultToInbox = async (context, inbox, parseResult, error) => {
 	if (error) {
 		const errorMessage = new Message(error);
 		errorMessage.metadata.label = `Error: ${context.term.name}`;
 		inbox.put(errorMessage);
 	} else {
-		let messageContent = parseResult;
-		let messageLabel = `${context.term.name}`;
+		const messageContent = parseResult;
+		const messageLabel = `${context.term.name}`;
 		const message = new Message(messageContent);
 		message.metadata.label = messageLabel;
 		inbox.put(message);		
