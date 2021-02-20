@@ -844,7 +844,7 @@ describe('behaviour on machine run', () => {
 			expect(s2.inbox.size).toBe(1);
 			expect(s2.sheet.cellAt('B1').value).toBe('1,1,1,2,2,2,3,3,4,4,4');
 			expect(s2.sheet.cellAt('B2').value).toBe('0,1,2,0,1,2,0,1,0,0,0');
-			expect(monitorS2.messages.detached).toBe(6);
+			expect(monitorS2.messages.detached).toBe(4);
 		});
 		test('repeated execute and consume message with loop from inbox and "repeat until..." return()', async () => {
 			const { machine, s1, s2 } = setup();
@@ -891,7 +891,7 @@ describe('behaviour on machine run', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 			expect(s2.sheet.cellAt('B1').value).toBe(22);
 			expect(s2.sheet.cellAt('B2').value).toBe('0,1,1,2,2,0,0,1,1,2,2,0,0,1,1,0,0,0,0,0,0');
-			expect(monitorS2.messages.detached).toBe(6);
+			expect(monitorS2.messages.detached).toBe(4);
 		});
 		test('repeat execute should use passed message and not inbox ones', async () => {
 			const { machine, s1, s2 } = setup();

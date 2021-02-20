@@ -96,8 +96,12 @@ class BaseTrigger {
 
 	processSheet() {
 		if (this._streamsheet.messageHandler.isProcessed) this._streamsheet.attachNextMessage();
-		// no messageHandler.next() here because of "repeat until..." which uses same loop element 
+		// no messageHandler.next() here because of "repeat until..." which uses same loop element
 		this._streamsheet.process();
+	}
+
+	didProcessSheet() {
+		this.activeCycle.didProcessSheet();
 	}
 
 	// MACHINE CONTROL METHODS
@@ -152,13 +156,8 @@ class BaseTrigger {
 		this.activeCycle.resume(retval);
 		// ...and maybe finish current step
 		const doFinishStep = !this.sheet.isProcessed && (this.machine.isManualStep || !this.isMachineStopped);
-		if (doFinishStep) {
-			// this.trigger.activeCycle.step(); // <-- don't call this! will decrease repetitions counter and others...
-			const cycle = this.activeCycle;
-			this.processSheet();
-			// on cycle switch postProcessSheet() was already called...
-			if (this.activeCycle === cycle) this.activeCycle.postProcessSheet();
-		}
+		if (doFinishStep) this.processSheet();
+		else this.activeCycle.didProcessSheet();
 		return doFinishStep;
 	}
 	stopProcessing(retval) {
