@@ -33,6 +33,9 @@ class Shapes {
 	}
 
 	fromJSON(json) {
+		if (json === undefined) {
+			return false;
+		}
 		this.shapes = json;
 		this.shapesWithTerms = JSON.parse(JSON.stringify(json));
 
