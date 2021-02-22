@@ -32,14 +32,6 @@ const popMessageById = (id, messages) => {
 	return message;
 };
 
-const match = (data, selector) => {
-	let doMatch = !!data;
-	const selkeys = typeof selector === 'object' ? Object.keys(selector) : [];
-	selkeys.forEach((key) => {
-		doMatch = doMatch && match(data[key], selector[key]);
-	});
-	return selkeys.length === 0 ? selector === data : doMatch;
-};
 
 const DEF_CONF = {
 	max: 100, // -1, to signal no bounds...
@@ -152,16 +144,6 @@ class MessageBox {
 	peek(id) {
 		// eslint-disable-next-line
 		return this.isEmpty() ? undefined : id ? messageById(id, this.messages) : this.messages[0]; // .copy();
-	}
-
-	// selector is a json object!
-	find(selector) {
-		let message;
-		if (selector) {
-			const candidates = this.messages.filter((msg) => match(msg.data, selector));
-			message = candidates[0];
-		}
-		return message;
 	}
 
 	replaceMessage(newMessage) {
