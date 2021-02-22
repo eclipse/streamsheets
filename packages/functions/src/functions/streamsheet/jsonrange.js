@@ -14,6 +14,7 @@ const {
 	arrayspread: { toRange, toRangeGrow },
 	jsonflatten: { toArray2D },
 	runFunction,
+	sheet: { setCellValue },
 	terms: { getCellRangeFromTerm, getJSONFromTerm }
 } = require('../../utils');
 
@@ -30,6 +31,10 @@ const getRange = (term) => {
 	const range = getCellRangeFromTerm(term);
 	return range == null || range.width > 0 || range.height > 0 ? range : undefined;
 };
+
+// handle empty strings like undefined!
+const setCellAt = (sheet, index, value) => setCellValue(sheet, index, value === '' ? null: value);
+
 const jsonrange = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
@@ -44,7 +49,7 @@ const jsonrange = (sheet, ...terms) =>
 			const spread = range.width === 1 && range.height === 1 ? toRangeGrow : toRange;
 			const horizontally = type === 'dictionary' || type === 'range' ? direction : !direction;
 			json = toArray2D(json, type);
-			res = json ? spread(json, range, horizontally) : ERROR.VALUE;
+			res = json ? spread(json, range, horizontally, setCellAt) : ERROR.VALUE;
 			return res;
 		});
 

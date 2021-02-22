@@ -14,7 +14,8 @@ const {
 	isInboxDataTerm,
 	isInboxMetaDataTerm,
 	isOutboxTerm,
-	isOutboxDataTerm
+	isOutboxDataTerm,
+	termFromValue
 } = require('./terms');
 const { Term } = require('@cedalo/parser');
 const { jsonpath } = require('@cedalo/commons');
@@ -151,6 +152,14 @@ const messageFromBoxOrValue = (machine, sheet, term, requireMessageData = true) 
 	return term.value;
 };
 
+const setCellValue = (sheet, index, value, keepFormula = false) => {
+	if (value == null) sheet.setCellAt(index, undefined);
+	else {
+		const cell = sheet.cellAt(index, true);
+		if (keepFormula && cell.hasFormula) cell.value = value;
+		else cell.term = termFromValue(value);
+	}
+};
 module.exports = {
 	cellFromFunc,
 	createMessageFromValue,
@@ -165,4 +174,5 @@ module.exports = {
 	getStreamSheetByName,
 	messageFromBox,
 	messageFromBoxOrValue,
+	setCellValue
 };
