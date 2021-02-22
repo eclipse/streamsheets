@@ -181,44 +181,4 @@ describe('MessageBox', () => {
 			expect(peekedMessage.id).toBe(pivot.id);
 		});
 	});
-	describe('find', () => {
-		it('should return first message which matches given selector json', () => {
-			const box = new MessageBox();
-			const pivot = new Message(MSG.SIMPLE.data);
-			box.put(pivot);
-			box.put(new Message(MSG.SIMPLE2.data));
-			const selector = {};
-			selector.Kundenname = {};
-			selector.Kundenname.Nachname = 'Mustermann';
-			const result = box.find(selector);
-			expect(result).toBeDefined();
-			expect(result.id).toBe(pivot.id);
-			expect(result.data.Kundenname.Vorname).toBe('Max');
-		});
-		it('should respect all keys in selector json', () => {
-			const box = new MessageBox();
-			const pivot = new Message(MSG.SIMPLE2.data);
-			box.put(new Message(MSG.SIMPLE.data));
-			box.put(pivot);
-			const selector = {};
-			selector.Kundenname = {};
-			selector.Kundenname.Vorname = 'Anton';
-			selector.Kundenname.Nachname = 'Mustermann';
-			const result = box.find(selector);
-			expect(result).toBeDefined();
-			expect(result.id).toBe(pivot.id);
-			expect(result.data.Kundenname.Vorname).toBe('Anton');
-		});
-		it('should return undefined if message could not be found', () => {
-			const box = new MessageBox();
-			expect(box.find()).toBeUndefined();
-			expect(box.find('')).toBeUndefined();
-			box.put(new Message(MSG.SIMPLE.data));
-			const selector = {};
-			selector.Kundenname = {};
-			selector.Kundenname.Vorname = 'Fritz';
-			selector.Kundenname.Nachname = 'Mustermann';
-			expect(box.find(selector)).toBeUndefined();
-		});
-	});
 });
