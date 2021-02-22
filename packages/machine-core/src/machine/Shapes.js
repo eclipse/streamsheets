@@ -11,6 +11,21 @@
 const { SheetParser } = require('../parser/SheetParser');
 
 const checkNaN = (value) => (typeof value === 'number' && Number.isNaN(value) ? 0 : value);
+// temp. borrowed from JSG...
+const decode = (str) => {
+	if (typeof str === 'string') {
+		str = str.replace(/~26/gi, '&');
+		str = str.replace(/~22/gi, '"');
+		str = str.replace(/~5C/gi, '\\');
+		str = str.replace(/~3C/gi, '<');
+		str = str.replace(/~3E/gi, '>');
+		str = str.replace(/~0A/gi, '\n');
+		str = str.replace(/~27/gi, "'");
+		str = decodeURIComponent(str);
+		str = str.replace(/~25/gi, '%');
+	}
+	return str;
+};
 
 const updateValue = (obj) => {
 	if (!obj.term) {
@@ -42,7 +57,7 @@ class Shapes {
 		this.shapesWithTerms.forEach(shape => {
 			Object.values(shape).forEach(value => {
 				if (value.f) {
-					value.term = SheetParser.parse(value.f, this.sheet);
+					value.term = SheetParser.parse(decode(value.f), this.sheet);
 				}
 			})
 		});
@@ -55,7 +70,7 @@ class Shapes {
 			Object.entries(shape).forEach(([key, value]) => {
 				if (value.term) {
 					updateValue(value);
-					this.shapes[index][key].v = value.v;
+					this.shapes[index][key].sv = value.v;
 				}
 			})
 		});

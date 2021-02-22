@@ -51,6 +51,19 @@ class LineShape extends Shape {
 		return LineShape.TYPE;
 	}
 
+	fromJSON(json) {
+		const ret = super.fromJSON(json);
+
+		json.points.forEach(point => {
+			const coordinate = new Coordinate();
+			coordinate.fromJSON(point);
+			this._coordinates.push(coordinate);
+
+		});
+
+		return ret;
+	}
+
 	toJSON() {
 		const json = {
 			type: this.getType(),

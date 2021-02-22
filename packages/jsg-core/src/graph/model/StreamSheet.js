@@ -20,6 +20,7 @@ const MathUtils = require('../../geometry/MathUtils');
 const Node = require('./Node');
 const Edge = require('./Edge');
 const TextNode = require('./TextNode');
+const GraphItem = require('./GraphItem');
 const SheetButtonNode = require('./SheetButtonNode');
 const SheetCheckboxNode = require('./SheetCheckboxNode');
 const SheetSliderNode = require('./SheetSliderNode');
@@ -128,10 +129,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 		return lid;
 	}
 
-	saveContent(file, absolute) {
-		super.saveContent(file, absolute);
-
-		file.writeAttributeString('type', 'processsheet');
+	getItemType() {
+		return 'processsheet';
 	}
 
 	saveForUndo() {
@@ -729,28 +728,48 @@ module.exports = class StreamSheet extends WorksheetNode {
 	}
 
 	setShapes(shapes) {
-		const assignValue = (expr, obj) => {
-			if (obj.f) {
-				// watch for type
-				expr.setTermValue(Number(obj.v));
-			}
-		};
-		const graph = this.getGraph();
+		const createItemMap = () => {
+			const itemMap = {};
+			GraphUtils.traverseItem(this.getCells(), item => {
+				itemMap[item.getId()] = item;
+			}, false);
+			return itemMap;
+		}
 		if (!shapes) {
 			return;
 		}
 
+		const itemMap = createItemMap();
+
 		shapes.forEach(shape => {
-			const id = Number(shape.id);
-			const node = this.getItemById(id);
-			if (node) {
-				assignValue(node.getPin().getX(), shape.x);
-				assignValue(node.getPin().getY(), shape.y);
-				assignValue(node.getWidth(), shape.width);
-				assignValue(node.getHeight(), shape.height);
-				node._update();
+			let node = itemMap[shape.id];
+			if (!node) {
+				node = JSG.graphItemFactory.createItemFromString(shape.itemType, true);
+				if (!node) {
+					return;
+				}
+				const s = JSG.ShapeFactory.createShapeFromString(shape.shape.type);
+				if (s) {
+					node.setShapeTo(s);
+					s.fromJSON(shape.shape);
+				}
+
+				this.getCells().addItem(node);
+			}
+			node.fromJSON(shape);
+			node.evaluate();
+			node.setRefreshNeeded(true);
+			itemMap[shape.id] = undefined;
+		});
+
+		// remove deleted items
+		Object.values(itemMap).forEach(value => {
+			if (value !== undefined ) {
+				value.getParent().removeItem(value);
 			}
 		});
+
+		// TODO		container.getStreamSheet()._addImageCmds.forEach(cmd => {
 	}
 
 	setGraphItems(graphItems) {

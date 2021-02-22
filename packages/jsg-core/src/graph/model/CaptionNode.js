@@ -40,10 +40,8 @@ module.exports = class CaptionNode extends Node {
 		return copy;
 	}
 
-	saveContent(file, absolute) {
-		super.saveContent(file, absolute);
-
-		file.writeAttributeString('type', 'captionnode');
+	getItemType() {
+		return 'captionnode';
 	}
 
 	_assignName() {

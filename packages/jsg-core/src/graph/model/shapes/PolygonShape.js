@@ -24,6 +24,21 @@ class PolygonShape extends Shape {
 		return PolygonShape.TYPE;
 	}
 
+	fromJSON(json) {
+		const ret = super.fromJSON(json);
+
+		if (json.points) {
+			json.points.forEach(point => {
+				const coordinate = new Coordinate();
+				coordinate.fromJSON(point);
+				this._coordinates.push(coordinate);
+
+			});
+		}
+
+		return ret;
+	}
+
 	toJSON() {
 		const json = {
 			type: this.getType(),

@@ -600,6 +600,26 @@ class Expression {
 		this._isLocked = locked;
 	}
 
+	fromJSON(json) {
+		const type = json.t || 'n';
+		let value = json.v;
+
+		if (value === undefined) {
+			value = 0;
+		} else if (type === 'n') {
+			value = Number(value);
+		} else if (type === 'b') {
+			value = value === 'true';
+		} else {
+			value = Strings.decode(value);
+		}
+
+		const formula = json.f ? Strings.decode(json.f) : undefined;
+
+		this.set(value, formula);
+		this.setTermValue(json.sv);
+	}
+
 	toJSON() {
 		const ret =  {};
 

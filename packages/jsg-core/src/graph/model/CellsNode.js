@@ -67,12 +67,18 @@ module.exports = class CellsNode extends Node {
 		return this._merged;
 	}
 
+	getItemType() {
+		return 'cellsnode';
+	}
+
 	saveContent(file, absolute) {
 		super.saveContent(file, absolute);
 
-		file.writeAttributeString('type', 'cellsnode');
-
 		this._data.save(file);
+	}
+
+	_saveSubItems(file) {
+		// do not save subitems, they are saved in machine server
 	}
 
 	_assignName(id) {

@@ -27,9 +27,8 @@ module.exports = class ColumnHeaderNode extends HeaderNode {
 		return 2000;
 	}
 
-	saveContent(file, absolute) {
-		super.saveContent(file, absolute);
-		file.writeAttributeString('type', 'columnheadernode');
+	getItemType() {
+		return 'columnheadernode';
 	}
 
 	_assignName(id) {

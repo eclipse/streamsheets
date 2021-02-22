@@ -17,17 +17,17 @@ import CommandStack from './CommandStack';
 const {
 	DeleteTreeItemCommand,
 	InteractionHandler,
-	SetAttributeAtPathCommand,
 	OutboxContainer,
 	StreamSheet,
 	SetSelectionCommand,
 	TreeItemsNode,
 	MachineGraph,
-	AttributeUtils,
-	Expression,
-	ItemAttributes,
-	CompoundCommand,
-	SetGraphCellsCommand,
+	// CompoundCommand,
+	// SetAttributeAtPathCommand,
+	// AttributeUtils,
+	// Expression,
+	// ItemAttributes,
+	// SetGraphCellsCommand,
 	SetGraphItemsCommand,
 } = JSG;
 
@@ -49,9 +49,21 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 
 	execute(command, completionFunction, updateGraphItems = true) {
 		this.handleCustomFields(command);
+
+		const isShapeCommand = this.isShapeCommand(command);
+
 		super.execute(command, completionFunction);
 
 		const commandJSON = command.toObject('execute');
+
+		// filter commands for on sheet items for now -> remove later
+		if (isShapeCommand && commandJSON.name !== 'command.SetGraphItemsCommand') {
+			if (commandJSON.name !== 'command.RemoveSelectionCommand' &&
+				commandJSON.name !== 'command.SetSelectionCommand') {
+				this.updateGraphItems();
+			}
+			return;
+		}
 
 		if (!this.isSelectionInOutbox(command._graphItem)) {
 			const streamsheetId = this.getStreamSheetId(command);
@@ -59,6 +71,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 				commandJSON.streamsheetId = streamsheetId;
 			}
 		}
+
 		Actions.sendCommand(this.graphWrapper.id, commandJSON, this.graphWrapper.machineId)
 			.then((response) => {
 				if (command.handleResponse) command.handleResponse(response);
@@ -76,40 +89,40 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 
 	}
 
-	updateGraphItems(undo) {
-		const cmp = new CompoundCommand();
-		const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
+	updateGraphItems(/* undo */) {
+		// const cmp = new CompoundCommand();
+		// const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
 
-		cmp.isVolatile = true;
+		// cmp.isVolatile = true;
 
-		this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
-			const formulas = container.getStreamSheet().updateOrCreateGraphFormulas(undo);
-			Object.values(formulas).forEach((value) => {
-				if (value.formula) {
-					const cmd = new SetAttributeAtPathCommand(value.item, path, new Expression(0, value.formula), true);
-					cmd.isVolatile = true;
-					cmp.add(cmd);
-				}
-			});
-			container.getStreamSheet()._addImageCmds.forEach(cmd => {
-				cmp.add(cmd);
-			});
-		});
-
-		if (cmp.hasCommands()) {
-			this.execute(cmp, undefined, false);
-
-			// replace all graph cells...
-			const graphCells = new Map();
-			this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
-				const sheetId = container.getStreamSheetContainerAttributes().getSheetId().getValue();
-				const descriptors = sheetId && container.getStreamSheet().getGraphDescriptors();
-				if (descriptors) graphCells.set(sheetId, descriptors);
-			});
-			if (graphCells.size) {
-				this.execute(new SetGraphCellsCommand(Array.from(graphCells.keys()), Array.from(graphCells.values())), undefined, false);
-			}
-		}
+		// this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
+		// 	const formulas = container.getStreamSheet().updateOrCreateGraphFormulas(undo);
+		// 	Object.values(formulas).forEach((value) => {
+		// 		if (value.formula) {
+		// 			const cmd = new SetAttributeAtPathCommand(value.item, path, new Expression(0, value.formula), true);
+		// 			cmd.isVolatile = true;
+		// 			cmp.add(cmd);
+		// 		}
+		// 	});
+		// 	container.getStreamSheet()._addImageCmds.forEach(cmd => {
+		// 		cmp.add(cmd);
+		// 	});
+		// });
+		//
+		// if (cmp.hasCommands()) {
+		// 	this.execute(cmp, undefined, false);
+		//
+		// 	// replace all graph cells...
+		// 	const graphCells = new Map();
+		// 	this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
+		// 		const sheetId = container.getStreamSheetContainerAttributes().getSheetId().getValue();
+		// 		const descriptors = sheetId && container.getStreamSheet().getGraphDescriptors();
+		// 		if (descriptors) graphCells.set(sheetId, descriptors);
+		// 	});
+		// 	if (graphCells.size) {
+		// 		this.execute(new SetGraphCellsCommand(Array.from(graphCells.keys()), Array.from(graphCells.values())), undefined, false);
+		// 	}
+		// }
 
 		// filter commands that do not affect graph (SetCellData ...)
 		const graphs = new Map();
@@ -209,7 +222,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 					selectionType = SELECTION_TYPE_INBOX_MESSAGE_LIST;
 				} else if (type === 'me') {
 					selectionType = SELECTION_TYPE_INBOX_MESSAGE_ELEMENTS;
-				}
+ 				}
 			}
 		}
 		return selectionType;
@@ -225,6 +238,23 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		return this.getStreamSheet(command._graphItem)
 			|| command.sheet
 			|| (command.commands ? command.commands.reduce((sheet, cmd) => sheet || cmd.sheet, null) : undefined);
+	}
+
+	isShapeCommand(command) {
+		const isShape = (item) => {
+			while (item && !(item instanceof JSG.CellsNode)) {
+				item = item.getParent();
+			}
+			return item;
+		}
+
+		const selection = this.viewer.getSelection();
+
+		if (command instanceof JSG.AddItemCommand) {
+			return isShape(command._parent);
+		}
+
+		return isShape(selection.length ? selection[0].getModel() : undefined);
 	}
 
 	getStreamSheet(graphItem) {

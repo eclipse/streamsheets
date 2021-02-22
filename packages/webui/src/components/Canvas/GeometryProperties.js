@@ -137,7 +137,7 @@ export class GeometryProperties extends Component {
 	handleRotation(event) {
 		const item = this.props.view.getItem();
 		const expr = this.getExpression(item, event);
-		const cmd = new JSG.SetSizeCommand(item, new JSG.Size(expr.expression, item.getHeight()));
+		const cmd = new JSG.RotateItemCommand(item, expr.expression);
 		graphManager.synchronizedExecute(cmd);
 	}
 

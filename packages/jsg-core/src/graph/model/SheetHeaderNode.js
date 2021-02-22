@@ -43,8 +43,7 @@ module.exports = class SheetHeaderNode extends Node {
 		this.getFormat().setFillColor('#F2F2F2');
 	}
 
-	saveContent(file, absolute) {
-		super.saveContent(file, absolute);
-		file.writeAttributeString('type', 'sheetheadernode');
+	getItemType() {
+		return 'sheetheadernode';
 	}
 };

@@ -77,9 +77,8 @@ module.exports = class OutboxContainer extends MessageContainer {
 		this.setName(`OutboxContainer${id}`);
 	}
 
-	saveContent(file, absolute) {
-		super.saveContent(file, absolute);
-		file.writeAttributeString('type', 'outboxcontainer');
+	getItemType() {
+		return 'outboxcontainer';
 	}
 
 	layout() {

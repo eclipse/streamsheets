@@ -4839,10 +4839,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		save(this.yAxes, 'yaxis');
 	}
 
+	getItemType() {
+		return 'streamchart';
+	}
+
 	saveContent(writer, absolute) {
 		super.saveContent(writer, absolute);
-
-		writer.writeAttributeString('type', 'streamchart');
 
 		writer.writeStartElement('plot');
 

@@ -2703,6 +2703,8 @@ class GraphItem extends Model {
 	 * relative to its Graph.
 	 */
 	saveContent(file, absolute) {
+		file.writeAttributeString('type', this.getItemType());
+
 		this._pin.save('pin', file, absolute);
 		this._size.save('size', file);
 
@@ -3394,21 +3396,33 @@ class GraphItem extends Model {
 		]
 	}
 
+	fromJSON(json) {
+		this._id = json.id;
+		this.getPin().getX().fromJSON(json.x);
+		this.getPin().getY().fromJSON(json.y);
+		this.getWidth().fromJSON(json.width);
+		this.getHeight().fromJSON(json.height);
+		if (json.angle !== undefined) {
+			this.getAngle().fromJSON(json.angle);
+		}
+
+	}
+
 	toJSON() {
 		const ret = {
 			id: this._id,
 			parent: this._parent.getId(),
-			type: 'node',
+			itemType: this.getItemType(),
 			x: this.getPin().getX().toJSON(),
 			y: this.getPin().getY().toJSON(),
 			width: this.getWidth().toJSON(),
 			height: this.getHeight().toJSON(),
 		};
-		if (this._angle.getValue() !== 0) {
+		if (this._angle.getValue() !== 0 || this._angle.hasFormula()) {
 			ret.angle = this.getAngle().toJSON();
 		}
 
-		if (this._name.getValue() !== 0) {
+		if (this._name.getValue() !== '') {
 			ret.name = this.getName().getValue();
 		}
 

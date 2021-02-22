@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -13,6 +13,7 @@ const { readObject, writeJSON } = require('./utils');
 const AbstractItemCommand = require('./AbstractItemCommand');
 const Point = require('../../geometry/Point');
 const NumberExpression = require('../expr/NumberExpression');
+const Expression = require('../expr/Expression');
 
 /**
  * Internal command to rotate an item.
@@ -53,13 +54,19 @@ class InternalRotateItemCommand extends AbstractItemCommand {
 	constructor(item, angle, point) {
 		super(item);
 
-		this._angle = angle;
+		this._angle = (angle instanceof Expression) ? angle.copy() : new NumberExpression(angle);
+		this._angle.evaluate(this._graphItem);
 		this._oldAngle = item.getAngle().copy();
 		this._point = point ? point.copy() : undefined;
 	}
 
 	initWithObject(data) {
 		const cmd = super.initWithObject(data);
+		cmd._angle = readObject(
+			'angle',
+			data.angle,
+			new NumberExpression()
+		);
 		cmd._oldAngle = readObject(
 			'oldangle',
 			data.oldAngle,
@@ -75,7 +82,7 @@ class InternalRotateItemCommand extends AbstractItemCommand {
 	 */
 	undo() {
 		// undo rotation (around point)
-		this._graphItem.rotate(-this._angle, this._point);
+		this._graphItem.rotate(-this._angle.getValue(), this._point);
 		// ... and set old angle expression again:
 		this._graphItem.setAngle(this._oldAngle);
 		this._graphItem.getAngle().evaluate(this._graphItem);
@@ -87,14 +94,18 @@ class InternalRotateItemCommand extends AbstractItemCommand {
 	 * @method redo
 	 */
 	redo() {
-		this._graphItem.rotate(this._angle, this._point);
+		if (this._point) {
+			this._graphItem.rotate(this._angle.getValue(), this._point);
+		} else {
+			this._graphItem.setAngle(this._angle);
+		}
 	}
 
 	toObject() {
 		const data = super.toObject();
 
 		data.point = this._point;
-		data.angle = this._angle;
+		data.angle = writeJSON('angle', this._angle);
 		data.oldAngle = writeJSON('oldangle', this._oldAngle);
 
 		return data;

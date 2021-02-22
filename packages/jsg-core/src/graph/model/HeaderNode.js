@@ -413,10 +413,12 @@ module.exports = class HeaderNode extends Node {
 		writer.writeEndElement();
 	}
 
+	getItemType() {
+		return 'headernode';
+	}
+
 	saveContent(writer, absolute) {
 		super.saveContent(writer, absolute);
-
-		writer.writeAttributeString('type', 'headernode');
 
 		writer.writeStartElement('sections');
 		writer.writeStartArray('section');

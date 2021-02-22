@@ -46,10 +46,13 @@ module.exports = class SplitterNode extends Node {
 		return copy;
 	}
 
+	getItemType() {
+		return 'splitternode';
+	}
+
 	saveContent(file, absolute) {
 		super.saveContent(file, absolute);
 
-		file.writeAttributeString('type', 'splitternode');
 		file.writeAttributeNumber('direction', this._direction);
 	}
 

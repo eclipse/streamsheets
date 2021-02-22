@@ -91,6 +91,10 @@ class Shape {
 		return Shape.TYPE;
 	}
 
+	fromJSON(json) {
+
+	}
+
 	toJSON() {
 		return {
 			type: this.getType(),

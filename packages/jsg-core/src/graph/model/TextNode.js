@@ -112,9 +112,12 @@ class TextNode extends Node {
 		return super.containsPoint(point, Shape.FindFlags.AREA);
 	}
 
+	getItemType() {
+		return 'text';
+	}
+
 	saveContent(file, absolute) {
 		super.saveContent(file, absolute);
-		file.writeAttributeString('type', 'text');
 
 		this._text.save('text', file, absolute ? this : undefined);
 	}

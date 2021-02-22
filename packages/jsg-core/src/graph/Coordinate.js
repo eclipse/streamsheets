@@ -84,6 +84,11 @@ class Coordinate {
 		return Coordinate.fromXY(0, 0);
 	}
 
+	fromJSON(json) {
+		this._xExpression.fromJSON(json.x);
+		this._yExpression.fromJSON(json.y);
+	}
+
 	toJSON() {
 		return {
 			x: this._xExpression.toJSON(),

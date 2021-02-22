@@ -363,6 +363,34 @@ class BezierShape extends PolygonShape {
 		}
 	}
 
+	fromJSON(json) {
+		const ret = super.fromJSON(json);
+
+		if (json.from) {
+			json.from.forEach(point => {
+				const coordinate = new Coordinate();
+				coordinate.fromJSON(point);
+				this._cpFromCoordinates.push(coordinate);
+
+			});
+		}
+
+		if (json.to) {
+			json.to.forEach(point => {
+				const coordinate = new Coordinate();
+				coordinate.fromJSON(point);
+				this._cpToCoordinates.push(coordinate);
+
+			});
+		}
+
+		if (json.pie !== undefined) {
+			this._pie = json.pie;
+		}
+
+		return ret;
+	}
+
 	toJSON() {
 		const json = super.toJSON();
 		json.to = [];
