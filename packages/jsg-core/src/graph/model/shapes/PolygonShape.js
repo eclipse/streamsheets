@@ -28,6 +28,7 @@ class PolygonShape extends Shape {
 		const ret = super.fromJSON(json);
 
 		if (json.points) {
+			this._coordinates = [];
 			json.points.forEach(point => {
 				const coordinate = new Coordinate();
 				coordinate.fromJSON(point);

@@ -116,6 +116,19 @@ class TextNode extends Node {
 		return 'text';
 	}
 
+	toJSON() {
+		const ret = super.toJSON();
+		ret.text = this._text.toJSON();
+
+		return ret;
+	}
+
+	fromJSON(json) {
+		super.fromJSON(json);
+
+		this._text.fromJSON(json.text);
+	}
+
 	saveContent(file, absolute) {
 		super.saveContent(file, absolute);
 

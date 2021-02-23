@@ -54,6 +54,7 @@ class LineShape extends Shape {
 	fromJSON(json) {
 		const ret = super.fromJSON(json);
 
+		this._coordinates = [];
 		json.points.forEach(point => {
 			const coordinate = new Coordinate();
 			coordinate.fromJSON(point);

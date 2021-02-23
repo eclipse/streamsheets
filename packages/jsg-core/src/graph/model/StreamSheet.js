@@ -740,7 +740,10 @@ module.exports = class StreamSheet extends WorksheetNode {
 		}
 
 		const itemMap = createItemMap();
+		const parentMap = {};
+		parentMap[this.getCells().getId()] = this.getCells();
 
+		// read and create items
 		shapes.forEach(shape => {
 			let node = itemMap[shape.id];
 			if (!node) {
@@ -754,11 +757,15 @@ module.exports = class StreamSheet extends WorksheetNode {
 					s.fromJSON(shape.shape);
 				}
 
-				this.getCells().addItem(node);
+				const parent = parentMap[shape.parent];
+				if (parent) {
+					parent.addItem(node);
+				}
 			}
 			node.fromJSON(shape);
 			node.evaluate();
 			node.setRefreshNeeded(true);
+			parentMap[shape.id] = node;
 			itemMap[shape.id] = undefined;
 		});
 

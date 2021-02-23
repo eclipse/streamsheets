@@ -15,7 +15,8 @@ import {
 	ItemAttributes,
 	FormatAttributes,
 	TextFormatAttributes,
-	Rectangle, GraphUtils
+	Rectangle,
+	MathUtils
 } from '@cedalo/jsg-core';
 import View from '../../ui/View';
 import ShapeRenderer from './shapes/ShapeRenderer';
@@ -537,7 +538,7 @@ class GraphItemView extends View {
 		this._collapseBtn.draw(graphics);
 
 		let deco;
-		const {decorations} = this;
+		const { decorations } = this;
 
 		// eslint-disable-next-line no-restricted-syntax,guard-for-in
 		for (const id in decorations) {
@@ -568,7 +569,7 @@ class GraphItemView extends View {
 		const textY0 = rect.y + rect.height / 2 - 25;
 		const markerY0 = rect.y + (rect.height * 3) / 8 - 1;
 		const markerY1 = rect.y + (rect.height * 5) / 8;
-		const {width} = rect;
+		const { width } = rect;
 		const cs = graphics.getCoordinateSystem();
 		const zoom = cs.getZoom();
 
@@ -586,8 +587,8 @@ class GraphItemView extends View {
 		// draw marker:
 		graphics.beginPath();
 		graphics.setFillColor('#777777');
-		for (; steps.minor < width || steps.major < width;) {
-			if (zoom > 0.4 && (steps.minor > 0 && steps.minor < width)) {
+		for (; steps.minor < width || steps.major < width; ) {
+			if (zoom > 0.4 && steps.minor > 0 && steps.minor < width) {
 				graphics.moveTo(steps.minor, markerY0);
 				graphics.lineTo(steps.minor, markerY1);
 			}
@@ -604,7 +605,7 @@ class GraphItemView extends View {
 		const textX0 = rect.x + rect.width / 2 - 25;
 		const markerX0 = rect.x + (rect.width * 3) / 8;
 		const markerX1 = rect.x + (rect.width * 5) / 8;
-		const {height} = rect;
+		const { height } = rect;
 		const cs = graphics.getCoordinateSystem();
 		const zoom = cs.getZoom();
 
@@ -619,8 +620,8 @@ class GraphItemView extends View {
 		// draw marker...
 		graphics.beginPath();
 		graphics.setFillColor('#777777');
-		for (; steps.minor < height || steps.major < height;) {
-			if (zoom > 0.4 && (steps.minor > 0 && steps.minor < height)) {
+		for (; steps.minor < height || steps.major < height; ) {
+			if (zoom > 0.4 && steps.minor > 0 && steps.minor < height) {
 				graphics.moveTo(markerX0, steps.minor);
 				graphics.lineTo(markerX1, steps.minor);
 			}
@@ -638,7 +639,7 @@ class GraphItemView extends View {
 	}
 
 	getNextSteps(value, cs) {
-		const steps = {major: 0, minor: 0};
+		const steps = { major: 0, minor: 0 };
 		steps.major = Math.abs(value) % cs._majorUnit;
 		steps.major = value < 0 ? steps.major : cs._majorUnit - steps.major;
 		if (steps.major > cs._minorUnit) {
@@ -759,28 +760,116 @@ class GraphItemView extends View {
 	 *     created.
 	 * @return {Rectangle} The preferred Rectangle this view needs to draw itself.
 	 */
-	getPreferredBounds(recthint, reuserect) {
-	}
+	getPreferredBounds(recthint, reuserect) {}
 
-	adaptHighlight(highlight) {
-	}
+	adaptHighlight(highlight) {}
 
 	checkMaximumImageDimensions(image) {
 		return true;
 	}
 
 	getSelectedFormula(sheet) {
-		let formula = '';
-		const attrFormula = this.getItem().getItemAttributes().getAttribute('sheetformula');
-		const expr = attrFormula ? attrFormula.getExpression() : undefined;
-		if (expr && expr.getTerm()) {
-			formula = `=${expr.getTerm().toLocaleString(JSG.getParserLocaleSettings(), {
-				item: sheet,
-				useName: true,
-			})}`;
-		} else {
-			return expr && expr.getFormula() ? expr.getFormula() : '';
+		// const attrFormula = this.getItem().getItemAttributes().getAttribute('sheetformula');
+		// const expr = attrFormula ? attrFormula.getExpression() : undefined;
+		// if (expr && expr.getTerm()) {
+		// 	formula = `=${expr.getTerm().toLocaleString(JSG.getParserLocaleSettings(), {
+		// 		item: sheet,
+		// 		useName: true,
+		// 	})}`;
+		// } else {
+		// 	return expr && expr.getFormula() ? expr.getFormula() : '';
+		// }
+		const item = this.getItem();
+		let type = item.getShape().getType();
+		if (type === undefined) {
+			return undefined;
 		}
+
+		if (item instanceof JSG.TextNode) {
+			type = 'label';
+		} else if (item instanceof JSG.SheetButtonNode) {
+			type = 'button';
+		} else if (item instanceof JSG.SheetCheckboxNode) {
+			type = 'checkbox';
+		} else if (item instanceof JSG.SheetSliderNode) {
+			type = 'slider';
+		} else if (item instanceof JSG.SheetKnobNode) {
+			type = 'knob';
+		} else if (item instanceof JSG.SheetPlotNode) {
+			type = 'streamchart';
+		}
+
+		let formula = `=DRAW.${type.toUpperCase()}(`;
+
+		// if (item.getParent() instanceof CellsNode) {
+		// 	formula += `,"${item.getName().getValue()}",`;
+		// } else {
+		// 	formula += `"${item
+		// 		.getParent()
+		// 		.getName()
+		// 		.getValue()}","${item.getName().getValue()}",`;
+		// }
+
+		const digits = 0; // this.getDigits(item.getParent());
+		const sep = JSG.getParserLocaleSettings().separators.parameter;
+
+		if (type === JSG.LineShape.TYPE) {
+			const pStart = item.getStartPoint();
+			const pEnd = item.getEndPoint();
+			// pEnd = this.convertToContainerPos(pEnd, item.getParent());
+			formula += `${MathUtils.roundTo(pStart.x, digits)},${MathUtils.roundTo(pStart.y, digits)},`;
+			formula += `${MathUtils.roundTo(pEnd.x, digits)},${MathUtils.roundTo(pEnd.y, digits)}`;
+		} else {
+			formula += `${item.getPin().getX().toParamString(sheet, 0)}${sep}${item.getPin().getY().toParamString(sheet, 0)}${sep}`;
+			formula += `${item.getWidth().toParamString(sheet, 0)}${sep}${item.getHeight().toParamString(sheet, 0)}${sep}`;
+			const angle = item.getAngle().toParamString(sheet, 2);
+			const attributes = '';
+			const lineFormula = undefined; // this.getLineFormula(item);
+			const fillFormula = undefined; //  this.getFillFormula(item);
+			switch (type) {
+				case 'label':
+					formula += `,${lineFormula || ''},,${attributes},,`;
+					formula += angle === '0' ? ',,' : `${angle},,`;
+					formula += `"${item.getText().getValue()}"`;
+					item.getTextFormat().setRichText(false);
+					break;
+				case 'button':
+					formula += `,,,${attributes},EVENTS(ONCLICK()),`;
+					formula += angle === 0 ? ',,"Button",,FALSE' : `${angle},,"Button",,FALSE`;
+					break;
+				case 'checkbox':
+					formula += `,,,${attributes},,`;
+					formula += angle === 0 ? ',,"Checkbox",,FALSE' : `${angle},,"Checkbox",,FALSE`;
+					break;
+				case 'slider':
+					formula += `,,,${attributes},,`;
+					formula += angle === 0 ? ',,"Slider",,50,0,100,10' : `${angle},,"Slider",,50,0,100,10`;
+					break;
+				case 'knob':
+					formula += `,,,${attributes},,`;
+					formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
+					break;
+				default:
+					if (angle !== '0' || attributes !== '' || lineFormula !== undefined || fillFormula !== undefined) {
+						formula += `,${lineFormula || ''},${fillFormula || ''},${attributes},,${angle}`;
+					}
+					if ((type === 'polygon' || type === 'bezier') && !item.isClosed()) {
+						if (
+							angle !== 0 ||
+							attributes !== '' ||
+							lineFormula !== undefined ||
+							fillFormula !== undefined
+						) {
+							formula += ',,,FALSE';
+						} else {
+							formula += ',,,,,,,,FALSE';
+						}
+					}
+					break;
+			}
+		}
+
+		formula += ')';
 
 		return formula;
 	}
@@ -793,8 +882,7 @@ class GraphItemView extends View {
 		return undefined;
 	}
 
-	setSelectedPropertyCategory(data) {
-	}
+	setSelectedPropertyCategory(data) {}
 
 	getDefaultPropertyCategory() {
 		return 'geometry';

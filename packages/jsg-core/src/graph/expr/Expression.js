@@ -15,6 +15,7 @@ const ObjectFactory = require('../../ObjectFactory');
 const Numbers = require('../../commons/Numbers');
 const Strings = require('../../commons/Strings');
 const ExpressionConstraint = require('./ExpressionConstraint');
+const MathUtils = require('../../geometry/MathUtils');
 
 /**
  * An Expression is used to determine a value by a formula or a {{#crossLink
@@ -558,6 +559,28 @@ class Expression {
 		return str;
 	}
 
+	toParamString(item, round) {
+		// let str = this._formula != null ? this._formula : null;
+		const locale = JSG.getParserLocaleSettings();
+		let str =
+			this._term != null
+				? `${this._term.toLocaleString(locale, {item, useName: true})}`
+				: null;
+		if (str == null) {
+			const value = this.getValue();
+			str = value == null ? '' : null;
+			if (typeof value === 'boolean') {
+				str = value.toString().toUpperCase();
+			}
+			if (Numbers.isNumber(value)) {
+				str = Locale.localizeNumber(MathUtils.roundTo(value, round), locale);
+			} else {
+				str = str || `${value}`;
+			}
+		}
+		return str;
+	}
+
 	/**
 	 * Returns a string representation of this expression using item names.
 	 *
@@ -601,6 +624,10 @@ class Expression {
 	}
 
 	fromJSON(json) {
+		if (json === undefined) {
+			return;
+		}
+
 		const type = json.t || 'n';
 		let value = json.v;
 

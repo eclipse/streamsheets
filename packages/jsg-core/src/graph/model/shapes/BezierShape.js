@@ -367,6 +367,7 @@ class BezierShape extends PolygonShape {
 		const ret = super.fromJSON(json);
 
 		if (json.from) {
+			this._cpFromCoordinates = [];
 			json.from.forEach(point => {
 				const coordinate = new Coordinate();
 				coordinate.fromJSON(point);
@@ -376,6 +377,7 @@ class BezierShape extends PolygonShape {
 		}
 
 		if (json.to) {
+			this._cpToCoordinates = [];
 			json.to.forEach(point => {
 				const coordinate = new Coordinate();
 				coordinate.fromJSON(point);

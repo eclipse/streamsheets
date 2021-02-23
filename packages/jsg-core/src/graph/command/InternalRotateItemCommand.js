@@ -55,6 +55,7 @@ class InternalRotateItemCommand extends AbstractItemCommand {
 		super(item);
 
 		this._angle = (angle instanceof Expression) ? angle.copy() : new NumberExpression(angle);
+		this._rotate = !(angle instanceof Expression);
 		this._angle.evaluate(this._graphItem);
 		this._oldAngle = item.getAngle().copy();
 		this._point = point ? point.copy() : undefined;
@@ -72,6 +73,7 @@ class InternalRotateItemCommand extends AbstractItemCommand {
 			data.oldAngle,
 			new NumberExpression()
 		);
+		this._rotate = data.rotate;
 		return cmd;
 	}
 
@@ -82,7 +84,9 @@ class InternalRotateItemCommand extends AbstractItemCommand {
 	 */
 	undo() {
 		// undo rotation (around point)
-		this._graphItem.rotate(-this._angle.getValue(), this._point);
+		if (this._rotate) {
+			this._graphItem.rotate(-this._angle.getValue(), this._point);
+		}
 		// ... and set old angle expression again:
 		this._graphItem.setAngle(this._oldAngle);
 		this._graphItem.getAngle().evaluate(this._graphItem);
@@ -94,7 +98,7 @@ class InternalRotateItemCommand extends AbstractItemCommand {
 	 * @method redo
 	 */
 	redo() {
-		if (this._point) {
+		if (this._rotate) {
 			this._graphItem.rotate(this._angle.getValue(), this._point);
 		} else {
 			this._graphItem.setAngle(this._angle);
@@ -107,6 +111,7 @@ class InternalRotateItemCommand extends AbstractItemCommand {
 		data.point = this._point;
 		data.angle = writeJSON('angle', this._angle);
 		data.oldAngle = writeJSON('oldangle', this._oldAngle);
+		data.rotate = this._rotate;
 
 		return data;
 	}

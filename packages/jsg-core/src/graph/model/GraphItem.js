@@ -2811,7 +2811,6 @@ class GraphItem extends Model {
 					this._updateOrigin();
 					break;
 				case 'rscoordinates': {
-					const properties = GraphItemProperties;
 					let index = 0;
 					reader.iterateObjects(subnode, (childname, child) => {
 						switch (childname) {
@@ -2819,39 +2818,7 @@ class GraphItem extends Model {
 								const coordinate = new ReshapeCoordinate();
 								coordinate.read(reader, child);
 								this._reshapeCoordinates.push(coordinate);
-								if (coordinate.getXType() !== ReshapeCoordinate.ReshapeType.RADIAL) {
-									if (
-										coordinate.getXType() !== ReshapeCoordinate.ReshapeType.NONE &&
-										coordinate.getYType() !== ReshapeCoordinate.ReshapeType.NONE
-									) {
-										this._reshapeProperties.addIndexProperty(
-											`${coordinate.getName()}X`,
-											properties.getReshapePointX,
-											properties.setReshapePointX,
-											index
-										);
-										this._reshapeProperties.addIndexProperty(
-											`${coordinate.getName()}Y`,
-											properties.getReshapePointY,
-											properties.setReshapePointY,
-											index
-										);
-									} else if (coordinate.getXType() !== ReshapeCoordinate.ReshapeType.NONE) {
-										this._reshapeProperties.addIndexProperty(
-											coordinate.getName(),
-											properties.getReshapePointX,
-											properties.setReshapePointX,
-											index
-										);
-									} else if (coordinate.getYType() !== ReshapeCoordinate.ReshapeType.NONE) {
-										this._reshapeProperties.addIndexProperty(
-											coordinate.getName(),
-											properties.getReshapePointY,
-											properties.setReshapePointY,
-											index
-										);
-									}
-								}
+								coordinate.addIndexProperties(this._reshapeProperties, index);
 								index += 1;
 								break;
 							}
@@ -3405,6 +3372,21 @@ class GraphItem extends Model {
 		if (json.angle !== undefined) {
 			this.getAngle().fromJSON(json.angle);
 		}
+		if (json.type !== undefined) {
+			this.getType().fromJSON(json.type);
+		}
+
+		if (json.reshape) {
+			this._reshapeCoordinates = [];
+			this._reshapeProperties.clear();
+			json.reshape.forEach((coor, index) => {
+				const coordinate = new ReshapeCoordinate();
+				coordinate.fromJSON(coor);
+				this._reshapeCoordinates.push(coordinate);
+				coordinate.addIndexProperties(this._reshapeProperties, index);
+			});
+		}
+
 
 	}
 
@@ -3439,19 +3421,15 @@ class GraphItem extends Model {
 
 		ret.shape = this._shape.toJSON();
 
-		if (this._subItems.length) {
-			ret.items = this.subItemsToJSON();
-		}
-
 		return ret;
 	}
 
 	subItemsToJSON() {
 		const items = [];
 
-		this._subItems.forEach((subItem) => {
-			items.push(subItem.toJSON());
-		});
+		GraphUtils.traverseItem(this, item => {
+			items.push(item.toJSON());
+		}, false);
 
 		return items;
 	}
