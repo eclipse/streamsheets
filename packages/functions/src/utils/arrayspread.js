@@ -10,6 +10,11 @@
  ********************************************************************************/
 const { setCellValue } = require('./sheet');
 
+const enableSheetUpdate = (sheet, sheetOnUpdate) => {
+	if (sheetOnUpdate) sheet.onUpdate = sheetOnUpdate;
+	sheet._notifyUpdate();
+};
+
 const mapCol = (horizontally) => (horizontally ? (coord) => coord.x : (coord) => coord.y);
 const mapRow = (horizontally) => (horizontally ? (coord) => coord.y : (coord) => coord.x);
 const mapValues = (values, horizontally) => {
