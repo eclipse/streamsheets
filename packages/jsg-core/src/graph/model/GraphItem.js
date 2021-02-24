@@ -3395,13 +3395,13 @@ class GraphItem extends Model {
 			id: this._id,
 			parent: this._parent.getId(),
 			itemType: this.getItemType(),
-			x: this.getPin().getX().toJSON(),
-			y: this.getPin().getY().toJSON(),
-			width: this.getWidth().toJSON(),
-			height: this.getHeight().toJSON(),
+			x: this.getPin().getX().toJSON(true),
+			y: this.getPin().getY().toJSON(true),
+			width: this.getWidth().toJSON(true),
+			height: this.getHeight().toJSON(true),
 		};
 		if (this._angle.getValue() !== 0 || this._angle.hasFormula()) {
-			ret.angle = this.getAngle().toJSON();
+			ret.angle = this.getAngle().toJSON(true);
 		}
 
 		if (this._name.getValue() !== '') {
@@ -3425,13 +3425,18 @@ class GraphItem extends Model {
 	}
 
 	subItemsToJSON() {
-		const items = [];
+		const json = {
+			shapes: [],
+			timestamp: Date.now(),
+			version: 1
+		};
+		this._shapeTimeStamp = json.timestamp;
 
 		GraphUtils.traverseItem(this, item => {
-			items.push(item.toJSON());
+			json.shapes.push(item.toJSON());
 		}, false);
 
-		return items;
+		return json;
 	}
 
 	get expressions() {

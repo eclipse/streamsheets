@@ -196,7 +196,7 @@ class Expression {
 	 */
 	getValue() {
 		if (this._term) {
-			if (this._termValue) {
+			if (this._termValue !== undefined) {
 				this._value = this._termValue;
 			} else {
 				const val = this._term.value;
@@ -647,7 +647,7 @@ class Expression {
 		this.setTermValue(json.sv);
 	}
 
-	toJSON() {
+	toJSON(serverCalc) {
 		const ret =  {};
 
 		if (this._formula !== undefined) {
@@ -660,6 +660,9 @@ class Expression {
 
 		if (type[0] !== 'n') {
 			ret.t = type[0];
+		}
+		if (serverCalc) {
+			ret.msc = true;
 		}
 		return ret;
 	}
@@ -781,6 +784,9 @@ class Expression {
 		const formula = this._readFormulaAttribute(reader, node);
 		const constraint = this._readConstraint(reader, node);
 		const locked = reader.getAttribute(node, 'locked');
+		const termValue = reader.getAttribute(node, 'sv');
+
+		this.setTermValue(termValue);
 
 		this._isLocked = false;
 		this.set(value, formula);

@@ -727,24 +727,26 @@ module.exports = class StreamSheet extends WorksheetNode {
 		}
 	}
 
-	setShapes(shapes) {
-		const createItemMap = () => {
-			const itemMap = {};
-			GraphUtils.traverseItem(this.getCells(), item => {
-				itemMap[item.getId()] = item;
-			}, false);
-			return itemMap;
-		}
-		if (!shapes) {
+	setShapes(json) {
+		if (!json || !json.shapes) {
 			return;
 		}
 
-		const itemMap = createItemMap();
+		if (this.getCells()._shapeTimeStamp && json.timestamp < this.getCells()._shapeTimeStamp) {
+			// to prevent, that old updates are processed
+			return;
+		}
+
+		const itemMap = {};
 		const parentMap = {};
+
+		GraphUtils.traverseItem(this.getCells(), item => {
+			itemMap[item.getId()] = item;
+		}, false);
 		parentMap[this.getCells().getId()] = this.getCells();
 
 		// read and create items
-		shapes.forEach(shape => {
+		json.shapes.forEach(shape => {
 			let node = itemMap[shape.id];
 			if (!node) {
 				node = JSG.graphItemFactory.createItemFromString(shape.itemType, true);

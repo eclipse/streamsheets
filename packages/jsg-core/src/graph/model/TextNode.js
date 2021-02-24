@@ -118,7 +118,7 @@ class TextNode extends Node {
 
 	toJSON() {
 		const ret = super.toJSON();
-		ret.text = this._text.toJSON();
+		ret.text = this._text.toJSON(true);
 
 		return ret;
 	}

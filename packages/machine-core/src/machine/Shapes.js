@@ -11,6 +11,12 @@
 const { SheetParser } = require('../parser/SheetParser');
 
 const checkNaN = (value) => (typeof value === 'number' && Number.isNaN(value) ? 0 : value);
+const checkTermValue = (term) => {
+	const value = checkNaN(term.value);
+	// eslint-disable-next-line no-nested-ternary
+	return value != null ? value : term.hasOperandOfType('CellReference') ? 0 : value;
+};
+
 // temp. borrowed from JSG...
 const decode = (str) => {
 	if (typeof str === 'string') {
@@ -28,51 +34,60 @@ const decode = (str) => {
 };
 
 const updateValue = (obj) => {
-	if (!obj.term) {
-		return;
-	}
-	const value = checkNaN(obj.term.value);
+	const value = obj.term ? checkTermValue(obj.term) : checkNaN(obj.v);
+	// const value = checkNaN(obj.term.value);
+
 	// eslint-disable-next-line no-nested-ternary
-	obj.v = value != null ? value : obj.term.hasOperandOfType('CellReference') ? 0 : value;
+	obj.sv = value != null ? value : obj.term.hasOperandOfType('CellReference') ? 0 : value;
 };
 
 class Shapes {
 	constructor(sheet) {
 		this.sheet = sheet;
-		this.shapesWithTerms = [];
-		this.shapes = [];
+		this.json = {
+			shapes:[],
+			timestamp: 0,
+			version: 0,
+		};
 	}
 
 	toJSON() {
-		return this.shapes;
+		const json = JSON.parse(JSON.stringify(this.json, (key, value) => {
+				if (key === 'term') {
+					return undefined;
+				}
+				return value;
+			}
+		));
+
+		return json;
 	}
 
 	fromJSON(json) {
-		if (json === undefined) {
-			return false;
-		}
-		this.shapes = json;
-		this.shapesWithTerms = JSON.parse(JSON.stringify(json));
-
-		this.shapesWithTerms.forEach(shape => {
-			Object.values(shape).forEach(value => {
-				if (value.f) {
-					value.term = SheetParser.parse(decode(value.f), this.sheet);
-				}
-			})
-		});
+		this.json = json;
 
 		return true;
 	}
 
-	evaluate() {
-		this.shapesWithTerms.forEach((shape, index) => {
-			Object.entries(shape).forEach(([key, value]) => {
-				if (value.term) {
+	evaluateObject(obj) {
+		Object.entries(obj).forEach(([key, value]) => {
+			if (value.v) {
+				// if its a term and shall be calculated on server
+				if (value.msc) {
+					if  (!value.term) {
+						value.term = SheetParser.parse(decode(value.f), this.sheet);
+					}
 					updateValue(value);
-					this.shapes[index][key].sv = value.v;
 				}
-			})
+			} else if (typeof value === 'object') {
+				this.evaluateObject(value);
+			}
+		})
+	}
+
+	evaluate() {
+		this.json.shapes.forEach(shape => {
+			this.evaluateObject(shape);
 		});
 	}
 }
