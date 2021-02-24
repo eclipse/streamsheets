@@ -45,8 +45,7 @@ const setCellAt = (sheet, index, value) => setCellValue(sheet, index, value, tru
 
 const setErrorCell = (index, sheet) => {
 	const cell = sheet.cellAt(index, true);
-	const errTerm = ErrorTerm.fromError(ERROR.NA);
-	cell.term = errTerm;
+	cell.term = ErrorTerm.fromError(ERROR.NA);
 };
 const copyToCellRange = (range, data, type, horizontally) => {
 	const sheet = range.sheet;

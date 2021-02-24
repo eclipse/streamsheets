@@ -102,6 +102,7 @@ module.exports = class RestServerConsumer extends ConsumerMixin(RestServerConnec
 			this.applyMetaData(message, false);
 			message.metadata.requestId = requestId;
 			message.metadata.topic = restMessage.metadata.topic;
+			message.metadata.method = restMessage.metadata.method;
 			message.metadata.transportDetails = transportDetails;
 			delete restMessage.metadata.user;
 			this.emit(message);

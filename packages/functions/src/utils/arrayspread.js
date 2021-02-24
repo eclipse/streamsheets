@@ -34,6 +34,7 @@ const toRangeGrow =  (lists, range, horizontally, setCell) => {
 			setCell(sheet, index, value);
 		});
 	});
+	enableSheetUpdate(sheet, onSheetUpdate);
 	return true;
 };
 const toRange = (lists, range, horizontally, setCell) => {
@@ -50,6 +51,7 @@ const toRange = (lists, range, horizontally, setCell) => {
 		const value = getValue(coord);
 		setCell(sheet, index, value);
 	});
+	enableSheetUpdate(sheet, onSheetUpdate);
 	return true;
 };
 
