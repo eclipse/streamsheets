@@ -104,14 +104,15 @@ const post = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.withMaxArgs(3)
+		.withMaxArgs(4)
 		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((data) => (hasValue(data) ? data.value : ''))
 		.mapNextArg((config) => (hasValue(config) ? config.value : {}))
-		.run((url, data, config) =>
+		.mapNextArg((target) => target)
+		.run((url, data, config, target) =>
 			AsyncRequest.create(sheet, post.context)
 				.request(() => getInstance().post(url, data, config))
-				.response(defaultCallback)
+				.response(createRequestCallback(sheet, target))
 				.reqId()
 		);
 post.displayName = true;
@@ -120,14 +121,15 @@ const put = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.withMaxArgs(3)
+		.withMaxArgs(4)
 		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((data) => (hasValue(data) ? data.value : ''))
 		.mapNextArg((config) => (hasValue(config) ? config.value : {}))
-		.run((url, data, config) =>
+		.mapNextArg((target) => target)
+		.run((url, data, config, target) =>
 			AsyncRequest.create(sheet, put.context)
 				.request(() => getInstance().put(url, data, config))
-				.response(defaultCallback)
+				.response(createRequestCallback(sheet, target))
 				.reqId()
 		);
 put.displayName = true;
@@ -136,14 +138,15 @@ const patch = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.withMaxArgs(3)
+		.withMaxArgs(4)
 		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((data) => (hasValue(data) ? data.value : ''))
 		.mapNextArg((config) => (hasValue(config) ? config.value : {}))
-		.run((url, data, config) =>
+		.mapNextArg((target) => target)
+		.run((url, data, config, target) =>
 			AsyncRequest.create(sheet, patch.context)
 				.request(() => getInstance().patch(url, data, config))
-				.response(defaultCallback)
+				.response(createRequestCallback(sheet, target))
 				.reqId()
 		);
 patch.displayName = true;
@@ -152,13 +155,14 @@ const deleteFunction = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.withMaxArgs(2)
+		.withMaxArgs(3)
 		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((config) => (hasValue(config) ? config.value : {}))
-		.run((url, config) =>
+		.mapNextArg((target) => target)
+		.run((url, config, target) =>
 			AsyncRequest.create(sheet, deleteFunction.context)
 				.request(() => getInstance().delete(url, config))
-				.response(defaultCallback)
+				.response(createRequestCallback(sheet, target))
 				.reqId()
 		);
 deleteFunction.displayName = true;
@@ -167,15 +171,16 @@ const trace = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.withMaxArgs(2)
+		.withMaxArgs(3)
 		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((config) => (hasValue(config) ? config.value : {}))
-		.run((url, config) => {
+		.mapNextArg((target) => target)
+		.run((url, config, target) => {
 			config.url = url;
 			config.method = 'TRACE';
 			return AsyncRequest.create(sheet, request.context)
 				.request(() => getInstance().request(config))
-				.response(defaultCallback)
+				.response(createRequestCallback(sheet, target))
 				.reqId();
 		});
 trace.displayName = true;
@@ -184,13 +189,14 @@ const options = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.withMaxArgs(2)
+		.withMaxArgs(3)
 		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((config) => (hasValue(config) ? config.value : {}))
-		.run((url, config) =>
+		.mapNextArg((target) => target)
+		.run((url, config, target) =>
 			AsyncRequest.create(sheet, options.context)
 				.request(() => getInstance().options(url, config))
-				.response(defaultCallback)
+				.response(createRequestCallback(sheet, target))
 				.reqId()
 		);
 options.displayName = true;
