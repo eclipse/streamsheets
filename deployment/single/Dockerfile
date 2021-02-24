@@ -1,4 +1,4 @@
-FROM node:12.4.0-alpine
+FROM node:14.16.0-alpine
 LABEL maintainer="philip.ackermann@cedalo.com"
 
 ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0/gateway.yaml \
