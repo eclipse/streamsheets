@@ -10,13 +10,13 @@
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { ErrorTerm, ObjectTerm, isType } = require('@cedalo/machine-core');
-const { Term } = require('@cedalo/parser');
+const { ErrorTerm } = require('@cedalo/machine-core');
 const {
 	arrayspread: { toRange },
 	jsonflatten: { toArray2D },
 	messages,
 	runFunction,
+	sheet: { setCellValue },
 	terms: { getCellRangeFromTerm }
 } = require('../../utils');
 
@@ -24,7 +24,6 @@ const ERROR = FunctionErrors.code;
 const TYPES = ['array', 'bool', 'boolean', 'dictionary', 'json', 'jsonroot', 'number', 'range', 'string'];
 
 const toBool = (term, defval) => term ? convert.toBoolean(term.value, defval) : defval;
-const termFromValue = (value) => (isType.object(value) ? new ObjectTerm(value) : Term.fromValue(value));
 
 // eslint-disable-next-line no-nested-ternary
 const defValue = type => (type === 'number' ? 0 : (type === 'boolean' ? false : ''));
@@ -41,22 +40,12 @@ const setLastValue = (context, path, value) => {
 	context.lastValuePath = path; 
 };
 
-const setCellAt = (index, value, sheet) => {
-	if (value == null) sheet.setCellAt(index, undefined);
-	else {
-		const cell = sheet.cellAt(index, true);
-		// DL-2144: if cell has a formula only set its value, otherwise its term
-		if (cell.hasFormula) {
-			cell.value = value;
-		} else {
-			cell.term = termFromValue(value);
-		}
-	}
-};
+// DL-2144: if cell has a formula only set its value, otherwise its term
+const setCellAt = (sheet, index, value) => setCellValue(sheet, index, value, true);
+
 const setErrorCell = (index, sheet) => {
 	const cell = sheet.cellAt(index, true);
-	const errTerm = ErrorTerm.fromError(ERROR.NA);
-	cell.term = errTerm;
+	cell.term = ErrorTerm.fromError(ERROR.NA);
 };
 const copyToCellRange = (range, data, type, horizontally) => {
 	const sheet = range.sheet;
@@ -66,7 +55,7 @@ const copyToCellRange = (range, data, type, horizontally) => {
 		// fill range with error code...
 		range.iterate((cell, index) => setErrorCell(index, sheet));
 	} else if (range.width === 1 && range.height === 1) {
-		setCellAt(range.start, data, sheet);
+		setCellAt(sheet, range.start, data);
 	} else {
 		// spread array to range, support jsonflat (DL-4560)
 		const lists = toArray2D(data, type);

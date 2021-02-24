@@ -67,7 +67,7 @@ module.exports = class EventEmittingRESTServer extends RESTServer {
 		this._emitter.removeAllListeners(event);
 	}
 
-	handleRequest({ topic, message, expectResponse, timeout, user, transportDetails }) {
+	handleRequest({ topic, message, method, expectResponse, timeout, user, transportDetails }) {
 		return new Promise((resolve, reject) => {
 			message.metadata = {
 				user,
@@ -77,6 +77,7 @@ module.exports = class EventEmittingRESTServer extends RESTServer {
 			message.metadata.id = requestId;
 			message.metadata.topic = topic;
 			message.metadata.transportDetails = transportDetails;
+			message.metadata.method = method;
 			this._pendingRequests.set(requestId, { resolve, reject });
 			const timeoutId = setTimeout(
 				() => timeoutHandler(requestId, this._pendingRequests, timeout || this._timeout),

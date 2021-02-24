@@ -8,20 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { isType, ObjectTerm } = require('@cedalo/machine-core');
-const { Term } = require('@cedalo/parser');
-
-const termFromValue = (value) => (isType.object(value) ? new ObjectTerm(value) : Term.fromValue(value));
-const setCellAt = (index, value, sheet) => {
-	// handle empty strings like undefined!
-	if (value == null || value === '') {
-		sheet.setCellAt(index, undefined);
-	} else {
-		const cell = sheet.cellAt(index, true);
-		cell.value = value;
-		cell.term = termFromValue(value);
-	}
-};
+const { setCellValue } = require('./sheet');
 
 const mapCol = (horizontally) => (horizontally ? (coord) => coord.x : (coord) => coord.y);
 const mapRow = (horizontally) => (horizontally ? (coord) => coord.y : (coord) => coord.x);
@@ -39,12 +26,12 @@ const toRangeGrow =  (lists, range, horizontally, setCell) => {
 	const index = range.start.copy();
 	const startcol = index.col;
 	const startrow = index.row;
-	if (setCell == null) setCell = setCellAt;
+	if (setCell == null) setCell = setCellValue;
 	lists.forEach((values, row) => {
 		values.forEach((value, col) => {
 			if (horizontally) index.set(startrow + row, startcol + col);
 			else index.set(startrow + col, startcol + row);
-			setCell(index, value, sheet);
+			setCell(sheet, index, value);
 		});
 	});
 	return true;
@@ -53,7 +40,7 @@ const toRange = (lists, range, horizontally, setCell) => {
 	const coord = { x: -1, y: -1 };
 	const sheet = range.sheet;
 	const getValue = mapValues(lists, horizontally);
-	if (setCell == null) setCell = setCellAt;
+	if (setCell == null) setCell = setCellValue;
 	range.iterate((cell, index, nextrow) => {
 		coord.x += 1;
 		if (nextrow) {
@@ -61,7 +48,7 @@ const toRange = (lists, range, horizontally, setCell) => {
 			coord.y += 1;
 		}
 		const value = getValue(coord);
-		setCell(index, value, sheet);
+		setCell(sheet, index, value);
 	});
 	return true;
 };

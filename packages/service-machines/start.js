@@ -15,6 +15,7 @@ const logger = require('./src/utils/logger').create({ name: 'Machine Service' })
 
 
 metadata.version = packageJSON.version;
+process.env.STREAMSHEETS_VERSION = metadata.version;
 
 process.on('unhandledRejection', (error) => {
 	logger.error('unhandledRejection', error);

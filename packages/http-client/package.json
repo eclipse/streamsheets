@@ -1,0 +1,26 @@
+{
+	"name": "@cedalo/http-client",
+	"version": "2.2.0",
+	"description": "HTTP client",
+	"main": "index.js",
+	"scripts": {
+		"lint": "./node_modules/.bin/eslint ."
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/cedalo/streamsheets.git"
+	},
+	"author": "Cedalo AG",
+	"bugs": {
+		"url": "https://github.com/cedalo/streamsheets/issues"
+	},
+	"homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/http-client",
+	"dependencies": {
+		"axios": "^0.19.2"
+	},
+	"peerDependencies": {
+		"@cedalo/id-generator": "2.2.0",
+		"@cedalo/logger": "2.2.0"
+	},
+	"license": "EPL-2.0"
+}

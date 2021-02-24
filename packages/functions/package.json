@@ -25,11 +25,13 @@
   "peerDependencies": {
     "@cedalo/commons": "2.2.0",
     "@cedalo/error-codes": "2.2.0",
+    "@cedalo/http-client": "2.2.0",
     "@cedalo/id-generator": "2.2.0",
     "@cedalo/logger": "2.2.0",
     "@cedalo/machine-core": "2.2.0",
     "@cedalo/number-format": "2.2.0",
-    "@cedalo/parser": "2.2.0"
+    "@cedalo/parser": "2.2.0",
+    "@cedalo/parsers": "2.2.0"
   },
   "jest": {
     "collectCoverage": false,

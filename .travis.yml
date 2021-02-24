@@ -2,14 +2,11 @@ jobs:
   include:
   - language: node_js
     node_js:
-    - 12.18.0
+    - 14.16.0
     services:
     - docker
     cache:
       yarn: true
-    before_install:
-    - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.15.2
-    - export PATH=$HOME/.yarn/bin:$PATH
     install:
     - yarn install --frozen-lockfile
     script:
