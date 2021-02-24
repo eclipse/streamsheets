@@ -10,10 +10,10 @@
  ********************************************************************************/
 const { setCellValue } = require('./sheet');
 
-const enableSheetUpdate = (sheet, sheetOnUpdate) => {
-	if (sheetOnUpdate) sheet.onUpdate = sheetOnUpdate;
-	sheet._notifyUpdate();
-};
+// const enableSheetUpdate = (sheet, sheetOnUpdate) => {
+// 	if (sheetOnUpdate) sheet.onUpdate = sheetOnUpdate;
+// 	sheet._notifyUpdate();
+// };
 
 const mapCol = (horizontally) => (horizontally ? (coord) => coord.x : (coord) => coord.y);
 const mapRow = (horizontally) => (horizontally ? (coord) => coord.y : (coord) => coord.x);
@@ -39,7 +39,7 @@ const toRangeGrow =  (lists, range, horizontally, setCell) => {
 			setCell(sheet, index, value);
 		});
 	});
-	enableSheetUpdate(sheet, onSheetUpdate);
+	// enableSheetUpdate(sheet, onSheetUpdate);
 	return true;
 };
 const toRange = (lists, range, horizontally, setCell) => {
@@ -56,7 +56,7 @@ const toRange = (lists, range, horizontally, setCell) => {
 		const value = getValue(coord);
 		setCell(sheet, index, value);
 	});
-	enableSheetUpdate(sheet, onSheetUpdate);
+	// enableSheetUpdate(sheet, onSheetUpdate);
 	return true;
 };
 
