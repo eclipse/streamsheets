@@ -203,6 +203,7 @@ JSG.SetSizeCommand = require('./src/graph/command/SetSizeCommand');
 JSG.SetLinePointAtCommand = require('./src/graph/command/SetLinePointAtCommand');
 JSG.SetLineShapePointsCommand = require('./src/graph/command/SetLineShapePointsCommand');
 JSG.SetBezierShapePointsCommand = require('./src/graph/command/SetBezierShapePointsCommand');
+JSG.SetGraphCommand = require('./src/graph/command/SetGraphCommand');
 
 const UpdateNamesCommands = require('./src/graph/command/UpdateNamesCommands');
 

@@ -194,7 +194,6 @@ const getJSONFromTerm = (term) => {
 
 const termFromValue = (value) => (isType.object(value) ? new ObjectTerm(value) : Term.fromValue(value));
 
-
 module.exports = {
 	cellFromTerm,
 	getCellFromTerm,

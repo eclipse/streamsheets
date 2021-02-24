@@ -3388,12 +3388,51 @@ class GraphItem extends Model {
 		return [
 			{
 				key: 'geometry',
-				label: 'geometry',
+				label: 'GraphItemProperties.Geometry',
 				name: '',
 			}
 		]
 	}
 
+	toJSON() {
+		const ret = {
+			id: this._id,
+			parent: this._parent.getId(),
+			x: this.getPin().getX().toJSON(),
+			y: this.getPin().getY().toJSON(),
+			width: this.getWidth().toJSON(),
+			height: this.getHeight().toJSON(),
+		};
+		if (this._angle.getValue() !== 0) {
+			ret.angle = this.getAngle().toJSON();
+		}
+
+		if (this._name.getValue() !== 0) {
+			ret.name = this.getName().getValue();
+		}
+
+		if (this._type.getValue() !== '') {
+			ret.type = this.getType().getValue();
+		}
+
+		ret.shape = this._shape.toJSON();
+
+		if (this._subItems.length) {
+			ret.items = this.subItemsToJSON();
+		}
+
+		return ret;
+	}
+
+	subItemsToJSON() {
+		const items = [];
+
+		this._subItems.forEach((subItem) => {
+			items.push(subItem.toJSON());
+		});
+
+		return items;
+	}
 
 	get expressions() {
 		return [];

@@ -54,8 +54,8 @@ export class GeometryProperties extends Component {
 		return selection[0].getView();
 	}
 
-	getSheet(chart) {
-		let ws = chart.getParent();
+	getSheet(item) {
+		let ws = item.getParent();
 		while (ws && !(ws instanceof JSG.StreamSheet)) {
 			ws = ws.getParent();
 		}
@@ -64,6 +64,34 @@ export class GeometryProperties extends Component {
 	}
 
 	handleX = () => {};
+	updateFormula(item, expr) {
+		const path = JSG.AttributeUtils.createPath(JSG.ItemAttributes.NAME, "sheetformula");
+		let formula = expr.toLocaleString('en', {item, useName: true, forceName: true});
+		if (formula.length && formula[0] === '=') {
+			formula = formula.substring(1);
+		}
+
+		const cmd = new JSG.SetAttributeAtPathCommand(item, path, new JSG.Expression(0, formula));
+		// this is necessary, to keep changes, otherwise formula will be recreated from graphitem
+		item.setAttributeAtPath(path, new JSG.Expression(0, formula));
+		item._noFormulaUpdate = true;
+		graphManager.getGraphViewer().getInteractionHandler().execute(cmd);
+		const attr = item.getItemAttributes().getAttribute('sheetformula');
+		if (attr && attr.getExpression()) {
+			console.log(`update 2 ${attr.getExpression().getFormula()}`);
+		}
+	}
+
+	handleParameter = (event, index) => {
+		const item = this.props.view.getItem();
+		const attr = item.getItemAttributes().getAttribute('sheetformula');
+
+		if (attr && attr.getExpression()) {
+			const expr = attr.getExpression();
+			this.getSheet(item).replaceTerm(event.target.textContent, expr, index);
+			this.updateFormula(item, expr);
+		}
+	};
 
 	getFormula(index) {
 		const item = this.props.view.getItem();
@@ -96,16 +124,34 @@ export class GeometryProperties extends Component {
 					margin="normal"
 					label={
 						<FormattedMessage
+							id="GraphItemProperties.Container"
+							defaultMessage="Container"
+						/>
+					}
+					onBlur={(event) => this.handleParameter(event, 2)}
+					value={this.getFormula(1)}
+					InputLabelProps={{ shrink: true }}
+					InputProps={{
+						inputComponent: MyInputComponent,
+						inputProps: {
+							component: CellRangeComponent,
+							sheetView,
+							value: {},
+							range: this.getFormula(1)
+						}
+					}}
+				/>
+				<TextField
+					variant="outlined"
+					size="small"
+					margin="normal"
+					label={
+						<FormattedMessage
 							id="GraphItemProperties.HorizontalPosition"
 							defaultMessage="Horizontal Position"
 						/>
 					}
-					onBlur={(event) => this.handleX(event)}
-					onKeyPress={(event) => {
-						if (event.key === 'Enter') {
-							this.handleX(event);
-						}
-					}}
+					onBlur={(event) => this.handleParameter(event, 3)}
 					value={this.getFormula(3)}
 					InputLabelProps={{ shrink: true }}
 					InputProps={{
@@ -128,12 +174,7 @@ export class GeometryProperties extends Component {
 							defaultMessage="Vertical Position"
 						/>
 					}
-					onBlur={(event) => this.handleX(event)}
-					onKeyPress={(event) => {
-						if (event.key === 'Enter') {
-							this.handleX(event);
-						}
-					}}
+					onBlur={(event) => this.handleParameter(event, 4)}
 					value={this.getFormula(4)}
 					InputLabelProps={{ shrink: true }}
 					InputProps={{
@@ -151,12 +192,7 @@ export class GeometryProperties extends Component {
 					size="small"
 					margin="normal"
 					label={<FormattedMessage id="GraphItemProperties.Width" defaultMessage="Width" />}
-					onBlur={(event) => this.handleX(event)}
-					onKeyPress={(event) => {
-						if (event.key === 'Enter') {
-							this.handleX(event);
-						}
-					}}
+					onBlur={(event) => this.handleParameter(event, 5)}
 					value={this.getFormula(5)}
 					InputLabelProps={{ shrink: true }}
 					InputProps={{
@@ -174,12 +210,7 @@ export class GeometryProperties extends Component {
 					size="small"
 					margin="normal"
 					label={<FormattedMessage id="GraphItemProperties.Height" defaultMessage="Height" />}
-					onBlur={(event) => this.handleX(event)}
-					onKeyPress={(event) => {
-						if (event.key === 'Enter') {
-							this.handleX(event);
-						}
-					}}
+					onBlur={(event) => this.handleParameter(event, 6)}
 					value={this.getFormula(6)}
 					InputLabelProps={{ shrink: true }}
 					InputProps={{
@@ -197,18 +228,52 @@ export class GeometryProperties extends Component {
 					size="small"
 					margin="normal"
 					label={<FormattedMessage id="GraphItemProperties.Rotation" defaultMessage="Rotation" />}
-					onBlur={(event) => this.handleX(event)}
-					onKeyPress={(event) => {
-						if (event.key === 'Enter') {
-							this.handleX(event);
-						}
-					}}
-					value={this.getFormula(12)}
+					onBlur={(event) => this.handleParameter(event, 11)}
+					value={this.getFormula(11)}
 					InputLabelProps={{ shrink: true }}
 					InputProps={{
 						inputComponent: MyInputComponent,
 						inputProps: {
 							component: CellRangeComponent,
+							sheetView,
+							value: {},
+							range: this.getFormula(11)
+						}
+					}}
+				/>
+				<TextField
+					variant="outlined"
+					size="small"
+					margin="normal"
+					label={
+						<FormattedMessage id="GraphItemProperties.RotationCenter" defaultMessage="Rotation Center" />
+					}
+					onBlur={(event) => this.handleParameter(event, 12)}
+					onKeyPress={(event) => {
+						if (event.key === 'Enter') {
+							this.handleParameter(event, 12);
+						}
+					}}
+					value={this.getFormula(12)}
+					InputLabelProps={{
+						shrink: true
+					}}
+					InputProps={{
+						inputComponent: MyInputComponent,
+						inputProps: {
+							component: CellRangeComponent,
+							inputEditorType: 'string',
+							inputEditorOptions: [
+								{value: '0', label: 'GraphItemProperties.LeftTop'},
+								{value: '1', label: 'GraphItemProperties.CenterTop'},
+								{value: '2', label: 'GraphItemProperties.RightTop'},
+								{value: '3', label: 'GraphItemProperties.LeftMiddle'},
+								{value: '4', label: 'GraphItemProperties.Center'},
+								{value: '5', label: 'GraphItemProperties.RightMiddle'},
+								{value: '6', label: 'GraphItemProperties.LeftBottom'},
+								{value: '7', label: 'GraphItemProperties.CenterBottom'},
+								{value: '8', label: 'GraphItemProperties.RightBottom'}
+							],
 							sheetView,
 							value: {},
 							range: this.getFormula(12)

@@ -369,6 +369,7 @@ class StreamSheet {
 		this._loopIndex = this._msgHandler.index;
 		this.sheet.getDrawings().removeAll();
 		this.sheet._startProcessing();
+		this.trigger.didProcessSheet();
 		this._emitter.emit('step', this);
 		if (this.sheet.isProcessed) {
 			this._emitter.emit('finishedStep', this);

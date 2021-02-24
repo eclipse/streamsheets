@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -19,19 +19,19 @@ const cellAt = (idxstr, sheet) => sheet.cellAt(SheetIndex.create(idxstr));
 // eslint-disable-next-line
 let pendingRequest = undefined;
 
-Streams.request = (streamId, message) => new Promise((resolve, rejectIt) => {
-	const responseMessage = {
-		type: 'response',
-		response: message.toJSON(),
-		requestId: message.id
-	};
-	pendingRequest = {
-		message: responseMessage,
-		resolve: () => resolve(responseMessage),
-		reject: (err) => rejectIt(err)
-	};
-});
-
+Streams.request = (streamId, message) =>
+	new Promise((resolve, rejectIt) => {
+		const responseMessage = {
+			type: 'response',
+			response: message.toJSON(),
+			requestId: message.id
+		};
+		pendingRequest = {
+			message: responseMessage,
+			resolve: (data) => resolve(data || responseMessage),
+			reject: (err) => rejectIt(err)
+		};
+	});
 
 const TEST_PRODUCER = { type: 'producer', id: 'test_stream', name: 'test_stream', state: 'connected' };
 
@@ -124,18 +124,35 @@ describe('request', () => {
 		await machine.step();
 		expect(sheet.getPendingRequests().size).toBe(1);
 		const previousRequestId = sheet
-		.getPendingRequests()
-		.keys()
-		.next();
+			.getPendingRequests()
+			.keys()
+			.next();
 		await pendingRequest.resolve(pendingRequest.message.data);
 		expect(streamsheet.inbox.size).toBe(1);
 		await machine.step();
 		expect(sheet.getPendingRequests().size).toBe(1);
 		const currentRequestId = sheet
-		.getPendingRequests()
-		.keys()
-		.next();
+			.getPendingRequests()
+			.keys()
+			.next();
 		expect(currentRequestId).not.toBe(previousRequestId);
+	});
+	// DL-4778
+	it('should write resolved request data to cell', async () => {
+		const streamsheet = setupStreamSheet({ A1: { formula: 'request(|test_stream, "hallo", A2)' } });
+		const sheet = streamsheet.sheet;
+		const machine = streamsheet.machine;
+		await machine.step();
+		expect(sheet.getPendingRequests().size).toBe(1);
+		await pendingRequest.resolve({ name: 'foo', age: 42 });
+		await machine.step();
+		expect(sheet.getPendingRequests().size).toBe(1);
+		expect(sheet.cellAt('A2').value).toEqual({ name: 'foo', age: 42 });
+		createCellAt('A1', { formula: 'request(|test_stream, "hallo", C3:C3)' }, sheet);
+		await machine.step();
+		await pendingRequest.resolve({ name: 'bar', birthdate: { day: 23, month: 10, year: 1998 } });
+		await machine.step();
+		expect(sheet.cellAt('C3').value).toEqual({ name: 'bar', birthdate: { day: 23, month: 10, year: 1998 } });
 	});
 	it('should remove all pending request on machine stop', async () => {
 		const streamsheet = setupStreamSheet({ A1: { formula: 'request(|test_stream, "hallo", inbox())' } });
@@ -215,7 +232,7 @@ describe('requestinfo', () => {
 		expect(cellAt('A1', sheet).value).toBe(false);
 		expect(sheet.getPendingRequests().size).toBe(1);
 		try {
-			await pendingRequest.reject('error');
+			await pendingRequest.reject(new Error('Error'));
 		} catch (err) {
 			await machine.step();
 			expect(cellAt('A1', sheet).value).toBe(ERROR.ERR);

@@ -795,7 +795,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 				}
 			}
 			if (node) {
-
 				if (node.lastDrawItem && JSON.stringify(drawItem) === JSON.stringify(node.lastDrawItem)) {
 					return;
 				}
@@ -1775,5 +1774,19 @@ module.exports = class StreamSheet extends WorksheetNode {
 		});
 
 		return cellDescriptors;
+	}
+
+	replaceTerm(formula, expression, index) {
+		const newExpression = this.textToExpression(String(formula));
+		const term = expression.getTerm();
+
+		if (term && newExpression) {
+			for (let i = term.params.length; i < index; i += 1) {
+				term.params[i] = new NullTerm();
+			}
+
+			term.params[index] = newExpression.term;
+			expression.correctFormula(this, true);
+		}
 	}
 };

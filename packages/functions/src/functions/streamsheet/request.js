@@ -11,14 +11,14 @@
 const array = require('./array');
 const {
 	sheet: sheetutils,
-	terms: { getCellRangeFromTerm, isInboxTerm, isOutboxTerm, termAsNumber },
+	terms: { getCellRangeFromTerm, isInboxTerm, isOutboxTerm, termAsNumber, termFromValue },
 	validation: { ensure }
 } = require('../../utils');
 const { Term } = require('@cedalo/parser');
 const { jsonpath } = require('@cedalo/commons');
 const IdGenerator = require('@cedalo/id-generator');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Cell, Message, SheetRange, State, Streams } = require('@cedalo/machine-core');
+const { Cell, Message, SheetRange, Streams } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 
@@ -81,13 +81,20 @@ const getResultKeys = (resultKeys, data) => {
 
 const doInsertHeader = (resultKeys, range) => !resultKeys && range.height > 1;
 
-const putToRange = (sheet, range, resultKeys, message) => {
-	const { data } = message;
+const _putToCell = (index, data, sheet) => {
+	if (data == null) sheet.setCellAt(index, undefined);
+	else {
+		const cell = sheet.cellAt(index, true);
+		cell.term = termFromValue(data);
+	}
+};
+const _putToRange = (range, resultKeys, data) => {
 	const dataAsArray = Array.isArray(data) && typeof data[0] === 'object' ? data : [data];
 	const keys = getResultKeys(resultKeys, dataAsArray);
 	const insertHeader = doInsertHeader(resultKeys, range);
-	let rowIndex = insertHeader ? -2 : -1;
 	let columnIndex = 0;
+	let rowIndex = insertHeader ? -2 : -1;
+	const sheet = range.sheet;
 	const sheetOnUpdate = sheet.onUpdate;
 	sheet.onUpdate = null;
 	range.iterate((cell, index, nextcol) => {
@@ -97,7 +104,6 @@ const putToRange = (sheet, range, resultKeys, message) => {
 		} else {
 			columnIndex += 1;
 		}
-
 		if (rowIndex === -1) {
 			const value = keys[columnIndex];
 			const newCell = value != null ? new Cell(value, Term.fromValue(value)) : null;
@@ -111,19 +117,22 @@ const putToRange = (sheet, range, resultKeys, message) => {
 		}
 	});
 	sheet.onUpdate = sheetOnUpdate;
-	const machine = sheetutils.getMachine(sheet);
-	if (machine && machine.state !== State.RUNNING) {
-		sheet._notifyUpdate();
-	}
+	sheet._notifyUpdate();
+};
+const putToRange = (range, resultKeys, message) => {
+	const { data } = message;
+	if (range.width === 1 && range.height === 1) _putToCell(range.start, data, range.sheet);
+	else _putToRange(range, resultKeys, data);
 	return true;
 };
-const putToRange2 = (sheet, range, message) => {
-	const { data } = message;
-	const entries = Object.entries(data);
-	const sheetOnUpdate = sheet.onUpdate;
+
+const _putToRange2 = (range, data) => {
 	let rowidx = 0;
 	let colidx = -1;
 	let newCell = null;
+	const sheet = range.sheet;
+	const entries = Object.entries(data);
+	const sheetOnUpdate = sheet.onUpdate;
 	sheet.onUpdate = null;
 	range.iterateByCol((cell, index, nextcol) => {
 		if (nextcol) {
@@ -142,10 +151,12 @@ const putToRange2 = (sheet, range, message) => {
 		newCell = null;
 	});
 	sheet.onUpdate = sheetOnUpdate;
-	const machine = sheetutils.getMachine(sheet);
-	if (machine && machine.state !== State.RUNNING) {
-		sheet._notifyUpdate();
-	}
+	sheet._notifyUpdate();
+};
+const putToRange2 = (range, message) => {
+	const { data } = message;
+	if (range.width === 1 && range.height === 1) _putToCell(range.start, data, range.sheet);
+	else _putToRange2(range, data);
 	return false;
 };
 
@@ -204,8 +215,8 @@ const handleResponse = (handle, sheet, target, resultKeys, message, funcTerm) =>
 			case 'sheet':
 				if (target instanceof SheetRange) {
 					return resultsType
-						? putToRange2(sheet, target, message, resultsType)
-						: putToRange(sheet, target, resultKeys, message);
+						? putToRange2(target, message, resultsType)
+						: putToRange(target, resultKeys, message);
 				}
 				return false;
 			case 'outbox':
@@ -245,7 +256,7 @@ const createRequest = (sheet, funcTerm, oldReqId, target, resultKeys, promise) =
 					// we need a general way to handle request response, this is rather :-/
 					handleResponse(responseHandle, sheet, target, resultKeys, message, funcTerm);
 				} else if (target instanceof SheetRange) {
-					putToRange(sheet, target, resultKeys, message);
+					putToRange(target, resultKeys, message);
 				} else {
 					putToTarget(sheet, target, message);
 				}
@@ -257,7 +268,7 @@ const createRequest = (sheet, funcTerm, oldReqId, target, resultKeys, promise) =
 				if (target instanceof SheetRange) {
 					// putToRange(sheet, target, resultKeys, { data: [] });
 				} else {
-					putToTarget(sheet, target, { error: error.message });
+					putToTarget(sheet, target, { error: error.message || 'Unknown error' });
 				}
 				updatePendingRequest(pendingRequests.get(reqId), 'rejected');
 			}

@@ -36,6 +36,8 @@ class TriggerCycle {
 
 	clear() {}
 
+	didProcessSheet() {}
+
 	run() {
 		this.schedule();
 		this.step();

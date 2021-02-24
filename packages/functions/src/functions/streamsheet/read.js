@@ -16,7 +16,8 @@ const {
 	jsonflatten: { toArray2D },
 	messages,
 	runFunction,
-	terms: { getCellRangeFromTerm, termFromValue }
+	sheet: { setCellValue },
+	terms: { getCellRangeFromTerm }
 } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
@@ -39,18 +40,9 @@ const setLastValue = (context, path, value) => {
 	context.lastValuePath = path; 
 };
 
-const setCellAt = (index, value, sheet) => {
-	if (value == null) sheet.setCellAt(index, undefined);
-	else {
-		const cell = sheet.cellAt(index, true);
-		// DL-2144: if cell has a formula only set its value, otherwise its term
-		if (cell.hasFormula) {
-			cell.value = value;
-		} else {
-			cell.term = termFromValue(value);
-		}
-	}
-};
+// DL-2144: if cell has a formula only set its value, otherwise its term
+const setCellAt = (sheet, index, value) => setCellValue(sheet, index, value, true);
+
 const setErrorCell = (index, sheet) => {
 	const cell = sheet.cellAt(index, true);
 	cell.term = ErrorTerm.fromError(ERROR.NA);
@@ -63,7 +55,7 @@ const copyToCellRange = (range, data, type, horizontally) => {
 		// fill range with error code...
 		range.iterate((cell, index) => setErrorCell(index, sheet));
 	} else if (range.width === 1 && range.height === 1) {
-		setCellAt(range.start, data, sheet);
+		setCellAt(sheet, range.start, data);
 	} else {
 		// spread array to range, support jsonflat (DL-4560)
 		const lists = toArray2D(data, type);

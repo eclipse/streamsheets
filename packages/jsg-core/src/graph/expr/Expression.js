@@ -590,6 +590,22 @@ class Expression {
 		this._isLocked = locked;
 	}
 
+	toJSON() {
+		const ret =  {};
+
+		if (this._formula !== undefined) {
+			ret.f = Strings.encode(this._formula);
+		}
+		if (this._value !== undefined) {
+			ret.v = Strings.encode(this._value.toString())
+		}
+		const type = typeof this._value;
+
+		if (type[0] !== 'n') {
+			ret.t = type[0];
+		}
+		return ret;
+	}
 	/**
 	 * Saves this Expression to XML.<br/>
 	 * To customize saving subclasses should overwrite the various <code>_write</code> methods.

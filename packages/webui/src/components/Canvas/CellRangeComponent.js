@@ -21,7 +21,7 @@ import { graphManager } from '../../GraphManager';
 import {withStyles} from '@material-ui/core/styles';
 import styles from '../base/listing/styles';
 import Popover from "@material-ui/core/Popover";
-// import {intl} from "../../helper/IntlGlobalProvider";
+import {intl} from "../../helper/IntlGlobalProvider";
 
 const {
 	CellEditor,
@@ -76,7 +76,7 @@ class CellRangeComponent extends React.Component {
 	};
 
 	onSelectInput = (option) => {
-		this.state.anchorEl.innerHTML = option;
+		this.state.anchorEl.innerHTML = option.value;
 		this.setState({
 			inputEditorOpen: false,
 		});
@@ -135,11 +135,12 @@ class CellRangeComponent extends React.Component {
 			return;
 		}
 		const cancel = event.relatedTarget && event.relatedTarget.id === 'RefCancel';
-		if (!cancel) {
+		event.target.innerHTML = cancel ? this.state.oldValue : event.target.textContent;
+		if (event.type === 'keydown') {
+			event.target.blur();
+		} else {
 			this.props.onBlur(event);
 		}
-		event.target.blur();
-		event.target.innerHTML = cancel ? this.state.oldValue : event.target.textContent;
 		this.setState({
 			focus: false,
 		});
@@ -275,21 +276,10 @@ class CellRangeComponent extends React.Component {
 						{this.props.inputEditorOptions.map((option) =>
 							<MenuItem
 								dense
-								key={option}
+								key={option.value}
 								onClick={() => this.onSelectInput(option)}
 							>
-								<div>
-									<div
-										style={{
-											textAlign: 'left',
-											display: 'inline-block',
-											width: '125px'
-										}}
-									>
-										{option}
-										{/*{intl.formatMessage({ id: format.id }, {})}*/}
-									</div>
-								</div>
+								{`${option.value} - ${intl.formatMessage({ id: option.label }, {})}`}
 							</MenuItem>
 						)}
 					</MenuList>

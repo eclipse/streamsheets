@@ -17,6 +17,10 @@ const MessageLoopCycle = (BaseCycle) =>
 			return true;
 		}
 
+		_doStop() {
+			return (this.streamsheet.messageHandler.isProcessed && !this.sheet.isPaused);
+		}
+
 		getMessageLoopCycle() {
 			return this;
 		}
@@ -24,10 +28,10 @@ const MessageLoopCycle = (BaseCycle) =>
 		activate() {
 			super.activate();
 			this.schedule();
-			this.postProcessSheet();
+			if (this._doStop()) super.stop();
 		}
 
-		postProcessSheet() {
+		didProcessSheet() {
 			if (this.sheet.isProcessed) this.streamsheet.messageHandler.next();
 			if (this.streamsheet.messageHandler.isProcessed) {
 				this.streamsheet.detachMessage();
@@ -37,11 +41,6 @@ const MessageLoopCycle = (BaseCycle) =>
 
 		getRepeatUntilCycle() {
 			throw new Error('Not implemented!');
-		}
-
-		resume(retval) {
-			super.resume(retval);
-			this.postProcessSheet();
 		}
 
 		step() {
@@ -54,13 +53,12 @@ const MessageLoopCycle = (BaseCycle) =>
 				this.trigger.activeCycle.run();
 			} else {
 				this.trigger.processSheet();
-				this.postProcessSheet();
 			}
 		}
 
 		stop() {
 			// DL-4592: new requirement: message-loop should not be stopped by return()
-			if (this.streamsheet.messageHandler.isProcessed && !this.sheet.isPaused) super.stop();
+			if (this._doStop()) super.stop();
 		}
 	};
 
