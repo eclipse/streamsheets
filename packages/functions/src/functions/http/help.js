@@ -14,88 +14,88 @@ module.exports = {
 	functions: {
 		'HTTP.REQUEST2': {
 			en: {
-				argumentList: 'URL,method,config,target',
+				argumentList: 'URL,method,body,headers,config,target',
 				description: 'Executes an HTTP request'
 			},
 			de: {
-				argumentList: 'URL,Methode,Konfiguration,Ziel',
+				argumentList: 'URL,Methode,Body,Header,Konfiguration,Ziel',
 				description:
 					'Führt eine HTTP-Anfrage aus'
 			}
 		}, 
 		'HTTP.GET': {
 			en: {
-				argumentList: 'URL,config,target',
+				argumentList: 'URL,headers,config,target',
 				description: 'Executes an HTTP GET request'
 			},
 			de: {
-				argumentList: 'URL,Konfiguration,Ziel',
+				argumentList: 'URL,Header,Konfiguration,Ziel',
 				description:
 					'Führt eine HTTP-Anfrage über die HTTP-Methode GET aus'
 			}
 		}, 
 		'HTTP.POST': {
 			en: {
-				argumentList: 'URL,data,config',
+				argumentList: 'URL,body,headers,config,target',
 				description: 'Executes an HTTP POST request'
 			},
 			de: {
-				argumentList: 'URL,Daten,Konfiguration',
+				argumentList: 'URL,Body,Header,Konfiguration,Ziel',
 				description:
 					'Führt eine HTTP-Anfrage über die HTTP-Methode POST aus'
 			}
 		}, 
 		'HTTP.PUT': {
 			en: {
-				argumentList: 'URL,data,config',
+				argumentList: 'URL,body,headers,config,target',
 				description: 'Executes an HTTP PUT request'
 			},
 			de: {
-				argumentList: 'URL,Daten,Konfiguration',
+				argumentList: 'URL,Body,Header,Konfiguration,Ziel',
 				description:
 					'Führt eine HTTP-Anfrage über die HTTP-Methode PUT aus'
 			}
 		}, 
 		'HTTP.DELETE': {
 			en: {
-				argumentList: 'URL,config',
+				argumentList: 'URL,headers,config,target',
 				description: 'Executes an HTTP DELETE request'
 			},
 			de: {
-				argumentList: 'URL,Konfiguration',
+				argumentList: 'URL,Header,Konfiguration,Ziel',
 				description:
 					'Führt eine HTTP-Anfrage über die HTTP-Methode DELETE aus'
 			}
 		}, 
 		'HTTP.OPTIONS': {
 			en: {
-				argumentList: 'URL,config',
+				argumentList: 'URL,headers,config,target',
 				description: 'Executes an HTTP OPTIONS request'
 			},
 			de: {
-				argumentList: 'URL,Konfiguration',
+				argumentList: 'URL,Header,Konfiguration,Ziel',
 				description:
 					'Führt eine HTTP-Anfrage über die HTTP-Methode OPTIONS aus'
 			}
 		}, 
 		'HTTP.HEAD': {
 			en: {
-				argumentList: 'URL,config',
+				argumentList: 'URL,headers,config,target',
 				description: 'Executes an HTTP HEAD request'
 			},
 			de: {
-				argumentList: 'URL,Konfiguration',
+				argumentList: 'URL,Header,Konfiguration,Ziel',
 				description:
 					'Führt eine HTTP-Anfrage über die HTTP-Methode HEAD aus'
 			}
 		}, 
 		'HTTP.PATCH': {
 			en: {
-				argumentList: 'URL,data,config',
+				argumentList: 'URL,body,header,config,target',
 				description: 'Executes an HTTP PATCH request'
 			},
 			de: {
-				argumentList: 'URL,Daten,Konfiguration',
+				argumentList: 'URL,Body,Header,Konfiguration,Ziel',
 				description:
 					'Führt eine HTTP-Anfrage über die HTTP-Methode PATCH aus'
 			}
