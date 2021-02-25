@@ -550,11 +550,15 @@ class Expression {
 			if (typeof value === 'boolean') {
 				str = value.toString().toUpperCase();
 			}
-			str =
-				str ||
-				(Numbers.isNumber(value)
-					? Locale.localizeNumber(value, locale)
-					: `${value}`);
+			if (Numbers.isNumber(value)) {
+				if (params && params.length && params[0].round !== undefined) {
+					str = Locale.localizeNumber(MathUtils.roundTo(value, params[0].round), locale);
+				} else {
+					str = Locale.localizeNumber(value, locale);
+				}
+			} else {
+				str = str || `${value}`;
+			}
 		}
 		return str;
 	}

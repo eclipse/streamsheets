@@ -820,53 +820,74 @@ class GraphItemView extends View {
 			formula += `${MathUtils.roundTo(pStart.x, digits)},${MathUtils.roundTo(pStart.y, digits)},`;
 			formula += `${MathUtils.roundTo(pEnd.x, digits)},${MathUtils.roundTo(pEnd.y, digits)}`;
 		} else {
+			// DRAW.*(X, Y, Width, Height, LineFormat, FillFormat, Attributes, Events, Angle, RotCenter)
 			formula += `${item.getPin().getX().toParamString(sheet, 0)}${sep}${item.getPin().getY().toParamString(sheet, 0)}${sep}`;
-			formula += `${item.getWidth().toParamString(sheet, 0)}${sep}${item.getHeight().toParamString(sheet, 0)}${sep}`;
-			const angle = item.getAngle().toParamString(sheet, 2);
-			const attributes = '';
-			const lineFormula = undefined; // this.getLineFormula(item);
-			const fillFormula = undefined; //  this.getFillFormula(item);
+			formula += `${item.getWidth().toParamString(sheet, 0)}${sep}${item.getHeight().toParamString(sheet, 0)}`;
+
+			const options = [];
+
+			let param = item.getAngle().toParamString(sheet, 2);
+			if (param !== '0') {
+				options[4] = param;
+			}
+
+			// const angle =
+			// const attributes = '';
 			switch (type) {
 				case 'label':
-					formula += `,${lineFormula || ''},,${attributes},,`;
-					formula += angle === '0' ? ',,' : `${angle},,`;
-					formula += `"${item.getText().getValue()}"`;
+					options[6] = item.getText().toParamString(sheet);
 					item.getTextFormat().setRichText(false);
 					break;
 				case 'button':
-					formula += `,,,${attributes},EVENTS(ONCLICK()),`;
-					formula += angle === 0 ? ',,"Button",,FALSE' : `${angle},,"Button",,FALSE`;
+					// formula += `,,,${attributes},EVENTS(ONCLICK()),`;
+					// formula += angle === 0 ? ',,"Button",,FALSE' : `${angle},,"Button",,FALSE`;
 					break;
 				case 'checkbox':
-					formula += `,,,${attributes},,`;
-					formula += angle === 0 ? ',,"Checkbox",,FALSE' : `${angle},,"Checkbox",,FALSE`;
+					// formula += `,,,${attributes},,`;
+					// formula += angle === 0 ? ',,"Checkbox",,FALSE' : `${angle},,"Checkbox",,FALSE`;
 					break;
 				case 'slider':
-					formula += `,,,${attributes},,`;
-					formula += angle === 0 ? ',,"Slider",,50,0,100,10' : `${angle},,"Slider",,50,0,100,10`;
+					// formula += `,,,${attributes},,`;
+					// formula += angle === 0 ? ',,"Slider",,50,0,100,10' : `${angle},,"Slider",,50,0,100,10`;
 					break;
 				case 'knob':
-					formula += `,,,${attributes},,`;
-					formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
+					// formula += `,,,${attributes},,`;
+					// formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
+					break;
+				case 'bezier':
+				case 'polygon':
+					param = item.getShape().getSource().toParamString(sheet);
+					if (param !== '') {
+						options[6] = param;
+					}
 					break;
 				default:
-					if (angle !== '0' || attributes !== '' || lineFormula !== undefined || fillFormula !== undefined) {
-						formula += `,${lineFormula || ''},${fillFormula || ''},${attributes},,${angle}`;
-					}
-					if ((type === 'polygon' || type === 'bezier') && !item.isClosed()) {
-						if (
-							angle !== 0 ||
-							attributes !== '' ||
-							lineFormula !== undefined ||
-							fillFormula !== undefined
-						) {
-							formula += ',,,FALSE';
-						} else {
-							formula += ',,,,,,,,FALSE';
-						}
-					}
+					// if (angle !== '0' || attributes !== '' || lineFormula !== undefined || fillFormula !== undefined) {
+					// 	formula += `,${lineFormula || ''},${fillFormula || ''},${attributes},,${angle}`;
+					// }
+					// if ((type === 'polygon' || type === 'bezier') && !item.isClosed()) {
+					// 	if (
+					// 		angle !== 0 ||
+					// 		attributes !== '' ||
+					// 		lineFormula !== undefined ||
+					// 		fillFormula !== undefined
+					// 	) {
+					// 		formula += ',,,FALSE';
+					// 	} else {
+					// 		formula += ',,,,,,,,FALSE';
+					// 	}
+					// }
 					break;
 			}
+			for (let i = 0; i < options.length; i += 1) {
+				const option = options[i];
+				if (option) {
+					formula += option;
+				}
+				if (i < options.length - 1) {
+					formula += sep;
+				}
+ 			}
 		}
 
 		formula += ')';

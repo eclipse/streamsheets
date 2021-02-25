@@ -170,6 +170,7 @@ JSG.RotateItemCommand = require('./src/graph/command/RotateItemCommand');
 JSG.FormatItemCommand = require('./src/graph/command/FormatItemCommand');
 JSG.TextFormatItemCommand = require('./src/graph/command/TextFormatItemCommand');
 JSG.SetTextCommand = require('./src/graph/command/SetTextCommand');
+JSG.SetPointSourceCommand = require('./src/graph/command/SetPointSourceCommand');
 JSG.SetSelectionCommand = require('./src/graph/command/SetSelectionCommand');
 JSG.RemoveSelectionCommand = require('./src/graph/command/RemoveSelectionCommand');
 JSG.SetNameCommand = require('./src/graph/command/SetNameCommand');

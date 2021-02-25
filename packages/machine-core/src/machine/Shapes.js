@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 const { SheetParser } = require('../parser/SheetParser');
+const SheetRange = require('./SheetRange');
 
 const checkNaN = (value) => (typeof value === 'number' && Number.isNaN(value) ? 0 : value);
 const checkTermValue = (term) => {
@@ -35,10 +36,13 @@ const decode = (str) => {
 
 const updateValue = (obj) => {
 	const value = obj.term ? checkTermValue(obj.term) : checkNaN(obj.v);
-	// const value = checkNaN(obj.term.value);
 
 	// eslint-disable-next-line no-nested-ternary
 	obj.sv = value != null ? value : obj.term.hasOperandOfType('CellReference') ? 0 : value;
+	if (obj.sv instanceof SheetRange) {
+		obj.ref = undefined;
+		obj.sv = obj.sv.toReferenceString();
+	}
 };
 
 class Shapes {

@@ -533,15 +533,29 @@ class BezierShape extends PolygonShape {
 		return pointList.distance(point, closed) < radius;
 	}
 
-	refresh() {
-		super.refresh();
-
-		if (this._cpFromCoordinates.length > 0) {
-			this._fillPointList(this._cpFromPoints, this._cpFromCoordinates);
+	refreshFromSource() {
+		if( super.refreshFromSource()) {
+			this._item._reshapeCoordinates = [];
+			this._item._reshapeProperties.clear();
+			this._cpToCoordinates = [];
+			this._cpFromCoordinates = [];
+			this.getBezierPoints(this.getPoints());
 		}
+	}
 
-		if (this._cpToCoordinates.length > 0) {
-			this._fillPointList(this._cpToPoints, this._cpToCoordinates);
+	refresh() {
+		if (this._refreshEnabled === true) {
+			this.refreshFromSource();
+
+			this._fillPointList(this._coordpointlist, this.getCoordinates());
+
+			if (this._cpFromCoordinates.length > 0) {
+				this._fillPointList(this._cpFromPoints, this._cpFromCoordinates);
+			}
+
+			if (this._cpToCoordinates.length > 0) {
+				this._fillPointList(this._cpToPoints, this._cpToCoordinates);
+			}
 		}
 	}
 

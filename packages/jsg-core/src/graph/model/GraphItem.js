@@ -3387,6 +3387,7 @@ class GraphItem extends Model {
 			});
 		}
 
+		this._shape.fromJSON(json.shape);
 
 	}
 
