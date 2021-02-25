@@ -61,25 +61,22 @@ class HTTPClient {
 	}
 
 	async post(url, body, headers, config = {}) {
-		config.data = body;
 		config.headers = headers;
 		config = this._checkConfig(config);
 		// axios serialize json data
-		return axios.post(url, data, config)
+		return axios.post(url, body, config)
 	}
 
 	async put(url, body, headers, config = {}) {
-		config.data = body;
 		config.headers = headers;
 		config = this._checkConfig(config);
-		return axios.put(url, data, config)
+		return axios.put(url, body, config)
 	}
 
 	async patch(url, body, headers, config = {}) {
-		config.data = body;
 		config.headers = headers;
 		config = this._checkConfig(config);
-		return axios.patch(url, data, config)
+		return axios.patch(url, body, config)
 	}
 
 }
