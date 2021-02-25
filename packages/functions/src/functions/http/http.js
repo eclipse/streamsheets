@@ -144,7 +144,7 @@ const patch = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.withMaxArgs(4)
+		.withMaxArgs(5)
 		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((body) => (hasValue(body) ? body.value : ''))
 		.mapNextArg((headers) => (hasValue(headers) ? headers.value : {}))
