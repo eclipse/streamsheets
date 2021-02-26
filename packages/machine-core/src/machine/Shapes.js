@@ -39,9 +39,12 @@ const updateValue = (obj) => {
 
 	// eslint-disable-next-line no-nested-ternary
 	obj.sv = value != null ? value : obj.term.hasOperandOfType('CellReference') ? 0 : value;
+	obj.ref = undefined;
 	if (obj.sv instanceof SheetRange) {
-		obj.ref = undefined;
 		obj.sv = obj.sv.toReferenceString();
+	}
+	if (obj.term && obj.term.hasOperandOfType('CellReference')) {
+		obj.ref = obj.term.operand.toString();
 	}
 };
 
@@ -90,9 +93,11 @@ class Shapes {
 	}
 
 	evaluate() {
-		this.json.shapes.forEach(shape => {
-			this.evaluateObject(shape);
-		});
+		if (this.json) {
+			this.json.shapes.forEach(shape => {
+				this.evaluateObject(shape);
+			});
+		}
 	}
 }
 

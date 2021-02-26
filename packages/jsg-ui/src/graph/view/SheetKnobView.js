@@ -394,8 +394,10 @@ export default class SheetKnobView extends NodeView {
 			return false;
 		}
 
-		if (sheet && typeof value === 'string') {
-			const range = CellRange.parse(value, sheet);
+		const attr = item.getAttributeAtPath('value');
+		const expr = attr.getExpression();
+		if (sheet && expr._cellref) {
+			const range = CellRange.parse(expr._cellref, sheet);
 			if (range) {
 				range.shiftFromSheet();
 				const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());

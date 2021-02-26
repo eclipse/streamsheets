@@ -23,7 +23,6 @@ module.exports = class SheetKnobNode extends Node {
 		this.getFormat().setFillColor('#DDDDDD');
 		this.getTextFormat().setFontSize(9);
 
-		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 		this.getItemAttributes().setContainer(false);
 		this.addAttribute(new StringAttribute('title', 'Knob'));
 		this.addAttribute(new Attribute('value', new Expression(50)));
@@ -39,12 +38,6 @@ module.exports = class SheetKnobNode extends Node {
 
 	newInstance() {
 		return new SheetKnobNode();
-	}
-
-	_copy(copiednodes, deep, ids) {
-		const copy = super._copy(copiednodes, deep, ids);
-
-		return copy;
 	}
 
 	getItemType() {
@@ -70,18 +63,6 @@ module.exports = class SheetKnobNode extends Node {
 		const value = this.getAttributeValueAtPath('value');
 		if (value === undefined) {
 			return 0;
-		}
-
-		const sheet = this.getSheet();
-		if (sheet && typeof value === 'string') {
-			const range = CellRange.parse(value, sheet);
-			if (range) {
-				range.shiftFromSheet();
-				const cell = range.getSheet().getDataProvider().getRC(range.getX1(), range.getY1());
-				if (cell) {
-					return cell.getValue();
-				}
-			}
 		}
 
 		return value;

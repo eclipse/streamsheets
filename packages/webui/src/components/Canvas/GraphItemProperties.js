@@ -229,7 +229,7 @@ export class GraphItemProperties extends Component {
 	getProperties() {
 		const category = this.getSelectedCategory() || this.state.category;
 		switch (category) {
-			case 'geometry':
+			case 'general':
 				return <GeometryProperties view={this.state.view}/>;
 			default:
 				if (this.state.view.isNewChart) {

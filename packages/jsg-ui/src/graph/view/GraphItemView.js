@@ -769,16 +769,6 @@ class GraphItemView extends View {
 	}
 
 	getSelectedFormula(sheet) {
-		// const attrFormula = this.getItem().getItemAttributes().getAttribute('sheetformula');
-		// const expr = attrFormula ? attrFormula.getExpression() : undefined;
-		// if (expr && expr.getTerm()) {
-		// 	formula = `=${expr.getTerm().toLocaleString(JSG.getParserLocaleSettings(), {
-		// 		item: sheet,
-		// 		useName: true,
-		// 	})}`;
-		// } else {
-		// 	return expr && expr.getFormula() ? expr.getFormula() : '';
-		// }
 		const item = this.getItem();
 		let type = item.getShape().getType();
 		if (type === undefined) {
@@ -800,16 +790,6 @@ class GraphItemView extends View {
 		}
 
 		let formula = `=DRAW.${type.toUpperCase()}(`;
-
-		// if (item.getParent() instanceof CellsNode) {
-		// 	formula += `,"${item.getName().getValue()}",`;
-		// } else {
-		// 	formula += `"${item
-		// 		.getParent()
-		// 		.getName()
-		// 		.getValue()}","${item.getName().getValue()}",`;
-		// }
-
 		const digits = 0; // this.getDigits(item.getParent());
 		const sep = JSG.getParserLocaleSettings().separators.parameter;
 
@@ -826,33 +806,66 @@ class GraphItemView extends View {
 
 			const options = [];
 
+			// 0 - line
+			// 1 - fill
+			// 2 - attributes
+			// 3 - events
+
 			let param = item.getAngle().toParamString(sheet, 2);
 			if (param !== '0') {
 				options[4] = param;
 			}
 
-			// const angle =
-			// const attributes = '';
+			// 5 = rotationcenter
 			switch (type) {
 				case 'label':
 					options[6] = item.getText().toParamString(sheet);
 					item.getTextFormat().setRichText(false);
 					break;
-				case 'button':
-					// formula += `,,,${attributes},EVENTS(ONCLICK()),`;
-					// formula += angle === 0 ? ',,"Button",,FALSE' : `${angle},,"Button",,FALSE`;
-					break;
 				case 'checkbox':
-					// formula += `,,,${attributes},,`;
-					// formula += angle === 0 ? ',,"Checkbox",,FALSE' : `${angle},,"Checkbox",,FALSE`;
+				case 'button':
+					options[7] = item.getAttributeAtPath('title').getExpression().toParamString(sheet);
+					// 8 - labelfont
+					param = item.getAttributeAtPath('value').getExpression().toParamString(sheet);
+					if (param !== '') {
+						options[9] = param;
+					}
 					break;
 				case 'slider':
-					// formula += `,,,${attributes},,`;
-					// formula += angle === 0 ? ',,"Slider",,50,0,100,10' : `${angle},,"Slider",,50,0,100,10`;
+					options[7] = item.getAttributeAtPath('title').getExpression().toParamString(sheet);
+					// 8 - labelfont
+					param = item.getAttributeAtPath('value').getExpression().toParamString(sheet);
+					if (param !== '') {
+						options[9] = param;
+					}
+					options[10] = item.getAttributeAtPath('min').getExpression().toParamString(sheet);
+					options[11] = item.getAttributeAtPath('max').getExpression().toParamString(sheet);
+					options[12] = item.getAttributeAtPath('step').getExpression().toParamString(sheet);
+					// 13 - scalefont
+					param = item.getAttributeAtPath('marker').getExpression().toParamString(sheet);
+					if (param !== '') {
+						options[14] = param;
+					}
+					// 15 - formatrange
 					break;
 				case 'knob':
-					// formula += `,,,${attributes},,`;
-					// formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
+					options[7] = item.getAttributeAtPath('title').getExpression().toParamString(sheet);
+					// 8 - labelfont
+					param = item.getAttributeAtPath('value').getExpression().toParamString(sheet);
+					if (param !== '') {
+						options[9] = param;
+					}
+					options[10] = item.getAttributeAtPath('min').getExpression().toParamString(sheet);
+					options[11] = item.getAttributeAtPath('max').getExpression().toParamString(sheet);
+					options[12] = item.getAttributeAtPath('step').getExpression().toParamString(sheet);
+					// 13 - scalefont
+					param = item.getAttributeAtPath('marker').getExpression().toParamString(sheet);
+					if (param !== '') {
+						options[14] = param;
+					}
+					// 15 - formatrange
+					options[16] = item.getAttributeAtPath('start').getExpression().toParamString(sheet, 2);
+					options[17] = item.getAttributeAtPath('end').getExpression().toParamString(sheet,2);
 					break;
 				case 'bezier':
 				case 'polygon':
@@ -860,23 +873,12 @@ class GraphItemView extends View {
 					if (param !== '') {
 						options[6] = param;
 					}
+					param = item.getItemAttributes().getClosed().toParamString(sheet);
+					if (param !== 'TRUE') {
+						options[7] = param;
+					}
 					break;
 				default:
-					// if (angle !== '0' || attributes !== '' || lineFormula !== undefined || fillFormula !== undefined) {
-					// 	formula += `,${lineFormula || ''},${fillFormula || ''},${attributes},,${angle}`;
-					// }
-					// if ((type === 'polygon' || type === 'bezier') && !item.isClosed()) {
-					// 	if (
-					// 		angle !== 0 ||
-					// 		attributes !== '' ||
-					// 		lineFormula !== undefined ||
-					// 		fillFormula !== undefined
-					// 	) {
-					// 		formula += ',,,FALSE';
-					// 	} else {
-					// 		formula += ',,,,,,,,FALSE';
-					// 	}
-					// }
 					break;
 			}
 			for (let i = 0; i < options.length; i += 1) {
@@ -906,11 +908,11 @@ class GraphItemView extends View {
 	setSelectedPropertyCategory(data) {}
 
 	getDefaultPropertyCategory() {
-		return 'geometry';
+		return 'general';
 	}
 
 	isValidPropertyCategory(category) {
-		return category === 'geometry';
+		return category === 'general';
 	}
 }
 

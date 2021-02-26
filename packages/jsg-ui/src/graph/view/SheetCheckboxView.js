@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -53,47 +53,43 @@ export default class SheetCheckboxView extends NodeView {
 			return false;
 		}
 
-		let value = item.getAttributeValueAtPath('value');
-		if (value === undefined) {
-			setValue(true);
-			return true;
-		}
-
-		if (value === 0 || value === '0' || value === false) {
-			setValue(true);
-			return true;
-		}
-		if (value === 1 || value === '1' || value === true) {
-			setValue(false);
-			return true;
-		}
-
-		const range = CellRange.parse(value, sheet);
-		if (range) {
-			range.shiftFromSheet();
-			const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
-			if (cell) {
-				range.shiftToSheet();
-				value = cell.getValue();
-				const cellData = [];
-				if (value === 0 || value === '0' || value === false || value === undefined) {
-					cellData.push({
-						reference: range.toString(),
-						value: true
-					});
-					cell.setValue(true);
-					cell.setTargetValue(true);
-					viewer.getInteractionHandler().execute(new SetCellsCommand(range.getSheet(), cellData, false));
-				} else if (value === 1 || value === '1' || value === true) {
-					cellData.push({
-						reference: range.toString(),
-						value: false
-					});
-					cell.setValue(false);
-					cell.setTargetValue(false);
-					viewer.getInteractionHandler().execute(new SetCellsCommand(range.getSheet(), cellData, false));
+		const attr = item.getAttributeAtPath('value');
+		const expr = attr.getExpression();
+		if (sheet && expr._cellref) {
+			const range = CellRange.parse(expr._cellref, sheet);
+			if (range) {
+				range.shiftFromSheet();
+				const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
+				if (cell) {
+					const value = cell.getValue();
+					let newValue;
+					if (value === 0 || value === '0' || value === false || value === undefined) {
+						newValue = true;
+					} else if (value === 1 || value === '1' || value === true) {
+						newValue = false;
+					}
+					if (newValue !== undefined) {
+						range.shiftToSheet();
+						const cellData = [{
+							reference: range.toString(),
+							value: newValue
+						}];
+						cell.setValue(newValue);
+						cell.setTargetValue(newValue);
+						viewer.getInteractionHandler().execute(new SetCellsCommand(range.getSheet(), cellData, false));
+					}
+					return false;
 				}
-				return false;
+			}
+		} else {
+			const value = attr.getValue();
+			if (value === undefined || value === 0 || value === '0' || value === false) {
+				setValue(true);
+				return true;
+			}
+			if (value === 1 || value === '1' || value === true) {
+				setValue(false);
+				return true;
 			}
 		}
 

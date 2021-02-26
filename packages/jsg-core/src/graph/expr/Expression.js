@@ -563,7 +563,7 @@ class Expression {
 		return str;
 	}
 
-	toParamString(item, round) {
+	toParamString(item, round = 0) {
 		// let str = this._formula != null ? this._formula : null;
 		const locale = JSG.getParserLocaleSettings();
 		let str =
@@ -572,14 +572,20 @@ class Expression {
 				: null;
 		if (str == null) {
 			const value = this.getValue();
-			str = value == null ? '' : null;
-			if (typeof value === 'boolean') {
+			if (value === undefined || value === null) {
+				str = '';
+			} else if (typeof value === 'boolean') {
 				str = value.toString().toUpperCase();
-			}
-			if (Numbers.isNumber(value)) {
-				str = Locale.localizeNumber(MathUtils.roundTo(value, round), locale);
+			} else if (Numbers.isNumber(value)) {
+				if (round === -1) {
+					str = Locale.localizeNumber(value, locale);
+				} else {
+					str = Locale.localizeNumber(MathUtils.roundTo(value, round), locale);
+				}
+			} else if (String(value) !== '') {
+				str = `"${value}"`;
 			} else {
-				str = str || `${value}`;
+				str = '';
 			}
 		}
 		return str;
@@ -649,6 +655,9 @@ class Expression {
 
 		this.set(value, formula);
 		this.setTermValue(json.sv);
+		if (json.ref) {
+			this._cellref = json.ref;
+		}
 	}
 
 	toJSON(serverCalc) {

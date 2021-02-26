@@ -23,26 +23,19 @@ module.exports = class SheetSliderNode extends Node {
 		this.getFormat().setFillColor('#DDDDDD');
 		this.getTextFormat().setFontSize(9);
 
-		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 		this.getItemAttributes().setContainer(false);
 		this.addAttribute(new StringAttribute('title', 'Slider'));
+		this.addAttribute(new StringAttribute('scalefont', ''));
 		this.addAttribute(new Attribute('value', new Expression(50)));
 		this.addAttribute(new Attribute('min', new Expression(0)));
 		this.addAttribute(new Attribute('max', new Expression(100)));
 		this.addAttribute(new Attribute('step', new Expression(5)));
 		this.addAttribute(new StringAttribute('marker', ''));
-		this.addAttribute(new StringAttribute('scalefont', ''));
 		this.addAttribute(new StringAttribute('formatrange', ''));
 	}
 
 	newInstance() {
 		return new SheetSliderNode();
-	}
-
-	_copy(copiednodes, deep, ids) {
-		const copy = super._copy(copiednodes, deep, ids);
-
-		return copy;
 	}
 
 	getItemType() {
@@ -68,18 +61,6 @@ module.exports = class SheetSliderNode extends Node {
 		const value = this.getAttributeValueAtPath('value');
 		if (value === undefined) {
 			return 0;
-		}
-
-		const sheet = this.getSheet();
-		if (sheet && typeof value === 'string') {
-			const range = CellRange.parse(value, sheet);
-			if (range) {
-				range.shiftFromSheet();
-				const cell = range.getSheet().getDataProvider().getRC(range.getX1(), range.getY1());
-				if (cell) {
-					return cell.getValue();
-				}
-			}
 		}
 
 		return value;

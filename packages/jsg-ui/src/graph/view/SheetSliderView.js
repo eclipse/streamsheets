@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -351,8 +351,10 @@ export default class SheetSliderView extends NodeView {
 			return false;
 		}
 
-		if (sheet && typeof value === 'string') {
-			const range = CellRange.parse(value, sheet);
+		const attr = item.getAttributeAtPath('value');
+		const expr = attr.getExpression();
+		if (sheet && expr._cellref) {
+			const range = CellRange.parse(expr._cellref, sheet);
 			if (range) {
 				range.shiftFromSheet();
 				const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());

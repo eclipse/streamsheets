@@ -3356,8 +3356,8 @@ class GraphItem extends Model {
 	getPropertyCategories() {
 		return [
 			{
-				key: 'geometry',
-				label: 'GraphItemProperties.Geometry',
+				key: 'general',
+				label: 'GraphItemProperties.General',
 				name: '',
 			}
 		]
@@ -3388,6 +3388,18 @@ class GraphItem extends Model {
 		}
 
 		this._shape.fromJSON(json.shape);
+		if (json.format) {
+			this.getFormat().fromJSON(json.format);
+		}
+		if (json.textFormat) {
+			this.getTextFormat().fromJSON(json.textFormat);
+		}
+		if (json.attributes) {
+			this.getItemAttributes().fromJSON(json.attributes);
+		}
+		if (json.modelattributes) {
+			this.getModelAttributes().fromJSON(json.modelattributes);
+		}
 
 	}
 
@@ -3421,6 +3433,11 @@ class GraphItem extends Model {
 		}
 
 		ret.shape = this._shape.toJSON();
+
+		ret.format = this.getFormat().toJSON();
+		ret.textformat = this.getTextFormat().toJSON();
+		ret.attributes = this.getItemAttributes().toJSON();
+		ret.modelattributes = this.getModelAttributes().toJSON();
 
 		return ret;
 	}

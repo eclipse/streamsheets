@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -814,6 +814,39 @@ class AttributeList extends Attribute {
 			if (attr) {
 				attr = attr.isConst ? attr.toAttribute() : attr.copy(); // toList();
 				attr.getExpression().read(reader, child);
+				this.addAttribute(attr);
+			}
+		});
+	}
+
+	toJSON() {
+		if (this._transient) {
+			return undefined;
+		}
+		const attributes = this._value.getValue();
+		if (!attributes.length) {
+			return undefined;
+		}
+
+		const ret = {};
+		let saved = false;
+
+		attributes.forEach((attr) => {
+			if (!(attr instanceof AttributeList) && !attr.isTransient()) {
+				ret[attr.getName()] = attr.getExpression().toJSON(true);
+				saved = true;
+			}
+		});
+
+		return saved ? ret : undefined;
+	}
+
+	fromJSON(json) {
+		Object.entries(json).forEach(([key, value]) => {
+			let attr = this.getAttribute(key);
+			if (attr) {
+				attr = attr.isConst ? attr.toAttribute() : attr;
+				attr.getExpression().fromJSON(value);
 				this.addAttribute(attr);
 			}
 		});

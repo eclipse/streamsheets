@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -38,6 +38,7 @@ export default class SheetButtonView extends NodeView {
 
 		return this.color(r, g, b);
 	}
+
 	drawFill(graphics, format, rect) {
 		const color = format.getFillColor().getValue();
 		const item = this.getItem();
@@ -83,35 +84,39 @@ export default class SheetButtonView extends NodeView {
 			return true;
 		}
 
-		const range = CellRange.parse(String(value), sheet);
-		if (range) {
-			range.shiftFromSheet();
-			const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
-			if (cell) {
-				range.shiftToSheet();
-				const cellData = [];
-				switch (name) {
-					case 'ONMOUSEDOWN':
-						cellData.push({
-							reference: range.toString(),
-							value: true
-						});
-						value = true;
-						break;
-					case 'ONMOUSEUP':
-						cellData.push({
-							reference: range.toString(),
-							value: false
-						});
-						value = false;
-						break;
-				}
-				if (cellData.length) {
-					cell.setValue(value);
-					cell.setTargetValue(value);
-					const cmd = new SetCellsCommand(range.getSheet(), cellData, false);
-					cmd._keepFeedback = true;
-					viewer.getInteractionHandler().execute(cmd);
+		const attr = item.getAttributeAtPath('value');
+		const expr = attr.getExpression();
+		if (expr._cellref) {
+			const range = CellRange.parse(expr._cellref, sheet);
+			if (range) {
+				range.shiftFromSheet();
+				const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
+				if (cell) {
+					range.shiftToSheet();
+					const cellData = [];
+					switch (name) {
+						case 'ONMOUSEDOWN':
+							cellData.push({
+								reference: range.toString(),
+								value: true
+							});
+							value = true;
+							break;
+						case 'ONMOUSEUP':
+							cellData.push({
+								reference: range.toString(),
+								value: false
+							});
+							value = false;
+							break;
+					}
+					if (cellData.length) {
+						cell.setValue(value);
+						cell.setTargetValue(value);
+						const cmd = new SetCellsCommand(range.getSheet(), cellData, false);
+						cmd._keepFeedback = true;
+						viewer.getInteractionHandler().execute(cmd);
+					}
 				}
 			}
 		} else {
