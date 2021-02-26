@@ -59,6 +59,10 @@ class Shapes {
 	}
 
 	toJSON() {
+		if (this.json === undefined) {
+			return undefined;
+		}
+
 		const json = JSON.parse(JSON.stringify(this.json, (key, value) => {
 				if (key === 'term') {
 					return undefined;
