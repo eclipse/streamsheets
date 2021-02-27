@@ -526,7 +526,7 @@ class Graphics {
 			return;
 		}
 		color = this._filter('fillcolor', color);
-		color = color.toLowerCase();
+		color = String(color).toLowerCase();
 		if (this._context2D.fillStyle !== color) {
 			this._context2D.fillStyle = color;
 			this._fillColor = color;
@@ -602,7 +602,7 @@ class Graphics {
 			return;
 		}
 		color = this._filter('linecolor', color);
-		color = color.toLowerCase();
+		color = String(color).toLowerCase();
 		if (this._context2D.strokeStyle !== color) {
 			this._context2D.strokeStyle = color;
 		}

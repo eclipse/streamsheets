@@ -852,7 +852,7 @@ class FormatAttributes extends AttributeList {
 	 * {{#crossLink "AttributeChangeEvent"}}{{/crossLink}} is raised.
 	 *
 	 * @method setLineColor
-	 * @param {BooleanExpression | String} color Color to assign.
+	 * @param {StringExpression | String} color Color to assign.
 	 */
 	setLineColor(color) {
 		this.setAttribute(FormatAttributes.LINECOLOR, color);

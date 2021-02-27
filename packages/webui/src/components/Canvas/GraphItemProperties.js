@@ -36,6 +36,7 @@ import { withStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import {intl} from "../../helper/IntlGlobalProvider";
 import {StreamChartProperties} from "./StreamChartProperties";
+import {FormatProperties} from "./FormatProperties";
 import {GeometryProperties} from "./GeometryProperties";
 
 const styles = {
@@ -231,6 +232,8 @@ export class GraphItemProperties extends Component {
 		switch (category) {
 			case 'general':
 				return <GeometryProperties view={this.state.view}/>;
+			case 'format':
+				return <FormatProperties view={this.state.view}/>;
 			default:
 				if (this.state.view.isNewChart) {
 					return <StreamChartProperties view={this.state.view}/>;

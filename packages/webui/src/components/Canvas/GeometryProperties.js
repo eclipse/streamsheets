@@ -24,7 +24,7 @@ import {intl} from "../../helper/IntlGlobalProvider";
 function MyInputComponent(props) {
 	const { inputRef, ...other } = props;
 
-	// implement `InputElement` interface
+	// implement  `InputElement` interface
 	React.useImperativeHandle(inputRef, () => ({
 		focus: () => {}
 	}));

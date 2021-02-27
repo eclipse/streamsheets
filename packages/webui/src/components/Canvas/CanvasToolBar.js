@@ -2121,11 +2121,13 @@ export class CanvasToolBar extends Component {
 			colors.push({ title: 'Automatic', color: '#FFFFFE' });
 		}
 
-		colors.forEach(colorl => {
-			if (colorl.color === color.toLowerCase()) {
-				colorl.title += `${intl.formatMessage({ id: 'Current' }, {})}`;
-			}
-		});
+		if (color) {
+			colors.forEach(colorl => {
+				if (colorl.color === color.toLowerCase()) {
+					colorl.title += `${intl.formatMessage({id: 'Current'}, {})}`;
+				}
+			});
+		}
 
 		return colors;
 	}

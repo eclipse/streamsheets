@@ -226,6 +226,10 @@ class Attribute {
 		return this._value;
 	}
 
+	getTerm() {
+		return this._value.getTerm();
+	}
+
 	/**
 	 * Returns the Attribute value which is defined by the Attributes value Expression.<br/>
 	 * See {{#crossLink "Attribute/getExpression:method"}}{{/crossLink}} to

@@ -3359,6 +3359,11 @@ class GraphItem extends Model {
 				key: 'general',
 				label: 'GraphItemProperties.General',
 				name: '',
+			},
+			{
+				key: 'format',
+				label: 'GraphItemProperties.Format',
+				name: '',
 			}
 		]
 	}
