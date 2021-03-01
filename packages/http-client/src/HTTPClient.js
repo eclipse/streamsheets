@@ -29,45 +29,54 @@ class HTTPClient {
 		return config;
 	}
 
-	async request(config) {
+	async request(body, headers, config = {}) {
+		config.data = body;
+		config.headers = headers;
 		config = this._checkConfig(config);
 		return axios.request(config)
 	}
 
-	async get(url, config) {
+	async get(url, headers, config = {}) {
+		config.headers = headers;
 		config = this._checkConfig(config);
 		return axios.get(url, config)
 	}
 
-	async delete(url, config) {
+	async delete(url, headers, config = {}) {
+		config.headers = headers;
 		config = this._checkConfig(config);
 		return axios.delete(url, config)
 	}
 
-	async head(url, config) {
+	async head(url, headers, config = {}) {
+		config.headers = headers;
 		config = this._checkConfig(config);
 		return axios.head(url, config)
 	}
 
-	async options(url, config) {
+	async options(url, headers, config = {}) {
+		config.headers = headers;
 		config = this._checkConfig(config);
 		return axios.options(url, config)
 	}
 
-	async post(url, data, config) {
+	async post(url, body, headers, config = {}) {
+		config.headers = headers;
 		config = this._checkConfig(config);
 		// axios serialize json data
-		return axios.post(url, data, config)
+		return axios.post(url, body, config)
 	}
 
-	async put(url, data, config) {
+	async put(url, body, headers, config = {}) {
+		config.headers = headers;
 		config = this._checkConfig(config);
-		return axios.put(url, data, config)
+		return axios.put(url, body, config)
 	}
 
-	async patch(url, data, config) {
+	async patch(url, body, headers, config = {}) {
+		config.headers = headers;
 		config = this._checkConfig(config);
-		return axios.patch(url, data, config)
+		return axios.patch(url, body, config)
 	}
 
 }

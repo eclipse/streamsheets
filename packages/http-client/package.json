@@ -16,7 +16,7 @@
 	},
 	"homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/http-client",
 	"dependencies": {
-		"axios": "^0.19.2"
+		"axios": "0.21.1"
 	},
 	"peerDependencies": {
 		"@cedalo/id-generator": "2.2.0",
