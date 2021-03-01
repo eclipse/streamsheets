@@ -904,11 +904,13 @@ class GraphItemView extends View {
 			const options = [];
 			let param;
 
-			param = this.getLineFormula(sheet, item);
+			param = item.getFormat().getLineColor().toParamString(sheet, 0);
+			// param = this.getLineFormula(sheet, item);
 			if (param !== '') {
 				options[0] = param;
 			}
-			param = this.getFillFormula(item);
+			param = item.getFormat().getFillColor().toParamString(sheet, 0);
+			// param = this.getFillFormula(item);
 			if (param !== '') {
 				options[1] = param;
 			}

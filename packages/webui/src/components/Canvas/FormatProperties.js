@@ -34,6 +34,11 @@ function MyInputComponent(props) {
 }
 
 export class FormatProperties extends Component {
+	state = {
+		fillStyle: 0,
+		gradientType: 0,
+	};
+
 	getSheetView() {
 		const selection = graphManager.getGraphViewer().getSelection();
 		if (selection === undefined || selection.length !== 1) {
@@ -83,6 +88,7 @@ export class FormatProperties extends Component {
 
 		return (
 			<TextField
+				key={name}
 				variant="outlined"
 				size="small"
 				margin="normal"
@@ -91,10 +97,10 @@ export class FormatProperties extends Component {
 				InputLabelProps={{shrink: true}}
 				InputProps={{
 					inputComponent: MyInputComponent,
-					inputEditorType: options ? 'string' : 'none',
-					inputEditorOptions: options,
 					inputProps: {
 						component: CellRangeComponent,
+						inputEditorType: options ? 'string' : 'none',
+						inputEditorOptions: options,
 						sheetView,
 						range: this.getFormula(name)
 					}
@@ -109,6 +115,13 @@ export class FormatProperties extends Component {
 		const cmd = new JSG.SetAttributeAtPathCommand(item, path, expr.expression);
 
 		graphManager.synchronizedExecute(cmd);
+
+		if (name === JSG.FormatAttributes.FILLSTYLE) {
+			this.setState({fillStyle: item.getFormat().getFillStyle().getValue()});
+		}
+		if (name === JSG.FormatAttributes.GRADIENTTYPE) {
+			this.setState({gradientType: item.getFormat().getGradientType().getValue()});
+		}
 	}
 
 	render() {
@@ -117,6 +130,7 @@ export class FormatProperties extends Component {
 			return <div />;
 		}
 		const item = this.props.view.getItem();
+		// const fillStyle = this.state.fillStyle;
 		return (
 			<FormGroup>
 				<Typography variant="subtitle1" style={{marginTop: '5px', marginBottom: '5px'}}>
@@ -124,7 +138,16 @@ export class FormatProperties extends Component {
 				</Typography>
 				{this.getAttributeHandler("GraphItemProperties.LineColor", item, JSG.FormatAttributes.LINECOLOR)}
 				{this.getAttributeHandler("GraphItemProperties.LineWidth", item, JSG.FormatAttributes.LINEWIDTH)}
-				{this.getAttributeHandler("GraphItemProperties.LineStyle", item, JSG.FormatAttributes.LINESTYLE)}
+				{this.getAttributeHandler("GraphItemProperties.LineStyle", item, JSG.FormatAttributes.LINESTYLE, [
+					{ value: '0', label: 'GraphItemProperties.None' },
+					{ value: '1', label: 'GraphItemProperties.Solid' },
+					{ value: '2', label: 'GraphItemProperties.Dot' },
+					{ value: '3', label: 'GraphItemProperties.Dash' },
+					{ value: '4', label: 'GraphItemProperties.DashDot' },
+					{ value: '5', label: 'GraphItemProperties.DashDotDot' },
+					{ value: '6', label: 'GraphItemProperties.ShortDash' },
+					{ value: '7', label: 'GraphItemProperties.LongDash' },
+					])}
 				<Typography variant="subtitle1" style={{marginTop: '8px', marginBottom: '5px'}}>
 					<FormattedMessage id="GraphItemProperties.Fill" defaultMessage="Fill" />
 				</Typography>
@@ -134,7 +157,30 @@ export class FormatProperties extends Component {
 					{ value: '2', label: 'GraphItemProperties.Gradient' },
 					{ value: '3', label: 'GraphItemProperties.Pattern' },
 				])}
-				{this.getAttributeHandler("GraphItemProperties.FillColor", item, JSG.FormatAttributes.FILLCOLOR)}
+				{item.getFormat().getFillStyle().getValue() ?  (
+					this.getAttributeHandler("GraphItemProperties.FillColor", item, JSG.FormatAttributes.FILLCOLOR)
+				) : null}
+				{item.getFormat().getFillStyle().getValue() === 2 ?  [
+					this.getAttributeHandler("GraphItemProperties.FillColorBack", item, JSG.FormatAttributes.GRADIENTCOLOR),
+					this.getAttributeHandler("GraphItemProperties.GradientStyle", item, JSG.FormatAttributes.GRADIENTTYPE,[
+						{ value: '0', label: 'GraphItemProperties.Linear' },
+						{ value: '1', label: 'GraphItemProperties.Radial' },
+					])
+				]
+				: null}
+				{item.getFormat().getFillStyle().getValue() === 2 && item.getFormat().getGradientType().getValue() === 0 ?  (
+						this.getAttributeHandler("GraphItemProperties.FillColorBack", item, JSG.FormatAttributes.GRADIENTANGLE)
+					)
+					: null}
+				{item.getFormat().getFillStyle().getValue() === 2 && item.getFormat().getGradientType().getValue() === 1 ?  [
+						this.getAttributeHandler("GraphItemProperties.XOFFSET", item, JSG.FormatAttributes.GRADIENTOFFSET_X),
+						this.getAttributeHandler("GraphItemProperties.YOFFSET", item, JSG.FormatAttributes.GRADIENTOFFSET_Y)
+					]
+					: null}
+				{item.getFormat().getFillStyle().getValue() === 3 ?  (
+						this.getAttributeHandler("GraphItemProperties.Pattern", item, JSG.FormatAttributes.PATTERN)
+					)
+					: null}
 			</FormGroup>
 		);
 	}

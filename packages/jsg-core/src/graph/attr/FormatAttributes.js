@@ -167,6 +167,10 @@ class FormatAttributes extends AttributeList {
 		);
 	}
 
+	setPatternFromShape(pattern) {
+		this._shapePattern = pattern;
+	}
+
 	/**
 	 * Applies current fill formats, e.g. {{#crossLink
 	 * "FormatAttributes/FILLSTYLE:property"}}{{/crossLink}} or {{#crossLink
@@ -252,7 +256,7 @@ class FormatAttributes extends AttributeList {
 					const patternstyle = this.getAttribute(
 						FORMAT.PATTERNSTYLE
 					).getValue();
-					graphics.setPattern(bounds, pattern, patternstyle);
+					graphics.setPattern(bounds, this._shapePattern || pattern, patternstyle);
 					break;
 				}
 				default:

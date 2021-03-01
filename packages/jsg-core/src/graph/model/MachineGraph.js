@@ -335,7 +335,7 @@ module.exports = class MachineGraph extends Graph {
 				.getFormat()
 				.getPattern()
 				.getValue();
-			if (pattern.indexOf('dataimage') !== -1) {
+			if (String(pattern).indexOf('dataimage') !== -1) {
 				file.writeStartElement(pattern);
 				const image = JSG.imagePool.get(pattern);
 				if (image !== undefined) {

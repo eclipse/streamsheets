@@ -2386,7 +2386,7 @@ class Graphics {
 			image.complete === false ||
 			(typeof image.naturalWidth !== 'undefined' && image.naturalWidth === 0)
 		) {
-			if (image._backupImage !== undefined) {
+			if (image && image._backupImage !== undefined) {
 				image = image._backupImage;
 			} else {
 				image = JSG.imagePool.get(JSG.ImagePool.IMG_NOTAVAIL);

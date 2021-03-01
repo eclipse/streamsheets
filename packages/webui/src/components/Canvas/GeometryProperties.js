@@ -105,6 +105,7 @@ export class GeometryProperties extends Component {
 
 		return (
 			<TextField
+				key={label}
 				variant="outlined"
 				size="small"
 				margin="normal"
@@ -196,6 +197,7 @@ export class GeometryProperties extends Component {
 				{this.getPropertyHandler("GraphItemProperties.Rotation", this.handleRotation, item.getAngle(), 2)}
 				<TextField
 					variant="outlined"
+					key="RotationCenter"
 					size="small"
 					margin="normal"
 					label={
