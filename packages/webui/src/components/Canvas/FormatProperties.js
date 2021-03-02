@@ -37,6 +37,7 @@ export class FormatProperties extends Component {
 	state = {
 		fillStyle: 0,
 		gradientType: 0,
+		dummy: 0,
 	};
 
 	getSheetView() {
@@ -79,11 +80,11 @@ export class FormatProperties extends Component {
 		});
 	}
 
-	getExpression(item, event) {
-		return this.getSheet(item).textToExpression(String(event.target.textContent), item);
+	getExpression(item, value) {
+		return this.getSheet(item).textToExpression(String(value), item);
 	}
 
-	getAttributeHandler(label, item, name, options) {
+	getAttributeHandler(label, item, name, options = 'none') {
 		const sheetView = this.getSheetView();
 
 		return (
@@ -93,14 +94,15 @@ export class FormatProperties extends Component {
 				size="small"
 				margin="normal"
 				label={intl.formatMessage({ id: label })}
-				onBlur={(event) => this.handleAttribute(event, item, name)}
 				InputLabelProps={{shrink: true}}
 				InputProps={{
 					inputComponent: MyInputComponent,
 					inputProps: {
 						component: CellRangeComponent,
-						inputEditorType: options ? 'string' : 'none',
-						inputEditorOptions: options,
+						onlyReference: false,
+						onValueChange: (value) => this.handleAttribute(value, item, name),
+						inputEditorType: options instanceof Array ? 'string' : options,
+						inputEditorOptions: options instanceof Array ? options : undefined,
 						sheetView,
 						range: this.getFormula(name)
 					}
@@ -109,8 +111,8 @@ export class FormatProperties extends Component {
 		)
 	}
 
-	handleAttribute(event, item, name) {
-		const expr = this.getExpression(item, event);
+	handleAttribute(value, item, name) {
+		const expr = this.getExpression(item, value);
 		const path = JSG.AttributeUtils.createPath(JSG.FormatAttributes.NAME, name);
 		const cmd = new JSG.SetAttributeAtPathCommand(item, path, expr.expression);
 
@@ -122,6 +124,7 @@ export class FormatProperties extends Component {
 		if (name === JSG.FormatAttributes.GRADIENTTYPE) {
 			this.setState({gradientType: item.getFormat().getGradientType().getValue()});
 		}
+		this.setState({dummy: Math.random()});
 	}
 
 	render() {
@@ -136,7 +139,7 @@ export class FormatProperties extends Component {
 				<Typography variant="subtitle1" style={{marginTop: '5px', marginBottom: '5px'}}>
 					<FormattedMessage id="GraphItemProperties.Line" defaultMessage="Line" />
 				</Typography>
-				{this.getAttributeHandler("GraphItemProperties.LineColor", item, JSG.FormatAttributes.LINECOLOR)}
+				{this.getAttributeHandler("GraphItemProperties.LineColor", item, JSG.FormatAttributes.LINECOLOR, 'color')}
 				{this.getAttributeHandler("GraphItemProperties.LineWidth", item, JSG.FormatAttributes.LINEWIDTH)}
 				{this.getAttributeHandler("GraphItemProperties.LineStyle", item, JSG.FormatAttributes.LINESTYLE, [
 					{ value: '0', label: 'GraphItemProperties.None' },
@@ -148,6 +151,32 @@ export class FormatProperties extends Component {
 					{ value: '6', label: 'GraphItemProperties.ShortDash' },
 					{ value: '7', label: 'GraphItemProperties.LongDash' },
 					])}
+				{item.getItemAttributes().getClosed().getValue() === false ? (
+					this.getAttributeHandler("GraphItemProperties.StartArrow", item, JSG.FormatAttributes.LINEARROWSTART, [
+							{ value: '0', label: 'GraphItemProperties.None' },
+							{ value: '1', label: 'GraphItemProperties.ArrowFilled' },
+							{ value: '2', label: 'GraphItemProperties.ArrowFilledSmall' },
+							{ value: '7', label: 'GraphItemProperties.ArrowDoubleFilled' },
+							{ value: '14', label: 'GraphItemProperties.ArrowReverse' },
+							{ value: '22', label: 'GraphItemProperties.ArrowCircle' },
+							{ value: '24', label: 'GraphItemProperties.ArrowDiamond' },
+							{ value: '29', label: 'GraphItemProperties.ArrowDoubleLine' },
+							{ value: '30', label: 'GraphItemProperties.ArrowSquare' },
+						])
+				) : null}
+				{item.getItemAttributes().getClosed().getValue() === false ? (
+					this.getAttributeHandler("GraphItemProperties.EndArrow", item, JSG.FormatAttributes.LINEARROWEND, [
+						{ value: '0', label: 'GraphItemProperties.None' },
+						{ value: '1', label: 'GraphItemProperties.ArrowFilled' },
+						{ value: '2', label: 'GraphItemProperties.ArrowFilledSmall' },
+						{ value: '7', label: 'GraphItemProperties.ArrowDoubleFilled' },
+						{ value: '14', label: 'GraphItemProperties.ArrowReverse' },
+						{ value: '22', label: 'GraphItemProperties.ArrowCircle' },
+						{ value: '24', label: 'GraphItemProperties.ArrowDiamond' },
+						{ value: '29', label: 'GraphItemProperties.ArrowDoubleLine' },
+						{ value: '30', label: 'GraphItemProperties.ArrowSquare' },
+					])
+				) : null}
 				<Typography variant="subtitle1" style={{marginTop: '8px', marginBottom: '5px'}}>
 					<FormattedMessage id="GraphItemProperties.Fill" defaultMessage="Fill" />
 				</Typography>
@@ -158,10 +187,10 @@ export class FormatProperties extends Component {
 					{ value: '3', label: 'GraphItemProperties.Pattern' },
 				])}
 				{item.getFormat().getFillStyle().getValue() ?  (
-					this.getAttributeHandler("GraphItemProperties.FillColor", item, JSG.FormatAttributes.FILLCOLOR)
+					this.getAttributeHandler("GraphItemProperties.FillColor", item, JSG.FormatAttributes.FILLCOLOR, 'color')
 				) : null}
 				{item.getFormat().getFillStyle().getValue() === 2 ?  [
-					this.getAttributeHandler("GraphItemProperties.FillColorBack", item, JSG.FormatAttributes.GRADIENTCOLOR),
+					this.getAttributeHandler("GraphItemProperties.FillColorBack", item, JSG.FormatAttributes.GRADIENTCOLOR, 'color'),
 					this.getAttributeHandler("GraphItemProperties.GradientStyle", item, JSG.FormatAttributes.GRADIENTTYPE,[
 						{ value: '0', label: 'GraphItemProperties.Linear' },
 						{ value: '1', label: 'GraphItemProperties.Radial' },
@@ -169,7 +198,7 @@ export class FormatProperties extends Component {
 				]
 				: null}
 				{item.getFormat().getFillStyle().getValue() === 2 && item.getFormat().getGradientType().getValue() === 0 ?  (
-						this.getAttributeHandler("GraphItemProperties.FillColorBack", item, JSG.FormatAttributes.GRADIENTANGLE)
+						this.getAttributeHandler("GraphItemProperties.GradientAngle", item, JSG.FormatAttributes.GRADIENTANGLE)
 					)
 					: null}
 				{item.getFormat().getFillStyle().getValue() === 2 && item.getFormat().getGradientType().getValue() === 1 ?  [

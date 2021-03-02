@@ -35,10 +35,22 @@ export default class SheetCheckboxView extends NodeView {
 		textFormat.removeFromGraphics(graphics);
 
 		const checked = item.getValue();
-		const icon = JSG.imagePool.get(checked ? ImagePool.SVG_CHECKED : ImagePool.SVG_UNCHECKED);
-		const size = 500;
+		const size = 400;
 
-		graphics.drawImage(icon, 100, (rect.height - size) / 2, size, size);
+		graphics.setLineWidth(50);
+		graphics.setLineStyle(1);
+		graphics.drawRectangle(150, (rect.height - size) / 2, size, size);
+		if (checked) {
+			graphics.beginPath();
+			graphics.moveTo(240, rect.height / 2 + 30);
+			graphics.lineTo(170 + size / 2, rect.y + rect.height - (rect.height - size) / 2 - 70);
+			graphics.lineTo(90 + size, (rect.height - size) / 2 + 90);
+			graphics.stroke();
+		}
+
+//		const icon = JSG.imagePool.get(checked ? ImagePool.SVG_CHECKED : ImagePool.SVG_UNCHECKED);
+
+		// graphics.drawImage(icon, 100, (rect.height - size) / 2, size, size);
 	}
 
 	handleEvent(viewer, event, sheet, name) {

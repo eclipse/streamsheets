@@ -19,8 +19,8 @@ module.exports = class SheetKnobNode extends Node {
 	constructor() {
 		super();
 
-		this.getFormat().setLineColor('#AAAAAA');
-		this.getFormat().setFillColor('#DDDDDD');
+		// this.getFormat().setLineColor('#AAAAAA');
+		// this.getFormat().setFillColor('#DDDDDD');
 		this.getTextFormat().setFontSize(9);
 
 		this.getItemAttributes().setContainer(false);

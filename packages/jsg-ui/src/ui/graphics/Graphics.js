@@ -1439,6 +1439,10 @@ class Graphics {
 
 		const vector = this.evaluateLinearGradientVector(bounds, angle);
 		const gradient = this.createLinearGradient(vector[0].x, vector[0].y, vector[1].x, vector[1].y);
+		if (!gradient) {
+			this._context2D.fillStyle = '#FFFFFF';
+			return;
+		}
 
 		color1 = this._filter('fillcolor', color1);
 		color2 = this._filter('fillcolor', color2);
@@ -1471,6 +1475,10 @@ class Graphics {
 		angle = Math.round(angle);
 		// angle %= 360;
 		angle = ((angle % 360) + 360) % 360;
+
+		if (isNaN(angle)) {
+			angle = 0;
+		}
 
 		if (angle === 90) {
 			vector[0].set(points[0].x, points[0].y);
@@ -1546,8 +1554,12 @@ class Graphics {
 
 		const p0 = this.transformPoint(x0, y0, 0);
 		const p1 = this.transformPoint(x1, y1, 1);
-		const gradient = this._context2D.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
-		return gradient;
+
+		try {
+			return this._context2D.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
+		} catch(e) {
+			return undefined;
+		}
 	}
 
 	/**
@@ -1584,17 +1596,21 @@ class Graphics {
 			Math.max((bounds.width * radialOffsetX) / 100, (bounds.height * radialOffsetY) / 100)
 		);
 
-		color1 = this._filter('fillcolor', color1);
-		color2 = this._filter('fillcolor', color2);
-		try {
-			gradient.addColorStop(0, color1);
-			if (colorStops.length) {
-				this.addColorStops(gradient, colorStops);
-			}
-			gradient.addColorStop(1, color2);
+		if (gradient) {
+			color1 = this._filter('fillcolor', color1);
+			color2 = this._filter('fillcolor', color2);
+			try {
+				gradient.addColorStop(0, color1);
+				if (colorStops.length) {
+					this.addColorStops(gradient, colorStops);
+				}
+				gradient.addColorStop(1, color2);
 
-			this._context2D.fillStyle = gradient;
-		} catch (e) {
+				this._context2D.fillStyle = gradient;
+			} catch (e) {
+				this._context2D.fillStyle = '#FFFFFF';
+			}
+		} else {
 			this._context2D.fillStyle = '#FFFFFF';
 		}
 	}
@@ -1618,8 +1634,11 @@ class Graphics {
 
 		const p0 = this.transformPoint(x0, y0, 0);
 		const p1 = this.transformPoint(x1, y1, 1);
-		const gradient = this._context2D.createRadialGradient(p0.x, p0.y, Math.max(1, r0), p1.x, p1.y, Math.max(1, r1));
-		return gradient;
+		try {
+			return this._context2D.createRadialGradient(p0.x, p0.y, Math.max(1, r0), p1.x, p1.y, Math.max(1, r1));
+		} catch (e) {
+			return undefined;
+		}
 	}
 
 	/**

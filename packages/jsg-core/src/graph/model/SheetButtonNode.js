@@ -19,8 +19,8 @@ module.exports = class SheetButtonNode extends Node {
 		super();
 
 		this.getFormat().setLineCorner(150);
-		this.getFormat().setLineColor('#AAAAAA');
-		this.getFormat().setFillColor('#DDDDDD');
+		// this.getFormat().setLineColor('#AAAAAA');
+		// this.getFormat().setFillColor('#DDDDDD');
 		this.getTextFormat().setFontSize(9);
 		this.getItemAttributes().setContainer(false);
 		this.addAttribute(new StringAttribute('title', 'Button'));

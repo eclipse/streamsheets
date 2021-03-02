@@ -3364,6 +3364,11 @@ class GraphItem extends Model {
 				key: 'format',
 				label: 'GraphItemProperties.Format',
 				name: '',
+			},
+			{
+				key: 'textformat',
+				label: 'GraphItemProperties.TextFormat',
+				name: '',
 			}
 		]
 	}
@@ -3396,8 +3401,8 @@ class GraphItem extends Model {
 		if (json.format) {
 			this.getFormat().fromJSON(json.format);
 		}
-		if (json.textFormat) {
-			this.getTextFormat().fromJSON(json.textFormat);
+		if (json.textformat) {
+			this.getTextFormat().fromJSON(json.textformat);
 		}
 		if (json.attributes) {
 			this.getItemAttributes().fromJSON(json.attributes);

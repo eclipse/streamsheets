@@ -37,6 +37,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import {intl} from "../../helper/IntlGlobalProvider";
 import {StreamChartProperties} from "./StreamChartProperties";
 import {FormatProperties} from "./FormatProperties";
+import {TextFormatProperties} from "./TextFormatProperties";
 import {GeometryProperties} from "./GeometryProperties";
 
 const styles = {
@@ -234,6 +235,8 @@ export class GraphItemProperties extends Component {
 				return <GeometryProperties view={this.state.view}/>;
 			case 'format':
 				return <FormatProperties view={this.state.view}/>;
+			case 'textformat':
+				return <TextFormatProperties view={this.state.view}/>;
 			default:
 				if (this.state.view.isNewChart) {
 					return <StreamChartProperties view={this.state.view}/>;

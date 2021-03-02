@@ -887,6 +887,7 @@ class GraphItemView extends View {
 		}
 
 		let formula = `=DRAW.${type.toUpperCase()}(`;
+		let param;
 		const digits = 0; // this.getDigits(item.getParent());
 		const sep = JSG.getParserLocaleSettings().separators.parameter;
 
@@ -896,26 +897,25 @@ class GraphItemView extends View {
 			// pEnd = this.convertToContainerPos(pEnd, item.getParent());
 			formula += `${MathUtils.roundTo(pStart.x, digits)},${MathUtils.roundTo(pStart.y, digits)},`;
 			formula += `${MathUtils.roundTo(pEnd.x, digits)},${MathUtils.roundTo(pEnd.y, digits)}`;
+			param = item.getFormat().getLineColor().toParamString(sheet, 0);
+			if (param !== '') {
+				formula += `${sep}${param}`;
+			}
 		} else {
 			// DRAW.*(X, Y, Width, Height, LineFormat, FillFormat, Attributes, Events, Angle, RotCenter)
 			formula += `${item.getPin().getX().toParamString(sheet, 0)}${sep}${item.getPin().getY().toParamString(sheet, 0)}${sep}`;
 			formula += `${item.getWidth().toParamString(sheet, 0)}${sep}${item.getHeight().toParamString(sheet, 0)}`;
 
 			const options = [];
-			let param;
 
 			param = item.getFormat().getLineColor().toParamString(sheet, 0);
-			// param = this.getLineFormula(sheet, item);
 			if (param !== '') {
 				options[0] = param;
 			}
 			param = item.getFormat().getFillColor().toParamString(sheet, 0);
-			// param = this.getFillFormula(item);
 			if (param !== '') {
 				options[1] = param;
 			}
-
-			// remove - events
 
 			param = item.getAngle().toParamString(sheet, 2);
 			if (param !== '0') {
@@ -998,7 +998,7 @@ class GraphItemView extends View {
 	}
 
 	isValidPropertyCategory(category) {
-		return category === 'general' || category === 'format';
+		return category === 'general' || category === 'format' || category === 'textformat';
 	}
 }
 

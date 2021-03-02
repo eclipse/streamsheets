@@ -2412,9 +2412,6 @@ export class CanvasToolBar extends Component {
 					<MenuItem dense value="Trebuchet MS" key="s8">
 						Trebuchet MS
 					</MenuItem>
-					<MenuItem dense value="Tahoma" key="s9">
-						Tahoma
-					</MenuItem>
 					<MenuItem dense value="Verdana" key="s10">
 						Verdana
 					</MenuItem>
