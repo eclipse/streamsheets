@@ -53,7 +53,7 @@ const request = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(2)
-		.withMaxArgs(4)
+		.withMaxArgs(6)
 		.mapNextArg((url) => convert.toString(url.value, ERROR.VALUE))
 		.mapNextArg((method) => convert.toString(method.value, ERROR.VALUE))
 		.mapNextArg((body) => (hasValue(body) ? body.value : ''))
