@@ -101,6 +101,7 @@ JSG.ItemAttributes = require('./src/graph/attr/ItemAttributes');
 JSG.EdgeAttributes = require('./src/graph/attr/EdgeAttributes');
 JSG.TextNodeAttributes = require('./src/graph/attr/TextNodeAttributes');
 JSG.LayoutAttributes = require('./src/graph/attr/LayoutAttributes');
+JSG.EventAttributes = require('./src/graph/attr/EventAttributes');
 JSG.FormatAttributes = require('./src/graph/attr/FormatAttributes');
 JSG.TextFormatAttributes = require('./src/graph/attr/TextFormatAttributes');
 JSG.TemplateStore = require('./src/graph/attr/TemplateStore');

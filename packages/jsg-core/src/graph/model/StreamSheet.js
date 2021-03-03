@@ -764,48 +764,52 @@ module.exports = class StreamSheet extends WorksheetNode {
 					parent.addItem(node);
 				}
 			}
-			node.fromJSON(shape);
-			if (shape.format && shape.format.pattern && shape.format.pattern.sv) {
-				node.getFormat().setPatternFromShape();
-				let pattern = shape.format.pattern.sv;
-				try {
-					const qr = pattern.indexOf('qrcode:');
-					if (qr !== -1) {
-						if (window) {
-							const text = pattern.slice(7);
-							pattern = window.QRCode.generatePNG(text, {
-								ecclevel: 'M',
-								format: 'html',
-								fillcolor: '#FFFFFF',
-								textcolor: '#373737',
-								margin: 4,
-								modulesize: 8
-							});
+			const json = JSON.stringify(shape);
+			if (!node._lastJSON || node._lastJSON !== json ) {
+				node.fromJSON(shape);
+				if (shape.format && shape.format.pattern && shape.format.pattern.sv) {
+					node.getFormat().setPatternFromShape();
+					let pattern = shape.format.pattern.sv;
+					try {
+						const qr = pattern.indexOf('qrcode:');
+						if (qr !== -1) {
+							if (window) {
+								const text = pattern.slice(7);
+								pattern = window.QRCode.generatePNG(text, {
+									ecclevel: 'M',
+									format: 'html',
+									fillcolor: '#FFFFFF',
+									textcolor: '#373737',
+									margin: 4,
+									modulesize: 8
+								});
+							}
 						}
-					}
 
-					const uri = pattern.indexOf('data:image') !== -1;
-					if (uri) {
-						const id = `dataimage${node.getId()}`;
-						// to transfer image to server later on
-						this._addImageCmds.push(new AddImageCommand(id, pattern));
-						JSG.imagePool.set(pattern, id);
-						node.getFormat().setPatternFromShape(id);
-					} else {
-						const parts = pattern.split('?');
-						if (parts.length > 1) {
-							JSG.imagePool.update(parts[0], parts[1]);
-							node.getFormat().setPatternFromShape(parts[0]);
+						const uri = pattern.indexOf('data:image') !== -1;
+						if (uri) {
+							const id = `dataimage${node.getId()}`;
+							// to transfer image to server later on
+							this._addImageCmds.push(new AddImageCommand(id, pattern));
+							JSG.imagePool.set(pattern, id);
+							node.getFormat().setPatternFromShape(id);
 						} else {
-							node.getFormat().setPatternFromShape(pattern);
+							const parts = pattern.split('?');
+							if (parts.length > 1) {
+								JSG.imagePool.update(parts[0], parts[1]);
+								node.getFormat().setPatternFromShape(parts[0]);
+							} else {
+								node.getFormat().setPatternFromShape(pattern);
+							}
 						}
+					} catch (e) {
 					}
-				} catch (e) {
 				}
 			}
 
 			node.evaluate();
 			node.setRefreshNeeded(true);
+			node._lastJSON = json;
 			parentMap[shape.id] = node;
 			itemMap[shape.id] = undefined;
 		});
@@ -1095,21 +1099,11 @@ module.exports = class StreamSheet extends WorksheetNode {
 						case 'button':
 							this.setFontFormat(node, node.getTextFormat(), drawItem.font);
 							node.setAttributeAtPath('title', drawItem.text);
-							// to prevent flickering
-							if (node._targetValue === undefined || node._targetValue === drawItem.value) {
-								node.setAttributeAtPath('value', drawItem.value);
-								node._targetValue = undefined;
-							}
 							break;
 						case 'slider':
 							this.setFontFormat(node, node.getTextFormat(), drawItem.font);
 							node.setAttributeAtPath('scalefont', drawItem.scalefont);
 							node.setAttributeAtPath('title', drawItem.text);
-							// to prevent flickering
-							if (node._targetValue === undefined || node._targetValue === drawItem.value) {
-								node.setAttributeAtPath('value', drawItem.value);
-								node._targetValue = undefined;
-							}
 							node.setAttributeAtPath('min', drawItem.min);
 							node.setAttributeAtPath('max', drawItem.max);
 							node.setAttributeAtPath('step', drawItem.step);
@@ -1120,11 +1114,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 							this.setFontFormat(node, node.getTextFormat(), drawItem.font);
 							node.setAttributeAtPath('scalefont', drawItem.scalefont);
 							node.setAttributeAtPath('title', drawItem.text);
-							// to prevent flickering
-							if (node._targetValue === undefined || node._targetValue === drawItem.value) {
-								node.setAttributeAtPath('value', drawItem.value);
-								node._targetValue = undefined;
-							}
 							node.setAttributeAtPath('min', drawItem.min);
 							node.setAttributeAtPath('max', drawItem.max);
 							node.setAttributeAtPath('step', drawItem.step);

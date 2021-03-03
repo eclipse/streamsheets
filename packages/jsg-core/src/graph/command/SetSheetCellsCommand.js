@@ -108,17 +108,9 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 			) {
 				cell.clearContent();
 			} else {
-				// this is to ensure that temporary values form ui interaction (e.g. slider) are not overwritten
-				const value = cellData.value;
-				if (cell._targetValue !== undefined && cellData.value !== cell._targetValue) {
-					cellData.value = cell._targetValue;
-				}
 				const expr = createExpression(cellData);
 				cell.setExpression(expr);
 				cell.setValue(cellData.value);
-				if (cell._targetValue !== undefined && value === cell._targetValue) {
-					cell._targetValue = undefined;
-				}
 			}
 			cell.setInfo(cellData.info);
 		});

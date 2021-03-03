@@ -26,6 +26,7 @@ const BezierShape = require('./shapes/BezierShape');
 const FormatAttributes = require('../attr/FormatAttributes');
 const ItemAttributes = require('../attr/ItemAttributes');
 const LayoutAttributes = require('../attr/LayoutAttributes');
+const EventAttributes = require('../attr/EventAttributes');
 const MathUtils = require('../../geometry/MathUtils');
 const Point = require('../../geometry/Point');
 const BoundingBox = require('../../geometry/BoundingBox');
@@ -77,6 +78,7 @@ class GraphItem extends Model {
 		this.addAttribute(new FormatAttributes());
 		this.addAttribute(new ItemAttributes());
 		this.addAttribute(new LayoutAttributes());
+		this.addAttribute(new EventAttributes());
 
 		this._reshapeProperties = new Properties();
 
@@ -853,6 +855,10 @@ class GraphItem extends Model {
 	 */
 	setLayoutAttributes(layoutattr) {
 		this.addAttribute(layoutattr);
+	}
+
+	getEvents() {
+		return this.getModelAttributes().getAttribute(EventAttributes.NAME);
 	}
 
 	/**
@@ -3369,6 +3375,16 @@ class GraphItem extends Model {
 				key: 'textformat',
 				label: 'GraphItemProperties.TextFormat',
 				name: '',
+			},
+			{
+				key: 'attributes',
+				label: 'GraphItemProperties.Attributes',
+				name: '',
+			},
+			{
+				key: 'events',
+				label: 'GraphItemProperties.Events',
+				name: '',
 			}
 		]
 	}
@@ -3407,10 +3423,12 @@ class GraphItem extends Model {
 		if (json.attributes) {
 			this.getItemAttributes().fromJSON(json.attributes);
 		}
+		if (json.events) {
+			this.getEvents().fromJSON(json.events);
+		}
 		if (json.modelattributes) {
 			this.getModelAttributes().fromJSON(json.modelattributes);
 		}
-
 	}
 
 	toJSON() {
@@ -3447,6 +3465,7 @@ class GraphItem extends Model {
 		ret.format = this.getFormat().toJSON();
 		ret.textformat = this.getTextFormat().toJSON();
 		ret.attributes = this.getItemAttributes().toJSON();
+		ret.events = this.getEvents().toJSON();
 		ret.modelattributes = this.getModelAttributes().toJSON();
 
 		return ret;

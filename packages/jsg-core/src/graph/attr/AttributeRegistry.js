@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -19,6 +19,7 @@ const FormatAttributes = require('./FormatAttributes');
 const HeaderAttributes = require('./HeaderAttributes');
 const ItemAttributes = require('./ItemAttributes');
 const LayoutAttributes = require('./LayoutAttributes');
+const EventAttributes = require('./EventAttributes');
 const MachineContainerAttributes = require('./MachineContainerAttributes');
 const NumberAttribute = require('./NumberAttribute');
 const ObjectAttribute = require('./ObjectAttribute');
@@ -41,6 +42,7 @@ const Registry = {
 	HeaderAttributes,
 	ItemAttributes,
 	LayoutAttributes,
+	EventAttributes,
 	MachineContainerAttributes,
 	NumberAttribute,
 	ObjectAttribute,
@@ -61,6 +63,7 @@ const Registry = {
 	'JSG.CellFormatAttributes': CellFormatAttributes,
 	'JSG.CellTextFormatAttributes': CellTextFormatAttributes,
 	'JSG.EdgeAttributes': EdgeAttributes,
+	'JSG.EventAttributes': EventAttributes,
 	'JSG.FormatAttributes': FormatAttributes,
 	'JSG.HeaderAttributes': HeaderAttributes,
 	'JSG.ItemAttributes': ItemAttributes,

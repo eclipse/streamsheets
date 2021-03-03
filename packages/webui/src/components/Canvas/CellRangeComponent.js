@@ -222,11 +222,11 @@ class CellRangeComponent extends React.Component {
 				cellEditor.activateReferenceMode();
 				if (index !== undefined) {
 					cellEditor.setActiveRangeIndex(index);
+					cellEditor.updateReference(
+						event,
+						view,
+					);
 				}
-				cellEditor.updateReference(
-					event,
-					view,
-				);
 			}
 			break;
 		}

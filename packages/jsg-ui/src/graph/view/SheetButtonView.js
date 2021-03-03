@@ -70,7 +70,6 @@ export default class SheetButtonView extends NodeView {
 		const setValue = (val) => {
 			const cmd = new SetAttributeAtPathCommand(item, 'value', val);
 			cmd._keepFeedback = true;
-			item._targetValue = val;
 			viewer.getInteractionHandler().execute(cmd);
 		};
 
@@ -111,8 +110,7 @@ export default class SheetButtonView extends NodeView {
 							break;
 					}
 					if (cellData.length) {
-						cell.setValue(value);
-						cell.setTargetValue(value);
+						expr.setTermValue(value);
 						const cmd = new SetCellsCommand(range.getSheet(), cellData, false);
 						cmd._keepFeedback = true;
 						viewer.getInteractionHandler().execute(cmd);

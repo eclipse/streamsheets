@@ -308,17 +308,13 @@ export default class SheetSliderView extends NodeView {
 
 	onValueChange(viewer) {
 		const item = this.getItem();
-		const events = item._sheetEvents;
-		if (events && events instanceof Array) {
-			events.forEach((sheetEvent) => {
-				if (sheetEvent.event === 'ONVALUECHANGE') {
-					const sheet = item.getSheet();
-					if (sheet) {
-						const cmd = new ExecuteFunctionCommand(sheet, sheetEvent.func);
-						viewer.getInteractionHandler().execute(cmd);
-					}
-				}
-			});
+		const event = String(item.getEvents().getOnValueChange().getValue());
+		if (event && event.length) {
+			const sheet = item.getSheet();
+			if (sheet) {
+				const cmd = new ExecuteFunctionCommand(sheet, event);
+				viewer.getInteractionHandler().execute(cmd);
+			}
 		}
 	}
 
@@ -327,7 +323,6 @@ export default class SheetSliderView extends NodeView {
 
 		const setValue = (val) => {
 			viewer.getInteractionHandler().execute(new SetAttributeAtPathCommand(item, 'value', val));
-			item._targetValue = val;
 		};
 
 		if (name !== 'ONMOUSEDRAG' && name !== 'ONMOUSEUP') {
@@ -363,8 +358,7 @@ export default class SheetSliderView extends NodeView {
 					if (value === sliderValue) {
 						return false;
 					}
-					cell.setValue(sliderValue);
-					cell.setTargetValue(sliderValue);
+					expr.setTermValue(sliderValue);
 					range.shiftToSheet();
 					const cellData = [];
 					cellData.push({

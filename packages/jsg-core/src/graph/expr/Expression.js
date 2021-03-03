@@ -305,6 +305,10 @@ class Expression {
 		this._termValue = value;
 	}
 
+	getTermValue() {
+		return this._termValue;
+	}
+
 	/**
 	 * Sets the new expression value. </br>
 	 * <b>Note:</b> this will not affect a defined formula or term. That means if a term is defined this

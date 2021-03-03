@@ -58,7 +58,6 @@ export default class SheetCheckboxView extends NodeView {
 
 		const setValue = (val) => {
 			viewer.getInteractionHandler().execute(new SetAttributeAtPathCommand(item, 'value', val));
-			item._targetValue = val;
 		};
 
 		if (name !== 'ONCLICK') {
@@ -86,8 +85,7 @@ export default class SheetCheckboxView extends NodeView {
 							reference: range.toString(),
 							value: newValue
 						}];
-						cell.setValue(newValue);
-						cell.setTargetValue(newValue);
+						expr.setTermValue(newValue);
 						viewer.getInteractionHandler().execute(new SetCellsCommand(range.getSheet(), cellData, false));
 					}
 					return false;

@@ -998,7 +998,7 @@ class GraphItemView extends View {
 	}
 
 	isValidPropertyCategory(category) {
-		return category === 'general' || category === 'format' || category === 'textformat';
+		return category === 'general' || category === 'format' || category === 'textformat' || category === 'attributes' || category === 'events';
 	}
 }
 

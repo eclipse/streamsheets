@@ -39,6 +39,8 @@ import {StreamChartProperties} from "./StreamChartProperties";
 import {FormatProperties} from "./FormatProperties";
 import {TextFormatProperties} from "./TextFormatProperties";
 import {GeometryProperties} from "./GeometryProperties";
+import {AttributeProperties} from "./AttributeProperties";
+import {EventProperties} from "./EventProperties";
 
 const styles = {
 	icon: {
@@ -237,6 +239,10 @@ export class GraphItemProperties extends Component {
 				return <FormatProperties view={this.state.view}/>;
 			case 'textformat':
 				return <TextFormatProperties view={this.state.view}/>;
+			case 'attributes':
+				return <AttributeProperties view={this.state.view}/>;
+			case 'events':
+				return <EventProperties view={this.state.view}/>;
 			default:
 				if (this.state.view.isNewChart) {
 					return <StreamChartProperties view={this.state.view}/>;
