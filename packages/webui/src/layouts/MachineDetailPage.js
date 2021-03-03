@@ -66,11 +66,12 @@ const useExperimental = (setAppState) => {
 };
 
 export function MachineDetailPage(props) {
-	const { locale, machineName, viewMode, searchParams, isConnected, location } = props;
+	const { locale, machineName, viewMode, searchParams, isConnected, location, hashParams } = props;
 	let { showTools } = props;
 	// Should be directly on props
 	const machineId = props.match.params.machineId || props.machineId;
 	const { token, userId } = qs.parse(location.search);
+	const { viewConfig } = qs.parse(hashParams);
 
 	if (token && !accessManager.authToken) {
 		const newUrl = window.location.origin + Path.machine(machineId, window.location.search);
@@ -90,6 +91,20 @@ export function MachineDetailPage(props) {
 			props.connect();
 		}
 	}, [isConnected]);
+
+	// TODO: remove viewMode and merge this and the next effect
+	useEffect(() => {
+		if (viewConfig) {
+			props.setAppState({
+				viewMode: {
+					hidegrid: true,
+					viewMode: 'sheet',
+					hideheader: true
+				}
+			});
+		}
+		return () => {};
+	}, [viewConfig]);
 
 	// Update canvas if showTools or viewMode change
 	useEffect(() => {
@@ -374,6 +389,7 @@ function mapStateToProps(state) {
 		viewMode: state.appState.viewMode,
 		showTools: state.appState.showTools,
 		searchParams: state.router.location.search,
+		hashParams: state.router.location.hash,
 		locale: state.locales.locale,
 		meta: state.meta,
 		showDeleteCellContentDialog: state.appState.showDeleteCellContentDialog,
