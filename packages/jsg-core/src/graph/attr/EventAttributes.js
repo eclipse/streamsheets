@@ -48,6 +48,46 @@ class EventAttributes extends AttributeList {
 		this.setAttribute(EventAttributes.ONVALUECHANGE, doIt);
 	}
 
+	getOnDoubleClick() {
+		return this.getAttribute(EventAttributes.ONDOUBLECLICK);
+	}
+
+	setOnDoubleClick(doIt) {
+		this.setAttribute(EventAttributes.ONDOUBLECLICK, doIt);
+	}
+
+	getOnClick() {
+		return this.getAttribute(EventAttributes.ONCLICK);
+	}
+
+	setOnClick(doIt) {
+		this.setAttribute(EventAttributes.ONCLICK, doIt);
+	}
+
+	getOnMouseDown() {
+		return this.getAttribute(EventAttributes.ONMOUSEDOWN);
+	}
+
+	setOnMouseDown(doIt) {
+		this.setAttribute(EventAttributes.ONMOUSEDOWN, doIt);
+	}
+
+	getOnMouseUp() {
+		return this.getAttribute(EventAttributes.ONMOUSEUP);
+	}
+
+	setOnMouseUp(doIt) {
+		this.setAttribute(EventAttributes.ONMOUSEUP, doIt);
+	}
+
+	hasMouseEvent() {
+		return (this.getOnMouseUp().getValue() !== '' ||
+			this.getOnMouseDown().getValue() !== '' ||
+			this.getOnClick().getValue() !== '' ||
+			this.getOnDoubleClick().getValue() !== ''
+		);
+	}
+
 	doSaveParentRef() {
 		return (
 			this._parent &&
@@ -65,16 +105,24 @@ class EventAttributes extends AttributeList {
 		return 'eventattributes';
 	}
 
-	/**
-	 * Predefined constant to reference enabled attribute which specifies if currently used {{#crossLink
-	 * "Event"}}{{/crossLink}} should be applied or not.<br/>
-	 *
-	 * @property ENABLED
-	 * @type {String}
-	 * @static
-	 */
 	static get ONVALUECHANGE() {
 		return 'onvaluechange';
+	}
+
+	static get ONMOUSEDOWN() {
+		return 'onmousedown';
+	}
+
+	static get ONMOUSEUP() {
+		return 'onmouseup';
+	}
+
+	static get ONCLICK() {
+		return 'onclick';
+	}
+
+	static get ONDOUBLECLICK() {
+		return 'ondoubleclick';
 	}
 
 	static get TemplateID() {
@@ -95,6 +143,10 @@ class EventAttributes extends AttributeList {
 		}
 
 		addAttribute(new StringAttribute(EventAttributes.ONVALUECHANGE), '');
+		addAttribute(new StringAttribute(EventAttributes.ONCLICK), '');
+		addAttribute(new StringAttribute(EventAttributes.ONDOUBLECLICK), '');
+		addAttribute(new StringAttribute(EventAttributes.ONMOUSEDOWN), '');
+		addAttribute(new StringAttribute(EventAttributes.ONMOUSEUP), '');
 
 		return attributes.toTemplate(EventAttributes.Template_ID);
 	}

@@ -116,6 +116,10 @@ export class EventProperties extends Component {
 		const item = this.props.view.getItem();
 		return (
 			<FormGroup>
+				{this.getAttributeHandler("GraphItemProperties.OnClick", item, JSG.EventAttributes.ONCLICK)}
+				{this.getAttributeHandler("GraphItemProperties.OnDoubleClick", item, JSG.EventAttributes.ONDOUBLECLICK)}
+				{this.getAttributeHandler("GraphItemProperties.OnMouseDown", item, JSG.EventAttributes.ONMOUSEDOWN)}
+				{this.getAttributeHandler("GraphItemProperties.OnMouseUp", item, JSG.EventAttributes.ONMOUSEUP)}
 				{
 				(item instanceof JSG.SheetKnobNode) ||
 				(item instanceof JSG.SheetSliderNode) ? [

@@ -247,13 +247,12 @@ export default class ChartInfoFeedbackView extends View {
 						this.chartView.drawMapChart(graphics, view, item, serie, feature, sheet, selection, ref, index, mapInfo, true);
 					}
 					return;
-				} else {
-					values.push(value);
-					const pt = item.getFeatureCenter(features[value.index], mapInfo);
-
-					x = pt.x;
-					y = pt.y;
 				}
+				values.push(value);
+				const pt = item.getFeatureCenter(features[value.index], mapInfo);
+
+				x = pt.x;
+				y = pt.y;
 			} else {
 				item.yAxes.forEach((axis) => {
 					if (axis.categories) {

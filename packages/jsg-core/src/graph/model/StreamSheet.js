@@ -764,8 +764,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 					parent.addItem(node);
 				}
 			}
-			const json = JSON.stringify(shape);
-			if (!node._lastJSON || node._lastJSON !== json ) {
+			const jsonShape = JSON.stringify(shape);
+			if (!node._lastJSON || node._lastJSON !== jsonShape) {
 				node.fromJSON(shape);
 				if (shape.format && shape.format.pattern && shape.format.pattern.sv) {
 					node.getFormat().setPatternFromShape();
@@ -809,7 +809,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 			node.evaluate();
 			node.setRefreshNeeded(true);
-			node._lastJSON = json;
+			node._lastJSON = jsonShape;
 			parentMap[shape.id] = node;
 			itemMap[shape.id] = undefined;
 		});

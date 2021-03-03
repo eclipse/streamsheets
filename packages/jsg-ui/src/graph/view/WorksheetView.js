@@ -1021,7 +1021,8 @@ export default class WorksheetView extends ContentNodeView {
 		const cell = this.getCell(point);
 		if (cell === undefined) {
 			return WorksheetView.HitCode.NONE;
-		} else if (this.isDataView(point, cell, viewer)) {
+		}
+		if (this.isDataView(point, cell, viewer)) {
 			return WorksheetView.HitCode.DATAVIEW;
 		}
 

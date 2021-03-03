@@ -74,7 +74,7 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 				.getMachineState()
 				.getValue() === 1 ||
 			(controller.getModel().getAttributeValueAtPath('value') === undefined &&
-				controller.getModel()._sheetEvents === undefined)
+				controller.getModel().getEvents().hasMouseEvent() === false)
 		) {
 			return;
 		}
@@ -146,8 +146,8 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 			event.doRepaint = true;
 		}
 		if (controller) {
-			const events = controller.getModel()._sheetEvents;
-			if (events && events instanceof Array) {
+			const events = controller.getModel().getEvents().hasMouseEvent();
+			if (events) {
 				dispatcher.setCursor(Cursor.Style.EXECUTE);
 				event.hasActivated = true;
 			}

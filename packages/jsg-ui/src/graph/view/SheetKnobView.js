@@ -34,7 +34,6 @@ export default class SheetKnobView extends NodeView {
 		if (!Numbers.isNumber(value)) {
 			value = 0;
 		}
-		console.log(`draw ${value}`);
 
 		const textFormat = item.getTextFormat();
 
